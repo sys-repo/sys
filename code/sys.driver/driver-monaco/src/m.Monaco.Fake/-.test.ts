@@ -663,33 +663,33 @@ describe('MonacoFake (Mock)', () => {
     });
   });
 
-  describe('Host (Monaco, Editor)', () => {
+  describe('Context (Monaco, Editor)', () => {
     it('creates a host with default empty model', () => {
-      const h = MonacoFake.host(); // no args
-      expect(h).to.have.keys(['monaco', 'editor']);
+      const ctx = MonacoFake.ctx(); // no args
+      expect(ctx).to.have.keys(['monaco', 'editor']);
 
-      const model = h.editor.getModel();
+      const model = ctx.editor.getModel();
       expect(model).to.exist;
       expect(model?.getValue()).to.eql('');
     });
 
     it('wires editor to the provided model instance', () => {
       const model = MonacoFake.model('foo', { uri: 'inmemory://m/host-1' });
-      const h = MonacoFake.host(model);
+      const ctx = MonacoFake.ctx(model);
 
-      expect(h.editor.getModel()).to.eql(model); // same instance
-      expect(h.editor.getModel()?.getValue()).to.eql('foo');
+      expect(ctx.editor.getModel()).to.eql(model); // same instance
+      expect(ctx.editor.getModel()?.getValue()).to.eql('foo');
     });
 
     it('accepts a string and auto-creates a model for it', () => {
-      const h = MonacoFake.host(MonacoFake.model('alpha').getValue()); // or just 'alpha'
-      const m = h.editor.getModel();
-      expect(m?.getValue()).to.eql('alpha');
+      const ctx = MonacoFake.ctx(MonacoFake.model('alpha').getValue()); // or just 'alpha'
+      const model = ctx.editor.getModel();
+      expect(model?.getValue()).to.eql('alpha');
     });
 
     it('provides a fake monaco global compatible with Uri', () => {
-      const h = MonacoFake.host();
-      const uri = h.monaco.Uri.parse('inmemory://m/test');
+      const ctx = MonacoFake.ctx();
+      const uri = ctx.monaco.Uri.parse('inmemory://m/test');
 
       expect(uri.scheme).to.eql('inmemory');
 
@@ -700,52 +700,33 @@ describe('MonacoFake (Mock)', () => {
       expect(uri.toString()).to.eql('inmemory://m/test');
     });
     it('multiple hosts are independent (no shared editor/model/monaco)', () => {
-      const h1 = MonacoFake.host(MonacoFake.model('one', { uri: 'inmemory://m/one' }));
-      const h2 = MonacoFake.host(MonacoFake.model('two', { uri: 'inmemory://m/two' }));
+      const c1 = MonacoFake.ctx(MonacoFake.model('one', { uri: 'inmemory://m/one' }));
+      const c2 = MonacoFake.ctx(MonacoFake.model('two', { uri: 'inmemory://m/two' }));
 
-      expect(h1).to.not.equal(h2);
-      expect(h1.editor).to.not.equal(h2.editor);
-      expect(h1.editor.getModel()).to.not.equal(h2.editor.getModel());
-      expect(h1.monaco).to.not.equal(h2.monaco);
+      expect(c1).to.not.equal(c2);
+      expect(c1.editor).to.not.equal(c2.editor);
+      expect(c1.editor.getModel()).to.not.equal(c2.editor.getModel());
+      expect(c1.monaco).to.not.equal(c2.monaco);
 
-      expect(h1.editor.getModel()?.getValue()).to.eql('one');
-      expect(h2.editor.getModel()?.getValue()).to.eql('two');
+      expect(c1.editor.getModel()?.getValue()).to.eql('one');
+      expect(c2.editor.getModel()?.getValue()).to.eql('two');
     });
 
     it('asMonaco/asEditor/asModel return typed views of the same instances', () => {
-      const base = MonacoFake.host(MonacoFake.model('cast', { uri: 'inmemory://m/cast' }));
+      const base = MonacoFake.ctx(MonacoFake.model('cast', { uri: 'inmemory://m/cast' }));
       const monaco = MonacoFake.asMonaco(base.monaco);
       const editor = MonacoFake.asEditor(base.editor);
       const model = MonacoFake.asModel(base.editor.getModel()!);
 
-      // identity (no wrapping)
-      expect(monaco).to.eql(base.monaco);
-      expect(editor).to.eql(base.editor);
-      expect(model).to.eql(base.editor.getModel());
+      // Same instance:
+      expect(monaco).to.equal(base.monaco);
+      expect(editor).to.equal(base.editor);
+      expect(model).to.equal(base.editor.getModel());
 
-      // sanity on types/behavior still intact
+      // Sanity check on types/behavior still intact:
       const uri = monaco.Uri.from({ scheme: 'inmemory', authority: 'm', path: 'cast' });
       expect(uri.toString()).to.eql('inmemory://m/cast');
       expect(model.getValue()).to.eql('cast');
     });
   });
 });
-
-/**
- * Helpers:
- */
-
-const makeRange = (
-  model: t.Monaco.TextModel,
-  startOffset: number,
-  endOffset: number,
-): t.Monaco.I.IRange => {
-  const s = model.getPositionAt(startOffset);
-  const e = model.getPositionAt(endOffset);
-  return {
-    startLineNumber: s.lineNumber,
-    startColumn: s.column,
-    endLineNumber: e.lineNumber,
-    endColumn: e.column,
-  };
-};
