@@ -62,10 +62,11 @@ export async function buildAndCopy(
   let stderr: string | undefined;
 
   if (options.build ?? true) {
+    // Run build command:
     const pkg: t.Pkg = { name: denofile.name ?? 'Unnamed', version: denofile.version ?? '0.0.0' };
     let label = c.gray(`building: ${c.green(pkg.name)} → ${c.cyan(`/${targetDir}`)}`);
     const spinner = Cli.spinner(label + '\n');
-    const res = await sh.run('deno task test && deno task build');
+    const res = await sh.run('deno -q task test && deno -q task build');
     spinner.stop();
 
     if (!res.success) {
@@ -96,7 +97,7 @@ export async function buildAndCopy(
 }
 
 /**
- * Copy in the public/static assets to the dist folder.
+ * Copy in the `public/static` assets to the dist folder.
  */
 export async function copyPublic(sourceDir: t.StringDir, targetDir: t.StringRelativeDir) {
   const glob = Fs.glob(sourceDir);
