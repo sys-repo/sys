@@ -51,7 +51,7 @@ export const LayoutHost: React.FC<LayoutHostProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={theme.name} borderOpacity={0.08} size={{ mode: 'fill', margin: 60 }}>
+      <Cropmarks theme={theme.name} borderOpacity={0.12} size={{ mode: 'fill', margin: 60 }}>
         <LayoutCenterColumn center={elCenter} align={data.align as any} />
       </Cropmarks>
     </div>
