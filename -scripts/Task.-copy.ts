@@ -94,7 +94,74 @@ export async function copyFiles() {
  * Sub-command: Copy Types
  */
 export async function copyTypes() {
-  console.info(c.gray('\nCopy Types: (stub) 🐷\n'));
+  const dir = Fs.cwd('terminal');
+
+  /**
+   * Filenames used for consolidated type surfaces in the repo:
+   *     - t.ts
+   *     - t.<segment>.ts
+   *     - t.<segment>.<segment>.ts
+   * This helper matches those basenames exactly, keeping the intent obvious.
+   */
+  const isTypesFile = (path: string) => {
+    const base = Fs.basename(path);
+    return /^t(?:\.[A-Za-z0-9_-]+)*\.ts$/.test(base);
+  };
+
+  // Gather all non-directory entries, then filter to type files by basename rule.
+  const allPaths = (await Fs.glob(dir).find('**', { includeDirs: false })).map((f) => f.path);
+  const paths = allPaths.filter(isTypesFile);
+
+  const defaultChecked = (path: string) => {
+    return true;
+  };
+
+  const options = paths
+    .map((path) => {
+      const name = path.slice(dir.length + 1);
+      const checked = defaultChecked(path);
+      return {
+        name: checked ? c.green(name) : name,
+        value: path,
+        checked,
+      };
+    })
+    // Sort for human legibility: shallow first, then alpha by relative path.
+    .sort((a, b) => a.value.localeCompare(b.value));
+
+  console.info(Str.SPACE);
+  console.info(c.gray(`Total: ${paths.length} type files`));
+
+  const selected = await Cli.Prompt.Checkbox.prompt({
+    message: 'Select type files to copy:\n',
+    options,
+    check: c.green('●'),
+    uncheck: c.gray(c.dim('○')),
+    maxRows: 20,
+  });
+
+  if (selected.length > 0) {
+    const text = await pathsToFileStrings(selected);
+    const lines = text
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    Cli.copyToClipboard(text);
+
+    const total = selected.length;
+    const filesLabel = Str.plural(total, 'file', 'files');
+    const linesLabel = Str.plural(lines.length, 'line', 'lines');
+
+    let msg = '\n';
+    msg += `${total.toLocaleString()} ${filesLabel}`;
+    msg += ` (${c.white(c.bold(`${lines.length.toLocaleString()} ${linesLabel}`))})`;
+    msg += ` copied to clipboard\n`;
+
+    console.info(c.gray(msg));
+  } else {
+    console.info(c.gray('\nNo type files selected.\n'));
+  }
 }
 
 /**
