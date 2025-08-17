@@ -84,16 +84,17 @@ export const Repo: React.FC<P> = (props) => {
  */
 const wrangle = {
   tooltips(repo: t.Crdt.Repo, enabled: boolean) {
+    const servers = repo.sync.urls.map((url) => `• ${url}`).join('\n');
     return {
       peer: enabled ? wrangle.tooltip.peer(repo, enabled) : 'Offline',
-      network: enabled ? 'Online' : 'Offline',
+      network: enabled ? `Online: \n${servers}` : 'Offline',
     } as const;
   },
 
   tooltip: {
     peer(repo: t.Crdt.Repo, enabled: boolean) {
       const peers = repo.sync.peers;
-      const title = `Sync Peers${Str.plural(peers.length, '', '(s)')}: `;
+      const title = `CRDT Sync Peer${Str.plural(peers.length, '', 's')}: `;
       let names = peers
         .map((n) => `• ${n}`)
         .join('\n')
