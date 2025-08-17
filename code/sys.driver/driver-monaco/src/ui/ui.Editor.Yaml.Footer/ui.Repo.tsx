@@ -94,12 +94,16 @@ const wrangle = {
   tooltip: {
     peer(repo: t.Crdt.Repo, enabled: boolean) {
       const peers = repo.sync.peers;
-      const title = `CRDT Sync Peer${Str.plural(peers.length, '', 's')}: `;
-      let names = peers
-        .map((n) => `• ${n}`)
-        .join('\n')
-        .trimEnd();
-      if (peers.length > 1) names = `\n${names}`;
+      const total = peers.length;
+      const title = `Sync Peer${Str.plural(total, '', 's')}`;
+      let names =
+        total === 1
+          ? peers[0]
+          : peers
+              .map((n) => `• ${n}`)
+              .join('\n')
+              .trimEnd();
+      if (total > 1) names = `\n${names}`;
       return `${title}: ${names}`;
     },
   },
