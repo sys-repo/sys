@@ -1,11 +1,10 @@
 import { type t, MonacoFake, describe, expect, it, rx } from '../../-test.ts';
-import { EditorCrdt, useBinding } from './mod.ts';
+import { EditorCrdt } from './mod.ts';
 
 describe('Monaco/Crdt', () => {
   it('API', async () => {
     const m = await import('@sys/driver-monaco');
     expect(m.Monaco.Crdt).to.equal(EditorCrdt);
-    expect(m.Monaco.Crdt.useBinding).to.equal(useBinding);
   });
 
   describe('Crdt.registerLink', () => {
@@ -28,7 +27,7 @@ describe('Monaco/Crdt', () => {
       const model = MonacoFake.model(src, { uri: 'inmemory://m/alpha' });
 
       let ev: t.OnCrdtLinkClick | undefined;
-      const life = EditorCrdt.registerLink(ready(model, monaco), {
+      const life = EditorCrdt.Link.register(ready(model, monaco), {
         language: 'yaml',
         onLinkClick: (e) => (ev = e),
       });
@@ -66,7 +65,7 @@ describe('Monaco/Crdt', () => {
       const model = MonacoFake.model('x crdt:create y', { uri: 'inmemory://m/create' });
 
       let ev: t.OnCrdtLinkClick | undefined;
-      const life = EditorCrdt.registerLink(ready(model, monaco), (e) => (ev = e)); // handler shorthand
+      const life = EditorCrdt.Link.register(ready(model, monaco), (e) => (ev = e)); // handler shorthand
 
       const list = monaco.languages._provideLinks('yaml', model)!;
       const uri = list.links[0]!.url as t.Monaco.Uri;
@@ -86,7 +85,7 @@ describe('Monaco/Crdt', () => {
       const model = MonacoFake.model('crdt:abc/x');
 
       // Register under 'json' not 'yaml':
-      const life = EditorCrdt.registerLink(ready(model, monaco), {
+      const life = EditorCrdt.Link.register(ready(model, monaco), {
         language: 'json',
         onLinkClick: () => {},
       });
@@ -106,7 +105,7 @@ describe('Monaco/Crdt', () => {
       const monaco = MonacoFake.monaco();
       const model = MonacoFake.model('crdt:abc/x', { uri: 'inmemory://m/life' });
 
-      const life = EditorCrdt.registerLink(ready(model, monaco), { onLinkClick: () => {} });
+      const life = EditorCrdt.Link.register(ready(model, monaco), { onLinkClick: () => {} });
 
       // Links exist pre-dispose
       const list = monaco.languages._provideLinks('yaml', model);
@@ -130,7 +129,7 @@ describe('Monaco/Crdt', () => {
       const model = MonacoFake.model(src, { uri: 'inmemory://m/round' });
 
       let ev: t.OnCrdtLinkClick | undefined;
-      const life = EditorCrdt.registerLink(ready(model, monaco), { onLinkClick: (e) => (ev = e) });
+      const life = EditorCrdt.Link.register(ready(model, monaco), { onLinkClick: (e) => (ev = e) });
 
       const list = monaco.languages._provideLinks('yaml', model)!;
       const link = list.links[0]!;

@@ -2,7 +2,7 @@ import { type t, rx } from './common.ts';
 
 const TOKEN = /\bcrdt:(create\b|[A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~\-/]+)*)\b/g;
 
-export const registerLink: t.EditorCrdtRegisterLink = (e, opt = {}) => {
+export const register: t.EditorCrdtRegisterLink = (e, opt = {}) => {
   const options = wrangle.options(opt);
   const { language = 'yaml', onLinkClick } = options;
   const life = rx.lifecycle(options.until);
@@ -109,6 +109,10 @@ export const registerLink: t.EditorCrdtRegisterLink = (e, opt = {}) => {
     subProvider.dispose();
   });
   return life;
+};
+
+export const Link: t.EditorCrdtLinkLib = {
+  register,
 };
 
 /**

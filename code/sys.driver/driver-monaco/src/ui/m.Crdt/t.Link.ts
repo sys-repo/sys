@@ -1,6 +1,14 @@
 import { type t } from './common.ts';
 
 /**
+ * Tools for working with "crdt:<id>/path" URI links
+ * within the code editor.
+ */
+export type EditorCrdtLinkLib = Readonly<{
+  register: t.EditorCrdtRegisterLink;
+}>;
+
+/**
  * Register CRDT link detection + opener; lifecycle-managed.
  */
 export type EditorCrdtRegisterLink = (

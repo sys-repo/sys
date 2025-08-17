@@ -9,5 +9,5 @@ export type * from './t.Link.ts';
 export type EditorCrdtLib = Readonly<{
   bind: t.EditorCrdtBind;
   useBinding: t.UseEditorCrdtBinding;
-  registerLink: t.EditorCrdtRegisterLink;
+  Link: t.EditorCrdtLinkLib;
 }>;
