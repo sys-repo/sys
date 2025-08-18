@@ -88,7 +88,7 @@ export const register: t.EditorCrdtRegisterLink = (e, opt = {}) => {
 
       const model = { uri: modelUri };
       const bounds: t.EditorLinkBounds = { model, start, end, range, startOffset, endOffset };
-      const ev: t.OnCrdtLinkClick = {
+      const ev: t.EditorCrdtLinkClick = {
         model,
         raw,
         is: { create: isCreate },

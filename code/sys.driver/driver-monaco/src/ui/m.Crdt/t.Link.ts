@@ -13,23 +13,23 @@ export type EditorCrdtLinkLib = Readonly<{
  */
 export type EditorCrdtRegisterLink = (
   e: t.MonacoCtx,
-  options?: t.EditorCrdtRegisterLinkOptions | t.OnCrdtLinkClickHandler,
+  options?: t.EditorCrdtRegisterLinkOptions | t.EditorCrdtLinkClickHandler,
 ) => t.Lifecycle;
 
 /** Options passed to the `Crdt.registerLink` method. */
 export type EditorCrdtRegisterLinkOptions = {
   language?: t.EditorLanguage;
-  onLinkClick?: t.OnCrdtLinkClickHandler;
+  onLinkClick?: t.EditorCrdtLinkClickHandler;
   until?: t.UntilInput;
 };
 
 /**
- * Event handler for click actions on inline registered link structures
- * within the code-editor.
+ * Event handler for click actions on inline registered
+ * link structures within the code-editor.
  */
-export type OnCrdtLinkClickHandler = (e: OnCrdtLinkClick) => void;
+export type EditorCrdtLinkClickHandler = (e: EditorCrdtLinkClick) => void;
 /** Event arguments for when a link is CMD clicked within the code-editor. */
-export type OnCrdtLinkClick = {
+export type EditorCrdtLinkClick = {
   /** Details about the editor text-model. */
   model: {
     /** URI of the editor text-model the link exists within.  */
