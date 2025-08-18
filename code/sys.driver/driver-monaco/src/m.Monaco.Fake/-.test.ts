@@ -137,6 +137,52 @@ describe('MonacoFake (Mock)', () => {
         expect(() => m.editor._open(uri)).to.throw(/No link opener registered/);
       });
     });
+
+    describe('create/get model', () => {
+      it('creates a model with value, uri, and position', () => {
+        const monaco = MonacoFake.monaco();
+        const model = monaco.editor.createModel('hello world', 'plaintext');
+
+        expect(model.getValue()).to.eql('hello world');
+        expect(model.uri).to.be.ok;
+
+        const s = model.uri.toString(true);
+        expect(s.startsWith('inmemory:')).to.eql(true);
+        expect(s).to.include('/model/'); // ← path segment
+
+        // `setValue` updates buffer:
+        model.setValue('updated');
+        expect(model.getValue()).to.eql('updated');
+
+        // `getPositionAt` returns a position:
+        const pos = model.getPositionAt(3);
+        expect(pos.lineNumber).to.eql(1);
+        expect(pos.column).to.eql(4);
+      });
+
+      it('registers created models into the registry', () => {
+        const monaco = MonacoFake.monaco();
+        const modelA = monaco.editor.createModel('A');
+        const modelB = monaco.editor.createModel('B');
+
+        const all = monaco.editor.getModels();
+        expect(all.length).to.eql(2);
+        expect(all.map((m) => m.getValue())).to.eql(['A', 'B']);
+
+        const foundA = monaco.editor.getModel(modelA.uri);
+        const foundB = monaco.editor.getModel(modelB.uri);
+        expect(foundA).to.equal(modelA);
+        expect(foundB).to.equal(modelB);
+      });
+
+      it('returns null when getModel is called with unknown uri', () => {
+        const monaco = MonacoFake.monaco();
+        const fakeUri = monaco.Uri.from({ scheme: 'inmemory', path: 'nope' });
+
+        const found = monaco.editor.getModel(fakeUri);
+        expect(found).to.equal(null);
+      });
+    });
   });
 
   describe('TextModel', () => {

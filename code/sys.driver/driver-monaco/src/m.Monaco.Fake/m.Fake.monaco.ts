@@ -7,10 +7,41 @@ export const fakeMonaco = (): t.FakeMonacoGlobal => {
   type P = { provideLinks: (m: t.Monaco.TextModel) => t.Monaco.I.ILinksList };
   const providers = new Map<string, P>();
   let opener: { open(uri: t.Monaco.Uri): boolean | Promise<boolean> } | undefined;
+  const disposable = (dispose: () => void): t.Monaco.I.IDisposable => ({ dispose });
 
-  const disposable = (onDispose: () => void): t.Monaco.I.IDisposable => ({
-    dispose: onDispose,
-  });
+  const models = new Map<string, t.Monaco.TextModel>();
+  let modelCounter = 0;
+
+  const positionAt = (text: string, offset: number) => {
+    // Simple single-line impl good enough for tests; expand if needed.
+    const lineNumber = 1;
+    const column = offset + 1;
+    return { lineNumber, column };
+  };
+
+  const createTextModel = (
+    value: string,
+    languageId?: string,
+    uri?: t.Monaco.Uri,
+  ): t.Monaco.TextModel => {
+    const id = ++modelCounter;
+    const theUri = uri ?? Uri.from({ scheme: 'inmemory', path: `model/${id}` });
+
+    let contents = value;
+
+    const model: t.Monaco.TextModel = {
+      uri: theUri,
+      getValue: () => contents,
+      setValue: (next: string) => {
+        contents = next;
+      },
+      getPositionAt: (offset: number) => positionAt(contents, offset),
+      // add more methods if your tests need them later
+    } as unknown as t.Monaco.TextModel;
+
+    models.set(theUri.toString(true), model);
+    return model;
+  };
 
   const languages = {
     registerLinkProvider(
@@ -40,6 +71,18 @@ export const fakeMonaco = (): t.FakeMonacoGlobal => {
     _open(uri: t.Monaco.Uri) {
       if (!opener) throw new Error('No link opener registered');
       return opener.open(uri);
+    },
+
+    createModel(value: string, languageId?: string, uri?: t.Monaco.Uri) {
+      return createTextModel(value, languageId, uri);
+    },
+
+    getModels(): t.Monaco.TextModel[] {
+      return [...models.values()];
+    },
+
+    getModel(uri: t.Monaco.Uri): t.Monaco.TextModel | null {
+      return models.get(uri.toString(true)) ?? null;
     },
   };
 
@@ -90,11 +133,12 @@ export const Uri = {
 
   from(parts: { scheme: string; authority?: string; path?: string; query?: string }): t.Monaco.Uri {
     const scheme = parts.scheme ?? '';
-    const authority = parts.authority ?? '';
-    const path = (parts.path ?? '').replace(/^\/+/, '');
-    const query = parts.query ?? '';
+    const authority = parts.authority?.replace(/^\/+/, '') ?? ''; //  ← guard odd inputs
+    const path = (parts.path ?? '').replace(/^\/+/, ''); //           ← store sans leading slash
+    const query = (parts.query ?? '').replace(/^\?+/, ''); //         ← store sans leading '?'
 
-    const toString = (_?: boolean): string => {
+    const toString = (/* skipEncoding?: boolean */ _?: boolean): string => {
+      // (Real Monaco uses skipEncoding; safely ignored in the fake.)
       const p = path ? `/${path}` : '';
       const q = query ? `?${query}` : '';
       return authority ? `${scheme}://${authority}${p}${q}` : `${scheme}:${p}${q}`;

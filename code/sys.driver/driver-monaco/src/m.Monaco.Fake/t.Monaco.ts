@@ -31,12 +31,35 @@ export type FakeMonacoGlobal = Readonly<{
 
     /** Test hook: call the first registered opener. */
     _open(uri: t.Monaco.Uri): boolean | Promise<boolean>;
+
+    /**
+     * Create a new text model.
+     * Real Monaco: monaco.editor.createModel(value, languageId?, uri?)
+     */
+    createModel(value: string, languageId?: string, uri?: t.Monaco.Uri): t.Monaco.TextModel;
+
+    /**
+     * Get a model by its URI.
+     * Real Monaco: monaco.editor.getModel(uri)
+     */
+    getModel(uri: t.Monaco.Uri): t.Monaco.TextModel | null;
+
+    /**
+     * Get all models.
+     * Real Monaco: monaco.editor.getModels()
+     */
+    getModels(): t.Monaco.TextModel[];
   };
 
   Uri: {
     /** Parse a string `scheme:path?query` (very small subset). */
     parse(input: string): t.Monaco.Uri;
     /** Create from parts (scheme/path/query). */
-    from(parts: { scheme: string; path?: string; query?: string }): t.Monaco.Uri;
+    from(parts: {
+      scheme: string;
+      path?: string;
+      query?: string;
+      authority?: string;
+    }): t.Monaco.Uri;
   };
 }>;
