@@ -1,6 +1,6 @@
 {
   "name": "@sys/text",
-  "version": "0.0.105",
+  "version": "0.0.106",
   "license": "MIT",
   "tasks": {
     "test": "deno test -RWE",
@@ -12,6 +12,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./fuzzy": "./src/m.Fuzzy/mod.ts"
+    "./fuzzy": "./src/m.Fuzzy/mod.ts",
+    "./gpt": "./src/m.Gpt/mod.ts"
   }
 }
