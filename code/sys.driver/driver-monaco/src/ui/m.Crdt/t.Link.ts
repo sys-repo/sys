@@ -1,18 +1,24 @@
 import { type t } from './common.ts';
 
+/** Namespace */
+export namespace EditorCrdtLink {
+  export type CreateResult = { uri: t.StringUri; doc: t.Crdt.Ref };
+}
+
 /**
  * Tools for working with "crdt:<id>/path" URI links
  * within the code editor.
  */
 export type EditorCrdtLinkLib = Readonly<{
   register: t.EditorCrdtRegisterLink;
+  create: t.EditorCrdtLinkCreateDoc;
 }>;
 
 /**
  * Register CRDT link detection + opener; lifecycle-managed.
  */
 export type EditorCrdtRegisterLink = (
-  e: t.MonacoCtx,
+  ctx: t.MonacoCtx,
   options?: t.EditorCrdtRegisterLinkOptions | t.EditorCrdtLinkClickHandler,
 ) => t.Lifecycle;
 
@@ -29,7 +35,7 @@ export type EditorCrdtRegisterLinkOptions = {
  */
 export type EditorCrdtLinkClickHandler = (e: EditorCrdtLinkClick) => void;
 /** Event arguments for when a link is CMD clicked within the code-editor. */
-export type EditorCrdtLinkClick = {
+export type EditorCrdtLinkClick = Readonly<{
   /** Details about the editor text-model. */
   model: {
     /** URI of the editor text-model the link exists within.  */
@@ -46,4 +52,25 @@ export type EditorCrdtLinkClick = {
   };
   /** Snapshot of a detected inline link within a Monaco text model. */
   bounds: t.EditorLinkBounds;
+}>;
+
+/**
+ * Creates a new CRDT document via the given repo and inserts
+ * its `crdt:<id>` link into the editor at the specified bounds.
+ *
+ * Use case: this is triggered typically via a click on
+ * the "crdt:create" link action.
+ */
+export type EditorCrdtLinkCreateDoc = (
+  ctx: t.MonacoCtx,
+  repo: t.Crdt.Repo,
+  bounds: t.EditorLinkBounds,
+) => EditorCrdtLinkCreateResult;
+
+/**
+ * Result from `EditorCrdtLink.create`.
+ */
+export type EditorCrdtLinkCreateResult = {
+  doc?: t.Crdt.Ref;
+  error?: t.StdError;
 };

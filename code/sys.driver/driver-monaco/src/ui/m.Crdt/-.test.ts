@@ -26,7 +26,7 @@ describe('Monaco/Crdt', () => {
       const src = 'foo crdt:abc/one/two bar';
       const model = MonacoFake.model(src, { uri: 'inmemory://m/alpha' });
 
-      let ev: t.OnCrdtLinkClick | undefined;
+      let ev: t.EditorCrdtLinkClick | undefined;
       const life = EditorCrdt.Link.register(ready(model, monaco), {
         language: 'yaml',
         onLinkClick: (e) => (ev = e),
@@ -64,7 +64,7 @@ describe('Monaco/Crdt', () => {
       const monaco = MonacoFake.monaco();
       const model = MonacoFake.model('x crdt:create y', { uri: 'inmemory://m/create' });
 
-      let ev: t.OnCrdtLinkClick | undefined;
+      let ev: t.EditorCrdtLinkClick | undefined;
       const life = EditorCrdt.Link.register(ready(model, monaco), (e) => (ev = e)); // handler shorthand
 
       const list = monaco.languages._provideLinks('yaml', model)!;
@@ -128,7 +128,7 @@ describe('Monaco/Crdt', () => {
       const src = 'alpha\nbravo crdt:xyz/state tango\ncharlie';
       const model = MonacoFake.model(src, { uri: 'inmemory://m/round' });
 
-      let ev: t.OnCrdtLinkClick | undefined;
+      let ev: t.EditorCrdtLinkClick | undefined;
       const life = EditorCrdt.Link.register(ready(model, monaco), { onLinkClick: (e) => (ev = e) });
 
       const list = monaco.languages._provideLinks('yaml', model)!;
