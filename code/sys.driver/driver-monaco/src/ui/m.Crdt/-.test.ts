@@ -1,6 +1,7 @@
 import { type t, MonacoFake, describe, expect, it, rx } from '../../-test.ts';
 import { Crdt } from './common.ts';
 import { EditorCrdt } from './mod.ts';
+import { __test as RegisterTest } from './u.Link.register.ts';
 
 describe('Monaco/Crdt', () => {
   it('API', async () => {
@@ -244,6 +245,271 @@ describe('Monaco/Crdt', () => {
         expect(afterPos?.column).to.eql(beforePos?.column);
       });
     });
+
+    describe('Link.enable', () => {
+      const repo = Crdt.repo();
+
+      it('registers a listener and, on create-event, inserts token and calls onCreate', () => {
+        // Arrange.
+        const ctx = MonacoFake.ctx();
+        const { editor } = ctx;
+
+        const model = editor.getModel()!;
+        model.setValue('alpha crdt:create omega');
+
+        const placeholder = 'crdt:create';
+        const { range, startOffset } = substringBounds(model, placeholder);
+
+        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        const life = EditorCrdt.Link.enable(ctx, repo, {
+          onCreate: (res) => (onCreateCalled = res),
+        });
+
+        // Sanity: test hook captured the handler.
+        expect(RegisterTest.lastHandler).to.be.a('function');
+
+        // Act: simulate a link "create" click event (full event shape).
+        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+          model,
+          range,
+          startOffset,
+          create: true,
+          raw: 'crdt:create',
+        });
+
+        RegisterTest.lastHandler!(ev);
+
+        // Assert: onCreate called with { doc }.
+        expect(onCreateCalled).to.be.ok;
+        expect(onCreateCalled!.error).to.equal(undefined);
+        expect(onCreateCalled!.doc).to.be.ok;
+
+        // Assert: buffer updated with `crdt:<id>` and placeholder removed.
+        const token = `crdt:${onCreateCalled!.doc!.id}`;
+        const value = model.getValue();
+        expect(value).to.not.include(placeholder);
+        expect(value).to.include(token);
+
+        // Assert: token occurs exactly once.
+        const escaped = token.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const occurrences = (value.match(new RegExp(escaped, 'g')) ?? []).length;
+        expect(occurrences).to.eql(1);
+
+        // Assert: caret positioned at end of token.
+        const expectedPos = model.getPositionAt(startOffset + token.length);
+        const pos = editor.getPosition();
+        expect(pos?.lineNumber).to.eql(expectedPos.lineNumber);
+        expect(pos?.column).to.eql(expectedPos.column);
+
+        // Cleanup.
+        life.dispose();
+      });
+
+      it('returns { error } via onCreate and performs no edits when bounds.model.uri != active model', () => {
+        // Arrange
+        const ctx = MonacoFake.ctx();
+        const { monaco, editor } = ctx;
+
+        const modelA = editor.getModel()!;
+        modelA.setValue('xxx crdt:create yyy');
+        const modelB = monaco.editor.createModel('hello world', 'plaintext');
+
+        const { range, startOffset } = substringBounds(modelA, 'crdt:create');
+
+        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        const life = EditorCrdt.Link.enable(ctx, repo, {
+          onCreate: (res) => (onCreateCalled = res),
+        });
+
+        const before = modelA.getValue();
+        const beforePos = editor.getPosition();
+
+        // Act: simulate event that points to the *other* model
+        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+          model: modelB,
+          range,
+          startOffset,
+          create: true,
+          raw: 'crdt:create',
+        });
+
+        RegisterTest.lastHandler!(ev);
+
+        // Assert: onCreate called with error, no doc.
+        expect(onCreateCalled).to.be.ok;
+        expect(onCreateCalled!.doc).to.equal(undefined);
+        expect(onCreateCalled!.error).to.be.ok;
+        expect(onCreateCalled!.error!.message).to.be.a('string').and.to.include('model');
+
+        // Assert: no buffer change and caret unchanged.
+        const after = modelA.getValue();
+        expect(after).to.eql(before);
+        const afterPos = editor.getPosition();
+        expect(afterPos?.lineNumber).to.eql(beforePos?.lineNumber);
+        expect(afterPos?.column).to.eql(beforePos?.column);
+
+        // Cleanup.
+        life.dispose();
+      });
+
+      it('ignores non-create events', () => {
+        // Arrange.
+        const ctx = MonacoFake.ctx();
+        const { editor } = ctx;
+        const model = editor.getModel()!;
+        model.setValue('hello world');
+
+        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        const life = EditorCrdt.Link.enable(ctx, repo, {
+          onCreate: (res) => (onCreateCalled = res),
+        });
+
+        const before = model.getValue();
+
+        // Act: simulate a non-create event (full event shape)
+        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+          model,
+          range: { startLineNumber: 1, startColumn: 1, endLineNumber: 1, endColumn: 1 },
+          startOffset: 0,
+          create: false,
+          raw: 'crdt:something',
+        });
+
+        RegisterTest.lastHandler!(ev);
+
+        // Assert: no callback, no changes.
+        expect(onCreateCalled).to.equal(undefined);
+        const after = model.getValue();
+        expect(after).to.eql(before);
+
+        // Cleanup.
+        life.dispose();
+      });
+
+      it('does nothing when disposed', () => {});
+
+      it('does nothing when disposed (dispose returned lifecycle)', () => {
+        const ctx = MonacoFake.ctx();
+        const { editor } = ctx;
+        const model = editor.getModel()!;
+        model.setValue('alpha crdt:create omega');
+
+        const placeholder = 'crdt:create';
+        const { range, startOffset } = substringBounds(model, placeholder);
+
+        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        const life = EditorCrdt.Link.enable(ctx, repo, {
+          onCreate: (res) => (onCreateCalled = res),
+        });
+
+        // Sanity: handler present.
+        expect(RegisterTest.lastHandler).to.be.a('function');
+
+        // Dispose the behavior.
+        life.dispose();
+
+        // After dispose, test hook should be cleared (or the handler should no-op)
+        // Simulate a click event after disposal
+        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+          model,
+          range,
+          startOffset,
+          create: true,
+          raw: 'crdt:create',
+        });
+
+        const before = model.getValue();
+        const beforePos = editor.getPosition();
+        if (RegisterTest.lastHandler) RegisterTest.lastHandler(ev);
+
+        // Assert: no callback, no edits, caret unchanged.
+        expect(onCreateCalled).to.eql(undefined);
+
+        const after = model.getValue();
+        expect(after).to.eql(before);
+
+        const afterPos = editor.getPosition();
+        expect(afterPos?.lineNumber).to.eql(beforePos?.lineNumber);
+        expect(afterPos?.column).to.eql(beforePos?.column);
+      });
+
+      it('does nothing when external `until` lifecycle is disposed', () => {
+        const ctx = MonacoFake.ctx();
+        const { editor } = ctx;
+        const model = editor.getModel()!;
+        model.setValue('alpha crdt:create omega');
+
+        const placeholder = 'crdt:create';
+        const { range, startOffset } = substringBounds(model, placeholder);
+
+        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        const until = rx.lifecycle();
+        const life = EditorCrdt.Link.enable(ctx, repo, {
+          until,
+          onCreate: (res) => (onCreateCalled = res),
+        });
+
+        // Sanity: handler present.
+        expect(RegisterTest.lastHandler).to.be.a('function');
+
+        // Dispose via external lifecycle.
+        until.dispose();
+
+        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+          model,
+          range,
+          startOffset,
+          create: true,
+          raw: 'crdt:create',
+        });
+
+        const before = model.getValue();
+        const beforePos = editor.getPosition();
+        if (RegisterTest.lastHandler) RegisterTest.lastHandler(ev);
+
+        // Assert: no callback, no edits, caret unchanged
+        expect(onCreateCalled).to.equal(undefined);
+
+        const after = model.getValue();
+        expect(after).to.eql(before);
+
+        const afterPos = editor.getPosition();
+        expect(afterPos?.lineNumber).to.eql(beforePos?.lineNumber);
+        expect(afterPos?.column).to.eql(beforePos?.column);
+
+        // Clean up the main lifecycle too (no-op if already ended)
+        life.dispose();
+      });
+    });
+
+    /**
+     * Build a valid EditorCrdtLinkClick with the required fields.
+     */
+    function makeClickEvent(input: {
+      model: t.Monaco.TextModel;
+      range: t.Monaco.I.IRange;
+      startOffset: number;
+      create: boolean;
+      raw: string;
+    }): t.EditorCrdtLinkClick {
+      const { model, range, startOffset, create, raw } = input;
+      const bounds: t.EditorLinkBounds = {
+        model: { uri: model.uri },
+        range,
+        startOffset,
+      } as unknown as t.EditorLinkBounds;
+
+      // If your t.ObjectPath has a factory, use it; otherwise an empty path is fine for tests.
+      const path = [] as unknown as t.ObjectPath;
+
+      return {
+        model: { uri: model.uri },
+        raw,
+        path,
+        is: { create },
+        bounds,
+      } as const;
+    }
   });
 });
 

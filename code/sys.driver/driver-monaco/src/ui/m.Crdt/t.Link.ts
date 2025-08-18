@@ -1,10 +1,5 @@
 import { type t } from './common.ts';
 
-/** Namespace */
-export namespace EditorCrdtLink {
-  export type CreateResult = { uri: t.StringUri; doc: t.Crdt.Ref };
-}
-
 /**
  * Tools for working with "crdt:<id>/path" URI links
  * within the code editor.
@@ -12,6 +7,7 @@ export namespace EditorCrdtLink {
 export type EditorCrdtLinkLib = Readonly<{
   register: t.EditorCrdtRegisterLink;
   create: t.EditorCrdtLinkCreateDoc;
+  enable: t.EditorCrdtLinkEnable;
 }>;
 
 /**
@@ -74,3 +70,16 @@ export type EditorCrdtLinkCreateResult = {
   doc?: t.Crdt.Ref;
   error?: t.StdError;
 };
+
+/**
+ * Registers a link listener on the given editor context and
+ * handles events such as `crdt:create` by invoking `Link.create` etc.
+ */
+export type EditorCrdtLinkEnable = (
+  ctx: t.MonacoCtx,
+  repo: t.Crdt.Repo,
+  options?: {
+    onCreate?: (e: t.EditorCrdtLinkCreateResult) => void;
+    until?: t.UntilInput;
+  },
+) => t.Lifecycle;

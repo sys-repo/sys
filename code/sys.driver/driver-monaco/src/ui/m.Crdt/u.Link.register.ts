@@ -2,12 +2,23 @@ import { type t, rx } from './common.ts';
 
 const TOKEN = /\bcrdt:(create\b|[A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~\-/]+)*)\b/g;
 
+/**
+ * Test hook:
+ */
+export const __test = {
+  lastHandler: undefined as t.EditorCrdtLinkClickHandler | undefined,
+};
+
+/**
+ * Method:
+ */
 export const register: t.EditorCrdtRegisterLink = (ctx, opt) => {
   const { monaco, editor } = ctx;
 
   const options = wrangle.options(opt);
   const { language = 'yaml', onLinkClick } = options;
   const life = rx.lifecycle(options.until);
+  __test.lastHandler = onLinkClick;
 
   const subProvider = monaco.languages.registerLinkProvider(language, {
     provideLinks(model): t.Monaco.I.ILinksList {
@@ -56,6 +67,7 @@ export const register: t.EditorCrdtRegisterLink = (ctx, opt) => {
 
   const subOpener = monaco.editor.registerLinkOpener({
     open(uri) {
+      if (life.disposed) return false;
       if (uri.scheme !== 'crdt') return false;
 
       const params = new URLSearchParams(uri.query || '');
