@@ -6,7 +6,6 @@ import { MonacoEditor } from '../../ui.Editor.Monaco/mod.ts';
 
 import { type t, Color, D, EditorFolding } from '../common.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
-import { sampleInterceptLink } from './-u.link.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -67,8 +66,12 @@ export default Spec.describe(D.displayName, async (e) => {
           const folding = EditorFolding.observe(e.editor);
           folding.$.subscribe((e) => (p.hiddenAreas.value = e.areas));
 
-          // (🐷) Custom link intercepts:
-          sampleInterceptLink(e);
+          if (repo) {
+            Monaco.Crdt.Link.enable(e, repo, {
+              onCreate: (ev) => console.info('Monaco.Crdt.Link.enable → ⚡️ onCreate:', ev),
+              until: e.dispose$,
+            });
+          }
         }}
       />
     );

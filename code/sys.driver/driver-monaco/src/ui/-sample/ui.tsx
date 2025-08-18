@@ -74,17 +74,19 @@ export const Sample: React.FC<P> = (props) => {
       path={paths.yaml}
       documentId={{ localstorage: STORAGE_KEY.DEV }}
       editor={{ autoFocus: true, minimap: false }}
-      onReady={async (e) => {
+      onReady={(e) => {
         /**
          * Initialize Editor:
          */
         console.info(`⚡️ MonacoEditor.onReady:`, e);
-
-        // 🐷 WIP | Insert for "crdt:id/path" link behavior:
-        const { sampleInterceptLink } = await import('../../ui/m.Crdt/-spec/-u.link.ts');
-        sampleInterceptLink(e);
-
         handleDocumentChanged();
+
+        if (repo) {
+          Monaco.Crdt.Link.enable(e, repo, {
+            onCreate: (ev) => console.info('Monaco.Crdt.Link.enable → ⚡️ onCreate:', ev),
+            until: e.dispose$,
+          });
+        }
       }}
       onDocumentLoaded={(e) => {
         /**
