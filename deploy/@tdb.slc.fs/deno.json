@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc-fs",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "license": "MIT",
   "tasks": {
     "test": "echo no-op",
