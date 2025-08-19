@@ -37,10 +37,10 @@ a:hover {
 }
 
 hr {
-  border: 'none';
+  border: none;
   height: 1px;
-  border-top: 1px solid var(--text-color);
-  opacity: 0.3;
+  border-top: 1px dashed var(--text-color);
+  opacity: 0.2;
   margin-top: 20px;
   margin-bottom: 20px;
 }
