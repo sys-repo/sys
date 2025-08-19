@@ -122,7 +122,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `mode: ${p.mode.value ?? `<undefined> (default)`}`}
-        onClick={() => Signal.cycle<P['mode']>(p.mode, ['switch-only', undefined])}
+        onClick={() => {
+          Signal.cycle<P['mode']>(p.mode, ['switch-only', 'switch + network-icons', undefined]);
+        }}
       />
 
       <hr />

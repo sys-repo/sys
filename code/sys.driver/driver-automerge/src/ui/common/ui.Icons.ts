@@ -50,11 +50,11 @@ export const Icons = {
   Network: {
     On: icon(TbNetwork),
     Off: icon(TbNetworkOff),
+    Antenna: icon(MdSettingsInputAntenna),
   },
   Wifi: {
     On: icon(MdOutlineWifi),
     Off: icon(MdOutlineWifiOff),
-    Antenna: icon(MdSettingsInputAntenna),
   },
   File: { Binary: icon(BsFileBinaryFill) },
   Link: { External: icon(FiExternalLink), Chain: icon(FiLink) },

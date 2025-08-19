@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { type t, Color, css, D, Icons, Switch, SwitchTheme } from './common.ts';
+import { type t, Color, css, D, Switch, SwitchTheme } from './common.ts';
 import { LabelStyle } from './u.Style.ts';
-import { EndpointLabel } from './ui.Switch.Endpoint.tsx';
-import { PeerLabel } from './ui.Switch.Peer.tsx';
+import { DefaultDetails } from './ui.Default.tsx';
+import { NetworkIcons } from './ui.Icons.Network.tsx';
 import { useController } from './use.Controller.ts';
 
 type P = t.SyncEnabledSwitchProps;
@@ -57,21 +57,20 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     dim: LabelStyle.dim,
   };
 
-  const elDetails = mode === 'default' && (
-    <>
-      <span className={styles.dim.class}>{prefixLabel}</span>
-      {urls.length > 0 && enabled && <EndpointLabel urls={urls} />}
-      {peerId && enabled && <span className={styles.dim.class}>{'•'}</span>}
-      {peerId && enabled && <PeerLabel peerId={peerId} />}
-      {peerId && enabled && <Icons.Person color={theme.fg} size={16} opacity={1} />}
-    </>
+  const elDefault = mode === 'default' && (
+    <DefaultDetails repo={repo} enabled={enabled} theme={theme.name} />
+  );
+
+  const elNetworkIcons = mode === 'switch + network-icons' && (
+    <NetworkIcons repo={repo} enabled={enabled} theme={theme.name} />
   );
 
   return (
     <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
         <Switch value={enabled} theme={switchTheme} height={16} onMouseDown={onClick} />
-        {elDetails}
+        {elDefault}
+        {elNetworkIcons}
       </div>
     </div>
   );
