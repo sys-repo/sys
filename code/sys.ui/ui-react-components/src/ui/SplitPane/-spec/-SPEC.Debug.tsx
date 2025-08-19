@@ -3,10 +3,21 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.SplitPaneProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<
+  P,
+  'theme' | 'debug' | 'enabled' | 'orientation' | 'defaultValue' | 'min' | 'max' | 'gutter'
+> & { isControlled?: boolean };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  isControlled: true,
+  //
+  enabled: D.enabled,
+  orientation: D.orientation,
+  defaultValue: D.defaultValue,
+  min: D.min,
+  max: D.max,
+  gutter: D.gutter,
 };
 
 /**
@@ -27,6 +38,14 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+
+    enabled: s(snap.enabled),
+    orientation: s(snap.orientation),
+    defaultValue: s(snap.defaultValue),
+    min: s(snap.min),
+    max: s(snap.max),
+    gutter: s(snap.gutter),
+    isControlled: s(snap.isControlled),
   };
   const p = props;
   const api = {
@@ -40,6 +59,14 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.isControlled = p.isControlled.value;
+      //
+      d.enabled = p.enabled.value;
+      d.orientation = p.orientation.value;
+      d.defaultValue = p.defaultValue.value;
+      d.min = p.min.value;
+      d.max = p.max.value;
+      d.gutter = p.gutter.value;
     });
   });
 
@@ -80,12 +107,53 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => `enabled: ${p.enabled.value ?? `<undefined> (default: ${D.enabled})`}`}
+        onClick={() => Signal.toggle(p.enabled)}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.orientation.value;
+          return `orientation: ${v ?? `<undefined> (default: ${D.orientation})`}`;
+        }}
+        onClick={() => Signal.cycle(p.orientation, ['horizontal', 'vertical'])}
+      />
+      <hr />
+      <Button
+        block
+        label={() =>
+          `defaultValue: ${p.defaultValue.value ?? `<undefined> (default: ${D.defaultValue})`}`
+        }
+        onClick={() => Signal.cycle(p.defaultValue, [0.3, D.defaultValue, 0.6, undefined])}
+      />
+      <Button
+        block
+        label={() => `min: ${p.min.value ?? `<undefined> (default: ${D.min})`}`}
+        onClick={() => Signal.cycle(p.min, [0, D.min, 0.3, 0.5, undefined])}
+      />
+      <Button
+        block
+        label={() => `max: ${p.max.value ?? `<undefined> (default: ${D.max})`}`}
+        onClick={() => Signal.cycle(p.max, [0.5, 0.8, D.max, 1, undefined])}
+      />
+      <Button
+        block
+        label={() => `gutter: ${p.gutter.value ?? `<undefined> (default: ${D.gutter})`}`}
+        onClick={() => Signal.cycle(p.gutter, [0, 3, D.gutter, 10, undefined])}
+      />
 
       <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `controlled component: ${p.isControlled.value}`}
+        onClick={() => Signal.toggle(p.isControlled)}
       />
       <Button
         block

@@ -21,7 +21,18 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <SplitPane debug={v.debug} theme={v.theme} />;
+        return (
+          <SplitPane
+            debug={v.debug}
+            theme={v.theme}
+            enabled={v.enabled}
+            orientation={v.orientation}
+            defaultValue={v.defaultValue}
+            min={v.min}
+            max={v.max}
+            gutter={v.gutter}
+          />
+        );
       });
   });
 

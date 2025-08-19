@@ -1,7 +1,8 @@
 import type { t } from './common.ts';
 
 /**
- * Component:
+ * Component: SplitPane.
+ * Minimal two-slot split using CSS Grid + usePointer.
  */
 export type SplitPaneProps = {
   /** Pane content */
