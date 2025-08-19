@@ -64,7 +64,7 @@ export async function buildAndCopy(
   if (options.build ?? true) {
     // Run build command:
     const pkg: t.Pkg = { name: denofile.name ?? 'Unnamed', version: denofile.version ?? '0.0.0' };
-    let label = c.gray(`building: ${c.green(pkg.name)} → ${c.cyan(`/${targetDir}`)}`);
+    let label = c.gray(`building: ${c.green(pkg.name)} ${c.white('→')} ${c.cyan(`/${targetDir}`)}`);
     const spinner = Cli.spinner(label + '\n');
     const res = await sh.run('deno -q task test && deno -q task build');
     spinner.stop();
