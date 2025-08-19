@@ -17,7 +17,7 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill', 100)
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
