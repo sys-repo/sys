@@ -27,7 +27,16 @@ await tmpl.write('dist');
  * Calculate [PkgDist].
  */
 await Fs.remove('dist/dist.json');
-await Pkg.Dist.compute({ dir: 'dist', pkg, save: true, builder: pkg });
+const dist = (await Pkg.Dist.compute({ dir: 'dist', pkg, save: true, builder: pkg })).dist;
+
+// Write version-hash into root HTML.
+await Tmpl.File.update(Fs.join('dist/index.html'), (line) => {
+  if (line.text.includes('<a href="./dist.json">')) {
+    const hash = dist.hash.digest ?? '00000';
+    const hx = `#${hash.slice(-5)}`;
+    line.modify(line.text.replace(/dist.json\<\/a>/, `dist.json (${hx})</a>`));
+  }
+});
 
 // Finish.
 Deno.exit(0);
