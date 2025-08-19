@@ -10,7 +10,8 @@ export const Paths = {
     'code/-tmpl',
 
     /**
-     * @sys: standard-libs:
+     * (namespace "@sys"): standard-library 
+     * sys:
      */
     'code/sys/types',
     'code/sys/std',
@@ -30,7 +31,7 @@ export const Paths = {
     'code/sys/jsr',
 
     /**
-     * UI:
+     * sys.ui:
      */
     'code/sys.ui/ui-css',
     'code/sys.ui/ui-dom',
@@ -39,7 +40,7 @@ export const Paths = {
     'code/sys.ui/ui-react-components',
 
     /**
-     * Drivers:
+     * sys.driver:
      */
     'code/sys.driver/driver-automerge',
     'code/sys.driver/driver-deno',
@@ -52,7 +53,7 @@ export const Paths = {
 
 
     /**
-     * Instance Apps:
+     * Instance (conceptually: "an app"):
      */
     'deploy/@tdb.fs',
     'deploy/@tdb.slc',
