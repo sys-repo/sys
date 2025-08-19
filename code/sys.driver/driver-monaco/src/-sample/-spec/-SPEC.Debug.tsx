@@ -1,6 +1,6 @@
 import React from 'react';
 import { SampleFactory } from '../../-sample.factory/mod.ts';
-import { createRepo } from '../../-test.ui.ts';
+import { createRepo } from '../../ui/-test.ui.ts';
 
 import { type t, Button, Crdt, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { createSignals } from '../mod.ts';

@@ -21,5 +21,5 @@ export type * from './ui/ui.Editor.Yaml/t.ts';
 /**
  * Sample:
  */
-export type * from './ui/-sample.factory/t.ts';
-export type * from './ui/-sample/t.ts';
+export type * from './-sample.factory/t.ts';
+export type * from './-sample/t.ts';

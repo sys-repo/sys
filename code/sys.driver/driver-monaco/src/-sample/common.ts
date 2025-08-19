@@ -2,7 +2,7 @@ import { pkg, Pkg } from '../common.ts';
 
 export { Crdt, DocumentId } from '@sys/driver-automerge/ui';
 export { Monaco } from '@sys/driver-monaco';
-export * from '../common.ts';
+export * from '../ui/common.ts';
 
 /**
  * Constants:

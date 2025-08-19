@@ -13,5 +13,5 @@ export const Specs = {
   [`${ns}: ui.MonacoEditor ← (CRDT binding)`]: () => import('../ui/m.Crdt/-spec/-SPEC.tsx'),
   [`${ns}: ui.Editor.Yaml`]: () => import('../ui/ui.Editor.Yaml/-spec/-SPEC.tsx'),
   [`${ns}: ui.Editor.Yaml.Footer`]: () => import('../ui/ui.Editor.Yaml.Footer/-spec/-SPEC.tsx'),
-  [`${ns}: Sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),
+  [`${ns}: Sample`]: () => import('../-sample/-spec/-SPEC.tsx'),
 } as t.SpecImports;
