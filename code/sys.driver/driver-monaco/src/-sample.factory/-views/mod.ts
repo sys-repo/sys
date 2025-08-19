@@ -32,7 +32,7 @@ export const SampleFactoryId = U;
  */
 export const getView: t.GetView = async (id: t.SampleFactoryId | string) => {
   const key = id as t.SampleFactoryId;
-  const done = (Component: React.FC<any>): t.ViewFactoryResponse => ({ default: Component });
+  const done = (Component: React.FC<any>): t.ViewFactoryResult => ({ default: Component });
 
   if (key === 'VideoPlayer:host') {
     const { VideoPlayerHost: VideoHost } = await import('./ui.VideoPlayer.Host.tsx');

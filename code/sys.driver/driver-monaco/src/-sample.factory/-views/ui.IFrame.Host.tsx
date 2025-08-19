@@ -30,7 +30,11 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
 
   const elBody = (
     <div className={styles.body.class}>
-      <IFrameView {...data} sandbox={sandbox} />
+      <IFrameView
+        {...data}
+        sandbox={sandbox}
+        onLoad={(e) => console.info(`⚡️ IFrame.onLoad:`, e)}
+      />
     </div>
   );
 

@@ -7,9 +7,9 @@ export type LazyViewFactory = React.LazyExoticComponent<React.FC<any>>;
 export type GetSchema = (id: t.StringId) => t.TSchema | undefined;
 
 /** Looks up the <Component> view for the given ID. */
-export type GetView = (id: t.StringId) => Promise<ViewFactoryResponse>;
+export type GetView = (id: t.StringId) => Promise<ViewFactoryResult>;
 /** Response from a View Factory */
-export type ViewFactoryResponse = { default: React.FC<any> };
+export type ViewFactoryResult = { default: React.FC<any> };
 
 /**
  * An instance of a lookup view/schema factory.
