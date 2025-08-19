@@ -6,7 +6,7 @@ Tiny primitives for declarative UI composition.
   A factory is `data` ("**specs**") + a lazy `view` loader.  
 
 - #### Specs
-  A view specifications define a factory component with a unique `id`, a JSONSchema/TypeScript `schema`, and layout/render `slots`.
+  A view specification defines a single factory `component` with a unique `id`, a JSONSchema/TypeScript `schema`, and layout `slots` available to render children into.
 
 - #### Slots
   Slots are named attachment points a `view` exposes for placing **child** `views` within its `layout`.
