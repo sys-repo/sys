@@ -6,7 +6,7 @@ Tiny primitives for declarative UI composition.
 A factory is `data` ("**specs**") + a lazy `view` loader.  
 
 ### Specs
-Specs declare unique `id`, `schema`, and `slots`.
+View specifications declare unique `id`, `schema`, and layout/render `slots`.
 
 ### Slots
 Slots are named attachment points a `view` exposes for placing **child** `views` within its `layout`.
