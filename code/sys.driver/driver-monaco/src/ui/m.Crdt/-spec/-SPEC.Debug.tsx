@@ -254,6 +254,28 @@ export function AlterDocumentButtons(props: { debug: DebugSignals }) {
           doc.change((d) => A.splice(d, path, 0, 0, text));
         }}
       />
+
+      <Button
+        block
+        label={() => `crdt: URI's `}
+        onClick={() => {
+          const text = `crdt:create`;
+          doc.change((d) => A.splice(d, path, 0, 0, text));
+        }}
+      />
+
+      <Button
+        block
+        label={() => `(clear)`}
+        onClick={() => {
+          const current = Obj.Path.get<string>(doc.current, path);
+          const length = current?.length ?? 0;
+          doc.change((d) => {
+            A.splice(d, path, 0, length); // ← remove all existing characters.
+            A.splice(d, path, 0, 0, ''); //  ← insert empty string (no-op, but makes intent explicit).
+          });
+        }}
+      />
     </React.Fragment>
   );
 }
