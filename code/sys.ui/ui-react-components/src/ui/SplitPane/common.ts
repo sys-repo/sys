@@ -9,7 +9,7 @@ export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   enabled: true,
-  orientation: 'vertical' satisfies t.Orientation,
+  orientation: 'horizontal' satisfies t.Orientation,
   defaultValue: 0.5,
   min: 0.1,
   max: 0.9,
