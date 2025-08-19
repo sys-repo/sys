@@ -63,48 +63,15 @@ export const Repo: React.FC<P> = (props) => {
     />
   );
 
-  const tooltip = wrangle.tooltips(repo, enabled);
-  const elIcon = (
-    <div className={styles.icon.class}>
-      <Icons.Person size={14} tooltip={tooltip.peer} />
-      <Icons.Network.Antenna size={14} tooltip={tooltip.network} />
-    </div>
-  );
-
   return (
     <div className={css(styles.base, props.style).class} {...pointer.handlers}>
-      {elRepo}
-      {elIcon}
+      <Crdt.UI.Repo.SyncEnabledSwitch
+        theme={theme.name}
+        repo={repo}
+        localstorage={crdt.localstorage}
+        mode={'switch + network-icons'}
+        onChange={(e) => setEnabled(e.enabled)}
+      />
     </div>
   );
 };
-
-/**
- * Helpers:
- */
-const wrangle = {
-  tooltips(repo: t.Crdt.Repo, enabled: boolean) {
-    const servers = repo.sync.urls.map((url) => `• ${url}`).join('\n');
-    return {
-      peer: enabled ? wrangle.tooltip.peer(repo, enabled) : 'Offline',
-      network: enabled ? `Online: \n${servers}` : 'Offline',
-    } as const;
-  },
-
-  tooltip: {
-    peer(repo: t.Crdt.Repo, enabled: boolean) {
-      const peers = repo.sync.peers;
-      const total = peers.length;
-      const title = `Sync Peer${Str.plural(total, '', 's')}`;
-      let names =
-        total === 1
-          ? peers[0]
-          : peers
-              .map((n) => `• ${n}`)
-              .join('\n')
-              .trimEnd();
-      if (total > 1) names = `\n${names}`;
-      return `${title}: ${names}`;
-    },
-  },
-} as const;
