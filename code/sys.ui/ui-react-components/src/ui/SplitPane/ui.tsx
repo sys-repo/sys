@@ -140,6 +140,41 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
     }),
   };
 
+  const elPaneA = (
+    <div className={styles.pane.class} data-part={'pane-a'}>
+      {children?.[0]}
+    </div>
+  );
+
+  const elPaneB = (
+    <div className={styles.pane.class} data-part={'pane-b'}>
+      {children?.[1]}
+    </div>
+  );
+
+  const elGutter = (
+    <div
+      className={styles.gutter.class}
+      data-part={'gutter'}
+      role={'separator'}
+      aria-orientation={orientation === 'horizontal' ? 'vertical' : 'horizontal'}
+      aria-valuenow={Math.round(ratio * 100)}
+      aria-valuemin={Math.round(min * 100)}
+      aria-valuemax={Math.round(max * 100)}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (!enabled) return;
+        const step = 0.02 as t.Percent;
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') update(ratio - step);
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') update(ratio + step);
+      }}
+    >
+      <div className={styles.line.class} />
+      <div {...pointer.handlers} className={styles.handle.class} />
+      {debug && <div className={styles.debugLabel.class}>{`${Math.round(ratio * 100)}%`}</div>}
+    </div>
+  );
+
   return (
     <div
       ref={containerRef}
@@ -147,34 +182,9 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
       data-part={'splitpane'}
       data-orientation={orientation}
     >
-      <div className={styles.pane.class} data-part={'pane-a'}>
-        {children?.[0]}
-      </div>
-
-      <div
-        className={styles.gutter.class}
-        data-part={'gutter'}
-        role={'separator'}
-        aria-orientation={orientation === 'horizontal' ? 'vertical' : 'horizontal'}
-        aria-valuenow={Math.round(ratio * 100)}
-        aria-valuemin={Math.round(min * 100)}
-        aria-valuemax={Math.round(max * 100)}
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (!enabled) return;
-          const step = 0.02 as t.Percent;
-          if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') update(ratio - step);
-          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') update(ratio + step);
-        }}
-      >
-        <div className={styles.line.class} />
-        <div {...pointer.handlers} className={styles.handle.class} />
-        {debug && <div className={styles.debugLabel.class}>{`${Math.round(ratio * 100)}%`}</div>}
-      </div>
-
-      <div className={styles.pane.class} data-part={'pane-b'}>
-        {children?.[1]}
-      </div>
+      {elPaneA}
+      {elGutter}
+      {elPaneB}
     </div>
   );
 };
