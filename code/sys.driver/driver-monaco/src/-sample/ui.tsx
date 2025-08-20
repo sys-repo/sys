@@ -7,6 +7,7 @@ import {
   Monaco,
   rx,
   Signal,
+  SplitPane,
   STORAGE_KEY,
   useSizeObserver,
 } from './common.ts';
@@ -24,7 +25,7 @@ export const Sample: React.FC<P> = (props) => {
    * Hooks:
    */
   const [yaml, setYaml] = React.useState<t.EditorYaml>();
-
+  const [splitRatio, setSplitRatio] = React.useState<t.Percent>(0.3);
   const size = useSizeObserver();
   const width = size.rect?.width ?? 0;
   const showMain = size.ready && width > 920;
@@ -66,7 +67,6 @@ export const Sample: React.FC<P> = (props) => {
       opacity: size.ready ? 1 : 0,
       transition: 'opacity 80ms ease',
       display: 'grid',
-      gridTemplateColumns: showMain ? 'minmax(350px, 0.382fr) 0.618fr' : '1fr',
     }),
     left: css({
       borderRight: showMain ? `solid 1px ${Color.alpha(theme.fg, D.borderOpacity)}` : undefined,
@@ -80,41 +80,43 @@ export const Sample: React.FC<P> = (props) => {
   };
 
   const elYamlEditor = (
-    <Monaco.Yaml.Editor
-      theme={theme.name}
-      repo={repo}
-      signals={{
-        doc: signals.doc,
-        monaco: signals.io.monaco,
-        editor: signals.io.editor,
-        yaml: signals.yaml,
-      }}
-      path={paths.yaml}
-      documentId={{ localstorage: STORAGE_KEY.DEV }}
-      editor={{ autoFocus: true, minimap: false }}
-      onReady={(e) => {
-        /**
-         * Initialize Editor:
-         */
-        console.info(`⚡️ MonacoEditor.onReady:`, e);
-        handleDocumentChanged();
+    <div className={styles.left.class}>
+      <Monaco.Yaml.Editor
+        theme={theme.name}
+        repo={repo}
+        signals={{
+          doc: signals.doc,
+          monaco: signals.io.monaco,
+          editor: signals.io.editor,
+          yaml: signals.yaml,
+        }}
+        path={paths.yaml}
+        documentId={{ localstorage: STORAGE_KEY.DEV }}
+        editor={{ autoFocus: true, minimap: false }}
+        onReady={(e) => {
+          /**
+           * Initialize Editor:
+           */
+          console.info(`⚡️ MonacoEditor.onReady:`, e);
+          handleDocumentChanged();
 
-        if (repo) {
-          Monaco.Crdt.Link.enable(e, repo, {
-            onCreate: (ev) => console.info('Monaco.Crdt.Link.enable → ⚡️ onCreate:', ev),
-            until: e.dispose$,
-          });
-        }
-      }}
-      onDocumentLoaded={(e) => {
-        /**
-         * Monitor document changes:
-         */
-        const $ = e.events.path(paths.parsed).$;
-        $.pipe(rx.debounceTime(300)).subscribe(handleDocumentChanged);
-        handleDocumentChanged();
-      }}
-    />
+          if (repo) {
+            Monaco.Crdt.Link.enable(e, repo, {
+              onCreate: (ev) => console.info('Monaco.Crdt.Link.enable → ⚡️ onCreate:', ev),
+              until: e.dispose$,
+            });
+          }
+        }}
+        onDocumentLoaded={(e) => {
+          /**
+           * Monitor document changes:
+           */
+          const $ = e.events.path(paths.parsed).$;
+          $.pipe(rx.debounceTime(300)).subscribe(handleDocumentChanged);
+          handleDocumentChanged();
+        }}
+      />
+    </div>
   );
 
   const elMain = showMain && (
@@ -125,8 +127,14 @@ export const Sample: React.FC<P> = (props) => {
 
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
-      <div className={styles.left.class}>{elYamlEditor}</div>
-      {elMain}
+      <SplitPane
+        only={showMain ? undefined : 'A'}
+        value={splitRatio}
+        onChange={(e) => setSplitRatio(e.ratio)}
+      >
+        {elYamlEditor}
+        {elMain}
+      </SplitPane>
     </div>
   );
 };

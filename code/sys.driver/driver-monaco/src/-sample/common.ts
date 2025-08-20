@@ -2,6 +2,7 @@ import { pkg, Pkg } from '../common.ts';
 
 export { Crdt, DocumentId } from '@sys/driver-automerge/ui';
 export { Monaco } from '@sys/driver-monaco';
+export { SplitPane } from '@sys/ui-react-components';
 export * from '../ui/common.ts';
 
 /**
