@@ -2,32 +2,44 @@ import type { t } from './common.ts';
 
 /**
  * Component: SplitPane.
- * Minimal two-slot split using CSS Grid + usePointer.
  */
 export type SplitPaneProps = {
   /** Pane content */
   children?: [React.ReactNode, React.ReactNode];
+
+  /** Enabled state. */
+  enabled?: boolean;
   /** Layout orientation. */
   orientation?: t.Orientation;
   /** Controlled ratio [0..1]. */
   value?: t.Percent;
   /** Uncontrolled initial ratio [0..1]. */
   defaultValue?: t.Percent;
-  /** default 0.1. */
+  /** Minmum size. */
   min?: t.Percent;
-  /** default 0.9. */
+  /** Maximum size. */
   max?: t.Percent;
-  /** px, default 6. */
+
+  /** Gutter offset size. */
   gutter?: t.Pixels;
-  /** Enabled state. */
-  enabled?: boolean;
+  gutterOpacity?: t.Percent;
+  gutterLine?: t.Pixels;
 
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
   // Handlers:
-  onChange?: (ratio: number) => void;
-  onDragStart?: (ratio: number) => void;
-  onDragEnd?: (ratio: number) => void;
+  onChange?: t.SplitPaneChangeHandler;
+  onDragStart?: t.SplitPaneChangeHandler;
+  onDragEnd?: t.SplitPaneChangeHandler;
 };
+
+/**
+ * Events:
+ */
+
+/** Change handlers: */
+export type SplitPaneChangeHandler = (e: SplitPaneChange) => void;
+/** Represents a change to the pane's position. */
+export type SplitPaneChange = { ratio: t.Percent };

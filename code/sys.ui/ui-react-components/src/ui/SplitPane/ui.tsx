@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { type t, Color, css, D, usePointer } from './common.ts';
+import { clamp } from './u.ts';
 
 export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
   const {
@@ -12,6 +13,8 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
     min = D.min,
     max = D.max,
     gutter = D.gutter,
+    gutterOpacity = D.gutterOpacity,
+    gutterLine = D.gutterLine,
     onChange,
     onDragStart,
     onDragEnd,
@@ -31,11 +34,11 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
   const pointer = usePointer({
     onDown: () => {
       if (!enabled) return;
-      onDragStart?.(ratio);
+      onDragStart?.({ ratio });
     },
     onUp: () => {
       if (!enabled) return;
-      onDragEnd?.(ratio);
+      onDragEnd?.({ ratio });
     },
     onDrag: (e) => {
       if (!enabled) return;
@@ -49,9 +52,9 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
    */
   const update = React.useCallback(
     (next: number) => {
-      const clamped = clamp(next, min, max);
-      if (!isControlled) setRatioUncontrolled(clamped);
-      onChange?.(clamped);
+      const ratio = clamp(next, min, max);
+      if (!isControlled) setRatioUncontrolled(ratio);
+      onChange?.({ ratio });
     },
     [isControlled, min, max, props],
   );
@@ -113,12 +116,13 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
       display: 'grid',
       alignItems: 'stretch',
       justifyItems: 'stretch',
+      outline: 'none',
     }),
     line: css({
-      backgroundColor: 'var(--divider, rgba(128,128,128,0.35))',
+      backgroundColor: Color.alpha(theme.fg, gutterOpacity),
       ...(orientation === 'horizontal'
-        ? { width: '1px', justifySelf: 'center' }
-        : { height: '1px', alignSelf: 'center' }),
+        ? { width: gutterLine, justifySelf: 'center' }
+        : { height: gutterLine, alignSelf: 'center' }),
     }),
     handle: css({
       position: 'absolute',
@@ -173,8 +177,3 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
     </div>
   );
 };
-
-/**
- * Helpers:
- */
-const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
