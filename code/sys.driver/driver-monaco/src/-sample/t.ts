@@ -37,10 +37,8 @@ export type SampleSignals = Readonly<{
   doc: t.Signal<t.Crdt.Ref | undefined>;
   /** CRDT → Parsed Yaml. */
   yaml: t.Signal<t.EditorYaml | undefined>;
-
   /** Factory/props information for the <Main> view renderer. */
   main: t.Signal<SampleSignalsFactoryDef | undefined>;
-
   /** Hook into signal values. */
   listen(): void;
 }>;
