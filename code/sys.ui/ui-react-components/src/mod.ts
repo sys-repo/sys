@@ -35,5 +35,6 @@ export { Tree } from './ui/Tree/mod.ts';
 
 // Media:
 export { Media } from './ui/Media/mod.ts';
+export { YouTube } from './ui/Player.YouTube/mod.ts';
 export { Player } from './ui/Player/mod.ts';
 export { VimeoBackground } from './ui/VimeoBackground/mod.ts';

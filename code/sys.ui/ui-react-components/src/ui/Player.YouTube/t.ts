@@ -3,7 +3,11 @@ import type { t } from './common.ts';
 /**
  * Component:
  */
-export type YoutubePlayerProps = {
+export type YouTubeProps = {
+  videoId?: string;
+  width?: number;
+  height?: number;
+
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

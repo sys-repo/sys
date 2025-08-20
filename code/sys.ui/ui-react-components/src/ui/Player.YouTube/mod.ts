@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { YoutubePlayer } from './ui.tsx';
+export { YouTube } from './ui.tsx';

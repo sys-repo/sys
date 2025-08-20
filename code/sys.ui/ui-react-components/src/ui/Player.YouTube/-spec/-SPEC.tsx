@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { YoutubePlayer } from '../mod.ts';
+import { YouTube } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -21,7 +21,7 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <YoutubePlayer debug={v.debug} theme={v.theme} />;
+        return <YouTube debug={v.debug} theme={v.theme} videoId={v.videoId} />;
       });
   });
 

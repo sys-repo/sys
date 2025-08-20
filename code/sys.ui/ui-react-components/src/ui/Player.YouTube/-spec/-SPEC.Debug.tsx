@@ -2,11 +2,12 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
-type P = t.YoutubePlayerProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type P = t.YouTubeProps;
+type Storage = Pick<P, 'theme' | 'debug' | 'videoId'>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  videoId: 'PKffm2uI4dk', // Title: "Sad cat diaries"
 };
 
 /**
@@ -27,6 +28,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    videoId: s(snap.videoId),
   };
   const p = props;
   const api = {
@@ -40,6 +42,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.videoId = p.videoId.value;
     });
   });
 
@@ -71,6 +74,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({}),
   };
 
+  const btnVideoId = (videoId: string | undefined, label: string = '') => {
+    label = label ? `• "${label}"` : '';
+    return (
+      <Button
+        block
+        label={() => `videoId: ${videoId || '<undefined>'} ${label}`}
+        onClick={() => {
+          p.videoId.value = videoId;
+        }}
+      />
+    );
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
@@ -80,6 +96,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      {btnVideoId(undefined)}
+      {btnVideoId(defaults.videoId, 'Sad cat diaries')}
 
       <hr />
       <Button
