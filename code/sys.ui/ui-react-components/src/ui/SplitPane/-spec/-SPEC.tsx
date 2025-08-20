@@ -25,6 +25,7 @@ export default Spec.describe(D.displayName, (e) => {
         min={v.min}
         max={v.max}
         gutter={v.gutter}
+        only={v.only}
         //
         onDragStart={(e) => console.info(`⚡️ onDragStart`, e)}
         onDragEnd={(e) => console.info(`⚡️ onDragEnd`, e)}

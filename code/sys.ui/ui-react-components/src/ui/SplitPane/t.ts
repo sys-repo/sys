@@ -19,6 +19,8 @@ export type SplitPaneProps = {
   min?: t.Percent;
   /** Maximum size. */
   max?: t.Percent;
+  /** Flag indicating if only one of the panes should be displayed. */
+  only?: 'A' | 'B';
 
   /** Gutter offset size. */
   gutter?: t.Pixels;

@@ -5,7 +5,7 @@ import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 type P = t.SplitPaneProps;
 type Storage = Pick<
   P,
-  'theme' | 'debug' | 'enabled' | 'orientation' | 'defaultValue' | 'min' | 'max' | 'gutter'
+  'theme' | 'debug' | 'enabled' | 'orientation' | 'defaultValue' | 'min' | 'max' | 'gutter' | 'only'
 > & { isControlled?: boolean };
 const defaults: Storage = {
   theme: 'Dark',
@@ -18,6 +18,7 @@ const defaults: Storage = {
   min: D.min,
   max: D.max,
   gutter: D.gutter,
+  only: undefined,
 };
 
 /**
@@ -38,6 +39,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    isControlled: s(snap.isControlled),
 
     enabled: s(snap.enabled),
     orientation: s(snap.orientation),
@@ -45,7 +47,7 @@ export function createDebugSignals() {
     min: s(snap.min),
     max: s(snap.max),
     gutter: s(snap.gutter),
-    isControlled: s(snap.isControlled),
+    only: s(snap.only),
   };
   const p = props;
   const api = {
@@ -67,6 +69,7 @@ export function createDebugSignals() {
       d.min = p.min.value;
       d.max = p.max.value;
       d.gutter = p.gutter.value;
+      d.only = p.only.value;
     });
   });
 
@@ -119,6 +122,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `orientation: ${v ?? `<undefined> (default: ${D.orientation})`}`;
         }}
         onClick={() => Signal.cycle(p.orientation, ['horizontal', 'vertical'])}
+      />
+      <Button
+        block
+        label={() => `only: ${p.only.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.only, ['A', 'B', undefined])}
       />
       <hr />
       <Button
