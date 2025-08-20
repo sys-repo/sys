@@ -18,6 +18,8 @@ export type IFrameProps = {
   allowFullScreen?: boolean;
   referrerPolicy?: HTMLAttributeReferrerPolicy | undefined;
   loading?: t.IFrameLoading;
+  //
+  silent?: boolean;
   style?: t.CssInput;
   onReady?: IFrameReadyHandler;
   onLoad?: IFrameLoadedEventHandler;

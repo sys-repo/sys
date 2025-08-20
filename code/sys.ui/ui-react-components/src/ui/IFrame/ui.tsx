@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { type t, css, DEFAULTS } from './common.ts';
 
 export const IFrame: React.FC<t.IFrameProps> = (props) => {
-  const { width, height, loading = 'eager' } = props;
+  const { width, height, loading = 'eager', silent = false } = props;
   const content = wrangle.content(props);
   const ref = useRef<HTMLIFrameElement>(null);
 
@@ -17,6 +17,7 @@ export const IFrame: React.FC<t.IFrameProps> = (props) => {
     } catch (error) {
       // [Cross-origin]: fall back to the live element src (updates on in-iframe navigation).
       href = node?.src || href;
+      if (!silent) console.warn('contentWindow/error:', error);
     }
     props.onLoad?.({ ref, href });
   };
