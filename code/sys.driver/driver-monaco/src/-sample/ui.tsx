@@ -1,5 +1,15 @@
 import React from 'react';
-import { type t, Color, css, D, Monaco, rx, Signal, STORAGE_KEY } from './common.ts';
+import {
+  type t,
+  Color,
+  css,
+  D,
+  Monaco,
+  rx,
+  Signal,
+  STORAGE_KEY,
+  useSizeObserver,
+} from './common.ts';
 import { State } from './u.state.ts';
 import { MainColumn } from './ui.col.Main.tsx';
 
@@ -14,6 +24,10 @@ export const Sample: React.FC<P> = (props) => {
    * Hooks:
    */
   const [yaml, setYaml] = React.useState<t.EditorYaml>();
+
+  const size = useSizeObserver();
+  const width = size.rect?.width ?? 0;
+  const showMain = size.ready && width > 920;
 
   /**
    * Effects:
@@ -49,15 +63,19 @@ export const Sample: React.FC<P> = (props) => {
     base: css({
       position: 'relative',
       color: theme.fg,
+      opacity: size.ready ? 1 : 0,
+      transition: 'opacity 80ms ease',
       display: 'grid',
-      gridTemplateColumns: 'minmax(350px, 0.382fr) 0.618fr',
+      gridTemplateColumns: showMain ? 'minmax(350px, 0.382fr) 0.618fr' : '1fr',
     }),
     left: css({
-      borderRight: `solid 1px ${Color.alpha(theme.fg, D.borderOpacity)}`,
+      borderRight: showMain ? `solid 1px ${Color.alpha(theme.fg, D.borderOpacity)}` : undefined,
       display: 'grid',
     }),
     right: css({
       display: 'grid',
+      opacity: showMain ? 1 : 0,
+      transition: 'opacity 120ms ease',
     }),
   };
 
@@ -99,12 +117,16 @@ export const Sample: React.FC<P> = (props) => {
     />
   );
 
+  const elMain = showMain && (
+    <div className={styles.right.class}>
+      <MainColumn {...props} hasErrors={hasErrors} />
+    </div>
+  );
+
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div ref={size.ref} className={css(styles.base, props.style).class}>
       <div className={styles.left.class}>{elYamlEditor}</div>
-      <div className={styles.right.class}>
-        <MainColumn {...props} hasErrors={hasErrors} />
-      </div>
+      {elMain}
     </div>
   );
 };
