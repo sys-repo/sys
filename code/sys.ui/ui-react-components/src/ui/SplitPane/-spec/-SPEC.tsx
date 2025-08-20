@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { clamp } from '../u.ts';
 
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { type t, Color, css, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { SplitPane } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -13,9 +13,7 @@ export default Spec.describe(D.displayName, (e) => {
   function Root() {
     const v = Signal.toObject(p);
     const { defaultValue = D.defaultValue, min = D.min, max = D.max } = v;
-
     const [ratioControlled, setRatioControlled] = useState<number>(clamp(defaultValue, min, max));
-
     return (
       <SplitPane
         debug={v.debug}
@@ -34,7 +32,27 @@ export default Spec.describe(D.displayName, (e) => {
           console.info(`⚡️ onChange`, e);
           setRatioControlled(e.ratio);
         }}
-      />
+      >
+        <Dummy theme={v.theme}>{'A'}</Dummy>
+        <Dummy theme={v.theme}>{'B'}</Dummy>
+      </SplitPane>
+    );
+  }
+
+  function Dummy(props: { children?: t.ReactNode; theme?: t.CommonTheme }) {
+    const theme = Color.theme(props.theme);
+    const styles = {
+      base: css({ position: 'relative', display: 'grid', padding: 15 }),
+      body: css({
+        backgroundColor: Color.ruby(0.1),
+        border: `dashed 1px ${Color.alpha(theme.fg, 0.2)}`,
+        padding: 8,
+      }),
+    };
+    return (
+      <div className={styles.base.class}>
+        <div className={styles.body.class}>{props.children}</div>
+      </div>
     );
   }
 

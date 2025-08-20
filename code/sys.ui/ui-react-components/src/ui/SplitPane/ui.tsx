@@ -109,6 +109,7 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
       minWidth: 0,
       minHeight: 0,
       overflow: 'auto',
+      display: 'grid',
     }),
     gutter: css({
       position: 'relative',
