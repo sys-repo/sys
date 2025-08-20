@@ -9,13 +9,14 @@ export const IFrame: React.FC<t.IFrameProps> = (props) => {
   /**
    * Handlers:
    */
-  const handleLoad = () => {
+  const handleLoad: React.ReactEventHandler<HTMLIFrameElement> = (ev) => {
+    const node = ref.current ?? (ev.currentTarget as HTMLIFrameElement | null);
     let href = content.src ?? '';
     try {
-      href = ref.current?.contentWindow?.location.href ?? href;
+      href = node?.contentWindow?.location.href ?? href;
     } catch (error) {
-      // [Ignore]: This will be a cross-origin block.
-      //           Fire the best guess at what the URL is.
+      // [Cross-origin]: fall back to the live element src (updates on in-iframe navigation).
+      href = node?.src || href;
     }
     props.onLoad?.({ ref, href });
   };
