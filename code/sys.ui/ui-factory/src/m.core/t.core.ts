@@ -1,0 +1,25 @@
+import type * as React from 'react';
+import type { t } from './common.ts';
+
+/** Base string IDs (narrow with generics in your modules). */
+export type ViewId = string;
+export type SlotId = string;
+
+/** React.lazy-compatible module shape. */
+export type LazyViewModule = { default: React.FC<any> };
+
+/** Discriminated result for getView. */
+export type GetViewResult = { ok: true; module: LazyViewModule } | { ok: false; error: t.StdError };
+
+/** View contract: tiny and framework-agnostic. */
+export type ViewSpec<Id extends ViewId = ViewId, Slot extends SlotId = SlotId> = Readonly<{
+  id: Id;
+  schema?: t.TSchema;
+  slots?: readonly Slot[];
+}>;
+
+/** Registration pairs spec with lazy loader. */
+export type Registration<Id extends ViewId = ViewId, Slot extends SlotId = SlotId> = Readonly<{
+  spec: ViewSpec<Id, Slot>;
+  load: () => Promise<LazyViewModule>;
+}>;

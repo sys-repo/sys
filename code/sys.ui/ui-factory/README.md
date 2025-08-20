@@ -2,20 +2,26 @@
 
 Tiny primitives for declarative UI composition.  
 
-- #### Factory
-  A factory is `data` ("**specs**") + a lazy `view` loader.  
+Factory → Specs → Plan → View → Slots
 
-- #### Specs
-  A view specification defines a single factory `component` with 
-  - a unique `id`, 
-  - a JSONSchema `schema` and corresponding inferred strong TypeScript `types`,
-  - and the layout `slots` available to render children into.
+----
+
+- #### Factory
+  A factory is `data` ("**specs**" in a "**plan**") + a lazy `view` loader.  
+
+- #### Specs → Plan
+  A **plan** is the declarative blueprint a factory follows.  
+  It contains the component **specs** consisting of:  
+  - a unique component `id`, 
+  - a JSONSchema `schema` and inferred TypeScript `types`,
+  - the available layout `slots` for child placement.
 
 - #### Slots
   Slots are named attachment points a `view` exposes for placing **child** `views` within its `layout`.
 
 - #### View
-  A `view` is a renderable unit — library-agnostic (default adapter: `JSX → react`).
+  A `view` is a renderable unit — library-agnostic  
+  (default adapter: `JSX → react`).
 
 
 
