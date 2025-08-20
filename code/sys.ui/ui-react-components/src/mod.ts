@@ -28,6 +28,7 @@ export { PropsGrid } from './ui/PropsGrid/mod.ts';
 export { Sheet } from './ui/Sheet/mod.ts';
 export { Slider } from './ui/Slider/mod.ts';
 export { Spinners } from './ui/Spinners/mod.ts';
+export { SplitPane } from './ui/SplitPane/mod.ts';
 export { TextInput } from './ui/Text.Input/mod.ts';
 export { IndexTree } from './ui/Tree.Index/mod.ts';
 export { Tree } from './ui/Tree/mod.ts';
