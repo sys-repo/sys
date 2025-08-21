@@ -40,10 +40,11 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
     }),
     debug: {
       url: css({ Absolute: [-25, null, null, 0] }),
-      label: css({ fontSize: 10, display: 'grid', gridAutoFlow: 'column', gap: 4 }),
+      label: css({ fontSize: 10, display: 'grid', gridAutoFlow: 'column', gap: 6 }),
       key: css({ opacity: 1 }),
       value: css({ opacity: hrefButton?.over ? 1 : 0.5 }),
       copied: css({ color: Color.GREEN }),
+      sandboxed: css({}),
     },
   };
 
@@ -76,7 +77,8 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
         >
           <span className={styles.debug.value.class}>{url ?? '<none>'}</span>
         </Button>
-        {copied && <span className={styles.debug.copied.class}>copied</span>}
+        {copied && <span className={styles.debug.copied.class}>{'copied'}</span>}
+        {sandbox && <span className={styles.debug.sandboxed.class}>{'(sandboxed)'}</span>}
       </div>
     </div>
   );
