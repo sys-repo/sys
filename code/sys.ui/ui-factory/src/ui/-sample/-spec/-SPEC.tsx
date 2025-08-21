@@ -1,14 +1,17 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { Sample } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+
+import { setup } from './-setup.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
-  e.it('init', (e) => {
+  e.it('init', async (e) => {
     const ctx = Spec.ctx(e);
+
+    const el = await setup();
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
@@ -20,8 +23,7 @@ export default Spec.describe(D.displayName, (e) => {
       .size('fill', 100)
       .display('grid')
       .render(() => {
-        const v = Signal.toObject(p);
-        return <Sample debug={v.debug} theme={v.theme} />;
+        return el;
       });
   });
 
