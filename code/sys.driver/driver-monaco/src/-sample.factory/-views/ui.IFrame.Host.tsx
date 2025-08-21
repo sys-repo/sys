@@ -65,7 +65,7 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
   const elUrl = url && (
     <div className={styles.debug.url.class}>
       <div className={styles.debug.label.class}>
-        <span className={styles.debug.key.class}>href:</span>{' '}
+        <span className={styles.debug.key.class}>{'src:'}</span>{' '}
         <Button
           theme={theme.name}
           onMouse={(e) => setHrefButton(e.is)}
