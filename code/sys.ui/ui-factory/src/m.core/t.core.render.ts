@@ -30,7 +30,7 @@ export type RendererLib = {
  * Adapter contract that bridges the abstract plan → concrete host.
  * Each method is invoked by the renderer as it walks the resolved tree.
  */
-export type HostAdapter<F extends t.Factory<any, any>> = Readonly<{
+export type HostAdapter<F extends t.Factory<any, any>> = {
   /**
    * Create an instance for a view. Called once per ResolvedPlanNode.
    * Responsible for wiring `module.default` with its initial props.
@@ -59,4 +59,4 @@ export type HostAdapter<F extends t.Factory<any, any>> = Readonly<{
    * Complete mounting and return a root-level host handle.
    */
   finalize(root: HostNode): HostInstance;
-}>;
+};

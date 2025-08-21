@@ -12,14 +12,14 @@ export type LazyViewModule = { default: React.FC<any> };
 export type GetViewResult = { ok: true; module: LazyViewModule } | { ok: false; error: t.StdError };
 
 /** View contract: tiny and framework-agnostic. */
-export type ViewSpec<Id extends ViewId = ViewId, Slot extends SlotId = SlotId> = Readonly<{
-  id: Id;
-  schema?: t.TSchema;
-  slots?: readonly Slot[];
-}>;
+export type ViewSpec<Id extends ViewId = ViewId, Slot extends SlotId = SlotId> = {
+  readonly id: Id;
+  readonly schema?: t.TSchema;
+  readonly slots?: readonly Slot[];
+};
 
 /** Registration pairs spec with lazy loader. */
-export type Registration<Id extends ViewId = ViewId, Slot extends SlotId = SlotId> = Readonly<{
-  spec: ViewSpec<Id, Slot>;
+export type Registration<Id extends ViewId = ViewId, Slot extends SlotId = SlotId> = {
+  readonly spec: ViewSpec<Id, Slot>;
   load: () => Promise<LazyViewModule>;
-}>;
+};

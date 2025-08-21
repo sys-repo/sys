@@ -21,15 +21,15 @@ export type SlotsFor<F extends t.Factory<any, any>, Id extends t.ViewIds<F>> = t
  * - `slots`: children keyed by the view’s allowed slots (type-safe).
  * - `props`/`id`: data + stable identity.
  */
-export type PlanNodeFor<F extends t.Factory<any, any>, Id extends t.ViewIds<F>> = Readonly<{
-  component: Id;
-  props?: unknown;
-  slots?: Partial<{
+export type PlanNodeFor<F extends t.Factory<any, any>, Id extends t.ViewIds<F>> = {
+  readonly component: Id;
+  readonly props?: unknown;
+  readonly slots?: Partial<{
     [K in t.SlotsFor<F, Id>]: PlanNode<F> | ReadonlyArray<PlanNode<F>>;
   }>;
   /** Stable identity for host state continuity (optional). */
-  id?: string;
-}>;
+  readonly id?: string;
+};
 
 /**
  * Union over all possible nodes in a given factory.
@@ -42,37 +42,37 @@ export type PlanNode<F extends t.Factory<any, any>> = {
 /**
  * A full plan tree, anchored at a single root node.
  */
-export type Plan<F extends t.Factory<any, any>> = Readonly<{
-  root: PlanNode<F>;
-}>;
+export type Plan<F extends t.Factory<any, any>> = {
+  readonly root: PlanNode<F>;
+};
 
 /**
  * Ergonomic "linear" authoring shape (Id/Slot/Children).
  * Great for tests and simple DevHarness inputs.
  */
-export type LinearPlanNode<Id extends string, Slot extends string> = Readonly<{
-  id: Id;
-  props?: unknown;
-  slot?: Slot;
-  children?: ReadonlyArray<LinearPlanNode<Id, Slot>>;
-}>;
+export type LinearPlanNode<Id extends string, Slot extends string> = {
+  readonly id: Id;
+  readonly props?: unknown;
+  readonly slot?: Slot;
+  readonly children?: ReadonlyArray<LinearPlanNode<Id, Slot>>;
+};
 
 /**
  * A lightweight, author-friendly plan:
  * - `root` is a simple `{ id, slot?, children[] }` tree.
  * - Great for tests, samples, and external config before converting to the canonical plan.
  */
-export type LinearPlan<Id extends string, Slot extends string> = Readonly<{
-  root: LinearPlanNode<Id, Slot>;
-}>;
+export type LinearPlan<Id extends string, Slot extends string> = {
+  readonly root: LinearPlanNode<Id, Slot>;
+};
 
 /**
  * Validation result.
  */
 export type PlanValidateOk = { ok: true };
-export type PlanValidateErr = Readonly<{
-  ok: false;
-  error: Readonly<{
+export type PlanValidateErr = {
+  readonly ok: false;
+  readonly error: Readonly<{
     code: 'UNKNOWN_VIEW_ID' | 'INVALID_SLOT';
     message: string;
     /**
@@ -86,19 +86,19 @@ export type PlanValidateErr = Readonly<{
     /** Only for INVALID_SLOT */
     got?: string | undefined;
   }>;
-}>;
+};
 export type PlanValidateResult = PlanValidateOk | PlanValidateErr;
 
 /**
  * A canonical plan node with its view module already resolved.
  * - Same shape as `PlanNode`, but guarantees `module` is loaded.
  */
-export type ResolvedPlanNode<F extends t.Factory<any, any>> = Readonly<{
-  component: t.ViewIds<F>;
-  props?: unknown;
-  slots?: Partial<ResolvedPlanSlots<F>>; // same slots shape, but values are resolved nodes.
-  module: t.LazyViewModule;
-}>;
+export type ResolvedPlanNode<F extends t.Factory<any, any>> = {
+  readonly component: t.ViewIds<F>;
+  readonly props?: unknown;
+  readonly slots?: Partial<ResolvedPlanSlots<F>>; // same slots shape, but values are resolved nodes.
+  readonly module: t.LazyViewModule;
+};
 
 /**
  * Slot map for a resolved plan node.
@@ -115,16 +115,19 @@ export type ResolvedPlanSlots<F extends t.Factory<any, any>> = {
  * - Includes a cache of modules by component id for reuse.
  */
 export type ResolveOk<F extends t.Factory<any, any>> = {
-  ok: true;
-  root: ResolvedPlanNode<F>;
+  readonly ok: true;
+  readonly root: ResolvedPlanNode<F>;
   /** Cache of modules by component id */
-  cache: ReadonlyMap<t.ViewIds<F>, t.LazyViewModule>;
+  readonly cache: ReadonlyMap<t.ViewIds<F>, t.LazyViewModule>;
 };
 
 /**
  * Result of a failed plan resolution.
  */
-export type ResolveErr = { ok: false; error: t.StdError };
+export type ResolveErr = {
+  readonly ok: false;
+  readonly error: t.StdError;
+};
 
 /**
  * Union type for resolve results (success or failure).
