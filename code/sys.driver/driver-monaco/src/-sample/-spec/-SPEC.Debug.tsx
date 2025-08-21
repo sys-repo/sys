@@ -6,7 +6,12 @@ import { type t, Button, Crdt, css, D, LocalStorage, Obj, ObjectView, Signal } f
 import { createSignals } from '../mod.ts';
 
 type P = t.SampleProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug'> & { debugMargin?: boolean };
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: false,
+  debugMargin: false,
+};
 
 /**
  * Types:
@@ -20,16 +25,13 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 export async function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    debugMargin: s(snap.debugMargin),
     factory: s<t.Factory>(SampleFactory),
   };
   const repo = createRepo();
@@ -52,6 +54,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.debugMargin = p.debugMargin.value;
     });
   });
 
@@ -100,6 +103,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `margin: ${p.debugMargin.value}`}
+        onClick={() => Signal.toggle(p.debugMargin)}
+      />
 
       <Button
         block
@@ -109,6 +117,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
           doc?.change((d) => {
             // Obj.Path.Mutate.delete(d, ['foo.parsed1']);
           });
+        }}
+      />
+      <Button
+        block
+        label={() => `(reset)`}
+        onClick={() => {
+          p.debug.value = defaults.debug;
+          p.debugMargin.value = defaults.debugMargin;
+          p.theme.value = defaults.theme;
         }}
       />
 
