@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, stubView, reg, describe, expect, it, Obj } from '../-test.ts';
+import { describe, expect, it, Obj, type t, TestReg, TestView } from '../-test.ts';
 import { Factory } from './mod.ts';
 
 type Id = 'Alpha:view' | 'Beta:view';
@@ -14,7 +14,7 @@ describe('Factory (core)', () => {
 
   describe('Factory.make', () => {
     it('creates a registry keyed by spec.id', async () => {
-      const regs = [reg('Alpha:view'), reg('Beta:view')] as const;
+      const regs = [TestReg.make('Alpha:view'), TestReg.make('Beta:view')] as const;
       const f = Factory.make<Id>(regs);
 
       // `ids` present:
@@ -44,7 +44,7 @@ describe('Factory (core)', () => {
     });
 
     it('does not mutate input registrations', () => {
-      const regs = [reg('Alpha:view')];
+      const regs = [TestReg.make('Alpha:view')];
       const before = Obj.clone(regs);
       Factory.make<Id>(regs as any);
       expect(regs).to.eql(before);
@@ -53,13 +53,13 @@ describe('Factory (core)', () => {
 
   describe('Factory.compose', () => {
     it('merges factories (left→right), later wins on collisions', async () => {
-      const f1 = Factory.make<Id>([reg('Alpha:view')]);
-      const f2 = Factory.make<Id>([reg('Beta:view')]);
+      const f1 = Factory.make<Id>([TestReg.make('Alpha:view')]);
+      const f2 = Factory.make<Id>([TestReg.make('Beta:view')]);
 
       // Collision: override "Alpha:view" with different loader (wins because right-most).
       const altAlpha: t.Registration<'Alpha:view'> = {
         spec: { id: 'Alpha:view', slots: [] },
-        load: async () => stubView('Alpha:view:ALT'),
+        load: async () => TestView.stub('Alpha:view:ALT'),
       };
       const f3 = Factory.make<Id>([altAlpha]);
       const merged = Factory.compose<Id>([f1, f2, f3]);
@@ -86,8 +86,8 @@ describe('Factory (core)', () => {
     });
 
     it('returns a new factory without mutating inputs', () => {
-      const a = Factory.make<Id>([reg('Alpha:view')]);
-      const b = Factory.make<Id>([reg('Beta:view')]);
+      const a = Factory.make<Id>([TestReg.make('Alpha:view')]);
+      const b = Factory.make<Id>([TestReg.make('Beta:view')]);
 
       const beforeA = Obj.clone(a.specs);
       const beforeB = Obj.clone(b.specs);

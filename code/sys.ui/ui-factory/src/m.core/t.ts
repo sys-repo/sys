@@ -51,4 +51,15 @@ export type PlanLib = {
     factory: F,
     opts?: { placeUnslotted?: 'first-slot' | 'reject' },
   ): t.Plan<F>;
+
+  /**
+   * Resolve a canonical plan into a tree with loaded view modules.
+   *
+   * - Walks the canonical `Plan<F>` and, for each node, loads its module via `factory.getView`.
+   * - Memoizes by component id, so the same view id only loads once (even if used many times).
+   * - Returns `{ ok:true, root, cache }` on success, where `cache` is a `Map<id,module>`.
+   * - If any load fails or an id is unknown, returns `{ ok:false, error }` (uses your StdError surface).
+   * - Does not mutate the input plan or factory.
+   */
+  resolve<F extends t.Factory<any, any>>(plan: t.Plan<F>, factory: F): Promise<t.ResolveResult<F>>;
 };

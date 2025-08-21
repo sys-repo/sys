@@ -88,3 +88,45 @@ export type PlanValidateErr = Readonly<{
   }>;
 }>;
 export type PlanValidateResult = PlanValidateOk | PlanValidateErr;
+
+/**
+ * A canonical plan node with its view module already resolved.
+ * - Same shape as `PlanNode`, but guarantees `module` is loaded.
+ */
+export type ResolvedPlanNode<F extends t.Factory<any, any>> = Readonly<{
+  component: t.ViewIds<F>;
+  props?: unknown;
+  slots?: Partial<ResolvedPlanSlots<F>>; // same slots shape, but values are resolved nodes.
+  module: t.LazyViewModule;
+}>;
+
+/**
+ * Slot map for a resolved plan node.
+ * - Keys are the declared slot names.
+ * - Values are one or more resolved child nodes.
+ */
+export type ResolvedPlanSlots<F extends t.Factory<any, any>> = {
+  [K in t.SlotsFor<F, t.ViewIds<F>>]: ResolvedPlanNode<F> | ReadonlyArray<ResolvedPlanNode<F>>;
+};
+
+/**
+ * Result of successfully resolving a plan.
+ * - Provides the resolved root node.
+ * - Includes a cache of modules by component id for reuse.
+ */
+export type ResolveOk<F extends t.Factory<any, any>> = {
+  ok: true;
+  root: ResolvedPlanNode<F>;
+  /** Cache of modules by component id */
+  cache: ReadonlyMap<t.ViewIds<F>, t.LazyViewModule>;
+};
+
+/**
+ * Result of a failed plan resolution.
+ */
+export type ResolveErr = { ok: false; error: t.StdError };
+
+/**
+ * Union type for resolve results (success or failure).
+ */
+export type ResolveResult<F extends t.Factory<any, any>> = ResolveOk<F> | ResolveErr;

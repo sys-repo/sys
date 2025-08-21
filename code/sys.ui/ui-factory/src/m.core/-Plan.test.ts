@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, Obj, reg } from '../-test.ts';
+import { type t, describe, expect, expectSlots, it, Obj, TestReg } from '../-test.ts';
 import { Factory, Plan } from './mod.ts';
 
 /**
@@ -7,22 +7,13 @@ import { Factory, Plan } from './mod.ts';
 type Id = 'Layout:root' | 'Card:view' | 'List:view';
 type Slot = 'Main' | 'Sidebar' | 'Item';
 
-/**
- * Guardrail: ensure the factory preserved slots for a given id.
- */
-const expectSlots = <I extends string, S extends string>(
-  f: t.FactoryWithSlots<I, S>,
-  id: I,
-  slots: readonly S[],
-) => expect((f.specs[id] as any).spec.slots).to.eql(slots);
-
 describe('Plan', () => {
   describe('Plan.validate (canonical)', () => {
     it('accepts a valid canonical plan', () => {
       const f = Factory.make<Id>([
-        reg<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        reg<Id, Slot>('Card:view', []),
-        reg<Id, Slot>('List:view', ['Item']),
+        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+        TestReg.make<Id, Slot>('Card:view', []),
+        TestReg.make<Id, Slot>('List:view', ['Item']),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check: registry preserved slots:
@@ -56,8 +47,8 @@ describe('Plan', () => {
 
     it('rejects unknown view id (canonical)', () => {
       const f = Factory.make<Id>([
-        reg<Id, Slot>('Layout:root', ['Main']),
-        reg<Id, Slot>('Card:view', []),
+        TestReg.make<Id, Slot>('Layout:root', ['Main']),
+        TestReg.make<Id, Slot>('Card:view', []),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check:
@@ -83,8 +74,8 @@ describe('Plan', () => {
 
     it('rejects invalid slot name for the parent (canonical)', () => {
       const f = Factory.make<Id>([
-        reg<Id, Slot>('Layout:root', ['Main']), // Only "Main" allowed.
-        reg<Id, Slot>('Card:view', []),
+        TestReg.make<Id, Slot>('Layout:root', ['Main']), // Only "Main" allowed.
+        TestReg.make<Id, Slot>('Card:view', []),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check:
@@ -112,9 +103,9 @@ describe('Plan', () => {
   describe('Plan.validateLinear (id/slot/children)', () => {
     it('accepts a valid linear plan', () => {
       const f = Factory.make<Id>([
-        reg<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        reg<Id, Slot>('Card:view', []),
-        reg<Id, Slot>('List:view', ['Item']),
+        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+        TestReg.make<Id, Slot>('Card:view', []),
+        TestReg.make<Id, Slot>('List:view', ['Item']),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // sanity
@@ -147,8 +138,8 @@ describe('Plan', () => {
 
     it('allows missing slot when parent declares slots (default semantics)', () => {
       const f = Factory.make<Id>([
-        reg<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        reg<Id, Slot>('Card:view', []),
+        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+        TestReg.make<Id, Slot>('Card:view', []),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // sanity
@@ -167,8 +158,8 @@ describe('Plan', () => {
 
     it('rejects unknown id (linear)', () => {
       const f = Factory.make<Id>([
-        reg<Id, Slot>('Layout:root', ['Main']),
-        reg<Id, Slot>('Card:view', []),
+        TestReg.make<Id, Slot>('Layout:root', ['Main']),
+        TestReg.make<Id, Slot>('Card:view', []),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // sanity
@@ -191,8 +182,8 @@ describe('Plan', () => {
 
     it('rejects invalid slot for given parent (linear)', () => {
       const f = Factory.make<Id>([
-        reg<Id, Slot>('Layout:root', ['Main']), // only "Main"
-        reg<Id, Slot>('Card:view', []),
+        TestReg.make<Id, Slot>('Layout:root', ['Main']), // only "Main"
+        TestReg.make<Id, Slot>('Card:view', []),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // sanity
@@ -218,9 +209,9 @@ describe('Plan', () => {
   describe('Plan.fromLinear', () => {
     it('converts a valid linear plan into a canonical plan that validates', () => {
       const f = Factory.make<Id>([
-        reg<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        reg<Id, Slot>('Card:view', []),
-        reg<Id, Slot>('List:view', ['Item']),
+        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+        TestReg.make<Id, Slot>('Card:view', []),
+        TestReg.make<Id, Slot>('List:view', ['Item']),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check:
@@ -258,8 +249,8 @@ describe('Plan', () => {
 
     it('throws when strategy is "reject" and a child is missing a slot under a slotted parent', () => {
       const f = Factory.make<Id>([
-        reg<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        reg<Id, Slot>('Card:view', []),
+        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+        TestReg.make<Id, Slot>('Card:view', []),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check:
@@ -274,6 +265,113 @@ describe('Plan', () => {
 
       const fn = () => Plan.fromLinear(linear, f, { placeUnslotted: 'reject' });
       expect(fn).to.throw();
+    });
+  });
+
+  describe('Plan.resolve', () => {
+    it('resolves modules for a canonical plan and memoizes by component id', async () => {
+      const layout = TestReg.counter(TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']));
+      const card = TestReg.counter(TestReg.make<Id, Slot>('Card:view', []));
+      const list = TestReg.counter(TestReg.make<Id, Slot>('List:view', ['Item']));
+
+      const f = Factory.make<Id>([layout.reg, card.reg, list.reg]) as t.FactoryWithSlots<Id, Slot>;
+
+      // Canonical plan with repeated Card:view occurrences (must load once):
+      const plan: t.Plan<typeof f> = {
+        root: {
+          component: 'Layout:root',
+          props: { title: 'Home' },
+          slots: {
+            Main: { component: 'Card:view', props: { x: 1 } },
+            Sidebar: [
+              {
+                component: 'List:view',
+                slots: {
+                  Item: [
+                    { component: 'Card:view', props: { note: 'A' } },
+                    { component: 'Card:view', props: { note: 'B' } },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const beforePlan = Obj.clone(plan);
+      const beforeSpecs = Obj.clone(f.specs);
+
+      const res = await Plan.resolve(plan, f);
+      expect(res.ok).to.eql(true);
+      if (!res.ok) throw new Error('expected success');
+
+      // Memoization: one load per Id:
+      expect(layout.count).to.eql(1);
+      expect(card.count).to.eql(1);
+      expect(list.count).to.eql(1);
+
+      // Cache: contains the three ids:
+      const ok = res;
+      expect(ok.cache.size).to.eql(3);
+
+      // Structure: slots preserved (single vs array).
+      const root = ok.root as any;
+      expect(root.component).to.eql('Layout:root');
+      expect(root.module).to.exist;
+      expect(Array.isArray(root.slots.Main)).to.eql(false);
+      expect(Array.isArray(root.slots.Sidebar)).to.eql(true);
+
+      // Immutability:
+      expect(plan).to.eql(beforePlan);
+      expect(f.specs).to.eql(beforeSpecs);
+    });
+
+    it('bubbles loader failures as StdError(name="LoadError")', async () => {
+      const badCard: t.Registration<'Card:view', Slot> = {
+        spec: { id: 'Card:view', slots: [] },
+        async load() {
+          throw new Error('boom');
+        },
+      };
+
+      const f = Factory.make<Id>([
+        TestReg.make<Id, Slot>('Layout:root', ['Main']),
+        badCard as t.Registration<Id, Slot>,
+      ]) as t.FactoryWithSlots<Id, Slot>;
+
+      const plan: t.Plan<typeof f> = {
+        root: {
+          component: 'Layout:root',
+          slots: { Main: { component: 'Card:view' } },
+        },
+      };
+
+      const res = await Plan.resolve(plan, f);
+      expect(res.ok).to.eql(false);
+      if (!res.ok) {
+        expect(res.error.name).to.eql('LoadError');
+        expect(res.error.message).to.include("Failed to load view 'Card:view'");
+      }
+    });
+
+    it('defensively returns UnknownViewId if a child id is not registered', async () => {
+      const f = Factory.make<Id>([
+        TestReg.make<Id, Slot>('Layout:root', ['Main']), // ← Note: Card:view intentionally NOT registered
+      ]) as t.FactoryWithSlots<Id, Slot>;
+
+      const plan: t.Plan<typeof f> = {
+        root: {
+          component: 'Layout:root',
+          slots: { Main: { component: 'Card:view' as Id } },
+        },
+      };
+
+      const res = await Plan.resolve(plan, f);
+      expect(res.ok).to.eql(false);
+      if (!res.ok) {
+        expect(res.error.name).to.eql('UnknownViewId');
+        expect(res.error.message).to.include("Unknown view id: 'Card:view'");
+      }
     });
   });
 });

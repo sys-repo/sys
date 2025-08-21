@@ -1,51 +1,11 @@
 import { type t } from './common.ts';
+import { resolve } from './m.Plan.u.resolve.ts';
+import { validate } from './m.Plan.u.validate.ts';
+import { validationError, validationOk } from './u.Plan.ts';
 
 export const Plan: t.PlanLib = {
-  /**
-   * Validate canonical, factory-typed plan without mutation.
-   * Walks the slot map, short-circuiting on first error.
-   */
-  validate<F extends t.Factory<any, any>>(plan: t.Plan<F>, factory: F): t.PlanValidateResult {
-    // Read registrations, not specs.
-    const regs = factory.specs as t.SpecsMap<t.ViewIds<F>>;
-
-    const walk = (node: t.PlanNode<F>, path: number[]): t.PlanValidateResult => {
-      const id = node.component as t.ViewIds<F>;
-      // Pull the spec for this node's component:
-      const spec = (regs as any)[id]?.spec as Readonly<{ slots?: readonly string[] }> | undefined;
-      if (!spec) return err('UNKNOWN_VIEW_ID', `Unknown view id: '${String(id)}'`, path);
-
-      const entries = Object.entries(node.slots ?? {}) as Array<
-        [string, t.PlanNode<F> | ReadonlyArray<t.PlanNode<F>>]
-      >;
-
-      const allowed = (spec.slots ?? []) as readonly string[]; // ← Declared slots for this component.
-
-      let childIdx = 0;
-      for (const [slotName, childOrList] of entries) {
-        if (!allowed.includes(slotName)) {
-          return err(
-            'INVALID_SLOT',
-            `Invalid slot '${slotName}' for '${String(id)}'`,
-            path,
-            allowed,
-            slotName,
-          );
-        }
-
-        const list = Array.isArray(childOrList) ? childOrList : [childOrList];
-        for (const child of list) {
-          const res = walk(child as t.PlanNode<F>, path.concat(childIdx));
-          if (!res.ok) return res;
-          childIdx += 1;
-        }
-      }
-
-      return ok();
-    };
-
-    return walk(plan.root as t.PlanNode<F>, []);
-  },
+  validate,
+  resolve,
 
   /**
    * Validate a linear plan (Id/Slot/Children) without mutation.
@@ -64,7 +24,8 @@ export const Plan: t.PlanLib = {
       path: number[],
     ): t.PlanValidateResult => {
       const spec = regs[node.id as Id]?.spec;
-      if (!spec) return err('UNKNOWN_VIEW_ID', `Unknown view id: '${node.id as string}'`, path);
+      if (!spec)
+        return validationError('UNKNOWN_VIEW_ID', `Unknown view id: '${node.id as string}'`, path);
 
       if (parentId) {
         const parentSpec = regs[parentId]?.spec;
@@ -73,7 +34,13 @@ export const Plan: t.PlanLib = {
           const got = node.slot as Slot;
           if (!allowed.includes(got)) {
             const msg = `Invalid slot '${got as string}' for parent '${parentId as string}'`;
-            return err('INVALID_SLOT', msg, path, allowed as readonly string[], got as string);
+            return validationError(
+              'INVALID_SLOT',
+              msg,
+              path,
+              allowed as readonly string[],
+              got as string,
+            );
           }
         }
       }
@@ -83,7 +50,7 @@ export const Plan: t.PlanLib = {
         const res = walk(children[i], node.id as Id, path.concat(i));
         if (!res.ok) return res;
       }
-      return ok();
+      return validationOk();
     };
 
     return walk(plan.root, null, []);
@@ -157,22 +124,3 @@ export const Plan: t.PlanLib = {
     return { root: convertNode(linear.root) } as t.Plan<F>;
   },
 };
-
-/**
- * Helpers:
- */
-const ok = (): t.PlanValidateOk => ({ ok: true });
-
-/** Create typed validation errors using exceptions for early exit. */
-function err(
-  code: 'UNKNOWN_VIEW_ID' | 'INVALID_SLOT',
-  message: string,
-  path: ReadonlyArray<number>,
-  allowed?: ReadonlyArray<string>,
-  got?: string,
-): t.PlanValidateErr {
-  return {
-    ok: false,
-    error: { code, message, path, allowed, got },
-  };
-}
