@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, describe, expect, it, Obj } from '../-test.ts';
+import { type t, stubView, reg, describe, expect, it, Obj } from '../-test.ts';
 import { Factory } from './mod.ts';
 
 type Id = 'Alpha:view' | 'Beta:view';
@@ -103,23 +103,3 @@ describe('Factory (core)', () => {
     });
   });
 });
-
-/**
- * Helpers:
- */
-
-/** Silent stub: renders a React element with testable attrs. */
-export const stubView = (name: string): t.LazyViewModule => {
-  const Comp: React.FC<unknown> = (props) => (
-    <div data-stub-view={name} data-props={JSON.stringify(props)} />
-  );
-  (Comp as any).displayName = name;
-  return { default: Comp };
-};
-
-const reg = <T extends Id>(id: T): t.Registration<T> => {
-  return {
-    spec: { id, slots: [] },
-    load: async () => stubView(id),
-  };
-};

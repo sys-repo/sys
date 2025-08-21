@@ -16,3 +16,4 @@
  * - Rendering, prop resolution, and validation live above this layer.
  */
 export { Factory } from './m.Factory.ts';
+export { Plan } from './m.Plan.ts';

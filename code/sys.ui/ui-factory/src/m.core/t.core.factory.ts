@@ -30,3 +30,22 @@ export type SlotIds<F extends Factory<any, any>> =
       : never
     : never;
 export type SpecOf<F extends Factory<any, any>, Id extends ViewIds<F>> = F['specs'][Id]['spec'];
+
+/**
+ * Factory type specialized with a concrete Id + Slot union.
+ * Ensures each registration carries the correct slot set for that view,
+ * giving strong typing when authoring or validating plans.
+ */
+export type FactoryWithSlots<Id extends string, Slot extends string> = t.Factory<
+  Id,
+  t.Registration<Id, Slot>
+>;
+
+/**
+ * The canonical map of registrations keyed by view Id.
+ * - Used internally by factories (`specs`).
+ * - Preserves full `Registration` shape including `spec.slots`.
+ */
+export type SpecsMap<Ids extends t.ViewId> = Readonly<{
+  [K in Ids]: Readonly<t.Registration<K>>;
+}>;
