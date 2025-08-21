@@ -9,7 +9,7 @@ import type { t } from './common.ts';
  */
 export type FactoryMap<
   Ids extends t.ViewId,
-  // Allow each entry to carry its own Slot union; consumers usually pass a concrete object type here.
+  /** Allow each entry to carry its own Slot union; consumers usually pass a concrete object type here. */
   RegEntry extends t.Registration<any, any> = t.Registration<Ids, t.SlotId>,
 > = { [K in Ids]: RegEntry & t.Registration<K, any> };
 
