@@ -128,6 +128,7 @@ export const Sample: React.FC<P> = (props) => {
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       <SplitPane
+        debug={debug}
         only={showMain ? undefined : 'A'}
         value={splitRatio}
         onChange={(e) => setSplitRatio(e.ratio)}
