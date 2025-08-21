@@ -36,6 +36,10 @@ export const YamlEditorFooter: React.FC<P> = (props) => {
       opacity: hasErrors ? 1 : 0,
       transition: 'opacity 120ms ease',
     }),
+    path: css({
+      minWidth: 0, //         ← allow grid item to be smaller than min-content.
+      overflow: 'hidden', //  ← prevent spill when pane collapses
+    }),
   };
 
   const elError = (
@@ -43,12 +47,14 @@ export const YamlEditorFooter: React.FC<P> = (props) => {
   );
 
   const elPath = (
-    <PathView
-      prefix={'path:'}
-      prefixColor={theme.is.dark ? Color.CYAN : Color.BLUE}
-      path={path}
-      theme={theme.name}
-    />
+    <div className={styles.path.class}>
+      <PathView
+        prefix={'path:'}
+        prefixColor={theme.is.dark ? Color.CYAN : Color.BLUE}
+        path={path}
+        theme={theme.name}
+      />
+    </div>
   );
 
   const elRepo = <Repo crdt={crdt} theme={theme.name} />;
