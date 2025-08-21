@@ -72,7 +72,7 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
           onClick={(e) => {
             navigator.clipboard.writeText(url ?? '<no url>');
             setCopied(true);
-            Time.delay(1200, () => setCopied(false));
+            Time.delay(1100, () => setCopied(false));
           }}
         >
           <span className={styles.debug.value.class}>{url ?? '<none>'}</span>
