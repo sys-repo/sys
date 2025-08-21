@@ -35,3 +35,14 @@ export type ReactHostAdapterFactory = <F extends t.Factory<any, any>>() => t.Hos
 export type ReactPlanViewProps<F extends t.Factory<any, any>> = Readonly<{
   resolved: t.ResolvedPlanNode<F>;
 }>;
+
+/**
+ * React component type for rendering a fully resolved plan node.
+ *
+ * - Generic over the `Factory` type so slot/prop typing flows through.
+ * - Returns a React element tree rooted at the given node.
+ * - Used by `ReactPlanView` implementation and tests.
+ */
+export type ReactPlanViewComponent = <F extends t.Factory<any, any>>(
+  props: t.ReactPlanViewProps<F>,
+) => React.ReactElement;
