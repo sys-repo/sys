@@ -2,9 +2,8 @@
 
 Tiny primitives for declarative UI composition.  
 
-Factory → Specs → Plan → View → Slots
-
 ----
+Factory → Specs → Plan → View → Slots
 
 - #### Factory
   A factory is `data` ("**specs**" in a "**plan**") + a lazy `view` loader.  
@@ -27,5 +26,6 @@ Factory → Specs → Plan → View → Slots
 
 ## Usage
 ```ts
-import { pkg } from '@sys/ui-factory';
+import { Factory } from '@sys/ui-factory/core';
+import { ReactHostAdapter } from '@sys/ui-factory/react';
 ```
