@@ -100,171 +100,173 @@ describe('Plan', () => {
     });
   });
 
-  describe('Plan.validateLinear (id/slot/children)', () => {
-    it('accepts a valid linear plan', () => {
-      const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        TestReg.make<Id, Slot>('Card:view', []),
-        TestReg.make<Id, Slot>('List:view', ['Item']),
-      ]) as t.FactoryWithSlots<Id, Slot>;
+  describe('Plan.Linear', () => {
+    describe('Plan.Linear.validate (id/slot/children)', () => {
+      it('accepts a valid linear plan', () => {
+        const f = Factory.make<Id>([
+          TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+          TestReg.make<Id, Slot>('Card:view', []),
+          TestReg.make<Id, Slot>('List:view', ['Item']),
+        ]) as t.FactoryWithSlots<Id, Slot>;
 
-      // sanity
-      expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
-      expectSlots(f, 'List:view', ['Item']);
+        // sanity
+        expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
+        expectSlots(f, 'List:view', ['Item']);
 
-      const plan: t.LinearPlan<Id, Slot> = {
-        root: {
-          id: 'Layout:root',
-          props: { title: 'Home' },
-          children: [
-            { id: 'Card:view', slot: 'Main', props: { x: 1 } },
-            {
-              id: 'List:view',
-              slot: 'Sidebar',
-              children: [{ id: 'Card:view', slot: 'Item', props: { note: 'nested' } }],
-            },
-          ],
-        },
-      };
+        const plan: t.LinearPlan<Id, Slot> = {
+          root: {
+            id: 'Layout:root',
+            props: { title: 'Home' },
+            children: [
+              { id: 'Card:view', slot: 'Main', props: { x: 1 } },
+              {
+                id: 'List:view',
+                slot: 'Sidebar',
+                children: [{ id: 'Card:view', slot: 'Item', props: { note: 'nested' } }],
+              },
+            ],
+          },
+        };
 
-      const beforePlan = Obj.clone(plan);
-      const beforeSpecs = Obj.clone(f.specs);
+        const beforePlan = Obj.clone(plan);
+        const beforeSpecs = Obj.clone(f.specs);
 
-      const res = Plan.validateLinear(plan, f);
-      expect(res.ok).to.eql(true);
-      expect(plan).to.eql(beforePlan);
-      expect(f.specs).to.eql(beforeSpecs);
+        const res = Plan.Linear.validate(plan, f);
+        expect(res.ok).to.eql(true);
+        expect(plan).to.eql(beforePlan);
+        expect(f.specs).to.eql(beforeSpecs);
+      });
+
+      it('allows missing slot when parent declares slots (default semantics)', () => {
+        const f = Factory.make<Id>([
+          TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+          TestReg.make<Id, Slot>('Card:view', []),
+        ]) as t.FactoryWithSlots<Id, Slot>;
+
+        // sanity
+        expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
+
+        const plan: t.LinearPlan<Id, Slot> = {
+          root: {
+            id: 'Layout:root',
+            children: [{ id: 'Card:view' }], // no slot → allowed by default semantics
+          },
+        };
+
+        const res = Plan.Linear.validate(plan, f);
+        expect(res.ok).to.eql(true);
+      });
+
+      it('rejects unknown id (linear)', () => {
+        const f = Factory.make<Id>([
+          TestReg.make<Id, Slot>('Layout:root', ['Main']),
+          TestReg.make<Id, Slot>('Card:view', []),
+        ]) as t.FactoryWithSlots<Id, Slot>;
+
+        // sanity
+        expectSlots(f, 'Layout:root', ['Main']);
+
+        const plan: t.LinearPlan<Id, Slot> = {
+          root: {
+            id: 'Layout:root',
+            children: [{ id: 'Nope:view' as Id, slot: 'Main' }],
+          },
+        };
+
+        const res = Plan.Linear.validate(plan, f);
+        expect(res.ok).to.eql(false);
+        if (!res.ok) {
+          expect(res.error.code).to.eql('UNKNOWN_VIEW_ID');
+          expect(res.error.path).to.eql([0]);
+        }
+      });
+
+      it('rejects invalid slot for given parent (linear)', () => {
+        const f = Factory.make<Id>([
+          TestReg.make<Id, Slot>('Layout:root', ['Main']), // only "Main"
+          TestReg.make<Id, Slot>('Card:view', []),
+        ]) as t.FactoryWithSlots<Id, Slot>;
+
+        // sanity
+        expectSlots(f, 'Layout:root', ['Main']);
+
+        const plan: t.LinearPlan<Id, Slot> = {
+          root: {
+            id: 'Layout:root',
+            children: [{ id: 'Card:view', slot: 'Sidebar' }], // Invalid.
+          },
+        };
+
+        const res = Plan.Linear.validate(plan, f);
+        expect(res.ok).to.eql(false);
+        if (!res.ok) {
+          expect(res.error.code).to.eql('INVALID_SLOT');
+          expect(res.error.allowed).to.eql(['Main']);
+          expect(res.error.got).to.eql('Sidebar');
+        }
+      });
     });
 
-    it('allows missing slot when parent declares slots (default semantics)', () => {
-      const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        TestReg.make<Id, Slot>('Card:view', []),
-      ]) as t.FactoryWithSlots<Id, Slot>;
+    describe('Plan.Linear.toCanonical', () => {
+      it('converts a valid linear plan into a canonical plan that validates', () => {
+        const f = Factory.make<Id>([
+          TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+          TestReg.make<Id, Slot>('Card:view', []),
+          TestReg.make<Id, Slot>('List:view', ['Item']),
+        ]) as t.FactoryWithSlots<Id, Slot>;
 
-      // sanity
-      expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
+        // Sanity check:
+        expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
+        expectSlots(f, 'List:view', ['Item']);
 
-      const plan: t.LinearPlan<Id, Slot> = {
-        root: {
-          id: 'Layout:root',
-          children: [{ id: 'Card:view' }], // no slot → allowed by default semantics
-        },
-      };
+        const linear: t.LinearPlan<Id, Slot> = {
+          root: {
+            id: 'Layout:root',
+            children: [
+              { id: 'Card:view', slot: 'Main', props: { x: 1 } },
+              {
+                id: 'List:view',
+                slot: 'Sidebar',
+                children: [{ id: 'Card:view', slot: 'Item', props: { note: 'nested' } }],
+              },
+            ],
+          },
+        };
 
-      const res = Plan.validateLinear(plan, f);
-      expect(res.ok).to.eql(true);
-    });
+        const before = Obj.clone(linear);
+        const canonical = Plan.Linear.toCanonical(linear, f);
+        const res = Plan.validate(canonical, f);
 
-    it('rejects unknown id (linear)', () => {
-      const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main']),
-        TestReg.make<Id, Slot>('Card:view', []),
-      ]) as t.FactoryWithSlots<Id, Slot>;
+        expect(linear).to.eql(before); // Input not mutated.
+        expect(res.ok).to.eql(true);
 
-      // sanity
-      expectSlots(f, 'Layout:root', ['Main']);
+        // Spot check structure:
+        const root = canonical.root;
+        expect(root.component).to.eql('Layout:root');
+        const slots = root.slots as any;
+        expect(Array.isArray(slots.Main)).to.eql(true);
+        expect(Array.isArray(slots.Sidebar)).to.eql(true);
+      });
 
-      const plan: t.LinearPlan<Id, Slot> = {
-        root: {
-          id: 'Layout:root',
-          children: [{ id: 'Nope:view' as Id, slot: 'Main' }],
-        },
-      };
+      it('throws when strategy is "reject" and a child is missing a slot under a slotted parent', () => {
+        const f = Factory.make<Id>([
+          TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+          TestReg.make<Id, Slot>('Card:view', []),
+        ]) as t.FactoryWithSlots<Id, Slot>;
 
-      const res = Plan.validateLinear(plan, f);
-      expect(res.ok).to.eql(false);
-      if (!res.ok) {
-        expect(res.error.code).to.eql('UNKNOWN_VIEW_ID');
-        expect(res.error.path).to.eql([0]);
-      }
-    });
+        // Sanity check:
+        expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
 
-    it('rejects invalid slot for given parent (linear)', () => {
-      const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main']), // only "Main"
-        TestReg.make<Id, Slot>('Card:view', []),
-      ]) as t.FactoryWithSlots<Id, Slot>;
+        const linear: t.LinearPlan<Id, Slot> = {
+          root: {
+            id: 'Layout:root',
+            children: [{ id: 'Card:view' }], // Missing slot.
+          },
+        };
 
-      // sanity
-      expectSlots(f, 'Layout:root', ['Main']);
-
-      const plan: t.LinearPlan<Id, Slot> = {
-        root: {
-          id: 'Layout:root',
-          children: [{ id: 'Card:view', slot: 'Sidebar' }], // Invalid.
-        },
-      };
-
-      const res = Plan.validateLinear(plan, f);
-      expect(res.ok).to.eql(false);
-      if (!res.ok) {
-        expect(res.error.code).to.eql('INVALID_SLOT');
-        expect(res.error.allowed).to.eql(['Main']);
-        expect(res.error.got).to.eql('Sidebar');
-      }
-    });
-  });
-
-  describe('Plan.fromLinear', () => {
-    it('converts a valid linear plan into a canonical plan that validates', () => {
-      const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        TestReg.make<Id, Slot>('Card:view', []),
-        TestReg.make<Id, Slot>('List:view', ['Item']),
-      ]) as t.FactoryWithSlots<Id, Slot>;
-
-      // Sanity check:
-      expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
-      expectSlots(f, 'List:view', ['Item']);
-
-      const linear: t.LinearPlan<Id, Slot> = {
-        root: {
-          id: 'Layout:root',
-          children: [
-            { id: 'Card:view', slot: 'Main', props: { x: 1 } },
-            {
-              id: 'List:view',
-              slot: 'Sidebar',
-              children: [{ id: 'Card:view', slot: 'Item', props: { note: 'nested' } }],
-            },
-          ],
-        },
-      };
-
-      const before = Obj.clone(linear);
-      const canonical = Plan.fromLinear(linear, f);
-      const res = Plan.validate(canonical, f);
-
-      expect(linear).to.eql(before); // Input not mutated.
-      expect(res.ok).to.eql(true);
-
-      // Spot check structure:
-      const root = canonical.root;
-      expect(root.component).to.eql('Layout:root');
-      const slots = root.slots as any;
-      expect(Array.isArray(slots.Main)).to.eql(true);
-      expect(Array.isArray(slots.Sidebar)).to.eql(true);
-    });
-
-    it('throws when strategy is "reject" and a child is missing a slot under a slotted parent', () => {
-      const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        TestReg.make<Id, Slot>('Card:view', []),
-      ]) as t.FactoryWithSlots<Id, Slot>;
-
-      // Sanity check:
-      expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
-
-      const linear: t.LinearPlan<Id, Slot> = {
-        root: {
-          id: 'Layout:root',
-          children: [{ id: 'Card:view' }], // Missing slot.
-        },
-      };
-
-      const fn = () => Plan.fromLinear(linear, f, { placeUnslotted: 'reject' });
-      expect(fn).to.throw();
+        const fn = () => Plan.Linear.toCanonical(linear, f, { placeUnslotted: 'reject' });
+        expect(fn).to.throw();
+      });
     });
   });
 

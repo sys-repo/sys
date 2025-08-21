@@ -28,29 +28,13 @@ export type FactoryLib = {
  * Plan namespace:
  */
 export type PlanLib = {
+  /** Tools for working with linear plans (Id/Slot/Children). */
+  Linear: t.LinearPlanLib;
+
   /**
    * Validate canonical, factory-typed plan without mutation.
    */
   validate<F extends t.Factory<any, any>>(plan: t.Plan<F>, factory: F): t.PlanValidateResult;
-
-  /**
-   * Validate a linear plan (Id/Slot/Children) without mutation.
-   * This is ideal for tests and simple authoring.
-   */
-  validateLinear<Id extends string, Slot extends string>(
-    plan: t.LinearPlan<Id, Slot>,
-    factory: t.FactoryWithSlots<Id, Slot>,
-  ): t.PlanValidateResult;
-
-  /**
-   * Optional: Convert a linear plan into the canonical factory-typed plan.
-   * Strategy is explicit to avoid hidden semantics.
-   */
-  fromLinear<Id extends string, Slot extends string, F extends t.FactoryWithSlots<Id, Slot>>(
-    linear: t.LinearPlan<Id, Slot>,
-    factory: F,
-    opts?: { placeUnslotted?: 'first-slot' | 'reject' },
-  ): t.Plan<F>;
 
   /**
    * Resolve a canonical plan into a tree with loaded view modules.
@@ -62,4 +46,27 @@ export type PlanLib = {
    * - Does not mutate the input plan or factory.
    */
   resolve<F extends t.Factory<any, any>>(plan: t.Plan<F>, factory: F): Promise<t.ResolveResult<F>>;
+};
+
+/**
+ * LinearPlan namespace.
+ */
+export type LinearPlanLib = {
+  /**
+   * Validate a linear plan (Id/Slot/Children) without mutation.
+   * This is ideal for tests and simple authoring.
+   */
+  validate<Id extends string, Slot extends string>(
+    plan: t.LinearPlan<Id, Slot>,
+    factory: t.FactoryWithSlots<Id, Slot>,
+  ): t.PlanValidateResult;
+
+  /**
+   * Convert a linear plan into the canonical factory-typed plan.
+   */
+  toCanonical<Id extends string, Slot extends string, F extends t.FactoryWithSlots<Id, Slot>>(
+    linear: t.LinearPlan<Id, Slot>,
+    factory: F,
+    opts?: { placeUnslotted?: 'first-slot' | 'reject' },
+  ): t.Plan<F>;
 };
