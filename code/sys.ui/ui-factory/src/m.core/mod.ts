@@ -17,3 +17,4 @@
  */
 export { Factory } from './m.Factory.ts';
 export { Plan } from './m.Plan.ts';
+export { Renderer } from './m.Renderer.ts';

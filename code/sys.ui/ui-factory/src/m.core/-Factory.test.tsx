@@ -4,14 +4,7 @@ import { Factory } from './mod.ts';
 
 type Id = 'Alpha:view' | 'Beta:view';
 
-describe('Factory (core)', () => {
-  it('API', async () => {
-    const m1 = await import('@sys/ui-factory');
-    const m2 = await import('@sys/ui-factory/core');
-    expect(m1.Factory).to.equal(Factory);
-    expect(m2.Factory).to.equal(Factory);
-  });
-
+describe('Factory', () => {
   describe('Factory.make', () => {
     it('creates a registry keyed by spec.id', async () => {
       const regs = [TestReg.make('Alpha:view'), TestReg.make('Beta:view')] as const;

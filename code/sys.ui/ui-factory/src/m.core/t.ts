@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 export type * from './t.core.factory.ts';
 export type * from './t.core.plan.ts';
+export type * from './t.core.render.ts';
 export type * from './t.core.ts';
 
 /**
