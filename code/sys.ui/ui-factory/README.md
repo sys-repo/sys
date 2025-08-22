@@ -3,11 +3,11 @@
 Tiny primitives for declarative UI composition.  
 
 ----
-`Factory` → |`Specs` → `Plan`| → `View` → `Slots`
+`Factory` → [`Specs` → `Plan`] → `View` → `Slots`
 
 - #### Factory
   A factory is `{data}` + a lazy `view` loader.  
-  	•	**Data**: the component `specs`, composed into a `plan` (blueprint of structure and `slots`).  
+  	•	**Data**: the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
   	•	**Loader**: the mechanism that resolves `specs` into live `views` at runtime.
 
 - #### Specs → Plan
@@ -21,7 +21,8 @@ Tiny primitives for declarative UI composition.
   Slots are named attachment points a `view` exposes for placing **child** `views` within its `layout`.
 
 - #### View
-  A `view` is a renderable unit that is library-agnostic. Use **host adapters** to bridge to concrete UI runtimes.   
+  A `view` is a renderable unit that is library-agnostic. Use independently imported
+  **host adapters** to bridge to concrete UI runtimes.   
   (default adapter: `JSX → react`).
 
 
@@ -32,5 +33,5 @@ import { Factory } from '@sys/ui-factory'; // ← core
 import { Factory } from '@sys/ui-factory/core';
 
 // Host adapters (concrete UI runtimes):
-import { HostAdapter as ReactHostAdapter } from '@sys/ui-factory/react';
+import { HostAdapter } from '@sys/ui-factory/react';
 ```
