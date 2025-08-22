@@ -9,17 +9,24 @@ import type { t } from './common.ts';
  */
 export type FactoryMap<
   Ids extends t.ViewId,
-  /** Allow each entry to carry its own Slot union; consumers usually pass a concrete object type here. */
-  RegEntry extends t.Registration<any, any> = t.Registration<Ids, t.SlotId>,
-> = { [K in Ids]: RegEntry & t.Registration<K, any> };
+  RegEntry extends t.Registration<any, any, any> = t.Registration<Ids, t.SlotId, t.ViewModule>,
+> = Readonly<{ [K in Ids]: RegEntry & t.Registration<K, any, any> }>;
 
+/**
+ * Factory: read-only registry of view registrations + lazy code lookup.
+ */
 export type Factory<
   Ids extends t.ViewId = t.ViewId,
-  RegEntry extends t.Registration<any, any> = t.Registration<Ids, t.SlotId>,
-> = {
-  readonly specs: FactoryMap<Ids, RegEntry>;
-  readonly getView: (id: Ids) => Promise<t.GetViewResult>;
-};
+  RegEntry extends t.Registration<any, any, any> = t.Registration<Ids, t.SlotId, t.ViewModule>,
+> = Readonly<{
+  specs: FactoryMap<Ids, RegEntry>;
+  // Return the concrete module type for this factory
+  getView: (
+    id: Ids,
+  ) => Promise<
+    t.GetViewResult<RegEntry extends t.Registration<any, any, infer M> ? M : t.ViewModule>
+  >;
+}>;
 
 /** Utilities over a Factory (type-level only, no runtime). */
 export type ViewIds<F extends Factory<any, any>> = keyof F['specs'] & string;
@@ -32,13 +39,13 @@ export type SlotIds<F extends Factory<any, any>> =
 export type SpecOf<F extends Factory<any, any>, Id extends ViewIds<F>> = F['specs'][Id]['spec'];
 
 /**
- * Factory type specialized with a concrete Id + Slot union.
+ * Factory type specialized with a concrete Id + Slot union (and module type).
  * Ensures each registration carries the correct slot set for that view,
  * giving strong typing when authoring or validating plans.
  */
-export type FactoryWithSlots<Id extends string, Slot extends string> = t.Factory<
+export type FactoryWithSlots<Id extends string, Slot extends string, M = t.ViewModule> = t.Factory<
   Id,
-  t.Registration<Id, Slot>
+  t.Registration<Id, Slot, M>
 >;
 
 /**
@@ -46,6 +53,18 @@ export type FactoryWithSlots<Id extends string, Slot extends string> = t.Factory
  * - Used internally by factories (`specs`).
  * - Preserves full `Registration` shape including `spec.slots`.
  */
-export type SpecsMap<Ids extends t.ViewId> = Readonly<{
-  [K in Ids]: Readonly<t.Registration<K>>;
+export type SpecsMap<Ids extends t.ViewId, M = t.ViewModule> = Readonly<{
+  [K in Ids]: Readonly<t.Registration<K, t.SlotId, M>>;
 }>;
+
+/**
+ * Given a Factory, extract the module type of its getView result.
+ */
+export type ModuleOfFactory<F extends t.Factory<any, any>> = Awaited<
+  ReturnType<F['getView']>
+> extends { ok: true; module: infer M }
+  ? M
+  : t.ViewModule;
+
+/** Helper: extract the module type from a Registration-like entry. */
+// type ModuleOf<R> = R extends t.Registration<any, any, infer M> ? M : t.ViewModule;

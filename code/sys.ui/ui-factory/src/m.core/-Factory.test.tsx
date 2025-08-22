@@ -1,5 +1,4 @@
-import React from 'react';
-import { describe, expect, it, Obj, type t, TestReg, TestView } from '../-test.ts';
+import { type t, type TestModule, describe, expect, it, Obj, TestCore } from '../-test.ts';
 import { Factory } from './mod.ts';
 
 type Id = 'Alpha:view' | 'Beta:view';
@@ -7,7 +6,7 @@ type Id = 'Alpha:view' | 'Beta:view';
 describe('Factory', () => {
   describe('Factory.make', () => {
     it('creates a registry keyed by spec.id', async () => {
-      const regs = [TestReg.make('Alpha:view'), TestReg.make('Beta:view')] as const;
+      const regs = [TestCore.Reg.make('Alpha:view'), TestCore.Reg.make('Beta:view')] as const;
       const f = Factory.make<Id>(regs);
 
       // `ids` present:
@@ -17,17 +16,9 @@ describe('Factory', () => {
       const alpha = await f.getView('Alpha:view');
       expect(alpha.ok).to.eql(true);
       if (alpha.ok) {
-        const Comp: React.FC<any> = alpha.module.default;
-        const el = Comp({ x: 1 });
-
-        // Narrow ReactNode → ReactElement
-        expect(React.isValidElement(el)).to.eql(true);
-        if (React.isValidElement(el)) {
-          expect(el.type).to.eql('div');
-          const props: any = el.props;
-          expect(props['data-stub-view']).to.eql('Alpha:view');
-          expect(JSON.parse(props['data-props'])).to.eql({ x: 1 });
-        }
+        const mod = alpha.module as TestModule; // adapter-agnostic cast
+        const out = mod.default({ x: 1 });
+        expect(out).to.eql({ name: 'Alpha:view', props: { x: 1 } });
       }
 
       // <unknown> id → ok: false (no throw):
@@ -37,7 +28,7 @@ describe('Factory', () => {
     });
 
     it('does not mutate input registrations', () => {
-      const regs = [TestReg.make('Alpha:view')];
+      const regs = [TestCore.Reg.make('Alpha:view')];
       const before = Obj.clone(regs);
       Factory.make<Id>(regs as any);
       expect(regs).to.eql(before);
@@ -46,13 +37,13 @@ describe('Factory', () => {
 
   describe('Factory.compose', () => {
     it('merges factories (left→right), later wins on collisions', async () => {
-      const f1 = Factory.make<Id>([TestReg.make('Alpha:view')]);
-      const f2 = Factory.make<Id>([TestReg.make('Beta:view')]);
+      const f1 = Factory.make<Id>([TestCore.Reg.make('Alpha:view')]);
+      const f2 = Factory.make<Id>([TestCore.Reg.make('Beta:view')]);
 
       // Collision: override "Alpha:view" with different loader (wins because right-most).
-      const altAlpha: t.Registration<'Alpha:view'> = {
+      const altAlpha: t.Registration<'Alpha:view', t.SlotId, TestModule> = {
         spec: { id: 'Alpha:view', slots: [] },
-        load: async () => TestView.stub('Alpha:view:ALT'),
+        load: async () => TestCore.View.stub('Alpha:view:ALT'),
       };
       const f3 = Factory.make<Id>([altAlpha]);
       const merged = Factory.compose<Id>([f1, f2, f3]);
@@ -64,23 +55,15 @@ describe('Factory', () => {
       const alpha = await merged.getView('Alpha:view');
       expect(alpha.ok).to.eql(true);
       if (alpha.ok) {
-        const Comp: React.FC<any> = alpha.module.default;
-        const el = Comp({ x: 1 });
-
-        // Narrow ReactNode → ReactElement
-        expect(React.isValidElement(el)).to.eql(true);
-        if (React.isValidElement(el)) {
-          expect(el.type).to.eql('div');
-          const props: any = el.props;
-          expect(props['data-stub-view']).to.eql('Alpha:view:ALT');
-          expect(JSON.parse(props['data-props'])).to.eql({ x: 1 });
-        }
+        const mod = alpha.module as TestModule; // adapter-agnostic cast
+        const out = mod.default({ x: 1 });
+        expect(out).to.eql({ name: 'Alpha:view:ALT', props: { x: 1 } });
       }
     });
 
     it('returns a new factory without mutating inputs', () => {
-      const a = Factory.make<Id>([TestReg.make('Alpha:view')]);
-      const b = Factory.make<Id>([TestReg.make('Beta:view')]);
+      const a = Factory.make<Id>([TestCore.Reg.make('Alpha:view')]);
+      const b = Factory.make<Id>([TestCore.Reg.make('Beta:view')]);
 
       const beforeA = Obj.clone(a.specs);
       const beforeB = Obj.clone(b.specs);

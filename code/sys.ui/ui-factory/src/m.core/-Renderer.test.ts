@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, Obj, TestReg } from '../-test.ts';
+import { type t, describe, expect, it, Obj, TestCore } from '../-test.ts';
 import { Renderer } from './m.Renderer.ts';
 import { Factory, Plan } from './mod.ts';
 
@@ -8,9 +8,9 @@ type Slot = 'Main' | 'Sidebar' | 'Item';
 describe('Renderer', () => {
   it('mount: creates nodes depth-first and inserts by slot (preserving order)', async () => {
     // Factory with views:
-    const layout = TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']);
-    const card = TestReg.make<Id, Slot>('Card:view', []);
-    const list = TestReg.make<Id, Slot>('List:view', ['Item']);
+    const layout = TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']);
+    const card = TestCore.Reg.make<Id, Slot>('Card:view', []);
+    const list = TestCore.Reg.make<Id, Slot>('List:view', ['Item']);
     const f = Factory.make<Id>([layout, card, list]) as t.FactoryWithSlots<Id, Slot>;
 
     // Plan → Resolved:
@@ -89,9 +89,9 @@ describe('Renderer', () => {
 
   it('unmount: removes in post-order (children before parent)', async () => {
     // Factory & resolved plan:
-    const layout = TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']);
-    const card = TestReg.make<Id, Slot>('Card:view', []);
-    const list = TestReg.make<Id, Slot>('List:view', ['Item']);
+    const layout = TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']);
+    const card = TestCore.Reg.make<Id, Slot>('Card:view', []);
+    const list = TestCore.Reg.make<Id, Slot>('List:view', ['Item']);
     const f = Factory.make<Id>([layout, card, list]) as t.FactoryWithSlots<Id, Slot>;
 
     const linear: t.LinearPlan<Id, Slot> = {

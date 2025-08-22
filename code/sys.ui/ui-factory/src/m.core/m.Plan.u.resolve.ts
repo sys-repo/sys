@@ -1,21 +1,27 @@
 import { type t } from './common.ts';
 
+type GetViewResultOf<F extends t.Factory<any, any>> = Awaited<ReturnType<F['getView']>>;
+type GetViewOkOf<F extends t.Factory<any, any>> = Extract<GetViewResultOf<F>, { ok: true }>;
+
 export function resolve<F extends t.Factory<any, any>>(
   plan: t.Plan<F>,
   factory: F,
 ): Promise<t.ResolveResult<F>> {
-  // Local cache: component-id → loaded module.
-  const cache = new Map<t.ViewIds<F>, t.LazyViewModule>();
+  // component-id → loaded module (adapter-specific)
+  const cache = new Map<t.ViewIds<F>, t.ModuleOfFactory<F>>();
 
-  const load = async (id: t.ViewIds<F>): Promise<t.ErrCatch<t.LazyViewModule>> => {
+  const load = async (id: t.ViewIds<F>): Promise<t.ErrCatch<t.ModuleOfFactory<F>>> => {
     // Memoized hit:
-    if (cache.has(id)) {
-      return { ok: true, data: cache.get(id)!, error: undefined };
-    }
-    const res = await factory.getView(id as any);
+    if (cache.has(id)) return { ok: true, data: cache.get(id)!, error: undefined };
+
+    // Derive result type from this factory's getView
+    const res = (await factory.getView(id)) as GetViewResultOf<F>;
     if (!res.ok) return { ok: false, error: res.error };
-    cache.set(id, res.module);
-    return { ok: true, data: res.module, error: undefined };
+
+    // Module is now typed as GetViewOkOf<F>['module'] === ModuleOfFactory<F>
+    const mod = (res as GetViewOkOf<F>).module as t.ModuleOfFactory<F>;
+    cache.set(id, mod);
+    return { ok: true, data: mod, error: undefined };
   };
 
   const resolveNode = async (node: t.PlanNode<F>): Promise<t.ErrCatch<t.ResolvedPlanNode<F>>> => {
@@ -25,7 +31,7 @@ export function resolve<F extends t.Factory<any, any>>(
     const mod = await load(id);
     if (!mod.ok) return { ok: false, error: mod.error };
 
-    // Recurse into slots (preserve canonical structure):
+    // Recurse into slots:
     const entries = Object.entries(node.slots ?? {}) as Array<
       [string, t.PlanNode<F> | ReadonlyArray<t.PlanNode<F>>]
     >;
@@ -49,7 +55,7 @@ export function resolve<F extends t.Factory<any, any>>(
       }
     }
 
-    // Cast only at the boundary to the precise slots type expected by `ResolvedPlanNode<F>`:
+    // Cast only at the boundary
     const slots = Object.keys(outSlots).length
       ? (outSlots as unknown as t.ResolvedPlanNode<F>['slots'])
       : undefined;
@@ -57,17 +63,17 @@ export function resolve<F extends t.Factory<any, any>>(
     const resolved: t.ResolvedPlanNode<F> = {
       component: id,
       props: node.props,
-      module: mod.data,
+      module: mod.data, // typed as ModuleOfFactory<F>
       slots,
     };
 
     return { ok: true, data: resolved, error: undefined };
   };
 
-  // Finish up.
+  // Finish up:
   return (async () => {
-    const res = await resolveNode(plan.root as t.PlanNode<F>);
-    if (!res.ok) return { ok: false, error: res.error };
-    return { ok: true, root: res.data, cache } as t.ResolveOk<F>;
+    const { ok, data, error } = await resolveNode(plan.root as t.PlanNode<F>);
+    if (!ok) return { ok: false, error };
+    return { ok: true, root: data, cache } as t.ResolveOk<F>;
   })();
 }

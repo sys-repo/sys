@@ -4,11 +4,13 @@ import type { t } from './common.ts';
 export type ViewId = string;
 export type SlotId = string;
 
-/** React.lazy-compatible module shape. */
-export type LazyViewModule = { default: React.FC<any> };
+/** Abstract module produced by a registration loader (adapter-specific). */
+export type ViewModule = unknown;
 
-/** Discriminated result for getView. */
-export type GetViewResult = { ok: true; module: LazyViewModule } | { ok: false; error: t.StdError };
+/** Discriminated result for getView (adapter-agnostic). */
+export type GetViewResult<M = ViewModule> =
+  | { ok: true; module: M }
+  | { ok: false; error: t.StdError };
 
 /** View contract: tiny and framework-agnostic. */
 export type ViewSpec<Id extends ViewId = ViewId, Slot extends SlotId = SlotId> = {
@@ -17,8 +19,12 @@ export type ViewSpec<Id extends ViewId = ViewId, Slot extends SlotId = SlotId> =
   readonly slots?: readonly Slot[];
 };
 
-/** Registration pairs spec with lazy loader. */
-export type Registration<Id extends ViewId = ViewId, Slot extends SlotId = SlotId> = {
+/** Registration pairs spec with lazy loader (adapter-agnostic). */
+export type Registration<
+  Id extends ViewId = ViewId,
+  Slot extends SlotId = SlotId,
+  M extends ViewModule = ViewModule,
+> = {
   readonly spec: ViewSpec<Id, Slot>;
-  load: () => Promise<LazyViewModule>;
+  load: () => Promise<M>;
 };

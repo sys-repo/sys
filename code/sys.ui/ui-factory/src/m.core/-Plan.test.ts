@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectSlots, it, Obj, TestReg } from '../-test.ts';
+import { type t, describe, expect, expectSlots, it, Obj, TestCore } from '../-test.ts';
 import { Factory, Plan } from './mod.ts';
 
 /**
@@ -11,9 +11,9 @@ describe('Plan', () => {
   describe('Plan.validate (canonical)', () => {
     it('accepts a valid canonical plan', () => {
       const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-        TestReg.make<Id, Slot>('Card:view', []),
-        TestReg.make<Id, Slot>('List:view', ['Item']),
+        TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+        TestCore.Reg.make<Id, Slot>('Card:view', []),
+        TestCore.Reg.make<Id, Slot>('List:view', ['Item']),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check: registry preserved slots:
@@ -47,8 +47,8 @@ describe('Plan', () => {
 
     it('rejects unknown view id (canonical)', () => {
       const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main']),
-        TestReg.make<Id, Slot>('Card:view', []),
+        TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']),
+        TestCore.Reg.make<Id, Slot>('Card:view', []),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check:
@@ -74,8 +74,8 @@ describe('Plan', () => {
 
     it('rejects invalid slot name for the parent (canonical)', () => {
       const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main']), // Only "Main" allowed.
-        TestReg.make<Id, Slot>('Card:view', []),
+        TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']), // Only "Main" allowed.
+        TestCore.Reg.make<Id, Slot>('Card:view', []),
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check:
@@ -104,9 +104,9 @@ describe('Plan', () => {
     describe('Plan.Linear.validate (id/slot/children)', () => {
       it('accepts a valid linear plan', () => {
         const f = Factory.make<Id>([
-          TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-          TestReg.make<Id, Slot>('Card:view', []),
-          TestReg.make<Id, Slot>('List:view', ['Item']),
+          TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+          TestCore.Reg.make<Id, Slot>('Card:view', []),
+          TestCore.Reg.make<Id, Slot>('List:view', ['Item']),
         ]) as t.FactoryWithSlots<Id, Slot>;
 
         // sanity
@@ -139,8 +139,8 @@ describe('Plan', () => {
 
       it('allows missing slot when parent declares slots (default semantics)', () => {
         const f = Factory.make<Id>([
-          TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-          TestReg.make<Id, Slot>('Card:view', []),
+          TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+          TestCore.Reg.make<Id, Slot>('Card:view', []),
         ]) as t.FactoryWithSlots<Id, Slot>;
 
         // sanity
@@ -159,8 +159,8 @@ describe('Plan', () => {
 
       it('rejects unknown id (linear)', () => {
         const f = Factory.make<Id>([
-          TestReg.make<Id, Slot>('Layout:root', ['Main']),
-          TestReg.make<Id, Slot>('Card:view', []),
+          TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']),
+          TestCore.Reg.make<Id, Slot>('Card:view', []),
         ]) as t.FactoryWithSlots<Id, Slot>;
 
         // sanity
@@ -183,8 +183,8 @@ describe('Plan', () => {
 
       it('rejects invalid slot for given parent (linear)', () => {
         const f = Factory.make<Id>([
-          TestReg.make<Id, Slot>('Layout:root', ['Main']), // only "Main"
-          TestReg.make<Id, Slot>('Card:view', []),
+          TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']), // only "Main"
+          TestCore.Reg.make<Id, Slot>('Card:view', []),
         ]) as t.FactoryWithSlots<Id, Slot>;
 
         // sanity
@@ -210,9 +210,9 @@ describe('Plan', () => {
     describe('Plan.Linear.toCanonical', () => {
       it('converts a valid linear plan into a canonical plan that validates', () => {
         const f = Factory.make<Id>([
-          TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-          TestReg.make<Id, Slot>('Card:view', []),
-          TestReg.make<Id, Slot>('List:view', ['Item']),
+          TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+          TestCore.Reg.make<Id, Slot>('Card:view', []),
+          TestCore.Reg.make<Id, Slot>('List:view', ['Item']),
         ]) as t.FactoryWithSlots<Id, Slot>;
 
         // Sanity check:
@@ -250,8 +250,8 @@ describe('Plan', () => {
 
       it('throws when strategy is "reject" and a child is missing a slot under a slotted parent', () => {
         const f = Factory.make<Id>([
-          TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
-          TestReg.make<Id, Slot>('Card:view', []),
+          TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+          TestCore.Reg.make<Id, Slot>('Card:view', []),
         ]) as t.FactoryWithSlots<Id, Slot>;
 
         // Sanity check:
@@ -272,9 +272,11 @@ describe('Plan', () => {
 
   describe('Plan.resolve', () => {
     it('resolves modules for a canonical plan and memoizes by component id', async () => {
-      const layout = TestReg.counter(TestReg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']));
-      const card = TestReg.counter(TestReg.make<Id, Slot>('Card:view', []));
-      const list = TestReg.counter(TestReg.make<Id, Slot>('List:view', ['Item']));
+      const layout = TestCore.Reg.counter(
+        TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
+      );
+      const card = TestCore.Reg.counter(TestCore.Reg.make<Id, Slot>('Card:view', []));
+      const list = TestCore.Reg.counter(TestCore.Reg.make<Id, Slot>('List:view', ['Item']));
 
       const f = Factory.make<Id>([layout.reg, card.reg, list.reg]) as t.FactoryWithSlots<Id, Slot>;
 
@@ -337,7 +339,7 @@ describe('Plan', () => {
       };
 
       const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main']),
+        TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']),
         badCard as t.Registration<Id, Slot>,
       ]) as t.FactoryWithSlots<Id, Slot>;
 
@@ -358,7 +360,7 @@ describe('Plan', () => {
 
     it('defensively returns UnknownViewId if a child id is not registered', async () => {
       const f = Factory.make<Id>([
-        TestReg.make<Id, Slot>('Layout:root', ['Main']), // ← Note: Card:view intentionally NOT registered
+        TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']), // ← Note: Card:view intentionally NOT registered
       ]) as t.FactoryWithSlots<Id, Slot>;
 
       const plan: t.Plan<typeof f> = {
