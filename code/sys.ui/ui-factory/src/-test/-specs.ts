@@ -9,5 +9,5 @@ export const ns = 'sys.ui.factory';
  * Specs:
  */
 export const Specs = {
-  [`${ns}: Sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),
+  // [`${ns}: Sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),
 } as t.SpecImports;
