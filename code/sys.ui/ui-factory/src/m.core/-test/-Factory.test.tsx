@@ -31,23 +31,23 @@ describe('Factory', () => {
     it('does not mutate input registrations', () => {
       const regs = [TestCore.Reg.make('Alpha:view')];
       const before = Obj.clone(regs);
-      Factory.make(regs as any); // ← no generics
+      Factory.make(regs);
       expect(regs).to.eql(before);
     });
   });
 
   it('merges factories (left→right), later wins on collisions', async () => {
-    const f1 = Factory.make([TestCore.Reg.make('Alpha:view')]) as F; // widen to Id union
-    const f2 = Factory.make([TestCore.Reg.make('Beta:view')]) as F; // widen to Id union
+    const f1 = Factory.make([TestCore.Reg.make('Alpha:view')]) as F; // ← widen to Id union
+    const f2 = Factory.make([TestCore.Reg.make('Beta:view')]) as F; //  ← widen to Id union
 
     // Collision: override "Alpha:view" with different loader (wins because right-most).
     const altAlpha: t.Registration<'Alpha:view', t.SlotId, TestModule> = {
       spec: { id: 'Alpha:view', slots: [] },
       load: async () => TestCore.View.stub('Alpha:view:ALT'),
     };
-    const f3 = Factory.make([altAlpha]) as F; // widen to Id union
 
-    const merged = Factory.compose([f1, f2, f3]); // ok: all inputs share F
+    const f3 = Factory.make([altAlpha]) as F; //      ← widen to Id union
+    const merged = Factory.compose([f1, f2, f3]); //  ← ok: all inputs share F
 
     // All ids present:
     expect(Object.keys(merged.specs).sort()).to.eql(['Alpha:view', 'Beta:view']);
@@ -64,10 +64,10 @@ describe('Factory', () => {
 
   describe('Factory.compose', () => {
     it('returns a new factory without mutating inputs', () => {
-      type F = t.Factory<Id, t.Registration<Id, t.SlotId, TestModule>>; // shared widening
+      type F = t.Factory<Id, t.Registration<Id, t.SlotId, TestModule>>; //  ← shared widening
 
-      const a = Factory.make([TestCore.Reg.make('Alpha:view')]) as F; // widen to Id union
-      const b = Factory.make([TestCore.Reg.make('Beta:view')]) as F; // widen to Id union
+      const a = Factory.make([TestCore.Reg.make('Alpha:view')]) as F; //    ← widen to Id union
+      const b = Factory.make([TestCore.Reg.make('Beta:view')]) as F; //     ← widen to Id union
 
       const beforeA = Obj.clone(a.specs);
       const beforeB = Obj.clone(b.specs);
