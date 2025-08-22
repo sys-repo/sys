@@ -14,31 +14,34 @@ export async function setup() {
   const reg = <TId extends Id>(id: TId) => ({
     spec: { id, slots: [] as Slot[] },
     load: async () => {
-      const Comp: React.FC<{ text?: string }> = (props) => (
+      const Component: React.FC<{ text?: string }> = (props) => (
         <div data-view={id} style={{ padding: 10 }}>
           {props.text ?? 'Hello World'}
         </div>
       );
-      (Comp as any).displayName = id;
-      return { default: Comp };
+      (Component as any).displayName = id;
+      return { default: Component };
     },
   });
 
   // 3) Setup
-  const f = Factory.make<Id>([reg('Hello:view')]) as t.FactoryWithSlots<Id, Slot>;
+  const f = Factory.make<Id>([reg('Hello:view')]);
 
   const linear: t.LinearPlan<Id, Slot> = {
-    root: { id: 'Hello:view', props: { text: `Hello from the "${pkg.name}/react" adapter 🎉` } },
+    root: {
+      id: 'Hello:view',
+      props: { text: `Hello from the "${pkg.name}/react" adapter 🎉` },
+    },
   };
 
   // Keep generics tight so Id/Slot don’t widen to string
   const canonical = Plan.Linear.toCanonical<Id, Slot, typeof f>(linear, f);
-  const resolved = await Plan.resolve<typeof f>(canonical, f);
+  const resolved = await Plan.resolve(canonical, f);
   if (!resolved.ok) throw resolved.error;
 
   const adapter = ReactHostAdapter<typeof f>();
 
-  type M = { element: React.JSX.Element };
+  type M = { element: t.JSX.Element };
   const host = Renderer.mount(resolved.root, adapter) as unknown as M;
 
   return host.element;

@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { t } from './common.ts';
 
 /** Base string IDs (narrow with generics in your modules). */
