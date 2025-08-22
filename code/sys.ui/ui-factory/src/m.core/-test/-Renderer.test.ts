@@ -1,6 +1,5 @@
-import { type t, describe, expect, it, Obj, TestCore } from '../-test.ts';
-import { Renderer } from './m.Renderer.ts';
-import { Factory, Plan } from './mod.ts';
+import { type t, describe, expect, it, Obj, TestCore } from '../../-test.ts';
+import { Factory, Plan, Renderer } from '../mod.ts';
 
 type Id = 'Layout:root' | 'Card:view' | 'List:view';
 type Slot = 'Main' | 'Sidebar' | 'Item';
@@ -11,7 +10,7 @@ describe('Renderer', () => {
     const layout = TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']);
     const card = TestCore.Reg.make<Id, Slot>('Card:view', []);
     const list = TestCore.Reg.make<Id, Slot>('List:view', ['Item']);
-    const f = Factory.make<Id>([layout, card, list]) as t.FactoryWithSlots<Id, Slot>;
+    const f = Factory.make([layout, card, list]) satisfies t.FactoryWithSlots<Id, Slot>;
 
     // Plan → Resolved:
     const linear: t.LinearPlan<Id, Slot> = {
@@ -92,7 +91,7 @@ describe('Renderer', () => {
     const layout = TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']);
     const card = TestCore.Reg.make<Id, Slot>('Card:view', []);
     const list = TestCore.Reg.make<Id, Slot>('List:view', ['Item']);
-    const f = Factory.make<Id>([layout, card, list]) as t.FactoryWithSlots<Id, Slot>;
+    const f = Factory.make([layout, card, list]) as t.FactoryWithSlots<Id, Slot>;
 
     const linear: t.LinearPlan<Id, Slot> = {
       root: {

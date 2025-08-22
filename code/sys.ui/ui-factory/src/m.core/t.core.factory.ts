@@ -54,7 +54,7 @@ export type FactoryWithSlots<Id extends string, Slot extends string, M = t.ViewM
  * - Preserves full `Registration` shape including `spec.slots`.
  */
 export type SpecsMap<Ids extends t.ViewId, M = t.ViewModule> = Readonly<{
-  [K in Ids]: Readonly<t.Registration<K, t.SlotId, M>>;
+  [K in Ids]: Readonly<t.Registration<K, any, M>>;
 }>;
 
 /**

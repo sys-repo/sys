@@ -1,37 +1,45 @@
-import { type t } from './common.ts';
-
-type GetViewResultOf<F extends t.Factory<any, any>> = Awaited<ReturnType<F['getView']>>;
-type GetViewOkOf<F extends t.Factory<any, any>> = Extract<GetViewResultOf<F>, { ok: true }>;
+import { type t, Err } from './common.ts';
 
 export function resolve<F extends t.Factory<any, any>>(
   plan: t.Plan<F>,
   factory: F,
 ): Promise<t.ResolveResult<F>> {
-  // component-id → loaded module (adapter-specific)
   const cache = new Map<t.ViewIds<F>, t.ModuleOfFactory<F>>();
 
   const load = async (id: t.ViewIds<F>): Promise<t.ErrCatch<t.ModuleOfFactory<F>>> => {
     // Memoized hit:
-    if (cache.has(id)) return { ok: true, data: cache.get(id)!, error: undefined };
+    if (cache.has(id)) {
+      return { ok: true, data: cache.get(id)!, error: undefined };
+    }
 
-    // Derive result type from this factory's getView
-    const res = (await factory.getView(id)) as GetViewResultOf<F>;
-    if (!res.ok) return { ok: false, error: res.error };
+    const res = await factory.getView(id as any);
+    if (!res.ok) {
+      const msg = res.error?.message ?? 'Unknown error';
+      // Wrap unknown-id into a stable error surface:
+      if (msg.startsWith('Unknown view id')) {
+        return {
+          ok: false,
+          error: Err.std(msg, { name: 'UnknownViewId', cause: res.error }),
+        };
+      }
+      // Wrap loader errors:
+      return {
+        ok: false,
+        error: Err.std(`Failed to load view '${id}'`, { name: 'LoadError', cause: res.error }),
+      };
+    }
 
-    // Module is now typed as GetViewOkOf<F>['module'] === ModuleOfFactory<F>
-    const mod = (res as GetViewOkOf<F>).module as t.ModuleOfFactory<F>;
-    cache.set(id, mod);
-    return { ok: true, data: mod, error: undefined };
+    // success
+    cache.set(id, res.module as t.ModuleOfFactory<F>);
+    return { ok: true, data: res.module as t.ModuleOfFactory<F>, error: undefined };
   };
 
   const resolveNode = async (node: t.PlanNode<F>): Promise<t.ErrCatch<t.ResolvedPlanNode<F>>> => {
     const id = node.component as t.ViewIds<F>;
 
-    // Load module (memoized):
     const mod = await load(id);
     if (!mod.ok) return { ok: false, error: mod.error };
 
-    // Recurse into slots:
     const entries = Object.entries(node.slots ?? {}) as Array<
       [string, t.PlanNode<F> | ReadonlyArray<t.PlanNode<F>>]
     >;
@@ -55,25 +63,23 @@ export function resolve<F extends t.Factory<any, any>>(
       }
     }
 
-    // Cast only at the boundary
     const slots = Object.keys(outSlots).length
       ? (outSlots as unknown as t.ResolvedPlanNode<F>['slots'])
       : undefined;
 
-    const resolved: t.ResolvedPlanNode<F> = {
+    const data: t.ResolvedPlanNode<F> = {
       component: id,
       props: node.props,
-      module: mod.data, // typed as ModuleOfFactory<F>
+      module: mod.data,
       slots,
     };
 
-    return { ok: true, data: resolved, error: undefined };
+    return { ok: true, data, error: undefined };
   };
 
-  // Finish up:
   return (async () => {
-    const { ok, data, error } = await resolveNode(plan.root as t.PlanNode<F>);
-    if (!ok) return { ok: false, error };
-    return { ok: true, root: data, cache } as t.ResolveOk<F>;
+    const res = await resolveNode(plan.root as t.PlanNode<F>);
+    if (!res.ok) return { ok: false, error: res.error };
+    return { ok: true, root: res.data, cache } as t.ResolveOk<F>;
   })();
 }

@@ -13,9 +13,7 @@ const View = {
    * Silent stub: returns a callable default export with predictable output.
    */
   stub(name: string): TestModule {
-    return {
-      default: (props: unknown) => ({ name, props }),
-    };
+    return { default: (props: unknown) => ({ name, props }) };
   },
 } as const;
 

@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { Factory, Plan, Renderer } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Factory, Plan, Renderer } from '../mod.ts';
 
 describe('(core)', () => {
   it('API', async () => {

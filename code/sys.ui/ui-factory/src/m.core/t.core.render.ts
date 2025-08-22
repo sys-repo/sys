@@ -33,7 +33,9 @@ export type RendererLib = {
 export type HostAdapter<F extends t.Factory<any, any>> = {
   /**
    * Create an instance for a view. Called once per ResolvedPlanNode.
-   * Responsible for wiring `module.default` with its initial props.
+   *
+   * Responsible for creating an instance from the resolved module
+   * and initial props (module shape is adapter-specific).
    */
   create(node: t.ResolvedPlanNode<F>): HostNode;
 

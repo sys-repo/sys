@@ -15,14 +15,18 @@ export type FactoryLib = {
    * - Returns `{ specs, getView }` where `getView(id)` lazy-loads the view bundle.
    * - Unknown ids return `{ ok:false, error }` (no throw).
    */
-  make<Id extends t.ViewId>(regs: readonly t.Registration<Id>[]): t.Factory<Id>;
+  make<Id extends t.ViewId, Reg extends t.Registration<Id, t.SlotId, any>>(
+    regs: readonly Reg[],
+  ): t.Factory<Id, Reg>;
 
   /**
    * Compose multiple factories into one (left → right precedence).
    * - Later factories overwrite earlier entries on id collisions.
    * - Returns a new factory; inputs are not mutated.
    */
-  compose<Id extends t.ViewId>(factories: readonly t.Factory<Id>[]): t.Factory<Id>;
+  compose<Id extends t.ViewId, Reg extends t.Registration<Id, t.SlotId, any>>(
+    factories: readonly t.Factory<Id, Reg>[],
+  ): t.Factory<Id, Reg>;
 };
 
 /**
@@ -30,7 +34,7 @@ export type FactoryLib = {
  */
 export type PlanLib = {
   /** Tools for working with linear plans (Id/Slot/Children). */
-  Linear: t.LinearPlanLib;
+  readonly Linear: t.LinearPlanLib;
 
   /**
    * Validate canonical, factory-typed plan without mutation.
