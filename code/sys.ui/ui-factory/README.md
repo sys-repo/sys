@@ -35,3 +35,26 @@ import { Factory } from '@sys/ui-factory/core';
 // Host adapters (concrete UI runtimes):
 import { HostAdapter } from '@sys/ui-factory/react';
 ```
+
+
+## Host Adapter: React
+
+@module @sys/ui-factory/react
+
+The **React host adapter** bridges the core `@sys/ui-factory` system
+into a concrete React runtime.
+
+It interprets resolved plans from a factory as real React elements:
+
+- Each registration’s `load()` produces a `ReactModule` with a `default` component.
+- The adapter implements the `HostAdapter` contract for React.
+- Together, `Factory` + `Plan` + `Renderer` produce a React tree.
+
+### Example
+```ts
+import { Factory, Plan, Renderer } from '@sys/ui-factory/core';
+import { HostAdapter } from '@sys/ui-factory/react';
+ 
+const resolved = await Plan.resolve(plan, factory);
+const app = Renderer.mount(resolved.root, HostAdapter);
+```
