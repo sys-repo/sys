@@ -57,10 +57,10 @@ groups:
       subpaths: ['value']
 
   build/tools:
-    - import: npm:@vitejs/plugin-react-swc@4.0.0
+    - import: npm:@vitejs/plugin-react-swc@4.0.1
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.46.3
-    - import: npm:vite@7.1.2
+    - import: npm:rollup@4.47.1
+    - import: npm:vite@7.1.3
     - import: npm:vite-plugin-wasm@3.5.0
 
   ui/react:
@@ -84,14 +84,14 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.15
-    - import: npm:@ai-sdk/openai@2.0.15
+    - import: npm:ai@5.0.22
+    - import: npm:@ai-sdk/openai@2.0.19
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.13.2
+    - import: npm:@mastra/core@0.14.1
       subpaths: ['agent', 'memory', 'storage']
-    - import: npm:@mastra/libsql@0.13.2
-    - import: npm:@mastra/loggers@0.10.6
-    - import: npm:@mastra/memory@0.12.2
+    - import: npm:@mastra/libsql@0.13.4
+    - import: npm:@mastra/loggers@0.10.7
+    - import: npm:@mastra/memory@0.13.1
     - import: npm:ollama@0.5.17
     - import: npm:gpt-tokenizer@3.0.1
 
@@ -121,7 +121,7 @@ deno.json:
   - import: npm:ignore@7.0.5
   - import: npm:immer@10
   - import: npm:ora@8.2.0
-  - import: npm:@preact/signals-core@1.11.0
+  - import: npm:@preact/signals-core@1.12.0
   - import: npm:pretty-bytes@7.0.1
   - import: npm:peerjs@1.5.5
   - import: npm:ramda@0.31.3
@@ -148,7 +148,7 @@ deno.json:
   - import: npm:react-error-boundary@6.0.0
   - import: npm:react-inspector@6
   - import: npm:react-spinners@0.17.0
-  - import: npm:@preact/signals-react@3.2.1
+  - import: npm:@preact/signals-react@3.3.0
   - import: npm:react-inspector@6.0.2
 
 package.json:
@@ -159,4 +159,4 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:motion@12.23.12
-  - import: npm:hono@4.9.2
+  - import: npm:hono@4.9.4
