@@ -37,21 +37,23 @@ import { HostAdapter } from '@sys/ui-factory/react';
 ```
 
 
-## Host Adapter: React
+## Host Adapters
+The **host adapter** pattern bridges the core `@sys/ui-factory` abstractions into 
+a concrete runtime environment 
 
-@module @sys/ui-factory/react
 
-The **React host adapter** bridges the core `@sys/ui-factory` system
-into a concrete React runtime.
+### Host Adapter: React
+The ([React](https://react.dev/) host adapter interprets resolved plans from a factory 
+as real `React` elements:
 
-It interprets resolved plans from a factory as real React elements:
+- Each registration's `load()` produces a `ReactModule` with a `default` component.
+- The adapter implements the `HostAdapter` rendering contract for [React](https://react.dev/).
+- Together, `Factory` + `Plan` + `Renderer` produce a [React](https://react.dev/) tree.
 
-- Each registration’s `load()` produces a `ReactModule` with a `default` component.
-- The adapter implements the `HostAdapter` contract for React.
-- Together, `Factory` + `Plan` + `Renderer` produce a React tree.
-
-### Example
+#### Example
 ```ts
+🐷
+
 import { Factory, Plan, Renderer } from '@sys/ui-factory/core';
 import { HostAdapter } from '@sys/ui-factory/react';
  
