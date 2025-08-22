@@ -78,7 +78,7 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
           <span className={styles.debug.value.class}>{url ?? '<none>'}</span>
         </Button>
         {copied && <span className={styles.debug.copied.class}>{'copied'}</span>}
-        {sandbox && <span className={styles.debug.sandboxed.class}>{'(sandboxed)'}</span>}
+        {sandbox && <span className={styles.debug.sandboxed.class}>{'(security sandboxed)'}</span>}
       </div>
     </div>
   );
