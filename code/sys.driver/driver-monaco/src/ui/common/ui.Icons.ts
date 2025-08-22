@@ -7,6 +7,7 @@ import {
   MdArrowUpward,
   MdChevronLeft,
   MdChevronRight,
+  MdLock,
   MdEmojiPeople,
   MdErrorOutline,
   MdSettingsInputAntenna,
@@ -21,6 +22,7 @@ export { icon };
  */
 export const Icons = {
   Person: icon(MdEmojiPeople),
+  Padlock: icon(MdLock),
 
   Error: icon(MdErrorOutline),
   Chevron: { Left: icon(MdChevronLeft), Right: icon(MdChevronRight) },

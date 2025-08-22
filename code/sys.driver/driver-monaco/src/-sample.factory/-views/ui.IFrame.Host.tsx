@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, Cropmarks, css, Time } from '../common.ts';
+import { type t, Button, Color, Cropmarks, css, Time, Icons } from '../common.ts';
 
 import { IFrame as IFrameView } from '@sys/ui-react-components';
 import type { IFrameSchema } from '../-schemas/mod.ts';
@@ -44,7 +44,7 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
       key: css({ opacity: 1 }),
       value: css({ opacity: hrefButton?.over ? 1 : 0.5 }),
       copied: css({ color: Color.GREEN }),
-      sandboxed: css({}),
+      sandboxed: css({ display: 'grid', gridAutoFlow: 'column', placeItems: 'center', gap: 4 }),
     },
   };
 
@@ -78,7 +78,13 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
           <span className={styles.debug.value.class}>{url ?? '<none>'}</span>
         </Button>
         {copied && <span className={styles.debug.copied.class}>{'copied'}</span>}
-        {sandbox && <span className={styles.debug.sandboxed.class}>{'(sandboxed)'}</span>}
+        {sandbox && <span>{'•'}</span>}
+        {sandbox && (
+          <span className={styles.debug.sandboxed.class}>
+            <span>{'sandboxed'}</span>
+            <Icons.Padlock size={10} style={{ position: 'relative', top: -1 }} />
+          </span>
+        )}
       </div>
     </div>
   );
