@@ -5,6 +5,18 @@ export type * from './t.core.plan.ts';
 export type * from './t.core.render.ts';
 export type * from './t.core.ts';
 
+type ComposeFn =
+  // Infer Id union (and Reg) from a tuple of factories
+  {
+    <const Fs extends readonly t.Factory<any, any>[]>(factories: [...Fs]): t.Factory<
+      t.ViewIds<Fs[number]>,
+      Fs[number] extends t.Factory<any, infer Reg> ? Reg : never
+    >;
+  } & {
+    // Homogeneous Id factory arrays.
+    <Id extends t.ViewId>(factories: readonly t.Factory<Id>[]): t.Factory<Id>;
+  };
+
 /**
  * Factory namespace:
  */
@@ -20,13 +32,12 @@ export type FactoryLib = {
   ): t.Factory<Id, Reg>;
 
   /**
+   * (Overloaded)
    * Compose multiple factories into one (left → right precedence).
    * - Later factories overwrite earlier entries on id collisions.
    * - Returns a new factory; inputs are not mutated.
    */
-  compose<Id extends t.ViewId, Reg extends t.Registration<Id, t.SlotId, any>>(
-    factories: readonly t.Factory<Id, Reg>[],
-  ): t.Factory<Id, Reg>;
+  compose: ComposeFn;
 };
 
 /**

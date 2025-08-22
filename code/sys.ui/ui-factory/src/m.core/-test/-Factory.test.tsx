@@ -8,21 +8,21 @@ describe('Factory', () => {
   describe('Factory.make', () => {
     it('creates a registry keyed by spec.id', async () => {
       const regs = [TestCore.Reg.make('Alpha:view'), TestCore.Reg.make('Beta:view')] as const;
-      const f = Factory.make(regs); // ← let TS infer <Id, Reg>
+      const f = Factory.make(regs); // let TS infer <Id, Reg>
 
-      // `ids` present:
-      expect(Object.keys(f.specs)).to.eql(['Alpha:view', 'Beta:view']);
+      // ids present
+      expect(Object.keys(f.specs).sort()).to.eql(['Alpha:view', 'Beta:view']);
 
-      // `getView` resolves lazy bundle (ok: true):
-      const alpha = await f.getView('Alpha:view' as Id);
+      // getView resolves (ok: true)
+      const alpha = await f.getView('Alpha:view');
       expect(alpha.ok).to.eql(true);
       if (alpha.ok) {
-        const mod = alpha.module as TestModule; // adapter-agnostic cast
+        const mod = alpha.module satisfies TestModule;
         const out = mod.default({ x: 1 });
         expect(out).to.eql({ name: 'Alpha:view', props: { x: 1 } });
       }
 
-      // <unknown> id → ok: false (no throw):
+      // unknown id → ok: false (no throw)
       const nope = await f.getView('Nope:view' as Id);
       expect(nope.ok).to.eql(false);
       if (!nope.ok) expect(nope.error.message).to.eql("Unknown view id: 'Nope:view'");
@@ -37,26 +37,27 @@ describe('Factory', () => {
   });
 
   it('merges factories (left→right), later wins on collisions', async () => {
-    const f1 = Factory.make([TestCore.Reg.make('Alpha:view')]) as F; // ← widen to Id union
-    const f2 = Factory.make([TestCore.Reg.make('Beta:view')]) as F; //  ← widen to Id union
+    // widen each single-id factory to Id union once using `satisfies`
+    const f1 = Factory.make([TestCore.Reg.make('Alpha:view')]) satisfies F;
+    const f2 = Factory.make([TestCore.Reg.make('Beta:view')]) satisfies F;
 
-    // Collision: override "Alpha:view" with different loader (wins because right-most).
+    // collision: override Alpha:view (right-most wins)
     const altAlpha: t.Registration<'Alpha:view', t.SlotId, TestModule> = {
       spec: { id: 'Alpha:view', slots: [] },
       load: async () => TestCore.View.stub('Alpha:view:ALT'),
     };
+    const f3 = Factory.make([altAlpha]) satisfies F;
 
-    const f3 = Factory.make([altAlpha]) as F; //      ← widen to Id union
-    const merged = Factory.compose([f1, f2, f3]); //  ← ok: all inputs share F
+    const merged = Factory.compose([f1, f2, f3]); // infers Factory<'Alpha'|'Beta', …>
 
-    // All ids present:
+    // ids present
     expect(Object.keys(merged.specs).sort()).to.eql(['Alpha:view', 'Beta:view']);
 
-    // Precedence check:
-    const alpha = await merged.getView('Alpha:view' as Id);
+    // precedence: last loader wins
+    const alpha = await merged.getView('Alpha:view');
     expect(alpha.ok).to.eql(true);
     if (alpha.ok) {
-      const mod = alpha.module as TestModule;
+      const mod = alpha.module satisfies TestModule;
       const out = mod.default({ x: 1 });
       expect(out).to.eql({ name: 'Alpha:view:ALT', props: { x: 1 } });
     }
@@ -64,20 +65,21 @@ describe('Factory', () => {
 
   describe('Factory.compose', () => {
     it('returns a new factory without mutating inputs', () => {
-      type F = t.Factory<Id, t.Registration<Id, t.SlotId, TestModule>>; //  ← shared widening
+      type F = t.Factory<Id, t.Registration<Id, t.SlotId, TestModule>>;
 
-      const a = Factory.make([TestCore.Reg.make('Alpha:view')]) as F; //    ← widen to Id union
-      const b = Factory.make([TestCore.Reg.make('Beta:view')]) as F; //     ← widen to Id union
+      const a = Factory.make([TestCore.Reg.make('Alpha:view')]) satisfies F;
+      const b = Factory.make([TestCore.Reg.make('Beta:view')]) satisfies F;
 
       const beforeA = Obj.clone(a.specs);
       const beforeB = Obj.clone(b.specs);
-      const merged = Factory.compose([a, b]); // OK: both are F
 
-      // Identity checks remain intentional:
+      const merged = Factory.compose([a, b]); // both are F
+
+      // identity
       expect(merged).to.not.equal(a);
       expect(merged).to.not.equal(b);
 
-      // Verify no mutation of inputs:
+      // immutability
       expect(a.specs).to.eql(beforeA);
       expect(b.specs).to.eql(beforeB);
     });

@@ -14,7 +14,7 @@ describe('Plan', () => {
         TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
         TestCore.Reg.make<Id, Slot>('Card:view', []),
         TestCore.Reg.make<Id, Slot>('List:view', ['Item']),
-      ]) as t.FactoryWithSlots<Id, Slot>;
+      ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check: registry preserved slots:
       expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
@@ -49,7 +49,7 @@ describe('Plan', () => {
       const f = Factory.make([
         TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']),
         TestCore.Reg.make<Id, Slot>('Card:view', []),
-      ]) as t.FactoryWithSlots<Id, Slot>;
+      ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check:
       expectSlots(f, 'Layout:root', ['Main']);
@@ -58,7 +58,7 @@ describe('Plan', () => {
         root: {
           component: 'Layout:root',
           slots: {
-            Main: { component: 'Nope:view' as Id },
+            Main: { component: 'Nope:view' as Id }, // intentional bad case
           },
         },
       };
@@ -76,7 +76,7 @@ describe('Plan', () => {
       const f = Factory.make([
         TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']), // Only "Main" allowed.
         TestCore.Reg.make<Id, Slot>('Card:view', []),
-      ]) as t.FactoryWithSlots<Id, Slot>;
+      ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
       // Sanity check:
       expectSlots(f, 'Layout:root', ['Main']);
@@ -85,7 +85,7 @@ describe('Plan', () => {
         root: {
           component: 'Layout:root',
           slots: {
-            Sidebar: { component: 'Card:view' }, // Invalid.
+            Sidebar: { component: 'Card:view' }, // Invalid on purpose.
           } as any,
         },
       };
@@ -107,7 +107,7 @@ describe('Plan', () => {
           TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
           TestCore.Reg.make<Id, Slot>('Card:view', []),
           TestCore.Reg.make<Id, Slot>('List:view', ['Item']),
-        ]) as t.FactoryWithSlots<Id, Slot>;
+        ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
         // sanity
         expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
@@ -141,7 +141,7 @@ describe('Plan', () => {
         const f = Factory.make([
           TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
           TestCore.Reg.make<Id, Slot>('Card:view', []),
-        ]) as t.FactoryWithSlots<Id, Slot>;
+        ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
         // sanity
         expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
@@ -161,7 +161,7 @@ describe('Plan', () => {
         const f = Factory.make([
           TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']),
           TestCore.Reg.make<Id, Slot>('Card:view', []),
-        ]) as t.FactoryWithSlots<Id, Slot>;
+        ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
         // sanity
         expectSlots(f, 'Layout:root', ['Main']);
@@ -169,7 +169,7 @@ describe('Plan', () => {
         const plan: t.LinearPlan<Id, Slot> = {
           root: {
             id: 'Layout:root',
-            children: [{ id: 'Nope:view' as Id, slot: 'Main' }],
+            children: [{ id: 'Nope:view' as Id, slot: 'Main' }], // bad on purpose
           },
         };
 
@@ -185,7 +185,7 @@ describe('Plan', () => {
         const f = Factory.make([
           TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']), // only "Main"
           TestCore.Reg.make<Id, Slot>('Card:view', []),
-        ]) as t.FactoryWithSlots<Id, Slot>;
+        ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
         // sanity
         expectSlots(f, 'Layout:root', ['Main']);
@@ -213,7 +213,7 @@ describe('Plan', () => {
           TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
           TestCore.Reg.make<Id, Slot>('Card:view', []),
           TestCore.Reg.make<Id, Slot>('List:view', ['Item']),
-        ]) as t.FactoryWithSlots<Id, Slot>;
+        ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
         // Sanity check:
         expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
@@ -252,7 +252,7 @@ describe('Plan', () => {
         const f = Factory.make([
           TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']),
           TestCore.Reg.make<Id, Slot>('Card:view', []),
-        ]) as t.FactoryWithSlots<Id, Slot>;
+        ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
         // Sanity check:
         expectSlots(f, 'Layout:root', ['Main', 'Sidebar']);
@@ -278,7 +278,8 @@ describe('Plan', () => {
       const card = TestCore.Reg.counter(TestCore.Reg.make<Id, Slot>('Card:view', []));
       const list = TestCore.Reg.counter(TestCore.Reg.make<Id, Slot>('List:view', ['Item']));
 
-      const f = Factory.make([layout.reg, card.reg, list.reg]) as t.FactoryWithSlots<Id, Slot>;
+      type F = t.FactoryWithSlots<Id, Slot>;
+      const f = Factory.make([layout.reg, card.reg, list.reg]) satisfies F;
 
       // Canonical plan with repeated Card:view occurrences (must load once):
       const plan: t.Plan<typeof f> = {
@@ -340,8 +341,8 @@ describe('Plan', () => {
 
       const f = Factory.make([
         TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']),
-        badCard as t.Registration<Id, Slot>,
-      ]) as t.FactoryWithSlots<Id, Slot>;
+        badCard as t.Registration<Id, Slot>, // cast on purpose for error path
+      ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
       const plan: t.Plan<typeof f> = {
         root: {
@@ -362,13 +363,13 @@ describe('Plan', () => {
 
     it('defensively returns UnknownViewId if a child id is not registered', async () => {
       const f = Factory.make([
-        TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']), // ← Note: Card:view intentionally NOT registered
-      ]) as t.FactoryWithSlots<Id, Slot>;
+        TestCore.Reg.make<Id, Slot>('Layout:root', ['Main']), // Card:view intentionally NOT registered
+      ]) satisfies t.FactoryWithSlots<Id, Slot>;
 
       const plan: t.Plan<typeof f> = {
         root: {
           component: 'Layout:root',
-          slots: { Main: { component: 'Card:view' as Id } },
+          slots: { Main: { component: 'Card:view' as Id } }, // bad on purpose
         },
       };
 

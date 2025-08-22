@@ -10,6 +10,8 @@ describe('Renderer', () => {
     const layout = TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']);
     const card = TestCore.Reg.make<Id, Slot>('Card:view', []);
     const list = TestCore.Reg.make<Id, Slot>('List:view', ['Item']);
+
+    // Let inference carry Id/Slot unions, but require the slot contract to be present.
     const f = Factory.make([layout, card, list]) satisfies t.FactoryWithSlots<Id, Slot>;
 
     // Plan → Resolved:
@@ -29,11 +31,12 @@ describe('Renderer', () => {
         ],
       },
     };
+
     const canonical = Plan.Linear.toCanonical(linear, f);
     const beforeResolved = Obj.clone(canonical);
+
     const resolved = await Plan.resolve(canonical, f);
     expect(resolved.ok).to.eql(true);
-
     if (!resolved.ok) throw new Error('expected ok');
     const rootResolved = resolved.root;
 
@@ -65,7 +68,7 @@ describe('Renderer', () => {
     // Mount:
     const instance = Renderer.mount(rootResolved, adapter);
 
-    // Create order is depth-first (pre-order)
+    // Create order is depth-first (pre-order):
     expect(createLog).to.eql([
       'Layout:root',
       'Card:view', // Main
@@ -77,7 +80,7 @@ describe('Renderer', () => {
     // Insert calls per slot, preserving order within arrays:
     expect(insertLog).to.eql([
       { parent: 'Layout:root', slot: 'Main', count: 1, ids: ['Card:view'] },
-      { parent: 'List:view', slot: 'Item', count: 2, ids: ['Card:view', 'Card:view'] }, // ← happens before Sidebar insert
+      { parent: 'List:view', slot: 'Item', count: 2, ids: ['Card:view', 'Card:view'] }, // before Sidebar insert
       { parent: 'Layout:root', slot: 'Sidebar', count: 1, ids: ['List:view'] },
     ]);
 
@@ -91,7 +94,7 @@ describe('Renderer', () => {
     const layout = TestCore.Reg.make<Id, Slot>('Layout:root', ['Main', 'Sidebar']);
     const card = TestCore.Reg.make<Id, Slot>('Card:view', []);
     const list = TestCore.Reg.make<Id, Slot>('List:view', ['Item']);
-    const f = Factory.make([layout, card, list]) as t.FactoryWithSlots<Id, Slot>;
+    const f = Factory.make([layout, card, list]) satisfies t.FactoryWithSlots<Id, Slot>;
 
     const linear: t.LinearPlan<Id, Slot> = {
       root: {
@@ -109,36 +112,33 @@ describe('Renderer', () => {
         ],
       },
     };
+
     const canonical = Plan.Linear.toCanonical(linear, f);
     const resolved = await Plan.resolve(canonical, f);
     expect(resolved.ok).to.eql(true);
     if (!resolved.ok) throw new Error('expected ok');
     const rootResolved = resolved.root;
 
-    // Adapter that records removals
+    // Adapter that records removals (we only care about remove order here):
     const removeLog: string[] = [];
-    const makeLabel = (n: any): string => n.id;
+    const label = (n: any): string => n.id;
 
-    // We reuse create/insert but keep them minimal; important is remove order.
-    const created: any[] = [];
     const adapter: t.HostAdapter<typeof f> = {
       create(node) {
-        const rec = { id: node.component as string };
-        created.push(rec);
-        return rec;
+        return { id: node.component as string };
       },
       insert() {
         /* no-op */
       },
       remove(node) {
-        removeLog.push(makeLabel(node));
+        removeLog.push(label(node));
       },
       finalize(root) {
         return { root } as unknown as t.HostInstance;
       },
     };
 
-    // Mount + Unmount
+    // Mount + Unmount:
     const instance = Renderer.mount(rootResolved, adapter);
     Renderer.unmount(instance, adapter);
 
