@@ -136,12 +136,6 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/ui-factory"
-        run: |
-          cd code/sys.ui/ui-factory
-          deno task test --parallel
-          deno publish --allow-dirty
-
       - name: publish module → "@sys/ui-react"
         run: |
           cd code/sys.ui/ui-react
@@ -157,6 +151,12 @@ jobs:
       - name: publish module → "@sys/ui-react-components"
         run: |
           cd code/sys.ui/ui-react-components
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/ui-factory"
+        run: |
+          cd code/sys.ui/ui-factory
           deno task test --parallel
           deno publish --allow-dirty
 
