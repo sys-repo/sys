@@ -6,7 +6,7 @@ type F = t.Factory<Id, t.Registration<Id, t.SlotId, TestModule>>;
 
 describe('Factory', () => {
   describe('Factory.make', () => {
-    it('creates a registry keyed by spec.id', async () => {
+    it('creates a registry keyed by {spec.id}', async () => {
       const regs = [TestCore.Reg.make('Alpha:view'), TestCore.Reg.make('Beta:view')] as const;
       const f = Factory.make(regs); // let TS infer <Id, Reg>
 
