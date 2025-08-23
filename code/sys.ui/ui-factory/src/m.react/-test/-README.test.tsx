@@ -8,14 +8,12 @@ import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
 import { describe, expect, it } from '../../-test.ts';
 
 describe('README: React Sample', () => {
-  it('renders HelloWorld plan into a React tree', async () => {
+  it('renders plan into a React tree', async () => {
     // 1. Define registrations (components).
     const regs = [
       {
         spec: { id: 'Hello:view', slots: [] },
-        load: async () => ({
-          default: ({ name }: { name: string }) => <h1>Hello, {name}!</h1>,
-        }),
+        load: async () => ({ default: (props: { name: string }) => <h1>Hello, {props.name}!</h1> }),
       },
     ] satisfies readonly ReactRegistration<'Hello:view'>[];
 

@@ -61,7 +61,7 @@ import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
 const regs = [
   {
     spec: { id: 'Hello:view', slots: [] },
-    load: async () => ({ default: ({ name }: { name: string }) => <h1>Hello, {name}!</h1> }),
+    load: async () => ({ default: (props: { name: string }) => <h1>Hello, {props.name}!</h1> }),
   },
 ] satisfies readonly ReactRegistration<'Hello:view'>[];
 
