@@ -7,4 +7,4 @@
  * - Specializes registrations and factories with `ReactModule`.
  * - Provides the `HostAdapter` contract for React element trees.
  */
-import type { t } from './common.ts';
+export { HostAdapter } from './m.HostAdapter.ts';
