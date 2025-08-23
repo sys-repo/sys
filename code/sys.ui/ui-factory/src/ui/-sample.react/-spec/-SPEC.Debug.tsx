@@ -2,10 +2,11 @@ import React from 'react';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.SampleReactProps;
-type Storage = Pick<P, 'theme' | 'debug'> & { sample?: Sample };
+type Storage = Pick<P, 'theme' | 'debug' | 'strategy'> & { sample?: Sample };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  strategy: D.strategy,
   sample: 'Hello World',
 };
 
@@ -30,6 +31,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    strategy: s(snap.strategy),
     sample: s(snap.sample),
 
     factory: s<P['factory']>(),
@@ -50,6 +52,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.strategy = p.strategy.value;
       d.sample = p.sample.value;
     });
   });
@@ -110,6 +113,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `strategy: ${p.strategy.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle<P['strategy']>(p.strategy, ['suspense', 'eager'])}
       />
 
       <hr />

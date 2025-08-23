@@ -1,4 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
+
 import { css, D } from '../common.ts';
 import { SampleReact } from '../ui.tsx';
 import { type Sample, createDebugSignals, Debug } from './-SPEC.Debug.tsx';
@@ -15,6 +16,7 @@ export default Spec.describe(D.displayName, (e) => {
       base: css({
         fontSize: 11,
         Absolute: [-30, null, null, -44],
+        userSelect: 'none',
         display: 'grid',
         gridAutoFlow: 'column',
         alignItems: 'center',
@@ -55,6 +57,7 @@ export default Spec.describe(D.displayName, (e) => {
               //
               plan={v.plan}
               factory={v.factory}
+              strategy={v.strategy}
             />
           </div>
         );
