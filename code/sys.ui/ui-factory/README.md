@@ -52,11 +52,29 @@ as real `React` elements:
 
 #### Example
 ```ts
-🐷
+import { Factory } from '@sys/ui-factory/core';
+import { renderPlan } from '@sys/ui-factory/react';
+import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
 
-import { Factory, Plan, Renderer } from '@sys/ui-factory/core';
-import { HostAdapter } from '@sys/ui-factory/react';
- 
-const resolved = await Plan.resolve(plan, factory);
-const app = Renderer.mount(resolved.root, HostAdapter);
+// 1. Define registrations (components).
+const regs = [
+  {
+    spec: { id: 'Hello:view', slots: [] },
+    load: async () => ({ default: ({ name }: { name: string }) => <h1>Hello, {name}!</h1> }),
+  },
+] satisfies readonly ReactRegistration<'Hello:view'>[];
+
+// 2. Build a factory.
+const factory = Factory.make(regs);
+
+// 3. Author a simple plan.
+const plan: Plan<typeof factory> = {
+  root: { component: 'Hello:view', props: { name: 'World' } },
+};
+
+// 4. Render to a React element.
+const element = await renderPlan(plan, factory);
+
+// 🌳
+// → `element` is a React tree you can pass into <App /> or ReactDOM.render
 ```
