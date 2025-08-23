@@ -69,8 +69,8 @@
     "npm:@svgdotjs/svg.js@3.2.4": "3.2.4",
     "npm:@types/node@*": "24.2.0",
     "npm:@types/ramda@0.31.0": "0.31.0",
-    "npm:@types/react-dom@19.1.7": "19.1.7_@types+react@19.1.10",
-    "npm:@types/react@19.1.10": "19.1.10",
+    "npm:@types/react-dom@19.1.7": "19.1.7_@types+react@19.1.11",
+    "npm:@types/react@19.1.11": "19.1.11",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react-swc@4.0.1": "4.0.1_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:ai@5.0.22": "5.0.22_zod@3.25.76",
@@ -2218,14 +2218,14 @@
     "@types/range-parser@1.2.7": {
       "integrity": "sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ=="
     },
-    "@types/react-dom@19.1.7_@types+react@19.1.10": {
+    "@types/react-dom@19.1.7_@types+react@19.1.11": {
       "integrity": "sha512-i5ZzwYpqjmrKenzkoLM2Ibzt6mAsM7pxB6BCIouEVVmgiqaMj1TjaK7hnA36hbW5aZv20kx7Lw6hWzPWg0Rurw==",
       "dependencies": [
         "@types/react"
       ]
     },
-    "@types/react@19.1.10": {
-      "integrity": "sha512-EhBeSYX0Y6ye8pNebpKrwFJq7BoQ8J5SO6NlvNwwHjSj6adXJViPQrKlsyPw7hLBLvckEMO1yxeGdR82YBBlDg==",
+    "@types/react@19.1.11": {
+      "integrity": "sha512-lr3jdBw/BGj49Eps7EvqlUaoeA0xpj3pc0RoJkHpYaCHkVK7i28dKyImLQb3JVlqs3aYSXf7qYuWOW/fgZnTXQ==",
       "dependencies": [
         "csstype"
       ]
@@ -4606,7 +4606,7 @@
       "dependencies": [
         "npm:@deno/vite-plugin@1.0.5",
         "npm:@types/react-dom@19.1.7",
-        "npm:@types/react@19.1.10",
+        "npm:@types/react@19.1.11",
         "npm:@vitejs/plugin-react-swc@4.0.1",
         "npm:hono@4.9.4",
         "npm:motion@12.23.12",

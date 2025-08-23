@@ -7,7 +7,7 @@
     "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.161",
     "react": "npm:react@19.1.1",
     "react-dom": "npm:react-dom@19.1.1",
-    "@types/react": "npm:@types/react@19.1.10",
+    "@types/react": "npm:@types/react@19.1.11",
     "@types/react-dom": "npm:@types/react-dom@19.1.7",
     "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@4.0.1",
     "rollup": "npm:rollup@4.47.1",
