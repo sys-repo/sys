@@ -1,5 +1,6 @@
-import { Factory } from '@sys/ui-factory/core';
 import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
+
+import { Factory } from '@sys/ui-factory/core';
 import React from 'react';
 
 import { type t, Color, css } from '../common.ts';

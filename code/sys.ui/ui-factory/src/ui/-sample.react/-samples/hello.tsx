@@ -1,6 +1,5 @@
-import type { Plan } from '@sys/ui-factory/t';
-
 import { Factory } from '@sys/ui-factory/core';
+import type { Plan } from '@sys/ui-factory/t';
 
 /**
  * Minimal registration set: one React component.
