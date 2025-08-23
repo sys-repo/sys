@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t } from './common.ts';
+
+import type { t } from './common.ts';
 import { useEagerFactory } from './use.Factory.Eager.tsx';
 
 /**
@@ -8,14 +9,19 @@ import { useEagerFactory } from './use.Factory.Eager.tsx';
  * - 'suspense': wraps the resolved element with <Suspense fallback={...}>.
  *   (useful only if children actually suspend via React.lazy or data fetching)
  */
-export const useFactory: t.UseFactory = (factory, plan, opts = {}) => {
+export function useFactory<F extends t.ReactFactory<any, any>>(
+  factory: F | undefined,
+  plan: t.Plan<F> | undefined,
+  opts: t.UseFactoryOptions = {},
+): t.UseFactoryResult {
   const { key, strategy = 'eager' } = opts;
 
-  // Always resolve eagerly once; keep hooks stable.
-  const { element, loading, error } = useEagerFactory(factory as any, plan as any, { key });
+  // Resolve once eagerly to keep hook ordering stable.
+  const { element, loading, error } = useEagerFactory<F>(factory, plan, { key });
 
   if (strategy === 'suspense') {
-    const fallback = 'fallback' in opts ? (opts as any).fallback : null;
+    const options = opts as Extract<typeof opts, { fallback?: React.ReactNode }>;
+    const fallback = 'fallback' in options ? options.fallback : null;
     return {
       element: <React.Suspense fallback={fallback}>{element}</React.Suspense>,
       loading: false,
@@ -25,4 +31,4 @@ export const useFactory: t.UseFactory = (factory, plan, opts = {}) => {
 
   // Eager passthrough:
   return { element, loading, error };
-};
+}

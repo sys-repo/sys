@@ -51,10 +51,9 @@ export type UseLazyFactory = <F extends t.ReactFactory<any, any>>(
  * - 'eager' (default): returns the eager shape.
  * - 'suspense': returns the lazy shape (which also includes eager fields).
  */
-export type UseFactoryOptions = {
-  strategy?: 'eager' | 'suspense';
-  key?: React.Key;
-};
+export type UseFactoryOptions =
+  | ({ strategy?: 'eager' } & UseEagerFactoryOptions)
+  | ({ strategy: 'suspense'; fallback?: React.ReactNode } & UseLazyFactoryOptions);
 
 export type UseFactoryResult = UseEagerFactoryResult | UseLazyFactoryResult;
 
