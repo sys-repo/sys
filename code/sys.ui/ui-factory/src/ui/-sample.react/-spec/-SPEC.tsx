@@ -1,13 +1,38 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
-import { SampleReact } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { css, D } from '../common.ts';
+import { SampleReact } from '../ui.tsx';
+import { type Sample, createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
-  e.it('init', (e) => {
+  function DebugTitle(props: { value?: Sample; label?: string }) {
+    const { label = 'Sample', value } = props;
+    const hasValue = !!value;
+
+    const styles = {
+      base: css({
+        fontSize: 11,
+        Absolute: [-30, null, null, -44],
+        display: 'grid',
+        gridAutoFlow: 'column',
+        alignItems: 'center',
+        columnGap: 4,
+      }),
+      key: css({ opacity: 0.4 }),
+      value: css({ opacity: hasValue ? 1 : 0.4 }),
+    };
+
+    return (
+      <div className={styles.base.class}>
+        <span className={styles.key.class}>{`${label}:`}</span>
+        <span className={styles.value.class}>{value || '(none)'}</span>
+      </div>
+    );
+  }
+
+  e.it('init', async (e) => {
     const ctx = Spec.ctx(e);
 
     Dev.Theme.signalEffect(ctx, p.theme, 1);
@@ -21,8 +46,22 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        const sample = v.sample;
+        return (
+          <div className={css({ display: 'grid' }).class}>
+            <DebugTitle value={v.sample} />
+            <SampleReact
+              debug={v.debug}
+              theme={v.theme}
+              //
+              plan={v.plan}
+              factory={v.factory}
+            />
+          </div>
+        );
       });
+
+    // Init:
+    await debug.loadSample();
   });
 
   e.it('ui:debug', (e) => {

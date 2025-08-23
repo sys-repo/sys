@@ -30,6 +30,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    reset,
     listen() {
       Signal.listen(props);
     },
@@ -41,6 +42,10 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
     });
   });
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   return api;
 }
@@ -86,11 +91,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
-        block
-        label={() => `(reset)`}
-        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
-      />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );

@@ -1,8 +1,14 @@
-import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import React, { useEffect, useRef, useState } from 'react';
+import { type t, Color, css, Signal, D, DEFAULTS, rx } from './common.ts';
 
+/**
+ * Component:
+ */
 export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, factory, plan } = props;
+
+
+  if (!factory || !plan) return null;
 
   /**
    * Render:
@@ -12,7 +18,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 10,
+      display: 'grid',
     }),
   };
 

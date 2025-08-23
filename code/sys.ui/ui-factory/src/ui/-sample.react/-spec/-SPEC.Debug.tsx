@@ -2,19 +2,19 @@ import React from 'react';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.SampleReactProps;
-type Sample = 'Sample-1: Hello World' | 'Sample-2...';
-type Storage = Pick<P, 'theme' | 'debug'> & { sample: Sample };
+type Storage = Pick<P, 'theme' | 'debug'> & { sample?: Sample };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
-  sample: 'Sample-1: Hello World',
+  sample: 'Hello World',
 };
 
-const SAMPLES: Sample[] = ['Sample-1: Hello World', 'Sample-2...'];
+const SAMPLES: Sample[] = ['Hello World', '...'];
 
 /**
  * Types:
  */
+export type Sample = 'Hello World' | '...';
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
@@ -31,10 +31,16 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     sample: s(snap.sample),
+
+    factory: s<P['factory']>(),
+    plan: s<P['plan']>(),
   };
   const p = props;
   const api = {
     props,
+    reset,
+    loadSample,
+    unloadSample,
     listen() {
       Signal.listen(props);
     },
@@ -44,8 +50,29 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.sample = p.sample.value;
     });
   });
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    loadSample();
+  }
+
+  function unloadSample() {
+    p.factory.value = undefined;
+    p.plan.value = undefined;
+  }
+  async function loadSample(sample: Sample | undefined = p.sample.value) {
+    unloadSample();
+    p.sample.value = sample;
+
+    if (sample === 'Hello World') {
+      const { plan, factory } = await import('../-samples/hello.tsx');
+      p.factory.value = factory;
+      p.plan.value = plan;
+    }
+  }
 
   return api;
 }
@@ -86,17 +113,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {SAMPLES.map((id) => {
+      {SAMPLES.map((id, i) => {
         return (
           <Button
             block
-            label={() => `${id}`}
-            onClick={() => {
-              p.sample.value = id;
-            }}
+            key={`${i}.${id}`}
+            label={() => `Sample-${i + 1}: ${id}`}
+            onClick={() => debug.loadSample(id)}
           />
         );
       })}
+      <Button
+        block
+        label={() => `(clear)`}
+        onClick={() => {
+          debug.unloadSample();
+          p.sample.value = undefined;
+        }}
+      />
 
       <hr />
       <Button
@@ -104,11 +138,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
-        block
-        label={() => `(reset)`}
-        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
-      />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
