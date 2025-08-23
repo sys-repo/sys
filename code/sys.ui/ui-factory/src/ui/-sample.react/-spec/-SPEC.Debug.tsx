@@ -1,5 +1,15 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  css,
+  D,
+  Immutable,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+} from '../common.ts';
 
 type P = t.SampleReactProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'strategy'> & { sample?: Sample };
@@ -15,8 +25,10 @@ const defaults: Storage = {
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
-export type Sample = 'Hello World' | 'Left | Right' | 'Factory: Error';
-const SAMPLES: Sample[] = ['Hello World', 'Left | Right', 'Factory: Error'];
+
+export type Sample = 'Hello World' | 'Left | Right' | 'Factory: Error' | 'State';
+export type SampleDoc = { count?: number };
+const SAMPLES: Sample[] = ['Hello World', 'Left | Right', 'Factory: Error', 'State'];
 
 /**
  * Signals:
@@ -26,6 +38,7 @@ export function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const state = Immutable.clonerRef<SampleDoc>({ count: 0 });
 
   const props = {
     debug: s(snap.debug),
@@ -39,6 +52,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    state,
     reset,
     loadSample,
     unloadSample,
@@ -88,6 +102,12 @@ export function createDebugSignals() {
       const { factory, plan } = await import('../-samples/fail.tsx');
       change(factory, plan);
     }
+
+    if (sample === 'State') {
+      const { factory, makePlan } = await import('../-samples/state.tsx');
+      const plan = makePlan(state);
+      change(factory, plan);
+    }
   }
 
   return api;
@@ -109,6 +129,8 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const sample = p.sample.value;
+
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -157,6 +179,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
+      {sample === 'State' && <DebugStateButtons debug={debug} />}
+
       <hr />
       <Button
         block
@@ -168,3 +192,45 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
+
+/**
+ * State Debug
+ */
+export function DebugStateButtons(props: { debug: DebugSignals }) {
+  const { debug } = props;
+  const state = debug.state;
+
+  const [, setRender] = React.useState(0);
+  const redraw = () => setRender((n) => n + 1);
+
+  React.useEffect(() => {
+    const events = state.events();
+    events.$.subscribe(redraw);
+    return events.dispose;
+  }, [state.instance]);
+
+  const inc = (by: number, label: string) => {
+    return (
+      <Button
+        block
+        label={() => {
+          const count = state.current.count ?? 0;
+          const sign = count < 0 ? '-' : '+';
+          const next = count + by;
+          return `${label} ${count} ${sign} 1 = ${next}`;
+        }}
+        onClick={() => {
+          state.change((d) => (d.count = (d.count ?? 0) + by));
+        }}
+      />
+    );
+  };
+  return (
+    <>
+      <hr />
+      <div className={Styles.title.class}>{'State:'}</div>
+      {inc(1, 'increment')}
+      {inc(-1, 'decrement')}
+    </>
+  );
+}
