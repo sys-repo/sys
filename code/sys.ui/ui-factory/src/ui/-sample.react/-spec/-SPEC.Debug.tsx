@@ -69,7 +69,15 @@ export function createDebugSignals() {
       d.sample = p.sample.value;
     });
   });
+  Signal.effect(() => {
+    // Hook into values:
+    p.theme.value;
+    api.loadSample();
+  });
 
+  /**
+   * Methods:
+   */
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
     loadSample();
@@ -79,10 +87,12 @@ export function createDebugSignals() {
     p.factory.value = undefined;
     p.plan.value = undefined;
   }
+
   async function loadSample(sample: Sample | undefined = p.sample.value) {
     unloadSample();
     p.sample.value = sample;
 
+    const theme = p.theme.value;
     const change = (factory: P['factory'], plan: P['plan']) => {
       p.factory.value = factory;
       p.plan.value = plan;
@@ -94,7 +104,8 @@ export function createDebugSignals() {
     }
 
     if (sample === 'Slots') {
-      const { factory, plan } = await import('../-samples/slots.tsx');
+      const { factory, makePlan } = await import('../-samples/slots.tsx');
+      const plan = makePlan({ theme });
       change(factory, plan);
     }
 
@@ -228,9 +239,12 @@ export function DebugStateButtons(props: { debug: DebugSignals }) {
   return (
     <>
       <hr />
-      <div className={Styles.title.class}>{'State:'}</div>
-      {inc(1, 'increment')}
-      {inc(-1, 'decrement')}
+      <div className={Styles.title.class}>
+        <div>State</div>
+        <div>{'ImmutableRef<T>'}</div>
+      </div>
+      {inc(1, 'increment:')}
+      {inc(-1, 'decrement:')}
     </>
   );
 }

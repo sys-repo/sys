@@ -1,7 +1,8 @@
-import React from 'react';
 import { Factory } from '@sys/ui-factory/core';
-import { renderPlan } from '@sys/ui-factory/react';
 import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
+import React from 'react';
+
+import { type t, Color, css } from '../common.ts';
 
 /**
  * Domain unions.
@@ -13,35 +14,55 @@ type Slot = 'Left' | 'Right' | 'Inner';
 /**
  * Components (pulled out for clarity).
  */
-function TwoColumn(props: { Left?: React.ReactNode; Right?: React.ReactNode }) {
+function TwoColumn(props: {
+  Left?: React.ReactNode;
+  Right?: React.ReactNode;
+  theme?: t.CommonTheme;
+}) {
   const { Left, Right } = props;
+
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      backgroundColor: Color.ruby(true),
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 12,
+    }),
+    left: css({
+      backgroundColor: Color.ruby(true),
+    }),
+  };
+
   return (
-    <section
-      data-layout="two"
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: 12,
-        alignItems: 'start',
-      }}
-    >
-      <aside data-slot="Left">{Left}</aside>
+    <section data-layout="two" className={styles.base.class}>
+      <aside data-slot="Left" className={styles.left.class}>
+        {Left}
+      </aside>
       <main data-slot="Right">{Right}</main>
     </section>
   );
 }
 
-function Panel(props: { title?: string; body?: string; Inner?: React.ReactNode }) {
+function Panel(props: {
+  title?: string;
+  body?: string;
+  Inner?: React.ReactNode;
+  theme?: t.CommonTheme;
+}) {
   const { title, body, Inner } = props;
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      border: `dashed 2px ${Color.alpha(theme.fg, 0.5)}`,
+      borderRadius: 12,
+      padding: 12,
+      margin: 12,
+    }),
+  };
+
   return (
-    <div
-      data-panel
-      style={{
-        border: '1px solid rgba(0,0,0,0.15)',
-        borderRadius: 8,
-        padding: 12,
-      }}
-    >
+    <div data-panel className={styles.base.class} style={{}}>
       {title && <div style={{ fontWeight: 600, marginBottom: 6 }}>{title}</div>}
       {body && <div style={{ marginBottom: 8 }}>{body}</div>}
       {/* Nested slot: optional, safe when omitted */}
@@ -74,27 +95,34 @@ export const factory = Factory.make(regs);
  * - Right: array of Panels (order preserved). Second Panel nests a child via its 'Inner' slot.
  * - Omit 'Inner' elsewhere to demonstrate that empty slots are safe.
  */
-export const plan: Plan<typeof factory> = {
-  root: {
-    component: 'Layout:two',
-    slots: {
-      Left: { component: 'Panel:view', props: { title: 'Left', body: 'Hello from left panel' } },
-      Right: [
-        {
+export function makePlan(props: { theme: t.CommonTheme | undefined }): Plan<typeof factory> {
+  const { theme } = props;
+  const plan: Plan<typeof factory> = {
+    root: {
+      component: 'Layout:two',
+      slots: {
+        Left: {
           component: 'Panel:view',
-          props: { title: 'Right A', body: 'Item A' },
+          props: { title: 'Left', body: 'Hello from left panel', theme },
         },
-        {
-          component: 'Panel:view',
-          props: { title: 'Right B', body: 'Item B (with nested content)' },
-          slots: {
-            Inner: {
-              component: 'Panel:view',
-              props: { title: 'Nested', body: 'Rendered inside Right B → Inner' },
+        Right: [
+          {
+            component: 'Panel:view',
+            props: { title: 'Right A', body: 'Item A', theme },
+          },
+          {
+            component: 'Panel:view',
+            props: { title: 'Right B', body: 'Item B (with nested content)', theme },
+            slots: {
+              Inner: {
+                component: 'Panel:view',
+                props: { title: 'Nested', body: 'Rendered inside Right B → Inner', theme },
+              },
             },
           },
-        },
-      ],
+        ],
+      },
     },
-  },
-};
+  };
+  return plan;
+}

@@ -8,7 +8,7 @@ type P = t.SampleReactProps;
 /**
  * Constants:
  */
-const name = 'HostAdapter.React.Sample';
+const name = 'HostAdapter.React:Sample';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
