@@ -1,7 +1,6 @@
 import type { Plan } from '@sys/ui-factory/t';
 
 import { Factory } from '@sys/ui-factory/core';
-import { renderPlan } from '@sys/ui-factory/react';
 
 /**
  * Minimal registration set: one React component.
@@ -20,8 +19,3 @@ export const factory = Factory.make(regs);
 export const plan: Plan<typeof factory> = {
   root: { component: 'Hello:view', props: { name: 'World' } },
 };
-
-/** One-liner renderer the harness can call. */
-export async function render() {
-  return renderPlan(plan, factory);
-}

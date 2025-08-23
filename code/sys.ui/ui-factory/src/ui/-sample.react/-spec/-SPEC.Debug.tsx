@@ -10,14 +10,13 @@ const defaults: Storage = {
   sample: 'Hello World',
 };
 
-export type Sample = 'Hello World' | 'Left | Right' | 'Factory: Error';
-const SAMPLES: Sample[] = ['Hello World', 'Left | Right', 'Factory: Error'];
-
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type Sample = 'Hello World' | 'Left | Right' | 'Factory: Error';
+const SAMPLES: Sample[] = ['Hello World', 'Left | Right', 'Factory: Error'];
 
 /**
  * Signals:
@@ -70,10 +69,19 @@ export function createDebugSignals() {
     unloadSample();
     p.sample.value = sample;
 
-    if (sample === 'Hello World') {
-      const { plan, factory } = await import('../-samples/hello.tsx');
+    const change = (factory: P['factory'], plan: P['plan']) => {
       p.factory.value = factory;
       p.plan.value = plan;
+    };
+
+    if (sample === 'Hello World') {
+      const { factory, plan } = await import('../-samples/hello.tsx');
+      change(factory, plan);
+    }
+
+    if (sample === 'Left | Right') {
+      const { factory, plan } = await import('../-samples/left-right.tsx');
+      change(factory, plan);
     }
   }
 
