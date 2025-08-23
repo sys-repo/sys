@@ -12,6 +12,7 @@ type Slot = never;
 
 /** Document shape (optional count) */
 export type SampleDoc = { count?: number };
+export type SampleState = t.ImmutableRef<SampleDoc>;
 
 /**
  * Counter component:
@@ -58,13 +59,9 @@ const regs = [
 export const factory = Factory.make(regs);
 
 /**
- * Plan — note that `state` is NOT created here.
- * The harness is responsible for creating the ImmutableRef instance
- * and injecting it into this plan (so tests/dev can reuse).
- *
- * Accept the same ref shape produced by your harness (doc + concrete op/event types).
+ * Construct plan with host initiated state.
  */
-export function makePlan(state: t.ImmutableRef<SampleDoc, any, any>): Plan<typeof factory> {
+export function makePlan(state: SampleState): Plan<typeof factory> {
   return {
     root: {
       component: 'Counter:view',
