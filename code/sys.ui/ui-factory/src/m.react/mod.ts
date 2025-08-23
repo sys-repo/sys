@@ -8,3 +8,4 @@
  * - Provides the `HostAdapter` contract for React element trees.
  */
 export { HostAdapter } from './m.HostAdapter.ts';
+export { renderPlan } from './u.renderPlan.ts';

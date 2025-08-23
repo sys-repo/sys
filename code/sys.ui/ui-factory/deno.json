@@ -17,6 +17,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./core": "./src/m.core/mod.ts"
+    "./core": "./src/m.core/mod.ts",
+    "./react": "./src/m.react/mod.ts"
   }
 }
