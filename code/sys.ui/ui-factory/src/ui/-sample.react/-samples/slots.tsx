@@ -30,9 +30,7 @@ function TwoColumn(props: {
       gap: 12,
     }),
     left: css({}),
-    right: css({
-      backgroundColor: Color.ruby(true),
-    }),
+    right: css({ backgroundColor: Color.ruby(true) }),
   };
 
   return (
