@@ -54,6 +54,7 @@ as real `React` elements:
 ```ts
 import { Factory } from '@sys/ui-factory/core';
 import { renderPlan } from '@sys/ui-factory/react';
+
 import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
 
 // 1. Define registrations (components).
