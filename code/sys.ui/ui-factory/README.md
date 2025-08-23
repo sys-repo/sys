@@ -21,8 +21,8 @@ Tiny primitives for declarative UI composition.
   Slots are named attachment points a `view` exposes for placing **child** `views` within its `layout`.
 
 - #### View
-  A `view` is a renderable unit that is library-agnostic. Use independently imported
-  **host adapters** to bridge to concrete UI runtimes.   
+  A `view` is a renderable unit that is library-agnostic.  
+  Use independently imported **host adapters** to bridge to concrete UI runtimes.   
   (default adapter: `JSX → react`).
 
 
