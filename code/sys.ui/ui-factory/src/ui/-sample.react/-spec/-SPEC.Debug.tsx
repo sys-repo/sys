@@ -26,9 +26,9 @@ const defaults: Storage = {
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
-export type Sample = 'Hello World' | 'Left | Right' | 'Factory: Error' | 'State';
+export type Sample = 'Hello World' | 'Slots' | 'Factory: Error' | 'State';
 export type SampleDoc = { count?: number };
-const SAMPLES: Sample[] = ['Hello World', 'Left | Right', 'Factory: Error', 'State'];
+const SAMPLES: Sample[] = ['Hello World', 'Slots', 'Factory: Error', 'State'];
 
 /**
  * Signals:
@@ -93,8 +93,8 @@ export function createDebugSignals() {
       change(factory, plan);
     }
 
-    if (sample === 'Left | Right') {
-      const { factory, plan } = await import('../-samples/left-right.tsx');
+    if (sample === 'Slots') {
+      const { factory, plan } = await import('../-samples/slots.tsx');
       change(factory, plan);
     }
 

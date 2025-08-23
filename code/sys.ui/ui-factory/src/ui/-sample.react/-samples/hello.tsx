@@ -9,7 +9,7 @@ import { Factory } from '@sys/ui-factory/core';
 const regs = [
   {
     spec: { id: 'Hello:view', slots: [] as const },
-    load: async () => ({ default: (props: { name: string }) => <h1>Hello, {props.name}!</h1> }),
+    load: async () => ({ default: (props: { name: string }) => <h1>Hello, {props.name}! 👋</h1> }),
   },
 ] as const;
 

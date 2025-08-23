@@ -30,8 +30,8 @@ function Counter(props: { state: t.ImmutableRef<SampleDoc> }) {
   }, [state.instance]);
 
   return (
-    <div data-counter style={{ margin: 10, fontFamily: 'monospace' }}>
-      count = {value.count}
+    <div data-counter style={{ margin: 15, fontFamily: 'monospace' }}>
+      state.count = {value.count}
     </div>
   );
 }

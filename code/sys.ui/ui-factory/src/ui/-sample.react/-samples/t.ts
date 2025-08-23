@@ -1,1 +1,1 @@
-export type Sample = 'Hello World' | 'Left | Right' | 'Factory: Error';
+export type Sample = 'Hello World' | 'Slots' | 'Factory: Error';

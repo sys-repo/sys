@@ -15,7 +15,7 @@ export default Spec.describe(D.displayName, (e) => {
     const styles = {
       base: css({
         fontSize: 11,
-        Absolute: [-30, null, null, -44],
+        Absolute: [-25, null, null, -40],
         userSelect: 'none',
         display: 'grid',
         gridAutoFlow: 'column',

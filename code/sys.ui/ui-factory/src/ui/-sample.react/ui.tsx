@@ -24,7 +24,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
   const styles = {
     base: css({ backgroundColor: Color.ruby(debug), color: theme.fg, display: 'grid' }),
     loading: css({ userSelect: 'none', display: 'grid', placeItems: 'center' }),
-    error: css({ color: Color.RED }),
+    error: css({ color: Color.RED, padding: 15 }),
   };
 
   return (

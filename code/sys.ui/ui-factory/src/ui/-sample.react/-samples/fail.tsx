@@ -26,7 +26,7 @@ const regs = [
       // Simulate a bundler/network error:
       throw new Error('boom');
       // (Unreachable, but shows intended module shape)
-      // return { default: WouldHaveRendered };
+      return { default: WouldHaveRendered };
     },
   },
 ] satisfies readonly ReactRegistration<Id, Slot>[];
@@ -41,13 +41,3 @@ export const factory = Factory.make(regs);
 export const plan: Plan<typeof factory> = {
   root: { component: 'Boom:view', props: { msg: 'Should not render' } },
 };
-
-/**
- * Notes for the harness:
- * - Using `useFactory(..., { strategy: 'eager' })` you should see:
- *     { element: null, loading: false, error: Error('boom') } and/or a wrapped StdError
- *   depending on your core’s error plumbing.
- * - Using `strategy: 'suspense'`, your Suspense boundary won’t help unless a *child*
- *   actually suspends. In this demo, the loader throws synchronously-as-async,
- *   so prefer the eager path to surface the error cleanly in dev.
- */
