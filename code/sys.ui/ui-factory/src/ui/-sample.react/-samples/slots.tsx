@@ -29,7 +29,8 @@ function TwoColumn(props: {
       gridTemplateColumns: '1fr 1fr',
       gap: 12,
     }),
-    left: css({
+    left: css({}),
+    right: css({
       backgroundColor: Color.ruby(true),
     }),
   };
@@ -39,7 +40,9 @@ function TwoColumn(props: {
       <aside data-slot="Left" className={styles.left.class}>
         {Left}
       </aside>
-      <main data-slot="Right">{Right}</main>
+      <main data-slot="Right" className={styles.right.class}>
+        {Right}
+      </main>
     </section>
   );
 }
@@ -56,8 +59,8 @@ function Panel(props: {
     base: css({
       border: `dashed 2px ${Color.alpha(theme.fg, 0.5)}`,
       borderRadius: 12,
-      padding: 12,
-      margin: 12,
+      padding: 16,
+      margin: 16,
     }),
   };
 

@@ -80,6 +80,7 @@ export function createDebugSignals() {
    */
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    state.change((d) => (d.count = 0));
     loadSample();
   }
 
@@ -228,7 +229,7 @@ export function DebugStateButtons(props: { debug: DebugSignals }) {
           const count = state.current.count ?? 0;
           const sign = count < 0 ? '-' : '+';
           const next = count + by;
-          return `${label} ${count} ${sign} 1 = ${next}`;
+          return `count.${label} ${count} ${sign} 1 = ${next}`;
         }}
         onClick={() => {
           state.change((d) => (d.count = (d.count ?? 0) + by));

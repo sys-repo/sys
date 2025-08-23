@@ -2,7 +2,7 @@ import { Factory } from '@sys/ui-factory/core';
 import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
 
 import React from 'react';
-import type { t } from '../common.ts';
+import { type t, css } from '../common.ts';
 
 /**
  * Domain unions.
@@ -29,8 +29,16 @@ function Counter(props: { state: t.ImmutableRef<SampleDoc> }) {
     return events.dispose;
   }, [state.instance]);
 
+  const styles = {
+    base: css({
+      margin: 15,
+      fontFamily: 'monospace',
+      fontSize: 22,
+    }),
+  };
+
   return (
-    <div data-counter style={{ margin: 15, fontFamily: 'monospace' }}>
+    <div data-counter className={styles.base.class}>
       state.count = {value.count}
     </div>
   );

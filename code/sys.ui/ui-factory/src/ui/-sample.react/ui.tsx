@@ -27,6 +27,12 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
     error: css({ color: Color.RED, padding: 15 }),
   };
 
+  console.group(`🌳 factory: Adapter.React:Sample`);
+  console.info('loading:', loading);
+  if (element) console.info('element:', element);
+  if (error) console.info('error:', error);
+  console.groupEnd();
+
   return (
     <div className={css(styles.base, props.style).class}>
       {loading && <div className={styles.loading.class}>Loading...</div>}
