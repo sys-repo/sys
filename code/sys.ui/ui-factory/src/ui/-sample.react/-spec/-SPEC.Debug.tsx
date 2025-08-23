@@ -10,12 +10,12 @@ const defaults: Storage = {
   sample: 'Hello World',
 };
 
-const SAMPLES: Sample[] = ['Hello World', '...'];
+export type Sample = 'Hello World' | 'Left | Right' | 'Factory: Error';
+const SAMPLES: Sample[] = ['Hello World', 'Left | Right', 'Factory: Error'];
 
 /**
  * Types:
  */
-export type Sample = 'Hello World' | '...';
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
@@ -122,18 +122,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Samples:'}</div>
       {SAMPLES.map((id, i) => {
         return (
           <Button
             block
             key={`${i}.${id}`}
-            label={() => `Sample-${i + 1}: ${id}`}
+            enabled={() => p.sample.value !== id}
+            label={() => `${i + 1}. ${id}`}
             onClick={() => debug.loadSample(id)}
           />
         );
       })}
       <Button
         block
+        style={{ marginTop: 5 }}
         label={() => `(clear)`}
         onClick={() => {
           debug.unloadSample();
