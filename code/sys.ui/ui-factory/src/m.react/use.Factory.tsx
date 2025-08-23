@@ -24,8 +24,8 @@ export function useFactory<F extends t.ReactFactory<any, any>>(
     const fallback = 'fallback' in options ? options.fallback : null;
     return {
       element: <React.Suspense fallback={fallback}>{element}</React.Suspense>,
-      loading: false,
-      error: null,
+      loading,
+      error,
     };
   }
 

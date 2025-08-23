@@ -83,6 +83,11 @@ export function createDebugSignals() {
       const { factory, plan } = await import('../-samples/left-right.tsx');
       change(factory, plan);
     }
+
+    if (sample === 'Factory: Error') {
+      const { factory, plan } = await import('../-samples/fail.tsx');
+      change(factory, plan);
+    }
   }
 
   return api;
