@@ -39,5 +39,8 @@ export const factory = Factory.make(regs);
  * - Resolving this plan will fail at load time.
  */
 export const plan: Plan<typeof factory> = {
-  root: { component: 'Boom:view', props: { msg: 'Should not render' } },
+  root: {
+    component: 'Boom:view',
+    props: { msg: 'Should not render' },
+  },
 };
