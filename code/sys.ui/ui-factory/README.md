@@ -82,5 +82,5 @@ const element = await renderPlan(plan, factory);
 
 ## Live
 
-dev (harness): [sys.ui.factory: HostAdapter → React]('https://fs.db.team/sys/ui.factory/?dev=5066379583419) (Adapter)
+dev (harness): [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419) (Adapter)
 
