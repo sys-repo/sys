@@ -9,3 +9,4 @@
  */
 export { HostAdapter } from './m.HostAdapter.ts';
 export { renderPlan } from './u.renderPlan.ts';
+export { useFactory } from './use.Factory.tsx';
