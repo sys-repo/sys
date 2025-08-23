@@ -1,4 +1,6 @@
-import { type t, type TestModule, describe, expect, it, Obj, TestCore } from '../../-test.ts';
+import { type t, describe, expect, it, Obj } from '../../-test.ts';
+import { type TestModule, TestCore } from './-u.ts';
+
 import { Factory } from '../mod.ts';
 
 type Id = 'Alpha:view' | 'Beta:view';

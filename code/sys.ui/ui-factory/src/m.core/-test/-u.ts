@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /** Minimal test "module" shape used by core tests. */
 export type TestModule = {

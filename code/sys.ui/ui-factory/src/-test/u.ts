@@ -1,8 +1,6 @@
 import { expect } from '@sys/testing/server';
 import { type t } from './common.ts';
 
-export * from './u.core.ts';
-
 /**
  * Ensure the factory preserves the given slots for a given id.
  */

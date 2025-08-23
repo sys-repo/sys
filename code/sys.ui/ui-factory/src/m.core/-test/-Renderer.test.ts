@@ -1,5 +1,6 @@
-import { type t, describe, expect, it, Obj, TestCore } from '../../-test.ts';
+import { type t, describe, expect, it, Obj } from '../../-test.ts';
 import { Factory, Plan, Renderer } from '../mod.ts';
+import { TestCore } from './-u.ts';
 
 type Id = 'Layout:root' | 'Card:view' | 'List:view';
 type Slot = 'Main' | 'Sidebar' | 'Item';

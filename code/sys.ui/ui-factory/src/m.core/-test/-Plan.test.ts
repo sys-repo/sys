@@ -1,5 +1,6 @@
-import { type t, describe, expect, expectSlots, it, Obj, TestCore } from '../../-test.ts';
+import { type t, describe, expect, expectSlots, it, Obj } from '../../-test.ts';
 import { Factory, Plan } from '../mod.ts';
+import { TestCore } from './-u.ts';
 
 /**
  * Test domain unions:
