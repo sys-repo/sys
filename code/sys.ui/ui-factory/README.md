@@ -79,3 +79,8 @@ const element = await renderPlan(plan, factory);
 // 🌳
 // → `element` is a React tree you can pass into <App /> or ReactDOM.render
 ```
+
+## Live
+
+dev (harness): [sys.ui.factory: HostAdapter → React]('https://fs.db.team/sys/ui.factory/?dev=5066379583419) (Adapter)
+
