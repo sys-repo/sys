@@ -1,6 +1,7 @@
-import { Plan, Renderer } from '@sys/ui-factory/core';
-import { HostAdapter } from './m.HostAdapter.ts';
+import { Plan, Renderer } from '../m.core/mod.ts';
+
 import type { t } from './common.ts';
+import { HostAdapter } from './m.HostAdapter.ts';
 
 export async function renderPlan<F extends t.ReactFactory<any, any>>(
   plan: t.Plan<F>,
