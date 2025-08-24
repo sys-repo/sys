@@ -54,7 +54,7 @@ groups:
   schema:
     - import: npm:@sinclair/typebox-codegen@0.11.1
     - import: npm:@sinclair/typebox@0.34.40
-      subpaths: ['value']
+      subpaths: ['value', 'errors']
 
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@4.0.1
