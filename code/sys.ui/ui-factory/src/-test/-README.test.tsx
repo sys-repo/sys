@@ -49,8 +49,9 @@ describe('README: React Sample', () => {
       const { HelloSchema } = await import('@sys/ui-factory/test/samples');
       type Hello = Infer<typeof HelloSchema>;
 
-      // Strict type equality check
-      expectTypeOf<Hello>({ name: 'foo' }).toEqualTypeOf<{ name: string }>();
+      // Strict type equality check:
+      const obj = { name: 'foo' };
+      expectTypeOf<Hello>(obj).toEqualTypeOf<{ name: string }>();
     });
   });
 });
