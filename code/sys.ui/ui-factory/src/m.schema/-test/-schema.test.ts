@@ -1,9 +1,8 @@
-import { describe, expect, it } from '../../-test.ts';
-import { Type } from '../common.ts';
+import { Type, describe, expect, it } from '../../-test.ts';
 import { Schema } from '../mod.ts';
 
-describe('ui-factory: schema', () => {
-  describe('makeValidator', () => {
+describe('ui-factory: Schema', () => {
+  describe('Schema.makeValidator', () => {
     const SampleSchema = Type.Object({
       foo: Type.String(),
       bar: Type.Optional(Type.Number()),

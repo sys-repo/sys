@@ -1,10 +1,14 @@
 import { type t } from './common.ts';
 
-import { makeValidator } from './u.validate.ts';
 import { makePropsValidators, validateProps } from './u.props.ts';
+import { makeValidator } from './u.validate.ts';
+
+const Props: t.FactorySchemaPropsLib = {
+  makeValidators: makePropsValidators,
+  validate: validateProps,
+};
 
 export const Schema: t.FactorySchemaLib = {
+  Props,
   makeValidator,
-  makePropsValidators,
-  validateProps,
 };
