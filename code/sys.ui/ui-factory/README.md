@@ -3,7 +3,7 @@
 Tiny primitives for declarative UI composition.  
 
 ----
-`Factory` → [`Specs` → `Plan`] → `View` → `Slots`
+`Factory` → [ `Specs` → `Plan` ] → `View` → `Slots`
 
 - #### Factory
   A factory is `{data}` + a lazy `view` loader.  
