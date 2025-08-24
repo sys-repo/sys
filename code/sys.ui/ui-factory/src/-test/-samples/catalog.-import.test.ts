@@ -6,7 +6,7 @@ describe('public samples catalog → inference', () => {
   it('derives strong types without slow types', async () => {
     const Samples = await import('@sys/ui-factory/test/samples');
 
-    // Inference directly from exported schema values (works because they’re precise TypeBox types)
+    // Inference directly from exported schema values (works because they're precise TypeBox types):
     type Hello = Infer<typeof Samples.HelloSchema>;
     type Panel = Infer<typeof Samples.PanelSchema>;
 
