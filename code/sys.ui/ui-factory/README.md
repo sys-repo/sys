@@ -77,7 +77,7 @@ const plan: Plan<typeof factory> = {
 const element = await renderPlan(plan, factory);
 
 // 🌳
-// → `element` is a React tree you can pass into <App /> or ReactDOM.render
+// → `element` is a React tree you can pass into <App/> or ReactDOM.render
 ```
 
 ## Live
