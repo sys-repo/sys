@@ -357,7 +357,7 @@ describe('Plan', () => {
       if (!res.ok) {
         // The name may be 'LoadError' in a future wrapper, but is 'Error' today:
         expect(['LoadError', 'Error']).to.include(res.error.name);
-        expect(res.error.message).to.include("Failed to load view 'Card:view'");
+        expect(res.error.message).to.include('Failed to load view “Card:view”');
         expect(res.error?.cause?.message).to.include('boom');
       }
     });
