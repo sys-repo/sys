@@ -207,13 +207,17 @@ export function DebugStateButtons(props: { debug: DebugSignals }) {
   }, [state.instance]);
 
   const inc = (by: number, label: string) => {
+    const current = () => {
+      const count = state.current.count ?? 0;
+      const sign = by < 0 ? '-' : '+';
+      const next = count + by;
+      return { count, sign, next };
+    };
     return (
       <Button
         block
         label={() => {
-          const count = state.current.count ?? 0;
-          const sign = count < 0 ? '-' : '+';
-          const next = count + by;
+          const { count, sign, next } = current();
           return `count.${label} ${count} ${sign} 1 = ${next}`;
         }}
         onClick={() => {
