@@ -1,5 +1,6 @@
 import type { Type } from '@sinclair/typebox';
-import type { AssertError, Value } from '@sinclair/typebox/value';
+import type { Value } from '@sinclair/typebox/value';
+import type { t } from './common.ts';
 
 /**
  * "Standard Schema" (Typescript/JSONSchema) tools:
@@ -20,4 +21,4 @@ export type SchemaLib = Readonly<{
 }>;
 
 /** Response returned from the `Schema.try` method. */
-export type SchemaTryResult<T> = { ok: boolean; value?: T; error?: AssertError['error'] };
+export type SchemaTryResult<T> = { ok: true; value: T } | { ok: false; errors: t.ValueError[] };

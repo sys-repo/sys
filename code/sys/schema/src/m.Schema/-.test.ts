@@ -64,15 +64,20 @@ describe('Standard Schema', () => {
     it('returns a fail result when TypeBox validation fails', () => {
       const result = Schema.try(() => Value.Parse(SampleSchema, { foo: {} }));
       expect(result.ok).to.eql(false);
-      expect(result.error?.message).to.include('Expected string');
-      expect(result.error?.path).to.eql('/foo');
+
+      expect(Array.isArray((result as any).errors)).to.eql(true);
+      const [err] = (result as Extract<typeof result, { ok: false }>).errors;
+
+      expect(err.message).to.include('Expected string');
+      expect(err.path).to.eql('/foo');
     });
 
     it('propagates unexpected (non-TypeBox) errors', () => {
-      const fn = () =>
+      const fn = () => {
         Schema.try(() => {
           throw new Error('boom');
         });
+      };
       expect(fn).to.throw();
     });
   });

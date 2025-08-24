@@ -1,4 +1,4 @@
 /**
- * @module
+ * @module Schema (JsonSchema and strong typing) support for ui-factory.
  */
-import type { t } from './common.ts';
+export { Schema } from './m.Schema.ts';

@@ -9,4 +9,3 @@ export type * from './m.Schema/t.ts';
  */
 export type { Static, TLiteral, TSchema, TUnion } from '@sinclair/typebox';
 export type { ValueError } from '@sinclair/typebox/errors';
-export type { AssertError } from '@sinclair/typebox/value';
