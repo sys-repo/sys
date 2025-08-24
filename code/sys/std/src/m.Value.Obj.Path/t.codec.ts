@@ -31,6 +31,7 @@ export type ObjectPathCodecKind = 'pointer' | 'dot';
 
 /**
  * An [ObjectPath] array → string encoder/decoder.
+ * RFC 6901 JSON Pointer: lossless & standard-compliant.
  */
 export type ObjectPathCodec = Readonly<{
   kind: ObjectPathCodecKind | (string & {});

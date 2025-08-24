@@ -1,6 +1,5 @@
-// file: src/m.schema/u.makeValidator.ts
 import { Schema } from '@sys/schema';
-import type { t } from './common.ts';
+import { type t, Obj } from './common.ts';
 
 /**
  * Create a validator from a JSON schema.
@@ -24,11 +23,12 @@ export function makeValidator<S extends t.TSchema, TOut = t.Static<S>>(
     validate(value: unknown) {
       if (Schema.Value.Check(schema, value)) return { ok: true as const };
 
-      // Collect and normalize all validation failures
+      // Collect and normalize all validation failures.
+      // Convert RFC6901 string pointer -> ObjectPath for our canonical error shape.
       const errors = Array.from(Schema.Value.Errors(schema, value), (e) => ({
-        path: e.path,
+        path: Obj.Path.decode(e.path),
         message: e.message,
-      }));
+      })) as ReadonlyArray<t.ValidationError>;
 
       return { ok: false as const, errors };
     },

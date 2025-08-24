@@ -32,7 +32,7 @@ describe('ui-factory: Schema', () => {
         if (!result.ok) {
           expect(result.errors).to.be.an('array').and.have.length.greaterThan(0);
           expect(result.errors?.[0].message).to.include('Expected string');
-          expect(result.errors?.[0].path).to.eql('/foo');
+          expect(result.errors?.[0].path).to.eql(['foo']);
         }
       });
     });

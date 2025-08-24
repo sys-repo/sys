@@ -53,14 +53,14 @@ describe('ui-factory: schema props helpers', () => {
     });
 
     it('ok:false with normalized errors when invalid', () => {
-      // Assert the validator exists so test failures are crisp
+      // Assert the validator exists so test failures are crisp:
       expect(validators['A:view']).to.exist;
 
       const bad = Schema.Props.validate('A:view', { title: 123 }, validators);
       expect(bad.ok).to.eql(false);
       if (!bad.ok) {
         expect(bad.errors).to.be.an('array').and.have.length.greaterThan(0);
-        expect(bad.errors?.[0].path).to.eql('/title');
+        expect(bad.errors?.[0].path).to.eql(['title']);
         expect(bad.errors?.[0].message).to.match(/Expected string/i);
       }
     });

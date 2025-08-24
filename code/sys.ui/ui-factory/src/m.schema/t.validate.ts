@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/** Canonical validation error. */
+export type ValidationError = { path: t.ObjectPath; message: string };
+
 /**
  * A validator returned from `makeValidator`.
  */
@@ -12,9 +15,7 @@ export type Validator<T> = {
 export type ValidateFn = (value: unknown) => ValidateResult;
 
 /** Single source of truth for the validate result shape. */
-export type ValidateResult =
-  | { ok: true }
-  | { ok: false; errors: ReadonlyArray<{ path: string; message: string }> };
+export type ValidateResult = { ok: true } | { ok: false; errors: ReadonlyArray<ValidationError> };
 
 /**
  * Factory signature for creating validators.
