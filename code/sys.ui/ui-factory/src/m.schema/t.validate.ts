@@ -5,10 +5,14 @@ import type { t } from './common.ts';
  */
 export type Validator<T> = {
   check(value: unknown): value is T;
-  validate(value: unknown): ValidationResult;
+  validate: ValidateFn;
 };
 
-export type ValidationResult =
+/** Canonical validate function type (kept in one place). */
+export type ValidateFn = (value: unknown) => ValidateResult;
+
+/** Single source of truth for the validate result shape. */
+export type ValidateResult =
   | { ok: true }
   | { ok: false; errors: ReadonlyArray<{ path: string; message: string }> };
 

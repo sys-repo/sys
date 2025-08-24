@@ -32,5 +32,5 @@ export type SchemaPropsLib = {
     id: Id,
     props: unknown,
     validators: t.PropsValidators<Id>,
-  ) => t.ValidationResult;
+  ) => t.ValidateResult;
 };
