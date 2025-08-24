@@ -8,6 +8,9 @@ export type SchemaLib = {
   /** Property related schema helpers. */
   readonly Props: t.SchemaPropsLib;
 
+  /** Schema utilities (runtime extraction). */
+  readonly Schemas: t.SchemasUtilLib;
+
   /** Create a validator from a JSON schema */
   readonly makeValidator: t.ValidatorFactory;
 };
@@ -34,3 +37,15 @@ export type SchemaPropsLib = {
     validators: t.PropsValidators<Id>,
   ) => t.ValidateResult;
 };
+
+/**
+ * Schema utilities (runtime extraction).
+ */
+export type SchemasUtilLib = {
+};
+
+/** Map of per-id schemas (only present when provided on the reg). */
+export type SchemasMap<Id extends string> = Readonly<Partial<Record<Id, t.TSchema>>>;
+
+/** Type-level inference helper. */
+export type Infer<S extends t.TSchema> = t.Static<S>;

@@ -50,7 +50,7 @@ as real `React` elements:
 - The adapter implements the `HostAdapter` rendering contract for [React](https://react.dev/).
 - Together, `Factory` + `Plan` + `Renderer` produce a [React](https://react.dev/) tree.
 
-#### Example
+#### Example: React
 ```ts
 import { Factory } from '@sys/ui-factory/core';
 import { renderPlan } from '@sys/ui-factory/react';
@@ -82,5 +82,5 @@ const element = await renderPlan(plan, factory);
 
 ## Live
 
-dev (harness): [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419) (Adapter)
+**Dev (Harness):** [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419) (Adapter)
 
