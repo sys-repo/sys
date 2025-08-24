@@ -25,7 +25,7 @@ export function resolve<F extends t.Factory<any, any>>(
       // Wrap loader errors:
       return {
         ok: false,
-        error: Err.std(`Failed to load view '${id}'`, { name: 'LoadError', cause: res.error }),
+        error: Err.std(`Failed to load view “${id}”`, { name: 'LoadError', cause: res.error }),
       };
     }
 
