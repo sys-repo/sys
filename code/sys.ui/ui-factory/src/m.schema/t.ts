@@ -8,8 +8,8 @@ export type SchemaLib = {
   /** Property related schema helpers. */
   readonly Props: t.SchemaPropsLib;
 
-  /** Schema utilities (runtime extraction). */
-  readonly Schemas: t.SchemasUtilLib;
+  /** JSONSchema + type-inference utilities (from registrations). */
+  readonly Types: t.SchemaTypesLib;
 
   /** Create a validator from a JSON schema */
   readonly makeValidator: t.ValidatorFactory;
@@ -39,9 +39,19 @@ export type SchemaPropsLib = {
 };
 
 /**
- * Schema utilities (runtime extraction).
+ * Utilities for working with JSONSchemas attached to view registrations.
+ * - Extracts `{ [id]: TSchema }` maps from `spec.schema`.
+ * - Supports downstream runtime validation *and* static type inference.
  */
-export type SchemasUtilLib = {
+export type SchemaTypesLib = {
+  /**
+   * Build a `{ [id]: TSchema }` map from registrations that declare `spec.schema`.
+   * - Skips ids with no schema.
+   * - The returned map is readonly and preserves the id union.
+   */
+  readonly fromRegs: <Id extends string>(
+    regs: ReadonlyArray<t.Registration<Id, t.SlotId, unknown>>,
+  ) => SchemasMap<Id>;
 };
 
 /** Map of per-id schemas (only present when provided on the reg). */
