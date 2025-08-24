@@ -15,7 +15,7 @@ export type Validator<T> = {
 export type ValidateFn = (value: unknown) => ValidateResult;
 
 /** Single source of truth for the validate result shape. */
-export type ValidateResult = { ok: true } | { ok: false; errors: ReadonlyArray<ValidationError> };
+export type ValidateResult = { ok: true } | { ok: false; errors: readonly ValidationError[] };
 
 /**
  * Factory signature for creating validators.
@@ -27,6 +27,6 @@ export type ValidatorFactory = <S extends t.TSchema, TOut = t.Static<S>>(
 /**
  * Map of per-view props validators keyed by view id.
  */
-export type PropsValidators<Id extends string> = Readonly<{
-  [K in Id]?: Validator<unknown>;
-}>;
+export type PropsValidators<Id extends string> = {
+  readonly [K in Id]?: Validator<unknown>;
+};

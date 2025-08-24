@@ -11,40 +11,13 @@ import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
 const regs = [
   {
     spec: { id: 'Hello:view', slots: [] },
-    load: async () => ({
-      default: ({ name }: { name: string }) => <h1>Hello, {name}!</h1>,
-    }),
+    load: async () => ({ default: (e: { name: string }) => <h1>Hello, {e.name}!</h1> }),
   },
 ] satisfies readonly ReactRegistration<'Hello:view'>[];
 
 const factory = Factory.make(regs);
 type F = typeof factory;
-
-const plan: Plan<F> = {
-  root: { component: 'Hello:view', props: { name: 'World' } },
-};
-
-/**
- * Harness components that call the hook and render simple markers
- * we can assert on using plain SSR string output.
- */
-function EagerHarness(props: { factory?: F; plan?: Plan<F> }) {
-  const { element, loading, error } = useFactory(props.factory, props.plan, { strategy: 'eager' });
-  return (
-    <div data-kind="eager">
-      <div data-loading={String(loading)} />
-      <div data-error={String(Boolean(error))} />
-      <div data-has-el={String(Boolean(element))} />
-      {/* On SSR, effects don't run, so `element` will be null here */}
-      {element}
-    </div>
-  );
-}
-
-function SuspenseHarness(props: { factory?: F; plan?: Plan<F> }) {
-  const { element } = useFactory(props.factory, props.plan, { strategy: 'suspense' });
-  return <div data-kind="suspense">{element}</div>;
-}
+const plan: Plan<F> = { root: { component: 'Hello:view', props: { name: 'World' } } };
 
 describe('hook: useFactory', () => {
   it('eager: SSR produces wrapper without resolved content (effects run on client)', () => {
@@ -78,3 +51,25 @@ describe('hook: useFactory', () => {
     expect(html).to.not.include('Hello, World!');
   });
 });
+
+/**
+ * Helpers:
+ *    Harness components that call the hook and render simple markers
+ *    so assertertions work using plain SSR string output.
+ */
+function EagerHarness(props: { factory?: F; plan?: Plan<F> }) {
+  const { element, loading, error } = useFactory(props.factory, props.plan, { strategy: 'eager' });
+  return (
+    <div data-kind="eager">
+      <div data-loading={String(loading)} />
+      <div data-error={String(Boolean(error))} />
+      <div data-has-el={String(Boolean(element))} />
+      {/* On SSR, effects don't run, so `element` will be null here */}
+      {element}
+    </div>
+  );
+}
+function SuspenseHarness(props: { factory?: F; plan?: Plan<F> }) {
+  const { element } = useFactory(props.factory, props.plan, { strategy: 'suspense' });
+  return <div data-kind="suspense">{element}</div>;
+}
