@@ -80,7 +80,29 @@ const element = await renderPlan(plan, factory);
 // → `element` is a React tree you can pass into <App/> or ReactDOM.render
 ```
 
-## Live
+## Type Inference
+Schemas act as the **single source of truth**.
 
+They are exported as `TSchema` objects, which is **JSR-safe** (avoids the "slow type" constraint), 
+and consumers infer types locally:
+```ts
+// In a package (export side):
+export const HelloSchema: TSchema = Type.Object({
+  name: Type.String(),
+});
+```
+
+Consumers derive strong types directly from the schema:
+```ts
+// Import from a published sample:
+import { HelloSchema } from '@sys/ui-factory/test/samples';
+import type { Infer } from '@sys/ui-factory/t';
+
+type Hello = Infer<typeof HelloSchema>; 
+// → { name: string }
+```
+
+
+## Live
 **Dev (Harness):** [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419) (Adapter)
 
