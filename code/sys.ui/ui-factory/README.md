@@ -3,6 +3,8 @@
 Tiny primitives for declarative UI composition.  
 
 ----
+
+## Core
 `Factory` → [ `Specs` → `Plan` ] → `View` → `Slots`
 
 - #### Factory
@@ -27,7 +29,7 @@ Tiny primitives for declarative UI composition.
 
 
 
-## Usage
+### Usage
 ```ts
 import { Factory } from '@sys/ui-factory'; // ← core
 import { Factory } from '@sys/ui-factory/core';
@@ -38,7 +40,7 @@ import { HostAdapter } from '@sys/ui-factory/react';
 
 
 ## Host Adapters
-The **host adapter** pattern bridges the core `@sys/ui-factory` abstractions into 
+The **host adapter** pattern bridges the `@sys/ui-factory` **core** abstractions into 
 a concrete runtime environment 
 
 
