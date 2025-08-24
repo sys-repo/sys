@@ -86,20 +86,22 @@ Schemas act as the **single source of truth**.
 They are exported as `TSchema` objects, which is **JSR-safe** (avoids the "slow type" constraint), 
 and consumers infer types locally:
 ```ts
+import { Type } from '@sys/schema';
+import type { TSchema } from '@sys/schema/t';
+
 // In a package (export side):
 export const HelloSchema: TSchema = Type.Object({
-  name: Type.String(),
+  name: Type.Optional(Type.String()),
 });
 ```
 
 Consumers derive strong types directly from the schema:
 ```ts
-// Import from a published sample:
 import { HelloSchema } from '@sys/ui-factory/test/samples';
 import type { Infer } from '@sys/ui-factory/t';
 
 type Hello = Infer<typeof HelloSchema>; 
-// → { name: string }
+// → { name?: string }
 ```
 
 
