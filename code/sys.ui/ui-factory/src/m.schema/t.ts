@@ -4,9 +4,9 @@ export type * from './t.validate.ts';
 /**
  * Public surface for the factory-aware schema helpers.
  */
-export type FactorySchemaLib = {
+export type SchemaLib = {
   /** Property related schema helpers. */
-  readonly Props: t.FactorySchemaPropsLib;
+  readonly Props: t.SchemaPropsLib;
 
   /** Create a validator from a JSON schema */
   readonly makeValidator: t.ValidatorFactory;
@@ -15,7 +15,7 @@ export type FactorySchemaLib = {
 /**
  * Public surface for the factory-aware "property" related schema helpers.
  */
-export type FactorySchemaPropsLib = {
+export type SchemaPropsLib = {
   /**
    * Convenience: build a `{ [id]: Validator }` map from your registrations'
    * `spec.schema` fields (if present). Skips ids with no schema.
