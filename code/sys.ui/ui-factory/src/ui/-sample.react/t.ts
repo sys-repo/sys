@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Component:
  */
 export type SampleReactProps = {
-  factory?: t.ReactFactory<any, any>;
+  factory?: t.Factory;
   plan?: t.Plan<any>;
   strategy?: 'eager' | 'suspense';
 

@@ -11,6 +11,8 @@ import {
   Signal,
 } from '../common.ts';
 
+import type { Sample, SampleDoc } from '../-samples/t.ts';
+
 type P = t.SampleReactProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'strategy'> & { sample?: Sample };
 const defaults: Storage = {
@@ -25,10 +27,12 @@ const defaults: Storage = {
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type { Sample };
 
-export type Sample = 'Hello World' | 'Slots' | 'Factory: Error' | 'State';
-export type SampleDoc = { count?: number };
-const SAMPLES: Sample[] = ['Hello World', 'Slots', 'Factory: Error', 'State'];
+/**
+ * Sample Types:
+ */
+const SAMPLES: Sample[] = ['Hello World', 'Slots', 'Factory Error', 'State', 'Composed Recursive'];
 
 /**
  * Signals:
@@ -93,33 +97,14 @@ export function createDebugSignals() {
     unloadSample();
     p.sample.value = sample;
 
-    const theme = p.theme.value;
-    const change = (factory: P['factory'], plan: P['plan']) => {
+    const change = (factory: t.Factory, plan: P['plan']) => {
       p.factory.value = factory;
       p.plan.value = plan;
     };
 
-    if (sample === 'Hello World') {
-      const { factory, plan } = await import('../-samples/hello.tsx');
-      change(factory, plan);
-    }
-
-    if (sample === 'Slots') {
-      const { factory, makePlan } = await import('../-samples/slots.tsx');
-      const plan = makePlan({ theme });
-      change(factory, plan);
-    }
-
-    if (sample === 'Factory: Error') {
-      const { factory, plan } = await import('../-samples/fail.tsx');
-      change(factory, plan);
-    }
-
-    if (sample === 'State') {
-      const { factory, makePlan } = await import('../-samples/state.tsx');
-      const plan = makePlan(state);
-      change(factory, plan);
-    }
+    const load = (await import('./-u.load.ts')).load;
+    const res = await load({ state, props }, sample);
+    if (res) change(res.factory, res.plan);
   }
 
   return api;

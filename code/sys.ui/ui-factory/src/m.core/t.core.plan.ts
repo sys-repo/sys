@@ -37,7 +37,7 @@ export type PlanNode<F extends t.Factory<any, any>> = {
 }[t.ViewIds<F>];
 
 /** A full plan tree, anchored at a single root node. */
-export type Plan<F extends t.Factory<any, any>> = {
+export type Plan<F extends t.Factory<any, any> = t.Factory<any, any>> = {
   readonly root: PlanNode<F>;
 };
 
