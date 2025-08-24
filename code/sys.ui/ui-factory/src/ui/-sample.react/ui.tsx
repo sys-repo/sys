@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { type t, Color, css, D, useFactory } from './common.ts';
+import { Error } from './ui.Error.tsx';
 
 /**
  * Component:
@@ -24,7 +26,6 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
   const styles = {
     base: css({ backgroundColor: Color.ruby(debug), color: theme.fg, display: 'grid' }),
     loading: css({ userSelect: 'none', display: 'grid', placeItems: 'center' }),
-    error: css({ color: Color.RED, fontWeight: 'bold', fontSize: 20, padding: 15 }),
   };
 
   console.group(`🌳 factory: Adapter.React:Sample`);
@@ -35,8 +36,8 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {loading && <div className={styles.loading.class}>Loading...</div>}
-      {error && <div className={styles.error.class}>Error: {error.message}</div>}
+      {loading && <div className={styles.loading.class}>{'Loading...'}</div>}
+      {error && <Error message={error.message} theme={theme.name} />}
 
       {/* When successfully loaded: */}
       {!loading && !error && element}
