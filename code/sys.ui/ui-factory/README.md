@@ -43,7 +43,7 @@ a concrete runtime environment
 
 
 ### Host Adapter: React
-The ([React](https://react.dev/) host adapter interprets resolved plans from a factory 
+The [React](https://react.dev/) host adapter interprets resolved plans from a factory 
 as real `React` elements:
 
 - Each registration's `load()` produces a `ReactModule` with a `default` component.
