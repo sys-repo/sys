@@ -134,7 +134,7 @@ catalog/
   │   │   ├─ schema.ts       ← Type.Object(...)
   │   │   ├─ spec.ts         ← ViewSpec                 ← id, slots, schema
   │   │   ├─ ui.tsx          ← View implementation      ← JSX or whatever (adapter specific)
-  │   │   └─ mod.ts          ← exports:                 ← Hello's schema, spec, view
+  │   │   └─ mod.ts          ← exports:                 ← <Hello>'s schema, spec, view
   ├─ regs.ts                 ← central Registration[]   ← built from /ui/
   ├─ plans.ts                ← UI composition plans     ← hierarchical structures of components
   └─ mod.ts                  ← 🌳 (entrypoint)
