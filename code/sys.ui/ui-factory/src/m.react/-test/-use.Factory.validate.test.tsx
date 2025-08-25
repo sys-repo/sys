@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { describe, expect, it, Obj } from '../../-test.ts';
+import { type t, describe, expect, it, Obj } from '../../-test.ts';
 
 import { Type } from '@sys/schema';
 import { Factory } from '@sys/ui-factory/core';
@@ -35,7 +35,7 @@ type F = typeof factory;
 const validators = Schema.Props.makeValidators(regs);
 
 describe('hook: useFactory - validation', () => {
-  it('validate=false → no validation (no callbacks)', () => {
+  it('validate: false → no validation (no callbacks)', () => {
     const plan: Plan<F> = {
       root: {
         component: 'Layout:two',
@@ -58,7 +58,7 @@ describe('hook: useFactory - validation', () => {
     expect(calls.length).to.equal(1);
   });
 
-  it('validate=true → reports errors via onError/onErrors', () => {
+  it('validate: true → reports errors via onError/onErrors', () => {
     const plan: Plan<F> = {
       root: {
         component: 'Layout:two',
@@ -96,7 +96,7 @@ describe('hook: useFactory - validation', () => {
     expect(batch!).to.include('/count');
   });
 
-  it('failFast=true → stops after first error', () => {
+  it('failFast: true → stops after first error', () => {
     const plan: Plan<F> = {
       root: {
         component: 'Layout:two',
@@ -157,6 +157,53 @@ describe('hook: useFactory - validation', () => {
 
     ReactDOMServer.renderToStaticMarkup(<Harness />);
     expect(seen.some((p) => p.endsWith('/title'))).to.eql(true);
+  });
+
+  it('validate option variants (shorthand + object)', () => {
+    // Invalid plan so that when validation runs it definitely produce errors.
+    const badPlan: Plan<F> = {
+      root: {
+        component: 'Panel:view',
+        props: { title: 123, count: 'x' }, // ← NB: count not a number.
+      },
+    };
+
+    type T = { label: string; validate: t.UseFactoryValidate; expectHits: number };
+    function test(args: T): number {
+      const { validate } = args;
+      let hits = 0;
+
+      function Harness() {
+        const v = typeof validate === 'object' ? { ...validate, onError: () => hits++ } : validate;
+        useFactory(factory, badPlan, { strategy: 'eager', validate: v });
+        return null;
+      }
+
+      ReactDOMServer.renderToStaticMarkup(<Harness />);
+      expect(hits).to.eql(args.expectHits);
+      return hits;
+    }
+
+    test({
+      label: 'shorthand "always" (no validators provided)',
+      validate: 'always',
+      expectHits: 0,
+    });
+    test({
+      label: 'shorthand true (no validators provided)',
+      validate: true,
+      expectHits: 0,
+    });
+    test({
+      label: 'shorthand false',
+      validate: false,
+      expectHits: 0,
+    });
+    test({
+      label: 'object form with validators (mode:"always")',
+      validate: { mode: 'always', validators },
+      expectHits: 2,
+    });
   });
 });
 

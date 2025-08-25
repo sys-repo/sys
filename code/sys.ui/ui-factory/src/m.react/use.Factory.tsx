@@ -22,7 +22,7 @@ export function useFactory<F extends t.ReactFactory<any, any>>(
   const eager = useEagerFactory<F>(factory, plan, { key });
   const { element, loading, error } = eager;
 
-  // Optional validation pass (no side-effects on render tree).
+  // Optional: validation pass (no side-effects on render tree).
   const validate = normalizeValidate(opts.validate);
   if (factory && plan && validate && validate.mode === 'always') {
     // If you have prebuilt validators, pass via `validate.validators`.
@@ -52,6 +52,7 @@ export function useFactory<F extends t.ReactFactory<any, any>>(
  *   - object/undefined passthrough
  */
 function normalizeValidate(v?: t.UseFactoryValidate): t.UseFactoryValidateOptions | undefined {
+  if (typeof v === 'string') return { mode: v };
   if (v === true) return { mode: 'always' };
   if (v === false) return { mode: 'never' };
   return v;

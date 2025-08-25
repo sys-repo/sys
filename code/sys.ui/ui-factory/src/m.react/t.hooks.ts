@@ -78,7 +78,7 @@ export type UseFactoryValidateOptions = {
  *   - `false` → { mode: 'never' }
  *   - `{ ... }` passes options through unchanged
  */
-export type UseFactoryValidate = boolean | UseFactoryValidateOptions;
+export type UseFactoryValidate = boolean | UseFactoryValidateMode | UseFactoryValidateOptions;
 
 /**
  * Unified hook options:
