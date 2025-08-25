@@ -125,8 +125,6 @@ type Hello = Infer<typeof HelloSchema>;
 A catalog is a type-safe bundle of schemas and UI definitions, shipped as a 
 single [`import`](https://tc39.es/ecma262/#sec-import-calls).
 
-
-
 ```
 catalog/
   ├─ ui/
@@ -157,5 +155,5 @@ const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' }
 ```
 @sys/ui-factory: HostAdapter
 ```
-**Dev (Harness):** [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419)
+**Harness:** [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419)
 
