@@ -18,7 +18,7 @@ Tiny primitives for declarative UI composition.
 
 ---
 
-- #### Specs → Plan
+- #### Specs → Plan → Validation
   A **plan** is the declarative blueprint a factory follows when **instantiating views**.  
   It is made up of **specs** consisting of:  
   - a unique component `id`.
@@ -157,8 +157,6 @@ const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' }
 <p>&nbsp;<p>
 
 ## Live
-```
-@sys/ui-factory: HostAdapter
-```
-**Harness:** [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419)
+**Dev Harness:** 
+- [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419)
 

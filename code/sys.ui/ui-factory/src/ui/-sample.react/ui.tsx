@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D, useFactory, ValidationErrors } from './common.ts';
 import { RuntimeError } from './ui.Error.Runtime.tsx';
+import { Loading } from './ui.Loading.tsx';
 
 /**
  * Component:
@@ -11,7 +12,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
   /**
    * Hook: Resolve the plan → React element (+issues).
    */
-  const { ok, element, loading, issues } = useFactory(factory, plan, {
+  const { element, loading, issues } = useFactory(factory, plan, {
     key: debug ? 'debug' : undefined,
     strategy,
     validate,
@@ -26,7 +27,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
-    loading: css({ userSelect: 'none', display: 'grid', placeItems: 'center' }),
+    loading: css({ Absolute: 0 }),
     validation: css({ Absolute: 0 }),
     element: css({
       display: 'grid',
@@ -35,24 +36,11 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
     }),
   };
 
-  /**
-   * Debug output:
-   */
-  console.group(`🌳 factory: Adapter.React:Sample`);
-  console.info('loading:', loading);
-  console.info('ok:', ok);
-  if (element) console.info('element:', element);
-  if (issues.runtime) console.info('runtime error:', issues.runtime);
-  if (issues.validation?.length) console.info('validation:', issues.validation);
-  console.groupEnd();
-
-  const el = <div className={styles.element.class}>{element}</div>;
-
   return (
     <div className={css(styles.base, props.style).class}>
-      {loading && <div className={styles.loading.class}>{'Loading...'}</div>}
+      {loading && <Loading theme={theme.name} style={styles.loading} />}
 
-      {/* Runtime error (rendered prominently) */}
+      {/* Runtime error (rendered prominently): */}
       {issues.runtime && <RuntimeError message={issues.runtime.message} theme={theme.name} />}
 
       {/* Validation issues: */}
@@ -67,7 +55,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
       )}
 
       {/* When successfully loaded: */}
-      {!loading && !issues.runtime && el}
+      {!loading && !issues.runtime && <div className={styles.element.class}>{element}</div>}
     </div>
   );
 };

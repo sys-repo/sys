@@ -5,7 +5,7 @@ import { renderPlan } from './u.renderPlan.ts';
 import { validatePlan } from './u.validatePlan.ts';
 
 type AnyFactory = t.ReactFactory<any, any>;
-const isSSR = typeof window === 'undefined' || typeof document === 'undefined';
+type ValidationErrors = t.UseFactoryValidateError;
 
 /**
  * Eagerly resolves (factory + plan) into a React element.
@@ -50,9 +50,8 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
     const v = normalizedValidate;
     if (v.mode !== 'always' || !v.validators) return [];
 
-    const isSSR = typeof window === 'undefined' || typeof document === 'undefined';
-
     const collected: t.UseFactoryValidateError[] = [];
+    const isSSR = typeof window === 'undefined' || typeof document === 'undefined';
     const onError = (e: t.UseFactoryValidateError) => {
       collected.push(e);
       if (isSSR) v.onError?.(e); // SSR-only: fire callbacks immediately
@@ -92,6 +91,9 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
 
     (async () => {
       try {
+        // Yield a frame so `loading=true` can render
+        if (cancelled) return;
+
         const el = await resolveElement(factory, plan);
         if (cancelled) return;
 
