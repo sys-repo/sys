@@ -21,6 +21,10 @@ export type TimeLib = {
 
   /**
    * Run a function after a delay.
+   *
+   * Notes:
+   *  • `delay(msecs, fn?)` → macrotask timer; cancellable via `.cancel()`.
+   *  • `delay(fn?)`        → microtask tick (queues on Promise microtask).
    */
   delay(msecs: t.Msecs, fn?: t.TimeDelayCallback): t.TimeDelayPromise;
   delay(fn?: t.TimeDelayCallback): t.TimeDelayPromise;
@@ -37,7 +41,28 @@ export type TimeLib = {
 
   /** A Time helper that runs only until it has been disposed. */
   until(until$?: t.DisposeInput): t.TimeUntil;
+
+  /**
+   * Yield to the next animation frame.
+   * - SSR/Node fallback: schedules a 0 ms macrotask.
+   * - If `signal` aborts before the frame, the promise rejects with `AbortError`.
+   */
+  nextFrame(opts?: t.TimeFrameOptions): Promise<void>;
+
+  /**
+   * Yield to two animation frames (paint, then settle).
+   * - SSR/Node fallback mirrors `nextFrame`.
+   * - If `signal` aborts before completion, the promise rejects with `AbortError`.
+   */
+  doubleFrame(opts?: t.TimeFrameOptions): Promise<void>;
 };
+
+/**
+ * Options for frame-yield primitives.
+ * - If provided, an aborted signal should prevent the callback from running
+ *   and cause the promise to reject with an AbortError.
+ */
+export type TimeFrameOptions = { readonly signal?: AbortSignal };
 
 /**
  * Timeout/Delay

@@ -57,7 +57,7 @@ export function delay(...args: any[]): t.TimeDelayPromise {
 }
 
 /**
- * Helpers
+ * Helpers:
  */
 export const Wrangle = {
   delayArgs(input: any[]) {
