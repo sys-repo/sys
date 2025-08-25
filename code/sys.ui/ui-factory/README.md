@@ -144,9 +144,8 @@ catalog/
 
 ## Runtime Validation
 Plans may be checked against each view's `schema` ([`JsonSchema`](https://json-schema.org/draft/2020-12/json-schema-core.html)) during development 
-ensuring mismatches are surfaced early and clearly. They can also be re-run
-in `production` ("always") if the factories are being dynamically defined 
-by the host application.
+ensuring mismatches are surfaced early. Validation can also be re-run
+in `production` ("always") if need be, for instance when the UI factories are being dynamically re-defined and modified by the host application.
 
 ```ts
 const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' });
