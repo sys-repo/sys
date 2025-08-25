@@ -22,7 +22,8 @@ Tiny primitives for declarative UI composition.
   A **plan** is the declarative blueprint a factory follows when **instantiating views**.  
   It is made up of **specs** consisting of:  
   - a unique component `id`.
-  - A [JSON Schema–compatible](https://json-schema.org/) `schema` with inferred TypeScript `types`.
+  - A [JSON Schema–compatible](https://json-schema.org/) `schema` with inferred TypeScript `types`, 
+implementing [**Standard Schema**](https://standardschema.dev).
   - the available layout `slots` for child placement.
 
 ---

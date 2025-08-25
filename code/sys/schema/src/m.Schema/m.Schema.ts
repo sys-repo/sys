@@ -1,12 +1,14 @@
 import { Type, type Static } from '@sinclair/typebox';
 import { AssertError, Value, type ValueError } from '@sinclair/typebox/value';
-
 import { type t } from './common.ts';
-export type { Static };
+import { toStandardSchema } from './u.toStandardSchema.ts';
 
+export type { Static };
 export { Type, Value };
 
 export const Schema: t.SchemaLib = {
+  toStandardSchema,
+
   get Type() {
     return Type;
   },
