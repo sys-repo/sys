@@ -122,7 +122,8 @@ type Hello = Infer<typeof HelloSchema>;
 
 
 ## File Layout Guidance
-A catalog is a type-safe bundle of schemas and UI definitions, shipped as a single [`import`](https://tc39.es/ecma262/#sec-import-calls).
+A catalog is a type-safe bundle of schemas and UI definitions, shipped as a 
+single [`import`](https://tc39.es/ecma262/#sec-import-calls).
 
 
 
