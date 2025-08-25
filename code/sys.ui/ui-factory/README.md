@@ -7,10 +7,16 @@ Tiny primitives for declarative UI composition.
 ## Core
 `Factory` → [ `Specs` → `Plan` ] → `View` → `Slots`
 
+
 - #### Factory
   A factory is `{data}` + a lazy `view` loader.  
   	•	**Data**: the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
-  	•	**Loader**: the mechanism that resolves `specs` into live `views` at runtime.
+  	•	**Loader**: the mechanism that resolves `specs` into live `views` at runtime 
+      (dynamic ESM import, code-split boundaries).
+
+**Note**: Using [standard dynamic `import()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import) within the Loader in ESM naturally defines bundle boundaries, with code-splitting handled automatically by the bundler as a consequence.
+
+---
 
 - #### Specs → Plan
   A **plan** is the declarative blueprint a factory follows when **instantiating views**.  
@@ -18,6 +24,8 @@ Tiny primitives for declarative UI composition.
   - a unique component `id`, 
   - a JSONSchema `schema` and inferred TypeScript `types`,
   - the available layout `slots` for child placement.
+
+---
 
 - #### Slots
   Slots are named attachment points a `view` exposes for placing **child** `views` within its `layout`.
@@ -27,21 +35,22 @@ Tiny primitives for declarative UI composition.
   Use independently imported **host adapters** to bridge to concrete UI runtimes.   
   (default adapter: `JSX → react`).
 
+<p>&nbsp;<p>
 
-
-### Usage
+## Usage
 ```ts
-import { Factory } from '@sys/ui-factory'; // ← core
 import { Factory } from '@sys/ui-factory/core';
 
-// Host adapters (concrete UI runtimes):
+// ↓ Host adapter (hook into concrete UI runtime).
 import { HostAdapter } from '@sys/ui-factory/react';
 ```
 
 
+<p>&nbsp;<p>
+
 ## Host Adapters
 The **host adapter** pattern bridges the `@sys/ui-factory` **core** abstractions into 
-a concrete runtime environment 
+a concrete runtime environment.
 
 
 ### Host Adapter: React
@@ -51,6 +60,8 @@ as real `React` elements:
 - Each registration's `load()` produces a `ReactModule` with a `default` component.
 - The adapter implements the `HostAdapter` rendering contract for [React](https://react.dev/).
 - Together, `Factory` + `Plan` + `Renderer` produce a [React](https://react.dev/) tree.
+
+<p>&nbsp;<p>
 
 #### Example: React
 ```ts
@@ -81,6 +92,8 @@ const element = await renderPlan(plan, factory);
 // 🌳
 // → `element` is a React tree you can pass into <App/> or ReactDOM.render
 ```
+
+<p>&nbsp;<p>
 
 ## Type Inference
 Schemas act as the **single source of truth**.
@@ -120,13 +133,14 @@ catalog/
   │   │   └─ mod.ts          ← exports:                 ← Hello's schema, spec, view
   ├─ regs.ts                 ← central Registration[]   ← built from /ui/
   ├─ plans.ts                ← UI composition plans     ← hierarchical structures of components
-  └─ mod.ts                  ← Entrypoint
+  └─ mod.ts                  ← 🌳 (entrypoint)
 ```
 
 ## Runtime Validation
-Plans may be checked against each view's `schema` (**JsonSchema**) during development 
+Plans may be checked against each view's `schema` ([`JsonSchema`](https://json-schema.org/draft/2020-12/json-schema-core.html)) during development 
 ensuring mismatches are surfaced early and clearly. They can also be re-run
-in `production` if the factories are being dynamically defined.
+in `production` ("always") if the factories are being dynamically defined 
+by the host application.
 
 ```ts
 const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' });
