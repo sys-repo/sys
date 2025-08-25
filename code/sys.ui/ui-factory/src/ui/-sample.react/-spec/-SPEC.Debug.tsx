@@ -12,15 +12,20 @@ import {
 } from '../common.ts';
 
 import type { Sample, SampleDoc } from '../-samples/t.ts';
+import { SAMPLES } from '../-samples/t.ts';
 
 type P = t.SampleReactProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'strategy' | 'validate'> & { sample?: Sample };
+type Storage = Pick<P, 'theme' | 'debug' | 'strategy' | 'validate'> & {
+  sample?: Sample;
+  invalidProps?: boolean;
+};
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   strategy: D.strategy,
   sample: 'Hello World',
   validate: 'always',
+  invalidProps: true,
 };
 
 /**
@@ -29,11 +34,6 @@ const defaults: Storage = {
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export type { Sample };
-
-/**
- * Sample Types:
- */
-const SAMPLES: Sample[] = ['Hello World', 'Slots', 'Factory Error', 'State', 'Composed Recursive'];
 
 /**
  * Signals:
@@ -50,7 +50,9 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     strategy: s(snap.strategy),
     validate: s(snap.validate),
+
     sample: s(snap.sample),
+    invalidProps: s(snap.invalidProps),
 
     factory: s<P['factory']>(),
     plan: s<P['plan']>(),
@@ -74,11 +76,13 @@ export function createDebugSignals() {
       d.strategy = p.strategy.value;
       d.validate = p.validate.value;
       d.sample = p.sample.value;
+      d.invalidProps = p.invalidProps.value;
     });
   });
   Signal.effect(() => {
     // Hook into values:
     p.theme.value;
+    p.invalidProps.value;
     api.loadSample();
   });
 
@@ -186,6 +190,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       {sample === 'State' && <DebugStateButtons debug={debug} />}
+      {sample === 'Schema Validation' && <DebugPropValidationButtons debug={debug} />}
 
       <hr />
       <Button
@@ -244,6 +249,25 @@ export function DebugStateButtons(props: { debug: DebugSignals }) {
       </div>
       {inc(1, 'increment:')}
       {inc(-1, 'decrement:')}
+    </>
+  );
+}
+
+export function DebugPropValidationButtons(props: { debug: DebugSignals }) {
+  const { debug } = props;
+  const p = debug.props;
+
+  Signal.useRedrawEffect(() => void p.invalidProps.value);
+
+  return (
+    <>
+      <hr />
+      <div className={Styles.title.class}>{'Validation'}</div>
+      <Button
+        block
+        label={() => `invalid props: ${p.invalidProps.value}`}
+        onClick={() => Signal.toggle(p.invalidProps)}
+      />
     </>
   );
 }

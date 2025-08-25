@@ -1,20 +1,22 @@
 import React from 'react';
 
 import { type t, Color, css, D, useFactory } from './common.ts';
-import { Error } from './ui.Error.tsx';
+import { RuntimeError } from './ui.Error.Runtime.tsx';
+import { ValidationErrors } from './ui.Errors.Validation.tsx';
 
 /**
  * Component:
  */
 export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
-  const { debug = false, strategy = D.strategy, factory, plan } = props;
+  const { debug = false, strategy = D.strategy, validate, factory, plan } = props;
 
   /**
-   * Hook: Resolve the plan → React element.
+   * Hook: Resolve the plan → React element (+issues).
    */
-  const { element, loading, error } = useFactory(factory, plan, {
-    strategy,
+  const { ok, element, loading, issues } = useFactory(factory, plan, {
     key: debug ? 'debug' : undefined,
+    strategy,
+    validate,
   });
 
   if (!factory || !plan) return null;
@@ -24,23 +26,36 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ backgroundColor: Color.ruby(debug), color: theme.fg, display: 'grid' }),
+    base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
     loading: css({ userSelect: 'none', display: 'grid', placeItems: 'center' }),
+    validation: css({ Absolute: 0 }),
   };
 
+  /**
+   * Debug output:
+   */
   console.group(`🌳 factory: Adapter.React:Sample`);
   console.info('loading:', loading);
+  console.info('ok:', ok);
   if (element) console.info('element:', element);
-  if (error) console.info('error:', error);
+  if (issues.runtime) console.info('runtime error:', issues.runtime);
+  if (issues.validation?.length) console.info('validation:', issues.validation);
   console.groupEnd();
 
   return (
     <div className={css(styles.base, props.style).class}>
       {loading && <div className={styles.loading.class}>{'Loading...'}</div>}
-      {error && <Error message={error.message} theme={theme.name} />}
+
+      {/* Runtime error (rendered prominently) */}
+      {issues.runtime && <RuntimeError message={issues.runtime.message} theme={theme.name} />}
+
+      {/* Validation issues: */}
+      {!!issues.validation.length && (
+        <ValidationErrors errors={issues.validation} style={styles.validation} theme={theme.name} />
+      )}
 
       {/* When successfully loaded: */}
-      {!loading && !error && element}
+      {!loading && !issues.runtime && element}
     </div>
   );
 };

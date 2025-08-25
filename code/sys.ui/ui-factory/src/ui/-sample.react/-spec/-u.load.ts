@@ -9,8 +9,9 @@ export async function load(
   ctx: Ctx,
   sample: Sample | undefined = ctx.props.sample.value,
 ): Promise<R | undefined> {
-  const theme = ctx.props.theme.value;
+  const p = ctx.props;
   const state = ctx.state;
+  const theme = p.theme.value;
 
   if (sample === 'Hello World') {
     const { factory, plan } = await import('../-samples/hello.tsx');
@@ -38,6 +39,13 @@ export async function load(
     const { makeComposite } = await import('../-samples/recursive.tsx');
     const depth = 2;
     const { factory, plan } = makeComposite(undefined, depth, theme);
+    return { factory, plan };
+  }
+
+  if (sample === 'Schema Validation') {
+    const { factory, makePlan } = await import('../-samples/validation.tsx');
+    const invalid = !!p.invalidProps.value;
+    const plan = makePlan(invalid);
     return { factory, plan };
   }
 }

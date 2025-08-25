@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
 
-export type ErrorProps = {
+export type RuntimeErrorProps = {
   title?: string;
   message?: string;
   debug?: boolean;
@@ -12,7 +12,7 @@ export type ErrorProps = {
 /**
  * Component:
  */
-export const Error: React.FC<ErrorProps> = (props) => {
+export const RuntimeError: React.FC<RuntimeErrorProps> = (props) => {
   const { title = 'Error', message = '<none>' } = props;
 
   /**

@@ -32,7 +32,7 @@ function Counter(props: { state: t.ImmutableRef<SampleDoc> }) {
 
   const styles = {
     base: css({
-      margin: 15,
+      margin: 20,
       fontFamily: 'monospace',
       fontSize: 22,
     }),
