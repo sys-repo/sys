@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type AnyRegistration = t.Registration<any, any, any>;
+
 /**
  * Factory registry.
  *
@@ -9,7 +11,7 @@ import type { t } from './common.ts';
  */
 export type FactoryMap<
   Ids extends t.ViewId,
-  RegEntry extends t.Registration<any, any, any> = t.Registration<Ids, t.SlotId, t.ViewModule>,
+  RegEntry extends AnyRegistration = t.Registration<Ids, t.SlotId, t.ViewModule>,
 > = Readonly<{ [K in Ids]: RegEntry & t.Registration<K, any, any> }>;
 
 /**
@@ -17,16 +19,24 @@ export type FactoryMap<
  */
 export type Factory<
   Ids extends t.ViewId = t.ViewId,
-  RegEntry extends t.Registration<any, any, any> = t.Registration<Ids, t.SlotId, t.ViewModule>,
-> = Readonly<{
-  specs: FactoryMap<Ids, RegEntry>;
-  // Return the concrete module type for this factory
-  getView: (
-    id: Ids,
-  ) => Promise<
-    t.GetViewResult<RegEntry extends t.Registration<any, any, infer M> ? M : t.ViewModule>
-  >;
-}>;
+  RegEntry extends AnyRegistration = t.Registration<Ids, t.SlotId, t.ViewModule>,
+> = Readonly<FactoryResult<Ids, RegEntry>>;
+
+export type FactoryResult<Ids extends t.ViewId, RegEntry extends AnyRegistration> = {
+  /** Map of id → registration (frozen shape). */
+  readonly specs: FactoryMap<Ids, RegEntry>;
+  /** Resolve the concrete module for a given id. */
+  getView: t.FactoryGetView<Ids, RegEntry>;
+  /** Original registrations (for tooling: validators/docs derivation). */
+  getRegistrations(): readonly RegEntry[];
+};
+
+/** Resolve the concrete module for a given id. */
+export type FactoryGetView<Ids extends t.ViewId, RegEntry extends AnyRegistration> = (
+  id: Ids,
+) => Promise<
+  t.GetViewResult<RegEntry extends t.Registration<any, any, infer M> ? M : t.ViewModule>
+>;
 
 /** Utilities over a Factory (type-level only, no runtime). */
 export type ViewIds<F extends Factory<any, any>> = keyof F['specs'] & string;
@@ -65,6 +75,3 @@ export type ModuleOfFactory<F extends t.Factory<any, any>> = Awaited<
 > extends { ok: true; module: infer M }
   ? M
   : t.ViewModule;
-
-/** Helper: extract the module type from a Registration-like entry. */
-// type ModuleOf<R> = R extends t.Registration<any, any, infer M> ? M : t.ViewModule;

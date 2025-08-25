@@ -1,8 +1,10 @@
 import React from 'react';
 
-import type { t } from './common.ts';
-import { useEagerFactory } from './use.Factory.Eager.tsx';
+import { type t, Schema } from './common.ts';
 import { validatePlan } from './u.validatePlan.ts';
+import { useEagerFactory } from './use.Factory.Eager.tsx';
+
+type AnyFactory = t.Factory<any, any>;
 
 /**
  * Unified factory hook:
@@ -23,7 +25,8 @@ export function useFactory<F extends t.ReactFactory<any, any>>(
   const { element, loading, error } = eager;
 
   // Optional: validation pass (no side-effects on render tree).
-  const validate = normalizeValidate(opts.validate);
+  const validate = wrangle.validate(factory, opts);
+
   if (factory && plan && validate && validate.mode === 'always') {
     // If you have prebuilt validators, pass via `validate.validators`.
     // Otherwise, skip derivation here to keep this hook pure & lightweight.
@@ -46,14 +49,25 @@ export function useFactory<F extends t.ReactFactory<any, any>>(
 }
 
 /**
- * Normalize `validate` shorthand:
- *   - true  -> { mode: 'always' }
- *   - false -> { mode: 'never' }
- *   - object/undefined passthrough
+ * Helpers:
  */
-function normalizeValidate(v?: t.UseFactoryValidate): t.UseFactoryValidateOptions | undefined {
-  if (typeof v === 'string') return { mode: v };
-  if (v === true) return { mode: 'always' };
-  if (v === false) return { mode: 'never' };
-  return v;
-}
+const wrangle = {
+  validate(factory?: AnyFactory, opts: t.UseFactoryOptions = {}): t.UseFactoryValidateOptions {
+    const v = opts.validate;
+
+    // Explicit object → pass through unchanged (caller controls everything).
+    if (v && typeof v === 'object') return v;
+
+    // Shorthands:
+    if (v === false) return { mode: 'never' };
+    if (v === true || v === 'always') {
+      const regs = factory?.getRegistrations?.();
+      const validators = regs ? Schema.Props.makeValidators(regs) : undefined;
+      return { mode: 'always', validators };
+    }
+    if (typeof v === 'string') return { mode: v };
+
+    // Default: no validation.
+    return { mode: 'never' };
+  },
+} as const;

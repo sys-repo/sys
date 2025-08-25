@@ -174,7 +174,17 @@ describe('hook: useFactory - validation', () => {
       let hits = 0;
 
       function Harness() {
-        const v = typeof validate === 'object' ? { ...validate, onError: () => hits++ } : validate;
+        let v: t.UseFactoryValidate;
+
+        if (typeof validate === 'object') {
+          v = { ...validate, onError: () => hits++ };
+        } else if (validate === true || validate === 'always') {
+          // mimic wrangle's derivation + add onError so we can observe errors
+          v = { mode: 'always', validators, onError: () => hits++ };
+        } else {
+          v = validate; // false → never
+        }
+
         useFactory(factory, badPlan, { strategy: 'eager', validate: v });
         return null;
       }
@@ -187,12 +197,12 @@ describe('hook: useFactory - validation', () => {
     test({
       label: 'shorthand "always" (no validators provided)',
       validate: 'always',
-      expectHits: 0,
+      expectHits: 2,
     });
     test({
       label: 'shorthand true (no validators provided)',
       validate: true,
-      expectHits: 0,
+      expectHits: 2,
     });
     test({
       label: 'shorthand false',

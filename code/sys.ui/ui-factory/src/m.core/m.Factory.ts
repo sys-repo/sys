@@ -1,14 +1,16 @@
 import { Err, type t } from './common.ts';
 
+type AnyFactory = t.Factory<any, any>;
+type AnyRegistration = t.Registration<any, any, any>;
+
 /**
  * Factory: Make
  */
 export function make<Id extends t.ViewId, Reg extends t.Registration<Id, t.SlotId, any>>(
   regs: readonly Reg[],
 ): t.Factory<Id, Reg> {
-  // Mirror Factory<Id, Reg>['specs'] type so merged specs keep the exact Id → Reg mapping:
-  type F = t.Factory<Id, Reg>['specs'];
-  const specs = Object.fromEntries(regs.map((r) => [r.spec.id as Id, r])) as F;
+  type FSpecs = t.Factory<Id, Reg>['specs'];
+  const specs = Object.fromEntries(regs.map((r) => [r.spec.id as Id, r])) as FSpecs;
 
   const getView: t.Factory<Id, Reg>['getView'] = async (id) => {
     const reg = specs[id];
@@ -23,16 +25,27 @@ export function make<Id extends t.ViewId, Reg extends t.Registration<Id, t.SlotI
     }
   };
 
-  return { specs, getView };
+  return {
+    specs,
+    getView,
+    getRegistrations: () => regs,
+  };
 }
 
 /**
- * Variadic compose implementation (runtime identical)
+ * Variadic compose (matches FactoryLib['compose'] exactly via overloads).
  */
-function compose(factories: readonly t.Factory<any, any>[]) {
-  const merged: Record<string, t.Registration<any, any, any>> = {};
+function compose<const Fs extends readonly AnyFactory[]>(
+  factories: [...Fs],
+): t.Factory<t.ViewIds<Fs[number]>, Fs[number] extends t.Factory<any, infer Reg> ? Reg : never>;
+function compose<Id extends t.ViewId>(factories: readonly t.Factory<Id>[]): t.Factory<Id>;
+function compose(factories: readonly AnyFactory[]): t.Factory<any, AnyRegistration> {
+  // Merge registrations:
+  const merged: Record<string, AnyRegistration> = {};
   for (const f of factories) Object.assign(merged, f.specs);
-  return Factory.make<any, t.Registration<any, any, any>>(Object.values(merged));
+
+  // Build a new factory from merged registrations:
+  return Factory.make<any, AnyRegistration>(Object.values(merged));
 }
 
 /**
@@ -40,5 +53,5 @@ function compose(factories: readonly t.Factory<any, any>[]) {
  */
 export const Factory: t.FactoryLib = {
   make,
-  compose: compose as t.FactoryLib['compose'],
+  compose,
 };
