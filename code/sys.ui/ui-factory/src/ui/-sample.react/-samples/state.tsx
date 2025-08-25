@@ -2,7 +2,7 @@ import { Factory } from '@sys/ui-factory/core';
 import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
 
 import React from 'react';
-import { type t, css } from '../common.ts';
+import { type t, Color, css } from '../common.ts';
 
 /**
  * Domain unions.
@@ -20,7 +20,7 @@ export type SampleState = t.ImmutableRef<SampleDoc>;
  * - Subscribes on mount; disposes on unmount via the function returned by `subscribe`.
  * - Defaults missing `count` to 0.
  */
-function Counter(props: { state: t.ImmutableRef<SampleDoc> }) {
+function Counter(props: { state: t.ImmutableRef<SampleDoc>; theme?: t.CommonTheme }) {
   const { state } = props;
   const [value, setValue] = React.useState<SampleDoc>(state?.current ?? {});
 
@@ -30,6 +30,7 @@ function Counter(props: { state: t.ImmutableRef<SampleDoc> }) {
     return events.dispose;
   }, [state.instance]);
 
+  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       margin: 20,
@@ -61,11 +62,11 @@ export const factory = Factory.make(regs);
 /**
  * Construct plan with host initiated state.
  */
-export function makePlan(state: SampleState): Plan<typeof factory> {
+export function makePlan(state: SampleState, theme?: t.CommonTheme): Plan<typeof factory> {
   return {
     root: {
       component: 'Counter:view',
-      props: { state },
+      props: { state, theme },
     },
   };
 }
