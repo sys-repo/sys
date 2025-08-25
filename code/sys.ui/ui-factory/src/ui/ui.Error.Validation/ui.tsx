@@ -21,7 +21,7 @@ export const ValidationErrors: React.FC<t.ValidationErrorsProps> = (props) => {
       Padding: [20, 25],
       fontSize: 16,
     }),
-    title: css({ fontSize: 22, marginBottom: '1.1em', color: Color.YELLOW }),
+    title: css({ color: Color.YELLOW, fontSize: 22, lineHeight: '28px', marginBottom: '1.1em' }),
     head: css({ color: Color.YELLOW, userSelect: 'none' }),
     list: css({
       fontSize: 14,
