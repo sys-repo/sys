@@ -123,6 +123,16 @@ catalog/
   └─ mod.ts                  ← Entrypoint
 ```
 
+## Validation
+Plans can be checked against each view's `schema`, ensuring mismatches are surfaced 
+early and clearly during development.
+
+```ts
+const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' });
+// issues.runtime     → Error | undefined
+// issues.validation  → { id, path, message }[]
+```
+
 
 ## Live
 ```
