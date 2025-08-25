@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { type t, Schema } from './common.ts';
+import { type t, Schema, Time, rx } from './common.ts';
 import { renderPlan } from './u.renderPlan.ts';
 import { validatePlan } from './u.validatePlan.ts';
 
 type AnyFactory = t.ReactFactory<any, any>;
-type ValidationErrors = t.UseFactoryValidateError;
 
 /**
  * Eagerly resolves (factory + plan) into a React element.
@@ -84,29 +83,31 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
       return;
     }
 
-    let cancelled = false;
+    const life = rx.abortable();
+    const abort = life.controller.signal;
     setLoading(true);
     setRuntime(undefined);
     setValidation(initialValidation);
 
     (async () => {
       try {
-        // Yield a frame so `loading=true` can render
-        if (cancelled) return;
+        // Yield a frame so `loading=true` can render.
+        await Time.nextFrame(abort);
+        if (life.disposed) return;
 
         const el = await resolveElement(factory, plan);
-        if (cancelled) return;
+        if (life.disposed) return;
 
         let collected: t.UseFactoryValidateError[] = [];
         const v = normalizedValidate;
         if (v.mode === 'always' && v.validators) collected = collectValidation(plan, v);
-        if (cancelled) return;
+        if (life.disposed) return;
 
         setValidation(collected);
         setElement(el);
         setLoading(false);
       } catch (err) {
-        if (!cancelled) {
+        if (!life.disposed) {
           setElement(null);
           setLoading(false);
           setRuntime(err as Error);
@@ -114,7 +115,7 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
       }
     })();
 
-    return () => void (cancelled = true);
+    return life.dispose;
   }, [factory, plan, key, normalizedValidate, initialValidation]);
 
   /**
