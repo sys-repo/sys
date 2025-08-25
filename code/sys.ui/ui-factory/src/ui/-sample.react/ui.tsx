@@ -30,8 +30,8 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
     validation: css({ Absolute: 0 }),
     element: css({
       display: 'grid',
-      opacity: hasValidationErrors ? 0.4 : 1,
-      filter: `blur(${hasValidationErrors ? 12 : 0}px)`,
+      opacity: hasValidationErrors ? 0.15 : 1,
+      filter: `blur(${hasValidationErrors ? 10 : 0}px)`,
     }),
   };
 
