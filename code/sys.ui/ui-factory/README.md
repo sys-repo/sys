@@ -120,6 +120,8 @@ type Hello = Infer<typeof HelloSchema>;
 // → { name?: string }
 ```
 
+<p>&nbsp;<p>
+
 
 ## File Layout Guidance
 A catalog is a type-safe bundle of schemas and UI definitions, shipped as a 
@@ -138,6 +140,8 @@ catalog/
   └─ mod.ts                  ← 🌳 (entrypoint)
 ```
 
+<p>&nbsp;<p>
+
 ## Runtime Validation
 Plans may be checked against each view's `schema` ([`JsonSchema`](https://json-schema.org/draft/2020-12/json-schema-core.html)) during development 
 ensuring mismatches are surfaced early and clearly. They can also be re-run
@@ -150,6 +154,7 @@ const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' }
 // issues.validation  → { id, path, message }[]
 ```
 
+<p>&nbsp;<p>
 
 ## Live
 ```
