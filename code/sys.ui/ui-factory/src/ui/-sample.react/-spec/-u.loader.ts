@@ -45,7 +45,7 @@ export async function load(
   if (sample === 'Schema Validation') {
     const { factory, makePlan } = await import('../-samples/validation.tsx');
     const invalid = !!p.invalidProps.value;
-    const plan = makePlan(invalid);
+    const plan = makePlan(invalid, theme);
     return { factory, plan };
   }
 }

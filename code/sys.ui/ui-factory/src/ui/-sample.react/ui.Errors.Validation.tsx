@@ -4,6 +4,7 @@ import { type t, Color, css, Icons, Obj } from './common.ts';
 export type ValidationErrorsProps = {
   errors?: readonly t.UseFactoryValidateError[];
   title?: string;
+  blur?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -13,7 +14,7 @@ export type ValidationErrorsProps = {
  * Renders nothing when there are no errors.
  */
 export const ValidationErrors: React.FC<ValidationErrorsProps> = (props) => {
-  const { errors = [], title = 'Validation Error' } = props;
+  const { errors = [], title = 'Runtime Validation Error', blur = 3.2 } = props;
   if (!errors.length) return null;
 
   /**
@@ -24,7 +25,7 @@ export const ValidationErrors: React.FC<ValidationErrorsProps> = (props) => {
     base: css({
       color: theme.fg,
       backgroundColor: Color.alpha(theme.bg, 0.7),
-      backdropFilter: `blur(2.6px)`,
+      backdropFilter: `blur(${blur}px)`,
       Padding: [20, 25],
       fontSize: 16,
     }),

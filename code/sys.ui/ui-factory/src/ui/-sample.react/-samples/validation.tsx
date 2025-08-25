@@ -3,7 +3,7 @@ import React from 'react';
 
 import { Type } from '@sys/schema';
 import { Factory } from '@sys/ui-factory/core';
-import { css, Is } from '../common.ts';
+import { type t, Color, css, Is, ObjectView } from '../common.ts';
 
 type Id = 'Panel:view';
 type Slot = never;
@@ -19,10 +19,12 @@ const PanelSchema = Type.Object({
 /**
  * View:
  */
-function Panel(props: { title?: string; count?: number }) {
+function Panel(props: { title?: string; count?: number; theme?: t.CommonTheme }) {
+  const theme = Color.theme(props.theme);
   const styles = {
     base: css({ display: 'grid', placeItems: 'center', lineHeight: '2.3em' }),
     body: css({ fontSize: 26, fontFamily: 'monospace', minWidth: 260 }),
+    obj: css({ marginTop: 30 }),
   };
 
   const wrap = (value: React.ReactNode) => {
@@ -34,6 +36,7 @@ function Panel(props: { title?: string; count?: number }) {
       <div className={styles.body.class}>
         <div>{`title = ${wrap(props.title)}`}</div>
         <div>{`count = ${wrap(props.count)}`}</div>
+        <ObjectView name={'props'} data={props} theme={theme.name} style={styles.obj} />
       </div>
     </div>
   );
@@ -57,9 +60,9 @@ export const factory = Factory.make(regs);
 /**
  * Plan builder: flip between valid/invalid props.
  */
-export function makePlan(invalid: boolean): Plan<typeof factory> {
-  const good = { title: 'hello', count: 1 };
-  const bad = { title: 123, count: 'x' };
+export function makePlan(invalid: boolean, theme?: t.CommonTheme): Plan<typeof factory> {
+  const good = { theme, title: 'hello', count: 1 };
+  const bad = { theme, title: 123, count: 'x' };
   const props = invalid ? bad : good;
   return {
     root: { component: 'Panel:view', props },

@@ -109,7 +109,7 @@ export function createDebugSignals() {
       p.plan.value = plan;
     };
 
-    const load = (await import('./-u.load.ts')).load;
+    const load = (await import('./-u.loader.ts')).load;
     const res = await load({ state, props }, sample);
     if (res) change(res.factory, res.plan);
   }
