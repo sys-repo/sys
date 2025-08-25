@@ -4,23 +4,17 @@ import { type t } from './common.ts';
 import { renderPlan } from './u.renderPlan.ts';
 
 /**
- * Eagerly resolves (plan, factory) into a React element.
- * - No Suspense; you get { element, loading, error } directly.
+ * Eagerly resolves (factory + plan) into a React element.
+ * - No Suspense; returns { ok, element, loading, issues } directly.
  * - Re-runs when factory, plan, or opts.key change.
+ * - Validation is handled by the parent `useFactory` (this hook only sets runtime issues).
  */
 export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
-  /**
-   * Hooks:
-   */
   const [element, setElement] = React.useState<React.ReactElement | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<Error | null>(null);
 
-  /**
-   * Effect:
-   */
   React.useEffect(() => {
-    // If inputs are missing, reset and bail.
     if (!factory || !plan) {
       setElement(null);
       setLoading(false);
@@ -32,7 +26,7 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
     setLoading(true);
     setError(null);
 
-    async function init() {
+    (async () => {
       try {
         const el = await renderPlan(plan as any, factory as any);
         if (!cancelled) {
@@ -46,15 +40,19 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
           setError(err as Error);
         }
       }
-    }
+    })();
 
-    init();
-    return () => void (cancelled = true);
+    return () => {
+      cancelled = true;
+    };
   }, [factory, plan, opts?.key]);
 
-  /**
-   * API:
-   */
-  const api: t.UseEagerFactoryResult = { element, loading, error };
+  const ok = !error;
+  const issues = {
+    runtime: error ?? undefined,
+    validation: [] as t.UseFactoryValidateError[],
+  } as const;
+
+  const api: t.UseEagerFactoryResult = { ok, element, loading, issues };
   return api;
 };

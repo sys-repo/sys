@@ -58,6 +58,7 @@ export default Spec.describe(D.displayName, (e) => {
               plan={v.plan}
               factory={v.factory}
               strategy={v.strategy}
+              validate={v.validate}
             />
           </div>
         );

@@ -58,17 +58,18 @@ describe('hook: useFactory', () => {
  *    so assertertions work using plain SSR string output.
  */
 function EagerHarness(props: { factory?: F; plan?: Plan<F> }) {
-  const { element, loading, error } = useFactory(props.factory, props.plan, { strategy: 'eager' });
+  const { element, loading, issues } = useFactory(props.factory, props.plan, { strategy: 'eager' });
   return (
     <div data-kind="eager">
       <div data-loading={String(loading)} />
-      <div data-error={String(Boolean(error))} />
+      <div data-error={String(Boolean(issues.runtime))} />
       <div data-has-el={String(Boolean(element))} />
       {/* On SSR, effects don't run, so `element` will be null here */}
       {element}
     </div>
   );
 }
+
 function SuspenseHarness(props: { factory?: F; plan?: Plan<F> }) {
   const { element } = useFactory(props.factory, props.plan, { strategy: 'suspense' });
   return <div data-kind="suspense">{element}</div>;

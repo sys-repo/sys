@@ -14,12 +14,13 @@ import {
 import type { Sample, SampleDoc } from '../-samples/t.ts';
 
 type P = t.SampleReactProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'strategy'> & { sample?: Sample };
+type Storage = Pick<P, 'theme' | 'debug' | 'strategy' | 'validate'> & { sample?: Sample };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   strategy: D.strategy,
   sample: 'Hello World',
+  validate: 'always',
 };
 
 /**
@@ -48,6 +49,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     strategy: s(snap.strategy),
+    validate: s(snap.validate),
     sample: s(snap.sample),
 
     factory: s<P['factory']>(),
@@ -70,6 +72,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.strategy = p.strategy.value;
+      d.validate = p.validate.value;
       d.sample = p.sample.value;
     });
   });
@@ -151,6 +154,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `strategy: ${p.strategy.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle<P['strategy']>(p.strategy, ['suspense', 'eager'])}
+      />
+
+      <Button
+        block
+        label={() => `validate: ${p.validate.value}`}
+        onClick={() => Signal.cycle<P['validate']>(p.validate, [true, false, 'always', 'never'])}
       />
 
       <hr />

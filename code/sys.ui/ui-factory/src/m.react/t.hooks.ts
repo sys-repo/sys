@@ -10,12 +10,18 @@ export type UseEagerFactoryOptions = {
 };
 
 export type UseEagerFactoryResult = {
-  /** The resolved React element (null while loading or on error). */
-  element: React.ReactElement | null;
-  /** True while the plan is being resolved. */
-  loading: boolean;
-  /** Non-null if resolution failed. */
-  error: Error | null;
+  readonly ok: boolean; // true iff no fatal runtime error
+  readonly element: React.ReactElement | null; // null while loading or when !ok
+  readonly loading: boolean;
+
+  /** Collected problems for this pass. */
+  readonly issues: {
+    /** Fatal render/resolve exception (sets ok=false). */
+    readonly runtime?: Error;
+
+    /** Non-fatal schema/plan violations; empty if none. */
+    readonly validation: readonly UseFactoryValidateError[];
+  };
 };
 
 /** Signature for the eager hook implementation. */
