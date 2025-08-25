@@ -3,9 +3,8 @@
  *
  * Public-facing sample registrations and schemas for **type-inference and validation tests**.
  *
- *    - Exported at `@sys/ui-factory/test/samples`
- *    - Intended for **external consumer tests** (e.g. JSR dry-publish checks)
- *    - JSR-safe: every exported symbol has an explicit type
+ *    - Intended for **external consumer tests** (e.g. JSR dry-publish checks).
+ *    - JSR-safe: every exported symbol has an explicit type.
  *
  * ⚠️ NOT part of the production API surface — for testing and examples only.
  */

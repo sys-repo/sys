@@ -113,7 +113,7 @@ export const HelloSchema: TSchema = Type.Object({
 
 Consumers derive strong types directly from the schema:
 ```ts
-import { HelloSchema } from '@sys/ui-factory/test/samples';
+import { HelloSchema } from '@sys/ui-factory/sample/catalog';
 import type { Infer } from '@sys/ui-factory/t';
 
 type Hello = Infer<typeof HelloSchema>; 

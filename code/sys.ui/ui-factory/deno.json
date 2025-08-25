@@ -20,6 +20,6 @@
     "./core": "./src/m.core/mod.ts",
     "./react": "./src/m.react/mod.ts",
     "./schema": "./src/m.schema/mod.ts",
-    "./test/samples": "./src/-test/-samples/mod.ts"
+    "./sample/catalog": "./src/-test/-samples/mod.ts"
   }
 }

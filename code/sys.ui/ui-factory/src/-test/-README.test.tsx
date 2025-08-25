@@ -46,7 +46,7 @@ describe('README: React Sample', () => {
 
   describe('## Type Inference', () => {
     it('Consumers derive strong types directly from the schema:', async () => {
-      const { HelloSchema } = await import('@sys/ui-factory/test/samples');
+      const { HelloSchema } = await import('@sys/ui-factory/sample/catalog');
       type Hello = Infer<typeof HelloSchema>;
 
       // Strict type equality check:
