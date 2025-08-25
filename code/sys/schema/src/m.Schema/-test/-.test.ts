@@ -1,5 +1,5 @@
-import { type t, describe, expect, it } from '../-test.ts';
-import { Schema, Type, Value } from './mod.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
+import { Schema, Type, Value } from '../mod.ts';
 
 describe('Standard Schema', () => {
   it('API', async () => {
