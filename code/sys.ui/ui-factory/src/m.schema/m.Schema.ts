@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 import { makePropsValidators, validateProps } from './u.props.ts';
 import { fromRegs } from './u.types.fromRegs.ts';

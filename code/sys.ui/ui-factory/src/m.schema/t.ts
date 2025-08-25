@@ -20,7 +20,7 @@ export type SchemaLib = {
  */
 export type SchemaPropsLib = {
   /**
-   * Convenience: build a `{ [id]: Validator }` map from your registrations'
+   * Build a `{ [id]: Validator }` map from registrations.
    * `spec.schema` fields (if present). Skips ids with no schema.
    */
   readonly makeValidators: <Id extends string>(

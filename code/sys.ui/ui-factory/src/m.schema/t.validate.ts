@@ -15,7 +15,9 @@ export type Validator<T> = {
 export type ValidateFn = (value: unknown) => ValidateResult;
 
 /** Single source of truth for the validate result shape. */
-export type ValidateResult = { ok: true } | { ok: false; errors: readonly ValidationError[] };
+export type ValidateResult =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly errors: readonly ValidationError[] };
 
 /**
  * Factory signature for creating validators.
