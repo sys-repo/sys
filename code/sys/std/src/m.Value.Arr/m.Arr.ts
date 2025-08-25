@@ -1,22 +1,27 @@
 import type { t } from '../common.ts';
-import { asArray } from './u.asArray.ts';
-import { sortBy } from './u.sortBy.ts';
+import type { ArrayLib } from './t.ts';
 
-export const Arr: t.ArrayLib = {
+import { asArray } from './u.asArray.ts';
+import { equal } from './u.equality.ts';
+import { sortBy } from './u.sortBy.ts';
+import { startsWith } from './u.startsWith.ts';
+
+export const Arr: ArrayLib = {
   asArray,
   sortBy,
+  startsWith,
+  equal,
 
   isArray(input: unknown) {
     return Array.isArray(input);
   },
 
-  flatten<T>(list: any): T[] {
-    if (!Array.isArray(list)) return list;
-    const result: any = list.reduce((a, b) => {
-      const value: any = Array.isArray(b) ? Arr.flatten(b) : b;
-      return a.concat(value);
-    }, []);
-    return result as T[];
+  /**
+   * Converts a nested set of arrays into a flat single-level array.
+   */
+  flatten<T>(list: unknown): T[] {
+    if (!Array.isArray(list)) return [list as T];
+    return (list as unknown[]).flat(Infinity) as T[];
   },
 
   async asyncFilter<T>(list: T[], predicate: (value: T) => Promise<boolean>) {
@@ -43,14 +48,3 @@ export const Arr: t.ArrayLib = {
     return [...new Set(list)];
   },
 };
-
-/**
- * Helpers
- */
-function startsWith<T>(subject: T[], compare: T[]): boolean {
-  if (compare.length > subject.length) return false;
-  for (let i = 0; i < compare.length; i++) {
-    if (compare[i] !== subject[i]) return false;
-  }
-  return true;
-}

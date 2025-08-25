@@ -75,15 +75,19 @@ export type UserAgentFlag = keyof UserAgentFlags;
  * Flags (boolean) values derived from the user-agent string.
  */
 export type UserAgentFlags = {
-  macOS: boolean;
-  iOS: boolean;
-  iPad: boolean;
-  iPhone: boolean;
-  posix: boolean;
-  android: boolean;
-  windows: boolean;
-  mobile: boolean;
-  tablet: boolean;
+  readonly macOS: boolean;
+  readonly iOS: boolean;
+  readonly iPad: boolean;
+  readonly iPhone: boolean;
+  readonly posix: boolean;
+  readonly android: boolean;
+  readonly windows: boolean;
+  readonly mobile: boolean;
+  readonly tablet: boolean;
+
+  // Main browser types:
+  readonly chromium: boolean;
+  readonly firefox: boolean;
 };
 
 /**

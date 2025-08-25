@@ -23,6 +23,7 @@ export type ContentProps<P = {}> = {
   index: t.Index;
   content: t.Content<P>;
   state: t.AppSignals;
+  muted?: boolean;
   theme: t.CommonTheme;
   style?: t.CssInput;
 };

@@ -75,7 +75,7 @@ export const RoundedButton: React.FC<P> = (props) => {
   };
 
   return (
-    <Button theme={theme.name} onClick={props.onClick} onMouse={(e) => setOver(e.isOver)}>
+    <Button theme={theme.name} onClick={props.onClick} onMouse={(e) => setOver(e.is.over)}>
       <div className={styles.body.base.class}>
         <div className={styles.body.pulse.class} />
         <div className={styles.body.content.class}>{label}</div>

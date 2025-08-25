@@ -1,6 +1,7 @@
 import { type t, Is } from './common.ts';
+import type { PercentRangeLib } from './t.ts';
 
-export const PercentRange: t.PercentRangeLib = {
+export const PercentRange: PercentRangeLib = {
   toPercent(value, range) {
     if (!PercentRange.isRange(range)) return 0;
     const [min, max] = range;

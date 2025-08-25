@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Type guards (boolean evaluators).
+ * Boolean flag evaluators.
  */
 export type StdIsLib = {
   /**
@@ -94,6 +94,20 @@ export type StdIsLib = {
   emptyRecord<T extends O>(input?: unknown): input is T;
 
   /**
+   * Test whether a value is a *plain* object literal.
+   *
+   * A value passes when it is:
+   *  - not `null`
+   *  - `typeof` `'object'`
+   *  - **not** an array
+   *  - has `Object.prototype` as its direct prototype
+   *
+   * @param input – value to examine
+   * @returns `true` if `value` is a plain `{ key: value }` record, otherwise `false`.
+   */
+  plainObject<T extends O>(input?: unknown): input is T;
+
+  /**
    * Determine if the value is a function.
    * typeof === 'function'
    */
@@ -106,6 +120,12 @@ export type StdIsLib = {
   string(input?: unknown): input is string;
 
   /**
+   * Determine if the value is a boolean.
+   * typeof === 'boolean'
+   */
+  bool(input?: unknown): input is boolean;
+
+  /**
    * Determine if the value is a number.
    * typeof === 'number'
    */
@@ -115,4 +135,19 @@ export type StdIsLib = {
    * Determine if the value is an array.
    */
   array<T>(input?: unknown): input is T[];
+
+  /**
+   * Determine if the given value (or the browser is environment) is "localhost".
+   */
+  localhost(value?: string | Location): boolean;
+
+  /**
+   * Determine if the given value is an ['object', 'path'] array.
+   */
+  objectPath(input?: unknown): input is t.ObjectPath;
+
+  /**
+   * Determine if the given value is an `AborSignal`.
+   */
+  abortSignal(input?: unknown): input is AbortSignal;
 };

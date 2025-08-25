@@ -32,7 +32,7 @@ export async function main(options: Options = {}) {
   }
 
   const dirname = await Cli.Prompt.Input.prompt('Directory Name:');
-  const targetDir = Fs.join(Fs.cwd('init'), dirname);
+  const targetDir = Fs.join(Fs.cwd('terminal'), dirname);
 
   if (await Fs.exists(targetDir)) {
     const noChange = c.green('No Change');

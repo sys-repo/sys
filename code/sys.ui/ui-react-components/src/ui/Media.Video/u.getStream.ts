@@ -1,4 +1,4 @@
-import { type t, D } from './common.ts';
+import { type t, D, Is } from './common.ts';
 
 /**
  * Build a MediaStream whose video is run through a CSS-filter pipeline.
@@ -11,7 +11,7 @@ import { type t, D } from './common.ts';
  *   • original audio track(s) from the raw camera.
  */
 export const getStream: t.MediaVideoLib['getStream'] = async (
-  constraints = D.constraints,
+  streamOrConstraints = D.constraints,
   options = {},
 ) => {
   const filter = (options.filter ?? '').trim();
@@ -20,7 +20,14 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   /**
    * Retrieve the raw camera/mic stream.
    */
-  const raw = await navigator.mediaDevices.getUserMedia(constraints);
+  const raw = Is.constraints(streamOrConstraints)
+    ? await navigator.mediaDevices.getUserMedia(streamOrConstraints)
+    : streamOrConstraints;
+
+  /**
+   * (Early Edit): no filter/zoom ➜ simply reuse the raw stream.
+   */
+  if (!filter && !filter) return { raw, filtered: raw };
 
   /**
    * Create hidden Video + Canvas elements.
@@ -69,7 +76,7 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
    * Capture the canvas as a MediaStream and
    * copy across original audio track(s).
    */
-  const filtered = canvas.captureStream(30); // NB: 30 fps.
+  const filtered = canvas.captureStream(30); // NB: 30-fps.
   raw.getAudioTracks().forEach((t) => filtered.addTrack(t));
 
   /**

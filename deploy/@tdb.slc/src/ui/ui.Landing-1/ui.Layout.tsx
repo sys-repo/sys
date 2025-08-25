@@ -2,8 +2,8 @@ import React from 'react';
 import { type t, Color, css, DEFAULTS, Motion } from './common.ts';
 
 export type LayoutProps = {
-  canvas: { element?: JSX.Element; position?: t.LandingCanvasPosition };
-  video: { element?: JSX.Element };
+  canvas: { element?: React.JSX.Element; position?: t.LandingCanvasPosition };
+  video: { element?: React.JSX.Element };
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

@@ -1,3 +1,5 @@
+import type { TimestampLib } from './t.ts';
+
 import { type t, isRecord } from './common.ts';
 import { isValid, parseMap, parseTime } from './m.Timestamp.parse.ts';
 import { range } from './m.Timestamp.range.ts';
@@ -5,7 +7,7 @@ import { range } from './m.Timestamp.range.ts';
 /**
  * Tools for working with timestamps ("HH:MM:SS.mmm").
  */
-export const Timestamp: t.TimestampLib = {
+export const Timestamp: TimestampLib = {
   isValid,
   range,
 

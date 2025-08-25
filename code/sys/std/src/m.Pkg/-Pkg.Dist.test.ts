@@ -37,7 +37,7 @@ describe('Pkg.Dist', () => {
         if (url.pathname === '/dist.json') return Testing.Http.json(dist);
         return new Response('Not found', { status: 404 });
       });
-      const origin = server.url.base;
+      const origin = server.url.toURL().origin;
       return { server, dist, origin };
     };
 

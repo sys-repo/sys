@@ -13,7 +13,7 @@ export function useSelectedPanel() {
 
     const next = async () => {
       if (life.disposed) return;
-      Signal.cycle(panel, CanvasPanel.list);
+      Signal.cycle(panel, CanvasPanel.all);
       Time.delay(delay, next);
     };
 

@@ -4,10 +4,39 @@ import { Fs, Path } from '@sys/fs';
 import { Process } from '@sys/process';
 import { type t } from './common.ts';
 
+type Options = { build?: boolean; exitOnError?: boolean };
+
 /**
  * Ensure dist.
  */
 await Fs.ensureDir('./dist');
+
+export async function buildAndCopyAll(all: Parameters<typeof buildAndCopy>[]) {
+  const table = Cli.table([]);
+  table.push([c.gray('Packages:')]);
+  table.push([c.gray('  │ ')]);
+
+  let i = -1;
+  for (const [moduleDir, targetDir, options] of all) {
+    i++;
+    const isLast = i === all.length - 1;
+    const bullet = isLast ? '  └── ' : '  ├── ';
+
+    const denofile = (await DenoFile.load(moduleDir)).data;
+    const pkg = c.green(denofile?.name ?? '<unnamed>');
+    const input = `${c.gray(bullet)}${c.gray(moduleDir)}`;
+    const out = c.cyan(targetDir);
+
+    table.push([input, pkg, out]);
+  }
+
+  console.info(table.toString().trim());
+  console.info();
+
+  for (const [moduleDir, targetDir, options] of all) {
+    await buildAndCopy(moduleDir, targetDir, options);
+  }
+}
 
 /**
  * Build project(s).
@@ -15,7 +44,7 @@ await Fs.ensureDir('./dist');
 export async function buildAndCopy(
   moduleDir: t.StringDir,
   targetDir: t.StringRelativeDir,
-  options: { build?: boolean; exitOnError?: boolean } = {},
+  options: Options = {},
 ) {
   const { exitOnError = true } = options;
   const path = Fs.resolve(moduleDir);
@@ -33,10 +62,11 @@ export async function buildAndCopy(
   let stderr: string | undefined;
 
   if (options.build ?? true) {
+    // Run build command:
     const pkg: t.Pkg = { name: denofile.name ?? 'Unnamed', version: denofile.version ?? '0.0.0' };
-    let label = c.gray(`building: ${c.green(pkg.name)} → ${c.cyan(`/${targetDir}`)}`);
+    let label = c.gray(`building: ${c.green(pkg.name)} ${c.white('→')} ${c.cyan(`/${targetDir}`)}`);
     const spinner = Cli.spinner(label + '\n');
-    const res = await sh.run('deno task test && deno task build');
+    const res = await sh.run('deno -q task test && deno -q task build');
     spinner.stop();
 
     if (!res.success) {
@@ -67,7 +97,7 @@ export async function buildAndCopy(
 }
 
 /**
- * Copy in the public/static assets to the dist folder.
+ * Copy in the `public/static` assets to the dist folder.
  */
 export async function copyPublic(sourceDir: t.StringDir, targetDir: t.StringRelativeDir) {
   const glob = Fs.glob(sourceDir);

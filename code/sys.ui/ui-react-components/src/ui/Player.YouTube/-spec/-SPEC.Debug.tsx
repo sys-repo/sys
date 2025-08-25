@@ -1,0 +1,118 @@
+import React from 'react';
+import { Button, ObjectView } from '../../u.ts';
+import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+
+type P = t.YouTubeProps;
+type Storage = Pick<P, 'theme' | 'debug' | 'videoId'>;
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: false,
+  videoId: 'PKffm2uI4dk', // Title: "Sad cat diaries"
+};
+
+/**
+ * Types:
+ */
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugSignals = ReturnType<typeof createDebugSignals>;
+
+/**
+ * Signals:
+ */
+export function createDebugSignals() {
+  const s = Signal.create;
+
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+
+  const props = {
+    debug: s(snap.debug),
+    theme: s(snap.theme),
+    videoId: s(snap.videoId),
+  };
+  const p = props;
+  const api = {
+    props,
+    listen() {
+      Signal.listen(props);
+    },
+  };
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+      d.videoId = p.videoId.value;
+    });
+  });
+
+  return api;
+}
+
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 10,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
+
+/**
+ * Component:
+ */
+export const Debug: React.FC<DebugProps> = (props) => {
+  const { debug } = props;
+  const p = debug.props;
+  Signal.useRedrawEffect(() => debug.listen());
+
+  /**
+   * Render:
+   */
+  const styles = {
+    base: css({}),
+  };
+
+  const btnVideoId = (videoId: string | undefined, label: string = '') => {
+    label = label ? `• "${label}"` : '';
+    return (
+      <Button
+        block
+        label={() => `videoId: ${videoId || '<undefined>'} ${label}`}
+        onClick={() => {
+          p.videoId.value = videoId;
+        }}
+      />
+    );
+  };
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <div className={Styles.title.class}>{D.name}</div>
+
+      <Button
+        block
+        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <hr />
+      {btnVideoId(undefined)}
+      {btnVideoId(defaults.videoId, 'Sad cat diaries')}
+
+      <hr />
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `(reset)`}
+        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
+      />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+    </div>
+  );
+};

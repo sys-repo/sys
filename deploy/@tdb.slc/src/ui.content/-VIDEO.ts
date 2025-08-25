@@ -1,4 +1,4 @@
-import { TUBES, vimeo } from './common.ts';
+import { TUBES, videoUrl } from './common.ts';
 import { VIDEO as Programme } from './ui.Programme.v/-VIDEO.ts';
 
 /**
@@ -6,8 +6,8 @@ import { VIDEO as Programme } from './ui.Programme.v/-VIDEO.ts';
  */
 export const VIDEO = {
   Tubes: TUBES,
-  GroupScale: vimeo(727951677),
-  Trailer: vimeo(1068502644),
-  Overview: vimeo(1068653222),
+  GroupScale: videoUrl(727951677),
+  Trailer: videoUrl(1068502644),
+  Overview: videoUrl(1068653222),
   Programme,
 } as const;

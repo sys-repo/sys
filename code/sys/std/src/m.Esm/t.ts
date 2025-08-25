@@ -23,7 +23,7 @@ export type EsmLib = {
    * @returns A EsmImport object if the input is valid
    *          See the `error` property for failure state.
    */
-  parse(moduleSpecifier: string): EsmParsedImport;
+  parse(moduleSpecifier: string, alias?: string): EsmParsedImport;
 
   /** Convert the parsed-import object to a fully-qualified ESM module-specifier. */
   toString(module: EsmImport, options?: EsmToStringOptions): string;
@@ -52,6 +52,8 @@ export type EsmImport = {
   name: string;
   version: t.StringSemver;
   subpath: string;
+  /** An alternative name used by the import (eg. in the key of an `import_map.json`). */
+  alias?: string;
   toString(): string;
 };
 

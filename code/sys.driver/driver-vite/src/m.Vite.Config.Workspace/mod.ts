@@ -1,7 +1,7 @@
 /**
  * @module
  */
-import { DenoFile, Fs, Path, R, type t } from './common.ts';
+import { type t, DenoFile, Fs, Path, R } from './common.ts';
 import { Log } from './u.log.ts';
 
 type E = {

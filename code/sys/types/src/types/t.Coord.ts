@@ -1,5 +1,5 @@
 /**
- *  Edge Coordinate Positioning
+ *  Edge Coordinate Positioning.
  * (spacial placement on 2D rectangular plane)
  */
 export type EdgePositionX = 'left' | 'right' | 'center';
@@ -10,15 +10,20 @@ export type EdgePos = [EdgePositionX, EdgePositionY];
 export type EdgePositionInput = EdgePosition | EdgePos;
 
 /**
- * Axis
+ * Cartesian axes for 2D space.
  */
 export type AxisX = 'x';
 export type AxisY = 'y';
 export type Axis = AxisX | AxisY;
 
 /**
- * 2D Coordinate
+ * 2D Coordinate.
  */
 export type Point = { x: number; y: number };
 export type Offset = { x: number; y: number };
 export type PixelOffset = { x: number; y: number };
+
+/**
+ * Two-dimensional layout orientation.
+ */
+export type Orientation = 'horizontal' | 'vertical';

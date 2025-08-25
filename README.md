@@ -1,3 +1,4 @@
+
 ![banner-A1-slender](https://github.com/cellplatform/platform-0.2.0/assets/185555/2b0a110d-0c73-4583-bbfa-94f77d38bc17)
 [![jsr-scope][jsr-scope-image]][jsr-scope-url]
 [![ci][ci-image]][ci-url]
@@ -51,7 +52,6 @@ Built on, and mission-locked to modern, portable, [Web Standards](https://winter
 ![pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)  
 **Sustained long range R&D**  
 Architecture, API's, and other conceptual primmitives will change (almost certainly radically 🐷) prior to any `1.x`.
-See also `(0.<0.0.0>)`: "[epoch semantic versioning](https://antfu.me/posts/epoch-semver)".
 
 |     | repo                     | status
 | --- | :---                     | :---

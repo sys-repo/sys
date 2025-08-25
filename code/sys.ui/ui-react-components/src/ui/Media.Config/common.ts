@@ -26,7 +26,7 @@ const zoom: t.MediaZoomConfigMap = {
 
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   debounce: 250,
   config: filters,
   zoom,

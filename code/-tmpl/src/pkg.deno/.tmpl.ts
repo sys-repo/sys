@@ -37,7 +37,7 @@ export default async function setup(e: t.TmplWriteHandlerArgs, options: { pkgNam
    * Update monorepo environment:
    */
   const pkgDir = dir.slice(monorepo.dir.length + 1);
-  await Tmpl.File.update(Fs.join(monorepo.dir, '-scripts/u.paths.ts'), (line) => {
+  await Tmpl.File.update(Fs.join(monorepo.dir, '-scripts/-PATHS.ts'), (line) => {
     if (line.text.includes('modules: [')) {
       line.insert(`    '${pkgDir}',\n`, 'after');
     }

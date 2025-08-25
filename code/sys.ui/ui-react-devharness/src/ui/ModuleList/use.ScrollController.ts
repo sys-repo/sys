@@ -9,7 +9,7 @@ type LiMap = Map<number, HTMLLIElement>;
  * when the [scrollTo$] observable emits.
  */
 export function useScrollController(
-  baseRef: React.RefObject<HTMLDivElement>,
+  baseRef: React.RefObject<HTMLDivElement | null>,
   itemRefs: LiMap,
   scrollToProp$?: t.Observable<t.ModuleListScrollTarget>,
 ) {

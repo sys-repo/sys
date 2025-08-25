@@ -1,7 +1,7 @@
 /**
- * @module
  * Tools for working with the standard system `{pkg}` package
  * meta-data structure with file-system extensions
+ * @module
  *
  * @example
  * ```ts

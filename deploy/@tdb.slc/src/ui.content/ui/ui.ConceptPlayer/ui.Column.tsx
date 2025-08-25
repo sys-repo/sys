@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { type t, Color, css, Player, Sheet, useClickOutside } from './common.ts';
 
 export type ColumnProps = {
@@ -10,18 +10,20 @@ export type ColumnProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onClickOutside?: t.DomMouseEventHandler;
+  onVideoEnd?: t.VideoElementProps['onEnded'];
 };
 
 /**
  * Component:
  */
 export const Column: React.FC<ColumnProps> = (props) => {
-  const { align, debug = false, videoVisible = true } = props;
+  const { align, video, debug = false, videoVisible = true } = props;
   const isCenter = align === 'Center';
-  const player = props.video;
-  const src = player?.props.src?.value ?? '';
 
-  const [playerKey, setPlayerKey] = useState(0);
+  /**
+   * Hooks:
+   */
+  const player = Player.Video.useSignals(video);
   const clickOutside = useClickOutside({
     stage: 'down',
     callback: (e) => props.onClickOutside?.(e),
@@ -42,6 +44,17 @@ export const Column: React.FC<ColumnProps> = (props) => {
     video: css({ display: videoVisible ? 'grid' : 'none' }),
   };
 
+  const elPlayer = (
+    <Player.Video.Element
+      {...player.props}
+      debug={debug}
+      onEnded={(e) => {
+        props.onVideoEnd?.(e);
+        player.props.onEnded?.(e);
+      }}
+    />
+  );
+
   return (
     <Sheet
       theme={theme.name}
@@ -51,18 +64,8 @@ export const Column: React.FC<ColumnProps> = (props) => {
     >
       <div ref={clickOutside.ref} className={styles.base.class}>
         <div className={styles.body.class}>{props.body}</div>
-        <div className={styles.video.class}>
-          <Player.Video.View
-            key={`${playerKey}.${src}`}
-            signals={player}
-            debug={debug}
-            onEnded={() => {
-              setPlayerKey((n) => n + 1); // Hack: force player to reset to start.
-              console.info(`⚡️ Video:onEnd:`, src);
-            }}
-          />
-        </div>
-        <Player.Timestamp.Elapsed.View player={player} abs={true} show={debug} />
+        <div className={styles.video.class}>{elPlayer}</div>
+        <Player.Timestamp.Elapsed.View video={video} abs={true} show={debug} />
       </div>
     </Sheet>
   );

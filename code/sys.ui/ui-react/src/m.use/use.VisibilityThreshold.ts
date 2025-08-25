@@ -37,7 +37,7 @@ export const useVisibilityThreshold: t.UseVisibilityThreshold = (args, deps = []
  * Internal:
  */
 const useMeasure = (
-  refs: React.RefObject<HTMLElement>[],
+  refs: React.RefObject<HTMLElement | null>[],
   measureFn: (el: HTMLElement) => t.Pixels,
 ): (() => t.Pixels) => {
   return useCallback(

@@ -7,7 +7,7 @@ describe('DenoCloud (Server)', () => {
     const test = testSetup();
     const fetch = Http.fetch();
 
-    const res = await fetch.json<t.RootResponse>(test.url.base);
+    const res = await fetch.json<t.RootResponse>(test.url.toString());
     expect(res.status).to.eql(200);
 
     const body = res.data;

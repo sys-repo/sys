@@ -1,3 +1,5 @@
+import type { PkgDistFsLib } from './t.ts';
+
 import { Pkg } from '@sys/std/pkg';
 import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
@@ -9,7 +11,7 @@ import { Log } from './m.Log.ts';
  * Tools for working with "distribution-package"
  * ie. an ESM output typically written to a `/dist` folder.
  */
-export const Dist: t.PkgDistFsLib = {
+export const Dist: PkgDistFsLib = {
   ...Pkg.Dist,
   Log,
 

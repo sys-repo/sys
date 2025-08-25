@@ -1,10 +1,27 @@
 /**
  * @external
  */
-export * as A from '@automerge/automerge/next';
+export { Repo as AutomergeRepo } from '@automerge/automerge-repo';
+export * as A from '@automerge/automerge';
 
 /**
  * @system
  */
-export { Arr, Err, Is, Num, Obj, Pkg, rx, slug, Str, Time } from '@sys/std';
+export {
+  Arr,
+  Dispose,
+  Err,
+  History,
+  Immutable,
+  Is,
+  Num,
+  Obj,
+  Pkg,
+  R,
+  rx,
+  slug,
+  Str,
+  Time,
+  Url,
+} from '@sys/std';
 export { Signal } from '@sys/ui-react';
