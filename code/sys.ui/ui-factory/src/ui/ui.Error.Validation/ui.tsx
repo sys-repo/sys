@@ -53,8 +53,8 @@ export const ValidationErrors: React.FC<t.ValidationErrorsProps> = (props) => {
       <div className={styles.title.class}>{title}</div>
 
       <div className={styles.list.class}>
-        <div className={styles.head.class}>id</div>
         <div className={styles.head.class}></div>
+        <div className={styles.head.class}>{'view'}</div>
         <div className={styles.head.class}>path</div>
         <div className={styles.head.class}>message</div>
         {errors.map((e, i) => {
