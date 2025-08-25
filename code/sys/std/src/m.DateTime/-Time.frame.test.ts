@@ -79,6 +79,30 @@ describe('Time.frame', () => {
         raf.restore();
       }
     });
+
+    it('accepts AbortSignal directly or via { signal } (RAF path)', async () => {
+      const raf = fakeRAF();
+      try {
+        // ↓ direct AbortSignal:
+        {
+          const ctrl = new AbortController();
+          const p = Time.nextFrame(ctrl.signal);
+          raf.step(); // 1st frame
+          await flush(2);
+          await p; // resolves
+        }
+        // ↓ options object { signal }:
+        {
+          const ctrl = new AbortController();
+          const p = Time.nextFrame({ signal: ctrl.signal });
+          raf.step(); //    ← 1st frame
+          await flush(2);
+          await p; //       ← resolves
+        }
+      } finally {
+        raf.restore();
+      }
+    });
   });
 
   describe('Time.doubleFrame', () => {
@@ -133,6 +157,34 @@ describe('Time.frame', () => {
           name = err?.name ?? '';
         }
         expect(name).to.eql('AbortError');
+      } finally {
+        raf.restore();
+      }
+    });
+
+    it('accepts AbortSignal directly or via { signal } (RAF path)', async () => {
+      const raf = fakeRAF();
+      try {
+        // ↓ direct AbortSignal:
+        {
+          const ctrl = new AbortController();
+          const p = Time.doubleFrame(ctrl.signal);
+          raf.step(); //    ← 1st frame
+          await flush(2);
+          raf.step(); //    ← 2nd frame
+          await flush(2);
+          await p; //       ← resolves
+        }
+        // ↓ options object { signal }:
+        {
+          const ctrl = new AbortController();
+          const p = Time.doubleFrame({ signal: ctrl.signal });
+          raf.step(); //    ← 1st frame
+          await flush(2);
+          raf.step(); //    ← 2nd frame
+          await flush(2);
+          await p; //       ← resolves
+        }
       } finally {
         raf.restore();
       }

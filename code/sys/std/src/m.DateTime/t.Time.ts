@@ -47,14 +47,14 @@ export type TimeLib = {
    * - SSR/Node fallback: schedules a 0 ms macrotask.
    * - If `signal` aborts before the frame, the promise rejects with `AbortError`.
    */
-  nextFrame(opts?: t.TimeFrameOptions): Promise<void>;
+  nextFrame(opts?: t.TimeFrameOptions | AbortSignal): Promise<void>;
 
   /**
    * Yield to two animation frames (paint, then settle).
    * - SSR/Node fallback mirrors `nextFrame`.
    * - If `signal` aborts before completion, the promise rejects with `AbortError`.
    */
-  doubleFrame(opts?: t.TimeFrameOptions): Promise<void>;
+  doubleFrame(opts?: t.TimeFrameOptions | AbortSignal): Promise<void>;
 };
 
 /**

@@ -358,4 +358,45 @@ describe('Is (common flags)', () => {
       expect(Is.objectPath(['foo', 1, 'bar'])).to.eql(true);
     });
   });
+
+  describe('Is.abortSignal', () => {
+    it('returns true for a real AbortSignal', () => {
+      const signal = new AbortController().signal;
+      expect(Is.abortSignal(signal)).to.eql(true);
+    });
+
+    it('returns true for a duck-typed object with the right shape', () => {
+      const duck = {
+        aborted: false,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      };
+      expect(Is.abortSignal(duck)).to.eql(true);
+    });
+
+    it('returns false for null and undefined', () => {
+      expect(Is.abortSignal(null)).to.eql(false);
+      expect(Is.abortSignal(undefined)).to.eql(false);
+    });
+
+    it('returns false for primitives', () => {
+      expect(Is.abortSignal(0)).to.eql(false);
+      expect(Is.abortSignal('')).to.eql(false);
+      expect(Is.abortSignal(Symbol('x'))).to.eql(false);
+      expect(Is.abortSignal(true)).to.eql(false);
+      expect(Is.abortSignal(BigInt(0))).to.eql(false);
+    });
+
+    it('returns false for plain objects missing required props', () => {
+      expect(Is.abortSignal({})).to.eql(false);
+      expect(Is.abortSignal({ aborted: false })).to.eql(false);
+      expect(Is.abortSignal({ addEventListener: () => {} })).to.eql(false);
+    });
+
+    it('returns false for EventTarget without "aborted"', () => {
+      class Custom extends EventTarget {}
+      const obj = new Custom();
+      expect(Is.abortSignal(obj)).to.eql(false);
+    });
+  });
 });

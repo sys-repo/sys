@@ -145,4 +145,9 @@ export type StdIsLib = {
    * Determine if the given value is an ['object', 'path'] array.
    */
   objectPath(input?: unknown): input is t.ObjectPath;
+
+  /**
+   * Determine if the given value is an `AborSignal`.
+   */
+  abortSignal(input?: unknown): input is AbortSignal;
 };

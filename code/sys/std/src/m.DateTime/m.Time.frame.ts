@@ -1,14 +1,12 @@
-// m.Time.frame.ts
-
-import type { t } from '../common.ts';
+import { type t, Is } from './common.ts';
 
 /**
  * Yield to the next animation frame.
  * - SSR/Node fallback: schedules a 0 ms macrotask.
  * - If `signal` aborts before the frame, the promise rejects with `AbortError`.
  */
-export function nextFrame(opts?: t.TimeFrameOptions): Promise<void> {
-  const { signal } = opts ?? {};
+export function nextFrame(opts: t.TimeFrameOptions | AbortSignal = {}): Promise<void> {
+  const { signal } = wrangle.options(opts);
   if (signal?.aborted) return Promise.reject(abortError());
 
   return new Promise<void>((resolve, reject) => {
@@ -53,12 +51,22 @@ export function nextFrame(opts?: t.TimeFrameOptions): Promise<void> {
  * - SSR/Node fallback mirrors `nextFrame`.
  * - If `signal` aborts before completion, the promise rejects with `AbortError`.
  */
-export async function doubleFrame(opts?: t.TimeFrameOptions): Promise<void> {
+export async function doubleFrame(opts?: t.TimeFrameOptions | AbortSignal): Promise<void> {
   await nextFrame(opts);
   await nextFrame(opts);
 }
 
-/** Helpers */
+/**
+ * Helpers:
+ */
 function abortError() {
   return new DOMException('Aborted', 'AbortError');
 }
+
+const wrangle = {
+  options(input?: t.TimeFrameOptions | AbortSignal): t.TimeFrameOptions {
+    if (!input) return {};
+    if (Is.abortSignal(input)) return { signal: input };
+    return input;
+  },
+} as const;

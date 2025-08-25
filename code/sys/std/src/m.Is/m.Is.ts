@@ -186,4 +186,18 @@ export const Is: StdIsLib = {
     if (!Array.isArray(input)) return false;
     return input.every((item) => typeof item === 'string' || typeof item === 'number');
   },
+
+  /**
+   * Determine if the given value is an `AborSignal`.
+   */
+  abortSignal(input): input is AbortSignal {
+    if (!isObject(input)) return false;
+    const o = input as AbortSignal;
+    return (
+      input !== null &&
+      typeof o.aborted === 'boolean' &&
+      typeof o.addEventListener === 'function' &&
+      typeof o.removeEventListener === 'function'
+    );
+  },
 };
