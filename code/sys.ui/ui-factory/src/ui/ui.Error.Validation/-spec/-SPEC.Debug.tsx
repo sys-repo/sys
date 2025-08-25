@@ -5,11 +5,10 @@ import { type ViewId, Sample } from './-samples.ts';
 type Errs = readonly t.UseFactoryValidateError<ViewId>[];
 type P = t.ValidationErrorsProps;
 
-type Storage = Pick<P, 'theme' | 'debug' | 'backbgroundBlur' | 'title'> & { errors?: t.Json };
+type Storage = Pick<P, 'theme' | 'debug' | 'title'> & { errors?: t.Json };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
-  backbgroundBlur: D.blur,
   errors: Sample.errors1 as unknown as t.Json,
 };
 
@@ -32,7 +31,6 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     errors: s(snap.errors),
-    backbgroundBlur: s(snap.backbgroundBlur),
     title: s(snap.title),
   };
   const p = props;
@@ -52,7 +50,6 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.errors = p.errors.value;
-      d.backbgroundBlur = p.backbgroundBlur.value;
       d.title = p.title.value;
     });
   });
@@ -98,7 +95,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const out = !Is.array(v)
             ? '<undefined>'
             : v.length === 0
-            ? '[] ← empty'
+            ? '[ ] ← empty'
             : v.map((m) => m.id).join(', ');
           return `${prefix} ${out}`.trim();
         }}
@@ -127,11 +124,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
             undefined,
           ])
         }
-      />
-      <Button
-        block
-        label={() => `backbgroundBlur: ${p.backbgroundBlur.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle(p.backbgroundBlur, [0, D.blur, 20, undefined])}
       />
 
       <hr />

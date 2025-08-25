@@ -8,7 +8,6 @@ const name = 'ValidationErrors';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-  blur: 0,
   title: 'Validation Error',
 } as const;
 export const D = DEFAULTS;

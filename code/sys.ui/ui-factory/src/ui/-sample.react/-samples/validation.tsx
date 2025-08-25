@@ -20,23 +20,17 @@ const PanelSchema = Type.Object({
  * View:
  */
 function Panel(props: { title?: string; count?: number; theme?: t.CommonTheme }) {
+  const wrap = (value: React.ReactNode) => (Is.string(value) ? `"${value}"` : value);
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ display: 'grid', placeItems: 'center', lineHeight: '2.3em' }),
+    base: css({ position: 'relative', display: 'grid', placeItems: 'center', lineHeight: '2.3em' }),
     body: css({ fontSize: 26, fontFamily: 'monospace', minWidth: 260 }),
-    obj: css({ marginTop: 30 }),
   };
-
-  const wrap = (value: React.ReactNode) => {
-    return Is.string(value) ? `"${value}"` : value;
-  };
-
   return (
     <div className={styles.base.class}>
       <div className={styles.body.class}>
         <div>{`title = ${wrap(props.title)}`}</div>
         <div>{`count = ${wrap(props.count)}`}</div>
-        <ObjectView name={'props'} data={props} theme={theme.name} style={styles.obj} />
       </div>
     </div>
   );

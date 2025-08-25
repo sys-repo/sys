@@ -6,7 +6,7 @@ import { type t, Color, css, D, Icons, Obj, ObjectView } from './common.ts';
  * Renders nothing when there are no errors.
  */
 export const ValidationErrors: React.FC<t.ValidationErrorsProps> = (props) => {
-  const { debug = false, errors = [], title = D.title, backbgroundBlur: blur = D.blur } = props;
+  const { debug = false, errors = [], title = D.title } = props;
   if (!errors.length) return null;
 
   /**
@@ -15,11 +15,11 @@ export const ValidationErrors: React.FC<t.ValidationErrorsProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       color: theme.fg,
-      backgroundColor: Color.alpha(theme.bg, 0.7),
-      backdropFilter: `blur(${blur}px)`,
       Padding: [20, 25],
       fontSize: 16,
+      zIndex: 0,
     }),
     title: css({
       color: Color.YELLOW,

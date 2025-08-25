@@ -27,7 +27,6 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             title={v.title}
-            backbgroundBlur={v.backbgroundBlur}
             errors={debug.errors}
           />
         );

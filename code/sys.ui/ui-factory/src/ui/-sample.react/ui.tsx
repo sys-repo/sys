@@ -18,6 +18,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
   });
 
   if (!factory || !plan) return null;
+  const hasValidationErrors = issues.validation.length > 0;
 
   /**
    * Render:
@@ -27,6 +28,11 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
     base: css({ position: 'relative', color: theme.fg, display: 'grid' }),
     loading: css({ userSelect: 'none', display: 'grid', placeItems: 'center' }),
     validation: css({ Absolute: 0 }),
+    element: css({
+      display: 'grid',
+      opacity: hasValidationErrors ? 0.4 : 1,
+      filter: `blur(${hasValidationErrors ? 12 : 0}px)`,
+    }),
   };
 
   /**
@@ -40,6 +46,8 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
   if (issues.validation?.length) console.info('validation:', issues.validation);
   console.groupEnd();
 
+  const el = <div className={styles.element.class}>{element}</div>;
+
   return (
     <div className={css(styles.base, props.style).class}>
       {loading && <div className={styles.loading.class}>{'Loading...'}</div>}
@@ -48,10 +56,9 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
       {issues.runtime && <RuntimeError message={issues.runtime.message} theme={theme.name} />}
 
       {/* Validation issues: */}
-      {!!issues.validation.length && (
+      {hasValidationErrors && (
         <ValidationErrors
           //
-          backbgroundBlur={12}
           title={'Runtime Validation Error'}
           errors={issues.validation}
           style={styles.validation}
@@ -60,7 +67,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
       )}
 
       {/* When successfully loaded: */}
-      {!loading && !issues.runtime && element}
+      {!loading && !issues.runtime && el}
     </div>
   );
 };
