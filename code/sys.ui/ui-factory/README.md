@@ -40,10 +40,10 @@ implementing [**Standard Schema**](https://standardschema.dev).
 
 ## Usage
 ```ts
-import { Factory } from '@sys/ui-factory/core';
+import { Factory } from 'jsr:@sys/ui-factory/core';
 
 // ↓ Host adapter (hook into concrete UI runtime).
-import { HostAdapter } from '@sys/ui-factory/react';
+import { HostAdapter } from 'jsr:@sys/ui-factory/react';
 ```
 
 
@@ -66,10 +66,10 @@ as real `React` elements:
 
 #### Example: React
 ```ts
-import { Factory } from '@sys/ui-factory/core';
-import { renderPlan } from '@sys/ui-factory/react';
+import { Factory } from 'jsr:@sys/ui-factory/core';
+import { renderPlan } from 'jsr:@sys/ui-factory/react';
 
-import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
+import type { Plan, ReactRegistration } from 'jsr:@sys/ui-factory/t';
 
 // 1. Define registrations (components).
 const regs = [
@@ -102,8 +102,8 @@ Schemas act as the **single source of truth**.
 They are exported as `TSchema` objects, which is **JSR-safe** (avoids the "slow type" constraint), 
 and consumers infer types locally:
 ```ts
-import { Type } from '@sys/schema';
-import type { TSchema } from '@sys/schema/t';
+import { Type } from 'jsr:@sys/schema';
+import type { TSchema } from 'jsr:@sys/schema/t';
 
 // In a package (export side):
 export const HelloSchema: TSchema = Type.Object({
@@ -113,8 +113,8 @@ export const HelloSchema: TSchema = Type.Object({
 
 Consumers derive strong types directly from the schema:
 ```ts
-import { HelloSchema } from '@sys/ui-factory/sample/catalog';
-import type { Infer } from '@sys/ui-factory/t';
+import { HelloSchema } from 'jsr:@sys/ui-factory/sample/catalog';
+import type { Infer } from 'jsr:@sys/ui-factory/t';
 
 type Hello = Infer<typeof HelloSchema>; 
 // → { name?: string }
@@ -122,7 +122,9 @@ type Hello = Infer<typeof HelloSchema>;
 
 
 ## File Layout Guidance
-A catalog is a type-safe bundle of schemas and UI definitions, shipped as a single import.
+A catalog is a type-safe bundle of schemas and UI definitions, shipped as a single [`import`](https://tc39.es/ecma262/#sec-import-calls).
+
+
 
 ```
 catalog/
