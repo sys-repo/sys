@@ -21,7 +21,16 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <ValidationErrors debug={v.debug} theme={v.theme} />;
+        return (
+          <ValidationErrors
+            //
+            debug={v.debug}
+            theme={v.theme}
+            title={v.title}
+            backbgroundBlur={v.backbgroundBlur}
+            errors={debug.errors}
+          />
+        );
       });
   });
 

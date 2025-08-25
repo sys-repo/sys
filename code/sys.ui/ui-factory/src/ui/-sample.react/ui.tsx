@@ -1,8 +1,6 @@
 import React from 'react';
-
-import { type t, Color, css, D, useFactory } from './common.ts';
+import { type t, Color, css, D, useFactory, ValidationErrors } from './common.ts';
 import { RuntimeError } from './ui.Error.Runtime.tsx';
-import { ValidationErrors } from './ui.Errors.Validation.tsx';
 
 /**
  * Component:
@@ -51,7 +49,14 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
 
       {/* Validation issues: */}
       {!!issues.validation.length && (
-        <ValidationErrors errors={issues.validation} style={styles.validation} theme={theme.name} />
+        <ValidationErrors
+          //
+          backbgroundBlur={12}
+          title={'Runtime Validation Error'}
+          errors={issues.validation}
+          style={styles.validation}
+          theme={theme.name}
+        />
       )}
 
       {/* When successfully loaded: */}

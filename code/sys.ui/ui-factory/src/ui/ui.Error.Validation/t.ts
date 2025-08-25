@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 export type ValidationErrorsProps = {
   errors?: readonly t.UseFactoryValidateError[];
   title?: string;
-  blur?: t.Pixels;
+  backbgroundBlur?: t.Pixels;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

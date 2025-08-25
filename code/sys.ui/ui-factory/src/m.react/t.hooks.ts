@@ -55,7 +55,7 @@ export type UseLazyFactory = <F extends t.ReactFactory<any, any>>(
  * Validation error produced while walking a plan.
  * Extends the canonical validation error with the view `id`.
  */
-export type UseFactoryValidateError = t.ValidationError & { id: t.ViewId };
+export type UseFactoryValidateError<V extends t.ViewId = string> = t.ValidationError & { id: V };
 
 /** When to run plan/props validation. */
 export type UseFactoryValidateMode = 'always' | 'never';
