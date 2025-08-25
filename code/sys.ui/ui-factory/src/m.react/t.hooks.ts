@@ -7,6 +7,8 @@ import type { t } from './common.ts';
 export type UseEagerFactoryOptions = {
   /** Force remount/reload when this changes (useful for dev toggles / re-run). */
   key?: React.Key;
+  /** Validate against schema: */
+  validate?: UseFactoryValidate;
 };
 
 export type UseEagerFactoryResult = {
@@ -40,10 +42,7 @@ export type UseLazyFactoryResult = UseEagerFactoryResult & {
   Lazy: React.LazyExoticComponent<React.ComponentType<{}>>;
 };
 
-export type UseLazyFactoryOptions = {
-  /** Force a new lazy boundary when this changes. */
-  key?: React.Key;
-};
+export type UseLazyFactoryOptions = t.UseEagerFactoryOptions;
 
 /** Signature for the lazy hook implementation. */
 export type UseLazyFactory = <F extends t.ReactFactory<any, any>>(
