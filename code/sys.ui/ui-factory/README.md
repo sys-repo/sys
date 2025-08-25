@@ -123,9 +123,10 @@ catalog/
   └─ mod.ts                  ← Entrypoint
 ```
 
-## Validation
-Plans can be checked against each view's `schema`, ensuring mismatches are surfaced 
-early and clearly during development.
+## Runtime Validation
+Plans may be checked against each view's `schema` (**JsonSchema**) during development 
+ensuring mismatches are surfaced early and clearly. They can also be re-run
+in `production` if the factories are being dynamically defined.
 
 ```ts
 const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' });
