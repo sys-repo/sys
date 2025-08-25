@@ -38,7 +38,12 @@ export async function main() {
      */
     const { render, useKeyboard } = await import('@sys/ui-react-devharness');
     const { Specs } = await import('./-specs.ts');
-    const el = await render(pkg, Specs, { hr: (e) => {}, style: { Absolute: 0 } });
+    const el = await render(pkg, Specs, {
+      style: { Absolute: 0 },
+      hr: (e) => {
+        if (e.next?.includes('HostAdapter → React')) return true;
+      },
+    });
 
     function App() {
       useKeyboard();

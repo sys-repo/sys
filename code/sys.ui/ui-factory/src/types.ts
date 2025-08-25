@@ -7,3 +7,4 @@ export type * from './m.react/t.ts';
 export type * from './m.schema/t.ts';
 
 export type * from './ui/-sample.react/t.ts';
+export type * from './ui/ui.Error.Validation/t.ts';
