@@ -2,10 +2,11 @@
 
 "[Standard Schema](https://standardschema.dev)" (Typescript/JSONSchema) tools.
 
-Runtime type builder for:
-- Runtime reflection via JSONSchema.
-- Static type checking with Typescript (zero drift from JSONSchema).
-- Signal generation around schema shape.
+Runtime type definition builder for:
+- Runtime reflection via **JSONSchema**.
+- Static type checking via **Typescript** types (zero drift from the JSONSchema).
+- **JSR-safe** bundle export strategy (avoids the "no slow types" constraint).
+- [Standard Schema](https://standardschema.dev) specification implementation.
 
 
 ### Refs:

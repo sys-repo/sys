@@ -99,8 +99,8 @@ const element = await renderPlan(plan, factory);
 ## Type Inference
 Schemas act as the **single source of truth**.
 
-They are exported as `TSchema` objects, which is **JSR-safe** (avoids the "slow type" constraint), 
-and consumers `Infer` types locally:
+They are exported as `TSchema` objects, which is **JSR-safe** (avoiding the "no slow types" constraint), 
+allowing consumers `Infer` types locally:
 ```ts
 import { Type } from 'jsr:@sys/schema';
 import type { TSchema } from 'jsr:@sys/schema/t';
