@@ -13,7 +13,7 @@ type AnyFactory = t.ReactFactory<any, any>;
  * - Client: still runs validation in an effect to stay reactive.
  */
 export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => {
-  const { key, debug = {} } = opts;
+  const { key, debug = {}, disabled = false } = opts;
 
   /**
    * Normalize validation options once (stable across both SSR and client).
@@ -45,6 +45,7 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
    *   stays side-effect free during render.
    */
   const initialValidation = React.useMemo<t.UseFactoryValidateError[]>(() => {
+    if (disabled) return [];
     if (!factory || !plan) return [];
     const v = normalizedValidate;
     if (v.mode !== 'always' || !v.validators) return [];
@@ -60,28 +61,30 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
     if (collected.length && isSSR) v.onErrors?.(collected);
 
     return collected;
-  }, [factory, plan, normalizedValidate]);
+  }, [factory, plan, normalizedValidate, disabled]);
 
   /**
    * State
    */
+  type Errors = t.UseFactoryValidateError[];
   const [element, setElement] = React.useState<React.ReactElement | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [runtime, setRuntime] = React.useState<Error | undefined>(undefined);
-  const [validation, setValidation] =
-    React.useState<t.UseFactoryValidateError[]>(initialValidation);
+  const [validation, setValidation] = React.useState<Errors>(initialValidation);
 
   /**
    * Effect: resolve element and (re)run validation on the client.
    */
   React.useEffect(() => {
-    if (!factory || !plan) {
+    const resetState = () => {
       setElement(null);
       setLoading(false);
       setRuntime(undefined);
       setValidation([]);
-      return;
-    }
+    };
+
+    if (disabled) return void resetState();
+    if (!factory || !plan) return void resetState();
 
     const life = rx.abortable();
     const abort = life.controller.signal;
@@ -96,8 +99,11 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
         if (life.disposed) return;
 
         // Debug: load delay.
-        const delay = Math.max(0, debug.delay ?? 0);
-        if (delay > 0) await Time.until(life).wait(delay);
+        const delay = Math.max(0, (debug as { delay?: number } | undefined)?.delay ?? 0);
+        if (delay > 0) {
+          await Time.until(life).wait(delay);
+          if (life.disposed) return;
+        }
 
         const el = await resolveElement(factory, plan);
         if (life.disposed) return;
@@ -120,16 +126,23 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
     })();
 
     return life.dispose;
-  }, [factory, plan, key, normalizedValidate, initialValidation, debug?.delay]);
+  }, [factory, plan, key, normalizedValidate, initialValidation, debug?.delay, disabled]);
 
   /**
    * API:
    */
-  const issues = React.useMemo(() => ({ runtime, validation }), [runtime, validation]);
+  const issues = React.useMemo(
+    () =>
+      disabled
+        ? { runtime: undefined, validation: [] as t.UseFactoryValidateError[] }
+        : { runtime, validation },
+    [disabled, runtime, validation],
+  );
+
   return {
-    ok: !runtime,
-    element,
-    loading,
+    ok: disabled ? true : !runtime,
+    element: disabled ? null : element,
+    loading: disabled ? false : loading,
     issues,
   };
 };
@@ -141,7 +154,7 @@ function collectValidation<F extends AnyFactory>(plan: t.Plan<F>, v: t.UseFactor
   const out: t.UseFactoryValidateError[] = [];
   validatePlan(plan as any, v.validators!, {
     ...v,
-    onError: (e) => {
+    onError(e) {
       out.push(e);
       v.onError?.(e);
     },

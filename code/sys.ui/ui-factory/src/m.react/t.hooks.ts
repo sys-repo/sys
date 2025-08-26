@@ -11,6 +11,8 @@ export type UseEagerFactoryOptions = {
   validate?: UseFactoryValidate;
   /** Debug sub-options. */
   debug?: UseFactoryDebug;
+  /** Disable this hook instance (no effects, returns inert state). */
+  disabled?: boolean;
 };
 
 export type UseEagerFactoryResult = {
@@ -44,6 +46,7 @@ export type UseLazyFactoryResult = UseEagerFactoryResult & {
   Lazy: React.LazyExoticComponent<React.ComponentType<{}>>;
 };
 
+/** Options passed to the Lazy factory. */
 export type UseLazyFactoryOptions = t.UseEagerFactoryOptions;
 
 /** Signature for the lazy hook implementation. */

@@ -2,13 +2,14 @@ import React from 'react';
 
 import { type t } from './common.ts';
 import { useEagerFactory } from './use.Factory.Eager.tsx';
+import { useLazyFactory } from './use.Factory.Lazy.tsx';
 
 /**
  * Unified factory hook:
  * - 'eager' (default): resolve immediately and return { ok, element, loading, issues }.
- * - 'suspense': wraps the resolved element with <Suspense fallback={...}> while still
- *   returning the eager shape for observability.
- * - Optional `validate` pass over the plan (boolean/enum/object).
+ * - 'suspense': uses the lazy path and wraps output in <Suspense fallback={...}>,
+ *   while still returning the same observable shape (ok, loading, issues).
+ * - Always calls both hooks to preserve Hooks order; only the active one is live.
  */
 export function useFactory<F extends t.ReactFactory<any, any>>(
   factory: F | undefined,
@@ -17,13 +18,29 @@ export function useFactory<F extends t.ReactFactory<any, any>>(
 ): t.UseFactoryResult {
   const { key, strategy = 'eager', validate, debug } = opts;
 
-  const eager = useEagerFactory<F>(factory, plan, { key, validate, debug });
+  const common = { key, validate, debug };
+  const eager = useEagerFactory<F>(factory, plan, {
+    ...common,
+    disabled: strategy !== 'eager',
+  });
+
+  const lazy = useLazyFactory<F>(factory, plan, {
+    ...common,
+    disabled: strategy !== 'suspense',
+  });
 
   if (strategy === 'suspense') {
-    const fallback = 'fallback' in (opts as any) ? (opts as any).fallback : null;
-    const element = <React.Suspense fallback={fallback}>{eager.element}</React.Suspense>;
-    return { ...eager, element };
+    const fallback = 'fallback' in opts ? opts.fallback : null;
+
+    // Render the lazy component under Suspense, but surface the same observable fields.
+    const element = (
+      <React.Suspense fallback={fallback}>
+        <lazy.Lazy />
+      </React.Suspense>
+    );
+    return { ...lazy, element };
   }
 
+  // Eager strategy
   return eager;
 }
