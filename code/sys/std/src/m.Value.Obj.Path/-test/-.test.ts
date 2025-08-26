@@ -17,7 +17,6 @@ describe('Obj.Path', () => {
     expect(Obj.Path.Mutate.diff).to.equal(diff);
     expect(Obj.Path.Mutate.delete).to.equal(del);
     expect(Obj.Path.Codec).to.equal(Codec);
-    expect(Obj.Path.codec).to.equal(Codec.default);
     expect(Obj.Path.encode).to.equal(encode);
     expect(Obj.Path.decode).to.equal(decode);
   });

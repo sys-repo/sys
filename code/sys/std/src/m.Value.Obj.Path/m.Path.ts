@@ -15,7 +15,6 @@ export const Path: t.ObjPathLib = {
   curry: CurriedPath.create,
 
   Codec,
-  codec: Codec.default,
   encode,
   decode,
   asNumeric,

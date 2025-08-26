@@ -11,9 +11,6 @@ export type ObjPathLib = Readonly<{
   /** Collection of codecs (pointer, dot, etc). */
   Codec: t.ObjectPathCodecLib;
 
-  /** The default codec instance (pointer). */
-  codec: t.ObjectPathCodec;
-
   /**
    * Encode a path array → string.
    * - Uses the given codec (defaults to `pointer`).
