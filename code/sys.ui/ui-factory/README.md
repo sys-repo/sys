@@ -31,7 +31,6 @@ const catalog = await import('@namespace/my-catalog');
 ```
 
 
----
 
 ### Specs → Plan → Validation
   A **plan** is the declarative blueprint a factory follows when **instantiating views**.  
@@ -41,7 +40,6 @@ const catalog = await import('@namespace/my-catalog');
 implementing [**Standard Schema**](https://standardschema.dev).
   - the available layout `slots` for child placement.
 
----
 
 ### Slots
   Slots are named attachment points a `view` exposes for placing **child** `views` within its `layout`.
