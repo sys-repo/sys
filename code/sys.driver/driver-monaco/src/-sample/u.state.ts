@@ -41,8 +41,9 @@ function updateMain(signals: t.SampleSignals, getSchema: t.GetSchema) {
   /**
    * 2. Read "/main" UI props and factory lookup-id from YAML:
    */
-  const main = meta.value?.main;
-  signals.main.value = undefined; // ← (reset).
+  const main = meta.ok ? meta.value?.main : undefined;
+  signals.main.value = undefined; // ← reset.
+
   if (main?.props && main.component) {
     const p = Obj.Path.curry(main.props.split('/'));
     const component = main.component;
@@ -51,7 +52,7 @@ function updateMain(signals: t.SampleSignals, getSchema: t.GetSchema) {
     let props: O | undefined;
     if (schema) {
       const res = Schema.try(() => Schema.Value.Parse(schema, p.get(root)));
-      props = res.value;
+      props = res.ok ? (res.value as unknown as O) : undefined;
     }
 
     if (!props) props = p.get(root) as O;
