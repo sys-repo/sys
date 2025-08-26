@@ -55,10 +55,12 @@ export default Spec.describe(D.displayName, (e) => {
               debug={v.debug}
               theme={v.theme}
               //
-              plan={v.plan}
-              factory={v.factory}
               strategy={v.strategy}
               validate={v.validate}
+              debugDelay={v.debugDelay}
+              //
+              plan={v.plan}
+              factory={v.factory}
             />
           </div>
         );

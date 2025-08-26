@@ -7,8 +7,10 @@ import type { t } from './common.ts';
 export type UseEagerFactoryOptions = {
   /** Force remount/reload when this changes (useful for dev toggles / re-run). */
   key?: React.Key;
-  /** Validate against schema: */
+  /** Validate against schema. */
   validate?: UseFactoryValidate;
+  /** Debug sub-options. */
+  debug?: UseFactoryDebug;
 };
 
 export type UseEagerFactoryResult = {
@@ -93,12 +95,23 @@ export type UseFactoryValidate = boolean | UseFactoryValidateMode | UseFactoryVa
  * - `validate`: optional plan/props validation controls (applies to both strategies).
  */
 export type UseFactoryOptions =
-  | ({ strategy?: 'eager'; validate?: UseFactoryValidate } & UseEagerFactoryOptions)
+  | ({
+      strategy?: 'eager';
+      validate?: UseFactoryValidate;
+      debug?: UseFactoryDebug;
+    } & UseEagerFactoryOptions)
   | ({
       strategy: 'suspense';
       validate?: UseFactoryValidate;
       fallback?: React.ReactNode;
+      debug?: UseFactoryDebug;
     } & UseLazyFactoryOptions);
+
+/** Debug options. */
+export type UseFactoryDebug = {
+  /** Artificial delay (ms) before resolving/rendering, for test/simulation. */
+  readonly delay?: t.Msecs;
+};
 
 /** Hook instance returned from the `useFactory` hook: */
 export type UseFactoryResult = UseEagerFactoryResult | UseLazyFactoryResult;

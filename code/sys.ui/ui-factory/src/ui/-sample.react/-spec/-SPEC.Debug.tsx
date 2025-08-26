@@ -15,7 +15,7 @@ import type { Sample, SampleDoc } from '../-samples/t.ts';
 import { SAMPLES } from '../-samples/t.ts';
 
 type P = t.SampleReactProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'strategy' | 'validate'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'strategy' | 'validate' | 'debugDelay'> & {
   sample?: Sample;
   invalidProps?: boolean;
 };
@@ -53,6 +53,7 @@ export function createDebugSignals() {
 
     sample: s(snap.sample),
     invalidProps: s(snap.invalidProps),
+    debugDelay: s(snap.debugDelay),
 
     factory: s<P['factory']>(),
     plan: s<P['plan']>(),
@@ -77,12 +78,14 @@ export function createDebugSignals() {
       d.validate = p.validate.value;
       d.sample = p.sample.value;
       d.invalidProps = p.invalidProps.value;
+      d.debugDelay = p.debugDelay.value;
     });
   });
   Signal.effect(() => {
     // Hook into values:
     p.theme.value;
     p.invalidProps.value;
+    p.debugDelay.value;
     api.loadSample();
   });
 
@@ -197,6 +200,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `debugDelay: ${p.debugDelay.value || 0}ms`}
+        onClick={() => Signal.cycle(p.debugDelay, [undefined, 300, 1200])}
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />

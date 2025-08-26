@@ -15,9 +15,9 @@ export function useFactory<F extends t.ReactFactory<any, any>>(
   plan: t.Plan<F> | undefined,
   opts: t.UseFactoryOptions = {},
 ): t.UseFactoryResult {
-  const { key, strategy = 'eager', validate } = opts;
+  const { key, strategy = 'eager', validate, debug } = opts;
 
-  const eager = useEagerFactory<F>(factory, plan, { key, validate });
+  const eager = useEagerFactory<F>(factory, plan, { key, validate, debug });
 
   if (strategy === 'suspense') {
     const fallback = 'fallback' in (opts as any) ? (opts as any).fallback : null;

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { type t, Color, css, D, useFactory, ValidationErrors } from './common.ts';
 import { RuntimeError } from './ui.Error.Runtime.tsx';
 import { Loading } from './ui.Loading.tsx';
@@ -7,7 +8,7 @@ import { Loading } from './ui.Loading.tsx';
  * Component:
  */
 export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
-  const { debug = false, strategy = D.strategy, validate, factory, plan } = props;
+  const { debug = false, strategy = D.strategy, validate, factory, plan, debugDelay } = props;
 
   /**
    * Hook: Resolve the plan → React element (+issues).
@@ -16,6 +17,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
     key: debug ? 'debug' : undefined,
     strategy,
     validate,
+    debug: { delay: debugDelay },
   });
 
   if (!factory || !plan) return null;

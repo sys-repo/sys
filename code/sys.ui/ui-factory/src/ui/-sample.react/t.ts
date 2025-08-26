@@ -8,6 +8,7 @@ export type SampleReactProps = {
   plan?: t.Plan<any>;
   strategy?: 'eager' | 'suspense';
   validate?: t.UseFactoryValidateMode | boolean;
+  debugDelay?: t.Msecs;
 
   debug?: boolean;
   theme?: t.CommonTheme;

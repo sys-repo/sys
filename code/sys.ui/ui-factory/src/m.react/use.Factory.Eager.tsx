@@ -12,8 +12,8 @@ type AnyFactory = t.ReactFactory<any, any>;
  * - SSR: runs a synchronous validation pass (effects don't run on SSR).
  * - Client: still runs validation in an effect to stay reactive.
  */
-export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
-  const key = opts?.key;
+export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => {
+  const { key, debug = {} } = opts;
 
   /**
    * Normalize validation options once (stable across both SSR and client).
@@ -95,6 +95,10 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
         await Time.nextFrame(abort);
         if (life.disposed) return;
 
+        // Debug: load delay.
+        const delay = Math.max(0, debug.delay ?? 0);
+        if (delay > 0) await Time.until(life).wait(delay);
+
         const el = await resolveElement(factory, plan);
         if (life.disposed) return;
 
@@ -116,7 +120,7 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts) => {
     })();
 
     return life.dispose;
-  }, [factory, plan, key, normalizedValidate, initialValidation]);
+  }, [factory, plan, key, normalizedValidate, initialValidation, debug?.delay]);
 
   /**
    * API:
