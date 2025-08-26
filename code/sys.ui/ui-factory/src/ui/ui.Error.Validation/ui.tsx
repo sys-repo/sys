@@ -38,8 +38,8 @@ export const ValidationErrors: React.FC<t.ValidationErrorsProps> = (props) => {
       columnGap: 10,
       alignItems: 'center',
     }),
-    id: css({}),
-    path: css({ fontSize: '0.7em', opacity: 0.5 }),
+    id: css({ fontSize: '0.7em', opacity: 0.5 }),
+    path: css({ fontSize: '0.7em' }),
     message: css({}),
     debugObject: css({ marginTop: 30 }),
   };
@@ -55,8 +55,8 @@ export const ValidationErrors: React.FC<t.ValidationErrorsProps> = (props) => {
       <div className={styles.list.class}>
         <div className={styles.head.class}></div>
         <div className={styles.head.class}>{'view'}</div>
-        <div className={styles.head.class}>path</div>
-        <div className={styles.head.class}>message</div>
+        <div className={styles.head.class}>{'prop'}</div>
+        <div className={styles.head.class}>{'message'}</div>
         {errors.map((e, i) => {
           const key = `${e.id}-${Obj.Path.encode(e.path)}-${i}`;
           return (
