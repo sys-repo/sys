@@ -54,7 +54,7 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
     const isSSR = typeof window === 'undefined' || typeof document === 'undefined';
     const onError = (e: t.UseFactoryValidateError) => {
       collected.push(e);
-      if (isSSR) v.onError?.(e); // SSR-only: fire callbacks immediately
+      if (isSSR) v.onError?.(e); // SSR-only: fire callbacks immediately.
     };
 
     validatePlan(plan as any, v.validators, { ...v, onError });
