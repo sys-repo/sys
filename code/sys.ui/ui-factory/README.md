@@ -3,13 +3,13 @@ Tiny primitives for declarative UI composition.
 
 <p>&nbsp;<p>
 
-|   | Stage         | Primitive  |
-|---|---------------|------------|
-| ↓ | Definition    | `factory`  |
-| ↓ | Composition   | `specs`    |
-| ↓ | Instantiation | `plan`     |
-| ↓ | Rendering     | `view`     |
-| ↓ | Placement     | `slots`    |
+| Stage         |   | Primitive  |
+|---------------|---|------------|
+| Definition    | ↓ | `factory`  |
+| Composition   | ↓ | `specs`    |
+| Instantiation | ↓ | `plan`     |
+| Rendering     | ↓ | `view`     |
+| Placement     | ↓ | `slots`    |
 
 …resolved and validated across **context boundaries**.
 
