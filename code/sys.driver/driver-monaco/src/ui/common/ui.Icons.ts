@@ -7,9 +7,9 @@ import {
   MdArrowUpward,
   MdChevronLeft,
   MdChevronRight,
-  MdLock,
   MdEmojiPeople,
   MdErrorOutline,
+  MdLock,
   MdSettingsInputAntenna,
 } from 'react-icons/md';
 import { TbNetwork, TbNetworkOff } from 'react-icons/tb';

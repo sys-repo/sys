@@ -19,7 +19,7 @@ export type * from './ui/ui.Editor.Yaml.Footer/t.ts';
 export type * from './ui/ui.Editor.Yaml/t.ts';
 
 /**
- * Sample:
+ * Samples:
  */
 export type * from './-sample.factory/t.ts';
 export type * from './-sample/t.ts';
