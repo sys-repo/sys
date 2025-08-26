@@ -24,6 +24,8 @@ const U: TUnion<
     description: 'Keys for looking up views within the factory.',
   },
 );
+
+/** ID of a factory */
 export type SampleFactoryId = Static<typeof U>;
 export const SampleFactoryId = U;
 

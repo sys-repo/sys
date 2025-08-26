@@ -24,6 +24,8 @@ export type SampleProps = {
  * Stateful Signals API:
  */
 export type SampleState = t.UnwrapSignals<SampleSignals>;
+
+/** Signals used by the sample. */
 export type SampleSignals = Readonly<{
   /** Code editor: */
   io: Readonly<{
@@ -50,7 +52,7 @@ export type SampleSignalsFactoryDef = {
 };
 
 /**
- * CRDT Path Addresses:
+ * CRDT path addresses.
  */
 export type SamplePaths = {
   /** Path in the `doc` that the editor/yaml text is written to. */
@@ -61,4 +63,5 @@ export type SamplePaths = {
   meta: t.ObjectPath;
 };
 
+/** CRDT path addresses as signals. */
 export type SamplePathsSignals = t.WrapSignals<SamplePaths>;
