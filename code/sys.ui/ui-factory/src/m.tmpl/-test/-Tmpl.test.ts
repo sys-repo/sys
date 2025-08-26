@@ -10,25 +10,16 @@ describe(`${pkg.name}/fs: Tmpl`, () => {
 
   describe('Tmpl:Catalog', () => {
     it('sample', async () => {
-      // Create a module-local temp dir (eg: <module>/.tmp):
       const fs = Testing.dir('.tmp', { slug: true });
       const target = `${fs.dir}/catalog` as t.StringDir;
 
-      const res = await Tmpl.writeCatalog(target, {
-        write: { dryRun: false },
-        factory: {
-          processFile(e) {
-            console.log('e', e);
-            /* rename/exclude/modify here */
-          },
-        },
-      });
+      const res = await Tmpl.write(target, { dryRun: false });
 
       // Basic shape:
       expect(res.ops.length > 0).to.be.true;
 
       // Helper: find an op by target-path suffix.
-      const find = (suffix: string) => res.ops.find((o) => String(o.file.target).endsWith(suffix));
+      const find = (suff: string) => res.ops.find((o) => o.file.target.toString().endsWith(suff));
 
       // Expected files created:
       expect(find('catalog/ui/Hello/schema.ts')?.created).to.be.true;
