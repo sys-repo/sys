@@ -62,7 +62,8 @@
     "code/sys.driver/driver-prosemirror",
     "code/sys.driver/driver-vite",
 
-    "deploy/@dev",
+    "code/sys.dev",
+
     "deploy/@tdb.fs",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",

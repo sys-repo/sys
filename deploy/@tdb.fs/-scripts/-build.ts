@@ -16,7 +16,7 @@ await buildAndCopyAll([
   ['../../code/sys.driver/driver-monaco', 'sys/driver.monaco', { build }],
   ['../../code/sys.driver/driver-peerjs', 'sys/driver.peerjs', { build }],
   ['../../code/sys.driver/driver-prosemirror', 'sys/driver.prosemirror', { build }],
-  ['../@dev', 'sys/dev', { build }],
+  ['../../code/sys.dev', 'sys/dev', { build }],
 ]);
 await copyPublic('public', 'dist');
 

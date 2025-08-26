@@ -10,8 +10,8 @@ export const Paths = {
     'code/-tmpl',
 
     /**
-     * (namespace "@sys"): standard-library 
      * sys:
+     * (namespace "@sys"): standard-library 
      */
     'code/sys/types',
     'code/sys/std',
@@ -52,11 +52,15 @@ export const Paths = {
     'code/sys.driver/driver-peerjs',
     'code/sys.driver/driver-prosemirror',
 
+    /**
+     * sys.dev: (programming system)
+     */
+     'code/sys.dev',
+
 
     /**
      * Instance (conceptually: "an app"):
      */
-    'deploy/@dev',
     'deploy/@tdb.fs',
     'deploy/@tdb.slc',
     'deploy/@tdb.slc.fs',
