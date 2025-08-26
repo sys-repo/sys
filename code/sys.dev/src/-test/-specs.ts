@@ -9,5 +9,5 @@ export const ns = 'sys.dev';
  * Specs:
  */
 export const Specs = {
-  // [`${ns}: name`]: () => import('../ui/component/-spec/-SPEC.tsx'),
+  [`${ns}: Sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),
 } as t.SpecImports;
