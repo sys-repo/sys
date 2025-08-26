@@ -8,15 +8,33 @@ type O = Record<string, unknown>;
  * Tools for working with objects via abstract path arrays.
  */
 export type ObjPathLib = Readonly<{
+  /** Collection of codecs (pointer, dot, etc). */
   Codec: t.ObjectPathCodecLib;
-  /** The default string ←→ array encode/decode helpers. */
-  codec: t.ObjectPathCodec;
-  /** Encode using the default codec. */
-  encode: t.ObjectPathCodec['encode'];
-  /** Decode using the default codec. */
-  decode: t.ObjectPathCodec['decode'];
 
-  /** Tools for mutating an object in-place. */ Mutate: ObjPathMutateLib;
+  /** The default codec instance (pointer). */
+  codec: t.ObjectPathCodec;
+
+  /**
+   * Encode a path array → string.
+   * - Uses the given codec (defaults to `pointer`).
+   */
+  encode(path: t.ObjectPath, opts?: t.PathEncodeOptions): string;
+
+  /**
+   * Decode a string → path array.
+   * - Uses the given codec (defaults to `pointer`).
+   * - `numeric: true` coerces digit-only tokens into numbers.
+   */
+  decode(text: string, opts?: t.PathDecodeOptions): t.ObjectPath;
+
+  /**
+   * Utility: Coerce digit-only string tokens into numbers.
+   * - Leaves non-digit strings intact (e.g. "01" stays "01").
+   */
+  asNumeric(path: readonly (string | number)[]): readonly (string | number)[];
+
+  /** Tools for mutating an object in-place. */
+  Mutate: ObjPathMutateLib;
 
   /** Create a new curried-path instance for the given path. */
   curry: t.CurriedPathLib['create'];
