@@ -1,10 +1,11 @@
-import { type t, c, describe, it, expect, Testing, pkg } from '../../-test.ts';
+import { type t, c, describe, expect, it, pkg, Testing } from '../../-test.ts';
 import { Tmpl } from '../mod.ts';
 
 describe(`${pkg.name}/fs: Tmpl`, () => {
   it('API', async () => {
-    const m = await import('@sys/ui-factory/fs');
+    const m = await import('@sys/ui-factory/tmpl');
     expect(m.Tmpl).to.equal(Tmpl);
+    expect(m.default).to.equal(Tmpl);
   });
 
   describe('Tmpl:Catalog', () => {
@@ -18,6 +19,7 @@ describe(`${pkg.name}/fs: Tmpl`, () => {
         factory: {
           processFile(e) {
             console.log('e', e);
+            /* rename/exclude/modify here */
           },
         },
       });

@@ -1,5 +1,6 @@
-import { Tmpl as Template } from '@sys/tmpl/fs';
-import { type t } from './common.ts';
+// import { Tmpl as Template } from '@sys/tmpl/fs';
+import { type t, TmplEngine } from './common.ts';
+import { cli } from './u.cli.ts';
 
 /**
  * Templates for generating factory `Catalog` file structures.
@@ -7,9 +8,11 @@ import { type t } from './common.ts';
 const SRC_DIR = new URL('../-tmpl/catalog/', import.meta.url).pathname as t.StringDir;
 
 export const Tmpl: t.CatalogTmpl = {
+  cli,
+
   /** Return a template engine bound to the local `/-tmpl/catalog` source. */
   catalog(options?: t.TmplFactoryOptions) {
-    return Template.create(SRC_DIR, options);
+    return TmplEngine.create(SRC_DIR, options);
   },
 
   /**
@@ -21,16 +24,13 @@ export const Tmpl: t.CatalogTmpl = {
   async writeCatalog(
     target: t.StringDir,
     opts?: {
-      filter?: t.TmplFilter;
-      factory?: t.TmplFactoryOptions;
-      write?: t.TmplWriteOptions;
     },
   ): Promise<t.TmplWriteResponse> {
-    const base = Template.create(SRC_DIR, opts?.factory);
+    const base = TmplEngine.create(SRC_DIR, opts?.factory);
     const engine = opts?.filter ? base.filter(opts.filter) : base;
     return engine.write(target, opts?.write);
   },
 
   /** Pretty-print file operations (useful with `dryRun: true`). */
-  table: Template.Log.table,
+  table: TmplEngine.Log.table,
 } satisfies t.CatalogTmpl;

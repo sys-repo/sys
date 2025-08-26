@@ -13,13 +13,19 @@ export async function main(options: Options = {}) {
   console.info();
 
   let name = typeof args.tmpl === 'string' ? args.tmpl : '';
-  const templates = Object.keys(Templates);
+  const templates = [...Object.keys(Templates), '@sys/ui-factory/tmpl'];
 
   if (!name) {
     name = await Cli.Prompt.Select.prompt({
       message: 'Select Template:',
       options: templates.map((name: string) => ({ name, value: name })),
     });
+  }
+
+  if (name === '@sys/ui-factory/tmpl') {
+    const { Tmpl } = await import('@sys/ui-factory/tmpl');
+    await Tmpl.cli();
+    return;
   }
 
   if (!templates.includes(name)) {

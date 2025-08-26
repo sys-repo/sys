@@ -4,6 +4,9 @@ import type { t } from './common.ts';
  * Templates for generating factory `Catalog` file structures.
  */
 export type CatalogTmpl = {
+  /** Run in CLI mode. */
+  cli(args?: {}): Promise<void>;
+
   /** Bind template engine to local `/-tmpl/catalog` source. */
   catalog(options?: t.TmplFactoryOptions): t.Tmpl;
 
