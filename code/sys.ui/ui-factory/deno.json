@@ -20,6 +20,7 @@
     "./core": "./src/m.core/mod.ts",
     "./react": "./src/m.react/mod.ts",
     "./schema": "./src/m.schema/mod.ts",
+    "./fs": "./src/m.fs/mod.ts",
     "./sample/catalog": "./src/-test/-samples/mod.ts"
   }
 }

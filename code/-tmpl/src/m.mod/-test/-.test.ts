@@ -1,5 +1,5 @@
-import { type t, describe, it, expect, Testing } from '../../-test.ts';
+import { type t, describe, it, expect, Testing, pkg } from '../../-test.ts';
 
-describe('Template: m.mod', () => {
-  it('🐷', async () => {});
+describe(`🐷`, () => {
+  it('API', async () => {});
 });

@@ -58,7 +58,7 @@ implementing [**Standard Schema**](https://standardschema.dev).
 ## Usage
 ```ts
 import { Factory }     from 'jsr:@sys/ui-factory/core';
-import { HostAdapter } from 'jsr:@sys/ui-factory/react'; // ← Host adapter (hook into concrete UI runtime).
+import { HostAdapter } from 'jsr:@sys/ui-factory/react'; // ← Host adapter (hook into a concrete UI runtime).
 ```
 
 <p>&nbsp;<p>
