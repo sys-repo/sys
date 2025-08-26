@@ -33,7 +33,7 @@ describe('Schema: StandardSchema implementation', () => {
 
       // Wrong type → fail:
       const failCount = vCount.validate('oops');
-      expect(failCount.ok).to.equal(false);
+      expect(failCount.ok).to.eql(false);
       if (!failCount.ok) {
         expect(failCount.errors).to.be.an('array').that.is.not.empty;
         expect(failCount.errors[0]).to.have.property('message');
@@ -41,7 +41,7 @@ describe('Schema: StandardSchema implementation', () => {
 
       // Correct type → pass:
       const okTitle = vTitle.validate('Hello');
-      expect(okTitle.ok).to.equal(true);
+      expect(okTitle.ok).to.eql(true);
     });
 
     it('independently validates each registered prop (no cross-coupling)', () => {
@@ -63,15 +63,15 @@ describe('Schema: StandardSchema implementation', () => {
       const vActive = v.active!;
       const vName = v.name!;
 
-      expect(vActive.validate(true).ok).to.equal(true);
+      expect(vActive.validate(true).ok).to.eql(true);
 
       const activeFail = vActive.validate(123 as unknown);
-      expect(activeFail.ok).to.equal(false);
+      expect(activeFail.ok).to.eql(false);
 
-      expect(vName.validate('Alice').ok).to.equal(true);
+      expect(vName.validate('Alice').ok).to.eql(true);
 
       const nameFail = vName.validate({} as unknown);
-      expect(nameFail.ok).to.equal(false);
+      expect(nameFail.ok).to.eql(false);
     });
 
     it('uses the StandardSchema result shape ({ ok, errors }) from upstream', () => {
@@ -87,7 +87,7 @@ describe('Schema: StandardSchema implementation', () => {
       const vId = validators.id!;
 
       const fail = vId.validate('not-a-number');
-      expect(fail.ok).to.equal(false);
+      expect(fail.ok).to.eql(false);
       if (!fail.ok) {
         expect(fail.errors).to.be.an('array');
         const e0 = fail.errors[0];
@@ -96,7 +96,7 @@ describe('Schema: StandardSchema implementation', () => {
       }
 
       const pass = vId.validate(42);
-      expect(pass.ok).to.equal(true);
+      expect(pass.ok).to.eql(true);
     });
   });
 });

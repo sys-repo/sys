@@ -2,7 +2,7 @@ import type { Type } from '@sinclair/typebox';
 import type { Value } from '@sinclair/typebox/value';
 import type { t } from './common.ts';
 
-export type * from './t.standard-schema.ts';
+export type * from './t.StdSchema.ts';
 
 /**
  * "Standard Schema" (Typescript/JSONSchema) tools:
@@ -32,6 +32,17 @@ export type SchemaLib = Readonly<{
     schema: S,
     vendor?: string,
   ): t.StandardSchemaV1<unknown, TOut>;
+
+  /**
+   * Type guard: returns true if the value is a Standard Schema v1 object.
+   */
+  isStandardSchema(x: unknown): x is t.StandardSchemaV1;
+
+  /**
+   * Ensure a schema is wrapped as a Standard Schema v1 adapter.
+   * (Idempotent — returns the same object if already wrapped.)
+   */
+  asStandardSchema(schema: unknown, vendor?: string): t.StandardSchemaV1;
 }>;
 
 /** Response returned from the `Schema.try` method. */
