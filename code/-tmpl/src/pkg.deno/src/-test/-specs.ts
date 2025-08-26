@@ -1,6 +1,6 @@
 /**
- * DevHarness visual specs.
  * @module
+ * DevHarness visual specs.
  */
 import type { t } from './common.ts';
 export const ns = 'sys.🐷';
