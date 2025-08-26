@@ -1,17 +1,16 @@
 ![banner-A1-slender](https://github.com/cellplatform/platform-0.2.0/assets/185555/2b0a110d-0c73-4583-bbfa-94f77d38bc17)
-[![jsr-registry][jsr-scope-image]][jsr-scope-url]
-[![jsr-ci][jsr-ci-image]][jsr-ci-url]
-[![mit][mit-image]][mit-url]
+[![MIT License][mit-badge]][mit-url]
+[![CI][ci-badge]][ci-url]
+[![JSR Registry][jsr-badge]][jsr-url]
 
-[mit-image]: https://img.shields.io/badge/license-MIT-blue.svg
-[mit-url]: https://opensource.org/licenses/mit
+[mit-badge]: https://img.shields.io/badge/license-MIT-blue?style=flat
+[mit-url]: https://opensource.org/licenses/MIT
 
-[jsr-scope-image]: https://jsr.io/badges/@sys?style=flat-square
-[jsr-scope-url]: https://jsr.io/@sys
+[ci-badge]: https://img.shields.io/github/actions/workflow/status/sys-repo/sys/jsr.yaml?style=flat&label=CI
+[ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
 
-[jsr-ci-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg
-[jsr-ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
-
+[jsr-badge]: https://jsr.io/badges/@sys?style=flat
+[jsr-url]: https://jsr.io/@sys
 
 # @sys
 Monorepo comprising the core set of shared  **“system”** modules purposed to flexibly compose into new 
