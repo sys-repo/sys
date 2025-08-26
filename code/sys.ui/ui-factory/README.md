@@ -6,7 +6,7 @@ Tiny primitives for declarative UI composition.
 | Stage         |   | Primitive  |
 |---------------|---|------------|
 | Definition    | ↓ | `factory`  |
-| Composition   | ↓ | `specs`    |
+| Composition   | ↓ | `spec`    |
 | Instantiation | ↓ | `plan`     |
 | Rendering     | ↓ | `view`     |
 | Placement     | ↓ | `slots`    |
@@ -19,14 +19,12 @@ Tiny primitives for declarative UI composition.
 A factory is `{data}` + a lazy `view` loader.  
 
   •	**Data**: the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
-  •	**Loader**: the mechanism that resolves `specs` into live `views` at runtime 
-    (dynamic ESM import, code-split boundaries).
-
+  •	**Loader**: the mechanism that resolves `specs` into live `views` at runtime.
 
 **Note:** Factories use standard [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import) (TC39) within the factory's loader. As a consequence, code is naturally split across ESM module boundaries.
 
 These boundaries typically align with the natural namespacing seams of the consuming `host`,
-forming **context boundaries** within the larger system.
+crafting **context boundaries** within the larger system.
 
 ```ts
 const catalog = await import('@namespace/my-catalog');
