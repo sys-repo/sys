@@ -51,6 +51,37 @@ import { Factory }     from 'jsr:@sys/ui-factory/core';
 import { HostAdapter } from 'jsr:@sys/ui-factory/react'; // ← Host adapter (hook into concrete UI runtime).
 ```
 
+<p>&nbsp;<p>
+
+## Schema → Type Inference
+`specs` embed **Schemas**, which serve as the **single source of truth** for a `Catalog`’s public API surface.  
+They are exported as `TSchema` objects (which are **JSR-safe**, avoiding the “no slow types” constraint),  
+allowing consumers to `Infer` precise types locally — **without drift**.
+
+
+```ts
+import { Type } from 'jsr:@sys/schema';
+import type { TSchema } from 'jsr:@sys/schema/t';
+
+// In a package (export side):
+export const HelloSchema: TSchema = Type.Object({
+  name: Type.Optional(Type.String()),
+});
+```
+
+Consumers may derive strong `types` directly from the imported catalog `schema`:
+```ts
+import { HelloSchema } from 'jsr:@sys/ui-factory/sample/catalog';
+import type { Infer } from 'jsr:@sys/ui-factory/t';
+
+type Hello = Infer<typeof HelloSchema>; 
+// → { name?: string }
+```
+
+<p>&nbsp;<p>
+
+
+
 
 <p>&nbsp;<p>
 
@@ -59,7 +90,7 @@ The **host adapter** pattern bridges the `@sys/ui-factory` **core** abstractions
 a concrete runtime environment.
 
 
-### Host Adapter: React
+### React Host Adapter
 The [React](https://react.dev/) host adapter interprets resolved plans from a factory 
 as real `React` elements:
 
@@ -99,33 +130,6 @@ const element = await renderPlan(plan, factory);
 ```
 
 <p>&nbsp;<p>
-
-## Type Inference
-Schemas act as the **single source of truth**.
-
-They are exported as `TSchema` objects, which is **JSR-safe** (avoiding the "no slow types" constraint), 
-allowing consumers to `Infer` types locally:
-```ts
-import { Type } from 'jsr:@sys/schema';
-import type { TSchema } from 'jsr:@sys/schema/t';
-
-// In a package (export side):
-export const HelloSchema: TSchema = Type.Object({
-  name: Type.Optional(Type.String()),
-});
-```
-
-Consumers may derive strong `types` directly from the imported catalog `schema`:
-```ts
-import { HelloSchema } from 'jsr:@sys/ui-factory/sample/catalog';
-import type { Infer } from 'jsr:@sys/ui-factory/t';
-
-type Hello = Infer<typeof HelloSchema>; 
-// → { name?: string }
-```
-
-<p>&nbsp;<p>
-
 
 ## File Layout Guidance
 A **catalog** is a type-safe bundle of schemas and UI definitions, shipped as a 
