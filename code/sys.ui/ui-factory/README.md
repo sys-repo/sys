@@ -1,7 +1,7 @@
 # @sys/ui-factory
 Tiny primitives for declarative UI composition.  
 
----
+<p>&nbsp;<p>
 
 |   | Stage         | Primitive  |
 |---|---------------|------------|
