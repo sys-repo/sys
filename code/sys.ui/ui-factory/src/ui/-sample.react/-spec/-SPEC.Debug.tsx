@@ -22,7 +22,7 @@ type Storage = Pick<P, 'theme' | 'debug' | 'strategy' | 'validate' | 'debugDelay
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
-  strategy: D.strategy,
+  strategy: 'eager',
   sample: 'Hello World',
   validate: 'always',
   invalidProps: true,

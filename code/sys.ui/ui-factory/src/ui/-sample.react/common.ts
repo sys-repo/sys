@@ -13,6 +13,5 @@ const name = 'HostAdapter.React:Sample';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-  strategy: 'suspense' satisfies P['strategy'],
 } as const;
 export const D = DEFAULTS;
