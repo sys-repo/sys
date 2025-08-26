@@ -16,7 +16,11 @@ Tiny primitives for declarative UI composition.
 
 
 
-**Note:** Uses standard [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import) (TC39) within the factory loader. As a consequence, code is naturally split across ESM module boundaries by the bundler of choice. These boundaries typically align with the natural namespacing seams of the consuming host.
+**Note:** Factories use standard [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import) (TC39) within the
+factory loader. As a consequence, code is naturally split across ESM module boundaries.
+
+These boundaries typically align with the natural namespacing seams of the consuming `host`,
+forming **context boundaries** within the larger system.
 
 ```ts
 const catalog = await import('@namespace/my-catalog');
