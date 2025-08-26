@@ -1,14 +1,21 @@
 # @sys/ui-factory
-
 Tiny primitives for declarative UI composition.  
 
-----
+---
+
+|   | Stage         | Primitive  |
+|---|---------------|------------|
+| ↓ | Definition    | `factory`  |
+| ↓ | Composition   | `specs`    |
+| ↓ | Instantiation | `plan`     |
+| ↓ | Rendering     | `view`     |
+| ↓ | Placement     | `slots`    |
+
+…resolved and validated across **context boundaries**.
+
 
 ## Core
-`Factory` → [ `Specs` → `Plan` ] → `View` → `Slots`
-
-
-#### Factory
+### Factory
   A factory is `{data}` + a lazy `view` loader.  
   	•	**Data**: the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
   	•	**Loader**: the mechanism that resolves `specs` into live `views` at runtime 
@@ -29,7 +36,7 @@ const catalog = await import('@namespace/my-catalog');
 
 ---
 
-#### Specs → Plan → Validation
+### Specs → Plan → Validation
   A **plan** is the declarative blueprint a factory follows when **instantiating views**.  
   It is made up of **specs** consisting of:  
   - a unique component `id`.
@@ -39,10 +46,10 @@ implementing [**Standard Schema**](https://standardschema.dev).
 
 ---
 
-#### Slots
+### Slots
   Slots are named attachment points a `view` exposes for placing **child** `views` within its `layout`.
 
-#### View
+### View
   A `view` is a renderable unit that is library-agnostic.  
   Use independently imported **host adapters** to bridge to concrete UI runtimes.   
   (default adapter: `JSX → react`).
