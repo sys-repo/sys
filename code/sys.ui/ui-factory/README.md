@@ -16,15 +16,14 @@ Tiny primitives for declarative UI composition.
 
 ## Core
 ### Factory
-  A factory is `{data}` + a lazy `view` loader.  
-  	•	**Data**: the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
-  	•	**Loader**: the mechanism that resolves `specs` into live `views` at runtime 
-      (dynamic ESM import, code-split boundaries).
+A factory is `{data}` + a lazy `view` loader.  
+
+  •	**Data**: the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
+  •	**Loader**: the mechanism that resolves `specs` into live `views` at runtime 
+    (dynamic ESM import, code-split boundaries).
 
 
-
-**Note:** Factories use standard [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import) (TC39) within the
-factory loader. As a consequence, code is naturally split across ESM module boundaries.
+**Note:** Factories use standard [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import) (TC39) within the factory's loader. As a consequence, code is naturally split across ESM module boundaries.
 
 These boundaries typically align with the natural namespacing seams of the consuming `host`,
 forming **context boundaries** within the larger system.
