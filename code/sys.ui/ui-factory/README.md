@@ -8,17 +8,24 @@ Tiny primitives for declarative UI composition.
 `Factory` → [ `Specs` → `Plan` ] → `View` → `Slots`
 
 
-- #### Factory
+#### Factory
   A factory is `{data}` + a lazy `view` loader.  
   	•	**Data**: the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
   	•	**Loader**: the mechanism that resolves `specs` into live `views` at runtime 
       (dynamic ESM import, code-split boundaries).
 
-**Note**: Using [standard dynamic `import()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import) within the Loader in ESM naturally defines bundle boundaries, with code-splitting handled automatically by the bundler as a consequence.
+
+
+**Note:** Uses standard [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import) (TC39) within the factory loader. As a consequence, code is naturally split across ESM module boundaries by the bundler of choice. These boundaries typically align with the natural namespacing seams of the consuming host.
+
+```ts
+const catalog = await import('@namespace/my-catalog');
+```
+
 
 ---
 
-- #### Specs → Plan → Validation
+#### Specs → Plan → Validation
   A **plan** is the declarative blueprint a factory follows when **instantiating views**.  
   It is made up of **specs** consisting of:  
   - a unique component `id`.
@@ -28,10 +35,10 @@ implementing [**Standard Schema**](https://standardschema.dev).
 
 ---
 
-- #### Slots
+#### Slots
   Slots are named attachment points a `view` exposes for placing **child** `views` within its `layout`.
 
-- #### View
+#### View
   A `view` is a renderable unit that is library-agnostic.  
   Use independently imported **host adapters** to bridge to concrete UI runtimes.   
   (default adapter: `JSX → react`).
@@ -40,10 +47,8 @@ implementing [**Standard Schema**](https://standardschema.dev).
 
 ## Usage
 ```ts
-import { Factory } from 'jsr:@sys/ui-factory/core';
-
-// ↓ Host adapter (hook into concrete UI runtime).
-import { HostAdapter } from 'jsr:@sys/ui-factory/react';
+import { Factory }     from 'jsr:@sys/ui-factory/core';
+import { HostAdapter } from 'jsr:@sys/ui-factory/react'; // ← Host adapter (hook into concrete UI runtime).
 ```
 
 
@@ -66,10 +71,9 @@ as real `React` elements:
 
 #### Example: React
 ```ts
-import { Factory } from 'jsr:@sys/ui-factory/core';
-import { renderPlan } from 'jsr:@sys/ui-factory/react';
-
 import type { Plan, ReactRegistration } from 'jsr:@sys/ui-factory/t';
+import { Factory }                      from 'jsr:@sys/ui-factory/core';
+import { renderPlan }                   from 'jsr:@sys/ui-factory/react';
 
 // 1. Define registrations (components).
 const regs = [
@@ -100,7 +104,7 @@ const element = await renderPlan(plan, factory);
 Schemas act as the **single source of truth**.
 
 They are exported as `TSchema` objects, which is **JSR-safe** (avoiding the "no slow types" constraint), 
-allowing consumers `Infer` types locally:
+allowing consumers to `Infer` types locally:
 ```ts
 import { Type } from 'jsr:@sys/schema';
 import type { TSchema } from 'jsr:@sys/schema/t';
@@ -111,7 +115,7 @@ export const HelloSchema: TSchema = Type.Object({
 });
 ```
 
-Consumers derive strong types directly from the schema:
+Consumers may derive strong `types` directly from the imported catalog `schema`:
 ```ts
 import { HelloSchema } from 'jsr:@sys/ui-factory/sample/catalog';
 import type { Infer } from 'jsr:@sys/ui-factory/t';
@@ -124,8 +128,8 @@ type Hello = Infer<typeof HelloSchema>;
 
 
 ## File Layout Guidance
-A catalog is a type-safe bundle of schemas and UI definitions, shipped as a 
-single [`import`](https://tc39.es/ecma262/#sec-import-calls).
+A **catalog** is a type-safe bundle of schemas and UI definitions, shipped as a 
+single [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import).
 
 ```
 catalog/
@@ -143,9 +147,10 @@ catalog/
 <p>&nbsp;<p>
 
 ## Runtime Validation
-Plans may be checked against each view's `schema` ([`JsonSchema`](https://json-schema.org/draft/2020-12/json-schema-core.html)) during development 
-ensuring mismatches are surfaced early. Validation can also be re-run
-in `production` ("always") if need be, for instance when the UI factories are being dynamically re-defined and modified by the host application.
+Plans may be validated against each view's [`JsonSchema`](https://json-schema.org/draft/2020-12/json-schema-core.html) during development or production - ensuring mismatches are surfaced early. 
+
+Validation can also be configured to run "always" (including in production) when required — for example, in scenarios where a live code editor dynamically drives the shape of the UI/Factory Catalog, ensuring factories are continuously validated against user input.
+
 
 ```ts
 const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' });
