@@ -27,7 +27,7 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
     body: css({ minWidth }),
   };
 
-  const animKey = Obj.Path.codec.encode(path);
+  const animKey = Obj.Path.encode(path);
 
   return (
     <div className={css(styles.base, props.style).class}>

@@ -31,7 +31,7 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
       const seg = id ?? k;
 
       const path = [...parentPath, seg] as t.ObjectPath;
-      const key = Obj.Path.codec.encode(path);
+      const key = Obj.Path.encode(path);
 
       const rawLabel =
         meta && Object.prototype.hasOwnProperty.call(meta, 'label')
@@ -91,7 +91,7 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
       if (isNodeList) {
         const seg = k;
         const path = [...parentPath, seg] as t.ObjectPath;
-        const key = Obj.Path.codec.encode(path);
+        const key = Obj.Path.encode(path);
         const children = v.flatMap((m) => {
           const [ck, cv] = Object.entries(m)[0] as [string, t.YamlTreeSourceNode];
           return makeNodes(ck, cv, path);
@@ -112,7 +112,7 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
     if (infer && Is.record(v)) {
       const seg = k;
       const path = [...parentPath, seg] as t.ObjectPath;
-      const key = Obj.Path.codec.encode(path);
+      const key = Obj.Path.encode(path);
       const children = Object.entries(v).flatMap(([ck, cv]) => makeNodes(ck, cv, path));
       return [{ path, key, label: k, children }] as const;
     }
@@ -121,7 +121,7 @@ export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
     {
       const seg = k;
       const path = [...parentPath, seg] as t.ObjectPath;
-      const key = Obj.Path.codec.encode(path);
+      const key = Obj.Path.encode(path);
       return [{ path, key, label: k, value: v }] as const;
     }
   }
