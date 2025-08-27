@@ -48,7 +48,7 @@ groups:
     - import: npm:@automerge/prosemirror@0.1.0
 
   crypto:
-    - import: jsr:@noble/hashes@2.0.0
+    - import: npm:@noble/hashes@2.0.0
       subpaths: [sha2.js, legacy.js]
 
   schema:

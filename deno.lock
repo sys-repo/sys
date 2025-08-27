@@ -10,7 +10,6 @@
     "jsr:@deno/cache-dir@0.13.2": "0.13.2",
     "jsr:@deno/emit@*": "0.46.0",
     "jsr:@deno/graph@~0.73.1": "0.73.1",
-    "jsr:@noble/hashes@2.0.0": "2.0.0",
     "jsr:@std/assert@0.223": "0.223.0",
     "jsr:@std/assert@^1.0.13": "1.0.14",
     "jsr:@std/assert@~1.0.6": "1.0.14",
@@ -55,23 +54,25 @@
     "npm:@automerge/automerge-repo@2.2.0": "2.2.0",
     "npm:@automerge/automerge@3.1.1": "3.1.1",
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
-    "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1",
+    "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:@farcaster/frame-sdk@0.1.9": "0.1.9_zod@3.25.76",
     "npm:@mastra/core@0.15.2": "0.15.2_zod@3.25.76_ai@4.3.19__react@19.1.1__zod@3.25.76_@opentelemetry+api@1.9.0_@opentelemetry+core@2.0.1__@opentelemetry+api@1.9.0_react@19.1.1_@sinclair+typebox@0.34.40_hono@4.9.4",
     "npm:@mastra/libsql@0.13.7": "0.13.7_@mastra+core@0.15.2__zod@3.25.76__ai@4.3.19___react@19.1.1___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.1.1__@sinclair+typebox@0.34.40__hono@4.9.4_zod@3.25.76_react@19.1.1_@sinclair+typebox@0.34.40",
     "npm:@mastra/loggers@0.10.9": "0.10.9_@mastra+core@0.15.2__zod@3.25.76__ai@4.3.19___react@19.1.1___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.1.1__@sinclair+typebox@0.34.40__hono@4.9.4_zod@3.25.76_react@19.1.1_@sinclair+typebox@0.34.40",
     "npm:@mastra/memory@0.14.2": "0.14.2_@mastra+core@0.15.2__zod@3.25.76__ai@4.3.19___react@19.1.1___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.1.1__@sinclair+typebox@0.34.40__hono@4.9.4_zod@3.25.76_ai@4.3.19__react@19.1.1__zod@3.25.76_react@19.1.1_pg@8.16.3_@sinclair+typebox@0.34.40",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.52.2_react@19.1.1_react-dom@19.1.1__react@19.1.1",
+    "npm:@noble/hashes@2.0.0": "2.0.0",
     "npm:@preact/signals-core@1.12.1": "1.12.1",
     "npm:@preact/signals-react@3.3.0": "3.3.0_react@19.1.1",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@sinclair/typebox@0.34.40": "0.34.40",
     "npm:@svgdotjs/svg.js@3.2.4": "3.2.4",
+    "npm:@types/node@*": "24.2.0",
     "npm:@types/ramda@0.31.0": "0.31.0",
     "npm:@types/react-dom@19.1.8": "19.1.8_@types+react@19.1.11",
     "npm:@types/react@19.1.11": "19.1.11",
     "npm:@types/ws@8.18.1": "8.18.1",
-    "npm:@vitejs/plugin-react-swc@4.0.1": "4.0.1_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1",
+    "npm:@vitejs/plugin-react-swc@4.0.1": "4.0.1_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:ai@5.0.26": "5.0.26_zod@3.25.76",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.0.1": "6.0.1",
@@ -112,8 +113,9 @@
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.1.1": "10.1.1",
     "npm:ua-parser-js@2.0.4": "2.0.4",
-    "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1",
-    "npm:vite@7.1.3": "7.1.3_picomatch@4.0.3_yaml@2.8.1",
+    "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
+    "npm:vite@*": "7.1.3_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
+    "npm:vite@7.1.3": "7.1.3_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:ws@8.18.3": "8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10",
     "npm:yaml@2.8.1": "2.8.1",
     "npm:zod@3.25.76": "3.25.76"
@@ -178,9 +180,6 @@
     },
     "@deno/graph@0.73.1": {
       "integrity": "cd69639d2709d479037d5ce191a422eabe8d71bb68b0098344f6b07411c84d41"
-    },
-    "@noble/hashes@2.0.0": {
-      "integrity": "203b1a1d3a3de1e964e482fbe8196963e12d5dc63f280b42eae2fb74131001c8"
     },
     "@std/assert@0.223.0": {
       "integrity": "eb8d6d879d76e1cc431205bd346ed4d88dc051c6366365b1af47034b0670be24"
@@ -520,6 +519,12 @@
       "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
       "dependencies": [
         "vite@7.1.3_picomatch@4.0.3_yaml@2.8.1"
+      ]
+    },
+    "@deno/vite-plugin@1.0.5_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+      "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
+      "dependencies": [
+        "vite@7.1.3_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
       ]
     },
     "@esbuild/aix-ppc64@0.25.9": {
@@ -915,11 +920,14 @@
     "@noble/curves@1.9.7": {
       "integrity": "sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==",
       "dependencies": [
-        "@noble/hashes"
+        "@noble/hashes@1.8.0"
       ]
     },
     "@noble/hashes@1.8.0": {
       "integrity": "sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A=="
+    },
+    "@noble/hashes@2.0.0": {
+      "integrity": "sha512-h8VUBlE8R42+XIDO229cgisD287im3kdY6nbNZJFjc6ZvKIXPYXe6Vc/t+kyjFdMFyt5JpapzTsEg8n63w5/lw=="
     },
     "@opentelemetry/api-logs@0.203.0": {
       "integrity": "sha512-9B9RU0H7Ya1Dx/Rkyc4stuBZSGVQF27WigitInx2QQoj6KUpEFYPKoWjdFTunJYxmXmh17HeBvbMa1EhGyPmqQ==",
@@ -1844,14 +1852,14 @@
       "integrity": "sha512-E4FFX/N3f4B80AKWp5dP6ow+flD1LQZo/w8UnLGYZO674jS6YnYeepycOOksv+vLPSpgN35wgKgy+ybfTb2SMw==",
       "dependencies": [
         "@noble/curves",
-        "@noble/hashes",
+        "@noble/hashes@1.8.0",
         "@scure/base"
       ]
     },
     "@scure/bip39@1.6.0": {
       "integrity": "sha512-+lF0BbLiJNwVlev4eKelw1WWLaiKXw7sSl8T6FvBlWkdX+94aGJ4o8XjUdlyhTCjd8c+B3KT3JfS8P0bLRNU6A==",
       "dependencies": [
-        "@noble/hashes",
+        "@noble/hashes@1.8.0",
         "@scure/base"
       ]
     },
@@ -1917,7 +1925,7 @@
       "dependencies": [
         "@babel/runtime",
         "@noble/curves",
-        "@noble/hashes",
+        "@noble/hashes@1.8.0",
         "@solana/buffer-layout",
         "@solana/codecs-numbers",
         "agentkeepalive",
@@ -2223,6 +2231,14 @@
         "vite@7.1.3_picomatch@4.0.3_yaml@2.8.1"
       ]
     },
+    "@vitejs/plugin-react-swc@4.0.1_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+      "integrity": "sha512-NQhPjysi5duItyrMd5JWZFf2vNOuSMyw+EoZyTBDzk+DkfYD8WNrsUs09sELV2cr1P15nufsN25hsUBt4CKF9Q==",
+      "dependencies": [
+        "@rolldown/pluginutils",
+        "@swc/core",
+        "vite@7.1.3_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
+      ]
+    },
     "abitype@1.0.9_zod@3.25.76": {
       "integrity": "sha512-oN0S++TQmlwWuB+rkA6aiEefLv3SP+2l/tC5mux/TLj6qdA6rF15Vbpex4fHovLsMkwLwTIRj8/Q8vXCS3GfOg==",
       "dependencies": [
@@ -2411,7 +2427,7 @@
     "bs58check@3.0.1": {
       "integrity": "sha512-hjuuJvoWEybo7Hn/0xOrczQKKEKD63WguEjlhLExYs2wUBcebDC1jDNK17eEAD2lYfw82d5ASC1d7K3SWszjaQ==",
       "dependencies": [
-        "@noble/hashes",
+        "@noble/hashes@1.8.0",
         "bs58@5.0.0"
       ]
     },
@@ -3405,7 +3421,7 @@
       "dependencies": [
         "@adraffy/ens-normalize",
         "@noble/curves",
-        "@noble/hashes",
+        "@noble/hashes@1.8.0",
         "@scure/bip32",
         "@scure/bip39",
         "abitype",
@@ -4240,6 +4256,12 @@
         "vite@7.1.3_picomatch@4.0.3_yaml@2.8.1"
       ]
     },
+    "vite-plugin-wasm@3.5.0_vite@7.1.3__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+      "integrity": "sha512-X5VWgCnqiQEGb+omhlBVsvTfxikKtoOgAzQ95+BZ8gQ+VfMHIjSHr0wyvXFQCa0eKQ0fKyaL0kWcEnYqBac4lQ==",
+      "dependencies": [
+        "vite@7.1.3_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
+      ]
+    },
     "vite@7.1.3_picomatch@4.0.3": {
       "integrity": "sha512-OOUi5zjkDxYrKhTV3V7iKsoS37VUM7v40+HuwEmcrsf11Cdx9y3DIr2Px6liIcZFwt3XSRpQvFpL3WVy7ApkGw==",
       "dependencies": [
@@ -4270,6 +4292,27 @@
         "fsevents"
       ],
       "optionalPeers": [
+        "yaml"
+      ],
+      "bin": true
+    },
+    "vite@7.1.3_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+      "integrity": "sha512-OOUi5zjkDxYrKhTV3V7iKsoS37VUM7v40+HuwEmcrsf11Cdx9y3DIr2Px6liIcZFwt3XSRpQvFpL3WVy7ApkGw==",
+      "dependencies": [
+        "@types/node@24.2.0",
+        "esbuild",
+        "fdir",
+        "picomatch",
+        "postcss",
+        "rollup",
+        "tinyglobby",
+        "yaml"
+      ],
+      "optionalDependencies": [
+        "fsevents"
+      ],
+      "optionalPeers": [
+        "@types/node@24.2.0",
         "yaml"
       ],
       "bin": true
@@ -4406,7 +4449,6 @@
       "jsr:@cliffy/keypress@1.0.0-rc.8",
       "jsr:@cliffy/prompt@1.0.0-rc.8",
       "jsr:@cliffy/table@1.0.0-rc.8",
-      "jsr:@noble/hashes@2.0.0",
       "jsr:@std/async@1.0.14",
       "jsr:@std/datetime@0.225.5",
       "jsr:@std/dotenv@0.225.5",
@@ -4430,6 +4472,7 @@
       "npm:@mastra/loggers@0.10.9",
       "npm:@mastra/memory@0.14.2",
       "npm:@monaco-editor/react@4.7.0",
+      "npm:@noble/hashes@2.0.0",
       "npm:@preact/signals-core@1.12.1",
       "npm:@preact/signals-react@3.3.0",
       "npm:@sinclair/typebox-codegen@0.11.1",
