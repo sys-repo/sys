@@ -1,9 +1,9 @@
 export const SAMPLES = [
   'Hello World',
   'Slots',
-  'Factory Error',
   'State',
   'Composed Recursive',
+  'Factory Error',
   'Schema Validation',
 ] as const;
 

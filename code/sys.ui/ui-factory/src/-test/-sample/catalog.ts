@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
 
 import { Type } from '@sys/schema';
-import type { TObject, TOptional, TString } from '@sys/schema/t'; // ← precise TypeBox types
+import type { TObject, TOptional, TString } from '@sys/schema/t';
 
 /** Domain unions (kept tiny to avoid “slow types”). */
 export type Id = 'Hello:view' | 'Panel:view';
@@ -18,7 +18,8 @@ export const PanelSchema: TObject<{ title: TString; body: TOptional<TString> }> 
 });
 
 /** Strong TS types can be inferred on the consumer side:
-    type Hello = Infer<typeof HelloSchema>; type Panel = Infer<typeof PanelSchema>;
+    type Hello = Infer<typeof HelloSchema>; 
+    type Panel = Infer<typeof PanelSchema>;
     (No need to export type aliases unless you want that convenience.)
 */
 
