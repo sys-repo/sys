@@ -49,15 +49,17 @@ export function createDebugSignals() {
     });
   });
 
-  Signal.effect(() => {
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    updatePlan();
+  }
+
+  Signal.effect(updatePlan);
+  function updatePlan() {
     const theme = p.theme.value;
     const debug = p.debug.value;
     const name = p.name.value;
     p.plan.value = makePlan({ theme, debug, name });
-  });
-
-  function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
   }
 
   return api;
@@ -90,7 +92,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{'Sample Template:'}</div>
+        <div>{'Catalog'}</div>
+      </div>
 
       <Button
         block
