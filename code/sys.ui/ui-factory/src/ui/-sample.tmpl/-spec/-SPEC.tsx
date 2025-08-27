@@ -2,23 +2,17 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
-import { Factory, makePlan, regs, useFactory, ValidationErrors } from './-u.ts';
+import { Factory, regs, useFactory, ValidationErrors } from './-u.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
+  const factory = Factory.make(regs);
   const debug = createDebugSignals();
   const p = debug.props;
 
-  const factory = Factory.make(regs);
-
-  const plan = makePlan({ theme: 'Dark', debug: true });
-
   function Root() {
-    const { theme, debug } = Signal.toObject(p);
-
+    const plan = p.plan.value;
     const catalog = useFactory(factory, plan, { strategy: 'eager', validate: false });
     const { issues, element } = catalog;
-
-
     return catalog.ok ? element : <ValidationErrors errors={issues.validation} />;
   }
 

@@ -10,8 +10,6 @@ export type HelloProps = t.Infer<typeof HelloSchema>;
 export const Hello: React.FC<HelloProps> = (props) => {
   const { debug = false } = props;
 
-  console.log('props', props);
-
   /**
    * Render:
    */
@@ -21,7 +19,7 @@ export const Hello: React.FC<HelloProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 15,
+      padding: 20,
       fontSize: 30,
       display: 'grid',
     }),
@@ -29,7 +27,7 @@ export const Hello: React.FC<HelloProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`👋 Hello, ${props.name ?? '<unnamed>'}!`}</div>
+      <div>{`👋 Hello, ${props.name ?? 'Unnamed'}!`}</div>
     </div>
   );
 };

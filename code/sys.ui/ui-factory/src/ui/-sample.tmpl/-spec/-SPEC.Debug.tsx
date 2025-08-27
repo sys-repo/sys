@@ -1,13 +1,14 @@
 import React from 'react';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
-import { HelloSchema } from './-u.ts';
+import { HelloSchema, makePlan } from './-u.ts';
 type P = t.Infer<typeof HelloSchema>;
 
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'name'>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  name: 'World',
 };
 
 /**
@@ -28,6 +29,8 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    name: s(snap.name),
+    plan: s<t.Plan>(),
   };
   const p = props;
   const api = {
@@ -42,7 +45,15 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.name = p.name.value;
     });
+  });
+
+  Signal.effect(() => {
+    const theme = p.theme.value;
+    const debug = p.debug.value;
+    const name = p.name.value;
+    p.plan.value = makePlan({ theme, debug, name });
   });
 
   function reset() {
@@ -85,6 +96,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `name: ${p.name.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.name, ['World', 'Foo', undefined])}
       />
 
       <hr />

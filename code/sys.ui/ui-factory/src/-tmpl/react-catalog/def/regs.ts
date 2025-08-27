@@ -8,11 +8,11 @@ type Regs = readonly t.ReactRegistration<t.CatalogId, t.CatalogSlot>[];
  * - explicit TypeBox schema on spec
  * - loader returns a React module shape (default export)
  */
-export const regs = [
+export const regs: Regs = [
   {
     spec: { id: 'Hello:view', slots: [] as const, schema: HelloSchema },
     load: async () => ({
       default: (await import('../ui/Hello/ui.tsx')).Hello,
     }),
   },
-] satisfies Regs;
+];
