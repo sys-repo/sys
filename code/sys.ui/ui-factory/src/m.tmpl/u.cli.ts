@@ -1,19 +1,22 @@
-import { type t, c, Cli, Fs, pkg } from './common.ts';
+import { type t, c, Cli, Fs, pkg, Str } from './common.ts';
 
 /**
  * Run in CLI mode.
  */
-export const cli: t.CatalogTmplLib['cli'] = async (_args = {}) => {
+export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
+  const { dryRun = false } = args;
   const { Tmpl } = await import('./m.Tmpl.ts');
 
   // Resolve current working directory for a terminal context.
-  const cwd = Fs.cwd('terminal'); // string dir
+  const cwd = Fs.cwd('terminal');
+  console.info(Str.SPACE);
+  console.info(c.gray(`./${Fs.trimCwd(cwd)}`));
 
   // 1) Ask for the target folder name.
   const dirname = await Cli.Prompt.Input.prompt({
     message: 'Catalog folder name',
     default: 'catalog',
-    // keep it simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces)
+    // Keep it simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces).
     validate: (v: string) =>
       /^[\w.\-\/]+$/.test(v) || 'Use letters, numbers, ".", "-", "_" (and optional "/")',
   });
@@ -22,7 +25,7 @@ export const cli: t.CatalogTmplLib['cli'] = async (_args = {}) => {
   const target = `${cwd}/${dirname}` as t.StringDir;
 
   // Preview-first? Flip to { dryRun: true } if you prefer an interactive confirm step.
-  const res = await Tmpl.write(target, { dryRun: false });
+  const res = await Tmpl.write(target, { dryRun });
 
   // 3) Print a concise, cwd-trimmed table of operations.
   const table = Tmpl.table(res.ops, { trimPathLeft: cwd as t.StringDir });

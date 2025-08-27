@@ -1,6 +1,7 @@
 import { type t } from '../common.ts';
 
-type F = t.Factory<t.CatalogId, t.ReactRegistration<t.CatalogId, t.CatalogSlot>>;
+type R = t.ReactRegistration<t.CatalogId, t.CatalogSlot>;
+type F = t.Factory<t.CatalogId, R>;
 
 /**
  * Build a canonical plan. Minimal caller props; schema stays strong.
@@ -11,7 +12,7 @@ export function makePlan(opts: Partial<t.HelloProps> = {}): t.Plan<F> {
     root: {
       component: 'Hello:view',
       props,
-      // slots: { } // add named slots later if/when you declare them
+      // slots: { } // ← 🐷 add named slots later if/when you declare them.
     },
   };
 }
