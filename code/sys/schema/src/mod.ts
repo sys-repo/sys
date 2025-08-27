@@ -12,4 +12,4 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export { Schema, Type, Value, type Static } from './m.Schema/mod.ts';
+export { Schema, Type, Value } from './m.Schema/mod.ts';

@@ -1,12 +1,8 @@
-import { Type, type Static } from '@sinclair/typebox';
-import { Value } from '@sinclair/typebox/value';
-
-import { type t } from './common.ts';
+import { type t, Type, Value } from './common.ts';
 import { asStandardSchema, isStandardSchema, toStandardSchema } from './u.StdSchema.ts';
 import { tryValidate } from './u.try.ts';
 
 export { Type, Value };
-export type { Static };
 
 export const Schema: t.SchemaLib = {
   try: tryValidate,
