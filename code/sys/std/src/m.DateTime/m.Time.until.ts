@@ -29,7 +29,7 @@ export function until(until$: t.UntilObservable) {
     },
 
     /**
-     * Lifecycle
+     * Lifecycle:
      */
     dispose: life.dispose,
     get dispose$() {
@@ -38,7 +38,7 @@ export function until(until$: t.UntilObservable) {
     get disposed() {
       return life.disposed;
     },
-  } as const;
+  };
 
   return api;
 }
