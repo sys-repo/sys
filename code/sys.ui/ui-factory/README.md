@@ -59,6 +59,14 @@ import { HostAdapter } from 'jsr:@sys/ui-factory/react'; // ← Host adapter (ho
 
 <p>&nbsp;<p>
 
+## Catalog
+A **catalog** is the container for a UI surface — `{ schemas, specs, views }` published as a single import.
+
+-	`/core` consumes it via `Factory` (plan + validation).
+-	Host adapters render it (e.g., React).
+
+<p>&nbsp;<p>
+
 ## Schema → Type Inference
 `specs` embed **Schemas**, which serve as the **single source of truth** for a `Catalog`’s public API surface.  
 They are exported as `TSchema` objects (which are **JSR-safe**, avoiding the “no slow types” constraint),  

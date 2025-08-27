@@ -10,7 +10,7 @@ describe('README: React Sample', () => {
      */
     it('### Host Adapter: React', async () => {
       const { Factory } = await import('@sys/ui-factory/core');
-      const { renderPlan } = await import('@sys/ui-factory/react');
+      const { renderPlan } = await import('@sys/ui-factory/adapter/react');
 
       // 1. Define registrations (components).
       const regs = [
