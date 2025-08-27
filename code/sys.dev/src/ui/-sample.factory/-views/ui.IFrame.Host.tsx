@@ -85,6 +85,14 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
             <Icons.Padlock size={10} style={{ position: 'relative', top: -1 }} />
           </span>
         )}
+        <Button
+          label={'(open as tab)'}
+          theme={theme.name}
+          onClick={() => {
+            const w = window.open(url, '_blank', 'noopener,noreferrer');
+            if (w) w.opener = null;
+          }}
+        />
       </div>
     </div>
   );
