@@ -17,14 +17,17 @@ export type FileMapLib = {
   bundle: t.FileMapBundler;
 
   /** Save a file-bundle to a target location. */
-  write(target: t.StringDir, bundle: t.FileMap): Promise<FileMapSaveResponse>;
+  write(target: t.StringDir, bundle: t.FileMap): Promise<t.FileMapSaveResult>;
+
+  /** Parse a raw JSON value into a FileMap; returns { fileMap } on success or { error } if invalid. */
+  fromJson(json: unknown): t.FileMapFromJsonResult;
 };
 
 /** Resposne from `FileMap.write` method. */
-export type FileMapSaveResponse = {
-  readonly target: t.StringDir;
-  readonly error?: t.StdError;
-};
+export type FileMapSaveResult = { readonly target: t.StringDir; readonly error?: t.StdError };
+
+/** Outcome of parsing a raw JSON value into the `FileMap.fromJson` method. */
+export type FileMapFromJsonResult = { readonly fileMap?: t.FileMap; readonly error?: t.StdError };
 
 /**
  * Represents a bundled set of paths/files as a structured object.

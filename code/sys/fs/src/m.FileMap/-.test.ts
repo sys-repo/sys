@@ -88,4 +88,58 @@ describe('FileMap', () => {
       });
     });
   });
+
+  describe('fromJson', () => {
+    it('ok: minimal valid map', () => {
+      const json = { 'a.txt': 'data:text/plain;base64,QQ==' };
+      const res = FileMap.fromJson(json);
+      expect(res.error).to.eql(undefined);
+      expect(res.fileMap).to.eql(json);
+    });
+
+    it('ok: multiple entries', () => {
+      const json = {
+        'src/mod.ts': 'data:application/typescript;base64,LyoqKiov',
+        '.gitignore': 'data:text/plain;base64,LmRpc3QK',
+      };
+      const res = FileMap.fromJson(json);
+      expect(res.error).to.eql(undefined);
+      expect(res.fileMap).to.eql(json);
+      // sanity: values are strings (not decoded here).
+      expect(typeof res.fileMap?.['src/mod.ts']).to.eql('string');
+    });
+
+    it('error: non-object (null)', () => {
+      const res = FileMap.fromJson(null as unknown);
+      expect(res.fileMap).to.eql(undefined);
+      expect(res.error?.message).to.include('expected an object');
+    });
+
+    it('error: non-object (array)', () => {
+      const res = FileMap.fromJson(['x'] as unknown);
+      expect(res.fileMap).to.eql(undefined);
+      expect(res.error?.message).to.include('expected an object');
+    });
+
+    it('error: non-object (primitive)', () => {
+      const res = FileMap.fromJson('nope' as unknown);
+      expect(res.fileMap).to.eql(undefined);
+      expect(res.error?.message).to.include('expected an object');
+    });
+
+    it('error: empty key', () => {
+      const json = { '': 'data:text/plain;base64,QQ==' } as unknown;
+      const res = FileMap.fromJson(json);
+      expect(res.fileMap).to.eql(undefined);
+      expect(res.error?.message).to.include('keys must be non-empty strings');
+    });
+
+    it('error: value is not a string', () => {
+      const json = { 'a.txt': 123 } as unknown;
+      const res = FileMap.fromJson(json);
+      expect(res.fileMap).to.eql(undefined);
+      expect(res.error?.message).to.include('must be a string');
+      expect(res.error?.message).to.include('a.txt');
+    });
+  });
 });
