@@ -13,6 +13,6 @@ export const PATHS = {
   tmpl: {
     tmp: '.tmp/-tmpl/',
     source: 'src/-tmpl/',
-    json: 'src/m.Vite.Tmpl/-bundle.json',
+    json: 'src/m.tmpl/-bundle.json',
   },
 } as const;
