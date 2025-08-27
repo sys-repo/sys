@@ -1,6 +1,6 @@
 import { Schema } from '@sys/ui-factory/schema';
 import type { Infer } from '@sys/ui-factory/t';
-import { describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
 
 describe('public samples catalog → inference', () => {
   it('derives strong types without slow types', async () => {
