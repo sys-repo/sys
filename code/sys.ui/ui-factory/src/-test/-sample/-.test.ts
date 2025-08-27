@@ -1,14 +1,14 @@
 import { Schema } from '@sys/ui-factory/schema';
-import type { Infer } from '@sys/ui-factory/t';
-import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import type { UiFactory } from '@sys/ui-factory/t';
+import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 
 describe('public samples catalog → inference', () => {
   it('derives strong types without slow types', async () => {
     const Samples = await import('@sys/ui-factory/sample/catalog');
 
     // Inference directly from exported schema values (works because they're precise TypeBox types):
-    type Hello = Infer<typeof Samples.HelloSchema>;
-    type Panel = Infer<typeof Samples.PanelSchema>;
+    type Hello = UiFactory.Infer<typeof Samples.HelloSchema>;
+    type Panel = UiFactory.Infer<typeof Samples.PanelSchema>;
 
     // compile-time checks
     expectTypeOf<Hello>({ name: 'World' }).toEqualTypeOf<{ name: string }>();
