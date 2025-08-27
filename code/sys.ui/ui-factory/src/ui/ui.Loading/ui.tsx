@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, Spinners } from './common.ts';
 
 export const Loading: React.FC<t.LoadingProps> = (props) => {
   const { debug = false } = props;
@@ -10,15 +10,18 @@ export const Loading: React.FC<t.LoadingProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 10,
+      userSelect: 'none',
+      display: 'grid',
+      placeItems: 'center',
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 ${D.displayName}`}</div>
+      <Spinners.Bar theme={theme.name} />
     </div>
   );
 };

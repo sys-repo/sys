@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { type t, Color, css, useFactory, ValidationErrors } from './common.ts';
+import { Loading } from '../ui.Loading/mod.ts';
 import { RuntimeError } from './ui.Error.Runtime.tsx';
-import { Loading } from './ui.Loading.tsx';
+
+import { type t, Color, css, useFactory, ValidationErrors } from './common.ts';
 
 /**
  * Component:
