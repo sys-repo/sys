@@ -2,16 +2,18 @@ import { Cli } from '@sys/cli';
 import { Fs } from '@sys/fs';
 import { selectAndCopy } from './Task.-copy.u.ts';
 
-type CopyMode = 'types' | 'files';
+type CopyMode = 'types' | 'files:select' | 'files:all';
 
 /**
  * Sub-command: Copy Files ("src" code).
  */
-export async function copyFiles() {
+export async function copyFiles(options: { initial?: 'none' | 'all' } = {}) {
+  const { initial = 'all' } = options;
   const dir = Fs.cwd('terminal');
   const paths = (await Fs.glob(dir).find('**', { includeDirs: false })).map((file) => file.path);
 
   const defaultChecked = (path: string) => {
+    return initial === 'all';
     return false;
     if (path.includes('.test.')) return false;
     if (path.includes('-SPEC.')) return false;
@@ -36,7 +38,8 @@ export async function copyFiles() {
 /**
  * Sub-command: Copy Types
  */
-export async function copyTypes() {
+export async function copyTypes(options: { initial?: 'none' | 'all' } = {}) {
+  const { initial = 'all' } = options;
   const dir = Fs.cwd('terminal');
 
   /**
@@ -55,7 +58,9 @@ export async function copyTypes() {
   const allPaths = (await Fs.glob(dir).find('**', { includeDirs: false })).map((f) => f.path);
   const paths = allPaths.filter(isTypesFile);
 
-  const defaultChecked = (_path: string) => true;
+  const defaultChecked = (_path: string) => {
+    return initial === 'all';
+  };
   await selectAndCopy(paths, {
     dir,
     message: 'Select type files to copy:\n',
@@ -73,12 +78,14 @@ export async function run() {
     message: 'Select copy mode:\n',
     options: [
       { name: 'Copy Types', value: 'types' as const },
-      { name: 'Copy Files (src)', value: 'files' as const },
+      { name: 'Copy Files (select)', value: 'files:select' as const },
+      { name: 'Copy Files (all)', value: 'files:all' as const },
     ],
   });
 
-  if (mode === 'files') await copyFiles();
-  else if (mode === 'types') await copyTypes();
+  if (mode === 'files:select') await copyFiles({ initial: 'none' });
+  else if (mode === 'files:all') await copyFiles({ initial: 'all' });
+  else if (mode === 'types') await copyTypes({ initial: 'all' });
 }
 
 // Execute by default when run as a script.
