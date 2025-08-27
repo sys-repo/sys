@@ -1,6 +1,6 @@
 /**
  * @module
- * Hello component entrypoint.
+ * Hello component entry-point.
  */
-export { Hello } from './ui.tsx';
 export { HelloSchema } from './schema.ts';
+export { Hello } from './ui.tsx';
