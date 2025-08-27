@@ -7,10 +7,10 @@ export type * from './t.StdSchema.ts';
 /**
  * "Standard Schema" (Typescript/JSONSchema) tools:
  */
-export type SchemaLib = Readonly<{
+export type SchemaLib = {
   /** Type builder with static type inference. */
-  Type: typeof Type;
-  Value: typeof Value;
+  readonly Type: typeof Type;
+  readonly Value: typeof Value;
 
   /**
    * @example
@@ -43,7 +43,7 @@ export type SchemaLib = Readonly<{
    * (Idempotent — returns the same object if already wrapped.)
    */
   asStandardSchema(schema: unknown, vendor?: string): t.StandardSchemaV1;
-}>;
+};
 
 /** Response returned from the `Schema.try` method. */
 export type SchemaTryResult<T> = { ok: true; value: T } | { ok: false; errors: t.ValueError[] };

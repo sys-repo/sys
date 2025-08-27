@@ -2,24 +2,13 @@
  * Module types.
  * @module
  */
-export type * from './m.Schema/t.ts';
+import type { t } from './common.ts';
 
 /**
- * Export from upstream library ("Typebox"):
+ * Library:
  */
-export type {
-  Static,
-  TArray,
-  TBoolean,
-  TLiteral,
-  TNull,
-  TNumber,
-  TObject,
-  TOptional,
-  TRecursive,
-  TSchema,
-  TString,
-  TUnion,
-  TUnknown,
-} from '@sinclair/typebox';
-export type { ValueError } from '@sinclair/typebox/errors';
+export type * from './m.Schema/t.ts';
+export type * from './t.typebox.ts';
+
+/** Type-level inference helper. */
+export type Infer<S extends t.TSchema> = t.Static<S>;
