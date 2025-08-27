@@ -1,7 +1,7 @@
 import { type t, TmplEngine } from './common.ts';
 import { cli } from './u.cli.ts';
 
-const SRC_DIR = new URL('../-tmpl/react-catalog/', import.meta.url).pathname as t.StringDir;
+const SRC_DIR = new URL('../-tmpl/catalog-react/', import.meta.url).pathname as t.StringDir;
 
 export const Tmpl: t.CatalogTmplLib = {
   cli,

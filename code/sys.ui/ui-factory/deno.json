@@ -22,6 +22,6 @@
     "./schema": "./src/m.schema/mod.ts",
     "./tmpl": "./src/m.tmpl/mod.ts",
     "./sample/catalog": "./src/-test/-sample/catalog.ts",
-    "./sample/tmpl": "./src/-tmpl/react-catalog/mod.ts"
+    "./sample/tmpl": "./src/-tmpl/catalog-react/mod.ts"
   }
 }
