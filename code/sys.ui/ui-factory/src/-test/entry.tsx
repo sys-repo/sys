@@ -41,7 +41,8 @@ export async function main() {
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
       hr: (e) => {
-        if (e.next?.includes('HostAdapter ← React')) return true;
+        if (e.next?.endsWith('.Loading')) return true;
+        if (e.next?.endsWith(': Catalog')) return true;
       },
     });
 
