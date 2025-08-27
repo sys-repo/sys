@@ -21,7 +21,7 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Loading debug={v.debug} theme={v.theme} />;
+        return <Loading debug={v.debug} theme={v.theme} fadeInDuration={v.fadeInDuration} />;
       });
   });
 

@@ -41,7 +41,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {loading && <Loading theme={theme.name} style={styles.loading} />}
+      {loading && <Loading fadeInDuration={2000} theme={theme.name} style={styles.loading} />}
 
       {/* Runtime error (rendered prominently): */}
       {issues.runtime && <RuntimeError message={issues.runtime.message} theme={theme.name} />}

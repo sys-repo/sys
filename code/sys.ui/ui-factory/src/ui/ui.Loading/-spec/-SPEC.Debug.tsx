@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.LoadingProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'fadeInDuration'>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
@@ -26,6 +26,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    fadeInDuration: s(snap.fadeInDuration),
   };
   const p = props;
   const api = {
@@ -40,6 +41,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.fadeInDuration = p.fadeInDuration.value;
     });
   });
 
@@ -83,6 +85,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => {
+          const v = p.fadeInDuration.value;
+          return `fade-in duration: ${v == null ? `<undefined>` : `${v}ms`}`;
+        }}
+        onClick={() => Signal.cycle(p.fadeInDuration, [1000, 2000, 3000, undefined])}
       />
 
       <hr />
