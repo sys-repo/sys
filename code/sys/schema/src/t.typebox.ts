@@ -2,6 +2,7 @@
  * Export from upstream library ("Typebox"):
  */
 export type { ValueError } from '@sinclair/typebox/errors';
+
 export type {
   Static,
   TArray,

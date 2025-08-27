@@ -1,5 +1,4 @@
-import { Factory } from '@sys/ui-factory/core';
-import type { Plan } from '@sys/ui-factory/t';
+import { type t, Factory } from '../common.ts';
 
 /**
  * Minimal registration set: one React component.
@@ -15,6 +14,6 @@ const regs = [
 export const factory = Factory.make(regs);
 
 /** A tiny canonical plan using the registration above. */
-export const plan: Plan<typeof factory> = {
+export const plan: t.Plan<typeof factory> = {
   root: { component: 'Hello:view', props: { name: 'World' } },
 };

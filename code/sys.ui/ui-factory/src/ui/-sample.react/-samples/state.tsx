@@ -1,8 +1,5 @@
-import { Factory } from '@sys/ui-factory/core';
-import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
-
 import React from 'react';
-import { type t, Color, css } from '../common.ts';
+import { type t, Color, css, Factory } from '../common.ts';
 
 /**
  * Domain unions.
@@ -54,7 +51,7 @@ const regs = [
     spec: { id: 'Counter:view', slots: [] as const },
     load: async () => ({ default: Counter }),
   },
-] satisfies readonly ReactRegistration<Id, Slot>[];
+] satisfies readonly t.ReactRegistration<Id, Slot>[];
 
 /** Factory. */
 export const factory = Factory.make(regs);
@@ -62,7 +59,7 @@ export const factory = Factory.make(regs);
 /**
  * Construct plan with host initiated state.
  */
-export function makePlan(state: SampleState, theme?: t.CommonTheme): Plan<typeof factory> {
+export function makePlan(state: SampleState, theme?: t.CommonTheme): t.Plan<typeof factory> {
   return {
     root: {
       component: 'Counter:view',

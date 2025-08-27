@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
-import type { Infer, Plan, ReactRegistration } from '@sys/ui-factory/t';
-import { describe, expect, expectTypeOf, it } from './mod.ts';
+import { type t, describe, expect, expectTypeOf, it } from './mod.ts';
 
 describe('README: React Sample', () => {
   describe('### Host Adapter: React', () => {
@@ -21,13 +20,13 @@ describe('README: React Sample', () => {
             default: (props: { name: string }) => <h1>Hello, {props.name}!</h1>,
           }),
         },
-      ] satisfies readonly ReactRegistration<'Hello:view'>[];
+      ] satisfies readonly t.ReactRegistration<'Hello:view'>[];
 
       // 2. Build a factory.
       const factory = Factory.make(regs);
 
       // 3. Author a simple plan.
-      const plan: Plan<typeof factory> = {
+      const plan: t.Plan<typeof factory> = {
         root: { component: 'Hello:view', props: { name: 'World' } },
       };
 
@@ -47,11 +46,11 @@ describe('README: React Sample', () => {
   describe('## Type Inference', () => {
     it('Consumers derive strong types directly from the schema:', async () => {
       const { HelloSchema } = await import('@sys/ui-factory/sample/catalog');
-      type Hello = Infer<typeof HelloSchema>;
+      type A = t.Infer<typeof HelloSchema>;
 
       // Strict type equality check:
       const obj = { name: 'foo' };
-      expectTypeOf<Hello>(obj).toEqualTypeOf<{ name: string }>();
+      expectTypeOf<A>(obj).toEqualTypeOf<{ name: string }>();
     });
   });
 });

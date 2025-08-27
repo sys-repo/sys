@@ -1,6 +1,9 @@
 import type { t } from './common.ts';
 
-type AnyRegistration = t.Registration<any, any, any>;
+/** Registration of type <any>. */
+export type AnyRegistration = t.Registration<any, any, any>;
+/** Factory of type <any>. */
+export type AnyFactory = t.Factory<any, any>;
 
 /**
  * Factory registry.

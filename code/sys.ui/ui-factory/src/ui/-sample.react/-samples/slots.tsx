@@ -1,9 +1,5 @@
-import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
-
-import { Factory } from '@sys/ui-factory/core';
 import React from 'react';
-
-import { type t, Color, css } from '../common.ts';
+import { type t, Color, css, Factory } from '../common.ts';
 
 /**
  * Domain unions.
@@ -86,7 +82,7 @@ const regs = [
     spec: { id: 'Panel:view', slots: ['Inner'] as const },
     load: async () => ({ default: Panel }),
   },
-] satisfies readonly ReactRegistration<Id, Slot>[];
+] satisfies readonly t.ReactRegistration<Id, Slot>[];
 
 /** Factory. */
 export const factory = Factory.make(regs);
@@ -97,9 +93,9 @@ export const factory = Factory.make(regs);
  * - Right: array of Panels (order preserved). Second Panel nests a child via its 'Inner' slot.
  * - Omit 'Inner' elsewhere to demonstrate that empty slots are safe.
  */
-export function makePlan(props: { theme: t.CommonTheme | undefined }): Plan<typeof factory> {
+export function makePlan(props: { theme: t.CommonTheme | undefined }): t.Plan<typeof factory> {
   const { theme } = props;
-  const plan: Plan<typeof factory> = {
+  const plan: t.Plan<typeof factory> = {
     root: {
       component: 'Layout:two',
       slots: {

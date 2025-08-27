@@ -1,10 +1,9 @@
-import type { Factory, Plan } from '@sys/ui-factory/t';
 import type { Sample } from '../-samples/t.ts';
 
 import { type t } from '../common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
-type R = { plan: Plan<any>; factory: Factory };
+type R = { plan: t.Plan<any>; factory: t.Factory };
 type Ctx = Pick<DebugSignals, 'state' | 'props'>;
 
 export async function load(

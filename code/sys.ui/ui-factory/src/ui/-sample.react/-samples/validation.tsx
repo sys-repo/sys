@@ -1,9 +1,5 @@
-import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
 import React from 'react';
-
-import { Type } from '@sys/schema';
-import { Factory } from '@sys/ui-factory/core';
-import { type t, Color, css, Is, ObjectView } from '../common.ts';
+import { type t, Color, css, Factory, Is, Type } from '../common.ts';
 
 type Id = 'Panel:view';
 type Slot = never;
@@ -44,7 +40,7 @@ const regs = [
     spec: { id: 'Panel:view', slots: [] as const, schema: PanelSchema },
     load: async () => ({ default: Panel }),
   },
-] satisfies readonly ReactRegistration<Id, Slot>[];
+] satisfies readonly t.ReactRegistration<Id, Slot>[];
 
 /**
  * Factory.
@@ -54,7 +50,7 @@ export const factory = Factory.make(regs);
 /**
  * Plan builder: flip between valid/invalid props.
  */
-export function makePlan(invalid: boolean, theme?: t.CommonTheme): Plan<typeof factory> {
+export function makePlan(invalid: boolean, theme?: t.CommonTheme): t.Plan<typeof factory> {
   const good = { theme, title: 'hello', count: 1 };
   const bad = { theme, title: 123, count: 'x' };
   const props = invalid ? bad : good;

@@ -1,13 +1,9 @@
 /**
- * @external
- */
-export type { ReactElement, ReactNode } from 'react';
-
-/**
  * @system
  */
 export type * from '@sys/types';
 
+/** User Interface: */
 export type { ColorTheme } from '@sys/color/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 

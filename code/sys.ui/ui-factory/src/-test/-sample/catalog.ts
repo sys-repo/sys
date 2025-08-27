@@ -1,6 +1,7 @@
+import type { t } from '../common.ts';
+
 import { Type } from '@sys/schema';
-import type { TObject, TString, TOptional } from '@sys/schema/t'; // ← precise TypeBox types
-import type { ReactRegistration, Infer } from '@sys/ui-factory/t';
+import type { TObject, TOptional, TString } from '@sys/schema/t'; // ← precise TypeBox types
 
 /** Domain unions (kept tiny to avoid “slow types”). */
 export type Id = 'Hello:view' | 'Panel:view';
@@ -22,13 +23,13 @@ export const PanelSchema: TObject<{ title: TString; body: TOptional<TString> }> 
 */
 
 /** Minimal registrations including `spec.schema` (explicit type, no `satisfies`). */
-export const regs: ReadonlyArray<ReactRegistration<Id, Slot>> = [
+export const regs: ReadonlyArray<t.ReactRegistration<Id, Slot>> = [
   {
     spec: { id: 'Hello:view', slots: [] as const, schema: HelloSchema },
-    load: async () => ({ default: (_: Infer<typeof HelloSchema>) => null }),
+    load: async () => ({ default: (_: t.Infer<typeof HelloSchema>) => null }),
   },
   {
     spec: { id: 'Panel:view', slots: [] as const, schema: PanelSchema },
-    load: async () => ({ default: (_: Infer<typeof PanelSchema>) => null }),
+    load: async () => ({ default: (_: t.Infer<typeof PanelSchema>) => null }),
   },
 ];

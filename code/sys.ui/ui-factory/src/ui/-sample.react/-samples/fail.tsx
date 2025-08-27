@@ -1,5 +1,4 @@
-import { Factory } from '@sys/ui-factory/core';
-import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
+import { type t, Factory } from '../common.ts';
 
 /**
  * Domain unions.
@@ -25,11 +24,11 @@ const regs = [
     load: async () => {
       // Simulate a bundler/network error:
       throw new Error('boom');
-      // (Unreachable, but shows intended module shape)
+      // (Unreachable, but shows intended module shape):
       return { default: WouldHaveRendered };
     },
   },
-] satisfies readonly ReactRegistration<Id, Slot>[];
+] satisfies readonly t.ReactRegistration<Id, Slot>[];
 
 /** Factory. */
 export const factory = Factory.make(regs);
@@ -38,7 +37,7 @@ export const factory = Factory.make(regs);
  * Plan that references the failing view.
  * - Resolving this plan will fail at load time.
  */
-export const plan: Plan<typeof factory> = {
+export const plan: t.Plan<typeof factory> = {
   root: {
     component: 'Boom:view',
     props: { msg: 'Should not render' },

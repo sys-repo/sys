@@ -1,6 +1,6 @@
 import React from 'react';
-import { describe, it, expect, type t } from '../../-test.ts';
-import { Factory, Plan } from '@sys/ui-factory/core';
+import { type t, describe, expect, it } from '../../-test.ts';
+import { Factory } from '../../m.core/mod.ts';
 import { renderPlan } from '../mod.ts';
 
 /**

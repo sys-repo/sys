@@ -1,7 +1,5 @@
-import type { Factory as FCore, Plan, ReactRegistration } from '@sys/ui-factory/t';
-import { Factory } from '@sys/ui-factory/core';
 import React from 'react';
-import { type t, css, Color } from '../common.ts';
+import { type t, Color, css, Factory } from '../common.ts';
 
 /**
  * Domain unions (include both local and "external" ids).
@@ -88,18 +86,18 @@ const regs = [
     spec: { id: 'Panel:view', slots: [] as const },
     load: async () => ({ default: Panel }),
   },
-] satisfies readonly ReactRegistration<Id, Slot>[];
+] satisfies readonly t.ReactRegistration<Id, Slot>[];
 
 /** Local base factory (may be composed with a sub-factory). */
 export const baseFactory = Factory.make(regs);
 
-let composedFactory: FCore<any, any>;
+let composedFactory: t.Factory<any, any>;
 
 /**
  * Recursively construct a plan subtree.
  * We narrow only the `component` id at each step; everything else is inferred.
  */
-function node<F extends FCore<any, any>>(
+function node<F extends t.Factory<any, any>>(
   depth: number,
   label: string,
   theme: t.CommonTheme | undefined,
@@ -139,15 +137,15 @@ function node<F extends FCore<any, any>>(
  * Compose base + optional sub-factory, and build a recursive plan.
  */
 export function makeComposite(
-  subFactory?: FCore<any, any>,
+  subFactory?: t.Factory<any, any>,
   depth: number = 2,
   theme?: t.CommonTheme,
-): { factory: typeof composedFactory; plan: Plan<typeof composedFactory> } {
+): { factory: typeof composedFactory; plan: t.Plan<typeof composedFactory> } {
   composedFactory = subFactory ? Factory.compose([baseFactory, subFactory]) : baseFactory;
 
   type F = typeof composedFactory;
   const root = node<F>(depth, 'root', theme);
-  const plan: Plan<F> = { root };
+  const plan: t.Plan<F> = { root };
 
   return {
     factory: composedFactory,

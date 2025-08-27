@@ -1,12 +1,10 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { type t, describe, expect, it, Obj } from '../../-test.ts';
+import { type t, describe, expect, it, Obj, Type } from '../../-test.ts';
 
-import { Type } from '@sys/schema';
-import { Factory } from '@sys/ui-factory/core';
-import { useFactory } from '@sys/ui-factory/react';
-import { Schema } from '@sys/ui-factory/schema';
-import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
+import { Factory } from '../../m.core/mod.ts';
+import { useFactory } from '../../m.react/mod.ts';
+import { Schema } from '../../m.schema/mod.ts';
 
 /**
  * Validation-focused setup kept separate from the basic “Hello” tests.
@@ -28,7 +26,7 @@ const regs = [
     spec: { id: 'Panel:view', slots: [] as const, schema: PanelSchema },
     load: async () => ({ default: Panel }),
   },
-] satisfies readonly ReactRegistration<Id, Slot>[];
+] satisfies readonly t.ReactRegistration<Id, Slot>[];
 
 const factory = Factory.make(regs);
 type F = typeof factory;
@@ -36,7 +34,7 @@ const validators = Schema.Props.makeValidators(regs);
 
 describe('hook: useFactory - validation', () => {
   it('validate: false → no validation (no callbacks)', () => {
-    const plan: Plan<F> = {
+    const plan: t.Plan<F> = {
       root: {
         component: 'Layout:two',
         slots: {
@@ -59,7 +57,7 @@ describe('hook: useFactory - validation', () => {
   });
 
   it('validate: true → reports errors via onError/onErrors', () => {
-    const plan: Plan<F> = {
+    const plan: t.Plan<F> = {
       root: {
         component: 'Layout:two',
         slots: {
@@ -97,7 +95,7 @@ describe('hook: useFactory - validation', () => {
   });
 
   it('failFast: true → stops after first error', () => {
-    const plan: Plan<F> = {
+    const plan: t.Plan<F> = {
       root: {
         component: 'Layout:two',
         slots: {
@@ -126,7 +124,7 @@ describe('hook: useFactory - validation', () => {
   });
 
   it('validates nested slots (deep traversal)', () => {
-    const plan: Plan<F> = {
+    const plan: t.Plan<F> = {
       root: {
         component: 'Layout:two',
         slots: {
@@ -161,7 +159,7 @@ describe('hook: useFactory - validation', () => {
 
   it('validate option variants (shorthand + object)', () => {
     // Invalid plan so that when validation runs it definitely produce errors.
-    const badPlan: Plan<F> = {
+    const badPlan: t.Plan<F> = {
       root: {
         component: 'Panel:view',
         props: { title: 123, count: 'x' }, // ← NB: count not a number.

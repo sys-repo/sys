@@ -1,9 +1,8 @@
 import ReactDOMServer from 'react-dom/server';
-import { describe, expect, it } from '../../-test.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
 
-import { Factory } from '@sys/ui-factory/core';
-import { useFactory } from '@sys/ui-factory/react';
-import type { Plan, ReactRegistration } from '@sys/ui-factory/t';
+import { Factory } from '../../m.core/mod.ts';
+import { useFactory } from '../../m.react/mod.ts';
 
 /**
  * Minimal Hello component and registration.
@@ -13,11 +12,11 @@ const regs = [
     spec: { id: 'Hello:view', slots: [] },
     load: async () => ({ default: (e: { name: string }) => <h1>Hello, {e.name}!</h1> }),
   },
-] satisfies readonly ReactRegistration<'Hello:view'>[];
+] satisfies readonly t.ReactRegistration<'Hello:view'>[];
 
 const factory = Factory.make(regs);
 type F = typeof factory;
-const plan: Plan<F> = { root: { component: 'Hello:view', props: { name: 'World' } } };
+const plan: t.Plan<F> = { root: { component: 'Hello:view', props: { name: 'World' } } };
 
 describe('hook: useFactory', () => {
   it('eager: SSR produces wrapper without resolved content (effects run on client)', () => {
@@ -57,7 +56,7 @@ describe('hook: useFactory', () => {
  *    Harness components that call the hook and render simple markers
  *    so assertertions work using plain SSR string output.
  */
-function EagerHarness(props: { factory?: F; plan?: Plan<F> }) {
+function EagerHarness(props: { factory?: F; plan?: t.Plan<F> }) {
   const { element, loading, issues } = useFactory(props.factory, props.plan, { strategy: 'eager' });
   return (
     <div data-kind="eager">
@@ -70,7 +69,7 @@ function EagerHarness(props: { factory?: F; plan?: Plan<F> }) {
   );
 }
 
-function SuspenseHarness(props: { factory?: F; plan?: Plan<F> }) {
+function SuspenseHarness(props: { factory?: F; plan?: t.Plan<F> }) {
   const { element } = useFactory(props.factory, props.plan, { strategy: 'suspense' });
   return <div data-kind="suspense">{element}</div>;
 }
