@@ -6,6 +6,7 @@ type Storage = Pick<P, 'theme' | 'debug' | 'fadeInDuration'>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  fadeInDuration: D.fadeInDuration,
 };
 
 /**
@@ -93,7 +94,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const v = p.fadeInDuration.value;
           return `fade-in duration: ${v == null ? `<undefined>` : `${v}ms`}`;
         }}
-        onClick={() => Signal.cycle(p.fadeInDuration, [1000, 2000, 3000, undefined])}
+        onClick={() => Signal.cycle(p.fadeInDuration, [0, 1000, D.fadeInDuration, 3000, undefined])}
       />
 
       <hr />

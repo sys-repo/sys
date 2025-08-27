@@ -1,9 +1,9 @@
 import React from 'react';
-import { type t, rx, Time, Color, css, Spinners, Is } from './common.ts';
+import { type t, Color, css, Is, Spinners, Time, D } from './common.ts';
 
 export const Loading: React.FC<t.LoadingProps> = (props) => {
-  const { debug = false, fadeInDuration } = props;
-  const hasFadeIn = Is.number(fadeInDuration);
+  const { debug = false, fadeInDuration = D.fadeInDuration } = props;
+  const isFadeIn = Is.number(fadeInDuration) && fadeInDuration > 0;
 
   /**
    * Hooks:
@@ -14,13 +14,13 @@ export const Loading: React.FC<t.LoadingProps> = (props) => {
    * Effects:
    */
   React.useEffect(() => {
-    let disposed = false;
-    Time.doubleFrame().then(init);
-    async function init() {
-      if (disposed) return;
+    let alive = true;
+    (async () => {
+      await Time.doubleFrame();
+      if (!alive) return;
       setReady(true);
-    }
-    return () => void (disposed = true);
+    })();
+    return () => void (alive = false);
   }, []);
 
   /**
@@ -37,8 +37,8 @@ export const Loading: React.FC<t.LoadingProps> = (props) => {
       placeItems: 'center',
     }),
     spinner: css({
-      opacity: ready || !hasFadeIn ? 1 : 0,
-      transition: hasFadeIn ? `opacity ${fadeInDuration}ms ease` : undefined,
+      opacity: ready || !isFadeIn ? 1 : 0,
+      transition: isFadeIn ? `opacity ${fadeInDuration}ms ease` : undefined,
     }),
   };
 
