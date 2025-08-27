@@ -137,7 +137,7 @@ const element = await renderPlan(plan, factory);
 
 <p>&nbsp;<p>
 
-## File Layout Guidance
+## File Layout Guidance: "Catalog"
 A **catalog** is a type-safe bundle of schemas and UI definitions, shipped as a 
 single [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import).
 
