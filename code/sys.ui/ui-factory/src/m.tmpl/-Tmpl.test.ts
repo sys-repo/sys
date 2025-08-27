@@ -26,9 +26,9 @@ describe(`${pkg.name}/fs: Tmpl`, () => {
       expect(find('catalog/ui/Hello/spec.ts')?.created).to.be.true;
       expect(find('catalog/ui/Hello/ui.tsx')?.created).to.be.true;
       expect(find('catalog/ui/Hello/mod.ts')?.created).to.be.true;
-      expect(find('catalog/regs.ts')?.created).to.be.true;
-      expect(find('catalog/plans.ts')?.created).to.be.true;
-      expect(find('catalog/mod.ts')?.created).to.be.true;
+      expect(find('catalog/def/regs.ts')?.created).to.be.true;
+      expect(find('catalog/def/plan.ts')?.created).to.be.true;
+      expect(find('catalog/def/mod.ts')?.created).to.be.true;
 
       // Pretty table (trim left to keep readable):
       const table = Tmpl.table(res.ops, { trimPathLeft: fs.dir });

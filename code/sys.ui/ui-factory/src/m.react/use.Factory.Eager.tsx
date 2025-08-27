@@ -5,6 +5,7 @@ import { renderPlan } from './u.renderPlan.ts';
 import { validatePlan } from './u.validatePlan.ts';
 
 type AnyFactory = t.ReactFactory<any, any>;
+type Errors = t.UseFactoryValidateError[];
 
 /**
  * Eagerly resolves (factory + plan) into a React element.
@@ -44,11 +45,11 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
    * - In CSR (browser), callbacks fire later inside the effect, so this
    *   stays side-effect free during render.
    */
-  const initialValidation = React.useMemo<t.UseFactoryValidateError[]>(() => {
-    if (disabled) return [];
-    if (!factory || !plan) return [];
+  const initialValidation = React.useMemo<Errors | undefined>(() => {
+    if (disabled) return;
+    if (!factory || !plan) return;
     const v = normalizedValidate;
-    if (v.mode !== 'always' || !v.validators) return [];
+    if (v.mode !== 'always' || !v.validators) return;
 
     const collected: t.UseFactoryValidateError[] = [];
     const isSSR = typeof window === 'undefined' || typeof document === 'undefined';
@@ -66,11 +67,10 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
   /**
    * State
    */
-  type Errors = t.UseFactoryValidateError[];
   const [element, setElement] = React.useState<React.ReactElement | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [runtime, setRuntime] = React.useState<Error | undefined>(undefined);
-  const [validation, setValidation] = React.useState<Errors>(initialValidation);
+  const [validation, setValidation] = React.useState<Errors | undefined>(initialValidation);
 
   /**
    * Effect: resolve element and (re)run validation on the client.
@@ -132,10 +132,7 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
    * API:
    */
   const issues = React.useMemo(
-    () =>
-      disabled
-        ? { runtime: undefined, validation: [] as t.UseFactoryValidateError[] }
-        : { runtime, validation },
+    () => (disabled ? { runtime: undefined, validation: undefined } : { runtime, validation }),
     [disabled, runtime, validation],
   );
 

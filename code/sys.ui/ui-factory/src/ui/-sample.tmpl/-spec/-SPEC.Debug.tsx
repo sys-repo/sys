@@ -1,7 +1,9 @@
 import React from 'react';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
-type P = t.SampleTmplProps;
+import { HelloSchema } from './-u.ts';
+type P = t.Infer<typeof HelloSchema>;
+
 type Storage = Pick<P, 'theme' | 'debug'>;
 const defaults: Storage = {
   theme: 'Dark',

@@ -1,11 +1,26 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { SampleTmpl } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
-export default Spec.describe(D.displayName, (e) => {
+import { Factory, makePlan, regs, useFactory, ValidationErrors } from './-u.ts';
+
+export default Spec.describe(D.displayName, async (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
+
+  const factory = Factory.make(regs);
+
+  const plan = makePlan({ theme: 'Dark', debug: true });
+
+  function Root() {
+    const { theme, debug } = Signal.toObject(p);
+
+    const catalog = useFactory(factory, plan, { strategy: 'eager', validate: false });
+    const { issues, element } = catalog;
+
+
+    return catalog.ok ? element : <ValidationErrors errors={issues.validation} />;
+  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -17,12 +32,9 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size([620, 350])
       .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        return <SampleTmpl debug={v.debug} theme={v.theme} />;
-      });
+      .render(() => <Root />);
   });
 
   e.it('ui:debug', (e) => {

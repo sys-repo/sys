@@ -21,7 +21,7 @@ export const SampleReact: React.FC<t.SampleReactProps> = (props) => {
   });
 
   if (!factory || !plan) return null;
-  const hasValidationErrors = issues.validation.length > 0;
+  const hasValidationErrors = (issues.validation?.length ?? 0) > 0;
 
   /**
    * Render:

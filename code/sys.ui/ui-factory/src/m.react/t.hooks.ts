@@ -24,9 +24,8 @@ export type UseEagerFactoryResult = {
   readonly issues: {
     /** Fatal render/resolve exception (sets ok=false). */
     readonly runtime?: Error;
-
     /** Non-fatal schema/plan violations; empty if none. */
-    readonly validation: readonly UseFactoryValidateError[];
+    readonly validation?: readonly UseFactoryValidateError[];
   };
 };
 
