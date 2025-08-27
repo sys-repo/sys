@@ -1,5 +1,5 @@
-import { type t, c, describe, expect, it, pkg, Testing } from '../../-test.ts';
-import { Tmpl } from '../mod.ts';
+import { type t, c, describe, expect, it, pkg, Testing } from '../-test.ts';
+import { Tmpl } from './mod.ts';
 
 describe(`${pkg.name}/fs: Tmpl`, () => {
   it('API', async () => {

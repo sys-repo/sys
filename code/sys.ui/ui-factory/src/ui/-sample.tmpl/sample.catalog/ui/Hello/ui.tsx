@@ -1,0 +1,30 @@
+import React from 'react';
+import { type t, Color, css } from '../common.ts';
+import { HelloSchema } from './schema.ts';
+
+export type HelloProps = t.Infer<typeof HelloSchema>;
+
+/**
+ * Component:
+ */
+export const Hello: React.FC<HelloProps> = (props) => {
+  const { debug = false } = props;
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      backgroundColor: Color.ruby(debug),
+      color: theme.fg,
+      display: 'grid',
+    }),
+  };
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <div>{`Hello, ${props.name ?? '<unnamed>'}!`}</div>
+    </div>
+  );
+};
