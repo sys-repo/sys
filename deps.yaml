@@ -59,7 +59,7 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@4.0.1
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.47.1
+    - import: npm:rollup@4.48.1
     - import: npm:vite@7.1.3
     - import: npm:vite-plugin-wasm@3.5.0
 
@@ -67,7 +67,7 @@ groups:
     - import: npm:react@19.1.1
     - import: npm:react-dom@19.1.1
     - import: npm:@types/react@19.1.11
-    - import: npm:@types/react-dom@19.1.7
+    - import: npm:@types/react-dom@19.1.8
 
   ui/monaco:
     # https://microsoft.github.io/monaco-editor
@@ -84,14 +84,14 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.22
-    - import: npm:@ai-sdk/openai@2.0.19
+    - import: npm:ai@5.0.26
+    - import: npm:@ai-sdk/openai@2.0.22
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.14.1
+    - import: npm:@mastra/core@0.15.2
       subpaths: ['agent', 'memory', 'storage']
-    - import: npm:@mastra/libsql@0.13.4
-    - import: npm:@mastra/loggers@0.10.7
-    - import: npm:@mastra/memory@0.13.1
+    - import: npm:@mastra/libsql@0.13.7
+    - import: npm:@mastra/loggers@0.10.9
+    - import: npm:@mastra/memory@0.14.2
     - import: npm:ollama@0.5.17
     - import: npm:gpt-tokenizer@3.0.1
 
@@ -121,7 +121,7 @@ deno.json:
   - import: npm:ignore@7.0.5
   - import: npm:immer@10
   - import: npm:ora@8.2.0
-  - import: npm:@preact/signals-core@1.12.0
+  - import: npm:@preact/signals-core@1.12.1
   - import: npm:pretty-bytes@7.0.1
   - import: npm:peerjs@1.5.5
   - import: npm:ramda@0.31.3
