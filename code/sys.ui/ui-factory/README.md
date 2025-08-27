@@ -3,13 +3,13 @@ Tiny primitives for declarative UI composition.
 
 <p>&nbsp;<p>
 
-| Stage         |   | Primitive  |
-|---------------|---|------------|
-| Definition    | ↓ | `factory`  |
-| Composition   | ↓ | `spec`    |
-| Instantiation | ↓ | `plan`     |
-| Rendering     | ↓ | `view`     |
-| Placement     | ↓ | `slots`    |
+| Stage         |   | Primitive            |
+|---------------|---|----------------------|
+| Definition    | ↓ | `factory`            |
+| Composition   | ↓ | `spec`               |
+| Instantiation | ↓ | `plan` `makePlan`    |
+| Render        | ↓ | `view`               |
+| Placement     | ↓ | `slot`               |
 
 …resolved and validated across **context boundaries**.
 
@@ -18,8 +18,8 @@ Tiny primitives for declarative UI composition.
 ### Factory
 A factory is `{data}` + a lazy `view` loader.  
 
-  •	**Data**: the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
-  •	**Loader**: the mechanism that resolves `specs` into live `views` at runtime.
+  •	**Data**: is the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
+  •	**Loader**: is a mechanism that resolves `specs` into live `views` at runtime.
 
 **Note:** Factories use standard [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import) (TC39) within the factory's loader. As a consequence, code is naturally split across ESM module boundaries.
 
