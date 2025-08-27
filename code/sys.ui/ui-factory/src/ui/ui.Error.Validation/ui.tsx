@@ -63,7 +63,7 @@ export const ValidationErrors: React.FC<t.ValidationErrorsProps> = (props) => {
             <React.Fragment key={key}>
               <Icons.Error size={16} color={Color.YELLOW} />
               <div className={styles.id.class}>{e.id}</div>
-              <div className={styles.path.class}>{Obj.Path.encode(e.path)}</div>
+              <div className={styles.path.class}>{e.path.join('.')}</div>
               <div className={styles.message.class}>{e.message}</div>
             </React.Fragment>
           );
