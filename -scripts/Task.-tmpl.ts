@@ -9,7 +9,6 @@ type TArgs = { tmpl?: string | boolean };
  */
 export async function main(options: Options = {}) {
   const args = Cli.args<TArgs>(options.argv ?? Deno.args);
-  console.info(c.gray('args:'), args);
   console.info();
 
   let name = typeof args.tmpl === 'string' ? args.tmpl : '';
