@@ -48,8 +48,8 @@ groups:
     - import: npm:@automerge/prosemirror@0.1.0
 
   crypto:
-    - import: npm:@noble/hashes@1.8.0
-      subpaths: [sha1, sha256]
+    - import: jsr:@noble/hashes@2.0.0
+      subpaths: [sha2.js, legacy.js]
 
   schema:
     - import: npm:@sinclair/typebox-codegen@0.11.1
