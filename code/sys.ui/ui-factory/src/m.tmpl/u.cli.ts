@@ -10,11 +10,11 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   // Resolve current working directory for a terminal context.
   const cwd = Fs.cwd('terminal');
   console.info(Str.SPACE);
-  console.info(c.gray(`./${Fs.trimCwd(cwd)}`));
+  console.info(c.gray(`location: ./${Fs.trimCwd(cwd)}`));
 
   // 1) Ask for the target folder name.
   const dirname = await Cli.Prompt.Input.prompt({
-    message: 'Catalog folder name',
+    message: 'Catalog Folder Name',
     default: 'catalog',
     // Keep it simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces).
     validate: (v: string) =>
@@ -33,13 +33,14 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   /**
    * Print:
    */
-  const fmtTarget = Cli.Format.path(Fs.trimCwd(target), (e) => {
+  let fmtTarget = Cli.Format.path(Fs.trimCwd(target), (e) => {
     if (e.is.basename) e.change(c.white(e.text));
   });
+  fmtTarget = c.gray(`${fmtTarget}/`);
 
   console.info();
   console.info(c.gray(`${pkg.name}`));
-  console.info(c.gray(`${fmtTarget}`));
+  console.info(c.gray(`location: ${fmtTarget}`));
   console.info(c.bold(c.cyan(`Catalog Scaffold`)));
   console.info();
   console.info(table);

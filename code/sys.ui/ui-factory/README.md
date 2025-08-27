@@ -141,17 +141,20 @@ const element = await renderPlan(plan, factory);
 A **catalog** is a type-safe bundle of schemas and UI definitions, shipped as a 
 single [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import).
 
+
 ```
 catalog/
-  ├─ ui/
-  │   ├─ Hello/
-  │   │   ├─ schema.ts       ← Type.Object(...)
-  │   │   ├─ spec.ts         ← ViewSpec                 ← id, slots, schema
-  │   │   ├─ ui.tsx          ← View implementation      ← JSX or whatever (adapter specific)
-  │   │   └─ mod.ts          ← exports:                 ← <Hello>'s schema, spec, view
-  ├─ regs.ts                 ← central Registration[]   ← built from /ui/
-  ├─ plans.ts                ← UI composition plans     ← hierarchical structures of components
-  └─ mod.ts                  ← 🌳 (entrypoint)
+├─ ui/
+│   ├─ Hello/
+│   │   ├─ schema.ts       ← Type.Object(…)
+│   │   ├─ spec.ts         ← ViewSpec                 ← id, slots, schema
+│   │   ├─ ui.tsx          ← View implementation      ← JSX or whatever (adapter specific)
+│   │   └─ mod.ts          ← exports:                 ← ’s schema, spec, view
+├─ def/
+│   ├─ regs.ts             ← central Registration[]   ← built from /ui/
+│   ├─ plan.ts             ← UI composition plans     ← hierarchical structures of components
+│   └─ schemas.ts          ← central schema exports   ← collected from /ui/
+└─ mod.ts                  ← 🌳 (entrypoint)
 ```
 
 <p>&nbsp;<p>

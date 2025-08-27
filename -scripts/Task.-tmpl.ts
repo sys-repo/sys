@@ -12,7 +12,10 @@ export async function main(options: Options = {}) {
   console.info();
 
   let name = typeof args.tmpl === 'string' ? args.tmpl : '';
-  const templates = [...Object.keys(Templates), '@sys/ui-factory/tmpl'];
+  const templates = [
+    ...Object.keys(Templates).map((key) => `repo: ${key}`),
+    'run:  @sys/ui-factory/tmpl',
+  ];
 
   if (!name) {
     name = await Cli.Prompt.Select.prompt({
@@ -21,7 +24,7 @@ export async function main(options: Options = {}) {
     });
   }
 
-  if (name === '@sys/ui-factory/tmpl') {
+  if (name === 'run:  @sys/ui-factory/tmpl') {
     const { Tmpl } = await import('@sys/ui-factory/tmpl');
     await Tmpl.cli();
     return;
