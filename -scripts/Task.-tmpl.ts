@@ -15,7 +15,7 @@ export async function main(options: Options = {}) {
   const templates = [...Object.keys(Templates), '@sys/ui-factory/tmpl'];
 
   if (!name) {
-    const label = (value: string) => (value.startsWith('@') ? `run:  ${value}` : `repo: ${value}`);
+    const label = (v: string) => (v.startsWith('@') ? `run:   ${v}` : `make:  ${v}`);
     name = await Cli.Prompt.Select.prompt({
       message: 'Select Template:',
       options: templates.map((value: string) => ({ name: label(value), value })),
