@@ -18,7 +18,7 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   console.info(tableMeta.toString());
 
   /**
-   * 1a) Ask for the target folder name.
+   * 1a) Ask for the target folder name:
    */
   const dirname = await Cli.Prompt.Input.prompt({
     message: 'Catalog Folder Name',
@@ -29,46 +29,51 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   });
 
   /**
-   * 1b) Select which template to install (maps bundle-root → target root name).
+   * 1b) Select which template to install (maps bundle-root → target root name):
    */
-  const TEMPLATE_CHOICES = [
-    { name: 'catalog:react', bundleRoot: 'catalog-react' },
-    // 🌳 Future variants go here, e.g.:
-    // { name: 'catalog-lite', bundleRoot: 'catalog-react-lite' },
+  type C = { name: string; bundleRoot: t.StringDir };
+  const TEMPLATE_CHOICES: C[] = [
+    { name: 'catalog/react: single-file', bundleRoot: 'react-singlefile' },
+    { name: 'catalog/react: folder layout', bundleRoot: 'react-catalog' },
   ] as const;
   type TemplateChoice = (typeof TEMPLATE_CHOICES)[number];
 
-  const chosenTemplate = await Cli.Prompt.Select.prompt<TemplateChoice>({
+  const chosenTmpl = await Cli.Prompt.Select.prompt<TemplateChoice>({
     message: 'Choose Template',
     options: TEMPLATE_CHOICES.map((x) => ({ name: `- ${x.name}`, value: x })),
   });
+  const bundleRoot = chosenTmpl.bundleRoot;
 
   /**
-   * 2) Compose target path and write the scaffold.
+   * 2) Compose target path and write the scaffold:
    */
   const target = `${cwd}/${dirname}`;
-  const res = await Tmpl.write(target, {
-    dryRun,
-    bundleRoot: chosenTemplate.bundleRoot,
-  });
+
+  console.log('target', target);
+  console.log('bundleRoot', bundleRoot);
+
+  const res = await Tmpl.write(target, { dryRun, bundleRoot });
 
   /**
-   * 3) Prepare a concise table of operations.
+   * 3) Prepare a concise table of operations:
    */
-  const table = Tmpl.table(res.ops, { baseDir: target, dryRun });
+  const table = Tmpl.table(res.ops, {
+    dryRun,
+    baseDir: target,
+  });
 
   /**
    * Print:
    */
-  let fmtTarget = Cli.Format.path(Fs.trimCwd(target), (e) => {
+  let location = Cli.Format.path(Fs.trimCwd(target), (e) => {
     if (e.is.basename) e.change(c.white(e.text));
   });
-  fmtTarget = c.gray(`${fmtTarget}/`);
+  location = c.gray(`${location}/`);
 
   console.info();
   console.info(c.gray(`${pkg.name}`));
-  console.info(c.gray(`location: ${fmtTarget}`));
-  console.info(c.gray(`template: ${c.bold(c.green(`${chosenTemplate.name}`))}`));
+  console.info(c.gray(`location: ${location}`));
+  console.info(c.gray(`template: ${c.bold(c.green(`${chosenTmpl.name}`))}`));
   console.info();
   console.info(table);
   console.info();

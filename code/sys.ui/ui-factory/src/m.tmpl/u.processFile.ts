@@ -1,8 +1,8 @@
 import { type t } from './common.ts';
 
 type Args = {
-  /** e.g. 'catalog-react'. If omitted, keep everything. */
-  bundleRoot?: string;
+  /** The root folder of the template within '/-tmpl/'. */
+  bundleRoot?: t.StringDir;
 };
 
 export function createFileProcessor(args: Args): t.FileMapProcessFile {

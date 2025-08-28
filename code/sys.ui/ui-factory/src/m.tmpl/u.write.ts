@@ -12,24 +12,42 @@ export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
     throw new Error(`Invalid catalog bundle: ${error?.message ?? 'unknown error'}`);
   }
 
+  // Ensure the given bundle-root exists within the FileMap:
+  const exists = Object.keys(fileMap).some((key) => key.startsWith(`${bundleRoot}/`))
+  if (!exists) {
+    let msg = `The bundle-root '${bundleRoot}' was not found within the 'src/-tmpl/' folder.`
+    msg += ` Ensure the 'deno task prep' helper has been run.`
+    throw new Error(msg)
+  }
+
   const sourceDir = Fs.toDir(Path.resolve('./src/-tmpl/'));
   const targetDir = Fs.toDir(Path.resolve(target));
 
-  // Pass the bundleRoot into the processor:
+  // Pass the bundleRoot into the file-processor:
   const processFile = createFileProcessor({ bundleRoot });
+
+  /**
+   * Materialize Tempate:
+   */
+  const materialize = async (dir: t.StringDir) => {
+    const res = await FileMap.materialize(fileMap, dir, { processFile });
+    const ops = res.ops.map((o) => ({ ...o })) as unknown as t.TmplFileOperation[];
+    return { 
+      source: sourceDir, 
+      target: targetDir, 
+      ops 
+    } satisfies t.TmplWriteResponse
+  }
 
   if (dryRun) {
     const tmp = (await Fs.makeTempDir({ prefix: 'ui-factory-tmpl-' })).absolute;
     try {
-      const res = await FileMap.materialize(fileMap, tmp, { processFile });
-      const ops = res.ops.map((o) => ({ ...o })) as unknown as t.TmplFileOperation[];
-      return { source: sourceDir, target: targetDir, ops };
+      return await materialize(tmp)
     } finally {
       await Fs.remove(tmp);
     }
   }
 
-  const res = await FileMap.materialize(fileMap, targetDir.absolute, { processFile });
-  const ops = res.ops.map((o) => ({ ...o })) as unknown as t.TmplFileOperation[];
-  return { source: sourceDir, target: targetDir, ops };
+  // Materialize the template to the filesystem.
+  return await materialize(targetDir.absolute)
 };
