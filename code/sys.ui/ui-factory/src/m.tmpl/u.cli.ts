@@ -16,7 +16,7 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   const dirname = await Cli.Prompt.Input.prompt({
     message: 'Catalog Folder Name',
     default: 'catalog',
-    // Keep it simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces).
+    // Keep folder-name simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces).
     validate: (v: string) =>
       /^[\w.\-\/]+$/.test(v) || 'Use letters, numbers, ".", "-", "_" (and optional "/")',
   });
