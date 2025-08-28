@@ -2,6 +2,6 @@
  * Module types.
  * @module
  */
-export type * from './m.File/t.ts';
-export type * from './m.Log/t.ts';
-export type * from './m.Tmpl/t.ts';
+export type * from './m.file/t.ts';
+export type * from './m.log/t.ts';
+export type * from './m.tmpl/t.ts';

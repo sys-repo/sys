@@ -1,6 +1,6 @@
 import { type t, describe, expect, expectError, Fs, it, R, SAMPLE, Time } from '../-test.ts';
-import { File } from '../m.File/mod.ts';
-import { Log } from '../m.Log/mod.ts';
+import { File } from '../m.file/mod.ts';
+import { Log } from '../m.log/mod.ts';
 import { Tmpl } from './mod.ts';
 
 describe('Tmpl', () => {
