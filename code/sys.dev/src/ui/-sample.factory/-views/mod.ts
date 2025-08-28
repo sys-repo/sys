@@ -11,6 +11,7 @@ const U: TUnion<
     TLiteral<'Fileshare:host'>,
     TLiteral<'IFrame:host'>,
     TLiteral<'Layout:host'>,
+    TLiteral<'ConceptPlayer:host'>,
   ]
 > = Type.Union(
   [
@@ -19,6 +20,7 @@ const U: TUnion<
     Type.Literal('Fileshare:host'),
     Type.Literal('IFrame:host'),
     Type.Literal('Layout:host'),
+    Type.Literal('ConceptPlayer:host'),
   ],
   {
     description: 'Keys for looking up views within the factory.',
@@ -59,6 +61,11 @@ export const getView: t.GetView = async (id: t.SampleFactoryId | string) => {
   if (key === 'Layout:host') {
     const { LayoutHost } = await import('./ui.Layout.Host.tsx');
     return done(LayoutHost);
+  }
+
+  if (key === 'ConceptPlayer:host') {
+    const { ConceptPlayerHost } = await import('./ui.ConceptPlayer.Host.tsx');
+    return done(ConceptPlayerHost);
   }
 
   // Not found.
