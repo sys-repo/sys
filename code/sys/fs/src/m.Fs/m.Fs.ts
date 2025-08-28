@@ -7,6 +7,7 @@ import { Is } from './m.Is.ts';
 import { Size } from './m.Size.ts';
 import { copy, copyDir, copyFile } from './u.copy.ts';
 import { cwd } from './u.cwd.ts';
+import { makeTempDir } from './u.makeTmpDir.ts';
 import { read, readJson, readText, readYaml } from './u.read.ts';
 import { remove } from './u.remove.ts';
 import { stat } from './u.stat.ts';
@@ -67,6 +68,7 @@ export const Fs: FsLib = {
   copyDir,
   copyFile,
   move,
+  makeTempDir,
 
   walk,
   walkUp,

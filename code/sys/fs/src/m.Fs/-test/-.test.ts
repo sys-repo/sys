@@ -14,7 +14,6 @@ describe('Fs: filesystem', () => {
     expect(Fs.ensureDir).to.eql(StdFs.ensureDir);
     expect(Fs.ensureSymlink).to.eql(StdFs.ensureSymlink);
     expect(Fs.move).to.eql(StdFs.move);
-    expect(Fs.makeTempDir).to.equal(Deno.makeTempDir);
   });
 
   describe('Fs.Path', () => {

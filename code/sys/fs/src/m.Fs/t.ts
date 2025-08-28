@@ -64,6 +64,13 @@ export type FsLib = Methods & {
 
   /** Generator function that produces `FsDir` data-structures. */
   toDir: t.FsDirFactory;
+
+  /** Create a new temporary directory and return it as an FsDir handle. */
+  makeTempDir(options?: {
+    readonly dir?: t.StringDir;
+    readonly prefix?: string;
+    readonly suffix?: string;
+  }): Promise<t.FsDir>;
 };
 
 /**
