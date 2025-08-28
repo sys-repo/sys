@@ -26,7 +26,10 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   const res = await Tmpl.write(target, { dryRun });
 
   // 3) Print a concise, cwd-trimmed table of operations.
-  const table = Tmpl.table(res.ops, { trimPathLeft: cwd });
+  const table = Tmpl.table(res.ops, {
+    baseDir: res.target.absolute, // ← for normalization.
+    trimPathLeft: cwd, //            ← for display.
+  });
 
   /**
    * Print:

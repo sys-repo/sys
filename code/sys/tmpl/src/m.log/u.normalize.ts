@@ -13,7 +13,7 @@ export function normalizeOps(ops: readonly any[], baseDir?: t.StringDir): t.Tmpl
     return ops as t.TmplFileOperation[]; // ← Already a `TmplFileOperation[]`.
   }
 
-  const base = (baseDir ?? (Fs.cwd('process') as t.StringDir)) as string;
+  const base = baseDir as string | undefined;
 
   return (ops as readonly t.FileMapMaterializeOp[]).map((op): t.TmplFileOperation => {
     const rel =
@@ -21,9 +21,15 @@ export function normalizeOps(ops: readonly any[], baseDir?: t.StringDir): t.Tmpl
         ? (op.to as string)
         : (op as Extract<t.FileMapMaterializeOp, { path?: string }>).path ?? '';
 
-    const abs = rel ? (Path.join(base, rel) as t.StringPath) : (base as unknown as t.StringPath);
-    const targetFile = Fs.toFile(abs);
+    const abs = rel
+      ? base
+        ? (Path.join(base, rel) as t.StringPath)
+        : (Path.resolve(rel) as t.StringPath)
+      : base
+      ? (base as unknown as t.StringPath)
+      : (Path.resolve('.') as t.StringPath);
 
+    const targetFile = Fs.toFile(abs);
     const out: any = { file: { target: targetFile } };
 
     switch (op.kind) {

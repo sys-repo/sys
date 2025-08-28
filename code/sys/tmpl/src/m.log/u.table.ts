@@ -1,4 +1,4 @@
-import { type t, c, Cli } from './common.ts';
+import { type t, c, Cli, Path } from './common.ts';
 import { normalizeOps } from './u.normalize.ts';
 
 export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
@@ -25,13 +25,15 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
  * Helpers
  */
 const wrangle = {
-  path(op: t.TmplFileOperation, trimBase?: t.StringPath) {
-    const target = op.file.target;
-    let text = '';
-    if (target.dir) text += `${target.dir}/`;
-    text += c.white(target.file.name);
-    text = c.gray(text);
-    return op.excluded ? c.dim(text) : text;
+  path(op: t.TmplFileOperation, trimLeft?: string) {
+    const abs = op.file?.target?.absolute;
+    if (!abs) return '';
+    const left = trimLeft ? Path.resolve(trimLeft) : undefined;
+    const shown = left ? Path.relative(left, abs) : abs;
+    return Cli.Format.path(shown, (e) => {
+      if (e.is.basename) e.change(c.white(e.text));
+      else e.change(c.gray(e.text));
+    });
   },
 
   action(op: t.TmplFileOperation) {
@@ -49,7 +51,7 @@ const wrangle = {
       return text;
     };
     if (op.excluded) {
-      const base = 'excluded';
+      const base = 'skipped';
       const reason = typeof op.excluded === 'object' ? op.excluded.reason : '';
       append(reason ? `${base}: ${reason}` : base);
     }
@@ -57,7 +59,7 @@ const wrangle = {
       append(c.yellow('forced'));
     }
     if (is.dryRun(op)) {
-      append(`(${c.cyan('dry-run')})`);
+      append(`${c.cyan('dry-run')}`);
     }
     if (typeof options.note === 'function') {
       const note = options.note(op);
