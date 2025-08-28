@@ -2,6 +2,8 @@ import { c, describe, expect, it, pkg } from '../-test.ts';
 import { FileMap, Fs, Path } from './common.ts';
 import { Tmpl } from './mod.ts';
 
+const BUNDLE_ROOT = 'react-catalog';
+
 const makeTmp = async () => await Fs.makeTempDir({ prefix: 'ui-factory-write-' });
 const listRelative = async (dir: string) => {
   const root = Path.resolve(dir);
@@ -22,25 +24,25 @@ describe(`${pkg.name}/tmpl: Template Generation`, () => {
   describe('Tmpl.write', () => {
     it('dryRun: returns ops, does not write to target', async () => {
       const target = await makeTmp();
+      const res = await Tmpl.write(target.absolute, { dryRun: true, bundleRoot: BUNDLE_ROOT });
 
-      const res = await Tmpl.write(target.absolute, { dryRun: true });
       expect(res.source.absolute).to.be.a('string');
       expect(res.target.absolute).to.eql(target.toString());
       expect(Array.isArray(res.ops)).to.eql(true);
       expect(res.ops.length > 0).to.eql(true);
 
       const after = await listRelative(target.toString());
-      expect(after).to.eql([]); // nothing written in dryRun
+      expect(after).to.eql([]); // Nothing written in dryRun.
     });
 
     it('real write: writes at least one file to disk', async () => {
       const target = await makeTmp();
+      const res = await Tmpl.write(target.absolute, { dryRun: false, bundleRoot: BUNDLE_ROOT });
 
-      const res = await Tmpl.write(target.absolute, { dryRun: false });
       expect(res.target.absolute).to.eql(target.absolute);
       expect(res.ops.length > 0).to.eql(true);
 
-      // verify there is at least one file on disk after write
+      // Verify there is at least one file on disk after write.
       const files = await listRelative(target.absolute);
       expect(files.length > 0).to.eql(true);
     });
@@ -57,7 +59,7 @@ describe(`${pkg.name}/tmpl: Template Generation`, () => {
 
       let threw = false;
       try {
-        await Tmpl.write(target.absolute);
+        await Tmpl.write(target.absolute, { bundleRoot: BUNDLE_ROOT });
       } catch (err: any) {
         threw = true;
         expect(String(err?.message ?? err)).to.include('Invalid catalog bundle');
@@ -73,7 +75,7 @@ describe(`${pkg.name}/tmpl: Template Generation`, () => {
     const target = await makeTmp();
 
     // Real write so we actually have files to show.
-    await Tmpl.write(target.absolute, { dryRun: false });
+    await Tmpl.write(target.absolute, { dryRun: false, bundleRoot: BUNDLE_ROOT });
 
     // Collect relative file paths.
     const root = target.absolute;
