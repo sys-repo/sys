@@ -194,5 +194,5 @@ deno run -RWE --reload jsr:@sys/ui-factory/tmpl
 
 ## Live
 **Dev Harness:** 
-- [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419)
+- [sys.ui.factory: HostAdapter ← React](https://fs.db.team/sys/ui.factory/?dev=9957335587705)
 
