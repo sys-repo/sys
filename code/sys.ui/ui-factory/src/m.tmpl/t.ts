@@ -7,9 +7,6 @@ export type CatalogTmplLib = {
   /** Run in CLI mode. */
   cli(args?: { dryRun?: boolean }): Promise<void>;
 
-  /** Bind template engine to local `/-tmpl/catalog` source. */
-  tmpl(options?: t.TmplFactoryOptions): t.Tmpl;
-
   /** Copy the catalog scaffold to `target`. */
   write(target: t.StringDir, opts?: CatalogTmplWriteOptions): Promise<t.TmplWriteResponse>;
 
