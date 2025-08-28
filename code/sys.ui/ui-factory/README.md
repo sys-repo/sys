@@ -182,7 +182,7 @@ catalog/
 
 ### Template
 ```bash
-# Scaffold a new catalog project in the current directory:
+# Scaffold a new "catalog" project in the current directory:
 deno run -RWE jsr:@sys/ui-factory/tmpl
 
 # Force the latest version:
