@@ -1,7 +1,7 @@
 # Template Engine
-Tools for working with filesystem tiles as templates that can be copied and/or updated into target projects.
+Tools for working with simple `filesystem` files as templates that can be copied, adjusted and/or updated into target projects.
 
-## Programmatic usage (TypeScript)
+## Programmatic usage
 Preview the file operations (dry-run), print a table, then execute:
 
 ```ts
