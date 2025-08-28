@@ -145,6 +145,20 @@ const element = await renderPlan(plan, factory);
 
 <p>&nbsp;<p>
 
+## Runtime Validation
+Plans may be validated against each view's [`JsonSchema`](https://json-schema.org/draft/2020-12/json-schema-core.html) during development or production - ensuring mismatches are surfaced early. 
+
+Validation can also be configured to run "always" (including in production) when required — for example, in scenarios where a live code editor dynamically drives the shape of the UI/Factory Catalog, ensuring factories are continuously validated against user input.
+
+
+```ts
+const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' });
+// issues.runtime     → Error | undefined
+// issues.validation  → { id, path, message }[]
+```
+
+<p>&nbsp;<p>
+
 ## File Layout Guidance: "Catalog"
 A **catalog** is a type-safe bundle of schemas and UI definitions, shipped as a 
 single [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import).
@@ -165,28 +179,13 @@ catalog/
 └─ mod.ts                  ← 🌳 (entrypoint)
 ```
 
-<p>&nbsp;<p>
 
-## Runtime Validation
-Plans may be validated against each view's [`JsonSchema`](https://json-schema.org/draft/2020-12/json-schema-core.html) during development or production - ensuring mismatches are surfaced early. 
-
-Validation can also be configured to run "always" (including in production) when required — for example, in scenarios where a live code editor dynamically drives the shape of the UI/Factory Catalog, ensuring factories are continuously validated against user input.
-
-
-```ts
-const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' });
-// issues.runtime     → Error | undefined
-// issues.validation  → { id, path, message }[]
-```
-
-<p>&nbsp;<p>
-
-## Template
-
+### Template
 ```bash
+# Scaffold a new catalog project in the current directory:
 deno run -RWE jsr:@sys/ui-factory/tmpl
 
-# Hint: to force latest version:
+# Force the latest version:
 deno run -RWE --reload jsr:@sys/ui-factory/tmpl
 ```
 
