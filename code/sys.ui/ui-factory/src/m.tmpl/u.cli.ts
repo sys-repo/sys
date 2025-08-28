@@ -9,8 +9,13 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
 
   // Resolve current working directory for a terminal context.
   const cwd = Fs.cwd('terminal');
+
+  // Print context:
+  const tableMeta = Cli.table([]);
+  tableMeta.push([c.green(pkg.name), c.gray(`${pkg.version}`)]);
+  tableMeta.push([c.gray('location'), c.gray(`./${Fs.trimCwd(cwd)}`)]);
   console.info(Str.SPACE);
-  console.info(c.gray(`location: ./${Fs.trimCwd(cwd)}`));
+  console.info(tableMeta.toString());
 
   /**
    * 1a) Ask for the target folder name.

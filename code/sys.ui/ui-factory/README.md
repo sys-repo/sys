@@ -181,6 +181,18 @@ const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' }
 
 <p>&nbsp;<p>
 
+## Template
+
+```bash
+deno run -RWE jsr:@sys/ui-factory/tmpl
+
+# Hint: to force latest version:
+deno run -RWE --reload jsr:@sys/ui-factory/tmpl
+```
+
+
+<p>&nbsp;<p>
+
 ## Live
 **Dev Harness:** 
 - [sys.ui.factory: HostAdapter → React](https://fs.db.team/sys/ui.factory/?dev=5066379583419)
