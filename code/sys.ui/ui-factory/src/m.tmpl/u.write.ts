@@ -7,10 +7,9 @@ export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
   const { dryRun = false, bundleRoot } = opts;
 
   // Validate embedded bundle artifact:
-  const { fileMap, error } = FileMap.validate(bundle);
-  if (!fileMap || error) {
-    throw new Error(`Invalid catalog bundle: ${error?.message ?? 'unknown error'}`);
-  }
+  let { fileMap, error } = FileMap.validate(bundle);
+  if (!fileMap || error) throw new Error(`Invalid catalog bundle: ${error?.message ?? 'unknown error'}`);
+  fileMap = Object.fromEntries(Object.entries(fileMap).filter(([k]) => k.startsWith(`${bundleRoot}/`)));
 
   // Ensure the given bundle-root exists within the FileMap:
   const exists = Object.keys(fileMap).some((key) => key.startsWith(`${bundleRoot}/`))

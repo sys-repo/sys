@@ -33,8 +33,8 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
    */
   type C = { name: string; bundleRoot: t.StringDir };
   const TEMPLATE_CHOICES: C[] = [
-    { name: 'catalog/react: single-file', bundleRoot: 'react-singlefile' },
     { name: 'catalog/react: folder layout', bundleRoot: 'react-catalog' },
+    { name: 'catalog/react: single-file', bundleRoot: 'react-singlefile' },
   ] as const;
   type TemplateChoice = (typeof TEMPLATE_CHOICES)[number];
 
