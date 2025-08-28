@@ -22,6 +22,7 @@ function TwoColumn(props: {
   const styles = {
     base: css({
       backgroundColor: Color.ruby(true),
+      color: theme.fg,
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
       gap: 12,
@@ -84,7 +85,9 @@ const regs = [
   },
 ] satisfies readonly t.ReactRegistration<Id, Slot>[];
 
-/** Factory. */
+/**
+ * Factory.
+ */
 export const factory = Factory.make(regs);
 
 /**
