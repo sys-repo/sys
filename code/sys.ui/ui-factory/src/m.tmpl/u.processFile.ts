@@ -1,18 +1,48 @@
 import { type t } from './common.ts';
 
-export function createFileProcessor(_ctx?: unknown): t.FileMapProcessFile {
+type Args = {
+  /** e.g. 'catalog-react'. If omitted, keep everything. */
+  bundleRoot?: string;
+};
+
+export function createFileProcessor(args: Args): t.FileMapProcessFile {
+  const root = (args.bundleRoot ?? '').trim();
+
   return async (e) => {
-    // Example: rename ".gitignore-" → ".gitignore" (keep template committed).
-    if (e.path.endsWith('.gitignore-')) {
-      e.target.rename(e.target.relative.replace(/\.gitignore-$/, '.gitignore'));
+    /**
+     * 1) If a bundleRoot was provided, only include files under it.
+     */
+    if (root) {
+      const prefix = `${root}/`;
+      const isUnderRoot = e.path === root || e.path.startsWith(prefix);
+
+      // Allow top-level files like README.md to pass through (no slash).
+      const isTopLevel = !e.path.includes('/');
+
+      if (!isUnderRoot && !isTopLevel) {
+        return e.exclude(`excluded: not within "${root}/"`);
+      }
+
+      // If under root, strip that prefix so files land at the target root.
+      if (isUnderRoot && e.path.startsWith(prefix)) {
+        const rest = e.path.slice(prefix.length);
+        if (rest.length === 0) return e.exclude('excluded: empty path after strip');
+        e.target.rename(rest as t.StringPath);
+      }
     }
 
-    // Example: token replacement.
-    if (e.text && e.path.endsWith('deno.json')) {
-      e.modify(e.text.replace(/<UI_FACTORY_ENTRY>/g, 'jsr:@sys/ui-factory/main'));
+    /**
+     * 2) Example special-case: turn ".gitignore-" into ".gitignore" if such a file exists in bundle.
+     */
+    if (e.text && e.path.endsWith('.gitignore-')) {
+      e.target.rename(e.path.replace(/-$/, '') as t.StringPath);
     }
 
-    // Example: drop template sentinels.
-    if (e.path.endsWith('.keep')) e.exclude('sentinel');
+    /**
+     * 3) Potential future per-file text transforms.
+     */
+    // if (e.text && e.path.endsWith('README.md')) {
+    //   e.modify(`${e.text}\n<!-- patched by processor -->\n`);
+    // }
   };
 }

@@ -28,4 +28,10 @@ export type CatalogTmplTmplOptions = t.TmplFactoryOptions;
 /**
  * Options when writing the scaffold to a target directory.
  */
-export type CatalogTmplWriteOptions = { readonly dryRun?: boolean };
+export type CatalogTmplWriteOptions = {
+  /** Do everything except except touch the filesystem. */
+  readonly dryRun?: boolean;
+
+  /** Limit bundle to a subfolder and strip that prefix on write. */
+  readonly bundleRoot?: string;
+};

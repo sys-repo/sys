@@ -4,16 +4,19 @@ import { type t, FileMap, Fs, Path } from './common.ts';
 import { createFileProcessor } from './u.processFile.ts';
 
 export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
-  const { dryRun = false } = opts;
+  const { dryRun = false, bundleRoot } = opts;
 
+  // Validate embedded bundle artifact:
   const { fileMap, error } = FileMap.validate(bundle);
-  if (!fileMap || error) throw new Error(`Invalid catalog bundle: ${error?.message ?? 'unknown error'}`);
+  if (!fileMap || error) {
+    throw new Error(`Invalid catalog bundle: ${error?.message ?? 'unknown error'}`);
+  }
 
-  // Metadata for response:
   const sourceDir = Fs.toDir(Path.resolve('./src/-tmpl/'));
   const targetDir = Fs.toDir(Path.resolve(target));
 
-  const processFile = createFileProcessor({});
+  // Pass the bundleRoot into the processor:
+  const processFile = createFileProcessor({ bundleRoot });
 
   if (dryRun) {
     const tmp = (await Fs.makeTempDir({ prefix: 'ui-factory-tmpl-' })).absolute;
@@ -26,9 +29,7 @@ export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
     }
   }
 
-  // Real write:
-  const absTarget = Path.resolve(target) as t.StringDir;
-  const res = await FileMap.materialize(fileMap, absTarget, { processFile });
+  const res = await FileMap.materialize(fileMap, targetDir.absolute, { processFile });
   const ops = res.ops.map((o) => ({ ...o })) as unknown as t.TmplFileOperation[];
   return { source: sourceDir, target: targetDir, ops };
 };

@@ -50,10 +50,22 @@ export function normalizeOps(ops: readonly any[], baseDir?: t.StringDir): t.Tmpl
         break;
     }
 
-    // Propagate optional flags when present on the incoming op.
     const anyOp = op as Record<string, unknown>;
+
+    // Preserve "written" only when it matters and is a boolean.
     if ((out.created || out.updated) && typeof anyOp.written === 'boolean') {
       out.written = anyOp.written;
+    }
+
+    // Preserve "forced" if upstream sets it.
+    if (typeof anyOp.forced === 'boolean') {
+      out.forced = anyOp.forced;
+    }
+
+    // Preserve a skip reason if provided by upstream.
+    if (op.kind === 'skip') {
+      const reason = (anyOp as { reason?: unknown }).reason;
+      if (reason !== undefined) out.excluded = { reason: String(reason) };
     }
 
     return out as t.TmplFileOperation;
