@@ -9,11 +9,12 @@ export const Fmt: t.FsFmtLib = {
     const root: Node = { name: '', files: [], dirs: new Map() };
     for (const p of rels) insert(root, p.split('/'));
 
+    const pad = ' '.repeat(Math.max(0, options.indent ?? 0));
     const lines: string[] = [];
     const label = options.label?.replace(/\/?$/, '/') ?? '';
-    if (label) lines.push(label);
+    if (label) lines.push(pad + label);
 
-    visit(root, '', 0, options, lines);
+    visit(root, '', 0, options, lines, pad);
     return lines.join('\n');
   },
 
@@ -45,7 +46,14 @@ function insert(node: Node, parts: string[]) {
 }
 
 /** DFS pretty-printer. */
-function visit(node: Node, prefix: string, depth: number, opt: t.FsTreeOptions, out: string[]) {
+function visit(
+  node: Node,
+  prefix: string,
+  depth: number,
+  opt: t.FsTreeOptions,
+  out: string[],
+  pad = '',
+) {
   if (opt.maxDepth !== undefined && depth >= opt.maxDepth) return;
 
   const dirNames = [...node.dirs.keys()].sort();
@@ -54,15 +62,15 @@ function visit(node: Node, prefix: string, depth: number, opt: t.FsTreeOptions, 
   dirNames.forEach((d, i) => {
     const isLast = i === dirNames.length - 1 && fileNames.length === 0;
     const branch = isLast ? '└─ ' : '├─ ';
-    out.push(`${prefix}${branch}${d}/`);
+    out.push(`${pad}${prefix}${branch}${d}/`);
     const nextPrefix = prefix + (isLast ? '   ' : '│  ');
-    visit(node.dirs.get(d)!, nextPrefix, depth + 1, opt, out);
+    visit(node.dirs.get(d)!, nextPrefix, depth + 1, opt, out, pad);
   });
 
   fileNames.forEach((f, i) => {
     const isLast = i === fileNames.length - 1;
     const branch = isLast ? '└─ ' : '├─ ';
-    out.push(`${prefix}${branch}${f}`);
+    out.push(`${pad}${prefix}${branch}${f}`);
   });
 }
 

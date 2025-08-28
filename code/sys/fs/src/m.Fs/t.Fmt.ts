@@ -19,4 +19,6 @@ export type FsTreeOptions = {
   readonly label?: string;
   /** Max depth to render (1 = only top-level). Omit for unlimited. */
   readonly maxDepth?: number;
+  /** Indent from the left */
+  readonly indent?: number;
 };
