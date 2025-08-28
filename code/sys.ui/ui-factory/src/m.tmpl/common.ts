@@ -1,7 +1,8 @@
 export * from '../common.ts';
 
 export { c, Cli } from '@sys/cli';
-export { Fs } from '@sys/fs';
+export { Fs, Path } from '@sys/fs';
+export { FileMap } from '@sys/fs/filemap';
 export { Semver } from '@sys/std/semver';
 export { Tmpl as TmplEngine } from '@sys/tmpl/fs';
 
