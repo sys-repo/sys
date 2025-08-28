@@ -1,2 +1,2 @@
-# Template
-Tools for working with file-templates that can be copied or updated to target projects.
+# Template Engine
+Tools for working with filesystem tiles as `templates` that can be copied and/or updated to target projects.

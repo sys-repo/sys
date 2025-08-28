@@ -55,7 +55,8 @@ export const Paths = {
     /**
      * sys.dev: (programming system)
      */
-     'code/sys.dev',
+    'code/sys/tmpl',
+    'code/sys.dev',
 
 
     /**
