@@ -42,7 +42,7 @@
 
     "code/sys/http",
     "code/sys/text",
-    "code/sys/tmpl",
+    "code/sys/tmpl-engine",
     "code/sys/cmd",
     "code/sys/schema",
 

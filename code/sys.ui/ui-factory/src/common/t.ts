@@ -21,7 +21,7 @@ export type {
   TmplLogTableOptions,
   TmplWriteOptions,
   TmplWriteResponse,
-} from '@sys/tmpl/t';
+} from '@sys/tmpl-engine/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';

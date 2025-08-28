@@ -27,7 +27,7 @@ export const Paths = {
     'code/sys/http',
     'code/sys/cmd',
     'code/sys/text',
-    'code/sys/tmpl',
+    'code/sys/tmpl-engine',
     'code/sys/jsr',
 
     /**

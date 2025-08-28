@@ -8,5 +8,5 @@ export type * from './pkg.deno/src/common/t.ts';
 
 export type * from '@sys/types/t';
 
-export type { TmplFilter, TmplWriteHandlerArgs } from '@sys/tmpl/t';
+export type { TmplFilter, TmplWriteHandlerArgs } from '@sys/tmpl-engine/t';
 export type { CssInput } from '@sys/ui-css/t';

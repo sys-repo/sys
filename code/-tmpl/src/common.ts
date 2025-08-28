@@ -13,7 +13,7 @@ export { t };
 export { c, Cli } from '@sys/cli';
 export { DenoFile } from '@sys/driver-deno/runtime';
 export { Fs, Path } from '@sys/fs';
-export { Tmpl } from '@sys/tmpl/fs';
+export { Tmpl } from '@sys/tmpl-engine/fs';
 
 /**
  * UI Refs:

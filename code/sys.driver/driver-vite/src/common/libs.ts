@@ -11,6 +11,6 @@ export { CompositeHash, FileHashUri, Hash } from '@sys/crypto/hash';
 export { FileMap, Fs, Path, Pkg } from '@sys/fs';
 export { HttpServer, Net } from '@sys/http/server';
 export { Process } from '@sys/process';
-export { Tmpl } from '@sys/tmpl/fs';
+export { Tmpl } from '@sys/tmpl-engine/fs';
 
 export { DenoDeps, DenoFile, DenoModule } from '@sys/driver-deno/runtime';

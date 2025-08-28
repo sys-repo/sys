@@ -110,9 +110,9 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/tmpl"
+      - name: publish module → "@sys/tmpl-engine"
         run: |
-          cd code/sys/tmpl
+          cd code/sys/tmpl-engine
           deno task test --parallel
           deno publish --allow-dirty
 
