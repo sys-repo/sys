@@ -42,7 +42,7 @@ export async function main() {
       style: { Absolute: 0 },
       hr: (e) => {
         if (e.next?.endsWith('.Loading')) return true;
-        if (e.next?.endsWith(': Catalog')) return true;
+        if (e.next?.endsWith('→ Catalog')) return true;
       },
     });
 
