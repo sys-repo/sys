@@ -85,7 +85,7 @@ describe(`${pkg.name}/tmpl: Template Generation`, () => {
 
     // Render a simple tree to console.
     console.info();
-    console.info(c.bold(c.cyan(`Tmpl.write:\n`)));
+    console.info(c.bold(c.gray(`Tmpl${c.green('.write')}:\n`)));
     console.info(`${Fs.Fmt.tree(rels, { indent: 2 })}`);
     console.info();
   });
