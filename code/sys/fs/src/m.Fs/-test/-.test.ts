@@ -1,9 +1,9 @@
 import * as StdFs from '@std/fs';
 import { Path as StdPath } from '@sys/std';
-import { describe, expect, it } from '../-test.ts';
-import { Glob } from '../m.Glob/mod.ts';
-import { Path } from './common.ts';
-import { Fs } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Glob } from '../../m.Glob/mod.ts';
+import { Path } from '../common.ts';
+import { Fs } from '../mod.ts';
 
 describe('Fs: filesystem', () => {
   it('API', () => {
@@ -14,6 +14,7 @@ describe('Fs: filesystem', () => {
     expect(Fs.ensureDir).to.eql(StdFs.ensureDir);
     expect(Fs.ensureSymlink).to.eql(StdFs.ensureSymlink);
     expect(Fs.move).to.eql(StdFs.move);
+    expect(Fs.makeTempDir).to.equal(Deno.makeTempDir);
   });
 
   describe('Fs.Path', () => {

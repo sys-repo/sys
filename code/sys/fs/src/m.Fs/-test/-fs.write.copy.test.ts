@@ -1,6 +1,6 @@
-import { type t, Arr, describe, expect, expectError, it, sampleDir, slug } from '../-test.ts';
-import { Path } from './common.ts';
-import { Fs } from './mod.ts';
+import { type t, Arr, describe, expect, expectError, it, sampleDir, slug } from '../../-test.ts';
+import { Path } from '../common.ts';
+import { Fs } from '../mod.ts';
 
 describe('Fs: directory operations', () => {
   const setupCopyTest = async () => {

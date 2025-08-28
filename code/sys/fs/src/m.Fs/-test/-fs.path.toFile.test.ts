@@ -1,7 +1,7 @@
-import { describe, expect, it } from '../-test.ts';
-import { Path } from './common.ts';
-import { Fs } from './mod.ts';
-import { toFile } from './u.toFile.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Path } from '../common.ts';
+import { Fs } from '../mod.ts';
+import { toFile } from '../u.toFile.ts';
 
 describe('Fs.toFile', () => {
   const cwd = Path.cwd();

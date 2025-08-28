@@ -1,5 +1,5 @@
-import { type t, describe, expect, it } from '../-test.ts';
-import { Fs } from './mod.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
+import { Fs } from '../mod.ts';
 
 describe('Fs: tree walking helpers', () => {
   describe('Fs.walkUp', () => {

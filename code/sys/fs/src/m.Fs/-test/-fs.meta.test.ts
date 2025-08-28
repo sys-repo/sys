@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { Fs } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Fs } from '../mod.ts';
 
 describe('Fs: info/meta-data operations on the file-system', () => {
   describe('Fs.stat', () => {

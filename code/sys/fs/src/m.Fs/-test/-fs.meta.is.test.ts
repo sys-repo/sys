@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../-test.ts';
-import { Path } from './common.ts';
-import { Fs } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Path } from '../common.ts';
+import { Fs } from '../mod.ts';
 
 describe('Fs.Is (flags)', () => {
   const Is = Fs.Is;

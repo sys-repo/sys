@@ -1,8 +1,8 @@
-import { describe, expect, it } from '../-test.ts';
-import { Path } from './common.ts';
-import { Fs } from './mod.ts';
-import { toDir } from './u.toDir.ts';
-import { assertPathDepth } from '../m.Glob/-.test.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { assertPathDepth } from '../../m.Glob/-.test.ts';
+import { Path } from '../common.ts';
+import { Fs } from '../mod.ts';
+import { toDir } from '../u.toDir.ts';
 
 describe('Fs.toDir', () => {
   const cwd = Path.cwd();

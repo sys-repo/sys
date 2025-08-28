@@ -1,5 +1,5 @@
-import { type t, describe, Err, expect, it } from '../-test.ts';
-import { Fs } from './mod.ts';
+import { type t, describe, Err, expect, it } from '../../-test.ts';
+import { Fs } from '../mod.ts';
 
 describe('Fs: read from the file-system operations', () => {
   const assertSuccess = (res: t.FsReadResult<unknown>, path: string) => {
