@@ -17,4 +17,5 @@ export type TmplLogTableOptions = {
   trimPathLeft?: t.StringPath;
   baseDir?: t.StringDir;
   note?: (op: t.TmplFileOperation) => string | void;
+  dryRun?: boolean;
 };

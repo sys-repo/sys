@@ -50,6 +50,12 @@ export function normalizeOps(ops: readonly any[], baseDir?: t.StringDir): t.Tmpl
         break;
     }
 
+    // Propagate optional flags when present on the incoming op.
+    const anyOp = op as Record<string, unknown>;
+    if ((out.created || out.updated) && typeof anyOp.written === 'boolean') {
+      out.written = anyOp.written;
+    }
+
     return out as t.TmplFileOperation;
   });
 }

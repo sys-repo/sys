@@ -9,20 +9,45 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
     return c.gray(c.italic(`${indent}No items to display`));
   }
 
-  normalizeOps(ops, options.baseDir)
-    .filter((op) => (options.hideExcluded ? !op.excluded : true))
-    .forEach((op) => {
-      const path = wrangle.path(op, options.trimPathLeft);
-      const action = wrangle.action(op);
-      const note = wrangle.note(op, options);
-      table.push([`${indent}${action}`, path, note]);
-    });
+  // Default to trimming with baseDir when trimPathLeft isn't provided.
+  const effectiveTrimLeft = options.trimPathLeft ?? options.baseDir;
+
+  // Normalize incoming ops (supports FileMapMaterializeOp[] or TmplFileOperation[]).
+  const normalized = normalizeOps(ops, options.baseDir).filter((op) =>
+    options.hideExcluded ? !op.excluded : true,
+  );
+
+  // Dedupe by absolute target path; keep the strongest signal:
+  // |→ created (3) → updated (2) → unchanged (1).
+  // NB: Excluded is handled by filter above.
+  const rank = (op: t.TmplFileOperation): number => {
+    if (op.excluded) return -1;
+    if (op.created) return 3;
+    if (op.updated) return 2;
+    return 1; // unchanged (we deliberately ignore any "renamed" hints)
+  };
+
+  const byPath = new Map<string, t.TmplFileOperation>();
+  for (const op of normalized) {
+    const abs = op.file?.target?.absolute;
+    if (!abs) continue;
+    const prev = byPath.get(abs);
+    if (!prev || rank(op) > rank(prev)) byPath.set(abs, op);
+  }
+  const deduped = Array.from(byPath.values());
+
+  deduped.forEach((op) => {
+    const path = wrangle.path(op, effectiveTrimLeft);
+    const action = wrangle.action(op);
+    const note = wrangle.note(op, options);
+    table.push([`${indent}${action}`, path, note]);
+  });
 
   return table.toString().replace(/^\s*\n/, '');
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   path(op: t.TmplFileOperation, trimLeft?: string) {
@@ -40,7 +65,7 @@ const wrangle = {
     if (op.excluded) return c.gray(c.dim(' n/a'));
     if (op.created) return c.green('Created');
     if (op.updated) return c.yellow('Updated');
-    return c.gray('Unchanged');
+    return c.gray('Unchanged'); // no rename slot, no inference
   },
 
   note(op: t.TmplFileOperation, options: t.TmplLogTableOptions) {
@@ -55,22 +80,16 @@ const wrangle = {
       const reason = typeof op.excluded === 'object' ? op.excluded.reason : '';
       append(reason ? `${base}: ${reason}` : base);
     }
-    if (op.forced && !op.excluded) {
-      append(c.yellow('forced'));
-    }
-    if (is.dryRun(op)) {
-      append(`${c.cyan('dry-run')}`);
-    }
+    if (op.forced && !op.excluded) append(c.yellow('forced'));
+
+    // Prefer explicit caller intent; fall back to heuristic:
+    const showDryRun = options.dryRun ?? (!op.written && (op.created || op.updated));
+    if (showDryRun) append(c.cyan('dry-run'));
+
     if (typeof options.note === 'function') {
       const note = options.note(op);
       if (note) append(note);
     }
     return text ? c.gray(`${c.white('←')} ${text}`) : '';
-  },
-} as const;
-
-const is = {
-  dryRun(op: t.TmplFileOperation) {
-    return !op.written && (op.created || op.updated);
   },
 } as const;
