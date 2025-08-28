@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.materialize.ts';
 
 /**
  * Tools for generating and saving bundles of files as a structured object.
@@ -20,14 +21,21 @@ export type FileMapLib = {
   write(target: t.StringDir, bundle: t.FileMap): Promise<t.FileMapSaveResult>;
 
   /** Parse a raw JSON value into a FileMap; returns { fileMap } on success or { error } if invalid. */
-  fromJson(json: unknown): t.FileMapFromJsonResult;
+  validate(json: unknown): t.FileMapValidateResult;
+
+  /** Apply (materialize) a FileMap into a target directory with optional per-file transforms. */
+  materialize(
+    map: t.FileMap,
+    dir: t.StringDir,
+    options?: t.FileMapMaterializeOptions,
+  ): Promise<t.FileMapMaterializeResult>;
 };
 
 /** Resposne from `FileMap.write` method. */
 export type FileMapSaveResult = { readonly target: t.StringDir; readonly error?: t.StdError };
 
 /** Outcome of parsing a raw JSON value into the `FileMap.fromJson` method. */
-export type FileMapFromJsonResult = { readonly fileMap?: t.FileMap; readonly error?: t.StdError };
+export type FileMapValidateResult = { readonly fileMap?: t.FileMap; readonly error?: t.StdError };
 
 /**
  * Represents a bundled set of paths/files as a structured object.

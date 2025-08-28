@@ -16,16 +16,26 @@ describe('FileMap.Is', () => {
   });
 
   it('Is.supported.contentType', () => {
-    const test = (contentType: any, expected: boolean) => {
-      expect(Is.supported.contentType(contentType)).to.eql(expected);
-    };
-    Object.values(DEFAULTS.contentTypes).forEach((v) => test(v, true));
+    const set = new Set<string>([
+      DEFAULTS.contentType.toLowerCase(),
+      ...Object.values(DEFAULTS.contentTypes.all()).map((m) => m.toLowerCase()),
+      ...Object.keys(DEFAULTS.contentTypes.structuredText).map((m) => m.toLowerCase()),
+    ]);
 
-    const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-    NON.forEach((v) => test(v, false));
+    const test = (mime: any, expected: boolean) => {
+      expect(Is.supported.contentType(mime)).to.eql(expected);
+    };
+
+    // All supported should be true
+    set.forEach((m) => test(m, true));
+
+    // Nonsensical values
+    [123, true, null, undefined, BigInt(0), Symbol('x'), {}, []].forEach((v: any) => {
+      return test(v, false);
+    });
     test('', false);
     test('foo', false);
-    test('foo/bar', false);
+    test('foo/bar', false); // ← NB: not registered → false.
   });
 
   it('Is.contentType.string', () => {

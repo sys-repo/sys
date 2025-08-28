@@ -3,7 +3,8 @@ import { type t } from './common.ts';
 import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
 import { bundle } from './u.bundle.ts';
-import { fromJson } from './u.from.ts';
+import { materialize } from './u.materlialize.ts';
+import { validate } from './u.validate.ts';
 import { write } from './u.write.ts';
 
 export const FileMap: t.FileMapLib = {
@@ -11,5 +12,6 @@ export const FileMap: t.FileMapLib = {
   Data,
   bundle,
   write,
-  fromJson,
+  validate,
+  materialize,
 };

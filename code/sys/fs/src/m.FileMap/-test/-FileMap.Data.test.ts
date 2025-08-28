@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../-test.ts';
-import { DEFAULTS } from './common.ts';
-import { FileMap } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { D } from '../common.ts';
+import { FileMap } from '../mod.ts';
 
 describe('FileMap.Data (encoding)', () => {
   const Data = FileMap.Data;
@@ -28,16 +28,16 @@ describe('FileMap.Data (encoding)', () => {
   });
 
   describe('contentType', () => {
-    const contentTypes = DEFAULTS.contentTypes;
-
     it('contentType.fromPath', () => {
-      Object.keys(contentTypes).forEach((key) => {
-        const ext = key as keyof typeof contentTypes;
+      const map = D.contentTypes.all(); // Record<ext, mime>
+
+      Object.entries(map).forEach(([ext, mime]) => {
         const path = `foo/file${ext}`;
         const a = Data.contentType.fromPath(path);
-        const b = Data.contentType.fromPath(ext);
-        expect(a).to.eql(contentTypes[ext]);
-        expect(b).to.eql(a);
+        const b = Data.contentType.fromPath(ext); // dotfile path like ".ts" is supported
+
+        expect(a).to.eql(mime);
+        expect(b).to.eql(mime);
       });
     });
 
@@ -51,7 +51,7 @@ describe('FileMap.Data (encoding)', () => {
 
     it('contentType.fromPath: default → "text/plain"', () => {
       const test = (path: string) => {
-        expect(Data.contentType.fromPath(path)).to.eql(DEFAULTS.contentType);
+        expect(Data.contentType.fromPath(path)).to.eql(D.contentType);
       };
       test('');
       test('foo');
