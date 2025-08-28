@@ -35,7 +35,7 @@ groups:
       subpaths: [bdd]
     - import: npm:chai@6.0.1
       subpaths: ['/', 'chai.js']
-    - import: npm:fake-indexeddb@6.1.0
+    - import: npm:fake-indexeddb@6.2.0
       subpaths: ['auto']
 
   automerge:
@@ -67,7 +67,7 @@ groups:
     - import: npm:react@19.1.1
     - import: npm:react-dom@19.1.1
     - import: npm:@types/react@19.1.12
-    - import: npm:@types/react-dom@19.1.8
+    - import: npm:@types/react-dom@19.1.9
 
   ui/monaco:
     # https://microsoft.github.io/monaco-editor
@@ -84,7 +84,7 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.26
+    - import: npm:ai@5.0.27
     - import: npm:@ai-sdk/openai@2.0.22
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.15.2

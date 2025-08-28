@@ -54,6 +54,7 @@ function Panel(props: {
   const styles = {
     base: css({
       border: `dashed 2px ${Color.alpha(theme.fg, 0.5)}`,
+      color: theme.fg,
       borderRadius: 12,
       padding: 16,
       margin: 16,
@@ -98,6 +99,9 @@ export const factory = Factory.make(regs);
  */
 export function makePlan(props: { theme: t.CommonTheme | undefined }): t.Plan<typeof factory> {
   const { theme } = props;
+
+  console.log('theme', theme);
+
   const plan: t.Plan<typeof factory> = {
     root: {
       component: 'Layout:two',
