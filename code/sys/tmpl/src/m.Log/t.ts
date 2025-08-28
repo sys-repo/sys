@@ -15,5 +15,6 @@ export type TmplLogTableOptions = {
   indent?: number;
   hideExcluded?: boolean;
   trimPathLeft?: t.StringPath;
+  baseDir?: t.StringDir;
   note?: (op: t.TmplFileOperation) => string | void;
 };

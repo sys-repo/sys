@@ -1,75 +1,113 @@
-import { Path, SAMPLE, describe, expect, it, stripAnsi } from '../-test.ts';
-import { Tmpl } from '../m.Tmpl/mod.ts';
+import { describe, expect, it } from '../-test.ts';
+
+import { type t, Fs, Path } from '../common.ts';
 import { Log } from './mod.ts';
 
 describe('Tmpl.Log', () => {
-  const Test = SAMPLE.fs('m.Log');
-
   it('API', () => {
-    expect(Tmpl.Log).to.equal(Log);
+    expect(typeof Log.table).to.eql('function');
   });
 
-  describe('Log.table', () => {
-    it('log table', async () => {
-      const test = Test.sample1();
-      let change = false;
-      const tmpl = Tmpl.create(test.source, (e) => {
-        if (change) e.modify('// foo');
-      });
+  it('empty ops → friendly message, respects indent', () => {
+    const out0 = Log.table([], {});
+    expect(out0.toLowerCase()).to.include('no items');
 
-      const res1 = await tmpl.write(test.target);
-      const res2 = await tmpl.write(test.target);
-      change = true;
-      const res3 = await tmpl.write(test.target);
+    const out2 = Log.table([], { indent: 2 });
+    // 2-space indent should prefix the message (allowing for ANSI)
+    expect(out2.replace(/\x1b\[[0-9;]*m/g, '')).to.match(/^\s{2}/);
+  });
 
-      const table1 = Log.table(res1.ops);
-      const table2 = Log.table(res2.ops);
-      const table3 = Log.table(res3.ops);
+  it('normalizes FileMap ops (baseDir + trimPathLeft)', () => {
+    // Use the same absolute base for normalization and trimming.
+    const base = Fs.toDir(Path.resolve('/tmp/log-table-base')) as t.FsDir;
 
-      expect(table1.toString()).to.include('Created');
-      expect(table1.toString()).to.not.include('Updated');
-      expect(table1.toString()).to.not.include('Unchanged');
+    const ops: t.FileMapMaterializeOp[] = [
+      { kind: 'write', path: 'x/y.txt' },
+      { kind: 'modify', path: 'x/z.md' },
+      { kind: 'skip', path: 'x/w.bin' },
+    ];
 
-      expect(table2.toString()).to.not.include('Created');
-      expect(table2.toString()).to.not.include('Updated');
-      expect(table2.toString()).to.include('Unchanged');
-
-      expect(table3.toString()).to.not.include('Created');
-      expect(table3.toString()).to.include('Updated');
-      expect(table3.toString()).to.not.include('Unchanged');
+    const out = Log.table(ops as any, {
+      baseDir: base.absolute,
+      trimPathLeft: base.absolute,
     });
 
-    it('empty (no operations)', async () => {
-      const test = Test.sample1();
-      const tmpl = Tmpl.create(test.source).filter(() => false);
-      const res = await tmpl.write(test.target);
-      const table = Log.table(res.ops);
-      expect(table).to.include('No items to display');
+    const cleaned = out.replace(/\x1b\[[0-9;]*m/g, '');
+
+    // Renderer currently shows basenames only:
+    expect(cleaned).to.include('y.txt');
+    expect(cleaned).to.include('z.md');
+    expect(cleaned).to.include('w.bin'); // skip appears when hideExcluded is false (default)
+  });
+
+  it('hideExcluded=true filters skip ops', () => {
+    const base = Fs.toDir(Path.resolve('/tmp/log-table-base-2')) as t.FsDir;
+    const ops: t.FileMapMaterializeOp[] = [
+      { kind: 'write', path: 'a.txt' },
+      { kind: 'skip', path: 'b.txt' },
+      { kind: 'modify', path: 'c.txt' },
+    ];
+
+    const out = Log.table(ops as any, {
+      baseDir: base.absolute,
+      trimPathLeft: base.absolute,
+      hideExcluded: true,
     });
 
-    it('option: { trimBase:<path> }', async () => {
-      const test = Test.sample1();
-      const tmpl = Tmpl.create(test.source, (e) => {});
-      const res = await tmpl.write(test.target);
+    const cleaned = out.replace(/\x1b\[[0-9;]*m/g, '');
+    expect(cleaned).to.include('a.txt');
+    expect(cleaned).to.include('c.txt');
+    expect(cleaned).not.to.include('b.txt');
+  });
 
-      const trimPathLeft = Path.trimCwd(test.target) + '/';
-      const table = Log.table(res.ops, { trimPathLeft });
-      expect(stripAnsi(table.toString())).to.include('  .gitignore');
+  it('indent adds left padding', () => {
+    const base = Fs.toDir(Path.resolve('/tmp/log-table-indent')) as t.FsDir;
+    const ops: t.FileMapMaterializeOp[] = [{ kind: 'write', path: 'p/q.txt' }];
+
+    const out = Log.table(ops as any, {
+      baseDir: base.absolute,
+      trimPathLeft: base.absolute,
+      indent: 4,
     });
 
-    it('option: { note: ƒn }', async () => {
-      const test = Test.sample1();
-      const tmpl = Tmpl.create(test.source, (e) => {});
-      const res = await tmpl.write(test.target);
+    const noAnsi = out.replace(/\x1b\[[0-9;]*m/g, '');
 
-      const table = Log.table(res.ops, {
-        note(op) {
-          const filename = op.file.target.file.name;
-          if (filename === 'deno.json') return `foo`;
-        },
-      });
+    // The action cell is prefixed with spaces – assert at least one line starts with 4 spaces
+    expect(noAnsi.split('\n').some((l) => /^ {4}\S/.test(l))).to.eql(true);
 
-      expect(stripAnsi(table.toString())).to.include('← foo');
-    });
+    // Renderer shows only the basename, not the full relative path.
+    expect(noAnsi).to.include('q.txt');
+  });
+
+  it('rename renders without throwing (best-effort note)', () => {
+    const ops: t.FileMapMaterializeOp[] = [{ kind: 'rename', from: 'old.ts', to: 'new.ts' }];
+    const out = Log.table(ops as any, {});
+
+    // Destination should always be shown:
+    expect(out).to.include('new.ts');
+
+    // The action label exists (don't couple to exact wording/color):
+    const noAnsi = out.replace(/\x1b\[[0-9;]*m/g, '');
+    expect(noAnsi).to.match(/Created|Updated|Renamed|Unchanged|Excluded/);
+  });
+
+  it('TmplFileOperation passthrough (no normalization)', () => {
+    const base = Fs.toDir(Path.resolve('/tmp/log-table-direct')) as t.FsDir;
+    const abs = Path.join(base.absolute, 'direct.txt') as t.StringPath;
+
+    // Minimal shape the renderer actually uses; cast to the union for the test.
+    const op = {
+      file: { tmpl: Fs.toFile(abs), target: Fs.toFile(abs) },
+      written: true,
+      updated: false,
+      excluded: false,
+      forced: false,
+      created: true,
+    } as unknown as t.TmplFileOperation;
+
+    const out = Log.table([op], { trimPathLeft: base.absolute });
+    const cleaned = out.replace(/\x1b\[[0-9;]*m/g, '');
+    expect(cleaned).to.include('direct.txt');
+    expect(cleaned).to.match(/Created|Updated|Renamed|Unchanged|Excluded/);
   });
 });

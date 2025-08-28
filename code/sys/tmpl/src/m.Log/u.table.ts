@@ -1,4 +1,5 @@
 import { type t, c, Cli } from './common.ts';
+import { normalizeOps } from './u.normalize.ts';
 
 export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
   const table = Cli.table([]);
@@ -8,7 +9,7 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
     return c.gray(c.italic(`${indent}No items to display`));
   }
 
-  ops
+  normalizeOps(ops, options.baseDir)
     .filter((op) => (options.hideExcluded ? !op.excluded : true))
     .forEach((op) => {
       const path = wrangle.path(op, options.trimPathLeft);
@@ -16,6 +17,7 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
       const note = wrangle.note(op, options);
       table.push([`${indent}${action}`, path, note]);
     });
+
   return table.toString().replace(/^\s*\n/, '');
 };
 
