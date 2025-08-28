@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 
 export type * from './t.Dir.ts';
 export type * from './t.File.ts';
+export type * from './t.Fmt.ts';
 export type { WalkEntry };
 
 type Methods = StdMethods & IndexMethods & GlobMethods;
@@ -88,6 +89,9 @@ type IndexMethods = {
 
   /** Helpers for watching file-system changes. */
   readonly Watch: t.FsWatchLib;
+
+  /** Formatting helpers (pretty console output). */
+  readonly Fmt: t.FsFmtLib;
 };
 
 type GlobMethods = {

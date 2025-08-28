@@ -3,6 +3,7 @@ import type { FsLib } from './t.ts';
 
 import { create as glob } from '../m.Glob/u.create.ts';
 import { Watch } from '../m.Watch/mod.ts';
+import { Fmt } from './m.Fmt.ts';
 import { Is } from './m.Is.ts';
 import { Size } from './m.Size.ts';
 import { copy, copyDir, copyFile } from './u.copy.ts';
@@ -34,6 +35,9 @@ export const Fs: FsLib = {
   },
   get Watch() {
     return Watch;
+  },
+  get Fmt() {
+    return Fmt;
   },
   stat,
 
@@ -73,4 +77,4 @@ export const Fs: FsLib = {
   walk,
   walkUp,
   watch: Watch.start,
-} as const;
+};
