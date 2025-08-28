@@ -1,6 +1,6 @@
 import bundle from './-bundle.json' with { type: 'json' };
 
-import { type t, FileMap, Fs, Path } from './common.ts';
+import { type t, FileMap, Fs, Path, PATHS } from './common.ts';
 import { createFileProcessor } from './u.processFile.ts';
 
 export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
@@ -19,7 +19,7 @@ export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
     throw new Error(msg)
   }
 
-  const sourceDir = Fs.toDir(Path.resolve('./src/-tmpl/'));
+  const sourceDir = Fs.toDir(Path.resolve(PATHS.tmpl.source));
   const targetDir = Fs.toDir(Path.resolve(target));
 
   // Pass the bundleRoot into the file-processor:

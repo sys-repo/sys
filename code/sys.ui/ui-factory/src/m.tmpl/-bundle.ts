@@ -2,10 +2,10 @@
  * Generate a deterministic JSON bundle from ../-tmpl/files into ./-bundle.json
  * Usage: deno task tmpl:prep
  */
-import { FileMap, Fs, Path, c } from './common.ts';
+import { c, FileMap, Fs, Path, PATHS } from './common.ts';
 
-const SRC_DIR = Path.resolve('./src/-tmpl');
-const OUT_FILE = Path.resolve('./src/m.tmpl/-bundle.json');
+const SRC_DIR = Path.resolve(PATHS.tmpl.source);
+const OUT_FILE = Path.resolve(PATHS.tmpl.json);
 
 if (import.meta.main) main();
 
