@@ -42,9 +42,12 @@ export type FileMapMaterializeResult = {
   readonly ops: readonly t.FileMapMaterializeOp[];
 };
 
-/** A single file-operation while materializing to the filesystem. */
-export type FileMapMaterializeOp = {
-  readonly kind: 'write' | 'skip' | 'rename' | 'modify';
-  readonly path: t.StringPath;
-  readonly note?: string; // e.g., exclude reason or "exists"
-};
+/**
+ * Operation emitted during FileMap.materialize.
+ * Keep this the single source of truth for downstream consumers.
+ */
+export type FileMapMaterializeOp =
+  | { kind: 'write'; path: t.StringPath }
+  | { kind: 'modify'; path: t.StringPath }
+  | { kind: 'rename'; from: t.StringPath; to: t.StringPath }
+  | { kind: 'skip'; path?: t.StringPath };

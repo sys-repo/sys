@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../-test.ts';
-import { DEFAULTS } from './common.ts';
-import { FileMap } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { DEFAULTS } from '../common.ts';
+import { FileMap } from '../mod.ts';
 
 describe('FileMap.Is', () => {
   const Is = FileMap.Is;
@@ -26,16 +26,20 @@ describe('FileMap.Is', () => {
       expect(Is.supported.contentType(mime)).to.eql(expected);
     };
 
-    // All supported should be true
+    // All supported should be true (case preserved as in our set)
     set.forEach((m) => test(m, true));
 
+    // Also explicitly assert structuredText mimes are supported
+    test('application/markdown', true);
+    test('application/javascript', true);
+
     // Nonsensical values
-    [123, true, null, undefined, BigInt(0), Symbol('x'), {}, []].forEach((v: any) => {
-      return test(v, false);
-    });
+    [123, true, null, undefined, BigInt(0), Symbol('x'), {}, []].forEach((v: any) =>
+      test(v, false),
+    );
     test('', false);
     test('foo', false);
-    test('foo/bar', false); // ← NB: not registered → false.
+    test('foo/bar', false);
   });
 
   it('Is.contentType.string', () => {
@@ -46,14 +50,15 @@ describe('FileMap.Is', () => {
     test('application/json', true);
     test('text/plain', true);
     test('text/markdown', true);
-    test('text/markdown', true);
     test('image/svg+xml', true);
+    test('application/markdown', true);
+    test('application/javascript', true);
 
     const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
     NON.forEach((v) => test(v, false));
     test('image/png', false);
     test('image/jpeg', false);
-    test('image/webb', false);
+    test('image/webb', false); // ← Not a real mime.
   });
 
   it('Is.contentType.binary', () => {
@@ -70,6 +75,7 @@ describe('FileMap.Is', () => {
     test('application/json', false);
     test('text/plain', false);
     test('text/markdown', false);
-    test('text/markdown', false);
+    test('application/markdown', false);
+    test('application/javascript', false);
   });
 });
