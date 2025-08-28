@@ -34,7 +34,7 @@ console.info(table.toString().trim())
  */
 const dirname = await Cli.Prompt.Input.prompt({
   message: 'Folder Name',
-  default: 'my-folder',
+  default: 'foo',
   // Keep folder-name simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces).
   validate: (v: string) =>
     /^[\w.\-\/]+$/.test(v) || 'Use letters, numbers, ".", "-", "_" (and optional "/")',
