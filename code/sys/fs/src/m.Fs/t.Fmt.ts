@@ -8,7 +8,7 @@ export type FsFmtLib = {
   tree(paths: readonly string[], options?: FsTreeOptions): string;
 
   /** Walk a directory and render a tree (paths are made relative to dir). */
-  treeFromDir(dir: t.StringDir, options?: FsTreeOptions): Promise<string>;
+  treeFromDir(dir?: t.StringDir, options?: FsTreeOptions): Promise<string>;
 };
 
 /** Options passed to the tree formatter. */

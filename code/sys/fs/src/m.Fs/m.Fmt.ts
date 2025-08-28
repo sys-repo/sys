@@ -1,4 +1,5 @@
 import { type t, Path } from './common.ts';
+import { cwd } from './u.cwd.ts';
 import { walk } from './u.walk.ts';
 
 type Node = { name: string; files: string[]; dirs: Map<string, Node> };
@@ -18,7 +19,8 @@ export const Fmt: t.FsFmtLib = {
     return lines.join('\n');
   },
 
-  async treeFromDir(dir, options = {}) {
+  async treeFromDir(dirInput, options = {}) {
+    const dir = dirInput ?? cwd('terminal');
     const abs = Path.resolve(dir);
     const rels: string[] = [];
     for await (const e of walk(abs)) {
