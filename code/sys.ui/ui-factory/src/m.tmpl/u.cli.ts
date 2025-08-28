@@ -22,13 +22,11 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   });
 
   // 2) Compose target path and write the scaffold.
-  const target = `${cwd}/${dirname}` as t.StringDir;
-
-  // Preview-first? Flip to { dryRun: true } if you prefer an interactive confirm step.
+  const target = `${cwd}/${dirname}`;
   const res = await Tmpl.write(target, { dryRun });
 
   // 3) Print a concise, cwd-trimmed table of operations.
-  const table = Tmpl.table(res.ops, { trimPathLeft: cwd as t.StringDir });
+  const table = Tmpl.table(res.ops, { trimPathLeft: cwd });
 
   /**
    * Print:
