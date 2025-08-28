@@ -39,8 +39,8 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   type TemplateChoice = (typeof TEMPLATE_CHOICES)[number];
 
   const chosenTemplate = await Cli.Prompt.Select.prompt<TemplateChoice>({
-    message: 'Template',
-    options: TEMPLATE_CHOICES.map((x) => ({ name: `make → ${x.name}`, value: x })),
+    message: 'Choose Template',
+    options: TEMPLATE_CHOICES.map((x) => ({ name: `- ${x.name}`, value: x })),
   });
 
   /**
@@ -68,7 +68,7 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   console.info();
   console.info(c.gray(`${pkg.name}`));
   console.info(c.gray(`location: ${fmtTarget}`));
-  console.info(c.gray(`scaffold: ${c.bold(c.green(`${chosenTemplate.name}`))}`));
+  console.info(c.gray(`template: ${c.bold(c.green(`${chosenTemplate.name}`))}`));
   console.info();
   console.info(table);
   console.info();
