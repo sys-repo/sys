@@ -11,10 +11,9 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   const cwd = Fs.cwd('terminal');
 
   // Print context:
-  const tableMeta = Cli.table([]);
-  tableMeta.push([c.green(pkg.name), c.gray(`${pkg.version}`)]);
+  const title = c.gray(`${c.green(pkg.name)}/${c.white('tmpl')} ${pkg.version}`);
   console.info(Str.SPACE);
-  console.info(tableMeta.toString().trim());
+  console.info(`${Str.SPACE}\n${title}`);
 
   /**
    * 1a) Ask for the target folder name:

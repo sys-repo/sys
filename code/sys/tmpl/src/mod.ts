@@ -1,26 +1,18 @@
 /**
  * @module
  */
-import { c } from '@sys/color/ansi';
+import { Tmpl } from './m.tmpl/mod.ts';
 import { pkg } from './pkg.ts';
 
 /** Type library (barrel file). */
 export type * as t from './types.ts';
 
 /**
- * Exports:
+ * Library:
  */
-export { Templates } from '../-tmpl/mod.ts';
-export { tmplFilter } from './common.ts';
-export { pkg };
+export { pkg, Tmpl };
 
 /**
  * Command-line:
  */
-if (import.meta.main) {
-  const msg = `🐷 coming soon...command-line template generators`;
-  console.info();
-  console.info(c.gray(c.italic(msg)));
-  console.info(pkg);
-  console.info();
-}
+if (import.meta.main) await Tmpl.cli();

@@ -1,5 +1,5 @@
 /**
  * @module
- * Module types.
+ * @types
  */
-export type {};
+export type * from './m.tmpl/t.ts';
