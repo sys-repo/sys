@@ -49,31 +49,10 @@ export async function main() {
     root.render(<React.StrictMode>{app}</React.StrictMode>);
   } else {
     /**
-     * Catalog:
+     * Harness Catalog:
      */
-    const { useFactory } = await import('@sys/ui-factory/adapter/react');
-    const { ValidationErrors } = await import('@sys/ui-factory/components/react');
-    const { Factory } = await import('@sys/ui-factory/core');
-
-    const { css } = await import('@sys/ui-css');
-    const { regs, makePlan } = await import('../ui/catalog.concept-player/mod.ts');
-
-    const factory = Factory.make(regs);
-    const plan = makePlan();
-
-    function App() {
-      const catalog = useFactory(factory, plan, { strategy: 'eager', validate: false });
-      const { issues, element } = catalog;
-      return catalog.ok ? element : <ValidationErrors errors={issues.validation} />;
-    }
-
-    root.render(
-      <React.StrictMode>
-        <div className={css({ Absolute: 0, display: 'grid' }).class}>
-          <App />
-        </div>
-      </React.StrictMode>,
-    );
+    const { makeRoot } = await import('./-catalog.tsx');
+    root.render(makeRoot());
   }
 }
 
