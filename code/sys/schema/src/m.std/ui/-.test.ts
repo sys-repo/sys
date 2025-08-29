@@ -1,8 +1,8 @@
-import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
+import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
 
-describe('@sys/schema/ui', () => {
+describe('schemas: @sys/schema/std/ui', () => {
   it('module exports', async () => {
-    const ui = await import('@sys/schema/ui');
+    const ui = await import('@sys/schema/std/ui');
     expect(ui).to.be.ok;
     expect(ui.CommonThemeSchema).to.be.ok;
     expect(ui.CssScalarSchema).to.be.ok;
@@ -11,7 +11,7 @@ describe('@sys/schema/ui', () => {
 
   describe('ui', () => {
     it('CommonThemeSchema → "Light" | "Dark"', async () => {
-      const { CommonThemeSchema } = await import('@sys/schema/ui');
+      const { CommonThemeSchema } = await import('@sys/schema/std/ui');
 
       type Theme = t.Static<typeof CommonThemeSchema>;
       // Type shape
@@ -26,7 +26,7 @@ describe('@sys/schema/ui', () => {
     });
 
     it('CssScalarSchema → string | number | boolean | null', async () => {
-      const { CssScalarSchema } = await import('@sys/schema/ui');
+      const { CssScalarSchema } = await import('@sys/schema/std/ui');
 
       type Scalar = t.Static<typeof CssScalarSchema>;
       expectTypeOf<Scalar>(true).toEqualTypeOf<string | number | boolean | null>();
@@ -44,7 +44,7 @@ describe('@sys/schema/ui', () => {
     });
 
     it('CssInputSchema → recursive, general CSS value (infer as unknown)', async () => {
-      const { CssInputSchema } = await import('@sys/schema/ui');
+      const { CssInputSchema } = await import('@sys/schema/std/ui');
 
       // We intentionally keep runtime acceptance broad; static type is unknown.
       type CssInput = t.Static<typeof CssInputSchema>;

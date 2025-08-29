@@ -1,4 +1,4 @@
-import { type t, Type } from './common.ts';
+import { type t, Type } from '../common.ts';
 
 /**
  * Scalar CSS atoms.

@@ -1,4 +1,4 @@
-import { type t, Type } from './common.ts';
+import { type t, Type } from '../common.ts';
 
 /**
  * Schema for: CommonTheme.
