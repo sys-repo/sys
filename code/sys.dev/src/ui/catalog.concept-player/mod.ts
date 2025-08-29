@@ -10,6 +10,6 @@ export * from './def/mod.ts';
 /**
  * Factory libs:
  */
-export { Factory } from '@sys/ui-factory/core';
 export { useFactory } from '@sys/ui-factory/adapter/react';
 export { ValidationErrors } from '@sys/ui-factory/components/react';
+export { Factory } from '@sys/ui-factory/core';
