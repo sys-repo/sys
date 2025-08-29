@@ -12,7 +12,7 @@ export { Fs, Path } from '@sys/fs';
 export { Tmpl } from '@sys/tmpl-engine/fs';
 
 /**
- * UI Refs:
+ * UI refs:
  */
 export { Color, css } from '@sys/ui-css';
 export { LocalStorage } from '@sys/ui-dom';
