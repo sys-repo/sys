@@ -2,7 +2,7 @@ import { c, describe, expect, it, pkg } from '../-test.ts';
 import { FileMap, Fs, Path } from './common.ts';
 import { Tmpl } from './mod.ts';
 
-const BUNDLE_ROOT = 'react-catalog';
+const BUNDLE_ROOT = 'react.catalog.folder';
 
 const makeTmp = async () => await Fs.makeTempDir({ prefix: 'ui-factory-write-' });
 const listRelative = async (dir: string) => {
