@@ -19,6 +19,7 @@ export const Hello: React.FC<HelloProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
+      fontFamily: 'sans-serif',
       padding: 20,
       fontSize: 30,
       display: 'grid',

@@ -49,18 +49,27 @@ export async function main() {
     root.render(<React.StrictMode>{app}</React.StrictMode>);
   } else {
     /**
-     * Entry/Splash:
+     * Catalog:
      */
-    const { useKeyboard } = await import('@sys/ui-react-devharness');
-    const { Splash } = await import('./ui.Splash.tsx');
+    const { useFactory } = await import('@sys/ui-factory/adapter/react');
+    const { ValidationErrors } = await import('@sys/ui-factory/components/react');
+    const { Factory } = await import('@sys/ui-factory/core');
+    const { regs, makePlan } = await import('../ui/catalog.concept-player/mod.ts');
+
+    const factory = Factory.make(regs);
+    const plan = makePlan({ name: 'Dev' });
 
     function App() {
-      useKeyboard();
-      return <Splash />;
+      const catalog = useFactory(factory, plan, { strategy: 'eager', validate: false });
+      const { issues, element } = catalog;
+      return catalog.ok ? element : <ValidationErrors errors={issues.validation} />;
     }
 
-    const app = <App />;
-    root.render(<React.StrictMode>{app}</React.StrictMode>);
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+    );
   }
 }
 
