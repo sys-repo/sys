@@ -11,6 +11,7 @@ export function makePlan(): t.Plan<F> {
     root: {
       component: 'Harness:view',
       props: {}, // Harness props are all optional.
+      // slots: { left: {...}, right: {...} } // add when ready.
     },
   } satisfies t.Plan<F>;
   return plan;

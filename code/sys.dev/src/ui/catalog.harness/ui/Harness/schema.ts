@@ -12,6 +12,8 @@ export const HarnessSchema: t.TObject<{
   style: t.TOptional<typeof CssInputSchema>;
 }> = Type.Object(
   {
+    leftWidth: Type.Optional(Type.Number({ description: 'Left pane width (px)' })),
+    gap: Type.Optional(Type.Number({ description: 'Gap between panes (px)' })),
     debug: Type.Optional(Type.Boolean({ description: 'Debug flag' })),
     theme: Type.Optional(CommonThemeSchema),
     style: Type.Optional(CssInputSchema),

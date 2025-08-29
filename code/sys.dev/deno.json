@@ -16,6 +16,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./catalog/harness": "./src/ui/catalog.harness/mod.ts"
   }
 }

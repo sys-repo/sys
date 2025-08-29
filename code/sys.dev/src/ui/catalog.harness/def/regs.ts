@@ -7,9 +7,9 @@ type Regs = readonly t.ReactRegistration<t.CatalogId, t.CatalogSlot>[];
  * Minimal registrations:
  * - Harness (two-slot shell)
  */
-export const regs = [
+export const regs: Regs = [
   {
     spec: HarnessSpec,
     load: async () => ({ default: (await import('../ui/Harness/ui.tsx')).Harness }),
   },
-] satisfies Regs;
+];
