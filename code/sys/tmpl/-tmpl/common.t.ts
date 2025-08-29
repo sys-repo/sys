@@ -11,7 +11,7 @@ export type * from '@sys/types/t';
 /**
  * @local
  */
-export type * from '../common/t.ts';
+export type * from '../src/common/t.ts';
 
 /**
  * @templates

@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Templates, Testing } from '../src/-test.ts';
+import { describe, expect, Fs, it, Templates, Testing } from '../-tmpl/-test.ts';
 import { setup as pkgSetup } from './-pkg.deno.test.ts';
 
 describe('Template: m.mod', () => {
@@ -19,7 +19,7 @@ describe('Template: m.mod', () => {
     const glob = await Fs.glob(def.dir!).find('**', { trimCwd: true, includeDirs: false });
     const paths = glob
       .map((m) => m.path)
-      .map((p) => p.slice('src/-tmpl/m.mod/'.length))
+      .map((p) => p.slice('-tmpl/m.mod/'.length))
       .map((p) => Fs.join(pkgDir, dir, p))
       .filter((p) => !p.endsWith('/.tmpl.ts'));
 

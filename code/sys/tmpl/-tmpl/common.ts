@@ -5,4 +5,4 @@
 import type * as t from './common.t.ts';
 export { t };
 
-export * from '../common.ts';
+export * from '../src/common.ts';

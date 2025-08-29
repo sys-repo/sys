@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, Templates, Testing } from '../src/-test.ts';
+import { type t, describe, expect, it, Templates, Testing } from '../-tmpl/-test.ts';
 import { DenoFile, Fs } from './common.ts';
 
 /**
@@ -38,7 +38,7 @@ describe('Template: pkg.deno', () => {
 
     const glob = await Fs.glob(def.dir!).find('**', { trimCwd: true, includeDirs: false });
     const paths = glob
-      .map((m) => m.path.slice('src/-tmpl/pkg.deno/'.length))
+      .map((m) => m.path.slice('-tmpl/pkg.deno/'.length))
       .map((p) => Fs.join(pkgDir, p))
       .filter((p) => !p.endsWith('.tmpl.ts'))
       .filter((p) => !p.endsWith('-deno.json'));

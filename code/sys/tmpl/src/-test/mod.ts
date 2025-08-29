@@ -10,5 +10,5 @@ export {
   Testing,
 } from '@sys/testing/server';
 
-export { Templates } from '../-tmpl/mod.ts';
+export { Templates } from '../../-tmpl/mod.ts';
 export * from '../common.ts';
