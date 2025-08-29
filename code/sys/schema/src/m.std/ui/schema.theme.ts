@@ -5,5 +5,5 @@ import { type t, Type } from '../common.ts';
  */
 export const CommonThemeSchema: t.TUnion<[t.TLiteral<'Light'>, t.TLiteral<'Dark'>]> = Type.Union(
   [Type.Literal('Light'), Type.Literal('Dark')],
-  { $id: 'CommonTheme' },
+  { $id: 'urn:sys:schema:CommonTheme' },
 );

@@ -40,4 +40,4 @@ export type {
 } from '@sinclair/typebox';
 
 /** Utility / Derived: */
-export type { TOmit, TPartial, TPick, TRequired } from '@sinclair/typebox';
+export type { TOmit, TPartial, TPick, TRequired, TUnsafe } from '@sinclair/typebox';

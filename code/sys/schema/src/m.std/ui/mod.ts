@@ -1,6 +1,6 @@
 /**
  * @module
- * Common pre-baked schemas.
+ * Common pre-baked UI schemas.
  */
-export { CssInputSchema, CssScalarSchema } from './schema.css.ts';
-export { CommonThemeSchema } from './schema.theme.ts';
+export * from './schema.css.ts';
+export * from './schema.theme.ts';

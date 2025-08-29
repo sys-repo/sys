@@ -1,23 +1,22 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { CommonThemeSchema, CssScalarSchema } from './mod.ts';
 
 describe('schemas: @sys/schema/std/ui', () => {
   it('module exports', async () => {
-    const ui = await import('@sys/schema/std/ui');
-    expect(ui).to.be.ok;
-    expect(ui.CommonThemeSchema).to.be.ok;
-    expect(ui.CssScalarSchema).to.be.ok;
-    expect(ui.CssInputSchema).to.be.ok;
+    const m = await import('@sys/schema/std/ui');
+    expect(m).to.be.ok;
+    expect(m.CommonThemeSchema).to.be.ok;
+    expect(m.CssScalarSchema).to.be.ok;
+    expect(m.CssInputSchema).to.be.ok;
   });
 
   describe('ui', () => {
     it('CommonThemeSchema → "Light" | "Dark"', async () => {
-      const { CommonThemeSchema } = await import('@sys/schema/std/ui');
-
       type Theme = t.Static<typeof CommonThemeSchema>;
-      // Type shape
+      // Type shape:
       expectTypeOf<Theme>('Dark').toEqualTypeOf<'Light' | 'Dark'>();
 
-      // Compile-time usage examples
+      // Compile-time usage examples:
       const light: Theme = 'Light';
       const dark: Theme = 'Dark';
       // @ts-expect-error - not allowed
@@ -26,8 +25,6 @@ describe('schemas: @sys/schema/std/ui', () => {
     });
 
     it('CssScalarSchema → string | number | boolean | null', async () => {
-      const { CssScalarSchema } = await import('@sys/schema/std/ui');
-
       type Scalar = t.Static<typeof CssScalarSchema>;
       expectTypeOf<Scalar>(true).toEqualTypeOf<string | number | boolean | null>();
 

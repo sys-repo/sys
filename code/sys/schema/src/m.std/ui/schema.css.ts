@@ -10,7 +10,7 @@ export const CssScalarSchema: t.TUnion<[t.TString, t.TNumber, t.TBoolean, t.TNul
     Type.Boolean(), // admits `false`
     Type.Null(),
   ],
-  { $id: 'CssScalar' },
+  { $id: 'urn:sys:schema:CssScalar' },
 );
 
 /**
@@ -29,5 +29,5 @@ export const CssInputSchema: t.TRecursive<
       Type.Null(),
       Type.Literal(false),
     ]),
-  { $id: 'CssInput' },
+  { $id: 'urn:sys:schema:CssInput' },
 );
