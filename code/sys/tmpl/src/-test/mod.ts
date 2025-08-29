@@ -5,7 +5,10 @@ export {
   expect,
   expectError,
   expectTypeOf,
+  Fs,
   it,
   Testing,
 } from '@sys/testing/server';
+
 export * from '../common.ts';
+export * from '../Templates.ts';
