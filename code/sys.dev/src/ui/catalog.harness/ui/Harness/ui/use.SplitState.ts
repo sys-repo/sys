@@ -37,7 +37,7 @@ export function useSplitState(state_?: unknown) {
     ratioRef$.current
       .pipe(
         rx.takeUntil(dispose$),
-        rx.debounceTime(PERSIST_DEBOUNCE), // ← wait for user to pause; coalesce rapid updates.
+        rx.debounceTime(PERSIST_DEBOUNCE), // ← wait for user to pause; coalesce bursts of updates.
         rx.distinctWhile((p, n) => p === n),
       )
       .subscribe((ratio) => {
