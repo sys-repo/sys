@@ -16,7 +16,7 @@ export { pkg };
  * Command-line:
  */
 if (import.meta.main) {
-  const msg = `🐷 coming soon...command-line template generator (library)`;
+  const msg = `🐷 coming soon...command-line template generators`;
   console.info();
   console.info(c.gray(c.italic(msg)));
   console.info(pkg);
