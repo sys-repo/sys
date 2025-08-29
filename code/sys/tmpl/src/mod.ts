@@ -10,6 +10,8 @@ export type * as t from './types.ts';
 /**
  * Exports:
  */
+export { Templates } from '../-tmpl/mod.ts';
+export { tmplFilter } from './common.ts';
 export { pkg };
 
 /**
