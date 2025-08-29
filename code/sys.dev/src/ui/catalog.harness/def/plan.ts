@@ -6,11 +6,11 @@ type F = t.Factory<t.CatalogId, R>;
 /**
  * Build a canonical plan. Minimal caller props; schema stays strong.
  */
-export function makePlan(): t.Plan<F> {
+export function makePlan(props: Partial<t.HarnessProps> = {}): t.Plan<F> {
   const plan = {
     root: {
       component: 'Harness:view',
-      props: {}, // Harness props are all optional.
+      props,
       // slots: { left: {...}, right: {...} } // add when ready.
     },
   } satisfies t.Plan<F>;

@@ -2,13 +2,19 @@ import { css } from '@sys/ui-css';
 import { useFactory } from '@sys/ui-factory/adapter/react';
 import { ValidationErrors } from '@sys/ui-factory/components/react';
 import { Factory } from '@sys/ui-factory/core';
+import { LocalStorage } from '@sys/ui-dom';
 
 import React from 'react';
 import { makePlan, regs } from '../ui/catalog.harness/mod.ts';
 
+type Storage = {};
+
 export async function makeRoot() {
+  const defaults: Storage = {};
+  const state = LocalStorage.immutable<Storage>('dev:harness', defaults);
+
   const factory = Factory.make(regs);
-  const plan = makePlan();
+  const plan = makePlan({ state });
 
   function App() {
     const catalog = useFactory(factory, plan, { strategy: 'eager', validate: false });
