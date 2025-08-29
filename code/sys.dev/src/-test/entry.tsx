@@ -51,7 +51,7 @@ export async function main() {
     /**
      * Harness Catalog:
      */
-    const { makeRoot } = await import('./-catalog.tsx');
+    const { makeRoot } = await import('./-catalog.harness.tsx');
     root.render(makeRoot());
   }
 }
