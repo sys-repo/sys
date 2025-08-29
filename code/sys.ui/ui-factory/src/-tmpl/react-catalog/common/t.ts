@@ -9,7 +9,7 @@ export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from
 
 /** Type Schema: */
 export type * from '@sys/schema/t/primitives';
-export type { Factory, Infer, Plan, ReactRegistration } from '@sys/ui-factory/t';
+export type * from '@sys/ui-factory/t';
 
 /**
  * @local
