@@ -1,21 +1,21 @@
 {
   "tasks": {
     "install": "deno install --reload",
-    "help": "deno             run -RE --allow-sys --allow-ffi ./-scripts/main.ts --info",
+    "help": "         deno run -RE --allow-sys --allow-ffi ./-scripts/main.ts --info",
 
-    "ci": "deno               run -A ./-scripts/main.ts --dry --test --info",
-    "test": "deno             run -A ./-scripts/main.ts --test",
-    "dry": "deno              run -RE --allow-run --allow-sys --allow-ffi ./-scripts/main.ts --dry",
-    "lint": "deno             run -RE --allow-run=sh ./-scripts/main.ts --lint",
-    "clean": "deno            run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/main.ts --clean",
+    "ci": "           deno run -A ./-scripts/main.ts --dry --test --info",
+    "test": "         deno run -A ./-scripts/main.ts --test",
+    "dry": "          deno run -RE --allow-run --allow-sys --allow-ffi ./-scripts/main.ts --dry",
+    "lint": "         deno run -RE --allow-run=sh ./-scripts/main.ts --lint",
+    "clean": "        deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/main.ts --clean",
 
-    "prep": "deno task prep-imports   &&   deno task prep-ci",
-    "prep-imports": "deno     run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep",
-    "prep-ci": "deno          run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep-ci",
+    "prep": "         deno task prep-imports   &&   deno task prep-ci",
+    "prep-imports": " deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep",
+    "prep-ci": "      deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep-ci",
 
-    "bump": "deno             run -RWE --allow-sys --allow-ffi --allow-run ./-scripts/main.ts --bump",
-    "tmpl": "deno             run -RWE ./-scripts/main.ts --tmpl",
-    "cp": "deno               run -RWE --allow-run=pbcopy ./-scripts/Task.-copy.ts",
+    "bump": "         deno run -RWE --allow-sys --allow-ffi --allow-run ./-scripts/main.ts --bump",
+    "tmpl": "         deno run -RWE @sys/tmpl",
+    "cp": "           deno run -RWE --allow-run=pbcopy ./-scripts/Task.-copy.ts",
 
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },

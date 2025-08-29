@@ -44,7 +44,11 @@ async function updatePackages() {
   const errors = Err.errors();
   const ws = await DenoFile.workspace();
 
-  const tmpl = Tmpl.create('./code/-tmpl/src/pkg', async (e) => {
+  const tmplDir = Fs.toDir('./code/sys/tmpl/-tmpl/pkg');
+  if (!(await tmplDir.exists())) {
+    throw new Error(`The pkg template could not be found. Path: ${tmplDir.absolute}`);
+  }
+  const tmpl = Tmpl.create(tmplDir.absolute, async (e) => {
     const pkg = e.ctx?.pkg as t.Pkg;
     if (typeof pkg !== 'object') {
       const err = `[UpdatePackages] Template expected a {pkg} on the context. Module: ${e.tmpl.absolute}`;
