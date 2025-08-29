@@ -1,4 +1,4 @@
-import { CommonThemeSchema, CssInputSchema } from '@sys/schema/ui';
+import { CommonThemeSchema, CssInputSchema } from '@sys/schema/std/ui';
 import { type t, Type } from '../common.ts';
 
 /**

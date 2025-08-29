@@ -2,7 +2,7 @@ import { describe, it, expect } from './-test.ts';
 import { makePlan, regs, HelloSchema } from './mod.ts';
 
 describe('Catalog', () => {
-  describe('smoke test', () => {
+  describe('catalog smoke-test', () => {
     it('makePlan: root is Hello:view with default props', () => {
       const plan = makePlan();
       expect(plan.root.component).to.eql('Hello:view');
