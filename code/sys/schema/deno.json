@@ -12,6 +12,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
+    "./t/primitives": "./src/t.typebox.primitives.ts",
     "./types": "./src/types.ts",
     "./ui": "./src/m.schemas/ui.ts"
   }
