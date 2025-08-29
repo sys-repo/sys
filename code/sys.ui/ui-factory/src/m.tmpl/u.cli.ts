@@ -13,7 +13,6 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   // Print context:
   const tableMeta = Cli.table([]);
   tableMeta.push([c.green(pkg.name), c.gray(`${pkg.version}`)]);
-  tableMeta.push([c.gray('location'), c.gray(`./${Fs.trimCwd(cwd)}`)]);
   console.info(Str.SPACE);
   console.info(tableMeta.toString().trim());
 
@@ -21,7 +20,7 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
    * 1a) Ask for the target folder name:
    */
   const dirname = await Cli.Prompt.Input.prompt({
-    message: 'Catalog Folder Name',
+    message: 'Write to folder',
     default: 'catalog',
     // Keep folder-name simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces).
     validate: (v: string) =>
