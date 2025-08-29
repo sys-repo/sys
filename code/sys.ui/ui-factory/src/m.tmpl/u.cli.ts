@@ -15,7 +15,7 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
   tableMeta.push([c.green(pkg.name), c.gray(`${pkg.version}`)]);
   tableMeta.push([c.gray('location'), c.gray(`./${Fs.trimCwd(cwd)}`)]);
   console.info(Str.SPACE);
-  console.info(tableMeta.toString());
+  console.info(tableMeta.toString().trim());
 
   /**
    * 1a) Ask for the target folder name:
@@ -48,10 +48,6 @@ export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
    * 2) Compose target path and write the scaffold:
    */
   const target = `${cwd}/${dirname}`;
-
-  console.log('target', target);
-  console.log('bundleRoot', bundleRoot);
-
   const res = await Tmpl.write(target, { dryRun, bundleRoot });
 
   /**
