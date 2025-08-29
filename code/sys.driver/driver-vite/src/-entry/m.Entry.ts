@@ -22,13 +22,6 @@ export const ViteEntry: ViteEntryLib = {
     const args = argsAsType<t.ViteEntryArgs>();
     const cmd = args.cmd;
 
-    if (cmd === 'init') {
-      const { init } = await import('./u.init.ts');
-      console.log('args', args);
-      await init(args);
-      return;
-    }
-
     if (cmd === 'dev') {
       ViteLog.API.log({ cmd: 'dev' });
       await ViteEntry.dev(args);

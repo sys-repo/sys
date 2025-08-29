@@ -23,7 +23,6 @@ export type ViteEntryLib = {
  * ARGV (Command Line Arguments)
  */
 export type ViteEntryArgs =
-  | ViteEntryArgsInit
   | ViteEntryArgsClean
   | ViteEntryArgsDev
   | ViteEntryArgsBuild
@@ -31,13 +30,6 @@ export type ViteEntryArgs =
   | ViteEntryArgsUpgrade
   | ViteEntryArgsBackup
   | ViteEntryArgsHelp;
-
-/** The `init` command. */
-export type ViteEntryArgsInit = {
-  cmd: 'init';
-  dir?: P;
-  silent?: boolean;
-};
 
 /** The `clean` command. */
 export type ViteEntryArgsClean = { cmd: 'clean'; dir?: P };
