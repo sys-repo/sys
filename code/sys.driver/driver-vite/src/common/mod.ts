@@ -10,9 +10,4 @@ export const PATHS = {
   backup: '-backup/',
   tmp: '.tmp/',
   html: { index: 'index.html' },
-  tmpl: {
-    tmp: '.tmp/-tmpl/',
-    source: 'src/-tmpl/',
-    json: 'src/m.tmpl/-bundle.json',
-  },
 } as const;

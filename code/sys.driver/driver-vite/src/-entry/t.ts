@@ -37,7 +37,6 @@ export type ViteEntryArgsInit = {
   cmd: 'init';
   dir?: P;
   silent?: boolean;
-  tmpl?: t.ViteTmplKind | boolean;
 };
 
 /** The `clean` command. */

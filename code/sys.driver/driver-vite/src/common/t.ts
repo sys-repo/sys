@@ -28,12 +28,6 @@ export type {
 } from '@sys/driver-deno/t';
 export type { FsPathFilter } from '@sys/fs/t';
 export type { ProcHandle, ProcOutput, ProcReadySignalFilter } from '@sys/process/t';
-export type {
-  Tmpl,
-  TmplWriteHandler,
-  TmplFileOperation,
-  TmplProcessFile,
-} from '@sys/tmpl-engine/t';
 export type { CssValue } from '@sys/ui-css/t';
 
 /**
