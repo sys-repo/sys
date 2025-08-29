@@ -31,7 +31,7 @@ describe('Fs.toDir', () => {
     });
   });
 
-  describe('Dir.ls', () => {
+  describe('dir.ls', () => {
     it('default', async () => {
       const dir = toDir(Sample.dir);
       const a = await dir.ls();
@@ -79,6 +79,18 @@ describe('Fs.toDir', () => {
       await test(0);
       await test(1);
       await test(2);
+    });
+  });
+
+  describe('dir.exists', () => {
+    it('exists', async () => {
+      const dir = toDir(Sample.dir);
+      expect(await dir.exists()).to.be.true;
+    });
+
+    it('does not exist', async () => {
+      const dir = toDir('404_NO_EXIST');
+      expect(await dir.exists()).to.be.false;
     });
   });
 });

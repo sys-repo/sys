@@ -1,4 +1,4 @@
-import { type t, ls, StdPath } from './common.ts';
+import { type t, exists, ls, StdPath } from './common.ts';
 import { toFile } from './u.toFile.ts';
 
 /**
@@ -11,6 +11,7 @@ export const toDir: t.FsDirFactory = (path, opt) => {
     absolute,
     toString: () => absolute,
     join: (...parts) => StdPath.join(absolute, ...parts),
+    exists: () => exists(absolute),
     async ls(input) {
       const options = wrangle.lsOptions(input);
       const { trimCwd, depth } = options;
