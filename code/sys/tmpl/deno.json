@@ -1,13 +1,10 @@
 {
   "name": "@sys/tmpl",
-  "version": "0.0.123",
+  "version": "0.0.124",
   "license": "MIT",
   "tasks": {
-    "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
-    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
-    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=serve",
-    "dry": "deno publish --allow-dirty --dry-run",
+    "test": " deno test -RWNE --allow-run --allow-ffi --allow-sys",
+    "dry": "  deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -RWE ./-scripts/-clean.ts",
     "help": " deno run -RE   --allow-ffi             ./-scripts/-vite.ts --cmd=help",
