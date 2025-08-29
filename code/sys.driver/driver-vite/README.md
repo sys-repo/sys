@@ -53,14 +53,8 @@ deno run -A jsr:@sys/driver-vite/init
 
 
 ### Usage (Command Line)
-
-```bash
-deno run -A jsr:@sys/driver-vite/init
-```
-
-
-The `/init` command initializes a project with a `deno.json` file providing the
-the common set of API "commands" (aka. "tasks") via the `/main` entry-point, eg:
+In your project (with a `deno.json`) declare entry point via `deno tasks` which point in
+to the common set of API "commands" (aka. "tasks") via the `/main` entry-point, eg:
 
 ```bash
 jsr:@sys/driver-vite@<version>/main --cmd=dev
