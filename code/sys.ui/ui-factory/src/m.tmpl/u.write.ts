@@ -14,7 +14,7 @@ export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
   // Ensure the given bundle-root exists within the FileMap:
   const exists = Object.keys(fileMap).some((key) => key.startsWith(`${bundleRoot}/`))
   if (!exists) {
-    let msg = `The bundle-root '${bundleRoot}' was not found within the 'src/-tmpl/' folder.`
+    let msg = `The bundle-root '${bundleRoot}' was not found within the '/-tmpl/' folder.`
     msg += ` Ensure the 'deno task prep' helper has been run.`
     throw new Error(msg)
   }

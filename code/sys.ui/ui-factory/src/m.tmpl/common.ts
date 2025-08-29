@@ -12,7 +12,7 @@ export { Tmpl as TmplEngine } from '@sys/tmpl-engine/fs';
 export const PATHS = {
   tmpl: {
     tmp: '.tmp/-tmpl/',
-    source: 'src/-tmpl/',
+    source: '-tmpl/',
     json: 'src/m.tmpl/-bundle.json',
   },
 } as const;

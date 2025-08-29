@@ -25,6 +25,6 @@
     "./adapter/react": "./src/m.react/mod.ts",
     "./components/react": "./src/ui/mod.ts",
     "./sample/catalog": "./src/-test/-sample/catalog.ts",
-    "./sample/tmpl": "./src/-tmpl/react.catalog.folder/mod.ts"
+    "./sample/tmpl": "./-tmpl/react.catalog.folder/mod.ts"
   }
 }
