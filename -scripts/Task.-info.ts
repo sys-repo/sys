@@ -38,7 +38,6 @@ export async function main() {
     const exclude = [
       '**/node_modules/**',
       '**/_archive/**',
-      '**/-tmpl/**',
       '**/.tmp/**',
       '**/spikes/**',
       '**/compiler/**',
