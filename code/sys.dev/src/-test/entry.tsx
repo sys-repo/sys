@@ -54,10 +54,12 @@ export async function main() {
     const { useFactory } = await import('@sys/ui-factory/adapter/react');
     const { ValidationErrors } = await import('@sys/ui-factory/components/react');
     const { Factory } = await import('@sys/ui-factory/core');
+
+    const { css } = await import('@sys/ui-css');
     const { regs, makePlan } = await import('../ui/catalog.concept-player/mod.ts');
 
     const factory = Factory.make(regs);
-    const plan = makePlan({ name: 'Dev' });
+    const plan = makePlan();
 
     function App() {
       const catalog = useFactory(factory, plan, { strategy: 'eager', validate: false });
@@ -67,7 +69,9 @@ export async function main() {
 
     root.render(
       <React.StrictMode>
-        <App />
+        <div className={css({ Absolute: 0, display: 'grid' }).class}>
+          <App />
+        </div>
       </React.StrictMode>,
     );
   }
