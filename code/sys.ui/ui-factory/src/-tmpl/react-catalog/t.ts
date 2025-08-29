@@ -5,11 +5,11 @@
 import type { t } from './common.ts';
 import type { HelloSchema } from './ui/Hello/schema.ts';
 
-/** Inferred prop types for Hello */
+/** Component props: */
 export type HelloProps = t.Infer<typeof HelloSchema>;
 
-/** Catalog Id union */
+/** Catalog Id union. */
 export type CatalogId = 'Hello:view';
 
-/** Catalog Slot union */
+/** Catalog Slot union. */
 export type CatalogSlot = never;

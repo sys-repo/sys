@@ -9,6 +9,6 @@ type Reg = t.ReactRegistration<t.CatalogId, t.CatalogSlot>;
  */
 export const spec: Reg['spec'] = {
   id: 'Hello:view',
-  slots: [] as const,
   schema: HelloSchema,
+  slots: [] as const,
 };
