@@ -45,14 +45,29 @@ export async function main() {
       return el;
     }
 
-    const app = <App />;
-    root.render(<React.StrictMode>{app}</React.StrictMode>);
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+    );
   } else {
     /**
      * Harness Catalog:
      */
+    const { useKeyboard } = await import('@sys/ui-react-devharness');
     const { makeRoot } = await import('./-catalog.harness.tsx');
-    root.render(makeRoot());
+
+    const el = makeRoot();
+    function App() {
+      useKeyboard();
+      return el;
+    }
+
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>,
+    );
   }
 }
 

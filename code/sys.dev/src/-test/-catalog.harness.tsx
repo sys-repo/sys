@@ -5,7 +5,7 @@ import { Factory } from '@sys/ui-factory/core';
 import { LocalStorage } from '@sys/ui-dom';
 
 import React from 'react';
-import { makePlan, regs } from '../ui/catalog.harness/mod.ts';
+import { makePlan, regs } from '../catalog.harness/mod.ts';
 
 type Storage = {};
 

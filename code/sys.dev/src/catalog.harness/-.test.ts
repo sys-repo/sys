@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../-test.ts';
 import { HarnessSchema, makePlan, regs } from './mod.ts';
 
 describe('DevHarness', () => {
