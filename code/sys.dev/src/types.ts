@@ -9,3 +9,4 @@ export type {};
  */
 export type * from './ui/-sample.factory/t.ts';
 export type * from './ui/-sample/t.ts';
+export type * from './ui/-tmp/t.ts';
