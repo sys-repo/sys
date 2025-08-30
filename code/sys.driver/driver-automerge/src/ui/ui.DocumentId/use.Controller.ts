@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-import { type t, D, Is, Kbd, Signal, slug } from './common.ts';
+import { type t, D, Is, Kbd, Signal, slug, Time } from './common.ts';
 import { DocUrl, Parse } from './u.ts';
 import { useLocalStorage } from './use.LocalStorage.ts';
 import { useTransientMessage } from './use.TransientMessage.ts';
@@ -32,12 +32,14 @@ function useInternal(args: Args = {}): Hook {
   /**
    * Refs:
    */
+  const seededFromUrlRef = React.useRef(false);
   const signalsRef = useRef<t.DocumentIdHookSignals>(wrangle.signals(args));
   const signals = signalsRef.current;
 
-  if (url) {
+  if (url && !seededFromUrlRef.current) {
     const { docId } = DocUrl.read(location.href, urlKey);
     if (docId && !signals.textbox.value) signals.textbox.value = docId.trim();
+    seededFromUrlRef.current = true;
   }
 
   /**
@@ -112,6 +114,7 @@ function useInternal(args: Args = {}): Hook {
       p.doc.value = undefined;
       p.path.value = undefined;
       p.spinning.value = false;
+      DocUrl.Mutate.strip(location.href, urlKey);
       return;
     }
 
@@ -121,6 +124,14 @@ function useInternal(args: Args = {}): Hook {
       p.textbox.value = doc.id;
       p.spinning.value = false;
       localstore.history.push(doc.id);
+
+      // Ensure URL is canonical on create.
+      const href = DocUrl.resolve(args.url, doc.id, urlKey);
+      if (href) DocUrl.Mutate.replace(href);
+
+      // Give local persistence/indexing a tick so an immediate reload
+      // (or another client) can find the new doc reliably.
+      await Time.wait(50);
       return;
     }
 
@@ -223,9 +234,8 @@ function useInternal(args: Args = {}): Hook {
 /**
  * Helpers:
  */
-function isHook(input: unknown): input is Hook {
-  return !!input && Is.string((input as any).instance);
-}
+const isHook = (input: unknown): input is Hook => !!input && Is.string((input as any).instance);
+const hasText = (p: P) => Boolean(p.textbox.value?.trim());
 
 const wrangle = {
   props(args: Args, p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
@@ -243,12 +253,13 @@ const wrangle = {
     const parsed = wrangle.parsed(p);
     const id = parsed.id;
     const doc = p.doc.value;
-    const valid = !!id;
+    const valid = !!id; // NB: Only has a parsed ID when the value is valid.
 
     let action = true;
-    if (!repo) action = false;
-    if (id && !valid) action = false;
-    if (id && doc?.id === id) action = false;
+
+    if (!repo) action = false; //                 ← disable when not ready.
+    if (hasText(p) && !valid) action = false; //  ← disable "Load" on invalid id
+    if (valid && doc?.id === id) action = false;
 
     let input = true;
     if (!repo) input = false;
@@ -266,9 +277,10 @@ const wrangle = {
   },
 
   action(p: P): t.DocumentIdActionArgs {
-    const id = wrangle.parsed(p).id;
-    if (!id) return { action: 'Create' };
-    return { action: 'Load' };
+    // Decide button label:
+    // - No text  → "Create"
+    // - Any text → "Load" (even if invalid, in which case the button will be disabled).
+    return hasText(p) ? { action: 'Load' } : { action: 'Create' };
   },
 
   signals(args: Args) {

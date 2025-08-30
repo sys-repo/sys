@@ -52,15 +52,6 @@ export const View: React.FC<P> = (props) => {
   let showAction = showActionD || !textbox;
 
   /**
-   * Effect: read in doc-id passed on the URL.
-   */
-  React.useEffect(() => {
-    if (!url) return; // Only relevant when URL support is enabled.
-    const { docId } = DocUrl.read(location.href, urlKey);
-    if (docId) controller.signals.textbox.value = docId;
-  }, []);
-
-  /**
    * Effect: (mounted).
    */
   React.useEffect(() => {

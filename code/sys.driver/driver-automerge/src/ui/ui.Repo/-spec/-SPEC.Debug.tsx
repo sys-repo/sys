@@ -1,15 +1,15 @@
 import React from 'react';
+import { createRepo } from '../../-test.ui.ts';
 import {
   type t,
   Button,
-  Crdt,
   css,
   D,
   LocalStorage,
+  Obj,
   ObjectView,
   Signal,
   STORAGE_KEY,
-  Url,
 } from '../common.ts';
 
 type P = t.SyncEnabledSwitchProps;
@@ -37,22 +37,6 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV.SPEC, defaults);
   const snap = store.current;
 
-  /**
-   * CRDT:
-   */
-  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
-  const isLocalhost = location.hostname === 'localhost';
-  const repo = Crdt.repo({
-    storage: { database: 'dev.crdt' },
-    network: [
-      // { ws: 'sync.db.team' },
-      // { ws: 'titirangi.sync.db.team' },
-      { ws: 'waiheke.sync.db.team' },
-      isLocalhost && { ws: 'localhost:3030' },
-      qsSyncServer && { ws: qsSyncServer },
-    ],
-  });
-
   const props = {
     redraw: s(0),
     debug: s(snap.debug),
@@ -62,9 +46,11 @@ export function createDebugSignals() {
     noRepo: s(snap.noRepo),
   };
   const p = props;
+  const repo = createRepo();
   const api = {
     props,
     repo,
+    reset,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
@@ -81,6 +67,10 @@ export function createDebugSignals() {
       d.mode = p.mode.value;
     });
   });
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   return api;
 }
@@ -150,14 +140,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           s.value = s.value ? undefined : STORAGE_KEY.DEV.SUBJECT;
         }}
       />
-
-      <Button
-        block
-        label={() => `reset`}
-        onClick={() => {
-          p.noRepo.value = false;
-        }}
-      />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
 
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
       <ObjectView name={'repo'} data={debug.repo} expand={0} style={{ marginTop: 5 }} />

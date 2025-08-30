@@ -33,12 +33,17 @@ export function useLocalStorage(args: {
       const store = (storeRef.current = LocalStorage.immutable<Storage>(key, { history: [] }));
       createStack();
 
-      // Sync stored values.
-      if (signal.value && store.current.docId !== signal.value) {
-        store.change((d) => (d.docId = signal.value));
-      }
-      if (store.current.docId !== signal.value) {
-        signal.value = store.current.docId;
+      const stored = store.current.docId;
+      const signalled = signal.value;
+
+      // Initialize signal ←→ storage on first mount without clobbering durable state.
+      if (!stored && signalled) {
+        store.change((d) => (d.docId = signalled));
+      } else if (stored && !signalled) {
+        signal.value = stored;
+      } else if (stored && signalled && stored !== signalled) {
+        // Prefer durable local-storage over a stale signal (e.g., from a stale URL param).
+        signal.value = stored;
       }
     } else {
       // Reset:
