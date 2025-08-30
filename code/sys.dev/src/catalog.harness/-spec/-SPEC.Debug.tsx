@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from './-common.ts';
+import { makeRoot } from './-u.make.tsx';
 
 type Storage = { theme?: t.CommonTheme; debug?: boolean };
 const defaults: Storage = {
@@ -19,7 +20,9 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const storeKey = `dev:${D.displayName}`;
+  const catalog = makeRoot({ localstorageKey: `${storeKey}.catalog` });
+  const store = LocalStorage.immutable<Storage>(storeKey, defaults);
   const snap = store.current;
 
   const props = {
@@ -29,6 +32,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    catalog,
     reset,
     listen() {
       Signal.listen(props);

@@ -60,12 +60,12 @@ export async function main() {
      * Harness Catalog:
      */
     const { useKeyboard } = await import('@sys/ui-react-devharness');
-    const { makeRoot } = await import('./-catalog.harness.tsx');
+    const { makeRoot } = await import('../catalog.harness/-spec/-u.make.tsx');
 
-    const el = makeRoot();
+    const catalog = makeRoot();
     function App() {
       useKeyboard();
-      return el;
+      return catalog.element;
     }
 
     root.render(

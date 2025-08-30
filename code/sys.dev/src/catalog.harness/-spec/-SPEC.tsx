@@ -5,6 +5,7 @@ import { D } from './-common.ts';
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
+  const catalog = debug.catalog;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -16,10 +17,12 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill')
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        console.log('v', v);
+        return catalog.element;
       });
   });
 
