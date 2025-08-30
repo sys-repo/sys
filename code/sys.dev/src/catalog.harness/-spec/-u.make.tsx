@@ -6,13 +6,14 @@ import { Factory } from '@sys/ui-factory/core';
 
 import React from 'react';
 import { makePlan, regs } from '../mod.ts';
+import { type t } from './common.ts';
 
 type Storage = {};
 
-export function makeRoot(opts: { localstorageKey?: string } = {}) {
+export function makeRoot(opts: { localstorageKey?: string; state?: t.ImmutableRef } = {}) {
   const defaults: Storage = {};
   const localstorageKey = opts.localstorageKey ?? 'dev:harness';
-  const state = LocalStorage.immutable<Storage>(localstorageKey, defaults);
+  const state = opts.state ?? LocalStorage.immutable<Storage>(localstorageKey, defaults);
 
   const factory = Factory.make(regs);
   const plan = makePlan({ state });
@@ -23,13 +24,17 @@ export function makeRoot(opts: { localstorageKey?: string } = {}) {
     return catalog.ok ? element : <ValidationErrors errors={issues.validation} />;
   }
 
-  const element = (
-    <React.StrictMode>
-      <div className={css({ Absolute: 0, display: 'grid' }).class}>
-        <App />
-      </div>
-    </React.StrictMode>
-  );
-
-  return { element, factory, plan, state };
+  return {
+    render() {
+      return (
+        <div className={css({ Absolute: 0, display: 'grid' }).class}>
+          <App />
+        </div>
+      );
+    },
+    App,
+    factory,
+    plan,
+    state,
+  };
 }

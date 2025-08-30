@@ -1,11 +1,14 @@
-import { Dev, Signal, Spec } from '../../ui/-test.ui.ts';
+import { Crdt, Dev, Signal, Spec } from '../../ui/-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { D } from './-common.ts';
+import { D } from './common.ts';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
-  const catalog = debug.catalog;
+
+  function Root() {
+    return p.catalog.value?.render() ?? null;
+  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -19,10 +22,19 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
+      .render(() => <Root />);
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(0)
       .render(() => {
-        const v = Signal.toObject(p);
-        console.log('v', v);
-        return catalog.element;
+        return (
+          <Crdt.UI.Repo.SyncEnabledSwitch
+            repo={debug.repo}
+            localstorage={D.STORAGE_KEY.DEV}
+            style={{ Padding: [14, 10] }}
+          />
+        );
       });
   });
 

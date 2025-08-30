@@ -9,6 +9,6 @@ export const ns = 'sys.dev';
  * Specs:
  */
 export const Specs = {
-  [`${ns}: catalog.harness`]: () => import('../catalog.harness/-spec/-SPEC.tsx'),
-  [`${ns}: Sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),
+  [`${ns}: catalog: Harness`]: () => import('../catalog.harness/-spec/-SPEC.tsx'),
+  [`${ns}: sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),
 } as t.SpecImports;

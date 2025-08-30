@@ -1,11 +1,19 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from './-common.ts';
-import { makeRoot } from './-u.make.tsx';
+import { createRepo } from '../../ui/-test.ui.ts';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal, Time } from './common.ts';
 
-type Storage = { theme?: t.CommonTheme; debug?: boolean };
+import { makeRoot } from './-u.make.tsx';
+import { StateChooser } from './-ui.StateChooser.tsx';
+
+type Storage = {
+  theme?: t.CommonTheme;
+  debug?: boolean;
+  stateKind?: (typeof D.STATE_KINDS)[number];
+};
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  stateKind: 'local-storage',
 };
 
 /**
@@ -21,34 +29,52 @@ export function createDebugSignals() {
   const s = Signal.create;
 
   const storeKey = `dev:${D.displayName}`;
-  const catalog = makeRoot({ localstorageKey: `${storeKey}.catalog` });
   const store = LocalStorage.immutable<Storage>(storeKey, defaults);
   const snap = store.current;
 
   const props = {
+    redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
+    stateKind: s(snap.stateKind),
+    catalog: s<ReturnType<typeof makeRoot>>(),
   };
+  const repo = createRepo();
   const p = props;
   const api = {
     props,
-    catalog,
+    repo,
     reset,
-    listen() {
-      Signal.listen(props);
-    },
+    listen: () => Signal.listen(props),
+    redraw: () => (p.redraw.value += 1),
   };
 
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.stateKind = p.stateKind.value;
     });
   });
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
   }
+
+  Signal.effect(() => {
+    //
+    const stateKind = p.stateKind.value;
+    //     // const state = stateKind === 'crdt' ? repo : undefined;
+    const catalog = makeRoot({ localstorageKey: `${storeKey}.catalog` });
+    p.catalog.value = catalog;
+
+    //     // p.rootElement.value = catalog.element;
+    //     _elRoot = catalog.element;
+    //     // api.redraw();
+    //
+    //     console.log('_elRoot', _elRoot);
+    // Time.delay(api.redraw);
+  });
 
   return api;
 }
@@ -87,6 +113,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      <StateChooser debug={debug} />
 
       <hr />
       <Button
