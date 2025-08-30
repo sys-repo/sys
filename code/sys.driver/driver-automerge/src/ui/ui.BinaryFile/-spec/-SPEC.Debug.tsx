@@ -1,10 +1,15 @@
 import React from 'react';
 
-import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Url, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { createRepo } from '../../-test.ui.ts';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.BinaryFileProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: true,
+  path: ['files'],
+};
 
 /**
  * Types:
@@ -20,28 +25,8 @@ export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-    path: ['files'],
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
-
-  /**
-   * CRDT:
-   */
-  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
-  const isLocalhost = location.hostname === 'localhost';
-  const repo = Crdt.repo({
-    storage: { database: 'dev.crdt' },
-    network: [
-      // { ws: 'sync.db.team' },
-      { ws: 'waiheke.sync.db.team' },
-      isLocalhost && { ws: 'localhost:3030' },
-      qsSyncServer && { ws: qsSyncServer },
-    ],
-  });
 
   const props = {
     debug: s(snap.debug),
@@ -50,9 +35,11 @@ export function createDebugSignals() {
     doc: s<t.Crdt.Ref>(),
   };
   const p = props;
+  const repo = createRepo();
   const api = {
     props,
     repo,
+    reset,
     listen() {
       Object.values(props)
         .filter(Signal.Is.signal)
@@ -67,6 +54,10 @@ export function createDebugSignals() {
       d.path = p.path.value;
     });
   });
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   return api;
 }
@@ -118,6 +109,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView
         name={'debug'}
         data={{

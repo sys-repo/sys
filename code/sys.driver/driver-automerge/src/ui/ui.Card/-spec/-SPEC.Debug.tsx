@@ -1,10 +1,14 @@
 import React from 'react';
 
-import { Crdt } from '@sys/driver-automerge/browser';
-import { type t, Button, Color, css, D, LocalStorage, ObjectView, Signal, Url } from '../common.ts';
+import { createRepo } from '../../-test.ui.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.CardProps;
 type Storage = Pick<P, 'theme' | 'debug'> & { textbox?: string };
+const defaults: Storage = {
+  debug: false,
+  theme: 'Dark',
+};
 
 /**
  * Types:
@@ -22,25 +26,6 @@ export type TDoc = {
 export async function createDebugSignals() {
   const s = Signal.create;
 
-  /**
-   * CRDT:
-   */
-  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
-  const isLocalhost = location.hostname === 'localhost';
-  const repo = Crdt.repo({
-    storage: { database: 'dev.crdt' }, // ← 'IndexedDb' or (true).
-    network: [
-      // { ws: 'sync.db.team' },
-      { ws: 'waiheke.sync.db.team' },
-      isLocalhost && { ws: 'localhost:3030' },
-      qsSyncServer && { ws: qsSyncServer },
-    ],
-  });
-
-  const defaults: Storage = {
-    debug: false,
-    theme: 'Dark',
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -48,16 +33,17 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     redraw: s(0),
-
     textbox: s(store.current.textbox),
     doc: s<t.CrdtRef<TDoc>>(),
   };
 
   const p = props;
+  const repo = createRepo();
   const api = {
     props,
     store,
     repo,
+    reset,
     listen() {
       Object.values(p)
         .filter(Signal.Is.signal)
@@ -83,6 +69,10 @@ export async function createDebugSignals() {
     events = doc?.events();
     events?.$.subscribe(() => p.redraw.value++);
   });
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   return api;
 }
@@ -129,6 +119,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.debug)}
       />
       <Button block label={() => `redraw`} onClick={() => p.redraw.value++} />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
 
       <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 15 }} expand={0} />
       {!!p.doc.value && (

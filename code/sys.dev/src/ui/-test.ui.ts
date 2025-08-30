@@ -12,9 +12,6 @@ export * from '../common.ts';
  * Create "dev" CRDT repository instance:
  */
 export function createRepo() {
-  /**
-   * CRDT:
-   */
   const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
   const isLocalhost = location.hostname === 'localhost';
   const isDev = isLocalhost && location.port !== '8080';

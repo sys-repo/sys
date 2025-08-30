@@ -1,18 +1,7 @@
-import { Crdt } from '@sys/driver-automerge/browser';
 import React from 'react';
 
-import {
-  type t,
-  Button,
-  css,
-  D,
-  Is,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Signal,
-  Url,
-} from '../common.ts';
+import { createRepo } from '../../-test.ui.ts';
+import { type t, Button, css, D, Is, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.DocumentIdProps;
 export const STORAGE_KEY = `dev:${D.name}.input`;
@@ -59,21 +48,6 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  /**
-   * CRDT:
-   */
-  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
-  const isLocalhost = location.hostname === 'localhost';
-  const repo = Crdt.repo({
-    storage: { database: 'dev.crdt' },
-    network: [
-      // { ws: 'sync.db.team' },
-      { ws: 'waiheke.sync.db.team' },
-      isLocalhost && { ws: 'localhost:3030' },
-      qsSyncServer && { ws: qsSyncServer },
-    ],
-  });
-
   const props = {
     redraw: s(0),
     debug: s(false),
@@ -96,9 +70,11 @@ export function createDebugSignals() {
     url: s<t.UseDocumentIdHookArgs['url']>(snap.url === 'ƒ' ? sampleUrlFactory : snap.url),
   };
   const p = props;
+  const repo = createRepo();
   const api = {
     props,
     repo,
+    reset,
     listen() {
       Object.values(p)
         .filter(Signal.Is.signal)
@@ -123,6 +99,10 @@ export function createDebugSignals() {
       d.urlKey = p.urlKey.value;
     });
   });
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   return api;
 }
@@ -205,14 +185,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `(reset)`}
-        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
-      />
-      <Button
-        block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <Button
         block
         label={() => {
@@ -233,7 +209,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const v = p.localstorage.value;
-          return `localstorage: ${v ? `"${v}"` : '(none)'}`;
+          return `local-storage: ${v ? `"${v}"` : '(none)'}`;
         }}
         onClick={() => {
           const s = p.localstorage;

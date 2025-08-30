@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { Card, Crdt } from '@sys/driver-automerge/ui';
-import { type t, Button, Color, Cropmarks, css, pkg, Url, useDist } from './common.ts';
+import { Card } from '@sys/driver-automerge/ui';
+import { createRepo } from '../ui/-test.ui.ts';
+import { type t, Button, Color, Cropmarks, css, pkg, useDist } from './common.ts';
 
 export type SplashProps = {
   debug?: boolean;
@@ -18,20 +19,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
   /**
    * Ref: CRDT.
    */
-  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
-  const isLocalhost = location.hostname === 'localhost';
-  const repoRef = React.useRef(
-    Crdt.repo({
-      storage: { database: 'dev.crdt' },
-      network: [
-        //
-        { ws: 'waiheke.sync.db.team' },
-        // { ws: 'sync.automerge.org' },
-        isLocalhost && { ws: 'localhost:3030' },
-        qsSyncServer && { ws: qsSyncServer },
-      ],
-    }),
-  );
+  const repoRef = React.useRef(createRepo());
 
   /**
    * Hooks:
