@@ -6,7 +6,14 @@ An `Immutable<T>` implementation using [Automerge](https://automerge.org/) as th
 - [github.com/automerge](https://github.com/automerge) (MIT)
 
 
+### Types
 
+```ts
+import { Crdt } from 'jsr:@sys/driver-automerge/t';
+//       ↑
+//       Crdt.Ref
+//       Crdt.Repo
+```
 
 ### FileSytem Environment
 
