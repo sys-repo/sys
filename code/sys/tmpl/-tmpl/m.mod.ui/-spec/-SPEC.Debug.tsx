@@ -31,9 +31,7 @@ export function createDebugSignals() {
   const api = {
     props,
     reset,
-    listen() {
-      Signal.listen(props);
-    },
+    listen: () => Signal.listen(props),
   };
 
   Signal.effect(() => {
