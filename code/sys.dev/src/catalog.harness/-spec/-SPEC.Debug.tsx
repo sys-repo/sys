@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRepo } from '../../ui/-test.ui.ts';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal, Time } from './common.ts';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
 
 import { makeRoot } from './-u.make.tsx';
 import { StateChooser } from './-ui.StateChooser.tsx';
@@ -28,25 +28,25 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const storeKey = `dev:${D.displayName}`;
-  const store = LocalStorage.immutable<Storage>(storeKey, defaults);
+  const store = LocalStorage.immutable<Storage>(D.STORAGE_KEY.DEV.LOCAL, defaults);
   const snap = store.current;
 
   const props = {
-    redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
     stateKind: s(snap.stateKind),
+    stateCrdt: s<t.Crdt.Ref>(),
     catalog: s<ReturnType<typeof makeRoot>>(),
   };
-  const repo = createRepo();
+  let _repo: t.Crdt.Repo;
   const p = props;
   const api = {
     props,
-    repo,
     reset,
     listen: () => Signal.listen(props),
-    redraw: () => (p.redraw.value += 1),
+    get repo() {
+      return _repo || (_repo = createRepo());
+    },
   };
 
   Signal.effect(() => {
@@ -61,19 +61,24 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
   }
 
+  /**
+   * Sync:
+   */
   Signal.effect(() => {
-    //
     const stateKind = p.stateKind.value;
-    //     // const state = stateKind === 'crdt' ? repo : undefined;
-    const catalog = makeRoot({ localstorageKey: `${storeKey}.catalog` });
-    p.catalog.value = catalog;
+    const theme = p.theme.value;
+    const debug = p.debug.value;
+    p.stateCrdt.value?.instance;
 
-    //     // p.rootElement.value = catalog.element;
-    //     _elRoot = catalog.element;
-    //     // api.redraw();
-    //
-    //     console.log('_elRoot', _elRoot);
-    // Time.delay(api.redraw);
+    function currentState() {
+      if (stateKind === 'crdt') return p.stateCrdt.value;
+      if (stateKind === 'local-storage') {
+        return LocalStorage.immutable<{}>(D.STORAGE_KEY.DEV.CRDT, {});
+      }
+    }
+
+    const state = currentState();
+    p.catalog.value = makeRoot({ state, theme, debug });
   });
 
   return api;
@@ -125,6 +130,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView
+        name={'state.crdt'}
+        data={p.stateCrdt?.value?.current}
+        style={{ marginTop: 5 }}
+        expand={0}
+      />
     </div>
   );
 };

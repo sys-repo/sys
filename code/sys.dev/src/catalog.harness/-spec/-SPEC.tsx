@@ -1,5 +1,6 @@
-import { Crdt, Dev, Signal, Spec } from '../../ui/-test.ui.ts';
+import { Dev, Signal, Spec } from '../../ui/-test.ui.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { DebugFooter } from './-ui.Debug.Footer.tsx';
 import { D } from './common.ts';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -27,15 +28,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.debug.footer
       .border(-0.1)
       .padding(0)
-      .render(() => {
-        return (
-          <Crdt.UI.Repo.SyncEnabledSwitch
-            repo={debug.repo}
-            localstorage={D.STORAGE_KEY.DEV}
-            style={{ Padding: [14, 10] }}
-          />
-        );
-      });
+      .render(() => <DebugFooter debug={debug} />);
   });
 
   e.it('ui:debug', (e) => {

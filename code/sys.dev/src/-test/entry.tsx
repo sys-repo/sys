@@ -59,10 +59,13 @@ export async function main() {
     /**
      * Harness Catalog:
      */
+    const { LocalStorage } = await import('@sys/ui-dom');
     const { useKeyboard } = await import('@sys/ui-react-devharness');
     const { makeRoot } = await import('../catalog.harness/-spec/-u.make.tsx');
 
-    const catalog = makeRoot();
+    const state = LocalStorage.immutable<{}>('dev:harness', {});
+    const catalog = makeRoot({ state });
+
     function App() {
       useKeyboard();
       return catalog.render();

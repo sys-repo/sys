@@ -22,7 +22,6 @@ export function createRepo() {
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
     network: [
-      // { ws: 'sync.db.team' },
       { ws: 'waiheke.sync.db.team' },
       isDev && { ws: 'localhost:3030' },
       qsSyncServer && { ws: qsSyncServer },

@@ -42,12 +42,16 @@ export const StateChooser: React.FC<StateChooserProps> = (props) => {
   const elList = D.STATE_KINDS.map((kind, i) => {
     const selected = kind === selectedKind;
     const handleSelect = () => (p.stateKind.value = kind);
+
+    const isNone = kind === '(none)' && selectedKind === '(none)';
+    const label = isNone ? `${kind} - unmanaged / memory` : kind;
+
     return (
       <div key={i} className={styles.item.base.class}>
         <Button onClick={handleSelect}>
           <div className={styles.item.body.class}>
             <Bullet theme={theme.name} selected={selected} />
-            <div>{kind}</div>
+            <div>{label}</div>
           </div>
         </Button>
       </div>

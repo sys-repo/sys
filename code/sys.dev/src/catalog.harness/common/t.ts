@@ -3,6 +3,7 @@ export type { ReactNode } from 'react';
 /**
  * @system
  */
+export type { Crdt } from '@sys/driver-automerge/t';
 export type * from '@sys/types';
 
 /** User Interface: */

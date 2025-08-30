@@ -34,18 +34,26 @@ export function useSplitState(state_?: unknown) {
     if (!state) return;
     const { dispose, signal, dispose$ } = rx.abortable();
 
-    ratioRef$.current
-      .pipe(
-        rx.takeUntil(dispose$),
-        rx.debounceTime(PERSIST_DEBOUNCE), // ← wait for user to pause; coalesce bursts of updates.
-        rx.distinctWhile((p, n) => p === n),
-      )
-      .subscribe((ratio) => {
-        state?.change((d) => (d.split = ratio));
+    /**
+     * Mutators:
+     */
+    const flush = () => safeUpdate(latestRatioRef.current);
+    const safeUpdate = (current?: t.Percent) => {
+      state.change((d) => {
+        if (current == null) delete d.split;
+        else d.split = current;
       });
+    };
 
-    // Flush helper.
-    const flush = () => state.change((d) => (d.split = latestRatioRef.current));
+    /**
+     * Listener:
+     */
+    const changed$ = ratioRef$.current.pipe(
+      rx.takeUntil(dispose$),
+      rx.debounceTime(PERSIST_DEBOUNCE), // ← wait for user to pause; coalesce bursts of updates.
+      rx.distinctWhile((p, n) => p === n),
+    );
+    changed$.subscribe(safeUpdate);
 
     // Flush on unmount and when tab loses focus.
     if (typeof window !== 'undefined') {
