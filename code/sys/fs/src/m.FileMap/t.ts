@@ -16,13 +16,13 @@ export type FileMapLib = {
   /** Boolean flag assertions. */
   readonly Is: FileMapIsLib;
 
-  /** Build and persist a bundle artifact in one step. */
+  /** Build a FileMap from a directory then write a single JSON artifact to a file. */
   bundle: t.FileMapBundle;
 
   /** Materialize a FileMap into a target directory with optional per-file transforms. */
   materialize: t.FileMapMaterialize;
 
-  /** Convert the files within a directory into a `FileMap` object.  */
+  /** Convert a directory to an in-memory FileMap (keys sorted). */
   toMap: t.FileMapToMap;
 
   /** Parse a raw JSON value into a FileMap; returns { fileMap } on success or { error } if invalid. */

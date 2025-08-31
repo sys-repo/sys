@@ -13,6 +13,6 @@ export const bundle: t.FileMapLib['bundle'] = async (sourceDir, options) => {
   return {
     count: Object.keys(fileMap).length,
     fileMap,
-    path: out,
+    file: out,
   };
 };

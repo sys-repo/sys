@@ -14,7 +14,7 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
     const res = await FileMap.bundle(dir, { targetFile: outFile });
 
     // Path is absolute and matches resolved outFile:
-    expect(res.path).to.eql(Path.resolve(outFile));
+    expect(res.file).to.eql(Path.resolve(outFile));
 
     // Count matches number of keys:
     expect(res.count).to.eql(Object.keys(res.fileMap).length);
@@ -56,7 +56,7 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
     expect(await Fs.exists(outFile)).to.eql(true);
 
     // Sanity check: returned absolute path is correct:
-    expect(res.path).to.eql(Path.resolve(outFile));
+    expect(res.file).to.eql(Path.resolve(outFile));
   });
 
   it('empty bundle when filter excludes all', async () => {
@@ -82,9 +82,9 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
 
     const res = await FileMap.bundle(dir, { targetFile: rel });
 
-    expect(await Fs.exists(res.path)).to.eql(true);
-    expect(Path.Is.absolute(res.path)).to.eql(true);
-    expect(res.path).to.eql(Path.resolve(rel));
+    expect(await Fs.exists(res.file)).to.eql(true);
+    expect(Path.Is.absolute(res.file)).to.eql(true);
+    expect(res.file).to.eql(Path.resolve(rel));
   });
 
   it('throws when parent dir is unwritable (simulated)', async () => {

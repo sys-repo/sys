@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 /**
- * Build and persist a bundle artifact in one step.
+ * Build a FileMap from a directory then write a single JSON artifact to a file.
  */
 export type FileMapBundle = (
   sourceDir: t.StringDir,
@@ -16,10 +16,10 @@ export type FileMapBundleOptions = t.FileMapToMapOptions & {
 
 /** Result from `bundle`. */
 export type FileMapBundleResult = {
-  /** The in-memory map (same as returned by `toMap`). */
-  readonly fileMap: t.FileMap;
   /** Number of entries in the map. */
   readonly count: number;
+  /** The in-memory map (same as returned by `toMap`). */
+  readonly fileMap: t.FileMap;
   /** Absolute path of the artifact written to disk. */
-  readonly path: t.StringPath;
+  readonly file: t.StringPath;
 };
