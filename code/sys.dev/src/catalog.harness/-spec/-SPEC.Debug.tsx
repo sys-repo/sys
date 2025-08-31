@@ -32,6 +32,7 @@ export function createDebugSignals() {
   const snap = store.current;
 
   const props = {
+    redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
     stateKind: s(snap.stateKind),
@@ -44,6 +45,8 @@ export function createDebugSignals() {
     props,
     reset,
     listen: () => Signal.listen(props),
+    redraw: () => (p.redraw.value += 1),
+    localstorage: LocalStorage.immutable<{}>(D.STORAGE_KEY.DEV.CRDT, {}),
     get repo() {
       return _repo || (_repo = createRepo());
     },
@@ -72,14 +75,14 @@ export function createDebugSignals() {
 
     function currentState() {
       if (stateKind === 'crdt') return p.stateCrdt.value;
-      if (stateKind === 'local-storage') {
-        return LocalStorage.immutable<{}>(D.STORAGE_KEY.DEV.CRDT, {});
-      }
+      if (stateKind === 'local-storage') return api.localstorage;
     }
 
     const state = currentState();
     p.catalog.value = makeRoot({ state, theme, debug });
   });
+
+  api.localstorage.events().$.subscribe(api.redraw);
 
   return api;
 }
@@ -100,6 +103,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const stateKind = p.stateKind.value;
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -131,9 +135,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
       <ObjectView
+        name={'state.localstorage'}
+        data={debug.localstorage.current}
+        style={{ marginTop: 5, opacity: stateKind === 'local-storage' ? 1 : 0.4 }}
+        expand={0}
+      />
+      <ObjectView
         name={'state.crdt'}
         data={p.stateCrdt?.value?.current}
-        style={{ marginTop: 5 }}
+        style={{ marginTop: 5, opacity: stateKind === 'crdt' ? 1 : 0.4 }}
         expand={0}
       />
     </div>

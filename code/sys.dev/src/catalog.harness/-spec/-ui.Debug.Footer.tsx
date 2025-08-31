@@ -35,7 +35,7 @@ export const DebugFooter: React.FC<DebugFooterProps> = (props) => {
         signals: { doc: p.stateCrdt },
         localstorage: D.STORAGE_KEY.DEV.CRDT,
       }}
-      style={{ marginLeft: 3 }}
+      style={{ marginLeft: 5, marginTop: 1 }}
     />
   );
 
@@ -44,7 +44,7 @@ export const DebugFooter: React.FC<DebugFooterProps> = (props) => {
       repo={debug.repo}
       localstorage={D.STORAGE_KEY.DEV.CRDT}
       style={{
-        Padding: [8, 10],
+        Padding: [8, 11],
         borderTop: `solid 1px ${theme.alpha(0.1).fg}`,
       }}
     />
