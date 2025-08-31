@@ -9,10 +9,10 @@ import {
   R,
   SAMPLE,
   Time,
-} from '../-test.ts';
-import { File } from '../m.file/mod.ts';
-import { Log } from '../m.log/mod.ts';
-import { Tmpl } from './mod.ts';
+} from '../../-test.ts';
+import { File } from '../../m.file/mod.ts';
+import { Log } from '../../m.log/mod.ts';
+import { Tmpl } from '../mod.ts';
 
 describe('Tmpl', () => {
   const readFile = async (path: string) => (await Fs.readText(path)).data;

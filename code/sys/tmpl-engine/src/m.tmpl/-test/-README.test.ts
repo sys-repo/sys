@@ -1,4 +1,4 @@
-import { type t, Fs, Path, describe, expect, it } from '../-test.ts';
+import { type t, Fs, Path, describe, expect, it } from '../../-test.ts';
 import { Tmpl } from '../mod.ts';
 
 /**
