@@ -2,7 +2,7 @@ import { type t, Fs, Obj, Path } from './common.ts';
 import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
 
-export const bundle: t.FileMapLib['bundle'] = async (dir, opt) => {
+export const toMap: t.FileMapLib['toMap'] = async (dir, opt) => {
   const res: t.FileMap = {};
   const options = wrangle.options(opt);
 
@@ -28,7 +28,7 @@ export const bundle: t.FileMapLib['bundle'] = async (dir, opt) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   async paths(dir: t.StringDir) {
@@ -61,7 +61,7 @@ const wrangle = {
     return res.data ? Data.encode(mime, res.data) : undefined;
   },
 
-  options(input?: t.FileMapBundleOptions | t.FileMapBundleFilter) {
+  options(input?: t.FileMapToMapOptions | t.FileMapBundleFilter) {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;

@@ -1,20 +1,18 @@
 import { type t } from './common.ts';
 
-/** Bundles a directory into a `FileMap` data-uri object */
-export type FileMapBundler = (
+/** Bundles a directory into a `FileMap` result object. */
+export type FileMapToMap = (
   dir: t.StringDir,
-  options?: t.FileMapBundleOptions | t.FileMapBundleFilter,
+  options?: t.FileMapToMapOptions | t.FileMapBundleFilter,
 ) => Promise<t.FileMap>;
 
-/** Options passed to the `FileMap.bundle` method. */
-export type FileMapBundleOptions = {
-  filter?: FileMapBundleFilter;
-};
+/** Options passed to the `FileMap.toMap` method. */
+export type FileMapToMapOptions = { filter?: FileMapBundleFilter };
 
-/** Filter the narrow down files included within a `FileMap` bundle. */
-export type FileMapBundleFilter = (e: FileMapBundleFilterArgs) => boolean;
+/** Filter to narrow down files included within a `FileMap` bundle. */
+export type FileMapBundleFilter = (e: t.FileMapBundleFilterArgs) => boolean;
 export type FileMapBundleFilterArgs = {
-  path: t.StringPath;
-  contentType: string;
-  ext: string;
+  readonly path: t.StringPath;
+  readonly contentType: string;
+  readonly ext: string;
 };

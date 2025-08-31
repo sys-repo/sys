@@ -5,19 +5,19 @@ import { Fs, Path } from '../common.ts';
 import { FileMap } from '../mod.ts';
 
 describe('FileMap', () => {
-  describe('bundle', () => {
+  describe('toMap', () => {
     const dir = Sample.source.dir;
 
-    it('bundle ← all paths (sorted)', async () => {
-      const res = await FileMap.bundle(dir);
+    it('toMap ← all paths (sorted)', async () => {
+      const res = await FileMap.toMap(dir);
       const paths = (await Sample.source.ls()).map((p) => p.slice(dir.length + 1)).sort();
       expect(Object.keys(res).sort()).to.eql(paths);
       expect(res['images/vector.svg']).to.exist;
       expect(res['images/pixels.png']).to.exist;
     });
 
-    it('bundle: filtered', async () => {
-      const res = await FileMap.bundle(dir, (e) => !e.contentType.startsWith('image/'));
+    it('toMap: filtered', async () => {
+      const res = await FileMap.toMap(dir, (e) => !e.contentType.startsWith('image/'));
       // NB: image content-types filtered out.
       expect(res['images/vector.svg']).to.eql(undefined);
       expect(res['images/wax.png']).to.eql(undefined);
@@ -57,7 +57,7 @@ describe('FileMap', () => {
 
     it('writes to target directory', async () => {
       const sample = Sample.init();
-      const bundle = await FileMap.bundle(dir);
+      const bundle = await FileMap.toMap(dir);
       const res = await FileMap.write(sample.target, bundle);
       expect(res.target).to.eql(Path.resolve(sample.target));
       expect(res.error).to.eql(undefined);
@@ -66,7 +66,7 @@ describe('FileMap', () => {
 
     it('additive (by default)', async () => {
       const sample = Sample.init();
-      const bundle = await FileMap.bundle(dir);
+      const bundle = await FileMap.toMap(dir);
       const target = sample.target;
       await Fs.write(Path.join(target, 'foo.txt'), '👋');
       await FileMap.write(target, bundle);
@@ -77,7 +77,7 @@ describe('FileMap', () => {
     describe('errors', () => {
       it('error: corrupted file', async () => {
         const sample = Sample.init();
-        const bundle = await FileMap.bundle(dir);
+        const bundle = await FileMap.toMap(dir);
 
         bundle['.gitignore'] = 'xx💀xx'; // NB: simulate a corruption to the file-content.
 

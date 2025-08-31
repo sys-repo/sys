@@ -15,11 +15,11 @@ export type FileMapLib = {
   /** Boolean flag assertions. */
   readonly Is: FileMapIsLib;
 
-  /** Bundle the files wihtin directory into a `FileMap` object.  */
-  bundle: t.FileMapBundler;
+  /** Convert the files within a directory into a `FileMap` object.  */
+  toMap: t.FileMapToMap;
 
-  /** Save a file-bundle to a target location. */
-  write(target: t.StringDir, bundle: t.FileMap): Promise<t.FileMapSaveResult>;
+  /** Save a file-bundle to a target location on disk. */
+  write(target: t.StringDir, bundle: t.FileMap): Promise<t.FileMapWriteResult>;
 
   /** Parse a raw JSON value into a FileMap; returns { fileMap } on success or { error } if invalid. */
   validate(json: unknown): t.FileMapValidateResult;
@@ -33,7 +33,7 @@ export type FileMapLib = {
 };
 
 /** Resposne from `FileMap.write` method. */
-export type FileMapSaveResult = { readonly target: t.StringDir; readonly error?: t.StdError };
+export type FileMapWriteResult = { readonly target: t.StringDir; readonly error?: t.StdError };
 
 /** Outcome of parsing a raw JSON value into the `FileMap.fromJson` method. */
 export type FileMapValidateResult = { readonly fileMap?: t.FileMap; readonly error?: t.StdError };

@@ -6,19 +6,18 @@ import { FileMap } from '../mod.ts';
 
 describe('materialize', () => {
   const dir = Sample.source.dir;
-
-  const makeBundle = async () => await FileMap.bundle(dir);
+  const makeMap = async () => FileMap.toMap(dir);
 
   it('writes files to target (no force)', async () => {
     const sample = Sample.init();
-    const bundle = await makeBundle();
+    const bundle = await makeMap();
     const res = await FileMap.materialize(bundle, sample.target);
     expect(res.ops.some((o) => o.kind === 'write')).to.eql(true);
   });
 
   it('skip existing when !force', async () => {
     const sample = Sample.init();
-    const bundle = await makeBundle();
+    const bundle = await makeMap();
 
     await FileMap.materialize(bundle, sample.target);
     const res = await FileMap.materialize(bundle, sample.target);
@@ -37,7 +36,7 @@ describe('materialize', () => {
 
   it('force overwrite', async () => {
     const sample = Sample.init();
-    const bundle = await makeBundle();
+    const bundle = await makeMap();
 
     await FileMap.materialize(bundle, sample.target);
     const res = await FileMap.materialize(bundle, sample.target, { force: true });
@@ -46,7 +45,7 @@ describe('materialize', () => {
 
   it('processFile: modify + rename + exclude', async () => {
     const sample = Sample.init();
-    const bundle = await makeBundle();
+    const bundle = await makeMap();
 
     // Choose a real text file from the bundle deterministically.
     const keys = Object.keys(bundle);
@@ -112,7 +111,7 @@ describe('materialize', () => {
 
   it('binary passthrough', async () => {
     const sample = Sample.init();
-    const bundle = await makeBundle();
+    const bundle = await makeMap();
     await FileMap.materialize(bundle, sample.target, {
       processFile(e) {
         // Images are binary except SVG (structured text):
