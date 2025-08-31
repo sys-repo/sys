@@ -14,6 +14,11 @@ export type MonacoEditorProps = {
   minimap?: boolean;
   readOnly?: boolean;
 
+  /** Enable word wrapping in the editor. */
+  wordWrap?: boolean;
+  /** Column at which to break lines when word wrap is enabled. */
+  wordWrapColumn?: number;
+
   // Appearance:
   theme?: t.CommonTheme;
   style?: t.CssInput;

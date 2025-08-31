@@ -24,6 +24,7 @@ export default Spec.describe('MonacoEditor', (e) => {
         minimap={v.minimap}
         readOnly={v.readOnly}
         tabSize={v.tabSize}
+        wordWrap={v.wordWrap}
         //
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);

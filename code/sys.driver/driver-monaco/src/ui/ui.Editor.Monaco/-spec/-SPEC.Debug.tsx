@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
   type t,
+  Obj,
   Button,
   Color,
   css,
@@ -25,6 +26,7 @@ type Storage = Pick<
   | 'readOnly'
   | 'minimap'
   | 'tabSize'
+  | 'wordWrap'
   | 'language'
   | 'placeholder'
   | 'autoFocus'
@@ -35,6 +37,18 @@ type Storage = Pick<
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: true,
+  enabled: D.props.enabled,
+  readOnly: D.props.readOnly,
+  autoFocus: true,
+  minimap: D.props.minimap,
+  tabSize: D.props.tabSize,
+  wordWrap: D.props.wordWrap,
+  language: D.props.language,
+  placeholder: undefined,
+};
 
 /**
  * Signals:
@@ -42,17 +56,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-    enabled: D.props.enabled,
-    readOnly: D.props.readOnly,
-    autoFocus: true,
-    minimap: D.props.minimap,
-    tabSize: D.props.tabSize,
-    language: D.props.language,
-    placeholder: undefined,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -66,6 +69,7 @@ export function createDebugSignals() {
     autoFocus: s(snap.autoFocus),
     minimap: s(snap.minimap),
     tabSize: s(snap.tabSize),
+    wordWrap: s(snap.wordWrap),
     language: s(snap.language),
     placeholder: s(snap.placeholder),
 
@@ -77,11 +81,8 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
-    },
+    reset,
+    listen,
   };
 
   Signal.effect(() => {
@@ -93,10 +94,19 @@ export function createDebugSignals() {
       d.minimap = p.minimap.value;
       d.autoFocus = p.autoFocus.value;
       d.tabSize = p.tabSize.value;
+      d.wordWrap = p.wordWrap.value;
       d.language = p.language.value;
       d.placeholder = p.placeholder.value;
     });
   });
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   return api;
 }
@@ -182,6 +192,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        label={() =>
+          `wordWrap: ${p.wordWrap.value ?? `<undefined> (default: ${D.props.wordWrap})`}`
+        }
+        onClick={() => Signal.toggle(p.wordWrap)}
+      />
+      <hr />
+      <Button
+        block
         label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
       />
@@ -207,13 +225,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {caretButtons(debug)}
 
       <hr />
-      <ObjectView name={'debug'} data={wrangle.debug(debug)} expand={['$']} />
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <ObjectView
+        name={'debug'}
+        data={wrangle.debug(debug)}
+        expand={['$']}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
 
 /**
- * DevHelpers:
+ * Helpers:
  */
 
 export function caretButtons(debug: DebugSignals) {
@@ -234,7 +263,7 @@ export function caretButtons(debug: DebugSignals) {
 
   const theme = Color.theme();
   const styles = {
-    body: css({ marginLeft: 15 }),
+    body: css({ marginLeft: 15, marginBottom: 20 }),
     row: css({ display: 'grid', gridTemplateColumns: '1fr auto' }),
     hr: css({
       borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.3)}`,

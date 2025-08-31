@@ -13,14 +13,17 @@ import { Theme } from './u.Theme.ts';
  * Component:
  */
 export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
+  const DP = D.props;
   const {
     defaultValue,
-    language = D.props.language,
-    tabSize = D.props.tabSize,
-    readOnly = D.props.readOnly,
-    minimap = D.props.minimap,
-    enabled = D.props.enabled,
-    autoFocus = D.props.autoFocus,
+    language = DP.language,
+    tabSize = DP.tabSize,
+    readOnly = DP.readOnly,
+    minimap = DP.minimap,
+    enabled = DP.enabled,
+    autoFocus = DP.autoFocus,
+    wordWrap = DP.wordWrap,
+    wordWrapColumn = DP.wordWrapColumn,
     placeholder,
   } = props;
   const editorTheme = Theme.toName(props.theme);
@@ -53,7 +56,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
 
   React.useEffect(() => {
     updateOptions(editorRef.current);
-  }, [tabSize, readOnly, minimap]);
+  }, [tabSize, readOnly, minimap, wordWrap]);
 
   /**
    * Effect: End-of-life.
@@ -81,10 +84,13 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const getModel = (editor?: t.Monaco.Editor) => editor?.getModel();
   const updateOptions = (editor?: t.Monaco.Editor) => {
     if (!editor) return;
+
     editor.updateOptions({
       theme: editorTheme,
       readOnly,
       minimap: { enabled: minimap },
+      wordWrap: wordWrap ? 'bounded' : 'off',
+      wordWrapColumn, // ← number-characters.
     });
     getModel(editor)?.updateOptions({ tabSize });
   };

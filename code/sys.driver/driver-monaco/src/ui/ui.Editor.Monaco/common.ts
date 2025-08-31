@@ -10,7 +10,15 @@ const name = 'MonacoEditor';
 
 const props: t.PickRequired<
   t.MonacoEditorProps,
-  'theme' | 'readOnly' | 'minimap' | 'tabSize' | 'language' | 'enabled' | 'autoFocus'
+  | 'theme'
+  | 'readOnly'
+  | 'minimap'
+  | 'tabSize'
+  | 'language'
+  | 'enabled'
+  | 'autoFocus'
+  | 'wordWrap'
+  | 'wordWrapColumn'
 > = {
   theme: 'Dark',
   enabled: true,
@@ -19,6 +27,8 @@ const props: t.PickRequired<
   tabSize: 2,
   language: 'typescript',
   autoFocus: false,
+  wordWrap: false,
+  wordWrapColumn: 80,
 };
 
 export const DEFAULTS = {
