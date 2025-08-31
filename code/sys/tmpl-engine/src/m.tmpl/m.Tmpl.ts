@@ -4,6 +4,7 @@ import { File } from '../m.file/mod.ts';
 import { Log } from '../m.log/mod.ts';
 import { create } from './u.create.ts';
 export { create, File, Log };
+import { FileMap } from './common.ts';
 
 /**
  * Library for copying template files.
@@ -11,5 +12,6 @@ export { create, File, Log };
 export const Tmpl: TmplLib = {
   Log,
   File,
+  FileMap,
   create,
 };
