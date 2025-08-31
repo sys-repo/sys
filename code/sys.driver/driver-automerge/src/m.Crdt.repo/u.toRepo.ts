@@ -19,11 +19,17 @@ export function toRepo(
 ): t.CrdtRepo {
   let _updating: t.Lifecycle | undefined;
   let _enabled = true;
+  let _ready = false;
 
   const life = rx.lifecycleAsync(options.dispose$, async () => {
     peers.clear();
     await silentShutdown(repo);
   });
+
+  const cloneProps = (): t.CrdtRepoProps => {
+    const { id, sync, ready } = api;
+    return { id, sync: { ...sync }, ready };
+  };
 
   /**
    * Observable:
@@ -50,6 +56,21 @@ export function toRepo(
     .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
     .map((adapter: any) => adapter.url);
 
+  const readyOnce = (async () => {
+    try {
+      // Wait for all network adapters to be ready:
+      await Promise.all(adapters.map((a) => a.whenReady()));
+    } catch {
+      // Ignore - some adapters may not implement whenReady() strictly.
+    }
+    await Promise.resolve(); // Microtask yield for storage/index bootstrap.
+    if (!_ready) {
+      const before = cloneProps();
+      _ready = true;
+      fireChanged('ready', before);
+    }
+  })();
+
   /**
    * Listeners:
    */
@@ -64,18 +85,17 @@ export function toRepo(
   });
 
   /**
-   * Helpers:
-   */
-  const cloneProps = () => {
-    const { id, sync } = api;
-    return { id, sync: { ...sync } };
-  };
-
-  /**
    * API:
    */
   const api: t.CrdtRepo = {
     id: { peer, instance: slug() },
+
+    get ready() {
+      return _ready;
+    },
+    async whenReady() {
+      await readyOnce;
+    },
 
     sync: {
       urls,

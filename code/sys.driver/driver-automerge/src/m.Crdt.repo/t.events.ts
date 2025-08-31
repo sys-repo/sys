@@ -6,7 +6,14 @@ import type { t } from './common.ts';
 export type CrdtRepoEvents = t.Lifecycle & {
   /** Primary change event stream. */
   readonly $: t.Observable<CrdtRepoEvent>;
+  /** Stream of property change events. */
   readonly prop$: t.Observable<CrdtRepoPropChangeEvent['payload']>;
+  /**
+   * Emits once when the repo becomes ready, then completes.
+   * For continuous state, use `repo.ready` or `repo.prop$`.
+   */
+  readonly ready$: t.Observable<boolean>;
+  /** Stream of network events. */
   readonly network$: t.Observable<CrdtNetworkChangeEvent>;
 };
 
@@ -26,7 +33,7 @@ export type CrdtRepoPropChangeEvent = {
 };
 /** Represents a change to the repo state. */
 export type CrdtRepoPropChange = {
-  readonly prop: 'sync.enabled' | 'sync.peers';
+  readonly prop: 'ready' | 'sync.enabled' | 'sync.peers';
   readonly before: t.CrdtRepoProps;
   readonly after: t.CrdtRepoProps;
 };

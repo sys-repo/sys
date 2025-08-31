@@ -26,6 +26,52 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(c.disposed).to.eql(true);
   });
 
+  describe('ready$', () => {
+    it('fires prop-change when repo becomes ready', async () => {
+      const repo = Crdt.repo();
+      const events = repo.events();
+
+      const fired: t.CrdtRepoPropChange[] = [];
+      events.prop$.subscribe((e) => fired.push(e));
+
+      // Initially: not ready.
+      expect(repo.ready).to.eql(false);
+
+      // Await readiness:
+      await repo.whenReady();
+
+      // Repo is now ready.
+      expect(repo.ready).to.eql(true);
+
+      // Should have fired exactly one "ready" change:
+      const readyChanges = fired.filter((c) => c.prop === 'ready');
+      expect(readyChanges.length).to.eql(1);
+      expect(readyChanges[0].before.ready).to.eql(false);
+      expect(readyChanges[0].after.ready).to.eql(true);
+
+      events.dispose();
+    });
+
+    it('ready$ emits once and completes', async () => {
+      const repo = Crdt.repo();
+      const events = repo.events();
+
+      const values: boolean[] = [];
+      let completed = false;
+
+      events.ready$.subscribe({
+        next: (v) => values.push(v),
+        complete: () => (completed = true),
+      });
+
+      await repo.whenReady();
+
+      expect(values).to.eql([true]); //   ← one-shot emission
+      expect(completed).to.eql(true); //  ← and it completes
+      events.dispose();
+    });
+  });
+
   describe('prop$ (change)', () => {
     it('sync.enabled (toggle)', async () => {
       const s = await Server.ws({ silent: true });
@@ -74,17 +120,22 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(a.sync.peers).to.eql([]);
       expect(b.sync.peers).to.eql([]);
 
+      // Wait for initial peer connections:
       await Time.wait(150);
       expect(a.sync.peers).to.eql([s.repo.id.peer]);
       expect(b.sync.peers).to.eql([s.repo.id.peer]);
       expect(s.repo.sync.peers).to.have.members([a.id.peer, b.id.peer]);
 
-      expect(firedA.length).to.eql(1);
-      expect(firedB.length).to.eql(1);
-      expect(firedA[0].before.sync.peers).to.eql([]);
-      expect(firedA[0].after.sync.peers).to.eql([s.repo.id.peer]);
-      expect(firedB[0].before.sync.peers).to.eql([]);
-      expect(firedB[0].after.sync.peers).to.eql([s.repo.id.peer]);
+      const peerChangesA = firedA.filter((c) => c.prop === 'sync.peers');
+      const peerChangesB = firedB.filter((c) => c.prop === 'sync.peers');
+
+      expect(peerChangesA.length).to.eql(1);
+      expect(peerChangesB.length).to.eql(1);
+
+      expect(peerChangesA[0].before.sync.peers).to.eql([]);
+      expect(peerChangesA[0].after.sync.peers).to.eql([s.repo.id.peer]);
+      expect(peerChangesB[0].before.sync.peers).to.eql([]);
+      expect(peerChangesB[0].after.sync.peers).to.eql([s.repo.id.peer]);
 
       // Take A offline:
       a.sync.enabled = false;
@@ -93,11 +144,18 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(b.sync.peers).to.eql([s.repo.id.peer]);
       expect(s.repo.sync.peers).to.eql([b.id.peer]);
 
-      expect(firedA.map((e) => e.prop)).to.eql(['sync.peers', 'sync.enabled', 'sync.peers']);
-      expect(firedA.slice(-1)[0].before.sync.peers).to.eql([s.repo.id.peer]);
-      expect(firedA.slice(-1)[0].after.sync.peers).to.eql([]);
-      expect(firedB.slice(-1)[0].before.sync.peers).to.eql([]);
-      expect(firedB.slice(-1)[0].after.sync.peers).to.eql([s.repo.id.peer]);
+      // Only check peer-change events (ignore ready, enabled, etc.):
+      const lastPeerA = peerChangesA
+        .concat(firedA.filter((e) => e.prop === 'sync.peers'))
+        .slice(-1)[0];
+      const lastPeerB = peerChangesB
+        .concat(firedB.filter((e) => e.prop === 'sync.peers'))
+        .slice(-1)[0];
+
+      expect(lastPeerA.before.sync.peers).to.eql([s.repo.id.peer]);
+      expect(lastPeerA.after.sync.peers).to.eql([]);
+      expect(lastPeerB.before.sync.peers).to.eql([]);
+      expect(lastPeerB.after.sync.peers).to.eql([s.repo.id.peer]);
 
       // Bring A back online:
       a.sync.enabled = true;
@@ -106,8 +164,9 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(b.sync.peers).to.eql([s.repo.id.peer]);
       expect(s.repo.sync.peers).to.have.members([a.id.peer, b.id.peer]);
 
-      expect(firedA.slice(-1)[0].before.sync.peers).to.eql([]);
-      expect(firedA.slice(-1)[0].after.sync.peers).to.eql([s.repo.id.peer]);
+      const backOnlineA = firedA.filter((e) => e.prop === 'sync.peers').slice(-1)[0];
+      expect(backOnlineA.before.sync.peers).to.eql([]);
+      expect(backOnlineA.after.sync.peers).to.eql([s.repo.id.peer]);
 
       // Kill the server:
       await s.dispose();
@@ -116,10 +175,12 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(b.sync.peers).to.eql([]);
       expect(s.repo.sync.peers).to.eql([]);
 
-      expect(firedA.slice(-1)[0].before.sync.peers).to.eql([s.repo.id.peer]);
-      expect(firedA.slice(-1)[0].after.sync.peers).to.eql([]);
-      expect(firedB.slice(-1)[0].before.sync.peers).to.eql([s.repo.id.peer]);
-      expect(firedB.slice(-1)[0].after.sync.peers).to.eql([]);
+      const finalPeerA = firedA.filter((e) => e.prop === 'sync.peers').slice(-1)[0];
+      const finalPeerB = firedB.filter((e) => e.prop === 'sync.peers').slice(-1)[0];
+      expect(finalPeerA.before.sync.peers).to.eql([s.repo.id.peer]);
+      expect(finalPeerA.after.sync.peers).to.eql([]);
+      expect(finalPeerB.before.sync.peers).to.eql([s.repo.id.peer]);
+      expect(finalPeerB.after.sync.peers).to.eql([]);
 
       // Finish up.
       await a.dispose();

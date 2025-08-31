@@ -1,5 +1,6 @@
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { type t, AutomergeRepo, describe, expect, it, rx, Time } from '../-test.ts';
+
 import { Crdt } from '../m.Server/common.ts';
 import { toAutomergeRepo, toRepo } from './mod.ts';
 
@@ -51,6 +52,60 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(doc.current).to.eql(initial);
       expect(doc.current).to.not.equal(initial);
       expect(repo.disposed).to.eql(false);
+    });
+  });
+
+  describe('ready', () => {
+    it('ready flag + whenReady() (no network)', async () => {
+      const repo = Crdt.repo();
+      expect(repo.ready).to.eql(false);
+
+      // Await ready.
+      await repo.whenReady();
+      expect(repo.ready).to.eql(true);
+
+      // Second call should resolve immediately.
+      await repo.whenReady();
+      expect(repo.ready).to.eql(true);
+    });
+
+    it('ready$ emits once and completes', async () => {
+      const repo = Crdt.repo();
+
+      const values: boolean[] = [];
+      let completed = false;
+
+      repo.events().ready$.subscribe({
+        next: (v) => values.push(v),
+        complete: () => (completed = true),
+      });
+
+      await repo.whenReady();
+
+      expect(values).to.eql([true]);
+      expect(completed).to.eql(true);
+    });
+
+    it('whenReady waits for adapter.whenReady()', async () => {
+      class SlowAdapter {
+        url = 'wss://example';
+        async whenReady() {
+          await Time.wait(20);
+        }
+        connect() {}
+        disconnect() {}
+        on() {}
+        off() {}
+      }
+
+      const repo = Crdt.repo({ network: [new SlowAdapter() as any] });
+      const t0 = Date.now();
+
+      await repo.whenReady();
+      const dt = Date.now() - t0;
+
+      expect(repo.ready).to.eql(true);
+      expect(dt).to.be.at.least(15);
     });
   });
 

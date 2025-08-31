@@ -6,14 +6,21 @@ import { type t, rx } from './common.ts';
 export function eventsFactory($: t.Observable<t.CrdtRepoEvent>, life: t.Lifecycle) {
   $ = $.pipe(rx.takeUntil(life.dispose$));
 
-  const change$ = $.pipe(
+  const prop$ = $.pipe(
     rx.filter((e) => e.type === 'prop-change'),
     rx.map((e) => e.payload),
   );
 
+  const ready$ = prop$.pipe(
+    rx.filter((change) => change.prop === 'ready'),
+    rx.map((change) => change.after.ready === true),
+    rx.take(1),
+  );
+
   return rx.toLifecycle<t.CrdtRepoEvents>(life, {
     $,
-    prop$: change$,
+    ready$,
+    prop$,
     network$: $.pipe(rx.filter(EventIs.network)),
   });
 }

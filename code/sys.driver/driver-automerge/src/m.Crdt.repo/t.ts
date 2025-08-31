@@ -14,6 +14,7 @@ export type CrdtRepo = CrdtRepoMethods & CrdtRepoProps & t.LifecycleAsync;
 /** The properties of a CRDT Repo. */
 export type CrdtRepoProps = {
   readonly id: { readonly instance: t.StringId; readonly peer: t.StringId };
+  readonly ready: boolean;
   readonly sync: {
     enabled: boolean;
     readonly urls: t.StringUrl[];
@@ -22,6 +23,7 @@ export type CrdtRepoProps = {
 };
 /** The methods of a CRDT Repo. */
 export type CrdtRepoMethods = {
+  whenReady(): Promise<void>;
   create<T extends O>(initial: T | (() => T)): t.CrdtRef<T>;
   get<T extends O>(id: t.StringId, options?: CrdtRepoGetOptions): Promise<CrdtRefGetResponse<T>>;
   delete(id: t.StringId | t.Crdt.Ref): Promise<void>;
