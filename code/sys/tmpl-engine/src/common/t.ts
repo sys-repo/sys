@@ -3,7 +3,7 @@ export type {
   FileMap,
   FileMapBundleFilter,
   FileMapMaterializeOp,
-  FileMapProcessFile,
+  FileMapProcessor,
   FsDir,
   FsFile,
   FsFileFilter,
