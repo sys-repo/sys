@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRepo } from '../../ui/-test.ui.ts';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
+import { type t, Button, Crdt, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
 
 import { makeRoot } from './-u.make.tsx';
 import { StateChooser } from './-ui.StateChooser.tsx';
@@ -104,7 +104,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const stateKind = p.stateKind.value;
+
   Signal.useRedrawEffect(() => debug.listen());
+  Crdt.UI.useRedrawEffect(p.stateCrdt.value);
 
   /**
    * Render:
