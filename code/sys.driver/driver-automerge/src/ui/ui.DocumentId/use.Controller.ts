@@ -32,6 +32,7 @@ function useInternal(args: Args = {}): Hook {
   /**
    * Refs:
    */
+  const bootRef = React.useRef<{ attempted: boolean; id?: string }>({ attempted: false });
   const seededFromUrlRef = React.useRef(false);
   const signalsRef = useRef<t.DocumentIdHookSignals>(wrangle.signals(args));
   const signals = signalsRef.current;
@@ -54,14 +55,38 @@ function useInternal(args: Args = {}): Hook {
   const transient = useTransientMessage();
 
   /**
-   * Effect: (init on mount or reset).
+   * Effect: bootstrap once per repo instance.
+   *  - If there's a valid id in textbox (URL/local-storage), wait for repo readiness then Load it.
+   *  - Otherwise mark the hook ready immediately.
    */
   React.useEffect(() => {
     if (ready) return;
-    const props = api.props;
-    if (props.textbox && !props.doc) run({ action: 'Load' }).then(() => setReady(true));
-    else setReady(true);
-  }, [repoId, ready]);
+
+    // Derive a valid id from current textbox.
+    const text = signalsRef.current.textbox.value?.trim() ?? '';
+    const { id } = Parse.textbox(text);
+
+    // Only attempt a single bootstrap load per mount/repo:
+    if (id && !bootRef.current.attempted) {
+      bootRef.current.attempted = true;
+      bootRef.current.id = id;
+
+      let mounted = true;
+      const done = () => mounted && setReady(true);
+
+      // Fence on repo readiness before `Load` to avoid early `NotFound` races.
+      repo
+        ?.whenReady()
+        .then(() => run({ action: 'Load' }))
+        .catch(() => void 0)
+        .finally(done);
+
+      return () => void (mounted = false);
+    }
+
+    // No valid id → ready immediately.
+    setReady(true);
+  }, [repoId, signalsRef.current.textbox.value, ready]);
 
   /**
    * Effect: (repo changed → reset).
@@ -119,6 +144,8 @@ function useInternal(args: Args = {}): Hook {
     }
 
     if (e.action === 'Create' && enabled) {
+      await repo.whenReady();
+
       const doc = repo.create(args.initial ?? {});
       p.doc.value = doc;
       p.textbox.value = doc.id;
@@ -136,6 +163,7 @@ function useInternal(args: Args = {}): Hook {
     }
 
     if (e.action === 'Load' && props.docId && enabled) {
+      await repo.whenReady();
       const id = props.docId;
 
       p.spinning.value = true;

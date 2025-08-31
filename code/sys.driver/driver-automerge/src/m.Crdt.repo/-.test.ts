@@ -53,6 +53,25 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(doc.current).to.not.equal(initial);
       expect(repo.disposed).to.eql(false);
     });
+
+    it('create seeds empty initial with $sys.createdAt', () => {
+      const repo = toRepo(new AutomergeRepo());
+      const a = repo.create<{}>({}); // empty
+      expect(typeof (a.current as any).$meta?.createdAt).to.eql('number');
+
+      const b = repo.create<{ count: number }>({ count: 1 }); // non-empty
+      expect((b.current as any).$meta).to.eql(undefined);
+    });
+
+    it('seeded empty doc is durable immediately', async () => {
+      const base = new AutomergeRepo();
+      const repoA = toRepo(base);
+      const doc = repoA.create<{}>({});
+
+      const repoB = toRepo(base);
+      const got = await repoB.get<{}>(doc.id);
+      expect(!!got.doc).to.eql(true);
+    });
   });
 
   describe('ready', () => {

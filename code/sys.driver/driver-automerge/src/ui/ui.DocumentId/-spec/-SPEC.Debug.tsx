@@ -183,12 +183,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <Button
         block
         label={() => {
