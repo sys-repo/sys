@@ -5,7 +5,7 @@ type Args = {
   bundleRoot?: t.StringDir;
 };
 
-export function createFileProcessor(args: Args): t.FileMapProcessFile {
+export function createFileProcessor(args: Args): t.FileMapProcessor {
   const root = (args.bundleRoot ?? '').trim();
 
   return async (e) => {

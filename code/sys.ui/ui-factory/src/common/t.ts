@@ -9,7 +9,7 @@ export type { JSX, ReactElement, ReactNode } from 'react';
 export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
-export type { FileMapProcessFile } from '@sys/fs/t';
+export type { FileMapProcessor } from '@sys/fs/t';
 export type { Static, TSchema, ValueError } from '@sys/schema/t';
 export type { ErrCatch, ErrFail } from '@sys/std/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
