@@ -31,8 +31,16 @@ export function createDebugSignals() {
   const api = {
     props,
     reset,
-    listen: () => Signal.listen(props),
+    listen,
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -40,10 +48,6 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
     });
   });
-
-  function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
-  }
 
   return api;
 }
