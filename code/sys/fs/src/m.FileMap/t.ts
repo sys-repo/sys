@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 export type * from './t.materialize.ts';
+export type * from './t.bundle.ts';
 
 /**
  * Tools for generating and saving bundles of files as a structured object.
@@ -41,23 +42,6 @@ export type FileMapValidateResult = { readonly fileMap?: t.FileMap; readonly err
  * Represents a bundled set of paths/files as a structured object.
  */
 export type FileMap = { [path: t.StringPath]: string };
-
-/** Bundles a directory into a `FileMap` data-uri object */
-export type FileMapBundler = (
-  dir: t.StringDir,
-  options?: t.FileMapBundleOptions | t.FileMapBundleFilter,
-) => Promise<FileMap>;
-
-/** Options passed to the `FileMap.bundle` method. */
-export type FileMapBundleOptions = { filter?: FileMapBundleFilter };
-
-/** Filter the narrow down files included within a `FileMap` bundle. */
-export type FileMapBundleFilter = (e: FileMapBundleFilterArgs) => boolean;
-export type FileMapBundleFilterArgs = {
-  path: t.StringPath;
-  contentType: string;
-  ext: string;
-};
 
 /**
  * Helpers for encoding/decoding file data.

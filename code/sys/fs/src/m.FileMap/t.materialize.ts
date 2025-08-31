@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Function signature for per-file transforms during materialize.
  */
-export type FileMapProcessFile = (e: FileMapProcessEvent) => void | Promise<void>;
+export type FileMapProcessor = (e: FileMapProcessEvent) => void | Promise<void>;
 
 /**
  * Options for applying a FileMap into a target directory.
@@ -11,7 +11,7 @@ export type FileMapProcessFile = (e: FileMapProcessEvent) => void | Promise<void
 export type FileMapMaterializeOptions = {
   readonly force?: boolean;
   readonly ctx?: unknown;
-  readonly processFile?: t.FileMapProcessFile;
+  readonly processFile?: t.FileMapProcessor;
   readonly onLog?: (line: string) => void;
 };
 
