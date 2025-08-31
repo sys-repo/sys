@@ -15,14 +15,17 @@ export type FileMapLib = {
   /** Boolean flag assertions. */
   readonly Is: FileMapIsLib;
 
+  /** Build and persist a bundle artifact in one step. */
+  bundle: t.FileMapBundle;
+
   /** Convert the files within a directory into a `FileMap` object.  */
   toMap: t.FileMapToMap;
 
-  /** Save a file-bundle to a target location on disk. */
-  write(target: t.StringDir, bundle: t.FileMap): Promise<t.FileMapWriteResult>;
-
   /** Parse a raw JSON value into a FileMap; returns { fileMap } on success or { error } if invalid. */
   validate(json: unknown): t.FileMapValidateResult;
+
+  /** Save a file-bundle to a target location on disk. */
+  write(target: t.StringDir, bundle: t.FileMap): Promise<t.FileMapWriteResult>;
 
   /** Apply (materialize) a FileMap into a target directory with optional per-file transforms. */
   materialize(

@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 /**
- * Formatting tools related to filesystem artefacts.
+ * Formatting tools related to filesystem artifacts.
  */
 export type FsFmtLib = {
   /** Render a tree from a list of POSIX-style relative paths ('a/b/c.txt'). */
