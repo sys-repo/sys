@@ -27,7 +27,18 @@ export type FileMapLib = {
 
   /** Parse a raw JSON value into a FileMap; returns { fileMap } on success or { error } if invalid. */
   validate(json: unknown): t.FileMapValidateResult;
+
+  /**
+   * Filter on a filemap returning a new instance (non-mutating).
+   * Keep entries for which the predicate returns true.
+   */
+  filter(filemap: t.FileMap, fn: t.FileMapFilter): t.FileMap;
 };
+
+/** Predicate used to keep (true) or drop (false) a filemap entry. */
+export type FileMapFilter = (e: FileMapFilterArgs) => boolean;
+/** Arguments supplied to the FileMap filter predicate. */
+export type FileMapFilterArgs = { readonly path: string; readonly value: string };
 
 /** Outcome of parsing a raw JSON value into the `FileMap.fromJson` method. */
 export type FileMapValidateResult = { readonly fileMap?: t.FileMap; readonly error?: t.StdError };

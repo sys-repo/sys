@@ -17,9 +17,50 @@ describe('FileMap', () => {
 
     it('toMap: filtered', async () => {
       const res = await FileMap.toMap(dir, (e) => !e.contentType.startsWith('image/'));
-      // NB: image content-types filtered out.
+      // NB: image content-types filtered out:
       expect(res['images/vector.svg']).to.eql(undefined);
       expect(res['images/wax.png']).to.eql(undefined);
+    });
+  });
+
+  describe('filter', () => {
+    const dir = Sample.source.dir;
+
+    it('returns new map (non-mutating) and filters by extension', async () => {
+      const map = await FileMap.toMap(dir);
+      const onlyTs = FileMap.filter(map, ({ path }) => path.endsWith('.ts'));
+
+      // New object identity:
+      expect(onlyTs).to.not.equal(map);
+
+      // Expected paths:
+      const expected = Object.keys(map)
+        .filter((p) => p.endsWith('.ts'))
+        .sort();
+      expect(Object.keys(onlyTs).sort()).to.eql(expected);
+
+      // Original unmodified:
+      expect(map['images/vector.svg']).to.exist;
+      expect(map['images/pixels.png']).to.exist;
+    });
+
+    it('filters by path prefix (exclude images/)', async () => {
+      const map = await FileMap.toMap(dir);
+      const noImages = FileMap.filter(map, ({ path }) => !path.startsWith('images/'));
+
+      // Image entries removed:
+      expect(noImages['images/vector.svg']).to.eql(undefined);
+      expect(noImages['images/pixels.png']).to.eql(undefined);
+
+      // Keep at least one non-image entry (if present in fixture):
+      const someNonImage = Object.keys(map).find((p) => !p.startsWith('images/'));
+      if (someNonImage) expect(noImages[someNonImage]).to.exist;
+    });
+
+    it('predicate can drop everything', async () => {
+      const map = await FileMap.toMap(dir);
+      const none = FileMap.filter(map, () => false);
+      expect(Object.keys(none)).to.eql([]);
     });
   });
 });
