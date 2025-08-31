@@ -6,3 +6,10 @@ export { pkg } from './pkg.ts';
 
 /** Type library (barrel file). */
 export type * as t from './types.ts';
+
+/**
+ * Library:
+ */
+export { Fs, Path } from './common.ts';
+export { makeTmpl } from './m.tmpl.kernel/mod.ts';
+export { Log, Tmpl } from './m.tmpl/m.Tmpl.ts';

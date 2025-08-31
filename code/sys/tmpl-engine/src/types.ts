@@ -4,4 +4,5 @@
  */
 export type * from './m.file/t.ts';
 export type * from './m.log/t.ts';
+export type * from './m.tmpl.kernel/t.ts';
 export type * from './m.tmpl/t.ts';
