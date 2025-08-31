@@ -6,7 +6,7 @@ type O = Record<string, unknown>;
 /**
  * Create a new directory template.
  */
-export const create: t.TmplFactory = (sourceDir, opt) => {
+export const from: t.TmplFactory = (sourceDir, opt) => {
   const { processFile, beforeWrite, afterWrite, ctx } = wrangle.options(opt);
   return factory({ sourceDir, beforeWrite, processFile, afterWrite, ctx });
 };

@@ -4,7 +4,7 @@ import { type t, Cli, DenoFile, Fs, Str, Tmpl, tmplFilter } from '../common.ts';
  * Define the template:
  */
 export const dir = import.meta.dirname!;
-export const tmpl = Tmpl.create(dir).filter(tmplFilter);
+export const tmpl = Tmpl.from(dir).filter(tmplFilter);
 
 /**
  * Setup the template (after copy):

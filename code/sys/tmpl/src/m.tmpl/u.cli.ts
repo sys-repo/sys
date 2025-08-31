@@ -70,7 +70,7 @@ export const cli: t.StdTmplLib['cli'] = async (options = {}) => {
   /**
    * Write:
    */
-  const tmpl = Tmpl.create(source.dir).filter(tmplFilter);
+  const tmpl = Tmpl.from(source.dir).filter(tmplFilter);
   const res = await tmpl.write(targetDir, {
     dryRun,
     afterWrite: (e) => source.default(e),

@@ -16,7 +16,7 @@ export type TmplLib = {
   readonly FileMap: t.FileMapLib;
 
   /** Create a new directory template. */
-  create: t.TmplFactory;
+  from: t.TmplFactory;
 };
 
 /**

@@ -21,7 +21,7 @@ await buildAndCopyAll([
 await copyPublic('public', 'dist');
 
 // Write entry HTML.
-const tmpl = Tmpl.create('src/-tmpl');
+const tmpl = Tmpl.from('src/-tmpl');
 await tmpl.write('dist');
 
 /**
