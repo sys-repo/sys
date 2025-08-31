@@ -12,8 +12,8 @@ export type TmplLib = {
   /** Tools for modifying template files once written to the file-system. */
   readonly File: t.TmplFileLib;
 
-  /** FileMap toolkit for creating JSON bundle artifact (safe to publish to JSR registry). */
-  readonly FileMap: typeof import('@sys/fs').FileMap;
+  /** FileMap toolkit (bundling, validation, materialize). */
+  readonly FileMap: t.FileMapLib;
 
   /** Create a new directory template. */
   create: t.TmplFactory;

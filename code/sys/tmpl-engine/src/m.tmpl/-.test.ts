@@ -1,4 +1,15 @@
-import { type t, describe, expect, expectError, Fs, it, R, SAMPLE, Time } from '../-test.ts';
+import {
+  type t,
+  describe,
+  expect,
+  expectError,
+  FileMap,
+  Fs,
+  it,
+  R,
+  SAMPLE,
+  Time,
+} from '../-test.ts';
 import { File } from '../m.file/mod.ts';
 import { Log } from '../m.log/mod.ts';
 import { Tmpl } from './mod.ts';
@@ -20,6 +31,7 @@ describe('Tmpl', () => {
   it('API', () => {
     expect(Tmpl.File).to.equal(File);
     expect(Tmpl.Log).to.equal(Log);
+    expect(Tmpl.FileMap).to.equal(FileMap);
   });
 
   it('init: paths', async () => {
