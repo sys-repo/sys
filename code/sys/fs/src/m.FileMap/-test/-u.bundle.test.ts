@@ -26,6 +26,23 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
     expect(Object.keys(roundTripped)).to.eql(Object.keys(res.fileMap));
   });
 
+  it('accepts targetFile as a plain string and writes the artifact', async () => {
+    const tmp = await Sample.init('FileMap.bundle.overload.');
+    const outFile = Path.join(tmp.target, 'bundle.json') as t.StringPath;
+
+    // Call overload: second arg is a string, not an options object:
+    const res = await FileMap.bundle(dir, outFile);
+
+    expect(res.file).to.eql(Path.resolve(outFile));
+    expect(await Fs.exists(outFile)).to.eql(true);
+    expect(res.count).to.eql(Object.keys(res.fileMap).length);
+
+    // Round-trip: JSON on disk exactly matches in-memory map keys.
+    const json = (await Fs.readText(outFile)).data ?? '';
+    const roundTripped = JSON.parse(json) as t.FileMap;
+    expect(Object.keys(roundTripped)).to.eql(Object.keys(res.fileMap));
+  });
+
   it('passes through filter: only .ts and .json are included', async () => {
     const tmp = await Sample.init('FileMap.bundle.filter.');
     const outFile = Path.join(tmp.target, 'bundle.json') as t.StringPath;

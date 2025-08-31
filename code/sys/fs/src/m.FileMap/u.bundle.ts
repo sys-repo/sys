@@ -1,8 +1,10 @@
-import { type t, Fs, Path } from './common.ts';
+import { type t, Fs, Is, Path } from './common.ts';
 import { toMap } from './u.toMap.ts';
 
-export const bundle: t.FileMapLib['bundle'] = async (sourceDir, options) => {
-  const { targetFile, filter } = options;
+type F = t.FileMapLib['bundle'];
+
+export const bundle: F = async (sourceDir, opt) => {
+  const { targetFile, filter } = wrangle.options(opt);
 
   const out = Path.resolve(targetFile) as t.StringPath;
   await Fs.ensureDir(Path.dirname(out));
@@ -16,3 +18,13 @@ export const bundle: t.FileMapLib['bundle'] = async (sourceDir, options) => {
     file: out,
   };
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  options(input: Parameters<F>[1]): t.FileMapBundleOptions {
+    if (Is.string(input)) return { targetFile: input };
+    return input;
+  },
+} as const;

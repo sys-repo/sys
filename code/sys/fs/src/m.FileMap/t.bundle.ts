@@ -5,7 +5,7 @@ import { type t } from './common.ts';
  */
 export type FileMapBundle = (
   sourceDir: t.StringDir,
-  options: FileMapBundleOptions,
+  options: FileMapBundleOptions | FileMapBundleOptions['targetFile'],
 ) => Promise<FileMapBundleResult>;
 
 /** Options for `bundle` (extends the pure `toMap` options). */
