@@ -1,4 +1,4 @@
-import { Fs, slug } from './common.ts';
+import { Fs } from './common.ts';
 
 export const Sample = {
   source: {
@@ -6,11 +6,11 @@ export const Sample = {
     ls: (trimCwd = false) => Fs.ls(Sample.source.dir, { trimCwd }),
   },
 
-  init(options: { slug?: boolean } = {}) {
-    const target = Fs.join(`./.tmp/test/Fs.FileMap`, options.slug ?? true ? slug() : '');
+  async init(prefix = 'Fs.FileMap.') {
+    const dir = await Fs.makeTempDir({ prefix });
     return {
-      target,
-      ls: () => Fs.ls(target, {}),
+      target: dir.absolute,
+      ls: (trimCwd = false) => Fs.ls(dir.absolute, { trimCwd }),
     } as const;
   },
 } as const;

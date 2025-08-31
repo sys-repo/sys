@@ -9,14 +9,14 @@ describe('materialize', () => {
   const makeMap = async () => FileMap.toMap(dir);
 
   it('writes files to target (no force)', async () => {
-    const sample = Sample.init();
+    const sample = await Sample.init();
     const bundle = await makeMap();
     const res = await FileMap.materialize(bundle, sample.target);
     expect(res.ops.some((o) => o.kind === 'write')).to.eql(true);
   });
 
   it('skip existing when !force', async () => {
-    const sample = Sample.init();
+    const sample = await Sample.init();
     const bundle = await makeMap();
 
     await FileMap.materialize(bundle, sample.target);
@@ -35,7 +35,7 @@ describe('materialize', () => {
   });
 
   it('force overwrite', async () => {
-    const sample = Sample.init();
+    const sample = await Sample.init();
     const bundle = await makeMap();
 
     await FileMap.materialize(bundle, sample.target);
@@ -44,7 +44,7 @@ describe('materialize', () => {
   });
 
   it('processFile: modify + rename + exclude', async () => {
-    const sample = Sample.init();
+    const sample = await Sample.init();
     const bundle = await makeMap();
 
     // Choose a real text file from the bundle deterministically.
@@ -110,7 +110,7 @@ describe('materialize', () => {
   });
 
   it('binary passthrough', async () => {
-    const sample = Sample.init();
+    const sample = await Sample.init();
     const bundle = await makeMap();
     await FileMap.materialize(bundle, sample.target, {
       processFile(e) {
