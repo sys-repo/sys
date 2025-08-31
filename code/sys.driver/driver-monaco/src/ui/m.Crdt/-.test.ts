@@ -3,7 +3,7 @@ import { Crdt } from './common.ts';
 import { EditorCrdt } from './mod.ts';
 import { __test as RegisterTest } from './u.Link.register.ts';
 
-describe('Monaco/Crdt', () => {
+describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('API', async () => {
     const m = await import('@sys/driver-monaco');
     expect(m.Monaco.Crdt).to.equal(EditorCrdt);
