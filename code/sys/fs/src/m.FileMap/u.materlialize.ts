@@ -11,7 +11,7 @@ export async function materialize(
 ): Promise<t.FileMapMaterializeResult> {
   const { force = false, ctx, processFile, onLog } = options;
 
-  // Validate the input FileMap once (fail fast with a clear error).
+  // Validate the input FileMap once (fail fast with a clear error):
   const parsed = validate(map);
   if (parsed.error) throw parsed.error;
   map = parsed.fileMap!;
