@@ -1,6 +1,15 @@
 import type { t } from './common.ts';
 
 /**
+ * Materialize a FileMap into a target directory with optional per-file transforms.
+ */
+export type FileMapMaterialize = (
+  map: t.FileMap,
+  dir: t.StringDir,
+  options?: t.FileMapMaterializeOptions,
+) => Promise<t.FileMapMaterializeResult>;
+
+/**
  * Function signature for per-file transforms during materialize.
  */
 export type FileMapProcessor = (e: FileMapProcessEvent) => void | Promise<void>;

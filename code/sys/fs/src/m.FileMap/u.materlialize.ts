@@ -1,6 +1,8 @@
 import { type t, Fs, Path } from './common.ts';
+
 import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
+import { validate } from './u.validate.ts';
 
 export async function materialize(
   map: t.FileMap,
@@ -8,8 +10,13 @@ export async function materialize(
   options: t.FileMapMaterializeOptions = {},
 ): Promise<t.FileMapMaterializeResult> {
   const { force = false, ctx, processFile, onLog } = options;
-  const ops: t.FileMapMaterializeOp[] = [];
 
+  // Validate the input FileMap once (fail fast with a clear error).
+  const parsed = validate(map);
+  if (parsed.error) throw parsed.error;
+  map = parsed.fileMap!;
+
+  const ops: t.FileMapMaterializeOp[] = [];
   for (const [origKey, dataUri] of Object.entries(map)) {
     let relative = origKey as t.StringPath;
 
@@ -29,7 +36,7 @@ export async function materialize(
       text = undefined;
     }
 
-    // Mutability flags for host processing
+    // Mutability flags for host processing:
     let excluded = false;
     let modified = false;
     let excludeReason: string | undefined;
@@ -77,7 +84,7 @@ export async function materialize(
       },
     };
 
-    // Host transforms
+    // Host transforms:
     if (processFile) {
       await processFile(event);
       if (excluded) {
@@ -87,14 +94,14 @@ export async function materialize(
       }
     }
 
-    // Overwrite guard
+    // Overwrite guard:
     if (!force && (await exists())) {
       onLog?.(`skip ${relative} — exists`);
       ops.push({ kind: 'skip', path: relative });
       continue;
     }
 
-    // Ensure directory and write
+    // Ensure directory and write:
     await Fs.ensureDir(Path.dirname(absolute()));
     const outBytes = isText ? new TextEncoder().encode(text ?? '') : bytes ?? new Uint8Array();
     await Fs.write(absolute(), outBytes);

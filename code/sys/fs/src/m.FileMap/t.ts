@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
-export type * from './t.materialize.ts';
 export type * from './t.bundle.ts';
+export type * from './t.materialize.ts';
+export type * from './t.toMap.ts';
 
 /**
  * Tools for generating and saving bundles of files as a structured object.
@@ -18,25 +19,15 @@ export type FileMapLib = {
   /** Build and persist a bundle artifact in one step. */
   bundle: t.FileMapBundle;
 
+  /** Materialize a FileMap into a target directory with optional per-file transforms. */
+  materialize: t.FileMapMaterialize;
+
   /** Convert the files within a directory into a `FileMap` object.  */
   toMap: t.FileMapToMap;
 
   /** Parse a raw JSON value into a FileMap; returns { fileMap } on success or { error } if invalid. */
   validate(json: unknown): t.FileMapValidateResult;
-
-  /** Save a file-bundle to a target location on disk. */
-  write(target: t.StringDir, bundle: t.FileMap): Promise<t.FileMapWriteResult>;
-
-  /** Apply (materialize) a FileMap into a target directory with optional per-file transforms. */
-  materialize(
-    map: t.FileMap,
-    dir: t.StringDir,
-    options?: t.FileMapMaterializeOptions,
-  ): Promise<t.FileMapMaterializeResult>;
 };
-
-/** Resposne from `FileMap.write` method. */
-export type FileMapWriteResult = { readonly target: t.StringDir; readonly error?: t.StdError };
 
 /** Outcome of parsing a raw JSON value into the `FileMap.fromJson` method. */
 export type FileMapValidateResult = { readonly fileMap?: t.FileMap; readonly error?: t.StdError };

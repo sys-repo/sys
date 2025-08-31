@@ -121,4 +121,20 @@ describe('materialize', () => {
       },
     });
   });
+
+  it('throws when map contains a non-string value', async () => {
+    // Invalid map: value must be string (data-URI), not number.
+    const badMap = { 'a.txt': 123 } as unknown as t.FileMap;
+    const tmp = await Fs.makeTempDir({ prefix: 'filemap-materialize-invalid-' });
+    let threw = false;
+
+    try {
+      await FileMap.materialize(badMap, tmp.absolute as t.StringDir);
+    } catch (err: any) {
+      threw = true;
+      expect(String(err?.message ?? err)).to.include('Invalid FileMap');
+    }
+
+    expect(threw).to.eql(true);
+  });
 });
