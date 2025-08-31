@@ -54,23 +54,42 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(repo.disposed).to.eql(false);
     });
 
-    it('create seeds empty initial with $sys.createdAt', () => {
-      const repo = toRepo(new AutomergeRepo());
-      const a = repo.create<{}>({}); // empty
-      expect(typeof (a.current as any).$meta?.createdAt).to.eql('number');
+    describe('initial seed property on document', () => {
+      it('create seeds empty initial with $meta.createdAt', () => {
+        const repo = toRepo(new AutomergeRepo());
+        const a = repo.create<{}>({}); // empty
+        const b = repo.create<{ count: number }>({ count: 1 }); // non-empty
+        expect(typeof (a.current as any).$meta?.createdAt).to.eql('number');
+        expect((b.current as any).$meta).to.eql(undefined);
+      });
 
-      const b = repo.create<{ count: number }>({ count: 1 }); // non-empty
-      expect((b.current as any).$meta).to.eql(undefined);
-    });
+      it('seeded empty doc is durable immediately', async () => {
+        const base = new AutomergeRepo();
+        const repoA = toRepo(base);
+        const doc = repoA.create<{}>({});
 
-    it('seeded empty doc is durable immediately', async () => {
-      const base = new AutomergeRepo();
-      const repoA = toRepo(base);
-      const doc = repoA.create<{}>({});
+        const repoB = toRepo(base);
+        const got = await repoB.get<{}>(doc.id);
+        expect(!!got.doc).to.eql(true);
+      });
 
-      const repoB = toRepo(base);
-      const got = await repoB.get<{}>(doc.id);
-      expect(!!got.doc).to.eql(true);
+      it('does not override existing props in non-empty initial', () => {
+        const repo = toRepo(new AutomergeRepo());
+        const initial = { title: 'hello' };
+        const doc = repo.create(initial);
+
+        expect(doc.current).to.eql(initial); //                  ← Doc retains its properties unchanged.
+        expect((doc.current as any).$meta).to.eql(undefined); // ← No $meta was injected.
+      });
+
+      it('does not clobber an explicit $meta passed by caller', () => {
+        const repo = toRepo(new AutomergeRepo());
+        const explicit = { $meta: { createdAt: 42, note: 'manual' } };
+        const doc = repo.create(explicit);
+
+        // Original $meta preserved exactly as given:
+        expect(doc.current.$meta).to.eql(explicit.$meta);
+      });
     });
   });
 
