@@ -4,7 +4,7 @@ import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
 import { validate } from './u.validate.ts';
 
-export async function materialize(
+export async function write(
   map: t.FileMap,
   dir: t.StringDir,
   options: t.FileMapWriteOptions = {},

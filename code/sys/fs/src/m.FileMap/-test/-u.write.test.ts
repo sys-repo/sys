@@ -4,7 +4,7 @@ import { c, describe, expect, it, Str } from '../../-test.ts';
 import { type t, Fs, Path } from '../common.ts';
 import { FileMap } from '../mod.ts';
 
-describe('materialize', () => {
+describe('FileMap.write', () => {
   const dir = Sample.source.dir;
   const makeMap = async () => FileMap.toMap(dir);
 
@@ -18,7 +18,7 @@ describe('materialize', () => {
   it('writes files to target (no --force)', async () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
-    const res = await FileMap.materialize(bundle, sample.target);
+    const res = await FileMap.write(bundle, sample.target);
     expect(res.ops.every((o) => o.kind === 'create')).to.eql(true);
     expect(await sample.ls.target(true)).to.eql(res.ops.map((op) => op.path));
 
@@ -28,7 +28,7 @@ describe('materialize', () => {
   it('dryRun - nothing written', async () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
-    const res = await FileMap.materialize(bundle, sample.target, { dryRun: true });
+    const res = await FileMap.write(bundle, sample.target, { dryRun: true });
     expect(res.ops.every((o) => o.kind === 'create')).to.eql(true);
     expect(res.ops.every((o) => o.dryRun === true)).to.eql(true);
     expect(await sample.ls.target(true)).to.eql([]);
@@ -40,8 +40,8 @@ describe('materialize', () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
 
-    await FileMap.materialize(bundle, sample.target);
-    const res = await FileMap.materialize(bundle, sample.target);
+    await FileMap.write(bundle, sample.target);
+    const res = await FileMap.write(bundle, sample.target);
     const ops = res.ops;
 
     const all = ops.every(({ kind }) => kind === 'skip' || kind === 'modify');
@@ -59,8 +59,8 @@ describe('materialize', () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
 
-    const a = await FileMap.materialize(bundle, sample.target);
-    const b = await FileMap.materialize(bundle, sample.target, { force: true });
+    const a = await FileMap.write(bundle, sample.target);
+    const b = await FileMap.write(bundle, sample.target, { force: true });
 
     // Initial:
     expect(a.ops.some((o) => o.kind === 'create')).to.be.true;
@@ -91,9 +91,9 @@ describe('materialize', () => {
       // Only try to rename .gitignore if it exists in the bundle:
       const hasGitignore = keys.includes('.gitignore');
 
-      // Run the materialize:
+      // Run the write operation:
       const fired: t.FileMapProcessorArgs[] = [];
-      const res = await FileMap.materialize(bundle, sample.target, {
+      const res = await FileMap.write(bundle, sample.target, {
         processFile: async (e) => {
           fired.push(e);
 
@@ -153,7 +153,7 @@ describe('materialize', () => {
   it('binary pass-through', async () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
-    const res = await FileMap.materialize(bundle, sample.target, {
+    const res = await FileMap.write(bundle, sample.target, {
       processFile(e) {
         // Images are binary except SVG (structured text):
         if (e.contentType.startsWith('image/') && e.contentType !== 'image/svg+xml') {
@@ -169,11 +169,11 @@ describe('materialize', () => {
   it('throws when map contains a non-string value', async () => {
     // Invalid map: value must be string (data-URI), not number.
     const badMap = { 'a.txt': 123 } as unknown as t.FileMap;
-    const tmp = await Fs.makeTempDir({ prefix: 'filemap-materialize-invalid-' });
+    const tmp = await Fs.makeTempDir({ prefix: 'filemap-invalid-' });
     let threw = false;
 
     try {
-      await FileMap.materialize(badMap, tmp.absolute as t.StringDir);
+      await FileMap.write(badMap, tmp.absolute as t.StringDir);
     } catch (err: any) {
       threw = true;
       expect(String(err?.message ?? err)).to.include('Invalid FileMap');

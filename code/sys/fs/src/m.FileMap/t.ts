@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 export type * from './t.bundle.ts';
-export type * from './t.write.ts';
 export type * from './t.toMap.ts';
+export type * from './t.write.ts';
 
 /**
  * Tools for generating and saving bundles of files as a structured object.
@@ -16,14 +16,11 @@ export type FileMapLib = {
   /** Boolean flag assertions. */
   readonly Is: FileMapIsLib;
 
-  /** Build a FileMap from a directory then write a single JSON artifact to a file. */
-  bundle: t.FileMapBundle;
-
-  /** Materialize a FileMap into a target directory with optional per-file transforms. */
-  materialize: t.FileMapWrite;
-
   /** Convert a directory to an in-memory FileMap (keys sorted). */
   toMap: t.FileMapToMap;
+
+  /** Build a FileMap from a directory then write a single JSON artifact to a file. */
+  bundle: t.FileMapBundle;
 
   /** Parse a raw JSON value into a FileMap; returns { fileMap } on success or { error } if invalid. */
   validate(json: unknown): t.FileMapValidateResult;
@@ -33,6 +30,9 @@ export type FileMapLib = {
    * Keep entries for which the predicate returns true.
    */
   filter(filemap: t.FileMap, fn: t.FileMapFilter): t.FileMap;
+
+  /** Materialize a FileMap into a target directory with optional per-file transforms. */
+  write: t.FileMapWrite;
 };
 
 /** Predicate used to keep (true) or drop (false) a filemap entry. */

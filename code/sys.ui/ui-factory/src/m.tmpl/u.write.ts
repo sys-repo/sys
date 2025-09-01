@@ -29,7 +29,7 @@ export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
    * Materialize Tempate:
    */
   const materialize = async (dir: t.StringDir) => {
-    const res = await FileMap.materialize(fileMap, dir, { processFile });
+    const res = await FileMap.write(fileMap, dir, { processFile });
     const ops = res.ops.map((o) => ({ ...o })) as unknown as t.TmplFileOperation____[];
     return { 
       source: sourceDir, 

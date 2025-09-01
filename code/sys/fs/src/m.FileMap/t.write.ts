@@ -10,7 +10,7 @@ export type FileMapWrite = (
 ) => Promise<t.FileMapWriteResult>;
 
 /**
- * Function signature for per-file transforms during materialize.
+ * Function signature for per-file transforms during write operations.
  */
 export type FileMapProcessor = (e: FileMapProcessorArgs) => void | Promise<void>;
 /** Per-file process callback exposed via `processFile` callback. */
@@ -51,7 +51,7 @@ export type FileMapWriteResult = {
 };
 
 /**
- * Operation emitted during FileMap.materialize.
+ * Operation emitted during `FileMap.write`.
  * Keep this the single source of truth for downstream consumers.
  */
 export type FileMapOp =

@@ -6,7 +6,7 @@ import { bundle } from './u.bundle.ts';
 import { filter } from './u.filter.ts';
 import { toMap } from './u.toMap.ts';
 import { validate } from './u.validate.ts';
-import { materialize } from './u.write.ts';
+import { write } from './u.write.ts';
 
 export const FileMap: t.FileMapLib = {
   Is,
@@ -14,6 +14,6 @@ export const FileMap: t.FileMapLib = {
   toMap,
   bundle,
   validate,
-  materialize,
   filter,
+  write,
 };
