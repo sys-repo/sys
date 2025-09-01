@@ -12,23 +12,9 @@ export type FileMapMaterialize = (
 /**
  * Function signature for per-file transforms during materialize.
  */
-export type FileMapProcessor = (e: FileMapProcessEvent) => void | Promise<void>;
-
-/**
- * Options for applying a FileMap into a target directory.
- */
-export type FileMapMaterializeOptions = {
-  readonly dryRun?: boolean;
-  readonly force?: boolean;
-  readonly ctx?: unknown;
-  readonly processFile?: t.FileMapProcessor;
-  readonly onLog?: (line: string) => void;
-};
-
-/**
- * Per-file materialization event exposed to processFile.
- */
-export type FileMapProcessEvent = {
+export type FileMapProcessor = (e: FileMapProcessArgs) => void | Promise<void>;
+/** Per-file process callback exposed via `processFile` callback. */
+export type FileMapProcessArgs = {
   readonly ctx?: unknown;
   readonly path: t.StringPath; //     ← key from the bundle
   readonly contentType: string; //    ← MIME derived from Data.contentType.fromUri
@@ -43,6 +29,17 @@ export type FileMapProcessEvent = {
   };
   exclude(reason?: string): void;
   modify(next: string | Uint8Array): void;
+};
+
+/**
+ * Options for applying a FileMap into a target directory.
+ */
+export type FileMapMaterializeOptions = {
+  readonly dryRun?: boolean;
+  readonly force?: boolean;
+  readonly ctx?: unknown;
+  readonly processFile?: t.FileMapProcessor;
+  readonly onLog?: (line: string) => void;
 };
 
 /**
