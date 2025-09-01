@@ -89,7 +89,7 @@ describe('materialize', () => {
     const hasGitignore = keys.includes('.gitignore');
 
     const res = await FileMap.materialize(bundle, sample.target, {
-      processFile: async (e: t.FileMapProcessEvent) => {
+      processFile: async (e: t.FileMapProcessArgs) => {
         // Patch exactly the chosen text file:
         if (e.path === targetTextRel && e.text) e.modify(e.text + '\n<!-- patched -->\n');
         if (hasGitignore && e.path === '.gitignore') e.target.rename('.gitignore-renamed');
