@@ -16,7 +16,7 @@ describe('materialize', () => {
   };
 
   const opPaths = (ops: readonly t.FileMapMaterializeOp[]) => {
-    return ops.map((op) => (op.kind === 'rename' ? op.to : op.path) ?? '');
+    return ops.map((op) => (op.kind === 'rename' ? op.path : op.path) ?? '');
   };
 
   it('writes files to target (no --force)', async () => {
@@ -121,8 +121,8 @@ describe('materialize', () => {
       const rename = res.ops.find((o) => o.kind === 'rename');
       expect(!!rename).to.eql(true);
       if (rename) {
-        expect(rename.from).to.eql('.gitignore');
-        expect(rename.to).to.eql('.gitignore-renamed');
+        expect(rename.prev).to.eql('.gitignore');
+        expect(rename.path).to.eql('.gitignore-renamed');
         expect(await Fs.exists(Path.join(sample.target, '.gitignore-renamed'))).to.eql(true);
       }
     }

@@ -73,10 +73,10 @@ export async function materialize(
         async exists() {
           return exists();
         },
-        rename(next: string) {
-          const from = relative;
-          relative = next as t.StringPath;
-          pushOp({ kind: 'rename', from, to: relative });
+        rename(next) {
+          const prev = relative;
+          relative = next;
+          pushOp({ kind: 'rename', path: relative, prev });
         },
       },
       ctx,

@@ -57,7 +57,7 @@ export type FileMapMaterializeResult = {
 export type FileMapMaterializeOp =
   | ({ kind: 'write'; path: t.StringPath } & CommonOp)
   | ({ kind: 'modify'; path: t.StringPath } & CommonOp)
-  | ({ kind: 'rename'; from: t.StringPath; to: t.StringPath } & CommonOp)
+  | ({ kind: 'rename'; path: t.StringPath; prev: t.StringPath } & CommonOp)
   | ({ kind: 'skip'; path: t.StringPath; reason?: string } & CommonOp);
 
 export type CommonOp = { dryRun?: boolean; forced?: boolean };
