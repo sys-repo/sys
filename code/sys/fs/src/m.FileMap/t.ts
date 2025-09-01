@@ -20,7 +20,7 @@ export type FileMapLib = {
   bundle: t.FileMapBundle;
 
   /** Materialize a FileMap into a target directory with optional per-file transforms. */
-  materialize: t.FileMapMaterialize;
+  materialize: t.FileMapWrite;
 
   /** Convert a directory to an in-memory FileMap (keys sorted). */
   toMap: t.FileMapToMap;

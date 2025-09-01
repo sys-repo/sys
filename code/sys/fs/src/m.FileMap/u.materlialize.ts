@@ -7,17 +7,17 @@ import { validate } from './u.validate.ts';
 export async function materialize(
   map: t.FileMap,
   dir: t.StringDir,
-  options: t.FileMapMaterializeOptions = {},
-): Promise<t.FileMapMaterializeResult> {
-  const { force = false, dryRun = false, ctx, processFile, onLog } = options;
+  options: t.FileMapWriteOptions = {},
+): Promise<t.FileMapWriteResult> {
+  const { force = false, dryRun = false, ctx, processFile } = options;
 
   // Validate the input FileMap once (fail fast with a clear error):
   const parsed = validate(map);
   if (parsed.error) throw parsed.error;
   map = parsed.fileMap!;
 
-  const ops: t.FileMapMaterializeOp[] = [];
-  const pushOp = (op: t.FileMapMaterializeOp, forced?: boolean) => {
+  const ops: t.FileMapOp[] = [];
+  const pushOp = (op: t.FileMapOp, forced?: boolean) => {
     op = {
       ...op,
       forced: forced === true ? true : undefined,
@@ -47,14 +47,13 @@ export async function materialize(
 
     // Mutability flags for host processing:
     let excluded = false;
-    let modified = false;
     let excludeReason: string | undefined;
+    let prevPath: t.StringPath | undefined; // ← for rename modifications.
 
     const absolute = () => Path.resolve(Path.join(dir, relative));
     const exists = async () => (await Fs.exists(absolute())) === true;
-    const fileExists = await exists();
 
-    const event: t.FileMapProcessorArgs = {
+    const args: t.FileMapProcessorArgs = {
       path: origKey as t.StringPath,
       contentType,
       text,
@@ -74,9 +73,8 @@ export async function materialize(
           return exists();
         },
         rename(next) {
-          const prev = relative;
-          relative = next;
-          pushOp({ kind: 'rename', path: relative, prev });
+          prevPath = relative;
+          relative = next as t.StringPath;
         },
       },
       ctx,
@@ -85,7 +83,6 @@ export async function materialize(
         excludeReason = reason;
       },
       modify(next: string | Uint8Array) {
-        modified = true;
         if (isText) {
           text = typeof next === 'string' ? next : new TextDecoder().decode(next);
           bytes = undefined;
@@ -93,45 +90,79 @@ export async function materialize(
           bytes = typeof next === 'string' ? new TextEncoder().encode(next) : next;
           text = undefined;
         }
-        pushOp({ kind: 'modify', path: relative });
       },
     };
 
     // Host transforms:
     if (processFile) {
-      await processFile(event);
-      if (excluded) {
-        onLog?.(`skip ${relative}${excludeReason ? ` — ${excludeReason}` : ''}`);
-        pushOp({ kind: 'skip', path: relative, reason: excludeReason });
-        continue;
+      await processFile(args);
+    }
+
+    // Existence check at the final (possibly renamed) path:
+    const existedBefore = await exists();
+    let wrote = false;
+    let forcedWrite = false;
+
+    /**
+     * Write:
+     */
+    if (!dryRun && !excluded) {
+      if (!force && existedBefore) {
+        // no-op: leave as-is (the "skip" operation is recorded later in resolver).
+      } else {
+        await Fs.ensureDir(Path.dirname(absolute()));
+        const outBytes = isText ? new TextEncoder().encode(text ?? '') : bytes ?? new Uint8Array();
+        await Fs.write(absolute(), outBytes);
+        wrote = true;
+        forcedWrite = force && existedBefore;
       }
     }
 
-    // Overwrite guard:
-    if (!force && fileExists) {
-      onLog?.(`skip ${relative} — exists`);
-      pushOp({ kind: 'skip', path: relative });
-      continue;
+    // Resolve single op:
+    const common = {
+      dryRun: dryRun || undefined,
+      forced: forcedWrite || undefined,
+    } satisfies t.FileMapOpCommon;
+
+    // Compute write-kind:
+    let kind: t.FileMapOp['kind'];
+    if (excluded) {
+      kind = 'skip';
+    } else if (!existedBefore) {
+      kind = 'create';
+    } else if (force && wrote) {
+      kind = 'modify';
+    } else {
+      kind = 'skip';
     }
 
-    // Ensure directory and write:
-    if (!dryRun) {
-      await Fs.ensureDir(Path.dirname(absolute()));
-      const outBytes = isText ? new TextEncoder().encode(text ?? '') : bytes ?? new Uint8Array();
-      await Fs.write(absolute(), outBytes);
+    // Attach renamed meta only on writes (create/modify) and only if path actually changed.
+    const renamed =
+      prevPath && prevPath !== relative && (kind === 'create' || kind === 'modify')
+        ? ({ from: prevPath } as t.FileMapOpRenamed)
+        : undefined;
+
+    let resolved: t.FileMapOp;
+    if (kind === 'create') {
+      resolved = { kind: 'create', path: relative, renamed, ...common };
+    } else if (kind === 'modify') {
+      resolved = { kind: 'modify', path: relative, renamed, ...common };
+    } else {
+      resolved = {
+        kind: 'skip',
+        path: relative,
+        reason: excluded ? excludeReason : 'unchanged',
+        ...common,
+      };
     }
 
-    const forced = !dryRun && force && fileExists;
-    pushOp({ kind: 'create', path: relative }, forced);
-
-    // Finish up.
-    onLog?.(`write ${relative}${modified ? ' --modified' : ''}${force ? ' --forced' : ''}`);
+    pushOp(resolved, forcedWrite);
   }
 
   /**
    * API:
    */
-  let _total: t.FileMapMaterializeResult['total'] | undefined;
+  let _total: t.FileMapWriteResult['total'] | undefined;
   return {
     ops,
     get total() {
@@ -144,14 +175,14 @@ export async function materialize(
  * Helpers:
  */
 const wrangle = {
-  total(ops: t.FileMapMaterializeOp[]): t.FileMapMaterializeResult['total'] {
-    type Total = { [K in t.FileMapMaterializeOp['kind']]: number };
+  total(ops: t.FileMapOp[]): t.FileMapWriteResult['total'] {
+    type Total = { [K in t.FileMapOp['kind']]: number };
     return ops.reduce<Total>(
       (acc, o) => {
         acc[o.kind] = (acc[o.kind] ?? 0) + 1;
         return acc;
       },
-      { create: 0, modify: 0, rename: 0, skip: 0 },
+      { create: 0, modify: 0, skip: 0 },
     );
   },
 } as const;

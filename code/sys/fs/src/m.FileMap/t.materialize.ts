@@ -3,11 +3,11 @@ import type { t } from './common.ts';
 /**
  * Materialize a FileMap into a target directory with optional per-file transforms.
  */
-export type FileMapMaterialize = (
+export type FileMapWrite = (
   map: t.FileMap,
   dir: t.StringDir,
-  options?: t.FileMapMaterializeOptions,
-) => Promise<t.FileMapMaterializeResult>;
+  options?: t.FileMapWriteOptions,
+) => Promise<t.FileMapWriteResult>;
 
 /**
  * Function signature for per-file transforms during materialize.
@@ -35,30 +35,35 @@ export type FileMapProcessorArgs = {
 /**
  * Options for applying a FileMap into a target directory.
  */
-export type FileMapMaterializeOptions = {
+export type FileMapWriteOptions = {
   readonly dryRun?: boolean;
   readonly force?: boolean;
   readonly ctx?: unknown;
   readonly processFile?: t.FileMapProcessor;
-  readonly onLog?: (line: string) => void;
 };
 
 /**
  * Result of materializing a FileMap into the filesystem.
  */
-export type FileMapMaterializeResult = {
-  readonly ops: readonly t.FileMapMaterializeOp[];
-  readonly total: { readonly [K in t.FileMapMaterializeOp['kind']]: number };
+export type FileMapWriteResult = {
+  readonly ops: readonly t.FileMapOp[];
+  readonly total: { readonly [K in t.FileMapOp['kind']]: number };
 };
 
 /**
  * Operation emitted during FileMap.materialize.
  * Keep this the single source of truth for downstream consumers.
  */
-export type FileMapMaterializeOp =
-  | ({ kind: 'create'; path: t.StringPath } & CommonOp)
-  | ({ kind: 'modify'; path: t.StringPath } & CommonOp)
-  | ({ kind: 'rename'; path: t.StringPath; prev: t.StringPath } & CommonOp)
-  | ({ kind: 'skip'; path: t.StringPath; reason?: string } & CommonOp);
+export type FileMapOp =
+  | ({ kind: 'create'; path: t.StringPath; renamed?: FileMapOpRenamed } & FileMapOpCommon)
+  | ({ kind: 'modify'; path: t.StringPath; renamed?: FileMapOpRenamed } & FileMapOpCommon)
+  | ({ kind: 'skip'; path: t.StringPath; reason?: string } & FileMapOpCommon);
+export type FileMapOpCommon = { dryRun?: boolean; forced?: boolean };
 
-export type CommonOp = { dryRun?: boolean; forced?: boolean };
+/** Meta-data added to a write operation when the file was renamed */
+export type FileMapOpRenamed = { from: t.StringPath };
+
+/**
+ * Utility: Pick out ops from FileMapMaterializeOp whose `kind` matches K.
+ */
+export type OpOfKind<K extends FileMapOp['kind']> = Extract<FileMapOp, { kind: K }>;

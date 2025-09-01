@@ -8,15 +8,11 @@ describe('materialize', () => {
   const dir = Sample.source.dir;
   const makeMap = async () => FileMap.toMap(dir);
 
-  const logOps = (title: string, ops: readonly t.FileMapMaterializeOp[]) => {
+  const logOps = (title: string, ops: readonly t.FileMapOp[]) => {
     console.info(Str.SPACE);
     console.info(c.bold(c.cyan(title)), '\n');
     console.info(ops);
     console.info(Str.SPACE);
-  };
-
-  const opPaths = (ops: readonly t.FileMapMaterializeOp[]) => {
-    return ops.map((op) => (op.kind === 'rename' ? op.path : op.path) ?? '');
   };
 
   it('writes files to target (no --force)', async () => {
@@ -24,7 +20,7 @@ describe('materialize', () => {
     const bundle = await makeMap();
     const res = await FileMap.materialize(bundle, sample.target);
     expect(res.ops.every((o) => o.kind === 'create')).to.eql(true);
-    expect(await sample.ls.target(true)).to.eql(opPaths(res.ops));
+    expect(await sample.ls.target(true)).to.eql(res.ops.map((op) => op.path));
 
     logOps('operations | default write:', res.ops);
   });
@@ -48,7 +44,7 @@ describe('materialize', () => {
     const res = await FileMap.materialize(bundle, sample.target);
     const ops = res.ops;
 
-    const all = ops.every(({ kind }) => kind === 'skip' || kind === 'rename' || kind === 'modify');
+    const all = ops.every(({ kind }) => kind === 'skip' || kind === 'modify');
     expect(all).to.be.true;
     expect(res.ops.filter((o) => o.kind === 'create').length).to.eql(0);
 
@@ -63,12 +59,18 @@ describe('materialize', () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
 
-    await FileMap.materialize(bundle, sample.target);
-    const res = await FileMap.materialize(bundle, sample.target, { force: true });
-    expect(res.ops.some((o) => o.kind === 'create')).to.eql(true);
-    expect(res.ops.every((o) => o.forced)).to.eql(true);
+    const a = await FileMap.materialize(bundle, sample.target);
+    const b = await FileMap.materialize(bundle, sample.target, { force: true });
 
-    logOps('operations | existing forced:', res.ops);
+    // Initial:
+    expect(a.ops.some((o) => o.kind === 'create')).to.be.true;
+    expect(a.ops.every((o) => o.forced === undefined)).to.be.true;
+
+    // Forced modification:
+    expect(b.ops.every((o) => o.kind === 'modify')).to.be.true; // ← All paths existed already; force should yield only modifies.
+    expect(b.ops.every((o) => o.forced === true)).to.be.true; //   ← And every modify is marked as forced.
+
+    logOps('operations | existing forced:', b.ops);
   });
 
   describe('processFile', () => {
@@ -114,11 +116,15 @@ describe('materialize', () => {
 
       // Rename emits canonical { from, to } - only if .gitignore existed:
       if (hasGitignore) {
-        const rename = res.ops.find((o) => o.kind === 'rename');
-        expect(!!rename).to.eql(true);
-        if (rename) {
-          expect(rename.prev).to.eql('.gitignore');
-          expect(rename.path).to.eql('.gitignore-renamed');
+        type R = t.OpOfKind<'create'> | t.OpOfKind<'modify'>;
+        const renamed = res.ops.find(
+          (o) => (o.kind === 'create' || o.kind === 'modify') && o.renamed?.from === '.gitignore',
+        ) as R;
+
+        expect(!!renamed).to.eql(true);
+        if (renamed) {
+          expect(renamed.renamed?.from).to.eql('.gitignore');
+          expect(renamed.path).to.eql('.gitignore-renamed');
           expect(await Fs.exists(Path.join(sample.target, '.gitignore-renamed'))).to.eql(true);
         }
       }
@@ -141,6 +147,7 @@ describe('materialize', () => {
       logOps('operations | processFile:', res.ops);
     });
 
+    describe('modify on first write → write', () => {});
   });
 
   it('binary pass-through', async () => {
