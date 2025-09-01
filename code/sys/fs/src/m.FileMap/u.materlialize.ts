@@ -54,7 +54,7 @@ export async function materialize(
     const exists = async () => (await Fs.exists(absolute())) === true;
     const fileExists = await exists();
 
-    const event: t.FileMapProcessArgs = {
+    const event: t.FileMapProcessorArgs = {
       path: origKey as t.StringPath,
       contentType,
       text,
@@ -66,6 +66,9 @@ export async function materialize(
         },
         get relative() {
           return relative;
+        },
+        get filename() {
+          return Path.basename(relative);
         },
         async exists() {
           return exists();

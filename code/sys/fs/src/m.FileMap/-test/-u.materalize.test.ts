@@ -85,11 +85,15 @@ describe('materialize', () => {
     expect(!!pickText, 'expected at least one text file in sample bundle').to.eql(true);
     const targetTextRel = pickText!;
 
-    // Only try to rename .gitignore if it exists in the bundle
+    // Only try to rename .gitignore if it exists in the bundle:
     const hasGitignore = keys.includes('.gitignore');
 
+    // Run the materialize:
+    const fired: t.FileMapProcessorArgs[] = [];
     const res = await FileMap.materialize(bundle, sample.target, {
-      processFile: async (e: t.FileMapProcessArgs) => {
+      processFile: async (e) => {
+        fired.push(e);
+
         // Patch exactly the chosen text file:
         if (e.path === targetTextRel && e.text) e.modify(e.text + '\n<!-- patched -->\n');
         if (hasGitignore && e.path === '.gitignore') e.target.rename('.gitignore-renamed');
@@ -104,12 +108,15 @@ describe('materialize', () => {
       },
     });
 
-    const ops = res.ops.reduce<Record<string, number>>((acc, o) => {
+    const opTotals = res.ops.reduce<Record<string, number>>((acc, o) => {
       acc[o.kind] = (acc[o.kind] ?? 0) + 1;
       return acc;
     }, {});
 
-    // Rename emits canonical { from, to } (only if .gitignore existed):
+    // Passes target filename to processor:
+    expect(fired.every((e) => e.target.filename === Path.basename(e.target.relative))).to.be.true;
+
+    // Rename emits canonical { from, to } - only if .gitignore existed:
     if (hasGitignore) {
       const rename = res.ops.find((o) => o.kind === 'rename');
       expect(!!rename).to.eql(true);
@@ -132,8 +139,8 @@ describe('materialize', () => {
     expect(textRead.data?.includes('<!-- patched -->')).to.eql(true);
 
     // Sanity:
-    expect((ops.modify ?? 0) >= 1 || (ops.write ?? 0) >= 1).to.eql(true);
-    expect((ops.skip ?? 0) >= 1).to.eql(true);
+    expect((opTotals.modify ?? 0) >= 1 || (opTotals.write ?? 0) >= 1).to.eql(true);
+    expect((opTotals.skip ?? 0) >= 1).to.eql(true);
 
     logOps('operations | processFile:', res.ops);
   });

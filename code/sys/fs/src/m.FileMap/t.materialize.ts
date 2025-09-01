@@ -12,9 +12,9 @@ export type FileMapMaterialize = (
 /**
  * Function signature for per-file transforms during materialize.
  */
-export type FileMapProcessor = (e: FileMapProcessArgs) => void | Promise<void>;
+export type FileMapProcessor = (e: FileMapProcessorArgs) => void | Promise<void>;
 /** Per-file process callback exposed via `processFile` callback. */
-export type FileMapProcessArgs = {
+export type FileMapProcessorArgs = {
   readonly ctx?: unknown;
   readonly path: t.StringPath; //     ← key from the bundle
   readonly contentType: string; //    ← MIME derived from Data.contentType.fromUri
@@ -24,6 +24,7 @@ export type FileMapProcessArgs = {
     readonly dir: t.StringDir;
     readonly absolute: t.StringPath;
     readonly relative: t.StringPath;
+    readonly filename: t.StringName;
     exists(): Promise<boolean>;
     rename(next: string): void;
   };
@@ -57,6 +58,6 @@ export type FileMapMaterializeOp =
   | ({ kind: 'write'; path: t.StringPath } & CommonOp)
   | ({ kind: 'modify'; path: t.StringPath } & CommonOp)
   | ({ kind: 'rename'; from: t.StringPath; to: t.StringPath } & CommonOp)
-  | ({ kind: 'skip'; path?: t.StringPath; reason?: string } & CommonOp);
+  | ({ kind: 'skip'; path: t.StringPath; reason?: string } & CommonOp);
 
 export type CommonOp = { dryRun?: boolean; forced?: boolean };
