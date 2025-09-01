@@ -1,6 +1,6 @@
 import bundle from './-bundle.json' with { type: 'json' };
 
-import { type t, FileMap, Fs, Path, PATHS } from './common.ts';
+import { type t, FileMap, Fs, Path, PATHS, pkg } from './common.ts';
 import { createFileProcessor } from './u.processFile.ts';
 
 export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
@@ -30,16 +30,17 @@ export const write: t.CatalogTmplLib['write'] = async (target, opts = {}) => {
    */
   const materialize = async (dir: t.StringDir) => {
     const res = await FileMap.materialize(fileMap, dir, { processFile });
-    const ops = res.ops.map((o) => ({ ...o })) as unknown as t.TmplFileOperation[];
+    const ops = res.ops.map((o) => ({ ...o })) as unknown as t.TmplFileOperation____[];
     return { 
       source: sourceDir, 
       target: targetDir, 
       ops 
-    } satisfies t.TmplWriteResponse
+    } satisfies t.TmplWriteResult
   }
 
   if (dryRun) {
-    const tmp = (await Fs.makeTempDir({ prefix: 'ui-factory-tmpl-' })).absolute;
+    const prefix = `sys.ui-factory.tmpl-`
+    const tmp = (await Fs.makeTempDir({ prefix })).absolute;
     try {
       return await materialize(tmp)
     } finally {

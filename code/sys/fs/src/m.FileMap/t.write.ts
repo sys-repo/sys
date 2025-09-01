@@ -28,7 +28,7 @@ export type FileMapProcessorArgs = {
     exists(): Promise<boolean>;
     rename(next: string): void;
   };
-  exclude(reason?: string): void;
+  skip(reason?: string): void;
   modify(next: string | Uint8Array): void;
 };
 
@@ -64,6 +64,6 @@ export type FileMapOpCommon = { dryRun?: boolean; forced?: boolean };
 export type FileMapOpRenamed = { from: t.StringPath };
 
 /**
- * Utility: Pick out ops from FileMapMaterializeOp whose `kind` matches K.
+ * Utility: Pick out ops from operations whose `kind` matches K.
  */
 export type OpOfKind<K extends FileMapOp['kind']> = Extract<FileMapOp, { kind: K }>;

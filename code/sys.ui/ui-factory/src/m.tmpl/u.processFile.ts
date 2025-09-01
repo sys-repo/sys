@@ -20,13 +20,13 @@ export function createFileProcessor(args: Args): t.FileMapProcessor {
       const isTopLevel = !e.path.includes('/');
 
       if (!isUnderRoot && !isTopLevel) {
-        return e.exclude(`excluded: not within "${root}/"`);
+        return e.skip(`excluded: not within "${root}/"`);
       }
 
       // If under root, strip that prefix so files land at the target root.
       if (isUnderRoot && e.path.startsWith(prefix)) {
         const rest = e.path.slice(prefix.length);
-        if (rest.length === 0) return e.exclude('excluded: empty path after strip');
+        if (rest.length === 0) return e.skip('excluded: empty path after strip');
         e.target.rename(rest as t.StringPath);
       }
     }

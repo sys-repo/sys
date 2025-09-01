@@ -46,9 +46,9 @@ export async function materialize(
     }
 
     // Mutability flags for host processing:
-    let excluded = false;
-    let excludeReason: string | undefined;
-    let prevPath: t.StringPath | undefined; // ← for rename modifications.
+    let skipped = false;
+    let skippedReason: string | undefined;
+    let prevPath: t.StringPath | undefined; // ← for `rename` modifications.
 
     const absolute = () => Path.resolve(Path.join(dir, relative));
     const exists = async () => (await Fs.exists(absolute())) === true;
@@ -78,9 +78,9 @@ export async function materialize(
         },
       },
       ctx,
-      exclude(reason?: string) {
-        excluded = true;
-        excludeReason = reason;
+      skip(reason?: string) {
+        skipped = true;
+        skippedReason = reason;
       },
       modify(next: string | Uint8Array) {
         if (isText) {
@@ -106,7 +106,7 @@ export async function materialize(
     /**
      * Write:
      */
-    if (!dryRun && !excluded) {
+    if (!dryRun && !skipped) {
       if (!force && existedBefore) {
         // no-op: leave as-is (the "skip" operation is recorded later in resolver).
       } else {
@@ -126,7 +126,7 @@ export async function materialize(
 
     // Compute write-kind:
     let kind: t.FileMapOp['kind'];
-    if (excluded) {
+    if (skipped) {
       kind = 'skip';
     } else if (!existedBefore) {
       kind = 'create';
@@ -151,7 +151,7 @@ export async function materialize(
       resolved = {
         kind: 'skip',
         path: relative,
-        reason: excluded ? excludeReason : 'unchanged',
+        reason: skipped ? skippedReason : 'unchanged',
         ...common,
       };
     }

@@ -74,7 +74,7 @@ describe('materialize', () => {
   });
 
   describe('processFile', () => {
-    it('modify + rename + exclude', async () => {
+    it('modify + rename + skip', async () => {
       const sample = await Sample.init();
       const bundle = await makeMap();
 
@@ -103,7 +103,7 @@ describe('materialize', () => {
 
           // Exclude all non-SVG images:
           if (e.contentType.startsWith('image/') && e.contentType !== 'image/svg+xml') {
-            e.exclude('binary filtered');
+            e.skip('binary filtered');
           }
 
           const existed = await e.target.exists();
