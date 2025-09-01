@@ -11,7 +11,7 @@ Tiny primitives for declarative UI composition.
 | Render        | ↓ | `view`               |
 | Placement     | ↓ | `slot`               |
 
-…resolved and validated across **context boundaries**.
+View and logic factories designed to resolve and validate across distinct **execution contexts**.
 
 
 ## Core
