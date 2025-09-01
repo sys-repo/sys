@@ -38,7 +38,11 @@ export type FileMapLib = {
 /** Predicate used to keep (true) or drop (false) a filemap entry. */
 export type FileMapFilter = (e: FileMapFilterArgs) => boolean;
 /** Arguments supplied to the FileMap filter predicate. */
-export type FileMapFilterArgs = { readonly path: string; readonly value: string };
+export type FileMapFilterArgs = {
+  readonly path: string;
+  readonly filename: string;
+  readonly value: string;
+};
 
 /** Outcome of parsing a raw JSON value into the `FileMap.fromJson` method. */
 export type FileMapValidateResult = { readonly fileMap?: t.FileMap; readonly error?: t.StdError };

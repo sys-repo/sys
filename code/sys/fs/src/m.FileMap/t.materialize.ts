@@ -18,6 +18,7 @@ export type FileMapProcessor = (e: FileMapProcessEvent) => void | Promise<void>;
  * Options for applying a FileMap into a target directory.
  */
 export type FileMapMaterializeOptions = {
+  readonly dryRun?: boolean;
   readonly force?: boolean;
   readonly ctx?: unknown;
   readonly processFile?: t.FileMapProcessor;
@@ -28,10 +29,11 @@ export type FileMapMaterializeOptions = {
  * Per-file materialization event exposed to processFile.
  */
 export type FileMapProcessEvent = {
-  readonly path: t.StringPath; // key from the bundle
-  readonly contentType: string; // MIME derived from Data.contentType.fromUri
-  readonly text?: string; // present if text/*
-  readonly bytes?: Uint8Array; // present if binary
+  readonly ctx?: unknown;
+  readonly path: t.StringPath; //     ← key from the bundle
+  readonly contentType: string; //    ← MIME derived from Data.contentType.fromUri
+  readonly text?: string; //          ← present if text/*
+  readonly bytes?: Uint8Array; //     ← present if binary
   readonly target: {
     readonly dir: t.StringDir;
     readonly absolute: t.StringPath;
@@ -39,7 +41,6 @@ export type FileMapProcessEvent = {
     exists(): Promise<boolean>;
     rename(next: string): void;
   };
-  readonly ctx?: unknown;
   exclude(reason?: string): void;
   modify(next: string | Uint8Array): void;
 };
@@ -56,7 +57,9 @@ export type FileMapMaterializeResult = {
  * Keep this the single source of truth for downstream consumers.
  */
 export type FileMapMaterializeOp =
-  | { kind: 'write'; path: t.StringPath }
-  | { kind: 'modify'; path: t.StringPath }
-  | { kind: 'rename'; from: t.StringPath; to: t.StringPath }
-  | { kind: 'skip'; path?: t.StringPath };
+  | ({ kind: 'write'; path: t.StringPath } & CommonOp)
+  | ({ kind: 'modify'; path: t.StringPath } & CommonOp)
+  | ({ kind: 'rename'; from: t.StringPath; to: t.StringPath } & CommonOp)
+  | ({ kind: 'skip'; path?: t.StringPath; reason?: string } & CommonOp);
+
+export type CommonOp = { dryRun?: boolean; forced?: boolean };

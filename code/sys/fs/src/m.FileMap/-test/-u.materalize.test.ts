@@ -1,5 +1,5 @@
 import { Sample } from '../-u.ts';
-import { describe, expect, it } from '../../-test.ts';
+import { c, describe, expect, it, Str } from '../../-test.ts';
 
 import { type t, Fs, Path } from '../common.ts';
 import { FileMap } from '../mod.ts';
@@ -8,11 +8,36 @@ describe('materialize', () => {
   const dir = Sample.source.dir;
   const makeMap = async () => FileMap.toMap(dir);
 
-  it('writes files to target (no force)', async () => {
+  const logOps = (title: string, ops: readonly t.FileMapMaterializeOp[]) => {
+    console.info(Str.SPACE);
+    console.info(c.bold(c.cyan(title)), '\n');
+    console.info(ops);
+    console.info(Str.SPACE);
+  };
+
+  const opPaths = (ops: readonly t.FileMapMaterializeOp[]) => {
+    return ops.map((op) => (op.kind === 'rename' ? op.to : op.path) ?? '');
+  };
+
+  it('writes files to target (no --force)', async () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
     const res = await FileMap.materialize(bundle, sample.target);
-    expect(res.ops.some((o) => o.kind === 'write')).to.eql(true);
+    expect(res.ops.every((o) => o.kind === 'write')).to.eql(true);
+    expect(await sample.ls.target(true)).to.eql(opPaths(res.ops));
+
+    logOps('operations | default write:', res.ops);
+  });
+
+  it('dryRun - nothing written', async () => {
+    const sample = await Sample.init();
+    const bundle = await makeMap();
+    const res = await FileMap.materialize(bundle, sample.target, { dryRun: true });
+    expect(res.ops.every((o) => o.kind === 'write')).to.eql(true);
+    expect(res.ops.every((o) => o.dryRun === true)).to.eql(true);
+    expect(await sample.ls.target(true)).to.eql([]);
+
+    logOps('operations | dryRun:', res.ops);
   });
 
   it('skip existing when !force', async () => {
@@ -28,10 +53,10 @@ describe('materialize', () => {
     expect(res.ops.filter((o) => o.kind === 'write').length).to.eql(0);
 
     // Any skips should carry a path:
-    const someSkip = res.ops.find((o) => o.kind === 'skip');
-    expect(!!someSkip && typeof someSkip.path === 'string' && someSkip.path.length > 0).to.eql(
-      true,
-    );
+    const skipped = res.ops.find((o) => o.kind === 'skip');
+    expect(!!skipped && typeof skipped.path === 'string' && skipped.path.length > 0).to.be.true;
+
+    logOps('operations | skip existing (not forced):', res.ops);
   });
 
   it('force overwrite', async () => {
@@ -41,6 +66,9 @@ describe('materialize', () => {
     await FileMap.materialize(bundle, sample.target);
     const res = await FileMap.materialize(bundle, sample.target, { force: true });
     expect(res.ops.some((o) => o.kind === 'write')).to.eql(true);
+    expect(res.ops.every((o) => o.forced)).to.eql(true);
+
+    logOps('operations | existing forced:', res.ops);
   });
 
   it('processFile: modify + rename + exclude', async () => {
@@ -93,10 +121,9 @@ describe('materialize', () => {
     }
 
     // A skip op exists and carries a path (image filtered):
-    const someSkip = res.ops.find((o) => o.kind === 'skip');
-    expect(!!someSkip && typeof someSkip.path === 'string' && someSkip.path.length > 0).to.eql(
-      true,
-    );
+    const skipped = res.ops.find((o) => o.kind === 'skip')!;
+    expect(!!skipped && typeof skipped.path === 'string' && skipped.path.length > 0).to.be.true;
+    expect(skipped.reason).to.eql('binary filtered');
 
     // Verify the patched content on disk for the actual file chosen:
     const textAbs = Path.join(sample.target, targetTextRel);
@@ -107,12 +134,14 @@ describe('materialize', () => {
     // Sanity:
     expect((ops.modify ?? 0) >= 1 || (ops.write ?? 0) >= 1).to.eql(true);
     expect((ops.skip ?? 0) >= 1).to.eql(true);
+
+    logOps('operations | processFile:', res.ops);
   });
 
-  it('binary passthrough', async () => {
+  it('binary pass-through', async () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
-    await FileMap.materialize(bundle, sample.target, {
+    const res = await FileMap.materialize(bundle, sample.target, {
       processFile(e) {
         // Images are binary except SVG (structured text):
         if (e.contentType.startsWith('image/') && e.contentType !== 'image/svg+xml') {
@@ -120,6 +149,9 @@ describe('materialize', () => {
         }
       },
     });
+    expect(res.ops.every((op) => op.forced === undefined)).to.be.true;
+
+    logOps('operations | binary pass-through:', res.ops);
   });
 
   it('throws when map contains a non-string value', async () => {

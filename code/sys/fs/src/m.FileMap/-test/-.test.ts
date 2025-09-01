@@ -28,7 +28,7 @@ describe('FileMap', () => {
 
     it('returns new map (non-mutating) and filters by extension', async () => {
       const map = await FileMap.toMap(dir);
-      const onlyTs = FileMap.filter(map, ({ path }) => path.endsWith('.ts'));
+      const onlyTs = FileMap.filter(map, (e) => e.filename.endsWith('.ts'));
 
       // New object identity:
       expect(onlyTs).to.not.equal(map);
