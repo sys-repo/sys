@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 export type * from './t.bundle.ts';
-export type * from './t.materialize.ts';
+export type * from './t.write.ts';
 export type * from './t.toMap.ts';
 
 /**
