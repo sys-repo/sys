@@ -23,7 +23,7 @@ describe('materialize', () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
     const res = await FileMap.materialize(bundle, sample.target);
-    expect(res.ops.every((o) => o.kind === 'write')).to.eql(true);
+    expect(res.ops.every((o) => o.kind === 'create')).to.eql(true);
     expect(await sample.ls.target(true)).to.eql(opPaths(res.ops));
 
     logOps('operations | default write:', res.ops);
@@ -33,7 +33,7 @@ describe('materialize', () => {
     const sample = await Sample.init();
     const bundle = await makeMap();
     const res = await FileMap.materialize(bundle, sample.target, { dryRun: true });
-    expect(res.ops.every((o) => o.kind === 'write')).to.eql(true);
+    expect(res.ops.every((o) => o.kind === 'create')).to.eql(true);
     expect(res.ops.every((o) => o.dryRun === true)).to.eql(true);
     expect(await sample.ls.target(true)).to.eql([]);
 
@@ -50,7 +50,7 @@ describe('materialize', () => {
 
     const all = ops.every(({ kind }) => kind === 'skip' || kind === 'rename' || kind === 'modify');
     expect(all).to.be.true;
-    expect(res.ops.filter((o) => o.kind === 'write').length).to.eql(0);
+    expect(res.ops.filter((o) => o.kind === 'create').length).to.eql(0);
 
     // Any skips should carry a path:
     const skipped = res.ops.find((o) => o.kind === 'skip');
@@ -65,79 +65,82 @@ describe('materialize', () => {
 
     await FileMap.materialize(bundle, sample.target);
     const res = await FileMap.materialize(bundle, sample.target, { force: true });
-    expect(res.ops.some((o) => o.kind === 'write')).to.eql(true);
+    expect(res.ops.some((o) => o.kind === 'create')).to.eql(true);
     expect(res.ops.every((o) => o.forced)).to.eql(true);
 
     logOps('operations | existing forced:', res.ops);
   });
 
-  it('processFile: modify + rename + exclude', async () => {
-    const sample = await Sample.init();
-    const bundle = await makeMap();
+  describe('processFile', () => {
+    it('modify + rename + exclude', async () => {
+      const sample = await Sample.init();
+      const bundle = await makeMap();
 
-    // Choose a real text file from the bundle deterministically.
-    const keys = Object.keys(bundle);
-    const pickText =
-      keys.find((k) => /(^|\/)readme\.md$/i.test(k)) ??
-      keys.find((k) => k.endsWith('.md')) ??
-      keys.find((k) => k.endsWith('.ts')) ??
-      keys.find((k) => k.endsWith('.json'));
-    expect(!!pickText, 'expected at least one text file in sample bundle').to.eql(true);
-    const targetTextRel = pickText!;
+      // Choose a real text file from the bundle deterministically.
+      const keys = Object.keys(bundle);
+      const pickText =
+        keys.find((k) => /(^|\/)readme\.md$/i.test(k)) ??
+        keys.find((k) => k.endsWith('.md')) ??
+        keys.find((k) => k.endsWith('.ts')) ??
+        keys.find((k) => k.endsWith('.json'));
+      expect(!!pickText, 'expected at least one text file in sample bundle').to.eql(true);
+      const targetTextRel = pickText!;
 
-    // Only try to rename .gitignore if it exists in the bundle:
-    const hasGitignore = keys.includes('.gitignore');
+      // Only try to rename .gitignore if it exists in the bundle:
+      const hasGitignore = keys.includes('.gitignore');
 
-    // Run the materialize:
-    const fired: t.FileMapProcessorArgs[] = [];
-    const res = await FileMap.materialize(bundle, sample.target, {
-      processFile: async (e) => {
-        fired.push(e);
+      // Run the materialize:
+      const fired: t.FileMapProcessorArgs[] = [];
+      const res = await FileMap.materialize(bundle, sample.target, {
+        processFile: async (e) => {
+          fired.push(e);
 
-        // Patch exactly the chosen text file:
-        if (e.path === targetTextRel && e.text) e.modify(e.text + '\n<!-- patched -->\n');
-        if (hasGitignore && e.path === '.gitignore') e.target.rename('.gitignore-renamed');
+          // Patch exactly the chosen text file:
+          if (e.path === targetTextRel && e.text) e.modify(e.text + '\n<!-- patched -->\n');
+          if (hasGitignore && e.path === '.gitignore') e.target.rename('.gitignore-renamed');
 
-        // Exclude all non-SVG images:
-        if (e.contentType.startsWith('image/') && e.contentType !== 'image/svg+xml') {
-          e.exclude('binary filtered');
+          // Exclude all non-SVG images:
+          if (e.contentType.startsWith('image/') && e.contentType !== 'image/svg+xml') {
+            e.exclude('binary filtered');
+          }
+
+          const existed = await e.target.exists();
+          expect(existed).to.eql(false);
+        },
+      });
+
+      // Passes target filename to processor:
+      expect(fired.every((e) => e.target.filename === Path.basename(e.target.relative))).to.be.true;
+
+      // Rename emits canonical { from, to } - only if .gitignore existed:
+      if (hasGitignore) {
+        const rename = res.ops.find((o) => o.kind === 'rename');
+        expect(!!rename).to.eql(true);
+        if (rename) {
+          expect(rename.prev).to.eql('.gitignore');
+          expect(rename.path).to.eql('.gitignore-renamed');
+          expect(await Fs.exists(Path.join(sample.target, '.gitignore-renamed'))).to.eql(true);
         }
+      }
 
-        const existed = await e.target.exists();
-        expect(existed).to.eql(false);
-      },
+      // A skip op exists and carries a path (image filtered):
+      const skipped = res.ops.find((o) => o.kind === 'skip')!;
+      expect(!!skipped && typeof skipped.path === 'string' && skipped.path.length > 0).to.be.true;
+      expect(skipped.reason).to.eql('binary filtered');
+
+      // Verify the patched content on disk for the actual file chosen:
+      const textAbs = Path.join(sample.target, targetTextRel);
+      const textRead = await Fs.readText(textAbs);
+      expect(textRead.exists).to.eql(true);
+      expect(textRead.data?.includes('<!-- patched -->')).to.eql(true);
+
+      // Sanity:
+      expect((res.total.modify ?? 0) >= 1 || (res.total.create ?? 0) >= 1).to.eql(true);
+      expect((res.total.skip ?? 0) >= 1).to.eql(true);
+
+      logOps('operations | processFile:', res.ops);
     });
 
-    // Passes target filename to processor:
-    expect(fired.every((e) => e.target.filename === Path.basename(e.target.relative))).to.be.true;
-
-    // Rename emits canonical { from, to } - only if .gitignore existed:
-    if (hasGitignore) {
-      const rename = res.ops.find((o) => o.kind === 'rename');
-      expect(!!rename).to.eql(true);
-      if (rename) {
-        expect(rename.prev).to.eql('.gitignore');
-        expect(rename.path).to.eql('.gitignore-renamed');
-        expect(await Fs.exists(Path.join(sample.target, '.gitignore-renamed'))).to.eql(true);
-      }
-    }
-
-    // A skip op exists and carries a path (image filtered):
-    const skipped = res.ops.find((o) => o.kind === 'skip')!;
-    expect(!!skipped && typeof skipped.path === 'string' && skipped.path.length > 0).to.be.true;
-    expect(skipped.reason).to.eql('binary filtered');
-
-    // Verify the patched content on disk for the actual file chosen:
-    const textAbs = Path.join(sample.target, targetTextRel);
-    const textRead = await Fs.readText(textAbs);
-    expect(textRead.exists).to.eql(true);
-    expect(textRead.data?.includes('<!-- patched -->')).to.eql(true);
-
-    // Sanity:
-    expect((res.total.modify ?? 0) >= 1 || (res.total.write ?? 0) >= 1).to.eql(true);
-    expect((res.total.skip ?? 0) >= 1).to.eql(true);
-
-    logOps('operations | processFile:', res.ops);
   });
 
   it('binary pass-through', async () => {

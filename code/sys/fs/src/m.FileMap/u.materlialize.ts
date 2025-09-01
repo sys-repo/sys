@@ -122,7 +122,7 @@ export async function materialize(
     }
 
     const forced = !dryRun && force && fileExists;
-    pushOp({ kind: 'write', path: relative }, forced);
+    pushOp({ kind: 'create', path: relative }, forced);
 
     // Finish up.
     onLog?.(`write ${relative}${modified ? ' --modified' : ''}${force ? ' --forced' : ''}`);
@@ -151,7 +151,7 @@ const wrangle = {
         acc[o.kind] = (acc[o.kind] ?? 0) + 1;
         return acc;
       },
-      { write: 0, modify: 0, rename: 0, skip: 0 },
+      { create: 0, modify: 0, rename: 0, skip: 0 },
     );
   },
 } as const;
