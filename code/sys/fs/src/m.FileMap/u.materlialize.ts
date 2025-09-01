@@ -128,5 +128,30 @@ export async function materialize(
     onLog?.(`write ${relative}${modified ? ' --modified' : ''}${force ? ' --forced' : ''}`);
   }
 
-  return { ops };
+  /**
+   * API:
+   */
+  let _total: t.FileMapMaterializeResult['total'] | undefined;
+  return {
+    ops,
+    get total() {
+      return _total || (_total = wrangle.total(ops));
+    },
+  };
 }
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  total(ops: t.FileMapMaterializeOp[]): t.FileMapMaterializeResult['total'] {
+    type Total = { [K in t.FileMapMaterializeOp['kind']]: number };
+    return ops.reduce<Total>(
+      (acc, o) => {
+        acc[o.kind] = (acc[o.kind] ?? 0) + 1;
+        return acc;
+      },
+      { write: 0, modify: 0, rename: 0, skip: 0 },
+    );
+  },
+} as const;

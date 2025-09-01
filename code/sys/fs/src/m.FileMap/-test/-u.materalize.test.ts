@@ -108,11 +108,6 @@ describe('materialize', () => {
       },
     });
 
-    const opTotals = res.ops.reduce<Record<string, number>>((acc, o) => {
-      acc[o.kind] = (acc[o.kind] ?? 0) + 1;
-      return acc;
-    }, {});
-
     // Passes target filename to processor:
     expect(fired.every((e) => e.target.filename === Path.basename(e.target.relative))).to.be.true;
 
@@ -139,8 +134,8 @@ describe('materialize', () => {
     expect(textRead.data?.includes('<!-- patched -->')).to.eql(true);
 
     // Sanity:
-    expect((opTotals.modify ?? 0) >= 1 || (opTotals.write ?? 0) >= 1).to.eql(true);
-    expect((opTotals.skip ?? 0) >= 1).to.eql(true);
+    expect((res.total.modify ?? 0) >= 1 || (res.total.write ?? 0) >= 1).to.eql(true);
+    expect((res.total.skip ?? 0) >= 1).to.eql(true);
 
     logOps('operations | processFile:', res.ops);
   });

@@ -48,6 +48,7 @@ export type FileMapMaterializeOptions = {
  */
 export type FileMapMaterializeResult = {
   readonly ops: readonly t.FileMapMaterializeOp[];
+  readonly total: { readonly [K in t.FileMapMaterializeOp['kind']]: number };
 };
 
 /**
