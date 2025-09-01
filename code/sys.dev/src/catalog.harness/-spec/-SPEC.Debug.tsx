@@ -117,7 +117,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>{`catalog: ${D.name}`}</div>
 
       <Button
         block
@@ -126,7 +126,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <StateChooser debug={debug} />
+      <div className={Styles.title.class}>{'State'}</div>
+      <StateChooser debug={debug} style={{ marginBottom: 20 }} />
 
       <hr />
       <Button
