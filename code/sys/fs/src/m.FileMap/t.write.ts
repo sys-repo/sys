@@ -26,7 +26,7 @@ export type FileMapProcessorArgs = {
     readonly relative: t.StringPath;
     readonly filename: t.StringName;
     exists(): Promise<boolean>;
-    rename(next: string): void;
+    rename(next: string, silent?: boolean): void;
   };
   skip(reason?: string): void;
   modify(next: string | Uint8Array): void;
@@ -61,7 +61,7 @@ export type FileMapOp =
 export type FileMapOpCommon = { dryRun?: boolean; forced?: boolean };
 
 /** Meta-data added to a write operation when the file was renamed */
-export type FileMapOpRenamed = { from: t.StringPath };
+export type FileMapOpRenamed = { from: t.StringPath; silent?: boolean };
 
 /**
  * Utility: Pick out ops from operations whose `kind` matches K.

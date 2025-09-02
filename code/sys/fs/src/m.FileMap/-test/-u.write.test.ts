@@ -1,5 +1,5 @@
 import { Sample } from '../-u.ts';
-import { c, describe, expect, it, Str, expectError } from '../../-test.ts';
+import { c, describe, expect, expectError, it, Str } from '../../-test.ts';
 import { type t, Fs, Path } from '../common.ts';
 import { FileMap } from '../mod.ts';
 
@@ -146,7 +146,39 @@ describe('FileMap.write', () => {
       logOps('operations | processFile:', res.ops);
     });
 
-    describe('modify on first write → write', () => {});
+    it('rename: silent (a) vs normal (b)', async () => {
+      const sample = await Sample.init();
+      const bundle = await makeMap();
+      const keys = Object.keys(bundle);
+
+      function renamed(path: string) {
+        type R = t.FileMapOpOfKind<'create'> | t.FileMapOpOfKind<'modify'>;
+        return (o: t.FileMapOp): o is R => {
+          if (!(o.kind === 'create' || o.kind === 'modify')) return false;
+          return o.path === path;
+        };
+      }
+
+      // (a) Silent rename:
+      const pa = keys[0];
+      const resA = await FileMap.write(bundle, sample.target, {
+        processFile(e) {
+          if (e.path === pa) e.target.rename('foo-a.txt', true);
+        },
+      });
+      const opA = resA.ops.find(renamed('foo-a.txt'))!;
+      expect(opA.renamed?.silent).to.eql(true);
+
+      // (b) Normal rename:
+      const pb = keys[1] ?? pa;
+      const resB = await FileMap.write(bundle, sample.target, {
+        processFile(e) {
+          if (e.path === pb) e.target.rename('foo-b.txt'); // no "silent" param.
+        },
+      });
+      const opB = resB.ops.find(renamed('foo-b.txt'))!;
+      expect(opB.renamed?.silent).to.eql(undefined);
+    });
   });
 
   it('binary pass-through', async () => {

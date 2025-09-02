@@ -48,6 +48,7 @@ export async function write(
     // Mutability flags for host processing:
     let skipped = false;
     let skippedReason: string | undefined;
+    let silentRename: boolean | undefined = false;
     let prevPath: t.StringPath | undefined; // ← for rename modifications.
     let changed = false; //                    ← set true if processFile calls e.modify().
 
@@ -73,9 +74,10 @@ export async function write(
         async exists() {
           return exists();
         },
-        rename(next) {
+        rename(next, silent) {
           prevPath = relative;
           relative = next as t.StringPath;
+          silentRename = silent;
         },
       },
       ctx,
@@ -148,7 +150,7 @@ export async function write(
     // Attach renamed meta only on writes (create/modify) and only if path actually changed.
     const renamed =
       prevPath && prevPath !== relative && (kind === 'create' || kind === 'modify')
-        ? ({ from: prevPath } as t.FileMapOpRenamed)
+        ? Delete.undefined<t.FileMapOpRenamed>({ from: prevPath, silent: silentRename })
         : undefined;
 
     let resolved: t.FileMapOp;
