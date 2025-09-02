@@ -1,4 +1,4 @@
-import { type t, Delete, Fs, Path } from './common.ts';
+import { type t, D, Delete, Fs, Path } from './common.ts';
 
 import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
@@ -9,7 +9,7 @@ export async function write(
   dir: t.StringDir,
   options: t.FileMapWriteOptions = {},
 ): Promise<t.FileMapWriteResult> {
-  const { force = false, dryRun = false, ctx, processFile } = options;
+  const { force = D.force, dryRun = D.dryRun, ctx, processFile } = options;
 
   // Validate the input FileMap once (fail fast with a clear error):
   const parsed = validate(map);

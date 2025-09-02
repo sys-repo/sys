@@ -4,6 +4,8 @@ export { Fs } from '../m.Fs/m.Fs.ts';
 export { Path } from '../m.Path/mod.ts';
 
 export const D = {
+  dryRun: false,
+  force: false,
   contentType: 'text/plain',
 
   /**
