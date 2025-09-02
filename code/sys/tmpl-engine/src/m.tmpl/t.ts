@@ -23,37 +23,36 @@ export type TmplLib = {
  * Generator function for a directory Template.
  */
 export type TmplFactory = (
-  source: t.StringDir,
+  source: t.StringDir | t.FileMap,
   options?: t.TmplFactoryOptions | t.TmplProcessFile,
 ) => t.Tmpl;
 
 /** Options passed to the template engine factory. */
 export type TmplFactoryOptions = {
-  /** Handler to run after the write operation completes. */
-  beforeWrite?: t.TmplWriteHandlerBefore;
-
-  /** Handler to process each file in the template. */
-  processFile?: t.TmplProcessFile;
-
-  /** Handler to run after the write operation completes. */
-  afterWrite?: t.TmplWriteHandlerAfter;
-
   /** Context data passed to the process handler. */
   ctx?: O;
+  /** Handler to process each file in the template. */
+  processFile?: t.TmplProcessFile;
 };
 
 /**
  * A template engine.
  */
 export type Tmpl = {
-  /** The directory containing the source template files. */
-  readonly source: t.FsDir;
+  /** Retrieve the file-map that makes up the template */
+  source(): Promise<t.TmplContent>;
 
   /** Perform a copy of the templates to a target directory. */
-  write(target: t.StringDir, options?: t.TmplWriteOptions): Promise<t.TmplWriteResponse>;
+  write(target: t.StringDir, options?: t.TmplWriteOptions): Promise<t.TmplWriteResult>;
 
   /** Clones the template filtering down to a subset of source files. */
   filter(fn: t.TmplFilter): t.Tmpl;
+};
+
+/** The content of a template */
+export type TmplContent = {
+  readonly dir: t.StringAbsoluteDir;
+  readonly fileMap: t.FileMap;
 };
 
 /**
@@ -63,103 +62,43 @@ export type Tmpl = {
  *     existence of the file but excludes it from the set of templates that
  *     are copied to the target.
  */
-export type TmplFilter = t.FsFileFilter;
+export type TmplFilter = t.FileMapFilter;
 
 /**
  * Handler that runs for each template file being copied.
  * Use this to:
  *  - filter out files (incl. marking as "user-space" exclusions)
- *  - adjust the text content before writing.
+ *  - adjust the content before writing.
  *  - adjust the target filename.
  */
-export type TmplProcessFile = (args: TmplProcessFileArgs) => TmplProcessFileResponse;
-export type TmplProcessFileResponse = t.IgnoredResult | Promise<t.IgnoredResult>;
-export type TmplProcessFileArgs = t.TmplProcessTextFileArgs | TmplProcessBinaryFileArgs;
-
-type FileArgs = {
-  /** Optional context passed to the `Tmpl.write` operation. */
-  readonly ctx?: O;
-
-  /** The source template file. */
-  readonly tmpl: t.FsFile;
-
-  /** The target location being copied to. */
-  readonly target: t.FsFile & { exists: boolean };
-
-  /** Filter out the file from being copied. */
-  exclude(reason?: string): TmplProcessFileArgs;
-
-  /** Adjust the name of the file. */
-  rename(filename: string): TmplProcessFileArgs;
-
-  /** Adjust the content of the file. */
-  modify(next: string | Uint8Array): TmplProcessTextFileArgs;
-};
-
-/** Arguments passed to a text-file for processing. */
-export type TmplProcessTextFileArgs = FileArgs & {
-  /** The content-type of the template file. */
-  readonly contentType: t.TmplTextFileOperation['contentType'];
-  /** The text body of the file. */
-  readonly text: { tmpl: string; current: string };
-  readonly binary: undefined;
-};
-
-/** Arguments passed to a binary-file for processing. */
-export type TmplProcessBinaryFileArgs = FileArgs & {
-  /** The content-type of the template file. */
-  readonly contentType: t.TmplBinaryFileOperation['contentType'];
-  /** The text body of the file. */
-  readonly binary: { tmpl: Uint8Array; current: Uint8Array };
-  readonly text: undefined;
-};
-
-/**
- * Callback that is run after the template engine as finished copying.
- * Use this to do either clean up, or additional setup actions not handled
- * directly by the template-copy engine.
- */
-export type TmplWriteHandler = (e: TmplWriteHandlerArgs) => t.IgnoredResult;
-export type TmplWriteHandlerBefore = TmplWriteHandler;
-export type TmplWriteHandlerAfter = TmplWriteHandler;
-/** Arguments passed to the write handler. */
-export type TmplWriteHandlerArgs = {
-  readonly dir: { readonly source: t.FsDir; readonly target: t.FsDir };
-  readonly ctx?: O;
-};
+export type TmplProcessFile = t.FileMapProcessor;
 
 /** Options passed to the `tmpl.copy` method. */
 export type TmplWriteOptions = {
   /** Flag indicating if the copy operation should be forced. (NB: "excluded" paths will never be written). */
-  force?: boolean;
-
+  readonly force?: boolean;
   /** Flag indicating if the files should be written. Default: false. */
-  dryRun?: boolean;
-
-  /** Handler(s) to run before the copy operation starts. */
-  beforeWrite?: t.TmplWriteHandler | t.TmplWriteHandler[];
-
-  /** Handler(s) to run after the copy operation completes. */
-  afterWrite?: t.TmplWriteHandler | t.TmplWriteHandler[];
-
-  /** Context data passed to the process handler. */
-  ctx?: O;
+  readonly dryRun?: boolean;
+  /** Optional context passed to the process-file handler. */
+  readonly ctx?: O;
 };
 
 /**
  * The response returned from the `tmpl.copy` method.
  */
-export type TmplWriteResponse = {
-  readonly source: t.FsDir;
-  readonly target: t.FsDir;
-  readonly ops: t.TmplFileOperation[];
+export type TmplWriteResult = {
+  readonly dir: { readonly source: t.StringDir; readonly target: t.StringDir };
+  readonly ops: readonly t.TmplWriteOp[];
   readonly ctx?: O;
 };
+
+/** Details about a template's file-write operation. */
+export type TmplWriteOp = t.FileMapOp;
 
 /**
  * Details about a file update.
  */
-export type TmplFileOperation = TmplTextFileOperation | TmplBinaryFileOperation;
+export type TmplFileOperation____ = TmplTextFileOperation | TmplBinaryFileOperation;
 type Operation = {
   /** If excluded, contains the reason for the exclusion, otherwise `boolean` flag. */
   excluded: boolean | { reason: string };
@@ -181,7 +120,7 @@ type Operation = {
 };
 
 /** The content-type contained within the template file. */
-export type TmplFileContentType = TmplFileOperation['contentType'];
+export type TmplFileContentType = TmplFileOperation____['contentType'];
 
 export type TmplTextFileOperation = Operation & {
   /** The content-type of the template file. */

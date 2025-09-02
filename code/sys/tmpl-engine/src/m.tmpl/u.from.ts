@@ -1,48 +1,63 @@
-import { type t, Fs, isRecord } from './common.ts';
-import { write } from './u.write.ts';
+import { type t, FileMap, Is, isRecord } from './common.ts';
 
 type O = Record<string, unknown>;
 
 /**
  * Create a new directory template.
  */
-export const from: t.TmplFactory = (sourceDir, opt) => {
-  const { processFile, beforeWrite, afterWrite, ctx } = wrangle.options(opt);
-  return factory({ sourceDir, beforeWrite, processFile, afterWrite, ctx });
+export const from: t.TmplFactory = (source, opt) => {
+  const { processFile, ctx } = wrangle.options(opt);
+  return make({ source, ctx, processFile });
 };
 
 /**
  * Internal implementation of the template.
  */
-function factory(args: {
-  sourceDir: t.StringDir;
-  beforeWrite?: t.TmplWriteHandler;
+function make(args: {
+  source: t.StringDir | t.FileMap;
   processFile?: t.TmplProcessFile;
-  afterWrite?: t.TmplWriteHandler;
-  filter?: t.FsFileFilter[];
+  filters?: t.FileMapFilter[];
   ctx?: O;
 }): t.Tmpl {
-  const { sourceDir, processFile } = args;
-  const source = Fs.toDir(sourceDir, args.filter);
+  const { filters } = args;
+
+  let _fileMap: t.FileMap | undefined = Is.object(args.source) ? args.source : undefined;
+  async function lazySource() {
+    const dir = (Is.string(args.source) ? args.source : '').trim();
+    if (!_fileMap) {
+      _fileMap = dir ? await FileMap.toMap(dir) : {};
+      for (const fn of filters ?? []) _fileMap = FileMap.filter(_fileMap, fn);
+    }
+    const api: t.TmplContent = { dir, fileMap: _fileMap };
+    return api;
+  }
+
+  /**
+   * API:
+   */
   const tmpl: t.Tmpl = {
-    get source() {
-      return source;
-    },
-    write(target, options = {}) {
-      const beforeWrite = wrangle.writeHandlers(args.beforeWrite, options.beforeWrite);
-      const afterWrite = wrangle.writeHandlers(args.afterWrite, options.afterWrite);
+    source: lazySource,
+
+    async write(target, options = {}) {
+      const { force, dryRun } = options;
       const ctx = wrangle.ctx(args.ctx, options.ctx);
-      return write(source, Fs.toDir(target), processFile, {
-        ...options,
-        beforeWrite,
-        afterWrite,
+      const source = await tmpl.source();
+
+      const processFile: t.FileMapProcessor = (e) => args.processFile?.(e); // ← NB: forward as-is (keeps e.ctx)
+      const res = await FileMap.write(source.fileMap, target, { ctx, processFile, force, dryRun });
+
+      // prettier-ignore
+      return {
         ctx,
-      });
+        get dir() { return { source: source.dir, target }; },
+        get ops() { return res.ops; },
+      };
     },
+
     filter(next) {
-      const { sourceDir, processFile, beforeWrite, afterWrite } = args;
-      const filter = [...(args.filter ?? []), next];
-      return factory({ sourceDir, processFile, beforeWrite, afterWrite, filter });
+      const { source, processFile, ctx } = args;
+      const filters = [...(args.filters ?? []), next];
+      return make({ source, ctx, processFile, filters });
     },
   };
   return tmpl;
@@ -56,11 +71,6 @@ const wrangle = {
     if (!input) return {};
     if (typeof input === 'function') return { processFile: input };
     return input;
-  },
-
-  writeHandlers(base?: t.TmplWriteHandler, param?: t.TmplWriteHandler | t.TmplWriteHandler[]) {
-    type T = t.TmplWriteHandler;
-    return [param, base].flat(Infinity).filter(Boolean) as T[];
   },
 
   ctx(root?: O, write?: O): O | undefined {

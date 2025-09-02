@@ -7,7 +7,7 @@ export type TmplLogLib = {
   /**
    * Convert a set of template operations to a console table.
    */
-  table(ops: t.TmplFileOperation[], options?: t.TmplLogTableOptions): string;
+  table(ops: readonly t.TmplWriteOp[], options?: t.TmplLogTableOptions): string;
 };
 
 /** Options passed to the `Tmpl.Log.table` method. */
@@ -16,6 +16,5 @@ export type TmplLogTableOptions = {
   hideExcluded?: boolean;
   trimPathLeft?: t.StringPath;
   baseDir?: t.StringDir;
-  note?: (op: t.TmplFileOperation) => string | void;
-  dryRun?: boolean;
+  note?: (op: t.TmplWriteOp) => string | void;
 };
