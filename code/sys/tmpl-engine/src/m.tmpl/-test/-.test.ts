@@ -185,7 +185,7 @@ describe('Tmpl', () => {
       expect(modText.data?.includes('export const foo = 123')).to.eql(true);
     });
 
-    describe.only('fn: processFile (callback)', () => {
+    describe('fn: processFile (callback)', () => {
       it('fn: skip', async () => {
         const { source, target } = Test.sample1();
         const tmpl = TmplEngine.from(source, async (e) => {
