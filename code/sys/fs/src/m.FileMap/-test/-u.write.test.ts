@@ -1,5 +1,5 @@
 import { Sample } from '../-u.ts';
-import { c, describe, expect, it, Str } from '../../-test.ts';
+import { c, describe, expect, it, Str, expectError } from '../../-test.ts';
 import { type t, Fs, Path } from '../common.ts';
 import { FileMap } from '../mod.ts';
 
@@ -298,6 +298,42 @@ describe('FileMap.write', () => {
       }
 
       expect(threw).to.eql(true);
+    });
+
+    it('modify(text) with Uint8Array → throws', async () => {
+      const sample = await Sample.init();
+      const bundle = await FileMap.toMap(Sample.source.dir);
+
+      const processFile: t.FileMapProcessor = (e) => {
+        if (e.text && (e.target.filename === 'index.md' || e.target.filename === 'mod.ts')) {
+          e.modify(new Uint8Array([1, 2, 3]) as any); // wrong type → should throw
+        } else {
+          e.skip('not target');
+        }
+      };
+
+      await expectError(
+        () => FileMap.write(bundle, sample.target, { processFile }),
+        'Expected string content to update text-file',
+      );
+    });
+
+    it('modify(binary) with string → throws', async () => {
+      const sample = await Sample.init();
+      const bundle = await FileMap.toMap(Sample.source.dir);
+
+      const processFile: t.FileMapProcessor = (e) => {
+        if (e.target.filename === 'pixels.png') {
+          e.modify('nope' as any); // wrong type → should throw
+        } else {
+          e.skip('not target');
+        }
+      };
+
+      await expectError(
+        () => FileMap.write(bundle, sample.target, { processFile }),
+        'Expected Uint8Array content to update binary-file',
+      );
     });
   });
 });

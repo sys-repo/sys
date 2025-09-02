@@ -86,10 +86,17 @@ export async function write(
       modify(next: string | Uint8Array) {
         changed = true;
         if (isText) {
-          text = typeof next === 'string' ? next : new TextDecoder().decode(next);
+          // Text branch:
+          if (typeof next !== 'string')
+            throw new Error('Expected string content to update text-file');
+          text = next;
           bytes = undefined;
+          return;
         } else {
-          bytes = typeof next === 'string' ? new TextEncoder().encode(next) : next;
+          // Binary branch:
+          if (!(next instanceof Uint8Array))
+            throw new Error('Expected Uint8Array content to update binary-file');
+          bytes = next;
           text = undefined;
         }
       },
