@@ -48,7 +48,8 @@ export async function write(
     // Mutability flags for host processing:
     let skipped = false;
     let skippedReason: string | undefined;
-    let prevPath: t.StringPath | undefined; // ← for `rename` modifications.
+    let prevPath: t.StringPath | undefined; // ← for rename modifications.
+    let changed = false; //                    ← set true if processFile calls e.modify().
 
     const absolute = () => Path.resolve(Path.join(dir, relative));
     const exists = async () => (await Fs.exists(absolute())) === true;
@@ -83,6 +84,7 @@ export async function write(
         skippedReason = reason;
       },
       modify(next: string | Uint8Array) {
+        changed = true;
         if (isText) {
           text = typeof next === 'string' ? next : new TextDecoder().decode(next);
           bytes = undefined;
@@ -107,8 +109,8 @@ export async function write(
      * Write:
      */
     if (!dryRun && !skipped) {
-      if (!force && existedBefore) {
-        // no-op: leave as-is (the "skip" operation is recorded later in resolver).
+      if (existedBefore && !force && !changed) {
+        // NO-OP: unchanged (skip recorded later in resolver)
       } else {
         await Fs.ensureDir(Path.dirname(absolute()));
         const outBytes = isText ? new TextEncoder().encode(text ?? '') : bytes ?? new Uint8Array();
@@ -130,10 +132,10 @@ export async function write(
       kind = 'skip';
     } else if (!existedBefore) {
       kind = 'create';
-    } else if (force && wrote) {
+    } else if (existedBefore && wrote) {
       kind = 'modify';
     } else {
-      kind = 'skip';
+      kind = 'skip'; // (unchanged)
     }
 
     // Attach renamed meta only on writes (create/modify) and only if path actually changed.
