@@ -66,4 +66,4 @@ export type FileMapOpRenamed = { from: t.StringPath };
 /**
  * Utility: Pick out ops from operations whose `kind` matches K.
  */
-export type OpOfKind<K extends FileMapOp['kind']> = Extract<FileMapOp, { kind: K }>;
+export type FileMapOpOfKind<K extends FileMapOp['kind']> = Extract<FileMapOp, { kind: K }>;

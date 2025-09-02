@@ -115,7 +115,7 @@ describe('FileMap.write', () => {
 
       // Rename emits canonical { from, to } - only if .gitignore existed:
       if (hasGitignore) {
-        type R = t.OpOfKind<'create'> | t.OpOfKind<'modify'>;
+        type R = t.FileMapOpOfKind<'create'> | t.FileMapOpOfKind<'modify'>;
         const renamed = res.ops.find(
           (o) => (o.kind === 'create' || o.kind === 'modify') && o.renamed?.from === '.gitignore',
         ) as R;
@@ -213,7 +213,7 @@ describe('FileMap.write', () => {
 
     const op = res.ops.find((o) => o.path === to)!;
     expect(op?.kind).to.eql('create');
-    expect((op as t.OpOfKind<'create'>).renamed?.from).to.eql(from);
+    expect((op as t.FileMapOpOfKind<'create'>).renamed?.from).to.eql(from);
     expect(await Fs.exists(Path.join(sample.target, to))).to.eql(true);
   });
 
@@ -243,7 +243,7 @@ describe('FileMap.write', () => {
 
     const op = res.ops.find((o) => o.path === to)!;
     expect(op?.kind).to.eql('modify'); // existing destination changed
-    expect((op as t.OpOfKind<'modify'>).renamed?.from).to.eql(from); // rename facet preserved
+    expect((op as t.FileMapOpOfKind<'modify'>).renamed?.from).to.eql(from); // rename facet preserved
     const dest = await Fs.readText(Path.join(sample.target, to));
     expect(dest.data?.includes('// rename+patch')).to.eql(true);
   });
@@ -267,7 +267,7 @@ describe('FileMap.write', () => {
       res.ops.find((o) => o.path === anyKey + '.ignored') ??
       res.ops.find((o) => o.path === anyKey)!;
     expect(op.kind).to.eql('skip');
-    expect((op as t.OpOfKind<'skip'>).reason).to.eql('filtered');
+    expect((op as t.FileMapOpOfKind<'skip'>).reason).to.eql('filtered');
     expect((op as any).renamed).to.eql(undefined);
   });
 
