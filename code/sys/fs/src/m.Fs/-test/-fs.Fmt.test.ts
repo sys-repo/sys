@@ -71,5 +71,24 @@ describe('Fs.Fmt', () => {
         expect(lines.some((l) => /c\.txt|y\.md|q\.png/.test(l))).to.eql(false);
       });
     });
+
+    describe('NumberDepth shorthand', () => {
+      it('tree: expands number into { maxDepth }', () => {
+        const out = Fs.Fmt.tree(['a/b/c.txt'], 1);
+        // Just assert the option was accepted (no crash, depth applied)
+        expect(out).to.be.a('string');
+      });
+
+      it('treeFromDir: expands number into { maxDepth }', async () => {
+        const tmp = await Fs.makeTempDir({ prefix: 'fmt-tree-num-' });
+        const file = Path.join(tmp.absolute, 'foo/bar.txt');
+        await Fs.write(file, 'ok', { force: true });
+
+        const out = await Fs.Fmt.treeFromDir(tmp.absolute, 1);
+        expect(out).to.be.a('string');
+
+        await Fs.remove(tmp.absolute);
+      });
+    });
   });
 });

@@ -2,10 +2,16 @@ import { type t, Path } from './common.ts';
 import { cwd } from './u.cwd.ts';
 import { walk } from './u.walk.ts';
 
-type Node = { name: string; files: string[]; dirs: Map<string, Node> };
+type Node = {
+  name: string;
+  files: string[];
+  dirs: Map<string, Node>;
+};
 
 export const Fmt: t.FsFmtLib = {
-  tree(paths, options = {}) {
+  tree(paths, opt = {}) {
+    const options = wrangle.options(opt);
+
     const rels = [...paths].filter(Boolean).map(normalizeRel).sort();
     const root: Node = { name: '', files: [], dirs: new Map() };
     for (const p of rels) insert(root, p.split('/'));
@@ -19,7 +25,9 @@ export const Fmt: t.FsFmtLib = {
     return lines.join('\n');
   },
 
-  async treeFromDir(dirInput, options = {}) {
+  async treeFromDir(dirInput, opt = {}) {
+    const options = wrangle.options(opt);
+
     const dir = dirInput ?? cwd('terminal');
     const abs = Path.resolve(dir);
     const rels: string[] = [];
@@ -75,6 +83,16 @@ function visit(
     out.push(`${pad}${prefix}${branch}${f}`);
   });
 }
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  options(input?: t.FsTreeOptions | number): t.FsTreeOptions {
+    if (typeof input === 'number') return { maxDepth: input };
+    return input ?? {};
+  },
+} as const;
 
 /** Normalize to POSIX-style relative 'a/b' with no leading './'. */
 function normalizeRel(input: string): string {
