@@ -5,7 +5,7 @@ type O = Record<string, unknown>;
 /**
  * Library for copying template files.
  */
-export type TmplLib = {
+export type TmplEngineLib = {
   /** Tools for converting a Tmpl to console/log output. */
   readonly Log: t.TmplLogLib;
 

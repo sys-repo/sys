@@ -1,5 +1,5 @@
 import { type t, Fs, Path, describe, expect, it } from '../../-test.ts';
-import { Tmpl } from '../mod.ts';
+import { TmplEngine } from '../mod.ts';
 
 /**
  * Samples the make sure the README code is in working order.
@@ -12,7 +12,7 @@ describe('README', () => {
 
     const srcDir = './src/-test/sample-1';
     const targetFile = Path.join(tmp.absolute, '-bundle.json');
-    const res = await Tmpl.FileMap.bundle(srcDir, targetFile);
+    const res = await TmplEngine.FileMap.bundle(srcDir, targetFile);
 
     // Illustrative assertions:
     expect(res.file).to.eql(Path.resolve(targetFile));

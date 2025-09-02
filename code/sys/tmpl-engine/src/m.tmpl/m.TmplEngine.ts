@@ -1,15 +1,13 @@
-import type { TmplLib } from './t.ts';
-
 import { File } from '../m.file/mod.ts';
 import { Log } from '../m.log/mod.ts';
+
+import { type t, FileMap } from './common.ts';
 import { from } from './u.from.ts';
-export { File, Log };
-import { FileMap } from './common.ts';
 
 /**
  * Library for copying template files.
  */
-export const Tmpl: TmplLib = {
+export const TmplEngine: t.TmplEngineLib = {
   Log,
   File,
   FileMap,
