@@ -8,4 +8,4 @@ export { Jsr } from '@sys/jsr';
 export { Process } from '@sys/process';
 export { Ignore } from '@sys/std/ignore';
 export { Semver } from '@sys/std/semver/server';
-export { Tmpl } from '@sys/tmpl-engine';
+export { TmplEngine } from '@sys/tmpl-engine';

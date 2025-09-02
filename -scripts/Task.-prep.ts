@@ -1,4 +1,4 @@
-import { type t, c, DenoDeps, DenoFile, Err, Fs, Process, Tmpl } from './common.ts';
+import { type t, c, DenoDeps, DenoFile, Err, Fs, Process, TmplEngine } from './common.ts';
 const i = c.italic;
 
 /**
@@ -48,7 +48,7 @@ async function updatePackages() {
   if (!(await tmplDir.exists())) {
     throw new Error(`The pkg template could not be found. Path: ${tmplDir.absolute}`);
   }
-  const tmpl = Tmpl.from(tmplDir.absolute, async (e) => {
+  const tmpl = TmplEngine.from(tmplDir.absolute, async (e) => {
     const pkg = e.ctx?.pkg as t.Pkg;
     if (typeof pkg !== 'object') {
       const err = `[UpdatePackages] Template expected a {pkg} on the context. Module: ${e.tmpl.absolute}`;
