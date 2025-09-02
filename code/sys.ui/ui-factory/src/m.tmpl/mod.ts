@@ -2,10 +2,10 @@
  * @module
  * File-system templates for `@sys/ui-factory`.
  */
-import { Tmpl } from './m.Tmpl.ts';
+import { cli } from './u.cli.ts';
 
-export { Tmpl };
-export default Tmpl;
+export { cli };
+export default cli;
 
 /** Dispatch to CLI prompt if run within the command-line. */
-if (import.meta.main) Tmpl.cli();
+if (import.meta.main) cli();

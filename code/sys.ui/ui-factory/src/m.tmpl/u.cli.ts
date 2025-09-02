@@ -1,74 +1,44 @@
-import { type t, c, Cli, Fs, pkg, Str } from './common.ts';
+import { json } from './-bundle.ts';
 
-/**
- * Run in CLI mode.
- */
-export const cli: t.CatalogTmplLib['cli'] = async (args = {}) => {
-  const { dryRun = false } = args;
-  const { Tmpl } = await import('./m.Tmpl.ts');
+import { type t, c, Cli, Fs, pkg, TmplEngine } from './common.ts';
+import { promptUser } from './u.cli.prompt.ts';
+import { makeProcessor } from './u.processFile.ts';
 
-  // Resolve current working directory for a terminal context.
-  const cwd = Fs.cwd('terminal');
-
-  // Print context:
-  const title = c.gray(`${c.green(pkg.name)}/${c.white('tmpl')} ${pkg.version}`);
-  console.info(Str.SPACE);
-  console.info(`${Str.SPACE}\n${title}`);
+export const cli: t.CatalogTmplCli = async (options = {}) => {
+  const { dryRun = false, ctx } = options;
 
   /**
-   * 1a) Ask for the target folder name:
+   * Build template:
+   * Canonical: from → filter (scope) → write
    */
-  const dirname = await Cli.Prompt.Input.prompt({
-    message: 'Write to folder',
-    default: 'catalog',
-    // Keep folder-name simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces).
-    validate: (v: string) =>
-      /^[\w.\-\/]+$/.test(v) || 'Use letters, numbers, ".", "-", "_" (and optional "/")',
-  });
+  const { targetDir, bundleRoot, bundleName } = await promptUser();
+  const processFile = makeProcessor({ bundleRoot });
+
+  // Canonical: from → filter (scope) → write
+  const tmpl = TmplEngine
+    //
+    .makeTmpl(json, { ctx, processFile })
+    .filter((e) => e.path.startsWith(bundleRoot));
+  const res = await tmpl.write(targetDir as t.StringDir, { dryRun });
 
   /**
-   * 1b) Select which template to install (maps bundle-root → target root name):
+   * 4) Print summary.
    */
-  type C = { name: string; bundleRoot: t.StringDir };
-  const TEMPLATE_CHOICES: C[] = [
-    { name: 'react catalog: folder structure', bundleRoot: 'react.catalog.folder' },
-    { name: 'react catalog: single file', bundleRoot: 'react.catalog.singlefile' },
-  ] as const;
-  type TemplateChoice = (typeof TEMPLATE_CHOICES)[number];
-
-  const chosenTmpl = await Cli.Prompt.Select.prompt<TemplateChoice>({
-    message: 'Choose Template',
-    options: TEMPLATE_CHOICES.map((x) => ({ name: `- ${x.name}`, value: x })),
-  });
-  const bundleRoot = chosenTmpl.bundleRoot;
-
-  /**
-   * 2) Compose target path and write the scaffold:
-   */
-  const target = `${cwd}/${dirname}`;
-  const res = await Tmpl.write(target, { dryRun, bundleRoot });
-
-  /**
-   * 3) Prepare a concise table of operations:
-   */
-  const table = Tmpl.table(res.ops, {
-    dryRun,
-    baseDir: target,
-  });
-
-  /**
-   * Print:
-   */
-  let location = Cli.Format.path(Fs.trimCwd(target), (e) => {
+  let location = Cli.Format.path(Fs.trimCwd(targetDir), (e) => {
     if (e.is.basename) e.change(c.white(e.text));
   });
   location = c.gray(`${location}/`);
 
   console.info();
-  console.info(c.gray(`${pkg.name}`));
+  console.info(c.cyan(`${pkg.name}`));
   console.info(c.gray(`location: ${location}`));
-  console.info(c.gray(`template: ${c.bold(c.green(`${chosenTmpl.name}`))}`));
+  console.info(c.gray(`template: ${c.bold(c.green(`${bundleName}`))}`));
+  console.info(c.gray(`dry-run:  ${dryRun ? c.yellow('yes') : c.gray('no')}`));
   console.info();
-  console.info(table);
-  console.info();
+
+  const table = TmplEngine.Log.table(res.ops, { baseDir: targetDir });
+  if (table) {
+    console.info(table);
+    console.info();
+  }
 };
