@@ -6,7 +6,7 @@ type O = Record<string, unknown>;
  * Library for copying template files.
  */
 export type TmplEngineLib = {
-  /** Tools for converting a Tmpl to console/log output. */
+  /** Tools for converting a Tmpl to pretty log output. */
   readonly Log: t.TmplLogLib;
 
   /** Tools for modifying template files once written to the file-system. */
@@ -16,7 +16,10 @@ export type TmplEngineLib = {
   readonly FileMap: t.FileMapLib;
 
   /** Create a new directory template. */
-  from: t.TmplFactory;
+  makeTmpl: t.TmplFactory;
+
+  /** Bundle a template to an embeddable JSON artefact. */
+  bundle: t.FileMapLib['bundle'];
 };
 
 /**
@@ -53,6 +56,7 @@ export type Tmpl = {
 export type TmplContent = {
   readonly dir: t.StringAbsoluteDir;
   readonly fileMap: t.FileMap;
+  readonly files: readonly t.StringPath[];
 };
 
 /**
@@ -94,65 +98,3 @@ export type TmplWriteResult = {
 
 /** Details about a template's file-write operation. */
 export type TmplWriteOp = t.FileMapOp;
-
-/**
- * Details about a file update.
- */
-export type TmplFileOperation____ = TmplTextFileOperation | TmplBinaryFileOperation;
-type Operation = {
-  /** If excluded, contains the reason for the exclusion, otherwise `boolean` flag. */
-  excluded: boolean | { reason: string };
-
-  /** Flag indicating if a write operation was performed for the file. */
-  written: boolean;
-
-  /** Flag indicating if the write operation was a "create" action */
-  created: boolean;
-
-  /** Flag indicating if the write operation was the "update" action. */
-  updated: boolean;
-
-  /** Flag indicating if the file operation was forced. */
-  forced: boolean;
-
-  /** File path details. */
-  file: { tmpl: t.FsFile; target: t.FsFile };
-};
-
-/** The content-type contained within the template file. */
-export type TmplFileContentType = TmplFileOperation____['contentType'];
-
-export type TmplTextFileOperation = Operation & {
-  /** The content-type of the template file. */
-  readonly contentType: 'text';
-  readonly binary: undefined;
-
-  /** The text content of the file. */
-  readonly text: t.TmplFileOperationText;
-};
-
-export type TmplBinaryFileOperation = Operation & {
-  /** The content-type of the template file. */
-  readonly contentType: 'binary';
-  readonly text: undefined;
-
-  /** The binary content of the file. */
-  readonly binary: t.TmplFileOperationBinary;
-};
-
-/** The text content of the file. */
-export type TmplFileOperationText = {
-  /** The source template before transform. */
-  readonly tmpl: string;
-  /** Details about the template file at the target location. */
-  readonly target: { before: string; after: string; isDiff: boolean };
-};
-
-/** The binary content of the file. */
-export type TmplFileOperationBinary = {
-  /** The source template before transform. */
-  readonly tmpl: Uint8Array;
-
-  /** Details about the template file at the target location. */
-  readonly target: { before: Uint8Array; after: Uint8Array; isDiff: boolean };
-};

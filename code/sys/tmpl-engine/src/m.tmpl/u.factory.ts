@@ -5,15 +5,16 @@ type O = Record<string, unknown>;
 /**
  * Create a new directory template.
  */
-export const from: t.TmplFactory = (source, opt) => {
-  const { processFile, ctx } = wrangle.options(opt);
-  return make({ source, ctx, processFile });
+export const makeTmpl: t.TmplFactory = (source, opt) => {
+  const options = wrangle.options(opt);
+  const { processFile, ctx } = options;
+  return factory({ source, ctx, processFile });
 };
 
 /**
  * Internal implementation of the template.
  */
-function make(args: {
+function factory(args: {
   source: t.StringDir | t.FileMap;
   processFile?: t.TmplProcessFile;
   filters?: t.FileMapFilter[];
@@ -24,11 +25,18 @@ function make(args: {
   let _fileMap: t.FileMap | undefined = Is.object(args.source) ? args.source : undefined;
   async function lazySource() {
     const dir = (Is.string(args.source) ? args.source : '').trim();
-    if (!_fileMap) {
-      _fileMap = dir ? await FileMap.toMap(dir) : {};
-      for (const fn of filters ?? []) _fileMap = FileMap.filter(_fileMap, fn);
-    }
-    const api: t.TmplContent = { dir, fileMap: _fileMap };
+    if (!_fileMap) _fileMap = dir ? await FileMap.toMap(dir) : {};
+    for (const fn of filters ?? []) _fileMap = FileMap.filter(_fileMap, fn);
+
+    const api: t.TmplContent = {
+      dir,
+      get fileMap() {
+        return _fileMap!;
+      },
+      get files() {
+        return Object.keys(api.fileMap);
+      },
+    };
     return api;
   }
 
@@ -57,7 +65,7 @@ function make(args: {
     filter(next) {
       const { source, processFile, ctx } = args;
       const filters = [...(args.filters ?? []), next];
-      return make({ source, ctx, processFile, filters });
+      return factory({ source, ctx, processFile, filters });
     },
   };
   return tmpl;

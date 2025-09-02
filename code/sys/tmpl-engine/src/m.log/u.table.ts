@@ -61,7 +61,7 @@ const wrangle = {
     if (op.kind === 'skip') {
       add(op.reason ? `skipped: ${op.reason}` : 'skipped');
     } else {
-      if (op.renamed) add(`renamed: ${op.renamed.from} → ${op.path}`);
+      if (op.renamed && !op.renamed.silent) add(`renamed: ${op.renamed.from} → ${op.path}`);
       if (op.forced) add('forced');
     }
     if (op.dryRun) add(c.cyan('dry-run'));
