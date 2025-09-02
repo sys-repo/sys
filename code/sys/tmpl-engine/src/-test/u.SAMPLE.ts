@@ -24,12 +24,17 @@ function init(source: t.StringDir, target: t.StringDir, options: Options = {}) {
   target = Fs.resolve(target, randomDir);
 
   const exists = (dir: t.StringDir, path: t.StringPath[]) => Fs.exists(Fs.join(dir, ...path));
+  const ls = async (dir: t.StringDir, trim = false) => {
+    let paths = await Fs.ls(dir);
+    if (trim) paths = paths.map((p) => p.slice(dir.length + 1));
+    return paths;
+  };
   return {
     source,
     target,
     ls: {
-      source: () => Fs.ls(source),
-      target: () => Fs.ls(target),
+      source: (trim = false) => ls(source, trim),
+      target: (trim = false) => ls(target, trim),
     },
     exists: {
       source: (...path: t.StringPath[]) => exists(source, path),

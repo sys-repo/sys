@@ -2,12 +2,14 @@ export type { CliTable } from '@sys/cli/t';
 export type {
   FileMap,
   FileMapBundleFilter,
+  FileMapFilter,
   FileMapLib,
-  FileMapMaterializeOp,
+  FileMapOp,
+  FileMapOpOfKind,
   FileMapProcessor,
+  FileMapProcessorArgs,
   FsDir,
   FsFile,
-  FsFileFilter,
 } from '@sys/fs/t';
 
 export type * from '@sys/types/t';
