@@ -14,15 +14,6 @@ export const PATHS = {
 } as const;
 
 /**
- * Prepare embedded asset bundle of template files.
- */
-export async function makeBundle() {
-  const src = Fs.resolve(PATHS.templates);
-  const bundle = await TmplEngine.bundle(src, PATHS.json);
-  console.info(TmplEngine.Log.bundled(bundle));
-}
-
-/**
  * Names of all templates.
  */
 export const TemplateNames: readonly string[] = [

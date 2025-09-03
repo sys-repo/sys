@@ -19,5 +19,13 @@ export function toFilterArgs(path: string, value: string): t.FileMapFilterArgs {
   const filename = Path.basename(path);
   const contentType = Data.contentType.fromUri(value);
   const ext = Path.extname(path);
-  return { path, filename, ext, contentType, value };
+  return {
+    contentType,
+    path,
+    filename,
+    ext,
+    get value() {
+      return value;
+    },
+  };
 }

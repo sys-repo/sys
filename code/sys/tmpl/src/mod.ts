@@ -3,6 +3,7 @@
  * Index of common file-system templates for "system".
  */
 import { pkg } from './pkg.ts';
+
 /** Type library (barrel file). */
 export type * as t from './types.ts';
 

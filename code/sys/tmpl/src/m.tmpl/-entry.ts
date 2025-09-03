@@ -1,4 +1,5 @@
-import { Args, makeBundle } from './common.ts';
+import { Args } from './common.ts';
+import { makeBundle } from './u.makeBundle.ts';
 
 export async function entry() {
   type A = { bundle?: boolean; dryRun?: boolean; force?: boolean };

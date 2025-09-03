@@ -14,9 +14,9 @@ export async function makeTmpl(root: t.TemplateName) {
   /**
    * Filtered template:
    */
-  type F = t.FileMapFilterArgs;
-  const inScope = (e: F) => e.path.startsWith(`${root}/`);
-  const notHidden = (e: F) => e.filename !== '.tmpl.ts'; // NB: the initialization script for the template: IS NOT content.
+  type F = t.FileMapFilter;
+  const inScope: F = (e) => e.path.startsWith(`${root}/`);
+  const notHidden: F = (e) => e.filename !== '.tmpl.ts'; // NB: the initialization script for the template: IS NOT content.
 
   const tmpl = TmplEngine
     //
