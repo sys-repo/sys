@@ -19,7 +19,10 @@ export async function cli(opts: Options = {}): Promise<void> {
    */
   const cwd = Fs.cwd('terminal');
   const tree = await Fs.Fmt.treeFromDir(cwd, 1);
-  console.info(c.gray(`${c.green('Current:')} ${cwd}`), '\n');
+  const fmtCwd = Cli.Format.path(cwd, (e) => {
+    if (e.is.basename) e.change(c.white(e.text));
+  });
+  console.info(c.gray(`${c.green('Current:')} ${fmtCwd}`), '\n');
   console.info(c.gray(tree));
 
   /**
