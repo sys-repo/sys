@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "test": "deno test -RWNE --allow-run --allow-ffi --allow-sys"
+  }
+}
