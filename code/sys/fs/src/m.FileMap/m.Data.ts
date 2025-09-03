@@ -1,13 +1,11 @@
-import type { FileMapDataLib } from './t.ts';
-
 import { decodeBase64, encodeBase64 } from '@std/encoding';
-import { D, Path } from './common.ts';
+import { type t, D, Path } from './common.ts';
 import { Is } from './m.Is.ts';
 
 /** Cache a plain ext→mime map (avoid pulling the all() function into the type). */
 const EXT_TO_MIME: Record<string, string> = D.contentTypes.all();
 
-export const Data: FileMapDataLib = {
+export const Data: t.FileMapDataLib = {
   contentType: {
     fromPath(path) {
       const filename = Path.basename(path);
@@ -18,7 +16,7 @@ export const Data: FileMapDataLib = {
     fromUri(uri) {
       if (typeof uri !== 'string') return '';
       if (!Is.dataUri(uri)) return '';
-      // strip "data:" and take up to the first ";" or ","
+      // Strip "data:" and take up to the first ";" or ","
       const rest = uri.slice(5);
       const i = rest.indexOf(';');
       const j = rest.indexOf(',');

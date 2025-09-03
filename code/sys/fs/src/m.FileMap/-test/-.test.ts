@@ -1,7 +1,7 @@
-import { describe, expect, it } from '../../-test.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
 
-import { Sample } from '../-u.ts';
 import { FileMap } from '../mod.ts';
+import { Sample } from './-u.ts';
 
 describe('FileMap', () => {
   describe('toMap', () => {
@@ -61,6 +61,34 @@ describe('FileMap', () => {
       const map = await FileMap.toMap(dir);
       const none = FileMap.filter(map, () => false);
       expect(Object.keys(none)).to.eql([]);
+    });
+
+    it('predicate meta-data', async () => {
+      const map = await FileMap.toMap(dir);
+      const fired: t.FileMapFilterArgs[] = [];
+
+      FileMap.filter(map, (m) => {
+        fired.push(m);
+        return true;
+      });
+
+      const json = fired.find((m) => m.filename === 'deno.json')!;
+      const ts = fired.find((m) => m.filename === 'mod.ts')!;
+      const md = fired.find((m) => m.filename === 'index.md')!;
+      const svg = fired.find((m) => m.filename === 'vector.svg')!;
+      const png = fired.find((m) => m.filename === 'pixels.png')!;
+
+      expect(json.contentType).to.eql('application/json');
+      expect(ts.contentType).to.eql('application/typescript');
+      expect(md.contentType).to.eql('text/markdown');
+      expect(svg.contentType).to.eql('image/svg+xml');
+      expect(png.contentType).to.eql('image/png');
+
+      expect(json.ext).to.eql('.json');
+      expect(ts.ext).to.eql('.ts');
+      expect(md.ext).to.eql('.md');
+      expect(svg.ext).to.eql('.svg');
+      expect(png.ext).to.eql('.png');
     });
   });
 });

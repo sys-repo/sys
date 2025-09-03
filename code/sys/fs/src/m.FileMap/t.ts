@@ -39,8 +39,10 @@ export type FileMapLib = {
 export type FileMapFilter = (e: FileMapFilterArgs) => boolean;
 /** Arguments supplied to the FileMap filter predicate. */
 export type FileMapFilterArgs = {
-  readonly path: string;
+  readonly path: t.StringPath;
   readonly filename: string;
+  readonly ext: string;
+  readonly contentType: t.StringContentType;
   readonly value: string;
 };
 
