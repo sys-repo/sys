@@ -34,7 +34,7 @@ TEST_SAMPLE="foobar"
       console.info();
       console.info(c.cyan(`Env.Is.vscode: ${c.white(String(flag))}`));
       console.info();
-      expect(typeof flag === 'boolean').to.eql(true); // NB: this is all we can infer, as we don't know if the test runner is in VSCode.
+      expect(typeof flag === 'boolean').to.be.true; // NB: this is all we can infer, as we don't know if the test runner is in VSCode.
     });
   });
 });

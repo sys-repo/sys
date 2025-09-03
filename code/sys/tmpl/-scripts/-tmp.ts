@@ -6,4 +6,3 @@ const clear = async (root: string) => {
 };
 
 await clear('./.tmp');
-await clear('./src/.tmp');
