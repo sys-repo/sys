@@ -4,14 +4,13 @@ import { c, Cli, Fs, pkg, TmplEngine } from './common.ts';
 import { makeProcessor } from './u.processFile.ts';
 import { promptUser } from './u.prompt.ts';
 
-type O = Record<string, unknown>;
-type Opt = { dryRun?: boolean; force?: boolean };
+export type CliArgs = { dryRun?: boolean; force?: boolean; bundle?: boolean };
 
 /**
  * Run template in command-line mode.
  */
-export async function cli(opt: Opt = {}): Promise<void> {
-  const { dryRun = false, force = false } = opt;
+export async function cli(args: CliArgs = {}): Promise<void> {
+  const { dryRun = false, force = false } = args;
 
   /**
    * Build template:

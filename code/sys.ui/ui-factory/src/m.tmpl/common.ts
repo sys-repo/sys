@@ -13,6 +13,9 @@ export const PATHS = {
   json: 'src/m.tmpl/-bundle.json',
 } as const;
 
+/**
+ * Prepare embedded asset bundle of template files.
+ */
 export async function makeBundle() {
   const bundle = await TmplEngine.bundle(PATHS.templates, PATHS.json);
   console.info(TmplEngine.Log.bundled(bundle));
