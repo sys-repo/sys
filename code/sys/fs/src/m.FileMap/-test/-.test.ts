@@ -10,16 +10,33 @@ describe('FileMap', () => {
     it('toMap ← all paths (sorted)', async () => {
       const res = await FileMap.toMap(dir);
       const paths = (await Sample.source.ls()).map((p) => p.slice(dir.length + 1)).sort();
-      expect(Object.keys(res).sort()).to.eql(paths);
+      expect(Object.keys(res).toSorted()).to.eql(paths);
       expect(res['images/vector.svg']).to.exist;
       expect(res['images/pixels.png']).to.exist;
     });
 
     it('toMap: filtered', async () => {
-      const res = await FileMap.toMap(dir, (e) => !e.contentType.startsWith('image/'));
+      const fired: t.FileMapFilterArgs[] = [];
+      const filter: t.FileMapFilter = (e) => {
+        fired.push(e);
+        return !e.contentType.startsWith('image/');
+      };
+      const res = await FileMap.toMap(dir, filter);
+
       // NB: image content-types filtered out:
       expect(res['images/vector.svg']).to.eql(undefined);
       expect(res['images/wax.png']).to.eql(undefined);
+
+      // Examine meta-data on fired predicate args.
+      expect(fired.length).to.eql(6);
+      expect(Object.keys(res).length).to.eql(4);
+
+      const json = fired.find((m) => m.filename === 'deno.json')!;
+      const ts = fired.find((m) => m.filename === 'mod.ts')!;
+      expect(json.contentType).to.eql('application/json');
+      expect(ts.contentType).to.eql('application/typescript');
+      expect(json.ext).to.eql('.json');
+      expect(ts.ext).to.eql('.ts');
     });
   });
 

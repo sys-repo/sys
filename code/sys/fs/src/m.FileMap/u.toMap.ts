@@ -1,26 +1,26 @@
-import { type t, Fs, Obj, Path } from './common.ts';
+import { type t, Fs, Obj } from './common.ts';
 import { Data } from './m.Data.ts';
 import { Is } from './m.Is.ts';
+import { toFilterArgs } from './u.filter.ts';
 
 export const toMap: t.FileMapLib['toMap'] = async (dir, opt) => {
   const res: t.FileMap = {};
   const options = wrangle.options(opt);
 
   dir = Fs.resolve(dir);
-  let paths = await wrangle.paths(dir);
-  if (options.filter) {
-    paths = paths.filter((path) => {
-      const args = wrangle.pathFilter(path, dir);
-      return options.filter ? options.filter(args) : true;
-    });
-  }
+  const paths = await wrangle.paths(dir);
 
   const wait = paths.map(async (path) => {
-    const file = await wrangle.fileContent(path);
-    if (file) {
-      const key = wrangle.pathKey(path, dir);
-      res[key] = file;
+    const value = await wrangle.fileContent(path);
+    if (!value) return;
+
+    if (options.filter) {
+      const args = toFilterArgs(path.slice(dir.length + 1), value);
+      if (!options.filter(args)) return;
     }
+
+    const key = wrangle.pathKey(path, dir);
+    res[key] = value;
   });
 
   await Promise.all(wait);
@@ -38,14 +38,6 @@ const wrangle = {
     return paths;
   },
 
-  pathFilter(path: t.StringPath, base: t.StringDir): t.FileMapBundleFilterArgs {
-    return {
-      path: path.slice(base.length + 1),
-      ext: Path.extname(path),
-      contentType: Data.contentType.fromPath(path),
-    };
-  },
-
   pathKey(path: t.StringPath, base?: t.StringDir) {
     let key = path;
     if (base && key.startsWith(base)) key = key.slice(base.length + 1);
@@ -61,7 +53,7 @@ const wrangle = {
     return res.data ? Data.encode(mime, res.data) : undefined;
   },
 
-  options(input?: t.FileMapToMapOptions | t.FileMapBundleFilter) {
+  options(input?: t.FileMapToMapOptions | t.FileMapFilter) {
     if (!input) return {};
     if (typeof input === 'function') return { filter: input };
     return input;
