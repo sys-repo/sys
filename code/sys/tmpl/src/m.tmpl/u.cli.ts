@@ -23,8 +23,6 @@ export async function cli(opts: Options = {}): Promise<void> {
   console.info(c.gray(`${c.green('Current:')} ${cwd}`), '\n');
   console.info(c.gray(tree));
 
-  console.log('opts', opts);
-
   /**
    * Derive template name
    */
