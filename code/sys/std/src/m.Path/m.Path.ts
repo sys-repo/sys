@@ -15,7 +15,7 @@ import {
   toFileUrl,
 } from '@std/path';
 
-import { Format } from './m.Format.ts';
+import { Format } from './m.Fmt.ts';
 import { Is } from './m.Is.ts';
 
 /**

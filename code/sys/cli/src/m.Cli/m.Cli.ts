@@ -9,7 +9,7 @@ import { Table } from './m.Table.ts';
 import { copyToClipboard } from './u.clipboard.ts';
 
 /**
- * Tools for CLI's (command-line-interface):
+ * Tools for the CLI (command-line interfaces):
  */
 export const Cli: CliLib = {
   Args,

@@ -4,7 +4,7 @@
  */
 import { Path } from './m.Path.ts';
 
-export { Format } from './m.Format.ts';
+export { Format } from './m.Fmt.ts';
 export { Path };
 
 export default Path;
