@@ -1,7 +1,7 @@
 import { json } from './-bundle.ts';
 import { type t, TmplEngine } from './common.ts';
 
-export async function makeTmpl(tmplName: t.TemplateName, root: t.StringDir) {
+export async function makeTmpl(root: t.TemplateName) {
   const fileProcessor: t.FileMapProcessor = async (e) => {
     // Strip the root prefix from the path so files land at the target-root.
     if (e.path.startsWith(`${root}/`)) {

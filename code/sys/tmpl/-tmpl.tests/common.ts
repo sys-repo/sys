@@ -1,1 +1,2 @@
-export * from '../src/common.ts';
+export * from '../-tmpl/-test.ts';
+export { makeTmpl } from '../src/m.tmpl/mod.ts';

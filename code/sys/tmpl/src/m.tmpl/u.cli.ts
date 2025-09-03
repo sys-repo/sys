@@ -74,7 +74,7 @@ export async function cli(opts: Options = {}): Promise<void> {
   /**
    * Write:
    */
-  const tmpl = await makeTmpl(tmplName, root);
+  const tmpl = await makeTmpl(tmplName);
   const res = await tmpl.write(targetDir, { dryRun, force });
   await tmplSetup.default(res.dir.target);
 
