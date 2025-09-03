@@ -47,7 +47,7 @@ const wrangle = {
       const first = index === 0;
       const last = index === array.length - 1;
       const kind = wrangle.kind(part, divider, index, array);
-      const is: P['is'] = {
+      const is: t.PathFormatterPart['is'] = {
         first,
         last,
         slash: kind === 'slash',
