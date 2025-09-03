@@ -1,36 +1,41 @@
 import { json } from './-bundle.ts';
 
-import { c, Cli, Fs, pkg, TmplEngine } from './common.ts';
+import { type t, c, Cli, Fs, pkg, TmplEngine } from './common.ts';
 import { makeProcessor } from './u.processFile.ts';
 import { promptUser } from './u.prompt.ts';
 
-export type CliArgs = { dryRun?: boolean; force?: boolean; bundle?: boolean };
+export type Options = { dryRun?: boolean; force?: boolean };
+export type RunResult = t.TmplWriteResult;
 
 /**
- * Run template in command-line mode.
+ * Non-interactive runner (programmatic entry).
  */
-export async function cli(args: CliArgs = {}): Promise<void> {
-  const { dryRun = false, force = false } = args;
+export async function run(
+  targetDir: string,
+  bundleRoot: string,
+  opts: Options = {},
+): Promise<RunResult> {
+  const { dryRun = false, force = false } = opts;
 
-  /**
-   * Build template:
-   * Canonical: from → filter (scope) → write
-   */
+  // Ensure signature + filter are correct and boundary-safe:
+  const processFile = makeProcessor(bundleRoot);
+  const prefix = `${bundleRoot}/`;
+  const inScope = (p: string) => p === bundleRoot || p.startsWith(prefix);
+
+  const tmpl = TmplEngine.makeTmpl(json, { processFile }).filter((e) => inScope(e.path));
+  return tmpl.write(targetDir, { dryRun, force });
+}
+
+/**
+ * CLI entry (interactive prompts → run).
+ */
+export async function cli(opts: Options = {}): Promise<void> {
+  // Gather inputs and execute
   const { targetDir, bundle } = await promptUser();
-  const processFile = makeProcessor(bundle);
+  const res = await run(targetDir, bundle.root, opts);
 
-  // Canonical: from → filter (scope) → write
-  const tmpl = TmplEngine
-    //
-    .makeTmpl(json, { processFile })
-    .filter((e) => e.path.startsWith(bundle.root));
-
-  const written = await tmpl.write(targetDir, { dryRun, force });
-  const { ops } = written;
-
-  /**
-   * 4) Print summary.
-   */
+  // Log outcome:
+  const { ops } = res;
   let location = Cli.Format.path(Fs.trimCwd(targetDir), (e) => {
     if (e.is.basename) e.change(c.white(e.text));
   });

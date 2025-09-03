@@ -3,4 +3,4 @@
  */
 import type { t } from './common.ts';
 import file from './-bundle.json' with { type: 'json' };
-export const json = file as t.FileMap
+export const json = file as t.FileMap;

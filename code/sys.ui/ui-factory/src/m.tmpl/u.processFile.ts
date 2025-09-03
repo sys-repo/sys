@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
-export function makeProcessor(bundle: { root: t.StringDir; name: string }): t.FileMapProcessor {
-  const root = (bundle.root ?? '').trim();
+export function makeProcessor(bundleRoot: t.StringDir): t.FileMapProcessor {
+  const root = (bundleRoot ?? '').trim();
   const prefix = root ? `${root}/` : '';
 
   return async (e) => {
@@ -11,17 +11,16 @@ export function makeProcessor(bundle: { root: t.StringDir; name: string }): t.Fi
      */
     if (root) {
       const isUnderRoot = e.path === root || e.path.startsWith(prefix);
-      if (!isUnderRoot) return e.skip(`excluded: not within "${root}/"`);
+      if (!isUnderRoot) return e.skip(`not within "${root}/"`);
     }
 
     /**
      * 2) If under root, strip that prefix so files land at the target root.
      */
     if (root && e.path.startsWith(prefix)) {
-      const path = e.path.slice(prefix.length);
-      if (path.length === 0) return e.skip('excluded: empty path after strip');
-      const silent = true;
-      e.target.rename(path, silent);
+      const next = e.path.slice(prefix.length);
+      if (!next) return e.skip('empty path after strip');
+      e.target.rename(next, true);
     }
 
     /**
