@@ -1,6 +1,8 @@
-import type { TmplLogLib } from './t.ts';
+import type { t } from './common.ts';
+import { bundled } from './u.bundled.ts';
 import { table } from './u.table.ts';
 
-export const Log: TmplLogLib = {
+export const Log: t.TmplLogLib = {
   table,
+  bundled,
 };

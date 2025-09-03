@@ -1,6 +1,7 @@
-import { type t, c, Cli, Path } from './common.ts';
+import { type t, c, Cli, Is, Path } from './common.ts';
 
-export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
+export const table: t.TmplLogLib['table'] = (ops, opt) => {
+  const options = wrangle.options(opt);
   const tbl = Cli.table([]);
   const indent = options.indent ? ' '.repeat(options.indent) : '';
   if (ops.length === 0) return c.gray(c.italic(`${indent}No items to display`));
@@ -23,6 +24,12 @@ export const table: t.TmplLogLib['table'] = (ops, options = {}) => {
  * Helpers:
  */
 const wrangle = {
+  options(input?: Parameters<t.TmplLogLib['table']>[1]): t.TmplLogTableOptions {
+    if (!input) return {};
+    if (Is.string(input)) return { baseDir: input };
+    return input;
+  },
+
   abs(op: t.TmplWriteOp, baseDir?: string) {
     const p = op.path;
     if (!p) return '';
@@ -42,16 +49,12 @@ const wrangle = {
   },
 
   action(op: t.TmplWriteOp) {
-    switch (op.kind) {
-      case 'create':
-        return c.green('Created');
-      case 'modify':
-        return c.yellow('Updated');
-      case 'skip':
-        return c.gray(c.dim(' n/a'));
-      default:
-        return c.gray('Unknown');
-    }
+    let text = c.gray('Unknown');
+    if (op.kind === 'create') text = c.green('created');
+    if (op.kind === 'modify') text = c.yellow('updated');
+    if (op.kind === 'skip') text = c.gray(c.dim('skipped'));
+    if (op.dryRun) text = c.dim(text);
+    return text;
   },
 
   note(op: t.TmplWriteOp, options: t.TmplLogTableOptions) {
@@ -59,15 +62,15 @@ const wrangle = {
     const add = (v?: string) => (v ? (text ? (text += ' | ' + v) : (text = v)) : text);
 
     if (op.kind === 'skip') {
-      add(op.reason ? `skipped: ${op.reason}` : 'skipped');
+      add(op.reason ? `${op.reason}` : 'skipped');
     } else {
       if (op.renamed && !op.renamed.silent) add(`renamed: ${op.renamed.from} → ${op.path}`);
       if (op.forced) add('forced');
     }
-    if (op.dryRun) add(c.cyan('dry-run'));
+    if (op.dryRun) add(c.yellow('dry-run'));
 
     if (typeof options.note === 'function') add(options.note(op) || '');
 
-    return text ? c.gray(`${c.white('←')} ${text}`) : '';
+    return text ? c.gray(`${c.gray('←')} ${text}`) : '';
   },
-} as const;
+};

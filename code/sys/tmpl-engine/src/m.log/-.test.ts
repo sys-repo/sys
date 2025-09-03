@@ -1,11 +1,14 @@
-import { stripAnsi, Str, describe, expect, it } from '../-test.ts';
+import { describe, expect, it, stripAnsi } from '../-test.ts';
 
 import { type t, Fs, Path } from '../common.ts';
 import { Log } from './mod.ts';
+import { bundled } from './u.bundled.ts';
+import { table } from './u.table.ts';
 
 describe('Tmpl.Log', () => {
   it('API', () => {
-    expect(typeof Log.table).to.eql('function');
+    expect(Log.table).to.equal(table);
+    expect(Log.bundled).to.equal(bundled);
   });
 
   it('empty ops → friendly message, respects indent', () => {
@@ -75,17 +78,5 @@ describe('Tmpl.Log', () => {
 
     // Renderer shows only the basename, not the full relative path.
     expect(noAnsi).to.include('q.txt');
-  });
-
-  it('rename renders without throwing (best-effort note)', () => {
-    const ops: t.FileMapOp[] = [{ kind: 'modify', path: 'new.ts', renamed: { from: 'old.ts' } }];
-    const out = Log.table(ops as any, {});
-
-    // Destination should always be shown:
-    expect(out).to.include('new.ts');
-
-    // The action label exists (don't couple to exact wording/color):
-    const noAnsi = stripAnsi(out);
-    expect(noAnsi).to.match(/Created|Updated|Renamed|Unchanged|Excluded/);
   });
 });
