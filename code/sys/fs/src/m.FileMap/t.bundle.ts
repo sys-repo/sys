@@ -12,14 +12,33 @@ export type FileMapBundle = (
 export type FileMapBundleOptions = t.FileMapToMapOptions & {
   /** File path to write the JSON artifact into. */
   readonly targetFile: t.StringPath;
+
+  /** Handler called by the bundler immediately before writing to disk. */
+  beforeWrite?: t.FileMapBundleBeforeWrite;
 };
 
 /** Result from `bundle`. */
 export type FileMapBundleResult = {
   /** Number of entries in the map. */
   readonly count: number;
-  /** The in-memory map (same as returned by `toMap`). */
+  /** The in-memory map. */
   readonly fileMap: t.FileMap;
   /** Absolute path of the artifact written to disk. */
   readonly file: t.StringPath;
+  /** Flag indicating if a `beforeWrite` handler modified the bundle. */
+  readonly modified: boolean;
+};
+
+/**
+ * Handler called by the bundler immediately before writing to disk.
+ * Use this to make final modifications to the bundle.
+ */
+export type FileMapBundleBeforeWrite = (e: FileMapBundleBeforeWriteArgs) => void;
+export type FileMapBundleBeforeWriteArgs = {
+  /** The in-memory map. */
+  readonly fileMap: t.FileMap;
+  /** Absolute path of the artifact written to disk. */
+  readonly file: t.StringPath;
+  /** Signal that a modified version should be written to disk.   */
+  modify(next: t.FileMap): void;
 };

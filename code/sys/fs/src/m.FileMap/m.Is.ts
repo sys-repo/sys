@@ -1,4 +1,4 @@
-import { D, Path } from './common.ts';
+import { type t, D, Path, isRecord } from './common.ts';
 import type { FileMapIsLib } from './t.ts';
 
 /** Build sets from MIME VALUES (and keys for structuredText) */
@@ -22,6 +22,15 @@ const TEXT_MIME = new Set<string>(TEXT_MIME_VALUES);
 const STRUCTURED_TEXT_MIME = new Set<string>(STRUCTURED_TEXT_MIME_VALUES);
 
 export const Is: FileMapIsLib = {
+  fileMap(input): input is t.FileMap {
+    if (!isRecord(input)) return false;
+    for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
+      if (typeof k !== 'string') return false;
+      if (typeof v !== 'string') return false;
+    }
+    return true;
+  },
+
   dataUri(input) {
     if (typeof input !== 'string') return false;
     if (!input.startsWith('data:')) return false;

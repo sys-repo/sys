@@ -1,21 +1,48 @@
 import { type t, Fs, Is, Path } from './common.ts';
+import { Is as FileMapIs } from './m.Is.ts';
 import { toMap } from './u.toMap.ts';
 
 type F = t.FileMapLib['bundle'];
 
 export const bundle: F = async (sourceDir, opt) => {
-  const { targetFile, filter } = wrangle.options(opt);
+  const { targetFile, filter, beforeWrite } = wrangle.options(opt);
+  const file = Path.resolve(targetFile) as t.StringPath;
+  await Fs.ensureDir(Path.dirname(file));
 
-  const out = Path.resolve(targetFile) as t.StringPath;
-  await Fs.ensureDir(Path.dirname(out));
+  // Prepare the filemap to write.
+  let fileMap = await toMap(sourceDir, { filter });
+  let modified = false;
 
-  const fileMap = await toMap(sourceDir, { filter });
-  await Fs.writeJson(out, fileMap, { throw: true });
+  // Write to disk.
+  await Fs.writeJson(file, fileMap, { throw: true });
+  if (Is.func(beforeWrite)) {
+    const clone = { ...fileMap };
+    beforeWrite({
+      file,
+      get fileMap() {
+        return clone;
+      },
+      modify(next) {
+        if (!FileMapIs.fileMap(next)) {
+          throw new Error(`The given modified file-map value is not valid: ${next}`);
+        }
+        fileMap = { ...next };
+        modified = true;
+      },
+    });
+  }
 
+  /**
+   * API:
+   */
+  const count = Object.keys(fileMap).length;
   return {
-    count: Object.keys(fileMap).length,
-    fileMap,
-    file: out,
+    count,
+    file,
+    get fileMap() {
+      return fileMap;
+    },
+    modified,
   };
 };
 

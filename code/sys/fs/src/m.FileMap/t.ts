@@ -75,6 +75,9 @@ export type FileMapDataLib = {
  * Boolean flag assertions.
  */
 export type FileMapIsLib = {
+  /** Determine if the given value is a file-map object. */
+  fileMap(input?: unknown): input is t.FileMap;
+
   /** Determine if the given string a data URN format (RFC 2397). */
   dataUri(input: string): boolean;
 

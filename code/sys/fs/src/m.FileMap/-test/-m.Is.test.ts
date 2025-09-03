@@ -78,4 +78,16 @@ describe('FileMap.Is', () => {
     test('application/markdown', false);
     test('application/javascript', false);
   });
+
+  describe('Is.fileMap', () => {
+    it('detects valid and invalid file-map values', () => {
+      expect(Is.fileMap({ foo: 'bar', baz: 'qux' })).to.eql(true); // ← valid
+      expect(Is.fileMap({ foo: 123 })).to.eql(false); //              ← value not string
+      expect(Is.fileMap(['foo', 'bar'])).to.eql(false); //            ← array, not record
+      expect(Is.fileMap(null)).to.eql(false); //                      ← null
+      expect(Is.fileMap(undefined)).to.eql(false); //                 ← undefined
+      expect(Is.fileMap('not-object')).to.eql(false); //              ← string
+      expect(Is.fileMap({})).to.eql(true); //                         ← empty object ok
+    });
+  });
 });
