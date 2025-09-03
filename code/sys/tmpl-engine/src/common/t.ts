@@ -2,6 +2,7 @@ export type { CliTable } from '@sys/cli/t';
 export type {
   FileMap,
   FileMapBundleFilter,
+  FileMapBundleResult,
   FileMapFilter,
   FileMapLib,
   FileMapOp,

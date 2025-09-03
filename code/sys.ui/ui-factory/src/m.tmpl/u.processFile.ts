@@ -1,12 +1,7 @@
 import { type t } from './common.ts';
 
-type Args = {
-  /** The root folder of the template within '/-tmpl/'. */
-  bundleRoot?: t.StringDir;
-};
-
-export function makeProcessor(args: Args): t.FileMapProcessor {
-  const root = (args.bundleRoot ?? '').trim();
+export function makeProcessor(bundle: { root: t.StringDir; name: string }): t.FileMapProcessor {
+  const root = (bundle.root ?? '').trim();
   const prefix = root ? `${root}/` : '';
 
   return async (e) => {

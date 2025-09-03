@@ -33,7 +33,7 @@ It is a good idea to expose this as a `"prep"` task in your `deno.json` file:
 ```json
 {
   "tasks": {
-    "prep": "deno run -RWE src/m.tmpl/-u.bundle.ts",
+    "prep": "deno run -RWE src/m.tmpl/mod.ts --bundle",
   },
 }
 ```

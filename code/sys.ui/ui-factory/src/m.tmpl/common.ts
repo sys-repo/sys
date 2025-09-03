@@ -1,17 +1,19 @@
 export * from '../common.ts';
+import { Args, c, Cli } from '@sys/cli';
+import { Fs, Path, TmplEngine } from '@sys/tmpl-engine';
 
-export { c, Cli } from '@sys/cli';
-export { Fs, Path } from '@sys/fs';
-export { FileMap } from '@sys/fs/filemap';
 export { Semver } from '@sys/std/semver';
-export { TmplEngine } from '@sys/tmpl-engine';
+export { Args, c, Cli, Fs, Path, TmplEngine };
 
 /**
  * Constants:
  */
 export const PATHS = {
-  tmpl: {
-    source: '-tmpl/',
-    json: 'src/m.tmpl/-bundle.json',
-  },
+  templates: '-tmpl/',
+  json: 'src/m.tmpl/-bundle.json',
 } as const;
+
+export async function makeBundle() {
+  const bundle = await TmplEngine.bundle(PATHS.templates, PATHS.json);
+  console.info(TmplEngine.Log.bundled(bundle));
+}

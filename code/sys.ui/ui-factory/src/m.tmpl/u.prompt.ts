@@ -2,7 +2,7 @@ import { type t, c, Cli, Fs, pkg, Str } from './common.ts';
 
 export async function promptUser() {
   /**
-   * Context
+   * Context:
    */
   const cwd = Fs.cwd('terminal');
   const tree = await Fs.Fmt.treeFromDir(cwd, 1);
@@ -13,7 +13,7 @@ export async function promptUser() {
   console.info(`${Str.SPACE}\n${title}`);
 
   /**
-   * 1) Prompt: target folder
+   * 1) Prompt: target folder:
    */
   const dirname = await Cli.Prompt.Input.prompt({
     message: 'Write to folder',
@@ -23,12 +23,12 @@ export async function promptUser() {
   });
 
   /**
-   * 2) Prompt: choose template bundle
+   * 2) Prompt: choose template bundle:
    */
   type Choice = { name: string; bundleRoot: t.StringDir };
   const TEMPLATE_CHOICES = [
-    { name: 'react catalog: folder structure', bundleRoot: 'react.catalog.folder' },
-    { name: 'react catalog: single file', bundleRoot: 'react.catalog.singlefile' },
+    { name: 'react/catalog: folder structure', bundleRoot: 'react.catalog.folder' },
+    { name: 'react/catalog: single file', bundleRoot: 'react.catalog.singlefile' },
   ] as const satisfies readonly Choice[];
 
   const chosen = await Cli.Prompt.Select.prompt<(typeof TEMPLATE_CHOICES)[number]>({
@@ -37,16 +37,15 @@ export async function promptUser() {
   });
 
   /**
-   * 3) Compose + write template
+   * 3) Compose + write template:
    */
   const targetDir = `${cwd}/${dirname}`;
-  const bundleRoot = chosen.bundleRoot;
-  const bundleName = chosen.name;
+  const root = chosen.bundleRoot;
+  const name = chosen.name;
 
   // API:
   return {
     targetDir,
-    bundleRoot,
-    bundleName,
+    bundle: { root, name },
   } as const;
 }

@@ -1,25 +1,33 @@
 import { json } from './-bundle.ts';
 
-import { type t, c, Cli, Fs, pkg, TmplEngine } from './common.ts';
-import { promptUser } from './u.cli.prompt.ts';
+import { c, Cli, Fs, pkg, TmplEngine } from './common.ts';
 import { makeProcessor } from './u.processFile.ts';
+import { promptUser } from './u.prompt.ts';
 
-export const cli: t.CatalogTmplCli = async (options = {}) => {
-  const { dryRun = false, ctx } = options;
+type O = Record<string, unknown>;
+type Opt = { dryRun?: boolean; force?: boolean };
+
+/**
+ * Run template in command-line mode.
+ */
+export async function cli(opt: Opt = {}): Promise<void> {
+  const { dryRun = false, force = false } = opt;
 
   /**
    * Build template:
    * Canonical: from → filter (scope) → write
    */
-  const { targetDir, bundleRoot, bundleName } = await promptUser();
-  const processFile = makeProcessor({ bundleRoot });
+  const { targetDir, bundle } = await promptUser();
+  const processFile = makeProcessor(bundle);
 
   // Canonical: from → filter (scope) → write
   const tmpl = TmplEngine
     //
-    .makeTmpl(json, { ctx, processFile })
-    .filter((e) => e.path.startsWith(bundleRoot));
-  const res = await tmpl.write(targetDir as t.StringDir, { dryRun });
+    .makeTmpl(json, { processFile })
+    .filter((e) => e.path.startsWith(bundle.root));
+
+  const written = await tmpl.write(targetDir, { dryRun, force });
+  const { ops } = written;
 
   /**
    * 4) Print summary.
@@ -32,13 +40,12 @@ export const cli: t.CatalogTmplCli = async (options = {}) => {
   console.info();
   console.info(c.cyan(`${pkg.name}`));
   console.info(c.gray(`location: ${location}`));
-  console.info(c.gray(`template: ${c.bold(c.green(`${bundleName}`))}`));
-  console.info(c.gray(`dry-run:  ${dryRun ? c.yellow('yes') : c.gray('no')}`));
+  console.info(c.gray(`template: ${c.bold(c.green(`${bundle.name}`))}`));
   console.info();
 
-  const table = TmplEngine.Log.table(res.ops, { baseDir: targetDir });
+  const table = TmplEngine.Log.table(ops, targetDir);
   if (table) {
     console.info(table);
     console.info();
   }
-};
+}
