@@ -1,6 +1,5 @@
-import { json } from './-bundle.ts';
-
 import { type t, c, Cli, Fs, Is, pkg, TemplateNames, Templates, TmplEngine } from './common.ts';
+import { makeTmpl } from './u.makeTmpl.ts';
 import { Prompt } from './u.prompt.ts';
 
 export type Options = {
@@ -24,7 +23,7 @@ export async function cli(opts: Options = {}): Promise<void> {
   console.info(c.gray(tree));
 
   /**
-   * Derive template name
+   * Derive template name:
    */
   const root = opts.tmpl || (await Prompt.selectTemplate());
   if (!TemplateNames.includes(root)) {
@@ -59,10 +58,12 @@ export async function cli(opts: Options = {}): Promise<void> {
     return;
   }
 
-  const source = await Templates[root as keyof typeof Templates]();
-  if (!Is.func(source.default)) {
+  const tmplName = root as t.TemplateName;
+  const tmplSetup = await Templates[root as t.TemplateName]();
+
+  if (!Is.func(tmplSetup.default)) {
     const whiteName = c.white(root);
-    const err = `The template named "${whiteName}" does not export a default function from the '.tmpl.ts' file.`;
+    const err = `The template named "${whiteName}" does not export a default function from its '.tmpl.ts' file.`;
     const msg = `${c.yellow('Failed:')} ${err}`;
     console.info();
     console.warn(c.gray(msg));
@@ -73,30 +74,9 @@ export async function cli(opts: Options = {}): Promise<void> {
   /**
    * Write:
    */
-  const fileProcessor: t.FileMapProcessor = async (e) => {
-    // If under root, strip that prefix so files land at the target root.
-    if (e.path.startsWith(`${root}/`)) {
-      const next = e.path.slice(root.length + 1);
-      if (!next) return e.skip('error: empty path after strip');
-      e.target.rename(next, true);
-    }
-  };
-
-  /**
-   * Setup and filter template:
-   */
-  type F = t.FileMapFilterArgs;
-  const inScope = (e: F) => e.path.startsWith(`${root}/`);
-  const notHidden = (e: F) => e.filename !== '.tmpl.ts'; // NB: the initialization script for the template: IS NOT content.
-  const tmpl = TmplEngine
-    //
-    .makeTmpl(json, fileProcessor)
-    .filter(inScope)
-    .filter(notHidden);
-
-  // Write to disk.
+  const tmpl = await makeTmpl(tmplName, root);
   const res = await tmpl.write(targetDir, { dryRun, force });
-  await source.default(res.dir.target);
+  await tmplSetup.default(res.dir.target);
 
   /**
    * Print:

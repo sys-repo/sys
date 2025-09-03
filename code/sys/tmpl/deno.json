@@ -7,8 +7,8 @@
     "dry": "   deno publish --allow-dirty --dry-run",
     "check": " deno check src/*",
     "clean": " deno run -RWE ./-scripts/-clean.ts",
-    "tmpl": "  deno run -RWE ./src/m.tmpl/mod.ts",
-    "prep": "  deno run -RWE ./src/m.tmpl/mod.ts --bundle",
+    "tmpl": "  deno run -RWE ./src/mod.ts",
+    "prep": "  deno run -RWE ./src/mod.ts --bundle",
     "tmp": "   deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
