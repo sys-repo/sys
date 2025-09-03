@@ -1,19 +1,12 @@
-import { type t, Cli, DenoFile, Fs, Str, TmplEngine, tmplFilter } from '../common.ts';
+import { type t, Cli, DenoFile, Fs, Str, TmplEngine } from '../common.ts';
 import { updateTypesFile } from '../m.mod/.tmpl.ts';
-
-/**
- * Define the template:
- */
-export const dir = import.meta.dirname!;
-export const tmpl = TmplEngine.makeTmpl(dir).filter(tmplFilter);
 
 /**
  * Setup the template (after copy):
  */
-export default async function setup(e: t.TmplWriteHandlerArgs, options: { name?: string } = {}) {
+export default async function setup(dir: t.StringAbsoluteDir, options: { name?: string } = {}) {
   const name = options.name ?? (await Cli.Prompt.Input.prompt({ message: 'Component Name:' }));
 
-  const dir = e.dir.target.absolute;
   const denofile = await DenoFile.Path.nearest(dir);
   const pkgDir = denofile ? Fs.dirname(denofile) : undefined;
 

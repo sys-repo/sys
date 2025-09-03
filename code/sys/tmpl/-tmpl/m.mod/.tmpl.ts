@@ -1,10 +1,6 @@
 import { type t, DenoFile, Err, Fs, TmplEngine } from '../common.ts';
 
 /**
- * Define the template:
- */
-
-/**
  * Setup the template (after copy):
  */
 export default async function setup(dir: t.StringAbsoluteDir) {

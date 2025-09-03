@@ -1,18 +1,10 @@
-import { type t, Cli, DenoFile, Fs, Str, TmplEngine, tmplFilter } from '../common.ts';
-
-/**
- * Define the template:
- */
-export const dir = import.meta.dirname!;
-export const tmpl = TmplEngine.makeTmpl(dir).filter(tmplFilter);
+import { type t, Cli, DenoFile, Fs, Str, TmplEngine } from '../common.ts';
 
 /**
  * Setup the template (after copy):
  */
-export default async function setup(e: t.TmplWriteHandlerArgs, options: { pkgName?: string } = {}) {
+export default async function setup(dir: t.StringAbsoluteDir, options: { pkgName?: string } = {}) {
   const pkgName = options.pkgName ?? (await Cli.Prompt.Input.prompt({ message: '@scope/name:' }));
-
-  const dir = e.dir.target.absolute;
   const monorepo = await DenoFile.nearest(dir, (e) => Array.isArray(e.file.workspace));
   if (!monorepo) throw new Error(`Failed to find the host monorepo.`);
 
