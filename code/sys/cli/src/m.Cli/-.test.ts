@@ -1,7 +1,7 @@
 import { Args, Path } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
 
-import { c, Cli, Format, Keyboard, Prompt, Spinner, Table } from './mod.ts';
+import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from './mod.ts';
 import { copyToClipboard } from './u.clipboard.ts';
 
 describe('Cli', () => {
@@ -9,7 +9,7 @@ describe('Cli', () => {
     expect(Cli.Path).to.equal(Path);
     expect(Cli.Args).to.equal(Args);
 
-    expect(Cli.Format).to.equal(Format);
+    expect(Cli.Fmt).to.equal(Fmt);
     expect(Cli.Keyboard).to.equal(Keyboard);
     expect(Cli.Prompt).to.equal(Prompt);
     expect(Cli.Spinner).to.equal(Spinner);

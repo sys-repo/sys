@@ -28,7 +28,7 @@ export const Log = {
       const path = alias.replacement.slice(ws.dir.length + 1);
       const displayPath = `./${Path.dirname(path)}/${c.white(Path.basename(path))}`;
 
-      const module = Cli.Format.path(fullname, (e) => {
+      const module = Cli.Fmt.path(fullname, (e) => {
         if (e.is.slash) {
           if (e.index >= 3) {
             e.change(c.green(e.text));

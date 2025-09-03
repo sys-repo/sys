@@ -1,7 +1,7 @@
 import { Format as PathFormat } from '@sys/std/path';
-import type { CliFormatLib } from './t.ts';
+import type { t } from './common.ts';
 
 /** Common formatting helpers when working with a CLI. */
-export const Format: CliFormatLib = {
+export const Fmt: t.CliFormatLib = {
   path: PathFormat.string,
 };

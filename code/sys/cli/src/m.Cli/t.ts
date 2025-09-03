@@ -35,7 +35,7 @@ export type CliLib = {
   readonly Value: ValueLib;
 
   /** Common formatting heleprs. */
-  readonly Format: t.CliFormatLib;
+  readonly Fmt: t.CliFormatLib;
 
   /** Tools for working with the keyboard within a CLI. */
   readonly Keyboard: t.CliKeyboardLib;

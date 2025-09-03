@@ -36,7 +36,7 @@
 import { Cli } from './m.Cli.ts';
 
 export { c, stripAnsi } from './common.ts';
-export { Format } from './m.Format.ts';
+export { Fmt } from './m.Format.ts';
 export { Keyboard } from './m.Keyboard.ts';
 export { Prompt } from './m.Prompt.ts';
 export { Spinner } from './m.Spinner.ts';

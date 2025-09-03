@@ -36,7 +36,7 @@ export async function cli(opts: Options = {}): Promise<void> {
 
   // Log outcome:
   const { ops } = res;
-  let location = Cli.Format.path(Fs.trimCwd(targetDir), (e) => {
+  let location = Cli.Fmt.path(Fs.trimCwd(targetDir), (e) => {
     if (e.is.basename) e.change(c.white(e.text));
   });
   location = c.gray(`${location}/`);

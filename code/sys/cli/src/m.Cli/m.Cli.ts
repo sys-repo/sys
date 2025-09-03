@@ -1,7 +1,7 @@
 import { Args, Path, Time, Value, stripAnsi } from './common.ts';
 import type { CliLib } from './t.ts';
 
-import { Format } from './m.Format.ts';
+import { Fmt } from './m.Format.ts';
 import { Keyboard } from './m.Keyboard.ts';
 import { Prompt } from './m.Prompt.ts';
 import { Spinner } from './m.Spinner.ts';
@@ -17,7 +17,7 @@ export const Cli: CliLib = {
   Spinner,
   Value,
   Path,
-  Format,
+  Fmt,
   Keyboard,
   Prompt,
 
