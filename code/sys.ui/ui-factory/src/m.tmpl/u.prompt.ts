@@ -1,12 +1,12 @@
 import { type t, c, Cli, Fs, pkg, Str } from './common.ts';
 
-export async function promptUser() {
+export async function prompt() {
   /**
    * Context:
    */
   const cwd = Fs.cwd('terminal');
   const tree = await Fs.Fmt.treeFromDir(cwd, 1);
-  console.info(c.gray(cwd), '\n');
+  console.info(c.gray(`${c.green('Current:')} ${cwd}`), '\n');
   console.info(c.gray(tree));
 
   const title = c.gray(`${c.green(pkg.name)}/${c.white('tmpl')} ${pkg.version}`);

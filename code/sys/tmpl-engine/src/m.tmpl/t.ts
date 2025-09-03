@@ -33,7 +33,7 @@ export type TmplFactory = (
 /** Options passed to the template engine factory. */
 export type TmplFactoryOptions = {
   /** Context data passed to the process handler. */
-  ctx?: O;
+  readonly ctx?: O;
   /** Handler to process each file in the template. */
   processFile?: t.TmplProcessFile;
 };

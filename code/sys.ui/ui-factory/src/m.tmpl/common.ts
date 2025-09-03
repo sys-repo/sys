@@ -1,8 +1,7 @@
-export * from '../common.ts';
 import { Args, c, Cli } from '@sys/cli';
 import { Fs, Path, TmplEngine } from '@sys/tmpl-engine';
 
-export { Semver } from '@sys/std/semver';
+export * from '../common.ts';
 export { Args, c, Cli, Fs, Path, TmplEngine };
 
 /**

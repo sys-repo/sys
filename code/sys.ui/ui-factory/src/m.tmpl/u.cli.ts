@@ -2,7 +2,7 @@ import { json } from './-bundle.ts';
 
 import { type t, c, Cli, Fs, pkg, TmplEngine } from './common.ts';
 import { makeProcessor } from './u.processFile.ts';
-import { promptUser } from './u.prompt.ts';
+import { prompt } from './u.prompt.ts';
 
 export type Options = { dryRun?: boolean; force?: boolean };
 export type RunResult = t.TmplWriteResult;
@@ -31,7 +31,7 @@ export async function run(
  */
 export async function cli(opts: Options = {}): Promise<void> {
   // Gather inputs and execute
-  const { targetDir, bundle } = await promptUser();
+  const { targetDir, bundle } = await prompt();
   const res = await run(targetDir, bundle.root, opts);
 
   // Log outcome:
@@ -48,8 +48,6 @@ export async function cli(opts: Options = {}): Promise<void> {
   console.info();
 
   const table = TmplEngine.Log.table(ops, targetDir);
-  if (table) {
-    console.info(table);
-    console.info();
-  }
+  console.info(table);
+  console.info();
 }
