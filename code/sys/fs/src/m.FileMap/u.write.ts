@@ -58,7 +58,9 @@ export async function write(
     const args: t.FileMapProcessorArgs = {
       path: origKey as t.StringPath,
       contentType,
-      text,
+      get text() {
+        return text;
+      },
       bytes,
       target: {
         dir,
