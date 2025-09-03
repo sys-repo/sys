@@ -31,7 +31,9 @@ TEST_SAMPLE="foobar"
   describe('Env.Is', () => {
     it('Is.vscode', () => {
       const flag = Env.Is.vscode;
+      console.info();
       console.info(c.cyan(`Env.Is.vscode: ${c.white(String(flag))}`));
+      console.info();
       expect(typeof flag === 'boolean').to.eql(true); // NB: this is all we can infer, as we don't know if the test runner is in VSCode.
     });
   });
