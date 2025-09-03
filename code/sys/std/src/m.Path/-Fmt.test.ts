@@ -56,6 +56,16 @@ describe('Path.Format', () => {
       expect(seen.every((p) => p === path)).to.eql(true);
     });
 
+    it('derives kind correctly with and without trailing slash', () => {
+      const kinds = (path: string) => {
+        const out: t.PathFormatterPart['kind'][] = [];
+        Format.string(path, (e) => out.push(e.kind));
+        return out;
+      };
+      expect(kinds('foo/bar')).to.eql(['dirname', 'slash', 'basename']);
+      expect(kinds('foo/bar/')).to.eql(['dirname', 'slash', 'basename', 'slash']);
+    });
+
     it('conditional formatting', () => {
       const path = 'foo/bar/a.ts';
       const test = (expected: string, fmt: t.PathFormatter) => {

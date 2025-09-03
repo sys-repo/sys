@@ -43,8 +43,8 @@ const wrangle = {
     const left = trimLeft ? Path.resolve(trimLeft) : undefined;
     const shown = left ? Path.relative(left, abs) : abs;
     return Cli.Fmt.path(shown, (e) => {
-      if (e.is.basename) e.change(c.white(e.text));
-      else e.change(c.gray(e.text));
+      if (e.is.basename) e.change(c.white(e.part));
+      else e.change(c.gray(e.part));
     });
   },
 

@@ -7,8 +7,6 @@ export const Fmt: t.CliFormatLib = {
     str: (path) => c.gray(Fmt.path(path, Fmt.Path.fmt())),
     fmt(opts = {}) {
       return (e) => {
-        console.log('e.text', e.part);
-        console.log('e.toString()', e.toString());
         if (e.is.basename) e.change(c.white(e.part));
       };
     },
