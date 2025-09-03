@@ -17,12 +17,12 @@ export const Format: PathFormatLib = {
 
     const res: string[] = [];
     parts.forEach((part) => {
-      let text = part.text;
+      let text = part.part;
       fmt({
         ...part,
         change: (to) => (text = to),
         toString: () => text,
-        get text() {
+        get part() {
           return text;
         },
       });
@@ -42,11 +42,11 @@ const wrangle = {
     return path
       .split(divider)
       .flatMap((part, index, array) => (index < array.length - 1 ? [part, divider] : [part]))
-      .filter((text) => !!text)
-      .map((text, index, array): P => {
+      .filter((part) => !!part)
+      .map((part, index, array): P => {
         const first = index === 0;
         const last = index === array.length - 1;
-        const kind: P['kind'] = text === divider ? 'slash' : last ? 'basename' : 'dirname';
+        const kind: P['kind'] = part === divider ? 'slash' : last ? 'basename' : 'dirname';
         const is: P['is'] = {
           first,
           last,
@@ -54,7 +54,7 @@ const wrangle = {
           dirname: kind === 'dirname',
           basename: kind === 'basename',
         };
-        return { index, kind, text, is };
+        return { index, kind, part, path, is };
       });
   },
 } as const;

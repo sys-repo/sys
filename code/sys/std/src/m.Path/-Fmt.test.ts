@@ -42,6 +42,20 @@ describe('Path.Format', () => {
       test('/foo/a', 4);
     });
 
+    it('each formatter callback receives the original path', () => {
+      const path = '/foo/bar/a.ts';
+      const seen: string[] = [];
+
+      const res = Format.string(path, (e) => {
+        seen.push(e.path);
+        if (e.is.basename) e.change(`[BASENAME:${e.part}]`);
+      });
+
+      expect(res).to.eql('/foo/bar/[BASENAME:a.ts]');
+      expect(seen.length).to.be.greaterThan(0);
+      expect(seen.every((p) => p === path)).to.eql(true);
+    });
+
     it('conditional formatting', () => {
       const path = 'foo/bar/a.ts';
       const test = (expected: string, fmt: t.PathFormatter) => {
@@ -50,7 +64,7 @@ describe('Path.Format', () => {
       };
       test('foo/bar/a.ts', () => null);
       test('foo/bar/[w]a.ts[/w]', (e) => {
-        if (e.is.basename) e.change(c.white(e.text));
+        if (e.is.basename) e.change(c.white(e.part));
       });
       test('foo[g]\\[/g]bar[g]\\[/g]a.ts', (e) => {
         if (e.is.slash) e.change(c.green('\\'));
@@ -60,8 +74,8 @@ describe('Path.Format', () => {
     it('cumlative changes', () => {
       const res = Format.string('/foo/bar', (e) => {
         if (e.index === 1) {
-          e.change(c.green(e.text));
-          e.change(c.white(e.text));
+          e.change(c.green(e.part));
+          e.change(c.white(e.part));
         }
       });
       expect(res).to.eql('/[w][g]foo[/g][/w]/bar');

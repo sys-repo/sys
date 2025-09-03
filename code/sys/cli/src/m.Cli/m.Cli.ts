@@ -1,7 +1,7 @@
 import { Args, Path, Time, Value, stripAnsi } from './common.ts';
 import type { CliLib } from './t.ts';
 
-import { Fmt } from './m.Format.ts';
+import { Fmt } from './m.Fmt.ts';
 import { Keyboard } from './m.Keyboard.ts';
 import { Prompt } from './m.Prompt.ts';
 import { Spinner } from './m.Spinner.ts';

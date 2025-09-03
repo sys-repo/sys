@@ -130,7 +130,8 @@ export type PathFormatterArgs = t.PathFormatterPart & {
 export type PathFormatterPart = {
   readonly index: t.Index;
   readonly kind: 'slash' | 'dirname' | 'basename';
-  readonly text: string;
+  readonly part: string;
+  readonly path: string;
   readonly is: PathFormatterPartIs;
 };
 

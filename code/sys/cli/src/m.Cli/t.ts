@@ -140,10 +140,14 @@ export type CliPromptLib = {
  * Common formatting helpers when working with a CLI.
  */
 export type CliFormatLib = {
-  /**
-   * Path display formatting.
-   */
+  /** Path display formatting. */
   path: PathFormatLib['string'];
+
+  /** Common CLI pretty path formatting */
+  readonly Path: {
+    str: (path: string) => string;
+    fmt: (opts?: {}) => t.PathFormatter;
+  };
 };
 
 /**
