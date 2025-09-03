@@ -16,4 +16,5 @@ export type { TmplFilter } from '@sys/tmpl-engine/t';
 /**
  * @local
  */
+export type { TemplateName } from '../../-tmpl/mod.ts';
 export type * from '../types.ts';
