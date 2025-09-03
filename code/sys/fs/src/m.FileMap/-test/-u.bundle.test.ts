@@ -1,4 +1,4 @@
-import { Sample } from '../-u.ts';
+import { Sample } from './-u.ts';
 import { describe, it, expect } from '../../-test.ts';
 
 import { type t, Fs, Path } from '../common.ts';

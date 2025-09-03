@@ -1,4 +1,4 @@
-import { Sample } from '../-u.ts';
+import { Sample } from './-u.ts';
 import { c, describe, expect, expectError, it, Str } from '../../-test.ts';
 import { type t, Fs, Path } from '../common.ts';
 import { FileMap } from '../mod.ts';

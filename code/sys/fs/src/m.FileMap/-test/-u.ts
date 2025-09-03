@@ -1,4 +1,4 @@
-import { type t, Fs } from './common.ts';
+import { type t, Fs } from '../common.ts';
 
 export const Sample = {
   source: {
