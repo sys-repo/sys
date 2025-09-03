@@ -1,16 +1,16 @@
-import { type t, DenoFile, Err, Fs, Tmpl, tmplFilter } from '../common.ts';
+import { type t, DenoFile, Err, Fs, TmplEngine, tmplFilter } from '../common.ts';
 
 /**
  * Define the template:
  */
 export const dir = import.meta.dirname!;
-export const tmpl = Tmpl.from(dir).filter(tmplFilter);
+export const tmpl = TmplEngine.makeTmpl(dir).filter(tmplFilter);
 
 /**
  * Setup the template (after copy):
  */
-export default async function setup(e: t.TmplWriteHandlerArgs) {
-  await updateTypesFile(e.dir.target.absolute);
+export default async function setup(dir: t.StringAbsoluteDir) {
+  await updateTypesFile(dir);
 }
 
 /**
@@ -30,7 +30,7 @@ export async function updateTypesFile(dir: t.StringAbsoluteDir) {
   const pkgDir = denofile ? Fs.dirname(denofile) : undefined;
   if (!pkgDir) return done(`Failed to find containing package (deno.json) for module at: ${dir}`);
 
-  await Tmpl.File.update(Fs.join(pkgDir, 'src/types.ts'), (line) => {
+  await TmplEngine.File.update(Fs.join(pkgDir, 'src/types.ts'), (line) => {
     if (line.is.last) {
       const moduleDir = dir.slice((pkgDir + 'src/').length + 1);
       const path = Fs.join(moduleDir, 't.ts');
