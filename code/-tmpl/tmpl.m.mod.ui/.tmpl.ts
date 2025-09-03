@@ -1,5 +1,5 @@
 import { type t, Cli, DenoFile, Fs, Str, TmplEngine } from '../common.ts';
-import { updateTypesFile } from '../m.mod/.tmpl.ts';
+import { updateTypesFile } from '../tmpl.m.mod/.tmpl.ts';
 
 /**
  * Setup the template (after copy):
