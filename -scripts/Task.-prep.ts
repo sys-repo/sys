@@ -1,6 +1,8 @@
 import { type t, c, DenoDeps, DenoFile, Err, Fs, Process, TmplEngine } from './common.ts';
 const i = c.italic;
 
+type TCtx = { pkg: t.Pkg };
+
 /**
  * Proecss the dependencies into a`deno.json` and `package.json` files.
  */
@@ -49,15 +51,17 @@ async function updatePackages() {
     throw new Error(`The pkg template could not be found. Path: ${tmplDir.absolute}`);
   }
   const tmpl = TmplEngine.makeTmpl(tmplDir.absolute, async (e) => {
-    const pkg = e.ctx?.pkg as t.Pkg;
+    const ctx = e.ctx as TCtx;
+
+    const pkg = ctx.pkg;
     if (typeof pkg !== 'object') {
-      const err = `[UpdatePackages] Template expected a {pkg} on the context. Module: ${e.tmpl.absolute}`;
+      const err = `[UpdatePackages] Template expected a {pkg} on the context. Template target: ${e.target.relative}`;
       errors.push(err);
       return;
     }
 
-    if (e.text && e.target.file.name === 'pkg.ts') {
-      const text = e.text?.tmpl.replace(/<NAME>/, pkg.name).replace(/<VERSION>/, pkg.version);
+    if (e.text && e.target.filename === 'pkg.ts') {
+      const text = e.text.replace(/<NAME>/, pkg.name).replace(/<VERSION>/, pkg.version);
       e.modify(text);
     }
   });
@@ -67,7 +71,7 @@ async function updatePackages() {
     const exists = await Fs.exists(Fs.join(targetDir, 'pkg.ts'));
     if (exists) {
       const pkg = item.pkg;
-      const ctx = { pkg };
+      const ctx: TCtx = { pkg };
       await tmpl.write(targetDir, { ctx });
     }
   }
