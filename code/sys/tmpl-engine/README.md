@@ -62,7 +62,7 @@ if (import.meta.main) {
   const { fileMap } = TmplEngine.FileMap.validate(bundle);
 
   // Build the template from the map and processor:
-  const tmpl = TmplEngine.from(fileMap, { processFile });
+  const tmpl = TmplEngine.makeTmpl(fileMap, processFile);
 
   // Apply to disk:
   const res = await tmpl.write(Path.resolve(target), { dryRun /*, force: true */ });

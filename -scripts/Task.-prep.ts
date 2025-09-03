@@ -48,7 +48,7 @@ async function updatePackages() {
   if (!(await tmplDir.exists())) {
     throw new Error(`The pkg template could not be found. Path: ${tmplDir.absolute}`);
   }
-  const tmpl = TmplEngine.from(tmplDir.absolute, async (e) => {
+  const tmpl = TmplEngine.makeTmpl(tmplDir.absolute, async (e) => {
     const pkg = e.ctx?.pkg as t.Pkg;
     if (typeof pkg !== 'object') {
       const err = `[UpdatePackages] Template expected a {pkg} on the context. Module: ${e.tmpl.absolute}`;
