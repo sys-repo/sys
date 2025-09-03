@@ -1,6 +1,6 @@
-import { Fs, Tmpl } from '../common.ts';
+import { Fs, TmplEngine } from '../common.ts';
 
 export const tmpl = () => {
   const dir = Fs.resolve('./src/-test/sample-1/-files');
-  return Tmpl.from(dir, (e) => {});
+  return TmplEngine.makeTmpl(dir, (e) => {});
 };
