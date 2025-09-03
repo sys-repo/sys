@@ -1,51 +1,56 @@
-import { type t, c, Cli, Fs, Templates, Tmpl, tmplFilter } from './common.ts';
+import { json } from './-bundle.ts';
 
-type TArgs = {
-  tmpl?: string | boolean;
+import { type t, c, Cli, Fs, Is, pkg, TemplateNames, Templates, TmplEngine } from './common.ts';
+import { Prompt } from './u.prompt.ts';
+
+export type Options = {
   dryRun?: boolean;
+  force?: boolean;
+  tmpl?: string;
 };
 
 /**
- * Run in CLI mode.
+ * CLI entry (interactive prompts → run).
  */
-export const cli: t.StdTmplLib['cli'] = async (options = {}) => {
-  const args = Cli.args<TArgs>(options.argv ?? Deno.args);
-  const dryRun = options.dryRun ?? args.dryRun ?? false;
+export async function cli(opts: Options = {}): Promise<void> {
+  const { dryRun = false, force = false } = opts;
 
-  let name = typeof args.tmpl === 'string' ? args.tmpl : '';
-  const templates = [...Object.keys(Templates), '@sys/ui-factory/tmpl'];
+  /**
+   * Context:
+   */
+  const cwd = Fs.cwd('terminal');
+  const tree = await Fs.Fmt.treeFromDir(cwd, 1);
+  console.info(c.gray(`${c.green('Current:')} ${cwd}`), '\n');
+  console.info(c.gray(tree));
 
-  if (!name) {
-    const label = (v: string) => (v.startsWith('@') ? `run:   ${v}` : `make:  ${v}`);
-    name = await Cli.Prompt.Select.prompt({
-      message: 'Select Template:',
-      options: templates.map((value: string) => ({ name: label(value), value })),
-    });
+  console.log('opts', opts);
+
+  /**
+   * Derive template name
+   */
+  const root = opts.tmpl || (await Prompt.selectTemplate());
+  if (!TemplateNames.includes(root)) {
+    const failed = c.bold(c.yellow('Failed:'));
+    const msg = `${failed} A template named "${c.white(root)}" does not exist.`;
+    console.info();
+    console.warn(c.gray(msg));
+    console.info(c.gray(c.italic('(pass nothing for interactive selection)')));
+    console.info();
+    return;
   }
 
   /**
    * Defer to external library templates:
    */
-  if (name === '@sys/ui-factory/tmpl') {
-    const { Tmpl } = await import('@sys/ui-factory/tmpl');
-    return void (await Tmpl.cli({ dryRun }));
+  if (root === '@sys/ui-factory/tmpl') {
+    const { cli } = await import('@sys/ui-factory/tmpl');
+    return void (await cli({ dryRun, force }));
   }
 
   /**
    * Run local templates:
    */
-  if (!templates.includes(name)) {
-    const msg = `${c.yellow('Failed:')} A template named "${c.white(name)}" does not exist.`;
-    console.info();
-    console.warn(c.gray(msg));
-    console.info(c.gray(c.italic('(pass nothing for interactive list)')));
-    console.info();
-    return;
-  }
-
-  const dirname = await Cli.Prompt.Input.prompt('Directory Name:');
-  const targetDir = Fs.join(Fs.cwd('terminal'), dirname);
-
+  const targetDir = await Prompt.directoryName();
   if (await Fs.exists(targetDir)) {
     const noChange = c.green('No Change');
     const msg = `${c.yellow('Warning:')} Something already exists at that location (${noChange}).`;
@@ -56,10 +61,10 @@ export const cli: t.StdTmplLib['cli'] = async (options = {}) => {
     return;
   }
 
-  const source = await Templates[name as keyof typeof Templates]();
-  if (!source.dir) {
-    const whiteName = c.white(name);
-    const err = `The template named "${whiteName}" does not export a "dir" from the -.tmpl.ts file.`;
+  const source = await Templates[root as keyof typeof Templates]();
+  if (!Is.func(source.default)) {
+    const whiteName = c.white(root);
+    const err = `The template named "${whiteName}" does not export a default function from the '.tmpl.ts' file.`;
     const msg = `${c.yellow('Failed:')} ${err}`;
     console.info();
     console.warn(c.gray(msg));
@@ -70,17 +75,47 @@ export const cli: t.StdTmplLib['cli'] = async (options = {}) => {
   /**
    * Write:
    */
-  const tmpl = Tmpl.from(source.dir).filter(tmplFilter);
-  const res = await tmpl.write(targetDir, {
-    dryRun,
-    afterWrite: (e) => source.default(e),
-  });
+  const fileProcessor: t.FileMapProcessor = async (e) => {
+    // If under root, strip that prefix so files land at the target root.
+    if (e.path.startsWith(`${root}/`)) {
+      const next = e.path.slice(root.length + 1);
+      if (!next) return e.skip('error: empty path after strip');
+      e.target.rename(next, true);
+    }
+  };
+
+  /**
+   * Setup and filter template:
+   */
+  type F = t.FileMapFilterArgs;
+  const inScope = (e: F) => e.path.startsWith(`${root}/`);
+  const notHidden = (e: F) => e.filename !== '.tmpl.ts'; // NB: the initialization script for the template: IS NOT content.
+  const tmpl = TmplEngine
+    //
+    .makeTmpl(json, fileProcessor)
+    .filter(inScope)
+    .filter(notHidden);
+
+  // Write to disk.
+  const res = await tmpl.write(targetDir, { dryRun, force });
+  await source.default(res.dir.target);
 
   /**
    * Print:
    */
-  console.info(c.gray(`Target: ${Fs.trimCwd(targetDir)}`));
+  const { ops } = res;
+  let location = Cli.Format.path(Fs.trimCwd(targetDir), (e) => {
+    if (e.is.basename) e.change(c.white(e.text));
+  });
+  location = c.gray(`${location}/`);
+
   console.info();
-  console.info(Tmpl.Log.table(res.ops));
+  console.info(c.cyan(`${pkg.name}`));
+  console.info(c.gray(`location: ${location}`));
+  console.info(c.gray(`template: ${c.bold(c.green(`${root}`))}`));
   console.info();
-};
+
+  const table = TmplEngine.Log.table(ops, targetDir);
+  console.info(table);
+  console.info();
+}

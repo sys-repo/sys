@@ -1,7 +1,13 @@
 /**
  * @module
+ * Index of common file-system templates for "system".
  */
-import type { t } from './common.ts';
-import { cli } from './u.cli.ts';
+export { cli } from './u.cli.ts';
 
-export const Tmpl: t.StdTmplLib = { cli };
+/**
+ * Command-line:
+ */
+if (import.meta.main) {
+  const { entry } = await import('./-entry.ts');
+  await entry();
+}

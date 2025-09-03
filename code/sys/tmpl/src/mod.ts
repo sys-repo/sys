@@ -1,18 +1,20 @@
 /**
  * @module
+ * Index of common file-system templates for "system".
  */
-import { Tmpl } from './m.tmpl/mod.ts';
 import { pkg } from './pkg.ts';
-
 /** Type library (barrel file). */
 export type * as t from './types.ts';
 
 /**
  * Library:
  */
-export { pkg, Tmpl };
+export { pkg };
 
 /**
  * Command-line:
  */
-if (import.meta.main) await Tmpl.cli();
+if (import.meta.main) {
+  const { entry } = await import('./m.tmpl/-entry.ts');
+  await entry();
+}

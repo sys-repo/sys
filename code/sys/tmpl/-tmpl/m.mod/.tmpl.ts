@@ -1,10 +1,8 @@
-import { type t, DenoFile, Err, Fs, TmplEngine, tmplFilter } from '../common.ts';
+import { type t, DenoFile, Err, Fs, TmplEngine } from '../common.ts';
 
 /**
  * Define the template:
  */
-export const dir = import.meta.dirname!;
-export const tmpl = TmplEngine.makeTmpl(dir).filter(tmplFilter);
 
 /**
  * Setup the template (after copy):

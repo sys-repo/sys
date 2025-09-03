@@ -3,12 +3,15 @@
   "version": "0.0.127",
   "license": "MIT",
   "tasks": {
-    "test": " deno test -RWNE --allow-run --allow-ffi --allow-sys",
-    "dry": "  deno publish --allow-dirty --dry-run",
-    "check": "deno check src/*",
-    "clean": "deno run -RWE ./-scripts/-clean.ts",
-    "help": " deno run -RE   --allow-ffi             ./-scripts/-vite.ts --cmd=help",
-    "tmp": "  deno run -RWE @sys/tmpl"
+    "test": "  deno test -RWNE --allow-run --allow-ffi --allow-sys",
+    "dry": "   deno publish --allow-dirty --dry-run",
+    "check": " deno check src/*",
+    "clean": " deno run -RWE ./-scripts/-clean.ts",
+
+    "tmpl": "  deno run -RWE ./src/m.tmpl/mod.ts",
+    "prep": "  deno run -RWE ./src/m.tmpl/mod.ts --bundle",
+
+    "tmp": "   deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
