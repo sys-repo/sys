@@ -26,7 +26,7 @@ const DATA = {
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = {
-    theme: s<P['theme']>('Light'),
+    theme: s<P['theme']>('Dark'),
     fontSize: s<P['fontSize']>(),
     name: s<P['name']>('my-name'),
     data: s<P['data']>({ ...DATA }),

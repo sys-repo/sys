@@ -59,8 +59,8 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@4.0.1
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.49.0
-    - import: npm:vite@7.1.3
+    - import: npm:rollup@4.50.0
+    - import: npm:vite@7.1.4
     - import: npm:vite-plugin-wasm@3.5.0
 
   ui/react:
@@ -84,7 +84,7 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.28
+    - import: npm:ai@5.0.30
     - import: npm:@ai-sdk/openai@2.0.23
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.15.2
@@ -119,7 +119,7 @@ deno.json:
   - import: npm:happy-dom@18.0.1
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.5
-  - import: npm:immer@10
+  - import: npm:immer@10.1.3
   - import: npm:ora@8.2.0
   - import: npm:@preact/signals-core@1.12.1
   - import: npm:pretty-bytes@7.0.1
@@ -159,4 +159,4 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:motion@12.23.12
-  - import: npm:hono@4.9.5
+  - import: npm:hono@4.9.6
