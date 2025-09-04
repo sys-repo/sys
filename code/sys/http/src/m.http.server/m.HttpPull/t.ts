@@ -18,6 +18,11 @@ export type HttpPullLib = {
    * Same as `toDir`, but yields progress events.
    * Emission order is not guaranteed to be request order.
    */
+  stream(
+    urls: readonly string[],
+    dir: t.StringDir,
+    options?: HttpPullOptions,
+  ): AsyncGenerator<HttpPullEvent>;
 
   /** Pure mapping helpers. (No I/O) */
   readonly Map: HttpPullMapLib;
