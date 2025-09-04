@@ -19,7 +19,7 @@ export const useDist: t.UseDistFactory = (options = {}) => {
    * Effect: Fetch JSON (or optionally load sample data).
    */
   useEffect(() => {
-    const fetch = Http.fetch();
+    const fetch = Http.fetcher();
 
     const update = (dist?: t.DistPkg) => {
       jsonRef.current = dist;

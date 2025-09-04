@@ -11,7 +11,7 @@ describe('HTTP: Server', () => {
       type T = { count: number };
       app.get('/', (c) => c.json({ count: 123 }));
 
-      const fetch = Http.fetch();
+      const fetch = Http.fetcher();
       const url = Http.url(listener.addr);
 
       const res1 = await fetch.json<T>(url.raw);
@@ -32,7 +32,7 @@ describe('HTTP: Server', () => {
       const listener = Deno.serve({ port: 0 }, app.fetch);
       app.get('/', (c) => c.text('no-op'));
 
-      const fetch = Http.fetch();
+      const fetch = Http.fetcher();
       const url = Http.url(listener.addr);
       const res = await fetch.text(url.raw);
 
@@ -75,7 +75,7 @@ describe('HTTP: Server', () => {
       const app = HttpServer.create({ static: ['/*', fs.dir] });
       const listener = Deno.serve({ port: 0 }, app.fetch);
 
-      const fetch = Http.fetch();
+      const fetch = Http.fetcher();
       const url = Http.url(listener.addr);
       const res = await fetch.json<T>(url.join(filename));
 
@@ -97,7 +97,7 @@ describe('HTTP: Server', () => {
       const app = HttpServer.create({ static: ['/*', fs.dir] });
       const listener = Deno.serve({ port: 0 }, app.fetch);
       const url = Http.url(listener.addr);
-      const fetch = Http.fetch();
+      const fetch = Http.fetcher();
 
       const a = await fetch.blob(url.join('bar/foo.bin'));
       const b = await fetch.text(url.join('index.html'));
@@ -141,7 +141,7 @@ describe('HTTP: Server', () => {
       const app = HttpServer.create({ static: ['/*', fs.dir] });
       const listener = Deno.serve({ port: 0 }, app.fetch);
 
-      const fetch = Http.fetch({ headers: (e) => e.set('range', 'bytes=0-') });
+      const fetch = Http.fetcher({ headers: (e) => e.set('range', 'bytes=0-') });
       const url = Http.url(listener.addr);
       const res = await fetch.blob(url.join(filename));
 

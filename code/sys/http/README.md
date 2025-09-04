@@ -23,7 +23,7 @@ Fetch tools:
 import { Http } from 'jsr:@sys/http/client';
 
 const fetch = Http.Fetch.make({ accessToken: 'my-jwt' });
-const fetch = Http.fetch();  // ← shorthand alternative.
+const fetch = Http.fetcher();  // ← shorthand alternative.
 
 const url = 'https://url.com/api';
 const checksum = 'sha256-01234';
@@ -41,8 +41,8 @@ import { Http } from 'jsr:@sys/http/client';
 const { dispose$, dispose } = rx.disposable();
 
 // Dispose aborts all in-progress operations.
-const fetch = Http.fetch({ dispose$ });  
-const fetch = Http.fetch(dispose$);       // (alternative)
+const fetch = Http.fetcher({ dispose$ });  
+const fetch = Http.fetcher(dispose$);       // (alternative)
 
 // Dispose aborts the specific fetch operation.
 const json = fetch.json(url, {}, { dispose$ });
@@ -76,7 +76,7 @@ const options = HttpServer.options(1234, pkg);
 const listener = Deno.serve(options, app.fetch);
 
 // HTTP client (calling back into the HTTP server).
-const fetch = Http.fetch();
+const fetch = Http.fetcher();
 const url = Http.url(listener.addr);
 
 const res = await fetch.json<T>(url.base);

@@ -11,7 +11,7 @@ export type HttpClientLib = {
    */
   readonly Fetch: t.HttpFetchLib;
   /** Generator function for a new fetch client. */
-  readonly fetch: t.HttpFetchLib['make'];
+  readonly fetcher: t.HttpFetchLib['make'];
 
   /**
    * Tools for working with the browser's HTTP cache within a "service-worker" process.

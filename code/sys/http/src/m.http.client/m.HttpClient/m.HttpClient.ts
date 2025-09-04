@@ -12,7 +12,7 @@ export const HttpClient: t.HttpClientLib = {
   Cache,
   Url,
 
-  fetch: Fetch.make,
+  fetcher: Fetch.make,
   url: Url.parse,
 
   toHeaders,

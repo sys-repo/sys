@@ -8,7 +8,7 @@ describe('Http', () => {
     expect(Http.Url).to.equal(Url);
     expect(Http.url).to.equal(Url.parse);
     expect(Http.Fetch).to.equal(Fetch);
-    expect(Http.fetch).to.equal(Fetch.make);
+    expect(Http.fetcher).to.equal(Fetch.make);
     expect(Http.Cache).to.equal(Cache);
   });
 

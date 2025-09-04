@@ -7,21 +7,21 @@ import { Fetch } from './mod.ts';
 describe('Http.Fetch', () => {
   it('API', () => {
     expect(Http.Fetch).to.equal(Fetch);
-    expect(Http.fetch).to.equal(Fetch.make);
+    expect(Http.fetcher).to.equal(Fetch.make);
 
     Http.Url;
   });
 
   describe('create', () => {
     it('default', () => {
-      const fetch = Http.fetch();
+      const fetch = Http.fetcher();
       expect(fetch.disposed).to.eql(false);
       expect(fetch.headers).to.eql({});
     });
 
     it('param: { headers } ← pre-fetch mutation function', () => {
       let count = 0;
-      const fetch = Http.fetch({
+      const fetch = Http.fetcher({
         headers(e) {
           count++;
 
@@ -50,9 +50,9 @@ describe('Http.Fetch', () => {
     });
 
     it('param: { accessToken }', () => {
-      const fetch1 = Http.fetch({ accessToken: '0x123' }); // NB: "Bearer" prefixed automatically
-      const fetch2 = Http.fetch({ accessToken: '  Bearer   0x123  ' }); // NB: trims and clean input.
-      const fetch3 = Http.fetch({ accessToken: () => 'Bearer 0x456' }); // NB: function does not presume "Bearer"
+      const fetch1 = Http.fetcher({ accessToken: '0x123' }); // NB: "Bearer" prefixed automatically
+      const fetch2 = Http.fetcher({ accessToken: '  Bearer   0x123  ' }); // NB: trims and clean input.
+      const fetch3 = Http.fetcher({ accessToken: () => 'Bearer 0x456' }); // NB: function does not presume "Bearer"
       expect(fetch1.header('Authorization')).to.eql('Bearer 0x123');
       expect(fetch2.header('Authorization')).to.eql('Bearer 0x123');
       expect(fetch3.header('Authorization')).to.eql('Bearer 0x456');
@@ -213,8 +213,8 @@ describe('Http.Fetch', () => {
     });
 
     it('{ accessToken }', async () => {
-      const fetch1 = Http.fetch({ accessToken: '  my-jwt  ' });
-      const fetch2 = Http.fetch({ accessToken: () => 'Bearer my-dynamic' });
+      const fetch1 = Http.fetcher({ accessToken: '  my-jwt  ' });
+      const fetch2 = Http.fetcher({ accessToken: () => 'Bearer my-dynamic' });
 
       let tokens: string[] = [];
       const server = Testing.Http.server((req) => {
