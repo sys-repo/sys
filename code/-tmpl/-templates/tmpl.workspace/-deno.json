@@ -1,5 +1,6 @@
 {
   "tasks": {
+    "install": "deno install --reload",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "compilerOptions": {
