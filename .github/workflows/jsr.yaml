@@ -208,7 +208,7 @@ jobs:
 
       - name: publish module → "@sys/tmpl"
         run: |
-          cd code/sys/tmpl
+          cd code/-tmpl
           deno task test --parallel
           deno publish --allow-dirty
 
