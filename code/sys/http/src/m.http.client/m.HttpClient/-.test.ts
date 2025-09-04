@@ -1,6 +1,6 @@
 import { type t, describe, Err, expect, it, Url } from '../../-test.ts';
-import { Cache } from '../m.Http.Cache/mod.ts';
-import { Fetch } from '../m.Http.Fetch/mod.ts';
+import { Cache } from '../m.HttpCache/mod.ts';
+import { Fetch } from '../m.HttpFetch/mod.ts';
 import { Http } from './mod.ts';
 
 describe('Http', () => {

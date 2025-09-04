@@ -1,7 +1,8 @@
 /**
- * HTTP client tools.
  * @module
+ * HTTP client tools.
  */
-export { Fetch } from './m.Http.Fetch/mod.ts';
-export { Cache } from './m.Http.Cache/mod.ts';
 export { Http } from './m.HttpClient/mod.ts';
+
+export { Cache } from './m.HttpCache/mod.ts';
+export { Fetch } from './m.HttpFetch/mod.ts';

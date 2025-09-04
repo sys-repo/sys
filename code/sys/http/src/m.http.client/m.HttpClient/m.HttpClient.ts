@@ -1,5 +1,5 @@
-import { Cache } from '../m.Http.Cache/mod.ts';
-import { Fetch } from '../m.Http.Fetch/mod.ts';
+import { Cache } from '../m.HttpCache/mod.ts';
+import { Fetch } from '../m.HttpFetch/mod.ts';
 
 import { type t, Url } from './common.ts';
 import { toError, toHeaders, toResponse, toUint8Array } from './u.ts';
