@@ -1,4 +1,4 @@
-import { Http } from '@sys/http';
+import { Http } from '@sys/http/client';
 import { useEffect, useRef, useState } from 'react';
 import { type t, Err } from './common.ts';
 
