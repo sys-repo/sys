@@ -1,5 +1,4 @@
 /**
- * HTTP Server
- * @module
+ * @module HttpServer
  */
 export { HttpServer } from './m.Server.ts';
