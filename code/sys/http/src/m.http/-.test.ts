@@ -15,5 +15,6 @@ describe(`Http (universal)`, () => {
   it('Http (lib)', () => {
     expect(Http.Client).to.equal(HttpClient);
     expect(Http.Server).to.equal(HttpServer);
+    expect(Http.client).to.equal(Fetch.make);
   });
 });
