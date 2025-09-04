@@ -26,12 +26,14 @@ export function toHeaders(input?: Headers | HeadersInit): t.HttpHeaders {
  * Convert a web `Response` into the standard client HTTP error object.
  */
 export function toError(res: Response): t.HttpError | undefined {
-  const { status } = res;
+  const status = res.status;
   if (Is.statusOK(status)) return undefined;
+
   const statusText = String(res.statusText).trim();
   const headers = toHeaders(res.headers);
   const name = 'HttpError';
   const msg = `${status} ${statusText || 'HTTP Error'}`;
+
   return { ...Err.std(msg, { name }), status, statusText, headers };
 }
 
