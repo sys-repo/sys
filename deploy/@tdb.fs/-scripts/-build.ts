@@ -1,5 +1,5 @@
 import { buildAndCopyAll, copyPublic } from './-build.u.ts';
-import { Fs, pkg, Pkg, Tmpl } from './common.ts';
+import { Fs, pkg, Pkg, TmplEngine } from './common.ts';
 
 await Fs.remove('dist');
 
@@ -21,7 +21,7 @@ await buildAndCopyAll([
 await copyPublic('public', 'dist');
 
 // Write entry HTML.
-const tmpl = Tmpl.from('src/-tmpl');
+const tmpl = TmplEngine.makeTmpl('src/-tmpl');
 await tmpl.write('dist');
 
 /**
@@ -31,7 +31,7 @@ await Fs.remove('dist/dist.json');
 const dist = (await Pkg.Dist.compute({ dir: 'dist', pkg, save: true, builder: pkg })).dist;
 
 // Write version-hash into root HTML.
-await Tmpl.File.update(Fs.join('dist/index.html'), (line) => {
+await TmplEngine.File.update(Fs.join('dist/index.html'), (line) => {
   if (line.text.includes('<a href="./dist.json">')) {
     const hash = dist.hash.digest ?? '00000';
     const hx = `#${hash.slice(-5)}`;
