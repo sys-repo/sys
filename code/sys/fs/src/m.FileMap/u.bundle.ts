@@ -13,24 +13,15 @@ export const bundle: F = async (sourceDir, opt) => {
   let fileMap = await toMap(sourceDir, { filter });
   let modified = false;
 
+  // Run pre-write checks.
+  if (Is.func(beforeWrite)) {
+    const result = runBeforeWrite(fileMap, file, beforeWrite);
+    fileMap = result.fileMap;
+    modified = result.modified;
+  }
+
   // Write to disk.
   await Fs.writeJson(file, fileMap, { throw: true });
-  if (Is.func(beforeWrite)) {
-    const clone = { ...fileMap };
-    beforeWrite({
-      file,
-      get fileMap() {
-        return clone;
-      },
-      modify(next) {
-        if (!FileMapIs.fileMap(next)) {
-          throw new Error(`The given modified file-map value is not valid: ${next}`);
-        }
-        fileMap = { ...next };
-        modified = true;
-      },
-    });
-  }
 
   /**
    * API:
@@ -55,3 +46,23 @@ const wrangle = {
     return input;
   },
 } as const;
+
+function runBeforeWrite(fileMap: t.FileMap, file: t.StringPath, fn: t.FileMapBundleBeforeWrite) {
+  let modified = false;
+  const clone = { ...fileMap };
+  fn({
+    file,
+    get fileMap() {
+      return clone;
+    },
+    modify(next) {
+      if (!FileMapIs.fileMap(next)) {
+        throw new Error(`The given modified file-map value is not valid: ${next}`);
+      }
+      fileMap = { ...next };
+      modified = true;
+    },
+  });
+
+  return { fileMap, modified } as const;
+}

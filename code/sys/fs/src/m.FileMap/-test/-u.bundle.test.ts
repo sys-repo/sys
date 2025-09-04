@@ -136,6 +136,12 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
       // Modifications to keys make:
       expect(Object.keys(b.fileMap).every((key) => key.startsWith('foo-'))).to.be.true;
       expect(Object.values(a.fileMap)).to.eql(Object.values(b.fileMap));
+
+      // Sanity check the written file:
+      const jsonA = (await Fs.readJson<t.FileMap>(out1)).data!;
+      const jsonB = (await Fs.readJson<t.FileMap>(out2)).data!;
+      expect(Object.keys(jsonA).every((key) => key.startsWith('foo-'))).to.be.false;
+      expect(Object.keys(jsonB).every((key) => key.startsWith('foo-'))).to.be.true;
     });
 
     it('throws if invalid FileMap object is passed to modify', async () => {
