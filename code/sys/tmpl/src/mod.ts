@@ -10,7 +10,7 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export { cli, makeTmpl } from './m.tmpl/mod.ts';
+export { cli } from './m.tmpl/mod.ts';
 export { pkg };
 
 /**

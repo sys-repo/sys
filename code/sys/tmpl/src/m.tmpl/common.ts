@@ -9,7 +9,7 @@ export { Args, c, Cli, Fs, Path, TmplEngine };
  * Constants:
  */
 export const PATHS = {
-  templates: '../../-tmpl/',
+  templates: '-tmpl/',
   json: 'src/m.tmpl/-bundle.json',
 } as const;
 

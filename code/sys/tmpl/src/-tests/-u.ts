@@ -1,4 +1,4 @@
-import { type t, Fs, Templates, makeTmpl } from './common.ts';
+import { type t, Fs, Templates, makeTmpl } from '../-test.ts';
 
 type StringDirname = string;
 

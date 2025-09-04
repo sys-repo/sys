@@ -1,5 +1,5 @@
 import { makeWorkspaceWithPkg } from './-u.ts';
-import { type t, c, describe, expect, it, Fs, makeTmpl, Templates, TmplEngine } from './common.ts';
+import { type t, c, describe, expect, it, Fs, makeTmpl, Templates, TmplEngine } from '../-test.ts';
 
 describe('Template: m.mod.ui', () => {
   it('run', async () => {
@@ -13,7 +13,6 @@ describe('Template: m.mod.ui', () => {
     const tmpl = await makeTmpl(name);
 
     // write → init (CLI flow) into /src/ui/<Component>
-    // const componentName = 'Button';
     const targetDir = Fs.join(test.pkgDir, `src/ui/Button`);
     const res = await tmpl.write(targetDir);
     await def.default(res.dir.target, { name: 'Button' });

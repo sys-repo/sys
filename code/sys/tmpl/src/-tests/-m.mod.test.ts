@@ -1,5 +1,5 @@
 import { makeWorkspaceWithPkg } from './-u.ts';
-import { type t, c, describe, expect, Fs, it, makeTmpl, Templates, TmplEngine } from './common.ts';
+import { type t, c, describe, expect, Fs, it, makeTmpl, Templates, TmplEngine } from '../-test.ts';
 
 describe('Template: m.mod', () => {
   it('run', async () => {

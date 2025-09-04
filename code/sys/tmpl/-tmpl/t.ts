@@ -11,7 +11,7 @@ export type * from '@sys/types/t';
 /**
  * @local
  */
-export type { TemplateName } from './m.Templates.ts';
+// export type { TemplateName } from './m.Templates.ts';
 
 /**
  * @templates
