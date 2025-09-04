@@ -1,5 +1,5 @@
 export * from '../common.ts';
-export { Http } from '../m.client/mod.ts';
+export { Http } from '../m.http.client/mod.ts';
 
 /**
  * Server
