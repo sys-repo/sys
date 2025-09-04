@@ -5,7 +5,7 @@ type O = Record<string, unknown>;
  * HTTP tools.
  * @module
  */
-export type HttpLib = {
+export type HttpClientLib = {
   /**
    * Tools for working with the `fetch` function in system/standard ways.
    */

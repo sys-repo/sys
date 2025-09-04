@@ -1,14 +1,13 @@
-import type { HttpLib } from './t.ts';
-
-import { Fetch } from '../m.Http.Fetch/mod.ts';
-import { Url } from './common.ts';
-import { toError, toHeaders, toResponse, toUint8Array } from './u.ts';
 import { Cache } from '../m.Http.Cache/mod.ts';
+import { Fetch } from '../m.Http.Fetch/mod.ts';
+
+import { type t, Url } from './common.ts';
+import { toError, toHeaders, toResponse, toUint8Array } from './u.ts';
 
 /**
  * Http fetch helper.
  */
-export const Http: HttpLib = {
+export const Http: t.HttpClientLib = {
   Fetch,
   Cache,
   Url,
