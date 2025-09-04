@@ -30,6 +30,14 @@ export type PathLib = {
   /** Return the relative path based on current working directory. */
   relative: typeof StdPath.relative;
 
+  /**
+   * Return a relative POSIX path:
+   *   - convert "\" → "/"
+   *   - strip any leading slashes
+   * NOTE: intentionally does NOT collapse "."/".." segments.
+   */
+  relativePosix(input: string): string;
+
   /** Normalize the path, resolving '..' and '.' segments. */
   normalize: typeof StdPath.normalize;
 
