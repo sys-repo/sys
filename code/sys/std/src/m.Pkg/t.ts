@@ -66,7 +66,7 @@ export type PkgIsLib = {
  */
 export type PkgDistLib = {
   /** HTTP fetch the `dist.json` file. */
-  fetch(options?: t.PkgDistFetchOptions): Promise<PkgDistFetchResponse>;
+  fetch(options?: t.PkgDistFetchOptions | t.StringUrl): Promise<PkgDistFetchResponse>;
 
   /** Boolean checks */
   readonly Is: {
@@ -87,6 +87,7 @@ export type PkgDistFetchOptions = {
 export type PkgDistFetchResponse = {
   readonly ok: boolean;
   readonly status: number;
+  readonly href: t.StringUrl;
   readonly dist?: t.DistPkg;
   readonly error?: t.StdError;
 };
