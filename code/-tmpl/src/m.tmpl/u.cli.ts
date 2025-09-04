@@ -18,9 +18,9 @@ export async function cli(opts: Options = {}): Promise<void> {
    * Context:
    */
   const cwd = Fs.cwd('terminal');
-  const tree = await Fs.Fmt.treeFromDir(cwd, { maxDepth: 1, indent: 1 });
-  console.info(c.gray(`${c.green('Current:')} ${Cli.Fmt.Path.str(`${cwd}/`)}`), '\n');
-  console.info(c.gray(tree));
+  console.info(c.gray(`${c.green('Current:')} ${Cli.Fmt.Path.str(`${cwd}/`)}`));
+  // const tree = await Fs.Fmt.treeFromDir(cwd, { maxDepth: 1, indent: 1 });
+  // console.info(c.gray(tree));
 
   /**
    * Derive template name:
