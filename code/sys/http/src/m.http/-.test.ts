@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { Cache, Fetch, Http, HttpClient, HttpServer } from './mod.ts';
+import { Cache, Fetch, Http, HttpClient, HttpPull, HttpServer } from './mod.ts';
 
 describe(`Http (universal)`, () => {
   it('API', async () => {
@@ -8,13 +8,15 @@ describe(`Http (universal)`, () => {
     expect(m.Http).to.equal(Http);
     expect(m.HttpClient).to.equal(HttpClient);
     expect(m.HttpServer).to.equal(HttpServer);
+    expect(m.HttpPull).to.equal(HttpPull);
     expect(m.Fetch).to.equal(Fetch);
     expect(m.Cache).to.equal(Cache);
   });
 
   it('Http (lib)', () => {
+    expect(Http.client).to.equal(Fetch.make);
     expect(Http.Client).to.equal(HttpClient);
     expect(Http.Server).to.equal(HttpServer);
-    expect(Http.client).to.equal(Fetch.make);
+    expect(Http.Pull).to.equal(HttpPull);
   });
 });

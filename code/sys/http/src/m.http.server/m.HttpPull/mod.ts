@@ -8,4 +8,4 @@
  *
  * Use when you need to "mirror" or "rebase" a set of HTTP assets into the filesystem.
  */
-import type { t } from './common.ts';
+export { HttpPull } from './m.HttpPull.ts';
