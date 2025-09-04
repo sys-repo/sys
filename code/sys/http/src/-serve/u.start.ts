@@ -3,8 +3,7 @@ import { type t, HttpServer, Pkg, pkg } from './common.ts';
 /**
  * Run a local HTTP server from entry command-args.
  */
-export async function start(args: t.HttpEntryArgsStart) {
-  if (args.cmd !== 'start') return;
+export async function start(args: t.HttpServeInput) {
   const { port = 8080, dir = 'dist' } = args;
 
   const dist = (await Pkg.Dist.load(dir)).dist;
@@ -19,7 +18,7 @@ export async function start(args: t.HttpEntryArgsStart) {
 }
 
 /**
- * Helpers
+ * Helpers: F
  */
 const wrangle = {
   pkg(dist?: t.DistPkg) {

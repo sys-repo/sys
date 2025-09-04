@@ -10,7 +10,7 @@ export async function keyboard(args: {
   dispose?: () => Promise<void>;
 }) {
   if (args.print) {
-    const table = Cli.table(['Keyboard']);
+    const table = Cli.table([c.bold(c.gray('Keyboard:'))]);
     const push = (description: string, keyCommand: string) => {
       description = c.gray(` ${description}`);
       table.push([description, keyCommand]);

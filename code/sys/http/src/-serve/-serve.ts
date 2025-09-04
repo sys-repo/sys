@@ -7,10 +7,10 @@
  * ```
  */
 import { type t, Args, Str } from './common.ts';
-import { Entry } from './mod.ts';
+// import { Entry } from './mod.ts';
 
-const args = Args.parse<t.HttpEntryArgsStart>(Deno.args);
+const args = Args.parse<t.HttpServeInput>(Deno.args);
 
 console.info(Str.SPACE);
-await Entry.start({ ...args, cmd: 'start' });
+// await Entry.start({ ...args, cmd: 'start' });
 Deno.exit(0);

@@ -15,6 +15,6 @@
     "./types": "./src/types.ts",
     "./client": "./src/m.http.client/mod.ts",
     "./server": "./src/m.http.server/mod.ts",
-    "./serve": "./src/-entry/-serve.ts"
+    "./serve": "./src/-serve/mod.ts"
   }
 }
