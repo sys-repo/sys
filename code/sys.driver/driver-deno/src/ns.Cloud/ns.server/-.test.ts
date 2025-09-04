@@ -1,6 +1,5 @@
-import { type t, describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it, testSetup } from '../-test.ts';
 import { Http, pkg } from './common.ts';
-import { testSetup } from '../-test.ts';
 
 describe('DenoCloud (Server)', () => {
   it('server: start → req/res → dispose', async () => {
