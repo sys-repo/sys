@@ -1,7 +1,7 @@
-import { type t, describe, expect, it } from '../-test.ts';
-import { slug } from '../m.Random/mod.ts';
-import { Testing } from '../m.Testing.Server/mod.ts';
-import { Dist, Pkg } from './mod.ts';
+import { type t, expectError, describe, expect, it } from '../../-test.ts';
+import { slug } from '../../m.Random/mod.ts';
+import { Testing } from '../../m.Testing.Server/mod.ts';
+import { Dist, Pkg } from '../mod.ts';
 
 describe('Pkg.Dist', () => {
   it('API', () => {
@@ -41,6 +41,25 @@ describe('Pkg.Dist', () => {
       return { server, dist, origin };
     };
 
+    describe('construct from URL', () => {
+      it('200: success', async () => {
+        const { server, dist } = testSetup();
+        const href = server.url.href + 'dist.json';
+        const res = await Pkg.Dist.fetch(href);
+        await server.dispose();
+
+        expect(res.status).to.eql(200);
+        expect(res.dist).to.eql(dist);
+        expect(res.error).to.eql(undefined);
+        expect(res.href).to.eql(href);
+      });
+
+      it('throw: invalid-url', async () => {
+        const href = 'http://:invalid';
+        await expectError(() => Pkg.Dist.fetch(href), `Failed to parse DistPkg url "${href}"`);
+      });
+    });
+
     it('200: fetches ./dist.json', async () => {
       const { server, origin, dist } = testSetup();
       const res = await Pkg.Dist.fetch({ origin });
@@ -50,6 +69,7 @@ describe('Pkg.Dist', () => {
       expect(res.status).to.eql(200);
       expect(res.dist).to.eql(dist);
       expect(res.error).to.eql(undefined);
+      expect(res.href).to.eql(server.url.href + 'dist.json'); // ← default URL path.
     });
 
     it('404: not found', async () => {
@@ -62,6 +82,20 @@ describe('Pkg.Dist', () => {
       expect(res.dist).to.eql(undefined);
       expect(res.error?.message).to.include('Failed while loading');
       expect(res.error?.message).to.include('/foo.json');
+    });
+
+    it('href on {response}', async () => {
+      const { server, origin } = testSetup();
+      const pathname = 'foo/bar/dist.json';
+      const a = await Pkg.Dist.fetch({ origin });
+      const b = await Pkg.Dist.fetch({ origin, pathname });
+      await server.dispose();
+
+      expect(a.status).to.eql(200);
+      expect(b.status).to.eql(404);
+
+      expect(a.href).to.eql(server.url.href + `dist.json`);
+      expect(b.href).to.eql(server.url.href + pathname);
     });
   });
 

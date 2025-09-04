@@ -1,6 +1,6 @@
-import { type t, describe, expect, it, pkg } from '../-test.ts';
-import { DEFAULTS } from './common.ts';
-import { Pkg } from './mod.ts';
+import { type t, describe, expect, it, pkg } from '../../-test.ts';
+import { DEFAULTS } from '../common.ts';
+import { Pkg } from '../mod.ts';
 
 describe('Pkg', () => {
   describe('Pkg.toString', () => {
