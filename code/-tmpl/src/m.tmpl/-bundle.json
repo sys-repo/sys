@@ -47,5 +47,6 @@
   "workspace/.gitignore": "data:text/plain;base64,LkRTX1N0b3JlCgoudG1wCi5lbnYKLmVudi4qCgpkaXN0CmRpc3QuKgpub2RlX21vZHVsZXMK",
   "workspace/.tmpl.ts": "data:application/typescript;base64,aW1wb3J0IHsgdHlwZSB0LCBGcyB9IGZyb20gJy4uL2NvbW1vbi50cyc7CgovKioKICogU2V0dXAgdGhlIHRlbXBsYXRlIChhZnRlciBjb3B5KToKICovCmV4cG9ydCBkZWZhdWx0IGFzeW5jIGZ1bmN0aW9uIHNldHVwKGRpcjogdC5TdHJpbmdBYnNvbHV0ZURpcikgewogIC8qKgogICAqIENsZWFuIHVwIGZpbGVuYW1lczoKICAgKi8KICBhd2FpdCBGcy5tb3ZlKEZzLmpvaW4oZGlyLCAnLWRlbm8uanNvbicpLCBGcy5qb2luKGRpciwgJ2Rlbm8uanNvbicpKTsKfQo=",
   "workspace/.vscode/settings.json": "data:application/json;base64,ewogICJkZW5vLmVuYWJsZSI6IHRydWUsCiAgImRlbm8ubGludCI6IGZhbHNlLAogICJkZW5vLnVuc3RhYmxlIjogW10sCgogICJzZWFyY2guZXhjbHVkZSI6IHsKICAgICIqKi9ub2RlX21vZHVsZXMiOiB0cnVlLAogICAgIioqL2Rpc3QiOiB0cnVlLAogICAgIi10bXAiOiB0cnVlCiAgfQp9Cg==",
-  "workspace/README.md": "data:text/markdown;base64,IyBXb3Jrc3BhY2UK"
+  "workspace/README.md": "data:text/markdown;base64,IyBXb3Jrc3BhY2UK",
+  "workspace/code/README.md": "data:text/markdown;base64,IyBDb2RlIE1vZHVsZQo="
 }
