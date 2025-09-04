@@ -5,7 +5,7 @@ import { testSetup } from '../-test.ts';
 describe('DenoCloud (Server)', () => {
   it('server: start → req/res → dispose', async () => {
     const test = testSetup();
-    const fetch = Http.fetch();
+    const fetch = Http.fetcher();
 
     const res = await fetch.json<t.RootResponse>(test.url.toString());
     expect(res.status).to.eql(200);
