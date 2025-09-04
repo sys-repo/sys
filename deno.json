@@ -42,7 +42,6 @@
 
     "code/sys/http",
     "code/sys/text",
-    "code/sys/tmpl",
     "code/sys/tmpl-engine",
     "code/sys/cmd",
     "code/sys/schema",
@@ -71,6 +70,7 @@
     "deploy/api.db.team",
     "deploy/tmp.db.team",
 
+    "code/-tmpl",
     "code/-sample/@sample.tmp"
   ],
   "lint": {
