@@ -12,7 +12,7 @@ export type HttpPullLib = {
     urls: readonly string[],
     dir: t.StringDir,
     options?: HttpPullOptions,
-  ): Promise<readonly HttpPullRecord[]>;
+  ): Promise<t.HttpPullToDirResult>;
 
   /**
    * Same as `toDir`, but yields progress events.
@@ -21,6 +21,12 @@ export type HttpPullLib = {
 
   /** Pure mapping helpers. (No I/O) */
   readonly Map: HttpPullMapLib;
+};
+
+/** Response from `HttpPull.toDir` method */
+export type HttpPullToDirResult = {
+  readonly ok: boolean;
+  readonly ops: readonly t.HttpPullRecord[];
 };
 
 /**

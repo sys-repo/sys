@@ -6,9 +6,11 @@ export const toDir: t.HttpPullLib['toDir'] = async (urls, dir, opts = {}) => {
   const client = opts.client ?? HttpClient.fetcher();
   const concurrency = Math.max(1, opts?.concurrency ?? 8);
   const lim = semaphore(concurrency);
+
   const tasks = urls.map((url) => lim(() => pullOne(url, dir, client, opts?.map)));
-  const results = await Promise.all(tasks);
-  return results as readonly t.HttpPullRecord[];
+  const ops = await Promise.all(tasks);
+  const ok = ops.every((op) => op.ok);
+  return { ok, ops };
 };
 
 /**
