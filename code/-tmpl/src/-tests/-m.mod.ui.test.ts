@@ -7,7 +7,6 @@ describe('Template: m.mod.ui', () => {
      * Workspace + pkg scaffold (pkg.deno already applied):
      */
     const test = await makeWorkspaceWithPkg('ns', 'my-module', '@my-scope/foo');
-
     const name: t.TemplateName = 'm.mod.ui';
     const def = await Templates[name]();
     const tmpl = await makeTmpl(name);

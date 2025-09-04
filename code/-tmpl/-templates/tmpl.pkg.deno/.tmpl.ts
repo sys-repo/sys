@@ -37,7 +37,13 @@ export default async function setup(dir: t.StringAbsoluteDir, options: { pkgName
 
   await TmplEngine.File.update(monorepo.path, (line) => {
     if (line.text.includes('"workspace": [')) {
-      line.insert(`    "${pkgDir}",`, 'after');
+      if (line.text.includes(': []')) {
+        line.modify(`  "workspace": [`);
+        line.insert(`    "${pkgDir}"`, 'after');
+        line.insert(`  ]`, 'after');
+      } else {
+        line.insert(`    "${pkgDir}",`, 'after');
+      }
     }
   });
 }

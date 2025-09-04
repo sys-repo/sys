@@ -6,7 +6,7 @@ describe('Template: monorepo (workspace)', () => {
     /**
      * Template setup:
      */
-    const test = await makeWorkspace('ns', 'my-module');
+    const test = await makeWorkspace();
     logTemplate('workspace', test.write.result);
 
     const ls = await test.ls();
