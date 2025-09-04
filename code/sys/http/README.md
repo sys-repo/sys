@@ -22,7 +22,7 @@ Fetch tools:
 ```ts
 import { Http } from 'jsr:@sys/http/client';
 
-const fetch = Http.Fetch.create({ accessToken: 'my-jwt' });
+const fetch = Http.Fetch.make({ accessToken: 'my-jwt' });
 const fetch = Http.fetch();  // ← shorthand alternative.
 
 const url = 'https://url.com/api';

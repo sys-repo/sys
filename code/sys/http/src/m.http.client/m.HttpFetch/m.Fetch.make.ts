@@ -1,12 +1,12 @@
 import { type t, DEFAULTS, Dispose, Err, Is, rx, toHeaders } from './common.ts';
 
 type RequestInput = RequestInfo | URL;
-type F = t.HttpFetchLib['create'];
+type F = t.HttpFetchLib['make'];
 
 /**
  * Factory method:
  */
-export const create: F = (input: Parameters<F>[0]) => {
+export const makeFetch: F = (input: Parameters<F>[0]) => {
   const options = wrangle.options(input);
   const life = rx.abortable(options.dispose$);
 

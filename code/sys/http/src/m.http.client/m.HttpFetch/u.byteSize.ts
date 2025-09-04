@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { create } from './m.Fetch.create.ts';
+import { makeFetch } from './m.Fetch.make.ts';
 import { isFetch } from './u.is.ts';
 
 /**
@@ -64,7 +64,7 @@ const toInt = (v?: string | null) => (v && /^\d+$/.test(v) ? parseInt(v, 10) : u
 const wrangle = {
   args(args: any[]) {
     const url = args[0] as string;
-    const httpFetch = isFetch(args[1]) ? args[1] : create(args[1]);
+    const httpFetch = isFetch(args[1]) ? args[1] : makeFetch(args[1]);
     return { url, httpFetch } as const;
   },
 } as const;

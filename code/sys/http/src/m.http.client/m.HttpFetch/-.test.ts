@@ -7,7 +7,7 @@ import { Fetch } from './mod.ts';
 describe('Http.Fetch', () => {
   it('API', () => {
     expect(Http.Fetch).to.equal(Fetch);
-    expect(Http.fetch).to.equal(Fetch.create);
+    expect(Http.fetch).to.equal(Fetch.make);
 
     Http.Url;
   });
@@ -66,7 +66,7 @@ describe('Http.Fetch', () => {
         return Testing.Http.json({ foo: 123 });
       });
       const url = server.url.toString();
-      const fetch = Fetch.create();
+      const fetch = Fetch.make();
       expect(fetch.disposed).to.eql(false);
 
       const res = await fetch.json(url);
@@ -88,7 +88,7 @@ describe('Http.Fetch', () => {
         return Testing.Http.text(text);
       });
       const url = server.url.toString();
-      const fetch = Fetch.create();
+      const fetch = Fetch.make();
       const res = await fetch.text(url);
 
       expect(res.ok).to.eql(true);
@@ -108,7 +108,7 @@ describe('Http.Fetch', () => {
         return Testing.Http.blob(dataIn);
       });
       const url = server.url.toString();
-      const fetch = Fetch.create();
+      const fetch = Fetch.make();
 
       const res = await fetch.blob(url);
       const dataOut = new Uint8Array(res.data ? await res.data?.arrayBuffer() : []);
@@ -138,7 +138,7 @@ describe('Http.Fetch', () => {
       });
 
       const url = server.url.toString();
-      const fetch = Fetch.create();
+      const fetch = Fetch.make();
       const res = await fetch.head(url);
 
       expect(res.ok).to.eql(true);
@@ -160,7 +160,7 @@ describe('Http.Fetch', () => {
     it('404: error with headers', async () => {
       const life = rx.disposable();
       const server = Testing.Http.server(() => Testing.Http.error(404, 'Not Found'));
-      const fetch = Fetch.create(life.dispose$);
+      const fetch = Fetch.make(life.dispose$);
 
       const url = server.url.toString();
       const headers = { foo: 'bar' };
@@ -180,7 +180,7 @@ describe('Http.Fetch', () => {
 
     it('520: client error (JSON parse failure)', async () => {
       const server = Testing.Http.server(() => Testing.Http.text('hello'));
-      const fetch = Fetch.create();
+      const fetch = Fetch.make();
 
       const url = server.url.toString();
       const res = await fetch.json(url);
@@ -205,7 +205,7 @@ describe('Http.Fetch', () => {
         return Testing.Http.text('hello');
       });
 
-      const fetch = Fetch.create({ headers: (e) => e.set('x-foo', 123).set('x-bar', 456) });
+      const fetch = Fetch.make({ headers: (e) => e.set('x-foo', 123).set('x-bar', 456) });
       await fetch.text(server.url.toString());
       expect(count).to.eql(1); // NB: server was called.
 
@@ -239,7 +239,7 @@ describe('Http.Fetch', () => {
         return Testing.Http.blob(new Uint8Array([0]));
       });
 
-      const fetch = Fetch.create();
+      const fetch = Fetch.make();
       await fetch.blob(server.url.toString(), { headers: { Range: 'bytes=0-0' } });
       await server.dispose();
     });
@@ -251,7 +251,7 @@ describe('Http.Fetch', () => {
         return Testing.Http.text('✔︎');
       });
 
-      const fetch = Fetch.create();
+      const fetch = Fetch.make();
       await fetch.text(server.url.toString(), {
         headers: { 'content-type': 'application/x-demo' },
       });
@@ -335,7 +335,7 @@ describe('Http.Fetch', () => {
       });
 
       const url = server.url.toString();
-      const fetch = Fetch.create({ headers: (e) => e.set('x-custom', 'demo') });
+      const fetch = Fetch.make({ headers: (e) => e.set('x-custom', 'demo') });
       // NB: ↓ { 'x-custom': 'demo' }.
       const res: R = await Fetch.byteSize(url, fetch);
 
@@ -348,11 +348,11 @@ describe('Http.Fetch', () => {
     it('create: dispose$ param variants', () => {
       const life = rx.disposable();
       const { dispose$ } = life;
-      const a = Fetch.create(life.dispose$);
-      const b = Fetch.create([life.dispose$]);
-      const c = Fetch.create([life.dispose$, undefined]);
-      const d = Fetch.create({ dispose$ });
-      const e = Fetch.create(life);
+      const a = Fetch.make(life.dispose$);
+      const b = Fetch.make([life.dispose$]);
+      const c = Fetch.make([life.dispose$, undefined]);
+      const d = Fetch.make({ dispose$ });
+      const e = Fetch.make(life);
       const all = [a, b, c, d, e];
 
       all.forEach(({ disposed }) => expect(disposed).to.eql(false));
@@ -364,7 +364,7 @@ describe('Http.Fetch', () => {
       const life = rx.disposable();
       const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
       const url = server.url.toString();
-      const fetch = Fetch.create(life.dispose$);
+      const fetch = Fetch.make(life.dispose$);
       expect(fetch.disposed).to.eql(false);
 
       const promise = fetch.json(url);
@@ -386,7 +386,7 @@ describe('Http.Fetch', () => {
 
     it('fetch.dispose', async () => {
       const life = rx.disposable();
-      const fetch = Fetch.create(life.dispose$);
+      const fetch = Fetch.make(life.dispose$);
 
       const fired = { life: 0, fetch: 0 };
       life.dispose$.subscribe(() => fired.life++);

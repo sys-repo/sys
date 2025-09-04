@@ -8,7 +8,7 @@ type RequestInput = RequestInfo | URL;
  */
 export type HttpFetchLib = {
   /** Fetch helper that can cancel fetch operations mid-stream. */
-  create(args?: HttpFetchCreateOptions | t.UntilInput): t.HttpFetch;
+  make(args?: HttpFetchCreateOptions | t.UntilInput): t.HttpFetch;
 
   /** Probe header information to retrieve the byte-size of an HTTP resource. */
   byteSize(url: t.StringUrl, fetch: t.HttpFetch): Promise<ByteSizeResult>;
