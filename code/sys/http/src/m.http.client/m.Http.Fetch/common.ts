@@ -1,5 +1,5 @@
 export * from '../common.ts';
-export { toHeaders } from '../m.Http/u.ts';
+export { toHeaders } from '../m.HttpClient/u.ts';
 
 export const DEFAULTS = {
   contentType: 'application/json',

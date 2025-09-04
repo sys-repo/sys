@@ -3,11 +3,10 @@
  * @module
  */
 export { pkg } from './pkg.ts';
-
 /** Module types. */
 export type * as t from './types.ts';
 
 /**
- * Library
+ * Library:
  */
-export { Http, Fetch } from './m.http.client/m.Http/mod.ts';
+export { Fetch, Http } from './m.http.client/m.HttpClient/mod.ts';
