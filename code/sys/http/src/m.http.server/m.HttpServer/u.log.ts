@@ -20,17 +20,17 @@ export const print: t.HttpServerLib['print'] = (options) => {
     const version = c.gray(`${pkg.version}`);
 
     const table = Cli.table([]);
+
     table.push([c.gray('Module:'), `${mod} ${version}`]);
 
+    if (dir) {
+      table.push([c.gray('Public:'), c.gray(`${dir}/`)]);
+    }
     if (hx) table.push(['', integrity, c.gray(`${c.dim('←')} dist/dist.json`)]);
     if (requestedPort && requestedPort !== addr.port) {
       table.push(['', host, c.gray(`${c.dim('←')} port ${requestedPort} already in use`)]);
     } else {
       table.push(['', host]);
-    }
-
-    if (dir) {
-      table.push([c.gray('Pathname:'), c.gray(`/${dir}/`)]);
     }
 
     console.info(table.toString().trim());

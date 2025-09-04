@@ -1,9 +1,7 @@
-import type { HttpEntryLib } from './t.ts';
-
 import { type t, Args } from './common.ts';
 import { start } from './u.start.ts';
 
-export const Entry: HttpEntryLib = {
+export const Entry: t.HttpEntryLib = {
   start,
   async entry(input) {
     const args = wrangle.args(input ?? Deno.args);
@@ -12,7 +10,7 @@ export const Entry: HttpEntryLib = {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   args(argv: string[] | t.HttpEntryArgs) {
