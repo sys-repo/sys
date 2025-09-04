@@ -8,6 +8,11 @@ export type HttpPullLib = {
    * Download a list of URLs into `dir`.
    * Path mapping uses `Map.urlToPath` with `options.map` rules.
    */
+  toDir(
+    urls: readonly string[],
+    dir: t.StringDir,
+    options?: HttpPullOptions,
+  ): Promise<readonly HttpPullRecord[]>;
 
   /**
    * Same as `toDir`, but yields progress events.
@@ -22,8 +27,10 @@ export type HttpPullLib = {
  * Result per URL.
  */
 export type HttpPullRecord = {
-  readonly source: t.StringUrl;
-  readonly target: t.StringPath;
+  readonly path: {
+    readonly source: t.StringUrl;
+    readonly target: t.StringPath;
+  };
   readonly ok: boolean;
   readonly status?: t.HttpStatusCode;
   readonly bytes?: t.NumberBytes;

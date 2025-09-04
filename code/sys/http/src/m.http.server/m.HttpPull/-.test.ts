@@ -1,9 +1,50 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, Fs, it, Path, Testing } from '../../-test.ts';
+import { HttpPull } from './mod.ts';
 import { PullMap } from './u.Map.ts';
 
 const U = (s: string) => new URL(s);
 
 describe(`HttpPull`, () => {
+  it('API', () => {
+    expect(HttpPull.Map).to.equal(PullMap);
+  });
+
+  describe.only('toDir', () => {
+    it('downloads a single URL to dir (rebase via relativeTo)', async () => {
+      const body = 'hello-world';
+      const server = Testing.Http.server((req) => Testing.Http.text(req, body));
+
+      const url = server.url.join('path/sample', 'hello.txt');
+      const tmp = await Fs.makeTempDir({ prefix: 'http-pull-' });
+      const outDir = tmp.absolute;
+
+      const res = await HttpPull.toDir([url], outDir, {
+        map: { relativeTo: '/path/sample' },
+        concurrency: 2,
+      });
+
+      expect(res.length).to.eql(1);
+      const r = res[0];
+
+      expect(r.ok).to.eql(true);
+      expect(r.status).to.eql(200);
+      expect(r.path.source).to.eql(url);
+      expect(r.path.target.endsWith('hello.txt')).to.eql(true);
+      expect(r.bytes).to.eql(body.length);
+
+      // Read text payload from result wrapper:
+      const written = await Fs.readText(r.path.target);
+      expect(written.ok).to.eql(true);
+      expect(written.exists).to.eql(true);
+      expect(written.data).to.eql(body);
+
+      const expectedPath = Path.join(outDir, 'hello.txt');
+      expect(r.path.target).to.eql(expectedPath);
+
+      await server.dispose();
+    });
+  });
+
   describe('Map', () => {
     describe('urlToPath', () => {
       it('mirrors pathname by default (no leading slash)', () => {
