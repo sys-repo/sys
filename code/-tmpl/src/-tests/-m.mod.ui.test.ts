@@ -1,5 +1,5 @@
-import { makeWorkspaceWithPkg } from './-u.ts';
-import { type t, c, describe, expect, it, Fs, makeTmpl, Templates, TmplEngine } from '../-test.ts';
+import { type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
+import { logTemplate, makeWorkspaceWithPkg } from './u.ts';
 
 describe('Template: m.mod.ui', () => {
   it('run', async () => {
@@ -12,15 +12,11 @@ describe('Template: m.mod.ui', () => {
     const def = await Templates[name]();
     const tmpl = await makeTmpl(name);
 
-    // write → init (CLI flow) into /src/ui/<Component>
+    // Write → init (CLI flow) into /src/ui/<Component>
     const targetDir = Fs.join(test.pkgDir, `src/ui/Button`);
     const res = await tmpl.write(targetDir);
     await def.default(res.dir.target, { name: 'Button' });
-
-    console.info(c.brightCyan(`Template: ${name}`));
-    console.info();
-    console.info(TmplEngine.Log.table(res.ops));
-    console.info();
+    logTemplate('m.mod.ui', res);
 
     const ls = await test.ls();
     const includes = (endsWith: t.StringPath) => !!ls.find((p: string) => p.endsWith(endsWith));

@@ -12,11 +12,13 @@ export async function makeBundle() {
   // NOTE: in the monorepo `-tmpl/*` folder the actual template folders
   //       are prefixed with '-tmpl/tmpl.<name>` naming format.
   const filter: t.FileMapFilter = (e) => e.path.startsWith(PREFIX);
-  await TmplEngine.bundle(src, {
+  const res = await TmplEngine.bundle(src, {
     targetFile,
     filter,
     beforeWrite: (e) => e.modify(stripPrefix(e.fileMap)),
   });
+
+  console.info(TmplEngine.Log.bundled(res));
 }
 
 /**

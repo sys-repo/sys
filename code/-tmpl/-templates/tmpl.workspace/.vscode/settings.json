@@ -1,0 +1,11 @@
+{
+  "deno.enable": true,
+  "deno.lint": false,
+  "deno.unstable": [],
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "-tmp": true
+  }
+}

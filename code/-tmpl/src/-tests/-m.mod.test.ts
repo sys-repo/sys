@@ -1,5 +1,5 @@
-import { makeWorkspaceWithPkg } from './-u.ts';
-import { type t, c, describe, expect, Fs, it, makeTmpl, Templates, TmplEngine } from '../-test.ts';
+import { type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
+import { logTemplate, makeWorkspaceWithPkg } from './u.ts';
 
 describe('Template: m.mod', () => {
   it('run', async () => {
@@ -7,25 +7,17 @@ describe('Template: m.mod', () => {
      * Workspace + pkg scaffold (pkg.deno already applied):
      */
     const test = await makeWorkspaceWithPkg('ns', 'my-module', '@my-scope/foo');
+    const srcDir = Fs.join(test.pkgDir, 'src');
 
     const name: t.TemplateName = 'm.mod';
     const def = await Templates[name]();
     const tmpl = await makeTmpl(name);
 
-    // minimal preconditions for initializer
-    const srcDir = Fs.join(test.pkgDir, 'src');
-    await Fs.ensureDir(srcDir);
-    await Fs.write(Fs.join(srcDir, 'types.ts'), '// types\n', { force: true });
-
-    // write → init (CLI flow)
+    // Write → init (CLI flow)
     const targetDir = Fs.join(test.pkgDir, 'src/m.MyModule');
     const res = await tmpl.write(targetDir);
     await def.default(res.dir.target);
-
-    console.info(c.brightCyan(`Template: ${name}`));
-    console.info();
-    console.info(TmplEngine.Log.table(res.ops));
-    console.info();
+    logTemplate('m.mod', res);
 
     const ls = await test.ls();
     const includes = (endsWith: t.StringPath) => !!ls.find((p) => p.endsWith(endsWith));

@@ -1,23 +1,20 @@
-import { makeSampleMonorepo } from './-u.ts';
-import { type t, c, describe, expect, Fs, it, makeTmpl, Templates, TmplEngine } from '../-test.ts';
+import { type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
+import { logTemplate, makeWorkspace } from './u.ts';
 
 describe('Template: pkg.deno', () => {
   it('run', async () => {
     /**
      * Template setup:
      */
-    const test = await makeSampleMonorepo('ns', 'my-module');
+    const test = await makeWorkspace('ns', 'my-module');
     const name: t.TemplateName = 'pkg.deno';
     const def = await Templates[name]();
     const tmpl = await makeTmpl(name);
 
+    // Write → init (CLI flow)
     const res = await tmpl.write(test.pkgDir);
     await def.default(test.pkgDir, { pkgName: '@my-scope/foo' });
-
-    console.info(c.brightCyan(`Template: ${name}`));
-    console.info();
-    console.info(TmplEngine.Log.table(res.ops));
-    console.info();
+    logTemplate('pkg.deno', res);
 
     const ls = await test.ls();
     const includes = (endsWith: t.StringPath) => !!ls.find((p) => p.endsWith(endsWith));
