@@ -6,4 +6,4 @@
  *  - HTTP Working Group (HTTP-WG).
  */
 export { Fetch } from '../m.HttpFetch/mod.ts';
-export { Http } from './m.HttpClient.ts';
+export { Http, HttpClient } from './m.HttpClient.ts';

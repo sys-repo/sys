@@ -7,7 +7,7 @@ import { toError, toHeaders, toResponse, toUint8Array } from './u.ts';
 /**
  * Http fetch helper.
  */
-export const Http: t.HttpClientLib = {
+export const HttpClient: t.HttpClientLib = {
   Fetch,
   Cache,
   Url,
@@ -20,3 +20,6 @@ export const Http: t.HttpClientLib = {
   toError,
   toUint8Array,
 } as const;
+
+/** Alias to the `HttpClient` */
+export const Http = HttpClient;
