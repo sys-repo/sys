@@ -1,5 +1,5 @@
 import { type t, Fs, HttpClient, Path } from './common.ts';
-import { PullMap } from './u.Map.ts';
+import { PullMap } from './u.map.ts';
 import { sanitizeForFilename, semaphore } from './u.ts';
 
 export const toDir: t.HttpPullLib['toDir'] = async (urls, dir, opts = {}) => {

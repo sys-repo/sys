@@ -13,7 +13,7 @@ await clear('./.tmp');
  */
 const client = Http.client();
 const url = 'https://fs.db.team/sys/driver.monaco/dist.json';
-const dir = './.tmp/pulled';
+const dir = './.tmp/foo';
 
 /**
  * Pull locally (toDir):

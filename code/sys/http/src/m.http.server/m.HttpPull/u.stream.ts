@@ -1,6 +1,6 @@
 import { type t, Fs, HttpClient, Path } from './common.ts';
 
-import { PullMap } from './u.Map.ts';
+import { PullMap } from './u.map.ts';
 import { makeEventQueue, sanitizeForFilename, semaphore } from './u.ts';
 
 /**
