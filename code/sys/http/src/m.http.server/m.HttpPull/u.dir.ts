@@ -1,6 +1,6 @@
 import { type t, Fs, HttpClient, Path } from './common.ts';
 import { PullMap } from './u.map.ts';
-import { sanitizeForFilename, semaphore } from './u.ts';
+import { sanitizeForFilename, resolveTarget, semaphore } from './u.ts';
 
 export const toDir: t.HttpPullLib['toDir'] = async (urls, dir, opts = {}) => {
   const client = opts.client ?? HttpClient.fetcher();
@@ -67,7 +67,7 @@ async function pullOne(
     };
   } catch (err) {
     // Any unexpected failure during fetch/write.
-    const fallback = target ?? Fs.join(dir, PullMap.urlToPath(u));
+    const fallback = target ?? resolveTarget(url, dir, map);
     return {
       ok: false,
       path: { source: url, target: fallback },

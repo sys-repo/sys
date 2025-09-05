@@ -47,10 +47,7 @@ export type HttpPullToDirResult = {
  * Result per URL.
  */
 export type HttpPullRecord = {
-  readonly path: {
-    readonly source: t.StringUrl;
-    readonly target: t.StringPath;
-  };
+  readonly path: { readonly source: t.StringUrl; readonly target: t.StringPath };
   readonly ok: boolean;
   readonly status?: t.HttpStatusCode;
   readonly bytes?: t.NumberBytes;
@@ -64,11 +61,14 @@ export type HttpPullOptions = {
   /** Late-bound client. Default: `Http.client()` */
   readonly client?: t.HttpFetch;
 
-  /** URL→path mapping rules used by `Map.urlToPath`. */
+  /** URL → path mapping rules used by `Map.urlToPath`. */
   readonly map?: HttpPullMapOptions;
 
   /** Concurrency limiter. Default: 8 */
   readonly concurrency?: number;
+
+  /** Cancel pull operation. */
+  readonly until?: t.UntilInput;
 };
 
 /**

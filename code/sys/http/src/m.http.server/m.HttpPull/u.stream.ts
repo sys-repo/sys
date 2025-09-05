@@ -1,7 +1,7 @@
-import { type t, Fs, HttpClient, Path } from './common.ts';
+import { type t, HttpClient, rx } from './common.ts';
+import { pullOne } from './u.pullOne.ts';
+import { isAbortError, makeEventQueue, resolveTarget, semaphore } from './u.ts';
 
-import { PullMap } from './u.map.ts';
-import { makeEventQueue, sanitizeForFilename, semaphore } from './u.ts';
 
 /**
  * Same as `toDir`, but yields progress events.
@@ -16,99 +16,66 @@ export async function* stream(
   const concurrency = Math.max(1, options.concurrency ?? 8);
   const total = urls.length;
 
-  // Simple async queue so workers can push events and the generator yields them as they arrive.
+  const life = rx.abortable(options.until);
+  const { signal } = life;
+
   const q = makeEventQueue<t.HttpPullEvent>();
   const lim = semaphore(concurrency);
 
-  // Launch workers:
   let index = 0;
   const tasks = urls.map((source) =>
     lim(async () => {
+      if (signal.aborted) return; // Bail fast.
       const i = index++ as t.Index;
 
       // Start:
-      q.push({ kind: 'start', index: i, total, url: source });
-      const record = await pullOne(source, dir, client, options.map);
+      if (!signal.aborted) q.push({ kind: 'start', index: i, total, url: source });
 
-      // Done / error:
-      if (record.ok) {
-        q.push({ kind: 'done', index: i, total, record, url: source });
-      } else {
-        q.push({ kind: 'error', index: i, total, record, url: source });
+      try {
+        const record = await pullOne(source, dir, client, options.map, signal);
+        if (signal.aborted) return; // ← Silent bail on cancellation.
+
+        if (record.ok) {
+          q.push({ kind: 'done', index: i, total, record, url: source });
+        } else {
+          q.push({ kind: 'error', index: i, total, record, url: source });
+        }
+      } catch (err) {
+        // Swallow expected aborts; surface real failures.
+        if (!isAbortError(err)) {
+          const error = err instanceof Error ? err.message : String(err);
+          const target = resolveTarget(source, dir, options.map);
+          q.push({
+            kind: 'error',
+            index: i,
+            total,
+            url: source,
+            record: { ok: false, error, path: { source, target } },
+          });
+        }
       }
     }),
   );
 
-  // Close queue when all workers finish.
   (async () => {
     try {
-      await Promise.all(tasks);
+      await Promise.allSettled(tasks); // Ensures close on cancellation.
     } finally {
       q.close();
     }
   })();
 
-  // Drain queue to the consumer:
-  for await (const ev of q) yield ev;
-}
-
-/**
- * One URL → one file write → one record.
- * (mirrors the logic in toDir)
- */
-async function pullOne(
-  url: string,
-  dir: t.StringDir,
-  client: t.HttpFetch,
-  map?: t.HttpPullMapOptions,
-): Promise<t.HttpPullRecord> {
-  let u: URL | undefined;
-  let target: t.StringPath | undefined;
-
   try {
-    u = new URL(url);
-  } catch {
-    const safe = sanitizeForFilename(url);
-    target = Fs.join(dir, safe) as t.StringPath;
-    return {
-      ok: false,
-      error: 'Invalid URL',
-      path: { source: url, target },
-    };
-  }
-
-  try {
-    const rel = PullMap.urlToPath(u, map);
-    target = Fs.join(dir, rel) as t.StringPath;
-
-    await Fs.ensureDir(Path.dirname(target) as t.StringDir);
-
-    const res = await client.blob(u.toString());
-    if (!res.ok || !res.data) {
-      return {
-        ok: false,
-        status: res.status as t.HttpStatusCode | undefined,
-        error: res.error?.message ?? (res.status ? `HTTP ${res.status}` : 'Network error'),
-        path: { source: url, target },
-      };
+    for await (const ev of q) {
+      if (signal.aborted) break;
+      yield ev;
     }
-
-    const bytes = await HttpClient.toUint8Array(res.data);
-    await Fs.write(target, bytes, { force: true });
-
-    return {
-      ok: true,
-      status: res.status as t.HttpStatusCode | undefined,
-      bytes: bytes.byteLength as t.NumberBytes,
-      path: { source: url, target },
-    };
-  } catch (err) {
-    const fallback = target ?? (Fs.join(dir, PullMap.urlToPath(u)) as t.StringPath);
-
-    return {
-      ok: false,
-      error: err instanceof Error ? err.message : String(err),
-      path: { source: url, target: fallback },
-    };
+  } finally {
+    // If consumer stops early, ensure we abort/dispose once.
+    try {
+      if (!signal.aborted) (life as any).abort?.();
+    } finally {
+      (life as any).dispose?.();
+    }
   }
 }

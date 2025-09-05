@@ -1,4 +1,33 @@
-import { Path } from './common.ts';
+import { type t, Path } from './common.ts';
+import { PullMap } from './u.map.ts';
+
+/**
+ * Test if the given error is a cancellation/abort signal
+ * (e.g. AbortController, disposed lifecycle).
+ */
+export const isAbortError = (err: unknown) => {
+  const e = err as any;
+  return !!e && (e.name === 'AbortError' || e.code === 'ABORT_ERR' || e?.message === 'disposed');
+};
+
+/**
+ * Derive a safe local file target path for the given source URL/string.
+ * Falls back to a sanitized filename when the input is not a valid URL.
+ */
+export const resolveTarget = (
+  source: string,
+  dir: t.StringDir,
+  map?: t.HttpPullMapOptions,
+): t.StringPath => {
+  try {
+    const u = new URL(source);
+    const rel = PullMap.urlToPath(u, map);
+    return Path.join(dir, rel) as t.StringPath;
+  } catch {
+    const safe = sanitizeForFilename(source);
+    return Path.join(dir, safe) as t.StringPath;
+  }
+};
 
 /**
  * Very small filename sanitizer used when the URL is invalid.

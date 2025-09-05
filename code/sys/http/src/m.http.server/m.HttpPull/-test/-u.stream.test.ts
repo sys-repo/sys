@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Path, Testing } from '../../../-test.ts';
+import { type t, describe, expect, Fs, it, Path, rx, Testing } from '../../../-test.ts';
 import { HttpPull } from '../mod.ts';
 
 describe('HttpPull.stream', () => {
@@ -98,5 +98,26 @@ describe('HttpPull.stream', () => {
     const base = Path.basename(rec.path.target);
     expect(base.includes('/')).to.eql(false);
     expect(await Fs.exists(rec.path.target)).to.eql(false);
+  });
+
+  it('cancels via `until` (no done/error)', async () => {
+    // Server that never responds; requests hang until aborted.
+    const server = Testing.Http.server((_req) => new Promise<Response>(() => {}));
+    const a = server.url.join('x', 'a.txt');
+    const b = server.url.join('x', 'b.txt');
+    const outDir = await mkTmpDir();
+
+    const until = rx.disposable();
+    const events: t.HttpPullEvent[] = [];
+    const iter = HttpPull.stream([a, b], outDir, { until, concurrency: 2 });
+    queueMicrotask(() => until.dispose()); // ← cancel immediately on next microtask.
+
+    for await (const ev of iter) events.push(ev);
+
+    // Cancellation is quiet: no 'done' and no 'error'
+    expect(events.some((e) => e.kind === 'done')).to.eql(false);
+    expect(events.some((e) => e.kind === 'error')).to.eql(false);
+
+    await server.dispose();
   });
 });
