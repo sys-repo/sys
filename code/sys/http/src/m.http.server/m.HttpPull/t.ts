@@ -4,6 +4,9 @@ import { type t } from './common.ts';
  * Pull (HTTP → local FS).
  */
 export type HttpPullLib = {
+  /** Pure mapping helpers (no IO). */
+  readonly Map: HttpPullMapLib;
+
   /**
    * Download a list of URLs into `dir`.
    * Path mapping uses `Map.urlToPath` with `options.map` rules.
@@ -24,8 +27,14 @@ export type HttpPullLib = {
     options?: HttpPullOptions,
   ): AsyncGenerator<HttpPullEvent>;
 
-  /** Pure mapping helpers. (No I/O) */
-  readonly Map: HttpPullMapLib;
+  /**
+   * An observable of `stream` firing progress events.
+   */
+  stream$(
+    urls: readonly string[],
+    dir: t.StringDir,
+    options?: HttpPullOptions,
+  ): t.Observable<HttpPullEvent>;
 };
 
 /** Response from `HttpPull.toDir` method */
