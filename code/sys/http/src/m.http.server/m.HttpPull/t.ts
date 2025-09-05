@@ -29,6 +29,7 @@ export type HttpPullLib = {
 
   /**
    * An observable of `stream` firing progress events.
+   * Completes quietly when `until` is disposed (no error/cancel event).
    */
   stream$(
     urls: readonly string[],
