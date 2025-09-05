@@ -2,7 +2,6 @@ import { type t, HttpClient, rx } from './common.ts';
 import { pullOne } from './u.pullOne.ts';
 import { isAbortError, makeEventQueue, resolveTarget, semaphore } from './u.ts';
 
-
 /**
  * Same as `toDir`, but yields progress events.
  * Emission order is not guaranteed to be request order.

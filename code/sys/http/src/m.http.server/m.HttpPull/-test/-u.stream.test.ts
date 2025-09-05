@@ -3,6 +3,14 @@ import { HttpPull } from '../mod.ts';
 
 describe('HttpPull.stream', () => {
   const mkTmpDir = async () => (await Fs.makeTempDir({ prefix: 'http-pull-' })).absolute;
+  const deferred = <T = void>() => {
+    let resolve!: (v: T) => void, reject!: (e: unknown) => void;
+    const promise = new Promise<T>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    return { promise, resolve, reject };
+  };
 
   it('emits start + done for each URL; done order reflects completion, not input', async () => {
     // Slow/fast endpoints:
@@ -119,5 +127,65 @@ describe('HttpPull.stream', () => {
     expect(events.some((e) => e.kind === 'error')).to.eql(false);
 
     await server.dispose();
+  });
+
+  describe('stream$ (observable)', () => {
+    it('emits start/done events to observable subscribers', async () => {
+      const server = Testing.Http.server((req) => Testing.Http.text(req, 'OK'));
+      const a = server.url.join('p', 'a.txt');
+      const b = server.url.join('p', 'b.txt');
+      const outDir = await mkTmpDir();
+
+      const events: t.HttpPullEvent[] = [];
+      const done = deferred();
+
+      const sub = HttpPull.stream$([a, b], outDir, { concurrency: 2 }).subscribe({
+        next: (e) => events.push(e),
+        error: (err) => done.reject(err),
+        complete: () => done.resolve(),
+      });
+
+      await done.promise;
+      sub.unsubscribe();
+
+      const starts = events.filter((e) => e.kind === 'start');
+      const dones = events.filter((e) => e.kind === 'done');
+      const errors = events.filter((e) => e.kind === 'error');
+
+      expect(starts.length).to.eql(2);
+      expect(dones.length).to.eql(2);
+      expect(errors.length).to.eql(0);
+
+      await server.dispose();
+    });
+
+    it('cancels via `until` (no done/error)', async () => {
+      // Server that never responds; stream$ should end quietly on dispose.
+      const server = Testing.Http.server((_req) => new Promise<Response>(() => {}));
+      const a = server.url.join('x', 'a.txt');
+      const b = server.url.join('x', 'b.txt');
+      const outDir = await mkTmpDir();
+
+      const until = rx.disposable();
+      const events: t.HttpPullEvent[] = [];
+      const done = deferred();
+
+      const sub = HttpPull.stream$([a, b], outDir, { until, concurrency: 2 }).subscribe({
+        next: (e) => events.push(e),
+        error: (err) => done.reject(err),
+        complete: () => done.resolve(),
+      });
+
+      // Cancel on next microtask.
+      queueMicrotask(() => until.dispose());
+
+      await done.promise;
+      sub.unsubscribe();
+
+      expect(events.some((e) => e.kind === 'done')).to.eql(false);
+      expect(events.some((e) => e.kind === 'error')).to.eql(false);
+
+      await server.dispose();
+    });
   });
 });
