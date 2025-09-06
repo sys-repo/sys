@@ -61,7 +61,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      {videoPlayerButton(debug.player)}
+      {videoPlayerButton(debug.video)}
 
       <hr />
       {programmeSectionButtons(debug.content, debug.state)}

@@ -1,7 +1,9 @@
+import type { KeyboardMatchLib } from './t.ts';
+
 import { slug, type t } from './common.ts';
 import { Util } from './u.ts';
 
-export const Match: t.KeyboardMatchLib = {
+export const Match: KeyboardMatchLib = {
   /**
    * Generate a keyboard pattern matcher.
    */
@@ -26,7 +28,7 @@ export const Match: t.KeyboardMatchLib = {
 } as const;
 
 /**
- * [Helpers]
+ * Helpers
  */
 function parsePattern(pattern: t.KeyPattern): string[] {
   if (typeof pattern !== 'string') pattern = '';

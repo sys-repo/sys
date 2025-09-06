@@ -1,6 +1,6 @@
-import { pkg, slug } from '../-test.ts';
-import { Pkg } from './mod.ts';
+import { pkg } from '../-test.ts';
 import { Fs } from './common.ts';
+import { Pkg } from './mod.ts';
 
 export const Sample = {
   dir: Fs.resolve('./src/-test/-sample-5'),
@@ -8,10 +8,8 @@ export const Sample = {
   /**
    * Initialize a new sample directory to test against.
    */
-  async init(options: { slug?: boolean } = {}) {
-    let dir = './.tmp/test/m.Pkg';
-    if (options.slug ?? true) dir += `/${slug()}`;
-
+  async init(prefix = 'Fs.Pkg.') {
+    const dir = (await Fs.makeTempDir({ prefix })).absolute;
     const path = {
       dir,
       entry: './pkg/-entry.BEgRUrsO.js',

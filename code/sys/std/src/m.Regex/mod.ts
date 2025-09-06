@@ -1,10 +1,10 @@
 /**
- * @module
  * Helpers for working with regular-expressions.
+ * @module
  */
-import type { t } from './common.ts';
+import type { RegexLib } from './t.ts';
 
-export const Regex: t.RegexLib = {
+export const Regex: RegexLib = {
   /**
    * Escapes special characters in a string to be used in a regular expression.
    * @param input The string to escape.

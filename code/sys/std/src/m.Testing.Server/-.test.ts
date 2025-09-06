@@ -8,7 +8,7 @@ describe('Testing.HttpServer', () => {
 
     expect(server.addr.port).to.be.a('number');
     expect(server.addr.port).to.not.eql(0);
-    expect(server.url.base).to.eql(`http://0.0.0.0:${server.addr.port}/`);
+    expect(server.url.raw).to.eql(`http://0.0.0.0:${server.addr.port}/`);
 
     await server.dispose();
     expect(server.disposed).to.eql(true);

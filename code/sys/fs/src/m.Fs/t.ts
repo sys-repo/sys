@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 
 export type * from './t.Dir.ts';
 export type * from './t.File.ts';
+export type * from './t.Fmt.ts';
 export type { WalkEntry };
 
 type Methods = StdMethods & IndexMethods & GlobMethods;
@@ -54,7 +55,7 @@ export type FsLib = Methods & {
   readonly watch: t.FsWatchLib['start'];
 
   /** Current working directory. */
-  cwd(kind?: 'init'): t.StringDir;
+  cwd(kind?: 'process' | 'terminal'): t.StringDir;
 
   /** Removes the CWD (current-working-directory) from the given path if it exists. */
   trimCwd: t.FsPathLib['trimCwd'];
@@ -64,6 +65,13 @@ export type FsLib = Methods & {
 
   /** Generator function that produces `FsDir` data-structures. */
   toDir: t.FsDirFactory;
+
+  /** Create a new temporary directory and return it as an FsDir handle. */
+  makeTempDir(options?: {
+    readonly dir?: t.StringDir;
+    readonly prefix?: string;
+    readonly suffix?: string;
+  }): Promise<t.FsDir>;
 };
 
 /**
@@ -81,6 +89,9 @@ type IndexMethods = {
 
   /** Helpers for watching file-system changes. */
   readonly Watch: t.FsWatchLib;
+
+  /** Formatting helpers (pretty console output). */
+  readonly Fmt: t.FsFmtLib;
 };
 
 type GlobMethods = {

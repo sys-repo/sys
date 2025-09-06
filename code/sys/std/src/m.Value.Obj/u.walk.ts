@@ -1,19 +1,13 @@
-import { type t } from '../common.ts';
-
-type PathArray = (string | number)[];
+import { type t } from './common.ts';
 
 /**
  * Walks an object tree (recursive descent) implementing
  * a visitor callback for each item.
  */
-export function walk<T extends object | any[]>(parent: T, fn: t.ObjWalkCallback) {
+export function walk<T extends object | any[]>(parent: T, fn: t.ObjWalkFn) {
   const walked = new Map<any, boolean>(); // NB: protect against circular-references.
 
-  const walk = <T extends object | any[]>(
-    parent: T,
-    levelPath: PathArray,
-    fn: t.ObjWalkCallback,
-  ) => {
+  const walk = <T extends object | any[]>(parent: T, levelPath: t.ObjectPath, fn: t.ObjWalkFn) => {
     let _stopped = false;
     const stop = () => (_stopped = true);
 

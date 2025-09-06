@@ -1,3 +1,5 @@
+import type { CmdEventsLib } from './t.ts';
+
 import { type t, type u, Dispose, R, rx } from './common.ts';
 import { Patch } from './u.Patch.ts';
 import { Path } from './u.Path.ts';
@@ -6,7 +8,7 @@ import { Path } from './u.Path.ts';
  * Strongly typed events for an abstract CRDT document that has
  * paths within it representing a <Cmd> (Command).
  */
-export const Events: t.CmdEventsLib = {
+export const Events: CmdEventsLib = {
   /**
    * Events factory.
    */
@@ -36,7 +38,7 @@ export const Events: t.CmdEventsLib = {
 
     if (doc) {
       const events = doc.events(dispose$);
-      const $ = events.changed$.pipe(
+      const $ = events.$.pipe(
         rx.map((e) => {
           const { patches, after } = e;
           const doc = resolve.toObject(after);

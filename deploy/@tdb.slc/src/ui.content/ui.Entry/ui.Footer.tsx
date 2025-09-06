@@ -79,7 +79,7 @@ export const Footer: React.FC<P> = (props) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   versionHash(state: t.AppSignals) {

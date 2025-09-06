@@ -1,5 +1,4 @@
-export { Fs } from '@sys/fs';
-export { Tmpl } from '@sys/tmpl/fs';
-export { tmplFilter } from './common.ts';
-export * from './pkg.deno/src/-test.ts';
-export * from './Templates.ts';
+export { c, describe, expect, expectError, Fs, it, Testing } from '@sys/testing/server';
+
+export * from './common.ts';
+export { makeTmpl } from './m.tmpl/u.makeTmpl.ts';

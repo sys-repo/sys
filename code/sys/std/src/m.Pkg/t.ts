@@ -14,7 +14,7 @@ export type PkgLib = {
   readonly Dist: t.PkgDistLib;
 
   /** Convert a {pkg} into a display string. */
-  toString(input?: t.Pkg, suffix?: string): string;
+  toString(input?: t.Pkg, suffix?: string, options?: t.PkgToStringOptions | boolean): string;
 
   /**
    * Extracts the name/version from the gtiven object if found,
@@ -40,6 +40,12 @@ export type PkgLib = {
   unknown(): t.Pkg;
 };
 
+/** Options passed to the `Pkg.toString` method. */
+export type PkgToStringOptions = {
+  /** Include the version in the display string - @default true */
+  version?: boolean;
+};
+
 /**
  * Boolean tests on a {pkg} structure.
  */
@@ -60,7 +66,7 @@ export type PkgIsLib = {
  */
 export type PkgDistLib = {
   /** HTTP fetch the `dist.json` file. */
-  fetch(options?: t.PkgDistFetchOptions): Promise<PkgDistFetchResponse>;
+  fetch(options?: t.PkgDistFetchOptions | t.StringUrl): Promise<PkgDistFetchResponse>;
 
   /** Boolean checks */
   readonly Is: {
@@ -81,6 +87,7 @@ export type PkgDistFetchOptions = {
 export type PkgDistFetchResponse = {
   readonly ok: boolean;
   readonly status: number;
+  readonly href: t.StringUrl;
   readonly dist?: t.DistPkg;
   readonly error?: t.StdError;
 };

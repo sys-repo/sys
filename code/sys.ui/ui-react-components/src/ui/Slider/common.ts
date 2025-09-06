@@ -9,8 +9,7 @@ type Mutate<T> = (draft: T) => void;
 const name = 'Slider';
 export const DEFAULTS = {
   name,
-  displayName: Pkg.toString(pkg, name),
-
+  displayName: Pkg.toString(pkg, name, false),
   enabled: true,
   percent: 0,
 
@@ -18,11 +17,9 @@ export const DEFAULTS = {
     const obj: t.SliderTrackProps = {
       percent: undefined,
       height: 20,
-      color: {
-        default: theme.is.light ? 1 : 0.06,
-        border: 0.1,
-        highlight: Color.BLUE,
-      },
+      border: 0.1,
+      highlight: Color.BLUE,
+      highlightBorder: 0.1,
     };
     edit?.(obj);
     return obj;
@@ -33,10 +30,8 @@ export const DEFAULTS = {
       size: 20,
       pressedScale: 1.1,
       opacity: 1,
-      color: {
-        default: Color.WHITE,
-        border: theme.is.light ? 0.25 : 0,
-      },
+      color: Color.WHITE,
+      border: theme.is.light ? 0.25 : 0,
     };
     edit?.(obj);
     return obj;

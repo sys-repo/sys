@@ -3,10 +3,12 @@ import type { FsLib } from './t.ts';
 
 import { create as glob } from '../m.Glob/u.create.ts';
 import { Watch } from '../m.Watch/mod.ts';
+import { Fmt } from './m.Fmt.ts';
 import { Is } from './m.Is.ts';
 import { Size } from './m.Size.ts';
 import { copy, copyDir, copyFile } from './u.copy.ts';
 import { cwd } from './u.cwd.ts';
+import { makeTempDir } from './u.makeTmpDir.ts';
 import { read, readJson, readText, readYaml } from './u.read.ts';
 import { remove } from './u.remove.ts';
 import { stat } from './u.stat.ts';
@@ -22,10 +24,21 @@ const { join, resolve, basename, dirname, extname } = Path;
  * Filesystem helpers.
  */
 export const Fs: FsLib = {
-  Is,
-  Path,
-  Size,
-  Watch,
+  get Is() {
+    return Is;
+  },
+  get Path() {
+    return Path;
+  },
+  get Size() {
+    return Size;
+  },
+  get Watch() {
+    return Watch;
+  },
+  get Fmt() {
+    return Fmt;
+  },
   stat,
 
   cwd,
@@ -59,8 +72,9 @@ export const Fs: FsLib = {
   copyDir,
   copyFile,
   move,
+  makeTempDir,
 
   walk,
   walkUp,
   watch: Watch.start,
-} as const;
+};

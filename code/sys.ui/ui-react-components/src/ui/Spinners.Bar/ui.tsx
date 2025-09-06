@@ -1,25 +1,14 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { type t, Color, css, D } from './common.ts';
+import { useComponent } from './use.Component.tsx';
 
-type BarLoaderProps = { color?: string; width?: number };
-let BarLoader: React.ComponentType<BarLoaderProps> | undefined;
+type P = t.BarSpinnerProps;
 
-export const BarSpinner: React.FC<t.BarSpinnerProps> = (props) => {
-  const { width = D.width } = props;
+export const BarSpinner: React.FC<P> = (props) => {
+  const { width = D.width, height } = props;
+  const cssOverride = wrangle.cssOverride(props);
 
-  /**
-   * Effect:
-   */
-  useEffect(() => {
-    /**
-     * HACK: Errors when this file is parsed within Deno on the server
-     *       (because CJS not ESM (??))
-     *       Only import the component when within a browser.
-     */
-    if (!globalThis.window) return;
-    import('react-spinners').then((e) => (BarLoader = e.BarLoader));
-  }, []);
-
+  const BarLoader = useComponent(async () => (await import('react-spinners')).BarLoader);
   if (!BarLoader) return null;
 
   /**
@@ -38,7 +27,21 @@ export const BarSpinner: React.FC<t.BarSpinnerProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <BarLoader color={theme.fg} width={width} />
+      <BarLoader color={theme.fg} width={width} height={height} cssOverride={cssOverride} />
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  cssOverride(props: P): t.CssProps | undefined {
+    const { transparentTrack = false } = props;
+    if (!transparentTrack) return;
+    return {
+      backgroundColor: 'transparent',
+      borderColor: 'transparent', // when < 5px height adds borders → remove this too.
+    };
+  },
+} as const;

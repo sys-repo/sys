@@ -1,9 +1,10 @@
 /**
- * @module
  * The entry points, when using the module from the command-line [argv].
+ * @module
  */
-import { Wrangle } from '../m.Vite/u.wrangle.ts';
+import type { ViteEntryLib } from './t.ts';
 
+import { Wrangle } from '../m.Vite/u.wrangle.ts';
 import { type t, Path, Args, c, DenoModule, pkg, Vite, ViteLog } from './common.ts';
 import { build } from './u.build.ts';
 import { dev } from './u.dev.ts';
@@ -11,7 +12,7 @@ import { serve } from './u.serve.ts';
 
 type O = Record<string, unknown>;
 
-export const ViteEntry: t.ViteEntryLib = {
+export const ViteEntry: ViteEntryLib = {
   dev,
   build,
   serve,
@@ -20,13 +21,6 @@ export const ViteEntry: t.ViteEntryLib = {
     const argsAsType = <T extends O>() => wrangle.args<T>((input ?? Deno.args) as string[]);
     const args = argsAsType<t.ViteEntryArgs>();
     const cmd = args.cmd;
-
-    if (cmd === 'init') {
-      const { init } = await import('./u.init.ts');
-      console.log('args', args);
-      await init(args);
-      return;
-    }
 
     if (cmd === 'dev') {
       ViteLog.API.log({ cmd: 'dev' });

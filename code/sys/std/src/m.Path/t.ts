@@ -30,6 +30,14 @@ export type PathLib = {
   /** Return the relative path based on current working directory. */
   relative: typeof StdPath.relative;
 
+  /**
+   * Return a relative POSIX path:
+   *   - convert "\" → "/"
+   *   - strip any leading slashes
+   * NOTE: intentionally does NOT collapse "."/".." segments.
+   */
+  relativePosix(input: string): string;
+
   /** Normalize the path, resolving '..' and '.' segments. */
   normalize: typeof StdPath.normalize;
 
@@ -130,7 +138,8 @@ export type PathFormatterArgs = t.PathFormatterPart & {
 export type PathFormatterPart = {
   readonly index: t.Index;
   readonly kind: 'slash' | 'dirname' | 'basename';
-  readonly text: string;
+  readonly part: string;
+  readonly path: string;
   readonly is: PathFormatterPartIs;
 };
 

@@ -1,69 +1,68 @@
-import { type t, Fs, Obj, Path } from './common.ts';
-import { Data } from './m.Data.ts';
-import { Is } from './m.Is.ts';
+import { type t, Fs, Is, Path } from './common.ts';
+import { Is as FileMapIs } from './m.Is.ts';
+import { toMap } from './u.toMap.ts';
 
-export const bundle: t.FileMapLib['bundle'] = async (dir, opt) => {
-  const res: t.FileMap = {};
-  const options = wrangle.options(opt);
+type F = t.FileMapLib['bundle'];
 
-  dir = Fs.resolve(dir);
-  let paths = await wrangle.paths(dir);
-  if (options.filter) {
-    paths = paths.filter((path) => {
-      const args = wrangle.pathFilter(path, dir);
-      return options.filter ? options.filter(args) : true;
-    });
+export const bundle: F = async (sourceDir, opt) => {
+  const { targetFile, filter, beforeWrite } = wrangle.options(opt);
+  const file = Path.resolve(targetFile) as t.StringPath;
+  await Fs.ensureDir(Path.dirname(file));
+
+  // Prepare the filemap to write.
+  let fileMap = await toMap(sourceDir, { filter });
+  let modified = false;
+
+  // Run pre-write checks.
+  if (Is.func(beforeWrite)) {
+    const result = runBeforeWrite(fileMap, file, beforeWrite);
+    fileMap = result.fileMap;
+    modified = result.modified;
   }
 
-  const wait = paths.map(async (path) => {
-    const file = await wrangle.fileContent(path);
-    if (file) {
-      const key = wrangle.pathKey(path, dir);
-      res[key] = file;
-    }
-  });
+  // Write to disk.
+  await Fs.writeJson(file, fileMap, { throw: true });
 
-  await Promise.all(wait);
-  return Obj.sortKeys(res);
+  /**
+   * API:
+   */
+  const count = Object.keys(fileMap).length;
+  return {
+    count,
+    file,
+    get fileMap() {
+      return fileMap;
+    },
+    modified,
+  };
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
-  async paths(dir: t.StringDir) {
-    const includeDirs = false;
-    const glob = Fs.glob(dir, { includeDirs });
-    const paths = (await glob.find('**')).map((m) => m.path);
-    return paths;
-  },
-
-  pathFilter(path: t.StringPath, base: t.StringDir): t.FileMapBundleFilterArgs {
-    return {
-      path: path.slice(base.length + 1),
-      ext: Path.extname(path),
-      contentType: Data.contentType.fromPath(path),
-    };
-  },
-
-  pathKey(path: t.StringPath, base?: t.StringDir) {
-    let key = path;
-    if (base && key.startsWith(base)) key = key.slice(base.length + 1);
-    return key;
-  },
-
-  async fileContent(path: t.StringPath) {
-    const mime = Data.contentType.fromPath(path);
-    if (!mime) return;
-
-    const read = Is.contentType.string(mime) ? Fs.readText : Fs.read;
-    const res = await read(path);
-    return res.data ? Data.encode(mime, res.data) : undefined;
-  },
-
-  options(input?: t.FileMapBundleOptions | t.FileMapBundleFilter) {
-    if (!input) return {};
-    if (typeof input === 'function') return { filter: input };
+  options(input: Parameters<F>[1]): t.FileMapBundleOptions {
+    if (Is.string(input)) return { targetFile: input };
     return input;
   },
 } as const;
+
+function runBeforeWrite(fileMap: t.FileMap, file: t.StringPath, fn: t.FileMapBundleBeforeWrite) {
+  let modified = false;
+  const clone = { ...fileMap };
+  fn({
+    file,
+    get fileMap() {
+      return clone;
+    },
+    modify(next) {
+      if (!FileMapIs.fileMap(next)) {
+        throw new Error(`The given modified file-map value is not valid: ${next}`);
+      }
+      fileMap = { ...next };
+      modified = true;
+    },
+  });
+
+  return { fileMap, modified } as const;
+}

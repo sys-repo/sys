@@ -1,0 +1,16 @@
+{
+  "tasks": {
+    "install": "deno install --reload",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker"],
+    "types": ["vite/client", "@types/react"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "nodeModulesDir": "auto",
+  "imports": {},
+  "workspace": []
+}

@@ -27,7 +27,6 @@ export type DepsLib = {
     options?: {
       target?: t.DepTargetFile | t.DepTargetFile[];
       dev?: boolean;
-      wildcard?: boolean;
       subpaths?: t.StringDir[];
     },
   ): t.Dep;
@@ -65,10 +64,7 @@ export type DepsCategorizeByGroup = (e: t.DepsCategorizeByGroupArgs) => t.Ignore
 export type DepsCategorizeByGroupArgs = {
   dep: t.Dep;
   target: t.DepTargetFile | t.DepTargetFile[];
-  group(
-    name: string,
-    options?: { wildcard?: boolean; subpaths?: t.StringDir[]; dev?: boolean },
-  ): void;
+  group(name: string, options?: { subpaths?: t.StringDir[]; dev?: boolean }): void;
 };
 
 /**
@@ -81,15 +77,6 @@ export type Dep = {
 
   /** Flag(s) indicating the target file format (`deno.json` OR `package.json`). */
   target: DepTargetFile[];
-
-  /**
-   * Flag indicating if a wildcard entry should be inserted into an generated import-map.
-   * Causes an import (within deno.json), like:
-   *
-   *    "@noble/hashes"
-   *    "@noble/hashes/*"
-   */
-  wildcard?: boolean;
 
   /**
    * Array of sub-paths for the module.

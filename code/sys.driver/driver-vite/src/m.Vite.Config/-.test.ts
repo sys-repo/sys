@@ -81,27 +81,27 @@ describe('ViteConfig', () => {
       it('replace module without version but not subpath', () => {
         test('npm', '@vidstack/react', 'npm:@vidstack/react', '@vidstack/react');
         test('npm', 'foo', 'npm:foo', 'foo');
-        test('jsr', '@sys/tmp', 'jsr:@sys/tmp', '@sys/tmp');
+        test('jsr', '@scope/name', 'jsr:@scope/name', '@scope/name');
       });
 
       it('replace module with version but not subpath', () => {
         test('npm', '@vidstack/react', 'npm:@vidstack/react@1.2.3', '@vidstack/react');
         test('npm', 'foo', 'npm:foo@~1', 'foo');
         test('npm', 'foo', 'npm:foo@1.2.3-alpha.1', 'foo');
-        test('jsr', '@sys/tmp', 'jsr:@sys/tmp@>=0.1.2', '@sys/tmp');
+        test('jsr', '@scope/name', 'jsr:@scope/name@>=0.1.2', '@scope/name');
       });
 
       it('replace module with version and subpath', () => {
         test('npm', '@vidstack/react', 'npm:@vidstack/react@1.2.3/a/b', '@vidstack/react/a/b');
         test('npm', 'foo', 'npm:foo@1.2.3/a/b', 'foo/a/b');
-        test('jsr', '@sys/tmp', 'jsr:@sys/tmp@1.2.3/foo', '@sys/tmp/foo');
-        test('jsr', '@sys/tmp', 'jsr:@sys/tmp@1.2.3/foo/bar.z', '@sys/tmp/foo/bar.z');
+        test('jsr', '@scope/name', 'jsr:@scope/name@1.2.3/foo', '@scope/name/foo');
+        test('jsr', '@scope/name', 'jsr:@scope/name@1.2.3/foo/bar.z', '@scope/name/foo/bar.z');
       });
 
       it('replace module without version but with subpath', () => {
         test('npm', '@vidstack/react', 'npm:@vidstack/react/a/b', '@vidstack/react/a/b');
         test('npm', 'foo', 'npm:foo/a/b', 'foo/a/b');
-        test('jsr', '@sys/tmp', 'jsr:@sys/tmp/a/b', '@sys/tmp/a/b');
+        test('jsr', '@scope/name', 'jsr:@scope/name/a/b', '@scope/name/a/b');
       });
     });
   });

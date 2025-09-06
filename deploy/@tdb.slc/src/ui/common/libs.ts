@@ -6,13 +6,14 @@ export { Motion as M, Motion };
  * @system
  */
 export { Color, css, Style } from '@sys/ui-css';
-export { Dom, Keyboard } from '@sys/ui-dom';
+export { Dom, Kbd, Keyboard, LocalStorage } from '@sys/ui-dom';
 export {
   ReactEvent,
   ReactString,
   useClickOutside,
   useIsTouchSupported,
   useLoading,
+  usePointer,
   useSizeObserver,
   useVisibilityThreshold,
   useVisibilityThresholdX,
@@ -21,6 +22,7 @@ export {
 export {
   Bullet,
   Button,
+  Buttons,
   Cropmarks,
   FadeElement,
   LayoutCenterColumn,

@@ -1,5 +1,4 @@
-import type { describe, it, beforeAll, beforeEach, afterAll, afterEach } from '@std/testing/bdd';
-import type { expect } from 'chai';
+import type { afterAll, afterEach, beforeAll, beforeEach, describe, it } from '@std/testing/bdd';
 import type { t } from './common.ts';
 
 /**
@@ -35,7 +34,11 @@ export type Describe = typeof describe;
 export type It = typeof it;
 
 /** Assertion library (BDD). */
-export type Expect = typeof expect;
+export type Expect = typeof import('chai').expect;
+/*
+  NOTE: ↑ Import error above (VSCode only).
+          The imports are actually fine (not a "real" type error) - SAFE TO IGNORE.
+ */
 
 /** Expect an error asyncronously */
 export type ExpectError = (fn: () => Promise<any> | any, message?: string) => Promise<any>;

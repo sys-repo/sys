@@ -1,8 +1,3 @@
-import type { t } from './common.ts';
-import { Join } from './m.Join.ts';
-import { dir } from './u.dir.ts';
-import { ext, extname } from './u.ext.ts';
-
 import {
   basename,
   dirname,
@@ -14,13 +9,19 @@ import {
   toFileUrl,
 } from '@std/path';
 
-import { Format } from './m.Format.ts';
+import type { PathLib } from './t.ts';
+
+import { Format } from './m.Fmt.ts';
 import { Is } from './m.Is.ts';
+import { Join } from './m.Join.ts';
+import { dir } from './u.dir.ts';
+import { ext, extname } from './u.ext.ts';
+import { relativePosix } from './u.rel.ts';
 
 /**
  * Helpers for working with resource paths.
  */
-export const Path: t.PathLib = {
+export const Path: PathLib = {
   Is,
   Format,
   Join,
@@ -37,4 +38,5 @@ export const Path: t.PathLib = {
   extname,
   ext,
   dir,
+  relativePosix,
 } as const;

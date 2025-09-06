@@ -1,6 +1,6 @@
 /**
- * @module
  * UI Components.
+ * @module
  */
 export { LogoCanvas } from './ui.Logo.Canvas/mod.ts';
 export { LogoWordmark } from './ui.Logo.Wordmark/mod.ts';

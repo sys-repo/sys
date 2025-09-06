@@ -26,6 +26,9 @@ export type FsDir = {
   /** List the file paths within directory. */
   ls(options?: t.FsDirListOptions | t.FsFileFilter): Promise<t.StringPath[]>;
 
+  /** Check if the directory exists. */
+  exists(): Promise<boolean>;
+
   /** Convert to string: `dir.absolute` */
   toString(): string;
 };

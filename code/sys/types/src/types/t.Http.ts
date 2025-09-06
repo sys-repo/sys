@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
 
 /**
- * HTTP Status code.
- * https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+ * An HTTP status code (100–599).
+ * Narrowed to an integer in the valid range.
  */
 export type HttpStatusCode = number;
 

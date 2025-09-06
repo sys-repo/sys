@@ -1,6 +1,6 @@
 /**
  * A response value from a function that is not used by the function
- * (allows for artibrary return values signalling to the consumer
+ * (allows for arbitrary return values signalling to the consumer
  * that whatever is returned will not be used.)
  */
 export type IgnoredResult = any | Promise<any>;

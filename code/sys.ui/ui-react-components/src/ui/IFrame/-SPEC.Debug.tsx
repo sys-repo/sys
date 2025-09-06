@@ -110,6 +110,7 @@ export const Debug: React.FC<P> = (props) => {
       {srcLoader(local.host, local.href)}
       {srcLoader('Wikipedia: "W3C"', `https://en.wikipedia.org/wiki/World_Wide_Web_Consortium`)}
       {srcLoader('Wikipedia: "Foobar" mobile format', `https://en.m.wikipedia.org/wiki/Foobar`)}
+      {srcLoader('JSR: @sys', `https://jsr.io/@sys`)}
       <hr />
       {srcLoader('error: google.com (← blocked)', 'https://google.com')}
       <hr />

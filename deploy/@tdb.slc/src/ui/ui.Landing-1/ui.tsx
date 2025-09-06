@@ -89,6 +89,8 @@ export const Landing: React.FC<P> = (props) => {
     },
   };
 
+  const controller = Player.Video.useSignals(playerSignalsRef.current);
+
   const elLayout = (
     <Layout
       style={styles.layout}
@@ -98,7 +100,12 @@ export const Landing: React.FC<P> = (props) => {
         position: p?.canvasPosition.value,
       }}
       video={{
-        element: <Player.Video.View signals={playerSignalsRef.current} />,
+        element: (
+          <Player.Video.Element
+            {...controller.props}
+            onEnded={(e) => console.info(`⚡️ Player.Video:onEnded:`, e)}
+          />
+        ),
       }}
     />
   );

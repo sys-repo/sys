@@ -19,7 +19,7 @@ export function testSetup(options: { authEnabled?: boolean } = {}) {
 
   const dispose = () => listener.shutdown();
   const url = Http.url(listener.addr);
-  const client = DenoCloud.client(url.base);
+  const client = DenoCloud.client(url.toString());
 
   return {
     dispose,

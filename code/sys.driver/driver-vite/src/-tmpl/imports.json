@@ -1,17 +1,17 @@
 {
   "imports": {
-    "@sys/std": "jsr:@sys/std@0.0.148",
-    "@sys/tmp": "jsr:@sys/tmp@0.0.117",
-    "@sys/types": "jsr:@sys/types@0.0.99",
-    "@sys/ui-css": "jsr:@sys/ui-css@0.0.88",
-    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.144",
-    "react": "npm:react@18.3.1",
-    "react-dom": "npm:react-dom@18.3.1",
-    "@types/react": "npm:@types/react@18.3.18",
-    "@types/react-dom": "npm:@types/react-dom@18.3.5",
-    "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@3.10.0",
-    "rollup": "npm:rollup@4.41.1",
-    "vite": "npm:vite@6.3.5",
-    "vite-plugin-wasm": "npm:vite-plugin-wasm@3.4.1"
+    "@sys/std": "jsr:@sys/std@0.0.175",
+    "@sys/tmp": "jsr:@sys/tmp@0.0.118",
+    "@sys/types": "jsr:@sys/types@0.0.124",
+    "@sys/ui-css": "jsr:@sys/ui-css@0.0.113",
+    "@sys/driver-vite": "jsr:@sys/driver-vite@0.0.170",
+    "react": "npm:react@19.1.1",
+    "react-dom": "npm:react-dom@19.1.1",
+    "@types/react": "npm:@types/react@19.1.12",
+    "@types/react-dom": "npm:@types/react-dom@19.1.9",
+    "@vitejs/plugin-react-swc": "npm:@vitejs/plugin-react-swc@4.0.1",
+    "rollup": "npm:rollup@4.49.0",
+    "vite": "npm:vite@7.1.3",
+    "vite-plugin-wasm": "npm:vite-plugin-wasm@3.5.0"
   }
 }

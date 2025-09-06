@@ -1,5 +1,12 @@
 export { Color, css, Style } from '@sys/ui-css';
-export { Keyboard } from '@sys/ui-dom';
-
-export { useSizeObserver } from '@sys/ui-react';
-export { Button, ObjectView, Spinners } from '@sys/ui-react-components';
+export { Keyboard, LocalStorage } from '@sys/ui-dom';
+export { UserAgent } from '@sys/ui-dom/user-agent';
+export { usePointer, useSizeObserver } from '@sys/ui-react';
+export {
+  Bullet,
+  Button,
+  Cropmarks,
+  ObjectView,
+  PathView,
+  Spinners,
+} from '@sys/ui-react-components';

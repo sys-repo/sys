@@ -12,3 +12,8 @@ export type {
 export type PickRequired<T, K extends keyof T> = {
   [P in K]-?: T[P];
 };
+
+/**
+ * Excludes `undefined` from T.
+ */
+export type NonUndefined<T> = Exclude<T, undefined>;

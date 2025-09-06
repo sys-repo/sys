@@ -1,0 +1,30 @@
+{
+  "name": "@sys/ui-factory",
+  "version": "0.0.47",
+  "license": "MIT",
+  "tasks": {
+    "dev": "   deno run -RWNE --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
+    "test": "  deno test -RWNE --allow-run --allow-ffi --allow-sys",
+    "build": " deno run -RWE  --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": " deno run -RNE  --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=serve",
+    "dry": "   deno publish --allow-dirty --dry-run",
+    "check": " deno check src/*",
+    "clean": " deno run -RWE ./-scripts/-clean.ts",
+    "help": "  deno run -RE   --allow-ffi ./-scripts/-vite.ts --cmd=help",
+    "tmpl": "  deno run -RWE ./src/m.tmpl/mod.ts",
+    "prep": "  deno run -RWE ./src/m.tmpl/mod.ts --bundle",
+    "tmp": "  deno  run -A ./-scripts/-tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./core": "./src/m.core/mod.ts",
+    "./schema": "./src/m.schema/mod.ts",
+    "./tmpl": "./src/m.tmpl/mod.ts",
+    "./adapter/react": "./src/m.react/mod.ts",
+    "./components/react": "./src/ui/mod.ts",
+    "./sample/catalog": "./src/-test/-sample/catalog.ts",
+    "./sample/tmpl": "./-tmpl/react.catalog.folder/mod.ts"
+  }
+}

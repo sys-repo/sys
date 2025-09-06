@@ -13,7 +13,7 @@ import { Http, type t } from './common.ts';
 export const client: t.DenoCloudClientLib['client'] = (base, options = {}) => {
   const { accessToken } = options;
   const url = Http.url(base);
-  const fetch = Http.fetch({ accessToken });
+  const fetch = Http.fetcher({ accessToken });
 
   /**
    * API

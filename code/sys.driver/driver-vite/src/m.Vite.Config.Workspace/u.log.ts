@@ -28,26 +28,26 @@ export const Log = {
       const path = alias.replacement.slice(ws.dir.length + 1);
       const displayPath = `./${Path.dirname(path)}/${c.white(Path.basename(path))}`;
 
-      const module = Cli.Format.path(fullname, (e) => {
+      const module = Cli.Fmt.path(fullname, (e) => {
         if (e.is.slash) {
           if (e.index >= 3) {
-            e.change(c.green(e.text));
+            e.change(c.green(e.part));
           } else {
-            const next = isFirstRenderOfScope ? c.gray(e.text) : c.dim(e.text);
+            const next = isFirstRenderOfScope ? c.gray(e.part) : c.dim(e.part);
             e.change(next);
           }
         }
         if (isFirstRenderOfScope && !e.is.slash) {
           if (e.index === 0 || e.index === 2) {
-            e.change(c.white(e.text));
+            e.change(c.white(e.part));
           } else {
-            e.change(c.gray(e.text));
+            e.change(c.gray(e.part));
           }
         } else {
           if (e.index > 2) {
-            e.change(c.gray(e.text));
+            e.change(c.gray(e.part));
           } else {
-            const text = e.index === 0 ? c.dim(e.text) : c.gray(e.text);
+            const text = e.index === 0 ? c.dim(e.part) : c.gray(e.part);
             e.change(text);
           }
         }

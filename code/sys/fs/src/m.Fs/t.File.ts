@@ -9,7 +9,7 @@ export type FsFileFilter = (file: t.FsFile) => boolean;
 export type FsFileFactory = (path: t.StringPath, baseDir?: t.StringDir) => t.FsFile;
 
 /**
- * Path details about a template file.
+ * Path details about a file.
  */
 export type FsFile = {
   /** The conceptual root from which relative paths are computed. */

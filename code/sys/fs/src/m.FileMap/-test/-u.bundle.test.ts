@@ -1,0 +1,176 @@
+import { describe, expect, expectError, it } from '../../-test.ts';
+import { Sample } from './-u.ts';
+
+import { type t, Fs, Path } from '../common.ts';
+import { FileMap } from '../mod.ts';
+
+describe('FileMap.bundle (rollup: toMap + write)', () => {
+  const dir = Sample.source.dir as t.StringDir;
+
+  it('writes artifact and returns absolute path + count', async () => {
+    const tmp = await Sample.init('FileMap.bundle.basic.');
+    const outFile = Path.join(tmp.target, 'bundle.json');
+    const res = await FileMap.bundle(dir, { targetFile: outFile });
+
+    // Path is absolute and matches resolved outFile:
+    expect(res.file).to.eql(Path.resolve(outFile));
+
+    // Count matches number of keys:
+    expect(res.count).to.eql(Object.keys(res.fileMap).length);
+
+    // Artifact exists on disk and round-trips keys:
+    expect(await Fs.exists(outFile)).to.eql(true);
+    const json = (await Fs.readText(outFile)).data ?? '';
+    const roundTripped = JSON.parse(json) as t.FileMap;
+    expect(Object.keys(roundTripped)).to.eql(Object.keys(res.fileMap));
+  });
+
+  it('accepts targetFile as a plain string and writes the artifact', async () => {
+    const tmp = await Sample.init('FileMap.bundle.overload.');
+    const outFile = Path.join(tmp.target, 'bundle.json');
+
+    // Call overload: second arg is a string, not an options object:
+    const res = await FileMap.bundle(dir, outFile);
+
+    expect(res.file).to.eql(Path.resolve(outFile));
+    expect(await Fs.exists(outFile)).to.eql(true);
+    expect(res.count).to.eql(Object.keys(res.fileMap).length);
+
+    // Round-trip: JSON on disk exactly matches in-memory map keys.
+    const json = (await Fs.readText(outFile)).data ?? '';
+    const roundTripped = JSON.parse(json) as t.FileMap;
+    expect(Object.keys(roundTripped)).to.eql(Object.keys(res.fileMap));
+  });
+
+  it('passes through filter: only .ts and .json are included', async () => {
+    const tmp = await Sample.init('FileMap.bundle.filter.');
+    const outFile = Path.join(tmp.target, 'bundle.json');
+
+    const res = await FileMap.bundle(dir, {
+      targetFile: outFile,
+      filter: (e) => e.ext === '.ts' || e.ext === '.json',
+    });
+
+    const keys = Object.keys(res.fileMap);
+    expect(keys.length > 0).to.eql(true);
+    expect(keys.every((k) => k.endsWith('.ts') || k.endsWith('.json'))).to.eql(true);
+
+    // Verify the artifact matches the filtered keys:
+    const json = (await Fs.readText(outFile)).data ?? '';
+    const m = JSON.parse(json) as t.FileMap;
+    expect(Object.keys(m)).to.eql(keys);
+  });
+
+  it('creates parent directories for targetFile (deep path)', async () => {
+    const tmp = await Sample.init('FileMap.bundle.mkdirs.');
+    const deepDir = Path.join(tmp.target, 'a/b/c');
+    const outFile = Path.join(deepDir, 'bundle.json');
+
+    const res = await FileMap.bundle(dir, { targetFile: outFile });
+
+    // Deep artifact exists:
+    expect(await Fs.exists(outFile)).to.eql(true);
+
+    // Sanity check: returned absolute path is correct:
+    expect(res.file).to.eql(Path.resolve(outFile));
+  });
+
+  it('empty bundle when filter excludes all', async () => {
+    const tmp = await Sample.init('FileMap.bundle.empty.');
+    const outFile = Path.join(tmp.target, 'bundle.json');
+
+    const res = await FileMap.bundle(dir, {
+      targetFile: outFile,
+      filter: () => false,
+    });
+
+    expect(res.count).to.eql(0);
+    expect(Object.keys(res.fileMap)).to.eql([]);
+
+    const json = (await Fs.readText(outFile)).data ?? '';
+    const m = JSON.parse(json) as t.FileMap;
+    expect(Object.keys(m)).to.eql([]);
+  });
+
+  it('accepts relative targetFile and returns absolute path', async () => {
+    const tmp = await Sample.init('FileMap.bundle.rel.');
+    const rel = Path.relative('.', Path.join(tmp.target, 'bundle.json'));
+
+    const res = await FileMap.bundle(dir, { targetFile: rel });
+
+    expect(await Fs.exists(res.file)).to.eql(true);
+    expect(Path.Is.absolute(res.file)).to.eql(true);
+    expect(res.file).to.eql(Path.resolve(rel));
+  });
+
+  describe('beforeWrite', () => {
+    it('modifies bundle before writing', async () => {
+      const tmp = await Sample.init('FileMap.beforeWrite.');
+      const out1 = Path.join(tmp.target, '1.json');
+      const out2 = Path.join(tmp.target, '2.json');
+
+      let clone: t.FileMap | undefined;
+      const beforeWrite: t.FileMapBundleBeforeWrite = (e) => {
+        clone = e.fileMap;
+
+        // NB: mutating the passed file-map as example of clone safety.
+        // Typically this would be a bad smell to do this, test demostrates resilience of API.
+        Object.entries(e.fileMap).forEach(([key, value]) => {
+          delete e.fileMap[key];
+          e.fileMap[`foo-${key}`] = value;
+        });
+
+        e.modify(e.fileMap);
+      };
+
+      const a = await FileMap.bundle(dir, out1);
+      const b = await FileMap.bundle(dir, { targetFile: out2, beforeWrite });
+
+      expect(a.modified).to.eql(false);
+      expect(b.modified).to.eql(true);
+
+      // Passes clone to `beforeWrite` argument:
+      expect(FileMap.Is.fileMap(clone)).to.be.true;
+      expect(clone).to.not.equal(b.fileMap); // NB: the returned file-map is another clone from the modified input (safety).
+
+      // Modifications to keys make:
+      expect(Object.keys(b.fileMap).every((key) => key.startsWith('foo-'))).to.be.true;
+      expect(Object.values(a.fileMap)).to.eql(Object.values(b.fileMap));
+
+      // Sanity check the written file:
+      const jsonA = (await Fs.readJson<t.FileMap>(out1)).data!;
+      const jsonB = (await Fs.readJson<t.FileMap>(out2)).data!;
+      expect(Object.keys(jsonA).every((key) => key.startsWith('foo-'))).to.be.false;
+      expect(Object.keys(jsonB).every((key) => key.startsWith('foo-'))).to.be.true;
+    });
+
+    it('throws if invalid FileMap object is passed to modify', async () => {
+      const tmp = await Sample.init('FileMap.beforeWrite.throw.');
+      const test = async (value: any) => {
+        await expectError(async () => {
+          const targetFile = Path.join(tmp.target, 'bundle.json');
+          await FileMap.bundle(dir, {
+            targetFile,
+            beforeWrite: (e) => e.modify(value),
+          });
+        });
+      };
+
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), []];
+      for (const value of NON) await test(value);
+    });
+  });
+
+  describe('errors', () => {
+    it('throws when parent dir is unwritable (simulated)', async () => {
+      const unwritable = '/root/__nope__/bundle.json'; // NB: illegal write target (system directory on posix).
+      let threw = false;
+      try {
+        await FileMap.bundle(dir, { targetFile: unwritable });
+      } catch {
+        threw = true;
+      }
+      expect(threw).to.eql(true);
+    });
+  });
+});

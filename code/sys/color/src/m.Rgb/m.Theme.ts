@@ -1,5 +1,7 @@
-import type { t } from './common.ts';
-import { DARK, WHITE } from './u.const.ts';
+import type { ColorThemeLib } from './t.ts';
+
+import { type t, Num } from './common.ts';
+import { DARK, WHITE } from './m.Color.const.ts';
 import { alpha } from './u.format.ts';
 
 type HexColor = string;
@@ -35,19 +37,30 @@ function factory(
     bg,
     is: { light: name === 'Light', dark: name === 'Dark' },
     alpha(percent: t.Percent = 1) {
+      percent = Num.clamp(-1, 1, percent);
+      const invert = percent < 0;
+      const convert = (color: string) => alpha(color, Math.abs(percent));
+
       let _fg: HexColor;
       let _bg: HexColor;
       return {
         get fg() {
-          return _fg || (_fg = alpha(fg, percent));
+          return _fg || (_fg = convert(invert ? bg : fg));
         },
         get bg() {
-          return _bg || (_bg = alpha(bg, percent));
+          return _bg || (_bg = convert(invert ? fg : bg));
         },
       };
     },
+    format(input) {
+      if (input == null || input === '') return theme.toColors();
+      if (typeof input === 'string') return { fg: input, bg: input };
+      if (typeof input === 'number') return theme.alpha(input);
+      return theme.toColors();
+    },
     invert: () => create(invert(name), defaultLight, defaultDark),
     toString: () => name,
+    toColors: () => ({ fg, bg }),
   };
   return theme;
 }
@@ -62,7 +75,7 @@ export function invert(theme: t.CommonTheme = defaultTheme): t.CommonTheme {
 /**
  * API
  */
-export const Theme: t.ColorThemeLib = {
+export const Theme: ColorThemeLib = {
   create,
   invert,
 };

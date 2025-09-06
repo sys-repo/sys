@@ -1,4 +1,3 @@
-import { slug } from '../-test.ts';
 import { Fs } from './common.ts';
 
 export const Sample = {
@@ -7,10 +6,8 @@ export const Sample = {
   /**
    * Initialize a new sample directory to test against.
    */
-  async init(options: { slug?: boolean } = {}) {
-    let dir = './.tmp/test/m.Dir';
-    if (options.slug ?? true) dir += `/${slug()}`;
-
+  async init(prefix = 'Fs.Dir.Hash.') {
+    const dir = (await Fs.makeTempDir({ prefix })).absolute;
     const file = {
       main: {
         path: Fs.join(dir, 'main.ts'),
@@ -19,7 +16,8 @@ export const Sample = {
       },
     } as const;
 
-    await Fs.copyDir(Sample.dir, dir);
+    await Fs.copyDir(Sample.dir, dir, { force: true });
+
     return {
       dir,
       file,
