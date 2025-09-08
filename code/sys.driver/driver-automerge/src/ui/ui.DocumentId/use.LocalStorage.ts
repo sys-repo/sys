@@ -42,8 +42,8 @@ export function useLocalStorage(args: {
       } else if (stored && !signalled) {
         signal.value = stored;
       } else if (stored && signalled && stored !== signalled) {
-        // Prefer durable local-storage over a stale signal (e.g., from a stale URL param).
-        signal.value = stored;
+        // URL (signalled in query-string) wins → persist it so storage converges to the address bar.
+        store.change((d) => (d.docId = signalled));
       }
     } else {
       // Reset:

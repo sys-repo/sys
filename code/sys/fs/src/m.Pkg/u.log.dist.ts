@@ -26,7 +26,8 @@ export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
   const diff = a === 0 ? 0 : Num.toString((b / a) * 100, 0);
   const percentDiff = c.gray(`↑ ${diff}%`);
 
-  const hx = digest(dist.hash.digest);
+  const hash = dist.hash.digest;
+  const hx = digest(hash);
   const distPath = Path.trimCwd(Path.join(outDir, 'dist.json'));
   const d = Fs.toFile(distPath);
   const distPathFmt = `${c.gray(`${Path.dirname(d.relative)}/`)}${c.green(d.file.name)}`;
@@ -40,6 +41,7 @@ export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
   push('size:', totalSize);
   push('size:/pkg/*', c.gray(`${pkgSize} (${percentDiff})`));
   push('dist:', c.gray(`${distPathFmt} ${hx}`));
+  push('', c.gray(`${c.dim(hash.slice(0, -5))}${hash.slice(-5)}`));
   push('timestamp:', c.gray(`${buildTime} | ${timeAgo} ago`));
   push('builder:', toModuleString(builderPkg));
 
