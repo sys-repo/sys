@@ -73,19 +73,21 @@ describe('Disposable', () => {
       obj.dispose$.subscribe((e) => fired.push(e));
 
       expect(count).to.eql(0);
-      const promise = obj.dispose();
-      expect(count).to.eql(0); // NB: not yet completed handler.
+      const promise = obj.dispose('test:reason');
+      expect(count).to.eql(0); // not yet completed
       expect(fired.length).to.eql(1);
       expect(fired[0].payload.stage).to.eql('start');
       expect(fired[0].payload.is).to.eql({ ok: true, done: false });
+      expect(fired[0].payload.reason).to.eql('test:reason');
 
       await promise;
-      await promise; // NB: second call.
-      expect(count).to.eql(1); // NB: multiple calls to dispose to not re-fire the cleanup handler.
+      await promise; // idempotent
+      expect(count).to.eql(1);
 
       expect(fired.length).to.eql(2);
       expect(fired[1].payload.stage).to.eql('complete');
       expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+      expect(fired[1].payload.reason).to.eql('test:reason');
     });
 
     it('error in cleanup handler', async () => {
@@ -100,26 +102,29 @@ describe('Disposable', () => {
         const fired: t.DisposeAsyncEvent[] = [];
         obj.dispose$.subscribe((e) => fired.push(e));
 
-        const promise = obj.dispose();
+        const reason = 'test:error-reason';
+        const promise = obj.dispose(reason);
         await promise;
-        await promise; // NB: second call.
-        expect(count).to.eql(1); // NB: multiple calls to dispose to not re-fire the cleanup handler.
+        await promise; // idempotent
+        expect(count).to.eql(1);
 
         expect(fired.length).to.eql(2);
         expect(fired[0].payload.stage).to.eql('start');
+        expect(fired[0].payload.reason).to.eql(reason);
+
         expect(fired[1].payload.stage).to.eql('error');
         expect(fired[1].payload.is).to.eql({ ok: false, done: true });
+        expect(fired[1].payload.reason).to.eql(reason);
 
         const err = fired[1].payload.error;
         expect(err?.name).to.eql('DisposeError');
         expect(err?.message).to.include('Failed while disposing asynchronously');
-
         return err;
       };
 
       const err1 = await test(() => 'My String Error');
       expect(err1?.cause?.name).to.eql('Error');
-      expect(err1?.cause?.message).to.eql('My String Error'); // NB: converted to [StdError].
+      expect(err1?.cause?.message).to.eql('My String Error');
 
       const err2 = await test(() => new Error('My JS Error', { cause: new Error('fail') }));
       expect(err2?.cause?.message).to.eql('My JS Error');
@@ -137,8 +142,8 @@ describe('Disposable', () => {
         const fired: t.DisposeAsyncEvent[] = [];
         obj.dispose$.subscribe((e) => fired.push(e));
 
-        obj.dispose();
-        obj.dispose(); // NB: multiple calls.
+        obj.dispose('upstream:manual');
+        obj.dispose('ignored'); // idempotent
 
         expect(count).to.eql(0);
         await Time.wait(15);
@@ -146,14 +151,69 @@ describe('Disposable', () => {
 
         expect(fired.length).to.eql(2);
         expect(fired[0].payload.stage).to.eql('start');
+        expect(fired[0].payload.reason).to.eql('upstream:manual');
+
         expect(fired[1].payload.stage).to.eql('complete');
         expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+        expect(fired[1].payload.reason).to.eql('upstream:manual');
       };
 
       await test(Dispose.disposable());
       await test(Dispose.lifecycle());
-      await test([undefined, [undefined, Dispose.disposable()]]); // NB: complex "until" list.
+      await test([undefined, [undefined, Dispose.disposable()]]);
       await test([undefined, [undefined, Dispose.disposable().dispose$]]);
+    });
+
+    it('passes reason through dispose$ events', async () => {
+      const obj = Dispose.disposableAsync(async () => {
+        await Time.wait(1);
+      });
+
+      const fired: t.DisposeAsyncEvent[] = [];
+      obj.dispose$.subscribe((e) => fired.push(e));
+
+      const reason = 'react:unmount';
+      await obj.dispose(reason);
+      await obj.dispose('ignored-second-reason');
+
+      expect(fired.length).to.eql(2);
+      expect(fired[0].payload.stage).to.eql('start');
+      expect(fired[1].payload.stage).to.eql('complete');
+
+      expect(fired[0].payload.reason).to.eql(reason);
+      expect(fired[1].payload.reason).to.eql(reason);
+    });
+
+    it('passes reason to onDispose (direct)', async () => {
+      const received: unknown[] = [];
+      const obj = Dispose.disposableAsync(async (e) => {
+        console.log('e', e);
+        received.push(e.reason);
+        await Time.wait(1);
+      });
+
+      const reason = 'direct:reason';
+      await obj.dispose(reason);
+      await obj.dispose('ignored'); // ← idempotent
+
+      expect(received).to.eql([reason]); // ← handler runs once with reason
+    });
+
+    it('passes reason to onDispose (via until bridge)', async () => {
+      const upstream = Dispose.disposable();
+      const received: unknown[] = [];
+
+      const obj = Dispose.disposableAsync(upstream, async (e) => {
+        received.push(e.reason);
+        await Time.wait(1);
+      });
+
+      const reason = 'upstream:reason';
+      upstream.dispose(reason); // ← triggers `obj.dispose(reason)` via bridge.
+
+      await Time.wait(5);
+      await obj.dispose('ignored'); // ← idempotent.
+      expect(received).to.eql([reason]);
     });
   });
 

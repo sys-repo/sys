@@ -28,7 +28,7 @@ export type UntilInput = DisposeInput;
  */
 export type DisposableAsync = {
   readonly dispose$: t.Observable<DisposeAsyncEvent>;
-  dispose(): Promise<void>;
+  dispose(reason?: unknown): Promise<void>;
 };
 
 /**
@@ -42,6 +42,7 @@ export type DisposeAsyncEvent = { type: 'dispose'; payload: DisposeAsyncEventArg
 export type DisposeAsyncEventArgs = {
   is: { ok: boolean; done: boolean };
   stage: t.DisposeAsyncStage;
+  reason?: unknown;
   error?: DisposeError;
 };
 
@@ -83,5 +84,5 @@ export type OmitLifecycle<T extends Lifecycle | LifecycleAsync | object> = Omit<
  *    another observable should end.
  */
 export type UntilObservable = O | OList;
-type O = t.Observable<any>;
+type O = t.DisposeObservable | t.Observable<any>;
 type OList = (O | OList | undefined)[];

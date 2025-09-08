@@ -52,28 +52,30 @@ export function disposableAsync(...args: any[]) {
   let _disposing = false;
 
   type P = t.DisposeAsyncEventArgs;
-  const asPayload = (stage: t.DisposeAsyncStage, error?: t.DisposeError): P => {
+  const asPayload = (stage: t.DisposeAsyncStage, reason?: unknown, error?: t.DisposeError): P => {
     const ok = !error;
     const done = stage === 'complete' || stage === 'error';
-    return Delete.undefined({ stage, is: { ok, done }, error });
+    return Delete.undefined({ stage, is: { ok, done }, reason, error });
   };
-  const fire = (stage: t.DisposeAsyncStage, error?: t.DisposeError) => {
-    const payload = asPayload(stage, error);
+  const fire = (stage: t.DisposeAsyncStage, reason?: unknown, error?: t.DisposeError) => {
+    const payload = asPayload(stage, reason, error);
     dispose$.next({ type: 'dispose', payload });
   };
 
   const disposable: t.DisposableAsync = {
     dispose$: dispose$.asObservable(),
-    async dispose() {
-      if (_disposing) return;
+    async dispose(reason) {
+      if (_disposing) return; // idempotent
       _disposing = true;
 
-      fire('start');
+      fire('start', reason);
       try {
-        await onDispose?.(); // Invoke handler ("clean up resources").
-        fire('complete');
+        // Invoke handler ("clean up resources").
+        // Pass a structured event with the optional disposal reason.
+        await onDispose?.({ reason });
+        fire('complete', reason);
       } catch (err: any) {
-        fire('error', {
+        fire('error', reason, {
           name: 'DisposeError',
           message: 'Failed while disposing asynchronously',
           cause: Err.std(err),
@@ -82,15 +84,20 @@ export function disposableAsync(...args: any[]) {
     },
   };
 
-  until(until$).forEach(($) => $.subscribe(disposable.dispose));
+  // Bridge external lifetimes into this disposable.
+  // Assumes `until(until$)` → Iterable<Observable<DisposeEvent>>.
+  for (const $ of until(until$)) {
+    $.subscribe((e) => disposable.dispose((e as t.DisposeEvent | undefined)?.reason));
+  }
+
   return disposable;
 }
 
 /**
- * Helpers
+ * Helpers:
  */
 export function toDisposableAsyncArgs(args: any[]) {
-  type Fn = () => Promise<void>;
+  type Fn = (e: t.DisposeEvent) => Promise<void>;
   let onDispose: Fn | undefined;
   let until$: t.UntilObservable | undefined;
 
