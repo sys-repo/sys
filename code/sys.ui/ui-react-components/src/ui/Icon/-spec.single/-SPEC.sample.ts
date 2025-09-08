@@ -1,6 +1,6 @@
 import { MdFace } from 'react-icons/md';
 import { VscSymbolClass } from 'react-icons/vsc';
-import { Icon } from './mod.ts';
+import { Icon } from '../mod.ts';
 
 const icon = Icon.renderer;
 

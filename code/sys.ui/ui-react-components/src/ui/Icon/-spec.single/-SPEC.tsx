@@ -1,4 +1,4 @@
-import { css, Spec, type t } from '../-test.ui.ts';
+import { css, Spec, type t } from '../../-test.ui.ts';
 import { Debug } from './-SPEC.Debug.tsx';
 import { Icons } from './-SPEC.sample.ts';
 
@@ -6,10 +6,6 @@ type T = {
   props: t.IconProps;
   debug: { inheritColor: boolean };
 };
-// const initial: T = {
-//   props: { tooltip: 'Hello' },
-//   debug: { inheritColor: true },
-// };
 
 export default Spec.describe('Icon', (e) => {
   e.it('init', async (e) => {
