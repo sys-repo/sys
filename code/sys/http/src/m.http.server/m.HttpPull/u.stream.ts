@@ -8,6 +8,7 @@ import { isAbortError, makeEventQueue, resolveTarget, semaphore } from './u.ts';
  *
  * Usage:
  *   for await (const e of stream(urls, dir, opts)) { ... }
+ *   stream(urls, dir, opts).events().$.subscribe(...)
  *   stream(urls, dir, opts).cancel(); // aborts in-flight work
  */
 export function stream(
@@ -26,6 +27,16 @@ export function stream(
   const q = makeEventQueue<t.HttpPullEvent>();
   const lim = semaphore(concurrency);
 
+  // Hot subject mirroring progress events to observable subscribers.
+  const subject$ = rx.subject<t.HttpPullEvent>();
+  let cancelled = false;
+
+  // Forward lifecycle cancellation: mark, then complete the subject.
+  life.dispose$.subscribe(() => {
+    cancelled = true;
+    subject$.complete();
+  });
+
   let index = 0;
   const tasks = urls.map((source) =>
     lim(async () => {
@@ -33,29 +44,36 @@ export function stream(
       const i = index++ as t.Index;
 
       // Start:
-      if (!signal.aborted) q.push({ kind: 'start', index: i, total, url: source });
+      if (!signal.aborted) {
+        const ev: t.HttpPullEvent = { kind: 'start', index: i, total, url: source };
+        q.push(ev);
+        subject$.next(ev);
+      }
 
       try {
         const record = await pullOne(source, dir, client, options.map, signal);
         if (signal.aborted) return; // Silent bail on cancellation.
 
-        if (record.ok) {
-          q.push({ kind: 'done', index: i, total, record, url: source });
-        } else {
-          q.push({ kind: 'error', index: i, total, record, url: source });
-        }
+        const ev: t.HttpPullEvent = record.ok
+          ? { kind: 'done', index: i, total, record, url: source }
+          : { kind: 'error', index: i, total, record, url: source };
+
+        q.push(ev);
+        subject$.next(ev);
       } catch (err) {
         // Swallow expected aborts; surface real failures.
         if (!isAbortError(err)) {
           const error = err instanceof Error ? err.message : String(err);
           const target = resolveTarget(source, dir, options.map);
-          q.push({
+          const ev: t.HttpPullEvent = {
             kind: 'error',
             index: i,
             total,
             url: source,
             record: { ok: false, error, path: { source, target } },
-          });
+          };
+          q.push(ev);
+          subject$.next(ev);
         }
       }
     }),
@@ -67,6 +85,7 @@ export function stream(
       await Promise.allSettled(tasks);
     } finally {
       q.close();
+      if (!cancelled) subject$.complete();
     }
   })();
 
@@ -85,8 +104,15 @@ export function stream(
 
   return {
     [Symbol.asyncIterator]: () => iterator(),
-    cancel: (reason?: unknown) => {
-      life.dispose();
+
+    /** Abort in-flight requests and complete the stream. */
+    cancel: (reason?: unknown) => life.dispose(reason),
+
+    /** Observable of progress events (completes on finish/cancel). */
+    events(until?: t.UntilInput) {
+      const child = rx.lifecycle([life, until]);
+      const $ = subject$.pipe(rx.takeUntil(child.dispose$));
+      return rx.toLifecycle<t.HttpPullStreamEvents>(child, { $ });
     },
   };
 }

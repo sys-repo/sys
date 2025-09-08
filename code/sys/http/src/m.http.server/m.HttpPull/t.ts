@@ -78,9 +78,20 @@ export type HttpPullStream = {
   /** Async-iteration over progress events. */
   readonly [Symbol.asyncIterator]: () => AsyncIterator<t.HttpPullEvent>;
 
+  /** Observable of progress events (completes on finish/cancel). */
+  readonly events: (until?: t.UntilInput) => HttpPullStreamEvents;
 
   /** Abort in-flight requests and complete the stream. */
   readonly cancel: (reason?: unknown) => void;
+};
+
+/**
+ * Observable events from a pull-stream.
+ * (completes on finish/cancel).
+ */
+export type HttpPullStreamEvents = t.Lifecycle & {
+  /** Observable of pull events. */
+  readonly $: t.Observable<t.HttpPullEvent>;
 };
 
 /**

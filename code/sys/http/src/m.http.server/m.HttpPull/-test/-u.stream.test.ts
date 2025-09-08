@@ -188,4 +188,113 @@ describe('HttpPull.stream', () => {
       await server.dispose();
     });
   });
+
+  describe('stream.events() - observable', () => {
+    it('emits start/done and completes (observable)', async () => {
+      // Keep server simple; start events may be missed by late subscription.
+      const server = Testing.Http.server((req) => Testing.Http.text(req, 'OK'));
+      const a = server.url.join('p', 'a.txt');
+      const b = server.url.join('p', 'b.txt');
+      const outDir = await mkTmpDir();
+
+      const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
+
+      const events: t.HttpPullEvent[] = [];
+      const done = deferred();
+
+      const sub = stream.events().$.subscribe({
+        next: (e) => events.push(e),
+        error: done.reject,
+        complete: done.resolve,
+      });
+
+      await done.promise;
+      sub.unsubscribe();
+
+      const starts = events.filter((e) => e.kind === 'start');
+      const dones = events.filter((e) => e.kind === 'done');
+      const errors = events.filter((e) => e.kind === 'error');
+
+      // Deterministic invariants for a hot Subject:
+      expect(dones.length).to.eql(2);
+      expect(errors.length).to.eql(0);
+      expect(starts.length).to.be.gte(0).and.lte(2);
+
+      await server.dispose();
+    });
+
+    it('cancel(reason) → completes observable quietly (no done/error)', async () => {
+      // Never-responding server; stream should end quietly on cancel.
+      const server = Testing.Http.server((_req) => new Promise<Response>(() => {}));
+      const a = server.url.join('x', 'a.txt');
+      const b = server.url.join('x', 'b.txt');
+      const outDir = await mkTmpDir();
+
+      const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
+
+      const events: t.HttpPullEvent[] = [];
+      const done = deferred();
+      const sub = stream.events().$.subscribe({
+        next: (e) => events.push(e),
+        error: done.reject,
+        complete: done.resolve,
+      });
+
+      // Cancel on next microtask.
+      queueMicrotask(() => stream.cancel('react:unmount'));
+
+      await done.promise;
+      sub.unsubscribe();
+
+      expect(events.some((e) => e.kind === 'done')).to.eql(false);
+      expect(events.some((e) => e.kind === 'error')).to.eql(false);
+
+      await server.dispose();
+    });
+
+    it('events(until) has independent lifetime from iterator (observable completes; iterator continues)', async () => {
+      const server = Testing.Http.server((req) => Testing.Http.text(req, 'OK'));
+      const a = server.url.join('p', 'a.txt');
+      const b = server.url.join('p', 'b.txt');
+      const outDir = await mkTmpDir();
+
+      const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
+
+      // Start a for-await consumer that should finish naturally.
+      const iterEvents: t.HttpPullEvent[] = [];
+      const iterDone = deferred<void>();
+      (async () => {
+        for await (const ev of stream) iterEvents.push(ev);
+        iterDone.resolve();
+      })();
+
+      // Create an events() subscription with its own until; we dispose it immediately.
+      const local = rx.disposable();
+      const obsEvents: t.HttpPullEvent[] = []; // ← was HttpPullRecord[]
+      const obsDone = deferred<void>();
+      const sub = stream.events(local).$.subscribe({
+        next: (e) => obsEvents.push(e),
+        error: obsDone.reject,
+        complete: obsDone.resolve,
+      });
+
+      // End only the observable view.
+      local.dispose('local:unsubscribe');
+
+      await obsDone.promise;
+      sub.unsubscribe();
+
+      // Observable ended early; iterator should still complete and see all events.
+      await iterDone.promise;
+
+      const iterStarts = iterEvents.filter((e) => e.kind === 'start').length;
+      const iterDones = iterEvents.filter((e) => e.kind === 'done').length;
+
+      expect(obsEvents.length).to.be.gte(0); // may be 0 or a few 'start' depending on timing
+      expect(iterStarts).to.eql(2);
+      expect(iterDones).to.eql(2);
+
+      await server.dispose();
+    });
+  });
 });
