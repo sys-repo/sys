@@ -1,3 +1,13 @@
+/**
+ * @module @sys/http
+ *
+ * CLI entrypoint for starting an HTTP static file server.
+ *
+ * ```bash
+ * deno run -RNE jsr:@sys/http/serve
+ * deno run -RNE jsr:@sys/http/serve --port=1234 --dir=dist
+ * ```
+ */
 import { type t, Args, Str } from './common.ts';
 import { start } from './u.start.ts';
 
