@@ -32,7 +32,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   /**
    * Refs:
    */
-  const disposeRef = useRef(rx.subject<void>());
+  const disposeRef = useRef(rx.subject<t.DisposeEvent>());
   const monacoRef = useRef<t.Monaco.Monaco>(undefined);
   const editorRef = useRef<t.Monaco.Editor>(undefined);
   const [isEmpty, setIsEmpty] = React.useState(false);
@@ -66,7 +66,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       const editor = editorRef.current!;
       const monaco = monacoRef.current!;
       const dispose$ = disposeRef.current;
-      dispose$.next();
+      dispose$.next({ reason: 'react:unmount' });
       props.onDispose?.({ editor, monaco });
     };
   }, []);

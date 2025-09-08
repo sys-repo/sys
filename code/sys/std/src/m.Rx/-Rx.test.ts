@@ -1,4 +1,4 @@
-import { describe, expect, it, Testing, Time } from '../-test.ts';
+import { type t, describe, expect, it, Testing, Time } from '../-test.ts';
 import { Dispose, rx, Rx } from '../mod.ts';
 
 describe('Observable/rx', () => {
@@ -136,10 +136,10 @@ describe('Observable/rx', () => {
     });
 
     it('rx.done() - fires and completes the subject', () => {
-      const dispose$ = rx.subject<void>();
+      const dispose$ = rx.subject<t.DisposeEvent>();
 
       let count = 0;
-      dispose$.subscribe(() => count++);
+      dispose$.subscribe(() => (count += 1));
 
       rx.done(dispose$);
       rx.done(dispose$);

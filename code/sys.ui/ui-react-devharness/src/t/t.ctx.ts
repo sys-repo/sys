@@ -30,7 +30,7 @@ export type DevCtxInput = t.DevCtx | t.TestHandlerArgs;
  * The context {ctx} interface passed into specs.
  */
 export type DevCtx = {
-  readonly dispose$: t.Observable<void>;
+  readonly dispose$: t.Observable<t.DisposeEvent>;
   readonly subject: DevCtxSubject;
   readonly host: DevCtxHost;
   readonly debug: DevCtxDebug;

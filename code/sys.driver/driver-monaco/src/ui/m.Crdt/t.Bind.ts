@@ -26,7 +26,7 @@ export type EditorCrdtBinding = t.Lifecycle & {
  */
 export type UseEditorCrdtBinding = (
   args: t.UseEditorCrdtBindingArgs,
-  onReady?: (e: { binding: t.EditorCrdtBinding; dispose$: t.Observable<void> }) => void,
+  onReady?: (e: { binding: t.EditorCrdtBinding; dispose$: t.DisposeObservable }) => void,
 ) => EditorCrdtBindingHook | undefined;
 
 /** Arguments passed to the CRDT `useBinding` hook. */

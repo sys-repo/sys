@@ -283,17 +283,37 @@ describe('Disposable', () => {
   });
 
   describe('Dispose.done', () => {
-    it('fires and completes a subject', () => {
-      const dispose$ = new Subject<void>();
+    it('fires once and completes', () => {
+      const dispose$ = new Subject<t.DisposeEvent>();
 
-      let count = 0;
-      dispose$.subscribe(() => count++);
+      let nextCount = 0;
+      let completed = false;
+
+      dispose$.subscribe({
+        next: () => nextCount++,
+        complete: () => (completed = true),
+      });
 
       Dispose.done(dispose$);
       Dispose.done(dispose$);
       Dispose.done(dispose$);
 
-      expect(count).to.eql(1);
+      expect(nextCount).to.eql(1);
+      expect(completed).to.eql(true);
+    });
+
+    it('with reason', () => {
+      const dispose$ = new Subject<any>();
+      expect(dispose$.closed).to.eql(false);
+
+      const fired: t.DisposeEvent[] = [];
+      dispose$.subscribe((e) => fired.push(e));
+
+      Dispose.done(dispose$, 'a');
+      Dispose.done(dispose$, 'b');
+
+      expect(fired.length).to.eql(1);
+      expect(fired[0].reason).to.eql('a'); // ← NB: first "reason" only.
     });
   });
 

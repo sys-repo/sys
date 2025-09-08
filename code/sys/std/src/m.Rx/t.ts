@@ -13,13 +13,13 @@ export type RxLib = Rxjs & {
   readonly noop$: rxjs.Subject<any>;
   readonly asPromise: t.RxAsPromise;
 
-  done(dispose$?: t.Subject<void>): void;
   subject<T = void>(): rxjs.Subject<T>;
   event<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E>;
   payload<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E['payload']>;
 
   bus: t.RxBus;
 
+  done: t.DisposeLib['done'];
   abortable: t.DisposeLib['abortable'];
   disposable: t.DisposeLib['disposable'];
   disposableAsync: t.DisposeLib['disposableAsync'];

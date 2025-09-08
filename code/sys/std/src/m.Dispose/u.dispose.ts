@@ -6,17 +6,41 @@ import { until } from './u.until.ts';
  * Generates a generic disposable interface that is
  * typically mixed into a wider interface of some kind.
  */
-export function disposable(until$?: t.UntilInput) {
-  const subject$ = new Subject<void>();
+export function disposable(until$?: t.UntilInput): t.Disposable {
+  const subject$ = new Subject<t.DisposeEvent>();
   const dispose$ = subject$.asObservable();
-  const disposable: t.Disposable = {
-    dispose: () => done(subject$),
+
+  let disposed = false;
+  const bridges = new Set<{ unsubscribe(): void }>();
+
+  const dispose: t.Disposable['dispose'] = (reason) => {
+    if (disposed) return; // idempotent
+    disposed = true;
+
+    // Tear down any external lifetime bridges.
+    for (const s of bridges)
+      try {
+        s.unsubscribe();
+      } catch {}
+    bridges.clear();
+
+    // Emit and complete.
+    done(subject$, reason);
+  };
+
+  // Bridge external lifetimes into this disposable.
+  // Assumes `until(until$)` → Iterable<Observable<DisposeEvent>>.
+  for (const $ of until(until$)) {
+    const sub = $.subscribe(dispose);
+    bridges.add(sub);
+  }
+
+  return {
+    dispose,
     get dispose$() {
       return dispose$;
     },
   };
-  until(until$).forEach(($) => $.subscribe(disposable.dispose));
-  return disposable;
 }
 
 /**

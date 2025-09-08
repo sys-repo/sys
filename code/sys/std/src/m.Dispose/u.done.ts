@@ -5,7 +5,8 @@ import { type t } from './common.ts';
  *    1. subject.next();
  *    2. subject.complete();
  */
-export function done(dispose$?: t.Subject<void>) {
-  dispose$?.next?.();
-  dispose$?.complete?.();
+export function done(dispose$?: t.Subject<t.DisposeEvent>, reason?: unknown) {
+  if (!dispose$) return;
+  dispose$.next({ reason });
+  dispose$.complete();
 }

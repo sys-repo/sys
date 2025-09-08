@@ -10,11 +10,14 @@ export type CanDispose = { dispose(): unknown };
  */
 export type Disposable = {
   readonly dispose$: t.DisposeObservable;
-  dispose(): void;
+  dispose(reason?: unknown): void;
 };
 
 /** An observable that fires when resource is disposed. */
-export type DisposeObservable = t.Observable<void>;
+export type DisposeObservable = t.Observable<DisposeEvent>;
+
+/** Event fired through the `dispose$` observable. */
+export type DisposeEvent = { readonly reason?: unknown };
 
 /** The "until this fires" input for a disposable resource factory. */
 export type DisposeInput = t.UntilObservable | t.Disposable | undefined | DisposeInput[];

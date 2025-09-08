@@ -40,12 +40,10 @@ export type DisposeLib = {
   until(until?: t.UntilInput): t.Observable<unknown>[];
 
   /**
-   * "Completes" a subject by running:
-   *
-   *    1. subject.next();
-   *    2. subject.complete();
+   * Emit `{ reason }` once, then complete.
+   * Safe to call with `undefined` reason.
    */
-  done(dispose$?: t.Subject<void>): void;
+  done(dispose$?: t.Subject<t.DisposeEvent>, reason?: unknown): void;
 
   /**
    * Safely remove the `dispose` method from a disposable.

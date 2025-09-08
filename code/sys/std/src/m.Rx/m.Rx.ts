@@ -1,6 +1,4 @@
-import type { RxLib } from './t.ts';
-
-import { Dispose } from './common.ts';
+import { type t, Dispose } from './common.ts';
 import * as lib from './u.Rx.libs.ts';
 
 import { Is } from './m.Is.ts';
@@ -21,7 +19,7 @@ const {
 } = Dispose;
 
 /** Tools for working with Observables (via the RXJS library). */
-export const Rx: RxLib = {
+export const Rx: t.RxLib = {
   ...lib,
   Is,
   noop$: new lib.Subject(),
