@@ -22,16 +22,6 @@ export type HttpPullLib = {
    * Emission order is not guaranteed to be request order.
    */
   stream(urls: readonly string[], dir: t.StringDir, options?: HttpPullOptions): HttpPullStream;
-
-  /**
-   * An observable of `stream` firing progress events.
-   * Completes quietly when `until` is disposed (no error/cancel event).
-   */
-  stream$(
-    urls: readonly string[],
-    dir: t.StringDir,
-    options?: HttpPullOptions,
-  ): t.Observable<HttpPullEvent>;
 };
 
 /** Response from `HttpPull.toDir` method */
