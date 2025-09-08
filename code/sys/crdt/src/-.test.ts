@@ -1,8 +1,9 @@
-import { type t, describe, it, expect, Pkg, pkg } from './-test.ts';
+import { type t, describe, it, expect, Pkg, pkg, expectTypeOf } from './-test.ts';
+
+import type { Crdt } from '@sys/crdt/t';
 
 describe(`module: ${Pkg.toString(pkg)}`, () => {
-  it('exists', () => {
-    console.info(`💦 Module`, pkg);
-    expect(typeof pkg.name === 'string').to.be.true;
+  it('API', () => {
+    let repo: Crdt.Repo | undefined;
   });
 });

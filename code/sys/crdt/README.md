@@ -9,7 +9,7 @@ This module serves as the system entry point for CRDT state management:
 
 ### Usage
 ```ts
-// types: t.ts
+// t.ts | type namespace:
 export type { Crdt } from 'jsr:@sys/crdt/t';
 ```
 
