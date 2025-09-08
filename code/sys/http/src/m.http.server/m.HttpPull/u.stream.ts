@@ -4,17 +4,22 @@ import { isAbortError, makeEventQueue, resolveTarget, semaphore } from './u.ts';
 
 /**
  * Same as `toDir`, but yields progress events.
- * Emission order is not guaranteed to be request order.
+ * Emission order is not guaranteed to match request order.
+ *
+ * Usage:
+ *   for await (const e of stream(urls, dir, opts)) { ... }
+ *   stream(urls, dir, opts).cancel(); // aborts in-flight work
  */
-export async function* stream(
+export function stream(
   urls: readonly string[],
   dir: t.StringDir,
   options: t.HttpPullOptions = {},
-): AsyncGenerator<t.HttpPullEvent> {
+): t.HttpPullStream {
   const client = options.client ?? HttpClient.fetcher();
   const concurrency = Math.max(1, options.concurrency ?? 8);
   const total = urls.length;
 
+  // System lifecycle (drives cancellation via dispose$ → controller.abort()).
   const life = rx.abortable(options.until);
   const { signal } = life;
 
@@ -32,7 +37,7 @@ export async function* stream(
 
       try {
         const record = await pullOne(source, dir, client, options.map, signal);
-        if (signal.aborted) return; // ← Silent bail on cancellation.
+        if (signal.aborted) return; // Silent bail on cancellation.
 
         if (record.ok) {
           q.push({ kind: 'done', index: i, total, record, url: source });
@@ -56,25 +61,32 @@ export async function* stream(
     }),
   );
 
+  // Close the queue when all tasks settle (including on cancel).
   (async () => {
     try {
-      await Promise.allSettled(tasks); // Ensures close on cancellation.
+      await Promise.allSettled(tasks);
     } finally {
       q.close();
     }
   })();
 
-  try {
-    for await (const ev of q) {
-      if (signal.aborted) break;
-      yield ev;
-    }
-  } finally {
-    // If consumer stops early, ensure we abort/dispose once.
+  // Async generator loop:
+  const iterator = async function* () {
     try {
-      if (!signal.aborted) (life as any).abort?.();
+      for await (const ev of q) {
+        if (signal.aborted) break;
+        yield ev;
+      }
     } finally {
-      (life as any).dispose?.();
+      // If consumer stops early, ensure lifecycle cleanup.
+      life.dispose();
     }
-  }
+  };
+
+  return {
+    [Symbol.asyncIterator]: () => iterator(),
+    cancel: (reason?: unknown) => {
+      life.dispose();
+    },
+  };
 }

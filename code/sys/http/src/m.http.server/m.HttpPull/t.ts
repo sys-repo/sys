@@ -21,11 +21,7 @@ export type HttpPullLib = {
    * Same as `toDir`, but yields progress events.
    * Emission order is not guaranteed to be request order.
    */
-  stream(
-    urls: readonly string[],
-    dir: t.StringDir,
-    options?: HttpPullOptions,
-  ): AsyncGenerator<HttpPullEvent>;
+  stream(urls: readonly string[], dir: t.StringDir, options?: HttpPullOptions): HttpPullStream;
 
   /**
    * An observable of `stream` firing progress events.
@@ -70,6 +66,21 @@ export type HttpPullOptions = {
 
   /** Cancel pull operation. */
   readonly until?: t.UntilInput;
+};
+
+/**
+ * An API to a stream of downloading URLs.
+ * - Async-iterable of progress events (`for await ...`).
+ * - `events()` returns an observable that completes on finish/cancel.
+ * - `cancel()` aborts in-flight work and completes the stream.
+ */
+export type HttpPullStream = {
+  /** Async-iteration over progress events. */
+  readonly [Symbol.asyncIterator]: () => AsyncIterator<t.HttpPullEvent>;
+
+
+  /** Abort in-flight requests and complete the stream. */
+  readonly cancel: (reason?: unknown) => void;
 };
 
 /**
