@@ -10,6 +10,7 @@ export type * from './ui/Buttons/t.ts';
 export type * from './ui/Cropmarks/t.ts';
 export type * from './ui/FadeElement/t.ts';
 export type * from './ui/Icon/t.ts';
+export type * from './ui/Icons/t.ts';
 export type * from './ui/IFrame/t.ts';
 export type * from './ui/Image.Svg/t.ts';
 export type * from './ui/Layout.CenterColumn/t.ts';
