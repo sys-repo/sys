@@ -5,6 +5,9 @@ export function abortable(until?: t.UntilInput): t.Abortable {
   const life = lifecycle(until);
   const controller = new AbortController();
   const { signal } = controller;
-  life.dispose$.subscribe(() => controller.abort());
+
+  // Bridge lifecycle → AbortController.
+  life.dispose$.subscribe((e) => controller.abort(e?.reason));
+
   return toLifecycle<t.Abortable>(life, { controller, signal });
 }

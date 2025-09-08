@@ -529,5 +529,48 @@ describe('Disposable', () => {
       expect(count).to.eql(1);
       expect(a.signal.aborted).to.eql(true);
     });
+
+    describe('Dispose.abortable (reason propagation)', () => {
+      it('dispose(reason): sets AbortSignal.reason', () => {
+        const a = Dispose.abortable();
+        const reason = 'direct:reason';
+        a.dispose(reason);
+
+        expect(a.disposed).to.eql(true);
+        expect(a.signal.aborted).to.eql(true);
+        expect(a.signal.reason).to.eql(reason);
+      });
+
+      it('idempotent: first reason wins', () => {
+        const a = Dispose.abortable();
+        a.dispose('first');
+        a.dispose('second'); // no-op
+
+        expect(a.signal.aborted).to.eql(true);
+        expect(a.signal.reason).to.eql('first');
+      });
+
+      it('propagates reason from external until', () => {
+        const upstream = Dispose.disposable();
+        const a = Dispose.abortable(upstream.dispose$);
+
+        const reason = 'upstream:dispose';
+        upstream.dispose(reason); // triggers abort via bridge
+
+        expect(a.disposed).to.eql(true);
+        expect(a.signal.aborted).to.eql(true);
+        expect(a.signal.reason).to.eql(reason);
+      });
+
+      it('preserves Error reason', () => {
+        const a = Dispose.abortable();
+        const err = new Error('boom');
+        a.dispose(err);
+
+        expect(a.signal.aborted).to.eql(true);
+        expect(a.signal.reason).to.be.instanceOf(Error);
+        expect((a.signal.reason as Error).message).to.eql('boom');
+      });
+    });
   });
 });

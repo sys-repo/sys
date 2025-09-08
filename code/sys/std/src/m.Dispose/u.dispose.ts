@@ -31,7 +31,8 @@ export function disposable(until$?: t.UntilInput): t.Disposable {
   // Bridge external lifetimes into this disposable.
   // Assumes `until(until$)` → Iterable<Observable<DisposeEvent>>.
   for (const $ of until(until$)) {
-    const sub = $.subscribe(dispose);
+    type T = t.DisposeEvent | undefined;
+    const sub = $.subscribe((e) => dispose((e as T)?.reason));
     bridges.add(sub);
   }
 
