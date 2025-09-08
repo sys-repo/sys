@@ -24,12 +24,16 @@ export const Bundle: t.ViteLogLib['Bundle'] = {
       if (args.pkgSize) strPkg += ` /pkg:${c.white(Str.bytes(args.pkgSize))}`;
     }
 
+    let fmtHash = hash ?? '';
+    if (hash) fmtHash = c.gray(c.dim(hash.slice(0, -5)) + hash.slice(-5));
+
     let text = `
 ${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${elapsed})`)}
 ${c.gray(`pkg:      ${strPkg}`)}
 ${c.gray(`in:       ${clean(input)}`)}
 ${c.gray(`out:      ${clean(outDir)}/dist.json`)} ${tx}
-`;
+          ${fmtHash}
+`.trim();
 
     return pad(text.trim(), args.pad);
   },

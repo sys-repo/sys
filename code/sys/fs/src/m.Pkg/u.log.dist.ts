@@ -41,7 +41,7 @@ export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
   push('size:', totalSize);
   push('size:/pkg/*', c.gray(`${pkgSize} (${percentDiff})`));
   push('dist:', c.gray(`${distPathFmt} ${hx}`));
-  push('', c.gray(`${c.dim(hash.slice(0, -5))}${hash.slice(-5)}`));
+  push('', c.gray(`${c.dim(hash.slice(0, -5))}${hash.slice(-5)}`)); // ← full SHA hash.
   push('timestamp:', c.gray(`${buildTime} | ${timeAgo} ago`));
   push('builder:', toModuleString(builderPkg));
 
