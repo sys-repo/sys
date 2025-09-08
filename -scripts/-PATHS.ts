@@ -4,20 +4,21 @@ export { Path } from '@sys/std';
 export const Paths = {
   workspace: denojson.workspace,
   modules: [
+    
     /**
      * sys:
      * (namespace "@sys"): standard-library 
-     */
-    'code/sys/types',
-    'code/sys/std',
-    'code/sys/color',
-    'code/sys/cli',
-    'code/sys/crypto',
-    'code/sys/fs',
-    'code/sys/schema',
-
-    'code/sys/testing',
-    'code/sys/process',
+    */
+   'code/sys/types',
+   'code/sys/std',
+   'code/sys/color',
+   'code/sys/cli',
+   'code/sys/crypto',
+   'code/sys/fs',
+   'code/sys/schema',
+   
+   'code/sys/testing',
+   'code/sys/process',
 
     'code/sys/http',
     'code/sys/cmd',
@@ -46,6 +47,12 @@ export const Paths = {
     'code/sys.driver/driver-vite',
     'code/sys.driver/driver-peerjs',
     'code/sys.driver/driver-prosemirror',
+
+    /**
+     * system → surfacing driver(s) namespaces:
+     */
+    'code/sys/crdt',
+
 
     /**
      * sys.dev: (programming system)

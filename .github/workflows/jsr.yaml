@@ -206,6 +206,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/crdt"
+        run: |
+          cd code/sys/crdt
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/tmpl"
         run: |
           cd code/-tmpl
