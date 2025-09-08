@@ -299,6 +299,47 @@ describe('Disposable', () => {
       await test([undefined, [undefined, Dispose.disposable()]]); // NB: complex "until" list.
       await test([undefined, [undefined, Dispose.disposable().dispose$]]);
     });
+
+    it('passes reason through dispose$ (direct)', async () => {
+      const life = Dispose.lifecycleAsync(async () => {
+        await Time.wait(1);
+      });
+
+      const fired: t.DisposeAsyncEvent[] = [];
+      life.dispose$.subscribe((e) => fired.push(e));
+
+      const reason = 'direct:reason';
+      await life.dispose(reason);
+      await life.dispose('ignored'); // ← idempotent.
+
+      expect(life.disposed).to.eql(true);
+      expect(fired.length).to.eql(2);
+      expect(fired[0].payload.stage).to.eql('start');
+      expect(fired[0].payload.reason).to.eql(reason);
+      expect(fired[1].payload.stage).to.eql('complete');
+      expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+      expect(fired[1].payload.reason).to.eql(reason);
+    });
+
+    it('propagates reason from until$ bridge', async () => {
+      const upstream = Dispose.disposable();
+      const life = Dispose.lifecycleAsync(upstream, async () => void (await Time.wait(1)));
+
+      const fired: t.DisposeAsyncEvent[] = [];
+      life.dispose$.subscribe((e) => fired.push(e));
+
+      const reason = 'upstream:reason';
+      upstream.dispose(reason); // ← triggers via bridge.
+      await Time.wait(5);
+
+      expect(life.disposed).to.eql(true);
+      expect(fired.length).to.eql(2);
+      expect(fired[0].payload.stage).to.eql('start');
+      expect(fired[0].payload.reason).to.eql(reason);
+      expect(fired[1].payload.stage).to.eql('complete');
+      expect(fired[1].payload.is).to.eql({ ok: true, done: true });
+      expect(fired[1].payload.reason).to.eql(reason);
+    });
   });
 
   describe('Dispose.until', () => {
