@@ -1,5 +1,6 @@
 # CRDT
-System [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type) tools providing the default [`Immutable<T>`](https://github.com/sys-repo/sys/blob/main/README.md#immutablet) implementation, built on the [Ink & Switch](https://www.inkandswitch.com/) **Automerge** distributed state model — surfaced via [`@sys/driver-automerge`](https://jsr.io/@sys/driver-automerge).
+System [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type) tools providing the default [`Immutable<T>`](https://github.com/sys-repo/sys/blob/main/README.md#immutablet) implementation for distributed state management.  
+Built on the [Ink & Switch](https://www.inkandswitch.com/) **Automerge** replicated data structures — surfaced via [`@sys/driver-automerge`](https://jsr.io/@sys/driver-automerge).
 
 This module serves as the system entry point for CRDT state management:
 - Clean, minimal import path: `@sys/crdt`
