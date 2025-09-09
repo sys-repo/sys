@@ -1,24 +1,24 @@
 import React from 'react';
 
 import { type t, Color, css, D } from './common.ts';
-import { SwatchSize } from './u.ts';
+import { SwatchTools } from './u.ts';
 import { Swatch } from './ui.Swatch.tsx';
 import { Toolbar } from './ui.Toolbar.tsx';
 
 export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
-  const { debug = false, percent = D.percent } = props;
+  const { debug = false, percent = D.percent, items = [] } = props;
 
   // Slider → percent → cell size:
-  const MIN = props.minSize ?? D.minSize; //                 ← px, smallest cell
-  const MAX = props.maxSize ?? D.maxSize; //                 ← px, largest cell
+  const MIN = props.minSize ?? D.minSize; //   ← px, smallest cell
+  const MAX = props.maxSize ?? D.maxSize; //   ← px, largest cell
   const range = [MIN, MAX] as const;
 
   const PAD = D.Swatch.pad;
   const FOOT = D.Swatch.footerHeight;
   const CHROME = PAD * 2 + FOOT;
 
-  const cell = Math.max(MIN, Math.round(MIN + (MAX - MIN) * percent)); // px (layout unit)
-  const iconSize = Math.max(16, cell - CHROME); // fit available square area
+  const cell = Math.max(MIN, Math.round(MIN + (MAX - MIN) * percent)); // ← px (layout unit)
+  const iconSize = Math.max(16, cell - CHROME); //                        ← fit available square area
 
   /**
    * Render:
@@ -49,18 +49,17 @@ export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
     <div className={styles.body.base.class}>
       <div className={styles.body.inner.class}>
         <div className={styles.body.layout.class}>
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
-          <Swatch theme={theme.name} iconSize={iconSize} />
+          {items.map(([path, renderer], i) => {
+            return (
+              <Swatch
+                key={`${i}.${path}`}
+                theme={theme.name}
+                iconSize={iconSize}
+                path={path}
+                icon={renderer}
+              />
+            );
+          })}
         </div>
       </div>
     </div>
@@ -73,7 +72,7 @@ export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
         percent={percent}
         iconSize={iconSize}
         onChange={(e) => {
-          const { percent, pixels } = SwatchSize.normalize(e.percent, range);
+          const { percent, pixels } = SwatchTools.Size.normalize(e.percent, range);
           props.onSizeChange?.({ percent, pixels });
         }}
       />

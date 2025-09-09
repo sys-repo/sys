@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, DEFAULTS, rx } from './common.ts';
-
-import { Icons } from '../ui.Icons.ts';
+import React from 'react';
+import { type t, Color, css, D } from './common.ts';
 
 export type SwatchProps = {
+  path?: t.StringPath;
+  icon?: t.IconRenderer;
   iconSize?: t.Pixels;
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -14,7 +14,7 @@ export type SwatchProps = {
  * Component:
  */
 export const Swatch: React.FC<SwatchProps> = (props) => {
-  const { iconSize = 120 } = props;
+  const { iconSize = 120, path, icon: Icon } = props;
 
   const PAD = D.Swatch.pad;
   const FOOT = D.Swatch.footerHeight;
@@ -53,10 +53,8 @@ export const Swatch: React.FC<SwatchProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
-        <div className={styles.icon.class}>
-          <Icons.Face size={iconSize} />
-        </div>
-        <div className={styles.footer.class}>Footer</div>
+        <div className={styles.icon.class}>{Icon && <Icon size={iconSize} />}</div>
+        <div className={styles.footer.class}>{path}</div>
       </div>
     </div>
   );

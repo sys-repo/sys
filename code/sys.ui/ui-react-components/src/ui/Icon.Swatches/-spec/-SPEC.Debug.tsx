@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { Icons } from '../../ui.Icons.ts';
+import { SwatchTools } from '../u.ts';
 
 type P = t.IconSwatchesProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'minSize' | 'maxSize' | 'percent'>;
@@ -33,6 +35,7 @@ export function createDebugSignals() {
     minSize: s(snap.minSize),
     maxSize: s(snap.maxSize),
     percent: s(snap.percent),
+    items: s<t.IconSwatchItem[]>(),
   };
   const p = props;
   const api = {
@@ -58,6 +61,9 @@ export function createDebugSignals() {
       d.percent = p.percent.value;
     });
   });
+
+  // Load sample items by walking the local {Icons} object.
+  p.items.value = SwatchTools.Walk.icons(Icons);
 
   return api;
 }

@@ -1,12 +1,13 @@
 import { type t, Num } from './common.ts';
+import { Walk } from './u.Walk.ts';
 
 /**
  * Utilities for IconSwatches sizing math.
  */
-export const SwatchSize = {
+const Size = {
   normalize(percent: t.Percent, range: t.MinMaxNumberRange) {
     percent = Num.Percent.clamp(percent);
-    const pixels = SwatchSize.toPixels(percent, range);
+    const pixels = Size.toPixels(percent, range);
     return { percent, pixels } as const;
   },
 
@@ -26,4 +27,14 @@ export const SwatchSize = {
   toPercent(pixels: t.Pixels, range: t.MinMaxNumberRange): t.Percent {
     return Num.Percent.clamp(Num.Percent.Range.toPercent(pixels, range));
   },
+} as const;
+
+
+/**
+ * Swatch tools.
+ */
+export const SwatchTools = {
+  Size,
+  Walk,
+  walk: Walk.icons,
 } as const;

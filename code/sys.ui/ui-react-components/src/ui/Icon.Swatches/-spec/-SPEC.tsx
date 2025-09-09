@@ -2,6 +2,8 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { IconSwatches } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { SwatchTools } from '../u.ts';
+import { Icons } from '../../ui.Icons.ts';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -25,6 +27,7 @@ export default Spec.describe(D.displayName, (e) => {
           <IconSwatches
             debug={v.debug}
             theme={v.theme}
+            items={v.items}
             minSize={v.minSize}
             maxSize={v.maxSize}
             percent={v.percent}
