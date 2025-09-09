@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { type t, Color, css, Signal, D, DEFAULTS, rx } from './common.ts';
 
-export type ToolbarProps = {
+export type SwatchProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -10,7 +10,7 @@ export type ToolbarProps = {
 /**
  * Component:
  */
-export const Toolbar: React.FC<ToolbarProps> = (props) => {
+export const Swatch: React.FC<SwatchProps> = (props) => {
   const {} = props;
 
   /**
@@ -22,19 +22,12 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
       backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       color: theme.fg,
       display: 'grid',
-      gridTemplateColumns: 'auto 1fr auto',
-      columnGap: 15,
-    }),
-    section: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.3)' /* RED */,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.section.class}>{`🐷`}</div>
-      <div className={styles.section.class}>{`🐷`}</div>
-      <div className={styles.section.class}>{`🐷`}</div>
+      <div>{`🐷 Swatch`}</div>
     </div>
   );
 };

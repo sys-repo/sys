@@ -2,6 +2,8 @@ import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 import { Toolbar } from './ui.Toolbar.tsx';
 
+import { Swatch } from './ui.Swatch.tsx';
+
 export const Icons: React.FC<t.IconsProps> = (props) => {
   const { debug = false } = props;
 
@@ -21,13 +23,22 @@ export const Icons: React.FC<t.IconsProps> = (props) => {
     body: css({
       position: 'relative',
       backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      display: 'grid',
     }),
   };
+
+  const elBody = (
+    <div className={styles.body.class}>
+      <Swatch theme={theme.name} />
+      <Swatch theme={theme.name} />
+      <Swatch theme={theme.name} />
+    </div>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
       <Toolbar theme={theme.name} />
-      <div className={styles.body.class}>{`🐷 ${D.displayName}`}</div>
+      {elBody}
     </div>
   );
 };
