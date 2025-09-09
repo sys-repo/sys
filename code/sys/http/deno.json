@@ -1,6 +1,6 @@
 {
   "name": "@sys/http",
-  "version": "0.0.101",
+  "version": "0.0.102",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
