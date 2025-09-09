@@ -3,10 +3,10 @@ import { type t, Num } from './common.ts';
 /**
  * Utilities for IconSwatches sizing math.
  */
-export const SwatchUtil = {
+export const SwatchSize = {
   normalize(percent: t.Percent, range: t.MinMaxNumberRange) {
     percent = Num.Percent.clamp(percent);
-    const pixels = SwatchUtil.toPixels(percent, range);
+    const pixels = SwatchSize.toPixels(percent, range);
     return { percent, pixels } as const;
   },
 

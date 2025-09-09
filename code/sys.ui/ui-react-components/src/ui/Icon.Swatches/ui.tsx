@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { type t, Color, css, D } from './common.ts';
-import { SwatchUtil } from './u.ts';
+import { SwatchSize } from './u.ts';
 import { Swatch } from './ui.Swatch.tsx';
 import { Toolbar } from './ui.Toolbar.tsx';
 
@@ -73,7 +73,7 @@ export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
         percent={percent}
         iconSize={iconSize}
         onChange={(e) => {
-          const { percent, pixels } = SwatchUtil.normalize(e.percent, range);
+          const { percent, pixels } = SwatchSize.normalize(e.percent, range);
           props.onSizeChange?.({ percent, pixels });
         }}
       />
