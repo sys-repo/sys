@@ -33,13 +33,15 @@ export const Swatch: React.FC<SwatchProps> = (props) => {
   /**
    * Render:
    */
+  const isDown = pointer.is.down;
   const theme = Color.theme(props.theme);
   const borderRadius = 8;
   const styles = {
     base: css({
       position: 'relative',
       borderRadius,
-      boxShadow: `0 2px 25px 0 ${Color.format(-0.2)}`,
+      boxShadow: `0 2px ${isDown ? 10 : 25}px 0 ${Color.format(selected ? -0.35 : -0.2)}`,
+      transform: `translateY(${isDown ? 1 : 0}px)`,
       userSelect: 'none',
       display: 'grid',
     }),
