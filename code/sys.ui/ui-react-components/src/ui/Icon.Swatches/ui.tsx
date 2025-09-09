@@ -1,11 +1,18 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css } from './common.ts';
 import { Toolbar } from './ui.Toolbar.tsx';
 
 import { Swatch } from './ui.Swatch.tsx';
 
-export const Icons: React.FC<t.IconsProps> = (props) => {
+export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
   const { debug = false } = props;
+
+  // Slider → percent → cell size.
+  const MIN = 90; // px, smallest cell
+  const MAX = 320; // px, largest cell
+  const [percent, setPercent] = React.useState(0.55);
+  const cell = Math.round(MIN + (MAX - MIN) * percent); // px
+  const iconSize = Math.max(16, Math.round(cell * 0.38)); // scale icon inside the cell
 
   /**
    * Render:
@@ -13,25 +20,43 @@ export const Icons: React.FC<t.IconsProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 10,
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
-      gap: 5,
+      gap: 15,
     }),
-    body: css({
-      position: 'relative',
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-      display: 'grid',
-    }),
+    body: {
+      base: css({ position: 'relative' }),
+      inner: css({ Absolute: 0, Scroll: true, padding: 15 }),
+      layout: css({
+        display: 'grid',
+        gap: 15,
+        gridTemplateColumns: `repeat(auto-fit, minmax(${cell}px, 1fr))`,
+        alignContent: 'start',
+      }),
+    },
   };
 
   const elBody = (
-    <div className={styles.body.class}>
-      <Swatch theme={theme.name} />
-      <Swatch theme={theme.name} />
-      <Swatch theme={theme.name} />
+    <div className={styles.body.base.class}>
+      <div className={styles.body.inner.class}>
+        <div className={styles.body.layout.class}>
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+          <Swatch theme={theme.name} iconSize={iconSize} />
+        </div>
+      </div>
     </div>
   );
 

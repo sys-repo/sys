@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { Icons } from './ui.tsx';
+export { IconSwatches } from './ui.tsx';
