@@ -14,5 +14,6 @@ export const D = {
   minSize: 16,
   maxSize: 320,
   percent: 0.5,
+  Swatch: { pad: 12, footerHeight: 24 },
 } as const;
 export const DEFAULTS = D;

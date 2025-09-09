@@ -1,8 +1,9 @@
 import React from 'react';
-import { type t, Color, css, D, Slider } from './common.ts';
+import { type t, Color, css, Slider } from './common.ts';
 
 export type ToolbarProps = {
-  percent?: t.Percent;
+  percent: t.Percent;
+  iconSize?: t.Pixels;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -13,7 +14,7 @@ export type ToolbarProps = {
  * Component:
  */
 export const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { percent = D.percent } = props;
+  const { percent, iconSize } = props;
 
   /**
    * Render:
@@ -23,12 +24,22 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
     base: css({
       color: theme.fg,
       padding: 15,
+      fontFamily: 'monospace',
       borderBottom: `dashed 1px ${Color.alpha(theme.fg, 0.3)}`,
       display: 'grid',
       gridTemplateColumns: 'auto 1fr auto',
       columnGap: 15,
     }),
     section: css({ display: 'grid', placeItems: 'center' }),
+    slider: {
+      base: css({
+        display: 'grid',
+        gridTemplateColumns: 'auto auto',
+        alignItems: 'center',
+        columnGap: 15,
+      }),
+      px: css({ fontSize: 16 }),
+    },
   };
 
   const elSlider = (
@@ -42,11 +53,18 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
     />
   );
 
+  const elRight = (
+    <div className={styles.slider.base.class}>
+      {elSlider}
+      <div className={styles.slider.px.class}>{`${iconSize}px`}</div>
+    </div>
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.section.class}>{}</div>
       <div className={styles.section.class}>{}</div>
-      <div className={styles.section.class}>{elSlider}</div>
+      <div className={styles.section.class}>{elRight}</div>
     </div>
   );
 };
