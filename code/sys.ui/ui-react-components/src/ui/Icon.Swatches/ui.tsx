@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, Obj } from './common.ts';
 import { Size } from './u.Size.ts';
 import { Swatch } from './ui.Swatch.tsx';
 import { Toolbar } from './ui.Toolbar.tsx';
 
 export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
-  const { debug = false, percent = D.percent, items = [] } = props;
+  const { debug = false, percent = D.percent, items = [], selected } = props;
 
   // Slider → percent → cell size:
   const MIN = props.minSize ?? D.minSize; //   ← px, smallest cell
@@ -40,7 +40,7 @@ export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
         display: 'grid',
         gridTemplateColumns: `repeat(auto-fit, minmax(${cell}px, 1fr))`,
         alignContent: 'start',
-        gap: 15,
+        gap: 25,
       }),
     },
   };
@@ -57,6 +57,8 @@ export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
                 iconSize={iconSize}
                 path={path}
                 icon={renderer}
+                selected={Obj.Path.eql(path, selected)}
+                onSelect={props.onSelect}
               />
             );
           })}

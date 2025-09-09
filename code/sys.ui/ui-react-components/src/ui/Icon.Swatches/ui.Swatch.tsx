@@ -1,34 +1,46 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, usePointer } from './common.ts';
 
 export type SwatchProps = {
   path?: t.ObjectPath;
   icon?: t.IconRenderer;
   iconSize?: t.Pixels;
+  selected?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onSelect?: t.IconSwatchesSelectHandler;
 };
 
 /**
  * Component:
  */
 export const Swatch: React.FC<SwatchProps> = (props) => {
-  const { iconSize = 120, path, icon: Icon } = props;
+  const { iconSize = 120, path, icon: Icon, selected = false } = props;
   const label = path?.join('/') ?? '';
-
   const PAD = D.Swatch.pad;
   const FOOT = D.Swatch.footerHeight;
+
+  /**
+   * Hooks:
+   */
+  const pointer = usePointer({
+    onDown(e) {
+      if (path) props.onSelect?.({ path });
+    },
+  });
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const borderRadius = 8;
   const styles = {
     base: css({
       position: 'relative',
-      borderRadius: 8,
+      borderRadius,
       boxShadow: `0 2px 25px 0 ${Color.format(-0.2)}`,
+      userSelect: 'none',
       display: 'grid',
     }),
     body: css({
@@ -44,7 +56,7 @@ export const Swatch: React.FC<SwatchProps> = (props) => {
     }),
     footer: css({
       position: 'relative',
-      opacity: 0.6,
+      borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
       PaddingX: 10,
       height: FOOT,
       display: 'grid',
@@ -61,6 +73,12 @@ export const Swatch: React.FC<SwatchProps> = (props) => {
       whiteSpace: 'nowrap',
       textOverflow: 'ellipsis',
     }),
+    selected: css({
+      Absolute: 0,
+      pointerEvents: 'none',
+      borderRadius,
+      border: `solid 1.5px ${Color.alpha(Color.BLUE, 1)}`,
+    }),
   };
 
   const elFooter = (
@@ -71,12 +89,15 @@ export const Swatch: React.FC<SwatchProps> = (props) => {
     </div>
   );
 
+  const elSelectedBorder = selected && <div className={styles.selected.class} />;
+
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} {...pointer.handlers}>
       <div className={styles.body.class}>
         <div className={styles.icon.class}>{Icon && <Icon size={iconSize} />}</div>
         {elFooter}
       </div>
+      {elSelectedBorder}
     </div>
   );
 };

@@ -1,17 +1,19 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { Icons } from '../../ui.Icons.ts';
+
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { IconSwatches } from '../mod.ts';
 
 type P = t.IconSwatchesProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'minSize' | 'maxSize' | 'percent'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'minSize' | 'maxSize' | 'percent' | 'selected'>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   minSize: D.minSize,
   maxSize: D.maxSize,
-  percent: D.percent,
+  percent: 0.32,
+  selected: undefined,
 };
 
 /**
@@ -35,6 +37,7 @@ export function createDebugSignals() {
     minSize: s(snap.minSize),
     maxSize: s(snap.maxSize),
     percent: s(snap.percent),
+    selected: s(snap.selected),
     items: s<t.IconSwatchItem[]>(),
   };
   const p = props;
@@ -48,8 +51,14 @@ export function createDebugSignals() {
     Signal.listen(props);
   }
 
+  function setIcons() {
+    // Load sample items by walking the local {Icons} object.
+    p.items.value = IconSwatches.Walk.icons(Icons);
+  }
+
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    setIcons();
   }
 
   Signal.effect(() => {
@@ -59,12 +68,11 @@ export function createDebugSignals() {
       d.minSize = p.minSize.value;
       d.maxSize = p.maxSize.value;
       d.percent = p.percent.value;
+      d.selected = p.selected.value;
     });
   });
 
-  // Load sample items by walking the local {Icons} object.
-  p.items.value = IconSwatches.Walk.icons(Icons);
-
+  setIcons();
   return api;
 }
 

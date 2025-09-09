@@ -9,40 +9,19 @@ import type { t } from './common.ts';
  */
 export type IconSwatchesLib = {
   readonly View: React.FC<t.IconSwatchesProps>;
-  readonly Walk: {
-    /** Walk an object index of icons. */
-    icons(obj: unknown): t.IconSwatchItem[];
-  };
+  readonly Walk: t.IconWalkHelper;
   /** Walk an object index of icons. */
-  walk: IconSwatchesLib['Walk']['icons'];
-  readonly Size: {
-    /**
-     * Clamp the given slider percent (0..1) and resolve it to both
-     * - the normalized percent, and
-     * - the corresponding pixel size within the given [min,max] range.
-     *
-     * Useful as the single source of truth when converting a slider position
-     * into concrete swatch cell dimensions.
-     */
-    normalize(percent: t.Percent, range: t.MinMaxNumberRange): IconSwatchesChange;
-    /**
-     * Given a slider percent (0..1) and a [min,max] range,
-     * return the pixel size (rounded).
-     */
-    toPixels(percent: t.Percent, range: t.MinMaxNumberRange): t.Pixels;
-    /**
-     * Given a pixel size and a [min,max] range,
-     * return the normalized slider percent (0..1).
-     */
-    toPercent(pixels: t.Pixels, range: t.MinMaxNumberRange): t.Percent;
-  };
+  walk: t.IconWalkHelper['icons'];
+  readonly Size: t.IconSizeHelper;
 };
 
 /**
  * Component:
  */
 export type IconSwatchesProps = {
+  // List:
   items?: t.IconSwatchItem[];
+  selected?: t.ObjectPath;
 
   /** Smallest cell size in px. */
   minSize?: number;
@@ -57,17 +36,59 @@ export type IconSwatchesProps = {
   style?: t.CssInput;
 
   // Events:
-  onSizeChange?: t.IconSwatchesChangeHandler;
-};
-
-/** Callback when percent changes (0..1). */
-export type IconSwatchesChangeHandler = (e: IconSwatchesChange) => void;
-export type IconSwatchesChange = {
-  readonly pixels: t.Pixels;
-  readonly percent: t.Percent;
+  onSizeChange?: t.IconSwatchesSizeHandler;
+  onSelect?: t.IconSwatchesSelectHandler;
 };
 
 /**
  * A single swatch item.
  */
 export type IconSwatchItem = [t.ObjectPath, t.IconRenderer];
+
+/**
+ * Icon tree walking helpers.
+ */
+export type IconWalkHelper = {
+  /** Walk an object index of icons. */
+  icons(obj: unknown): t.IconSwatchItem[];
+};
+
+/**
+ * Icon sizing helpers.
+ */
+export type IconSizeHelper = {
+  /**
+   * Clamp the given slider percent (0..1) and resolve it to both
+   * - the normalized percent, and
+   * - the corresponding pixel size within the given [min,max] range.
+   *
+   * Useful as the single source of truth when converting a slider position
+   * into concrete swatch cell dimensions.
+   */
+  normalize(percent: t.Percent, range: t.MinMaxNumberRange): IconSwatchesSize;
+  /**
+   * Given a slider percent (0..1) and a [min,max] range,
+   * return the pixel size (rounded).
+   */
+  toPixels(percent: t.Percent, range: t.MinMaxNumberRange): t.Pixels;
+  /**
+   * Given a pixel size and a [min,max] range,
+   * return the normalized slider percent (0..1).
+   */
+  toPercent(pixels: t.Pixels, range: t.MinMaxNumberRange): t.Percent;
+};
+
+/**
+ * EVENTS:
+ */
+
+/** Callback when percent changes (0..1). */
+export type IconSwatchesSizeHandler = (e: IconSwatchesSize) => void;
+export type IconSwatchesSize = {
+  readonly pixels: t.Pixels;
+  readonly percent: t.Percent;
+};
+
+/** Selection change callbcak. */
+export type IconSwatchesSelectHandler = (e: IconSwatchesSelect) => void;
+export type IconSwatchesSelect = { readonly path: t.ObjectPath };

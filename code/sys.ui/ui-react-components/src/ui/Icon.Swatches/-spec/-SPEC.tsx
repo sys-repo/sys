@@ -29,9 +29,14 @@ export default Spec.describe(D.displayName, (e) => {
             minSize={v.minSize}
             maxSize={v.maxSize}
             percent={v.percent}
+            selected={v.selected}
             onSizeChange={(e) => {
               console.info(`⚡️ onSizeChange:`, e);
               p.percent.value = e.percent;
+            }}
+            onSelect={(e) => {
+              console.info(`⚡️ onSelect:`, e);
+              p.selected.value = e.path;
             }}
           />
         );
