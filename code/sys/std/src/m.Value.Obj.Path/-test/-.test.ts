@@ -423,4 +423,48 @@ describe('Obj.Path', () => {
       });
     });
   });
+
+  describe('Path.eql', () => {
+    it('true for same reference', () => {
+      const p: (string | number)[] = ['a', 'b'];
+      expect(Path.eql(p, p)).to.eql(true);
+    });
+
+    it('true for equal-by-value arrays', () => {
+      const a = ['a', 'b'];
+      const b = ['a', 'b'];
+      expect(Path.eql(a, b)).to.eql(true);
+    });
+
+    it('false when order differs', () => {
+      expect(Path.eql(['a', 'b'], ['b', 'a'])).to.eql(false);
+    });
+
+    it('false when lengths differ', () => {
+      expect(Path.eql(['a'], ['a', 'b'])).to.eql(false);
+    });
+
+    it('false when either is undefined', () => {
+      expect(Path.eql(['a', 'b'], undefined)).to.eql(false);
+      expect(Path.eql(undefined, ['a', 'b'])).to.eql(false);
+      expect(Path.eql(undefined, undefined)).to.eql(false);
+    });
+
+    it('true for two empty paths', () => {
+      expect(Path.eql([], [])).to.eql(true);
+    });
+
+    it('strict equality of parts (number vs string)', () => {
+      expect(Path.eql(['items', 0, 'id'], ['items', 0, 'id'])).to.eql(true);
+      expect(Path.eql(['items', 0, 'id'], ['items', '0', 'id'])).to.eql(false);
+    });
+
+    it('handles mixed nested shapes', () => {
+      const a = ['Root', 'Arrow', 'Left'];
+      const b = ['Root', 'Arrow', 'Left'];
+      const c = ['Root', 'Arrow', 'Right'];
+      expect(Path.eql(a, b)).to.eql(true);
+      expect(Path.eql(a, c)).to.eql(false);
+    });
+  });
 });

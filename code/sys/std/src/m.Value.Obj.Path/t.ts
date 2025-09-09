@@ -47,6 +47,12 @@ export type ObjPathLib = Readonly<{
    * Determine if the given path exists on the subject, irrespective of value.
    */
   exists(subject: O | undefined, path: t.ObjectPath): boolean;
+
+  /**
+   * Compare two object paths for structural equality.
+   * Returns true if both paths have the same parts in the same order.
+   */
+  eql(a?: t.ObjectPath, b?: t.ObjectPath): boolean;
 }>;
 
 /**
