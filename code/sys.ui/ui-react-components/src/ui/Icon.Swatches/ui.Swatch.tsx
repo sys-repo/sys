@@ -70,7 +70,7 @@ export const Swatch: React.FC<SwatchProps> = (props) => {
       width: '100%',
       minWidth: 0,
       fontFamily: 'monospace',
-      fontSize: 10,
+      fontSize: 9,
       overflow: 'hidden',
       whiteSpace: 'nowrap',
       textOverflow: 'ellipsis',
