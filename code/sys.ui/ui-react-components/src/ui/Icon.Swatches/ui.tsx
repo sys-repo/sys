@@ -38,9 +38,9 @@ export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
       inner: css({ Absolute: 0, Scroll: true, padding: 15 }),
       layout: css({
         display: 'grid',
-        gap: 15,
         gridTemplateColumns: `repeat(auto-fit, minmax(${cell}px, 1fr))`,
         alignContent: 'start',
+        gap: 15,
       }),
     },
   };
