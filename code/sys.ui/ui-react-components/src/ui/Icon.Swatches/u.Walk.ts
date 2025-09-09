@@ -1,6 +1,6 @@
 import { type t, isRecord } from './common.ts';
 
-export const Walk = {
+export const Walk: t.IconSwatchesLib['Walk'] = {
   icons(obj: unknown): t.IconSwatchItem[] {
     return Array.from(walkIcons(obj));
   },

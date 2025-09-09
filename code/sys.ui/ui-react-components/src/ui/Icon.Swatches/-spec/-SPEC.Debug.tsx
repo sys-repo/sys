@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Icons } from '../../ui.Icons.ts';
-import { SwatchTools } from '../u.ts';
+import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { IconSwatches } from '../mod.ts';
 
 type P = t.IconSwatchesProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'minSize' | 'maxSize' | 'percent'>;
@@ -63,7 +63,7 @@ export function createDebugSignals() {
   });
 
   // Load sample items by walking the local {Icons} object.
-  p.items.value = SwatchTools.Walk.icons(Icons);
+  p.items.value = IconSwatches.Walk.icons(Icons);
 
   return api;
 }
