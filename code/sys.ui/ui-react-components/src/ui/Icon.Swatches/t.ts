@@ -38,16 +38,15 @@ export type IconSwatchesLib = {
   };
 };
 
-
 /**
  * Component:
  */
 export type IconSwatchesProps = {
   items?: t.IconSwatchItem[];
 
-  /** Smallest cell size in px (default ~90). */
+  /** Smallest cell size in px. */
   minSize?: number;
-  /** Largest cell size in px (default ~320). */
+  /** Largest cell size in px. */
   maxSize?: number;
   /** Normalized slider position (0..1) representing the size of each icon. */
   percent?: number;
@@ -57,6 +56,7 @@ export type IconSwatchesProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
+  // Events:
   onSizeChange?: t.IconSwatchesChangeHandler;
 };
 
@@ -68,6 +68,6 @@ export type IconSwatchesChange = {
 };
 
 /**
- * A single swatch item
+ * A single swatch item.
  */
-export type IconSwatchItem = [string, t.IconRenderer];
+export type IconSwatchItem = [t.ObjectPath, t.IconRenderer];

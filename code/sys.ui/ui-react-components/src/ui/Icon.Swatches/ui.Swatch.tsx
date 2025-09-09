@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
 export type SwatchProps = {
-  path?: t.StringPath;
+  path?: t.ObjectPath;
   icon?: t.IconRenderer;
   iconSize?: t.Pixels;
   debug?: boolean;
@@ -54,7 +54,7 @@ export const Swatch: React.FC<SwatchProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
         <div className={styles.icon.class}>{Icon && <Icon size={iconSize} />}</div>
-        <div className={styles.footer.class}>{path}</div>
+        <div className={styles.footer.class}>{path?.join('/')}</div>
       </div>
     </div>
   );
