@@ -23,12 +23,11 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
   const styles = {
     base: css({
       color: theme.fg,
-      padding: 15,
+      Padding: [15, 20],
       fontFamily: 'monospace',
-      borderBottom: `dashed 1px ${Color.alpha(theme.fg, 0.3)}`,
       display: 'grid',
       gridTemplateColumns: 'auto 1fr auto',
-      columnGap: 15,
+      columnGap: 10,
     }),
     section: css({ display: 'grid', placeItems: 'center' }),
     slider: {

@@ -12,7 +12,7 @@ const defaults: Storage = {
   debug: false,
   minSize: D.minSize,
   maxSize: D.maxSize,
-  percent: 0.32,
+  percent: 0.25,
   selected: undefined,
 };
 

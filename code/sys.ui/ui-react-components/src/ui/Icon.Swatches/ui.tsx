@@ -31,7 +31,6 @@ export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
       color: theme.fg,
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
-      gap: 15,
     }),
     body: {
       base: css({ position: 'relative' }),
