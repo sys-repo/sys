@@ -18,6 +18,7 @@ export const Icons: React.FC<t.IconsProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div>{`🐷 ${D.displayName}`}</div>
     </div>
   );
 };

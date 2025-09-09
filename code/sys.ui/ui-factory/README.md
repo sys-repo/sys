@@ -21,7 +21,7 @@ A factory is `{data}` + a lazy `view` loader.
   •	**Data**: is the component `specs`, composed into a `plan` (a blueprint of structure and `slots`).  
   •	**Loader**: is a mechanism that resolves `specs` into live `views` at runtime.
 
-**Note:** Factories use standard [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import) (TC39) within the factory's loader. As a consequence, code is naturally split across ESM module boundaries.
+**Note:** Factories use standard ([TC39](https://github.com/tc39/proposal-dynamic-import)) **dynamic `import()`**'s within the factory's loader. As a consequence, code is naturally split across ESM module boundaries.
 
 These boundaries typically align with the natural namespacing seams of the consuming `host`,
 crafting **context boundaries** within the larger system.
