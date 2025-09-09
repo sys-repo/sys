@@ -1,18 +1,17 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+
+import { type t, Color, css, D, Num } from './common.ts';
+import { Swatch } from './ui.Swatch.tsx';
 import { Toolbar } from './ui.Toolbar.tsx';
 
-import { Swatch } from './ui.Swatch.tsx';
-
 export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, percent = D.percent } = props;
 
-  // Slider → percent → cell size.
-  const MIN = 90; // px, smallest cell
-  const MAX = 320; // px, largest cell
-  const [percent, setPercent] = React.useState(0.55);
-  const cell = Math.round(MIN + (MAX - MIN) * percent); // px
-  const iconSize = Math.max(16, Math.round(cell * 0.38)); // scale icon inside the cell
+  // Slider → percent → cell size:
+  const MIN = props.minSize ?? D.minSize; //                 ← px, smallest cell
+  const MAX = props.maxSize ?? D.maxSize; //                 ← px, largest cell
+  const cell = Math.round(MIN + (MAX - MIN) * percent); //   ← px
+  const iconSize = Math.max(16, Math.round(cell * 0.6)); // ← scale icon inside the cell
 
   /**
    * Render:
@@ -62,7 +61,15 @@ export const IconSwatches: React.FC<t.IconSwatchesProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Toolbar theme={theme.name} />
+      <Toolbar
+        theme={theme.name}
+        percent={percent}
+        onChange={(e) => {
+          const p = Num.Percent.clamp(e.percent);
+          const px = Math.round(Num.Percent.Range.fromPercent(p, [MIN, MAX]));
+          props.onSizeChange?.({ percent: p, pixels: px });
+        }}
+      />
       {elBody}
     </div>
   );

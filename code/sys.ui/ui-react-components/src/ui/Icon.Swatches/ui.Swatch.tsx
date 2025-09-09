@@ -14,7 +14,7 @@ export type SwatchProps = {
  * Component:
  */
 export const Swatch: React.FC<SwatchProps> = (props) => {
-  const {} = props;
+  const { iconSize = 120 } = props;
 
   /**
    * Render:
@@ -23,31 +23,22 @@ export const Swatch: React.FC<SwatchProps> = (props) => {
   const styles = {
     base: css({
       backgroundColor: theme.alpha(0.5).bg,
-      boxShadow: `0 2px 25px 0 ${Color.format(-0.2)}`,
       color: theme.fg,
-      display: 'grid',
-      aspectRatio: '1 / 1',
       borderRadius: 8,
-    }),
-    body: css({
+      boxShadow: `0 2px 25px 0 ${Color.format(-0.2)}`,
+      minWidth: 120,
       display: 'grid',
-      gridTemplateRows: `1fr auto`,
     }),
-    icon: {
-      outer: css({
-        display: 'grid',
-        placeItems: 'center',
-      }),
-    },
-
-    footer: css({ padding: 15 }),
+    body: css({ display: 'grid', gridTemplateRows: `1fr auto`, aspectRatio: '1 / 1' }),
+    icon: css({ display: 'grid', placeItems: 'center', padding: 10 }),
+    footer: css({ fontSize: 11, padding: 15 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
-        <div className={styles.icon.outer.class}>
-          <Icons.Face size={120} />
+        <div className={styles.icon.class}>
+          <Icons.Face size={iconSize} />
         </div>
         <div className={styles.footer.class}>Footer</div>
       </div>

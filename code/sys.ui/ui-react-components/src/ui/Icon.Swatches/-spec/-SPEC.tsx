@@ -21,7 +21,19 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <IconSwatches debug={v.debug} theme={v.theme} />;
+        return (
+          <IconSwatches
+            debug={v.debug}
+            theme={v.theme}
+            minSize={v.minSize}
+            maxSize={v.maxSize}
+            percent={v.percent}
+            onSizeChange={(e) => {
+              console.info(`⚡️ onSizeChange:`, e);
+              p.percent.value = e.percent;
+            }}
+          />
+        );
       });
   });
 

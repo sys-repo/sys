@@ -2,11 +2,14 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
-type P = t.IconsProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type P = t.IconSwatchesProps;
+type Storage = Pick<P, 'theme' | 'debug' | 'minSize' | 'maxSize' | 'percent'>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  minSize: D.minSize,
+  maxSize: D.maxSize,
+  percent: D.percent,
 };
 
 /**
@@ -27,6 +30,9 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    minSize: s(snap.minSize),
+    maxSize: s(snap.maxSize),
+    percent: s(snap.percent),
   };
   const p = props;
   const api = {
@@ -47,6 +53,9 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.minSize = p.minSize.value;
+      d.maxSize = p.maxSize.value;
+      d.percent = p.percent.value;
     });
   });
 
@@ -86,6 +95,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `minSize: ${p.minSize.value ?? `<undefined> (default: ${D.minSize})`}`}
+        onClick={() => Signal.cycle(p.minSize, [D.minSize, 30, 90])}
+      />
+      <Button
+        block
+        label={() => `maxSize: ${p.maxSize.value ?? `<undefined> (default: ${D.maxSize})`}`}
+        onClick={() => Signal.cycle(p.maxSize, [90, D.maxSize, 480, 1024])}
       />
 
       <hr />

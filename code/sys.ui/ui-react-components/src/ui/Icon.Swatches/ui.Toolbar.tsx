@@ -1,17 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, DEFAULTS, rx, Slider } from './common.ts';
+import React from 'react';
+import { type t, Color, css, D, Slider } from './common.ts';
 
 export type ToolbarProps = {
+  percent?: t.Percent;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onChange?: t.SliderProps['onChange'];
 };
 
 /**
  * Component:
  */
 export const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const {} = props;
+  const { percent = D.percent } = props;
 
   /**
    * Render:
@@ -35,15 +37,16 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
       width={200}
       track={{ height: 5 }}
       thumb={{ size: 15 }}
-      percent={0.5}
+      percent={percent}
+      onChange={props.onChange}
     />
   );
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.section.class}>{}</div>
-      <div className={styles.section.class}>{elSlider}</div>
       <div className={styles.section.class}>{}</div>
+      <div className={styles.section.class}>{elSlider}</div>
     </div>
   );
 };

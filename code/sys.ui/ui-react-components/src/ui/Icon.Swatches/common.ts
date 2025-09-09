@@ -8,5 +8,11 @@ export { Slider } from '../Slider/mod.ts';
  * Constants:
  */
 const name = 'Icon.Swatches';
-export const D = { name, displayName: Pkg.toString(pkg, name, false) } as const;
+export const D = {
+  name,
+  displayName: Pkg.toString(pkg, name, false),
+  minSize: 16,
+  maxSize: 320,
+  percent: 0.5,
+} as const;
 export const DEFAULTS = D;
