@@ -19,12 +19,31 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
   const skipNextPatch = useRef(0);
   const docUpdatingEditor = useRef(false);
 
+  // Current document guards:
+  const lastDocId = useRef<t.StringId>(undefined);
+  const activeDocId = useRef<t.StringId>(undefined);
+  const readyForEditorWrites = useRef(false);
+
+  // Keep refs current on each render:
+  activeDocId.current = doc?.id;
+  if (lastDocId.current !== doc?.id) {
+    readyForEditorWrites.current = false; // new doc → reset gate
+    lastDocId.current = doc?.id;
+  }
+
+  /**
+   * Effects:
+   * (Canonical effect dependency vector)
+   */
+  const effectDeps = [enabled, editor, doc, doc?.id, doc?.instance, Obj.hash(path)];
+
   /**
    * Effect: Editor ➜ CRDT.
    */
   useEffect(() => {
     if (!enabled || !editor || !doc || !path?.length) return;
     const model = editor.getModel();
+
     if (!model) return;
 
     const mark = (d: A.Doc<unknown>, start: t.Index, end: t.Index) => {
@@ -32,13 +51,16 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
       return {
         set: () => A.mark(d, path, range, NAME, true),
         unset: () => A.unmark(d, path, range, NAME),
-      } as const;
+      };
     };
 
     // Listen to code-fold changes:
     const { $, dispose } = observe(editor);
     $.subscribe((e) => {
-      if (docUpdatingEditor.current) return; // Skip echo events from local changes to the document marks in this hook.
+
+      if (activeDocId.current !== doc.id) return; //  ← Old sub firing for a new doc.
+      if (!readyForEditorWrites.current) return; //   ← Ignore startup/churn.
+      if (docUpdatingEditor.current) return; //       ← Skip echo events from local changes to the document marks in this hook.
 
       const ranges = toMarkRanges(model, e.areas);
       const stored = A.marks(doc.current, path)
@@ -55,12 +77,14 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
     });
 
     return dispose;
-  }, [enabled, editor, doc, Obj.hash(path)]);
+  }, effectDeps);
 
   /**
    * Effect: CRDT ➜ Editor.
    */
   useEffect(() => {
+    console.log('Effect: CRDT ➜ Editor.');
+
     if (!enabled || !editor || !doc || !path?.length) return;
     const model = editor.getModel();
     if (!model) return;
@@ -78,32 +102,38 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
 
       if (model.getValueLength() === 0) return; // Bail until the model is populated.
 
-      // Doc → ranges we "want":
+      // Doc → what we want (offsets):
       const marks = rawMarks.filter((m) => m.name === NAME);
-      const nextRanges = marks.map((m) => ({
-        start: model.getPositionAt(m.start).lineNumber,
-        end: model.getPositionAt(m.end).lineNumber,
-      }));
+      const nextRanges = marks.map((m) => ({ start: m.start, end: m.end }));
 
-      // Editor → ranges we "have":
+      // Editor → what we have (offsets):
       const hiddenAreas = getHiddenAreas(editor);
       const currentRanges = toMarkRanges(model, hiddenAreas);
 
-      // Already in sync?  Nothing to do.
-      if (equalRanges(currentRanges, nextRanges)) return;
+      // If already in sync do nothing:
+      if (equalRanges(currentRanges, nextRanges)) {
+        readyForEditorWrites.current = true;
+        return;
+      }
 
       // Decide whether we actually need to unfold-all first.
       const mustClear = hiddenAreas.length > 0;
 
-      // Case A – the document says "no folds":
+
+      // Case A – (no marks):
       if (!marks.length) {
-        if (mustClear) clear(editor); // unfold once, only if needed
+        if (mustClear) {
+          docUpdatingEditor.current = true; // ← suppress echo.
+          clear(editor);
+          docUpdatingEditor.current = false;
+        }
+        readyForEditorWrites.current = true;
         return;
       }
 
-      // Case B – we have folds to apply:
-      docUpdatingEditor.current = true; //            suppress echo.
-      if (mustClear) clear(editor); // only clear when something is folded
+      // Case B – (marks exist):
+      docUpdatingEditor.current = true; // ← suppress echo.
+      if (mustClear) clear(editor); //     ← only clear when something is folded.
 
       marks.forEach((m) => {
         const start = model.getPositionAt(m.start).lineNumber;
@@ -112,6 +142,7 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
       });
 
       docUpdatingEditor.current = false;
+      readyForEditorWrites.current = true;
     };
 
     // Seed editor with current marks:
@@ -138,5 +169,5 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
     });
 
     return events.dispose;
-  }, [enabled, editor, doc, Obj.hash(path)]);
+  }, effectDeps);
 };
