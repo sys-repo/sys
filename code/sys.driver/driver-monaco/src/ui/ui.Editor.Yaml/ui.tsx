@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { type t, Color, css, D, rx, YamlEditorFooter } from './common.ts';
-import { Body } from './ui.Editor.Body.tsx';
+import { Body } from './ui.Body.tsx';
 import { NotReady } from './ui.NotReady.tsx';
 import { useController } from './use.Controller.ts';
 

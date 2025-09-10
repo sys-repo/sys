@@ -9,7 +9,7 @@ type P = Omit<t.YamlEditorProps, 'signals'> & { signals: t.YamlEditorSignals };
  * Component:
  */
 export const Body: React.FC<P> = (props) => {
-  const { debug = false, repo, signals, editor = {} } = props;
+  const { debug = false, repo, signals, path, editor = {} } = props;
   const doc = signals.doc.value;
 
   const DOC = {
@@ -69,6 +69,7 @@ export const Body: React.FC<P> = (props) => {
 
   const elEditor = doc && (
     <MonacoEditor
+      key={`monaco-${doc?.id ?? 'none'}-${path?.join('.') ?? ''}`}
       debug={debug}
       theme={theme.name}
       language={'yaml'}
