@@ -7,7 +7,7 @@ type O = Record<string, unknown>;
  */
 export type CurriedPathLib = {
   /** Create a new curried-path instance for the given path: */
-  create<T = unknown>(path: t.ObjectPath): CurriedPath<T>;
+  make<T = unknown>(path: t.ObjectPath): CurriedPath<T>;
 };
 
 /**

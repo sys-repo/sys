@@ -35,7 +35,7 @@ export type ObjPathLib = Readonly<{
   Mutate: ObjPathMutateLib;
 
   /** Create a new curried-path instance for the given path. */
-  curry: t.CurriedPathLib['create'];
+  curry: t.CurriedPathLib['make'];
 
   /**
    * Deep-get helper with overloads so the return type

@@ -8,7 +8,7 @@ import { exists } from './m.Path.exists.ts';
 type O = Record<string, unknown>;
 
 export const CurriedPath: t.CurriedPathLib = {
-  create<T = unknown>(path: t.ObjectPath) {
+  make<T = unknown>(path: t.ObjectPath) {
     path = Array.isArray(path) ? path : [];
 
     const api: t.CurriedPath<T> = {
@@ -29,7 +29,7 @@ export const CurriedPath: t.CurriedPathLib = {
         return del(subject, path);
       },
       join<T = unknown>(subpath: t.ObjectPath) {
-        return CurriedPath.create<T>([...path, ...(subpath ?? [])]);
+        return CurriedPath.make<T>([...path, ...(subpath ?? [])]);
       },
     };
 

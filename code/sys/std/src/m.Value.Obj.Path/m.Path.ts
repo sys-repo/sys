@@ -13,7 +13,7 @@ export const Path: t.ObjPathLib = {
 
   get,
   exists,
-  curry: CurriedPath.create,
+  curry: CurriedPath.make,
 
   Codec,
   encode,

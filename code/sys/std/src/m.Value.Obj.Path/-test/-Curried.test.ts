@@ -4,13 +4,13 @@ import { Path } from '../mod.ts';
 
 describe('Obj.Path.Curried', () => {
   it('API', () => {
-    expect(Path.curry).to.equal(CurriedPath.create);
+    expect(Path.curry).to.equal(CurriedPath.make);
   });
 
-  describe('create: path.curry(...)', () => {
+  describe('make: path.curry(...)', () => {
     it('path: foo/bar', () => {
       const path = ['foo', 'bar'];
-      const a = CurriedPath.create(path);
+      const a = CurriedPath.make(path);
       const b = Path.curry(path);
       expect(a.path).to.eql(path);
       expect(a.path).to.eql(b.path);
