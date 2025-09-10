@@ -95,7 +95,7 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
 
   const elFiles = Object.entries(filemap).map(([hash, file]) => {
     let text = `name:${file.name}`;
-    text += `, hash: #${file.hash.slice(-5)}`;
+    text += `, hash: #${(file.hash ?? '').slice(-5)}`;
     text += `, bytes:${Str.bytes(file.bytes.length)}`;
     text += `, type:${file.type}`;
     return (

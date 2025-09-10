@@ -1,4 +1,4 @@
-import { type t, Time } from './common.ts';
+import { type t, Time, File } from './common.ts';
 import { Binary } from './m.Binary.ts';
 
 /**
@@ -8,7 +8,7 @@ export function downloadFile(file: t.BinaryFile) {
   if (file == null) return;
 
   // Wrap bytes in a Blob and create an in-memory URL:
-  const blob = new Blob([file.bytes], { type: file.type || 'application/octet-stream' });
+  const blob = File.toBlob(file.bytes, file.type || 'application/octet-stream');
   const url = URL.createObjectURL(blob);
 
   // Create a temporary <a download> anchor link and click it:

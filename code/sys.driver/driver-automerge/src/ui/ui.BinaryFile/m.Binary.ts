@@ -1,24 +1,13 @@
-import { type t, Hash } from './common.ts';
+import { type t, Hash, File as FileUtil } from './common.ts';
 
 export const Binary: t.BinaryLib = {
   toBrowserFile(file) {
-    const blob = new Blob([file.bytes], { type: file.type });
-    return new File([blob], file.name, {
-      type: file.type,
-      lastModified: file.modifiedAt,
-    });
+    const { bytes, type, name, modifiedAt } = file;
+    return FileUtil.toFile({ bytes, type, name, modifiedAt });
   },
 
   async fromBrowserFile(file) {
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const hash = Hash.sha256(bytes);
-    return {
-      bytes,
-      name: file.name,
-      type: file.type || 'application/octet-stream',
-      modifiedAt: file.lastModified,
-      hash,
-    };
+    return FileUtil.fromFile(file, { computeHash: (bytes) => Hash.sha256(bytes) });
   },
 
   async fromClipboard(clipboardData: DataTransfer) {
