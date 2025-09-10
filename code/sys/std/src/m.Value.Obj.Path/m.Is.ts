@@ -10,7 +10,7 @@ export const Is: t.ObjPathIsLib = {
     return r === 'equal' || r === 'ancestor';
   },
 
-  equal(a, b) {
+  eql(a, b) {
     return Rel.relate(a, b) === 'equal';
   },
 

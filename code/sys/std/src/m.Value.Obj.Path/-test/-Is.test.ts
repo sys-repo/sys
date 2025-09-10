@@ -4,19 +4,19 @@ import { Path } from '../mod.ts';
 describe('Obj.Path.Is', () => {
   describe('equal', () => {
     it('[] == []', () => {
-      expect(Path.Is.equal([], [])).to.be.true;
+      expect(Path.Is.eql([], [])).to.be.true;
     });
 
     it("['a'] == ['a']", () => {
-      expect(Path.Is.equal(['a'], ['a'])).to.be.true;
+      expect(Path.Is.eql(['a'], ['a'])).to.be.true;
     });
 
     it("['a'] != ['b']", () => {
-      expect(Path.Is.equal(['a'], ['b'])).to.be.false;
+      expect(Path.Is.eql(['a'], ['b'])).to.be.false;
     });
 
     it("['a'] != ['a','b']", () => {
-      expect(Path.Is.equal(['a'], ['a', 'b'])).to.be.false;
+      expect(Path.Is.eql(['a'], ['a', 'b'])).to.be.false;
     });
   });
 

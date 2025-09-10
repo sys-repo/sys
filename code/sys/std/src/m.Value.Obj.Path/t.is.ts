@@ -8,7 +8,7 @@ export type ObjPathIsLib = {
   prefixOf(a: t.ObjectPath, b: t.ObjectPath): boolean;
 
   /** Optional niceties if you want them: */
-  equal(a: t.ObjectPath, b: t.ObjectPath): boolean;
+  eql(a: t.ObjectPath, b: t.ObjectPath): boolean;
 
   /** True if `a` is a proper prefix of `b` (prefixOf(a,b) && !equal(a,b)). */
   ancestorOf(a: t.ObjectPath, b: t.ObjectPath): boolean;
