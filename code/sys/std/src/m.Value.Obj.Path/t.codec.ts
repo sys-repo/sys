@@ -7,7 +7,7 @@ import type { t } from './common.ts';
  *  - `dot`       — dot/bracket notation, ergonomic for developer use.
  *  - `default`   — the canonical codec (`pointer`).
  */
-export type ObjectPathCodecLib = Readonly<{
+export type ObjPathCodecLib = {
   readonly default: t.ObjectPathCodec;
 
   /**
@@ -26,7 +26,7 @@ export type ObjectPathCodecLib = Readonly<{
    * - Empty path → ''.
    */
   readonly dot: t.ObjectPathCodec;
-}>;
+};
 
 /** Kind of delimiter. */
 export type ObjectPathCodecKind = 'pointer' | 'dot';
@@ -35,11 +35,11 @@ export type ObjectPathCodecKind = 'pointer' | 'dot';
  * An [ObjectPath] array → string encoder/decoder.
  * Keep codecs *pure*; any ergonomics (numeric coercion) are layered at the namespace.
  */
-export type ObjectPathCodec = Readonly<{
-  kind: ObjectPathCodecKind | (string & {});
+export type ObjectPathCodec = {
+  readonly kind: ObjectPathCodecKind | (string & {});
   encode(path: t.ObjectPath): string;
   decode(text: string): t.ObjectPath; // pointer.decode returns string[] by design
-}>;
+};
 
 /**
  * Options for namespace-level path encoding.

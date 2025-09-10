@@ -1,23 +1,31 @@
 import type { t } from './common.ts';
+
 export type * from './t.codec.ts';
 export type * from './t.curried.ts';
 export type * from './t.diff.ts';
+export type * from './t.is.ts';
+export type * from './t.rel.ts';
 
 type O = Record<string, unknown>;
 
 /**
  * Tools for working with objects via abstract path arrays.
  */
-export type ObjPathLib = Readonly<{
+export type ObjPathLib = {
+  /** Predicates over object-paths. */
+  readonly Is: t.ObjPathIsLib;
+
+  /** Utilities for determining relationships between object-paths. */
+  readonly Rel: t.ObjPathRelLib;
+
   /** Collection of codecs (pointer, dot, etc). */
-  Codec: t.ObjectPathCodecLib;
+  readonly Codec: t.ObjPathCodecLib;
 
   /**
    * Encode a path array → string.
    * - Uses the given codec (defaults to `pointer`).
    */
   encode(path: t.ObjectPath, opts?: t.PathEncodeOptions): string;
-
   /**
    * Decode a string → path array.
    * - Uses the given codec (defaults to `pointer`).
@@ -54,13 +62,13 @@ export type ObjPathLib = Readonly<{
    * Returns true if both paths have the same parts in the same order.
    */
   eql(a?: t.ObjectPath, b?: t.ObjectPath): boolean;
-}>;
+};
 
 /**
  * Tools that mutate an object in-place using
  * an abstract path arrays.
  */
-export type ObjPathMutateLib = Readonly<{
+export type ObjPathMutateLib = {
   /**
    * Deep-set helper that mutates `subject` setting a nested value at the `path`.
    *  - Creates intermediate objects/arrays as needed.
@@ -88,4 +96,4 @@ export type ObjPathMutateLib = Readonly<{
    *  - No external dependencies, deterministic, and ~75 LOC.
    */
   diff<T extends O = O>(source: T, target: T, options?: t.ObjDiffOptions): t.ObjDiffReport;
-}>;
+};

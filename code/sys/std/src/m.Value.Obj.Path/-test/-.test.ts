@@ -4,8 +4,10 @@ import { Obj } from '../../m.Value.Obj/mod.ts';
 import { Value } from '../../m.Value/mod.ts';
 import { Codec } from '../m.Codec.ts';
 import { decode, encode } from '../m.Codec.u.ts';
+import { Is } from '../m.Is.ts';
 import { del } from '../m.Mutate.delete.ts';
 import { diff } from '../m.Mutate.diff.ts';
+import { Rel } from '../m.Rel.ts';
 import { Path } from '../mod.ts';
 
 type O = Record<string, unknown>;
@@ -19,6 +21,8 @@ describe('Obj.Path', () => {
     expect(Obj.Path.Codec).to.equal(Codec);
     expect(Obj.Path.encode).to.equal(encode);
     expect(Obj.Path.decode).to.equal(decode);
+    expect(Obj.Path.Rel).to.equal(Rel);
+    expect(Obj.Path.Is).to.equal(Is);
   });
 
   describe('Path.get', () => {
