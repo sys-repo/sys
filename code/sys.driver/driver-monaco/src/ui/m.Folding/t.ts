@@ -1,12 +1,15 @@
 import type { t } from './common.ts';
-export type * from './t.hook.ts';
+export type * from './t.bind.ts';
 
 /**
  * Tools for working with the code-hiding aspects
  * of the editor (aka. "code folding").
  */
-export type EditorFoldingLib = Readonly<{
-  useFoldMarks: t.UseFoldMarks;
+export type EditorFoldingLib = {
+  /** Pure CRDT ⇄ Monaco fold-mark synchronizer (lifecycle-based, React-free). */
+  readonly bindFoldMarks: t.BindFoldMarks;
+  /** React hook for binding to a CRDT - defers to `bindFoldMarks` */
+  readonly useFoldMarks: t.UseFoldMarks;
 
   /**
    * Watch the editor's hidden-area list.
@@ -50,7 +53,7 @@ export type EditorFoldingLib = Readonly<{
    *       If that ever changes swap the implementation here only.
    */
   getHiddenAreas(editor: t.Monaco.Editor): t.Monaco.I.IRange[];
-}>;
+};
 
 /**
  * Live observer of the editor's hidden-area list:
@@ -65,4 +68,4 @@ export type EditorFoldingAreaObserver = t.Lifecycle & {
  */
 export type EditorFoldingAreaChangeHandler = (e: EditorFoldingAreaChange) => void;
 /** Event information about the change. */
-export type EditorFoldingAreaChange = Readonly<{ areas: t.Monaco.I.IRange[] }>;
+export type EditorFoldingAreaChange = { readonly areas: t.Monaco.I.IRange[] };

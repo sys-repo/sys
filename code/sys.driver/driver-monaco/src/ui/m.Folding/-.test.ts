@@ -1,7 +1,14 @@
-import { type t, Time, describe, expect, it, MonacoFake, rx } from '../../-test.ts';
+import { type t, describe, expect, it, MonacoFake, rx, Time } from '../../-test.ts';
 import { EditorFolding } from './mod.ts';
+import { bindFoldMarks } from './u.bind.ts';
+import { useFoldMarks } from './use.FoldMarks.ts';
 
 describe('Monaco.Folding', () => {
+  it('API', () => {
+    expect(EditorFolding.useFoldMarks).to.equal(useFoldMarks);
+    expect(EditorFolding.bindFoldMarks).to.equal(bindFoldMarks);
+  });
+
   describe('Folding.observe', () => {
     it('create', () => {
       const editor = MonacoFake.editor('');
