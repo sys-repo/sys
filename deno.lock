@@ -104,7 +104,7 @@
     "npm:react-dom@19.1.1": "19.1.1_react@19.1.1",
     "npm:react-error-boundary@6.0.0": "6.0.0_react@19.1.1",
     "npm:react-icons@5.5.0": "5.5.0_react@19.1.1",
-    "npm:react-inspector@6.0.2": "6.0.2_react@19.1.1",
+    "npm:react-inspector@9.0.0": "9.0.0_react@19.1.1",
     "npm:react-spinners@0.17.0": "0.17.0_react@19.1.1_react-dom@19.1.1__react@19.1.1",
     "npm:react@19.1.1": "19.1.1",
     "npm:rollup@4.50.1": "4.50.1",
@@ -3843,8 +3843,8 @@
         "react"
       ]
     },
-    "react-inspector@6.0.2_react@19.1.1": {
-      "integrity": "sha512-x+b7LxhmHXjHoU/VrFAzw5iutsILRoYyDq97EDYdFpPLcvqtEzk4ZSZSQjnFPbr5T57tLXnHcqFYoN1pI6u8uQ==",
+    "react-inspector@9.0.0_react@19.1.1": {
+      "integrity": "sha512-w/VJucSeHxlwRa2nfM2k7YhpT1r5EtlDOClSR+L7DyQP91QMdfFEDXDs9bPYN4kzP7umFtom7L0b2GGjph4Kow==",
       "dependencies": [
         "react"
       ]
@@ -4534,7 +4534,7 @@
       "npm:prosemirror-view@1.41.0",
       "npm:ramda@0.31.3",
       "npm:react-error-boundary@6.0.0",
-      "npm:react-inspector@6.0.2",
+      "npm:react-inspector@9.0.0",
       "npm:react-spinners@0.17.0",
       "npm:rxjs@7.8.2",
       "npm:strip-ansi@7.1.2",

@@ -146,10 +146,9 @@ deno.json:
   # UI:
   - import: npm:@svgdotjs/svg.js@3.2.4
   - import: npm:react-error-boundary@6.0.0
-  - import: npm:react-inspector@6
+  - import: npm:react-inspector@9.0.0
   - import: npm:react-spinners@0.17.0
   - import: npm:@preact/signals-react@3.3.0
-  - import: npm:react-inspector@6.0.2
 
 package.json:
   - group: build/tools
