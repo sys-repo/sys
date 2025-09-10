@@ -4,6 +4,7 @@
 export {
   animationFrameScheduler,
   BehaviorSubject,
+  EMPTY,
   firstValueFrom,
   interval,
   lastValueFrom,
