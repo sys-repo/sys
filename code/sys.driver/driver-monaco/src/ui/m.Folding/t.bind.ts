@@ -23,7 +23,7 @@ export type UseFoldMarksArgs = {
 export type BindFoldMarks = (args: t.BindFoldMarksArgs) => t.Lifecycle;
 /** Arguments passed to the pure code-folding binder function. */
 export type BindFoldMarksArgs = {
-  editor: t.Monaco.Editor & t.EditorHiddenMembers;
+  editor: t.Monaco.Editor;
   doc: t.Crdt.Ref<any>;
   path: t.ObjectPath;
   enabled?: boolean;
