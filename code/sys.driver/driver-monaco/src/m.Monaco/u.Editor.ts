@@ -1,9 +1,12 @@
 import { type t, D } from './common.ts';
+import { waitForModel } from './u.Editor.waitForModel.ts';
 
 /**
  * Helpers that examine an editor.
  */
 export const EditorUtil = {
+  waitForModel,
+
   className(editor?: t.Monaco.Editor) {
     let id = editor?.getId() ?? '';
     if (id.includes(':')) id = `instance-${id.split(':')[1]}`;
