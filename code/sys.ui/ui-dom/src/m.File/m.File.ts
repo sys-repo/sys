@@ -1,40 +1,39 @@
-import type { FileLib } from './t.ts';
-
-import { DEFAULTS, Time } from './common.ts';
+import { type t, DEFAULTS, Time } from './common.ts';
 import { FileSize as Size } from './m.FileSize.ts';
 
 /**
  * Helpers for working with binary files in the browser.
  */
-export const File: FileLib = {
+export const File: t.FileLib = {
   DEFAULTS,
   Size,
 
   /**
-   * Convert a [Uint8Array] to a [Blob].
+   * Convert a Uint8Array to a Blob, preserving the visible range.
+   * - Zero-copy when backed by a real ArrayBuffer.
+   * - Falls back to a copy when backed by SharedArrayBuffer.
    */
   toBlob(data: Uint8Array, mimetype: string = DEFAULTS.mimetype) {
-    return new Blob([data], { type: mimetype });
+    if (data.buffer instanceof ArrayBuffer) {
+      // Respect byteOffset/byteLength without copying when possible.
+      const ab =
+        data.byteOffset === 0 && data.byteLength === data.buffer.byteLength
+          ? data.buffer
+          : data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+      return new Blob([ab], { type: mimetype });
+    }
+
+    // SharedArrayBuffer case → copy into a fresh ArrayBuffer-backed view.
+    const copy = new Uint8Array(data);
+    return new Blob([copy], { type: mimetype });
   },
 
   /**
    * Read a Blob/File object into a [Uint8Array].
    */
-  toUint8Array(input: Blob | File) {
-    return new Promise<Uint8Array>((resolve, reject) => {
-      try {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const result = reader.result;
-          if (result === null) throw new Error('File reader returned null');
-          if (typeof result === 'string') return resolve(new TextEncoder().encode(result));
-          if (typeof result === 'object') return resolve(new Uint8Array(result));
-        };
-        reader.readAsArrayBuffer(input);
-      } catch (error) {
-        reject(error);
-      }
-    });
+  async toUint8Array(input: Blob | File) {
+    const ab = await input.arrayBuffer();
+    return new Uint8Array(ab);
   },
 
   /**

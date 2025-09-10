@@ -25,7 +25,9 @@ export type FileLib = {
   readonly Size: FileSizeLib;
 
   /**
-   * Converts a Uint8Array to a Blob object.
+   * Convert a Uint8Array to a Blob, preserving the visible range.
+   * - Zero-copy when backed by a real ArrayBuffer.
+   * - Falls back to a copy when backed by SharedArrayBuffer.
    *
    * @param data - The Uint8Array to convert.
    * @param mimetype - Optional MIME type for the Blob. Defaults to DEFAULTS.mimetype.
