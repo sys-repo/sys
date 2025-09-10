@@ -1,8 +1,8 @@
-import { type t, describe, expect, it, MonacoFake } from '../-test.ts';
-import { EditorCrdt, EditorYaml, MonacoEditor, YamlEditor } from '../ui/mod.ts';
+import { type t, describe, expect, it, MonacoFake } from '../../-test.ts';
+import { EditorCrdt, EditorYaml, MonacoEditor, YamlEditor } from '../../ui/mod.ts';
 
-import { Link } from './m.Link.ts';
-import { Monaco, MonacoIs } from './mod.ts';
+import { Link } from '../m.Link.ts';
+import { Monaco, MonacoIs } from '../mod.ts';
 
 describe('Monaco', () => {
   it('API', async () => {

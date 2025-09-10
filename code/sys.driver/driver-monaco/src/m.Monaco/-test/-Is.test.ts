@@ -1,8 +1,8 @@
-import { type t, describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
 
-import { D } from './common.ts';
-import { Monaco, MonacoIs } from './mod.ts';
-import { Util } from './u.ts';
+import { D } from '../common.ts';
+import { Monaco, MonacoIs } from '../mod.ts';
+import { Util } from '../u.ts';
 
 describe('Is', () => {
   const asRange = Util.Range.asRange;
