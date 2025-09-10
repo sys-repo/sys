@@ -1,4 +1,4 @@
-import { type t, A, Obj, rx } from './common.ts';
+import { type t, A, Obj, rx, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
 type C = t.EditorCrdtLocalChange;
@@ -19,13 +19,38 @@ type C = t.EditorCrdtLocalChange;
  *
  */
 export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) => {
-  const model = editor.getModel();
-  if (!model) throw new Error('A model could not be retrieved from the editor.');
-
   const life = rx.lifecycle(until);
+  let model = editor.getModel() ?? undefined;
+
+  // Wait for a model if it isn't ready yet.
+  if (!model) {
+    model = await Util.Editor.waitForModel(editor, life);
+  }
+
+  if (!model) {
+    // Case A: we were cancelled (effect unmounted) before a model attached.
+    if (life.disposed) return wrangle.noop(life, doc, path);
+
+    // Case B: still active, but no model → real error.
+    throw new Error('A model could not be retrieved from the editor.');
+  }
+
   const events = doc.events(life);
   const hasPath = (path ?? []).length > 0;
   let _isPulling = false; // NB: echo-guard.
+
+  // Auto-dispose binding if the model tears down.
+  const modelDisposeSub = (model as any).onWillDispose?.(() => life.dispose());
+  life.dispose$.subscribe(() => modelDisposeSub?.dispose?.());
+
+  // Capture current readOnly and restore on dispose if we changed it.
+  const originalReadOnly = (editor as any).getRawOptions?.().readOnly;
+  if (!hasPath) editor.updateOptions({ readOnly: true });
+  life.dispose$.subscribe(() => {
+    if (!hasPath && originalReadOnly !== undefined) {
+      editor.updateOptions({ readOnly: originalReadOnly });
+    }
+  });
 
   const $$ = rx.subject<C>();
   const fire = (trigger: C['trigger'], before: string, after: string) => {
@@ -48,7 +73,14 @@ export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) =>
 
   // Ensure the editor has the current value of the CRDT document.
   const initialText = Obj.Path.get<string>(doc.current, path) ?? '';
-  if (hasPath && getValue() !== initialText) model.setValue(initialText);
+  if (hasPath && getValue() !== initialText) {
+    _isPulling = true; // ← NB: suppress local echo.
+    try {
+      model.setValue(initialText);
+    } finally {
+      _isPulling = false;
+    }
+  }
 
   // Ensure CRDT path exists and prime Monaco with its current value:
   doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''));
@@ -61,7 +93,8 @@ export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) =>
    */
   events.$.pipe(
     rx.filter((e) => hasPath),
-    rx.filter((e) => e.patches.some((p) => pathsOverlap(p.path, path))),
+    rx.filter((e) => e.patches.some((p) => Obj.Path.Rel.overlaps(p.path, path))),
+    rx.takeUntil(life.dispose$),
   ).subscribe((e) => {
     const before = Obj.Path.get<string>(e.before, path) ?? '';
     const after = Obj.Path.get<string>(e.after, path) ?? '';
@@ -75,25 +108,28 @@ export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) =>
      * (NB: mirrors the Monaco ➜ CRDT logic).
      */
     _isPulling = true;
-    model.pushEditOperations(
-      [], // NB: keep selections.
-      splices.reverse().map((s) => {
-        const start = model.getPositionAt(s.index);
-        const end = model.getPositionAt(s.index + s.delCount);
-        return {
-          range: {
-            startLineNumber: start.lineNumber,
-            startColumn: start.column,
-            endLineNumber: end.lineNumber,
-            endColumn: end.column,
-          },
-          text: s.insertText,
-        };
-      }),
-      () => null,
-    );
+    try {
+      model.pushEditOperations(
+        [], // NB: keep selections.
+        splices.reverse().map((s) => {
+          const start = model.getPositionAt(s.index);
+          const end = model.getPositionAt(s.index + s.delCount);
+          return {
+            range: {
+              startLineNumber: start.lineNumber,
+              startColumn: start.column,
+              endLineNumber: end.lineNumber,
+              endColumn: end.column,
+            },
+            text: s.insertText,
+          };
+        }),
+        () => null,
+      );
+    } finally {
+      _isPulling = false;
+    }
 
-    _isPulling = false;
     fire('crdt', before, getValue());
   });
 
@@ -156,15 +192,13 @@ const wrangle = {
       },
     };
   },
-} as const;
 
-/**
- * True when two object-paths overlap, i.e. one is a prefix of the other.
- */
-const pathsOverlap = (a: t.ObjectPath, b: t.ObjectPath): boolean => {
-  const min = Math.min(a.length, b.length);
-  for (let i = 0; i < min; i += 1) {
-    if (a[i] !== b[i]) return false; // Diverges at segment [i].
-  }
-  return true; // One is a prefix of the other.
-};
+  noop(life: t.Lifecycle, doc: t.Crdt.Ref, path: t.ObjectPath) {
+    return rx.toLifecycle<t.EditorCrdtBinding>(life, {
+      $: rx.EMPTY,
+      doc,
+      path,
+      model: {} as any, // NB: not used; binding is effectively inert.
+    });
+  },
+} as const;
