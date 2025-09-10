@@ -44,6 +44,40 @@ export type FileLib = {
   toUint8Array(input: Blob | File): Promise<Uint8Array>;
 
   /**
+   * Convert a BinaryFile-like object into a browser File.
+   * - Uses safe toBlob (handles SAB / offsets).
+   * - Preserves name, type, and lastModified.
+   */
+  toFile(args: { bytes: Uint8Array; name: string; type?: string; modifiedAt?: number }): File;
+
+  /**
+   * Convert a File into a BinaryFile-like object.
+   * - Preserves name, type, and lastModified.
+   * - Supports optional hash computation.
+   */
+  fromFile(
+    input: File,
+    opts?: {
+      computeHash?: (bytes: Uint8Array) => string | Promise<string>;
+    },
+  ): Promise<t.BinaryFile>;
+
+  /**
+   * Convert a Blob into a BinaryFile-like object.
+   * - Extracts bytes, name (if provided), type, and lastModified.
+   * - Supports optional hash computation.
+   */
+  fromBlob(
+    input: Blob,
+    opts?: {
+      name?: string;
+      defaultType?: string;
+      defaultModifiedAt?: number;
+      computeHash?: (bytes: Uint8Array) => string | Promise<string>;
+    },
+  ): Promise<t.BinaryFile>;
+
+  /**
    * Initiates a file download in the browser.
    *
    * @param filename - The name to give the downloaded file.

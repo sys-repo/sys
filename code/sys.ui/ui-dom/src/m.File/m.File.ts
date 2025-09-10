@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, Time } from './common.ts';
+import { type t, D, DEFAULTS, Time } from './common.ts';
 import { FileSize as Size } from './m.FileSize.ts';
 
 /**
@@ -13,7 +13,7 @@ export const File: t.FileLib = {
    * - Zero-copy when backed by a real ArrayBuffer.
    * - Falls back to a copy when backed by SharedArrayBuffer.
    */
-  toBlob(data: Uint8Array, mimetype: string = DEFAULTS.mimetype) {
+  toBlob(data: Uint8Array, mimetype: string = D.mimetype) {
     if (data.buffer instanceof ArrayBuffer) {
       // Respect byteOffset/byteLength without copying when possible.
       const ab =
@@ -37,7 +37,46 @@ export const File: t.FileLib = {
   },
 
   /**
-   * Initiates a file download from the browser
+   * Convert a BinaryFile-like object into a browser File.
+   * - Uses safe toBlob (handles SAB / offsets).
+   * - Preserves name, type, and lastModified.
+   */
+  toFile(args) {
+    const type = args.type ?? D.mimetype;
+    const blob = File.toBlob(args.bytes, type);
+    const lastModified = args.modifiedAt ?? Date.now();
+    return new globalThis.File([blob], args.name, { type, lastModified });
+  },
+
+  /**
+   * Convert a Blob into a BinaryFile-like object.
+   * - Extracts bytes, name (if provided), type, and lastModified.
+   * - Supports optional hash computation.
+   */
+  fromFile(input, opts = {}) {
+    const { computeHash } = opts;
+    return File.fromBlob(input, { computeHash });
+  },
+
+  /**
+   * Convert a Blob into a BinaryFile-like object.
+   * - Extracts bytes, name (if provided), type, and lastModified.
+   * - Supports optional hash computation.
+   */
+  async fromBlob(input, opts = {}) {
+    const bytes = new Uint8Array(await input.arrayBuffer());
+
+    const type = input.type || opts?.defaultType || D.mimetype;
+    const maybeFile = input as Partial<File>; // NB: structural duck typing.
+    const name = maybeFile.name ?? opts?.name ?? 'unnamed';
+    const modifiedAt = maybeFile.lastModified ?? opts?.defaultModifiedAt ?? Date.now();
+
+    const hash = opts?.computeHash ? await opts.computeHash(bytes) : undefined;
+    return { bytes, name, type, modifiedAt, hash };
+  },
+
+  /**
+   * Initiates a file download from the browser.
    */
   download(filename: string, data: Uint8Array | Blob, options: { mimetype?: string } = {}) {
     return new Promise<void>((resolve) => {

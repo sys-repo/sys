@@ -1,6 +1,6 @@
 /**
- * Helpers for working with binary files in the browser.
  * @module
+ * Helpers for working with binary files in the browser.
  */
 export { File } from './m.File.ts';
 export { FileSize } from './m.FileSize.ts';

@@ -1,5 +1,6 @@
 export type * from './-external.ts';
 
+export type * from './t.Binary.ts';
 export type * from './t.Boolean.ts';
 export type * from './t.Coord.ts';
 export type * from './t.Dispose.ts';
