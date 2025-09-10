@@ -57,7 +57,6 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
     // Listen to code-fold changes:
     const { $, dispose } = observe(editor);
     $.subscribe((e) => {
-
       if (activeDocId.current !== doc.id) return; //  ← Old sub firing for a new doc.
       if (!readyForEditorWrites.current) return; //   ← Ignore startup/churn.
       if (docUpdatingEditor.current) return; //       ← Skip echo events from local changes to the document marks in this hook.
@@ -83,8 +82,6 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
    * Effect: CRDT ➜ Editor.
    */
   useEffect(() => {
-    console.log('Effect: CRDT ➜ Editor.');
-
     if (!enabled || !editor || !doc || !path?.length) return;
     const model = editor.getModel();
     if (!model) return;
@@ -118,7 +115,6 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
 
       // Decide whether we actually need to unfold-all first.
       const mustClear = hiddenAreas.length > 0;
-
 
       // Case A – (no marks):
       if (!marks.length) {
