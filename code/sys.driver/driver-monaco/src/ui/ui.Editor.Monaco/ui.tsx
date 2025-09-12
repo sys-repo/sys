@@ -24,10 +24,13 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     autoFocus = DP.autoFocus,
     wordWrap = DP.wordWrap,
     wordWrapColumn = DP.wordWrapColumn,
+    fontSize = DP.fontSize,
     placeholder,
   } = props;
   const editorTheme = Theme.toName(props.theme);
   const isPlaceholderText = typeof placeholder === 'string';
+
+  console.log('fontSize', fontSize);
 
   /**
    * Refs:
@@ -54,9 +57,12 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     updateTextState(editor);
   }, [defaultValue, editorRef.current]);
 
+  /**
+   * Effect: Prop Updates.
+   */
   React.useEffect(() => {
     updateOptions(editorRef.current);
-  }, [tabSize, readOnly, minimap, wordWrap]);
+  }, [tabSize, readOnly, minimap, wordWrap, fontSize]);
 
   /**
    * Effect: End-of-life.
@@ -91,6 +97,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       minimap: { enabled: minimap },
       wordWrap: wordWrap ? 'bounded' : 'off',
       wordWrapColumn, // ← number-characters.
+      fontSize,
     });
     getModel(editor)?.updateOptions({ tabSize });
   };

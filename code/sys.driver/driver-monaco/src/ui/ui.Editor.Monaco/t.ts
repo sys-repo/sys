@@ -4,15 +4,18 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type MonacoEditorProps = {
+  // Value:
   defaultValue?: string;
   language?: t.EditorLanguage;
   placeholder?: string;
 
+  // Display:
   enabled?: boolean;
   autoFocus?: boolean | number;
   tabSize?: number;
   minimap?: boolean;
   readOnly?: boolean;
+  fontSize?: t.Pixels;
 
   /** Enable word wrapping in the editor. */
   wordWrap?: boolean;

@@ -25,6 +25,7 @@ export default Spec.describe('MonacoEditor', (e) => {
         readOnly={v.readOnly}
         tabSize={v.tabSize}
         wordWrap={v.wordWrap}
+        fontSize={v.fontSize}
         //
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);

@@ -30,6 +30,7 @@ type Storage = Pick<
   | 'language'
   | 'placeholder'
   | 'autoFocus'
+  | 'fontSize'
 >;
 
 /**
@@ -47,6 +48,7 @@ const defaults: Storage = {
   tabSize: D.props.tabSize,
   wordWrap: D.props.wordWrap,
   language: D.props.language,
+  fontSize: undefined,
   placeholder: undefined,
 };
 
@@ -66,6 +68,7 @@ export function createDebugSignals() {
 
     enabled: s(snap.enabled),
     readOnly: s(snap.readOnly),
+    fontSize: s(snap.fontSize),
     autoFocus: s(snap.autoFocus),
     minimap: s(snap.minimap),
     tabSize: s(snap.tabSize),
@@ -91,6 +94,7 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
       d.enabled = p.enabled.value;
       d.readOnly = p.readOnly.value;
+      d.fontSize = p.fontSize.value;
       d.minimap = p.minimap.value;
       d.autoFocus = p.autoFocus.value;
       d.tabSize = p.tabSize.value;
@@ -156,6 +160,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.fontSize.value;
+          const d = D.props.fontSize;
+          return `fontSize: ${v ? `${v}px` : `(default: ${d}px)`}`;
+        }}
+        onClick={() => Signal.cycle<P['fontSize']>(p.fontSize, [12, undefined, 16, 18, 22, 36])}
       />
       <Button
         block

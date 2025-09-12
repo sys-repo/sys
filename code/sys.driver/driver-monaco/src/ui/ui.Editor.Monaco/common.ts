@@ -19,6 +19,7 @@ const props: t.PickRequired<
   | 'autoFocus'
   | 'wordWrap'
   | 'wordWrapColumn'
+  | 'fontSize'
 > = {
   theme: 'Dark',
   enabled: true,
@@ -29,6 +30,7 @@ const props: t.PickRequired<
   autoFocus: false,
   wordWrap: false,
   wordWrapColumn: 80,
+  fontSize: 14,
 };
 
 export const DEFAULTS = {
