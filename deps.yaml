@@ -40,7 +40,7 @@ groups:
 
   automerge:
     # https://automerge.org
-    - import: npm:@automerge/automerge@3.1.1
+    - import: npm:@automerge/automerge@3.1.2
     - import: npm:@automerge/automerge-repo@2.3.0
     - import: npm:@automerge/automerge-repo-network-websocket@2.3.0
     - import: npm:@automerge/automerge-repo-storage-indexeddb@2.3.0
@@ -84,14 +84,14 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.39
+    - import: npm:ai@5.0.41
     - import: npm:@ai-sdk/openai@2.0.28
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.16.2
+    - import: npm:@mastra/core@0.16.3
       subpaths: ['agent', 'memory', 'storage']
-    - import: npm:@mastra/libsql@0.14.0
+    - import: npm:@mastra/libsql@0.14.1
     - import: npm:@mastra/loggers@0.10.11
-    - import: npm:@mastra/memory@0.15.0
+    - import: npm:@mastra/memory@0.15.1
     - import: npm:ollama@0.5.17
     - import: npm:gpt-tokenizer@3.0.1
 
