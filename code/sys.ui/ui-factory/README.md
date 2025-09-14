@@ -160,35 +160,49 @@ const { ok, element, issues } = useFactory(factory, plan, { validate: 'always' }
 <p>&nbsp;<p>
 
 ## File Layout Guidance: "Catalog"
-A **catalog** is a type-safe bundle of schemas and UI definitions, shipped as a 
+A **catalog** is a type-safe bundle shipped as a 
 single [dynamic `import()`](https://github.com/tc39/proposal-dynamic-import).
 
+Catalogs provide cohesive containment for schemas and views, making them easy to
+dynamically import, compose, and reuse as a single module.
 
 ```
 catalog/
-├─ ui/
-│   ├─ Hello/
-│   │   ├─ schema.ts       ← Type.Object(…)
-│   │   ├─ spec.ts         ← ViewSpec                 ← id, slots, schema
-│   │   ├─ ui.tsx          ← View implementation      ← JSX or whatever (adapter specific)
-│   │   └─ mod.ts          ← exports:                 ← ’s schema, spec, view
-├─ def/
-│   ├─ regs.ts             ← central Registration[]   ← built from /ui/
-│   ├─ plan.ts             ← UI composition plans     ← hierarchical structures of components
-│   └─ schemas.ts          ← central schema exports   ← collected from /ui/
-└─ mod.ts                  ← 🌳 (entrypoint)
+├─ common/                 ← shared helpers and types
+│   ├─ libs.ts
+│   ├─ mod.ts
+│   └─ t.ts
+├─ def/                    ← central schema + UI composition definitions
+│   ├─ regs.ts             ← central Registration[] (built from /ui/)
+│   ├─ plan.ts             ← UI composition plans (hierarchical structures)
+│   ├─ schemas.ts          ← collected schema exports
+│   └─ mod.ts
+├─ ui/                     ← individual UI component bundles
+│   ├─ common.ts           ← shared UI helpers
+│   └─ Hello/              ← example component
+│       ├─ schema.ts       ← Type.Object(…)
+│       ├─ spec.ts         ← ViewSpec (id, slots, schema)
+│       ├─ ui.tsx          ← View implementation (adapter-specific)
+│       └─ mod.ts          ← exports: schema, spec, view
+├─ common.ts               ← root-level re-export of ./common/mod.ts
+├─ t.ts                    ← root-level types
+├─ *.test.ts               ← tests
+└─ mod.ts                  ← 🌳 catalog entrypoint
 ```
 
 
 ### Template
+This can be scaffolded from the module's template engine:
+
 ```bash
-# Scaffold a new "catalog" project in the current directory:
+# Make a new "catalog" project in the current directory:
 deno run -RWE jsr:@sys/ui-factory/tmpl
 
-# Force the latest version:
+# (optionally) upgrade to the latest version of the template module:
 deno run -RWE --reload jsr:@sys/ui-factory/tmpl
 ```
 
+Note: the UI factory templates are also available under the common system template library at `deno run -RWE jsr:@sys/tmpl`. Follow the prompts.
 
 <p>&nbsp;<p>
 
