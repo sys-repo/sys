@@ -106,8 +106,8 @@ describe('Testing', () => {
         microtaskResolved = true;
 
         expect(microtaskResolved).to.be.true;
-        expect(macrotaskResolved).to.be.false; // Microtasks should run before macrotasks
-        expect(elapsed).to.eql(0); // Should be ~0ms or very close
+        expect(macrotaskResolved).to.be.false; // Microtasks should run before macrotasks.
+        expect(elapsed).to.be.lessThan(10); // Should be ~0ms or very close (NB: allow tiny scheduler jitter).
 
         clearTimeout(stop);
       });
