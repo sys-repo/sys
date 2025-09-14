@@ -17,6 +17,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./catalog/edu": "./src/catalog.edu/mod.ts",
     "./catalog/harness": "./src/catalog.harness/mod.ts"
   }
 }
