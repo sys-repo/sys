@@ -23,17 +23,19 @@ describe('CRDT: file-system', { sanitizeResources: false, sanitizeOps: false }, 
 
     // Query the repo for the documents address.
     const docB = await repoA.find<T>(docA.url);
+    await docB.whenReady();
     expect(docB.doc()).to.eql({ msg });
 
-    // Create a secondary repo pointing at the same dir (prove filesystem save)
-    await Testing.wait(100); // NB: hack ← typically don't do this on the same process, write are not real-time updated.
+    await repoA.shutdown(); // ← flush deterministically before reading from a new Repo.
 
+    // Create a secondary repo pointing at the same dir (prove filesystem save).
     const repoB = new Repo({ storage: new NodeFSStorageAdapter(fs.dir) });
+
     const docC = await repoB.find<T>(docA.url);
+    await docC.whenReady();
     expect(docC.doc()).to.eql({ msg });
 
     // Finish up.
-    await repoA.shutdown();
     await repoB.shutdown();
   });
 });
