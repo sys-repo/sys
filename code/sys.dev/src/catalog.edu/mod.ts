@@ -1,8 +1,4 @@
 /**
- * @module
- * Catalog entry-point.
- *
- * Public exports of schemas, registrations, and plan.
- * Consumers can import from here for testing/inference/validation.
+ * @module catalog.edu
  */
 export * from './def/mod.ts';
