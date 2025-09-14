@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-farcaster",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
