@@ -1,12 +1,12 @@
 /**
  * @module Catalog-Types
  */
-import type { t } from './common.ts';
+import { type t } from './common.ts';
 
 /**
  * Library:
  */
-export type * from './m.slug/t.ts';
+export type * from './m.schema.slug/t.ts';
 export type * from './m.yaml/t.ts';
 
 /** Catalog Id union. */

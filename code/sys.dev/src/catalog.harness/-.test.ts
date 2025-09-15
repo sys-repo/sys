@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { HarnessSchema, makePlan, regs } from './mod.ts';
+import { HarnessPropsSchema, makePlan, regs } from './mod.ts';
 
 describe('DevHarness', () => {
   describe('catalog (smoke-test)', () => {
@@ -25,7 +25,7 @@ describe('DevHarness', () => {
     });
 
     it('schemas: HarnessSchema is an object schema', () => {
-      expect(HarnessSchema.type).to.eql('object');
+      expect(HarnessPropsSchema.type).to.eql('object');
     });
   });
 });

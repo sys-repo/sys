@@ -1,5 +1,5 @@
 import { Pkg, pkg } from '../common.ts';
-import { HarnessSchema } from '../mod.ts';
+import { HarnessPropsSchema } from '../mod.ts';
 
 export * from '../common.ts';
 export { Crdt } from '../../ui/-test.ui.ts';
@@ -7,7 +7,7 @@ export { Crdt } from '../../ui/-test.ui.ts';
 /**
  * Constants:
  */
-const name = HarnessSchema.$id ?? 'unnamed';
+const name = HarnessPropsSchema.$id ?? 'unnamed';
 const displayName = Pkg.toString(pkg, name, false);
 export const D = {
   name,
