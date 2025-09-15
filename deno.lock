@@ -66,7 +66,7 @@
     "npm:@preact/signals-react@3.3.0": "3.3.0_react@19.1.1",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@sinclair/typebox@0.34.41": "0.34.41",
-    "npm:@svgdotjs/svg.js@3.2.4": "3.2.4",
+    "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
     "npm:@types/node@*": "24.2.0",
     "npm:@types/ramda@0.31.1": "0.31.1",
     "npm:@types/react-dom@19.1.9": "19.1.9_@types+react@19.1.13",
@@ -2000,8 +2000,8 @@
     "@standard-schema/spec@1.0.0": {
       "integrity": "sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA=="
     },
-    "@svgdotjs/svg.js@3.2.4": {
-      "integrity": "sha512-BjJ/7vWNowlX3Z8O4ywT58DqbNRyYlkk6Yz/D13aB7hGmfQTvGX4Tkgtm/ApYlu9M7lCQi15xUEidqMUmdMYwg=="
+    "@svgdotjs/svg.js@3.2.5": {
+      "integrity": "sha512-/VNHWYhNu+BS7ktbYoVGrCmsXDh+chFMaONMwGNdIBcFHrWqk2jY8fNyr3DLdtQUIalvkPfM554ZSFa3dm3nxQ=="
     },
     "@swc/core-darwin-arm64@1.13.5": {
       "integrity": "sha512-lKNv7SujeXvKn16gvQqUQI5DdyY8v7xcoO3k06/FJbHJS90zEwZdQiMNRiqpYw/orU543tPaWgz7cIYWhbopiQ==",
@@ -4508,7 +4508,7 @@
       "npm:@preact/signals-react@3.3.0",
       "npm:@sinclair/typebox-codegen@0.11.1",
       "npm:@sinclair/typebox@0.34.41",
-      "npm:@svgdotjs/svg.js@3.2.4",
+      "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
       "npm:ai@5.0.44",

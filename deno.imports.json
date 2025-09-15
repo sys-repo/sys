@@ -43,7 +43,7 @@
     "@std/testing": "jsr:@std/testing@1.0.15",
     "@std/testing/bdd": "jsr:@std/testing@1.0.15/bdd",
     "@std/uuid": "jsr:@std/uuid@1.0.9",
-    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.4",
+    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
     "ai": "npm:ai@5.0.44",

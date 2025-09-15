@@ -144,7 +144,7 @@ deno.json:
   - import: npm:ua-parser-js@2.0.5
 
   # UI:
-  - import: npm:@svgdotjs/svg.js@3.2.4
+  - import: npm:@svgdotjs/svg.js@3.2.5
   - import: npm:react-error-boundary@6.0.0
   - import: npm:react-inspector@9.0.0
   - import: npm:react-spinners@0.17.0
