@@ -15,4 +15,5 @@ export type * from '@sys/ui-factory/t';
 /**
  * @local
  */
+export type * from '../t.inferred.ts';
 export type * from '../t.ts';
