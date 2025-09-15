@@ -1,5 +1,5 @@
 import { describe, it, expect } from './-test.ts';
-import { makePlan, regs, HelloSchema } from './mod.ts';
+import { makePlan, regs, HelloPropsSchema } from './mod.ts';
 
 describe('Catalog: edu', () => {
   describe('catalog smoke-test', () => {
@@ -33,10 +33,10 @@ describe('Catalog: edu', () => {
       if ('name' in mod.default) expect(mod.default.name).to.eql('Hello');
     });
 
-    it("schemas: HelloSchema is an object schema with 'name'", () => {
-      expect(HelloSchema.type).to.eql('object');
-      expect(Object.keys(HelloSchema.properties || {})).to.include('name');
-      expect(HelloSchema.additionalProperties).to.eql(false);
+    it("schemas: HelloPropsSchema is an object schema with 'name'", () => {
+      expect(HelloPropsSchema.type).to.eql('object');
+      expect(Object.keys(HelloPropsSchema.properties || {})).to.include('name');
+      expect(HelloPropsSchema.additionalProperties).to.eql(false);
     });
   });
 });

@@ -3,9 +3,9 @@ import { type t, Type } from '../common.ts';
 
 /**
  * Precise TypeBox schema (JSR-friendly, inference-safe).
- * Consumers can do: `type Hello = t.Infer<typeof HelloSchema>`
+ * Consumers can produce proper type: `type Hello = t.Static<typeof HelloSchema>`
  */
-export const HelloSchema: t.TObject<{
+export const HelloPropsSchema: t.TObject<{
   name: t.TString;
   debug: t.TOptional<t.TBoolean>;
   theme: t.TOptional<typeof CommonThemeSchema>;
