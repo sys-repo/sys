@@ -7,7 +7,16 @@
  */
 import type { t } from './common.ts';
 import type { SlugSchema, TraitBindingSchema, TraitDefSchema } from './def/mod.ts';
+import type { HelloSchema } from './ui/Hello/schema.ts';
 
+/**
+ * Models:
+ */
 export type Slug = t.Static<typeof SlugSchema>;
 export type TraitBinding = t.Static<typeof TraitBindingSchema>;
 export type TraitDef = t.Static<typeof TraitDefSchema>;
+
+/**
+ * Components:
+ */
+export type HelloProps = t.Infer<typeof HelloSchema>;
