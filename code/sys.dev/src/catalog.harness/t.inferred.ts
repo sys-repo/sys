@@ -6,3 +6,6 @@
  *    re-infer from the schemas (e.g. `t.Static<typeof FooSchema>`).
  */
 import type { t } from './common.ts';
+import { HarnessSchema } from './def/mod.ts';
+
+export type Harness = t.Static<typeof HarnessSchema>;
