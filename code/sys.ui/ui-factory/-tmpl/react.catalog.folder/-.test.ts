@@ -1,7 +1,11 @@
 import { describe, it, expect } from './-test.ts';
-import { makePlan, regs, HelloSchema } from './mod.ts';
+import { makePlan, regs, HelloPropsSchema } from './mod.ts';
 
 describe('Catalog', () => {
+  /**
+   * NOTE: 🐷 generated with template
+   * (consider deleting or adapting after catalog work has progressed)
+   */
   describe('catalog smoke-test', () => {
     it('makePlan: root is Hello:view with default props', () => {
       const plan = makePlan();
@@ -34,9 +38,9 @@ describe('Catalog', () => {
     });
 
     it("schemas: HelloSchema is an object schema with 'name'", () => {
-      expect(HelloSchema.type).to.eql('object');
-      expect(Object.keys(HelloSchema.properties || {})).to.include('name');
-      expect(HelloSchema.additionalProperties).to.eql(false);
+      expect(HelloPropsSchema.type).to.eql('object');
+      expect(Object.keys(HelloPropsSchema.properties || {})).to.include('name');
+      expect(HelloPropsSchema.additionalProperties).to.eql(false);
     });
   });
 });

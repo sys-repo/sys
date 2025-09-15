@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { HelloSchema } from './schema.ts';
+import { HelloPropsSchema } from './schema.ts';
 
 type Reg = t.ReactRegistration<t.CatalogId, t.CatalogSlot>;
 
@@ -9,6 +9,6 @@ type Reg = t.ReactRegistration<t.CatalogId, t.CatalogSlot>;
  */
 export const spec: Reg['spec'] = {
   id: 'Hello:view',
-  schema: HelloSchema,
+  schema: HelloPropsSchema,
   slots: [] as const,
 };

@@ -1,8 +1,8 @@
 import React from 'react';
 import { type t, Color, css } from '../common.ts';
-import { HelloSchema } from './schema.ts';
+import { HelloPropsSchema } from './schema.ts';
 
-export type HelloProps = t.Infer<typeof HelloSchema>;
+export type HelloProps = t.Infer<typeof HelloPropsSchema>;
 
 /**
  * Component:

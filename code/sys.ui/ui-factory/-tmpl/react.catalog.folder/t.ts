@@ -2,10 +2,11 @@
  * @module Catalog-Types
  */
 import type { t } from './common.ts';
-import type { HelloSchema } from './ui/Hello/schema.ts';
+import type { HelloPropsSchema } from './ui/Hello/schema.ts';
 
-/** Component props: */
-export type HelloProps = t.Infer<typeof HelloSchema>;
+/**
+ * Catalog:
+ */
 
 /** Catalog Id union. */
 export type CatalogId = 'Hello:view';
