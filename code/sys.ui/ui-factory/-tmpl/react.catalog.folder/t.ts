@@ -1,6 +1,5 @@
 /**
- * @module
- * Catalog Types
+ * @module Catalog-Types
  */
 import type { t } from './common.ts';
 import type { HelloSchema } from './ui/Hello/schema.ts';
