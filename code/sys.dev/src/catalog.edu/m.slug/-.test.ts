@@ -1,18 +1,7 @@
-import { describe, expect, it, Value } from '../-test.ts';
+import { c, describe, expect, it, Value } from '../-test.ts';
 import { SlugSchema, TraitBindingSchema, TraitDefSchema } from './mod.ts';
 
 describe(`catalog.edu/slug`, () => {
-  it('minimal slug with trait bindings (no props)', () => {
-    const slug = {
-      id: 'slug-001',
-      traits: [
-        { as: 'trait-1', id: 'video' },
-        { as: 'gallery', id: 'image-sequence' },
-      ],
-    };
-    expect(Value.Check(SlugSchema, slug)).to.be.true;
-  });
-
   describe('SlugSchema', () => {
     it('accepts minimal slug: id + traits[] (no props)', () => {
       const slug = {
@@ -22,14 +11,14 @@ describe(`catalog.edu/slug`, () => {
       expect(Value.Check(SlugSchema, slug)).to.be.true;
     });
 
-    it('accepts slug with trait bindings and arbitrary props object (values are Unknown)', () => {
+    it('accepts slug with trait bindings and arbitrary props {object} (values are <Unknown>)', () => {
       const slug = {
         id: 's1',
         traits: [
           { as: 'trait-1', id: 'video' },
           { as: 'gallery', id: 'image-sequence' },
         ],
-        // NOTE: semantic validation not enforced yet; any shape is allowed per alias
+        // NOTE: semantic validation not enforced yet; any shape is allowed per alias.
         props: {
           'trait-1': { any: { nested: ['ok'] }, n: 123 },
           gallery: 'also-ok',
@@ -42,18 +31,25 @@ describe(`catalog.edu/slug`, () => {
       const bad = {
         id: 's1',
         traits: [],
-        extra: true, // not allowed
+        extra: true, // ← not allowed
       };
       expect(Value.Check(SlugSchema, bad)).to.be.false;
+
       const errs = Array.from(Value.Errors(SlugSchema, bad));
       expect(errs.some((e) => e.path === '/extra')).to.be.true;
+
+      // Print:
+      console.info();
+      console.info(`${c.green('Value.Check(SlugSchema)')}.${c.brightCyan('errors:')}`);
+      console.info(errs);
+      console.info();
     });
 
-    it('rejects invalid id pattern', () => {
+    it('rejects invalid <id> pattern', () => {
       const bads = [
-        { id: '-bad', traits: [] }, // starts with hyphen
-        { id: 'Bad', traits: [] }, // uppercase start
-        { id: '', traits: [] }, // empty
+        { id: '-bad', traits: [] }, // ← starts with hyphen
+        { id: 'Bad', traits: [] }, //  ← uppercase start
+        { id: '', traits: [] }, //     ← empty
       ];
       for (const bad of bads) {
         expect(Value.Check(SlugSchema, bad)).to.be.false;
@@ -67,9 +63,9 @@ describe(`catalog.edu/slug`, () => {
 
     it('rejects non-record props', () => {
       const bads = [
-        { id: 's1', traits: [], props: [] }, // array
-        { id: 's1', traits: [], props: 123 }, // number
-        { id: 's1', traits: [], props: null }, // null
+        { id: 's1', traits: [], props: [] }, //   ← array
+        { id: 's1', traits: [], props: 123 }, //  ← number
+        { id: 's1', traits: [], props: null }, // ← null
       ];
       for (const bad of bads) {
         expect(Value.Check(SlugSchema, bad)).to.be.false;
@@ -85,9 +81,9 @@ describe(`catalog.edu/slug`, () => {
 
     it('rejects bad alias pattern', () => {
       const bads = [
-        { as: '1bad', id: 'video' }, // must start with [a-z]
-        { as: 'Bad', id: 'video' }, // uppercase start
-        { as: '', id: 'video' }, // empty
+        { as: '1bad', id: 'video' }, // ← must start with [a-z]
+        { as: 'Bad', id: 'video' }, //  ← uppercase start
+        { as: '', id: 'video' }, //     ← empty
       ];
       for (const bad of bads) {
         expect(Value.Check(TraitBindingSchema, bad)).to.be.false;
@@ -125,8 +121,8 @@ describe(`catalog.edu/slug`, () => {
 
     it('rejects bad trait def id pattern', () => {
       const bads = [
-        { id: 'Video' }, // Capitalized
-        { id: '' }, //      Empty
+        { id: 'Video' }, // ← capitalized
+        { id: '' }, //      ← empty
       ];
       for (const bad of bads) {
         expect(Value.Check(TraitDefSchema, bad)).to.be.false;
@@ -134,7 +130,7 @@ describe(`catalog.edu/slug`, () => {
     });
   });
 
-  describe('trait integration shape within SlugSchema', () => {
+  describe('Trait: integration shape within SlugSchema', () => {
     it('traits must contain only TraitBinding-shaped items', () => {
       const bad = {
         id: 's1',
