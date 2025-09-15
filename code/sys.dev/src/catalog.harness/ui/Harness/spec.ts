@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { HarnessSchema } from './schema.ts';
+import { HarnessPropsSchema } from './schema.ts';
 
 type Reg = t.ReactRegistration<t.CatalogId, t.CatalogSlot>;
 
@@ -9,6 +9,6 @@ type Reg = t.ReactRegistration<t.CatalogId, t.CatalogSlot>;
  */
 export const spec: Reg['spec'] = {
   id: 'Harness:view',
-  schema: HarnessSchema,
+  schema: HarnessPropsSchema,
   slots: ['left', 'right'] as const,
 };

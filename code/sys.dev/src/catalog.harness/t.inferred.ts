@@ -8,4 +8,4 @@
 import type { t } from './common.ts';
 import { HarnessSchema } from './def/mod.ts';
 
-export type HarnessProps = t.Static<typeof HarnessSchema>;
+export type HarnessProps = t.Infer<typeof HarnessSchema>;

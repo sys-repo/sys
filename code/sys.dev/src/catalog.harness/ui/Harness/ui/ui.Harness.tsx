@@ -2,11 +2,11 @@ import { SplitPane } from '@sys/ui-react-components';
 import React from 'react';
 
 import { type t, Color, css } from '../common.ts';
-import { HarnessSchema } from '../schema.ts';
+import { HarnessPropsSchema } from '../schema.ts';
 import { useSplitState } from './use.SplitState.ts';
 
 type Slots = { left?: t.ReactNode; right?: t.ReactNode };
-export type HarnessProps = t.Infer<typeof HarnessSchema> & { slots?: Slots };
+export type HarnessProps = t.Infer<typeof HarnessPropsSchema> & { slots?: Slots };
 
 /**
  * Minimal two-pane shell with named slots: { left, right }.

@@ -9,7 +9,7 @@ import {
 /**
  * Minimal schema for the left/right Harness shell.
  */
-export const HarnessSchema: t.TObject<{
+export const HarnessPropsSchema: t.TObject<{
   debug: t.TOptional<t.TBoolean>;
   theme: t.TOptional<typeof CommonThemeSchema>;
   style: t.TOptional<typeof CssInputSchema>;
