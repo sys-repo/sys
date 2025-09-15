@@ -114,19 +114,22 @@ describe(`catalog.edu/slug`, () => {
     it('accepts minimal trait def with id (props optional)', () => {
       const ok1 = { id: 'video' };
       const ok2 = { id: 'image-sequence', props: {} };
-      expect(Value.Check(TraitDefSchema, ok1)).to.equal(true);
-      expect(Value.Check(TraitDefSchema, ok2)).to.equal(true);
+      expect(Value.Check(TraitDefSchema, ok1)).to.be.true;
+      expect(Value.Check(TraitDefSchema, ok2)).to.be.true;
     });
 
     it('rejects additional properties on trait def', () => {
       const bad = { id: 'video', x: 1 };
-      expect(Value.Check(TraitDefSchema, bad)).to.equal(false);
+      expect(Value.Check(TraitDefSchema, bad)).to.be.false;
     });
 
     it('rejects bad trait def id pattern', () => {
-      const bads = [{ id: 'Video' }, { id: '' }];
+      const bads = [
+        { id: 'Video' }, // Capitalized
+        { id: '' }, //      Empty
+      ];
       for (const bad of bads) {
-        expect(Value.Check(TraitDefSchema, bad)).to.equal(false);
+        expect(Value.Check(TraitDefSchema, bad)).to.be.false;
       }
     });
   });
@@ -137,16 +140,16 @@ describe(`catalog.edu/slug`, () => {
         id: 's1',
         traits: [{ id: 'video' }], // missing `as`
       };
-      expect(Value.Check(SlugSchema, bad)).to.equal(false);
+      expect(Value.Check(SlugSchema, bad)).to.be.false;
     });
 
     it('props keys are strings; values are Unknown (structural pass only)', () => {
       const ok = {
         id: 's1',
         traits: [{ as: 't1', id: 'video' }],
-        props: { t1: Symbol('anything-goes') as unknown }, // Unknown passes
+        props: { t1: Symbol('anything-goes') as unknown }, // Unknown passes.
       };
-      expect(Value.Check(SlugSchema, ok)).to.equal(true);
+      expect(Value.Check(SlugSchema, ok)).to.be.true;
     });
   });
 });
