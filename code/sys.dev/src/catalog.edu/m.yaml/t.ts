@@ -45,11 +45,13 @@ export type SlugFromYamlResult = {
   readonly slug?: unknown;
 
   readonly errors: {
-    /** Shape violations from schema validation (e.g. wrong types). */
+    /** Shape violations from schema validation (e.g. wrong types). Structural = "does it match the schema shape?". */
     readonly schema: readonly { path: t.ObjectPath; message: string }[];
-    /** Higher-order semantic rule violations (e.g. alias collisions). */
+
+    /** Higher-order semantic rule violations (e.g. alias collisions). Semantic = "is the object logically valid?". */
     readonly semantic: readonly { path: t.ObjectPath; message: string }[];
-    /** Parser errors reported by the YAML library. */
+
+    /** Parser errors reported by the YAML library. Low-level syntax/parse issues before schema or semantic checks. */
     readonly yaml: readonly t.YamlError[];
   };
 };

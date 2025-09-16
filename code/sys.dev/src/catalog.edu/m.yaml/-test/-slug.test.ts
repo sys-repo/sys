@@ -42,93 +42,100 @@ describe(`YamlPipeline`, () => {
       }
     });
 
-    it('accepts string input, implicit root path (valid slug)', () => {
-      const src = `
+    describe('input', () => {
+      it('accepts string input, implicit root path (valid slug)', () => {
+        const src = `
       id: s1
       traits: []
       `;
-      const res = fromYaml(src);
-      expect(res.ok).to.be.true;
-      if (res.ok) {
-        expect(res.slug).to.eql({ id: 's1', traits: [] });
-        expect(res.errors.schema.length).to.eql(0);
-        expect(res.errors.yaml.length).to.eql(0);
-      }
-    });
+        const res = fromYaml(src);
+        expect(res.ok).to.be.true;
+        if (res.ok) {
+          expect(res.slug).to.eql({ id: 's1', traits: [] });
+          expect(res.errors.schema.length).to.eql(0);
+          expect(res.errors.yaml.length).to.eql(0);
+        }
+      });
 
-    it('accepts string input, explicit array path', () => {
-      const src = `
+      it('accepts string input, explicit array path', () => {
+        const src = `
       concept-player:
         slug:
           id: s2
           traits: []
       `;
-      const res = fromYaml(src, ['concept-player', 'slug']);
-      expect(res.ok).to.be.true;
-      if (res.ok) {
-        expect(res.slug).to.eql({ id: 's2', traits: [] });
-      }
-    });
+        const res = fromYaml(src, ['concept-player', 'slug']);
+        expect(res.ok).to.be.true;
+        if (res.ok) {
+          expect(res.slug).to.eql({ id: 's2', traits: [] });
+        }
+      });
 
-    it('accepts string input, explicit string path (decoded)', () => {
-      const src = `
+      it('accepts string input, explicit string path (decoded)', () => {
+        const src = `
       root:
         nested:
           slug:
             id: s3
             traits: []
       `;
-      const res = fromYaml(src, '/root/nested/slug');
-      expect(res.ok).to.be.true;
-      if (res.ok) {
-        expect(res.slug).to.eql({ id: 's3', traits: [] });
-      }
-    });
+        const res = fromYaml(src, '/root/nested/slug');
+        expect(res.ok).to.be.true;
+        if (res.ok) {
+          expect(res.slug).to.eql({ id: 's3', traits: [] });
+        }
+      });
 
-    it('accepts pre-parsed YamlAst input', () => {
-      const src = `
+      it('accepts pre-parsed YamlAst input', () => {
+        const src = `
       wrap:
         slug:
           id: s4
           traits: []
       `;
-      const ast = Yaml.parseAst(src);
-      const res = fromYaml(ast, ['wrap', 'slug']);
-      expect(res.ok).to.be.true;
-      if (res.ok) {
-        expect(res.slug).to.eql({ id: 's4', traits: [] });
-        expect(res.ast).to.equal(ast);
-      }
+        const ast = Yaml.parseAst(src);
+        const res = fromYaml(ast, ['wrap', 'slug']);
+        expect(res.ok).to.be.true;
+        if (res.ok) {
+          expect(res.slug).to.eql({ id: 's4', traits: [] });
+          expect(res.ast).to.equal(ast);
+        }
+      });
     });
 
-    it('reports schema errors (bad shape at target path)', () => {
-      const src = `
+    describe('structural validation', () => {
+      it('reports schema errors (bad shape at target path)', () => {
+        const src = `
       slug:
         id: s5
         traits: {}   # <- must be an array
       `;
-      const res = fromYaml(src, ['slug']);
-      expect(res.ok).to.eql(false);
-      expect(res.errors.schema.length > 0).to.be.true;
-      expect(res.errors.yaml.length).to.eql(0); // ← ensure no YAML parser errors on well-formed YAML.
+        const res = fromYaml(src, ['slug']);
+        expect(res.ok).to.eql(false);
+        expect(res.errors.schema.length > 0).to.be.true;
+        expect(res.errors.yaml.length).to.eql(0); // ← ensure no YAML parser errors on well-formed YAML.
 
-      // Print:
-      console.info();
-      console.info(c.bold(c.green('slugFromYaml:')));
-      console.info(res);
-      console.info();
-      console.info(c.bold(c.green('slugFromYaml.errors:')));
-      console.info(res.errors);
-      console.info();
+        // Print:
+        console.info();
+        console.info(c.bold(c.green('slugFromYaml:')));
+        console.info(res);
+        console.info();
+        console.info(c.bold(c.green('slugFromYaml.errors:')));
+        console.info(res.errors);
+        console.info();
+      });
+
+      it('reports YAML parse errors (syntax)', () => {
+        const src = `id: [unclosed`;
+        const res = fromYaml(src); // root path
+        // Parser should report an error:
+        //    Schema may or may not produce errors depending on parser recovery;
+        //    we only assert the presence of YAML errors here.
+        expect(res.errors.yaml.length > 0).to.be.true;
+        expect(res.errors.yaml[0].message).to.include('[unclosed');
+      });
     });
 
-    it('reports YAML parse errors (syntax)', () => {
-      const src = `id: [unclosed`;
-      const res = fromYaml(src); // root path
-      // Parser should report an error:
-      expect(res.errors.yaml.length > 0).to.be.true;
-      // Schema may or may not produce errors depending on parser recovery;
-      // we only assert the presence of YAML errors here.
     });
   });
 });
