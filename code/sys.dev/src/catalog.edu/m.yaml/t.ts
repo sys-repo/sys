@@ -5,16 +5,24 @@
 import type { t } from './common.ts';
 
 /**
- * Namespace for tools that handle the pipe of YAML → Schema → Object and back again.
+ * Namespace: tools that handle the pipe of YAML → Schema → Object and back again.
  */
 export type YamlPipelineLib = {
-  slugFromYaml: t.SlugFromYaml;
+  /** Slug tools. */
+  readonly Slug: YamlSlugLib;
 };
 
 /**
- * Extract + structurally validate a slug located at `path` within YAML `input`.
- * - `input` may be raw YAML (string) or a pre-parsed `t.YamlAst`.
- * - Structural only (no semantic alias/props checks here).
+ * Namespace: tools within the YAML pipeline related to slug interpretation.
+ */
+export type YamlSlugLib = {
+  /** Extract and validate a slug from YAML */
+  readonly fromYaml: t.SlugFromYaml;
+};
+
+/**
+ * Extract and validate a slug from YAML.
+ * Returns the candidate slug, parse AST, and any errors.
  */
 export type SlugFromYaml = (
   input: string | t.YamlAst,
@@ -37,9 +45,10 @@ export type SlugFromYamlResult = {
   readonly slug?: unknown;
 
   readonly errors: {
-    /** Schema structural issues (empty when ok=true). */
+    /** Shape violations from schema validation (e.g. wrong types). */
     readonly schema: readonly { path: t.ObjectPath; message: string }[];
-
+    /** Higher-order semantic rule violations (e.g. alias collisions). */
+    readonly semantic: readonly { path: t.ObjectPath; message: string }[];
     /** Parser errors reported by the YAML library. */
     readonly yaml: readonly t.YamlError[];
   };
