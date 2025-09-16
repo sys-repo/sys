@@ -2,6 +2,7 @@
  * @system
  */
 export type * from '@sys/types';
+export type { YamlAst, YamlError } from '@sys/std/t';
 
 /** User Interface: */
 export type { ColorTheme } from '@sys/color/t';

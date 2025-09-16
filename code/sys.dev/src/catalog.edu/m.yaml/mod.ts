@@ -7,4 +7,5 @@
  * - Validate against schemas.
  * - Map structural errors onto AST ranges (for editor hints).
  */
-import type { t } from './common.ts';
+export { YamlPipeline } from './m.YamlPipeline.ts';
+export { slugFromYaml } from './u.parse.ts';
