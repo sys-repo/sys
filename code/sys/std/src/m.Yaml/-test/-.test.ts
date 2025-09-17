@@ -1,10 +1,10 @@
-import { type t, c, describe, expect, it, Time } from '../-test.ts';
+import { type t, c, describe, expect, it, Time } from '../../-test.ts';
 
-import { Err, ERR, Immutable, rx } from './common.ts';
-import { Is } from './m.Is.ts';
-import { Path } from './m.Path.ts';
-import { Syncer } from './m.Syncer.ts';
-import { Yaml } from './mod.ts';
+import { Err, ERR, Immutable, rx } from '../common.ts';
+import { Is } from '../m.Is.ts';
+import { Path } from '../m.Path.ts';
+import { Syncer } from '../m.Syncer.ts';
+import { Yaml } from '../mod.ts';
 
 type O = Record<string, unknown>;
 type R = t.YamlParseResponse<unknown>;

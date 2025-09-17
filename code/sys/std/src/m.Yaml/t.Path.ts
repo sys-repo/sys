@@ -1,7 +1,6 @@
-import type * as Y from 'yaml';
 import type { t } from './common.ts';
 
-type NodeOrNull = Y.Node | null | undefined;
+type NodeOrNil = t.Yaml.Node | null | undefined;
 
 /**
  * API namespace for working with paths that
@@ -15,7 +14,12 @@ export type YamlPathLib = {
    * Find the deepest node whose range encloses `offset`
    * and return the logical object path leading to it.
    */
-  atOffset(node: NodeOrNull, offset: t.Index, path?: t.ObjectPath): t.ObjectPath;
+  atOffset(node: NodeOrNil, offset: t.Index, path?: t.ObjectPath): t.ObjectPath;
+
+  /**
+   * Resolve a logical object path to a YAML AST node (if any).
+   */
+  atPath(ast: t.YamlAst, path: t.ObjectPath): t.Yaml.Node | undefined;
 };
 
 /**

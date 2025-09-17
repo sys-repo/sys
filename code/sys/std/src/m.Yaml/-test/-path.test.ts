@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../-test.ts';
-import { Path } from './m.Path.ts';
-import { Yaml } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Path } from '../m.Path.ts';
+import { Yaml } from '../mod.ts';
 
 describe('Yaml.Path', () => {
   it('API', () => {
@@ -62,6 +62,75 @@ describe('Yaml.Path', () => {
       expect(
         Path.atOffset(root, src.length + 10), // Beyond EOF.
       ).to.eql([]);
+    });
+  });
+
+  describe('Path.atPath', () => {
+    it('returns undefined for empty doc', () => {
+      const ast = Yaml.parseAst('');
+      const node = Path.atPath(ast, ['foo']);
+      expect(node).to.eql(undefined);
+    });
+
+    it('resolves a top-level scalar', () => {
+      const ast = Yaml.parseAst('id: hello');
+      const node = Path.atPath(ast, ['id']);
+      expect(node?.toString()).to.eql('hello');
+    });
+
+    it('resolves a nested map key', () => {
+      const src = `
+      root:
+        child:
+          value: 123
+      `;
+      const ast = Yaml.parseAst(src);
+      const node = Path.atPath(ast, ['root', 'child', 'value']);
+      expect(node?.toString()).to.eql('123');
+    });
+
+    it('resolves an array element by index', () => {
+      const src = `
+      items:
+        - first
+        - second
+      `;
+      const ast = Yaml.parseAst(src);
+      const node = Path.atPath(ast, ['items', 1]);
+      expect(node?.toString()).to.eql('second');
+    });
+
+    it('resolves a nested array element property', () => {
+      const src = `
+      items:
+        - name: a
+        - name: b
+      `;
+      const ast = Yaml.parseAst(src);
+      const node = Path.atPath(ast, ['items', 1, 'name']);
+      expect(node?.toString()).to.eql('b');
+    });
+
+    it('returns undefined for non-existent key', () => {
+      const ast = Yaml.parseAst('foo: 1');
+      const node = Path.atPath(ast, ['bar']);
+      expect(node).to.eql(undefined);
+    });
+
+    it('returns undefined for invalid array index', () => {
+      const src = `
+      items:
+        - one
+      `;
+      const ast = Yaml.parseAst(src);
+      const node = Path.atPath(ast, ['items', 5]);
+      expect(node).to.eql(undefined);
+    });
+
+    it('returns undefined when trying to descend into a scalar', () => {
+      const ast = Yaml.parseAst('foo: bar');
+      const node = Path.atPath(ast, ['foo', 'baz']);
+      expect(node).to.eql(undefined);
     });
   });
 

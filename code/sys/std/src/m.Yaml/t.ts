@@ -11,6 +11,9 @@ export namespace Yaml {
   export type Ast = YamlAst;
   export type Error = t.YamlError;
   export type Range = t.YamlRange;
+  export type Node = Y.Node;
+  export type Pair = Y.Pair;
+  export type Scalar = Y.Scalar;
 }
 
 /** The primitives scalars possible from YAML */
