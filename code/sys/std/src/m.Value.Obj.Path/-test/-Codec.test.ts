@@ -156,7 +156,7 @@ describe('Path.Codec', () => {
 
         // default decode = pointer (strings only)
         const back = Path.decode(text);
-        expect(back).to.eql(['foo', 'bar', '0']);
+        expect(back).to.eql(['foo', 'bar', 0]);
       });
     });
 
@@ -173,15 +173,15 @@ describe('Path.Codec', () => {
     });
 
     describe('numeric option', () => {
-      it('pointer + numeric: digit-only tokens → numbers', () => {
+      it('pointer + numeric: digit-only tokens → numbers (default)', () => {
         const text = '/user/tags/0/id';
-        const back = Path.decode(text, { codec: 'pointer', numeric: true });
+        const back = Path.decode(text, { codec: 'pointer' });
         expect(back).to.eql(['user', 'tags', 0, 'id']);
       });
 
-      it('pointer (default) without numeric: tokens remain strings', () => {
+      it('pointer without numeric: tokens remain strings', () => {
         const text = '/user/tags/0/id';
-        const back = Path.decode(text); // default pointer, numeric=false
+        const back = Path.decode(text, { numeric: false });
         expect(back).to.eql(['user', 'tags', '0', 'id']);
       });
 
@@ -210,7 +210,7 @@ describe('Path.Codec', () => {
         ];
         for (const path of cases) {
           const text = Path.encode(path);
-          const back = Path.decode(text); // pointer, strings only
+          const back = Path.decode(text, { numeric: false }); // default: numeric indexes.
           const asStrings = path.map((k) => String(k));
           expect(back).to.eql(asStrings);
         }
@@ -219,7 +219,7 @@ describe('Path.Codec', () => {
       it('pointer + numeric: path → encode → decode(numeric) → numeric indices', () => {
         const path = ['user', 'tags', 0, 'id'] as const;
         const text = Path.encode(path as unknown as (string | number)[]);
-        const back = Path.decode(text, { numeric: true }); // pointer default + numeric
+        const back = Path.decode(text, {}); // default: numeric indexes.
         expect(back).to.eql(['user', 'tags', 0, 'id']);
       });
 

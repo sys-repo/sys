@@ -31,10 +31,11 @@ export function encode(path: t.ObjectPath, opts?: t.PathEncodeOptions): string {
  * - Uses the given codec (defaults to `pointer`).
  * - `numeric: true` coerces digit-only tokens into numbers.
  */
-export function decode(text: string, opts?: t.PathDecodeOptions): t.ObjectPath {
+export function decode(text: string, opts: t.PathDecodeOptions = {}): t.ObjectPath {
+  const { numeric = true } = opts;
   const c = resolveCodec(opts?.codec);
   const out = c.decode(text);
-  return opts?.numeric ? asNumeric(out) : out;
+  return numeric ? asNumeric(out) : out;
 }
 
 /**
