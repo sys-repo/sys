@@ -5,7 +5,7 @@ type NodeOrNil = t.Yaml.Node | null | undefined;
 export const ErrorMapper: t.ErrorMapperLib = {
   schema(ast, errors) {
     return Array.from(errors).map((e): t.SchemaValidationError => {
-      const path = Obj.Path.decode(e.path);
+      const path = Obj.Path.decode(e.path, { numeric: true });
       const node = resolveNode(ast, path);
       return {
         kind: 'schema',
