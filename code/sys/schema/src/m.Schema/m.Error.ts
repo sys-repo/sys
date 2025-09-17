@@ -2,8 +2,8 @@ import { type t, Obj, Yaml } from './common.ts';
 
 type NodeOrNil = t.Yaml.Node | null | undefined;
 
-export const ErrorMap: t.ErrorMapLib = {
-  schema(ast, errors) {
+export const Error: t.SchemaErrorLib = {
+  fromSchema(ast, errors) {
     return Array.from(errors).map((e): t.SchemaValidationError => {
       const path = Obj.Path.decode(e.path, { numeric: true });
       const node = resolveNode(ast, path);
@@ -16,7 +16,7 @@ export const ErrorMap: t.ErrorMapLib = {
     });
   },
 
-  yaml(errors) {
+  fromYaml(errors) {
     return errors.map((err): t.SchemaYamlError => {
       type E = { range?: t.Yaml.Range | null };
       return {

@@ -1,14 +1,14 @@
 import { type t, describe, expect, it } from '../../-test.ts';
-import { ErrorMap } from '../m.ErrorMap.ts';
 import { Schema, Type, Value } from '../mod.ts';
 
 describe('Standard Schema', () => {
   it('API', async () => {
     const m = await import('@sys/schema');
+    const { Error } = await import('../m.Error.ts');
     expect(m.Schema).to.equal(Schema);
     expect(m.Type).to.equal(Type);
     expect(m.Value).to.equal(Value);
-    expect(m.Schema.ErrorMap).to.equal(ErrorMap);
+    expect(m.Schema.Error).to.equal(Error);
   });
 
   /**

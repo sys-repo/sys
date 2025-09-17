@@ -1,6 +1,6 @@
 import { type t, Type, Value } from './common.ts';
 
-import { ErrorMap } from './m.ErrorMap.ts';
+import { Error } from './m.Error.ts';
 import { asStandardSchema, isStandardSchema, toStandardSchema } from './u.StdSchema.ts';
 import { tryValidate } from './u.try.ts';
 
@@ -20,7 +20,7 @@ export const Schema: t.SchemaLib = {
   get Value() {
     return Value;
   },
-  get ErrorMap() {
-    return ErrorMap;
+  get Error() {
+    return Error;
   },
 };

@@ -14,7 +14,7 @@ export type SchemaLib = {
   readonly Value: typeof Value;
 
   /** Convert parser/validator errors into normalized validation errors. */
-  readonly ErrorMap: t.ErrorMapLib;
+  readonly Error: t.SchemaErrorLib;
 
   /**
    * @example
