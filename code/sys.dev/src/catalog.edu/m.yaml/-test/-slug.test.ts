@@ -171,6 +171,26 @@ describe(`YamlPipeline`, () => {
           expect(msgs.every((m) => m.includes('Duplicate alias "t1"'))).to.eql(true);
         });
 
+        it('attaches range info to semantic errors (when possible)', () => {
+          const src = `
+          id: s1
+          traits:
+            - as: t1
+              id: video
+            - as: t1
+              id: image-sequence
+          `;
+          const res = fromYaml(src);
+          expect(res.ok).to.eql(false);
+
+          const errs = res.errors.semantic;
+          expect(errs.length).to.eql(2);
+
+          // Ranges should be either undefined or a tuple; at least one should resolve
+          expect(errs.every((e) => e.range === undefined || Array.isArray(e.range))).to.eql(true);
+          expect(errs.some((e) => Array.isArray(e.range))).to.eql(true);
+        });
+
         it('passes when all aliases are unique', () => {
           const src = `
           id: s2

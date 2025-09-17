@@ -1,10 +1,8 @@
-import { SlugSchema } from '../m.schema.slug/mod.ts';
-
-import { type t, Is, Obj, Value, Yaml } from './common.ts';
+import { type t, Is, Obj, Schema, SlugSchema, Value, Yaml } from './common.ts';
+import { attachSemanticErrorRanges } from './u.errors.ts';
 import { SlugRules } from './u.slug.rules.ts';
 
-type R = t.SlugFromYamlResult;
-type E = t.DeepMutable<R['errors']>;
+type E = t.DeepMutable<t.SlugFromYamlErrors>;
 
 export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
   const ast: t.Yaml.Ast = Is.string(yamlInput) ? Yaml.parseAst(yamlInput) : yamlInput;
@@ -18,61 +16,55 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
 
   // Errors:
   const errs: E = { schema: [], semantic: [], yaml: [] };
-  if (Array.isArray(ast.errors) && ast.errors.length > 0) errs.yaml.push(...ast.errors);
-  const zero = (arr: ArrayLike<any>) => arr.length === 0;
+  if (Array.isArray(ast.errors) && ast.errors.length > 0) {
+    errs.yaml.push(...Schema.Error.fromYaml(ast.errors));
+  }
+  const zero = (arr: ArrayLike<unknown>) => arr.length === 0;
   const isOk = () => zero(errs.schema) && zero(errs.semantic) && zero(errs.yaml);
 
   // Helper to build a stable result shape:
-  const done = (slug?: unknown): R => {
-    return {
-      ok: isOk(),
-      path,
-      get ast() {
-        return ast;
-      },
-      get slug() {
-        return slug;
-      },
-      errors: wrangle.errors(errs),
-    };
-  };
+  const done = (slug?: unknown): t.SlugFromYamlResult => ({
+    ok: isOk(),
+    path,
+    get ast() {
+      return ast;
+    },
+    get slug() {
+      return slug;
+    },
+    errors: wrangle.errors(errs),
+  });
 
-  // Structural validation | "Structural" = "does it match the schema shape?":
-  if (Value.Check(SlugSchema, candidate)) {
-    const semantic = errs.semantic;
+  // Structural validation | "Structural" = "does it match the schema shape?"
+  const isSchemaValid = Value.Check(SlugSchema, candidate);
+  if (isSchemaValid) {
+    // Semantic validation | "Semantic" = "is the object logically valid?"
+    SlugRules.aliasUniqueness(errs.semantic, path, candidate);
+    attachSemanticErrorRanges(ast, errs.semantic);
 
-    // Semantic validation. | "Semantic" = "is the object logically valid?" (higher-order rules):
-    SlugRules.aliasUniqueness(semantic, path, candidate);
-
+    // Finish up.
     return isOk() ? done(candidate) : done();
+  } else {
+    // Collect structural schema errors with ranges:
+    errs.schema.push(...Schema.Error.fromSchema(ast, Value.Errors(SlugSchema, candidate)));
+    return done();
   }
-
-  // Collect structural schema errors (JSON Pointer → ObjectPath):
-  const schema = Array.from(Value.Errors(SlugSchema, candidate)).map((e) => ({
-    path: Obj.Path.decode(e.path),
-    message: e.message,
-  }));
-
-  // Finish up.
-  errs.schema.push(...schema);
-  return done();
 };
 
 /**
  * Helpers:
  */
 const wrangle = {
-  errors(input: E) {
-    const { schema, semantic, yaml } = input;
+  errors(input: E): t.SlugFromYamlErrors {
     return {
       get schema() {
-        return schema;
+        return input.schema;
       },
       get semantic() {
-        return semantic;
+        return input.semantic;
       },
       get yaml() {
-        return yaml;
+        return input.yaml;
       },
     };
   },
