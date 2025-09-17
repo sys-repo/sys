@@ -1,6 +1,6 @@
 {
   "name": "@sys/crdt",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
@@ -16,6 +16,9 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./fs": "./src/-export/fs.ts",
+    "./web": "./src/-export/web.ts",
+    "./web/ui": "./src/-export/web.ui.ts"
   }
 }
