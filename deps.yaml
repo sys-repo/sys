@@ -132,7 +132,7 @@ deno.json:
   - import: npm:ts-essentials@10.1.1
   - import: npm:yaml@2.8.1
     subpaths: [types]
-  - import: npm:zod@3.25.76
+  - import: npm:zod@4.1.9
     subpaths: [v4, v4-mini]
 
   # Websockets:

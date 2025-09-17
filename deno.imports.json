@@ -87,8 +87,8 @@
     "ws": "npm:ws@8.18.3",
     "yaml": "npm:yaml@2.8.1",
     "yaml/types": "npm:yaml@2.8.1/types",
-    "zod": "npm:zod@3.25.76",
-    "zod/v4": "npm:zod@3.25.76/v4",
-    "zod/v4-mini": "npm:zod@3.25.76/v4-mini"
+    "zod": "npm:zod@4.1.9",
+    "zod/v4": "npm:zod@4.1.9/v4",
+    "zod/v4-mini": "npm:zod@4.1.9/v4-mini"
   }
 }
