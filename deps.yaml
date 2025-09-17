@@ -57,7 +57,7 @@ groups:
       subpaths: ['value', 'errors']
 
   build/tools:
-    - import: npm:@vitejs/plugin-react-swc@4.0.1
+    - import: npm:@vitejs/plugin-react-swc@4.1.0
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.50.2
     - import: npm:vite@7.1.5
