@@ -51,6 +51,7 @@ describe(`YamlPipeline`, () => {
         const res = fromYaml(src);
         expect(res.ok).to.be.true;
         if (res.ok) {
+          expect(res.path).to.eql([]);
           expect(res.slug).to.eql({ id: 's1', traits: [] });
           expect(res.errors.schema.length).to.eql(0);
           expect(res.errors.yaml.length).to.eql(0);
@@ -59,11 +60,11 @@ describe(`YamlPipeline`, () => {
 
       it('accepts string input, explicit array path', () => {
         const src = `
-      concept-player:
-        slug:
-          id: s2
-          traits: []
-      `;
+        concept-player:
+          slug:
+            id: s2
+            traits: []
+        `;
         const res = fromYaml(src, ['concept-player', 'slug']);
         expect(res.ok).to.be.true;
         if (res.ok) {
@@ -73,30 +74,32 @@ describe(`YamlPipeline`, () => {
 
       it('accepts string input, explicit string path (decoded)', () => {
         const src = `
-      root:
-        nested:
-          slug:
-            id: s3
-            traits: []
-      `;
+        root:
+          nested:
+            slug:
+              id: s3
+              traits: []
+        `;
         const res = fromYaml(src, '/root/nested/slug');
         expect(res.ok).to.be.true;
         if (res.ok) {
+          expect(res.path).to.eql(['root', 'nested', 'slug']);
           expect(res.slug).to.eql({ id: 's3', traits: [] });
         }
       });
 
       it('accepts pre-parsed YamlAst input', () => {
         const src = `
-      wrap:
-        slug:
-          id: s4
-          traits: []
-      `;
+        wrap:
+          slug:
+            id: s4
+            traits: []
+        `;
         const ast = Yaml.parseAst(src);
         const res = fromYaml(ast, ['wrap', 'slug']);
         expect(res.ok).to.be.true;
         if (res.ok) {
+          expect(res.path).to.eql(['wrap', 'slug']);
           expect(res.slug).to.eql({ id: 's4', traits: [] });
           expect(res.ast).to.equal(ast);
         }
@@ -106,10 +109,10 @@ describe(`YamlPipeline`, () => {
     describe('structural validation', () => {
       it('reports schema errors (bad shape at target path)', () => {
         const src = `
-      slug:
-        id: s5
-        traits: {}   # <- must be an array
-      `;
+        slug:
+          id: s5
+          traits: {}   # <- must be an array
+        `;
         const res = fromYaml(src, ['slug']);
         expect(res.ok).to.eql(false);
         expect(res.errors.schema.length > 0).to.be.true;

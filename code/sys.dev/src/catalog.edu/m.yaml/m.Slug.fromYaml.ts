@@ -7,7 +7,7 @@ type R = t.SlugFromYamlResult;
 type E = t.DeepMutable<R['errors']>;
 
 export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
-  const ast: t.YamlAst = Is.string(yamlInput) ? Yaml.parseAst(yamlInput) : yamlInput;
+  const ast: t.Yaml.Ast = Is.string(yamlInput) ? Yaml.parseAst(yamlInput) : yamlInput;
   const path: t.ObjectPath = Array.isArray(pathInput)
     ? pathInput
     : Obj.Path.decode(pathInput ?? '');
@@ -26,6 +26,7 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
   const done = (slug?: unknown): R => {
     return {
       ok: isOk(),
+      path,
       get ast() {
         return ast;
       },

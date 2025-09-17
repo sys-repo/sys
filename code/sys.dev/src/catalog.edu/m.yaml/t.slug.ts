@@ -17,7 +17,7 @@ export type YamlSlugLib = {
  * Returns the candidate slug, parse AST, and any errors.
  */
 export type SlugFromYaml = (
-  input: string | t.YamlAst,
+  input: string | t.Yaml.Ast,
   path?: t.ObjectPath | string,
 ) => SlugFromYamlResult;
 
@@ -30,20 +30,38 @@ export type SlugFromYamlResult = {
   /** Overall structural check outcome. */
   readonly ok: boolean;
 
-  /** The parsed YAML AST (hand back for editor decoration mapping). */
-  readonly ast: t.YamlAst;
+  /** Path used to locate the slug within the YAML doc. */
+  readonly path: t.ObjectPath;
+
+  /** The parsed YAML AST (hand back to editor for decoration mapping). */
+  readonly ast: t.Yaml.Ast;
 
   /** Candidate slug value (only present when ok=true). */
   readonly slug?: unknown;
 
-  readonly errors: {
-    /** Shape violations from schema validation (e.g. wrong types). Structural = "does it match the schema shape?". */
-    readonly schema: readonly { path: t.ObjectPath; message: string }[];
+  /** Categorised errors */
+  readonly errors: SlugFromYamlErrors;
+};
 
-    /** Higher-order semantic rule violations (e.g. alias collisions). Semantic = "is the object logically valid?". */
-    readonly semantic: readonly { path: t.ObjectPath; message: string }[];
+/**
+ * Categorised errors from a YAML parse and validation pipeline of slugs.
+ */
+export type SlugFromYamlErrors = {
+  /** Shape violations from schema validation (e.g. wrong types). Structural = "does it match the schema shape?". */
+  readonly schema: readonly t.YamlPipelineError[];
 
-    /** Parser errors reported by the YAML library. Low-level syntax/parse issues before schema or semantic checks. */
-    readonly yaml: readonly t.YamlError[];
-  };
+  /** Higher-order semantic rule violations (e.g. alias collisions). Semantic = "is the object logically valid?". */
+  readonly semantic: readonly t.YamlPipelineError[];
+
+  /** Parser errors reported by the YAML library. Low-level syntax/parse issues before schema or semantic checks. */
+  readonly yaml: readonly t.Yaml.Error[];
+};
+
+/**
+ * Error object enriched with optional AST range for editor mapping.
+ */
+export type YamlPipelineError = {
+  readonly path: t.ObjectPath;
+  readonly message: string;
+  readonly range?: t.Yaml.Range;
 };
