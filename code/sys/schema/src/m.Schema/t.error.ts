@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Tools for converting raw parser/validator errors
  * into structured error objects with normalized paths.
  */
-export type ErrorMapperLib = {
+export type ErrorMapLib = {
   /** Map schema errors to validation errors with optional ranges. */
   schema(ast: t.Yaml.Ast, errors: Iterable<t.Schema.ValueError>): t.SchemaValidationError[];
 

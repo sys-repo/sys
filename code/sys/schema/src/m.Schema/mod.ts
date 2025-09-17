@@ -5,5 +5,5 @@
  *  - Static type checking with Typescript.
  *  - Runtime reflection via JSONSchema.
  */
-export { ErrorMapper } from './m.ErrorMapper.ts';
+export { ErrorMap } from './m.ErrorMap.ts';
 export { Schema, Type, Value } from './m.Schema.ts';

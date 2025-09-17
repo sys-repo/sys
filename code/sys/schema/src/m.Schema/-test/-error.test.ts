@@ -1,12 +1,12 @@
 import { type t, Arr, describe, expect, expectTypeOf, it, Yaml } from '../../-test.ts';
-import { ErrorMapper, Schema } from '../mod.ts';
+import { ErrorMap, Schema } from '../mod.ts';
 
-describe('Schema: errors', () => {
+describe('Schema: error', () => {
   it('API', () => {
-    expect(Schema.ErrorMapper).to.equal(ErrorMapper);
+    expect(Schema.ErrorMap).to.equal(ErrorMap);
   });
 
-  describe('ErrorMapper', () => {
+  describe('ErrorMap', () => {
     it('maps schema errors with ranges', () => {
       const src = `
       slug:
@@ -28,7 +28,7 @@ describe('Schema: errors', () => {
       );
 
       const errors = Schema.Value.Errors(SlugSchema, data);
-      const mapped = Schema.ErrorMapper.schema(ast, errors);
+      const mapped = Schema.ErrorMap.schema(ast, errors);
       expect(mapped.length).to.be.greaterThan(0);
 
       const err = mapped[0];
@@ -44,7 +44,7 @@ describe('Schema: errors', () => {
       const badSrc = `id: [unclosed`;
       const ast = Yaml.parseAst(badSrc);
 
-      const mapped = Schema.ErrorMapper.yaml(ast.errors);
+      const mapped = Schema.ErrorMap.yaml(ast.errors);
       expect(mapped.length).to.be.greaterThan(0);
 
       const err = mapped[0];
@@ -67,7 +67,7 @@ describe('Schema: errors', () => {
         },
       ] as any;
 
-      const mapped = Schema.ErrorMapper.schema(ast, fakeErrors);
+      const mapped = Schema.ErrorMap.schema(ast, fakeErrors);
 
       expect(mapped.length).to.eql(1);
       expect(mapped[0].kind).to.equal('schema');
@@ -81,7 +81,7 @@ describe('Schema: errors', () => {
     it('SchemaError discriminates by `kind`', () => {
       const src = `id: [unclosed`;
       const ast = Yaml.parseAst(src);
-      const errs = Schema.ErrorMapper.yaml(ast.errors);
+      const errs = Schema.ErrorMap.yaml(ast.errors);
       const e = errs[0];
 
       // Runtime checks
@@ -105,13 +105,13 @@ describe('Schema: errors', () => {
       const T = Schema.Type;
       const S = T.Object({ slug: T.Object({ id: T.String(), traits: T.Array(T.Unknown()) }) });
 
-      const mappedSchema = Schema.ErrorMapper.schema(ast, Schema.Value.Errors(S, ast.toJS()));
+      const mappedSchema = Schema.ErrorMap.schema(ast, Schema.Value.Errors(S, ast.toJS()));
       expect(mappedSchema.length).to.be.greaterThan(0);
       // Range can be undefined for some paths; at least one should have a tuple
       expect(mappedSchema.some((e) => Arr.isArray(e.range))).to.equal(true);
 
       const astBad = Yaml.parseAst(`id: [unclosed`);
-      const mappedYaml = Schema.ErrorMapper.yaml(astBad.errors);
+      const mappedYaml = Schema.ErrorMap.yaml(astBad.errors);
       expect(mappedYaml.length).to.be.greaterThan(0);
 
       // YAML parser often provides a range for syntax errors; optional:
@@ -122,7 +122,7 @@ describe('Schema: errors', () => {
     it('schema mapping falls back on missing array index', () => {
       const ast = Yaml.parseAst(`items:\n  - a\n`);
       const fake = [{ path: '/items/5', message: 'out of range' }] as any;
-      const mapped = Schema.ErrorMapper.schema(ast, fake);
+      const mapped = Schema.ErrorMap.schema(ast, fake);
       expect(mapped[0].path).to.eql(['items', 5]);
       expect(mapped[0].range === undefined || Array.isArray(mapped[0].range)).to.equal(true);
     });
@@ -130,15 +130,15 @@ describe('Schema: errors', () => {
     it('does not mutate input error arrays', () => {
       const ast = Yaml.parseAst(`id: [unclosed`);
       const original = [...ast.errors];
-      Schema.ErrorMapper.yaml(ast.errors);
+      Schema.ErrorMap.yaml(ast.errors);
       expect(ast.errors).to.eql(original); //         ← structural equality.
       expect(ast.errors[0]).to.equal(original[0]); // ← identity.
     });
 
     it('empty inputs return empty outputs', () => {
       const ast = Yaml.parseAst(`ok: true`);
-      const s = Schema.ErrorMapper.schema(ast, []);
-      const y = Schema.ErrorMapper.yaml([]);
+      const s = Schema.ErrorMap.schema(ast, []);
+      const y = Schema.ErrorMap.yaml([]);
       expect(s.length).to.equal(0);
       expect(y.length).to.equal(0);
     });
@@ -151,7 +151,7 @@ describe('Schema: errors', () => {
         { path: '/b', message: 'B' },
       ] as any;
 
-      const mapped = Schema.ErrorMapper.schema(ast, fake);
+      const mapped = Schema.ErrorMap.schema(ast, fake);
       expect(mapped.map((e) => e.message)).to.eql(['C', 'A', 'B']);
     });
 

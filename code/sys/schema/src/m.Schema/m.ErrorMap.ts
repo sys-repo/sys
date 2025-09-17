@@ -2,7 +2,7 @@ import { type t, Obj, Yaml } from './common.ts';
 
 type NodeOrNil = t.Yaml.Node | null | undefined;
 
-export const ErrorMapper: t.ErrorMapperLib = {
+export const ErrorMap: t.ErrorMapLib = {
   schema(ast, errors) {
     return Array.from(errors).map((e): t.SchemaValidationError => {
       const path = Obj.Path.decode(e.path, { numeric: true });
