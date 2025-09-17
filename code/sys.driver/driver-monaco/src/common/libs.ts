@@ -3,4 +3,4 @@ export { Arr, Dispose, Err, Immutable, Is, Obj, Pkg, R, rx, Str, Time, Url } fro
 export { Yaml } from '@sys/std/yaml';
 export { Signal } from '@sys/ui-react';
 
-export { A, Crdt } from '@sys/driver-automerge/ui';
+export { A, Crdt } from '@sys/driver-automerge/web/ui';

@@ -1,6 +1,6 @@
 import { pkg, Pkg } from '../common.ts';
 
-export { Crdt } from '@sys/driver-automerge/ui';
+export { Crdt } from '@sys/driver-automerge/web/ui';
 export { TextPanel } from '@sys/driver-prosemirror';
 
 export * from '../common.ts';

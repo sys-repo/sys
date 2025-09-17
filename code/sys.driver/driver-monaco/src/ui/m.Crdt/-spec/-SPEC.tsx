@@ -1,4 +1,4 @@
-import { DocumentId } from '@sys/driver-automerge/ui';
+import { DocumentId } from '@sys/driver-automerge/web/ui';
 import { Monaco } from '@sys/driver-monaco';
 
 import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';

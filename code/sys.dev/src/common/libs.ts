@@ -9,5 +9,5 @@ export { Signal } from '@sys/ui-react';
 /**
  * @drivers
  */
-export { A, Crdt } from '@sys/driver-automerge/ui';
+export { A, Crdt } from '@sys/driver-automerge/web/ui';
 export { Monaco } from '@sys/driver-monaco';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card } from '@sys/driver-automerge/ui';
+import { Card } from '@sys/driver-automerge/web/ui';
 import { createRepo } from '../ui/-test.ui.ts';
 import { type t, Button, Color, Cropmarks, css, pkg, useDist } from './common.ts';
 

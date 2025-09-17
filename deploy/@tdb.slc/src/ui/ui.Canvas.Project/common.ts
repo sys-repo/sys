@@ -4,7 +4,7 @@ export * from '../common.ts';
 /**
  * Libs:
  */
-export { Crdt } from '@sys/driver-automerge/ui';
+export { Crdt } from '@sys/driver-automerge/web/ui';
 export { TextPanel } from '@sys/driver-prosemirror';
 
 /**

@@ -6,7 +6,7 @@ const curry = Obj.Path.curry;
 /**
  * Libs:
  */
-export { Crdt } from '@sys/driver-automerge/ui';
+export { Crdt } from '@sys/driver-automerge/web/ui';
 export { Monaco } from '@sys/driver-monaco';
 export { Media } from '@sys/ui-react-components';
 export { Peer } from '../../m.Peer/mod.ts';

@@ -1,4 +1,4 @@
-import { DocumentId } from '@sys/driver-automerge/ui';
+import { DocumentId } from '@sys/driver-automerge/web/ui';
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 
 import { D } from '../common.ts';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { BinaryFile } from '@sys/driver-automerge/ui';
+import { BinaryFile } from '@sys/driver-automerge/web/ui';
 import type { FileshareSchema } from '../-schemas/mod.ts';
 import { type t, Color, Crdt, Cropmarks, css, Is } from '../common.ts';
 
