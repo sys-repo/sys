@@ -157,5 +157,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.23.12
+  - import: npm:motion@12.23.13
   - import: npm:hono@4.9.7
