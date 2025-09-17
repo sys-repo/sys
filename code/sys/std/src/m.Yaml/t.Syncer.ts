@@ -1,16 +1,12 @@
-import type { YAMLError } from 'yaml';
 import type { t } from './common.ts';
-
-/** A YAML parse error. */
-export type YamlError = YAMLError;
 
 /**
  * Library namespace for the Yaml sync helpers:
  */
-export type YamlSyncLib = Readonly<{
+export type YamlSyncLib = {
   /** Creates a new parse-syncer. */
   create<T = unknown>(args: t.YamlSyncArgsInput): t.YamlSyncParser<T>;
-}>;
+};
 
 /** Arguments passed to the `Yaml.Syncer.create` method. */
 export type YamlSyncArgsInput = {
@@ -21,12 +17,12 @@ export type YamlSyncArgsInput = {
 };
 
 /** Normalized input arguments into usable values. */
-export type YamlSyncArgs = Readonly<{
-  life: t.Lifecycle;
-  doc: t.YamlSyncParserDocs;
-  path: t.YamlSyncParserPaths;
-  debounce: t.Msecs;
-}>;
+export type YamlSyncArgs = {
+  readonly life: t.Lifecycle;
+  readonly doc: t.YamlSyncParserDocs;
+  readonly path: t.YamlSyncParserPaths;
+  readonly debounce: t.Msecs;
+};
 
 /**
  * Monitors an observable document and parses a YAML
@@ -62,8 +58,8 @@ export type YamlSyncParserChange<T> = {
   readonly yaml: { before: string; after: string };
   readonly parsed?: YamlSyncParsed<T>;
   readonly error?: t.StdError;
-  readonly errors: YAMLError[];
+  readonly errors: t.YamlError[];
 };
 
 /** A parsed YAML value. */
-export type YamlSyncParsed<T> = T | t.YamPrimitives | undefined;
+export type YamlSyncParsed<T> = T | t.YamPrimitive | undefined;

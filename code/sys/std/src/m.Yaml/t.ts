@@ -4,16 +4,39 @@ import type { t } from './common.ts';
 export type * from './t.Path.ts';
 export type * from './t.Syncer.ts';
 
+/**
+ * Concise YAML type namespace.
+ */
+export namespace Yaml {
+  export type Ast = YamlAst;
+  export type Error = t.YamlError;
+  export type Range = t.YamlRange;
+}
+
 /** The primitives scalars possible from YAML */
-export type YamPrimitives = null | string | number | boolean;
+export type YamPrimitive = null | string | number | boolean;
 export type YamlAst = Y.Document.Parsed;
+
+/**
+ * Error reported directly by the YAML parser.
+ * - Low-level syntax/lexing/parsing issue (e.g. bad indentation, unclosed bracket).
+ * - Includes message, source position, and optional `range` offsets.
+ * - Occurs before any schema or semantic validation.
+ */
+export type YamlError = Y.YAMLError;
+
+/**
+ * Character offset range into the source YAML.
+ * - [start, valueEnd, nodeEnd]
+ */
+export type YamlRange = Y.Range;
 
 /**
  * Helpers for working with YAML.
  */
-export type YamlLib = Readonly<{
+export type YamlLib = {
   /** YAML flag helpers. */
-  Is: YamlIsLib;
+  readonly Is: YamlIsLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: t.StringYaml): YamlParseResponse<T>;
@@ -22,13 +45,13 @@ export type YamlLib = Readonly<{
   parseAst(src: t.StringYaml): t.YamlAst;
 
   /** Creates a new parse-syncer. */
-  syncer: t.YamlSyncLib['create'];
-  Syncer: t.YamlSyncLib;
+  readonly Syncer: t.YamlSyncLib;
+  readonly syncer: t.YamlSyncLib['create'];
 
   /** YAML path helpers. */
-  Path: t.YamlPathLib;
-  path: t.YamlPathLib['create'];
-}>;
+  readonly Path: t.YamlPathLib;
+  readonly path: t.YamlPathLib['create'];
+};
 
 /**
  * YAML related flags.

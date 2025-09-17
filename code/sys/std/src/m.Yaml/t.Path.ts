@@ -7,7 +7,7 @@ type NodeOrNull = Y.Node | null | undefined;
  * API namespace for working with paths that
  * reach into a parsed yaml AST.
  */
-export type YamlPathLib = Readonly<{
+export type YamlPathLib = {
   /** Factory for a curried path. */
   create<T = unknown>(path: t.ObjectPath): YamlPath<T>;
 
@@ -16,7 +16,7 @@ export type YamlPathLib = Readonly<{
    * and return the logical object path leading to it.
    */
   atOffset(node: NodeOrNull, offset: t.Index, path?: t.ObjectPath): t.ObjectPath;
-}>;
+};
 
 /**
  * Represents a path into a yaml AST (abstract syntax tree).

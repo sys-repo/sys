@@ -343,7 +343,7 @@ describe('Yaml', () => {
 
       it('write to different document', () => {
         const source = Immutable.clonerRef<{ text?: string }>({});
-        const target = Immutable.clonerRef<{ text?: t.YamPrimitives }>({});
+        const target = Immutable.clonerRef<{ text?: t.YamPrimitive }>({});
         const syncer = Yaml.syncer<T>({ doc: { source, target }, path: ['text'] });
 
         source.change((d) => (d.text = 'foo: 123'));
