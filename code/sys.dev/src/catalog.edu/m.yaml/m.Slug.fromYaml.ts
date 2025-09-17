@@ -1,4 +1,5 @@
 import { SlugSchema } from '../m.schema.slug/mod.ts';
+
 import { type t, Is, Obj, Value, Yaml } from './common.ts';
 import { SlugRules } from './u.slug.rules.ts';
 
@@ -23,7 +24,6 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
 
   // Helper to build a stable result shape:
   const done = (slug?: unknown): R => {
-    const errors = wrangle.errors(errs);
     return {
       ok: isOk(),
       get ast() {
@@ -32,7 +32,7 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
       get slug() {
         return slug;
       },
-      errors,
+      errors: wrangle.errors(errs),
     };
   };
 
