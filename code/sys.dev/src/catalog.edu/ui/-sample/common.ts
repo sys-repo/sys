@@ -4,6 +4,6 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'sample.catalog.edu';
+const name = 'catalog.edu.sample';
 export const D = { name, displayName: Pkg.toString(pkg, name, false) } as const;
 export const DEFAULTS = D;

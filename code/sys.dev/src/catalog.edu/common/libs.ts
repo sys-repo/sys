@@ -1,7 +1,7 @@
 /**
  * Core:
  */
-export { Type, Value } from '@sys/schema';
+export { Schema, Type, Value } from '@sys/schema';
 export { Arr, Err, Is, Num, Obj, Pkg, rx, Str, Time } from '@sys/std';
 export { Yaml } from '@sys/std/yaml';
 export { Signal } from '@sys/ui-react';
