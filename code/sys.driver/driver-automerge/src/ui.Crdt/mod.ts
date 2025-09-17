@@ -1,8 +1,8 @@
 /**
- * User Interface Components.
  * @module
+ * User Interface Components.
  */
-import { Crdt as Base } from '../-platforms/-browser/mod.ts';
+import { Crdt as Base } from '../-platforms/-web/mod.ts';
 import type { t } from './common.ts';
 
 /**
