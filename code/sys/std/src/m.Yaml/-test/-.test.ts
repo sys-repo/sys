@@ -110,13 +110,13 @@ describe('Yaml', () => {
       const doc = Yaml.parseAst('foo: bar');
       const root = doc.contents!; // YAMLMap node
       expect(Array.isArray((root as any).range)).to.eql(true);
-      expect((root as any).range.length).to.equal(3); // ← [start, ?, end].
+      expect((root as any).range.length).to.eql(3); // ← [start, ?, end].
     });
 
     it('collects errors for malformed YAML instead of throwing', () => {
       const doc = Yaml.parseAst('foo: [1, 2'); // ← missing ].
       expect(doc.errors.length).to.be.greaterThan(0);
-      expect(doc.errors[0].name).to.equal('YAMLParseError');
+      expect(doc.errors[0].name).to.eql('YAMLParseError');
       expect(doc.errors.length).to.eql(1);
     });
   });

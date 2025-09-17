@@ -132,6 +132,95 @@ describe('Yaml.Path', () => {
       const node = Path.atPath(ast, ['foo', 'baz']);
       expect(node).to.eql(undefined);
     });
+
+    describe('range', () => {
+      it('range: top-level scalar has a valid range', () => {
+        const src = 'id: hello';
+        const ast = Yaml.parseAst(src);
+        const node = Path.atPath(ast, ['id']);
+        expect(node?.range).to.be.an('array').with.length(3);
+
+        const [start, valueEnd, nodeEnd] = node!.range!;
+        expect(start).to.be.gte(0);
+        expect(start).to.be.lt(valueEnd);
+        expect(valueEnd).to.be.lte(nodeEnd);
+
+        // value slice should include "hello"
+        const slice = src.slice(start, nodeEnd);
+        expect(slice).to.include('hello');
+      });
+
+      it('range: nested map value has a valid range', () => {
+        const src = `
+        root:
+          child:
+            value: 123
+        `.trim();
+        const ast = Yaml.parseAst(src);
+        const node = Path.atPath(ast, ['root', 'child', 'value']);
+        expect(node?.range).to.be.an('array').with.length(3);
+
+        const [start, valueEnd, nodeEnd] = node!.range!;
+        expect(start).to.be.gte(0);
+        expect(start).to.be.lt(valueEnd);
+        expect(valueEnd).to.be.lte(nodeEnd);
+
+        const slice = src.slice(start, nodeEnd);
+        expect(slice).to.include('123');
+      });
+
+      it('range: sequence item has a valid range', () => {
+        const src = `
+        items:
+          - first
+          - second
+        `.trim();
+        const ast = Yaml.parseAst(src);
+        const node = Path.atPath(ast, ['items', 1]); // "second"
+        expect(node?.range).to.be.an('array').with.length(3);
+
+        const [start, valueEnd, nodeEnd] = node!.range!;
+        expect(start).to.be.gte(0);
+        expect(start).to.be.lt(valueEnd);
+        expect(valueEnd).to.be.lte(nodeEnd);
+
+        const slice = src.slice(start, nodeEnd);
+        expect(slice).to.include('second');
+      });
+
+      it('range: nested sequence map field has a valid range', () => {
+        const src = `
+        items:
+          - name: a
+          - name: b
+        `.trim();
+        const ast = Yaml.parseAst(src);
+        const node = Path.atPath(ast, ['items', 1, 'name']); // "b"
+        expect(node?.range).to.be.an('array').with.length(3);
+
+        const [start, valueEnd, nodeEnd] = node!.range!;
+        expect(start).to.be.gte(0);
+        expect(start).to.be.lt(valueEnd);
+        expect(valueEnd).to.be.lte(nodeEnd);
+
+        const slice = src.slice(start, nodeEnd);
+        expect(slice).to.include('b');
+      });
+
+      it('range: undefined for non-existent path', () => {
+        const src = `foo: 1`;
+        const ast = Yaml.parseAst(src);
+        const node = Path.atPath(ast, ['bar']);
+        expect(node).to.eql(undefined);
+      });
+
+      it('range: undefined when descending into scalar', () => {
+        const src = `foo: bar`;
+        const ast = Yaml.parseAst(src);
+        const node = Path.atPath(ast, ['foo', 'baz']);
+        expect(node).to.eql(undefined);
+      });
+    });
   });
 
   describe('Yaml.path (curried)', () => {
