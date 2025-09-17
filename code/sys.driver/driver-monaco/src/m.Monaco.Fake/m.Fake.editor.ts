@@ -211,6 +211,16 @@ export const fakeEditor: F = (input) => {
  */
 const wrangle = {
   model(input: Parameters<F>[0] = ''): t.FakeTextModel {
-    return typeof input === 'string' ? fakeModel(input) : input;
+    if (typeof input === 'string') return fakeModel(input);
+
+    // Check if already a FakeTextModel:
+    if ((input as any).__setLanguageId) return input as t.FakeTextModel;
+
+    // Real Monaco model → shim (__setLanguageId no-op for tests):
+    const real = input as t.Monaco.TextModel;
+    (real as any).__setLanguageId = (_: t.EditorLanguage) => {};
+
+    // Finish up.
+    return real as unknown as t.FakeTextModel;
   },
 } as const;

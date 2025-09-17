@@ -1,11 +1,13 @@
 import type { t } from './common.ts';
 
-type StringSrcCode = string;
+type StringSourceCode = string;
 
 /**
  * Factory: Create a new editor fake.
  */
-export type CreateFakeEditor = (model?: t.FakeTextModel | StringSrcCode) => t.FakeEditorFull;
+export type CreateFakeEditor = (
+  model?: t.FakeTextModel | t.Monaco.TextModel | StringSourceCode,
+) => t.FakeEditorFull;
 
 /**
  * Minimal `IStandaloneCodeEditor` fake:

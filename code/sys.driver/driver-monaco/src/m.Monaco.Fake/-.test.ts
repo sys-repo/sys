@@ -513,6 +513,22 @@ describe('MonacoFake (Mock)', () => {
         const model = editor.getModel();
         expect(model?.getValue()).to.eql('');
       });
+
+      it('accepts a real Monaco.TextModel and shims __setLanguageId', () => {
+        const monaco = MonacoFake.monaco();
+        const realModel = monaco.editor.createModel('real src', 'yaml');
+
+        // Pass the real model into the fake editor:
+        const editor = MonacoFake.editor(realModel);
+
+        // Editor wires through correctly:
+        const model = editor.getModel();
+        expect(model?.getValue()).to.eql('real src');
+
+        // Shimmed __setLanguageId exists and is callable:
+        expect(typeof (model as any).__setLanguageId).to.eql('function');
+        (model as any).__setLanguageId('typescript'); // no-op shim.
+      });
     });
 
     describe('cursor', () => {
