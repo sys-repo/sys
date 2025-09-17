@@ -49,7 +49,7 @@ export type YamlLib = {
 
   /** Creates a new parse-syncer. */
   readonly Syncer: t.YamlSyncLib;
-  readonly syncer: t.YamlSyncLib['create'];
+  readonly syncer: t.YamlSyncLib['make'];
 
   /** YAML path helpers. */
   readonly Path: t.YamlPathLib;

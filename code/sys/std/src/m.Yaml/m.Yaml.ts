@@ -14,7 +14,7 @@ export const Yaml: t.YamlLib = {
 
   Is,
   Syncer,
-  syncer: Syncer.create,
+  syncer: Syncer.make,
   Path,
   path: Path.make,
 };

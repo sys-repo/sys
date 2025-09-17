@@ -224,7 +224,7 @@ describe('Yaml.Path', () => {
   });
 
   describe('Yaml.path (curried)', () => {
-    it('factory: create', () => {
+    it('factory: make', () => {
       const path = ['msg'];
       const p = Yaml.path(path);
       expect(p.path).to.eql(path);

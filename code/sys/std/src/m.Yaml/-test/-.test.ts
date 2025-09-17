@@ -13,7 +13,7 @@ describe('Yaml', () => {
   it('API', () => {
     expect(Yaml.Is).to.equal(Is);
     expect(Yaml.Syncer).to.equal(Syncer);
-    expect(Yaml.syncer).to.equal(Syncer.create);
+    expect(Yaml.syncer).to.equal(Syncer.make);
     expect(Yaml.Path).to.equal(Path);
     expect(Yaml.path).to.equal(Path.make);
   });
@@ -132,7 +132,7 @@ describe('Yaml', () => {
       console.info();
     });
 
-    describe('create', () => {
+    describe('make', () => {
       it('create → doc variants', () => {
         type T = { text?: string };
         const docA = Immutable.clonerRef<T>({});

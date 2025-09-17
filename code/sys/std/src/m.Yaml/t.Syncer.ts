@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type YamlSyncLib = {
   /** Creates a new parse-syncer. */
-  create<T = unknown>(args: t.YamlSyncArgsInput): t.YamlSyncParser<T>;
+  make<T = unknown>(args: t.YamlSyncArgsInput): t.YamlSyncParser<T>;
 };
 
 /** Arguments passed to the `Yaml.Syncer.create` method. */

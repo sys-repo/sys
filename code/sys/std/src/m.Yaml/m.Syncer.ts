@@ -8,7 +8,7 @@ type S = t.YamlLib['syncer'];
 /**
  * Factory:
  */
-const create: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
+const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const { debounce, life, doc, path } = wrangle.args(input);
   const errors = new Set<t.YamlError>();
 
@@ -183,4 +183,4 @@ const wrangle = {
 /**
  * Library:
  */
-export const Syncer: t.YamlSyncLib = { create };
+export const Syncer: t.YamlSyncLib = { make };
