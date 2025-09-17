@@ -47,14 +47,14 @@ export type SlugFromYamlResult = {
  * Categorised errors from a YAML parse and validation pipeline of slugs.
  */
 export type SlugFromYamlErrors = {
+  /** Parser errors reported by the YAML library. Low-level syntax/parse issues before schema or semantic checks. */
+  readonly yaml: readonly t.Yaml.Error[];
+
   /** Shape violations from schema validation (e.g. wrong types). Structural = "does it match the schema shape?". */
   readonly schema: readonly t.YamlPipelineError[];
 
   /** Higher-order semantic rule violations (e.g. alias collisions). Semantic = "is the object logically valid?". */
   readonly semantic: readonly t.YamlPipelineError[];
-
-  /** Parser errors reported by the YAML library. Low-level syntax/parse issues before schema or semantic checks. */
-  readonly yaml: readonly t.Yaml.Error[];
 };
 
 /**
