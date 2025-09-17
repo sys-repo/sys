@@ -16,7 +16,6 @@ describe('Schema: errors', () => {
       const ast = Yaml.parseAst(src);
       const data = ast.toJS();
 
-      // Use a real TypeBox schema, not a plain JSON object:
       const T = Schema.Type;
       const SlugSchema = T.Object(
         {
@@ -33,10 +32,11 @@ describe('Schema: errors', () => {
       expect(mapped.length).to.be.greaterThan(0);
 
       const err = mapped[0];
-      expect(err).to.have.keys(['path', 'message', 'range']);
+      // Assert shape includes `kind`
+      expect(err).to.have.keys(['kind', 'path', 'message', 'range']);
+      expect(err.kind).to.equal('schema');
       expect(err.path).to.be.an('array');
       expect(err.message).to.be.a('string');
-      // `range` may be undefined or a 3-tuple: [start, valueEnd, nodeEnd]
       expect(err.range === undefined || Array.isArray(err.range)).to.be.true;
     });
 
@@ -48,10 +48,11 @@ describe('Schema: errors', () => {
       expect(mapped.length).to.be.greaterThan(0);
 
       const err = mapped[0];
-      expect(err).to.have.keys(['path', 'message', 'range']);
+      // Assert shape includes `kind` + `yaml`
+      expect(err).to.have.keys(['kind', 'yaml', 'path', 'message', 'range']);
+      expect(err.kind).to.equal('yaml');
       expect(err.path).to.eql([]); // parser errors aren’t path-specific
       expect(err.message).to.include('unclosed');
-      // `range` may be undefined depending on parser output
       expect(err.range === undefined || Array.isArray(err.range)).to.be.true;
     });
 
@@ -59,7 +60,6 @@ describe('Schema: errors', () => {
       const src = `x: 1`;
       const ast = Yaml.parseAst(src);
 
-      // Fake a ValueError-like object with a deep, non-existent path:
       const fakeErrors = [
         {
           path: '/slug/does/not/exist',
@@ -70,10 +70,9 @@ describe('Schema: errors', () => {
       const mapped = Schema.ErrorMapper.schema(ast, fakeErrors);
 
       expect(mapped.length).to.eql(1);
+      expect(mapped[0].kind).to.equal('schema');
       expect(mapped[0].path).to.eql(['slug', 'does', 'not', 'exist']);
       expect(mapped[0].message).to.eql('Nope');
-
-      // Range will be <undefined> because no node matched:
       expect(mapped[0].range === undefined || Array.isArray(mapped[0].range)).to.be.true;
     });
   });

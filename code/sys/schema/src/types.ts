@@ -19,4 +19,5 @@ export type Infer<S extends t.TSchema> = t.Static<S>;
 export namespace Schema {
   export type Infer<S extends t.TSchema> = t.Static<S>;
   export type ValueError = t.ValueError;
+  export type ValidationError = t.SchemaValidationError;
 }

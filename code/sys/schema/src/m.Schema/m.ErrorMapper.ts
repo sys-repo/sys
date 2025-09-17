@@ -4,23 +4,29 @@ type NodeOrNil = t.Yaml.Node | null | undefined;
 
 export const ErrorMapper: t.ErrorMapperLib = {
   schema(ast, errors) {
-    return Array.from(errors).map((e) => {
+    return Array.from(errors).map((e): t.SchemaValidationError => {
       const path = Obj.Path.decode(e.path);
       const node = resolveNode(ast, path);
       return {
+        kind: 'schema',
         path,
         message: e.message,
-        range: node?.range ?? undefined, // ensure no `null`
+        range: node?.range ?? undefined,
       };
     });
   },
 
   yaml(errors) {
-    return errors.map((err) => ({
-      path: [],
-      message: err.message,
-      range: (err as any)?.range ?? undefined, // normalize away null
-    }));
+    return errors.map((err): t.SchemaYamlError => {
+      type E = { range?: t.Yaml.Range | null };
+      return {
+        kind: 'yaml',
+        yaml: err,
+        path: [], // ← NB: parser errors aren’t path-specific.
+        message: err.message,
+        range: (err as E).range ?? undefined,
+      };
+    });
   },
 };
 
