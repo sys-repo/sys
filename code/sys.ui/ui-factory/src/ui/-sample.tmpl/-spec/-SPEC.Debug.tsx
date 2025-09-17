@@ -1,8 +1,8 @@
 import React from 'react';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
-import { HelloSchema, makePlan } from './-u.ts';
-type P = t.Infer<typeof HelloSchema>;
+import { HelloPropsSchema, makePlan } from './-u.ts';
+type P = t.Infer<typeof HelloPropsSchema>;
 
 type Storage = Pick<P, 'theme' | 'debug' | 'name'>;
 const defaults: Storage = {
