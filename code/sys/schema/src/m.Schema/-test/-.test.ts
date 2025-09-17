@@ -1,4 +1,5 @@
 import { type t, describe, expect, it } from '../../-test.ts';
+import { ErrorMapper } from '../m.ErrorMapper.ts';
 import { Schema, Type, Value } from '../mod.ts';
 
 describe('Standard Schema', () => {
@@ -7,6 +8,7 @@ describe('Standard Schema', () => {
     expect(m.Schema).to.equal(Schema);
     expect(m.Type).to.equal(Type);
     expect(m.Value).to.equal(Value);
+    expect(m.Schema.ErrorMapper).to.equal(ErrorMapper);
   });
 
   /**

@@ -1,4 +1,6 @@
 import { type t, Type, Value } from './common.ts';
+
+import { ErrorMapper } from './m.ErrorMapper.ts';
 import { asStandardSchema, isStandardSchema, toStandardSchema } from './u.StdSchema.ts';
 import { tryValidate } from './u.try.ts';
 
@@ -18,4 +20,7 @@ export const Schema: t.SchemaLib = {
   get Value() {
     return Value;
   },
-} as const;
+  get ErrorMapper() {
+    return ErrorMapper;
+  },
+};

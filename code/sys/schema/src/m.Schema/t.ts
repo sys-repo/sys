@@ -2,7 +2,8 @@ import type { Type } from '@sinclair/typebox';
 import type { Value } from '@sinclair/typebox/value';
 import type { t } from './common.ts';
 
-export type * from './t.StdSchema.ts';
+export type * from './t.error.ts';
+export type * from './t.std.ts';
 
 /**
  * "Standard Schema" (Typescript/JSONSchema) tools:
@@ -11,6 +12,9 @@ export type SchemaLib = {
   /** Type builder with static type inference. */
   readonly Type: typeof Type;
   readonly Value: typeof Value;
+
+  /** Convert parser/validator errors into normalized validation errors. */
+  readonly ErrorMapper: t.ErrorMapperLib;
 
   /**
    * @example
