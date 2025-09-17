@@ -15,7 +15,9 @@ import { Crdt } from 'jsr:@sys/driver-automerge/t';
 //       Crdt.Repo
 ```
 
-### FileSytem Environment
+### Environment: FileSystem
+Programatically import into a runtime environment that has a file-system:
+
 
 ```ts
 import { Crdt } from 'jsr:@sys/driver-automerge/fs';
@@ -30,13 +32,16 @@ console.info(doc.current);           // ← { count:1234 }
 
 
 
-### Browser Environment
+### Environment: Web Browser
 Start UI dev-harness:
 ```bash
 deno task dev
 ```
+
+Programatically import into browser:
+
 ```ts
-import { Crdt } from '@sys/driver-automerge/browser';
+import { Crdt } from '@sys/driver-automerge/web';
 
 const repo = Crdt.repo({
   storage: 'IndexedDb',

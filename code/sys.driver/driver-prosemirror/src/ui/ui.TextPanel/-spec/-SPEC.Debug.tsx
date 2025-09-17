@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Crdt } from '@sys/driver-automerge/browser';
+import { Crdt } from '@sys/driver-automerge/web';
 import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 export type SampleDoc = { text?: string };

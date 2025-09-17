@@ -54,7 +54,7 @@
     "npm:@automerge/automerge-repo@2.3.0": "2.3.0",
     "npm:@automerge/automerge@3.1.2": "3.1.2",
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
-    "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.1.5__picomatch@4.0.3_yaml@2.8.1",
+    "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.1.5__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:@farcaster/frame-sdk@0.1.10": "0.1.10_zod@3.25.76",
     "npm:@mastra/core@0.16.3": "0.16.3_zod@3.25.76_ai@4.3.19__react@19.1.1__zod@3.25.76_@opentelemetry+api@1.9.0_@opentelemetry+core@2.1.0__@opentelemetry+api@1.9.0_react@19.1.1_@sinclair+typebox@0.34.41_hono@4.9.7",
     "npm:@mastra/libsql@0.14.1": "0.14.1_@mastra+core@0.16.3__zod@3.25.76__ai@4.3.19___react@19.1.1___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.1.1__@sinclair+typebox@0.34.41__hono@4.9.7_zod@3.25.76_react@19.1.1_@sinclair+typebox@0.34.41",
@@ -67,11 +67,12 @@
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@sinclair/typebox@0.34.41": "0.34.41",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
+    "npm:@types/node@*": "24.2.0",
     "npm:@types/ramda@0.31.1": "0.31.1",
     "npm:@types/react-dom@19.1.9": "19.1.9_@types+react@19.1.13",
     "npm:@types/react@19.1.13": "19.1.13",
     "npm:@types/ws@8.18.1": "8.18.1",
-    "npm:@vitejs/plugin-react-swc@4.1.0": "4.1.0_vite@7.1.5__picomatch@4.0.3_yaml@2.8.1",
+    "npm:@vitejs/plugin-react-swc@4.1.0": "4.1.0_vite@7.1.5__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:ai@5.0.44": "5.0.44_zod@3.25.76",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.0.1": "6.0.1",
@@ -112,8 +113,9 @@
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.1.1": "10.1.1",
     "npm:ua-parser-js@2.0.5": "2.0.5",
-    "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.1.5__picomatch@4.0.3_yaml@2.8.1",
-    "npm:vite@7.1.5": "7.1.5_picomatch@4.0.3_yaml@2.8.1",
+    "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.1.5__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
+    "npm:vite@*": "7.1.5_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
+    "npm:vite@7.1.5": "7.1.5_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:ws@8.18.3": "8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10",
     "npm:yaml@2.8.1": "2.8.1",
     "npm:zod@3.25.76": "3.25.76"
@@ -529,6 +531,12 @@
       "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
       "dependencies": [
         "vite@7.1.5_picomatch@4.0.3_yaml@2.8.1"
+      ]
+    },
+    "@deno/vite-plugin@1.0.5_vite@7.1.5__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+      "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
+      "dependencies": [
+        "vite@7.1.5_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
       ]
     },
     "@esbuild/aix-ppc64@0.25.9": {
@@ -2274,6 +2282,14 @@
         "@rolldown/pluginutils",
         "@swc/core",
         "vite@7.1.5_picomatch@4.0.3_yaml@2.8.1"
+      ]
+    },
+    "@vitejs/plugin-react-swc@4.1.0_vite@7.1.5__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+      "integrity": "sha512-Ff690TUck0Anlh7wdIcnsVMhofeEVgm44Y4OYdeeEEPSKyZHzDI9gfVBvySEhDfXtBp8tLCbfsVKPWEMEjq8/g==",
+      "dependencies": [
+        "@rolldown/pluginutils",
+        "@swc/core",
+        "vite@7.1.5_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
       ]
     },
     "abitype@1.1.0_zod@3.25.76": {
@@ -4264,6 +4280,12 @@
         "vite@7.1.5_picomatch@4.0.3_yaml@2.8.1"
       ]
     },
+    "vite-plugin-wasm@3.5.0_vite@7.1.5__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+      "integrity": "sha512-X5VWgCnqiQEGb+omhlBVsvTfxikKtoOgAzQ95+BZ8gQ+VfMHIjSHr0wyvXFQCa0eKQ0fKyaL0kWcEnYqBac4lQ==",
+      "dependencies": [
+        "vite@7.1.5_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
+      ]
+    },
     "vite@7.1.5_picomatch@4.0.3": {
       "integrity": "sha512-4cKBO9wR75r0BeIWWWId9XK9Lj6La5X846Zw9dFfzMRw38IlTk2iCcUt6hsyiDRcPidc55ZParFYDXi0nXOeLQ==",
       "dependencies": [
@@ -4294,6 +4316,27 @@
         "fsevents"
       ],
       "optionalPeers": [
+        "yaml"
+      ],
+      "bin": true
+    },
+    "vite@7.1.5_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+      "integrity": "sha512-4cKBO9wR75r0BeIWWWId9XK9Lj6La5X846Zw9dFfzMRw38IlTk2iCcUt6hsyiDRcPidc55ZParFYDXi0nXOeLQ==",
+      "dependencies": [
+        "@types/node@24.2.0",
+        "esbuild",
+        "fdir",
+        "picomatch",
+        "postcss",
+        "rollup",
+        "tinyglobby",
+        "yaml"
+      ],
+      "optionalDependencies": [
+        "fsevents"
+      ],
+      "optionalPeers": [
+        "@types/node@24.2.0",
         "yaml"
       ],
       "bin": true

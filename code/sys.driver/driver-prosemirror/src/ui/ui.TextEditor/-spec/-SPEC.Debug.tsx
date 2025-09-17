@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Crdt } from '@sys/driver-automerge/browser';
+import { Crdt } from '@sys/driver-automerge/web';
 import { Lorem } from '../../-test.ui.ts';
 import { type t, Button, css, D, Is, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 

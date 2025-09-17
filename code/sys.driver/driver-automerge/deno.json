@@ -19,7 +19,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./fs": "./src/-platforms/-fs/mod.ts",
-    "./browser": "./src/-platforms/-browser/mod.ts",
+    "./web": "./src/-platforms/-browser/mod.ts",
     "./ui": "./src/ui.Crdt/mod.ts",
     "./ws": "./src/m.Server/mod.ts"
   }
