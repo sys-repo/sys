@@ -33,11 +33,14 @@ export const Harness: React.FC<HarnessProps> = (props) => {
       boxSizing: 'border-box',
       display: 'grid',
     }),
-    unspecified: css({ padding: 15 }),
+    unspecified: css({
+      padding: 15,
+      fontSize: 12,
+    }),
   };
 
   const unspecified = (name: string) => (
-    <div className={styles.unspecified.class}>{`${name}: (unspecified)`}</div>
+    <div className={styles.unspecified.class}>{`🐷 ${name}: (unspecified)`}</div>
   );
   const elLeft = slots?.left ?? unspecified('Left');
   const elRight = slots?.right ?? unspecified('Right');
