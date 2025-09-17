@@ -136,6 +136,56 @@ describe(`YamlPipeline`, () => {
       });
     });
 
+    describe('semantic validation (rules)', () => {
+      describe('rule: duplicate aliases', () => {
+        it('flags duplicate aliases with per-index paths', () => {
+          const src = `
+          id: s1
+          traits:
+            - as: t1
+              id: video
+            - as: gallery
+              id: image-sequence
+            - as: t1
+              id: video
+          `;
+          const res = fromYaml(src); // root path
+          expect(res.ok).to.eql(false);
+
+          // no parser or structural issues here
+          expect(res.errors.yaml.length).to.eql(0);
+          expect(res.errors.schema.length).to.eql(0);
+
+          // two semantic errors: indices 0 and 2
+          expect(res.errors.semantic.length).to.eql(2);
+          const paths = res.errors.semantic.map((e) => e.path);
+          const msgs = res.errors.semantic.map((e) => e.message);
+
+          expect(paths).to.deep.include.members([
+            ['traits', 0, 'as'],
+            ['traits', 2, 'as'],
+          ]);
+          expect(msgs.every((m) => m.includes('Duplicate alias "t1"'))).to.eql(true);
+        });
+
+        it('passes when all aliases are unique', () => {
+          const src = `
+          id: s2
+          traits:
+            - as: video-hero
+              id: video
+            - as: gallery
+              id: image-sequence
+          `;
+          const res = fromYaml(src);
+          expect(res.ok).to.eql(true);
+          if (res.ok) {
+            expect(res.errors.semantic.length).to.eql(0);
+            expect(res.errors.schema.length).to.eql(0);
+            expect(res.errors.yaml.length).to.eql(0);
+          }
+        });
+      });
     });
   });
 });

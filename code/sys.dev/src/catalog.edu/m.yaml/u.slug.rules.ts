@@ -8,10 +8,14 @@ type E = t.DeepMutable<t.SlugFromYamlResult['errors']>;
  */
 export const SlugRules = {
   aliasUniqueness(mutErrors: E['semantic'], path: t.ObjectPath, slug?: unknown): boolean {
-    if (!slug || !Array.isArray(slug)) return false;
+    // const traits = (slug as any)?.traits;
+    // if (!Array.isArray(traits)) return false;
+
+    const traits = (slug as any)?.traits;
+    if (!Array.isArray(traits)) return false;
 
     const seen = new Map<string, number[]>();
-    (slug as any).traits.forEach((t: any, i: number) => {
+    traits.forEach((t: any, i: number) => {
       if (Is.string(t?.as)) {
         const arr = seen.get(t.as) ?? [];
         arr.push(i);
@@ -21,10 +25,12 @@ export const SlugRules = {
 
     for (const [alias, idxs] of seen.entries()) {
       if (idxs.length > 1) {
-        mutErrors.push({
-          path: [...path, 'traits'],
-          message: `Duplicate alias "${alias}"`,
-        });
+        for (const i of idxs) {
+          mutErrors.push({
+            path: [...path, 'traits', i, 'as'],
+            message: `Duplicate alias "${alias}"`,
+          });
+        }
       }
     }
 
