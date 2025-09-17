@@ -33,7 +33,7 @@ export const ErrorMap: t.ErrorMapLib = {
 /**
  * Helpers:
  */
-function resolveNode(ast: t.Yaml.Ast, path: t.ObjectPath): t.Yaml.Node | undefined {
+function resolveNode(ast: t.Yaml.Ast, path: t.ObjectPath): NodeOrNil {
   let node = Yaml.Path.atPath(ast, path);
   if (node) return node;
 

@@ -13,8 +13,11 @@ export type ErrorMapLib = {
 };
 
 /**
- * Base diagnostic shape shared by all error kinds.
+ * Unified validation error.
  */
+export type SchemaError = SchemaValidationError | SchemaYamlError;
+
+/** Base diagnostic shape shared by all error kinds. */
 type ErrorBase = {
   readonly path: t.ObjectPath;
   readonly message: string;
@@ -28,15 +31,9 @@ export type SchemaValidationError = ErrorBase & { readonly kind: 'schema' | 'sem
 
 /**
  * YAML parse error (low-level syntax).
- * - Preserves all original fields from `Yaml.Error`
- *   while still projecting onto the common diagnostic surface.
+ * - Standard validation error appended with the underlying Yaml parse error.
  */
 export type SchemaYamlError = ErrorBase & {
   readonly kind: 'yaml';
   readonly yaml: t.Yaml.Error;
 };
-
-/**
- * Unified diagnostic error type.
- */
-export type SchemaError = SchemaValidationError | SchemaYamlError;
