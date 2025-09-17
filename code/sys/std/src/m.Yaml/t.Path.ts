@@ -8,7 +8,7 @@ type NodeOrNil = t.Yaml.Node | null | undefined;
  */
 export type YamlPathLib = {
   /** Factory for a curried path. */
-  create<T = unknown>(path: t.ObjectPath): YamlPath<T>;
+  make<T = unknown>(path: t.ObjectPath): YamlPath<T>;
 
   /**
    * Find the deepest node whose range encloses `offset`

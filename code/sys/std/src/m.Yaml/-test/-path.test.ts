@@ -5,7 +5,7 @@ import { Yaml } from '../mod.ts';
 describe('Yaml.Path', () => {
   it('API', () => {
     expect(Yaml.Path).to.equal(Path);
-    expect(Yaml.path).to.equal(Path.create);
+    expect(Yaml.path).to.equal(Path.make);
   });
 
   describe('Yaml.Path.atOffset', () => {

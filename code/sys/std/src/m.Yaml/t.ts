@@ -53,7 +53,7 @@ export type YamlLib = {
 
   /** YAML path helpers. */
   readonly Path: t.YamlPathLib;
-  readonly path: t.YamlPathLib['create'];
+  readonly path: t.YamlPathLib['make'];
 };
 
 /**

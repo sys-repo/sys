@@ -15,7 +15,7 @@ describe('Yaml', () => {
     expect(Yaml.Syncer).to.equal(Syncer);
     expect(Yaml.syncer).to.equal(Syncer.create);
     expect(Yaml.Path).to.equal(Path);
-    expect(Yaml.path).to.equal(Path.create);
+    expect(Yaml.path).to.equal(Path.make);
   });
 
   describe('Yaml.Is', () => {

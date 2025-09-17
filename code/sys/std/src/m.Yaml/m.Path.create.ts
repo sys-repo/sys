@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 import { deepGet } from './m.Path.get.ts';
 import { deepSet } from './m.Path.set.ts';
 
-export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath) => {
+export const make: t.YamlPathLib['make'] = <T = unknown>(path: t.ObjectPath) => {
   path = [...path];
 
   /**
@@ -34,7 +34,7 @@ export const create: t.YamlPathLib['create'] = <T = unknown>(path: t.ObjectPath)
    * Method: join
    */
   function join<T = unknown>(subpath: t.ObjectPath) {
-    return create<T>([...path, ...(subpath ?? [])]);
+    return make<T>([...path, ...(subpath ?? [])]);
   }
 
   /**
