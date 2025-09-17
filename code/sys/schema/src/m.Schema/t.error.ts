@@ -6,10 +6,10 @@ import type { t } from './common.ts';
  */
 export type SchemaErrorLib = {
   /** Map schema errors to validation errors with optional ranges. */
-  fromSchema(ast: t.Yaml.Ast, errors: Iterable<t.Schema.ValueError>): t.SchemaValidationError[];
+  fromSchema(ast: t.Yaml.Ast, errors: Iterable<t.Schema.Value.Error>): t.SchemaValidationError[];
 
   /** Map raw YAML parser errors to structured YAML errors. */
-  fromYaml(errors: t.Yaml.Error[]): t.SchemaYamlError[];
+  fromYaml(errors: t.Yaml.Error[]): t.Schema.YamlError[];
 };
 
 /**

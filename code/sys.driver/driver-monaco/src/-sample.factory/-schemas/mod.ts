@@ -7,9 +7,9 @@ import { Video } from './s.Video.ts';
 /**
  * Inferred types:
  */
-export type VideoSchema = t.Static<typeof Video>;
-export type FileshareSchema = t.Static<typeof Fileshare>;
-export type IFrameSchema = t.Static<typeof IFrame>;
+export type VideoSchema = t.Infer<typeof Video>;
+export type FileshareSchema = t.Infer<typeof Fileshare>;
+export type IFrameSchema = t.Infer<typeof IFrame>;
 
 export function getSchema(id: string) {
   const key = id as t.SampleFactoryId;

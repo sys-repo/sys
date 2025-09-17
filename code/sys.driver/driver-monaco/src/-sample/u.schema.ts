@@ -24,4 +24,4 @@ export const Meta = Type.Object({
   ),
 });
 
-export type MetaSchema = t.Static<typeof Meta>;
+export type MetaSchema = t.Infer<typeof Meta>;

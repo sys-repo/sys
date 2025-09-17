@@ -18,6 +18,14 @@ export type Infer<S extends t.TSchema> = t.Static<S>;
  */
 export namespace Schema {
   export type Infer<S extends t.TSchema> = t.Static<S>;
-  export type ValueError = t.ValueError;
+
+  // Values:
+  export namespace Value {
+    export type Error = t.ValueError;
+  }
+
+  // Validation parsing errors:
+  export type Error = t.SchemaError;
   export type ValidationError = t.SchemaValidationError;
+  export type YamlError = t.SchemaYamlError;
 }

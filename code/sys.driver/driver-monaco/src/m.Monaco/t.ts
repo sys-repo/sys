@@ -1,16 +1,19 @@
 import type { t } from './common.ts';
+
+export type * from './t.Error.ts';
 export type * from './t.Link.ts';
 
 /**
  * Code editor library:
  */
-export type MonacoLib = Readonly<{
-  Editor: React.FC<t.MonacoEditorProps>;
-  Is: t.EditorIsLib;
-  Crdt: t.EditorCrdtLib;
-  Yaml: t.EditorYamlLib;
-  Link: t.EditorLinkLib;
-}>;
+export type MonacoLib = {
+  readonly Editor: React.FC<t.MonacoEditorProps>;
+  readonly Is: t.EditorIsLib;
+  readonly Crdt: t.EditorCrdtLib;
+  readonly Yaml: t.EditorYamlLib;
+  readonly Link: t.EditorLinkLib;
+  readonly Error: t.EditorErrorLib;
+};
 
 /**
  * Boolean flag evalutators for the Monaco UI library.
@@ -28,6 +31,6 @@ export type EditorIsLib = Readonly<{
  * for passing to functions as a single parameter.
  */
 export type MonacoCtx = {
-  editor: t.Monaco.Editor;
-  monaco: t.Monaco.Monaco;
+  readonly editor: t.Monaco.Editor;
+  readonly monaco: t.Monaco.Monaco;
 };
