@@ -21,11 +21,11 @@ export type EditorYaml = {
   readonly ok: boolean;
   readonly path?: t.YamlSyncParserPaths;
   readonly cursor: t.EditorYamlCursorPath;
-  readonly parsed: Readonly<{
-    input: string;
-    output: t.YamlSyncParsed<unknown>;
-    errors: t.YamlError[];
-  }>;
+  readonly parsed: {
+    readonly input: string;
+    readonly output: t.YamlSyncParsed<unknown>;
+    readonly errors: t.YamlError[];
+  };
 };
 
 /**
