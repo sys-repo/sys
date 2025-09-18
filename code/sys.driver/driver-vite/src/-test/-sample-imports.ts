@@ -42,7 +42,7 @@ console.groupEnd();
  * Namespace: @sys : driver
  */
 console.groupCollapsed('🧫 @sys/driver');
-const { Crdt } = await import('@sys/driver-automerge/ui');
+const { Crdt } = await import('@sys/driver-automerge/web/ui');
 console.info('@sys/driver-automerge/ui:', Crdt);
 console.groupEnd();
 
