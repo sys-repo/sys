@@ -213,18 +213,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
 
-      <ObjectView
-        name={'debug'}
-        data={{ ...Signal.toObject(p) }}
-        expand={0}
-        style={{ marginTop: 15 }}
-      />
-      <ObjectView
-        name={'doc'}
-        data={Obj.trimStringsDeep(Signal.toObject(p.doc.value?.current) ?? {})}
-        expand={1}
-        style={{ marginTop: 5 }}
-      />
+      <ObjectView name={'debug'} data={safeProps(debug)} expand={0} style={{ marginTop: 15 }} />
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+function safeProps(debug: DebugSignals) {
+  const p = { ...debug.props } as any;
+  delete p.doc;
+  return Signal.toObject(p);
+}
