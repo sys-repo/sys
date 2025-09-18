@@ -37,14 +37,18 @@ export type SignalLib = {
   listen(subject?: t.Signal | Array<unknown> | O, deep?: boolean): void;
 
   /**
-   * Recursively converts an object/array of `Signal`s into
-   * a plain JSON‑safe structure by replacing every `signal` with
-   * its current `.value`.
+   * Convert any mix of values, arrays, and `Signal`s into a plain,
+   * JSON-safe snapshot.
    *
-   * @param input  Any value: primitives, arrays, objects, Signals, or a mix.
-   * @returns      The same structure with every `Signal<X>` replaced by `X`.
+   * - Replaces each `Signal<X>` with its current `.value`.
+   * - Traverses arrays and plain objects recursively.
+   * - Skips accessors by default (avoids invoking getters).
+   * - Guards against cycles and deep recursion.
+   *
+   * Intended for debug/inspection: produces a safe, non-reentrant
+   * structure suitable for logging or UI tree viewers.
    */
-  toObject<T>(input: T): t.UnwrapSignals<T>;
+  toObject<T>(input: T, opts?: t.SignalToObjectOptions): t.UnwrapSignals<T>;
 
   /**
    * Walks an object tree (recursive descent) and invokes `fn` for each Signal found.
@@ -78,4 +82,12 @@ export type SignalListeners = t.Lifecycle & {
  */
 export type SignalIsLib = {
   signal<T = unknown>(val: unknown): val is t.Signal<T>;
+};
+
+/** Options to control how aggressively `Signal.toObject` dehydrates. */
+export type SignalToObjectOptions = {
+  /** Max recursion depth (to avoid huge graphs / cycles). */
+  depth?: number;
+  /** Include accessor (getter) properties. Default: false (skip). */
+  includeGetters?: boolean;
 };

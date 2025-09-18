@@ -466,7 +466,7 @@ describe('Signal', () => {
     const toObject = Signal.toObject;
 
     /**
-     * Pass‑through for primitives (no wrapping, no cloning).
+     * Pass-through for primitives (no wrapping, no cloning).
      */
     it('returns primitives unchanged', () => {
       expect(toObject(42)).to.eql(42);
@@ -507,29 +507,88 @@ describe('Signal', () => {
     });
 
     /**
-     * Leaves functions and other non‑signal values intact.
+     * JSON-safe snapshot: functions are redacted (never invoked or retained).
      */
-    it('preserves function references', () => {
+    it('redacts function values for JSON-safety', () => {
       const fn = () => 'hi';
       const obj = { fn, val: s(10) };
 
-      const out = toObject(obj);
+      const out = toObject(obj) as { fn: unknown; val: number };
 
-      expect(out.fn).to.eql(fn); //  Same reference.
+      expect(out.fn).to.eql('[function]'); // redacted placeholder
       expect(out.val).to.eql(10); // signal unwrapped
     });
 
     /**
-     * toObject is snapshot‑style: it never mutates the input
+     * toObject is snapshot-style: it never mutates the input
      * and returns wholly new container objects.
      */
     it('does not mutate the original structure', () => {
       const src = { nested: { x: s(7) } };
       const snap = toObject(src);
 
-      expect(snap).to.not.equal(src); //                ← top‑level object copy.
-      expect(snap.nested).to.not.equal(src.nested); //  ← deep copy.
+      expect(snap).to.not.equal(src); // ← top-level object copy.
+      expect(snap.nested).to.not.equal(src.nested); // ← deep copy.
       expect(snap.nested.x).to.equal(7);
+    });
+
+    /**
+     * Accessors are skipped by default: getters are not invoked.
+     * (Prevents re-entrancy into live handles during inspection.)
+     */
+    it('skips accessor properties (no getter invocation)', () => {
+      let calls = 0;
+      const obj = Object.defineProperties(
+        {},
+        {
+          dangerous: {
+            get: () => {
+              calls += 1;
+              return 123;
+            },
+            enumerable: true,
+          },
+          safe: { value: s(1), enumerable: true },
+        },
+      );
+
+      const out = toObject(obj) as Record<string, unknown>;
+
+      expect(calls).to.eql(0); // getter never called
+      expect('dangerous' in out).to.eql(false); // accessor omitted
+      expect(out.safe).to.eql(1);
+    });
+
+    /**
+     * Cycle guard: circular references are represented, not traversed.
+     */
+    it('guards against cycles', () => {
+      const a: any = {};
+      a.self = a;
+      const out = toObject(a);
+      expect(out.self).to.eql('[circular]');
+    });
+
+    /**
+     * Depth guard: very deep structures are bounded.
+     */
+    it('limits recursion depth', () => {
+      const deep = (n: number): any => (n === 0 ? { leaf: s('ok') } : { n, next: deep(n - 1) });
+      const input = deep(8);
+      const out = toObject(input);
+
+      // We don't assert exact shape at max depth; only that a limit placeholder appears somewhere.
+      // Walk down until we encounter the depth sentinel.
+      let cursor: any = out;
+      let seenSentinel = false;
+      for (let i = 0; i < 10 && cursor; i++) {
+        if (cursor === '[max-depth]') {
+          seenSentinel = true;
+          break;
+        }
+        cursor = cursor.next;
+      }
+      expect(seenSentinel).to.eql(true);
     });
   });
 
