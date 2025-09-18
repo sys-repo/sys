@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, isPlainObject } from './common.ts';
 import { Is } from './m.Is.ts';
 
 export const toObject: t.SignalLib['toObject'] = <T>(
@@ -60,20 +60,20 @@ export const toObject: t.SignalLib['toObject'] = <T>(
 /**
  * Helpers:
  */
-
-const isIterable = (v: unknown): v is Iterable<unknown> =>
-  v != null && typeof (v as any)[Symbol.iterator] === 'function';
-
 const toSafeValue = <T>(value: T, visit: (x: unknown, d: number) => unknown, depth: number) => {
+  type S = Set<unknown>;
+  type M = Map<unknown, unknown>;
+
   if (Is.signal(value)) return (value as any).value;
   if (Array.isArray(value)) return (value as unknown[]).map((x) => visit(x, depth - 1));
-  if (value instanceof Map)
-    return Array.from((value as Map<unknown, unknown>).entries()).map(([k, v]) => [
+  if (value instanceof Map) {
+    return Array.from((value as M).entries()).map(([k, v]) => [
       visit(k, depth - 1),
       visit(v, depth - 1),
     ]);
-  if (value instanceof Set)
-    return Array.from(value as Set<unknown>).map((x) => visit(x, depth - 1));
+  }
+
+  if (value instanceof Set) return Array.from(value as S).map((x) => visit(x, depth - 1));
   if (typeof value === 'function') return '[function]';
   if (typeof value === 'symbol') return String(value);
   return value as unknown;
