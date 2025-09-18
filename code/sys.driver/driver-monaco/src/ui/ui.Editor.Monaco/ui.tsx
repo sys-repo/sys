@@ -30,8 +30,6 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const editorTheme = Theme.toName(props.theme);
   const isPlaceholderText = typeof placeholder === 'string';
 
-  console.log('fontSize', fontSize);
-
   /**
    * Refs:
    */
