@@ -1,6 +1,6 @@
 {
   "name": "@sys/dev",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "license": "MIT",
   "tasks": {
     "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
