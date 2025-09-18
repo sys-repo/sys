@@ -1,11 +1,13 @@
 import React from 'react';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { createRepo } from '../../../../ui/-test.ui.ts';
 
 type P = t.SampleEduProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  path: ['foo'],
 };
 
 /**
@@ -26,10 +28,12 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    path: s(snap.path),
   };
   const p = props;
   const api = {
     props,
+    repo: createRepo(),
     reset,
     listen,
   };
@@ -46,6 +50,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.path = p.path.value;
     });
   });
 

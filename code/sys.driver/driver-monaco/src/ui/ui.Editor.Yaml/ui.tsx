@@ -44,8 +44,8 @@ export const YamlEditor: React.FC<P> = (props) => {
     }),
   };
 
-  const elNoRepo = !repo && <NotReady theme={theme.name} label={'No CRDT repository.'} />;
-  const elNoPath = !path && <NotReady theme={theme.name} label={'No document path.'} />;
+  const elNoRepo = !repo && <NotReady theme={theme.name} label={'No CRDT repository'} />;
+  const elNoPath = !path && <NotReady theme={theme.name} label={'No document path'} />;
   const elError = elNoRepo || elNoPath;
 
   const elMain = elError || <Body {...props} signals={signals} />;

@@ -1,8 +1,10 @@
 /**
  * @system
  */
-export type { Yaml } from '@sys/std/t';
 export type * from '@sys/types';
+
+export type { Crdt } from '@sys/driver-automerge/t';
+export type { Yaml } from '@sys/std/t';
 
 /** User Interface: */
 export type { ColorTheme } from '@sys/color/t';

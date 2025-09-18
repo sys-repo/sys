@@ -1,8 +1,8 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, Monaco } from './common.ts';
 
-export const SampleEdu: React.FC<t.SampleEduProps> = (props) => {
-  const { debug = false } = props;
+export const Sample: React.FC<t.SampleEduProps> = (props) => {
+  const { debug = false, repo, path } = props;
 
   /**
    * Render:
@@ -12,13 +12,15 @@ export const SampleEdu: React.FC<t.SampleEduProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 10,
+      display: 'grid',
     }),
   };
 
+  console.log('path', path);
+
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 ${D.displayName}`}</div>
+      <Monaco.Yaml.Editor theme={theme.name} repo={repo} path={path} />
     </div>
   );
 };

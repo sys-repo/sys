@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { SampleEdu } from './ui.tsx';
+export { Sample } from './ui.tsx';
