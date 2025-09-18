@@ -82,8 +82,8 @@ export type Dep = {
    * Array of sub-paths for the module.
    * Causes an import (within deno.json), like:
    *
-   *    "zod"
-   *    "zod/v4-mini"
+   *    "yaml"
+   *    "yaml/types"
    */
   subpaths?: t.StringDir[];
 

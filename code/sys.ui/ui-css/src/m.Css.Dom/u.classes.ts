@@ -8,11 +8,7 @@ export function createClasses(args: { rules: t.CssDomRules; prefix?: string }): 
 
   const validation = AlphanumericWithHyphens.safeParse(prefix);
   if (!validation.success) {
-    const err = validation.error.issues
-      .map((m) => m.message)
-      .join('. ')
-      .trim();
-    throw new Error(err);
+    throw new Error(validation.error);
   }
 
   const api: t.CssDomClasses = {

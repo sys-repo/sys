@@ -60,7 +60,7 @@ groups:
     - import: npm:@vitejs/plugin-react-swc@4.1.0
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.50.2
-    - import: npm:vite@7.1.5
+    - import: npm:vite@7.1.6
     - import: npm:vite-plugin-wasm@3.5.0
 
   ui/react:
@@ -132,8 +132,6 @@ deno.json:
   - import: npm:ts-essentials@10.1.1
   - import: npm:yaml@2.8.1
     subpaths: [types]
-  - import: npm:zod@4.1.9
-    subpaths: [v4, v4-mini]
 
   # Websockets:
   - import: npm:ws@8.18.3
