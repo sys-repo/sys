@@ -17,10 +17,8 @@ export const AlphanumericWithHyphens = {
     if (typeof input === 'string' && /^[A-Za-z][A-Za-z0-9-]*$/.test(input)) {
       return { success: true, data: input };
     } else {
-      return {
-        success: false,
-        error: `String must start with a letter and can contain letters, digits, and hyphens (hyphen not allowed at the beginning)`,
-      };
+      const error = `String must start with a letter and can contain letters, digits, and hyphens (hyphen not allowed at the beginning)`;
+      return { success: false, error };
     }
   },
 };
