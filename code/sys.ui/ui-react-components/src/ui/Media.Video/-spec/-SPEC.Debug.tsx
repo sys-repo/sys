@@ -51,9 +51,7 @@ export function createDebugSignals() {
     props,
     localstore,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
     },
   };
   return api;

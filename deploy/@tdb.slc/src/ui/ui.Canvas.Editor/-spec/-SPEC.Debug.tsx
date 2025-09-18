@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  type t,
-  Button,
-  Crdt,
-  css,
-  D,
-  LocalStorage,
-  ObjectView,
-  Signal,
-  CanvasPanel,
-} from '../common.ts';
+import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
 
 type P = t.EditorCanvasProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
@@ -57,9 +47,7 @@ export function createDebugSignals() {
     props,
     repo,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
     },
   };
 

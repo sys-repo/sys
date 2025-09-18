@@ -12,11 +12,11 @@ import {
   Obj,
   ObjectView,
   P,
+  Peer,
   Signal,
   slug,
   Url,
   useDist,
-  Peer,
   type t,
 } from '../common.ts';
 
@@ -99,9 +99,7 @@ export function createDebugSignals() {
     peer,
     redraw,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
     },
   };
 

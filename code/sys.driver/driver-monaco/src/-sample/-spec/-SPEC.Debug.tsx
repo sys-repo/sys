@@ -44,9 +44,7 @@ export async function createDebugSignals() {
     signals,
     listen() {
       signals.listen();
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
     },
   };
 

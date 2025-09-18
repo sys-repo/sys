@@ -20,9 +20,7 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const api = {
     props,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
     },
   };
   init?.(api);

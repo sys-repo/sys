@@ -80,9 +80,7 @@ export function createDebugSignals() {
     props,
     video,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
 
       const vp = video.props;
       vp?.currentTime.value;
@@ -239,7 +237,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         enabled={() => !p.controlled.value}
         label={() => {
           const current = p.scale.value;
-          return `scale: ${typeof current === 'function' ? 'ƒn' : current ?? '<undefined>'}`;
+          return `scale: ${typeof current === 'function' ? 'ƒn' : (current ?? '<undefined>')}`;
         }}
         onClick={() => {
           const fn: t.VideoPlayerScale = (e) => {

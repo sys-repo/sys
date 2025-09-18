@@ -46,13 +46,8 @@ export function createDebugSignals() {
     props,
     video,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => (s as t.Signal).value);
-
-      Object.values(video.props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => (s as t.Signal).value);
+      Signal.listen(props);
+      Signal.listen(video.props);
     },
   };
 

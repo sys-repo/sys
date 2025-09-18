@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Signal, Style } from '../common.ts';
+import { type t, css, D, LocalStorage, Signal } from '../common.ts';
 
 type P = t.CropmarksProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'subjectOnly'>;
@@ -36,9 +36,7 @@ export function createDebugSignals() {
   const api = {
     props,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
     },
   };
 

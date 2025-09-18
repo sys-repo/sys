@@ -41,9 +41,7 @@ export function createDebugSignals() {
     repo,
     reset,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
     },
   };
 
