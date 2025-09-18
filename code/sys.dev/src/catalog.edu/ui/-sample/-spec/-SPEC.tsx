@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../../../ui/-test.ui.ts';
-import { D, Crdt, STORAGE_KEY } from '../common.ts';
+import { Crdt, D, STORAGE_KEY } from '../common.ts';
 import { Sample } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -29,6 +29,8 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             repo={repo}
             path={v.path}
+            signals={debug.signals}
+            localstorage={STORAGE_KEY.DEV}
           />
         );
       });

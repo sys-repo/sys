@@ -1,8 +1,8 @@
 import React from 'react';
 import { type t, Color, css, Monaco } from './common.ts';
 
-export const Sample: React.FC<t.SampleEduProps> = (props) => {
-  const { debug = false, repo, path } = props;
+export const Sample: React.FC<t.SampleProps> = (props) => {
+  const { debug = false, repo, path, localstorage } = props;
 
   /**
    * Render:
@@ -16,11 +16,15 @@ export const Sample: React.FC<t.SampleEduProps> = (props) => {
     }),
   };
 
-  console.log('path', path);
-
   return (
     <div className={css(styles.base, props.style).class}>
-      <Monaco.Yaml.Editor theme={theme.name} repo={repo} path={path} />
+      <Monaco.Yaml.Editor
+        theme={theme.name}
+        repo={repo}
+        path={path}
+        signals={props.signals}
+        documentId={{ localstorage }}
+      />
     </div>
   );
 };

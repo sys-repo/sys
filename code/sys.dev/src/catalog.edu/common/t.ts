@@ -1,10 +1,14 @@
 /**
+ * @drivers
+ */
+export type { Crdt } from '@sys/driver-automerge/t';
+export type { EditorYaml, Monaco, YamlEditorSignals } from '@sys/driver-monaco/t';
+
+/**
  * @system
  */
-export type * from '@sys/types';
-
-export type { Crdt } from '@sys/driver-automerge/t';
 export type { Yaml } from '@sys/std/t';
+export type * from '@sys/types';
 
 /** User Interface: */
 export type { ColorTheme } from '@sys/color/t';

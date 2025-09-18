@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { createRepo } from '../../../../ui/-test.ui.ts';
 
-type P = t.SampleEduProps;
+type P = t.SampleProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
 const defaults: Storage = {
   theme: 'Dark',
@@ -25,6 +25,12 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  const signals: Partial<t.YamlEditorSignals> = {
+    doc: s<t.Crdt.Ref>(),
+    editor: s<t.Monaco.Editor>(),
+    yaml: s<t.EditorYaml>(),
+  };
+
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -34,12 +40,14 @@ export function createDebugSignals() {
   const api = {
     props,
     repo: createRepo(),
+    signals,
     reset,
     listen,
   };
 
   function listen() {
     Signal.listen(props);
+    Signal.listen(signals);
   }
 
   function reset() {

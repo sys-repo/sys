@@ -2,7 +2,9 @@ import { pkg, Pkg } from '../common.ts';
 
 export { Crdt } from '@sys/driver-automerge/web/ui';
 export { Monaco } from '@sys/driver-monaco';
+
 export * from '../common.ts';
+export { YamlPipeline } from '../../m.yaml/mod.ts';
 
 /**
  * Constants:
