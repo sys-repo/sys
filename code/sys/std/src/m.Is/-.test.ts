@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { isEmptyRecord, isObject, isPlainObject, isRecord } from '../common.ts';
+import { isEmptyRecord, isObject, isPlainObject, isPlainRecord, isRecord } from '../common.ts';
 import { Err, Is, rx, Rx } from '../mod.ts';
 
 describe('Is (common flags)', () => {
@@ -8,6 +8,7 @@ describe('Is (common flags)', () => {
     expect(Is.record).to.eql(isRecord);
     expect(Is.emptyRecord).to.eql(isEmptyRecord);
     expect(Is.plainObject).to.equal(isPlainObject);
+    expect(Is.plainRecord).to.equal(isPlainRecord);
   });
 
   it('rx: observable | subject', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { isEmptyRecord, isObject, isPlainObject, isRecord } from './u.is.ts';
+import { isEmptyRecord, isObject, isPlainObject, isPlainRecord, isRecord } from './u.is.ts';
 
 type O = Record<string, unknown>;
 class MyClass {
@@ -39,20 +39,6 @@ describe('u.is (primitive flag evaluators)', () => {
     });
   });
 
-  describe('isPlainObject', () => {
-    it('returns true only for “bare” `{}` literals', () => {
-      expect(isPlainObject({})).to.eql(true);
-      expect(isPlainObject({ a: 1, b: 2 })).to.eql(true);
-    });
-
-    it('rejects arrays, class instances, and null-prototype objects', () => {
-      const naked = Object.create(null);
-      expect(isPlainObject([])).to.eql(false);
-      expect(isPlainObject(new MyClass())).to.eql(false);
-      expect(isPlainObject(naked)).to.eql(false);
-    });
-  });
-
   describe('isEmptyRecord', () => {
     it('returns true for an empty plain object', () => {
       expect(isEmptyRecord<O>({})).to.eql(true);
@@ -66,6 +52,77 @@ describe('u.is (primitive flag evaluators)', () => {
       expect(isEmptyRecord<O>([])).to.eql(false);
       expect(isEmptyRecord<O>(null)).to.eql(false as unknown as boolean); // TS narrow-cast.
       expect(isEmptyRecord<O>('foo' as unknown)).to.eql(false);
+    });
+  });
+
+  describe('isPlainObject', () => {
+    it('accepts {} and object literals', () => {
+      expect(isPlainObject({})).to.eql(true);
+      expect(isPlainObject({ a: 1, b: 2 })).to.eql(true);
+    });
+
+    it('accepts Object.create(null)', () => {
+      const obj = Object.create(null);
+      obj.a = 1;
+      expect(isPlainObject(obj)).to.eql(true);
+    });
+
+    it('rejects arrays', () => {
+      expect(isPlainObject([])).to.eql(false);
+      expect(isPlainObject([1, 2, 3])).to.eql(false);
+    });
+
+    it('rejects class instances', () => {
+      class C {
+        x = 1;
+      }
+      const inst = new C();
+      expect(isPlainObject(inst)).to.eql(false);
+    });
+
+    it('rejects Date objects', () => {
+      expect(isPlainObject(new Date())).to.eql(false);
+    });
+
+    it('rejects null and primitives', () => {
+      expect(isPlainObject(null)).to.eql(false);
+      expect(isPlainObject(42)).to.eql(false);
+      expect(isPlainObject('foo')).to.eql(false);
+      expect(isPlainObject(true)).to.eql(false);
+    });
+  });
+
+  describe('isPlainRecord', () => {
+    it('accepts only Object.create(null)', () => {
+      const obj = Object.create(null);
+      obj.a = 1;
+      expect(isPlainRecord(obj)).to.eql(true);
+    });
+
+    it('rejects ordinary object literals', () => {
+      expect(isPlainRecord({})).to.eql(false);
+      expect(isPlainRecord({ a: 1 })).to.eql(false);
+    });
+
+    it('rejects arrays', () => {
+      expect(isPlainRecord([])).to.eql(false);
+    });
+
+    it('rejects class instances', () => {
+      class C {
+        x = 1;
+      }
+      expect(isPlainRecord(new C())).to.eql(false);
+    });
+
+    it('rejects Date objects', () => {
+      expect(isPlainRecord(new Date())).to.eql(false);
+    });
+
+    it('rejects null and primitives', () => {
+      expect(isPlainRecord(null)).to.eql(false);
+      expect(isPlainRecord(123)).to.eql(false);
+      expect(isPlainRecord('abc')).to.eql(false);
     });
   });
 });

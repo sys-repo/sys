@@ -1,6 +1,13 @@
 import type { StdIsLib } from './t.ts';
 
-import { type t, isEmptyRecord, isObject, isPlainObject, isRecord } from '../common.ts';
+import {
+  type t,
+  isEmptyRecord,
+  isObject,
+  isPlainObject,
+  isRecord,
+  isPlainRecord,
+} from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
 
 const { errorLike, stdError } = Err.Is;
@@ -16,6 +23,7 @@ export const Is: StdIsLib = {
   record: isRecord,
   emptyRecord: isEmptyRecord,
   plainObject: isPlainObject,
+  plainRecord: isPlainRecord,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
