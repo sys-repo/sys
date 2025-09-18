@@ -96,8 +96,14 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       wordWrap: wordWrap ? 'bounded' : 'off',
       wordWrapColumn, // ← number-characters.
       fontSize,
+      detectIndentation: false,
+      insertSpaces: true,
     });
-    getModel(editor)?.updateOptions({ tabSize });
+
+    getModel(editor)?.updateOptions({
+      tabSize,
+      insertSpaces: true,
+    });
   };
 
   const updateTextState = (editor?: t.Monaco.Editor) => {
