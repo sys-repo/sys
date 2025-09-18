@@ -11,6 +11,8 @@
   "devDependencies": {
     "@deno/vite-plugin": "1.0.5",
     "@vitejs/plugin-react-swc": "4.1.0",
+    "prettier": "3.6.2",
+    "prettier-plugin-organize-imports": "4.3.0",
     "rollup": "4.50.2",
     "vite": "7.1.6",
     "vite-plugin-wasm": "3.5.0"

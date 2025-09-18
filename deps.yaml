@@ -62,6 +62,10 @@ groups:
     - import: npm:rollup@4.50.2
     - import: npm:vite@7.1.6
     - import: npm:vite-plugin-wasm@3.5.0
+  
+  dev/tools:
+    - import: npm:prettier@3.6.2
+    - import: npm:prettier-plugin-organize-imports@4.3.0
 
   ui/react:
     - import: npm:react@19.1.1
@@ -150,6 +154,8 @@ deno.json:
 
 package.json:
   - group: build/tools
+    dev: true
+  - group: dev/tools
     dev: true
 
   # UI:
