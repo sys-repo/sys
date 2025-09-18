@@ -1,7 +1,7 @@
 import type { TestingLib } from './t.ts';
 
 import { Bdd, slug } from './common.ts';
-import { randomPort, retry } from './u.ts';
+import { randomPort, retry, waitUntil } from './u.ts';
 
 /**
  * Testing helpers.
@@ -29,4 +29,5 @@ export const Testing: TestingLib = {
    * @throws: if the supplied function fails within the `try n-times` range.
    */
   retry,
+  until: waitUntil,
 };

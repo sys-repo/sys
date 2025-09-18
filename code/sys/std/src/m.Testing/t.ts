@@ -18,6 +18,16 @@ export type TestingLib = {
   /** Attempt to run the test function <n>-times before throwing. */
   retry(times: number, fn?: TestRetryRunner): Promise<void>;
   retry(times: number, options: TestRetryOptions, fn?: TestRetryRunner): Promise<void>;
+
+  /**
+   * Poll until `pred()` returns true. Uses retry under the hood.
+   * @param pred    Synchronous or async predicate.
+   * @param options times: max attempts (default 50), delay: ms between (default 5)
+   */
+  until(
+    pred: () => boolean | Promise<boolean>,
+    options?: { times?: number; delay?: t.Msecs },
+  ): Promise<void>;
 };
 
 export type TestRetryRunner = () => t.IgnoredResult;

@@ -30,7 +30,7 @@ describe('Testing', () => {
     expect(a).to.not.eql(b);
   });
 
-  it('slug', () => {
+  it('slug (ID)', () => {
     const id = Testing.slug();
     expect(id.length).to.eql(Random.Length.slug);
   });
@@ -83,6 +83,45 @@ describe('Testing', () => {
         expect(err.message).to.equal('Foo Fail');
       }
       expect(count).to.eql(3);
+    });
+  });
+
+  describe('until', () => {
+    it('resolves once predicate becomes true', async () => {
+      let n = 0;
+      const pred = () => ++n >= 3; // predicate flips true on 3rd call
+
+      await Testing.until(pred, { times: 5, delay: 1 });
+      expect(n).to.be.gte(3);
+    });
+
+    it('supports async predicates', async () => {
+      let n = 0;
+      const pred = async () => {
+        n++;
+        return n >= 2;
+      };
+
+      await Testing.until(pred, { times: 5, delay: 1 });
+      expect(n).to.be.gte(2);
+    });
+
+    it('rejects if condition never met', async () => {
+      let n = 0;
+      const pred = () => {
+        n++;
+        return false;
+      };
+
+      let err: Error | undefined;
+      try {
+        await Testing.until(pred, { times: 3, delay: 1 });
+      } catch (e) {
+        err = e as Error;
+      }
+
+      expect(err).to.be.instanceOf(Error);
+      expect(n).to.equal(3); // tried exactly "times" times
     });
   });
 
