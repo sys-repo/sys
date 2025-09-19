@@ -57,8 +57,32 @@ export function wrapAdapter(
   wrap(a, 'receiveSyncMessage', (fn: Function) => (msg: unknown) => gate(() => fn(msg)));
   wrap(a, 'onMessage', (fn: Function) => (evt: MessageEvent) => gate(() => fn(evt)));
 
-  // Outbound:
-  wrap(a, 'send', (send) => (peerId: string, msg: Uint8Array) => gate(() => send(peerId, msg)));
+  // Outbound: defer and be tolerant of temporarily closed sockets.
+  wrap(
+    a,
+    'send',
+    (send) => (peerId: string, msg: Uint8Array) =>
+      gate(() => {
+        try {
+          // Best-effort readiness check (adapter internals differ; probe common fields)
+          const sock =
+            (a as any).socket ?? (a as any)._socket ?? (a as any).ws ?? (a as any)._ws ?? undefined;
+
+          // 1 === WebSocket.OPEN. If we can see a readyState and it's not OPEN, drop silently.
+          if (sock && typeof sock.readyState === 'number' && sock.readyState !== 1) return;
+
+          // Call through
+          return send(peerId, msg);
+        } catch (err: any) {
+          // Adapter throws "Websocket not ready (X)" — treat as transient and ignore.
+          const msgText = String(err?.message || '');
+          if (msgText.includes('Websocket not ready')) return;
+
+          // Anything else is unexpected — surface it.
+          throw err;
+        }
+      }),
+  );
 
   return adapter;
 }
