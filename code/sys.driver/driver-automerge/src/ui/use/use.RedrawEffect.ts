@@ -32,9 +32,9 @@ export function useRedrawEffect<T extends O = O>(
 
     const subs = streams.map(($) =>
       $.subscribe((change) => {
-        // do NOT touch doc.current here; we’re still on AM’s call stack:
+        // Do NOT touch doc.current here; we’re still on AM’s call stack:
         queueMicrotask(() => {
-          onRedraw?.({ doc, change }); // safe now
+          onRedraw?.({ doc, change }); // Safe now.
           schedule(() => setRender((n) => n + 1));
         });
       }),
