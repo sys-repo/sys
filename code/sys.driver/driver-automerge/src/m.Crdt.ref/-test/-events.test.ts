@@ -1,6 +1,6 @@
-import { type t, AutomergeRepo, describe, expect, Is, it, rx } from '../-test.ts';
-import { toRef } from './mod.ts';
-import { Crdt } from '../m.Server/common.ts';
+import { AutomergeRepo, describe, expect, Is, it, rx, type t, Testing } from '../../-test.ts';
+import { Crdt } from '../../m.Server/common.ts';
+import { toRef } from '../mod.ts';
 
 describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number; foo: string[] };
@@ -12,15 +12,17 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
     return { doc, repo } as const;
   };
 
-  it('events.$ (change)', () => {
+  it('events.$ (change)', async () => {
     const { doc } = sample();
 
     const fired: t.CrdtChange<T>[] = [];
     doc.events().$.subscribe((e) => fired.push(e));
+
     doc.change((d) => (d.count += 1));
     doc.change((d) => d.foo.push('bar'));
 
-    expect(fired.length).to.eql(2);
+    // events fire next microtask now — wait until both arrived
+    await Testing.until(() => fired.length === 2);
 
     expect(fired[0].source).to.eql('change');
     expect(fired[0].before).to.eql({ count: 0, foo: [] });
@@ -79,7 +81,7 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
       expect(a.$).to.not.equal(events.$);
     });
 
-    it('path( single path )', () => {
+    it('path( single path )', async () => {
       const { doc } = sample();
       const events = doc.events();
 
@@ -99,24 +101,25 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
       c.$.subscribe((e) => firedC.push(e));
       d.$.subscribe((e) => firedD.push(e));
 
+      // 1) push to foo -> should match 'foo' (non-exact) only
       doc.change((d) => d.foo.push('hello'));
 
-      expect(firedA.length).to.eql(0); // NB: no path match.
-      expect(firedB.length).to.eql(1);
-      expect(firedC.length).to.eql(0); // NB: exact match required
-      expect(firedD.length).to.eql(0); // NB: no match - not the specified index.
+      await Testing.until(
+        () =>
+          firedA.length === 0 && firedB.length === 1 && firedC.length === 0 && firedD.length === 0,
+      );
 
+      // 2) insert at index 1, then push again -> first insert matches ['foo', 1]
       doc.change((d) => {
         d.foo.splice(1, 0, '👋');
-        d.foo.push('🌳'); // NB: follow on inserts do not match specific index paths.
+        d.foo.push('🌳'); // this one should not match ['foo', 1]
       });
 
+      await Testing.until(() => firedD.length === 1);
       expect(firedC).to.eql([]);
-      expect(firedD.length).to.eql(1); // NB: matched first index only.
-      expect(firedD.length).to.eql(1); // NB: matched first index only.
     });
 
-    it('path( mulitple paths )', () => {
+    it('path( mulitple paths )', async () => {
       const { doc } = sample();
       const events = doc.events();
       const path = events.path([['count'], ['foo', 1]]);
@@ -126,18 +129,19 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
       path.$.subscribe((e) => fired.push(e));
 
       doc.change((d) => (d.count = 123));
-      expect(fired.length).to.eql(1);
+      await Testing.until(() => fired.length === 1);
 
       doc.change((d) => d.foo.push('one'));
+      await Testing.wait();
       expect(fired.length).to.eql(1);
 
       doc.change((d) => d.foo.push('two'));
-      expect(fired.length).to.eql(2);
+      await Testing.until(() => fired.length === 2);
     });
   });
 
   describe('dispose', () => {
-    it('dispose events (via param)', () => {
+    it('dispose events (via param)', async () => {
       const life = rx.disposable();
       const repo = new AutomergeRepo();
       const handle = repo.create<T>({ count: 0, foo: [] });
@@ -145,13 +149,23 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
 
       let fired = 0;
       doc.events(life).$.subscribe(() => fired++);
+
+      // Trigger one change:
       doc.change((d) => (d.count += 1));
+
+      // Wait for the deferred emission to arrive:
+      await Testing.until(() => fired === 1);
+
+      // Dispose the lifecycle-bound stream:
       life.dispose();
+
+      // Further changes should not emit:
       doc.change((d) => (d.count += 1));
+      await Testing.wait();
       expect(fired).to.eql(1);
     });
 
-    it('dispose events (via method)', () => {
+    it('dispose events (via method)', async () => {
       const repo = new AutomergeRepo();
       const handle = repo.create<T>({ count: 0, foo: [] });
       const doc = toRef(handle);
@@ -159,13 +173,21 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
 
       let fired = 0;
       events.$.subscribe(() => fired++);
+
+      // First change → one deferred emission:
       doc.change((d) => (d.count += 1));
+      await Testing.until(() => fired === 1);
+
+      // Dispose the events stream, then attempt another change:
       events.dispose();
       doc.change((d) => (d.count += 1));
-      expect(fired).to.eql(1); // NB: no change after disposal.
+
+      // Allow microtasks; no further emissions should arrive:
+      await Testing.wait();
+      expect(fired).to.eql(1);
     });
 
-    it('dispose events (via doc)', () => {
+    it('dispose events (via doc)', async () => {
       const repo = new AutomergeRepo();
       const handle = repo.create<T>({ count: 0, foo: [] });
       const doc = toRef(handle);
@@ -174,10 +196,17 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
       let fired = 0;
       doc.events().$.subscribe(() => fired++);
 
+      // First change → one deferred event:
       doc.change((d) => (d.count += 1));
+      await Testing.until(() => fired === 1);
+
+      // Dispose and try another change (should NOT emit):
       doc.dispose();
       doc.change((d) => (d.count += 1));
-      expect(fired).to.eql(1); // NB: no change after disposal.
+
+      // Give the microtask queue a chance (nothing should arrive):
+      await Testing.wait();
+      expect(fired).to.eql(1);
     });
   });
 });

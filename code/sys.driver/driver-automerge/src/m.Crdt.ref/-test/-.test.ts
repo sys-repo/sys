@@ -1,5 +1,5 @@
-import { type t, AutomergeRepo, c, describe, expect, it, rx } from '../-test.ts';
-import { toAutomergeHandle, toRef } from './mod.ts';
+import { type t, AutomergeRepo, c, describe, expect, it, rx } from '../../-test.ts';
+import { toAutomergeHandle, toRef } from '../mod.ts';
 
 describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };

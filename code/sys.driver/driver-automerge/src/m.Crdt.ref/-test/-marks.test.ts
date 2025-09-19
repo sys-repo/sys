@@ -1,5 +1,5 @@
-import { type t, A, AutomergeRepo, c, describe, expect, it } from '../-test.ts';
-import { toRef } from './mod.ts';
+import { type t, A, AutomergeRepo, c, describe, expect, it, Testing } from '../../-test.ts';
+import { toRef } from '../mod.ts';
 
 describe('marks', { sanitizeResources: false, sanitizeOps: false }, () => {
   describe('sample: editor code-folding state stored on string', () => {
@@ -84,7 +84,7 @@ describe('marks', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect([mark.start, mark.end]).to.eql([10, 15]); // 6 + 4, 11 + 4
     });
 
-    it('events: change fired on writing marks', () => {
+    it('events: change fired on writing marks', async () => {
       const { doc, path } = sample('foobar');
 
       const events = doc.events();
@@ -92,10 +92,9 @@ describe('marks', { sanitizeResources: false, sanitizeOps: false }, () => {
       events.$.subscribe((e) => fired.push(e));
 
       const range = { start: 0, end: 3, expand: 'none' } as const;
-      doc.change((d) => {
-        A.mark(d, path, range, 'fold', true);
-      });
+      doc.change((d) => void A.mark(d, path, range, 'fold', true));
 
+      await Testing.until(() => fired.length >= 1);
       const marks = A.marks(doc.current, path);
 
       expect(fired.length).to.eql(1);
