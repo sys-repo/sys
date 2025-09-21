@@ -3,15 +3,16 @@
   "version": "0.0.28",
   "license": "MIT",
   "tasks": {
-    "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
-    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
-    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-vite.ts --cmd=serve",
+    "dev": "deno run -P=dev   ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
+    "test": "deno test -P=testset",
+    "build": "deno run -P=build ./-scripts/-vite.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno run -P=serve ./-scripts/-vite.ts --cmd=serve",
+
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -RWE ./-scripts/-clean.ts",
-    "help": "deno     run -RE   --allow-ffi             ./-scripts/-vite.ts --cmd=help",
-    "tmp": "deno      run -A ./-scripts/-tmp.ts"
+    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "help": "deno run -P=dev   ./-scripts/-vite.ts --cmd=help",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

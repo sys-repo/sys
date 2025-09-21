@@ -3,24 +3,24 @@
   "version": "0.0.0",
   "license": "MIT",
   "tasks": {
-    "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
-    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
-    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
+    "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
+    "test": "deno test -P=testset",
+    "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
 
     "d-ipfs-staging": "orbiter deploy --config=orbiter-slc.db.team.json",
     "d-ipfs-prod": "orbiter deploy --config=orbiter-socialleancanvas.com.json",
 
-    "deploy": "        deno task deploy-staging",
-    "deploy-staging": "deno task test  &&  deno task build  &&  deno task d-ipfs-staging  &&  deno task help --info",
-    "deploy-prod": "   deno task test  &&  deno task build  &&  deno task d-ipfs-prod     &&  deno task help --info",
+    "deploy": "deno task deploy-staging",
+    "deploy-staging": "deno task test && deno task build && deno task d-ipfs-staging && deno task help --info",
+    "deploy-prod": "deno task test && deno task build && deno task d-ipfs-prod && deno task help --info",
 
-    "dry": "deno      publish --allow-dirty --dry-run",
-    "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
-    "upgrade": "deno  run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade",
-    "backup": "deno   run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup",
-    "help": "deno     run -RE   --allow-ffi             ./-scripts/-main.ts --cmd=help",
-    "tmp": "deno      run -A ./-scripts/-tmp.ts"
+    "dry": "deno publish --allow-dirty --dry-run",
+    "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
+    "upgrade": "deno run -P=dev   ./-scripts/-main.ts --cmd=upgrade",
+    "backup": "deno run -P=build ./-scripts/-main.ts --cmd=backup",
+    "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

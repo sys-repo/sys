@@ -3,7 +3,6 @@
   "version": "0.0.181",
   "license": "MIT",
   "tasks": {
-    "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
 

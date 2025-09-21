@@ -3,11 +3,10 @@
   "version": "0.0.136",
   "license": "MIT",
   "tasks": {
-    "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
-    "test": "deno test -RWNE --allow-run --allow-ffi",
-    "clean": "deno run -RWE ./-scripts/-clean.ts",
-    "tmp": "deno run -RWE ./-scripts/-tmp.ts"
+    "test": "deno test -P=testset",
+    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "tmp": "deno run -P=clean ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

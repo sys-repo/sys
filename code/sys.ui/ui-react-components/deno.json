@@ -2,16 +2,17 @@
   "name": "@sys/ui-react-components",
   "version": "0.0.89",
   "tasks": {
-    "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
-    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
-    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
-    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
-    "dry": "deno      publish --allow-dirty --dry-run",
-    "clean": "deno    run -RWE  --allow-ffi             ./-scripts/-main.ts --cmd=clean",
-    "upgrade": "deno  run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=upgrade",
-    "backup": "deno   run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=backup",
-    "help": "deno     run -RE   --allow-ffi             ./-scripts/-main.ts --cmd=help",
-    "tmp": "deno      run -A ./-scripts/-tmp.ts"
+    "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
+    "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
+    "test": "deno test -P=testset",
+    "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
+
+    "dry": "deno publish --allow-dirty --dry-run",
+    "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
+    "upgrade": "deno run -P=dev   ./-scripts/-main.ts --cmd=upgrade",
+    "backup": "deno run -P=build ./-scripts/-main.ts --cmd=backup",
+    "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

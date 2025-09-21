@@ -12,9 +12,7 @@
   "exports": {},
   "deploy": {
     "project": "2d23333d-3cb1-4a7b-a559-42019203b790",
-    "exclude": [
-      "**/node_modules"
-    ],
+    "exclude": ["**/node_modules"],
     "include": [],
     "entrypoint": "src/main.ts"
   }
