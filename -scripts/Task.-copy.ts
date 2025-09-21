@@ -4,7 +4,36 @@ import { type WalkEntry } from '@sys/fs/t';
 import { selectAndCopy } from './Task.-copy.u.ts';
 
 type CopyMode = 'types' | 'files:select' | 'files:all' | 'files:deno.json';
-const exclude = ['**/node_modules/', '**/.git/', '**/dist/', '.DS_Store', '**/.tmp/', '**/-tmp/'];
+
+const exclude = [
+  '**/node_modules/',
+  '**/.git/',
+  '**/dist/',
+  '**/.tmp/',
+  '**/-tmp/',
+  '**/.DS_Store',
+];
+
+/**
+ * Resolve the monorepo root.
+ * Preference: VCS root ('.git'), otherwise topmost ancestor containing 'deno.json'.
+ */
+async function detectRepoRoot(startDir: string): Promise<string> {
+  let curr = Fs.Path.resolve(startDir);
+  let topmostWithDeno: string | undefined;
+
+  while (true) {
+    const gitDir = Fs.Path.join(curr, '.git');
+    if (await Fs.exists(gitDir)) return curr;
+
+    const denoJson = Fs.Path.join(curr, 'deno.json');
+    if (await Fs.exists(denoJson)) topmostWithDeno = curr;
+
+    const parent = Fs.Path.dirname(curr);
+    if (parent === curr) return topmostWithDeno ?? Fs.Path.resolve(startDir);
+    curr = parent;
+  }
+}
 
 /**
  * Sub-command: Copy Files ("src" code).
@@ -13,19 +42,21 @@ export async function copyFiles(
   options: { initial?: 'none' | 'all'; filter?: (file: WalkEntry) => boolean } = {},
 ) {
   const { initial = 'all' } = options;
-  const dir = Fs.cwd('terminal');
+
+  const dir = Fs.cwd('terminal'); // package working dir
+  const repoRootAbs = await detectRepoRoot(dir); // monorepo root (stable anchor)
+
   const glob = Fs.glob(dir, { exclude, includeDirs: false });
   const paths = (await glob.find('**'))
     .filter((file) => options.filter?.(file) ?? true)
     .map((file) => file.path);
 
   const defaultChecked = (path: string) => {
-    return initial === 'all';
-    return false;
+    if (initial === 'all') return true;
     if (path.includes('.test.')) return false;
     if (path.includes('-SPEC.')) return false;
     if (path.includes('-spec/')) return false;
-    return true;
+    return false;
   };
 
   const eligible = paths.filter((path) => {
@@ -35,6 +66,7 @@ export async function copyFiles(
 
   await selectAndCopy(eligible, {
     dir,
+    repoRootAbs, // pass monorepo root explicitly
     message: 'Select files to copy:\n',
     totalLabel: 'files',
     defaultChecked,
@@ -47,30 +79,30 @@ export async function copyFiles(
  */
 export async function copyTypes(options: { initial?: 'none' | 'all' } = {}) {
   const { initial = 'all' } = options;
+
   const dir = Fs.cwd('terminal');
+  const repoRootAbs = await detectRepoRoot(dir);
 
   /**
    * Filenames used for consolidated type surfaces in the repo:
-   *     - t.ts
-   *     - t.<segment>.ts
-   *     - t.<segment>.<segment>.ts
-   * This helper matches those basenames exactly, keeping the intent obvious.
+   *   - t.ts
+   *   - t.<segment>.ts
+   *   - t.<segment>.<segment>.ts
    */
   const isTypesFile = (path: string) => {
     const base = Fs.basename(path);
     return /^t(?:\.[A-Za-z0-9_-]+)*\.ts$/.test(base);
   };
 
-  // Gather all non-directory entries, then filter to type files by basename rule.
   const glob = Fs.glob(dir, { exclude, includeDirs: false });
   const allPaths = (await glob.find('**')).map((f) => f.path);
   const paths = allPaths.filter(isTypesFile);
 
-  const defaultChecked = (_path: string) => {
-    return initial === 'all';
-  };
+  const defaultChecked = () => initial === 'all';
+
   await selectAndCopy(paths, {
     dir,
+    repoRootAbs, // pass through
     message: 'Select type files to copy:\n',
     totalLabel: 'type files',
     defaultChecked,
@@ -81,7 +113,7 @@ export async function copyTypes(options: { initial?: 'none' | 'all' } = {}) {
 /**
  * Sub-command: Copy deno.json files
  */
-export async function copyDenoFiles(options: { initial?: 'none' | 'all' }) {
+export async function copyDenoFiles(options: { initial?: 'none' | 'all' } = {}) {
   const { initial = 'all' } = options;
   await copyFiles({ initial, filter: (file) => file.name === 'deno.json' });
 }
