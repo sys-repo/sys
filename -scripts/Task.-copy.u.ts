@@ -47,7 +47,7 @@ export async function selectAndCopy(paths: string[], opts: SelectAndCopyOptions)
   } = opts;
 
   console.info(Str.SPACE);
-  console.info(c.gray(`Total: ${paths.length} ${totalLabel}`));
+  console.info(c.gray(`Total: ${paths.length.toLocaleString()} ${totalLabel}`));
 
   let options = paths.map((path) => {
     const name = path.slice(dir.length + 1);

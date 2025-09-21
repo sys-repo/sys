@@ -1,16 +1,23 @@
 import { Cli } from '@sys/cli';
 import { Fs } from '@sys/fs';
+import { type WalkEntry } from '@sys/fs/t';
 import { selectAndCopy } from './Task.-copy.u.ts';
 
-type CopyMode = 'types' | 'files:select' | 'files:all';
+type CopyMode = 'types' | 'files:select' | 'files:all' | 'files:deno.json';
+const exclude = ['**/node_modules/', '**/.git/', '**/dist/', '.DS_Store', '**/.tmp/', '**/-tmp/'];
 
 /**
  * Sub-command: Copy Files ("src" code).
  */
-export async function copyFiles(options: { initial?: 'none' | 'all' } = {}) {
+export async function copyFiles(
+  options: { initial?: 'none' | 'all'; filter?: (file: WalkEntry) => boolean } = {},
+) {
   const { initial = 'all' } = options;
   const dir = Fs.cwd('terminal');
-  const paths = (await Fs.glob(dir).find('**', { includeDirs: false })).map((file) => file.path);
+  const glob = Fs.glob(dir, { exclude, includeDirs: false });
+  const paths = (await glob.find('**'))
+    .filter((file) => options.filter?.(file) ?? true)
+    .map((file) => file.path);
 
   const defaultChecked = (path: string) => {
     return initial === 'all';
@@ -23,7 +30,7 @@ export async function copyFiles(options: { initial?: 'none' | 'all' } = {}) {
 
   const eligible = paths.filter((path) => {
     const ext = Fs.extname(path);
-    return ['.ts', '.tsx', '.md', '.yaml'].includes(ext);
+    return ['.ts', '.tsx', '.md', '.yaml', '.json'].includes(ext);
   });
 
   await selectAndCopy(eligible, {
@@ -55,7 +62,8 @@ export async function copyTypes(options: { initial?: 'none' | 'all' } = {}) {
   };
 
   // Gather all non-directory entries, then filter to type files by basename rule.
-  const allPaths = (await Fs.glob(dir).find('**', { includeDirs: false })).map((f) => f.path);
+  const glob = Fs.glob(dir, { exclude, includeDirs: false });
+  const allPaths = (await glob.find('**')).map((f) => f.path);
   const paths = allPaths.filter(isTypesFile);
 
   const defaultChecked = (_path: string) => {
@@ -71,21 +79,31 @@ export async function copyTypes(options: { initial?: 'none' | 'all' } = {}) {
 }
 
 /**
+ * Sub-command: Copy deno.json files
+ */
+export async function copyDenoFiles(options: { initial?: 'none' | 'all' }) {
+  const { initial = 'all' } = options;
+  await copyFiles({ initial, filter: (file) => file.name === 'deno.json' });
+}
+
+/**
  * Entry-point: prompt for which copy mode to run.
  */
 export async function run() {
-  const mode = await Cli.Prompt.Select.prompt<CopyMode>({
+  const mode = (await Cli.Prompt.Select.prompt<CopyMode>({
     message: 'Select copy mode:\n',
     options: [
       { name: 'Copy Types', value: 'types' as const },
       { name: 'Copy Files (select)', value: 'files:select' as const },
       { name: 'Copy Files (all)', value: 'files:all' as const },
+      { name: 'Copy Files: deno.json', value: 'files:deno.json' as const },
     ],
-  });
+  })) as CopyMode;
 
   if (mode === 'files:select') await copyFiles({ initial: 'none' });
   else if (mode === 'files:all') await copyFiles({ initial: 'all' });
   else if (mode === 'types') await copyTypes({ initial: 'all' });
+  else if (mode === 'files:deno.json') await copyDenoFiles({});
 }
 
 // Execute by default when run as a script.
