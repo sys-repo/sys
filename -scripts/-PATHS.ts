@@ -64,10 +64,5 @@ export const Paths = {
     'deploy/@tdb.fs',
     'deploy/@tdb.slc',
     'deploy/@tdb.slc.fs',
-
-    /**
-     * Samples:
-     */
-    '-tmp/-sample/@sample.tmp',
   ],
 } as const;

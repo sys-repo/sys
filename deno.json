@@ -71,8 +71,7 @@
     "deploy/api.db.team",
     "deploy/tmp.db.team",
 
-    "code/-tmpl",
-    "-tmp/-sample/@sample.tmp"
+    "code/-tmpl"
   ],
   "lint": {
     "rules": {
