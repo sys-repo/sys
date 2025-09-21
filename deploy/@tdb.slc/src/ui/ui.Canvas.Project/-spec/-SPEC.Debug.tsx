@@ -1,8 +1,6 @@
 import React from 'react';
 import { parse } from 'yaml';
 import {
-  type t,
-  Url,
   Button,
   Crdt,
   css,
@@ -12,6 +10,8 @@ import {
   ObjectView,
   rx,
   Signal,
+  type t,
+  Url,
   Yaml,
 } from '../common.ts';
 import { EditorPanel } from './-ui.EditorPanel.tsx';
@@ -76,9 +76,7 @@ export function createDebugSignals() {
     props,
     repo,
     listen() {
-      Object.values(props)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
+      Signal.listen(props);
     },
   };
 
@@ -97,16 +95,37 @@ export function createDebugSignals() {
     });
   });
 
+  /**
+   * TODO 🐷 standardise this dev-harness CRDT/signal syncing:
+   */
 
   /**
    * Sync: DevHarness
    */
   let _events: t.Crdt.Events<Doc> | undefined;
+  let _yamlSyncer: t.YamlSyncParser | undefined;
   Signal.effect(() => {
     const doc = p.doc.value;
     _events?.dispose();
     _events = doc?.events();
 
+    /**
+     * TODO 🐷 REFACTOR into stable DevHarness strategy.
+     */
+    _events?.path(PATHS.DEV).$.subscribe((e) => {
+      const obj = Obj.Path.get<Storage>(doc?.current, PATHS.DEV);
+      if (obj) {
+        Object.entries(obj)
+          .map(([key, value]) => [key, value, (p as any)[key]])
+          .filter(([, , signal]) => Signal.Is.signal(signal))
+          .filter(([, value, signal]) => signal.value !== value)
+          .forEach(([, value, signal]) => {
+            /**
+             * TODO 🐷 BUG: overwriting values: eg. "DarkDarkLight"
+             */
+            // signal.value = value;
+          });
+      }
     });
 
     _events
@@ -122,25 +141,34 @@ export function createDebugSignals() {
         } catch (error: any) {
           obj = {};
         }
-        doc?.change((d) => Obj.Path.mutate(d, PATHS.YAML_PARSED, obj));
       });
 
-    _events
-      ?.path(PATHS.YAML_PARSED)
-      .$.pipe(
-        rx.map((e) => Obj.Path.get(doc?.current, PATHS.YAML_PARSED)),
-        rx.distinctWhile((p, n) => Obj.eql(p, n)),
-        rx.debounceTime(300),
-      )
-      .subscribe((e) => {
-        const obj = Obj.Path.get(doc?.current, PATHS.YAML_PARSED) as any;
-        if (Is.record(obj.video)) {
-          const video = obj.video as t.SampleVideo;
-          if (!Obj.eql(p.video.value, video)) p.video.value = video;
-        } else {
-          p.video.value = undefined;
-        }
+    if (doc) {
+      _yamlSyncer?.dispose();
+      _yamlSyncer = Yaml.syncer({
+        doc,
+        path: { source: PATHS.YAML, target: PATHS.YAML_PARSED },
+        debounce: 0,
       });
+      console.log('_yamlSyncer', _yamlSyncer);
+    }
+
+    // _events
+    //   ?.path(PATHS.YAML_PARSED)
+    //   .$.pipe(
+    //     rx.map((e) => Obj.Path.get(doc?.current, PATHS.YAML_PARSED)),
+    //     rx.distinctWhile((p, n) => Obj.eql(p, n)),
+    //     rx.debounceTime(300),
+    //   )
+    //   .subscribe((e) => {
+    //     const obj = Obj.Path.get(doc?.current, PATHS.YAML_PARSED) as any;
+    //     if (Is.record(obj.video)) {
+    //       const video = obj.video as t.SampleVideo;
+    //       if (!Obj.eql(p.video.value, video)) p.video.value = video;
+    //     } else {
+    //       p.video.value = undefined;
+    //     }
+    //   });
   });
 
   return api;
