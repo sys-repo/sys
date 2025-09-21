@@ -59,10 +59,10 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@4.1.0
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.50.2
+    - import: npm:rollup@4.52.0
     - import: npm:vite@7.1.6
     - import: npm:vite-plugin-wasm@3.5.0
-  
+
   dev/tools:
     - import: npm:prettier@3.6.2
     - import: npm:prettier-plugin-organize-imports@4.3.0
@@ -81,17 +81,17 @@ groups:
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.3
     - import: npm:prosemirror-state@1.4.3
-    - import: npm:prosemirror-view@1.41.0
+    - import: npm:prosemirror-view@1.41.1
       subpaths: [style/prosemirror.css]
     - import: npm:prosemirror-example-setup@1.2.3
       subpaths: [style/style.css]
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.45
+    - import: npm:ai@5.0.47
     - import: npm:@ai-sdk/openai@2.0.32
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.17.0
+    - import: npm:@mastra/core@0.17.1
       subpaths: ['agent', 'memory', 'storage']
     - import: npm:@mastra/libsql@0.14.2
     - import: npm:@mastra/loggers@0.10.12
@@ -161,5 +161,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.23.14
-  - import: npm:hono@4.9.7
+  - import: npm:motion@12.23.16
+  - import: npm:hono@4.9.8
