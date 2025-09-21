@@ -4,21 +4,20 @@ export { Path } from '@sys/std';
 export const Paths = {
   workspace: denojson.workspace,
   modules: [
-    
     /**
      * sys:
-     * (namespace "@sys"): standard-library 
-    */
-   'code/sys/types',
-   'code/sys/std',
-   'code/sys/color',
-   'code/sys/cli',
-   'code/sys/crypto',
-   'code/sys/fs',
-   'code/sys/schema',
-   
-   'code/sys/testing',
-   'code/sys/process',
+     * (namespace "@sys"): standard-library
+     */
+    'code/sys/types',
+    'code/sys/std',
+    'code/sys/color',
+    'code/sys/cli',
+    'code/sys/crypto',
+    'code/sys/fs',
+    'code/sys/schema',
+
+    'code/sys/testing',
+    'code/sys/process',
 
     'code/sys/http',
     'code/sys/cmd',
@@ -53,13 +52,11 @@ export const Paths = {
      */
     'code/sys/crdt',
 
-
     /**
      * sys.dev: (programming system)
      */
     'code/-tmpl',
     'code/sys.dev',
-
 
     /**
      * Instance (conceptually: "an app"):
@@ -71,6 +68,6 @@ export const Paths = {
     /**
      * Samples:
      */
-    'code/-sample/@sample.tmp',
+    '-tmp/-sample/@sample.tmp',
   ],
 } as const;

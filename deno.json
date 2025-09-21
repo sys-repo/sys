@@ -72,7 +72,7 @@
     "deploy/tmp.db.team",
 
     "code/-tmpl",
-    "code/-sample/@sample.tmp"
+    "-tmp/-sample/@sample.tmp"
   ],
   "lint": {
     "rules": {
