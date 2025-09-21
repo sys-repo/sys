@@ -1,24 +1,25 @@
 {
   "tasks": {
     "install": "deno install --reload",
-    "help": "         deno run -RE --allow-sys --allow-ffi ./-scripts/main.ts --info",
+    "help": "deno run -P=dev ./-scripts/main.ts --info",
 
-    "ci": "           deno run -A ./-scripts/main.ts --dry --test --info",
-    "test": "         deno run -A ./-scripts/main.ts --test",
-    "dry": "          deno run -RE --allow-run --allow-sys --allow-ffi ./-scripts/main.ts --dry",
-    "lint": "         deno run -RE --allow-run=sh ./-scripts/main.ts --lint",
-    "clean": "        deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/main.ts --clean",
+    "ci": "deno run -P=ci ./-scripts/main.ts --dry --test --info",
+    "test": "deno run -P=ci ./-scripts/main.ts --test",
+    "dry": "deno run -P=ci ./-scripts/main.ts --dry",
+    "lint": "deno run -P=clean ./-scripts/main.ts --lint",
+    "clean": "deno run -P=clean ./-scripts/main.ts --clean",
 
-    "prep": "         deno task prep-imports   &&   deno task prep-ci",
-    "prep-imports": " deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep",
-    "prep-ci": "      deno run -RWE --allow-ffi --allow-run ./-scripts/main.ts --prep-ci",
+    "prep": "deno task prep-imports   &&   deno task prep-ci",
+    "prep-imports": "deno run -P=dev ./-scripts/main.ts --prep",
+    "prep-ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
 
-    "bump": "         deno run -RWE --allow-sys --allow-ffi --allow-run ./-scripts/main.ts --bump",
-    "tmpl": "         deno run -RWE @sys/tmpl",
-    "cp": "           deno run -RWE --allow-run=pbcopy ./-scripts/Task.-copy.ts",
+    "bump": "deno run -P=ci ./-scripts/main.ts --bump",
+    "tmpl": "deno run -P=build @sys/tmpl",
+    "cp": "deno run -P=clean ./-scripts/Task.-copy.ts",
 
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
+
   "compilerOptions": {
     "strict": true,
     "lib": ["deno.ns", "esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker"],
@@ -27,6 +28,7 @@
     "jsxImportSource": "react"
   },
   "nodeModulesDir": "auto",
+
   "importMap": "deno.imports.json",
   "workspace": [
     "code/sys/types",
@@ -73,9 +75,51 @@
 
     "code/-tmpl"
   ],
+
   "lint": {
     "rules": {
       "exclude": ["no-explicit-any", "no-slow-types"]
+    }
+  },
+
+  "test": { "permissions": "testset" },
+  "permissions": {
+    "dev": {
+      "read": true,
+      "write": true,
+      "net": true,
+      "env": true,
+      "ffi": true,
+      "run": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    },
+    "build": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "ffi": true,
+      "run": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    },
+    "testset": {
+      "read": true,
+      "write": true,
+      "net": true,
+      "env": true,
+      "ffi": true,
+      "run": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    },
+    "serve": { "read": true, "net": true, "env": true },
+    "clean": { "read": true, "write": true, "env": true, "run": true },
+    "ci": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true,
+      "ffi": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
     }
   }
 }
