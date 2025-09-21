@@ -84,7 +84,8 @@ export const Programme: React.FC<P> = (props) => {
         // Column:
         columnAlign={align}
         columnVideo={player.signals}
-        columnVideoVisible={!isCenter}
+        // columnVideoVisible={!isCenter}
+        columnVideoVisible={true}
         columnBody={isCenter ? elRootMenu : elSection}
         // Content:
         contentTitle={wrangle.title(state)}

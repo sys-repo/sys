@@ -33,6 +33,10 @@ export const ConceptPlayer: React.FC<P> = (props) => {
       theme={'Light'}
       debug={debug}
       onVideoEnd={(e) => {
+        /**
+         * TODO 🐷 to next video in section.
+         */
+        console.log('⚡️ onVideoEnd:', e);
       }}
     />
   );

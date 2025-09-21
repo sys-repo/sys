@@ -1,11 +1,10 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { Monaco } from '@sys/driver-monaco';
-import { EditorCrdt } from '@sys/driver-monaco/crdt';
-import { type EditorCrdtBinding } from '@sys/driver-monaco/t';
 
-import { type t, Buttons, Color, TextPanel, css, rx } from '../common.ts';
+import { type t, Buttons, Color, TextPanel, css } from '../common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
+import { DebugFooter } from './-ui.DebugFooter.tsx';
 
 export type EditorPanelProps = {
   debug: DebugSignals;
@@ -29,21 +28,15 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   /**
    * Hooks/Refs:
    */
-  const bindingRef = useRef<EditorCrdtBinding>();
+  const [monaco, setMonaco] = React.useState<t.Monaco.Monaco>();
   const [editor, setEditor] = React.useState<t.Monaco.Editor>();
 
   /**
    * Effects: setup CRDT databinding.
    */
-  React.useEffect(() => {
-    bindingRef.current?.dispose();
-    if (doc && editor) {
-      const path = PATHS.config;
-      const binding = EditorCrdt.bind(editor, doc, path);
-      binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
-      bindingRef.current = binding;
-    }
-  }, [editor, doc?.id]);
+  Monaco.Crdt.useBinding({ editor, doc, path: PATHS.config }, (e) => {
+    e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
+  });
 
   if (!doc) return null;
 
@@ -51,27 +44,37 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(p.theme.value);
+  const border = (light: t.Percent, dark: t.Percent) => {
+    const color = Color.alpha(theme.fg, theme.is.light ? light : dark);
+    return `solid 3px ${color}`;
+  };
+
   const styles = {
     base: css({
       color: theme.fg,
       background: theme.bg,
+      borderLeft: border(0.5, 0.15),
       display: 'grid',
-      gridTemplateRows: 'auto 1fr',
+      gridTemplateRows: 'auto 1fr auto',
     }),
     body: css({ position: 'relative', display: 'grid' }),
     desc: css({
       position: 'relative',
       height: 100,
-      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
+      borderBottom: border(0.5, 0.15),
       Padding: [8, 10],
       display: 'grid',
+    }),
+    footer: css({
+      borderTop: border(0.5, 0.15),
     }),
   };
 
   const elCloseButton = (
     <Buttons.Icons.Tools
       theme={theme.name}
-      style={{ Absolute: [4, 5, null, null] }}
+      style={{ Absolute: [7, 8, null, null] }}
+      size={18}
       onClick={() => (p.showEditorPanel.value = false)}
     />
   );
@@ -87,8 +90,15 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
           theme={theme.name}
           minimap={false}
           language={'yaml'}
-          onReady={(e) => setEditor(e.editor)}
+          onReady={(e) => {
+            setMonaco(e.monaco);
+            setEditor(e.editor);
+          }}
         />
+      </div>
+      <div className={styles.footer.class}>
+        <DebugFooter debug={debug} />
+        {/* <HostFooter repo={repo} theme={p.theme.value} /> */}
       </div>
     </div>
   );
