@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { type t, Dispose, EditorFolding, rx } from './common.ts';
+import React from 'react';
+import { type t, Dispose, EditorFolding, rx, Time } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
 
 export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
@@ -8,7 +8,7 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   /**
    * Hooks/Refs:
    */
-  const bindingRef = useRef<t.EditorCrdtBinding>(undefined);
+  const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
 
   /**
    * Sub-Hooks:
@@ -16,17 +16,20 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   EditorFolding.useFoldMarks({ editor, doc, path, enabled: foldMarks });
 
   /**
-   * Effect: setup and tear-down the Monaco-Crdt binding.
+   * Effect: setup and tear-down the Monaco↔CRDT binding.
    */
   React.useEffect(() => {
     if (!(doc && path && editor)) return;
     const life = rx.lifecycle();
+    const schedule = Time.scheduler(life, 'micro'); // lifecycle-aware micro hop
 
     EditorCrdt.bind(editor, doc, path, life).then((binding) => {
       if (life.disposed) return binding.dispose();
       bindingRef.current = binding;
       const dispose$ = binding.dispose$;
-      onReady?.({ binding, dispose$ });
+
+      // Fire onReady on a microtask so callers observe a settled binding.
+      schedule(() => onReady?.({ binding, dispose$ }));
     });
 
     return life.dispose;

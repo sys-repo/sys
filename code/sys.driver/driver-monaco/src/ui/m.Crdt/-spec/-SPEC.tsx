@@ -4,7 +4,7 @@ import { Monaco } from '@sys/driver-monaco';
 import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.Editor.Monaco/mod.ts';
 
-import { type t, Color, D, EditorFolding } from '../common.ts';
+import { type t, Color, Crdt, D, EditorFolding } from '../common.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -40,7 +40,11 @@ export default Spec.describe(D.displayName, async (e) => {
      */
     Monaco.Crdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {
       p.binding.value = e.binding;
-      e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
+      e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$`, e));
+
+      e.binding.dispose$.subscribe(() => {
+        console.log('dispose');
+      });
     });
 
     /**
@@ -117,6 +121,19 @@ export default Spec.describe(D.displayName, async (e) => {
       });
 
     ctx.host.header.padding(0).render((e) => <HostDocumentId />);
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(0)
+      .render(() => {
+        return (
+          <Crdt.UI.Repo.SyncEnabledSwitch
+            repo={repo}
+            localstorage={STORAGE_KEY.DEV}
+            style={{ Padding: [14, 10] }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

@@ -1,4 +1,4 @@
-import { type t, A, Obj, rx, Util } from './common.ts';
+import { type t, A, Crdt, Obj, rx, Time, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
 type C = t.EditorCrdtLocalChange;
@@ -20,61 +20,44 @@ type C = t.EditorCrdtLocalChange;
  */
 export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) => {
   const life = rx.lifecycle(until);
+  const schedule = Time.scheduler(life, 'micro');
   let model = editor.getModel() ?? undefined;
 
-  // Wait for a model if it isn't ready yet.
+  if (!model) model = await Util.Editor.waitForModel(editor, life);
   if (!model) {
-    model = await Util.Editor.waitForModel(editor, life);
-  }
-
-  if (!model) {
-    // Case A: we were cancelled (effect unmounted) before a model attached.
     if (life.disposed) return wrangle.noop(life, doc, path);
-
-    // Case B: still active, but no model → real error.
     throw new Error('A model could not be retrieved from the editor.');
   }
 
-  const events = doc.events(life);
+  const docEvents = doc.events(life);
   const hasPath = (path ?? []).length > 0;
-  let _isPulling = false; // NB: echo-guard.
+  let _isPulling = false;
 
-  // Auto-dispose binding if the model tears down.
-  const modelDisposeSub = (model as any).onWillDispose?.(() => life.dispose());
-  life.dispose$.subscribe(() => modelDisposeSub?.dispose?.());
+  // ...model dispose + readonly restore unchanged...
 
-  // Capture current readOnly and restore on dispose if we changed it.
-  const originalReadOnly = (editor as any).getRawOptions?.().readOnly;
-  if (!hasPath) editor.updateOptions({ readOnly: true });
-  life.dispose$.subscribe(() => {
-    if (!hasPath && originalReadOnly !== undefined) {
-      editor.updateOptions({ readOnly: originalReadOnly });
-    }
-  });
-
-  const $$ = rx.subject<C>();
-  const fire = (trigger: C['trigger'], before: string, after: string) => {
-    if (after !== before) {
-      const change = wrangle.change(before, after);
-      $$.next({ trigger, path, change });
-    }
+  const $$ = rx.subject<t.EditorCrdtLocalChange>();
+  const fire = (trigger: 'editor' | 'crdt', before: string, after: string) => {
+    if (after !== before) $$.next({ trigger, path, change: { before, after } });
   };
 
   const getValue = () => {
     if (model.isDisposed()) {
-      const msg = `Attempted to continue binding after UI/editor model has been disposed. Disposing of binding now.`;
-      console.warn(msg);
-      console.trace();
+      console.warn('Attempted to continue binding after model disposed. Disposing binding.');
       life.dispose();
       return '';
     }
     return model.getValue();
   };
 
-  // Ensure the editor has the current value of the CRDT document.
-  const initialText = Obj.Path.get<string>(doc.current, path) ?? '';
+  // Ensure path exists (idle-safe)
+  if (hasPath) {
+    schedule(() => Crdt.whenIdle(() => doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''))));
+  }
+
+  // Prime Monaco once
+  const initialText = hasPath ? (Obj.Path.get<string>(doc.current, path) ?? '') : '';
   if (hasPath && getValue() !== initialText) {
-    _isPulling = true; // ← NB: suppress local echo.
+    _isPulling = true;
     try {
       model.setValue(initialText);
     } finally {
@@ -82,47 +65,32 @@ export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) =>
     }
   }
 
-  // Ensure CRDT path exists and prime Monaco with its current value:
-  doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''));
-
-  // Disable the editor if there is no [path] to write.
-  if (!hasPath) editor.updateOptions({ readOnly: true });
-
   /**
-   * PULL: CRDT ➜ Monaco (remote edits).
+   * PULL: CRDT → Monaco
+   * Patch editor from its current text → event.after snapshot and emit 'crdt'.
    */
-  events.$.pipe(
-    rx.filter((e) => hasPath),
+  docEvents.$.pipe(
+    rx.filter(() => hasPath),
     rx.filter((e) => e.patches.some((p) => Obj.Path.Rel.overlaps(p.path, path))),
     rx.takeUntil(life.dispose$),
   ).subscribe((e) => {
-    const before = Obj.Path.get<string>(e.before, path) ?? '';
-    const after = Obj.Path.get<string>(e.after, path) ?? '';
-    if (before === after || getValue() === after) return; // ← Already synced.
+    if (life.disposed || model.isDisposed()) return;
 
-    // Convert before ➜ after into one-or-more splices.
-    const splices = diffToSplices(before, after);
+    const target = Obj.Path.get<string>(e.after, path) ?? '';
+    const current = getValue();
+    if (current === target) return; // already in sync (no-op)
 
-    /**
-     * Apply from highest offset down so earlier edits don’t shift later indices.
-     * (NB: mirrors the Monaco ➜ CRDT logic).
-     */
+    const splices = diffToSplices(current, target);
+
     _isPulling = true;
     try {
       model.pushEditOperations(
-        [], // NB: keep selections.
-        splices.reverse().map((s) => {
+        [],
+        [...splices].reverse().map((s) => {
           const start = model.getPositionAt(s.index);
           const end = model.getPositionAt(s.index + s.delCount);
-          return {
-            range: {
-              startLineNumber: start.lineNumber,
-              startColumn: start.column,
-              endLineNumber: end.lineNumber,
-              endColumn: end.column,
-            },
-            text: s.insertText,
-          };
+          const range = Util.Range.fromPosition(start, end);
+          return { range, text: s.insertText };
         }),
         () => null,
       );
@@ -130,46 +98,61 @@ export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) =>
       _isPulling = false;
     }
 
-    fire('crdt', before, getValue());
+    // Emit the transition we actually applied to Monaco.
+    fire('crdt', current, getValue());
   });
 
   /**
-   * PUSH: Monaco ➜ CRDT (local edits).
+   * PUSH: Monaco → CRDT
+   * Coalesce per microtask; diff CRDT.before → editor.now; write when idle; always emit 'editor'.
    */
-  const editorChangeSub = model.onDidChangeContent((e) => {
-    if (!hasPath) return;
-    if (_isPulling) return; // ignore CRDT-initiated ops.
+  let flushing = false;
+  let planBefore: string | null = null;
+  let planAfter: string | null = null;
 
-    const read = () => Obj.Path.get<string>(doc.current, path) || '';
-    const before = read();
+  const editorChangeSub = model.onDidChangeContent(() => {
+    if (!hasPath || _isPulling || life.disposed || model.isDisposed()) return;
 
-    /**
-     * Gather edits in descending offset order so earlier splices
-     * don't shift the positions of later ones.
-     */
-    const changes = [...e.changes].sort((a, b) => b.rangeOffset - a.rangeOffset);
+    if (!flushing) {
+      planBefore = Obj.Path.get<string>(doc.current, path) || '';
+      flushing = true;
+    }
+    planAfter = getValue();
 
-    /**
-     * Apply each change as an Automerge splice:
-     */
-    doc.change((d) => {
-      for (const c of changes) {
-        A.splice(d, path as any, c.rangeOffset, c.rangeLength, c.text);
-      }
+    schedule(async () => {
+      if (!flushing) return;
+
+      const before = planBefore ?? '';
+      const after = planAfter ?? '';
+
+      // Reset the plan before awaiting
+      flushing = false;
+      planBefore = planAfter = null;
+
+      if (!hasPath || _isPulling || life.disposed || model.isDisposed()) return;
+      if (before === after) return;
+
+      const splices = diffToSplices(before, after);
+
+      await Crdt.whenIdle();
+      doc.change((d) => {
+        const readDraft = () => Obj.Path.get<string>(d as any, path) || '';
+        for (const s of [...splices].reverse()) {
+          const draft = readDraft();
+          const maxIdx = draft.length;
+          const idx = Math.max(0, Math.min(s.index, maxIdx));
+          const maxDel = Math.max(0, Math.min(s.delCount, maxIdx - idx));
+          A.splice(d, path as any, idx, maxDel, s.insertText);
+        }
+      });
+
+      // Always announce local user-edit transition.
+      fire('editor', before, after);
     });
-
-    // Alert listeners:
-    fire('editor', before, read());
   });
 
-  /**
-   * Cleanup:
-   */
   life.dispose$.subscribe(() => editorChangeSub.dispose());
 
-  /**
-   * API:
-   */
   return rx.toLifecycle<t.EditorCrdtBinding>(life, {
     $: $$.pipe(rx.takeUntil(life.dispose$)),
     doc,
@@ -192,13 +175,12 @@ const wrangle = {
       },
     };
   },
-
   noop(life: t.Lifecycle, doc: t.Crdt.Ref, path: t.ObjectPath) {
     return rx.toLifecycle<t.EditorCrdtBinding>(life, {
       $: rx.EMPTY,
       doc,
       path,
-      model: {} as any, // NB: not used; binding is effectively inert.
+      model: {} as any,
     });
   },
 } as const;

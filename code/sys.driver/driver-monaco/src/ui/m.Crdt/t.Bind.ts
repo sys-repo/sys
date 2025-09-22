@@ -44,10 +44,11 @@ export type EditorCrdtBindingHook = Omit<t.EditorCrdtBinding, 'dispose'>;
 /**
  * Events:
  */
+export type EditorCrdtTrigger = 'editor' | 'crdt';
 
 /** Local CRDT editor change event. */
 export type EditorCrdtLocalChange = {
-  readonly trigger: 'editor' | 'crdt';
+  readonly trigger: EditorCrdtTrigger;
   readonly path: t.ObjectPath;
   readonly change: { readonly before: string; readonly after: string };
 };
