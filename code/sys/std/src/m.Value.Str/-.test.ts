@@ -1,5 +1,4 @@
 import { describe, expect, it, type t } from '../-test.ts';
-import { Immutable } from '../m.Immutable/mod.ts';
 import { Str } from './mod.ts';
 
 describe('Str (Text)', () => {
@@ -11,7 +10,7 @@ describe('Str (Text)', () => {
       const c = Str.bytes(1337);
       const d = Str.bytes(100);
       expect(a).to.eql('124 MB');
-      expect(b).to.eql('123.56 MB');
+      expect(b).to.eql('123.55 MB');
       expect(c).to.eql('1.34 kB');
       expect(d).to.eql('100 B');
     });
