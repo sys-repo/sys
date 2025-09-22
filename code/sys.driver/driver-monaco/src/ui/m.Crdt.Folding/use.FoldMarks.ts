@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { Obj, type t } from './common.ts';
 import { bindFoldMarks } from './u.bind.ts';
@@ -9,6 +9,7 @@ import { bindFoldMarks } from './u.bind.ts';
  */
 export const useFoldMarks: t.UseFoldMarks = (args) => {
   const { editor, doc, path, bus$, enabled = true } = args;
+  const pathKey = useMemo(() => Obj.hash(path), [path]);
 
   /**
    * Effect:
@@ -17,5 +18,5 @@ export const useFoldMarks: t.UseFoldMarks = (args) => {
     if (!enabled || !editor || !doc || !path?.length) return;
     const life = bindFoldMarks({ editor, doc, path, enabled, bus$ });
     return life.dispose;
-  }, [enabled, editor, doc?.id, doc?.instance, Obj.hash(path), bus$]);
+  }, [enabled, editor, doc?.id, doc?.instance, pathKey]);
 };

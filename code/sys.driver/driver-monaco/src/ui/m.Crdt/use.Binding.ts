@@ -1,15 +1,16 @@
-import React from 'react';
-import { type t, Dispose, EditorFolding, rx, Time } from './common.ts';
+import { useEffect, useMemo, useRef } from 'react';
+import { type t, Dispose, EditorFolding, Obj, rx, Time } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
 
 export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   const { editor, doc, path, foldMarks = false } = args;
+  const pathKey = useMemo(() => Obj.hash(path), [path]);
 
   /**
    * Hooks/Refs:
    */
-  const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
-  const busRef$ = React.useRef<t.Subject<t.EditorBindingEvent>>(rx.subject());
+  const bindingRef = useRef<t.EditorCrdtBinding>(undefined);
+  const busRef$ = useRef<t.Subject<t.EditorBindingEvent>>(rx.subject());
   const bus$ = busRef$.current;
 
   /**
@@ -20,7 +21,7 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   /**
    * Effect: setup and tear-down the Monaco↔CRDT binding.
    */
-  React.useEffect(() => {
+  useEffect(() => {
     if (!(doc && path && editor)) return;
     const life = rx.lifecycle();
     const schedule = Time.scheduler(life, 'micro');
@@ -35,7 +36,7 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
     });
 
     return life.dispose;
-  }, [editor, doc?.id, doc?.instance, path?.join()]);
+  }, [editor, doc?.id, doc?.instance, pathKey]);
 
   /**
    * API:
