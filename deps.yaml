@@ -48,7 +48,7 @@ groups:
     - import: npm:@automerge/prosemirror@0.1.0
 
   crypto:
-    - import: npm:@noble/hashes@2.0.0
+    - import: npm:@noble/hashes@2.0.1
       subpaths: [sha2.js, legacy.js]
 
   schema:
@@ -60,7 +60,7 @@ groups:
     - import: npm:@vitejs/plugin-react-swc@4.1.0
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.52.0
-    - import: npm:vite@7.1.6
+    - import: npm:vite@7.1.7
     - import: npm:vite-plugin-wasm@3.5.0
 
   dev/tools:
@@ -161,5 +161,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.23.16
+  - import: npm:motion@12.23.18
   - import: npm:hono@4.9.8
