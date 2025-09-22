@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { D, Time } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { D, Time } from '../mod.ts';
 
 describe('Time.utc', () => {
   it('now', () => {

@@ -1,6 +1,6 @@
-import { Testing, describe, expect, it } from '../-test.ts';
+import { Testing, describe, expect, it } from '../../-test.ts';
+import { Duration } from '../m.Time.Duration.ts';
 import { Time } from '../mod.ts';
-import { Duration } from './m.Time.Duration.ts';
 
 describe('Time', () => {
   const calcDiff = (a: Date, b: Date = new Date()) => b.getTime() - a.getTime();

@@ -1,6 +1,6 @@
 import { add, startOfDay, sub } from 'date-fns';
-import { describe, expect, it, Testing } from '../-test.ts';
-import { Time } from './mod.ts';
+import { describe, expect, it, Testing } from '../../-test.ts';
+import { Time } from '../mod.ts';
 
 const FORMAT = 'yyyy-MM-dd hh:mm:ss';
 const format = (date: Date) => Time.utc(date).format(FORMAT);

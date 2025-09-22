@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { Time } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Time } from '../mod.ts';
 
 describe('Time.frame', () => {
   describe('Time.nextFrame', () => {

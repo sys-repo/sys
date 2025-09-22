@@ -1,6 +1,6 @@
-import { type t, describe, expect, it } from '../-test.ts';
-import { rx } from '../m.Rx/mod.ts';
-import { Time } from './mod.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
+import { rx } from '../../m.Rx/mod.ts';
+import { Time } from '../mod.ts';
 
 describe('Time.until', () => {
   const now = () => new Date().getTime();
