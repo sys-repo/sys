@@ -84,6 +84,18 @@ export const RangeUtil = {
   },
 
   /**
+   * Range
+   */
+  fromPosition(start: t.Monaco.Position, end: t.Monaco.Position): IRange {
+    return {
+      startLineNumber: start.lineNumber,
+      startColumn: start.column,
+      endLineNumber: end.lineNumber,
+      endColumn: end.column,
+    };
+  },
+
+  /**
    * Convert to end of the range.
    */
   toRangeEnd(input: IRange): IRange {
