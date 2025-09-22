@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Library: helper for working with time.
+ * Helpers for working with time.
  */
 export type TimeLib = {
   /** Tools for working with an elapsed duration of time. */
