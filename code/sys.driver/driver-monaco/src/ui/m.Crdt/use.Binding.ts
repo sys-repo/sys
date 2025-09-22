@@ -9,11 +9,13 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
    * Hooks/Refs:
    */
   const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
+  const busRef$ = React.useRef<t.Subject<t.EditorBindingEvent>>(rx.subject());
+  const bus$ = busRef$.current;
 
   /**
    * Sub-Hooks:
    */
-  EditorFolding.useFoldMarks({ editor, doc, path, enabled: foldMarks });
+  EditorFolding.useFoldMarks({ editor, doc, path, bus$, enabled: foldMarks });
 
   /**
    * Effect: setup and tear-down the Monaco↔CRDT binding.
@@ -21,14 +23,14 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   React.useEffect(() => {
     if (!(doc && path && editor)) return;
     const life = rx.lifecycle();
-    const schedule = Time.scheduler(life, 'micro'); // lifecycle-aware micro hop
+    const schedule = Time.scheduler(life, 'micro');
 
-    EditorCrdt.bind(editor, doc, path, life).then((binding) => {
+    EditorCrdt.bind({ editor, doc, path, bus$, until: life }).then((binding) => {
       if (life.disposed) return binding.dispose();
       bindingRef.current = binding;
-      const dispose$ = binding.dispose$;
 
       // Fire onReady on a microtask so callers observe a settled binding.
+      const dispose$ = binding.dispose$;
       schedule(() => onReady?.({ binding, dispose$ }));
     });
 

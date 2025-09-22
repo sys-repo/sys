@@ -11,9 +11,24 @@ type Range = { start: number; end: number };
  * Pure CRDT ⇄ Monaco fold-mark synchronizer (lifecycle-based, React-free).
  */
 export const bindFoldMarks: t.BindFoldMarks = (args) => {
-  const { editor, doc, path, enabled = true, until } = args;
+  const { editor, doc, path, until, enabled = true } = args;
   const life = rx.lifecycle(until);
-  const api = life;
+  const schedule = Time.scheduler(life, 'micro');
+
+  /**
+   * Events:
+   */
+  const $$ = args.bus$ ?? rx.subject<t.EditorBindingEvent>();
+  const emit = (trigger: t.EditorFoldingChange['trigger'], before: Range[], after: Range[]) => {
+    if (equalRanges(before, after)) return;
+    schedule(() => $$.next({ kind: 'change:fold', trigger, path, change: { before, after } }));
+  };
+
+  const $ = $$.pipe(
+    rx.takeUntil(life.dispose$),
+    rx.filter((e) => e.kind === 'change:fold'),
+  );
+  const api = rx.toLifecycle<t.EditorFoldBinding>(life, { $ });
 
   if (!enabled || !editor || !doc || !path?.length) return api;
 
@@ -27,7 +42,6 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
   /**
    * Helpers:
    */
-  const schedule = Time.scheduler(life, 'micro');
   const readStoredRanges = (): Range[] => {
     try {
       return A.marks(doc.current, path)
@@ -54,6 +68,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
         }
       });
     });
+    emit('editor', prev, ranges);
   };
 
   /**
@@ -112,11 +127,11 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
         docUpdatingEditor.current = false;
         readyForEditorWrites.current = true;
       }
+      emit('crdt', currentRanges, nextRanges);
     };
 
-    const applyFromCRDTWhenIdle = () => Crdt.whenIdle(applyFromCRDT);
-
     // Seed once from CRDT (idle-safe).
+    const applyFromCRDTWhenIdle = () => Crdt.whenIdle(applyFromCRDT);
     schedule(applyFromCRDTWhenIdle);
 
     // If empty at mount, seed again on first content.

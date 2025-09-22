@@ -1,7 +1,7 @@
 import { type t, A, Crdt, Obj, rx, Time, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
-type C = t.EditorCrdtLocalChange;
+type C = t.EditorCrdtChange;
 
 /**
  * Bind a Monaco text-model to a CRDT document reference.
@@ -18,8 +18,9 @@ type C = t.EditorCrdtLocalChange;
  *    other while still keeping both worlds fully undoable.
  *
  */
-export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) => {
-  const life = rx.lifecycle(until);
+export const bind: t.EditorCrdtLib['bind'] = async (args) => {
+  const { editor, doc, path } = args;
+  const life = rx.lifecycle(args.until);
   const schedule = Time.scheduler(life, 'micro');
   let model = editor.getModel() ?? undefined;
 
@@ -33,11 +34,10 @@ export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) =>
   const hasPath = (path ?? []).length > 0;
   let _isPulling = false;
 
-  // ...model dispose + readonly restore unchanged...
-
-  const $$ = rx.subject<t.EditorCrdtLocalChange>();
+  const $$ = args.bus$ ?? rx.subject<t.EditorBindingEvent>();
   const fire = (trigger: 'editor' | 'crdt', before: string, after: string) => {
-    if (after !== before) $$.next({ trigger, path, change: { before, after } });
+    if (after === before) return;
+    $$.next({ kind: 'change:text', trigger, path, change: { before, after } });
   };
 
   const getValue = () => {
@@ -78,7 +78,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) =>
 
     const target = Obj.Path.get<string>(e.after, path) ?? '';
     const current = getValue();
-    if (current === target) return; // already in sync (no-op)
+    if (current === target) return; // NB: already in sync (no-op).
 
     const splices = diffToSplices(current, target);
 
@@ -121,11 +121,10 @@ export const bind: t.EditorCrdtLib['bind'] = async (editor, doc, path, until) =>
 
     schedule(async () => {
       if (!flushing) return;
-
       const before = planBefore ?? '';
       const after = planAfter ?? '';
 
-      // Reset the plan before awaiting
+      // Reset the plan before awaiting:
       flushing = false;
       planBefore = planAfter = null;
 
@@ -176,11 +175,7 @@ const wrangle = {
     };
   },
   noop(life: t.Lifecycle, doc: t.Crdt.Ref, path: t.ObjectPath) {
-    return rx.toLifecycle<t.EditorCrdtBinding>(life, {
-      $: rx.EMPTY,
-      doc,
-      path,
-      model: {} as any,
-    });
+    const model = {} as any;
+    return rx.toLifecycle<t.EditorCrdtBinding>(life, { $: rx.EMPTY, doc, path, model });
   },
 } as const;

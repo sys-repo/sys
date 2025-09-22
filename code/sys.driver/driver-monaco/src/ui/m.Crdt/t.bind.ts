@@ -1,14 +1,17 @@
 import type { t } from './common.ts';
 
+export type FoldRange = { start: number; end: number };
+
 /**
  * Method: setup binding.
  */
-export type EditorCrdtBind = (
-  editor: t.Monaco.Editor,
-  doc: t.Crdt.Ref,
-  path: t.ObjectPath,
-  until?: t.UntilInput,
-) => Promise<t.EditorCrdtBinding>;
+export type EditorCrdtBind = (args: {
+  editor: t.Monaco.Editor;
+  doc: t.Crdt.Ref;
+  path: t.ObjectPath;
+  until?: t.UntilInput;
+  bus$?: t.Subject<t.EditorBindingEvent>;
+}) => Promise<t.EditorCrdtBinding>;
 
 /**
  * A live binding between a Monaco code-editor and
@@ -18,7 +21,7 @@ export type EditorCrdtBinding = t.Lifecycle & {
   readonly doc: t.Crdt.Ref;
   readonly path: t.ObjectPath;
   readonly model: t.Monaco.TextModel;
-  readonly $: t.Observable<t.EditorCrdtChange>;
+  readonly $: t.Observable<t.EditorBindingEvent>;
 };
 
 /**
@@ -44,11 +47,9 @@ export type EditorCrdtBindingHook = Omit<t.EditorCrdtBinding, 'dispose'>;
 /**
  * Events:
  */
-export type EditorCrdtTrigger = 'editor' | 'crdt';
-export type FoldRange = { start: number; end: number };
-
+export type EditorBindingEvent = EditorCrdtChange | EditorFoldingChange;
 type BaseChange = {
-  readonly trigger: EditorCrdtTrigger;
+  readonly trigger: 'editor' | 'crdt';
   readonly path: t.ObjectPath;
 };
 
@@ -61,5 +62,3 @@ export type EditorFoldingChange = BaseChange & {
   readonly kind: 'change:fold';
   readonly change: { readonly before: FoldRange[]; readonly after: FoldRange[] };
 };
-
-export type EditorBindingEvent = EditorCrdtChange | EditorFoldingChange;

@@ -18,9 +18,7 @@ export function useController(props: P) {
   /**
    * Hook: CRDT.
    */
-  EditorCrdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {
-    //
-  });
+  EditorCrdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {});
 
   /**
    * Hook: YAML.
