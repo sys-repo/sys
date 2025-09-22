@@ -18,7 +18,7 @@ export type EditorCrdtBinding = t.Lifecycle & {
   readonly doc: t.Crdt.Ref;
   readonly path: t.ObjectPath;
   readonly model: t.Monaco.TextModel;
-  readonly $: t.Observable<t.EditorCrdtLocalChange>;
+  readonly $: t.Observable<t.EditorCrdtChange>;
 };
 
 /**
@@ -45,10 +45,21 @@ export type EditorCrdtBindingHook = Omit<t.EditorCrdtBinding, 'dispose'>;
  * Events:
  */
 export type EditorCrdtTrigger = 'editor' | 'crdt';
+export type FoldRange = { start: number; end: number };
 
-/** Local CRDT editor change event. */
-export type EditorCrdtLocalChange = {
+type BaseChange = {
   readonly trigger: EditorCrdtTrigger;
   readonly path: t.ObjectPath;
+};
+
+export type EditorCrdtChange = BaseChange & {
+  readonly kind: 'change:text';
   readonly change: { readonly before: string; readonly after: string };
 };
+
+export type EditorFoldingChange = BaseChange & {
+  readonly kind: 'change:fold';
+  readonly change: { readonly before: FoldRange[]; readonly after: FoldRange[] };
+};
+
+export type EditorBindingEvent = EditorCrdtChange | EditorFoldingChange;
