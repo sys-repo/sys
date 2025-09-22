@@ -62,6 +62,9 @@ export type DisposeError = { name: 'DisposeError'; message: string; cause?: t.St
 export type Lifecycle = Disposable & { readonly disposed: boolean };
 export type LifecycleAsync = DisposableAsync & { readonly disposed: boolean };
 
+/** Minimal contract for disposable objects (subset of Lifecycle). */
+export type LifeLike = { readonly disposed: boolean };
+
 /**
  * Utility Type: remove fields from composite Dispose object.
  */
