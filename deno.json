@@ -91,7 +91,7 @@
       "env": true,
       "ffi": true,
       "run": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
     },
     "build": {
       "read": true,
@@ -99,7 +99,7 @@
       "env": true,
       "ffi": true,
       "run": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
     },
     "testset": {
       "read": true,
@@ -108,7 +108,7 @@
       "env": true,
       "ffi": true,
       "run": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
     },
     "serve": { "read": true, "net": true, "env": true },
     "clean": { "read": true, "write": true, "env": true, "run": true },
@@ -119,7 +119,7 @@
       "net": true,
       "run": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
     }
   }
 }
