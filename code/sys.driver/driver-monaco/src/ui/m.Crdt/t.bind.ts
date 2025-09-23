@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
 
-export type FoldRange = { start: number; end: number };
-
 /**
  * Method: setup binding.
  */
@@ -29,11 +27,16 @@ export type EditorCrdtBinding = t.Lifecycle & {
  */
 export type UseEditorCrdtBinding = (
   args: t.UseEditorCrdtBindingArgs,
-  onReady?: (e: { binding: t.EditorCrdtBinding; dispose$: t.DisposeObservable }) => void,
+  onReady?: EditorCrdtBindingReadyHandler,
 ) => EditorCrdtBindingHook | undefined;
+
+/** Fires when the CRDT data binding is initialized and ready. */
+export type EditorCrdtBindingReadyHandler = (e: EditorCrdtBindingReady) => void;
+export type EditorCrdtBindingReady = t.MonacoEditorReady & { binding: t.EditorCrdtBinding };
 
 /** Arguments passed to the CRDT `useBinding` hook. */
 export type UseEditorCrdtBindingArgs = {
+  monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
   doc?: t.Crdt.Ref;
   path?: t.ObjectPath;
@@ -60,5 +63,5 @@ export type EditorCrdtChange = BaseChange & {
 
 export type EditorFoldingChange = BaseChange & {
   readonly kind: 'change:fold';
-  readonly change: { readonly before: FoldRange[]; readonly after: FoldRange[] };
+  readonly change: { readonly before: t.Monaco.I.IRange[]; readonly after: t.Monaco.I.IRange[] };
 };

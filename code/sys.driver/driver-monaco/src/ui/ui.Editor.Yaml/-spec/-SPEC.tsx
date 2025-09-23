@@ -31,15 +31,14 @@ export default Spec.describe(D.displayName, (e) => {
             path={v.path}
             debug={v.debug}
             theme={v.theme}
-            onReady={async (e) => {
+            onReady={(e) => {
               console.info(`⚡️ onReady:`, e);
+              e.binding.$.subscribe((e) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, e));
 
-              if (repo) {
-                Monaco.Crdt.Link.enable(e, repo, {
-                  onCreate: (ev) => console.info('Monaco.Crdt.Link.enable → ⚡️ onCreate:', ev),
-                  until: e.dispose$,
-                });
-              }
+              Monaco.Crdt.Link.enable(e, repo, {
+                onCreate: (ev) => console.info('Monaco.Crdt.Link.enable → ⚡️ onCreate:', ev),
+                until: e.dispose$,
+              });
             }}
             onDocumentLoaded={(e) => (p.doc.value = e.doc)}
           />

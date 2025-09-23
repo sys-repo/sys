@@ -1,4 +1,4 @@
-import { type t, A, Crdt, Obj, rx, Time, Util } from './common.ts';
+import { type t, A, Obj, rx, Time, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
 type C = t.EditorCrdtChange;
@@ -49,9 +49,9 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
     return model.getValue();
   };
 
-  // Ensure path exists (idle-safe)
+  // Ensure path exists:
   if (hasPath) {
-    schedule(() => Crdt.whenIdle(() => doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''))));
+    schedule(() => doc.change((d) => Obj.Path.Mutate.ensure(d, path, '')));
   }
 
   // Prime Monaco once
@@ -133,7 +133,6 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
 
       const splices = diffToSplices(before, after);
 
-      await Crdt.whenIdle();
       doc.change((d) => {
         const readDraft = () => Obj.Path.get<string>(d as any, path) || '';
         for (const s of [...splices].reverse()) {

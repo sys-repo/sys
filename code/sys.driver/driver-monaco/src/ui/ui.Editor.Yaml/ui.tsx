@@ -49,6 +49,7 @@ export const YamlEditor: React.FC<P> = (props) => {
   const elError = elNoRepo || elNoPath;
 
   const elMain = elError || <Body {...props} signals={signals} />;
+
   const elFooter = (
     <YamlEditorFooter
       theme={theme.name}

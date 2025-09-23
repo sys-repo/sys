@@ -1,11 +1,10 @@
-import { type t, A, Crdt, D, rx, Time, Util } from './common.ts';
+import { type t, A, D, RangeUtil, rx, Time, Util } from './common.ts';
 import { getHiddenAreas } from './u.hidden.ts';
 import { toMarkRanges } from './u.mark.ts';
 import { observe } from './u.observe.ts';
 import { clear, fold } from './u.trigger.ts';
-import { equalRanges } from './u.ts';
 
-type Range = { start: number; end: number };
+type IRange = t.Monaco.I.IRange;
 
 /**
  * Pure CRDT ⇄ Monaco fold-mark synchronizer (lifecycle-based, React-free).
@@ -19,11 +18,6 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
    * Events:
    */
   const $$ = args.bus$ ?? rx.subject<t.EditorBindingEvent>();
-  const emit = (trigger: t.EditorFoldingChange['trigger'], before: Range[], after: Range[]) => {
-    if (equalRanges(before, after)) return;
-    schedule(() => $$.next({ kind: 'change:fold', trigger, path, change: { before, after } }));
-  };
-
   const $ = $$.pipe(
     rx.takeUntil(life.dispose$),
     rx.filter((e) => e.kind === 'change:fold'),
@@ -40,41 +34,58 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
   const skipNextPatch = { current: 0 }; //            ← after [UI → CRDT] write, ignore the next marks patch
 
   /**
-   * Helpers:
+   * Main:
    */
-  const readStoredRanges = (): Range[] => {
-    try {
-      return A.marks(doc.current, path)
-        .filter((m) => m.name === D.FOLD_MARK)
-        .map(({ start, end }) => ({ start, end }));
-    } catch {
-      // Repo busy or path missing → treat as no marks.
-      return [];
-    }
-  };
+  const setup = (model: t.Monaco.TextModel) => {
+    /**
+     * Helpers (IRange ←→ offset conversions live here to access the model):
+     */
+    const offsetsToRanges = (offsets: readonly { start: number; end: number }[]): IRange[] =>
+      offsets.map(({ start, end }) => {
+        const s = model.getPositionAt(start);
+        const e = model.getPositionAt(end);
+        return RangeUtil.fromPosition(s, e);
+      });
 
-  const writeStoredRanges = async (ranges: Range[]) => {
-    // Freeze a snapshot of existing marks to avoid re-reading during the write.
-    const prev = readStoredRanges();
-    skipNextPatch.current += 1;
+    const rangesToOffsets = (ranges: readonly IRange[]) =>
+      ranges.map((r) => ({
+        start: model.getOffsetAt({ lineNumber: r.startLineNumber, column: r.startColumn }),
+        end: model.getOffsetAt({ lineNumber: r.endLineNumber, column: r.endColumn }),
+      }));
 
-    await Crdt.whenIdle(() => {
+    const readStoredRanges = (): IRange[] => {
+      try {
+        const marks = A.marks(doc.current, path).filter((m) => m.name === D.FOLD_MARK);
+        return offsetsToRanges(marks.map(({ start, end }) => ({ start, end })));
+      } catch {
+        return [];
+      }
+    };
+
+    const fire = (trigger: t.EditorFoldingChange['trigger'], before: IRange[], after: IRange[]) => {
+      if (RangeUtil.eql(before, after)) return;
+      schedule(() => $$.next({ kind: 'change:fold', trigger, path, change: { before, after } }));
+    };
+
+    const writeStoredRanges = async (ranges: IRange[]) => {
+      const stored = readStoredRanges();
+      const prev = rangesToOffsets(stored);
+      const next = rangesToOffsets(ranges);
+
+      skipNextPatch.current += 1;
+
       doc.change((d) => {
         for (const { start, end } of prev) {
           A.unmark(d, path, { start, end, expand: 'none' }, D.FOLD_MARK);
         }
-        for (const { start, end } of ranges) {
+        for (const { start, end } of next) {
           A.mark(d, path, { start, end, expand: 'none' }, D.FOLD_MARK, true);
         }
       });
-    });
-    emit('editor', prev, ranges);
-  };
 
-  /**
-   * Main:
-   */
-  const setup = (model: t.Monaco.TextModel) => {
+      fire('editor', stored, ranges);
+    };
+
     const applyFromCRDT = () => {
       let rawMarks: Array<{ start: number; end: number; name: string }>;
       try {
@@ -83,17 +94,16 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
         return; // path missing / unsafe to read right now
       }
 
-      // Defer until we actually have content to fold against.
       if (model.getValueLength() === 0) return;
 
       const marks = rawMarks.filter((m) => m.name === D.FOLD_MARK);
-      const nextRanges = marks.map((m) => ({ start: m.start, end: m.end }));
+      const next = offsetsToRanges(marks.map((m) => ({ start: m.start, end: m.end })));
 
       const hidden = getHiddenAreas(editor);
-      const currentRanges = toMarkRanges(model, hidden);
+      const currentOffsets = toMarkRanges(model, hidden);
+      const current = offsetsToRanges(currentOffsets);
 
-      if (equalRanges(currentRanges, nextRanges)) {
-        // Already matches → we're good to start reflecting editor changes back.
+      if (RangeUtil.eql(current, next)) {
         readyForEditorWrites.current = true;
         return;
       }
@@ -101,7 +111,6 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
       const mustClear = hidden.length > 0;
 
       if (!marks.length) {
-        // No marks → ensure unfolded if needed.
         if (mustClear) {
           docUpdatingEditor.current = true;
           try {
@@ -114,7 +123,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
         return;
       }
 
-      // Apply CRDT marks to the editor.
+      // Apply CRDT marks to the editor (fold by line numbers).
       docUpdatingEditor.current = true;
       try {
         if (mustClear) clear(editor);
@@ -127,18 +136,18 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
         docUpdatingEditor.current = false;
         readyForEditorWrites.current = true;
       }
-      emit('crdt', currentRanges, nextRanges);
+
+      fire('crdt', current, next);
     };
 
     // Seed once from CRDT (idle-safe).
-    const applyFromCRDTWhenIdle = () => Crdt.whenIdle(applyFromCRDT);
-    schedule(applyFromCRDTWhenIdle);
+    schedule(applyFromCRDT);
 
     // If empty at mount, seed again on first content.
     if (model.getValueLength() === 0) {
       const once = model.onDidChangeContent(() => {
         if (model.getValueLength() > 0) {
-          schedule(applyFromCRDTWhenIdle);
+          schedule(applyFromCRDT);
           once.dispose();
         }
       });
@@ -154,7 +163,6 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
       .path(path)
       .$.pipe(rx.takeUntil(life.dispose$))
       .subscribe((e) => {
-        // Heuristic: if any patch chunk has a "marks" array, it's a marks patch.
         const hasMarksPatch = e.patches.some((p) => Array.isArray((p as any).marks));
         if (!hasMarksPatch) return;
 
@@ -163,7 +171,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
           return; // echo of our last write; ignore
         }
 
-        schedule(applyFromCRDTWhenIdle);
+        schedule(applyFromCRDT);
       });
 
     /**
@@ -174,9 +182,10 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
       if (!readyForEditorWrites.current) return;
       if (docUpdatingEditor.current) return;
 
-      const ranges = toMarkRanges(model, e.areas);
+      const offsets = toMarkRanges(model, e.areas); // existing helper (offsets)
+      const ranges = offsetsToRanges(offsets);
       const stored = readStoredRanges();
-      if (equalRanges(stored, ranges)) return;
+      if (RangeUtil.eql(stored, ranges)) return;
 
       await writeStoredRanges(ranges);
     });

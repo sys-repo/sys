@@ -4,13 +4,30 @@ import { MonacoIs } from './m.Is.ts';
 type IRange = t.Monaco.I.IRange;
 
 export const RangeUtil = {
-  eql(a: IRange, b: IRange): boolean {
-    return (
-      a.startLineNumber === b.startLineNumber &&
-      a.startColumn === b.startColumn &&
-      a.endLineNumber === b.endLineNumber &&
-      a.endColumn === b.endColumn
-    );
+  eql(a: IRange | IRange[], b: IRange | IRange[]): boolean {
+    const isArrayA = Array.isArray(a);
+    const isArrayB = Array.isArray(b);
+
+    if (isArrayA !== isArrayB) return false;
+
+    if (!isArrayA && !isArrayB) {
+      const r1 = a as IRange;
+      const r2 = b as IRange;
+      return (
+        r1.startLineNumber === r2.startLineNumber &&
+        r1.startColumn === r2.startColumn &&
+        r1.endLineNumber === r2.endLineNumber &&
+        r1.endColumn === r2.endColumn
+      );
+    }
+
+    const arr1 = a as IRange[];
+    const arr2 = b as IRange[];
+    if (arr1.length !== arr2.length) return false;
+    for (let i = 0; i < arr1.length; i++) {
+      if (!RangeUtil.eql(arr1[i], arr2[i])) return false;
+    }
+    return true;
   },
 
   /**

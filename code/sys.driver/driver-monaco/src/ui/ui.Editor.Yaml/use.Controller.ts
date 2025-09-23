@@ -10,7 +10,7 @@ export function useController(props: P) {
   const { path } = props;
 
   /**
-   * Hooks: Signals.
+   * Hook: Signals.
    */
   const signals = useSignals(props.signals);
   const { editor, doc, monaco } = Signal.toObject(signals);
@@ -18,7 +18,10 @@ export function useController(props: P) {
   /**
    * Hook: CRDT.
    */
-  EditorCrdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {});
+  const binding = EditorCrdt.useBinding(
+    { monaco, editor, doc, path, foldMarks: true },
+    props.onReady,
+  );
 
   /**
    * Hook: YAML.
@@ -37,5 +40,5 @@ export function useController(props: P) {
   /**
    * API:
    */
-  return { signals, yaml, doc } as const;
+  return { signals, yaml, doc, binding } as const;
 }

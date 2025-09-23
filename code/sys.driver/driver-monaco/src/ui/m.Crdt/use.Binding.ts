@@ -1,17 +1,18 @@
-import { useEffect, useMemo, useRef } from 'react';
+import React from 'react';
+
 import { type t, Dispose, EditorFolding, Obj, rx, Time } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
 
 export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
-  const { editor, doc, path, foldMarks = false } = args;
-  const pathKey = useMemo(() => Obj.hash(path), [path]);
+  const { monaco, editor, doc, path, foldMarks = false } = args;
+  const pathKey = React.useMemo(() => Obj.hash(path), [path]);
 
   /**
    * Hooks/Refs:
    */
-  const bindingRef = useRef<t.EditorCrdtBinding>(undefined);
-  const busRef$ = useRef<t.Subject<t.EditorBindingEvent>>(rx.subject());
-  const bus$ = busRef$.current;
+  const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
+  const busRef = React.useRef<t.Subject<t.EditorBindingEvent>>(rx.subject());
+  const bus$ = busRef.current;
 
   /**
    * Sub-Hooks:
@@ -21,8 +22,9 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   /**
    * Effect: setup and tear-down the Monaco↔CRDT binding.
    */
-  useEffect(() => {
-    if (!(doc && path && editor)) return;
+  React.useEffect(() => {
+    if (!(doc && path && editor && monaco)) return;
+
     const life = rx.lifecycle();
     const schedule = Time.scheduler(life, 'micro');
 
@@ -32,11 +34,11 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
 
       // Fire onReady on a microtask so callers observe a settled binding.
       const dispose$ = binding.dispose$;
-      schedule(() => onReady?.({ binding, dispose$ }));
+      schedule(() => onReady?.({ editor, monaco, binding, dispose$ }));
     });
 
     return life.dispose;
-  }, [editor, doc?.id, doc?.instance, pathKey]);
+  }, [editor, monaco, doc?.id, doc?.instance, pathKey]);
 
   /**
    * API:

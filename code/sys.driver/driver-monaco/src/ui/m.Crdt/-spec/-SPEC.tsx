@@ -4,8 +4,10 @@ import { Monaco } from '@sys/driver-monaco';
 import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.Editor.Monaco/mod.ts';
 
-import { type t, Color, Crdt, D, EditorFolding } from '../common.ts';
+import { type t, Color, Crdt, D } from '../common.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
+
+type R = t.Monaco.Range;
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -33,17 +35,16 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function HostSubject() {
     const v = Signal.toObject(p);
-    const { editor, doc, path } = v;
+    const { monaco, editor, doc, path } = v;
 
     /**
      * Hook:
      */
-    Monaco.Crdt.useBinding({ editor, doc, path, foldMarks: true }, (e) => {
+    Monaco.Crdt.useBinding({ monaco, editor, doc, path, foldMarks: true }, (e) => {
       p.binding.value = e.binding;
-      e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$`, e));
-
-      e.binding.dispose$.subscribe(() => {
-        console.log('dispose');
+      e.binding.$.subscribe((e) => {
+        console.info(`⚡️ editor/crdt:binding.$`, e);
+        if (e.kind === 'change:fold') p.hiddenAreas.value = e.change.after;
       });
     });
 
@@ -64,11 +65,6 @@ export default Spec.describe(D.displayName, async (e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           p.monaco.value = e.monaco;
           p.editor.value = e.editor;
-          p.carets.value = e.carets;
-
-          // Hidden Areas (code-folding) observer:
-          const folding = EditorFolding.observe(e.editor);
-          folding.$.subscribe((e) => (p.hiddenAreas.value = e.areas));
 
           if (repo) {
             Monaco.Crdt.Link.enable(e, repo, {

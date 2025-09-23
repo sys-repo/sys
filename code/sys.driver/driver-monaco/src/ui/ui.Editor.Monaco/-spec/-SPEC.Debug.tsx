@@ -2,17 +2,15 @@ import React from 'react';
 
 import {
   type t,
-  Obj,
   Button,
-  Color,
   css,
   D,
   Is,
   LocalStorage,
+  Obj,
   ObjectView,
   Signal,
   Util,
-  EditorCarets,
 } from '../common.ts';
 import { SAMPLE_CODE } from './-SPEC.u.code.ts';
 import { LanguagesList } from './-ui.ts';
@@ -78,7 +76,6 @@ export function createDebugSignals() {
 
     defaultValue: s<P['defaultValue']>(),
     editor: s<t.Monaco.Editor>(),
-    carets: s<t.EditorCarets>(),
     selectedPath: s<t.ObjectPath>([]),
   };
   const p = props;
@@ -234,10 +231,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'Carets:'}</div>
-      {caretButtons(debug)}
-
-      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -258,99 +251,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
  * Helpers:
  */
 
-export function caretButtons(debug: DebugSignals) {
-  const p = debug.props;
-  const carets = p.carets.value;
-  if (!carets) return null;
-
-  const getCaret = () => carets.identity('foo.bar');
-  const changeSelection = (label: string, selection: t.EditorRangesInput) => {
-    return (
-      <Button
-        block
-        label={() => label}
-        onClick={() => getCaret().change({ selections: selection })}
-      />
-    );
-  };
-
-  const theme = Color.theme();
-  const styles = {
-    body: css({ marginLeft: 15, marginBottom: 20 }),
-    row: css({ display: 'grid', gridTemplateColumns: '1fr auto' }),
-    hr: css({
-      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.3)}`,
-      height: 1,
-      MarginY: 5,
-    }),
-  };
-  const hr = () => <div className={styles.hr.class} />;
-
-  const color = (color: string) => {
-    return (
-      <Button
-        //
-        block
-        label={() => `color: ${color}`}
-        onClick={() => getCaret().change({ color })}
-      />
-    );
-  };
-
-  return (
-    <React.Fragment>
-      <div className={styles.body.class}>
-        {changeSelection('selection: [ ]', [])}
-        {hr()}
-        {changeSelection('selection: [1, 3]', [1, 3])}
-        {changeSelection('selection: [1, 5]', [1, 5])}
-        {changeSelection('selection: {EditorRange}', {
-          startLineNumber: 1,
-          startColumn: 5,
-          endLineNumber: 2,
-          endColumn: 2,
-        })}
-        {hr()}
-
-        {changeSelection('selection: [1, 5], [2, 2]', [
-          [1, 5],
-          [2, 2],
-        ])}
-        {changeSelection('selection: {EditorRange}, {EditorRange}', [
-          {
-            startLineNumber: 1,
-            startColumn: 5,
-            endLineNumber: 2,
-            endColumn: 2,
-          },
-          {
-            startLineNumber: 3,
-            startColumn: 1,
-            endLineNumber: 3,
-            endColumn: 3,
-          },
-        ])}
-
-        {hr()}
-        {color('red')}
-        {color('blue')}
-        <Button
-          block
-          label={() => 'color: <next>'}
-          onClick={() => getCaret().change({ color: EditorCarets.Color.next() })}
-        />
-
-        {hr()}
-        <Button
-          block
-          label={() => 'clear (dispose all)'}
-          onClick={() => carets.current.forEach((c) => c.dispose())}
-        />
-      </div>
-    </React.Fragment>
-  );
-}
-
 /**
  * Helpers:
  */
@@ -363,7 +263,6 @@ const wrangle = {
 
     const props = Signal.toObject(p);
     delete props.editor;
-    delete props.carets;
 
     const data = {
       props,

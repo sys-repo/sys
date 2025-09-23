@@ -3,7 +3,6 @@ import React, { useRef } from 'react';
 import type { OnChange, OnMount } from '@monaco-editor/react';
 import { Editor as EditorReact } from '@monaco-editor/react';
 
-import { EditorCarets } from '../m.Carets/mod.ts';
 import { type t, Color, D, Spinners, Util, css, rx } from './common.ts';
 import { defaultKeyBindings } from './u.Keyboard.ts';
 import { defaultLanguageConfig } from './u.languages.ts';
@@ -127,16 +126,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     updateOptions(editor);
     updateTextState(editor);
 
-    let _carets: t.EditorCarets;
     const dispose$ = disposeRef.current;
-    props.onReady?.({
-      editor,
-      monaco,
-      dispose$,
-      get carets() {
-        return _carets || (_carets = EditorCarets.create(editor));
-      },
-    });
+    props.onReady?.({ editor, monaco, dispose$ });
     setReady(true);
   };
 

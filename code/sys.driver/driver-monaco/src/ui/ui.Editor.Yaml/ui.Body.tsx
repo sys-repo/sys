@@ -3,7 +3,7 @@ import { MonacoEditor } from '../ui.Editor.Monaco/mod.ts';
 import { type t, Color, Cropmarks, css, D, DocumentId } from './common.ts';
 import { NotReady } from './ui.NotReady.tsx';
 
-type P = Omit<t.YamlEditorProps, 'signals'> & { signals: t.YamlEditorSignals };
+type P = Omit<t.YamlEditorProps, 'signals' | 'onReady'> & { signals: t.YamlEditorSignals };
 
 /**
  * Component:
@@ -80,7 +80,6 @@ export const Body: React.FC<P> = (props) => {
       onReady={(e) => {
         if (signals?.monaco) signals.monaco.value = e.monaco;
         if (signals?.editor) signals.editor.value = e.editor;
-        props.onReady?.(e);
       }}
       onDispose={() => {
         if (signals?.monaco) signals.monaco.value = undefined;

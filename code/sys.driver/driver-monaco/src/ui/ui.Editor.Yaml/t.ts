@@ -16,7 +16,7 @@ export type YamlEditorProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
-  onReady?: t.MonacoEditorProps['onReady'];
+  onReady?: t.EditorCrdtBindingReadyHandler;
   onDocumentLoaded?: t.YamlEditorDocumentLoadedHandler;
 };
 
