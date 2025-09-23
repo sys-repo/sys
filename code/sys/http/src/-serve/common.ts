@@ -1,2 +1,2 @@
-export * from '../m.http.server/common.ts';
-export { HttpServer } from '../m.http.server/mod.ts';
+export * from '../http.server/common.ts';
+export { HttpServer } from '../http.server/mod.ts';

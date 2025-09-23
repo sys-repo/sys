@@ -8,7 +8,7 @@ describe('Net', { sanitizeOps: false, sanitizeResources: false }, () => {
     expect(Net.port).to.equal(Port.get);
   });
 
-  describe.only('Net.Port', () => {
+  describe('Net.Port', () => {
     // Environment feature flags (evaluated once):
     const HAS_IPV6 = (() => {
       try {

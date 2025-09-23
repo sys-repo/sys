@@ -9,4 +9,4 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export * from './m.http/mod.ts';
+export * from './http/mod.ts';
