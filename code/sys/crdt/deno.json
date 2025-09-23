@@ -1,6 +1,6 @@
 {
   "name": "@sys/crdt",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",

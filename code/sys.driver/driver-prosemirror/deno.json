@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-prosemirror",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
