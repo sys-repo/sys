@@ -1,63 +1,83 @@
-import { useEffect, useState } from 'react';
-import { type t, Is } from './common.ts';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { type t, Is, Time } from './common.ts';
 
 type O = Record<string, unknown>;
 
 /**
- * Triggers redraw on Doc<T> changes.
- * Subscribes to doc.events() but defers work to next microtask to avoid
- * re-entrancy with Automerge internals.
+ * Triggers a React redraw when a CRDT Doc changes.
  */
 export function useRedrawEffect<T extends O = O>(
   doc?: t.CrdtRef<T>,
   opts?: t.UseRedrawEffectOptions<T> | t.CrdtRedrawEventHandler<T> | t.ObjectPath | t.ObjectPath[],
 ): t.CrdtRedrawHook {
   const options = wrangle.options<T>(opts);
-  const { onRedraw } = options;
   const paths = wrangle.path(options.path) ?? [];
+  const pathKey = useMemo(() => paths.map((p) => p.join()).join('|'), [paths]);
+
+  /**
+   * Refs:
+   * (avoid resubscribe churn).
+   */
+  const onRedrawRef = useRef<typeof options.onRedraw>(null);
+  const onErrorRef = useRef<typeof options.onError>(null);
+  onRedrawRef.current = options.onRedraw;
+  onErrorRef.current = options.onError;
 
   /**
    * Hooks:
    */
   const [count, setRender] = useState(0);
-  const schedule = makeCoalescer(); // coalesce one redraw per microtask
 
   /**
    * Effect:
    */
   useEffect(() => {
     if (!doc) return;
-    const ev = doc.events();
-    const streams = paths.length === 0 ? [ev.$] : paths.map((p) => ev.path(p).$);
 
-    const subs = streams.map(($) =>
+    const events = doc.events();
+    const schedule = Time.scheduler(events, 'micro'); // ← bound to dispose$
+    const scheduleRedraw = makeCoalescer(schedule); // ← coalescer also bound to dispose$
+
+    const streams = paths.length === 0 ? [events.$] : paths.map((p) => events.path(p).$);
+
+    streams.map(($) =>
       $.subscribe((change) => {
-        // Do NOT touch doc.current here; we’re still on AM’s call stack:
-        queueMicrotask(() => {
-          onRedraw?.({ doc, change }); // Safe now.
-          schedule(() => setRender((n) => n + 1));
+        schedule(() => {
+          if (events.disposed) return;
+
+          try {
+            onRedrawRef.current?.({ doc, change });
+          } catch (err) {
+            try {
+              onErrorRef.current?.(err);
+            } catch {
+              /* swallow: user/handler error */
+            }
+          }
+
+          scheduleRedraw(() => {
+            if (events.disposed) return;
+            setRender((n) => n + 1);
+          });
         });
       }),
     );
 
-    return () => {
-      subs.forEach((s) => s.unsubscribe?.());
-      ev.dispose();
-    };
-  }, [doc?.id, doc?.instance, paths.map((p) => p.join()).join('|')]);
+    return events.dispose;
+  }, [doc?.id, doc?.instance, pathKey]);
 
   return { count, doc };
 }
 
 /**
- * Helpers:
+ * Helpers
  */
-const makeCoalescer = () => {
+const makeCoalescer = (schedule: (fn: () => void) => void) => {
   let queued = false;
   return (fn: () => void) => {
     if (queued) return;
     queued = true;
-    queueMicrotask(() => {
+    schedule(() => {
       queued = false;
       fn();
     });

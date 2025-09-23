@@ -12,8 +12,9 @@ export type UseRedrawEffect = <T extends O = O>(
 ) => CrdtRedrawHook;
 
 export type UseRedrawEffectOptions<T extends O> = {
-  onRedraw?: t.CrdtRedrawEventHandler<T>;
   path?: t.ObjectPath | t.ObjectPath[];
+  onRedraw?: t.CrdtRedrawEventHandler<T>;
+  onError?: (err: unknown) => void;
 };
 
 /** Callback for when a redraw is triggered. */
