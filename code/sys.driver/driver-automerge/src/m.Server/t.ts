@@ -8,7 +8,7 @@ export type CrdtServerLib = {
   /**
    * Start a new web-sockets CRDT syncronization-server.
    */
-  ws(options?: CrdtServerStartOptions): Promise<t.CrdtSyncServer>;
+  ws(options?: CrdtServerStartOptions): Promise<t.SyncServer>;
 };
 
 /** Options passed to the `CrdtServer.start` method. */
@@ -28,8 +28,19 @@ export type CrdtServerStartOptions = {
   maxPayload?: number;
 };
 
-/** Response from the `CrdtServer.start` method. */
-export type CrdtSyncServer = t.LifecycleAsync & {
+/** Response from the staring a new sync-server: `Server.ws()`. */
+export type SyncServer = t.LifecycleAsync & {
   readonly repo: t.CrdtRepo;
   readonly addr: Deno.NetAddr;
+};
+
+/**
+ * Headers returned by the sync server on WebSocket upgrade.
+ */
+export type SyncServerResponseHeaders = {
+  upgrade: 'websocket';
+  connection: 'Upgrade';
+  date: t.StringHttpDate;
+  'sys-module': t.StringScopedPkgNameVer;
+  'sec-websocket-accept': string;
 };
