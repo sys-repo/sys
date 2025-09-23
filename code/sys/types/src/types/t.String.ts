@@ -88,6 +88,12 @@ export type StringTimestamp = string;
 export type StringIsoDate = string;
 
 /**
+ * Date string in RFC 7231 IMF-fixdate format,
+ * e.g. "Tue, 23 Sep 2025 05:34:37 GMT"
+ */
+export type StringHttpDate = string & { readonly StringHttpDate: unique symbol };
+
+/**
  * The name (module-specifier) of an ESM import.
  * eg:
  *    jsr:@sys/tmp@0.0.0
