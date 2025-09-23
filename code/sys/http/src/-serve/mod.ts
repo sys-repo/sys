@@ -1,5 +1,5 @@
 /**
- * @module @sys/http
+ * @module @sys/http/serve
  *
  * CLI entrypoint for starting an HTTP static file server.
  *
@@ -17,8 +17,8 @@ import { start } from './u.start.ts';
 export { start };
 
 /**
- * Entry point for starting an HTTP server.
  * @module
+ * Command-line entrypoint for starting an HTTP server.
  *
  * ```bash
  * deno run -RNE jsr:@sys/http/serve
@@ -26,7 +26,7 @@ export { start };
  * ```
  */
 if (import.meta.main) {
-  const args = Args.parse<t.HttpServeInput>(Deno.args);
+  const args = Args.parse<t.HttpServeArgs>(Deno.args);
   console.info(Str.SPACE);
   await start(args);
   Deno.exit(0);
