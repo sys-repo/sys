@@ -110,7 +110,13 @@
       "run": true,
       "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
     },
-    "serve": { "read": true, "net": true, "env": true },
+    "serve": {
+      "read": true,
+      "net": true,
+      "env": true,
+      "ffi": true,
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
+    },
     "clean": { "read": true, "write": true, "env": true, "run": true },
     "ci": {
       "read": true,
