@@ -10,9 +10,9 @@ export type RefEvents<T extends O> =
  */
 export function eventsFactory<T extends O>(
   all$: t.Observable<RefEvents<T>>,
-  dispose$?: t.UntilInput,
+  until?: t.UntilInput,
 ): t.CrdtEvents<T> {
-  const life = rx.lifecycle(dispose$);
+  const life = rx.lifecycle(until);
 
   const life$ = all$.pipe(rx.takeUntil(life.dispose$));
   const $ = life$.pipe(

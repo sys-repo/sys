@@ -1,5 +1,5 @@
 import { Crdt } from '@sys/driver-automerge/fs';
-import { Signal, describe, expect, it, slug, Time } from '../../-test.ts';
+import { describe, expect, it, slug, Time } from '../../-test.ts';
 
 describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
@@ -11,6 +11,7 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
         const repo = Crdt.repo();
 
         const a = repo.create<T>({ count: 0 });
+
         a.change((d) => (d.count = 1234));
         expect(a.current).to.eql({ count: 1234 });
       });

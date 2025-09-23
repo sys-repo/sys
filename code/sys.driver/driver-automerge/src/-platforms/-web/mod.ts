@@ -7,7 +7,6 @@ import {
   WebSocketClientAdapter,
 } from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-import { wrapAll } from '../u.safeNetwork.ts';
 import {
   type t,
   Arr,
@@ -70,7 +69,7 @@ const wrangle = {
       .filter(Boolean)
       .map(wrangle.adapter)
       .filter(Boolean) as t.NetworkAdapterInterface[];
-    return wrapAll(adapters);
+    return adapters;
   },
 
   adapter(arg?: t.CrdtBrowserNetworkArgInput) {
