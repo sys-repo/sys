@@ -3,7 +3,6 @@
  * @module
  */
 export { Monaco } from '../m.Monaco/mod.ts';
-export { EditorCarets } from './m.Carets/mod.ts';
 export { EditorFolding } from './m.Crdt.Folding/mod.ts';
 export { EditorCrdt } from './m.Crdt/mod.ts';
 export { EditorYaml } from './m.Yaml/mod.ts';

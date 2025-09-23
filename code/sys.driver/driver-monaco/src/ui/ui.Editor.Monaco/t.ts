@@ -39,9 +39,8 @@ export type MonacoEditorProps = {
 export type MonacoEditorReadyHandler = (e: MonacoEditorReady) => void;
 /** Editor ready event. */
 export type MonacoEditorReady = {
-  readonly editor: t.Monaco.Editor;
   readonly monaco: t.Monaco.Monaco;
-  readonly carets: t.EditorCarets;
+  readonly editor: t.Monaco.Editor;
   readonly dispose$: t.Observable<t.DisposeEvent>;
 };
 

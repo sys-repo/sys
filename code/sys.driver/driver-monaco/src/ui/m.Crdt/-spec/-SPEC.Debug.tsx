@@ -57,7 +57,6 @@ export async function createDebugSignals() {
 
     monaco: s<t.Monaco.Monaco>(),
     editor: s<t.Monaco.Editor>(),
-    carets: s<t.EditorCarets>(),
 
     doc: s<t.Crdt.Ref>(),
     binding: s<t.EditorCrdtBinding>(),

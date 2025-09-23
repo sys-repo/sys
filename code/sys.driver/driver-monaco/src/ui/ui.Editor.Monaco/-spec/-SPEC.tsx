@@ -30,7 +30,6 @@ export default Spec.describe('MonacoEditor', (e) => {
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);
           p.editor.value = e.editor;
-          p.carets.value = e.carets;
 
           // Listeners:
           const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);

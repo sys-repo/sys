@@ -20,7 +20,6 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         return {
           editor: MonacoFake.editor(model),
           monaco: MonacoFake.asMonaco(monaco),
-          carets: {} as t.EditorCarets,
           dispose$: life.dispose$,
         };
       };
