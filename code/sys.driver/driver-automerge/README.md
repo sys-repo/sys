@@ -59,8 +59,9 @@ const repo = Crdt.repo({
 During development, you can start the local web-socket server on `localhost`:
 
 ```bash
-deno task wss
+deno task ws
 ```
+
 ```ts
 import { Server } from '@sys/driver-automerge/ws';
 
@@ -70,3 +71,12 @@ Server.ws({
 });
 ```
 
+Or to start directly via the command-line entrypoint:
+
+```bash
+deno run jsr:@sys/driver-automerge/ws
+
+# Params:
+deno run jsr:@sys/driver-automerge/ws --port=3030 --dir=.tmp/sync.crdt
+deno run jsr:@sys/driver-automerge/ws  -p=3030     -d=.tmp/sync.crdt
+```

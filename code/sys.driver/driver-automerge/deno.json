@@ -1,13 +1,13 @@
 {
   "name": "@sys/driver-automerge",
-  "version": "0.0.75",
+  "version": "0.0.76",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
     "test": "deno test -P=testset",
     "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
     "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
-    "ws": "deno run -P=dev   ./-scripts/-ws.ts",
+    "ws": "deno run -P=dev ./-scripts/-ws.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",

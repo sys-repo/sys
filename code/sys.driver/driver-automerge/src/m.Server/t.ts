@@ -4,15 +4,15 @@ import type { t } from './common.ts';
 /**
  * Tools for working with CRDT sync servers.
  */
-export type CrdtServerLib = {
+export type SyncServerLib = {
   /**
    * Start a new web-sockets CRDT syncronization-server.
    */
-  ws(options?: CrdtServerStartOptions): Promise<t.SyncServer>;
+  ws(options?: SyncServerStartOptions): Promise<t.SyncServer>;
 };
 
 /** Options passed to the `CrdtServer.start` method. */
-export type CrdtServerStartOptions = {
+export type SyncServerStartOptions = {
   port?: t.PortNumber;
   host?: string;
   dir?: t.StringDir;
@@ -20,12 +20,10 @@ export type CrdtServerStartOptions = {
   keepAliveInterval?: t.Msecs;
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];
-  silent?: boolean;
-  dispose$?: t.UntilInput;
-
-  /** Runtime hardening knobs. */
   maxClients?: number;
   maxPayload?: number;
+  silent?: boolean;
+  dispose$?: t.UntilInput;
 };
 
 /** Response from the staring a new sync-server: `Server.ws()`. */
@@ -43,4 +41,12 @@ export type SyncServerResponseHeaders = {
   date: t.StringHttpDate;
   'sys-module': t.StringScopedPkgNameVer;
   'sec-websocket-accept': string;
+};
+
+/**
+ * Sync server command-line arguments.
+ */
+export type SyncServerArgs = {
+  port?: number;
+  dir?: t.StringDir;
 };

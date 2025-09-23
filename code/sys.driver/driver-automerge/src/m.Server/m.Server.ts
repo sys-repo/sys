@@ -4,4 +4,4 @@ import { ws } from './u.ws.ts';
 /**
  * Tools for working with CRDT sync servers:
  */
-export const Server: t.CrdtServerLib = { ws };
+export const Server: t.SyncServerLib = { ws };

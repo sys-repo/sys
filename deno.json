@@ -112,6 +112,7 @@
     },
     "serve": {
       "read": true,
+      "write": true,
       "net": true,
       "env": true,
       "ffi": true,

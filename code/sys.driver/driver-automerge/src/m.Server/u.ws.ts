@@ -15,7 +15,7 @@ import {
 import { Log } from './u.print.ts';
 import { shutdown } from './u.shutdown.ts';
 
-export const ws: t.CrdtServerLib['ws'] = async (options = {}) => {
+export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
   const {
     dir,
     sharePolicy,
