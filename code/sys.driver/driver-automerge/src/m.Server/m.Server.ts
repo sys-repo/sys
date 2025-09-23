@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-import { Crdt, Is, Net, NodeWSServerAdapter, WebSocketServer, c, rx } from './common.ts';
+import { c, Crdt, Is, Net, NodeWSServerAdapter, rx, WebSocket, WebSocketServer } from './common.ts';
 import { Log } from './u.Log.ts';
 import { shutdown } from './u.shutdown.ts';
 
@@ -46,7 +46,7 @@ export const Server: t.CrdtServerLib = {
     }
 
     // Enforce max-clients:
-    wss.on('connection', (ws) => {
+    wss.on('connection', (ws: WebSocket) => {
       if (wss.clients.size > maxClients) {
         try {
           ws.close(1013, 'server overloaded');
