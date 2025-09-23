@@ -1,12 +1,11 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.89",
+  "version": "0.0.90",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
     "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
     "test": "deno test -P=testset",
     "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
-
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
     "upgrade": "deno run -P=dev   ./-scripts/-main.ts --cmd=upgrade",

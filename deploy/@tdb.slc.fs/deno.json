@@ -1,13 +1,12 @@
 {
   "name": "@tdb/slc-fs",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "license": "MIT",
   "tasks": {
     "test": "echo no-op",
     "build": "deno run -P=build ./-scripts/-build.ts && deno task help",
     "serve": "deno run -P=serve ./-scripts/-serve.ts",
     "deploy": "deno task build && orbiter deploy && deno task help",
-
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",

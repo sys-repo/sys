@@ -1,13 +1,12 @@
 {
   "name": "@sys/ui-react-devharness",
-  "version": "0.0.135",
+  "version": "0.0.136",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
     "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
     "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
     "test": "deno test -P=testset",
-
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
     "upgrade": "deno run -P=dev   ./-scripts/-main.ts --cmd=upgrade",

@@ -1,13 +1,12 @@
 {
   "name": "@sys/driver-prosemirror",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
     "test": "deno test -P=testset",
     "build": "deno run -P=build ./-scripts/-vite.ts --cmd=build  --in=./src/-test/index.html",
     "serve": "deno run -P=serve ./-scripts/-vite.ts --cmd=serve",
-
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",

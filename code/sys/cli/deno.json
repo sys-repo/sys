@@ -1,6 +1,6 @@
 {
   "name": "@sys/cli",
-  "version": "0.0.117",
+  "version": "0.0.118",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
