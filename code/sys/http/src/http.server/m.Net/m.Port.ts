@@ -1,5 +1,5 @@
 import { type t, Err } from './common.ts';
-import { ipv6Supported, probe } from './u.ts';
+import { probe, probeTargets } from './u.ts';
 
 export const Port: t.PortLib = {
   random() {
@@ -13,33 +13,26 @@ export const Port: t.PortLib = {
   },
 
   /**
-   * Returns true if the port is considered "in use" on either IPv4 or IPv6.
+   * Returns true if the port is considered "in use" on any of the probe targets.
    * Conservative: if probing indicates a conflict OR an ambiguous failure,
    * we treat it as not safely available.
    */
   inUse(port: t.PortNumber): boolean {
-    // IPv4 any-address
-    const v4 = probe('0.0.0.0', port);
-
-    // IPv6 any-address (only if supported)
-    const v6 = ipv6Supported() ? probe('::', port) : ({ kind: 'not_supported' } as const);
-
-    // If either family is explicitly in use → in use.
-    if (v4.kind === 'in_use' || v6.kind === 'in_use') return true;
-
-    // If both families report "ok" → not in use.
-    if (
-      (v4.kind === 'ok' || v4.kind === 'unavailable') &&
-      (v6.kind === 'ok' || v6.kind === 'not_supported' || v6.kind === 'unavailable')
-    ) {
-      // "unavailable" (e.g., no iface) on a wildcard probe can happen in restricted envs;
-      // combine with other family result. If other family is ok, we allow.
-      return false;
+    let sawOk = false;
+    for (const host of probeTargets()) {
+      const res = probe(host, port);
+      if (res.kind === 'in_use') return true; // definite conflict on this host
+      if (res.kind === 'ok')
+        sawOk = true; // at least one host is clear
+      else {
+        // Any ambiguous/denied/other failure → treat conservatively as "in use".
+        // This avoids the false-negative you hit where real bind fails later.
+        return true;
+      }
     }
-
-    // Any ambiguous/denied/other failure → treat conservatively as "in use"
-    // This avoids the false-negative you hit where real bind fails later.
-    return true;
+    // If we probed and none said "in_use" (and no ambiguous failure), not in use.
+    // sawOk guards the edge case where probeTargets() could be empty (it won't be).
+    return !sawOk ? true : false;
   },
 
   get(pref?: t.PortNumber, options: { throw?: boolean } = {}) {
@@ -49,7 +42,7 @@ export const Port: t.PortLib = {
 
     if (options.throw) throw Err.std(`Port already in use: ${pref}`);
 
-    // Increment until we find a port that is "not in use" across stacks.
+    // Increment until we find a port that is "not in use" across targets.
     let p = (pref + 1) as t.PortNumber;
     for (let i = 0; i < 10_000; i++) {
       if (!Port.inUse(p)) return p;
@@ -58,7 +51,3 @@ export const Port: t.PortLib = {
     throw Err.std(`No free port found starting from ${pref}`);
   },
 };
-
-/**
- * Helpers:
- */

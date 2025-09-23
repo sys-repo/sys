@@ -1,6 +1,6 @@
 /**
  * Host-agnostic port utilities.
- * Probes IPv4 and IPv6 wildcards; no hostname required.
+ * Probes IPv4 and IPv6 wildcards + loopbacks; no hostname required.
  */
 export type ProbeResult =
   | { kind: 'ok' }
@@ -21,11 +21,8 @@ export function ipv6Supported(): boolean {
     const l = Deno.listen({ hostname: '::', port: 0 });
     l.close();
     _ipv6Support = true;
-  } catch (err) {
-    // Treat any failure as "no IPv6" for probing purposes.
-    if (err instanceof Deno.errors.NotSupported) _ipv6Support = false;
-    else if (err instanceof Deno.errors.AddrNotAvailable) _ipv6Support = false;
-    else _ipv6Support = false;
+  } catch {
+    _ipv6Support = false;
   }
   return _ipv6Support;
 }
@@ -45,4 +42,23 @@ export function probe(hostname: string, port: number): ProbeResult {
     if (err instanceof Deno.errors.AddrNotAvailable) return { kind: 'unavailable' };
     return { kind: 'other', err };
   }
+}
+
+/**
+ * Hosts to probe for each family.
+ * We include both wildcard and loopback so we catch cases where loopback-only binds
+ * do not conflict with wildcard binds (platform-dependent).
+ */
+export function probeTargets(): readonly string[] {
+  const targets: string[] = [
+    '0.0.0.0', //   ← IPv4 any
+    '127.0.0.1', // ← IPv4 loopback
+  ];
+  if (ipv6Supported()) {
+    targets.push(
+      '::', // IPv6 any
+      '::1',
+    ); // IPv6 loopback
+  }
+  return targets;
 }
