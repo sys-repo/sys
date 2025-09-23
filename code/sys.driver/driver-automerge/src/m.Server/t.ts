@@ -14,6 +14,7 @@ export type CrdtServerLib = {
 /** Options passed to the `CrdtServer.start` method. */
 export type CrdtServerStartOptions = {
   port?: t.PortNumber;
+  host?: string;
   dir?: t.StringDir;
   keyboard?: boolean;
   keepAliveInterval?: t.Msecs;
@@ -21,6 +22,10 @@ export type CrdtServerStartOptions = {
   denylist?: AutomergeUrl[];
   silent?: boolean;
   dispose$?: t.UntilInput;
+
+  /** Runtime hardening knobs. */
+  maxClients?: number;
+  maxPayload?: number;
 };
 
 /** Response from the `CrdtServer.start` method. */
