@@ -91,7 +91,7 @@ export type StringIsoDate = string;
  * Date string in RFC 7231 IMF-fixdate format,
  * e.g. "Tue, 23 Sep 2025 05:34:37 GMT"
  */
-export type StringHttpDate = string & { readonly StringHttpDate: unique symbol };
+export type StringHttpDate = string;
 
 /**
  * The name (module-specifier) of an ESM import.
