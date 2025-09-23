@@ -26,7 +26,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v2.4.x
+          deno-version: v2.5.x
 
       - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
         run: deno task help

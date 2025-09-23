@@ -41,10 +41,10 @@ groups:
   automerge:
     # https://automerge.org
     - import: npm:@automerge/automerge@3.1.2
-    - import: npm:@automerge/automerge-repo@2.3.0
-    - import: npm:@automerge/automerge-repo-network-websocket@2.3.0
-    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.3.0
-    - import: npm:@automerge/automerge-repo-storage-nodefs@2.3.0
+    - import: npm:@automerge/automerge-repo@2.3.1
+    - import: npm:@automerge/automerge-repo-network-websocket@2.3.1
+    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.3.1
+    - import: npm:@automerge/automerge-repo-storage-nodefs@2.3.1
     - import: npm:@automerge/prosemirror@0.1.0
 
   crypto:
