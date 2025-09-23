@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { c, describe, expect, it } from '../-test.ts';
 import { A } from './common.ts';
 import { Debug } from './mod.ts';
 
@@ -67,6 +67,10 @@ describe(`Debug Tools`, () => {
     const doc = A.change(A.init<any>(), (d) => (d.x = 1));
     expect(Debug.getHeadsSafe(doc)).to.eql(A.getHeads(doc));
 
+    console.info();
+    console.info(c.cyan('Tripwire expected:'));
+    console.info();
+
     let got: readonly string[] | undefined;
     Debug.Reentry.enter('defer', () => {
       Debug.getHeadsDeferred(doc, (h) => (got = h));
@@ -74,5 +78,7 @@ describe(`Debug Tools`, () => {
     });
     await nextTick();
     expect(got).to.eql(A.getHeads(doc));
+
+    console.info();
   });
 });

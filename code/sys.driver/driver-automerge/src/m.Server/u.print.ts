@@ -22,7 +22,7 @@ export const Log = {
     const rss = bytes(mem.rss);
     const heapUsed = bytes(mem.heapUsed);
     const heapTotal = bytes(mem.heapTotal);
-    const bullet = c.cyan('⏱');
+    const bullet = c.bold(c.cyan('⏱'));
 
     const title = `${bullet} ${ts}`;
     const msg = `  Memory: RSS ${rss}, ${c.cyan('Heap Used')} ${heapUsed}, Heap Total ${heapTotal}`;
