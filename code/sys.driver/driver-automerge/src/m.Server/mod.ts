@@ -20,11 +20,11 @@ export { Server };
  * ```
  */
 if (import.meta.main) {
-  console.info(Str.SPACE);
   const { port, dir } = Args.parse<t.SyncServerArgs>(Deno.args, {
     alias: { d: 'dir', p: 'port' },
     default: { port: 3030 },
   });
+
+  console.info(Str.SPACE);
   await Server.ws({ port, dir });
-  Deno.exit(0);
 }
