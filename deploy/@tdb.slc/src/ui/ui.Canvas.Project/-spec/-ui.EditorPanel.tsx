@@ -34,7 +34,8 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
   /**
    * Effects: setup CRDT databinding.
    */
-  Monaco.Crdt.useBinding({ editor, doc, path: PATHS.config }, (e) => {
+  const path = PATHS.config;
+  Monaco.Crdt.useBinding({ monaco, editor, doc, path }, (e) => {
     e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
   });
 
@@ -90,7 +91,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
           theme={theme.name}
           minimap={false}
           language={'yaml'}
-          onReady={(e) => {
+          onMounted={(e) => {
             setMonaco(e.monaco);
             setEditor(e.editor);
           }}
