@@ -14,8 +14,8 @@ export type SyncServerLib = {
 
 /** Options passed to the `CrdtServer.start` method. */
 export type SyncServerStartOptions = {
-  port?: t.PortNumber;
   host?: string;
+  port?: t.PortNumber;
   dir?: t.StringDir;
   keyboard?: boolean;
   keepAliveInterval?: t.Msecs;
@@ -49,9 +49,10 @@ export type SyncServerHandsakeHeaders = {
  * Sync server command-line arguments.
  */
 export type SyncServerArgs = {
+  host?: string;
   port?: number;
   dir?: t.StringDir;
-  host: string;
+  silent?: boolean;
 };
 
 /**
@@ -59,6 +60,7 @@ export type SyncServerArgs = {
  */
 export type SyncServerInfo = {
   readonly pkg: t.Pkg;
+  readonly total: { readonly peers: number };
 };
 
 /**

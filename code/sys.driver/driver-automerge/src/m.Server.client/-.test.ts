@@ -17,7 +17,8 @@ describe('Crdt: SyncServer - client tools', () => {
         const res = await ServerInfo.get(url);
 
         expect(res.url).to.eql(url);
-        expect(res.pkg).to.eql(pkg);
+        expect(res.data.pkg).to.eql(pkg);
+        expect(res.data.total.peers).to.eql(0);
         expect(res.errors).to.eql([]);
         expect(res.elapsed).to.be.greaterThanOrEqual(0);
 
@@ -36,9 +37,9 @@ describe('Crdt: SyncServer - client tools', () => {
       const res = await ServerInfo.get(url);
 
       expect(res.url).to.eql(url);
-      // stays unknown on failure:
-      expect(res.pkg.name).to.eql('<unknown>');
-      expect(res.pkg.version).to.eql('0.0.0');
+      // Stays unknown on failure:
+      expect(res.data.pkg.name).to.eql('<unknown>');
+      expect(res.data.pkg.version).to.eql('0.0.0');
       expect(res.errors.length).to.be.greaterThan(0);
       expect(res.elapsed).to.be.greaterThanOrEqual(0);
     });
@@ -51,8 +52,8 @@ describe('Crdt: SyncServer - client tools', () => {
 
         expect(res.url).to.eql(bad);
         // unchanged (unknown) on bad response:
-        expect(res.pkg.name).to.eql('<unknown>');
-        expect(res.pkg.version).to.eql('0.0.0');
+        expect(res.data.pkg.name).to.eql('<unknown>');
+        expect(res.data.pkg.version).to.eql('0.0.0');
         expect(res.errors.length).to.be.greaterThan(0);
         expect(res.elapsed).to.be.greaterThanOrEqual(0);
       } finally {

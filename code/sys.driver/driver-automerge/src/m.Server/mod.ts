@@ -19,7 +19,8 @@ export { Server };
  * ```
  */
 if (import.meta.main) {
-  const { port, dir, host } = Args.parse<t.SyncServerArgs>(Deno.args, { default: { port: 3030 } });
+  type A = t.SyncServerArgs;
+  const { port, dir, host, silent } = Args.parse<A>(Deno.args, { default: { port: 3030 } });
   console.info(Str.SPACE);
-  await Server.ws({ port, dir, host });
+  await Server.ws({ port, dir, host, silent });
 }

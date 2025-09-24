@@ -12,7 +12,7 @@ import {
   type t,
 } from './common.ts';
 import { createHttpServer, disposeHttpServer } from './u.http.ts';
-import { Log } from './u.print.ts';
+import { monitorPeers } from './u.peers.ts';
 import { shutdown } from './u.shutdown.ts';
 
 export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
@@ -40,7 +40,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
    * Minimal HTTP handler on the same port as websocket-server
    * that can report meta-data over HTTP:GET.
    */
-  const http = createHttpServer();
+  const http = createHttpServer({ totalPeers: () => peers?.total ?? 0 });
   try {
     http.listen(port, host);
   } catch (cause) {
@@ -116,32 +116,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
     }
   });
 
-  /**
-   * Print status:
-   */
-  if (!silent) {
-    let clientTotal = 0;
-
-    Log.server({ host, port, dir });
-    const metrics = () => Log.metrics({ dir, clientTotal, pad: true });
-    const metricsLogger = Log.startInterval(life.dispose$, metrics);
-    metrics();
-
-    /**
-     * Log activity:
-     */
-    network.on?.('peer-candidate', (e: any) => {
-      clientTotal++;
-      console.info(c.white('connected:   '), c.green(e.peerId));
-      metricsLogger.ping();
-    });
-
-    (network as any).on?.('peer-disconnected', (e: any) => {
-      clientTotal--;
-      console.info(c.gray(c.dim('disconnected:')), c.gray(e.peerId));
-      metricsLogger.ping();
-    });
-  }
+  const peers = monitorPeers({ network, host, port, dir, silent }, life.dispose$);
 
   /**
    * Await startup (retry/backoff instead of single-shot):

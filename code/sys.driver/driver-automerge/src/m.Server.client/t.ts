@@ -11,7 +11,7 @@ export type SyncServerInfoLib = {
 /** Result from probing meta-data of a sync-server endpoint. */
 export type SyncServerInfoResponse = {
   readonly url: t.StringUrl;
-  readonly pkg: t.Pkg;
   readonly elapsed: t.Msecs;
+  readonly data: t.SyncServerInfo;
   readonly errors: t.StdError[];
 };

@@ -6,13 +6,13 @@ import { type t, c, Cli, Fs, Is, pkg, Pkg, rx, Str, Time } from './common.ts';
 export const Log = {
   divider: () => console.info('\u200B'), // ← zero-width space (prevents line collapse in linux logs).
 
-  async metrics(options: { dir?: t.StringDir; clientTotal?: number; pad?: boolean } = {}) {
-    const { dir, clientTotal, pad = false } = options;
+  async metrics(options: { dir?: t.StringDir; totalPeers?: number; pad?: boolean } = {}) {
+    const { dir, totalPeers, pad = false } = options;
     if (pad) Log.divider();
     Log.memory();
     await Log.dir(dir);
-    if (Is.number(clientTotal)) {
-      console.info(c.gray(`  ${c.dim('Connections:')} ${c.green(String(clientTotal))}`));
+    if (Is.number(totalPeers)) {
+      console.info(c.gray(`  ${'Connections:'} ${c.green(String(totalPeers))}`));
     }
     if (pad) Log.divider();
   },
@@ -28,10 +28,10 @@ export const Log = {
     const bullet = c.bold(c.cyan('⏱'));
 
     const title = `${bullet} ${ts}`;
-    const msg = `  ${c.dim('Memory:')}      RSS ${rss}, ${c.cyan('Heap Used')} ${heapUsed}, Heap Total ${heapTotal}`;
+    const msg = `  ${'Memory:'}      RSS ${rss}, ${c.cyan('Heap Used')} ${heapUsed}, Heap Total ${heapTotal}`;
 
     console.info(c.gray(title));
-    console.info(c.gray(`  ${c.dim('Module:')}      ${Pkg.toString(pkg)}`));
+    console.info(c.gray(`  ${'Module:'}      ${Pkg.toString(pkg)}`));
     console.info(c.gray(msg));
   },
 
@@ -39,7 +39,7 @@ export const Log = {
     if (!path) return;
     const size = await Fs.Size.dir(path);
     const total = c.white(Str.bytes(size.total.bytes));
-    const msg = `  ${c.dim('Filesystem:')}  ${total}`;
+    const msg = `  ${'Filesystem:'}  ${total}`;
     console.info(c.gray(msg));
   },
 
