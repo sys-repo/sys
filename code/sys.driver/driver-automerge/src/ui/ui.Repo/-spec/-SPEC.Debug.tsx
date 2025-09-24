@@ -99,6 +99,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({}),
   };
 
+  async function pullServerInfo(urls: string[]) {
+    urls = urls.map((text) => {
+      const url = new URL(text);
+      const protocol = url.protocol === 'ws:' ? 'http:' : 'https:';
+      return `${protocol}//${url.host}`;
+    });
+
+    console.info('Pulling meta-data for:');
+    urls.forEach((url) => console.info(` - ${url}`));
+    console.info('...');
+
+    for (const url of urls) {
+      const res = await ServerInfo.get(url);
+      console.group(`🌳 ServerInfo.get:`, url);
+      console.log(res);
+      console.groupEnd();
+    }
+  }
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
@@ -117,27 +136,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>
+        <div>{'SyncServer Info'}</div>
+        <div>{'meta-data'}</div>
+      </div>
       <Button
         block
-        label={() => `ServerInfo.get (see console)`}
+        label={() => `pull: <repo.sync.urls>`}
         onClick={async () => {
-          const urls = debug.repo.sync.urls.map((text) => {
-            const url = new URL(text);
-            const protocol = url.protocol === 'ws:' ? 'http:' : 'https:';
-            return `${protocol}//${url.host}`;
-          });
-
-          console.info('Pulling meta-data for:');
-          urls.forEach((url) => console.info(`- ${url}`));
-          console.info('...');
-
-          for (const url of urls) {
-            const res = await ServerInfo.get(url);
-            console.group(`🌳 ServerInfo.get:`);
-            console.log('url', url);
-            console.log(res);
-            console.groupEnd();
-          }
+          await pullServerInfo(debug.repo.sync.urls);
         }}
       />
 
