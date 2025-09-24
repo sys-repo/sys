@@ -6,7 +6,6 @@ import { eventsFactory } from './u.events.ts';
 import { monitorNetwork } from './u.monitorNetwork.ts';
 import { silentShutdown } from './u.shutdown.ts';
 import { REF } from './u.toAutomergeRepo.ts';
-import { updateConnected } from './u.updateConnected.ts';
 
 type SysMeta = { readonly createdAt: number };
 type Seeded<T extends O> = T & { readonly $meta?: SysMeta };
@@ -22,14 +21,14 @@ export function toRepo(
   repo: Repo,
   options: { peerId?: string; dispose$?: t.UntilInput } = {},
 ): t.CrdtRepo {
-  let _updating: t.Lifecycle | undefined;
   let _enabled = true;
   let _ready = false;
 
-  const life = rx.lifecycleAsync(options.dispose$, async () => {
+  async function cleanup() {
     peers.clear();
     await silentShutdown(repo);
-  });
+  }
+  const life = rx.lifecycleAsync(options.dispose$, cleanup);
   const schedule = Time.scheduler(life, 'micro');
 
   const cloneProps = (): t.CrdtRepoProps => {
@@ -53,6 +52,7 @@ export function toRepo(
    */
   const adapters = repo.networkSubsystem.adapters;
   const peer = adapters.length > 0 ? (options.peerId ?? '') : '';
+  const peerId = peer as t.PeerId;
   const peers = new Set<t.PeerId>();
   const urls = adapters
     .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
@@ -62,9 +62,9 @@ export function toRepo(
     try {
       await Promise.all(adapters.map((a) => a.whenReady()));
     } catch {
-      /* some adapters may not implement strictly */
+      /* NB: some adapters may not implement strictly */
     }
-    await Promise.resolve(); // settle storage/index on a microtask
+    await schedule();
     if (!_ready) {
       const before = cloneProps();
       _ready = true;
@@ -84,6 +84,23 @@ export function toRepo(
       fireChanged('sync.peers', before);
     }
   });
+
+  /**
+   * Helpers:
+   */
+  const toggleAdapters = async (enabled: boolean) => {
+    await schedule(); // hop off caller's stack
+    for (const a of adapters) {
+      try {
+        await a.whenReady();
+        if (life.disposed) return;
+        if (enabled) a.connect(peerId, {});
+        else (a as { disconnect?: () => void }).disconnect?.();
+      } catch {
+        /* swallow benign races/pre-open throws */
+      }
+    }
+  };
 
   /**
    * API:
@@ -108,8 +125,7 @@ export function toRepo(
         if (value === _enabled) return;
         const before = cloneProps();
         _enabled = value;
-        _updating?.dispose?.();
-        _updating = updateConnected(adapters, peer, value);
+        void toggleAdapters(_enabled);
         fireChanged('sync.enabled', before);
       },
       get peers() {
