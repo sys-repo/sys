@@ -76,7 +76,6 @@ Or to start directly via the command-line entrypoint:
 ```bash
 deno run jsr:@sys/driver-automerge/ws
 
-# Params:
-deno run jsr:@sys/driver-automerge/ws --port=3030 --dir=.tmp/sync.crdt
-deno run jsr:@sys/driver-automerge/ws  -p=3030     -d=.tmp/sync.crdt
+# Optional arguments:
+deno run jsr:@sys/driver-automerge/ws --port=3030 --dir=.tmp/sync.crdt --host=0.0.0.0
 ```

@@ -120,7 +120,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
    * Print status:
    */
   if (!silent) {
-    Log.server({ port, dir });
+    Log.server({ host, port, dir });
     const metrics = () => Log.metrics({ dir, pad: true });
     const metricsLogger = Log.startInterval(life.dispose$, metrics);
     metrics();

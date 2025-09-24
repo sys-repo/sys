@@ -51,6 +51,7 @@ export type SyncServerHandsakeHeaders = {
 export type SyncServerArgs = {
   port?: number;
   dir?: t.StringDir;
+  host: string;
 };
 
 /**

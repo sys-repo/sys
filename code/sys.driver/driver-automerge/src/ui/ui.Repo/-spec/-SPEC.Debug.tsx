@@ -119,7 +119,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `ServerInfo.get`}
+        label={() => `ServerInfo.get (see console)`}
         onClick={async () => {
           const urls = debug.repo.sync.urls.map((text) => {
             const url = new URL(text);
@@ -127,9 +127,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
             return `${protocol}//${url.host}`;
           });
 
+          console.info('Pulling meta-data for:');
+          urls.forEach((url) => console.info(`- ${url}`));
+          console.info('...');
+
           for (const url of urls) {
             const res = await ServerInfo.get(url);
-            console.group(`🌳 ServerInfo.get`);
+            console.group(`🌳 ServerInfo.get:`);
             console.log('url', url);
             console.log(res);
             console.groupEnd();

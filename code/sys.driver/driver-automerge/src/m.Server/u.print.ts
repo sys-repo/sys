@@ -40,13 +40,13 @@ export const Log = {
     console.info(c.gray(msg));
   },
 
-  server(args: { port: t.PortNumber; dir?: t.StringDir }) {
-    const { port, dir } = args;
+  server(args: { port: t.PortNumber; host?: string; dir?: t.StringDir }) {
+    const { port, dir, host = 'localhost' } = args;
 
     const table = Cli.table([]);
     const module = c.gray(`${c.bold(c.white(pkg.name))}/${c.green('server')} ${pkg.version}`);
-    const url1 = c.cyan(`http://localhost:${c.bold(String(port))}`);
-    const url2 = c.cyan(`  ws://localhost:${c.bold(String(port))}`);
+    const url1 = c.cyan(`http://${host}:${c.bold(String(port))}`);
+    const url2 = c.cyan(`  ws://${host}:${c.bold(String(port))}`);
 
     table.push([c.gray('  Module:'), module]);
     table.push([c.gray('  Transport:'), c.green('websocket')]);
