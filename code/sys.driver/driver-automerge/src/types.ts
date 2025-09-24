@@ -10,13 +10,13 @@ export type * from './-platforms/-web/t.ts';
 
 export type * from './m.Crdt.ref/t.ts';
 export type * from './m.Crdt.repo/t.ts';
+export type * from './m.Crdt.ui/t.ts';
 export type * from './m.Crdt/t.ts';
 export type * from './m.Debug/t.ts';
 
 export type * from './m.Server.client/t.ts';
 export type * from './m.Server/t.ts';
 
-export type * from './ui.Crdt/t.ts';
 export type * from './ui/ui.BinaryFile/t.ts';
 export type * from './ui/ui.Card/t.ts';
 export type * from './ui/ui.DocumentId/t.ts';

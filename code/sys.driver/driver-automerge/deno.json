@@ -21,7 +21,7 @@
     "./debug": "./src/m.Debug/mod.ts",
     "./fs": "./src/-platforms/-fs/mod.ts",
     "./web": "./src/-platforms/-web/mod.ts",
-    "./web/ui": "./src/ui.Crdt/mod.ts",
+    "./web/ui": "./src/m.Crdt.ui/mod.ts",
     "./ws": "./src/m.Server/mod.ts",
     "./ws/client": "./src/m.Server.client/mod.ts"
   }
