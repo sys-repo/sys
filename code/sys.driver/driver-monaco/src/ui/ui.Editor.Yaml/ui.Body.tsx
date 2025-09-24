@@ -77,7 +77,7 @@ export const Body: React.FC<P> = (props) => {
       tabSize={editor.tabSize}
       minimap={editor.minimap}
       readOnly={editor.readOnly}
-      onReady={(e) => {
+      onMounted={(e) => {
         if (signals?.monaco) signals.monaco.value = e.monaco;
         if (signals?.editor) signals.editor.value = e.editor;
       }}

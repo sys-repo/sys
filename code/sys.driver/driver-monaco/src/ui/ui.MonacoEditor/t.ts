@@ -29,15 +29,15 @@ export type MonacoEditorProps = {
   debug?: boolean;
 
   // Handlers:
+  onMounted?: t.MonacoEditorMountedHandler;
   onChange?: t.MonacoEditorChangeHandler;
-  onReady?: t.MonacoEditorReadyHandler;
   onDispose?: t.MonacoEditorDisposedHandler;
 };
 
 /**
  * Handler for when the editor is ready.
  */
-export type MonacoEditorReadyHandler = (e: MonacoEditorReady) => void;
+export type MonacoEditorMountedHandler = (e: MonacoEditorReady) => void;
 /** Editor ready event. */
 export type MonacoEditorReady = {
   readonly monaco: t.Monaco.Monaco;

@@ -28,8 +28,8 @@ export default Spec.describe('MonacoEditor', (e) => {
         fontSize={v.fontSize}
         spinning={v.spinning}
         //
-        onReady={(e) => {
-          console.info(`⚡️ MonacoEditor.onReady:`, e);
+        onMounted={(e) => {
+          console.info(`⚡️ MonacoEditor.onMounted:`, e);
           p.editor.value = e.editor;
 
           // Listeners:
@@ -42,14 +42,14 @@ export default Spec.describe('MonacoEditor', (e) => {
 
   function HostPath() {
     const v = Signal.toObject(p);
-    if (v.selectedPath.length === 0) return null;
+    if ((v.selectedPath ?? []).length === 0) return null;
     return (
       <PathView
+        style={{ Absolute: [null, 17, -30, 17] }}
         prefix={'Monaco.Dev.PathView:'}
         prefixColor={Color.CYAN}
         path={v.selectedPath}
         theme={v.theme}
-        style={{ Absolute: [null, 17, -30, 17] }}
       />
     );
   }

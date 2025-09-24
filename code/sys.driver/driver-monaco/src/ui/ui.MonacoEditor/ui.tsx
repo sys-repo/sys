@@ -15,6 +15,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   const DP = D.props;
   const {
     defaultValue,
+    placeholder,
     language = DP.language,
     tabSize = DP.tabSize,
     readOnly = DP.readOnly,
@@ -25,7 +26,6 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     wordWrapColumn = DP.wordWrapColumn,
     fontSize = DP.fontSize,
     spinning = DP.spinning,
-    placeholder,
   } = props;
   const editorTheme = Theme.toName(props.theme);
   const isPlaceholderText = typeof placeholder === 'string';
@@ -41,7 +41,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   /**
    * Hooks:
    */
-  const [ready, setReady] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
 
   /**
    * Effect: Lifecycle.
@@ -79,8 +79,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    * Effect: Auto-focus when requested.
    */
   React.useEffect(() => {
-    if (ready && autoFocus && enabled) editorRef.current?.focus();
-  }, [ready, autoFocus, enabled]);
+    if (mounted && autoFocus && enabled && !spinning) editorRef.current?.focus();
+  }, [mounted, autoFocus, enabled, spinning]);
 
   /**
    * Updaters:
@@ -116,7 +116,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    * Handlers:
    */
   const handleMount: OnMount = (ed, m) => {
-    if (ready) return;
+    if (mounted) return;
+
     const monaco = m as t.Monaco.Monaco;
     const editor = (editorRef.current = ed);
     Theme.init(monaco);
@@ -128,8 +129,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     updateTextState(editor);
 
     const dispose$ = disposeRef.current;
-    props.onReady?.({ editor, monaco, dispose$ });
-    setReady(true);
+    props.onMounted?.({ editor, monaco, dispose$ });
+    setMounted(true);
   };
 
   const handleChange: OnChange = (text = '', event) => {
@@ -157,15 +158,13 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       pointerEvents: enabled ? 'auto' : 'none',
       opacity: enabled ? 1 : 0.2,
     }),
-    inner: css({
-      Absolute: 0,
-      opacity: ready ? 1 : 0,
-    }),
+    inner: css({ Absolute: 0 }),
+    editor: css({ opacity: mounted && !spinning ? 1 : 0 }),
     empty: {
       base: css({ Absolute: 0, pointerEvents: 'none', display: 'grid' }),
       placeholderText: css({ opacity: 0.3, justifySelf: 'center', padding: 40, fontSize: 14 }),
     },
-    loading: css({
+    spinning: css({
       Absolute: 0,
       pointerEvents: 'none',
       display: 'grid',
@@ -181,8 +180,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     <div className={styles.empty.base.class}>{elPlaceholderText ?? placeholder}</div>
   );
 
-  const elLoading = !ready && (
-    <div className={styles.loading.class}>
+  const elSpinning = (!mounted || spinning) && (
+    <div className={styles.spinning.class}>
       <Spinners.Bar theme={theme.name} />
     </div>
   );
@@ -193,6 +192,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     <div className={className}>
       <div className={styles.inner.class}>
         <EditorReact
+          className={styles.editor.class}
           defaultLanguage={language}
           language={language}
           defaultValue={defaultValue}
@@ -201,7 +201,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
           onMount={handleMount}
           onChange={handleChange}
         />
-        {elLoading}
+        {elSpinning}
         {elEmpty}
       </div>
     </div>

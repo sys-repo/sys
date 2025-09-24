@@ -30,7 +30,7 @@ type Storage = Pick<
   | 'autoFocus'
   | 'fontSize'
   | 'spinning'
->;
+> & { render?: boolean };
 
 /**
  * Types:
@@ -38,8 +38,9 @@ type Storage = Pick<
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 const defaults: Storage = {
+  render: true,
+  debug: false,
   theme: 'Dark',
-  debug: true,
   enabled: D.props.enabled,
   readOnly: D.props.readOnly,
   autoFocus: true,
@@ -47,9 +48,9 @@ const defaults: Storage = {
   tabSize: D.props.tabSize,
   wordWrap: D.props.wordWrap,
   language: D.props.language,
+  spinning: D.props.spinning,
   fontSize: undefined,
   placeholder: undefined,
-  spinning: D.props.spinning,
 };
 
 /**
@@ -64,7 +65,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    render: s(true),
+    render: s(snap.render),
 
     enabled: s(snap.enabled),
     readOnly: s(snap.readOnly),
@@ -92,6 +93,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.render = p.render.value;
       d.enabled = p.enabled.value;
       d.readOnly = p.readOnly.value;
       d.fontSize = p.fontSize.value;
@@ -111,6 +113,7 @@ export function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    p.selectedPath.value = [];
   }
 
   return api;
@@ -148,18 +151,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
-      />
-      <Button
-        block
-        label={() => `render: ${p.render.value}`}
-        onClick={() => Signal.toggle(p.render)}
-      />
-
-      <hr />
-      <Button
-        block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
@@ -167,6 +158,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `spinning: ${p.spinning.value ?? `<undefined>)`}`}
         onClick={() => Signal.toggle(p.spinning)}
+      />
+      <Button
+        block
+        label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
       />
 
       <hr />
@@ -219,12 +215,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }
         onClick={() => Signal.toggle(p.wordWrap)}
       />
-      <hr />
-      <Button
-        block
-        label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
-        onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
-      />
 
       <hr />
       <div className={Styles.title.class}>{'Languages:'}</div>
@@ -248,6 +238,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView
         name={'debug'}
