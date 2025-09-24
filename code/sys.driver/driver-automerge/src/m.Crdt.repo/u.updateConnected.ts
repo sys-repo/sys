@@ -1,28 +1,28 @@
-import { type t, rx } from './common.ts';
+import { type t, rx, Time } from './common.ts';
 
 type N = t.NetworkAdapterInterface;
-let netFlight: Promise<unknown> = Promise.resolve();
+type WithDisconnect = { disconnect?: () => void };
+
+let netFlight: Promise<void> = Promise.resolve();
 
 /**
  * Safely connects/disconnects to each network adapter.
  */
-export function updateConnected(
-  adapters: t.NetworkAdapterInterface[],
-  peer: t.StringId,
-  enabled: boolean,
-) {
+export function updateConnected(adapters: readonly N[], peer: t.StringId, enabled: boolean) {
   const life = rx.lifecycle();
+  const schedule = Time.scheduler(life, 'micro');
+  const peerId = peer as t.PeerId;
+  const list = [...adapters]; // Snapshot to avoid mutation surprises.
 
   enqueue(async () => {
-    // Hop once to avoid running on anyone else's call stack:
-    await hop();
+    await schedule(); // hop off caller's stack
 
-    for (const a of adapters) {
+    for (const a of list) {
       await whenReady(a);
       if (life.disposed) return;
 
       if (enabled) {
-        await connectAdapter(a, peer as t.PeerId);
+        await connectAdapter(a, peerId);
       } else {
         await disconnectAdapter(a);
       }
@@ -35,27 +35,26 @@ export function updateConnected(
 /**
  * Helpers:
  */
-const hop = () => Promise.resolve();
-const whenReady = async (a: N) => safe(() => a.whenReady());
+const whenReady = (a: N) => safe(() => a.whenReady());
 const connectAdapter = (a: N, peer: t.PeerId) => safe(() => a.connect(peer, {}));
-const disconnectAdapter = (a: N) => safe(() => a.disconnect?.());
+const disconnectAdapter = (a: N) => safe(() => (a as WithDisconnect).disconnect?.());
 
 /**
  * Enqueue a task to run after the current flight finishes.
  * Swallows errors to keep the chain alive.
  */
-function enqueue(task: () => Promise<void>) {
+const enqueue = (task: () => Promise<void>) => {
   netFlight = netFlight.then(task).catch(() => {});
   return netFlight;
-}
+};
 
 /**
  * Run a thunk, swallowing any error (used for "benign" adapter races).
  */
-async function safe(thunk: () => void | Promise<void>) {
+const safe = async (thunk: () => void | Promise<void>) => {
   try {
     await thunk();
   } catch {
     /* ignore */
   }
-}
+};
