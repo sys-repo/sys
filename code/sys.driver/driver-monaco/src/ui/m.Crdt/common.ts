@@ -1,7 +1,7 @@
 import { pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
-export { EditorFolding } from '../m.Crdt.Folding/mod.ts';
+export { EditorFolding } from '../m.Folding/mod.ts';
 export { EditorYaml } from '../m.Yaml/mod.ts';
 
 /**
