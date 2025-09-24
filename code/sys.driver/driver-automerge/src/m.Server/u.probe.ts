@@ -3,7 +3,7 @@ import { type t, Err, Pkg, WS } from './common.ts';
 /**
  * Probe a sync server by performing a WebSocket handshake and returning response headers.
  */
-export const probeSyncServer: t.ProbeSyncServer = async (url, options = {}) => {
+export const probe: t.ProbeSyncServer = async (url, options = {}) => {
   const timeout = options.timeout ?? (5_000 as t.Msecs);
   const t0 = performance.now();
   const errors: t.StdError[] = [];

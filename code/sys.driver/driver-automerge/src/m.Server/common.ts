@@ -1,5 +1,8 @@
+import WS from 'ws';
+
 export { NodeWSServerAdapter } from '@automerge/automerge-repo-network-websocket';
 export { WebSocket, WebSocketServer } from 'ws';
+export { WS };
 
 export { Args, Cli, c } from '@sys/cli';
 export { Fs } from '@sys/fs';

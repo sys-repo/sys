@@ -1,5 +1,3 @@
-import type { t } from './common.ts';
-
 import {
   c,
   Crdt,
@@ -11,8 +9,10 @@ import {
   rx,
   WebSocket,
   WebSocketServer,
+  type t,
 } from './common.ts';
 import { Log } from './u.print.ts';
+import { createHttpServer, disposeHttpServer } from './u.server.http.ts';
 import { shutdown } from './u.shutdown.ts';
 
 export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
@@ -37,18 +37,31 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
   }
 
   /**
-   * Create WSS server and bind to CRDT repo:
+   * Minimal HTTP handler on the same port as websocket-server
+   * that can report meta-data over HTTP:GET.
+   */
+  const http = createHttpServer();
+  try {
+    http.listen(port, host);
+  } catch (cause) {
+    throw new Error(`Failed to create HTTP server on ${host}:${port}`, { cause });
+  }
+
+  /**
+   * Create WSS server bound to the HTTP server and bind to CRDT repo:
    */
   let wss: WebSocketServer;
   try {
     wss = new WebSocketServer({
-      port,
-      host,
+      server: http,
       clientTracking: true,
       maxPayload,
       perMessageDeflate: false,
     });
   } catch (cause) {
+    try {
+      http.close();
+    } catch {}
     throw new Error(`Failed to create WebSocketServer on ${host}:${port}`, { cause });
   }
 
@@ -67,7 +80,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
   // Observability on low-level server errors:
   wss.on('error', (err: unknown) => console.error('[wss:error]', err));
 
-  // Custom headers handsake:
+  // Custom headers handshake:
   wss.on('headers', (headers: string[], req) => {
     headers.push(`sys-module: ${Pkg.toString(pkg)}`);
   });
@@ -81,9 +94,10 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
   } catch (err) {
     try {
       wss.close();
-    } catch {
-      /* noop */
-    }
+    } catch {}
+    try {
+      http.close();
+    } catch {}
     throw err;
   }
 
@@ -96,7 +110,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
    */
   const life = rx.lifecycleAsync((options as any).dispose$, async () => {
     try {
-      await Promise.all([shutdown(wss), repo.dispose()]);
+      await Promise.all([shutdown(wss), disposeHttpServer(http), repo.dispose()]);
     } catch (err) {
       console.error('[wss:shutdown:error]', err);
     }
@@ -127,6 +141,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
 
   /**
    * Await startup (retry/backoff instead of single-shot):
+   * (We still probe the TCP port, though http.listen has already bound it.)
    */
   await probeListen(port, host, { attempts: 5, delay: 200, backoff: 1.5 });
 
