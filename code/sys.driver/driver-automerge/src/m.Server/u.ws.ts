@@ -120,8 +120,10 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
    * Print status:
    */
   if (!silent) {
+    let clientTotal = 0;
+
     Log.server({ host, port, dir });
-    const metrics = () => Log.metrics({ dir, pad: true });
+    const metrics = () => Log.metrics({ dir, clientTotal, pad: true });
     const metricsLogger = Log.startInterval(life.dispose$, metrics);
     metrics();
 
@@ -129,11 +131,13 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
      * Log activity:
      */
     network.on?.('peer-candidate', (e: any) => {
+      clientTotal++;
       console.info(c.white('connected:   '), c.green(e.peerId));
       metricsLogger.ping();
     });
 
     (network as any).on?.('peer-disconnected', (e: any) => {
+      clientTotal--;
       console.info(c.gray(c.dim('disconnected:')), c.gray(e.peerId));
       metricsLogger.ping();
     });
