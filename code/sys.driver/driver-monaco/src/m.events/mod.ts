@@ -1,0 +1,4 @@
+/**
+ * @module
+ * Common editor events.
+ */
