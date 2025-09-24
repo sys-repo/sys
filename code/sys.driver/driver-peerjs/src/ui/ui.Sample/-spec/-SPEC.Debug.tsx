@@ -76,7 +76,8 @@ export function createDebugSignals() {
     network: [
       //
       // { ws: 'sync.db.team' },
-      { ws: 'waiheke.sync.db.team' },
+      // { ws: 'waiheke.sync.db.team' },
+      { ws: 'crdtsync.dbteam.deno.net' },
       isLocalhost && { ws: 'localhost:3030' },
       qsSyncServer && { ws: qsSyncServer },
     ],

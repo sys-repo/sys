@@ -3,7 +3,9 @@ import { Crdt } from '@sys/driver-automerge/fs';
 import { Obj, Str } from '@sys/std';
 
 // const ws = 'localhost:3030';
-const ws = 'waiheke.sync.db.team';
+// const ws = 'waiheke.sync.db.team';
+const ws = 'crdtsync.dbteam.deno.net';
+
 const dir = '.tmp/sync.crdt';
 
 const print = () => {
