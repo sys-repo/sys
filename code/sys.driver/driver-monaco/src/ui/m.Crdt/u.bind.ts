@@ -1,8 +1,6 @@
 import { type t, A, Obj, rx, Time, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
-type C = t.EditorCrdtChange;
-
 /**
  * Bind a Monaco text-model to a CRDT document reference.
  *
@@ -34,7 +32,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
   const hasPath = (path ?? []).length > 0;
   let _isPulling = false;
 
-  const $$ = args.bus$ ?? rx.subject<t.EditorBindingEvent>();
+  const $$ = args.bus$ ?? rx.subject<t.EditorEvent>();
   const fire = (trigger: 'editor' | 'crdt', before: string, after: string) => {
     if (after === before) return;
     $$.next({ kind: 'change:text', trigger, path, change: { before, after } });
@@ -163,7 +161,11 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
  * Helpers:
  */
 const wrangle = {
-  change(before: string, after: string): C['change'] {
+  noop(life: t.Lifecycle, doc: t.Crdt.Ref, path: t.ObjectPath) {
+    const model = {} as any;
+    return rx.toLifecycle<t.EditorCrdtBinding>(life, { $: rx.EMPTY, doc, path, model });
+  },
+  change(before: string, after: string): t.EditorChangeText['change'] {
     return {
       get before() {
         return before;
@@ -172,9 +174,5 @@ const wrangle = {
         return after;
       },
     };
-  },
-  noop(life: t.Lifecycle, doc: t.Crdt.Ref, path: t.ObjectPath) {
-    const model = {} as any;
-    return rx.toLifecycle<t.EditorCrdtBinding>(life, { $: rx.EMPTY, doc, path, model });
   },
 } as const;

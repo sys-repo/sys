@@ -18,7 +18,7 @@ export type UseFoldMarksArgs = {
   /** Enable/disable synchronisation (defaults to `true`). */
   enabled?: boolean;
   /** Unifiying shared event bus. */
-  bus$?: t.Subject<t.EditorBindingEvent>;
+  bus$?: t.Subject<t.EditorEvent>;
 };
 
 /**
@@ -32,12 +32,12 @@ export type BindFoldMarksArgs = {
   path: t.ObjectPath;
   enabled?: boolean;
   until?: t.Lifecycle;
-  bus$?: t.Subject<t.EditorBindingEvent>;
+  bus$?: t.Subject<t.EditorEvent>;
 };
 
 /**
  * An instance of an editor fold-marks binding.
  */
 export type EditorFoldBinding = t.Lifecycle & {
-  readonly $: t.Observable<t.EditorFoldingChange>;
+  readonly $: t.Observable<t.EditorChangeMarks>;
 };

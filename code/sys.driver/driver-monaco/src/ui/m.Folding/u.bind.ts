@@ -17,10 +17,10 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
   /**
    * Events:
    */
-  const $$ = args.bus$ ?? rx.subject<t.EditorBindingEvent>();
+  const $$ = args.bus$ ?? rx.subject<t.EditorEvent>();
   const $ = $$.pipe(
     rx.takeUntil(life.dispose$),
-    rx.filter((e) => e.kind === 'change:fold'),
+    rx.filter((e) => e.kind === 'change:marks'),
   );
   const api = rx.toLifecycle<t.EditorFoldBinding>(life, { $ });
 
@@ -62,9 +62,9 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
       }
     };
 
-    const fire = (trigger: t.EditorFoldingChange['trigger'], before: IRange[], after: IRange[]) => {
+    const fire = (trigger: t.EditorChangeMarks['trigger'], before: IRange[], after: IRange[]) => {
       if (RangeUtil.eql(before, after)) return;
-      schedule(() => $$.next({ kind: 'change:fold', trigger, path, change: { before, after } }));
+      schedule(() => $$.next({ kind: 'change:marks', trigger, path, change: { before, after } }));
     };
 
     const writeStoredRanges = async (ranges: IRange[]) => {

@@ -11,7 +11,7 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
    * Hooks/Refs:
    */
   const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
-  const busRef = React.useRef<t.Subject<t.EditorBindingEvent>>(rx.subject());
+  const busRef = React.useRef<t.Subject<t.EditorEvent>>(rx.subject());
   const bus$ = busRef.current;
 
   /**
