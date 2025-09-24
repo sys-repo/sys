@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
-import { pkg, Pkg } from './common.ts';
+import { pkg, type t } from './common.ts';
 
 /**
  * Minimal HTTP handler on the same port as websocket-server
@@ -30,7 +30,8 @@ export function createHttpServer() {
     const isWellKnown = Is.wellKnown(url, method);
 
     if (isRoot || isWellKnown) {
-      const body = JSON.stringify({ pkg: Pkg.toString(pkg) });
+      const payload: t.SyncServerInfo = { pkg };
+      const body = JSON.stringify(payload);
       res.statusCode = 200;
       setCors();
       res.setHeader('content-type', 'application/json; charset=utf-8');

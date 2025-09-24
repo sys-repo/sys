@@ -6,7 +6,7 @@ import type { t } from './common.ts';
  */
 export type SyncServerLib = {
   /** Probe a sync-server and resolve with its handshake HTTP header info. */
-  readonly probe: ProbeSyncServer;
+  readonly probe: ProbeHandshake;
 
   /** Start a new web-sockets CRDT syncronization-server. */
   ws(options?: SyncServerStartOptions): Promise<t.SyncServer>;
@@ -55,20 +55,27 @@ export type SyncServerArgs = {
 };
 
 /**
+ * JSON returned from HTTP/GET to the sync-server end-point.
+ */
+export type SyncServerInfo = {
+  readonly pkg: t.Pkg;
+};
+
+/**
+ * Probe a sync-server and resolve with its handshake HTTP header info.
+ */
+export type ProbeHandshake = (
+  url: string,
+  options?: { timeout?: t.Msecs },
+) => Promise<ProbeHandshakeResponse>;
+
+/**
  * Result of probing a sync server, including URL, handshake headers, and elapsed time.
  */
-export type ProbeResult = {
+export type ProbeHandshakeResponse = {
   readonly url: t.StringUrl;
   readonly headers: t.SyncServerHandsakeHeaders;
   readonly pkg: t.Pkg;
   readonly elapsed: t.Msecs;
   readonly errors: t.StdError[];
 };
-
-/**
- * Probe a sync-server and resolve with its handshake HTTP header info.
- */
-export type ProbeSyncServer = (
-  url: string,
-  options?: { timeout?: t.Msecs },
-) => Promise<ProbeResult>;

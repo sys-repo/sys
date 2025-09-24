@@ -1,14 +1,16 @@
 import { type t, Err, Pkg, WS, elapsedSince } from './common.ts';
 
+type R = t.ProbeHandshakeResponse;
+
 /**
  * Probe a sync server by performing a WebSocket handshake and returning response headers.
  */
-export const probe: t.ProbeSyncServer = async (url, options = {}) => {
+export const probe: t.ProbeHandshake = async (url, options = {}) => {
   const timeout = options.timeout ?? (5_000 as t.Msecs);
   const t0 = performance.now();
   const errors: t.StdError[] = [];
 
-  const fail = (): t.ProbeResult => {
+  const fail = (): R => {
     return {
       url,
       pkg: Pkg.unknown(),
@@ -77,7 +79,7 @@ export const probe: t.ProbeSyncServer = async (url, options = {}) => {
   }
 
   const headers = headersRaw as t.SyncServerHandsakeHeaders;
-  const result: t.ProbeResult = {
+  const result: R = {
     url,
     pkg: Pkg.toPkg(headers['sys-pkg']),
     headers,
