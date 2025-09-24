@@ -12,7 +12,7 @@ export const Log = {
     Log.memory();
     await Log.dir(dir);
     if (Is.number(clientTotal)) {
-      console.info(c.gray(`  ${c.dim('Clients:')}     ${c.green(String(clientTotal))}`));
+      console.info(c.gray(`  ${c.dim('Connections:')} ${c.green(String(clientTotal))}`));
     }
     if (pad) Log.divider();
   },
