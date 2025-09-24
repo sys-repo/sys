@@ -16,6 +16,7 @@ export type MonacoEditorProps = {
   minimap?: boolean;
   readOnly?: boolean;
   fontSize?: t.Pixels;
+  spinning?: boolean;
 
   /** Enable word wrapping in the editor. */
   wordWrap?: boolean;

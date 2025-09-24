@@ -29,6 +29,7 @@ type Storage = Pick<
   | 'placeholder'
   | 'autoFocus'
   | 'fontSize'
+  | 'spinning'
 >;
 
 /**
@@ -48,6 +49,7 @@ const defaults: Storage = {
   language: D.props.language,
   fontSize: undefined,
   placeholder: undefined,
+  spinning: D.props.spinning,
 };
 
 /**
@@ -73,6 +75,7 @@ export function createDebugSignals() {
     wordWrap: s(snap.wordWrap),
     language: s(snap.language),
     placeholder: s(snap.placeholder),
+    spinning: s(snap.spinning),
 
     defaultValue: s<P['defaultValue']>(),
     editor: s<t.Monaco.Editor>(),
@@ -98,6 +101,7 @@ export function createDebugSignals() {
       d.wordWrap = p.wordWrap.value;
       d.language = p.language.value;
       d.placeholder = p.placeholder.value;
+      d.spinning = p.spinning.value;
     });
   });
 
@@ -152,12 +156,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `render: ${p.render.value}`}
         onClick={() => Signal.toggle(p.render)}
       />
+
       <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => `spinning: ${p.spinning.value ?? `<undefined>)`}`}
+        onClick={() => Signal.toggle(p.spinning)}
+      />
+
+      <hr />
       <Button
         block
         label={() => {

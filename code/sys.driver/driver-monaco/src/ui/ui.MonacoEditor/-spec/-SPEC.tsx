@@ -26,6 +26,7 @@ export default Spec.describe('MonacoEditor', (e) => {
         tabSize={v.tabSize}
         wordWrap={v.wordWrap}
         fontSize={v.fontSize}
+        spinning={v.spinning}
         //
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);

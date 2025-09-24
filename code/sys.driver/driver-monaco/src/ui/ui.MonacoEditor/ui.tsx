@@ -24,6 +24,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     wordWrap = DP.wordWrap,
     wordWrapColumn = DP.wordWrapColumn,
     fontSize = DP.fontSize,
+    spinning = DP.spinning,
     placeholder,
   } = props;
   const editorTheme = Theme.toName(props.theme);

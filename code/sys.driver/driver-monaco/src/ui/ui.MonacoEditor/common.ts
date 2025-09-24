@@ -19,6 +19,7 @@ const props: t.PickRequired<
   | 'wordWrap'
   | 'wordWrapColumn'
   | 'fontSize'
+  | 'spinning'
 > = {
   theme: 'Dark',
   enabled: true,
@@ -30,6 +31,7 @@ const props: t.PickRequired<
   wordWrap: false,
   wordWrapColumn: 80,
   fontSize: 14,
+  spinning: false,
 };
 
 export const DEFAULTS = {
