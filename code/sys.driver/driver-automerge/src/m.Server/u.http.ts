@@ -4,7 +4,7 @@ import { pkg, type t } from './common.ts';
 /**
  * Minimal HTTP handler on the same port as websocket-server
  */
-export function createHttpServer(args: { totalPeers: () => number }) {
+export function createHttpServer(args: { total: () => t.SyncServerInfo['total'] }) {
   return createServer((req: IncomingMessage, res: ServerResponse) => {
     const { method, url } = wrangle.req(req);
 
@@ -13,7 +13,6 @@ export function createHttpServer(args: { totalPeers: () => number }) {
       res.setHeader('access-control-allow-origin', '*');
       res.setHeader('access-control-allow-methods', 'GET,OPTIONS');
       res.setHeader('access-control-allow-headers', 'content-type, x-requested-with');
-      // Optional: cache the preflight for a bit
       res.setHeader('access-control-max-age', '600');
     };
 
@@ -32,7 +31,7 @@ export function createHttpServer(args: { totalPeers: () => number }) {
     if (isRoot || isWellKnown) {
       const payload: t.SyncServerInfo = {
         pkg,
-        total: { peers: args.totalPeers() },
+        total: args.total(),
       };
       res.statusCode = 200;
       setCors();

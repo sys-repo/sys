@@ -18,7 +18,7 @@ describe('Crdt: SyncServer - client tools', () => {
 
         expect(res.url).to.eql(url);
         expect(res.data.pkg).to.eql(pkg);
-        expect(res.data.total.peers).to.eql(0);
+        expect(res.data.total.connections).to.eql(0);
         expect(res.errors).to.eql([]);
         expect(res.elapsed).to.be.greaterThanOrEqual(0);
 

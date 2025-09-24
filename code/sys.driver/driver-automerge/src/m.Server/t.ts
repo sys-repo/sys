@@ -60,7 +60,14 @@ export type SyncServerArgs = {
  */
 export type SyncServerInfo = {
   readonly pkg: t.Pkg;
-  readonly total: { readonly peers: number };
+  readonly total: {
+    readonly connections: number;
+    readonly idle: {
+      readonly soft: number;
+      readonly stale: number;
+      readonly dead: number;
+    };
+  };
 };
 
 /**

@@ -12,7 +12,7 @@ import {
   type t,
 } from './common.ts';
 import { createHttpServer, disposeHttpServer } from './u.http.ts';
-import { monitorPeers } from './u.peers.ts';
+import { monitorPeers } from './u.monitor.ts';
 import { shutdown } from './u.shutdown.ts';
 
 export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
@@ -40,7 +40,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
    * Minimal HTTP handler on the same port as websocket-server
    * that can report meta-data over HTTP:GET.
    */
-  const http = createHttpServer({ totalPeers: () => peers?.total ?? 0 });
+  const http = createHttpServer({ total: () => monitor.total });
   try {
     http.listen(port, host);
   } catch (cause) {
@@ -108,15 +108,15 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
   /**
    * Lifecycle:
    */
-  const life = rx.lifecycleAsync((options as any).dispose$, async () => {
+  async function cleanup() {
     try {
       await Promise.all([shutdown(wss), disposeHttpServer(http), repo.dispose()]);
     } catch (err) {
       console.error('[wss:shutdown:error]', err);
     }
-  });
-
-  const peers = monitorPeers({ network, host, port, dir, silent }, life.dispose$);
+  }
+  const life = rx.lifecycleAsync((options as any).dispose$, cleanup);
+  const monitor = monitorPeers({ network, host, port, dir, silent }, life.dispose$);
 
   /**
    * Await startup (retry/backoff instead of single-shot):

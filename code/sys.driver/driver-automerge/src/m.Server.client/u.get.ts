@@ -6,7 +6,7 @@ export const get: t.SyncServerInfoLib['get'] = async (url) => {
   const http = Http.fetcher();
   const result: t.DeepMutable<t.SyncServerInfoResponse> = {
     url,
-    data: { pkg: Pkg.unknown(), total: { peers: 0 } },
+    data: { pkg: Pkg.unknown(), total: { connections: 0, idle: { soft: 0, stale: 0, dead: 0 } } },
     elapsed: -1,
     errors: [],
   };
