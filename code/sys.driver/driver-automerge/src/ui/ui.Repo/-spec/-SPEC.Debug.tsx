@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
+import { ServerInfo } from '../../../m.Server.client/mod.ts';
 import {
   type t,
   Button,
@@ -112,6 +113,27 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `mode: ${p.mode.value ?? `<undefined> (default)`}`}
         onClick={() => {
           Signal.cycle<P['mode']>(p.mode, ['switch-only', 'switch + network-icons', undefined]);
+        }}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `ServerInfo.get`}
+        onClick={async () => {
+          const urls = debug.repo.sync.urls.map((text) => {
+            const url = new URL(text);
+            const protocol = url.protocol === 'ws:' ? 'http:' : 'https:';
+            return `${protocol}//${url.host}`;
+          });
+
+          for (const url of urls) {
+            const res = await ServerInfo.get(url);
+            console.group(`🌳 ServerInfo.get`);
+            console.log('url', url);
+            console.log(res);
+            console.groupEnd();
+          }
         }}
       />
 

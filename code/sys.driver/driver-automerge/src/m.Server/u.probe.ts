@@ -1,4 +1,4 @@
-import { type t, Err, Pkg, WS } from './common.ts';
+import { type t, Err, Pkg, WS, elapsedSince } from './common.ts';
 
 /**
  * Probe a sync server by performing a WebSocket handshake and returning response headers.
@@ -107,8 +107,4 @@ function validateWsUrl(u: string): { ok: true } | { ok: false; error: unknown } 
 function emptyHeaders(): t.SyncServerHandsakeHeaders {
   // Return a typed-empty shape; callers/tests assert fields they care about.
   return {} as unknown as t.SyncServerHandsakeHeaders;
-}
-
-function elapsedSince(t0: number): t.Msecs {
-  return Math.max(0, Math.round(performance.now() - t0));
 }

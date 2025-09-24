@@ -6,22 +6,41 @@ import { pkg, Pkg } from './common.ts';
  */
 export function createHttpServer() {
   return createServer((req: IncomingMessage, res: ServerResponse) => {
-    // JSON probe endpoints:
-    const isRoot = Is.root(req);
-    const isWellKnown = Is.wellKnown(req);
+    const { method, url } = wrangle.req(req);
+
+    // CORS:
+    const setCors = () => {
+      res.setHeader('access-control-allow-origin', '*');
+      res.setHeader('access-control-allow-methods', 'GET,OPTIONS');
+      res.setHeader('access-control-allow-headers', 'content-type, x-requested-with');
+      // Optional: cache the preflight for a bit
+      res.setHeader('access-control-max-age', '600');
+    };
+
+    // 1) Preflight:
+    if (method === 'OPTIONS') {
+      setCors();
+      res.statusCode = 204;
+      res.end();
+      return;
+    }
+
+    // 2) JSON probe endpoints:
+    const isRoot = Is.root(url, method);
+    const isWellKnown = Is.wellKnown(url, method);
 
     if (isRoot || isWellKnown) {
-      const body = JSON.stringify({ module: Pkg.toString(pkg) });
+      const body = JSON.stringify({ pkg: Pkg.toString(pkg) });
       res.statusCode = 200;
+      setCors();
       res.setHeader('content-type', 'application/json; charset=utf-8');
       res.setHeader('cache-control', 'no-store');
-      // Allow simple browser fetches and expose nothing sensitive:
-      res.setHeader('access-control-allow-origin', '*');
       res.end(body);
       return;
     }
 
-    // Fallback: tiny 404 for other HTTP paths.
+    // 3) Fallback: tiny 404:
+    setCors();
     res.statusCode = 404;
     res.setHeader('content-type', 'text/plain; charset=utf-8');
     res.end('Not Found');
@@ -45,13 +64,10 @@ export function disposeHttpServer(http: Server) {
  * Helpers:
  */
 const Is = {
-  root(req: IncomingMessage) {
-    const { url, method } = wrangle.req(req);
+  root(url: string, method: string) {
     return method === 'GET' && (url === '/' || url.startsWith('/?'));
   },
-
-  wellKnown(req: IncomingMessage) {
-    const { url, method } = wrangle.req(req);
+  wellKnown(url: string, method: string) {
     return (
       method === 'GET' &&
       (url === '/.well-known/sync-handshake' || url.startsWith('/.well-known/sync-handshake?'))
