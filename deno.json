@@ -116,6 +116,7 @@
       "net": true,
       "env": true,
       "ffi": true,
+      "run": true,
       "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
     },
     "clean": { "read": true, "write": true, "env": true, "run": true },

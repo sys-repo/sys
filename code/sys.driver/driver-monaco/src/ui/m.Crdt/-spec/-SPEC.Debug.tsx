@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRepo } from '../../-test.ui.ts';
-import { LanguagesList } from '../../ui.Editor.Monaco/-spec/-ui.ts';
+import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
 import {
   type t,

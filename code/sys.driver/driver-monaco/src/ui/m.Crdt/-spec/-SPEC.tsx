@@ -2,7 +2,7 @@ import { DocumentId } from '@sys/driver-automerge/web/ui';
 import { Monaco } from '@sys/driver-monaco';
 
 import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
-import { MonacoEditor } from '../../ui.Editor.Monaco/mod.ts';
+import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
 import { type t, Color, Crdt, D } from '../common.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';

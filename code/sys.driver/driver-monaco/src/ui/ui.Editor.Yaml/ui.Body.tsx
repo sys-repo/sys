@@ -1,5 +1,5 @@
 import React from 'react';
-import { MonacoEditor } from '../ui.Editor.Monaco/mod.ts';
+import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
 import { type t, Color, Cropmarks, css, D, DocumentId } from './common.ts';
 import { NotReady } from './ui.NotReady.tsx';
 
