@@ -3,11 +3,12 @@ import type { t } from './common.ts';
 /**
  * Tools for working with a network.
  */
-export type NetLib = Readonly<{
-  Port: t.PortLib;
-  port: t.PortLib['get'];
+export type NetLib = {
+  readonly Port: t.PortLib;
+  readonly port: t.PortLib['get'];
   connect(port: t.PortNumber, options?: NetConnectOptions): Promise<NetConnectResponse>;
-}>;
+  toUrl(addr: Deno.NetAddr, kind?: 'http' | 'ws'): string;
+};
 
 /**
  * Tools for working with network ports.
@@ -52,7 +53,7 @@ export type NetConnectOptions = {
 /**
  * Resposne from the `Net.connect` method:
  */
-export type NetConnectResponse = Readonly<{
-  socket?: Deno.TcpConn;
-  error?: t.StdError;
-}>;
+export type NetConnectResponse = {
+  readonly socket?: Deno.TcpConn;
+  readonly error?: t.StdError;
+};
