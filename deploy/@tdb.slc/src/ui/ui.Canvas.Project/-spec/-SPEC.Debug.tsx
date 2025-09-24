@@ -55,9 +55,8 @@ export function createDebugSignals() {
   const repo = Crdt.repo({
     storage: { database: 'dev.slc.crdt' },
     network: [
-      // { ws: 'sync.db.team' },
       // { ws: 'waiheke.sync.db.team' },
-      { ws: 'crdtsync.dbteam.deno.net' },
+      { ws: 'sync.db.team' },
       isLocalhost && { ws: 'localhost:3030' },
       qsSyncServer && { ws: qsSyncServer },
     ],
