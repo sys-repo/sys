@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, pkg, rx, Str, Time } from './common.ts';
+import { type t, c, Cli, Fs, pkg, Pkg, rx, Str, Time } from './common.ts';
 
 /**
  * Helpers for logging.
@@ -25,9 +25,10 @@ export const Log = {
     const bullet = c.bold(c.cyan('⏱'));
 
     const title = `${bullet} ${ts}`;
-    const msg = `  Memory: RSS ${rss}, ${c.cyan('Heap Used')} ${heapUsed}, Heap Total ${heapTotal}`;
+    const msg = `  Memory:     RSS ${rss}, ${c.cyan('Heap Used')} ${heapUsed}, Heap Total ${heapTotal}`;
 
     console.info(c.gray(title));
+    console.info(c.gray(`  Module:     ${Pkg.toString(pkg)}`));
     console.info(c.gray(msg));
   },
 
