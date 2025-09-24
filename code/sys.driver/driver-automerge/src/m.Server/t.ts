@@ -35,7 +35,7 @@ export type SyncServer = t.LifecycleAsync & {
 /**
  * Headers returned by the sync server on WebSocket upgrade.
  */
-export type SyncServerResponseHeaders = {
+export type SyncServerHandsakeHeaders = {
   upgrade: 'websocket';
   connection: 'Upgrade';
   date: t.StringHttpDate;

@@ -1,9 +1,9 @@
-import WS from 'ws';
-import { type t, c, describe, expect, it, Pkg, pkg, slug, Testing } from '../-test.ts';
+import { c, describe, expect, it, Pkg, pkg, slug, Testing } from '../-test.ts';
+import { probeSyncServer } from '../m.Server.client/mod.ts';
 import { Fs, rx, Time } from './common.ts';
 import { Server } from './mod.ts';
 
-describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('Crdt: SyncServer', { sanitizeResources: false, sanitizeOps: false }, () => {
   const silent = true;
 
   it('API', async () => {
@@ -67,21 +67,12 @@ describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () =>
 
   describe('headers', () => {
     it('adds "sys-module" HTTP header onto the WebSocket handshake', async () => {
-      const wsServer = await Server.ws({ silent: true });
-      const port = wsServer.addr.port;
+      const ws = await Server.ws({ silent: true });
+      const port = ws.addr.port;
 
-      // Use the ws client so we can read the 101 response headers via the "upgrade" event.
       const url = `ws://127.0.0.1:${port}`;
-      const client = new WS(url);
-
-      let headers: t.SyncServerResponseHeaders | undefined;
-      const opened = new Promise<void>((resolve, reject) => {
-        client.once('upgrade', (res: any) => (headers = res?.headers ?? {}));
-        client.once('open', () => resolve());
-        client.once('error', reject);
-      });
-
-      await opened;
+      const res = await probeSyncServer(url);
+      const headers = res.headers;
 
       console.info();
       console.info(c.brightCyan('T:SyncServerResponseHeaders'));
@@ -111,8 +102,7 @@ describe('Crdt: Server', { sanitizeResources: false, sanitizeOps: false }, () =>
           expect(raw.length).to.eql(20);
         }
       } finally {
-        client.close();
-        await wsServer.dispose();
+        await ws.dispose();
       }
     });
   });
