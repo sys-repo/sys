@@ -75,12 +75,8 @@ export function monitorPeers(
 
   network.on('message', (e) => {
     const { senderId, targetId } = e;
-
     if (senderId) touch(senderId, 'message-out');
     if (targetId) touch(targetId, 'message-in');
-
-    console.log('e', e);
-    console.log('api.peers', api.peers);
   });
 
   /**
