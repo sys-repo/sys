@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { Card } from '@sys/driver-automerge/web/ui';
-import { createRepo } from '../ui/-test.ui.ts';
 import { type t, Button, Color, Cropmarks, css, pkg, useDist } from './common.ts';
 
 export type SplashProps = {
+  repo?: t.Crdt.Repo;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -14,12 +14,7 @@ export type SplashProps = {
  * Component:
  */
 export const Splash: React.FC<SplashProps> = (props) => {
-  const {} = props;
-
-  /**
-   * Ref: CRDT.
-   */
-  const repoRef = React.useRef(createRepo());
+  const { repo } = props;
 
   /**
    * Hooks:
@@ -49,7 +44,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
           <Card
             theme={theme.name}
             headerStyle={{ topOffset: -30 }}
-            repo={repoRef.current}
+            repo={repo}
             localstorage={`${pkg.name}:splash`}
           />
         </div>

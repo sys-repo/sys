@@ -58,11 +58,13 @@ export async function main() {
      * Entry/Splash:
      */
     const { useKeyboard } = await import('@sys/ui-react-devharness');
+    const { createRepo } = await import('../ui/-test.ui.ts');
     const { Splash } = await import('./ui.Splash.tsx');
+    const repo = createRepo();
 
     function App() {
       useKeyboard();
-      return <Splash />;
+      return <Splash repo={repo} />;
     }
 
     const app = <App />;
