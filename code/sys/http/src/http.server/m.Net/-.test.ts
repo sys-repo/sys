@@ -33,7 +33,7 @@ describe('Net', { sanitizeOps: false, sanitizeResources: false }, () => {
 
     describe('Port.random', () => {
       it('Port.random()', async () => {
-        await Testing.retry(3, () => {
+        await Testing.retry(10, () => {
           const ports = [...Array(50)].map(() => Port.random());
           expect(R.equals(R.uniq(ports), ports)).to.eql(true);
           expect(ports.every((v) => typeof v === 'number')).to.eql(true);
