@@ -78,27 +78,42 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       const ws = `localhost:${s.addr.port}`;
 
       const repo = Crdt.repo({ network: { ws } });
+      await repo.whenReady(); // avoid racing adapter bring-up
+
       const events = repo.events();
+      const next = () => rx.firstValueFrom(events.prop$.pipe(rx.take(1)));
 
-      const fired: t.CrdtRepoPropChangeEvent['payload'][] = [];
-      events.prop$.subscribe((e) => fired.push(e));
-
-      repo.sync.enabled = false; // ← trigger event.
-      expect(fired.length).to.eql(1);
-
-      expect(fired[0].before.id).to.eql(fired[0].after.id);
-      expect(fired[0].before.sync.urls).to.eql(fired[0].after.sync.urls);
-      expect(fired[0].before.sync.enabled).to.eql(true);
-      expect(fired[0].after.sync.enabled).to.eql(false);
-
-      repo.sync.enabled = true;
-      expect(fired.length).to.eql(2);
-      repo.sync.enabled = true;
-      expect(fired.length).to.eql(2);
-      events.dispose();
-
+      // 1) disable → expect one prop-change
+      const p1 = next();
       repo.sync.enabled = false;
-      expect(fired.length).to.eql(2); // no more events (disposed).
+      const e1 = await p1;
+
+      expect(e1.before.id).to.eql(e1.after.id);
+      expect(e1.before.sync.urls).to.eql(e1.after.sync.urls);
+      expect(e1.before.sync.enabled).to.eql(true);
+      expect(e1.after.sync.enabled).to.eql(false);
+
+      // 2) enable → expect second prop-change
+      const p2 = next();
+      repo.sync.enabled = true;
+      const e2 = await p2;
+
+      expect(e2.before.sync.enabled).to.eql(false);
+      expect(e2.after.sync.enabled).to.eql(true);
+
+      // 3) no-op toggle shouldn’t emit
+      const fired: (typeof e1)[] = [];
+      const sub = events.prop$.subscribe((e) => fired.push(e));
+      repo.sync.enabled = true; // no-op
+      await Time.delay(); // one microtask hop
+      expect(fired.length).to.eql(0);
+      sub.unsubscribe();
+
+      // 4) after dispose, no more events
+      events.dispose();
+      repo.sync.enabled = false;
+      await Time.delay();
+      expect(fired.length).to.eql(0);
 
       await repo.dispose();
       await s.dispose();

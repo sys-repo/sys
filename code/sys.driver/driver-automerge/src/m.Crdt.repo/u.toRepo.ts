@@ -6,6 +6,7 @@ import { eventsFactory } from './u.events.ts';
 import { monitorNetwork } from './u.monitorNetwork.ts';
 import { silentShutdown } from './u.shutdown.ts';
 import { REF } from './u.toAutomergeRepo.ts';
+import { updateConnected } from './u.updateConnected.ts';
 
 type SysMeta = { readonly createdAt: number };
 type Seeded<T extends O> = T & { readonly $meta?: SysMeta };
@@ -15,6 +16,7 @@ const D = { timeout: 5_000 } as const;
 
 /**
  * Wrap an Automerge repo in a lightweight functional API.
+ * - All outward events are emitted on a scheduled hop to avoid re-entrancy.
  */
 export function toRepo(
   repo: Repo,
@@ -28,6 +30,7 @@ export function toRepo(
     peers.clear();
     await silentShutdown(repo);
   });
+  const schedule = Time.scheduler(life, 'micro');
 
   const cloneProps = (): t.CrdtRepoProps => {
     const { id, sync, ready } = api;
@@ -35,25 +38,21 @@ export function toRepo(
   };
 
   /**
-   * Observable:
+   * Observable (scheduled emissions):
    */
   const $$ = rx.subject<t.CrdtRepoEvent>();
+  const emitAsync = (e: t.CrdtRepoEvent) => schedule(() => $$.next(e));
   const fireChanged = (
     prop: t.CrdtRepoPropChange['prop'],
     before: t.CrdtRepoProps,
     after: t.CrdtRepoProps = cloneProps(),
-  ) => {
-    $$.next({
-      type: 'prop-change',
-      payload: { prop, before, after },
-    });
-  };
+  ) => emitAsync({ type: 'prop-change', payload: { prop, before, after } });
 
   /**
    * State:
    */
   const adapters = repo.networkSubsystem.adapters;
-  const peer = adapters.length > 0 ? options.peerId ?? '' : '';
+  const peer = adapters.length > 0 ? (options.peerId ?? '') : '';
   const peers = new Set<t.PeerId>();
   const urls = adapters
     .filter((adapter) => 'url' in adapter && typeof (adapter as any).url === 'string')
@@ -61,12 +60,11 @@ export function toRepo(
 
   const readyOnce = (async () => {
     try {
-      // Wait for all network adapters to be ready:
       await Promise.all(adapters.map((a) => a.whenReady()));
     } catch {
-      // Ignore - some adapters may not implement whenReady() strictly.
+      /* some adapters may not implement strictly */
     }
-    await Promise.resolve(); // Microtask yield for storage/index bootstrap.
+    await Promise.resolve(); // settle storage/index on a microtask
     if (!_ready) {
       const before = cloneProps();
       _ready = true;
@@ -75,10 +73,10 @@ export function toRepo(
   })();
 
   /**
-   * Listeners:
+   * Listeners (network → scheduled):
    */
   monitorNetwork(adapters, life.dispose$, (e) => {
-    $$.next(e);
+    emitAsync(e);
     if (e.type === 'network/peer-online' || e.type === 'network/peer-offline') {
       const before = cloneProps();
       if (e.type === 'network/peer-online') peers.add(e.payload.peerId);
@@ -127,7 +125,6 @@ export function toRepo(
 
     get<T extends O>(id: t.StringId, options: t.CrdtRepoGetOptions = {}) {
       type R = t.CrdtRefGetResponse<T>;
-
       return new Promise<R>(async (resolve) => {
         const fail = (error: t.CrdtRepoError) => resolve({ error });
         id = wrangle.id(id);
@@ -167,9 +164,6 @@ export function toRepo(
       return eventsFactory($$, until);
     },
 
-    /**
-     * Lifecycle:
-     */
     dispose: life.dispose,
     get dispose$() {
       return life.dispose$;
@@ -187,7 +181,6 @@ export function toRepo(
     configurable: false,
   });
 
-  // Finish up.
   return api;
 }
 
@@ -211,27 +204,10 @@ const wrangle = {
 } as const;
 
 /**
- * Safely connects/disconnects to each network adapter.
- */
-function updateConnected(
-  adapters: t.NetworkAdapterInterface[],
-  peer: t.StringId,
-  enabled: boolean,
-) {
-  const life = rx.lifecycle();
-  adapters.forEach(async (adapter) => {
-    await adapter.whenReady();
-    if (life.disposed) return;
-    if (enabled) adapter.connect(peer as t.PeerId, {});
-    else adapter.disconnect();
-  });
-  return life;
-}
-
-/**
  * Guarantee docs are non-empty so they persist durably.
  * Adds `$meta.createdAt` if initial state is empty.
- */ const seedInitial = <T extends O>(input: T | (() => T)): Seeded<T> => {
+ */
+const seedInitial = <T extends O>(input: T | (() => T)): Seeded<T> => {
   const base = (typeof input === 'function' ? (input as () => T)() : input) ?? {};
   if (Object.keys(base).length > 0) return base as Seeded<T>;
   return { $meta: { createdAt: Time.now.timestamp } } as Seeded<T>;
