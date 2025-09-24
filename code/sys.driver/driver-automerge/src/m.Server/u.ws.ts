@@ -11,8 +11,8 @@ import {
   WebSocketServer,
   type t,
 } from './common.ts';
+import { createHttpServer, disposeHttpServer } from './u.http.ts';
 import { Log } from './u.print.ts';
-import { createHttpServer, disposeHttpServer } from './u.server.http.ts';
 import { shutdown } from './u.shutdown.ts';
 
 export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
@@ -81,8 +81,8 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
   wss.on('error', (err: unknown) => console.error('[wss:error]', err));
 
   // Custom headers handshake:
-  wss.on('headers', (headers: string[], req) => {
-    headers.push(`sys-module: ${Pkg.toString(pkg)}`);
+  wss.on('headers', (headers: string[]) => {
+    headers.push(`sys-pkg: ${Pkg.toString(pkg)}`);
   });
 
   // Initialize the Automerge network and repo:
@@ -157,6 +157,9 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
     },
     get addr() {
       return addr;
+    },
+    get url() {
+      return Net.toUrl(addr, 'ws');
     },
 
     /**

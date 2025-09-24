@@ -79,7 +79,7 @@ export const probe: t.ProbeSyncServer = async (url, options = {}) => {
   const headers = headersRaw as t.SyncServerHandsakeHeaders;
   const result: t.ProbeResult = {
     url,
-    pkg: Pkg.toPkg(headers['sys-module']),
+    pkg: Pkg.toPkg(headers['sys-pkg']),
     headers,
     errors,
     elapsed: elapsedSince(t0),

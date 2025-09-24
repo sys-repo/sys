@@ -31,6 +31,7 @@ export type SyncServerStartOptions = {
 export type SyncServer = t.LifecycleAsync & {
   readonly repo: t.CrdtRepo;
   readonly addr: Deno.NetAddr;
+  readonly url: t.StringUrl;
 };
 
 /**
@@ -40,7 +41,7 @@ export type SyncServerHandsakeHeaders = {
   upgrade: 'websocket';
   connection: 'Upgrade';
   date: t.StringHttpDate;
-  'sys-module': t.StringScopedPkgNameVer;
+  'sys-pkg': t.StringScopedPkgNameVer;
   'sec-websocket-accept': string;
 };
 

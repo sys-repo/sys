@@ -67,11 +67,9 @@ describe('Crdt: SyncServer', { sanitizeResources: false, sanitizeOps: false }, (
   });
 
   describe('Server.ws: headers', () => {
-    it('adds "sys-module" HTTP header onto the WebSocket handshake', async () => {
+    it('adds "sys-pkg" HTTP header onto the WebSocket handshake', async () => {
       const ws = await Server.ws({ silent: true });
-      const port = ws.addr.port;
-
-      const url = `ws://127.0.0.1:${port}`;
+      const url = ws.url;
       const res = await Server.probe(url);
       const headers = res.headers;
 
@@ -88,7 +86,7 @@ describe('Crdt: SyncServer', { sanitizeResources: false, sanitizeOps: false }, (
         expect(headers?.upgrade === 'websocket').to.be.true;
         expect(headers?.connection === 'Upgrade').to.be.true;
         expect(headers?.date).to.be.a.string;
-        expect(headers?.['sys-module']).to.eql(Pkg.toString(pkg));
+        expect(headers?.['sys-pkg']).to.eql(Pkg.toString(pkg));
 
         // Accept handshake: "sec-websocket-accept".
         {
@@ -111,7 +109,7 @@ describe('Crdt: SyncServer', { sanitizeResources: false, sanitizeOps: false }, (
   describe('Server.probe', () => {
     it('probe → returns headers + no errors', async () => {
       const ws = await Server.ws({ silent: true });
-      const url = `ws://127.0.0.1:${ws.addr.port}`;
+      const url = ws.url;
 
       try {
         const res = await Server.probe(url);
@@ -138,8 +136,8 @@ describe('Crdt: SyncServer', { sanitizeResources: false, sanitizeOps: false }, (
         expect(h.date).to.be.a('string');
 
         // Scoped pkg string like "@scope/name@version".
-        expect(h['sys-module']).to.be.a('string');
-        expect(/^@[^/]+\/[^@]+@[^@/]+$/.test(h['sys-module'])).to.eql(true);
+        expect(h['sys-pkg']).to.be.a('string');
+        expect(/^@[^/]+\/[^@]+@[^@/]+$/.test(h['sys-pkg'])).to.eql(true);
 
         // RFC6455 accept header checks (base64, 20-byte SHA-1).
         const accept = h['sec-websocket-accept'];
