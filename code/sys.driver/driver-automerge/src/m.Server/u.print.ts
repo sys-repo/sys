@@ -47,7 +47,7 @@ export const Log = {
     const { port, dir, host = 'localhost' } = args;
 
     const table = Cli.table([]);
-    const module = c.gray(`${c.bold(c.white(pkg.name))}/${c.green('server')} ${pkg.version}`);
+    const module = c.gray(`${c.bold(c.white(pkg.name))}/${c.green('ws')} ${pkg.version}`);
     const url1 = c.cyan(`http://${host}:${c.bold(String(port))}`);
     const url2 = c.cyan(`  ws://${host}:${c.bold(String(port))}`);
 
