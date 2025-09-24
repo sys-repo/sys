@@ -41,8 +41,11 @@ export async function main() {
   const { render, useKeyboard } = await import('@sys/ui-react-devharness');
   const { Specs } = await import('./-specs.ts');
   const el = await render(pkg, Specs, {
-    hr: (e) => e.byRoots(['driver.monaco: Sample']),
     style: { Absolute: 0 },
+    hr(e) {
+      if (e.next?.includes('ui.Editor.Yaml ←')) return true;
+      if (e.next?.includes('Sample')) return true;
+    },
   });
   function App() {
     useKeyboard();
