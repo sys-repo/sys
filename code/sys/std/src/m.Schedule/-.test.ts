@@ -101,24 +101,93 @@ describe(`Schedule`, () => {
       });
     });
 
-    describe('Schedule.doubleFrame', () => {
-      it('invokes raf() twice and resolves', async () => {
+    describe('Schedule.frames(n)', () => {
+      it('default: frames() == frames(1)', async () => {
         const originalRaf = Schedule.raf;
         let calls = 0;
 
-        // Wrap raf to count invocations, then delegate to the original.
         (Schedule as any).raf = ((...args: unknown[]) => {
           calls += 1;
-          // Delegate to original (handles both callable & awaitable forms)
-          // @ts-expect-error forwarding variadic args to Schedule.raf
+          // @ts-expect-error forward to original
           return originalRaf(...args);
         }) as typeof Schedule.raf;
 
         try {
-          await Schedule.doubleFrame();
+          await Schedule.frames();
+          expect(calls).to.eql(1);
+        } finally {
+          (Schedule as any).raf = originalRaf;
+        }
+      });
+
+      it('n=0 resolves immediately and does not call raf', async () => {
+        const originalRaf = Schedule.raf;
+        let calls = 0;
+
+        (Schedule as any).raf = ((...args: unknown[]) => {
+          calls += 1;
+          // @ts-expect-error forward to original
+          return originalRaf(...args);
+        }) as typeof Schedule.raf;
+
+        try {
+          await Schedule.frames(0);
+          expect(calls).to.eql(0);
+        } finally {
+          (Schedule as any).raf = originalRaf;
+        }
+      });
+
+      it('n=1 invokes raf() once and resolves', async () => {
+        const originalRaf = Schedule.raf;
+        let calls = 0;
+
+        (Schedule as any).raf = ((...args: unknown[]) => {
+          calls += 1;
+          // @ts-expect-error forward to original
+          return originalRaf(...args);
+        }) as typeof Schedule.raf;
+
+        try {
+          await Schedule.frames(1);
+          expect(calls).to.eql(1);
+        } finally {
+          (Schedule as any).raf = originalRaf;
+        }
+      });
+
+      it('n=2 invokes raf() twice and resolves', async () => {
+        const originalRaf = Schedule.raf;
+        let calls = 0;
+
+        (Schedule as any).raf = ((...args: unknown[]) => {
+          calls += 1;
+          // @ts-expect-error forward to original
+          return originalRaf(...args);
+        }) as typeof Schedule.raf;
+
+        try {
+          await Schedule.frames(2);
           expect(calls).to.eql(2);
         } finally {
-          // Restore
+          (Schedule as any).raf = originalRaf;
+        }
+      });
+
+      it('n=3 invokes raf() three times and resolves', async () => {
+        const originalRaf = Schedule.raf;
+        let calls = 0;
+
+        (Schedule as any).raf = ((...args: unknown[]) => {
+          calls += 1;
+          // @ts-expect-error forward to original
+          return originalRaf(...args);
+        }) as typeof Schedule.raf;
+
+        try {
+          await Schedule.frames(3);
+          expect(calls).to.eql(3);
+        } finally {
           (Schedule as any).raf = originalRaf;
         }
       });
@@ -135,15 +204,33 @@ describe(`Schedule`, () => {
         }) as typeof Schedule.raf;
 
         try {
-          // Schedule a callback around the doubleFrame call to ensure no interference.
+          // Schedule a callback around the frames call to ensure no interference.
           Schedule.raf(() => seq.push('cb'));
-          await Schedule.doubleFrame();
-          seq.push('after-double');
+          await Schedule.frames(2);
+          seq.push('after-frames');
 
           // Presence/shape assertions (ordering is environment-dependent, so be lenient)
-          expect(calls).to.eql(3); // two from doubleFrame + one from our cb raf
+          expect(calls).to.eql(3); // two from frames(2) + one from our cb raf
           expect(seq.includes('cb')).to.eql(true);
-          expect(seq.includes('after-double')).to.eql(true);
+          expect(seq.includes('after-frames')).to.eql(true);
+        } finally {
+          (Schedule as any).raf = originalRaf;
+        }
+      });
+
+      it('n<0 behaves as a no-op (no raf calls)', async () => {
+        const originalRaf = Schedule.raf;
+        let calls = 0;
+
+        (Schedule as any).raf = ((...args: unknown[]) => {
+          calls += 1;
+          // @ts-expect-error forward to original
+          return originalRaf(...args);
+        }) as typeof Schedule.raf;
+
+        try {
+          await Schedule.frames(-5);
+          expect(calls).to.eql(0);
         } finally {
           (Schedule as any).raf = originalRaf;
         }

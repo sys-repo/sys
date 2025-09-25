@@ -25,7 +25,7 @@ export type SchedulerLib = {
    *   const macro = scheduler(life, "macro") // pick a mode explicitly
    *   await macro()                          // await a macro hop
    */
-  make(life: t.LifeLike, mode?: ScheduleMode): ScheduleFn;
+  make(life?: t.LifeLike, mode?: ScheduleMode): ScheduleFn;
 
   /**
    * Microtask scheduler.
@@ -62,18 +62,18 @@ export type SchedulerLib = {
   raf: ScheduleFn;
 
   /**
-   * Await two animation frames.
+   * Await N animation frames.
    *
    * Semantics:
-   * - Resolves after two sequential frame hops from the call site.
+   * - Resolves after `count` sequential frame hops from the call site.
    * - Uses `requestAnimationFrame` when available; otherwise falls back to ~16 ms timers.
-   * - Intended for "paint, then settle" flows where layout/paint must occur before follow-up work.
+   * - Intended for “paint, then settle” flows where layout/paint must occur before follow-up work.
    *
    * Notes:
-   * - This is a convenience built on top of `raf()`; equivalent to:
-   *     await raf(); await raf();
+   * - `count <= 0` resolves immediately.
+   * - Equivalent to: `for (let i=0; i<count; i++) await raf();`
    */
-  doubleFrame(): Promise<void>;
+  frames(count?: number): Promise<void>;
 };
 
 /**
