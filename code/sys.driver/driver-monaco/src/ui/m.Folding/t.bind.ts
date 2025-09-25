@@ -9,16 +9,16 @@ export type UseFoldMarks = (args: UseFoldMarksArgs) => void;
 
 /** Arguments passed to the `useFoldMarks` hook. */
 export type UseFoldMarksArgs = {
+  /** Unifiying shared event bus. */
+  bus$: t.EditorEventBus;
   /** The code-editor being bound to. */
   editor?: t.Monaco.Editor;
   /** The CRDT document being bound to. */
   doc?: t.Crdt.Ref;
-  /** Path to the **string** or **sequence** representing the editor text. */
+  /** Path to the field representing the editor text. */
   path?: t.ObjectPath;
   /** Enable/disable synchronisation (defaults to `true`). */
   enabled?: boolean;
-  /** Unifiying shared event bus. */
-  bus$?: t.Subject<t.EditorEvent>;
 };
 
 /**
@@ -27,12 +27,12 @@ export type UseFoldMarksArgs = {
 export type BindFoldMarks = (args: t.BindFoldMarksArgs) => EditorFoldBinding;
 /** Arguments passed to the pure code-folding binder function. */
 export type BindFoldMarksArgs = {
+  bus$: t.EditorEventBus;
   editor: t.Monaco.Editor;
   doc: t.Crdt.Ref<any>;
   path: t.ObjectPath;
   enabled?: boolean;
-  until?: t.Lifecycle;
-  bus$?: t.Subject<t.EditorEvent>;
+  until?: t.UntilInput;
 };
 
 /**

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Dispose, EditorFolding, Obj, rx, Time } from './common.ts';
+import { type t, Dispose, EditorFolding, Obj, rx, Schedule, useBus } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
 
 export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
@@ -11,13 +11,12 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
    * Hooks/Refs:
    */
   const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
-  const busRef = React.useRef<t.Subject<t.EditorEvent>>(rx.subject());
-  const bus$ = busRef.current;
+  const bus$ = useBus(args.bus$);
 
   /**
    * Sub-Hooks:
    */
-  EditorFolding.useFoldMarks({ editor, doc, path, bus$, enabled: foldMarks });
+  EditorFolding.useFoldMarks({ bus$, editor, doc, path, enabled: foldMarks });
 
   /**
    * Effect: setup and tear-down the Monaco↔CRDT binding.
@@ -26,7 +25,7 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
     if (!(doc && path && editor && monaco)) return;
 
     const life = rx.lifecycle();
-    const schedule = Time.scheduler(life, 'micro');
+    const schedule = Schedule.make(life, 'micro');
 
     EditorCrdt.bind({ editor, doc, path, bus$, until: life }).then((binding) => {
       if (life.disposed) return binding.dispose();

@@ -1,4 +1,5 @@
 import { type t, describe, expect, it, MonacoFake, rx, Time } from '../../-test.ts';
+import { Bus } from './common.ts';
 import { EditorFolding } from './mod.ts';
 import { bindFoldMarks } from './u.bind.ts';
 import { useFoldMarks } from './use.FoldMarks.ts';
@@ -12,14 +13,14 @@ describe('Monaco.Folding', () => {
   describe('Folding.observe', () => {
     it('create', () => {
       const editor = MonacoFake.editor('');
-      const ob = EditorFolding.observe(editor);
+      const ob = EditorFolding.observe({ editor });
       expect(ob.areas).to.eql([]);
     });
 
     describe('lifecycle', () => {
       it('dispose: via method', () => {
         const editor = MonacoFake.editor('');
-        const ob = EditorFolding.observe(editor);
+        const ob = EditorFolding.observe({ editor });
         expect(ob.disposed).to.eql(false);
         ob.dispose();
         expect(ob.disposed).to.eql(true);
@@ -28,7 +29,7 @@ describe('Monaco.Folding', () => {
       it('dispose: via dispose$', () => {
         const life = rx.disposable();
         const editor = MonacoFake.editor('');
-        const ob = EditorFolding.observe(editor, life);
+        const ob = EditorFolding.observe({ editor }, life);
         expect(ob.disposed).to.eql(false);
         life.dispose();
         expect(ob.disposed).to.eql(true);
@@ -39,9 +40,11 @@ describe('Monaco.Folding', () => {
       it('observer reflects fold/unfold events', async () => {
         const src = 'line one\nline two\nline three';
         const editor = MonacoFake.editor(src);
-        const ob = EditorFolding.observe(editor);
 
-        const fired: t.EditorFoldingAreaChange[] = [];
+        const bus$ = Bus.make();
+        const ob = EditorFolding.observe({ editor, bus$ });
+
+        const fired: t.EditorChangeFoldingArea[] = [];
         ob.$.subscribe((e) => fired.push(e));
 
         const fold: t.Monaco.I.IRange = {
@@ -69,7 +72,7 @@ describe('Monaco.Folding', () => {
 
       it('observer stops updating after dispose', () => {
         const editor = MonacoFake.editor('one\ntwo');
-        const ob = EditorFolding.observe(editor);
+        const ob = EditorFolding.observe({ editor });
 
         ob.dispose();
 
@@ -83,6 +86,26 @@ describe('Monaco.Folding', () => {
         editor.setHiddenAreas([fold]);
         expect(ob.areas).to.eql([]); // Value stays frozen because observer has been disposed.
       });
+
+      it('fires through external bus$ when provided', async () => {
+        const editor = MonacoFake.editor('line one\nline two\nline three');
+        const bus$ = Bus.make();
+
+        const a = EditorFolding.observe({ editor });
+        EditorFolding.observe({ editor, bus$ });
+
+        const seenA: any[] = [];
+        const seenBus: any[] = [];
+        a.$.subscribe((e) => seenA.push(e));
+        bus$.subscribe((e) => seenBus.push(e));
+
+        const fold = { startLineNumber: 2, startColumn: 1, endLineNumber: 3, endColumn: 1 };
+        editor.setHiddenAreas([fold]);
+
+        await Time.wait(10);
+        expect(seenA.length).to.eql(1);
+        expect(seenBus.length).to.eql(1);
+      });
     });
   });
 
@@ -90,7 +113,7 @@ describe('Monaco.Folding', () => {
     it('updates observer when a range is folded', () => {
       const src = 'a\nb\nc\nd';
       const editor = MonacoFake.editor(src);
-      const ob = EditorFolding.observe(editor);
+      const ob = EditorFolding.observe({ editor });
 
       // Initial state → no folds:
       expect(ob.areas).to.eql([]);
@@ -110,7 +133,7 @@ describe('Monaco.Folding', () => {
 
     it('no further updates after observer is disposed', () => {
       const editor = MonacoFake.editor('x\ny');
-      const ob = EditorFolding.observe(editor);
+      const ob = EditorFolding.observe({ editor });
       ob.dispose();
 
       EditorFolding.fold(editor, 1); // ← would fold line 1.
@@ -147,7 +170,7 @@ describe('Monaco.Folding', () => {
 
     it('notifies live observers', () => {
       const editor = MonacoFake.editor('x\ny\nz');
-      const ob = EditorFolding.observe(editor);
+      const ob = EditorFolding.observe({ editor });
 
       EditorFolding.fold(editor, 2, 3); //  ← hide "y", "z".
       expect(ob.areas).to.have.length(1);

@@ -24,6 +24,7 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
         return (
           <Monaco.Yaml.Editor
+            bus$={debug.bus$}
             repo={repo}
             documentId={v.documentId}
             editor={v.editor}

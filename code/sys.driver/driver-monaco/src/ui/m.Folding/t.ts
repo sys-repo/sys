@@ -14,7 +14,10 @@ export type EditorFoldingLib = {
   /**
    * Watch the editor's hidden-area list.
    */
-  observe(editor: t.Monaco.Editor, dispose$?: t.UntilInput): t.EditorFoldingAreaObserver;
+  observe(
+    args: { editor: t.Monaco.Editor; bus$?: t.EditorEventBus },
+    dispose$?: t.UntilInput,
+  ): t.EditorFoldingAreaObserver;
 
   /**
    * Fold (hide) one or more whole lines (1-based, inclusive).
@@ -59,13 +62,6 @@ export type EditorFoldingLib = {
  * Live observer of the editor's hidden-area list:
  */
 export type EditorFoldingAreaObserver = t.Lifecycle & {
-  readonly $: t.Observable<t.EditorFoldingAreaChange>;
+  readonly $: t.Observable<t.EditorChangeFoldingArea>;
   readonly areas: t.Monaco.I.IRange[];
 };
-
-/**
- * Event: fires when the editor's hidden-area list changes.
- */
-export type EditorFoldingAreaChangeHandler = (e: EditorFoldingAreaChange) => void;
-/** Event information about the change. */
-export type EditorFoldingAreaChange = { readonly areas: t.Monaco.I.IRange[] };

@@ -7,11 +7,9 @@ import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 import { type t, Color, Crdt, D } from '../common.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
 
-type R = t.Monaco.Range;
-
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
-  const repo = debug.repo;
+  const { bus$, repo } = debug;
   const p = debug.props;
 
   function HostDocumentId(props: t.DocumentIdProps) {
@@ -40,7 +38,7 @@ export default Spec.describe(D.displayName, async (e) => {
     /**
      * Hook:
      */
-    Monaco.Crdt.useBinding({ monaco, editor, doc, path, foldMarks: true }, (e) => {
+    Monaco.Crdt.useBinding({ bus$, monaco, editor, doc, path, foldMarks: true }, (e) => {
       p.binding.value = e.binding;
       e.binding.$.subscribe((e) => {
         console.info(`⚡️ editor/crdt:binding.$`, e);
@@ -81,7 +79,7 @@ export default Spec.describe(D.displayName, async (e) => {
     const v = Signal.toObject(p);
     const { monaco, editor, doc, path } = v;
 
-    const yaml = Monaco.Yaml.useYaml({ monaco, editor, doc, path, errorMarkers: true });
+    const yaml = Monaco.Yaml.useYaml({ bus$, monaco, editor, doc, path, errorMarkers: true });
     if (yaml.cursor.path.length === 0) return null;
 
     return (

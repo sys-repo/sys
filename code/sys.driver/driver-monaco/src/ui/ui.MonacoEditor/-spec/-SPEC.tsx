@@ -29,11 +29,12 @@ export default Spec.describe('MonacoEditor', (e) => {
         spinning={v.spinning}
         //
         onMounted={(e) => {
+          const { editor } = e;
           console.info(`⚡️ MonacoEditor.onMounted:`, e);
-          p.editor.value = e.editor;
+          p.editor.value = editor;
 
           // Listeners:
-          const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
+          const path = Monaco.Yaml.Path.observe({ editor }, e.dispose$);
           path.$.subscribe((e) => (p.selectedPath.value = e.path));
         }}
       />

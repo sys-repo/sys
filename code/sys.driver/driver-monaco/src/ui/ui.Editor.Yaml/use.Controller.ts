@@ -4,9 +4,9 @@ import { useYaml } from '../m.Yaml/use.Yaml.ts';
 import { type t, Signal } from './common.ts';
 import { useSignals } from './use.Signals.ts';
 
-type P = t.YamlEditorProps;
+type P = Omit<t.YamlEditorProps, 'bus$'>;
 
-export function useController(props: P) {
+export function useYamlController(bus$: t.EditorEventBus, props: P) {
   const { path } = props;
 
   /**
@@ -19,7 +19,7 @@ export function useController(props: P) {
    * Hook: CRDT.
    */
   const binding = EditorCrdt.useBinding(
-    { monaco, editor, doc, path, foldMarks: true },
+    { bus$, monaco, editor, doc, path, foldMarks: true },
     props.onReady,
   );
 
@@ -28,6 +28,7 @@ export function useController(props: P) {
    */
   const yaml = useYaml(
     {
+      bus$,
       monaco,
       editor,
       doc,

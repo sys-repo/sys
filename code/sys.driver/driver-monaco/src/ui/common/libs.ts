@@ -11,4 +11,4 @@ export {
   Spinners,
 } from '@sys/ui-react-components';
 
-export { Bus } from '../../m.events/mod.ts';
+export { Bus, useBus } from '../../m.events/mod.ts';

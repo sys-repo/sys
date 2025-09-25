@@ -16,8 +16,11 @@ export const useYaml: t.UseEditorYaml = (args, cb) => {
    * Hooks:
    */
   const [, setCount] = useState(0);
-  const [cursor, setCursor] = useState<t.EditorYamlCursorPath>({ path: [] });
   const [parser, setParser] = useState<t.YamlSyncParser>();
+  const [cursor, setCursor] = useState<t.EditorChangeCursorPath>({
+    kind: 'change:cursor-path',
+    path: [],
+  });
 
   /** YAML parsing diagnostics: */
   useErrorMarkers({
@@ -45,7 +48,7 @@ export const useYaml: t.UseEditorYaml = (args, cb) => {
    */
   useEffect(() => {
     if (!editor || !monaco) return;
-    const observer = Path.observe(editor);
+    const observer = Path.observe({ editor });
     observer.$.subscribe((e) => {
       setCursor(e);
       fireChange();

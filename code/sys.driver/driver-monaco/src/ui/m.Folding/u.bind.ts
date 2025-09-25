@@ -1,4 +1,4 @@
-import { type t, A, D, RangeUtil, rx, Schedule, Util } from './common.ts';
+import { type t, A, Bus, D, RangeUtil, rx, Schedule, Util } from './common.ts';
 import { getHiddenAreas } from './u.hidden.ts';
 import { toMarkRanges } from './u.mark.ts';
 import { observe } from './u.observe.ts';
@@ -17,8 +17,8 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
   /**
    * Events:
    */
-  const $$ = args.bus$ ?? rx.subject<t.EditorEvent>();
-  const $ = $$.pipe(
+  const bus$ = args.bus$ ?? Bus.make();
+  const $ = bus$.pipe(
     rx.takeUntil(life.dispose$),
     rx.filter((e) => e.kind === 'change:marks'),
   );
@@ -64,7 +64,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
 
     const fire = (trigger: t.EditorChangeMarks['trigger'], before: IRange[], after: IRange[]) => {
       if (RangeUtil.eql(before, after)) return;
-      schedule(() => $$.next({ kind: 'change:marks', trigger, path, change: { before, after } }));
+      Bus.emit(bus$, { kind: 'change:marks', trigger, path, change: { before, after } });
     };
 
     const writeStoredRanges = async (ranges: IRange[]) => {
@@ -177,7 +177,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
     /**
      * Editor → CRDT: observe hidden-areas changes and write marks if they differ.
      */
-    const { $ } = observe(editor, life);
+    const { $ } = observe({ editor, bus$ }, life);
     $.pipe(rx.takeUntil(life.dispose$)).subscribe(async (e) => {
       if (!readyForEditorWrites.current) return;
       if (docUpdatingEditor.current) return;

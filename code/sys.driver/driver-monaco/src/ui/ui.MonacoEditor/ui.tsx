@@ -200,6 +200,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
           theme={editorTheme}
           onMount={handleMount}
           onChange={handleChange}
+          loading={null}
         />
         {elSpinning}
         {elEmpty}

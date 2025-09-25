@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { type t, Color, css, D, rx, YamlEditorFooter } from './common.ts';
+import { type t, Color, css, D, rx, useBus, YamlEditorFooter } from './common.ts';
 import { Body } from './ui.Body.tsx';
 import { NotReady } from './ui.NotReady.tsx';
-import { useController } from './use.Controller.ts';
+import { useYamlController } from './use.Controller.ts';
 
 type P = t.YamlEditorProps;
 
@@ -12,9 +12,14 @@ export const YamlEditor: React.FC<P> = (props) => {
   const isFooterVisible = footer.visible ?? D.footer.visible;
 
   /**
+   * Refs:
+   */
+  const bus$ = useBus(props.bus$);
+
+  /**
    * Hooks:
    */
-  const controller = useController(props);
+  const controller = useYamlController(bus$, props);
   const { yaml, signals, doc } = controller;
 
   /**

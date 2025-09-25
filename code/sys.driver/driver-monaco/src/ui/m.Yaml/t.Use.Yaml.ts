@@ -10,6 +10,7 @@ export type UseEditorYaml = (
 
 /** Arguments passed to the `useYaml` hook. */
 export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> & {
+  bus$: t.EditorEventBus;
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
   /** Render red squiggles from YAML errors. (default = off) */
@@ -20,7 +21,7 @@ export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> &
 export type EditorYaml = {
   readonly ok: boolean;
   readonly path?: t.YamlSyncParserPaths;
-  readonly cursor: t.EditorYamlCursorPath;
+  readonly cursor: t.EditorChangeCursorPath;
   readonly parsed: {
     readonly input: string;
     readonly output: t.YamlSyncParsed<unknown>;

@@ -5,7 +5,10 @@ import type { t } from './common.ts';
  */
 export type EditorYamlPathLib = Readonly<{
   /** Create a new `EditorYamlPathObserver`. */
-  observe(editor: t.Monaco.Editor, dispose$?: t.UntilInput): EditorYamlCursorPathObserver;
+  observe(
+    args: { editor: t.Monaco.Editor; bus$?: t.EditorEventBus },
+    until?: t.UntilInput,
+  ): EditorYamlCursorPathObserver;
 }>;
 
 /**
@@ -13,17 +16,6 @@ export type EditorYamlPathLib = Readonly<{
  * YAML document based on where the user's caret is.
  */
 export type EditorYamlCursorPathObserver = t.Lifecycle & {
-  readonly $: t.Observable<t.EditorYamlCursorPath>;
-  readonly current: t.EditorYamlCursorPath;
-};
-
-/**
- * Event: fires when the cursor/path changes.
- */
-export type EditorYamlCursorPathHandler = (e: EditorYamlCursorPath) => void;
-/** Event information about the current cursor/path. */
-export type EditorYamlCursorPath = {
-  readonly path: t.ObjectPath;
-  readonly cursor?: Readonly<{ position: t.Monaco.I.IPosition; offset: t.Index }>;
-  readonly word?: t.Monaco.I.IRange;
+  readonly $: t.Observable<t.EditorChangeCursorPath>;
+  readonly current: t.EditorChangeCursorPath;
 };

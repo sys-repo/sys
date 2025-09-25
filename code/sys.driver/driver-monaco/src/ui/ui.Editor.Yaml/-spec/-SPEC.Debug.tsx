@@ -9,6 +9,7 @@ import {
   LocalStorage,
   Obj,
   ObjectView,
+  rx,
   Signal,
   STORAGE_KEY,
 } from '../common.ts';
@@ -24,15 +25,8 @@ const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   path: ['foo'],
-  documentId: {
-    visible: true,
-    readOnly: false,
-    urlKey: undefined,
-  },
-  editor: {
-    margin: 0,
-    minimap: false,
-  },
+  documentId: { visible: true, readOnly: false, urlKey: undefined },
+  editor: { margin: 0, minimap: false },
   footer: { visible: true, repo: true },
 };
 
@@ -77,6 +71,7 @@ export function createDebugSignals() {
   const api = {
     props,
     repo: createRepo(),
+    bus$: rx.subject<t.EditorEvent>(),
     listen() {
       Signal.listen(props);
       Signal.listen(props.documentId);

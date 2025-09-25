@@ -1,7 +1,8 @@
-import { type t, Yaml, rx } from './common.ts';
+import { type t, Bus, rx, Yaml } from './common.ts';
 import { pathAtCaret } from './u.pathAtCaret.ts';
 
-export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
+export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
+  const { editor } = args;
   const model = editor.getModel();
   if (!model) throw new Error('Editor has no model');
 
@@ -10,13 +11,16 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
   const disposables: Array<{ dispose(): void }> = [];
   life.dispose$.subscribe(() => disposables.forEach((d) => d.dispose()));
 
-  const $$ = rx.subject<t.EditorYamlCursorPath>();
-  const $ = $$.pipe(rx.takeUntil(life.dispose$));
+  const bus$ = args.bus$ ?? Bus.make();
+  const $ = bus$.pipe(
+    rx.takeUntil(life.dispose$),
+    rx.filter((e) => e.kind === 'change:cursor-path'),
+  );
 
   // Keep the latest parse and the model version it belongs to:
   let ast = Yaml.parseAst(model.getValue());
   let version = model.getVersionId();
-  let current: t.EditorYamlCursorPath | undefined;
+  let current: t.EditorChangeCursorPath | undefined;
 
   // (Re)parse helper:
   const parse = () => {
@@ -26,7 +30,7 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
 
   const clear = () => {
     current = undefined;
-    $$.next({ path: [] });
+    Bus.emit(bus$, { kind: 'change:cursor-path', path: [] });
   };
 
   const update = () => {
@@ -37,8 +41,9 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
       const { offset, path } = pathAtCaret(model, ast, position);
       if (offset === -1) return void clear();
 
-      current = { path, cursor: { position, offset }, word };
-      $$.next(current);
+      const cursor = { position, offset };
+      current = { kind: 'change:cursor-path', path, cursor, word };
+      Bus.emit(bus$, current);
     } else {
       clear();
     }
@@ -79,7 +84,9 @@ export const observe: t.EditorYamlPathLib['observe'] = (editor, until) => {
       return $;
     },
     get current() {
-      return current ? current : { path: [] };
+      return current
+        ? current
+        : ({ kind: 'change:cursor-path', path: [] } satisfies t.EditorChangeCursorPath);
     },
   });
 };
@@ -93,7 +100,7 @@ const wrangle = {
     const model = editor.getModel();
     if (!position || !model) return;
     const language = model.getLanguageId() as t.EditorLanguage;
-    const offset = position ? model?.getOffsetAt(position) ?? -1 : -1;
+    const offset = position ? (model?.getOffsetAt(position) ?? -1) : -1;
     return { position, offset, language } as const;
   },
 

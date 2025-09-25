@@ -1,4 +1,4 @@
-import { type t, A, Obj, rx, Schedule, Util } from './common.ts';
+import { type t, A, Bus, Obj, rx, Schedule, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
 /**
@@ -32,10 +32,10 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
   const hasPath = (path ?? []).length > 0;
   let _isPulling = false;
 
-  const $$ = args.bus$ ?? rx.subject<t.EditorEvent>();
+  const bus$ = args.bus$ ?? Bus.make();
   const fire = (trigger: 'editor' | 'crdt', before: string, after: string) => {
     if (after === before) return;
-    $$.next({ kind: 'change:text', trigger, path, change: { before, after } });
+    Bus.emit(bus$, { kind: 'change:text', trigger, path, change: { before, after } });
   };
 
   const getValue = () => {
@@ -150,7 +150,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
   life.dispose$.subscribe(() => editorChangeSub.dispose());
 
   return rx.toLifecycle<t.EditorCrdtBinding>(life, {
-    $: $$.pipe(rx.takeUntil(life.dispose$)),
+    $: bus$.pipe(rx.takeUntil(life.dispose$)),
     doc,
     path,
     model,

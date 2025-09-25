@@ -4,11 +4,16 @@ import type { t } from './common.ts';
  * Method: setup binding.
  */
 export type EditorCrdtBind = (args: {
+  /** Unifiying shared event bus. */
+  bus$: t.EditorEventBus;
+  /** The code-editor being bound to. */
   editor: t.Monaco.Editor;
+  /** The CRDT document being bound to. */
   doc: t.Crdt.Ref;
+  /** Path to the field representing the editor text. */
   path: t.ObjectPath;
+  /** Destructor trigger. */
   until?: t.UntilInput;
-  bus$?: t.Subject<t.EditorEvent>;
 }) => Promise<t.EditorCrdtBinding>;
 
 /**
@@ -36,12 +41,12 @@ export type EditorCrdtBindingReady = t.MonacoEditorReady & { binding: t.EditorCr
 
 /** Arguments passed to the CRDT `useBinding` hook. */
 export type UseEditorCrdtBindingArgs = {
+  bus$?: t.EditorEventBus;
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
   doc?: t.Crdt.Ref;
   path?: t.ObjectPath;
-  /** Sync CRDT fold marks with Monaco. (default = off) */
-  foldMarks?: boolean;
+  foldMarks?: boolean; // Sync CRDT fold marks with Monaco. (default = off)
 };
 
 /** An instance of the `useBinding` Monaco-Crdt two-way data binding. */

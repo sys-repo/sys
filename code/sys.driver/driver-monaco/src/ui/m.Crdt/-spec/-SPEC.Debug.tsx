@@ -13,6 +13,7 @@ import {
   LocalStorage,
   Obj,
   ObjectView,
+  rx,
   Signal,
 } from '../common.ts';
 import { YamlSyncDebug } from './-u.yaml.tsx';
@@ -67,6 +68,7 @@ export async function createDebugSignals() {
   const api = {
     props,
     repo,
+    bus$: rx.subject<t.EditorEvent>(),
     listen() {
       Signal.listen(props);
     },
@@ -157,6 +159,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       {p.language.value === 'yaml' && (
         <YamlSyncDebug
+          bus$={debug.bus$}
           doc={p.doc.value}
           path={p.path.value}
           editor={p.editor.value}
@@ -202,6 +205,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+
       <ObjectView
         name={'debug'}
         data={{
