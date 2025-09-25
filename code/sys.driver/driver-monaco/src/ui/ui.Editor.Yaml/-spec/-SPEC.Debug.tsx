@@ -107,10 +107,10 @@ export function createDebugSignals() {
 const Styles = {
   title: css({
     fontWeight: 'bold',
-    marginBottom: 10,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 10,
   }),
 };
 
