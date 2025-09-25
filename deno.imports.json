@@ -46,7 +46,7 @@
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
-    "ai": "npm:ai@5.0.52",
+    "ai": "npm:ai@5.0.53",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@6.0.1",
     "chai/": "npm:chai@6.0.1/",

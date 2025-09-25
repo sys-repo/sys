@@ -88,7 +88,7 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.52
+    - import: npm:ai@5.0.53
     - import: npm:@ai-sdk/openai@2.0.35
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.18.0
@@ -161,5 +161,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.23.21
+  - import: npm:motion@12.23.22
   - import: npm:hono@4.9.8
