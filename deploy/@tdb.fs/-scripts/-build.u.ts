@@ -102,7 +102,7 @@ export async function buildAndCopyAll(
     const input = `${c.gray(tree)} ${c.gray(moduleDir)}`;
     const out = c.cyan(targetDir);
 
-    table.push([input, pkgLabel, out]);
+    table.push([input, out]);
     items.push({
       moduleDir,
       targetDir,
@@ -175,7 +175,7 @@ export async function buildAndCopyAll(
         return `${prefix} ${c.green('✓')} ${name}  ${rightColumn(it.targetDir, 'white', 'cyan')}`;
       }
       case 'active': {
-        const name = c.green(it.pkgName) + namePad;
+        const name = c.gray(it.pkgName) + namePad;
         return `${prefix} ${c.white('•')} ${name}  ${rightColumn(it.targetDir, 'gray', 'gray')}`;
       }
       case 'fail': {
