@@ -1,23 +1,32 @@
 import { buildAndCopyAll, copyPublic } from './-build.u.ts';
 import { Fs, pkg, Pkg, TmplEngine } from './common.ts';
 
+/**
+ * Ensure clean `dist` folder.
+ */
 await Fs.remove('./dist');
+await Fs.ensureDir('./dist');
 
 /**
  * Pull in modules:
  */
-console.info();
 const build = true;
+const concurrency = 4;
 
-await buildAndCopyAll([
-  ['../../code/sys.ui/ui-react-components', 'sys/ui.components', { build }],
-  ['../../code/sys.ui/ui-factory', 'sys/ui.factory', { build }],
-  ['../../code/sys.driver/driver-automerge', 'sys/driver.automerge', { build }],
-  ['../../code/sys.driver/driver-monaco', 'sys/driver.monaco', { build }],
-  ['../../code/sys.driver/driver-peerjs', 'sys/driver.peerjs', { build }],
-  ['../../code/sys.driver/driver-prosemirror', 'sys/driver.prosemirror', { build }],
-  ['../../code/sys.dev', 'sys/dev', { build }],
-]);
+console.info();
+await buildAndCopyAll(
+  [
+    ['../../code/sys.ui/ui-react-components', 'sys/ui.components', { build }],
+    ['../../code/sys.ui/ui-factory', 'sys/ui.factory', { build }],
+    ['../../code/sys.driver/driver-automerge', 'sys/driver.automerge', { build }],
+    ['../../code/sys.driver/driver-monaco', 'sys/driver.monaco', { build }],
+    ['../../code/sys.driver/driver-peerjs', 'sys/driver.peerjs', { build }],
+    ['../../code/sys.driver/driver-prosemirror', 'sys/driver.prosemirror', { build }],
+    ['../../code/sys.dev', 'sys/dev', { build }],
+  ],
+  { concurrency },
+);
+
 await copyPublic('public', 'dist');
 
 // Write entry HTML.
@@ -35,7 +44,7 @@ await TmplEngine.File.update(Fs.join('dist/index.html'), (line) => {
   if (line.text.includes('<a href="./dist.json">')) {
     const hash = dist.hash.digest ?? '00000';
     const hx = `#${hash.slice(-5)}`;
-    line.modify(line.text.replace(/dist.json\<\/a>/, `dist.json (${hx})</a>`));
+    line.modify(line.text.replace(/dist\.json\<\/a>/, `dist.json (${hx})</a>`));
   }
 });
 
