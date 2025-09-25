@@ -21,7 +21,7 @@ export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> &
 export type EditorYaml = {
   readonly ok: boolean;
   readonly path?: t.YamlSyncParserPaths;
-  readonly cursor: t.EditorChangeCursorPath;
+  readonly cursor: t.EditorEventCursorPath;
   readonly parsed: {
     readonly input: string;
     readonly output: t.YamlSyncParsed<unknown>;

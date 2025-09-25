@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 
+export type EditorEventBus = t.Subject<t.EditorEvent>;
 export type EmitSchedule = 'sync' | 'micro' | 'macro' | 'raf';
 
 /**

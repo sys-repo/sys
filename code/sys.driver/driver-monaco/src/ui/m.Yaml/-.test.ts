@@ -39,7 +39,7 @@ describe('Monaco.Yaml', () => {
       const editor = MonacoFake.editor(model);
       const ob = EditorYaml.Path.observe({ editor });
 
-      const fired: t.EditorChangeCursorPath[] = [];
+      const fired: t.EditorEventCursorPath[] = [];
       ob.$.subscribe((e) => fired.push(e));
 
       // Caret inside the "👋" scalar.
@@ -70,7 +70,7 @@ describe('Monaco.Yaml', () => {
       const editor = MonacoFake.editor(model);
       const ob = EditorYaml.Path.observe({ editor });
 
-      const fired: t.EditorChangeCursorPath[] = [];
+      const fired: t.EditorEventCursorPath[] = [];
       ob.$.subscribe((e) => fired.push(e));
 
       editor.setPosition({ lineNumber: 1, column: 6 });
