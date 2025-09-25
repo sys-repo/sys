@@ -41,13 +41,6 @@ export type TimeLib = {
 
   /** A Time helper that runs only until it has been disposed. */
   until(until$?: t.DisposeInput): t.TimeUntil;
-
-  /**
-   * Yield to the next animation frame.
-   * - SSR/Node fallback: schedules a 0 ms macrotask.
-   * - If `signal` aborts before the frame, the promise rejects with `AbortError`.
-   */
-  nextFrame(opts?: t.TimeFrameOptions | AbortSignal): Promise<void>;
 };
 
 /**

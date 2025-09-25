@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Schema, Time, rx } from './common.ts';
+import { type t, rx, Schedule, Schema, Time } from './common.ts';
 import { renderPlan } from './u.renderPlan.ts';
 import { validatePlan } from './u.validatePlan.ts';
 
@@ -95,7 +95,7 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
     (async () => {
       try {
         // Yield a frame so `loading=true` can render.
-        await Time.nextFrame(abort);
+        await Schedule.doubleFrame();
         if (life.disposed) return;
 
         // Debug: load delay.
