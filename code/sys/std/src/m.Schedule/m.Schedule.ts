@@ -2,6 +2,10 @@ import { type t } from './common.ts';
 
 export const Schedule: t.SchedulerLib = {
   make: (life, mode = 'micro') => makeScheduleFn(mode, life),
+  async doubleFrame() {
+    await Schedule.raf();
+    await Schedule.raf();
+  },
 
   // Static schedulers (no lifecycle).
   micro: makeScheduleFn('micro'),

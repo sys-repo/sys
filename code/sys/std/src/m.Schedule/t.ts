@@ -60,6 +60,20 @@ export type SchedulerLib = {
    *   await raf()
    */
   raf: ScheduleFn;
+
+  /**
+   * Await two animation frames.
+   *
+   * Semantics:
+   * - Resolves after two sequential frame hops from the call site.
+   * - Uses `requestAnimationFrame` when available; otherwise falls back to ~16 ms timers.
+   * - Intended for "paint, then settle" flows where layout/paint must occur before follow-up work.
+   *
+   * Notes:
+   * - This is a convenience built on top of `raf()`; equivalent to:
+   *     await raf(); await raf();
+   */
+  doubleFrame(): Promise<void>;
 };
 
 /**

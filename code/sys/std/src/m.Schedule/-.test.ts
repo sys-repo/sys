@@ -100,6 +100,55 @@ describe(`Schedule`, () => {
         expect(order.sort()).to.eql(['macro', 'micro', 'raf'].sort());
       });
     });
+
+    describe('Schedule.doubleFrame', () => {
+      it('invokes raf() twice and resolves', async () => {
+        const originalRaf = Schedule.raf;
+        let calls = 0;
+
+        // Wrap raf to count invocations, then delegate to the original.
+        (Schedule as any).raf = ((...args: unknown[]) => {
+          calls += 1;
+          // Delegate to original (handles both callable & awaitable forms)
+          // @ts-expect-error forwarding variadic args to Schedule.raf
+          return originalRaf(...args);
+        }) as typeof Schedule.raf;
+
+        try {
+          await Schedule.doubleFrame();
+          expect(calls).to.eql(2);
+        } finally {
+          // Restore
+          (Schedule as any).raf = originalRaf;
+        }
+      });
+
+      it('works even when mixed with other raf work', async () => {
+        const seq: string[] = [];
+        const originalRaf = Schedule.raf;
+        let calls = 0;
+
+        (Schedule as any).raf = ((...args: unknown[]) => {
+          calls += 1;
+          // @ts-expect-error forward to original
+          return originalRaf(...args);
+        }) as typeof Schedule.raf;
+
+        try {
+          // Schedule a callback around the doubleFrame call to ensure no interference.
+          Schedule.raf(() => seq.push('cb'));
+          await Schedule.doubleFrame();
+          seq.push('after-double');
+
+          // Presence/shape assertions (ordering is environment-dependent, so be lenient)
+          expect(calls).to.eql(3); // two from doubleFrame + one from our cb raf
+          expect(seq.includes('cb')).to.eql(true);
+          expect(seq.includes('after-double')).to.eql(true);
+        } finally {
+          (Schedule as any).raf = originalRaf;
+        }
+      });
+    });
   });
 
   describe('Schedule.scheduler (instance w/ lifecycle)', () => {

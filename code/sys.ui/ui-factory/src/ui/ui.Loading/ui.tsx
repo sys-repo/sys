@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Is, Spinners, Time, D } from './common.ts';
+import { type t, Color, css, D, Is, Schedule, Spinners } from './common.ts';
 
 export const Loading: React.FC<t.LoadingProps> = (props) => {
   const { debug = false, fadeInDuration = D.fadeInDuration } = props;
@@ -16,7 +16,7 @@ export const Loading: React.FC<t.LoadingProps> = (props) => {
   React.useEffect(() => {
     let alive = true;
     (async () => {
-      await Time.doubleFrame();
+      await Schedule.doubleFrame();
       if (!alive) return;
       setReady(true);
     })();
