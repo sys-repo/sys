@@ -17,6 +17,7 @@ export {
   Pkg,
   R,
   rx,
+  Schedule,
   slug,
   Str,
   Time,
