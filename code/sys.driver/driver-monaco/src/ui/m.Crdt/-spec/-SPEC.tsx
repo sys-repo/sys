@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { DocumentId } from '@sys/driver-automerge/web/ui';
 import { Monaco } from '@sys/driver-monaco';
 
@@ -6,6 +8,7 @@ import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
 import { type t, Color, Crdt, D } from '../common.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
+import { LoadSplash } from './-ui.LoadSplash.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -34,22 +37,27 @@ export default Spec.describe(D.displayName, async (e) => {
   function HostSubject() {
     const v = Signal.toObject(p);
     const { monaco, editor, doc, path } = v;
+    const [ready, setReady] = React.useState(false);
 
     /**
      * Hook:
      */
     Monaco.Crdt.useBinding({ bus$, monaco, editor, doc, path, foldMarks: true }, (e) => {
       p.binding.value = e.binding;
-      e.binding.$.subscribe((e) => {
+      e.binding.$.subscribe(async (e) => {
         console.info(`⚡️ editor/crdt:binding.$`, e);
         if (e.kind === 'marks') p.hiddenAreas.value = e.change.after;
+        if (e.kind === 'editor:folding' && e.initial) {
+          setReady(true);
+        }
       });
     });
 
     /**
      * Render:
      */
-    if (!v.doc) return null;
+    if (!v.doc || !v.render) return <LoadSplash debug={debug} theme={v.theme} />;
+
     return (
       <MonacoEditor
         key={`${v.path?.join('.')}`}
@@ -58,6 +66,7 @@ export default Spec.describe(D.displayName, async (e) => {
         //
         language={v.language}
         autoFocus={true}
+        spinning={!ready}
         //
         onMounted={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);

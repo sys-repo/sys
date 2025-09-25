@@ -25,6 +25,14 @@ type Storage = Pick<P, 'language'> & {
   path?: t.ObjectPath;
   debounce?: boolean;
 };
+const defaults: Storage = {
+  theme: 'Dark',
+  language: 'yaml',
+  debug: true,
+  path: ['text'],
+  debounce: true,
+};
+
 export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
 
 /**
@@ -39,18 +47,13 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 export async function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    language: 'typescript',
-    theme: 'Dark',
-    debug: true,
-    path: ['text'],
-    debounce: true,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
+    render: s(false),
+
     theme: s(snap.theme),
     path: s(snap.path),
     language: s(snap.language),
@@ -69,15 +72,22 @@ export async function createDebugSignals() {
     props,
     repo,
     bus$: rx.subject<t.EditorEvent>(),
-    listen() {
-      Signal.listen(props);
-    },
+    reset,
+    listen,
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
-      d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.theme = p.theme.value;
       d.path = p.path.value;
       d.language = p.language.value;
       d.debounce = p.debounce.value;
@@ -205,6 +215,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+      <Button
+        block
+        label={() => `(reset, reload)`}
+        onClick={() => {
+          debug.reset();
+          window.location.reload();
+        }}
+      />
 
       <ObjectView
         name={'debug'}
@@ -214,6 +237,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         style={{ marginTop: 15 }}
       />
+
       <ObjectView
         name={'binding'}
         data={!p.binding.value ? {} : { ...p.binding.value, doc: p.binding.value.doc.current }}

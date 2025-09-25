@@ -19,6 +19,7 @@ type Storage = Pick<P, 'theme' | 'debug' | 'path'> & {
   editor: Pick<t.YamlEditorMonacoProps, 'margin' | 'minimap'>;
   documentId: Pick<t.YamlEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
   footer: P['footer'];
+  render?: boolean;
 };
 
 const defaults: Storage = {
@@ -45,6 +46,7 @@ export function createDebugSignals() {
   const snap = store.current;
 
   const props = {
+    render: s(true),
     debug: s(snap.debug),
     theme: s(snap.theme),
     path: s(snap.path),
@@ -72,13 +74,20 @@ export function createDebugSignals() {
     props,
     repo: createRepo(),
     bus$: rx.subject<t.EditorEvent>(),
-    listen() {
-      Signal.listen(props);
-      Signal.listen(props.documentId);
-      Signal.listen(props.editor);
-      Signal.listen(props.footer);
-    },
+    reset,
+    listen,
   };
+
+  function listen() {
+    Signal.listen(props);
+    Signal.listen(props.documentId);
+    Signal.listen(props.editor);
+    Signal.listen(props.footer);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -204,8 +213,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `(reset)`}
-        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+      <Button
+        block
+        label={() => `(reset, reload)`}
+        onClick={() => {
+          debug.reset();
+          window.location.reload();
+        }}
       />
 
       <ObjectView name={'debug'} data={safeProps(debug)} expand={0} style={{ marginTop: 15 }} />

@@ -50,6 +50,7 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
   /**
    * API:
    */
+    console.log(`🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼🌼`);
   return rx.toLifecycle<t.EditorFoldingAreaObserver>(life, {
     get $() {
       return $;
