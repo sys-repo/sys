@@ -1,4 +1,4 @@
-import { type t, A, Obj, rx, Scheduler, Util } from './common.ts';
+import { type t, A, Obj, rx, Schedule, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
 /**
@@ -19,7 +19,7 @@ import { diffToSplices } from './u.diffToSplices.ts';
 export const bind: t.EditorCrdtLib['bind'] = async (args) => {
   const { editor, doc, path } = args;
   const life = rx.lifecycle(args.until);
-  const schedule = Scheduler.make(life, 'micro');
+  const schedule = Schedule.make(life, 'micro');
   let model = editor.getModel() ?? undefined;
 
   if (!model) model = await Util.Editor.waitForModel(editor, life);

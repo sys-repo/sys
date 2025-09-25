@@ -7,7 +7,7 @@ export {
   Obj,
   Pkg,
   R,
-  Scheduler,
+  Schedule,
   Str,
   Time,
   Url,

@@ -4,7 +4,7 @@ import type {
   DocHandleDeletePayload,
 } from '@automerge/automerge-repo';
 
-import { type t, Dispose, rx, Scheduler, slug } from './common.ts';
+import { type t, Dispose, rx, Schedule, slug } from './common.ts';
 import { type RefEvents, eventsFactory } from './u.events.ts';
 import { REF } from './u.toAutomergeHandle.ts';
 
@@ -35,7 +35,7 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
    * NB: use scheduler for all queued work (microtask boundary; safe against re-entrancy).
    */
   const life = rx.lifecycle(until$);
-  const schedule = Scheduler.make(life, 'micro');
+  const schedule = Schedule.make(life, 'micro');
 
   /**
    * Helpers:

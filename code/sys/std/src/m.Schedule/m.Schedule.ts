@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Scheduler: t.SchedulerLib = {
+export const Schedule: t.SchedulerLib = {
   make: (life, mode = 'micro') => makeScheduleFn(mode, life),
 
   // Static schedulers (no lifecycle).
