@@ -20,7 +20,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
   const bus$ = args.bus$ ?? Bus.make();
   const $ = bus$.pipe(
     rx.takeUntil(life.dispose$),
-    rx.filter((e) => e.kind === 'crdt:marks'),
+    rx.filter((e) => e.kind === 'marks'),
   );
   const api = rx.toLifecycle<t.EditorFoldBinding>(life, { $ });
 
@@ -71,14 +71,10 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
       }
     };
 
-    const fire = (
-      trigger: t.EditorEventCrdtMarks['trigger'],
-      before: IRange[],
-      after: IRange[],
-    ) => {
+    const fire = (trigger: t.EventMarks['trigger'], before: IRange[], after: IRange[]) => {
       if (RangeUtil.eql(before, after)) return;
       Bus.emit(bus$, {
-        kind: 'crdt:marks',
+        kind: 'marks',
         trigger,
         path,
         change: { before, after },

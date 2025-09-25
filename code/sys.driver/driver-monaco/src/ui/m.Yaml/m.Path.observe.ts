@@ -20,7 +20,7 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
   // Keep the latest parse and the model version it belongs to:
   let ast = Yaml.parseAst(model.getValue());
   let version = model.getVersionId();
-  let current: t.EditorEventCursorPath | undefined;
+  let current: t.EventCursorPath | undefined;
 
   // (Re)parse helper:
   const parse = () => {
@@ -84,9 +84,7 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
       return $;
     },
     get current() {
-      return current
-        ? current
-        : ({ kind: 'cursor-path', path: [] } satisfies t.EditorEventCursorPath);
+      return current ? current : ({ kind: 'cursor-path', path: [] } satisfies t.EventCursorPath);
     },
   });
 };
