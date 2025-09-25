@@ -65,7 +65,7 @@ export type TimeLib = {
    *   await schedule()                             // awaitable hop
    *   const macro = Time.scheduler(life, 'macro')  // choose mode
    */
-  scheduler(life: t.LifeLike, mode?: ScheduleMode): ScheduleFn;
+  scheduler(life: t.LifeLike, mode?: t.ScheduleMode): t.ScheduleFn;
 };
 
 /**
@@ -128,18 +128,3 @@ export type Timer = {
   /** Reset the timer. */
   reset: () => t.Timer;
 };
-
-/**
- * Curried scheduler function:
- *  - Fire & forget: schedule(fn)
- *  - Await a hop:   await schedule()
- */
-export interface ScheduleFn {
-  /** Schedule a task to run later (no Promise allocation). */
-  (fn: () => void): void;
-
-  /** Await a single hop in the chosen scheduling mode. */
-  (): Promise<void>;
-}
-/** Scheduling mode. */
-export type ScheduleMode = 'micro' | 'macro' | 'raf';

@@ -18,13 +18,14 @@ export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';
 export { Path } from './m.Path/mod.ts';
 export { Pkg } from './m.Pkg/mod.ts';
-export { maybeWait, Promise } from './m.Promise/mod.ts';
+export { Promise, maybeWait } from './m.Promise/mod.ts';
 export { slug } from './m.Random/mod.ts';
 export { Regex } from './m.Regex/mod.ts';
 export { Rx, rx } from './m.Rx/mod.ts';
+export { Scheduler } from './m.Scheduler/mod.ts';
 export { Signal } from './m.Signal/mod.ts';
 export { JsrUrl } from './m.Url.Jsr/mod.ts';
 export { Url } from './m.Url/mod.ts';
-export { Arr, asArray, isObject, isRecord, Num, Obj, Str, Value } from './m.Value/mod.ts';
+export { Arr, Num, Obj, Str, Value, asArray, isObject, isRecord } from './m.Value/mod.ts';
 
 export { R } from './common.ts';
