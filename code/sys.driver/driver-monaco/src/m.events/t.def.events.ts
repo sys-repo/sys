@@ -3,49 +3,43 @@ export type * from './t.Bus.ts';
 
 type IPosition = t.Monaco.I.IPosition;
 type IRange = t.Monaco.I.IRange;
-type Base = {
-  readonly trigger: 'editor' | 'crdt';
-  readonly path: t.ObjectPath;
-};
+type Trigger = 'editor' | 'crdt';
 
 /**
  * Events (CRDT-centric): text + marks
  */
-export type EditorEvent =
-  | EditorEventCrdtText
-  | EditorEventCrdtMarks
-  | EditorEventCursorPath
-  | EditorChangeFoldingArea
-  | EditorEventYaml;
+export type EditorEvent = EventText | EventMarks | EventCursorPath | EventEditorFolding | EventYaml;
 
 /** Fires when CRDT text changes (and is reflected in the editor). */
-export type EditorEventCrdtText = Base & {
-  readonly kind: 'crdt:text';
+export type EventText = {
+  readonly kind: 'text';
+  readonly trigger: Trigger;
+  readonly path: t.ObjectPath;
   readonly change: { readonly before: string; readonly after: string };
 };
 
 /** Fires when CRDT mark ranges change (folds are a view of these). */
-export type EditorEventCrdtMarks = Base & {
-  readonly kind: 'crdt:marks';
+export type EventMarks = {
+  readonly kind: 'marks';
+  readonly trigger: Trigger;
+  readonly path: t.ObjectPath;
   readonly change: { readonly before: IRange[]; readonly after: IRange[] };
 };
 
-/** Event information about the current cursor/path. */
-export type EditorEventCursorPath = {
+export type EventCursorPath = {
   readonly kind: 'cursor-path';
   readonly path: t.ObjectPath;
   readonly cursor?: { readonly position: IPosition; readonly offset: t.Index };
   readonly word?: IRange;
 };
 
-/** Event information about the change. */
-export type EditorChangeFoldingArea = {
-  readonly kind: 'folding-area';
+export type EventEditorFolding = {
+  readonly kind: 'editor:folding';
   readonly areas: IRange[];
+  readonly initial?: boolean;
 };
 
-/** Event information about a yaml change. */
-export type EditorEventYaml = {
+export type EventYaml = {
   readonly kind: 'yaml';
   readonly yaml: t.EditorYaml;
 };
