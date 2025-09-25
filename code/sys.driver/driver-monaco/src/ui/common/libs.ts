@@ -1,4 +1,4 @@
-export { Color, css, Style } from '@sys/ui-css';
+export { Color, Style, css } from '@sys/ui-css';
 export { Keyboard, LocalStorage } from '@sys/ui-dom';
 export { UserAgent } from '@sys/ui-dom/user-agent';
 export { usePointer, useSizeObserver } from '@sys/ui-react';
@@ -10,3 +10,5 @@ export {
   PathView,
   Spinners,
 } from '@sys/ui-react-components';
+
+export { Bus } from '../../m.events/mod.ts';
