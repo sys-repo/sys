@@ -125,9 +125,9 @@ export async function run() {
   const mode = (await Cli.Prompt.Select.prompt<CopyMode>({
     message: 'Select copy mode:\n',
     options: [
-      { name: 'Copy Types', value: 'types' as const },
       { name: 'Copy Files (select)', value: 'files:select' as const },
       { name: 'Copy Files (all)', value: 'files:all' as const },
+      { name: 'Copy Types', value: 'types' as const },
       { name: 'Copy Files: deno.json', value: 'files:deno.json' as const },
     ],
   })) as CopyMode;
