@@ -88,15 +88,15 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.51
-    - import: npm:@ai-sdk/openai@2.0.34
+    - import: npm:ai@5.0.52
+    - import: npm:@ai-sdk/openai@2.0.35
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.18.0
       subpaths: ['agent', 'memory', 'storage']
     - import: npm:@mastra/libsql@0.14.3
     - import: npm:@mastra/loggers@0.10.13
     - import: npm:@mastra/memory@0.15.3
-    - import: npm:ollama@0.5.18
+    - import: npm:ollama@0.6.0
     - import: npm:gpt-tokenizer@3.0.1
 
 deno.json:

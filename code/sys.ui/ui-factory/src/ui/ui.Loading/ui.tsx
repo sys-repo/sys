@@ -16,7 +16,7 @@ export const Loading: React.FC<t.LoadingProps> = (props) => {
   React.useEffect(() => {
     let alive = true;
     (async () => {
-      await Schedule.doubleFrame();
+      await Schedule.frames(2);
       if (!alive) return;
       setReady(true);
     })();

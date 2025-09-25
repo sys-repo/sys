@@ -95,7 +95,7 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
     (async () => {
       try {
         // Yield a frame so `loading=true` can render.
-        await Schedule.doubleFrame();
+        await Schedule.frames(2);
         if (life.disposed) return;
 
         // Debug: load delay.
