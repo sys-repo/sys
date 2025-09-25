@@ -28,6 +28,7 @@ export namespace Monaco {
 
     // Editor:
     export type IModelContentChangedEvent = editor.IModelContentChangedEvent;
+    export type IModelChangedEvent = editor.IModelChangedEvent;
     export type IModelDeltaDecoration = editor.IModelDeltaDecoration;
     export type ICursorPositionChangedEvent = editor.ICursorPositionChangedEvent;
     export type IModelLanguageChangedEvent = editor.IModelLanguageChangedEvent;

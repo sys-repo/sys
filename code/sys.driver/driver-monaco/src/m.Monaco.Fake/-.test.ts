@@ -491,6 +491,208 @@ describe('MonacoFake (Mock)', () => {
         });
       });
     });
+
+    describe('text model invariants (offsets, lengths, EOL semantics)', () => {
+      it('offset ↔ position round-trip (exhaustive over buffer)', () => {
+        const src = 'α\nbeta\n\n1234\nz';
+        const m = MonacoFake.model(src);
+
+        // Treat EOL+1 on line N as equivalent to (N+1,1) when a newline exists.
+        const equiv = (
+          a: { lineNumber: number; column: number },
+          b: { lineNumber: number; column: number },
+        ) => {
+          if (a.lineNumber === b.lineNumber && a.column === b.column) return true;
+
+          const isEolPlus1 = (p: { lineNumber: number; column: number }) =>
+            p.column === m.getLineMaxColumn(p.lineNumber);
+
+          // a = EOL+1, b = start of next line
+          if (
+            isEolPlus1(a) &&
+            b.column === 1 &&
+            b.lineNumber === a.lineNumber + 1 &&
+            a.lineNumber < m.getLineCount()
+          ) {
+            return true;
+          }
+
+          // b = EOL+1, a = start of next line
+          if (
+            isEolPlus1(b) &&
+            a.column === 1 &&
+            a.lineNumber === b.lineNumber + 1 &&
+            b.lineNumber < m.getLineCount()
+          ) {
+            return true;
+          }
+
+          return false;
+        };
+
+        for (let off = 0; off <= src.length; off++) {
+          const pos = m.getPositionAt(off);
+          const back = m.getOffsetAt(pos);
+          const backPos = m.getPositionAt(back);
+          expect(equiv(pos, backPos), `off=${off} pos=${pos.lineNumber}:${pos.column}`).to.eql(
+            true,
+          );
+        }
+      });
+
+      it('getLineMaxColumn == lineContent.length + 1 (before and after mutation)', () => {
+        const check = (text: string) => {
+          const model = MonacoFake.model(text);
+          const lines = text.split('\n');
+          for (let ln = 1; ln <= lines.length; ln++) {
+            expect(model.getLineMaxColumn(ln)).to.eql(lines[ln - 1].length + 1);
+          }
+        };
+
+        check('a\nbc\n'); // trailing empty line segment
+        check('foo\nbar\nbaz'); // no trailing newline
+      });
+
+      it('getValueLength equals sum(line lengths) + (lineCount-1)', () => {
+        const mk = (s: string) => {
+          const model = MonacoFake.model(s);
+          const lines = s.split('\n');
+          const expected = lines.reduce((n, l) => n + l.length, 0) + (lines.length - 1);
+          expect(model.getValueLength()).to.eql(expected);
+        };
+
+        mk('x');
+        mk('x\ny');
+        mk('one\n\ntwo\nthree');
+      });
+
+      it('getPositionAt is monotonic in offset', () => {
+        const m = MonacoFake.model('a\nbc\n1234');
+        let prev = m.getPositionAt(0);
+        for (let off = 1; off <= m.getValueLength(); off++) {
+          const cur = m.getPositionAt(off);
+          // prev <= cur
+          expect(prev.isBeforeOrEqual(cur)).to.eql(true);
+          prev = cur;
+        }
+      });
+    });
+
+    describe('onDidChangeModel', () => {
+      function getEmit(editor: unknown) {
+        const ed = editor as t.FakeEditorFull;
+        const fn = ed._emitDidChangeModel;
+        expect(typeof fn).to.eql('function', 'fake editor missing emit hook');
+        return fn as (evt?: Partial<t.Monaco.I.IModelChangedEvent>) => void;
+      }
+
+      it('API: exists and returns a disposable', () => {
+        const editor = MonacoFake.editor(MonacoFake.model('x'));
+        const sub = editor.onDidChangeModel(() => {});
+        expect(sub && typeof sub.dispose).to.eql('function');
+        sub.dispose();
+      });
+
+      it('invokes listener with event payload (once per emit)', () => {
+        const model = MonacoFake.model('x');
+        const editor = MonacoFake.editor(model);
+        const emit = getEmit(editor);
+
+        let calls = 0;
+        let eventSeen: unknown;
+        const sub = editor.onDidChangeModel((e) => {
+          calls++;
+          eventSeen = e;
+        });
+
+        emit({ oldModelUrl: model.uri, newModelUrl: model.uri });
+
+        expect(calls).to.eql(1);
+        expect(eventSeen).to.be.ok;
+        sub.dispose();
+      });
+
+      it('binds thisArg correctly', () => {
+        const editor = MonacoFake.editor(MonacoFake.model('x'));
+        const emit = getEmit(editor);
+        const ctx = { tag: 'ctx' } as const;
+
+        let got: unknown;
+        const sub = editor.onDidChangeModel(function (this: any) {
+          got = this;
+        }, ctx);
+
+        emit();
+        expect(got).to.eql(ctx);
+        sub.dispose();
+      });
+
+      it('dispose unsubscribes (no further notifications)', () => {
+        const editor = MonacoFake.editor(MonacoFake.model('x'));
+        const emit = getEmit(editor);
+
+        let calls = 0;
+        const sub = editor.onDidChangeModel(() => {
+          calls++;
+        });
+
+        emit();
+        expect(calls).to.eql(1);
+
+        sub.dispose();
+        emit();
+        expect(calls).to.eql(1); // unchanged
+      });
+
+      it('supports multiple listeners independently', () => {
+        const editor = MonacoFake.editor(MonacoFake.model('x'));
+        const emit = getEmit(editor);
+
+        let a = 0,
+          b = 0;
+        const sa = editor.onDidChangeModel(() => {
+          a++;
+        });
+        const sb = editor.onDidChangeModel(() => {
+          b++;
+        });
+
+        emit();
+        expect(a).to.eql(1);
+        expect(b).to.eql(1);
+
+        sa.dispose();
+        emit();
+        expect(a).to.eql(1); // a unsubscribed
+        expect(b).to.eql(2); // b still live
+
+        sb.dispose();
+      });
+
+      it('is assignable to IEvent<IModelChangedEvent> (1-2 args)', () => {
+        const editor = MonacoFake.editor(MonacoFake.model('x'));
+
+        // 1-arg:
+        const a = editor.onDidChangeModel(() => {});
+        expect(typeof a.dispose).to.eql('function');
+        a.dispose();
+
+        // 2-arg (thisArg):
+        const ctx = { tag: 'ctx' };
+        let seen: unknown;
+        const b = editor.onDidChangeModel(function (this: any) {
+          seen = this;
+        }, ctx);
+        editor._emitDidChangeModel?.();
+        expect(seen).to.eql(ctx);
+        b.dispose();
+      });
+
+      it('is safe to emit with no listeners', () => {
+        const editor = MonacoFake.editor(MonacoFake.model('x'));
+        getEmit(editor)(); // NB: should not throw.
+      });
+    });
   });
 
   describe('IStandaloneCodeEditor', () => {

@@ -21,8 +21,12 @@ export type FakeEditor = t.EditorHiddenMembers &
     | 'setPosition'
     | 'getVisibleRanges'
     | 'onDidChangeCursorPosition'
+    | 'onDidChangeModel'
     | 'trigger'
     | 'executeEdits'
     | 'revealPositionInCenterIfOutsideViewport'
     | 'revealRangeInCenterIfOutsideViewport'
-  >;
+  > & {
+    _emitDidChangeModel: () => void;
+    _getViewModel: () => { getHiddenAreas: () => t.Monaco.I.IRange[] };
+  };

@@ -14,6 +14,33 @@ export const fakeEditor: F = (input) => {
   const cursorSubs: Array<(e: t.Monaco.I.ICursorPositionChangedEvent) => void> = [];
 
   /**
+   * Model change:
+   */
+  const modelSubs: Array<(e: t.Monaco.I.IModelChangedEvent) => void> = [];
+  const onDidChangeModel: IStandalone['onDidChangeModel'] = (
+    listener: (e: t.Monaco.I.IModelChangedEvent) => void,
+    thisArg?: any,
+    disposables?: t.Monaco.I.IDisposable[],
+  ) => {
+    const fn = (e: t.Monaco.I.IModelChangedEvent) => listener.call(thisArg, e);
+    modelSubs.push(fn);
+    const disposable: t.Monaco.I.IDisposable = {
+      dispose() {
+        const i = modelSubs.indexOf(fn);
+        if (i >= 0) modelSubs.splice(i, 1);
+      },
+    };
+    if (Array.isArray(disposables)) disposables.push(disposable);
+    return disposable;
+  };
+
+  // Test hook:
+  const _emitDidChangeModel = (evt?: Partial<t.Monaco.I.IModelChangedEvent>) => {
+    const e = (evt ?? {}) as t.Monaco.I.IModelChangedEvent;
+    for (const fn of [...modelSubs]) fn(e);
+  };
+
+  /**
    * Code Folding:
    */
   let hiddenAreas: IRange[] = [];
@@ -198,10 +225,12 @@ export const fakeEditor: F = (input) => {
     // Handlers:
     onDidChangeHiddenAreas,
     onDidChangeCursorPosition,
-  };
+    onDidChangeModel,
 
-  // NB: shim:
-  (api as any)._getViewModel = () => ({ getHiddenAreas });
+    // Test API:
+    _emitDidChangeModel,
+    _getViewModel: () => ({ getHiddenAreas }),
+  };
 
   return api as t.FakeEditorFull;
 };
