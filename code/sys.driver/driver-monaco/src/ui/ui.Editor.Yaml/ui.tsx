@@ -3,7 +3,7 @@ import React from 'react';
 import { type t, Color, css, D, rx, useBus, YamlEditorFooter } from './common.ts';
 import { Body } from './ui.Body.tsx';
 import { NotReady } from './ui.NotReady.tsx';
-import { useYamlController } from './use.Controller.ts';
+import { useYamlController } from './use.YamlController.ts';
 
 type P = t.YamlEditorProps;
 

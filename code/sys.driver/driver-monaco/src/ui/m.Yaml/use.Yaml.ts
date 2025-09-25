@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { type t, Immutable, Obj, Yaml } from './common.ts';
+import { type t, Bus, Immutable, Obj, Yaml, useBus } from './common.ts';
 import { Path } from './m.Path.ts';
 import { useErrorMarkers } from './use.ErrorMarkers.ts';
 
-export const useYaml: t.UseEditorYaml = (args, cb) => {
+export const useYaml: t.UseEditorYaml = (args) => {
   const { monaco, editor, doc, path, debounce } = args;
 
-  const fireChange = useCallback(() => {
-    setCount((n) => n + 1);
-    cb?.(api);
-  }, [cb]);
+  /**
+   * Refs:
+   */
+  const bus$ = useBus(args.bus$);
 
   /**
    * Hooks:
@@ -26,6 +26,11 @@ export const useYaml: t.UseEditorYaml = (args, cb) => {
     monaco,
     editor,
   });
+
+  const fireChange = useCallback(() => {
+    setCount((n) => n + 1);
+    Bus.emit(bus$, { kind: 'yaml', yaml: api });
+  }, [bus$]);
 
   /**
    * Effect: YAML parsing.

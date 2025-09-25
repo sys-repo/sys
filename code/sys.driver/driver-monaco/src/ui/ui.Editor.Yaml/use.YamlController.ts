@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { EditorCrdt } from '../m.Crdt/mod.ts';
 import { useYaml } from '../m.Yaml/use.Yaml.ts';
 
-import { type t, Signal } from './common.ts';
+import { type t, rx, Signal } from './common.ts';
 import { useSignals } from './use.Signals.ts';
 
 type P = Omit<t.YamlEditorProps, 'bus$'>;
@@ -26,17 +27,27 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   /**
    * Hook: YAML.
    */
-  const yaml = useYaml(
-    {
-      bus$,
-      monaco,
-      editor,
-      doc,
-      path,
-      errorMarkers: true, // NB: display YAML parse errors inline within the code-editor.
-    },
-    (e) => (signals.yaml.value = e),
-  );
+  const yaml = useYaml({
+    bus$,
+    monaco,
+    editor,
+    doc,
+    path,
+    errorMarkers: true, // NB: display YAML parse errors inline within the code-editor.
+  });
+
+  /**
+   * Effect:
+   */
+  useEffect(() => {
+    const life = rx.disposable();
+    const $ = bus$.pipe(
+      rx.takeUntil(life.dispose$),
+      rx.filter((e) => e.kind === 'yaml'),
+    );
+    $.subscribe((e) => (signals.yaml.value = e.yaml));
+    return life.dispose;
+  }, [bus$, signals.yaml]);
 
   /**
    * API:

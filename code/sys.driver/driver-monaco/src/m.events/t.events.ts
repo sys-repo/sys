@@ -16,7 +16,8 @@ export type EditorEvent =
   | EditorEventTextReady
   | EditorEventMarksReady
   | EditorEventCursorPath
-  | EditorChangeFoldingArea;
+  | EditorChangeFoldingArea
+  | EditorEventYaml;
 
 /** Fires when CRDT text changes (and is reflected in the editor). */
 export type EditorEventText = Base & {
@@ -54,4 +55,10 @@ export type EditorEventCursorPath = {
 export type EditorChangeFoldingArea = {
   readonly kind: 'folding-area';
   readonly areas: t.Monaco.I.IRange[];
+};
+
+/** Event information about a yaml change. */
+export type EditorEventYaml = {
+  readonly kind: 'yaml';
+  readonly yaml: t.EditorYaml;
 };

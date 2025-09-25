@@ -42,7 +42,7 @@ export default Spec.describe(D.displayName, async (e) => {
       p.binding.value = e.binding;
       e.binding.$.subscribe((e) => {
         console.info(`⚡️ editor/crdt:binding.$`, e);
-        if (e.kind === 'change:marks') p.hiddenAreas.value = e.change.after;
+        if (e.kind === 'marks') p.hiddenAreas.value = e.change.after;
       });
     });
 
