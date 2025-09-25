@@ -1,7 +1,7 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
 import { CrdtIs } from '../m.Crdt/m.Is.ts';
 
-import { type t, Err, rx, slug, Time, toRef, whenReady } from './common.ts';
+import { type t, Err, rx, Scheduler, slug, Time, toRef, whenReady } from './common.ts';
 import { eventsFactory } from './u.events.ts';
 import { monitorNetwork } from './u.monitorNetwork.ts';
 import { silentShutdown } from './u.shutdown.ts';
@@ -29,7 +29,7 @@ export function toRepo(
     await silentShutdown(repo);
   }
   const life = rx.lifecycleAsync(options.dispose$, cleanup);
-  const schedule = Time.scheduler(life, 'micro');
+  const schedule = Scheduler.make(life, 'micro');
 
   const cloneProps = (): t.CrdtRepoProps => {
     const { id, sync, ready } = api;

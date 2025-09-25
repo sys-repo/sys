@@ -4,7 +4,6 @@ import { Duration } from './m.Time.Duration.ts';
 import { timer } from './m.Time.Timer.ts';
 import { delay } from './m.Time.delay.ts';
 import { doubleFrame, nextFrame } from './m.Time.frame.ts';
-import { scheduler } from './m.Time.scheduler.ts';
 import { until } from './m.Time.until.ts';
 import { utc } from './m.Time.utc.ts';
 import { wait } from './m.Time.wait.ts';
@@ -23,7 +22,6 @@ export const Time: t.TimeLib = {
   wait,
   nextFrame,
   doubleFrame,
-  scheduler,
 
   Duration,
   duration: Duration.create,

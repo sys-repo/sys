@@ -55,17 +55,6 @@ export type TimeLib = {
    * - If `signal` aborts before completion, the promise rejects with `AbortError`.
    */
   doubleFrame(opts?: t.TimeFrameOptions | AbortSignal): Promise<void>;
-
-  /**
-   * Create a lifecycle-aware scheduler.
-   *
-   * Usage:
-   *   const schedule = Time.scheduler(life)        // default 'micro'
-   *   schedule(() => { ... })                      // fire & forget
-   *   await schedule()                             // awaitable hop
-   *   const macro = Time.scheduler(life, 'macro')  // choose mode
-   */
-  scheduler(life: t.LifeLike, mode?: t.ScheduleMode): t.ScheduleFn;
 };
 
 /**

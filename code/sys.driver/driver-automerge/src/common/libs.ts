@@ -1,8 +1,8 @@
 /**
  * @external
  */
-export { Repo as AutomergeRepo } from '@automerge/automerge-repo';
 export * as A from '@automerge/automerge';
+export { Repo as AutomergeRepo } from '@automerge/automerge-repo';
 
 /**
  * @system
@@ -18,10 +18,11 @@ export {
   Obj,
   Pkg,
   R,
-  rx,
-  slug,
+  Scheduler,
   Str,
   Time,
   Url,
+  rx,
+  slug,
 } from '@sys/std';
 export { Signal } from '@sys/ui-react';

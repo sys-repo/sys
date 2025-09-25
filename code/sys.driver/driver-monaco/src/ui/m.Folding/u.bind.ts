@@ -1,4 +1,4 @@
-import { type t, A, D, RangeUtil, rx, Time, Util } from './common.ts';
+import { type t, A, D, RangeUtil, rx, Scheduler, Util } from './common.ts';
 import { getHiddenAreas } from './u.hidden.ts';
 import { toMarkRanges } from './u.mark.ts';
 import { observe } from './u.observe.ts';
@@ -12,7 +12,7 @@ type IRange = t.Monaco.I.IRange;
 export const bindFoldMarks: t.BindFoldMarks = (args) => {
   const { editor, doc, path, until, enabled = true } = args;
   const life = rx.lifecycle(until);
-  const schedule = Time.scheduler(life, 'micro');
+  const schedule = Scheduler.make(life, 'micro');
 
   /**
    * Events:

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { type t, Is, Time } from './common.ts';
+import { type t, Is, Scheduler } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -35,7 +35,7 @@ export function useRedrawEffect<T extends O = O>(
     if (!doc) return;
 
     const events = doc.events();
-    const schedule = Time.scheduler(events, 'micro'); // ← bound to dispose$
+    const schedule = Scheduler.make(events, 'micro'); // ← bound to dispose$
     const scheduleRedraw = makeCoalescer(schedule); // ← coalescer also bound to dispose$
 
     const streams = paths.length === 0 ? [events.$] : paths.map((p) => events.path(p).$);
