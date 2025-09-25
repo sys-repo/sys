@@ -1,16 +1,16 @@
-import React from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { type t, Dispose, EditorFolding, Obj, rx, Schedule, useBus } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
 
 export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   const { monaco, editor, doc, path, foldMarks = false } = args;
-  const pathKey = React.useMemo(() => Obj.hash(path), [path]);
+  const pathKey = useMemo(() => Obj.hash(path), [path]);
 
   /**
    * Hooks/Refs:
    */
-  const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
+  const bindingRef = useRef<t.EditorCrdtBinding>(undefined);
   const bus$ = useBus(args.bus$);
 
   /**
@@ -21,7 +21,7 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   /**
    * Effect: setup and tear-down the Monaco↔CRDT binding.
    */
-  React.useEffect(() => {
+  useEffect(() => {
     if (!(doc && path && editor && monaco)) return;
 
     const life = rx.lifecycle();

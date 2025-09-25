@@ -20,7 +20,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
   const bus$ = args.bus$ ?? Bus.make();
   const $ = bus$.pipe(
     rx.takeUntil(life.dispose$),
-    rx.filter((e) => e.kind === 'marks'),
+    rx.filter((e) => e.kind === 'crdt:marks'),
   );
   const api = rx.toLifecycle<t.EditorFoldBinding>(life, { $ });
 
@@ -37,6 +37,15 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
    * Main:
    */
   const setup = (model: t.Monaco.TextModel) => {
+    const readyOnce = { current: false }; // add near the other guards
+
+    const emitReadyOnce = () => {
+      if (readyOnce.current) return;
+      readyOnce.current = true;
+      // Bus.emit(bus$, { kind: 'marks:ready', path });
+      console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🫵 🐚👋🧠⚠️ 💥👁️💡─• ↑↓←→✔`);
+    };
+
     /**
      * Helpers (IRange ←→ offset conversions live here to access the model):
      */
@@ -62,9 +71,18 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
       }
     };
 
-    const fire = (trigger: t.EditorEventMarks['trigger'], before: IRange[], after: IRange[]) => {
+    const fire = (
+      trigger: t.EditorEventCrdtMarks['trigger'],
+      before: IRange[],
+      after: IRange[],
+    ) => {
       if (RangeUtil.eql(before, after)) return;
-      Bus.emit(bus$, { kind: 'marks', trigger, path, change: { before, after } });
+      Bus.emit(bus$, {
+        kind: 'crdt:marks',
+        trigger,
+        path,
+        change: { before, after },
+      });
     };
 
     const writeStoredRanges = async (ranges: IRange[]) => {
@@ -105,6 +123,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
 
       if (RangeUtil.eql(current, next)) {
         readyForEditorWrites.current = true;
+        emitReadyOnce();
         return;
       }
 
@@ -120,6 +139,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
           }
         }
         readyForEditorWrites.current = true;
+        emitReadyOnce();
         return;
       }
 
@@ -135,6 +155,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
       } finally {
         docUpdatingEditor.current = false;
         readyForEditorWrites.current = true;
+        emitReadyOnce();
       }
 
       fire('crdt', current, next);

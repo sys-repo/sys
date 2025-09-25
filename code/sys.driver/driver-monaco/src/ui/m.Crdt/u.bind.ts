@@ -35,7 +35,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
   const bus$ = args.bus$ ?? Bus.make();
   const fire = (trigger: 'editor' | 'crdt', before: string, after: string) => {
     if (after === before) return;
-    Bus.emit(bus$, { kind: 'text', trigger, path, change: { before, after } });
+    Bus.emit(bus$, { kind: 'crdt:text', trigger, path, change: { before, after } });
   };
 
   const getValue = () => {
@@ -165,7 +165,7 @@ const wrangle = {
     const model = {} as any;
     return rx.toLifecycle<t.EditorCrdtBinding>(life, { $: rx.EMPTY, doc, path, model });
   },
-  change(before: string, after: string): t.EditorEventText['change'] {
+  change(before: string, after: string): t.EditorEventCrdtText['change'] {
     return {
       get before() {
         return before;
