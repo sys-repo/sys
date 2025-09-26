@@ -1,4 +1,4 @@
-import { type t, Bus, rx, Schedule } from './common.ts';
+import { type t, Bus, Rx, Schedule } from './common.ts';
 import { getHiddenAreas } from './u.hidden.ts';
 import { equalRanges } from './u.ts';
 
@@ -7,7 +7,7 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
   const bus$ = args.bus$ ?? Bus.make();
 
   // Lifecycle:
-  const life = rx.lifecycle(until);
+  const life = Rx.lifecycle(until);
 
   // State:
   let areas: t.Monaco.I.IRange[] = snap();
@@ -31,11 +31,11 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
 
   // Public stream:
   const $ = bus$.pipe(
-    rx.takeUntil(life.dispose$),
-    rx.filter((e) => e.kind === 'editor:folding'),
-    rx.auditTime(0),
-    rx.throttleTime(0, undefined, { leading: true, trailing: true }),
-    rx.distinctUntilChanged((p, q) => equalRanges(p.areas.map(toSE), q.areas.map(toSE))),
+    Rx.takeUntil(life.dispose$),
+    Rx.filter((e) => e.kind === 'editor:folding'),
+    Rx.auditTime(0),
+    Rx.throttleTime(0, undefined, { leading: true, trailing: true }),
+    Rx.distinctUntilChanged((p, q) => equalRanges(p.areas.map(toSE), q.areas.map(toSE))),
   );
 
   /**
@@ -78,7 +78,7 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
   });
 
   // API:
-  return rx.toLifecycle<t.EditorFoldingAreaObserver>(life, {
+  return Rx.toLifecycle<t.EditorFoldingAreaObserver>(life, {
     get $() {
       return $;
     },
