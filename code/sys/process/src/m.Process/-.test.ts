@@ -1,4 +1,4 @@
-import { type t, Testing, describe, expect, c, it, rx, slug, Time } from '../-test.ts';
+import { type t, c, describe, expect, it, Rx, slug, Testing, Time } from '../-test.ts';
 import { Process } from './mod.ts';
 
 describe('Process', () => {
@@ -83,7 +83,7 @@ describe('Process', () => {
       });
 
       it('spawn → dispose$', async () => {
-        const { dispose$, dispose } = rx.lifecycle();
+        const { dispose$, dispose } = Rx.lifecycle();
         const args = ['eval', 'console.log("👋")'];
         const handle = Process.spawn({ args, silent: true, dispose$ });
 
