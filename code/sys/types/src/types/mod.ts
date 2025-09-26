@@ -6,7 +6,6 @@ export type * from './t.Coord.ts';
 export type * from './t.Dispose.ts';
 export type * from './t.Dom.ts';
 export type * from './t.Error.ts';
-export type * from './t.Event.ts';
 export type * from './t.Hash.ts';
 export type * from './t.Http.ts';
 export type * from './t.Immutable.ts';

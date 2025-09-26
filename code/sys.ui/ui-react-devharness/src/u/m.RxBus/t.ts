@@ -1,8 +1,22 @@
 import type { t } from './common.ts';
 export type * from './t.promise.ts';
 
+type O = Record<string, unknown>;
+
 /**
- * Event Bus
+ * The canonical event structure.
+ */
+export type Event<P extends O = O> = { type: string; payload: P };
+/**
+ * A structure that exposes an observable and can fire events.
+ */
+export type EventBus<E extends t.Event = t.Event> = {
+  readonly $: t.Observable<E>;
+  fire<E extends t.Event = t.Event>(event: E): void;
+};
+
+/**
+ * EventBus generator function:
  */
 export type RxBusFactory = <T extends t.Event = t.Event>(
   input?: t.Subject<any> | t.EventBus<any>,
@@ -36,11 +50,3 @@ export type BusConnection<E extends t.Event> = t.Disposable & {
 };
 /** Options passed to bus connect. */
 export type BusConnectOptions = { async?: boolean; dispose$?: t.Observable<any> };
-
-/**
- * A structure that exposes an observable and can fire events.
- */
-export type EventBus<E extends t.Event = t.Event> = {
-  readonly $: t.Observable<E>;
-  fire: t.FireEvent<E>;
-};

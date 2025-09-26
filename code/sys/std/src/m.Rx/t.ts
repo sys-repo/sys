@@ -1,8 +1,6 @@
 import type * as rxjs from 'rxjs';
 import type { t } from '../common.ts';
 
-type E = t.Event;
-
 /**
  * Tools for working with Observables (via `rxjs`).
  */
