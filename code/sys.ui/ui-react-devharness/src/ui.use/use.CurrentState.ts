@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DevBus } from '../u/m.Bus/mod.ts';
+import { RxBus } from '../u/m.RxBus/mod.ts';
 import { type t, Rx } from './common.ts';
 
 type C = t.DevInfoChanged;
@@ -14,7 +15,7 @@ export function useCurrentState(
   options: { distinctUntil?: Unchanged; filter?: Filter } = {},
 ) {
   const { distinctUntil } = options;
-  const busid = Rx.bus.instance(instance.bus);
+  const busid = RxBus.instance(instance.bus);
 
   const [info, setInfo] = useState<t.DevInfo>();
   const [count, setCount] = useState(0);

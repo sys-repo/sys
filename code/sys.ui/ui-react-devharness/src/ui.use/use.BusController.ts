@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { DevBus } from '../u/m.Bus/mod.ts';
-import { type t, DEFAULTS, Rx, slug, Time } from './common.ts';
+import { type t, DEFAULTS, Rx, RxBus, slug, Time } from './common.ts';
 
 type Id = string;
 
@@ -17,9 +17,9 @@ export function useBusController(
   } = {},
 ) {
   const id = args.id ?? useRef(`dev.instance.${slug()}`).current;
-  const bus = args.bus ?? useRef(Rx.bus()).current;
+  const bus = args.bus ?? useRef(RxBus()).current;
   const instance = { bus, id };
-  const busid = Rx.bus.instance(bus);
+  const busid = RxBus.instance(bus);
 
   const [info, setInfo] = useState<t.DevInfo>(DEFAULTS.info);
   const eventsRef = useRef<t.DevEvents>(undefined);

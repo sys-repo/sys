@@ -1,5 +1,7 @@
+import { type t, slug, Time } from '../common.ts';
+
 import { DevBus } from '../../u/m.Bus/mod.ts';
-import { type t, Rx, slug, Time } from '../common.ts';
+import { RxBus } from '../../u/m.RxBus/mod.ts';
 
 type Results = { ok: boolean; elapsed: t.Msecs; total: number; specs: ModuleResults[] };
 type ModuleResults = { ok: boolean; name: string; results?: t.TestSuiteRunResponse };
@@ -24,7 +26,7 @@ export async function headless(input: t.SpecImports): Promise<Results> {
 
   const wait = imports.map(async (fn) => {
     const name = fn.name;
-    const instance = { bus: Rx.bus(), id: `headless.${slug()}` };
+    const instance = { bus: RxBus(), id: `headless.${slug()}` };
     const controller = DevBus.Controller({ instance });
     const root = await fn();
 
