@@ -30,9 +30,9 @@ export function BusEvents(args: {
    * Base information about the module.
    */
   const info: t.DevEvents['info'] = {
-    req$: Rx.payload<t.DevInfoReqEvent>($, 'sys.dev/info:req'),
-    res$: Rx.payload<t.DevInfoResEvent>($, 'sys.dev/info:res'),
-    changed$: Rx.payload<t.DevInfoChangedEvent>($, 'sys.dev/info:changed'),
+    req$: RxBus.payload<t.DevInfoReqEvent>($, 'sys.dev/info:req'),
+    res$: RxBus.payload<t.DevInfoResEvent>($, 'sys.dev/info:res'),
+    changed$: RxBus.payload<t.DevInfoChangedEvent>($, 'sys.dev/info:changed'),
     async fire(options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const tx = slug();
@@ -61,8 +61,8 @@ export function BusEvents(args: {
   };
 
   const ctx: t.DevEvents['ctx'] = {
-    req$: Rx.payload<t.DevCtxReqEvent>($, 'sys.dev/ctx:req'),
-    res$: Rx.payload<t.DevCtxResEvent>($, 'sys.dev/ctx:res'),
+    req$: RxBus.payload<t.DevCtxReqEvent>($, 'sys.dev/ctx:req'),
+    res$: RxBus.payload<t.DevCtxResEvent>($, 'sys.dev/ctx:res'),
     async fire(options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const tx = slug();
@@ -94,8 +94,8 @@ export function BusEvents(args: {
    * Load ("describe/it" specification bundle).
    */
   const load: t.DevEvents['load'] = {
-    req$: Rx.payload<t.DevLoadReqEvent>($, 'sys.dev/load:req'),
-    res$: Rx.payload<t.DevLoadResEvent>($, 'sys.dev/load:res'),
+    req$: RxBus.payload<t.DevLoadReqEvent>($, 'sys.dev/load:req'),
+    res$: RxBus.payload<t.DevLoadResEvent>($, 'sys.dev/load:res'),
     async fire(bundle, options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const tx = slug();
@@ -120,8 +120,8 @@ export function BusEvents(args: {
    * Run.
    */
   const run: t.DevEvents['run'] = {
-    req$: Rx.payload<t.DevRunReqEvent>($, 'sys.dev/run:req'),
-    res$: Rx.payload<t.DevRunResEvent>($, 'sys.dev/run:res'),
+    req$: RxBus.payload<t.DevRunReqEvent>($, 'sys.dev/run:req'),
+    res$: RxBus.payload<t.DevRunResEvent>($, 'sys.dev/run:res'),
     async fire(options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const only = options.only ? asArray(options.only) : undefined;
@@ -147,8 +147,8 @@ export function BusEvents(args: {
    * Reset (unload).
    */
   const reset: t.DevEvents['reset'] = {
-    req$: Rx.payload<t.DevResetReqEvent>($, 'sys.dev/reset:req'),
-    res$: Rx.payload<t.DevResetResEvent>($, 'sys.dev/reset:res'),
+    req$: RxBus.payload<t.DevResetReqEvent>($, 'sys.dev/reset:req'),
+    res$: RxBus.payload<t.DevResetResEvent>($, 'sys.dev/reset:res'),
     async fire(options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const tx = slug();
@@ -180,8 +180,8 @@ export function BusEvents(args: {
       }),
     ),
     change: {
-      req$: Rx.payload<t.DevStateChangeReqEvent>($, 'sys.dev/state/change:req'),
-      res$: Rx.payload<t.DevStateChangeResEvent>($, 'sys.dev/state/change:res'),
+      req$: RxBus.payload<t.DevStateChangeReqEvent>($, 'sys.dev/state/change:req'),
+      res$: RxBus.payload<t.DevStateChangeResEvent>($, 'sys.dev/state/change:res'),
       async fire(initial, change, options = {}) {
         const { timeout = DEFAULT.TIMEOUT } = options;
         const tx = slug();
@@ -218,8 +218,8 @@ export function BusEvents(args: {
       }),
     ),
     change: {
-      req$: Rx.payload<t.DevPropsChangeReqEvent>($, 'sys.dev/props/change:req'),
-      res$: Rx.payload<t.DevPropsChangeResEvent>($, 'sys.dev/props/change:res'),
+      req$: RxBus.payload<t.DevPropsChangeReqEvent>($, 'sys.dev/props/change:req'),
+      res$: RxBus.payload<t.DevPropsChangeResEvent>($, 'sys.dev/props/change:res'),
       async fire(mutate, options = {}) {
         const { timeout = DEFAULT.TIMEOUT } = options;
         const tx = slug();
@@ -240,7 +240,7 @@ export function BusEvents(args: {
       },
     },
     flush: {
-      pending$: Rx.payload<t.DevPropsFlushPendingEvent>($, 'sys.dev/props/flush:pending'),
+      pending$: RxBus.payload<t.DevPropsFlushPendingEvent>($, 'sys.dev/props/flush:pending'),
       pending(revision) {
         bus.fire({
           type: 'sys.dev/props/flush:pending',
@@ -291,7 +291,7 @@ export function BusEvents(args: {
    * Redraw (re-render component).
    */
   const redraw: t.DevEvents['redraw'] = {
-    $: Rx.payload<t.DevRedrawEvent>($, 'sys.dev/redraw').pipe(
+    $: RxBus.payload<t.DevRedrawEvent>($, 'sys.dev/redraw').pipe(
       Rx.observeOn(Rx.animationFrameScheduler),
     ),
     fire(args) {

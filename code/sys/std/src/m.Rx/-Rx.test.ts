@@ -43,43 +43,6 @@ describe('Observable/rx', () => {
     });
   });
 
-  describe('Rx.event | Rx.payload', () => {
-    type FooEvent = { type: 'TYPE/foo'; payload: Foo };
-    type Foo = { count: number };
-
-    type BarEvent = { type: 'TYPE/bar'; payload: Bar };
-    type Bar = { msg: string };
-
-    it('Rx.event', () => {
-      const source$ = Rx.subject<FooEvent | BarEvent>();
-
-      const fired: FooEvent[] = [];
-      Rx.event<FooEvent>(source$, 'TYPE/foo').subscribe((e) => fired.push(e));
-
-      source$.next({ type: 'TYPE/bar', payload: { msg: 'hello' } });
-      source$.next({ type: 'TYPE/foo', payload: { count: 123 } });
-      source$.next({ type: 'TYPE/bar', payload: { msg: 'hello' } });
-
-      expect(fired.length).to.eql(1);
-      expect(fired[0].type).to.eql('TYPE/foo');
-      expect(fired[0].payload).to.eql({ count: 123 });
-    });
-
-    it('Rx.payload', () => {
-      const source$ = Rx.subject<FooEvent | BarEvent>();
-
-      const fired: Foo[] = [];
-      Rx.payload<FooEvent>(source$, 'TYPE/foo').subscribe((e) => fired.push(e));
-
-      source$.next({ type: 'TYPE/bar', payload: { msg: 'hello' } });
-      source$.next({ type: 'TYPE/foo', payload: { count: 123 } });
-      source$.next({ type: 'TYPE/bar', payload: { msg: 'hello' } });
-
-      expect(fired.length).to.eql(1);
-      expect(fired[0]).to.eql({ count: 123 });
-    });
-  });
-
   describe('Rx.disposable', () => {
     it('referenced from Dispose', () => {
       expect(Rx.disposable).to.equal(Dispose.disposable);
@@ -150,54 +113,6 @@ describe('Observable/rx', () => {
       Rx.done(dispose$);
 
       expect(count).to.eql(1);
-    });
-  });
-
-  describe('Rx.asPromise', () => {
-    type E = { type: 'foo'; payload: { count: number } };
-
-    describe('first', () => {
-      it('resolves first response', async () => {
-        const $ = new Rx.Subject<E>();
-        const promise = Rx.asPromise.first<E>(Rx.payload<E>($, 'foo'));
-
-        $.next({ type: 'foo', payload: { count: 1 } });
-        $.next({ type: 'foo', payload: { count: 2 } });
-        $.next({ type: 'foo', payload: { count: 3 } });
-
-        const res = await promise;
-        expect(res.payload).to.eql({ count: 1 });
-        expect(res.error).to.eql(undefined);
-      });
-
-      it('error: completed observable', async () => {
-        const $ = new Rx.Subject<E>();
-        $.complete();
-
-        const res = await Rx.asPromise.first<E>(Rx.payload<E>($, 'foo'));
-
-        expect(res.payload).to.eql(undefined);
-        expect(res.error?.code).to.eql('completed');
-        expect(res.error?.message).to.include('The given observable has already "completed"');
-      });
-
-      it('error: timeout', async () => {
-        const $ = new Rx.Subject<E>();
-        const res = await Rx.asPromise.first<E>(Rx.payload<E>($, 'foo'), { timeout: 10 });
-        expect(res.payload).to.eql(undefined);
-        expect(res.error?.code).to.eql('timeout');
-        expect(res.error?.message).to.include('Timed out after 10 msecs');
-      });
-
-      it('error: timeout ("op")', async () => {
-        const op = 'foobar';
-        const $ = new Rx.Subject<E>();
-        const res = await Rx.asPromise.first<E>(Rx.payload<E>($, 'foo'), { op, timeout: 10 });
-        expect(res.payload).to.eql(undefined);
-        expect(res.error?.code).to.eql('timeout');
-        expect(res.error?.message).to.include('Timed out after 10 msecs');
-        expect(res.error?.message).to.include(`[${op}]`);
-      });
     });
   });
 

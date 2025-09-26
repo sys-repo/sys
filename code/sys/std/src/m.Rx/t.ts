@@ -1,54 +1,31 @@
 import type * as rxjs from 'rxjs';
 import type { t } from '../common.ts';
 
-type Event = t.Event;
-type E = Event;
+type E = t.Event;
 
 /**
  * Tools for working with Observables (via `rxjs`).
  */
-export type RxLib = Rxjs & {
+export type RxLib = RxjsLib & {
   readonly Is: RxIs;
-  readonly distinctWhile: typeof rxjs.distinctUntilChanged;
   readonly noop$: rxjs.Subject<any>;
-  readonly asPromise: t.RxAsPromise;
 
-  subject<T = void>(): rxjs.Subject<T>;
-  event<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E>;
-  payload<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E['payload']>;
-
-  done: t.DisposeLib['done'];
+  // Lifecycle:
   abortable: t.DisposeLib['abortable'];
   disposable: t.DisposeLib['disposable'];
   disposableAsync: t.DisposeLib['disposableAsync'];
   lifecycle: t.DisposeLib['lifecycle'];
   lifecycleAsync: t.DisposeLib['lifecycleAsync'];
   toLifecycle: t.DisposeLib['toLifecycle'];
+  done: t.DisposeLib['done'];
 
+  // Helpers:
+  subject<T = void>(): rxjs.Subject<T>;
   withinTimeThreshold<T>(
     $: t.Observable<T>,
     timeout: t.Msecs,
     options?: { dispose$?: t.UntilObservable },
   ): t.TimeThreshold<T>;
-};
-
-/**
- * Promise converstion helpers.
- */
-export type RxAsPromise = {
-  first<E extends Event>(
-    ob$: t.Observable<E['payload']>,
-    options?: { op?: string; timeout?: t.Msecs },
-  ): Promise<RxPromiseResponse<E>>;
-};
-
-/** An error thrown during an Rx/Observable promise operation. */
-export type RxPromiseError = { code: 'timeout' | 'completed' | 'unknown'; message: string };
-
-/** The response returned from an Rx/Observable wrapped promise. */
-export type RxPromiseResponse<E extends Event> = {
-  payload?: E['payload'];
-  error?: t.RxPromiseError;
 };
 
 /**
@@ -63,7 +40,8 @@ export type RxIs = {
 /**
  * Default methods exported from the [rxjs] library.
  */
-type Rxjs = {
+type RxjsLib = {
+  readonly distinctWhile: typeof rxjs.distinctUntilChanged;
   readonly animationFrameScheduler: typeof rxjs.animationFrameScheduler;
   readonly BehaviorSubject: typeof rxjs.BehaviorSubject;
   readonly firstValueFrom: typeof rxjs.firstValueFrom;
