@@ -29,13 +29,13 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
     if (evt.initial) initialAnnounced = true;
   }
 
-  // Public stream (unchanged):
+  // Public stream:
   const $ = bus$.pipe(
+    rx.takeUntil(life.dispose$),
     rx.filter((e) => e.kind === 'editor:folding'),
     rx.auditTime(0),
     rx.throttleTime(0, undefined, { leading: true, trailing: true }),
     rx.distinctUntilChanged((p, q) => equalRanges(p.areas.map(toSE), q.areas.map(toSE))),
-    rx.takeUntil(life.dispose$),
   );
 
   /**
@@ -43,6 +43,8 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
    * - Hidden areas: emit immediately; first one carries {initial:true}.
    */
   const subHiddenAreas = editor.onDidChangeHiddenAreas(() => {
+    areas = snap();
+    emitFolding(areas, /* asInitial */ true); // first change announces initial
   });
 
   life.dispose$.subscribe(() => subHiddenAreas.dispose());
@@ -52,6 +54,13 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
    * have something to compare against; this does not flip UI.
    */
   const subonceInit = editor.onDidChangeModel(() => {
+    /**
+     * TODO 🐷
+     */
+    const now = snap();
+    areas = now;
+    emitFolding(now, /* asInitial */ false);
+    subonceInit.dispose();
   });
 
   /**
@@ -65,6 +74,7 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
     areas = now;
     emitFolding(now, /* asInitial */ true);
 
+    console.log(`🌼🌼🌼🌼🌼🌼🌼🌼🌼`);
   });
 
   // API:
