@@ -80,6 +80,7 @@
     "react-inspector": "npm:react-inspector@9.0.0",
     "react-spinners": "npm:react-spinners@0.17.0",
     "rxjs": "npm:rxjs@7.8.2",
+    "rxjs/operators": "npm:rxjs@7.8.2/operators",
     "strip-ansi": "npm:strip-ansi@7.1.2",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.1.1",

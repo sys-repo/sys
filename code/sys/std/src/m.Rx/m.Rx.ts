@@ -18,6 +18,19 @@ const {
   toLifecycle,
 } = Dispose;
 
+/**
+ * Preserve generics for event/payload so they match RxLib precisely.
+ */
+const eventTyped: t.RxLib['event'] = <E extends t.Event>(
+  $: t.Observable<unknown>,
+  type: E['type'],
+) => event<E>($, type);
+
+const payloadTyped: t.RxLib['payload'] = <E extends t.Event>(
+  $: t.Observable<unknown>,
+  type: E['type'],
+) => payload<E>($, type);
+
 /** Tools for working with Observables (via the RXJS library). */
 export const Rx: t.RxLib = {
   ...lib,
@@ -35,8 +48,9 @@ export const Rx: t.RxLib = {
   lifecycleAsync,
   toLifecycle,
 
-  event,
-  payload,
+  event: eventTyped,
+  payload: payloadTyped,
+
   subject<T>() {
     return new lib.Subject<T>();
   },

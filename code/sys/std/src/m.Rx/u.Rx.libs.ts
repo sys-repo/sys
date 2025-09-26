@@ -1,62 +1,73 @@
 /**
- * Common RXJS
+ * RxJS ESM-only shim (typed bridge).
+ *
+ * Runtime values come from the pre-bundled artifact (`vendor/rx.esm.bundle.js`).
+ * Types come from RxJS (type-only imports). We intentionally bypass structural
+ * type checking with `as unknown as` so the bundle’s shapes don’t need to match
+ * RxJS declaration details (construct signatures, statics, overloads).
  */
-export {
-  animationFrameScheduler,
-  BehaviorSubject,
-  EMPTY,
-  firstValueFrom,
-  interval,
-  lastValueFrom,
-  Observable,
-  observeOn,
-  of,
-  scan,
-  startWith,
-  Subject,
-  timer,
-} from 'rxjs';
 
-export {
-  auditTime,
-  catchError,
-  debounceTime,
-  delay,
-  distinctUntilChanged,
-  filter,
-  map,
-  mergeWith,
-  take,
-  tap,
-  throttleTime,
-  timeout,
-} from 'rxjs';
+import type * as rx from 'rxjs';
+import type * as ops from 'rxjs/operators';
+import * as v from './vendor/rx.esm.bundle.js';
 
-/**
- * Alias: shorter name.
- */
-import { distinctUntilChanged } from 'rxjs';
-export const distinctWhile = distinctUntilChanged;
+/** Core / creation / subjects */
+export const animationFrameScheduler =
+  v.animationFrameScheduler as unknown as typeof rx.animationFrameScheduler;
 
-/**
- * 💦💦
- *
- *    NOTE: The take-until RXJS operator is exported here
- *    to avoid an error occuring when the module is bundled.
- *
- * 💦
- *
- * Error Condition:
- *
- *    const { dispose$ } from rx.disposable()
- *    takeUtil(dispose$)
- *
- * Will throw (as of Sep 2022):
- *
- *    ERROR: "TypeError: You provided an invalid object where a stream was expected."
- *
- * This is realted to the use of Symbols getting munged somehow during bundling within
- * the check RXJS makes of the observable that is passed into the [takeUtil] function.
- *
- */
-export { merge, takeUntil } from 'rxjs';
+export const BehaviorSubject = v.BehaviorSubject as unknown as typeof rx.BehaviorSubject;
+
+export const EMPTY = v.EMPTY as unknown as typeof rx.EMPTY;
+
+export const firstValueFrom = v.firstValueFrom as unknown as typeof rx.firstValueFrom;
+
+export const interval = v.interval as unknown as typeof rx.interval;
+
+export const lastValueFrom = v.lastValueFrom as unknown as typeof rx.lastValueFrom;
+
+export const Observable = v.Observable as unknown as typeof rx.Observable;
+
+export const observeOn = v.observeOn as unknown as typeof rx.observeOn;
+
+export const of = v.of as unknown as typeof rx.of;
+
+export const scan = v.scan as unknown as typeof rx.scan;
+
+export const startWith = v.startWith as unknown as typeof rx.startWith;
+
+export const Subject = v.Subject as unknown as typeof rx.Subject;
+
+export const timer = v.timer as unknown as typeof rx.timer;
+
+export const merge = v.merge as unknown as typeof rx.merge;
+
+export const takeUntil = v.takeUntil as unknown as typeof rx.takeUntil;
+
+/** Pipeable operators */
+export const auditTime = v.auditTime as unknown as typeof ops.auditTime;
+
+export const catchError = v.catchError as unknown as typeof ops.catchError;
+
+export const debounceTime = v.debounceTime as unknown as typeof ops.debounceTime;
+
+export const delay = v.delay as unknown as typeof ops.delay;
+
+export const distinctUntilChanged =
+  v.distinctUntilChanged as unknown as typeof ops.distinctUntilChanged;
+
+export const filter = v.filter as unknown as typeof ops.filter;
+
+export const map = v.map as unknown as typeof ops.map;
+
+export const mergeWith = v.mergeWith as unknown as typeof ops.mergeWith;
+
+export const take = v.take as unknown as typeof ops.take;
+
+export const tap = v.tap as unknown as typeof ops.tap;
+
+export const throttleTime = v.throttleTime as unknown as typeof ops.throttleTime;
+
+export const timeout = v.timeout as unknown as typeof ops.timeout;
+
+/** Alias */
+export const distinctWhile = v.distinctUntilChanged as unknown as typeof ops.distinctUntilChanged;

@@ -4,7 +4,9 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
-    "dry": "deno publish --allow-dirty --dry-run"
+    "dry": "deno publish --allow-dirty --dry-run",
+    "prep": "deno task build:rx",
+    "build:rx": "deno bundle --platform=browser --minify -o src/m.Rx/vendor/rx.esm.bundle.js src/m.Rx/vendor/rx.esm.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

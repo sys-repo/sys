@@ -4,6 +4,7 @@ import { connect } from './u.bus.connect.ts';
 import { busAsType, instance, isBus } from './u.bus.util.ts';
 import { filter, Subject } from './u.Rx.libs.ts';
 
+import type { Subject as RxSubject } from 'rxjs';
 import type { t } from '../common.ts';
 
 type E = t.Event;
@@ -13,9 +14,10 @@ type E = t.Event;
  */
 const factory: t.RxBusFactory = <T extends E = E>(input?: t.Subject<any> | t.EventBus<any>) => {
   if (isBus(input)) return input as t.EventBus<T>;
-  const subject$ = (input as Subject<any>) || new Subject<any>();
+  const subject$ = (input as RxSubject<any>) || new Subject<any>();
   const res: t.EventBus<T> = {
-    $: subject$.pipe(filter((e) => Is.event(e))),
+    // Use a type predicate so the observable is narrowed to T.
+    $: subject$.pipe(filter((e: unknown): e is T => Is.event(e))),
     fire: (e) => subject$.next(e),
   };
   (res as any)._instance = `bus.${slug()}`; // NB: An instance ID for debugging sanity.
