@@ -1,4 +1,4 @@
-import { describe, expect, it, rx } from '../../-test.ts';
+import { describe, expect, it, Rx } from '../../-test.ts';
 import { AppSignals } from '../App.Signals/mod.ts';
 
 describe('AppSignals.Controllers', () => {
@@ -25,7 +25,7 @@ describe('AppSignals.Controllers', () => {
 
   describe('background', () => {
     it('adjusts backbround blur when stack changes', () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const state = AppSignals.create();
       const p = state.props;
       expect(p.background.video.blur.value).to.eql(0);

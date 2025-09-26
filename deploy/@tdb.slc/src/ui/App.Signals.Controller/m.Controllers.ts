@@ -1,6 +1,6 @@
 import type { AppControllersLib } from './t.ts';
 
-import { type t, Signal, rx } from './common.ts';
+import { type t, Rx, Signal } from './common.ts';
 import { background } from './m.Controllers.background.ts';
 
 export const Controllers: AppControllersLib = {
@@ -19,7 +19,7 @@ export const Controllers: AppControllersLib = {
     /**
      * API:
      */
-    return rx.toLifecycle<t.AppController>(listeners, {
+    return Rx.toLifecycle<t.AppController>(listeners, {
       kind,
       get children() {
         return [...children];

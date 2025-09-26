@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { type t, Signal, rx, CanvasPanel, Time } from './common.ts';
+import { useEffect } from 'react';
+import { type t, CanvasPanel, Rx, Signal, Time } from './common.ts';
 
 export function useSelectedPanel() {
   const panel = Signal.useSignal<t.CanvasPanel>('purpose');
@@ -9,7 +9,7 @@ export function useSelectedPanel() {
    */
   useEffect(() => {
     const delay = 2_000;
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
 
     const next = async () => {
       if (life.disposed) return;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { parse } from 'yaml';
 import {
+  type t,
   Button,
   Crdt,
   css,
@@ -8,9 +9,8 @@ import {
   LocalStorage,
   Obj,
   ObjectView,
-  rx,
+  Rx,
   Signal,
-  type t,
   Url,
   Yaml,
 } from '../common.ts';
@@ -131,8 +131,8 @@ export function createDebugSignals() {
     _events
       ?.path(PATHS.YAML)
       .$.pipe(
-        rx.debounceTime(300),
-        rx.map((e) => Obj.Path.get<string>(doc?.current, PATHS.YAML) ?? ''),
+        Rx.debounceTime(300),
+        Rx.map((e) => Obj.Path.get<string>(doc?.current, PATHS.YAML) ?? ''),
       )
       .subscribe((text) => {
         let obj = {} as any;
@@ -156,9 +156,9 @@ export function createDebugSignals() {
     // _events
     //   ?.path(PATHS.YAML_PARSED)
     //   .$.pipe(
-    //     rx.map((e) => Obj.Path.get(doc?.current, PATHS.YAML_PARSED)),
-    //     rx.distinctWhile((p, n) => Obj.eql(p, n)),
-    //     rx.debounceTime(300),
+    //     Rx.map((e) => Obj.Path.get(doc?.current, PATHS.YAML_PARSED)),
+    //     Rx.distinctWhile((p, n) => Obj.eql(p, n)),
+    //     Rx.debounceTime(300),
     //   )
     //   .subscribe((e) => {
     //     const obj = Obj.Path.get(doc?.current, PATHS.YAML_PARSED) as any;

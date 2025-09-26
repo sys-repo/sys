@@ -1,19 +1,18 @@
 export {
   Arr,
-  asArray,
   Err,
   Is,
-  isRecord,
   Obj,
   Path,
   Pkg,
-  rx,
   Signal,
-  slug,
   Str,
   Time,
   Timestamp,
   Url,
+  asArray,
+  isRecord,
+  slug,
 } from '@sys/std';
-
+export { Rx } from '@sys/std/rx';
 export { Yaml } from '@sys/std/yaml';
