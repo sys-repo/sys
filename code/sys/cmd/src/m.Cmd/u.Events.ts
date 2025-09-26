@@ -19,7 +19,7 @@ export const Events: CmdEventsLib = {
     const resolve = Path.resolver(options.paths);
     const paths = resolve.paths;
     const life = Rx.lifecycle(options.dispose$);
-    const { dispose, dispose$ } = life;
+    const { dispose$ } = life;
 
     const issuers = wrangle.issuers(options.issuer);
     const issuersFilter = (e: t.CmdTx<C>) => {
@@ -33,7 +33,12 @@ export const Events: CmdEventsLib = {
     const fire = (e: t.CmdEvent) => fire$.next(e);
     const fire$ = Rx.subject<t.CmdEvent>();
     const $ = fire$.pipe(Rx.takeUntil(dispose$));
-    const tx$ = Rx.payload<t.CmdTxEvent<C>>($, 'sys.cmd/tx').pipe(Rx.filter(issuersFilter));
+    const tx$ = $.pipe(
+      Rx.filter((e) => e.type === 'sys.cmd/tx'),
+      Rx.map((e) => e.payload as t.CmdTx<C>),
+      Rx.filter(issuersFilter),
+    );
+
     const error$ = tx$.pipe(Rx.filter((e) => !!e.error));
 
     if (doc) {
