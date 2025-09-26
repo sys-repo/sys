@@ -4,7 +4,7 @@ Common low(ish)-level utility functions and helpers.
 
 ```ts
 import type { t } from 'jsr:@sys/std/t';
-import { Obj, Arr, Num, Str } from 'jsr:@sys/std';
+import { Obj, Num, Str, Pkg } from 'jsr:@sys/std';
 ```
 
 
@@ -23,7 +23,7 @@ import { Obj, Arr, Num, Str } from 'jsr:@sys/std';
 - [jsr:`@sys/schema`](https://jsr.io/@sys/schema)
 <p>&nbsp;<p>
 
-### Usage
+## Usage
 
 ```ts
 // Types:
