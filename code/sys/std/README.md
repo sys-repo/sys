@@ -8,27 +8,28 @@ import { Obj, Arr, Num, Str } from 'jsr:@sys/std';
 ```
 
 
-### Runtime
-
-- [`jsr:@sys/std`](https://jsr.io/@sys/std) ← Browser + WinterTG
-
+### Runtimes
+- [`jsr:@sys/std`](https://jsr.io/@sys/std) ← Browser + [WinterTG](https://wintertc.org/)
 
 
 <p>&nbsp;<p>
 
-
-## Example
+### Usage
 
 ```ts
+// Types:
 import type * as t from 'jsr:@sys/std/t';                // ↓
 import type { t } from 'jsr:@sys/std';                   // ↑  (alternative)
 
-import { Args, Async, Dispose, Path } from 'jsr:@sys/std';
+// Common:
+export { Arr, Err, Is, Num, Obj, Pkg, Str, Time } from 'jsr:@sys/std';
+import { Args, Dispose, Path, Schedule, Signal } from 'jsr:@sys/std';
 
-import { Args } from 'jsr:@sys/std/args';
 import { DateTime, Time } from 'jsr:@sys/std/date';
 import { Immutable } from 'jsr:@sys/std/immutable';
+import { Rx } from 'jsr:@sys/std/rx'; // event streams.
 
+// Unit-testing:
 import { Testing } from 'jsr:@sys/std/testing';          // ↓
 import { Testing } from 'jsr:@sys/std/testing/server';   // ↑  (alternative)
 ```
