@@ -13,6 +13,9 @@ import { coerce } from './u.coerce.ts';
 import { parse, range } from './u.parse.ts';
 import { sort } from './u.sort.ts';
 
+/**
+ * Tools for working with Semver ("Semantic Versions").
+ */
 export const Semver: SemverLib = {
   /** Semver value assertions. */
   Is,

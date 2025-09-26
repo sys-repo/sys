@@ -45,6 +45,7 @@ export type SemverLib = {
 
 /** Options for the `Semver.sort` method. */
 export type SemverSortOptions = { order?: t.SortOrder };
+/** Input type accepted by Semver.sort, either options or a sort order. */
 export type SemverSortOptionsInput = t.SemverSortOptions | t.SortOrder;
 
 /** Response from the `Semver.parse` method. */

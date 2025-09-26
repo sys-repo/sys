@@ -1,6 +1,10 @@
 import { type t } from './common.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 
+/**
+ * Minimal, consistent API for deferring work (microtask, macrotask, or frame),
+ * with lifecycle-aware and static forms.
+ */
 export const Schedule: t.SchedulerLib = {
   make: (life, mode = 'micro') => makeScheduleFn(mode, life),
 

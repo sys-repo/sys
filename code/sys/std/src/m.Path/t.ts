@@ -113,6 +113,7 @@ export type PathFormatLib = {
  * into a "pretty" display element, eg. formatted to the console with colors.
  */
 export type PathFormatter = (e: PathFormatterArgs) => t.IgnoredResult;
+/** Arguments passed to a PathFormatter function. */
 export type PathFormatterArgs = t.PathFormatterPart & {
   /**
    * Safely mutate the part to a new value.

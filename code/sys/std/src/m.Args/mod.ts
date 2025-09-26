@@ -13,6 +13,9 @@ import { parseArgs } from './u.parseArgs.ts';
 
 export { parseArgs };
 
+/**
+ * Command-line argument parsing.
+ */
 export const Args: ArgsLib = {
   parse: parseArgs,
 };
