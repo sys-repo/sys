@@ -2,7 +2,6 @@ import { type t, Dispose } from './common.ts';
 import * as lib from './u.Rx.libs.ts';
 
 import { Is } from './m.Rx.Is.ts';
-import { bus } from './u.bus.ts';
 import { event, payload } from './u.payload.ts';
 import { asPromise } from './u.promise.ts';
 import { withinTimeThreshold } from './u.time.ts';
@@ -31,7 +30,9 @@ const payloadTyped: t.RxLib['payload'] = <E extends t.Event>(
   type: E['type'],
 ) => payload<E>($, type);
 
-/** Tools for working with Observables (via the RXJS library). */
+/**
+ * Tools for working with Observables (via the RXJS library).
+ */
 export const Rx: t.RxLib = {
   ...lib,
   Is,
@@ -39,7 +40,6 @@ export const Rx: t.RxLib = {
   asPromise,
   withinTimeThreshold,
 
-  bus,
   done,
   abortable,
   disposable,
@@ -55,6 +55,3 @@ export const Rx: t.RxLib = {
     return new lib.Subject<T>();
   },
 };
-
-/** Tools for working with Observables (via the RXJS library). */
-export const rx = Rx;
