@@ -3,7 +3,7 @@ export { ErrorBoundary } from 'react-error-boundary';
 export { Test } from '@sys/testing/spec';
 export { Fuzzy } from '@sys/text/fuzzy';
 
-export { Is, Obj, Path, Pkg, R, Time, asArray, maybeWait, slug } from '@sys/std';
+export { Dispose, Is, Obj, Path, Pkg, R, Time, asArray, maybeWait, slug } from '@sys/std';
 export { Rx } from '@sys/std/rx';
 export { Lorem, Str, Value } from '@sys/std/value';
 
