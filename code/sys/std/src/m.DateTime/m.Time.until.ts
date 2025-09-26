@@ -1,4 +1,4 @@
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 import { Dispose } from '../m.Dispose/mod.ts';
 import { delay, Wrangle } from './m.Time.delay.ts';
@@ -13,13 +13,13 @@ export function until(until$: t.UntilObservable) {
     delay(...args: any[]): t.TimeDelayPromise {
       const { msecs, fn } = Wrangle.delayArgs(args);
 
-      const done$ = rx.subject<void>();
+      const done$ = Rx.subject<void>();
       const res = delay(msecs, () => {
         done$.next();
         return fn?.();
       });
 
-      life.dispose$.pipe(rx.takeUntil(done$), rx.take(1)).subscribe(() => res.cancel());
+      life.dispose$.pipe(Rx.takeUntil(done$), Rx.take(1)).subscribe(() => res.cancel());
       return res;
     },
 

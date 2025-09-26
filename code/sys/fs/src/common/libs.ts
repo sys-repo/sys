@@ -1,23 +1,10 @@
 export { ensureDir, ensureSymlink, exists, move } from '@std/fs';
 
-export {
-  Arr,
-  Date,
-  Delete,
-  Is,
-  isRecord,
-  JsrUrl,
-  Num,
-  Obj,
-  R,
-  rx,
-  slug,
-  Str,
-  Time,
-} from '@sys/std';
+export { Arr, Date, Delete, Is, JsrUrl, Num, Obj, R, Str, Time, isRecord, slug } from '@sys/std';
 export { Err } from '@sys/std/error';
 export { Ignore } from '@sys/std/ignore';
 export { Path as StdPath } from '@sys/std/path';
+export { Rx } from '@sys/std/rx';
 
 export { HashFmt } from '@sys/crypto/fmt';
 export { CompositeHash, Hash } from '@sys/crypto/hash';

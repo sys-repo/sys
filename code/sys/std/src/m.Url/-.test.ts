@@ -3,6 +3,11 @@ import { Testing } from '../m.Testing.Server/mod.ts';
 import { Url } from './mod.ts';
 
 describe('Url', () => {
+  it('API', async () => {
+    const m = await import('@sys/std/url');
+    expect(m.Url).to.equal(Url);
+  });
+
   describe('parse', () => {
     it('parse: factory methods', () => {
       const raw = 'https://foo.com/v1';

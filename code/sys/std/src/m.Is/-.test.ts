@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../-test.ts';
 import { isEmptyRecord, isObject, isPlainObject, isPlainRecord, isRecord } from '../common.ts';
-import { Err, Is, rx, Rx } from '../mod.ts';
+import { Rx } from '../m.Rx/mod.ts';
+import { Err, Is } from '../mod.ts';
 
 describe('Is (common flags)', () => {
   it('API', () => {
@@ -11,7 +12,7 @@ describe('Is (common flags)', () => {
     expect(Is.plainRecord).to.equal(isPlainRecord);
   });
 
-  it('rx: observable | subject', () => {
+  it('Rx: observable | subject', () => {
     // NB: tested in the corresponding module file.
     expect(Is.observable).to.equal(Rx.Is.observable);
     expect(Is.subject).to.equal(Rx.Is.subject);
@@ -232,8 +233,8 @@ describe('Is (common flags)', () => {
 
   describe('Is.disposable', () => {
     it('Is.disposable: true', () => {
-      const disposable = rx.disposable();
-      const life = rx.lifecycle();
+      const disposable = Rx.disposable();
+      const life = Rx.lifecycle();
       expect(Is.disposable(disposable)).to.be.true;
       expect(Is.disposable(life)).to.be.true;
     });

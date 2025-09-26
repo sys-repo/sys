@@ -1,4 +1,4 @@
-import { Obj, rx, slug, type t } from './common.ts';
+import { Obj, Rx, slug, type t } from './common.ts';
 import { curryChangeFunction, viaObservable } from './m.Events.ts';
 import { Wrangle } from './u.ts';
 
@@ -45,7 +45,7 @@ export function cloner<T>(
 export function clonerRef<T>(initial: T, options: { clone?: <T>(input: T) => T } = {}) {
   type E = t.ImmutableEvents<T, P>;
   type R = t.ImmutableRef<T, P, E>;
-  const $ = rx.subject<t.ImmutableChange<T, P>>();
+  const $ = Rx.subject<t.ImmutableChange<T, P>>();
   const inner = cloner<T>(initial, options);
   const api: R = {
     instance: slug(),

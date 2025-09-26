@@ -1,5 +1,5 @@
 import { slug } from '../m.Random/mod.ts';
-import { Is } from './m.Is.ts';
+import { Is } from './m.Rx.Is.ts';
 import { connect } from './u.bus.connect.ts';
 import { busAsType, instance, isBus } from './u.bus.util.ts';
 import { filter, Subject } from './u.Rx.libs.ts';

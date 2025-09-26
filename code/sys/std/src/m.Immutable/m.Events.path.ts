@@ -1,4 +1,4 @@
-import { type t, Arr, Is, rx } from './common.ts';
+import { type t, Arr, Is, Rx } from './common.ts';
 
 /**
  * Change Patch Standard:
@@ -31,7 +31,7 @@ export function pathFilter<
     };
 
     return {
-      $: $.pipe(rx.filter((e) => e.patches.some(matchPatch))),
+      $: $.pipe(Rx.filter((e) => e.patches.some(matchPatch))),
       match: { paths, exact },
     };
   };

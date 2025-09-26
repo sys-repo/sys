@@ -1,6 +1,7 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Time } from '../m.DateTime/mod.ts';
-import { Is, rx } from '../mod.ts';
+import { Rx } from '../m.Rx/mod.ts';
+import { Is } from '../mod.ts';
 import { Dispose } from './mod.ts';
 
 describe('Disposable', () => {
@@ -25,10 +26,10 @@ describe('Disposable', () => {
       };
 
       test();
-      test(rx.subject<void>());
-      test([rx.subject<void>(), rx.subject<void>()]);
-      test(rx.disposable());
-      test(rx.lifecycle());
+      test(Rx.subject<void>());
+      test([Rx.subject<void>(), Rx.subject<void>()]);
+      test(Rx.disposable());
+      test(Rx.lifecycle());
     });
 
     it('lifecycle: create → dispose', () => {
@@ -52,11 +53,11 @@ describe('Disposable', () => {
       };
 
       test();
-      test(rx.subject<void>());
-      test([rx.subject<void>(), rx.subject<void>()]);
+      test(Rx.subject<void>());
+      test([Rx.subject<void>(), Rx.subject<void>()]);
 
-      test(rx.disposable());
-      test(rx.lifecycle());
+      test(Rx.disposable());
+      test(Rx.lifecycle());
     });
   });
 
@@ -343,7 +344,7 @@ describe('Disposable', () => {
 
   describe('Dispose.until', () => {
     it('Input: single (observable)', () => {
-      const $ = rx.subject<void>();
+      const $ = Rx.subject<void>();
       const res = Dispose.until($);
       expect(res.length).to.eql(1);
       expect(res[0]).to.equal($);
@@ -355,14 +356,14 @@ describe('Disposable', () => {
         expect(res.length).to.eql(1);
         expect(res[0]).to.equal(input.dispose$);
       };
-      test(rx.disposable());
-      test(rx.lifecycle());
+      test(Rx.disposable());
+      test(Rx.lifecycle());
     });
 
     it('Input: list', () => {
-      const $1 = rx.subject<void>();
-      const $2 = rx.disposable();
-      const $3 = [undefined, rx.disposable()];
+      const $1 = Rx.subject<void>();
+      const $2 = Rx.disposable();
+      const $3 = [undefined, Rx.disposable()];
       const res = Dispose.until([$1, undefined, $2, $3]);
 
       expect(res.length).to.eql(3);
@@ -372,8 +373,8 @@ describe('Disposable', () => {
     });
 
     it('Input: deep list ← flattens', () => {
-      const $1 = rx.subject<void>();
-      const $2 = rx.subject<void>();
+      const $1 = Rx.subject<void>();
+      const $2 = Rx.subject<void>();
       const res = Dispose.until([$1, undefined, [undefined, [undefined, $2]]]);
 
       expect(res.length).to.eql(2);
@@ -384,7 +385,7 @@ describe('Disposable', () => {
 
   describe('Dispose.done', () => {
     it('fires once and completes', () => {
-      const dispose$ = rx.subject<t.DisposeEvent>();
+      const dispose$ = Rx.subject<t.DisposeEvent>();
 
       let nextCount = 0;
       let completed = false;
@@ -403,7 +404,7 @@ describe('Disposable', () => {
     });
 
     it('with reason', () => {
-      const dispose$ = rx.subject<any>();
+      const dispose$ = Rx.subject<any>();
       expect(dispose$.closed).to.eql(false);
 
       const fired: t.DisposeEvent[] = [];
@@ -420,7 +421,7 @@ describe('Disposable', () => {
   describe('Dispose.toLifecycle', () => {
     it('lifecycle', () => {
       type T = t.Lifecycle & { count: number };
-      const life = rx.lifecycle();
+      const life = Rx.lifecycle();
       const api = Dispose.toLifecycle<T>(life, { count: 123 });
 
       let fired = 0;
@@ -505,7 +506,7 @@ describe('Disposable', () => {
     });
 
     it('external lifecycle (until: dispose$) triggers abort', () => {
-      const { dispose, dispose$ } = rx.lifecycle();
+      const { dispose, dispose$ } = Rx.lifecycle();
       const a = Dispose.abortable(dispose$);
       expect(a.disposed).to.eql(false);
       expect(a.signal.aborted).to.eql(false);
@@ -516,7 +517,7 @@ describe('Disposable', () => {
     });
 
     it('abort event fires exactly once even with external + local dispose', () => {
-      const { dispose, dispose$ } = rx.lifecycle();
+      const { dispose, dispose$ } = Rx.lifecycle();
       const a = Dispose.abortable(dispose$);
       let count = 0;
       a.signal.addEventListener('abort', () => count++);

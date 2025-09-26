@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { rx } from '../../m.Rx/mod.ts';
+import { Rx } from '../../m.Rx/mod.ts';
 import { Time } from '../mod.ts';
 
 describe('Time.until', () => {
@@ -7,7 +7,7 @@ describe('Time.until', () => {
 
   describe('delay', () => {
     it('completes ← (not disposed)', async () => {
-      const { dispose$ } = rx.disposable();
+      const { dispose$ } = Rx.disposable();
       const startedAt = now();
 
       let disposeFired = 0;
@@ -25,7 +25,7 @@ describe('Time.until', () => {
     });
 
     it('does not complete ← (disposed$)', async () => {
-      const { dispose, dispose$ } = rx.disposable();
+      const { dispose, dispose$ } = Rx.disposable();
 
       let disposeFired = 0;
       let count = 0;

@@ -1,5 +1,5 @@
 import { YAMLError } from 'yaml';
-import { type t, Arr, Immutable, Is, Obj, rx } from './common.ts';
+import { type t, Arr, Immutable, Is, Obj, Rx } from './common.ts';
 import { parseAst } from './u.parse.ts';
 
 type O = Record<string, unknown>;
@@ -17,10 +17,10 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
    */
   const events = doc.source.events(life);
   const pathEvents = events.path(path.source ?? []);
-  const source$ = debounce > 0 ? pathEvents.$.pipe(rx.debounceTime(debounce)) : pathEvents.$;
+  const source$ = debounce > 0 ? pathEvents.$.pipe(Rx.debounceTime(debounce)) : pathEvents.$;
 
-  const $$ = rx.subject<t.YamlSyncParserChange<T>>();
-  const $ = $$.pipe(rx.takeUntil(life.dispose$));
+  const $$ = Rx.subject<t.YamlSyncParserChange<T>>();
+  const $ = $$.pipe(Rx.takeUntil(life.dispose$));
 
   /**
    * Data:
@@ -85,7 +85,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   /**
    * API:
    */
-  const api = rx.toLifecycle<t.YamlSyncParser<T>>(life, {
+  const api = Rx.toLifecycle<t.YamlSyncParser<T>>(life, {
     get ok() {
       return errors.size === 0;
     },
@@ -130,7 +130,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
 const wrangle = {
   args(input: t.YamlSyncArgsInput): t.YamlSyncArgs {
     const { debounce = 0 } = input;
-    const life = rx.lifecycle(input.dispose$);
+    const life = Rx.lifecycle(input.dispose$);
     const doc = wrangle.doc(input.doc);
     const path = wrangle.path(doc, input.path);
     return { life, doc, path, debounce };

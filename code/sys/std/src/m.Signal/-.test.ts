@@ -1,5 +1,5 @@
 import { type t, Time, describe, expect, it } from '../-test.ts';
-import { rx } from '../m.Rx/mod.ts';
+import { Rx } from '../m.Rx/mod.ts';
 import { Is } from './m.Is.ts';
 import { Signal } from './mod.ts';
 
@@ -341,7 +341,7 @@ describe('Signal', () => {
 
   describe('listeners', () => {
     it('create → <change> → dispose', () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const a = Signal.listeners();
       const b = Signal.listeners(life);
 
@@ -629,8 +629,8 @@ describe('Signal', () => {
           typeof before === 'number'
             ? before + 1
             : typeof before === 'string'
-            ? before.toUpperCase()
-            : before;
+              ? before.toUpperCase()
+              : before;
         e.mutate(next as never);
         updates.push({ before, after: e.value }); // ← live view should reflect mutation.
       });

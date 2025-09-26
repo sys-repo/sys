@@ -1,6 +1,6 @@
 import { type t, c, describe, expect, it, Time } from '../../-test.ts';
 
-import { Err, ERR, Immutable, rx } from '../common.ts';
+import { Err, ERR, Immutable, Rx } from '../common.ts';
 import { Is } from '../m.Is.ts';
 import { Path } from '../m.Path.ts';
 import { Syncer } from '../m.Syncer.ts';
@@ -376,7 +376,7 @@ describe('Yaml', () => {
         });
 
         it('via: dispose$ observable', () => {
-          const { dispose, dispose$ } = rx.lifecycle();
+          const { dispose, dispose$ } = Rx.lifecycle();
           const doc = Immutable.clonerRef<T>({});
           const syncer = Yaml.syncer<T>({ doc, path: ['text'], dispose$ });
 

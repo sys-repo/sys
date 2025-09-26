@@ -1,4 +1,4 @@
-import { type t, Err, Path, rx, Url } from './common.ts';
+import { type t, Err, Path, Rx, Url } from './common.ts';
 import { Is } from './m.Is.ts';
 
 export const Dist: t.PkgDistLib = {
@@ -8,7 +8,7 @@ export const Dist: t.PkgDistLib = {
     const errors = Err.errors();
     const controller = new AbortController();
     const signal = controller.signal;
-    const life = rx.disposable(options.dispose$);
+    const life = Rx.disposable(options.dispose$);
     life.dispose$.subscribe(() => controller.abort(options.disposeReason ?? 'disposed'));
 
     const url = new URL(Path.join(origin, pathname));

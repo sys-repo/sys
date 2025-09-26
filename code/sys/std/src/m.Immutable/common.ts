@@ -3,7 +3,7 @@ export * from '../common.ts';
 export { Delete } from '../m.Delete/mod.ts';
 export { Is } from '../m.Is/mod.ts';
 export { slug } from '../m.Random/mod.ts';
-export { rx } from '../m.Rx/mod.ts';
+export { Rx } from '../m.Rx/mod.ts';
 export { Arr } from '../m.Value.Arr/mod.ts';
 export { Obj } from '../m.Value.Obj/mod.ts';
 

@@ -1,7 +1,7 @@
-import { describe, it, expect, type t } from '../-test.ts';
+import { describe, expect, it, type t } from '../-test.ts';
 import { Time } from '../m.DateTime/mod.ts';
+import { Rx } from './mod.ts';
 import { connect } from './u.bus.connect.ts';
-import { rx } from './mod.ts';
 
 describe('BusConnect', () => {
   type E = { type: 'foo'; payload: { count?: number } };
@@ -12,13 +12,13 @@ describe('BusConnect', () => {
       expect(fn).to.throw(/Must have at least two event-buses to setup connection/);
     };
     test([]);
-    test([rx.bus()]);
+    test([Rx.bus()]);
   });
 
   it('connect: (3) buses ', async () => {
-    const a = rx.bus<E>();
-    const b = rx.bus<E>();
-    const c = rx.bus<E>();
+    const a = Rx.bus<E>();
+    const b = Rx.bus<E>();
+    const c = Rx.bus<E>();
     connect<E>([a, b, c]);
 
     const firedA: E[] = [];
@@ -42,8 +42,8 @@ describe('BusConnect', () => {
   });
 
   it('async: true - default', async () => {
-    const a = rx.bus<E>();
-    const b = rx.bus<E>();
+    const a = Rx.bus<E>();
+    const b = Rx.bus<E>();
     connect<E>([a, b]);
 
     const firedA: E[] = [];
@@ -63,8 +63,8 @@ describe('BusConnect', () => {
   });
 
   it('async: false (aka. synchronous)', async () => {
-    const a = rx.bus<E>();
-    const b = rx.bus<E>();
+    const a = Rx.bus<E>();
+    const b = Rx.bus<E>();
     connect<E>([a, b], { async: false });
 
     const firedA: E[] = [];
@@ -80,9 +80,9 @@ describe('BusConnect', () => {
   });
 
   it('dispose: via { dispose$ } param', async () => {
-    const { dispose, dispose$ } = rx.disposable();
-    const a = rx.bus<E>();
-    const b = rx.bus<E>();
+    const { dispose, dispose$ } = Rx.disposable();
+    const a = Rx.bus<E>();
+    const b = Rx.bus<E>();
     connect<E>([a, b], { dispose$ });
 
     const firedA: E[] = [];
@@ -101,8 +101,8 @@ describe('BusConnect', () => {
   });
 
   it('dispose: via .dispose() method', async () => {
-    const a = rx.bus<E>();
-    const b = rx.bus<E>();
+    const a = Rx.bus<E>();
+    const b = Rx.bus<E>();
     const conn = connect<E>([a, b]);
 
     const firedA: E[] = [];

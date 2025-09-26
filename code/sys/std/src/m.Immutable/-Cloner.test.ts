@@ -1,5 +1,5 @@
 import { describe, expect, it, type t } from '../-test.ts';
-import { rx } from './common.ts';
+import { Rx } from './common.ts';
 import { Immutable } from './mod.ts';
 
 describe('Immutable', () => {
@@ -87,7 +87,7 @@ describe('Immutable', () => {
     });
 
     it('events', () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const initial = { count: 0 };
       const obj = Immutable.clonerRef<D>(initial);
       const events1 = obj.events(life.dispose$);

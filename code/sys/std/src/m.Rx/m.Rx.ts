@@ -1,7 +1,7 @@
 import { type t, Dispose } from './common.ts';
 import * as lib from './u.Rx.libs.ts';
 
-import { Is } from './m.Is.ts';
+import { Is } from './m.Rx.Is.ts';
 import { bus } from './u.bus.ts';
 import { event, payload } from './u.payload.ts';
 import { asPromise } from './u.promise.ts';

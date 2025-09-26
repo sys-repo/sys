@@ -1,7 +1,7 @@
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 import { pathFilter } from './m.Events.path.ts';
-import { Wrangle } from './u.ts';
 import { Patch } from './m.Patch.ts';
+import { Wrangle } from './u.ts';
 
 /**
  * Change Patch Standard:
@@ -17,14 +17,14 @@ export function viaObservable<T, P = DefaultPatch>(
   input$: t.Observable<t.ImmutableChange<T, P>>,
   dispose$?: t.UntilInput,
 ): t.ImmutableEvents<T, P> {
-  const life = rx.lifecycle(dispose$);
-  const $ = input$.pipe(rx.takeUntil(life.dispose$));
+  const life = Rx.lifecycle(dispose$);
+  const $ = input$.pipe(Rx.takeUntil(life.dispose$));
   const toPath = (patch: P) => {
     const o = patch as { path: string };
     return 'path' in o ? Patch.toObjectPath(o.path) : [];
   };
   const path = pathFilter<T, P>($, toPath);
-  return rx.toLifecycle<t.ImmutableEvents<T, P>>(life, { $, path });
+  return Rx.toLifecycle<t.ImmutableEvents<T, P>>(life, { $, path });
 }
 
 /**
@@ -35,7 +35,7 @@ export function viaOverride<T, P = DefaultPatch>(
   source: t.Immutable<T, P>,
   dispose$?: t.UntilInput,
 ): t.ImmutableEvents<T, P> {
-  const $ = rx.subject<t.ImmutableChange<T, P>>();
+  const $ = Rx.subject<t.ImmutableChange<T, P>>();
   const api = viaObservable<T, P>($, dispose$);
   const base = source.change;
   api.dispose$.subscribe(() => (source.change = base));

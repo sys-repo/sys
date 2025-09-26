@@ -2,20 +2,10 @@ import { c, describe, expect, it } from '../-test.ts';
 import { JsrUrl } from './mod.ts';
 
 describe('Jsr.Fetch.Url', () => {
-  const formatUrl = (url: string, matchEnd: string) => {
-    if (!url.endsWith(matchEnd)) return url;
-    const left = url.slice(0, 0 - matchEnd.length);
-    const right = c.bold(c.cyan(matchEnd));
-    return `${left}${right}`;
-  };
-
-  const print = (title: string, url: string) => {
-    url = url.replace(/https:\/\/jsr.io\//, c.gray('https://jsr.io/'));
-    console.info();
-    console.info(c.cyan(`${title}:`));
-    console.info(`  ${url}`);
-    console.info();
-  };
+  it('API', async () => {
+    const m = await import('@sys/std/url');
+    expect(m.JsrUrl).to.equal(JsrUrl);
+  });
 
   it('origin (url)', () => {
     expect(JsrUrl.origin).to.eql('https://jsr.io');
@@ -54,3 +44,21 @@ describe('Jsr.Fetch.Url', () => {
     });
   });
 });
+
+/**
+ * Helpers:
+ */
+const formatUrl = (url: string, matchEnd: string) => {
+  if (!url.endsWith(matchEnd)) return url;
+  const left = url.slice(0, 0 - matchEnd.length);
+  const right = c.bold(c.cyan(matchEnd));
+  return `${left}${right}`;
+};
+
+const print = (title: string, url: string) => {
+  url = url.replace(/https:\/\/jsr.io\//, c.gray('https://jsr.io/'));
+  console.info();
+  console.info(c.cyan(`${title}:`));
+  console.info(`  ${url}`);
+  console.info();
+};

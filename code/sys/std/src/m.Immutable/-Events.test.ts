@@ -1,5 +1,5 @@
 import { type t, describe, expect, it } from '../-test.ts';
-import { rx, Is } from './common.ts';
+import { Is, Rx } from './common.ts';
 import { Immutable } from './mod.ts';
 
 describe('Immutable Events', () => {
@@ -153,7 +153,7 @@ describe('Immutable Events', () => {
       });
 
       it('via {dispose$} observable', () => {
-        const life = rx.lifecycle();
+        const life = Rx.lifecycle();
         const obj = Immutable.cloner<D>({ count: 0, list: [] });
         const events = Immutable.Events.viaOverride(obj, life.dispose$);
         const fired: t.ImmutableChange<D, P>[] = [];
