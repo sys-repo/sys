@@ -10,8 +10,9 @@
 const now = new Date();
 
 import { Jsr } from '@sys/jsr';
-import { Args, D, Path, rx, Time, Value } from '@sys/std';
+import { Args, D, Path, Time, Value } from '@sys/std';
 import { IndexedDb } from '@sys/std/indexeddb';
+import { Rx } from '@sys/std/rx';
 import { Semver } from '@sys/std/semver';
 import { Str } from '@sys/text';
 import { pkg } from '../pkg.ts';
@@ -23,7 +24,7 @@ console.info(`💦 import '${pkg.name}/sample-imports';`);
  */
 console.groupCollapsed('🧫 @sys/std');
 
-console.info('@sys/std:rx', rx);
+console.info('@sys/std:Rx', Rx);
 console.info('@sys/std:Path', Path);
 console.info('@sys/std:D (Date)', D, `"${D.format(now, 'E MMM do, yyyy')}"`);
 console.info('@sys/std:Time', Time);

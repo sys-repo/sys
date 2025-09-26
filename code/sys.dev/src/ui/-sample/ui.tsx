@@ -5,7 +5,7 @@ import {
   css,
   D,
   Monaco,
-  rx,
+  Rx,
   Signal,
   SplitPane,
   STORAGE_KEY,
@@ -112,7 +112,7 @@ export const Sample: React.FC<P> = (props) => {
            * Monitor document changes:
            */
           const $ = e.events.path(paths.parsed).$;
-          $.pipe(rx.debounceTime(300)).subscribe(handleDocumentChanged);
+          $.pipe(Rx.debounceTime(300)).subscribe(handleDocumentChanged);
           handleDocumentChanged();
         }}
       />

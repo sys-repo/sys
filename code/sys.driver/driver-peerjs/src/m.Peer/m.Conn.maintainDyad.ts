@@ -1,4 +1,4 @@
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 /**
  * Resilient "one-to-one" media link for a given dyad of peer-id’s.
@@ -35,7 +35,7 @@ type Args = {
  */
 export function maintainDyadConnection(args: Args): t.DyadConnection {
   const { peer, dyad, localStream, onRemoteStream, retryDelay = 1_000 } = args;
-  const life = rx.lifecycle(args.dispose$);
+  const life = Rx.lifecycle(args.dispose$);
 
   if (!peer.id) throw new Error('Peer instance must be "open" first');
 
@@ -221,7 +221,7 @@ export function maintainDyadConnection(args: Args): t.DyadConnection {
   /**
    * API:
    */
-  return rx.toLifecycle<t.DyadConnection>(life, {
+  return Rx.toLifecycle<t.DyadConnection>(life, {
     peers: dyad,
     connected,
   });

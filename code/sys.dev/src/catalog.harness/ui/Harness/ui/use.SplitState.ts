@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, rx } from '../common.ts';
+import { type t, Rx } from '../common.ts';
 
 const PERSIST_DEBOUNCE: t.Msecs = 300;
 
@@ -12,7 +12,7 @@ export function useSplitState(state_?: unknown) {
   /**
    * Hooks:
    */
-  const ratioRef$ = React.useRef<t.Subject<t.Percent | undefined>>(rx.subject());
+  const ratioRef$ = React.useRef<t.Subject<t.Percent | undefined>>(Rx.subject());
   const [ratio, setRatio] = React.useState<t.Percent | undefined>(state?.current.split);
 
   // Track latest ratio for safe flush:
@@ -32,7 +32,7 @@ export function useSplitState(state_?: unknown) {
    */
   React.useEffect(() => {
     if (!state) return;
-    const { dispose, signal, dispose$ } = rx.abortable();
+    const { dispose, signal, dispose$ } = Rx.abortable();
 
     /**
      * Mutators:
@@ -49,9 +49,9 @@ export function useSplitState(state_?: unknown) {
      * Listener:
      */
     const changed$ = ratioRef$.current.pipe(
-      rx.takeUntil(dispose$),
-      rx.debounceTime(PERSIST_DEBOUNCE), // ← wait for user to pause; coalesce bursts of updates.
-      rx.distinctWhile((p, n) => p === n),
+      Rx.takeUntil(dispose$),
+      Rx.debounceTime(PERSIST_DEBOUNCE), // ← wait for user to pause; coalesce bursts of updates.
+      Rx.distinctWhile((p, n) => p === n),
     );
     changed$.subscribe(safeUpdate);
 

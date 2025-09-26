@@ -95,10 +95,11 @@ export const Notes: React.FC<NotesProps> = (props) => {
         readOnly={debug}
         autoFocus={true}
         language={'yaml'}
-        onReady={(e) => {
-          setEditor(e.editor);
-          setMonaco(e.monaco);
-          const path = Monaco.Yaml.Path.observe(e.editor, e.dispose$);
+        onMounted={(e) => {
+          const { editor, monaco } = e;
+          setEditor(editor);
+          setMonaco(monaco);
+          const path = Monaco.Yaml.Path.observe({ editor }, e.dispose$);
           path.$.subscribe((e) => setSelectedPath(e.path));
         }}
       />

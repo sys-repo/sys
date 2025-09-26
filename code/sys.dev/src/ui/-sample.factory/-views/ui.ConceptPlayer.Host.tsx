@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, rx } from '../common.ts';
+import React from 'react';
+import { type t, Color, css } from '../common.ts';
 
 export type ConceptPlayerHostProps = {
   debug?: boolean;

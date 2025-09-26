@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, pkg, Color, css, Cropmarks, ObjectView, Signal, rx } from './common.ts';
+import React from 'react';
+import { type t, Color, Cropmarks, css, ObjectView, pkg } from './common.ts';
 
 export type SplashProps = {
   debug?: boolean;
