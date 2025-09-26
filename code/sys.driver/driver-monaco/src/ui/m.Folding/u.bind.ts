@@ -1,4 +1,4 @@
-import { type t, A, Bus, D, RangeUtil, rx, Schedule, Util } from './common.ts';
+import { type t, A, Bus, D, RangeUtil, Rx, Schedule, Util } from './common.ts';
 import { getHiddenAreas } from './u.hidden.ts';
 import { toMarkRanges } from './u.mark.ts';
 import { observe } from './u.observe.ts';
@@ -11,7 +11,7 @@ type IRange = t.Monaco.I.IRange;
  */
 export const bindFoldMarks: t.BindFoldMarks = (args) => {
   const { editor, doc, path, until, enabled = true } = args;
-  const life = rx.lifecycle(until);
+  const life = Rx.lifecycle(until);
   const schedule = Schedule.make(life, 'micro');
 
   /**
@@ -19,10 +19,10 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
    */
   const bus$ = args.bus$ ?? Bus.make();
   const $ = bus$.pipe(
-    rx.takeUntil(life.dispose$),
-    rx.filter((e) => e.kind === 'marks'),
+    Rx.takeUntil(life.dispose$),
+    Rx.filter((e) => e.kind === 'marks'),
   );
-  const api = rx.toLifecycle<t.EditorFoldBinding>(life, { $ });
+  const api = Rx.toLifecycle<t.EditorFoldBinding>(life, { $ });
 
   if (!enabled || !editor || !doc || !path?.length) return api;
 
@@ -178,7 +178,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
     const events = doc.events(life);
     events
       .path(path)
-      .$.pipe(rx.takeUntil(life.dispose$))
+      .$.pipe(Rx.takeUntil(life.dispose$))
       .subscribe((e) => {
         const hasMarksPatch = e.patches.some((p) => Array.isArray((p as any).marks));
         if (!hasMarksPatch) return;
@@ -195,7 +195,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
      * Editor → CRDT: observe hidden-areas changes and write marks if they differ.
      */
     const { $ } = observe({ editor, bus$ }, life);
-    $.pipe(rx.takeUntil(life.dispose$)).subscribe(async (e) => {
+    $.pipe(Rx.takeUntil(life.dispose$)).subscribe(async (e) => {
       if (!readyForEditorWrites.current) return;
       if (docUpdatingEditor.current) return;
 
