@@ -4,9 +4,7 @@ import { RxBus } from '../mod.ts';
 describe('RxBus', () => {
   describe('isBus', () => {
     it('is bus', () => {
-      const test = (input: any) => {
-        expect(RxBus.isBus(input)).to.eql(true);
-      };
+      const test = (input: any) => expect(RxBus.isBus(input)).to.eql(true);
       test({ $: new Rx.Observable(), fire: () => null });
       test(RxBus());
     });

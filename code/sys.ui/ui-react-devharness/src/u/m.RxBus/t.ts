@@ -1,21 +1,30 @@
 import type { t } from './common.ts';
-
-type E = t.Event;
+export type * from './t.promise.ts';
 
 /**
  * Event Bus
  */
-export type RxBusFactory = <T extends E = E>(
+export type RxBusFactory = <T extends t.Event = t.Event>(
   input?: t.Subject<any> | t.EventBus<any>,
 ) => t.EventBus<T>;
 
 /** Bus related methods. */
 export type RxBus = RxBusFactory & {
-  isBus<T extends E = E>(input?: any): input is t.EventBus<T>;
+  isBus<T extends t.Event = t.Event>(input?: any): input is t.EventBus<T>;
   isObservable<T = any>(input?: any): input is t.Observable<T>;
-  asType<T extends E>(bus: t.EventBus<any>): t.EventBus<T>;
+  asType<T extends t.Event>(bus: t.EventBus<any>): t.EventBus<T>;
   instance(bus?: t.EventBus<any>): string;
-  connect<T extends E>(buses: t.EventBus<any>[], options?: t.BusConnectOptions): t.BusConnection<T>;
+  connect<T extends t.Event>(
+    buses: t.EventBus<any>[],
+    options?: t.BusConnectOptions,
+  ): t.BusConnection<T>;
+
+  asPromise: t.RxAsPromise;
+  event<Ev extends t.Event>($: t.Observable<unknown>, type: Ev['type']): t.Observable<Ev>;
+  payload<Ev extends t.Event>(
+    $: t.Observable<unknown>,
+    type: Ev['type'],
+  ): t.Observable<Ev['payload']>;
 };
 
 /**
@@ -25,5 +34,5 @@ export type BusConnection<E extends t.Event> = t.Disposable & {
   readonly isDisposed: boolean;
   readonly buses: t.EventBus<E>[];
 };
-/** Options passed to buss connect. */
+/** Options passed to bus connect. */
 export type BusConnectOptions = { async?: boolean; dispose$?: t.Observable<any> };

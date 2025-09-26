@@ -38,7 +38,7 @@ export function BusEvents(args: {
       const tx = slug();
       const op = 'info';
       const res$ = info.res$.pipe(Rx.filter((e) => e.tx === tx));
-      const first = Rx.asPromise.first<t.DevInfoResEvent>(res$, { op, timeout });
+      const first = RxBus.asPromise.first(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/info:req',
@@ -68,7 +68,7 @@ export function BusEvents(args: {
       const tx = slug();
       const op = 'ctx';
       const res$ = ctx.res$.pipe(Rx.filter((e) => e.tx === tx));
-      const first = Rx.asPromise.first<t.DevCtxResEvent>(res$, { op, timeout });
+      const first = RxBus.asPromise.first(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/ctx:req',
@@ -101,7 +101,7 @@ export function BusEvents(args: {
       const tx = slug();
       const op = 'load';
       const res$ = load.res$.pipe(Rx.filter((e) => e.tx === tx));
-      const first = Rx.asPromise.first<t.DevLoadResEvent>(res$, { op, timeout });
+      const first = RxBus.asPromise.first(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/load:req',
@@ -128,7 +128,7 @@ export function BusEvents(args: {
       const tx = slug();
       const op = 'run';
       const res$ = run.res$.pipe(Rx.filter((e) => e.tx === tx));
-      const first = Rx.asPromise.first<t.DevRunResEvent>(res$, { op, timeout });
+      const first = RxBus.asPromise.first(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/run:req',
@@ -154,7 +154,7 @@ export function BusEvents(args: {
       const tx = slug();
       const op = 'reset';
       const res$ = reset.res$.pipe(Rx.filter((e) => e.tx === tx));
-      const first = Rx.asPromise.first<t.DevRunResEvent>(res$, { op, timeout });
+      const first = RxBus.asPromise.first(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/reset:req',
@@ -187,7 +187,7 @@ export function BusEvents(args: {
         const tx = slug();
         const op = 'state.change';
         const res$ = state.change.res$.pipe(Rx.filter((e) => e.tx === tx));
-        const first = Rx.asPromise.first<t.DevStateChangeResEvent>(res$, { op, timeout });
+        const first = RxBus.asPromise.first(res$, { op, timeout });
 
         bus.fire({
           type: 'sys.dev/state/change:req',
@@ -225,7 +225,7 @@ export function BusEvents(args: {
         const tx = slug();
         const op = 'props.change';
         const res$ = props.change.res$.pipe(Rx.filter((e) => e.tx === tx));
-        const first = Rx.asPromise.first<t.DevPropsChangeResEvent>(res$, { op, timeout });
+        const first = RxBus.asPromise.first(res$, { op, timeout });
 
         bus.fire({
           type: 'sys.dev/props/change:req',
