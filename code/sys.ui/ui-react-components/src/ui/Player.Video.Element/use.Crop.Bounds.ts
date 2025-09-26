@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { type t, rx, READY_STATE } from './common.ts';
+import { type t, READY_STATE, Rx } from './common.ts';
 
 export function useCropBounds(
   videoRef: React.RefObject<HTMLVideoElement | null>,
@@ -28,7 +28,7 @@ export function useCropBounds(
     lastKeyRef.current = key;
     endedRef.current = false; // NB: reset on new lens.
 
-    const { dispose, signal } = rx.abortable();
+    const { dispose, signal } = Rx.abortable();
     const start = lens.range.start ?? 0;
     const end = lens.range.end ?? lens.duration.full;
 

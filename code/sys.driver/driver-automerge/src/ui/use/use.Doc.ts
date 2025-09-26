@@ -1,9 +1,9 @@
 /**
- * Convenience hooks for loading a document.
  * @module
+ * Convenience hooks for loading a document.
  */
 import React from 'react';
-import { type t, rx, Time } from './common.ts';
+import { type t, Rx, Time } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -33,7 +33,7 @@ export const useDoc: t.UseCrdtDoc = <T extends O = O>(
   React.useEffect(() => {
     if (!(repo && id)) return;
 
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
     const time = Time.until(life);
     let timer: t.TimeDelayPromise | undefined;
     let attempt = 0;

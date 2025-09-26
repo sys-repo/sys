@@ -1,4 +1,4 @@
-import { DEFAULTS, R, rx, type t } from './common.ts';
+import { type t, DEFAULTS, R, Rx } from './common.ts';
 import { Match } from './m.Match.ts';
 import { Util } from './u.ts';
 
@@ -6,8 +6,8 @@ const singleton = {
   isListening: false,
   state: R.clone<t.KeyboardState>(DEFAULTS.state),
 };
-const { dispose, dispose$ } = rx.disposable();
-const singleton$ = new rx.BehaviorSubject<t.KeyboardState>(singleton.state);
+const { dispose, dispose$ } = Rx.disposable();
+const singleton$ = new Rx.BehaviorSubject<t.KeyboardState>(singleton.state);
 
 /**
  * Global keyboard monitor.
@@ -64,9 +64,9 @@ export const KeyboardMonitor: t.KeyboardMonitor = {
   },
 
   subscribe(fn: (e: t.KeyboardState) => void) {
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
     if (KeyboardMonitor.is.supported) {
-      const $ = KeyboardMonitor.$.pipe(rx.takeUntil(dispose$), rx.takeUntil(life.dispose$));
+      const $ = KeyboardMonitor.$.pipe(Rx.takeUntil(dispose$), Rx.takeUntil(life.dispose$));
       $.subscribe(fn);
     }
     return life;
@@ -210,7 +210,7 @@ export function handlerOnOverloaded(
   options: { filter?: () => boolean; dispose$?: t.UntilInput } = {},
 ): t.Lifecycle {
   const { filter } = options;
-  const life = rx.lifecycle(options.dispose$);
+  const life = Rx.lifecycle(options.dispose$);
   const { dispose$ } = life;
 
   if (typeof args[0] === 'object') {
@@ -234,7 +234,7 @@ export function handlerOn(
   options: { dispose$?: t.UntilInput; filter?: () => boolean } = {},
 ) {
   const { filter } = options;
-  const life = rx.lifecycle(options.dispose$);
+  const life = Rx.lifecycle(options.dispose$);
   if (!KeyboardMonitor.is.supported) return life;
 
   ensureStarted();
@@ -242,12 +242,12 @@ export function handlerOn(
 
   singleton$
     .pipe(
-      rx.takeUntil(dispose$),
-      rx.takeUntil(life.dispose$),
-      rx.filter(() => (filter ? filter() : true)),
-      rx.filter((e) => !!e.last),
-      rx.filter((e) => !e.last?.is.handled),
-      rx.filter((e) => e.current.pressed.length > 0),
+      Rx.takeUntil(dispose$),
+      Rx.takeUntil(life.dispose$),
+      Rx.filter(() => (filter ? filter() : true)),
+      Rx.filter((e) => !!e.last),
+      Rx.filter((e) => !e.last?.is.handled),
+      Rx.filter((e) => e.current.pressed.length > 0),
     )
     .subscribe((e) => {
       const pressed = e.current.pressed.map((e) => e.code);

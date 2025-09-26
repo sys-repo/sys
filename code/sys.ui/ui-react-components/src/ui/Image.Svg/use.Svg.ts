@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { type t, rx, SVG, SvgElement } from './common.ts';
+import { type t, Rx, SVG, SvgElement } from './common.ts';
 
 /**
  * Hook: SVG image import/renderer.
@@ -37,7 +37,7 @@ export function useSvg<T extends HTMLElement>(
    * Effect: import SVG data.
    */
   useEffect(() => {
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
     if (typeof svgImport === 'string') setImportString(svgImport);
     if (typeof svgImport === 'function') svgImport().then((m) => setImportString(m.default));
     return life.dispose;
@@ -57,7 +57,7 @@ export function useSvg<T extends HTMLElement>(
     }
 
     // Fetch SVG data from server:
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
     fetch(importString).then(async (res) => {
       if (life.disposed) return;
       setSvgMarkup(res.ok ? await res.text() : '');

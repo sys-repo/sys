@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-import { type t, Color, css, D, rx } from './common.ts';
+import { type t, Color, css, D, Rx } from './common.ts';
 import { getDevice } from './u.getDevice.ts';
 import { useVideoStream } from './use.VideoStream.ts';
 
@@ -24,7 +24,7 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
    * Effect: fire onReady when stream acquired.
    */
   useEffect(() => {
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
     const { stream, aspectRatio } = video;
     if (!video.ready || !stream.raw || !stream.filtered) return;
 

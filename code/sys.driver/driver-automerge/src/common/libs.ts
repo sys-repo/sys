@@ -12,7 +12,6 @@ export {
   Dispose,
   Err,
   History,
-  Immutable,
   Is,
   Num,
   Obj,
@@ -22,7 +21,8 @@ export {
   Str,
   Time,
   Url,
-  rx,
   slug,
 } from '@sys/std';
+export { Immutable } from '@sys/std/immutable';
+export { Rx } from '@sys/std/rx';
 export { Signal } from '@sys/ui-react';

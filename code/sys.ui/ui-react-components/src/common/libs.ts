@@ -16,7 +16,6 @@ export {
   Path,
   Pkg,
   R,
-  rx,
   Schedule,
   slug,
   Str,
@@ -24,6 +23,7 @@ export {
   Timestamp,
   Url,
 } from '@sys/std';
+export { Rx } from '@sys/std/rx';
 
 export { Http } from '@sys/http/client';
 export { Color, css, Style } from '@sys/ui-css';

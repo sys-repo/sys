@@ -1,4 +1,4 @@
-import { c, NodeWSServerAdapter, rx, type t, Time } from './common.ts';
+import { type t, c, NodeWSServerAdapter, Rx, Time } from './common.ts';
 import { Log } from './u.print.ts';
 
 type TInfo = {
@@ -25,7 +25,7 @@ export function monitorPeers(
   until?: t.UntilInput,
 ) {
   const { dir, host, port, network, silent } = args;
-  const life = rx.lifecycle(until);
+  const life = Rx.lifecycle(until);
   const peers = new Map<t.PeerId, TInfo>();
 
   const now = () => Time.now.timestamp;

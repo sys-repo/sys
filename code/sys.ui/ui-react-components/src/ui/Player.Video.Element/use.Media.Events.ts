@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 type R = t.VideoPlayerEventReason;
 type P = t.VideoElementProps;
@@ -54,7 +54,7 @@ export function useMediaEvents(
     const onBufferStart = () => fireBuffering(true, 'video-element-event');
     const onBufferEnd = () => fireBuffering(false, 'video-element-event');
 
-    const { dispose, signal } = rx.abortable();
+    const { dispose, signal } = Rx.abortable();
     el.addEventListener('playing', onPlay, { signal });
     el.addEventListener('pause', onPause, { signal });
     el.addEventListener('ended', onEndedHandler, { signal });

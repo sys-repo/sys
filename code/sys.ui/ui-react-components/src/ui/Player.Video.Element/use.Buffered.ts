@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 /**
  * Effect: track buffered status:
@@ -25,7 +25,7 @@ export function useBuffered(
       onBufferedChange?.({ buffered, reason: 'video-element-event' });
     };
 
-    const { signal, dispose } = rx.abortable();
+    const { signal, dispose } = Rx.abortable();
     el.addEventListener('progress', calcBuffered, { signal });
     el.addEventListener('loadedmetadata', calcBuffered, { signal }); // First value.
 

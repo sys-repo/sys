@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 import { Crop } from './m.Crop.ts';
 
 export function useMediaProgress(
@@ -48,7 +48,7 @@ export function useMediaProgress(
       onTimeUpdate?.({ secs: secsCropped });
     };
 
-    const { dispose, signal } = rx.abortable();
+    const { dispose, signal } = Rx.abortable();
     el.addEventListener('loadedmetadata', update, { signal });
     el.addEventListener('durationchange', update, { signal });
     el.addEventListener('timeupdate', update, { signal });

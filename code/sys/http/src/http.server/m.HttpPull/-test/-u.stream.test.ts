@@ -1,4 +1,4 @@
-import { type t, describe, expect, Fs, it, Path, rx, Testing } from '../../../-test.ts';
+import { type t, describe, expect, Fs, it, Path, Rx, Testing } from '../../../-test.ts';
 import { HttpPull } from '../mod.ts';
 
 describe('HttpPull.stream', () => {
@@ -115,7 +115,7 @@ describe('HttpPull.stream', () => {
     const b = server.url.join('x', 'b.txt');
     const outDir = await mkTmpDir();
 
-    const until = rx.disposable();
+    const until = Rx.disposable();
     const events: t.HttpPullEvent[] = [];
     const iter = HttpPull.stream([a, b], outDir, { until, concurrency: 2 });
     queueMicrotask(() => until.dispose()); // ← cancel immediately on next microtask.
@@ -209,7 +209,7 @@ describe('HttpPull.stream', () => {
       })();
 
       // Create an events() subscription with its own until; we dispose it immediately.
-      const local = rx.disposable();
+      const local = Rx.disposable();
       const obsEvents: t.HttpPullEvent[] = []; // ← was HttpPullRecord[]
       const obsDone = deferred<void>();
       const sub = stream.events(local).$.subscribe({

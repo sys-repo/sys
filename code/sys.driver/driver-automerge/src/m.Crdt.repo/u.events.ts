@@ -1,27 +1,27 @@
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 /**
  * Factory:
  */
 export function eventsFactory($: t.Observable<t.CrdtRepoEvent>, life: t.Lifecycle) {
-  $ = $.pipe(rx.takeUntil(life.dispose$));
+  $ = $.pipe(Rx.takeUntil(life.dispose$));
 
   const prop$ = $.pipe(
-    rx.filter((e) => e.type === 'prop-change'),
-    rx.map((e) => e.payload),
+    Rx.filter((e) => e.type === 'prop-change'),
+    Rx.map((e) => e.payload),
   );
 
   const ready$ = prop$.pipe(
-    rx.filter((change) => change.prop === 'ready'),
-    rx.map((change) => change.after.ready === true),
-    rx.take(1),
+    Rx.filter((change) => change.prop === 'ready'),
+    Rx.map((change) => change.after.ready === true),
+    Rx.take(1),
   );
 
-  return rx.toLifecycle<t.CrdtRepoEvents>(life, {
+  return Rx.toLifecycle<t.CrdtRepoEvents>(life, {
     $,
     ready$,
     prop$,
-    network$: $.pipe(rx.filter(EventIs.network)),
+    network$: $.pipe(Rx.filter(EventIs.network)),
   });
 }
 

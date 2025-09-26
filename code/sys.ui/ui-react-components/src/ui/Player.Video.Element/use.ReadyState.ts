@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 export function useReadyState(
   videoRef: React.RefObject<HTMLVideoElement | null>,
@@ -15,7 +15,7 @@ export function useReadyState(
     if (!el) return;
     setReadyState(0);
 
-    const { dispose, signal } = rx.abortable();
+    const { dispose, signal } = Rx.abortable();
     const update = () => setReadyState(el.readyState as t.NumberMediaReadyState);
 
     // ≥ 1: HAVE_METADATA

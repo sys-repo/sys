@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Is, pkg, Pkg, rx, Str, Time } from './common.ts';
+import { type t, c, Cli, Fs, Is, pkg, Pkg, Rx, Str, Time } from './common.ts';
 
 /**
  * Helpers for logging.
@@ -68,8 +68,8 @@ export const Log = {
   ) {
     const { debounce = 3_000, heartbeatDelay = 30 * 60_000 } = options;
 
-    const $ = rx.subject();
-    $.pipe(rx.debounceTime(debounce)).subscribe(() => log?.());
+    const $ = Rx.subject();
+    $.pipe(Rx.debounceTime(debounce)).subscribe(() => log?.());
 
     const time = Time.until(life);
     const heartbeat = (log: boolean = true) => {

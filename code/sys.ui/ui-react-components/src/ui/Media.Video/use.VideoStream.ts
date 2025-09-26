@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { type t, AspectRatio, D, Err, Is, Obj, rx } from './common.ts';
+import { type t, AspectRatio, D, Err, Is, Obj, Rx } from './common.ts';
 import { getStream } from './u.getStream.ts';
 
 export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = {}) => {
@@ -37,7 +37,7 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
    * Effect: acquire / transform stream.
    */
   useEffect(() => {
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
 
     async function run() {
       try {

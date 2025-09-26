@@ -1,4 +1,4 @@
-import { Immutable, describe, expect, it, rx, type t } from '../-test.ts';
+import { type t, describe, expect, Immutable, it, Rx } from '../-test.ts';
 import { Tests } from './mod.ts';
 
 /**
@@ -10,7 +10,7 @@ import { Tests } from './mod.ts';
  * cloner ImmutableRef<T> tool from [sys.util].
  */
 const setup: t.CmdTestSetup = async () => {
-  const { dispose, dispose$ } = rx.disposable();
+  const { dispose, dispose$ } = Rx.disposable();
   const factory: t.CmdTestFactory = () => Immutable.clonerRef({});
   const doc = await factory();
   const res: t.CmdTestState = { doc, factory, dispose, dispose$ };

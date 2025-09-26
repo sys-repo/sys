@@ -1,6 +1,6 @@
 import type { CmdQueueLib } from './t.ts';
 
-import { DEFAULTS, Obj, rx, type t } from './common.ts';
+import { DEFAULTS, Obj, Rx, type t } from './common.ts';
 import { Path } from './u.Path.ts';
 import { toPaths, toTransport } from './u.To.ts';
 
@@ -63,14 +63,14 @@ export const Queue: CmdQueueLib = {
     /**
      * Purge when queue exceeds max bounds.
      */
-    events.tx$.pipe(rx.filter((e) => queue.total >= max)).subscribe((e) => {
+    events.tx$.pipe(Rx.filter((e) => queue.total >= max)).subscribe((e) => {
       purged += Queue.purge(cmd, { min });
     });
 
     /**
      * API
      */
-    const api = rx.toLifecycle<t.CmdQueueMonitor>(events, {
+    const api = Rx.toLifecycle<t.CmdQueueMonitor>(events, {
       bounds: { min, max },
       get total() {
         return Queue.totals(cmd);

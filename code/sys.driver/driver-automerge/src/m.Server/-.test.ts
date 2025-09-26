@@ -1,5 +1,5 @@
 import { c, describe, expect, it, Pkg, pkg, slug, Testing } from '../-test.ts';
-import { Fs, rx, Time } from './common.ts';
+import { Fs, Rx, Time } from './common.ts';
 import { Server } from './mod.ts';
 import { probe } from './u.probe.ts';
 
@@ -52,7 +52,7 @@ describe('Crdt: SyncServer', { sanitizeResources: false, sanitizeOps: false }, (
     });
 
     it('dispose$ param', async () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const ws = await Server.ws({ silent, dispose$: life });
       const port = ws.addr.port;
       expect(ws.disposed).to.eql(false);

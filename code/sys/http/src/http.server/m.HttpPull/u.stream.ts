@@ -1,4 +1,4 @@
-import { type t, HttpClient, rx } from './common.ts';
+import { type t, HttpClient, Rx } from './common.ts';
 import { pullOne } from './u.pullOne.ts';
 import { isAbortError, makeEventQueue, resolveTarget, semaphore } from './u.ts';
 
@@ -21,14 +21,14 @@ export function stream(
   const total = urls.length;
 
   // System lifecycle (drives cancellation via dispose$ → controller.abort()).
-  const life = rx.abortable(options.until);
+  const life = Rx.abortable(options.until);
   const { signal } = life;
 
   const q = makeEventQueue<t.HttpPullEvent>();
   const lim = semaphore(concurrency);
 
   // Hot subject mirroring progress events to observable subscribers.
-  const subject$ = rx.subject<t.HttpPullEvent>();
+  const subject$ = Rx.subject<t.HttpPullEvent>();
   let cancelled = false;
 
   // Forward lifecycle cancellation: mark, then complete the subject.
@@ -110,9 +110,9 @@ export function stream(
 
     /** Observable of progress events (completes on finish/cancel). */
     events(until?: t.UntilInput) {
-      const child = rx.lifecycle([life, until]);
-      const $ = subject$.pipe(rx.takeUntil(child.dispose$));
-      return rx.toLifecycle<t.HttpPullStreamEvents>(child, { $ });
+      const child = Rx.lifecycle([life, until]);
+      const $ = subject$.pipe(Rx.takeUntil(child.dispose$));
+      return Rx.toLifecycle<t.HttpPullStreamEvents>(child, { $ });
     },
   };
 }

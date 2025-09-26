@@ -1,7 +1,7 @@
 import { Testing, describe, expect, it } from '../../-test.ts';
 import { Http } from '../mod.ts';
 
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 import { Fetch } from './mod.ts';
 
 describe('Http.Fetch', () => {
@@ -158,7 +158,7 @@ describe('Http.Fetch', () => {
 
   describe('fetch: fail', () => {
     it('404: error with headers', async () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const server = Testing.Http.server(() => Testing.Http.error(404, 'Not Found'));
       const fetch = Fetch.make(life.dispose$);
 
@@ -346,7 +346,7 @@ describe('Http.Fetch', () => {
 
   describe('lifecycle', () => {
     it('create: dispose$ param variants', () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const { dispose$ } = life;
       const a = Fetch.make(life.dispose$);
       const b = Fetch.make([life.dispose$]);
@@ -361,7 +361,7 @@ describe('Http.Fetch', () => {
     });
 
     it('dispose$ ← (observable param)', async () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const server = Testing.Http.server(() => Testing.Http.json({ foo: 123 }));
       const url = server.url.toString();
       const fetch = Fetch.make(life.dispose$);
@@ -385,7 +385,7 @@ describe('Http.Fetch', () => {
     });
 
     it('fetch.dispose', async () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const fetch = Fetch.make(life.dispose$);
 
       const fired = { life: 0, fetch: 0 };

@@ -7,7 +7,7 @@ import {
   D,
   Is,
   Kbd,
-  rx,
+  Rx,
   TextInput,
   useDebouncedValue,
   usePointer,
@@ -56,7 +56,7 @@ export const View: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     if (!repo) return;
-    const life = rx.disposable();
+    const life = Rx.disposable();
     const signals = controller.signals;
 
     const fireChanged = () => props.onChange?.(payload());

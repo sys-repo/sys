@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, rx, Schedule, Schema, Time } from './common.ts';
+import { type t, Rx, Schedule, Schema, Time } from './common.ts';
 import { renderPlan } from './u.renderPlan.ts';
 import { validatePlan } from './u.validatePlan.ts';
 
@@ -86,7 +86,7 @@ export const useEagerFactory: t.UseEagerFactory = (factory, plan, opts = {}) => 
     if (disabled) return void resetState();
     if (!factory || !plan) return void resetState();
 
-    const life = rx.abortable();
+    const life = Rx.abortable();
     const abort = life.controller.signal;
     setLoading(true);
     setRuntime(undefined);

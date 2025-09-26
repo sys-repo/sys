@@ -1,5 +1,5 @@
 import { Fs } from '@sys/fs';
-import { type t, Err, Fetch, Path, Pkg, rx } from './common.ts';
+import { type t, Err, Fetch, Path, Pkg, Rx } from './common.ts';
 
 export const create: t.JsrManifestLib['create'] = (pkg, def) => {
   pkg = { ...pkg };
@@ -16,7 +16,7 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
 
     async pull(input) {
       const options = wrangle.pullOptions(input);
-      const life = rx.lifecycle(options.dispose$);
+      const life = Rx.lifecycle(options.dispose$);
       const { dispose$ } = life;
 
       const fetch = Fetch.Pkg.file(pkg.name, pkg.version, { dispose$ });

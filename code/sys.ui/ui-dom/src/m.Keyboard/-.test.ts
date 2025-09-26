@@ -1,4 +1,4 @@
-import { DomMock, Time, describe, expect, it, rx, type t } from '../-test.ts';
+import { type t, describe, DomMock, expect, it, Rx, Time } from '../-test.ts';
 import { UserAgent } from './common.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Kbd, Keyboard } from './mod.ts';
@@ -60,7 +60,7 @@ describe(
 
     describe('Keyboard.until', () => {
       it('until.on: stops after disposal', () => {
-        const life = rx.disposable();
+        const life = Rx.disposable();
         const until = Keyboard.until(life.dispose$);
         const fired: t.KeyboardKeypress[] = [];
         until.on('KeyZ', (e) => fired.push(e.event));
@@ -76,7 +76,7 @@ describe(
       });
 
       it('until.dbl: stops after disposal', () => {
-        const life = rx.disposable();
+        const life = Rx.disposable();
         const until = Keyboard.until(life.dispose$);
         const dbl = until.dbl();
 
@@ -151,7 +151,7 @@ describe(
       });
 
       it('disposes', () => {
-        const life = rx.disposable();
+        const life = Rx.disposable();
         const { dispose$ } = life;
         const res1 = Keyboard.dbl(2);
         const res2 = Keyboard.dbl(2, { dispose$ });

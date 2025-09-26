@@ -6,7 +6,7 @@ import {
   expect,
   Hash,
   it,
-  rx,
+  Rx,
   SAMPLE,
   slug,
   Testing,
@@ -126,7 +126,7 @@ describe('Jsr.Fetch.Pkg.file', () => {
     const path = '/src/pkg.ts';
 
     it('dispose$: param on fetcher constructor', async () => {
-      const { dispose, dispose$ } = rx.disposable();
+      const { dispose, dispose$ } = Rx.disposable();
       const file = Fetch.Pkg.file(name, version, { dispose$ });
       const promise = file.text(path);
       dispose();
@@ -134,7 +134,7 @@ describe('Jsr.Fetch.Pkg.file', () => {
     });
 
     it('dispose$: param on path fetch request', async () => {
-      const { dispose, dispose$ } = rx.disposable();
+      const { dispose, dispose$ } = Rx.disposable();
       const file = Fetch.Pkg.file(name, version);
       const promise = file.text(path, { dispose$ });
       dispose();
@@ -144,7 +144,7 @@ describe('Jsr.Fetch.Pkg.file', () => {
 });
 
 it('dispose ← (cancel fetch operation)', async () => {
-  const { dispose, dispose$ } = rx.disposable();
+  const { dispose, dispose$ } = Rx.disposable();
   const promise = Fetch.Pkg.versions('@sys/std', { dispose$ });
 
   dispose();

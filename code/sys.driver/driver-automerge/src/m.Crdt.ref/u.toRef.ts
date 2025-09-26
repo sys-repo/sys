@@ -4,7 +4,7 @@ import type {
   DocHandleDeletePayload,
 } from '@automerge/automerge-repo';
 
-import { type t, Dispose, rx, Schedule, slug } from './common.ts';
+import { type t, Dispose, Rx, Schedule, slug } from './common.ts';
 import { type RefEvents, eventsFactory } from './u.events.ts';
 import { REF } from './u.toAutomergeHandle.ts';
 
@@ -22,7 +22,7 @@ const fail = (code: string, message: string) => {
 export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput): t.CrdtRef<T> {
   const instance = slug();
   const id = handle.documentId;
-  const $$ = rx.subject<RefEvents<T>>();
+  const $$ = Rx.subject<RefEvents<T>>();
   let _final!: T;
   let _deleted = false;
 
@@ -34,7 +34,7 @@ export function toRef<T extends O>(handle: t.DocHandle<T>, until$?: t.UntilInput
    * Lifecycle / scheduling:
    * NB: use scheduler for all queued work (microtask boundary; safe against re-entrancy).
    */
-  const life = rx.lifecycle(until$);
+  const life = Rx.lifecycle(until$);
   const schedule = Schedule.make(life, 'micro');
 
   /**

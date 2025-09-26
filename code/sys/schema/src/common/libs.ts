@@ -7,5 +7,7 @@ export { Value } from '@sinclair/typebox/value';
 /**
  * @system
  */
-export { Arr, Err, Immutable, Is, Num, Obj, Pkg, rx, Signal, Str, Time } from '@sys/std';
+export { Arr, Err, Is, Num, Obj, Pkg, Signal, Str, Time } from '@sys/std';
+export { Immutable } from '@sys/std/immutable';
+export { Rx } from '@sys/std/rx';
 export { Yaml } from '@sys/std/yaml';

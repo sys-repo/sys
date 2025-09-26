@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, DEFAULTS, rx } from './common.ts';
+import React from 'react';
+import { type t, Color, css, DEFAULTS } from './common.ts';
 import { Timestamp } from './u.ts';
 
 export type FooterBarProps = {

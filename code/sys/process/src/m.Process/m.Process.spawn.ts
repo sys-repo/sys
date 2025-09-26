@@ -1,5 +1,5 @@
-import { type t, c, rx } from './common.ts';
-import { Wrangle, kill } from './u.ts';
+import { type t, c, Rx } from './common.ts';
+import { kill, Wrangle } from './u.ts';
 
 type H = t.ProcHandle;
 type E = { source: t.StdStream; fn: t.ProcEventHandler };
@@ -11,13 +11,13 @@ type E = { source: t.StdStream; fn: t.ProcEventHandler };
 export const spawn: t.ProcLib['spawn'] = (config) => {
   const { silent } = config;
   const decoder = new TextDecoder();
-  const life = rx.lifecycleAsync(config.dispose$, async () => {
+  const life = Rx.lifecycleAsync(config.dispose$, async () => {
     await stdoutReader.cancel();
     await stderrReader.cancel();
     await kill(child);
   });
-  const $ = rx.subject<t.ProcEvent>();
-  const $$ = $.pipe(rx.takeUntil(life.dispose$));
+  const $ = Rx.subject<t.ProcEvent>();
+  const $$ = $.pipe(Rx.takeUntil(life.dispose$));
 
   const command = Wrangle.command(config, { stdin: 'null' });
   const child = command.spawn();

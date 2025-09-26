@@ -1,10 +1,10 @@
-import { type t, describe, expect, it, rx, Time } from '../-test.ts';
+import { type t, describe, expect, it, Rx, Time } from '../-test.ts';
 import { Crdt } from '../m.Server/common.ts';
 import { Server } from '../m.Server/mod.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('events.dispose', async () => {
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
     const repo = Crdt.repo();
     const a = repo.events();
     const b = repo.events(life.dispose$);
@@ -81,7 +81,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       await repo.whenReady(); // avoid racing adapter bring-up
 
       const events = repo.events();
-      const next = () => rx.firstValueFrom(events.prop$.pipe(rx.take(1)));
+      const next = () => Rx.firstValueFrom(events.prop$.pipe(Rx.take(1)));
 
       // 1) disable → expect one prop-change
       const p1 = next();

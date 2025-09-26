@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type t, LocalStorage, rx } from './common.ts';
+import { type t, LocalStorage, Rx } from './common.ts';
 
 type P = t.SyncEnabledSwitchProps;
 type Store = { syncEnabled?: boolean };
@@ -35,7 +35,7 @@ export function useController(props: P) {
   useEffect(() => {
     const events = repo?.events();
     events?.$.subscribe(redraw);
-    events?.prop$.pipe(rx.filter((e) => e.prop === 'sync.enabled')).subscribe((e) => {
+    events?.prop$.pipe(Rx.filter((e) => e.prop === 'sync.enabled')).subscribe((e) => {
       const next = e.after.sync.enabled;
       if (e.before.sync.enabled !== next) updatedEnabled(next);
     });

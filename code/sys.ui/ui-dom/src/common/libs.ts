@@ -1,2 +1,4 @@
 export { Color } from '@sys/color';
-export { Immutable, Is, isObject, isRecord, Obj, R, rx, slug, Str, Time, Value } from '@sys/std';
+export { Is, Obj, R, Str, Time, Value, isObject, isRecord, slug } from '@sys/std';
+export { Immutable } from '@sys/std/immutable';
+export { Rx } from '@sys/std/rx';

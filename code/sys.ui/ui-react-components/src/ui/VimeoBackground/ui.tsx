@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { IFrame } from '../IFrame/mod.ts';
 import { Vimeo } from './api.Vimeo.ts';
-import { type t, Color, DEFAULTS, Time, css, rx } from './common.ts';
+import { type t, Color, css, DEFAULTS, Rx, Time } from './common.ts';
 
 const D = DEFAULTS;
 type P = t.VimeoBackgroundProps;
@@ -44,7 +44,7 @@ export const VimeoBackground: React.FC<P> = (props) => {
    * Effect: playing transition.
    */
   React.useEffect(() => {
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
     const next = props.playing ?? D.playing;
 
     if (!playingTransition) {

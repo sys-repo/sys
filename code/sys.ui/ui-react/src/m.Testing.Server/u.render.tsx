@@ -1,12 +1,13 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { DomMock, rx, type t } from './common.ts';
+
+import { type t, DomMock, Rx } from './common.ts';
 
 export const render: t.TestReactServerLib['render'] = async (el, options = {}) => {
   const { strict = true } = options;
   DomMock.polyfill();
 
-  const life = rx.lifecycle();
+  const life = Rx.lifecycle();
   life.dispose$.subscribe(() => root.unmount());
 
   // Construct the server-side DOM:
@@ -28,5 +29,5 @@ export const render: t.TestReactServerLib['render'] = async (el, options = {}) =
   });
 
   // API:
-  return rx.toLifecycle<t.TestReactRendered>(life, { container });
+  return Rx.toLifecycle<t.TestReactRendered>(life, { container });
 };

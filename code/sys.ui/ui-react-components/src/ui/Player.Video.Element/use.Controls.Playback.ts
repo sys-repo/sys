@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 export function usePlaybackControls(
   videoRef: React.RefObject<HTMLVideoElement | null>,
@@ -44,7 +44,7 @@ export function usePlaybackControls(
 
     // If not yet ready, retry on `canplay`:
     if (playing) {
-      const { dispose, signal } = rx.abortable();
+      const { dispose, signal } = Rx.abortable();
       el.addEventListener('canplay', syncPlayback, { once: true, signal });
       return dispose;
     }

@@ -1,5 +1,5 @@
 import { ContextState } from '../m.Ctx/Context.State.ts';
-import { asArray, rx, slug, type t } from './common.ts';
+import { type t, asArray, Rx, slug } from './common.ts';
 
 const DEFAULT = { TIMEOUT: 500 };
 type O = Record<string, unknown>;
@@ -13,32 +13,32 @@ export function BusEvents(args: {
   dispose$?: t.UntilObservable;
 }): t.DevEvents {
   let _disposed = false;
-  const { dispose, dispose$ } = rx.disposable(args.dispose$);
+  const { dispose, dispose$ } = Rx.disposable(args.dispose$);
   dispose$.subscribe(() => (_disposed = true));
 
-  const bus = rx.bus.asType<t.DevEvent>(args.instance.bus);
+  const bus = Rx.bus.asType<t.DevEvent>(args.instance.bus);
   const instance = args.instance.id;
   const is = DevEventsIs;
 
   const $ = bus.$.pipe(
-    rx.takeUntil(dispose$),
-    rx.filter((e) => is.instance(e, instance)),
-    rx.filter((e) => args.filter?.(e) ?? true),
+    Rx.takeUntil(dispose$),
+    Rx.filter((e) => is.instance(e, instance)),
+    Rx.filter((e) => args.filter?.(e) ?? true),
   );
 
   /**
    * Base information about the module.
    */
   const info: t.DevEvents['info'] = {
-    req$: rx.payload<t.DevInfoReqEvent>($, 'sys.dev/info:req'),
-    res$: rx.payload<t.DevInfoResEvent>($, 'sys.dev/info:res'),
-    changed$: rx.payload<t.DevInfoChangedEvent>($, 'sys.dev/info:changed'),
+    req$: Rx.payload<t.DevInfoReqEvent>($, 'sys.dev/info:req'),
+    res$: Rx.payload<t.DevInfoResEvent>($, 'sys.dev/info:res'),
+    changed$: Rx.payload<t.DevInfoChangedEvent>($, 'sys.dev/info:changed'),
     async fire(options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const tx = slug();
       const op = 'info';
-      const res$ = info.res$.pipe(rx.filter((e) => e.tx === tx));
-      const first = rx.asPromise.first<t.DevInfoResEvent>(res$, { op, timeout });
+      const res$ = info.res$.pipe(Rx.filter((e) => e.tx === tx));
+      const first = Rx.asPromise.first<t.DevInfoResEvent>(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/info:req',
@@ -61,14 +61,14 @@ export function BusEvents(args: {
   };
 
   const ctx: t.DevEvents['ctx'] = {
-    req$: rx.payload<t.DevCtxReqEvent>($, 'sys.dev/ctx:req'),
-    res$: rx.payload<t.DevCtxResEvent>($, 'sys.dev/ctx:res'),
+    req$: Rx.payload<t.DevCtxReqEvent>($, 'sys.dev/ctx:req'),
+    res$: Rx.payload<t.DevCtxResEvent>($, 'sys.dev/ctx:res'),
     async fire(options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const tx = slug();
       const op = 'ctx';
-      const res$ = ctx.res$.pipe(rx.filter((e) => e.tx === tx));
-      const first = rx.asPromise.first<t.DevCtxResEvent>(res$, { op, timeout });
+      const res$ = ctx.res$.pipe(Rx.filter((e) => e.tx === tx));
+      const first = Rx.asPromise.first<t.DevCtxResEvent>(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/ctx:req',
@@ -94,14 +94,14 @@ export function BusEvents(args: {
    * Load ("describe/it" specification bundle).
    */
   const load: t.DevEvents['load'] = {
-    req$: rx.payload<t.DevLoadReqEvent>($, 'sys.dev/load:req'),
-    res$: rx.payload<t.DevLoadResEvent>($, 'sys.dev/load:res'),
+    req$: Rx.payload<t.DevLoadReqEvent>($, 'sys.dev/load:req'),
+    res$: Rx.payload<t.DevLoadResEvent>($, 'sys.dev/load:res'),
     async fire(bundle, options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const tx = slug();
       const op = 'load';
-      const res$ = load.res$.pipe(rx.filter((e) => e.tx === tx));
-      const first = rx.asPromise.first<t.DevLoadResEvent>(res$, { op, timeout });
+      const res$ = load.res$.pipe(Rx.filter((e) => e.tx === tx));
+      const first = Rx.asPromise.first<t.DevLoadResEvent>(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/load:req',
@@ -120,15 +120,15 @@ export function BusEvents(args: {
    * Run.
    */
   const run: t.DevEvents['run'] = {
-    req$: rx.payload<t.DevRunReqEvent>($, 'sys.dev/run:req'),
-    res$: rx.payload<t.DevRunResEvent>($, 'sys.dev/run:res'),
+    req$: Rx.payload<t.DevRunReqEvent>($, 'sys.dev/run:req'),
+    res$: Rx.payload<t.DevRunResEvent>($, 'sys.dev/run:res'),
     async fire(options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const only = options.only ? asArray(options.only) : undefined;
       const tx = slug();
       const op = 'run';
-      const res$ = run.res$.pipe(rx.filter((e) => e.tx === tx));
-      const first = rx.asPromise.first<t.DevRunResEvent>(res$, { op, timeout });
+      const res$ = run.res$.pipe(Rx.filter((e) => e.tx === tx));
+      const first = Rx.asPromise.first<t.DevRunResEvent>(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/run:req',
@@ -147,14 +147,14 @@ export function BusEvents(args: {
    * Reset (unload).
    */
   const reset: t.DevEvents['reset'] = {
-    req$: rx.payload<t.DevResetReqEvent>($, 'sys.dev/reset:req'),
-    res$: rx.payload<t.DevResetResEvent>($, 'sys.dev/reset:res'),
+    req$: Rx.payload<t.DevResetReqEvent>($, 'sys.dev/reset:req'),
+    res$: Rx.payload<t.DevResetResEvent>($, 'sys.dev/reset:res'),
     async fire(options = {}) {
       const { timeout = DEFAULT.TIMEOUT } = options;
       const tx = slug();
       const op = 'reset';
-      const res$ = reset.res$.pipe(rx.filter((e) => e.tx === tx));
-      const first = rx.asPromise.first<t.DevRunResEvent>(res$, { op, timeout });
+      const res$ = reset.res$.pipe(Rx.filter((e) => e.tx === tx));
+      const first = Rx.asPromise.first<t.DevRunResEvent>(res$, { op, timeout });
 
       bus.fire({
         type: 'sys.dev/reset:req',
@@ -174,20 +174,20 @@ export function BusEvents(args: {
    */
   const state: t.DevEvents['state'] = {
     changed$: info.changed$.pipe(
-      rx.filter((e) => {
+      Rx.filter((e) => {
         const match: t.DevInfoChangeMessage[] = ['state:write', 'context:init'];
         return match.includes(e.message);
       }),
     ),
     change: {
-      req$: rx.payload<t.DevStateChangeReqEvent>($, 'sys.dev/state/change:req'),
-      res$: rx.payload<t.DevStateChangeResEvent>($, 'sys.dev/state/change:res'),
+      req$: Rx.payload<t.DevStateChangeReqEvent>($, 'sys.dev/state/change:req'),
+      res$: Rx.payload<t.DevStateChangeResEvent>($, 'sys.dev/state/change:res'),
       async fire(initial, change, options = {}) {
         const { timeout = DEFAULT.TIMEOUT } = options;
         const tx = slug();
         const op = 'state.change';
-        const res$ = state.change.res$.pipe(rx.filter((e) => e.tx === tx));
-        const first = rx.asPromise.first<t.DevStateChangeResEvent>(res$, { op, timeout });
+        const res$ = state.change.res$.pipe(Rx.filter((e) => e.tx === tx));
+        const first = Rx.asPromise.first<t.DevStateChangeResEvent>(res$, { op, timeout });
 
         bus.fire({
           type: 'sys.dev/state/change:req',
@@ -212,20 +212,20 @@ export function BusEvents(args: {
    */
   const props: t.DevEvents['props'] = {
     changed$: info.changed$.pipe(
-      rx.filter((e) => {
+      Rx.filter((e) => {
         const match: t.DevInfoChangeMessage[] = ['props:write', 'reset', 'context:init'];
         return match.includes(e.message);
       }),
     ),
     change: {
-      req$: rx.payload<t.DevPropsChangeReqEvent>($, 'sys.dev/props/change:req'),
-      res$: rx.payload<t.DevPropsChangeResEvent>($, 'sys.dev/props/change:res'),
+      req$: Rx.payload<t.DevPropsChangeReqEvent>($, 'sys.dev/props/change:req'),
+      res$: Rx.payload<t.DevPropsChangeResEvent>($, 'sys.dev/props/change:res'),
       async fire(mutate, options = {}) {
         const { timeout = DEFAULT.TIMEOUT } = options;
         const tx = slug();
         const op = 'props.change';
-        const res$ = props.change.res$.pipe(rx.filter((e) => e.tx === tx));
-        const first = rx.asPromise.first<t.DevPropsChangeResEvent>(res$, { op, timeout });
+        const res$ = props.change.res$.pipe(Rx.filter((e) => e.tx === tx));
+        const first = Rx.asPromise.first<t.DevPropsChangeResEvent>(res$, { op, timeout });
 
         bus.fire({
           type: 'sys.dev/props/change:req',
@@ -240,7 +240,7 @@ export function BusEvents(args: {
       },
     },
     flush: {
-      pending$: rx.payload<t.DevPropsFlushPendingEvent>($, 'sys.dev/props/flush:pending'),
+      pending$: Rx.payload<t.DevPropsFlushPendingEvent>($, 'sys.dev/props/flush:pending'),
       pending(revision) {
         bus.fire({
           type: 'sys.dev/props/flush:pending',
@@ -291,9 +291,9 @@ export function BusEvents(args: {
    * Redraw (re-render component).
    */
   const redraw: t.DevEvents['redraw'] = {
-    $: rx
-      .payload<t.DevRedrawEvent>($, 'sys.dev/redraw')
-      .pipe(rx.observeOn(rx.animationFrameScheduler)),
+    $: Rx.payload<t.DevRedrawEvent>($, 'sys.dev/redraw').pipe(
+      Rx.observeOn(Rx.animationFrameScheduler),
+    ),
     fire(args) {
       const { renderers = [], target } = args;
       if (target || renderers.length > 0) {
@@ -336,7 +336,7 @@ export function BusEvents(args: {
 /**
  * Event matching.
  */
-const matcher = (startsWith: string) => (input: any) => rx.Is.event(input, { startsWith });
+const matcher = (startsWith: string) => (input: any) => Rx.Is.event(input, { startsWith });
 
 export const DevEventsIs = {
   base: matcher('sys.dev/'),

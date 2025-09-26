@@ -1,4 +1,4 @@
-import { type t, AutomergeRepo, c, describe, expect, it, rx } from '../../-test.ts';
+import { type t, AutomergeRepo, c, describe, expect, it, Rx } from '../../-test.ts';
 import { toAutomergeHandle, toRef } from '../mod.ts';
 
 describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
@@ -44,7 +44,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   describe('dispose', () => {
     it('disposed from toRef param', () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const repo = new AutomergeRepo();
       const handle = repo.create<T>({ count: 0 });
       const doc = toRef(handle, life);

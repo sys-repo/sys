@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, Id, Is, Obj, R, rx } from './common.ts';
+import { type t, DEFAULTS, Id, Is, Obj, R, Rx } from './common.ts';
 
 type Revision = { number: number; message: string };
 
@@ -18,7 +18,7 @@ export function BusMemoryState(args: {
   let _current: t.DevInfo = { ...DEFAULTS.info, env };
 
   _current.instance.session = Id.ctx.create();
-  _current.instance.bus = rx.bus.instance(args.instance.bus);
+  _current.instance.bus = Rx.bus.instance(args.instance.bus);
 
   /**
    * API

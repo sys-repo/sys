@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { rx, type t } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 /**
  * Hook: provide simple counter incrementing component "redraw" API.
@@ -9,10 +9,10 @@ export const useRedraw: t.UseRedraw = (redraw$) => {
   const redraw = () => setCount((n) => n + 1);
 
   useEffect(() => {
-    const life = rx.disposable();
+    const life = Rx.disposable();
     const $ = redraw$?.pipe(
-      rx.takeUntil(life.dispose$),
-      rx.debounceTime(10, rx.animationFrameScheduler),
+      Rx.takeUntil(life.dispose$),
+      Rx.debounceTime(10, Rx.animationFrameScheduler),
     );
     $?.subscribe(redraw);
     return life.dispose;

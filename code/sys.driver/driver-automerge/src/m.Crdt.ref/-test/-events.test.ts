@@ -1,4 +1,4 @@
-import { AutomergeRepo, describe, expect, Is, it, rx, type t, Testing } from '../../-test.ts';
+import { type t, AutomergeRepo, describe, expect, Is, it, Rx, Testing } from '../../-test.ts';
 import { Crdt } from '../../m.Server/common.ts';
 import { toRef } from '../mod.ts';
 
@@ -142,7 +142,7 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
 
   describe('dispose', () => {
     it('dispose events (via param)', async () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const repo = new AutomergeRepo();
       const handle = repo.create<T>({ count: 0, foo: [] });
       const doc = toRef(handle);

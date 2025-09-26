@@ -1,7 +1,7 @@
 import { Context } from '../m.Ctx/mod.ts';
 import { BusEvents } from './Bus.Events.ts';
 import { BusMemoryState } from './Bus.MemoryState.ts';
-import { type t, Obj, DEFAULTS, Id, Is, R, Test, rx } from './common.ts';
+import { type t, DEFAULTS, Id, Is, Obj, Rx, Test } from './common.ts';
 
 /**
  * Start the controller and return an event API.
@@ -13,7 +13,7 @@ export function BusController(args: {
   dispose$?: t.UntilObservable;
 }): t.DevEvents {
   const { env } = args;
-  const bus = rx.bus.asType<t.DevEvent>(args.instance.bus);
+  const bus = Rx.bus.asType<t.DevEvent>(args.instance.bus);
   const instance = args.instance.id;
 
   const events = BusEvents({
@@ -207,7 +207,7 @@ export function BusController(args: {
   /**
    * Props: Ensure props changes flushed.
    */
-  events.props.flush.pending$.pipe(rx.debounceTime(10)).subscribe(async (e) => {
+  events.props.flush.pending$.pipe(Rx.debounceTime(10)).subscribe(async (e) => {
     await (await Ctx.current()).flush();
   });
 

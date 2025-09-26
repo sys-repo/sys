@@ -1,7 +1,7 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
 import { CrdtIs } from '../m.Crdt/m.Is.ts';
 
-import { type t, Err, rx, Schedule, slug, Time, toRef, whenReady } from './common.ts';
+import { type t, Err, Rx, Schedule, slug, Time, toRef, whenReady } from './common.ts';
 import { eventsFactory } from './u.events.ts';
 import { monitorNetwork } from './u.monitorNetwork.ts';
 import { silentShutdown } from './u.shutdown.ts';
@@ -28,7 +28,7 @@ export function toRepo(
     peers.clear();
     await silentShutdown(repo);
   }
-  const life = rx.lifecycleAsync(options.dispose$, cleanup);
+  const life = Rx.lifecycleAsync(options.dispose$, cleanup);
   const schedule = Schedule.make(life, 'micro');
 
   const cloneProps = (): t.CrdtRepoProps => {
@@ -39,7 +39,7 @@ export function toRepo(
   /**
    * Observable (scheduled emissions):
    */
-  const $$ = rx.subject<t.CrdtRepoEvent>();
+  const $$ = Rx.subject<t.CrdtRepoEvent>();
   const emitAsync = (e: t.CrdtRepoEvent) => schedule(() => $$.next(e));
   const fireChanged = (
     prop: t.CrdtRepoPropChange['prop'],
@@ -176,7 +176,7 @@ export function toRepo(
     },
 
     events(dispose$) {
-      const until = rx.lifecycle([dispose$, life.dispose$]);
+      const until = Rx.lifecycle([dispose$, life.dispose$]);
       return eventsFactory($$, until);
     },
 

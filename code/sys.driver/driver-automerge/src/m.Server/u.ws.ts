@@ -6,7 +6,7 @@ import {
   NodeWSServerAdapter,
   pkg,
   Pkg,
-  rx,
+  Rx,
   WebSocket,
   WebSocketServer,
   type t,
@@ -115,7 +115,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
       console.error('[wss:shutdown:error]', err);
     }
   }
-  const life = rx.lifecycleAsync((options as any).dispose$, cleanup);
+  const life = Rx.lifecycleAsync((options as any).dispose$, cleanup);
   const monitor = monitorPeers({ network, host, port, dir, silent }, life.dispose$);
 
   /**

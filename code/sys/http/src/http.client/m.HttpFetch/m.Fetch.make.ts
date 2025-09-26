@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, Dispose, Err, Is, rx, toHeaders } from './common.ts';
+import { type t, DEFAULTS, Dispose, Err, Is, Rx, toHeaders } from './common.ts';
 
 type RequestInput = RequestInfo | URL;
 type F = t.HttpFetchLib['make'];
@@ -8,7 +8,7 @@ type F = t.HttpFetchLib['make'];
  */
 export const makeFetch: F = (input: Parameters<F>[0]) => {
   const options = wrangle.options(input);
-  const life = rx.abortable(options.dispose$);
+  const life = Rx.abortable(options.dispose$);
 
   const invokeFetch = async <T>(
     contentType: t.StringContentType,
@@ -103,7 +103,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     } as t.FetchResponse<T>;
   };
 
-  const api: t.HttpFetch = rx.toLifecycle<t.HttpFetch>(life, {
+  const api: t.HttpFetch = Rx.toLifecycle<t.HttpFetch>(life, {
     header: (name) => (api.headers as any)[name],
     get headers() {
       return wrangle.headers(options);
