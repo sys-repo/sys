@@ -17,8 +17,8 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./fs": "./src/-export/fs.ts",
-    "./web": "./src/-export/web.ts",
-    "./web/ui": "./src/-export/web.ui.ts"
+    "./am/fs": "./src/-export.am/fs.ts",
+    "./am/web": "./src/-export.am/web.ts",
+    "./am/web/ui": "./src/-export.am/web.ui.ts"
   }
 }

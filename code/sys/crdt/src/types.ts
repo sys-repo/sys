@@ -2,4 +2,4 @@
  * @module
  * @types module
  */
-export type { Crdt } from '@sys/driver-automerge/t';
+export type * from './t/mod.ts';
