@@ -1,5 +1,5 @@
-# @sys/std
-Standard system library.  
+# Standard Lib.
+Standard system libraries.  
 Common low(ish)-level utility functions and helpers.
 
 ```ts
