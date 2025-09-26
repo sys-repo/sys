@@ -36,3 +36,11 @@ export type BusConnection<E extends t.Event> = t.Disposable & {
 };
 /** Options passed to bus connect. */
 export type BusConnectOptions = { async?: boolean; dispose$?: t.Observable<any> };
+
+/**
+ * A structure that exposes an observable and can fire events.
+ */
+export type EventBus<E extends t.Event = t.Event> = {
+  readonly $: t.Observable<E>;
+  fire: t.FireEvent<E>;
+};
