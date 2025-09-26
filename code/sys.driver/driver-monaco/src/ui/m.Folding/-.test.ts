@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, MonacoFake, rx, Time } from '../../-test.ts';
+import { type t, describe, expect, it, MonacoFake, Rx, Time } from '../../-test.ts';
 import { Bus } from './common.ts';
 import { EditorFolding } from './mod.ts';
 import { bindFoldMarks } from './u.bind.ts';
@@ -27,7 +27,7 @@ describe('Monaco.Folding', () => {
       });
 
       it('dispose: via dispose$', () => {
-        const life = rx.disposable();
+        const life = Rx.disposable();
         const editor = MonacoFake.editor('');
         const ob = EditorFolding.observe({ editor }, life);
         expect(ob.disposed).to.eql(false);

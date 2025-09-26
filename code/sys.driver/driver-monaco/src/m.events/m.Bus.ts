@@ -1,7 +1,7 @@
-import { type t, Schedule, rx } from './common.ts';
+import { type t, Rx, Schedule } from './common.ts';
 
 export const Bus: t.EventBusLib = {
-  make: () => rx.subject<t.EditorEvent>(),
+  make: () => Rx.subject<t.EditorEvent>(),
   emit,
 };
 

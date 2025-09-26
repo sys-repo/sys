@@ -1,4 +1,4 @@
-import { type t, MonacoFake, describe, expect, it, rx } from '../../-test.ts';
+import { type t, describe, expect, it, MonacoFake, Rx } from '../../-test.ts';
 import { Crdt } from './common.ts';
 import { EditorCrdt } from './mod.ts';
 import { __test as RegisterTest } from './u.Link.register.ts';
@@ -16,7 +16,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         monaco: t.FakeMonacoGlobal = MonacoFake.monaco(),
         until?: t.UntilInput,
       ): t.MonacoEditorReady => {
-        const life = rx.lifecycle(until);
+        const life = Rx.lifecycle(until);
         return {
           editor: MonacoFake.editor(model),
           monaco: MonacoFake.asMonaco(monaco),
@@ -442,7 +442,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const { range, startOffset } = substringBounds(model, placeholder);
 
         let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
-        const until = rx.lifecycle();
+        const until = Rx.lifecycle();
         const life = EditorCrdt.Link.enable(ctx, repo, {
           until,
           onCreate: (res) => (onCreateCalled = res),

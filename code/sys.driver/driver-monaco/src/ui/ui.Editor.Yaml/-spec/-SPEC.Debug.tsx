@@ -9,7 +9,7 @@ import {
   LocalStorage,
   Obj,
   ObjectView,
-  rx,
+  Rx,
   Signal,
   STORAGE_KEY,
 } from '../common.ts';
@@ -73,7 +73,7 @@ export function createDebugSignals() {
   const api = {
     props,
     repo: createRepo(),
-    bus$: rx.subject<t.EditorEvent>(),
+    bus$: Rx.subject<t.EditorEvent>(),
     reset,
     listen,
   };

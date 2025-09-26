@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import type { OnChange, OnMount } from '@monaco-editor/react';
 import { Editor as EditorReact } from '@monaco-editor/react';
 
-import { type t, Color, D, Spinners, Util, css, rx } from './common.ts';
+import { type t, Color, css, D, Rx, Spinners, Util } from './common.ts';
 import { defaultKeyBindings } from './u.Keyboard.ts';
 import { defaultLanguageConfig } from './u.languages.ts';
 import { Theme } from './u.Theme.ts';
@@ -33,7 +33,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   /**
    * Refs:
    */
-  const disposeRef = useRef(rx.subject<t.DisposeEvent>());
+  const disposeRef = useRef(Rx.subject<t.DisposeEvent>());
   const monacoRef = useRef<t.Monaco.Monaco>(undefined);
   const editorRef = useRef<t.Monaco.Editor>(undefined);
   const [isEmpty, setIsEmpty] = React.useState(false);

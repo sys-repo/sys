@@ -1,8 +1,8 @@
+import { Cropmarks, LayoutCenterColumn } from '@sys/ui-react-components';
 import {} from '@sys/ui-react-components/t';
-import { Cropmarks, Button, LayoutCenterColumn, Tree } from '@sys/ui-react-components';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, DEFAULTS, rx } from '../common.ts';
+import React from 'react';
+import { type t, Color, css } from '../common.ts';
 import { IndexTree } from './ui.Section.Host.tsx';
 
 type O = Record<string, unknown>;

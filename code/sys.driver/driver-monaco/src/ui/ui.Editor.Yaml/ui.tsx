@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, rx, useBus, YamlEditorFooter } from './common.ts';
+import { type t, Color, css, D, Rx, useBus, YamlEditorFooter } from './common.ts';
 import { Body } from './ui.Body.tsx';
 import { NotReady } from './ui.NotReady.tsx';
 import { useYamlController } from './use.YamlController.ts';
@@ -27,7 +27,7 @@ export const YamlEditor: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     if (!doc) return;
-    const { dispose, dispose$ } = rx.abortable();
+    const { dispose, dispose$ } = Rx.abortable();
     const events = doc.events(dispose$);
     props.onDocumentLoaded?.({ doc, events, dispose$ });
     return dispose;

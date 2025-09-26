@@ -1,4 +1,4 @@
-import { type t, Bus, rx, Yaml } from './common.ts';
+import { type t, Bus, Rx, Yaml } from './common.ts';
 import { pathAtCaret } from './u.pathAtCaret.ts';
 
 export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
@@ -7,14 +7,14 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
   if (!model) throw new Error('Editor has no model');
 
   // Lifecycle:
-  const life = rx.lifecycle(until);
+  const life = Rx.lifecycle(until);
   const disposables: Array<{ dispose(): void }> = [];
   life.dispose$.subscribe(() => disposables.forEach((d) => d.dispose()));
 
   const bus$ = args.bus$ ?? Bus.make();
   const $ = bus$.pipe(
-    rx.takeUntil(life.dispose$),
-    rx.filter((e) => e.kind === 'cursor-path'),
+    Rx.takeUntil(life.dispose$),
+    Rx.filter((e) => e.kind === 'cursor-path'),
   );
 
   // Keep the latest parse and the model version it belongs to:
@@ -79,7 +79,7 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
   /**
    * API:
    */
-  return rx.toLifecycle<t.EditorYamlCursorPathObserver>(life, {
+  return Rx.toLifecycle<t.EditorYamlCursorPathObserver>(life, {
     get $() {
       return $;
     },

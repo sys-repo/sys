@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 
-import { type t, Dispose, EditorFolding, Obj, rx, Schedule, useBus } from './common.ts';
+import { type t, Dispose, EditorFolding, Obj, Rx, Schedule, useBus } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
 
 export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
@@ -24,7 +24,7 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   useEffect(() => {
     if (!(doc && path && editor && monaco)) return;
 
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
     const schedule = Schedule.make(life, 'micro');
 
     EditorCrdt.bind({ editor, doc, path, bus$, until: life }).then((binding) => {

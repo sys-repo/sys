@@ -1,4 +1,4 @@
-import { type t, A, Bus, Obj, rx, Schedule, Util } from './common.ts';
+import { type t, A, Bus, Obj, Rx, Schedule, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
 /**
@@ -18,7 +18,7 @@ import { diffToSplices } from './u.diffToSplices.ts';
  */
 export const bind: t.EditorCrdtLib['bind'] = async (args) => {
   const { editor, doc, path } = args;
-  const life = rx.lifecycle(args.until);
+  const life = Rx.lifecycle(args.until);
   const schedule = Schedule.make(life, 'micro');
   let model = editor.getModel() ?? undefined;
 
@@ -68,9 +68,9 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
    * Patch editor from its current text → event.after snapshot and emit 'crdt'.
    */
   docEvents.$.pipe(
-    rx.filter(() => hasPath),
-    rx.filter((e) => e.patches.some((p) => Obj.Path.Rel.overlaps(p.path, path))),
-    rx.takeUntil(life.dispose$),
+    Rx.filter(() => hasPath),
+    Rx.filter((e) => e.patches.some((p) => Obj.Path.Rel.overlaps(p.path, path))),
+    Rx.takeUntil(life.dispose$),
   ).subscribe((e) => {
     if (life.disposed || model.isDisposed()) return;
 
@@ -149,8 +149,8 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
 
   life.dispose$.subscribe(() => editorChangeSub.dispose());
 
-  return rx.toLifecycle<t.EditorCrdtBinding>(life, {
-    $: bus$.pipe(rx.takeUntil(life.dispose$)),
+  return Rx.toLifecycle<t.EditorCrdtBinding>(life, {
+    $: bus$.pipe(Rx.takeUntil(life.dispose$)),
     doc,
     path,
     model,
@@ -163,7 +163,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
 const wrangle = {
   noop(life: t.Lifecycle, doc: t.Crdt.Ref, path: t.ObjectPath) {
     const model = {} as any;
-    return rx.toLifecycle<t.EditorCrdtBinding>(life, { $: rx.EMPTY, doc, path, model });
+    return Rx.toLifecycle<t.EditorCrdtBinding>(life, { $: Rx.EMPTY, doc, path, model });
   },
   change(before: string, after: string): t.EventText['change'] {
     return {

@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, MonacoFake, rx, Schedule } from '../../-test.ts';
+import { type t, describe, expect, it, MonacoFake, Rx, Schedule } from '../../-test.ts';
 import { EditorYaml } from './mod.ts';
 
 describe('Monaco.Yaml', () => {
@@ -18,7 +18,7 @@ describe('Monaco.Yaml', () => {
     });
 
     it('dispose: via dispose$', () => {
-      const life = rx.disposable();
+      const life = Rx.disposable();
       const editor = MonacoFake.editor('');
       const ob = EditorYaml.Path.observe({ editor }, life);
       expect(ob.disposed).to.eql(false);

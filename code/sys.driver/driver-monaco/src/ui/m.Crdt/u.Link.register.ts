@@ -1,4 +1,4 @@
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 const TOKEN = /\bcrdt:(create\b|[A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~\-/]+)*)\b/g;
 
@@ -17,7 +17,7 @@ export const register: t.EditorCrdtRegisterLink = (ctx, opt) => {
 
   const options = wrangle.options(opt);
   const { language = 'yaml', onLinkClick } = options;
-  const life = rx.lifecycle(options.until);
+  const life = Rx.lifecycle(options.until);
   __test.lastHandler = onLinkClick;
 
   const subProvider = monaco.languages.registerLinkProvider(language, {
@@ -82,7 +82,7 @@ export const register: t.EditorCrdtRegisterLink = (ctx, opt) => {
 
       const modelUri: t.Monaco.Uri = modelUriStr
         ? monaco.Uri.parse(modelUriStr)
-        : editor?.getModel?.()?.uri ?? monaco.Uri.parse('inmemory://model/unknown');
+        : (editor?.getModel?.()?.uri ?? monaco.Uri.parse('inmemory://model/unknown'));
 
       const range: t.Monaco.I.IRange = {
         startLineNumber: sl,

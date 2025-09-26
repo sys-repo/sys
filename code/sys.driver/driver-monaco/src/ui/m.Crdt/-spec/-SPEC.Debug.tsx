@@ -13,7 +13,7 @@ import {
   LocalStorage,
   Obj,
   ObjectView,
-  rx,
+  Rx,
   Signal,
 } from '../common.ts';
 import { YamlSyncDebug } from './-u.yaml.tsx';
@@ -71,7 +71,7 @@ export async function createDebugSignals() {
   const api = {
     props,
     repo,
-    bus$: rx.subject<t.EditorEvent>(),
+    bus$: Rx.subject<t.EditorEvent>(),
     reset,
     listen,
   };
