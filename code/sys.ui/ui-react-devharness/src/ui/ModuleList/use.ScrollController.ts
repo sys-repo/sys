@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { defaultIfEmpty } from 'rxjs';
 import { Time, rx, type t } from './common.ts';
 
 type LiMap = Map<number, HTMLLIElement>;
@@ -47,7 +46,7 @@ export function useScrollController(
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         // Ensure the scroll-to-index target hasn't changed during the animation.
-        const wait$ = scrollComplete$.pipe(defaultIfEmpty(-1));
+        const wait$ = scrollComplete$.pipe(rx.defaultIfEmpty(-1));
         await rx.firstValueFrom(wait$);
         await Time.wait(0);
         if (e.index !== _latestIndex) scrollTo$.next({ index: _latestIndex });

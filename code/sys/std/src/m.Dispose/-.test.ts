@@ -1,4 +1,3 @@
-import { Subject } from 'rxjs';
 import { describe, expect, it, type t } from '../-test.ts';
 import { Time } from '../m.DateTime/mod.ts';
 import { Is, rx } from '../mod.ts';
@@ -26,8 +25,8 @@ describe('Disposable', () => {
       };
 
       test();
-      test(new Subject<void>());
-      test([new Subject<void>(), new Subject<void>()]);
+      test(rx.subject<void>());
+      test([rx.subject<void>(), rx.subject<void>()]);
       test(rx.disposable());
       test(rx.lifecycle());
     });
@@ -53,8 +52,8 @@ describe('Disposable', () => {
       };
 
       test();
-      test(new Subject<void>());
-      test([new Subject<void>(), new Subject<void>()]);
+      test(rx.subject<void>());
+      test([rx.subject<void>(), rx.subject<void>()]);
 
       test(rx.disposable());
       test(rx.lifecycle());
@@ -344,7 +343,7 @@ describe('Disposable', () => {
 
   describe('Dispose.until', () => {
     it('Input: single (observable)', () => {
-      const $ = new Subject<void>();
+      const $ = rx.subject<void>();
       const res = Dispose.until($);
       expect(res.length).to.eql(1);
       expect(res[0]).to.equal($);
@@ -361,7 +360,7 @@ describe('Disposable', () => {
     });
 
     it('Input: list', () => {
-      const $1 = new Subject<void>();
+      const $1 = rx.subject<void>();
       const $2 = rx.disposable();
       const $3 = [undefined, rx.disposable()];
       const res = Dispose.until([$1, undefined, $2, $3]);
@@ -373,8 +372,8 @@ describe('Disposable', () => {
     });
 
     it('Input: deep list ← flattens', () => {
-      const $1 = new Subject<void>();
-      const $2 = new Subject<void>();
+      const $1 = rx.subject<void>();
+      const $2 = rx.subject<void>();
       const res = Dispose.until([$1, undefined, [undefined, [undefined, $2]]]);
 
       expect(res.length).to.eql(2);
@@ -385,7 +384,7 @@ describe('Disposable', () => {
 
   describe('Dispose.done', () => {
     it('fires once and completes', () => {
-      const dispose$ = new Subject<t.DisposeEvent>();
+      const dispose$ = rx.subject<t.DisposeEvent>();
 
       let nextCount = 0;
       let completed = false;
@@ -404,7 +403,7 @@ describe('Disposable', () => {
     });
 
     it('with reason', () => {
-      const dispose$ = new Subject<any>();
+      const dispose$ = rx.subject<any>();
       expect(dispose$.closed).to.eql(false);
 
       const fired: t.DisposeEvent[] = [];

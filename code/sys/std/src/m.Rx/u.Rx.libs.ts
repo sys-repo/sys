@@ -43,6 +43,8 @@ export const merge = v.merge as unknown as typeof rx.merge;
 
 export const takeUntil = v.takeUntil as unknown as typeof rx.takeUntil;
 
+export const defaultIfEmpty = v.defaultIfEmpty as unknown as typeof rx.defaultIfEmpty;
+
 /** Pipeable operators */
 export const auditTime = v.auditTime as unknown as typeof ops.auditTime;
 

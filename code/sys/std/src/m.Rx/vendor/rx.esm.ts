@@ -11,6 +11,7 @@
 export {
   animationFrameScheduler,
   BehaviorSubject,
+  defaultIfEmpty,
   EMPTY,
   firstValueFrom,
   interval,

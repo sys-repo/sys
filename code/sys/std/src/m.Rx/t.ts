@@ -92,6 +92,7 @@ type Rxjs = {
   readonly throttleTime: typeof rxjs.throttleTime;
   readonly timeout: typeof rxjs.timeout;
   readonly distinctUntilChanged: typeof rxjs.distinctUntilChanged;
+  readonly defaultIfEmpty: typeof rxjs.defaultIfEmpty;
   readonly EMPTY: typeof rxjs.EMPTY;
 };
 

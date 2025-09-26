@@ -1,4 +1,4 @@
-export { filter, Subject, take } from 'rxjs';
+export { Subject, filter, take } from '../m.Rx/u.Rx.libs.ts';
 
 export * from '../common.ts';
 export { Delete } from '../m.Delete/mod.ts';
