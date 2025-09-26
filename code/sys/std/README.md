@@ -11,7 +11,16 @@ import { Obj, Arr, Num, Str } from 'jsr:@sys/std';
 ### Runtimes
 - [`jsr:@sys/std`](https://jsr.io/@sys/std) ← Browser + [WinterTG](https://wintertc.org/)
 
-
+#### see also (primitives):
+- [jsr:@sys/types](https://jsr.io/@sys/types)
+---
+- [jsr:@sys/fs](https://jsr.io/@sys/fs)
+- [jsr:@sys/cli](https://jsr.io/@sys/cli)
+- [jsr:@sys/http](https://jsr.io/@sys/http)
+- [jsr:@sys/process](https://jsr.io/@sys/process)
+---
+- [jsr:@sys/crdt](https://jsr.io/@sys/crdt)
+- [jsr:@sys/schema](https://jsr.io/@sys/schema)
 <p>&nbsp;<p>
 
 ### Usage
