@@ -32,7 +32,7 @@ groups:
   std/testing:
     - import: jsr:@std/testing@1.0.15
       subpaths: [bdd]
-    - import: npm:chai@6.0.1
+    - import: npm:chai@6.2.0
       subpaths: ['/', 'chai.js']
     - import: npm:fake-indexeddb@6.2.2
       subpaths: ['auto']
@@ -58,7 +58,7 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@4.1.0
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.52.2
+    - import: npm:rollup@4.52.3
     - import: npm:vite@7.1.7
     - import: npm:vite-plugin-wasm@3.5.0
 

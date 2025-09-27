@@ -13,7 +13,7 @@
     "@vitejs/plugin-react-swc": "4.1.0",
     "prettier": "3.6.2",
     "prettier-plugin-organize-imports": "4.3.0",
-    "rollup": "4.52.2",
+    "rollup": "4.52.3",
     "vite": "7.1.7",
     "vite-plugin-wasm": "3.5.0"
   }
