@@ -27,8 +27,8 @@ deno.json:
 package.json:
   - group: deno/std
 
-  - import: jsr:@std/async@1.0.10 # ← Duplicate (in group, outdated).
-  - import: jsr:@std/async@1.0.10
+  - import: jsr:@std/assert@1.0.10 # ← Duplicate (in group, outdated).
+  - import: jsr:@std/assert@1.0.10
   - import: jsr:@std/http #         ← Duplicate (in group, no version specified).
   - import: npm:rxjs@7
   - import: npm:hono@4.6

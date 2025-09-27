@@ -60,7 +60,7 @@ describe('DenoDeps', () => {
 
       const deps = res.data?.deps ?? [];
       expect(res.error).to.eql(undefined);
-      expect(deps.length).to.eql(11); // NB: de-duped.
+      expect(deps.length).to.eql(10); // NB: de-duped.
 
       const names = deps.map((m) => Esm.toString(m.module));
       expect(names).to.eql([...new Set(names)]); // NB: unique (no duplicates).
@@ -75,7 +75,6 @@ describe('DenoDeps', () => {
       expect(deps[7].target).to.eql(['package.json']);
       expect(deps[8].target).to.eql(['package.json']);
       expect(deps[9].target).to.eql(['package.json']);
-      expect(deps[10].target).to.eql(['package.json']);
 
       const mod = deps[0].module;
       expect(mod.input).to.eql('jsr:@std/assert@1.0.11');
@@ -346,7 +345,6 @@ describe('DenoDeps', () => {
       expect(json).to.eql({
         dependencies: {
           '@std/assert': 'npm:@jsr/std__assert@1.0.11',
-          '@std/async': 'npm:@jsr/std__async@1.0.10',
           rxjs: '7',
           hono: '4.6',
         },
