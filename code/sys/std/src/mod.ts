@@ -7,7 +7,6 @@ export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
 export { Args } from './m.Args/mod.ts';
-export { Async } from './m.Async/mod.ts';
 export { D, Date, Duration, Time, Timestamp } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';

@@ -6,7 +6,6 @@ export type * from '@sys/types/t';
 
 export type * from './m.Ansi/t.ts';
 export type * from './m.Args/t.ts';
-export type * from './m.Async/t.ts';
 export type * from './m.DateTime/t.ts';
 export type * from './m.Delete/t.ts';
 export type * from './m.Dispose/t.ts';
