@@ -1,6 +1,6 @@
-import { type t, Rx } from './common.ts';
-
 import { Dispose } from '../m.Dispose/mod.ts';
+
+import { type t, Rx } from './common.ts';
 import { delay, Wrangle } from './m.Time.delay.ts';
 
 /**
