@@ -47,7 +47,6 @@ type EX<T extends O = O> = {
   ): CrdtPathEvents<T>;
 };
 
-/** Automerge-specific fields merged into change payloads. */
 /** Automerge-specific change payload extensions. */
 export type CrdtChangeExtras = CX;
 type CX = {
