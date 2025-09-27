@@ -43,6 +43,7 @@
     "code/sys/crypto",
 
     "code/sys/crdt",
+    "code/sys/crdt.t",
     "code/sys/http",
     "code/sys/text",
     "code/sys/tmpl-engine",
