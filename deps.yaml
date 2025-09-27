@@ -70,7 +70,7 @@ groups:
   ui/react:
     - import: npm:react@19.1.1
     - import: npm:react-dom@19.1.1
-    - import: npm:@types/react@19.1.13
+    - import: npm:@types/react@19.1.14
     - import: npm:@types/react-dom@19.1.9
 
   ui/monaco:
@@ -88,8 +88,8 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.53
-    - import: npm:@ai-sdk/openai@2.0.35
+    - import: npm:ai@5.0.56
+    - import: npm:@ai-sdk/openai@2.0.38
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.18.0
       subpaths: ['agent', 'memory', 'storage']
@@ -163,4 +163,4 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:motion@12.23.22
-  - import: npm:hono@4.9.8
+  - import: npm:hono@4.9.9
