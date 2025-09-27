@@ -18,7 +18,6 @@
 groups:
   std/deno:
     # Deno standard libs ("std"):
-    - import: jsr:@std/async@1.0.14
     - import: jsr:@std/datetime@0.225.5
     - import: jsr:@std/dotenv@0.225.5
     - import: jsr:@std/encoding@1.0.10
