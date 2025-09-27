@@ -1,2 +1,2 @@
-export { describe, it } from '@std/testing/bdd';
+export { describe, expectTypeOf, it } from '@sys/testing';
 export * from './common.ts';

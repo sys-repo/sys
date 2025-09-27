@@ -1,8 +1,10 @@
 /**
- * AM specialization over @sys/crdt/t
+ * AM specialization over
+ *    ↑  @sys/types/crdt
+ *    ↑  @sys/crdt/t
  * (patch = Automerge.Patch, adds deleted$ + path, and source).
  */
-import type { Crdt as Sys } from '@sys/crdt/t';
+import type { Crdt as Sys } from '@sys/types/crdt';
 import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
