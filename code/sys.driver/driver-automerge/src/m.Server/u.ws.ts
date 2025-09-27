@@ -102,8 +102,8 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
   }
 
   // Low level error logging.
-  wss.on('error', (err) => console.error('[wss:error]', err));
-  wss.on('wsClientError', (err) => console.error('[wss:error:client]', err));
+  wss.on('error', (err: unknown) => console.error('[wss:error]', err));
+  wss.on('wsClientError', (err: unknown) => console.error('[wss:error:client]', err));
 
   /**
    * Lifecycle:
