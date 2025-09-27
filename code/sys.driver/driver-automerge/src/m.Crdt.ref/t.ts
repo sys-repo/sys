@@ -1,3 +1,7 @@
+/**
+ * AM specialization over @sys/crdt/t
+ * (patch = Automerge.Patch, adds deleted$ + path, and source).
+ */
 import type { Crdt as Sys } from '@sys/crdt/t';
 import type { t } from './common.ts';
 
@@ -25,7 +29,9 @@ export type CrdtPathEvents<T extends O = O> = {
   readonly match: { readonly paths: t.ObjectPath[]; readonly exact: boolean };
 };
 
-/** Automerge-specific additions merged into the event surface. */
+/** Automerge-specific event surface extensions. */
+export type CrdtEventExtras<T extends O = O> = EX<T>;
+
 type EX<T extends O = O> = {
   readonly deleted$: t.Observable<CrdtDeleted>;
 
@@ -42,6 +48,8 @@ type EX<T extends O = O> = {
 };
 
 /** Automerge-specific fields merged into change payloads. */
+/** Automerge-specific change payload extensions. */
+export type CrdtChangeExtras = CX;
 type CX = {
   readonly source: t.Automerge.PatchSource;
 };
