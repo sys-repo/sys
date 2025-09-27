@@ -1,9 +1,10 @@
 # Crdt Types
-Abstract CRDT type symbols.
+Aabstract, implementation-agnostic type symbols.
 
 ### Example
 ```ts
-// Equivalent:
-import type { Crdt } from 'jsr:@sys/crdt-t';
+// Type imports (equivalent):
+
 import type { Crdt } from 'jsr:@sys/crdt/t';
+import type { Crdt } from 'jsr:@sys/crdt-t'; // ← pure type-lib.
 ```
