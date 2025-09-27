@@ -10,6 +10,9 @@ export type TimeLib = {
   /** Retrieve the current datetime. */
   readonly now: t.DateTime;
 
+  /** Generate a new UTC datetime instance. */
+  utc(input?: t.DateTimeInput): t.DateTime;
+
   /** Create a new TimeDuration */
   duration: t.TimeDurationLib['create'];
 
@@ -26,8 +29,7 @@ export type TimeLib = {
    *  • `delay(msecs, fn?)` → macrotask timer; cancellable via `.cancel()`.
    *  • `delay(fn?)`        → microtask tick (queues on Promise microtask).
    */
-  delay(msecs: t.Msecs, fn?: t.TimeDelayCallback): t.TimeDelayPromise;
-  delay(fn?: t.TimeDelayCallback): t.TimeDelayPromise;
+  delay: t.TimeDelayFn;
 
   /**
    * Wait for the specified milliseconds
@@ -35,9 +37,6 @@ export type TimeLib = {
    * @param msecs: delay in milliseconds.
    */
   wait(msecs?: t.Msecs): t.TimeDelayPromise;
-
-  /** Generate a new UTC datetime instance. */
-  utc(input?: t.DateTimeInput): t.DateTime;
 
   /** A Time helper that runs only until it has been disposed. */
   until(until$?: t.DisposeInput): t.TimeUntil;
@@ -49,35 +48,6 @@ export type TimeLib = {
  *   and cause the promise to reject with an AbortError.
  */
 export type TimeFrameOptions = { readonly signal?: AbortSignal };
-
-/**
- * Timeout/Delay
- */
-
-/** A function called at the completion of a delay timer. */
-export type TimeDelayCallback = () => void;
-
-/** An extended Promise API that represents a running timer. */
-export type TimeDelayPromise = Promise<void> & t.TimeDelay;
-
-/** Extended properties on a delay Promise that represent a running timer. */
-export type TimeDelay = {
-  /** Duration of the delay. */
-  readonly timeout: t.Msecs;
-
-  /** Boolean status flags. */
-  readonly is: {
-    /** True if the timer was cancelled.  */
-    readonly cancelled: boolean;
-    /** True if the timer completed successfully. */
-    readonly completed: boolean;
-    /** True if the timer is "done" (completed OR failed). */
-    readonly done: boolean;
-  };
-
-  /** Stops the timer (dispose). */
-  cancel(): void;
-};
 
 /**
  * Exposes timer functions that cease after a dispose signal is received.

@@ -6,7 +6,7 @@ describe('Time Delay/Wait', () => {
   const calcDiff = (a: Date, b: Date = new Date()) => b.getTime() - a.getTime();
 
   describe('Time.delay', () => {
-    it('TimeDelayPromise: response structure', () => {
+    it('response structure: <TimeDelayPromise>', () => {
       const res = Time.delay(0);
       expect(typeof res.cancel).to.eql('function');
       expect(res.is).to.eql({ cancelled: false, completed: false, done: false });
@@ -163,6 +163,130 @@ describe('Time Delay/Wait', () => {
         await res;
         expect(fired).to.eql(0);
         expect(time.disposed).to.eql(true);
+      });
+    });
+
+    describe('options / abort', () => {
+      it('macro: AbortSignal aborts → resolves by default (callback not called)', async () => {
+        const ctrl = new AbortController();
+        let fired = 0;
+        const res = Time.delay(25, () => fired++, ctrl.signal);
+        ctrl.abort(); // default is "resolve on cancel"
+        await res;
+        expect(fired).to.eql(0);
+        expect(res.is).to.eql({ cancelled: true, completed: false, done: true });
+      });
+
+      it('macro: AbortController as options input (loose) aborts → resolves', async () => {
+        const ctrl = new AbortController();
+        let fired = 0;
+        const res = Time.delay(10, () => fired++, ctrl); // passing controller directly
+        ctrl.abort();
+        await res;
+        expect(fired).to.eql(0);
+        expect(res.is.cancelled).to.eql(true);
+      });
+
+      it('micro: AbortSignal aborts a tick → resolves by default', async () => {
+        const ctrl = new AbortController();
+        let fired = 0;
+        const res = Time.delay(() => fired++, ctrl.signal);
+        ctrl.abort();
+        await res;
+        expect(fired).to.eql(0);
+        expect(res.is).to.eql({ cancelled: true, completed: false, done: true });
+        expect(res.timeout).to.eql(0);
+      });
+
+      it('micro: already-aborted signal → short-circuits immediately', async () => {
+        const ctrl = new AbortController();
+        ctrl.abort();
+        let fired = 0;
+        const start = new Date();
+        const res = Time.delay(() => fired++, { signal: ctrl.signal });
+        await res;
+        const elapsed = new Date().getTime() - start.getTime();
+        expect(elapsed).to.be.closeTo(0, 5);
+        expect(fired).to.eql(0);
+        expect(res.is.cancelled).to.eql(true);
+      });
+
+      it('cancel() with default options resolves (legacy behavior preserved)', async () => {
+        const res = Time.delay(50);
+        res.cancel();
+        await res;
+        expect(res.is).to.eql({ cancelled: true, completed: false, done: true });
+      });
+
+      it('priority: abort then cancel → single settle, still cancelled', async () => {
+        const ctrl = new AbortController();
+        const res = Time.delay(20, undefined, { signal: ctrl.signal });
+        ctrl.abort();
+        res.cancel(); // idempotent after abort
+        await res;
+        expect(res.is.cancelled).to.eql(true);
+      });
+
+      it('priority: cancel then abort → single settle, still cancelled', async () => {
+        const ctrl = new AbortController();
+        const res = Time.delay(20, undefined, { signal: ctrl.signal });
+        res.cancel();
+        ctrl.abort(); // idempotent after cancel
+        await res;
+        expect(res.is.cancelled).to.eql(true);
+      });
+
+      it('race: abort right before macro fires → callback not called; cancelled=true', async () => {
+        const ctrl = new AbortController();
+        let fired = 0;
+        const res = Time.delay(6, () => fired++, { signal: ctrl.signal });
+        await Time.wait(5);
+        ctrl.abort();
+        await Time.wait(20);
+        expect(fired).to.eql(0);
+        expect(res.is).to.eql({ cancelled: true, completed: false, done: true });
+      });
+
+      it('micro overload shapes: delay(options) and delay(fn, options)', async () => {
+        // delay(options)
+        {
+          const ctrl = new AbortController();
+          const res = Time.delay({ signal: ctrl.signal });
+          ctrl.abort();
+          await res;
+          expect(res.is.cancelled).to.eql(true);
+          expect(res.timeout).to.eql(0);
+        }
+
+        // delay(fn, options)
+        {
+          const ctrl = new AbortController();
+          let fired = 0;
+          const res = Time.delay(() => fired++, { signal: ctrl.signal });
+          await res; // no abort: should run to completion
+          expect(fired).to.eql(1);
+          expect(res.is.completed).to.eql(true);
+        }
+      });
+
+      it('macro overload with options in third position: delay(ms, fn, options)', async () => {
+        const ctrl = new AbortController();
+        let fired = 0;
+        const res = Time.delay(15, () => fired++, { signal: ctrl.signal });
+        ctrl.abort();
+        await res;
+        expect(fired).to.eql(0);
+        expect(res.is.cancelled).to.eql(true);
+      });
+
+      it('settled promise ignores further abort/cancel (listener cleanup sanity)', async () => {
+        const ctrl = new AbortController();
+        const res = Time.delay(0, () => {});
+        await res; //     settled completed
+        ctrl.abort(); //  late abort should be ignored
+        res.cancel(); //  late cancel should be ignored
+        expect(res.is.done).to.eql(true);
+        expect(res.is.completed || res.is.cancelled).to.eql(true);
       });
     });
   });
