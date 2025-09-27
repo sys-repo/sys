@@ -13,7 +13,9 @@ import type {
 
 type O = Record<string, unknown>;
 
-/** CRDT namespace: exposes the generic surface. */
+/**
+ * CRDT namespace: exposes the generic surface.
+ */
 export namespace Crdt {
   /** Immutable CRDT document reference. */
   export type Ref<
