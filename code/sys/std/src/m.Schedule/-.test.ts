@@ -1,5 +1,6 @@
 import { type t, describe, expect, it } from '../-test.ts';
 import { Schedule } from '../mod.ts';
+import { Rx } from './common.ts';
 
 describe(`Schedule`, () => {
   const life = (disposed = false): t.LifeLike => ({ disposed });
@@ -284,6 +285,49 @@ describe(`Schedule`, () => {
         life.dispose();
         await new Promise((res) => setTimeout(res, 30));
         expect(count).to.eql(0);
+      });
+
+      it('overload: once(task, queue, until)', async () => {
+        let count = 0;
+        const gate = Rx.lifecycle();
+        Schedule.once(() => count++, 'raf', gate.dispose$);
+        // cancel before the raf tick
+        gate.dispose();
+        await Schedule.raf();
+        expect(count).to.eql(0);
+      });
+
+      it('overload: once(task, { queue, until })', async () => {
+        let count = 0;
+        const gate = Rx.lifecycle();
+        Schedule.once(() => count++, { queue: 'micro', until: gate.dispose$ });
+        // dispose synchronously before the micro hop
+        gate.dispose();
+        await Schedule.micro();
+        expect(count).to.eql(0);
+      });
+
+      it('queue: { ms: 0 } behaves as macrotask (fires once)', async () => {
+        let count = 0;
+        Schedule.once(() => count++, { queue: { ms: 0 } });
+        await new Promise((res) => setTimeout(res, 0));
+        expect(count).to.eql(1);
+      });
+
+      it('queue: { frames: 0 } fires on the next raf', async () => {
+        let count = 0;
+        Schedule.once(() => count++, { queue: { frames: 0 } });
+        await Schedule.raf();
+        expect(count).to.eql(1);
+      });
+
+      it('returns a lifecycle that auto-disposes after running', async () => {
+        let ran = false;
+        const life = Schedule.once(() => (ran = true), { queue: 'micro' });
+        expect(life.disposed).to.eql(false);
+        await Schedule.micro();
+        expect(ran).to.eql(true);
+        expect(life.disposed).to.eql(true);
       });
     });
   });

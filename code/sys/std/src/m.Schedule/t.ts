@@ -100,12 +100,16 @@ export type SchedulerLib = {
    *   Schedule.once(() => start(), { until: life.dispose$ });
    *   life.dispose(); // cancels if not yet run
    */
+  once<T = unknown>(task: () => T | Promise<T>, opts?: t.ScheduleOnceOptions): t.Lifecycle;
   once<T = unknown>(
     task: () => T | Promise<T>,
-    opts?: { until?: t.UntilInput; queue?: ScheduleQueue },
+    queue?: ScheduleQueue,
+    until?: t.UntilInput,
   ): t.Lifecycle;
 };
 
+/** Options for `Schedule.once` execution. */
+export type ScheduleOnceOptions = { until?: t.UntilInput; queue?: ScheduleQueue };
 /** Queue options for scheduled execution. */
 export type ScheduleQueue =
   | 'micro' //              next microtask
