@@ -11,10 +11,19 @@ export type * from '../t.def.monaco.ts';
  */
 export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
 
-// CRDT:
+/**
+ * CRDT
+ */
+
+// Store:
 import type { Crdt as AMDriver } from '@sys/driver-automerge/t';
 export type CrdtRepo = AMDriver.Repo;
+
+// Document - ImmutableRef<T>
 export type CrdtRef<T extends O = O> = AMDriver.Ref<T>;
+// 🐷
+// import type { Crdt as CrdtSys } from '@sys/crdt/t';
+// export type CrdtRef<T extends O = O> = CrdtSys.Ref<T>;
 
 /**
  * @system
