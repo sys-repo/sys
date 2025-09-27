@@ -9,7 +9,7 @@ import type {
   CrdtRef,
   CrdtChange as _Change,
   CrdtEvents as _Events,
-} from './t.Crdt.Ref.ts';
+} from './t.m.Ref.ts';
 
 type O = Record<string, unknown>;
 

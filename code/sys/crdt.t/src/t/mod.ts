@@ -3,4 +3,4 @@
  *
  *     import type { Crdt } from '@sys/crdt/t';
  */
-export type * from './t.Crdt.ts';
+export type * from './t.ns.Crdt.ts';

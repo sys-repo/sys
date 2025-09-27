@@ -1,4 +1,4 @@
-# CRDT
+# Crdt
 System [CRDT](https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type) tools providing the default [`Immutable<T>`](https://github.com/sys-repo/sys/blob/main/README.md#immutablet) interface for distributed state.  
 
 Built on the [Ink & Switch](https://www.inkandswitch.com/) industrial research lab's **Automerge** replicated data structure, the de facto standard, surfaced via [`@sys/driver-automerge`](https://jsr.io/@sys/driver-automerge).
