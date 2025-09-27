@@ -10,12 +10,12 @@ export const Paths = {
   modules: [
     /** Abstract types: */
     'code/sys/types',
-    'code/sys/crdt.t',
 
     /**
      * sys:
      */
     'code/sys/std',
+    'code/sys/crdt.t',
     'code/sys/color',
     'code/sys/cli',
     'code/sys/crypto',

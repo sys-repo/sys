@@ -44,15 +44,15 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/crdt-t"
-        run: |
-          cd code/sys/crdt.t
-          deno task test --parallel
-          deno publish --allow-dirty
-
       - name: publish module → "@sys/std"
         run: |
           cd code/sys/std
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/crdt-t"
+        run: |
+          cd code/sys/crdt.t
           deno task test --parallel
           deno publish --allow-dirty
 
