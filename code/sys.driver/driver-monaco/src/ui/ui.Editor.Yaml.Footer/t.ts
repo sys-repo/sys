@@ -17,6 +17,6 @@ export type YamlEditorFooterProps = {
 /** Footer CRDT/Repo sub-properties. */
 export type YamlEditorFooterCrdt = {
   visible?: boolean;
-  repo?: t.Crdt.Repo;
+  repo?: t.CrdtRepo;
   localstorage?: t.StringKey;
 };

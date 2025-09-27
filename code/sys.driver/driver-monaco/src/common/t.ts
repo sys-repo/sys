@@ -9,6 +9,9 @@ export type * from '../t.def.monaco.ts';
  */
 export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
 
+import type { Crdt } from '@sys/driver-automerge/t';
+export type CrdtRepo = Crdt.Repo;
+
 /**
  * @system
  */

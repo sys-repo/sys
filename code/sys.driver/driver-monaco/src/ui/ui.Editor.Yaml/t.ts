@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type YamlEditorProps = {
   bus$?: t.EditorEventBus;
-  repo?: t.Crdt.Repo;
+  repo?: t.CrdtRepo;
   signals?: Partial<t.YamlEditorSignals>;
   path?: t.ObjectPath;
 

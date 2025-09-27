@@ -6,7 +6,7 @@ import { type t, Color, Crdt, Cropmarks, css, Is } from '../common.ts';
 
 export type FileshareHostProps = {
   data?: FileshareSchema;
-  repo?: t.Crdt.Repo;
+  repo?: t.CrdtRepo;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

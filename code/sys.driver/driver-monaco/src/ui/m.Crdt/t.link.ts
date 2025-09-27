@@ -59,7 +59,7 @@ export type EditorCrdtLinkClick = Readonly<{
  */
 export type EditorCrdtLinkCreateDoc = (
   ctx: t.MonacoCtx,
-  repo: t.Crdt.Repo,
+  repo: t.CrdtRepo,
   bounds: t.EditorLinkBounds,
 ) => EditorCrdtLinkCreateResult;
 
@@ -77,7 +77,7 @@ export type EditorCrdtLinkCreateResult = {
  */
 export type EditorCrdtLinkEnable = (
   ctx: t.MonacoCtx,
-  repo: t.Crdt.Repo,
+  repo: t.CrdtRepo,
   options?: {
     onCreate?: (e: t.EditorCrdtLinkCreateResult) => void;
     until?: t.UntilInput;

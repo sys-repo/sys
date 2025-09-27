@@ -9,7 +9,7 @@ type O = Record<string, unknown>;
 export type SampleProps = {
   factory: t.Factory;
   signals: t.SampleSignals;
-  repo?: t.Crdt.Repo;
+  repo?: t.CrdtRepo;
 
   // Appearance:
   debug?: boolean;
