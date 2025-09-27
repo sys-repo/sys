@@ -14,7 +14,7 @@ export type UseFoldMarksArgs = {
   /** The code-editor being bound to. */
   editor?: t.Monaco.Editor;
   /** The CRDT document being bound to. */
-  doc?: t.Crdt.Ref;
+  doc?: t.CrdtRef;
   /** Path to the field representing the editor text. */
   path?: t.ObjectPath;
   /** Enable/disable synchronisation (defaults to `true`). */
@@ -29,7 +29,7 @@ export type BindFoldMarks = (args: t.BindFoldMarksArgs) => EditorFoldBinding;
 export type BindFoldMarksArgs = {
   bus$: t.EditorEventBus;
   editor: t.Monaco.Editor;
-  doc: t.Crdt.Ref<any>;
+  doc: t.CrdtRef<any>;
   path: t.ObjectPath;
   enabled?: boolean;
   until?: t.UntilInput;

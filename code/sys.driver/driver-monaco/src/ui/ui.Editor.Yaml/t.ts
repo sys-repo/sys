@@ -24,7 +24,7 @@ export type YamlEditorProps = {
 /** Fires when a new document (crdt) is loaded into the editor. */
 export type YamlEditorDocumentLoadedHandler = (e: YamlEditorDocumentLoaded) => void;
 export type YamlEditorDocumentLoaded = {
-  doc: t.Crdt.Ref;
+  doc: t.CrdtRef;
   events: t.Crdt.Events;
   dispose$: t.DisposeObservable;
 };
@@ -35,7 +35,7 @@ export type YamlEditorDocumentLoaded = {
 export type YamlEditorSignals = {
   monaco: t.Signal<t.Monaco.Monaco | undefined>;
   editor: t.Signal<t.Monaco.Editor | undefined>;
-  doc: t.Signal<t.Crdt.Ref | undefined>;
+  doc: t.Signal<t.CrdtRef | undefined>;
   yaml: t.Signal<t.EditorYaml | undefined>;
 };
 

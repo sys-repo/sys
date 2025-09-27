@@ -9,7 +9,7 @@ export type EditorCrdtBind = (args: {
   /** The code-editor being bound to. */
   editor: t.Monaco.Editor;
   /** The CRDT document being bound to. */
-  doc: t.Crdt.Ref;
+  doc: t.CrdtRef;
   /** Path to the field representing the editor text. */
   path: t.ObjectPath;
   /** Destructor trigger. */
@@ -21,7 +21,7 @@ export type EditorCrdtBind = (args: {
  * an immutable CRDT document interface.
  */
 export type EditorCrdtBinding = t.Lifecycle & {
-  readonly doc: t.Crdt.Ref;
+  readonly doc: t.CrdtRef;
   readonly path: t.ObjectPath;
   readonly model: t.Monaco.TextModel;
   readonly $: t.Observable<t.EditorEvent>;
@@ -44,7 +44,7 @@ export type UseEditorCrdtBindingArgs = {
   bus$?: t.EditorEventBus;
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
-  doc?: t.Crdt.Ref;
+  doc?: t.CrdtRef;
   path?: t.ObjectPath;
   foldMarks?: boolean; // Sync CRDT fold marks with Monaco. (default = off)
 };

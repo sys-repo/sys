@@ -67,7 +67,7 @@ export type EditorCrdtLinkCreateDoc = (
  * Result from `EditorCrdtLink.create`.
  */
 export type EditorCrdtLinkCreateResult = {
-  doc?: t.Crdt.Ref;
+  doc?: t.CrdtRef;
   error?: t.StdError;
 };
 

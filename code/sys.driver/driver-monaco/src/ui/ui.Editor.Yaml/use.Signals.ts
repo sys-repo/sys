@@ -8,7 +8,7 @@ export function useSignals(signalsInput?: Partial<t.YamlEditorSignals>) {
   const [baseSignals] = useState<t.YamlEditorSignals>(() => {
     const s = Signal.create;
     return {
-      doc: s<t.Crdt.Ref | undefined>(),
+      doc: s<t.CrdtRef | undefined>(),
       monaco: s<t.Monaco.Monaco | undefined>(),
       editor: s<t.Monaco.Editor | undefined>(),
       yaml: s<t.EditorYaml | undefined>(),

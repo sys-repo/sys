@@ -1,3 +1,5 @@
+type O = Record<string, unknown>;
+
 /**
  * @external
  */
@@ -9,8 +11,10 @@ export type * from '../t.def.monaco.ts';
  */
 export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
 
-import type { Crdt } from '@sys/driver-automerge/t';
-export type CrdtRepo = Crdt.Repo;
+// CRDT:
+import type { Crdt as AMDriver } from '@sys/driver-automerge/t';
+export type CrdtRepo = AMDriver.Repo;
+export type CrdtRef<T extends O = O> = AMDriver.Ref<T>;
 
 /**
  * @system

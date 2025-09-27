@@ -62,7 +62,7 @@ export async function createDebugSignals() {
     monaco: s<t.Monaco.Monaco>(),
     editor: s<t.Monaco.Editor>(),
 
-    doc: s<t.Crdt.Ref>(),
+    doc: s<t.CrdtRef>(),
     binding: s<t.EditorCrdtBinding>(),
     hiddenAreas: s<t.Monaco.I.IRange[]>(),
   };

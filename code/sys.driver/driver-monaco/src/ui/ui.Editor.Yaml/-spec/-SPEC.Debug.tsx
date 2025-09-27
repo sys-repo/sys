@@ -66,7 +66,7 @@ export function createDebugSignals() {
       repo: s((snap.footer ?? {}).repo),
     },
 
-    doc: s<t.Crdt.Ref>(),
+    doc: s<t.CrdtRef>(),
   };
 
   const p = props;

@@ -161,7 +161,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (args) => {
  * Helpers:
  */
 const wrangle = {
-  noop(life: t.Lifecycle, doc: t.Crdt.Ref, path: t.ObjectPath) {
+  noop(life: t.Lifecycle, doc: t.CrdtRef, path: t.ObjectPath) {
     const model = {} as any;
     return Rx.toLifecycle<t.EditorCrdtBinding>(life, { $: Rx.EMPTY, doc, path, model });
   },

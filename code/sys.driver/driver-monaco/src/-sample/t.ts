@@ -34,7 +34,7 @@ export type SampleSignals = Readonly<{
   /** Root paths to landmarks within `doc`. */
   paths: t.SamplePathsSignals;
   /** CRDT document store. */
-  doc: t.Signal<t.Crdt.Ref | undefined>;
+  doc: t.Signal<t.CrdtRef | undefined>;
   /** CRDT → Parsed Yaml. */
   yaml: t.Signal<t.EditorYaml | undefined>;
   /** Factory/props information for the <Main> view renderer. */

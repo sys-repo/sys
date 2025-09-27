@@ -5,7 +5,7 @@ export type YamlSyncDebugProps = {
   bus$: t.EditorEventBus;
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
-  doc?: t.Crdt.Ref;
+  doc?: t.CrdtRef;
   path?: t.ObjectPath;
   debounce?: boolean;
   theme?: t.CommonTheme;
