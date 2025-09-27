@@ -3,7 +3,7 @@
  * (allows for arbitrary return values signalling to the consumer
  * that whatever is returned will not be used.)
  */
-export type IgnoredResult = any | Promise<any>;
+export type IgnoredResult = unknown;
 
 /**
  * Any kind of "non" response.

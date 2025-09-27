@@ -74,7 +74,44 @@ export type SchedulerLib = {
    * - Equivalent to: `for (let i=0; i<count; i++) await raf();`
    */
   frames(count?: number): Promise<void>;
+
+  /**
+   * Run a task at most once, scheduled on a queue, tied to lifecycle.
+   *
+   * - If disposed before it runs, it won't fire.
+   * - After it runs (or throws), the returned lifecycle auto-disposes.
+   * - The task's return value is ignored.
+   *
+   * @example
+   *   // Fire once on next microtask
+   *   Schedule.once(() => { init(); });
+   *
+   * @example
+   *   // Fire once after 2 frames
+   *   Schedule.once(setupLayout, { queue: { frames: 2 } });
+   *
+   * @example
+   *   // Fire once in ~150ms
+   *   Schedule.once(() => { warmCaches(); }, { queue: { ms: 150 } });
+   *
+   * @example
+   *   // Tie to a lifecycle
+   *   const life = Rx.lifecycle();
+   *   Schedule.once(() => start(), { until: life.dispose$ });
+   *   life.dispose(); // cancels if not yet run
+   */
+  once<T = unknown>(
+    task: () => T | Promise<T>,
+    opts?: { until?: t.UntilInput; queue?: ScheduleQueue },
+  ): t.Lifecycle;
 };
+
+/** Queue options for scheduled execution. */
+export type ScheduleQueue =
+  | 'micro' //              next microtask
+  | 'raf' //                next rAF
+  | { frames: number } //   after N animation frames
+  | { ms: number }; //      after N milliseconds
 
 /**
  * Curried scheduler function:

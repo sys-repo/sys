@@ -76,7 +76,7 @@ describe(`Schedule`, () => {
       });
     });
 
-    describe('Schedule (static) ordering', () => {
+    describe('ordering (static)', () => {
       it('each hop guarantees its own callback ran; overall order is unspecified', async () => {
         const order: string[] = [];
 
@@ -236,9 +236,59 @@ describe(`Schedule`, () => {
         }
       });
     });
+
+    describe('Schedule.once(..)', () => {
+      it('fires the task once on the microtask queue by default', async () => {
+        let count = 0;
+        Schedule.once(() => count++);
+        await Schedule.micro(); // hop to flush
+        expect(count).to.eql(1);
+      });
+
+      it('does not fire more than once even if awaited multiple times', async () => {
+        let count = 0;
+        const life = Schedule.once(() => count++);
+        await Schedule.micro();
+        expect(count).to.eql(1);
+
+        // Hop again; should not re-fire
+        await Schedule.micro();
+        expect(count).to.eql(1);
+        expect(life.disposed).to.eql(true);
+      });
+
+      it('supports raf queue', async () => {
+        let count = 0;
+        Schedule.once(() => count++, { queue: 'raf' });
+        await Schedule.raf();
+        expect(count).to.eql(1);
+      });
+
+      it('supports frame count queue', async () => {
+        let count = 0;
+        Schedule.once(() => count++, { queue: { frames: 2 } });
+        await Schedule.frames(2);
+        expect(count).to.eql(1);
+      });
+
+      it('supports millisecond delay queue', async () => {
+        let count = 0;
+        Schedule.once(() => count++, { queue: { ms: 10 } });
+        await new Promise((res) => setTimeout(res, 20));
+        expect(count).to.eql(1);
+      });
+
+      it('cancels if lifecycle is disposed before firing', async () => {
+        let count = 0;
+        const life = Schedule.once(() => count++, { queue: { ms: 20 } });
+        life.dispose();
+        await new Promise((res) => setTimeout(res, 30));
+        expect(count).to.eql(0);
+      });
+    });
   });
 
-  describe('Schedule.scheduler (instance w/ lifecycle)', () => {
+  describe('instance (w/ lifecycle)', () => {
     it('returns a curried ScheduleFn (callable & awaitable)', async () => {
       const schedule = Schedule.make(life()); // default micro
       expect(typeof schedule === 'function').to.be.true;
