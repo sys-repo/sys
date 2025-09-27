@@ -1,5 +1,1 @@
-/**
- * @module module-types
- * @types (AutoMerge Driver): @sys/crdt/am/t
- */
-export type * from './t/mod.ts';
+export type { Crdt } from '@sys/driver-automerge/t';

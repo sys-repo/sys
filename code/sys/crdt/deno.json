@@ -17,8 +17,14 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./am/fs": "./src/-export.am/fs.ts",
-    "./am/web": "./src/-export.am/web.ts",
-    "./am/web/ui": "./src/-export.am/web.ui.ts"
+
+    "./fs": "./src/-export.am/m.fs.ts",
+    "./web": "./src/-export.am/m.web.ts",
+    "./web/ui": "./src/-export.am/m.web.ui.ts",
+
+    "./am/t": "./src/-export.am/types.ts",
+    "./am/fs": "./src/-export.am/m.fs.ts",
+    "./am/web": "./src/-export.am/m.web.ts",
+    "./am/web/ui": "./src/-export.am/m.web.ui.ts"
   }
 }
