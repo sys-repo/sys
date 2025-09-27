@@ -2,4 +2,4 @@
  * @module
  * @types module
  */
-export type {};
+export type * from './t.crdt/mod.ts';

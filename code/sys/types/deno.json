@@ -9,7 +9,6 @@
   },
   "exports": {
     ".": "./src/mod.ts",
-    "./t": "./src/types.ts",
-    "./crdt": "./src/t.crdt/mod.ts"
+    "./t": "./src/types.ts"
   }
 }

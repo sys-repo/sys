@@ -2,4 +2,4 @@
  * @module
  * @types module
  */
-export type * from '@sys/types/crdt';
+export type * from '@sys/crdt-t/t';
