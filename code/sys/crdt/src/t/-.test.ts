@@ -1,7 +1,7 @@
-import { type t, describe, expectTypeOf, it, Pkg, pkg } from '../-test.ts';
+import { type t, describe, expectTypeOf, it } from '../-test.ts';
 
-describe(`module: ${Pkg.toString(pkg)}`, () => {
-  it('types: general namespace', () => {
+describe(`types: general namespace`, () => {
+  it('types: Ref (Doc)', () => {
     type D = { count: 0 };
     type Ref = t.Crdt.Ref<D>;
 
