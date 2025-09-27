@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.95",
+  "version": "0.0.96",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
     "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
