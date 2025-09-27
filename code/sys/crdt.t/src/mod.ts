@@ -1,5 +1,5 @@
 /**
- * @module
+ * @module General CRDT abstract type library (symbols only).
  */
 export { pkg } from './pkg.ts';
 
