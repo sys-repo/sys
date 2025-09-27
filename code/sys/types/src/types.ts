@@ -2,4 +2,4 @@
  * @module
  * System types.
  */
-export type * from './types/mod.ts';
+export type * from './t/mod.ts';
