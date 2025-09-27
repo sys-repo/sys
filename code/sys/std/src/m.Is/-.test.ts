@@ -400,5 +400,69 @@ describe('Is (common flags)', () => {
       const obj = new Custom();
       expect(Is.abortSignal(obj)).to.eql(false);
     });
+
+    it('returns true for an already-aborted signal', () => {
+      const c = new AbortController();
+      c.abort();
+      expect(Is.abortSignal(c.signal)).to.eql(true);
+    });
+
+    it('returns false when methods have wrong types', () => {
+      const duck = { aborted: false, addEventListener: 123, removeEventListener: () => {} };
+      expect(Is.abortSignal(duck as any)).to.eql(false);
+    });
+
+    it('returns false for arrays and functions', () => {
+      expect(Is.abortSignal([])).to.eql(false);
+      expect(Is.abortSignal(() => {})).to.eql(false);
+    });
+
+    it('returns true for objects with extra fields if core shape is present', () => {
+      const duck = {
+        aborted: false,
+        addEventListener() {},
+        removeEventListener() {},
+        reason: undefined, // allowed extra
+      };
+      expect(Is.abortSignal(duck)).to.eql(true);
+    });
+  });
+
+  describe('Is.abortController', () => {
+    it('returns true for a real AbortController', () => {
+      const ctrl = new AbortController();
+      expect(Is.abortController(ctrl)).to.eql(true);
+    });
+
+    it('returns true for a duck-typed object with the right shape', () => {
+      const duck = {
+        signal: {
+          aborted: false,
+          addEventListener() {},
+          removeEventListener() {},
+        },
+        abort() {},
+      };
+      expect(Is.abortController(duck)).to.eql(true);
+    });
+
+    it('returns false for null and undefined', () => {
+      expect(Is.abortController(null)).to.eql(false);
+      expect(Is.abortController(undefined)).to.eql(false);
+    });
+
+    it('returns false for primitives', () => {
+      expect(Is.abortController(0)).to.eql(false);
+      expect(Is.abortController('')).to.eql(false);
+      expect(Is.abortController(Symbol('x'))).to.eql(false);
+      expect(Is.abortController(true)).to.eql(false);
+      expect(Is.abortController(BigInt(0))).to.eql(false);
+    });
+
+    it('returns false for plain objects missing required props', () => {
+      expect(Is.abortController({})).to.eql(false);
+      expect(Is.abortController({ abort() {} })).to.eql(false); // no signal
+      expect(Is.abortController({ signal: {} })).to.eql(false); // signal not AbortSignal
+    });
   });
 });

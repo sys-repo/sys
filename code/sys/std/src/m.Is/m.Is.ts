@@ -5,8 +5,8 @@ import {
   isEmptyRecord,
   isObject,
   isPlainObject,
-  isRecord,
   isPlainRecord,
+  isRecord,
 } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
 
@@ -196,16 +196,29 @@ export const Is: StdIsLib = {
   },
 
   /**
-   * Determine if the given value is an `AborSignal`.
+   * Determine if the given value is an `AbortSignal`.
+   * Liberal duck-typing: checks for `aborted` flag and listener APIs.
    */
   abortSignal(input): input is AbortSignal {
     if (!isObject(input)) return false;
     const o = input as AbortSignal;
     return (
-      input !== null &&
       typeof o.aborted === 'boolean' &&
       typeof o.addEventListener === 'function' &&
       typeof o.removeEventListener === 'function'
     );
+  },
+
+  /**
+   * Determine if the given value is an `AbortController`.
+   * Fast duck-typing:
+   *  - must be an object
+   *  - must expose a `.signal` that is an AbortSignal
+   *  - must expose an `.abort` function
+   */
+  abortController(input): input is AbortController {
+    if (!isObject(input)) return false;
+    const c = input as AbortController;
+    return typeof c.abort === 'function' && !!c.signal && Is.abortSignal(c.signal);
   },
 };

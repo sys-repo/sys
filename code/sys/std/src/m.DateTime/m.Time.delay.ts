@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, Is } from './common.ts';
 
 /**
  * Delay for a specified amount of time.
@@ -228,15 +228,15 @@ export const Wrangle = {
     if (!input) return {};
 
     // AbortSignal directly
-    if (isAbortSignal(input)) return { signal: input as AbortSignal };
+    if (Is.abortSignal(input)) return { signal: input as AbortSignal };
 
     // AbortController directly
-    if (isAbortController(input)) return { signal: (input as AbortController).signal };
+    if (Is.abortController(input)) return { signal: (input as AbortController).signal };
 
     // Options object shape
     if (typeof input === 'object') {
       const o = input as t.TimeDelayOptions & { signal?: unknown };
-      if (isAbortSignal(o.signal)) return { signal: o.signal as AbortSignal };
+      if (Is.abortSignal(o.signal)) return { signal: o.signal as AbortSignal };
     }
 
     return {};
@@ -263,12 +263,3 @@ function scheduleMicro(fn: () => void) {
     Promise.resolve().then(fn); // Promise.microtask fallback.
   }
 }
-
-const isAbortSignal = (v: unknown): v is AbortSignal => {
-  // Be liberal: presence of addEventListener is sufficient for our use.
-  return !!v && typeof (v as any).addEventListener === 'function';
-};
-
-const isAbortController = (v: unknown): v is AbortController => {
-  return !!v && isAbortSignal((v as any).signal);
-};

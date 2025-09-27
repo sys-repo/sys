@@ -149,7 +149,12 @@ export type StdIsLib = {
   objectPath(input?: unknown): input is t.ObjectPath;
 
   /**
-   * Determine if the given value is an `AborSignal`.
+   * Determine if the given value is an `AbortSignal`.
    */
   abortSignal(input?: unknown): input is AbortSignal;
+
+  /**
+   * Determine if the given value is an `AbortController`.
+   */
+  abortController(input?: unknown): input is AbortController;
 };
