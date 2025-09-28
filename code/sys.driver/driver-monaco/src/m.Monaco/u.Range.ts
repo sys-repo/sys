@@ -125,6 +125,13 @@ export const RangeUtil = {
   },
 
   /**
+   * Collapse a range to start/end values.
+   */
+  toStartEnd(input: IRange) {
+    return { start: input.startLineNumber, end: input.endLineNumber };
+  },
+
+  /**
    * Return the complement of `occupied` within the inclusive
    * line-range: 1..lastLine.
    *
