@@ -48,7 +48,7 @@ export type EditorFoldingLib = {
    * Convert editor hidden areas → Automerge sequence ranges.
    * Stores the *parent* (twisty) line as `start`.
    */
-  toMarkRanges(model: t.Monaco.TextModel, areas: t.Monaco.I.IRange[]): t.Crdt.Mark.Range[];
+  toMarkRanges(model: t.Monaco.TextModel, areas: t.Monaco.I.IRange[]): t.Crdt.Marks.Range[];
 
   /**
    * Return *all* folded regions, independent of scroll position.

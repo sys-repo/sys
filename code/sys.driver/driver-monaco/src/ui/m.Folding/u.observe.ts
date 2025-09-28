@@ -1,7 +1,8 @@
-import { type t, Bus, RangeUtil, Rx, Schedule } from './common.ts';
+import { type t, Bus, RangeUtil, Rx } from './common.ts';
 import { getHiddenAreas } from './u.hidden.ts';
 import { equalRanges } from './u.ts';
 
+type IRange = t.Monaco.I.IRange;
 const toSE = RangeUtil.toStartEnd;
 
 export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
@@ -9,52 +10,37 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
   const bus$ = args.bus$ ?? Bus.make();
   const life = Rx.lifecycle(until);
 
-  /**
-   * Safe reader:
-   * - During model swaps/teardown the editor's model or view-model can be null.
-   * - Return [] in that case to avoid crashing and to represent “no folded areas”.
-   */
-  const readAreas = () =>
-    editor.getModel() ? getHiddenAreas(editor) : ([] as t.Monaco.I.IRange[]);
-
+  // Safe reader (model may be null during swaps/teardown):
+  const readAreas = (): IRange[] => (editor.getModel() ? getHiddenAreas(editor) : []);
   let areas = readAreas();
-  let initialSent = false;
 
-  const emit = (next: t.Monaco.I.IRange[], initial = false) => {
+  const emit = (next: IRange[], trigger: t.EventEditorFolding['trigger']) => {
     if (life.disposed) return;
-    const evt: t.EventEditorFolding =
-      initial && !initialSent
-        ? { kind: 'editor:folding', areas: next, initial: true }
-        : { kind: 'editor:folding', areas: next };
-    Bus.emit(bus$, evt);
-    if ((evt as any).initial) initialSent = true;
+    areas = next; // keep snapshot current
+    Bus.emit(bus$, { kind: 'editor:folding', trigger, areas });
   };
 
-  // Public observable: folding events, deduped
+  // Public observable: folding events, coalesced & deduped.
   const $ = bus$.pipe(
     Rx.takeUntil(life.dispose$),
     Rx.filter((e) => e.kind === 'editor:folding'),
-    Rx.auditTime(0), // coalesce per microtask
+    Rx.auditTime(0), // ← coalesce per microtask.
     Rx.distinctUntilChanged((p, q) => equalRanges(p.areas.map(toSE), q.areas.map(toSE))),
   );
 
-  // Editor folds changed → emit (first one carries {initial:true})
-  const subHidden = editor.onDidChangeHiddenAreas(() => emit(readAreas(), true));
-  life.dispose$.subscribe(() => subHidden.dispose());
-
-  // Model changed → emit baseline snapshot (not initial-gating)
-  const subModel = editor.onDidChangeModel(() => {
-    areas = readAreas();
-    emit(areas, false);
-    subModel.dispose();
+  // Model changed → emit one baseline snapshot on attach.
+  const subInitialModelChange = editor.onDidChangeModel(() => {
+    emit(readAreas(), 'editor');
+    subInitialModelChange.dispose();
   });
 
-  // Fallback: ensure at least one {initial:true} after 2 frames
-  Schedule.frames(2).then(() => {
-    if (!life.disposed && !initialSent) {
-      areas = readAreas();
-      emit(areas, true);
-    }
+  // Editor hidden-areas changed → emit snapshot.
+  const subHiddenAreaChanges = editor.onDidChangeHiddenAreas(() => emit(readAreas(), 'editor'));
+
+  // Dispose of listeners:
+  life.dispose$.subscribe(() => {
+    subInitialModelChange.dispose();
+    subHiddenAreaChanges.dispose();
   });
 
   /**

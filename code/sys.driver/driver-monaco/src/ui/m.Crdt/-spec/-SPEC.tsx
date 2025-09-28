@@ -37,19 +37,25 @@ export default Spec.describe(D.displayName, async (e) => {
   function HostSubject() {
     const v = Signal.toObject(p);
     const { monaco, editor, doc, path } = v;
-    const [ready, setReady] = React.useState(false);
+    const renderKey = `${v.doc?.id}:${v.path?.join('.')}`;
 
     /**
-     * Hook:
+     * Visibility flag:
+     */
+    const [ready, setReady] = React.useState(false);
+    React.useEffect(() => setReady((prev) => (!v.render ? false : prev)), [v.render]);
+
+    /**
+     * Hook: CRDT data-binding.
      */
     Monaco.Crdt.useBinding({ bus$, monaco, editor, doc, path, foldMarks: true }, (e) => {
-      p.binding.value = e.binding;
-      e.binding.$.subscribe(async (e) => {
+      setReady(true);
+      console.info(`🧫 [READY] Monaco.Crdt.useBinding`);
+
+      e.$.subscribe((e) => {
         console.info(`⚡️ editor/crdt:binding.$`, e);
-        if (e.kind === 'marks') p.hiddenAreas.value = e.change.after;
-        if (e.kind === 'editor:folding' && e.initial) {
-          setReady(true);
-        }
+        if (e.kind === 'editor:marks') p.hiddenAreas.value = e.change.after;
+        if (e.kind === 'editor:folding') p.hiddenAreas.value = e.areas;
       });
     });
 
@@ -60,7 +66,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
     return (
       <MonacoEditor
-        key={`${v.path?.join('.')}`}
+        key={renderKey}
         debug={v.debug}
         theme={v.theme}
         //

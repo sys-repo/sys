@@ -1,4 +1,4 @@
-import type { MarkRange } from '@automerge/automerge';
+import type { Mark as AMMark, MarkRange as AMMarkRange } from '@automerge/automerge';
 import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
@@ -11,7 +11,8 @@ export namespace Crdt {
   export type Ref<T extends O = O> = t.CrdtRef<T>;
   export type Events<T extends O = O> = t.CrdtEvents<T>;
   export type Patch = t.CrdtPatch;
-  export namespace Mark {
-    export type Range = MarkRange;
+  export namespace Marks {
+    export type Mark = AMMark;
+    export type Range = AMMarkRange;
   }
 }

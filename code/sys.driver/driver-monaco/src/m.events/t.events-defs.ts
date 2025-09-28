@@ -48,6 +48,7 @@ export type EventEditorFoldingReady = {
 };
 export type EventEditorFolding = {
   readonly kind: 'editor:folding';
+  readonly trigger: Trigger;
   readonly areas: IRange[];
 };
 

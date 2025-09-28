@@ -1,7 +1,12 @@
 import type { t } from './common.ts';
 
-export type EditorEventBus = t.Subject<t.EditorEvent>;
+/** Flags representing async schedule to fire on. */
 export type EmitSchedule = 'sync' | 'micro' | 'macro' | 'raf';
+
+/** Editor event-bus (Subject). */
+export type EditorEventBus = t.Subject<t.EditorEvent>;
+/** Editor events observable. */
+export type EditorEventObservable = t.Observable<t.EditorEvent>;
 
 /**
  * Event bus helpers:

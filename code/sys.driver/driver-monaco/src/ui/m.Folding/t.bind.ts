@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
 
-type FoldRange = { readonly start: number; readonly end: number };
-
 /**
  * React hook that keeps Monaco fold regions ⇄ CRDT "fold" marks in sync.
  */

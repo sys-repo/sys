@@ -7,7 +7,7 @@ import { type t } from './common.ts';
 export function toMarkRanges(
   model: t.Monaco.TextModel,
   areas: t.Monaco.I.IRange[],
-): t.Crdt.Mark.Range[] {
+): t.Crdt.Marks.Range[] {
   return areas.map((r) => {
     // Parent line = line ABOVE the first hidden line, but never < 1.
     const parentLine = Math.max(1, r.startLineNumber - 1);
@@ -22,7 +22,7 @@ export function toMarkRanges(
             column: model.getLineMaxColumn(r.endLineNumber),
           }) - 1;
 
-    const range: t.Crdt.Mark.Range = { start, end, expand: 'none' };
+    const range: t.Crdt.Marks.Range = { start, end, expand: 'none' };
     return range;
   });
 }

@@ -23,10 +23,10 @@ export type EditorCrdtBind = (
  * an immutable CRDT document interface.
  */
 export type EditorCrdtBinding = t.Lifecycle & {
+  readonly $: t.EditorEventObservable;
   readonly doc: t.CrdtRef;
   readonly path: t.ObjectPath;
   readonly model: t.Monaco.TextModel;
-  readonly $: t.Observable<t.EditorEvent>;
 };
 
 /**
@@ -39,7 +39,9 @@ export type UseEditorCrdtBinding = (
 
 /** Fires when the CRDT data binding is initialized and ready. */
 export type EditorCrdtBindingReadyHandler = (e: EditorCrdtBindingReady) => void;
-export type EditorCrdtBindingReady = t.MonacoEditorReady;
+export type EditorCrdtBindingReady = t.MonacoEditorReady & {
+  readonly $: t.EditorEventObservable;
+};
 
 /** Arguments passed to the CRDT `useBinding` hook. */
 export type UseEditorCrdtBindingArgs = {

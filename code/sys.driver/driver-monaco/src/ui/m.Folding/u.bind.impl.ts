@@ -1,17 +1,17 @@
-import { A, D, Rx, Schedule, type t } from './common.ts';
-import { getHiddenAreas } from './u.hidden.ts';
-import { toMarkRanges } from './u.mark.ts';
-import { observe } from './u.observe.ts';
-
+import { type t, A, Bus, D, Rx, Schedule } from './common.ts';
 import {
-  clampOffset,
+  clampOffsetSE,
   equalOffsets,
   makeMarksEmitter,
   parentLinesFromOffsets,
   rangesToOffsets,
   readStoredOffsets,
-  type FoldOffset,
 } from './u.bind.impl.u.ts';
+import { getHiddenAreas } from './u.hidden.ts';
+import { toMarkRanges } from './u.mark.ts';
+import { observe } from './u.observe.ts';
+
+type IRange = t.Monaco.I.IRange;
 
 export function impl(args: {
   bus$: t.EditorEventBus;
@@ -22,11 +22,13 @@ export function impl(args: {
   life: t.Lifecycle;
 }) {
   const { bus$, model, path, editor, doc, life } = args;
+  const observer = observe({ editor, bus$ }, life);
 
   // Guards:
   let readyForEditorWrites = false; //  ← UI→CRDT allowed after initial seed.
   let docUpdatingEditor = false; //     ← Suppress echo while applying CRDT→Editor.
   let skipNextPatch = 0; //             ← Ignore next marks patch after UI→CRDT write.
+  let initialFired = false; //          ← Guard for once-only initial event firing.
 
   // Curried emitter (model+bus+path baked in)
   const emitMarks = makeMarksEmitter(bus$, model, path);
@@ -36,29 +38,24 @@ export function impl(args: {
    * - Empty => unfoldAll
    * - Non-empty => single batched 'editor.fold' with parent lines.
    */
-  function applyViaCommands(nextOffsets: FoldOffset[]) {
-    const areasBefore = getHiddenAreas(editor);
+  function applyViaCommands(nextOffsets: t.FoldOffset[]) {
+    const trigger = (handleId: string, selectionLines?: number[]) => {
+      const areasBefore = getHiddenAreas(editor);
+      const payload = selectionLines ? { selectionLines } : undefined;
+      editor.trigger('monaco.hidden', handleId, payload);
+
+      const before = rangesToOffsets(model, areasBefore);
+      const after = rangesToOffsets(model, getHiddenAreas(editor));
+      emitMarks('crdt', before, after);
+    };
 
     if (nextOffsets.length === 0) {
-      editor.trigger('monaco.hidden', 'editor.unfoldAll', undefined);
-      const areasAfter = getHiddenAreas(editor);
-      emitMarks('crdt', rangesToOffsets(model, areasBefore), rangesToOffsets(model, areasAfter));
-      return;
+      // No marks:
+      trigger('editor.unfoldAll');
+    } else {
+      // Has code-folded marks:
+      trigger('editor.fold', parentLinesFromOffsets(model, nextOffsets));
     }
-
-    // Convert parent-line offsets into 0-based selectionLines for one batched fold.
-    const parents0 = parentLinesFromOffsets(model, nextOffsets);
-    if (parents0.length === 0) {
-      // nothing to fold; still emit if visible state changed
-      const areasAfter = getHiddenAreas(editor);
-      emitMarks('crdt', rangesToOffsets(model, areasBefore), rangesToOffsets(model, areasAfter));
-      return;
-    }
-
-    editor.trigger('monaco.hidden', 'editor.fold', { selectionLines: parents0 });
-
-    const areasAfter = getHiddenAreas(editor);
-    emitMarks('crdt', rangesToOffsets(model, areasBefore), rangesToOffsets(model, areasAfter));
   }
 
   /**
@@ -66,25 +63,32 @@ export function impl(args: {
    * Comparison is done in offsets to avoid churn.
    */
   function syncFromCRDT() {
-    let rawMarks: Array<{ start: number; end: number; name: string }>;
+    let rawMarks: t.Crdt.Marks.Mark[];
     try {
       rawMarks = A.marks(doc.current, path);
     } catch {
-      return; // path missing / unsafe to read right now
+      return; // Path is missing / unsafe to read right now.
     }
+
     if (model.getValueLength() === 0) return;
 
     const marks = rawMarks.filter((m) => m.name === D.FOLD_MARK);
-    const nextOffsets: FoldOffset[] = marks.map((m) => ({
-      start: clampOffset(model, m.start),
-      end: clampOffset(model, m.end),
-    }));
+    const nextOffsets = marks.map((m) => clampOffsetSE(model, m));
 
     // Compare to current by offsets (derived from hidden areas).
-    const currentOffsets = toMarkRanges(model, getHiddenAreas(editor)).map((r) => ({
-      start: clampOffset(model, r.start),
-      end: clampOffset(model, r.end),
-    }));
+    const currentMarkRanges = toMarkRanges(model, getHiddenAreas(editor));
+    const currentOffsets = currentMarkRanges.map((r) => clampOffsetSE(model, r));
+
+    // Fire initial <ready> event.
+    if (!initialFired) {
+      initialFired = true;
+      const ready = (areas: IRange[]) => Bus.emit(bus$, { kind: 'editor:folding.ready', areas });
+      if (marks.length === 0) {
+        ready([]);
+      } else {
+        observer.$.pipe(Rx.take(1)).subscribe((e) => ready(e.areas));
+      }
+    }
 
     if (equalOffsets(currentOffsets, nextOffsets)) {
       readyForEditorWrites = true;
@@ -132,20 +136,12 @@ export function impl(args: {
     });
 
   // Editor → CRDT: persist hidden areas iff they differ from stored marks.
-  const { $ } = observe({ editor, bus$ }, life);
-  $.pipe(Rx.takeUntil(life.dispose$)).subscribe(async (e) => {
+  observer.$.subscribe((e) => {
     if (!readyForEditorWrites) return;
     if (docUpdatingEditor) return;
 
-    const currentOffsets = toMarkRanges(model, e.areas).map((r) => ({
-      start: clampOffset(model, r.start),
-      end: clampOffset(model, r.end),
-    }));
-    const storedOffsets = readStoredOffsets(doc, path).map((o) => ({
-      start: clampOffset(model, o.start),
-      end: clampOffset(model, o.end),
-    }));
-
+    const currentOffsets = toMarkRanges(model, e.areas).map((r) => clampOffsetSE(model, r));
+    const storedOffsets = readStoredOffsets(doc, path).map((o) => clampOffsetSE(model, o));
     if (equalOffsets(storedOffsets, currentOffsets)) return;
 
     skipNextPatch += 1;
@@ -158,7 +154,7 @@ export function impl(args: {
       }
     });
 
-    // Emit as ranges (presentation edge only).
+    // Emit as ranges:
     emitMarks('editor', storedOffsets, currentOffsets);
   });
 }

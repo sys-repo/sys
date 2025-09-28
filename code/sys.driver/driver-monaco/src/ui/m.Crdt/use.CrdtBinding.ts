@@ -1,56 +1,49 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { Dispose, EditorFolding, Fn, Obj, Rx, Schedule, type t, useBus } from './common.ts';
+import React from 'react';
+
+import { type t, Dispose, EditorFolding, Obj, Rx, useBus } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
+import { monitorReady } from './use.CrdtBinding.monitor.ts';
 
 export const useCrdtBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   const { monaco, editor, doc, path, foldMarks = false } = args;
-  const pathKey = useMemo(() => Obj.hash(path), [path]);
+  const pathKey = React.useMemo(() => Obj.hash(path), [path]);
 
   /**
-   * Refs:
+   * Refs/Hooks:
    */
-  const bindingRef = useRef<t.EditorCrdtBinding>(undefined);
-
-  /**
-   * Hooks:
-   */
+  const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
   const bus$ = useBus(args.bus$);
-  EditorFolding.useFoldMarks({ bus$, editor, doc, path, enabled: foldMarks });
+
+  // Keep latest onReady without re-running effects
+  const onReadyRef = React.useRef<t.EditorCrdtBindingReadyHandler | undefined>(onReady);
+  onReadyRef.current = onReady;
 
   /**
    * Effect: Monaco ↔ CRDT binding
    */
-  useEffect(() => {
+  React.useEffect(() => {
     if (!(doc && path && editor && monaco)) return;
     const life = Rx.lifecycle();
 
+    // Monitor for <ready> state:
+    monitorReady({ bus$, life, foldMarks, editor, monaco, onReadyRef });
+
+    // Start binding:
     EditorCrdt.bind({ editor, doc, path, bus$ }, life).then((binding) => {
-      if (life.disposed) return binding.dispose();
+      if (life.disposed) return void binding.dispose();
       bindingRef.current = binding;
-
-      const dispose$ = binding.dispose$;
-      const fireReadyOnce = Fn.onceOnly(() => {
-        const fire = () => onReady?.({ editor, monaco, binding, dispose$ });
-        Schedule.queue(fire, 'micro', life);
-      });
-
-      if (!foldMarks) {
-        // No folding to wait for: signal ready next microtask.
-        fireReadyOnce();
-        return;
-      }
-
-      // Wait for the first stable hidden-areas snapshot before ready.
-      const obs = EditorFolding.observe({ editor, bus$ }, life);
-      obs.$.pipe(
-        Rx.filter((e) => !!e.initial),
-        Rx.take(1),
-      ).subscribe(fireReadyOnce);
     });
 
     return life.dispose;
-  }, [editor, monaco, doc?.id, doc?.instance, pathKey, foldMarks]);
+  }, [bus$, editor, monaco, doc?.id, doc?.instance, pathKey, foldMarks]);
 
-  // API
+  /**
+   * Start child behaviors:
+   */
+  EditorFolding.useFoldMarks({ bus$, editor, doc, path, enabled: foldMarks });
+
+  /**
+   * API:
+   */
   return bindingRef.current ? Dispose.omitDispose(bindingRef.current) : undefined;
 };
