@@ -22,22 +22,21 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
    */
   useEffect(() => {
     if (!(doc && path && editor && monaco)) return;
-
     const life = Rx.lifecycle();
 
-    // NOTE: correct call form: (args, until)
     EditorCrdt.bind({ editor, doc, path, bus$ }, life).then((binding) => {
       if (life.disposed) return binding.dispose();
       bindingRef.current = binding;
 
       const dispose$ = binding.dispose$;
-      const fireReady = Fn.onceOnly(() => {
-        void Schedule.queue(() => onReady?.({ editor, monaco, binding, dispose$ }), 'micro', life);
+      const fireReadyOnce = Fn.onceOnly(() => {
+        const fire = () => onReady?.({ editor, monaco, binding, dispose$ });
+        Schedule.queue(fire, 'micro', life);
       });
 
       if (!foldMarks) {
         // No folding to wait for: signal ready next microtask.
-        fireReady();
+        fireReadyOnce();
         return;
       }
 
@@ -46,7 +45,7 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
       obs.$.pipe(
         Rx.filter((e) => !!e.initial),
         Rx.take(1),
-      ).subscribe(fireReady);
+      ).subscribe(fireReadyOnce);
     });
 
     return life.dispose;
