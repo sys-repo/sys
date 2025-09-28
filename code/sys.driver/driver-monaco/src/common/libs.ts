@@ -1,4 +1,4 @@
-export { Arr, Dispose, Err, Is, Obj, Pkg, R, Schedule, Str, Time, Url } from '@sys/std';
+export { Arr, Dispose, Err, Fn, Is, Obj, Pkg, R, Schedule, Str, Time, Url } from '@sys/std';
 export { Immutable } from '@sys/std/immutable';
 export { Rx } from '@sys/std/rx';
 
