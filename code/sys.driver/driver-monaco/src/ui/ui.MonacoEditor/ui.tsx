@@ -128,6 +128,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     updateOptions(editor);
     updateTextState(editor);
 
+    // Alert listeners:
     const dispose$ = disposeRef.current;
     props.onMounted?.({ editor, monaco, dispose$ });
     setMounted(true);
