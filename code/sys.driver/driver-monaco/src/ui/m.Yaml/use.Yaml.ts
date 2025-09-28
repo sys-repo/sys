@@ -59,13 +59,6 @@ export const useYaml: t.UseEditorYaml = (args) => {
   }, [editor?.getId(), !!monaco]);
 
   /**
-   * Effect: Ready.
-   */
-  useEffect(() => {
-    Bus.emit(bus$, { kind: 'editor:yaml:ready', yaml: api });
-  }, []);
-
-  /**
    * API:
    */
   const api: t.EditorYaml = {

@@ -54,11 +54,7 @@ export type EventCrdtFoldingChange = {
 /**
  * YAML Editor Events
  */
-export type EventYaml = EventYamlReady | EventYamlChange | EventYamlChangeCursorPath;
-export type EventYamlReady = {
-  readonly kind: 'editor:yaml:ready';
-  readonly yaml: t.EditorYaml;
-};
+export type EventYaml = EventYamlChange | EventYamlChangeCursorPath;
 export type EventYamlChange = {
   readonly kind: 'editor:yaml:change';
   readonly yaml: t.EditorYaml;
