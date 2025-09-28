@@ -67,6 +67,8 @@ type RxjsLib = {
   readonly timeout: typeof rxjs.timeout;
   readonly distinctUntilChanged: typeof rxjs.distinctUntilChanged;
   readonly defaultIfEmpty: typeof rxjs.defaultIfEmpty;
+  readonly combineLatest: typeof rxjs.combineLatest;
+  readonly combineLatestWith: typeof rxjs.combineLatestWith;
   readonly EMPTY: typeof rxjs.EMPTY;
 };
 

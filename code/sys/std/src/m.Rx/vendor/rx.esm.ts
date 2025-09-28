@@ -11,6 +11,8 @@
 export {
   animationFrameScheduler,
   BehaviorSubject,
+  combineLatest,
+  combineLatestWith,
   defaultIfEmpty,
   EMPTY,
   firstValueFrom,
