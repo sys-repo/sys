@@ -30,7 +30,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
     editor,
   });
 
-  const fireChange = useCallback(() => {
+  const emitChange = useCallback(() => {
     setCount((n) => n + 1);
     Bus.emit(bus$, { kind: 'editor:yaml:change', yaml: api });
   }, [bus$]);
@@ -42,24 +42,28 @@ export const useYaml: t.UseEditorYaml = (args) => {
     if (!doc || !path) return void setParser(undefined);
 
     const syncer = Yaml.syncer({ doc, path, debounce });
-    syncer.$.subscribe(fireChange);
+    syncer.$.subscribe(emitChange);
     setParser(syncer);
 
     return syncer.dispose;
   }, [Obj.hash([...wrangle.docDeps(doc), path, debounce])]);
 
   /**
-   * Effect: Cursor path.
+   * Effect: Monitor cursor path.
    */
   useEffect(() => {
     if (!editor || !monaco) return;
     const observer = Path.observe({ bus$, editor });
-    observer.$.subscribe((e) => {
-      setCursor(e);
-      fireChange();
-    });
+    observer.$.subscribe((e) => setCursor(e));
     return observer.dispose;
   }, [editor?.getId(), !!monaco]);
+
+  /**
+   * Effect: Ready.
+   */
+  useEffect(() => {
+    Bus.emit(bus$, { kind: 'editor:yaml:ready', yaml: api });
+  }, []);
 
   /**
    * API:

@@ -44,7 +44,7 @@ describe('Monaco.Folding', () => {
         const bus$ = Bus.make();
         const ob = EditorFolding.observe({ editor, bus$ });
 
-        const fired: t.EventEditorFolding[] = [];
+        const fired: t.EventCrdtFoldingChange[] = [];
         ob.$.subscribe((e) => fired.push(e));
 
         const fold: t.Monaco.I.IRange = {

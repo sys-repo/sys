@@ -143,7 +143,7 @@ describe(`Editor Events`, () => {
       // allow sync emissions to flush (they already have, but keep structure)
       sub.unsubscribe();
 
-      expect(seen.map((e) => e.kind)).to.eql(['editor:debug', 'editor:crdt:folding.ready']);
+      expect(seen.map((e) => e.kind)).to.eql(['editor:debug', 'editor:crdt:folding:ready']);
     });
 
     it('ofPrefix: Rx operator filters stream by prefix', () => {
@@ -172,7 +172,7 @@ describe(`Editor Events`, () => {
 
       sub.unsubscribe();
 
-      expect(crdtKinds).to.eql(['editor:crdt:text', 'editor:crdt:folding.ready']);
+      expect(crdtKinds).to.eql(['editor:crdt:text', 'editor:crdt:folding:ready']);
     });
 
     it('composition: prefix → kind', () => {
