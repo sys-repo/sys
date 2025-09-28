@@ -85,7 +85,7 @@ describe(`Editor Events`, () => {
     });
   });
 
-  describe('Bus.Filter', () => {
+  describe('Bus.Filter (type tools)', () => {
     it('isKind: type guard + runtime truthiness', () => {
       const debug: t.EditorEvent = { kind: 'editor:debug', msg: 'hi' };
       const foldingReady: t.EditorEvent = { kind: 'editor:crdt:folding.ready', areas: [] };
