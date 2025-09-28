@@ -29,7 +29,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
 
   const fireChange = useCallback(() => {
     setCount((n) => n + 1);
-    Bus.emit(bus$, { kind: 'yaml', yaml: api });
+    Bus.emit(bus$, { kind: 'yaml:change', yaml: api });
   }, [bus$]);
 
   /**

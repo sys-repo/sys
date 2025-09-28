@@ -43,7 +43,7 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
     const life = Rx.disposable();
     const $ = bus$.pipe(
       Rx.takeUntil(life.dispose$),
-      Rx.filter((e) => e.kind === 'yaml'),
+      Rx.filter((e) => e.kind === 'yaml:change'),
     );
     $.subscribe((e) => (signals.yaml.value = e.yaml));
     return life.dispose;
