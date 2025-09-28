@@ -1,4 +1,5 @@
 import { type t } from './common.ts';
+
 import { bindFoldMarks } from './u.bind.ts';
 import { getHiddenAreas } from './u.hidden.ts';
 import { toMarkRanges } from './u.mark.ts';
@@ -15,6 +16,6 @@ export const EditorFolding: t.EditorFoldingLib = {
   getHiddenAreas,
 
   // CRDT binding:
-  useFoldMarks,
   bindFoldMarks,
+  useFoldMarks,
 };

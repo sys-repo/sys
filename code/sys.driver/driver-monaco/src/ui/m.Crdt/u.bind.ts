@@ -16,9 +16,9 @@ import { diffToSplices } from './u.diffToSplices.ts';
  *    other while still keeping both worlds fully undoable.
  *
  */
-export const bind: t.EditorCrdtLib['bind'] = async (args) => {
+export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
   const { editor, doc, path } = args;
-  const life = Rx.lifecycle(args.until);
+  const life = Rx.lifecycle(until);
   const schedule = Schedule.make(life, 'micro');
   let model = editor.getModel() ?? undefined;
 

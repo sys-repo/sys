@@ -1,83 +1,65 @@
-import { type t, Bus, Rx, Schedule } from './common.ts';
+import { type t, Bus, RangeUtil, Rx, Schedule } from './common.ts';
 import { getHiddenAreas } from './u.hidden.ts';
 import { equalRanges } from './u.ts';
+
+const toSE = RangeUtil.toStartEnd;
 
 export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
   const editor = args.editor as t.Monaco.Editor;
   const bus$ = args.bus$ ?? Bus.make();
-
-  // Lifecycle:
   const life = Rx.lifecycle(until);
 
-  // State:
-  let areas: t.Monaco.I.IRange[] = snap();
-  let initialAnnounced = false; // have we sent {initial:true} yet?
+  /**
+   * Safe reader:
+   * - During model swaps/teardown the editor's model or view-model can be null.
+   * - Return [] in that case to avoid crashing and to represent “no folded areas”.
+   */
+  const readAreas = () =>
+    editor.getModel() ? getHiddenAreas(editor) : ([] as t.Monaco.I.IRange[]);
 
-  // Helpers:
-  function snap() {
-    return getHiddenAreas(editor);
-  }
+  let areas = readAreas();
+  let initialSent = false;
 
-  function emitFolding(next: t.Monaco.I.IRange[], asInitial: boolean) {
+  const emit = (next: t.Monaco.I.IRange[], initial = false) => {
     if (life.disposed) return;
     const evt: t.EventEditorFolding =
-      asInitial && !initialAnnounced
+      initial && !initialSent
         ? { kind: 'editor:folding', areas: next, initial: true }
         : { kind: 'editor:folding', areas: next };
-
     Bus.emit(bus$, evt);
-    if (evt.initial) initialAnnounced = true;
-  }
+    if ((evt as any).initial) initialSent = true;
+  };
 
-  // Public stream:
+  // Public observable: folding events, deduped
   const $ = bus$.pipe(
     Rx.takeUntil(life.dispose$),
     Rx.filter((e) => e.kind === 'editor:folding'),
-    Rx.auditTime(0),
-    Rx.throttleTime(0, undefined, { leading: true, trailing: true }),
+    Rx.auditTime(0), // coalesce per microtask
     Rx.distinctUntilChanged((p, q) => equalRanges(p.areas.map(toSE), q.areas.map(toSE))),
   );
 
-  /**
-   * Event listeners:
-   * - Hidden areas: emit immediately; first one carries {initial:true}.
-   */
-  const subHiddenAreas = editor.onDidChangeHiddenAreas(() => {
-    areas = snap();
-    emitFolding(areas, /* asInitial */ true); // first change announces initial
+  // Editor folds changed → emit (first one carries {initial:true})
+  const subHidden = editor.onDidChangeHiddenAreas(() => emit(readAreas(), true));
+  life.dispose$.subscribe(() => subHidden.dispose());
+
+  // Model changed → emit baseline snapshot (not initial-gating)
+  const subModel = editor.onDidChangeModel(() => {
+    areas = readAreas();
+    emit(areas, false);
+    subModel.dispose();
   });
 
-  life.dispose$.subscribe(() => subHiddenAreas.dispose());
-
-  /**
-   * Model change: emit a baseline snapshot (non-initial) so consumers
-   * have something to compare against; this does not flip UI.
-   */
-  const subonceInit = editor.onDidChangeModel(() => {
-    /**
-     * TODO 🐷
-     */
-    const now = snap();
-    areas = now;
-    emitFolding(now, /* asInitial */ false);
-    subonceInit.dispose();
+  // Fallback: ensure at least one {initial:true} after 2 frames
+  Schedule.frames(2).then(() => {
+    if (!life.disposed && !initialSent) {
+      areas = readAreas();
+      emit(areas, true);
+    }
   });
 
   /**
-   * Fallback: if no hidden-areas change occurs, after two RAFs announce
-   * a one-time {initial:true} snapshot.
+   * API:
    */
-  Schedule.frames(3).then(() => {
-    if (life.disposed || initialAnnounced) return;
-
-    const now = snap();
-    areas = now;
-    emitFolding(now, /* asInitial */ true);
-
-    console.log(`🌼🌼🌼🌼🌼🌼🌼🌼🌼`);
-  });
-
-  // API:
   return Rx.toLifecycle<t.EditorFoldingAreaObserver>(life, {
     get $() {
       return $;
@@ -87,6 +69,3 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
     },
   });
 };
-
-/** Helpers */
-const toSE = (r: t.Monaco.I.IRange) => ({ start: r.startLineNumber, end: r.endLineNumber });

@@ -3,18 +3,20 @@ import type { t } from './common.ts';
 /**
  * Method: setup binding.
  */
-export type EditorCrdtBind = (args: {
-  /** Unifiying shared event bus. */
-  bus$: t.EditorEventBus;
-  /** The code-editor being bound to. */
-  editor: t.Monaco.Editor;
-  /** The CRDT document being bound to. */
-  doc: t.CrdtRef;
-  /** Path to the field representing the editor text. */
-  path: t.ObjectPath;
+export type EditorCrdtBind = (
+  args: {
+    /** Unifiying shared event bus. */
+    bus$: t.EditorEventBus;
+    /** The code-editor being bound to. */
+    editor: t.Monaco.Editor;
+    /** The CRDT document being bound to. */
+    doc: t.CrdtRef;
+    /** Path to the field representing the editor text. */
+    path: t.ObjectPath;
+  },
   /** Destructor trigger. */
-  until?: t.UntilInput;
-}) => Promise<t.EditorCrdtBinding>;
+  until?: t.UntilInput,
+) => Promise<t.EditorCrdtBinding>;
 
 /**
  * A live binding between a Monaco code-editor and

@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-
-import { type t, Dispose, EditorFolding, Obj, Rx, Schedule, useBus } from './common.ts';
+import { Dispose, EditorFolding, Fn, Obj, Rx, Schedule, type t, useBus } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
 
 export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
@@ -8,39 +7,51 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   const pathKey = useMemo(() => Obj.hash(path), [path]);
 
   /**
-   * Hooks/Refs:
+   * Refs:
    */
   const bindingRef = useRef<t.EditorCrdtBinding>(undefined);
   const bus$ = useBus(args.bus$);
 
   /**
-   * Sub-Hooks:
+   * Hooks:
    */
   EditorFolding.useFoldMarks({ bus$, editor, doc, path, enabled: foldMarks });
 
   /**
-   * Effect: setup and tear-down the Monaco↔CRDT binding.
+   * Effect: Monaco ↔ CRDT binding
    */
   useEffect(() => {
     if (!(doc && path && editor && monaco)) return;
 
     const life = Rx.lifecycle();
-    const schedule = Schedule.make(life, 'micro');
 
-    EditorCrdt.bind({ editor, doc, path, bus$, until: life }).then((binding) => {
+    // NOTE: correct call form: (args, until)
+    EditorCrdt.bind({ editor, doc, path, bus$ }, life).then((binding) => {
       if (life.disposed) return binding.dispose();
       bindingRef.current = binding;
 
-      // Fire onReady on a microtask so callers observe a settled binding.
       const dispose$ = binding.dispose$;
-      schedule(() => onReady?.({ editor, monaco, binding, dispose$ }));
+      const fireReady = Fn.onceOnly(() => {
+        void Schedule.queue(() => onReady?.({ editor, monaco, binding, dispose$ }), 'micro', life);
+      });
+
+      if (!foldMarks) {
+        // No folding to wait for: signal ready next microtask.
+        fireReady();
+        return;
+      }
+
+      // Wait for the first stable hidden-areas snapshot before ready.
+      const obs = EditorFolding.observe({ editor, bus$ }, life);
+      obs.$.pipe(
+        Rx.filter((e) => !!e.initial),
+        Rx.take(1),
+      ).subscribe(fireReady);
     });
 
     return life.dispose;
-  }, [editor, monaco, doc?.id, doc?.instance, pathKey]);
+  }, [editor, monaco, doc?.id, doc?.instance, pathKey, foldMarks]);
 
-  /**
-   * API:
-   */
+  // API
   return bindingRef.current ? Dispose.omitDispose(bindingRef.current) : undefined;
 };
