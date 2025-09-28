@@ -20,7 +20,7 @@ export const YamlEditor: React.FC<P> = (props) => {
    * Hooks:
    */
   const controller = useYamlController(bus$, props);
-  const { yaml, signals, doc } = controller;
+  const { ready, yaml, signals, doc } = controller;
 
   /**
    * Effect: Alert listeners when CRDT document-loaded.
@@ -53,7 +53,7 @@ export const YamlEditor: React.FC<P> = (props) => {
   const elNoPath = !path && <NotReady theme={theme.name} label={'No document path'} />;
   const elError = elNoRepo || elNoPath;
 
-  const elMain = elError || <Body {...props} signals={signals} />;
+  const elMain = elError || <Body {...props} ready={ready} signals={signals} />;
 
   const elFooter = (
     <YamlEditorFooter

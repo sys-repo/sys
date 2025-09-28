@@ -3,13 +3,16 @@ import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
 import { type t, Color, Cropmarks, css, D, DocumentId } from './common.ts';
 import { NotReady } from './ui.NotReady.tsx';
 
-type P = Omit<t.YamlEditorProps, 'signals' | 'onReady'> & { signals: t.YamlEditorSignals };
+type P = Omit<t.YamlEditorProps, 'signals' | 'onReady'> & {
+  ready: boolean;
+  signals: t.YamlEditorSignals;
+};
 
 /**
  * Component:
  */
 export const Body: React.FC<P> = (props) => {
-  const { debug = false, repo, signals, path, editor = {} } = props;
+  const { debug = false, ready, repo, signals, path, editor = {} } = props;
   const doc = signals.doc.value;
 
   const DOC = {
@@ -67,11 +70,13 @@ export const Body: React.FC<P> = (props) => {
     </div>
   );
 
+  const editorKey = `monaco-${doc?.id ?? 'none'}-${path?.join('.') ?? ''}`;
   const elEditor = doc && (
     <MonacoEditor
-      key={`monaco-${doc?.id ?? 'none'}-${path?.join('.') ?? ''}`}
+      key={editorKey}
       debug={debug}
       theme={theme.name}
+      spinning={!ready}
       language={'yaml'}
       autoFocus={editor.autoFocus}
       tabSize={editor.tabSize}

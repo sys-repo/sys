@@ -58,6 +58,27 @@ export function impl(args: {
     }
   }
 
+  function fireInitial(marks: t.Crdt.Marks.Mark[]) {
+    if (initialFired) return;
+    initialFired = true;
+
+    const kind: t.EditorEvent['kind'] = 'editor:crdt:folding:ready';
+    const ready = (areas: IRange[]) => Bus.emit(bus$, { kind, areas });
+
+    const isEmpty = model.getValueLength() === 0;
+    if (isEmpty || marks.length === 0) {
+      ready([]);
+    } else {
+      observer.$.pipe(
+        Rx.take(1),
+        Rx.timeout({ first: 1000 }), // NB: fallback so <ready> can't deadlock.
+      ).subscribe({
+        next: (e) => ready(e.areas),
+        error: () => ready([]),
+      });
+    }
+  }
+
   /**
    * CRDT → Editor: read CRDT marks and apply to Monaco (if needed).
    * Comparison is done in offsets to avoid churn.
@@ -70,8 +91,6 @@ export function impl(args: {
       return; // Path is missing / unsafe to read right now.
     }
 
-    if (model.getValueLength() === 0) return;
-
     const marks = rawMarks.filter((m) => m.name === D.FOLD_MARK);
     const nextOffsets = marks.map((m) => clampOffsetSE(model, m));
 
@@ -80,16 +99,7 @@ export function impl(args: {
     const currentOffsets = currentMarkRanges.map((r) => clampOffsetSE(model, r));
 
     // Fire initial <ready> event.
-    if (!initialFired) {
-      initialFired = true;
-
-      const kind: t.EditorEvent['kind'] = 'editor:crdt:folding:ready';
-      const ready = (areas: IRange[]) => Bus.emit(bus$, { kind, areas });
-
-      if (marks.length === 0) ready([]);
-      else observer.$.pipe(Rx.take(1)).subscribe((e) => ready(e.areas));
-    }
-
+    if (!initialFired) fireInitial(marks);
     if (equalOffsets(currentOffsets, nextOffsets)) {
       readyForEditorWrites = true;
       return;
