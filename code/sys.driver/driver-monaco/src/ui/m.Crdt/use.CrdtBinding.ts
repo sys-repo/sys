@@ -35,7 +35,7 @@ export const useCrdtBinding: t.UseEditorCrdtBinding = (args, onReady) => {
     });
 
     return life.dispose;
-  }, [bus$, editor, monaco, doc?.id, doc?.instance, pathKey, foldMarks]);
+  }, [editor, monaco, doc?.id, doc?.instance, pathKey, foldMarks]);
 
   /**
    * Start child behaviors:

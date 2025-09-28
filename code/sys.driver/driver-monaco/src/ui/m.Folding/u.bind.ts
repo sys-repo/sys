@@ -13,7 +13,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
   const bus$ = args.bus$ ?? Bus.make();
   const $ = bus$.pipe(
     Rx.takeUntil(life.dispose$),
-    Rx.filter((e) => e.kind === 'editor:marks'),
+    Rx.filter((e) => e.kind === 'editor:crdt:marks'),
   );
 
   const api = Rx.toLifecycle<t.EditorFoldBinding>(life, { $ });

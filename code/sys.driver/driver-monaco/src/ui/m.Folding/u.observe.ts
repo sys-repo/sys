@@ -17,13 +17,13 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
   const emit = (next: IRange[], trigger: t.EventEditorFolding['trigger']) => {
     if (life.disposed) return;
     areas = next; // keep snapshot current
-    Bus.emit(bus$, { kind: 'editor:folding', trigger, areas });
+    Bus.emit(bus$, { kind: 'editor:crdt:folding', trigger, areas });
   };
 
   // Public observable: folding events, coalesced & deduped.
   const $ = bus$.pipe(
     Rx.takeUntil(life.dispose$),
-    Rx.filter((e) => e.kind === 'editor:folding'),
+    Rx.filter((e) => e.kind === 'editor:crdt:folding'),
     Rx.auditTime(0), // ← coalesce per microtask.
     Rx.distinctUntilChanged((p, q) => equalRanges(p.areas.map(toSE), q.areas.map(toSE))),
   );

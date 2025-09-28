@@ -23,7 +23,7 @@ export function monitorReady(args: {
 
   // Wait exactly once for code-folding to settle:
   $.pipe(
-    Rx.filter((e) => e.kind === 'editor:folding.ready'),
+    Rx.filter((e) => e.kind === 'editor:crdt:folding.ready'),
     Rx.take(1),
   ).subscribe(emitReady);
 }

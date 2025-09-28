@@ -35,7 +35,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
   const bus$ = args.bus$ ?? Bus.make();
   const fire = (trigger: 'editor' | 'crdt', before: string, after: string) => {
     if (after === before) return;
-    Bus.emit(bus$, { kind: 'editor:text', trigger, path, change: { before, after } });
+    Bus.emit(bus$, { kind: 'editor:crdt:text', trigger, path, change: { before, after } });
   };
 
   const getValue = () => {

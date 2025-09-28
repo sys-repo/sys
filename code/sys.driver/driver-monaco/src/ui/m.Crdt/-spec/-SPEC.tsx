@@ -12,7 +12,7 @@ import { LoadSplash } from './-ui.LoadSplash.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
-  const { bus$, repo } = debug;
+  const repo = debug.repo;
   const p = debug.props;
 
   function HostDocumentId(props: t.DocumentIdProps) {
@@ -56,6 +56,8 @@ export default Spec.describe(D.displayName, async (e) => {
         console.info(`⚡️ editor/crdt:binding.$`, e);
         if (e.kind === 'editor:marks') p.hiddenAreas.value = e.change.after;
         if (e.kind === 'editor:folding') p.hiddenAreas.value = e.areas;
+        if (e.kind === 'editor:crdt:marks') p.hiddenAreas.value = e.change.after;
+        if (e.kind === 'editor:crdt:folding') p.hiddenAreas.value = e.areas;
       });
     });
 

@@ -82,12 +82,12 @@ export function impl(args: {
     // Fire initial <ready> event.
     if (!initialFired) {
       initialFired = true;
-      const ready = (areas: IRange[]) => Bus.emit(bus$, { kind: 'editor:folding.ready', areas });
-      if (marks.length === 0) {
-        ready([]);
-      } else {
-        observer.$.pipe(Rx.take(1)).subscribe((e) => ready(e.areas));
-      }
+
+      const kind: t.EditorEvent['kind'] = 'editor:crdt:folding.ready';
+      const ready = (areas: IRange[]) => Bus.emit(bus$, { kind, areas });
+
+      if (marks.length === 0) ready([]);
+      else observer.$.pipe(Rx.take(1)).subscribe((e) => ready(e.areas));
     }
 
     if (equalOffsets(currentOffsets, nextOffsets)) {
