@@ -7,7 +7,7 @@ export type UseEditorYaml = (args: UseEditorYamlArgs) => t.EditorYaml;
 
 /** Arguments passed to the `useYaml` hook. */
 export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> & {
-  bus$: t.EditorEventBus;
+  bus$?: t.EditorEventBus;
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
   /** Render red squiggles from YAML errors. (default = off) */

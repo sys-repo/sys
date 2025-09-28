@@ -47,7 +47,7 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
     );
     $.subscribe((e) => (signals.yaml.value = e.yaml));
     return life.dispose;
-  }, [bus$, signals.yaml]);
+  }, [signals.yaml]);
 
   /**
    * API:

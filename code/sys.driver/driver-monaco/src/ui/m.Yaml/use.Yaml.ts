@@ -53,7 +53,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
    */
   useEffect(() => {
     if (!editor || !monaco) return;
-    const observer = Path.observe({ editor });
+    const observer = Path.observe({ bus$, editor });
     observer.$.subscribe((e) => {
       setCursor(e);
       fireChange();

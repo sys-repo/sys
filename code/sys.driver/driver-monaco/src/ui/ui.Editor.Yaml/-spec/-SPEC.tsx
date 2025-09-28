@@ -34,8 +34,8 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             onReady={(e) => {
-              console.info(`⚡️ onReady:`, e);
-              e.binding.$.subscribe((e) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, e));
+              console.info(`⚡️ Monaco.Yaml.Editor:onReady:`, e);
+              e.$.subscribe((e) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, e));
 
               Monaco.Crdt.Link.enable(e, repo, {
                 onCreate: (ev) => console.info('Monaco.Crdt.Link.enable → ⚡️ onCreate:', ev),
