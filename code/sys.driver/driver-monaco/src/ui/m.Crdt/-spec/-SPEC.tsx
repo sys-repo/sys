@@ -37,7 +37,7 @@ export default Spec.describe(D.displayName, async (e) => {
   function HostSubject() {
     const v = Signal.toObject(p);
     const { monaco, editor, doc, path } = v;
-    const renderKey = `${v.doc?.id}:${v.path?.join('.')}`;
+    const bus$ = debug.bus$;
 
     /**
      * Visibility flag:
@@ -54,8 +54,6 @@ export default Spec.describe(D.displayName, async (e) => {
 
       e.$.subscribe((e) => {
         console.info(`⚡️ editor/crdt:binding.$`, e);
-        if (e.kind === 'editor:marks') p.hiddenAreas.value = e.change.after;
-        if (e.kind === 'editor:folding') p.hiddenAreas.value = e.areas;
         if (e.kind === 'editor:crdt:marks') p.hiddenAreas.value = e.change.after;
         if (e.kind === 'editor:crdt:folding') p.hiddenAreas.value = e.areas;
       });
@@ -65,6 +63,7 @@ export default Spec.describe(D.displayName, async (e) => {
      * Render:
      */
     if (!v.doc || !v.render) return <LoadSplash debug={debug} theme={v.theme} />;
+    const renderKey = `${v.doc?.id}:${v.path?.join('.')}`;
 
     return (
       <MonacoEditor
@@ -95,6 +94,7 @@ export default Spec.describe(D.displayName, async (e) => {
   function HostPath() {
     const v = Signal.toObject(p);
     const { monaco, editor, doc, path } = v;
+    const bus$ = debug.bus$;
 
     const yaml = Monaco.Yaml.useYaml({ bus$, monaco, editor, doc, path, errorMarkers: true });
     if (yaml.cursor.path.length === 0) return null;

@@ -1,4 +1,4 @@
-import { type t, Rx, Schedule } from './common.ts';
+import { type t, Bus, Rx, Schedule } from './common.ts';
 
 export function monitorReady(args: {
   bus$: t.EditorEventBus;
@@ -12,7 +12,7 @@ export function monitorReady(args: {
   if (life.disposed) return;
 
   const dispose$ = life.dispose$;
-  const $ = bus$.pipe(Rx.takeUntil(dispose$));
+  const $ = bus$.pipe(Rx.takeUntil(dispose$), Bus.Filter.ofPrefix('editor:crdt:'));
   const emitReady = () => onReadyRef.current?.({ $, editor, monaco, dispose$ });
 
   if (!foldMarks) {

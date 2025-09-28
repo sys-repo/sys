@@ -2,7 +2,7 @@ import React from 'react';
 
 import { type t, Dispose, EditorFolding, Obj, Rx, useBus } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
-import { monitorReady } from './use.CrdtBinding.monitor.ts';
+import { monitorReady } from './use.CrdtBinding.ready.ts';
 
 export const useCrdtBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   const { monaco, editor, doc, path, foldMarks = false } = args;

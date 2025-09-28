@@ -19,11 +19,10 @@ import {
 import { YamlSyncDebug } from './-u.yaml.tsx';
 
 type P = t.MonacoEditorProps;
-type Storage = Pick<P, 'language'> & {
-  theme?: t.CommonTheme;
-  debug?: boolean;
+type Storage = Pick<P, 'language' | 'theme' | 'debug'> & {
   path?: t.ObjectPath;
   debounce?: boolean;
+  logEventBus?: boolean;
 };
 const defaults: Storage = {
   theme: 'Dark',
@@ -31,6 +30,7 @@ const defaults: Storage = {
   debug: true,
   path: ['text'],
   debounce: true,
+  logEventBus: true,
 };
 
 export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
@@ -52,6 +52,7 @@ export async function createDebugSignals() {
 
   const props = {
     debug: s(snap.debug),
+    logEventBus: s(snap.logEventBus),
     render: s(false),
 
     theme: s(snap.theme),
@@ -87,12 +88,17 @@ export async function createDebugSignals() {
   Signal.effect(() => {
     store.change((d) => {
       d.debug = p.debug.value;
+      d.logEventBus = p.logEventBus.value;
       d.theme = p.theme.value;
       d.path = p.path.value;
       d.language = p.language.value;
       d.debounce = p.debounce.value;
     });
   });
+
+  api.bus$
+    .pipe(Rx.filter((e) => !!p.logEventBus.value))
+    .subscribe((e) => console.info(`💦 [bus]:`, e));
 
   return api;
 }
@@ -148,12 +154,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <Button
-        block
-        label={() => `debounce: ${p.debounce.value}`}
-        onClick={() => Signal.toggle(p.debounce)}
-      />
-
       <hr />
       <div className={Styles.title.class}>{'Alter CRDT Document:'}</div>
       <AlterDocumentButtons debug={debug} />
@@ -167,7 +167,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         show={['yaml', 'markdown', 'typescript']}
       />
 
-      {p.language.value === 'yaml' && (
+      {p.language.value === 'yaml' && p.logEventBus.value && (
         <YamlSyncDebug
           bus$={debug.bus$}
           doc={p.doc.value}
@@ -210,6 +210,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       )}
 
       <hr />
+      <div className={Styles.title.class}>{'Debug:'}</div>
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -217,9 +223,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `render: ${p.render.value}`}
-        onClick={() => Signal.toggle(p.render)}
+        label={() => `debounce: ${p.debounce.value}`}
+        onClick={() => Signal.toggle(p.debounce)}
       />
+      <Button
+        block
+        label={() => `log event-bus: ${p.logEventBus.value}`}
+        onClick={() => Signal.toggle(p.logEventBus)}
+      />
+      <hr />
       <Button
         block
         label={() => `(reset, reload)`}

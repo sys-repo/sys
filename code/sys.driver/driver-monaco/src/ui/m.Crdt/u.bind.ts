@@ -33,6 +33,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
   let _isPulling = false;
 
   const bus$ = args.bus$ ?? Bus.make();
+  const $ = bus$.pipe(Rx.takeUntil(life.dispose$), Bus.Filter.ofPrefix('editor:crdt:'));
   const fire = (trigger: 'editor' | 'crdt', before: string, after: string) => {
     if (after === before) return;
     Bus.emit(bus$, { kind: 'editor:crdt:text', trigger, path, change: { before, after } });
@@ -146,10 +147,14 @@ export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
     });
   });
 
+  // Cleanup:
   life.dispose$.subscribe(() => editorChangeSub.dispose());
 
+  /**
+   * API:
+   */
   return Rx.toLifecycle<t.EditorCrdtBinding>(life, {
-    $: bus$.pipe(Rx.takeUntil(life.dispose$)),
+    $,
     doc,
     path,
     model,
@@ -164,7 +169,7 @@ const wrangle = {
     const model = {} as any;
     return Rx.toLifecycle<t.EditorCrdtBinding>(life, { $: Rx.EMPTY, doc, path, model });
   },
-  change(before: string, after: string): t.EventText['change'] {
+  change(before: string, after: string): t.EventCrdtText['change'] {
     return {
       get before() {
         return before;
