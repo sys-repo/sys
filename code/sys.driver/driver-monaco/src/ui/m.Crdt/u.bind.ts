@@ -14,7 +14,6 @@ import { diffToSplices } from './u.diffToSplices.ts';
  *
  *  - A tiny "echo-guard" (`isPulling`) stops the two flows looping on each
  *    other while still keeping both worlds fully undoable.
- *
  */
 export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
   const { editor, doc, path } = args;
