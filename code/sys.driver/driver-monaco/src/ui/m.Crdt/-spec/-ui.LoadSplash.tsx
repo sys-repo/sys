@@ -21,6 +21,13 @@ export const LoadSplash: React.FC<LoadSplashProps> = (props) => {
   const label = hasDoc ? '🌳 load: (render → true)' : 'loading environment...';
 
   /**
+   * Handlers:
+   */
+  function handleClick() {
+    p.render.value = true;
+  }
+
+  /**
    * Render:
    */
   const theme = Color.theme(props.theme);
@@ -31,15 +38,20 @@ export const LoadSplash: React.FC<LoadSplashProps> = (props) => {
       display: 'grid',
       placeItems: 'center',
     }),
+    label: css({
+      fontFamily: 'monospace',
+      fontSize: 11,
+    }),
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} onClick={handleClick}>
       <Button
         label={label}
         enabled={enabled}
         theme={theme.name}
-        onClick={() => (p.render.value = true)}
+        onClick={handleClick}
+        style={styles.label}
       />
     </div>
   );
