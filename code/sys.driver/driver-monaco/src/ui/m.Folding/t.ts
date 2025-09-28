@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
 export type * from './t.bind.ts';
 
+export type FoldOffset = { start: number; end: number };
+
 /**
  * Tools for working with the code-hiding aspects
  * of the editor (aka. "code folding").
