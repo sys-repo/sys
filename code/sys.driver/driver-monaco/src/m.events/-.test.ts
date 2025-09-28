@@ -88,7 +88,7 @@ describe(`Editor Events`, () => {
   describe('Bus.Filter (type tools)', () => {
     it('isKind: type guard + runtime truthiness', () => {
       const debug: t.EditorEvent = { kind: 'editor:debug', msg: 'hi' };
-      const foldingReady: t.EditorEvent = { kind: 'editor:crdt:folding.ready', areas: [] };
+      const foldingReady: t.EditorEvent = { kind: 'editor:crdt:folding:ready', areas: [] };
 
       const isDebug = Bus.Filter.isKind('editor:debug');
 
@@ -129,7 +129,7 @@ describe(`Editor Events`, () => {
 
       const seen: t.EditorEvent[] = [];
       const sub = bus$
-        .pipe(Bus.Filter.ofKind('editor:debug', 'editor:crdt:folding.ready'))
+        .pipe(Bus.Filter.ofKind('editor:debug', 'editor:crdt:folding:ready'))
         .subscribe((e) => seen.push(e));
 
       Bus.emit(bus$, { kind: 'editor:debug', msg: 'a' }, 'sync');
@@ -138,7 +138,7 @@ describe(`Editor Events`, () => {
         { kind: 'editor:crdt:text', trigger: 'crdt', path: [], change: { before: '', after: '' } },
         'sync',
       );
-      Bus.emit(bus$, { kind: 'editor:crdt:folding.ready', areas: [] }, 'sync');
+      Bus.emit(bus$, { kind: 'editor:crdt:folding:ready', areas: [] }, 'sync');
 
       // allow sync emissions to flush (they already have, but keep structure)
       sub.unsubscribe();
@@ -168,7 +168,7 @@ describe(`Editor Events`, () => {
         },
         'sync',
       );
-      Bus.emit(bus$, { kind: 'editor:crdt:folding.ready', areas: [] }, 'sync');
+      Bus.emit(bus$, { kind: 'editor:crdt:folding:ready', areas: [] }, 'sync');
 
       sub.unsubscribe();
 
@@ -182,7 +182,7 @@ describe(`Editor Events`, () => {
       const sub = bus$
         .pipe(
           Bus.Filter.ofPrefix('editor:crdt:'), //      ← prefix narrow
-          Bus.Filter.ofKind('editor:crdt:folding'), // ← then exact kind
+          Bus.Filter.ofKind('editor:crdt:folding:change'), // ← then exact kind
         )
         .subscribe((e) => seen.push(e));
 
@@ -195,12 +195,12 @@ describe(`Editor Events`, () => {
       );
 
       // match
-      Bus.emit(bus$, { kind: 'editor:crdt:folding', trigger: 'editor', areas: [] }, 'sync');
+      Bus.emit(bus$, { kind: 'editor:crdt:folding:change', trigger: 'editor', areas: [] }, 'sync');
 
       sub.unsubscribe();
 
       expect(seen).to.have.length(1);
-      expect(seen[0].kind).to.equal('editor:crdt:folding');
+      expect(seen[0].kind).to.equal('editor:crdt:folding:change');
     });
 
     it('works as a predicate inside plain Rx.filter too', () => {

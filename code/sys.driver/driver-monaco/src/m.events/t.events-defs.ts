@@ -19,7 +19,7 @@ export type EventDebug = {
 /**
  * CRDT/Editor Events
  */
-export type EventCrdt = EventCrdtText | EventCrdtMarks | EventCrdtFolding | EventCrdtFoldingReady;
+export type EventCrdt = EventCrdtText | EventCrdtMarks | EventCrdtFolding;
 
 /** Fires when CRDT text changes (and is reflected in the editor). */
 export type EventCrdtText = {
@@ -40,12 +40,13 @@ export type EventCrdtMarks = {
 /**
  * Code Folding Events
  */
+export type EventCrdtFolding = EventCrdtFoldingReady | EventCrdtFoldingChange;
 export type EventCrdtFoldingReady = {
-  readonly kind: 'editor:crdt:folding.ready';
+  readonly kind: 'editor:crdt:folding:ready';
   readonly areas: IRange[];
 };
-export type EventCrdtFolding = {
-  readonly kind: 'editor:crdt:folding';
+export type EventCrdtFoldingChange = {
+  readonly kind: 'editor:crdt:folding:change';
   readonly trigger: Trigger;
   readonly areas: IRange[];
 };
@@ -53,15 +54,17 @@ export type EventCrdtFolding = {
 /**
  * YAML Editor Events
  */
-export type EventYaml = EventYamlChange | EventYamlCursorPath;
-
+export type EventYaml = EventYamlReady | EventYamlChange | EventYamlChangeCursorPath;
+export type EventYamlReady = {
+  readonly kind: 'editor:yaml:ready';
+  readonly yaml: t.EditorYaml;
+};
 export type EventYamlChange = {
   readonly kind: 'editor:yaml:change';
   readonly yaml: t.EditorYaml;
 };
-
-export type EventYamlCursorPath = {
-  readonly kind: 'editor:yaml:cursor.path';
+export type EventYamlChangeCursorPath = {
+  readonly kind: 'editor:yaml:change:cursor.path';
   readonly path: t.ObjectPath;
   readonly cursor?: { readonly position: IPosition; readonly offset: t.Index };
   readonly word?: IRange;

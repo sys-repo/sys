@@ -83,7 +83,7 @@ export function impl(args: {
     if (!initialFired) {
       initialFired = true;
 
-      const kind: t.EditorEvent['kind'] = 'editor:crdt:folding.ready';
+      const kind: t.EditorEvent['kind'] = 'editor:crdt:folding:ready';
       const ready = (areas: IRange[]) => Bus.emit(bus$, { kind, areas });
 
       if (marks.length === 0) ready([]);

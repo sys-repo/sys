@@ -17,8 +17,8 @@ export const useYaml: t.UseEditorYaml = (args) => {
    */
   const [, setCount] = useState(0);
   const [parser, setParser] = useState<t.YamlSyncParser>();
-  const [cursor, setCursor] = useState<t.EventYamlCursorPath>({
-    kind: 'editor:yaml:cursor.path',
+  const [cursor, setCursor] = useState<t.EventYamlChangeCursorPath>({
+    kind: 'editor:yaml:change:cursor.path',
     path: [],
   });
 
