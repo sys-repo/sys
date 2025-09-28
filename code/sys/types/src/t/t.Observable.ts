@@ -1,1 +1,1 @@
-export type { Observable, Subject } from 'rxjs';
+export type { Observable, OperatorFunction, Subject } from 'rxjs';

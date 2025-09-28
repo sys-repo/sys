@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-export type * from './t.Bus.ts';
 
 type IPosition = t.Monaco.I.IPosition;
 type IRange = t.Monaco.I.IRange;
@@ -12,7 +11,6 @@ export type EditorEvent =
   | EventDebug
   | EventText
   | EventMarks
-  | EventYamlCursorPath
   | EventEditorFolding
   | EventEditorFoldingReady
   | EventYaml;
@@ -25,7 +23,7 @@ export type EventDebug = {
 
 /** Fires when CRDT text changes (and is reflected in the editor). */
 export type EventText = {
-  readonly kind: 'editor:text';
+  readonly kind: 'editor:crdt:text';
   readonly trigger: Trigger;
   readonly path: t.ObjectPath;
   readonly change: { readonly before: string; readonly after: string };
@@ -33,7 +31,7 @@ export type EventText = {
 
 /** Fires when CRDT mark ranges change (folds are a view of these). */
 export type EventMarks = {
-  readonly kind: 'editor:marks';
+  readonly kind: 'editor:crdt:marks';
   readonly trigger: Trigger;
   readonly path: t.ObjectPath;
   readonly change: { readonly before: IRange[]; readonly after: IRange[] };
@@ -43,11 +41,11 @@ export type EventMarks = {
  * Code Folding Events
  */
 export type EventEditorFoldingReady = {
-  readonly kind: 'editor:folding.ready';
+  readonly kind: 'editor:crdt:folding.ready';
   readonly areas: IRange[];
 };
 export type EventEditorFolding = {
-  readonly kind: 'editor:folding';
+  readonly kind: 'editor:crdt:folding';
   readonly trigger: Trigger;
   readonly areas: IRange[];
 };
@@ -55,7 +53,9 @@ export type EventEditorFolding = {
 /**
  * YAML Editor Events
  */
-export type EventYaml = {
+export type EventYaml = EventYamlChange | EventYamlCursorPath;
+
+export type EventYamlChange = {
   readonly kind: 'editor:yaml:change';
   readonly yaml: t.EditorYaml;
 };

@@ -1,6 +1,8 @@
 import { type t, Rx, Schedule } from './common.ts';
+import { Filter } from './u.Filter.ts';
 
 export const Bus: t.EventBusLib = {
+  Filter,
   make: () => Rx.subject<t.EditorEvent>(),
   emit,
 };
