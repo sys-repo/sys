@@ -181,8 +181,8 @@ describe(`Editor Events`, () => {
       const seen: t.EditorEvent[] = [];
       const sub = bus$
         .pipe(
-          Bus.Filter.ofPrefix('editor:crdt:'), // prefix narrow
-          Bus.Filter.ofKind('editor:crdt:folding'), // then exact kind
+          Bus.Filter.ofPrefix('editor:crdt:'), //      ← prefix narrow
+          Bus.Filter.ofKind('editor:crdt:folding'), // ← then exact kind
         )
         .subscribe((e) => seen.push(e));
 
