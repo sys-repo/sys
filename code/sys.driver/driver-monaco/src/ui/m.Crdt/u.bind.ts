@@ -35,7 +35,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
   const bus$ = args.bus$ ?? Bus.make();
   const fire = (trigger: 'editor' | 'crdt', before: string, after: string) => {
     if (after === before) return;
-    Bus.emit(bus$, { kind: 'text', trigger, path, change: { before, after } });
+    Bus.emit(bus$, { kind: 'editor:text', trigger, path, change: { before, after } });
   };
 
   const getValue = () => {
@@ -107,7 +107,6 @@ export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
   let flushing = false;
   let planBefore: string | null = null;
   let planAfter: string | null = null;
-
   const editorChangeSub = model.onDidChangeContent(() => {
     if (!hasPath || _isPulling || life.disposed || model.isDisposed()) return;
 

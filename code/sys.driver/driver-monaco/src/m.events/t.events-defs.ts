@@ -8,11 +8,24 @@ type Trigger = 'editor' | 'crdt';
 /**
  * Events (CRDT-centric): text + marks
  */
-export type EditorEvent = EventText | EventMarks | EventCursorPath | EventEditorFolding | EventYaml;
+export type EditorEvent =
+  | EventDebug
+  | EventText
+  | EventMarks
+  | EventYamlCursorPath
+  | EventEditorFolding
+  | EventEditorFoldingReady
+  | EventYaml;
+
+export type EventDebug = {
+  readonly kind: 'editor:debug';
+  readonly msg?: string;
+  readonly source?: string;
+};
 
 /** Fires when CRDT text changes (and is reflected in the editor). */
 export type EventText = {
-  readonly kind: 'text';
+  readonly kind: 'editor:text';
   readonly trigger: Trigger;
   readonly path: t.ObjectPath;
   readonly change: { readonly before: string; readonly after: string };
@@ -20,26 +33,35 @@ export type EventText = {
 
 /** Fires when CRDT mark ranges change (folds are a view of these). */
 export type EventMarks = {
-  readonly kind: 'marks';
+  readonly kind: 'editor:marks';
   readonly trigger: Trigger;
   readonly path: t.ObjectPath;
   readonly change: { readonly before: IRange[]; readonly after: IRange[] };
 };
 
-export type EventCursorPath = {
-  readonly kind: 'cursor-path';
-  readonly path: t.ObjectPath;
-  readonly cursor?: { readonly position: IPosition; readonly offset: t.Index };
-  readonly word?: IRange;
+/**
+ * Code Folding Events
+ */
+export type EventEditorFoldingReady = {
+  readonly kind: 'editor:folding.ready';
+  readonly areas: IRange[];
 };
-
 export type EventEditorFolding = {
   readonly kind: 'editor:folding';
   readonly areas: IRange[];
-  readonly initial?: boolean;
 };
 
+/**
+ * YAML Editor Events
+ */
 export type EventYaml = {
-  readonly kind: 'yaml';
+  readonly kind: 'editor:yaml:change';
   readonly yaml: t.EditorYaml;
+};
+
+export type EventYamlCursorPath = {
+  readonly kind: 'editor:yaml:cursor.path';
+  readonly path: t.ObjectPath;
+  readonly cursor?: { readonly position: IPosition; readonly offset: t.Index };
+  readonly word?: IRange;
 };

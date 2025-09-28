@@ -17,7 +17,10 @@ export const useYaml: t.UseEditorYaml = (args) => {
    */
   const [, setCount] = useState(0);
   const [parser, setParser] = useState<t.YamlSyncParser>();
-  const [cursor, setCursor] = useState<t.EventCursorPath>({ kind: 'cursor-path', path: [] });
+  const [cursor, setCursor] = useState<t.EventYamlCursorPath>({
+    kind: 'editor:yaml:cursor.path',
+    path: [],
+  });
 
   /** YAML parsing diagnostics: */
   useErrorMarkers({
@@ -29,7 +32,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
 
   const fireChange = useCallback(() => {
     setCount((n) => n + 1);
-    Bus.emit(bus$, { kind: 'yaml:change', yaml: api });
+    Bus.emit(bus$, { kind: 'editor:yaml:change', yaml: api });
   }, [bus$]);
 
   /**
