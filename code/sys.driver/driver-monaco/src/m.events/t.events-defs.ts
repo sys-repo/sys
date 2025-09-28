@@ -7,22 +7,22 @@ type Trigger = 'editor' | 'crdt';
 /**
  * Events (CRDT-centric): text + marks
  */
-export type EditorEvent =
-  | EventDebug
-  | EventText
-  | EventMarks
-  | EventEditorFolding
-  | EventEditorFoldingReady
-  | EventYaml;
+export type EditorEvent = EventDebug | EventCrdt | EventYaml;
 
+/** Generic debug event (helper). */
 export type EventDebug = {
   readonly kind: 'editor:debug';
   readonly msg?: string;
   readonly source?: string;
 };
 
+/**
+ * CRDT/Editor Events
+ */
+export type EventCrdt = EventCrdtText | EventCrdtMarks | EventCrdtFolding | EventCrdtFoldingReady;
+
 /** Fires when CRDT text changes (and is reflected in the editor). */
-export type EventText = {
+export type EventCrdtText = {
   readonly kind: 'editor:crdt:text';
   readonly trigger: Trigger;
   readonly path: t.ObjectPath;
@@ -30,7 +30,7 @@ export type EventText = {
 };
 
 /** Fires when CRDT mark ranges change (folds are a view of these). */
-export type EventMarks = {
+export type EventCrdtMarks = {
   readonly kind: 'editor:crdt:marks';
   readonly trigger: Trigger;
   readonly path: t.ObjectPath;
@@ -40,11 +40,11 @@ export type EventMarks = {
 /**
  * Code Folding Events
  */
-export type EventEditorFoldingReady = {
+export type EventCrdtFoldingReady = {
   readonly kind: 'editor:crdt:folding.ready';
   readonly areas: IRange[];
 };
-export type EventEditorFolding = {
+export type EventCrdtFolding = {
   readonly kind: 'editor:crdt:folding';
   readonly trigger: Trigger;
   readonly areas: IRange[];

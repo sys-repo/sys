@@ -14,7 +14,7 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
   const readAreas = (): IRange[] => (editor.getModel() ? getHiddenAreas(editor) : []);
   let areas = readAreas();
 
-  const emit = (next: IRange[], trigger: t.EventEditorFolding['trigger']) => {
+  const emit = (next: IRange[], trigger: t.EventCrdtFolding['trigger']) => {
     if (life.disposed) return;
     areas = next; // keep snapshot current
     Bus.emit(bus$, { kind: 'editor:crdt:folding', trigger, areas });

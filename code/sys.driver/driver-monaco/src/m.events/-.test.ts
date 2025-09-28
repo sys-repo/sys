@@ -8,7 +8,7 @@ describe(`Editor Events`, () => {
       const seen: t.EditorEvent[] = [];
       const sub = bus$.subscribe((e) => seen.push(e));
 
-      const evt: t.EventText = {
+      const evt: t.EventCrdtText = {
         kind: 'editor:crdt:text',
         trigger: 'editor',
         path: ['doc'] as t.ObjectPath,
@@ -25,7 +25,7 @@ describe(`Editor Events`, () => {
       const seen: t.EditorEvent[] = [];
       bus$.subscribe((e) => seen.push(e));
 
-      const evt: t.EventText = {
+      const evt: t.EventCrdtText = {
         kind: 'editor:crdt:text',
         trigger: 'editor',
         path: ['foo'] as t.ObjectPath,

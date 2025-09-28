@@ -74,7 +74,7 @@ export function parentLinesFromOffsets(model: TextModel, offsets: t.FoldOffset[]
 
 /** Curried "marks" emitter with model/bus/path baked in. */
 export function makeMarksEmitter(bus$: t.EditorEventBus, model: TextModel, path: t.ObjectPath) {
-  return (trigger: t.EventMarks['trigger'], prev: t.FoldOffset[], next: t.FoldOffset[]) => {
+  return (trigger: t.EventCrdtMarks['trigger'], prev: t.FoldOffset[], next: t.FoldOffset[]) => {
     if (equalOffsets(prev, next)) return;
 
     const before = offsetsToRanges(model, prev);

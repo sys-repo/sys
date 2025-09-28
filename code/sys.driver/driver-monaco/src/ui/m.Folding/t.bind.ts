@@ -37,5 +37,5 @@ export type BindFoldMarksArgs = {
  * An instance of an editor fold-marks binding.
  */
 export type EditorFoldBinding = t.Lifecycle & {
-  readonly $: t.Observable<t.EventMarks>;
+  readonly $: t.Observable<t.EventCrdtMarks>;
 };
