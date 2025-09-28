@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Dispose, EditorFolding, Fn, Obj, Rx, Schedule, type t, useBus } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
 
-export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
+export const useCrdtBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   const { monaco, editor, doc, path, foldMarks = false } = args;
   const pathKey = useMemo(() => Obj.hash(path), [path]);
 
@@ -10,11 +10,11 @@ export const useBinding: t.UseEditorCrdtBinding = (args, onReady) => {
    * Refs:
    */
   const bindingRef = useRef<t.EditorCrdtBinding>(undefined);
-  const bus$ = useBus(args.bus$);
 
   /**
    * Hooks:
    */
+  const bus$ = useBus(args.bus$);
   EditorFolding.useFoldMarks({ bus$, editor, doc, path, enabled: foldMarks });
 
   /**

@@ -3,4 +3,4 @@
  * @module
  */
 export { EditorCrdt } from './m.Crdt.ts';
-export { useBinding } from './use.Binding.ts';
+export { useCrdtBinding } from './use.CrdtBinding.ts';
