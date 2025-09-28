@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { once } from './u.once.ts';
+import { queue } from './u.queue.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 
 /**
@@ -8,7 +8,7 @@ import { makeScheduleFn } from './u.scheduleFunction.ts';
  */
 export const Schedule: t.SchedulerLib = {
   make: (life, mode = 'micro') => makeScheduleFn(mode, life),
-  once,
+  queue,
 
   async frames(count = 1) {
     const n = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;

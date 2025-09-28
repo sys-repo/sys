@@ -238,17 +238,17 @@ describe(`Schedule`, () => {
       });
     });
 
-    describe('Schedule.once(..)', () => {
+    describe('Schedule.queue(..)', () => {
       it('fires the task once on the microtask queue by default', async () => {
         let count = 0;
-        Schedule.once(() => count++);
+        Schedule.queue(() => count++);
         await Schedule.micro(); // hop to flush
         expect(count).to.eql(1);
       });
 
       it('does not fire more than once even if awaited multiple times', async () => {
         let count = 0;
-        const life = Schedule.once(() => count++);
+        const life = Schedule.queue(() => count++);
         await Schedule.micro();
         expect(count).to.eql(1);
 
@@ -260,28 +260,28 @@ describe(`Schedule`, () => {
 
       it('supports raf queue', async () => {
         let count = 0;
-        Schedule.once(() => count++, { queue: 'raf' });
+        Schedule.queue(() => count++, { queue: 'raf' });
         await Schedule.raf();
         expect(count).to.eql(1);
       });
 
       it('supports frame count queue', async () => {
         let count = 0;
-        Schedule.once(() => count++, { queue: { frames: 2 } });
+        Schedule.queue(() => count++, { queue: { frames: 2 } });
         await Schedule.frames(2);
         expect(count).to.eql(1);
       });
 
       it('supports millisecond delay queue', async () => {
         let count = 0;
-        Schedule.once(() => count++, { queue: { ms: 10 } });
+        Schedule.queue(() => count++, { queue: { ms: 10 } });
         await new Promise((res) => setTimeout(res, 20));
         expect(count).to.eql(1);
       });
 
       it('cancels if lifecycle is disposed before firing', async () => {
         let count = 0;
-        const life = Schedule.once(() => count++, { queue: { ms: 20 } });
+        const life = Schedule.queue(() => count++, { queue: { ms: 20 } });
         life.dispose();
         await new Promise((res) => setTimeout(res, 30));
         expect(count).to.eql(0);
@@ -290,7 +290,7 @@ describe(`Schedule`, () => {
       it('overload: once(task, queue, until)', async () => {
         let count = 0;
         const gate = Rx.lifecycle();
-        Schedule.once(() => count++, 'raf', gate.dispose$);
+        Schedule.queue(() => count++, 'raf', gate.dispose$);
         // cancel before the raf tick
         gate.dispose();
         await Schedule.raf();
@@ -300,7 +300,7 @@ describe(`Schedule`, () => {
       it('overload: once(task, { queue, until })', async () => {
         let count = 0;
         const gate = Rx.lifecycle();
-        Schedule.once(() => count++, { queue: 'micro', until: gate.dispose$ });
+        Schedule.queue(() => count++, { queue: 'micro', until: gate.dispose$ });
         // dispose synchronously before the micro hop
         gate.dispose();
         await Schedule.micro();
@@ -309,21 +309,21 @@ describe(`Schedule`, () => {
 
       it('queue: { ms: 0 } behaves as macrotask (fires once)', async () => {
         let count = 0;
-        Schedule.once(() => count++, { queue: { ms: 0 } });
+        Schedule.queue(() => count++, { queue: { ms: 0 } });
         await new Promise((res) => setTimeout(res, 0));
         expect(count).to.eql(1);
       });
 
       it('queue: { frames: 0 } fires on the next raf', async () => {
         let count = 0;
-        Schedule.once(() => count++, { queue: { frames: 0 } });
+        Schedule.queue(() => count++, { queue: { frames: 0 } });
         await Schedule.raf();
         expect(count).to.eql(1);
       });
 
       it('returns a lifecycle that auto-disposes after running', async () => {
         let ran = false;
-        const life = Schedule.once(() => (ran = true), { queue: 'micro' });
+        const life = Schedule.queue(() => (ran = true), { queue: 'micro' });
         expect(life.disposed).to.eql(false);
         await Schedule.micro();
         expect(ran).to.eql(true);

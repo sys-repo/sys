@@ -84,32 +84,32 @@ export type SchedulerLib = {
    *
    * @example
    *   // Fire once on next microtask
-   *   Schedule.once(() => { init(); });
+   *   Schedule.queue(() => { init(); });
    *
    * @example
    *   // Fire once after 2 frames
-   *   Schedule.once(setupLayout, { queue: { frames: 2 } });
+   *   Schedule.queue(setupLayout, { queue: { frames: 2 } });
    *
    * @example
    *   // Fire once in ~150ms
-   *   Schedule.once(() => { warmCaches(); }, { queue: { ms: 150 } });
+   *   Schedule.queue(() => { warmCaches(); }, { queue: { ms: 150 } });
    *
    * @example
    *   // Tie to a lifecycle
    *   const life = Rx.lifecycle();
-   *   Schedule.once(() => start(), { until: life.dispose$ });
+   *   Schedule.queue(() => start(), { until: life.dispose$ });
    *   life.dispose(); // cancels if not yet run
    */
-  once<T = unknown>(task: () => T | Promise<T>, opts?: t.ScheduleOnceOptions): t.Lifecycle;
-  once<T = unknown>(
+  queue<T = unknown>(task: () => T | Promise<T>, opts?: t.ScheduleQueueOptions): t.Lifecycle;
+  queue<T = unknown>(
     task: () => T | Promise<T>,
     queue?: ScheduleQueue,
     until?: t.UntilInput,
   ): t.Lifecycle;
 };
 
-/** Options for `Schedule.once` execution. */
-export type ScheduleOnceOptions = { until?: t.UntilInput; queue?: ScheduleQueue };
+/** Options for `Schedule.queue` execution. */
+export type ScheduleQueueOptions = { until?: t.UntilInput; queue?: ScheduleQueue };
 /** Queue options for scheduled execution. */
 export type ScheduleQueue =
   | 'micro' //              next microtask

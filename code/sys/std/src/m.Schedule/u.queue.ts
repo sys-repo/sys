@@ -1,13 +1,13 @@
 import { Rx, type t } from './common.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 
-type F = t.SchedulerLib['once'];
+type F = t.SchedulerLib['queue'];
 
 /**
  * Canonical implementation of `Schedule.once`, built on the same scheduling
  * primitives as Schedule.make/micro/raf. No duplicated timing logic.
  */
-export const once: F = (...args) => {
+export const queue: F = (...args) => {
   const { task, options } = wrangle.args(args);
   const life = Rx.lifecycle(options.until);
   let fired = false;
@@ -74,12 +74,12 @@ const wrangle = {
   args(input: any[]) {
     const [task, a, b] = input as [
       (() => unknown | Promise<unknown>) | undefined,
-      t.ScheduleOnceOptions | t.ScheduleQueue | undefined,
+      t.ScheduleQueueOptions | t.ScheduleQueue | undefined,
       t.UntilInput | undefined,
     ];
 
     if (typeof task !== 'function') {
-      throw new TypeError('Schedule.once: first argument "task" must be a function.');
+      throw new TypeError('Schedule.queue: first argument "task" must be a function.');
     }
 
     if (isOptions(a)) return { task, options: { queue: a.queue, until: a.until } };
@@ -87,7 +87,7 @@ const wrangle = {
   },
 } as const;
 
-function isOptions(input: any): input is t.ScheduleOnceOptions {
+function isOptions(input: any): input is t.ScheduleQueueOptions {
   if (!input || typeof input !== 'object') return false;
   if (Array.isArray(input)) return false; // Must not be an array
   const allowedKeys = new Set(['queue', 'until']); // Explicitly allow only { queue?, until? }
