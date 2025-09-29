@@ -19,17 +19,14 @@ export const Token: t.GptTokenLib = {
  * Constants:
  */
 const info: t.GptTokenInfo = {
+  get urn() {
+    return wrangle.urn(info);
+  },
   tokenizer: 'gpt-tokenizer',
   encoding: 'o200k_base', //                       ← default encoding used by this import
   algorithm: 'BPE/tiktoken-compatible', //         ← same merges/vocab rules as OpenAI’s tiktoken
   specialTokensPolicy: 'disallowed-by-default', // ← encode/count - doesn't accept specials unless explicitly allowed.
-  get urn() {
-    return wrangle.urn(info);
-  },
-  esm: {
-    contract: Jsr.Url.Pkg.file(pkg, 'src/m.Gpt/t.ts'),
-    module: Jsr.Url.Pkg.file(pkg, 'src/m.Gpt/m.Token.ts'),
-  },
+  esm: Jsr.Url.Pkg.ref(pkg, 'src/m.Gpt/t.ts', 'src/m.Gpt/m.Token.ts'),
 };
 
 /**

@@ -12,9 +12,17 @@ export const Pkg: JsrUrlPkgLib = {
 
   file(...args: any[]) {
     const p = wrangle.fileParams(args);
-    let path = p.path;
-    path = path.replace(/^\//, '');
+    const path = wrangle.normalizePath(p.path);
     return `${origin}/${p.pkg.name}/${p.pkg.version}/${path}`;
+  },
+
+  /**
+   * Canonical contract/module refs for a given source path.
+   */
+  ref(pkg, contractPath, modulePath) {
+    const contract = Pkg.file(pkg, contractPath);
+    const module = Pkg.file(pkg, modulePath);
+    return { contract, module };
   },
 };
 
@@ -22,6 +30,10 @@ export const Pkg: JsrUrlPkgLib = {
  * Helpers:
  */
 const wrangle = {
+  normalizePath(path: string) {
+    return path.replace(/^\//, '');
+  },
+
   fileParams(args: any[]): { pkg: t.Pkg; path: string } {
     const total = args.length;
 
