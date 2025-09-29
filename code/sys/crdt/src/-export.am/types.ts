@@ -1,6 +1,7 @@
 /**
- * @module module-types
- * @types @sys/crdt/am/t
+ * @module
+ * @types Type-library module.
+ *        @sys/crdt/am/t
  *        (AutoMerge Driver Namespace)
  */
 import type * as t from './t.ts';

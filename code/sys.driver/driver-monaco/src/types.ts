@@ -1,6 +1,6 @@
 /**
- * Module types.
  * @module
+ * @types Type-library module.
  */
 export type { Monaco } from './t.def.monaco.ts';
 

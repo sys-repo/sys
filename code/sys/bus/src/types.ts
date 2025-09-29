@@ -1,6 +1,6 @@
 /**
  * @module
- * @types module
+ * @types Type-library module.
  */
 import type { t } from './common.ts';
 

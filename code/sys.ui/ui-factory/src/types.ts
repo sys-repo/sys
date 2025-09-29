@@ -1,6 +1,6 @@
 /**
  * @module
- * Module types.
+ * @types Type-library module.
  */
 export type * from './m.core/t.ts';
 export type * from './m.react/t.ts';

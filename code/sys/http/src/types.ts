@@ -1,6 +1,6 @@
 /**
- * Module types.
  * @module
+ * @types Type-library module.
  */
 export type * from './-serve/t.ts';
 export type * from './http/t.ts';

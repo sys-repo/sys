@@ -1,5 +1,5 @@
 /**
  * @module
- * System types.
+ * @types Type-library module.
  */
 export type * from './t/mod.ts';

@@ -1,6 +1,6 @@
 /**
- * Module types.
  * @module
+ * @types Type-library module.
  */
 
 /**
@@ -20,8 +20,8 @@ export type * from './ui/App/t.ts';
 /**
  * UI Structure:
  */
-export type * from './ui/ui.Canvas.Project/t.ts';
 export type * from './ui/ui.Canvas.Editor/t.ts';
+export type * from './ui/ui.Canvas.Project/t.ts';
 export type * from './ui/ui.FadeText/t.ts';
 export type * from './ui/ui.Image/t.ts';
 export type * from './ui/ui.Layout.Canvas/t.ts';

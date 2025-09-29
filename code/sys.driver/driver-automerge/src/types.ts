@@ -1,6 +1,6 @@
 /**
- * Module types.
  * @module
+ * @types Type-library module.
  */
 export type * as A from '@automerge/automerge';
 export type { Crdt } from './t.namespace.ts';

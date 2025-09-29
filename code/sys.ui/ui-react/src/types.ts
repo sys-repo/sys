@@ -1,6 +1,6 @@
 /**
- * Commonly used React types.
  * @module
+ * @types Type-library module.
  */
 import type { JSX } from 'react';
 export type { FC } from 'react';
