@@ -7,10 +7,11 @@ import { makeHeader } from './Task.-copy.u.header.ts';
 
 type Section = {
   header: Awaited<ReturnType<typeof makeHeader>>;
-  body: string; // trimmed body (no trailing newline)
-  block: string; // full rendered block including sentinels + header + body + end sentinel + newline
-  lines: number; // number of lines in `block`
-  bytes: number; // bytes in `block` when UTF-8 encoded
+  body: string; //      trimmed body (no trailing newline)
+  block: string; //     full rendered block including sentinels + header + body + end sentinel + newline
+  lines: number; //     number of lines in `block`
+  bytes: number; //     bytes in `block` when UTF-8 encoded
+  tokens: number; //    total number GPT tokens.
 };
 
 const shaPreview = (hex: string, lead = 12) =>
@@ -46,8 +47,9 @@ export async function pathsToFileStrings(paths: string[], repoRootAbs: string) {
 
     const lines = countLines(block);
     const bytes = enc.encode(block).length;
+    const tokens = Token.count(body);
 
-    sections.push({ header, body, block, lines, bytes });
+    sections.push({ header, body, block, lines, bytes, tokens });
   }
 
   // Totals (of the file blocks section only — everything after the TOC).
@@ -65,7 +67,15 @@ export async function pathsToFileStrings(paths: string[], repoRootAbs: string) {
   //   1 line:  "# === TOC:END ==="
   //   1 line:  ""  (blank spacer)
   const tocFixedLines = 1 + 1 + sections.length + 1 + 1 + 1 + 1;
-  let running = tocFixedLines + 1; // first file begins after the blank spacer; 1-based line number
+
+  // Correct the effective TOC line count (includes tokens + token.urn + extra spacer)
+  // We currently emit extra TOC lines:
+  //   +1 line: "# tokens: <sum of bodies>"
+  //   +1 line: "# tokens.urn: <urn string>"
+  //   +1 line: ""  (second blank spacer)
+  const tocEffectiveLines = tocFixedLines + 3;
+
+  let running = tocEffectiveLines + 1; // first file begins after the blank spacer; 1-based line number
   const lineStarts: number[] = [];
   for (const s of sections) {
     lineStarts.push(running);
@@ -85,8 +95,12 @@ export async function pathsToFileStrings(paths: string[], repoRootAbs: string) {
     return `# ${idx} | ${lang} | ${bytes} | ${sha} | ${mod} | ${pmod} | lineStart=${lineStart}`;
   });
 
+  const tokenCount = sections.reduce((acc, next) => acc + next.tokens, 0);
+
   const toc = [
     '# === TOC:BEGIN ===',
+    `# tokens: ${tokenCount}`,
+    `# tokens.urn: ${Token.info.urn}`,
     `# files: ${sections.length}`,
     ...tocLines,
     `# bytes.total: ${bytesTotal}B`,
