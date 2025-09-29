@@ -1,13 +1,14 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { createRepo } from '../../../../ui/-test.ui.ts';
+import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.SampleProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { render: boolean };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   path: ['foo'],
+  render: true,
 };
 
 /**
@@ -35,6 +36,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     path: s(snap.path),
+    render: s(snap.render),
   };
   const p = props;
   const api = {
@@ -56,8 +58,9 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     store.change((d) => {
-      d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.render = p.render.value;
+      d.theme = p.theme.value;
       d.path = p.path.value;
     });
   });
@@ -92,7 +95,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{D.name}</div>
+        <div>{'(Slug)'}</div>
+      </div>
 
       <Button
         block
@@ -106,8 +112,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+      <hr />
+      <Button
+        block
+        label={() => `(reset, reload)`}
+        onClick={() => {
+          debug.reset();
+          window.location.reload();
+        }}
+      />
+      <ObjectView
+        style={{ marginTop: 10 }}
+        expand={1}
+        name={'debug'}
+        data={{
+          ...Signal.toObject(p),
+          doc: debug.signals.doc?.value?.current,
+        }}
+      />
     </div>
   );
 };

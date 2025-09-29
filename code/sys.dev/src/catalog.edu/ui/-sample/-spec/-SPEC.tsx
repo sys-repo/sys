@@ -22,9 +22,9 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        if (!v.render) return null;
         return (
           <Sample
-            //
             debug={v.debug}
             theme={v.theme}
             repo={repo}
