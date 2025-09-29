@@ -1,8 +1,4 @@
-import type { AsyncSchedule } from '@sys/std/t';
 import type { t } from './common.ts';
-
-/** Flags representing async schedule to fire on. */
-export type EmitSchedule = 'sync' | AsyncSchedule;
 
 /**
  * Event-bus helpers.
@@ -21,7 +17,7 @@ export type EditorBusLib = {
    * - "macro":  next timer tick
    * - "raf":    next animation frame (or ~16ms fallback)
    */
-  emit(bus$: t.EditorEventBus, evt: t.EditorEvent, schedule?: EmitSchedule): void;
+  emit(bus$: t.EditorEventBus, evt: t.EditorEvent, schedule?: t.BusEmitSchedule): void;
 };
 
 /**

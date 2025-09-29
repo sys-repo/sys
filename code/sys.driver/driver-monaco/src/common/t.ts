@@ -1,5 +1,3 @@
-type O = Record<string, unknown>;
-
 /**
  * @external
  */
@@ -7,29 +5,11 @@ export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNo
 export type * from '../t.def.monaco.ts';
 
 /**
- * @drivers
- */
-export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
-
-/**
- * CRDT
- */
-
-// Store:
-import type { Crdt as AMDriver } from '@sys/driver-automerge/t';
-export type CrdtRepo = AMDriver.Repo;
-
-// Document - ImmutableRef<T>
-export type CrdtRef<T extends O = O> = AMDriver.Ref<T>;
-// 🐷
-// import type { Crdt as CrdtSys } from '@sys/crdt/t';
-// export type CrdtRef<T extends O = O> = CrdtSys.Ref<T>;
-
-/**
  * @system
  */
 export type * from '@sys/types';
 
+export type { BusEmitSchedule } from '@sys/bus/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { Infer, Schema, TSchema } from '@sys/schema/t';
 export type {
@@ -50,12 +30,27 @@ export type { ButtonFlags } from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 
 /**
+ * @drivers
+ */
+export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
+
+/**
+ * CRDT
+ */
+
+// Store:
+import type { Crdt as AMDriver } from '@sys/driver-automerge/t';
+export type CrdtRepo = AMDriver.Repo;
+
+// Document - ImmutableRef<T>
+type O = Record<string, unknown>;
+export type CrdtRef<T extends O = O> = AMDriver.Ref<T>;
+
+/**
  * @local
  */
 export type * from '../types.ts';
 
-/**
- * Sundry:
- */
-export type Offset = { lineNumber: number; column: number };
+// Sundry:
+export type Offset = { readonly lineNumber: number; readonly column: number };
 export type DisposeFn = () => void;
