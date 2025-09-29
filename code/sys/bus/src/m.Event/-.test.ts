@@ -1,9 +1,9 @@
 import { type t, describe, expect, expectTypeOf, it, Rx, Schedule } from '../-test.ts';
 import { emit } from './mod.ts';
 
-const makeBus = () => Rx.subject<t.EventWithKind>();
+describe(`Event (@module)`, () => {
+  const makeBus = () => Rx.subject<t.EventWithKind>();
 
-describe(`Event (core)`, () => {
   it('types', () => {
     const e: t.EventWithKind = { kind: 'foo' };
     expectTypeOf(e).toEqualTypeOf<t.EventWithKind>();
