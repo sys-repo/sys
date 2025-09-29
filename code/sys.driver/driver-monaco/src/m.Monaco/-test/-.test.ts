@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { EditorCrdt, EditorYaml, MonacoEditor, YamlEditor } from '../../ui/mod.ts';
 
+import { Bus } from '../../m.events/mod.ts';
 import { Link } from '../m.Link.ts';
 import { Monaco, MonacoIs } from '../mod.ts';
 
@@ -10,6 +11,7 @@ describe('Monaco', () => {
     const { Error } = await import('../m.Error.ts');
     expect(m.Monaco).to.equal(Monaco);
 
+    expect(Monaco.Bus).to.equal(Bus);
     expect(Monaco.Editor).to.equal(MonacoEditor);
     expect(Monaco.Crdt).to.equal(EditorCrdt);
     expect(Monaco.Yaml).to.equal(EditorYaml);

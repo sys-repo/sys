@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 
+import { Bus } from '../m.events/mod.ts';
 import { EditorCrdt as Crdt } from '../ui/m.Crdt/mod.ts';
 import { EditorYaml as Yaml } from '../ui/m.Yaml/mod.ts';
 import { MonacoEditor as Editor } from '../ui/ui.MonacoEditor/mod.ts';
@@ -10,6 +11,9 @@ import { Link } from './m.Link.ts';
 export { MonacoIs };
 
 export const Monaco: t.MonacoLib = {
+  get Bus() {
+    return Bus;
+  },
   get Is() {
     return MonacoIs;
   },

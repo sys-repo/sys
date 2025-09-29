@@ -7,6 +7,7 @@ export type * from './t.Link.ts';
  * Code editor library:
  */
 export type MonacoLib = {
+  readonly Bus: t.EditorBusLib;
   readonly Editor: React.FC<t.MonacoEditorProps>;
   readonly Is: t.EditorIsLib;
   readonly Crdt: t.EditorCrdtLib;
