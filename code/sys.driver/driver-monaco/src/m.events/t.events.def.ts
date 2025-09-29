@@ -5,7 +5,7 @@ type IRange = t.Monaco.I.IRange;
 type Trigger = 'editor' | 'crdt';
 
 /**
- * Events (CRDT-centric): text + marks
+ * Events running within the Editor's runtime environment.
  */
 export type EditorEvent = EventDebug | EventCrdt | EventYaml;
 

@@ -9,7 +9,7 @@ export type * from '../t.def.monaco.ts';
  */
 export type * from '@sys/types';
 
-export type { BusEmitSchedule } from '@sys/bus/t';
+export type { EmitEventSchedule } from '@sys/bus/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { Infer, Schema, TSchema } from '@sys/schema/t';
 export type {

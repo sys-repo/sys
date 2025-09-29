@@ -17,7 +17,7 @@ export type EditorBusLib = {
    * - "macro":  next timer tick
    * - "raf":    next animation frame (or ~16ms fallback)
    */
-  emit(bus$: t.EditorEventBus, evt: t.EditorEvent, schedule?: t.BusEmitSchedule): void;
+  emit(bus$: t.EditorEventBus, evt: t.EditorEvent, schedule?: t.EmitEventSchedule): void;
 };
 
 /**

@@ -2,7 +2,6 @@
  * @module
  * @types Type-library module.
  */
-import type { t } from './common.ts';
 
-/** Flags representing async-schedule to fire events through the bus on. */
-export type BusEmitSchedule = 'sync' | t.AsyncSchedule;
+export type * from './m.Event.Filter/t.ts';
+export type * from './m.Event/t.ts';
