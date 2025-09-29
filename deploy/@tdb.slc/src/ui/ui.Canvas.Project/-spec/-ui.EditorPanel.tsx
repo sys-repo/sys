@@ -36,7 +36,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = (props) => {
    */
   const path = PATHS.config;
   Monaco.Crdt.useBinding({ monaco, editor, doc, path }, (e) => {
-    e.binding.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
+    e.$.subscribe((e) => console.info(`⚡️ editor/crdt:binding.$:`, e));
   });
 
   if (!doc) return null;
