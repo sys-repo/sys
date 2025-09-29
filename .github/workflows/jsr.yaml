@@ -98,9 +98,9 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/bus"
+      - name: publish module → "@sys/event"
         run: |
-          cd code/sys/bus
+          cd code/sys/event
           deno task test --parallel
           deno publish --allow-dirty
 

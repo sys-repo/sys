@@ -8,7 +8,7 @@ describe('Filter', () => {
   const make = () => Rx.subject<t.DebugEvent>();
 
   it('API surface', async () => {
-    const m = await import('@sys/bus/event');
+    const m = await import('@sys/event/bus');
     expect(m.filterFor).to.equal(filterFor);
   });
 

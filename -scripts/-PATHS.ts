@@ -25,7 +25,7 @@ export const Paths = {
     'code/sys/testing',
     'code/sys/process',
 
-    'code/sys/bus',
+    'code/sys/event',
     'code/sys/cmd',
     'code/sys/http',
     'code/sys/text',

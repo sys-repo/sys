@@ -21,7 +21,7 @@ type MyEvents = BaseEvent | AEvent | ABEvent;
 An event-bus is a plain observable stream. Events are dispatched on a standardized `@sys/std:Schedule`.
 
 ```ts
-import { emitFor } from '@sys/bus/event';
+import { emitFor } from '@sys/event/bus';
 
 const bus$ = Rx.subject<MyEvents>(); // ← your event bus.
 const emit = emitFor<MyEvents>();
@@ -36,7 +36,7 @@ Filters provide strongly-typed predicates and operators for working with event s
 
 ```ts
 import { Rx } from '@sys/std/rx';
-import { filterFor } from '@sys/bus/event';
+import { filterFor } from '@sys/event/bus';
 
 const Filter = filterFor<MyEvents>();
 

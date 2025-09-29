@@ -5,7 +5,7 @@ describe(`Event (@module)`, () => {
   const makeBus = () => Rx.subject<t.EventWithKind>();
 
   it('API', async () => {
-    const m = await import('@sys/bus/event');
+    const m = await import('@sys/event/bus');
     expect(m.emit).to.equal(emit);
     expect(m.emitFor).to.equal(m.emitFor);
   });

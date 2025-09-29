@@ -1,5 +1,5 @@
 {
-  "name": "@sys/bus",
+  "name": "@sys/event",
   "version": "0.0.0",
   "license": "MIT",
   "tasks": {
@@ -12,6 +12,6 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./event": "./src/m.Event/mod.ts"
+    "./bus": "./src/m.Event/mod.ts"
   }
 }

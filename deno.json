@@ -36,7 +36,7 @@
     "code/sys/color",
 
     "code/sys/testing",
-    "code/sys/bus",
+    "code/sys/event",
     "code/sys/jsr",
     "code/sys/fs",
     "code/sys/cli",
