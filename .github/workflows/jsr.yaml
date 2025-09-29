@@ -98,15 +98,21 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/http"
+      - name: publish module → "@sys/bus"
         run: |
-          cd code/sys/http
+          cd code/sys/bus
           deno task test --parallel
           deno publish --allow-dirty
 
       - name: publish module → "@sys/cmd"
         run: |
           cd code/sys/cmd
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/http"
+        run: |
+          cd code/sys/http
           deno task test --parallel
           deno publish --allow-dirty
 

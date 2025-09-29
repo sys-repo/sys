@@ -5,7 +5,7 @@ import type { t } from './common.ts';
 export type EmitSchedule = 'sync' | AsyncSchedule;
 
 /**
- * Event event-bus helpers.
+ * Event-bus helpers.
  */
 export type EditorBusLib = {
   /** Event filtering tools. */
