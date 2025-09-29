@@ -74,7 +74,7 @@ const wrangle = {
   args(input: any[]) {
     const [task, a, b] = input as [
       (() => unknown | Promise<unknown>) | undefined,
-      t.ScheduleQueueOptions | t.ScheduleQueue | undefined,
+      t.ScheduleQueueOpts | t.ScheduleQueueConfig | undefined,
       t.UntilInput | undefined,
     ];
 
@@ -83,11 +83,11 @@ const wrangle = {
     }
 
     if (isOptions(a)) return { task, options: { queue: a.queue, until: a.until } };
-    return { task, options: { queue: a as t.ScheduleQueue, until: b } };
+    return { task, options: { queue: a as t.ScheduleQueueConfig, until: b } };
   },
 } as const;
 
-function isOptions(input: any): input is t.ScheduleQueueOptions {
+function isOptions(input: any): input is t.ScheduleQueueOpts {
   if (!input || typeof input !== 'object') return false;
   if (Array.isArray(input)) return false; // Must not be an array
   const allowedKeys = new Set(['queue', 'until']); // Explicitly allow only { queue?, until? }

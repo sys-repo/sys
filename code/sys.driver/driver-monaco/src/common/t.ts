@@ -39,6 +39,7 @@ export type {
   YamlSyncArgsInput,
   YamlSyncParsed,
   YamlSyncParser,
+  YamlSyncParserChange,
   YamlSyncParserDocs,
   YamlSyncParserPaths,
 } from '@sys/std/t';

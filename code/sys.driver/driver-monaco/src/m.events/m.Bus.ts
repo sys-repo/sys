@@ -1,23 +1,9 @@
-import { type t, Rx, Schedule } from './common.ts';
+import { type t, Rx } from './common.ts';
 import { Filter } from './u.Filter.ts';
+import { emit } from './u.emit.ts';
 
-export const Bus: t.EventBusLib = {
+export const Bus: t.EditorBusLib = {
   Filter,
-  make: () => Rx.subject<t.EditorEvent>(),
   emit,
+  make: () => Rx.subject<t.EditorEvent>(),
 };
-
-export function emit(
-  bus$: t.EditorEventBus,
-  evt: t.EditorEvent,
-  schedule: t.EmitSchedule = 'micro',
-) {
-  if (schedule === 'sync') {
-    bus$.next(evt);
-    return;
-  }
-  const fire = () => bus$.next(evt);
-  if (schedule === 'micro') return Schedule.micro(fire);
-  if (schedule === 'macro') return Schedule.macro(fire);
-  return Schedule.raf(fire); // "raf"
-}

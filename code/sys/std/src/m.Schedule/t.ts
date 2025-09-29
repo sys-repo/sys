@@ -7,7 +7,7 @@ import type { t } from './common.ts';
  * - "macro": setTimeout(0) (next task tick)
  * - "raf":   requestAnimationFrame (frame-aligned; falls back to ~16ms timeout in non-DOM)
  */
-export type ScheduleMode = 'micro' | 'macro' | 'raf';
+export type AsyncSchedule = 'micro' | 'macro' | 'raf';
 
 /**
  * Minimal, consistent API for deferring work (microtask, macrotask, or frame),
@@ -25,7 +25,7 @@ export type SchedulerLib = {
    *   const macro = scheduler(life, "macro") // pick a mode explicitly
    *   await macro()                          // await a macro hop
    */
-  make(life?: t.LifeLike, mode?: ScheduleMode): ScheduleFn;
+  make(life?: t.LifeLike, mode?: AsyncSchedule): ScheduleFn;
 
   /**
    * Microtask scheduler.
@@ -83,39 +83,39 @@ export type SchedulerLib = {
    * - The task's return value is ignored.
    *
    * @example
-   *   // Fire once on next microtask
+   *   // Fire once on next microtask:
    *   Schedule.queue(() => { init(); });
    *
    * @example
-   *   // Fire once after 2 frames
+   *   // Fire once after 2 frames:
    *   Schedule.queue(setupLayout, { queue: { frames: 2 } });
    *
    * @example
-   *   // Fire once in ~150ms
+   *   // Fire once in ~150ms:
    *   Schedule.queue(() => { warmCaches(); }, { queue: { ms: 150 } });
    *
    * @example
-   *   // Tie to a lifecycle
+   *   // Tie to a lifecycle:
    *   const life = Rx.lifecycle();
    *   Schedule.queue(() => start(), { until: life.dispose$ });
    *   life.dispose(); // cancels if not yet run
    */
-  queue<T = unknown>(task: () => T | Promise<T>, opts?: t.ScheduleQueueOptions): t.Lifecycle;
+  queue<T = unknown>(task: () => T | Promise<T>, opts?: ScheduleQueueOpts): t.Lifecycle;
   queue<T = unknown>(
     task: () => T | Promise<T>,
-    queue?: ScheduleQueue,
+    queue?: ScheduleQueueConfig,
     until?: t.UntilInput,
   ): t.Lifecycle;
 };
 
 /** Options for `Schedule.queue` execution. */
-export type ScheduleQueueOptions = { until?: t.UntilInput; queue?: ScheduleQueue };
+export type ScheduleQueueOpts = { until?: t.UntilInput; queue?: ScheduleQueueConfig };
 /** Queue options for scheduled execution. */
-export type ScheduleQueue =
-  | 'micro' //              next microtask
-  | 'raf' //                next rAF
-  | { frames: number } //   after N animation frames
-  | { ms: number }; //      after N milliseconds
+export type ScheduleQueueConfig =
+  | 'micro' //              next microtask (queueMicrotask / Promise.then)
+  | 'raf' //                next animation frame
+  | { frames: number } //   after N animation frames - "rAF"
+  | { ms: t.Msecs }; //     after N milliseconds (timer task via setTimeout) - "macro"
 
 /**
  * Curried scheduler function:

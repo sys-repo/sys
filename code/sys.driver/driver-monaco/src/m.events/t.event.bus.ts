@@ -1,12 +1,14 @@
+import type { AsyncSchedule } from '@sys/std/t';
 import type { t } from './common.ts';
 
 /** Flags representing async schedule to fire on. */
-export type EmitSchedule = 'sync' | 'micro' | 'macro' | 'raf';
+export type EmitSchedule = 'sync' | AsyncSchedule;
 
 /**
  * Event event-bus helpers.
  */
-export type EventBusLib = {
+export type EditorBusLib = {
+  /** Event filtering tools. */
   readonly Filter: EventBusFilterLib;
 
   /** Generate a new event-bus subject. */

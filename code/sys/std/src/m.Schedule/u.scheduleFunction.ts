@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Build a ScheduleFn for a given mode and optional lifecycle.
  */
-export function makeScheduleFn(mode: t.ScheduleMode, life?: t.LifeLike): t.ScheduleFn {
+export function makeScheduleFn(mode: t.AsyncSchedule, life?: t.LifeLike): t.ScheduleFn {
   const fn = ((cb?: () => void): any => {
     if (typeof cb === 'function') {
       // Fire & forget.
@@ -30,7 +30,7 @@ export function makeScheduleFn(mode: t.ScheduleMode, life?: t.LifeLike): t.Sched
 /**
  * Internal: schedule a function in the chosen mode.
  */
-function scheduleInternal(mode: t.ScheduleMode, f: () => void) {
+function scheduleInternal(mode: t.AsyncSchedule, f: () => void) {
   if (mode === 'micro') {
     if (typeof queueMicrotask === 'function') queueMicrotask(f);
     else Promise.resolve().then(f);
