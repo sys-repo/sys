@@ -44,10 +44,17 @@ export type YamlEditorSignals = {
  */
 export type YamlEditorMonacoProps = Pick<
   t.MonacoEditorProps,
-  'autoFocus' | 'tabSize' | 'minimap' | 'readOnly' | 'placeholder'
-> & {
-  margin?: t.CssEdgesInput;
-};
+  | 'placeholder'
+  | 'enabled'
+  | 'autoFocus'
+  | 'tabSize'
+  | 'minimap'
+  | 'readOnly'
+  | 'fontSize'
+  | 'spinning'
+  | 'wordWrap'
+  | 'wordWrapColumn'
+> & { margin?: t.CssEdgesInput };
 
 /**
  * DocumentId sub-props:

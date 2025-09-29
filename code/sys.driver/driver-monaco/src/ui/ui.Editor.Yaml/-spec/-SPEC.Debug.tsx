@@ -16,7 +16,7 @@ import {
 
 type P = t.YamlEditorProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'> & {
-  editor: Pick<t.YamlEditorMonacoProps, 'margin' | 'minimap'>;
+  editor: Pick<t.YamlEditorMonacoProps, 'margin' | 'minimap' | 'spinning' | 'enabled'>;
   documentId: Pick<t.YamlEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
   footer: P['footer'];
   render?: boolean;
@@ -27,7 +27,7 @@ const defaults: Storage = {
   debug: false,
   path: ['foo'],
   documentId: { visible: true, readOnly: false, urlKey: undefined },
-  editor: { margin: 0, minimap: false },
+  editor: { margin: 0, minimap: false, spinning: false, enabled: true },
   footer: { visible: true, repo: true },
 };
 
@@ -60,6 +60,8 @@ export function createDebugSignals() {
     editor: {
       margin: s((snap.editor ?? {}).margin),
       minimap: s((snap.editor ?? {}).minimap),
+      spinning: s((snap.editor ?? {}).spinning),
+      enabled: s((snap.editor ?? {}).enabled),
     },
     footer: {
       visible: s((snap.footer ?? {}).visible),
@@ -98,6 +100,8 @@ export function createDebugSignals() {
       d.editor = d.editor ?? {};
       d.editor.margin = p.editor.margin.value;
       d.editor.minimap = p.editor.minimap.value;
+      d.editor.spinning = p.editor.spinning.value;
+      d.editor.enabled = p.editor.enabled.value;
 
       d.documentId = d.documentId ?? {};
       d.documentId.visible = p.documentId.visible.value;
@@ -174,6 +178,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `editor.minimap: ${p.editor.minimap.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.editor.minimap)}
+      />
+      <Button
+        block
+        label={() => `editor.enabled: ${p.editor.enabled.value}`}
+        onClick={() => Signal.toggle(p.editor.enabled)}
+      />
+      <Button
+        block
+        label={() => `editor.spinning: ${p.editor.spinning.value}`}
+        onClick={() => Signal.toggle(p.editor.spinning)}
       />
 
       <hr />

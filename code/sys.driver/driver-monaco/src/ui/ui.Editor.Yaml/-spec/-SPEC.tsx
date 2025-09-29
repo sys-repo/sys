@@ -37,6 +37,9 @@ export default Spec.describe(D.displayName, (e) => {
               console.info(`⚡️ Monaco.Yaml.Editor:onReady:`, e);
               e.$.subscribe((e) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, e));
 
+              /**
+               * Sample: Link registration(s):
+               */
               Monaco.Crdt.Link.enable(e, repo, {
                 onCreate: (ev) => console.info('Monaco.Crdt.Link.enable → ⚡️ onCreate:', ev),
                 until: e.dispose$,

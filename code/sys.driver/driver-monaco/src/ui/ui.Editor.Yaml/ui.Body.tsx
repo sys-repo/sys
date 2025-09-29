@@ -77,12 +77,18 @@ export const Body: React.FC<P> = (props) => {
       key={editorKey}
       debug={debug}
       theme={theme.name}
-      spinning={!ready}
       language={'yaml'}
+      // Editor:
+      enabled={editor.enabled}
       autoFocus={editor.autoFocus}
       tabSize={editor.tabSize}
       minimap={editor.minimap}
       readOnly={editor.readOnly}
+      fontSize={editor.fontSize}
+      spinning={editor.spinning ? true : !ready}
+      wordWrap={editor.wordWrap}
+      wordWrapColumn={editor.wordWrapColumn}
+      // Handlers:
       onMounted={(e) => {
         if (signals?.monaco) signals.monaco.value = e.monaco;
         if (signals?.editor) signals.editor.value = e.editor;
