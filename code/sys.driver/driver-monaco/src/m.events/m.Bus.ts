@@ -1,8 +1,7 @@
-import { type t, FilterFor, Rx } from './common.ts';
-import { emit } from './u.emit.ts';
+import { type t, emitFor, filterFor, Rx } from './common.ts';
 
 export const Bus: t.EditorBusLib = {
-  emit,
   make: () => Rx.subject<t.EditorEvent>(),
-  Filter: FilterFor<t.EditorEvent>(),
+  emit: emitFor<t.EditorEvent>(),
+  Filter: filterFor<t.EditorEvent>(),
 };

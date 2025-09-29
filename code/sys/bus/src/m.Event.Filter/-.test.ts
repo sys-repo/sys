@@ -1,16 +1,15 @@
 import { type t, Rx, describe, expect, expectTypeOf, it } from '../-test.ts';
 
 import { emit } from '../m.Event/mod.ts';
-import { Filter, FilterFor } from './mod.ts';
+import { filterFor } from './mod.ts';
 
 describe('Filter', () => {
-  const F = FilterFor<t.DebugEvent>(); // ← specialized filter
+  const F = filterFor<t.DebugEvent>(); // ← specialized filter
   const make = () => Rx.subject<t.DebugEvent>();
 
   it('API surface', async () => {
     const m = await import('@sys/bus/event');
-    expect(m.Filter).to.equal(Filter);
-    expect(m.FilterFor).to.equal(FilterFor);
+    expect(m.filterFor).to.equal(filterFor);
   });
 
   it('isKind: runtime truth + compile-time narrowing', () => {

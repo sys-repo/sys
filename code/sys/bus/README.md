@@ -18,44 +18,42 @@ type MyEvents = BaseEvent | AEvent | ABEvent;
 <p>&nbsp;</p>
 
 ### Firing
-An event-bus is a plain `Observable` stream. Events are dispatched on a standardized `@sys/std:Schedule`:
+An event-bus is a plain observable stream. Events are dispatched on a standardized `@sys/std:Schedule`.
 
 ```ts
-import { emit } from '@sys/bus/event';
-emit(bus$, { kind: 'debug:a.b', total: 42 }); // ← type-checked against <MyEvents>
+import { emitFor } from '@sys/bus/event';
+
+const bus$ = Rx.subject<MyEvents>(); // ← your event bus.
+const emit = emitFor<MyEvents>();
+
+emit(bus$, { kind: 'debug:a.b', total: 42 }); // type-checked
 ```
 
 <p>&nbsp;</p>
 
 ### Narrowing (Filter Events)
-Event filters provide strongly-typed predicates and RxJS operators
-for working with event streams by `kind` or `prefix`.
+Filters provide strongly-typed predicates and operators for working with event streams by `kind` or `prefix`.
 
 ```ts
 import { Rx } from '@sys/std/rx';
-import { Filter, FilterFor } from '@sys/bus/event';
+import { filterFor } from '@sys/bus/event';
 
-// Runtime baseline (no compile-time narrowing):
-const isDebug = Filter.isKind('debug');
-
-// Strongly-typed factory, bound to your event union:
-const F = FilterFor<MyEvents>();
+const Filter = filterFor<MyEvents>();
 
 // Kind/prefix predicates:
-const isBase = F.isKind('debug');
-const isPrefixed = F.hasPrefix('debug:a');
+const isDebug = Filter.isKind('debug');
+const isBase = Filter.isKind('debug');
+const isPrefixed = Filter.hasPrefix('debug:a');
 
 // RxJS operators:
 const bus$ = Rx.subject<MyEvents>();
 bus$
   .pipe(
-    F.ofPrefix('debug:a'),   // narrow to "debug:a.*"
-    F.ofKind('debug:a.b'),   // then exact "debug:a.b"
+    Filter.ofPrefix('debug:a'), // narrow to "debug:a.*"
+    Filter.ofKind('debug:a.b'), // then exact "debug:a.b"
   )
   .subscribe((e) => {
-    // e is narrowed to DebugABEvent here
-    console.log(e.total);
+    console.log(e.total); // NB: `e` is narrowed to ABEvent.
   });
 
 ```
-

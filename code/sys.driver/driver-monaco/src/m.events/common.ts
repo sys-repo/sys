@@ -1,2 +1,2 @@
-export { FilterFor, emit } from '@sys/bus/event';
+export { emit, emitFor, filterFor } from '@sys/bus/event';
 export * from '../common.ts';

@@ -14,11 +14,7 @@ export type EditorBusLib = {
   make(): t.EditorEventBus;
 
   /**
-   * Emit to the bus with a chosen schedule.
-   * - default: "micro" (safe against re-entrancy)
-   * - "sync":   inline, immediate (use sparingly)
-   * - "macro":  next timer tick
-   * - "raf":    next animation frame (or ~16ms fallback)
+   * Emit an event to the bus on a chosen async-schedule.
    */
-  emit(bus$: t.EditorEventBus, evt: t.EditorEvent, schedule?: t.EmitEventSchedule): void;
+  emit: t.EmitEvent<t.EditorEvent>;
 };

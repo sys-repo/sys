@@ -2,9 +2,9 @@
  * @module
  * Core event shape.
  */
-export { emit } from './u.emit.ts';
+export { emit, emitFor } from './u.emit.ts';
 
 /**
  * Library:
  */
-export { Filter, FilterFor } from '../m.Event.Filter/mod.ts';
+export { filterFor } from '../m.Event.Filter/mod.ts';
