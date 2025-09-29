@@ -13,8 +13,8 @@ export type EmitEventSchedule = 'sync' | t.AsyncSchedule;
  * - "macro":  next timer tick
  * - "raf":    next animation frame (or ~16ms fallback)
  */
-export type EmitEvent = (
-  bus$: t.Subject<EventWithKind>,
-  evt: EventWithKind,
+export type EmitEvent = <E extends EventWithKind>(
+  bus$: t.Subject<E>,
+  evt: E,
   schedule?: t.EmitEventSchedule,
 ) => void;
