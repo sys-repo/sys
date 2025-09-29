@@ -1,10 +1,12 @@
-# EventBus
+# Events
 Lightweight primitives for publishing, subscribing, and filtering streams of events.  
 
 <p>&nbsp;</p>
 
-## Events
-Message-based event streams are strongly typed: 
+## EventBus
+An **event-bus** is a shared observable stream that multiple producers can **publish** to and multiple consumers can **subscribe** to.
+
+Message-based event streams are strongly typed, ensuring compile-time safety, precise narrowing, and self-documenting contracts between publishers and subscribers.
 
 ```ts
 // Example event union (or import your own types)
