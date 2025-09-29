@@ -2,7 +2,7 @@ import React from 'react';
 import { EditorCrdt } from '../m.Crdt/mod.ts';
 import { useYaml } from '../m.Yaml/use.Yaml.ts';
 
-import { type t, Bus, Rx, Signal } from './common.ts';
+import { type t, Bus, Obj, Rx, Signal } from './common.ts';
 import { useSignals } from './use.Signals.ts';
 
 type P = Omit<t.YamlEditorProps, 'bus$'>;
@@ -41,7 +41,12 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   });
 
   /**
-   * Effect:
+   * Effect: reset ready/spinner when CRDT document changes.
+   */
+  React.useEffect(() => void setReady(false), [doc?.id, Obj.hash(path)]);
+
+  /**
+   * Effect: keep YAML changes updated on Signal.
    */
   React.useEffect(() => {
     const life = Rx.disposable();

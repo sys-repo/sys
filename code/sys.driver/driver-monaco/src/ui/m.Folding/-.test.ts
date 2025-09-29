@@ -2,6 +2,7 @@ import { type t, describe, expect, it, MonacoFake, Rx, Time } from '../../-test.
 import { Bus } from './common.ts';
 import { EditorFolding } from './mod.ts';
 import { bindFoldMarks } from './u.bind.ts';
+import { Sentinel } from './u.sentinel.ts';
 import { useFoldMarks } from './use.FoldMarks.ts';
 
 describe('Monaco.Folding', () => {
@@ -220,6 +221,66 @@ describe('Monaco.Folding', () => {
         }) - 1;
 
       expect(range.end).to.eql(endOffset);
+    });
+  });
+
+  describe('Sentinel', () => {
+    it('eq: returns true only when all fields match', () => {
+      const base = Sentinel.make({
+        doc: { id: 'd1' } as any,
+        model: { uri: { toString: () => 'm1' } } as any,
+        path: ['a'],
+      });
+      const same = Sentinel.make({
+        doc: { id: 'd1' } as any,
+        model: { uri: { toString: () => 'm1' } } as any,
+        path: ['a'],
+      });
+      const diffDoc = Sentinel.make({
+        doc: { id: 'd2' } as any,
+        model: { uri: { toString: () => 'm1' } } as any,
+        path: ['a'],
+      });
+      const diffModel = Sentinel.make({
+        doc: { id: 'd1' } as any,
+        model: { uri: { toString: () => 'm2' } } as any,
+        path: ['a'],
+      });
+      const diffPath = Sentinel.make({
+        doc: { id: 'd1' } as any,
+        model: { uri: { toString: () => 'm1' } } as any,
+        path: ['b'],
+      });
+
+      expect(Sentinel.eq(base, same)).to.eql(true);
+      expect(Sentinel.eq(base, diffDoc)).to.eql(false);
+      expect(Sentinel.eq(base, diffModel)).to.eql(false);
+      expect(Sentinel.eq(base, diffPath)).to.eql(false);
+    });
+
+    it('rearmIfChanged: calls fn only on change', () => {
+      let called = 0;
+      const base = Sentinel.make({
+        doc: { id: 'd1' } as any,
+        model: { uri: { toString: () => 'm1' } } as any,
+        path: ['a'],
+      });
+      const nextSame = {
+        doc: { id: 'd1' } as any,
+        model: { uri: { toString: () => 'm1' } } as any,
+        path: ['a'],
+      };
+      const nextDiff = {
+        doc: { id: 'd2' } as any,
+        model: { uri: { toString: () => 'm1' } } as any,
+        path: ['a'],
+      };
+
+      Sentinel.rearmIfChanged(base, nextSame, () => (called += 1));
+      expect(called).to.eql(0);
+
+      Sentinel.rearmIfChanged(base, nextDiff, () => (called += 1));
+      expect(called).to.eql(1);
     });
   });
 });

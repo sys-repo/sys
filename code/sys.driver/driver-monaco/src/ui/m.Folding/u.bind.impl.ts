@@ -10,6 +10,7 @@ import {
 import { getHiddenAreas } from './u.hidden.ts';
 import { toMarkRanges } from './u.mark.ts';
 import { observe } from './u.observe.ts';
+import { Sentinel } from './u.sentinel.ts';
 
 type IRange = t.Monaco.I.IRange;
 
@@ -35,8 +36,8 @@ export function impl(args: {
 
   /**
    * Apply desired fold state using Monaco public commands.
-   * - Empty => unfoldAll
-   * - Non-empty => single batched 'editor.fold' with parent lines.
+   * - Empty      → unfoldAll
+   * - Non-empty  → single batched 'editor.fold' with parent lines.
    */
   function applyViaCommands(nextOffsets: t.FoldOffset[]) {
     const trigger = (handleId: string, selectionLines?: number[]) => {
@@ -58,6 +59,9 @@ export function impl(args: {
     }
   }
 
+  /**
+   * Fire initial <ready> event on first encounter of a [model/doc] identity.
+   */
   function fireInitial(marks: t.Crdt.Marks.Mark[]) {
     if (initialFired) return;
     initialFired = true;
@@ -83,7 +87,13 @@ export function impl(args: {
    * CRDT → Editor: read CRDT marks and apply to Monaco (if needed).
    * Comparison is done in offsets to avoid churn.
    */
+  let last = Sentinel.make({ doc, model, path });
   function syncFromCRDT() {
+    Sentinel.rearmIfChanged(last, { doc, model, path }, (e) => {
+      initialFired = false;
+      last = e.next;
+    });
+
     let rawMarks: t.Crdt.Marks.Mark[];
     try {
       rawMarks = A.marks(doc.current, path);

@@ -6,7 +6,7 @@ import { Monaco } from '@sys/driver-monaco';
 import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
-import { type t, Color, Crdt, D } from '../common.ts';
+import { type t, Color, Crdt, D, Obj } from '../common.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
 import { LoadSplash } from './-ui.LoadSplash.tsx';
 
@@ -40,10 +40,11 @@ export default Spec.describe(D.displayName, async (e) => {
     const bus$ = debug.bus$;
 
     /**
-     * Visibility flag:
+     * Visibility flags:
      */
     const [ready, setReady] = React.useState(false);
-    React.useEffect(() => setReady((prev) => (!v.render ? false : prev)), [v.render]);
+    React.useEffect(() => void setReady(false), [doc?.id, Obj.hash(path)]); // NB: restart spinner on doc/path change.
+    React.useEffect(() => void setReady((prev) => (!v.render ? false : prev)), [v.render]);
 
     /**
      * Hook: CRDT data-binding.
