@@ -53,7 +53,7 @@ export type YamlSyncParserPaths = {
 };
 
 /** Change event fired by the sync-parser. */
-export type YamlSyncParserChange<T> = {
+export type YamlSyncParserChange<T = unknown> = {
   readonly ops: t.ObjDiffOp[];
   readonly yaml: { before: string; after: string };
   readonly parsed?: YamlSyncParsed<T>;
