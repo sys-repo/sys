@@ -33,10 +33,7 @@ export type YamlSyncParser<T = unknown> = t.Lifecycle & {
   readonly $: t.Observable<t.YamlSyncParseResult<T>>;
   readonly path: YamlSyncParserPaths;
   readonly doc: YamlSyncParserDocs;
-  readonly current: {
-    readonly input: string | undefined;
-    readonly output: YamlSyncParsed<T>;
-  };
+  readonly current: t.YamlSyncParseResult<T>;
   readonly errors: t.YamlError[];
 };
 

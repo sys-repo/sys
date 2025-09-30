@@ -242,8 +242,8 @@ describe('Yaml', () => {
           expect(syncer.ok).to.eql(true);
           expect(syncer.errors).to.eql([]);
           expect(doc.current['text.parsed']).to.eql(expected);
-          expect(syncer.current.input).to.eql(text);
-          expect(syncer.current.output).to.eql(expected);
+          expect(syncer.current.parsed).to.eql(expected);
+          expect(syncer.current.text.after).to.eql(text ?? '');
         };
         test('', null);
         test('  ', null);
@@ -258,6 +258,8 @@ describe('Yaml', () => {
         expect(syncer.errors.length).to.eql(2);
         expect(Yaml.Is.parseError(syncer.errors[0])).to.eql(true);
         expect(doc.current['text.parsed']).to.eql(undefined);
+        expect(syncer.current.parsed).to.eql(undefined);
+        expect(syncer.current.text.after).to.eql('foo: 123\n -b: a FAIL');
       });
 
       it('parse on change: sync (with events)', () => {
@@ -317,6 +319,9 @@ describe('Yaml', () => {
           expect(fired[2].ops[0].prev).to.eql(123);
           expect(fired[2].ops[0].next).to.eql(456);
         }
+
+        expect(syncer.current.parsed).to.eql({ foo: 456 });
+        expect(syncer.current.text.after).to.eql('foo: 456');
       });
 
       it('parse on change: async (debounced)', async () => {

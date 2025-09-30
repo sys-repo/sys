@@ -11,7 +11,6 @@ type S = t.YamlLib['syncer'];
 const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const { debounce, life, doc, path } = wrangle.args(input);
   const errors = new Set<t.YamlError>();
-  let rev = 0; // Monotonic revision counter.
 
   /**
    * Observables/Events:
@@ -24,9 +23,21 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   type TResult = t.YamlSyncParseResult<T>;
   const $$ = Rx.subject<TResult>();
   const $ = $$.pipe(Rx.takeUntil(life.dispose$));
+
+  // Unified snapshot for `.current`
+  let rev = 0; // Monotonic revision counter.
+  let _current: TResult = {
+    rev: 0,
+    parsed: undefined,
+    ops: [],
+    path,
+    text: { before: '', after: '' },
+    errors: [],
+  };
   const emitChange = (e: Omit<TResult, 'rev'>) => {
     rev += 1;
-    $$.next({ ...e, rev });
+    _current = { ...e, rev } as TResult;
+    $$.next(_current);
   };
 
   /**
@@ -36,23 +47,17 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     if (path == null) return;
     return Obj.Path.get<T>(doc, path);
   };
-  const current: TParser['current'] = {
-    get input() {
-      return get<string>(doc.source?.current, path.source);
-    },
-    get output() {
-      return get<t.YamlSyncParsed<T>>(doc.target?.current, path.target);
-    },
-  };
 
   /**
    * Listen:
    */
   const update = () => {
     // Setup initial conditions.
+    const sourceInput = get<string>(doc.source?.current, path.source) ?? '';
     const before = _before;
-    const after = current.input ?? '';
+    const after = sourceInput;
     _before = after;
+
     errors.clear();
 
     // Attempt to parse data:
@@ -64,7 +69,8 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
 
     const targetPath = path.target ?? [];
     if (ast.errors.length === 0 && targetPath.length > 0) {
-      const isEqual = Obj.eql(data, current.output);
+      const currentOutput = get<t.YamlSyncParsed<T>>(doc.target?.current, path.target);
+      const isEqual = Obj.eql(data, currentOutput);
       if (!isEqual) {
         doc.target.change((d) => {
           const targetValue = Obj.Path.Mutate.ensure(d, path.target!, {});
@@ -82,7 +88,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
 
     // Alert listeners:
     emitChange({
-      parsed: data ? (data as t.YamlSyncParsed<T>) : undefined,
+      parsed: ast.errors.length === 0 ? (data as t.YamlSyncParsed<T>) : undefined,
       ops,
       path,
       text: { before, after },
@@ -109,7 +115,9 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
       },
     },
     path,
-    current,
+    get current() {
+      return _current;
+    },
     get errors() {
       return [...errors];
     },
@@ -118,7 +126,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   /**
    * Initialize:
    */
-  let _before = current.input ?? '';
+  let _before = get<string>(doc.source?.current, path.source) ?? '';
   update();
   source$.subscribe(update);
 
