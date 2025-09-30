@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Common filters for the event-bus.
+ * Common filters for an event-bus.
  */
 export type EventFilterLib<E extends t.EventWithKind> = {
   /** e.kind matches any of the given kinds (type guard). */

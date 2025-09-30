@@ -90,16 +90,16 @@ describe(`Event (@module)`, () => {
     it('returns a specialized emitter with precise type', () => {
       const emitDebug = emitFor<t.DebugEvent>();
 
-      // Exact function type
+      // Exact function type:
       expectTypeOf(emitDebug).toEqualTypeOf<t.EmitEvent<t.DebugEvent>>();
 
-      // Parameter tuple
+      // Parameter tuple:
       type Params = Parameters<typeof emitDebug>;
       expectTypeOf([] as unknown as Params).toEqualTypeOf<
-        [t.Subject<t.DebugEvent>, t.DebugEvent, t.EmitEventSchedule?]
+        [t.Subject<t.DebugEvent>, t.EmitEventSchedule, t.DebugEvent]
       >();
 
-      // Return type
+      // Return type:
       type Ret = ReturnType<typeof emitDebug>;
       expectTypeOf(undefined as Ret).toEqualTypeOf<void>();
     });
@@ -110,10 +110,10 @@ describe(`Event (@module)`, () => {
       const sub = bus$.subscribe((e) => seen.push(e.kind));
 
       const emitDebug = emitFor<t.DebugEvent>();
-      emitDebug(bus$, { kind: 'debug' } satisfies t.DebugBaseEvent, 'sync');
-      emitDebug(bus$, { kind: 'debug:a', count: 1 } satisfies t.DebugAEvent, 'sync');
-      emitDebug(bus$, { kind: 'debug:a.b', total: 2 } satisfies t.DebugABEvent, 'sync');
-      emitDebug(bus$, { kind: 'debug:a.b.c', flag: true } satisfies t.DebugABCEvent, 'sync');
+      emitDebug(bus$, 'sync', { kind: 'debug' } satisfies t.DebugBaseEvent);
+      emitDebug(bus$, 'sync', { kind: 'debug:a', count: 1 } satisfies t.DebugAEvent);
+      emitDebug(bus$, 'sync', { kind: 'debug:a.b', total: 2 } satisfies t.DebugABEvent);
+      emitDebug(bus$, 'sync', { kind: 'debug:a.b.c', flag: true } satisfies t.DebugABCEvent);
 
       sub.unsubscribe();
       expect(seen).to.eql(['debug', 'debug:a', 'debug:a.b', 'debug:a.b.c']);

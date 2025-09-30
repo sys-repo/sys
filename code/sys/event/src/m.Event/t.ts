@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 /** Any event with a string literal `kind`. */
-export type EventWithKind = { readonly kind: string };
+export type EventWithKind<T = string> = { readonly kind: T };
 
 /** Flags representing async-schedule to fire events through an event-bus on. */
 export type EmitEventSchedule = 'sync' | t.AsyncSchedule;
@@ -15,8 +15,8 @@ export type EmitEventSchedule = 'sync' | t.AsyncSchedule;
  */
 export type EmitEvent<E extends EventWithKind = EventWithKind> = (
   bus$: t.Subject<E>,
+  schedule: t.EmitEventSchedule,
   evt: E,
-  schedule?: t.EmitEventSchedule,
 ) => void;
 
 /**

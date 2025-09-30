@@ -21,5 +21,5 @@ export function emit<E extends t.EventWithKind>(
  * Factory returning a union-specialized emitter (symmetry with FilterFor).
  */
 export const emitFor: t.EmitForFactory = <E extends t.EventWithKind>() => {
-  return ((bus$, evt, schedule) => emit(bus$, evt, schedule)) as t.EmitEvent<E>;
+  return ((bus$, evt, schedule) => emit(bus$, schedule, evt)) as t.EmitEvent<E>;
 };
