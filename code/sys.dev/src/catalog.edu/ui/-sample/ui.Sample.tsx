@@ -19,11 +19,16 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Monaco.Yaml.Editor
+        debug={debug}
         theme={theme.name}
         repo={repo}
         path={path}
         signals={props.signals}
         documentId={{ localstorage }}
+        onReady={(e) => {
+          console.info(`⚡️ Monaco.Yaml.Editor:onReady:`, e);
+          e.$.subscribe((e) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, e));
+        }}
       />
     </div>
   );
