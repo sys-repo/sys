@@ -27,17 +27,16 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
   const theme = Color.theme(props.theme);
   const styles = { base: css({}) };
 
-  const name = 'yaml.parsed';
   const data = { ...yaml.parsed, path: yaml.path };
   if (Is.record(data)) Obj.trimStringsDeep(data, { mutate: true });
 
   const elObject = (
     <ObjectView
       //
-      name={name}
+      name={'yaml'}
       data={data}
       theme={theme.name}
-      expand={0}
+      expand={1}
     />
   );
 

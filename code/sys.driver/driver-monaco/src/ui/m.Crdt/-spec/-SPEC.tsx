@@ -102,7 +102,7 @@ export default Spec.describe(D.displayName, async (e) => {
       <PathView
         prefix={'Monaco.Dev.PathView:'}
         prefixColor={Color.CYAN}
-        path={yaml.cursor.path}
+        path={yaml.cursor?.path}
         theme={v.theme}
         style={{ Absolute: [null, 17, -30, 17] }}
       />
