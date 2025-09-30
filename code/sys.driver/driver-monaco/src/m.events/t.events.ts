@@ -2,12 +2,11 @@ import type { t } from './common.ts';
 
 type IPosition = t.Monaco.I.IPosition;
 type IRange = t.Monaco.I.IRange;
-type Trigger = 'editor' | 'crdt';
 
 /**
  * Events running within the Editor's runtime environment.
  */
-export type EditorEvent = EventDebug | EventCrdt | EventYaml;
+export type EditorEvent = EventDebug | EventsCrdt | EventsYaml;
 
 /** Generic debug event (helper). */
 export type EventDebug = {
@@ -17,9 +16,10 @@ export type EventDebug = {
 };
 
 /**
- * CRDT/Editor Events
+ * CRDT/Editor Events:
  */
-export type EventCrdt = EventCrdtText | EventCrdtMarks | EventCrdtFolding;
+export type EventsCrdt = EventCrdtText | EventCrdtMarks | EventsCrdtFolding;
+type Trigger = 'editor' | 'crdt';
 
 /** Fires when CRDT text changes (and is reflected in the editor). */
 export type EventCrdtText = {
@@ -38,33 +38,30 @@ export type EventCrdtMarks = {
 };
 
 /**
- * Code Folding Events
+ * Code Folding Events:
  */
-export type EventCrdtFolding = EventCrdtFoldingReady | EventCrdtFoldingChange;
+export type EventsCrdtFolding = EventCrdtFoldingReady | EventCrdtFolding;
 export type EventCrdtFoldingReady = {
   readonly kind: 'editor:crdt:folding:ready';
   readonly areas: IRange[];
 };
-export type EventCrdtFoldingChange = {
-  readonly kind: 'editor:crdt:folding:change';
+export type EventCrdtFolding = {
+  readonly kind: 'editor:crdt:folding';
   readonly trigger: Trigger;
   readonly areas: IRange[];
 };
 
 /**
- * YAML Editor Events
+ * YAML Editor Events:
  */
-export type EventYaml = EventYamlChange | EventYamlChangeCursorPath;
-export type EventYamlChange = {
-  readonly kind: 'editor:yaml:change';
-
-  // readonly yaml: t.EditorYaml;
-
-  // readonly path: t.ObjectPath;
-  readonly data: t.YamlSyncParserChange;
+export type EventsYaml = EventYaml | EventYamlCursor;
+export type EventYaml = {
+  readonly kind: 'editor:yaml';
+  readonly state: t.YamlSyncParseResult;
 };
-export type EventYamlChangeCursorPath = {
-  readonly kind: 'editor:yaml:change:cursor.path';
+
+export type EventYamlCursor = {
+  readonly kind: 'editor:yaml:cursor';
   readonly path: t.ObjectPath;
   readonly cursor?: { readonly position: IPosition; readonly offset: t.Index };
   readonly word?: IRange;
