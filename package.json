@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@types/react": "19.1.15",
+    "@types/react": "19.1.16",
     "@types/react-dom": "19.1.9",
     "hono": "4.9.9",
     "motion": "12.23.22",
