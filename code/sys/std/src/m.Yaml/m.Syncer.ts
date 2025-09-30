@@ -24,19 +24,25 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const $$ = Rx.subject<TResult>();
   const $ = $$.pipe(Rx.takeUntil(life.dispose$));
 
+  /** Returns true if no error is present and the error list is empty. */
+  const isOk = (e?: Partial<TResult>): TResult['ok'] => {
+    return e ? !!(!e.error && (e.errors?.length ?? 0) === 0) : errors.size === 0;
+  };
+
   // Unified snapshot for `.current`
   let rev = 0; // Monotonic revision counter.
   let _current: TResult = {
     rev: 0,
+    ok: isOk(),
     parsed: undefined,
     ops: [],
     path,
     text: { before: '', after: '' },
     errors: [],
   };
-  const emitChange = (e: Omit<TResult, 'rev'>) => {
+  const emitChange = (e: Omit<TResult, 'rev' | 'ok'>) => {
     rev += 1;
-    _current = { ...e, rev } as TResult;
+    _current = { ...e, ok: isOk(e), rev } satisfies TResult;
     $$.next(_current);
   };
 
@@ -46,6 +52,23 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const get = <T>(doc: O, path: t.ObjectPath | null) => {
     if (path == null) return;
     return Obj.Path.get<T>(doc, path);
+  };
+
+  /**
+   * Structural errors (path validation) - persist on every update.
+   * Rules:
+   *  - if source is empty (even if target is also empty) → one "The source path is empty" error
+   *  - empty target is allowed (event-emitter-only mode)
+   */
+  const addPathErrors = () => {
+    const srcEmpty = path.source == null || path.source.length === 0;
+    if (srcEmpty) {
+      const msg = 'The source path is empty';
+      const err = new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', msg);
+      errors.add(err);
+      return;
+    }
+    // NB: an empty target is valid → no error.
   };
 
   /**
@@ -59,6 +82,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     _before = after;
 
     errors.clear();
+    addPathErrors(); // re-assert structural errors every time
 
     // Attempt to parse data:
     const ast = parseAst(after);
@@ -101,7 +125,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
    */
   const api = Rx.toLifecycle<TParser>(life, {
     get ok() {
-      return errors.size === 0;
+      return isOk();
     },
     get $() {
       return $;
@@ -127,14 +151,10 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
    * Initialize:
    */
   let _before = get<string>(doc.source?.current, path.source) ?? '';
+  // Seed structural error state before the first update (deduped by Set).
+  addPathErrors();
   update();
   source$.subscribe(update);
-
-  if ((path.source || []).length === 0) {
-    const msg = 'The source path is empty';
-    const err = new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', msg);
-    errors.add(err);
-  }
 
   // Finish up.
   return api;

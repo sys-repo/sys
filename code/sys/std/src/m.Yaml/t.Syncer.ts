@@ -51,6 +51,8 @@ export type YamlSyncParserPaths = {
 
 /** Change event fired by the sync-parser. */
 export type YamlSyncParseResult<T = unknown> = {
+  /** Returns true if no error is present and the error list is empty. */
+  readonly ok: boolean;
   /** Monotonic revision counter */
   readonly rev: number;
   /** The parsed YAML output value. */
