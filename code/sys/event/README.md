@@ -20,7 +20,7 @@ type MyEvents = BaseEvent | AEvent | ABEvent;
 <p>&nbsp;</p>
 
 ### Firing
-An event-bus is a plain observable stream. Events are dispatched on a standardized `@sys/std:Schedule`.
+An event-bus is a plain observable stream. Events are dispatched on a standardized `@sys/std:Schedule` (`micro`, `raf`, `macro`).
 
 ```ts
 import { emitFor } from '@sys/event/bus';
