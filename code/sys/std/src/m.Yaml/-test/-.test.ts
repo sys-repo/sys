@@ -140,7 +140,7 @@ describe('Yaml', () => {
         const path = ['text'];
 
         const a = Yaml.syncer({ doc: docA, path });
-        const b = Yaml.syncer({ doc: { source: docA }, path });
+        const b = Yaml.syncer({ doc: docA, path: { source: ['text'] } });
         const c = Yaml.syncer({ doc: { source: docA, target: docB }, path });
 
         expect(a.ok).to.eql(true);
@@ -279,6 +279,7 @@ describe('Yaml', () => {
         expect(fired[0].error).to.eql(undefined);
         expect(fired[0].ops.length).to.eql(1);
         expect(fired[0].ops[0].type).to.eql('update');
+        expect(fired[0].path).to.eql(syncer.path);
 
         // Error:
         const fail = 'foo: 123\n -foo: FAIL';
@@ -296,6 +297,7 @@ describe('Yaml', () => {
         expect(Yaml.Is.parseError(err2)).to.eql(true);
         expect(err1.pos).to.eql([5, 6]);
         expect(err2.pos).to.eql([5, 14]);
+        expect(fired[1].path).to.eql(syncer.path);
 
         // Come back from error:
         doc.change((d) => (d.text = 'foo: 456'));
@@ -307,6 +309,7 @@ describe('Yaml', () => {
         expect(fired[2].parsed).to.eql({ foo: 456 });
         expect(fired[2].error).to.eql(undefined);
         expect(fired[2].text).to.eql({ before: fail, after: 'foo: 456' });
+        expect(fired[2].path).to.eql(syncer.path);
 
         expect(fired[2].ops.length).to.eql(1);
         expect(fired[2].ops[0].type).to.eql('update');

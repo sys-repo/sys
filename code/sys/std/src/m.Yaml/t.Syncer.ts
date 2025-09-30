@@ -56,12 +56,14 @@ export type YamlSyncParserPaths = {
 export type YamlSyncParseResult<T = unknown> = {
   /** Monotonic revision counter */
   readonly rev: number;
-  /** The raw YAML text. */
-  readonly text: { readonly before: t.StringYaml; readonly after: t.StringYaml };
   /** The parsed YAML output value. */
   readonly parsed?: YamlSyncParsed<T>;
   /** The diff operations. */
   readonly ops: t.ObjDiffOp[];
+  /** The source/target paths used by the parser. */
+  readonly path: t.YamlSyncParserPaths;
+  /** The raw YAML text. */
+  readonly text: { readonly before: t.StringYaml; readonly after: t.StringYaml };
   /** Stanard error (super set of parse errors). */
   readonly error?: t.StdError;
   /** The YAML parse errors, contains source-map pointers back into the raw YAML text.  */

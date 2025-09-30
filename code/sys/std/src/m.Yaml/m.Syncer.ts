@@ -82,9 +82,10 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
 
     // Alert listeners:
     emitChange({
-      ops,
-      text: { before, after },
       parsed: data ? (data as t.YamlSyncParsed<T>) : undefined,
+      ops,
+      path,
+      text: { before, after },
       errors: [...errors],
     });
   };
