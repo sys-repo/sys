@@ -11,6 +11,7 @@ type S = t.YamlLib['syncer'];
 const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const { debounce, life, doc, path } = wrangle.args(input);
   const errors = new Set<t.YamlError>();
+  let rev = 0; // Monotonic revision counter.
 
   /**
    * Observables/Events:
@@ -19,8 +20,14 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const pathEvents = events.path(path.source ?? []);
   const source$ = debounce > 0 ? pathEvents.$.pipe(Rx.debounceTime(debounce)) : pathEvents.$;
 
-  const $$ = Rx.subject<t.YamlSyncParserChange<T>>();
+  type TParser = t.YamlSyncParser<T>;
+  type TResult = t.YamlSyncParseResult<T>;
+  const $$ = Rx.subject<TResult>();
   const $ = $$.pipe(Rx.takeUntil(life.dispose$));
+  const emitChange = (e: Omit<TResult, 'rev'>) => {
+    rev += 1;
+    $$.next({ ...e, rev });
+  };
 
   /**
    * Data:
@@ -29,7 +36,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     if (path == null) return;
     return Obj.Path.get<T>(doc, path);
   };
-  const current: t.YamlSyncParser<T>['current'] = {
+  const current: TParser['current'] = {
     get input() {
       return get<string>(doc.source?.current, path.source);
     },
@@ -74,9 +81,9 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     }
 
     // Alert listeners:
-    $$.next({
+    emitChange({
       ops,
-      yaml: { before, after },
+      text: { before, after },
       parsed: data ? (data as t.YamlSyncParsed<T>) : undefined,
       errors: [...errors],
     });
@@ -85,7 +92,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   /**
    * API:
    */
-  const api = Rx.toLifecycle<t.YamlSyncParser<T>>(life, {
+  const api = Rx.toLifecycle<TParser>(life, {
     get ok() {
       return errors.size === 0;
     },

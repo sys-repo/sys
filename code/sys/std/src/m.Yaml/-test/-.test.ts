@@ -229,7 +229,7 @@ describe('Yaml', () => {
 
     describe('sync/parsing', () => {
       type T = { text?: string; 'text.parsed'?: O };
-      type E = t.YamlSyncParserChange<T>;
+      type E = t.YamlSyncParseResult<T>;
       const sample = (text?: string) => {
         const doc = Immutable.clonerRef<T>({ text });
         const syncer = Yaml.syncer<T>({ doc, path: ['text'] });
@@ -274,7 +274,7 @@ describe('Yaml', () => {
         expect(syncer.ok).to.eql(true);
 
         expect(fired.length).to.eql(1);
-        expect(fired[0].yaml).to.eql({ before: '', after: 'foo: 123' });
+        expect(fired[0].text).to.eql({ before: '', after: 'foo: 123' });
         expect(fired[0].parsed).to.eql({ foo: 123 });
         expect(fired[0].error).to.eql(undefined);
         expect(fired[0].ops.length).to.eql(1);
@@ -306,7 +306,7 @@ describe('Yaml', () => {
         expect(fired.length).to.eql(3);
         expect(fired[2].parsed).to.eql({ foo: 456 });
         expect(fired[2].error).to.eql(undefined);
-        expect(fired[2].yaml).to.eql({ before: fail, after: 'foo: 456' });
+        expect(fired[2].text).to.eql({ before: fail, after: 'foo: 456' });
 
         expect(fired[2].ops.length).to.eql(1);
         expect(fired[2].ops[0].type).to.eql('update');

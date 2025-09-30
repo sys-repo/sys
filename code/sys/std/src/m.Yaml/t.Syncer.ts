@@ -30,7 +30,7 @@ export type YamlSyncArgs = {
  */
 export type YamlSyncParser<T = unknown> = t.Lifecycle & {
   readonly ok: boolean;
-  readonly $: t.Observable<t.YamlSyncParserChange<T>>;
+  readonly $: t.Observable<t.YamlSyncParseResult<T>>;
   readonly path: YamlSyncParserPaths;
   readonly doc: YamlSyncParserDocs;
   readonly current: {
@@ -53,11 +53,18 @@ export type YamlSyncParserPaths = {
 };
 
 /** Change event fired by the sync-parser. */
-export type YamlSyncParserChange<T = unknown> = {
-  readonly ops: t.ObjDiffOp[];
-  readonly yaml: { before: string; after: string };
+export type YamlSyncParseResult<T = unknown> = {
+  /** Monotonic revision counter */
+  readonly rev: number;
+  /** The raw YAML text. */
+  readonly text: { readonly before: t.StringYaml; readonly after: t.StringYaml };
+  /** The parsed YAML output value. */
   readonly parsed?: YamlSyncParsed<T>;
+  /** The diff operations. */
+  readonly ops: t.ObjDiffOp[];
+  /** Stanard error (super set of parse errors). */
   readonly error?: t.StdError;
+  /** The YAML parse errors, contains source-map pointers back into the raw YAML text.  */
   readonly errors: t.YamlError[];
 };
 
