@@ -43,7 +43,7 @@ export async function main() {
   const el = await render(pkg, Specs, {
     style: { Absolute: 0 },
     hr(e) {
-      if (e.next?.includes('ui.Editor.Yaml ←')) return true;
+      if (e.next?.endsWith('ui.YamlEditor')) return true;
       if (e.next?.includes('Sample')) return true;
     },
   });
@@ -57,18 +57,6 @@ export async function main() {
       <App />
     </React.StrictMode>,
   );
-  if (isDev) {
-  } else {
-    /**
-     * Main:
-     */
-    // const { MonacoEditor } = await import('@sys/driver-monaco');
-    // root.render(
-    //   <React.StrictMode>
-    //     <MonacoEditor style={{ Absolute: 0 }} theme={'Dark'} />
-    //   </React.StrictMode>,
-    // );
-  }
 }
 
 main().catch((err) => console.error(`Failed to render DevHarness`, err));
