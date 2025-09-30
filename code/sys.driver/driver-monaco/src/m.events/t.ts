@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-export type * from './t.events.def.ts';
+export type * from './t.events.ts';
 
 /** Editor event-bus (Subject). */
 export type EditorEventBus = t.Subject<t.EditorEvent>;

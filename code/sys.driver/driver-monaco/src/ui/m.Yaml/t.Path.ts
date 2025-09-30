@@ -16,6 +16,6 @@ export type EditorYamlPathLib = Readonly<{
  * YAML document based on where the user's caret is.
  */
 export type EditorYamlCursorPathObserver = t.Lifecycle & {
-  readonly $: t.Observable<t.EventYamlChangeCursorPath>;
-  readonly current: t.EventYamlChangeCursorPath;
+  readonly $: t.Observable<t.EventYamlCursor>;
+  readonly current: t.EventYamlCursor;
 };

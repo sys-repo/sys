@@ -14,13 +14,13 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
   const bus$ = args.bus$ ?? Bus.make();
   const $ = bus$.pipe(
     Rx.takeUntil(life.dispose$),
-    Rx.filter((e) => e.kind === 'editor:yaml:change:cursor.path'),
+    Rx.filter((e) => e.kind === 'editor:yaml:cursor'),
   );
 
   // Keep the latest parse and the model version it belongs to:
   let ast = Yaml.parseAst(model.getValue());
   let version = model.getVersionId();
-  let current: t.EventYamlChangeCursorPath | undefined;
+  let current: t.EventYamlCursor | undefined;
 
   // (Re)parse helper:
   const parse = () => {
@@ -30,7 +30,7 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
 
   const clear = () => {
     current = undefined;
-    Bus.emit(bus$, { kind: 'editor:yaml:change:cursor.path', path: [] });
+    Bus.emit(bus$, 'micro', { kind: 'editor:yaml:cursor', path: [] });
   };
 
   const update = () => {
@@ -41,9 +41,8 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
       const { offset, path } = pathAtCaret(model, ast, position);
       if (offset === -1) return void clear();
 
-      const cursor = { position, offset };
-      current = { kind: 'editor:yaml:change:cursor.path', path, cursor, word };
-      Bus.emit(bus$, current);
+      current = { kind: 'editor:yaml:cursor', path, word, cursor: { position, offset } };
+      Bus.emit(bus$, 'micro', current);
     } else {
       clear();
     }
@@ -84,8 +83,8 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
       return $;
     },
     get current() {
-      type T = t.EventYamlChangeCursorPath;
-      return current ? current : ({ kind: 'editor:yaml:change:cursor.path', path: [] } satisfies T);
+      type T = t.EventYamlCursor;
+      return current ? current : ({ kind: 'editor:yaml:cursor', path: [] } satisfies T);
     },
   });
 };

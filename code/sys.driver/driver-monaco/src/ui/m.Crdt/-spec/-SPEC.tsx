@@ -54,7 +54,7 @@ export default Spec.describe(D.displayName, async (e) => {
       console.info(`🧫 [READY] Monaco.Crdt.useBinding`);
       e.$.subscribe((e) => {
         if (e.kind === 'editor:crdt:marks') p.hiddenAreas.value = e.change.after;
-        if (e.kind === 'editor:crdt:folding:change') p.hiddenAreas.value = e.areas;
+        if (e.kind === 'editor:crdt:folding') p.hiddenAreas.value = e.areas;
       });
     });
 

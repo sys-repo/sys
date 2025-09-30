@@ -67,7 +67,7 @@ export function impl(args: {
     initialFired = true;
 
     const kind: t.EditorEvent['kind'] = 'editor:crdt:folding:ready';
-    const ready = (areas: IRange[]) => Bus.emit(bus$, { kind, areas });
+    const ready = (areas: IRange[]) => Bus.emit(bus$, 'micro', { kind, areas });
 
     const isEmpty = model.getValueLength() === 0;
     if (isEmpty || marks.length === 0) {

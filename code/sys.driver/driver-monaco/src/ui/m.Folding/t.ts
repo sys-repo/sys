@@ -64,6 +64,6 @@ export type EditorFoldingLib = {
  * Live observer of the editor's hidden-area list:
  */
 export type EditorFoldingAreaObserver = t.Lifecycle & {
-  readonly $: t.Observable<t.EventCrdtFoldingChange>;
+  readonly $: t.Observable<t.EventCrdtFolding>;
   readonly areas: t.Monaco.I.IRange[];
 };

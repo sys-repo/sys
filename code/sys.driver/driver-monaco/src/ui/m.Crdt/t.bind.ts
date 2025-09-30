@@ -40,7 +40,7 @@ export type UseEditorCrdtBinding = (
 /** Fires when the CRDT data binding is initialized and ready. */
 export type EditorCrdtBindingReadyHandler = (e: EditorCrdtBindingReady) => void;
 export type EditorCrdtBindingReady = t.MonacoEditorReady & {
-  readonly $: t.Observable<t.EventCrdt>;
+  readonly $: t.Observable<t.EventsCrdt>;
 };
 
 /** Arguments passed to the CRDT `useBinding` hook. */

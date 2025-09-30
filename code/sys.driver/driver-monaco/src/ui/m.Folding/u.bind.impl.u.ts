@@ -81,6 +81,11 @@ export function makeMarksEmitter(bus$: t.EditorEventBus, model: TextModel, path:
     const after = offsetsToRanges(model, next);
 
     if (RangeUtil.eql(before, after)) return;
-    Bus.emit(bus$, { kind: 'editor:crdt:marks', trigger, path, change: { before, after } });
+    Bus.emit(bus$, 'micro', {
+      kind: 'editor:crdt:marks',
+      trigger,
+      path,
+      change: { before, after },
+    });
   };
 }

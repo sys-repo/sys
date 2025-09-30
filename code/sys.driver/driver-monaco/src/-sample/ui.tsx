@@ -24,7 +24,7 @@ export const Sample: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  const [yaml, setYaml] = React.useState<t.EditorYaml>();
+  const [yaml, setYaml] = React.useState<t.EditorYamlHook>();
   const [splitRatio, setSplitRatio] = React.useState<t.Percent>(0.3);
   const size = useSizeObserver();
   const width = size.rect?.width ?? 0;
