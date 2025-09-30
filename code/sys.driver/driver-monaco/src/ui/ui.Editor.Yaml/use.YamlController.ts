@@ -50,9 +50,10 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
    */
   React.useEffect(() => {
     const life = Rx.disposable();
-    bus$
-      .pipe(Rx.takeUntil(life.dispose$), Bus.Filter.ofKind('editor:yaml:change'))
-      .subscribe((e) => (signals.yaml.value = e.yaml));
+    const $ = bus$.pipe(Rx.takeUntil(life.dispose$));
+    $.pipe(Bus.Filter.ofKind('editor:yaml')).subscribe((e) => {
+      // signals.yaml.value = e.yaml;
+    });
     return life.dispose;
   }, [signals.yaml]);
 

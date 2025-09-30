@@ -11,7 +11,7 @@ export function useSignals(signalsInput?: Partial<t.YamlEditorSignals>) {
       doc: s<t.CrdtRef | undefined>(),
       monaco: s<t.Monaco.Monaco | undefined>(),
       editor: s<t.Monaco.Editor | undefined>(),
-      yaml: s<t.EditorYaml | undefined>(),
+      yaml: s<t.EditorYamlHook | undefined>(),
     };
   });
 

@@ -36,7 +36,7 @@ export type YamlEditorSignals = {
   monaco: t.Signal<t.Monaco.Monaco | undefined>;
   editor: t.Signal<t.Monaco.Editor | undefined>;
   doc: t.Signal<t.CrdtRef | undefined>;
-  yaml: t.Signal<t.EditorYaml | undefined>;
+  yaml: t.Signal<t.EditorYamlHook | undefined>;
 };
 
 /**
