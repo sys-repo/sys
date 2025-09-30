@@ -9,7 +9,7 @@ An **event-bus** is a shared observable stream that multiple producers can **pub
 Message-based event streams are strongly typed, ensuring compile-time safety, precise narrowing, and self-documenting contracts between publishers and subscribers.
 
 ```ts
-// Example event union (or import your own types)
+// Example event union:
 type BaseEvent = { readonly kind: 'debug';     msg?: string };
 type AEvent    = { readonly kind: 'debug:a';   count: number };
 type ABEvent   = { readonly kind: 'debug:a.b'; total: number };
