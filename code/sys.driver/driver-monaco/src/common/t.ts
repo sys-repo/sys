@@ -19,8 +19,8 @@ export type {
   YamlSyncArgsInput,
   YamlSyncParsed,
   YamlSyncParser,
-  YamlSyncParserChange,
   YamlSyncParserDocs,
+  YamlSyncParseResult,
   YamlSyncParserPaths,
 } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';

@@ -31,7 +31,7 @@ describe(`Editor Events`, () => {
         path: ['foo'] as t.ObjectPath,
         change: { before: 'x', after: 'y' },
       };
-      Bus.emit(bus$, evt, 'sync');
+      Bus.emit(bus$, 'sync', evt);
 
       expect(seen).to.eql([evt]);
     });
@@ -42,44 +42,32 @@ describe(`Editor Events`, () => {
       bus$.subscribe((e) => seen.push(e));
 
       // micro
-      Bus.emit(
-        bus$,
-        {
-          kind: 'editor:crdt:text',
-          trigger: 'editor',
-          path: ['a'] as t.ObjectPath,
-          change: { before: '', after: '1' },
-        },
-        'micro',
-      );
+      Bus.emit(bus$, 'micro', {
+        kind: 'editor:crdt:text',
+        trigger: 'editor',
+        path: ['a'] as t.ObjectPath,
+        change: { before: '', after: '1' },
+      });
       await Schedule.micro();
       expect(seen.some((e) => e.kind === 'editor:crdt:text')).to.eql(true);
 
       // macro
-      Bus.emit(
-        bus$,
-        {
-          kind: 'editor:crdt:text',
-          trigger: 'editor',
-          path: ['b'] as t.ObjectPath,
-          change: { before: '1', after: '2' },
-        },
-        'macro',
-      );
+      Bus.emit(bus$, 'macro', {
+        kind: 'editor:crdt:text',
+        trigger: 'editor',
+        path: ['b'] as t.ObjectPath,
+        change: { before: '1', after: '2' },
+      });
       await Schedule.macro();
       expect(seen.filter((e) => e.kind === 'editor:crdt:text').length).to.be.greaterThan(0);
 
       // raf
-      Bus.emit(
-        bus$,
-        {
-          kind: 'editor:crdt:text',
-          trigger: 'editor',
-          path: ['c'] as t.ObjectPath,
-          change: { before: '2', after: '3' },
-        },
-        'raf',
-      );
+      Bus.emit(bus$, 'raf', {
+        kind: 'editor:crdt:text',
+        trigger: 'editor',
+        path: ['c'] as t.ObjectPath,
+        change: { before: '2', after: '3' },
+      });
       await Schedule.raf();
       expect(seen.filter((e) => e.kind === 'editor:crdt:text').length).to.be.greaterThan(0);
     });
@@ -133,22 +121,17 @@ describe(`Editor Events`, () => {
         .pipe(Bus.Filter.ofKind('editor:debug', 'editor:crdt:folding:ready'))
         .subscribe((e) => seen.push(e));
 
-      Bus.emit(bus$, { kind: 'editor:debug', msg: 'a' } satisfies t.EventDebug, 'sync');
-      Bus.emit(
-        bus$,
-        {
-          kind: 'editor:crdt:text',
-          trigger: 'crdt',
-          path: [],
-          change: { before: '', after: '' },
-        } satisfies t.EventCrdtText,
-        'sync',
-      );
-      Bus.emit(
-        bus$,
-        { kind: 'editor:crdt:folding:ready', areas: [] } satisfies t.EventCrdtFoldingReady,
-        'sync',
-      );
+      Bus.emit(bus$, 'sync', { kind: 'editor:debug', msg: 'a' } satisfies t.EventDebug);
+      Bus.emit(bus$, 'sync', {
+        kind: 'editor:crdt:text',
+        trigger: 'crdt',
+        path: [],
+        change: { before: '', after: '' },
+      } satisfies t.EventCrdtText);
+      Bus.emit(bus$, 'sync', {
+        kind: 'editor:crdt:folding:ready',
+        areas: [],
+      } satisfies t.EventCrdtFoldingReady);
 
       sub.unsubscribe();
       expect(seen.map((e) => e.kind)).to.eql(['editor:debug', 'editor:crdt:folding:ready']);
@@ -163,24 +146,19 @@ describe(`Editor Events`, () => {
         .subscribe((e) => crdtKinds.push(e.kind));
 
       // non-match
-      Bus.emit(bus$, { kind: 'editor:debug', msg: 'noop' } satisfies t.EventDebug, 'sync');
+      Bus.emit(bus$, 'sync', { kind: 'editor:debug', msg: 'noop' } satisfies t.EventDebug);
 
       // matches
-      Bus.emit(
-        bus$,
-        {
-          kind: 'editor:crdt:text',
-          trigger: 'crdt',
-          path: [],
-          change: { before: 'a', after: 'b' },
-        } satisfies t.EventCrdtText,
-        'sync',
-      );
-      Bus.emit(
-        bus$,
-        { kind: 'editor:crdt:folding:ready', areas: [] } satisfies t.EventCrdtFoldingReady,
-        'sync',
-      );
+      Bus.emit(bus$, 'sync', {
+        kind: 'editor:crdt:text',
+        trigger: 'crdt',
+        path: [],
+        change: { before: 'a', after: 'b' },
+      } satisfies t.EventCrdtText);
+      Bus.emit(bus$, 'sync', {
+        kind: 'editor:crdt:folding:ready',
+        areas: [],
+      } satisfies t.EventCrdtFoldingReady);
 
       sub.unsubscribe();
       expect(crdtKinds).to.eql(['editor:crdt:text', 'editor:crdt:folding:ready']);
@@ -192,38 +170,30 @@ describe(`Editor Events`, () => {
 
       const sub = bus$
         .pipe(
-          Bus.Filter.ofPrefix('editor:crdt:'), // prefix narrow
-          Bus.Filter.ofKind('editor:crdt:folding:change'), // exact kind
+          Bus.Filter.ofPrefix('editor:crdt:'), //      ← prefix narrow
+          Bus.Filter.ofKind('editor:crdt:folding'), // ← exact kind
         )
         .subscribe((e) => seen.push(e));
 
-      // noise
-      Bus.emit(bus$, { kind: 'editor:debug', msg: 'noise' } satisfies t.EventDebug, 'sync');
-      Bus.emit(
-        bus$,
-        {
-          kind: 'editor:crdt:text',
-          trigger: 'crdt',
-          path: [],
-          change: { before: '', after: '' },
-        } satisfies t.EventCrdtText,
-        'sync',
-      );
+      // noise:
+      Bus.emit(bus$, 'sync', { kind: 'editor:debug', msg: 'noise' } satisfies t.EventDebug);
+      Bus.emit(bus$, 'sync', {
+        kind: 'editor:crdt:text',
+        trigger: 'crdt',
+        path: [],
+        change: { before: '', after: '' },
+      } satisfies t.EventCrdtText);
 
-      // match
-      Bus.emit(
-        bus$,
-        {
-          kind: 'editor:crdt:folding:change',
-          trigger: 'editor',
-          areas: [],
-        } satisfies t.EventCrdtFoldingChange,
-        'sync',
-      );
+      // match:
+      Bus.emit(bus$, 'sync', {
+        kind: 'editor:crdt:folding',
+        trigger: 'editor',
+        areas: [],
+      } satisfies t.EventCrdtFolding);
 
       sub.unsubscribe();
       expect(seen).to.have.length(1);
-      expect(seen[0].kind).to.equal('editor:crdt:folding:change');
+      expect(seen[0].kind === 'editor:crdt:folding').to.be.true;
     });
 
     it('predicate inside plain Rx.filter (no operator)', () => {
@@ -234,16 +204,15 @@ describe(`Editor Events`, () => {
         .pipe(Rx.filter(Bus.Filter.isKind('editor:crdt:folding:ready')))
         .subscribe((e) => seen.push(e as t.EventCrdtFoldingReady));
 
-      Bus.emit(bus$, { kind: 'editor:debug', msg: 'skip' } satisfies t.EventDebug, 'sync');
-      Bus.emit(
-        bus$,
-        { kind: 'editor:crdt:folding:ready', areas: [] } satisfies t.EventCrdtFoldingReady,
-        'sync',
-      );
+      Bus.emit(bus$, 'sync', { kind: 'editor:debug', msg: 'skip' } satisfies t.EventDebug);
+      Bus.emit(bus$, 'sync', {
+        kind: 'editor:crdt:folding:ready',
+        areas: [],
+      } satisfies t.EventCrdtFoldingReady);
 
       sub.unsubscribe();
       expect(seen).to.have.length(1);
-      expect(seen[0].kind).to.equal('editor:crdt:folding:ready');
+      expect(seen[0].kind === 'editor:crdt:folding:ready').to.be.true;
     });
   });
 });
