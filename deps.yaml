@@ -80,15 +80,15 @@ groups:
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.3
     - import: npm:prosemirror-state@1.4.3
-    - import: npm:prosemirror-view@1.41.1
+    - import: npm:prosemirror-view@1.41.2
       subpaths: [style/prosemirror.css]
     - import: npm:prosemirror-example-setup@1.2.3
       subpaths: [style/style.css]
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.56
-    - import: npm:@ai-sdk/openai@2.0.38
+    - import: npm:ai@5.0.59
+    - import: npm:@ai-sdk/openai@2.0.41
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.18.0
       subpaths: ['agent', 'memory', 'storage']
