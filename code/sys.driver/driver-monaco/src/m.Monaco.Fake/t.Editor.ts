@@ -16,6 +16,7 @@ export type FakeEditorFull = t.Monaco.Editor & t.FakeEditor;
 export type FakeEditor = t.EditorHiddenMembers &
   Pick<
     t.Monaco.I.IStandaloneCodeEditor,
+    | 'getId'
     | 'getModel'
     | 'getPosition'
     | 'setPosition'

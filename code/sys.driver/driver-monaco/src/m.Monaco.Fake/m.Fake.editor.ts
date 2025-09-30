@@ -5,11 +5,17 @@ type F = t.FakeMonacoLib['editor'];
 type IRange = t.Monaco.I.IRange;
 type IStandalone = t.Monaco.I.IStandaloneCodeEditor;
 
+/** monotonic id generator */
+let __id = 0;
+const newId = () => `e${++__id}`;
+
 /**
  * Minimal `IStandaloneCodeEditor` fake.
  */
 export const fakeEditor: F = (input) => {
   const model = wrangle.model(input);
+  const id = newId();
+
   let position: t.Offset = { lineNumber: 1, column: 1 };
   const cursorSubs: Array<(e: t.Monaco.I.ICursorPositionChangedEvent) => void> = [];
 
@@ -19,7 +25,7 @@ export const fakeEditor: F = (input) => {
   const modelSubs: Array<(e: t.Monaco.I.IModelChangedEvent) => void> = [];
   const onDidChangeModel: IStandalone['onDidChangeModel'] = (
     listener: (e: t.Monaco.I.IModelChangedEvent) => void,
-    thisArg?: any,
+    thisArg?: unknown,
     disposables?: t.Monaco.I.IDisposable[],
   ) => {
     const fn = (e: t.Monaco.I.IModelChangedEvent) => listener.call(thisArg, e);
@@ -83,12 +89,13 @@ export const fakeEditor: F = (input) => {
       },
     };
   };
+
   const setPosition = (pos: t.Offset) => {
     position = pos;
     const evt = {
       position,
       secondaryPositions: null,
-      reason: 0, // ← CursorChangeReason.NotSet
+      reason: 0, // CursorChangeReason.NotSet
       source: 'keyboard',
     } as unknown as t.Monaco.I.ICursorPositionChangedEvent;
     cursorSubs.forEach((fn) => fn(evt));
@@ -97,7 +104,7 @@ export const fakeEditor: F = (input) => {
   /**
    * Trigger.
    */
-  const trigger = (_src: string, command: string, payload?: any) => {
+  const trigger = (_src: string, command: string, payload?: unknown) => {
     switch (command) {
       /**
        * Commands that DON’T require `selectionLines`
@@ -111,7 +118,7 @@ export const fakeEditor: F = (input) => {
        */
       case 'editor.fold':
       case 'editor.unfold': {
-        const lines: number[] | undefined = payload?.selectionLines;
+        const lines: number[] | undefined = (payload as any)?.selectionLines;
         if (!lines?.length) return; // invalid payload → no-op
 
         const to1 = (n: number) => n + 1;
@@ -147,9 +154,7 @@ export const fakeEditor: F = (input) => {
           return;
         }
 
-        /**
-         * editor.unfold
-         */
+        // editor.unfold
         const reveal = new Set(sorted.map(to1));
         setHiddenAreas(
           getHiddenAreas().filter((r) =>
@@ -159,7 +164,9 @@ export const fakeEditor: F = (input) => {
         return;
       }
 
-      default: /* ignore unknown commands */
+      default:
+        /* ignore unknown commands */
+        return;
     }
   };
 
@@ -187,7 +194,7 @@ export const fakeEditor: F = (input) => {
 
     let text = model.getValue();
     for (const op of ops) {
-      text = text.slice(0, op.s) + op.text + text.slice(op.e);
+      text = text.slice(0, op.s) + op.text + text.slice(0 + op.e);
     }
     model.setValue(text);
     return true;
@@ -207,6 +214,7 @@ export const fakeEditor: F = (input) => {
    */
   const api: t.FakeEditor = {
     // Getters:
+    getId: () => id,
     getPosition: () => position as t.Monaco.Position,
     getModel: () => model as unknown as t.Monaco.TextModel,
     getVisibleRanges,

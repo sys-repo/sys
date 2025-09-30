@@ -695,12 +695,20 @@ describe('MonacoFake (Mock)', () => {
     });
   });
 
-  describe('IStandaloneCodeEditor', () => {
+  describe('Editor', () => {
     describe('model', () => {
       it('exposes its model', () => {
         const model = MonacoFake.model('text');
         const editor = MonacoFake.editor(model);
         expect(editor.getModel()).to.eql(model);
+      });
+
+      it('has monotonic editor IDs', () => {
+        const a = MonacoFake.editor();
+        const b = MonacoFake.editor();
+        expect(a.getId()).to.eql('e1');
+        expect(a.getId()).to.eql('e1'); // NB: stable ID.
+        expect(b.getId()).to.eql('e2');
       });
 
       it('creates from "src" string param ← auto model generation', () => {
