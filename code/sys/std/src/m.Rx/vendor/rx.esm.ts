@@ -23,6 +23,7 @@ export {
   observeOn,
   of,
   scan,
+  shareReplay,
   startWith,
   Subject,
   takeUntil,

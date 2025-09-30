@@ -44,6 +44,7 @@ type RxjsLib = {
   readonly BehaviorSubject: typeof rxjs.BehaviorSubject;
   readonly firstValueFrom: typeof rxjs.firstValueFrom;
   readonly startWith: typeof rxjs.startWith;
+  readonly shareReplay: typeof rxjs.shareReplay;
   readonly auditTime: typeof rxjs.auditTime;
   readonly interval: typeof rxjs.interval;
   readonly lastValueFrom: typeof rxjs.lastValueFrom;

@@ -32,6 +32,7 @@ export const timer = v.timer as unknown as typeof rx.timer;
 export const merge = v.merge as unknown as typeof rx.merge;
 export const combineLatest = v.combineLatest as unknown as typeof rx.combineLatest;
 export const combineLatestWith = v.combineLatestWith as unknown as typeof rx.combineLatestWith;
+export const shareReplay = v.shareReplay as unknown as typeof rx.shareReplay;
 
 export const takeUntil = v.takeUntil as unknown as typeof rx.takeUntil;
 export const defaultIfEmpty = v.defaultIfEmpty as unknown as typeof rx.defaultIfEmpty;
