@@ -1,8 +1,11 @@
 import { type t, D, Is, R } from './common.ts';
 import { RangeUtil } from './u.Range.ts';
 
+type IRange = t.Monaco.I.IRange;
+type IPosition = t.Monaco.I.IPosition;
+
 export const MonacoIs: t.EditorIsLib = {
-  editorRange(input: any): input is t.Monaco.I.IRange {
+  editorRange(input: any): input is IRange {
     if (!input) return false;
     if (typeof input !== 'object') return false;
     return (
@@ -19,7 +22,7 @@ export const MonacoIs: t.EditorIsLib = {
     return input.length === 2 && Is.number(input[0]) && Is.number(input[1]);
   },
 
-  nullRange(input: t.Monaco.I.IRange): boolean {
+  nullRange(input: IRange): boolean {
     return R.equals(input, D.NULL_RANGE);
   },
 
@@ -40,5 +43,22 @@ export const MonacoIs: t.EditorIsLib = {
     if (range.endColumn > endLine.length + 1) return false;
 
     return true;
+  },
+
+  positionEqual(a?: IPosition, b?: IPosition): boolean {
+    if (!a || !b) return false; //  guard undefined/null first
+    if (a === b) return true; //    identity fast-path (both defined)
+    return a.lineNumber === b.lineNumber && a.column === b.column;
+  },
+
+  rangeEqual(a?: IRange, b?: IRange): boolean {
+    if (!a || !b) return false; //  guard undefined/null first
+    if (a === b) return true; //    identity fast-path (both defined)
+    return (
+      a.startLineNumber === b.startLineNumber &&
+      a.startColumn === b.startColumn &&
+      a.endLineNumber === b.endLineNumber &&
+      a.endColumn === b.endColumn
+    );
   },
 };

@@ -3,6 +3,9 @@ import type { t } from './common.ts';
 export type * from './t.Error.ts';
 export type * from './t.Link.ts';
 
+type IRange = t.Monaco.I.IRange;
+type IPosition = t.Monaco.I.IPosition;
+
 /**
  * Code editor library:
  */
@@ -19,13 +22,25 @@ export type MonacoLib = {
 /**
  * Boolean flag evalutators for the Monaco UI library.
  */
-export type EditorIsLib = Readonly<{
-  editorRange(input: unknown): input is t.Monaco.I.IRange;
-  charPositionTuple(input: any): input is t.CharPositionTuple;
-  nullRange(input: t.Monaco.I.IRange): boolean;
+/**
+ * Boolean flag evaluators and equality checks for the Monaco UI library.
+ */
+export type EditorIsLib = {
+  /** True if the input is a Monaco IRange. */
+  editorRange(input: unknown): input is IRange;
+  /** True if the input is a [line, column] tuple. */
+  charPositionTuple(input: unknown): input is t.CharPositionTuple;
+  /** True if the range has no width/height. */
+  nullRange(input: IRange): boolean;
+  /** True if the range spans exactly one character. */
   singleCharRange(input: t.EditorRangeInput): boolean;
+  /** True if the given range is fully within the text string. */
   rangeWithinString(input: t.EditorRangeInput, text: string): boolean;
-}>;
+  /** Strict equality by line/column. */
+  positionEqual(a?: IPosition, b?: IPosition): boolean;
+  /** Strict equality by start/end line/column. */
+  rangeEqual(a?: IRange, b?: IRange): boolean;
+};
 
 /**
  * Convenince bundling of the Editor with the global Monaco API
