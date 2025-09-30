@@ -153,6 +153,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{`${D.name}.Editor`}</div>
         <div>{'YAML'}</div>
       </div>
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+      <hr />
 
       <Button
         block
@@ -224,11 +230,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
-      />
-      <Button
-        block
-        label={() => `render: ${p.render.value}`}
-        onClick={() => Signal.toggle(p.render)}
       />
       <Button
         block

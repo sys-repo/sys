@@ -136,6 +136,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+      <hr />
 
       <Button
         block
@@ -211,11 +217,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Debug:'}</div>
-      <Button
-        block
-        label={() => `render: ${p.render.value}`}
-        onClick={() => Signal.toggle(p.render)}
-      />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
