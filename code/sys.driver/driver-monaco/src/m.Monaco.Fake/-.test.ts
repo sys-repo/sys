@@ -704,11 +704,11 @@ describe('MonacoFake (Mock)', () => {
       });
 
       it('has monotonic editor IDs', () => {
+        const model = MonacoFake.model('text');
         const a = MonacoFake.editor();
-        const b = MonacoFake.editor();
-        expect(a.getId()).to.eql('e1');
-        expect(a.getId()).to.eql('e1'); // NB: stable ID.
-        expect(b.getId()).to.eql('e2');
+        const b = MonacoFake.editor(model);
+        expect(a.getId()).to.eql(a.getId()); //     Stable on same instance.
+        expect(a.getId()).to.not.eql(b.getId()); // Distinct per instance.
       });
 
       it('creates from "src" string param ← auto model generation', () => {

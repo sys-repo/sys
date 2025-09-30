@@ -7,7 +7,7 @@ type IStandalone = t.Monaco.I.IStandaloneCodeEditor;
 
 /** monotonic id generator */
 let __id = 0;
-const newId = () => `e${++__id}`;
+const newId = () => `e${(++__id).toString(36)}`;
 
 /**
  * Minimal `IStandaloneCodeEditor` fake.
