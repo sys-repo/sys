@@ -217,9 +217,3 @@ jobs:
           cd code/-tmpl
           deno task test --parallel
           deno publish --allow-dirty
-
-      - name: publish module → "@sys/dev"
-        run: |
-          cd code/sys.dev
-          deno task test --parallel
-          deno publish --allow-dirty
