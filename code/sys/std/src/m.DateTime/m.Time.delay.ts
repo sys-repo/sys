@@ -1,3 +1,4 @@
+import { Schedule } from '../m.Schedule/mod.ts';
 import { type t, Is } from './common.ts';
 
 /**
@@ -27,23 +28,22 @@ export function delay(...args: any[]): t.TimeDelayPromise {
     cancelled: false,
   };
 
-  let settled = false; //               ← guard: resolve/reject only once
-  let cancelled = false; //             ← local cancellation flag
-  let timer: number | null = null; //   ← setTimeout handle (macro path)
-  let microQueued = false; //           ← whether a microtask has been queued (micro path)
-
+  let settled = false;
+  let cancelled = false;
   let resolvePromise!: () => void;
   let rejectPromise!: (err: unknown) => void;
 
   // Abort listener cleanup (if a signal is provided).
   let abortCleanup: (() => void) | undefined;
 
+  // Lifecycle for the scheduled task (used for cancellation).
+  let life: t.Lifecycle | undefined;
+
   const finish = (kind: 'completed' | 'cancelled' | 'error', err?: unknown) => {
     if (settled) return;
     settled = true;
     is.done = true;
 
-    // Clean up any abort listener.
     try {
       abortCleanup?.();
     } catch {
@@ -60,17 +60,16 @@ export function delay(...args: any[]): t.TimeDelayPromise {
       resolvePromise();
       return;
     }
-    // error
     rejectPromise(err);
   };
 
   const settleCancelled = () => {
     if (settled) return;
+    cancelled = true;
     is.cancelled = true;
     is.done = true;
     settled = true;
 
-    // Clean up any abort listener.
     try {
       abortCleanup?.();
     } catch {
@@ -90,16 +89,12 @@ export function delay(...args: any[]): t.TimeDelayPromise {
       return;
     }
 
-    // Schedule work:
-    if (timeout === undefined) {
-      /**
-       * MICRO: schedule on the microtask queue.
-       * We implement cancellability by checking a flag inside the microtask.
-       * If cancelled before it runs, we settle immediately and skip the callback.
-       */
-      microQueued = true;
-      scheduleMicro(() => {
-        microQueued = false;
+    // Choose queue strategy via Schedule (micro vs macro).
+    const queueConfig = timeout === undefined ? 'micro' : ({ ms: timeout } as const);
+
+    // Schedule the work once, lifecycle-aware.
+    life = Schedule.queue(
+      () => {
         if (cancelled) {
           finish('cancelled');
           return;
@@ -110,71 +105,44 @@ export function delay(...args: any[]): t.TimeDelayPromise {
         } catch (err) {
           finish('error', err);
         }
-      });
-    } else {
-      /**
-       * MACRO: schedule via setTimeout(timeout).
-       */
-      timer = setTimeout(() => {
-        timer = null;
-        if (cancelled) {
-          finish('cancelled');
-          return;
-        }
-        try {
-          fn?.();
-          finish('completed');
-        } catch (err) {
-          finish('error', err);
-        }
-      }, timeout) as unknown as number;
-    }
+      },
+      { queue: queueConfig },
+    );
 
     // Wire abort listener (if provided).
     if (signal) {
       const onAbort = () => {
         cancelled = true;
-        // Clear any pending macro timer immediately.
-        if (timer !== null) {
-          clearTimeout(timer);
-          timer = null;
+        try {
+          life?.dispose(); // prevent execution if not yet run
+        } catch {
+          /* no-op */
         }
         settleCancelled();
       };
       signal.addEventListener('abort', onAbort, { once: true });
       abortCleanup = () => signal.removeEventListener('abort', onAbort);
 
-      // Belt & suspenders: handle the case where the signal became aborted
-      // between our early check and listener wiring.
+      // Handle edge where signal aborts between checks.
       if (signal.aborted) onAbort();
     }
   }) as t.TimeDelayPromise;
 
   /**
    * Cancel function:
-   * - Clears the macro timer (if any) OR short-circuits the microtask result.
+   * - Disposes the scheduled lifecycle so the task never runs.
    * - Never invokes the callback.
    * - Always resolves the promise (does not reject).
    */
   const cancel = () => {
     if (settled) return;
     cancelled = true;
-
-    // If a macro timer exists, clear it and settle immediately.
-    if (timer !== null) {
-      clearTimeout(timer);
-      timer = null;
-      settleCancelled();
-      return;
+    try {
+      life?.dispose();
+    } catch {
+      /* no-op */
     }
-
-    // If a microtask is queued (or about to run), settle now.
-    if (microQueued) {
-      settleCancelled();
-      return;
-    }
-
-    // NB: If neither path is pending (very edge-case), do nothing.
+    settleCancelled();
   };
 
   // Decorate the promise with the extended API fields.
@@ -252,14 +220,3 @@ export const Wrangle = {
     return msecs <= 0 ? 0 : msecs; //               negatives → 0, otherwise exact
   },
 } as const;
-
-/**
- * Queue a microtask in a cross-runtime way.
- */
-function scheduleMicro(fn: () => void) {
-  if (typeof (globalThis as any).queueMicrotask === 'function') {
-    queueMicrotask(fn);
-  } else {
-    Promise.resolve().then(fn); // Promise.microtask fallback.
-  }
-}
