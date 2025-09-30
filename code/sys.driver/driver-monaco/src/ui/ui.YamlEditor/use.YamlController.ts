@@ -53,7 +53,6 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
     const $ = bus$.pipe(Rx.takeUntil(life.dispose$));
     $.pipe(Bus.Filter.ofKind('editor:yaml')).subscribe((e) => {
       // signals.yaml.value = e.yaml;
-    });
     return life.dispose;
   }, [signals.yaml]);
 

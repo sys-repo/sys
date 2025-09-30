@@ -4,7 +4,7 @@ export { Crdt, DocumentId } from '@sys/driver-automerge/web/ui';
 export { Monaco } from '@sys/driver-monaco';
 
 export * from '../common.ts';
-export { YamlEditorFooter } from '../ui.Editor.Yaml.Footer/mod.ts';
+export { YamlEditorFooter } from '../ui.YamlEditor.Footer/mod.ts';
 
 type P = t.YamlEditorProps;
 

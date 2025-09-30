@@ -1,4 +1,4 @@
-import { YamlEditor as Editor } from '../ui.Editor.Yaml/ui.tsx';
+import { YamlEditor as Editor } from '../ui.YamlEditor/ui.tsx';
 
 import type { t } from './common.ts';
 import { Path } from './m.Path.ts';

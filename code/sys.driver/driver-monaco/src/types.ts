@@ -14,9 +14,9 @@ export type * from './m.Monaco/t.ts';
 export type * from './ui/m.Crdt/t.ts';
 export type * from './ui/m.Folding/t.ts';
 export type * from './ui/m.Yaml/t.ts';
-export type * from './ui/ui.Editor.Yaml.Footer/t.ts';
-export type * from './ui/ui.Editor.Yaml/t.ts';
 export type * from './ui/ui.MonacoEditor/t.ts';
+export type * from './ui/ui.YamlEditor.Footer/t.ts';
+export type * from './ui/ui.YamlEditor/t.ts';
 
 /**
  * Samples:
