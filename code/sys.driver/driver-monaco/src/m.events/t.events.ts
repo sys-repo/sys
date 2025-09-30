@@ -1,6 +1,5 @@
 import type { t } from './common.ts';
 
-type IPosition = t.Monaco.I.IPosition;
 type IRange = t.Monaco.I.IRange;
 
 /**
@@ -60,9 +59,6 @@ export type EventYaml = {
   readonly state: t.YamlSyncParseResult;
 };
 
-export type EventYamlCursor = {
+export type EventYamlCursor = t.EditorYamlCursor & {
   readonly kind: 'editor:yaml:cursor';
-  readonly path: t.ObjectPath;
-  readonly cursor?: { readonly position: IPosition; readonly offset: t.Index };
-  readonly word?: IRange;
 };
