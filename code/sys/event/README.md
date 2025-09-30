@@ -33,8 +33,8 @@ emit(bus$, { kind: 'debug:a.b', total: 42 }); // type-checked
 
 <p>&nbsp;</p>
 
-### Narrowing (Filter Events)
-Filters provide strongly-typed predicates and operators for working with event streams by `kind` or `prefix`.
+### Filtering
+Filters provide strongly-typed predicates and operators for narrowing on event streams by `kind` or `prefix`.
 
 ```ts
 import { Rx } from '@sys/std/rx';
