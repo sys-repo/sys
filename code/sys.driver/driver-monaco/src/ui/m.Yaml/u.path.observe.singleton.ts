@@ -2,15 +2,13 @@ import { type t, Bus, MonacoIs, Obj, Rx, Yaml } from './common.ts';
 import { pathAtCaret } from './u.pathAtCaret.ts';
 
 /**
- * Singleton registry per `editorId`.
+ * Singleton path-observer registry per `editorId`.
  */
-export type Producer = {
+export type Producer = t.Lifecycle & {
   refCount: number;
-  readonly editorId: t.StringId;
-  readonly life: t.Lifecycle; //                    producer lifecycle
   readonly $: t.Observable<t.EventYamlCursor>; //   shared stream (multicast)
-  readonly getCurrent: () => t.EventYamlCursor; //  snapshot getter
-  readonly dispose: () => void; //                  producer teardown (life.dispose)
+  readonly current: t.EventYamlCursor; //           snapshot getter
+  readonly editorId: t.StringId; //                 code-editor
 };
 
 /**
@@ -98,7 +96,7 @@ export function createProducer(args: {
 
   // Shared stream for all consumers (scoped & deduped).
   // NB: seed with current snapshot so late subscribers have an initial value
-  const shared$ = bus$.pipe(
+  const $ = bus$.pipe(
     Rx.takeUntil(life.dispose$),
     Bus.Filter.ofKind('editor:yaml:cursor'),
     Rx.filter((e) => e.editorId === editorId),
@@ -110,14 +108,16 @@ export function createProducer(args: {
   /**
    * API:
    */
-  return {
+  return Rx.toLifecycle<Producer>(life, {
     refCount: 0,
     editorId,
-    life,
-    $: shared$,
-    getCurrent: () => currentCursor,
-    dispose: life.dispose,
-  };
+    get $() {
+      return $;
+    },
+    get current() {
+      return currentCursor;
+    },
+  });
 }
 
 /**

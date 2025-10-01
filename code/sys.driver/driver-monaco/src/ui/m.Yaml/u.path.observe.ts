@@ -20,7 +20,7 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
       return singleton.producer.$.pipe(Rx.takeUntil(life.dispose$));
     },
     get current() {
-      return singleton.producer.getCurrent();
+      return singleton.producer.current;
     },
   });
 };
