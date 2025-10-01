@@ -4,7 +4,7 @@ Primitives for composition and filtering of event streams.
 <p>&nbsp;</p>
 
 ## EventBus
-An **event-bus** is a shared observable stream that multiple producers can **publish** to and multiple consumers can **subscribe** to.
+An **event-bus** is a multicasting, shared `Observable` stream that multiple producers **publish** to and multiple consumers **subscribe** to.
 
 Message-based event streams are strongly typed, ensuring compile-time safety, precise narrowing, and self-documenting contracts between publishers and subscribers.
 
@@ -20,27 +20,30 @@ type MyEvents = BaseEvent | AEvent | ABEvent;
 <p>&nbsp;</p>
 
 ### Firing
-An event-bus is a plain observable stream. Events are dispatched on a standardized `@sys/std:Schedule` (`micro`, `raf`, `macro`).
+An **event-bus** is a plain observable stream. Events are dispatched on a standardized `@sys/std:Schedule` (`micro`, `raf`, `macro`).
 
 ```ts
 import { emitFor } from '@sys/event/bus';
 
-const bus$ = Rx.subject<MyEvents>(); // ← your event bus.
-const emit = emitFor<MyEvents>();
+type T = MyEvents
+const bus$ = Rx.subject<T>(); // ← your event bus.
+const emit = emitFor<T>();
 
-emit(bus$, { kind: 'debug:a.b', total: 42 }); // type-checked
+// Stronly-typed, scheduled, publishing of an event:
+emitFor<T>(bus$, 'micro', { kind: 'debug:a.b', total: 42 });
 ```
 
 <p>&nbsp;</p>
 
 ### Filtering
-Filters provide strongly-typed predicates and operators for narrowing on event streams by `kind` or `prefix`.
+Strongly-typed predicates and operators for narrowing on event streams by `kind` or a *starts-with* `prefix` matcher.
 
 ```ts
 import { Rx } from '@sys/std/rx';
 import { filterFor } from '@sys/event/bus';
 
-const Filter = filterFor<MyEvents>();
+type T = MyEvents
+const Filter = filterFor<T>();
 
 // Kind/prefix predicates:
 const isDebug = Filter.isKind('debug');
@@ -48,7 +51,7 @@ const isBase = Filter.isKind('debug');
 const isPrefixed = Filter.hasPrefix('debug:a');
 
 // RxJS operators:
-const bus$ = Rx.subject<MyEvents>();
+const bus$ = Rx.subject<T>();
 bus$
   .pipe(
     Filter.ofPrefix('debug:a'), // narrow to "debug:a.*"
