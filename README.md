@@ -27,7 +27,7 @@ Monorepo comprising the core set of shared  **“system”** modules purposed to
 
 [![MIT License][mit-badge]][mit-url]  
 Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )  
-Public registry: [@sys](https://jsr.io/@sys) ([JSR](https://jsr.io/@sys)-first)
+Standard ([JSR](https://jsr.io/@sys)-first) public registry: [@sys](https://jsr.io/@sys)
 
 ---
 
