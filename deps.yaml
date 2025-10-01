@@ -71,6 +71,7 @@ groups:
     - import: npm:react-dom@19.1.1
     - import: npm:@types/react@19.1.16
     - import: npm:@types/react-dom@19.1.9
+    - import: npm:react-test-renderer@19.1.1
 
   ui/monaco:
     # https://microsoft.github.io/monaco-editor
@@ -90,11 +91,11 @@ groups:
     - import: npm:ai@5.0.59
     - import: npm:@ai-sdk/openai@2.0.42
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.18.0
+    - import: npm:@mastra/core@0.19.0
       subpaths: ['agent', 'memory', 'storage']
-    - import: npm:@mastra/libsql@0.14.3
-    - import: npm:@mastra/loggers@0.10.13
-    - import: npm:@mastra/memory@0.15.3
+    - import: npm:@mastra/libsql@0.15.0
+    - import: npm:@mastra/loggers@0.10.14
+    - import: npm:@mastra/memory@0.15.4
     - import: npm:ollama@0.6.0
     - import: npm:gpt-tokenizer@3.0.1
 
