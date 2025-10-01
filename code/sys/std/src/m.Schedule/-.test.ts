@@ -8,6 +8,12 @@ describe(`Schedule`, () => {
   it('API', async () => {
     const m = await import('@sys/std');
     expect(m.Schedule).to.equal(Schedule);
+
+    const importAsync = await import('@sys/std/async');
+    const moduleAsync = await import('../-exports/sys.std.async.ts');
+
+    expect(importAsync).to.equal(moduleAsync);
+    expect(importAsync.Schedule).to.equal(Schedule);
   });
 
   describe('static', () => {
