@@ -16,13 +16,13 @@ export {
   Path,
   Pkg,
   R,
-  Schedule,
   slug,
   Str,
   Time,
   Timestamp,
   Url,
 } from '@sys/std';
+export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 
 export { Http } from '@sys/http/client';

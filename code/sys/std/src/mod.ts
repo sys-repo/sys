@@ -3,11 +3,14 @@
  * @module
  */
 export { pkg } from './pkg.ts';
+
 /** Type library (barrel file). */
 export type * as t from './types.ts';
 
+/**
+ * Library:
+ */
 export { Args } from './m.Args/mod.ts';
-export { Schedule } from './m.Async.Schedule/mod.ts';
 export { D, Date, Duration, Time, Timestamp } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';

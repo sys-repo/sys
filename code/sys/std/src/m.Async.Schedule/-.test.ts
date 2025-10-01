@@ -1,6 +1,6 @@
 import { type t, describe, expect, it } from '../-test.ts';
-import { Schedule } from '../mod.ts';
 import { Rx } from './common.ts';
+import { Schedule } from './mod.ts';
 
 describe(`Schedule`, () => {
   const life = (disposed = false): t.LifeLike => ({ disposed });
