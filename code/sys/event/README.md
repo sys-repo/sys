@@ -1,5 +1,5 @@
 # Events
-Lightweight primitives for publishing, subscribing, and filtering streams of events.  
+Primitives for composition and filtering of event streams.
 
 <p>&nbsp;</p>
 
