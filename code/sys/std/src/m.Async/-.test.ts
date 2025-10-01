@@ -1,5 +1,4 @@
 import { describe, expect, it } from '../-test.ts';
-
 import { Promise, maybeWait } from '../m.Async.Promise/mod.ts';
 import { Schedule } from '../m.Async.Schedule/mod.ts';
 
