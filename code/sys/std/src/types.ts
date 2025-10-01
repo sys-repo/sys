@@ -6,6 +6,7 @@ export type * from '@sys/types/t';
 
 export type * from './m.Ansi/t.ts';
 export type * from './m.Args/t.ts';
+export type * from './m.Async.Promise/t.ts';
 export type * from './m.Async.Schedule/t.ts';
 export type * from './m.Async/t.ts';
 export type * from './m.DateTime/t.ts';
@@ -22,7 +23,6 @@ export type * from './m.Is/t.ts';
 export type * from './m.Json/t.ts';
 export type * from './m.Path/t.ts';
 export type * from './m.Pkg/t.ts';
-export type * from './m.Promise/t.ts';
 export type * from './m.Random/t.ts';
 export type * from './m.Regex/t.ts';
 export type * from './m.Rx/t.ts';
