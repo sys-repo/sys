@@ -1,5 +1,5 @@
-import { type t, describe, expect, expectTypeOf, it, Rx, Schedule } from '../-test.ts';
-import { Bus } from './mod.ts';
+import { type t, describe, expect, expectTypeOf, it, Rx, Schedule } from '../../-test.ts';
+import { Bus } from '../mod.ts';
 
 describe(`Editor Events`, () => {
   describe('Bus', () => {

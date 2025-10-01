@@ -20,4 +20,12 @@ export type EditorBusLib = {
   make(): t.EditorEventBus;
   /** Emit an event to the bus on a chosen async-schedule. */
   emit: t.EmitEvent<t.EditorEvent>;
+
+  /** Create or reuse a singleton producer keyed by `key`, with refcounted teardown. */
+  singleton<K, P extends { dispose(): void }>(
+    registry: Map<K, { refCount: number; producer: P }>,
+    key: K,
+    create: (e: { life: t.Lifecycle }) => P,
+    until?: t.UntilInput,
+  ): { producer: P; dispose: () => void };
 };
