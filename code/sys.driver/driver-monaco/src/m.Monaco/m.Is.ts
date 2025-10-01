@@ -64,13 +64,12 @@ export const MonacoIs: t.EditorIsLib = {
 
   cursorEqual(a?: t.EditorCursor, b?: t.EditorCursor): boolean {
     if (!a || !b) return false;
-    if (a === b) return true; // fast path
+    if (a === b) return true;
 
     if (a.editorId !== b.editorId) return false;
     if (a.offset !== b.offset) return false;
     if (!MonacoIs.positionEqual(a.position, b.position)) return false;
 
-    // Path structural equality:
     if (!Obj.Path.Is.eql(a.path, b.path)) return false;
     return true;
   },
