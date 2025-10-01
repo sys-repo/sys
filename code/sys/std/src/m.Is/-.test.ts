@@ -245,6 +245,38 @@ describe('Is (common flags)', () => {
     });
   });
 
+  describe('Is.disposableLike', () => {
+    it('Is.disposableLike: true (canonical + plain)', () => {
+      const disposable = Rx.disposable(); // canonical
+      const life = Rx.lifecycle(); // canonical
+      const plain = { dispose() {} }; // plain dispose-only
+
+      expect(Is.disposableLike(disposable)).to.be.true;
+      expect(Is.disposableLike(life)).to.be.true;
+      expect(Is.disposableLike(plain)).to.be.true;
+
+      // Cross-check boundary with canonical:
+      expect(Is.disposable(plain)).to.be.false; // no dispose$
+    });
+
+    it('Is.disposableLike: false (non-functions / non-objects)', () => {
+      const NON = [
+        '',
+        123,
+        true,
+        null,
+        undefined,
+        BigInt(0),
+        Symbol('foo'),
+        {},
+        [], // no dispose at all
+        { dispose: 123 }, // not a function
+        { dispose: 'nope' }, // not a function
+      ];
+      NON.forEach((value) => expect(Is.disposableLike(value)).to.eql(false));
+    });
+  });
+
   describe('Is.func', () => {
     it('Is.func: true', () => {
       function a() {}

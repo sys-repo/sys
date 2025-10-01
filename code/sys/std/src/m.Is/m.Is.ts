@@ -30,6 +30,10 @@ export const Is: StdIsLib = {
     const obj = input as t.Disposable;
     return typeof obj.dispose === 'function' && Is.observable(obj.dispose$);
   },
+  disposableLike(input?: any): input is t.DisposableLike {
+    if (!isObject(input)) return false;
+    return typeof (input as t.DisposableLike).dispose === 'function';
+  },
 
   /**
    * Determine if the given input is an Observable.

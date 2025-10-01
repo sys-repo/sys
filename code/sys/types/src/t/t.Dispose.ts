@@ -13,6 +13,11 @@ export type Disposable = {
   dispose(reason?: unknown): void;
 };
 
+/**
+ * Duck type: anything with a callable `dispose()` method.
+ */
+export type DisposableLike = { dispose(reason?: unknown): void };
+
 /** An observable that fires when resource is disposed. */
 export type DisposeObservable = t.Observable<DisposeEvent>;
 

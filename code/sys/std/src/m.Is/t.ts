@@ -18,9 +18,14 @@ export type StdIsLib = {
   nil(input?: unknown): input is null | undefined;
 
   /**
-   * Determine if the input is an object implementing the <t.Disposable> interface.
+   * Determine if the input is an object implementing the `Disposable` interface.
    */
   disposable(input?: unknown): input is t.Disposable;
+
+  /**
+   * Determine if the input is an object implementing the `DisposableLike` interface.
+   */
+  disposableLike(input?: unknown): input is t.DisposableLike;
 
   /**
    * Determine if the value is a Promise.
