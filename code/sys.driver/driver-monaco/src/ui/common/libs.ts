@@ -12,3 +12,4 @@ export {
 } from '@sys/ui-react-components';
 
 export { Bus, useBus } from '../../m.events/mod.ts';
+export { Lease } from '../../m.Lease/mod.ts';

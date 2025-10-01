@@ -1,4 +1,4 @@
-import { type t, D, Is, R } from './common.ts';
+import { type t, D, Is, Obj, R } from './common.ts';
 import { RangeUtil } from './u.Range.ts';
 
 type IRange = t.Monaco.I.IRange;
@@ -60,5 +60,18 @@ export const MonacoIs: t.EditorIsLib = {
       a.endLineNumber === b.endLineNumber &&
       a.endColumn === b.endColumn
     );
+  },
+
+  cursorEqual(a?: t.EditorCursor, b?: t.EditorCursor): boolean {
+    if (!a || !b) return false;
+    if (a === b) return true; // fast path
+
+    if (a.editorId !== b.editorId) return false;
+    if (a.offset !== b.offset) return false;
+    if (!MonacoIs.positionEqual(a.position, b.position)) return false;
+
+    // Path structural equality:
+    if (!Obj.Path.Is.eql(a.path, b.path)) return false;
+    return true;
   },
 };

@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { type t, Obj, describe, expect, it } from '../../-test.ts';
 import { D } from '../common.ts';
 import { Monaco, MonacoIs } from '../mod.ts';
 import { Util } from '../u.ts';
@@ -157,6 +157,90 @@ describe('Is', () => {
       expect(Is.rangeEqual(undefined, undefined)).to.eql(false);
       expect(Is.rangeEqual(r, undefined)).to.eql(false);
       expect(Is.rangeEqual(undefined, r)).to.eql(false);
+    });
+  });
+
+  describe('Is.cursorEqual', () => {
+    const idA = 'e1' as t.StringId;
+    const idB = 'e2' as t.StringId;
+
+    const pos = (lineNumber: number, column: number): t.Monaco.I.IPosition => ({
+      lineNumber,
+      column,
+    });
+    const path = (...segs: t.ObjectPath) => segs as t.ObjectPath;
+
+    const base = (over: Partial<t.EditorCursor> = {}): t.EditorCursor => ({
+      editorId: idA,
+      path: path('root', 'a'),
+      position: pos(3, 7),
+      offset: 123,
+      word: undefined,
+      ...over,
+    });
+
+    it('same reference', () => {
+      const a = base();
+      expect(Is.cursorEqual(a, a)).to.eql(true);
+    });
+
+    it('structural equality (different refs)', () => {
+      const a = base();
+      const b = base();
+      expect(Is.cursorEqual(a, b)).to.eql(true);
+    });
+
+    it('different editorId → false', () => {
+      const a = base();
+      const b = base({ editorId: idB });
+      expect(Is.cursorEqual(a, b)).to.eql(false);
+    });
+
+    it('different offset → false', () => {
+      const a = base();
+      const b = base({ offset: a.offset! + 1 });
+      expect(Is.cursorEqual(a, b)).to.eql(false);
+    });
+
+    it('different position (line) → false', () => {
+      const a = base();
+      const b = base({ position: pos(a.position!.lineNumber + 1, a.position!.column) });
+      expect(Is.cursorEqual(a, b)).to.eql(false);
+    });
+
+    it('different position (column) → false', () => {
+      const a = base();
+      const b = base({ position: pos(a.position!.lineNumber, a.position!.column + 1) });
+      expect(Is.cursorEqual(a, b)).to.eql(false);
+    });
+
+    it('different path → false', () => {
+      const a = base({ path: path('root', 'a') });
+      const b = base({ path: path('root', 'b') });
+      expect(Is.cursorEqual(a, b)).to.eql(false);
+    });
+
+    it('equal when word differs (word is ignored)', () => {
+      const a = base({
+        word: { startLineNumber: 3, startColumn: 7, endLineNumber: 3, endColumn: 9 },
+      });
+      const b = base({ word: undefined });
+      expect(Is.cursorEqual(a, b)).to.eql(true);
+    });
+
+    it('undefined cases', () => {
+      const a = base();
+      expect(Is.cursorEqual(undefined, undefined)).to.eql(false);
+      expect(Is.cursorEqual(a, undefined)).to.eql(false);
+      expect(Is.cursorEqual(undefined, a)).to.eql(false);
+    });
+
+    it('path deep equality (same segments different refs)', () => {
+      const a = base({ path: ['root', 'x'] as t.ObjectPath });
+      const b = base({ path: ['root', 'x'] as t.ObjectPath });
+      // sanity: prove our helper sees these as equal
+      expect(Obj.Path.Is.eql(a.path, b.path)).to.eql(true);
+      expect(Is.cursorEqual(a, b)).to.eql(true);
     });
   });
 });
