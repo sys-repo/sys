@@ -48,7 +48,9 @@ export async function main() {
     const baseDir = Fs.join(import.meta.dirname ?? '', '..');
     const files = await Fs.glob(baseDir).find(pattern, { exclude });
 
-    console.info('👋');
+    console.info(`System: ${c.green(`monorepo →`)} ${c.gray(`https://github.com/sys-repo/sys`)}`);
+    console.info();
+    console.info('🧫');
     console.info(`  ${c.yellow('Deno')}.version  `, c.green(Deno.version.deno));
     console.info('    typescript  ', c.green(Deno.version.typescript));
     console.info('            v8  ', c.green(Deno.version.v8));
