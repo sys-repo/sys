@@ -1,5 +1,4 @@
-import { Schedule } from '../m.Schedule/mod.ts';
-import { type t, Is } from './common.ts';
+import { type t, Is, Schedule } from './common.ts';
 
 /**
  * Delay for a specified amount of time.

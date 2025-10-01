@@ -6,6 +6,7 @@ export type * from '@sys/types/t';
 
 export type * from './m.Ansi/t.ts';
 export type * from './m.Args/t.ts';
+export type * from './m.Async.Schedule/t.ts';
 export type * from './m.Async/t.ts';
 export type * from './m.DateTime/t.ts';
 export type * from './m.Delete/t.ts';
@@ -25,7 +26,6 @@ export type * from './m.Promise/t.ts';
 export type * from './m.Random/t.ts';
 export type * from './m.Regex/t.ts';
 export type * from './m.Rx/t.ts';
-export type * from './m.Schedule/t.ts';
 export type * from './m.Semver.Server/t.ts';
 export type * from './m.Semver/t.ts';
 export type * from './m.Signal/t.ts';
