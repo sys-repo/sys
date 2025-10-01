@@ -7,6 +7,15 @@ type IRange = t.Monaco.I.IRange;
 type IPosition = t.Monaco.I.IPosition;
 
 /**
+ * Convenince bundling of the Editor with the global Monaco API
+ * for passing to functions as a single parameter.
+ */
+export type MonacoCtx = {
+  readonly editor: t.Monaco.Editor;
+  readonly monaco: t.Monaco.Monaco;
+};
+
+/**
  * Code editor library:
  */
 export type MonacoLib = {
@@ -21,9 +30,6 @@ export type MonacoLib = {
 
 /**
  * Boolean flag evalutators for the Monaco UI library.
- */
-/**
- * Boolean flag evaluators and equality checks for the Monaco UI library.
  */
 export type EditorIsLib = {
   /** True if the input is a Monaco IRange. */
@@ -40,13 +46,22 @@ export type EditorIsLib = {
   positionEqual(a?: IPosition, b?: IPosition): boolean;
   /** Strict equality by start/end line/column. */
   rangeEqual(a?: IRange, b?: IRange): boolean;
+  /** Strict equality by editor id, offset, position, and path. */
+  cursorEqual(a?: t.EditorCursor, b?: t.EditorCursor): boolean;
 };
 
 /**
- * Convenince bundling of the Editor with the global Monaco API
- * for passing to functions as a single parameter.
+ * The position of the editor cursor within a YAML document.
  */
-export type MonacoCtx = {
-  readonly editor: t.Monaco.Editor;
-  readonly monaco: t.Monaco.Monaco;
+export type EditorCursor = {
+  /** The Editor the cursor position pretains to. */
+  readonly editorId: t.StringId;
+  /** The calculated path within the parsed document of where the cursor currently is. */
+  readonly path: t.ObjectPath;
+  /** The caret position within the text (line/column). */
+  readonly position?: IPosition;
+  /** Absolute character offset into the document. */
+  readonly offset?: t.Index;
+  /** The word under the caret (if resolved). */
+  readonly word?: IRange;
 };

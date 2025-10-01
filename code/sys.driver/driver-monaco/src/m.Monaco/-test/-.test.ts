@@ -9,7 +9,9 @@ describe('Monaco', () => {
   it('API', async () => {
     const m = await import('@sys/driver-monaco');
     const { Error } = await import('../m.Error.ts');
+
     expect(m.Monaco).to.equal(Monaco);
+    expect(m.default).to.equal(Monaco);
 
     expect(Monaco.Bus).to.equal(Bus);
     expect(Monaco.Editor).to.equal(MonacoEditor);
