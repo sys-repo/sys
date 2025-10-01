@@ -1,13 +1,15 @@
 import type { t } from './common.ts';
 
 /**
- * Factory for instances of the Yaml parser.
+ * Yaml sync/parsing hook.
  */
-export type UseEditorYaml = (args: UseEditorYamlArgs) => t.EditorYaml;
+export type UseEditorYaml = (args: UseEditorYamlArgs) => t.EditorYamlHook;
 
 /** Arguments passed to the `useYaml` hook. */
 export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> & {
+  /** Event-bus */
   bus$?: t.EditorEventBus;
+  /** Editor instance: */
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
   /** Render red squiggles from YAML errors. (default = off) */
@@ -15,13 +17,11 @@ export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> &
 };
 
 /** A YAML hook instance. */
-export type EditorYaml = {
+export type EditorYamlHook = {
   readonly ok: boolean;
-  readonly path?: t.YamlSyncParserPaths;
-  readonly cursor: t.EventYamlChangeCursorPath;
-  readonly parsed: {
-    readonly input: string;
-    readonly output: t.YamlSyncParsed<unknown>;
-    readonly errors: t.YamlError[];
+  readonly current?: {
+    readonly rev: number; // Monotonic revision counter.
+    readonly cursor: t.EditorCursor;
+    readonly parsed: t.YamlSyncParseResult;
   };
 };

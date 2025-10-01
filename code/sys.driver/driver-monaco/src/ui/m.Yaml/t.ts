@@ -10,18 +10,9 @@ export type * from './t.Use.Yaml.ts';
 /**
  * Tools for working with YAML in the code-editor.
  */
-export type EditorYamlLib = Readonly<{
-  Path: t.EditorYamlPathLib;
-  Editor: React.FC<t.YamlEditorProps>;
+export type EditorYamlLib = {
+  readonly Path: t.EditorYamlPathLib;
+  readonly Editor: React.FC<t.YamlEditorProps>;
   useYaml: t.UseEditorYaml;
   useErrorMarkers: t.UseYamlErrorMarkers;
-}>;
-
-/**
- * The position of the editor cursor within a YAML document.
- */
-export type EditorYamlCursor = {
-  readonly path: t.ObjectPath;
-  readonly cursor?: { readonly position: IPosition; readonly offset: t.Index };
-  readonly word?: IRange;
 };

@@ -1,4 +1,9 @@
 import type { t } from './common.ts';
-import { observe } from './m.Path.observe.ts';
+import { observe } from './u.path.observe.ts';
 
-export const Path: t.EditorYamlPathLib = { observe };
+/**
+ * Tools for working with selection path's in YAML.
+ */
+export const Path: t.EditorYamlPathLib = {
+  observe,
+};
