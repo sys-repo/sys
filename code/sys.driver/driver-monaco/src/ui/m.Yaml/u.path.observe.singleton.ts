@@ -5,7 +5,6 @@ import { pathAtCaret } from './u.pathAtCaret.ts';
  * Singleton path-observer registry per `editorId`.
  */
 export type Producer = t.Lifecycle & {
-  refCount: number;
   readonly $: t.Observable<t.EventYamlCursor>; //   shared stream (multicast)
   readonly current: t.EventYamlCursor; //           snapshot getter
   readonly editorId: t.StringId; //                 code-editor
@@ -101,7 +100,7 @@ export function createProducer(args: {
     Bus.Filter.ofKind('editor:yaml:cursor'),
     Rx.filter((e) => e.editorId === editorId),
     Rx.distinctUntilChanged((a, b) => MonacoIs.cursorEqual(a, b)),
-    Rx.startWith(currentCursor),
+    Rx.startWith(currentCursor), // NB: seed AFTER distinct so the seed doesn't suppress the first real change.
     Rx.shareReplay({ bufferSize: 1, refCount: true }),
   );
 
@@ -109,7 +108,6 @@ export function createProducer(args: {
    * API:
    */
   return Rx.toLifecycle<Producer>(life, {
-    refCount: 0,
     editorId,
     get $() {
       return $;

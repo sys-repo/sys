@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for working with selection path's in YAML.
+ * Tools for working with selection paths in YAML.
  */
 export type EditorYamlPathLib = Readonly<{
   /** Create a new `EditorYamlPathObserver`. */
