@@ -96,13 +96,13 @@ export default Spec.describe(D.displayName, async (e) => {
     const bus$ = debug.bus$;
 
     const yaml = Monaco.Yaml.useYaml({ bus$, monaco, editor, doc, path, errorMarkers: true });
-    if (yaml.cursor.path.length === 0) return null;
+    if (yaml.current?.cursor.path.length === 0) return null;
 
     return (
       <PathView
         prefix={'Monaco.Dev.PathView:'}
         prefixColor={Color.CYAN}
-        path={yaml.cursor?.path}
+        path={yaml.current?.cursor.path}
         theme={v.theme}
         style={{ Absolute: [null, 17, -30, 17] }}
       />

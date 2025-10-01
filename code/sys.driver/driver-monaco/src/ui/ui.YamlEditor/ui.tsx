@@ -59,10 +59,10 @@ export const YamlEditor: React.FC<P> = (props) => {
     <YamlEditorFooter
       theme={theme.name}
       style={styles.footer}
-      path={yaml?.cursor.path}
+      path={yaml?.current?.cursor.path}
       visible={isFooterVisible}
       crdt={{ repo, visible: footer.repo ?? true }}
-      errors={yaml?.parsed?.errors}
+      errors={yaml?.current?.parsed.errors}
     />
   );
 
