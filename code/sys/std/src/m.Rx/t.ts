@@ -52,6 +52,7 @@ type RxjsLib = {
   readonly observeOn: typeof rxjs.observeOn;
   readonly of: typeof rxjs.of;
   readonly scan: typeof rxjs.scan;
+  readonly skip: typeof rxjs.skip;
   readonly Subject: typeof rxjs.Subject;
   readonly timer: typeof rxjs.timer;
   readonly merge: typeof rxjs.merge;

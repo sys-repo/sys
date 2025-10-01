@@ -24,6 +24,7 @@ export {
   of,
   scan,
   shareReplay,
+  skip,
   startWith,
   Subject,
   takeUntil,
