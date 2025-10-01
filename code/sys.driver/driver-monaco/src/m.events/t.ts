@@ -25,7 +25,7 @@ export type EditorBusLib = {
   singleton<K, P extends { dispose(): void }>(
     registry: Map<K, { refCount: number; producer: P }>,
     key: K,
-    create: (e: { life: t.Lifecycle }) => P,
+    create: () => P,
     until?: t.UntilInput,
   ): { producer: P; dispose: () => void };
 };

@@ -6,45 +6,50 @@ import { type t, Rx } from './common.ts';
 export function singleton<K, P extends { dispose(): void }>(
   registry: Map<K, { refCount: number; producer: P }>,
   key: K,
-  create: (e: { life: t.Lifecycle }) => P,
+  create: () => P,
   until?: t.UntilInput,
 ): { producer: P; dispose: () => void } {
-  // Reuse existing
-  const existing = registry.get(key);
-  if (existing) {
-    existing.refCount++;
-    return {
-      producer: existing.producer,
-      dispose: () => release(registry, key),
-    };
+  // Acquire or create the producer.
+  let entry = registry.get(key);
+  if (!entry) {
+    entry = { refCount: 0, producer: create() };
+    registry.set(key, entry);
   }
 
-  // Create new:
-  const life = Rx.lifecycle(until);
-  const producer = create({ life });
-  registry.set(key, { refCount: 1, producer });
+  // Each acquire increments the `refCount`.
+  entry.refCount += 1;
 
-  // Consumer lifecycle:
-  life.dispose$.pipe(Rx.take(1)).subscribe(() => release(registry, key));
+  // Per-consumer, idempotent release.
+  let released = false;
+  const releaseOnce = () => {
+    if (released) return;
+    released = true;
 
+    const curr = registry.get(key);
+    if (!curr) return; // Already torn down elsewhere.
+
+    curr.refCount -= 1;
+    if (curr.refCount <= 0) {
+      registry.delete(key);
+      try {
+        curr.producer.dispose();
+      } catch {
+        // NB: swallow error; producer.dispose should be robust.
+      }
+    }
+  };
+
+  // Optional consumer lifecycle binding.
+  if (until) {
+    const life = Rx.lifecycle(until);
+    life.dispose$.pipe(Rx.take(1)).subscribe(releaseOnce);
+  }
+
+  /**
+   * API:
+   */
   return {
-    producer,
-    dispose: life.dispose,
-  } as const;
-}
-
-/**
- * Decrements refCount and disposes/removes producer if no consumers remain.
- */
-function release<K, P extends { dispose(): void }>(
-  registry: Map<K, { refCount: number; producer: P }>,
-  key: K,
-) {
-  const entry = registry.get(key);
-  if (!entry) return;
-  entry.refCount--;
-  if (entry.refCount <= 0) {
-    entry.producer.dispose();
-    registry.delete(key);
-  }
+    producer: entry.producer,
+    dispose: releaseOnce,
+  };
 }

@@ -1,21 +1,13 @@
-import { describe, expect, it, Rx } from '../../-test.ts';
+import { type t, describe, expect, it, Rx } from '../../-test.ts';
 import { Bus } from '../mod.ts';
 
 describe('Bus.singleton', () => {
-  type P = { disposed: boolean; dispose: () => void; hits?: number };
-
+  type P = t.Lifecycle & { disposed: boolean; dispose: () => void; hits?: number };
   const makeProducer = (counter: { created: number; disposed: number }): P => {
     counter.created += 1;
-    const p: P = {
-      disposed: false,
-      dispose: () => {
-        if (!p.disposed) {
-          p.disposed = true;
-          counter.disposed += 1;
-        }
-      },
-    };
-    return p;
+    const life = Rx.lifecycle();
+    life.dispose$.subscribe(() => (counter.disposed += 1));
+    return Rx.toLifecycle<P>(life, {});
   };
 
   it('creates a new producer on first acquire, reuses on subsequent acquires', () => {
@@ -113,5 +105,23 @@ describe('Bus.singleton', () => {
     expect(counter.created).to.eql(2);
     expect(first).to.not.equal(second);
     a2.dispose();
+  });
+
+  it('idempotent dispose for reused entry', () => {
+    const registry = new Map<string, { refCount: number; producer: P }>();
+    const counter = { created: 0, disposed: 0 };
+
+    const a1 = Bus.singleton(registry, 'k', () => makeProducer(counter));
+    const a2 = Bus.singleton(registry, 'k', () => makeProducer(counter));
+    expect(registry.get('k')?.refCount).to.eql(2);
+
+    a2.dispose();
+    a2.dispose(); // second call is a no-op
+    expect(registry.get('k')?.refCount).to.eql(1);
+    expect(counter.disposed).to.eql(0);
+
+    a1.dispose();
+    expect(registry.has('k')).to.eql(false);
+    expect(counter.disposed).to.eql(1);
   });
 });
