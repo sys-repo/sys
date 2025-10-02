@@ -156,7 +156,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
-        <div>{`${D.name}.Editor`}</div>
+        <div>{`${D.name}`}</div>
         <div>{'YAML'}</div>
       </div>
       <Button

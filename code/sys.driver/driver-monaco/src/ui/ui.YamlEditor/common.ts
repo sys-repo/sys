@@ -11,7 +11,7 @@ type P = t.YamlEditorProps;
 /**
  * Constants:
  */
-const name = 'Monaco.Editor.Yaml';
+const name = 'Monaco.YamlEditor';
 const documentId: t.YamlEditorDocumentIdProps = { visible: true, readOnly: false };
 const footer: P['footer'] = { visible: true };
 
