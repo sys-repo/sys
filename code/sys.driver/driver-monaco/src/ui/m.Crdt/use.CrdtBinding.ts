@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Dispose, EditorFolding, Obj, Rx, useBus } from './common.ts';
+import { type t, Dispose, EditorFolding, Obj, Rx, useBus, useFunction } from './common.ts';
 import { EditorCrdt } from './m.Crdt.ts';
 import { monitorReady } from './use.CrdtBinding.ready.ts';
 
@@ -12,11 +12,8 @@ export const useCrdtBinding: t.UseEditorCrdtBinding = (args, onReady) => {
    * Refs/Hooks:
    */
   const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
+  const onReadySafe = useFunction(onReady);
   const bus$ = useBus(args.bus$);
-
-  // Keep latest onReady without re-running effects
-  const onReadyRef = React.useRef<t.EditorCrdtBindingReadyHandler | undefined>(onReady);
-  onReadyRef.current = onReady;
 
   /**
    * Effect: Monaco ↔ CRDT binding
@@ -24,9 +21,10 @@ export const useCrdtBinding: t.UseEditorCrdtBinding = (args, onReady) => {
   React.useEffect(() => {
     if (!(doc && path && editor && monaco)) return;
     const life = Rx.lifecycle();
+    bindingRef.current = undefined; // clear stale binding.
 
     // Monitor for <ready> state:
-    monitorReady({ bus$, life, foldMarks, editor, monaco, onReadyRef });
+    monitorReady({ bus$, life, foldMarks, editor, monaco }, onReadySafe);
 
     // Start binding:
     EditorCrdt.bind({ editor, doc, path, bus$ }, life).then((binding) => {

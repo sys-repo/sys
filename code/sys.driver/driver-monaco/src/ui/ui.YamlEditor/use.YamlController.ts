@@ -21,14 +21,10 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   /**
    * Hook: CRDT binding.
    */
-  const handleReady = React.useCallback(
-    (e: unknown) => {
-      setReady(true);
-      onReady?.(e as never);
-    },
-    [onReady],
-  );
-  EditorCrdt.useBinding({ bus$, monaco, editor, doc, path, foldMarks: true }, handleReady);
+  EditorCrdt.useBinding({ bus$, monaco, editor, doc, path, foldMarks: true }, (e) => {
+    setReady(true);
+    onReady?.(e);
+  });
 
   /**
    * Hook: YAML.

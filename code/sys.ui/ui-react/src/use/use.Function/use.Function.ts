@@ -2,23 +2,18 @@ import React from 'react';
 import { type t } from '../common.ts';
 
 /**
- * useFunction
+ * Hook: useFunction
  *
- * Returns a stable callback that always executes the latest `fn`.
- *
- * Useful for passing functions into effects or subscriptions
- * without causing unnecessary re-subscribes.
+ * Returns a stable callback that always calls the latest function.
+ * Intended for passing functions into hooks/effects without resubscription churn.
  */
-export const useFunction: t.UseFunction = <T extends (...args: any[]) => unknown>(
-  fn: T | undefined,
-) => {
+export const useFunction: t.UseFunction = ((fn) => {
   const ref = React.useRef(fn);
-  React.useEffect(() => void (ref.current = fn), [fn]);
+  React.useEffect(() => {
+    ref.current = fn;
+  }, [fn]);
 
-  return React.useCallback(
-    ((...args: unknown[]) => {
-      return ref.current?.(...args);
-    }) as T,
-    [],
-  );
-};
+  return React.useCallback((...args: unknown[]) => {
+    return ref.current?.(...args); // no-op if undefined
+  }, []) as any;
+}) as t.UseFunction;
