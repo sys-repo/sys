@@ -1,6 +1,6 @@
 import { Http } from '@sys/http/client';
 import { useEffect, useRef, useState } from 'react';
-import { type t, Err } from './common.ts';
+import { type t, Err } from '../common.ts';
 
 /**
  * Hook: Load the `dist.json` file from the server (if avilable).

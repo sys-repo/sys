@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css } from '../common.ts';
 
 /**
  * Hook Factory: monitor size changes to a DOM element using [ResizeObserver].

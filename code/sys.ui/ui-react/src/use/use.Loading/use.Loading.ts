@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /**
  * Hook Factory: Keep track of several parts of a component that are loading.

@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 export const sample: t.DistPkg = {
   type: 'https://jsr.io/@sample/foo/src/type.ts',

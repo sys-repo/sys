@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /**
  * Calculates horizontal visibility threshold and hysteresis.

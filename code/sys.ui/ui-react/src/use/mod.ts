@@ -3,16 +3,11 @@
  * Common react hooks.
  * ```
  */
-export * from '../use.Pointer/mod.ts';
-
-export { useDebouncedValue } from './use.DebouncedValue.ts';
-export { useDist } from './use.Dist.ts';
-export { useIsTouchSupported } from './use.Is.TouchSupported.ts';
-export { useLoading } from './use.Loading.ts';
-export { useRedraw } from './use.Redraw.ts';
-export { useSizeObserver } from './use.SizeObserver.tsx';
-export {
-  useVisibilityThreshold,
-  useVisibilityThresholdX,
-  useVisibilityThresholdY,
-} from './use.VisibilityThreshold.ts';
+export * from './use.DebouncedValue/mod.ts';
+export * from './use.Dist/mod.ts';
+export * from './use.Is/mod.ts';
+export * from './use.Loading/mod.ts';
+export * from './use.Pointer/mod.ts';
+export * from './use.Redraw/mod.ts';
+export * from './use.SizeObserver/mod.ts';
+export * from './use.VisibilityThreshold/mod.ts';

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type t, Rx } from './common.ts';
+import { type t, Rx } from '../common.ts';
 
 /**
  * Hook: provide simple counter incrementing component "redraw" API.

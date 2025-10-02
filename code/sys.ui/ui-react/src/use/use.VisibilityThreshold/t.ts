@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /**
  * Calculates horizontal and vertical visibility thresholds
