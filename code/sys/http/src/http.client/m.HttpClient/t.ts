@@ -43,7 +43,7 @@ export type HttpClientLib = {
    * Convenience: boolean probe with default options.
    * Returns true if reachable within the timeout, false otherwise.
    */
-  alive(url: string, opts?: Omit<HttpWaitOptions, 'predicate'>): Promise<boolean>;
+  isAlive(url: string, opts?: Omit<HttpWaitOptions, 'predicate'>): Promise<boolean>;
 };
 
 /** Options for the `Http.waitFor` method. */

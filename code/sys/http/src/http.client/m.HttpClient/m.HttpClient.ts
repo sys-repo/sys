@@ -3,7 +3,7 @@ import { Fetch } from '../m.HttpFetch/mod.ts';
 
 import { type t, Url } from './common.ts';
 import { toError, toHeaders, toResponse, toUint8Array } from './u.ts';
-import { alive, waitFor } from './u.wait.ts';
+import { isAlive, waitFor } from './u.wait.ts';
 
 /**
  * Http fetch helper.
@@ -22,7 +22,7 @@ export const HttpClient: t.HttpClientLib = {
   toUint8Array,
 
   waitFor,
-  alive,
+  isAlive,
 };
 
 /** Alias to the `HttpClient` */

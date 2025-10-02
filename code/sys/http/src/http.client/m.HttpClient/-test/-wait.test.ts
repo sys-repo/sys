@@ -93,12 +93,12 @@ describe('Http: wait/readiness helpers', () => {
     });
   });
 
-  describe('Http.alive', () => {
+  describe('Http.isAlive', () => {
     it('returns true when reachable within timeout', async () => {
       const listener = Deno.serve({ port: 0 }, () => new Response('ok', { status: 200 }));
       const url = `${baseUrlFrom(listener)}/ok`;
 
-      const ok = await Http.alive(url, { timeout: 1_000, interval: 50 });
+      const ok = await Http.isAlive(url, { timeout: 1_000, interval: 50 });
       expect(ok).to.equal(true);
 
       await listener.shutdown();
@@ -109,7 +109,7 @@ describe('Http: wait/readiness helpers', () => {
       const url = `${baseUrlFrom(listener)}/ok`;
       await listener.shutdown();
 
-      const ok = await Http.alive(url, { timeout: 300, interval: 50, requestTimeout: 100 });
+      const ok = await Http.isAlive(url, { timeout: 300, interval: 50, requestTimeout: 100 });
       expect(ok).to.equal(false);
     });
   });

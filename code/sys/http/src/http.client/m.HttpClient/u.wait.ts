@@ -4,7 +4,7 @@ import { type t, Time } from './common.ts';
  * Convenience: boolean probe with default options.
  * Returns true if reachable within the timeout, false otherwise.
  */
-export const alive: t.HttpClientLib['alive'] = async (url, opts = {}) => {
+export const isAlive: t.HttpClientLib['isAlive'] = async (url, opts = {}) => {
   try {
     await waitFor(url, opts);
     return true;
