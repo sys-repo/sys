@@ -97,22 +97,31 @@ export async function pathsToFileStrings(paths: string[], repoRootAbs: string) {
 
   const tokenCount = sections.reduce((acc, next) => acc + next.tokens, 0);
 
-  const toc = [
-    '# === TOC:BEGIN ===',
+  const tocHeader = [
     `# tokens: ${tokenCount}`,
     `# tokens.urn: ${Token.info.urn}`,
     `# files: ${sections.length}`,
+    `# files.bytes: ${bytesTotal} B`,
+    `# files.sha256: ${shaBundle}`,
+  ];
+
+  const toc = [
+    //
+    '# === TOC:BEGIN ===',
+    ...tocHeader,
     ...tocLines,
-    `# bytes.total: ${bytesTotal}B`,
-    `# sha256.bundle: ${shaBundle}`,
     '# === TOC:END ===',
-    '',
-    '',
   ].join('\n');
 
-  // Assemble final text (TOC + file blocks). Ensure trailing newline.
-  const result = toc + blocksJoined;
-  return result.endsWith('\n') ? result : result + '\n';
+  const stats = [
+    //
+    '# === STATS:BEGIN ===',
+    ...tocHeader,
+    '# === STATS:END ===',
+  ].join('\n');
+
+  // Assemble final:
+  return `${toc}\n\n${blocksJoined}${stats}\n`;
 }
 
 type SelectAndCopyOptions = {
