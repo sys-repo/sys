@@ -9,14 +9,18 @@ import type { t } from '../common.ts';
  */
 export const useDebouncedValue: t.UseDebouncedValue = (value, ms = 120) => {
   const [debounced, setDebounced] = useState(value);
-  const timer = useRef<number>(undefined);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
-    clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setDebounced(value), ms);
+    const delay = Math.max(0, ms ?? 0);
 
-    /** Cleanup: cancel on unmount or value-change. */
-    return () => clearTimeout(timer.current);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = globalThis.setTimeout(() => setDebounced(value), delay);
+
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = undefined;
+    };
   }, [value, ms]);
 
   return debounced;
