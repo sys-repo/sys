@@ -1,6 +1,16 @@
 import React from 'react';
 import { createRepo } from '../../../../ui/-test.ui.ts';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  YamlPipeline,
+} from '../common.ts';
 
 type P = t.SampleProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { render: boolean };
@@ -29,7 +39,7 @@ export function createDebugSignals() {
   const signals: Partial<t.YamlEditorSignals> = {
     doc: s<t.Crdt.Ref>(),
     editor: s<t.Monaco.Editor>(),
-    yaml: s<t.EditorYaml>(),
+    yaml: s<t.EditorYamlHook>(),
   };
 
   const props = {
@@ -49,7 +59,7 @@ export function createDebugSignals() {
 
   function listen() {
     Signal.listen(props);
-    Signal.listen(signals);
+    Signal.listen(signals, true);
   }
 
   function reset() {
@@ -102,8 +112,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+      <hr />
+
+      <Button
+        block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.path.value;
+          return `path: ${v ? `"${v.join(' / ')}"` : `<undefined>`}`;
+        }}
+        onClick={() =>
+          Signal.cycle(p.path, [['foo'], ['my-text'], ['slug', 'foo', 'bar'], undefined])
+        }
       />
 
       <hr />
@@ -112,12 +139,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
-        block
-        label={() => `render: ${p.render.value}`}
-        onClick={() => Signal.toggle(p.render)}
-      />
-      <hr />
       <Button
         block
         label={() => `(reset, reload)`}
