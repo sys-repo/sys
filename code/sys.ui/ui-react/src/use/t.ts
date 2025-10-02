@@ -1,5 +1,6 @@
 export type * from './use.DebouncedValue/t.ts';
 export type * from './use.Dist/t.ts';
+export type * from './use.Function/t.ts';
 export type * from './use.Is/t.ts';
 export type * from './use.Loading/t.ts';
 export type * from './use.Pointer/t.ts';
