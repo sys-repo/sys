@@ -59,7 +59,7 @@ groups:
     - import: npm:@vitejs/plugin-react-swc@4.1.0
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.52.3
-    - import: npm:vite@7.1.8
+    - import: npm:vite@7.1.7
     - import: npm:vite-plugin-wasm@3.5.0
 
   dev/tools:
@@ -88,7 +88,7 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.59
+    - import: npm:ai@5.0.60
     - import: npm:@ai-sdk/openai@2.0.42
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.19.1
@@ -120,7 +120,7 @@ deno.json:
   - import: npm:diff@8.0.2
   - import: npm:@farcaster/frame-sdk@0.1.10
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@18.0.1
+  - import: npm:happy-dom@19.0.2
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.5
   - import: npm:immer@10.1.3
