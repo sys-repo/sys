@@ -249,14 +249,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'debug'} data={safeProps(debug)} expand={0} style={{ marginTop: 15 }} />
       <ObjectView
         expand={0}
-        name={doc ? `doc (id:${doc.value?.id})` : 'doc'}
-        data={doc?.value?.current}
+        name={doc ? `doc (id:${doc.value?.id})` : 'doc:pending'}
+        data={doc?.value?.current ?? {}}
         style={{ marginTop: 5 }}
       />
       <ObjectView
         expand={1}
-        name={'yaml'}
-        data={Signal.toObject(debug.signals.yaml)}
+        name={debug.signals.yaml?.value ? 'yaml' : 'yaml:pending'}
+        data={Signal.toObject(debug.signals.yaml) ?? {}}
         style={{ marginTop: 5 }}
       />
     </div>
