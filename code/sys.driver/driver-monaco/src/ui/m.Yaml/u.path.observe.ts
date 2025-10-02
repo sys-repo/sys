@@ -1,4 +1,4 @@
-import { type t, Bus, Rx } from './common.ts';
+import { type t, Rx, singleton } from './common.ts';
 import { type Producer, createProducer } from './u.path.observe.singleton.ts';
 
 type Registry = { refCount: number; producer: Producer };
@@ -12,15 +12,15 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
   const editorId = editor.getId();
 
   const life = Rx.lifecycle(until);
-  const singleton = Bus.singleton(registry, editorId, () => createProducer(args));
-  life.dispose$.pipe(Rx.take(1)).subscribe(singleton.dispose);
+  const { producer, dispose } = singleton(registry, editorId, () => createProducer(args));
+  life.dispose$.pipe(Rx.take(1)).subscribe(dispose);
 
   return Rx.toLifecycle<t.EditorYamlCursorPathObserver>(life, {
     get $() {
-      return singleton.producer.$.pipe(Rx.takeUntil(life.dispose$));
+      return producer.$.pipe(Rx.takeUntil(life.dispose$));
     },
     get current() {
-      return singleton.producer.current;
+      return producer.current;
     },
   });
 };
