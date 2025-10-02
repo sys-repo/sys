@@ -26,6 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
         return (
           <Monaco.Yaml.Editor
             bus$={debug.bus$}
+            signals={debug.signals}
             repo={repo}
             documentId={v.documentId}
             editor={v.editor}
@@ -34,7 +35,7 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             onReady={(e) => {
-              console.info(`⚡️ Monaco.Yaml.Editor:onReady:`, e);
+              console.info(`⚡️ MonacoEditor.onReady:`, e);
               e.$.subscribe((e) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, e));
 
               /**
@@ -45,7 +46,7 @@ export default Spec.describe(D.displayName, (e) => {
                 until: e.dispose$,
               });
             }}
-            onDocumentLoaded={(e) => (p.doc.value = e.doc)}
+            onDocumentLoaded={(e) => console.info(`⚡️ MonacoEditor.onDocumentLoaded:`, e)}
           />
         );
       });

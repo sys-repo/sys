@@ -1,8 +1,5 @@
 import type { t } from './common.ts';
 
-type IPosition = t.Monaco.I.IPosition;
-type IRange = t.Monaco.I.IRange;
-
 export type * from './t.Path.ts';
 export type * from './t.Use.ErrorMarkers.ts';
 export type * from './t.Use.Yaml.ts';
@@ -15,4 +12,11 @@ export type EditorYamlLib = {
   readonly Editor: React.FC<t.YamlEditorProps>;
   useYaml: t.UseEditorYaml;
   useErrorMarkers: t.UseYamlErrorMarkers;
+};
+
+/** The canonical YAML data related to a loaded editor document. */
+export type EditorYaml = {
+  readonly rev: number; // Monotonic revision counter.
+  readonly cursor: t.EditorCursor;
+  readonly parsed: t.YamlSyncParseResult;
 };

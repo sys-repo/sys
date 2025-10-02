@@ -19,9 +19,5 @@ export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> &
 /** A YAML hook instance. */
 export type EditorYamlHook = {
   readonly ok: boolean;
-  readonly current?: {
-    readonly rev: number; // Monotonic revision counter.
-    readonly cursor: t.EditorCursor;
-    readonly parsed: t.YamlSyncParseResult;
-  };
+  readonly current?: t.EditorYaml;
 };

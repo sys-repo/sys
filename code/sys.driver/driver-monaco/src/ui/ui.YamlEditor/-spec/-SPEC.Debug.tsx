@@ -45,6 +45,11 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  const signals: P['signals'] = {
+    doc: s<t.CrdtRef>(),
+    yaml: s<t.EditorYaml | undefined>(),
+  };
+
   const props = {
     render: s(true),
     debug: s(snap.debug),
@@ -67,8 +72,6 @@ export function createDebugSignals() {
       visible: s((snap.footer ?? {}).visible),
       repo: s((snap.footer ?? {}).repo),
     },
-
-    doc: s<t.CrdtRef>(),
   };
 
   const p = props;
@@ -76,6 +79,7 @@ export function createDebugSignals() {
     props,
     repo: createRepo(),
     bus$: Rx.subject<t.EditorEvent>(),
+    signals,
     reset,
     listen,
   };
@@ -85,6 +89,7 @@ export function createDebugSignals() {
     Signal.listen(props.documentId);
     Signal.listen(props.editor);
     Signal.listen(props.footer);
+    Signal.listen(signals);
   }
 
   function reset() {
@@ -132,10 +137,11 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
+  const doc = debug.signals.doc;
   const p = debug.props;
 
   Signal.useRedrawEffect(() => debug.listen());
-  Crdt.UI.useRedrawEffect(p.doc.value, {
+  Crdt.UI.useRedrawEffect(doc?.value, {
     path: p.path.value,
     onRedraw: (e) => console.info(`⚡️ onRedraw:`, e),
   });
@@ -241,6 +247,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <ObjectView name={'debug'} data={safeProps(debug)} expand={0} style={{ marginTop: 15 }} />
+      <ObjectView
+        expand={0}
+        name={doc ? `doc (id:${doc.value?.id})` : 'doc'}
+        data={doc?.value?.current}
+        style={{ marginTop: 5 }}
+      />
+      <ObjectView
+        expand={1}
+        name={'yaml'}
+        data={Signal.toObject(debug.signals.yaml)}
+        style={{ marginTop: 5 }}
+      />
     </div>
   );
 };

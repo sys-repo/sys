@@ -2,7 +2,7 @@ import React from 'react';
 import { EditorCrdt } from '../m.Crdt/mod.ts';
 import { useYaml } from '../m.Yaml/use.Yaml.ts';
 
-import { type t, Bus, Obj, Rx, Signal } from './common.ts';
+import { type t, Obj, Signal } from './common.ts';
 import { useSignals } from './use.Signals.ts';
 
 type P = Omit<t.YamlEditorProps, 'bus$'>;
@@ -20,13 +20,10 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   /**
    * Hook: CRDT.
    */
-  const binding = EditorCrdt.useBinding(
-    { bus$, monaco, editor, doc, path, foldMarks: true },
-    (e) => {
-      setReady(true);
-      onReady?.(e);
-    },
-  );
+  EditorCrdt.useBinding({ bus$, monaco, editor, doc, path, foldMarks: true }, (e) => {
+    setReady(true);
+    onReady?.(e);
+  });
 
   /**
    * Hook: YAML.
@@ -41,23 +38,16 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   });
 
   /**
-   * Effect: reset ready/spinner when CRDT document changes.
+   * Effects:
    */
-  React.useEffect(() => void setReady(false), [doc?.id, Obj.hash(path)]);
-
-  /**
-   * Effect: keep YAML changes updated on Signal.
-   */
-  React.useEffect(() => {
-    const life = Rx.disposable();
-    const $ = bus$.pipe(Rx.takeUntil(life.dispose$));
-    $.pipe(Bus.Filter.ofKind('editor:yaml')).subscribe((e) => {
-      // signals.yaml.value = e.yaml;
-    return life.dispose;
-  }, [signals.yaml]);
+  React.useEffect(() => void setReady(false), [doc?.id, Obj.hash(path)]); // Reset ready/spinner when CRDT document changes.
+  React.useEffect(
+    () => void (signals.yaml.value = yaml.current), // Keep YAML changes updated on Signal.
+    [signals.yaml, yaml.current?.rev],
+  );
 
   /**
    * API:
    */
-  return { ready, signals, yaml, doc, binding } as const;
+  return { ready, yaml, doc, signals } as const;
 }
