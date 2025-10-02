@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { t } from '../common.ts';
 
 /**
  * Delays a value update until it stays stable for the given time-window.
@@ -6,8 +7,8 @@ import { useEffect, useRef, useState } from 'react';
  * @param value  The incoming (rapidly changing) value.
  * @param ms     How long (in ms) the value must stay unchanged before publishing.
  */
-export function useDebouncedValue<T>(value: T, ms = 120): T {
-  const [debounced, setDebounced] = useState<T>(value);
+export const useDebouncedValue: t.UseDebouncedValue = (value, ms = 120) => {
+  const [debounced, setDebounced] = useState(value);
   const timer = useRef<number>(undefined);
 
   useEffect(() => {
@@ -19,4 +20,4 @@ export function useDebouncedValue<T>(value: T, ms = 120): T {
   }, [value, ms]);
 
   return debounced;
-}
+};

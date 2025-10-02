@@ -1,5 +1,9 @@
+import type { t } from '../common.ts';
+
 /**
- * Hook: delays a value update until it remains stable
- * for the given time-window.
+ * Delays a value update until it stays stable for the given time-window.
+ *
+ * @param value  The incoming (rapidly changing) value.
+ * @param ms     How long (in ms) the value must stay unchanged before publishing.
  */
-export type UseDebouncedValue = <T>(value: T, ms?: number) => T;
+export type UseDebouncedValue = <T>(value: T, ms?: t.Msecs) => T;
