@@ -1,8 +1,8 @@
-import { type t, describe, DomMock, expect, FindCss, it, pkg, slug } from '../-test.ts';
-import { css } from '../m.Style/mod.ts';
-import { DEFAULT } from './common.ts';
-import { CssDom, CssPseudoClass } from './mod.ts';
-import { getStylesheetId } from './u.ts';
+import { type t, describe, DomMock, expect, FindCss, it, pkg, slug } from '../../-test.ts';
+import { css } from '../../m.Style/mod.ts';
+import { DEFAULT } from '../common.ts';
+import { CssDom, CssPseudoClass } from '../mod.ts';
+import { getStylesheetId } from '../u.ts';
 
 const toString = CssDom.toString;
 

@@ -1,6 +1,6 @@
-import { type t, describe, expect, it } from '../-test.ts';
-import { level3, level4 } from './m.CssPseudoClass.ts';
-import { CssDom, CssPseudoClass } from './mod.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
+import { level3, level4 } from '../m.CssPseudoClass.ts';
+import { CssDom, CssPseudoClass } from '../mod.ts';
 
 describe('CssPseudoClass', () => {
   it('API', () => {

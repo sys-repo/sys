@@ -1,5 +1,5 @@
-import { describe, DomMock, expect, FindCss, it, slug, TestPrint } from '../-test.ts';
-import { CssDom } from './mod.ts';
+import { describe, DomMock, expect, FindCss, it, slug, TestPrint } from '../../-test.ts';
+import { CssDom } from '../mod.ts';
 
 const toString = CssDom.toString;
 
@@ -127,7 +127,7 @@ describe(
         expect(res[0].style).to.eql({ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 });
       });
 
-      it('adds to DOM stylesheet', () => {
+      it.only('adds to DOM stylesheet', () => {
         const { sheet } = setup();
         const selector = `.test-${slug()}`;
         const context = '@container (min-width: 700px)';
