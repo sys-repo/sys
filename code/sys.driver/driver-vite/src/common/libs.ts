@@ -10,6 +10,7 @@ export { Cli, c, stripAnsi } from '@sys/cli';
 export { HashFmt } from '@sys/crypto/fmt';
 export { CompositeHash, FileHashUri, Hash } from '@sys/crypto/hash';
 export { FileMap, Fs, Path, Pkg } from '@sys/fs';
+export { Http, Net } from '@sys/http/server';
 export { Process } from '@sys/process';
 
 export { DenoDeps, DenoFile, DenoModule } from '@sys/driver-deno/runtime';
