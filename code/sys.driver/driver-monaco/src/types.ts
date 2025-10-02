@@ -8,7 +8,6 @@ export type * from './t.def.content.ts';
 export type * from './t.def.ts';
 
 export type * from './m.events/t.ts';
-export type * from './m.Lease/t.ts';
 export type * from './m.Monaco.Fake/t.ts';
 export type * from './m.Monaco/t.ts';
 
