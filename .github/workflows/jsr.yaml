@@ -200,6 +200,18 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/driver-monaco"
+        run: |
+          cd code/sys.driver/driver-monaco
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/driver-peerjs"
+        run: |
+          cd code/sys.driver/driver-peerjs
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/driver-prosemirror"
         run: |
           cd code/sys.driver/driver-prosemirror
@@ -215,5 +227,11 @@ jobs:
       - name: publish module → "@sys/tmpl"
         run: |
           cd code/-tmpl
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/dev"
+        run: |
+          cd code/sys.dev
           deno task test --parallel
           deno publish --allow-dirty
