@@ -1,13 +1,30 @@
 import type { t } from './common.ts';
 
 /**
- * Lease library entry points.
+ * Lease Library
+ *
+ * Provides "latest-wins" leases over arbitrary keys/tokens.
+ * Only the most recent claimant for a given key is considered the owner.
  */
 export type LeaseLib = {
-  /** Create a new in-memory lease map. */
+  /**
+   * Create a new in-memory LeaseMap.
+   *
+   * @example
+   *    const lease = Lease.make<string>();
+   *    const token = 'abc';
+   *    lease.claim('editor-1', token);
+   *    lease.isOwner('editor-1', token); // true
+   */
   make<K, T extends string = string>(): LeaseMap<K, T>;
 
-  /** Rx operator: only allow events through if `token` currently holds the lease for `key`. */
+  /**
+   * Rx guard operator: only allows events through if the given `token`
+   * currently holds the lease for `key`.
+   *
+   * Usage:
+   *   source$.pipe(Lease.guard(lease, key, token))
+   */
   guard<K, T extends string = string, E = unknown>(
     lease: LeaseMap<K, T>,
     key: K,
@@ -16,7 +33,8 @@ export type LeaseLib = {
 };
 
 /**
- * "Latest-wins" lease over a key space.
+ * A "latest-wins" lease over a key space.
+ * Only the newest claimant for a given key holds the lease.
  */
 export type LeaseMap<K, T extends string = string> = {
   /** Number of keys currently claimed. */
