@@ -10,7 +10,7 @@ describe(`Schedule`, () => {
     expect(m.Schedule).to.equal(Schedule);
   });
 
-  describe('static', () => {
+  describe('static methods', () => {
     describe('Schedule.micro (static)', () => {
       it('is callable & awaitable', async () => {
         const s = Schedule.micro;
@@ -330,9 +330,69 @@ describe(`Schedule`, () => {
         expect(life.disposed).to.eql(true);
       });
     });
+
+    describe('Schedule.sleep', () => {
+      const elapsed = async (fn: () => Promise<unknown>) => {
+        const t0 = performance.now();
+        await fn();
+        return performance.now() - t0; // ms, sub-millisecond precision
+      };
+
+      it('resolves after at least `ms` (default: no extra hop)', async () => {
+        const ms: t.Msecs = 12;
+        const dt = await elapsed(() => Schedule.sleep(ms)); // default: timer only
+        expect(dt).to.be.at.least(ms);
+      });
+
+      it('supports explicit hop selection: micro | macro | raf', async () => {
+        // micro
+        {
+          const dt = await elapsed(() => Schedule.sleep(5, 'micro'));
+          expect(dt).to.be.at.least(5);
+        }
+        // macro (next task tick) — may add small additional delay
+        {
+          const dt = await elapsed(() => Schedule.sleep(5, 'macro'));
+          expect(dt).to.be.at.least(5);
+        }
+        // raf (frame-aligned; falls back to ~16ms when no DOM)
+        {
+          const hasRAF = typeof (globalThis as any).requestAnimationFrame === 'function';
+          const min = hasRAF ? 0 : 10; // when real RAF, latency can be near-zero
+          const dt = await elapsed(() => Schedule.sleep(0, 'raf'));
+          expect(dt).to.be.at.least(min);
+        }
+      });
+
+      it('allows disabling the extra hop via `null` or `false`', async () => {
+        const dt1 = await elapsed(() => Schedule.sleep(8, null));
+        const dt2 = await elapsed(() => Schedule.sleep(8, false));
+        expect(dt1).to.be.at.least(8);
+        expect(dt2).to.be.at.least(8);
+      });
+
+      it('handles concurrent sleeps correctly (no interference)', async () => {
+        const ms: t.Msecs = 10;
+        const dt = await elapsed(async () => {
+          await Promise.all([Schedule.sleep(ms), Schedule.sleep(ms), Schedule.sleep(ms, 'micro')]);
+        });
+        expect(dt).to.be.at.least(ms);
+      });
+
+      it('default vs explicit micro both meet lower bound', async () => {
+        const ms: t.Msecs = 5;
+        const [a, b] = await Promise.all([
+          elapsed(() => Schedule.sleep(ms)), // default (no hop)
+          elapsed(() => Schedule.sleep(ms, 'micro')), // explicit hop
+        ]);
+        expect(a).to.be.at.least(ms);
+        expect(b).to.be.at.least(ms);
+        // no upper-bound assertions to avoid flakiness
+      });
+    });
   });
 
-  describe('instance (w/ lifecycle)', () => {
+  describe('instance (lifecycle)', () => {
     it('returns a curried ScheduleFn (callable & awaitable)', async () => {
       const schedule = Schedule.make(life()); // default micro
       expect(typeof schedule === 'function').to.be.true;

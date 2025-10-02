@@ -39,7 +39,7 @@ export type SchedulerLib = {
   micro: ScheduleFn;
 
   /**
-   * Macrotask scheduler (next timer tick).
+   * Macrotask scheduler (next task tick).
    *
    * Fire & forget:
    *   macro(() => { ... })
@@ -76,6 +76,16 @@ export type SchedulerLib = {
   frames(count?: number): Promise<void>;
 
   /**
+   * Sleep for N milliseconds (timer-backed).
+   *
+   * Semantics:
+   * - Resolves after at least `ms` have elapsed.
+   * - If `andThen` is provided, performs a hop on that scheduler queue after the timer.
+   * - If `andThen` is omitted/undefined, no extra hop is performed.
+   */
+  sleep(ms: t.Msecs, andThen?: t.AsyncSchedule | null | false): Promise<void>;
+
+  /**
    * Run a task at most once, scheduled on a queue, tied to lifecycle.
    *
    * - If disposed before it runs, it won't fire.
@@ -110,12 +120,13 @@ export type SchedulerLib = {
 
 /** Options for `Schedule.queue` execution. */
 export type ScheduleQueueOpts = { until?: t.UntilInput; queue?: ScheduleQueueConfig };
+
 /** Queue options for scheduled execution. */
 export type ScheduleQueueConfig =
   | 'micro' //              next microtask (queueMicrotask / Promise.then)
   | 'raf' //                next animation frame
-  | { frames: number } //   after N animation frames - "rAF"
-  | { ms: t.Msecs }; //     after N milliseconds (timer task via setTimeout) - "macro"
+  | { frames: number } //   after N animation frames
+  | { ms: t.Msecs }; //     after N milliseconds (timer task via setTimeout)
 
 /**
  * Curried scheduler function:

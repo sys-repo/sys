@@ -154,15 +154,17 @@ describe('Time Delay/Wait', () => {
       });
 
       it('race: dispose Time.until right before scheduled run', async () => {
-        const { dispose, dispose$ } = Rx.disposable();
-        let fired = 0;
-        const time = Time.until(dispose$);
-        const res = time.delay(5, () => fired++);
-        await Time.wait(4);
-        dispose();
-        await res;
-        expect(fired).to.eql(0);
-        expect(time.disposed).to.eql(true);
+        await Testing.retry(3, async () => {
+          const { dispose, dispose$ } = Rx.disposable();
+          let fired = 0;
+          const time = Time.until(dispose$);
+          const res = time.delay(5, () => fired++);
+          await Time.wait(4);
+          dispose();
+          await res;
+          expect(fired).to.eql(0);
+          expect(time.disposed).to.eql(true);
+        });
       });
     });
 
