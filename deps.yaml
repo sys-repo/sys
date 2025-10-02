@@ -71,7 +71,6 @@ groups:
     - import: npm:react-dom@19.2.0
     - import: npm:@types/react@19.2.0
     - import: npm:@types/react-dom@19.2.0
-    - import: npm:react-test-renderer@19.2.0
     - import: npm:@testing-library/react@16.3.0
 
   ui/monaco:
