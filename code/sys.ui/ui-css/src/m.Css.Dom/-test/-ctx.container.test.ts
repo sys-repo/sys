@@ -1,13 +1,4 @@
-import {
-  describe,
-  DomMock,
-  expect,
-  FindCss,
-  it,
-  normalizeWhitespace,
-  slug,
-  TestPrint,
-} from '../../-test.ts';
+import { describe, DomMock, expect, FindCss, it, slug, squash, TestPrint } from '../../-test.ts';
 import { CssDom } from '../mod.ts';
 
 const toString = CssDom.toString;
@@ -155,8 +146,8 @@ describe('Stylesheet.container(): scoped @container context', () => {
       // Verify that each rule is inserted in the DOM, wrapped in the context block.
       const expected1 = `${context} { ${selector} { ${toString(styles[0])} } }`;
       const expected2 = `${context} { ${selector} { ${toString(styles[1])} } }`;
-      expect(normalizeWhitespace(rules[0].cssText)).to.include(normalizeWhitespace(expected1));
-      expect(normalizeWhitespace(rules[1].cssText)).to.include(normalizeWhitespace(expected2));
+      expect(squash(rules[0].cssText)).to.include(squash(expected1));
+      expect(squash(rules[1].cssText)).to.include(squash(expected2));
     });
 
     it('scenario: 1', () => {

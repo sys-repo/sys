@@ -1,14 +1,4 @@
-import {
-  type t,
-  describe,
-  DomMock,
-  expect,
-  FindCss,
-  it,
-  normalizeWhitespace,
-  pkg,
-  slug,
-} from '../../-test.ts';
+import { type t, describe, DomMock, expect, FindCss, it, pkg, slug, squash } from '../../-test.ts';
 import { css } from '../../m.Style/mod.ts';
 import { DEFAULT } from '../common.ts';
 import { CssDom, CssPseudoClass } from '../mod.ts';
@@ -251,7 +241,7 @@ describe('Style: CSS ClassName', () => {
         const rule = FindCss.rule(selector);
         expect(rule).to.exist;
         const expectedCssText = `${context} { ${selector} { ${toString(style)} } }`;
-        expect(normalizeWhitespace(rule?.cssText)).to.eql(normalizeWhitespace(expectedCssText));
+        expect(squash(rule?.cssText)).to.eql(squash(expectedCssText));
       });
 
       it('should insert multiple rules within an "@container" context', () => {
@@ -279,8 +269,8 @@ describe('Style: CSS ClassName', () => {
         // Verify that each rule is inserted in the DOM, wrapped in the context block.
         const expected1 = `${context} { ${selector} { ${toString(styles[0])} } }`;
         const expected2 = `${context} { ${selector} { ${toString(styles[1])} } }`;
-        expect(normalizeWhitespace(rules[0].cssText)).to.eql(normalizeWhitespace(expected1));
-        expect(normalizeWhitespace(rules[1].cssText)).to.eql(normalizeWhitespace(expected2));
+        expect(squash(rules[0].cssText)).to.eql(squash(expected1));
+        expect(squash(rules[1].cssText)).to.eql(squash(expected2));
       });
     });
 
