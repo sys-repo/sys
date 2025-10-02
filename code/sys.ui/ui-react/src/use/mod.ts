@@ -1,23 +1,9 @@
 /**
- * Common react hooks.
  * @module
- *
- * @example
- *
- * ```ts
- * import {
- *   usePointer,
- *   usePointerDrag,
- *   usePointerDragDrop,
- *   useClickInside,
- *   useClickOutside,
- *   useRedraw,
- *   useSizeObserver,
- *   useLoading,
- * } from '@sys/ui-react/use';
+ * Common react hooks.
  * ```
  */
-export * from '../m.use.Pointer/mod.ts';
+export * from '../use.Pointer/mod.ts';
 
 export { useDebouncedValue } from './use.DebouncedValue.ts';
 export { useDist } from './use.Dist.ts';

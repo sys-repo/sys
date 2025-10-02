@@ -9,6 +9,7 @@ type P = Omit<t.YamlEditorProps, 'bus$'>;
 
 export function useYamlController(bus$: t.EditorEventBus, props: P) {
   const { path, onReady } = props;
+  const pathKey = React.useMemo(() => Obj.hash(path), [path]);
 
   /**
    * Hooks:
@@ -18,12 +19,16 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   const { editor, doc, monaco } = Signal.toObject(signals);
 
   /**
-   * Hook: CRDT.
+   * Hook: CRDT binding.
    */
-  EditorCrdt.useBinding({ bus$, monaco, editor, doc, path, foldMarks: true }, (e) => {
-    setReady(true);
-    onReady?.(e);
-  });
+  const handleReady = React.useCallback(
+    (e: unknown) => {
+      setReady(true);
+      onReady?.(e as never);
+    },
+    [onReady],
+  );
+  EditorCrdt.useBinding({ bus$, monaco, editor, doc, path, foldMarks: true }, handleReady);
 
   /**
    * Hook: YAML.
@@ -40,7 +45,7 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   /**
    * Effects:
    */
-  React.useEffect(() => void setReady(false), [doc?.id, Obj.hash(path)]); // Reset ready/spinner when CRDT document changes.
+  React.useEffect(() => void setReady(false), [doc?.id, pathKey]); // ← Reset ready/spinner.
   React.useEffect(
     () => void (signals.yaml.value = yaml.current), // Keep YAML changes updated on Signal.
     [signals.yaml, yaml.current?.rev],
@@ -49,5 +54,10 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   /**
    * API:
    */
-  return { ready, yaml, doc, signals } as const;
+  return {
+    ready,
+    signals,
+    yaml,
+    doc,
+  } as const;
 }

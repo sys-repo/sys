@@ -4,7 +4,7 @@ export { Path } from '@sys/std';
 export const Paths = {
   workspace: denojson.workspace,
   modules: [
-    /** Abstract types: */
+    // Pure types:
     'code/sys/types',
 
     /**
@@ -51,7 +51,7 @@ export const Paths = {
     'code/sys.driver/driver-prosemirror',
 
     /**
-     * system → surfacing driver(s) namespaces:
+     * Curated (named) entry points:
      */
     'code/sys/crdt',
 

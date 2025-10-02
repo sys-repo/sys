@@ -54,4 +54,4 @@ export {
   useVisibilityThreshold,
   useVisibilityThresholdX,
   useVisibilityThresholdY,
-} from './m.use/mod.ts';
+} from './use/mod.ts';
