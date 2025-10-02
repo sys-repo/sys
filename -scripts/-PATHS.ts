@@ -3,10 +3,6 @@ export { Path } from '@sys/std';
 
 export const Paths = {
   workspace: denojson.workspace,
-
-  /**
-   * (namespace "@sys")
-   */
   modules: [
     /** Abstract types: */
     'code/sys/types',
