@@ -16,7 +16,7 @@ import {
   Rx,
   Signal,
 } from '../common.ts';
-import { YamlSyncDebug } from './-u.yaml.tsx';
+import { YamlSyncDebug } from './-ui.yaml.tsx';
 
 type P = t.MonacoEditorProps;
 type Storage = Pick<P, 'language' | 'theme' | 'debug'> & {
@@ -64,7 +64,6 @@ export async function createDebugSignals() {
     editor: s<t.Monaco.Editor>(),
 
     doc: s<t.CrdtRef>(),
-    binding: s<t.EditorCrdtBinding>(),
     hiddenAreas: s<t.Monaco.I.IRange[]>(),
   };
   const p = props;
@@ -173,16 +172,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         show={['yaml', 'markdown', 'typescript']}
       />
 
-      {p.language.value === 'yaml' && p.logEventBus.value && (
-        <YamlSyncDebug
-          bus$={debug.bus$}
-          doc={p.doc.value}
-          path={p.path.value}
-          editor={p.editor.value}
-          debounce={p.debounce.value}
-          style={{ marginTop: 20 }}
-        />
-      )}
+      {p.language.value === 'yaml' && <YamlSyncDebug bus$={debug.bus$} style={{ marginTop: 20 }} />}
 
       <hr />
       <div className={Styles.title.class}>{'Folding:'}</div>
@@ -249,12 +239,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
           doc: p.doc.value?.current,
         }}
         style={{ marginTop: 15 }}
-      />
-
-      <ObjectView
-        name={'binding'}
-        data={!p.binding.value ? {} : { ...p.binding.value, doc: p.binding.value.doc.current }}
-        style={{ marginTop: 6 }}
       />
     </div>
   );
