@@ -1,7 +1,7 @@
-import { type t, describe, Err, expect, it, Url } from '../../-test.ts';
-import { Cache } from '../m.HttpCache/mod.ts';
-import { Fetch } from '../m.HttpFetch/mod.ts';
-import { Http } from './mod.ts';
+import { type t, describe, Err, expect, it, Url } from '../../../-test.ts';
+import { Cache } from '../../m.HttpCache/mod.ts';
+import { Fetch } from '../../m.HttpFetch/mod.ts';
+import { Http } from '../mod.ts';
 
 describe('Http', () => {
   it('API', () => {

@@ -1,5 +1,4 @@
 import { type t, Err, Is, isRecord } from './common.ts';
-
 type O = Record<string, unknown>;
 
 /**

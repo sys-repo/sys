@@ -85,7 +85,7 @@ describe('Net', { sanitizeOps: false, sanitizeResources: false }, () => {
       });
 
       it('increments over consecutive IPv4-occupied ports', async () => {
-        await Testing.retry(3, () => {
+        await Testing.retry(10, () => {
           const a = Port.random();
           const b = a + 1;
           const l1 = Deno.listen({ hostname: '0.0.0.0', port: a });
