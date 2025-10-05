@@ -3,7 +3,7 @@
     "@testing-library/react": "16.3.0",
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
-    "hono": "4.9.9",
+    "hono": "4.9.10",
     "motion": "12.23.22",
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -14,7 +14,7 @@
     "@vitejs/plugin-react-swc": "4.1.0",
     "prettier": "3.6.2",
     "prettier-plugin-organize-imports": "4.3.0",
-    "rollup": "4.52.3",
+    "rollup": "4.52.4",
     "vite": "7.1.7",
     "vite-plugin-wasm": "3.5.0"
   }

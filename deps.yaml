@@ -58,7 +58,7 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@4.1.0
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.52.3
+    - import: npm:rollup@4.52.4
     - import: npm:vite@7.1.7
     - import: npm:vite-plugin-wasm@3.5.0
 
@@ -91,11 +91,11 @@ groups:
     - import: npm:ai@5.0.60
     - import: npm:@ai-sdk/openai@2.0.42
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.19.1
+    - import: npm:@mastra/core@0.20.0
       subpaths: ['agent', 'memory', 'storage']
-    - import: npm:@mastra/libsql@0.15.0
-    - import: npm:@mastra/loggers@0.10.14
-    - import: npm:@mastra/memory@0.15.4
+    - import: npm:@mastra/libsql@0.15.1
+    - import: npm:@mastra/loggers@0.10.15
+    - import: npm:@mastra/memory@0.15.5
     - import: npm:ollama@0.6.0
     - import: npm:gpt-tokenizer@3.0.1
 
@@ -151,7 +151,7 @@ deno.json:
   - import: npm:react-error-boundary@6.0.0
   - import: npm:react-inspector@9.0.0
   - import: npm:react-spinners@0.17.0
-  - import: npm:@preact/signals-react@3.3.0
+  - import: npm:@preact/signals-react@3.3.1
 
 package.json:
   - group: build/tools
@@ -163,4 +163,4 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:motion@12.23.22
-  - import: npm:hono@4.9.9
+  - import: npm:hono@4.9.10
