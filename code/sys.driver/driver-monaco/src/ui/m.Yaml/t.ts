@@ -14,9 +14,15 @@ export type EditorYamlLib = {
   useErrorMarkers: t.UseYamlErrorMarkers;
 };
 
-/** The canonical YAML data related to a loaded editor document. */
+/**
+ * Canonical representation of YAML state for an
+ * active editor document.
+ */
 export type EditorYaml = {
-  readonly rev: number; // Monotonic revision counter.
+  /** Monotonic revision counter. */
+  readonly rev: number;
+  /** The parsed data ("what"). */
+  readonly data: t.YamlSyncParsed;
+  /** The current cursor location within the document ("where"). */
   readonly cursor: t.EditorCursor;
-  readonly parsed: t.YamlSyncParseResult;
 };

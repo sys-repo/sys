@@ -3,22 +3,19 @@ import type { t } from './common.ts';
 
 export type * from './t.Path.ts';
 export type * from './t.Syncer.ts';
+export type * from './t.Value.ts';
 
 /**
  * Concise YAML type namespace.
  */
 export namespace Yaml {
-  export type Ast = YamlAst;
+  export type Ast = t.YamlAst;
   export type Error = t.YamlError;
   export type Range = t.YamlRange;
   export type Node = Y.Node;
   export type Pair = Y.Pair;
   export type Scalar = Y.Scalar;
 }
-
-/** The primitives scalars possible from YAML */
-export type YamPrimitive = null | string | number | boolean;
-export type YamlAst = Y.Document.Parsed;
 
 /**
  * Error reported directly by the YAML parser.

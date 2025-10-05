@@ -113,7 +113,7 @@ describe('Yaml.syncer', () => {
 
   describe('sync/parsing', () => {
     type T = { text?: string; 'text.parsed'?: O };
-    type E = t.YamlSyncParseResult<T>;
+    type E = t.YamlSyncParsed<T>;
     const sample = (text?: string) => {
       const doc = Immutable.clonerRef<T>({ text });
       const syncer = Yaml.syncer<T>({ doc, path: ['text'] });
@@ -126,7 +126,7 @@ describe('Yaml.syncer', () => {
         expect(syncer.ok).to.eql(true);
         expect(syncer.errors).to.eql([]);
         expect(doc.current['text.parsed']).to.eql(expected);
-        expect(syncer.current.parsed).to.eql(expected);
+        expect(syncer.current.value).to.eql(expected);
         expect(syncer.current.text.after).to.eql(text ?? '');
       };
       test('', null);
@@ -142,7 +142,7 @@ describe('Yaml.syncer', () => {
       expect(syncer.errors.length).to.eql(2);
       expect(Yaml.Is.parseError(syncer.errors[0])).to.eql(true);
       expect(doc.current['text.parsed']).to.eql(undefined);
-      expect(syncer.current.parsed).to.eql(undefined);
+      expect(syncer.current.value).to.eql(undefined);
       expect(syncer.current.text.after).to.eql('foo: 123\n -b: a FAIL');
     });
 
@@ -161,7 +161,7 @@ describe('Yaml.syncer', () => {
 
       expect(fired.length).to.eql(1);
       expect(fired[0].text).to.eql({ before: '', after: 'foo: 123' });
-      expect(fired[0].parsed).to.eql({ foo: 123 });
+      expect(fired[0].value).to.eql({ foo: 123 });
       expect(fired[0].error).to.eql(undefined);
       expect(fired[0].ops.length).to.eql(1);
       expect(fired[0].ops[0].type).to.eql('update');
@@ -175,7 +175,7 @@ describe('Yaml.syncer', () => {
       expect(syncer.errors.length).to.eql(2);
 
       expect(fired.length).to.eql(2);
-      expect(fired[1].parsed).to.eql(undefined);
+      expect(fired[1].value).to.eql(undefined);
 
       const err1 = fired[1].errors[0];
       const err2 = fired[1].errors[1];
@@ -192,7 +192,7 @@ describe('Yaml.syncer', () => {
       expect(syncer.errors).to.eql([]);
 
       expect(fired.length).to.eql(3);
-      expect(fired[2].parsed).to.eql({ foo: 456 });
+      expect(fired[2].value).to.eql({ foo: 456 });
       expect(fired[2].error).to.eql(undefined);
       expect(fired[2].text).to.eql({ before: fail, after: 'foo: 456' });
       expect(fired[2].path).to.eql(syncer.path);
@@ -204,7 +204,7 @@ describe('Yaml.syncer', () => {
         expect(fired[2].ops[0].next).to.eql(456);
       }
 
-      expect(syncer.current.parsed).to.eql({ foo: 456 });
+      expect(syncer.current.value).to.eql({ foo: 456 });
       expect(syncer.current.text.after).to.eql('foo: 456');
     });
 
@@ -235,7 +235,7 @@ describe('Yaml.syncer', () => {
 
     it('write to different document', () => {
       const source = Immutable.clonerRef<{ text?: string }>({});
-      const target = Immutable.clonerRef<{ text?: t.YamPrimitive }>({});
+      const target = Immutable.clonerRef<{ text?: t.YamlPrimitive }>({});
       const syncer = Yaml.syncer<T>({ doc: { source, target }, path: ['text'] });
 
       source.change((d) => (d.text = 'foo: 123'));

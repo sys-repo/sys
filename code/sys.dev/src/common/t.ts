@@ -20,7 +20,7 @@ export type { DevCtx } from '@sys/ui-react-devharness/t';
  * @drivers
  */
 export type { Crdt } from '@sys/driver-automerge/t';
-export type { EditorYamlHook, Monaco } from '@sys/driver-monaco/t';
+export type { EditorYaml, Monaco } from '@sys/driver-monaco/t';
 
 /**
  * @local

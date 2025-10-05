@@ -54,7 +54,7 @@ export type EventCrdtFolding = {
  * YAML Editor Events:
  */
 export type EventsYaml = EventYaml | EventYamlCursor;
-export type EventYaml = t.YamlSyncParseResult & {
+export type EventYaml = t.YamlSyncParsed & {
   readonly kind: 'editor:yaml';
   readonly editorId: t.StringId;
 };

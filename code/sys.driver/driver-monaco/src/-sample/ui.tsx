@@ -47,7 +47,7 @@ export const Sample: React.FC<P> = (props) => {
   });
 
   let hasErrors = false;
-  if (yaml?.parsed.errors.length ?? 0 > 0) hasErrors = true;
+  if (yaml?.data.errors.length ?? 0 > 0) hasErrors = true;
 
   /**
    * Handlers:

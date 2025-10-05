@@ -64,11 +64,11 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
  * Helpers:
  */
 const wrangle = {
-  yaml(yaml?: t.YamlSyncParseResult) {
+  yaml(yaml?: t.YamlSyncParsed) {
     if (!yaml) return;
     const path = yaml.path;
     let data = Obj.trimStringsDeep(yaml);
-    (data.parsed ?? ({} as any)).path = {
+    (data.value ?? {}).path = {
       source: wrangle.path(path?.source),
       target: wrangle.path(path?.target),
     };

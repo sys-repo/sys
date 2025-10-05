@@ -131,7 +131,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
    */
   const api: t.EditorYamlHook = {
     get ok() {
-      return api.current?.parsed.ok ?? true;
+      return api.current?.data.ok ?? true;
     },
     get current() {
       if (!parser?.current || !cursor) return undefined;
@@ -139,7 +139,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
       return {
         rev,
         cursor,
-        parsed: parser.current,
+        data: parser.current,
       } satisfies t.EditorYamlHook['current'];
     },
   };

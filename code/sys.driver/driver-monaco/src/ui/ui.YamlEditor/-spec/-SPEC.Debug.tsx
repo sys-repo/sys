@@ -137,11 +137,11 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
-  const doc = debug.signals.doc;
+  const s = debug.signals;
   const p = debug.props;
 
   Signal.useRedrawEffect(() => debug.listen());
-  Crdt.UI.useRedrawEffect(doc?.value, {
+  Crdt.UI.useRedrawEffect(s.doc?.value, {
     path: p.path.value,
     onRedraw: (e) => console.info(`⚡️ onRedraw:`, e),
   });
@@ -249,14 +249,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'debug'} data={safeProps(debug)} expand={0} style={{ marginTop: 15 }} />
       <ObjectView
         expand={0}
-        name={doc ? `doc (id:${doc.value?.id})` : 'doc:pending'}
-        data={doc?.value?.current ?? {}}
+        name={s.doc?.value ? `doc (crdt:${s.doc.value?.id.slice(-5)})` : 'doc:pending'}
+        data={s.doc?.value?.current ?? {}}
         style={{ marginTop: 5 }}
       />
       <ObjectView
         expand={1}
-        name={debug.signals.yaml?.value ? 'yaml' : 'yaml:pending'}
-        data={Signal.toObject(debug.signals.yaml) ?? {}}
+        name={s.yaml?.value ? 'yaml' : 'yaml:pending'}
+        data={Signal.toObject(s.yaml) ?? {}}
         style={{ marginTop: 5 }}
       />
     </div>

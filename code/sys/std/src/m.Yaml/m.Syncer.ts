@@ -20,7 +20,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   const source$ = debounce > 0 ? pathEvents.$.pipe(Rx.debounceTime(debounce)) : pathEvents.$;
 
   type TParser = t.YamlSyncParser<T>;
-  type TResult = t.YamlSyncParseResult<T>;
+  type TResult = t.YamlSyncParsed<T>;
   const $$ = Rx.subject<TResult>();
   const $ = $$.pipe(Rx.takeUntil(life.dispose$));
 
@@ -34,7 +34,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
   let _current: TResult = {
     rev: 0,
     ok: isOk(),
-    parsed: undefined,
+    value: undefined,
     ops: [],
     path,
     text: { before: '', after: '' },
@@ -82,28 +82,28 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     _before = after;
 
     errors.clear();
-    addPathErrors(); // re-assert structural errors every time
+    addPathErrors(); // Re-assert structural errors every time.
 
     // Attempt to parse data:
     const ast = parseAst(after);
     if (ast.errors.length > 0) ast.errors.forEach((err) => errors.add(err));
 
     let ops: t.ObjDiffOp[] = [];
-    const data = ast.errors.length === 0 ? (ast.toJS() as T) : undefined;
+    const value = ast.errors.length === 0 ? (ast.toJS() as t.YamlValue<T>) : undefined;
 
     const targetPath = path.target ?? [];
     if (ast.errors.length === 0 && targetPath.length > 0) {
-      const currentOutput = get<t.YamlSyncParsed<T>>(doc.target?.current, path.target);
-      const isEqual = Obj.eql(data, currentOutput);
+      const currentOutput = get<t.YamlValue<T>>(doc.target?.current, path.target);
+      const isEqual = Obj.eql(value, currentOutput);
       if (!isEqual) {
         doc.target.change((d) => {
           const targetValue = Obj.Path.Mutate.ensure(d, path.target!, {});
-          if (Is.record(data) && Is.record(targetValue)) {
-            const diff = Obj.Path.Mutate.diff(data, targetValue);
+          if (Is.record(value) && Is.record(targetValue)) {
+            const diff = Obj.Path.Mutate.diff(value, targetValue);
             ops.push(...diff.ops);
           } else {
             // Replace (any value other than {object} which is diff'd):
-            const op = Obj.Path.Mutate.set(d, targetPath, data);
+            const op = Obj.Path.Mutate.set(d, targetPath, value);
             if (op) ops.push(op);
           }
         });
@@ -112,7 +112,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
 
     // Alert listeners:
     emitChange({
-      parsed: ast.errors.length === 0 ? (data as t.YamlSyncParsed<T>) : undefined,
+      value: ast.errors.length === 0 ? value : undefined,
       ops,
       path,
       text: { before, after },
