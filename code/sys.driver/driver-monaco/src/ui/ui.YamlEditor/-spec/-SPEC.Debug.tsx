@@ -141,7 +141,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
 
   Signal.useRedrawEffect(() => debug.listen());
-  Crdt.UI.useRedrawEffect(s.doc?.value, {
+  Crdt.UI.useRev(s.doc?.value, {
     path: p.path.value,
     onRedraw: (e) => console.info(`⚡️ onRedraw:`, e),
   });
