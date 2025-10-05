@@ -4,19 +4,21 @@ import { type t, Is, Schedule } from './common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Triggers a React redraw when a CRDT Doc changes.
+ * Triggers a `rev` monotonic increment everytime
+ * a CRDT document changes.
+ *
  */
-export function useRedrawEffect<T extends O = O>(
+export function useRev<T extends O = O>(
   doc?: t.CrdtRef<T>,
-  opts?: t.UseRedrawEffectOptions<T> | t.CrdtRedrawEventHandler<T> | t.ObjectPath | t.ObjectPath[],
-): t.CrdtRedrawHook {
+  opts?: t.UseCrdtRevOptions<T> | t.CrdtRevChangeHandler<T> | t.ObjectPath | t.ObjectPath[],
+): t.CrdtRev {
   const options = wrangle.options<T>(opts);
   const paths = wrangle.path(options.path) ?? [];
   const pathKey = useMemo(() => paths.map((p) => p.join()).join('|'), [paths]);
 
   /**
    * Refs:
-   * (avoid resubscribe churn).
+   * (avoid re-subscribe churn).
    */
   const onRedrawRef = useRef<typeof options.onRedraw>(null);
   const onErrorRef = useRef<typeof options.onError>(null);
@@ -26,7 +28,7 @@ export function useRedrawEffect<T extends O = O>(
   /**
    * Hooks:
    */
-  const [count, setRender] = useState(0);
+  const [rev, setRender] = useState(0);
 
   /**
    * Effect:
@@ -36,8 +38,7 @@ export function useRedrawEffect<T extends O = O>(
 
     const events = doc.events();
     const schedule = Schedule.make(events, 'micro'); // ← bound to dispose$
-    const scheduleRedraw = makeCoalescer(schedule); // ← coalescer also bound to dispose$
-
+    const scheduleRedraw = makeCoalescer(schedule); //  ← coalescer also bound to dispose$
     const streams = paths.length === 0 ? [events.$] : paths.map((p) => events.path(p).$);
 
     streams.map(($) =>
@@ -46,12 +47,12 @@ export function useRedrawEffect<T extends O = O>(
           if (events.disposed) return;
 
           try {
-            onRedrawRef.current?.({ doc, change });
+            onRedrawRef.current?.({ rev, doc, change });
           } catch (err) {
             try {
               onErrorRef.current?.(err);
             } catch {
-              /* swallow: user/handler error */
+              /* Swallow: user/handler error */
             }
           }
 
@@ -66,7 +67,7 @@ export function useRedrawEffect<T extends O = O>(
     return events.dispose;
   }, [doc?.id, doc?.instance, pathKey]);
 
-  return { count, doc };
+  return { rev, doc };
 }
 
 /**
@@ -86,12 +87,8 @@ const makeCoalescer = (schedule: (fn: () => void) => void) => {
 
 const wrangle = {
   options<T extends O>(
-    input?:
-      | t.UseRedrawEffectOptions<T>
-      | t.CrdtRedrawEventHandler<T>
-      | t.ObjectPath
-      | t.ObjectPath[],
-  ): t.UseRedrawEffectOptions<T> {
+    input?: t.UseCrdtRevOptions<T> | t.CrdtRevChangeHandler<T> | t.ObjectPath | t.ObjectPath[],
+  ): t.UseCrdtRevOptions<T> {
     if (!input) return {};
     if (Is.func(input)) return { onRedraw: input };
     if (Array.isArray(input)) return { path: input };

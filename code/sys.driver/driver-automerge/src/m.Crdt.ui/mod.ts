@@ -19,8 +19,8 @@ export { BinaryFile, Card, DocumentId, Repo };
 /**
  * Hooks:
  */
-import { useDoc, useRedrawEffect } from '../ui/use/mod.ts';
-export { useDoc, useRedrawEffect };
+import { useDoc, useRev } from '../ui/use/mod.ts';
+export { useDoc, useRev };
 
 /**
  * CRDT UI Library:
@@ -33,6 +33,6 @@ export const Crdt: t.CrdtUiLib = {
     DocumentId,
     BinaryFile,
     useDoc,
-    useRedrawEffect,
+    useRev,
   },
 };

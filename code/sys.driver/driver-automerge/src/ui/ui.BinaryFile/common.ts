@@ -1,6 +1,6 @@
 import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
-export { useRedrawEffect } from '../use/mod.ts';
+export { useRev } from '../use/mod.ts';
 
 /**
  * Constants:

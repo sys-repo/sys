@@ -11,7 +11,7 @@ import {
   Str,
   usePointer,
   UserAgent,
-  useRedrawEffect,
+  useRev,
 } from './common.ts';
 import { Binary } from './m.Binary.ts';
 import { handleSave } from './u.handleSave.ts';
@@ -26,7 +26,7 @@ export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
   /**
    * Hooks:
    */
-  useRedrawEffect(doc, path);
+  useRev(doc, path);
   const pointer = usePointer({
     onDrag(e) {},
     async onDragdrop(e) {

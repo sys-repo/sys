@@ -11,6 +11,6 @@ export type CrdtUiLib = t.CrdtBrowserLib & {
     readonly BinaryFile: React.FC<t.BinaryFileProps>;
 
     readonly useDoc: t.UseCrdtDoc;
-    readonly useRedrawEffect: t.UseRedrawEffect;
+    readonly useRev: t.UseCrdtRev;
   };
 };

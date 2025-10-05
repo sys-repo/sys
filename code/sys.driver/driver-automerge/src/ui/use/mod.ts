@@ -3,4 +3,4 @@
  * @module
  */
 export { useDoc } from './use.Doc.ts';
-export { useRedrawEffect } from './use.RedrawEffect.ts';
+export { useRev } from './use.Rev.ts';
