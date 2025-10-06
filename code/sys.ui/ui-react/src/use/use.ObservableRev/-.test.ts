@@ -1,17 +1,17 @@
 import { act, describe, DomMock, expect, expectTypeOf, it, renderHook, Rx } from '../../-test.ts';
-import { useRedraw } from './mod.ts';
+import { useObservableRev } from './mod.ts';
 
-describe('useRedraw', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('useObservableRev', { sanitizeResources: false, sanitizeOps: false }, () => {
   DomMock.polyfill();
 
   it('returns a function', () => {
-    const { result } = renderHook(() => useRedraw(undefined));
+    const { result } = renderHook(() => useObservableRev(undefined));
     expectTypeOf(result.current).toEqualTypeOf<() => void>();
     expect(result.current).to.be.a('function');
   });
 
   it('does not throw when invoked (no stream)', () => {
-    const { result } = renderHook(() => useRedraw());
+    const { result } = renderHook(() => useObservableRev());
     expect(() => result.current()).to.not.throw();
   });
 
@@ -22,7 +22,7 @@ describe('useRedraw', { sanitizeResources: false, sanitizeOps: false }, () => {
     // A sentinel subscriber we control
     const sentinel = subject.subscribe(() => count++);
 
-    const { unmount } = renderHook(() => useRedraw(subject));
+    const { unmount } = renderHook(() => useObservableRev(subject));
 
     // Fire while hook is mounted → both get the event
     await act(async () => {
@@ -44,7 +44,7 @@ describe('useRedraw', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   it('keeps a stable function identity across re-renders', () => {
     const subject = Rx.subject<void>();
-    const { result, rerender } = renderHook(() => useRedraw(subject));
+    const { result, rerender } = renderHook(() => useObservableRev(subject));
     const first = result.current;
     rerender();
     const second = result.current;
@@ -53,7 +53,7 @@ describe('useRedraw', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   it('handles rapid subject.next() calls without error (coalesced internally)', async () => {
     const subject = Rx.subject<void>();
-    const { result } = renderHook(() => useRedraw(subject));
+    const { result } = renderHook(() => useObservableRev(subject));
 
     await act(async () => {
       subject.next();
@@ -67,7 +67,7 @@ describe('useRedraw', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   it('completes safely when subject completes', () => {
     const subject = Rx.subject<void>();
-    const { result } = renderHook(() => useRedraw(subject));
+    const { result } = renderHook(() => useObservableRev(subject));
     expect(() => subject.complete()).to.not.throw();
     expect(result.current).to.be.a('function');
   });

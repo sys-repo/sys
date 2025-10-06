@@ -1,41 +1,16 @@
-import { useRef, useState } from 'react';
+import { useRev } from '../use/use.Rev/mod.ts';
 import { type t, useSignalEffect } from './common.ts';
 
 /**
  * Safely causes a redraw when any signals touched inside `cb()` change.
- * - Coalesces multiple changes per tick into a single microtask redraw.
+ * - Coalesces multiple changes per tick into a single microtask rev bump.
  * - No deep walks; dependencies are whatever `cb()` reads.
  * - No Automerge/debug-tooling dependencies.
  */
 export const useRedrawEffect: t.SignalReactLib['useRedrawEffect'] = (cb) => {
-  const [, setRender] = useState(0);
-
-  /**
-   * Refs:
-   */
-  const scheduleRef = useRef<ReturnType<typeof makeCoalescer> | null>(null);
-  if (!scheduleRef.current) scheduleRef.current = makeCoalescer();
-
-  /**
-   * Effects:
-   */
+  const [, bump] = useRev('micro');
   useSignalEffect(() => {
-    cb(); // Establish reactive deps.
-    scheduleRef.current?.(() => setRender((n) => n + 1)); // NB: one redraw next microtask.
+    cb(); //    Establish reactive deps.
+    bump(); //  Schedule one redraw on next microtask.
   });
-};
-
-/**
- * Helpers:
- */
-const makeCoalescer = () => {
-  let queued = false;
-  return (fn: () => void) => {
-    if (queued) return;
-    queued = true;
-    queueMicrotask(() => {
-      queued = false;
-      fn();
-    });
-  };
 };

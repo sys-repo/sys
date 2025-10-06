@@ -4,12 +4,12 @@ import { type t, Rx } from '../common.ts';
 import { useRev } from '../use.Rev/mod.ts';
 
 /**
- * Hook: useRedraw
+ * Hook: useObservableRev
  *
  * Subscribes to an optional Rx observable and returns a stable
- * callback that triggers a coalesced React redraw.
+ * callback that triggers a coalesced React revision update.
  */
-export const useRedraw: t.UseRedraw = ($) => {
+export const useObservableRev: t.UseObservableRev = ($) => {
   const [, bump] = useRev('raf');
 
   useEffect(() => {
