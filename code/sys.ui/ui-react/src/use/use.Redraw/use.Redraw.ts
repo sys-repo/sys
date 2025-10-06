@@ -1,22 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+
 import { type t, Rx } from '../common.ts';
+import { useRev } from '../use.Rev/mod.ts';
 
 /**
- * Hook: provide simple counter incrementing component "redraw" API.
+ * Hook: useRedraw
+ *
+ * Subscribes to an optional Rx observable and returns a stable
+ * callback that triggers a coalesced React redraw.
  */
-export const useRedraw: t.UseRedraw = (redraw$) => {
-  const [, setCount] = useState(0);
-  const redraw = () => setCount((n) => n + 1);
+export const useRedraw: t.UseRedraw = ($) => {
+  const [, bump] = useRev('raf');
 
   useEffect(() => {
+    if (!$) return;
     const life = Rx.disposable();
-    const $ = redraw$?.pipe(
-      Rx.takeUntil(life.dispose$),
-      Rx.debounceTime(10, Rx.animationFrameScheduler),
-    );
-    $?.subscribe(redraw);
+    $.pipe(Rx.takeUntil(life.dispose$)).subscribe(bump);
     return life.dispose;
-  }, [redraw$]);
+  }, [$, bump]);
 
-  return redraw;
+  return bump;
 };

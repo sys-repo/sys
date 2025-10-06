@@ -52,6 +52,7 @@ export {
   usePointerDrag,
   usePointerDragdrop,
   useRedraw,
+  useRev,
   useSizeObserver,
   useVisibilityThreshold,
   useVisibilityThresholdX,

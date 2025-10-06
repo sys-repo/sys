@@ -5,5 +5,6 @@ export type * from './use.Is/t.ts';
 export type * from './use.Loading/t.ts';
 export type * from './use.Pointer/t.ts';
 export type * from './use.Redraw/t.ts';
+export type * from './use.Rev/t.ts';
 export type * from './use.SizeObserver/t.ts';
 export type * from './use.VisibilityThreshold/t.ts';
