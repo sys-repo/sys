@@ -7,7 +7,6 @@ import {
   Lease,
   Obj,
   Rx,
-  Time,
   Yaml,
   singleton,
   slug,
@@ -70,21 +69,14 @@ export const useYaml: t.UseEditorYaml = (args) => {
     const parser = Yaml.syncer({ doc, path, debounce });
     setParser(parser);
 
-    const emit = {
-      yamlEvent() {
-        if (editorId === '') return;
-        const e = { kind: 'editor:yaml', ...parser.current, editorId } satisfies t.EventYaml;
-        Bus.emit(bus$, 'micro', e);
-      },
-      pongEvent(nonce: string, states: t.EditorStateKind[]) {
-        const at = Time.now.timestamp;
-        const e = { kind: 'editor:pong', at, states, nonce } satisfies t.EventEditorPong;
-        Bus.emit(bus$, 'micro', e);
-      },
-    } as const;
+    const emit = () => {
+      if (editorId === '') return;
+      const e = { kind: 'editor:yaml', ...parser.current, editorId } satisfies t.EventYaml;
+      Bus.emit(bus$, 'micro', e);
+    };
 
-    if (parser.current) emit.yamlEvent(); // initial snapshot
-    parser.$.subscribe(emit.yamlEvent);
+    if (parser.current) emit(); // initial snapshot
+    parser.$.subscribe(emit);
 
     // Listen and repond to `ping` requests:
     bus$
@@ -94,8 +86,8 @@ export const useYaml: t.UseEditorYaml = (args) => {
         Rx.filter((e) => e.request.includes('yaml')),
       )
       .subscribe((e) => {
-        emit.yamlEvent();
-        emit.pongEvent(e.nonce, ['yaml']);
+        emit();
+        Bus.pong(bus$, e.nonce, ['yaml']);
       });
 
     return parser.dispose;

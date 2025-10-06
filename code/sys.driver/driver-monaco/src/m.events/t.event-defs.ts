@@ -65,13 +65,14 @@ export type EventYamlCursor = t.EditorCursor & {
 /**
  * Ping/Pong (Request Current Truth)
  */
+
 /** Addressable editor state domains that can answer a ping. */
-export type EditorStateKind = 'yaml' | 'cursor'; // futures: 'folding' | 'marks' etc (build out over time).
+export type EditorPingKind = 'yaml' | 'cursor'; // futures: 'folding' | 'marks' etc (build out over time).
 
 /** Request that authoritative modules re-emit the latest state for the named kinds. */
 export type EventEditorPing = {
   readonly kind: 'editor:ping';
-  readonly request: readonly EditorStateKind[];
+  readonly request: readonly EditorPingKind[];
   readonly editorId?: t.StringId; // ← scope if multiple editors are live
   readonly nonce: string; //         ← correlation id for optional waiting UIs/tests
 };
@@ -80,6 +81,6 @@ export type EventEditorPing = {
 export type EventEditorPong = {
   readonly kind: 'editor:pong';
   readonly at: t.UnixEpoch;
-  readonly states: readonly EditorStateKind[]; // the `kinds` were just re-emitted.
+  readonly states: readonly EditorPingKind[]; // the event `kinds` that were just re-emitted.
   readonly nonce: string;
 };

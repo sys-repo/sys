@@ -42,7 +42,7 @@ describe('Monaco.Yaml', () => {
 
       const nonce = 'nonce-123';
       act(() => {
-        bus$.next({ kind: 'editor:ping', request: ['yaml'], nonce } satisfies t.EventEditorPing);
+        Bus.ping(bus$, ['yaml'], nonce);
       });
 
       await Time.wait(10);

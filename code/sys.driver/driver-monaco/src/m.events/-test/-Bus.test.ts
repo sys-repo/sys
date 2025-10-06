@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectTypeOf, it, Rx, Schedule } from '../../-test.ts';
+import { type t, describe, expect, expectTypeOf, it, Rx, Schedule, Time } from '../../-test.ts';
 import { Bus } from '../mod.ts';
 
 describe(`Editor Events`, () => {
@@ -213,6 +213,36 @@ describe(`Editor Events`, () => {
       sub.unsubscribe();
       expect(seen).to.have.length(1);
       expect(seen[0].kind === 'editor:crdt:folding:ready').to.be.true;
+    });
+  });
+
+  describe('Bus.ping/pong', () => {
+    it('emits correctly typed `ping` and `pong` events', async () => {
+      const bus$ = Bus.make();
+      const events: t.EditorEvent[] = [];
+      const life = Rx.disposable();
+      bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
+
+      const nonce = 'n1';
+      const req: t.EditorPingKind[] = ['yaml'];
+      const states: t.EditorPingKind[] = ['yaml'];
+
+      const ping = Bus.ping(bus$, req, nonce, 'ed1');
+      const pong = Bus.pong(bus$, nonce, states);
+
+      await Time.wait(1);
+
+      // Type checks:
+      expectTypeOf(ping).toEqualTypeOf<t.EventEditorPing>();
+      expectTypeOf(pong).toEqualTypeOf<t.EventEditorPong>();
+
+      // Runtime structure:
+      expect(events.map((e) => e.kind)).to.eql(['editor:ping', 'editor:pong']);
+      expect(ping.nonce).to.eql(nonce);
+      expect(pong.states).to.eql(states);
+      expect(pong.at).to.be.a('number');
+
+      life.dispose();
     });
   });
 });
