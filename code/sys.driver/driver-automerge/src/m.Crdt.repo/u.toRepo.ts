@@ -113,6 +113,7 @@ export function toRepo(
     },
     async whenReady() {
       await readyOnce;
+      return api;
     },
 
     sync: {

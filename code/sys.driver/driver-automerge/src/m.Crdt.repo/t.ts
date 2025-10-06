@@ -23,7 +23,7 @@ export type CrdtRepoProps = {
 };
 /** The methods of a CRDT Repo. */
 export type CrdtRepoMethods = {
-  whenReady(): Promise<void>;
+  whenReady(): Promise<t.CrdtRepo>;
   create<T extends O>(initial: T | (() => T)): t.CrdtRef<T>;
   get<T extends O>(id: t.StringId, options?: CrdtRepoGetOptions): Promise<CrdtRefGetResponse<T>>;
   delete(id: t.StringId | t.Crdt.Ref): Promise<void>;

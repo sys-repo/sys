@@ -99,8 +99,9 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(repo.ready).to.eql(false);
 
       // Await ready.
-      await repo.whenReady();
+      const readyRepo = await repo.whenReady();
       expect(repo.ready).to.eql(true);
+      expect(readyRepo).to.equal(repo);
 
       // Second call should resolve immediately.
       await repo.whenReady();
