@@ -104,6 +104,18 @@ export function createProducer(args: {
     Rx.shareReplay({ bufferSize: 1, refCount: true }),
   );
 
+  // Listen and respond to `ping` requests:
+  bus$
+    .pipe(
+      Rx.takeUntil(life.dispose$),
+      Bus.Filter.ofKind('editor:ping'),
+      Rx.filter((e) => e.request.includes('cursor')),
+    )
+    .subscribe((e) => {
+      Bus.emit(bus$, 'micro', currentCursor);
+      Bus.pong(bus$, e.nonce, ['cursor']);
+    });
+
   /**
    * API:
    */

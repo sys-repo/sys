@@ -1,8 +1,9 @@
-import { describe, expect, it, MonacoFake, Rx, Schedule, type t } from '../../../-test.ts';
+import { type t, describe, expect, it, MonacoFake, Rx, Schedule } from '../../../-test.ts';
+import { Bus } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
 
 describe('Monaco.Yaml', () => {
-  describe('Path.Path', () => {
+  describe('Yaml.Path', () => {
     describe('lifecycle', () => {
       it('dispose: via method', () => {
         const editor = MonacoFake.editor('');
@@ -214,6 +215,40 @@ describe('Monaco.Yaml', () => {
         expect(completed).to.eql(true);
 
         sub.unsubscribe();
+      });
+    });
+
+    describe('ping/pong: "cursor"', () => {
+      it('responds to "editor:ping" with editor:yaml:cursor + editor:pong', async () => {
+        const life = Rx.disposable();
+        const bus$ = Bus.make();
+        const model = MonacoFake.model('foo: bar', { language: 'yaml' });
+        const editor = MonacoFake.editor(model);
+
+        // Start observing (this creates the cursor producer)
+        EditorYaml.Path.observe({ editor, bus$ }, life);
+
+        const events: t.EditorEvent[] = [];
+        bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
+
+        const nonce = 'nonce-123';
+        bus$.next({
+          kind: 'editor:ping',
+          request: ['cursor'],
+          nonce,
+        } satisfies t.EventEditorPing);
+
+        await Schedule.macro();
+        const cursor = events.find((e) => e.kind === 'editor:yaml:cursor') as t.EventYamlCursor;
+        const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
+
+        expect(cursor).to.exist;
+        expect(pong).to.exist;
+        expect(pong.nonce).to.equal(nonce);
+        expect(pong.states).to.eql(['cursor']);
+        expect(pong.at).to.be.a('number');
+
+        life.dispose();
       });
     });
   });
