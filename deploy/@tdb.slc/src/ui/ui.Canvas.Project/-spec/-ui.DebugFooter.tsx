@@ -36,7 +36,7 @@ export const DebugFooter: React.FC<DebugFooterProps> = (props) => {
   const obj = Obj.Path.get(doc?.current, PATHS.YAML_PARSED, {});
   const title = String(Is.record(obj) ? obj.name : 'Untitled');
 
-  Crdt.UI.useRedrawEffect(doc);
+  Crdt.UI.useRev(doc);
 
   return (
     <div className={css(styles.base, props.style).class}>

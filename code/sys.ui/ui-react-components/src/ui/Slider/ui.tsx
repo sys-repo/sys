@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { type t, Color, DEFAULTS, css, useRedraw } from './common.ts';
+import { type t, Color, DEFAULTS, css, useRev } from './common.ts';
 
 import { Wrangle } from './u.ts';
 import { Thumb } from './ui.Thumb.tsx';
@@ -16,7 +16,7 @@ export const Slider: React.FC<t.SliderProps> = (props) => {
    * Hooks:
    */
   const monitor = useEventMonitor({ enabled, onChange });
-  const redraw = useRedraw();
+  const [, redraw] = useRev();
   useEffect(redraw, [!!monitor.el]); // NB: ensure the thumb renders (which is waiting for the [ref] → totalWidth).
 
   /**

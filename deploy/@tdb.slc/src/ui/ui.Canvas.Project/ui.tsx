@@ -25,7 +25,7 @@ export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
   /**
    * Effect:
    */
-  Crdt.UI.useRedrawEffect(doc);
+  Crdt.UI.useRev(doc);
 
   React.useEffect(() => {
     setVideo(() => {

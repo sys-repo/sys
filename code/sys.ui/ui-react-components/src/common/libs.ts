@@ -35,7 +35,8 @@ export {
   ReactString,
   Signal,
   useIsTouchSupported,
+  useObservableRev,
   usePointer,
-  useRedraw,
+  useRev,
   useSizeObserver,
 } from '@sys/ui-react';

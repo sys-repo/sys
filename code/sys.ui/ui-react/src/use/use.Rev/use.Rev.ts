@@ -17,7 +17,7 @@ import { type t, Schedule } from '../common.ts';
  * useEffect(bump, [docRev, yaml.rev, cursorDeps]);
  * ```
  */
-export function useRev(mode: t.AsyncSchedule = 'raf') {
+export const useRev: t.UseRev = (mode = 'raf') => {
   const [rev, setRev] = useState(0);
 
   // Create a lifecycle-aware scheduler.
@@ -34,4 +34,4 @@ export function useRev(mode: t.AsyncSchedule = 'raf') {
   }, [scheduler]);
 
   return [rev, bump] as const;
-}
+};
