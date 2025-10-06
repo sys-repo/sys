@@ -26,9 +26,9 @@ export const YamlObjectView: React.FC<P> = (props) => {
   /**
    * Local state:
    */
+  const [rev, bump] = useRev();
   const [yaml, setYaml] = React.useState<t.EventYaml | undefined>();
   const [cursor, setCursor] = React.useState<t.EventYamlCursor | undefined>();
-  const [rev, bump] = useRev();
 
   /**
    * Effect: ensure cursor producer exists (singleton per editorId).
