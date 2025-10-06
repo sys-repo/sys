@@ -1,4 +1,6 @@
+import { YamlObjectView } from '@sys/driver-monaco/dev';
 import React from 'react';
+
 import { createRepo } from '../../-test.ui.ts';
 import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
@@ -16,7 +18,6 @@ import {
   Rx,
   Signal,
 } from '../common.ts';
-import { YamlSyncDebug } from './-ui.yaml.tsx';
 
 type P = t.MonacoEditorProps;
 type Storage = Pick<P, 'language' | 'theme' | 'debug'> & {
@@ -173,7 +174,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       {p.language.value === 'yaml' && (
-        <YamlSyncDebug bus$={debug.bus$} doc={p.doc.value} style={{ marginTop: 20 }} />
+        <YamlObjectView
+          bus$={debug.bus$}
+          doc={p.doc.value}
+          editor={p.editor.value}
+          style={{ marginTop: 20 }}
+        />
       )}
 
       <hr />

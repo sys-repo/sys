@@ -50,6 +50,7 @@ export function createDebugSignals() {
   const signals: P['signals'] = {
     doc: s<t.CrdtRef>(),
     yaml: s<t.EditorYaml | undefined>(),
+    editor: s<t.Monaco.Editor | undefined>(),
   };
 
   const props = {
@@ -251,9 +252,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'debug'} data={safeProps(debug)} expand={0} style={{ marginTop: 15 }} />
       <YamlObjectView
         style={{ marginTop: 5 }}
-        yaml={s.yaml?.value?.data}
-        cursor={s.yaml?.value?.cursor}
+        bus$={debug.bus$}
         doc={s.doc?.value}
+        editor={s.editor?.value}
       />
     </div>
   );
