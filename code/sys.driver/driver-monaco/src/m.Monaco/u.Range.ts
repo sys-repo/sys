@@ -4,6 +4,9 @@ import { MonacoIs } from './m.Is.ts';
 type IRange = t.Monaco.I.IRange;
 
 export const RangeUtil = {
+  /**
+   * Determine equality of ranges.
+   */
   eql(a: IRange | IRange[], b: IRange | IRange[]): boolean {
     const isArrayA = Array.isArray(a);
     const isArrayB = Array.isArray(b);
@@ -33,7 +36,7 @@ export const RangeUtil = {
   /**
    * Convert input to editor range.
    */
-  asRange(input: t.EditorRangeInput): IRange {
+  asRange(input?: t.EditorRangeInput): IRange {
     if (!input) {
       return { ...D.NULL_RANGE };
     }
