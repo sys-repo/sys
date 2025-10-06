@@ -1,5 +1,3 @@
-export * from '../common.ts';
-
 export {
   DomMock,
   Testing,
@@ -10,4 +8,7 @@ export {
   expectTypeOf,
   it,
 } from '@sys/testing/server';
+export { act, renderHook } from '@testing-library/react';
+
+export * from '../common.ts';
 export { MonacoFake } from '../m.Monaco.Fake/mod.ts';

@@ -1,5 +1,9 @@
 import type { t } from './common.ts';
 
+type TextModel = t.Monaco.TextModel;
+type CancellationToken = t.Monaco.CancellationToken;
+type ILinksList = t.Monaco.I.ILinksList;
+
 /**
  * Factory: create a new global `monaco` mock.
  *
@@ -19,16 +23,11 @@ export type FakeMonacoGlobal = Readonly<{
   languages: {
     registerLinkProvider(
       languageId: string,
-      provider: {
-        provideLinks(
-          model: t.Monaco.TextModel,
-          token?: t.Monaco.CancellationToken,
-        ): t.Monaco.I.ILinksList;
-      },
+      provider: { provideLinks(model: TextModel, token?: CancellationToken): ILinksList },
     ): t.Monaco.I.IDisposable;
 
     /** Test hook: invoke the provider for a language. */
-    _provideLinks(languageId: string, model: t.Monaco.TextModel): t.Monaco.I.ILinksList | undefined;
+    _provideLinks(languageId: string, model: TextModel): ILinksList | undefined;
   };
 
   editor: {
@@ -43,19 +42,28 @@ export type FakeMonacoGlobal = Readonly<{
      * Create a new text model.
      * Real Monaco: monaco.editor.createModel(value, languageId?, uri?)
      */
-    createModel(value: string, languageId?: string, uri?: t.Monaco.Uri): t.Monaco.TextModel;
+    createModel(value: string, languageId?: string, uri?: t.Monaco.Uri): TextModel;
 
     /**
      * Get a model by its URI.
      * Real Monaco: monaco.editor.getModel(uri)
      */
-    getModel(uri: t.Monaco.Uri): t.Monaco.TextModel | null;
+    getModel(uri: t.Monaco.Uri): TextModel | null;
 
     /**
      * Get all models.
      * Real Monaco: monaco.editor.getModels()
      */
-    getModels(): t.Monaco.TextModel[];
+    getModels(): TextModel[];
+
+    /**
+     * Marker management (minimal subset).
+     * Real Monaco: monaco.editor.setModelMarkers(model, owner, markers)
+     */
+    setModelMarkers(model: TextModel, owner: string, markers: t.Monaco.I.IMarkerData[]): void;
+
+    /** Test hook: inspect current markers for a given owner. */
+    _getModelMarkers(model: TextModel, owner: string): readonly t.Monaco.I.IMarkerData[];
   };
 
   Uri: {

@@ -1,15 +1,17 @@
 import { type t } from './common.ts';
 
+type TextModel = t.Monaco.TextModel;
+
 /**
  * Minimal `Monaco` global mock.
  */
 export const fakeMonaco = ((options?: { cast?: boolean }) => {
-  type P = { provideLinks: (m: t.Monaco.TextModel) => t.Monaco.I.ILinksList };
+  type P = { provideLinks: (m: TextModel) => t.Monaco.I.ILinksList };
   const providers = new Map<string, P>();
   let opener: { open(uri: t.Monaco.Uri): boolean | Promise<boolean> } | undefined;
   const disposable = (dispose: () => void): t.Monaco.I.IDisposable => ({ dispose });
 
-  const models = new Map<string, t.Monaco.TextModel>();
+  const models = new Map<string, TextModel>();
   let modelCounter = 0;
 
   const positionAt = (text: string, offset: number) => {
@@ -18,22 +20,18 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
     return { lineNumber, column };
   };
 
-  const createTextModel = (
-    value: string,
-    languageId?: string,
-    uri?: t.Monaco.Uri,
-  ): t.Monaco.TextModel => {
+  const createTextModel = (value: string, languageId?: string, uri?: t.Monaco.Uri): TextModel => {
     const id = ++modelCounter;
     const theUri = uri ?? Uri.from({ scheme: 'inmemory', path: `model/${id}` });
 
     let contents = value;
 
-    const model: t.Monaco.TextModel = {
+    const model: TextModel = {
       uri: theUri,
       getValue: () => contents,
       setValue: (next: string) => (contents = next),
       getPositionAt: (offset: number) => positionAt(contents, offset),
-    } as unknown as t.Monaco.TextModel;
+    } as unknown as TextModel;
 
     models.set(theUri.toString(true), model);
     return model;
@@ -42,7 +40,7 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
   const languages = {
     registerLinkProvider(
       languageId: string,
-      provider: { provideLinks: (m: t.Monaco.TextModel) => t.Monaco.I.ILinksList },
+      provider: { provideLinks: (m: TextModel) => t.Monaco.I.ILinksList },
     ) {
       providers.set(languageId, provider);
       return disposable(() => {
@@ -50,13 +48,24 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
       });
     },
 
-    _provideLinks(languageId: string, model: t.Monaco.TextModel) {
+    _provideLinks(languageId: string, model: TextModel) {
       const p = providers.get(languageId);
       return p?.provideLinks(model);
     },
   };
 
+  const markerStore = new Map<string, t.Monaco.I.IMarkerData[]>();
+  const markerKey = (m: TextModel, owner: string) => `${m.uri.toString(true)}::${owner}`;
+
   const editor = {
+    setModelMarkers(model: TextModel, owner: string, markers: t.Monaco.I.IMarkerData[]) {
+      markerStore.set(markerKey(model, owner), markers ?? []);
+    },
+
+    _getModelMarkers(model: TextModel, owner: string) {
+      return markerStore.get(markerKey(model, owner)) ?? [];
+    },
+
     registerLinkOpener(o: { open(uri: t.Monaco.Uri): boolean | Promise<boolean> }) {
       opener = o;
       return disposable(() => {
@@ -73,11 +82,11 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
       return createTextModel(value, languageId, uri);
     },
 
-    getModels(): t.Monaco.TextModel[] {
+    getModels(): TextModel[] {
       return [...models.values()];
     },
 
-    getModel(uri: t.Monaco.Uri): t.Monaco.TextModel | null {
+    getModel(uri: t.Monaco.Uri): TextModel | null {
       return models.get(uri.toString(true)) ?? null;
     },
   };

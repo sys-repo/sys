@@ -200,6 +200,46 @@ describe('MonacoFake (Mock)', () => {
         expect(found).to.equal(null);
       });
     });
+
+    describe('error markers', () => {
+      it('sets and retrieves markers', () => {
+        const monaco = MonacoFake.monaco();
+        const model = monaco.editor.createModel('foo: bar', 'yaml');
+
+        const marker = {
+          severity: 8, // MarkerSeverity.Error
+          message: 'YAML syntax error',
+          startLineNumber: 1,
+          startColumn: 1,
+          endLineNumber: 1,
+          endColumn: 4,
+        } as t.Monaco.I.IMarkerData;
+
+        monaco.editor.setModelMarkers(model, 'yaml', [marker]);
+        const res = monaco.editor._getModelMarkers(model, 'yaml');
+
+        expect(res).to.eql([marker]);
+      });
+
+      it('clears markers when empty array is set', () => {
+        const monaco = MonacoFake.monaco();
+        const model = monaco.editor.createModel('foo: bar', 'yaml');
+
+        monaco.editor.setModelMarkers(model, 'yaml', [
+          {
+            message: 'Err',
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: 1,
+            endColumn: 4,
+          } as any,
+        ]);
+        monaco.editor.setModelMarkers(model, 'yaml', []); // clear
+
+        const res = monaco.editor._getModelMarkers(model, 'yaml');
+        expect(res).to.eql([]);
+      });
+    });
   });
 
   describe('TextModel', () => {
