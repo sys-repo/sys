@@ -25,7 +25,7 @@ export type {
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
-export type { ButtonFlags } from '@sys/ui-react-components/t';
+export type { ButtonFlags, ObjectViewProps } from '@sys/ui-react-components/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 
 /**

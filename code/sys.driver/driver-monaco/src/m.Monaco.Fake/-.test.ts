@@ -4,7 +4,7 @@ import { MonacoFake } from './mod.ts';
 
 describe('MonacoFake (Mock)', () => {
   it('API', async () => {
-    const m = await import('@sys/driver-monaco/test/fake');
+    const m = await import('@sys/driver-monaco/dev');
     expect(m.MonacoFake).to.eql(MonacoFake);
   });
 

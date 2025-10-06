@@ -120,7 +120,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
 
   Signal.useRedrawEffect(() => debug.listen());
-  Crdt.UI.useRedrawEffect(p.doc.value, {
+  Crdt.UI.useRev(p.doc.value, {
     path: p.path.value,
     onRedraw: (e) => console.info(`⚡️ onRedraw:`, e),
   });
@@ -172,7 +172,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         show={['yaml', 'markdown', 'typescript']}
       />
 
-      {p.language.value === 'yaml' && <YamlSyncDebug bus$={debug.bus$} style={{ marginTop: 20 }} />}
+      {p.language.value === 'yaml' && (
+        <YamlSyncDebug bus$={debug.bus$} doc={p.doc.value} style={{ marginTop: 20 }} />
+      )}
 
       <hr />
       <div className={Styles.title.class}>{'Folding:'}</div>

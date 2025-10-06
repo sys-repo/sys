@@ -154,8 +154,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const dist = useDist();
   const notes = Crdt.UI.useDoc(debug.repo, P.DEV.notesRef.get(doc?.current));
   Signal.useRedrawEffect(() => debug.listen());
-  Crdt.UI.useRedrawEffect(p.doc.value);
-  Crdt.UI.useRedrawEffect(notes.doc);
+  Crdt.UI.useRev(p.doc.value);
+  Crdt.UI.useRev(notes.doc);
 
   /**
    * Render:

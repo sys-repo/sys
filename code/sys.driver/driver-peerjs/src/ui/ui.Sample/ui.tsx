@@ -24,7 +24,7 @@ export const Sample: React.FC<P> = (props) => {
   /**
    * Effects:
    */
-  Crdt.UI.useRedrawEffect(doc, (e) => {});
+  Crdt.UI.useRev(doc, (e) => {});
 
   /**
    * Effect: Ready.

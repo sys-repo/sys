@@ -1,4 +1,6 @@
+import { YamlObjectView } from '@sys/driver-monaco/dev';
 import React from 'react';
+
 import { createRepo } from '../../-test.ui.ts';
 import {
   type t,
@@ -247,17 +249,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <ObjectView name={'debug'} data={safeProps(debug)} expand={0} style={{ marginTop: 15 }} />
-      <ObjectView
-        expand={0}
-        name={s.doc?.value ? `doc (crdt:${s.doc.value?.id.slice(-5)})` : 'doc:pending'}
-        data={s.doc?.value?.current ?? {}}
+      <YamlObjectView
         style={{ marginTop: 5 }}
-      />
-      <ObjectView
-        expand={1}
-        name={s.yaml?.value ? 'yaml' : 'yaml:pending'}
-        data={Signal.toObject(s.yaml) ?? {}}
-        style={{ marginTop: 5 }}
+        yaml={s.yaml?.value?.data}
+        cursor={s.yaml?.value?.cursor}
+        doc={s.doc?.value}
       />
     </div>
   );

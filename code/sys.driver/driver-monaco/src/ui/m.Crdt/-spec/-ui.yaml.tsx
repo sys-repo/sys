@@ -1,22 +1,25 @@
 import { Monaco } from '@sys/driver-monaco';
+import { YamlObjectView } from '@sys/driver-monaco/dev';
+
 import React from 'react';
 import { type t, Bus, Color, css, Obj, ObjectView, Rx, Str } from '../common.ts';
 
 export type YamlSyncDebugProps = {
   bus$: t.EditorEventBus;
+  doc?: t.CrdtRef;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
 
 export function YamlSyncDebug(props: YamlSyncDebugProps) {
-  const { bus$ } = props;
+  const { bus$, doc } = props;
 
   /**
    * Hooks:
    */
   const [rev, setRev] = React.useState(0);
-  const [yaml, setYaml] = React.useState<t.EventYaml>();
-  const [cursor, setCursor] = React.useState<t.EventYamlCursor>();
+  const [yaml, setYaml] = React.useState<t.YamlSyncParsed>();
+  const [cursor, setCursor] = React.useState<t.EditorCursor>();
 
   React.useEffect(() => {
     const life = Rx.disposable();
@@ -57,7 +60,18 @@ export function YamlSyncDebug(props: YamlSyncDebugProps) {
     />
   );
 
-  return <div className={css(styles.base, props.style).class}>{elObject}</div>;
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <YamlObjectView
+        yaml={yaml}
+        cursor={cursor}
+        doc={doc}
+        theme={theme.name}
+        style={{ marginTop: 5 }}
+        expand={1}
+      />
+    </div>
+  );
 }
 
 /**
@@ -67,15 +81,15 @@ const wrangle = {
   yaml(yaml?: t.YamlSyncParsed) {
     if (!yaml) return;
     const path = yaml.path;
-    let data = Obj.trimStringsDeep(yaml);
-    (data.value ?? {}).path = {
+    let data = Obj.trimStringsDeep(yaml) as any;
+    data.path = {
       source: wrangle.path(path?.source),
       target: wrangle.path(path?.target),
     };
     return data;
   },
 
-  cursor(cursor?: t.EventYamlCursor) {
+  cursor(cursor?: t.EditorCursor) {
     return cursor;
   },
 
