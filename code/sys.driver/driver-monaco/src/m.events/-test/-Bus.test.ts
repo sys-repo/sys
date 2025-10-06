@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectTypeOf, it, Rx, Schedule, Time } from '../../-test.ts';
+import { type t, c, describe, expect, expectTypeOf, it, Rx, Schedule, Time } from '../../-test.ts';
 import { Bus } from '../mod.ts';
 
 describe(`Editor Events`, () => {
@@ -217,10 +217,17 @@ describe(`Editor Events`, () => {
   });
 
   describe('Bus.ping/pong', () => {
+    function print(events: t.EditorEvent[], suffix?: string) {
+      console.info(c.cyan(`Events: Ping/Pong`), c.gray(suffix ?? ''));
+      console.info();
+      console.info(events);
+      console.info();
+    }
+
     it('emits correctly typed `ping` and `pong` events', async () => {
+      const life = Rx.disposable();
       const bus$ = Bus.make();
       const events: t.EditorEvent[] = [];
-      const life = Rx.disposable();
       bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
 
       const nonce = 'n1';
@@ -243,6 +250,30 @@ describe(`Editor Events`, () => {
       expect(pong.at).to.be.a('number');
 
       life.dispose();
+      print(events);
+    });
+
+    it('ping: auto generate `nonce`', async () => {
+      const life = Rx.disposable();
+      const bus$ = Bus.make();
+      const events: t.EditorEvent[] = [];
+      bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
+
+      const a = Bus.ping(bus$, ['cursor']);
+      const b = Bus.ping(bus$, ['yaml']);
+      await Time.wait(1);
+
+      // Type checks:
+      expectTypeOf(a).toEqualTypeOf<t.EventEditorPing>();
+      expectTypeOf(b).toEqualTypeOf<t.EventEditorPing>();
+
+      // Runtime structure:
+      expect(typeof a.nonce === 'string').to.eql(true);
+      expect(typeof b.nonce === 'string').to.eql(true);
+      expect(a.nonce).to.not.eql(b.nonce);
+
+      life.dispose();
+      print(events, '← minimal params');
     });
   });
 });

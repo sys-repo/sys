@@ -27,7 +27,7 @@ export type EditorBusLib = {
   ping(
     bus$: t.EditorEventBus,
     request: readonly t.EditorPingKind[],
-    nonce: string,
+    nonce?: string,
     editorId?: t.StringId,
   ): t.EventEditorPing;
 

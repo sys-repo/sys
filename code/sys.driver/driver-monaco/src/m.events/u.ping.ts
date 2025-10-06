@@ -1,10 +1,11 @@
-import { type t, Time } from './common.ts';
+import { type t, Time, slug } from './common.ts';
 import { emit } from './u.emit.ts';
 
 /**
  * Emit a `editor:ping` event.
  */
 export const ping: t.EditorBusLib['ping'] = (bus$, request, nonce, editorId) => {
+  nonce = nonce || `ping-${slug()}`;
   const e = { kind: 'editor:ping', request, nonce, editorId } satisfies t.EventEditorPing;
   emit(bus$, 'micro', e);
   return e;
