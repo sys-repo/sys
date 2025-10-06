@@ -46,7 +46,7 @@
     "jsr:@std/testing@1.0.15": "1.0.15",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.0.9": "1.0.9",
-    "npm:@ai-sdk/openai@2.0.42": "2.0.42_zod@4.1.11",
+    "npm:@ai-sdk/openai@2.0.42": "2.0.42_zod@4.1.12",
     "npm:@automerge/automerge-repo-network-websocket@2.3.1": "2.3.1_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.3.1": "2.3.1",
     "npm:@automerge/automerge-repo-storage-nodefs@2.3.1": "2.3.1",
@@ -55,25 +55,25 @@
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
     "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.1.7__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:@farcaster/frame-sdk@0.1.10": "0.1.10",
-    "npm:@mastra/core@0.20.0": "0.20.0_zod@4.1.11_ai@4.3.19__react@19.2.0__zod@4.1.11_@opentelemetry+api@1.9.0_@opentelemetry+core@2.1.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.9.10",
-    "npm:@mastra/libsql@0.15.1": "0.15.1_@mastra+core@0.20.0__zod@4.1.11__ai@4.3.19___react@19.2.0___zod@4.1.11__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41",
-    "npm:@mastra/loggers@0.10.15": "0.10.15_@mastra+core@0.20.0__zod@4.1.11__ai@4.3.19___react@19.2.0___zod@4.1.11__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41",
-    "npm:@mastra/memory@0.15.5": "0.15.5_@mastra+core@0.20.0__zod@4.1.11__ai@4.3.19___react@19.2.0___zod@4.1.11__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_zod@4.1.11_ai@4.3.19__react@19.2.0__zod@4.1.11_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41",
-    "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.53.0_react@19.2.0_react-dom@19.2.0__react@19.2.0",
+    "npm:@mastra/core@0.20.0": "0.20.0_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.1.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.9.10",
+    "npm:@mastra/libsql@0.15.1": "0.15.1_@mastra+core@0.20.0__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41",
+    "npm:@mastra/loggers@0.10.15": "0.10.15_@mastra+core@0.20.0__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41",
+    "npm:@mastra/memory@0.15.5": "0.15.5_@mastra+core@0.20.0__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41",
+    "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.54.0_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@preact/signals-core@1.12.1": "1.12.1",
     "npm:@preact/signals-react@3.3.1": "3.3.1_react@19.2.0",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@sinclair/typebox@0.34.41": "0.34.41",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
-    "npm:@testing-library/react@16.3.0": "16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.0_@types+react-dom@19.2.0__@types+react@19.2.0_react@19.2.0_react-dom@19.2.0__react@19.2.0",
+    "npm:@testing-library/react@16.3.0": "16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.1_@types+react-dom@19.2.0__@types+react@19.2.1_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:@types/node@*": "24.2.0",
     "npm:@types/ramda@0.31.1": "0.31.1",
-    "npm:@types/react-dom@19.2.0": "19.2.0_@types+react@19.2.0",
-    "npm:@types/react@19.2.0": "19.2.0",
+    "npm:@types/react-dom@19.2.0": "19.2.0_@types+react@19.2.1",
+    "npm:@types/react@19.2.1": "19.2.1",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react-swc@4.1.0": "4.1.0_vite@7.1.7__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
-    "npm:ai@5.0.60": "5.0.60_zod@4.1.11",
+    "npm:ai@5.0.60": "5.0.60_zod@4.1.12",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.0": "6.2.0",
     "npm:csstype@3": "3.1.3",
@@ -89,7 +89,7 @@
     "npm:hono@4.9.10": "4.9.10",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:immer@10.1.3": "10.1.3",
-    "npm:monaco-editor@0.53.0": "0.53.0",
+    "npm:monaco-editor@0.54.0": "0.54.0",
     "npm:motion@12.23.22": "12.23.22_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:ollama-ai-provider@1.2.0": "1.2.0",
     "npm:ollama@0.6.0": "0.6.0",
@@ -325,29 +325,29 @@
     "@adraffy/ens-normalize@1.11.1": {
       "integrity": "sha512-nhCBV3quEgesuf7c7KYfperqSS14T8bYuvJ8PcLJp6znkZpFc0AuW4qBtr8eKVyPPe/8RSr7sglCWPU5eaxwKQ=="
     },
-    "@ai-sdk/gateway@1.0.23_zod@4.1.11": {
+    "@ai-sdk/gateway@1.0.23_zod@4.1.12": {
       "integrity": "sha512-ynV7WxpRK2zWLGkdOtrU2hW22mBVkEYVS3iMg1+ZGmAYSgzCqzC74bfOJZ2GU1UdcrFWUsFI9qAYjsPkd+AebA==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.9_zod@4.1.11",
-        "zod@4.1.11"
+        "@ai-sdk/provider-utils@3.0.9_zod@4.1.12",
+        "zod@4.1.12"
       ]
     },
-    "@ai-sdk/gateway@1.0.33_zod@4.1.11": {
+    "@ai-sdk/gateway@1.0.33_zod@4.1.12": {
       "integrity": "sha512-v9i3GPEo4t3fGcSkQkc07xM6KJN75VUv7C1Mqmmsu2xD8lQwnQfsrgAXyNuWe20yGY0eHuheSPDZhiqsGKtH1g==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.11",
+        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
         "@vercel/oidc",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
-    "@ai-sdk/openai@2.0.42_zod@4.1.11": {
+    "@ai-sdk/openai@2.0.42_zod@4.1.12": {
       "integrity": "sha512-9mM6QS8k0ooH9qMC27nlrYLQmNDnO6Rk0JTmFo/yUxpABEWOcvQhMWNHbp9lFL6Ty5vkdINrujhsAQfWuEleOg==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.11",
-        "zod@4.1.11"
+        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
+        "zod@4.1.12"
       ]
     },
     "@ai-sdk/provider-utils@2.2.8_zod@3.25.76": {
@@ -359,31 +359,31 @@
         "zod@3.25.76"
       ]
     },
-    "@ai-sdk/provider-utils@2.2.8_zod@4.1.11": {
+    "@ai-sdk/provider-utils@2.2.8_zod@4.1.12": {
       "integrity": "sha512-fqhG+4sCVv8x7nFzYnFo19ryhAa3w096Kmc3hWxMQfW/TubPOmt3A6tYZhl4mUfQWWQMsuSkLrtjlWuXBVSGQA==",
       "dependencies": [
         "@ai-sdk/provider@1.1.3",
         "nanoid",
         "secure-json-parse@2.7.0",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
-    "@ai-sdk/provider-utils@3.0.10_zod@4.1.11": {
+    "@ai-sdk/provider-utils@3.0.10_zod@4.1.12": {
       "integrity": "sha512-T1gZ76gEIwffep6MWI0QNy9jgoybUHE7TRaHB5k54K8mF91ciGFlbtCGxDYhMH3nCRergKwYFIDeFF0hJSIQHQ==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@standard-schema/spec",
         "eventsource-parser",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
-    "@ai-sdk/provider-utils@3.0.9_zod@4.1.11": {
+    "@ai-sdk/provider-utils@3.0.9_zod@4.1.12": {
       "integrity": "sha512-Pm571x5efqaI4hf9yW4KsVlDBDme8++UepZRnq+kqVBWWjgvGhQlzU8glaFq0YJEB9kkxZHbRRyVeHoV2sRYaQ==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@standard-schema/spec",
         "eventsource-parser",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
     "@ai-sdk/provider@1.1.3": {
@@ -398,26 +398,26 @@
         "json-schema"
       ]
     },
-    "@ai-sdk/react@1.2.12_react@19.2.0_zod@4.1.11": {
+    "@ai-sdk/react@1.2.12_react@19.2.0_zod@4.1.12": {
       "integrity": "sha512-jK1IZZ22evPZoQW3vlkZ7wvjYGYF+tRBKXtrcolduIkQ/m/sOAVcVeVDUDvh1T91xCnWCdUGCPZg2avZ90mv3g==",
       "dependencies": [
-        "@ai-sdk/provider-utils@2.2.8_zod@4.1.11",
+        "@ai-sdk/provider-utils@2.2.8_zod@4.1.12",
         "@ai-sdk/ui-utils",
         "react",
         "swr",
         "throttleit",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ],
       "optionalPeers": [
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
-    "@ai-sdk/ui-utils@1.2.11_zod@4.1.11": {
+    "@ai-sdk/ui-utils@1.2.11_zod@4.1.12": {
       "integrity": "sha512-3zcwCc8ezzFlwp3ZD15wAPjf2Au4s3vAbKsXQVyhxODHcmu0iyPO2Eua6D/vicq/AUm/BAo60r97O6HU+EI0+w==",
       "dependencies": [
         "@ai-sdk/provider@1.1.3",
-        "@ai-sdk/provider-utils@2.2.8_zod@4.1.11",
-        "zod@4.1.11",
+        "@ai-sdk/provider-utils@2.2.8_zod@4.1.12",
+        "zod@4.1.12",
         "zod-to-json-schema"
       ]
     },
@@ -947,13 +947,13 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@mastra/core@0.20.0_zod@4.1.11_ai@4.3.19__react@19.2.0__zod@4.1.11_@opentelemetry+api@1.9.0_@opentelemetry+core@2.1.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.9.10": {
+    "@mastra/core@0.20.0_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.1.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.9.10": {
       "integrity": "sha512-zFGnUUTJmJSaWaTnPxpW0GB6iFQyFTY2Iq4towAv8mhtDqiZYSgLi630BPQ3Atj+q5bX1xSHFFKUaOQA3fkikA==",
       "dependencies": [
         "@a2a-js/sdk",
         "@ai-sdk/provider@1.1.3",
-        "@ai-sdk/provider-utils@2.2.8_zod@4.1.11",
-        "@ai-sdk/provider-utils-v5@npm:@ai-sdk/provider-utils@3.0.9_zod@4.1.11",
+        "@ai-sdk/provider-utils@2.2.8_zod@4.1.12",
+        "@ai-sdk/provider-utils-v5@npm:@ai-sdk/provider-utils@3.0.9_zod@4.1.12",
         "@ai-sdk/provider-v5@npm:@ai-sdk/provider@2.0.0",
         "@ai-sdk/ui-utils",
         "@isaacs/ttlcache",
@@ -972,8 +972,8 @@
         "@opentelemetry/sdk-trace-node@2.1.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/semantic-conventions",
         "@sindresorhus/slugify",
-        "ai@4.3.19_react@19.2.0_zod@4.1.11",
-        "ai-v5@npm:ai@5.0.44_zod@4.1.11",
+        "ai@4.3.19_react@19.2.0_zod@4.1.12",
+        "ai-v5@npm:ai@5.0.44_zod@4.1.12",
         "date-fns@3.6.0",
         "dotenv",
         "hono",
@@ -987,18 +987,18 @@
         "radash",
         "sift",
         "xstate",
-        "zod@4.1.11",
+        "zod@4.1.12",
         "zod-to-json-schema"
       ]
     },
-    "@mastra/libsql@0.15.1_@mastra+core@0.20.0__zod@4.1.11__ai@4.3.19___react@19.2.0___zod@4.1.11__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41": {
+    "@mastra/libsql@0.15.1_@mastra+core@0.20.0__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-a5a7i6WiBdPX601GaI4COJjxX004jn3NyeJx29neGPrVYn5ESksvDCYsu60iUdgSP2R4/vSfNXl6bbq7IuydTg==",
       "dependencies": [
         "@libsql/client",
         "@mastra/core"
       ]
     },
-    "@mastra/loggers@0.10.15_@mastra+core@0.20.0__zod@4.1.11__ai@4.3.19___react@19.2.0___zod@4.1.11__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41": {
+    "@mastra/loggers@0.10.15_@mastra+core@0.20.0__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-/s4RPYTuTyJ8/oRU1ThHQaOal7/Bml5ARJhQBXIX3qcG3MIprRyPmtK1XrdLuuBuh7XpaWUFZFqW0pJaE1FLtw==",
       "dependencies": [
         "@mastra/core",
@@ -1006,14 +1006,14 @@
         "pino-pretty"
       ]
     },
-    "@mastra/memory@0.15.5_@mastra+core@0.20.0__zod@4.1.11__ai@4.3.19___react@19.2.0___zod@4.1.11__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_zod@4.1.11_ai@4.3.19__react@19.2.0__zod@4.1.11_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41": {
+    "@mastra/memory@0.15.5_@mastra+core@0.20.0__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-Lg1DUGW/cJeWwgeivt73F61yoKn7KO+JNGfOexmowSRO3NipAJwyoR47cetnPj+JcvnPiF4qkI+asrBFvWMsYw==",
       "dependencies": [
         "@mastra/core",
         "@mastra/schema-compat",
         "@upstash/redis",
-        "ai@4.3.19_react@19.2.0_zod@4.1.11",
-        "ai-v5@npm:ai@5.0.44_zod@4.1.11",
+        "ai@4.3.19_react@19.2.0_zod@4.1.12",
+        "ai-v5@npm:ai@5.0.44_zod@4.1.12",
         "async-mutex",
         "js-tiktoken",
         "json-schema",
@@ -1022,16 +1022,16 @@
         "postgres",
         "redis",
         "xxhash-wasm",
-        "zod@4.1.11",
+        "zod@4.1.12",
         "zod-to-json-schema"
       ]
     },
-    "@mastra/schema-compat@0.11.4_ai@4.3.19__react@19.2.0__zod@4.1.11_zod@4.1.11_react@19.2.0": {
+    "@mastra/schema-compat@0.11.4_ai@4.3.19__react@19.2.0__zod@4.1.12_zod@4.1.12_react@19.2.0": {
       "integrity": "sha512-oh3+enP3oYftZlmJAKQQj5VXR86KgTMwfMnwALZyLk04dPSWfVD2wGytoDg5Qbi3rX9qHj6g0rMNa0CUjR6aTg==",
       "dependencies": [
-        "ai@4.3.19_react@19.2.0_zod@4.1.11",
+        "ai@4.3.19_react@19.2.0_zod@4.1.12",
         "json-schema",
-        "zod@4.1.11",
+        "zod@4.1.12",
         "zod-from-json-schema@0.5.0",
         "zod-from-json-schema-v3@npm:zod-from-json-schema@0.0.5",
         "zod-to-json-schema"
@@ -1043,7 +1043,7 @@
         "state-local"
       ]
     },
-    "@monaco-editor/react@4.7.0_monaco-editor@0.53.0_react@19.2.0_react-dom@19.2.0__react@19.2.0": {
+    "@monaco-editor/react@4.7.0_monaco-editor@0.54.0_react@19.2.0_react-dom@19.2.0__react@19.2.0": {
       "integrity": "sha512-cyzXQCtO47ydzxpQtCGSQGOC8Gk3ZUeBXFAxD+CWXYFo5OqZyZUonFl0DwUlTyAfRHntBfw2p3w4s9R6oe1eCA==",
       "dependencies": [
         "@monaco-editor/loader",
@@ -1684,16 +1684,16 @@
     "@opentelemetry/redis-common@0.38.2": {
       "integrity": "sha512-1BCcU93iwSRZvDAgwUxC/DV4T/406SkMfxGqu5ojc3AvNI+I9GhV7v0J1HljsczuuhcnFLYqD5VmwVXfCGHzxA=="
     },
-    "@opentelemetry/resource-detector-alibaba-cloud@0.31.8_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-wq3IrSro0/YttSL+CrAhjsH72RhsAAOTNrpm6PJT5CyFaMCQCV6FOgGftxHb+vw4/gvPmYKeNnCxkPpzhkimvw==",
+    "@opentelemetry/resource-detector-alibaba-cloud@0.31.9_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-V+HbpICyzmJoQHYpiN0xRlj7QqeR9pPo+JZiZztV77L2MdlUCa/Cq7h0gdFNIKc0P9u9rYYYW21oaqdhhC5LZg==",
       "dependencies": [
         "@opentelemetry/api",
         "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0"
       ]
     },
-    "@opentelemetry/resource-detector-aws@2.5.3_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-PpaQBwa0cDi4nHYxgVbmDJWNyBN7WOXH41XfInWN/kAHqVw8nO4L/s4IoN9pEnJSSin3Z9oA1CyIiy2rxj5R3A==",
+    "@opentelemetry/resource-detector-aws@2.6.0_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-atZ9/HNXh9ZJuMZUH2TPl89imFZBaoiU0Mksa70ysVhYRzhk3hfJyiu+eETjZ7NhGjBPrd3sfVYEq/St/7+o3g==",
       "dependencies": [
         "@opentelemetry/api",
         "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
@@ -1710,8 +1710,8 @@
         "@opentelemetry/semantic-conventions"
       ]
     },
-    "@opentelemetry/resource-detector-container@0.7.8_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-PW7FjoJxqC2cFbEI3C5rIevSNT9KHcS1mNM7L1CxPXFIBleV0S4nYSolblE5uh+NHw+FIzxy0VETitUfr23TtQ==",
+    "@opentelemetry/resource-detector-container@0.7.9_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-BiS14kCylLzh/mayN/sjnOdhnpfgiekaEsIzaL29MErfQR0mFCZjAE2uu8jMjShva9bSDFs65ouuAFft+vBthg==",
       "dependencies": [
         "@opentelemetry/api",
         "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
@@ -2233,7 +2233,7 @@
         "pretty-format"
       ]
     },
-    "@testing-library/react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.0_@types+react-dom@19.2.0__@types+react@19.2.0_react@19.2.0_react-dom@19.2.0__react@19.2.0": {
+    "@testing-library/react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.1_@types+react-dom@19.2.0__@types+react@19.2.1_react@19.2.0_react-dom@19.2.0__react@19.2.0": {
       "integrity": "sha512-kFSyxiEDwv1WLl2fgsq6pPBbw5aWKrsY2/noi1Id0TK0UParSF62oFQFGHXIyaG4pp2tEub/Zlel+fjjZILDsw==",
       "dependencies": [
         "@babel/runtime",
@@ -2285,8 +2285,8 @@
     "@types/estree@1.0.8": {
       "integrity": "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="
     },
-    "@types/express-serve-static-core@4.19.6": {
-      "integrity": "sha512-N4LZ2xG7DatVqhCZzOGb1Yi5lMbXSZcmdLDe9EzSndPV2HpWYWzRbaerl2n27irrm94EPpprqa8KpskPT085+A==",
+    "@types/express-serve-static-core@4.19.7": {
+      "integrity": "sha512-FvPtiIf1LfhzsaIXhv/PHan/2FeQBbtBDtfX2QfvPxdUelMDEckK08SM6nqo1MIZY3RUlfA+HV8+hFUSio78qg==",
       "dependencies": [
         "@types/node@24.2.0",
         "@types/qs",
@@ -2371,14 +2371,14 @@
     "@types/range-parser@1.2.7": {
       "integrity": "sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ=="
     },
-    "@types/react-dom@19.2.0_@types+react@19.2.0": {
+    "@types/react-dom@19.2.0_@types+react@19.2.1": {
       "integrity": "sha512-brtBs0MnE9SMx7px208g39lRmC5uHZs96caOJfTjFcYSLHNamvaSMfJNagChVNkup2SdtOxKX1FDBkRSJe1ZAg==",
       "dependencies": [
         "@types/react"
       ]
     },
-    "@types/react@19.2.0": {
-      "integrity": "sha512-1LOH8xovvsKsCBq1wnT4ntDUdCJKmnEakhsuoUSy6ExlHCkGP2hqnatagYTgFk6oeL0VU31u7SNjunPN+GchtA==",
+    "@types/react@19.2.1": {
+      "integrity": "sha512-1U5NQWh/GylZQ50ZMnnPjkYHEaGhg6t5i/KI0LDDh3t4E3h3T3vzm+GLY2BRzMfIjSBwzm6tginoZl5z0O/qsA==",
       "dependencies": [
         "csstype"
       ]
@@ -2410,9 +2410,6 @@
         "@types/node@24.2.0"
       ]
     },
-    "@types/trusted-types@1.0.6": {
-      "integrity": "sha512-230RC8sFeHoT6sSUlRO6a8cAnclO06eeiq1QDfiv2FGCLWFvvERWgwIQD4FWqD9A69BN7Lzee4OXwoMVnnsWDw=="
-    },
     "@types/uuid@8.3.4": {
       "integrity": "sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw=="
     },
@@ -2431,8 +2428,8 @@
         "@types/node@24.2.0"
       ]
     },
-    "@upstash/redis@1.35.4": {
-      "integrity": "sha512-WE1ZnhFyBiIjTDW13GbO6JjkiMVVjw5VsvS8ENmvvJsze/caMQ5paxVD44+U68IUVmkXcbsLSoE+VIYsHtbQEw==",
+    "@upstash/redis@1.35.5": {
+      "integrity": "sha512-KdLdNAspQGOTGeC++o2LDBzNbMXrfInnmW5nUJfNXabnVh8X4NPrlJ0X4j75cBUShiMpXB3uI1ql4KpFQeqrHQ==",
       "dependencies": [
         "uncrypto"
       ]
@@ -2499,40 +2496,40 @@
         "humanize-ms"
       ]
     },
-    "ai@4.3.19_react@19.2.0_zod@4.1.11": {
+    "ai@4.3.19_react@19.2.0_zod@4.1.12": {
       "integrity": "sha512-dIE2bfNpqHN3r6IINp9znguYdhIOheKW2LDigAMrgt/upT3B8eBGPSCblENvaZGoq+hxaN9fSMzjWpbqloP+7Q==",
       "dependencies": [
         "@ai-sdk/provider@1.1.3",
-        "@ai-sdk/provider-utils@2.2.8_zod@4.1.11",
+        "@ai-sdk/provider-utils@2.2.8_zod@4.1.12",
         "@ai-sdk/react",
         "@ai-sdk/ui-utils",
         "@opentelemetry/api",
         "jsondiffpatch",
         "react",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ],
       "optionalPeers": [
         "react"
       ]
     },
-    "ai@5.0.44_zod@4.1.11": {
+    "ai@5.0.44_zod@4.1.12": {
       "integrity": "sha512-l/rdoM4LcRpsRBVvZQBwSU73oNoFGlWj+PcH86QRzxDGJgZqgGItWO0QcKjBNcLDmUjGN1VYd/8J0TAXHJleRQ==",
       "dependencies": [
-        "@ai-sdk/gateway@1.0.23_zod@4.1.11",
+        "@ai-sdk/gateway@1.0.23_zod@4.1.12",
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.9_zod@4.1.11",
+        "@ai-sdk/provider-utils@3.0.9_zod@4.1.12",
         "@opentelemetry/api",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
-    "ai@5.0.60_zod@4.1.11": {
+    "ai@5.0.60_zod@4.1.12": {
       "integrity": "sha512-80U/3kmdBW6g+JkLXpz/P2EwkyEaWlPlYtuLUpx/JYK9F7WZh9NnkYoh1KvUi1Sbpo0NyurBTvX0a2AG9mmbDA==",
       "dependencies": [
-        "@ai-sdk/gateway@1.0.33_zod@4.1.11",
+        "@ai-sdk/gateway@1.0.33_zod@4.1.12",
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.11",
+        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
         "@opentelemetry/api",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
     "ansi-regex@5.0.1": {
@@ -2854,6 +2851,9 @@
     },
     "dom-accessibility-api@0.5.16": {
       "integrity": "sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg=="
+    },
+    "dompurify@3.1.7": {
+      "integrity": "sha512-VaTstWtsneJY8xzy7DekmYWEOZcmzIe3Qb3zPd4STve1OBTa+e+WmS1ITQec1fZYXI3HCsOZZiSMpG6oxoWMWQ=="
     },
     "dotenv@16.6.1": {
       "integrity": "sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow=="
@@ -3220,19 +3220,19 @@
     "help-me@5.0.0": {
       "integrity": "sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg=="
     },
-    "hono-openapi@0.4.8_@sinclair+typebox@0.34.41_hono@4.9.10_openapi-types@12.1.3_zod@4.1.11": {
+    "hono-openapi@0.4.8_@sinclair+typebox@0.34.41_hono@4.9.10_openapi-types@12.1.3_zod@4.1.12": {
       "integrity": "sha512-LYr5xdtD49M7hEAduV1PftOMzuT8ZNvkyWfh1DThkLsIr4RkvDb12UxgIiFbwrJB6FLtFXLoOZL9x4IeDk2+VA==",
       "dependencies": [
         "@sinclair/typebox@0.34.41",
         "hono",
         "json-schema-walker",
         "openapi-types",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ],
       "optionalPeers": [
         "@sinclair/typebox@0.34.41",
         "hono",
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
     "hono@4.9.10": {
@@ -3463,6 +3463,10 @@
       "integrity": "sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==",
       "bin": true
     },
+    "marked@14.0.0": {
+      "integrity": "sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ==",
+      "bin": true
+    },
     "math-intrinsics@1.1.0": {
       "integrity": "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g=="
     },
@@ -3518,10 +3522,11 @@
     "module-details-from-path@1.0.4": {
       "integrity": "sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w=="
     },
-    "monaco-editor@0.53.0": {
-      "integrity": "sha512-0WNThgC6CMWNXXBxTbaYYcunj08iB5rnx4/G56UOPeL9UVIUGGHA1GR0EWIh9Ebabj7NpCRawQ5b0hfN1jQmYQ==",
+    "monaco-editor@0.54.0": {
+      "integrity": "sha512-hx45SEUoLatgWxHKCmlLJH81xBo0uXP4sRkESUpmDQevfi+e7K1VuiSprK6UpQ8u4zOcKNiH0pMvHvlMWA/4cw==",
       "dependencies": [
-        "@types/trusted-types"
+        "dompurify",
+        "marked"
       ]
     },
     "motion-dom@12.23.21": {
@@ -4707,20 +4712,20 @@
     "zod-from-json-schema@0.5.0": {
       "integrity": "sha512-W1v1YIoimOJfvuorGGp1QroizLL3jEGELJtgrHiVg/ytxVZdh/BTTVyPypGB7YK30LHrCkkebbjuyHIjBGCEzw==",
       "dependencies": [
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
-    "zod-to-json-schema@3.24.6_zod@4.1.11": {
+    "zod-to-json-schema@3.24.6_zod@4.1.12": {
       "integrity": "sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==",
       "dependencies": [
-        "zod@4.1.11"
+        "zod@4.1.12"
       ]
     },
     "zod@3.25.76": {
       "integrity": "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="
     },
-    "zod@4.1.11": {
-      "integrity": "sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg=="
+    "zod@4.1.12": {
+      "integrity": "sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ=="
     }
   },
   "workspace": {
@@ -4771,7 +4776,7 @@
       "npm:hash-it@6.0.0",
       "npm:ignore@7.0.5",
       "npm:immer@10.1.3",
-      "npm:monaco-editor@0.53.0",
+      "npm:monaco-editor@0.54.0",
       "npm:ollama-ai-provider@1.2.0",
       "npm:ollama@0.6.0",
       "npm:ora@9.0.0",
@@ -4799,7 +4804,7 @@
         "npm:@deno/vite-plugin@1.0.5",
         "npm:@testing-library/react@16.3.0",
         "npm:@types/react-dom@19.2.0",
-        "npm:@types/react@19.2.0",
+        "npm:@types/react@19.2.1",
         "npm:@vitejs/plugin-react-swc@4.1.0",
         "npm:hono@4.9.10",
         "npm:motion@12.23.22",

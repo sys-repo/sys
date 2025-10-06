@@ -69,14 +69,14 @@ groups:
   ui/react:
     - import: npm:react@19.2.0
     - import: npm:react-dom@19.2.0
-    - import: npm:@types/react@19.2.0
+    - import: npm:@types/react@19.2.1
     - import: npm:@types/react-dom@19.2.0
     - import: npm:@testing-library/react@16.3.0
 
   ui/monaco:
     # https://microsoft.github.io/monaco-editor
     - import: npm:@monaco-editor/react@4.7.0
-    - import: npm:monaco-editor@0.53.0
+    - import: npm:monaco-editor@0.54.0
 
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.3
