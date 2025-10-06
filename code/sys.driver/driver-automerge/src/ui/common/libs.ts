@@ -2,11 +2,18 @@
  * @sys:
  */
 export { Hash } from '@sys/crypto/hash';
-export { Color, css, Style } from '@sys/ui-css';
+export { Color, Style, css } from '@sys/ui-css';
 export { File, Kbd, LocalStorage } from '@sys/ui-dom';
 export { UserAgent } from '@sys/ui-dom/user-agent';
 
-export { useDebouncedValue, useDist, usePointer, useSizeObserver } from '@sys/ui-react';
+export {
+  useDebouncedValue,
+  useDist,
+  useFunction,
+  usePointer,
+  useSizeObserver,
+} from '@sys/ui-react';
+
 export {
   Button,
   Cropmarks,

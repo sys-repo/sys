@@ -2,7 +2,7 @@
  * @drivers
  */
 export type { Crdt } from '@sys/driver-automerge/t';
-export type { EditorYamlHook, Monaco, YamlEditorSignals } from '@sys/driver-monaco/t';
+export type { EditorYaml, Monaco, YamlEditorSignals } from '@sys/driver-monaco/t';
 
 /**
  * @system

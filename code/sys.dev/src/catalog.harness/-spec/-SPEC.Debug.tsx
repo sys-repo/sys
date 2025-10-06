@@ -106,7 +106,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const stateKind = p.stateKind.value;
 
   Signal.useRedrawEffect(() => debug.listen());
-  Crdt.UI.useRedrawEffect(p.stateCrdt.value);
+  Crdt.UI.useRev(p.stateCrdt.value);
 
   /**
    * Render:

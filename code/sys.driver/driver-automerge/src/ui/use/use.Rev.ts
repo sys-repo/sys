@@ -1,64 +1,55 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { type t, Is, Schedule } from './common.ts';
+import { useEffect, useMemo, useState } from 'react';
+import { type t, Is, Schedule, useFunction } from './common.ts';
 
 type O = Record<string, unknown>;
 
 /**
- * Triggers a `rev` monotonic increment everytime
- * a CRDT document changes.
+ * Triggers a monotonic `rev` increment whenever
+ * the given CRDT document changes.
  *
+ * - Coalesces multiple change events per tick into one redraw.
+ * - Supports path-scoped change subscriptions.
+ * - Optional callbacks: `onRedraw`, `onError`.
  */
 export function useRev<T extends O = O>(
   doc?: t.CrdtRef<T>,
   opts?: t.UseCrdtRevOptions<T> | t.CrdtRevChangeHandler<T> | t.ObjectPath | t.ObjectPath[],
 ): t.CrdtRev {
   const options = wrangle.options<T>(opts);
-  const paths = wrangle.path(options.path) ?? [];
+  const paths = wrangle.path(options.path);
   const pathKey = useMemo(() => paths.map((p) => p.join()).join('|'), [paths]);
 
-  /**
-   * Refs:
-   * (avoid re-subscribe churn).
-   */
-  const onRedrawRef = useRef<typeof options.onRedraw>(null);
-  const onErrorRef = useRef<typeof options.onError>(null);
-  onRedrawRef.current = options.onRedraw;
-  onErrorRef.current = options.onError;
+  const onRedraw = useFunction(options.onRedraw);
+  const onError = useFunction(options.onError);
 
-  /**
-   * Hooks:
-   */
-  const [rev, setRender] = useState(0);
+  const [rev, setRev] = useState(0);
 
-  /**
-   * Effect:
-   */
   useEffect(() => {
     if (!doc) return;
 
     const events = doc.events();
-    const schedule = Schedule.make(events, 'micro'); // ← bound to dispose$
-    const scheduleRedraw = makeCoalescer(schedule); //  ← coalescer also bound to dispose$
+    const schedule = Schedule.make(events, 'micro');
+    const scheduleRedraw = makeCoalescer(schedule);
     const streams = paths.length === 0 ? [events.$] : paths.map((p) => events.path(p).$);
 
-    streams.map(($) =>
+    streams.forEach(($) =>
       $.subscribe((change) => {
         schedule(() => {
           if (events.disposed) return;
 
           try {
-            onRedrawRef.current?.({ rev, doc, change });
+            onRedraw?.({ rev, doc, change });
           } catch (err) {
             try {
-              onErrorRef.current?.(err);
+              onError?.(err);
             } catch {
-              /* Swallow: user/handler error */
+              /* swallow user error */
             }
           }
 
           scheduleRedraw(() => {
             if (events.disposed) return;
-            setRender((n) => n + 1);
+            setRev((n) => n + 1);
           });
         });
       }),

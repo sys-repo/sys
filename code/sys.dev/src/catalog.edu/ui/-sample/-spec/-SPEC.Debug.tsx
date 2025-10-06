@@ -1,5 +1,6 @@
 import React from 'react';
-import { createRepo } from '../../../../ui/-test.ui.ts';
+import { createRepo, YamlObjectView } from '../../../../ui/-test.ui.ts';
+
 import {
   type t,
   Button,
@@ -94,6 +95,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const s = debug.signals;
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -147,14 +149,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
           window.location.reload();
         }}
       />
-      <ObjectView
-        style={{ marginTop: 10 }}
-        expand={1}
-        name={'debug'}
-        data={{
-          ...Signal.toObject(p),
-          doc: debug.signals.doc?.value?.current,
-        }}
+      <ObjectView style={{ marginTop: 15 }} expand={0} name={'debug'} data={Signal.toObject(p)} />
+      <hr />
+      <YamlObjectView
+        style={{ marginTop: 5 }}
+        yaml={s.yaml?.value?.data}
+        cursor={s.yaml?.value?.cursor}
+        doc={s.doc?.value}
       />
     </div>
   );

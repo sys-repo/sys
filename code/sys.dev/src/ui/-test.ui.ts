@@ -4,8 +4,10 @@
  */
 import { Crdt, Url } from './common.ts';
 
+export { YamlObjectView } from '@sys/driver-monaco/dev';
 export { expect } from '@sys/std/testing';
 export { Dev, Lorem, Spec } from '@sys/ui-react-devharness';
+
 export * from '../common.ts';
 
 /**
