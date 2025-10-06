@@ -1,5 +1,5 @@
+import { Crdt } from '../-exports/-fs/mod.ts';
 import { describe, expect, it, Obj } from '../-test.ts';
-import { Crdt } from '../-platforms/-fs/mod.ts';
 
 /**
  * REF:

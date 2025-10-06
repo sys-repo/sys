@@ -2,7 +2,7 @@
  * @module
  * User Interface Components.
  */
-import { Crdt as Base } from '../-platforms/-web/mod.ts';
+import { Crdt as Base } from '../-exports/-web/mod.ts';
 import type { t } from './common.ts';
 
 /**

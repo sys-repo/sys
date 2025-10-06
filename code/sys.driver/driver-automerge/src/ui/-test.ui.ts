@@ -2,7 +2,7 @@
  * @module
  * Testing tools running in the browser/ui.
  */
-import { Crdt } from '../-platforms/-web/mod.ts';
+import { Crdt } from '../-exports/-web/mod.ts';
 import { Url } from './common.ts';
 
 export { expect } from '@sys/std/testing';
