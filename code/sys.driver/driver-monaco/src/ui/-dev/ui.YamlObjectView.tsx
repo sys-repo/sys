@@ -65,7 +65,6 @@ const wrangle = {
     const docField = doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc';
 
     let yaml = props.yaml;
-
     if (yaml?.path) {
       (yaml as any).path = {
         source: wrangle.path(yaml.path.source),
@@ -75,11 +74,11 @@ const wrangle = {
 
     const data = {
       rev,
+      [docField]: doc?.current,
       yaml,
       'yaml.cursor': cursor,
       'yaml.cursor.path': wrangle.cursorPath(cursor),
-      [docField]: doc?.current,
-    } as any;
+    };
 
     return data;
   },
