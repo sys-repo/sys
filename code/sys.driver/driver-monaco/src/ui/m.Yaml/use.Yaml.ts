@@ -7,6 +7,7 @@ import {
   Lease,
   Obj,
   Rx,
+  Time,
   Yaml,
   singleton,
   slug,
@@ -61,6 +62,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
    * Effect: YAML parsing.
    * - Emits an initial snapshot immediately.
    * - Emits on subsequent parser events.
+   * - Implements ping/pong listener for ["yaml"]
    */
   React.useEffect(() => {
     if (!doc || !path) return void setParser(undefined);
@@ -68,20 +70,33 @@ export const useYaml: t.UseEditorYaml = (args) => {
     const parser = Yaml.syncer({ doc, path, debounce });
     setParser(parser);
 
-    const emit = () => {
-      if (editorId === '') return;
-      Bus.emit(bus$, 'micro', makePayload());
-    };
-    const makePayload = () => {
-      return {
-        kind: 'editor:yaml',
-        ...parser.current,
-        editorId,
-      } satisfies t.EventYaml;
-    };
+    const emit = {
+      yamlEvent() {
+        if (editorId === '') return;
+        const e = { kind: 'editor:yaml', ...parser.current, editorId } satisfies t.EventYaml;
+        Bus.emit(bus$, 'micro', e);
+      },
+      pongEvent(nonce: string, states: t.EditorStateKind[]) {
+        const at = Time.now.timestamp;
+        const e = { kind: 'editor:pong', at, states, nonce } satisfies t.EventEditorPong;
+        Bus.emit(bus$, 'micro', e);
+      },
+    } as const;
 
-    if (parser.current) emit(); // initial snapshot
-    parser.$.subscribe(emit);
+    if (parser.current) emit.yamlEvent(); // initial snapshot
+    parser.$.subscribe(emit.yamlEvent);
+
+    // Listen and repond to `ping` requests:
+    bus$
+      .pipe(
+        Rx.takeUntil(parser.dispose$),
+        Bus.Filter.ofKind('editor:ping'),
+        Rx.filter((e) => e.request.includes('yaml')),
+      )
+      .subscribe((e) => {
+        emit.yamlEvent();
+        emit.pongEvent(e.nonce, ['yaml']);
+      });
 
     return parser.dispose;
   }, [editorId, Obj.hash([...wrangle.docDeps(doc), path, debounce])]);
