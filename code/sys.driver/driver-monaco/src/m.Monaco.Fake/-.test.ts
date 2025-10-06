@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
 import { RangeUtil } from '../m.Monaco/u.ts';
 import { MonacoFake } from './mod.ts';
 
@@ -9,6 +9,23 @@ describe('MonacoFake (Mock)', () => {
   });
 
   describe('Monaco (global)', () => {
+    describe('make - overloaded', () => {
+      it('returns FakeMonacoGlobal by default', () => {
+        const monaco = MonacoFake.monaco();
+        expectTypeOf(monaco).toEqualTypeOf<t.FakeMonacoGlobal>();
+      });
+
+      it('returns Monaco.Monaco when { cast:true }', () => {
+        const monaco = MonacoFake.monaco({ cast: true });
+        expectTypeOf(monaco).toEqualTypeOf<t.Monaco.Monaco>();
+      });
+
+      it('returns FakeMonacoGlobal when { cast:false }', () => {
+        const monaco = MonacoFake.monaco({ cast: false });
+        expectTypeOf(monaco).toEqualTypeOf<t.FakeMonacoGlobal>();
+      });
+    });
+
     describe('Uri', () => {
       it('parse: scheme, path, query, toString()', () => {
         const m = MonacoFake.monaco();

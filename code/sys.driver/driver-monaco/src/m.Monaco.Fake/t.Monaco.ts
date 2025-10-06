@@ -1,9 +1,16 @@
 import type { t } from './common.ts';
 
 /**
- * Factory: create a new global `moncao` mock.
+ * Factory: create a new global `monaco` mock.
+ *
+ * - No arg → returns the raw `FakeMonacoGlobal`
+ * - Pass `{ cast: true }` → returns `t.Monaco.Monaco` (casted variant)
  */
-export type CreateFakeMonaco = () => t.FakeMonacoGlobal;
+export type CreateFakeMonaco = {
+  (): t.FakeMonacoGlobal;
+  (options: { cast?: false }): t.FakeMonacoGlobal;
+  (options: { cast: true }): t.Monaco.Monaco;
+};
 
 /**
  * Minimal `Monaco` global mock.
