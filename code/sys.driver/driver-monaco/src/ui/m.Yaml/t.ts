@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 export type * from './t.Error.ts';
 export type * from './t.Path.ts';
-export type * from './t.Use.Yaml.ts';
+export type * from './t.use.ts';
 
 /**
  * Tools for working with YAML in the code-editor.
@@ -12,7 +12,7 @@ export type EditorYamlLib = {
   readonly Editor: React.FC<t.YamlEditorProps>;
   readonly Error: t.EditorYamlErrorLib;
   useYaml: t.UseEditorYaml;
-  useErrorMarkers: t.UseYamlErrorMarkers;
+  useYamlErrorMarkers: t.UseYamlErrorMarkers;
 };
 
 /**

@@ -11,6 +11,8 @@ import {
 } from '../../../-test.ts';
 import { type t, Bus, Crdt } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
+import { useYaml } from '../use.Yaml.ts';
+import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
 
 describe('Monaco.Yaml', { sanitizeResources: false, sanitizeOps: false }, () => {
   DomMock.polyfill();
@@ -19,6 +21,8 @@ describe('Monaco.Yaml', { sanitizeResources: false, sanitizeOps: false }, () => 
     const m = await import('@sys/driver-monaco');
     expect(m.Monaco.Yaml).to.eql(EditorYaml);
     expect(m.Monaco.Yaml.Path.observe).to.equal(EditorYaml.Path.observe);
+    expect(m.Monaco.Yaml.useYaml).to.equal(useYaml);
+    expect(m.Monaco.Yaml.useYamlErrorMarkers).to.equal(useYamlErrorMarkers);
   });
 
   describe('Monaco.Yaml (ping/pong)', () => {

@@ -11,9 +11,9 @@ import {
   singleton,
   slug,
   useBus,
-  useErrorMarkers,
 } from './common.ts';
 import { Path } from './m.Path.ts';
+import { useYamlErrorMarkers } from './use.YamlErrorMarkers.ts';
 
 /** Singleton registry for editor cursor observers (per editorId). */
 type Registry = { refCount: number; producer: t.EditorYamlCursorPathObserver };
@@ -45,7 +45,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
   const [cursor, setCursor] = React.useState<t.EditorCursor>();
 
   /** YAML parsing diagnostics: */
-  useErrorMarkers({
+  useYamlErrorMarkers({
     enabled: args.errorMarkers ?? false, // NB: opt-in.
     errors: parser?.errors,
     monaco,

@@ -10,13 +10,14 @@ import {
   MonacoFake,
   renderHook,
 } from '../../../-test.ts';
+
 import { useErrorMarkers } from '../mod.ts';
 
 describe('useErrorMarkers', () => {
   DomMock.polyfill();
 
   it('type: matches UseYamlErrorMarkers', () => {
-    expectTypeOf(useErrorMarkers).toEqualTypeOf<t.UseYamlErrorMarkers>();
+    expectTypeOf(useErrorMarkers).toEqualTypeOf<t.UseErrorMarkers>();
   });
 
   describe('core behavior (single-instance)', () => {
