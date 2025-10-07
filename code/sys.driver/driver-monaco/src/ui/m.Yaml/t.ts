@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 
+export type * from './t.Error.ts';
 export type * from './t.Path.ts';
 export type * from './t.Use.ErrorMarkers.ts';
 export type * from './t.Use.Yaml.ts';
@@ -10,6 +11,7 @@ export type * from './t.Use.Yaml.ts';
 export type EditorYamlLib = {
   readonly Path: t.EditorYamlPathLib;
   readonly Editor: React.FC<t.YamlEditorProps>;
+  readonly Error: t.EditorYamlErrorLib;
   useYaml: t.UseEditorYaml;
   useErrorMarkers: t.UseYamlErrorMarkers;
 };
