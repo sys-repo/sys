@@ -17,4 +17,7 @@ export type EditorErrorLib = {
     target: t.Monaco.TextModel | t.Monaco.Editor,
     errors: t.Schema.Error[],
   ): t.Monaco.I.IMarkerData[];
+
+  /** Sync Monaco's visible error diagnostics. */
+  useErrorMarkers: t.UseErrorMarkers;
 };

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { type t, Error, slug } from './common.ts';
+import { toMarkers } from '../../m.Monaco/u.Error.markers.ts';
+import { type t, slug } from './common.ts';
 
 type D = t.Diagnostic;
 type Pos = { line: number; col: number };
-type ErrWithLinePos = D & { linePos: [Pos, Pos] };
 
 /**
  * Adds (or clears) error markers in the Monaco editor for a set of diagnostics.
@@ -52,7 +52,7 @@ export const useErrorMarkers: t.UseErrorMarkers = (args) => {
       return;
     }
 
-    const markers = Error.toMarkers(model, errors as t.Schema.Error[]);
+    const markers = toMarkers(model, errors as t.Schema.Error[]);
     monaco.editor.setModelMarkers(model, owner, markers);
   }, [enabled, monaco, editor, errors, owner]);
 
@@ -73,8 +73,7 @@ export const useErrorMarkers: t.UseErrorMarkers = (args) => {
     const sub = editor.onDidChangeModel?.(() => {
       const model = editor.getModel();
       if (!model) return;
-      const markers =
-        enabled && errors.length ? Error.toMarkers(model, errors as t.Schema.Error[]) : [];
+      const markers = enabled && errors.length ? toMarkers(model, errors as t.Schema.Error[]) : [];
       monaco.editor.setModelMarkers(model, owner, markers);
     });
     return () => sub?.dispose();

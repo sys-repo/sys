@@ -1,7 +1,12 @@
 import { type t, describe, expect, it, MonacoFake } from '../../-test.ts';
+import { useErrorMarkers } from '../../ui/m.Markers.Error/use.ErrorMarkers.ts';
 import { Error } from '../m.Error.ts';
 
 describe('Monaco.Error', () => {
+  describe('API', () => {
+    expect(Error.useErrorMarkers).to.equal(useErrorMarkers);
+  });
+
   describe('toMarkers', () => {
     it('returns empty when no ranges', () => {
       const monaco = MonacoFake.monaco();
