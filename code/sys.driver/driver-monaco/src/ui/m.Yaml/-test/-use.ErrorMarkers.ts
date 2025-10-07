@@ -11,29 +11,6 @@ import {
 } from '../../../-test.ts';
 import { useErrorMarkers } from '../mod.ts';
 
-/**
- * Spy for monaco.editor.setModelMarkers with correct signature.
- */
-const spySetModelMarkers = (monaco: t.Monaco.Monaco) => {
-
-  const original = monaco.editor.setModelMarkers.bind(monaco.editor);
-  const calls: { args: Parameters<typeof original> }[] = [];
-
-  monaco.editor.setModelMarkers = (...args: Parameters<typeof original>) => {
-    calls.push({ args });
-    return original(...args);
-  };
-
-  const restore = () => (monaco.editor.setModelMarkers = original);
-  const getMarkers = (i = calls.length - 1) =>
-    (calls[i]?.args[2] ?? []) as readonly t.Monaco.I.IMarkerData[];
-
-  return { calls, getMarkers, restore };
-};
-
-const getMarkersArg = (call: { args: unknown[] }) =>
-  call.args[2] as readonly t.Monaco.I.IMarkerData[];
-
 describe('useErrorMarkers', () => {
   DomMock.polyfill();
 
@@ -60,7 +37,7 @@ describe('useErrorMarkers', () => {
     const monaco = MonacoFake.monaco({ cast: true });
     const model = MonacoFake.model('key: value\nfoo: bar\n');
     const editor = MonacoFake.editor(model);
-    const spy = spySetModelMarkers(monaco);
+    const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
     const err: t.YamlError & {
       linePos: [{ line: number; col: number }, { line: number; col: number }];
@@ -100,7 +77,7 @@ describe('useErrorMarkers', () => {
     const monaco = MonacoFake.monaco({ cast: true });
     const model = MonacoFake.model('a\nbc\n');
     const editor = MonacoFake.editor(model);
-    const spy = spySetModelMarkers(monaco);
+    const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
     const err: t.YamlError = {
       name: 'YAMLParseError',
@@ -131,7 +108,7 @@ describe('useErrorMarkers', () => {
     const monaco = MonacoFake.monaco({ cast: true });
     const model = MonacoFake.model('x: 1');
     const editor = MonacoFake.editor(model);
-    const spy = spySetModelMarkers(monaco);
+    const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
     const err: t.YamlError & {
       linePos: [{ line: number; col: number }, { line: number; col: number }];
@@ -169,7 +146,7 @@ describe('useErrorMarkers', () => {
     const monaco = MonacoFake.monaco({ cast: true });
     const model = MonacoFake.model('k: v');
     const editor = MonacoFake.editor(model);
-    const spy = spySetModelMarkers(monaco);
+    const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
     const err: t.YamlError & {
       linePos: [{ line: number; col: number }, { line: number; col: number }];
@@ -203,3 +180,10 @@ describe('useErrorMarkers', () => {
     spy.restore();
   });
 });
+
+/**
+ * Helpers:
+ */
+function getMarkersArg(call: { args: unknown[] }) {
+  return call.args[2] as readonly t.Monaco.I.IMarkerData[];
+}
