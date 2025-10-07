@@ -5,15 +5,13 @@ import type { t } from './common.ts';
  */
 export type YamlSlugErrorLib = {
   /** Normalize schema/semantic YAML diagnostics. */
-  readonly normalize: (args: NormalizeSlugErrorsArgs) => readonly t.Yaml.Diagnostic[];
+  readonly normalize: (
+    yaml: t.SlugFromYamlResult,
+    opts: { pathMode?: t.PathMode },
+  ) => readonly t.Yaml.Diagnostic[];
 
   /** Enrich validation errors with AST node ranges (mutates array in-place). */
   readonly attachSemanticRanges: (ast: t.Yaml.Ast, errs: t.Schema.ValidationError[]) => void;
-};
-
-type NormalizeSlugErrorsArgs = {
-  result: t.SlugFromYamlResult;
-  pathMode?: t.PathMode;
 };
 
 /**
