@@ -8,8 +8,6 @@ export type DenoModuleLib = {
   /**
    * Perform an upgrade to the latest version of the module in the registry.
    * Relies on the module exposing a "/init" ESM entry point, eg:
-   *
-   *    deno run -A jsr:@sys/driver-vite/init
    */
   upgrade(args: t.DenoModuleUpgradeArgs): Promise<DenoModuleUpgrade>;
 
@@ -84,5 +82,5 @@ export type DenoModuleBackupArgs = {
   filter?: t.FsPathFilter;
 };
 
-/** Response from `VitePress.Env.backup` method. */
+/** Response from `backup` method. */
 export type DenoModuleBackup = { readonly snapshot: t.DirSnapshot };
