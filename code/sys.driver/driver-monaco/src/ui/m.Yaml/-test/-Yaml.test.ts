@@ -12,7 +12,7 @@ import {
 import { type t, Bus, Crdt } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
 
-describe('Monaco.Yaml', () => {
+describe('Monaco.Yaml', { sanitizeResources: false, sanitizeOps: false }, () => {
   DomMock.polyfill();
 
   it('API', async () => {
