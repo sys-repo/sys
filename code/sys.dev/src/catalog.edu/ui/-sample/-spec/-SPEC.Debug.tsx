@@ -7,6 +7,7 @@ import {
   css,
   D,
   LocalStorage,
+  Monaco,
   Obj,
   ObjectView,
   Signal,
