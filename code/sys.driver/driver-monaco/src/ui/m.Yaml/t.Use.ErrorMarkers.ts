@@ -13,6 +13,7 @@ export type UseYamlErrorMarkers = (args: UseYamlErrorMarkersArgs) => void;
 /** Arguments passed to the `useErrorMarkers` hook. */
 export type UseYamlErrorMarkersArgs = {
   enabled?: boolean;
+  owner?: string;
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
   errors?: t.YamlError[];
