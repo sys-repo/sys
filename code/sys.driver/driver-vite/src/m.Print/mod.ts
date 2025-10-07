@@ -1,6 +1,6 @@
 /**
- * Logging tools for rendering state/info to the console.
  * @module
+ * Logging tools for rendering state/info to the console.
  */
 import type { ViteLogLib } from './t.ts';
 

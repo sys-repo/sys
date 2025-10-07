@@ -121,7 +121,7 @@
       "run": true,
       "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
     },
-    "clean": { "read": true, "write": true, "env": true, "run": true },
+    "clean": { "read": true, "write": true, "env": true, "run": true, "ffi": true, "sys": true },
     "ci": {
       "read": true,
       "write": true,
