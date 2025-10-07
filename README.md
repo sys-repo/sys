@@ -5,12 +5,11 @@
 
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue?style=flat
 [mit-url]: https://opensource.org/licenses/MIT
-
+[jsr-badge]: https://jsr.io/badges/@sys?style=flat
+[jsr-url]: https://jsr.io/@sys
 [ci-badge]: https://img.shields.io/github/actions/workflow/status/sys-repo/sys/jsr.yaml?style=flat&label=CI
 [ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
 
-[jsr-badge]: https://jsr.io/badges/@sys?style=flat
-[jsr-url]: https://jsr.io/@sys
 
 
 # @sys
