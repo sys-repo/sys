@@ -69,8 +69,8 @@ groups:
   ui/react:
     - import: npm:react@19.2.0
     - import: npm:react-dom@19.2.0
-    - import: npm:@types/react@19.2.1
-    - import: npm:@types/react-dom@19.2.0
+    - import: npm:@types/react@19.2.2
+    - import: npm:@types/react-dom@19.2.1
     - import: npm:@testing-library/react@16.3.0
 
   ui/monaco:
@@ -89,7 +89,7 @@ groups:
 
   ai:
     - import: npm:ai@5.0.60
-    - import: npm:@ai-sdk/openai@2.0.42
+    - import: npm:@ai-sdk/openai@2.0.43
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.20.0
       subpaths: ['agent', 'memory', 'storage']
