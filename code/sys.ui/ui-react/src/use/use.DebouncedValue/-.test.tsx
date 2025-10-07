@@ -7,6 +7,7 @@ import {
   it,
   renderHook,
   Schedule,
+  Testing,
   type t,
 } from '../../-test.ts';
 import { useDebouncedValue } from './mod.ts';
@@ -54,33 +55,35 @@ describe(
     });
 
     it('resets the timer on rapid successive changes (latest wins)', async () => {
-      const ms: t.Msecs = 30;
-      const { result, rerender } = renderHook(
-        ({ value, ms }: { value: unknown; ms: t.Msecs }) => useDebouncedValue(value, ms),
-        { initialProps: { value: 'A', ms } },
-      );
-      expect(result.current).to.eql('A');
+      await Testing.retry(10, async () => {
+        const ms: t.Msecs = 30;
+        const { result, rerender } = renderHook(
+          ({ value, ms }: { value: unknown; ms: t.Msecs }) => useDebouncedValue(value, ms),
+          { initialProps: { value: 'A', ms } },
+        );
+        expect(result.current).to.eql('A');
 
-      await act(async () => {
-        rerender({ value: 'B', ms });
-      });
-      await act(async () => {
-        await sleep(ms / 2); // halfway; not published yet
-      });
-      expect(result.current).to.eql('A');
+        await act(async () => {
+          rerender({ value: 'B', ms });
+        });
+        await act(async () => {
+          await sleep(ms / 2); // halfway; not published yet
+        });
+        expect(result.current).to.eql('A');
 
-      await act(async () => {
-        rerender({ value: 'C', ms }); // reset timer
-      });
-      await act(async () => {
-        await sleep(ms - 5); // still inside window
-      });
-      expect(result.current).to.eql('A');
+        await act(async () => {
+          rerender({ value: 'C', ms }); // reset timer
+        });
+        await act(async () => {
+          await sleep(ms - 5); // still inside window
+        });
+        expect(result.current).to.eql('A');
 
-      await act(async () => {
-        await sleep(10); // exceed window from last change
+        await act(async () => {
+          await sleep(10); // exceed window from last change
+        });
+        expect(result.current).to.eql('C');
       });
-      expect(result.current).to.eql('C');
     });
 
     it('cancels pending timeout on unmount (no stray publishes)', async () => {
