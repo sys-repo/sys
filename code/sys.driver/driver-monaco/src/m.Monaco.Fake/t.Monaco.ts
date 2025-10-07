@@ -66,6 +66,7 @@ export type FakeMonacoGlobal = Readonly<{
     _getModelMarkers(model: TextModel, owner: string): readonly t.Monaco.I.IMarkerData[];
   };
 
+  MarkerSeverity: Readonly<{ Hint: 1; Info: 2; Warning: 4; Error: 8 }>;
   Uri: {
     /** Parse a string `scheme:path?query` (very small subset). */
     parse(input: string): t.Monaco.Uri;

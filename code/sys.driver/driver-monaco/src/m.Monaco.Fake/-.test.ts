@@ -201,7 +201,47 @@ describe('MonacoFake (Mock)', () => {
       });
     });
 
-    describe('error markers', () => {
+    describe('MarkerSeverity', () => {
+      it('exposes enum-like constants with expected numeric levels', () => {
+        const monaco = MonacoFake.monaco();
+        const S = (monaco as any).MarkerSeverity;
+
+        expect(S).to.exist;
+        expect(Object.keys(S)).to.eql(['Hint', 'Info', 'Warning', 'Error']);
+        expect(S.Hint).to.equal(1);
+        expect(S.Info).to.equal(2);
+        expect(S.Warning).to.equal(4);
+        expect(S.Error).to.equal(8);
+
+        // type-level sanity (literal types, not just number)
+        expectTypeOf(S.Error).toEqualTypeOf<8>();
+        expectTypeOf(S.Warning).toEqualTypeOf<4>();
+      });
+
+      it('round-trips severity via setModelMarkers/_getModelMarkers', () => {
+        const monaco = MonacoFake.monaco();
+        const model = MonacoFake.model('foo: bar');
+        const marker: t.Monaco.I.IMarkerData = {
+          startLineNumber: 1,
+          startColumn: 1,
+          endLineNumber: 1,
+          endColumn: 4,
+          message: 'demo',
+          source: 'test',
+          severity: monaco.MarkerSeverity.Warning,
+        };
+
+        monaco.editor.setModelMarkers(model, 'owner', [marker]);
+        const out = monaco.editor._getModelMarkers(model, 'owner');
+
+        expect(out.length).to.equal(1);
+        expect(out[0]!.severity).to.equal(monaco.MarkerSeverity.Warning);
+        expect(out[0]!.source).to.equal('test');
+        expect(out[0]!.message).to.equal('demo');
+      });
+    });
+
+    describe('Marker: errors', () => {
       it('sets and retrieves markers', () => {
         const monaco = MonacoFake.monaco();
         const model = monaco.editor.createModel('foo: bar', 'yaml');
