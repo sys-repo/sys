@@ -8,7 +8,6 @@ export type * from './t.def.content.ts';
 export type * from './t.def.ts';
 
 export type * from './m.events/t.ts';
-export type * from './m.Monaco.Fake/t.ts';
 export type * from './m.Monaco/t.ts';
 
 export type * from './ui/m.Crdt/t.ts';
@@ -19,7 +18,12 @@ export type * from './ui/ui.YamlEditor.Footer/t.ts';
 export type * from './ui/ui.YamlEditor/t.ts';
 
 /**
- * Samples:
+ * Testing:
+ */
+export type * from './-fake/t.ts';
+
+/**
+ * Sample:
  */
 export type * from './-sample.factory/t.ts';
 export type * from './-sample/t.ts';
