@@ -8,8 +8,6 @@ export type * from './t.rel.ts';
 
 type O = Record<string, unknown>;
 
-export type PathJoinMode = 'absolute' | 'relative';
-
 /**
  * Tools for working with objects via abstract path arrays.
  */
@@ -74,7 +72,7 @@ export type ObjPathLib = {
    * - If `rel` is empty/undefined: returns `base` (absolute) or [] (relative).
    * - If `base` is empty and mode is 'absolute', returns `rel`.
    */
-  join(base: t.ObjectPath, rel?: t.ObjectPath, mode?: PathJoinMode): t.ObjectPath;
+  join(base: t.ObjectPath, rel?: t.ObjectPath, mode?: t.PathMode): t.ObjectPath;
 };
 
 /**

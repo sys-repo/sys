@@ -12,6 +12,7 @@ export namespace Yaml {
   export type Ast = t.YamlAst;
   export type Error = t.YamlError;
   export type Range = t.YamlRange;
+  export type Diagnostic = t.YamlDiagnostic;
   export type Node = Y.Node;
   export type Pair = Y.Pair;
   export type Scalar = Y.Scalar;
@@ -65,4 +66,16 @@ export type YamlIsLib = {
 export type YamlParseResponse<T> = {
   readonly data?: T;
   readonly error?: t.StdError;
+};
+
+/**
+ * Normalized YAML diagnostic.
+ * - Used for parser, schema, or semantic errors.
+ * - Portable across drivers (e.g., Monaco, LSP, CLI).
+ */
+export type YamlDiagnostic = {
+  readonly message: string;
+  readonly code?: string;
+  readonly path?: t.ObjectPath;
+  readonly range?: Yaml.Range;
 };
