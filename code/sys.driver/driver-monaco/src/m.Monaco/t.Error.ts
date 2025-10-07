@@ -16,5 +16,5 @@ export type EditorErrorLib = {
   toMarkers(
     target: t.Monaco.TextModel | t.Monaco.Editor,
     errors: t.Schema.Error[],
-  ): readonly t.Monaco.I.IMarkerData[];
+  ): t.Monaco.I.IMarkerData[];
 };
