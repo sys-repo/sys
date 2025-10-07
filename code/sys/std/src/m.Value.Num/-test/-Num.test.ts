@@ -1,8 +1,8 @@
-import { describe, expect, it } from '../-test.ts';
-import { Value } from '../m.Value/mod.ts';
-import { PercentRange } from './m.Percent.Range.ts';
-import { Percent } from './m.Percent.ts';
-import { Num } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Value } from '../../m.Value/mod.ts';
+import { PercentRange } from '../m.Percent.Range.ts';
+import { Percent } from '../m.Percent.ts';
+import { Num } from '../mod.ts';
 
 describe('Value.Num', () => {
   it('API', () => {

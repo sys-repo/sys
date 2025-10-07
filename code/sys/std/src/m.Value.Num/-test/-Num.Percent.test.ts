@@ -1,5 +1,5 @@
-import { type t, describe, expect, it } from '../-test.ts';
-import { Percent } from './mod.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
+import { Percent } from '../mod.ts';
 
 describe('Num.Percent', () => {
   describe('clamp', () => {
