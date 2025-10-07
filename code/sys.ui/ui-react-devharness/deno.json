@@ -9,8 +9,6 @@
     "test": "deno test -P=testset",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
-    "upgrade": "deno run -P=dev   ./-scripts/-main.ts --cmd=upgrade",
-    "backup": "deno run -P=build ./-scripts/-main.ts --cmd=backup",
     "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
