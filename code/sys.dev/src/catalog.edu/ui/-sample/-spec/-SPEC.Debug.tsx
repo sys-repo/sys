@@ -37,7 +37,12 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: Partial<t.YamlEditorSignals> = { doc: s(), editor: s(), yaml: s() };
+  const signals: t.YamlEditorSignals = {
+    doc: s(),
+    yaml: s(),
+    editor: s(),
+    monaco: s(),
+  };
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
