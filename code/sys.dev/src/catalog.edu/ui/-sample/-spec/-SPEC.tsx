@@ -27,6 +27,7 @@ export default Spec.describe(D.displayName, (e) => {
           <Sample
             debug={v.debug}
             theme={v.theme}
+            bus$={debug.bus$}
             repo={repo}
             path={v.path}
             signals={debug.signals}

@@ -11,7 +11,6 @@ import {
   Obj,
   ObjectView,
   Signal,
-  YamlPipeline,
 } from '../common.ts';
 
 type P = t.SampleProps;
@@ -38,12 +37,7 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: Partial<t.YamlEditorSignals> = {
-    doc: s<t.Crdt.Ref>(),
-    editor: s<t.Monaco.Editor>(),
-    yaml: s<t.EditorYamlHook>(),
-  };
-
+  const signals: Partial<t.YamlEditorSignals> = { doc: s(), editor: s(), yaml: s() };
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -53,6 +47,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    bus$: Monaco.Bus.make(),
     repo: createRepo(),
     signals,
     reset,
@@ -154,9 +149,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <YamlObjectView
         style={{ marginTop: 5 }}
-        yaml={s.yaml?.value?.data}
-        cursor={s.yaml?.value?.cursor}
+        bus$={debug.bus$}
         doc={s.doc?.value}
+        editor={s.editor?.value}
       />
     </div>
   );
