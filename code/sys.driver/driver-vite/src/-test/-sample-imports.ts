@@ -43,8 +43,8 @@ console.groupEnd();
  * Namespace: @sys : driver
  */
 console.groupCollapsed('🧫 @sys/driver');
-const { Crdt } = await import('@sys/driver-automerge/web/ui');
-console.info('@sys/driver-automerge/ui:', Crdt);
+const { DenoFile } = await import('@sys/driver-deno/runtime');
+console.info('@sys/driver-deno/runtime: DenoFile:', DenoFile);
 console.groupEnd();
 
 console.info(' ');
