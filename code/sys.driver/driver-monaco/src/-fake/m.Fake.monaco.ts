@@ -11,8 +11,10 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
   let opener: { open(uri: t.Monaco.Uri): boolean | Promise<boolean> } | undefined;
   const disposable = (dispose: () => void): t.Monaco.I.IDisposable => ({ dispose });
 
-  const models = new Map<string, TextModel>();
   let modelCounter = 0;
+  const models = new Map<string, TextModel>();
+  const markerStore = new Map<string, t.Monaco.I.IMarkerData[]>();
+  const markerKey = (m: TextModel, owner: string) => `${m.uri.toString(true)}::${owner}`;
 
   const positionAt = (text: string, offset: number) => {
     const lineNumber = 1;
@@ -54,16 +56,27 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
     },
   };
 
-  const markerStore = new Map<string, t.Monaco.I.IMarkerData[]>();
-  const markerKey = (m: TextModel, owner: string) => `${m.uri.toString(true)}::${owner}`;
-
   const editor = {
     setModelMarkers(model: TextModel, owner: string, markers: t.Monaco.I.IMarkerData[]) {
       markerStore.set(markerKey(model, owner), markers ?? []);
     },
 
-    _getModelMarkers(model: TextModel, owner: string) {
-      return markerStore.get(markerKey(model, owner)) ?? [];
+    getModelMarkers(filter: { owner?: string; resource?: t.Monaco.Uri }) {
+      const out: t.Monaco.I.IMarkerData[] = [];
+      const wantOwner = filter.owner;
+      const wantUri = filter.resource?.toString(true);
+
+      if (wantOwner && wantUri) {
+        return markerStore.get(`${wantUri}::${wantOwner}`) ?? [];
+      }
+
+      for (const [key, markers] of markerStore.entries()) {
+        const [uriKey, ownerKey] = key.split('::');
+        if (wantOwner && ownerKey !== wantOwner) continue;
+        if (wantUri && uriKey !== wantUri) continue;
+        out.push(...markers);
+      }
+      return out;
     },
 
     registerLinkOpener(o: { open(uri: t.Monaco.Uri): boolean | Promise<boolean> }) {

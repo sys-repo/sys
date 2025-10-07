@@ -41,7 +41,7 @@ describe('TestFake: Monaco (global API)', () => {
     });
   });
 
-  describe('languages.registerLinkProvider / _provideLinks', () => {
+  describe('languages.registerLinkProvider | _provideLinks', () => {
     it('stores provider and invokes it via _provideLinks', () => {
       const m = MonacoFake.monaco();
 
@@ -108,7 +108,7 @@ describe('TestFake: Monaco (global API)', () => {
     });
   });
 
-  describe('editor.registerLinkOpener / _open', () => {
+  describe('editor.registerLinkOpener | _open', () => {
     it('forwards to opener.open(uri)', () => {
       const m = MonacoFake.monaco();
       let called = 0;
@@ -211,7 +211,7 @@ describe('TestFake: Monaco (global API)', () => {
       expectTypeOf(S.Warning).toEqualTypeOf<4>();
     });
 
-    it('round-trips severity via setModelMarkers/_getModelMarkers', () => {
+    it('round-trips severity via setModelMarkers/getModelMarkers', () => {
       const monaco = MonacoFake.monaco();
       const model = MonacoFake.model('foo: bar');
       const marker: t.Monaco.I.IMarkerData = {
@@ -225,7 +225,7 @@ describe('TestFake: Monaco (global API)', () => {
       };
 
       monaco.editor.setModelMarkers(model, 'owner', [marker]);
-      const out = monaco.editor._getModelMarkers(model, 'owner');
+      const out = monaco.editor.getModelMarkers({ owner: 'owner', resource: model.uri });
 
       expect(out.length).to.equal(1);
       expect(out[0]!.severity).to.equal(monaco.MarkerSeverity.Warning);
@@ -249,7 +249,7 @@ describe('TestFake: Monaco (global API)', () => {
       } as t.Monaco.I.IMarkerData;
 
       monaco.editor.setModelMarkers(model, 'yaml', [marker]);
-      const res = monaco.editor._getModelMarkers(model, 'yaml');
+      const res = monaco.editor.getModelMarkers({ owner: 'yaml', resource: model.uri });
 
       expect(res).to.eql([marker]);
     });
@@ -269,7 +269,7 @@ describe('TestFake: Monaco (global API)', () => {
       ]);
       monaco.editor.setModelMarkers(model, 'yaml', []); // clear
 
-      const res = monaco.editor._getModelMarkers(model, 'yaml');
+      const res = monaco.editor.getModelMarkers({ owner: 'yaml', resource: model.uri });
       expect(res).to.eql([]);
     });
   });

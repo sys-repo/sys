@@ -62,8 +62,13 @@ export type FakeMonacoGlobal = Readonly<{
      */
     setModelMarkers(model: TextModel, owner: string, markers: t.Monaco.I.IMarkerData[]): void;
 
-    /** Test hook: inspect current markers for a given owner. */
-    _getModelMarkers(model: TextModel, owner: string): readonly t.Monaco.I.IMarkerData[];
+    /**
+     * Returns Monaco editor markers matching the given filter.
+     */
+    getModelMarkers(filter: {
+      owner?: string;
+      resource?: t.Monaco.Uri;
+    }): readonly t.Monaco.I.IMarkerData[];
   };
 
   MarkerSeverity: Readonly<{ Hint: 1; Info: 2; Warning: 4; Error: 8 }>;
