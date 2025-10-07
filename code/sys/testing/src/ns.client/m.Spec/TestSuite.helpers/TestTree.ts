@@ -1,4 +1,6 @@
 import type { t } from './common.ts';
+import type { TestTreeLib } from './t.ts';
+
 import { Is } from './Is.ts';
 
 type T = t.TestSuiteModel | t.TestModel;
@@ -6,7 +8,7 @@ type T = t.TestSuiteModel | t.TestModel;
 /**
  * Helpers for walking a hierarchical tree of tests.
  */
-export const TestTree: t.TestTreeLib = {
+export const TestTree: TestTreeLib = {
   parent(child?: T): t.TestSuiteModel | undefined {
     if (Is.test(child)) return (child as t.TestModel).parent;
     if (Is.suite(child)) return (child as t.TestSuiteModel).state.parent;

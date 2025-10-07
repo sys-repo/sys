@@ -1,13 +1,14 @@
-import { type t, Err, Path, rx } from './common.ts';
+import { type t, Err, Path, Rx, Url } from './common.ts';
 import { Is } from './m.Is.ts';
 
 export const Dist: t.PkgDistLib = {
-  async fetch(options = {}) {
+  async fetch(opts = {}) {
+    const options = wrangle.fetchOptions(opts);
     const { origin = location.origin, pathname = 'dist.json' } = options;
     const errors = Err.errors();
     const controller = new AbortController();
     const signal = controller.signal;
-    const life = rx.disposable(options.dispose$);
+    const life = Rx.disposable(options.dispose$);
     life.dispose$.subscribe(() => controller.abort(options.disposeReason ?? 'disposed'));
 
     const url = new URL(Path.join(origin, pathname));
@@ -30,7 +31,24 @@ export const Dist: t.PkgDistLib = {
       errors.push(Err.std(`An unexpected error occured: ${url}`, { cause }));
     }
 
-    return { ok, status, dist, error: errors.toError() };
+    return {
+      ok,
+      status,
+      href: url.href,
+      get dist() {
+        if (!dist) return;
+        return {
+          ...dist,
+          hash: {
+            ...dist.hash,
+            get parts() {
+              return dist.hash.parts;
+            },
+          },
+        };
+      },
+      error: errors.toError(),
+    };
   },
 
   Is: {
@@ -40,3 +58,19 @@ export const Dist: t.PkgDistLib = {
     },
   },
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  fetchOptions(input: Parameters<t.PkgDistLib['fetch']>[0]): t.PkgDistFetchOptions {
+    if (!input) return {};
+    if (typeof input === 'string') {
+      const url = Url.parse(input);
+      if (url.error) throw new Error(`Failed to parse DistPkg url "${input}"`);
+      const { origin, pathname } = url.toURL();
+      return { origin, pathname };
+    }
+    return input;
+  },
+} as const;

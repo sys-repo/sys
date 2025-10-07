@@ -1,3 +1,4 @@
+import type { keypress as CliffyKeypress } from '@cliffy/keypress';
 import type {
   Checkbox,
   Confirm,
@@ -9,9 +10,8 @@ import type {
   Toggle,
 } from '@cliffy/prompt';
 import type { Table as CliffyTable } from '@cliffy/table';
-import type { keypress as CliffyKeypress } from '@cliffy/keypress';
 
-import type { ArgsLib, ValueLib, PathLib, PathFormatLib } from '@sys/std/t';
+import type { ArgsLib, PathFormatLib, PathLib, ValueLib } from '@sys/std/t';
 import type { Ora as OraSpinner } from 'ora';
 import type { t } from './common.ts';
 
@@ -35,7 +35,7 @@ export type CliLib = {
   readonly Value: ValueLib;
 
   /** Common formatting heleprs. */
-  readonly Format: t.CliFormatLib;
+  readonly Fmt: t.CliFormatLib;
 
   /** Tools for working with the keyboard within a CLI. */
   readonly Keyboard: t.CliKeyboardLib;
@@ -63,6 +63,9 @@ export type CliLib = {
 
   /** Strip ANSI escape codes from a string. */
   stripAnsi(input: string): string;
+
+  /** Copy arbitrary text to the system clipboard from a Deno CLI context. */
+  copyToClipboard(text: string): Promise<t.CliCopyResult>;
 };
 
 /**
@@ -137,10 +140,14 @@ export type CliPromptLib = {
  * Common formatting helpers when working with a CLI.
  */
 export type CliFormatLib = {
-  /**
-   * Path display formatting.
-   */
+  /** Path display formatting. */
   path: PathFormatLib['string'];
+
+  /** Common CLI pretty path formatting */
+  readonly Path: {
+    str: (path: string) => string;
+    fmt: (opts?: {}) => t.PathFormatter;
+  };
 };
 
 /**
@@ -161,3 +168,6 @@ export type CliKeyboardLib = {
    */
   readonly keypress: typeof CliffyKeypress;
 };
+
+/** Response from `Cli.copyToClipboard` method. */
+export type CliCopyResult = { ok: true } | { ok: false; error: Error; tried: string[] };

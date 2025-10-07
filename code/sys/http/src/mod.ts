@@ -3,11 +3,10 @@
  * Tools for working with HTTP.
  */
 export { pkg } from './pkg.ts';
-
 /** Module types. */
 export type * as t from './types.ts';
 
 /**
- * Library
+ * Library:
  */
-export { Http, Fetch } from './ns.client/m.Http/mod.ts';
+export * from './http/mod.ts';

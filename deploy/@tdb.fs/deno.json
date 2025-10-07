@@ -1,16 +1,16 @@
 {
   "name": "@tdb/public-fs",
-  "version": "0.0.5",
+  "version": "0.0.50",
   "license": "MIT",
   "tasks": {
-    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
-    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-build.ts && deno task help",
-    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-serve.ts",
-    "deploy": "orbiter deploy && deno task help",
-    "clean": "deno run -RWE --allow-sys --allow-ffi --allow-run=sh ./-scripts/-clean.ts",
+    "test": "deno test -P=testset",
+    "build": "deno run -P=build ./-scripts/-build.ts && deno task help",
+    "serve": "deno run -P=serve ./-scripts/-serve.ts",
+    "deploy": "deno task build && orbiter deploy && deno task help",
+    "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "help": "deno run -RE ./-scripts/-help.ts",
+    "help": "deno run -P=dev ./-scripts/-help.ts",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {

@@ -1,28 +1,40 @@
-import { describe, expect, it } from '../-test.ts';
-import { Env } from './mod.ts';
+import { c, describe, expect, it } from '../-test.ts';
 import { Fs } from '../m.Fs/mod.ts';
+import { Env } from './mod.ts';
 
-const SAMPLE_ENV = `
+describe('Env', () => {
+  describe('.env file', () => {
+    const SAMPLE_ENV = `
 # sample: src/m.Env
 TEST_SAMPLE="foobar"    
 `.slice(1);
 
-describe('Env', () => {
-  /**
-   * Ensure the sample .env file exists.
-   */
-  it(':setup', async () => {
-    const path = Fs.resolve('.env');
-    if (!(await Fs.exists(path))) await Fs.write(path, SAMPLE_ENV);
+    /**
+     * Ensure the sample .env file exists.
+     */
+    it(':setup', async () => {
+      const path = Fs.resolve('.env');
+      if (!(await Fs.exists(path))) await Fs.write(path, SAMPLE_ENV);
+    });
+
+    it('env.get', async () => {
+      const env = await Env.load();
+      expect(env.get('TEST_SAMPLE')).to.eql('foobar');
+    });
+
+    it('env.get ← key does not exist (empty string)', async () => {
+      const env = await Env.load();
+      expect(env.get('404')).to.eql('');
+    });
   });
 
-  it('env.get', async () => {
-    const env = await Env.load();
-    expect(env.get('TEST_SAMPLE')).to.eql('foobar');
-  });
-
-  it('env.get ← key does not exist (empty string)', async () => {
-    const env = await Env.load();
-    expect(env.get('404')).to.eql('');
+  describe('Env.Is', () => {
+    it('Is.vscode', () => {
+      const flag = Env.Is.vscode;
+      console.info();
+      console.info(c.cyan(`Env.Is.vscode: ${c.white(String(flag))}`));
+      console.info();
+      expect(typeof flag === 'boolean').to.be.true; // NB: this is all we can infer, as we don't know if the test runner is in VSCode.
+    });
   });
 });

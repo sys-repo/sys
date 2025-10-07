@@ -1,6 +1,6 @@
 import { isSemVer } from '@std/semver';
 
-import type { t } from './common.ts';
+import type { SemverIsLib } from './t.ts';
 import {
   eql,
   greaterOrEqual,
@@ -12,7 +12,7 @@ import {
 } from './u.compare.ts';
 import { parse } from './u.parse.ts';
 
-export const Is: t.SemverIsLib = {
+export const Is: SemverIsLib = {
   /** Equality comparison between two SemVers. */
   eql,
 

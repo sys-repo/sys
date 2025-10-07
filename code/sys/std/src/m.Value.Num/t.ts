@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Tools for working with numbers.
  */
-export type NumLib = {
+export type NumberLib = {
   readonly Percent: t.PercentLib;
 
   /** Rounds a number to the specified number of decimal places. */
@@ -11,6 +11,9 @@ export type NumLib = {
 
   /** Formats a number into a display string. */
   toString(value?: number, maxDecimals?: number): string;
+
+  /** Clamps a number between a minimum and maximum value. */
+  clamp(min: number, max: number, value: number): number;
 };
 
 /**

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, rx } from './common.ts';
+import { type t, Rx } from './common.ts';
 import { getDevices } from './u.getDevices.ts';
 
 export const useDevicesList: t.UseMediaDevicesList = () => {
@@ -9,7 +9,7 @@ export const useDevicesList: t.UseMediaDevicesList = () => {
    * Effect:
    */
   React.useEffect(() => {
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
 
     getDevices().then((list) => {
       if (life.disposed) return;

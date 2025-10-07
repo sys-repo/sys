@@ -3,7 +3,7 @@
  */
 export type DomMockLib = {
   /** Ensure `globalThis` is polyfilled with window/document. */
-  polyfill(): void;
+  polyfill(options?: { url?: string }): void;
 
   /** Returns the `globalThis` to it's original state. */
   unpolyfill(): void;

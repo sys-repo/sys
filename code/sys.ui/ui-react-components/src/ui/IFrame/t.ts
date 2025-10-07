@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 import type { HTMLAttributeReferrerPolicy } from 'react';
 
 type HttpPermissionsPolicy = string; // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy
-type Ref = React.RefObject<HTMLIFrameElement>;
+type Ref = React.RefObject<HTMLIFrameElement | null>;
 
 /**
  * Component
@@ -13,11 +13,13 @@ export type IFrameProps = {
   height?: string | number;
   title?: string;
   name?: string;
-  sandbox?: true | t.IFrameSandbox[];
+  sandbox?: boolean | t.IFrameSandbox[];
   allow?: HttpPermissionsPolicy;
   allowFullScreen?: boolean;
   referrerPolicy?: HTMLAttributeReferrerPolicy | undefined;
   loading?: t.IFrameLoading;
+  //
+  silent?: boolean;
   style?: t.CssInput;
   onReady?: IFrameReadyHandler;
   onLoad?: IFrameLoadedEventHandler;

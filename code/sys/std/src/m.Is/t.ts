@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Type guards (boolean evaluators).
+ * Boolean flag evaluators.
  */
 export type StdIsLib = {
   /**
@@ -18,9 +18,14 @@ export type StdIsLib = {
   nil(input?: unknown): input is null | undefined;
 
   /**
-   * Determine if the input is an object implementing the <t.Disposable> interface.
+   * Determine if the input is an object implementing the `Disposable` interface.
    */
   disposable(input?: unknown): input is t.Disposable;
+
+  /**
+   * Determine if the input is an object implementing the `DisposableLike` interface.
+   */
+  disposableLike(input?: unknown): input is t.DisposableLike;
 
   /**
    * Determine if the value is a Promise.
@@ -94,6 +99,22 @@ export type StdIsLib = {
   emptyRecord<T extends O>(input?: unknown): input is T;
 
   /**
+   * Test whether a value is a *plain* object.
+   * - Excludes arrays, functions, class instances, Dates, etc.
+   * - Prototype must be exactly `Object.prototype` or `null`.
+   * - Cross-realm safe (`Object.prototype.toString` check).
+   */
+  plainObject(input?: unknown): input is Record<PropertyKey, unknown>;
+
+  /**
+   * Test whether a value is a *plain record* (null-prototype object).
+   * - Excludes arrays, functions, class instances, Dates, etc.
+   * - Prototype must be exactly `null`.
+   * - Useful for dictionary / map-like objects that avoid prototype pollution.
+   */
+  plainRecord(input?: unknown): input is Record<PropertyKey, unknown>;
+
+  /**
    * Determine if the value is a function.
    * typeof === 'function'
    */
@@ -106,6 +127,12 @@ export type StdIsLib = {
   string(input?: unknown): input is string;
 
   /**
+   * Determine if the value is a boolean.
+   * typeof === 'boolean'
+   */
+  bool(input?: unknown): input is boolean;
+
+  /**
    * Determine if the value is a number.
    * typeof === 'number'
    */
@@ -115,4 +142,24 @@ export type StdIsLib = {
    * Determine if the value is an array.
    */
   array<T>(input?: unknown): input is T[];
+
+  /**
+   * Determine if the given value (or the browser is environment) is "localhost".
+   */
+  localhost(value?: string | Location): boolean;
+
+  /**
+   * Determine if the given value is an ['object', 'path'] array.
+   */
+  objectPath(input?: unknown): input is t.ObjectPath;
+
+  /**
+   * Determine if the given value is an `AbortSignal`.
+   */
+  abortSignal(input?: unknown): input is AbortSignal;
+
+  /**
+   * Determine if the given value is an `AbortController`.
+   */
+  abortController(input?: unknown): input is AbortController;
 };

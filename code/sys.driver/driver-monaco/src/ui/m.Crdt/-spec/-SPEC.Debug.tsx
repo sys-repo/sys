@@ -1,0 +1,311 @@
+import { YamlObjectView } from '@sys/driver-monaco/dev';
+import React from 'react';
+
+import { createRepo } from '../../-test.ui.ts';
+import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
+
+import {
+  type t,
+  A,
+  Button,
+  Crdt,
+  css,
+  D,
+  EditorFolding,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Rx,
+  Signal,
+} from '../common.ts';
+
+type P = t.MonacoEditorProps;
+type Storage = Pick<P, 'language' | 'theme' | 'debug'> & {
+  path?: t.ObjectPath;
+  debounce?: boolean;
+  logEventBus?: boolean;
+};
+const defaults: Storage = {
+  theme: 'Dark',
+  language: 'yaml',
+  debug: true,
+  path: ['text'],
+  debounce: true,
+  logEventBus: true,
+};
+
+export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
+
+/**
+ * Types:
+ */
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+
+/**
+ * Signals:
+ */
+export async function createDebugSignals() {
+  const s = Signal.create;
+
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+
+  const props = {
+    debug: s(snap.debug),
+    logEventBus: s(snap.logEventBus),
+    render: s(false),
+
+    theme: s(snap.theme),
+    path: s(snap.path),
+    language: s(snap.language),
+    debounce: s(snap.debounce),
+
+    monaco: s<t.Monaco.Monaco>(),
+    editor: s<t.Monaco.Editor>(),
+
+    doc: s<t.CrdtRef>(),
+    hiddenAreas: s<t.Monaco.I.IRange[]>(),
+  };
+  const p = props;
+  const repo = createRepo();
+  const api = {
+    props,
+    repo,
+    bus$: Rx.subject<t.EditorEvent>(),
+    reset,
+    listen,
+  };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.debug = p.debug.value;
+      d.logEventBus = p.logEventBus.value;
+      d.theme = p.theme.value;
+      d.path = p.path.value;
+      d.language = p.language.value;
+      d.debounce = p.debounce.value;
+    });
+  });
+
+  api.bus$
+    .pipe(Rx.filter((e) => !!p.logEventBus.value))
+    .subscribe((e) => console.info(`💦 [bus]:`, e));
+
+  return api;
+}
+
+const Styles = {
+  title: css({
+    fontWeight: 'bold',
+    marginBottom: 10,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }),
+};
+
+/**
+ * Component:
+ */
+export const Debug: React.FC<DebugProps> = (props) => {
+  const { debug } = props;
+  const p = debug.props;
+
+  Signal.useRedrawEffect(() => debug.listen());
+  Crdt.UI.useRev(p.doc.value, {
+    path: p.path.value,
+    onRedraw: (e) => console.info(`⚡️ onRedraw:`, e),
+  });
+
+  /**
+   * Render:
+   */
+  const styles = {
+    base: css({}),
+  };
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <div className={Styles.title.class}>{D.name}</div>
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+      <hr />
+
+      <Button
+        block
+        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => {
+          const v = p.path.value;
+          return `path: ${v ? `[ ${v} ]` : `<undefined>`}`;
+        }}
+        onClick={() => {
+          Signal.cycle(p.path, [undefined, ['text'], ['foo', 'bar']]);
+        }}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Alter CRDT Document:'}</div>
+      <AlterDocumentButtons debug={debug} />
+
+      <hr />
+      <div className={Styles.title.class}>{'Language:'}</div>
+      <LanguagesList
+        style={{ marginLeft: 15, marginBottom: 20 }}
+        current={p.language.value}
+        onSelect={(e) => (p.language.value = e.language)}
+        show={['yaml', 'markdown', 'typescript']}
+      />
+
+      {p.language.value === 'yaml' && (
+        <YamlObjectView
+          bus$={debug.bus$}
+          doc={p.doc.value}
+          editor={p.editor.value}
+          style={{ marginTop: 20 }}
+        />
+      )}
+
+      <hr />
+      <div className={Styles.title.class}>{'Folding:'}</div>
+
+      <Button
+        block
+        enabled={() => !!p.editor.value}
+        label={() => `fold: 2, 7`}
+        onClick={() => {
+          const editor = p.editor.value;
+          if (editor) EditorFolding.fold(editor, 2, 7);
+        }}
+      />
+
+      <Button
+        block
+        enabled={() => !!p.editor.value}
+        label={() => `unfold: 2, 7`}
+        onClick={() => {
+          const editor = p.editor.value;
+          if (editor) EditorFolding.unfold(editor, 2, 7);
+        }}
+      />
+      {(p.hiddenAreas.value ?? []).length > 0 && (
+        <ObjectView
+          name={'hidden'}
+          data={p.hiddenAreas.value ?? []}
+          style={{ marginTop: 6 }}
+          expand={1}
+        />
+      )}
+
+      <hr />
+      <div className={Styles.title.class}>{'Debug:'}</div>
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `debounce: ${p.debounce.value}`}
+        onClick={() => Signal.toggle(p.debounce)}
+      />
+      <Button
+        block
+        label={() => `log event-bus: ${p.logEventBus.value}`}
+        onClick={() => Signal.toggle(p.logEventBus)}
+      />
+      <hr />
+      <Button
+        block
+        label={() => `(reset, reload)`}
+        onClick={() => {
+          debug.reset();
+          window.location.reload();
+        }}
+      />
+
+      <ObjectView
+        name={'debug'}
+        data={{
+          ...Signal.toObject(p),
+          doc: p.doc.value?.current,
+        }}
+        style={{ marginTop: 15 }}
+      />
+    </div>
+  );
+};
+
+/**
+ * DevHelpers:
+ */
+export function AlterDocumentButtons(props: { debug: DebugSignals }) {
+  const { debug } = props;
+  const p = debug.props;
+  const doc = p.doc.value;
+  const path = p.path.value;
+
+  if (!doc || !path) return null;
+  const Mutate = Obj.Path.Mutate;
+
+  return (
+    <React.Fragment>
+      <Button
+        block
+        label={() => `replace: "Hello 👋"`}
+        onClick={() => {
+          const next = `// Hello 👋\n`;
+          doc.change((d) => Mutate.set(d, path, next));
+        }}
+      />
+
+      <Button
+        block
+        label={() => `splice: +🌳 `}
+        onClick={() => {
+          const lang = p.language.value;
+          const text = lang === 'yaml' ? '# 🌳 ' : '// 🌳 ';
+          doc.change((d) => A.splice(d, path, 0, 0, text));
+        }}
+      />
+
+      <Button
+        block
+        label={() => `crdt: URI's `}
+        onClick={() => {
+          const text = `crdt:create`;
+          doc.change((d) => A.splice(d, path, 0, 0, text));
+        }}
+      />
+
+      <Button
+        block
+        label={() => `(clear)`}
+        onClick={() => {
+          const current = Obj.Path.get<string>(doc.current, path);
+          const length = current?.length ?? 0;
+          doc.change((d) => {
+            A.splice(d, path, 0, length); // ← remove all existing characters.
+            A.splice(d, path, 0, 0, ''); //  ← insert empty string (no-op, but makes intent explicit).
+          });
+        }}
+      />
+    </React.Fragment>
+  );
+}

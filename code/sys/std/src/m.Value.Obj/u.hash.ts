@@ -1,5 +1,5 @@
 import toHash from 'hash-it';
-import { type t } from '../common.ts';
+import { type t } from './common.ts';
 
 /**
  * Convert the value to a simple number-hash.

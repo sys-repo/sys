@@ -7,7 +7,7 @@ export const usePulldown: t.UsePulldown = (props, player, timestamp) => {
   const { state, content } = props;
 
   const render = React.useCallback(
-    () => <Pulldown {...props} player={player} />,
+    () => <Pulldown {...props} video={player} />,
     [props, timestamp],
   );
 

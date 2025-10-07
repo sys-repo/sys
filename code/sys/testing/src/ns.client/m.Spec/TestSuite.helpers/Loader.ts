@@ -1,3 +1,5 @@
+import type { TestLoaderLib } from './t.ts';
+
 import type { t } from './common.ts';
 import { Is } from './Is.ts';
 
@@ -6,7 +8,7 @@ type TResult = { suite: t.TestSuiteModel; isDefault: boolean };
 /**
  * Helpers for loading test suite modules.
  */
-export const Loader: t.TestLoaderLib = {
+export const Loader: TestLoaderLib = {
   /**
    * Import test suites from a variety of input types
    */

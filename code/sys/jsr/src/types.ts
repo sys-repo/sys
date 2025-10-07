@@ -1,6 +1,6 @@
 /**
  * @module
- * Module types.
+ * @types Type-library module.
  */
 export type { JsrUrlLib, JsrUrlPkgLib } from '@sys/std/t';
 

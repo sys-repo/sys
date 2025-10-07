@@ -2,14 +2,28 @@
 Tools for working with [HTTP](https://www.w3.org/Protocols/), the foundational protocol of the "world wide web."
 
 
-### HTTP Client
+### Simple File Server
+Standing up an HTTP server directly from the command line.
+
+```bash
+deno run -RNE jsr:@sys/http/serve
+
+# ↑ default options:
+#   --port=8080
+#   --dir=dist
+```
+
+
+
+
+### HTTP Client (Programmatic)
 Fetch tools:
 
 ```ts
 import { Http } from 'jsr:@sys/http/client';
 
-const fetch = Http.Fetch.create({ accessToken: 'my-jwt' });
-const fetch = Http.fetch();  // ← shorthand (alt).
+const fetch = Http.Fetch.make({ accessToken: 'my-jwt' });
+const fetch = Http.fetcher();  // ← shorthand alternative.
 
 const url = 'https://url.com/api';
 const checksum = 'sha256-01234';
@@ -27,8 +41,8 @@ import { Http } from 'jsr:@sys/http/client';
 const { dispose$, dispose } = rx.disposable();
 
 // Dispose aborts all in-progress operations.
-const fetch = Http.fetch({ dispose$ });  
-const fetch = Http.fetch(dispose$);       // (alternative)
+const fetch = Http.fetcher({ dispose$ });  
+const fetch = Http.fetcher(dispose$);       // (alternative)
 
 // Dispose aborts the specific fetch operation.
 const json = fetch.json(url, {}, { dispose$ });
@@ -36,7 +50,7 @@ const text = fetch.json(url, {}, { dispose$, checksum });
 ```
 
 
-### HTTP Server
+### HTTP Server (Programmatic)
 Serving tools. A lightweight, highly performant, HTTP server that can run locally or at the "edges" ([WinterTC](https://wintertc.org/)):
 
 ```ts
@@ -58,24 +72,15 @@ app.get('/', (c) => c.json({ count: 123 }));
 
 // Stand up an HTTP server.
 const app = HttpServer.create();
-const opts = HttpServer.options(1234, pkg);
-const listener = Deno.serve(opts, app.fetch);
+const options = HttpServer.options(1234, pkg);
+const listener = Deno.serve(options, app.fetch);
 
 // HTTP client (calling back into the HTTP server).
-const fetch = Http.fetch();
+const fetch = Http.fetcher();
 const url = Http.url(listener.addr);
 
 const res = await fetch.json<T>(url.base);
 res.data // ← { count: 123 }
-```
-
-
-Standing up an HTTP server via command line (from the `jsr:` registry) from the `/start` module entry.
-
-`--allowRun` allows keyboard interaction from the terminal, eg: `O` key to open in browser.
-
-```bash
-deno run -RNE --allow-run jsr:@sys/http/server/start --port=1234
 ```
 
 

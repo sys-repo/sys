@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { type t, Color, css, D, rx } from './common.ts';
+
+import { type t, Color, css, D, Rx } from './common.ts';
 import { getDevice } from './u.getDevice.ts';
 import { useVideoStream } from './use.VideoStream.ts';
 
@@ -7,21 +8,25 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
   const {
     debug = false,
     borderRadius = D.borderRadius,
+    aspectRatio = D.aspectRatio,
+    muted = D.muted,
     filter,
     constraints,
-    aspectRatio,
     zoom,
   } = props;
 
-  const video = useVideoStream({ constraints, filter, zoom });
+  /**
+   * Hooks:
+   */
+  const video = useVideoStream(props.stream ?? constraints, { filter, zoom });
 
   /**
    * Effect: fire onReady when stream acquired.
    */
   useEffect(() => {
-    const life = rx.lifecycle();
+    const life = Rx.lifecycle();
     const { stream, aspectRatio } = video;
-    if (!stream.raw || !stream.filtered) return;
+    if (!video.ready || !stream.raw || !stream.filtered) return;
 
     getDevice(stream.raw).then((device) => {
       if (life.disposed) return;
@@ -29,11 +34,12 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
         console.error(`Device could not be retrieved from stream: ${stream.raw?.id}`);
         return;
       }
+
       props.onReady?.({ stream, aspectRatio, device });
     });
 
     return life.dispose;
-  }, [video.stream.raw?.id]);
+  }, [video.ready, video.stream.raw?.id]);
 
   /**
    * Effect: keep video synced with current stream.
@@ -66,7 +72,7 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <video ref={videoRef} autoPlay muted playsInline className={styles.video.class} />
+      <video ref={videoRef} autoPlay muted={muted} playsInline className={styles.video.class} />
     </div>
   );
 };

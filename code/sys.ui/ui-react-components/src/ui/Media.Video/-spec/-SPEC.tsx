@@ -27,20 +27,27 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
       .size()
       .display('grid')
       .render(() => {
+        const v = Signal.toObject(p);
         return (
           <Video.UI.Stream
-            debug={p.debug.value}
-            theme={p.theme.value}
-            filter={p.filter.value}
-            borderRadius={p.borderRadius.value}
-            aspectRatio={p.aspectRatio.value}
-            zoom={Media.Config.Zoom.toRatio(p.zoom.value)}
+            debug={v.debug}
+            theme={v.theme}
+            filter={v.filter}
+            borderRadius={v.borderRadius}
+            aspectRatio={v.aspectRatio}
+            muted={v.muted}
+            zoom={Media.Config.Zoom.toRatio(v.zoom)}
+            stream={v.stream}
             constraints={{
               audio: true,
-              video: { deviceId: p.selectedCamera.value?.deviceId },
+              video: { deviceId: v.selectedCamera?.deviceId },
             }}
             onReady={(e) => {
               console.info(`⚡️ Media.Video.onReady:`, e);
+              Media.Log.tracks('- stream.raw', e.stream.raw);
+              Media.Log.tracks('- stream.filtered', e.stream.filtered);
+
+              // Update signal state:
               p.selectedCamera.value = e.device;
               // p.aspectRatio.value = e.aspectRatio;
             }}

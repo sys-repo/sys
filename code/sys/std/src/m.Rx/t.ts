@@ -1,55 +1,29 @@
 import type * as rxjs from 'rxjs';
 import type { t } from '../common.ts';
 
-type Event = t.Event;
-type E = Event;
-
 /**
  * Tools for working with Observables (via `rxjs`).
  */
-export type RxLib = Rxjs & {
+export type RxLib = RxjsLib & {
   readonly Is: RxIs;
-  readonly distinctWhile: typeof rxjs.distinctUntilChanged;
   readonly noop$: rxjs.Subject<any>;
-  readonly asPromise: t.RxAsPromise;
 
-  done(dispose$?: t.Subject<void>): void;
-  subject<T = void>(): rxjs.Subject<T>;
-  event<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E>;
-  payload<E extends Event>($: t.Observable<unknown>, type: E['type']): t.Observable<E['payload']>;
-
-  bus: t.RxBus;
-
+  // Lifecycle:
+  abortable: t.DisposeLib['abortable'];
   disposable: t.DisposeLib['disposable'];
   disposableAsync: t.DisposeLib['disposableAsync'];
   lifecycle: t.DisposeLib['lifecycle'];
   lifecycleAsync: t.DisposeLib['lifecycleAsync'];
   toLifecycle: t.DisposeLib['toLifecycle'];
+  done: t.DisposeLib['done'];
 
+  // Helpers:
+  subject<T = void>(): rxjs.Subject<T>;
   withinTimeThreshold<T>(
     $: t.Observable<T>,
     timeout: t.Msecs,
     options?: { dispose$?: t.UntilObservable },
   ): t.TimeThreshold<T>;
-};
-
-/**
- * Promise converstion helpers.
- */
-export type RxAsPromise = {
-  first<E extends Event>(
-    ob$: t.Observable<E['payload']>,
-    options?: { op?: string; timeout?: t.Msecs },
-  ): Promise<RxPromiseResponse<E>>;
-};
-
-/** An error thrown during an Rx/Observable promise operation. */
-export type RxPromiseError = { code: 'timeout' | 'completed' | 'unknown'; message: string };
-
-/** The response returned from an Rx/Observable wrapped promise. */
-export type RxPromiseResponse<E extends Event> = {
-  payload?: E['payload'];
-  error?: t.RxPromiseError;
 };
 
 /**
@@ -64,16 +38,21 @@ export type RxIs = {
 /**
  * Default methods exported from the [rxjs] library.
  */
-type Rxjs = {
+type RxjsLib = {
+  readonly distinctWhile: typeof rxjs.distinctUntilChanged;
   readonly animationFrameScheduler: typeof rxjs.animationFrameScheduler;
   readonly BehaviorSubject: typeof rxjs.BehaviorSubject;
   readonly firstValueFrom: typeof rxjs.firstValueFrom;
+  readonly startWith: typeof rxjs.startWith;
+  readonly shareReplay: typeof rxjs.shareReplay;
+  readonly auditTime: typeof rxjs.auditTime;
   readonly interval: typeof rxjs.interval;
   readonly lastValueFrom: typeof rxjs.lastValueFrom;
   readonly Observable: typeof rxjs.Observable;
   readonly observeOn: typeof rxjs.observeOn;
   readonly of: typeof rxjs.of;
   readonly scan: typeof rxjs.scan;
+  readonly skip: typeof rxjs.skip;
   readonly Subject: typeof rxjs.Subject;
   readonly timer: typeof rxjs.timer;
   readonly merge: typeof rxjs.merge;
@@ -89,6 +68,10 @@ type Rxjs = {
   readonly throttleTime: typeof rxjs.throttleTime;
   readonly timeout: typeof rxjs.timeout;
   readonly distinctUntilChanged: typeof rxjs.distinctUntilChanged;
+  readonly defaultIfEmpty: typeof rxjs.defaultIfEmpty;
+  readonly combineLatest: typeof rxjs.combineLatest;
+  readonly combineLatestWith: typeof rxjs.combineLatestWith;
+  readonly EMPTY: typeof rxjs.EMPTY;
 };
 
 /**
@@ -98,27 +81,3 @@ export type TimeThreshold<T> = t.Lifecycle & {
   readonly $: t.Observable<T>;
   readonly timeout$: t.Observable<void>;
 };
-
-/**
- * Event Bus
- */
-export type RxBusFactory = <T extends E = E>(
-  input?: t.Subject<any> | t.EventBus<any>,
-) => t.EventBus<T>;
-
-export type RxBus = RxBusFactory & {
-  isBus<T extends E = E>(input?: any): input is t.EventBus<T>;
-  isObservable<T = any>(input?: any): input is t.Observable<T>;
-  asType<T extends E>(bus: t.EventBus<any>): t.EventBus<T>;
-  instance(bus?: t.EventBus<any>): string;
-  connect<T extends E>(buses: t.EventBus<any>[], options?: t.BusConnectOptions): t.BusConnection<T>;
-};
-
-/**
- * 2-way Event Bus Connection.
- */
-export type BusConnection<E extends t.Event> = t.Disposable & {
-  readonly isDisposed: boolean;
-  readonly buses: t.EventBus<E>[];
-};
-export type BusConnectOptions = { async?: boolean; dispose$?: t.Observable<any> };

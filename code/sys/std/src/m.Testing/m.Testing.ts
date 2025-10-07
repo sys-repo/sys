@@ -1,11 +1,12 @@
-import type { t } from './common.ts';
+import type { TestingLib } from './t.ts';
+
 import { Bdd, slug } from './common.ts';
-import { randomPort, retry } from './u.ts';
+import { randomPort, retry, waitUntil } from './u.ts';
 
 /**
  * Testing helpers.
  */
-export const Testing: t.TestingLib = {
+export const Testing: TestingLib = {
   FALSY: [false, 0, '', null, undefined],
   Bdd,
   slug,
@@ -28,4 +29,5 @@ export const Testing: t.TestingLib = {
    * @throws: if the supplied function fails within the `try n-times` range.
    */
   retry,
+  until: waitUntil,
 };

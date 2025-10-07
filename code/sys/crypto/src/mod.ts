@@ -1,6 +1,6 @@
 /**
- * @module
  * Helpers for working with cryptographic functions.
+ * @module
  *
  * @example
  * ```ts
@@ -14,6 +14,7 @@
  * ```
  */
 export { pkg } from './pkg.ts';
+/** Type library (barrel file). */
 export type * as t from './types.ts';
 
 /**

@@ -1,4 +1,4 @@
-import { DEFAULTS, type t, Time } from './common.ts';
+import { type t, D, DEFAULTS, Time } from './common.ts';
 import { FileSize as Size } from './m.FileSize.ts';
 
 /**
@@ -9,34 +9,74 @@ export const File: t.FileLib = {
   Size,
 
   /**
-   * Convert a [Uint8Array] to a [Blob].
+   * Convert a Uint8Array to a Blob, preserving the visible range.
+   * - Zero-copy when backed by a real ArrayBuffer.
+   * - Falls back to a copy when backed by SharedArrayBuffer.
    */
-  toBlob(data: Uint8Array, mimetype: string = DEFAULTS.mimetype) {
-    return new Blob([data], { type: mimetype });
+  toBlob(data: Uint8Array, mimetype: string = D.mimetype) {
+    if (data.buffer instanceof ArrayBuffer) {
+      // Respect byteOffset/byteLength without copying when possible.
+      const ab =
+        data.byteOffset === 0 && data.byteLength === data.buffer.byteLength
+          ? data.buffer
+          : data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+      return new Blob([ab], { type: mimetype });
+    }
+
+    // SharedArrayBuffer case → copy into a fresh ArrayBuffer-backed view.
+    const copy = new Uint8Array(data);
+    return new Blob([copy], { type: mimetype });
   },
 
   /**
    * Read a Blob/File object into a [Uint8Array].
    */
-  toUint8Array(input: Blob | File) {
-    return new Promise<Uint8Array>((resolve, reject) => {
-      try {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const result = reader.result;
-          if (result === null) throw new Error('File reader returned null');
-          if (typeof result === 'string') return resolve(new TextEncoder().encode(result));
-          if (typeof result === 'object') return resolve(new Uint8Array(result));
-        };
-        reader.readAsArrayBuffer(input);
-      } catch (error) {
-        reject(error);
-      }
-    });
+  async toUint8Array(input: Blob | File) {
+    const ab = await input.arrayBuffer();
+    return new Uint8Array(ab);
   },
 
   /**
-   * Initiates a file download from the browser
+   * Convert a BinaryFile-like object into a browser File.
+   * - Uses safe toBlob (handles SAB / offsets).
+   * - Preserves name, type, and lastModified.
+   */
+  toFile(args) {
+    const type = args.type ?? D.mimetype;
+    const blob = File.toBlob(args.bytes, type);
+    const lastModified = args.modifiedAt ?? Date.now();
+    return new globalThis.File([blob], args.name, { type, lastModified });
+  },
+
+  /**
+   * Convert a Blob into a BinaryFile-like object.
+   * - Extracts bytes, name (if provided), type, and lastModified.
+   * - Supports optional hash computation.
+   */
+  fromFile(input, opts = {}) {
+    const { computeHash } = opts;
+    return File.fromBlob(input, { computeHash });
+  },
+
+  /**
+   * Convert a Blob into a BinaryFile-like object.
+   * - Extracts bytes, name (if provided), type, and lastModified.
+   * - Supports optional hash computation.
+   */
+  async fromBlob(input, opts = {}) {
+    const bytes = new Uint8Array(await input.arrayBuffer());
+
+    const type = input.type || opts?.defaultType || D.mimetype;
+    const maybeFile = input as Partial<File>; // NB: structural duck typing.
+    const name = maybeFile.name ?? opts?.name ?? 'unnamed';
+    const modifiedAt = maybeFile.lastModified ?? opts?.defaultModifiedAt ?? Date.now();
+
+    const hash = opts?.computeHash ? await opts.computeHash(bytes) : undefined;
+    return { bytes, name, type, modifiedAt, hash };
+  },
+
+  /**
+   * Initiates a file download from the browser.
    */
   download(filename: string, data: Uint8Array | Blob, options: { mimetype?: string } = {}) {
     return new Promise<void>((resolve) => {

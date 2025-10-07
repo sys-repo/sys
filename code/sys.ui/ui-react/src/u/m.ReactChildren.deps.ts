@@ -30,11 +30,12 @@ export const deps: t.ReactChildrenLib['deps'] = (children) => {
  * Helpers:
  */
 function flattenChildren(children: t.ReactNode) {
+  type P = { children?: t.ReactNode };
   const res: t.ReactNode[] = [];
 
   const flatten = (nodes: t.ReactNode) => {
     Children.forEach(nodes, (child) => {
-      if (isValidElement(child) && child.type === Fragment) {
+      if (isValidElement<P>(child) && child.type === Fragment) {
         flatten(child.props.children);
       } else {
         res.push(child);

@@ -12,8 +12,8 @@ export const Cropmarks: React.FC<P> = (props) => {
   const fillMargin = Wrangle.fillMargin(size);
   const sizeMode: t.CropmarksSizeMode = size?.mode ?? 'center';
   const is = {
-    x: size?.mode === 'fill' && size.x && !size.y,
-    y: size?.mode === 'fill' && !size.x && size.y,
+    x: size?.mode === 'fill' && (size.x ?? true) && !(size.y ?? true),
+    y: size?.mode === 'fill' && !(size.x ?? true) && (size.y ?? true),
   } as const;
 
   const Grid = {
@@ -102,7 +102,7 @@ const wrangle = {
   /**
    * Border width per edge (px).
    * – If that edge’s margin > 0 → 1 px (current behaviour)
-   * – If the margin is 0        → 0 px (removes the “ghost” pixel)
+   * – If the margin is 0        → 0 px (removes the "ghost" pixel)
    */
   borderWidth(props: P) {
     const { borderWidth = 1 } = props;

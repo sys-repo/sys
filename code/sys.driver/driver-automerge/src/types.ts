@@ -1,9 +1,24 @@
 /**
  * @module
- * Module types.
+ * @types Type-library module.
  */
-export type * from './crdt.fs/t.ts';
-export type * from './crdt.web/t.ts';
-export type * from './crdt/t.ts';
+export type * as A from '@automerge/automerge';
+export type { Crdt } from './t.namespace.ts';
 
-export type * from './ui/-sample/t.ts';
+export type * from './-exports/-fs/t.ts';
+export type * from './-exports/-web/t.ts';
+
+export type * from './m.Crdt.ref/t.ts';
+export type * from './m.Crdt.repo/t.ts';
+export type * from './m.Crdt.ui/t.ts';
+export type * from './m.Crdt/t.ts';
+export type * from './m.Debug/t.ts';
+
+export type * from './m.Server.client/t.ts';
+export type * from './m.Server/t.ts';
+
+export type * from './ui/ui.BinaryFile/t.ts';
+export type * from './ui/ui.Card/t.ts';
+export type * from './ui/ui.DocumentId/t.ts';
+export type * from './ui/ui.Repo/t.ts';
+export type * from './ui/use/t.ts';

@@ -1,6 +1,7 @@
 import { type t, c, Cli, Date as D, Fs, HashFmt, Path, Pkg, Str } from './common.ts';
+import type { DirSnapshotFmtLib } from './t.ts';
 
-export const Fmt: t.DirSnapshotFmtLib = {
+export const Fmt: DirSnapshotFmtLib = {
   async log(snapshot: t.DirSnapshot, options) {
     console.info(await Fmt.toString(snapshot, options));
   },

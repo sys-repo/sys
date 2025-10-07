@@ -1,32 +1,9 @@
-import type { t } from './common.ts';
 import type Preact from '@preact/signals-core';
-import type { ReadonlySignal, Signal } from '@preact/signals-core';
+import type { t } from './common.ts';
 
-export { ReadonlySignal, Signal };
+export type * from './t.walk.ts';
 
-/**
- * Converts any `Signal<X>` (at any depth) to its plain value `X`,
- * while leaving functions/primitives unchanged.
- */
-export type SignalValue<T> = T extends t.Signal<infer U>
-  ? U
-  : T extends (...args: any[]) => any
-  ? T
-  : T extends readonly [unknown, ...unknown[]]
-  ? { [K in keyof T]: SignalValue<T[K]> }
-  : T extends object
-  ? { [K in keyof T]: SignalValue<T[K]> }
-  : T;
-
-/**
- * Utility type to extract the type of a signal value.
- * @example
- * ```ts
- * const mySignal = Signal.create<'Foo' | 'Bar'>('Foo');
- * type T = ExtractSignalValue<typeof mySignal>;
- * ```
- */
-export type ExtractSignalValue<T> = T extends Signal<infer U> ? U : never;
+type O = Record<string, unknown>;
 
 /** Callback passed into a signal effect. */
 export type SignalEffectFn = () => void | (() => void);
@@ -56,17 +33,28 @@ export type SignalLib = {
   /** Create a new listeners collection. */
   listeners(dispose$?: t.UntilInput): t.SignalListeners;
 
-  /**
-   * Recursively converts an object/array of `Signal`s into
-   * a plain JSON‑safe structure by replacing every `signal` with
-   * its current `.value`.
-   *
-   * @param input  Any value: primitives, arrays, objects, Signals, or a mix.
-   * @returns      The same structure with every `Signal<X>` replaced by `X`.
-   */
-  toObject<T>(input: T): SignalValue<T>;
+  /** Hooks into signal(s) value property. */
+  listen(subject?: t.Signal | Array<unknown> | O, deep?: boolean): void;
 
-  //
+  /**
+   * Convert any mix of values, arrays, and `Signal`s into a plain,
+   * JSON-safe snapshot.
+   *
+   * - Replaces each `Signal<X>` with its current `.value`.
+   * - Traverses arrays and plain objects recursively.
+   * - Skips accessors by default (avoids invoking getters).
+   * - Guards against cycles and deep recursion.
+   *
+   * Intended for debug/inspection: produces a safe, non-reentrant
+   * structure suitable for logging or UI tree viewers.
+   */
+  toObject<T>(input: T, opts?: t.SignalToObjectOptions): t.UnwrapSignals<T>;
+
+  /**
+   * Walks an object tree (recursive descent) and invokes `fn` for each Signal found.
+   * Returns the number of visited signals.
+   */
+  walk: t.SignalWalk;
 } & t.SignalValueHelpersLib;
 
 /**
@@ -74,10 +62,10 @@ export type SignalLib = {
  */
 export type SignalValueHelpersLib = {
   /** Toggle a boolean signal. */
-  toggle(signal: Signal<boolean | undefined>, forceValue?: boolean): boolean;
+  toggle(signal: t.Signal<boolean | number | undefined>, forceValue?: boolean): boolean;
 
   /** Cycle a union string signal through a list of possible values. */
-  cycle<T>(signal: Signal<T | undefined>, values: T[], forceValue?: T): T;
+  cycle<T>(signal: t.Signal<T | undefined>, values: T[], forceValue?: T): T;
 };
 
 /**
@@ -94,4 +82,12 @@ export type SignalListeners = t.Lifecycle & {
  */
 export type SignalIsLib = {
   signal<T = unknown>(val: unknown): val is t.Signal<T>;
+};
+
+/** Options to control how aggressively `Signal.toObject` dehydrates. */
+export type SignalToObjectOptions = {
+  /** Max recursion depth (to avoid huge graphs / cycles). */
+  depth?: number;
+  /** Include accessor (getter) properties. Default: false (skip). */
+  includeGetters?: boolean;
 };

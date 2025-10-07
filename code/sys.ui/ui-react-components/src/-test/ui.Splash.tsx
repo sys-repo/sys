@@ -1,6 +1,6 @@
-import { useKeyboard } from '@sys/ui-react-devharness';
 import React from 'react';
 
+import { useKeyboard } from '@sys/ui-react-devharness';
 import { type t, Color, css } from './common.ts';
 
 export type SplashProps = {
@@ -25,7 +25,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div>
-        <div className={styles.icon.class}>{'🐦‍⬛'}</div>
+        <div className={styles.icon.class}>{'🧫'}</div>
         <a href={href} className={styles.a.class}>{`${href}`}</a>
       </div>
     </div>

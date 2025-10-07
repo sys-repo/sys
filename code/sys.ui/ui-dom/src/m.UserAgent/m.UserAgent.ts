@@ -1,3 +1,5 @@
+import type { UserAgentLib } from './t.ts';
+
 import { UAParser } from 'ua-parser-js';
 import type { t } from '../common.ts';
 
@@ -26,7 +28,7 @@ const flags: t.UserAgentFlag[] = [
  *     servers and network peers identify the application, operating system,
  *     vendor, and/or version of the requesting user agent.""
  */
-export const UserAgent: t.UserAgentLib = {
+export const UserAgent: UserAgentLib = {
   os: { kinds },
   flags,
 
@@ -97,7 +99,7 @@ const wrangle = {
   },
 
   flags(parser: P): t.UserAgentFlags {
-    const { os, device } = parser;
+    const { os, device, engine, browser } = parser;
     const name = wrangle.string(os.name);
 
     let macOS = name === 'macOS';
@@ -110,6 +112,9 @@ const wrangle = {
     if (iPad || iPhone) iOS = true;
     if (iOS) macOS = false;
 
+    const chromium = engine.name === 'Blink';
+    const firefox = browser.name === 'Firefox';
+
     return {
       posix: ['Linux', 'Ubuntu'].includes(name),
       windows: name === 'Windows',
@@ -120,6 +125,8 @@ const wrangle = {
       iPhone,
       mobile,
       tablet,
+      chromium,
+      firefox,
     };
   },
 } as const;

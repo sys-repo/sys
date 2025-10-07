@@ -6,6 +6,11 @@ type Props = {
   lineWidth?: number;
 };
 
+type Args = {
+  canvasRef?: React.RefObject<HTMLCanvasElement | null>;
+  audioData?: Uint8Array;
+} & Props;
+
 /**
  * Renders an oscilloscope waveform visualization to a <canvas>.
  *
@@ -13,9 +18,7 @@ type Props = {
  *    https://www.twilio.com/blog/audio-visualisation-web-audio-api--react
  *
  */
-export function useDrawWaveform(
-  args: { canvasRef?: React.RefObject<HTMLCanvasElement>; audioData?: Uint8Array } & Props,
-) {
+export function useDrawWaveform(args: Args) {
   React.useEffect(() => {
     const { audioData, lineColor, lineWidth } = args;
     const canvas = args.canvasRef?.current;
@@ -29,6 +32,7 @@ export function useDrawWaveform(
 const draw = (args: { canvas: HTMLCanvasElement; audioData: Uint8Array } & Props) => {
   const { canvas, audioData } = args;
   const lineColor = args.lineColor ?? -0.6;
+  const lineWidth = args.lineWidth ?? 3;
 
   const { width, height } = canvas;
   const ctx = canvas.getContext('2d');
@@ -36,9 +40,12 @@ const draw = (args: { canvas: HTMLCanvasElement; audioData: Uint8Array } & Props
   let x = 0;
 
   if (ctx) {
+    ctx.clearRect(0, 0, width, height);
     ctx.lineWidth = args.lineWidth ?? 1;
     ctx.strokeStyle = Color.format(lineColor) as string;
-    ctx.clearRect(0, 0, width, height);
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round'; // NB: smooth corners.
+    ctx.lineJoin = 'round';
 
     ctx.beginPath();
     ctx.moveTo(0, height / 2);

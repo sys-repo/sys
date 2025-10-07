@@ -1,9 +1,9 @@
-import type { t } from './common.ts';
+import type { ReactEventLib } from './t.ts';
 
 /**
  * Helpers for working with React generated events.
  */
-export const ReactEvent: t.ReactEventLib = {
+export const ReactEvent: ReactEventLib = {
   /**
    * Returns the keyboard-modifier flags for either a React synthetic event
    * or a native browser event (Mouse/Keyboard/Pointer).

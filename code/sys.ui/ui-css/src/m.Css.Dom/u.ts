@@ -1,4 +1,4 @@
-import { pkg, z } from './common.ts';
+import { pkg } from './common.ts';
 export { toString } from './u.toString.ts';
 
 export function getStylesheetId(instance?: string, defaultPrefix?: string) {
@@ -12,8 +12,13 @@ export function getStylesheetId(instance?: string, defaultPrefix?: string) {
 /**
  * Validation:
  */
-export const AlphanumericWithHyphens = z.string().check(
-  z.regex(/^[A-Za-z][A-Za-z0-9-]*$/, {
-    error: `String must start with a letter and can contain letters, digits, and hyphens (hyphen not allowed at the beginning)`,
-  }),
-);
+export const AlphanumericWithHyphens = {
+  safeParse(input: unknown) {
+    if (typeof input === 'string' && /^[A-Za-z][A-Za-z0-9-]*$/.test(input)) {
+      return { success: true, data: input };
+    } else {
+      const error = `String must start with a letter and can contain letters, digits, and hyphens (hyphen not allowed at the beginning)`;
+      return { success: false, error };
+    }
+  },
+};

@@ -16,22 +16,27 @@ export {
   Path,
   Pkg,
   R,
-  rx,
   slug,
   Str,
   Time,
   Timestamp,
+  Url,
 } from '@sys/std';
+export { Schedule } from '@sys/std/async';
+export { Rx } from '@sys/std/rx';
 
+export { Http } from '@sys/http/client';
 export { Color, css, Style } from '@sys/ui-css';
-export { Keyboard, LocalStorage } from '@sys/ui-dom';
+export { Dom, Keyboard, LocalStorage } from '@sys/ui-dom';
+export { UserAgent } from '@sys/ui-dom/user-agent';
 export {
   FC,
   ReactChildren,
   ReactString,
   Signal,
   useIsTouchSupported,
-  useMouse,
-  useRedraw,
+  useObservableRev,
+  usePointer,
+  useRev,
   useSizeObserver,
 } from '@sys/ui-react';

@@ -2,18 +2,18 @@ import React from 'react';
 import { useTimestamps } from '../use.Timestamps.ts';
 import { type t, Cropmarks, css, Player, Sheet } from './common.ts';
 
-export type PullDownProps = t.VideoContentProps & { player: t.VideoPlayerSignals };
+export type PullDownProps = t.VideoContentProps & { video: t.VideoPlayerSignals };
 
 /**
  * Component:
  */
 export const Pulldown: React.FC<PullDownProps> = (props) => {
-  const { state, content, player } = props;
+  const { state, content, video } = props;
   const { showElapsed = true } = content;
 
   const breakpoint = state.breakpoint;
   const media = content.media;
-  const timestamp = useTimestamps(player, media?.timestamps);
+  const timestamp = useTimestamps(video, media?.timestamps);
 
   /**
    * Render:
@@ -48,11 +48,7 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
       orientation={'Top:Down'}
     >
       {elBody}
-      <Player.Timestamp.Elapsed.View
-        player={player}
-        show={showElapsed}
-        abs={[null, 15, 10, null]}
-      />
+      <Player.Timestamp.Elapsed.View video={video} show={showElapsed} abs={[null, 15, 10, null]} />
     </Sheet>
   );
 };

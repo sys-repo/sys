@@ -10,6 +10,7 @@ export type ComponentDataAttribute = string;
  */
 export type DomLib = {
   readonly Event: DomEventLib;
+  readonly UserHas: t.UserHasLib;
 };
 
 /**

@@ -1,8 +1,19 @@
 {
+  "name": "@sys/tmpl",
+  "version": "0.0.153",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -RWNE --allow-run --allow-ffi --allow-sys ./-tests",
-    "clean": "rm -rf .tmp",
-    "dry": "echo no-op"
+    "test": "  deno test -RWNE --allow-run --allow-ffi --allow-sys",
+    "dry": "   deno publish --allow-dirty --dry-run",
+    "check": " deno check src/*",
+    "clean": " deno run -RWE ./-scripts/-clean.ts",
+    "tmpl": "  deno run -RWE ./src/mod.ts",
+    "prep": "  deno run -RWE ./src/mod.ts --bundle",
+    "tmp": "   deno run -A ./-scripts/-tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts"
   }
 }

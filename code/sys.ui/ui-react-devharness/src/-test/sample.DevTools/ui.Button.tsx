@@ -1,6 +1,6 @@
 import React from 'react';
 import { RenderCount } from '../../ui/RenderCount/mod.ts';
-import { COLORS, Color, css, useMouse, type t } from '../common.ts';
+import { COLORS, Color, css, usePointer, type t } from '../common.ts';
 
 export type ButtonSampleClickHandler = (e: ButtonSampleClickHandlerArgs) => void;
 export type ButtonSampleClickHandlerArgs = { ctx: t.DevCtx };
@@ -14,7 +14,7 @@ export type ButtonProps = {
 
 export const ButtonSample: React.FC<ButtonProps> = (props) => {
   const { ctx } = props;
-  const mouse = useMouse();
+  const pointer = usePointer();
 
   /**
    * [Render]
@@ -25,7 +25,7 @@ export const ButtonSample: React.FC<ButtonProps> = (props) => {
       color: COLORS.DARK,
       backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       userSelect: 'none',
-      transform: `translateY(${mouse.is.down ? 1 : 0}px)`,
+      transform: `translateY(${pointer.is.down ? 1 : 0}px)`,
       cursor: 'pointer',
       marginBottom: 1,
 
@@ -51,7 +51,7 @@ export const ButtonSample: React.FC<ButtonProps> = (props) => {
     body: css({
       position: 'relative',
       margin: 1,
-      color: mouse.is.over ? COLORS.BLUE : COLORS.DARK,
+      color: pointer.is.over ? COLORS.BLUE : COLORS.DARK,
       display: 'grid',
       alignContent: 'center',
       justifyContent: 'start',
@@ -61,7 +61,7 @@ export const ButtonSample: React.FC<ButtonProps> = (props) => {
   return (
     <div
       className={css(styles.base, props.style).class}
-      {...mouse.handlers}
+      {...pointer.handlers}
       onClick={() => props.onClick?.({ ctx })}
     >
       <div className={styles.icon.base.class}>

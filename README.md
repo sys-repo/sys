@@ -1,45 +1,33 @@
 ![banner-A1-slender](https://github.com/cellplatform/platform-0.2.0/assets/185555/2b0a110d-0c73-4583-bbfa-94f77d38bc17)
-[![jsr-scope][jsr-scope-image]][jsr-scope-url]
-[![ci][ci-image]][ci-url]
-[![ci-jsr][ci-jsr-image]][ci-jsr-url]
+[![MIT License][mit-badge]][mit-url]
+[![CI][ci-badge]][ci-url]
+[![JSR Registry][jsr-badge]][jsr-url]
 
-[mit-image]: https://img.shields.io/badge/license-MIT-blue.svg
-[mit-url]: https://opensource.org/licenses/mit
+[mit-badge]: https://img.shields.io/badge/license-MIT-blue?style=flat
+[mit-url]: https://opensource.org/licenses/MIT
 
-[jsr-scope-image]: https://jsr.io/badges/@sys
-[jsr-scope-url]: https://jsr.io/@sys
+[ci-badge]: https://img.shields.io/github/actions/workflow/status/sys-repo/sys/jsr.yaml?style=flat&label=CI
+[ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
 
-[ci-image]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml/badge.svg
-[ci-url]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml
+[jsr-badge]: https://jsr.io/badges/@sys?style=flat
+[jsr-url]: https://jsr.io/@sys
 
-[ci-jsr-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg
-[ci-jsr-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
+# @sys
+Monorepo comprising the core set of shared  **“system”** modules purposed to flexibly compose into new 
+*systems of systems* — extremely-late-bound, strongly typed, decentralised, “cell-like” functional processes.
 
-
-[mit-image]: https://img.shields.io/badge/license-MIT-blue.svg
-[mit-url]: https://opensource.org/licenses/mit
-
-[jsr-scope-image]: https://jsr.io/badges/@sys?style=flat-square
-[jsr-scope-url]: https://jsr.io/@sys
-
-[ci-image]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml/badge.svg
-[ci-url]: https://github.com/sys-repo/sys/actions/workflows/ci.yaml
-
-[jsr-ci-image]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml/badge.svg
-[jsr-ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
-
-Monorepo comprising the core set of shared `/sys` "system" modules that flexibly compose into 
-varying arrangements of (1) extremely-late-bound, (2) strongly typed, (3) decentralised, "cell like" functional processes.
-
-- modules: [sys](/code/sys/) ← standard libs
-- modules: [sys.ui](/code/sys.ui/)
-- modules: [sys.driver](/code/sys.driver/)
-- build toolchain (output → W3C/ECMA standards)
+- **Build toolchain** → output targets are [W3C](https://www.w3.org/), [ECMA/TC39 (ESM)](https://ecma-international.org/technical-committees/tc39/), [WinterTG](https://wintercg.org/) standards.
+- **Namespaces:**
+  - [sys](/code/sys/) — foundational system libraries (types, schema, utilities).
+  - [sys.ui](/code/sys.ui/) — declarative UI composition and factories.
+  - [sys.driver](/code/sys.driver/) — thin bindings to external engines.
+  - [sys.dev](/code/sys.dev/) — *programming system* layer, higher-order developer harnesses and orchestration tools.
 
 <p>&nbsp;</p>
 
-[![licence][mit-image]][mit-url]  
-Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )
+[![MIT License][mit-badge]][mit-url]  
+Built on, and mission-locked to modern, portable, [Web Standards](https://wintercg.org/), [ESM only](https://jsr.io/docs/publishing-packages#jsr-package-rules). ( ✊🏻💯 )  
+Standard ([JSR](https://jsr.io/@sys)-first) public registry: [@sys](https://jsr.io/@sys)
 
 ---
 
@@ -51,7 +39,6 @@ Built on, and mission-locked to modern, portable, [Web Standards](https://winter
 ![pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)  
 **Sustained long range R&D**  
 Architecture, API's, and other conceptual primmitives will change (almost certainly radically 🐷) prior to any `1.x`.
-See also `(0.<0.0.0>)`: "[epoch semantic versioning](https://antfu.me/posts/epoch-semver)".
 
 |     | repo                     | status
 | --- | :---                     | :---
@@ -168,7 +155,7 @@ events.dispose();
 
 - [Modularity](https://en.wikipedia.org/wiki/Modularity)
 - [Cohesion](https://en.wikipedia.org/wiki/Cohesion_(computer_science))
-- (Good) [Seperation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)
+- (Good) [Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)
 - (Good) Lines of [Abstraction](https://en.wikipedia.org/wiki/Abstraction_(computer_science)) ← aka. [information hiding](https://en.wikipedia.org/wiki/Information_hiding)
 - [Loose Coupling](https://en.wikipedia.org/wiki/Loose_coupling)
 

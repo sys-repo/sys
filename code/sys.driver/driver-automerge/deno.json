@@ -1,21 +1,28 @@
 {
   "name": "@sys/driver-automerge",
-  "version": "0.0.10",
+  "version": "0.0.91",
   "license": "MIT",
   "tasks": {
-    "dev": "deno      run -RWNE --allow-run --allow-ffi ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
-    "test": "deno     test -RWNE --allow-run --allow-ffi --allow-sys",
-    "build": "deno    run -RWE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
-    "serve": "deno    run -RNE  --allow-run --allow-ffi ./-scripts/-main.ts --cmd=serve",
+    "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
+    "test": "deno test -P=testset",
+    "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
+    "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
+    "ws": "deno run -P=serve @sys/driver-automerge/ws --port=3030 --dir=.tmp/sync.crdt",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -RWE ./-scripts/-clean.ts",
-    "help": "deno     run -RE   --allow-ffi             ./-scripts/-main.ts --cmd=help",
-    "tmp": "deno      run -A ./-scripts/-tmp.ts"
+    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "help": "deno run -P=dev   ./-scripts/-main.ts --cmd=help",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./debug": "./src/m.Debug/mod.ts",
+    "./fs": "./src/-exports/-fs/mod.ts",
+    "./web": "./src/-exports/-web/mod.ts",
+    "./web/ui": "./src/m.Crdt.ui/mod.ts",
+    "./ws": "./src/m.Server/mod.ts",
+    "./ws/client": "./src/m.Server.client/mod.ts"
   }
 }

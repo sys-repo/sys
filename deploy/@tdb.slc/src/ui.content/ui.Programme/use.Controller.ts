@@ -1,15 +1,15 @@
 import { type t } from './common.ts';
 import { useSection } from './use.Section.ts';
 
-export function useController(props: { state: t.ProgrammeSignals; player: t.VideoPlayerSignals }) {
-  const { state, player } = props;
+export function useController(props: { state: t.ProgrammeSignals; video: t.VideoPlayerSignals }) {
+  const { state, video } = props;
   const media = state.props.media;
   const p = state.props;
 
   /**
    * Child controllers:
    */
-  const section = useSection({ state, player });
+  const section = useSection({ state, video });
 
   /**
    * API:
@@ -31,7 +31,7 @@ export function useController(props: { state: t.ProgrammeSignals; player: t.Vide
     onBackClick() {
       p.align.value = 'Center';
       p.section.value = undefined;
-      player.pause();
+      video.pause();
     },
   } as const;
   return api;

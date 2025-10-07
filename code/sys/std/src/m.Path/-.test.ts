@@ -141,4 +141,37 @@ describe('Path', () => {
       expect(c.dir('zoo').path('bar')).to.eql(Path.Join.windows('foo', 'zoo', 'bar'));
     });
   });
+
+  describe('Path.relativePosix', () => {
+    it('strips a single leading slash', () => {
+      expect(Path.relativePosix('/path/sample')).to.eql('path/sample');
+    });
+
+    it('strips multiple leading slashes', () => {
+      expect(Path.relativePosix('///path/sample')).to.eql('path/sample');
+    });
+
+    it('converts backslashes to forward slashes', () => {
+      expect(Path.relativePosix('\\path\\sample\\pkg\\m.X.js')).to.eql('path/sample/pkg/m.X.js');
+    });
+
+    it('does not collapse "." or ".." segments', () => {
+      expect(Path.relativePosix('/a/./b')).to.eql('a/./b');
+      expect(Path.relativePosix('/a/../b')).to.eql('a/../b');
+    });
+
+    it('preserves internal multiple slashes (only leading are stripped)', () => {
+      expect(Path.relativePosix('/a//b///c')).to.eql('a//b///c');
+    });
+
+    it('returns empty string for empty or slash-only inputs', () => {
+      expect(Path.relativePosix('')).to.eql('');
+      expect(Path.relativePosix('/')).to.eql('');
+      expect(Path.relativePosix('////')).to.eql('');
+    });
+
+    it('leaves already-relative POSIX paths unchanged', () => {
+      expect(Path.relativePosix('a/b/c')).to.eql('a/b/c');
+    });
+  });
 });

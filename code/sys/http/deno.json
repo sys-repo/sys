@@ -1,22 +1,20 @@
 {
   "name": "@sys/http",
-  "version": "0.0.65",
+  "version": "0.0.114",
   "license": "MIT",
   "tasks": {
-    "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./-scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi",
-    "serve": "deno run -RNE --allow-run ./-scripts/-entry.main.ts --cmd=start --port=1234 --dir='./src/-test/-sample.dist'",
+    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "test": "deno test -P=testset",
+    "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./client": "./src/ns.client/mod.ts",
-    "./server": "./src/ns.server/mod.ts",
-    "./server/main": "./src/-entry/-main.ts",
-    "./server/start": "./src/-entry/-start.ts"
+    "./client": "./src/http.client/mod.ts",
+    "./server": "./src/http/mod.ts",
+    "./serve": "./src/-serve/mod.ts"
   }
 }

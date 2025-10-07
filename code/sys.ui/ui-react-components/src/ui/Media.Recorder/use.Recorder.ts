@@ -10,7 +10,7 @@ import { type t } from './common.ts';
  */
 export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const chunksRef = useRef<BlobPart[]>([]);
-  const recorderRef = useRef<MediaRecorder>();
+  const recorderRef = useRef<MediaRecorder>(undefined);
   const optionsRef = useRef<t.UseMediaRecorderOptions>(options);
   const stopResolversRef = useRef<((e: t.MediaRecorderHookStopped) => void)[]>([]);
 

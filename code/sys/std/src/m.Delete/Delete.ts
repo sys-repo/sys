@@ -27,4 +27,16 @@ export const Delete: t.DeleteLib = {
       .forEach((key) => delete obj[key]);
     return obj;
   },
+
+  /**
+   * Deletes specific fields from an object (clone).
+   */
+  fields<T extends O, const K extends readonly (keyof T)[]>(
+    obj: T,
+    ...keys: K
+  ): Omit<T, K[number]> {
+    const clone: Record<PropertyKey, unknown> = { ...(obj as any) };
+    for (const key of keys) delete clone[key as PropertyKey];
+    return clone as Omit<T, K[number]>;
+  },
 };

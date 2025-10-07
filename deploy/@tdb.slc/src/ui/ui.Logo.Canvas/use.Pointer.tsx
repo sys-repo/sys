@@ -1,0 +1,121 @@
+import { useEffect } from 'react';
+import { type t, ReactEvent, useIsTouchSupported } from './common.ts';
+import { Theme } from './u.ts';
+
+type Options = {
+  selected?: t.CanvasPanel | t.CanvasPanel[];
+  over?: t.CanvasPanel;
+  theme?: t.CommonTheme;
+  onPanelEvent?: t.LogoCanvasPanelHandler;
+};
+
+/**
+ * Manages mouse behavior on a Canvas.
+ */
+export function usePointer<T extends HTMLElement>(svg: t.SvgInstance<T>, options: Options = {}) {
+  useCanvasPanelPointer('purpose', svg, options);
+  useCanvasPanelPointer('customers', svg, options);
+  useCanvasPanelPointer('problem', svg, options);
+  useCanvasPanelPointer('uvp', svg, options);
+  useCanvasPanelPointer('solution', svg, options);
+  useCanvasPanelPointer('channels', svg, options);
+  useCanvasPanelPointer('revenue', svg, options);
+  useCanvasPanelPointer('costs', svg, options);
+  useCanvasPanelPointer('metrics', svg, options);
+  useCanvasPanelPointer('advantage', svg, options);
+  useCanvasPanelPointer('impact', svg, options);
+}
+
+/**
+ * Manages mouse behavior on an individual Canvas panel.
+ */
+export function useCanvasPanelPointer<T extends HTMLElement>(
+  panel: t.CanvasPanel,
+  svg: t.SvgInstance<T>,
+  options: Options = {},
+) {
+  const { selected, over, theme, onPanelEvent } = options;
+  const isSelected = wrangle.isSelected(panel, options);
+
+  /**
+   * Hooks:
+   */
+  const isTouch = useIsTouchSupported();
+
+  /**
+   * Effect:
+   */
+  useEffect(() => {
+    if (!svg.ready) return;
+    const life = new AbortController();
+
+    const query = `#panel\\.${panel}`;
+    const svgPanel = svg.query(query);
+    const color = Theme.color(theme);
+
+    const updateOpacity = () => {
+      const opacity = wrangle.selectionOpacity(panel, options);
+      svgPanel?.opacity(opacity);
+      svgPanel?.fill(color);
+    };
+
+    svg.query('#outline')?.css('pointer-events' as any, 'none'); // NB: Allow click-through of the grid lines that sit above each panel.
+    updateOpacity(); // Set default opacity.
+
+    /**
+     * Event Handlers:
+     */
+    type E = t.LogoCanvasPanelHandlerArgs;
+    const fire = (e: Event, event: E['event']) => {
+      const modifier = ReactEvent.modifiers(e);
+      onPanelEvent?.({ panel, event, modifier });
+    };
+    const onOver = (e: Event, isOver: boolean) => {
+      updateOpacity();
+      fire(e, isOver ? 'enter' : 'leave');
+    };
+
+    if (svgPanel) {
+      svgPanel.off();
+      if (isTouch) {
+        const touchClick: EventListener = (e) => {
+          onOver(e, true); //  Treat as "enter".
+          fire(e, 'click'); // Treat tap as "click".
+        };
+        svgPanel.on('touchstart', touchClick, life);
+        svgPanel.on('touchend', (e) => onOver(e, false), life);
+        svgPanel.on('touchcancel', (e) => onOver(e, false), life);
+      } else {
+        svgPanel.on('mouseover', (e) => onOver(e, true), life);
+        svgPanel.on('mouseleave', (e) => onOver(e, false), life);
+        svgPanel.on('mousedown', (e) => fire(e, 'click'), life);
+      }
+    }
+
+    return () => void life.abort();
+  }, [svg.ready, panel, selected, over, theme, isSelected]);
+}
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  isSelected(panel: t.CanvasPanel, options: Options) {
+    const { selected } = options;
+    if (!selected) return false;
+    if (Array.isArray(selected)) return selected.includes(panel);
+    return selected === panel;
+  },
+
+  selectionOpacity(panel: t.CanvasPanel, options: Options = {}): t.Percent {
+    const { selected, over } = options;
+    const isOver = over === panel;
+    const isSelected = wrangle.isSelected(panel, options);
+    if (isSelected) {
+      const isMultiSelect = Array.isArray(selected);
+      return isMultiSelect ? 0.85 : 1;
+    } else {
+      return isOver ? 0.2 : 0;
+    }
+  },
+} as const;

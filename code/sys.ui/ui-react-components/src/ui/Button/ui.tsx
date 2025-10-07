@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { type t, Color, css, DEFAULTS, Style, useIsTouchSupported, Signal } from './common.ts';
+
+import { type t, Color, css, D, Is, Signal, Style, useIsTouchSupported } from './common.ts';
 import { Event, toEventState } from './u.events.ts';
+import { Wrangle } from './u.ts';
 
 type P = t.ButtonProps;
 
@@ -9,24 +11,27 @@ type P = t.ButtonProps;
  */
 export const Button: React.FC<P> = (props) => {
   const {
-    enabled = DEFAULTS.enabled,
-    active = DEFAULTS.active,
-    block = DEFAULTS.block,
-    disabledOpacity = DEFAULTS.disabledOpacity,
-    userSelect = DEFAULTS.userSelect,
-    pressedOffset = DEFAULTS.pressedOffset,
+    active = D.active,
+    block = D.block,
+    userSelect = D.userSelect,
+    pressedOffset = D.pressedOffset,
   } = props;
-  const isBlurred = false;
-  const isEnabled = enabled;
+  const enabled = Wrangle.enabled(props);
   const label = wrangle.label(props);
+  const blurred = false;
 
-  const over = useState(false);
-  const down = useState(false);
-  const [isOver, setOver] = over;
-  const [isDown, setDown] = down;
+  /**
+   * Hooks:
+   */
+  const isTouch = useIsTouchSupported();
+  const overState = useState(false);
+  const downState = useState(false);
+  const [over, setOver] = overState;
+  const [down, setDown] = downState;
 
-  const isMobile = useIsTouchSupported();
-  const eventState = toEventState(props, over, down);
+  const eventState = toEventState(props, overState, downState);
+  const is: t.ButtonFlags = { over, down, enabled, disabled: !enabled };
+  const opacity = wrangle.opacity(props, is);
 
   /**
    * Effects:
@@ -51,24 +56,25 @@ export const Button: React.FC<P> = (props) => {
       display: block ? 'block' : 'inline-block',
       minWidth: props.minWidth,
       maxWidth: props.maxWidth,
-      opacity: enabled ? 1 : disabledOpacity,
-      cursor: enabled && active && !isBlurred ? 'pointer' : 'default',
+      opacity: opacity,
+      cursor: enabled && active && !blurred ? 'pointer' : 'default',
       userSelect: userSelect ? 'auto' : 'none',
     }),
     body: css({
+      display: 'grid',
       color: wrangle.color({
-        isEnabled,
-        isOver: !!(isOver || props.isOver),
+        enabled,
+        over: !!(over || props.isOver),
         theme: theme.name,
       }),
       transform: wrangle.pressedOffset({
-        isEnabled,
-        isOver: !!(isOver || props.isOver),
-        isDown: !!(isDown || props.isDown),
+        enabled,
+        over: !!(over || props.isOver),
+        down: !!(down || props.isDown),
         pressedOffset,
       }),
-      opacity: isBlurred ? 0.15 : 1,
-      filter: `blur(${isBlurred ? 3 : 0}px) grayscale(${isBlurred ? 100 : 0}%)`,
+      opacity: blurred ? 0.15 : 1,
+      filter: `blur(${blurred ? 3 : 0}px) grayscale(${blurred ? 100 : 0}%)`,
       transition: 'opacity 0.1s ease',
     }),
   };
@@ -76,10 +82,11 @@ export const Button: React.FC<P> = (props) => {
   return (
     <div
       role={'button'}
-      title={props.tooltip}
       className={css(styles.base, props.style).class}
+      title={props.tooltip}
+      //
       onDoubleClick={props.onDoubleClick}
-      {...Event.handlers(eventState, isMobile)}
+      {...Event.handlers(eventState, isTouch)}
     >
       <div className={styles.body.class}>
         {label && <div>{label}</div>}
@@ -93,27 +100,34 @@ export const Button: React.FC<P> = (props) => {
  * Helpers
  */
 const wrangle = {
-  color(args: { isEnabled: boolean; isOver?: boolean; theme?: t.CommonTheme }) {
+  color(args: { enabled: boolean; over?: boolean; theme?: t.CommonTheme }) {
     const color = args.theme === 'Dark' ? Color.WHITE : Color.DARK;
-    if (!args.isEnabled) return color;
-    return args.isOver ? Color.BLUE : color;
+    if (!args.enabled) return color;
+    return args.over ? Color.BLUE : color;
   },
 
   pressedOffset(args: {
-    isEnabled: boolean;
-    isOver: boolean;
-    isDown: boolean;
+    enabled: boolean;
+    over: boolean;
+    down: boolean;
     pressedOffset: [number, number];
   }) {
-    const { isEnabled, isOver, isDown, pressedOffset } = args;
-    if (!isEnabled) return undefined;
-    if (!isOver) return undefined;
-    if (!isDown) return undefined;
+    const { enabled, over, down, pressedOffset } = args;
+    if (!enabled) return undefined;
+    if (!over) return undefined;
+    if (!down) return undefined;
     return `translateX(${pressedOffset[0]}px) translateY(${pressedOffset[1]}px)`;
   },
 
   label(props: P) {
     const { label } = props;
     return typeof label === 'function' ? label() : label;
+  },
+
+  opacity(props: P, is: t.ButtonFlags): t.Percent {
+    const { opacity } = props;
+    if (Is.number(opacity)) return opacity;
+    if (Is.func(opacity)) return opacity({ is });
+    return is.enabled ? D.opacity.enabled : props.disabledOpacity ?? D.opacity.disabled;
   },
 } as const;

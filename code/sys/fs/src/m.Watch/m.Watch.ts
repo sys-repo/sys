@@ -1,9 +1,10 @@
-import { type t, Arr, Err, exists, Path, rx } from './common.ts';
+import { type t, Arr, Err, exists, Path, Rx } from './common.ts';
+import type { FsWatchLib } from './t.ts';
 
 /**
  * Tools for watching file-system changes.
  */
-export const Watch: t.FsWatchLib = {
+export const Watch: FsWatchLib = {
   /**
    * Start a file-system watcher instance.
    */
@@ -11,10 +12,10 @@ export const Watch: t.FsWatchLib = {
     const { recursive = true } = options;
     const paths = Arr.asArray(pathInput);
     const errors = Err.errors();
-    const life = rx.lifecycle(options.dispose$);
+    const life = Rx.lifecycle(options.dispose$);
 
-    const $$ = rx.subject<t.FsWatchEvent>();
-    const $ = $$.pipe(rx.takeUntil(life.dispose$));
+    const $$ = Rx.subject<t.FsWatchEvent>();
+    const $ = $$.pipe(Rx.takeUntil(life.dispose$));
 
     let _watcher: Deno.FsWatcher | undefined;
     life.dispose$.subscribe(() => _watcher?.close());
@@ -45,7 +46,7 @@ export const Watch: t.FsWatchLib = {
     /**
      * API
      */
-    const api = rx.toLifecycle<t.FsWatcher>(life, {
+    const api = Rx.toLifecycle<t.FsWatcher>(life, {
       get $() {
         return $;
       },

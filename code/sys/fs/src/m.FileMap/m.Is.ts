@@ -1,49 +1,74 @@
-import { type t, DEFAULTS, Path } from './common.ts';
+import { type t, D, Path, isRecord } from './common.ts';
+import type { FileMapIsLib } from './t.ts';
 
-export const Is: t.FileMapIsLib = {
+/** Build sets from MIME VALUES (and keys for structuredText) */
+const EXT_TO_MIME_ALL = D.contentTypes.all();
+const EXT_MIME_VALUES = Object.values(EXT_TO_MIME_ALL) as string[];
+
+// structuredText is Record<mime, true>
+const STRUCTURED_TEXT_MIME_VALUES = Object.keys(D.contentTypes.structuredText) as string[];
+
+// text bucket from explicit text map (values)
+const TEXT_MIME_VALUES = Object.values(D.contentTypes.text) as string[];
+
+/** Sets */
+const ALL_MIME = new Set<string>([
+  ...EXT_MIME_VALUES,
+  ...STRUCTURED_TEXT_MIME_VALUES,
+  D.contentType, // default fallback: 'text/plain'
+]);
+
+const TEXT_MIME = new Set<string>(TEXT_MIME_VALUES);
+const STRUCTURED_TEXT_MIME = new Set<string>(STRUCTURED_TEXT_MIME_VALUES);
+
+export const Is: FileMapIsLib = {
+  fileMap(input): input is t.FileMap {
+    if (!isRecord(input)) return false;
+    for (const [k, v] of Object.entries(input as Record<string, unknown>)) {
+      if (typeof k !== 'string') return false;
+      if (typeof v !== 'string') return false;
+    }
+    return true;
+  },
+
   dataUri(input) {
     if (typeof input !== 'string') return false;
     if (!input.startsWith('data:')) return false;
-    return input.includes(',') && input.includes('/');
+    return input.includes('/') && input.includes(',');
   },
 
   dotfile(input) {
     const filename = Path.basename(input);
-    return filename.startsWith('.') && wrangle.totalPeriods(filename) === 1;
+    return filename.startsWith('.') && (filename.match(/\./g) || []).length === 1;
   },
 
   supported: {
     contentType(mime) {
       if (typeof mime !== 'string') return false;
-      if (mime === DEFAULTS.contentType) return true;
-      return Object.values(DEFAULTS.contentTypes).some((v: string) => v === mime);
+      return ALL_MIME.has(mime);
     },
   },
 
   contentType: {
     string(mime) {
-      if (!Is.supported.contentType(mime)) return false;
-      if (mime.startsWith('text/')) return true;
-      return ['application/json', 'image/svg+xml'].includes(mime);
-    },
-    binary(mime) {
-      if (!Is.supported.contentType(mime)) return false;
-      if (Is.contentType.string(mime)) return false;
-      if (mime.startsWith('image/')) return true;
+      if (typeof mime !== 'string') return false;
+      const m = mime.toLowerCase();
+
+      // images are binary except svg (structured text)
+      if (m.startsWith('image/')) return m === 'image/svg+xml';
+
+      if (TEXT_MIME.has(m)) return true;
+      if (STRUCTURED_TEXT_MIME.has(m)) return true;
+      if (m.startsWith('text/')) return true;
+      if (m.endsWith('/xml') || m.endsWith('+xml')) return true;
+
       return false;
+    },
+
+    binary(mime) {
+      if (typeof mime !== 'string') return false;
+      if (!Is.supported.contentType(mime)) return false;
+      return !Is.contentType.string(mime);
     },
   },
 };
-
-/**
- * Helpers
- */
-const wrangle = {
-  ext(input: string): string {
-    if (Is.dotfile(input)) return input;
-    return Path.extname(input);
-  },
-  totalPeriods(input: string): number {
-    return (input.match(/\./g) || []).length;
-  },
-} as const;

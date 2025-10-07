@@ -1,12 +1,12 @@
 {
   "name": "@sys/fs",
-  "version": "0.0.97",
+  "version": "0.0.145",
   "license": "MIT",
   "tasks": {
-    "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi"
+    "test": "deno test -P=testset",
+    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "tmp": "deno run -P=clean ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

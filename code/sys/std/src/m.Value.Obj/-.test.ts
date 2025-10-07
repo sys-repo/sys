@@ -1,14 +1,12 @@
 import { describe, expect, it } from '../-test.ts';
-import { isEmptyRecord, isObject, isRecord } from '../common.ts';
+import { Json } from '../m.Json/mod.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Obj } from './mod.ts';
 
 describe('Value.Obj', () => {
   it('API', () => {
     expect(Value.Obj).to.equal(Obj);
-    expect(Value.isObject).to.equal(isObject);
-    expect(Value.isRecord).to.equal(isRecord);
-    expect(Value.isEmptyRecord).to.equal(isEmptyRecord);
+    expect(Obj.Json).to.equal(Json);
   });
 
   describe('Obj.walk', () => {
@@ -145,194 +143,6 @@ describe('Value.Obj', () => {
     });
   });
 
-  describe('Obj.build', () => {
-    it('return default root object (no keyPath)', () => {
-      expect(Value.Obj.build('', {})).to.eql({});
-      expect(Value.Obj.build('  ', {})).to.eql({});
-    });
-
-    it('returns clone of the given root object', () => {
-      const obj = {};
-      expect(Value.Obj.build('', obj)).to.not.equal(obj);
-    });
-
-    it('adds single level', () => {
-      expect(Value.Obj.build('foo', {})).to.eql({ foo: {} });
-      expect(Value.Obj.build(' foo  ', {})).to.eql({ foo: {} });
-    });
-
-    it('adds multi-levels (path)', () => {
-      const res = Value.Obj.build('foo.bar', {});
-      expect(res).to.eql({ foo: { bar: {} } });
-    });
-
-    it('adds multi-levels with custom value', () => {
-      const test = (value: any) => {
-        const res = Value.Obj.build<any>('foo.bar.baz', {}, value);
-        expect(res.foo.bar.baz).to.eql(value);
-      };
-      test(0);
-      test(123);
-      test('hello');
-      test('');
-      test(' ');
-      test({});
-    });
-
-    it('does not replace existing object/value (cloned, single-level)', () => {
-      const obj = { foo: { bar: 123 } };
-      const res = Value.Obj.build<any>('foo', obj);
-      expect(res).to.eql(obj);
-      expect(res).to.not.equal(obj);
-      expect(res.foo).to.not.equal(obj.foo);
-    });
-
-    it('throws if path overwrites value', () => {
-      const test = (keyPath: string, obj: Record<string, unknown>) => {
-        const fn = () => Value.Obj.build(keyPath, obj);
-        expect(fn).to.throw();
-      };
-      test('foo.bar', { foo: { bar: 123 } });
-      test('foo.bar', { foo: { bar: 0 } });
-      test('foo.bar', { foo: { bar: null } });
-      test('foo.bar', { foo: { bar: '' } });
-    });
-
-    it('throws if starts/ends with period (.)', () => {
-      const test = (keyPath: string) => {
-        const fn = () => Value.Obj.build(keyPath, {});
-        expect(fn).to.throw();
-      };
-      test('foo.bar.');
-      test('foo.bar. ');
-      test('.foo.bar');
-      test(' .foo.bar  ');
-      test('.foo.bar.');
-    });
-
-    it('appends existing object', () => {
-      const obj = { foo: { bar: 123 } };
-      const res = Value.Obj.build('foo.baz', obj);
-      expect(res).to.eql({ foo: { bar: 123, baz: {} } });
-    });
-  });
-
-  describe('Obj.pluck', () => {
-    it('returns [undefined] when no match', () => {
-      expect(Value.Obj.pluck('foo', {})).to.eql(undefined);
-      expect(Value.Obj.pluck('foo.bar', {})).to.eql(undefined);
-      expect(Value.Obj.pluck('foo.bar', { baz: 123 })).to.eql(undefined);
-    });
-
-    it('gets value', () => {
-      const test = (keyPath: string, root: any, value: any) => {
-        const res = Value.Obj.pluck(keyPath, root);
-        expect(res).to.eql(value, `The key-path "${keyPath}" should be [${value}]`);
-      };
-      test('foo', { foo: 123 }, 123);
-      test('foo.bar', { foo: { bar: 123 } }, 123);
-      test(' foo.bar ', { foo: { bar: 123 } }, 123);
-      test(' foo. bar ', { foo: { bar: 123 } }, 123);
-    });
-
-    it('throws if starts/ends with period (.)', () => {
-      const test = (key: string) => {
-        const fn = () => Value.Obj.pluck(key, {});
-        expect(fn).to.throw();
-      };
-      test('foo.bar.');
-      test('foo.bar. ');
-      test('.foo.bar');
-      test(' .foo.bar  ');
-      test('.foo.bar.');
-    });
-  });
-
-  describe('Obj.remove', () => {
-    const test = (keyPath: string, root: any, expected: any) => {
-      const result = Value.Obj.remove(keyPath, root);
-      const msg = `keyPath: "${keyPath}"`;
-      expect(result).to.eql(expected, msg);
-      expect(result).to.not.equal(root, msg);
-    };
-
-    it('removes nothing (no match)', () => {
-      test('', {}, {});
-      test('', { foo: 123 }, { foo: 123 });
-      test('foo', {}, {});
-      test('foo', { bar: 456 }, { bar: 456 });
-      test('foo.bar', {}, {});
-      test('foo.bar', { foo: 123 }, { foo: 123 });
-      test('foo.bar.baz', { foo: 123 }, { foo: 123 });
-    });
-
-    it('removes shallow path', () => {
-      test('foo', { foo: 123 }, {});
-      test('foo', { foo: 123, bar: 'hi' }, { bar: 'hi' });
-    });
-
-    it('removes deep path', () => {
-      test('foo.bar', { foo: { bar: 123 } }, { foo: {} });
-      test('foo.bar.baz', { foo: { bar: { baz: 456 } } }, { foo: { bar: {} } });
-      test('foo.bar', { foo: { bar: 123, baz: 456 } }, { foo: { baz: 456 } });
-      test('foo.bar', { foo: { bar: 123 }, baz: 456 }, { baz: 456, foo: {} });
-    });
-
-    it('removes wildcard (*)', () => {
-      test('foo.*', { foo: { bar: 123 } }, { foo: {} });
-      test('foo.*', { foo: { bar: 123 }, baz: 456 }, { baz: 456, foo: {} });
-      test('*', { foo: { bar: 123 }, baz: 456 }, {});
-    });
-  });
-
-  describe('Obj.prune', () => {
-    const test = (keyPath: string, root: any, expected: any) => {
-      const result = Value.Obj.prune(keyPath, root);
-      const msg = `keyPath: "${keyPath}"`;
-      expect(result).to.eql(expected, msg);
-      expect(result).to.not.equal(root, msg);
-    };
-
-    it('prunes nothing (no match)', () => {
-      test('', {}, {});
-      test('', { foo: 123 }, { foo: 123 });
-      test('foo', {}, {});
-      test('foo', { bar: 456 }, { bar: 456 });
-      test('foo.bar', {}, {});
-      test('foo.bar', { foo: 123 }, { foo: 123 });
-      test('foo.bar.baz', { foo: 123 }, { foo: 123 });
-    });
-
-    it('prunes nothing (child not empty)', () => {
-      test('foo', { foo: { bar: {} } }, { foo: { bar: {} } });
-    });
-
-    it('throws if wild card not at end of path', () => {
-      const fn = () => Value.Obj.prune('*.bar', {});
-      expect(fn).to.throw();
-    });
-
-    it('prunes wildcard (*)', () => {
-      test('foo.*', { foo: { bar: {}, baz: 123 } }, {});
-      test('foo.*', { foo: 123 }, {});
-      test('foo.*', {}, {});
-      test('*', {}, {});
-      test('*', { foo: 123, bar: {} }, {});
-    });
-
-    it('prunes shallow path', () => {
-      test('foo', { foo: 123 }, {});
-      test('foo', { foo: 123, bar: 'hi' }, { bar: 'hi' });
-    });
-
-    it('prunes deep path', () => {
-      test('foo.bar', { foo: { bar: 123 } }, {});
-      test('foo.bar.baz', { foo: { bar: { baz: 456 } } }, {});
-      test('foo.bar', { foo: { bar: 123, baz: 456 } }, { foo: { baz: 456 } });
-      test('foo.bar', { foo: { bar: 123 }, baz: 456 }, { baz: 456 });
-    });
-  });
-
   describe('Obj.toArray', () => {
     type IFoo = { count: number };
     type IFoos = {
@@ -381,19 +191,19 @@ describe('Value.Obj', () => {
         nil: null,
       };
 
-      const res1 = Value.Obj.trimStringsDeep(obj);
-      const res2 = Value.Obj.trimStringsDeep(obj, { immutable: false });
+      const a = Value.Obj.trimStringsDeep(obj); // NB: default immutable.
+      const b = Value.Obj.trimStringsDeep(obj, { mutate: true });
 
       const expected = {
         ...obj,
         name: `${name.substring(0, 35)}...`, // NB: default max-length
       };
 
-      expect(res1).to.eql(expected);
-      expect(res2).to.eql(expected);
+      expect(a).to.eql(expected);
+      expect(b).to.eql(expected);
 
-      expect(res1).to.not.equal(obj); // NB: default: immutable clone.
-      expect(res2).to.equal(obj);
+      expect(a).to.not.equal(obj); // NB: default: immutable clone.
+      expect(b).to.equal(obj);
     });
 
     it('deep', () => {
@@ -430,14 +240,13 @@ describe('Value.Obj', () => {
       const name = 'foo'.repeat(100);
       const obj = { name };
 
-      const res1 = Value.Obj.trimStringsDeep(obj, {});
-      const res2 = Value.Obj.trimStringsDeep(obj, {
-        ellipsis: false,
-        maxLength: 10,
-      });
+      const a = Value.Obj.trimStringsDeep(obj, {});
+      const b = Value.Obj.trimStringsDeep(obj, { ellipsis: false, maxLength: 10 });
+      const c = Value.Obj.trimStringsDeep(obj, 10);
 
-      expect(res1.name).to.eql(`${name.substring(0, 35)}...`); // NB: default
-      expect(res2.name).to.eql(name.substring(0, 10));
+      expect(a.name).to.eql(`${name.substring(0, 35)}...`); // NB: default
+      expect(b.name).to.eql(name.substring(0, 10));
+      expect(c.name).to.eql(`${name.substring(0, 10)}...`);
     });
   });
 
@@ -491,6 +300,27 @@ describe('Value.Obj', () => {
       const res = Value.Obj.sortKeys(obj);
       expect(Object.keys(res)).to.not.eql(Object.keys(obj));
       expect(Object.keys(res).sort()).to.eql(Object.keys(obj).sort());
+    });
+  });
+
+  describe('Object.entries', () => {
+    it('empty', () => {
+      const obj = {};
+      const res = Value.Obj.entries(obj);
+      expect(res).to.eql([]);
+    });
+
+    it('typed', () => {
+      type T = { foo: number; bar: string };
+      const obj: T = { foo: 0, bar: 'hello' };
+      const entries = Obj.entries<T>(obj);
+      expect(entries).to.eql([
+        ['foo', 0],
+        ['bar', 'hello'],
+      ]);
+
+      // NB: prove type safety (no ts errors):
+      entries.forEach(([key]) => delete obj[key]);
     });
   });
 
@@ -812,6 +642,41 @@ describe('Value.Obj', () => {
       const obj: T = { One: 0, Two: 2 };
       const res = Obj.keys(obj);
       expect(res).to.eql(['One', 'Two']);
+    });
+  });
+
+  describe('Obj.eql', () => {
+    it('returns true for primitives that are strictly equal', () => {
+      expect(Obj.eql(123, 123)).to.be.true;
+      expect(Obj.eql('foo', 'foo')).to.be.true;
+      expect(Obj.eql(true, true)).to.be.true;
+      expect(Obj.eql(null, null)).to.be.true;
+      expect(Obj.eql(undefined, undefined)).to.be.true;
+    });
+
+    it('returns false for primitives that differ', () => {
+      expect(Obj.eql(123, 456)).to.be.false;
+      expect(Obj.eql('foo', 'bar')).to.be.false;
+      expect(Obj.eql(true, false)).to.be.false;
+      expect(Obj.eql(null, undefined)).to.be.false;
+    });
+
+    it('performs deep equality on objects', () => {
+      const obj1 = { a: 1, b: { c: [1, 2, 3] } };
+      const obj2 = { a: 1, b: { c: [1, 2, 3] } };
+      const obj3 = { a: 1, b: { c: [1, 2] } };
+
+      expect(Obj.eql(obj1, obj2)).to.be.true;
+      expect(Obj.eql(obj1, obj3)).to.be.false;
+    });
+
+    it('performs deep equality on arrays', () => {
+      const arr1 = [1, { foo: 'bar' }, [3]];
+      const arr2 = [1, { foo: 'bar' }, [3]];
+      const arr3 = [1, { foo: 'baz' }, [3]];
+
+      expect(Obj.eql(arr1, arr2)).to.be.true;
+      expect(Obj.eql(arr1, arr3)).to.be.false;
     });
   });
 });

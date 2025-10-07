@@ -1,5 +1,6 @@
 import { Cmd } from '../mod.ts';
-import { R, Time, rx, type t } from './common.ts';
+
+import { type t, R, Rx, Time } from './common.ts';
 import type { C, C1, C2 } from './t.ts';
 import { Find } from './u.ts';
 
@@ -9,7 +10,7 @@ export function eventTests(setup: t.CmdTestSetup, args: t.TestArgs) {
   describe('Cmd.Events', () => {
     describe('lifecycle', () => {
       it('Cmd.Events.create → dispose', () => {
-        const life = rx.disposable();
+        const life = Rx.disposable();
         const { dispose$ } = life;
         const events1 = Cmd.Events.create(undefined, {});
         const events2 = Cmd.Events.create(undefined, { dispose$ });
@@ -25,7 +26,7 @@ export function eventTests(setup: t.CmdTestSetup, args: t.TestArgs) {
       describe('dispose', () => {
         it('cmd.events() → dispose', async () => {
           const { doc, dispose } = await setup();
-          const life = rx.disposable();
+          const life = Rx.disposable();
 
           const cmd = Cmd.create<C>(doc);
           const events1 = cmd.events();
@@ -76,8 +77,8 @@ export function eventTests(setup: t.CmdTestSetup, args: t.TestArgs) {
 
         it('does not dispose of injected subject$', async () => {
           const { doc, dispose } = await setup();
-          const life = rx.lifecycle();
-          const subject$ = rx.subject();
+          const life = Rx.lifecycle();
+          const subject$ = Rx.subject();
 
           const cmd = Cmd.create<C>(doc);
           const events1 = cmd.events(life.dispose$);

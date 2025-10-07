@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-export type ErrorGeneratorInput = unknown | Response;
+type ErrorGeneratorInput = unknown | Response;
 
 /**
  * Helpers for working with errors.
@@ -31,7 +31,9 @@ export type ErrLib = {
  * The response (and/or error) from an [Err.catch] method call.
  */
 export type ErrCatch<T> = ErrSuccess<T> | ErrFail<T>;
+/** Successful result wrapper with data and no error. */
 export type ErrSuccess<T> = { ok: true; data: T; error: undefined };
+/** Failed result wrapper with optional data and an error. */
 export type ErrFail<T> = { ok: false; data?: T; error: t.StdError };
 
 /**

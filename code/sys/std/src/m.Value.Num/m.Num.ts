@@ -1,10 +1,10 @@
-import type { t } from './common.ts';
 import { Percent } from './m.Percent.ts';
+import type { NumberLib } from './t.ts';
 
 /**
  * Tools for working with numbers.
  */
-export const Num: t.NumLib = {
+export const Num: NumberLib = {
   Percent,
 
   /**
@@ -13,6 +13,13 @@ export const Num: t.NumLib = {
   round(value, precision) {
     const multiplier = Math.pow(10, precision || 0);
     return Math.round(value * multiplier) / multiplier;
+  },
+
+  /**
+   * Clamps a number between a minimum and maximum value.
+   */
+  clamp(min, max, value) {
+    return Math.max(min, Math.min(max, value));
   },
 
   /**

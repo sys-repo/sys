@@ -1,9 +1,10 @@
 import { createRoot } from 'react-dom/client';
-import { type t, Time, rx } from './common.ts';
+
+import { type t, Rx, Time } from './common.ts';
 import { PreloadPortal } from './ui.tsx';
 
 export const render: t.Preload = async (children, op) => {
-  const life = rx.lifecycle();
+  const life = Rx.lifecycle();
   const { size, lifetime, name } = wrangle.options(op);
 
   if (typeof document === 'undefined') {

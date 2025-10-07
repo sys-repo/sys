@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for terminal based CLI's (command-line-interfaces).
+ * @module
  *
  * @example
  * Display a CLI spinner:
@@ -36,7 +36,7 @@
 import { Cli } from './m.Cli.ts';
 
 export { c, stripAnsi } from './common.ts';
-export { Format } from './m.Format.ts';
+export { Fmt } from './m.Fmt.ts';
 export { Keyboard } from './m.Keyboard.ts';
 export { Prompt } from './m.Prompt.ts';
 export { Spinner } from './m.Spinner.ts';

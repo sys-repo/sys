@@ -15,9 +15,24 @@ describe(
         expect(globalThis.document).to.eql(undefined);
 
         DomMock.polyfill();
+
         expect(window).to.be.instanceof(Window);
         expect(document).to.be.instanceof(Document);
         expect(globalThis.window).to.equal(window);
+        expect(window.location.host).to.eql('localhost:1234');
+
+        const before = window;
+        DomMock.polyfill();
+        DomMock.polyfill();
+        expect(window).to.equal(before); // NB: instance re-used.
+
+        DomMock.unpolyfill();
+      });
+
+      it('polyfill: custom URL', () => {
+        const url = 'https://foo.com/bar?a=123';
+        DomMock.polyfill({ url });
+        expect(window.location.href).to.eql(url);
       });
 
       it('unpolyfill', () => {
@@ -30,7 +45,7 @@ describe(
         expect(document).to.eql(undefined);
 
         DomMock.polyfill();
-        expect(window).to.equal(before); // NB: same instance is used.
+        expect(window).to.not.equal(before); // NB: instance reset.
       });
     });
 

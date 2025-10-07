@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DevBus } from '../u/m.Bus/mod.ts';
-import { rx, type t } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 type Id = string;
 
@@ -26,7 +26,7 @@ export function useRedrawEvent(
     const hasRenderer = (renderers: Id[]) => ids.some((id) => renderers.includes(id));
     const matchTarget = (value?: t.DevRedrawTarget) => value === 'all';
     const match = (e: t.DevRedraw) => matchTarget(e.target) || hasRenderer(e.renderers);
-    const match$ = events.redraw.$.pipe(rx.filter(match));
+    const match$ = events.redraw.$.pipe(Rx.filter(match));
     match$.subscribe(redraw);
     return events.dispose;
   }, [ids.join(',')]);

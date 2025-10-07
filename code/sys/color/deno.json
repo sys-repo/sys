@@ -1,18 +1,17 @@
 {
   "name": "@sys/color",
-  "version": "0.0.52",
+  "version": "0.0.98",
   "license": "MIT",
   "tasks": {
-    "lint": "deno lint",
+    "test": "deno test -P=testset",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./-scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi"
+    "clean": "deno run -P=clean ./scripts/-clean.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./rgb": "./src/m.Rgb/mod.ts",
-    "./ansi": "./src/mod.Ansi.ts"
+    "./ansi": "./src/m.Ansi/mod.ts"
   }
 }

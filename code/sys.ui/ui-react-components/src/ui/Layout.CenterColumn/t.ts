@@ -7,15 +7,15 @@ export type CenterColumnAlign = 'Left' | 'Center' | 'Right';
  * <Component>:
  */
 export type LayoutCenterColumnProps = {
-  debug?: boolean;
   align?: t.CenterColumnAlign;
   centerWidth?: t.Pixels;
+  gap?: t.Pixels;
 
   left?: t.ReactNode;
   center?: t.ReactNode;
   right?: t.ReactNode;
 
-  gap?: t.Pixels;
+  debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

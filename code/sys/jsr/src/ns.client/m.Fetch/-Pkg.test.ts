@@ -1,4 +1,4 @@
-import { c, describe, expect, it, rx, Semver, slug, Testing } from '../../-test.ts';
+import { c, describe, expect, it, Rx, Semver, slug, Testing } from '../../-test.ts';
 import { Jsr } from '../m.Jsr/mod.ts';
 import { assertFetchDisposed } from './-u.ts';
 import { Fetch } from './mod.ts';
@@ -89,7 +89,7 @@ describe('Jsr.Fetch.Pkg', () => {
   });
 
   it('dispose ← (cancel fetch operation)', async () => {
-    const { dispose, dispose$ } = rx.disposable();
+    const { dispose, dispose$ } = Rx.disposable();
     const promise = Fetch.Pkg.versions('@sys/std', { dispose$ });
 
     dispose();

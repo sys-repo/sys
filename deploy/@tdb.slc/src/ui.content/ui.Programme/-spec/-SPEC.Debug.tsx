@@ -18,7 +18,7 @@ export function createDebugSignals() {
   const s = Signal.create;
   const content = Programme.factory();
   const state = Programme.Signals.init({ content });
-  const player = Player.Video.signals({ fadeMask: 15, scale: (e) => e.enlargeBy(2) });
+  const video = Player.Video.signals({ fadeMask: 15, scale: (e) => e.enlargeBy(2) });
 
   /**
    * Properties:
@@ -29,7 +29,7 @@ export function createDebugSignals() {
   const api = {
     content,
     state,
-    player,
+    video,
     props,
     listen() {
       props.theme.value;
@@ -80,7 +80,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {programmeSectionButtons(debug.content, debug.state)}
 
       <hr />
-      {videoPlayerButton(debug.player)}
+      {videoPlayerButton(debug.video)}
 
       <hr />
       <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={0} margin={[5, 0]} />

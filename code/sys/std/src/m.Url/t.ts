@@ -5,25 +5,31 @@ import type { t } from './common.ts';
  */
 export type UrlLib = {
   /** Generator function for a new URL helpers instance. */
-  create(base: t.StringUrl | Deno.NetAddr): t.HttpUrl;
-
-  /** Create URL helpers from a `NetAddr` */
-  fromAddr(base: Deno.NetAddr): t.HttpUrl;
-
-  /** Create URL helpers from string. */
-  fromUrl(base: t.StringUrl): t.HttpUrl;
+  parse(base: t.StringUrl | Deno.NetAddr | undefined): t.HttpUrl;
 };
 
 /**
  * Represents a URL endpoint of an HTTP service.
  */
 export type HttpUrl = {
+  /** Flag indicating if the parse was OK - false if there is an error. */
+  readonly ok: boolean;
+
+  /** Parse error. */
+  readonly error?: t.StdError;
+
   /** The base URL path. */
-  readonly base: string;
+  readonly raw: string;
+
+  /** The URL href. */
+  readonly href: string;
 
   /** Join parts of a URL path. */
   join(...parts: string[]): string;
 
-  /** Collapse the URL to a simple HREF string. */
+  /** Collapse the URL to a simple "href" string. */
   toString(): string;
+
+  /** Snapshot the current value into a URL instance. */
+  toURL(): URL;
 };

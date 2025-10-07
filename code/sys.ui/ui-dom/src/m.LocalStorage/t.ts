@@ -12,11 +12,7 @@ export type LocalStorageLib = {
   ns<T extends t.JsonMapU>(prefix: string): LocalStorage<T>;
 
   /** Returns an Immutable<T> representation of the local-storage. */
-  immutable<T extends t.JsonMapU>(
-    key: string,
-    initial: T,
-    dispose$?: t.UntilInput,
-  ): t.LocalStorageImmutable<T>;
+  immutable<T extends t.JsonMapU>(key: string, initial: T): t.LocalStorageImmutable<T>;
 };
 
 /**
@@ -26,7 +22,10 @@ export type LocalStorageImmutable<T> = t.ImmutableRef<
   T,
   t.PatchOperation,
   t.ImmutableEvents<T, t.PatchOperation, t.ImmutableChange<T, t.PatchOperation>>
->;
+> & {
+  /** Clears the local-storage entry and resets to the default values passed in at creation. */
+  reset(initial?: T): void;
+};
 
 /**
  * A strongly typed wrapper around the browser's local-storage.

@@ -110,7 +110,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     center: css({ display: 'grid', placeItems: 'center' }),
   };
 
-  const center = (el: JSX.Element) => <div className={styles.center.class}>{el}</div>;
+  const center = (el: React.JSX.Element) => <div className={styles.center.class}>{el}</div>;
 
   return (
     <div className={css(styles.base, props.style).class}>

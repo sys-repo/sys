@@ -1,4 +1,5 @@
-import { DEFAULTS, Time, rx, type t, type u } from './common.ts';
+import type { t, u } from './common.ts';
+import { DEFAULTS, Rx, Time } from './common.ts';
 
 type Args<Req extends t.CmdType, Res extends t.CmdType> = {
   tx: t.StringTx;
@@ -20,7 +21,7 @@ function create<Req extends t.CmdType, Res extends t.CmdType>(
   args: Args<Req, Res>,
 ): t.CmdResponseListener<Req, Res> {
   const { req, tx, issuer, timeout = DEFAULTS.timeout } = args;
-  const life = rx.lifecycle(args.dispose$);
+  const life = Rx.lifecycle(args.dispose$);
   const { dispose, dispose$ } = life;
 
   const events = cmd.events(dispose$);
@@ -77,21 +78,21 @@ function create<Req extends t.CmdType, Res extends t.CmdType>(
   /**
    * Observables.
    */
-  const $$ = rx.subject<R>();
-  const $ = $$.pipe(rx.takeUntil(life.dispose$));
+  const $$ = Rx.subject<R>();
+  const $ = $$.pipe(Rx.takeUntil(life.dispose$));
 
   /**
    * Listeners.
    */
   events
     .on(args.res.name)
-    .pipe(rx.filter((e) => e.tx === tx))
+    .pipe(Rx.filter((e) => e.tx === tx))
     .subscribe((e) => done(e.error ? 'Error' : 'Complete', e.params, e.error));
 
   /**
    * API
    */
-  const api: L = rx.toLifecycle<L>(life, {
+  const api: L = Rx.toLifecycle<L>(life, {
     $,
     tx,
     issuer,
@@ -115,7 +116,7 @@ function create<Req extends t.CmdType, Res extends t.CmdType>(
     promise() {
       return new Promise<L>((resolve) => {
         if (_status === 'Pending') {
-          $.pipe(rx.takeUntil(dispose$), rx.take(1)).subscribe(() => resolve(api));
+          $.pipe(Rx.takeUntil(dispose$), Rx.take(1)).subscribe(() => resolve(api));
         } else {
           resolve(api);
         }

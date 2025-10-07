@@ -1,3 +1,5 @@
+import type { DevBusLib } from './t.ts';
+
 import { Is } from '../m.Is/mod.ts';
 import { BusController } from './Bus.Controller.ts';
 import { BusEvents } from './Bus.Events.ts';
@@ -7,7 +9,7 @@ export * from './Bus.Events.ts';
 
 type InstanceInput = t.DevInstance | t.DevCtx | t.TestHandlerArgs;
 
-export const DevBus: t.DevBusLib = {
+export const DevBus: DevBusLib = {
   Controller: BusController,
   Events: BusEvents,
 

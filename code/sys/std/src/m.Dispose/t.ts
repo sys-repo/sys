@@ -1,31 +1,34 @@
 import type { t } from './common.ts';
 
 /** Callback invoked upon disposal of a lifecycle object  */
-export type LifecycleStageHandler = () => t.IgnoredResult;
+export type LifecycleStageHandler = (e: t.DisposeEvent) => t.IgnoredResult;
 
 /**
  * Toolkit for working with disposable interfaces.
  */
 export type DisposeLib = {
+  /** Generate a disposable lifecycle with standard AbortController/Signal mechanics. */
+  abortable(until?: t.UntilInput): t.Abortable;
+
   /**
    * Generates a generic disposable interface that is
    * typically mixed into a wider interface of some kind.
    */
-  disposable(until$?: t.DisposeInput): t.Disposable;
+  disposable(until?: t.UntilInput): t.Disposable;
 
   /** An async variant of the dispose pattern. */
   disposableAsync(onDispose?: t.LifecycleStageHandler): t.DisposableAsync;
-  disposableAsync(until$?: t.UntilObservable, onDispose?: LifecycleStageHandler): t.DisposableAsync;
+  disposableAsync(until?: t.UntilInput, onDispose?: LifecycleStageHandler): t.DisposableAsync;
 
   /**
    * Generates a disposable interface that maintains
    * and exposes it's disposed state.
    */
-  lifecycle(until$?: t.DisposeInput): t.Lifecycle;
+  lifecycle(until?: t.UntilInput): t.Lifecycle;
 
   /** An async variant of the lifecycle pattern. */
   lifecycleAsync(onDispose?: LifecycleStageHandler): t.LifecycleAsync;
-  lifecycleAsync(until$?: t.DisposeInput, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
+  lifecycleAsync(until?: t.UntilInput, onDispose?: LifecycleStageHandler): t.LifecycleAsync;
 
   /** Extend the given object to be expose the lifecycle API. */
   toLifecycle<T extends t.Lifecycle>(life: t.Lifecycle, api: t.OmitLifecycle<T>): T;
@@ -34,15 +37,13 @@ export type DisposeLib = {
   /**
    * Listens to an observable and disposes of the object when fires.
    */
-  until(dispose$?: t.DisposeInput): t.Observable<unknown>[];
+  until(until?: t.UntilInput): t.Observable<unknown>[];
 
   /**
-   * "Completes" a subject by running:
-   *
-   *    1. subject.next();
-   *    2. subject.complete();
+   * Emit `{ reason }` once, then complete.
+   * Safe to call with `undefined` reason.
    */
-  done(dispose$?: t.Subject<void>): void;
+  done(dispose$?: t.Subject<t.DisposeEvent>, reason?: unknown): void;
 
   /**
    * Safely remove the `dispose` method from a disposable.

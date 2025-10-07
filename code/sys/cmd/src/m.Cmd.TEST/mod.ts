@@ -1,7 +1,7 @@
 /**
- * @module
  * Testing tools.
- * ────────────────────────
+ * @module
+ *
  * Common test suits to run implementations through to ensure they
  * conform with the standard behavior specifications for the
  * Cmd<T> object.

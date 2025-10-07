@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with DOM/browser based UI react bindings.
+ * @module
  *
  * @example
  * Import pattern for a simple React component
@@ -29,6 +29,8 @@
  * ```
  */
 export { pkg } from './pkg.ts';
+
+/** Type library (barrel file). */
 export type * as t from './types.ts';
 
 /**
@@ -38,17 +40,5 @@ export { FC } from './m.FC/mod.ts';
 export { Signal } from './m.Signal/mod.ts';
 export { ReactChildren, ReactEvent, ReactString } from './u/mod.ts';
 
-export {
-  useClickInside,
-  useClickOutside,
-  useDist,
-  useIsTouchSupported,
-  useLoading,
-  useMouse,
-  useMouseDrag,
-  useRedraw,
-  useSizeObserver,
-  useVisibilityThreshold,
-  useVisibilityThresholdX,
-  useVisibilityThresholdY,
-} from './m.use/mod.ts';
+// Hooks:
+export * from './use/mod.ts';

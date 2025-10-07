@@ -1,13 +1,25 @@
 import { type t, DEFAULTS as BASE, pkg, Pkg } from '../common.ts';
+
 export * from '../common.ts';
 
 /**
  * Constants:
  */
 const name = 'MonacoEditor';
+
 const props: t.PickRequired<
   t.MonacoEditorProps,
-  'theme' | 'readOnly' | 'minimap' | 'tabSize' | 'language' | 'enabled'
+  | 'theme'
+  | 'readOnly'
+  | 'minimap'
+  | 'tabSize'
+  | 'language'
+  | 'enabled'
+  | 'autoFocus'
+  | 'wordWrap'
+  | 'wordWrapColumn'
+  | 'fontSize'
+  | 'spinning'
 > = {
   theme: 'Dark',
   enabled: true,
@@ -15,11 +27,17 @@ const props: t.PickRequired<
   minimap: true,
   tabSize: 2,
   language: 'typescript',
+  autoFocus: false,
+  wordWrap: false,
+  wordWrapColumn: 80,
+  fontSize: 14,
+  spinning: false,
 };
+
 export const DEFAULTS = {
   ...BASE,
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   props,
 } as const;
 export const D = DEFAULTS;

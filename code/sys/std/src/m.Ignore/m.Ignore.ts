@@ -1,10 +1,12 @@
+import type { IgnoreLib } from './t.ts';
+
 import { default as Lib } from 'ignore';
 import { type t, Path } from './common.ts';
 
 /**
  * Tools for working with ignore files (eg. ".gitignore").
  */
-export const Ignore: t.IgnoreLib = {
+export const Ignore: IgnoreLib = {
   /**
    * Create an instance of a glob-ignore helper (eg. from a `.gititnore` file).
    */

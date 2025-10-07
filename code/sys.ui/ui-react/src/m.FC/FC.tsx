@@ -1,11 +1,11 @@
-import type { t } from '../common.ts';
+import type { FCLib } from './t.ts';
 
 type O = Record<string, unknown>;
 
 /**
  * Helpers for working with `React.FC` (aka. "functional components").
  */
-export const FC: t.FCLib = {
+export const FC: FCLib = {
   /**
    * Decorate a React function declaration with additional fields.
    */

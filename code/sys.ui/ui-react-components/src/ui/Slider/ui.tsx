@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { type t, DEFAULTS, css, useRedraw, Color } from './common.ts';
+import { type t, Color, DEFAULTS, css, useRev } from './common.ts';
 
 import { Wrangle } from './u.ts';
 import { Thumb } from './ui.Thumb.tsx';
@@ -16,8 +16,8 @@ export const Slider: React.FC<t.SliderProps> = (props) => {
    * Hooks:
    */
   const monitor = useEventMonitor({ enabled, onChange });
-  const redraw = useRedraw();
-  useEffect(redraw, [Boolean(monitor.el)]); // NB: ensure the thumb renders (which is waiting for the [ref] → totalWidth).
+  const [, redraw] = useRev();
+  useEffect(redraw, [!!monitor.el]); // NB: ensure the thumb renders (which is waiting for the [ref] → totalWidth).
 
   /**
    * Render:
@@ -41,17 +41,21 @@ export const Slider: React.FC<t.SliderProps> = (props) => {
     }),
   };
 
-  const elTracks = tracks.map((track, i) => (
-    <Track
-      key={i}
-      totalWidth={totalWidth}
-      percent={percent}
-      track={track}
-      thumb={thumb}
-      enabled={enabled}
-      theme={theme.name}
-    />
-  ));
+  const elTracks = tracks.map((track, i) => {
+    return (
+      <Track
+        key={i}
+        index={i}
+        totalWidth={totalWidth}
+        percent={percent}
+        track={track}
+        thumb={thumb}
+        enabled={enabled}
+        theme={theme.name}
+        background={props.background}
+      />
+    );
+  });
 
   const elTicks = <Ticks ticks={ticks} theme={theme.name} />;
 

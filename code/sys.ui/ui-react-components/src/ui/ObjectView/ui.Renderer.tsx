@@ -1,6 +1,6 @@
 import { ObjectLabel, ObjectPreview, ObjectRootLabel } from 'react-inspector';
 
-type NodeRenderer = (args: NodeRendererArgs) => JSX.Element;
+type NodeRenderer = (args: NodeRendererArgs) => React.JSX.Element;
 type NodeRendererArgs = {
   depth: number;
   name: string;

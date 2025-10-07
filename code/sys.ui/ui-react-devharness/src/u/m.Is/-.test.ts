@@ -1,10 +1,12 @@
 import { describe, expect, it } from '../../-test.ts';
-import { DevBus, Context, Spec } from '../mod.ts';
+
+import { type t } from '../common.ts';
+import { RxBus } from '../m.RxBus/mod.ts';
+import { Context, DevBus, Spec } from '../mod.ts';
 import { Is } from './mod.ts';
-import { rx, type t } from '../common.ts';
 
 describe('Is (flags)', () => {
-  const bus = rx.bus();
+  const bus = RxBus();
   const instance: t.DevInstance = { bus, id: 'foo' };
 
   it('includes base methods', () => {

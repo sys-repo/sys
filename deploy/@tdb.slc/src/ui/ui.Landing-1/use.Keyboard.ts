@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { Keyboard, rx } from './common.ts';
+import { Keyboard, Rx } from './common.ts';
 
 export function useKeyboard() {
   useEffect(() => {
-    const life = rx.disposable();
+    const life = Rx.disposable();
     const keyboard = Keyboard.until(life.dispose$);
 
     keyboard.on('Enter', () => {

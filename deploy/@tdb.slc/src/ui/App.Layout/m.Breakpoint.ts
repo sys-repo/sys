@@ -1,9 +1,10 @@
 import { type t } from './common.ts';
+import type { BreakpointLib } from './t.ts';
 
 /**
  * Layout breakpoints calculation/helpers.
  */
-export const Breakpoint: t.BreakpointLib = {
+export const Breakpoint: BreakpointLib = {
   from(input: t.BreakpointSizeInput): t.Breakpoint {
     if (typeof input === 'number') return Breakpoint.fromWidth(input);
     if (typeof input === 'string') return Breakpoint.fromName(input);

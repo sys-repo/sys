@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
-import { isObject, isRecord } from '../common.ts';
+import { isObject, isRecord, isEmptyRecord } from '../common.ts';
 import { Arr } from '../m.Value.Arr/m.Arr.ts';
 import { Num, Value } from './mod.ts';
 
@@ -10,6 +10,7 @@ describe('Value', () => {
     expect(Value.round).to.equal(Num.round);
     expect(Value.isObject).to.equal(isObject);
     expect(Value.isRecord).to.equal(isRecord);
+    expect(Value.isEmptyRecord).to.equal(isEmptyRecord);
   });
 
   describe('toggle', () => {

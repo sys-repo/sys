@@ -10,7 +10,7 @@ export type ValueLib = {
   Arr: t.ArrayLib;
 
   /** Tools for working with numbers. */
-  Num: t.NumLib;
+  Num: t.NumberLib;
 
   /** Tools for working on strings of text. */
   Str: t.StrLib;
@@ -19,7 +19,7 @@ export type ValueLib = {
   Obj: t.ObjLib;
 
   /** Rounds a number to the specified number of decimal places. */
-  round: t.NumLib['round'];
+  round: t.NumberLib['round'];
 
   /** Determine if the given input is typeof {object} and not Null. */
   isObject(input: unknown): input is object;

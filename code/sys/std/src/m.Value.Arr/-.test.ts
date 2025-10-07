@@ -15,7 +15,7 @@ describe('Value.Arr (Array)', () => {
     });
 
     it('return input value if an array is not passed', () => {
-      expect(Value.Arr.flatten(123)).to.eql(123);
+      expect(Value.Arr.flatten(123)).to.eql([123]);
     });
 
     it('flattens one level deep', () => {
@@ -187,6 +187,68 @@ describe('Value.Arr (Array)', () => {
       expect(b.map((e) => e.count)).to.eql([5, 3, 0]);
       expect(c.map((e) => e.tag)).to.eql(['A', 'B', 'C']);
       expect(d.map((e) => e.tag)).to.eql(['C', 'B', 'A']);
+    });
+  });
+
+  describe('Arr.startsWith', () => {
+    it('matches a shorter prefix at the start of the array', () => {
+      expect(Arr.startsWith([1, 2, 3], [1, 2])).to.be.true;
+    });
+
+    it('matches when prefix and subject are the same length and content', () => {
+      expect(Arr.startsWith(['a', 'b'], ['a', 'b'])).to.be.true;
+    });
+
+    it('fails when prefix is longer than subject', () => {
+      expect(Arr.startsWith([1], [1, 2])).to.be.false;
+    });
+
+    it('fails when any element differs', () => {
+      expect(Arr.startsWith([1, 2, 3], [1, 3])).to.be.false;
+    });
+
+    it('always matches an empty prefix', () => {
+      expect(Arr.startsWith([1, 2, 3], [])).to.be.true;
+    });
+
+    it('compares elements with Object.is semantics (NaN / -0)', () => {
+      expect(Arr.startsWith([NaN, 2], [NaN])).to.be.true; // NaN === NaN (via Object.is)
+      expect(Arr.startsWith([-0, 1], [+0])).to.be.false; // -0 !== +0 (via Object.is)
+    });
+  });
+
+  describe('Arr.equal (instance equality)', () => {
+    it('returns true for two empty arrays', () => {
+      expect(Arr.equal([], [])).to.be.true;
+    });
+
+    it('returns true for arrays with identical primitive elements', () => {
+      expect(Arr.equal([1, 2, 3], [1, 2, 3])).to.be.true;
+    });
+
+    it('returns false when lengths differ', () => {
+      expect(Arr.equal([1, 2], [1, 2, 3])).to.be.false;
+    });
+
+    it('returns false when elements differ at any index', () => {
+      expect(Arr.equal([1, 2, 3], [1, 4, 3])).to.be.false;
+    });
+
+    it('returns true for arrays of the same object references', () => {
+      const obj = { foo: 'bar' };
+      expect(Arr.equal([obj, obj], [obj, obj])).to.be.true;
+    });
+
+    it('returns false for arrays of different object instances with equal structure', () => {
+      expect(Arr.equal([{ foo: 'bar' }], [{ foo: 'bar' }])).to.be.false;
+    });
+
+    it('returns true for [NaN] compared to [NaN]', () => {
+      expect(Arr.equal([NaN], [NaN])).to.be.true;
+    });
+
+    it('returns false for [-0] compared to [0]', () => {
+      expect(Arr.equal([-0], [0])).to.be.false;
     });
   });
 });
