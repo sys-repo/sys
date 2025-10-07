@@ -1,30 +1,21 @@
 import type { Document as YamlDocument } from 'yaml';
-import { type t, Yaml } from './common.ts';
+import { Num, type t, Yaml } from './common.ts';
 
 type Result = Readonly<{ path: t.ObjectPath; offset: number }>;
 
 /**
- * Compute the YAML object-path (array of string|number) for the caret location.
- *
- * The caret comes from a Monaco editor. `pathAtCaret`:
- *  1. Biases the raw caret to the first non-whitespace character on that line.
- *  2. Clears the path on blank/whitespace-only lines.
- *  3. Works around a yaml-ast "previous node" stickiness by scanning forward
- *     (up to `limit` chars) until the path actually changes.
- *
- * @example
- * ```ts
- *    const { path } = pathAtCaret(model, doc, { lineNumber: 2, column: 1 });
- *    // → ['bar']
- * ```
+ * YAML path at caret (clamped, whitespace-aware;
+ * forward-scan to avoid prev-node stickiness).
  */
 export function pathAtCaret(
   model: t.Monaco.TextModel,
   ast: YamlDocument.Parsed,
   position: t.Monaco.I.IPosition,
-  limit: number = 512, // Max chars to scan forward.
+  limit: number = 512,
 ): Result {
-  const lineText = model.getLineContent(position.lineNumber);
+  const lineCount = Math.max(1, model.getLineCount());
+  const line = Num.clamp(1, lineCount, position.lineNumber || 1);
+  const lineText = model.getLineContent(line);
 
   // Blank / whitespace-only line → no path.
   if (/^\s*$/.test(lineText)) return { path: [], offset: -1 };
@@ -32,28 +23,30 @@ export function pathAtCaret(
   /**
    * Bias caret to first visible char (avoid prev-node stickiness):
    */
-  const firstIdx = lineText.search(/\S/); // ← 0-based.
-  const firstCol = firstIdx + 1; //          ← 1-based.
+  const firstIdx = lineText.search(/\S/); // ← 0-based
+  const firstCol = firstIdx + 1; //          ← 1-based
 
-  let col = position.column;
+  let col = position.column || 1;
   const isAtOrBeforeFirstVisible = col <= firstCol;
-  col = Math.max(firstCol, Math.min(col, lineText.length + 1));
-  if (col <= firstCol) col = firstCol;
-  if (col > lineText.length + 1) col = lineText.length + 1;
+  const maxCol = lineText.length + 1;
+  col = Math.max(firstCol, Math.min(col, maxCol));
 
-  const offset = model.getOffsetAt({ lineNumber: position.lineNumber, column: col });
-  let path = Yaml.Path.atOffset(ast.contents, offset);
+  const offset = model.getOffsetAt({ lineNumber: line, column: col });
+
+  // If the AST is empty or missing, return empty path gracefully.
+  const root = (ast && (ast as any).contents) ?? undefined;
+  let path = root ? Yaml.Path.atOffset(root, offset) : [];
 
   /**
    * Forward scan if still glued to previous node when at column-1.
    */
-  if (isAtOrBeforeFirstVisible && position.lineNumber > 1) {
-    const prevPath = offset > 0 ? Yaml.Path.atOffset(ast.contents, offset - 1) : [];
+  if (root && isAtOrBeforeFirstVisible && line > 1) {
+    const prevPath = offset > 0 ? Yaml.Path.atOffset(root, offset - 1) : [];
     if (samePath(prevPath, path)) {
       const max = model.getValueLength();
       const end = Math.min(max, offset + limit);
       for (let o = offset + 1; o < end; o++) {
-        const p = Yaml.Path.atOffset(ast.contents, o);
+        const p = Yaml.Path.atOffset(root, o);
         if (!samePath(prevPath, p)) {
           path = p;
           break;
@@ -62,9 +55,6 @@ export function pathAtCaret(
     }
   }
 
-  /**
-   * API:
-   */
   return { path, offset } as const;
 }
 
