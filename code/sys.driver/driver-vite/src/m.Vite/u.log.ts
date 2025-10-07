@@ -1,4 +1,4 @@
-import { ViteLog } from '../m.log/mod.ts';
+import { ViteLog } from '../m.Log/mod.ts';
 import { type t, Path, c } from './common.ts';
 
 type BuildArgs = t.ViteLogBundleArgs & {

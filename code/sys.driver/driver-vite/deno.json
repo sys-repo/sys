@@ -24,7 +24,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./entry": "./src/-entry/mod.ts",
-    "./log": "./src/m.log/mod.ts",
+    "./log": "./src/m.Log/mod.ts",
     "./main": "./src/-entry/-main.ts",
     "./sample-imports": "./src/-test/-sample-imports.ts"
   }
