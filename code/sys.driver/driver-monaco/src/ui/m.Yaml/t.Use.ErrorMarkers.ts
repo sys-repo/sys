@@ -15,5 +15,5 @@ export type UseYamlErrorMarkersArgs = {
   enabled?: boolean;
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
-  errors?: readonly t.YamlError[];
+  errors?: t.YamlError[];
 };

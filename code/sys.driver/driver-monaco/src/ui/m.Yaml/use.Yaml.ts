@@ -13,6 +13,7 @@ import {
   useBus,
 } from './common.ts';
 import { Path } from './m.Path.ts';
+
 import { useErrorMarkers } from './use.ErrorMarkers.ts';
 
 /** Singleton registry for editor cursor observers (per editorId). */
