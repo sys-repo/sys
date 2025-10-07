@@ -3,6 +3,7 @@
  * - Shared contracts across parse/validate stages.
  */
 import type { t } from './common.ts';
+export type * from './t.slug.err.ts';
 
 /**
  * Namespace: tools within the YAML pipeline related to slug interpretation.
@@ -23,8 +24,6 @@ export type SlugFromYaml = (
 
 /**
  * Result of extracting + validating a slug from YAML.
- * - Structural only (no semantic rules).
- * - Keeps parser errors and schema errors distinct.
  */
 export type SlugFromYamlResult = {
   /** Overall structural check outcome. */
@@ -40,19 +39,5 @@ export type SlugFromYamlResult = {
   readonly slug?: unknown;
 
   /** Categorised errors */
-  readonly errors: SlugFromYamlErrors;
-};
-
-/**
- * Categorised errors from a YAML parse and validation pipeline of slugs.
- */
-export type SlugFromYamlErrors = {
-  /** Parser errors reported by the YAML library. Low-level syntax/parse issues before schema or semantic checks. */
-  readonly yaml: readonly t.Schema.YamlError[];
-
-  /** Shape violations from schema validation (e.g. wrong types). Structural = "does it match the schema shape?". */
-  readonly schema: readonly t.Schema.ValidationError[];
-
-  /** Higher-order semantic rule violations (e.g. alias collisions). Semantic = "is the object logically valid?". */
-  readonly semantic: readonly t.Schema.ValidationError[];
+  readonly errors: t.SlugYamlErrors;
 };
