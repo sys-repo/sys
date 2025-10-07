@@ -155,7 +155,7 @@ events.dispose();
 
 - [Modularity](https://en.wikipedia.org/wiki/Modularity)
 - [Cohesion](https://en.wikipedia.org/wiki/Cohesion_(computer_science))
-- (Good) [Seperation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)
+- (Good) [Separation of Concerns](https://en.wikipedia.org/wiki/Separation_of_concerns)
 - (Good) Lines of [Abstraction](https://en.wikipedia.org/wiki/Abstraction_(computer_science)) ← aka. [information hiding](https://en.wikipedia.org/wiki/Information_hiding)
 - [Loose Coupling](https://en.wikipedia.org/wiki/Loose_coupling)
 
