@@ -8,6 +8,8 @@ export type * from './t.rel.ts';
 
 type O = Record<string, unknown>;
 
+export type PathJoinMode = 'absolute' | 'relative';
+
 /**
  * Tools for working with objects via abstract path arrays.
  */
@@ -62,6 +64,17 @@ export type ObjPathLib = {
    * Returns true if both paths have the same parts in the same order.
    */
   eql(a?: t.ObjectPath, b?: t.ObjectPath): boolean;
+
+  /**
+   * Join a base path with a relative path under a chosen mode.
+   * - 'absolute'  → prefix `rel` with `base` (when rel is non-empty).
+   * - 'relative'  → return `rel` unchanged (or [] if absent).
+   *
+   * Notes:
+   * - If `rel` is empty/undefined: returns `base` (absolute) or [] (relative).
+   * - If `base` is empty and mode is 'absolute', returns `rel`.
+   */
+  join(base: t.ObjectPath, rel?: t.ObjectPath, mode?: PathJoinMode): t.ObjectPath;
 };
 
 /**

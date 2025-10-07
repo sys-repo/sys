@@ -8,6 +8,7 @@ import { Mutate } from './m.Mutate.ts';
 import { eql } from './m.Path.eql.ts';
 import { exists } from './m.Path.exists.ts';
 import { get } from './m.Path.get.ts';
+import { join } from './m.Path.join.ts';
 import { Rel } from './m.Rel.ts';
 
 export const Path: t.ObjPathLib = {
@@ -24,4 +25,5 @@ export const Path: t.ObjPathLib = {
   decode,
   asNumeric,
   eql,
+  join,
 };
