@@ -116,6 +116,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/jsr"
+        run: |
+          cd code/sys/jsr
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/text"
         run: |
           cd code/sys/text
@@ -125,12 +131,6 @@ jobs:
       - name: publish module → "@sys/tmpl-engine"
         run: |
           cd code/sys/tmpl-engine
-          deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/jsr"
-        run: |
-          cd code/sys/jsr
           deno task test --parallel
           deno publish --allow-dirty
 

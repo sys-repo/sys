@@ -24,9 +24,9 @@ export const Paths = {
     'code/sys/event',
     'code/sys/cmd',
     'code/sys/http',
+    'code/sys/jsr',
     'code/sys/text',
     'code/sys/tmpl-engine',
-    'code/sys/jsr',
 
     /**
      * sys.ui:
