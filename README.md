@@ -1,12 +1,14 @@
 ![banner-A1-slender](https://github.com/cellplatform/platform-0.2.0/assets/185555/2b0a110d-0c73-4583-bbfa-94f77d38bc17)
-[![MIT License][mit-badge]][mit-url]
 [![CI][ci-badge]][ci-url]
 [![JSR Registry][jsr-badge]][jsr-url]
+[![MIT License][mit-badge]][mit-url]
 
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue?style=flat
 [mit-url]: https://opensource.org/licenses/MIT
+
 [jsr-badge]: https://jsr.io/badges/@sys?style=flat
 [jsr-url]: https://jsr.io/@sys
+
 [ci-badge]: https://img.shields.io/github/actions/workflow/status/sys-repo/sys/jsr.yaml?style=flat&label=CI
 [ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
 
