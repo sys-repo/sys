@@ -1,4 +1,20 @@
-export { Arr, Delete, Dispose, Err, Fn, Is, Obj, Pkg, R, Str, Time, Url, slug } from '@sys/std';
+export {
+  Arr,
+  Delete,
+  Dispose,
+  Err,
+  Fn,
+  Is,
+  Num,
+  Obj,
+  Pkg,
+  R,
+  Str,
+  Time,
+  Url,
+  slug,
+} from '@sys/std';
+
 export { Schedule, singleton } from '@sys/std/async';
 export { Immutable } from '@sys/std/immutable';
 export { Rx } from '@sys/std/rx';
