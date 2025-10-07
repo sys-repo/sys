@@ -1,8 +1,8 @@
 import { type t, Is, Obj, Schema, SlugSchema, Value, Yaml } from './common.ts';
-import { attachSemanticErrorRanges } from './u.errors.ts';
+import { Error } from './m.Slug.Error.ts';
 import { SlugRules } from './u.slug.rules.ts';
 
-type E = t.DeepMutable<t.SlugFromYamlErrors>;
+type E = t.DeepMutable<t.SlugYamlErrors>;
 
 export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
   const ast: t.Yaml.Ast = Is.string(yamlInput) ? Yaml.parseAst(yamlInput) : yamlInput;
@@ -40,7 +40,7 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
   if (isSchemaValid) {
     // Semantic validation | "Semantic" = "is the object logically valid?"
     SlugRules.aliasUniqueness(errs.semantic, path, candidate);
-    attachSemanticErrorRanges(ast, errs.semantic);
+    Error.attachSemanticRanges(ast, errs.semantic);
 
     // Finish up.
     return isOk() ? done(candidate) : done();
@@ -55,7 +55,7 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
  * Helpers:
  */
 const wrangle = {
-  errors(input: E): t.SlugFromYamlErrors {
+  errors(input: E): t.SlugYamlErrors {
     return {
       get schema() {
         return input.schema;

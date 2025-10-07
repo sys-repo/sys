@@ -1,6 +1,6 @@
 import { type t, Yaml } from './common.ts';
 
-export function attachSemanticErrorRanges(ast: t.Yaml.Ast, errs: t.Schema.ValidationError[]) {
+export const attachSemanticRanges: t.YamlSlugErrorLib['attachSemanticRanges'] = (ast, errs) => {
   for (const err of errs) {
     if (err.range !== undefined) continue;
 
@@ -17,8 +17,8 @@ export function attachSemanticErrorRanges(ast: t.Yaml.Ast, errs: t.Schema.Valida
     }
 
     if (node?.range) {
-      // safe: errs is DeepMutable
+      // Safe: errs is DeepMutable
       (err as any).range = node.range;
     }
   }
-}
+};

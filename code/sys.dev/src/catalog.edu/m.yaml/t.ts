@@ -3,7 +3,8 @@
  * - Shared contracts across parse/validate stages.
  */
 import type { t } from './common.ts';
-export type * from './t.slug.ts';
+
+export type * from './t.Slug.ts';
 
 /**
  * Namespace: tools that handle the pipe of
