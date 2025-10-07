@@ -11,10 +11,9 @@ import {
   singleton,
   slug,
   useBus,
+  useErrorMarkers,
 } from './common.ts';
 import { Path } from './m.Path.ts';
-
-import { useErrorMarkers } from './use.ErrorMarkers.ts';
 
 /** Singleton registry for editor cursor observers (per editorId). */
 type Registry = { refCount: number; producer: t.EditorYamlCursorPathObserver };
