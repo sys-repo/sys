@@ -1,0 +1,21 @@
+import type { t } from './common.ts';
+
+/**
+ * <Component>:
+ */
+export type TextPanelProps = {
+  label?: string;
+  doc?: t.Crdt.Ref;
+  path?: t.ObjectPath;
+
+  // Debug:
+  debug?: boolean;
+  warnings?: boolean;
+
+  // Appearance:
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+  labelOpacity?: t.Percent;
+  rowGap?: t.Percent;
+  scroll?: boolean;
+};

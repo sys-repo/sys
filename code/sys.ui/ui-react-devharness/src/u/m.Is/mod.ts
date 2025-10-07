@@ -1,7 +1,9 @@
 import type { t } from '../common.ts';
+import type { DevIsLib } from './t.ts';
+
 import { Is as Base } from '@sys/testing/spec';
 
-export const Is: t.DevIsLib = {
+export const Is: DevIsLib = {
   ...Base,
 
   nil(input?: any) {

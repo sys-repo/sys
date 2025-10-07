@@ -21,7 +21,11 @@ export default Spec.describe('Spinners', (e) => {
       .render((e) => {
         return (
           <div className={css({ display: 'grid', placeItems: 'center' }).class}>
-            <Spinners.Bar theme={p.theme.value} width={p.width.value} />
+            <Spinners.Bar
+              theme={p.theme.value}
+              width={p.width.value}
+              transparentTrack={p.transparentTrack.value}
+            />
           </div>
         );
       });

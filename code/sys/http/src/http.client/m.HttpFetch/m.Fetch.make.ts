@@ -1,0 +1,195 @@
+import { type t, DEFAULTS, Dispose, Err, Is, Rx, toHeaders } from './common.ts';
+
+type RequestInput = RequestInfo | URL;
+type F = t.HttpFetchLib['make'];
+
+/**
+ * Factory method:
+ */
+export const makeFetch: F = (input: Parameters<F>[0]) => {
+  const options = wrangle.options(input);
+  const life = Rx.abortable(options.dispose$);
+
+  const invokeFetch = async <T>(
+    contentType: t.StringContentType,
+    input: RequestInput,
+    init: RequestInit,
+    options: t.HttpFetchOptions,
+    toData: (res: Response) => Promise<T>,
+  ): Promise<t.FetchResponse<T>> => {
+    const url = wrangle.href(input);
+    const errors = Err.errors();
+
+    let status = 200;
+    let statusText = 'OK';
+    let data: T | undefined;
+    let headers: Headers = new Headers();
+    let checksum: undefined | t.FetchResponseChecksum;
+
+    try {
+      const userHeaders = toHeaders(init.headers);
+      const mergedHeaders = { ...api.headers, ...userHeaders };
+      if (contentType && !userHeaders['content-type']) mergedHeaders['content-type'] = contentType;
+
+      const fetched = await fetch(url, {
+        ...init,
+        signal: life.signal,
+        headers: mergedHeaders,
+      });
+      status = fetched.status;
+      statusText = fetched.statusText;
+      headers = fetched.headers;
+
+      if (fetched.ok) {
+        data = await toData(fetched);
+        if (options.checksum) {
+          const { verifyChecksum } = await import('./u.checksum.ts'); // ← NB: Do not load crypto-algos into memory unless needed.
+          checksum = verifyChecksum<T>(data, options.checksum, errors);
+          if (!checksum.valid) {
+            const err = DEFAULTS.error.checksumFail;
+            status = err.status;
+            statusText = err.statusText;
+          }
+        }
+      } else {
+        fetched.body?.cancel();
+        errors.push(fetched);
+      }
+    } catch (cause: unknown) {
+      const name = 'HttpError';
+      statusText = 'HTTP Client Error';
+      if (life.disposed) {
+        // HTTP: Client Closed Request:
+        const err = DEFAULTS.error.clientDisposed;
+        status = err.status;
+        statusText = err.statusText;
+        const error = Err.std(statusText, { name });
+        errors.push(error);
+      } else {
+        // HTTP: Unknown Error:
+        status = DEFAULTS.error.unknown.status;
+        const err = Err.std(`Failed while fetching: ${url}`, { cause, name });
+        errors.push(err);
+      }
+    }
+
+    // Prepare error:
+    let error: t.HttpError | undefined;
+    const cause = errors.toError();
+    if (cause) {
+      const method = (init.method ?? 'GET').toUpperCase();
+      const name = 'HttpError';
+      const message = `HTTP/${method} request failed: ${url}`;
+      const headers = toHeaders(init.headers);
+      const base = Err.std(message, { name, cause });
+      error = { ...base, status, statusText, headers };
+    }
+
+    // Finish up.
+    const ok = !cause;
+    return {
+      ok,
+      status,
+      statusText,
+      url,
+      get headers() {
+        return headers;
+      },
+      get data() {
+        return data;
+      },
+      error,
+      checksum,
+    } as t.FetchResponse<T>;
+  };
+
+  const api: t.HttpFetch = Rx.toLifecycle<t.HttpFetch>(life, {
+    header: (name) => (api.headers as any)[name],
+    get headers() {
+      return wrangle.headers(options);
+    },
+
+    head(input: RequestInput, init: RequestInit = {}, options = {}) {
+      const req = { ...init, method: 'HEAD' };
+      const toData = async () => undefined as undefined; // ← No body.
+      return invokeFetch<undefined>('', input, req, options, toData); // '' = no header
+    },
+
+    json<T>(input: RequestInput, init: RequestInit = {}, options = {}) {
+      return invokeFetch<T>('application/json', input, init, options, (r) => r.json());
+    },
+
+    text(input: RequestInput, init: RequestInit = {}, options = {}) {
+      return invokeFetch<string>('text/plain', input, init, options, (r) => r.text());
+    },
+
+    blob(input: RequestInput, init: RequestInit = {}, options = {}) {
+      return invokeFetch<Blob>('application/octet-stream', input, init, options, (r) => r.blob());
+    },
+  });
+
+  return api;
+};
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  options(input: Parameters<F>[0]): t.HttpFetchCreateOptions {
+    if (!input) return {};
+    if (Array.isArray(input)) return { dispose$: Dispose.until(input) };
+    if (Is.observable(input)) return { dispose$: Dispose.until(input) };
+    if (typeof input === 'object') return input as t.HttpFetchCreateOptions;
+    return {};
+  },
+
+  href(input: RequestInput): string {
+    if (typeof input === 'string') {
+      return input;
+    } else if (input instanceof Request) {
+      return input.url;
+    } else if (input instanceof URL) {
+      return input.href;
+    }
+    throw new Error('Unsupported input type');
+  },
+
+  accessToken(options: t.HttpFetchCreateOptions): string {
+    const accessToken = options.accessToken;
+    if (typeof accessToken === 'function') return accessToken();
+    if (typeof accessToken === 'string') {
+      const token = accessToken
+        .trim()
+        .replace(/^Bearer /, '')
+        .trim();
+      return `Bearer ${token}`;
+    }
+    return '';
+  },
+
+  headers(options: t.HttpFetchCreateOptions): t.HttpHeaders {
+    const accessToken = wrangle.accessToken(options);
+    const headers: any = {};
+    if (accessToken) headers['Authorization'] = accessToken;
+
+    if (typeof options.headers === 'function') {
+      const payload: t.HttpMutateHeadersArgs = {
+        get headers() {
+          return { ...headers };
+        },
+        get(name) {
+          return headers[name];
+        },
+        set(name, value) {
+          if (typeof value === 'string') value = value.trim();
+          if (!value) delete headers[name];
+          else headers[name] = String(value);
+          return payload;
+        },
+      };
+      options.headers(payload);
+    }
+
+    return headers;
+  },
+} as const;

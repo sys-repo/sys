@@ -1,8 +1,9 @@
+import type { ReactChildrenLib } from './t.ts';
+
 import { useMemo } from 'react';
-import type { t } from './common.ts';
 import { deps } from './m.ReactChildren.deps.ts';
 
-export const ReactChildren: t.ReactChildrenLib = {
+export const ReactChildren: ReactChildrenLib = {
   deps,
   useDeps: (children) => useMemo(() => ReactChildren.deps(children), [children]),
 };

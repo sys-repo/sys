@@ -1,62 +1,76 @@
 import type React from 'react';
 import type { t } from './common.ts';
 
-type MouseHandler = React.MouseEventHandler;
-type Content = JSX.Element | string | number | false;
+type Content = React.JSX.Element | string | number | false;
 
 /**
- * <Component>: Button (simple clickable element).
+ * <Component>: Headless clickable "button" component.
  */
 export type ButtonProps = {
+  debug?: boolean;
+
   children?: Content;
-  label?: string | (() => string);
-  enabled?: boolean;
-  active?: boolean;
-  block?: boolean;
+  label?: React.ReactNode | (() => React.ReactNode);
   tooltip?: string;
 
+  // Boolean:
+  enabled?: boolean | (() => boolean);
+  opacity?: t.Percent | t.ButtonPropCallback<t.Percent>;
+  active?: boolean;
+  block?: boolean;
   isOver?: boolean; // force the button into an "is-over" state.
   isDown?: boolean; // force the button into an "is-down" state.
 
+  // Appearance:
   theme?: t.CommonTheme;
   style?: t.CssInput;
   margin?: t.CssEdgesInput;
   padding?: t.CssEdgesInput;
   minWidth?: number;
   maxWidth?: number;
-  disabledOpacity?: number;
   userSelect?: boolean;
   pressedOffset?: [number, number];
+  disabledOpacity?: t.Percent;
 
   /** Subscribe to signals that cause the button to redraw. */
   subscribe?: () => void;
 
-  onClick?: MouseHandler;
-  onMouseDown?: MouseHandler;
-  onMouseUp?: MouseHandler;
-  onMouseEnter?: MouseHandler;
-  onMouseLeave?: MouseHandler;
-  onDoubleClick?: MouseHandler;
+  // Events:
+  onClick?: React.MouseEventHandler;
+  onMouseDown?: React.MouseEventHandler;
+  onMouseUp?: React.MouseEventHandler;
+  onMouseEnter?: React.MouseEventHandler;
+  onMouseLeave?: React.MouseEventHandler;
+  onDoubleClick?: React.MouseEventHandler;
   onMouse?: t.ButtonMouseHandler;
 };
 
+/** Callbacks used by a button to dynaically evaluate a value on redraw. */
+export type ButtonPropCallback<T> = (e: ButtonPropCallbackArgs) => T;
+/** Callback arguments. */
+export type ButtonPropCallbackArgs = { readonly is: t.ButtonFlags };
+
 /**
- * Events
+ * Flags representing the state of the button.
  */
-export type ButtonMouseHandler = (e: ButtonMouseHandlerArgs) => void;
-export type ButtonMouseHandlerArgs = {
-  isDown: boolean;
-  isOver: boolean;
-  isEnabled: boolean;
-  action: 'MouseEnter' | 'MouseLeave' | 'MouseDown' | 'MouseUp';
-  event: React.MouseEvent;
+export type ButtonFlags = {
+  readonly enabled: boolean;
+  readonly disabled: boolean;
+  readonly over: boolean;
+  readonly down: boolean;
 };
 
-export type ButtonCopyHandler = (e: ButtonCopyHandlerArgs) => void;
-export type ButtonCopyHandlerArgs = {
-  message(value: Content): ButtonCopyHandlerArgs;
-  fontSize(value: number): ButtonCopyHandlerArgs;
-  opacity(value: number): ButtonCopyHandlerArgs;
-  delay(value: t.Msecs): ButtonCopyHandlerArgs;
-  copy(value?: string | number): Promise<void>;
+/**
+ * Events:
+ */
+
+/** Handler for general mouse button event rollup. */
+export type ButtonMouseHandler = (e: ButtonMouseHandlerArgs) => void;
+/** Mouse button event rollup. */
+export type ButtonMouseHandlerArgs = {
+  readonly action: 'MouseEnter' | 'MouseLeave' | 'MouseDown' | 'MouseUp';
+  readonly synthetic: React.MouseEvent;
+  readonly modifiers: t.KeyboardModifierFlags;
+  readonly is: t.ButtonFlags;
+  cancel(): void;
 };

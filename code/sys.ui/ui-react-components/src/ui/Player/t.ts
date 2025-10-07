@@ -6,9 +6,9 @@ import type { t } from '../common.ts';
  */
 export type PlayerLib = {
   Video: {
-    signals: t.PlayerSignalsFactory;
-    View: React.FC<t.VideoPlayerProps>;
     Element: React.FC<t.VideoElementProps>;
+    signals: t.PlayerSignalsFactory;
+    useSignals: t.UsePlayerSignals;
   };
   Timestamp: {
     Thumbnails: { View: React.FC<t.ThumbnailsProps> };

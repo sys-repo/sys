@@ -1,12 +1,11 @@
 {
   "name": "@sys/cli",
-  "version": "0.0.81",
+  "version": "0.0.126",
   "license": "MIT",
   "tasks": {
-    "lint": "deno lint",
     "dry": "deno publish --allow-dirty --dry-run",
-    "clean": "deno run -RWE ./scripts/-clean.ts",
-    "test": "deno test -RWNE --allow-run --allow-ffi"
+    "clean": "deno run -P=clean ./scripts/-clean.ts",
+    "test": "deno test -P=testset"
   },
   "exports": {
     ".": "./src/mod.ts",

@@ -8,10 +8,12 @@ export const remove: t.FsRemove = async (path, options = {}) => {
   const shortPath = Path.trimCwd(path);
 
   if (options.dryRun) {
-    const prefix = c.bgGreen(c.white(' dry run '));
+    const prefix = c.brightGreen(' dry run ');
     let line = `${prefix} ${c.cyan('delete')}: ${c.gray(shortPath)}`;
     if (!targetExists) line += c.yellow(' ← does not exist');
+    console.info();
     console.info(line); // NB: dry-run always logs (otherwise no point).
+    console.info();
     return targetExists;
   }
 

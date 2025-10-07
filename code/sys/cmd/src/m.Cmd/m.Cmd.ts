@@ -1,4 +1,5 @@
-import type { t } from './common.ts';
+import type { CmdLib } from './t.ts';
+
 import { create } from './m.Cmd.impl.ts';
 import { Events, Is, Patch, Path, Queue, toIssuer, toPaths, toTransport } from './u.ts';
 
@@ -7,7 +8,7 @@ import { Events, Is, Patch, Path, Queue, toIssuer, toPaths, toTransport } from '
  * A mechanism for achieving distributed function invocation.
  * Primitive for building up an actor model ("message passing computer").
  */
-export const Cmd: t.CmdLib = {
+export const Cmd: CmdLib = {
   Is,
   Path,
   Patch,

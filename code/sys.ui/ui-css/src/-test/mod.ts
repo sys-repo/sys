@@ -1,5 +1,4 @@
-export { beforeEach, describe, DomMock, expect, it, Testing } from '@sys/testing/server';
+export { DomMock, Testing, beforeEach, describe, expect, it } from '@sys/testing/server';
 
 export * from './common.ts';
-export * from './u.Find.ts';
-export * from './u.Print.ts';
+export * from './u.ts';

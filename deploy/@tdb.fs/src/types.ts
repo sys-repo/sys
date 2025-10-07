@@ -1,5 +1,5 @@
 /**
  * @module
- * Module types.
+ * @types Type-library module.
  */
 export {};

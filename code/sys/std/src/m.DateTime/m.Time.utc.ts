@@ -1,9 +1,10 @@
-import { parseISO, getUnixTime } from 'date-fns';
+import { parseISO } from 'date-fns';
+
 import type { t } from './common.ts';
 import { Format } from './m.Date.Format.ts';
 
 /**
- * Generate a new UTC datetime instance
+ * Generate a new UTC datetime instance:
  */
 export function utc(input?: t.DateTimeInput) {
   const date = wrangle.date(input);
@@ -14,9 +15,6 @@ export function utc(input?: t.DateTimeInput) {
     get timestamp() {
       return date.getTime();
     },
-    get unix() {
-      return getUnixTime(date);
-    },
     format(template?: string) {
       return Format.toString(date, template ?? 'yyyy-MM-dd');
     },
@@ -25,7 +23,7 @@ export function utc(input?: t.DateTimeInput) {
 }
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   date(input?: t.DateTimeInput) {

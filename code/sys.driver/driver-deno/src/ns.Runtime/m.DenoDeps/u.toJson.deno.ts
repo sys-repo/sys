@@ -13,11 +13,11 @@ export function toDenoJson(deps?: t.Dep[]): t.PkgJsonDeno {
       .filter((e) => e.target.includes('deno.json'))
       .forEach((e) => {
         const value = Esm.toString(e.module);
-        imports[e.module.name] = value;
-        if (e.wildcard) imports[`${e.module.name}/*`] = `${value}/*`;
+        const name = e.module.alias || e.module.name;
+        imports[name] = value;
         if (Array.isArray(e.subpaths)) {
           e.subpaths.forEach((subpath) => {
-            imports[`${e.module.name}/${subpath}`] = `${value}/${subpath}`;
+            imports[`${name}/${subpath}`] = `${value}/${subpath}`;
           });
         }
       });

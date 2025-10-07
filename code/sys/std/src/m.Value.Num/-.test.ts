@@ -82,4 +82,37 @@ describe('Value.Num', () => {
       expect(Num.toString(-1.235, 2)).to.eql('-1.24');
     });
   });
+
+  describe('Num.clamp', () => {
+    it('clamps values below the minimum to the minimum', () => {
+      expect(Num.clamp(0, 1, -5)).to.eql(0);
+    });
+
+    it('clamps values above the maximum to the maximum', () => {
+      expect(Num.clamp(0, 1, 2)).to.eql(1);
+    });
+
+    it('returns the original value when within the range', () => {
+      expect(Num.clamp(0, 1, 0.5)).to.eql(0.5);
+    });
+
+    it('returns the minimum when equal to the minimum bound', () => {
+      expect(Num.clamp(0, 1, 0)).to.eql(0);
+    });
+
+    it('returns the maximum when equal to the maximum bound', () => {
+      expect(Num.clamp(0, 1, 1)).to.eql(1);
+    });
+
+    it('handles negative ranges', () => {
+      expect(Num.clamp(-1, 1, -2)).to.eql(-1);
+      expect(Num.clamp(-1, 1, 2)).to.eql(1);
+      expect(Num.clamp(-1, 1, 0)).to.eql(0);
+    });
+
+    it('returns NaN if the value is NaN', () => {
+      const result = Num.clamp(0, 1, NaN);
+      expect(Number.isNaN(result)).to.be.true;
+    });
+  });
 });

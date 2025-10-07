@@ -72,9 +72,13 @@ export type DateFormatLib = {
  * Represents an Date/Time value.
  */
 export type DateTime = {
+  /** The date value represented by the object. */
   readonly date: Date;
+
+  /** Retrieve the current higher-precision UnixEpoch by including milliseconds since January 1, 1970, 00:00:00 UTC. */
   readonly timestamp: t.UnixTimestamp;
-  readonly unix: t.UnixEpoch;
+
+  /** Formats the date with the the template */
   format(template?: string): string;
 };
 

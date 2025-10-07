@@ -1,6 +1,6 @@
 /**
  * @module
- * Module types.
+ * @types Type-library module.
  */
 export type * from './m.Dom/t.ts';
 export type * from './m.Events/t.ts';

@@ -1,5 +1,4 @@
-import type { describe, it, beforeAll, beforeEach, afterAll, afterEach } from '@std/testing/bdd';
-import type { expect } from 'chai';
+import type { afterAll, afterEach, beforeAll, beforeEach, describe, it } from '@std/testing/bdd';
 import type { t } from './common.ts';
 
 /**
@@ -19,6 +18,16 @@ export type TestingLib = {
   /** Attempt to run the test function <n>-times before throwing. */
   retry(times: number, fn?: TestRetryRunner): Promise<void>;
   retry(times: number, options: TestRetryOptions, fn?: TestRetryRunner): Promise<void>;
+
+  /**
+   * Poll until `pred()` returns true. Uses retry under the hood.
+   * @param pred    Synchronous or async predicate.
+   * @param options times: max attempts (default 50), delay: ms between (default 5)
+   */
+  until(
+    pred: () => boolean | Promise<boolean>,
+    options?: { times?: number; delay?: t.Msecs },
+  ): Promise<void>;
 };
 
 export type TestRetryRunner = () => t.IgnoredResult;
@@ -35,7 +44,11 @@ export type Describe = typeof describe;
 export type It = typeof it;
 
 /** Assertion library (BDD). */
-export type Expect = typeof expect;
+export type Expect = typeof import('chai').expect;
+/*
+  NOTE: ↑ Import error above (VSCode only).
+          The imports are actually fine (not a "real" type error) - SAFE TO IGNORE.
+ */
 
 /** Expect an error asyncronously */
 export type ExpectError = (fn: () => Promise<any> | any, message?: string) => Promise<any>;

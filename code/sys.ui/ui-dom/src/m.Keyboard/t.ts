@@ -6,15 +6,14 @@ type KeyHandler = (e: KeyboardEvent) => unknown;
  * Tools for working with the keyboard.
  */
 export type KeyboardLib = {
-  /**
-   * Keyboard event monitor.
-   */
-  Monitor: t.KeyboardMonitor;
+  /** Boolean flag evaluaters. */
+  readonly Is: t.KeyboardIsLib;
 
-  /**
-   * Helpers for matching key patterns.
-   */
-  Match: t.KeyboardMatchLib;
+  /** Keyboard event monitor. */
+  readonly Monitor: t.KeyboardMonitor;
+
+  /** Helpers for matching key patterns. */
+  readonly Match: t.KeyboardMatchLib;
 
   /**
    * Registers a listener for keydown events.
@@ -42,13 +41,6 @@ export type KeyboardLib = {
   filter: t.KeyboardMonitor['filter'];
 
   /**
-   * Converts keypress event data into a structured format.
-   * @param event - The keypress event to be transformed.
-   * @returns A structured keypress object.
-   */
-  toKeypress(e: KeyboardEvent): t.KeyboardKeypress;
-
-  /**
    * A utility function that listens for a keyboard event until a condition is met.
    *
    * @param fn - A function that defines the condition for stopping the listener.
@@ -60,6 +52,57 @@ export type KeyboardLib = {
    * Start a multi-key listener waiting for a "double-press" event.
    */
   dbl(threshold?: t.Msecs, options?: { dispose$?: t.UntilInput }): t.KeyboardMonitorMulti;
+
+  /**
+   * Convert a loose input into standard modifier-key flags if the given
+   * object is "like" an event that contains the modifier-key information.
+   */
+  modifiers(
+    e: Partial<NativeKeyEventLike | KeyEventLike | KeyboardModifierFlags>,
+  ): t.KeyboardModifierFlags;
+};
+
+/** Abstract event for converting into system info types. */
+export type NativeKeyEventLike = {
+  ctrlKey: boolean;
+  altKey: boolean;
+  shiftKey: boolean;
+  metaKey: boolean;
+};
+
+/**
+ * A pared back type that represents the minimal
+ * keyboard event needed by many helpers.
+ */
+export type KeyEventLike = {
+  key: string;
+  modifiers: Partial<t.KeyboardModifierFlags>;
+};
+
+/**
+ * Boolean flag evaluaters.
+ */
+export type KeyboardIsLib = {
+  /**
+   * Platform independent determination if the
+   * given flags conceptually align
+   * to what the Apple [ ⌘ ] key means,
+   *
+   *    When on macOS™    →     ⌘  == meta
+   *    When on Linux     →   ctrl == meta
+   *    When on Windows™  →   ctrl == meta
+   *
+   */
+  command(
+    modifiers?: Partial<t.NativeKeyEventLike | t.KeyEventLike | t.KeyboardModifierFlags>,
+    options?: { ua?: t.UserAgent },
+  ): boolean;
+
+  /** Determine if any of the modifier flags are true. */
+  modified(modifiers?: Partial<t.KeyboardModifierFlags> | t.KeyEventLike): boolean;
+
+  /** Platform independent match on: Clipboard Copy. */
+  copy(e?: KeyEventLike, options?: { ua?: t.UserAgent }): boolean;
 };
 
 /**

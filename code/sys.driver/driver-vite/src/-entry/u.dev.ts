@@ -9,5 +9,5 @@ export async function dev(args: t.ViteEntryArgsDev) {
   const cwd = args.dir ? Path.resolve(args.dir) : Path.cwd();
   const pkg = Pkg.toPkg((await DenoFile.load(cwd)).data);
   const server = await Vite.dev({ pkg, cwd });
-  await server.listen();
+  return server.listen();
 }

@@ -1,0 +1,5 @@
+/**
+ * Module types.
+ * @module
+ */
+export {};

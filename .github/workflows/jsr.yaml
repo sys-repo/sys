@@ -1,7 +1,4 @@
-# https://docs.deno.com/deploy/manual/ci_github
-# https://jsr.io/docs/publishing-packages#publishing-from-github-actions
-
-name: jsr
+name: ci
 
 on:
   push:
@@ -29,16 +26,17 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v2
+          deno-version: v2.5.x
 
       - name: 'Install ES Modules from JSR: https://jsr.io/@sys'
-        run: deno task info
+        run: deno task help
 
       - name: Deno Info
         run: deno info && deno --version
 
       - name: System Info
-        run: deno task info
+        run: deno task help
+
 
       - name: publish module → "@sys/types"
         run: |
@@ -49,6 +47,12 @@ jobs:
       - name: publish module → "@sys/std"
         run: |
           cd code/sys/std
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/crdt-t"
+        run: |
+          cd code/sys/crdt.t
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -76,6 +80,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/schema"
+        run: |
+          cd code/sys/schema
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/testing"
         run: |
           cd code/sys/testing
@@ -85,6 +95,18 @@ jobs:
       - name: publish module → "@sys/process"
         run: |
           cd code/sys/process
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/event"
+        run: |
+          cd code/sys/event
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/cmd"
+        run: |
+          cd code/sys/cmd
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -100,15 +122,9 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/tmpl"
+      - name: publish module → "@sys/tmpl-engine"
         run: |
-          cd code/sys/tmpl
-          deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/cmd"
-        run: |
-          cd code/sys/cmd
+          cd code/sys/tmpl-engine
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -116,12 +132,6 @@ jobs:
         run: |
           cd code/sys/jsr
           deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/main"
-        run: |
-          cd code/sys/main
-          deno task test --parallel --trace-leaks
           deno publish --allow-dirty
 
       - name: publish module → "@sys/ui-css"
@@ -154,6 +164,18 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/ui-factory"
+        run: |
+          cd code/sys.ui/ui-factory
+          deno task test --parallel
+          deno publish --allow-dirty
+
+      - name: publish module → "@sys/driver-vite"
+        run: |
+          cd code/sys.driver/driver-vite
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/driver-automerge"
         run: |
           cd code/sys.driver/driver-automerge
@@ -172,9 +194,9 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/driver-immer"
+      - name: publish module → "@sys/driver-mastra"
         run: |
-          cd code/sys.driver/driver-immer
+          cd code/sys.driver/driver-mastra
           deno task test --parallel
           deno publish --allow-dirty
 
@@ -184,44 +206,32 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/tmp"
+      - name: publish module → "@sys/driver-peerjs"
         run: |
-          cd code/sys.tmp
+          cd code/sys.driver/driver-peerjs
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/driver-vite"
+      - name: publish module → "@sys/driver-prosemirror"
         run: |
-          cd code/sys.driver/driver-vite
-          deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/driver-vitepress"
-        run: |
-          cd code/sys.driver/driver-vitepress
-          deno task test --parallel --trace-leaks
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/driver-obsidian"
-        run: |
-          cd code/sys.driver/driver-obsidian
+          cd code/sys.driver/driver-prosemirror
           deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/driver-ollama"
+      - name: publish module → "@sys/crdt"
         run: |
-          cd code/sys.driver/driver-ollama
-          deno task test --parallel --trace-leaks
+          cd code/sys/crdt
+          deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/driver-orbiter"
+      - name: publish module → "@sys/tmpl"
         run: |
-          cd code/sys.driver/driver-orbiter
-          deno task test --parallel --trace-leaks
+          cd code/-tmpl
+          deno task test --parallel
           deno publish --allow-dirty
 
-      - name: publish module → "@sys/driver-quilibrium"
+      - name: publish module → "@sys/dev"
         run: |
-          cd code/sys.driver/driver-quilibrium
+          cd code/sys.dev
           deno task test --parallel
           deno publish --allow-dirty

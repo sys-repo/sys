@@ -20,7 +20,7 @@ const name = 'Content:Programme';
 const align: t.ConceptPlayerAlign = 'Center';
 export const DEFAULTS = Obj.extend(AppRenderDefaults, {
   name,
-  displayName: Pkg.toString(pkg, name),
+  displayName: Pkg.toString(pkg, name, false),
   align,
   media: undefined,
   section: undefined,

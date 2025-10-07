@@ -18,7 +18,7 @@ export default Spec.describe('MyComponent', (e) => {
     ctx.subject
       .size('fill-y')
       .display('grid')
-      .render(() => <Root content={debug.content} state={debug.state} player={debug.player} />);
+      .render(() => <Root content={debug.content} state={debug.state} video={debug.video} />);
 
     /**
      * Initial state:

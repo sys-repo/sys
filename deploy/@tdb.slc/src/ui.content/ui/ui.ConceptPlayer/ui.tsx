@@ -27,7 +27,19 @@ export const ConceptPlayer: React.FC<P> = (props) => {
   };
 
   const elTooSmall = isTooSmall && <TooSmall theme={'Dark'} />;
-  const elBody = !isTooSmall && <Body {...props} theme={'Light'} debug={debug} />;
+  const elBody = !isTooSmall && (
+    <Body
+      {...props}
+      theme={'Light'}
+      debug={debug}
+      onVideoEnd={(e) => {
+        /**
+         * TODO 🐷 to next video in section.
+         */
+        console.log('⚡️ onVideoEnd:', e);
+      }}
+    />
+  );
 
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>

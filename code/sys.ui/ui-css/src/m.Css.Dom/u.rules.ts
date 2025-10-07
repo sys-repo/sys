@@ -1,6 +1,6 @@
-import { type t, CssTmpl, DEFAULT, isRecord } from './common.ts';
-import { toString } from './u.ts';
+import { type t, CssTmpl, isRecord } from './common.ts';
 import { CssPseudoClass } from './m.CssPseudoClass.ts';
+import { toString } from './u.ts';
 
 type StringRule = string;
 

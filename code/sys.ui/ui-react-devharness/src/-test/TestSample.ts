@@ -1,13 +1,14 @@
-import { rx, slug } from '../common.ts';
+import { slug } from '../common.ts';
 import { DevBus } from '../u/m.Bus/mod.ts';
 import { Context } from '../u/m.Ctx/mod.ts';
+import { RxBus } from '../u/m.RxBus/mod.ts';
 import { SAMPLES } from './sample.specs.unit-test/mod.ts';
 
 /**
  * Sample test factories.
  */
 export const TestSample = {
-  instance: () => ({ bus: rx.bus(), id: `foo.${slug()}` }),
+  instance: () => ({ bus: RxBus(), id: `foo.${slug()}` }),
 
   controller() {
     const instance = TestSample.instance();

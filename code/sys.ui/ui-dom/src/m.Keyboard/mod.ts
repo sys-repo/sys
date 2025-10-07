@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with global keyboard events.
+ * @module
  *
  * @example
  * ```ts
@@ -18,5 +18,5 @@
  */
 
 export { KeyboardMonitor } from './m.Keyboard.Monitor.ts';
-export { Keyboard } from './m.Keyboard.ts';
+export { Keyboard, Kbd } from './m.Keyboard.ts';
 export { KeyListener } from './m.KeyListener.ts';

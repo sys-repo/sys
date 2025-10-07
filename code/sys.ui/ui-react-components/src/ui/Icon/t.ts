@@ -15,7 +15,7 @@ export type IconLib = {
 /**
  * An <Icon> component function.
  */
-export type IconRenderer = (props: IconProps) => JSX.Element;
+export type IconRenderer = (props: IconProps) => React.JSX.Element;
 
 /**
  * <Component>: Display properties for an icon.

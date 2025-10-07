@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with Observables (via `rxjs`).
+ * @module
  *
  * @example
  * ```ts
@@ -17,5 +17,4 @@
  * ```
  */
 import './u.polyfill.ts';
-export { Is } from './m.Is.ts';
-export { Rx, rx } from './m.Rx.ts';
+export { Rx } from './m.Rx.ts';

@@ -1,9 +1,24 @@
-import React, { StrictMode } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import type { t } from '../common.ts';
 import { pkg } from '../pkg.ts';
 import { useKeyboard } from '../ui/use/use.Keyboard.ts';
+
+/**
+ * Service Worker:
+ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const devmode = import.meta.env.DEV;
+    const prefix = devmode ? `[main:dev]` : `[main]`;
+    const title = devmode ? 'ServiceWorker-Sample' : 'ServiceWorker';
+    navigator.serviceWorker
+      .register('sw.js', { type: 'module' })
+      .then((reg) => console.info(`🌳 ${prefix} ${title} registered with scope: ${reg.scope}`))
+      .catch((err) => console.error(`💥 ${prefix} ${title} registration failed:`, err));
+  });
+}
 
 /**
  * Render UI.
@@ -36,11 +51,11 @@ export async function main() {
      */
     const { App } = await import('../ui/App/mod.ts');
     const { render } = await import('@sys/ui-react-devharness');
-    const { Specs } = await import('./entry.Specs.ts');
+    const { Specs } = await import('./-specs.ts');
 
     const app = App.signals();
     const el = await render(pkg, Specs, {
-      hr: (e) => e.byRoots(['tdb.slc.', 'sys.ui']),
+      hr: (e) => e.byRoots(['tdb.slc.', 'sys.ui', 'tdb.slc.ui.Canvas']),
       style: { Absolute: 0 },
     });
 
@@ -57,12 +72,11 @@ export async function main() {
     const app = App.signals();
 
     app.stack.push(await Content.Factory.entry());
-    await App.Render.preloadModule(app, Content.factory, [
-      'Entry',
-      'Trailer',
-      'Overview',
-      'Programme',
-    ]);
+    await App.Render.preloadModule(
+      app,
+      (id, options = {}) => Content.factory(id, { ...options, muted: true }),
+      ['Entry', 'Trailer', 'Overview', 'Programme'],
+    );
 
     root.render(
       <StrictMode>

@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../-test.ts';
-import { rx, Rx } from './mod.ts';
+import { Rx } from './mod.ts';
 
-describe('Observable/rx', () => {
+describe('Observable/Rx', () => {
   const Is = Rx.Is;
 
   describe('Rx.Is.event', () => {
@@ -27,7 +27,7 @@ describe('Observable/rx', () => {
 
     it('is an event of given type', () => {
       const test = (input: any, type: any, expected: boolean) => {
-        expect(rx.Is.event(input, type)).to.eql(expected);
+        expect(Rx.Is.event(input, type)).to.eql(expected);
       };
 
       test(undefined, 'foo', false);

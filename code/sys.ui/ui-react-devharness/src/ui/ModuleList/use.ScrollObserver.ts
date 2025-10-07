@@ -9,7 +9,7 @@ type LiMap = Map<number, HTMLLIElement>;
  * Keep track of the visibility of visible list-items as they scroll.
  */
 export function useScrollObserver(
-  baseRef: React.RefObject<HTMLDivElement>,
+  baseRef: React.RefObject<HTMLDivElement | null>,
   itemRefs: LiMap,
   callback: t.ModuleListItemVisibilityHandler | undefined,
   options: { threshold?: Percent | [Percent, Percent, Percent, Percent] } = {},

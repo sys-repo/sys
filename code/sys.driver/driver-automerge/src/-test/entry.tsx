@@ -3,6 +3,21 @@ import { createRoot } from 'react-dom/client';
 import { pkg } from '../pkg.ts';
 
 /**
+ * Service Worker:
+ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const devmode = import.meta.env.DEV;
+    const prefix = devmode ? `[main:dev]` : `[main]`;
+    const title = devmode ? 'ServiceWorker-Sample' : 'ServiceWorker';
+    navigator.serviceWorker
+      .register('sw.js', { type: 'module' })
+      .then((reg) => console.info(`🌳 ${prefix} ${title} registered with scope: ${reg.scope}`))
+      .catch((err) => console.error(`💥 ${prefix} ${title} registration failed:`, err));
+  });
+}
+
+/**
  * Render UI:
  */
 console.info('🐷 ./entry.tsx → Pkg:💦', pkg);
@@ -12,30 +27,49 @@ if (document) {
   document.body.style.overflow = 'hidden'; // NB: suppress rubber-band effect.
 }
 
-/**
- * MAIN entry:
- */
 export async function main() {
   const params = new URL(location.href).searchParams;
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  /**
-   * DevHarness:
-   */
-  const { render, useKeyboard } = await import('@sys/ui-react-devharness');
-  const { Specs } = await import('./entry.Specs.ts');
-  const el = await render(pkg, Specs, { hr: (e) => e.depth(2), style: { Absolute: 0 } });
-  function App() {
-    useKeyboard();
-    return el;
-  }
+  if (isDev) {
+    /**
+     * DevHarness:
+     */
+    const { render, useKeyboard } = await import('@sys/ui-react-devharness');
+    const { Specs } = await import('./-specs.ts');
+    const el = await render(pkg, Specs, {
+      hr: (e) => {
+        if (e.next?.endsWith('ui.Repo')) return true;
+        if (e.prev?.endsWith('ui.DocumentId')) return true;
+      },
+      style: { Absolute: 0 },
+    });
 
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  );
+    function App() {
+      useKeyboard();
+      return el;
+    }
+
+    const app = <App />;
+    root.render(<React.StrictMode>{app}</React.StrictMode>);
+  } else {
+    /**
+     * Entry/Splash:
+     */
+    const { useKeyboard } = await import('@sys/ui-react-devharness');
+    const { createRepo } = await import('../ui/-test.ui.ts');
+    const { Splash } = await import('./ui.Splash.tsx');
+    const repo = createRepo();
+
+    function App() {
+      useKeyboard();
+      return <Splash repo={repo} />;
+    }
+
+    const app = <App />;
+    root.render(<React.StrictMode>{app}</React.StrictMode>);
+  }
 }
 
 main().catch((err) => console.error(`Failed to render DevHarness`, err));

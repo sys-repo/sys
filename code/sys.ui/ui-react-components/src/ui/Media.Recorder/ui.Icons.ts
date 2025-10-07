@@ -1,6 +1,6 @@
 import { MdPause, MdRadioButtonChecked, MdStopCircle } from 'react-icons/md';
 import { Icon } from '../Icon/mod.ts';
-import { Icons as Base } from '../Icons.ts';
+import { Icons as Base } from '../ui.Icons.ts';
 
 const icon = Icon.renderer;
 

@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Library: helper for working with time.
+ * Helpers for working with time.
  */
 export type TimeLib = {
   /** Tools for working with an elapsed duration of time. */
@@ -9,6 +9,9 @@ export type TimeLib = {
 
   /** Retrieve the current datetime. */
   readonly now: t.DateTime;
+
+  /** Generate a new UTC datetime instance. */
+  utc(input?: t.DateTimeInput): t.DateTime;
 
   /** Create a new TimeDuration */
   duration: t.TimeDurationLib['create'];
@@ -21,9 +24,12 @@ export type TimeLib = {
 
   /**
    * Run a function after a delay.
+   *
+   * Notes:
+   *  • `delay(msecs, fn?)` → macrotask timer; cancellable via `.cancel()`.
+   *  • `delay(fn?)`        → microtask tick (queues on Promise microtask).
    */
-  delay(msecs: t.Msecs, fn?: t.TimeDelayCallback): t.TimeDelayPromise;
-  delay(fn?: t.TimeDelayCallback): t.TimeDelayPromise;
+  delay: t.TimeDelayFn;
 
   /**
    * Wait for the specified milliseconds
@@ -32,41 +38,16 @@ export type TimeLib = {
    */
   wait(msecs?: t.Msecs): t.TimeDelayPromise;
 
-  /** Generate a new UTC datetime instance. */
-  utc(input?: t.DateTimeInput): t.DateTime;
-
   /** A Time helper that runs only until it has been disposed. */
   until(until$?: t.DisposeInput): t.TimeUntil;
 };
 
 /**
- * Timeout/Delay
+ * Options for frame-yield primitives.
+ * - If provided, an aborted signal should prevent the callback from running
+ *   and cause the promise to reject with an AbortError.
  */
-
-/** A function called at the completion of a delay timer. */
-export type TimeDelayCallback = () => void;
-
-/** An extended Promise API that represents a running timer. */
-export type TimeDelayPromise = Promise<void> & t.TimeDelay;
-
-/** Extended properties on a delay Promise that represent a running timer. */
-export type TimeDelay = {
-  /** Duration of the delay. */
-  readonly timeout: t.Msecs;
-
-  /** Boolean status flags. */
-  readonly is: {
-    /** True if the timer was cancelled.  */
-    readonly cancelled: boolean;
-    /** True if the timer completed successfully. */
-    readonly completed: boolean;
-    /** True if the timer is "done" (completed OR failed). */
-    readonly done: boolean;
-  };
-
-  /** Stops the timer (dispose). */
-  cancel(): void;
-};
+export type TimeFrameOptions = { readonly signal?: AbortSignal };
 
 /**
  * Exposes timer functions that cease after a dispose signal is received.

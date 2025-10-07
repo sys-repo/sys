@@ -12,14 +12,14 @@ export type FormatBytesOptions = FormatOptions & {};
 /**
  * Tools for working on strings of text.
  */
-export type StrLib = {
-  /** The "lorem ipsum" helper library. */
-  readonly Lorem: StrLoremLib;
-  /** The "lorem ipsum" string. */
-  readonly lorem: string;
+export type StrLib = Readonly<{
+  /** White space (not collapsed by Posix/Linux log digests). */
+  SPACE: '\u200B';
 
-  /** Helpers for replacing strings within immutable documents. */
-  readonly Doc: StringDocLib;
+  /** The "lorem ipsum" helper library. */
+  Lorem: StrLoremLib;
+  /** The "lorem ipsum" string. */
+  lorem: string;
 
   /** Calculate a difference between two strings. */
   diff: t.TextDiffCalc;
@@ -48,7 +48,7 @@ export type StrLib = {
     pattern: string | RegExp,
     replacement: string,
   ): { readonly changed: boolean; readonly before: string; readonly after: string };
-};
+}>;
 
 /**
  * Tools for working with sample "lorem ipsum..." text.
@@ -57,14 +57,4 @@ export type StrLoremLib = {
   readonly text: string;
   toString(): string;
   words(count?: number): string;
-};
-
-/**
- * Helpers for replacing strings within immutable documents.
- */
-export type StringDocLib = {
-  /** Safely modify a string stored on an immutable object <T>. */
-  splice: t.TextSplice;
-  /** Replace all of a string using splice. */
-  replace: t.TextReplace;
 };

@@ -1,0 +1,80 @@
+import type { t } from './common.ts';
+
+/** Registration of type <any>. */
+export type AnyRegistration = t.Registration<any, any, any>;
+/** Factory of type <any>. */
+export type AnyFactory = t.Factory<any, any>;
+
+/**
+ * Factory registry.
+ *
+ * NOTE: We model `specs` as a mapped type so that each key K keeps its own
+ * per-view Slot union (crucial for typed plans). If you only need Id-level
+ * narrowing, you can still instantiate this with a simple Record<Id, ...>.
+ */
+export type FactoryMap<
+  Ids extends t.ViewId,
+  RegEntry extends AnyRegistration = t.Registration<Ids, t.SlotId, t.ViewModule>,
+> = Readonly<{ [K in Ids]: RegEntry & t.Registration<K, any, any> }>;
+
+/**
+ * Factory: read-only registry of view registrations + lazy code lookup.
+ */
+export type Factory<
+  Ids extends t.ViewId = t.ViewId,
+  RegEntry extends AnyRegistration = t.Registration<Ids, t.SlotId, t.ViewModule>,
+> = Readonly<FactoryResult<Ids, RegEntry>>;
+
+export type FactoryResult<Ids extends t.ViewId, RegEntry extends AnyRegistration> = {
+  /** Map of id → registration (frozen shape). */
+  readonly specs: FactoryMap<Ids, RegEntry>;
+  /** Resolve the concrete module for a given id. */
+  getView: t.FactoryGetView<Ids, RegEntry>;
+  /** Original registrations (for tooling: validators/docs derivation). */
+  getRegistrations(): readonly RegEntry[];
+};
+
+/** Resolve the concrete module for a given id. */
+export type FactoryGetView<Ids extends t.ViewId, RegEntry extends AnyRegistration> = (
+  id: Ids,
+) => Promise<
+  t.GetViewResult<RegEntry extends t.Registration<any, any, infer M> ? M : t.ViewModule>
+>;
+
+/** Utilities over a Factory (type-level only, no runtime). */
+export type ViewIds<F extends Factory<any, any>> = keyof F['specs'] & string;
+export type SlotIds<F extends Factory<any, any>> =
+  F['specs'][keyof F['specs']]['spec'] extends infer S
+    ? S extends t.ViewSpec<any, infer Slot>
+      ? Slot
+      : never
+    : never;
+export type SpecOf<F extends Factory<any, any>, Id extends ViewIds<F>> = F['specs'][Id]['spec'];
+
+/**
+ * Factory type specialized with a concrete Id + Slot union (and module type).
+ * Ensures each registration carries the correct slot set for that view,
+ * giving strong typing when authoring or validating plans.
+ */
+export type FactoryWithSlots<Id extends string, Slot extends string, M = t.ViewModule> = t.Factory<
+  Id,
+  t.Registration<Id, Slot, M>
+>;
+
+/**
+ * The canonical map of registrations keyed by view Id.
+ * - Used internally by factories (`specs`).
+ * - Preserves full `Registration` shape including `spec.slots`.
+ */
+export type SpecsMap<Ids extends t.ViewId, M = t.ViewModule> = Readonly<{
+  [K in Ids]: Readonly<t.Registration<K, any, M>>;
+}>;
+
+/**
+ * Given a Factory, extract the module type of its getView result.
+ */
+export type ModuleOfFactory<F extends t.Factory<any, any>> = Awaited<
+  ReturnType<F['getView']>
+> extends { ok: true; module: infer M }
+  ? M
+  : t.ViewModule;

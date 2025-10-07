@@ -14,5 +14,5 @@ export const DEFAULTS: t.ModuleListDefaults = {
   qs: BASE.qs,
   list: { minWidth: 360 },
   useAnchorLinks: true,
-  showParamDev: true,
+  showParamDev: false,
 } as const;

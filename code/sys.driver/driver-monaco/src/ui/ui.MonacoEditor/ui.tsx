@@ -1,46 +1,66 @@
+import React, { useRef } from 'react';
+
 import type { OnChange, OnMount } from '@monaco-editor/react';
-
 import { Editor as EditorReact } from '@monaco-editor/react';
-import React from 'react';
 
-import { EditorCarets } from '../m.Editor.Carets/mod.ts';
-import { type t, Color, D, Spinners, Wrangle, css, rx } from './common.ts';
+import { type t, Color, css, D, Rx, Spinners, Util } from './common.ts';
+import { defaultKeyBindings } from './u.Keyboard.ts';
+import { defaultLanguageConfig } from './u.languages.ts';
 import { Theme } from './u.Theme.ts';
 
 /**
  * Component:
  */
 export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
+  const DP = D.props;
   const {
-    text,
-    language = D.props.language,
-    tabSize = D.props.tabSize,
-    readOnly = D.props.readOnly,
-    minimap = D.props.minimap,
-    enabled = D.props.enabled,
+    defaultValue,
     placeholder,
+    language = DP.language,
+    tabSize = DP.tabSize,
+    readOnly = DP.readOnly,
+    minimap = DP.minimap,
+    enabled = DP.enabled,
+    autoFocus = DP.autoFocus,
+    wordWrap = DP.wordWrap,
+    wordWrapColumn = DP.wordWrapColumn,
+    fontSize = DP.fontSize,
+    spinning = DP.spinning,
   } = props;
   const editorTheme = Theme.toName(props.theme);
   const isPlaceholderText = typeof placeholder === 'string';
 
-  const disposeRef = React.useRef(rx.subject<void>());
-  const monacoRef = React.useRef<t.Monaco>();
-  const editorRef = React.useRef<t.MonacoCodeEditor>();
+  /**
+   * Refs:
+   */
+  const disposeRef = useRef(Rx.subject<t.DisposeEvent>());
+  const monacoRef = useRef<t.Monaco.Monaco>(undefined);
+  const editorRef = useRef<t.Monaco.Editor>(undefined);
   const [isEmpty, setIsEmpty] = React.useState(false);
+
+  /**
+   * Hooks:
+   */
+  const [mounted, setMounted] = React.useState(false);
 
   /**
    * Effect: Lifecycle.
    */
   React.useEffect(() => {
     const editor = editorRef.current;
-    if (!editor) return;
-    if (text !== editor.getValue()) editor.setValue(text ?? '');
+    if (!editor || defaultValue === undefined) return;
+    if (defaultValue !== editor.getValue()) {
+      editor.setValue(defaultValue ?? '');
+    }
     updateTextState(editor);
-  }, [text, editorRef.current]);
+  }, [defaultValue, editorRef.current]);
 
+  /**
+   * Effect: Prop Updates.
+   */
   React.useEffect(() => {
     updateOptions(editorRef.current);
-  }, [editorRef.current, tabSize, readOnly, minimap]);
+  }, [tabSize, readOnly, minimap, wordWrap, fontSize]);
 
   /**
    * Effect: End-of-life.
@@ -50,26 +70,43 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       const editor = editorRef.current!;
       const monaco = monacoRef.current!;
       const dispose$ = disposeRef.current;
-      dispose$.next();
+      dispose$.next({ reason: 'react:unmount' });
       props.onDispose?.({ editor, monaco });
     };
   }, []);
 
   /**
+   * Effect: Auto-focus when requested.
+   */
+  React.useEffect(() => {
+    if (mounted && autoFocus && enabled && !spinning) editorRef.current?.focus();
+  }, [mounted, autoFocus, enabled, spinning]);
+
+  /**
    * Updaters:
    */
-  const getModel = (editor?: t.MonacoCodeEditor) => editor?.getModel();
-  const updateOptions = (editor?: t.MonacoCodeEditor) => {
+  const getModel = (editor?: t.Monaco.Editor) => editor?.getModel();
+  const updateOptions = (editor?: t.Monaco.Editor) => {
     if (!editor) return;
+
     editor.updateOptions({
       theme: editorTheme,
       readOnly,
       minimap: { enabled: minimap },
+      wordWrap: wordWrap ? 'bounded' : 'off',
+      wordWrapColumn, // ← number-characters.
+      fontSize,
+      detectIndentation: false,
+      insertSpaces: true,
     });
-    getModel(editor)?.updateOptions({ tabSize });
+
+    getModel(editor)?.updateOptions({
+      tabSize,
+      insertSpaces: true,
+    });
   };
 
-  const updateTextState = (editor?: t.MonacoCodeEditor) => {
+  const updateTextState = (editor?: t.Monaco.Editor) => {
     if (!editor) return;
     const text = editor.getValue();
     setIsEmpty(!text);
@@ -79,25 +116,22 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    * Handlers:
    */
   const handleMount: OnMount = (ed, m) => {
-    const monaco = m as t.Monaco;
+    if (mounted) return;
+
+    const monaco = m as t.Monaco.Monaco;
+    const editor = (editorRef.current = ed);
     Theme.init(monaco);
     monacoRef.current = monaco;
 
-    const editor = (editorRef.current = ed);
+    defaultKeyBindings(monaco);
+    defaultLanguageConfig(monaco);
     updateOptions(editor);
     updateTextState(editor);
-    if (enabled && props.focusOnLoad) editor.focus();
 
-    let _carets: t.EditorCarets;
+    // Alert listeners:
     const dispose$ = disposeRef.current;
-    props.onReady?.({
-      editor,
-      monaco,
-      dispose$,
-      get carets() {
-        return _carets || (_carets = EditorCarets.create(editor));
-      },
-    });
+    props.onMounted?.({ editor, monaco, dispose$ });
+    setMounted(true);
   };
 
   const handleChange: OnChange = (text = '', event) => {
@@ -105,13 +139,12 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     const monaco = monacoRef.current;
     if (!props.onChange || !editor || !monaco) return;
     updateTextState(editor);
-
     props.onChange({
       event,
       monaco,
       editor,
-      selections: Wrangle.Editor.selections(editor),
-      content: Wrangle.Editor.content(editor),
+      selections: Util.Editor.selections(editor),
+      content: Util.Editor.content(editor),
     });
   };
 
@@ -127,36 +160,50 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
       opacity: enabled ? 1 : 0.2,
     }),
     inner: css({ Absolute: 0 }),
+    editor: css({ opacity: mounted && !spinning ? 1 : 0 }),
     empty: {
       base: css({ Absolute: 0, pointerEvents: 'none', display: 'grid' }),
       placeholderText: css({ opacity: 0.3, justifySelf: 'center', padding: 40, fontSize: 14 }),
     },
+    spinning: css({
+      Absolute: 0,
+      pointerEvents: 'none',
+      display: 'grid',
+      placeItems: 'center',
+    }),
   };
 
   const elPlaceholderText = isPlaceholderText && (
-    <div {...styles.empty.placeholderText}>{placeholder}</div>
+    <div className={styles.empty.placeholderText.class}>{placeholder}</div>
   );
 
   const elEmpty = isEmpty && placeholder && (
-    <div {...styles.empty.base}>{elPlaceholderText ?? placeholder}</div>
+    <div className={styles.empty.base.class}>{elPlaceholderText ?? placeholder}</div>
   );
 
-  const elLoading = <Spinners.Bar theme={theme.name} />;
+  const elSpinning = (!mounted || spinning) && (
+    <div className={styles.spinning.class}>
+      <Spinners.Bar theme={theme.name} />
+    </div>
+  );
 
-  const cn = Wrangle.Editor.className(editorRef.current);
+  const cn = Util.Editor.className(editorRef.current);
   const className = `${css(styles.base, props.style).class} ${cn}`;
   return (
     <div className={className}>
       <div className={styles.inner.class}>
         <EditorReact
+          className={styles.editor.class}
           defaultLanguage={language}
           language={language}
-          defaultValue={text}
+          defaultValue={defaultValue}
+          options={{ scrollbar: { useShadows: false } }}
           theme={editorTheme}
-          loading={elLoading}
           onMount={handleMount}
           onChange={handleChange}
+          loading={null}
         />
+        {elSpinning}
         {elEmpty}
       </div>
     </div>

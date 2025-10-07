@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Argument parsing tools.
+ * Command-line argument parsing.
  */
 export type ArgsLib = {
   /** Parse command line arguments. */

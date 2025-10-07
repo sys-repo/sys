@@ -1,5 +1,4 @@
 import { type t, describe, expect, it, slug } from '../-test.ts';
-import { single } from 'rxjs';
 import { Immutable } from './mod.ts';
 
 describe('T:Immutable', () => {
@@ -83,12 +82,14 @@ describe('T:Immutable', () => {
       reset();
       const a = Store.state();
       const b = Store.state();
-      const bEvents = a.events();
-      const bFired: MyStateEvent[] = [];
-      bEvents.changed$.pipe().subscribe((e) => bFired.push(e));
+
+      const fired: MyStateEvent[] = [];
+      b.events()
+        .$.pipe()
+        .subscribe((e) => fired.push(e));
 
       a.change((d) => d.tmp++);
-      expect(bFired[0].after).to.eql(a.current);
+      expect(fired[0].after).to.eql(a.current);
     });
   });
 });

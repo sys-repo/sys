@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+
 import { Duration } from './m.Time.Duration.ts';
 import { timer } from './m.Time.Timer.ts';
 import { delay } from './m.Time.delay.ts';
@@ -14,10 +15,10 @@ export const Time: t.TimeLib = {
     return utc();
   },
 
+  until,
   utc,
   delay,
   wait,
-  until,
 
   Duration,
   duration: Duration.create,

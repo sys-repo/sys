@@ -1,10 +1,10 @@
 import { isAbsolute as absolute, isGlob as glob } from '@std/path';
-import type { t } from './common.ts';
+import type { PathIsLib } from './t.ts';
 
 /**
  * Path type verification flags.
  */
-export const Is: t.PathIsLib = {
+export const Is: PathIsLib = {
   glob,
   absolute,
   relative: (path) => !Is.absolute(path),

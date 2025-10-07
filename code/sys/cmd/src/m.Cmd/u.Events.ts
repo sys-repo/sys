@@ -1,4 +1,6 @@
-import { type t, type u, Dispose, R, rx } from './common.ts';
+import type { CmdEventsLib } from './t.ts';
+
+import { type t, type u, Dispose, R, Rx } from './common.ts';
 import { Patch } from './u.Patch.ts';
 import { Path } from './u.Path.ts';
 
@@ -6,7 +8,7 @@ import { Path } from './u.Path.ts';
  * Strongly typed events for an abstract CRDT document that has
  * paths within it representing a <Cmd> (Command).
  */
-export const Events: t.CmdEventsLib = {
+export const Events: CmdEventsLib = {
   /**
    * Events factory.
    */
@@ -16,8 +18,8 @@ export const Events: t.CmdEventsLib = {
   ): t.CmdEvents<C> {
     const resolve = Path.resolver(options.paths);
     const paths = resolve.paths;
-    const life = rx.lifecycle(options.dispose$);
-    const { dispose, dispose$ } = life;
+    const life = Rx.lifecycle(options.dispose$);
+    const { dispose$ } = life;
 
     const issuers = wrangle.issuers(options.issuer);
     const issuersFilter = (e: t.CmdTx<C>) => {
@@ -29,15 +31,20 @@ export const Events: t.CmdEventsLib = {
      * Observables.
      */
     const fire = (e: t.CmdEvent) => fire$.next(e);
-    const fire$ = rx.subject<t.CmdEvent>();
-    const $ = fire$.pipe(rx.takeUntil(dispose$));
-    const tx$ = rx.payload<t.CmdTxEvent<C>>($, 'sys.cmd/tx').pipe(rx.filter(issuersFilter));
-    const error$ = tx$.pipe(rx.filter((e) => !!e.error));
+    const fire$ = Rx.subject<t.CmdEvent>();
+    const $ = fire$.pipe(Rx.takeUntil(dispose$));
+    const tx$ = $.pipe(
+      Rx.filter((e) => e.type === 'sys.cmd/tx'),
+      Rx.map((e) => e.payload as t.CmdTx<C>),
+      Rx.filter(issuersFilter),
+    );
+
+    const error$ = tx$.pipe(Rx.filter((e) => !!e.error));
 
     if (doc) {
       const events = doc.events(dispose$);
-      const $ = events.changed$.pipe(
-        rx.map((e) => {
+      const $ = events.$.pipe(
+        Rx.map((e) => {
           const { patches, after } = e;
           const doc = resolve.toObject(after);
           return { patches, doc };
@@ -47,9 +54,9 @@ export const Events: t.CmdEventsLib = {
       // Tx (Command) ⚡️.
       let _lastProcessed = '';
       $.pipe(
-        rx.filter((e) => Patch.includesQueueChange(e.patches, paths)),
-        rx.distinctWhile((p, n) => p.doc.queue.length === n.doc.queue.length),
-        rx.filter((e) => e.doc.queue.length > 0),
+        Rx.filter((e) => Patch.includesQueueChange(e.patches, paths)),
+        Rx.distinctWhile((p, n) => p.doc.queue.length === n.doc.queue.length),
+        Rx.filter((e) => e.doc.queue.length > 0),
       ).subscribe((e) => {
         /**
          * NOTE: on each change a new batch of events is fired running
@@ -75,7 +82,7 @@ export const Events: t.CmdEventsLib = {
     /**
      * API:
      */
-    const api = rx.toLifecycle<t.CmdEvents<C>>(life, {
+    const api = Rx.toLifecycle<t.CmdEvents<C>>(life, {
       $,
       tx$,
       error$,
@@ -83,7 +90,7 @@ export const Events: t.CmdEventsLib = {
       on<N extends C['name']>(name: N, handler?: t.CmdEventsOnMethodHandler<u.CmdTypeMap<C>[N]>) {
         type M = u.CmdTypeMap<C>[N];
         type T = t.CmdTx<M>;
-        const res$ = api.tx$.pipe(rx.filter((e) => e.name === name)) as t.Observable<T>;
+        const res$ = api.tx$.pipe(Rx.filter((e) => e.name === name)) as t.Observable<T>;
         if (handler) res$.subscribe((e) => handler(e));
         return res$;
       },

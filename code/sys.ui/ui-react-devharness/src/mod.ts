@@ -1,6 +1,6 @@
 /**
- * @module
  * Core DevHarness rendering library.
+ * @module
  *
  * @example
  * To run the DevHarness samples:
@@ -36,6 +36,7 @@
  * See `src/-test/sample.specs/` for example of the BDD specs.
  */
 export { pkg } from './pkg.ts';
+/** Type library (barrel file). */
 export type * as t from './types.ts';
 
 export { Dev, render } from './m.Dev/mod.ts';

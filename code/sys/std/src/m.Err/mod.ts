@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with errors.
+ * @module
  *
  * @example
  * Catch an error thrown within an async/callback function.

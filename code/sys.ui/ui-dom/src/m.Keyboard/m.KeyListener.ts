@@ -1,4 +1,4 @@
-import { rx, type t } from './common.ts';
+import { type t, Rx } from './common.ts';
 
 type KeyHandler = (e: KeyboardEvent) => unknown;
 
@@ -16,7 +16,7 @@ export const KeyListener: t.KeyboardListener = {
  */
 function listener(event: 'keydown' | 'keyup') {
   return (handler: KeyHandler): t.KeyListenerHandle => {
-    const disposable = rx.lifecycle();
+    const disposable = Rx.lifecycle();
     const document = globalThis.document;
     document.addEventListener(event, handler);
     disposable.dispose$.subscribe(() => document.removeEventListener(event, handler));

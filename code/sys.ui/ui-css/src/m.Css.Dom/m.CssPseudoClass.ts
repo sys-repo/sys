@@ -1,4 +1,5 @@
 import { type t } from './common.ts';
+import type { CssPseudoClassLib } from './t.ts';
 
 /**
  * CSS Selectors Level 3 pseudo‑classes.
@@ -43,6 +44,7 @@ export const level4 = [
   ':optional',
   ':out-of-range',
   ':placeholder-shown',
+  '::placeholder',
   ':read-only',
   ':read-write',
   ':required',
@@ -61,7 +63,7 @@ export const level4 = [
  *    https://www.w3.org/TR/selectors-3
  *    https://www.w3.org/TR/selectors-4
  */
-export const CssPseudoClass: t.CssPseudoClassLib = {
+export const CssPseudoClass: CssPseudoClassLib = {
   level3: new Set(level3),
   level4: new Set(level4),
   all: new Set([...level3, ...level4]),

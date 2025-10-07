@@ -1,3 +1,5 @@
+import type { TimeDurationLib } from './t.ts';
+
 import { StdDate, Value, type t } from './common.ts';
 const { MINUTE, SECOND, DAY, HOUR } = StdDate;
 
@@ -11,7 +13,7 @@ const To: t.TimeDurationTo = {
 /**
  * Library: tools for working with an elapsed duration of time.
  */
-export const Duration: t.TimeDurationLib = {
+export const Duration: TimeDurationLib = {
   /** Time duration conversions. */
   To,
 

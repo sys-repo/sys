@@ -6,7 +6,9 @@ import { Programme as Media } from './v.ts';
 /**
  * Content: "Programme"
  */
-export function factory() {
+export function factory(options: t.ContentFactoryOptions = {}) {
+  const { muted = false } = options;
+
   /**
    * Content definition:
    */
@@ -31,6 +33,7 @@ export function factory() {
           content={content}
           theme={DEFAULTS.theme.sheet}
           isTop={isTop}
+          muted={muted}
           onCloseRequest={() => global.stack.pop()}
         />
       );

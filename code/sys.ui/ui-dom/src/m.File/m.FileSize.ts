@@ -1,5 +1,6 @@
-import { type t, Str } from './common.ts';
+import { Str } from './common.ts';
+import type { FileSizeLib } from './t.ts';
 
-export const FileSize: t.FileSizeLib = {
+export const FileSize: FileSizeLib = {
   toString: Str.bytes,
 };

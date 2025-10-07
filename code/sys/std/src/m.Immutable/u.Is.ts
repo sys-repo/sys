@@ -1,11 +1,15 @@
+import { Is as StdIs } from '../m.Is/mod.ts';
 import { type t, Symbols, isObject } from './common.ts';
+import type { ImmutableIsLib } from './t.ts';
 
 type O = Record<string, unknown>;
 
 /**
  * Flag helpers for Immutable objects.
  */
-export const Is: t.ImmutableIsLib = {
+export const Is: ImmutableIsLib = {
+  objectPath: StdIs.objectPath,
+
   immutable<D, P = unknown>(input: any): input is t.Immutable<D, P> {
     if (!isObject(input)) return false;
     const o = input as t.Immutable<D, P>;
@@ -18,10 +22,6 @@ export const Is: t.ImmutableIsLib = {
     return Is.immutable(o) && typeof o.instance === 'string' && areFuncs(o.events);
   },
 
-  map<T extends O, P = unknown>(input: any): input is t.ImmutableMap<T, P> {
-    return isObject(input) && Symbols.map.root in input;
-  },
-
   proxy<T extends O>(input: any): input is T {
     if (!isObject(input)) return false;
     return isObject(input) && Symbols.map.proxy in input;
@@ -29,7 +29,7 @@ export const Is: t.ImmutableIsLib = {
 } as const;
 
 /**
- * Helpers
+ * Helpers:
  */
 function areFuncs(...input: any[]) {
   return input.every((v) => typeof v === 'function');

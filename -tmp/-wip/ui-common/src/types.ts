@@ -1,14 +1,14 @@
 /**
  * @module
- * Module types.
+ * @types Type-library module.
  */
 
 /**
  * External
  */
 export type { CommonTheme, Msecs } from '@sys/types/t';
-export type { ColorConstants } from '@sys/ui-dev-harness/t';
 export type { CssValue } from '@sys/ui-css/t';
+export type { ColorConstants } from '@sys/ui-dev-harness/t';
 
 /**
  * UI

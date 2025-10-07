@@ -1,5 +1,5 @@
 import type * as ramda from 'ramda';
-export * from '../types.ts';
+export type * from '../types.ts';
 
 type R = typeof ramda;
 

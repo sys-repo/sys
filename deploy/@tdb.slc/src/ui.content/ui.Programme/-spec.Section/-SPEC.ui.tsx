@@ -6,7 +6,7 @@ import { Section } from '../ui.Column.Section.tsx';
 export type RootProps = {
   state: t.ProgrammeSignals;
   content: t.ProgrammeContent;
-  player: t.VideoPlayerSignals;
+  video: t.VideoPlayerSignals;
   theme?: t.CommonTheme;
 };
 
@@ -14,11 +14,15 @@ export type RootProps = {
  * Component:
  */
 export const Root: React.FC<RootProps> = (props) => {
-  const { content, state, player } = props;
+  const { content, state, video } = props;
   const p = state.props;
-
-  const controller = Programme.useController({ state, player });
   const debug = p.debug.value;
+
+  /**
+   * Hooks:
+   */
+  const controller = Programme.useController({ state, video });
+  const player = Player.Video.useSignals(video);
 
   /**
    * Effect: Redraw.
@@ -36,6 +40,14 @@ export const Root: React.FC<RootProps> = (props) => {
     video: css({ position: 'relative', borderTop: border }),
   };
 
+  const elPlayer = (
+    <Player.Video.Element
+      {...player.props}
+      debug={debug}
+      onEnded={(e) => console.info(`⚡️ onEnded:`, e)}
+    />
+  );
+
   return (
     <div className={styles.base.class}>
       <div className={styles.section.class}>
@@ -45,7 +57,7 @@ export const Root: React.FC<RootProps> = (props) => {
           //
           state={state}
           content={content}
-          player={player}
+          video={video}
           //
           onSelect={(e) => {
             console.info(`⚡️ Section.onSelect:`, e);
@@ -53,13 +65,7 @@ export const Root: React.FC<RootProps> = (props) => {
           }}
         />
       </div>
-      <div className={styles.video.class}>
-        <Player.Video.View
-          debug={debug}
-          signals={player}
-          onEnded={() => console.info(`⚡️ onEnded`)}
-        />
-      </div>
+      <div className={styles.video.class}>{elPlayer}</div>
     </div>
   );
 };

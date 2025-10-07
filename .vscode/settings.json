@@ -1,22 +1,38 @@
 {
+  // --- Deno -------------------------------------------------
   "deno.enable": true,
   "deno.lint": false,
-  "deno.unstable": [],
+  "deno.importMap": "deno.imports.json",
+  "deno.unstable": true,
+  "deno.enablePaths": ["code", "deploy", "-scripts"],
+  "deno.disablePaths": ["node_modules", "**/dist", "**/.vite", "**/coverage", "-tmp", "-tmp/**"],
 
-  "typescript.disableAutomaticTypeAcquisition": true,
-  "typescript.tsserver.maxTsServerMemory": 16384,
+  // --- Formatting -------------------------------------------
+  "editor.formatOnSave": true,
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
 
+  "prettier.requireConfig": true,
+  "prettier.resolveGlobalModules": true,
+  "prettier.enableDebugLogs": false,
+
+  // --- Editor QoL -------------------------------------------
   "editor.snippetSuggestions": "top",
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.quickSuggestionsDelay": 0,
 
-  // "editor.formatOnSave": true,
-  // "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
-  // "[javascript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
-
+  // --- File System hygiene ----------------------------------
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/.vite/**": true,
+    "**/coverage/**": true
+  },
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
+    "**/.vite": true,
+    "**/coverage": true,
     "-tmp": true
   }
 }

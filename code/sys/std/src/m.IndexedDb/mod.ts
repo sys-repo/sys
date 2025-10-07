@@ -1,6 +1,6 @@
 /**
- * @module
  * A promise based wrapper into the IndexedDB API.
+ * @module
  *
  *    https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
  *    https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
@@ -14,4 +14,4 @@
  * const db = await IndexedDb.init<T>({ name, store: (db) => ({ name, db }) })
  * ```
  */
-export * from './m.IndexedDb.ts';
+export { IndexedDb } from './m.IndexedDb.ts';

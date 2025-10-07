@@ -1,6 +1,5 @@
 import type { t } from '../common.ts';
 import { Url } from '../m.Url/mod.ts';
-import { Dispose } from '../m.Dispose/mod.ts';
 
 type M = 'GET' | 'PUT' | 'POST' | 'DELETE';
 type H = { method: M; handler: Deno.ServeHandler };
@@ -24,7 +23,7 @@ export const TestServer = {
     });
 
     const addr = server.addr;
-    const url = Url.fromAddr(addr);
+    const url = Url.parse(addr);
 
     const api: t.TestHttpServerInstance = {
       addr,

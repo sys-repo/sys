@@ -1,5 +1,6 @@
-# Driver: Farcaster
+# Farcaster Driver
 Tools for working with the Farcaster permissionless social protocol.
+
 
 ### Example
 ```ts

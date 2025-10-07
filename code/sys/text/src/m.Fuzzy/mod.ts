@@ -1,6 +1,6 @@
 /**
- * @module
  * Tools for working with fuzzy (appropximate) matching on strings of text.
+ * @module
  *
  * @example
  * Perform a fuzzy match.

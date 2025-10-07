@@ -76,19 +76,23 @@ export type ColorTheme = ColorThemeColors & {
   readonly is: {
     /** Theme is "Light" */
     readonly light: boolean;
-
     /** Theme is "Dark" */
     readonly dark: boolean;
   };
 
-  /** Retrieve an alpha-percent of the current theme colors. */
-  alpha(percent?: t.Percent): ColorThemeColors;
-
   /** Retrieve a new theme inverted (eg. "Dark" → "Light") */
   invert(): ColorTheme;
 
+  /** Retrieve an alpha-percent (-1..1) of the current theme colors (pass negative to invert). */
+  alpha(percent?: t.Percent): ColorThemeColors;
+
+  /** Retrieves an alpha-percent of the current theme, or locked to the given string-color if provided (pass negative to invert). */
+  format(input?: t.Percent | string): ColorThemeColors;
+
   /** Convert to string. */
   toString(): string;
+  /** Convert to a fg/bg object. */
+  toColors(): ColorThemeColors;
 };
 
 /**
@@ -106,6 +110,8 @@ export type ColorThemeColors = {
  * Common color constants.
  */
 export type ColorConstants = {
+  /** Fully transparent color (0% opacity). */
+  TRANSPARENT: t.StringHex;
   /** The color black. */
   BLACK: t.StringHex;
   /** The color white. */
@@ -118,6 +124,8 @@ export type ColorConstants = {
   MAGENTA: t.StringHex;
   /** The color blue. */
   BLUE: t.StringHex;
+  /** A lighter blue color. */
+  LIGHT_BLUE: t.StringHex;
   /** The color green. */
   GREEN: t.StringHex;
   /** The color yellow. */

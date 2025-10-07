@@ -1,4 +1,4 @@
-import { type t, c, Fs, HttpServer, pkg, Pkg } from './common.ts';
+import { type t, c, Fs, Http, pkg, Pkg } from './common.ts';
 
 /**
  * Run a local HTTP server from entry command-args.
@@ -12,15 +12,15 @@ export async function serve(args: t.ViteEntryArgsServe) {
   const hash = dist?.hash.digest ?? '';
   const pkg = wrangle.pkg(dist);
 
-  const app = HttpServer.create({ pkg, hash, static: ['/*', dir] });
-  const options = HttpServer.options({ port, pkg, hash, silent });
+  const app = Http.Server.create({ pkg, hash, static: ['/*', dir] });
+  const options = Http.Server.options({ port, pkg, hash, silent });
 
   const fmtDir = c.gray(dir.replace(/^\.\//, '').replace(/\/$/, ''));
   const fmtDirExists = c.yellow(!dirExists ? c.bold('(does not exist)') : '');
   console.info(c.gray(`Static:   ${fmtDir}/ ${fmtDirExists}`));
 
   Deno.serve(options, app.fetch);
-  await HttpServer.keyboard({ port, print: !silent });
+  await Http.Server.keyboard({ port, print: !silent });
 }
 
 /**

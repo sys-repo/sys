@@ -1,5 +1,5 @@
 import { Random } from '../m.Random/mod.ts';
-import { Time, Testing, describe, expect, it, expectError } from './mod.ts';
+import { Testing, Time, describe, expect, expectError, expectTypeOf, it } from './mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
   await test.step('eql', () => {
@@ -30,7 +30,7 @@ describe('Testing', () => {
     expect(a).to.not.eql(b);
   });
 
-  it('slug', () => {
+  it('slug (ID)', () => {
     const id = Testing.slug();
     expect(id.length).to.eql(Random.Length.slug);
   });
@@ -86,6 +86,45 @@ describe('Testing', () => {
     });
   });
 
+  describe('until', () => {
+    it('resolves once predicate becomes true', async () => {
+      let n = 0;
+      const pred = () => ++n >= 3; // predicate flips true on 3rd call
+
+      await Testing.until(pred, { times: 5, delay: 1 });
+      expect(n).to.be.gte(3);
+    });
+
+    it('supports async predicates', async () => {
+      let n = 0;
+      const pred = async () => {
+        n++;
+        return n >= 2;
+      };
+
+      await Testing.until(pred, { times: 5, delay: 1 });
+      expect(n).to.be.gte(2);
+    });
+
+    it('rejects if condition never met', async () => {
+      let n = 0;
+      const pred = () => {
+        n++;
+        return false;
+      };
+
+      let err: Error | undefined;
+      try {
+        await Testing.until(pred, { times: 3, delay: 1 });
+      } catch (e) {
+        err = e as Error;
+      }
+
+      expect(err).to.be.instanceOf(Error);
+      expect(n).to.equal(3); // tried exactly "times" times
+    });
+  });
+
   describe('wait', () => {
     it('milliseconds (macro-task queue)', async () => {
       const timer = Time.timer();
@@ -106,11 +145,42 @@ describe('Testing', () => {
         microtaskResolved = true;
 
         expect(microtaskResolved).to.be.true;
-        expect(macrotaskResolved).to.be.false; // Microtasks should run before macrotasks
-        expect(elapsed).to.eql(0); // Should be ~0ms or very close
+        expect(macrotaskResolved).to.be.false; // Microtasks should run before macrotasks.
+        expect(elapsed).to.be.lessThan(10); // Should be ~0ms or very close (NB: allow tiny scheduler jitter).
 
         clearTimeout(stop);
       });
+    });
+  });
+
+  describe('expectTypeOf → toEqualTypeOf', () => {
+    it('accepts identical literal types', () => {
+      const val = 42 as const;
+      expectTypeOf(val).toEqualTypeOf<42>(); // ✅
+    });
+
+    it('accepts widened (assignable) types', () => {
+      const val = 42; // number
+      expectTypeOf(val).toEqualTypeOf<number>(); // ✅
+    });
+
+    it('rejects mismatched types (compile-time)', () => {
+      const val = { foo: 'bar' } as const;
+
+      // @ts-expect-error literal vs. broader string
+      expectTypeOf(val.foo).toEqualTypeOf<string>();
+
+      // @ts-expect-error structure mismatch
+      expectTypeOf(val).toEqualTypeOf<{ bar: string }>();
+    });
+
+    it('works with generics', () => {
+      function id<T>(x: T) {
+        expectTypeOf(x).toEqualTypeOf<T>(); // ✅
+        return x;
+      }
+      id('hello');
+      id({ ok: true });
     });
   });
 });

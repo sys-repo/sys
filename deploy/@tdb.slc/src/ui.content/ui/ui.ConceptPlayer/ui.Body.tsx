@@ -43,6 +43,7 @@ export const Body: React.FC<P> = (props) => {
       theme={theme.name}
       style={styles.column}
       onClickOutside={props.onClickOutsideColumn}
+      onVideoEnd={props.onVideoEnd}
     />
   );
 

@@ -20,11 +20,16 @@ export const Process: ProcLib = {
     const path = options.path ?? '';
     return {
       path,
-      run(...args) {
-        const { silent } = options;
+      async run(...args) {
+        const { silent, strict = true } = options;
         const command = [...(options.args ?? []), ...args];
         if (path) command.unshift(`cd ${path}`);
-        return Process.invoke({ args: ['-c', command.join(' && ')], cmd: 'sh', silent });
+
+        const lines = [...(strict ? ['set -e'] : []), ...command];
+        const script = lines.join(' && ');
+
+        const res = await Process.invoke({ args: ['-c', script], cmd: 'sh', silent });
+        return res;
       },
     };
   },

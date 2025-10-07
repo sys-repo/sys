@@ -1,6 +1,6 @@
 import { type t, c, describe, expect, Fs, it, pkg, SAMPLE } from '../-test.ts';
-import { Vite } from './mod.ts';
 import { extractModulePreloadLinks } from './-u.ts';
+import { Vite } from './mod.ts';
 
 describe('Vite.build', () => {
   const { brightCyan: cyan, bold } = c;
@@ -95,7 +95,9 @@ describe('Vite.build', () => {
 
     const filenames = Object.keys(files.json.dist?.hash.parts ?? []);
     const js = filenames.filter((p) => p.endsWith('.js'));
-    expect(js.length).to.eql(3); // NB: the third ".js" file proves the code-splitting via dynamic import works.
+    const wasm = filenames.filter((p) => p.endsWith('.wasm'));
+    expect(js.length).to.greaterThan(5); // NB: assert the code-splitting via dynamic import works.
+    expect(wasm.length).to.greaterThan(0);
   });
 
   it('sample-3: sw.js (service-worker)', async () => {

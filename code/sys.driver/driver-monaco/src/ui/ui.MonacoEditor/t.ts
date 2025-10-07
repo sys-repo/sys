@@ -4,52 +4,66 @@ import type { t } from './common.ts';
  * <Component>:
  */
 export type MonacoEditorProps = {
-  debug?: boolean;
-
-  text?: string;
+  // Value:
+  defaultValue?: string;
   language?: t.EditorLanguage;
-  theme?: t.CommonTheme;
   placeholder?: string;
+
+  // Display:
   enabled?: boolean;
-  focusOnLoad?: boolean;
+  autoFocus?: boolean | number;
   tabSize?: number;
   minimap?: boolean;
   readOnly?: boolean;
-  style?: t.CssValue;
+  fontSize?: t.Pixels;
+  spinning?: boolean;
 
+  /** Enable word wrapping in the editor. */
+  wordWrap?: boolean;
+  /** Column at which to break lines when word wrap is enabled. */
+  wordWrapColumn?: number;
+
+  // Appearance:
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+  debug?: boolean;
+
+  // Handlers:
+  onMounted?: t.MonacoEditorMountedHandler;
   onChange?: t.MonacoEditorChangeHandler;
-  onReady?: t.MonacoEditorReadyHandler;
   onDispose?: t.MonacoEditorDisposedHandler;
 };
 
 /**
- * Editor ready.
+ * Handler for when the editor is ready.
  */
-export type MonacoEditorReadyHandler = (e: MonacoEditorReadyArgs) => void;
-export type MonacoEditorReadyArgs = {
-  readonly editor: t.MonacoCodeEditor;
-  readonly monaco: t.Monaco;
-  readonly carets: t.EditorCarets;
-  readonly dispose$: t.Observable<void>;
+export type MonacoEditorMountedHandler = (e: MonacoEditorReady) => void;
+/** Editor ready event. */
+export type MonacoEditorReady = {
+  readonly monaco: t.Monaco.Monaco;
+  readonly editor: t.Monaco.Editor;
+  readonly dispose$: t.Observable<t.DisposeEvent>;
 };
 
 /**
- * Editor disposed.
+ * Handler for when the editor is disposed.
  */
-export type MonacoEditorDisposedHandler = (e: MonacoEditorDisposedArgs) => void;
-export type MonacoEditorDisposedArgs = {
-  readonly editor: t.MonacoCodeEditor;
-  readonly monaco: t.Monaco;
+export type MonacoEditorDisposedHandler = (e: MonacoEditorDisposed) => void;
+/** Editor disposed event. */
+export type MonacoEditorDisposed = {
+  readonly editor: t.Monaco.Editor;
+  readonly monaco: t.Monaco.Monaco;
 };
 
 /**
- * Editor changed.
+ * Handler for when the editor changes.
  */
-export type MonacoEditorChangeHandler = (e: MonacoEditorChangeArgs) => void;
-export type MonacoEditorChangeArgs = {
-  readonly event: t.monaco.editor.IModelContentChangedEvent;
-  readonly editor: t.MonacoCodeEditor;
-  readonly monaco: t.Monaco;
+export type MonacoEditorChangeHandler = (e: MonacoEditorChange) => void;
+/** Editor change event. */
+export type MonacoEditorChange = {
+  readonly event: t.Monaco.I.IModelContentChangedEvent;
+  readonly editor: t.Monaco.Editor;
+  readonly monaco: t.Monaco.Monaco;
   readonly content: t.EditorContent;
   readonly selections: t.EditorSelection[];
 };

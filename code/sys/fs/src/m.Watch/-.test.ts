@@ -1,5 +1,5 @@
 import { describe, expect, it, sampleDir, Time } from '../-test.ts';
-import { type t, rx, slug } from './common.ts';
+import { type t, Rx, slug } from './common.ts';
 
 import { Fs } from '../m.Fs/mod.ts';
 import { Watch } from './mod.ts';
@@ -30,7 +30,7 @@ describe('Fs.Watch', () => {
     });
 
     it('create: multiple paths, not recursive → dispose$', async () => {
-      const { dispose, dispose$ } = rx.disposable();
+      const { dispose, dispose$ } = Rx.disposable();
       const [_, p1, p2] = await SAMPLE.ensureExists(SAMPLE.uniq(), SAMPLE.uniq());
       const watcher = await Fs.watch([p1, p2], { recursive: false, dispose$ });
       expect(watcher.paths).to.eql([p1, p2]);

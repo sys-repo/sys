@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, Obj, rx } from './common.ts';
+import { type t, Color, css, D, Obj, Rx } from './common.ts';
 import { toString } from './u.filter.ts';
 import { Slider } from './ui.Slider.tsx';
 
@@ -10,14 +10,14 @@ type P = t.MediaFiltersProps;
  */
 export const List: React.FC<P> = (props) => {
   const { debounce = D.debounce } = props;
-  const changed$Ref = React.useRef(rx.subject<t.MediaFiltersChangeArgs>());
+  const ref$ = React.useRef(Rx.subject<t.MediaFiltersChangeArgs>());
 
   /**
    * Effect: fire debounced 'onChanged' event.
    */
   React.useEffect(() => {
-    const life = rx.disposable();
-    const $ = changed$Ref.current.pipe(rx.takeUntil(life.dispose$), rx.debounceTime(debounce));
+    const life = Rx.disposable();
+    const $ = ref$.current.pipe(Rx.takeUntil(life.dispose$), Rx.debounceTime(debounce));
     $.subscribe((e) => props.onChanged?.(e));
     return life.dispose;
   }, [debounce]);
@@ -58,7 +58,7 @@ export const List: React.FC<P> = (props) => {
               },
             };
             props.onChange?.(e);
-            changed$Ref.current.next(e);
+            ref$.current.next(e);
           }}
         />
       );

@@ -8,7 +8,8 @@ import { Overview } from './ui.tsx';
 /**
  * Content: "Overview" (2 minute summary).
  */
-export function factory() {
+export function factory(options: t.ContentFactoryOptions = {}) {
+  const { muted = false } = options;
   const theme = DEFAULTS.theme.sheet;
 
   const content: t.VideoContent = {
@@ -23,7 +24,7 @@ export function factory() {
     },
 
     render(props) {
-      return <Overview {...props} theme={theme} />;
+      return <Overview {...props} theme={theme} muted={muted} />;
     },
   };
 

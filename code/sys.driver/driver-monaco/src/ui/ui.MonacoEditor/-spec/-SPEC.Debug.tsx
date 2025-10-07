@@ -1,56 +1,121 @@
 import React from 'react';
-import { Monaco } from '../../../mod.ts';
 
-import { type t, Button, Color, css, D, ObjectView, Signal, Wrangle } from '../common.ts';
+import {
+  type t,
+  Button,
+  css,
+  D,
+  Is,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  Util,
+} from '../common.ts';
 import { SAMPLE_CODE } from './-SPEC.u.code.ts';
+import { LanguagesList } from './-ui.ts';
 
 type P = t.MonacoEditorProps;
+type Storage = Pick<
+  P,
+  | 'theme'
+  | 'debug'
+  | 'enabled'
+  | 'readOnly'
+  | 'minimap'
+  | 'tabSize'
+  | 'wordWrap'
+  | 'language'
+  | 'placeholder'
+  | 'autoFocus'
+  | 'fontSize'
+  | 'spinning'
+> & { render?: boolean };
 
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
+const defaults: Storage = {
+  render: true,
+  debug: false,
+  theme: 'Dark',
+  enabled: D.props.enabled,
+  readOnly: D.props.readOnly,
+  autoFocus: true,
+  minimap: D.props.minimap,
+  tabSize: D.props.tabSize,
+  wordWrap: D.props.wordWrap,
+  language: D.props.language,
+  spinning: D.props.spinning,
+  fontSize: undefined,
+  placeholder: undefined,
+};
 
 /**
  * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+
   const props = {
-    debug: s(false),
-    render: s(true),
-    editor: s<t.MonacoCodeEditor>(),
-    carets: s<t.EditorCarets>(),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
+    render: s(snap.render),
 
-    theme: s<P['theme']>('Dark'),
-    enabled: s<P['enabled']>(D.props.enabled),
-    readOnly: s<P['readOnly']>(D.props.readOnly),
-    minimap: s<P['minimap']>(D.props.minimap),
-    tabSize: s<P['tabSize']>(D.props.tabSize),
+    enabled: s(snap.enabled),
+    readOnly: s(snap.readOnly),
+    fontSize: s(snap.fontSize),
+    autoFocus: s(snap.autoFocus),
+    minimap: s(snap.minimap),
+    tabSize: s(snap.tabSize),
+    wordWrap: s(snap.wordWrap),
+    language: s(snap.language),
+    placeholder: s(snap.placeholder),
+    spinning: s(snap.spinning),
 
-    text: s<P['text']>(),
-    language: s<P['language']>(),
-    placeholder: s<P['placeholder']>(),
+    defaultValue: s<P['defaultValue']>(),
+    editor: s<t.Monaco.Editor>(),
+    selectedPath: s<t.ObjectPath>([]),
   };
   const p = props;
   const api = {
     props,
-    listen() {
-      p.debug.value;
-      p.render.value;
-      p.editor.value;
-      p.carets.value;
-      p.theme.value;
-      p.enabled.value;
-      p.readOnly.value;
-      p.minimap.value;
-      p.tabSize.value;
-      p.placeholder.value;
-      p.text.value;
-      p.language.value;
-    },
+    reset,
+    listen,
   };
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+      d.render = p.render.value;
+      d.enabled = p.enabled.value;
+      d.readOnly = p.readOnly.value;
+      d.fontSize = p.fontSize.value;
+      d.minimap = p.minimap.value;
+      d.autoFocus = p.autoFocus.value;
+      d.tabSize = p.tabSize.value;
+      d.wordWrap = p.wordWrap.value;
+      d.language = p.language.value;
+      d.placeholder = p.placeholder.value;
+      d.spinning = p.spinning.value;
+    });
+  });
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    p.selectedPath.value = [];
+  }
+
   return api;
 }
 
@@ -86,19 +151,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
+        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
-        label={() => `render: ${p.render.value}`}
-        onClick={() => Signal.toggle(p.render)}
+        label={() => `spinning: ${p.spinning.value ?? `<undefined>)`}`}
+        onClick={() => Signal.toggle(p.spinning)}
       />
+      <Button
+        block
+        label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
+      />
+
       <hr />
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+        label={() => {
+          const v = p.fontSize.value;
+          const d = D.props.fontSize;
+          return `fontSize: ${v ? `${v}px` : `(default: ${d}px)`}`;
+        }}
+        onClick={() => Signal.cycle<P['fontSize']>(p.fontSize, [12, undefined, 16, 18, 22, 36])}
       />
       <Button
         block
@@ -112,6 +187,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
+        label={() => `autoFocus: ${p.autoFocus.value}`}
+        onClick={() => Signal.toggle(p.autoFocus)}
+      />
+      <Button
+        block
+        label={() => `autoFocus: (increment number)`}
+        onClick={() => {
+          if (Is.bool(p.autoFocus.value)) p.autoFocus.value = -1;
+          (p.autoFocus.value as number) += 1;
+        }}
+      />
+      <Button
+        block
         label={() => `minimap: ${p.minimap.value}`}
         onClick={() => Signal.toggle(p.minimap)}
       />
@@ -122,172 +210,54 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `placeholder: ${p.placeholder.value ?? `<undefined>`}`}
-        onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
+        label={() =>
+          `wordWrap: ${p.wordWrap.value ?? `<undefined> (default: ${D.props.wordWrap})`}`
+        }
+        onClick={() => Signal.toggle(p.wordWrap)}
       />
-      <hr />
-      {languageButtons(debug)}
 
       <hr />
-      {caretButtons(debug)}
+      <div className={Styles.title.class}>{'Languages:'}</div>
+      <LanguagesList
+        style={{ marginLeft: 15, marginBottom: 20 }}
+        current={p.language.value}
+        onSelect={(e) => {
+          const sample = SAMPLE_CODE[e.language];
+          const format = (code: string) => {
+            code = code.replace(/^\s*\n|\n\s*$/g, '');
+            return `${code}\n`;
+          };
+          if (sample) p.defaultValue.value = format(sample);
+          p.language.value = e.language;
+        }}
+      />
 
       <hr />
-      <ObjectView name={'debug'} data={wrangle.debug(debug)} expand={['$']} />
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <ObjectView
+        name={'debug'}
+        data={wrangle.debug(debug)}
+        expand={['$']}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
 
 /**
- * Dev Buttons:
+ * Helpers:
  */
-export function languageButtons(debug: DebugSignals) {
-  const p = debug.props;
-  const format = (code: string) => {
-    code = code.replace(/^\s*\n|\n\s*$/g, '');
-    return `${code}\n`;
-  };
-  const language = (language: t.EditorLanguage, codeSample?: string) => {
-    const isCurrent = language === (p.language.value ?? D.props.language);
-    return (
-      <div className={styles.row.class}>
-        <Button
-          block
-          label={() => language}
-          onClick={() => {
-            p.language.value = language;
-            if (codeSample) p.text.value = format(codeSample);
-          }}
-        />
-        <div>{isCurrent ? '🌳' : ''}</div>
-      </div>
-    );
-  };
-
-  const theme = Color.theme();
-  const styles = {
-    body: css({ marginLeft: 15 }),
-    row: css({ display: 'grid', gridTemplateColumns: '1fr auto' }),
-    hr: css({
-      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.3)}`,
-      height: 1,
-      MarginY: 5,
-    }),
-  };
-  const hr = () => <div className={styles.hr.class} />;
-
-  return (
-    <React.Fragment>
-      <div className={Styles.title.class}>{'Language:'}</div>
-      <div className={styles.body.class}>
-        {language('typescript', SAMPLE_CODE.typescript)}
-        {language('javascript', SAMPLE_CODE.javascript)}
-        {hr()}
-        {language('rust', SAMPLE_CODE.rust)}
-        {language('go', SAMPLE_CODE.go)}
-        {language('python', SAMPLE_CODE.python)}
-        {hr()}
-        {language('json', SAMPLE_CODE.json)}
-        {language('yaml', SAMPLE_CODE.yaml)}
-        {hr()}
-        {language('markdown', SAMPLE_CODE.markdown)}
-      </div>
-    </React.Fragment>
-  );
-}
-
-export function caretButtons(debug: DebugSignals) {
-  const p = debug.props;
-  const carets = p.carets.value;
-  if (!carets) return null;
-
-  const getCaret = () => carets.identity('foo.bar');
-  const changeSelection = (label: string, selection: t.EditorRangesInput) => {
-    return (
-      <Button
-        block
-        label={() => label}
-        onClick={() => getCaret().change({ selections: selection })}
-      />
-    );
-  };
-
-  const theme = Color.theme();
-  const styles = {
-    body: css({ marginLeft: 15 }),
-    row: css({ display: 'grid', gridTemplateColumns: '1fr auto' }),
-    hr: css({
-      borderTop: `dashed 1px ${Color.alpha(theme.fg, 0.3)}`,
-      height: 1,
-      MarginY: 5,
-    }),
-  };
-  const hr = () => <div className={styles.hr.class} />;
-
-  const color = (color: string) => {
-    return (
-      <Button
-        //
-        block
-        label={() => `color: ${color}`}
-        onClick={() => getCaret().change({ color })}
-      />
-    );
-  };
-
-  return (
-    <React.Fragment>
-      <div className={Styles.title.class}>{'Carets'}</div>
-      <div className={styles.body.class}>
-        {changeSelection('selection: [ ]', [])}
-        {hr()}
-        {changeSelection('selection: [1, 3]', [1, 3])}
-        {changeSelection('selection: [1, 5]', [1, 5])}
-        {changeSelection('selection: {EditorRange}', {
-          startLineNumber: 1,
-          startColumn: 5,
-          endLineNumber: 2,
-          endColumn: 2,
-        })}
-        {hr()}
-
-        {changeSelection('selection: [1, 5], [2, 2]', [
-          [1, 5],
-          [2, 2],
-        ])}
-        {changeSelection('selection: {EditorRange}, {EditorRange}', [
-          {
-            startLineNumber: 1,
-            startColumn: 5,
-            endLineNumber: 2,
-            endColumn: 2,
-          },
-          {
-            startLineNumber: 3,
-            startColumn: 1,
-            endLineNumber: 3,
-            endColumn: 3,
-          },
-        ])}
-
-        {hr()}
-        {color('red')}
-        {color('blue')}
-        <Button
-          block
-          label={() => 'color: <next>'}
-          onClick={() => getCaret().change({ color: Monaco.Carets.Color.next() })}
-        />
-
-        {hr()}
-        <Button
-          block
-          label={() => 'clear (dispose all)'}
-          onClick={() => carets.current.forEach((c) => c.dispose())}
-        />
-      </div>
-    </React.Fragment>
-  );
-}
 
 /**
  * Helpers:
@@ -301,7 +271,6 @@ const wrangle = {
 
     const props = Signal.toObject(p);
     delete props.editor;
-    delete props.carets;
 
     const data = {
       props,
@@ -309,7 +278,7 @@ const wrangle = {
         ? undefined
         : {
             'id.instance': editor?.getId(),
-            'css.class': Wrangle.Editor.className(editor),
+            'css.class': Util.Editor.className(editor),
             text: `chars:(${text.length}), lines:(${text.split('\n').length})`,
           },
     };

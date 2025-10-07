@@ -17,14 +17,14 @@ export const Styles = {
 /**
  * Buttons: play/pause controls for media-player signals-API on the stack.
  */
-export function videoPlayerButton(player?: t.VideoPlayerSignals) {
-  if (!player) return <div>{`(no video player)`}</div>;
+export function videoPlayerButton(video?: t.VideoPlayerSignals) {
+  if (!video) return <div>{`(no video player)`}</div>;
   return (
     <Button
       block
-      label={() => `[ Video ]: playing: ${player.props.playing.value}`}
-      onClick={() => player.toggle()}
-      subscribe={() => player.props.playing.value}
+      label={() => `[ Video ]: playing: ${video.props.playing.value}`}
+      onClick={() => video.toggle()}
+      subscribe={() => video.props.playing.value}
     />
   );
 }

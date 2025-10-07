@@ -1,6 +1,6 @@
 /**
- * @module
  * Helper for working with a strongly typed local-storage object.
+ * @module
  *
  * @example
  * ```ts

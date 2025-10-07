@@ -5,4 +5,3 @@
  */
 import { ViteEntry } from './mod.ts';
 await ViteEntry.main();
-Deno.exit(0);

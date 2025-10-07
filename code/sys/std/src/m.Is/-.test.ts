@@ -1,15 +1,18 @@
 import { describe, expect, it } from '../-test.ts';
-import { isEmptyRecord, isObject, isRecord } from '../common.ts';
-import { Err, Is, rx, Rx } from '../mod.ts';
+import { isEmptyRecord, isObject, isPlainObject, isPlainRecord, isRecord } from '../common.ts';
+import { Rx } from '../m.Rx/mod.ts';
+import { Err, Is } from '../mod.ts';
 
 describe('Is (common flags)', () => {
   it('API', () => {
     expect(Is.object).to.equal(isObject);
     expect(Is.record).to.eql(isRecord);
     expect(Is.emptyRecord).to.eql(isEmptyRecord);
+    expect(Is.plainObject).to.equal(isPlainObject);
+    expect(Is.plainRecord).to.equal(isPlainRecord);
   });
 
-  it('rx: observable | subject', () => {
+  it('Rx: observable | subject', () => {
     // NB: tested in the corresponding module file.
     expect(Is.observable).to.equal(Rx.Is.observable);
     expect(Is.subject).to.equal(Rx.Is.subject);
@@ -228,16 +231,10 @@ describe('Is (common flags)', () => {
     });
   });
 
-  describe('Is.browser', () => {
-    it('Is.browser: false', () => {
-      expect(Is.browser()).to.eql(false);
-    });
-  });
-
   describe('Is.disposable', () => {
     it('Is.disposable: true', () => {
-      const disposable = rx.disposable();
-      const life = rx.lifecycle();
+      const disposable = Rx.disposable();
+      const life = Rx.lifecycle();
       expect(Is.disposable(disposable)).to.be.true;
       expect(Is.disposable(life)).to.be.true;
     });
@@ -245,6 +242,38 @@ describe('Is (common flags)', () => {
     it('Is.disposable: false', () => {
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((value) => expect(Is.disposable(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.disposableLike', () => {
+    it('Is.disposableLike: true (canonical + plain)', () => {
+      const disposable = Rx.disposable(); // canonical
+      const life = Rx.lifecycle(); // canonical
+      const plain = { dispose() {} }; // plain dispose-only
+
+      expect(Is.disposableLike(disposable)).to.be.true;
+      expect(Is.disposableLike(life)).to.be.true;
+      expect(Is.disposableLike(plain)).to.be.true;
+
+      // Cross-check boundary with canonical:
+      expect(Is.disposable(plain)).to.be.false; // no dispose$
+    });
+
+    it('Is.disposableLike: false (non-functions / non-objects)', () => {
+      const NON = [
+        '',
+        123,
+        true,
+        null,
+        undefined,
+        BigInt(0),
+        Symbol('foo'),
+        {},
+        [], // no dispose at all
+        { dispose: 123 }, // not a function
+        { dispose: 'nope' }, // not a function
+      ];
+      NON.forEach((value) => expect(Is.disposableLike(value)).to.eql(false));
     });
   });
 
@@ -269,7 +298,7 @@ describe('Is (common flags)', () => {
     });
 
     it('Is.number: false', () => {
-      const NON = ['', true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      const NON = ['', true, null, undefined, BigInt(0), Symbol('foo'), {}, [], NaN];
       NON.forEach((value) => expect(Is.number(value)).to.eql(false));
     });
   });
@@ -283,6 +312,18 @@ describe('Is (common flags)', () => {
     it('Is.string: false', () => {
       const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((value) => expect(Is.string(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.bool', () => {
+    it('Is.bool: true', () => {
+      expect(Is.bool(true)).to.eql(true);
+      expect(Is.bool(false)).to.eql(true);
+    });
+
+    it('Is.bool: false', () => {
+      const NON = [123, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value) => expect(Is.bool(value)).to.eql(false));
     });
   });
 
@@ -330,6 +371,130 @@ describe('Is (common flags)', () => {
     it('Is.emptyRecord: false', () => {
       const NON = ['', 123, true, null, undefined, [], { foo: 123 }, BigInt(0), Symbol('foo')];
       NON.forEach((value) => expect(Is.emptyRecord(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.localhost (non-browser)', () => {
+    it('Is.localhost: false', () => {
+      expect(Is.localhost()).to.eql(false);
+    });
+  });
+
+  describe('Is.objectPath', () => {
+    it('is not an [ObjectPath]', () => {
+      const NON = [123, {}, false, '', Symbol('foo'), BigInt(0), undefined, null, [[]], [{}]];
+      NON.forEach((v) => expect(Is.objectPath(v)).to.eql(false));
+    });
+
+    it('is an [ObjectPath]', () => {
+      expect(Is.objectPath([])).to.eql(true);
+      expect(Is.objectPath([''])).to.eql(true);
+      expect(Is.objectPath(['foo', 1, 'bar'])).to.eql(true);
+    });
+  });
+
+  describe('Is.abortSignal', () => {
+    it('returns true for a real AbortSignal', () => {
+      const signal = new AbortController().signal;
+      expect(Is.abortSignal(signal)).to.eql(true);
+    });
+
+    it('returns true for a duck-typed object with the right shape', () => {
+      const duck = {
+        aborted: false,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      };
+      expect(Is.abortSignal(duck)).to.eql(true);
+    });
+
+    it('returns false for null and undefined', () => {
+      expect(Is.abortSignal(null)).to.eql(false);
+      expect(Is.abortSignal(undefined)).to.eql(false);
+    });
+
+    it('returns false for primitives', () => {
+      expect(Is.abortSignal(0)).to.eql(false);
+      expect(Is.abortSignal('')).to.eql(false);
+      expect(Is.abortSignal(Symbol('x'))).to.eql(false);
+      expect(Is.abortSignal(true)).to.eql(false);
+      expect(Is.abortSignal(BigInt(0))).to.eql(false);
+    });
+
+    it('returns false for plain objects missing required props', () => {
+      expect(Is.abortSignal({})).to.eql(false);
+      expect(Is.abortSignal({ aborted: false })).to.eql(false);
+      expect(Is.abortSignal({ addEventListener: () => {} })).to.eql(false);
+    });
+
+    it('returns false for EventTarget without "aborted"', () => {
+      class Custom extends EventTarget {}
+      const obj = new Custom();
+      expect(Is.abortSignal(obj)).to.eql(false);
+    });
+
+    it('returns true for an already-aborted signal', () => {
+      const c = new AbortController();
+      c.abort();
+      expect(Is.abortSignal(c.signal)).to.eql(true);
+    });
+
+    it('returns false when methods have wrong types', () => {
+      const duck = { aborted: false, addEventListener: 123, removeEventListener: () => {} };
+      expect(Is.abortSignal(duck as any)).to.eql(false);
+    });
+
+    it('returns false for arrays and functions', () => {
+      expect(Is.abortSignal([])).to.eql(false);
+      expect(Is.abortSignal(() => {})).to.eql(false);
+    });
+
+    it('returns true for objects with extra fields if core shape is present', () => {
+      const duck = {
+        aborted: false,
+        addEventListener() {},
+        removeEventListener() {},
+        reason: undefined, // allowed extra
+      };
+      expect(Is.abortSignal(duck)).to.eql(true);
+    });
+  });
+
+  describe('Is.abortController', () => {
+    it('returns true for a real AbortController', () => {
+      const ctrl = new AbortController();
+      expect(Is.abortController(ctrl)).to.eql(true);
+    });
+
+    it('returns true for a duck-typed object with the right shape', () => {
+      const duck = {
+        signal: {
+          aborted: false,
+          addEventListener() {},
+          removeEventListener() {},
+        },
+        abort() {},
+      };
+      expect(Is.abortController(duck)).to.eql(true);
+    });
+
+    it('returns false for null and undefined', () => {
+      expect(Is.abortController(null)).to.eql(false);
+      expect(Is.abortController(undefined)).to.eql(false);
+    });
+
+    it('returns false for primitives', () => {
+      expect(Is.abortController(0)).to.eql(false);
+      expect(Is.abortController('')).to.eql(false);
+      expect(Is.abortController(Symbol('x'))).to.eql(false);
+      expect(Is.abortController(true)).to.eql(false);
+      expect(Is.abortController(BigInt(0))).to.eql(false);
+    });
+
+    it('returns false for plain objects missing required props', () => {
+      expect(Is.abortController({})).to.eql(false);
+      expect(Is.abortController({ abort() {} })).to.eql(false); // no signal
+      expect(Is.abortController({ signal: {} })).to.eql(false); // signal not AbortSignal
     });
   });
 });

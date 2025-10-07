@@ -14,8 +14,8 @@ const DEFAULT = DEFAULTS.props.host;
 export type HarnessHostProps = {
   instance: t.DevInstance;
   style?: t.CssInput;
-  baseRef?: React.RefObject<HTMLDivElement>;
-  subjectRef?: React.RefObject<HTMLDivElement>;
+  baseRef?: React.RefObject<HTMLDivElement | null>;
+  subjectRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
@@ -54,7 +54,12 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
       : Color.format(host.color);
 
   const styles = {
-    base: css({ position: 'relative', backgroundColor, color }),
+    base: css({
+      position: 'relative',
+      backgroundColor,
+      color,
+      borderRight: `solid 1px ${Color.format(-0.1)}`,
+    }),
     body: css({ Absolute: 0, display: 'grid', gridTemplateRows: 'auto 1fr auto' }),
     main: css({ position: 'relative', display: 'grid', overflow: 'hidden' }),
     empty: css({ Absolute: 0, display: 'grid', placeContent: 'center', userSelect: 'none' }),

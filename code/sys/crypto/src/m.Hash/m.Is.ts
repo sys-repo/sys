@@ -1,6 +1,7 @@
 import { type t, isObject } from './common.ts';
+import type { HashIsLib } from './t.ts';
 
-export const Is: t.HashIsLib = {
+export const Is: HashIsLib = {
   composite(input?: any): input is t.CompositeHash {
     if (!isObject(input)) return false;
     const obj = input as t.CompositeHash;
