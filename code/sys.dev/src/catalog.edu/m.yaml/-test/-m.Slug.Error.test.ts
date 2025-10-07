@@ -35,6 +35,17 @@ describe('YamlPipeline.Slug.Error', () => {
       expect(traitsDiag).to.exist;
     });
 
+    it('pathMode as plain parameter', () => {
+      const base = ['foo', 'bar'];
+      const res = YamlPipeline.Slug.fromYaml(YAML_WITH_SCHEMA_ERROR, base);
+
+      const a = YamlPipeline.Slug.Error.normalize(res, 'absolute');
+      const b = YamlPipeline.Slug.Error.normalize(res, 'relative');
+
+      expect(a[0].path).to.eql(['foo', 'bar', 'traits']);
+      expect(b[0].path).to.eql(['traits']);
+    });
+
     it('attaches character range from AST when missing', () => {
       const res = YamlPipeline.Slug.fromYaml(YAML_WITH_SCHEMA_ERROR, ['foo', 'bar']);
       const out = YamlPipeline.Slug.Error.normalize(res, { pathMode: 'absolute' });

@@ -7,12 +7,15 @@ export type YamlSlugErrorLib = {
   /** Normalize schema/semantic YAML diagnostics. */
   readonly normalize: (
     yaml: t.SlugFromYamlResult,
-    opts: { pathMode?: t.PathMode },
+    opts: t.YamlSlugErrorNormalizeOptions | t.PathMode,
   ) => readonly t.Yaml.Diagnostic[];
 
   /** Enrich validation errors with AST node ranges (mutates array in-place). */
   readonly attachSemanticRanges: (ast: t.Yaml.Ast, errs: t.Schema.ValidationError[]) => void;
 };
+
+/** Options passed to `Error.normalise` method. */
+export type YamlSlugErrorNormalizeOptions = { pathMode?: t.PathMode };
 
 /**
  * Categorised errors from the YAML parse + validation pipeline of slugs.
