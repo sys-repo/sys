@@ -4,7 +4,7 @@ import { fakeModel } from './m.Fake.model.ts';
 import { fakeMonaco } from './m.Fake.monaco.ts';
 
 export const ctx: t.FakeMonacoLib['ctx'] = (modelInput?, monaco = fakeMonaco()) => {
-  const model = Is.string(modelInput) ? fakeModel(modelInput) : modelInput ?? fakeModel('');
+  const model = Is.string(modelInput) ? fakeModel(modelInput) : (modelInput ?? fakeModel(''));
   const editor = fakeEditor(model);
   return {
     monaco: monaco as unknown as t.Monaco.Monaco,

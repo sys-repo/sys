@@ -6,6 +6,7 @@ import {
   expect,
   expectTypeOf,
   it,
+  makeYamlErrorLinePos,
   MonacoFake,
   renderHook,
 } from '../../../-test.ts';
@@ -20,18 +21,18 @@ describe('useErrorMarkers', () => {
 
   describe('core behavior (single-instance)', () => {
     it('early return when monaco/editor/enabled not satisfied', () => {
-      // 1) No monaco/editor: should be a no-op (just ensure it doesn't throw).
-      const { result } = renderHook((p: any) => useErrorMarkers(p), {
+      // 1. No monaco/editor: should be a no-op (just ensure it doesn't throw).
+      const { result: a } = renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco: undefined, editor: undefined, errors: [] },
       });
-      expect(result).to.not.equal(undefined);
+      expect(a).to.not.equal(undefined);
 
-      // 2) monaco present but enabled=false with no editor: still no work.
+      // 2. monaco present but enabled=false with no editor: still no work.
       const monaco = MonacoFake.monaco({ cast: true });
-      const { result: result2 } = renderHook((p: any) => useErrorMarkers(p), {
+      const { result: b } = renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco, editor: undefined, enabled: false, errors: [] },
       });
-      expect(result2).to.not.equal(undefined);
+      expect(b).to.not.equal(undefined);
     });
 
     it('applies markers from linePos (best case)', () => {
@@ -40,18 +41,7 @@ describe('useErrorMarkers', () => {
       const editor = MonacoFake.editor(model);
       const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
-      const err: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        code: 'UNEXPECTED_TOKEN',
-        message: 'Unexpected token',
-        pos: [0, 1],
-        linePos: [
-          { line: 2, col: 4 },
-          { line: 2, col: 10 },
-        ],
-      };
+      const err = makeYamlErrorLinePos('Unexpected token', 2, 4, 10, 'UNEXPECTED_TOKEN');
 
       renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco, editor, errors: [err] },
@@ -111,18 +101,7 @@ describe('useErrorMarkers', () => {
       const editor = MonacoFake.editor(model);
       const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
-      const err: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        code: 'UNEXPECTED_TOKEN',
-        message: 'Oops',
-        pos: [0, 1],
-        linePos: [
-          { line: 1, col: 1 },
-          { line: 1, col: 2 },
-        ],
-      };
+      const err = makeYamlErrorLinePos('Oops', 1, 1, 2, 'UNEXPECTED_TOKEN');
 
       const { rerender } = renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco, editor, errors: [err] },
@@ -149,18 +128,7 @@ describe('useErrorMarkers', () => {
       const editor = MonacoFake.editor(model);
       const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
-      const err: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        code: 'UNEXPECTED_TOKEN',
-        message: 'Something wrong',
-        pos: [0, 1],
-        linePos: [
-          { line: 3, col: 1 },
-          { line: 3, col: 5 },
-        ],
-      };
+      const err = makeYamlErrorLinePos('Something wrong', 3, 1, 5, 'UNEXPECTED_TOKEN');
 
       const { rerender } = renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco, editor, errors: [err], enabled: true },
@@ -187,27 +155,14 @@ describe('useErrorMarkers', () => {
       const editor = MonacoFake.editor(model);
 
       const owner = 'yaml.unmount';
-      const err: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        code: 'UNEXPECTED_TOKEN',
-        message: 'Boom',
-        pos: [0, 1],
-        linePos: [
-          { line: 1, col: 1 },
-          { line: 1, col: 2 },
-        ],
-      };
+      const err = makeYamlErrorLinePos('Boom', 1, 1, 2, 'UNEXPECTED_TOKEN');
 
       const { unmount } = renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco, editor, errors: [err], owner },
       });
 
-      // Sanity: markers present for this owner.
       expect(monaco.editor.getModelMarkers({ owner, resource: model.uri }).length).to.equal(1);
 
-      // Unmount should clear only this owner's markers.
       unmount();
       expect(monaco.editor.getModelMarkers({ owner, resource: model.uri }).length).to.equal(0);
     });
@@ -217,38 +172,21 @@ describe('useErrorMarkers', () => {
       const modelA = MonacoFake.model('a: 1');
       const modelB = MonacoFake.model('b: 2');
 
-      // Start the editor on model A, then swap to B:
       const editor = MonacoFake.editor(modelA);
       const owner = 'yaml.swap';
-      const err: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        code: 'UNEXPECTED_TOKEN',
-        message: 'SwapMe',
-        pos: [0, 1],
-        linePos: [
-          { line: 1, col: 1 },
-          { line: 1, col: 2 },
-        ],
-      };
+      const err = makeYamlErrorLinePos('SwapMe', 1, 1, 2, 'UNEXPECTED_TOKEN');
 
       const { rerender } = renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco, editor, errors: [err], owner, enabled: true },
       });
 
-      // Markers applied to model A:
       expect(monaco.editor.getModelMarkers({ owner, resource: modelA.uri }).length).to.equal(1);
       expect(monaco.editor.getModelMarkers({ owner, resource: modelB.uri }).length).to.equal(0);
 
-      // Swap model (Fake editor exposes an internal trigger; if yours differs, adapt):
-      editor._emitDidChangeModel?.(); // triggers the onDidChangeModel handler in the hook
-      // But first actually make the editor point to modelB (Fake usually lets you set it via ctor; some fakes have a private setter).
-      // If your fake exposes a setter, call it; otherwise simulate by creating a new editor bound to B and re-rendering:
+      // swap
       const editorOnB = MonacoFake.editor(modelB);
       rerender({ monaco, editor: editorOnB, errors: [err], owner, enabled: true });
 
-      // After swap, markers move to model B and are not duplicated on A:
       expect(monaco.editor.getModelMarkers({ owner, resource: modelA.uri }).length).to.equal(0);
       expect(monaco.editor.getModelMarkers({ owner, resource: modelB.uri }).length).to.equal(1);
     });
@@ -263,31 +201,8 @@ describe('useErrorMarkers', () => {
       const editor = MonacoFake.editor(model);
       const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
-      // two instances, no owner provided
-      const errA: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        message: 'A',
-        code: 'UNEXPECTED_TOKEN',
-        pos: [0, 1],
-        linePos: [
-          { line: 1, col: 1 },
-          { line: 1, col: 2 },
-        ],
-      };
-      const errB: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        message: 'B',
-        code: 'BAD_INDENT',
-        pos: [3, 4],
-        linePos: [
-          { line: 2, col: 1 },
-          { line: 2, col: 2 },
-        ],
-      };
+      const errA = makeYamlErrorLinePos('A', 1, 1, 2, 'UNEXPECTED_TOKEN');
+      const errB = makeYamlErrorLinePos('B', 2, 1, 2, 'BAD_INDENT');
 
       renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco, editor, errors: [errA] },
@@ -296,14 +211,11 @@ describe('useErrorMarkers', () => {
         initialProps: { monaco, editor, errors: [errB] },
       });
 
-      // We should have at least two setModelMarkers calls (one per instance)
       expect(spy.calls.length).to.be.greaterThanOrEqual(2);
 
       const owners = new Set(spy.calls.map(getOwnerFrom));
-      expect(owners.size).to.equal(2); // distinct, auto-generated owners
+      expect(owners.size).to.equal(2);
       for (const o of owners) {
-        expect(o).to.be.a('string').and.not.equal(''); // sanity
-        // Verify each owner has its own marker set in the store
         const markers = monaco.editor.getModelMarkers({ owner: o, resource: model.uri });
         expect(markers.length).to.equal(1);
       }
@@ -318,29 +230,16 @@ describe('useErrorMarkers', () => {
       const spy = MonacoFake.Spy.forSetModelMarkers(monaco);
 
       const explicit = 'yaml.main';
-      const err: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        message: 'M',
-        code: 'UNEXPECTED_TOKEN',
-        pos: [0, 1],
-        linePos: [
-          { line: 1, col: 1 },
-          { line: 1, col: 2 },
-        ],
-      };
+      const err = makeYamlErrorLinePos('M', 1, 1, 2, 'UNEXPECTED_TOKEN');
 
       const { rerender } = renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco, editor, errors: [err], owner: explicit },
       });
 
-      // first render uses explicit owner
       const owners1 = new Set(spy.calls.map(getOwnerFrom));
       expect(owners1.size).to.equal(1);
       expect([...owners1][0]).to.equal(explicit);
 
-      // Change owner prop; hook should keep the original (latched via useRef):
       rerender({ monaco, editor, errors: [err], owner: 'yaml.other' });
 
       const owners2 = new Set(spy.calls.map(getOwnerFrom));
@@ -358,30 +257,8 @@ describe('useErrorMarkers', () => {
       const ownerA = 'yaml.a';
       const ownerB = 'yaml.b';
 
-      const errA: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        message: 'A',
-        code: 'UNEXPECTED_TOKEN',
-        pos: [0, 1],
-        linePos: [
-          { line: 1, col: 1 },
-          { line: 1, col: 2 },
-        ],
-      };
-      const errB: t.YamlError & {
-        linePos: [{ line: number; col: number }, { line: number; col: number }];
-      } = {
-        name: 'YAMLParseError',
-        message: 'B',
-        code: 'BAD_INDENT',
-        pos: [3, 4],
-        linePos: [
-          { line: 2, col: 1 },
-          { line: 2, col: 2 },
-        ],
-      };
+      const errA = makeYamlErrorLinePos('A', 1, 1, 2, 'UNEXPECTED_TOKEN');
+      const errB = makeYamlErrorLinePos('B', 2, 1, 2, 'BAD_INDENT');
 
       renderHook((p: any) => useErrorMarkers(p), {
         initialProps: { monaco, editor, errors: [errA], owner: ownerA },
