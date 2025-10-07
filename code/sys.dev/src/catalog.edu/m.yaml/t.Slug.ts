@@ -3,13 +3,17 @@
  * - Shared contracts across parse/validate stages.
  */
 import type { t } from './common.ts';
-export type * from './t.slug.err.ts';
+
+export type * from './t.Slug.Error.ts';
 
 /**
  * Namespace: tools within the YAML pipeline related to slug interpretation.
  */
 export type YamlSlugLib = {
-  /** Extract and validate a slug from YAML */
+  /** Error helpers. */
+  readonly Error: t.YamlSlugErrorLib;
+
+  /** Extract and validate a slug from YAML. */
   readonly fromYaml: t.SlugFromYaml;
 };
 
