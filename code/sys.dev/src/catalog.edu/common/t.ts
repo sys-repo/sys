@@ -2,7 +2,14 @@
  * @drivers
  */
 export type { Crdt } from '@sys/driver-automerge/t';
-export type { EditorEventBus, EditorYaml, Monaco, YamlEditorSignals } from '@sys/driver-monaco/t';
+export type {
+  Diagnostic,
+  EditorEventBus,
+  EditorYaml,
+  LinePos,
+  Monaco,
+  YamlEditorSignals,
+} from '@sys/driver-monaco/t';
 
 /**
  * @system

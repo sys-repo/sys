@@ -24,7 +24,6 @@ Prior deployment:
 - https://dev.socialleancanvas.com/ember-slc/
 
 ### Structure
-
 ```
 Root:
   Trailer: 🌳
@@ -37,6 +36,14 @@ Root:
       -  Economic Model: 🌳
       -  Metrics: 🌳
 ```
+
+## .env
+```
+# Vimeo
+# Scope: video_files, edit, stats:
+VIMEO_TOKEN="0000000"
+```
+
 
 
 ## License & Attribution
