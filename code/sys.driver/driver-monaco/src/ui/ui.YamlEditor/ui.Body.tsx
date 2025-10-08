@@ -1,7 +1,8 @@
 import React from 'react';
-
 import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
+
 import { type t, Color, Cropmarks, css, D, DocumentId } from './common.ts';
+import { IdLabel } from './ui.IdLabel.tsx';
 import { NotReady } from './ui.NotReady.tsx';
 
 type P = Omit<t.YamlEditorProps, 'signals' | 'onReady'> & {
@@ -46,9 +47,6 @@ export const Body: React.FC<P> = (props) => {
         fontSize: 9,
         fontFamily: 'monospace',
         cursor: 'default',
-        opacity: 0.2,
-        ':hover': { opacity: 1 },
-        transition: 'opacity 120ms ease',
       }),
     },
   };
@@ -100,9 +98,14 @@ export const Body: React.FC<P> = (props) => {
     />
   );
 
-  // When: CRDT not loaded:
+  // When: CRDT not loaded.
   const elNotReady = !doc && <NotReady label={''} theme={theme.name} />;
-  const elDebugDoc = <div className={styles.debug.doc.class}>{`crdt:${doc?.id ?? '<none>'}`}</div>;
+  const elDebugDoc = (
+    <div className={styles.debug.doc.class}>
+      {doc?.id && <IdLabel prefix={'crdt:'} value={doc?.id} theme={theme.name} />}
+      {!doc?.id && `crdt:<none>`}
+    </div>
+  );
   const elDebug = <>{elDebugDoc}</>;
 
   return (
