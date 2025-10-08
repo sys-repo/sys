@@ -50,14 +50,14 @@ describe('useYamlErrorMarkers', () => {
       message: 'Indent',
       pos: [0, 0],
       linePos: [{ line: 1, col: 3 }],
-    } as unknown as t.YamlError;
+    } as t.YamlError;
 
     renderHook((p: any) => useYamlErrorMarkers(p), {
       initialProps: { monaco, editor, errors: [err] },
     });
 
     expect(spy.calls.length).to.eql(1);
-    const m = (spy.calls[0]!.args[2] as readonly t.Monaco.I.IMarkerData[])[0]!;
+    const m = (spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[])[0]!;
     expect(m.startLineNumber).to.eql(1);
     expect(m.startColumn).to.eql(3);
     expect(m.endLineNumber).to.eql(1);
@@ -84,7 +84,7 @@ describe('useYamlErrorMarkers', () => {
     });
 
     expect(spy.calls.length).to.eql(1);
-    const m = (spy.calls[0]!.args[2] as readonly t.Monaco.I.IMarkerData[])[0]!;
+    const m = (spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[])[0]!;
     expect(m.message).to.eql('Bad indentation');
     expect(m.startLineNumber).to.be.a('number');
     expect(m.endLineNumber).to.be.a('number');
