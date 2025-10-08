@@ -2,8 +2,8 @@ import { YAMLError } from 'yaml';
 import { type t, Arr, Immutable, Is, Obj, Rx } from './common.ts';
 import { parseAst } from './u.parse.ts';
 
-type O = Record<string, unknown>;
 type S = t.YamlLib['syncer'];
+type O = Record<string, unknown>;
 
 /**
  * Factory:
@@ -83,6 +83,13 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
 
     errors.clear();
     addPathErrors(); // Re-assert structural errors every time.
+
+    // Guard:
+    if (!Is.string(after)) {
+      const msg = `Cannot make YAML/sync update. The new value is type '${typeof after}' and not a string.`;
+      console.warn(msg);
+      return;
+    }
 
     // Attempt to parse data:
     const ast = parseAst(after);
