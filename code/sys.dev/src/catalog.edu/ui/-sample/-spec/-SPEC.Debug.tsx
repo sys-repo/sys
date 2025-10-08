@@ -176,7 +176,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `change: 🐷 (invalid yaml)`}
+        label={() => `change: 🐷 { invalid yaml }`}
         onClick={() => {
           const yaml = Str.dedent(`
           foo: 
@@ -189,7 +189,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `change: 💥 (break) ← cause error condition`}
+        label={() => `change: 💥 { break } ← cause error condition`}
         onClick={() => {
           changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, { fail: '💥' }));
         }}
