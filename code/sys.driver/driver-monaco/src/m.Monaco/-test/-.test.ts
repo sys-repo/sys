@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { EditorCrdt, EditorYaml, MonacoEditor, YamlEditor } from '../../ui/mod.ts';
 
 import { Bus } from '../../m.Event/mod.ts';
-import { MonacoIs } from '../../m.Is/mod.ts';
+import { EditorIs } from '../../m.Is/mod.ts';
 import { Link } from '../m.Link.ts';
 import { Monaco } from '../mod.ts';
 
@@ -19,7 +19,7 @@ describe('Monaco', () => {
     expect(Monaco.Crdt).to.equal(EditorCrdt);
     expect(Monaco.Yaml).to.equal(EditorYaml);
     expect(Monaco.Yaml.Editor).to.equal(YamlEditor);
-    expect(Monaco.Is).to.equal(MonacoIs);
+    expect(Monaco.Is).to.equal(EditorIs);
     expect(Monaco.Link).to.equal(Link);
     expect(Monaco.Error).to.equal(Error);
   });

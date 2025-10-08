@@ -3,7 +3,7 @@ import { type t, asRange, D, Is, Obj, R } from './common.ts';
 type IRange = t.Monaco.I.IRange;
 type IPosition = t.Monaco.I.IPosition;
 
-export const MonacoIs: t.EditorIsLib = {
+export const EditorIs: t.EditorIsLib = {
   editorRange(input: any): input is IRange {
     if (!input) return false;
     if (typeof input !== 'object') return false;
@@ -67,7 +67,7 @@ export const MonacoIs: t.EditorIsLib = {
 
     if (a.editorId !== b.editorId) return false;
     if (a.offset !== b.offset) return false;
-    if (!MonacoIs.posEqual(a.position, b.position)) return false;
+    if (!EditorIs.posEqual(a.position, b.position)) return false;
 
     if (!Obj.Path.Is.eql(a.path, b.path)) return false;
     return true;

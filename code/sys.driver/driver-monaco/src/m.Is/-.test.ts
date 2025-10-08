@@ -1,17 +1,17 @@
 import { type t, Obj, describe, expect, it } from '../-test.ts';
 import { D } from '../common.ts';
 import { Monaco, Util } from '../m.Monaco/mod.ts';
-import { MonacoIs } from './mod.ts';
+import { EditorIs } from './mod.ts';
 
 type IRange = t.Monaco.I.IRange;
 type IPosition = t.Monaco.I.IPosition;
 
 describe('Is', () => {
-  const Is = MonacoIs;
+  const Is = EditorIs;
   const asRange = Util.Range.asRange;
 
   it('API', () => {
-    expect(Monaco.Is).to.equal(MonacoIs);
+    expect(Monaco.Is).to.equal(EditorIs);
   });
 
   it('Is.editorRange', () => {

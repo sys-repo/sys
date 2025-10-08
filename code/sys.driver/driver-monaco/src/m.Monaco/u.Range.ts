@@ -1,4 +1,4 @@
-import { MonacoIs } from '../m.Is/mod.ts';
+import { EditorIs } from '../m.Is/mod.ts';
 import { type t } from './common.ts';
 import { asRange } from './u.Range.asRange.ts';
 
@@ -43,10 +43,10 @@ export const RangeUtil = {
     if (!input) return [];
 
     type V = IRange | t.CharPosTuple;
-    const isValue = (value: V) => MonacoIs.editorRange(value) || MonacoIs.charPositionTuple(value);
+    const isValue = (value: V) => EditorIs.editorRange(value) || EditorIs.charPositionTuple(value);
     const toRange = (value: V): IRange => {
-      if (MonacoIs.editorRange(value)) return value;
-      if (MonacoIs.charPositionTuple(value)) {
+      if (EditorIs.editorRange(value)) return value;
+      if (EditorIs.charPositionTuple(value)) {
         return {
           startLineNumber: value[0],
           startColumn: value[1],
@@ -57,8 +57,8 @@ export const RangeUtil = {
       throw new Error('Range conversion from input not supported');
     };
 
-    if (MonacoIs.editorRange(input)) return [input];
-    if (MonacoIs.charPositionTuple(input)) return [toRange(input)];
+    if (EditorIs.editorRange(input)) return [input];
+    if (EditorIs.charPositionTuple(input)) return [toRange(input)];
     if (Array.isArray(input)) return (input as V[]).filter(isValue).map(toRange);
 
     return [];

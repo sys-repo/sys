@@ -1,4 +1,4 @@
-import { type t, Bus, MonacoIs, Obj, Rx, Yaml } from './common.ts';
+import { type t, Bus, EditorIs, Obj, Rx, Yaml } from './common.ts';
 import { pathAtCaret } from './u.pathAtCaret.ts';
 
 /**
@@ -99,7 +99,7 @@ export function createProducer(args: {
     Rx.takeUntil(life.dispose$),
     Bus.Filter.ofKind('editor:yaml:cursor'),
     Rx.filter((e) => e.editorId === editorId),
-    Rx.distinctUntilChanged((a, b) => MonacoIs.cursorEqual(a, b)),
+    Rx.distinctUntilChanged((a, b) => EditorIs.cursorEqual(a, b)),
     Rx.startWith(currentCursor), // NB: seed AFTER distinct so the seed doesn't suppress the first real change.
     Rx.shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -143,7 +143,7 @@ function makeEmptyEvent(editorId: t.StringId): t.EventYamlCursor {
 
 function isSameCursor(a: t.EventYamlCursor, b: t.EventYamlCursor) {
   // Canonical fast path:
-  if (MonacoIs.cursorEqual(a, b)) return true;
+  if (EditorIs.cursorEqual(a, b)) return true;
 
   // When BOTH positions are <undefined>:
   if (!a.position && !b.position) {
