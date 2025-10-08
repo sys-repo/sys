@@ -2,9 +2,6 @@ import { useEffect, useRef } from 'react';
 import { toMarkers } from '../../m.Monaco/u.Error.markers.ts';
 import { type t, slug } from './common.ts';
 
-type D = t.Diagnostic;
-type Pos = { line: number; col: number };
-
 /**
  * Adds (or clears) error markers in the Monaco editor for a set of diagnostics.
  */
