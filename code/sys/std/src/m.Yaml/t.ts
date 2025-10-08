@@ -10,9 +10,11 @@ export type * from './t.Value.ts';
  */
 export namespace Yaml {
   export type Ast = t.YamlAst;
-  export type Error = t.YamlError;
   export type Range = t.YamlRange;
+  // Errors:
+  export type Error = t.YamlError;
   export type Diagnostic = t.YamlDiagnostic;
+  // Values:
   export type Node = Y.Node;
   export type Pair = Y.Pair;
   export type Scalar = Y.Scalar;
@@ -55,11 +57,18 @@ export type YamlLib = {
 };
 
 /**
- * YAML related flags.
+ * Boolean evaluators for YAML entities.
+ * - Centralized type guards for parser-level and normalized structures.
  */
 export type YamlIsLib = {
-  /** Determine if the given value is a YAML parse error object. */
-  parseError(input?: unknown): boolean;
+  /**
+   * True iff:
+   *  - native YAML error (instanceof YAMLError), OR
+   *  - our std parse error (Err.std with name/cause === ERR.PARSE), OR
+   *  - structurally parser-like with a valid `pos: [start,end]`.
+   */
+  parseError(input?: unknown): input is t.YamlError;
+
 };
 
 /** Response from the `Yaml.parse` method. */
@@ -70,12 +79,29 @@ export type YamlParseResponse<T> = {
 
 /**
  * Normalized YAML diagnostic.
- * - Used for parser, schema, or semantic errors.
- * - Portable across drivers (e.g., Monaco, LSP, CLI).
+ * - Unified representation for all YAML issues:
+ *   - parser (syntax),
+ *   - schema (structural),
+ *   - semantic (logical).
+ * - Portable across tools (Monaco, LSP, CLI).
+ * - Suitable for visual markers, logs, and validation pipelines.
  */
 export type YamlDiagnostic = {
+  /** Human-readable description of the issue. */
   readonly message: string;
+
+  /** Optional machine code or rule ID (e.g. 'slug/schema', 'slug/alias-duplicate'). */
   readonly code?: string;
+
+  /**
+   * Object path to the offending node (relative to YAML document root).
+   * Used for correlating errors with schema fields or semantic locations.
+   */
   readonly path?: t.ObjectPath;
+
+  /**
+   * Character range [start, end) within the YAML source.
+   * Enables precise editor markers or highlighting.
+   */
   readonly range?: Yaml.Range;
 };

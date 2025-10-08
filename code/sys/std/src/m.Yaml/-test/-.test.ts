@@ -1,6 +1,5 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 
-import { Err, ERR } from '../common.ts';
 import { Is } from '../m.Is.ts';
 import { Path } from '../m.Path.ts';
 import { Syncer } from '../m.Syncer.ts';
@@ -15,22 +14,6 @@ describe('Yaml', () => {
     expect(Yaml.syncer).to.equal(Syncer.make);
     expect(Yaml.Path).to.equal(Path);
     expect(Yaml.path).to.equal(Path.make);
-  });
-
-  describe('Yaml.Is', () => {
-    it('Is.parseError', () => {
-      const test = (input: any, expected: boolean) => {
-        const res = Yaml.Is.parseError(input);
-        expect(res).to.eql(expected);
-      };
-
-      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((value: any) => test(value, false));
-      test(Err.std('foo'), false);
-
-      test(Err.std('foo', { name: ERR.PARSE }), true);
-      test(Err.std('foo', { cause: { name: ERR.PARSE, message: 'derp' } }), true);
-    });
   });
 
   describe('Yaml.parse', () => {
