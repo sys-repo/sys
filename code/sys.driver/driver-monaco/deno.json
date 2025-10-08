@@ -18,6 +18,6 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./crdt": "./src/ui/m.Crdt/mod.ts",
-    "./dev": "./src/-exports/-dev.ts"
+    "./dev": "./src/-test/-dev.ts"
   }
 }
