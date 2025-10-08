@@ -186,7 +186,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, yaml));
         }}
       />
-
+      <hr />
       <Button
         block
         label={() => `change: 💥 (break) ← cause error condition`}
@@ -194,8 +194,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, { fail: '💥' }));
         }}
       />
-
-      <hr style={{ marginTop: 20 }} />
+      <hr />
 
       <Button
         block
