@@ -1,4 +1,4 @@
-import { type t, Is } from './common.ts';
+import { type t, EditorIs } from './common.ts';
 
 type E = t.EditorErrorLib;
 
@@ -12,7 +12,7 @@ export const toDiagnosticsFromYaml: E['toDiagnosticsFromYaml'] = (list): t.Diagn
 /** Convert a single `YAMLError` → generic `Diagnostic`. */
 export const toDiagnosticFromYaml: E['toDiagnosticFromYaml'] = (err): t.Diagnostic => {
   // 1) Prefer line/col if present.
-  if (isLinePosPair(err.linePos)) {
+  if (EditorIs.linePosPair(err.linePos)) {
     const start = err.linePos[0]!;
     const endRaw = err.linePos[1] ?? start;
 
@@ -33,7 +33,7 @@ export const toDiagnosticFromYaml: E['toDiagnosticFromYaml'] = (err): t.Diagnost
   }
 
   // 2) Fallback to byte offsets:
-  if (isPosTuple(err.pos)) {
+  if (EditorIs.posTuple(err.pos)) {
     const start = err.pos[0] ?? 0;
     const endRaw = err.pos[1];
 
@@ -46,25 +46,8 @@ export const toDiagnosticFromYaml: E['toDiagnosticFromYaml'] = (err): t.Diagnost
   }
 
   // 3) Message-only:
-  return { message: err.message, code: err.code };
+  return {
+    message: err.message,
+    code: err.code,
+  };
 };
-
-/**
- * Helpers:
- */
-
-/**
- * TODO 🐷
- * - move to MonacoIs
- * - rename to EditorIs
- */
-function isPosTuple(x: unknown): x is readonly [number, number?] {
-  return Array.isArray(x) && typeof x[0] === 'number';
-}
-function isLinePos(x: unknown): x is t.LinePos {
-  return Is.record(x) && Is.number((x as t.LinePos).line) && Is.number((x as t.LinePos).col);
-}
-function isLinePosPair(x: unknown): x is readonly [t.LinePos, t.LinePos?] {
-  if (!Array.isArray(x)) return false;
-  return x.length >= 1 && isLinePos(x[0]) && (x[1] === undefined || isLinePos(x[1]));
-}

@@ -243,4 +243,56 @@ describe('Is', () => {
       expect(Is.cursorEqual(a, b)).to.eql(true);
     });
   });
+
+  describe('Is.posTuple', () => {
+    it('returns true for valid [start, end] tuples', () => {
+      expect(Is.posTuple([0, 5])).to.eql(true);
+      expect(Is.posTuple([1])).to.eql(true);
+    });
+
+    it('returns false for non-numeric or malformed inputs', () => {
+      expect(Is.posTuple(['a', 2])).to.eql(false);
+      expect(Is.posTuple([])).to.eql(false);
+      expect(Is.posTuple({})).to.eql(false);
+      expect(Is.posTuple(null)).to.eql(false);
+      expect(Is.posTuple(undefined)).to.eql(false);
+    });
+  });
+
+  describe('Is.linePos', () => {
+    it('returns true for valid { line, col } objects', () => {
+      expect(Is.linePos({ line: 1, col: 2 })).to.eql(true);
+    });
+
+    it('returns false for incomplete or invalid objects', () => {
+      expect(Is.linePos({ line: 1 })).to.eql(false);
+      expect(Is.linePos({ col: 1 })).to.eql(false);
+      expect(Is.linePos({ line: '1', col: 2 })).to.eql(false);
+      expect(Is.linePos(null)).to.eql(false);
+      expect(Is.linePos([])).to.eql(false);
+    });
+  });
+
+  describe('Is.linePosPair', () => {
+    const lp = (l: number, c: number) => ({ line: l, col: c });
+
+    it('returns true for [start, end] pairs of valid line/col objects', () => {
+      expect(Is.linePosPair([lp(1, 2), lp(3, 4)])).to.eql(true);
+    });
+
+    it('returns true for [start, undefined] pairs', () => {
+      expect(Is.linePosPair([lp(1, 2), undefined])).to.eql(true);
+    });
+
+    it('returns false for single-element arrays', () => {
+      expect(Is.linePosPair([lp(1, 2)])).to.eql(false);
+    });
+
+    it('returns false for invalid element shapes', () => {
+      expect(Is.linePosPair([{ line: 1 }, { line: 2, col: 3 }])).to.eql(false);
+      expect(Is.linePosPair([{}, {}])).to.eql(false);
+      expect(Is.linePosPair(null)).to.eql(false);
+      expect(Is.linePosPair([])).to.eql(false);
+    });
+  });
 });

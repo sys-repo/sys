@@ -72,4 +72,18 @@ export const EditorIs: t.EditorIsLib = {
     if (!Obj.Path.Is.eql(a.path, b.path)) return false;
     return true;
   },
+
+  posTuple(x: unknown): x is readonly [number, number?] {
+    return Array.isArray(x) && typeof x[0] === 'number';
+  },
+
+  linePos(x: unknown): x is t.LinePos {
+    return Is.record(x) && Is.number((x as t.LinePos).line) && Is.number((x as t.LinePos).col);
+  },
+
+  linePosPair(x: unknown): x is readonly [t.LinePos, t.LinePos?] {
+    if (!Array.isArray(x)) return false;
+    if (x.length < 2) return false;
+    return EditorIs.linePos(x[0]) && (x[1] === undefined || EditorIs.linePos(x[1]));
+  },
 };
