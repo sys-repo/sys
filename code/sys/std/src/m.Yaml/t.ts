@@ -62,13 +62,17 @@ export type YamlLib = {
  */
 export type YamlIsLib = {
   /**
-   * True iff:
-   *  - native YAML error (instanceof YAMLError), OR
-   *  - our std parse error (Err.std with name/cause === ERR.PARSE), OR
+   * True iff the input represents a YAML parse error:
+   *  - native `YAMLError` instance, or
+   *  - `Err.std` with `name`/`cause === ERR.PARSE`, or
    *  - structurally parser-like with a valid `pos: [start,end]`.
    */
   parseError(input?: unknown): input is t.YamlError;
 
+  /**
+   * Strict structural check for `[start,end]` parser-style positions.
+   */
+  posTuple(pos?: unknown): pos is [number, number];
 };
 
 /** Response from the `Yaml.parse` method. */

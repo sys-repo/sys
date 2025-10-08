@@ -43,4 +43,26 @@ describe('Yaml.Is', () => {
     });
   });
 
+  describe('Yaml.Is.posTuple', () => {
+    const test = (input: any, expected: boolean) =>
+      expect(Yaml.Is.posTuple(input)).to.eql(expected);
+
+    it('returns true for valid [start,end] tuples', () => {
+      test([0, 1], true);
+      test([5, 10], true);
+      test([0, 0], true);
+    });
+
+    it('returns false for invalid shapes', () => {
+      test(undefined, false);
+      test(null, false);
+      test([], false);
+      test([0], false);
+      test([0, 1, 2], false);
+      test(['0', 1], false);
+      test([0, '1'], false);
+      test([-1, 2], false);
+      test([1, -2], false);
+      test({ 0: 1, 1: 2 }, false);
+    });
 });
