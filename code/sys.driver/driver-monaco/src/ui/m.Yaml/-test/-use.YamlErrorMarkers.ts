@@ -25,7 +25,7 @@ describe('useYamlErrorMarkers', () => {
     });
 
     expect(spy.calls.length).to.eql(1);
-    const markers = spy.calls[0]!.args[2] as readonly t.Monaco.I.IMarkerData[];
+    const markers = spy.calls[0]!.args[2] as t.Monaco.I.IMarkerData[];
     expect(markers.length).to.eql(1);
     const m = markers[0]!;
     expect(m.message).to.eql('Boom');
