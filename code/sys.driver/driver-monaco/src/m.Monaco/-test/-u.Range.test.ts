@@ -3,7 +3,6 @@ import { D } from '../common.ts';
 import { RangeUtil, Util } from '../u.ts';
 
 type IRange = t.Monaco.I.IRange;
-type Tup = t.CharPositionTuple;
 
 const R = (sL: number, sC: number, eL: number, eC: number): IRange => ({
   startLineNumber: sL,
@@ -112,7 +111,7 @@ describe('RangeUtil', () => {
     });
 
     it('CharPositionTuple → [collapsed range]', () => {
-      const tup: Tup = [5, 6];
+      const tup: t.CharPosTuple = [5, 6];
       const res = RangeUtil.asRanges(tup);
       expect(res).to.eql([R(5, 6, 5, 6)]);
     });
@@ -123,7 +122,7 @@ describe('RangeUtil', () => {
 
     it('array: mix of valid values → mapped; invalids filtered out', () => {
       const a = R(2, 3, 4, 5);
-      const b: Tup = [7, 8];
+      const b: t.CharPosTuple = [7, 8];
       const invalids = [null, 0, {}, ['nope'], [1] /* bad tuple */] as unknown[];
 
       const input = [a, b, ...invalids] as any[];

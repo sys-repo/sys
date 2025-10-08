@@ -16,7 +16,7 @@ export const MonacoIs: t.EditorIsLib = {
     );
   },
 
-  charPositionTuple(input: any): input is t.CharPositionTuple {
+  charPositionTuple(input: any): input is t.CharPosTuple {
     if (!input) return false;
     if (!Array.isArray(input)) return false;
     return input.length === 2 && Is.number(input[0]) && Is.number(input[1]);

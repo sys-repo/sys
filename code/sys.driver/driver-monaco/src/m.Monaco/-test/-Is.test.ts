@@ -36,7 +36,7 @@ describe('Is', () => {
       expect(res).to.eql(expected);
     };
 
-    const tuple: t.CharPositionTuple = [2, 5];
+    const tuple: t.CharPosTuple = [2, 5];
     test(tuple, true);
     [null, undefined, '', 123, [], {}, true].forEach((input) => test(input, false));
   });

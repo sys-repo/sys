@@ -35,7 +35,7 @@ export type EditorIsLib = {
   /** True if the input is a Monaco IRange. */
   editorRange(input: unknown): input is IRange;
   /** True if the input is a [line, column] tuple. */
-  charPositionTuple(input: unknown): input is t.CharPositionTuple;
+  charPositionTuple(input: unknown): input is t.CharPosTuple;
   /** True if the range has no width/height. */
   nullRange(input: IRange): boolean;
   /** True if the range spans exactly one character. */

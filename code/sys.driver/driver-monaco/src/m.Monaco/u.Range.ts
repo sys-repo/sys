@@ -69,7 +69,7 @@ export const RangeUtil = {
   asRanges(input?: t.EditorRangesInput): IRange[] {
     if (!input) return [];
 
-    type V = IRange | t.CharPositionTuple;
+    type V = IRange | t.CharPosTuple;
     const isValue = (value: V) => MonacoIs.editorRange(value) || MonacoIs.charPositionTuple(value);
     const toRange = (value: V): IRange => {
       if (MonacoIs.editorRange(value)) return value;
