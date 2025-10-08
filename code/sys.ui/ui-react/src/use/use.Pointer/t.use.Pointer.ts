@@ -57,23 +57,23 @@ export type PointerHookHandlers =
   | PointerHookTouchHandlers
   | PointerHookFocusHandlers;
 
-export type PointerHookMouseHandlers = Readonly<{
+export type PointerHookMouseHandlers = {
   onPointerDown: M;
   onPointerUp: M;
   onPointerCancel: M;
   onLostPointerCapture: M;
   onPointerEnter: M;
   onPointerLeave: M;
-}>;
-export type PointerHookTouchHandlers = Readonly<{
+};
+export type PointerHookTouchHandlers = {
   onTouchStart: T;
   onTouchEnd: T;
   onTouchCancel: T;
-}>;
-export type PointerHookFocusHandlers = Readonly<{
+};
+export type PointerHookFocusHandlers = {
   onFocus: React.FocusEventHandler;
   onBlur: React.FocusEventHandler;
-}>;
+};
 
 /**
  * Individual pointer event:
@@ -119,16 +119,12 @@ export type PointerEventCancelMethods = {
 export type PointerSnapshot = {
   /** Viewport-relative position. */
   client: t.Point;
-
   /** Mouse button currently down (0 = left, 1 = middle, 2 = right). */
   button: number;
-
   /** Keyboard-modifier snapshot. */
   modifiers: t.KeyboardModifierFlags;
-
   /** Δx / Δy since the previous drag frame. */
   movement: t.Point; // e.g. { x: 12, y: -4 }
-
   /** Absolute positions in various co-ordinate spaces. */
   screen: t.Point; // physical screen (event.screenX/Y)
 };
