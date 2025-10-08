@@ -1,7 +1,7 @@
-import { type t, Obj, describe, expect, it } from '../../-test.ts';
+import { type t, Obj, describe, expect, it } from '../-test.ts';
 import { D } from '../common.ts';
-import { Monaco, MonacoIs } from '../mod.ts';
-import { Util } from '../u.ts';
+import { Monaco, Util } from '../m.Monaco/mod.ts';
+import { MonacoIs } from './mod.ts';
 
 type IRange = t.Monaco.I.IRange;
 type IPosition = t.Monaco.I.IPosition;

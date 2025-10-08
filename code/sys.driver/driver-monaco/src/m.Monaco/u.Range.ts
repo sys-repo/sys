@@ -1,5 +1,6 @@
-import { type t, D } from './common.ts';
-import { MonacoIs } from './m.Is.ts';
+import { MonacoIs } from '../m.Is/mod.ts';
+import { type t } from './common.ts';
+import { asRange } from './u.Range.asRange.ts';
 
 type IRange = t.Monaco.I.IRange;
 
@@ -33,35 +34,7 @@ export const RangeUtil = {
     return true;
   },
 
-  /**
-   * Convert input to editor range.
-   */
-  asRange(input?: t.EditorRangeInput): IRange {
-    if (!input) {
-      return { ...D.NULL_RANGE };
-    }
-
-    if (Array.isArray(input)) {
-      const value = (index: number) => (typeof input[index] === 'number' ? input[index] : -1);
-      const range = (indexes: [number, number, number, number]) => {
-        return {
-          startLineNumber: value(indexes[0]),
-          startColumn: value(indexes[1]),
-          endLineNumber: value(indexes[2]),
-          endColumn: value(indexes[3]),
-        };
-      };
-      return input.length === 4 ? range([0, 1, 2, 3]) : range([0, 1, 0, 1]);
-    }
-
-    const { startLineNumber, startColumn, endLineNumber, endColumn } = input;
-    return {
-      startLineNumber,
-      startColumn,
-      endLineNumber,
-      endColumn,
-    };
-  },
+  asRange,
 
   /**
    * Collection of ranges.

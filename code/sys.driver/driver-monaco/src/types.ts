@@ -9,6 +9,7 @@ export type * from './t.def.ts';
 
 export type * from './m.Error/t.ts';
 export type * from './m.Event/t.ts';
+export type * from './m.Is/t.ts';
 export type * from './m.Monaco/t.ts';
 
 export type * from './ui/m.Crdt/t.ts';

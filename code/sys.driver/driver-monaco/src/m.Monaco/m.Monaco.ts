@@ -6,10 +6,8 @@ import { EditorCrdt as Crdt } from '../ui/m.Crdt/mod.ts';
 import { EditorYaml as Yaml } from '../ui/m.Yaml/mod.ts';
 import { MonacoEditor as Editor } from '../ui/ui.MonacoEditor/mod.ts';
 
-import { MonacoIs } from './m.Is.ts';
+import { MonacoIs } from '../m.Is/mod.ts';
 import { Link } from './m.Link.ts';
-
-export { MonacoIs };
 
 /**
  * Code editor library:

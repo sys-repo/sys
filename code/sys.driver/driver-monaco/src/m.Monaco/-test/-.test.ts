@@ -2,8 +2,9 @@ import { describe, expect, it } from '../../-test.ts';
 import { EditorCrdt, EditorYaml, MonacoEditor, YamlEditor } from '../../ui/mod.ts';
 
 import { Bus } from '../../m.Event/mod.ts';
+import { MonacoIs } from '../../m.Is/mod.ts';
 import { Link } from '../m.Link.ts';
-import { Monaco, MonacoIs } from '../mod.ts';
+import { Monaco } from '../mod.ts';
 
 describe('Monaco', () => {
   it('API', async () => {

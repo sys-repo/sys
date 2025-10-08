@@ -1,5 +1,4 @@
-import { type t, D, Is, Obj, R } from './common.ts';
-import { RangeUtil } from './u.Range.ts';
+import { type t, asRange, D, Is, Obj, R } from './common.ts';
 
 type IRange = t.Monaco.I.IRange;
 type IPosition = t.Monaco.I.IPosition;
@@ -27,12 +26,12 @@ export const MonacoIs: t.EditorIsLib = {
   },
 
   singleCharRange(input: t.EditorRangeInput) {
-    const range = RangeUtil.asRange(input);
+    const range = asRange(input);
     return range.startLineNumber === range.endLineNumber && range.startColumn === range.endColumn;
   },
 
   rangeWithinString(input: t.EditorRangeInput, text: string) {
-    const range = RangeUtil.asRange(input);
+    const range = asRange(input);
     const lines = text.split('\n');
     const startLine = lines[range.startLineNumber - 1];
     const endLine = lines[range.endLineNumber - 1];
