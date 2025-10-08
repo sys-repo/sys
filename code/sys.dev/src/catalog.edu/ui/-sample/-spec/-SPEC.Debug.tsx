@@ -1,5 +1,8 @@
 import React from 'react';
 import { createRepo, YamlObjectView } from '../../../../ui/-test.ui.ts';
+import { Str, Yaml } from '../common.ts';
+
+type O = Record<string, unknown>;
 
 import {
   type t,
@@ -100,6 +103,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
+   * Helpers:
+   */
+  function changeYaml(fn: (args: { draft: O; path: t.ObjectPath }) => void) {
+    const doc = debug.signals.doc.value;
+    const path = p.path.value;
+    if (!!doc && !!path) {
+      doc.change((draft) => fn({ draft, path }));
+    }
+  }
+
+  /**
    * Render:
    */
   const styles = {
@@ -137,6 +151,52 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Samples:'}</div>
+      <Button
+        block
+        label={() => `change: 🌳 { working slug }`}
+        onClick={() => {
+          Yaml;
+
+          const yaml = Str.dedent(`
+          foo:
+            id: example-slug
+            traits:
+              - as: primary
+                id: video
+            props:
+              primary:
+                src: "video.mp4"
+            `);
+
+          changeYaml((e) => {
+            Obj.Path.Mutate.set(e.draft, e.path, yaml);
+          });
+        }}
+      />
+      <Button
+        block
+        label={() => `change: 🐷 (invalid yaml)`}
+        onClick={() => {
+          const yaml = Str.dedent(`
+          foo: 
+            - 123
+            - 456
+          `);
+          changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, yaml));
+        }}
+      />
+
+      <Button
+        block
+        label={() => `change: 💥 (break) ← cause error condition`}
+        onClick={() => {
+          changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, { fail: '💥' }));
+        }}
+      />
+
+      <hr style={{ marginTop: 20 }} />
+
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -157,6 +217,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         bus$={debug.bus$}
         doc={s.doc?.value}
         editor={s.editor?.value}
+      />
+
+      <ObjectView
+        style={{ marginTop: 15 }}
+        expand={1}
+        name={'catalog'}
+        data={{ 'schema:slug': '🐷' }}
       />
     </div>
   );
