@@ -198,7 +198,7 @@ describe('TestFake: Monaco (global API)', () => {
   describe('MarkerSeverity', () => {
     it('exposes enum-like constants with expected numeric levels', () => {
       const monaco = MonacoFake.monaco();
-      const S = (monaco as any).MarkerSeverity;
+      const S = monaco.MarkerSeverity;
 
       expect(S).to.exist;
       expect(Object.keys(S)).to.eql(['Hint', 'Info', 'Warning', 'Error']);

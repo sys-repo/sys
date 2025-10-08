@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, Severity } from './common.ts';
 import { fakeModel } from './m.Fake.model.ts';
 
 type TextModel = t.Monaco.TextModel;
@@ -90,7 +90,7 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
     },
   };
 
-  const MarkerSeverity = { Hint: 1, Info: 2, Warning: 4, Error: 8 } as const;
+  const MarkerSeverity = Severity;
   const fake = { languages, editor, Uri, MarkerSeverity } as const;
 
   return options?.cast ? (fake as unknown as t.Monaco.Monaco) : (fake as t.FakeMonacoGlobal);

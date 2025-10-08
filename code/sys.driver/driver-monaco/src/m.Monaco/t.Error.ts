@@ -15,9 +15,40 @@ export type EditorErrorLib = {
    */
   toMarkers(
     target: t.Monaco.TextModel | t.Monaco.Editor,
-    errors: t.Schema.Error[],
+    errors: t.Diagnostic[],
   ): t.Monaco.I.IMarkerData[];
 
   /** Sync Monaco's visible error diagnostics. */
   useErrorMarkers: t.UseErrorMarkers;
 };
+
+/** A single line/column position. */
+export type LinePos = Readonly<{ line: number; col: number }>;
+
+/**
+ * Generic diagnostic marker:
+ * message, code, and any of the position types supported by Monaco.
+ */
+export type Diagnostic = Readonly<{
+  message: string;
+  code?: string | number;
+
+  /** byte offsets within the text buffer */
+  pos?: [number, number];
+  /** YAML/document range [start, valueEnd, nodeEnd?] */
+  range?: [number, number, number?];
+  /** line/column positions */
+  linePos?: [LinePos, LinePos];
+
+  /** Optional logical object path (for upstream linking) */
+  path?: t.ObjectPath;
+
+  /** Diagnostic severity. */
+  severity?: DiagnosticSeverity;
+}>;
+
+/** Diagnostic severity, matching Monaco.MarkerSeverity keys. */
+export type DiagnosticSeverity = 'Error' | 'Warning' | 'Info' | 'Hint';
+
+/**  */
+export type DiagnosticSeverityConst = Record<NonNullable<DiagnosticSeverity>, number>;

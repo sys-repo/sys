@@ -22,9 +22,17 @@ const NULL_RANGE: t.Monaco.I.IRange = {
   endColumn: -1,
 };
 
+export const Severity: Record<NonNullable<t.DiagnosticSeverity>, number> = {
+  Hint: 1,
+  Info: 2,
+  Warning: 4,
+  Error: 8,
+};
+
 export const DEFAULTS = {
-  NULL_RANGE,
   className: CSS.CLASS.EDITOR,
   languages,
+  Severity,
+  NULL_RANGE,
 } as const;
 export const D = DEFAULTS;

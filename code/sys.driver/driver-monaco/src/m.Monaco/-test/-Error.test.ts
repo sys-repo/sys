@@ -14,7 +14,6 @@ describe('Monaco.Error', () => {
 
       const errs: t.Schema.Error[] = [{ kind: 'schema', path: ['foo'], message: 'bad foo' } as any];
       const markers = Error.toMarkers(model, errs);
-
       expect(markers).to.eql([]);
     });
 
@@ -76,6 +75,159 @@ describe('Monaco.Error', () => {
 
       expect(markers.length).to.eql(1);
       expect(markers[0].message).to.eql('oops');
+    });
+
+    it('derives markers from byte offsets (pos)', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('abc\ndef', 'yaml'); // "def" starts at offset 4
+
+      const errs: t.Diagnostic[] = [{ message: 'pos err', pos: [4, 6] }];
+      const m = Error.toMarkers(model, errs as any)[0];
+
+      expect(m.message).to.eql('pos err');
+      expect(m.startLineNumber).to.eql(2);
+      expect(m.startColumn).to.eql(1);
+      expect(m.endLineNumber).to.eql(2);
+      expect(m.endColumn).to.eql(3); // covers "de"
+    });
+
+    it('derives markers from linePos and widens zero-length ranges', () => {
+      const model = MonacoFake.model('foo\nbar\n');
+      const errs: t.Diagnostic[] = [
+        {
+          message: 'lp err',
+          linePos: [
+            { line: 2, col: 2 },
+            { line: 2, col: 2 },
+          ],
+        },
+      ];
+
+      const m = Error.toMarkers(model, errs as any)[0];
+      expect(m.startLineNumber).to.eql(2);
+      expect(m.startColumn).to.eql(2);
+      expect(m.endLineNumber).to.eql(2);
+      expect(m.endColumn).to.be.greaterThan(m.startColumn);
+    });
+
+    it('derives markers from linePos and widens zero-length ranges', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('foo\nbar\n', 'yaml');
+
+      // Single tuple → should widen to at least 1 char:
+      const errs: t.Diagnostic[] = [
+        {
+          message: 'lp err',
+          linePos: [
+            { line: 2, col: 2 },
+            { line: 2, col: 2 },
+          ],
+        },
+      ];
+      const m = Error.toMarkers(model, errs as any)[0];
+
+      expect(m.startLineNumber).to.eql(2);
+      expect(m.startColumn).to.eql(2);
+      // End must be → start (projector guarantees it):
+      expect(m.endLineNumber).to.eql(2);
+      expect(m.endColumn).to.be.greaterThan(m.startColumn);
+    });
+
+    it('prefers range > pos > linePos when multiple are present', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('abcdefghij', 'yaml');
+
+      const errs: t.Diagnostic[] = [
+        {
+          message: 'priority',
+          range: [2, 5], // should win
+          pos: [0, 2],
+          linePos: [
+            { line: 1, col: 1 },
+            { line: 1, col: 2 },
+          ],
+        },
+      ];
+      const m = Error.toMarkers(model, errs as any)[0];
+
+      // range [2,5] → offsets 2..5
+      expect(m.startColumn).to.eql(model.getPositionAt(2).column);
+      expect(m.endColumn).to.eql(model.getPositionAt(5).column);
+    });
+
+    it('skips diagnostics without any location', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('foo', 'yaml');
+
+      const errs: t.Diagnostic[] = [{ message: 'no loc' }];
+      expect(Error.toMarkers(model, errs as any)).to.eql([]);
+    });
+
+    it('coerces numeric code to string', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('abc', 'yaml');
+
+      const errs: t.Diagnostic[] = [{ message: 'c', range: [0, 1], code: 123 }];
+      const m = Error.toMarkers(model, errs as any)[0];
+
+      expect(m.code).to.eql('123');
+    });
+
+    it('preserves diagnostic order', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('abcdef', 'yaml');
+
+      const errs: t.Diagnostic[] = [
+        { message: 'first', range: [0, 1] },
+        { message: 'second', range: [2, 3] },
+      ];
+      const markers = Error.toMarkers(model, errs as any);
+      expect(markers.map((m) => m.message)).to.eql(['first', 'second']);
+    });
+
+    it('defensively widens inverted ranges', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('xyz', 'yaml');
+
+      const errs: t.Diagnostic[] = [{ message: 'invert', range: [2, 1] as any }];
+      const m = Error.toMarkers(model, errs as any)[0];
+      expect(m.endColumn).to.be.greaterThan(m.startColumn);
+    });
+
+    it('maps Diagnostic.severity → MarkerSeverity and defaults to Error', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('abc', 'yaml');
+
+      const sev = ['Error', 'Warning', 'Info', 'Hint'] as const;
+      const errs = sev.map((s) => ({ message: s, range: [0, 1] as [number, number], severity: s }));
+      const [e, w, i, h] = Error.toMarkers(model, errs);
+
+      expect(e.severity).to.eql(8);
+      expect(w.severity).to.eql(4);
+      expect(i.severity).to.eql(2);
+      expect(h.severity).to.eql(1);
+
+      const def = Error.toMarkers(model, [{ message: 'd', range: [1, 2] }])[0];
+      expect(def.severity).to.eql(8);
+    });
+
+    it('prefers range[2] (nodeEnd) when present', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('abcdefgh', 'yaml');
+      const m = Error.toMarkers(model, [{ message: 'x', range: [2, 4, 6] }])[0];
+      expect(m.startColumn).to.eql(model.getPositionAt(2).column);
+      expect(m.endColumn).to.eql(model.getPositionAt(6).column); // not 4
+    });
+
+    it('widens when only start is provided (range/pos)', () => {
+      const monaco = MonacoFake.monaco();
+      const model = monaco.editor.createModel('abc', 'yaml');
+
+      const [mr] = Error.toMarkers(model, [{ message: 'r', range: [1] as any }]);
+      expect(mr.endColumn).to.be.greaterThan(mr.startColumn);
+
+      const [mp] = Error.toMarkers(model, [{ message: 'p', pos: [2] as any }]);
+      expect(mp.endColumn).to.be.greaterThan(mp.startColumn);
     });
   });
 });
