@@ -393,7 +393,7 @@ describe('Str (String)', () => {
     });
   });
 
-  describe.only('Str.dedent', () => {
+  describe('Str.dedent', () => {
     it('removes shared leading indentation', () => {
       const input = `
           foo:
