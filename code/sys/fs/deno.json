@@ -1,6 +1,6 @@
 {
   "name": "@sys/fs",
-  "version": "0.0.147",
+  "version": "0.0.148",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
