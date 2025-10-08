@@ -7,7 +7,8 @@ export type { Monaco } from './t.def.monaco.ts';
 export type * from './t.def.content.ts';
 export type * from './t.def.ts';
 
-export type * from './m.events/t.ts';
+export type * from './m.Error/t.ts';
+export type * from './m.Event/t.ts';
 export type * from './m.Monaco/t.ts';
 
 export type * from './ui/m.Crdt/t.ts';

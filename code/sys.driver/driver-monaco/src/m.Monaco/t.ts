@@ -1,7 +1,4 @@
 import type { t } from './common.ts';
-
-export type * from './t.Diagnostic.ts';
-export type * from './t.Error.ts';
 export type * from './t.Link.ts';
 
 type IRange = t.Monaco.I.IRange;

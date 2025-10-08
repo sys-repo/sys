@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { toMarkers } from '../../m.Monaco/u.Error.markers.ts';
+import { toMarkers } from '../../m.Error/u.markers.ts';
 import { type t, slug } from './common.ts';
 
 /**

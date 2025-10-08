@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.Diagnostic.ts';
 
 /**
  * Convert schema/YAML diagnostics into Monaco editor markers.
@@ -11,7 +12,7 @@ export type EditorErrorLib = {
    *
    * @param target Monaco text model or editor (used to resolve positions).
    * @param errors Unified diagnostics (`schema` | `semantic` | `yaml`).
-   * @returns Readonly list of markers for `monaco.editor.setModelMarkers`.
+   * @returns list of markers for `monaco.editor.setModelMarkers`.
    */
   toMarkers(
     target: t.Monaco.TextModel | t.Monaco.Editor,
