@@ -4,7 +4,7 @@ import { attachSemanticRanges } from './u.slug.err.semantics.ts';
 type N = t.YamlSlugErrorLib['normalize'];
 
 export const normalize: N = (yaml, args) => {
-  const { pathMode = 'absolute' } = wrangle.args(args);
+  const { mode: pathMode = 'absolute' } = wrangle.args(args);
 
   type Errs = t.Schema.ValidationError[];
   attachSemanticRanges(yaml.ast, yaml.errors.schema as Errs);
@@ -41,7 +41,7 @@ const pickCode = (e: unknown): string | undefined => {
 
 const wrangle = {
   args(input: Parameters<N>[1]): t.YamlSlugErrorNormalizeOptions {
-    if (typeof input === 'string') return { pathMode: input };
-    return input ?? { pathMode: 'absolute' };
+    if (typeof input === 'string') return { mode: input };
+    return input ?? { mode: 'absolute' };
   },
 } as const;

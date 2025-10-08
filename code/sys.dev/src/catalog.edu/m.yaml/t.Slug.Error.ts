@@ -15,7 +15,7 @@ export type YamlSlugErrorLib = {
 };
 
 /** Options passed to `Error.normalise` method. */
-export type YamlSlugErrorNormalizeOptions = { pathMode?: t.PathMode };
+export type YamlSlugErrorNormalizeOptions = { mode?: t.PathMode };
 
 /**
  * Categorised errors from the YAML parse + validation pipeline of slugs.

@@ -15,7 +15,7 @@ describe('YamlPipeline.Slug.Error', () => {
       const res = YamlPipeline.Slug.fromYaml(YAML_WITH_SCHEMA_ERROR, base);
       expect(res.ok).to.equal(false);
 
-      const out = YamlPipeline.Slug.Error.normalize(res, { pathMode: 'absolute' });
+      const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
       expect(out.length).to.be.greaterThan(0);
 
       // Expect a schema diagnostic at .../traits:
@@ -29,13 +29,13 @@ describe('YamlPipeline.Slug.Error', () => {
     it('relative mode: leaves path relative to slug root', () => {
       const base = ['foo', 'bar'];
       const res = YamlPipeline.Slug.fromYaml(YAML_WITH_SCHEMA_ERROR, base);
-      const out = YamlPipeline.Slug.Error.normalize(res, { pathMode: 'relative' });
+      const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'relative' });
 
       const traitsDiag = out.find((d) => Array.isArray(d.path) && d.path.join('/') === 'traits');
       expect(traitsDiag).to.exist;
     });
 
-    it('pathMode as plain parameter', () => {
+    it('path `mode` as plain parameter', () => {
       const base = ['foo', 'bar'];
       const res = YamlPipeline.Slug.fromYaml(YAML_WITH_SCHEMA_ERROR, base);
 
@@ -48,7 +48,7 @@ describe('YamlPipeline.Slug.Error', () => {
 
     it('attaches character range from AST when missing', () => {
       const res = YamlPipeline.Slug.fromYaml(YAML_WITH_SCHEMA_ERROR, ['foo', 'bar']);
-      const out = YamlPipeline.Slug.Error.normalize(res, { pathMode: 'absolute' });
+      const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
 
       // Ensure at least one diagnostic has a usable [start, end] range:
       const withRange = out.find((d) => Array.isArray(d.range) && d.range.length >= 2);
@@ -59,7 +59,7 @@ describe('YamlPipeline.Slug.Error', () => {
 
     it('message passthrough (diagnostic carries human text)', () => {
       const res = YamlPipeline.Slug.fromYaml(YAML_WITH_SCHEMA_ERROR, ['foo', 'bar']);
-      const out = YamlPipeline.Slug.Error.normalize(res, { pathMode: 'absolute' });
+      const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
 
       expect(out[0].message).to.be.a('string');
       expect(out[0].message.length).to.be.greaterThan(0);
