@@ -1,7 +1,7 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Str } from './mod.ts';
 
-describe('Str (Text)', () => {
+describe('Str (String)', () => {
   describe('Str.bytes', () => {
     it('converts to display string', () => {
       const bytes = 123557186;
@@ -390,6 +390,54 @@ describe('Str (Text)', () => {
 
       // string pattern compiles to /ˆstart/gm, so it hits each line.
       expect(after).to.eql('X\nX\nmiddle\nX');
+    });
+  });
+
+  describe.only('Str.dedent', () => {
+    it('removes shared leading indentation', () => {
+      const input = `
+          foo:
+            id: example-slug
+            props:
+              src: "video.mp4"
+    `;
+      const res = Str.dedent(input);
+      expect(res).to.eql(`foo:
+  id: example-slug
+  props:
+    src: "video.mp4"`);
+    });
+
+    it('preserves relative indentation', () => {
+      const input = `
+        a:
+          b:
+            c: 1
+      `;
+      const res = Str.dedent(input);
+      expect(res).to.eql(`a:
+  b:
+    c: 1`);
+    });
+
+    it('handles empty or whitespace-only strings', () => {
+      expect(Str.dedent('')).to.eql('');
+      expect(Str.dedent('\n')).to.eql('');
+      expect(Str.dedent('   \n   ')).to.eql('   \n   ');
+    });
+
+    it('handles strings with no indentation', () => {
+      const input = 'foo:\n  bar: 1';
+      expect(Str.dedent(input)).to.eql(input);
+    });
+
+    it('ignores leading blank line when measuring indent', () => {
+      const input = `
+      one
+        two
+    `;
+      const res = Str.dedent(input);
+      expect(res).to.eql(`one\n  two`);
     });
   });
 });

@@ -12,14 +12,14 @@ export type FormatBytesOptions = FormatOptions & {};
 /**
  * Tools for working on strings of text.
  */
-export type StrLib = Readonly<{
+export type StrLib = {
   /** White space (not collapsed by Posix/Linux log digests). */
-  SPACE: '\u200B';
+  readonly SPACE: '\u200B';
 
   /** The "lorem ipsum" helper library. */
-  Lorem: StrLoremLib;
+  readonly Lorem: StrLoremLib;
   /** The "lorem ipsum" string. */
-  lorem: string;
+  readonly lorem: string;
 
   /** Calculate a difference between two strings. */
   diff: t.TextDiffCalc;
@@ -48,7 +48,13 @@ export type StrLib = Readonly<{
     pattern: string | RegExp,
     replacement: string,
   ): { readonly changed: boolean; readonly before: string; readonly after: string };
-}>;
+
+  /**
+   * Removes the smallest common indentation from all non-blank lines
+   * of a multi-line string, preserving relative structure.
+   */
+  dedent(str: string): string;
+};
 
 /**
  * Tools for working with sample "lorem ipsum..." text.
