@@ -16,8 +16,8 @@ import {
 type P = t.SampleProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { render: boolean };
 const defaults: Storage = {
+  debug: true,
   theme: 'Dark',
-  debug: false,
   path: ['foo'],
   render: true,
 };
