@@ -61,11 +61,34 @@ describe('TestFake: Model', () => {
     });
 
     describe('getOffsetAt', () => {
-      it('maps (line, column) to absolute offset', () => {
+      it('maps (line, column) to absolute offset (happy path)', () => {
         const model = MonacoFake.model('a\nbc\n1234');
         expect(model.getOffsetAt({ lineNumber: 1, column: 1 })).to.eql(0); // 'a'
         expect(model.getOffsetAt({ lineNumber: 2, column: 2 })).to.eql(3); // 'c'
         expect(model.getOffsetAt({ lineNumber: 3, column: 4 })).to.eql(8); // '4'
+      });
+
+      it('clamps line/column within valid bounds', () => {
+        const model = MonacoFake.model('a\nbc\n1234');
+        // lineNumber clamps to 3; column clamps to 1
+        const off = model.getOffsetAt({ lineNumber: 99, column: 1 });
+        // Start of last line is offset 5 ('1'); ensure we’re not before it
+        expect(off).to.be.greaterThanOrEqual(5);
+        // And not beyond end-of-last-line+1
+        const lastEolPlus1 = model.getOffsetAt({
+          lineNumber: 3,
+          column: model.getLineMaxColumn(3),
+        });
+        expect(off).to.be.lessThanOrEqual(lastEolPlus1);
+      });
+
+      it('round-trips with getPositionAt (compare scalars)', () => {
+        const model = MonacoFake.model('a\nbc\n1234');
+        const p = { lineNumber: 2, column: 2 }; // inside the line
+        const off = model.getOffsetAt(p);
+        const back = model.getPositionAt(off);
+        expect(back.lineNumber).to.eql(p.lineNumber);
+        expect(back.column).to.eql(p.column);
       });
     });
 

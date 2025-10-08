@@ -174,6 +174,7 @@ describe('TestFake: Monaco (global API)', () => {
       const monaco = MonacoFake.monaco();
       const modelA = monaco.editor.createModel('A');
       const modelB = monaco.editor.createModel('B');
+      expect(modelA.uri.toString(true)).to.not.eql(modelB.uri.toString(true));
 
       const all = monaco.editor.getModels();
       expect(all.length).to.eql(2);
@@ -234,7 +235,28 @@ describe('TestFake: Monaco (global API)', () => {
     });
   });
 
-  describe('Marker: errors', () => {
+  describe('Markers', () => {
+    it('sets and retrieves markers by owner/resource', () => {
+      const { editor } = MonacoFake.monaco();
+      const model = editor.createModel('abc');
+      const marker: t.Monaco.I.IMarkerData = {
+        message: 'x',
+        severity: 8, // Error
+        startLineNumber: 1,
+        startColumn: 1,
+        endLineNumber: 1,
+        endColumn: 2,
+      };
+
+      editor.setModelMarkers(model, 'ownerX', [marker]);
+      const got = editor.getModelMarkers({ owner: 'ownerX', resource: model.uri });
+
+      expect(got.length).to.eql(1);
+      expect(got[0].message).to.eql('x');
+    });
+  });
+
+  describe('Markers: errors', () => {
     it('sets and retrieves markers', () => {
       const monaco = MonacoFake.monaco();
       const model = monaco.editor.createModel('foo: bar', 'yaml');

@@ -1,4 +1,5 @@
 import { type t } from './common.ts';
+import { fakeModel } from './m.Fake.model.ts';
 
 type TextModel = t.Monaco.TextModel;
 
@@ -11,32 +12,17 @@ export const fakeMonaco = ((options?: { cast?: boolean }) => {
   let opener: { open(uri: t.Monaco.Uri): boolean | Promise<boolean> } | undefined;
   const disposable = (dispose: () => void): t.Monaco.I.IDisposable => ({ dispose });
 
-  let modelCounter = 0;
   const models = new Map<string, TextModel>();
   const markerStore = new Map<string, t.Monaco.I.IMarkerData[]>();
   const markerKey = (m: TextModel, owner: string) => `${m.uri.toString(true)}::${owner}`;
 
-  const positionAt = (text: string, offset: number) => {
-    const lineNumber = 1;
-    const column = offset + 1;
-    return { lineNumber, column };
-  };
-
+  let _modelCounter = 0;
   const createTextModel = (value: string, languageId?: string, uri?: t.Monaco.Uri): TextModel => {
-    const id = ++modelCounter;
-    const theUri = uri ?? Uri.from({ scheme: 'inmemory', path: `model/${id}` });
-
-    let contents = value;
-
-    const model: TextModel = {
-      uri: theUri,
-      getValue: () => contents,
-      setValue: (next: string) => (contents = next),
-      getPositionAt: (offset: number) => positionAt(contents, offset),
-    } as unknown as TextModel;
-
-    models.set(theUri.toString(true), model);
-    return model;
+    uri = uri ?? Uri.from({ scheme: 'inmemory', path: `model/${++_modelCounter}` });
+    const language = languageId as unknown as t.EditorLanguage;
+    const fm = fakeModel(value, { language, uri });
+    models.set(uri.toString(true), fm);
+    return fm;
   };
 
   const languages = {
