@@ -9,6 +9,7 @@ export type IdLabelProps = {
   highlightLength?: CharLength;
   highlightColor?: string; // suffix color when pointer is over
   gap?: number;
+  lineHeight?: number;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -25,6 +26,7 @@ export const IdLabel: React.FC<IdLabelProps> = (props) => {
     gap,
     highlightLength = 5,
     highlightColor = Color.BLUE,
+    lineHeight = 1.2,
   } = props;
 
   // Split (clamped):
@@ -53,14 +55,14 @@ export const IdLabel: React.FC<IdLabelProps> = (props) => {
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
-      display: 'inline-flex',
-      alignItems: 'baseline',
-      gap: gap,
-      whiteSpace: 'nowrap',
-      lineHeight: 1.2,
       color: baseColor,
       opacity: containerOpacity,
+      lineHeight,
       outline: 'none',
+      display: 'inline-flex',
+      alignItems: 'baseline',
+      gap,
+      whiteSpace: 'nowrap',
     }),
     prefix: css({ color: baseColor }),
     left: css({ color: baseColor, opacity: hasSuffix ? 0.85 : 1 }),
