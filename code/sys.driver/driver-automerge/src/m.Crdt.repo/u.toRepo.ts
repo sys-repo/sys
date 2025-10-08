@@ -8,7 +8,7 @@ import { silentShutdown } from './u.shutdown.ts';
 import { REF } from './u.toAutomergeRepo.ts';
 
 type SysMeta = { readonly createdAt: number };
-type Seeded<T extends O> = T & { readonly $meta?: SysMeta };
+type Seeded<T extends O> = T & { readonly ['.meta']?: SysMeta };
 type O = Record<string, unknown>;
 
 const D = { timeout: 5_000 } as const;
@@ -222,10 +222,10 @@ const wrangle = {
 
 /**
  * Guarantee docs are non-empty so they persist durably.
- * Adds `$meta.createdAt` if initial state is empty.
+ * Adds `['.meta'].createdAt` if initial state is empty.
  */
 const seedInitial = <T extends O>(input: T | (() => T)): Seeded<T> => {
   const base = (typeof input === 'function' ? (input as () => T)() : input) ?? {};
   if (Object.keys(base).length > 0) return base as Seeded<T>;
-  return { $meta: { createdAt: Time.now.timestamp } } as Seeded<T>;
+  return { ['.meta']: { createdAt: Time.now.timestamp } } as Seeded<T>;
 };

@@ -55,12 +55,12 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     describe('initial seed property on document', () => {
-      it('create seeds empty initial with $meta.createdAt', () => {
+      it('create seeds empty initial with `.meta.createdAt`', () => {
         const repo = toRepo(new AutomergeRepo());
         const a = repo.create<{}>({}); // empty
         const b = repo.create<{ count: number }>({ count: 1 }); // non-empty
-        expect(typeof (a.current as any).$meta?.createdAt).to.eql('number');
-        expect((b.current as any).$meta).to.eql(undefined);
+        expect(typeof (a.current as any)['.meta']?.createdAt).to.eql('number');
+        expect((b.current as any)['.meta']).to.eql(undefined);
       });
 
       it('seeded empty doc is durable immediately', async () => {
@@ -79,16 +79,16 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
         const doc = repo.create(initial);
 
         expect(doc.current).to.eql(initial); //                  ← Doc retains its properties unchanged.
-        expect((doc.current as any).$meta).to.eql(undefined); // ← No $meta was injected.
+        expect((doc.current as any)['.meta']).to.eql(undefined); // ← No ['.meta'] was injected.
       });
 
-      it('does not clobber an explicit $meta passed by caller', () => {
+      it('does not clobber an explicit `.meta` passed by caller', () => {
         const repo = toRepo(new AutomergeRepo());
-        const explicit = { $meta: { createdAt: 42, note: 'manual' } };
+        const explicit = { ['.meta']: { createdAt: 42, note: 'manual' } };
         const doc = repo.create(explicit);
 
-        // Original $meta preserved exactly as given:
-        expect(doc.current.$meta).to.eql(explicit.$meta);
+        // Original ['.meta'] preserved exactly as given:
+        expect(doc.current['.meta']).to.eql(explicit['.meta']);
       });
     });
   });
