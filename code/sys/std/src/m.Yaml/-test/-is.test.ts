@@ -1,7 +1,7 @@
 import { YAMLError } from 'yaml';
 import { describe, expect, it } from '../../-test.ts';
 
-import { Err, ERR } from '../common.ts';
+import { type t, Err, ERR } from '../common.ts';
 import { Yaml } from '../mod.ts';
 
 describe('Yaml.Is', () => {
@@ -65,4 +65,58 @@ describe('Yaml.Is', () => {
       test([1, -2], false);
       test({ 0: 1, 1: 2 }, false);
     });
+
+    it('is strict: both values must be integers ≥ 0', () => {
+      test([0.1, 2], false);
+      test([0, 2.5], false);
+      test([NaN, 3], false);
+    });
+  });
+
+  describe('Is.diagnostic', () => {
+    it('valid diagnostic', () => {
+      const d: t.Yaml.Diagnostic = {
+        message: 'traits must be an array',
+        code: 'slug/schema',
+        path: ['foo', 'bar', 'traits'],
+        range: [12, 18],
+      };
+      expect(Yaml.Is.diagnostic(d)).to.eql(true);
+    });
+
+    it('invalid diagnostic (bad code type)', () => {
+      const d = { message: 'x', code: 123, range: [0, 1] } as any; // code must be string
+      expect(Yaml.Is.diagnostic(d)).to.eql(false);
+    });
+
+    it('invalid diagnostic (bad path)', () => {
+      const d = { message: 'x', path: [Symbol('nope')], range: [0, 1] } as any;
+      expect(Yaml.Is.diagnostic(d)).to.eql(false);
+    });
+
+    it('invalid diagnostic (bad range)', () => {
+      const d = { message: 'x', range: [0] } as any;
+      expect(Yaml.Is.diagnostic(d)).to.eql(false);
+    });
+  });
+
+  describe('array guards', () => {
+    it('diagnosticArray: all valid → true; mixed → false', () => {
+      const ok: t.Yaml.Diagnostic[] = [
+        { message: 'a', range: [0, 1] },
+        { message: 'b', path: ['p'] },
+      ];
+      expect(Yaml.Is.diagnosticArray(ok)).to.eql(true);
+
+      const mixed = [...ok, { message: 'bad', range: [0] } as any];
+      expect(Yaml.Is.diagnosticArray(mixed)).to.eql(false);
+    });
+
+    it('parseErrorArray: all valid → true; mixed → false', () => {
+      const e1 = new YAMLError('YAMLParseError', [1, 2], 'X' as any, 'm1');
+      const e2 = new YAMLError('YAMLParseError', [3, 4], 'Y' as any, 'm2');
+      expect(Yaml.Is.parseErrorArray([e1, e2])).to.eql(true);
+      expect(Yaml.Is.parseErrorArray([e1, { pos: [0] } as any])).to.eql(false);
+    });
+  });
 });

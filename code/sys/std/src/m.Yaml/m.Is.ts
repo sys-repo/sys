@@ -26,5 +26,41 @@ export const Is: t.YamlIsLib = {
       pos[1] >= 0
     );
   },
+
+  diagnostic(input?: unknown): input is t.YamlDiagnostic {
+    const d = input as t.YamlDiagnostic;
+    if (!d || typeof d.message !== 'string') return false;
+
+    if (d.code !== undefined && typeof d.code !== 'string') return false;
+
+    if (d.path !== undefined) {
+      if (!Array.isArray(d.path)) return false;
+      for (const seg of d.path) {
+        if (typeof seg === 'string') continue;
+        if (typeof seg === 'number' && Number.isInteger(seg)) continue;
+        return false;
+      }
+    }
+
+    if (d.range !== undefined) {
+      if (!Array.isArray(d.range)) return false;
+      if (d.range.length < 2 || d.range.length > 3) return false;
+      for (const n of d.range) {
+        if (!Number.isInteger(n) || n < 0) return false;
+      }
+    }
+
+    return true;
+  },
+
+  /**
+   * Array variants:
+   */
+  parseErrorArray(input?: unknown): input is t.YamlError[] {
+    return Array.isArray(input) && input.every((v) => Is.parseError(v));
+  },
+
+  diagnosticArray(input?: unknown): input is t.YamlDiagnostic[] {
+    return Array.isArray(input) && input.every((v) => Is.diagnostic(v));
+  },
 };
-}

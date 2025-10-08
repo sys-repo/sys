@@ -1,6 +1,8 @@
 import type * as Y from 'yaml';
 import type { t } from './common.ts';
 
+export type * from './t.Diagnostic.ts';
+export type * from './t.Is.ts';
 export type * from './t.Path.ts';
 export type * from './t.Syncer.ts';
 export type * from './t.Value.ts';
@@ -29,21 +31,21 @@ export namespace Yaml {
 export type YamlError = Y.YAMLError;
 
 /**
- * Character offset range into the source YAML.
- * - [start, valueEnd, nodeEnd]
+ * Character offset range within the YAML source.
+ * - `[start, end)` — normalized editor/diagnostic span.
+ * - `[start, valueEnd, nodeEnd]` — full YAML AST span.
  */
-export type YamlRange = Y.Range;
+export type YamlRange = readonly [number, number] | readonly [number, number, number];
 
 /**
  * Helpers for working with YAML.
  */
 export type YamlLib = {
   /** YAML flag helpers. */
-  readonly Is: YamlIsLib;
+  readonly Is: t.YamlIsLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: t.StringYaml): YamlParseResponse<T>;
-
   /** Parse YAML and keep the full `Document` (ranges, comments, errors). */
   parseAst(src: t.StringYaml): t.YamlAst;
 
@@ -56,56 +58,8 @@ export type YamlLib = {
   readonly path: t.YamlPathLib['make'];
 };
 
-/**
- * Boolean evaluators for YAML entities.
- * - Centralized type guards for parser-level and normalized structures.
- */
-export type YamlIsLib = {
-  /**
-   * True iff the input represents a YAML parse error:
-   *  - native `YAMLError` instance, or
-   *  - `Err.std` with `name`/`cause === ERR.PARSE`, or
-   *  - structurally parser-like with a valid `pos: [start,end]`.
-   */
-  parseError(input?: unknown): input is t.YamlError;
-
-  /**
-   * Strict structural check for `[start,end]` parser-style positions.
-   */
-  posTuple(pos?: unknown): pos is [number, number];
-};
-
 /** Response from the `Yaml.parse` method. */
 export type YamlParseResponse<T> = {
   readonly data?: T;
   readonly error?: t.StdError;
-};
-
-/**
- * Normalized YAML diagnostic.
- * - Unified representation for all YAML issues:
- *   - parser (syntax),
- *   - schema (structural),
- *   - semantic (logical).
- * - Portable across tools (Monaco, LSP, CLI).
- * - Suitable for visual markers, logs, and validation pipelines.
- */
-export type YamlDiagnostic = {
-  /** Human-readable description of the issue. */
-  readonly message: string;
-
-  /** Optional machine code or rule ID (e.g. 'slug/schema', 'slug/alias-duplicate'). */
-  readonly code?: string;
-
-  /**
-   * Object path to the offending node (relative to YAML document root).
-   * Used for correlating errors with schema fields or semantic locations.
-   */
-  readonly path?: t.ObjectPath;
-
-  /**
-   * Character range [start, end) within the YAML source.
-   * Enables precise editor markers or highlighting.
-   */
-  readonly range?: Yaml.Range;
 };
