@@ -1,4 +1,7 @@
-import { type t, describe, expect, it, MonacoFake } from '../../-test.ts';
+import { describe, expect, it, makeYamlError, makeYamlErrorLinePos } from '../../-test.ts';
+import { toDiagnosticFromYaml, toDiagnosticsFromYaml } from '../u.diagnostic.ts';
+
+import { type t, MonacoFake } from '../../-test.ts';
 import { useErrorMarkers } from '../../ui/m.Markers.Error/use.ErrorMarkers.ts';
 import { Error } from '../m.Error.ts';
 
@@ -228,6 +231,57 @@ describe('Monaco.Error', () => {
 
       const [mp] = Error.toMarkers(model, [{ message: 'p', pos: [2] as any }]);
       expect(mp.endColumn).to.be.greaterThan(mp.startColumn);
+    });
+  });
+
+  describe('Diagnostics (to/from)', () => {
+    it('linePos → linePos (widen if zero-length)', () => {
+      const d = toDiagnosticFromYaml({
+        name: 'YAMLParseError',
+        message: 'x',
+        code: 'C',
+        pos: [0, 1],
+        linePos: [
+          { line: 2, col: 3 },
+          { line: 2, col: 3 },
+        ],
+      } as any);
+      expect(d.linePos![0]).to.eql({ line: 2, col: 3 });
+      expect(d.linePos![1].col).to.be.greaterThan(3);
+    });
+
+    it('pos → pos (widen if end missing)', () => {
+      /**
+       * TODO 🐷
+       */
+      makeYamlErrorLinePos;
+      makeYamlError;
+
+      const d = toDiagnosticFromYaml({
+        name: 'YAMLParseError',
+        message: 'x',
+        code: 'C',
+        pos: [5],
+      } as any);
+      expect(d.pos).to.eql([5, 6]);
+    });
+
+    it('message-only fallback', () => {
+      const d = toDiagnosticFromYaml({
+        name: 'YAMLParseError',
+        message: 'only',
+        pos: [0, 0],
+      } as any);
+      expect(d.message).to.eql('only');
+      expect(d.pos || d.linePos || d.range).to.be.undefined;
+    });
+
+    it('batch helper preserves order', () => {
+      const list = toDiagnosticsFromYaml([
+        { name: 'YAMLParseError', message: 'a', pos: [0, 1] } as any,
+        { name: 'YAMLParseError', message: 'b', pos: [2, 3] } as any,
+      ]);
+      expect(list.map((x) => x.message)).to.eql(['a', 'b']);
     });
   });
 });

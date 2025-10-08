@@ -77,28 +77,28 @@ describe('Is', () => {
   describe('Is.positionEqual', () => {
     it('same reference', () => {
       const p: IPosition = { lineNumber: 3, column: 9 };
-      expect(Is.positionEqual(p, p)).to.eql(true); // identity fast-path
+      expect(Is.posEqual(p, p)).to.eql(true); // identity fast-path
     });
 
     it('structural equality (different refs)', () => {
       const a: IPosition = { lineNumber: 1, column: 1 };
       const b: IPosition = { lineNumber: 1, column: 1 };
-      expect(Is.positionEqual(a, b)).to.eql(true);
+      expect(Is.posEqual(a, b)).to.eql(true);
     });
 
     it('different line or column', () => {
       const a: IPosition = { lineNumber: 2, column: 5 };
       const b1: IPosition = { lineNumber: 3, column: 5 };
       const b2: IPosition = { lineNumber: 2, column: 6 };
-      expect(Is.positionEqual(a, b1)).to.eql(false);
-      expect(Is.positionEqual(a, b2)).to.eql(false);
+      expect(Is.posEqual(a, b1)).to.eql(false);
+      expect(Is.posEqual(a, b2)).to.eql(false);
     });
 
     it('undefined cases', () => {
       const a: IPosition = { lineNumber: 1, column: 1 };
-      expect(Is.positionEqual(undefined, undefined)).to.eql(false);
-      expect(Is.positionEqual(a, undefined)).to.eql(false);
-      expect(Is.positionEqual(undefined, a)).to.eql(false);
+      expect(Is.posEqual(undefined, undefined)).to.eql(false);
+      expect(Is.posEqual(a, undefined)).to.eql(false);
+      expect(Is.posEqual(undefined, a)).to.eql(false);
     });
   });
 

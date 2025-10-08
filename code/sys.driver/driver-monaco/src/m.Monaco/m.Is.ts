@@ -16,7 +16,7 @@ export const MonacoIs: t.EditorIsLib = {
     );
   },
 
-  charPositionTuple(input: any): input is t.CharPosTuple {
+  charPositionTuple(input: unknown): input is t.CharPosTuple {
     if (!input) return false;
     if (!Array.isArray(input)) return false;
     return input.length === 2 && Is.number(input[0]) && Is.number(input[1]);
@@ -45,7 +45,7 @@ export const MonacoIs: t.EditorIsLib = {
     return true;
   },
 
-  positionEqual(a?: IPosition, b?: IPosition): boolean {
+  posEqual(a?: IPosition, b?: IPosition): boolean {
     if (!a || !b) return false; //  guard undefined/null first
     if (a === b) return true; //    identity fast-path (both defined)
     return a.lineNumber === b.lineNumber && a.column === b.column;
@@ -68,7 +68,7 @@ export const MonacoIs: t.EditorIsLib = {
 
     if (a.editorId !== b.editorId) return false;
     if (a.offset !== b.offset) return false;
-    if (!MonacoIs.positionEqual(a.position, b.position)) return false;
+    if (!MonacoIs.posEqual(a.position, b.position)) return false;
 
     if (!Obj.Path.Is.eql(a.path, b.path)) return false;
     return true;
