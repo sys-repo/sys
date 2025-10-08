@@ -274,7 +274,7 @@ describe('Is', () => {
   });
 
   describe('Is.linePosPair', () => {
-    const lp = (l: number, c: number) => ({ line: l, col: c });
+    const lp = (l: number, c: number): t.LinePos => ({ line: l, col: c });
 
     it('returns true for [start, end] pairs of valid line/col objects', () => {
       expect(Is.linePosPair([lp(1, 2), lp(3, 4)])).to.eql(true);
