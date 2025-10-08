@@ -6,21 +6,27 @@ type N = t.YamlSlugErrorLib['normalize'];
 export const normalize: N = (yaml, args) => {
   const { pathMode = 'absolute' } = wrangle.args(args);
 
-  // Ensure schema/semantic errors have ranges (mutates the arrays in-place).
   type Errs = t.Schema.ValidationError[];
   attachSemanticRanges(yaml.ast, yaml.errors.schema as Errs);
   attachSemanticRanges(yaml.ast, yaml.errors.semantic as Errs);
 
   const base = yaml.path;
-  const map = (e: t.Schema.ValidationError): t.Yaml.Diagnostic => ({
-    message: e.message,
-    code: pickCode(e),
-    path: Obj.Path.join(base, e.path, pathMode),
-    range: e.range as t.Yaml.Range | undefined,
-  });
+  const map =
+    (kind: 'schema' | 'semantic') =>
+    (e: t.Schema.ValidationError): t.Yaml.Diagnostic => {
+      const abs = Obj.Path.join(base, e.path, 'absolute');
+      const rel = Obj.Path.join(base, e.path, 'relative');
+      const chosen = pathMode === 'absolute' ? abs : rel;
 
-  const schemaDiagnostics = (yaml.errors.schema ?? []).map(map);
-  const semanticDiagnostics = (yaml.errors.semantic ?? []).map(map);
+      // Pointer text (eg. "/foo/bar"), empty string if no path:
+      const at = chosen && chosen.length > 0 ? Obj.Path.encode(chosen) : '';
+      const code = pickCode(e);
+      const message = `[slug/${kind}] ${e.message}${at ? ` at ${at}` : ''}${code ? ` [${code}]` : ''}`;
+      return { message, code, path: chosen, range: e.range };
+    };
+
+  const schemaDiagnostics = (yaml.errors.schema ?? []).map(map('schema'));
+  const semanticDiagnostics = (yaml.errors.semantic ?? []).map(map('semantic'));
 
   return [...schemaDiagnostics, ...semanticDiagnostics];
 };
@@ -33,12 +39,9 @@ const pickCode = (e: unknown): string | undefined => {
   return typeof v === 'string' ? v : undefined;
 };
 
-/**
- * Helpers:
- */
 const wrangle = {
   args(input: Parameters<N>[1]): t.YamlSlugErrorNormalizeOptions {
     if (typeof input === 'string') return { pathMode: input };
-    return input;
+    return input ?? { pathMode: 'absolute' };
   },
 } as const;
