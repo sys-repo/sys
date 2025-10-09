@@ -94,7 +94,7 @@ describe('Monaco.Error', () => {
       expect(m.endColumn).to.eql(3); // covers "de"
     });
 
-    it('derives markers from linePos and widens zero-length ranges', () => {
+    it('derives markers from linePos and preserves zero-length ranges', () => {
       const model = MonacoFake.model('foo\nbar\n');
       const errs: t.Diagnostic[] = [
         {
@@ -110,14 +110,14 @@ describe('Monaco.Error', () => {
       expect(m.startLineNumber).to.eql(2);
       expect(m.startColumn).to.eql(2);
       expect(m.endLineNumber).to.eql(2);
-      expect(m.endColumn).to.be.greaterThan(m.startColumn);
+      expect(m.endColumn).to.eql(m.startColumn);
     });
 
-    it('derives markers from linePos and widens zero-length ranges', () => {
+    it('derives markers from linePos and preserves zero-length ranges', () => {
       const monaco = MonacoFake.monaco();
       const model = monaco.editor.createModel('foo\nbar\n', 'yaml');
 
-      // Single tuple → should widen to at least 1 char:
+      // Single/identical tuple → zero-length at the same point:
       const errs: t.Diagnostic[] = [
         {
           message: 'lp err',
@@ -131,9 +131,10 @@ describe('Monaco.Error', () => {
 
       expect(m.startLineNumber).to.eql(2);
       expect(m.startColumn).to.eql(2);
+
       // End must be → start (projector guarantees it):
       expect(m.endLineNumber).to.eql(2);
-      expect(m.endColumn).to.be.greaterThan(m.startColumn);
+      expect(m.endColumn).to.eql(m.startColumn);
     });
 
     it('prefers range > pos > linePos when multiple are present', () => {

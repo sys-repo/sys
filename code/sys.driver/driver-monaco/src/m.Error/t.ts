@@ -94,5 +94,5 @@ export type Diagnostic = {
    * Severity level, normalized to Monaco’s four standard kinds.
    * Defaults to `"Error"` when omitted.
    */
-  readonly severity?: 'Error' | 'Warning' | 'Info' | 'Hint';
+  readonly severity?: t.DiagnosticSeverity;
 };

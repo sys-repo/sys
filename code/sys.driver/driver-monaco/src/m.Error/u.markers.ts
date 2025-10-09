@@ -42,7 +42,7 @@ export const toMarkers: t.EditorErrorLib['toMarkers'] = (target, errors) => {
       ? model.getOffsetAt({ lineNumber: endLP.line, column: endLP.col })
       : offsetFromLineCol(endLP.line, endLP.col);
 
-    const end = endCandidate === start ? start + 1 : endCandidate;
+    const end = endCandidate; // NB: allow zero-length when start==end
     return [start, end];
   };
 
