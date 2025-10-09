@@ -8,7 +8,7 @@ export type YamlSlugErrorLib = {
   readonly normalize: (
     yaml: t.SlugFromYamlResult,
     opts: t.YamlSlugErrorNormalizeOptions | t.PathMode,
-  ) => readonly t.Yaml.Diagnostic[];
+  ) => t.Yaml.Diagnostic[];
 
   /** Enrich validation errors with AST node ranges (mutates array in-place). */
   readonly attachSemanticRanges: (ast: t.Yaml.Ast, errs: t.Schema.ValidationError[]) => void;
