@@ -22,6 +22,19 @@ export type YamlDiagnosticLib = {
    * - Applies the same normalization as {@link fromYamlError} to each entry.
    */
   fromYamlErrors(list?: t.Yaml.Error[]): t.Yaml.Diagnostic[];
+
+  /**
+   * Convert a normalized diagnostic back into a mutable YAML parser error shape.
+   * - Produces `{ name: "YAMLParseError", message, code, pos, linePos? }`.
+   * - Intended only for interop with legacy or parser-style consumers.
+   */
+  toYamlError(diag: t.Yaml.Diagnostic): t.Yaml.Error;
+
+  /**
+   * Batch form of {@link toYamlError}.
+   * - Returns `[]` if input is empty or not an array.
+   */
+  toYamlErrors(list?: t.Yaml.Diagnostic[]): t.Yaml.Error[];
 };
 
 /**
