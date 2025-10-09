@@ -7,6 +7,9 @@ export type * from './t.Path.ts';
 export type * from './t.Syncer.ts';
 export type * from './t.Value.ts';
 
+/** A single line/column position. */
+export type LinePos = { readonly line: number; readonly col: number };
+
 /**
  * Concise YAML type namespace.
  */
@@ -43,6 +46,8 @@ export type YamlRange = readonly [number, number] | readonly [number, number, nu
 export type YamlLib = {
   /** YAML flag helpers. */
   readonly Is: t.YamlIsLib;
+  /** Helpers for normalizing YAML parser errors into standard diagnostics. */
+  readonly Diagnostic: t.YamlDiagnosticLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: t.StringYaml): YamlParseResponse<T>;
