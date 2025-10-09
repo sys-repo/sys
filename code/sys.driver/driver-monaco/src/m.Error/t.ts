@@ -18,12 +18,6 @@ export type EditorErrorLib = {
     errors: t.EditorDiagnostic[],
   ): t.Monaco.I.IMarkerData[];
 
-  /** Convert a single `YAMLError` → generic `Diagnostic`. */
-  toDiagnosticFromYaml(e: t.YamlError): t.EditorDiagnostic;
-
-  /** Convert a list of `YAMLError`s → `Diagnostic[]`. */
-  toDiagnosticsFromYaml(list?: t.YamlError[]): t.EditorDiagnostic[];
-
   /** Sync Monaco's visible error diagnostics. */
   useErrorMarkers: t.UseErrorMarkers;
 };
