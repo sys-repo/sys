@@ -5,8 +5,19 @@ import { Log, Wrangle } from './u.ts';
 type D = t.ViteLib['dev'];
 
 export const REGEX = {
-  STARTED: /VITE v\d+\.\d+\.\d+\s+ready in\s+\d+\s*ms/i,
-  LOCAL: /\bLocal:\s+https?:\/\/[^\s/]+(?::\d+)?\/?/i,
+  // Example matches:
+  //  "VITE v7.1.9  ready in 123 ms"
+  //  "Vite v7.1.9-beta.1 ready in 87ms"
+  STARTED: /\bvite\s+v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?\s+ready\s+in\s+\d+\s*ms\b/i,
+
+  // Example matches:
+  //  "Dev server running at:"
+  DEV_RUNNING: /\bdev\s+server\s+running\s+at\b/i,
+
+  // Example matches:
+  //  "Local:   http://localhost:5173/"
+  //  "Network: http://192.168.1.100:5173/"
+  LOCAL_OR_NETWORK: /\b(?:Local|Network):\s+https?:\/\/[^\s/]+(?::\d+)?\/?/i,
 } as const;
 
 /**
@@ -23,12 +34,17 @@ export const dev: D = async (input) => {
   const { args } = await Wrangle.command(paths, `dev --port=${port} --host --strictPort`);
   if (!silent && pkg) Log.Entry.log(pkg, Path.join(cwd, paths.app.entry));
 
-  // Readiness from process output (fast path), or HTTP fallback.
+  // Readiness from process output (fast path), or HTTP fallback:
   const readySignal: t.ProcReadySignalFilter = (e) => {
-    return stripAnsi(e.toString())
+    const lines = stripAnsi(e.toString())
       .split('\n')
-      .map((line) => line.trim())
-      .some((line) => REGEX.STARTED.test(line) || REGEX.LOCAL.test(line));
+      .map((line) => line.trim());
+    return lines.some(
+      (line) =>
+        REGEX.STARTED.test(line) ||
+        REGEX.DEV_RUNNING.test(line) ||
+        REGEX.LOCAL_OR_NETWORK.test(line),
+    );
   };
 
   const proc = Process.spawn({ cwd, args, silent, readySignal, dispose$: input.dispose$ });
