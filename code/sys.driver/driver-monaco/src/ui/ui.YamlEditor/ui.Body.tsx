@@ -2,7 +2,7 @@ import React from 'react';
 import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
 
 import { type t, Color, Cropmarks, css, D, DocumentId } from './common.ts';
-import { DocidLabel } from './ui.DocidLabel.tsx';
+import { Id } from './ui.Id.tsx';
 import { NotReady } from './ui.NotReady.tsx';
 
 type P = Omit<t.YamlEditorProps, 'signals' | 'onReady'> & {
@@ -102,7 +102,7 @@ export const Body: React.FC<P> = (props) => {
   const elNotReady = !doc && <NotReady label={''} theme={theme.name} />;
   const elDebugDoc = (
     <div className={styles.debug.doc.class}>
-      {doc?.id && <DocidLabel prefix={'crdt:'} value={doc?.id} theme={theme.name} />}
+      {doc?.id && <Id prefix={'crdt:'} value={doc?.id} theme={theme.name} />}
       {!doc?.id && `crdt:<none>`}
     </div>
   );
