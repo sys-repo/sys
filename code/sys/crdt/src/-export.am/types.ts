@@ -1,10 +1,13 @@
 /**
  * @module
- * @types Type-library module.
- *        @sys/crdt/am/t
- *        (AutoMerge Driver Namespace)
+ * Public CRDT type surface for `@sys/crdt`.
+ * Re-exports the canonical types from `@sys/driver-automerge/t`
  */
-import type * as t from './t.ts';
+export * from '@sys/driver-automerge/t';
 
-export type * from './t.ts';
-export type { t };
+/**
+ * @module
+ * Public CRDT type surface for `@sys/crdt`.
+ * Re-exports the canonical types from `@sys/driver-automerge/t`
+ */
+export type * as t from './types.ts';
