@@ -16,5 +16,5 @@ export type UseErrorMarkersArgs = {
   owner?: string;
   monaco?: t.Monaco.Monaco;
   editor?: t.Monaco.Editor;
-  errors?: readonly t.Diagnostic[];
+  errors?: t.Diagnostic[];
 };
