@@ -3,7 +3,7 @@ import { type t, Color, Num, css, usePointer } from './common.ts';
 
 type CharLength = number;
 
-export type IdLabelProps = {
+export type DocidLabelProps = {
   prefix?: string;
   value?: string;
   suffixLength?: CharLength;
@@ -19,7 +19,7 @@ export type IdLabelProps = {
 /**
  * Compact ID label: shows the id with a highlighted suffix on pointer-over.
  */
-export const IdLabel: React.FC<IdLabelProps> = (props) => {
+export const DocidLabel: React.FC<DocidLabelProps> = (props) => {
   const { debug = false, value = '', prefix, gap, suffixLength = 5, lineHeight = 1.2 } = props;
 
   // Split (clamped):
