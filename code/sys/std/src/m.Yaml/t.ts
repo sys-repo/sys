@@ -41,6 +41,20 @@ export type YamlError = Y.YAMLError;
 export type YamlRange = readonly [number, number] | readonly [number, number, number];
 
 /**
+ * Line/column position tuple within the YAML source.
+ *
+ * Variants:
+ * - `[start]` — a single caret position (zero-length range).
+ * - `[start, end]` — a span between two positions (inclusive start, exclusive end).
+ *
+ * Each element is `{ line, col }`, using 1-based coordinates.
+ * This form is often used by editors or LSP-style diagnostics.
+ */
+export type YamlLinePosTuple =
+  | readonly [t.LinePos] //              ← single
+  | readonly [t.LinePos, t.LinePos]; //  ← pair
+
+/**
  * Helpers for working with YAML.
  */
 export type YamlLib = {

@@ -56,7 +56,5 @@ export type YamlDiagnostic = {
   readonly pos?: readonly [number, number]; //
 
   /** Line position. */
-  readonly linePos?:
-    | readonly [t.LinePos] //             single
-    | readonly [t.LinePos, t.LinePos]; // pair
+  readonly linePos?: t.YamlLinePosTuple;
 };

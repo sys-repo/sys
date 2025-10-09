@@ -18,7 +18,7 @@ describe('YamlPipeline.Slug.Error', () => {
       const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
       expect(out.length).to.be.greaterThan(0);
 
-      // Expect a schema diagnostic at .../traits:
+      // Expect a schema diagnostic at ../traits:
       const traitsDiag = out.find(
         (d) => Array.isArray(d.path) && d.path.join('/') === 'foo/bar/traits',
       );
@@ -88,10 +88,13 @@ describe('YamlPipeline.Slug.Error', () => {
 
       YamlPipeline.Slug.Error.attachSemanticRanges(res.ast, errs);
 
-      expect(errs[0].range).to.be.an('array');
-      expect((errs[0].range as number[]).length).to.be.greaterThanOrEqual(2);
-      expect(typeof (errs[0].range as number[])[0]).to.equal('number');
-      expect(typeof (errs[0].range as number[])[1]).to.equal('number');
+      const r = errs[0].range;
+      expect(Array.isArray(r)).to.eql(true);
+      if (Array.isArray(r)) {
+        expect(r.length).to.be.greaterThanOrEqual(2);
+        expect(typeof r[0]).to.equal('number');
+        expect(typeof r[1]).to.equal('number');
+      }
     });
 
     it('falls back to nearest ancestor with a node range', () => {
@@ -106,8 +109,9 @@ describe('YamlPipeline.Slug.Error', () => {
 
       YamlPipeline.Slug.Error.attachSemanticRanges(res.ast, errs);
 
-      expect(errs[0].range).to.be.an('array');
-      expect((errs[0].range as number[]).length).to.be.greaterThanOrEqual(2);
+      const r = errs[0].range;
+      expect(Array.isArray(r)).to.eql(true);
+      if (Array.isArray(r)) expect(r.length).to.be.greaterThanOrEqual(2);
     });
 
     it('falls back to document root when no path segments match', () => {
@@ -119,8 +123,9 @@ describe('YamlPipeline.Slug.Error', () => {
 
       YamlPipeline.Slug.Error.attachSemanticRanges(res.ast, errs);
 
-      expect(errs[0].range).to.be.an('array'); // should attach the doc root range
-      expect((errs[0].range as number[]).length).to.be.greaterThanOrEqual(2);
+      const r = errs[0].range;
+      expect(Array.isArray(r)).to.eql(true);
+      if (Array.isArray(r)) expect(r.length).to.be.greaterThanOrEqual(2);
     });
 
     it('does not overwrite an existing range (no-op if already set)', () => {
