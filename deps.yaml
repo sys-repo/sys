@@ -81,15 +81,15 @@ groups:
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.3
     - import: npm:prosemirror-state@1.4.3
-    - import: npm:prosemirror-view@1.41.2
+    - import: npm:prosemirror-view@1.41.3
       subpaths: [style/prosemirror.css]
     - import: npm:prosemirror-example-setup@1.2.3
       subpaths: [style/style.css]
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.61
-    - import: npm:@ai-sdk/openai@2.0.44
+    - import: npm:ai@5.0.65
+    - import: npm:@ai-sdk/openai@2.0.46
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.20.2
       subpaths: ['agent', 'memory', 'storage']
@@ -118,7 +118,7 @@ deno.json:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.2
-  - import: npm:@farcaster/frame-sdk@0.1.10
+  - import: npm:@farcaster/frame-sdk@0.1.11
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@19.0.2
   - import: npm:hash-it@6.0.0

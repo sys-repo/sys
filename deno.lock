@@ -48,7 +48,7 @@
     "jsr:@std/testing@1.0.16": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.0.9": "1.0.9",
-    "npm:@ai-sdk/openai@2.0.44": "2.0.44_zod@4.1.12",
+    "npm:@ai-sdk/openai@2.0.46": "2.0.46_zod@4.1.12",
     "npm:@automerge/automerge-repo-network-websocket@2.3.1": "2.3.1_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.3.1": "2.3.1",
     "npm:@automerge/automerge-repo-storage-nodefs@2.3.1": "2.3.1",
@@ -56,7 +56,7 @@
     "npm:@automerge/automerge@3.1.2": "3.1.2",
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
     "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.1.7__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
-    "npm:@farcaster/frame-sdk@0.1.10": "0.1.10",
+    "npm:@farcaster/frame-sdk@0.1.11": "0.1.11",
     "npm:@mastra/core@0.20.2": "0.20.2_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.1.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.9.10",
     "npm:@mastra/libsql@0.15.1": "0.15.1_@mastra+core@0.20.2__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41",
     "npm:@mastra/loggers@0.10.15": "0.10.15_@mastra+core@0.20.2__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.9.10_react@19.2.0_@sinclair+typebox@0.34.41",
@@ -75,7 +75,7 @@
     "npm:@types/react@19.2.2": "19.2.2",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react-swc@4.1.0": "4.1.0_vite@7.1.7__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
-    "npm:ai@5.0.61": "5.0.61_zod@4.1.12",
+    "npm:ai@5.0.65": "5.0.65_zod@4.1.12",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.0": "6.2.0",
     "npm:csstype@3": "3.1.3",
@@ -104,7 +104,7 @@
     "npm:prosemirror-model@1.25.3": "1.25.3",
     "npm:prosemirror-schema-basic@1.2.4": "1.2.4",
     "npm:prosemirror-state@1.4.3": "1.4.3",
-    "npm:prosemirror-view@1.41.2": "1.41.2",
+    "npm:prosemirror-view@1.41.3": "1.41.3",
     "npm:ramda@0.31.3": "0.31.3",
     "npm:react-dom@19.2.0": "19.2.0_react@19.2.0",
     "npm:react-error-boundary@6.0.0": "6.0.0_react@19.2.0",
@@ -350,11 +350,11 @@
         "zod@4.1.12"
       ]
     },
-    "@ai-sdk/gateway@1.0.34_zod@4.1.12": {
-      "integrity": "sha512-Vc/4fGlAW2uGmz6DnbRB9b7kdkbk4DQYNDYNdr/NHJxoaLsdNF3CE8i172rZ47+jEU2hGibcn5yivbgvjMi8Ig==",
+    "@ai-sdk/gateway@1.0.36_zod@4.1.12": {
+      "integrity": "sha512-G/CLHzyOy9mhbimSBmV+o59M7ao/NfRFrrhC+eHGp+0qT0diP3IDW5VdkPHKFmDp4Iq7wb4/yOCe7Yk2fQtSrg==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
+        "@ai-sdk/provider-utils@3.0.11_zod@4.1.12",
         "@vercel/oidc",
         "zod@4.1.12"
       ]
@@ -383,11 +383,11 @@
         "zod@4.1.12"
       ]
     },
-    "@ai-sdk/openai@2.0.44_zod@4.1.12": {
-      "integrity": "sha512-caK9v5YbBd38mjPmjBP5LSWiWhmHgK9mPwc7dE/3ED3c+SypH6/QWimGDA1oSsxDEdXgVCO9ORUVV+Uphzjf8Q==",
+    "@ai-sdk/openai@2.0.46_zod@4.1.12": {
+      "integrity": "sha512-3FHZdiTLbjnHw0rbu1yOPW8FruHrzN6SlJYsaLSQgbxYfE5y+60Nj4Xp8/k7rtD3FmrjkKcp/XTMSbAJWfoJig==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
+        "@ai-sdk/provider-utils@3.0.11_zod@4.1.12",
         "zod@4.1.12"
       ]
     },
@@ -411,6 +411,15 @@
     },
     "@ai-sdk/provider-utils@3.0.10_zod@4.1.12": {
       "integrity": "sha512-T1gZ76gEIwffep6MWI0QNy9jgoybUHE7TRaHB5k54K8mF91ciGFlbtCGxDYhMH3nCRergKwYFIDeFF0hJSIQHQ==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@standard-schema/spec",
+        "eventsource-parser",
+        "zod@4.1.12"
+      ]
+    },
+    "@ai-sdk/provider-utils@3.0.11_zod@4.1.12": {
+      "integrity": "sha512-4hgHj89VqyOHzGaV85TkcgvO8WjecVF35TOUVg+C56vnzpWSgdIZu/ZWZNdZ6BTrv8y0N1toBWW7XcWiRRicLg==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@standard-schema/spec",
@@ -835,29 +844,29 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@farcaster/frame-sdk@0.1.10": {
-      "integrity": "sha512-4CtBkzHIGg7NVUbVZfgy6UiIeSqn0rx7vmwvOJ4pNRQoLG5guPkHKv9vc3D515aCVSATvrZXRT97xjss5kuN+Q==",
+    "@farcaster/frame-sdk@0.1.11": {
+      "integrity": "sha512-qZ8a3+u2q7tWJRtWQdMXQ+C1i4I3dA78NLn3Yl9prC6rP87Zx5zP4W/2l+mLQvU6Ml4Ide3HPl/SiwWcE0khrA==",
       "dependencies": [
         "@farcaster/miniapp-sdk",
-        "@farcaster/quick-auth",
+        "@farcaster/quick-auth@0.0.8_typescript@5.8.3",
         "comlink",
         "eventemitter3@5.0.1",
         "ox@0.4.4"
       ]
     },
-    "@farcaster/miniapp-core@0.3.9_zod@3.25.76": {
-      "integrity": "sha512-7k2AHYycFABUEQFHGqsuZr6P6UQOE2WO4/Qj/kQ1ydKA8QjrWxO4HjiPfnTdvqH0xOKtdavbFOV5lK5bDLkemw==",
+    "@farcaster/miniapp-core@0.4.0_zod@3.25.76": {
+      "integrity": "sha512-bjaDVCwVvQrG+dV+94xsjYWQvTGw3bpPf5xoEPLZjrBadNzsCoRLvvES1y8JEULyBse5FqgC6Lvk32f+ss3W8g==",
       "dependencies": [
         "@solana/web3.js",
         "ox@0.4.4_zod@3.25.76",
         "zod@3.25.76"
       ]
     },
-    "@farcaster/miniapp-sdk@0.1.10": {
-      "integrity": "sha512-ueoEAH3N7hIrV+L9pXdLJZpOY1GsOuwKN7MckouSEWY98H5A7KVajyGmGSDDVzjRWpu7Vndu4NZUHoOhF4nTOA==",
+    "@farcaster/miniapp-sdk@0.2.0": {
+      "integrity": "sha512-DzzjvU331n2ALL0ISZY9t+TlqrEUKFqHvmLsBs9NEAAyI8gaJw4VFz0tyV8bi61gvaUi3W5aTMD+WxCdcX//nQ==",
       "dependencies": [
         "@farcaster/miniapp-core",
-        "@farcaster/quick-auth",
+        "@farcaster/quick-auth@0.0.6_typescript@5.8.3",
         "comlink",
         "eventemitter3@5.0.1",
         "ox@0.4.4"
@@ -865,6 +874,14 @@
     },
     "@farcaster/quick-auth@0.0.6_typescript@5.8.3": {
       "integrity": "sha512-tiZndhpfDtEhaKlkmS5cVDuS+A/tafqZT3y9I44rC69m3beJok6e8dIH2JhxVy3EvOWTyTBnrmNn6GOOh+qK6A==",
+      "dependencies": [
+        "jose",
+        "typescript@5.8.3",
+        "zod@3.25.76"
+      ]
+    },
+    "@farcaster/quick-auth@0.0.8_typescript@5.8.3": {
+      "integrity": "sha512-NRIq1BcbcQCC6xBF5owfckkY00xKQVpqhpLNl5rICVpl0xeDsiVbkenIrHaUuyjtCK2W28YVc2ZCFRyz9ERHKg==",
       "dependencies": [
         "jose",
         "typescript@5.8.3",
@@ -2576,12 +2593,12 @@
         "zod@4.1.12"
       ]
     },
-    "ai@5.0.61_zod@4.1.12": {
-      "integrity": "sha512-a+NtNgxjMiGvL46/+v7iNbKHLAg8VDheNhYFe9lL3MPiL9W5DNH45wMaahteCYS4WgoFgdQa2zz4CM5lkiXuOA==",
+    "ai@5.0.65_zod@4.1.12": {
+      "integrity": "sha512-orwsNKAoAmTwHkoy7TG/7nc65SD3hy7k+x8xVHIzfw8CibZm/U2cdbR1ZUex6H2Rpf+uoZpvyQ05FWBJNw7V8A==",
       "dependencies": [
-        "@ai-sdk/gateway@1.0.34_zod@4.1.12",
+        "@ai-sdk/gateway@1.0.36_zod@4.1.12",
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
+        "@ai-sdk/provider-utils@3.0.11_zod@4.1.12",
         "@opentelemetry/api",
         "zod@4.1.12"
       ]
@@ -4042,8 +4059,8 @@
         "prosemirror-model"
       ]
     },
-    "prosemirror-view@1.41.2": {
-      "integrity": "sha512-PGS/jETmh+Qjmre/6vcG7SNHAKiGc4vKOJmHMPRmvcUl7ISuVtrtHmH06UDUwaim4NDJfZfVMl7U7JkMMETa6g==",
+    "prosemirror-view@1.41.3": {
+      "integrity": "sha512-SqMiYMUQNNBP9kfPhLO8WXEk/fon47vc52FQsUiJzTBuyjKgEcoAwMyF04eQ4WZ2ArMn7+ReypYL60aKngbACQ==",
       "dependencies": [
         "prosemirror-model",
         "prosemirror-state",
@@ -4796,14 +4813,14 @@
       "jsr:@std/semver@1.0.6",
       "jsr:@std/testing@1.0.16",
       "jsr:@std/uuid@1.0.9",
-      "npm:@ai-sdk/openai@2.0.44",
+      "npm:@ai-sdk/openai@2.0.46",
       "npm:@automerge/automerge-repo-network-websocket@2.3.1",
       "npm:@automerge/automerge-repo-storage-indexeddb@2.3.1",
       "npm:@automerge/automerge-repo-storage-nodefs@2.3.1",
       "npm:@automerge/automerge-repo@2.3.1",
       "npm:@automerge/automerge@3.1.2",
       "npm:@automerge/prosemirror@0.1.0",
-      "npm:@farcaster/frame-sdk@0.1.10",
+      "npm:@farcaster/frame-sdk@0.1.11",
       "npm:@mastra/core@0.20.2",
       "npm:@mastra/libsql@0.15.1",
       "npm:@mastra/loggers@0.10.15",
@@ -4817,7 +4834,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@5.0.61",
+      "npm:ai@5.0.65",
       "npm:approx-string-match@2",
       "npm:chai@6.2.0",
       "npm:csstype@3",
@@ -4840,7 +4857,7 @@
       "npm:prosemirror-model@1.25.3",
       "npm:prosemirror-schema-basic@1.2.4",
       "npm:prosemirror-state@1.4.3",
-      "npm:prosemirror-view@1.41.2",
+      "npm:prosemirror-view@1.41.3",
       "npm:ramda@0.31.3",
       "npm:react-error-boundary@6.0.0",
       "npm:react-inspector@9.0.0",
