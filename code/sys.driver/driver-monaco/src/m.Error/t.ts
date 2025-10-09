@@ -15,14 +15,14 @@ export type EditorErrorLib = {
    */
   toMarkers(
     target: t.Monaco.TextModel | t.Monaco.Editor,
-    errors: t.Diagnostic[],
+    errors: t.EditorDiagnostic[],
   ): t.Monaco.I.IMarkerData[];
 
   /** Convert a single `YAMLError` → generic `Diagnostic`. */
-  toDiagnosticFromYaml(e: t.YamlError): t.Diagnostic;
+  toDiagnosticFromYaml(e: t.YamlError): t.EditorDiagnostic;
 
   /** Convert a list of `YAMLError`s → `Diagnostic[]`. */
-  toDiagnosticsFromYaml(list?: t.YamlError[]): t.Diagnostic[];
+  toDiagnosticsFromYaml(list?: t.YamlError[]): t.EditorDiagnostic[];
 
   /** Sync Monaco's visible error diagnostics. */
   useErrorMarkers: t.UseErrorMarkers;
@@ -35,64 +35,35 @@ export type DiagnosticSeverity = 'Error' | 'Warning' | 'Info' | 'Hint';
 export type DiagnosticSeverityConst = Record<NonNullable<DiagnosticSeverity>, number>;
 
 /**
- * Generic diagnostic marker:
- * Represents a unified error or warning within a text document.
- *
- * Used as the cross-format carrier between schema/YAML diagnostics and
- * Monaco’s `IMarkerData` (via `Error.toMarkers`).
- *
- * Supports multiple coordinate systems:
- *  - `range`: raw byte/character offsets (typical from YAML parsers)
- *  - `pos`: simpler start/end offsets (as in LSP diagnostics)
- *  - `linePos`: 1-based line/column pairs (human-readable, language-agnostic)
+ * Normalized diagnostic shape used by editor and driver layers.
+ * Derived from YAML or schema diagnostics, but tailored for
+ * Monaco marker projection.
  */
-export type Diagnostic = {
-  /** The human-readable description of the problem. */
+export type EditorDiagnostic = {
+  /** Human-readable problem description. */
   readonly message: string;
 
-  /**
-   * Optional machine-readable error identifier.
-   * May be numeric or string, depending on the source (e.g. YAML code, schema rule ID).
-   */
+  /** Optional machine-readable error identifier (string or number). */
   readonly code?: string | number;
 
-  /**
-   * Byte-offset positions within the text buffer.
-   * Usually provided by low-level parsers (e.g. YAML AST).
-   *
-   * `[start, end]`
-   * - Both are 0-based indices.
-   * - `end` is exclusive.
-   */
+  /** Byte-offset positions within the source text. `[start, end)` */
   readonly pos?: readonly [number, number];
 
   /**
-   * Document range using the YAML parser convention:
-   * `[start, valueEnd, nodeEnd?]`
-   *
-   * This may include up to three offsets (start → end of node span).
-   * When present, this takes precedence over `pos` or `linePos`.
+   * Parser-style range `[start, valueEnd, nodeEnd?]`.
+   * Takes precedence over `pos` or `linePos`.
    */
   readonly range?: readonly [number, number, number?];
 
   /**
-   * Explicit line/column positions (1-based).
-   *
-   * `[start, end]`
-   * - Each item contains `{ line, col }`
-   * - Used when diagnostics are reported in human-oriented coordinates.
+   * Line/column coordinates (1-based).
+   * `[start, end]` — each `{ line, col }`.
    */
   readonly linePos?: readonly [t.LinePos, t.LinePos];
 
-  /**
-   * Optional logical object path within the YAML or schema document.
-   * Used for linking back to a structured data node (e.g. `["spec", "ports", 0]`).
-   */
+  /** Object path within document (e.g. `["spec", "ports", 0]`). */
   readonly path?: t.ObjectPath;
 
-  /**
-   * Severity level, normalized to Monaco’s four standard kinds.
-   * Defaults to `"Error"` when omitted.
-   */
+  /** Severity normalized to Monaco’s four standard levels. */
   readonly severity?: t.DiagnosticSeverity;
 };

@@ -84,7 +84,7 @@ describe('Monaco.Error', () => {
       const monaco = MonacoFake.monaco();
       const model = monaco.editor.createModel('abc\ndef', 'yaml'); // "def" starts at offset 4
 
-      const errs: t.Diagnostic[] = [{ message: 'pos err', pos: [4, 6] }];
+      const errs: t.EditorDiagnostic[] = [{ message: 'pos err', pos: [4, 6] }];
       const m = Error.toMarkers(model, errs as any)[0];
 
       expect(m.message).to.eql('pos err');
@@ -96,7 +96,7 @@ describe('Monaco.Error', () => {
 
     it('derives markers from linePos and preserves zero-length ranges', () => {
       const model = MonacoFake.model('foo\nbar\n');
-      const errs: t.Diagnostic[] = [
+      const errs: t.EditorDiagnostic[] = [
         {
           message: 'lp err',
           linePos: [
@@ -118,7 +118,7 @@ describe('Monaco.Error', () => {
       const model = monaco.editor.createModel('foo\nbar\n', 'yaml');
 
       // Single/identical tuple → zero-length at the same point:
-      const errs: t.Diagnostic[] = [
+      const errs: t.EditorDiagnostic[] = [
         {
           message: 'lp err',
           linePos: [
@@ -141,7 +141,7 @@ describe('Monaco.Error', () => {
       const monaco = MonacoFake.monaco();
       const model = monaco.editor.createModel('abcdefghij', 'yaml');
 
-      const errs: t.Diagnostic[] = [
+      const errs: t.EditorDiagnostic[] = [
         {
           message: 'priority',
           range: [2, 5], // should win
@@ -163,7 +163,7 @@ describe('Monaco.Error', () => {
       const monaco = MonacoFake.monaco();
       const model = monaco.editor.createModel('foo', 'yaml');
 
-      const errs: t.Diagnostic[] = [{ message: 'no loc' }];
+      const errs: t.EditorDiagnostic[] = [{ message: 'no loc' }];
       expect(Error.toMarkers(model, errs as any)).to.eql([]);
     });
 
@@ -171,7 +171,7 @@ describe('Monaco.Error', () => {
       const monaco = MonacoFake.monaco();
       const model = monaco.editor.createModel('abc', 'yaml');
 
-      const errs: t.Diagnostic[] = [{ message: 'c', range: [0, 1], code: 123 }];
+      const errs: t.EditorDiagnostic[] = [{ message: 'c', range: [0, 1], code: 123 }];
       const m = Error.toMarkers(model, errs as any)[0];
 
       expect(m.code).to.eql('123');
@@ -181,7 +181,7 @@ describe('Monaco.Error', () => {
       const monaco = MonacoFake.monaco();
       const model = monaco.editor.createModel('abcdef', 'yaml');
 
-      const errs: t.Diagnostic[] = [
+      const errs: t.EditorDiagnostic[] = [
         { message: 'first', range: [0, 1] },
         { message: 'second', range: [2, 3] },
       ];
@@ -193,7 +193,7 @@ describe('Monaco.Error', () => {
       const monaco = MonacoFake.monaco();
       const model = monaco.editor.createModel('xyz', 'yaml');
 
-      const errs: t.Diagnostic[] = [{ message: 'invert', range: [2, 1] as any }];
+      const errs: t.EditorDiagnostic[] = [{ message: 'invert', range: [2, 1] as any }];
       const m = Error.toMarkers(model, errs as any)[0];
       expect(m.endColumn).to.be.greaterThan(m.startColumn);
     });

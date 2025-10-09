@@ -5,13 +5,13 @@ type E = t.EditorErrorLib;
 /**
  * Convert a list of `YAMLError`s → `Diagnostic[]`.
  */
-export const toDiagnosticsFromYaml: E['toDiagnosticsFromYaml'] = (list): t.Diagnostic[] => {
+export const toDiagnosticsFromYaml: E['toDiagnosticsFromYaml'] = (list): t.EditorDiagnostic[] => {
   return (list ?? []).map(toDiagnosticFromYaml);
 };
 
 /** Convert a single `YAMLError` → generic `Diagnostic`. */
-export const toDiagnosticFromYaml: E['toDiagnosticFromYaml'] = (err): t.Diagnostic => {
-  // 1) Prefer line/col if present.
+export const toDiagnosticFromYaml: E['toDiagnosticFromYaml'] = (err): t.EditorDiagnostic => {
+  // Prefer line/col if present.
   if (EditorIs.linePosPair(err.linePos)) {
     const start = err.linePos[0]!;
     const endRaw = err.linePos[1] ?? start;
@@ -32,7 +32,7 @@ export const toDiagnosticFromYaml: E['toDiagnosticFromYaml'] = (err): t.Diagnost
     };
   }
 
-  // 2) Fallback to byte offsets:
+  // Fallback to byte offsets:
   if (EditorIs.posTuple(err.pos)) {
     const start = err.pos[0] ?? 0;
     const endRaw = err.pos[1];
@@ -45,7 +45,7 @@ export const toDiagnosticFromYaml: E['toDiagnosticFromYaml'] = (err): t.Diagnost
     return { message: err.message, code: err.code, pos: [start, Math.max(end, start + 1)] };
   }
 
-  // 3) Message-only:
+  // Message-only:
   return {
     message: err.message,
     code: err.code,
