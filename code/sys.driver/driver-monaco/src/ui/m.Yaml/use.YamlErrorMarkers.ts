@@ -6,9 +6,6 @@ type D = t.EditorDiagnostic;
 
 /**
  * Synchronize Monaco markers from YAML diagnostics or raw parser errors.
- * - Accepts mixed inputs (Yaml.Diagnostic | Yaml.Error) and normalizes per-item.
- * - Single-tuple `linePos` is normalized to a pair so a marker is always visible.
- * - The projector handles precedence: range > pos > linePos.
  */
 export const useYamlErrorMarkers: t.UseYamlErrorMarkers = (args) => {
   const { errors = [], owner, ...rest } = args;

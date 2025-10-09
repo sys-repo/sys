@@ -2,22 +2,14 @@ import { useEffect, useRef } from 'react';
 import { toMarkers } from '../../m.Error/u.markers.ts';
 import { type t, slug } from './common.ts';
 
-/**
- * Adds (or clears) error markers in the Monaco editor for a set of diagnostics.
- */
 export const useErrorMarkers: t.UseErrorMarkers = (args) => {
   const { monaco, editor, errors = [], enabled = true } = args;
 
-  /**
-   * Stable owner (latched once).
-   */
+  // Stable owner.
   const ownerRef = useRef<string>(args.owner ?? slug());
   const owner = ownerRef.current;
 
-  /**
-   * Keep latest monaco/editor for unmount cleanup only
-   * (avoids stale closures if these props change).
-   */
+  // Keep latest monaco/editor for unmount cleanup only.
   const monacoRef = useRef(monaco);
   const editorRef = useRef(editor);
   useEffect(() => {
@@ -25,53 +17,49 @@ export const useErrorMarkers: t.UseErrorMarkers = (args) => {
     editorRef.current = editor;
   }, [monaco, editor]);
 
-  /**
-   * Cleanup on unmount: clear this owner's markers from the current model.
-   */
+  // Track if we've ever written markers (so cleanup won't cause a first write).
+  const didSetRef = useRef(false);
+
+  // Cleanup on unmount: clear this owner's markers only if we had set them:
   useEffect(() => {
     return () => {
+      if (!didSetRef.current) return;
       const model = editorRef.current?.getModel();
       if (model) monacoRef.current?.editor.setModelMarkers(model, owner, []);
     };
   }, [owner]);
 
-  /**
-   * Sync markers with the current diagnostics.
-   */
+  // Sync markers with current diagnostics (only when enabled):
   useEffect(() => {
-    if (!monaco || !editor || !enabled) return;
+    if (!enabled || !monaco || !editor) return;
 
     const model = editor.getModel();
     if (!model) return;
 
     if (errors.length === 0) {
+      // Only clear when enabled (do nothing when disabled).
       monaco.editor.setModelMarkers(model, owner, []);
+      didSetRef.current = true;
       return;
     }
 
-    const markers = toMarkers(model, errors as t.Schema.Error[]);
+    const markers = toMarkers(model, errors as t.EditorDiagnostic[]);
     monaco.editor.setModelMarkers(model, owner, markers);
+    didSetRef.current = true;
   }, [enabled, monaco, editor, errors, owner]);
 
-  /**
-   * Clear when disabled toggles false.
-   */
-  useEffect(() => {
-    if (enabled) return;
-    const model = editor?.getModel();
-    if (model) monaco?.editor.setModelMarkers(model, owner, []);
-  }, [enabled, monaco, editor, owner]);
-
-  /**
-   * Reapply on model swaps.
-   */
+  // Reapply on model swaps (only when enabled):
   useEffect(() => {
     if (!editor || !monaco) return;
     const sub = editor.onDidChangeModel?.(() => {
       const model = editor.getModel();
       if (!model) return;
-      const markers = enabled && errors.length ? toMarkers(model, errors as t.Schema.Error[]) : [];
+
+      if (!enabled) return; // ← nothing when disabled
+
+      const markers = errors.length ? toMarkers(model, errors as t.EditorDiagnostic[]) : [];
       monaco.editor.setModelMarkers(model, owner, markers);
+      didSetRef.current = true;
     });
     return () => sub?.dispose();
   }, [editor, monaco, enabled, errors, owner]);
