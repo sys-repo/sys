@@ -13,6 +13,8 @@ export type YamlEditorProps = {
   editor?: t.YamlEditorMonacoProps;
   footer?: Pick<t.YamlEditorFooterProps, 'visible'> & { repo?: boolean };
 
+  /** Enable or disable YAML syntax diagnostics (default: true). */
+  diagnostics?: YamlEditorDiagnostics;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -20,6 +22,9 @@ export type YamlEditorProps = {
   onReady?: t.EditorCrdtBindingReadyHandler;
   onDocumentLoaded?: t.YamlEditorDocumentLoadedHandler;
 };
+
+/** Display settings for diagnostics (error markers).  */
+export type YamlEditorDiagnostics = 'none' | 'syntax';
 
 /** Fires when a new document (crdt) is loaded into the editor. */
 export type YamlEditorDocumentLoadedHandler = (e: YamlEditorDocumentLoaded) => void;

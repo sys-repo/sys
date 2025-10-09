@@ -32,6 +32,7 @@ export default Spec.describe(D.displayName, (e) => {
             editor={v.editor}
             footer={v.footer}
             path={v.path}
+            diagnostics={v.diagnostics}
             debug={v.debug}
             theme={v.theme}
             onReady={(e) => {

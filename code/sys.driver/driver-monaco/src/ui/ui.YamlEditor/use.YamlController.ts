@@ -2,13 +2,13 @@ import React from 'react';
 import { EditorCrdt } from '../m.Crdt/mod.ts';
 import { useYaml } from '../m.Yaml/use.Yaml.ts';
 
-import { type t, Obj, Signal } from './common.ts';
+import { type t, D, Obj, Signal } from './common.ts';
 import { useSignals } from './use.Signals.ts';
 
 type P = Omit<t.YamlEditorProps, 'bus$'>;
 
 export function useYamlController(bus$: t.EditorEventBus, props: P) {
-  const { path, onReady } = props;
+  const { path, onReady, diagnostics = D.diagnostics } = props;
   const pathKey = React.useMemo(() => Obj.hash(path), [path]);
 
   /**
@@ -29,14 +29,8 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   /**
    * Hook: YAML.
    */
-  const yaml = useYaml({
-    bus$,
-    monaco,
-    editor,
-    doc,
-    path,
-    errorMarkers: true, // NB: display YAML parse errors inline within the code-editor.
-  });
+  const errorMarkers = diagnostics === 'syntax'; // NB: display YAML parse errors inline within the code-editor.
+  const yaml = useYaml({ bus$, monaco, editor, doc, path, errorMarkers });
 
   /**
    * Effects:

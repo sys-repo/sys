@@ -8,24 +8,30 @@ type D = t.EditorDiagnostic;
  * Synchronize Monaco markers from YAML diagnostics or raw parser errors.
  */
 export const useYamlErrorMarkers: t.UseYamlErrorMarkers = (args) => {
-  const { errors = [], owner, ...rest } = args;
+  const { errors = [], owner, enabled = true, ...rest } = args;
   const ownerRef = React.useRef(owner ?? `yaml-${slug()}`);
 
-  // Normalize inputs → standard YAML diagnostics:
+  // Normalize inputs → standard YAML diagnostics.
   const diagnostics = React.useMemo<t.Yaml.Diagnostic[]>(() => {
     return (errors ?? []).map(wrangle.asYamlDiagnostic).filter((x): x is t.Yaml.Diagnostic => !!x);
   }, [errors]);
 
-  // Map YAML diagnostics → driver diagnostics for Monaco projector:
+  // Map YAML diagnostics → driver diagnostics for Monaco projector.
   const driverDiagnostics = React.useMemo<D[]>(
     () => diagnostics.map(wrangle.asEditorDiagnostic),
     [diagnostics],
   );
 
+  // When disabled, feed an empty array to forcibly clear any existing markers.
+  const effectiveDiagnostics = React.useMemo<D[]>(
+    () => (enabled ? driverDiagnostics : []),
+    [enabled, driverDiagnostics],
+  );
+
   return useErrorMarkers({
     ...rest,
     owner: ownerRef.current,
-    errors: driverDiagnostics,
+    errors: effectiveDiagnostics,
   });
 };
 
@@ -50,6 +56,6 @@ const wrangle = {
     if (Array.isArray(d.pos)) return { ...base, pos: d.pos };
     if (Array.isArray(d.range)) return { ...base, range: d.range as D['range'] };
 
-    return { ...base } as D; // no coords → projector will skip
+    return { ...base } as D; // NB: no positional data; renderer will ignore this diagnostic.
   },
 } as const;

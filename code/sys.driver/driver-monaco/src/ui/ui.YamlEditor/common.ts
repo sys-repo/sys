@@ -20,6 +20,7 @@ export const DEFAULTS = {
   displayName: Pkg.toString(pkg, name, false),
   documentId,
   footer,
+  diagnostics: 'syntax' satisfies t.YamlEditorDiagnostics,
 } as const;
 export const D = DEFAULTS;
 export const STORAGE_KEY = { DEV: `dev:${D.name}` };

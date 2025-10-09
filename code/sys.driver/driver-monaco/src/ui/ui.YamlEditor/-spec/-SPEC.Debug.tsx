@@ -17,7 +17,7 @@ import {
 } from '../common.ts';
 
 type P = t.YamlEditorProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'diagnostics'> & {
   editor: Pick<t.YamlEditorMonacoProps, 'margin' | 'minimap' | 'spinning' | 'enabled'>;
   documentId: Pick<t.YamlEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
   footer: P['footer'];
@@ -31,6 +31,7 @@ const defaults: Storage = {
   documentId: { visible: true, readOnly: false, urlKey: undefined },
   editor: { margin: 0, minimap: false, spinning: false, enabled: true },
   footer: { visible: true, repo: true },
+  diagnostics: D.diagnostics,
 };
 
 /**
@@ -58,6 +59,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     path: s(snap.path),
+    diagnostics: s(snap.diagnostics),
 
     documentId: {
       visible: s((snap.documentId ?? {}).visible),
@@ -104,6 +106,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.path = p.path.value;
+      d.diagnostics = p.diagnostics.value;
 
       d.editor = d.editor ?? {};
       d.editor.margin = p.editor.margin.value;
@@ -239,6 +242,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `diagnostics: ${p.diagnostics.value}`}
+        onClick={() => Signal.cycle(p.diagnostics, [D.diagnostics, 'none'])}
       />
       <Button
         block
