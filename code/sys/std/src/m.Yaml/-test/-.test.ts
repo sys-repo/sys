@@ -1,5 +1,6 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 
+import { Diagnostic } from '../m.Diagnostic.ts';
 import { Is } from '../m.Is.ts';
 import { Path } from '../m.Path.ts';
 import { Syncer } from '../m.Syncer.ts';
@@ -14,6 +15,7 @@ describe('Yaml', () => {
     expect(Yaml.syncer).to.equal(Syncer.make);
     expect(Yaml.Path).to.equal(Path);
     expect(Yaml.path).to.equal(Path.make);
+    expect(Yaml.Diagnostic).to.equal(Diagnostic);
   });
 
   describe('Yaml.parse', () => {
