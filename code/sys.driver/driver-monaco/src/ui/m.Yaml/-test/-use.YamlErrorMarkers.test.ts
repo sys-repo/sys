@@ -91,4 +91,6 @@ describe('useYamlErrorMarkers', () => {
 
     spy.restore();
   });
+
+  });
 });

@@ -20,19 +20,32 @@ export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> &
 export type EditorYamlHook = { readonly ok: boolean; readonly current?: t.EditorYaml };
 
 /**
- * Sync Monaco error markers from YAML parser output.
+ * Synchronize Monaco editor markers from YAML diagnostics.
  *
- * Wrapper that normalizes `YamlError` → `Diagnostic` and delegates
- * to the generic `useErrorMarkers`.
+ * Converts YAML validation output into Monaco-compatible markers
+ * and delegates to the generic `useErrorMarkers` hook.
+ * Accepts parser, schema, or semantic diagnostics.
  */
 export type UseYamlErrorMarkers = (args: UseYamlErrorMarkersArgs) => void;
 
-/** Arguments for the YAML-specific wrapper. */
+/** Arguments for `useYamlErrorMarkers`. */
 export type UseYamlErrorMarkersArgs = {
-  enabled?: boolean;
-  owner?: string;
-  monaco?: t.Monaco.Monaco;
-  editor?: t.Monaco.Editor;
-  /** Raw YAML parser errors to normalize */
-  errors?: readonly t.YamlError[];
+  /** Enable or disable marker updates. */
+  readonly enabled?: boolean;
+
+  /** Marker owner ID (used to isolate editor decorations). */
+  readonly owner?: string;
+
+  /** Monaco API instance. */
+  readonly monaco?: t.Monaco.Monaco;
+
+  /** Monaco editor instance to attach markers to. */
+  readonly editor?: t.Monaco.Editor;
+
+  /**
+   * YAML issues to render as Monaco markers.
+   * - Accepts normalized diagnostics (`Yaml.Diagnostic[]`) or raw parser errors (`Yaml.Error[]`).
+   * - Mixed arrays are allowed; items are normalized per-element.
+   */
+  readonly errors?: (t.Yaml.Diagnostic | t.Yaml.Error)[];
 };
