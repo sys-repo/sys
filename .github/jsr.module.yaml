@@ -2,4 +2,4 @@
   run: |
     cd PATH
     deno task test --parallel
-    # deno publish --allow-dirty
+    deno publish --allow-dirty
