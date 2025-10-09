@@ -6,8 +6,9 @@ type CharLength = number;
 export type IdLabelProps = {
   prefix?: string;
   value?: string;
-  highlightLength?: CharLength;
-  highlightColor?: string; // suffix color when pointer is over
+  suffixLength?: CharLength;
+  suffixColor?: string; // suffix color when pointer is over
+  prefixColor?: string;
   gap?: number;
   lineHeight?: number;
   debug?: boolean;
@@ -19,22 +20,14 @@ export type IdLabelProps = {
  * Compact ID label: shows the id with a highlighted suffix on pointer-over.
  */
 export const IdLabel: React.FC<IdLabelProps> = (props) => {
-  const {
-    debug = false,
-    value = '',
-    prefix,
-    gap,
-    highlightLength = 5,
-    highlightColor = Color.BLUE,
-    lineHeight = 1.2,
-  } = props;
+  const { debug = false, value = '', prefix, gap, suffixLength = 5, lineHeight = 1.2 } = props;
 
   // Split (clamped):
   const full = String(value ?? '');
-  const split = Num.clamp(highlightLength || 0, 0, full.length);
+  const split = Num.clamp(suffixLength || 0, 0, full.length);
   const hasSuffix = split > 0;
-  const left = hasSuffix ? full.slice(0, full.length - split) : full;
-  const right = hasSuffix ? full.slice(full.length - split) : '';
+  const body = hasSuffix ? full.slice(0, full.length - split) : full;
+  const suffix = hasSuffix ? full.slice(full.length - split) : '';
 
   /**
    * Hooks:
@@ -46,10 +39,13 @@ export const IdLabel: React.FC<IdLabelProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const isOver = pointer.is.over || pointer.is.focused;
+  const prefixColorProp = props.prefixColor ?? theme.fg;
+  const suffixColorProp = props.suffixColor ?? theme.fg;
 
   // Colors/opacity derived from pointer state:
   const baseColor = theme.fg;
-  const suffixColor = isOver ? highlightColor : baseColor;
+  const prefixColor = isOver ? prefixColorProp : baseColor;
+  const suffixColor = isOver ? suffixColorProp : baseColor;
   const containerOpacity = isOver ? 1 : 0.2;
 
   const styles = {
@@ -64,9 +60,12 @@ export const IdLabel: React.FC<IdLabelProps> = (props) => {
       gap,
       whiteSpace: 'nowrap',
     }),
-    prefix: css({ color: baseColor }),
-    left: css({ color: baseColor, opacity: hasSuffix ? 0.85 : 1 }),
-    suffix: css({ color: suffixColor }),
+    left: css({ color: prefixColor }),
+    middle: css({
+      color: baseColor,
+      opacity: !isOver ? 1 : hasSuffix ? 0.3 : 1,
+    }),
+    right: css({ color: suffixColor }),
   };
 
   const title = prefix ? `${prefix}${full ? ' ' + full : ''}` : full;
@@ -78,9 +77,9 @@ export const IdLabel: React.FC<IdLabelProps> = (props) => {
       role={'text'}
       {...pointer.handlers}
     >
-      {prefix && <span className={styles.prefix.class}>{prefix}</span>}
-      <span className={styles.left.class}>{left}</span>
-      {hasSuffix && <span className={styles.suffix.class}>{right}</span>}
+      {prefix && <span className={styles.left.class}>{prefix}</span>}
+      <span className={styles.middle.class}>{body}</span>
+      {hasSuffix && <span className={styles.right.class}>{suffix}</span>}
     </div>
   );
 };
