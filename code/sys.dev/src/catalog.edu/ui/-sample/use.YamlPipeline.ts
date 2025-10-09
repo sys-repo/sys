@@ -1,4 +1,4 @@
-import { type t, Obj, YamlPipeline } from './common.ts';
+import { type t, Is, Obj, YamlPipeline } from './common.ts';
 
 export type UseSlugArgs = {
   readonly yaml?: t.EditorYaml;
@@ -21,10 +21,7 @@ export function useYamlSlug(args: UseSlugArgs): UseSlugResult {
   const { yaml } = args;
 
   const rev = yaml?.rev ?? 0;
-  const path: t.ObjectPath =
-    typeof args.path === 'string'
-      ? Obj.Path.decode(args.path)
-      : (args.path ?? ([] as t.ObjectPath));
+  const path: t.ObjectPath = Is.string(args.path) ? Obj.Path.decode(args.path) : (args.path ?? []);
 
   if (!yaml?.data?.text?.after) {
     return { ok: false, rev, path };
