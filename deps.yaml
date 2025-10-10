@@ -144,7 +144,7 @@ deno.json:
 
   # Browser:
   - import: npm:csstype@3
-  - import: npm:ua-parser-js@2.0.5
+  - import: npm:ua-parser-js@2.0.6
 
   # UI:
   - import: npm:@svgdotjs/svg.js@3.2.5

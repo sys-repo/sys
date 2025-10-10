@@ -117,7 +117,7 @@
     "npm:strip-ansi@7.1.2": "7.1.2",
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.1.1": "10.1.1",
-    "npm:ua-parser-js@2.0.5": "2.0.5",
+    "npm:ua-parser-js@2.0.6": "2.0.6",
     "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.1.9__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:vite@*": "7.1.9_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:vite@7.1.9": "7.1.9_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
@@ -4540,13 +4540,12 @@
     "ua-is-frozen@0.1.2": {
       "integrity": "sha512-RwKDW2p3iyWn4UbaxpP2+VxwqXh0jpvdxsYpZ5j/MLLiQOfbsV5shpgQiw93+KMYQPcteeMQ289MaAFzs3G9pw=="
     },
-    "ua-parser-js@2.0.5": {
-      "integrity": "sha512-sZErtx3rhpvZQanWW5umau4o/snfoLqRcQwQIZ54377WtRzIecnIKvjpkd5JwPcSUMglGnbIgcsQBGAbdi3S9Q==",
+    "ua-parser-js@2.0.6": {
+      "integrity": "sha512-EmaxXfltJaDW75SokrY4/lXMrVyXomE/0FpIIqP2Ctic93gK7rlme55Cwkz8l3YZ6gqf94fCU7AnIkidd/KXPg==",
       "dependencies": [
         "detect-europe-js",
         "is-standalone-pwa",
-        "ua-is-frozen",
-        "undici"
+        "ua-is-frozen"
       ],
       "bin": true
     },
@@ -4558,9 +4557,6 @@
     },
     "undici-types@7.10.0": {
       "integrity": "sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag=="
-    },
-    "undici@7.16.0": {
-      "integrity": "sha512-QEg3HPMll0o3t2ourKwOeUAZ159Kn9mx5pnzHRQO8+Wixmh88YdZRiIwat0iNzNNXn0yoEtXJqFpyW7eM8BV7g=="
     },
     "unpipe@1.0.0": {
       "integrity": "sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ=="
@@ -4866,7 +4862,7 @@
       "npm:strip-ansi@7.1.2",
       "npm:tinycolor2@1.6.0",
       "npm:ts-essentials@10.1.1",
-      "npm:ua-parser-js@2.0.5",
+      "npm:ua-parser-js@2.0.6",
       "npm:ws@8.18.3",
       "npm:yaml@2.8.1"
     ],

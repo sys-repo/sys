@@ -83,7 +83,7 @@
     "strip-ansi": "npm:strip-ansi@7.1.2",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.1.1",
-    "ua-parser-js": "npm:ua-parser-js@2.0.5",
+    "ua-parser-js": "npm:ua-parser-js@2.0.6",
     "ws": "npm:ws@8.18.3",
     "yaml": "npm:yaml@2.8.1",
     "yaml/types": "npm:yaml@2.8.1/types"
