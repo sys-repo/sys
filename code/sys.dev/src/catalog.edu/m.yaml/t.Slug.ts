@@ -3,7 +3,6 @@
  * - Shared contracts across parse/validate stages.
  */
 import type { t } from './common.ts';
-
 export type * from './t.Slug.Error.ts';
 
 /**
