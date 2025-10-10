@@ -140,4 +140,17 @@ describe('diffToSplices', () => {
     expect(res).to.eql([{ index: 3, delCount: 1, insertText: 'e' }]);
     expect(applySplices(before, res)).to.eql(after);
   });
+
+  it('throws on non-string input', () => {
+    const badInputs: [unknown, unknown][] = [
+      [123, 'ok'],
+      ['ok', null],
+      [undefined, {}],
+    ];
+    for (const [before, after] of badInputs) {
+      expect(() => diffToSplices(before as any, after as any)).to.throw(
+        /diffToSplices: non-string input \(before:/,
+      );
+    }
+  });
 });

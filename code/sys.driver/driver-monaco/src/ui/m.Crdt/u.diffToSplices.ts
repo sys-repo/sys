@@ -10,6 +10,12 @@ type Splice = { index: number; delCount: number; insertText: string };
  * For typical typing it yields exactly one splice.
  */
 export function diffToSplices(before: string, after: string): Splice[] {
+  if (typeof before !== 'string' || typeof after !== 'string') {
+    const tb = typeof before;
+    const ta = typeof after;
+    throw new TypeError(`diffToSplices: non-string input (before:${tb}, after:${ta})`);
+  }
+
   if (before === after) return [];
 
   // Find common prefix:
