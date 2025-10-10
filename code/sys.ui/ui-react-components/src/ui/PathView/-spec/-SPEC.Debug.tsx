@@ -1,9 +1,16 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Signal, Str } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal, Str } from '../common.ts';
 
 type P = t.PathViewProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'prefix'>;
+type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'prefix'> & { debugClickHandler?: boolean };
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: true,
+  prefix: 'path:',
+  path: ['foo', 'bar'],
+  debugClickHandler: true,
+};
 
 /**
  * Types:
@@ -17,12 +24,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-    prefix: 'path:',
-    path: ['foo', 'bar'],
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -31,14 +32,22 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     path: s(snap.path),
     prefix: s(snap.prefix),
+    debugClickHandler: s(snap.debugClickHandler),
   };
   const p = props;
   const api = {
     props,
-    listen() {
-      Signal.listen(props);
-    },
+    reset,
+    listen,
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -46,6 +55,7 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
       d.prefix = p.prefix.value;
       d.path = p.path.value;
+      d.debugClickHandler = p.debugClickHandler.value;
     });
   });
 
@@ -117,6 +127,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `debug: onClickHandler: ${p.debugClickHandler.value ? '(ƒ) ← true' : 'false'}`}
+        onClick={() => Signal.toggle(p.debugClickHandler)}
+      />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );

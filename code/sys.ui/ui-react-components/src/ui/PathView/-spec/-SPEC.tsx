@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { PathView } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
@@ -21,7 +21,19 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <PathView debug={v.debug} theme={v.theme} path={v.path} prefix={v.prefix} />;
+        const onClick: t.PathViewClickHandler = (e) => {
+          console.info('⚡️ PathView.onClick:', e);
+          console.info('                   :.path:', e.path);
+        };
+        return (
+          <PathView
+            debug={v.debug}
+            theme={v.theme}
+            path={v.path}
+            prefix={v.prefix}
+            onClick={v.debugClickHandler ? onClick : undefined}
+          />
+        );
       });
   });
 

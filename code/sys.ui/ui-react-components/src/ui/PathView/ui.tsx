@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Str } from './common.ts';
+import { type t, Button, Color, css, Obj, Str } from './common.ts';
 
 /**
  * Component:
@@ -11,6 +11,14 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+
+  const segBtnBase = {
+    lineHeight: 1.2,
+    padding: '0 6px',
+    height: 16,
+    alignSelf: 'center',
+  } as const;
+
   const styles = {
     base: css({
       color: Color.alpha(theme.fg, 0.5),
@@ -25,15 +33,33 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
     divider: css({ color: Color.alpha(theme.fg, 0.25) }),
     last: css({ color: theme.fg }),
     empty: css({ opacity: 0.5 }),
+    segBtn: css(segBtnBase, { opacity: 0.85 }),
+    segBtnLast: css(segBtnBase, { opacity: 1 }),
   };
 
   const elPath = path.map((segment, i, { length }) => {
     const last = i >= length - 1;
-    const cn = last ? styles.last.class : undefined;
     const seg = Str.truncate(String(segment), maxSegmentLength);
+
+    const onClick = () => {
+      if (!props.onClick) return; // no handler → no-op
+      const full = path as t.ObjectPath;
+      const at = Obj.Path.slice(full, 0, i + 1);
+      props.onClick({
+        kind: 'segment',
+        path: { full, at, atIndex: i, atKey: segment },
+      });
+    };
+
     return (
       <React.Fragment key={i}>
-        <span className={cn}>{seg}</span>
+        <Button
+          label={seg}
+          style={last ? styles.segBtnLast : styles.segBtn}
+          theme={theme.name}
+          active={!!props.onClick}
+          onClick={onClick}
+        />
         {!last && <span className={styles.divider.class}>/</span>}
       </React.Fragment>
     );
