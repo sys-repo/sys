@@ -34,7 +34,7 @@ groups:
       subpaths: [bdd]
     - import: npm:chai@6.2.0
       subpaths: ['/', 'chai.js']
-    - import: npm:fake-indexeddb@6.2.2
+    - import: npm:fake-indexeddb@6.2.3
       subpaths: ['auto']
 
   automerge:
@@ -88,8 +88,8 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.65
-    - import: npm:@ai-sdk/openai@2.0.46
+    - import: npm:ai@5.0.68
+    - import: npm:@ai-sdk/openai@2.0.48
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.20.2
       subpaths: ['agent', 'memory', 'storage']
@@ -128,7 +128,7 @@ deno.json:
   - import: npm:@preact/signals-core@1.12.1
   - import: npm:pretty-bytes@7.1.0
   - import: npm:peerjs@1.5.5
-  - import: npm:ramda@0.31.3
+  - import: npm:ramda@0.32.0
   - import: npm:@types/ramda@0.31.1
   - import: npm:rxjs@7.8.2
     subpaths: [operators]
@@ -162,5 +162,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.23.22
+  - import: npm:motion@12.23.24
   - import: npm:hono@4.9.10
