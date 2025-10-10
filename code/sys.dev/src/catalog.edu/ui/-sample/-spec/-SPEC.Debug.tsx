@@ -1,4 +1,5 @@
 import React from 'react';
+import { CatalogObjectView } from '../../-dev/mod.ts';
 import { createRepo, YamlObjectView } from '../../../../ui/-test.ui.ts';
 import { Str, Yaml } from '../common.ts';
 
@@ -218,12 +219,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         editor={s.editor?.value}
       />
 
-      <ObjectView
-        style={{ marginTop: 15 }}
-        expand={1}
-        name={'catalog'}
-        data={{ 'schema:slug': '🐷' }}
-      />
+      <CatalogObjectView style={{ marginTop: 15 }} expand={1} />
     </div>
   );
 };

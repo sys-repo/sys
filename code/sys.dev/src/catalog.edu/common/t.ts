@@ -20,6 +20,7 @@ export type * from '@sys/types';
 /** User Interface: */
 export type { ColorTheme } from '@sys/color/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
+export type { ObjectViewProps } from '@sys/ui-react-components/t';
 
 /** Type Schema: */
 export type { Infer, Schema } from '@sys/schema/t';
