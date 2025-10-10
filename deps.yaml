@@ -120,7 +120,7 @@ deno.json:
   - import: npm:diff@8.0.2
   - import: npm:@farcaster/frame-sdk@0.1.11
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@19.0.2
+  - import: npm:happy-dom@20.0.0
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.5
   - import: npm:immer@10.1.3
