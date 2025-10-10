@@ -97,7 +97,7 @@ groups:
     - import: npm:@mastra/loggers@0.10.15
     - import: npm:@mastra/memory@0.15.6
     - import: npm:ollama@0.6.0
-    - import: npm:gpt-tokenizer@3.1.0
+    - import: npm:gpt-tokenizer@3.2.0
 
 deno.json:
   - group: std/deno
