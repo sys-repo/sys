@@ -73,6 +73,16 @@ export type ObjPathLib = {
    * - If `base` is empty and mode is 'absolute', returns `rel`.
    */
   join(base: t.ObjectPath, rel?: t.ObjectPath, mode?: t.PathMode): t.ObjectPath;
+
+  /**
+   * Returns a shallow slice of the given object path.
+   * Mirrors `Array.slice(start, end?)`, preserving `t.ObjectPath` typing.
+   *
+   * Example:
+   *   Obj.Path.slice(['foo', 'bar', 'baz'], 0, 2)
+   *   → ['foo', 'bar']
+   */
+  slice(path: t.ObjectPath, start: number, end?: number): t.ObjectPath;
 };
 
 /**

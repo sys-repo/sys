@@ -224,4 +224,40 @@ describe('Obj.Path', () => {
       expect(Path.join(A, R, 'relative')).to.eql(R); //  relative: identity(rel)
     });
   });
+
+  describe('Path.slice', () => {
+    const base: t.ObjectPath = ['a', 'b', 'c', 'd'];
+
+    it('returns a subpath (canonical slice semantics)', () => {
+      const res = Path.slice(base, 1, 3);
+      expect(res).to.eql(['b', 'c']);
+    });
+
+    it('omitting end returns remainder of path', () => {
+      const res = Path.slice(base, 2);
+      expect(res).to.eql(['c', 'd']);
+    });
+
+    it('start beyond length returns empty array', () => {
+      const res = Path.slice(base, 10);
+      expect(res).to.eql([]);
+    });
+
+    it('negative start indexes from end', () => {
+      const res = Path.slice(base, -2);
+      expect(res).to.eql(['c', 'd']);
+    });
+
+    it('negative end is relative to end', () => {
+      const res = Path.slice(base, 0, -1);
+      expect(res).to.eql(['a', 'b', 'c']);
+    });
+
+    it('does not mutate the original path (immutability)', () => {
+      const copy = [...base];
+      const res = Path.slice(base, 1, 3);
+      expect(base).to.eql(copy); //       original unchanged
+      expect(res).to.not.equal(base); //  new instance
+    });
+  });
 });
