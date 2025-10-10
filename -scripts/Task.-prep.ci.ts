@@ -1,10 +1,10 @@
-import { DenoFile, Fs, c } from './common.ts';
 import { Paths } from './-PATHS.ts';
+import { DenoFile, Fs, c } from './common.ts';
 
 export async function main() {
   const tmpl = {
-    header: (await Fs.readText('.github/jsr.header.yaml')).data!,
-    module: (await Fs.readText('.github/jsr.module.yaml')).data!,
+    header: (await Fs.readText('.github/-tmpl/jsr.header.yaml')).data!,
+    module: (await Fs.readText('.github/-tmpl/jsr.module.yaml')).data!,
   };
 
   const incl = ['code/sys/', 'code/sys.ui/', 'code/sys.driver/', 'code/sys.dev', 'code/-tmpl'];
