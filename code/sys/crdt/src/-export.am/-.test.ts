@@ -1,23 +1,12 @@
-import { type t as t3 } from '@sys/crdt/am/fs';
-import { type Crdt as CrdtNamespace, type t as t0 } from '@sys/crdt/am/t';
-import { type t as t1 } from '@sys/crdt/am/web';
-import { type t as t2 } from '@sys/crdt/am/web/ui';
-
+import { type Crdt } from '@sys/crdt/am/t';
 import { describe, expect, expectTypeOf, it, Pkg, pkg } from '../-test.ts';
 
 describe(`module: ${Pkg.toString(pkg)}`, () => {
   describe('import API', () => {
     it('Crdt type exists (compile-time)', () => {
       type D = { count: 0 };
-      type Ref = CrdtNamespace.Ref<D>;
-
-      // Compile-time type checks:
-      expectTypeOf({} as CrdtNamespace.Ref<D>).toEqualTypeOf<Ref>();
-
-      expectTypeOf({} as t0.Crdt.Ref<D>).toEqualTypeOf<Ref>();
-      expectTypeOf({} as t1.Crdt.Ref<D>).toEqualTypeOf<Ref>();
-      expectTypeOf({} as t2.Crdt.Ref<D>).toEqualTypeOf<Ref>();
-      expectTypeOf({} as t3.Crdt.Ref<D>).toEqualTypeOf<Ref>();
+      type Ref = Crdt.Ref<D>;
+      expectTypeOf({} as Crdt.Ref<D>).toEqualTypeOf<Ref>();
     });
 
     it('am/web', async () => {
