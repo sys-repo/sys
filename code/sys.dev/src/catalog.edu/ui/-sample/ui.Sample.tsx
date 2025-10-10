@@ -1,18 +1,24 @@
 import React from 'react';
 import { type t, Color, css, Monaco } from './common.ts';
-import { useYamlSlug } from './use.YamlPipeline.ts';
+import { useSlugFromYaml } from './use.SlugFromYaml.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
   const { debug = false, bus$, repo, path, localstorage, signals } = props;
 
-  // 1) Editor ready handles:
-  const [ready, setReady] = React.useState<null | {
-    monaco: t.Monaco.Monaco;
-    editor: t.Monaco.Editor;
-  }>(null);
+  // Editor ready handles:
+  type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
+  const [ready, setReady] = React.useState<ReadyCtx>();
 
   const yaml = signals?.yaml?.value;
-  const slug = useYamlSlug({ yaml, path });
+  const slug = useSlugFromYaml({ yaml, path });
+
+  // Attach diagnostic visual-markers when ready:
+  Monaco.Yaml.useYamlErrorMarkers({
+    enabled: !!ready,
+    monaco: ready?.monaco,
+    editor: ready?.editor,
+    errors: slug.diagnostics,
+  });
 
   /**
    * Render:
@@ -25,6 +31,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Monaco.Yaml.Editor
         debug={debug}
+        diagnostics={'syntax'}
         theme={theme.name}
         bus$={bus$}
         repo={repo}
@@ -32,9 +39,11 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         signals={signals}
         documentId={{ localstorage }}
         onReady={(e) => {
-          setReady({ monaco: e.monaco, editor: e.editor });
+          const { monaco, editor } = e;
+
           console.info(`⚡️ Monaco.Yaml.Editor:onReady:`, e);
           e.$.subscribe((evt) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, evt));
+          setReady({ monaco, editor });
         }}
       />
     </div>
