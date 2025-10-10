@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Monaco } from './common.ts';
-import { useSlugFromYaml } from './use.SlugFromYaml.ts';
+import { type t, Color, css, Monaco, useSlugFromYaml } from './common.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
   const { debug = false, bus$, repo, path, localstorage, signals } = props;
