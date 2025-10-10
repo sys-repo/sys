@@ -293,5 +293,12 @@ describe('Obj.Path', () => {
       // @ts-expect-error end must be a number if provided
       Path.slice(base, 0, '2');
     });
+
+    it('jsdoc samples (see ./t.ts)', () => {
+      const p: t.ObjectPath = ['a', 'b', 'c', 'd'];
+      expect(Path.slice(p, 1, 3)).to.eql(['b', 'c']);
+      expect(Path.slice(p, -2)).to.eql(['c', 'd']);
+      expect(Path.slice(p, 0, -1)).to.eql(['a', 'b', 'c']);
+    });
   });
 });
