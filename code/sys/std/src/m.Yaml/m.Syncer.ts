@@ -35,6 +35,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     rev: 0,
     ok: isOk(),
     value: undefined,
+    ast: undefined,
     ops: [],
     path,
     text: { before: '', after: '' },
@@ -120,6 +121,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
     // Alert listeners:
     emitChange({
       value: ast.errors.length === 0 ? value : undefined,
+      ast,
       ops,
       path,
       text: { before, after },

@@ -72,6 +72,9 @@ export type YamlSyncParsed<T = unknown> = {
   /** The parsed YAML output value. */
   readonly value?: t.YamlValue<T>;
 
+  /** Parsed AST for structural introspection and navigation. */
+  readonly ast?: t.Yaml.Ast;
+
   /** Standard error (super set of parse errors). */
   readonly error?: t.StdError;
 
