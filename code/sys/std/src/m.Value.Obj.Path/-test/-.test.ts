@@ -233,7 +233,7 @@ describe('Obj.Path', () => {
       expect(res).to.eql(['b', 'c']);
     });
 
-    it('omitting end returns remainder of path', () => {
+    it('omitting end returns remainder of path (overload: (path, start))', () => {
       const res = Path.slice(base, 2);
       expect(res).to.eql(['c', 'd']);
     });
@@ -253,11 +253,45 @@ describe('Obj.Path', () => {
       expect(res).to.eql(['a', 'b', 'c']);
     });
 
+    it('negative start beyond -length clamps to whole array', () => {
+      const res = Path.slice(base, -99);
+      expect(res).to.eql(['a', 'b', 'c', 'd']);
+    });
+
+    it('end less than start yields empty array (half-open interval)', () => {
+      const res = Path.slice(base, 3, 1);
+      expect(res).to.eql([]);
+    });
+
+    it('start === length yields empty array', () => {
+      const res = Path.slice(base, base.length);
+      expect(res).to.eql([]);
+    });
+
+    it('end === length behaves canonically', () => {
+      const res = Path.slice(base, 1, base.length);
+      expect(res).to.eql(['b', 'c', 'd']);
+    });
+
+    it('empty input path → always empty result', () => {
+      const empty: t.ObjectPath = [];
+      expect(Path.slice(empty, 0)).to.eql([]);
+      expect(Path.slice(empty, 0, 1)).to.eql([]);
+      expect(Path.slice(empty, -1)).to.eql([]);
+    });
+
     it('does not mutate the original path (immutability)', () => {
       const copy = [...base];
       const res = Path.slice(base, 1, 3);
-      expect(base).to.eql(copy); //       original unchanged
-      expect(res).to.not.equal(base); //  new instance
+      expect(base).to.eql(copy); // original unchanged
+      expect(res).to.not.equal(base); // new instance
+    });
+
+    it('type: invalid overloads are rejected (compile-time)', () => {
+      // @ts-expect-error start must be a number
+      Path.slice(base, '1');
+      // @ts-expect-error end must be a number if provided
+      Path.slice(base, 0, '2');
     });
   });
 });

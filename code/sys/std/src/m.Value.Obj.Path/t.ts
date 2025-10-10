@@ -11,7 +11,7 @@ type O = Record<string, unknown>;
 /**
  * Tools for working with objects via abstract path arrays.
  */
-export type ObjPathLib = {
+export interface ObjPathLib {
   /** Predicates over object-paths. */
   readonly Is: t.ObjPathIsLib;
 
@@ -26,6 +26,7 @@ export type ObjPathLib = {
    * - Uses the given codec (defaults to `pointer`).
    */
   encode(path: t.ObjectPath, opts?: t.PathEncodeOptions): string;
+
   /**
    * Decode a string → path array.
    * - Uses the given codec (defaults to `pointer`).
@@ -76,14 +77,16 @@ export type ObjPathLib = {
 
   /**
    * Returns a shallow slice of the given object path.
-   * Mirrors `Array.slice(start, end?)`, preserving `t.ObjectPath` typing.
+   * Mirrors `Array.prototype.slice(start, end?)` (pure, half-open, immutable).
    *
-   * Example:
-   *   Obj.Path.slice(['foo', 'bar', 'baz'], 0, 2)
-   *   → ['foo', 'bar']
+   * Examples:
+   *   Obj.Path.slice(['a','b','c','d'], 1, 3)  → ['b','c']
+   *   Obj.Path.slice(['a','b','c','d'], -2)    → ['c','d']
+   *   Obj.Path.slice(['a','b','c','d'], 0, -1) → ['a','b','c']
    */
-  slice(path: t.ObjectPath, start: number, end?: number): t.ObjectPath;
-};
+  slice(path: t.ObjectPath, start: number): t.ObjectPath;
+  slice(path: t.ObjectPath, start: number, end: number): t.ObjectPath;
+}
 
 /**
  * Tools that mutate an object in-place using
