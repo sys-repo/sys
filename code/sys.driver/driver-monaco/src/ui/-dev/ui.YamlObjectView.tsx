@@ -8,9 +8,9 @@ export type YamlObjectViewProps = {
   title?: string;
   editor?: t.Monaco.Editor;
   //
+  expand?: t.ObjectViewProps['expand'];
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  expand?: t.ObjectViewProps['expand'];
   debug?: boolean;
 };
 
