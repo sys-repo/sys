@@ -154,7 +154,7 @@ describe('useYamlErrorMarkers', () => {
     spy.restore();
   });
 
-  it('no markers when enabled=false', () => {
+  it('clears markers when enabled=false', () => {
     const monaco = MonacoFake.monaco({ cast: true });
     const model = MonacoFake.model('a\n');
     const editor = MonacoFake.editor(model);
@@ -165,7 +165,14 @@ describe('useYamlErrorMarkers', () => {
       initialProps: { monaco, editor, errors: [err], enabled: false },
     });
 
-    expect(spy.calls.length).to.eql(0);
+    // Clears existing markers on mount:
+    expect(spy.calls.length).to.eql(1);
+
+    // Ensures markers array is empty:
+    const args = spy.calls[0].args; // [model, owner, markers]
+    expect(Array.isArray(args[2])).to.eql(true);
+    expect(args[2].length).to.eql(0);
+
     spy.restore();
   });
 
