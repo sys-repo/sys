@@ -1,5 +1,7 @@
 /**
  * @module Slug
- * Core slug types, trait bindings, registries, and concrete trait schemas.
+ * Core slug schemas, trait schemas, and registry bindings.
  */
-export { SlugSchema, TraitBindingSchema, TraitDefSchema } from './schema.slug/mod.ts';
+export * from './schema.slug/mod.ts';
+export * from './schema.trait.registry/mod.ts';
+export * from './schema.traits/mod.ts';
