@@ -98,6 +98,11 @@ groups:
     - import: npm:ollama@0.6.0
     - import: npm:gpt-tokenizer@3.2.0
 
+  yaml:
+    - import: npm:yaml-source-map@2.1.1
+    - import: npm:yaml@2.8.1
+      subpaths: [types]
+
 deno.json:
   - group: std/deno
   - group: std/testing
@@ -107,6 +112,7 @@ deno.json:
   - group: automerge
   - group: ui/monaco
   - group: ui/prosemirror
+  - group: yaml
 
   # CLI tools:
   - import: jsr:@cliffy/keypress@1.0.0-rc.8
@@ -134,8 +140,6 @@ deno.json:
   - import: npm:strip-ansi@7.1.2
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
-  - import: npm:yaml@2.8.1
-    subpaths: [types]
 
   # Websockets:
   - import: npm:ws@8.18.3

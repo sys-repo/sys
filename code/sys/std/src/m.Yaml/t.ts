@@ -4,6 +4,7 @@ import type { t } from './common.ts';
 export type * from './t.Diagnostic.ts';
 export type * from './t.Is.ts';
 export type * from './t.Path.ts';
+export type * from './t.SourceMap.ts';
 export type * from './t.Syncer.ts';
 export type * from './t.Value.ts';
 
@@ -75,6 +76,9 @@ export type YamlLib = {
   /** YAML path helpers. */
   readonly Path: t.YamlPathLib;
   readonly path: t.YamlPathLib['make'];
+
+  /** Resolve an object-path to its corresponding source positions. */
+  readonly locate: t.YamlLocateFn;
 };
 
 /** Response from the `Yaml.parse` method. */
