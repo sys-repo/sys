@@ -1,7 +1,9 @@
 /**
  * @module Slug
- * Core slug schemas, trait schemas, and registry bindings.
+ * Core slug schemas, concrete trait schemas, and the default trait registry.
  */
-export * from './schema.slug/mod.ts';
-export * from './schema.trait.registry/mod.ts';
-export * from './schema.traits/mod.ts';
+export { SlugSchema, TraitBindingSchema, TraitDefSchema } from './schema.slug/mod.ts';
+export { TraitRegistryDefault } from './schema.trait.registry/mod.ts';
+export { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from './schema.traits/mod.ts';
+
+export type { CatalogTraitId } from './schema.trait.registry/m.ids.ts';

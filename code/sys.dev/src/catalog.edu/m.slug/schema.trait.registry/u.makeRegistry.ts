@@ -2,13 +2,19 @@ import { type t } from './common.ts';
 
 /**
  * Construct a simple in-memory registry.
+ * - Throws if duplicate ids are provided.
  */
-export function makeRegistry(all: readonly t.TraitRegistryEntry[]): t.TraitRegistry {
-  const map = new Map<t.TraitId, t.TraitRegistryEntry>(all.map((d) => [d.id, d]));
+export function makeRegistry<Id extends t.TraitId = t.TraitId>(
+  all: readonly t.TraitRegistryEntry<Id>[],
+): t.TraitRegistry<Id> {
+  const seen = new Set<Id>();
+  for (const { id } of all) {
+    if (seen.has(id)) throw new Error(`TraitRegistry: duplicate id "${id}"`);
+    seen.add(id);
+  }
+  const map = new Map<Id, t.TraitRegistryEntry<Id>>(all.map((d) => [d.id, d] as const));
   return {
     all,
-    get(id) {
-      return map.get(id);
-    },
+    get: (id) => map.get(id),
   };
 }
