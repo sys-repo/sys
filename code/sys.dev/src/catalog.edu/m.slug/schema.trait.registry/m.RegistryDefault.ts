@@ -1,16 +1,6 @@
 import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from '../schema.traits/mod.ts';
 import type { t } from './common.ts';
-
-/** Construct a simple in-memory registry. */
-function makeRegistry(all: readonly t.TraitEntry[]): t.TraitRegistry {
-  const map = new Map<t.TraitId, t.TraitEntry>(all.map((d) => [d.id, d]));
-  return {
-    all,
-    get(id) {
-      return map.get(id);
-    },
-  };
-}
+import { makeRegistry } from './u.ts';
 
 /**
  * Default trait registry.

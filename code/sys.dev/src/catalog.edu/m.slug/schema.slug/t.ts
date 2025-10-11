@@ -19,19 +19,3 @@ export type TraitId = t.StringId;
  * - Allows multiple instances of the same trait type under different aliases.
  */
 export type TraitAlias = string;
-
-/**
- * Definition of a registered trait type and its schema.
- */
-export type TraitEntry = {
-  readonly id: TraitId;
-  readonly propsSchema: t.TSchema;
-};
-
-/**
- * Collection of trait definitions with lookup utilities.
- */
-export type TraitRegistry = {
-  readonly all: readonly TraitEntry[];
-  get(id: TraitId): TraitEntry | undefined;
-};
