@@ -4,6 +4,6 @@
  */
 export type { CatalogTraitId } from './schema.trait.registry/m.ids.ts';
 
-export { SlugSchema, TraitBindingSchema, TraitDefSchema } from './schema.slug/mod.ts';
-export { TraitRegistryDefault } from './schema.trait.registry/mod.ts';
-export { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from './schema.traits/mod.ts';
+export * from './schema.trait.registry/mod.ts';
+export * from './schema.traits/mod.ts';
+export * from './schema.validation/mod.ts';
