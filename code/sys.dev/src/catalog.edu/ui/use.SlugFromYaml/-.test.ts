@@ -1,6 +1,6 @@
 import { c, describe, expect, expectTypeOf, it, Str } from '../../-test.ts';
 import { YamlPipeline, type t } from './common.ts';
-import { useSlugFromYaml, type UseSlugResult } from './use.SlugFromYaml.ts';
+import { useSlugFromYaml } from './use.SlugFromYaml.ts';
 
 function makeYaml(rev = 0, ast?: unknown): t.EditorYaml {
   return {
@@ -19,7 +19,7 @@ describe('hook: useSlugFromYaml', () => {
   describe('mocked', () => {
     it('typing: returns UseSlugResult', () => {
       const res = useSlugFromYaml({ yaml: makeYaml() });
-      expectTypeOf(res).toEqualTypeOf<UseSlugResult>();
+      expectTypeOf(res).toEqualTypeOf<t.UseSlugFromYamlResult>();
     });
 
     it('no yaml / no ast → ok=false, diagnostics=[], result:undefined, rev=0', () => {
@@ -79,7 +79,7 @@ describe('hook: useSlugFromYaml', () => {
       const res = useSlugFromYaml({ yaml, path: '/foo/props/primary' });
 
       // Type contract stays tight:
-      expectTypeOf(res).toEqualTypeOf<UseSlugResult>();
+      expectTypeOf(res).toEqualTypeOf<t.UseSlugFromYamlResult>();
 
       // Invariants we can assert regardless of schema specifics:
       expect(res.rev).to.eql(7);

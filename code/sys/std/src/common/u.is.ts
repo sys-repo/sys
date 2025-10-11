@@ -1,47 +1,47 @@
 type O = Record<string, unknown>;
 
 /**
- * Determine if the given input is typeof {object} and not Null.
+ * True if input is a non-null object (includes arrays, functions, etc.).
  */
-export function isObject(input: any): input is object {
+export function isObject(input: unknown): input is object {
   return typeof input === 'object' && input !== null;
 }
 
 /**
- * Determine if the given input is a simple {key:value} record object.
+ * True if input is a simple {key:value} record (non-null, non-array).
  */
-export function isRecord<T extends O>(input: any): input is T {
+export function isRecord<T extends Record<string, unknown>>(input: unknown): input is T {
   return isObject(input) && !Array.isArray(input);
 }
 
 /**
- * Determine if the given object is empty of all fields.
+ * True if input is a record and contains no own enumerable keys.
  */
-export function isEmptyRecord<T extends O>(input: any): input is T {
+export function isEmptyRecord<T extends Record<string, unknown>>(input: unknown): input is T {
   return isRecord(input) && Object.keys(input).length === 0;
 }
 
 /**
- * Test whether a value is a *plain* object literal (strict).
- * - Excludes arrays, functions, class instances, Dates, etc.
- * - Prototype must be exactly Object.prototype.
+ * True if input is a plain object literal (prototype === Object.prototype or null).
+ * - Excludes arrays, functions, class instances, Date, Map, Set, etc.
+ * - Cross-realm safe via Object.prototype.toString.
  */
-export const isPlainObject = (input?: unknown): input is Record<PropertyKey, unknown> => {
-  if (input === null || typeof input !== 'object') return false;
-  if (Array.isArray(input)) return false;
-  if (Object.prototype.toString.call(input) !== '[object Object]') return false; // cross-realm
+export const isPlainObject = (input: unknown): input is Record<PropertyKey, unknown> => {
+  if (!isRecord(input)) return false;
+  const tag = Object.prototype.toString.call(input);
+  if (tag !== '[object Object]') return false; // cross-realm guard
   const proto = Object.getPrototypeOf(input);
-  return proto === Object.prototype || proto === null; // ← allow null-proto
+  return proto === Object.prototype || proto === null;
 };
 
 /**
- * Test whether a value is a *plain record* (object-literal or null-prototype).
- * - Accepts Object.create(null) for dictionary/record use-cases.
- * - Same exclusions as above otherwise.
+ * True if input is a "plain record" (null-prototype dictionary only).
+ * - Accepts Object.create(null).
+ * - Excludes arrays, prototypes, and class instances.
  */
-export const isPlainRecord = (input?: unknown): input is Record<PropertyKey, unknown> => {
-  if (input === null || typeof input !== 'object') return false;
-  if (Array.isArray(input)) return false;
-  if (Object.prototype.toString.call(input) !== '[object Object]') return false; // cross-realm
-  return Object.getPrototypeOf(input) === null; // ← **only** null-proto
+export const isPlainRecord = (input: unknown): input is Record<PropertyKey, unknown> => {
+  if (!isRecord(input)) return false;
+  const tag = Object.prototype.toString.call(input);
+  if (tag !== '[object Object]') return false; // cross-realm guard
+  return Object.getPrototypeOf(input) === null;
 };

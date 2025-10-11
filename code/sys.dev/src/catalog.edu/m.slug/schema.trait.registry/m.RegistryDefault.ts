@@ -11,6 +11,6 @@ const ENTRIES = [
 /**
  * Default trait registry.
  */
-export const TraitRegistryDefault: t.TraitRegistry<CatalogTraitId> = makeRegistry(
-  ENTRIES satisfies readonly t.TraitRegistryEntry<CatalogTraitId>[],
+export const TraitRegistryDefault: t.SlugTraitRegistry<CatalogTraitId> = makeRegistry(
+  ENTRIES satisfies readonly t.SlugTraitRegistryEntry<CatalogTraitId>[],
 );
