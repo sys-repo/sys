@@ -3,7 +3,6 @@ import type { t } from './common.ts';
 import { Diagnostic } from './m.Diagnostic.ts';
 import { Is } from './m.Is.ts';
 import { Path } from './m.Path.ts';
-import { Sourcemap } from './m.Sourcemap.ts';
 import { Syncer } from './m.Syncer.ts';
 import { parse, parseAst } from './u.parse.ts';
 
@@ -12,7 +11,6 @@ import { parse, parseAst } from './u.parse.ts';
  */
 export const Yaml: t.YamlLib = {
   Is,
-  Sourcemap,
   Diagnostic,
 
   parse,

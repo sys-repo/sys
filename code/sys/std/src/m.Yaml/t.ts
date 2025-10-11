@@ -4,12 +4,8 @@ import type { t } from './common.ts';
 export type * from './t.Diagnostic.ts';
 export type * from './t.Is.ts';
 export type * from './t.Path.ts';
-export type * from './t.Sourcemap.ts';
 export type * from './t.Syncer.ts';
 export type * from './t.Value.ts';
-
-/** A single line/column position. */
-export type YamlLinePos = { readonly line: number; readonly col: number };
 
 /**
  * Concise YAML type namespace.
@@ -31,8 +27,6 @@ export namespace Yaml {
 
   // Ast:
   export type Ast = t.YamlAst;
-  export type SourceMapLike = t.YamlSourceMapLike;
-  export type TokenPos = t.YamlTokenPos;
 }
 
 /**
@@ -49,6 +43,9 @@ export type YamlError = Y.YAMLError;
  * - `[start, valueEnd, nodeEnd]` — full YAML AST span.
  */
 export type YamlRange = readonly [number, number] | readonly [number, number, number];
+
+/** A single line/column position. */
+export type YamlLinePos = { readonly line: number; readonly col: number };
 
 /**
  * Line/column position tuple within the YAML source.
@@ -72,8 +69,6 @@ export type YamlLib = {
   readonly Is: t.YamlIsLib;
   /** Helpers for normalizing YAML parser errors into standard diagnostics. */
   readonly Diagnostic: t.YamlDiagnosticLib;
-  /** Tools for introspecting through YAML source maps. */
-  readonly Sourcemap: t.YamlSourcemapLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: t.StringYaml): YamlParseResponse<T>;

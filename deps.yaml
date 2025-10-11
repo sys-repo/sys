@@ -99,7 +99,6 @@ groups:
     - import: npm:gpt-tokenizer@3.2.0
 
   yaml:
-    - import: npm:yaml-source-map@2.1.1
     - import: npm:yaml@2.8.1
       subpaths: [types]
 
