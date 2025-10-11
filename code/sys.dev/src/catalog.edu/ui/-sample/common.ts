@@ -4,8 +4,9 @@ export { Crdt } from '@sys/driver-automerge/web/ui';
 export { Monaco } from '@sys/driver-monaco';
 
 export { YamlPipeline } from '../../m.yaml/mod.ts';
+export { useSlugStructuralDiagnostics } from '../use.ts';
+
 export * from '../common.ts';
-export { useSlugFromYaml } from '../use.SlugFromYaml/mod.ts';
 
 /**
  * Constants:

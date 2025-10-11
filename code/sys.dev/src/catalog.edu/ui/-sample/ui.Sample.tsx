@@ -1,15 +1,16 @@
 import React from 'react';
-import { type t, Color, css, Monaco, useSlugFromYaml } from './common.ts';
+import { type t, Color, css, Monaco, useSlugStructuralDiagnostics } from './common.ts';
 
 export const Sample: React.FC<t.SampleProps> = (props) => {
-  const { debug = false, bus$, repo, path, localstorage, signals } = props;
+  const { debug = false, path, bus$, repo, localstorage, signals } = props;
 
   // Editor ready handles:
   type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
   const [ready, setReady] = React.useState<ReadyCtx>();
 
+
   const yaml = signals?.yaml?.value;
-  const slug = useSlugFromYaml({ yaml, path });
+  const slug = useSlugStructuralDiagnostics({ yaml, path });
 
   // Attach diagnostic visual-markers when ready:
   Monaco.Yaml.useYamlErrorMarkers({
@@ -38,9 +39,9 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         signals={signals}
         documentId={{ localstorage }}
         onReady={(e) => {
+          console.info(`⚡️ Monaco.Yaml.Editor:onReady:`, e);
           const { monaco, editor } = e;
 
-          console.info(`⚡️ Monaco.Yaml.Editor:onReady:`, e);
           e.$.subscribe((evt) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, evt));
           setReady({ monaco, editor });
         }}

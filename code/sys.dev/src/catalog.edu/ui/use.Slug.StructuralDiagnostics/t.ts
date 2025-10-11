@@ -1,15 +1,15 @@
 import type { t } from './common.ts';
 
 /**
- * React-style hook for deriving a typed `Slug` object from YAML editor state.
+ * Hook for deriving a typed `Slug` object from YAML editor state.
  * - Parses the current YAML AST.
  * - Extracts the slug object at the given `path`.
  * - Returns validation diagnostics and revision tracking info.
  */
 export type UseSlugFromYaml = (args: {
-  /** Current YAML editor snapshot (with AST + revision). */
+  /** Current YAML editor snapshot. */
   readonly yaml?: t.EditorYaml;
-  /** Optional object path within the YAML to extract from (array or pointer string). */
+  /** Optional path within the YAML to extract from. */
   readonly path?: t.ObjectPath | string;
 }) => UseSlugFromYamlResult;
 
