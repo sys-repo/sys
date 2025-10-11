@@ -28,7 +28,7 @@ export type YamlTokenPos = {
   /** Byte/character offsets `[start, end)` within the source. */
   readonly pos: [number, number];
   /** 1-based line/column coordinates `[start, end]`. */
-  readonly linePos: [t.LinePos, t.LinePos];
+  readonly linePos: [t.YamlLinePos, t.YamlLinePos];
 };
 
 /**

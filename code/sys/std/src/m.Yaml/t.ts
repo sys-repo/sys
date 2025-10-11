@@ -9,17 +9,23 @@ export type * from './t.Syncer.ts';
 export type * from './t.Value.ts';
 
 /** A single line/column position. */
-export type LinePos = { readonly line: number; readonly col: number };
+export type YamlLinePos = { readonly line: number; readonly col: number };
 
 /**
  * Concise YAML type namespace.
  */
 export namespace Yaml {
   export type Ast = t.YamlAst;
-  export type Range = t.YamlRange;
+
   // Errors:
   export type Error = t.YamlError;
   export type Diagnostic = t.YamlDiagnostic;
+
+  // Position:
+  export type Range = t.YamlRange;
+  export type LinePos = t.YamlLinePos;
+  export type LinePosTuple = t.YamlLinePosTuple;
+
   // Values:
   export type Node = Y.Node;
   export type Pair = Y.Pair;
@@ -52,8 +58,8 @@ export type YamlRange = readonly [number, number] | readonly [number, number, nu
  * This form is often used by editors or LSP-style diagnostics.
  */
 export type YamlLinePosTuple =
-  | readonly [t.LinePos] //              ← single
-  | readonly [t.LinePos, t.LinePos]; //  ← pair
+  | readonly [t.YamlLinePos] //                  ← single
+  | readonly [t.YamlLinePos, t.YamlLinePos]; //  ← pair
 
 /**
  * Helpers for working with YAML.
