@@ -1,4 +1,4 @@
-import { c, describe, expect, it, Value } from '../-test.ts';
+import { c, describe, expect, it, Value } from '../../-test.ts';
 import { SlugSchema, TraitBindingSchema, TraitDefSchema } from './mod.ts';
 
 describe(`catalog.edu/slug`, () => {

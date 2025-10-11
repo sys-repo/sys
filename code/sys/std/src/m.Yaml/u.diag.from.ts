@@ -25,8 +25,8 @@ export const fromYamlError: D['fromYamlError'] = (err: t.Yaml.Error) => {
   // LinePos:
   const linePos =
     Array.isArray(err.linePos) && err.linePos.length > 0
-      ? ((): readonly [t.LinePos] | readonly [t.LinePos, t.LinePos] => {
-          const [a, b] = err.linePos as readonly [t.LinePos, t.LinePos?];
+      ? ((): readonly [t.YamlLinePos] | readonly [t.YamlLinePos, t.YamlLinePos] => {
+          const [a, b] = err.linePos as readonly [t.YamlLinePos, t.YamlLinePos?];
           return b ? ([a, b] as const) : ([a] as const);
         })()
       : undefined;

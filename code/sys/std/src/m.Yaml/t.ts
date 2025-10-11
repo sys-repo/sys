@@ -1,6 +1,7 @@
 import type * as Y from 'yaml';
 import type { t } from './common.ts';
 
+export type * from './t.Ast.ts';
 export type * from './t.Diagnostic.ts';
 export type * from './t.Is.ts';
 export type * from './t.Path.ts';
@@ -8,21 +9,30 @@ export type * from './t.Syncer.ts';
 export type * from './t.Value.ts';
 
 /** A single line/column position. */
-export type LinePos = { readonly line: number; readonly col: number };
+export type YamlLinePos = { readonly line: number; readonly col: number };
 
 /**
  * Concise YAML type namespace.
  */
 export namespace Yaml {
-  export type Ast = t.YamlAst;
-  export type Range = t.YamlRange;
   // Errors:
   export type Error = t.YamlError;
   export type Diagnostic = t.YamlDiagnostic;
+
+  // Position:
+  export type Range = t.YamlRange;
+  export type LinePos = t.YamlLinePos;
+  export type LinePosTuple = t.YamlLinePosTuple;
+
   // Values:
   export type Node = Y.Node;
   export type Pair = Y.Pair;
   export type Scalar = Y.Scalar;
+
+  // Ast:
+  export type Ast = t.YamlAst;
+  export type SourceMapLike = t.YamlSourceMapLike;
+  export type TokenPos = t.YamlTokenPos;
 }
 
 /**
@@ -51,8 +61,8 @@ export type YamlRange = readonly [number, number] | readonly [number, number, nu
  * This form is often used by editors or LSP-style diagnostics.
  */
 export type YamlLinePosTuple =
-  | readonly [t.LinePos] //              ← single
-  | readonly [t.LinePos, t.LinePos]; //  ← pair
+  | readonly [t.YamlLinePos] //                  ← single
+  | readonly [t.YamlLinePos, t.YamlLinePos]; //  ← pair
 
 /**
  * Helpers for working with YAML.
@@ -62,6 +72,8 @@ export type YamlLib = {
   readonly Is: t.YamlIsLib;
   /** Helpers for normalizing YAML parser errors into standard diagnostics. */
   readonly Diagnostic: t.YamlDiagnosticLib;
+  /** Tools for introspecting YAML Abstract Syntax Trees (ASTs) and associated source maps. */
+  readonly Ast: t.YamlAstLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: t.StringYaml): YamlParseResponse<T>;

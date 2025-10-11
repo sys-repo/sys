@@ -22,7 +22,7 @@ const NULL_RANGE: t.Monaco.I.IRange = {
   endColumn: -1,
 };
 
-export const Severity: Record<NonNullable<t.DiagnosticSeverity>, number> = {
+export const Severity: t.DiagnosticSeverityConst = {
   Hint: 1,
   Info: 2,
   Warning: 4,

@@ -21,7 +21,7 @@ export const toYamlError: D['toYamlError'] = (d: t.Yaml.Diagnostic) => {
   const pos: [number, number] = [start, end]; //      ← mutable tuple for parser compatibility
 
   // Optional line/col coordinates (expand single → pair)
-  type T = [t.LinePos, t.LinePos];
+  type T = [t.YamlLinePos, t.YamlLinePos];
   const linePos =
     Array.isArray(d.linePos) && d.linePos.length > 0
       ? ((d.linePos.length === 2

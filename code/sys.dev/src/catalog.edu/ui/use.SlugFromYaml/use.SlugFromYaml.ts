@@ -1,20 +1,8 @@
-import { type t, Is, Obj, YamlPipeline } from './common.ts';
+import { type t, Obj, YamlPipeline } from './common.ts';
 
-type Args = {
-  readonly yaml?: t.EditorYaml;
-  readonly path?: t.ObjectPath | string;
-};
-
-export type UseSlugResult = {
-  readonly ok: boolean;
-  readonly rev: number;
-  readonly result?: t.SlugFromYamlResult;
-  readonly diagnostics: t.Yaml.Diagnostic[];
-};
-
-export function useSlugFromYaml(args: Args): UseSlugResult {
+export const useSlugFromYaml: t.UseSlugFromYaml = (args) => {
   const rev = args.yaml?.rev ?? 0;
-  const path: t.ObjectPath = Is.string(args.path) ? Obj.Path.decode(args.path) : (args.path ?? []);
+  const path = Obj.Path.normalize(args.path, { codec: 'pointer', numeric: true });
 
   const ast = args.yaml?.data?.ast;
   if (!ast) {
@@ -31,4 +19,4 @@ export function useSlugFromYaml(args: Args): UseSlugResult {
     result,
     diagnostics,
   };
-}
+};

@@ -5,7 +5,7 @@ import { type t, Button, Color, css, Obj, Str } from './common.ts';
  * Component:
  */
 export const PathView: React.FC<t.PathViewProps> = (props) => {
-  const { path = [], prefix, maxSegmentLength = 20 } = props;
+  const { path = [], prefix, maxSegmentLength = 20, segmentGap = 2 } = props;
 
   /**
    * Render:
@@ -14,7 +14,7 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
 
   const segBtnBase = {
     lineHeight: 1.2,
-    padding: '0 6px',
+    padding: `0 ${segmentGap}px`,
     height: 16,
     alignSelf: 'center',
   } as const;
@@ -43,8 +43,10 @@ export const PathView: React.FC<t.PathViewProps> = (props) => {
 
     const onClick = () => {
       if (!props.onClick) return; // no handler → no-op
+
       const full = path as t.ObjectPath;
       const at = Obj.Path.slice(full, 0, i + 1);
+
       props.onClick({
         kind: 'segment',
         path: { full, at, atIndex: i, atKey: segment },
