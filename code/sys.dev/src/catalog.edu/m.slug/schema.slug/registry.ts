@@ -1,4 +1,4 @@
-import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from '../schema.slug.traits/mod.ts';
+import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from '../schema.traits/mod.ts';
 import type { t } from './common.ts';
 
 /** Construct a simple in-memory registry. */
