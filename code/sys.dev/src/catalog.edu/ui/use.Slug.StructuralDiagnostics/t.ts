@@ -24,6 +24,6 @@ export type UseSlugFromYamlResult = {
   readonly rev: number;
   /** Parsed and validated slug (when successful). */
   readonly result?: t.SlugFromYamlResult;
-  /** Normalized diagnostics (semantic + structural) from the YAML pipeline. */
+  /** Normalized diagnostics from the YAML pipeline. */
   readonly diagnostics: t.Yaml.Diagnostic[];
 };
