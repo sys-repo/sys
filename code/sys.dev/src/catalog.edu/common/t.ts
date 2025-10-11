@@ -3,6 +3,7 @@
  */
 export type { Crdt } from '@sys/driver-automerge/t';
 export type {
+  DiagnosticSeverity,
   EditorDiagnostic,
   EditorEventBus,
   EditorYaml,
