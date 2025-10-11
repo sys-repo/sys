@@ -1,6 +1,14 @@
 import type { t } from './common.ts';
 
 /**
+ * Tools for working with AST (abstract-sytax-trees) and source-maps.
+ */
+export type YamlAstLib = {
+  /** Resolve an object-path to its corresponding source positions. */
+  readonly locate: t.YamlLocateFn;
+};
+
+/**
  * Resolve an object-path to its corresponding token position(s)
  * using any `YamlSourceMapLike` (e.g. from `yaml-source-map`).
  *

@@ -1,10 +1,10 @@
 import type * as Y from 'yaml';
 import type { t } from './common.ts';
 
+export type * from './t.Ast.ts';
 export type * from './t.Diagnostic.ts';
 export type * from './t.Is.ts';
 export type * from './t.Path.ts';
-export type * from './t.SourceMap.ts';
 export type * from './t.Syncer.ts';
 export type * from './t.Value.ts';
 
@@ -63,6 +63,8 @@ export type YamlLib = {
   readonly Is: t.YamlIsLib;
   /** Helpers for normalizing YAML parser errors into standard diagnostics. */
   readonly Diagnostic: t.YamlDiagnosticLib;
+  /** Tools for introspecting YAML Abstract Syntax Trees (ASTs) and associated source maps. */
+  readonly Ast: t.YamlAstLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: t.StringYaml): YamlParseResponse<T>;
@@ -76,9 +78,6 @@ export type YamlLib = {
   /** YAML path helpers. */
   readonly Path: t.YamlPathLib;
   readonly path: t.YamlPathLib['make'];
-
-  /** Resolve an object-path to its corresponding source positions. */
-  readonly locate: t.YamlLocateFn;
 };
 
 /** Response from the `Yaml.parse` method. */
