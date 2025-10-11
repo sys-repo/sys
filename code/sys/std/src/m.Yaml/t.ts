@@ -4,6 +4,7 @@ import type { t } from './common.ts';
 export type * from './t.Diagnostic.ts';
 export type * from './t.Is.ts';
 export type * from './t.Path.ts';
+export type * from './t.Range.ts';
 export type * from './t.Syncer.ts';
 export type * from './t.Value.ts';
 
@@ -37,13 +38,6 @@ export namespace Yaml {
  */
 export type YamlError = Y.YAMLError;
 
-/**
- * Character offset range within the YAML source.
- * - `[start, end)` — normalized editor/diagnostic span.
- * - `[start, valueEnd, nodeEnd]` — full YAML AST span.
- */
-export type YamlRange = readonly [number, number] | readonly [number, number, number];
-
 /** A single line/column position. */
 export type YamlLinePos = { readonly line: number; readonly col: number };
 
@@ -58,8 +52,25 @@ export type YamlLinePos = { readonly line: number; readonly col: number };
  * This form is often used by editors or LSP-style diagnostics.
  */
 export type YamlLinePosTuple =
-  | readonly [t.YamlLinePos] //                  ← single
-  | readonly [t.YamlLinePos, t.YamlLinePos]; //  ← pair
+  | readonly [t.YamlLinePos] // ← single (caret only)
+  | t.YamlLinePosPair; //       ← double
+
+/**
+ * Pair of line/column positions within the YAML source.
+ *
+ * Represents a definite span, with both start and end coordinates
+ * (1-based line/column numbers). Commonly used for character range
+ * conversions and editor selections.
+ *
+ * Example:
+ * ```ts
+ * const pair: YamlLinePosPair = [
+ *   { line: 3, col: 5 },
+ *   { line: 4, col: 12 },
+ * ];
+ * ```
+ */
+export type YamlLinePosPair = readonly [t.YamlLinePos, t.YamlLinePos];
 
 /**
  * Helpers for working with YAML.
@@ -69,6 +80,9 @@ export type YamlLib = {
   readonly Is: t.YamlIsLib;
   /** Helpers for normalizing YAML parser errors into standard diagnostics. */
   readonly Diagnostic: t.YamlDiagnosticLib;
+
+  /** Helpers for working with YAML source ranges in byte/character offsets. */
+  readonly Range: t.YamlRangeLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(input?: t.StringYaml): YamlParseResponse<T>;
