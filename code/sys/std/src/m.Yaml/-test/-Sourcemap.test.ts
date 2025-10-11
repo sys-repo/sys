@@ -1,8 +1,8 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 import { Yaml } from '../mod.ts';
 
-describe('Yaml.Ast', () => {
-  describe('Ast.locate', () => {
+describe('Yaml.Sourcemap', () => {
+  describe('Sourcemap.locate', () => {
     const makeMap = (lookup: t.YamlSourceMapLike['lookup']): t.YamlSourceMapLike => ({ lookup });
 
     it('returns value position when available', () => {
@@ -15,7 +15,7 @@ describe('Yaml.Ast', () => {
           ],
         },
       }));
-      const res = Yaml.Ast.locate(map, ['foo']);
+      const res = Yaml.Sourcemap.locate(map, ['foo']);
       expect(res?.pos).to.eql([1, 2]);
     });
 
@@ -29,19 +29,19 @@ describe('Yaml.Ast', () => {
           ],
         },
       }));
-      const res = Yaml.Ast.locate(map, ['bar']);
+      const res = Yaml.Sourcemap.locate(map, ['bar']);
       expect(res?.pos).to.eql([3, 4]);
     });
 
     it('returns undefined when lookup yields undefined', () => {
       const map = makeMap(() => undefined);
-      const res = Yaml.Ast.locate(map, ['missing']);
+      const res = Yaml.Sourcemap.locate(map, ['missing']);
       expect(res).to.eql(undefined);
     });
 
     it('returns undefined when both key and value are absent', () => {
       const map = makeMap(() => ({}) as any);
-      const res = Yaml.Ast.locate(map, ['empty']);
+      const res = Yaml.Sourcemap.locate(map, ['empty']);
       expect(res).to.eql(undefined);
     });
   });
