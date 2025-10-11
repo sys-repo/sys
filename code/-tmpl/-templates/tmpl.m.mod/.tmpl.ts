@@ -1,4 +1,12 @@
-import { type t, DenoFile, Err, Fs, TmplEngine } from '../common.ts';
+import {
+  type t,
+  DenoFile,
+  Err,
+  Fs,
+  TmplEngine,
+  findNearestTypesFile,
+  relativeFromFileDir,
+} from '../common.ts';
 
 /**
  * Setup the template (after copy):
@@ -8,27 +16,32 @@ export default async function setup(dir: t.StringAbsoluteDir) {
 }
 
 /**
- * Updates the root `types.ts` file to include a reference to
- * the given path.
+ * Updates the nearest `types.ts` file to include a reference to this module's `t.ts`.
  */
 export async function updateTypesFile(dir: t.StringAbsoluteDir) {
   type T = { error?: t.StdError };
-
   const done = (err?: string): T => {
     const error = err ? Err.std(err) : undefined;
     if (error) console.warn(error);
     return { error };
   };
 
-  const denofile = await DenoFile.Path.nearest(dir);
-  const pkgDir = denofile ? Fs.dirname(denofile) : undefined;
+  // Find the nearest package root (deno.json) – optional, but keeps the behavior aligned.
+  const denoPath = await DenoFile.Path.nearest(dir); // string | undefined
+  const pkgDir = denoPath ? Fs.dirname(denoPath) : undefined;
   if (!pkgDir) return done(`Failed to find containing package (deno.json) for module at: ${dir}`);
 
-  await TmplEngine.File.update(Fs.join(pkgDir, 'src/types.ts'), (line) => {
+  // Find the nearest types.ts upward from the new module's directory.
+  const typesFile = await findNearestTypesFile(dir);
+  if (!typesFile) return done(`No parent types.ts found for module: ${dir}`);
+
+  // Compute the relative path from that types.ts to this module's t.ts
+  const targetT = Fs.join(dir, 't.ts');
+  const rel = relativeFromFileDir(typesFile, targetT);
+
+  await TmplEngine.File.update(typesFile, (line) => {
     if (line.is.last) {
-      const moduleDir = dir.slice((pkgDir + 'src/').length + 1);
-      const path = Fs.join(moduleDir, 't.ts');
-      line.modify(`export type * from './${path}';`);
+      line.modify(`export type * from './${rel}';`);
     }
   });
 
