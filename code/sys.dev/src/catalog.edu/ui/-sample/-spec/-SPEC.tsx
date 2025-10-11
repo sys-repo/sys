@@ -11,10 +11,15 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    function updateSubject() {
+      ctx.subject.size('fill', p.hostPadding.value ? 50 : 0);
+      ctx.redraw();
+    }
+
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      updateSubject();
     });
 
     ctx.subject

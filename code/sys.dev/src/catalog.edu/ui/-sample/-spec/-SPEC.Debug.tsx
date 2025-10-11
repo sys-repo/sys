@@ -18,12 +18,13 @@ import {
 } from '../common.ts';
 
 type P = t.SampleProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { render: boolean };
+type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { render: boolean; hostPadding?: boolean };
 const defaults: Storage = {
   debug: true,
   theme: 'Dark',
   path: ['foo'],
   render: true,
+  hostPadding: true,
 };
 
 /**
@@ -52,6 +53,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     path: s(snap.path),
     render: s(snap.render),
+    hostPadding: s(snap.hostPadding),
   };
   const p = props;
   const api = {
@@ -74,8 +76,9 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     store.change((d) => {
-      d.debug = p.debug.value;
       d.render = p.render.value;
+      d.hostPadding = p.hostPadding.value;
+      d.debug = p.debug.value;
       d.theme = p.theme.value;
       d.path = p.path.value;
     });
@@ -109,9 +112,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   function changeYaml(fn: (args: { draft: O; path: t.ObjectPath }) => void) {
     const doc = debug.signals.doc.value;
     const path = p.path.value;
-    if (!!doc && !!path) {
-      doc.change((draft) => fn({ draft, path }));
-    }
+    if (!!doc && !!path) doc.change((draft) => fn({ draft, path }));
   }
 
   /**
@@ -180,7 +181,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `change: 🐷 { invalid yaml }`}
         onClick={() => {
           const yaml = Str.dedent(`
-          foo: 
+          foo:
             - 123
             - 456
           `);
@@ -202,6 +203,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `host padding: ${p.hostPadding.value}`}
+        onClick={() => Signal.toggle(p.hostPadding)}
+      />
+
       <Button
         block
         label={() => `(reset, reload)`}
