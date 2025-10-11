@@ -4,6 +4,9 @@
  */
 export type { CatalogTraitId } from './schema.trait.registry/m.ids.ts';
 
+export * from './schema.slug/mod.ts';
 export * from './schema.trait.registry/mod.ts';
 export * from './schema.traits/mod.ts';
 export * from './schema.validation/mod.ts';
+
+export { Slug } from './m.Slug.ts';

@@ -1,7 +1,6 @@
 import React from 'react';
+import { SlugSchema } from '../../m.slug/mod.ts';
 import { type t, Color, css, D, ObjectView } from './common.ts';
-
-import { SlugSchema } from '../../def/schemas.ts';
 
 export type CatalogObjectViewProps = {
   expand?: t.ObjectViewProps['expand'];
