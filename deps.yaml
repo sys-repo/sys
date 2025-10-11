@@ -64,7 +64,6 @@ groups:
 
   dev/tools:
     - import: npm:prettier@3.6.2
-    - import: npm:prettier-plugin-organize-imports@4.3.0
 
   ui/react:
     - import: npm:react@19.2.0
