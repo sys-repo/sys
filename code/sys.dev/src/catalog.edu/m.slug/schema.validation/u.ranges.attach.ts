@@ -8,37 +8,27 @@ type MutableValidationError = t.Schema.ValidationError & {
 };
 
 /**
- * Attach YAML source ranges to semantic validation errors.
+ * Attach YAML AST ranges to semantic validation errors.
  * - Mutates `errs` in-place.
  * - Rewrites each error `path` to an absolute path using `basePath`.
- * - If a source-map is provided, uses it to attach precise token spans.
- * - Falls back to the AST node’s range/linePos when no map hit is found.
+ * - Resolves the node via `Yaml.Path.atPath` and copies its `range`/`linePos` (if present).
  */
 export function attachSemanticRanges(
   ast: t.Yaml.Ast,
   errs: t.Schema.ValidationError[],
-  opts?: { basePath?: t.ObjectPath; map?: t.Yaml.SourceMapLike },
+  opts?: { basePath?: t.ObjectPath },
 ): void {
   const base = opts?.basePath ?? [];
-  const map = opts?.map;
 
   for (const item of errs) {
     const err = item as MutableValidationError;
 
-    // 1. Normalize to absolute path:
+    // 1) Normalize path to absolute
     const rel = (err.path ?? []) as t.ObjectPath;
     const abs = Obj.Path.join(base, rel, 'absolute');
     err.path = abs;
 
-    // 2. Prefer source-map (precise token spans), if available:
-    if (map) {
-      const hit = Yaml.Ast.locate(map, abs);
-      if (hit?.pos) err.range = hit.pos;
-      if (hit?.linePos) err.linePos = hit.linePos;
-      if (err.range) continue; // Done for this error.
-    }
-
-    // 3. Fallback: resolve node at absolute path via AST:
+    // 2) Resolve node and copy range/linePos if available
     const node = Yaml.Path.atPath(ast, abs) as NodeWithRange | undefined;
     if (!node) continue;
 

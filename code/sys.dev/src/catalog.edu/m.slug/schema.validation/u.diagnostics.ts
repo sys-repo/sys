@@ -7,10 +7,7 @@ import type { t } from '../common.ts';
 export function semanticErrorsToDiagnostics(
   errors: t.Schema.ValidationError[],
 ): t.Yaml.Diagnostic[] {
-  return errors.map((e) => ({
-    message: e.message,
-    path: e.path,
-  }));
+  return errors.map((e) => ({ message: e.message, path: e.path }));
 }
 
 /**
@@ -22,9 +19,5 @@ export function semanticErrorsToEditorDiagnostics(
   opts?: { severity?: t.DiagnosticSeverity },
 ): t.EditorDiagnostic[] {
   const severity = opts?.severity ?? 'Error';
-  return errors.map((e) => ({
-    message: e.message,
-    path: e.path,
-    severity,
-  }));
+  return errors.map((e) => ({ message: e.message, path: e.path, severity }));
 }

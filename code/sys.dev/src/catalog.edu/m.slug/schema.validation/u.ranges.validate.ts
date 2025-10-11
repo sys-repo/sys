@@ -3,8 +3,8 @@ import { attachSemanticRanges } from './u.ranges.attach.ts';
 import { validateSlugAgainstRegistry } from './u.traits.ts';
 
 /**
- * Run semantic validation and attach YAML ranges.
- * - Validators must return `relative` paths.
+ * Run semantic validation and attach YAML AST ranges.
+ * - Validators must return *relative* paths.
  * - `basePath` is applied only here when attaching ranges.
  */
 export function validateWithRanges(args: {

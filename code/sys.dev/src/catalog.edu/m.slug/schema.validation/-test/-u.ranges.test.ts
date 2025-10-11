@@ -4,6 +4,8 @@ import { Str, Yaml } from '../common.ts';
 import { attachSemanticRanges, validateWithRanges } from '../mod.ts';
 
 describe('ranges', () => {
+  const registry = TraitRegistryDefault;
+
   describe('attachSemanticRanges', () => {
     it('no-op on empty errs', () => {
       const ast = Yaml.parseAst('a: 1\n');
@@ -34,78 +36,9 @@ describe('ranges', () => {
       attachSemanticRanges(ast, errs as any[]);
       expect((errs as any[])[0].range).to.be.undefined;
     });
-
-    it('uses source-map hit (value token) when provided', () => {
-      const yaml = Str.dedent(`
-      root:
-        doc:
-          traits:
-            - id: nope
-              as: x
-      `);
-      const ast = Yaml.parseAst(yaml);
-
-      // Fake source-map that returns a precise token position for the joined path.
-      const map: t.Yaml.SourceMapLike = {
-        lookup(path) {
-          // Expect absolute path once basePath + relative error path are joined:
-          // ['root','doc','traits',0,'id']
-          if (
-            Array.isArray(path) &&
-            path.length === 5 &&
-            path[0] === 'root' &&
-            path[1] === 'doc' &&
-            path[2] === 'traits' &&
-            path[3] === 0 &&
-            path[4] === 'id'
-          ) {
-            return {
-              value: {
-                pos: [10, 14], // arbitrary but stable in test
-                linePos: [
-                  { line: 4, col: 10 },
-                  { line: 4, col: 14 },
-                ],
-              },
-            };
-          }
-          return undefined;
-        },
-      };
-
-      const errs = [{ kind: 'semantic', path: ['traits', 0, 'id'], message: 'x' }];
-      attachSemanticRanges(ast, errs as any[], { basePath: ['root', 'doc'], map });
-
-      const e = errs[0] as any;
-      expect(e.path).to.eql(['root', 'doc', 'traits', 0, 'id']);
-      // Must come from the map (exact numbers), not AST heuristic:
-      expect(e.range).to.eql([10, 14]);
-      expect(e.linePos).to.eql([
-        { line: 4, col: 10 },
-        { line: 4, col: 14 },
-      ]);
-    });
-
-    it('falls back to AST range when source-map misses', () => {
-      const yaml = Str.dedent(`
-      spec:
-        name: hello
-      `);
-      const ast = Yaml.parseAst(yaml);
-      const map: t.Yaml.SourceMapLike = { lookup: () => undefined }; // Map that never hits:
-
-      const errs = [{ kind: 'semantic', path: ['spec', 'name'], message: 'boom' }];
-      attachSemanticRanges(ast, errs as any[], { map });
-
-      const e = errs[0] as any;
-      // We don’t assert exact numbers (parser dependent) — only that a range exists:
-      expect(Boolean(e.range)).to.eql(true);
-    });
   });
 
   describe('validateWithRanges', () => {
-    const registry = TraitRegistryDefault;
-
     it('returns [] when no semantic errors', () => {
       const yaml = Str.dedent(`
       root:
@@ -154,7 +87,7 @@ describe('ranges', () => {
       const e = errs[0]!;
       expect(e.kind).to.eql('semantic');
       expect(e.path).to.eql(['root', 'doc', 'traits', 0, 'id']);
-      expect(!!e.range).to.eql(true);
+      expect(!!(e as any).range).to.eql(true);
     });
 
     it('attaches range for invalid props shape (nested under props.<alias>.*)', () => {
@@ -179,7 +112,7 @@ describe('ranges', () => {
 
       const e = errs[0]!;
       expect(e.path).to.eql(['props', 'primary', 'name']);
-      expect(!!e.range).to.eql(true);
+      expect(!!(e as any).range).to.eql(true);
     });
 
     it('leaves range unset when path cannot be located in AST', () => {
@@ -192,7 +125,7 @@ describe('ranges', () => {
       const errs = validateWithRanges({ ast, slug, registry });
 
       expect(errs.length).to.be.greaterThan(0);
-      expect(errs[0].range).to.be.undefined;
+      expect((errs[0] as any).range).to.be.undefined;
     });
   });
 });
