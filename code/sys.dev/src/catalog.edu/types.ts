@@ -5,8 +5,8 @@
 /**
  * Library:
  */
-export type * from './m.slug/schema.registry/t.ts';
 export type * from './m.slug/schema.slug/t.ts';
+export type * from './m.slug/schema.trait.registry/t.ts';
 export type * from './m.slug/schema.traits/t.ts';
 export type * from './m.yaml/t.ts';
 export type * from './ui/use.SlugFromYaml/t.ts';
