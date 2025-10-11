@@ -19,7 +19,7 @@ describe('hook: useSlugFromYaml', () => {
   describe('mocked', () => {
     it('typing: returns UseSlugResult', () => {
       const res = useSlugStructuralDiagnostics({ yaml: makeYaml() });
-      expectTypeOf(res).toEqualTypeOf<t.UseSlugFromYamlResult>();
+      expectTypeOf(res).toEqualTypeOf<t.UseSlugStructuralDiagnosticsResult>();
     });
 
     it('no yaml / no ast → ok=false, diagnostics=[], result:undefined, rev=0', () => {
@@ -79,7 +79,7 @@ describe('hook: useSlugFromYaml', () => {
       const res = useSlugStructuralDiagnostics({ yaml, path: '/foo/props/primary' });
 
       // Type contract stays tight:
-      expectTypeOf(res).toEqualTypeOf<t.UseSlugFromYamlResult>();
+      expectTypeOf(res).toEqualTypeOf<t.UseSlugStructuralDiagnosticsResult>();
 
       // Invariants we can assert regardless of schema specifics:
       expect(res.rev).to.eql(7);

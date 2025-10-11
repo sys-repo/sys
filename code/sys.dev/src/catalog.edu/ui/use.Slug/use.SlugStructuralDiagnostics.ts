@@ -1,6 +1,6 @@
 import { type t, Obj, YamlPipeline } from './common.ts';
 
-export const useSlugStructuralDiagnostics: t.UseSlugFromYaml = (args) => {
+export const useSlugStructuralDiagnostics: t.UseSlugStructuralDiagnostics = (args) => {
   const rev = args.yaml?.rev ?? 0;
   const path = Obj.Path.normalize(args.path, { codec: 'pointer', numeric: true });
 

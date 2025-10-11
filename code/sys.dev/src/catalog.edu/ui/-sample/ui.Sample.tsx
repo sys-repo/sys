@@ -37,13 +37,13 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         repo={repo}
         path={path}
         signals={signals}
+        editor={{ autoFocus: true }}
         documentId={{ localstorage }}
         onReady={(e) => {
-          console.info(`⚡️ Monaco.Yaml.Editor:onReady:`, e);
           const { monaco, editor } = e;
-
-          e.$.subscribe((evt) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, evt));
+          console.info(`⚡️ Monaco.Yaml.Editor:onReady:`, e);
           setReady({ monaco, editor });
+          e.$.subscribe((evt) => console.info(`⚡️ Monaco.Yaml.Editor/binding.$:`, evt));
         }}
       />
     </div>
