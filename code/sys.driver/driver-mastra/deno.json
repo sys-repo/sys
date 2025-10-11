@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-mastra",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-vite.ts --cmd=dev    --in=./src/-test/index.html",
