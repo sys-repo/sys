@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
-import { deepGet } from './m.Path.get.ts';
-import { deepSet } from './m.Path.set.ts';
+import { deepGet } from './u.path.get.ts';
+import { deepSet } from './u.path.set.ts';
 
 export const make: t.YamlPathLib['make'] = <T = unknown>(path: t.ObjectPath) => {
   path = [...path];
