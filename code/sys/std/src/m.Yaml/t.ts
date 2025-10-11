@@ -15,8 +15,6 @@ export type YamlLinePos = { readonly line: number; readonly col: number };
  * Concise YAML type namespace.
  */
 export namespace Yaml {
-  export type Ast = t.YamlAst;
-
   // Errors:
   export type Error = t.YamlError;
   export type Diagnostic = t.YamlDiagnostic;
@@ -30,6 +28,11 @@ export namespace Yaml {
   export type Node = Y.Node;
   export type Pair = Y.Pair;
   export type Scalar = Y.Scalar;
+
+  // Ast:
+  export type Ast = t.YamlAst;
+  export type SourceMapLike = t.YamlSourceMapLike;
+  export type TokenPos = t.YamlTokenPos;
 }
 
 /**
