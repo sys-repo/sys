@@ -13,6 +13,7 @@ import {
   ObjectView,
   Signal,
   Str,
+  Yaml,
 } from '../common.ts';
 import { yamlSamples } from './-u.yamlSamples.tsx';
 
@@ -59,7 +60,10 @@ export function createDebugSignals() {
     docPath: s(snap.docPath),
     slugPath: s(snap.slugPath),
     hostPadding: s(snap.hostPadding),
+
+    slug: s<t.Slug | undefined>(),
   };
+
   const p = props;
   const api = {
     props,
@@ -90,6 +94,11 @@ export function createDebugSignals() {
     });
   });
 
+  Signal.effect(() => {
+    const next = signals.yaml.value?.data.value as t.Slug | undefined;
+    p.slug.value = next;
+  });
+
   return api;
 }
 
@@ -115,9 +124,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const styles = {
-    base: css({}),
-  };
+  const styles = { base: css({}) };
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -125,14 +132,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{D.name}</div>
         <div>{'(Slug)'}</div>
       </div>
-
       <Button
         block
         label={() => `render: ${p.render.value}`}
         onClick={() => Signal.toggle(p.render)}
       />
       <hr />
-
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -156,11 +161,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.slugPath, [['slug'], ['hello'], ['my', 'deep', 'nesting'], undefined]);
         }}
       />
-
       <hr />
       <div className={Styles.title.class}>{'Samples:'}</div>
       {yamlSamples(debug)}
-
       <hr style={{ marginTop: 40 }} />
       <Button
         block
@@ -172,7 +175,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `host padding: ${p.hostPadding.value}`}
         onClick={() => Signal.toggle(p.hostPadding)}
       />
-
       <Button
         block
         label={() => `(reset, reload)`}
@@ -189,8 +191,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         doc={s.doc?.value}
         editor={s.editor?.value}
       />
-
-      <CatalogObjectView style={{ marginTop: 15 }} expand={1} />
+      <CatalogObjectView
+        style={{ marginTop: 15 }}
+        expand={1}
+        slug={{ path: p.slugPath.value, value: p.slug.value }}
+      />
     </div>
   );
 };

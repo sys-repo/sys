@@ -30,8 +30,8 @@ export function yamlSamples(debug: DebugSignals) {
             - as: recorder
               id: video-recorder
           props:
-          recorder:
-            name: "Recorder A"
+            recorder:
+              name: "Recorder A"
             player:
               name: "Player A"
 
