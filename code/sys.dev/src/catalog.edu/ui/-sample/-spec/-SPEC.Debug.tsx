@@ -1,10 +1,6 @@
 import React from 'react';
 import { CatalogObjectView } from '../../-dev/mod.ts';
 import { createRepo, YamlObjectView } from '../../../../ui/-test.ui.ts';
-import { Str, Yaml } from '../common.ts';
-
-type O = Record<string, unknown>;
-
 import {
   type t,
   Button,
@@ -15,8 +11,12 @@ import {
   Obj,
   ObjectView,
   Signal,
+  Str,
+  Yaml,
 } from '../common.ts';
+import { yamlSamples } from './-u.yamlSamples.tsx';
 
+type O = Record<string, unknown>;
 type P = t.SampleProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { render: boolean; hostPadding?: boolean };
 const defaults: Storage = {
@@ -115,6 +115,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
     if (!!doc && !!path) doc.change((draft) => fn({ draft, path }));
   }
 
+  function changeYamlButton(label: string, yaml: string) {
+    return (
+      <Button
+        block
+        label={label}
+        onClick={() => {
+          changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, Str.dedent(yaml)));
+        }}
+      />
+    );
+  }
+
   /**
    * Render:
    */
@@ -154,50 +166,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Samples:'}</div>
-      <Button
-        block
-        label={() => `change: 🌳 { working slug }`}
-        onClick={() => {
-          Yaml;
+      {yamlSamples(debug)}
 
-          const yaml = Str.dedent(`
-          foo:
-            id: example-slug
-            traits:
-              - as: primary
-                id: video
-            props:
-              primary:
-                src: "video.mp4"
-            `);
-
-          changeYaml((e) => {
-            Obj.Path.Mutate.set(e.draft, e.path, yaml);
-          });
-        }}
-      />
-      <Button
-        block
-        label={() => `change: 🐷 { invalid yaml }`}
-        onClick={() => {
-          const yaml = Str.dedent(`
-          foo:
-            - 123
-            - 456
-          `);
-          changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, yaml));
-        }}
-      />
-      <hr />
-      <Button
-        block
-        label={() => `change: 💥 { break } ← cause error condition`}
-        onClick={() => {
-          changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, { fail: '💥' }));
-        }}
-      />
-      <hr />
-
+      <hr style={{ marginTop: 40 }} />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
