@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, Monaco, Slug, useSlugDiagnostics } from './common.ts';
+import { Empty } from './ui.Empty.tsx';
 
 type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
 
@@ -9,7 +10,9 @@ type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
 export const Sample: React.FC<t.SampleProps> = (props) => {
   const { debug = false, bus$, repo, localstorage, signals } = props;
   const yaml = signals?.yaml?.value;
-  const path: t.ObjectPath = props.path ?? ['foo']; // TEMP 🐷
+
+  const docPath: t.ObjectPath = props.docPath ?? []; //    ← CRDT document location of YAML text.
+  const slugPath: t.ObjectPath = props.slugPath ?? []; //  ← path inside YAML to the slug root
 
   /**
    * Hooks:
@@ -18,7 +21,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
 
   // Run combined structural + semantic validation.
   const registry = Slug.Registry.DefaultTraits;
-  const { diagnostics } = useSlugDiagnostics({ yaml, path, registry });
+  const { diagnostics } = useSlugDiagnostics(registry, slugPath, yaml);
 
   // Push error markers into Monaco.
   Monaco.Yaml.useYamlErrorMarkers({
@@ -40,14 +43,19 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
     }),
   };
 
+  const empty = (body: string) => <Empty theme={theme.name} children={body} />;
+  if (docPath.length === 0) return empty('docPath prop required');
+  if (slugPath.length === 0) return empty('docPath prop required');
+
   return (
     <div className={css(styles.base, props.style).class}>
       <Monaco.Yaml.Editor
-        debug={debug}
-        diagnostics="syntax" // Keep basic YAML syntax diagnostics active.
+        diagnostics="syntax" // Keep the raw YAML syntax diagnostics active.
         theme={theme.name}
+        debug={debug}
         bus$={bus$}
         repo={repo}
+        path={docPath} // Editor binds to YAML-in-CRDT.
         signals={signals}
         editor={{ autoFocus: true }}
         documentId={{ localstorage }}

@@ -3,6 +3,7 @@ import { CatalogObjectView } from '../../-dev/mod.ts';
 import { createRepo, YamlObjectView } from '../../../../ui/-test.ui.ts';
 import {
   type t,
+  Arr,
   Button,
   css,
   D,
@@ -12,18 +13,21 @@ import {
   ObjectView,
   Signal,
   Str,
-  Yaml,
 } from '../common.ts';
 import { yamlSamples } from './-u.yamlSamples.tsx';
 
 type O = Record<string, unknown>;
 type P = t.SampleProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { render: boolean; hostPadding?: boolean };
+type Storage = Pick<P, 'theme' | 'debug' | 'docPath' | 'slugPath'> & {
+  render: boolean;
+  hostPadding?: boolean;
+};
 const defaults: Storage = {
+  render: true,
   debug: true,
   theme: 'Dark',
-  path: ['foo'],
-  render: true,
+  docPath: ['foo'],
+  slugPath: ['slug'],
   hostPadding: true,
 };
 
@@ -49,10 +53,11 @@ export function createDebugSignals() {
     monaco: s(),
   };
   const props = {
+    render: s(snap.render),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    path: s(snap.path),
-    render: s(snap.render),
+    docPath: s(snap.docPath),
+    slugPath: s(snap.slugPath),
     hostPadding: s(snap.hostPadding),
   };
   const p = props;
@@ -80,7 +85,8 @@ export function createDebugSignals() {
       d.hostPadding = p.hostPadding.value;
       d.debug = p.debug.value;
       d.theme = p.theme.value;
-      d.path = p.path.value;
+      d.docPath = p.docPath.value;
+      d.slugPath = p.slugPath.value;
     });
   });
 
@@ -105,27 +111,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
   const s = debug.signals;
   Signal.useRedrawEffect(() => debug.listen());
-
-  /**
-   * Helpers:
-   */
-  function changeYaml(fn: (args: { draft: O; path: t.ObjectPath }) => void) {
-    const doc = debug.signals.doc.value;
-    const path = p.path.value;
-    if (!!doc && !!path) doc.change((draft) => fn({ draft, path }));
-  }
-
-  function changeYamlButton(label: string, yaml: string) {
-    return (
-      <Button
-        block
-        label={label}
-        onClick={() => {
-          changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, Str.dedent(yaml)));
-        }}
-      />
-    );
-  }
 
   /**
    * Render:
@@ -156,12 +141,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          const v = p.path.value;
-          return `path: ${v ? `"${v.join(' / ')}"` : `<undefined>`}`;
+          const v = p.docPath.value;
+          return `doc path: ${Arr.isArray(v) ? `[${v}]` : v}`;
         }}
-        onClick={() =>
-          Signal.cycle(p.path, [['foo'], ['my-text'], ['slug', 'foo', 'bar'], undefined])
-        }
+        onClick={() => Signal.cycle(p.docPath, [['foo'], ['foo', 'bar'], undefined])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.slugPath.value;
+          return `slug path: ${Arr.isArray(v) ? `[${v}]` : v}`;
+        }}
+        onClick={() => {
+          Signal.cycle(p.slugPath, [['slug'], ['hello'], ['my', 'deep', 'nesting'], undefined]);
+        }}
       />
 
       <hr />

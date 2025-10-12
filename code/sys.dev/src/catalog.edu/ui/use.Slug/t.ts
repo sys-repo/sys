@@ -9,11 +9,11 @@ export type * from './t.structural.ts';
  * - Runs structural (schema) and semantic (registry-aware) validation.
  * - Returns merged diagnostics and each sub-result for detailed UI use.
  */
-export type UseSlugDiagnostics = (args: {
-  readonly yaml?: t.EditorYaml;
-  readonly path?: t.ObjectPath | string;
-  readonly registry?: t.SlugTraitRegistry;
-}) => t.UseSlugDiagnosticsResult;
+export type UseSlugDiagnostics = (
+  registry?: t.SlugTraitRegistry,
+  path?: t.ObjectPath | string,
+  yaml?: t.EditorYaml,
+) => t.UseSlugDiagnosticsResult;
 
 /**
  * Result of {@link useSlugDiagnostics}.

@@ -12,16 +12,17 @@ export function yamlSamples(debug: DebugSignals) {
   type A = { draft: any; path: t.ObjectPath };
   const changeYaml = (fn: (args: A) => void) => {
     const doc = debug.signals.doc.value;
-    const path = debug.props.path.value;
+    const path = debug.props.docPath.value;
     if (doc && path) doc.change((draft) => fn({ draft, path }));
   };
 
   const samples: SampleItem[] = [
     // ✅ WORKING
     {
+      dividerAfter: true, // ← insert <hr /> right after this one
       label: 'change: 🌳 { working slug }',
       yaml: `
-        foo:
+        slug:
           id: example-slug
           traits:
             - as: player
@@ -33,15 +34,15 @@ export function yamlSamples(debug: DebugSignals) {
               name: "Player A"
             recorder:
               name: "Recorder A"
+
       `,
-      dividerAfter: true, // ← insert <hr /> right after this one
     },
 
     // 💥 invalid YAML (syntax)
     {
       label: 'change: 💥 { invalid YAML (syntax) }',
       yaml: `
-        foo:
+        slug:
           id: example-slug
           traits:
             - as: primary
@@ -56,7 +57,7 @@ export function yamlSamples(debug: DebugSignals) {
     {
       label: 'change: 🐷 { unknown trait id }',
       yaml: `
-        foo:
+        slug:
           id: example-slug
           traits:
             - as: primary
@@ -64,6 +65,7 @@ export function yamlSamples(debug: DebugSignals) {
           props:
             primary:
               src: "video.mp4"
+
       `,
     },
 
@@ -71,7 +73,7 @@ export function yamlSamples(debug: DebugSignals) {
     {
       label: 'change: 🐷 { duplicate alias }',
       yaml: `
-        foo:
+        slug:
           id: example-slug
           traits:
             - as: primary
@@ -81,6 +83,7 @@ export function yamlSamples(debug: DebugSignals) {
           props:
             primary:
               src: "video.mp4"
+
       `,
     },
 
@@ -88,12 +91,13 @@ export function yamlSamples(debug: DebugSignals) {
     {
       label: 'change: 🐷 { missing props for alias }',
       yaml: `
-        foo:
+        slug:
           id: example-slug
           traits:
             - as: primary
               id: video-player
           props: {}
+
       `,
     },
 
@@ -101,7 +105,7 @@ export function yamlSamples(debug: DebugSignals) {
     {
       label: 'change: 🐷 { orphan props }',
       yaml: `
-        foo:
+        slug:
           id: example-slug
           traits:
             - as: primary
@@ -111,6 +115,7 @@ export function yamlSamples(debug: DebugSignals) {
               src: "video.mp4"
             extra:
               note: "no matching trait alias"
+
       `,
     },
 
@@ -118,7 +123,7 @@ export function yamlSamples(debug: DebugSignals) {
     {
       label: 'change: 🐷 { invalid props shape }',
       yaml: `
-        foo:
+        slug:
           id: example-slug
           traits:
             - as: primary
@@ -126,6 +131,7 @@ export function yamlSamples(debug: DebugSignals) {
           props:
             primary:
               src: ""   # violates minLength: 1 in current schemas
+
       `,
     },
   ];
@@ -157,7 +163,7 @@ function YamlSample(props: { debug: DebugSignals; label: string; yaml: string })
 
   const changeYaml = (fn: (args: { draft: any; path: t.ObjectPath }) => void) => {
     const doc = debug.signals.doc.value;
-    const path = debug.props.path.value;
+    const path = debug.props.docPath.value;
     if (doc && path) doc.change((draft) => fn({ draft, path }));
   };
 

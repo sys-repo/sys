@@ -34,7 +34,8 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             bus$={debug.bus$}
             repo={repo}
-            path={v.path}
+            docPath={v.docPath}
+            slugPath={v.slugPath}
             signals={debug.signals}
             localstorage={STORAGE_KEY.DEV}
           />
