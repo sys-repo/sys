@@ -1,5 +1,5 @@
 import React from 'react';
-import { SlugSchema } from '../../m.slug/mod.ts';
+import { Slug } from '../../m.slug/mod.ts';
 import { type t, Color, css, D, ObjectView } from './common.ts';
 
 export type CatalogObjectViewProps = {
@@ -33,7 +33,7 @@ export const CatalogObjectView: React.FC<CatalogObjectViewProps> = (props) => {
         style={{ marginTop: 15 }}
         expand={props.expand}
         name={D.catalog.name}
-        data={{ 'schema:slug': SlugSchema }}
+        data={{ Slug }}
       />
     </div>
   );
