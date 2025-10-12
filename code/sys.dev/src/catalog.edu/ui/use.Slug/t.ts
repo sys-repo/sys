@@ -20,11 +20,13 @@ export type UseSlugDiagnostics = (
  * Merges structural and semantic diagnostics into a single editor-ready set.
  */
 export type UseSlugDiagnosticsResult = {
-  /** Revision (from editor state) */
+  /** Revision (from editor state). */
   readonly rev: number;
-  /** Merged diagnostics you can feed straight to Monaco’s hook */
+  /** Merged diagnostics you can feed straight to Monaco’s hook. */
   readonly diagnostics: t.Yaml.Diagnostic[];
-  /** For inspection / UI splitting */
-  readonly structural: t.UseSlugStructuralDiagnosticsResult;
-  readonly semantic: t.UseSlugSemanticDiagnosticsResult;
+  /** Underlying diagnostic sources used to compose the merged set. */
+  readonly sources: {
+    readonly structural: t.UseSlugStructuralDiagnosticsResult;
+    readonly semantic: t.UseSlugSemanticDiagnosticsResult;
+  };
 };
