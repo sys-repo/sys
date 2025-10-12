@@ -28,7 +28,7 @@ export const CatalogObjectView: React.FC<CatalogObjectViewProps> = (props) => {
     }),
   };
 
-  const slugField = `current.${slug?.path?.join('/') ?? '<unknown>'}`;
+  const slugField = `current:/${slug?.path?.join('/') ?? '<unknown>'}`;
   const data = {
     Slug,
     [slugField]: slug?.value,
