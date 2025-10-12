@@ -23,7 +23,7 @@ export function yamlSamples(debug: DebugSignals) {
       label: 'change: 🌳 { working slug }',
       yaml: `
         slug:
-          id: example-slug
+          id: example.slug-01
           traits:
             - as: player
               id: video-player
@@ -32,6 +32,9 @@ export function yamlSamples(debug: DebugSignals) {
           props:
             recorder:
               name: "Recorder A"
+              description: The old man was dreaming about the lions.
+              # file: urn:crdt:39qozwJjQcq4erBWbMdGc4jkd3Xr/foo
+              file: crdt:make
             player:
               name: "Player A"
 
