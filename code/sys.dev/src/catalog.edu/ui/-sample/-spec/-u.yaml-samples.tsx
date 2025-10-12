@@ -17,10 +17,10 @@ export function yamlSamples(debug: DebugSignals) {
   };
 
   const samples: SampleItem[] = [
-    // ✅ WORKING
+    // ✅ Working:
     {
       dividerAfter: true, // ← insert <hr /> right after this one
-      label: 'change: 🌳 { working slug }',
+      label: 'set: 🌳 { working slug }',
       yaml: `
         slug:
           id: example.slug-01
@@ -41,9 +41,9 @@ export function yamlSamples(debug: DebugSignals) {
       `,
     },
 
-    // 💥 invalid YAML (syntax)
+    // 💥 Invalid YAML (syntax):
     {
-      label: 'change: 💥 { invalid YAML (syntax) }',
+      label: 'error: 💥 { invalid YAML (syntax) }',
       yaml: `
         slug:
           id: example-slug
@@ -56,9 +56,9 @@ export function yamlSamples(debug: DebugSignals) {
       `,
     },
 
-    // 🐷 unknown trait id (semantic)
+    // 🐷 Unknown trait id (semantic):
     {
-      label: 'change: 🐷 { unknown trait id }',
+      label: 'error: 🐷 { unknown trait id }',
       yaml: `
         slug:
           id: example-slug
@@ -72,9 +72,9 @@ export function yamlSamples(debug: DebugSignals) {
       `,
     },
 
-    // 🐷 duplicate alias
+    // 🐷 Duplicate alias:
     {
-      label: 'change: 🐷 { duplicate alias }',
+      label: 'error: 🐷 { duplicate alias }',
       yaml: `
         slug:
           id: example-slug
@@ -90,9 +90,9 @@ export function yamlSamples(debug: DebugSignals) {
       `,
     },
 
-    // 🐷 missing props for alias
+    // 🐷 Missing props for alias:
     {
-      label: 'change: 🐷 { missing props for alias }',
+      label: 'error: 🐷 { missing props for alias }',
       yaml: `
         slug:
           id: example-slug
@@ -104,9 +104,9 @@ export function yamlSamples(debug: DebugSignals) {
       `,
     },
 
-    // 🐷 orphan props
+    // 🐷 Orphan props:
     {
-      label: 'change: 🐷 { orphan props }',
+      label: 'error: 🐷 { orphan props }',
       yaml: `
         slug:
           id: example-slug
@@ -122,9 +122,9 @@ export function yamlSamples(debug: DebugSignals) {
       `,
     },
 
-    // 🐷 invalid props shape
+    // 🐷 Invalid props shape:
     {
-      label: 'change: 🐷 { invalid props shape }',
+      label: 'error: 🐷 { invalid props shape }',
       yaml: `
         slug:
           id: example-slug
@@ -148,11 +148,17 @@ export function yamlSamples(debug: DebugSignals) {
         </React.Fragment>
       ))}
 
-      {/* terminal break: set a non-string at the YAML doc path (forces reset) */}
+      {/**
+       * 🧨 Catastrophic break:
+       *      - Set a non-string at the YAML doc path
+       *      - Requires hard reset to recover:
+       *        1. set the YAML to "working" state
+       *        2. hit "(reset, reload)" button.
+       */}
       <hr />
       <Button
         block
-        label={() => `change: 🧨 { catastrophic break } ← requires reset`}
+        label={() => `cause: 🧨 { catastrophic break } ← requires reset`}
         onClick={() => {
           changeYaml(({ draft, path }) => Obj.Path.Mutate.set(draft, path, { fail: '💥' }));
         }}

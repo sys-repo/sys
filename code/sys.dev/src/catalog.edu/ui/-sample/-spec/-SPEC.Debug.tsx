@@ -12,12 +12,9 @@ import {
   Obj,
   ObjectView,
   Signal,
-  Str,
-  Yaml,
 } from '../common.ts';
-import { yamlSamples } from './-u.yamlSamples.tsx';
+import { yamlSamples } from './-u.yaml-samples.tsx';
 
-type O = Record<string, unknown>;
 type P = t.SampleProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'docPath' | 'slugPath'> & {
   render: boolean;
@@ -43,7 +40,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -60,7 +56,6 @@ export function createDebugSignals() {
     docPath: s(snap.docPath),
     slugPath: s(snap.slugPath),
     hostPadding: s(snap.hostPadding),
-
     slug: s<t.Slug | undefined>(),
   };
 
@@ -94,9 +89,10 @@ export function createDebugSignals() {
     });
   });
 
+  // Sample: lift the parsed YAML data-value and store it on a root level signal.
   Signal.effect(() => {
-    const next = signals.yaml.value?.data.value as t.Slug | undefined;
-    p.slug.value = next;
+    const next = signals.yaml.value?.data.value;
+    p.slug.value = next as t.Slug | undefined;
   });
 
   return api;
@@ -192,7 +188,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         editor={s.editor?.value}
       />
       <CatalogObjectView
-        style={{ marginTop: 15 }}
+        style={{ marginTop: 5 }}
         expand={1}
         slug={{ path: p.slugPath.value, value: p.slug.value }}
       />
