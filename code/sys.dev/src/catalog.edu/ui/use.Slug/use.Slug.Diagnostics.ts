@@ -21,7 +21,6 @@ export const useSlugDiagnostics: t.UseSlugDiagnostics = (registry, path, yaml) =
   return {
     rev,
     diagnostics,
-    structural,
-    semantic,
+    sources: { structural, semantic },
   };
 };
