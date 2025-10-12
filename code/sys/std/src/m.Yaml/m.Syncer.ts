@@ -197,14 +197,9 @@ const wrangle = {
     };
 
     const formatTarget = (source: t.ObjectPath, target: t.ObjectPath) => {
-      target = [...target];
-      const isEqual = Arr.equal(source, target);
-      if (isEqual && doc.source === doc.target) {
-        const lastSource = source[source.length - 1];
-        const lastTarget = target[target.length - 1] ?? '';
-        const index = target.length === 0 ? 0 : target.length - 1;
-        target[index] = lastTarget ? `${lastTarget}.parsed` : `${lastSource}.parsed`;
-      }
+      // When source and target paths are equal AND both refer to the same doc,
+      // derive the default target using the public helper.
+      if (Arr.equal(source, target) && doc.source === doc.target) return defaultPath(target);
       return target;
     };
 
@@ -226,6 +221,19 @@ const wrangle = {
 } as const;
 
 /**
+ * Derive the canonical default target path for a given YAML source path.
+ */
+function defaultPath(yamlPath: t.ObjectPath): t.ObjectPath {
+  if (!yamlPath || yamlPath.length === 0) return yamlPath;
+  const clone = [...yamlPath];
+  const last = clone.pop()!;
+  return [...clone, `${last}.parsed`];
+}
+
+/**
  * Library:
  */
-export const Syncer: t.YamlSyncLib = { make };
+export const Syncer: t.YamlSyncLib = {
+  make,
+  defaultPath,
+};

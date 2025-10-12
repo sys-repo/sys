@@ -30,6 +30,20 @@ export type YamlSyncLib = {
    * target defaults to `source[last] + '.parsed'`.
    */
   make<T = unknown>(args: t.YamlSyncArgsInput, until?: t.UntilInput): t.YamlSyncParser<T>;
+
+  /**
+   * Derive the canonical default target path for a given YAML source path.
+   *
+   * The returned path is equivalent to the one `Yaml.Syncer.make` would
+   * compute internally when the source and target documents are identical.
+   *
+   * Example:
+   * ```ts
+   * Yaml.Syncer.defaultPath(['foo']);        // → ['foo.parsed']
+   * Yaml.Syncer.defaultPath(['foo','bar']);  // → ['foo','bar.parsed']
+   * ```
+   */
+  defaultPath(yamlPath: t.ObjectPath): t.ObjectPath;
 };
 
 /** Arguments passed to the `Yaml.Syncer.create` method. */

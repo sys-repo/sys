@@ -284,4 +284,33 @@ describe('Yaml.syncer', () => {
       });
     });
   });
+
+  describe('Yaml.Syncer.defaultPath', () => {
+    it('passes through empty path (same reference)', () => {
+      const input: any[] = [];
+      const out = Yaml.Syncer.defaultPath(input);
+      expect(out).to.equal(input); // ← same ref
+      expect(out).to.eql([]); //      ← still empty
+    });
+
+    it('suffixes a single segment with ".parsed"', () => {
+      const input = ['foo'] as const;
+      const out = Yaml.Syncer.defaultPath([...input]);
+      expect(out).to.eql(['foo.parsed']);
+    });
+
+    it('suffixes only the last segment (multi-segment)', () => {
+      const input = ['a', 'b', 'c'];
+      const out = Yaml.Syncer.defaultPath(input);
+      expect(out).to.eql(['a', 'b', 'c.parsed']);
+    });
+
+    it('does not mutate the input array', () => {
+      const input = ['x', 'y'];
+      const copy = [...input];
+      const out = Yaml.Syncer.defaultPath(input);
+      expect(input).to.eql(copy); //      ← original unchanged
+      expect(out).to.not.equal(input); // ← new array instance
+    });
+  });
 });
