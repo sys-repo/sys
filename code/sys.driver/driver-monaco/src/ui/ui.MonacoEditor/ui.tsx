@@ -1,12 +1,11 @@
-import React, { useRef } from 'react';
-
 import type { OnChange, OnMount } from '@monaco-editor/react';
-import { Editor as EditorReact } from '@monaco-editor/react';
+import React, { useRef } from 'react';
 
 import { type t, Color, css, D, Rx, Spinners, Util } from './common.ts';
 import { defaultKeyBindings } from './u.Keyboard.ts';
 import { defaultLanguageConfig } from './u.languages.ts';
 import { Theme } from './u.Theme.ts';
+import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
 
 /**
  * Component:
@@ -42,6 +41,8 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
    * Hooks:
    */
   const [mounted, setMounted] = React.useState(false);
+  const EditorMod = useMonacoEditorModule();
+  const EditorReact = EditorMod?.Editor;
 
   /**
    * Effect: Lifecycle.
@@ -148,6 +149,9 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     });
   };
 
+  // Don't render until the upstream Monaco editor has been safely imported.
+  if (!EditorReact) return null;
+
   /**
    * Render:
    */
@@ -189,6 +193,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
 
   const cn = Util.Editor.className(editorRef.current);
   const className = `${css(styles.base, props.style).class} ${cn}`;
+
   return (
     <div className={className}>
       <div className={styles.inner.class}>
