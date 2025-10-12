@@ -9,7 +9,8 @@ type SampleItem = {
 };
 
 export function yamlSamples(debug: DebugSignals) {
-  const changeYaml = (fn: (args: { draft: any; path: t.ObjectPath }) => void) => {
+  type A = { draft: any; path: t.ObjectPath };
+  const changeYaml = (fn: (args: A) => void) => {
     const doc = debug.signals.doc.value;
     const path = debug.props.path.value;
     if (doc && path) doc.change((draft) => fn({ draft, path }));
