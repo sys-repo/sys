@@ -1,5 +1,6 @@
 import { type t, Obj, Yaml } from '../common.ts';
 
+type L = t.SlugValidationLib;
 type NodeWithRange = { range?: t.Yaml.Range; linePos?: t.Yaml.LinePosTuple };
 type MutableValidationError = t.Schema.ValidationError & {
   path?: t.ObjectPath;
@@ -13,12 +14,8 @@ type MutableValidationError = t.Schema.ValidationError & {
  * - Rewrites each error `path` to an absolute path using `basePath`.
  * - Resolves the node via `Yaml.Path.atPath` and copies its `range`/`linePos` (if present).
  */
-export function attachSemanticRanges(
-  ast: t.Yaml.Ast,
-  errs: t.Schema.ValidationError[],
-  opts?: { basePath?: t.ObjectPath },
-): void {
-  const base = opts?.basePath ?? [];
+export const attachSemanticRanges: L['attachSemanticRanges'] = (ast, errs, opts = {}) => {
+  const base = opts.basePath ?? [];
 
   for (const item of errs) {
     const err = item as MutableValidationError;
@@ -35,4 +32,4 @@ export function attachSemanticRanges(
     if (node.range) err.range = node.range;
     if (node.linePos) err.linePos = node.linePos;
   }
-}
+};

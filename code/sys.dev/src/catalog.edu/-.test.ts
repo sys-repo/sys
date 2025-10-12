@@ -7,5 +7,6 @@ describe('module: catalog.edu', () => {
     const m = await import('@sys/dev/catalog.edu');
     expect(m.Slug).to.equal(Slug);
     expect(m.YamlPipeline).to.equal(YamlPipeline);
+    expect(m.YamlPipeline.Slug.Domain).to.equal(Slug);
   });
 });

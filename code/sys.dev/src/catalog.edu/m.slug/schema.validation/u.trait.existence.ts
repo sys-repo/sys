@@ -1,9 +1,11 @@
 import type { t } from '../common.ts';
 
+type L = t.SlugValidationLib;
+
 /**
  * Returns semantic errors for unknown or missing traits.
  */
-export function validateTraitExistence(input: t.SlugValidateInput): t.Schema.ValidationError[] {
+export const validateTraitExistence: L['validateTraitExistence'] = (input) => {
   const { slug, registry, basePath = [] } = input;
   if (!slug || typeof slug !== 'object') return [];
 
@@ -26,4 +28,4 @@ export function validateTraitExistence(input: t.SlugValidateInput): t.Schema.Val
   }
 
   return errors;
-}
+};

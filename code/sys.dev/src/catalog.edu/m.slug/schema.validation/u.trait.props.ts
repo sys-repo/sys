@@ -1,13 +1,15 @@
 import { type t, Is, Obj, Value } from '../common.ts';
 import { indexAliases, readTraits } from './u.trait.alias.ts';
 
+type L = t.SlugValidationLib;
+
 /**
  * Validates alias–props consistency:
  * - duplicate aliases
  * - missing props for declared aliases
  * - orphan props without matching traits
  */
-export function validateAliasRules(input: t.SlugValidateInput): t.Schema.ValidationError[] {
+export const validateAliasRules: L['validateAliasRules'] = (input) => {
   const { slug, basePath = [] } = input;
   const { traits, props } = readTraits(slug);
   if (!traits.length) return [];
@@ -51,7 +53,7 @@ export function validateAliasRules(input: t.SlugValidateInput): t.Schema.Validat
   }
 
   return errors;
-}
+};
 
 /**
  * Validates prop object shapes against each trait’s schema

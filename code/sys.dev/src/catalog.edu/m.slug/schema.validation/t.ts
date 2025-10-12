@@ -1,6 +1,37 @@
 import type { t } from '../common.ts';
 
 /**
+ * Functions for validating slug YAML (semantic layer).
+ */
+export type SlugValidationLib = {
+  validateTraitExistence: (input: t.SlugValidateInput) => t.Schema.ValidationError[];
+  validateAliasRules: (input: t.SlugValidateInput) => t.Schema.ValidationError[];
+  validatePropsShape: (input: t.SlugValidateInput) => t.Schema.ValidationError[];
+
+  validateSlugAgainstRegistry: (input: t.SlugValidateInput) => t.Schema.ValidationError[];
+  validateSlug: (input: t.SlugValidateInput) => t.SlugValidateResult;
+
+  validateWithRanges: (args: {
+    ast: t.Yaml.Ast;
+    slug: unknown;
+    registry: t.SlugTraitRegistry;
+    basePath?: t.ObjectPath;
+  }) => t.Schema.ValidationError[];
+
+  attachSemanticRanges: (
+    ast: t.Yaml.Ast,
+    errs: t.Schema.ValidationError[],
+    opts?: { basePath?: t.ObjectPath },
+  ) => void;
+
+  semanticErrorsToDiagnostics: (errors: t.Schema.ValidationError[]) => t.Yaml.Diagnostic[];
+  semanticErrorsToEditorDiagnostics: (
+    errors: t.Schema.ValidationError[],
+    opts?: { severity?: t.DiagnosticSeverity },
+  ) => t.EditorDiagnostic[];
+};
+
+/**
  * Semantic error keywords for slug→registry validation.
  */
 export type SlugSemanticKeyword =
