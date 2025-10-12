@@ -8,8 +8,8 @@ type O = Record<string, unknown>;
 /**
  * Factory:
  */
-const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
-  const { debounce, life, doc, path } = wrangle.args(input);
+const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) => {
+  const { debounce, life, doc, path } = wrangle.args(input, until);
   const errors = new Set<t.YamlError>();
 
   /**
@@ -173,11 +173,11 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput) => {
  * Helpers:
  */
 const wrangle = {
-  args(input: t.YamlSyncArgsInput): t.YamlSyncArgs {
+  args(input: t.YamlSyncArgsInput, until?: t.UntilInput): t.YamlSyncArgs {
     const { debounce = 0 } = input;
-    const life = Rx.lifecycle(input.dispose$);
     const doc = wrangle.doc(input.doc);
     const path = wrangle.path(doc, input.path);
+    const life = Rx.lifecycle(until);
     return { life, doc, path, debounce };
   },
 

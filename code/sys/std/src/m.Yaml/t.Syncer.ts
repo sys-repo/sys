@@ -1,18 +1,41 @@
 import type { t } from './common.ts';
 
 /**
- * Library namespace for the Yaml sync helpers:
+ * Namespace of reactive YAML synchronization utilities.
+ *
+ * A "syncer" observes a live document reference (`ImmutableRef`)
+ * containing YAML source text, automatically:
+ *   • parsing changes into AST + JS value
+ *   • propagating parsed results into a target document path
+ *   • emitting revisioned updates and diagnostics
+ *
+ * Typical use:
+ * ```ts
+ * const syncer = Yaml.Syncer.make({
+ *   doc: { source, target },
+ *   path: ['foo', 'bar'], // YAML string location within source doc
+ *   debounce: 50,         // (optional)
+ * });
+ *
+ * syncer.$.subscribe(e => console.log(e.value)); // parsed output
+ * ```
  */
 export type YamlSyncLib = {
-  /** Creates a new parser/syncer instance. */
-  make<T = unknown>(args: t.YamlSyncArgsInput): t.YamlSyncParser<T>;
+  /**
+   * Creates a new reactive YAML parser/syncer.
+   *
+   * The syncer watches the `source` path for YAML text changes and
+   * writes the parsed JS value into the `target` path.
+   * If the source and target refer to the same document, the
+   * target defaults to `source[last] + '.parsed'`.
+   */
+  make<T = unknown>(args: t.YamlSyncArgsInput, until?: t.UntilInput): t.YamlSyncParser<T>;
 };
 
 /** Arguments passed to the `Yaml.Syncer.create` method. */
 export type YamlSyncArgsInput = {
   doc: t.ImmutableRef | { source: t.ImmutableRef; target?: t.ImmutableRef };
   path: t.ObjectPath | { source: t.ObjectPath; target?: t.ObjectPath | null };
-  dispose$?: t.UntilInput;
   debounce?: t.Msecs;
 };
 

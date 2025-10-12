@@ -276,7 +276,7 @@ describe('Yaml.syncer', () => {
       it('via: dispose$ observable', () => {
         const { dispose, dispose$ } = Rx.lifecycle();
         const doc = Immutable.clonerRef<T>({});
-        const syncer = Yaml.syncer<T>({ doc, path: ['text'], dispose$ });
+        const syncer = Yaml.syncer<T>({ doc, path: ['text'] }, dispose$);
 
         expect(syncer.disposed).to.eql(false);
         dispose();
