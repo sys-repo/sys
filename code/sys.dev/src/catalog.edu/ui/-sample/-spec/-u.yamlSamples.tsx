@@ -152,7 +152,7 @@ export function yamlSamples(debug: DebugSignals) {
       <hr />
       <Button
         block
-        label={() => `change: 🧨 { terminal break } ← requires reset`}
+        label={() => `change: 🧨 { catastrophic break } ← requires reset`}
         onClick={() => {
           changeYaml(({ draft, path }) => Obj.Path.Mutate.set(draft, path, { fail: '💥' }));
         }}
