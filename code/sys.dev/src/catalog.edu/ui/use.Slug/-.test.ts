@@ -15,7 +15,7 @@ export function makeEditorYamlFromText(text: string, rev = 1): t.EditorYaml {
   return { rev, data: { ast } } as unknown as t.EditorYaml;
 }
 
-describe('hook: useSlugFromYaml', () => {
+describe('hook: useSlugStructuralDiagnostics', () => {
   describe('mocked', () => {
     it('typing: returns UseSlugResult', () => {
       const res = useSlugStructuralDiagnostics({ yaml: makeYaml() });
