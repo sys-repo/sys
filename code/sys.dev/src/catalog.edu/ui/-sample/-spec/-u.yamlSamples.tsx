@@ -1,5 +1,12 @@
+import React from 'react';
 import { Button, Obj, Str, type t } from '../common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
+
+type SampleItem = {
+  label: string;
+  yaml: string;
+  dividerAfter?: boolean;
+};
 
 export function yamlSamples(debug: DebugSignals) {
   const changeYaml = (fn: (args: { draft: any; path: t.ObjectPath }) => void) => {
@@ -8,8 +15,8 @@ export function yamlSamples(debug: DebugSignals) {
     if (doc && path) doc.change((draft) => fn({ draft, path }));
   };
 
-  const samples: Array<{ label: string; yaml: string }> = [
-    // ✅ WORKING (uses registered id: "video-player")
+  const samples: SampleItem[] = [
+    // ✅ WORKING
     {
       label: 'change: 🌳 { working slug }',
       yaml: `
@@ -26,9 +33,10 @@ export function yamlSamples(debug: DebugSignals) {
             recorder:
               name: "Recorder A"
       `,
+      dividerAfter: true, // ← insert <hr /> right after this one
     },
 
-    // 💥 invalid YAML (syntax error: missing closing quote)
+    // 💥 invalid YAML (syntax)
     {
       label: 'change: 💥 { invalid YAML (syntax) }',
       yaml: `
@@ -43,7 +51,7 @@ export function yamlSamples(debug: DebugSignals) {
       `,
     },
 
-    // 🐷 unknown trait id (semantic error)
+    // 🐷 unknown trait id (semantic)
     {
       label: 'change: 🐷 { unknown trait id }',
       yaml: `
@@ -116,7 +124,7 @@ export function yamlSamples(debug: DebugSignals) {
               id: video-player
           props:
             primary:
-              src: ""   # violates minLength: 1
+              src: ""   # violates minLength: 1 in current schemas
       `,
     },
   ];
@@ -124,11 +132,14 @@ export function yamlSamples(debug: DebugSignals) {
   return (
     <>
       {samples.map((s, i) => (
-        <YamlSample key={i} debug={debug} label={s.label} yaml={s.yaml} />
+        <React.Fragment key={i}>
+          <YamlSample debug={debug} label={s.label} yaml={s.yaml} />
+          {s.dividerAfter && <hr />}
+        </React.Fragment>
       ))}
 
-      <hr />
       {/* terminal break: set a non-string at the YAML doc path (forces reset) */}
+      <hr />
       <Button
         block
         label={() => `change: 🧨 { terminal break } ← requires reset`}
