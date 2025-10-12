@@ -1,9 +1,7 @@
 import { type t, Type as T } from './common.ts';
 
 /**
- * Properties: Video Player
- * - Minimal valid: {}
- * - If present, `name` and `src` must be non-empty strings (minLength=1).
+ * Properties: Video Player.
  */
 export const VideoPlayerPropsSchema: t.TSchema = T.Object(
   {
