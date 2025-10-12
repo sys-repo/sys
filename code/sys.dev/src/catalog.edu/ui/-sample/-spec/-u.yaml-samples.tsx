@@ -20,7 +20,7 @@ export function yamlSamples(debug: DebugSignals) {
     // ✅ Working:
     {
       dividerAfter: true, // ← insert <hr /> right after this one
-      label: 'set: 🌳 { working slug }',
+      label: 'working: 🌳 { slug }',
       yaml: `
         slug:
           id: example.slug-01
