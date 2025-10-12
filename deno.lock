@@ -48,7 +48,7 @@
     "jsr:@std/testing@1.0.16": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.0.9": "1.0.9",
-    "npm:@ai-sdk/openai@2.0.49": "2.0.49_zod@4.1.12",
+    "npm:@ai-sdk/openai@2.0.50": "2.0.50_zod@4.1.12",
     "npm:@automerge/automerge-repo-network-websocket@2.3.1": "2.3.1_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.3.1": "2.3.1",
     "npm:@automerge/automerge-repo-storage-nodefs@2.3.1": "2.3.1",
@@ -382,8 +382,8 @@
         "zod@4.1.12"
       ]
     },
-    "@ai-sdk/openai@2.0.49_zod@4.1.12": {
-      "integrity": "sha512-BkeTl+gfeJAEap0srZEMK36t9IuQDGYWJyvQTWEgmWn8zoT70LAuO5EKWgAaJYUfjLY5OsM6QlYkjF1XfxCRgw==",
+    "@ai-sdk/openai@2.0.50_zod@4.1.12": {
+      "integrity": "sha512-Ws7QrenAEg2qagySpECh11OA1nSrXfmAVoEE03NIJqdQlMKjXBCg1mldoCayYhgckDGOFJ7Ar2N15H02BsE47Q==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
@@ -1100,8 +1100,8 @@
         "zod-to-json-schema"
       ]
     },
-    "@monaco-editor/loader@1.5.0": {
-      "integrity": "sha512-hKoGSM+7aAc7eRTRjpqAZucPmoNOC4UUbknb/VNoTkEIkCPhqV8LfbsgM1webRM7S/z21eHEx9Fkwx8Z/C/+Xw==",
+    "@monaco-editor/loader@1.6.0": {
+      "integrity": "sha512-PdWBZkPb2Amc1kxRsIEyQFkAya6PzUvSf4waXMPt7I05Azm4e2hQuViBVjfw1Mmck98GG2TqecLzWtg1tbyriw==",
       "dependencies": [
         "state-local"
       ]
@@ -4801,7 +4801,7 @@
       "jsr:@std/semver@1.0.6",
       "jsr:@std/testing@1.0.16",
       "jsr:@std/uuid@1.0.9",
-      "npm:@ai-sdk/openai@2.0.49",
+      "npm:@ai-sdk/openai@2.0.50",
       "npm:@automerge/automerge-repo-network-websocket@2.3.1",
       "npm:@automerge/automerge-repo-storage-indexeddb@2.3.1",
       "npm:@automerge/automerge-repo-storage-nodefs@2.3.1",
