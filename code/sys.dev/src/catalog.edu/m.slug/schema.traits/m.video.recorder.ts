@@ -20,32 +20,19 @@ export const VideoRecorderPropsSchema: t.TSchema = T.Object(
     /**
      * Reference to a video file stored as a CRDT document.
      * Accepts either:
-     * - "urn:crdt:<uuid>/[optional/path]"
-     * - "crdt:make"
-     */
-    /**
-     * Reference to a video file stored as a CRDT document.
-     * Accepts either:
-     * - "urn:crdt:<uuid>/[optional/path]"
-     * - "urn:crdt:<base62-28>/[optional/path]"
-     * - "crdt:make"
-     */
-    /**
-     * Reference to a video file stored as a CRDT document.
-     * Accepts either:
      * - "crdt:<uuid>/[optional/path]"
      * - "urn:crdt:<uuid>/[optional/path]"
      * - "crdt:<base62-28>/[optional/path]"
      * - "urn:crdt:<base62-28>/[optional/path]"
-     * - "crdt:make"
+     * - "crdt:create"
      */
     file: T.Optional(
       T.String({
         title: 'CRDT File Reference (URN)',
         description:
-          'Accepts "crdt:<uuid|base62-28>/[optional/path]" or "urn:crdt:<uuid|base62-28>/[optional/path]" or "crdt:make".',
+          'Accepts "crdt:<uuid|base62-28>/[optional/path]" or "urn:crdt:<uuid|base62-28>/[optional/path]" or "crdt:create".',
         pattern:
-          '^(?:crdt:make|(?:urn:)?crdt:(?:[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}|[A-Za-z0-9]{28})(?:/[A-Za-z0-9._\\-/]*)?)$',
+          '^(?:crdt:create|(?:urn:)?crdt:(?:[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}|[A-Za-z0-9]{28})(?:/[A-Za-z0-9._\\-/]*)?)$',
       }),
     ),
   },

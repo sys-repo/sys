@@ -34,7 +34,7 @@ export function yamlSamples(debug: DebugSignals) {
               name: "Recorder A"
               description: The old man was dreaming about the lions.
               # file: urn:crdt:39qozwJjQcq4erBWbMdGc4jkd3Xr/foo
-              file: crdt:make
+              file: crdt:create
             player:
               name: "Player A"
 
