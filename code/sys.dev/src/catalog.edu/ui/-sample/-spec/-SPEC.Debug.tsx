@@ -5,6 +5,7 @@ import {
   type t,
   Arr,
   Button,
+  Color,
   css,
   D,
   LocalStorage,
@@ -14,6 +15,7 @@ import {
   Signal,
 } from '../common.ts';
 import { yamlSamples } from './-u.yaml-samples.tsx';
+import { SlugView } from './-ui.SlugView.tsx';
 
 type P = t.SampleProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'docPath' | 'slugPath'> & {
@@ -56,7 +58,10 @@ export function createDebugSignals() {
     docPath: s(snap.docPath),
     slugPath: s(snap.slugPath),
     hostPadding: s(snap.hostPadding),
+
+    // In-memory:
     slug: s<t.Slug | undefined>(),
+    stream: s<MediaStream>(),
   };
 
   const p = props;
@@ -120,6 +125,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
+  const theme = Color.theme();
   const styles = { base: css({}) };
 
   return (
@@ -191,6 +197,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 5 }}
         expand={1}
         slug={{ path: p.slugPath.value, value: p.slug.value }}
+      />
+
+      <SlugView
+        theme={theme.name}
+        slug={Obj.Path.get(p.slug.value, p.slugPath.value ?? ['404'])}
+        style={{ marginTop: 50 }}
       />
     </div>
   );

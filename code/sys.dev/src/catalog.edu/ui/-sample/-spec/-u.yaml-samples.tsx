@@ -19,22 +19,36 @@ export function yamlSamples(debug: DebugSignals) {
   const samples: SampleItem[] = [
     // ✅ Working:
     {
+      label: 'working: 🌳 { slug: minimal }',
+      yaml: `
+        slug:
+          id: example.minimal-01
+          traits: []
+
+      `,
+    },
+
+    // ✅ Working:
+    {
       dividerAfter: true, // ← insert <hr /> right after this one
-      label: 'working: 🌳 { slug }',
+      label: 'working: 🌳 { slug: video }',
       yaml: `
         slug:
           id: example.slug-01
           traits:
-            - as: player
-              id: video-player
-            - as: recorder
-              id: video-recorder
+            - id: video-player
+              as: player
+            - id: video-recorder
+              as: recorder
           props:
             recorder:
               name: "Recorder A"
               description: The old man was dreaming about the lions.
               # file: urn:crdt:39qozwJjQcq4erBWbMdGc4jkd3Xr/foo
               file: crdt:create
+              script: |
+                He was an old man who fished alone in a skiff in the Gulf Stream and he had gone
+                eighty-four days now without taking a fish.
             player:
               name: "Player A"
 
