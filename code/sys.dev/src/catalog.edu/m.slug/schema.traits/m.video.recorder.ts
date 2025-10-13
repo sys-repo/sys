@@ -22,8 +22,6 @@ export const VideoRecorderPropsSchema: t.TSchema = T.Object(
     /**
      * Reference to a video file stored as a CRDT document.
      * Accepts either:
-     * - "crdt:<uuid>/[optional/path]"
-     * - "urn:crdt:<uuid>/[optional/path]"
      * - "crdt:<base62-28>/[optional/path]"
      * - "urn:crdt:<base62-28>/[optional/path]"
      * - "crdt:create"
