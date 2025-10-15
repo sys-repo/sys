@@ -111,7 +111,7 @@
       "env": true,
       "ffi": true,
       "run": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir"] }
     },
     "serve": {
       "read": true,
