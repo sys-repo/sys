@@ -1,5 +1,5 @@
-# @sys/yaml
-Foundational system YAML tools.
+# YAML
+Tools for working with [YAML](https://yaml.org/spec/1.2.2/) parsing, serialization, and schema-driven data structures.
 
 ## Overview
 This package provides a unified abstraction for YAML parsing, serialization, and schema validation pipelines.
