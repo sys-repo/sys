@@ -17,6 +17,7 @@
   "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
 
+  "editor.formatOnPaste": false,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "never",
     "source.removeUnusedImports": "never",
