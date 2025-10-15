@@ -16,17 +16,17 @@ export const Paths = {
     'code/sys/cli',
     'code/sys/crypto',
     'code/sys/fs',
-    'code/sys/schema',
 
     'code/sys/testing',
     'code/sys/process',
+    'code/sys/yaml',
+    'code/sys/schema',
 
     'code/sys/event',
     'code/sys/cmd',
     'code/sys/http',
     'code/sys/jsr',
     'code/sys/text',
-    'code/sys/yaml',
     'code/sys/tmpl-engine',
 
     /**
