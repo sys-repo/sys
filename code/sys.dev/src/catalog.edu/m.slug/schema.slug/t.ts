@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import { TraitBindingSchema } from './schema.trait.ts';
 
 /**
  * Stable, unique identifier of the slug.
@@ -19,3 +20,15 @@ export type SlugTraitId = t.StringId;
  * - Allows multiple instances of the same trait type under different aliases.
  */
 export type SlugTraitAlias = string;
+
+/**
+ * Canonical trait-binding type.
+ */
+export type SlugTraitBinding = t.Infer<typeof TraitBindingSchema>;
+
+/**
+ * Utility: Narrowed binding for a specific trait-id.
+ */
+export type SlugTraitBindingOf<K extends SlugTraitBinding['id']> = Omit<SlugTraitBinding, 'id'> & {
+  readonly id: K;
+};

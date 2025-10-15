@@ -5,37 +5,29 @@
  */
 import type { t } from './common.ts';
 
+import { Is } from './m.Is.ts';
+import { Validation } from './schema.validation/mod.ts';
+
 import { SlugSchema, TraitBindingSchema, TraitDefSchema } from './schema.slug/mod.ts';
 import { TraitRegistryDefault } from './schema.trait.registry/mod.ts';
 import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from './schema.traits/mod.ts';
-import {
-  attachSemanticRanges,
-  semanticErrorsToDiagnostics,
-  semanticErrorsToEditorDiagnostics,
-  validateAliasRules,
-  validatePropsShape,
-  validateSlug,
-  validateSlugAgainstRegistry,
-  validateTraitExistence,
-  validateWithRanges,
-} from './schema.validation/mod.ts';
 
 /**
  * Semantic Slug domain tools (registry-aware validators, helpers).
  */
-export const Slug: t.SlugDomainLib = {
-  Schema: { SlugSchema, TraitBindingSchema, TraitDefSchema },
-  Traits: { VideoPlayerPropsSchema, VideoRecorderPropsSchema },
-  Registry: { DefaultTraits: TraitRegistryDefault },
-  Validation: {
-    validateTraitExistence,
-    validateAliasRules,
-    validatePropsShape,
-    validateSlug,
-    validateSlugAgainstRegistry,
-    validateWithRanges,
-    attachSemanticRanges,
-    semanticErrorsToDiagnostics,
-    semanticErrorsToEditorDiagnostics,
+export const Slug: t.SlugLib = {
+  Is,
+  Validation,
+  Schema: {
+    SlugSchema,
+    TraitBindingSchema,
+    TraitDefSchema,
+  },
+  Traits: {
+    VideoPlayerPropsSchema,
+    VideoRecorderPropsSchema,
+  },
+  Registry: {
+    DefaultTraits: TraitRegistryDefault,
   },
 };

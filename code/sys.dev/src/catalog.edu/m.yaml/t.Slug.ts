@@ -9,7 +9,7 @@ export type * from './t.Slug.Error.ts';
  */
 export type YamlSlugLib = {
   /** Semantic Slug domain tools (registry-aware validators, helpers). */
-  readonly Domain: t.SlugDomainLib;
+  readonly Domain: t.SlugLib;
 
   /** Error helpers. */
   readonly Error: t.YamlSlugErrorLib;
