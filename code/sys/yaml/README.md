@@ -5,8 +5,8 @@ Tools for working with [YAML](https://yaml.org/spec/1.2.2/) parsing, serializati
 This package provides a unified abstraction for YAML parsing, serialization, and schema validation pipelines.
 
 ### Structure
-- **base** — core parser and helpers (`@sys/yaml` ← `@sys/yaml/core`)
-- **slug/** — semantic YAML layer for Slug definitions (`@sys/yaml/slug`)
+- **(base)** — core parser and helpers (`@sys/yaml` ← `@sys/yaml/core`)
+- **/slug** — semantic YAML layer for Slug definitions (`@sys/yaml/slug`)
 
 ### Goals
 - Single canonical YAML API for all sys modules.
