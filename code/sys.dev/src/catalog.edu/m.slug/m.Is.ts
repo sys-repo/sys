@@ -1,7 +1,28 @@
-import { type t, Is as is } from './common.ts';
+import { type t, Is as is, Value } from './common.ts';
+import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from './schema.traits/mod.ts';
 
 export const Is: t.SlugIsLib = {
-  videoRecorderBinding(m: any): m is t.VideoRecorderBinding {
+  /**
+   * True iff the value is a valid "video-recorder" trait binding
+   * with a non-empty `as` alias.
+   */
+  videoRecorderBinding(m: unknown): m is t.VideoRecorderBinding {
     return is.record(m) && m.id === 'video-recorder' && is.string(m.as) && m.as.length > 0;
+  },
+
+  /**
+   * True iff value conforms to the video-recorder props schema.
+   * (Schema-truthful; aligns with generated `t.VideoRecorderProps`.)
+   */
+  videoRecorderProps(u: unknown): u is t.VideoRecorderProps {
+    return Value.Check(VideoRecorderPropsSchema, u as unknown);
+  },
+
+  /**
+   * True iff value conforms to the video-player props schema.
+   * (Schema-truthful; aligns with generated `t.VideoPlayerProps`.)
+   */
+  videoPlayerProps(u: unknown): u is t.VideoPlayerProps {
+    return Value.Check(VideoPlayerPropsSchema, u as unknown);
   },
 } as const;

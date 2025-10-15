@@ -21,12 +21,6 @@ export type Slug = t.Infer<typeof SlugSchema>;
 export type TraitBinding = t.Infer<typeof TraitBindingSchema>;
 export type TraitDef = t.Infer<typeof TraitDefSchema>;
 
-/**
- * Trait Props
- */
-export type VideoPlayerProps = t.Infer<typeof VideoPlayerPropsSchema>;
-export type VideoRecorderProps = t.Infer<typeof VideoRecorderPropsSchema>;
-
 /** Slug decorated with semantic registry validation (internal use). */
 export type SlugValidated = t.Infer<typeof SlugSchema> & { readonly registry: CatalogTraitId[] };
 

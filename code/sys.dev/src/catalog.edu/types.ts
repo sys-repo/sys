@@ -1,6 +1,7 @@
 /**
  * @module Catalog-Types
  */
+import type { t } from './common.ts';
 
 /**
  * Library:

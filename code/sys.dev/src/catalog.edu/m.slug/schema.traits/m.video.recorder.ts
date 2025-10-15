@@ -1,9 +1,9 @@
-import { type t, Type as T } from './common.ts';
+import { Type as T } from './common.ts';
 
 /**
  * Properties: Video Recorder.
  */
-export const VideoRecorderPropsSchema: t.TSchema = T.Object(
+export const VideoRecorderPropsSchema = T.Object(
   {
     /** Display name (optional, non-empty if provided). */
     name: T.Optional(T.String({ minLength: 1 })),

@@ -33,4 +33,14 @@ export type SlugIsLib = {
    * with a non-empty `as` alias.
    */
   readonly videoRecorderBinding: (m: unknown) => m is t.VideoRecorderBinding;
+
+  /**
+   * True iff the value is valid video-recorder props per the schema.
+   */
+  readonly videoRecorderProps: (u: unknown) => u is t.VideoRecorderProps;
+
+  /**
+   * (Optional, symmetry) True iff the value is valid video-player props per the schema.
+   */
+  readonly videoPlayerProps: (u: unknown) => u is t.VideoPlayerProps;
 };

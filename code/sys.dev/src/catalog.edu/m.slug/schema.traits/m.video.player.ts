@@ -1,9 +1,9 @@
-import { type t, Type as T } from './common.ts';
+import { Type as T } from './common.ts';
 
 /**
  * Properties: Video Player.
  */
-export const VideoPlayerPropsSchema: t.TSchema = T.Object(
+export const VideoPlayerPropsSchema = T.Object(
   {
     /**
      * Display name (optional, non-empty if provided).
