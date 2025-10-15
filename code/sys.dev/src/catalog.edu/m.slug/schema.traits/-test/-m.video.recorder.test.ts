@@ -1,5 +1,8 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { Slug } from '../../mod.ts';
+
 import { type t, Value } from '../common.ts';
+import { VideoRecorderPropsSchema } from '../mod.ts';
 
 describe('trait: video-recorder', () => {
   describe('schema', () => {
@@ -53,5 +56,16 @@ describe('trait: video-recorder', () => {
       expectTypeOf(id).toEqualTypeOf<'video-recorder'>();
     });
 
-    //     it('Slug.Is.videoRecorderBinding signature stays correct', () => {
-    //       type Expect = (m: unknown) => m is t.SlugTraitBindingOf<'video-recorder'>;
+    it('Slug.Is.videoRecorderBinding signature stays correct', () => {
+      type Expect = (m: unknown) => m is t.SlugTraitBindingOf<'video-recorder'>;
+      const fn = Slug.Is.videoRecorderBinding;
+      expectTypeOf(fn).toEqualTypeOf<Expect>();
+
+      // Minimal runtime sanity:
+      expect(fn({ id: 'video-recorder', as: 'rec1' })).to.eql(true);
+      expect(fn({ id: 'video-player', as: 'rec1' })).to.eql(false);
+      expect(fn({ id: 'video-recorder' })).to.eql(false);
+      expect(fn(null)).to.eql(false);
+    });
+  });
+});
