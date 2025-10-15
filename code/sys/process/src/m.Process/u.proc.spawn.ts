@@ -1,5 +1,5 @@
 import { type t, c, Rx } from './common.ts';
-import { kill, Wrangle } from './u.ts';
+import { asCommand, kill } from './u.ts';
 
 type H = t.ProcHandle;
 type E = { source: t.StdStream; fn: t.ProcEventHandler };
@@ -19,7 +19,7 @@ export const spawn: t.ProcLib['spawn'] = (config) => {
   const $ = Rx.subject<t.ProcEvent>();
   const $$ = $.pipe(Rx.takeUntil(life.dispose$));
 
-  const command = Wrangle.command(config, { stdin: 'null' });
+  const command = asCommand(config, { stdin: 'null' });
   const child = command.spawn();
   const pid = child.pid;
 

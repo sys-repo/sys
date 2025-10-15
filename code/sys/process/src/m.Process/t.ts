@@ -11,6 +11,9 @@ export type StdStream = 'stdout' | 'stderr';
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
 export type ProcLib = {
+  /** Script helpers for preparing shell template strings. */
+  readonly Script: ScriptLib;
+
   /** Shared process signals. */
   readonly Signal: {
     /** Standard token a child process can print to stdout to mark "ready". */
@@ -36,9 +39,27 @@ export type ProcLib = {
   sh(path: t.StringPath): t.ShellProc;
 
   /**
-   * Run a multiline shell script (sugar over `sh(opts).run(script)`).
+   * Runs a multiline shell script with sane defaults
+   * for strictness and output control.
    */
-  // run(script: string, opt?: t.ShellProcOptions): Promise<t.ProcOutput>;
+  run(script: string, opts?: t.ShellProcOptions): Promise<t.ProcOutput>;
+};
+
+/**
+ * Script helpers for preparing shell template strings.
+ */
+export type ScriptLib = {
+  /**
+   * Dedent a template literal (standard behavior).
+   * Matches repo-wide `Str.dedent`.
+   */
+  t(strings: TemplateStringsArray, ...values: unknown[]): string;
+
+  /**
+   * Dedent and tightly trim (remove all outer blank lines).
+   * Ideal for clean `sh -c` scripts.
+   */
+  tight(strings: TemplateStringsArray, ...values: unknown[]): string;
 };
 
 /** Arguments passed to the `Process.invoke` method. */
