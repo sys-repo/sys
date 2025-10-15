@@ -90,11 +90,11 @@ groups:
     - import: npm:ai@5.0.71
     - import: npm:@ai-sdk/openai@2.0.52
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.20.2
+    - import: npm:@mastra/core@0.21.0
       subpaths: ['agent', 'memory', 'storage']
-    - import: npm:@mastra/libsql@0.15.1
-    - import: npm:@mastra/loggers@0.10.15
-    - import: npm:@mastra/memory@0.15.6
+    - import: npm:@mastra/libsql@0.15.2
+    - import: npm:@mastra/loggers@0.10.16
+    - import: npm:@mastra/memory@0.15.7
     - import: npm:ollama@0.6.0
     - import: npm:gpt-tokenizer@3.2.0
 
