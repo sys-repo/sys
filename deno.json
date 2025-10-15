@@ -50,6 +50,7 @@
     "code/sys/tmpl-engine",
     "code/sys/cmd",
     "code/sys/schema",
+    "code/sys/yaml",
 
     "code/sys.ui/ui-css",
     "code/sys.ui/ui-dom",

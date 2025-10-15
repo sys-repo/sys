@@ -1,0 +1,17 @@
+{
+  "name": "@sys/yaml",
+  "version": "0.0.0",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -P=testset",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check src/*",
+    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts"
+  }
+}
