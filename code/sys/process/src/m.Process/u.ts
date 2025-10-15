@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 export { kill } from './u.kill.ts';
 
 /**
- * Helpers
+ * Helpers:
  */
 export const Wrangle = {
   command(input: t.ProcInvokeArgs, options: { stdin?: t.Stdio } = {}) {

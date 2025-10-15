@@ -11,7 +11,9 @@ export type StdStream = 'stdout' | 'stderr';
  * https://docs.deno.com/api/deno/~/Deno.Command
  */
 export type ProcLib = {
+  /** Shared process signals. */
   readonly Signal: {
+    /** Standard token a child process can print to stdout to mark "ready". */
     readonly ready: 'PROCESS_READY';
   };
 
@@ -32,6 +34,11 @@ export type ProcLib = {
    */
   sh(options?: t.ShellProcOptions): t.ShellProc;
   sh(path: t.StringPath): t.ShellProc;
+
+  /**
+   * Run a multiline shell script (sugar over `sh(opts).run(script)`).
+   */
+  // run(script: string, opt?: t.ShellProcOptions): Promise<t.ProcOutput>;
 };
 
 /** Arguments passed to the `Process.invoke` method. */
