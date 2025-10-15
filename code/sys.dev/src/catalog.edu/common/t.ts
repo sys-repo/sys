@@ -15,8 +15,8 @@ export type {
 /**
  * @system
  */
-export type { Yaml } from '@sys/std/t';
 export type * from '@sys/types';
+export type { Yaml } from '@sys/yaml/t';
 
 /** User Interface: */
 export type { ColorTheme } from '@sys/color/t';

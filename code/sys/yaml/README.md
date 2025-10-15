@@ -6,7 +6,6 @@ and schema-driven data structures.
 ## Usage
 For basic YAML parsing and manipulation, import the core helpers from:
 
-#### Core
 ```ts
 import { Yaml } from '@sys/yaml';      //  ← primary entry
 import { Yaml } from '@sys/yaml/core'; //  ← same (core layer)
