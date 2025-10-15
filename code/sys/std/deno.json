@@ -31,7 +31,6 @@
     "./testing": "./src/m.Testing/mod.ts",
     "./testing/server": "./src/m.Testing.Server/mod.ts",
     "./url": "./src/m.Url/mod.ts",
-    "./value": "./src/m.Value/mod.ts",
-    "./yaml": "./src/m.Yaml/mod.ts"
+    "./value": "./src/m.Value/mod.ts"
   }
 }
