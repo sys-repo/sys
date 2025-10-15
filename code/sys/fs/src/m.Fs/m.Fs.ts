@@ -39,8 +39,8 @@ export const Fs: FsLib = {
   get Fmt() {
     return Fmt;
   },
-  stat,
 
+  stat,
   cwd,
   trimCwd: Path.trimCwd,
 
