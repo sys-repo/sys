@@ -15,6 +15,7 @@
     "./t/primitives": "./src/t.typebox.primitives.ts",
     "./types": "./src/types.ts",
     "./std": "./src/m.std/core/mod.ts",
-    "./std/ui": "./src/m.std/ui/mod.ts"
+    "./std/ui": "./src/m.std/ui/mod.ts",
+    "./testing": "./src/m.testing/mod.ts"
   }
 }
