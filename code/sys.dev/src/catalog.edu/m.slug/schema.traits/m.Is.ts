@@ -1,7 +1,8 @@
 import { type t, Is as is, Value } from './common.ts';
-import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from './schema.traits/mod.ts';
+import { VideoPlayerPropsSchema } from './m.video.player.ts';
+import { VideoRecorderPropsSchema } from './m.video.recorder.ts';
 
-export const Is: t.SlugIsLib = {
+export const Is: t.SlugTraitIsLib = {
   /**
    * True iff the value is a valid "video-recorder" trait binding
    * with a non-empty `as` alias.

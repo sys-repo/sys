@@ -58,7 +58,7 @@ describe('trait: video-recorder', () => {
 
     it('Slug.Is.videoRecorderBinding signature stays correct', () => {
       type Expect = (m: unknown) => m is t.SlugTraitBindingOf<'video-recorder'>;
-      const fn = Slug.Is.videoRecorderBinding;
+      const fn = Slug.Traits.Is.videoRecorderBinding;
       expectTypeOf(fn).toEqualTypeOf<Expect>();
 
       // Minimal runtime sanity:
