@@ -87,10 +87,10 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.71
+    - import: npm:ai@5.0.74
     - import: npm:@ai-sdk/openai@2.0.52
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.21.0
+    - import: npm:@mastra/core@0.21.1
       subpaths: ['agent', 'memory', 'storage']
     - import: npm:@mastra/libsql@0.15.2
     - import: npm:@mastra/loggers@0.10.16
@@ -122,9 +122,9 @@ deno.json:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.2
-  - import: npm:@farcaster/frame-sdk@0.1.11
+  - import: npm:@farcaster/frame-sdk@0.1.12
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@20.0.1
+  - import: npm:happy-dom@20.0.2
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.5
   - import: npm:immer@10.1.3
