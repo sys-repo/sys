@@ -18,7 +18,6 @@ if (import.meta.main) {
 
   console.info();
   console.info(c.green('Video'));
-  console.info(c.gray(path));
   await entry();
   console.info();
 }

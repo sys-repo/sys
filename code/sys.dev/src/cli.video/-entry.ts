@@ -1,4 +1,4 @@
-import { type t, Cli, Fs } from './common.ts';
+import { type t, c, Cli, Fs } from './common.ts';
 import { mp4ToWebm, webmToMp4 } from './u.convert.ts';
 import { selectSourceFile } from './u.file.select.ts';
 
@@ -12,6 +12,8 @@ const OPTIONS: { name: string; value: t.Conversion }[] = [
  */
 export async function entry(opts: { dir?: t.StringDir } = {}) {
   const dir = opts.dir ?? Fs.cwd('terminal');
+  console.info(c.gray(await Fs.Fmt.treeFromDir(dir, { indent: 1 })));
+  console.info();
 
   const chosen = await Cli.Prompt.Select.prompt<t.Conversion>({
     message: 'Choose conversion type:',
