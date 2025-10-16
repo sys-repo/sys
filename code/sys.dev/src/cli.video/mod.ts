@@ -13,11 +13,11 @@ export { VideoTools } from './m.VideoTools.ts';
  * CLI entry:
  */
 if (import.meta.main) {
-  const { entry } = await import('./-entry.ts');
+  const { cli } = await import('./u.cli.ts');
   const dir = Fs.cwd('terminal');
 
   console.info();
   console.info(c.green('Video Tools'));
-  await entry({ dir });
+  await cli({ dir });
   console.info();
 }

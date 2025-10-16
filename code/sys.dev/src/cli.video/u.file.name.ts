@@ -13,12 +13,8 @@ import { type t, Fs, Path } from './common.ts';
  *
  * - Never overwrite: probe the filesystem and pick the first free counter.
  */
-export async function nextOutPath(args: {
-  readonly src: t.StringPath;
-  readonly toExt: '.mp4' | '.webm';
-}): Promise<t.StringPath> {
+export const nextOutPath: t.VideoToolsLib['nextOutPath'] = async (args): Promise<t.StringPath> => {
   const { src, toExt } = args;
-
   const dir = Path.dirname(src);
   const name = Path.basename(src);
   const srcExt = Path.extname(name).toLowerCase(); // e.g. ".webm" | ".mp4"
@@ -37,7 +33,7 @@ export async function nextOutPath(args: {
 
   // find a free file: <base>.<NN><suffix>
   return (await findFree(dir as t.StringDir, `${parsed.base}.`, suffix, start)) as t.StringPath;
-}
+};
 
 /**
  * Helpers:
