@@ -1,8 +1,8 @@
-import React from 'react';
-import { type t, Color, css } from '../common.ts';
-
 import { Media } from '@sys/ui-react-components';
 import { RecorderHookView } from '@sys/ui-react-components/media/recorder/dev';
+
+import React from 'react';
+import { type t, Color, css, Slug } from '../common.ts';
 
 export type SlugViewVideoRecorderProps = {
   slug: t.Slug;
@@ -13,16 +13,14 @@ export type SlugViewVideoRecorderProps = {
 };
 type P = SlugViewVideoRecorderProps;
 
-type TmpProps = { name?: string };
-
 /**
  * Component:
  */
 export const SlugViewVideoRecorder: React.FC<P> = (props) => {
   const { debug = false, slug, traitAlias } = props;
+
   const traitProps = wrangle.traitProps(props);
-  const title = traitProps.name ?? 'Unnamed';
-  const theme = Color.theme(props.theme);
+  const title = traitProps?.name ?? 'Unnamed';
 
   /**
    * Hooks:
@@ -33,6 +31,7 @@ export const SlugViewVideoRecorder: React.FC<P> = (props) => {
   /**
    * Render:
    */
+  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
@@ -88,8 +87,9 @@ export const SlugViewVideoRecorder: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  traitProps(props: P) {
+  traitProps(props: P): t.VideoRecorderProps | undefined {
     const { slug, traitAlias } = props;
-    return slug.props?.[traitAlias] as TmpProps;
+    const v = slug.props?.[traitAlias];
+    return Slug.Traits.Is.videoPlayerProps(v) ? v : undefined;
   },
 } as const;
