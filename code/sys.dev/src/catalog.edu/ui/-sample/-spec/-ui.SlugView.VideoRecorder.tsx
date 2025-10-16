@@ -33,11 +33,7 @@ export const SlugViewVideoRecorder: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      display: 'grid',
-    }),
+    base: css({ backgroundColor: Color.ruby(debug), color: theme.fg, display: 'grid' }),
     title: css({
       Padding: [5, 8],
       backgroundColor: Color.alpha(theme.fg, 0.06),
