@@ -83,7 +83,7 @@ export function createDebugSignals() {
   Signal.effect(() => {
     const doc = p.doc.value;
     const updateDyads = () => Peer.Conn.updateDyads(P.ROOM.connections.dyads.path, doc);
-    updateDyads(); // Immediate: run on load.
+    updateDyads(); // Immediate.
 
     _events?.dispose?.();
     _events = doc?.events();
