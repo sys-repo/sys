@@ -1,6 +1,7 @@
 import { pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
+export { logMedia } from '../Media.Devices/u.logging.ts';
 export { AspectRatio } from '../Media/m.AspectRatio.ts';
 export { Is } from '../Media/m.Is.ts';
 export { Log } from '../Media/m.Log.ts';
