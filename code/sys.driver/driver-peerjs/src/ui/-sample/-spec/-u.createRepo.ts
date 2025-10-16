@@ -8,7 +8,7 @@ export function createRepo() {
   const isLocalhost = location.hostname === 'localhost';
 
   const repo = Crdt.repo({
-    storage: { database: 'dev:slc.crdt' },
+    storage: { database: 'dev:sys.crdt' },
     network: [
       //
       { ws: 'sync.db.team' },
