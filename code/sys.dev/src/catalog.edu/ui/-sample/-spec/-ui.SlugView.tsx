@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css } from '../common.ts';
+import { type t, Color, css, Slug } from '../common.ts';
 import { SlugViewVideoRecorder } from './-ui.SlugView.VideoRecorder.tsx';
 
 export type SlugViewProps = {
@@ -14,16 +14,15 @@ export type SlugViewProps = {
  */
 export const SlugView: React.FC<SlugViewProps> = (props) => {
   const { debug = false, slug } = props;
-
   if (!slug) return null;
-  console.log('slug', slug);
 
-  const theme = Color.theme(props.theme);
-  const recorders = slug.traits.filter((m) => m.id === 'video-recorder');
+  const traits = slug.traits ?? []; // ← make sure we have an [array].
+  const recorders = traits.filter((m) => Slug.Traits.Is.videoRecorderBinding(m));
 
   /**
    * Render:
    */
+  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
