@@ -11,12 +11,14 @@ import {
   ObjectView,
   P,
   Peer,
+  Rx,
   Signal,
   useDist,
   type t,
 } from '../common.ts';
 import { createPeer } from './-u.createPeer.ts';
 import { createRepo } from './-u.createRepo.ts';
+import { ding } from './-u.ding.ts';
 import { DevConnectionsButtons } from './-ui.Dev.ConnectionsButtons.tsx';
 import { ViewsList } from './-ui.ts';
 
@@ -53,16 +55,20 @@ export function createDebugSignals() {
     selectedPath: s<t.ObjectPath>([]),
   };
   const p = props;
-  const redraw = () => p.redraw.value++;
   const api = {
     props,
     repo,
     peer,
     redraw,
-    listen() {
-      Signal.listen(props);
-    },
+    listen,
   };
+
+  function redraw() {
+    p.redraw.value++;
+  }
+  function listen() {
+    Signal.listen(props);
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -81,10 +87,16 @@ export function createDebugSignals() {
 
     _events?.dispose?.();
     _events = doc?.events();
-    _events?.$.subscribe(() => {
-      updateDyads();
-      api.redraw();
-    });
+    const $ = _events?.$;
+    if (!$) return;
+
+    type T = t.WebRtc.PeerId[];
+    $.subscribe(() => updateDyads());
+    $.pipe(
+      Rx.map(() => Obj.Path.get<T>(doc?.current, P.ROOM.connections.group.path, [])),
+      Rx.distinctWhile((a, b) => a.join() === b.join()),
+      Rx.debounceTime(500),
+    ).subscribe((e) => ding());
   });
 
   return api;
