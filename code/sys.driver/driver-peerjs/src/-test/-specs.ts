@@ -10,5 +10,5 @@ export const ns = 'driver.peerjs';
  */
 export const Specs = {
   [`${ns}: ui.Avatar`]: () => import('../ui/ui.Avatar/-spec/-SPEC.tsx'),
-  [`${ns}: ui.Sample`]: () => import('../ui/ui.Sample/-spec/-SPEC.tsx'),
+  [`${ns}: ui.Sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),
 } as t.SpecImports;
