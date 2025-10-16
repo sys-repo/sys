@@ -61,10 +61,26 @@ export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
 
 async function convertOne(args: { conversion: t.Conversion; src: string }) {
   const { conversion, src } = args;
+
   switch (conversion) {
+    /**
+     * WebM (VP9) → MP4 (H.264)
+     * Strategy: keep the *intermediate MP4* high quality to minimize generational loss,
+     * since the MP4 is just a hop before we (often) go back to WebM.
+     * - Lower CRF = higher quality (bigger file). 14 is a “near-visually-lossless” tier.
+     * - Slightly higher AAC bitrate to avoid audible artifacts on the round-trip.
+     */
     case 'webm-to-mp4':
-      return webmToMp4({ src });
+      return webmToMp4({ src, crf: 14, aacKbps: 192 });
+
+    /**
+     * MP4 (H.264) → WebM (VP9)
+     * Strategy: make the *final WebM* the size-focused encode while keeping quality solid.
+     * - CRF 30 is a good “small but safe” default; lower to 28 for more quality,
+     *   raise to 32 for smaller files.
+     * - Opus 128 kbps is a clean default; drop to 96 kbps if you need extra shrink.
+     */
     case 'mp4-to-webm':
-      return mp4ToWebm({ src });
+      return mp4ToWebm({ src, crf: 30, opusKbps: 128 });
   }
 }
