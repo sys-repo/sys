@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs } from './common.ts';
+import { type t, c, Cli, Fs, pkg } from './common.ts';
 import { mp4ToWebm, webmToMp4 } from './u.convert.ts';
 import { selectSourceFiles } from './u.file.select.ts';
 
@@ -9,6 +9,9 @@ const OPTIONS: { name: string; value: t.Conversion }[] = [
 
 export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
   const dir = opts.dir ?? Fs.cwd('terminal');
+
+  console.info();
+  console.info(c.gray(`${c.green('Video Tools')} v${pkg.version}`));
   console.info(c.gray(await Fs.Fmt.treeFromDir(dir, { indent: 2 })));
   console.info();
 

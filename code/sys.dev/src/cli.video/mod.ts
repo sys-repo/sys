@@ -14,10 +14,6 @@ export { VideoTools } from './m.VideoTools.ts';
  */
 if (import.meta.main) {
   const { cli } = await import('./u.cli.ts');
-  const dir = Fs.cwd('terminal');
-
-  console.info();
-  console.info(c.green('Video Tools'));
-  await cli({ dir });
+  await cli({ dir: Fs.cwd('terminal') });
   console.info();
 }
