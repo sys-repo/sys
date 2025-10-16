@@ -14,16 +14,17 @@ export const webmToMp4: t.WebmToMp4 = async (args) => {
   const crf = args.crf ?? 18;
   const aac = args.aacKbps ?? 160;
 
-  // show the exact target path before encoding
-  console.info(`→ ${Fs.trimCwd(out, { prefix: true })}`);
-
-  const res = await Process.run(`
+  // Show the exact target path before encoding:
+  const res = await Process.run(
+    `
     ffmpeg -y -i "${src}" \
       -map 0:v -map 0:a? \
       -c:v libx264 -preset slow -profile:v high -pix_fmt yuv420p -crf ${crf} \
       -c:a aac -b:a ${aac}k -ac 2 -movflags +faststart \
       "${out}"
-  `);
+  `,
+    { silent: true },
+  );
   ensureOk(res, 'webm→mp4');
   return out;
 };
@@ -38,17 +39,18 @@ export const mp4ToWebm: t.Mp4ToWebm = async (args) => {
   const crf = args.crf ?? 32;
   const opus = args.opusKbps ?? 96;
 
-  // show the exact target path before encoding
-  console.info(`→ ${Fs.trimCwd(out, { prefix: true })}`);
-
-  const res = await Process.run(`
+  // Show the exact target path before encoding:
+  const res = await Process.run(
+    `
     ffmpeg -y -i "${src}" \
       -map 0:v -map 0:a? \
       -c:v libvpx-vp9 -b:v 0 -crf ${crf} \
       -row-mt 1 -tile-columns 2 -threads 8 -g 240 -aq-mode 0 -cpu-used 2 \
       -c:a libopus -b:a ${opus}k -ac 2 \
       "${out}"
-  `);
+  `,
+    { silent: true },
+  );
   ensureOk(res, 'mp4→webm');
   return out;
 };

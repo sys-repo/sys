@@ -7,12 +7,9 @@ const OPTIONS: { name: string; value: t.Conversion }[] = [
   { name: 'convert .mp4 → .webm', value: 'mp4-to-webm' },
 ];
 
-/**
- * Ask the user what conversion they want to perform, then run it.
- */
 export async function entry(opts: { dir?: t.StringDir } = {}) {
   const dir = opts.dir ?? Fs.cwd('terminal');
-  console.info(c.gray(await Fs.Fmt.treeFromDir(dir, { indent: 1 })));
+  console.info(c.gray(await Fs.Fmt.treeFromDir(dir, { indent: 2 })));
   console.info();
 
   const chosen = await Cli.Prompt.Select.prompt<t.Conversion>({
@@ -22,30 +19,35 @@ export async function entry(opts: { dir?: t.StringDir } = {}) {
 
   const conversion = chosen as t.Conversion;
   const src = await selectSourceFile({ dir, conversion });
-  if (!src) return; // nothing to do (no candidates or user aborted)
+  if (!src) return;
+
+  const prettySrc = Fs.trimCwd(src, { prefix: true });
+
+  // Spinner starts here:
+  const label =
+    conversion === 'webm-to-mp4'
+      ? `Converting ${prettySrc} → ${c.cyan('.mp4')}`
+      : `Converting ${prettySrc} → ${c.cyan('.webm')}`;
+  const spin = Cli.spinner(c.gray(label));
 
   try {
     const out = await convertOne({ conversion, src });
-    console.info(`\nDone → ${Fs.trimCwd(out, { prefix: true })}\n`);
+    const prettyOut = Fs.trimCwd(out, { prefix: true });
+    spin.succeed(c.gray(`${c.green('Saved')} → ${prettyOut}`));
+    console.info(); // spacing
   } catch (err) {
-    console.error('\nConversion failed:', err instanceof Error ? err.message : err, '\n');
+    const msg = err instanceof Error ? err.message : String(err);
+    spin.fail(`Conversion failed: ${msg}`);
+    console.info(); // spacing
   }
 }
 
-/**
- * Helpers:
- */
 async function convertOne(args: { conversion: t.Conversion; src: string }) {
   const { conversion, src } = args;
-
   switch (conversion) {
-    case 'webm-to-mp4': {
-      console.info(`\nConverting .webm → .mp4\n${Fs.trimCwd(src, { prefix: true })}`);
-      return await webmToMp4({ src });
-    }
-    case 'mp4-to-webm': {
-      console.info(`\nConverting .mp4 → .webm\n${Fs.trimCwd(src, { prefix: true })}`);
-      return await mp4ToWebm({ src });
-    }
+    case 'webm-to-mp4':
+      return webmToMp4({ src });
+    case 'mp4-to-webm':
+      return mp4ToWebm({ src });
   }
 }

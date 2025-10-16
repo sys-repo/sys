@@ -2,7 +2,7 @@
  * @module
  * CLI utilities for processing and transforming video files.
  */
-import { type t, c, Fs } from './common.ts';
+import { c, Fs } from './common.ts';
 
 /**
  * Library:
@@ -14,10 +14,10 @@ export { VideoTools } from './m.VideoTools.ts';
  */
 if (import.meta.main) {
   const { entry } = await import('./-entry.ts');
-  const path = Fs.cwd('terminal');
+  const dir = Fs.cwd('terminal');
 
   console.info();
-  console.info(c.green('Video'));
-  await entry();
+  console.info(c.green('Video Tools'));
+  await entry({ dir });
   console.info();
 }
