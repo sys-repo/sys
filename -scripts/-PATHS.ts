@@ -3,7 +3,7 @@ export { Path } from '@sys/std';
 
 export const Paths = {
   workspace: denojson.workspace,
-  modules: ['code/sys.dev'],
+  modules: ['code/sys.dev'], // TEMP 🐷
   modules__: [
     // types:
     'code/sys/types',
