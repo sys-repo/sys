@@ -1,6 +1,4 @@
-import { Peer as PeerJS, type PeerOptions } from 'peerjs';
 import React from 'react';
-
 import {
   Button,
   Crdt,
@@ -14,12 +12,11 @@ import {
   P,
   Peer,
   Signal,
-  slug,
-  Url,
   useDist,
   type t,
 } from '../common.ts';
-
+import { createPeer } from './-u.createPeer.ts';
+import { createRepo } from './-u.createRepo.ts';
 import { DevConnectionsButtons } from './-ui.Dev.ConnectionsButtons.tsx';
 import { ViewsList } from './-ui.ts';
 
@@ -33,54 +30,18 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type Storage = Pick<P, 'theme'>;
 
 /**
- * REF: https://peerjs.com
- */
-export function createPeer() {
-  const peerId = `webrtc-peer-${slug()}`;
-  console.info(`connecting: ${peerId}...`);
-
-  const peerOptions: PeerOptions = {
-    host: 'webrtc.db.team',
-    port: 443, //       ← Force HTTPS.
-    secure: true, //    ← TLS (Transport Layer Security).
-    debug: 2, //        ← 0 = silent, 1 = errors, 2 = warnings+errors, 3 = all.
-  };
-
-  const peer = new PeerJS(peerId, peerOptions);
-  peer.on('open', (id) => console.info('⚡️ peer.on/open:', id));
-  peer.on('error', (err) => console.error('⚡️ peer.on/error: 💥', err));
-
-  return peer;
-}
-
-/**
  * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const peer = createPeer();
-  console.info('🐚 peer:', peer);
-
   const defaults: Storage = { theme: 'Dark' };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  /**
-   * CRDT:
-   */
-  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
-  const isLocalhost = location.hostname === 'localhost';
-  const repo = Crdt.repo({
-    storage: { database: 'dev:slc.crdt' },
-    network: [
-      //
-      // { ws: 'waiheke.sync.db.team' },
-      { ws: 'sync.db.team' },
-      isLocalhost && { ws: 'localhost:3030' },
-      qsSyncServer && { ws: qsSyncServer },
-    ],
-  });
+  const repo = createRepo();
+  const peer = createPeer();
+  console.info('🐚 peer:', peer);
 
   const props = {
     redraw: s(0),
