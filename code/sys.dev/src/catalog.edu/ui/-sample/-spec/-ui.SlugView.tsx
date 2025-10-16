@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { type t, Color, css, Slug } from '../common.ts';
 import { SlugViewVideoRecorder } from './-ui.SlugView.VideoRecorder.tsx';
 
@@ -16,9 +17,6 @@ export const SlugView: React.FC<SlugViewProps> = (props) => {
   const { debug = false, slug } = props;
   if (!slug) return null;
 
-  const traits = slug.traits ?? []; // ← make sure we have an [array].
-  const recorders = traits.filter((m) => Slug.Traits.Is.videoRecorderBinding(m));
-
   /**
    * Render:
    */
@@ -32,10 +30,17 @@ export const SlugView: React.FC<SlugViewProps> = (props) => {
     }),
   };
 
+  const recorders = slug.traits.filter(Slug.Traits.Is.videoRecorderBinding);
   const elRecorders = recorders.map((trait, i) => {
-    const key = `${i}.${trait.id}:${trait.as}`;
-    return <SlugViewVideoRecorder key={key} theme={theme.name} slug={slug} traitAlias={trait.as} />;
+    return (
+      <SlugViewVideoRecorder
+        key={`${i}.${trait.id}:${trait.as}`}
+        slug={slug}
+        traitAlias={trait.as}
+        theme={theme.name}
+      />
+    );
   });
 
-  return <div className={css(styles.base, props.style).class}>{elRecorders} </div>;
+  return <div className={css(styles.base, props.style).class}>{elRecorders}</div>;
 };
