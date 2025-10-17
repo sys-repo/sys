@@ -1,4 +1,5 @@
 import React from 'react';
+import { SignalsObjectView } from '../-dev/ui.SignalsObjectView.tsx';
 import { createRepo } from '../../-test.ui.ts';
 import {
   type t,
@@ -12,7 +13,6 @@ import {
   STORAGE_KEY,
   Str,
 } from '../common.ts';
-import { SignalsObjectView } from './-ui.SignalsObjectView.tsx';
 
 type P = t.VideoRecorderViewProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'configVisible'> & {

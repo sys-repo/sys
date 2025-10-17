@@ -23,6 +23,7 @@ export const Main: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={theme.name} borderOpacity={0.08}>
+        <div className={styles.body.class}>{`🐷 Main`}</div>
       </Cropmarks>
     </div>
   );

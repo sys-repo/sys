@@ -34,9 +34,9 @@ export const Config: React.FC<P> = (props) => {
     }),
     mediaList: css({ marginRight: 10 }),
     waveform: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
       height: 40,
       marginTop: 20,
+      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
     }),
   };
 
@@ -64,6 +64,9 @@ export const Config: React.FC<P> = (props) => {
         }}
       />
 
+      {/*
+       * TODO 🐷🐷🐷🐷🐷🐷
+       */}
       <Media.UI.AudioWaveform
         //
         theme={theme.name}
