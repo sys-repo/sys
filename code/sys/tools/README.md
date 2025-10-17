@@ -1,5 +1,5 @@
 # @sys/tools
-	Common system tools index (with Programmatic and CLI entrypoints).
+Common system tools index (with Programmatic and CLI entrypoints).
 
 
 ### Video
