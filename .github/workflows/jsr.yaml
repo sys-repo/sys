@@ -230,6 +230,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/tools"
+        run: |
+          cd code/sys/tools
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/tmpl"
         run: |
           cd code/-tmpl

@@ -53,9 +53,11 @@ export const Paths = {
     'code/sys.driver/driver-prosemirror',
 
     /**
-     * Curated (named) entry points:
+     * Curated (named) entry points and
+     * higher-order bundles of system functionality:
      */
     'code/sys/crdt',
+    'code/sys/tools',
 
     /**
      * sys.dev: (programming system)
