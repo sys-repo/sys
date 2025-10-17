@@ -140,8 +140,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={'signals'}
         data={{
-          camera: simplifyDeviceInfo(signals.camera?.value),
-          audio: simplifyDeviceInfo(signals.audio?.value),
+          'camera:device': simplifyDeviceInfo(signals.camera?.value),
+          'audio:device': simplifyDeviceInfo(signals.audio?.value),
         }}
         style={{ marginTop: 5 }}
         expand={1}
