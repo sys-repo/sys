@@ -3,10 +3,11 @@ import { ObjectView } from '../../u.ts';
 import { type t, Button, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.DevicesProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'rowGap'> & { filter?: boolean };
+type Storage = Pick<P, 'theme' | 'debug' | 'rowGap'> & { filter?: boolean; debugNarrow?: boolean };
 const defaults: Storage = {
-  theme: 'Dark',
   debug: false,
+  debugNarrow: false,
+  theme: 'Dark',
   filter: false,
   rowGap: D.rowGap,
 };
@@ -28,6 +29,7 @@ export function createDebugSignals() {
 
   const props = {
     debug: s(snap.debug),
+    debugNarrow: s(snap.debugNarrow),
     theme: s(snap.theme),
     filter: s(snap.filter),
     rowGap: s(snap.rowGap),
@@ -52,6 +54,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.debugNarrow = p.debugNarrow.value;
       d.filter = p.filter.value;
       d.rowGap = p.rowGap.value;
     });
@@ -113,6 +116,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `debug / narrow: ${p.debugNarrow.value}`}
+        onClick={() => Signal.toggle(p.debugNarrow)}
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
