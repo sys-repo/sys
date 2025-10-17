@@ -13,11 +13,13 @@
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "help": "deno run -P=dev   ./-scripts/-vite.ts --cmd=help",
 
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+    "tmp__": "deno run -A ./-scripts/-tmp.ts",
+    "tmp": "deno run -P=testset @sys/dev/video"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./video": "./src/cli.video/mod.ts"
   }
 }
