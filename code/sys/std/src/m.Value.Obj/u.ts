@@ -1,5 +1,4 @@
-import { R, isRecord } from './common.ts';
-import { walk } from './u.walk.ts';
+import { isRecord } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -37,38 +36,6 @@ export function toArray<T = Record<string, unknown>, K = keyof T>(
   obj: Record<string, any>,
 ): { key: K; value: T[keyof T] }[] {
   return Object.keys(obj).map((key) => ({ key: key as unknown as K, value: obj[key] }));
-}
-
-/**
- * Walk the tree and ensure all strings are less than the given max-length.
- */
-export function trimStringsDeep<T extends Record<string, any>>(
-  obj: T,
-  options: { maxLength?: number; ellipsis?: boolean; mutate?: boolean } | number = {},
-) {
-  // NB: This is a recursive function ← via Object.walk(🌳)
-  const opt = typeof options === 'number' ? { maxLength: options } : options;
-  const { ellipsis = true, mutate = false } = opt;
-  const MAX = opt.maxLength ?? 35;
-
-  const adjust = (obj: Record<string, string>) => {
-    Object.entries(obj).forEach(([key, value]) => {
-      if (typeof value === 'string' && value.length > MAX) {
-        let text = value.slice(0, MAX);
-        if (ellipsis) text += '...';
-        (obj as any)[key] = text;
-      }
-    });
-  };
-
-  const subject = mutate ? obj : R.clone(obj);
-  adjust(subject);
-  walk(subject, (e) => {
-    const value = e.value;
-    if (typeof value === 'object' && value !== null) adjust(value);
-  });
-
-  return subject;
 }
 
 /**
