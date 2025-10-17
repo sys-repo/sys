@@ -11,7 +11,7 @@ export default Spec.describe('Devices', (e) => {
 
     function updateSize() {
       const isNarrow = p.debugNarrow.value;
-      ctx.subject.size([isNarrow ? 400 : 240, null]);
+      ctx.subject.size([isNarrow ? 240 : 400, null]);
       ctx.redraw();
     }
     updateSize(); // Iniital seed.

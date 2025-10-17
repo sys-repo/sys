@@ -37,6 +37,10 @@ export const Row: React.FC<RowProps> = (props) => {
     label: css({
       fontSize: 14,
       color: selected ? color : undefined,
+      minWidth: 0, // allow shrinking inside CSS grid.
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
     }),
   };
 
