@@ -53,21 +53,13 @@ export function createDebugSignals() {
   const api = {
     props,
     localstore,
-    listen() {
-      p.debug.value;
-      p.config.filters.value;
-      p.config.zoom.value;
-
-      p.theme.value;
-      p.stream.value;
-      p.recorder.value;
-      p.filter.value;
-      p.zoom.value;
-      p.aspectRatio.value;
-      p.selectedCamera.value;
-      p.selectAudio.value;
-    },
+    listen,
   };
+
+  function listen() {
+    Signal.listen(p);
+  }
+
   return api;
 }
 
@@ -117,7 +109,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       </div>
 
       <hr />
-      <div className={Styles.title.class}>{'Camera'}</div>
+      <div className={Styles.title.class}>{'Input'}</div>
 
       <Media.Devices.UI.List
         style={{ MarginX: 20 }}
