@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, Crdt, css, D, Rx, Signal } from './common.ts';
+import React from 'react';
+import { type t, Color, Crdt, css, D } from './common.ts';
 
 type P = t.VideoRecorderViewProps;
 
@@ -26,14 +26,14 @@ export const Header: React.FC<P> = (props) => {
       color: theme.fg,
       display: 'grid',
     }),
-    documentId: css({
+    doc: css({
       height: DOC.visible ? undefined : 0,
       overflow: 'hidden',
     }),
   };
 
-  const elDocumentId = (
-    <div className={styles.documentId.class}>
+  const elDoc = (
+    <div className={styles.doc.class}>
       <Crdt.UI.DocumentId.View
         background={theme.is.dark ? -0.06 : -0.04}
         theme={theme.name}
@@ -50,5 +50,5 @@ export const Header: React.FC<P> = (props) => {
     </div>
   );
 
-  return <div className={css(styles.base, props.style).class}>{elDocumentId}</div>;
+  return <div className={css(styles.base, props.style).class}>{elDoc}</div>;
 };

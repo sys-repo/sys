@@ -2,6 +2,7 @@ import React from 'react';
 
 import { type t, Color, css, D } from './common.ts';
 import { Config } from './ui.Config.tsx';
+import { Footer } from './ui.Footer.tsx';
 import { Header } from './ui.Header.tsx';
 import { Main } from './ui.Main.tsx';
 
@@ -19,7 +20,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       display: 'grid',
-      gridTemplateRows: 'auto 1fr',
+      gridTemplateRows: 'auto 1fr auto',
     }),
     body: {
       base: css({
@@ -46,6 +47,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Header {...props} />
       {elBody}
+      <Footer {...props} />
     </div>
   );
 };

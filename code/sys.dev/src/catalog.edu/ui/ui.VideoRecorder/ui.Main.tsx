@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, Cropmarks, css, D, Rx, Signal } from './common.ts';
+import React from 'react';
+import { type t, Color, Cropmarks, css } from './common.ts';
 
 type P = t.VideoRecorderViewProps;
 
@@ -14,11 +14,7 @@ export const Main: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      display: 'grid',
-    }),
+    base: css({ color: theme.fg, display: 'grid' }),
     body: css({
       padding: 15,
     }),
@@ -26,7 +22,7 @@ export const Main: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={theme.name}>
+      <Cropmarks theme={theme.name} borderOpacity={0.08}>
       </Cropmarks>
     </div>
   );

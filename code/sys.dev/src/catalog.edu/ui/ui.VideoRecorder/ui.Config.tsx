@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, Media } from './common.ts';
-import { Footer } from './ui.Config.Footer.tsx';
+import { edgeBorder } from './u.ts';
 
 type P = t.VideoRecorderViewProps;
 
@@ -14,28 +14,30 @@ export const Config: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const edgeBorder = `solid 1px ${Color.alpha(theme.fg, 0.2)}`;
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      borderLeft: edgeBorder,
+      borderLeft: edgeBorder(theme),
       width: 340,
       display: 'grid',
-      gridTemplateRows: '1fr auto',
     }),
     body: css({
       boxSizing: 'border-box',
       padding: 10,
       paddingTop: 20,
     }),
-    footer: css({ borderTop: edgeBorder }),
+    footer: css({ borderTop: edgeBorder(theme) }),
     hr: css({
       border: 'none',
       borderTop: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
       MarginY: 20,
     }),
     mediaList: css({ marginRight: 10 }),
+    waveform: css({
+      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      height: 40,
+      marginTop: 20,
+    }),
   };
 
   const elBody = (
@@ -61,13 +63,15 @@ export const Config: React.FC<P> = (props) => {
           if (signals.audio) signals.audio.value = e.info;
         }}
       />
+
+      <Media.UI.AudioWaveform
+        //
+        theme={theme.name}
+        style={styles.waveform}
+        // stream={p.stream.value}
+      />
     </div>
   );
 
-  return (
-    <div className={css(styles.base, props.style).class}>
-      {elBody}
-      <Footer {...props} style={styles.footer} />
-    </div>
-  );
+  return <div className={css(styles.base, props.style).class}>{elBody}</div>;
 };

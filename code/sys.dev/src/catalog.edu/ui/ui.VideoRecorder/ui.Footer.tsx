@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, Crdt, css, D } from './common.ts';
+import { edgeBorder } from './u.ts';
 
 type P = t.VideoRecorderViewProps;
 
@@ -16,9 +17,10 @@ export const Footer: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      borderTop: edgeBorder(theme),
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      Padding: [10, 10],
+      Padding: [8, 10],
       display: 'grid',
       gridTemplateColumns: 'auto 1fr auto',
     }),
@@ -37,9 +39,9 @@ export const Footer: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.right.class}>{elRepoSwitch}</div>
-      <div />
       <div className={styles.left.class}></div>
+      <div />
+      <div className={styles.right.class}>{elRepoSwitch}</div>
     </div>
   );
 };
