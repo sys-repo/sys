@@ -11,8 +11,8 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   const { debug = false, bus$, repo, localstorage, signals } = props;
   const yaml = signals?.yaml?.value;
 
-  const docPath: t.ObjectPath = props.docPath ?? []; //    ← CRDT document location of YAML text.
-  const slugPath: t.ObjectPath = props.slugPath ?? []; //  ← path inside YAML to the slug root
+  const docPath: t.ObjectPath = props.docPath ?? []; //   ← CRDT document location of YAML text.
+  const slugPath: t.ObjectPath = props.slugPath ?? []; // ← path inside YAML to the slug root
 
   /**
    * Hooks:
