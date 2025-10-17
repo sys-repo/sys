@@ -1,9 +1,8 @@
 import React from 'react';
-import { type t, Color, css, Media, Obj, ObjectView } from '../common.ts';
+import { type t, Obj, ObjectView } from '../common.ts';
 
 export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> & {
-  signals?: t.VideoRecorderViewSignals;
-  debug?: boolean;
+  signals?: t.CrdtLayoutSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -12,59 +11,22 @@ export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> 
  * Component:
  */
 export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
-  const { debug = false, signals, name = 'signals' } = props;
-
+  const { signals, name = 'signals' } = props;
+  const doc = signals?.doc?.value;
   const field = {
-    camera: mediaField('camera:device', signals?.camera?.value),
-    audio: mediaField('audio:device', signals?.audio?.value),
+    doc: doc ? `doc(id:..${doc.id.slice(-5)})` : 'doc',
   };
 
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      display: 'grid',
-    }),
-  };
-
   return (
-    <div className={css(styles.base, props.style).class}>
-      <ObjectView
-        theme={theme.name}
-        name={name}
-        data={{
-          [field.camera.label]: field.camera.value,
-          [field.audio.label]: field.audio.value,
-        }}
-        style={{ marginTop: 5 }}
-        expand={1}
-      />
-    </div>
+    <ObjectView
+      theme={props.theme}
+      name={name}
+      data={{ [field.doc]: Obj.trimStringsDeep(doc?.current) }}
+      expand={props.expand}
+      style={props.style}
+    />
   );
 };
-
-/**
- * Helpers:
- */
-function mediaField(labelPrefix?: string, info?: MediaDeviceInfo) {
-  let label = `${labelPrefix}`;
-  if (info?.deviceId) label = `${label}:#${info.deviceId.slice(0, 4)}`;
-  return { label, value: simplifyDeviceInfo(info) };
-}
-
-function simplifyDeviceInfo(device?: MediaDeviceInfo) {
-  if (!device) return;
-  return Obj.trimStringsDeep(
-    {
-      deviceId: device.deviceId,
-      kind: device.kind,
-      label: device.label,
-      groupId: device.groupId,
-    },
-    20,
-  );
-}

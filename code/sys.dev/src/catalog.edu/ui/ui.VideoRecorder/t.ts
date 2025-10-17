@@ -27,8 +27,7 @@ export type VideoRecorderViewDocumentIdProps = {
 /**
  * State wrapped in signals.
  */
-export type VideoRecorderViewSignals = {
-  doc?: t.Signal<t.Crdt.Ref | undefined>;
+export type VideoRecorderViewSignals = t.CrdtLayoutSignals & {
   camera?: t.Signal<MediaDeviceInfo | undefined>;
   audio?: t.Signal<MediaDeviceInfo | undefined>;
 };

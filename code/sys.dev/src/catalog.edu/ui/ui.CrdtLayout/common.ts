@@ -12,14 +12,15 @@ export { Media } from '@sys/ui-react-components';
 /**
  * Constants:
  */
-const name = 'CrdtLayout';
-const documentId: t.CrdtLayoutDocumentIdProps = { visible: true, readOnly: false };
+const name = 'Crdt.Layout';
+const header: t.CrdtLayoutHeaderConfig = { visible: true, readOnly: false };
+const sidebar: t.CrdtLayoutSidebarConfig = { visible: true, position: 'right', width: 340 };
 
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-  documentId,
-  configVisible: true satisfies P['configVisible'],
+  header,
+  sidebar,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.name}` };

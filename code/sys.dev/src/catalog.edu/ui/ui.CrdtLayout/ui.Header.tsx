@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, Crdt, css, D } from './common.ts';
+import { type t, Color, Crdt, css } from './common.ts';
+import { headerConfig } from './u.ts';
 
 type P = t.CrdtLayoutProps;
 
@@ -8,13 +9,7 @@ type P = t.CrdtLayoutProps;
  */
 export const Header: React.FC<P> = (props) => {
   const { debug = false, repo, signals = {} } = props;
-
-  const DOC = {
-    visible: props.documentId?.visible ?? D.documentId.visible,
-    readOnly: props.documentId?.readOnly ?? D.documentId.readOnly,
-    localstorage: props.documentId?.localstorage,
-    urlKey: props.documentId?.urlKey,
-  } as const;
+  const config = headerConfig(props.header);
 
   /**
    * Render:
@@ -27,7 +22,7 @@ export const Header: React.FC<P> = (props) => {
       display: 'grid',
     }),
     doc: css({
-      height: DOC.visible ? undefined : 0,
+      height: config.visible ? undefined : 0,
       overflow: 'hidden',
     }),
   };
@@ -42,9 +37,9 @@ export const Header: React.FC<P> = (props) => {
           repo,
           signals: { doc: signals.doc },
           initial: {},
-          localstorage: DOC.localstorage,
-          urlKey: DOC.urlKey,
-          readOnly: DOC.readOnly,
+          localstorage: config.localstorage,
+          urlKey: config.urlKey,
+          readOnly: config.readOnly,
         }}
       />
     </div>

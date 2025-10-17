@@ -8,8 +8,8 @@ type P = t.CrdtLayoutProps;
  * Component:
  */
 export const Footer: React.FC<P> = (props) => {
-  const { debug = false, repo, documentId } = props;
-  const storageKey = documentId?.localstorage ?? D.documentId.localstorage;
+  const { debug = false, repo, header } = props;
+  const storageKey = header?.localstorage ?? D.header.localstorage;
 
   /**
    * Render:
