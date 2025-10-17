@@ -12,6 +12,7 @@ import {
   STORAGE_KEY,
   Str,
 } from '../common.ts';
+import { SignalsObjectView } from './-ui.SignalsObjectView.tsx';
 
 type P = t.VideoRecorderViewProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'configVisible'> & {
@@ -145,15 +146,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 5 }}
         expand={0}
       />
-      <ObjectView
-        name={'signals'}
-        data={{
-          'camera:device': simplifyDeviceInfo(signals.camera?.value),
-          'audio:device': simplifyDeviceInfo(signals.audio?.value),
-        }}
-        style={{ marginTop: 5 }}
-        expand={1}
-      />
+      <SignalsObjectView signals={signals} style={{ marginTop: 5 }} />
     </div>
   );
 };

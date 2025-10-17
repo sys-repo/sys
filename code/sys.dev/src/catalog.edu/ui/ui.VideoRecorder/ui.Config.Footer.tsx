@@ -37,9 +37,9 @@ export const Footer: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.left.class}></div>
-      <div />
       <div className={styles.right.class}>{elRepoSwitch}</div>
+      <div />
+      <div className={styles.left.class}></div>
     </div>
   );
 };
