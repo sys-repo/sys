@@ -5,7 +5,7 @@ import { nextOutPath } from './u.file.name.ts';
 
 describe(`cli.video`, () => {
   it('API', async () => {
-    const m = await import('@sys/dev/video');
+    const m = await import('@sys/tools/video');
     expect(m.VideoTools).to.equal(VideoTools);
     expect(m.VideoTools.nextOutPath).to.equal(nextOutPath);
   });
