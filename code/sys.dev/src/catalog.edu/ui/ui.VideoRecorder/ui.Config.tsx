@@ -14,7 +14,7 @@ export const Config: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const edgeBorder = `solid 1px ${Color.alpha(theme.fg, 0.15)}`;
+  const edgeBorder = `solid 1px ${Color.alpha(theme.fg, 0.2)}`;
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
@@ -29,9 +29,7 @@ export const Config: React.FC<P> = (props) => {
       padding: 10,
       paddingTop: 20,
     }),
-    footer: css({
-      borderTop: edgeBorder,
-    }),
+    footer: css({ borderTop: edgeBorder }),
     hr: css({
       border: 'none',
       borderTop: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
