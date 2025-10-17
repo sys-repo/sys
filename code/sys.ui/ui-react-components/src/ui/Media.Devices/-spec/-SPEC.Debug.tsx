@@ -1,8 +1,15 @@
 import React from 'react';
-import { type t, css, D, Signal } from '../common.ts';
-import { Button, ObjectView } from '../../u.ts';
+import { ObjectView } from '../../u.ts';
+import { type t, Button, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.DevicesProps;
+type Storage = Pick<P, 'theme' | 'debug' | 'rowGap'> & { filter?: boolean };
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: false,
+  filter: false,
+  rowGap: D.rowGap,
+};
 
 /**
  * Types:
@@ -15,24 +22,41 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+
   const props = {
-    debug: s(false),
-    filter: s(true),
-    theme: s<P['theme']>('Dark'),
-    rowGap: s<number>(),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
+    filter: s(snap.filter),
+    rowGap: s(snap.rowGap),
     selected: s<P['selected']>(),
   };
   const p = props;
   const api = {
     props,
-    listen() {
-      p.debug.value;
-      p.filter.value;
-      p.rowGap.value;
-      p.theme.value;
-      p.selected.value;
-    },
+    reset,
+    listen,
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+      d.filter = p.filter.value;
+      d.rowGap = p.rowGap.value;
+    });
+  });
+
   return api;
 }
 
@@ -52,7 +76,6 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -68,14 +91,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
-      />
-      <hr />
-      <Button
-        block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
@@ -92,7 +109,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={['$']} />
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };
