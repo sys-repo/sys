@@ -18,8 +18,8 @@ type Storage = Pick<P, 'theme' | 'debug'> & {
   documentId: Pick<t.VideoRecorderViewDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
 };
 const defaults: Storage = {
-  theme: 'Dark',
   debug: false,
+  theme: 'Dark',
   documentId: { visible: true, readOnly: false, urlKey: undefined },
 };
 
