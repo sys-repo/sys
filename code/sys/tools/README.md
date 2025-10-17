@@ -1,6 +1,9 @@
-# Module
+# @sys/tools
+	Common system tools index (with Programmatic and CLI entrypoints).
 
-### Example
-```ts
-import { pkg } from 'jsr:@sys/🐷';
+
+### Video
+
+```bash
+deno run -A jsr:@sys/tools/video
 ```
