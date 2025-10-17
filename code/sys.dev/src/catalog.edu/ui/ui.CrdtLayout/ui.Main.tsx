@@ -21,7 +21,7 @@ export const Main: React.FC<P> = (props) => {
     empty: css({ padding: 10, backgroundColor: Color.ruby() }),
   };
 
-  const elEmpty = <div className={styles.empty.class}>{'🐷 slot:main'}</div>;
+  const elEmpty = <div className={styles.empty.class}>{'🐷 slot: main'}</div>;
   const el = slots?.main?.(ctx);
 
   return (

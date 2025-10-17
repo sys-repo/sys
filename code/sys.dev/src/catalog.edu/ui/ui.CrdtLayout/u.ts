@@ -1,7 +1,7 @@
 import { type t, Color, D } from './common.ts';
 
-export function edgeBorder(theme: t.ColorTheme) {
-  return `solid 1px ${Color.alpha(theme.fg, 0.2)}`;
+export function edgeBorder(theme: t.ColorTheme, opacity = D.edgeBorderOpacity) {
+  return `solid 1px ${Color.alpha(theme.fg, opacity)}`;
 }
 
 export function headerConfig(props?: t.CrdtLayoutHeaderConfig): t.CrdtLayoutHeaderConfig {

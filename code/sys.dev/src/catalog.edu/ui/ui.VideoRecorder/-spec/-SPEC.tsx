@@ -28,8 +28,8 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             signals={debug.signals}
             repo={debug.repo}
-            documentId={v.documentId}
-            configVisible={v.configVisible}
+            header={v.header}
+            sidebar={v.sidebar}
           />
         );
       });

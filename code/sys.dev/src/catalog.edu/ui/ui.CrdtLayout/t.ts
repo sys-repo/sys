@@ -1,6 +1,14 @@
 import type { t } from './common.ts';
 
 /**
+ * Component API: CRDT-aware layout shell.
+ */
+export type CrdtLayoutLib = {
+  View: React.FC<CrdtLayoutProps>;
+  edgeBorder(theme: t.ColorTheme, opacity?: t.Percent): string;
+};
+
+/**
  * Component: CRDT-aware layout shell.
  */
 export type CrdtLayoutProps = {

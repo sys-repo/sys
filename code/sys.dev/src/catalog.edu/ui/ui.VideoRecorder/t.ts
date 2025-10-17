@@ -3,25 +3,12 @@ import type { t } from './common.ts';
 /**
  * Component:
  */
-export type VideoRecorderViewProps = {
-  repo?: t.Crdt.Repo;
-  documentId?: t.VideoRecorderViewDocumentIdProps;
+export type VideoRecorderViewProps = Pick<t.CrdtLayoutProps, 'header' | 'sidebar' | 'repo'> & {
   signals?: t.VideoRecorderViewSignals;
-  configVisible?: boolean;
 
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-};
-
-/**
- * Properties for the <DocumentId> view within the recorder config.
- */
-export type VideoRecorderViewDocumentIdProps = {
-  visible?: boolean;
-  readOnly?: boolean;
-  localstorage?: t.StringKey;
-  urlKey?: t.StringKey;
 };
 
 /**

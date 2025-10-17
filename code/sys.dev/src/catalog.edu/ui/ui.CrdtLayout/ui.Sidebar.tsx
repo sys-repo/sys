@@ -28,7 +28,7 @@ export const Sidebar: React.FC<P> = (props) => {
     empty: css({ padding: 10, backgroundColor: Color.ruby() }),
   };
 
-  const elEmpty = <div className={styles.empty.class}>{'🐷 slot:sidebar'}</div>;
+  const elEmpty = <div className={styles.empty.class}>{'🐷 slot: sidebar'}</div>;
   const el = slots?.sidebar?.(ctx);
 
   return (

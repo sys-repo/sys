@@ -31,7 +31,7 @@ export default Spec.describe(D.displayName, (e) => {
         };
 
         return (
-          <CrdtLayout
+          <CrdtLayout.View
             debug={v.debug}
             theme={v.theme}
             signals={debug.signals}

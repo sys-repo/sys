@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Cropmarks, css } from './common.ts';
+import { type t, Color, css } from './common.ts';
 
 type P = t.VideoRecorderViewProps;
 
@@ -22,9 +22,7 @@ export const Main: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={theme.name} borderOpacity={0.08}>
-        <div className={styles.body.class}>{`🐷 Main`}</div>
-      </Cropmarks>
+      <div className={styles.body.class}>{`🐷 Recorder Main`}</div>
     </div>
   );
 };
