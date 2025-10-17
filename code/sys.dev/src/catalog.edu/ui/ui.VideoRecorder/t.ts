@@ -7,6 +7,7 @@ export type VideoRecorderViewProps = {
   repo?: t.Crdt.Repo;
   documentId?: t.VideoRecorderViewDocumentIdProps;
   signals?: t.VideoRecorderViewSignals;
+  configVisible?: boolean;
 
   debug?: boolean;
   theme?: t.CommonTheme;

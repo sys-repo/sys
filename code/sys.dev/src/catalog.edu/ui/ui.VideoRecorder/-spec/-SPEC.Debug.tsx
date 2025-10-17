@@ -14,13 +14,14 @@ import {
 } from '../common.ts';
 
 type P = t.VideoRecorderViewProps;
-type Storage = Pick<P, 'theme' | 'debug'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'configVisible'> & {
   documentId: Pick<t.VideoRecorderViewDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   documentId: { visible: true, readOnly: false, urlKey: undefined },
+  configVisible: D.configVisible,
 };
 
 /**
@@ -46,6 +47,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    configVisible: s(snap.configVisible),
     documentId: {
       visible: s((snap.documentId ?? {}).visible),
       readOnly: s((snap.documentId ?? {}).readOnly),
@@ -77,6 +79,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.configVisible = p.configVisible.value;
 
       d.documentId = d.documentId ?? {};
       d.documentId.visible = p.documentId.visible.value;
@@ -123,6 +126,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => `configVisible: ${p.configVisible.value}`}
+        onClick={() => Signal.toggle(p.configVisible)}
+      />
       <hr />
       <Button
         block
@@ -130,9 +138,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.debug)}
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
-        name={doc ? `doc(id:${doc.id.slice(-5)})` : 'doc'}
+        name={doc ? `doc(id:"${doc.id.slice(-5)}")` : 'doc'}
         data={Obj.trimStringsDeep(doc?.current)}
         style={{ marginTop: 5 }}
         expand={0}

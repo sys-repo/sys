@@ -3,11 +3,12 @@ import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 import { Config } from './ui.Config.tsx';
 import { Header } from './ui.Header.tsx';
+import { Main } from './ui.Main.tsx';
 
 type P = t.VideoRecorderViewProps;
 
 export const VideoRecorderView: React.FC<P> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, configVisible = D.configVisible } = props;
 
   /**
    * Render:
@@ -23,16 +24,20 @@ export const VideoRecorderView: React.FC<P> = (props) => {
     body: {
       base: css({
         display: 'grid',
-        gridTemplateColumns: '1fr auto',
+        gridTemplateColumns: configVisible ? '1fr auto' : '1fr',
+        minHeight: 0,
       }),
-      main: css({ padding: 30 }),
-      config: css({}),
+      main: css({}),
+      config: css({
+        display: configVisible ? 'grid' : 'none',
+        pointerEvents: configVisible ? 'auto' : 'none',
+      }),
     },
   };
 
   const elBody = (
     <div className={styles.body.base.class}>
-      <div className={styles.body.main.class}>{`🐷 ${D.displayName}`}</div>
+      <Main {...props} style={styles.body.main} />
       <Config {...props} style={styles.body.config} />
     </div>
   );

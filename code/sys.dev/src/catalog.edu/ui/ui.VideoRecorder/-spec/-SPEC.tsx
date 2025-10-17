@@ -26,9 +26,10 @@ export default Spec.describe(D.displayName, (e) => {
           <VideoRecorderView
             debug={v.debug}
             theme={v.theme}
+            signals={debug.signals}
             repo={debug.repo}
             documentId={v.documentId}
-            signals={debug.signals}
+            configVisible={v.configVisible}
           />
         );
       });
