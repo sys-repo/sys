@@ -24,9 +24,33 @@ export type DisposeObservable = t.Observable<DisposeEvent>;
 /** Event fired through the `dispose$` observable. */
 export type DisposeEvent = { readonly reason?: unknown };
 
-/** The "until this fires" input for a disposable resource factory. */
+/**
+ * Input accepted by functions that create or manage disposable resources.
+ *
+ * The value defines "what to dispose when this fires".
+ * For ergonomics, `undefined` is accepted as a no-op placeholder
+ * (allowing omitted parameters), but it does *not* represent
+ * an actual termination signal.
+ *
+ * Examples:
+ * - `Disposable` — invokes `.dispose()` when triggered.
+ * - `UntilObservable` — completes when the observable emits.
+ * - `DisposeInput[]` — recursive collection of either.
+ */
 export type DisposeInput = t.UntilObservable | t.Disposable | undefined | DisposeInput[];
+/**
+ * Alias for [DisposeInput].
+ * Used at API boundaries where an optional "until" parameter is accepted.
+ */
 export type UntilInput = DisposeInput;
+/**
+ * The *actual* "until" value — a termination signal.
+ *
+ * Represents a concrete resource or stream that, when fired or disposed,
+ * should cancel or finalize an operation. Unlike [DisposeInput],
+ * this excludes `undefined`, ensuring a definite signal source.
+ */
+export type Until = t.UntilObservable | t.Disposable | Until[];
 
 /**
  * An object that provides a standard asynchronous destructor pattern.

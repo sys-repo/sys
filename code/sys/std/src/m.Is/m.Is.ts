@@ -225,4 +225,16 @@ export const Is: StdIsLib = {
     const c = input as AbortController;
     return typeof c.abort === 'function' && !!c.signal && Is.abortSignal(c.signal);
   },
+
+  /**
+   * Determine if the value conforms to an "until" termination signal.
+   */
+  until(input?: unknown): input is t.Until {
+    if (input === undefined) return false; // ergonomic at call-site, but not an until
+    if (Array.isArray(input)) return input.every((v) => Is.until(v));
+    if (Is.disposable(input)) return true;
+    if (Is.observable(input)) return true;
+    if (Is.subject(input)) return true;
+    return false;
+  },
 };
