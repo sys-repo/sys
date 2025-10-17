@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Monaco, Slug, useSlugDiagnostics } from './common.ts';
+import { type t, Color, css, Is, Monaco, Slug, useSlugDiagnostics } from './common.ts';
 import { Empty } from './ui.Empty.tsx';
 
 type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
@@ -60,8 +60,10 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         editor={{ autoFocus: true }}
         documentId={{ localstorage }}
         onReady={(e) => {
-          setReady({ monaco: e.monaco, editor: e.editor });
+          const { monaco, editor, dispose$ } = e;
+          setReady({ monaco, editor });
           e.$.subscribe((evt) => console.info('Monaco.Yaml.Editor/binding.$:', evt));
+          if (repo) Monaco.Crdt.Link.enable({ monaco, editor }, repo, e.dispose$);
         }}
       />
     </div>
