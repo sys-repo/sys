@@ -1,14 +1,17 @@
 /**
- * @system
+ * @system core
  */
 export { Schema, Type } from '@sys/schema';
 export { Arr, Err, Is, Num, Obj, Pkg, Str, Time, Url } from '@sys/std';
 export { Rx } from '@sys/std/rx';
-export { Yaml } from '@sys/std/yaml';
+export { Yaml } from '@sys/yaml';
+
+/**
+ * @system ui
+ */
 export { Signal } from '@sys/ui-react';
 
 /**
- * @drivers
+ * @system drivers
  */
-export { A, Crdt } from '@sys/driver-automerge/web/ui';
-export { Monaco } from '@sys/driver-monaco';
+export { Crdt } from '@sys/driver-automerge/web/ui';

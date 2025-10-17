@@ -1,4 +1,4 @@
-import { Yaml } from '@sys/std/yaml';
+import { Yaml } from '@sys/yaml';
 
 import { type t } from './common.ts';
 import { from } from './m.Yaml.from.ts';

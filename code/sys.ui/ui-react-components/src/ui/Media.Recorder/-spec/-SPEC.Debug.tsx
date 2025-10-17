@@ -1,15 +1,12 @@
 import React from 'react';
+import { RecorderHookView } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
-import { type t, Button, Obj, ObjectView, pkg, Str } from '../../u.ts';
-import { Color, css, D, JsrUrl, LocalStorage, Signal } from '../common.ts';
+import { type t, Button, Obj, ObjectView } from '../../u.ts';
+import { Color, css, D, LocalStorage, Signal } from '../common.ts';
 import { Icons } from '../ui.Icons.ts';
 
 type P = t.MediaRecorderFilesProps;
-type L = {
-  filters: Partial<t.MediaFilterValues>;
-  zoom: Partial<t.MediaZoomValues>;
-};
-
+type L = { filters: Partial<t.MediaFilterValues>; zoom: Partial<t.MediaZoomValues> };
 const { Filters, Zoom } = Media.Config;
 
 /**
@@ -56,21 +53,13 @@ export function createDebugSignals() {
   const api = {
     props,
     localstore,
-    listen() {
-      p.debug.value;
-      p.config.filters.value;
-      p.config.zoom.value;
-
-      p.theme.value;
-      p.stream.value;
-      p.recorder.value;
-      p.filter.value;
-      p.zoom.value;
-      p.aspectRatio.value;
-      p.selectedCamera.value;
-      p.selectAudio.value;
-    },
+    listen,
   };
+
+  function listen() {
+    Signal.listen(p);
+  }
+
   return api;
 }
 
@@ -120,7 +109,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       </div>
 
       <hr />
-      <div className={Styles.title.class}>{'Camera'}</div>
+      <div className={Styles.title.class}>{'Input'}</div>
 
       <Media.Devices.UI.List
         style={{ MarginX: 20 }}
@@ -169,9 +158,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {center(<Icons.Arrow.Down style={{ MarginY: [15, 5] }} />)}
 
       <div className={Styles.title.class}>{'Stream'}</div>
-      <div style={{ marginLeft: 20 }}>{recorderButtons(recorder)}</div>
+      <RecorderHookView style={{ marginLeft: 20 }} recorder={recorder} />
       {center(<Icons.Arrow.Down style={{ MarginY: [20, 10] }} />)}
-
       <Media.Recorder.UI.Files debug={p.debug.value} />
 
       <hr />
@@ -190,99 +178,3 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
-
-/**
- * Helpers
- */
-export type ExternalLinkProps = {
-  children?: t.ReactNode;
-  href?: string;
-  style?: t.CssInput;
-  theme?: t.CommonTheme;
-};
-export const ExternalLink: React.FC<ExternalLinkProps> = (props) => {
-  const { children, href } = props;
-  const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      color: theme.fg,
-      textDecoration: 'none',
-      ':hover': { textDecoration: 'underline' },
-    }),
-  };
-  return (
-    <a
-      target="_blank"
-      rel="noopener noreferrer"
-      href={href}
-      className={css(styles.base, props.style).class}
-    >
-      {children}
-    </a>
-  );
-};
-
-export function recorderButtons(recorder: t.MediaRecorderHook) {
-  const { status, start, is } = recorder;
-  const canStart = !is.recording && status !== 'Paused';
-  const theme = Color.theme();
-
-  let BulletIcon = Icons.Face;
-  if (status === 'Recording') BulletIcon = Icons.Recording;
-  if (status === 'Paused') BulletIcon = Icons.Paused;
-
-  const styles = {
-    base: css({ display: 'grid', gridTemplateColumns: `1fr auto`, alignItems: 'center' }),
-    title: css({ fontWeight: 'bold' }),
-    icon: css({
-      opacity: is.recording || is.paused ? 1 : 0,
-      color: is.recording ? Color.RED : theme.fg,
-    }),
-  };
-
-  let statusColor = theme.fg;
-  const dim = Color.alpha(theme.fg, 0.3);
-  if (is.recording) statusColor = Color.DARK;
-  if (is.paused || is.idle || is.stopped) statusColor = dim;
-
-  const elStatus = <span style={{ color: statusColor, marginLeft: 5 }}>{status}</span>;
-  const strBytes = recorder.bytes > 0 ? ` (${Str.bytes(recorder.bytes)})` : '';
-  const urlUseMediaRecorder = JsrUrl.Pkg.file(pkg, 'src/ui/Media.Recorder/use.Recorder.ts');
-
-  return (
-    <React.Fragment>
-      <div className={styles.base.class}>
-        <div className={styles.title.class}>
-          <ExternalLink
-            style={{ color: Color.MAGENTA }}
-            href={urlUseMediaRecorder}
-            children={'ƒ useMediaRecorder:'}
-          />
-          {elStatus}
-        </div>
-        <BulletIcon size={18} style={styles.icon} />
-      </div>
-
-      <div style={{ marginLeft: 14 }}>
-        {!is.started && (
-          <Button block label={'start recording'} onClick={start} enabled={canStart} />
-        )}
-        {is.recording && <Button block label={'pause'} onClick={recorder.pause} />}
-        {is.paused && <Button block label={'resume'} onClick={recorder.resume} />}
-        <div className={styles.base.class}>
-          <Button
-            block
-            label={`stop & save ${strBytes}`}
-            enabled={is.started}
-            onClick={async () => {
-              const res = await recorder.stop();
-              console.info('⚡️ stopped', res);
-              Media.download(res.blob);
-            }}
-          />
-          <Button block label={is.started ? 'cancel' : 'reset'} onClick={recorder.reset} />
-        </div>
-      </div>
-    </React.Fragment>
-  );
-}

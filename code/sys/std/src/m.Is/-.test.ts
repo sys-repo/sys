@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it } from '../-test.ts';
 import { isEmptyRecord, isObject, isPlainObject, isPlainRecord, isRecord } from '../common.ts';
 import { Rx } from '../m.Rx/mod.ts';
 import { Err, Is } from '../mod.ts';
@@ -495,6 +495,49 @@ describe('Is (common flags)', () => {
       expect(Is.abortController({})).to.eql(false);
       expect(Is.abortController({ abort() {} })).to.eql(false); // no signal
       expect(Is.abortController({ signal: {} })).to.eql(false); // signal not AbortSignal
+    });
+  });
+
+  describe('Is.until', () => {
+    it('rejects undefined and null', () => {
+      expect(Is.until(undefined)).to.equal(false);
+      expect(Is.until(null)).to.equal(false);
+    });
+
+    it('accepts a Disposable', () => {
+      const disposable: t.Disposable = Rx.disposable();
+      expect(Is.until(disposable)).to.equal(true);
+    });
+
+    it('accepts an Observable', () => {
+      const observable: t.Observable<unknown> = Rx.of(1);
+      expect(Is.until(observable)).to.equal(true);
+    });
+
+    it('accepts a Subject', () => {
+      const subject: t.Subject<unknown> = Rx.subject();
+      expect(Is.until(subject)).to.equal(true);
+    });
+
+    it('accepts arrays of until values', () => {
+      const d: t.Disposable = Rx.disposable();
+      const s: t.Subject<unknown> = Rx.subject();
+      expect(Is.until([d, s])).to.equal(true);
+      expect(Is.until([[d], [s]])).to.equal(true);
+    });
+
+    it('rejects arrays containing non-until values', () => {
+      const d: t.Disposable = Rx.disposable();
+      expect(Is.until([d, undefined])).to.equal(false);
+      expect(Is.until([d, null])).to.equal(false);
+      expect(Is.until([d, 123])).to.equal(false);
+    });
+
+    it('rejects primitive and unrelated values', () => {
+      expect(Is.until(42)).to.equal(false);
+      expect(Is.until('abc')).to.equal(false);
+      expect(Is.until({})).to.equal(false);
+      expect(Is.until(() => {})).to.equal(false);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { type t, D, Is } from './common.ts';
+import { type t, D, Is, logMedia } from './common.ts';
 
 /**
  * Build a MediaStream whose video is run through a CSS-filter pipeline.
@@ -16,6 +16,7 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
 ) => {
   const filter = (options.filter ?? '').trim();
   const zoom = wrangle.zoom(options.zoom);
+  logMedia('getStream:start', { filter, zoom });
 
   /**
    * Retrieve the raw camera/mic stream.
@@ -27,7 +28,8 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   /**
    * (Early Edit): no filter/zoom ➜ simply reuse the raw stream.
    */
-  if (!filter && !filter) return { raw, filtered: raw };
+  const wantsZoom = (zoom?.factor ?? 1) !== 1;
+  if (!filter && !wantsZoom) return { raw, filtered: raw };
 
   /**
    * Create hidden Video + Canvas elements.
@@ -50,9 +52,13 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   if (filter) ctx.filter = filter;
 
   /**
-   * Copy each video frame into the canvas.
+   * Copy each video frame into the canvas:
    */
+  let rafId = 0;
+  let stopped = false;
   function draw() {
+    if (stopped) return;
+
     ctx.clearRect(0, 0, w, h);
     if (filter) ctx.filter = filter;
     if (zoom.factor === 1) {
@@ -68,7 +74,8 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
       const sy = cy - sh / 2;
       ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
     }
-    requestAnimationFrame(draw); // ← RECURSION 🌳
+
+    rafId = requestAnimationFrame(draw); // ← RECURSION 🌳
   }
   draw(); // NB: Kick off the draw-loop.
 
@@ -83,11 +90,16 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
    * Helper: House-keeping (stop everything in one call).
    */
   filtered.addEventListener('inactive', () => {
+    try {
+      cancelAnimationFrame(rafId);
+    } catch {}
+    stopped = true;
     raw.getTracks().forEach((t) => t.stop());
     video.srcObject = null;
   });
 
   // Finish up.
+  logMedia('getStream:end', { tracks: filtered.getTracks().map((t) => `${t.kind}:${t.label}`) });
   return { raw, filtered };
 };
 

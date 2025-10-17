@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, expectTypeOf, it } from '../-test.ts';
 import { Json } from '../m.Json/mod.ts';
 import { Value } from '../m.Value/mod.ts';
 import { Obj } from './mod.ts';
@@ -248,6 +248,37 @@ describe('Value.Obj', () => {
       expect(b.name).to.eql(name.substring(0, 10));
       expect(c.name).to.eql(`${name.substring(0, 10)}...`);
     });
+
+    it('<undefined> object with options', () => {
+      expect(Obj.trimStringsDeep(undefined, 10)).to.eql(undefined);
+      expect(Obj.trimStringsDeep(undefined, { maxLength: 5, ellipsis: false })).to.eql(undefined);
+    });
+
+    it('defined object returns T (not T | undefined)', () => {
+      const input = { name: 'x' } as const;
+      const out = Value.Obj.trimStringsDeep(input);
+      expectTypeOf(out).toEqualTypeOf<typeof input>();
+      expect(out).to.eql(input); // unchanged because below max
+    });
+
+    it('mutate: true returns same instance', () => {
+      const obj = { name: 'x'.repeat(100) };
+      const out = Value.Obj.trimStringsDeep(obj, { mutate: true, maxLength: 10 });
+      expect(out).to.equal(obj);
+      expect(obj.name).to.eql('x'.repeat(10) + '...');
+    });
+
+    it('numeric options respected', () => {
+      const obj = { name: 'abcdef' };
+      const out = Value.Obj.trimStringsDeep(obj, 3);
+      expect(out.name).to.eql('abc...');
+    });
+
+    // (compile-time) null should not match T overload:
+    {
+      // @ts-expect-error null is not valid T (Record<string, unknown>)
+      Value.Obj.trimStringsDeep(null);
+    }
   });
 
   describe('Obj.pick', () => {

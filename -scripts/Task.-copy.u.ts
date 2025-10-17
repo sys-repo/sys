@@ -164,7 +164,7 @@ export async function selectAndCopy(paths: string[], opts: SelectAndCopyOptions)
     message,
     options,
     check: c.green('●'),
-    uncheck: c.gray(c.dim('○')),
+    uncheck: c.gray('○'),
     maxRows,
   });
 

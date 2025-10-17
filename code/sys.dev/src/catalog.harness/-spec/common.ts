@@ -1,8 +1,9 @@
+export { Crdt } from '@sys/driver-automerge/web/ui';
+
 import { Pkg, pkg } from '../common.ts';
 import { HarnessPropsSchema } from '../mod.ts';
 
 export * from '../common.ts';
-export { Crdt } from '../../ui/-test.ui.ts';
 
 /**
  * Constants:

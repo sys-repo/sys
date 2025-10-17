@@ -50,6 +50,7 @@
     "code/sys/tmpl-engine",
     "code/sys/cmd",
     "code/sys/schema",
+    "code/sys/yaml",
 
     "code/sys.ui/ui-css",
     "code/sys.ui/ui-dom",
@@ -67,6 +68,7 @@
     "code/sys.driver/driver-prosemirror",
     "code/sys.driver/driver-vite",
 
+    "code/sys/tools",
     "code/sys.dev",
 
     "deploy/@tdb.fs",
@@ -110,7 +112,7 @@
       "env": true,
       "ffi": true,
       "run": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir"] }
     },
     "serve": {
       "read": true,

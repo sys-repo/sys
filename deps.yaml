@@ -40,10 +40,10 @@ groups:
   automerge:
     # https://automerge.org
     - import: npm:@automerge/automerge@3.1.2
-    - import: npm:@automerge/automerge-repo@2.3.1
-    - import: npm:@automerge/automerge-repo-network-websocket@2.3.1
-    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.3.1
-    - import: npm:@automerge/automerge-repo-storage-nodefs@2.3.1
+    - import: npm:@automerge/automerge-repo@2.4.0
+    - import: npm:@automerge/automerge-repo-network-websocket@2.4.0
+    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.4.0
+    - import: npm:@automerge/automerge-repo-storage-nodefs@2.4.0
     - import: npm:@automerge/prosemirror@0.1.0
 
   crypto:
@@ -59,18 +59,17 @@ groups:
     - import: npm:@vitejs/plugin-react-swc@4.1.0
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.52.4
-    - import: npm:vite@7.1.9
+    - import: npm:vite@7.1.10
     - import: npm:vite-plugin-wasm@3.5.0
 
   dev/tools:
     - import: npm:prettier@3.6.2
-    - import: npm:prettier-plugin-organize-imports@4.3.0
 
   ui/react:
     - import: npm:react@19.2.0
     - import: npm:react-dom@19.2.0
     - import: npm:@types/react@19.2.2
-    - import: npm:@types/react-dom@19.2.1
+    - import: npm:@types/react-dom@19.2.2
     - import: npm:@testing-library/react@16.3.0
 
   ui/monaco:
@@ -88,16 +87,20 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.68
-    - import: npm:@ai-sdk/openai@2.0.48
+    - import: npm:ai@5.0.74
+    - import: npm:@ai-sdk/openai@2.0.52
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.20.2
+    - import: npm:@mastra/core@0.21.1
       subpaths: ['agent', 'memory', 'storage']
-    - import: npm:@mastra/libsql@0.15.1
-    - import: npm:@mastra/loggers@0.10.15
-    - import: npm:@mastra/memory@0.15.6
+    - import: npm:@mastra/libsql@0.15.2
+    - import: npm:@mastra/loggers@0.10.16
+    - import: npm:@mastra/memory@0.15.7
     - import: npm:ollama@0.6.0
     - import: npm:gpt-tokenizer@3.2.0
+
+  yaml:
+    - import: npm:yaml@2.8.1
+      subpaths: [types]
 
 deno.json:
   - group: std/deno
@@ -108,6 +111,7 @@ deno.json:
   - group: automerge
   - group: ui/monaco
   - group: ui/prosemirror
+  - group: yaml
 
   # CLI tools:
   - import: jsr:@cliffy/keypress@1.0.0-rc.8
@@ -118,9 +122,9 @@ deno.json:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
   - import: npm:diff@8.0.2
-  - import: npm:@farcaster/frame-sdk@0.1.11
+  - import: npm:@farcaster/frame-sdk@0.1.12
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@20.0.0
+  - import: npm:happy-dom@20.0.2
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.5
   - import: npm:immer@10.1.3
@@ -135,8 +139,6 @@ deno.json:
   - import: npm:strip-ansi@7.1.2
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.1.1
-  - import: npm:yaml@2.8.1
-    subpaths: [types]
 
   # Websockets:
   - import: npm:ws@8.18.3
@@ -163,4 +165,4 @@ package.json:
   - group: ui/react
   - import: npm:react-icons@5.5.0
   - import: npm:motion@12.23.24
-  - import: npm:hono@4.9.10
+  - import: npm:hono@4.9.12

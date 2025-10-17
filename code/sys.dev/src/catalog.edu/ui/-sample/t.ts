@@ -6,7 +6,12 @@ import type { t } from './common.ts';
 export type SampleProps = {
   bus$?: t.EditorEventBus;
   repo?: t.Crdt.Repo;
-  path?: t.ObjectPath;
+
+  /** Path to the YAML text in the CRDT doc (editor binds to this). */
+  docPath?: t.ObjectPath;
+  /** Path within the YAML AST to the slug root (validators/hooks use this). */
+  slugPath?: t.ObjectPath;
+
   signals?: Partial<t.YamlEditorSignals>;
   localstorage?: t.StringId;
   debug?: boolean;

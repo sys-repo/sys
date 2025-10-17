@@ -1,6 +1,6 @@
 {
   "name": "@sys/dev",
-  "version": "0.0.35",
+  "version": "0.0.44",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev    ./-scripts/-vite.ts --cmd=dev   --in=./src/-test/index.html",
@@ -11,13 +11,14 @@
     "check": "deno check src/*",
     "clean": "deno run -P=clean  ./-scripts/-clean.ts",
     "help": "deno run -P=help   ./-scripts/-vite.ts --cmd=help",
-    "tmp": "deno run -P=tmp    ./-scripts/-tmp.ts"
+    "tmp": "deno run -P=testset @sys/dev/video"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./catalog/edu": "./src/catalog.edu/mod.ts",
-    "./catalog/harness": "./src/catalog.harness/mod.ts"
+    "./catalog.edu": "./src/catalog.edu/mod.ts",
+    "./catalog.harness": "./src/catalog.harness/mod.ts",
+    "./video": "./src/cli.video/mod.ts"
   }
 }

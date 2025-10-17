@@ -29,3 +29,4 @@ export namespace Schema {
   export type ValidationError = t.SchemaValidationError;
   export type YamlError = t.SchemaYamlError;
 }
+export type * from './m.testing/t.ts';

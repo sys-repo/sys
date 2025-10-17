@@ -301,4 +301,28 @@ describe('Obj.Path', () => {
       expect(Path.slice(p, 0, -1)).to.eql(['a', 'b', 'c']);
     });
   });
+
+  describe('Obj.Path.normalize', () => {
+    it('passthrough for [ObjectPath] arrays', () => {
+      const p = ['a', 0, 'b'];
+      expect(Path.normalize(p)).to.equal(p);
+    });
+
+    it('JSON Pointer → [ObjectPath] (no numeric)', () => {
+      expect(Path.normalize('/a/0/b', { numeric: false })).to.eql(['a', '0', 'b']);
+    });
+
+    it('JSON Pointer → [ObjectPath] (numeric)', () => {
+      expect(Path.normalize('/a/0/b', { numeric: true })).to.eql(['a', 0, 'b']);
+    });
+
+    it('handles RFC escapes "~1" and "~0"', () => {
+      expect(Path.normalize('/a~1b/~0tilde', { numeric: true })).to.eql(['a/b', '~tilde']);
+    });
+
+    it('unknown/invalid → []', () => {
+      expect(Path.normalize(undefined)).to.eql([]);
+      expect(Path.normalize(123)).to.eql([]);
+    });
+  });
 });

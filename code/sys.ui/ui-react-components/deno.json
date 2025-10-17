@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-react-components",
-  "version": "0.0.102",
+  "version": "0.0.105",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
     "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
@@ -17,7 +17,8 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./specs": "./src/-test/-specs.ts"
+    "./specs": "./src/-test/-specs.ts",
+    "./media/recorder/dev": "./src/ui/Media.Recorder/-dev/mod.ts"
   },
   "license": "MIT"
 }

@@ -12,7 +12,6 @@ describe('Monaco', () => {
     const { Error } = await import('../../m.Error/mod.ts');
 
     expect(m.Monaco).to.equal(Monaco);
-    expect(m.default).to.equal(Monaco);
 
     expect(Monaco.Bus).to.equal(Bus);
     expect(Monaco.Editor).to.equal(MonacoEditor);

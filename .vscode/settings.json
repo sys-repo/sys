@@ -1,20 +1,28 @@
 {
   // --- Deno -------------------------------------------------
-  "deno.enable": true,
+  "deno.enable": false,
   "deno.lint": false,
   "deno.importMap": "deno.imports.json",
   "deno.unstable": true,
   "deno.enablePaths": ["code", "deploy", "-scripts"],
   "deno.disablePaths": ["node_modules", "**/dist", "**/.vite", "**/coverage", "-tmp", "-tmp/**"],
 
-  // --- Formatting -------------------------------------------
+  // --- Formatting (Prettier, fast; no import pruning) ----------
   "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.useLocalVersion": false,
+  "prettier.resolveGlobalModules": false,
   "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
 
-  "prettier.requireConfig": true,
-  "prettier.resolveGlobalModules": true,
-  "prettier.enableDebugLogs": false,
+  "editor.formatOnPaste": false,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never",
+    "source.removeUnusedImports": "never",
+    "source.fixAll": "never"
+  },
 
   // --- Editor QoL -------------------------------------------
   "editor.snippetSuggestions": "top",

@@ -162,4 +162,9 @@ export type StdIsLib = {
    * Determine if the given value is an `AbortController`.
    */
   abortController(input?: unknown): input is AbortController;
+
+  /**
+   * Determine if the value conforms to an `Until`:
+   */
+  until(input?: unknown): input is t.Until;
 };

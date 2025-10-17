@@ -1,7 +1,7 @@
 import React from 'react';
 import { MonacoEditor } from '../ui.MonacoEditor/mod.ts';
 
-import { type t, Color, Cropmarks, css, D, DocumentId } from './common.ts';
+import { type t, Color, Crdt, Cropmarks, css, D } from './common.ts';
 import { Id } from './ui.Id.tsx';
 import { NotReady } from './ui.NotReady.tsx';
 
@@ -53,7 +53,7 @@ export const Body: React.FC<P> = (props) => {
 
   const elDocumentId = (
     <div className={styles.documentId.class}>
-      <DocumentId.View
+      <Crdt.UI.DocumentId.View
         background={theme.is.dark ? -0.06 : -0.04}
         theme={theme.name}
         buttonStyle={{ margin: 4 }}
