@@ -41,7 +41,7 @@ export async function main() {
     const el = await render(pkg, Specs, {
       hr(e) {
         if (e.next?.endsWith(': catalog.harness')) return true;
-        if (e.next?.endsWith(': sample')) return true;
+        if (e.next?.endsWith(': -sample')) return true;
       },
       style: { Absolute: 0 },
     });
