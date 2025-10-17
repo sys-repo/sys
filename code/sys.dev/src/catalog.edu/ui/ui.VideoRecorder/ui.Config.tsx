@@ -35,13 +35,15 @@ export const Config: React.FC<P> = (props) => {
       borderTop: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
       MarginY: 20,
     }),
+    mediaList: css({ marginRight: 10 }),
   };
 
   const elBody = (
     <div className={styles.body.class}>
       <Media.Devices.UI.List
-        filter={(e) => e.kind === 'videoinput'}
+        style={styles.mediaList}
         theme={theme.name}
+        filter={(e) => e.kind === 'videoinput'}
         selected={signals.camera?.value}
         onSelect={(e) => {
           if (signals.camera) signals.camera.value = e.info;
@@ -51,8 +53,9 @@ export const Config: React.FC<P> = (props) => {
       <hr className={styles.hr.class} />
 
       <Media.Devices.UI.List
-        filter={(e) => e.kind === 'audioinput'}
+        style={styles.mediaList}
         theme={theme.name}
+        filter={(e) => e.kind === 'audioinput'}
         selected={signals.audio?.value}
         onSelect={(e) => {
           if (signals.audio) signals.audio.value = e.info;
