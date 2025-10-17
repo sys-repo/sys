@@ -20,7 +20,7 @@ export const Config: React.FC<P> = (props) => {
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       borderLeft: edgeBorder,
-      minWidth: 340,
+      width: 340,
       display: 'grid',
       gridTemplateRows: '1fr auto',
     }),

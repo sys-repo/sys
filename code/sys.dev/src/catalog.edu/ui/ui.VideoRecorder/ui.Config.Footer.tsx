@@ -26,18 +26,20 @@ export const Footer: React.FC<P> = (props) => {
     right: css({}),
   };
 
+  const elRepoSwitch = (
+    <Crdt.UI.Repo.SyncEnabledSwitch
+      repo={repo}
+      localstorage={storageKey}
+      mode={'switch + network-icons'}
+      theme={theme.name}
+    />
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.left.class}></div>
       <div />
-      <div className={styles.right.class}>
-        <Crdt.UI.Repo.SyncEnabledSwitch
-          repo={repo}
-          localstorage={storageKey}
-          mode={'switch + network-icons'}
-          theme={theme.name}
-        />
-      </div>
+      <div className={styles.right.class}>{elRepoSwitch}</div>
     </div>
   );
 };
