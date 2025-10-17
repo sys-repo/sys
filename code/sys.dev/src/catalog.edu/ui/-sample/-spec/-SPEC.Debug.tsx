@@ -1,6 +1,6 @@
 import React from 'react';
 import { CatalogObjectView } from '../../-dev/mod.ts';
-import { createRepo, YamlObjectView } from '../../../../ui/-test.ui.ts';
+import { createRepo, YamlObjectView } from '../../-test.ui.ts';
 import {
   type t,
   Arr,

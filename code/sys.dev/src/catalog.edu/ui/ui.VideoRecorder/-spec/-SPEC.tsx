@@ -1,5 +1,5 @@
-import { Dev, Signal, Spec } from '../../../../ui/-test.ui.ts';
-import { D } from '../common.ts';
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Crdt, D, STORAGE_KEY } from '../common.ts';
 import { VideoRecorderView } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -16,12 +16,34 @@ export default Spec.describe(D.displayName, (e) => {
       ctx.redraw();
     });
 
+    ctx.debug.width(360);
     ctx.subject
       .size('fill')
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <VideoRecorderView debug={v.debug} theme={v.theme} />;
+        return (
+          <VideoRecorderView
+            debug={v.debug}
+            theme={v.theme}
+            repo={debug.repo}
+            documentId={v.documentId}
+            signals={debug.signals}
+          />
+        );
+      });
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(0)
+      .render(() => {
+        return (
+          <Crdt.UI.Repo.SyncEnabledSwitch
+            repo={debug.repo}
+            localstorage={STORAGE_KEY.DEV}
+            style={{ Padding: [14, 10] }}
+          />
+        );
       });
   });
 

@@ -34,8 +34,17 @@ export type ObjLib = {
    * - Returns `undefined` when no object is provided.
    */
   trimStringsDeep: {
+    // object → object
     <T extends Record<string, unknown>>(obj: T, options?: t.ObjTrimStringsDeepOptions | number): T;
+
+    // undefined → undefined
     (obj: undefined, options?: t.ObjTrimStringsDeepOptions | number): undefined;
+
+    // T | undefined → T | undefined    ← handles optional chaining at call sites
+    <T extends Record<string, unknown>>(
+      obj: T | undefined,
+      options?: t.ObjTrimStringsDeepOptions | number,
+    ): T | undefined;
   };
 
   /**
