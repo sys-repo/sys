@@ -31,7 +31,7 @@ export type CrdtLayoutCtx = {
  * Slots for the CRDT-aware layout shell.
  */
 export type CrdtLayoutSlots = {
-  main: Slot<CrdtLayoutCtx>;
+  main?: Slot<CrdtLayoutCtx>;
   sidebar?: Slot<CrdtLayoutCtx>;
   footer?: Slot<CrdtLayoutCtx>;
 };

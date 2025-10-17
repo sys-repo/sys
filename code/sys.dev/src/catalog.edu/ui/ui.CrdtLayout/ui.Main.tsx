@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, Cropmarks, css } from './common.ts';
+import { slotCtx } from './u.ts';
 
 type P = t.CrdtLayoutProps;
 
@@ -7,7 +8,8 @@ type P = t.CrdtLayoutProps;
  * Component:
  */
 export const Main: React.FC<P> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, slots } = props;
+  const ctx = slotCtx(props);
 
   /**
    * Render:
@@ -15,15 +17,17 @@ export const Main: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg, display: 'grid' }),
-    body: css({
-      padding: 15,
-    }),
+    body: css({ position: 'relative', display: 'grid' }),
+    empty: css({ padding: 10, backgroundColor: Color.ruby() }),
   };
+
+  const elEmpty = <div className={styles.empty.class}>{'🐷 slot:main'}</div>;
+  const el = slots?.main?.(ctx);
 
   return (
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={theme.name} borderOpacity={0.08}>
-        <div className={styles.body.class}>{`🐷 Main`}</div>
+        <div className={styles.body.class}>{el ?? elEmpty}</div>
       </Cropmarks>
     </div>
   );

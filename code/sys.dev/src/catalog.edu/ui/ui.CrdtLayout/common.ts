@@ -19,6 +19,7 @@ const sidebar: t.CrdtLayoutSidebarConfig = { visible: true, position: 'right', w
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
+  theme: 'Dark' satisfies t.CommonTheme,
   header,
   sidebar,
 } as const;

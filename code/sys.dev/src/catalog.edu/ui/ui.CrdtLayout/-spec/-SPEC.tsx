@@ -1,7 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Crdt, D, STORAGE_KEY } from '../common.ts';
+import { type t, Crdt, D, STORAGE_KEY } from '../common.ts';
 import { CrdtLayout } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Foo } from './-ui.Foo.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -22,6 +23,13 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+
+        const slots: t.CrdtLayoutSlots = {
+          main: (ctx) => <Foo ctx={ctx} label={'🌳 Main'} />,
+          sidebar: (ctx) => <Foo ctx={ctx} label={'🌳 Sidebar'} />,
+          footer: (ctx) => <Foo ctx={ctx} label={'🌳 Footer'} padding={0} />,
+        };
+
         return (
           <CrdtLayout
             debug={v.debug}
@@ -30,6 +38,7 @@ export default Spec.describe(D.displayName, (e) => {
             repo={debug.repo}
             header={v.header}
             sidebar={v.sidebar}
+            slots={v.debugSlots ? slots : undefined}
           />
         );
       });

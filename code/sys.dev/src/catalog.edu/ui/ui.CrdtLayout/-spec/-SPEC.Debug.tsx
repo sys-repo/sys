@@ -11,16 +11,17 @@ import {
   ObjectView,
   Signal,
   STORAGE_KEY,
-  Str,
 } from '../common.ts';
 
 type P = t.CrdtLayoutProps;
 type Storage = Pick<P, 'theme' | 'debug'> & {
   header: Pick<t.CrdtLayoutHeaderConfig, 'visible' | 'readOnly' | 'urlKey'>;
   sidebar: t.CrdtLayoutSidebarConfig;
+  debugSlots?: boolean;
 };
 const defaults: Storage = {
   debug: false,
+  debugSlots: true,
   theme: 'Dark',
   header: D.header,
   sidebar: D.sidebar,
@@ -46,6 +47,7 @@ export function createDebugSignals() {
 
   const props = {
     debug: s(snap.debug),
+    debugSlots: s(snap.debugSlots),
     theme: s(snap.theme),
     header: {
       visible: s((snap.header ?? {}).visible),
@@ -82,6 +84,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.debugSlots = p.debugSlots.value;
 
       d.header = d.header ?? {};
       d.header.visible = p.header.visible.value;
@@ -173,6 +176,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `debug/slots: ${p.debugSlots.value}`}
+        onClick={() => Signal.toggle(p.debugSlots)}
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />

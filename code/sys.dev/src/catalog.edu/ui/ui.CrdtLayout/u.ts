@@ -20,3 +20,8 @@ export function sidebarConfig(props?: t.CrdtLayoutSidebarConfig): t.CrdtLayoutSi
     width: props?.width ?? D.sidebar.width,
   };
 }
+
+export function slotCtx(props: t.CrdtLayoutProps): t.CrdtLayoutCtx {
+  const { repo, doc, theme = D.theme, debug = false } = props;
+  return { repo, doc, theme, debug };
+}
