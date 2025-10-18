@@ -83,7 +83,6 @@ function toRowsFromStream(input: InfoProps['stream'], filter?: Filter): readonly
 
     const vids = s.getVideoTracks();
     const auds = s.getAudioTracks();
-
     push(`${label}.tracks.video`, vids.length);
     push(`${label}.tracks.audio`, auds.length);
 
