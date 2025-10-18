@@ -50,7 +50,7 @@ type Slot<TCtx> = (ctx: TCtx) => React.ReactNode;
  * State wrapped in signals.
  */
 export type CrdtLayoutSignals = {
-  doc?: t.Signal<t.Crdt.Ref | undefined>;
+  doc: t.Signal<t.Crdt.Ref | undefined>;
 };
 
 /**

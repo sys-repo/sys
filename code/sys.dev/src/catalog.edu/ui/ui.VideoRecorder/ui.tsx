@@ -21,7 +21,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
     <CrdtLayout.View
       theme={props.theme}
       repo={repo}
-      signals={{ doc: signals?.doc }}
+      signals={signals ? { doc: signals.doc } : undefined}
       header={header}
       sidebar={sidebar}
       slots={slots}

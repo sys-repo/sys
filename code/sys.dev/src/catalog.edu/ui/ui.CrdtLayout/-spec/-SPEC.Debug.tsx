@@ -188,16 +188,3 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
-
-function simplifyDeviceInfo(device?: MediaDeviceInfo) {
-  if (!device) return;
-  return Obj.trimStringsDeep(
-    {
-      deviceId: device.deviceId,
-      kind: device.kind,
-      label: device.label,
-      groupId: device.groupId,
-    },
-    20,
-  );
-}

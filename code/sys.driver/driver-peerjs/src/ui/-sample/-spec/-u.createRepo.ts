@@ -8,7 +8,7 @@ export function createRepo() {
   const isLocalhost = location.hostname === 'localhost';
 
   const repo = Crdt.repo({
-    storage: { database: 'dev:sys.crdt' },
+    storage: { database: 'dev.crdt' },
     network: [
       //
       { ws: 'waiheke.sync.db.team' },

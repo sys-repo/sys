@@ -8,7 +8,7 @@ type P = t.VideoRecorderViewProps;
  * Component:
  */
 export const Config: React.FC<P> = (props) => {
-  const { debug = false, signals = {} } = props;
+  const { debug = false, signals } = props;
 
   /**
    * Render:
@@ -46,9 +46,9 @@ export const Config: React.FC<P> = (props) => {
         style={styles.mediaList}
         theme={theme.name}
         filter={(e) => e.kind === 'videoinput'}
-        selected={signals.camera?.value}
+        selected={signals?.camera.value}
         onSelect={(e) => {
-          if (signals.camera) signals.camera.value = e.info;
+          if (signals?.camera) signals.camera.value = e.info;
         }}
       />
 
@@ -58,9 +58,9 @@ export const Config: React.FC<P> = (props) => {
         style={styles.mediaList}
         theme={theme.name}
         filter={(e) => e.kind === 'audioinput'}
-        selected={signals.audio?.value}
+        selected={signals?.audio.value}
         onSelect={(e) => {
-          if (signals.audio) signals.audio.value = e.info;
+          if (signals?.audio) signals.audio.value = e.info;
         }}
       />
 

@@ -8,7 +8,7 @@ type P = t.CrdtLayoutProps;
  * Component:
  */
 export const Header: React.FC<P> = (props) => {
-  const { debug = false, repo, signals = {} } = props;
+  const { debug = false, repo, signals } = props;
   const config = headerConfig(props.header);
 
   /**
@@ -35,7 +35,7 @@ export const Header: React.FC<P> = (props) => {
         buttonStyle={{ margin: 4 }}
         controller={{
           repo,
-          signals: { doc: signals.doc },
+          signals: signals ? { doc: signals.doc } : undefined,
           initial: {},
           localstorage: config.localstorage,
           urlKey: config.urlKey,

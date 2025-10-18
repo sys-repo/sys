@@ -40,11 +40,7 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: P['signals'] = {
-    doc: s<t.Crdt.Ref>(),
-    camera: s<MediaDeviceInfo>(),
-    audio: s<MediaDeviceInfo>(),
-  };
+  const signals: P['signals'] = { doc: s(), camera: s(), audio: s(), stream: s() };
 
   const props = {
     debug: s(snap.debug),
@@ -183,16 +179,3 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
-
-function simplifyDeviceInfo(device?: MediaDeviceInfo) {
-  if (!device) return;
-  return Obj.trimStringsDeep(
-    {
-      deviceId: device.deviceId,
-      kind: device.kind,
-      label: device.label,
-      groupId: device.groupId,
-    },
-    20,
-  );
-}

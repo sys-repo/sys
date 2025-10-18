@@ -15,6 +15,7 @@ export type VideoRecorderViewProps = Pick<t.CrdtLayoutProps, 'header' | 'sidebar
  * State wrapped in signals.
  */
 export type VideoRecorderViewSignals = t.CrdtLayoutSignals & {
-  camera?: t.Signal<MediaDeviceInfo | undefined>;
-  audio?: t.Signal<MediaDeviceInfo | undefined>;
+  camera: t.Signal<MediaDeviceInfo | undefined>;
+  audio: t.Signal<MediaDeviceInfo | undefined>;
+  stream: t.Signal<MediaStream | undefined>;
 };

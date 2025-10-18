@@ -39,6 +39,7 @@ export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
         data={{
           [field.camera.label]: field.camera.value,
           [field.audio.label]: field.audio.value,
+          stream: signals?.stream?.value,
         }}
         style={{ marginTop: 5 }}
         expand={1}
@@ -53,18 +54,5 @@ export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
 function mediaField(labelPrefix?: string, info?: MediaDeviceInfo) {
   let label = `${labelPrefix}`;
   if (info?.deviceId) label = `${label}:#${info.deviceId.slice(0, 4)}`;
-  return { label, value: simplifyDeviceInfo(info) };
-}
-
-function simplifyDeviceInfo(device?: MediaDeviceInfo) {
-  if (!device) return;
-  return Obj.trimStringsDeep(
-    {
-      deviceId: device.deviceId,
-      kind: device.kind,
-      label: device.label,
-      groupId: device.groupId,
-    },
-    20,
-  );
+  return { label, value: Media.toObject(info) };
 }
