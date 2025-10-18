@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
-import { edgeBorder, sidebarConfig, slotCtx } from './u.ts';
+import { edgeBorder, renderCtx, sidebarConfig } from './u.ts';
 
 type P = t.CrdtLayoutProps;
 
@@ -10,7 +10,7 @@ type P = t.CrdtLayoutProps;
 export const Sidebar: React.FC<P> = (props) => {
   const { debug = false, signals = {}, slots } = props;
   const config = sidebarConfig(props.sidebar);
-  const ctx = slotCtx(props);
+  const render = renderCtx(props);
 
   /**
    * Render:
@@ -29,7 +29,7 @@ export const Sidebar: React.FC<P> = (props) => {
   };
 
   const elEmpty = <div className={styles.empty.class}>{'🐷 slot: sidebar'}</div>;
-  const el = slots?.sidebar?.(ctx);
+  const el = render.ready ? slots?.sidebar?.(render.ctx) : null;
 
   return (
     <div className={css(styles.base, props.style).class}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, Cropmarks, css } from './common.ts';
-import { slotCtx } from './u.ts';
+import { renderCtx } from './u.ts';
 
 type P = t.CrdtLayoutProps;
 
@@ -9,7 +9,7 @@ type P = t.CrdtLayoutProps;
  */
 export const Main: React.FC<P> = (props) => {
   const { debug = false, slots } = props;
-  const ctx = slotCtx(props);
+  const render = renderCtx(props);
 
   /**
    * Render:
@@ -22,7 +22,7 @@ export const Main: React.FC<P> = (props) => {
   };
 
   const elEmpty = <div className={styles.empty.class}>{'🐷 slot: main'}</div>;
-  const el = slots?.main?.(ctx);
+  const el = render.ready ? slots?.main?.(render.ctx) : null;
 
   return (
     <div className={css(styles.base, props.style).class}>

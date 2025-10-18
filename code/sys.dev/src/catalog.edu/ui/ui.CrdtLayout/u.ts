@@ -1,9 +1,15 @@
 import { type t, Color, D } from './common.ts';
 
+/**
+ * Returns a themed 1px solid border string with the given opacity.
+ */
 export function edgeBorder(theme: t.ColorTheme, opacity = D.edgeBorderOpacity) {
   return `solid 1px ${Color.alpha(theme.fg, opacity)}`;
 }
 
+/**
+ * Normalizes header configuration with defaults for visibility and read-only state.
+ */
 export function headerConfig(props?: t.CrdtLayoutHeaderConfig): t.CrdtLayoutHeaderConfig {
   return {
     visible: props?.visible ?? D.header.visible,
@@ -13,6 +19,9 @@ export function headerConfig(props?: t.CrdtLayoutHeaderConfig): t.CrdtLayoutHead
   };
 }
 
+/**
+ * Normalizes sidebar configuration with defaults for visibility, position, and width.
+ */
 export function sidebarConfig(props?: t.CrdtLayoutSidebarConfig): t.CrdtLayoutSidebarConfig {
   return {
     visible: props?.visible ?? D.sidebar.visible,
@@ -21,8 +30,23 @@ export function sidebarConfig(props?: t.CrdtLayoutSidebarConfig): t.CrdtLayoutSi
   };
 }
 
-export function slotCtx(props: t.CrdtLayoutProps): t.CrdtLayoutCtx {
+/**
+ * Discriminated union for render-time readiness.
+ */
+type RenderCtx =
+  | { readonly ready: false }
+  | { readonly ready: true; readonly ctx: t.CrdtLayoutCtx };
+/**
+ * Build slot context if the CRDT layout is ready.
+ */
+export function renderCtx(props: t.CrdtLayoutProps): RenderCtx {
   const { repo, signals, theme = D.theme, debug = false } = props;
   const doc = signals?.doc.value;
-  return { repo, doc, theme, debug };
+
+  if (repo && doc) {
+    const ctx = { repo, doc, theme, debug } satisfies t.CrdtLayoutCtx;
+    return { ready: true, ctx };
+  }
+
+  return { ready: false };
 }

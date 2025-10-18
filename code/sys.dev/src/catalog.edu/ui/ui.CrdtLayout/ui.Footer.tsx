@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, Crdt, css, D } from './common.ts';
-import { edgeBorder, slotCtx } from './u.ts';
+import { edgeBorder, renderCtx } from './u.ts';
 
 type P = t.CrdtLayoutProps;
 
@@ -9,8 +9,8 @@ type P = t.CrdtLayoutProps;
  */
 export const Footer: React.FC<P> = (props) => {
   const { debug = false, repo, header, slots } = props;
-  const ctx = slotCtx(props);
   const storageKey = header?.localstorage ?? D.header.localstorage;
+  const render = renderCtx(props);
 
   /**
    * Render:
@@ -39,7 +39,7 @@ export const Footer: React.FC<P> = (props) => {
     />
   );
 
-  const elSlot = slots?.footer?.(ctx);
+  const elSlot = render.ready ? slots?.footer?.(render.ctx) : undefined;
 
   return (
     <div className={css(styles.base, props.style).class}>

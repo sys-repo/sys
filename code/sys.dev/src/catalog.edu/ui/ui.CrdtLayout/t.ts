@@ -28,10 +28,10 @@ export type CrdtLayoutProps = {
  * Context passed to all slots.
  */
 export type CrdtLayoutCtx = {
-  readonly repo?: t.Crdt.Repo;
-  readonly doc?: t.Crdt.Ref;
   readonly theme: t.CommonTheme;
   readonly debug: boolean;
+  readonly repo: t.Crdt.Repo;
+  readonly doc: t.Crdt.Ref;
 };
 
 /**
