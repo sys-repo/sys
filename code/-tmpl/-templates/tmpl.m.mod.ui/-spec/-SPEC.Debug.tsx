@@ -68,7 +68,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  Signal.useRedrawEffect(() => debug.listen());
+  Signal.useRedrawEffect(debug.listen);
 
   /**
    * Render:
