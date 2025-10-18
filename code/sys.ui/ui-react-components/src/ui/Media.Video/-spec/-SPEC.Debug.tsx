@@ -98,8 +98,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({}),
   };
 
-  console.log('p.selectedCamera.value', p.selectedCamera.value);
-
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
