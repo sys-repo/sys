@@ -19,10 +19,8 @@ export const Is: t.MediaIsLib = {
   deviceInfo(input?: unknown): input is MediaDeviceInfo {
     if (!input || typeof input !== 'object') return false;
     const o = input as Record<string, unknown>;
-    // required fields with correct types
     if (typeof o.deviceId !== 'string') return false;
     if (!isMediaDeviceKind(o.kind)) return false;
-    // optional fields (when present) must be strings
     if ('label' in o && o.label !== undefined && typeof o.label !== 'string') return false;
     if ('groupId' in o && o.groupId !== undefined && typeof o.groupId !== 'string') return false;
     return true;
