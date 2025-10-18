@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.toObject.ts';
 
 /**
  * Media stream UI and helpers.
@@ -15,6 +16,8 @@ export type MediaLib = {
   readonly AspectRatio: t.MediaAspectRatioLib;
   readonly Is: t.MediaIsLib;
   readonly Log: t.MediaLogLib;
+  readonly ToObject: t.MediaToObjectLib;
+  readonly toObject: t.MediaToObjectRoute;
 
   // Helper methods:
   download(blob?: Blob, filename?: string): void;

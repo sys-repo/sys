@@ -1,8 +1,8 @@
-import { describe, expect, it, DomMock } from '../../-test.ts';
-import { Devices } from '../Media.Devices/mod.ts';
-import { Recorder } from '../Media.Recorder/mod.ts';
-import { Video } from '../Media.Video/mod.ts';
-import { AspectRatio, Is, Media } from './mod.ts';
+import { describe, DomMock, expect, it } from '../../../-test.ts';
+import { Devices } from '../../Media.Devices/mod.ts';
+import { Recorder } from '../../Media.Recorder/mod.ts';
+import { Video } from '../../Media.Video/mod.ts';
+import { AspectRatio, Is, Media } from '../mod.ts';
 
 describe('Media', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('API', async () => {

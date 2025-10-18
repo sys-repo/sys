@@ -8,6 +8,7 @@ import { Video } from '../Media.Video/mod.ts';
 import { AspectRatio } from './m.AspectRatio.ts';
 import { Is } from './m.Is.ts';
 import { Log } from './m.Log.ts';
+import { ToObject, toObject } from './u.toObject.ts';
 
 import { download } from './u.download.ts';
 
@@ -23,6 +24,8 @@ export const Media: MediaLib = {
   Video,
   Recorder,
   Config,
+  ToObject,
+  toObject,
 
   // Helpers (util):
   download,
