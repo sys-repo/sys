@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, Is, R, Spinners } from './common.ts';
+import { type t, Color, css, D, Is, Spinners } from './common.ts';
 import { Row } from './ui.Row.tsx';
 import { useDevicesList } from './use.DevicesList.ts';
 
@@ -16,13 +16,7 @@ export const List: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      position: 'relative',
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      display: 'grid',
-      rowGap,
-    }),
+    base: css({ position: 'relative', color: theme.fg, display: 'grid', rowGap }),
     empty: css({ padding: 10, placeItems: 'center' }),
   };
 
@@ -38,6 +32,7 @@ export const List: React.FC<P> = (props) => {
       <Row
         key={key}
         info={item}
+        debug={debug}
         index={i}
         selected={wrangle.selected(props, item, i)}
         theme={theme.name}

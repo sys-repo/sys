@@ -1,8 +1,9 @@
 import React from 'react';
-import { type t, Bullet, Button, Color, css } from './common.ts';
+import { type t, Bullet, Button, Color, css, Str } from './common.ts';
 import { Icons } from './ui.Icons.ts';
 
 export type RowProps = {
+  debug?: boolean;
   index: t.Index;
   info: MediaDeviceInfo;
   selected?: boolean;
@@ -15,7 +16,7 @@ export type RowProps = {
  * Component:
  */
 export const Row: React.FC<RowProps> = (props) => {
-  const { index, info, selected } = props;
+  const { debug = false, index, info, selected } = props;
 
   /**
    * Render:
@@ -42,6 +43,13 @@ export const Row: React.FC<RowProps> = (props) => {
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
     }),
+    debug: css({
+      fontSize: 9,
+      fontFamily: 'monospace',
+      marginLeft: 19,
+      marginTop: 2,
+      opacity: 0.4,
+    }),
   };
 
   const Icon = wrangle.icon(info);
@@ -53,11 +61,18 @@ export const Row: React.FC<RowProps> = (props) => {
     </div>
   );
 
+  const id = info.deviceId;
+
+  const elDebug = debug && (
+    <div className={styles.debug.class}>{`deviceId: ${id.slice(0, 5)}..${id.slice(-5)}`}</div>
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
       <Button theme={theme.name} onClick={() => props.onSelect?.({ info, index })}>
         {elBody}
       </Button>
+      {elDebug}
     </div>
   );
 };
