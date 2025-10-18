@@ -60,7 +60,7 @@ export const AudioWaveform: React.FC<t.AudioWaveformProps> = (props) => {
       fontSize: 9,
       fontFamily: 'monospace',
       Absolute: [null, null, 5, 5],
-      opacity: 0.5,
+      opacity: 0.4,
     }),
   };
 
