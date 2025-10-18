@@ -44,7 +44,8 @@ export function createDebugSignals() {
     configZoom: s(snap.zoom),
     filter: s<P['filter']>(Filters.toString(snap.filters)),
     zoom: s<P['zoom']>(snap.zoom),
-    selectedCamera: s<MediaDeviceInfo>(),
+    selectedVideo: s<MediaDeviceInfo>(),
+    selectedAudio: s<MediaDeviceInfo>(),
     stream: s<P['stream']>(),
   };
   const p = props;
@@ -104,9 +105,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Media.Devices.UI.List
         filter={(e) => e.kind === 'videoinput'}
-        selected={p.selectedCamera.value}
-        onSelect={(e) => (p.selectedCamera.value = e.info)}
+        selected={p.selectedVideo.value}
+        onSelect={(e) => (p.selectedVideo.value = e.info)}
       />
+      <hr />
+      <Media.Devices.UI.List
+        filter={(e) => e.kind === 'audioinput'}
+        selected={p.selectedAudio.value}
+        onSelect={(e) => (p.selectedAudio.value = e.info)}
+      />
+      <hr />
       <Media.Config.Filters.UI.List
         style={{ margin: 20 }}
         values={p.configFilters.value}

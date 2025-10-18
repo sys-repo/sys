@@ -29,6 +29,9 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
       .render(() => {
         const v = Signal.toObject(p);
 
+        const selectedVideo = p.selectedVideo.value?.deviceId;
+        const selectedAudio = p.selectedAudio.value?.deviceId;
+
         return (
           <Video.UI.Stream
             debug={v.debug}
@@ -41,17 +44,13 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
             zoom={Media.Config.Zoom.toRatio(v.zoom)}
             stream={v.stream}
             constraints={{
-              audio: true,
-              video: { deviceId: v.selectedCamera?.deviceId },
+              video: selectedVideo ? { deviceId: { exact: selectedVideo } } : true,
+              audio: selectedAudio ? { deviceId: { exact: selectedAudio } } : true,
             }}
             onReady={(e) => {
               console.info(`⚡️ Media.Video.onReady:`, e);
               Media.Log.tracks('- stream.raw', e.stream.raw);
               Media.Log.tracks('- stream.filtered', e.stream.filtered);
-
-              // Update signal state:
-              p.selectedCamera.value = e.device;
-              // p.aspectRatio.value = e.aspectRatio;
             }}
           />
         );
