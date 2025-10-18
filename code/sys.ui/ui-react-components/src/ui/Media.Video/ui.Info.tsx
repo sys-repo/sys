@@ -20,7 +20,7 @@ export const Info: React.FC<InfoProps> = (props) => {
   const styles = {
     base: css({
       // Frosted glass: readable over any video:
-      backgroundColor: Color.alpha(Color.WHITE, 0.4),
+      backgroundColor: Color.alpha(Color.WHITE, 0.5),
       backdropFilter: 'blur(30px) saturate(120%)',
       WebkitBackdropFilter: 'blur(16px) saturate(120%)',
       borderRadius: 4,
