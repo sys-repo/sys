@@ -28,6 +28,7 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+
         return (
           <Video.UI.Stream
             debug={v.debug}

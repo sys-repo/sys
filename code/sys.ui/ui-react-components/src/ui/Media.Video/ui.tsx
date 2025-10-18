@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 import { type t, Color, css, D, Rx } from './common.ts';
 import { getDevice } from './u.getDevice.ts';
+import { Info } from './ui.Info.tsx';
 import { useVideoStream } from './use.VideoStream.ts';
 
 export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
@@ -60,6 +61,7 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
       color: theme.fg,
       borderRadius,
       aspectRatio,
+      overflow: 'hidden',
     }),
     video: css({
       Absolute: 0,
@@ -68,11 +70,15 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
       objectFit: 'cover',
       borderRadius,
     }),
+    info: css({
+      Absolute: [8, null, null, 8],
+    }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <video ref={videoRef} autoPlay muted={muted} playsInline className={styles.video.class} />
+      {debug && <Info style={styles.info} theme={theme.name} stream={video.stream} />}
     </div>
   );
 };
