@@ -22,11 +22,11 @@ export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
    */
   return (
     <ObjectView
+      style={props.style}
       theme={props.theme}
       name={name}
       data={{ [field.doc]: Obj.trimStringsDeep(doc?.current) }}
       expand={props.expand}
-      style={props.style}
     />
   );
 };
