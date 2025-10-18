@@ -11,7 +11,6 @@ import {
   ObjectView,
   Signal,
   STORAGE_KEY,
-  Str,
 } from '../common.ts';
 
 type P = t.VideoRecorderViewProps;

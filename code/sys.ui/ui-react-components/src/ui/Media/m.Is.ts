@@ -1,20 +1,12 @@
 import { type t } from './common.ts';
 
 export const Is: t.MediaIsLib = {
-  /**
-   * True if input is a MediaStream.
-   * Uses instanceof when constructor exists; falls back to duck typing.
-   */
   mediaStream(input?: unknown): input is MediaStream {
     return typeof MediaStream === 'function'
       ? input instanceof MediaStream
       : !!input && typeof input === 'object' && 'getTracks' in input;
   },
 
-  /**
-   * True if input looks like MediaStreamConstraints ({audio|video} in object)
-   * and is not itself a MediaStream.
-   */
   constraints(input?: unknown): input is MediaStreamConstraints {
     return (
       !!input &&
@@ -24,30 +16,31 @@ export const Is: t.MediaIsLib = {
     );
   },
 
-  /**
-   * True if input looks like a MediaDeviceInfo.
-   * Cross-realm safe duck type: requires deviceId + kind fields.
-   */
   deviceInfo(input?: unknown): input is MediaDeviceInfo {
-    return (
-      !!input &&
-      typeof input === 'object' &&
-      'deviceId' in (input as Record<string, unknown>) &&
-      'kind' in (input as Record<string, unknown>)
-    );
+    if (!input || typeof input !== 'object') return false;
+    const o = input as Record<string, unknown>;
+    // required fields with correct types
+    if (typeof o.deviceId !== 'string') return false;
+    if (!isMediaDeviceKind(o.kind)) return false;
+    // optional fields (when present) must be strings
+    if ('label' in o && o.label !== undefined && typeof o.label !== 'string') return false;
+    if ('groupId' in o && o.groupId !== undefined && typeof o.groupId !== 'string') return false;
+    return true;
   },
 
-  /**
-   * True if input looks like a MediaStreamTrack.
-   * Requires id + kind + getSettings() function; avoids instanceof.
-   */
   track(input?: unknown): input is MediaStreamTrack {
-    return (
-      !!input &&
-      typeof input === 'object' &&
-      'id' in (input as Record<string, unknown>) &&
-      'kind' in (input as Record<string, unknown>) &&
-      typeof (input as { getSettings?: unknown }).getSettings === 'function'
-    );
+    if (!input || typeof input !== 'object') return false;
+    const o = input as Record<string, unknown>;
+    if (!isTrackKind(o.kind)) return false;
+    if (typeof o.id !== 'string') return false;
+    if (typeof (o as { getSettings?: unknown }).getSettings !== 'function') return false;
+    return true;
   },
 };
+
+/**
+ * Helpers:
+ */
+const isTrackKind = (k: unknown): k is 'audio' | 'video' => k === 'audio' || k === 'video';
+const isMediaDeviceKind = (k: unknown): k is MediaDeviceKind =>
+  k === 'audioinput' || k === 'audiooutput' || k === 'videoinput';
