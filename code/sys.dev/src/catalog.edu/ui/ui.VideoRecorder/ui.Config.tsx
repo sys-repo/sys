@@ -38,12 +38,14 @@ export const Config: React.FC<P> = (props) => {
       marginTop: 20,
       backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
     }),
+    waveform: css({ marginTop: 5, PaddingX: [20, 15] }),
   };
 
   const elBody = (
     <div className={styles.body.class}>
       <Media.Devices.UI.List
         style={styles.mediaList}
+        debug={debug}
         theme={theme.name}
         filter={(e) => e.kind === 'videoinput'}
         selected={signals?.camera.value}
@@ -56,6 +58,7 @@ export const Config: React.FC<P> = (props) => {
 
       <Media.Devices.UI.List
         style={styles.mediaList}
+        debug={debug}
         theme={theme.name}
         filter={(e) => e.kind === 'audioinput'}
         selected={signals?.audio.value}

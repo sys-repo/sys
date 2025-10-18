@@ -19,7 +19,6 @@ export const Footer: React.FC<P> = (props) => {
   const styles = {
     base: css({
       borderTop: edgeBorder(theme),
-      backgroundColor: Color.ruby(debug),
       color: theme.fg,
       Padding: [8, 10],
       overflow: 'hidden',
