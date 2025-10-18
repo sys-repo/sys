@@ -42,6 +42,7 @@ export type MediaVideoLib = {
  */
 export type MediaVideoStreamProps = {
   debug?: boolean;
+  debugFilter?: (e: { key: string }) => boolean;
 
   /** Media constraints for `getUserMedia`. Defaults: `{ video: true, audio: true }`. */
   constraints?: MediaStreamConstraints;

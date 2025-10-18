@@ -78,7 +78,14 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <video ref={videoRef} autoPlay muted={muted} playsInline className={styles.video.class} />
-      {debug && <Info style={styles.info} theme={theme.name} stream={video.stream} />}
+      {debug && (
+        <Info
+          style={styles.info}
+          theme={theme.name}
+          stream={video.stream}
+          filter={props.debugFilter}
+        />
+      )}
     </div>
   );
 };

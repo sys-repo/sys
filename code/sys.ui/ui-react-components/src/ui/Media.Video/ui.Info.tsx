@@ -2,13 +2,11 @@ import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
 type Row = { readonly k: string; readonly v: string };
+type Filter = t.MediaVideoStreamProps['debugFilter'];
 
 export type InfoProps = {
-  /**
-   * Media stream input to inspect.
-   * Accepts either a single MediaStream or the `{ raw, filtered }` pair used by the hook.
-   */
-  readonly stream?: MediaStream | { readonly raw?: MediaStream; readonly filtered?: MediaStream };
+  stream?: MediaStream | { readonly raw?: MediaStream; readonly filtered?: MediaStream };
+  filter?: Filter;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -17,7 +15,7 @@ export type InfoProps = {
  * Component:
  */
 export const Info: React.FC<InfoProps> = (props) => {
-  const rows = toRowsFromStream(props.stream);
+  const rows = toRowsFromStream(props.stream, props.filter);
 
   const styles = {
     base: css({
@@ -67,14 +65,16 @@ export const Info: React.FC<InfoProps> = (props) => {
  * Helpers:
  */
 
-function toRowsFromStream(input: InfoProps['stream']): readonly Row[] {
+function toRowsFromStream(input: InfoProps['stream'], filter?: Filter): readonly Row[] {
   if (!input) return [];
 
   // Normalise to a named pair so the panel can show both if present.
   const pair = input instanceof MediaStream ? { raw: input, filtered: undefined } : input;
   const rows: Row[] = [];
   const push = (k: string, v: unknown) => {
-    if (v !== undefined) rows.push({ k, v: fmt(v) });
+    if (v === undefined) return;
+    if (filter && !filter({ key: k })) return;
+    rows.push({ k, v: fmt(v) });
   };
 
   const addStream = (label: 'raw' | 'filtered', s?: MediaStream) => {

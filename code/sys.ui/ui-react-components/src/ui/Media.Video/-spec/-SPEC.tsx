@@ -32,6 +32,7 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
         return (
           <Video.UI.Stream
             debug={v.debug}
+            // debugFilter={(e) => e.key.startsWith('raw.')}
             theme={v.theme}
             filter={v.filter}
             borderRadius={v.borderRadius}
