@@ -1,14 +1,13 @@
 import type { t } from './common.ts';
-export type * from './t.toObject.ts';
+
+export type * from './t.Is.ts';
+export type * from './t.Object.ts';
 
 /**
  * Media stream UI and helpers.
  */
 export type MediaLib = {
-  readonly UI: {
-    readonly AudioWaveform: React.FC<t.AudioWaveformProps>;
-  };
-
+  readonly UI: { readonly AudioWaveform: React.FC<t.AudioWaveformProps> };
   readonly Video: t.MediaVideoLib;
   readonly Recorder: t.MediaRecorderLib;
   readonly Devices: t.MediaDevicesLib;
@@ -29,14 +28,6 @@ export type MediaLib = {
 export type MediaAspectRatioLib = {
   toNumber(stream: MediaStream): number;
   toString(stream: MediaStream, options?: { maxDenominator?: number }): string;
-};
-
-/**
- * Flags for evaluating media/video related values.
- */
-export type MediaIsLib = {
-  mediaStream(input?: unknown): input is MediaStream;
-  constraints(input?: unknown): input is MediaStreamConstraints;
 };
 
 /**

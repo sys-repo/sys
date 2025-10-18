@@ -115,9 +115,9 @@ export function toObject(input: MediaStreamTrack, opts?: t.MediaToObjectOptions)
 export function toObject(input?: t.AnyMedia, opts?: t.MediaToObjectOptions): t.AnyMediaObject;
 export function toObject(input?: t.AnyMedia, opts?: t.MediaToObjectOptions): t.AnyMediaObject {
   if (!input) return undefined;
-  if (isDeviceInfo(input)) return toDeviceObject(input, opts)!;
+  if (Is.deviceInfo(input)) return toDeviceObject(input, opts)!;
   if (Is.mediaStream(input)) return toStreamObject(input, opts)!; // ← use existing Is
-  if (isTrack(input)) return toTrackObject(input, opts)!;
+  if (Is.track(input)) return toTrackObject(input, opts)!;
   return undefined;
 }
 
@@ -127,19 +127,3 @@ export function toObject(input?: t.AnyMedia, opts?: t.MediaToObjectOptions): t.A
 const trim = (s: string | undefined, max = 32) => (s && s.length > max ? `${s.slice(0, max)}…` : s);
 const compact = <T extends Record<string, unknown>>(o: T) =>
   Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as T;
-
-/**
- * Guards (duck-typed for device/track; stream delegates to Is.mediaStream)
- */
-const isDeviceInfo = (v: unknown): v is MediaDeviceInfo =>
-  !!v &&
-  typeof v === 'object' &&
-  'deviceId' in (v as Record<string, unknown>) &&
-  'kind' in (v as Record<string, unknown>);
-
-const isTrack = (v: unknown): v is MediaStreamTrack =>
-  !!v &&
-  typeof v === 'object' &&
-  'id' in (v as Record<string, unknown>) &&
-  'kind' in (v as Record<string, unknown>) &&
-  typeof (v as { getSettings?: unknown }).getSettings === 'function';
