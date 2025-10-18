@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { type t, AspectRatio, D, Err, Is, logMedia, Obj, Rx } from './common.ts';
+import { type t, AspectRatio, D, Err, Is, logInfo, Obj, Rx } from './common.ts';
 import { getStream } from './u.getStream.ts';
 
 export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = {}) => {
@@ -66,7 +66,7 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
     async function run() {
       try {
         const res = await getStream(input.stream ?? input.constraints, { filter, zoom });
-        logMedia('✅ stream acquired', {
+        logInfo('✅ stream acquired', {
           audioTracks: res.raw.getAudioTracks().map((a) => a.label),
           videoTracks: res.raw.getVideoTracks().map((v) => v.label),
         });
@@ -79,7 +79,7 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
         setAspectRatio(AspectRatio.toString(merged));
         setReady(true);
       } catch (err) {
-        logMedia('❌ stream error', err);
+        logInfo('❌ stream error', err);
         console.error(err);
         if (!life.disposed) setError(Err.std(err));
       }
@@ -87,7 +87,7 @@ export const useVideoStream: t.UseVideoStream = (streamOrConstraints, options = 
 
     run();
     return () => {
-      logMedia('🧹 cleaning up stream (stopping tracks)');
+      logInfo('🫧 cleaning up stream (stopping tracks)');
       filtered?.getTracks().forEach((t) => t.stop());
       setReady(false);
       life.dispose();

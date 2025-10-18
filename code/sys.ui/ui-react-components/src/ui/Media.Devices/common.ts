@@ -1,8 +1,11 @@
-import { pkg, Pkg } from '../common.ts';
+import { makeLogger, pkg, Pkg } from '../common.ts';
+export * from '../common.ts';
+
 export { Bullet } from '../Bullet/mod.ts';
 export { Button } from '../Button/mod.ts';
 export { Spinners } from '../Spinners/mod.ts';
-export * from '../common.ts';
+
+export const logInfo = makeLogger('Media.Devices');
 
 /**
  * Constants:

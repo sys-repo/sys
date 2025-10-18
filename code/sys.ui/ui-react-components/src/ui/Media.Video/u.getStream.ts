@@ -1,4 +1,4 @@
-import { type t, D, Is, logMedia } from './common.ts';
+import { type t, D, Is, logInfo } from './common.ts';
 
 /**
  * Build a MediaStream whose video is run through a CSS-filter pipeline.
@@ -16,7 +16,7 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
 ) => {
   const filter = (options.filter ?? '').trim();
   const zoom = wrangle.zoom(options.zoom);
-  logMedia('getStream:start', { filter, zoom });
+  logInfo('getStream:start', { filter, zoom });
 
   /**
    * Retrieve the raw camera/mic stream.
@@ -99,7 +99,7 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   });
 
   // Finish up.
-  logMedia('getStream:end', { tracks: filtered.getTracks().map((t) => `${t.kind}:${t.label}`) });
+  logInfo('getStream:end', { tracks: filtered.getTracks().map((t) => `${t.kind}:${t.label}`) });
   return { raw, filtered };
 };
 
