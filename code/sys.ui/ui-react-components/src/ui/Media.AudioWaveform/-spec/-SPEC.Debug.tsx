@@ -1,7 +1,14 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, Signal } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+
+type P = t.AudioWaveformProps;
+type Storage = Pick<P, 'theme' | 'debug'>;
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: true,
+};
 
 /**
  * Types:
@@ -14,20 +21,37 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
+
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+
   const props = {
-    debug: s(false),
-    theme: s<t.CommonTheme>('Dark'),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
     stream: s<MediaStream>(),
   };
   const p = props;
   const api = {
     props,
-    listen() {
-      p.debug.value;
-      p.theme.value;
-      p.stream.value;
-    },
+    reset,
+    listen,
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+    });
+  });
+
   return api;
 }
 
@@ -47,8 +71,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-
-  Signal.useRedrawEffect(() => debug.listen());
+  Signal.useRedrawEffect(debug.listen);
 
   /**
    * Render:
@@ -61,11 +84,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
-        block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
+      <Media.Video.UI.Stream
+        stream={p.stream.value}
+        borderRadius={5}
+        onReady={(e) => (p.stream.value = e.stream.filtered)}
+        style={{ width: '100%', aspectRatio: '16/9', marginBottom: 30 }}
       />
+
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -73,15 +98,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Media.Video.UI.Stream
-        stream={p.stream.value}
-        borderRadius={5}
-        onReady={(e) => (p.stream.value = e.stream.filtered)}
-        style={{ width: '100%', aspectRatio: '16/9' }}
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
       />
-
-      <hr />
-      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={['$']} />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };
