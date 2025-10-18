@@ -74,8 +74,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Media.Video.UI.Stream
+        stream={p.stream.value}
         borderRadius={5}
         onReady={(e) => (p.stream.value = e.stream.filtered)}
+        style={{ width: '100%', aspectRatio: '16/9' }}
       />
 
       <hr />
