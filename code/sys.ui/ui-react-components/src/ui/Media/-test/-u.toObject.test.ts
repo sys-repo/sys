@@ -20,10 +20,10 @@ describe('Media.toObject', () => {
     expect(obj?.groupId).to.equal('grp-1');
     expect(obj?.label?.length).to.be.lessThanOrEqual(33); // 32 + ellipsis
 
-    // type check (use cast so matcher sees union on both sides)
+    // Type check (use cast so matcher sees union on both sides)
     expectTypeOf(obj as t.DeviceObject | undefined).toEqualTypeOf<t.DeviceObject | undefined>();
 
-    // direct helper parity
+    // Direct helper parity:
     const obj2 = Media.ToObject.device(device);
     expect(obj2).to.eql(obj);
   });
