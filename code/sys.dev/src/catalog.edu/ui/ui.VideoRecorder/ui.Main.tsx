@@ -15,7 +15,7 @@ export const Main: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ color: theme.fg, display: 'grid' }),
+    base: css({ color: theme.fg, display: 'grid', overflow: 'hidden' }),
     body: css({
       width: 400,
       height: 220,

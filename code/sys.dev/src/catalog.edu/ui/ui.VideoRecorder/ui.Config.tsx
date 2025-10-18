@@ -33,11 +33,6 @@ export const Config: React.FC<P> = (props) => {
       MarginY: 20,
     }),
     mediaList: css({ marginRight: 10 }),
-    waveform: css({
-      height: 40,
-      marginTop: 20,
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-    }),
     waveform: css({ marginTop: 5, PaddingX: [20, 15] }),
   };
 
@@ -67,15 +62,14 @@ export const Config: React.FC<P> = (props) => {
         }}
       />
 
-      {/*
-       * TODO 🐷🐷🐷🐷🐷🐷
-       */}
-      <Media.UI.AudioWaveform
-        //
-        theme={theme.name}
-        style={styles.waveform}
-        // stream={p.stream.value}
-      />
+      <div className={styles.waveform.class}>
+        <Media.UI.AudioWaveform
+          debug={debug}
+          theme={theme.name}
+          stream={signals?.stream.value}
+          style={{ height: 40 }}
+        />
+      </div>
     </div>
   );
 
