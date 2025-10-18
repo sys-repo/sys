@@ -13,7 +13,6 @@ export type CrdtLayoutLib = {
  */
 export type CrdtLayoutProps = {
   repo?: t.Crdt.Repo;
-  doc?: t.Crdt.Ref;
   signals?: CrdtLayoutSignals;
 
   slots?: CrdtLayoutSlots;

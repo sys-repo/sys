@@ -22,6 +22,7 @@ export function sidebarConfig(props?: t.CrdtLayoutSidebarConfig): t.CrdtLayoutSi
 }
 
 export function slotCtx(props: t.CrdtLayoutProps): t.CrdtLayoutCtx {
-  const { repo, doc, theme = D.theme, debug = false } = props;
+  const { repo, signals, theme = D.theme, debug = false } = props;
+  const doc = signals?.doc.value;
   return { repo, doc, theme, debug };
 }
