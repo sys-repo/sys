@@ -43,6 +43,6 @@ export type DeviceSelectionLifecycleOptions = {
   readonly items: readonly MediaDeviceInfo[];
   readonly signal: t.Signal<MediaDeviceInfo | undefined>;
   readonly prefs?: DeviceDefaultPrefs;
-  readonly storageKey?: t.StringKey; // Optional key for LocalStorage persistence.
-  readonly enabled?: boolean; //        Toggle lifecycle behavior (default: true).
+  readonly storageKey?: t.StringKey; //  Optional key for LocalStorage persistence.
+  readonly enabled?: boolean; //         Toggle lifecycle behavior (default: true).
 };
