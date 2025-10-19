@@ -1,22 +1,28 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Dev, DevUrl, Signal, Spec } from '../../-test.ui.ts';
 import { Crdt, D, STORAGE_KEY } from '../common.ts';
 import { VideoRecorderView } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const url = debug.url;
   const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    function update() {
+      ctx.debug.width(url.debug !== false ? 360 : 0);
+      ctx.redraw();
+    }
+
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      update();
     });
+    update(); // Initial.
 
-    ctx.debug.width(360);
     ctx.subject
       .size('fill')
       .display('grid')

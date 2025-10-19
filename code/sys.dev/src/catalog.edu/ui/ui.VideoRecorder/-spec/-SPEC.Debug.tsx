@@ -1,9 +1,10 @@
 import React from 'react';
 import { SignalsObjectView } from '../-dev/ui.SignalsObjectView.tsx';
-import { createRepo } from '../../-test.ui.ts';
+import { createRepo, DevUrl } from '../../-test.ui.ts';
 import {
   type t,
   Button,
+  Color,
   css,
   D,
   LocalStorage,
@@ -60,8 +61,9 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    repo: createRepo(),
     signals,
+    repo: createRepo(),
+    url: DevUrl.make(window),
     reset,
     listen,
   };
@@ -118,8 +120,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
+  const theme = Color.theme();
   const styles = {
-    base: css({}),
+    base: css({ color: theme.fg }),
   };
 
   return (
@@ -165,6 +168,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button
+        block
+        label={() => `hide debug (via query-string → reload)`}
+        onClick={() => {
+          debug.url.debug = false;
+          window.location.reload();
+        }}
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
