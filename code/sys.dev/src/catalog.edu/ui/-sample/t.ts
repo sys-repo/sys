@@ -17,4 +17,6 @@ export type SampleProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+
+  onDiagnostics?: (e: { slugDiagnostics: t.Yaml.Diagnostic[] }) => void;
 };

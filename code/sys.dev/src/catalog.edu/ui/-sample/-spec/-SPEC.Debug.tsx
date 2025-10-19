@@ -1,6 +1,6 @@
 import React from 'react';
 import { CatalogObjectView } from '../../-dev/mod.ts';
-import { createRepo, YamlObjectView } from '../../-test.ui.ts';
+import { createRepo, DevUrl, YamlObjectView } from '../../-test.ui.ts';
 import {
   type t,
   Arr,
@@ -61,7 +61,7 @@ export function createDebugSignals() {
 
     // In-memory:
     slug: s<t.Slug | undefined>(),
-    stream: s<MediaStream>(),
+    slugDiagnostics: s<t.Yaml.Diagnostic[] | undefined>(),
   };
 
   const p = props;
@@ -69,6 +69,7 @@ export function createDebugSignals() {
     props,
     bus$: Monaco.Bus.make(),
     repo: createRepo(),
+    url: DevUrl.make(window),
     signals,
     reset,
     listen,
@@ -179,12 +180,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `(reset, reload)`}
+        label={() => `hide debug (via query-string → reload)`}
+        onClick={() => {
+          debug.url.debug = false;
+          window.location.reload();
+        }}
+      />
+
+      <Button
+        block
+        label={() => `(reset → reload)`}
         onClick={() => {
           debug.reset();
           window.location.reload();
         }}
       />
+
       <ObjectView style={{ marginTop: 15 }} expand={0} name={'debug'} data={Signal.toObject(p)} />
       <hr />
       <YamlObjectView
@@ -196,7 +207,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <CatalogObjectView
         style={{ marginTop: 5 }}
         expand={1}
-        slug={{ path: p.slugPath.value, value: p.slug.value }}
+        slug={{
+          path: p.slugPath.value,
+          value: p.slug.value,
+          diagnostics: p.slugDiagnostics.value,
+        }}
       />
 
       <SlugView

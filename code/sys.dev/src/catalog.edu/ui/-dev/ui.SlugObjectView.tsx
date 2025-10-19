@@ -1,9 +1,10 @@
 import React from 'react';
 import { Slug } from '../../m.slug/mod.ts';
-import { type t, Color, css, D, ObjectView } from './common.ts';
+import { type t, Color, css, ObjectView } from './common.ts';
 
 export type CatalogObjectViewProps = {
-  slug?: { value?: t.Slug | unknown; path?: t.ObjectPath };
+  name?: string;
+  slug?: { value?: t.Slug | unknown; path?: t.ObjectPath; diagnostics?: t.Yaml.Diagnostic[] };
   expand?: t.ObjectViewProps['expand'];
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -13,7 +14,7 @@ export type CatalogObjectViewProps = {
 /**
  * Component:
  */
-export const CatalogObjectView: React.FC<CatalogObjectViewProps> = (props) => {
+export const SlugObjectView: React.FC<CatalogObjectViewProps> = (props) => {
   const { debug = false, slug } = props;
 
   /**
@@ -28,10 +29,19 @@ export const CatalogObjectView: React.FC<CatalogObjectViewProps> = (props) => {
     }),
   };
 
-  const slugField = `current:/${slug?.path?.join('/') ?? '<unknown>'}`;
+  const ok = (slug?.diagnostics?.length ?? 0) === 0;
+  const field = {
+    def: 'def(slug)',
+    ok: 'slug:ok',
+    current: `slug:current:/${slug?.path?.join('/') ?? '<unknown>'}`,
+    diagnostics: `slug:diagnostics`,
+  };
+
   const data = {
-    'def:Slug': Slug,
-    [slugField]: slug?.value,
+    [field.def]: Slug,
+    [field.ok]: ok,
+    [field.current]: slug?.value,
+    [field.diagnostics]: slug?.diagnostics ?? [],
   };
 
   return (
@@ -39,7 +49,7 @@ export const CatalogObjectView: React.FC<CatalogObjectViewProps> = (props) => {
       <ObjectView
         style={{ marginTop: 15 }}
         expand={props.expand}
-        name={D.catalog.name}
+        name={props.name ?? 'Slug'}
         data={data}
       />
     </div>

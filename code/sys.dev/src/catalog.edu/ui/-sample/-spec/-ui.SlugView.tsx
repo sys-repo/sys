@@ -1,7 +1,5 @@
 import React from 'react';
-
 import { type t, Color, css, Slug } from '../common.ts';
-import { SlugViewVideoRecorder } from './-ui.SlugView.VideoRecorder.tsx';
 
 export type SlugViewProps = {
   slug?: t.Slug;
@@ -32,14 +30,8 @@ export const SlugView: React.FC<SlugViewProps> = (props) => {
 
   const recorders = slug.traits.filter(Slug.Traits.Is.videoRecorderBinding);
   const elRecorders = recorders.map((trait, i) => {
-    return (
-      <SlugViewVideoRecorder
-        key={`${i}.${trait.id}:${trait.as}`}
-        slug={slug}
-        traitAlias={trait.as}
-        theme={theme.name}
-      />
-    );
+    const key = `${i}.${trait.id}:${trait.as}`;
+    return null;
   });
 
   return <div className={css(styles.base, props.style).class}>{elRecorders}</div>;

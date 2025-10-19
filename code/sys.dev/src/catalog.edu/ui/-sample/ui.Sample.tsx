@@ -21,15 +21,23 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
 
   // Run combined structural + semantic validation.
   const registry = Slug.Registry.DefaultTraits;
-  const { diagnostics } = useSlugDiagnostics(registry, slugPath, yaml);
+  const slugValidity = useSlugDiagnostics(registry, slugPath, yaml);
 
   // Push error markers into Monaco.
   Monaco.Yaml.useYamlErrorMarkers({
     enabled: !!ready && !!yaml?.data?.ast,
     monaco: ready?.monaco,
     editor: ready?.editor,
-    errors: diagnostics,
+    errors: slugValidity.diagnostics,
   });
+
+  /**
+   * Effects:
+   */
+  React.useEffect(() => {
+    const slugDiagnostics = slugValidity.diagnostics ?? [];
+    props.onDiagnostics?.({ slugDiagnostics });
+  }, [slugValidity.rev]);
 
   /**
    * Render:

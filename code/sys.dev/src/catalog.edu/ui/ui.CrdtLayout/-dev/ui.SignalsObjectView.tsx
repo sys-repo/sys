@@ -14,7 +14,7 @@ export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
   const { signals, name = 'signals' } = props;
   const doc = signals?.doc?.value;
   const field = {
-    doc: doc ? `doc(id:..${doc.id.slice(-5)})` : 'doc',
+    doc: doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc',
   };
 
   /**
