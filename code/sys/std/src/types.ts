@@ -31,6 +31,7 @@ export type * from './m.Semver/t.ts';
 export type * from './m.Signal/t.ts';
 export type * from './m.Testing.Server/t.ts';
 export type * from './m.Testing/t.ts';
+export type * from './m.Try/t.ts';
 export type * from './m.Url.Jsr/t.ts';
 export type * from './m.Url/t.ts';
 export type * from './m.Value.Arr/t.ts';
