@@ -1,15 +1,12 @@
+/**
+ * Type-level assertion helpers for compile-time type checking.
+ */
 export type TypeEqualityMatcher<T> = {
-  /**
-   * Succeeds only when the two types are exactly identical.
-   *
-   * Technique:
-   *   1.  `U extends T`   – via the generic constraint.
-   *   2.  `T extends U`   – via the tuple parameter below.
-   * If either test fails, TypeScript reports an error at the
-   * call-site. Because the parameter is `...[]`, callers pass
-   * *no* runtime arguments.
-   */
+  /** Compile-time exact type equality (T and U are mutually assignable). */
   toEqualTypeOf<U extends T>(
     ..._assert: [T] extends [U] ? ([U] extends [T] ? [] : ['type-mismatch']) : ['type-mismatch']
   ): void;
+
+  /** Compile-time assignability check (T is assignable to U). */
+  toMatchTypeOf<U>(..._assert: [T] extends [U] ? [] : ['not-assignable']): void;
 };

@@ -1,4 +1,4 @@
-import { describe, expectTypeOf, it } from '../mod.ts';
+import { describe, expectTypeOf, it } from './mod.ts';
 
 describe('expectTypeOf', () => {
   describe('expectTypeOf → toEqualTypeOf', () => {

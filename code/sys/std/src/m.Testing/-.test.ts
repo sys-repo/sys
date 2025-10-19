@@ -1,5 +1,5 @@
-import { Random } from '../../m.Random/mod.ts';
-import { Testing, Time, describe, expect, expectError, expectTypeOf, it } from '../mod.ts';
+import { Random } from '../m.Random/mod.ts';
+import { Testing, Time, describe, expect, expectError, expectTypeOf, it } from './mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
   await test.step('eql', () => {
@@ -8,6 +8,11 @@ Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
 });
 
 describe('Testing', () => {
+  it('expectTypeOf', async () => {
+    const m = await import('@sys/types/testing');
+    expect(m.expectTypeOf).to.equal(expectTypeOf);
+  });
+
   it('exports BDD semantics', async () => {
     const { describe, it } = await import('@std/testing/bdd');
     const { afterAll, afterEach, beforeAll, beforeEach } = await import('@std/testing/bdd');

@@ -1,7 +1,16 @@
-import type { BddLib } from './t.ts';
+import type { t } from './common.ts';
 
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from './common.ts';
-import { expectError, expectTypeOf } from './u.ts';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  expectTypeOf,
+  it,
+} from './common.ts';
+import { expectError } from './u.ts';
 
 export {
   afterAll,
@@ -18,7 +27,7 @@ export {
 /**
  * BDD semantics ("Behavior Driven Development") helpers.
  */
-export const Bdd: BddLib = {
+export const Bdd: t.BddLib = {
   describe,
   it,
 
