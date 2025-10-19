@@ -1,12 +1,16 @@
 import type { t } from './common.ts';
 
+export type * from './t.hook.list.ts';
+export type * from './t.hook.selection.ts';
+
 /**
  * API: Devices list and selector.
  */
 export type MediaDevicesLib = {
   UI: { List: React.FC<t.DevicesProps> };
   getDevices(): Promise<MediaDeviceInfo[]>;
-  useDevicesList: UseMediaDevicesList;
+  useDevicesList: t.UseMediaDevicesList;
+  useDeviceSelection: t.UseDeviceSelection;
 };
 
 /**
@@ -21,17 +25,3 @@ export type DevicesProps = {
   style?: t.CssInput;
   onSelect?: t.DeviceHandler;
 };
-
-/**
- * Hook: Load the enumerated list of available devices.
- */
-export type UseMediaDevicesList = () => MediaDevicesListHook;
-export type MediaDevicesListHook = {
-  readonly items: MediaDeviceInfo[];
-};
-
-/**
- * Handlers for device events.
- */
-export type DeviceHandler = (e: DeviceHandlerArgs) => void;
-export type DeviceHandlerArgs = { info: MediaDeviceInfo; index: number };
