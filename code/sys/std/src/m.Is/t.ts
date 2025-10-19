@@ -28,9 +28,9 @@ export type StdIsLib = {
   disposableLike(input?: unknown): input is t.DisposableLike;
 
   /**
-   * Determine if the value is a Promise.
+   * Determine if the value is a Promise or thenable.
    */
-  promise<T = any>(input?: unknown): input is Promise<T>;
+  promise<T = unknown>(input?: unknown): input is PromiseLike<T>;
 
   /**
    * Determine if the value is an observable Subject.

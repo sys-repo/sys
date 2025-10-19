@@ -18,13 +18,6 @@ export type ErrLib = {
    * Create a new error collection builder.
    */
   errors(): t.ErrorCollection;
-
-  /**
-   * Function strongly typed way to handle try/catch (error)
-   * execution on async functions avoiding the proliferation of
-   * problematic native try/catch statements around a codebase.
-   */
-  tryCatch<T>(promise: Promise<T>): Promise<t.ErrCatch<T>>;
 };
 
 /**

@@ -1,5 +1,12 @@
 import { type t, describe, expect, it } from '../-test.ts';
-import { isEmptyRecord, isObject, isPlainObject, isPlainRecord, isRecord } from '../common.ts';
+import {
+  isEmptyRecord,
+  isObject,
+  isPlainObject,
+  isPlainRecord,
+  isPromise,
+  isRecord,
+} from '../common.ts';
 import { Rx } from '../m.Rx/mod.ts';
 import { Err, Is } from '../mod.ts';
 
@@ -10,6 +17,7 @@ describe('Is (common flags)', () => {
     expect(Is.emptyRecord).to.eql(isEmptyRecord);
     expect(Is.plainObject).to.equal(isPlainObject);
     expect(Is.plainRecord).to.equal(isPlainRecord);
+    expect(Is.promise).to.equal(isPromise);
   });
 
   it('Rx: observable | subject', () => {

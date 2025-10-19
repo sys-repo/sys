@@ -1,5 +1,5 @@
-import { describe, expect, it, type t } from '../-test.ts';
-import { Err } from './mod.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
+import { Err } from '../mod.ts';
 
 describe('Err (Error)', () => {
   describe('Err.Is', () => {

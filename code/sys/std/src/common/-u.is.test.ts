@@ -1,5 +1,12 @@
-import { describe, expect, it } from '../-test.ts';
-import { isEmptyRecord, isObject, isPlainObject, isPlainRecord, isRecord } from './u.is.ts';
+import { describe, expect, expectTypeOf, it } from '../-test.ts';
+import {
+  isEmptyRecord,
+  isObject,
+  isPlainObject,
+  isPlainRecord,
+  isPromise,
+  isRecord,
+} from './u.is.ts';
 
 type O = Record<string, unknown>;
 class MyClass {
@@ -123,6 +130,41 @@ describe('u.is (primitive flag evaluators)', () => {
       expect(isPlainRecord(null)).to.eql(false);
       expect(isPlainRecord(123)).to.eql(false);
       expect(isPlainRecord('abc')).to.eql(false);
+    });
+  });
+
+  describe('isPromise', () => {
+    it('returns true for native Promise', () => {
+      expect(isPromise(Promise.resolve(123))).to.eql(true);
+    });
+
+    it('returns true for thenable objects', () => {
+      const thenable = { then: (fn: (v: number) => void) => fn(42) };
+      expect(isPromise(thenable)).to.eql(true);
+    });
+
+    it('returns false for non-promises', () => {
+      expect(isPromise(null)).to.eql(false);
+      expect(isPromise(undefined)).to.eql(false);
+      expect(isPromise(123)).to.eql(false);
+      expect(isPromise({})).to.eql(false);
+      expect(isPromise({ then: 123 })).to.eql(false);
+    });
+  });
+
+  describe('isPromise<T> (type narrowing)', () => {
+    it('narrows native Promise to something assignable to PromiseLike<number>', () => {
+      const p = Promise.resolve(1);
+      if (isPromise(p)) {
+        expectTypeOf(p).toMatchTypeOf<PromiseLike<number>>();
+      }
+    });
+
+    it('narrows thenable to something assignable to PromiseLike<string>', () => {
+      const obj = { then: (cb: (x: string) => void) => cb('ok') };
+      if (isPromise<string>(obj)) {
+        expectTypeOf(obj).toMatchTypeOf<PromiseLike<string>>();
+      }
     });
   });
 });

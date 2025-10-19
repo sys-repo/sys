@@ -45,3 +45,14 @@ export const isPlainRecord = (input: unknown): input is Record<PropertyKey, unkn
   if (tag !== '[object Object]') return false; // cross-realm guard
   return Object.getPrototypeOf(input) === null;
 };
+
+/**
+ * Determine if the value is a Promise or thenable.
+ */
+export function isPromise<T = unknown>(v: unknown): v is PromiseLike<T> {
+  return (
+    (typeof v === 'object' || typeof v === 'function') &&
+    v !== null &&
+    typeof (v as any).then === 'function'
+  );
+}

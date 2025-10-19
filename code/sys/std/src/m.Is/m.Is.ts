@@ -6,6 +6,7 @@ import {
   isObject,
   isPlainObject,
   isPlainRecord,
+  isPromise,
   isRecord,
 } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
@@ -24,6 +25,7 @@ export const Is: StdIsLib = {
   emptyRecord: isEmptyRecord,
   plainObject: isPlainObject,
   plainRecord: isPlainRecord,
+  promise: isPromise,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
@@ -83,13 +85,6 @@ export const Is: StdIsLib = {
     if (typeof value === 'string' && value.trim() === '') return true;
     if (Array.isArray(value) && value.filter((v) => !Is.blank(v)).length === 0) return true;
     return false;
-  },
-
-  /** Determine if the value is a promise. */
-  promise<T = any>(input?: any): input is Promise<T> {
-    return input !== null && input
-      ? typeof input === 'object' && typeof input.then === 'function'
-      : false;
   },
 
   /** Determine if the value is numeric, whether it be a number or a number in a string. */
