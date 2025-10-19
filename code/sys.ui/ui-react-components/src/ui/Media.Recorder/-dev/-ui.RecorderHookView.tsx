@@ -74,10 +74,15 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
         </div>
         <BulletIcon size={18} style={styles.icon} />
       </div>
-
       <div className={styles.body.class}>
         {!is.started && (
-          <Button block label={'start recording'} onClick={recorder.start} enabled={canStart} />
+          <Button
+            block
+            theme={theme.name}
+            label={'start recording'}
+            onClick={recorder.start}
+            enabled={canStart}
+          />
         )}
         {is.recording && <Button block label={'pause'} onClick={recorder.pause} />}
         {is.paused && <Button block label={'resume'} onClick={recorder.resume} />}
@@ -85,6 +90,7 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
         <div className={styles.actionsRow.class}>
           <Button
             block
+            theme={theme.name}
             label={`stop & save ${strBytes}`}
             enabled={is.started}
             onClick={async () => {
@@ -93,7 +99,12 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
               Media.download(res.blob);
             }}
           />
-          <Button block label={is.started ? 'cancel' : 'reset'} onClick={recorder.reset} />
+          <Button
+            block
+            theme={theme.name}
+            label={is.started ? 'cancel' : 'reset'}
+            onClick={recorder.reset}
+          />
         </div>
       </div>
     </div>

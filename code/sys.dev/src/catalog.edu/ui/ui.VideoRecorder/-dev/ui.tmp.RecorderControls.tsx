@@ -39,9 +39,8 @@ export const RecorderControls: React.FC<P> = (props) => {
       marginBottom: 5,
     }),
     recorder: css({
-      marginLeft: 20,
-      marginTop: 10,
-      marginBottom: 15,
+      MarginX: 20,
+      MarginY: [10, 15],
     }),
   };
 
