@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.MyComponentProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -73,8 +73,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
+  const theme = Color.theme();
   const styles = {
-    base: css({}),
+    base: css({ color: theme.fg }),
   };
 
   return (
