@@ -1,13 +1,14 @@
 import type { t } from './common.ts';
 
-export type * from './t.hook.list.ts';
-export type * from './t.hook.selection.ts';
+export type * from './t.list.ts';
+export type * from './t.selection.ts';
 
 /**
  * API: Devices list and selector.
  */
 export type MediaDevicesLib = {
   UI: { List: React.FC<t.DevicesProps> };
+  selectDefault: t.SelectDefaultDevice;
   getDevices(): Promise<MediaDeviceInfo[]>;
   useDevicesList: t.UseMediaDevicesList;
   useDeviceSelection: t.UseDeviceSelection;

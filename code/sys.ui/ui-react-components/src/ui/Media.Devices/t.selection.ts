@@ -1,7 +1,13 @@
 import type { t } from './common.ts';
 
+/** Pure selector: choose a default device index. */
+export type SelectDefaultDevice = (
+  items: readonly MediaDeviceInfo[],
+  prefs?: DeviceDefaultPrefs,
+) => t.Index | undefined;
+
 /**
- * API: Device selection + lifecycle helpers.
+ * Device selection + lifecycle helpers.
  */
 export type UseDeviceSelection = (
   items: MediaDeviceInfo[],
