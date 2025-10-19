@@ -6,8 +6,12 @@ type ErrorGeneratorInput = unknown | Response;
  * Helpers for working with errors.
  */
 export type ErrLib = {
+  /** Type guards (boolean evaluators). */
   readonly Is: t.ErrIs;
+  /** The standard named error types. */
   readonly Name: t.ErrNameLib;
+  /** Safe unified try/catch execution for sync, async, and thenable functions. */
+  readonly Try: t.TryLib;
 
   /**
    * Take unknown input and produce a standard error object.

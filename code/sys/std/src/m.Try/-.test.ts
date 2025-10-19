@@ -1,5 +1,5 @@
 import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
-import { Try } from './m.Try.ts';
+import { Try } from './mod.ts';
 
 describe('Try', () => {
   describe('Try.catch (sync)', () => {
