@@ -1,4 +1,5 @@
 import React from 'react';
+import { RecorderControls } from './-dev/ui.tmp.RecorderControls.tsx';
 import { type t, Color, css, Media } from './common.ts';
 import { edgeBorder } from './u.ts';
 
@@ -20,18 +21,11 @@ export const Config: React.FC<P> = (props) => {
       borderLeft: edgeBorder(theme),
       width: 340,
       display: 'grid',
+      gridTemplateRows: '1fr auto',
     }),
-    body: css({
-      boxSizing: 'border-box',
-      padding: 10,
-      paddingTop: 20,
-    }),
+    body: css({ boxSizing: 'border-box', padding: 10, paddingTop: 20 }),
     footer: css({ borderTop: edgeBorder(theme) }),
-    hr: css({
-      border: 'none',
-      borderTop: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
-      MarginY: 20,
-    }),
+    hr: css({ border: 'none', borderTop: `solid 1px ${Color.alpha(theme.fg, 0.15)}`, MarginY: 20 }),
     mediaList: css({ marginRight: 10 }),
     waveform: css({ marginTop: 5, PaddingX: [20, 15] }),
   };
@@ -73,5 +67,16 @@ export const Config: React.FC<P> = (props) => {
     </div>
   );
 
-  return <div className={css(styles.base, props.style).class}>{elBody}</div>;
+  const elFooter = (
+    <div className={styles.footer.class}>
+      <RecorderControls theme={theme.name} stream={signals?.stream.value} />
+    </div>
+  );
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      {elBody}
+      {elFooter}
+    </div>
+  );
 };
