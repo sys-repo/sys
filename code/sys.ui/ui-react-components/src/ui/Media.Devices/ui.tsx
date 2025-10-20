@@ -34,7 +34,7 @@ export const List: React.FC<P> = (props) => {
         info={item}
         debug={debug}
         index={i}
-        selected={wrangle.selected(props, item, i)}
+        selected={wrangle.selected(props, item)}
         theme={theme.name}
         onSelect={props.onSelect}
       />
@@ -53,13 +53,12 @@ export const List: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  selected(props: P, item: MediaDeviceInfo, index: number): boolean {
-    const { selected } = props;
-    if (selected == null) return false;
-    if (Is.number(selected) && index === selected) return true;
-    if (Is.record(selected)) {
-      if (selected.deviceId === item.deviceId && selected.label === item.label) return true;
-    }
-    return false;
+  key(info: MediaDeviceInfo) {
+    return `${info.kind}:${info.deviceId}`;
+  },
+  selected(props: P, item: MediaDeviceInfo): boolean {
+    const sel = props.selected;
+    if (!sel) return false;
+    return wrangle.key(sel) === wrangle.key(item);
   },
 } as const;
