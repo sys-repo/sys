@@ -75,11 +75,14 @@ export const useDeviceSelection: t.UseDeviceSelection = (items, options = {}) =>
   /** Map index → DeviceHandlerArgs. */
   const toArgs = React.useCallback(
     (index: t.Index): t.DeviceHandlerArgs | undefined => {
-      const info = items[index];
-      return info ? { info, index } : undefined;
+      const device = items[index];
+      return device ? { device, index } : undefined;
     },
     [items],
   );
 
+  /**
+   * API:
+   */
   return { selected, setSelected, toArgs };
 };

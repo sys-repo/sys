@@ -22,8 +22,8 @@ export const useDeviceSelectionLifecycle: t.UseDeviceSelectionLifecycle = (opts)
    */
   const emit = React.useCallback(
     function (index: t.Index) {
-      const info = visible[index];
-      if (info) onResolve?.({ info, index });
+      const device = visible[index];
+      if (device) onResolve?.({ device, index });
     },
     [visible, onResolve],
   );

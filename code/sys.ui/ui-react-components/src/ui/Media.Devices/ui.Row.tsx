@@ -1,11 +1,11 @@
 import React from 'react';
-import { type t, Bullet, Button, Color, css, Str } from './common.ts';
+import { type t, Bullet, Button, Color, css } from './common.ts';
 import { Icons } from './ui.Icons.ts';
 
 export type RowProps = {
   debug?: boolean;
   index: t.Index;
-  info: MediaDeviceInfo;
+  device: MediaDeviceInfo;
   selected?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -16,7 +16,7 @@ export type RowProps = {
  * Component:
  */
 export const Row: React.FC<RowProps> = (props) => {
-  const { debug = false, index, info, selected } = props;
+  const { debug = false, index, device, selected } = props;
 
   /**
    * Render:
@@ -52,16 +52,16 @@ export const Row: React.FC<RowProps> = (props) => {
     }),
   };
 
-  const Icon = wrangle.icon(info);
+  const Icon = wrangle.icon(device);
   const elBody = (
     <div className={styles.body.class}>
       <Bullet theme={theme.name} selected={selected} />
-      <div className={styles.label.class}>{info.label}</div>
+      <div className={styles.label.class}>{device.label}</div>
       <Icon color={color} size={18} />
     </div>
   );
 
-  const id = info.deviceId;
+  const id = device.deviceId;
 
   const elDebug = debug && (
     <div className={styles.debug.class}>{`deviceId: ${id.slice(0, 5)}..${id.slice(-5)}`}</div>
@@ -69,7 +69,7 @@ export const Row: React.FC<RowProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button theme={theme.name} onClick={() => props.onSelect?.({ info, index })}>
+      <Button theme={theme.name} onClick={() => props.onSelect?.({ device: device, index })}>
         {elBody}
       </Button>
       {elDebug}
@@ -81,8 +81,8 @@ export const Row: React.FC<RowProps> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  icon(info: MediaDeviceInfo) {
-    const { kind } = info;
+  icon(device: MediaDeviceInfo) {
+    const { kind } = device;
     if (kind === 'videoinput') return Icons.Video;
     if (kind === 'audioinput') return Icons.Mic;
     if (kind === 'audiooutput') return Icons.Speaker;

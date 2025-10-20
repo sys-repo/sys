@@ -3,7 +3,7 @@ import { type t, Color, css, D, Is, Spinners } from './common.ts';
 import { Row } from './ui.Row.tsx';
 import { useDevicesList } from './use.DevicesList.ts';
 
-type P = t.DevicesProps;
+type P = t.MediaDevicesProps;
 
 export const List: React.FC<P> = (props) => {
   const { debug = false, rowGap = D.rowGap } = props;
@@ -31,7 +31,7 @@ export const List: React.FC<P> = (props) => {
     return (
       <Row
         key={key}
-        info={item}
+        device={item}
         debug={debug}
         index={i}
         selected={wrangle.selected(props, item)}

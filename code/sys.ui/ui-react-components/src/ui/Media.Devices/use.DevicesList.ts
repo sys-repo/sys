@@ -46,5 +46,8 @@ export const useDevicesList: t.UseMediaDevicesList = () => {
     };
   }, []);
 
+  /**
+   * API:
+   */
   return { items };
 };

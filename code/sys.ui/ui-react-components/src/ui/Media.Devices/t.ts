@@ -1,14 +1,13 @@
 import type { t } from './common.ts';
-
 export type * from './t.selection.ts';
 
 /**
  * API: Devices list and selector.
  */
 export type MediaDevicesLib = {
-  UI: { List: React.FC<t.DevicesProps> };
+  UI: { List: React.FC<t.MediaDevicesProps> };
   selectDefault: t.SelectDefaultDevice;
-  getDevices(): Promise<MediaDeviceInfo[]>;
+  getDevices(opts?: { includePseudo?: boolean }): Promise<MediaDeviceInfo[]>;
   useDevicesList: t.UseMediaDevicesList;
   useDeviceSelection: t.UseDeviceSelection;
   useDeviceSelectionLifecycle: t.UseDeviceSelectionLifecycle;
@@ -21,9 +20,9 @@ export type MediaDevicesLib = {
  * - `selected` holds the `deviceId` of the currently selected device.
  * - `onSelect` fires with the selected device info and index.
  */
-export type DevicesProps = {
+export type MediaDevicesProps = {
   selected?: MediaDeviceInfo;
-  filter?: t.DevicesFilter;
+  filter?: t.MediaDevicesFilter;
   debug?: boolean;
   rowGap?: t.Pixels;
   theme?: t.CommonTheme;
@@ -32,7 +31,7 @@ export type DevicesProps = {
 };
 
 /** Filter on media-device info. */
-export type DevicesFilter = (info: MediaDeviceInfo) => boolean;
+export type MediaDevicesFilter = (info: MediaDeviceInfo) => boolean;
 
 /**
  * Hook: Load the enumerated list of available devices.
@@ -44,4 +43,7 @@ export type MediaDevicesListHook = { readonly items: MediaDeviceInfo[] };
  * Handlers for device events.
  */
 export type DeviceHandler = (e: DeviceHandlerArgs) => void;
-export type DeviceHandlerArgs = { info: MediaDeviceInfo; index: number };
+export type DeviceHandlerArgs = {
+  readonly device: MediaDeviceInfo;
+  readonly index: number;
+};

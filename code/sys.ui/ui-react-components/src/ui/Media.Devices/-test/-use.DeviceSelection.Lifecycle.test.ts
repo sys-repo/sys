@@ -27,7 +27,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
         selected: selected$.value,
         enabled: true,
         prefs,
-        onResolve: (e) => (selected$.value = e.info),
+        onResolve: (e) => (selected$.value = e.device),
       }),
     );
 
@@ -49,7 +49,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           prefs,
           storageKey,
           enabled: true,
-          onResolve: (e) => (selA$.value = e.info),
+          onResolve: (e) => (selA$.value = e.device),
         }),
       );
 
@@ -68,7 +68,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           prefs,
           storageKey,
           enabled: true,
-          onResolve: (e) => (selB$.value = e.info),
+          onResolve: (e) => (selB$.value = e.device),
         }),
       );
 
@@ -90,7 +90,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           prefs,
           storageKey,
           enabled: true,
-          onResolve: (e) => (sel$.value = e.info),
+          onResolve: (e) => (sel$.value = e.device),
         }),
       );
       await Time.waitFor(() => sel$.value?.deviceId === 'v1');
@@ -107,7 +107,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           prefs,
           storageKey,
           enabled: true,
-          onResolve: (e) => (sel$.value = e.info),
+          onResolve: (e) => (sel$.value = e.device),
         }),
       );
       await Time.waitFor(() => sel$.value?.deviceId === 'a1');
@@ -125,7 +125,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           prefs,
           storageKey,
           enabled: true,
-          onResolve: (e) => (sel$.value = e.info),
+          onResolve: (e) => (sel$.value = e.device),
         }),
       );
       await Time.waitFor(() => sel$.value?.deviceId === 'a1');
@@ -145,7 +145,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           selected: selected$.value,
           prefs,
           enabled: true,
-          onResolve: (e) => (selected$.value = e.info),
+          onResolve: (e) => (selected$.value = e.device),
         }),
       { initialProps: initial },
     );
@@ -170,7 +170,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
         prefs,
         enabled: true,
         filter: (d) => d.kind === 'audioinput',
-        onResolve: (e) => (selected$.value = e.info),
+        onResolve: (e) => (selected$.value = e.device),
       }),
     );
 

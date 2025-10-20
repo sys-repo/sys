@@ -12,7 +12,7 @@ describe('hook: useDeviceSelection', () => {
     expect(result.current.selected).to.equal(1);
 
     const args = result.current.toArgs(result.current.selected!);
-    expect(args?.info).to.eql(video); // safe optional chain
+    expect(args?.device).to.eql(video); // safe optional chain
   });
 
   it('respects seed index', () => {

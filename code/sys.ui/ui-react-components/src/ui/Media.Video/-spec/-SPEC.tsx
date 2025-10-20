@@ -52,6 +52,9 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
               Media.Log.tracks('- stream.raw', e.stream.raw);
               Media.Log.tracks('- stream.filtered', e.stream.filtered);
             }}
+            onError={(e) => {
+              console.info(`⚡️ Media.Video.onError:`, e);
+            }}
           />
         );
       });
