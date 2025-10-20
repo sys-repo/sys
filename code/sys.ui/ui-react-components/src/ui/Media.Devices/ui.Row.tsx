@@ -9,7 +9,7 @@ export type RowProps = {
   selected?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onSelect?: t.DeviceHandler;
+  onSelect?: t.MediaDeviceHandler;
 };
 
 /**

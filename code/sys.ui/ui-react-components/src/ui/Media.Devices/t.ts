@@ -27,7 +27,7 @@ export type MediaDevicesProps = {
   rowGap?: t.Pixels;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onSelect?: t.DeviceHandler;
+  onSelect?: t.MediaDeviceHandler;
 };
 
 /** Filter on media-device info. */
@@ -42,8 +42,8 @@ export type MediaDevicesListHook = { readonly items: MediaDeviceInfo[] };
 /**
  * Handlers for device events.
  */
-export type DeviceHandler = (e: DeviceHandlerArgs) => void;
-export type DeviceHandlerArgs = {
+export type MediaDeviceHandler = (e: MediaDeviceHandlerArgs) => void;
+export type MediaDeviceHandlerArgs = {
   readonly device: MediaDeviceInfo;
   readonly index: number;
 };

@@ -74,7 +74,7 @@ export const useDeviceSelection: t.UseDeviceSelection = (items, options = {}) =>
 
   /** Map index → DeviceHandlerArgs. */
   const toArgs = React.useCallback(
-    (index: t.Index): t.DeviceHandlerArgs | undefined => {
+    (index: t.Index): t.MediaDeviceHandlerArgs | undefined => {
       const device = items[index];
       return device ? { device, index } : undefined;
     },

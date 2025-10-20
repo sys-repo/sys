@@ -20,7 +20,7 @@ export type UseDeviceSelection = (
 export type DeviceSelectionHook = {
   readonly selected?: t.Index;
   readonly setSelected: (index: t.Index | undefined) => void;
-  readonly toArgs: (index: t.Index) => t.DeviceHandlerArgs | undefined;
+  readonly toArgs: (index: t.Index) => t.MediaDeviceHandlerArgs | undefined;
 };
 
 /**
@@ -56,5 +56,5 @@ export type DeviceSelectionLifecycleOptions = {
   readonly storageKey?: t.StringKey;
   readonly prefs?: DeviceDefaultPrefs;
   readonly filter?: t.MediaDevicesFilter;
-  readonly onResolve?: t.DeviceHandler;
+  readonly onResolve?: t.MediaDeviceHandler;
 };
