@@ -19,6 +19,7 @@ export { Fn } from './m.Fn/mod.ts';
 export { History } from './m.History/mod.ts';
 export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';
+export { Log } from './m.Log/mod.ts';
 export { Path } from './m.Path/mod.ts';
 export { Pkg } from './m.Pkg/mod.ts';
 export { slug } from './m.Random/mod.ts';

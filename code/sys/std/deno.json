@@ -21,6 +21,7 @@
     "./ignore": "./src/m.Ignore/mod.ts",
     "./immutable": "./src/m.Immutable/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
+    "./log": "./src/m.Log/mod.ts",
     "./path": "./src/m.Path/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
     "./random": "./src/m.Random/mod.ts",
