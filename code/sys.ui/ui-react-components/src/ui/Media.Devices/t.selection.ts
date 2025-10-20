@@ -41,14 +41,20 @@ export type DeviceDefaultPrefs = {
 };
 
 /**
- * Lifecycle binding:
- * Manages Signal + LocalStorage synchronization around device selection.
+ * Manages device-selection state with automatic restore, persistence, and validation.
+ *
+ * - Restore from LocalStorage (optional), else derive default.
+ * - Preserve selection by `deviceId` across churn.
+ * - Persist `deviceId` when selection changes (if storageKey).
+ * - Clear stored id if the device no longer exists.
  */
 export type UseDeviceSelectionLifecycle = (options: DeviceSelectionLifecycleOptions) => void;
 export type DeviceSelectionLifecycleOptions = {
-  readonly items: readonly MediaDeviceInfo[];
-  readonly signal: t.Signal<MediaDeviceInfo | undefined>;
+  readonly items: MediaDeviceInfo[];
+  readonly selected?: MediaDeviceInfo;
+  readonly enabled?: boolean;
+  readonly storageKey?: t.StringKey;
   readonly prefs?: DeviceDefaultPrefs;
-  readonly storageKey?: t.StringKey; //  Optional key for LocalStorage persistence.
-  readonly enabled?: boolean; //         Toggle lifecycle behavior (default: true).
+  readonly filter?: t.DevicesFilter;
+  readonly onResolve?: t.DeviceHandler;
 };

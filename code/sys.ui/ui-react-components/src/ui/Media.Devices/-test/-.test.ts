@@ -1,16 +1,19 @@
 import { describe, expect, it } from '../../../-test.ts';
+
 import { Devices } from '../mod.ts';
 import { getDevices } from '../u.getDevices.ts';
 import { selectDefaultDevice } from '../u.selectDefault.ts';
+import { useDeviceSelectionLifecycle } from '../use.DeviceSelection.Lifecycle.ts';
 import { useDeviceSelection } from '../use.DeviceSelection.ts';
 import { useDevicesList } from '../use.DevicesList.ts';
 
 describe('Media.Devices', () => {
   it('API', () => {
-    expect(Devices.useDevicesList).to.equal(useDevicesList);
-    expect(Devices.useDeviceSelection).to.equal(useDeviceSelection);
     expect(Devices.selectDefault).to.eql(selectDefaultDevice);
     expect(Devices.getDevices).to.equal(getDevices);
+    expect(Devices.useDevicesList).to.equal(useDevicesList);
+    expect(Devices.useDeviceSelection).to.equal(useDeviceSelection);
+    expect(Devices.useDeviceSelectionLifecycle).to.equal(useDeviceSelectionLifecycle);
   });
 
   describe('selectDefaultDevice', () => {
