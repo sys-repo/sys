@@ -11,6 +11,7 @@ export {
   Is,
   isRecord,
   JsrUrl,
+  Log,
   Num,
   Obj,
   Path,

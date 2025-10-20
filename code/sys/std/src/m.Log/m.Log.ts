@@ -1,9 +1,10 @@
-import { type t } from './common.ts';
-import { make } from './u.make.ts';
+import { type t, levels } from './common.ts';
+import { category } from './u.category.ts';
 
 /**
  * Tools for standardised console logging.
  */
 export const Log: t.LogLib = {
-  make,
+  levels,
+  category,
 };

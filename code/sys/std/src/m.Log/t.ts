@@ -1,19 +1,28 @@
 import type { t } from './common.ts';
 
 /**
+ * Log severity / output level.
+ */
+export type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug';
+
+/**
  * Tools for standardised console logging.
  */
 export type LogLib = {
+  /** The complete set of log levels in deterministic order. */
+  readonly levels: readonly LogLevel[];
+
   /**
-   * Create a logger bound to a category/name.
-   * Example:
-   *   const logA = Log.make('Media.Devices');
-   *   logA('hello'); // → [Media.Devices] 20:34:36.200 hello
+   * Create a category-based logger.
    *
-   *   const logB = logA.make('Sub-Category');
-   *   logB('hello'); // → [Media.Devices:Sub-Category] 20:34:36.200 hello
+   * Example:
+   *   const log = Log.category('Foobar');
+   *   log('ready'); // → [Foobar] 20:34:36.200 ready
+   *
+   *   const sub = log.sub('Subpart');
+   *   sub('connected'); // → [Foobar:Subpart] 20:34:36.200 connected
    */
-  readonly make: (category: string, options?: LogOptions) => Logger;
+  readonly category: (category: string, options?: LogOptions) => Logger;
 };
 
 /**
@@ -22,39 +31,32 @@ export type LogLib = {
 export type LoggerFn = (...args: readonly unknown[]) => void;
 
 /**
- * Union for opt-in muting without globals.
- * - boolean: fixed on/off
- * - () => boolean: callback checked at call-time
- * - { value: boolean }: "signal-like" (eg. Preact Signal, Ref, etc.)
- */
-export type LogEnabled = t.ReadableSignal<boolean>;
-
-/** Console method to use; defaults to 'info'. */
-export type LogMethod = 'log' | 'info' | 'warn' | 'error' | 'debug';
-
-/**
- * Options for creating a namespaced logger.
+ * Options for creating a category-based logger.
  */
 export type LogOptions = {
   /** Dynamic enable/disable source (checked each call). Default: true. */
-  readonly enabled?: LogEnabled;
-  /** Console method to emit with. Default: 'info'. */
-  readonly method?: LogMethod;
+  readonly enabled?: t.ReadableSignal<boolean>;
+
+  /** Console methodLogLevelwith. Default: 'info'. */
+  readonly method?: LogLevel;
+
   /**
-   * Optional time formatter. Receives "now" and must return the display string.
-   * Default: HH:MM:SS.mmm (ISO time slice).
+   * Time formatter for timestamp inclusion.
+   * - Return a string to include timestamp.
+   * - Return null (or set option to null) to omit timestamp entirely.
+   * Default: `now.toISOString().slice(11, 23)` → "HH:MM:SS.mmm"
    */
-  readonly formatTime?: (now: Date) => string;
+  readonly formatTime?: ((now: Date) => string | null) | null;
 };
 
 /**
  * A logger is a callable function with a couple of small, composable utilities.
  *
  * - `category`: fully-qualified category this logger prefixes with.
- * - `make(sub, options?)`: derive a child logger with `category: "<parent>:<sub>"`.
+ * - `sub(category, options?)`: derive a child logger with `category: "<parent>:<sub-category>"`.
  *   Child inherits parent's options; any provided options override for the child.
  */
 export type Logger = LoggerFn & {
   readonly category: string;
-  readonly make: (subCategory: string, options?: LogOptions) => Logger;
+  readonly sub: (category: string, options?: LogOptions) => Logger;
 };
