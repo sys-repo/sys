@@ -9,13 +9,13 @@ type Store = t.LocalStorageImmutable<Stored>;
 const makeStore = (key?: string) => (key ? LocalStorage.immutable<Stored>(key, {}) : undefined);
 
 export const useDeviceSelectionLifecycle: t.UseDeviceSelectionLifecycle = (opts) => {
-  const { items, selected, onSelect, storageKey, prefs, enabled = true, filter } = opts;
+  const { items, selected, onResolve, storageKey, prefs, enabled = true, filter } = opts;
 
   /**
    * Memoize:
    */
   const visible = React.useMemo(() => (filter ? items.filter(filter) : items), [items, filter]);
-  const store = React.useMemo<Store | undefined>(() => makeStore(), [storageKey]);
+  const store = React.useMemo<Store | undefined>(() => makeStore(storageKey), [storageKey]);
 
   /**
    * Helpers:
@@ -23,9 +23,9 @@ export const useDeviceSelectionLifecycle: t.UseDeviceSelectionLifecycle = (opts)
   const emit = React.useCallback(
     function (index: t.Index) {
       const info = visible[index];
-      if (info) onSelect?.({ info, index });
+      if (info) onResolve?.({ info, index });
     },
-    [visible, onSelect],
+    [visible, onResolve],
   );
 
   const resolveStoredIndex = React.useCallback((): number | undefined => {

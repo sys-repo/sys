@@ -3,10 +3,15 @@ import { ObjectView } from '../../u.ts';
 import { type t, Button, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.DevicesProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'rowGap'> & { filter?: boolean; debugNarrow?: boolean };
+type Storage = Pick<P, 'theme' | 'debug' | 'rowGap'> & {
+  filter?: boolean;
+  debugNarrow?: boolean;
+  debugLocalstorage?: boolean;
+};
 const defaults: Storage = {
   debug: false,
   debugNarrow: false,
+  debugLocalstorage: true,
   theme: 'Dark',
   filter: false,
   rowGap: D.rowGap,
@@ -30,6 +35,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     debugNarrow: s(snap.debugNarrow),
+    debugLocalstorage: s(snap.debugLocalstorage),
     theme: s(snap.theme),
     filter: s(snap.filter),
     rowGap: s(snap.rowGap),
@@ -55,6 +61,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.debugNarrow = p.debugNarrow.value;
+      d.debugLocalstorage = p.debugLocalstorage.value;
       d.filter = p.filter.value;
       d.rowGap = p.rowGap.value;
     });
@@ -121,6 +128,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug / narrow: ${p.debugNarrow.value}`}
         onClick={() => Signal.toggle(p.debugNarrow)}
+      />
+      <Button
+        block
+        label={() => `debug / local-storage: ${p.debugLocalstorage.value}`}
+        onClick={() => Signal.toggle(p.debugLocalstorage)}
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
