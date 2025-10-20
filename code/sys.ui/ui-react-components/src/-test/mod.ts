@@ -2,6 +2,7 @@ export {
   DomMock,
   Testing,
   beforeAll,
+  beforeEach,
   describe,
   expect,
   expectError,
