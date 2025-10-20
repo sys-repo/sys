@@ -1,6 +1,14 @@
 import type { t } from './common.ts';
 
 /**
+ * A handle representing a scheduled or deferred action that
+ * can be cancelled before it executes.
+ */
+export type Cancellable = {
+  cancel(): void;
+};
+
+/**
  * An object that exposes a "dispose" method.
  */
 export type CanDispose = { dispose(): unknown };

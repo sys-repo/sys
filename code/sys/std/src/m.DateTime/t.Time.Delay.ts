@@ -24,10 +24,9 @@ export type TimeDelayCallback = () => void;
 export type TimeDelayPromise = Promise<void> & t.TimeDelay;
 
 /** Extended properties on a delay Promise that represent a running timer. */
-export type TimeDelay = {
+export type TimeDelay = t.Cancellable & {
   /** Duration of the delay. */
   readonly timeout: t.Msecs;
-
   /** Boolean status flags. */
   readonly is: {
     /** True if the timer was cancelled.  */
@@ -37,7 +36,4 @@ export type TimeDelay = {
     /** True if the timer is "done" (completed OR failed). */
     readonly done: boolean;
   };
-
-  /** Stops the timer (dispose). */
-  cancel(): void;
 };
