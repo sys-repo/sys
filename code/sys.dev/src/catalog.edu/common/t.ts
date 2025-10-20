@@ -21,7 +21,7 @@ export type { Yaml } from '@sys/yaml/t';
 /** User Interface: */
 export type { ColorTheme } from '@sys/color/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
-export type { ObjectViewProps } from '@sys/ui-react-components/t';
+export type { MediaDevicesFilter, ObjectViewProps } from '@sys/ui-react-components/t';
 
 /** Type Schema: */
 export type { Infer, Schema } from '@sys/schema/t';
