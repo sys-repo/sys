@@ -1,6 +1,6 @@
 import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 
-import { D } from '../common.ts';
+import { D, Str } from '../common.ts';
 import { Devices } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -10,7 +10,7 @@ export default Spec.describe('Devices', (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    const filter: t.DevicesFilter = (e) => (v.filter ? e.kind === 'videoinput' : true);
+    const filter: t.MediaDevicesFilter = (e) => (v.filter ? e.kind === 'videoinput' : true);
     const { items } = Devices.useDevicesList();
 
     Devices.useDeviceSelectionLifecycle({
@@ -22,14 +22,18 @@ export default Spec.describe('Devices', (e) => {
       filter,
       onResolve: (e) => {
         console.info(`⚡️ useDeviceSelectionLifecycle.onResolve:`, e);
-        p.selected.value = e.info;
+        p.selected.value = e.device;
       },
     });
 
     // Sample: Observe every change.
-    Signal.effect(() => {
+    Signal.useEffect(() => {
       const sel = p.selected.value;
-      if (sel) console.info('🌼 selection-changed:', sel.kind, `| device: ${sel.deviceId}`);
+      if (sel) {
+        const id = sel.deviceId;
+        const short = `${id.slice(0, 5)}..${id.slice(-5)}`;
+        console.info('🌼 selection-changed:', sel.kind, `| device-id: ${short}`);
+      }
     });
 
     return (
@@ -41,7 +45,7 @@ export default Spec.describe('Devices', (e) => {
         filter={filter}
         onSelect={(e) => {
           console.info(`⚡️ List.onSelect:`, e);
-          p.selected.value = e.info;
+          p.selected.value = e.device;
         }}
       />
     );

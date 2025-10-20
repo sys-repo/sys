@@ -2,7 +2,7 @@ import React from 'react';
 import { ObjectView } from '../../u.ts';
 import { type t, Button, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
-type P = t.DevicesProps;
+type P = t.MediaDevicesProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'rowGap'> & {
   filter?: boolean;
   debugNarrow?: boolean;
