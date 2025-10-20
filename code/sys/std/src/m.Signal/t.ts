@@ -66,6 +66,20 @@ export type SignalValueHelpersLib = {
 
   /** Cycle a union string signal through a list of possible values. */
   cycle<T>(signal: t.Signal<T | undefined>, values: T[], forceValue?: T): T;
+
+  /**
+   * Read the current value from a readable signal abstraction.
+   * - If given a plain T, returns it.
+   * - If given a getter, invokes it.
+   * - If given an object with { value }, returns .value.
+   * - If input is undefined, returns undefined.
+   *
+   * Overloads ensure strong typing: passing a defined input yields T,
+   * passing undefined yields undefined.
+   */
+  read<T>(input: t.ReadableSignal<T>): T;
+  read<T>(input: undefined): undefined;
+  read<T>(input: t.ReadableSignal<T> | undefined): T | undefined;
 };
 
 /**

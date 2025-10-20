@@ -9,9 +9,9 @@
     "serve": "deno run -P=serve  ./-scripts/-vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -P=clean  ./-scripts/-clean.ts",
-    "help": "deno run -P=help   ./-scripts/-vite.ts --cmd=help",
-    "tmp": "deno run -P=testset @sys/dev/video"
+    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "help": "deno run -P=help ./-scripts/-vite.ts --cmd=help",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",

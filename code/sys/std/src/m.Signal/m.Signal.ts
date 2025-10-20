@@ -5,6 +5,7 @@ import { batch, computed, effect, signal } from '@preact/signals-core';
 import { Is } from './m.Is.ts';
 import { cycle } from './u.cycle.ts';
 import { listen, listeners } from './u.listen.ts';
+import { read } from './u.read.ts';
 import { toggle } from './u.toggle.ts';
 import { toObject } from './u.toObject.ts';
 import { walk } from './u.walk.ts';
@@ -34,6 +35,7 @@ export const Signal: SignalLib = {
    */
   listen,
   listeners,
+  read,
   toggle,
   cycle,
   walk,
