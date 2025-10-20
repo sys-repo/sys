@@ -63,6 +63,7 @@ export type MediaVideoStreamProps = {
 
   /** Called once when the stream is live and assigned to <video>. */
   onReady?: MediaVideoStreamReadyHandler;
+  onError?: (e: { err: Error }) => void;
 };
 
 /**

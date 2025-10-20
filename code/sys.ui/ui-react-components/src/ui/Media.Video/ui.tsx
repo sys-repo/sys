@@ -43,12 +43,12 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
   }, [video.ready, video.stream.raw?.id]);
 
   /**
-   * Effect: keep video synced with current stream.
+   * Effect: bubble hook errors to the caller.
    */
-  const videoRef = useRef<HTMLVideoElement>(null);
   useEffect(() => {
-    if (videoRef.current) videoRef.current.srcObject = video.stream.filtered ?? null;
-  }, [video.stream.filtered?.id]);
+    if (!video.error) return;
+    props.onError?.({ err: new Error(video.error.message) });
+  }, [video.error?.message]);
 
   /**
    * Render:
