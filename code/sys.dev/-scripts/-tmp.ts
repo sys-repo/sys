@@ -1,17 +1,5 @@
-/**
- * Create a namespaced console logger with timestamped output.
- *
- * @example
- * const log = makeLogger('MyModule');
- * log('message', data);
- */
-export function makeLogger(category: string) {
-  return (...args: unknown[]) => {
-    const time = new Date().toISOString().slice(11, 23);
-    console.info(`%c[${category}] ${time}`, 'color:#0af;font-weight:bold;', ...args);
-  };
-}
+import { Log } from '@sys/std/log';
+const log = Log.category('Foobar');
 
-const logInfo = makeLogger('foobar');
-
-logInfo('hello');
+log('👋 Hello');
+log.sub('tmp')('🌳');
