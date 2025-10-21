@@ -23,7 +23,7 @@ export type UseSlugDiagnosticsResult = {
   /** Revision (from editor state). */
   readonly rev: number;
   /** Merged diagnostics you can feed straight to Monaco’s hook. */
-  readonly diagnostics: t.Yaml.Diagnostic[];
+  readonly diagnostics: readonly t.Yaml.Diagnostic[];
   /** Underlying diagnostic sources used to compose the merged set. */
   readonly sources: {
     readonly structural: t.UseSlugStructuralDiagnosticsResult;
