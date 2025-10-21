@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, Style } from './common.ts';
-import { Wrangle } from './u.ts';
+import { toFillMargin } from './u.ts';
 
 type P = t.CropmarksProps;
 
@@ -9,7 +9,7 @@ export const Cropmarks: React.FC<P> = (props) => {
 
   if (subjectOnly) return props.children;
 
-  const fillMargin = Wrangle.fillMargin(size);
+  const fillMargin = toFillMargin(size);
   const sizeMode: t.CropmarksSizeMode = size?.mode ?? 'center';
   const is = {
     x: size?.mode === 'fill' && (size.x ?? true) && !(size.y ?? true),
@@ -83,7 +83,7 @@ export const Cropmarks: React.FC<P> = (props) => {
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   border(props: P) {
@@ -106,7 +106,7 @@ const wrangle = {
    */
   borderWidth(props: P) {
     const { borderWidth = 1 } = props;
-    const [t, r, b, l] = Wrangle.fillMargin(props.size);
+    const [t, r, b, l] = toFillMargin(props.size);
     const width = (value: t.CssNumberOrStringInput) => (Style.isZero(value) ? 0 : borderWidth);
 
     const top = width(t);

@@ -19,7 +19,8 @@ export type CropmarksProps = {
 /**
  * The size configuration of the <Cropmarks>.
  */
-export type CropmarksSize = CropmarksSizeCenter | CropmarksSizeFill;
+export type CropmarksSize = CropmarksSizeCenter | CropmarksSizeFill | CropmarksSizePercent;
+
 /** The display-mode flag for <Cropmarks> size. */
 export type CropmarksSizeMode = CropmarksSize['mode'];
 
@@ -29,13 +30,27 @@ export type CropmarksSizeCenter = {
   width?: number;
   height?: number;
 };
+
 /** The subject fills  the <Cropmaks> host. */
 export type CropmarksSizeFill = {
   mode: 'fill';
-  /** Pixel margin around the  */
-  margin?: t.CssMarginInput;
   /** Fills the X (horizontal) plane. */
   x?: boolean;
   /** Fills the Y (vertical) plane. */
   y?: boolean;
+  /** Pixel margin around the edge.  */
+  margin?: t.CssMarginInput;
+};
+
+/**
+ * Percent-based sizing of the subject relative to the Cropmarks container.
+ */
+export type CropmarksSizePercent = {
+  mode: 'percent';
+  /** percentage of container width (0..100). Omit to leave width auto. */
+  width?: t.Percent;
+  /** percentage of container height (0..100). Omit to leave height auto. */
+  height?: t.Percent;
+  /** Pixel margin around the edge.  */
+  margin?: t.CssMarginInput;
 };
