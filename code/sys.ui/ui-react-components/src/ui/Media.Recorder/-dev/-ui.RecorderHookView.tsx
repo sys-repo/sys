@@ -84,8 +84,12 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
             enabled={canStart}
           />
         )}
-        {is.recording && <Button block label={'pause'} onClick={recorder.pause} />}
-        {is.paused && <Button block label={'resume'} onClick={recorder.resume} />}
+        {is.recording && (
+          <Button theme={theme.name} block label={'pause'} onClick={recorder.pause} />
+        )}
+        {is.paused && (
+          <Button theme={theme.name} block label={'resume'} onClick={recorder.resume} />
+        )}
 
         <div className={styles.actionsRow.class}>
           <Button
