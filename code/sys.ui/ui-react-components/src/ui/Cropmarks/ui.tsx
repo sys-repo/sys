@@ -6,14 +6,16 @@ type P = t.CropmarksProps;
 
 export const Cropmarks: React.FC<P> = (props) => {
   const { size, subjectOnly = false } = props;
-
   if (subjectOnly) return props.children;
 
   const fillMargin = toFillMargin(size);
   const sizeMode: t.CropmarksSizeMode = size?.mode ?? 'center';
+  const pctW = size?.mode === 'percent' ? (size.width ?? 0) : 0;
+  const pctH = size?.mode === 'percent' ? (size.height ?? 0) : 0;
   const is = {
     x: size?.mode === 'fill' && (size.x ?? true) && !(size.y ?? true),
     y: size?.mode === 'fill' && !(size.x ?? true) && (size.y ?? true),
+    percent: sizeMode === 'percent',
   } as const;
 
   const Grid = {
@@ -25,12 +27,15 @@ export const Cropmarks: React.FC<P> = (props) => {
       columns: `[left] 1fr [body-x] auto [right] 1fr`,
       rows: `[top] 1fr [body-y] auto [bottom] 1fr`,
     },
+    Percent: {
+      columns: `[left] ${fillMargin[3]}px [body-x] auto [right] ${fillMargin[1]}px`,
+      rows: `[top] ${fillMargin[0]}px [body-y] auto [bottom] ${fillMargin[2]}px`,
+    },
   } as const;
 
   /**
    * Render:
    */
-
   const fill = {
     gridTemplateColumns: is.y ? Grid.Center.columns : Grid.Fill.columns,
     gridTemplateRows: is.x ? Grid.Center.rows : Grid.Fill.rows,
@@ -41,12 +46,23 @@ export const Cropmarks: React.FC<P> = (props) => {
   };
   const grid = {
     center: sizeMode === 'center' && center,
+    percent: sizeMode === 'percent' && center,
     fill: sizeMode === 'fill' && fill,
   };
 
   const [borderTop, borderRight, borderBottom, borderLeft] = wrangle.border(props);
   const styles = {
-    base: css({ position: 'relative', display: 'grid' }),
+    base: css({
+      position: 'relative',
+      display: 'grid',
+
+      // Host is the container for cqi/cqb units:
+      ...(sizeMode === 'percent' && {
+        containerType: (pctH ?? 0) > 0 ? 'size' : 'inline-size',
+        ['--pct-w']: String(pctW ?? 0),
+        ...((pctH ?? 0) > 0 ? { ['--pct-h']: String(pctH) } : {}),
+      }),
+    }),
     block: css({}),
     subject: css({
       position: 'relative',
@@ -54,8 +70,20 @@ export const Cropmarks: React.FC<P> = (props) => {
       borderRight,
       borderBottom,
       borderLeft,
-      width: size?.mode === 'center' ? size.width : undefined,
-      height: size?.mode === 'center' ? size.height : undefined,
+
+      // Center: fixed px.
+      ...(size?.mode === 'center' && {
+        width: size?.width,
+        height: size?.height,
+      }),
+
+      // Percent: auto cell (center track) sized by host’s container query units.
+      ...(sizeMode === 'percent' && {
+        inlineSize: 'calc(var(--pct-w) * 1cqi)',
+        ...((pctH ?? 0) > 0 ? { blockSize: 'calc(var(--pct-h) * 1cqb)' } : {}),
+        placeSelf: 'center',
+      }),
+
       display: 'grid',
     }),
   };
@@ -64,6 +92,7 @@ export const Cropmarks: React.FC<P> = (props) => {
     styles.base,
     sizeMode === 'center' ? grid.center : undefined,
     sizeMode === 'fill' ? grid.fill : undefined,
+    sizeMode === 'percent' ? grid.percent : undefined,
     props.style,
   ).class;
 
