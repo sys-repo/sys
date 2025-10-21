@@ -49,7 +49,6 @@ export function createDebugSignals() {
   const repo = createRepo();
   const crdt: t.CrdtLayoutBindings = {
     repo,
-    signals,
     localstorage: STORAGE_KEY.DEV,
     get urlKey() {
       return p.urlKey.value;
@@ -77,6 +76,7 @@ export function createDebugSignals() {
     props,
     repo,
     crdt,
+    signals,
     reset,
     listen,
   };
@@ -194,7 +194,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <SignalsObjectView signals={crdt.signals} style={{ marginTop: 5 }} expand={1} />
+      <SignalsObjectView signals={debug.signals} style={{ marginTop: 5 }} expand={1} />
     </div>
   );
 };

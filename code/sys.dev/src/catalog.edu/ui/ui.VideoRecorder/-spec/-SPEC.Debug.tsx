@@ -41,7 +41,12 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: P['signals'] = { doc: s(), camera: s(), audio: s(), stream: s() };
+  const signals: P['signals'] = {
+    doc: s(),
+    camera: s(),
+    audio: s(),
+    stream: s(),
+  };
 
   const props = {
     debug: s(snap.debug),
@@ -61,7 +66,6 @@ export function createDebugSignals() {
   const repo = createRepo();
   const crdt: t.CrdtLayoutBindings = {
     repo,
-    signals: { doc: signals.doc },
     localstorage: STORAGE_KEY.DEV,
     get urlKey() {
       return p.urlKey.value;

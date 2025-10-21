@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type Slot<TCtx> = (ctx: TCtx) => React.ReactNode;
+
 /**
  * Component API: CRDT-aware layout shell.
  */
@@ -13,12 +15,14 @@ export type CrdtLayoutLib = {
  */
 export type CrdtLayoutProps = {
   slots?: CrdtLayoutSlots; // child views.
+  signals?: t.CrdtLayoutSignals;
 
   // Config:
   crdt?: CrdtLayoutBindings;
   header?: CrdtLayoutHeaderConfig;
   sidebar?: CrdtLayoutSidebarConfig;
 
+  // Appearance:
   theme?: t.CommonTheme;
   debug?: boolean;
   style?: t.CssInput;
@@ -31,9 +35,6 @@ export type CrdtLayoutProps = {
  */
 export type CrdtLayoutBindings = {
   readonly repo?: t.Crdt.Repo;
-  readonly signals?: {
-    readonly doc: t.Signal<t.Crdt.Ref | undefined>;
-  };
 
   // Persistence/configuration keys:
   readonly localstorage?: t.StringKey;
@@ -51,18 +52,16 @@ export type CrdtLayoutCtx = {
 };
 
 /**
- * Slots for the CRDT-aware layout shell.
+ * Child view-render slots within the layout shell.
  */
 export type CrdtLayoutSlots = {
   main?: Slot<CrdtLayoutCtx>;
   sidebar?: Slot<CrdtLayoutCtx>;
   footer?: Slot<CrdtLayoutCtx>;
 };
-/** Render-prop slot. */
-type Slot<TCtx> = (ctx: TCtx) => React.ReactNode;
 
 /**
- * State wrapped in signals.
+ * Stateful live signals.
  */
 export type CrdtLayoutSignals = {
   doc: t.Signal<t.Crdt.Ref | undefined>;

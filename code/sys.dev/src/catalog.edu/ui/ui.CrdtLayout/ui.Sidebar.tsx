@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
-import { edgeBorder, renderCtx, sidebarConfig } from './u.ts';
+import { edgeBorder, renderCtx, toSidebarConfig } from './u.ts';
 
 type P = t.CrdtLayoutProps;
 
@@ -9,7 +9,7 @@ type P = t.CrdtLayoutProps;
  */
 export const Sidebar: React.FC<P> = (props) => {
   const { debug = false, crdt, slots } = props;
-  const config = sidebarConfig(props.sidebar);
+  const config = toSidebarConfig(props.sidebar);
   const render = renderCtx(props);
 
   /**

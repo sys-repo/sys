@@ -7,7 +7,7 @@ import { Main } from './ui.Main.tsx';
 type P = t.VideoRecorderViewProps;
 
 export const VideoRecorderView: React.FC<P> = (props) => {
-  const { debug = false, crdt, header = D.header, sidebar = D.sidebar } = props;
+  const { debug = false, crdt, signals, header = D.header, sidebar = D.sidebar } = props;
 
   /**
    * Render:
@@ -21,6 +21,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
     <CrdtLayout.View
       theme={props.theme}
       crdt={crdt}
+      signals={signals}
       header={header}
       sidebar={sidebar}
       slots={slots}

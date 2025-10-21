@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, Crdt, css } from './common.ts';
-import { headerConfig } from './u.ts';
+import { toHeaderConfig } from './u.ts';
 
 type P = t.CrdtLayoutProps;
 
@@ -8,8 +8,8 @@ type P = t.CrdtLayoutProps;
  * Component:
  */
 export const Header: React.FC<P> = (props) => {
-  const { debug = false, crdt } = props;
-  const config = headerConfig(props.header);
+  const { debug = false, crdt, signals } = props;
+  const headerConfig = toHeaderConfig(props.header);
   const localstorage = crdt?.localstorage ? `${crdt?.localstorage}:crdt.doc-id` : undefined;
 
   /**
@@ -23,7 +23,7 @@ export const Header: React.FC<P> = (props) => {
       display: 'grid',
     }),
     doc: css({
-      height: config.visible ? undefined : 0,
+      height: headerConfig.visible ? undefined : 0,
       overflow: 'hidden',
     }),
   };
@@ -36,11 +36,11 @@ export const Header: React.FC<P> = (props) => {
         buttonStyle={{ margin: 4 }}
         controller={{
           repo: crdt?.repo,
-          signals: crdt?.signals,
+          signals,
           initial: {},
           localstorage,
           urlKey: crdt?.urlKey,
-          readOnly: config.readOnly,
+          readOnly: headerConfig.readOnly,
         }}
       />
     </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { type t, Color, css } from './common.ts';
-import { sidebarConfig } from './u.ts';
+import { toSidebarConfig } from './u.ts';
 import { Footer } from './ui.Footer.tsx';
 import { Header } from './ui.Header.tsx';
 import { Main } from './ui.Main.tsx';
@@ -11,7 +11,7 @@ type P = t.CrdtLayoutProps;
 
 export const CrdtLayout: React.FC<P> = (props) => {
   const { debug = false, crdt } = props;
-  const sidebar = sidebarConfig(props.sidebar);
+  const sidebar = toSidebarConfig(props.sidebar);
 
   /**
    * Render:

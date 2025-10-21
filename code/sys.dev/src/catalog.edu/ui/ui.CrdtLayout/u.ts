@@ -10,7 +10,7 @@ export function edgeBorder(theme: t.ColorTheme, opacity = D.edgeBorderOpacity) {
 /**
  * Normalizes header configuration with defaults for visibility and read-only state.
  */
-export function headerConfig(props?: t.CrdtLayoutHeaderConfig): t.CrdtLayoutHeaderConfig {
+export function toHeaderConfig(props?: t.CrdtLayoutHeaderConfig): t.CrdtLayoutHeaderConfig {
   return {
     visible: props?.visible ?? D.header.visible,
     readOnly: props?.readOnly ?? D.header.readOnly,
@@ -20,7 +20,7 @@ export function headerConfig(props?: t.CrdtLayoutHeaderConfig): t.CrdtLayoutHead
 /**
  * Normalizes sidebar configuration with defaults for visibility, position, and width.
  */
-export function sidebarConfig(props?: t.CrdtLayoutSidebarConfig): t.CrdtLayoutSidebarConfig {
+export function toSidebarConfig(props?: t.CrdtLayoutSidebarConfig): t.CrdtLayoutSidebarConfig {
   return {
     visible: props?.visible ?? D.sidebar.visible,
     position: props?.position ?? D.sidebar.position,
@@ -38,8 +38,8 @@ type RenderCtx =
  * Build slot context if the CRDT layout is ready.
  */
 export function renderCtx(props: t.CrdtLayoutProps): RenderCtx {
-  const { crdt, theme = D.theme, debug = false } = props;
-  const doc = crdt?.signals?.doc.value;
+  const { crdt, signals, theme = D.theme, debug = false } = props;
+  const doc = signals?.doc.value;
   const repo = crdt?.repo;
 
   if (repo && doc) {
