@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 export type CropmarksProps = {
   debug?: boolean;
   children?: t.ReactNode;
-  /** When true cropmarks are abandonded and the subject `children` are rendered only. */
+  /** When true cropmarks are abandonded and the subject (`children`) rendered only. */
   subjectOnly?: boolean;
   size?: t.CropmarksSize;
   borderWidth?: number;
