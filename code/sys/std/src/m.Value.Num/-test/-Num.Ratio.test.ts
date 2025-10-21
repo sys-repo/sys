@@ -106,5 +106,24 @@ describe('Num.Ratio', () => {
     it('type: toString returns string', () => {
       expectTypeOf(Ratio.toString(1.5)).toEqualTypeOf<string>();
     });
+
+    it('honors maxError: accepts fraction when within threshold', () => {
+      // √2 ≈ 1.41421356… Best with maxDen=5 is 7/5 = 1.4 (err ≈ 0.0142)
+      // Set maxError above err → keep fraction.
+      const s = Ratio.toString(Math.SQRT2, { maxDenominator: 5, maxError: 0.02 });
+      expect(s).to.equal('7/5');
+    });
+
+    it('honors maxError: falls back to decimal when fraction error exceeds threshold', () => {
+      // Same scenario, but with a tighter threshold → reject 7/5 and emit "1.414/1".
+      const s = Ratio.toString(Math.SQRT2, { maxDenominator: 5, maxError: 0.005 });
+      expect(s).to.match(/^\d+\.\d+\/1$/); // e.g. "1.414/1"
+    });
+
+    it('maxError does not affect exact matches', () => {
+      // Exact 16/9 regardless of tight threshold.
+      const s = Ratio.toString(16 / 9, { maxDenominator: 9, maxError: 1e-6 });
+      expect(s).to.equal('16/9');
+    });
   });
 });

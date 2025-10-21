@@ -52,10 +52,17 @@ export const Ratio: t.RatioLib = {
 
     const maxDen = options?.maxDenominator ?? 32;
     const spaces = options?.spaces ?? false;
-    const f = Ratio.toFraction(ratio, maxDen);
+    const maxError = options?.maxError; // ← optional policy knob
     const sep = spaces ? ' / ' : '/';
 
-    if (f) return `${f.num}${sep}${f.den}`;
+    const f = Ratio.toFraction(ratio, maxDen);
+    if (f) {
+      const err = Math.abs(ratio - f.num / f.den);
+      // If caller specified a maxError, enforce it; otherwise accept any best fraction.
+      if (maxError === undefined || err <= maxError) {
+        return `${f.num}${sep}${f.den}`;
+      }
+    }
 
     const rounded = Math.round(ratio * 1000) / 1000;
     return `${rounded}${sep}1`;
