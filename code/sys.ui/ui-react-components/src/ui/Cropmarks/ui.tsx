@@ -130,10 +130,20 @@ const wrangle = {
 
     const hasW = Is.number(size.width);
     const hasH = Is.number(size.height);
+    const hasAR = size.aspectRatio != null;
 
     const css: t.CssProps = { placeSelf: 'center' };
     if (hasW) css.inlineSize = 'calc(var(--pct-w) * 1cqi)';
     if (hasH) css.blockSize = 'calc(var(--pct-h) * 1cqb)';
+
+    // Only attach aspectRatio when available values are present:
+    // - With width only   →  compute height from aspect-ratio
+    // - With height only  →  compute width from aspect-ratio
+    // - With both axes    →  explicit sizes win; ignore aspect-ratio
+    if (hasAR && !(hasW && hasH)) {
+      css.aspectRatio = String(size.aspectRatio);
+    }
+
     return css;
   },
 } as const;

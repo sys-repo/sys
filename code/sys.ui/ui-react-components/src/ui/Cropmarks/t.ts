@@ -27,8 +27,8 @@ export type CropmarksSizeMode = CropmarksSize['mode'];
 /** The subject is centered within the <Cropmaks> host. */
 export type CropmarksSizeCenter = {
   mode: 'center';
-  width?: number;
-  height?: number;
+  width?: t.Pixels;
+  height?: t.Pixels;
 };
 
 /** The subject fills  the <Cropmaks> host. */
@@ -53,4 +53,6 @@ export type CropmarksSizePercent = {
   height?: t.Percent;
   /** Pixel margin around the edge.  */
   margin?: t.CssMarginInput;
+  /** Aspect ratio (e.g. '16/9', '4/3' or 1.618...). Used when only one axis is provided. */
+  aspectRatio?: string | number;
 };
