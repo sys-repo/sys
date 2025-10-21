@@ -38,7 +38,7 @@ export const DebugPercent: React.FC<DebugPercentProps> = (props) => {
       />
       <Button
         block
-        label={`width: ${size.width ?? '<auto>'}%`}
+        label={`width: ${size.width ? `${size.width}%` : '(auto)'}`}
         onClick={() => {
           const curr = size.width ?? widths[0];
           const idx = widths.indexOf(curr);
@@ -48,7 +48,7 @@ export const DebugPercent: React.FC<DebugPercentProps> = (props) => {
       />
       <Button
         block
-        label={`height: ${size.height ?? '<auto>'}%`}
+        label={`height: ${size.height ? `${size.height}%` : '(auto)'}`}
         onClick={() => {
           const curr = size.height ?? heights[0];
           const idx = heights.indexOf(curr);

@@ -112,8 +112,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {setSize('<undefined>', undefined)}
       {setSize('center', { mode: 'center' })}
       {setSize('fill', { mode: 'fill', x: true, y: true, margin: [40, 40, 40, 40] })}
-      {setSize('percent: 80% both', { mode: 'percent', width: 80, height: 80, margin: 40 })}
-      {setSize('percent: 70% width', { mode: 'percent', width: 70, margin: [40, 40, 40, 40] })}
+      {setSize('percent: 70% both', { mode: 'percent', width: 70, height: 70, margin: 40 })}
+      {setSize('percent: 55% width', { mode: 'percent', width: 55, margin: [40, 40, 40, 40] })}
 
       {!!p.size.value?.mode && <hr />}
       {p.size.value?.mode === 'center' && <DebugCenter debug={debug} />}
