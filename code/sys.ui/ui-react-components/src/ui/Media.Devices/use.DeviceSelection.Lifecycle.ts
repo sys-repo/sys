@@ -1,7 +1,5 @@
 import React from 'react';
-
-import type { t } from './common.ts';
-import { LocalStorage } from './common.ts';
+import { type t, LocalStorage } from './common.ts';
 import { selectDefaultDevice } from './u.selectDefault.ts';
 
 type Stored = { id?: string; kind?: MediaDeviceKind };
@@ -9,12 +7,13 @@ type Store = t.LocalStorageImmutable<Stored>;
 const makeStore = (key?: string) => (key ? LocalStorage.immutable<Stored>(key, {}) : undefined);
 
 export const useDeviceSelectionLifecycle: t.UseDeviceSelectionLifecycle = (opts) => {
-  const { items, selected, onResolve, storageKey, prefs, enabled = true, filter } = opts;
+  const { items, selected, onResolve, storageKey, prefs, enabled = true } = opts;
 
   /**
    * Memoize:
+   * (was: apply `filter` → now we treat the provided `items` as truth)
    */
-  const visible = React.useMemo(() => (filter ? items.filter(filter) : items), [items, filter]);
+  const visible = React.useMemo(() => items, [items]);
   const store = React.useMemo<Store | undefined>(() => makeStore(storageKey), [storageKey]);
 
   /**

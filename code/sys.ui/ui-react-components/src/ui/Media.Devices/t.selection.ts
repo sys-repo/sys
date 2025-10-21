@@ -55,6 +55,5 @@ export type DeviceSelectionLifecycleOptions = {
   readonly enabled?: boolean;
   readonly storageKey?: t.StringKey;
   readonly prefs?: DeviceDefaultPrefs;
-  readonly filter?: t.MediaDevicesFilter;
   readonly onResolve?: t.MediaDeviceHandler;
 };

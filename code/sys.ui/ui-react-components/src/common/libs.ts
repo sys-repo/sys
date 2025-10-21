@@ -21,6 +21,7 @@ export {
   Str,
   Time,
   Timestamp,
+  Try,
   Url,
 } from '@sys/std';
 export { Schedule } from '@sys/std/async';

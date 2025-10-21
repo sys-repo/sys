@@ -1,6 +1,5 @@
 import React from 'react';
-
-import { type t, Rx, logInfo } from './common.ts';
+import { type t, logInfo, Rx, Time, Try } from './common.ts';
 import { getDevices } from './u.getDevices.ts';
 
 export const useDevicesList: t.UseMediaDevicesList = () => {
@@ -8,42 +7,54 @@ export const useDevicesList: t.UseMediaDevicesList = () => {
 
   React.useEffect(() => {
     const life = Rx.abortable();
+    const time = Time.until(life);
+    const { signal } = life;
 
     if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
       logInfo('MediaDevices not available in this environment.');
       return life.dispose;
     }
 
+    let seq = 0; //           Guard against out-of-order updates.
+    let pending = false; //   Coalesce re-entrant calls.
+    let delayed: t.Cancellable | undefined;
+
     const update = async () => {
-      try {
-        logInfo('Enumerating devices...');
-        const list = await getDevices();
-        if (life.disposed) return;
-        setItems(list);
-        logInfo(
-          'Updated devices:',
-          list.map((d) => `${d.kind}:${d.label}`),
-        );
-      } catch (err) {
-        if (!life.disposed) logInfo('Device enumeration failed:', err);
+      if (pending) return;
+      pending = true;
+      const mySeq = ++seq;
+
+      const result = await Try.catch(async () => getDevices());
+      if (life.disposed || mySeq !== seq) {
+        pending = false;
+        return;
       }
+
+      if (!result.ok) {
+        logInfo('Device enumeration failed:', result.error);
+        pending = false;
+        return;
+      }
+
+      const list = result.data;
+      setItems(list);
+      logInfo(
+        'Devices updated:',
+        list.map((d) => `${d.kind}:${d.label}`),
+      );
+      pending = false;
     };
 
-    // Coalesce rapid devicechange bursts (hot-plug flurries):
-    let timer: number | undefined;
     const onChange = () => {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(update, 60); // ← small debounce to avoid flicker on quick succession events.
+      // Calm cadence for virtual drivers; enumeration itself doesn’t open devices.
+      delayed?.cancel();
+      delayed = time.delay(180, () => void update());
     };
 
-    // Initial populate
-    update();
-    navigator.mediaDevices.addEventListener('devicechange', onChange, { signal: life.signal });
+    navigator.mediaDevices.addEventListener('devicechange', onChange, { signal });
+    void update(); // Initial populate.
 
-    return () => {
-      if (timer) clearTimeout(timer);
-      life.dispose();
-    };
+    return life.dispose;
   }, []);
 
   /**

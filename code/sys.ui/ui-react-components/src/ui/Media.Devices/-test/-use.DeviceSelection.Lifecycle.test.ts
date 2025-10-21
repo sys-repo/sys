@@ -158,23 +158,4 @@ describe('hook: useDeviceSelectionLifecycle', () => {
     await Time.waitFor(() => selected$.value?.deviceId === 'v1');
     expect(selected$.value?.deviceId).to.equal('v1');
   });
-
-  it('filters visible items before applying logic', async () => {
-    const selected$ = makeSignal<MediaDeviceInfo>();
-    const items = [video, mic];
-
-    renderHook(() =>
-      useDeviceSelectionLifecycle({
-        items,
-        selected: selected$.value,
-        prefs,
-        enabled: true,
-        filter: (d) => d.kind === 'audioinput',
-        onResolve: (e) => (selected$.value = e.device),
-      }),
-    );
-
-    await Time.waitFor(() => selected$.value?.deviceId === 'a1');
-    expect(selected$.value?.deviceId).to.equal('a1');
-  });
 });

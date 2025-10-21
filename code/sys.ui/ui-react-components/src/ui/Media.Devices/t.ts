@@ -28,6 +28,7 @@ export type MediaDevicesProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onSelect?: t.MediaDeviceHandler;
+  onDevicesChange?: t.MediaDevicesHandler;
 };
 
 /** Filter on media-device info. */
@@ -40,10 +41,27 @@ export type UseMediaDevicesList = () => MediaDevicesListHook;
 export type MediaDevicesListHook = { readonly items: MediaDeviceInfo[] };
 
 /**
- * Handlers for device events.
+ * Handler invoked when a single device is selected.
  */
 export type MediaDeviceHandler = (e: MediaDeviceHandlerArgs) => void;
+/** Event payload for a single device selection. */
 export type MediaDeviceHandlerArgs = {
+  /** The selected media device. */
   readonly device: MediaDeviceInfo;
+  /** Index position of the device in the visible list. */
   readonly index: number;
+};
+
+/**
+ * Handler invoked when the overall device list changes.
+ */
+export type MediaDevicesHandler = (e: MediaDevices) => void;
+/** Event payload representing the current device lists. */
+export type MediaDevices = {
+  /** The filtered (visible) list used by the component. */
+  readonly devices: MediaDeviceInfo[];
+  /** The raw, unfiltered list returned by the system. */
+  readonly all: MediaDeviceInfo[];
+  /** True if a filter was applied and the visible list differs from the raw list. */
+  readonly filtered: boolean;
 };
