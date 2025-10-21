@@ -2,9 +2,9 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-import { DebugCenter } from './-ui.Debug.Center.tsx';
-import { DebugFill } from './-ui.Debug.Fill.tsx';
-import { DebugPercent } from './-ui.Debug.Percent.tsx';
+import { DebugCenter } from './-ui.Center.tsx';
+import { DebugFill } from './-ui.Fill.tsx';
+import { DebugPercent } from './-ui.Percent.tsx';
 
 type P = t.CropmarksProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'subjectOnly'>;
