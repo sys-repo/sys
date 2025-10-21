@@ -58,8 +58,8 @@ export const ConfigDevices: React.FC<P> = (props) => {
  */
 const wrangle = {
   storageKey(props: P) {
-    const { kind } = props;
-    const key = props.base.header?.localstorage;
+    const { kind, base } = props;
+    const key = base.crdt?.localstorage;
     return key ? `${key}:devices.${kind}` : undefined;
   },
 } as const;

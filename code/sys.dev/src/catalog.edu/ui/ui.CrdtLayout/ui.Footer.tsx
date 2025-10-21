@@ -8,8 +8,8 @@ type P = t.CrdtLayoutProps;
  * Component:
  */
 export const Footer: React.FC<P> = (props) => {
-  const { debug = false, repo, header, slots } = props;
-  const storageKey = header?.localstorage ?? D.header.localstorage;
+  const { debug = false, crdt, slots } = props;
+  const storageKey = crdt?.localstorage;
   const render = renderCtx(props);
 
   /**
@@ -32,7 +32,7 @@ export const Footer: React.FC<P> = (props) => {
 
   const elRepoSwitch = (
     <Crdt.UI.Repo.SyncEnabledSwitch
-      repo={repo}
+      repo={crdt?.repo}
       localstorage={storageKey}
       mode={'switch + network-icons'}
       theme={theme.name}

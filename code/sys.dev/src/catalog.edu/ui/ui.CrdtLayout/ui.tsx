@@ -10,7 +10,7 @@ import { Sidebar } from './ui.Sidebar.tsx';
 type P = t.CrdtLayoutProps;
 
 export const CrdtLayout: React.FC<P> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, crdt } = props;
   const sidebar = sidebarConfig(props.sidebar);
 
   /**

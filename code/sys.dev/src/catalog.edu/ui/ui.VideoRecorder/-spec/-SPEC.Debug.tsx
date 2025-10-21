@@ -16,8 +16,9 @@ import {
 
 type P = t.VideoRecorderViewProps;
 type Storage = Pick<P, 'theme' | 'debug'> & {
-  header: Pick<t.CrdtLayoutHeaderConfig, 'visible' | 'readOnly' | 'urlKey'>;
+  header: Pick<t.CrdtLayoutHeaderConfig, 'visible' | 'readOnly'>;
   sidebar: t.CrdtLayoutSidebarConfig;
+  urlKey?: string;
 };
 const defaults: Storage = {
   debug: false,
@@ -45,11 +46,10 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    urlKey: s(snap.urlKey),
     header: {
       visible: s((snap.header ?? {}).visible),
       readOnly: s((snap.header ?? {}).readOnly),
-      urlKey: s((snap.header ?? {}).urlKey),
-      localstorage: STORAGE_KEY.DEV,
     },
     sidebar: {
       visible: s((snap.sidebar ?? {}).visible),
@@ -58,12 +58,24 @@ export function createDebugSignals() {
     },
   };
 
+  const repo = createRepo();
+  const crdt: t.CrdtLayoutBindings = {
+    repo,
+    signals: { doc: signals.doc },
+    localstorage: STORAGE_KEY.DEV,
+    get urlKey() {
+      return p.urlKey.value;
+    },
+  };
+
   const p = props;
   const api = {
     props,
     signals,
-    repo: createRepo(),
+    repo,
+    crdt,
     url: DevUrl.make(window),
+
     reset,
     listen,
   };
@@ -81,11 +93,11 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.urlKey = p.urlKey.value;
 
       d.header = d.header ?? {};
       d.header.visible = p.header.visible.value;
       d.header.readOnly = p.header.readOnly.value;
-      d.header.urlKey = p.header.urlKey.value;
 
       d.sidebar = d.sidebar ?? {};
       d.sidebar.visible = p.sidebar.visible.value;
@@ -145,10 +157,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `header.readOnly: ${p.header.readOnly.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.header.readOnly)}
       />
+      <hr />
+
       <Button
         block
-        label={() => `header.urlKey: ${p.header.urlKey.value ?? `<undefined>`}`}
-        onClick={() => Signal.cycle(p.header.urlKey, ['foo', undefined])}
+        label={() => `crdt.urlKey: ${p.urlKey.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.urlKey, ['foo', undefined])}
       />
 
       <hr />

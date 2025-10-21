@@ -15,9 +15,10 @@ import {
 
 type P = t.CrdtLayoutProps;
 type Storage = Pick<P, 'theme' | 'debug'> & {
-  header: Pick<t.CrdtLayoutHeaderConfig, 'visible' | 'readOnly' | 'urlKey'>;
+  header: Pick<t.CrdtLayoutHeaderConfig, 'visible' | 'readOnly'>;
   sidebar: t.CrdtLayoutSidebarConfig;
   debugSlots?: boolean;
+  urlKey?: string;
 };
 const defaults: Storage = {
   debug: false,
@@ -41,19 +42,28 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: P['signals'] = {
+  const signals: t.CrdtLayoutSignals = {
     doc: s<t.Crdt.Ref>(),
+  };
+
+  const repo = createRepo();
+  const crdt: t.CrdtLayoutBindings = {
+    repo,
+    signals,
+    localstorage: `${STORAGE_KEY.DEV}:selection`,
+    get urlKey() {
+      return p.urlKey.value;
+    },
   };
 
   const props = {
     debug: s(snap.debug),
     debugSlots: s(snap.debugSlots),
     theme: s(snap.theme),
+    urlKey: s(snap.urlKey),
     header: {
       visible: s((snap.header ?? {}).visible),
       readOnly: s((snap.header ?? {}).readOnly),
-      urlKey: s((snap.header ?? {}).urlKey),
-      localstorage: STORAGE_KEY.DEV,
     },
     sidebar: {
       visible: s((snap.sidebar ?? {}).visible),
@@ -65,8 +75,8 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    repo: createRepo(),
-    signals,
+    repo,
+    crdt,
     reset,
     listen,
   };
@@ -85,11 +95,11 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.debugSlots = p.debugSlots.value;
+      d.urlKey = p.urlKey.value;
 
       d.header = d.header ?? {};
       d.header.visible = p.header.visible.value;
       d.header.readOnly = p.header.readOnly.value;
-      d.header.urlKey = p.header.urlKey.value;
 
       d.sidebar = d.sidebar ?? {};
       d.sidebar.visible = p.sidebar.visible.value;
@@ -117,8 +127,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const signals = debug.signals;
-  const doc = signals.doc?.value;
+  const crdt = debug.crdt;
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -148,10 +157,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `header.readOnly: ${p.header.readOnly.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.header.readOnly)}
       />
+      <hr />
       <Button
         block
-        label={() => `header.urlKey: ${p.header.urlKey.value ?? `<undefined>`}`}
-        onClick={() => Signal.cycle(p.header.urlKey, ['foo', undefined])}
+        label={() => `crdt.urlKey: ${p.urlKey.value ?? `<undefined>`}`}
+        onClick={() => Signal.cycle(p.urlKey, ['foo', undefined])}
       />
 
       <hr />
@@ -184,7 +194,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <SignalsObjectView signals={signals} style={{ marginTop: 5 }} expand={1} />
+      <SignalsObjectView signals={crdt.signals} style={{ marginTop: 5 }} expand={1} />
     </div>
   );
 };

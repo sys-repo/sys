@@ -34,8 +34,7 @@ export default Spec.describe(D.displayName, (e) => {
           <CrdtLayout.View
             debug={v.debug}
             theme={v.theme}
-            signals={debug.signals}
-            repo={debug.repo}
+            crdt={debug.crdt}
             header={v.header}
             sidebar={v.sidebar}
             slots={v.debugSlots ? slots : undefined}

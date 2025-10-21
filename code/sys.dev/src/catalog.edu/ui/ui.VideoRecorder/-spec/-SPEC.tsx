@@ -33,7 +33,7 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             signals={debug.signals}
-            repo={debug.repo}
+            crdt={debug.crdt}
             header={v.header}
             sidebar={v.sidebar}
             onStreamError={(e) => console.info(`⚡️ ${D.name}.onStreamError`, e)}

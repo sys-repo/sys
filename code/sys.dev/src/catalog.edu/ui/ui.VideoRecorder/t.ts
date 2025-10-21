@@ -3,9 +3,8 @@ import type { t } from './common.ts';
 /**
  * Component:
  */
-export type VideoRecorderViewProps = Pick<t.CrdtLayoutProps, 'header' | 'sidebar' | 'repo'> & {
+export type VideoRecorderViewProps = Pick<t.CrdtLayoutProps, 'header' | 'sidebar' | 'crdt'> & {
   signals?: t.VideoRecorderViewSignals;
-
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

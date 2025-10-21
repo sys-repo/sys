@@ -12,16 +12,32 @@ export type CrdtLayoutLib = {
  * Component: CRDT-aware layout shell.
  */
 export type CrdtLayoutProps = {
-  repo?: t.Crdt.Repo;
-  signals?: CrdtLayoutSignals;
+  slots?: CrdtLayoutSlots; // child views.
 
-  slots?: CrdtLayoutSlots;
+  // Config:
+  crdt?: CrdtLayoutBindings;
   header?: CrdtLayoutHeaderConfig;
   sidebar?: CrdtLayoutSidebarConfig;
 
   theme?: t.CommonTheme;
   debug?: boolean;
   style?: t.CssInput;
+};
+
+/**
+ * CRDT bindings passed into the layout.
+ * - `repo` and `doc` are required when provided (the layout expects both together).
+ * - `signals` are optional; when present, the layout reacts to external doc changes.
+ */
+export type CrdtLayoutBindings = {
+  readonly repo?: t.Crdt.Repo;
+  readonly signals?: {
+    readonly doc: t.Signal<t.Crdt.Ref | undefined>;
+  };
+
+  // Persistence/configuration keys:
+  readonly localstorage?: t.StringKey;
+  readonly urlKey?: t.StringKey;
 };
 
 /**
@@ -58,8 +74,6 @@ export type CrdtLayoutSignals = {
 export type CrdtLayoutHeaderConfig = {
   visible?: boolean;
   readOnly?: boolean;
-  localstorage?: t.StringKey;
-  urlKey?: t.StringKey;
 };
 
 /**

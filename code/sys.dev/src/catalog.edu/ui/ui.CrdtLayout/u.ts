@@ -14,8 +14,6 @@ export function headerConfig(props?: t.CrdtLayoutHeaderConfig): t.CrdtLayoutHead
   return {
     visible: props?.visible ?? D.header.visible,
     readOnly: props?.readOnly ?? D.header.readOnly,
-    localstorage: props?.localstorage,
-    urlKey: props?.urlKey,
   };
 }
 
@@ -40,8 +38,9 @@ type RenderCtx =
  * Build slot context if the CRDT layout is ready.
  */
 export function renderCtx(props: t.CrdtLayoutProps): RenderCtx {
-  const { repo, signals, theme = D.theme, debug = false } = props;
-  const doc = signals?.doc.value;
+  const { crdt, theme = D.theme, debug = false } = props;
+  const doc = crdt?.signals?.doc.value;
+  const repo = crdt?.repo;
 
   if (repo && doc) {
     const ctx = { repo, doc, theme, debug } satisfies t.CrdtLayoutCtx;

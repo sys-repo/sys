@@ -8,7 +8,7 @@ type P = t.CrdtLayoutProps;
  * Component:
  */
 export const Sidebar: React.FC<P> = (props) => {
-  const { debug = false, signals = {}, slots } = props;
+  const { debug = false, crdt, slots } = props;
   const config = sidebarConfig(props.sidebar);
   const render = renderCtx(props);
 
