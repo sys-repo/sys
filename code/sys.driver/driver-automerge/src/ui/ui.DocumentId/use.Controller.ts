@@ -48,7 +48,7 @@ function useInternal(args: Args = {}): Hook {
    */
   const [ready, setReady] = React.useState(false);
   const localstore = useLocalStorage({
-    key: args.localstorage,
+    key: args.storageKey,
     signal: signalsRef.current.textbox,
     readOnly,
   });

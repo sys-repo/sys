@@ -9,8 +9,8 @@ type P = t.CrdtLayoutProps;
  */
 export const Header: React.FC<P> = (props) => {
   const { debug = false, crdt, signals } = props;
+  const storageKey = crdt?.storageKey ? `${crdt?.storageKey}:crdt.doc-id` : undefined;
   const headerConfig = toHeaderConfig(props.header);
-  const localstorage = crdt?.localstorage ? `${crdt?.localstorage}:crdt.doc-id` : undefined;
 
   /**
    * Render:
@@ -38,7 +38,7 @@ export const Header: React.FC<P> = (props) => {
           repo: crdt?.repo,
           signals,
           initial: {},
-          localstorage,
+          storageKey,
           urlKey: crdt?.urlKey,
           readOnly: headerConfig.readOnly,
         }}

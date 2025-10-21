@@ -61,7 +61,7 @@ export const Body: React.FC<P> = (props) => {
           repo,
           signals: { doc: signals.doc },
           initial: {},
-          localstorage: DOC.localstorage,
+          storageKey: DOC.localstorage,
           urlKey: DOC.urlKey,
           readOnly: DOC.readOnly,
         }}

@@ -37,7 +37,7 @@ export type CrdtLayoutBindings = {
   readonly repo?: t.Crdt.Repo;
 
   // Persistence/configuration keys:
-  readonly localstorage?: t.StringKey;
+  readonly storageKey?: t.StringKey;
   readonly urlKey?: t.StringKey;
 };
 

@@ -9,7 +9,7 @@ type P = t.CrdtLayoutProps;
  */
 export const Footer: React.FC<P> = (props) => {
   const { debug = false, crdt, slots } = props;
-  const storageKey = crdt?.localstorage;
+  const storageKey = crdt?.storageKey;
   const render = renderCtx(props);
 
   /**

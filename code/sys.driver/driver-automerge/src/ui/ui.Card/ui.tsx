@@ -20,7 +20,7 @@ export const Card: React.FC<P> = (props) => {
     repo,
     signals: props.signals,
     initial: { count: 0 },
-    localstorage,
+    storageKey: localstorage,
   });
 
   const signals = { ...controller.signals };
