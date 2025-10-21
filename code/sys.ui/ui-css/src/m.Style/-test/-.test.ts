@@ -1,9 +1,9 @@
-import { describe, expect, it, TestPrint } from '../-test.ts';
-import { CssEdges } from '../m.Css.Edges/mod.ts';
-import { CssTmpl } from '../m.Css.Tmpl/mod.ts';
-import { Color, css, Style } from '../mod.ts';
-import { CssDom, DEFAULT, Str } from './common.ts';
-import { transformer } from './u.transform.ts';
+import { describe, expect, it, TestPrint } from '../../-test.ts';
+import { CssEdges } from '../../m.Css.Edges/mod.ts';
+import { CssTmpl } from '../../m.Css.Tmpl/mod.ts';
+import { Color, css, Style } from '../../mod.ts';
+import { CssDom, DEFAULT, Str } from '../common.ts';
+import { transformer } from '../u.transform.ts';
 
 describe('Style', () => {
   it('API', () => {
