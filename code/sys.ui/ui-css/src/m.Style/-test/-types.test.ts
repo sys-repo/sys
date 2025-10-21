@@ -11,14 +11,14 @@ describe('Style: types', () => {
         ['--pct-h']: '15',
       } satisfies t.CssProps;
 
-      // Also acceptable as a CssValue input to css()
+      // Also acceptable as a CssValue input to css():
       expectTypeOf(input).toMatchTypeOf<t.CssProps>();
       const out = css(input);
       expectTypeOf(out).toMatchTypeOf<t.CssTransformed>();
     });
 
     it('rejects invalid value types', () => {
-      // @ts-expect-error boolean is not allowed for custom properties
+      // @ts-expect-error boolean is not allowed for custom properties:
       const bad: t.CssProps = { ['--foo']: true };
       void bad;
     });
