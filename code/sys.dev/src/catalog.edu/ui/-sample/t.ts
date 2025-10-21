@@ -18,5 +18,5 @@ export type SampleProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
-  onDiagnostics?: (e: { slugDiagnostics: t.Yaml.Diagnostic[] }) => void;
+  onDiagnostics?: (e: { slugDiagnostics: t.Ary<t.Yaml.Diagnostic> }) => void;
 };

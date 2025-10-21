@@ -61,7 +61,7 @@ export function createDebugSignals() {
 
     // In-memory:
     slug: s<t.Slug | undefined>(),
-    slugDiagnostics: s<t.Yaml.Diagnostic[] | undefined>(),
+    slugDiagnostics: s<t.Ary<t.Yaml.Diagnostic> | undefined>(),
   };
 
   const p = props;

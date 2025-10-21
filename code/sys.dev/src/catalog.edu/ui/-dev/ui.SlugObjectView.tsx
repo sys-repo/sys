@@ -4,7 +4,11 @@ import { type t, Color, css, ObjectView } from './common.ts';
 
 export type CatalogObjectViewProps = {
   name?: string;
-  slug?: { value?: t.Slug | unknown; path?: t.ObjectPath; diagnostics?: t.Yaml.Diagnostic[] };
+  slug?: {
+    value?: t.Slug | unknown;
+    path?: t.ObjectPath;
+    diagnostics?: t.Ary<t.Yaml.Diagnostic>;
+  };
   expand?: t.ObjectViewProps['expand'];
   debug?: boolean;
   theme?: t.CommonTheme;
