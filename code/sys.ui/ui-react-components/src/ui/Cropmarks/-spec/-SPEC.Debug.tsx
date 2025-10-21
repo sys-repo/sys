@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Signal } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.CropmarksProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'subjectOnly'>;
@@ -35,10 +35,17 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    listen() {
-      Signal.listen(props);
-    },
+    reset,
+    listen,
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -112,7 +119,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };
