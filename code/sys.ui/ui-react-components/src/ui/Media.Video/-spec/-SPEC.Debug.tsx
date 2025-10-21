@@ -1,9 +1,12 @@
 import React from 'react';
+import { StatefulDeviceList } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
+
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { FILTER_SAMPLES } from './-u.samples.ts';
 
+const STORAGE_KEY = `dev:${D.displayName}`;
 const { Filters, Zoom } = Media.Config;
 
 type P = t.MediaVideoStreamProps;
@@ -31,7 +34,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const store = LocalStorage.immutable<Storage>(STORAGE_KEY, defaults);
   const snap = { ...defaults, ...store.current };
 
   const props = {
@@ -103,17 +106,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Media.Devices.UI.List
+      <StatefulDeviceList
+        style={{ MarginX: 20 }}
+        storageKey={`${STORAGE_KEY}:selected:video`}
         filter={(e) => e.kind === 'videoinput'}
-        selected={p.selectedVideo.value}
-        onSelect={(e) => (p.selectedVideo.value = e.info)}
+        onSelect={(e) => (p.selectedVideo.value = e.device)}
       />
       <hr />
-      <Media.Devices.UI.List
+      <StatefulDeviceList
+        style={{ MarginX: 20 }}
+        storageKey={`${STORAGE_KEY}:selected:audio`}
         filter={(e) => e.kind === 'audioinput'}
-        selected={p.selectedAudio.value}
-        onSelect={(e) => (p.selectedAudio.value = e.info)}
+        onSelect={(e) => (p.selectedAudio.value = e.device)}
       />
+
       <hr />
       <Media.Config.Filters.UI.List
         style={{ margin: 20 }}

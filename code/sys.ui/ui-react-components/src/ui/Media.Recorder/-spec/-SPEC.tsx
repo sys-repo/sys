@@ -42,7 +42,7 @@ export default Spec.describe('MediaRecorder', (e) => {
             zoom={Media.Config.Zoom.toRatio(p.zoom.value)}
             constraints={{
               audio: {
-                deviceId: p.selectAudio.value?.deviceId,
+                deviceId: p.selectedAudio.value?.deviceId,
                 channelCount: { ideal: 2 },
                 sampleRate: { ideal: 48_000 },
                 sampleSize: { ideal: 16 },

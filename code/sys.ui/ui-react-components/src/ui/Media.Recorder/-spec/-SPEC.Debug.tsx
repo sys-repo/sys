@@ -1,5 +1,5 @@
 import React from 'react';
-import { RecorderHookView } from '../-dev/mod.ts';
+import { RecorderHookView, StatefulDeviceList } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, Obj, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Signal } from '../common.ts';
@@ -8,6 +8,7 @@ import { Icons } from '../ui.Icons.ts';
 type P = t.MediaRecorderFilesProps;
 type L = { filters: Partial<t.MediaFilterValues>; zoom: Partial<t.MediaZoomValues> };
 const { Filters, Zoom } = Media.Config;
+const STORAGE_KEY = `dev:${D.name}`;
 
 /**
  * Types:
@@ -23,7 +24,7 @@ export function createDebugSignals() {
     filters: Filters.values(['brightness', 'contrast', 'saturate', 'grayscale']),
     zoom: Zoom.values(Obj.keys(Zoom.config)),
   } as const;
-  const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
+  const localstore = LocalStorage.immutable<L>(STORAGE_KEY, initial);
 
   type R = {
     status: t.MediaRecorderStatus;
@@ -47,7 +48,7 @@ export function createDebugSignals() {
     zoom: s<Partial<t.MediaZoomValues>>(localstore.current.zoom),
     aspectRatio: s<string | number>('4/3'),
     selectedCamera: s<MediaDeviceInfo>(),
-    selectAudio: s<MediaDeviceInfo>(),
+    selectedAudio: s<MediaDeviceInfo>(),
   };
   const p = props;
   const api = {
@@ -111,21 +112,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>{'Input'}</div>
 
-      <Media.Devices.UI.List
+      <StatefulDeviceList
         style={{ MarginX: 20 }}
+        storageKey={`${STORAGE_KEY}:selected:video`}
         filter={(e) => e.kind === 'videoinput'}
-        selected={p.selectedCamera.value}
-        onSelect={(e) => (p.selectedCamera.value = e.info)}
+        onSelect={(e) => (p.selectedCamera.value = e.device)}
+      />
+      <hr />
+      <StatefulDeviceList
+        style={{ MarginX: 20 }}
+        storageKey={`${STORAGE_KEY}:selected:audio`}
+        filter={(e) => e.kind === 'audioinput'}
+        onSelect={(e) => (p.selectedAudio.value = e.device)}
       />
 
       <hr />
-
-      <Media.Devices.UI.List
-        style={{ MarginX: 20 }}
-        filter={(e) => e.kind === 'audioinput'}
-        selected={p.selectAudio.value}
-        onSelect={(e) => (p.selectAudio.value = e.info)}
-      />
 
       {center(<Icons.Arrow.Down style={{ MarginY: [10, 5] }} />)}
 

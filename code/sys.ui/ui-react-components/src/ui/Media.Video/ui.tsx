@@ -17,12 +17,36 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
   } = props;
 
   /**
-   * Hooks:
+   * Hook: acquire stream (with filtered derivative).
    */
   const video = useVideoStream(props.stream ?? constraints, { filter, zoom });
 
   /**
-   * Effect: fire onReady when stream acquired.
+   * Ref: <video> element.
+   */
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  /**
+   * Effect: bind the best available stream to <video>.
+   * Prefer filtered; fall back to raw so we never go black during re-acquire.
+   */
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    const best: MediaStream | null = video.stream.filtered ?? video.stream.raw ?? null;
+    if (el.srcObject !== best) el.srcObject = best;
+
+    // Cleanup: only clear if we're still bound to the same object.
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject === best) {
+        videoRef.current.srcObject = null;
+      }
+    };
+  }, [video.stream.filtered?.id, video.stream.raw?.id]);
+
+  /**
+   * Effect: fire onReady when both streams are live and device is discovered.
    */
   useEffect(() => {
     const life = Rx.lifecycle();
@@ -35,12 +59,11 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
         console.error(`Device could not be retrieved from stream: ${stream.raw?.id}`);
         return;
       }
-
       props.onReady?.({ stream, aspectRatio, device });
     });
 
     return life.dispose;
-  }, [video.ready, video.stream.raw?.id]);
+  }, [video.ready, video.stream.raw?.id, video.stream.filtered?.id]);
 
   /**
    * Effect: bubble hook errors to the caller.
@@ -70,21 +93,20 @@ export const VideoStream: React.FC<t.MediaVideoStreamProps> = (props) => {
       objectFit: 'cover',
       borderRadius,
     }),
-    info: css({
-      Absolute: [8, null, null, 8],
-    }),
+    info: css({ Absolute: [8, null, null, 8] }),
   };
 
   const infoStream = video.stream.filtered ?? video.stream.raw;
-  const elInfo = debug && infoStream && (
-    <Info
-      key={infoStream?.id}
-      style={styles.info}
-      theme={theme.name}
-      stream={infoStream}
-      filter={props.debugFilter}
-    />
-  );
+  const elInfo =
+    debug && infoStream ? (
+      <Info
+        key={infoStream.id}
+        style={styles.info}
+        theme={theme.name}
+        stream={infoStream}
+        filter={props.debugFilter}
+      />
+    ) : null;
 
   return (
     <div className={css(styles.base, props.style).class}>

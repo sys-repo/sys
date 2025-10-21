@@ -1,4 +1,4 @@
-import { type t, D, Is, logInfo } from './common.ts';
+import { type t, D, Is, logInfo, Try } from './common.ts';
 
 /**
  * Build a MediaStream whose video is run through a CSS-filter pipeline.
@@ -21,9 +21,14 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   /**
    * Retrieve the raw camera/mic stream.
    */
-  const raw = Is.constraints(streamOrConstraints)
-    ? await navigator.mediaDevices.getUserMedia(streamOrConstraints)
-    : streamOrConstraints;
+  let raw: MediaStream;
+  if (Is.constraints(streamOrConstraints)) {
+    const res = await Try.catch(() => navigator.mediaDevices.getUserMedia(streamOrConstraints));
+    if (!res.ok) throw res.error;
+    raw = res.data;
+  } else {
+    raw = streamOrConstraints;
+  }
 
   /**
    * (Early Edit): no filter/zoom ➜ simply reuse the raw stream.
@@ -34,13 +39,17 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
   /**
    * Create hidden Video + Canvas elements.
    */
+  type V = HTMLVideoElement & { srcObject: MediaStream | null };
   const video = Object.assign(document.createElement('video'), {
     srcObject: raw,
     muted: true,
     playsInline: true,
     style: 'display: none',
-  }) as HTMLVideoElement;
-  await video.play(); // NB: wait until metadata ready.
+  }) as V;
+
+  // NB: Ensure metadata is loaded so width/height are valid.
+  await ensureMetadata(video);
+  await safePlay(video); // ok if this no-ops on some engines
 
   const w = video.videoWidth;
   const h = video.videoHeight;
@@ -81,22 +90,23 @@ export const getStream: t.MediaVideoLib['getStream'] = async (
 
   /**
    * Capture the canvas as a MediaStream and
-   * copy across original audio track(s).
+   * copy ("clone") across original audio track(s).
    */
   const filtered = canvas.captureStream(30); // NB: 30-fps.
-  raw.getAudioTracks().forEach((t) => filtered.addTrack(t));
+  raw.getAudioTracks().forEach((t) => filtered.addTrack(t.clone()));
+
+  function onInactive() {
+    Try.catch(() => cancelAnimationFrame(rafId));
+    stopped = true;
+    releaseVideo(video);
+    stopTracks(raw);
+    shrink(canvas);
+  }
 
   /**
    * Helper: House-keeping (stop everything in one call).
    */
-  filtered.addEventListener('inactive', () => {
-    try {
-      cancelAnimationFrame(rafId);
-    } catch {}
-    stopped = true;
-    raw.getTracks().forEach((t) => t.stop());
-    video.srcObject = null;
-  });
+  filtered.addEventListener('inactive', onInactive, { once: true });
 
   // Finish up.
   logInfo('getStream:end', { tracks: filtered.getTracks().map((t) => `${t.kind}:${t.label}`) });
@@ -112,3 +122,61 @@ const wrangle = {
     return { factor, centerX, centerY };
   },
 } as const;
+
+/**
+ * Wait for valid video metadata (width/height) before sizing canvas.
+ */
+async function ensureMetadata(video: HTMLVideoElement): Promise<void> {
+  if (video.readyState >= 1 && video.videoWidth && video.videoHeight) return;
+
+  // Wait for metadata, but don't hang forever if a driver never fires it.
+  await Promise.race<void>([
+    new Promise<void>((resolve) => {
+      video.addEventListener('loadedmetadata', () => resolve(), { once: true });
+    }),
+    new Promise<void>((resolve) => {
+      // Timeout fallback: allow pipeline to proceed; caller should handle 0×0 defensively.
+      setTimeout(() => resolve(), 1200);
+    }),
+  ]);
+
+  // One more frame gives some engines a beat to populate dimensions post-event.
+  if (!(video.videoWidth && video.videoHeight)) {
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+  }
+}
+
+/**
+ * Attempt to start playback; some engines may no-op without user gesture.
+ */
+async function safePlay(video: HTMLVideoElement): Promise<void> {
+  // NB: Ignore errors; drawing from the current frame is still fine post-metadata.
+  await Try.catch(() => video.play());
+}
+
+/**
+ * Stop all tracks on a MediaStream (defensive).
+ */
+function stopTracks(stream: MediaStream) {
+  for (const t of stream.getTracks()) {
+    Try.catch(() => t.stop());
+  }
+}
+
+/**
+ * Release a video element's backing stream.
+ */
+function releaseVideo(v: HTMLVideoElement & { srcObject: MediaStream | null }) {
+  Try.catch(() => v.pause?.());
+  Try.catch(() => (v.srcObject = null));
+}
+
+/**
+ * Hint GC by shrinking the canvas to 0x0.
+ */
+function shrink(c: HTMLCanvasElement) {
+  Try.catch(() => {
+    c.width = 0;
+    c.height = 0;
+  });
+}

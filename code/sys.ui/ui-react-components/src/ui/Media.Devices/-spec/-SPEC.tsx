@@ -17,7 +17,6 @@ export default Spec.describe('Devices', (e) => {
      * Hooks:
      */
     const [items, setItems] = React.useState<MediaDeviceInfo[]>([]);
-
     Devices.useDeviceSelectionLifecycle({
       enabled: v.debugLocalstorage,
       items,
