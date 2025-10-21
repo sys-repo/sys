@@ -1,5 +1,6 @@
 import React from 'react';
 import { RecorderControls } from './-dev/ui.tmp.RecorderControls.tsx';
+
 import { type t, Color, css, Media } from './common.ts';
 import { edgeBorder } from './u.ts';
 import { ConfigDevices } from './ui.Config.Devices.tsx';
@@ -28,7 +29,12 @@ export const Config: React.FC<P> = (props) => {
     footer: css({ borderTop: edgeBorder(theme) }),
     hr: css({ border: 'none', borderTop: `solid 1px ${Color.alpha(theme.fg, 0.15)}`, MarginY: 20 }),
     mediaList: css({ marginRight: 10 }),
-    waveform: css({ marginTop: 5, PaddingX: [20, 15] }),
+    waveform: css({
+      marginTop: 10,
+      MarginX: [19, 18.5],
+      borderLeft: `solid 1px ${Color.alpha(theme.fg, 0.08)}`,
+      borderRight: `solid 1px ${Color.alpha(theme.fg, 0.08)}`,
+    }),
   };
 
   const elBody = (
@@ -73,13 +79,3 @@ export const Config: React.FC<P> = (props) => {
     </div>
   );
 };
-
-/**
- * Helpers:
- */
-const wrangle = {
-  storageKey(props: P) {
-    const { header = {} } = props;
-    return header.localstorage ? `${header.localstorage}:devices` : undefined;
-  },
-} as const;
