@@ -13,8 +13,8 @@
     "@deno/vite-plugin": "1.0.5",
     "@vitejs/plugin-react-swc": "4.1.0",
     "prettier": "3.6.2",
-    "rollup": "4.52.4",
-    "vite": "7.1.10",
+    "rollup": "4.52.5",
+    "vite": "7.1.11",
     "vite-plugin-wasm": "3.5.0"
   }
 }

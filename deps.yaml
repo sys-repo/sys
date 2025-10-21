@@ -58,8 +58,8 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react-swc@4.1.0
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.52.4
-    - import: npm:vite@7.1.10
+    - import: npm:rollup@4.52.5
+    - import: npm:vite@7.1.11
     - import: npm:vite-plugin-wasm@3.5.0
 
   dev/tools:
@@ -88,7 +88,7 @@ groups:
 
   ai:
     - import: npm:ai@5.0.76
-    - import: npm:@ai-sdk/openai@2.0.52
+    - import: npm:@ai-sdk/openai@2.0.53
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.21.1
       subpaths: ['agent', 'memory', 'storage']
@@ -124,7 +124,7 @@ deno.json:
   - import: npm:diff@8.0.2
   - import: npm:@farcaster/frame-sdk@0.1.12
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@20.0.5
+  - import: npm:happy-dom@20.0.7
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.5
   - import: npm:immer@10.1.3
