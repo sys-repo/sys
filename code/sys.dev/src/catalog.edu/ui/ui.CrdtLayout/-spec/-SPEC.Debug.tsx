@@ -50,7 +50,7 @@ export function createDebugSignals() {
   const crdt: t.CrdtLayoutBindings = {
     repo,
     signals,
-    localstorage: `${STORAGE_KEY.DEV}:selection`,
+    localstorage: STORAGE_KEY.DEV,
     get urlKey() {
       return p.urlKey.value;
     },
