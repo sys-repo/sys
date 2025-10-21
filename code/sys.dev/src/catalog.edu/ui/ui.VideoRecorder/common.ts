@@ -1,4 +1,4 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { type t, Log, pkg, Pkg } from '../common.ts';
 import { D as CrdtDefaults } from '../ui.CrdtLayout/mod.ts';
 
 export * from '../common.ts';
@@ -10,11 +10,13 @@ export { Crdt } from '@sys/driver-automerge/web/ui';
 export { Media } from '@sys/ui-react-components';
 export { CrdtLayout } from '../ui.CrdtLayout/mod.ts';
 
+type P = t.VideoRecorderViewProps;
+
 /**
  * Constants:
  */
-type P = t.VideoRecorderViewProps;
 const name = 'VideoRecorder:View';
+export const logInfo = Log.category(name);
 
 export const D = {
   name,
