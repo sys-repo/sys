@@ -6,7 +6,12 @@ import { CssDom, DEFAULT, Str } from '../common.ts';
 import { transformer } from '../u.transform.ts';
 
 describe('Style', () => {
-  it('API', () => {
+  it('API', async () => {
+    const m = await import('@sys/ui-css');
+    expect(m.Style).to.equal(Style);
+    expect(m.Color).to.equal(Color);
+    expect(m.css).to.equal(css);
+
     expect(Style.Color).to.equal(Color);
     expect(Style.Dom).to.equal(CssDom);
     expect(Style.Tmpl).to.eql(CssTmpl);
