@@ -2,6 +2,7 @@ import React from 'react';
 import { RecorderControls } from './-dev/ui.tmp.RecorderControls.tsx';
 import { type t, Color, css, Media } from './common.ts';
 import { edgeBorder } from './u.ts';
+import { ConfigDevices } from './ui.Config.Devices.tsx';
 
 type P = t.VideoRecorderViewProps;
 
@@ -32,28 +33,20 @@ export const Config: React.FC<P> = (props) => {
 
   const elBody = (
     <div className={styles.body.class}>
-      <Media.Devices.UI.List
+      <ConfigDevices
+        base={props}
+        kind={'videoinput'}
+        signal={signals?.camera}
         style={styles.mediaList}
-        debug={debug}
-        theme={theme.name}
-        filter={(e) => e.kind === 'videoinput'}
-        selected={signals?.camera.value}
-        onSelect={(e) => {
-          if (signals?.camera) signals.camera.value = e.info;
-        }}
       />
 
       <hr className={styles.hr.class} />
 
-      <Media.Devices.UI.List
+      <ConfigDevices
+        base={props}
+        kind={'audioinput'}
+        signal={signals?.audio}
         style={styles.mediaList}
-        debug={debug}
-        theme={theme.name}
-        filter={(e) => e.kind === 'audioinput'}
-        selected={signals?.audio.value}
-        onSelect={(e) => {
-          if (signals?.audio) signals.audio.value = e.info;
-        }}
       />
 
       <div className={styles.waveform.class}>
@@ -80,3 +73,13 @@ export const Config: React.FC<P> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  storageKey(props: P) {
+    const { header = {} } = props;
+    return header.localstorage ? `${header.localstorage}:devices` : undefined;
+  },
+} as const;

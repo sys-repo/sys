@@ -23,6 +23,7 @@ export const D = {
   displayName: Pkg.toString(pkg, name, false),
   header: CrdtDefaults.header,
   sidebar: CrdtDefaults.sidebar,
+  aspectRatio: '4/3',
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.name}` };

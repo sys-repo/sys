@@ -36,6 +36,7 @@ export default Spec.describe(D.displayName, (e) => {
             repo={debug.repo}
             header={v.header}
             sidebar={v.sidebar}
+            onStreamError={(e) => console.info(`⚡️ ${D.name}.onStreamError`, e)}
           />
         );
       });

@@ -56,14 +56,3 @@ export function bestAudio(
 export function simpleAudio(micId?: string): MediaTrackConstraints {
   return micId ? { deviceId: { exact: micId } } : {};
 }
-
-/**
- * Optional global shim for missing DOM types.
- * Place in your `global.d.ts` if TS complains about `latency`.
- */
-// declare global {
-//   interface MediaTrackConstraints { latency?: number | ConstrainDoubleRange; }
-//   interface MediaTrackSettings { latency?: number; }
-//   interface MediaTrackSupportedConstraints { latency?: boolean; }
-// }
-// export {};

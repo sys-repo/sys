@@ -9,6 +9,7 @@ export type VideoRecorderViewProps = Pick<t.CrdtLayoutProps, 'header' | 'sidebar
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onStreamError?: t.MediaVideoStreamProps['onError'];
 };
 
 /**
