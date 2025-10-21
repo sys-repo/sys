@@ -22,22 +22,6 @@ export const DebugPercent: React.FC<DebugPercentProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Button
         block
-        label={`size.margin: ${size.margin ?? '<undefined>'}`}
-        onClick={() => {
-          const m = size.margin;
-          const next =
-            m == null
-              ? [40, 40, 40, 40]
-              : Array.isArray(m) && m.length === 4
-                ? 100
-                : typeof m === 'number'
-                  ? undefined
-                  : [40, 40, 40, 40];
-          p.size.value = { ...size, margin: next as t.CssMarginArray };
-        }}
-      />
-      <Button
-        block
         label={`width: ${size.width ? `${size.width}%` : '(auto)'}`}
         onClick={() => {
           const curr = size.width ?? widths[0];

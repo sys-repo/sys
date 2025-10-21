@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Style } from './common.ts';
+import { type t, Color, css, Is, Style } from './common.ts';
 import { toFillMargin } from './u.ts';
 
 type P = t.CropmarksProps;
@@ -10,12 +10,9 @@ export const Cropmarks: React.FC<P> = (props) => {
 
   const fillMargin = toFillMargin(size);
   const sizeMode: t.CropmarksSizeMode = size?.mode ?? 'center';
-  const pctW = size?.mode === 'percent' ? (size.width ?? 0) : 0;
-  const pctH = size?.mode === 'percent' ? (size.height ?? 0) : 0;
   const is = {
     x: size?.mode === 'fill' && (size.x ?? true) && !(size.y ?? true),
     y: size?.mode === 'fill' && !(size.x ?? true) && (size.y ?? true),
-    percent: sizeMode === 'percent',
   } as const;
 
   const Grid = {
@@ -26,10 +23,6 @@ export const Cropmarks: React.FC<P> = (props) => {
     Center: {
       columns: `[left] 1fr [body-x] auto [right] 1fr`,
       rows: `[top] 1fr [body-y] auto [bottom] 1fr`,
-    },
-    Percent: {
-      columns: `[left] ${fillMargin[3]}px [body-x] auto [right] ${fillMargin[1]}px`,
-      rows: `[top] ${fillMargin[0]}px [body-y] auto [bottom] ${fillMargin[2]}px`,
     },
   } as const;
 
@@ -44,57 +37,30 @@ export const Cropmarks: React.FC<P> = (props) => {
     gridTemplateColumns: Grid.Center.columns,
     gridTemplateRows: Grid.Center.rows,
   };
-  const grid = {
-    center: sizeMode === 'center' && center,
-    percent: sizeMode === 'percent' && center,
-    fill: sizeMode === 'fill' && fill,
-  };
 
   const [borderTop, borderRight, borderBottom, borderLeft] = wrangle.border(props);
   const styles = {
     base: css({
       position: 'relative',
       display: 'grid',
-
-      // Host is the container for cqi/cqb units:
-      ...(sizeMode === 'percent' && {
-        containerType: (pctH ?? 0) > 0 ? 'size' : 'inline-size',
-        ['--pct-w']: String(pctW ?? 0),
-        ...((pctH ?? 0) > 0 ? { ['--pct-h']: String(pctH) } : {}),
-      }),
+      ...wrangle.percentCssVars(size),
     }),
     block: css({}),
+
     subject: css({
       position: 'relative',
       borderTop,
       borderRight,
       borderBottom,
       borderLeft,
-
-      // Center: fixed px.
-      ...(size?.mode === 'center' && {
-        width: size?.width,
-        height: size?.height,
-      }),
-
-      // Percent: auto cell (center track) sized by host’s container query units.
-      ...(sizeMode === 'percent' && {
-        inlineSize: 'calc(var(--pct-w) * 1cqi)',
-        ...((pctH ?? 0) > 0 ? { blockSize: 'calc(var(--pct-h) * 1cqb)' } : {}),
-        placeSelf: 'center',
-      }),
-
+      ...(size?.mode === 'center' ? { width: size.width, height: size.height } : {}),
+      ...wrangle.percentCssSubject(size),
       display: 'grid',
     }),
   };
 
-  const className = css(
-    styles.base,
-    sizeMode === 'center' ? grid.center : undefined,
-    sizeMode === 'fill' ? grid.fill : undefined,
-    sizeMode === 'percent' ? grid.percent : undefined,
-    props.style,
-  ).class;
+  const grid = sizeMode === 'fill' ? fill : center;
+  const className = css(styles.base, grid, props.style).class;
 
   return (
     <div className={className}>
@@ -120,10 +86,9 @@ const wrangle = {
     const [top, right, bottom, left] = wrangle.borderWidth(props);
     const { borderOpacity } = props;
     const opacity = typeof borderOpacity === 'number' ? borderOpacity : theme.is.dark ? 0.1 : 0.07;
-    const color = Color.alpha(props.borderColor ?? theme.fg, opacity);
-
     if (opacity <= 0) return [];
 
+    const color = Color.alpha(props.borderColor ?? theme.fg, opacity);
     const border = (width: t.Pixels) => (width === 0 ? 'none' : `solid ${width}px ${color}`);
     return [border(top), border(right), border(bottom), border(left)] as const;
   },
@@ -144,5 +109,31 @@ const wrangle = {
     const left = width(l);
 
     return [top, right, bottom, left] as const;
+  },
+
+  percentCssVars(size?: t.CropmarksSize) {
+    if (size?.mode !== 'percent') return {};
+
+    const out: t.CssProps = {};
+    const hasW = Is.number(size.width);
+    const hasH = Is.number(size.height);
+
+    if (hasW) out['--pct-w'] = String(size.width);
+    if (hasH) out['--pct-h'] = String(size.height);
+
+    out.containerType = hasH ? 'size' : 'inline-size';
+    return out;
+  },
+
+  percentCssSubject(size?: t.CropmarksSize) {
+    if (size?.mode !== 'percent') return {};
+
+    const hasW = Is.number(size.width);
+    const hasH = Is.number(size.height);
+
+    const css: t.CssProps = { placeSelf: 'center' };
+    if (hasW) css.inlineSize = 'calc(var(--pct-w) * 1cqi)';
+    if (hasH) css.blockSize = 'calc(var(--pct-h) * 1cqb)';
+    return css;
   },
 } as const;

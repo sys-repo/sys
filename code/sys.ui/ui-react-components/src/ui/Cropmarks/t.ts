@@ -43,7 +43,7 @@ export type CropmarksSizeFill = {
 };
 
 /**
- * Percent-based sizing of the subject relative to the Cropmarks container.
+ * Percent-based sizing of the subject relative to the <Cropmarks> container.
  */
 export type CropmarksSizePercent = {
   mode: 'percent';
