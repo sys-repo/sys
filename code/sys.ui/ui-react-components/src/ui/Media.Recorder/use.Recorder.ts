@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type t } from './common.ts';
+import { type t, D, logInfo } from './common.ts';
+import { createMediaRecorder } from './u.createMediaRecorder.ts';
 
 /**
  * Hook: Manages a standard [MediaRecorder] video/audio stream recorder.
@@ -11,7 +12,7 @@ import { type t } from './common.ts';
 export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const chunksRef = useRef<BlobPart[]>([]);
   const recorderRef = useRef<MediaRecorder>(undefined);
-  const optionsRef = useRef<t.UseMediaRecorderOptions>(options);
+  const optionsRef = useRef<t.MediaRecorderOptions>(options);
   const stopResolversRef = useRef<((e: t.MediaRecorderHookStopped) => void)[]>([]);
 
   const [status, setStatus] = useState<t.MediaRecorderStatus>('Idle');
@@ -31,19 +32,19 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const init = useCallback(() => {
     if (!stream) return;
 
-    const mimeType = optionsRef.current.mimeType ?? 'video/webm;codecs=vp9,opus';
-    const recorder = (recorderRef.current = new MediaRecorder(stream, {
-      mimeType,
-      videoBitsPerSecond: 4_000_000,
-      audioBitsPerSecond: 128_000,
-    }));
+    const recorder = (recorderRef.current = createMediaRecorder(stream, optionsRef.current));
+    logInfo('✨ created MediaRecorder');
+    logInfo(`video bitrate: ${recorder.videoBitsPerSecond / 1_000_000} Mbps`);
+    logInfo(`audio bitrate: ${recorder.audioBitsPerSecond / 1_000} kbps`);
+    logCaptureInfo(stream);
+
     recorder.ondataavailable = (e) => {
       const bytes = e.data.size;
       chunksRef.current.push(e.data);
       setBytes((n) => n + bytes);
     };
     recorder.onstop = () => {
-      const type = mimeType;
+      const type = recorder.mimeType;
       const blob = new Blob(chunksRef.current, { type });
       const bytes = blob.size;
       const res: t.MediaRecorderHookStopped = { blob, bytes };
@@ -145,3 +146,13 @@ const wrangle = {
     };
   },
 } as const;
+
+function logCaptureInfo(stream: MediaStream) {
+  const s = stream.getVideoTracks?.()[0]?.getSettings?.() ?? {};
+  logInfo('stream:capture', {
+    width: s.width,
+    height: s.height,
+    frameRate: s.frameRate,
+    aspectRatio: s.aspectRatio,
+  });
+}

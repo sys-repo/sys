@@ -6,9 +6,7 @@ export type MediaRecorderStatus = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
  * Library: Media recordeing tools.
  */
 export type MediaRecorderLib = {
-  /**
-   * UI Components:
-   */
+  readonly createRecorder: t.CreateMediaRecorder;
   readonly UI: {
     readonly Files: React.FC<t.MediaRecorderFilesProps>;
     readonly useRecorder: t.UseMediaRecorder;
@@ -29,12 +27,23 @@ export type MediaRecorderFilesProps = {
  */
 export type UseMediaRecorder = (
   stream?: MediaStream,
-  options?: UseMediaRecorderOptions,
+  options?: MediaRecorderOptions,
 ) => MediaRecorderHook;
+
 /** Options passed to the `UseMediaRecorder` hook. */
-export type UseMediaRecorderOptions = {
-  mimeType?: 'video/webm;codecs=vp9,opus';
+export type MediaRecorderOptions = {
+  mimeType?: string;
+  videoBitsPerSecond?: number;
+  audioBitsPerSecond?: number;
 };
+
+/**
+ * Create a high-quality, standards-compliant MediaRecorder for a given stream.
+ */
+export type CreateMediaRecorder = (
+  stream: MediaStream,
+  options?: t.MediaRecorderOptions,
+) => MediaRecorder;
 
 /**
  * UseMediaRecorder hook API:
