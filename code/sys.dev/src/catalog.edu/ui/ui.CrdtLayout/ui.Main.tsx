@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, Cropmarks, css } from './common.ts';
-import { renderCtx } from './u.ts';
+import { renderCtx, toCropmarksConfig } from './u.ts';
 
 type P = t.CrdtLayoutProps;
 
@@ -10,6 +10,7 @@ type P = t.CrdtLayoutProps;
 export const Main: React.FC<P> = (props) => {
   const { debug = false, slots } = props;
   const render = renderCtx(props);
+  const cropmarksConfig = toCropmarksConfig(props.cropmarks);
 
   /**
    * Render:
@@ -26,7 +27,7 @@ export const Main: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Cropmarks theme={theme.name} borderOpacity={0.08}>
+      <Cropmarks {...cropmarksConfig} theme={theme.name}>
         <div className={styles.body.class}>{el ?? elEmpty}</div>
       </Cropmarks>
     </div>

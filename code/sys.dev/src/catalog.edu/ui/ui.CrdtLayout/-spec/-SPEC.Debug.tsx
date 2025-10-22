@@ -1,6 +1,7 @@
 import React from 'react';
 import { SignalsObjectView } from '../-dev/ui.SignalsObjectView.tsx';
 import { createRepo } from '../../-test.ui.ts';
+
 import {
   type t,
   Button,
@@ -15,8 +16,8 @@ import {
 
 type P = t.CrdtLayoutProps;
 type Storage = Pick<P, 'theme' | 'debug'> & {
-  header: Pick<t.CrdtLayoutHeaderConfig, 'visible' | 'readOnly'>;
-  sidebar: t.CrdtLayoutSidebarConfig;
+  header: Pick<t.CrdtLayoutHeader, 'visible' | 'readOnly'>;
+  sidebar: t.CrdtLayoutSidebar;
   debugSlots?: boolean;
   urlKey?: string;
 };

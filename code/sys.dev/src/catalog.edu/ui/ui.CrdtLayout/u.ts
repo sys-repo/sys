@@ -8,23 +8,39 @@ export function edgeBorder(theme: t.ColorTheme, opacity = D.edgeBorderOpacity) {
 }
 
 /**
- * Normalizes header configuration with defaults for visibility and read-only state.
+ * Normalizes `header` configuration with defaults.
  */
-export function toHeaderConfig(props?: t.CrdtLayoutHeaderConfig): t.CrdtLayoutHeaderConfig {
+export function toHeaderConfig(input?: t.CrdtLayoutHeader): t.CrdtLayoutHeader {
+  const d = D.header;
   return {
-    visible: props?.visible ?? D.header.visible,
-    readOnly: props?.readOnly ?? D.header.readOnly,
+    visible: input?.visible ?? d.visible,
+    readOnly: input?.readOnly ?? d.readOnly,
   };
 }
 
 /**
- * Normalizes sidebar configuration with defaults for visibility, position, and width.
+ * Normalizes `sidebar` configuration with defaults.
  */
-export function toSidebarConfig(props?: t.CrdtLayoutSidebarConfig): t.CrdtLayoutSidebarConfig {
+export function toSidebarConfig(input?: t.CrdtLayoutSidebar): t.CrdtLayoutSidebar {
+  const d = D.sidebar;
   return {
-    visible: props?.visible ?? D.sidebar.visible,
-    position: props?.position ?? D.sidebar.position,
-    width: props?.width ?? D.sidebar.width,
+    visible: input?.visible ?? d.visible,
+    position: input?.position ?? d.position,
+    width: input?.width ?? d.width,
+  };
+}
+
+/**
+ * Normalizes `sidebar` configuration with defaults.
+ */
+export function toCropmarksConfig(input?: t.CrdtLayoutCropmarks): t.CrdtLayoutCropmarks {
+  const d = D.cropmarks;
+  return {
+    size: input?.size ?? d.size,
+    borderWidth: input?.borderWidth ?? d.borderWidth,
+    borderColor: input?.borderColor ?? d.borderColor,
+    borderOpacity: input?.borderOpacity ?? d.borderOpacity,
+    subjectOnly: input?.subjectOnly ?? d.subjectOnly,
   };
 }
 

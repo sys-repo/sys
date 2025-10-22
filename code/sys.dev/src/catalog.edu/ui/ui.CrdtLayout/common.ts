@@ -13,8 +13,9 @@ export { Media } from '@sys/ui-react-components';
  * Constants:
  */
 const name = 'Crdt.Layout';
-const header: t.CrdtLayoutHeaderConfig = { visible: true, readOnly: false };
-const sidebar: t.CrdtLayoutSidebarConfig = { visible: true, position: 'right', width: 340 };
+const header: t.CrdtLayoutHeader = { visible: true, readOnly: false };
+const sidebar: t.CrdtLayoutSidebar = { visible: true, position: 'right', width: 340 };
+const cropmarks: t.CrdtLayoutCropmarks = { borderOpacity: 0.08 };
 
 export const D = {
   name,
@@ -23,6 +24,7 @@ export const D = {
   header,
   sidebar,
   edgeBorderOpacity: 0.2,
+  cropmarks,
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.name}` };

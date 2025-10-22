@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-
 type Slot<TCtx> = (ctx: TCtx) => React.ReactNode;
 
 /**
@@ -19,8 +18,9 @@ export type CrdtLayoutProps = {
 
   // Config:
   crdt?: CrdtLayoutBindings;
-  header?: CrdtLayoutHeaderConfig;
-  sidebar?: CrdtLayoutSidebarConfig;
+  header?: CrdtLayoutHeader;
+  sidebar?: CrdtLayoutSidebar;
+  cropmarks?: CrdtLayoutCropmarks;
 
   // Appearance:
   theme?: t.CommonTheme;
@@ -30,13 +30,9 @@ export type CrdtLayoutProps = {
 
 /**
  * CRDT bindings passed into the layout.
- * - `repo` and `doc` are required when provided (the layout expects both together).
- * - `signals` are optional; when present, the layout reacts to external doc changes.
  */
 export type CrdtLayoutBindings = {
   readonly repo?: t.Crdt.Repo;
-
-  // Persistence/configuration keys:
   readonly storageKey?: t.StringKey;
   readonly urlKey?: t.StringKey;
 };
@@ -64,13 +60,13 @@ export type CrdtLayoutSlots = {
  * Stateful live signals.
  */
 export type CrdtLayoutSignals = {
-  doc: t.Signal<t.Crdt.Ref | undefined>;
+  readonly doc: t.Signal<t.Crdt.Ref | undefined>;
 };
 
 /**
  * Configuration of the <DocumentId> header toolbar config.
  */
-export type CrdtLayoutHeaderConfig = {
+export type CrdtLayoutHeader = {
   visible?: boolean;
   readOnly?: boolean;
 };
@@ -78,8 +74,16 @@ export type CrdtLayoutHeaderConfig = {
 /**
  * Configuration of the sidebar panel.
  */
-export type CrdtLayoutSidebarConfig = {
+export type CrdtLayoutSidebar = {
   visible?: boolean;
   position?: 'left' | 'right';
   width?: t.Pixels;
 };
+
+/**
+ * Configuration of the crop-marks within the `main` slot container.
+ */
+export type CrdtLayoutCropmarks = Pick<
+  t.CropmarksProps,
+  'size' | 'borderWidth' | 'borderColor' | 'borderOpacity' | 'subjectOnly'
+>;
