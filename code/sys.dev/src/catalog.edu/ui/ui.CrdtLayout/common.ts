@@ -23,8 +23,9 @@ export const D = {
   theme: 'Dark' satisfies t.CommonTheme,
   header,
   sidebar,
-  edgeBorderOpacity: 0.2,
   cropmarks,
+  edgeBorderOpacity: 0.2,
+  spinningTransition: 'opacity 80ms ease',
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.name}` };

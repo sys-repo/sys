@@ -8,6 +8,7 @@ import {
   Cropmarks,
   css,
   D,
+  Is,
   LocalStorage,
   Obj,
   ObjectView,
@@ -159,8 +160,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `spinning: ${p.spinning.value}`}
-        onClick={() => Signal.toggle(p.spinning)}
+        label={() => {
+          const v = p.spinning.value;
+          const l = Is.bool(v) || v == null ? v : JSON.stringify(v);
+          return `spinning: ${l}`;
+        }}
+        onClick={() => {
+          Signal.cycle<P['spinning']>(p.spinning, [
+            true,
+            { main: true },
+            { sidebar: true },
+            { sidebar: true, main: true },
+            { footer: true },
+            false,
+          ]);
+        }}
       />
 
       <hr />

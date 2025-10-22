@@ -18,6 +18,7 @@ export const Header: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       display: 'grid',
