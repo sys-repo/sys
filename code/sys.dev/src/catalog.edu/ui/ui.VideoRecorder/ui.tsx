@@ -7,7 +7,14 @@ import { Main } from './ui.Main.tsx';
 type P = t.VideoRecorderViewProps;
 
 export const VideoRecorderView: React.FC<P> = (props) => {
-  const { debug = false, crdt, signals, header = D.header, sidebar = D.sidebar } = props;
+  const {
+    debug = false,
+    crdt,
+    signals,
+    header = D.header,
+    sidebar = D.sidebar,
+    aspectRatio = D.aspectRatio,
+  } = props;
 
   /**
    * Render:
@@ -25,6 +32,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
       header={header}
       sidebar={sidebar}
       slots={slots}
+      cropmarks={{ size: { mode: 'percent', width: 80, aspectRatio } }}
       debug={debug}
       style={props.style}
     />

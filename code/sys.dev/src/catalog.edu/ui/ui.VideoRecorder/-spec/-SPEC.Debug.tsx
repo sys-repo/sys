@@ -15,9 +15,9 @@ import {
 } from '../common.ts';
 
 type P = t.VideoRecorderViewProps;
-type Storage = Pick<P, 'theme' | 'debug'> & {
-  header: Pick<t.CrdtLayoutHeaderConfig, 'visible' | 'readOnly'>;
-  sidebar: t.CrdtLayoutSidebarConfig;
+type Storage = Pick<P, 'theme' | 'debug' | 'aspectRatio'> & {
+  header: Pick<t.CrdtLayoutHeader, 'visible' | 'readOnly'>;
+  sidebar: t.CrdtLayoutSidebar;
   urlKey?: string;
 };
 const defaults: Storage = {
@@ -25,6 +25,7 @@ const defaults: Storage = {
   theme: 'Dark',
   header: D.header,
   sidebar: D.sidebar,
+  aspectRatio: D.aspectRatio,
 };
 
 /**
@@ -51,6 +52,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    aspectRatio: s(snap.aspectRatio),
     urlKey: s(snap.urlKey),
     header: {
       visible: s((snap.header ?? {}).visible),
@@ -97,6 +99,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.aspectRatio = p.aspectRatio.value;
       d.urlKey = p.urlKey.value;
 
       d.header = d.header ?? {};
@@ -131,7 +134,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
   const signals = debug.signals;
   const doc = signals.doc?.value;
-  Signal.useRedrawEffect(() => debug.listen());
+  Signal.useRedrawEffect(debug.listen);
 
   /**
    * Render:
@@ -148,6 +151,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `aspectRatio: ${p.aspectRatio.value}`}
+        onClick={() => Signal.cycle(p.aspectRatio, [D.aspectRatio, '16/9', 1.618])}
       />
 
       <hr />

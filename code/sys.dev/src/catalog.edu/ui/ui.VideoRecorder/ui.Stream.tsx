@@ -1,11 +1,11 @@
 import React from 'react';
-import { type t, Color, css, logInfo, Media, Signal } from './common.ts';
+import { type t, Color, css, D, logInfo, Media, Signal } from './common.ts';
 import { bestAudio, bestVideo, simpleAudio } from './u.constraints.ts';
 
 type P = t.VideoRecorderViewProps;
 
 export const Stream: React.FC<P> = (props) => {
-  const { debug = false, signals } = props;
+  const { debug = false, signals, aspectRatio = D.aspectRatio } = props;
 
   const camId = signals?.camera.value?.deviceId;
   const micId = signals?.audio.value?.deviceId;

@@ -36,6 +36,7 @@ export default Spec.describe(D.displayName, (e) => {
             crdt={debug.crdt}
             header={v.header}
             sidebar={v.sidebar}
+            aspectRatio={v.aspectRatio}
             onStreamError={(e) => console.info(`⚡️ ${D.name}.onStreamError`, e)}
           />
         );
