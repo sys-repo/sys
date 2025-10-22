@@ -22,6 +22,7 @@ export type { Yaml } from '@sys/yaml/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type {
+  CropmarksProps,
   MediaDevicesFilter,
   MediaVideoStreamProps,
   ObjectViewProps,
