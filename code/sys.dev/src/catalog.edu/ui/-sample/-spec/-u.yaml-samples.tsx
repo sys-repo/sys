@@ -31,7 +31,7 @@ export function yamlSamples(debug: DebugSignals) {
     // ✅ Working:
     {
       dividerAfter: true, // ← insert <hr /> right after this one
-      label: 'working: 🌳 { slug: video }',
+      label: 'working: 🌳 { slug }',
       yaml: `
         slug:
           id: example.slug-01
@@ -40,7 +40,13 @@ export function yamlSamples(debug: DebugSignals) {
               as: player
             - id: video-recorder
               as: recorder
+            - id: slug-index
+              as: programme-slugs
           props:
+            programme-slugs:
+              index:
+                - name: hello
+                  ref: crdt:create
             recorder:
               name: "Recorder A"
               description: The old man was dreaming about the lions.
