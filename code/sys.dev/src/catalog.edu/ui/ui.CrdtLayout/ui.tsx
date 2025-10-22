@@ -23,7 +23,7 @@ export const CrdtLayout: React.FC<P> = (props) => {
     body: css({
       pointerEvents: spinning ? 'none' : 'auto',
       opacity: spinning ? 0 : 1,
-      transition: 'opacity 120ms ease',
+      transition: 'opacity 80ms ease',
     }),
     spinning: css({
       Absolute: 0,

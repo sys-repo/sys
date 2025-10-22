@@ -5,6 +5,7 @@ import { createRepo } from '../../-test.ui.ts';
 import {
   type t,
   Button,
+  Cropmarks,
   css,
   D,
   LocalStorage,
@@ -18,6 +19,7 @@ type P = t.CrdtLayoutProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'spinning'> & {
   header: Pick<t.CrdtLayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtLayoutSidebar;
+  cropmarks: t.CrdtLayoutCropmarks;
   debugSlots?: boolean;
   urlKey?: string;
 };
@@ -28,6 +30,7 @@ const defaults: Storage = {
   theme: 'Dark',
   header: D.header,
   sidebar: D.sidebar,
+  cropmarks: D.cropmarks,
 };
 
 /**
@@ -44,10 +47,7 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: t.CrdtLayoutSignals = {
-    doc: s<t.Crdt.Ref>(),
-  };
-
+  const signals: t.CrdtLayoutSignals = { doc: s<t.Crdt.Ref>() };
   const repo = createRepo();
   const crdt: t.CrdtLayoutBindings = {
     repo,
@@ -71,6 +71,10 @@ export function createDebugSignals() {
       visible: s((snap.sidebar ?? {}).visible),
       position: s((snap.sidebar ?? {}).position),
       width: s((snap.sidebar ?? {}).width),
+    },
+    cropmarks: {
+      size: s((snap.cropmarks ?? {}).size),
+      subjectOnly: s((snap.cropmarks ?? {}).subjectOnly),
     },
   };
 
@@ -109,6 +113,10 @@ export function createDebugSignals() {
       d.sidebar.visible = p.sidebar.visible.value;
       d.sidebar.position = p.sidebar.position.value;
       d.sidebar.width = p.sidebar.width.value;
+
+      d.cropmarks = d.cropmarks ?? {};
+      d.cropmarks.size = p.cropmarks.size.value;
+      d.cropmarks.subjectOnly = p.cropmarks.subjectOnly.value;
     });
   });
 
@@ -188,6 +196,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `sidebar.width: ${p.sidebar.width.value}px`}
         onClick={() => Signal.cycle(p.sidebar.width, [D.sidebar.width, 200, 420])}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => {
+          const v = p.cropmarks.size.value;
+          let out = '(none)';
+          if (v?.mode) out = v.mode === 'percent' ? 'percent, aspectRatio' : v.mode;
+          return `cropmarks.size: ${out} `;
+        }}
+        onClick={() => {
+          Signal.cycle(p.cropmarks.size, [
+            { mode: 'fill' },
+            { mode: 'percent', width: 80, aspectRatio: '4/3' },
+            { mode: 'center' },
+          ]);
+        }}
+      />
+      <Button
+        block
+        label={() => `cropmarks.subjectOnly: ${p.cropmarks.subjectOnly.value}`}
+        onClick={() => Signal.toggle(p.cropmarks.subjectOnly)}
       />
 
       <hr />

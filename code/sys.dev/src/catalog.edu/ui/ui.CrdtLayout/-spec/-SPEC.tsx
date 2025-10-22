@@ -36,9 +36,11 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             spinning={v.spinning}
+            signals={debug.signals}
             crdt={debug.crdt}
             header={v.header}
             sidebar={v.sidebar}
+            cropmarks={v.cropmarks}
             slots={v.debugSlots ? slots : undefined}
           />
         );

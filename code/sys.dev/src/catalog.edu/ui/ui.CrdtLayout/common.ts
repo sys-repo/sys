@@ -15,7 +15,7 @@ export { Media, Spinners } from '@sys/ui-react-components';
 const name = 'Crdt.Layout';
 const header: t.CrdtLayoutHeader = { visible: true, readOnly: false };
 const sidebar: t.CrdtLayoutSidebar = { visible: true, position: 'right', width: 340 };
-const cropmarks: t.CrdtLayoutCropmarks = { borderOpacity: 0.08 };
+const cropmarks: t.CrdtLayoutCropmarks = { borderOpacity: 0.08, subjectOnly: false };
 
 export const D = {
   name,
