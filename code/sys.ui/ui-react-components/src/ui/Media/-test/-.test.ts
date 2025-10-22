@@ -40,7 +40,7 @@ describe('Media', () => {
 
     describe('AspectRatio.toString()', () => {
       it('returns a reduced fraction when denominator ≤ maxDenominator', () => {
-        const stream = makeStream({ width: 1280, height: 720 }); // 16 : 9
+        const stream = makeStream({ width: 1280, height: 720 }); // 16:9
         expect(AspectRatio.toString(stream)).to.eql('16/9');
       });
 
