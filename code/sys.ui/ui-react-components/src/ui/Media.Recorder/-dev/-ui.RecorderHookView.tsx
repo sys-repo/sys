@@ -66,7 +66,10 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
       <div className={styles.row.class}>
         <div className={styles.title.class}>
           <ExternalLink
-            style={{ color: Color.MAGENTA }}
+            style={{
+              color: !is.recording ? Color.MAGENTA : Color.alpha(theme.fg, 0.2),
+              transition: 'color 120ms',
+            }}
             href={urlUseMediaRecorder}
             children={'ƒ useMediaRecorder:'}
           />
