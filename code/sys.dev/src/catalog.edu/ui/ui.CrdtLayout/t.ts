@@ -23,7 +23,7 @@ export type CrdtLayoutProps = {
   cropmarks?: CrdtLayoutCropmarks;
 
   // Appearance:
-  spinning?: boolean;
+  spinning?: boolean | CrdtLayoutSpinning;
   theme?: t.CommonTheme;
   debug?: boolean;
   style?: t.CssInput;
@@ -81,10 +81,15 @@ export type CrdtLayoutSidebar = {
   width?: t.Pixels;
 };
 
-/**
- * Configuration of the crop-marks within the `main` slot container.
- */
+/** Configuration of the crop-marks within the `main` slot container. */
 export type CrdtLayoutCropmarks = Pick<
   t.CropmarksProps,
   'size' | 'borderWidth' | 'borderColor' | 'borderOpacity' | 'subjectOnly'
 >;
+
+/** Spinning flags. */
+export type CrdtLayoutSpinning = {
+  readonly main?: boolean;
+  readonly sidebar?: boolean;
+  readonly footer?: boolean;
+};
