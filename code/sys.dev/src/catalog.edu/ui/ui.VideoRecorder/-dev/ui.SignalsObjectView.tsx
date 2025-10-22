@@ -72,8 +72,8 @@ const Info = {
 
     const kinds = [...new Set(tracks.map((t) => t.kind))];
     const kind = kinds.join('+'); // "video", "audio", or "audio+video"
-    const shorten = (id: string = '') => {
-      return id.length > 10 ? `${id.slice(0, 4)}..${id.slice(-4)}` : id;
+    const shorten = (id: string = '', amount = 5) => {
+      return id.length > 10 ? `${id.slice(0, amount)}..${id.slice(-amount)}` : id;
     };
 
     // Extract device-IDs when available.
@@ -85,7 +85,7 @@ const Info = {
 
     return {
       kind,
-      id: shorten(stream.id),
+      id: `stream:${shorten(stream.id, 8)}`,
       'id:camera': shorten(cameraId),
       'id:audio': shorten(micId),
     };
