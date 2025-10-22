@@ -13,6 +13,7 @@ export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       padding: 10,
+      userSelect: 'none',
     }),
   };
 

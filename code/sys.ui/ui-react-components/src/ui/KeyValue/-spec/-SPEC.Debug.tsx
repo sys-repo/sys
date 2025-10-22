@@ -3,10 +3,17 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.KeyValueProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type C = t.KeyValuePropsColumns;
+type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate'> & {
+  columns: t.KeyValuePropsColumns;
+};
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  size: D.size,
+  mono: D.mono,
+  truncate: D.truncate,
+  columns: D.columns,
 };
 
 /**
@@ -27,6 +34,13 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    size: s(snap.size),
+    mono: s(snap.mono),
+    truncate: s(snap.truncate),
+    columns: {
+      template: s((snap.columns ?? {}).template),
+      gap: s((snap.columns ?? {}).gap),
+    },
   };
   const p = props;
   const api = {
@@ -36,7 +50,7 @@ export function createDebugSignals() {
   };
 
   function listen() {
-    Signal.listen(props);
+    Signal.listen(props, true);
   }
 
   function reset() {
@@ -47,6 +61,13 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.size = p.size.value;
+      d.mono = p.mono.value;
+      d.truncate = p.truncate.value;
+
+      d.columns = d.columns ?? {};
+      d.columns.template = p.columns.template.value;
+      d.columns.gap = p.columns.gap.value;
     });
   });
 
@@ -87,6 +108,36 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `size: ${p.size.value}`}
+        onClick={() => Signal.cycle<P['size']>(p.size, ['xs', 'sm', 'md'])}
+      />
+      <Button block label={() => `mono: ${p.mono.value}`} onClick={() => Signal.toggle(p.mono)} />
+      <Button
+        block
+        label={() => `truncate: ${p.truncate.value}`}
+        onClick={() => Signal.toggle(p.truncate)}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `columns.template: ${p.columns.template.value}`}
+        onClick={() =>
+          Signal.cycle<C['template']>(p.columns.template, [
+            D.columns.template,
+            'minmax(80px,auto) 1fr',
+            '1fr 2fr',
+            'max-content 1fr',
+          ])
+        }
+      />
+      <Button
+        block
+        label={() => `columns.gap: ${p.columns.gap.value}`}
+        onClick={() => Signal.cycle<C['gap']>(p.columns.gap, [4, 8, D.columns.gap, 16, 20, 24])}
       />
 
       <hr />

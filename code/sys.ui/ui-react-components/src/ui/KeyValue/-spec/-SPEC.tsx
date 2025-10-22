@@ -11,6 +11,7 @@ export default Spec.describe(D.displayName, (e) => {
     const ctx = Spec.ctx(e);
 
     function update() {
+      ctx.subject.size([280, null]);
       ctx.redraw();
     }
 
@@ -27,6 +28,8 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
         return <KeyValue debug={v.debug} theme={v.theme} />;
       });
+
+    update();
   });
 
   e.it('ui:debug', (e) => {
