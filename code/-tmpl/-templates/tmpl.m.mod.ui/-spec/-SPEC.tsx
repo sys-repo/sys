@@ -27,6 +27,8 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
         return <MyComponent debug={v.debug} theme={v.theme} />;
       });
+
+    update();
   });
 
   e.it('ui:debug', (e) => {
