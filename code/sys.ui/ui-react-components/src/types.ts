@@ -13,6 +13,7 @@ export type * from './ui/Icon.Swatches/t.ts';
 export type * from './ui/Icon/t.ts';
 export type * from './ui/IFrame/t.ts';
 export type * from './ui/Image.Svg/t.ts';
+export type * from './ui/KeyValue/t.ts';
 export type * from './ui/Layout.CenterColumn/t.ts';
 export type * from './ui/Media.AudioWaveform/t.ts';
 export type * from './ui/Media.Config/t.ts';

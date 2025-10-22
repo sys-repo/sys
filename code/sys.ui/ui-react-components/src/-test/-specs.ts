@@ -20,6 +20,7 @@ export const SpecsComponents = {
   [`${ns}: Icon.Swatches`]: () => import('../ui/Icon.Swatches/-spec/-SPEC.tsx'),
   [`${ns}: IFrame`]: () => import('../ui/IFrame/-SPEC.tsx'),
   [`${ns}: Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
+  [`${ns}: KeyValue`]: () => import('../ui/KeyValue/-spec/-SPEC.tsx'),
   [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
   [`${ns}: PathView`]: () => import('../ui/PathView/-spec/-SPEC.tsx'),
