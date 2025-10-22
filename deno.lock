@@ -48,7 +48,7 @@
     "jsr:@std/testing@1.0.16": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.0.9": "1.0.9",
-    "npm:@ai-sdk/openai@2.0.53": "2.0.53_zod@4.1.12",
+    "npm:@ai-sdk/openai@2.0.53": "2.0.53_zod@3.25.76",
     "npm:@automerge/automerge-repo-network-websocket@2.4.0": "2.4.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.4.0": "2.4.0",
     "npm:@automerge/automerge-repo-storage-nodefs@2.4.0": "2.4.0",
@@ -57,10 +57,10 @@
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
     "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:@farcaster/frame-sdk@0.1.12": "0.1.12",
-    "npm:@mastra/core@0.21.1": "0.21.1_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.1.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.1",
-    "npm:@mastra/libsql@0.15.2": "0.15.2_@mastra+core@0.21.1__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.1_react@19.2.0_@sinclair+typebox@0.34.41",
-    "npm:@mastra/loggers@0.10.16": "0.10.16_@mastra+core@0.21.1__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.1_react@19.2.0_@sinclair+typebox@0.34.41",
-    "npm:@mastra/memory@0.15.7": "0.15.7_@mastra+core@0.21.1__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.1_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41",
+    "npm:@mastra/core@0.21.1": "0.21.1_zod@3.25.76_ai@4.3.19__react@19.2.0__zod@3.25.76_@opentelemetry+api@1.9.0_@opentelemetry+core@2.2.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.2",
+    "npm:@mastra/libsql@0.15.2": "0.15.2_@mastra+core@0.21.1__zod@3.25.76__ai@4.3.19___react@19.2.0___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.2.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.2_react@19.2.0_@sinclair+typebox@0.34.41",
+    "npm:@mastra/loggers@0.10.16": "0.10.16_@mastra+core@0.21.1__zod@3.25.76__ai@4.3.19___react@19.2.0___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.2.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.2_react@19.2.0_@sinclair+typebox@0.34.41",
+    "npm:@mastra/memory@0.15.7": "0.15.7_@mastra+core@0.21.1__zod@3.25.76__ai@4.3.19___react@19.2.0___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.2.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.2_zod@3.25.76_ai@4.3.19__react@19.2.0__zod@3.25.76_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.54.0_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@preact/signals-core@1.12.1": "1.12.1",
@@ -75,7 +75,7 @@
     "npm:@types/react@19.2.2": "19.2.2",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react-swc@4.1.0": "4.1.0_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
-    "npm:ai@5.0.76": "5.0.76_zod@4.1.12",
+    "npm:ai@5.0.76": "5.0.76_zod@3.25.76",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.0": "6.2.0",
     "npm:csstype@3": "3.1.3",
@@ -86,9 +86,9 @@
     "npm:fake-indexeddb@6.2.4": "6.2.4",
     "npm:fast-json-patch@3.1.1": "3.1.1",
     "npm:gpt-tokenizer@3.2.0": "3.2.0",
-    "npm:happy-dom@20.0.7": "20.0.7",
+    "npm:happy-dom@20.0.8": "20.0.8",
     "npm:hash-it@6.0.0": "6.0.0",
-    "npm:hono@4.10.1": "4.10.1",
+    "npm:hono@4.10.2": "4.10.2",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:immer@10.1.3": "10.1.3",
     "npm:monaco-editor@0.54.0": "0.54.0",
@@ -100,7 +100,7 @@
     "npm:prettier@3.6.2": "3.6.2",
     "npm:pretty-bytes@7.1.0": "7.1.0",
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
-    "npm:prosemirror-model@1.25.3": "1.25.3",
+    "npm:prosemirror-model@1.25.4": "1.25.4",
     "npm:prosemirror-schema-basic@1.2.4": "1.2.4",
     "npm:prosemirror-state@1.4.3": "1.4.3",
     "npm:prosemirror-view@1.41.3": "1.41.3",
@@ -332,62 +332,62 @@
     "@adraffy/ens-normalize@1.11.1": {
       "integrity": "sha512-nhCBV3quEgesuf7c7KYfperqSS14T8bYuvJ8PcLJp6znkZpFc0AuW4qBtr8eKVyPPe/8RSr7sglCWPU5eaxwKQ=="
     },
-    "@ai-sdk/anthropic@2.0.23_zod@4.1.12": {
+    "@ai-sdk/anthropic@2.0.23_zod@3.25.76": {
       "integrity": "sha512-ZEBiiv1UhjGjBwUU63pFhLK5LCSlNDb1idY9K1oZHm5/Fda1cuTojf32tOp0opH0RPbPAN/F8fyyNjbU33n9Kw==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
-        "zod@4.1.12"
+        "@ai-sdk/provider-utils@3.0.10_zod@3.25.76",
+        "zod@3.25.76"
       ]
     },
-    "@ai-sdk/gateway@1.0.33_zod@4.1.12": {
+    "@ai-sdk/gateway@1.0.33_zod@3.25.76": {
       "integrity": "sha512-v9i3GPEo4t3fGcSkQkc07xM6KJN75VUv7C1Mqmmsu2xD8lQwnQfsrgAXyNuWe20yGY0eHuheSPDZhiqsGKtH1g==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
+        "@ai-sdk/provider-utils@3.0.10_zod@3.25.76",
         "@vercel/oidc",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ]
     },
-    "@ai-sdk/gateway@2.0.0_zod@4.1.12": {
+    "@ai-sdk/gateway@2.0.0_zod@3.25.76": {
       "integrity": "sha512-Gj0PuawK7NkZuyYgO/h5kDK/l6hFOjhLdTq3/Lli1FTl47iGmwhH1IZQpAL3Z09BeFYWakcwUmn02ovIm2wy9g==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
+        "@ai-sdk/provider-utils@3.0.12_zod@3.25.76",
         "@vercel/oidc",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ]
     },
-    "@ai-sdk/google@2.0.17_zod@4.1.12": {
+    "@ai-sdk/google@2.0.17_zod@3.25.76": {
       "integrity": "sha512-6LyuUrCZuiULg0rUV+kT4T2jG19oUntudorI4ttv1ARkSbwl8A39ue3rA487aDDy6fUScdbGFiV5Yv/o4gidVA==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
-        "zod@4.1.12"
+        "@ai-sdk/provider-utils@3.0.10_zod@3.25.76",
+        "zod@3.25.76"
       ]
     },
-    "@ai-sdk/openai-compatible@1.0.19_zod@4.1.12": {
+    "@ai-sdk/openai-compatible@1.0.19_zod@3.25.76": {
       "integrity": "sha512-hnsqPCCSNKgpZRNDOAIXZs7OcUDM4ut5ggWxj2sjB4tNL/aBn/xrM7pJkqu+WuPowyrE60wPVSlw0LvtXAlMXQ==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
-        "zod@4.1.12"
+        "@ai-sdk/provider-utils@3.0.10_zod@3.25.76",
+        "zod@3.25.76"
       ]
     },
-    "@ai-sdk/openai@2.0.42_zod@4.1.12": {
+    "@ai-sdk/openai@2.0.42_zod@3.25.76": {
       "integrity": "sha512-9mM6QS8k0ooH9qMC27nlrYLQmNDnO6Rk0JTmFo/yUxpABEWOcvQhMWNHbp9lFL6Ty5vkdINrujhsAQfWuEleOg==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
-        "zod@4.1.12"
+        "@ai-sdk/provider-utils@3.0.10_zod@3.25.76",
+        "zod@3.25.76"
       ]
     },
-    "@ai-sdk/openai@2.0.53_zod@4.1.12": {
+    "@ai-sdk/openai@2.0.53_zod@3.25.76": {
       "integrity": "sha512-GIkR3+Fyif516ftXv+YPSPstnAHhcZxNoR2s8uSHhQ1yBT7I7aQYTVwpjAuYoT3GR+TeP50q7onj2/nDRbT2FQ==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
-        "zod@4.1.12"
+        "@ai-sdk/provider-utils@3.0.12_zod@3.25.76",
+        "zod@3.25.76"
       ]
     },
     "@ai-sdk/provider-utils@2.2.8_zod@3.25.76": {
@@ -399,31 +399,22 @@
         "zod@3.25.76"
       ]
     },
-    "@ai-sdk/provider-utils@2.2.8_zod@4.1.12": {
-      "integrity": "sha512-fqhG+4sCVv8x7nFzYnFo19ryhAa3w096Kmc3hWxMQfW/TubPOmt3A6tYZhl4mUfQWWQMsuSkLrtjlWuXBVSGQA==",
-      "dependencies": [
-        "@ai-sdk/provider@1.1.3",
-        "nanoid",
-        "secure-json-parse@2.7.0",
-        "zod@4.1.12"
-      ]
-    },
-    "@ai-sdk/provider-utils@3.0.10_zod@4.1.12": {
+    "@ai-sdk/provider-utils@3.0.10_zod@3.25.76": {
       "integrity": "sha512-T1gZ76gEIwffep6MWI0QNy9jgoybUHE7TRaHB5k54K8mF91ciGFlbtCGxDYhMH3nCRergKwYFIDeFF0hJSIQHQ==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@standard-schema/spec",
         "eventsource-parser",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ]
     },
-    "@ai-sdk/provider-utils@3.0.12_zod@4.1.12": {
+    "@ai-sdk/provider-utils@3.0.12_zod@3.25.76": {
       "integrity": "sha512-ZtbdvYxdMoria+2SlNarEk6Hlgyf+zzcznlD55EAl+7VZvJaSg2sqPvwArY7L6TfDEDJsnCq0fdhBSkYo0Xqdg==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@standard-schema/spec",
         "eventsource-parser",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ]
     },
     "@ai-sdk/provider@1.1.3": {
@@ -438,36 +429,36 @@
         "json-schema"
       ]
     },
-    "@ai-sdk/react@1.2.12_react@19.2.0_zod@4.1.12": {
+    "@ai-sdk/react@1.2.12_react@19.2.0_zod@3.25.76": {
       "integrity": "sha512-jK1IZZ22evPZoQW3vlkZ7wvjYGYF+tRBKXtrcolduIkQ/m/sOAVcVeVDUDvh1T91xCnWCdUGCPZg2avZ90mv3g==",
       "dependencies": [
-        "@ai-sdk/provider-utils@2.2.8_zod@4.1.12",
+        "@ai-sdk/provider-utils@2.2.8_zod@3.25.76",
         "@ai-sdk/ui-utils",
         "react",
         "swr",
         "throttleit",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ],
       "optionalPeers": [
-        "zod@4.1.12"
+        "zod@3.25.76"
       ]
     },
-    "@ai-sdk/ui-utils@1.2.11_zod@4.1.12": {
+    "@ai-sdk/ui-utils@1.2.11_zod@3.25.76": {
       "integrity": "sha512-3zcwCc8ezzFlwp3ZD15wAPjf2Au4s3vAbKsXQVyhxODHcmu0iyPO2Eua6D/vicq/AUm/BAo60r97O6HU+EI0+w==",
       "dependencies": [
         "@ai-sdk/provider@1.1.3",
-        "@ai-sdk/provider-utils@2.2.8_zod@4.1.12",
-        "zod@4.1.12",
+        "@ai-sdk/provider-utils@2.2.8_zod@3.25.76",
+        "zod@3.25.76",
         "zod-to-json-schema"
       ]
     },
-    "@ai-sdk/xai@2.0.23_zod@4.1.12": {
+    "@ai-sdk/xai@2.0.23_zod@3.25.76": {
       "integrity": "sha512-Xo4r5W/Wvi4mkCD98DoafNxj9V3xysUlWOeqAYpqKeKkNQ2xtOTly2MHq+gP6wKud0Y/mI7hemkCMQgH6HOwzQ==",
       "dependencies": [
         "@ai-sdk/openai-compatible",
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
-        "zod@4.1.12"
+        "@ai-sdk/provider-utils@3.0.10_zod@3.25.76",
+        "zod@3.25.76"
       ]
     },
     "@apidevtools/json-schema-ref-parser@11.9.3": {
@@ -528,7 +519,7 @@
         "ordered-map",
         "prosemirror-changeset",
         "prosemirror-history",
-        "prosemirror-model",
+        "prosemirror-model@1.25.3",
         "prosemirror-schema-basic",
         "prosemirror-schema-list",
         "prosemirror-state",
@@ -875,7 +866,7 @@
       "integrity": "sha512-tiZndhpfDtEhaKlkmS5cVDuS+A/tafqZT3y9I44rC69m3beJok6e8dIH2JhxVy3EvOWTyTBnrmNn6GOOh+qK6A==",
       "dependencies": [
         "jose",
-        "typescript@5.8.3",
+        "typescript",
         "zod@3.25.76"
       ]
     },
@@ -883,7 +874,7 @@
       "integrity": "sha512-NRIq1BcbcQCC6xBF5owfckkY00xKQVpqhpLNl5rICVpl0xeDsiVbkenIrHaUuyjtCK2W28YVc2ZCFRyz9ERHKg==",
       "dependencies": [
         "jose",
-        "typescript@5.8.3",
+        "typescript",
         "zod@3.25.76"
       ]
     },
@@ -1004,39 +995,39 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@mastra/core@0.21.1_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.1.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.1": {
+    "@mastra/core@0.21.1_zod@3.25.76_ai@4.3.19__react@19.2.0__zod@3.25.76_@opentelemetry+api@1.9.0_@opentelemetry+core@2.2.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.2": {
       "integrity": "sha512-lyASrQCLiW+tleVRL16pBN5YfBg14IBEXYl2uGmrOsJ0QiPX/pHzcmYe0n7Oh48dYzu9YB/MgbQuY5PLzks8uQ==",
       "dependencies": [
         "@a2a-js/sdk",
-        "@ai-sdk/anthropic-v5@npm:@ai-sdk/anthropic@2.0.23_zod@4.1.12",
-        "@ai-sdk/google-v5@npm:@ai-sdk/google@2.0.17_zod@4.1.12",
-        "@ai-sdk/openai-compatible-v5@npm:@ai-sdk/openai-compatible@1.0.19_zod@4.1.12",
-        "@ai-sdk/openai-v5@npm:@ai-sdk/openai@2.0.42_zod@4.1.12",
+        "@ai-sdk/anthropic-v5@npm:@ai-sdk/anthropic@2.0.23_zod@3.25.76",
+        "@ai-sdk/google-v5@npm:@ai-sdk/google@2.0.17_zod@3.25.76",
+        "@ai-sdk/openai-compatible-v5@npm:@ai-sdk/openai-compatible@1.0.19_zod@3.25.76",
+        "@ai-sdk/openai-v5@npm:@ai-sdk/openai@2.0.42_zod@3.25.76",
         "@ai-sdk/provider@1.1.3",
-        "@ai-sdk/provider-utils@2.2.8_zod@4.1.12",
-        "@ai-sdk/provider-utils-v5@npm:@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
+        "@ai-sdk/provider-utils@2.2.8_zod@3.25.76",
+        "@ai-sdk/provider-utils-v5@npm:@ai-sdk/provider-utils@3.0.10_zod@3.25.76",
         "@ai-sdk/provider-v5@npm:@ai-sdk/provider@2.0.0",
         "@ai-sdk/ui-utils",
-        "@ai-sdk/xai-v5@npm:@ai-sdk/xai@2.0.23_zod@4.1.12",
+        "@ai-sdk/xai-v5@npm:@ai-sdk/xai@2.0.23_zod@3.25.76",
         "@isaacs/ttlcache",
         "@mastra/schema-compat",
-        "@openrouter/ai-sdk-provider-v5@npm:@openrouter/ai-sdk-provider@1.2.0_ai@4.3.19__react@19.2.0__zod@4.1.12_zod@4.1.12_react@19.2.0",
+        "@openrouter/ai-sdk-provider-v5@npm:@openrouter/ai-sdk-provider@1.2.0_ai@4.3.19__react@19.2.0__zod@3.25.76_zod@3.25.76_react@19.2.0",
         "@opentelemetry/api",
         "@opentelemetry/auto-instrumentations-node",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/exporter-trace-otlp-grpc",
         "@opentelemetry/exporter-trace-otlp-http",
         "@opentelemetry/otlp-exporter-base",
         "@opentelemetry/otlp-transformer",
-        "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/sdk-metrics@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/sdk-metrics@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/sdk-node",
-        "@opentelemetry/sdk-trace-base@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/sdk-trace-node@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/sdk-trace-base@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/sdk-trace-node@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/semantic-conventions",
         "@sindresorhus/slugify",
-        "ai@4.3.19_react@19.2.0_zod@4.1.12",
-        "ai-v5@npm:ai@5.0.60_zod@4.1.12",
+        "ai@4.3.19_react@19.2.0_zod@3.25.76",
+        "ai-v5@npm:ai@5.0.60_zod@3.25.76",
         "date-fns@3.6.0",
         "dotenv",
         "hono",
@@ -1051,18 +1042,18 @@
         "radash",
         "sift",
         "xstate",
-        "zod@4.1.12",
+        "zod@3.25.76",
         "zod-to-json-schema"
       ]
     },
-    "@mastra/libsql@0.15.2_@mastra+core@0.21.1__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.1_react@19.2.0_@sinclair+typebox@0.34.41": {
+    "@mastra/libsql@0.15.2_@mastra+core@0.21.1__zod@3.25.76__ai@4.3.19___react@19.2.0___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.2.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.2_react@19.2.0_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-WBOIXal7nj7qDxryIMBx4DnWGyiw3+iDoT/2cuoKIVFSGVrf5tE3but5u2Dv8gawjM3DGizVCmJhv5cpSheOHg==",
       "dependencies": [
         "@libsql/client",
         "@mastra/core"
       ]
     },
-    "@mastra/loggers@0.10.16_@mastra+core@0.21.1__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.1_react@19.2.0_@sinclair+typebox@0.34.41": {
+    "@mastra/loggers@0.10.16_@mastra+core@0.21.1__zod@3.25.76__ai@4.3.19___react@19.2.0___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.2.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.2_react@19.2.0_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-zZiaz/kfChdA9L8ks0F73pn/kh6gU8FkS8VMigKH5uc7Ez8gvWsaC9Orgg5k7Og4bkXrZ3j2fN5RewtjI8appA==",
       "dependencies": [
         "@mastra/core",
@@ -1070,14 +1061,14 @@
         "pino-pretty"
       ]
     },
-    "@mastra/memory@0.15.7_@mastra+core@0.21.1__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.1.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.1_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41": {
+    "@mastra/memory@0.15.7_@mastra+core@0.21.1__zod@3.25.76__ai@4.3.19___react@19.2.0___zod@3.25.76__@opentelemetry+api@1.9.0__@opentelemetry+core@2.2.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.2_zod@3.25.76_ai@4.3.19__react@19.2.0__zod@3.25.76_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-7UzIQBM0RePgAfKK7IuhE6UEy6TWy3CTrKSEpybGfI3JtuifCpSbu4VfvWK0iW3B3KLd/6Lq+mWlm13P6k8ZrQ==",
       "dependencies": [
         "@mastra/core",
         "@mastra/schema-compat",
         "@upstash/redis",
-        "ai@4.3.19_react@19.2.0_zod@4.1.12",
-        "ai-v5@npm:ai@5.0.60_zod@4.1.12",
+        "ai@4.3.19_react@19.2.0_zod@3.25.76",
+        "ai-v5@npm:ai@5.0.60_zod@3.25.76",
         "async-mutex",
         "js-tiktoken",
         "json-schema",
@@ -1086,16 +1077,16 @@
         "postgres",
         "redis",
         "xxhash-wasm",
-        "zod@4.1.12",
+        "zod@3.25.76",
         "zod-to-json-schema"
       ]
     },
-    "@mastra/schema-compat@0.11.4_ai@4.3.19__react@19.2.0__zod@4.1.12_zod@4.1.12_react@19.2.0": {
+    "@mastra/schema-compat@0.11.4_ai@4.3.19__react@19.2.0__zod@3.25.76_zod@3.25.76_react@19.2.0": {
       "integrity": "sha512-oh3+enP3oYftZlmJAKQQj5VXR86KgTMwfMnwALZyLk04dPSWfVD2wGytoDg5Qbi3rX9qHj6g0rMNa0CUjR6aTg==",
       "dependencies": [
-        "ai@4.3.19_react@19.2.0_zod@4.1.12",
+        "ai@4.3.19_react@19.2.0_zod@3.25.76",
         "json-schema",
-        "zod@4.1.12",
+        "zod@3.25.76",
         "zod-from-json-schema@0.5.0",
         "zod-from-json-schema-v3@npm:zod-from-json-schema@0.0.5",
         "zod-to-json-schema"
@@ -1134,11 +1125,11 @@
     "@noble/hashes@2.0.1": {
       "integrity": "sha512-XlOlEbQcE9fmuXxrVTXCTlG2nlRXa9Rj3rr5Ue/+tX+nmkgbX720YHh0VR3hBF9xDvwnb8D2shVGOwNx+ulArw=="
     },
-    "@openrouter/ai-sdk-provider@1.2.0_ai@4.3.19__react@19.2.0__zod@4.1.12_zod@4.1.12_react@19.2.0": {
+    "@openrouter/ai-sdk-provider@1.2.0_ai@4.3.19__react@19.2.0__zod@3.25.76_zod@3.25.76_react@19.2.0": {
       "integrity": "sha512-stuIwq7Yb7DNmk3GuCtz+oS3nZOY4TXEV3V5KsknDGQN7Fpu3KRMQVWRc1J073xKdf0FC9EHOctSyzsACmp5Ag==",
       "dependencies": [
-        "ai@4.3.19_react@19.2.0_zod@4.1.12",
-        "zod@4.1.12"
+        "ai@4.3.19_react@19.2.0_zod@3.25.76",
+        "zod@3.25.76"
       ]
     },
     "@opentelemetry/api-logs@0.203.0": {
@@ -1150,11 +1141,11 @@
     "@opentelemetry/api@1.9.0": {
       "integrity": "sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg=="
     },
-    "@opentelemetry/auto-instrumentations-node@0.62.2_@opentelemetry+api@1.9.0_@opentelemetry+core@2.1.0__@opentelemetry+api@1.9.0": {
+    "@opentelemetry/auto-instrumentations-node@0.62.2_@opentelemetry+api@1.9.0_@opentelemetry+core@2.2.0__@opentelemetry+api@1.9.0": {
       "integrity": "sha512-Ipe6X7ddrCiRsuewyTU83IvKiSFT4piqmv9z8Ovg1E7v98pdTj1pUE6sDrHV50zl7/ypd+cONBgt+EYSZu4u9Q==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/instrumentation-amqplib",
         "@opentelemetry/instrumentation-aws-lambda",
@@ -1201,7 +1192,7 @@
         "@opentelemetry/resource-detector-azure",
         "@opentelemetry/resource-detector-container",
         "@opentelemetry/resource-detector-gcp",
-        "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/sdk-node"
       ]
     },
@@ -1211,8 +1202,8 @@
         "@opentelemetry/api"
       ]
     },
-    "@opentelemetry/context-async-hooks@2.1.0_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-zOyetmZppnwTyPrt4S7jMfXiSX9yyfF0hxlA8B5oo2TtKl+/RGCy7fi4DrBfIf3lCPrkKsRBWZZD7RFojK7FDg==",
+    "@opentelemetry/context-async-hooks@2.2.0_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-qRkLWiUEZNAmYapZ7KGS5C4OmBLcP/H2foXeOEaowYCR0wi89fHejrfYfbuLVCMLp/dWZXKvQusdbUEZjERfwQ==",
       "dependencies": [
         "@opentelemetry/api"
       ]
@@ -1224,8 +1215,8 @@
         "@opentelemetry/semantic-conventions"
       ]
     },
-    "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-RMEtHsxJs/GiHHxYT58IY57UXAQTuUnZVco6ymDEqTNlJKTimM4qPUPVe8InNFyBjhHBEAx4k3Q8LtNayBsbUQ==",
+    "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-FuabnnUm8LflnieVxs6eP7Z383hgQU4W1e3KJS6aOG3RxWxcHyBxH8fDMHNgu/gFx/M2jvTOW/4/PHhLz6bjWw==",
       "dependencies": [
         "@opentelemetry/api",
         "@opentelemetry/semantic-conventions"
@@ -1362,7 +1353,7 @@
       "integrity": "sha512-kwNs/itehHG/qaQBcVrLNcvXVPW0I4FCOVtw3LHMLdYIqD7GJ6Yv2nX+a4YHjzbzIeRYj8iyMp0Bl7tlkidq5w==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions"
       ]
@@ -1380,7 +1371,7 @@
       "integrity": "sha512-9vFH7gU686dsAeLMCkqUj9y0MQZ1xrTtStSpNV2UaGWtDnRjJrAdJLu9Y545oKEaDTeVaob4UflyZvvpZnw3Xw==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions"
       ]
@@ -1406,7 +1397,7 @@
       "integrity": "sha512-pjenvjR6+PMRb6/4X85L4OtkQCootgb/Jzh/l/Utu3SJHBid1F+gk9sTGU2FWuhhEfV6P7MZ7BmCdHXQjgJ42g==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions",
         "@types/connect"
@@ -1438,7 +1429,7 @@
       "integrity": "sha512-W7pizN0Wh1/cbNhhTf7C62NpyYw7VfCFTYg0DYieSTrtPBT1vmoSZei19wfKLnrMsz3sHayCg0HxCVL2c+cz5w==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions"
       ]
@@ -1447,7 +1438,7 @@
       "integrity": "sha512-3zQlE/DoVfVH6/ycuTv7vtR/xib6WOa0aLFfslYcvE62z0htRu/ot8PV/zmMZfnzpTQj8S/4ULv36R6UIbpJIg==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions"
       ]
@@ -1456,7 +1447,7 @@
       "integrity": "sha512-Puan+QopWHA/KNYvDfOZN6M/JtF6buXEyD934vrb8WhsX1/FuM7OtoMlQyIqAadnE8FqqDL4KDPiEfCQH6pQcQ==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation"
       ]
     },
@@ -1486,7 +1477,7 @@
       "integrity": "sha512-5xGusXOFQXKacrZmDbpHQzqYD1gIkrMWuwvlrEPkYOsjUqGUjl1HbxCsn5Y9bUXOCgP1Lj6A4PcKt1UiJ2MujA==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions"
       ]
@@ -1530,7 +1521,7 @@
       "integrity": "sha512-XNLWeMTMG1/EkQBbgPYzCeBD0cwOrfnn8ao4hWgLv0fNCFQu1kCsJYygz2cvKuCs340RlnG4i321hX7R8gj3Rg==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions"
       ]
@@ -1563,7 +1554,7 @@
       "integrity": "sha512-Am8pk1Ct951r4qCiqkBcGmPIgGhoDiFcRtqPSLbJrUZqEPUsigjtMjoWDRLG1Ki1NHgOF7D0H7d+suWz1AAizw==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions"
       ]
@@ -1615,7 +1606,7 @@
       "integrity": "sha512-0/PiHDPVaLdcXNw6Gqb3JBdMxComMEwh444X8glwiynJKJHRTR49+l2cqJfoOVzB8Sl1XRl3Yaqw6aDi3s8e9w==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions",
         "@opentelemetry/sql-common",
@@ -1628,7 +1619,7 @@
       "dependencies": [
         "@opentelemetry/api",
         "@opentelemetry/api-logs",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation"
       ]
     },
@@ -1645,7 +1636,7 @@
       "integrity": "sha512-tsGZZhS4mVZH7omYxw5jpsrD3LhWizqWc0PYtAnzpFUvL5ZINHE+cm57bssTQ2AK/GtZMxu9LktwCvIIf3dSmw==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation",
         "@opentelemetry/semantic-conventions"
       ]
@@ -1686,7 +1677,7 @@
       "integrity": "sha512-2HN+7ztxAReXuxzrtA3WboAKlfP5OsPA57KQn2AdYZbJ3zeRPcLXyW4uO/jpLE6PLm0QRtmeGCmfYpqRlwgSwg==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/instrumentation"
       ]
     },
@@ -1755,20 +1746,20 @@
     "@opentelemetry/redis-common@0.38.2": {
       "integrity": "sha512-1BCcU93iwSRZvDAgwUxC/DV4T/406SkMfxGqu5ojc3AvNI+I9GhV7v0J1HljsczuuhcnFLYqD5VmwVXfCGHzxA=="
     },
-    "@opentelemetry/resource-detector-alibaba-cloud@0.31.9_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-V+HbpICyzmJoQHYpiN0xRlj7QqeR9pPo+JZiZztV77L2MdlUCa/Cq7h0gdFNIKc0P9u9rYYYW21oaqdhhC5LZg==",
+    "@opentelemetry/resource-detector-alibaba-cloud@0.31.10_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-Q9+QVGqgNqngiVE8hsBzXsYXOe1uafCG4fcDtPMHTKoJ2jkMcJWMjsLW9p4UCDE3V0EZfKrt1LGZBO2MOzQ2rw==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0"
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0"
       ]
     },
-    "@opentelemetry/resource-detector-aws@2.6.0_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-atZ9/HNXh9ZJuMZUH2TPl89imFZBaoiU0Mksa70ysVhYRzhk3hfJyiu+eETjZ7NhGjBPrd3sfVYEq/St/7+o3g==",
+    "@opentelemetry/resource-detector-aws@2.7.0_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-YSxku36M9AMPsbsjE6eQhHecpkDkhDeTENWjOcnhPYlN6EfZTsCk3aj5xWJuW5ccvDCwGqG1MS8aLHchl098Sw==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/semantic-conventions"
       ]
     },
@@ -1776,25 +1767,25 @@
       "integrity": "sha512-5cNAiyPBg53Uxe/CW7hsCq8HiKNAUGH+gi65TtgpzSR9bhJG4AEbuZhbJDFwe97tn2ifAD1JTkbc/OFuaaFWbA==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/semantic-conventions"
       ]
     },
-    "@opentelemetry/resource-detector-container@0.7.9_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-BiS14kCylLzh/mayN/sjnOdhnpfgiekaEsIzaL29MErfQR0mFCZjAE2uu8jMjShva9bSDFs65ouuAFft+vBthg==",
+    "@opentelemetry/resource-detector-container@0.7.10_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-GROgWclnFV4CtdI5VQzuAacqRIuEVISaLwLU8zUu8jZT9DG8YKmJ8f3czQWTEmSa6NkSBNdEeNQzfDHPAE9wAQ==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0"
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0"
       ]
     },
     "@opentelemetry/resource-detector-gcp@0.37.0_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-LGpJBECIMsVKhiulb4nxUw++m1oF4EiDDPmFGW2aqYaAF0oUvJNv8Z/55CAzcZ7SxvlTgUwzewXDBsuCup7iqw==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/semantic-conventions",
         "gcp-metadata"
       ]
@@ -1807,11 +1798,11 @@
         "@opentelemetry/semantic-conventions"
       ]
     },
-    "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-1CJjf3LCvoefUOgegxi8h6r4B/wLSzInyhGP2UmIBYNlo4Qk5CZ73e1eEyWmfXvFtm1ybkmfb2DqWvspsYLrWw==",
+    "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-1pNQf/JazQTMA0BiO5NINUzH0cbLbbl7mntLa4aJNmCCXSj0q03T5ZXXL0zw4G55TjdL9Tz32cznGClf+8zr5A==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/semantic-conventions"
       ]
     },
@@ -1832,12 +1823,12 @@
         "@opentelemetry/resources@2.0.1_@opentelemetry+api@1.9.0"
       ]
     },
-    "@opentelemetry/sdk-metrics@2.1.0_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-J9QX459mzqHLL9Y6FZ4wQPRZG4TOpMCyPOh6mkr/humxE1W2S3Bvf4i75yiMW9uyed2Kf5rxmLhTm/UK8vNkAw==",
+    "@opentelemetry/sdk-metrics@2.2.0_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-G5KYP6+VJMZzpGipQw7Giif48h6SGQ2PFKEYCybeXJsOCB4fp8azqMAAzE5lnnHK3ZVwYQrgmFbsUJO/zOnwGw==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0"
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0"
       ]
     },
     "@opentelemetry/sdk-node@0.203.0_@opentelemetry+api@1.9.0": {
@@ -1877,12 +1868,12 @@
         "@opentelemetry/semantic-conventions"
       ]
     },
-    "@opentelemetry/sdk-trace-base@2.1.0_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-uTX9FBlVQm4S2gVQO1sb5qyBLq/FPjbp+tmGoxu4tIgtYGmBYB44+KX/725RFDe30yBSaA9Ml9fqphe1hbUyLQ==",
+    "@opentelemetry/sdk-trace-base@2.2.0_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-xWQgL0Bmctsalg6PaXExmzdedSp3gyKV8mQBwK/j9VGdCDu2fmXIb2gAehBKbkXCpJ4HPkgv3QfoJWRT4dHWbw==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/resources@2.1.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/resources@2.2.0_@opentelemetry+api@1.9.0",
         "@opentelemetry/semantic-conventions"
       ]
     },
@@ -1895,13 +1886,13 @@
         "@opentelemetry/sdk-trace-base@2.0.1_@opentelemetry+api@1.9.0"
       ]
     },
-    "@opentelemetry/sdk-trace-node@2.1.0_@opentelemetry+api@1.9.0": {
-      "integrity": "sha512-SvVlBFc/jI96u/mmlKm86n9BbTCbQ35nsPoOohqJX6DXH92K0kTe73zGY5r8xoI1QkjR9PizszVJLzMC966y9Q==",
+    "@opentelemetry/sdk-trace-node@2.2.0_@opentelemetry+api@1.9.0": {
+      "integrity": "sha512-+OaRja3f0IqGG2kptVeYsrZQK9nKRSpfFrKtRBq4uh6nIB8bTBgaGvYQrQoRrQWQMA5dK5yLhDMDc0dvYvCOIQ==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/context-async-hooks@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0",
-        "@opentelemetry/sdk-trace-base@2.1.0_@opentelemetry+api@1.9.0"
+        "@opentelemetry/context-async-hooks@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0",
+        "@opentelemetry/sdk-trace-base@2.2.0_@opentelemetry+api@1.9.0"
       ]
     },
     "@opentelemetry/semantic-conventions@1.37.0": {
@@ -1911,7 +1902,7 @@
       "integrity": "sha512-4mhWm3Z8z+i508zQJ7r6Xi7y4mmoJpdvH0fZPFRkWrdp5fq7hhZ2HhYokEOLkfqSMgPR4Z9EyB3DBkbKGOqZiQ==",
       "dependencies": [
         "@opentelemetry/api",
-        "@opentelemetry/core@2.1.0_@opentelemetry+api@1.9.0"
+        "@opentelemetry/core@2.2.0_@opentelemetry+api@1.9.0"
       ]
     },
     "@pinojs/redact@0.4.0": {
@@ -2131,7 +2122,7 @@
       "dependencies": [
         "@sinclair/typebox@0.33.22",
         "prettier@2.8.8",
-        "typescript@5.9.3"
+        "typescript"
       ]
     },
     "@sinclair/typebox@0.33.22": {
@@ -2159,27 +2150,27 @@
         "buffer"
       ]
     },
-    "@solana/codecs-core@2.3.0_typescript@5.9.3": {
+    "@solana/codecs-core@2.3.0_typescript@5.8.3": {
       "integrity": "sha512-oG+VZzN6YhBHIoSKgS5ESM9VIGzhWjEHEGNPSibiDTxFhsFWxNaz8LbMDPjBUE69r9wmdGLkrQ+wVPbnJcZPvw==",
       "dependencies": [
         "@solana/errors",
-        "typescript@5.9.3"
+        "typescript"
       ]
     },
-    "@solana/codecs-numbers@2.3.0_typescript@5.9.3": {
+    "@solana/codecs-numbers@2.3.0_typescript@5.8.3": {
       "integrity": "sha512-jFvvwKJKffvG7Iz9dmN51OGB7JBcy2CJ6Xf3NqD/VP90xak66m/Lg48T01u5IQ/hc15mChVHiBm+HHuOFDUrQg==",
       "dependencies": [
         "@solana/codecs-core",
         "@solana/errors",
-        "typescript@5.9.3"
+        "typescript"
       ]
     },
-    "@solana/errors@2.3.0_typescript@5.9.3": {
+    "@solana/errors@2.3.0_typescript@5.8.3": {
       "integrity": "sha512-66RI9MAbwYV0UtP7kGcTBVLxJgUxoZGm8Fbc0ah+lGiAw17Gugco6+9GrJCV83VyF2mDWyYnYM9qdI3yjgpnaQ==",
       "dependencies": [
         "chalk",
         "commander@14.0.1",
-        "typescript@5.9.3"
+        "typescript"
       ],
       "bin": true
     },
@@ -2570,40 +2561,40 @@
         "humanize-ms"
       ]
     },
-    "ai@4.3.19_react@19.2.0_zod@4.1.12": {
+    "ai@4.3.19_react@19.2.0_zod@3.25.76": {
       "integrity": "sha512-dIE2bfNpqHN3r6IINp9znguYdhIOheKW2LDigAMrgt/upT3B8eBGPSCblENvaZGoq+hxaN9fSMzjWpbqloP+7Q==",
       "dependencies": [
         "@ai-sdk/provider@1.1.3",
-        "@ai-sdk/provider-utils@2.2.8_zod@4.1.12",
+        "@ai-sdk/provider-utils@2.2.8_zod@3.25.76",
         "@ai-sdk/react",
         "@ai-sdk/ui-utils",
         "@opentelemetry/api",
         "jsondiffpatch",
         "react",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ],
       "optionalPeers": [
         "react"
       ]
     },
-    "ai@5.0.60_zod@4.1.12": {
+    "ai@5.0.60_zod@3.25.76": {
       "integrity": "sha512-80U/3kmdBW6g+JkLXpz/P2EwkyEaWlPlYtuLUpx/JYK9F7WZh9NnkYoh1KvUi1Sbpo0NyurBTvX0a2AG9mmbDA==",
       "dependencies": [
-        "@ai-sdk/gateway@1.0.33_zod@4.1.12",
+        "@ai-sdk/gateway@1.0.33_zod@3.25.76",
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
+        "@ai-sdk/provider-utils@3.0.10_zod@3.25.76",
         "@opentelemetry/api",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ]
     },
-    "ai@5.0.76_zod@4.1.12": {
+    "ai@5.0.76_zod@3.25.76": {
       "integrity": "sha512-ZCxi1vrpyCUnDbtYrO/W8GLvyacV9689f00yshTIQ3mFFphbD7eIv40a2AOZBv3GGRA7SSRYIDnr56wcS/gyQg==",
       "dependencies": [
-        "@ai-sdk/gateway@2.0.0_zod@4.1.12",
+        "@ai-sdk/gateway@2.0.0_zod@3.25.76",
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
+        "@ai-sdk/provider-utils@3.0.12_zod@3.25.76",
         "@opentelemetry/api",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ]
     },
     "ansi-regex@5.0.1": {
@@ -2916,6 +2907,9 @@
     },
     "detect-libc@2.0.2": {
       "integrity": "sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw=="
+    },
+    "detect-libc@2.1.2": {
+      "integrity": "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ=="
     },
     "diff-match-patch@1.0.5": {
       "integrity": "sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw=="
@@ -3271,8 +3265,8 @@
     "gpt-tokenizer@3.2.0": {
       "integrity": "sha512-QRRhzJIHcGbbdzhMGNCHhF+98RVaBaVD5+NYgyPOamqRBEqG5yN9p5j4udnY5FJnkesjdUPsikG/DO4OfJdhpQ=="
     },
-    "happy-dom@20.0.7": {
-      "integrity": "sha512-CywLfzmYxP5OYpuAG0usFY0CpxJtwYR+w8Mms5J8W29Y2Pzf6rbfQS2M523tRZTb0oLA+URopPtnAQX2fupHZQ==",
+    "happy-dom@20.0.8": {
+      "integrity": "sha512-TlYaNQNtzsZ97rNMBAm8U+e2cUQXNithgfCizkDgc11lgmN4j9CKMhO3FPGKWQYPwwkFcPpoXYF/CqEPLgzfOg==",
       "dependencies": [
         "@types/node@20.19.23",
         "@types/whatwg-mimetype",
@@ -3294,23 +3288,23 @@
     "help-me@5.0.0": {
       "integrity": "sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg=="
     },
-    "hono-openapi@0.4.8_@sinclair+typebox@0.34.41_hono@4.10.1_openapi-types@12.1.3_zod@4.1.12": {
+    "hono-openapi@0.4.8_@sinclair+typebox@0.34.41_hono@4.10.2_openapi-types@12.1.3_zod@3.25.76": {
       "integrity": "sha512-LYr5xdtD49M7hEAduV1PftOMzuT8ZNvkyWfh1DThkLsIr4RkvDb12UxgIiFbwrJB6FLtFXLoOZL9x4IeDk2+VA==",
       "dependencies": [
         "@sinclair/typebox@0.34.41",
         "hono",
         "json-schema-walker",
         "openapi-types",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ],
       "optionalPeers": [
         "@sinclair/typebox@0.34.41",
         "hono",
-        "zod@4.1.12"
+        "zod@3.25.76"
       ]
     },
-    "hono@4.10.1": {
-      "integrity": "sha512-rpGNOfacO4WEPClfkEt1yfl8cbu10uB1lNpiI33AKoiAHwOS8lV748JiLx4b5ozO/u4qLjIvfpFsPXdY5Qjkmg=="
+    "hono@4.10.2": {
+      "integrity": "sha512-p6fyzl+mQo6uhESLxbF5WlBOAJMDh36PljwlKtP5V1v09NxlqGru3ShK+4wKhSuhuYf8qxMmrivHOa/M7q0sMg=="
     },
     "http-errors@2.0.0": {
       "integrity": "sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==",
@@ -3504,7 +3498,7 @@
       "integrity": "sha512-NscWthMQt7fpU8lqd7LXMvT9pi+KhhmTHAJWUB/Lj6MWa0MKFv0F2V4C6WKKpjCVZl0VwcDz4nOI3CyaT1DDiA==",
       "dependencies": [
         "@neon-rs/load",
-        "detect-libc"
+        "detect-libc@2.0.2"
       ],
       "optionalDependencies": [
         "@libsql/darwin-arm64",
@@ -3662,7 +3656,7 @@
     "node-gyp-build-optional-packages@5.1.1": {
       "integrity": "sha512-+P72GAjVAbTxjjwUmwjVrqrdZROD4nf8KgpBoDxqXXTiYZZt/ud60dE5yvCSr9lRO8e8yv6kgJIC0K0PfZFVQw==",
       "dependencies": [
-        "detect-libc"
+        "detect-libc@2.1.2"
       ],
       "bin": true
     },
@@ -3962,7 +3956,7 @@
     "prosemirror-commands@1.7.1": {
       "integrity": "sha512-rT7qZnQtx5c0/y/KlYaGvtG411S97UaL6gdp6RIZ23DLHanMYLyfGBV5DtSnZdthQql7W+lEVbpSfwtO8T+L2w==",
       "dependencies": [
-        "prosemirror-model",
+        "prosemirror-model@1.25.3",
         "prosemirror-state",
         "prosemirror-transform"
       ]
@@ -3989,11 +3983,11 @@
         "prosemirror-state"
       ]
     },
-    "prosemirror-gapcursor@1.3.2": {
-      "integrity": "sha512-wtjswVBd2vaQRrnYZaBCbyDqr232Ed4p2QPtRIUK5FuqHYKGWkEwl08oQM4Tw7DOR0FsasARV5uJFvMZWxdNxQ==",
+    "prosemirror-gapcursor@1.4.0": {
+      "integrity": "sha512-z00qvurSdCEWUIulij/isHaqu4uLS8r/Fi61IbjdIPJEonQgggbJsLnstW7Lgdk4zQ68/yr6B6bf7sJXowIgdQ==",
       "dependencies": [
         "prosemirror-keymap",
-        "prosemirror-model",
+        "prosemirror-model@1.25.3",
         "prosemirror-state",
         "prosemirror-view"
       ]
@@ -4007,8 +4001,8 @@
         "rope-sequence"
       ]
     },
-    "prosemirror-inputrules@1.5.0": {
-      "integrity": "sha512-K0xJRCmt+uSw7xesnHmcn72yBGTbY45vm8gXI4LZXbx2Z0jwh5aF9xrGQgrVPu0WbyFVFF3E/o9VhJYz6SQWnA==",
+    "prosemirror-inputrules@1.5.1": {
+      "integrity": "sha512-7wj4uMjKaXWAQ1CDgxNzNtR9AlsuwzHfdFH1ygEHA2KHF2DOEaXl1CJfNPAKCg9qNEh4rum975QLaCiQPyY6Fw==",
       "dependencies": [
         "prosemirror-state",
         "prosemirror-transform"
@@ -4036,16 +4030,22 @@
         "orderedmap"
       ]
     },
+    "prosemirror-model@1.25.4": {
+      "integrity": "sha512-PIM7E43PBxKce8OQeezAs9j4TP+5yDpZVbuurd1h5phUxEKIu+G2a+EUZzIC5nS1mJktDJWzbqS23n1tsAf5QA==",
+      "dependencies": [
+        "orderedmap"
+      ]
+    },
     "prosemirror-schema-basic@1.2.4": {
       "integrity": "sha512-ELxP4TlX3yr2v5rM7Sb70SqStq5NvI15c0j9j/gjsrO5vaw+fnnpovCLEGIcpeGfifkuqJwl4fon6b+KdrODYQ==",
       "dependencies": [
-        "prosemirror-model"
+        "prosemirror-model@1.25.3"
       ]
     },
     "prosemirror-schema-list@1.5.1": {
       "integrity": "sha512-927lFx/uwyQaGwJxLWCZRkjXG0p48KpMj6ueoYiu4JX05GGuGcgzAy62dfiV8eFZftgyBUvLx76RsMe20fJl+Q==",
       "dependencies": [
-        "prosemirror-model",
+        "prosemirror-model@1.25.3",
         "prosemirror-state",
         "prosemirror-transform"
       ]
@@ -4053,7 +4053,7 @@
     "prosemirror-state@1.4.3": {
       "integrity": "sha512-goFKORVbvPuAQaXhpbemJFRKJ2aixr+AZMGiquiqKxaucC6hlpHNZHWgz5R7dS4roHiwq9vDctE//CZ++o0W1Q==",
       "dependencies": [
-        "prosemirror-model",
+        "prosemirror-model@1.25.3",
         "prosemirror-transform",
         "prosemirror-view"
       ]
@@ -4061,13 +4061,13 @@
     "prosemirror-transform@1.10.4": {
       "integrity": "sha512-pwDy22nAnGqNR1feOQKHxoFkkUtepoFAd3r2hbEDsnf4wp57kKA36hXsB3njA9FtONBEwSDnDeCiJe+ItD+ykw==",
       "dependencies": [
-        "prosemirror-model"
+        "prosemirror-model@1.25.3"
       ]
     },
     "prosemirror-view@1.41.3": {
       "integrity": "sha512-SqMiYMUQNNBP9kfPhLO8WXEk/fon47vc52FQsUiJzTBuyjKgEcoAwMyF04eQ4WZ2ArMn7+ReypYL60aKngbACQ==",
       "dependencies": [
-        "prosemirror-model",
+        "prosemirror-model@1.25.3",
         "prosemirror-state",
         "prosemirror-transform"
       ]
@@ -4535,10 +4535,6 @@
       "integrity": "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==",
       "bin": true
     },
-    "typescript@5.9.3": {
-      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
-      "bin": true
-    },
     "ua-is-frozen@0.1.2": {
       "integrity": "sha512-RwKDW2p3iyWn4UbaxpP2+VxwqXh0jpvdxsYpZ5j/MLLiQOfbsV5shpgQiw93+KMYQPcteeMQ289MaAFzs3G9pw=="
     },
@@ -4784,10 +4780,10 @@
         "zod@4.1.12"
       ]
     },
-    "zod-to-json-schema@3.24.6_zod@4.1.12": {
+    "zod-to-json-schema@3.24.6_zod@3.25.76": {
       "integrity": "sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==",
       "dependencies": [
-        "zod@4.1.12"
+        "zod@3.25.76"
       ]
     },
     "zod@3.25.76": {
@@ -4841,7 +4837,7 @@
       "npm:fake-indexeddb@6.2.4",
       "npm:fast-json-patch@3.1.1",
       "npm:gpt-tokenizer@3.2.0",
-      "npm:happy-dom@20.0.7",
+      "npm:happy-dom@20.0.8",
       "npm:hash-it@6.0.0",
       "npm:ignore@7.0.5",
       "npm:immer@10.1.3",
@@ -4852,7 +4848,7 @@
       "npm:peerjs@1.5.5",
       "npm:pretty-bytes@7.1.0",
       "npm:prosemirror-example-setup@1.2.3",
-      "npm:prosemirror-model@1.25.3",
+      "npm:prosemirror-model@1.25.4",
       "npm:prosemirror-schema-basic@1.2.4",
       "npm:prosemirror-state@1.4.3",
       "npm:prosemirror-view@1.41.3",
@@ -4875,7 +4871,7 @@
         "npm:@types/react-dom@19.2.2",
         "npm:@types/react@19.2.2",
         "npm:@vitejs/plugin-react-swc@4.1.0",
-        "npm:hono@4.10.1",
+        "npm:hono@4.10.2",
         "npm:motion@12.23.24",
         "npm:prettier@3.6.2",
         "npm:react-dom@19.2.0",
