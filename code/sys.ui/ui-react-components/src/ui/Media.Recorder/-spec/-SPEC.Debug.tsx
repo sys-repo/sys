@@ -164,7 +164,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {center(<Icons.Arrow.Down style={{ MarginY: [15, 5] }} />)}
 
       <div className={Styles.title.class}>{'Stream'}</div>
-      <RecorderHookView style={{ marginLeft: 20 }} recorder={recorder} />
+      <RecorderHookView style={{ MarginX: 20 }} recorder={recorder} />
       {center(<Icons.Arrow.Down style={{ MarginY: [20, 10] }} />)}
       <Media.Recorder.UI.Files debug={p.debug.value} />
 
