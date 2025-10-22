@@ -6,7 +6,10 @@ import { HarnessPropsSchema } from '../schema.ts';
 import { useSplitState } from './use.SplitState.ts';
 
 type Slots = { left?: t.ReactNode; right?: t.ReactNode };
-export type HarnessProps = t.Infer<typeof HarnessPropsSchema> & { slots?: Slots };
+export type HarnessProps = t.Infer<typeof HarnessPropsSchema> & {
+  slots?: Slots;
+  style?: t.CssInput;
+};
 
 /**
  * Minimal two-pane shell with named slots: { left, right }.
