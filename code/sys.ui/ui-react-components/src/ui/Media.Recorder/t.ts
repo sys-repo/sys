@@ -41,11 +41,12 @@ export type MediaRecorderOptions = {
 /** Callbacks for actino changes */
 export type MediaRecorderStatusChangeHandler = (e: MediaRecorderStatusChange) => void;
 export type MediaRecorderStatusChange = {
-  status: t.MediaRecorderStatus;
-  started: boolean;
-  elapsed: t.Msecs;
-  is: t.MediaRecorderHook['is'];
-  bytes: t.MediaRecorderHook['bytes'];
+  readonly status: t.MediaRecorderStatus;
+  readonly elapsed: t.Msecs;
+  readonly is: t.MediaRecorderHook['is'];
+  readonly bytes: t.MediaRecorderHook['bytes'];
+  readonly bitrate: t.MediaRecorderBitrate;
+  readonly capture: t.MediaRecorderCapture;
 };
 
 /**
@@ -64,6 +65,8 @@ export type MediaRecorderHook = {
   readonly is: Readonly<MediaRecorderHookFlags>;
   readonly blob: Blob | undefined;
   readonly bytes: t.NumberBytes;
+  readonly bitrate: t.MediaRecorderBitrate;
+  readonly capture: t.MediaRecorderCapture;
   readonly elapsed: t.Msecs;
   /** Start recording. */
   start(): void;
@@ -92,4 +95,18 @@ export type MediaRecorderHookFlags = {
 export type MediaRecorderHookStopped = {
   blob?: Blob;
   bytes: t.NumberBytes;
+};
+
+/** Bitrate settings for a MediaRecorder. */
+export type MediaRecorderBitrate = {
+  readonly video: number;
+  readonly audio: number;
+};
+
+/** Capture settings for a MediaStream video track. */
+export type MediaRecorderCapture = {
+  readonly width?: number;
+  readonly height?: number;
+  readonly frameRate?: number;
+  readonly aspectRatio?: number;
 };

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { type t, logInfo } from './common.ts';
+import { type t, Is, logInfo } from './common.ts';
 import { createMediaRecorder } from './u.createMediaRecorder.ts';
 import { useElapsedTimer } from './use.Recorder.elapsed.ts';
 
@@ -24,6 +24,11 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const [blob, setBlob] = useState<Blob>();
   const timer = useElapsedTimer();
 
+  /** Bitrates (bps). Kept even when recorder is torn down, for stable status reporting. */
+  const vbpsRef = useRef<number>(0);
+  const abpsRef = useRef<number>(0);
+  const captureRef = useRef<t.MediaRecorderCapture>({});
+
   /**
    * Effects: Keep refs in-sync.
    */
@@ -34,10 +39,15 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
    */
   useEffect(() => {
     if (!onStatusChange) return;
-    const started = status === 'Recording' || status === 'Paused';
-    const currentBytes = started ? bytes : (blob?.size ?? 0);
     const is = wrangle.is(status);
-    onStatusChange({ status, started, elapsed: timer.elapsed, is, bytes: currentBytes });
+    onStatusChange({
+      status,
+      elapsed: timer.elapsed,
+      is: wrangle.is(status),
+      bytes: is.started ? bytes : (blob?.size ?? 0),
+      bitrate: { video: vbpsRef.current, audio: abpsRef.current },
+      capture: captureRef.current,
+    });
   }, [onStatusChange, status, bytes, blob, timer.elapsed]);
 
   /**
@@ -46,11 +56,18 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const init = useCallback(() => {
     if (!stream) return;
 
-    const recorder = (recorderRef.current = createMediaRecorder(stream, optionsRef.current));
+    const opts = optionsRef.current;
+    const recorder = (recorderRef.current = createMediaRecorder(stream, opts));
+
     logInfo('✨ created MediaRecorder');
-    logInfo(`video bitrate: ${recorder.videoBitsPerSecond / 1_000_000} Mbps`);
-    logInfo(`audio bitrate: ${recorder.audioBitsPerSecond / 1_000} kbps`);
-    logCaptureInfo(stream);
+    logInfo(`- bitrate:video: ${recorder.videoBitsPerSecond / 1_000_000} Mbps`);
+    logInfo(`- bitrate:audio: ${recorder.audioBitsPerSecond / 1_000} kbps`);
+    logInfo('- stream:capture', wrangle.capture(stream));
+
+    const toBitrate = (v: number, defaultValue: number = 0) => (Is.number(v) ? v : defaultValue);
+    vbpsRef.current = toBitrate(recorder.videoBitsPerSecond, opts.videoBitsPerSecond);
+    abpsRef.current = toBitrate(recorder.audioBitsPerSecond, opts.audioBitsPerSecond);
+    captureRef.current = wrangle.capture(stream);
 
     recorder.ondataavailable = (e) => {
       const bytes = e.data.size;
@@ -129,6 +146,9 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
     setStatus('Idle');
     setBlob(undefined);
     setBytes(0);
+    vbpsRef.current = 0;
+    abpsRef.current = 0;
+    captureRef.current = {};
 
     timer.reset();
   };
@@ -146,6 +166,12 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
     },
     get elapsed() {
       return timer.elapsed;
+    },
+    get bitrate() {
+      return { video: vbpsRef.current, audio: abpsRef.current };
+    },
+    get capture() {
+      return captureRef.current;
     },
     blob,
     start,
@@ -170,14 +196,14 @@ const wrangle = {
       stopped: status === 'Stopped',
     };
   },
-} as const;
 
-function logCaptureInfo(stream: MediaStream) {
-  const s = stream.getVideoTracks?.()[0]?.getSettings?.() ?? {};
-  logInfo('stream:capture', {
-    width: s.width,
-    height: s.height,
-    frameRate: s.frameRate,
-    aspectRatio: s.aspectRatio,
-  });
-}
+  capture(stream: MediaStream): t.MediaRecorderCapture {
+    const s = stream.getVideoTracks?.()[0]?.getSettings?.() ?? {};
+    return {
+      width: s.width,
+      height: s.height,
+      frameRate: s.frameRate,
+      aspectRatio: s.aspectRatio,
+    };
+  },
+} as const;

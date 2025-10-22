@@ -89,6 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const recorder = Media.Recorder.UI.useRecorder(p.stream.value, {
     onStatusChange(e) {
       p.elapsed.value = e.elapsed;
+      console.info(`⚡️ recorder.onStatusChange:`, e);
     },
   });
 
