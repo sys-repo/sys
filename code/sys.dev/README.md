@@ -1,5 +1,5 @@
 # @sys/dev
-System programming `system`.
+`System` programming system.
 
 
 ### Example

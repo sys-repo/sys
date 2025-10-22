@@ -10,4 +10,4 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export { Monaco, Monaco as default } from './m.Monaco/mod.ts';
+export { Monaco } from './m.Monaco/mod.ts';

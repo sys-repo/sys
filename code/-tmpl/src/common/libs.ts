@@ -1,7 +1,7 @@
 /**
- * @standard refs:
+ * Standard: @sys/std
  */
-export { Arr, Err, Is, Num, Obj, Pkg, Str, Time } from '@sys/std';
+export { Arr, Err, Is, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';
 export { Rx } from '@sys/std/rx';
 
 /**

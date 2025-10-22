@@ -47,5 +47,5 @@ export type UseYamlErrorMarkersArgs = {
    * - Accepts normalized diagnostics (`Yaml.Diagnostic[]`) or raw parser errors (`Yaml.Error[]`).
    * - Mixed arrays are allowed; items are normalized per-element.
    */
-  readonly errors?: (t.Yaml.Diagnostic | t.Yaml.Error)[];
+  readonly errors?: t.Ary<t.Yaml.Diagnostic | t.Yaml.Error>;
 };

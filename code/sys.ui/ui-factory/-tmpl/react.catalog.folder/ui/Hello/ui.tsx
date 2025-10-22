@@ -2,7 +2,9 @@ import React from 'react';
 import { type t, Color, css } from '../common.ts';
 import { HelloPropsSchema } from './schema.ts';
 
-export type HelloProps = t.Infer<typeof HelloPropsSchema>;
+export type HelloProps = t.Infer<typeof HelloPropsSchema> & { style?: t.CssInput };
+
+type T = t.CssInput;
 
 /**
  * Component:

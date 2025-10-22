@@ -101,6 +101,7 @@ const wrangle = {
       rev,
       [docField]: doc?.current,
       yaml: yamlDisplay,
+      'yaml.ok': yamlDisplay?.ok ?? null,
       'yaml.cursor': cursor,
       'yaml.cursor.path': wrangle.cursorPath(cursor),
     };

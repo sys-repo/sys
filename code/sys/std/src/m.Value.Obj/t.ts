@@ -30,11 +30,22 @@ export type ObjLib = {
 
   /**
    * Walk the tree and ensure all strings are less than the given max-length.
+   * - Returns `T` when an object is provided.
+   * - Returns `undefined` when no object is provided.
    */
-  trimStringsDeep<T extends Record<string, any>>(
-    obj: T,
-    options?: { maxLength?: number; ellipsis?: boolean; mutate?: boolean } | number,
-  ): T;
+  trimStringsDeep: {
+    // object → object
+    <T extends Record<string, unknown>>(obj: T, options?: t.ObjTrimStringsDeepOptions | number): T;
+
+    // undefined → undefined
+    (obj: undefined, options?: t.ObjTrimStringsDeepOptions | number): undefined;
+
+    // T | undefined → T | undefined    ← handles optional chaining at call sites
+    <T extends Record<string, unknown>>(
+      obj: T | undefined,
+      options?: t.ObjTrimStringsDeepOptions | number,
+    ): T | undefined;
+  };
 
   /**
    * Retrieve a new object containing only the given set of keys.
@@ -91,4 +102,11 @@ export type ObjWalkFnArgs = {
   readonly value: any;
   stop(): void;
   mutate<T>(value: T): void;
+};
+
+/** Options passed to the `Obj.trimStringsDeep` method. */
+export type ObjTrimStringsDeepOptions = {
+  maxLength?: number;
+  ellipsis?: boolean;
+  mutate?: boolean;
 };

@@ -12,7 +12,7 @@ import { useDrawWaveform } from './use.DrawWaveform.ts';
  */
 export const AudioWaveform: React.FC<t.AudioWaveformProps> = (props) => {
   const { debug = false } = props;
-  const { width = 300, height = 30, stream, lineWidth } = props;
+  const { stream, lineWidth } = props;
   const theme = Color.theme(props.theme);
   const lineColor = props.lineColor ?? theme.fg;
 
@@ -26,6 +26,7 @@ export const AudioWaveform: React.FC<t.AudioWaveformProps> = (props) => {
   useDrawWaveform({ canvasRef, audioData, lineColor, lineWidth });
 
   const isReady = size.ready;
+  const debugText = stream ? `stream:id:${stream.id}` : '<no-stream>';
 
   /**
    * Effect: resize canvas
@@ -50,17 +51,23 @@ export const AudioWaveform: React.FC<t.AudioWaveformProps> = (props) => {
       position: 'relative',
       display: 'block',
       opacity: isReady ? 1 : 0,
-      backgroundColor: Color.ruby(debug),
       color: theme.fg,
       width: '100%',
       height: '100%',
     }),
     canvas: css({ Absolute: 0, width: '100%', height: '100%' }),
+    debug: css({
+      fontSize: 9,
+      fontFamily: 'monospace',
+      Absolute: [null, null, 5, 5],
+      opacity: 0.4,
+    }),
   };
 
   return (
     <div ref={size.ref} className={css(styles.base, props.style).class}>
       <canvas ref={canvasRef} className={styles.canvas.class} />
+      {debug && <div className={styles.debug.class}>{debugText}</div>}
     </div>
   );
 };

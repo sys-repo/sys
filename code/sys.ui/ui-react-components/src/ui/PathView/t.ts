@@ -16,6 +16,8 @@ export type PathViewProps = {
 
   /** Truncate long segments to this max length (default: 20). */
   maxSegmentLength?: number;
+  /** Horizontal spacing between path segments. */
+  segmentGap?: t.Pixels;
 
   debug?: boolean;
   theme?: t.CommonTheme;

@@ -12,11 +12,11 @@ export type UseDocumentIdHook = (args?: UseDocumentIdHookArgs | DocumentIdHook) 
 export type UseDocumentIdHookArgs<T = O> = {
   repo?: t.CrdtRepo;
   signals?: Partial<DocumentIdHookSignals>;
-  localstorage?: t.StringKey;
   initial?: T | (() => T);
+  readOnly?: boolean;
   url?: t.DocumentIdUrlFactory | boolean;
   urlKey?: t.StringKey;
-  readOnly?: boolean;
+  storageKey?: t.StringKey;
 };
 
 /** A <DocumentId> controller hook instance. */

@@ -5,7 +5,7 @@ import { timer } from './m.Time.Timer.ts';
 import { delay } from './m.Time.delay.ts';
 import { until } from './m.Time.until.ts';
 import { utc } from './m.Time.utc.ts';
-import { wait } from './m.Time.wait.ts';
+import { wait, waitFor } from './m.Time.wait.ts';
 
 /**
  * Library: Helpers for working with time and timers (delays).
@@ -19,6 +19,7 @@ export const Time: t.TimeLib = {
   utc,
   delay,
   wait,
+  waitFor,
 
   Duration,
   duration: Duration.create,

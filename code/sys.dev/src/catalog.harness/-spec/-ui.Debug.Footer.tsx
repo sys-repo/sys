@@ -33,7 +33,7 @@ export const DebugFooter: React.FC<DebugFooterProps> = (props) => {
       controller={{
         repo: debug.repo,
         signals: { doc: p.stateCrdt },
-        localstorage: D.STORAGE_KEY.DEV.CRDT,
+        storageKey: D.STORAGE_KEY.DEV.CRDT,
       }}
       style={{ marginLeft: 5, marginTop: 1 }}
     />

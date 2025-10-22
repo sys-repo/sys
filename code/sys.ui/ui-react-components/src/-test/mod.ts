@@ -1,2 +1,14 @@
-export { describe, DomMock, expect, expectError, it, Testing } from '@sys/testing/server';
+export {
+  DomMock,
+  Testing,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  expectError,
+  expectTypeOf,
+  it,
+} from '@sys/testing/server';
+export { act, renderHook } from '@testing-library/react';
+
 export * from './common.ts';

@@ -15,4 +15,4 @@ export {
   slug,
 } from '@sys/std';
 export { Rx } from '@sys/std/rx';
-export { Yaml } from '@sys/std/yaml';
+export { Yaml } from '@sys/yaml';

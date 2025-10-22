@@ -2,8 +2,9 @@ import type { CSSProperties } from 'react';
 import type { t } from './common.ts';
 export type * from './t.transform.ts';
 
-export type CssNumberOrStringInput = number | string | null | undefined;
 type N = CssNumberOrStringInput;
+type CssVars = { [K in `--${string}`]?: string | number };
+export type CssNumberOrStringInput = number | string | null | undefined;
 
 /**
  * CSS-Properties that accept string AND (inferable "unit" numbers) as values.
@@ -12,7 +13,7 @@ type N = CssNumberOrStringInput;
  *  - { fontSize: 32 }
  *  - { fontSize: '32px' }
  */
-export type CssProps = CSSProperties;
+export type CssProps = CSSProperties & CssVars;
 
 /**
  * Standard CSS properties with CSS-template extensions.

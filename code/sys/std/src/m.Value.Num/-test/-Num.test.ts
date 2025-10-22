@@ -2,6 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { Value } from '../../m.Value/mod.ts';
 import { PercentRange } from '../m.Percent.Range.ts';
 import { Percent } from '../m.Percent.ts';
+import { Ratio } from '../m.Ratio.ts';
 import { Num } from '../mod.ts';
 
 describe('Value.Num', () => {
@@ -9,6 +10,7 @@ describe('Value.Num', () => {
     expect(Value.Num).to.equal(Num);
     expect(Num.Percent).to.equal(Percent);
     expect(Num.Percent.Range).to.eql(PercentRange);
+    expect(Num.Ratio).to.equal(Ratio);
   });
 
   describe('Num.round', () => {

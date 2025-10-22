@@ -78,8 +78,11 @@ export type EditorCrdtLinkCreateResult = {
 export type EditorCrdtLinkEnable = (
   ctx: t.MonacoCtx,
   repo: t.CrdtRepo,
-  options?: {
-    onCreate?: (e: t.EditorCrdtLinkCreateResult) => void;
-    until?: t.UntilInput;
-  },
+  options?: t.EditorCrdtLinkEnableOptions | t.UntilInput,
 ) => t.Lifecycle;
+
+/** Options passed to the `Link.enable` method. */
+export type EditorCrdtLinkEnableOptions = {
+  onCreate?: (e: t.EditorCrdtLinkCreateResult) => void;
+  until?: t.UntilInput;
+};

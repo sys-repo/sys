@@ -1,39 +1,82 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import React from 'react';
+import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
+
+import { D } from '../common.ts';
 import { Devices } from '../mod.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Devices', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    const v = Signal.toObject(p);
+    const filter: t.MediaDevicesFilter = (e) => (v.filter ? e.kind === 'videoinput' : true);
+
+    /**
+     * Hooks:
+     */
+    const [items, setItems] = React.useState<MediaDeviceInfo[]>([]);
+    Devices.useDeviceSelectionLifecycle({
+      enabled: v.debugLocalstorage,
+      items,
+      storageKey: `dev:${D.displayName}:selected`,
+      selected: p.selected.value,
+      prefs: { kindOrder: ['videoinput', 'audioinput', 'audiooutput'], requireLabel: true },
+      onResolve: (e) => {
+        console.info(`⚡️ useDeviceSelectionLifecycle.onResolve:`, e);
+        p.selected.value = e.device;
+      },
+    });
+
+    Signal.useEffect(() => {
+      const sel = p.selected.value;
+      if (sel) {
+        const id = sel.deviceId;
+        const short = `${id.slice(0, 5)}..${id.slice(-5)}`;
+        console.info('🌼 selection-changed:', sel.kind, `| device-id: ${short}`);
+      }
+    });
+
+    /**
+     * Render:
+     */
+    return (
+      <Devices.UI.List
+        debug={v.debug}
+        theme={v.theme}
+        selected={v.selected}
+        rowGap={v.rowGap}
+        filter={filter}
+        onSelect={(e) => {
+          console.info(`⚡️ List.onSelect:`, e);
+          p.selected.value = e.device;
+        }}
+        onDevicesChange={(e) => {
+          console.info(`⚡️ List.onDevicesChange:`, e);
+          setItems(e.devices);
+        }}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
+
+    function update() {
+      const isNarrow = p.debugNarrow.value;
+      ctx.subject.size([isNarrow ? 240 : 400, null]);
+      ctx.redraw();
+    }
+    update(); // Initial.
 
     Dev.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      update();
     });
 
-    ctx.subject
-      .size([400, null])
-      .display('grid')
-      .render(() => (
-        <Devices.UI.List
-          debug={p.debug.value}
-          theme={p.theme.value}
-          selected={p.selected.value}
-          rowGap={p.rowGap.value}
-          filter={(e) => {
-            if (!p.filter.value) return true;
-            return e.kind === 'videoinput';
-          }}
-          onSelect={(e) => {
-            console.info(`⚡️ onSelect:`, e);
-            p.selected.value = e.index;
-          }}
-        />
-      ));
+    ctx.subject.display('grid').render(() => <Root />);
   });
 
   e.it('ui:debug', (e) => {

@@ -1,8 +1,8 @@
 /**
  * @system
  */
-export type { Yaml } from '@sys/std/t';
 export type * from '@sys/types';
+export type { Yaml } from '@sys/yaml/t';
 
 /**
  * @local

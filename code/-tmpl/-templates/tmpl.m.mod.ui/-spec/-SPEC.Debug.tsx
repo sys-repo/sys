@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.MyComponentProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -68,13 +68,14 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  Signal.useRedrawEffect(() => debug.listen());
+  Signal.useRedrawEffect(debug.listen);
 
   /**
    * Render:
    */
+  const theme = Color.theme();
   const styles = {
-    base: css({}),
+    base: css({ color: theme.fg }),
   };
 
   return (
@@ -94,7 +95,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.debug)}
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

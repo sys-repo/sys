@@ -6,8 +6,12 @@ type ErrorGeneratorInput = unknown | Response;
  * Helpers for working with errors.
  */
 export type ErrLib = {
+  /** Type guards (boolean evaluators). */
   readonly Is: t.ErrIs;
+  /** The standard named error types. */
   readonly Name: t.ErrNameLib;
+  /** Safe unified try/catch execution for sync, async, and thenable functions. */
+  readonly Try: t.TryLib;
 
   /**
    * Take unknown input and produce a standard error object.
@@ -18,13 +22,6 @@ export type ErrLib = {
    * Create a new error collection builder.
    */
   errors(): t.ErrorCollection;
-
-  /**
-   * Function strongly typed way to handle try/catch (error)
-   * execution on async functions avoiding the proliferation of
-   * problematic native try/catch statements around a codebase.
-   */
-  tryCatch<T>(promise: Promise<T>): Promise<t.ErrCatch<T>>;
 };
 
 /**

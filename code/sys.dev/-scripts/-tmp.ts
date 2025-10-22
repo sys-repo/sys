@@ -1,2 +1,5 @@
-const file = import.meta.filename ?? '';
-console.info('👋', file.split(/[/\\]/).slice(-2).join('/'));
+import { Log } from '@sys/std/log';
+const log = Log.category('Foobar');
+
+log('👋 Hello');
+log.sub('tmp')('🌳');

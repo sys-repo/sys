@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.206",
+  "version": "0.0.210",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
@@ -21,6 +21,7 @@
     "./ignore": "./src/m.Ignore/mod.ts",
     "./immutable": "./src/m.Immutable/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
+    "./log": "./src/m.Log/mod.ts",
     "./path": "./src/m.Path/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
     "./random": "./src/m.Random/mod.ts",
@@ -31,7 +32,6 @@
     "./testing": "./src/m.Testing/mod.ts",
     "./testing/server": "./src/m.Testing.Server/mod.ts",
     "./url": "./src/m.Url/mod.ts",
-    "./value": "./src/m.Value/mod.ts",
-    "./yaml": "./src/m.Yaml/mod.ts"
+    "./value": "./src/m.Value/mod.ts"
   }
 }

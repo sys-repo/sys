@@ -1,6 +1,10 @@
 import { Fs } from '@sys/fs';
+import { Log } from '@sys/std/log';
+const log = Log.category('Foobar');
 
-console.info('🐷-tmp');
+log('👋 Hello');
+log.sub('tmp')('🐷-tmp');
+
 // await clear('./.tmp');
 
 /**

@@ -8,6 +8,11 @@ Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
 });
 
 describe('Testing', () => {
+  it('expectTypeOf', async () => {
+    const m = await import('@sys/types/testing');
+    expect(m.expectTypeOf).to.equal(expectTypeOf);
+  });
+
   it('exports BDD semantics', async () => {
     const { describe, it } = await import('@std/testing/bdd');
     const { afterAll, afterEach, beforeAll, beforeEach } = await import('@std/testing/bdd');
@@ -150,37 +155,6 @@ describe('Testing', () => {
 
         clearTimeout(stop);
       });
-    });
-  });
-
-  describe('expectTypeOf → toEqualTypeOf', () => {
-    it('accepts identical literal types', () => {
-      const val = 42 as const;
-      expectTypeOf(val).toEqualTypeOf<42>(); // ✅
-    });
-
-    it('accepts widened (assignable) types', () => {
-      const val = 42; // number
-      expectTypeOf(val).toEqualTypeOf<number>(); // ✅
-    });
-
-    it('rejects mismatched types (compile-time)', () => {
-      const val = { foo: 'bar' } as const;
-
-      // @ts-expect-error literal vs. broader string
-      expectTypeOf(val.foo).toEqualTypeOf<string>();
-
-      // @ts-expect-error structure mismatch
-      expectTypeOf(val).toEqualTypeOf<{ bar: string }>();
-    });
-
-    it('works with generics', () => {
-      function id<T>(x: T) {
-        expectTypeOf(x).toEqualTypeOf<T>(); // ✅
-        return x;
-      }
-      id('hello');
-      id({ ok: true });
     });
   });
 });

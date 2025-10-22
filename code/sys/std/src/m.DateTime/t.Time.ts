@@ -38,6 +38,15 @@ export type TimeLib = {
    */
   wait(msecs?: t.Msecs): t.TimeDelayPromise;
 
+  /**
+   * Wait until a predicate resolves truthy or timeout expires.
+   * Evaluates `fn` repeatedly with a fixed interval.
+   */
+  waitFor<T>(
+    fn: () => T | Promise<T>,
+    options?: { readonly interval?: t.Msecs; readonly timeout?: t.Msecs },
+  ): Promise<T>;
+
   /** A Time helper that runs only until it has been disposed. */
   until(until$?: t.DisposeInput): t.TimeUntil;
 };

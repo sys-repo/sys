@@ -4,7 +4,10 @@ import type { t } from './common.ts';
  * Tools for working with numbers.
  */
 export type NumberLib = {
+  /** Tools for working with percentages. */
   readonly Percent: t.PercentLib;
+  /** Tools for working with ratios. */
+  readonly Ratio: t.RatioLib;
 
   /** Rounds a number to the specified number of decimal places. */
   round(value: number, precision?: number): number;
@@ -51,8 +54,24 @@ export type PercentRangeLib = {
    */
   fromPercent(percent: number, range: t.MinMaxNumberRange): number;
 
-  /**
-   * Determine if the given input is a valid range.
-   */
+  /** Determine if the given input is a valid range. */
   isRange(input?: unknown): input is t.MinMaxNumberRange;
+};
+
+/**
+ * Tools for working with aspect ratios (pure math/formatting).
+ * Kept generic so it can serve Media, CSS, image/layout, etc.
+ */
+export type RatioLib = {
+  /** Parse a ratio from string or number. "16/9" → 1.777… */
+  parse(value?: string | number): number | undefined;
+
+  /** Convert a decimal ratio → best fraction within a max denominator. */
+  toFraction(value?: number, maxDenominator?: number): { num: number; den: number } | undefined;
+
+  /** Format a ratio as "A/B" (or "X.XXX/1" fallback). */
+  toString(
+    value?: number,
+    options?: { maxDenominator?: number; spaces?: boolean; maxError?: number },
+  ): string;
 };

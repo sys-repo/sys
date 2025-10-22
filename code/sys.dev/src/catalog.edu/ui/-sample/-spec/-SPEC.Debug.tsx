@@ -1,13 +1,11 @@
 import React from 'react';
 import { CatalogObjectView } from '../../-dev/mod.ts';
-import { createRepo, YamlObjectView } from '../../../../ui/-test.ui.ts';
-import { Str, Yaml } from '../common.ts';
-
-type O = Record<string, unknown>;
-
+import { createRepo, DevUrl, YamlObjectView } from '../../-test.ui.ts';
 import {
   type t,
+  Arr,
   Button,
+  Color,
   css,
   D,
   LocalStorage,
@@ -16,14 +14,21 @@ import {
   ObjectView,
   Signal,
 } from '../common.ts';
+import { yamlSamples } from './-u.yaml-samples.tsx';
+import { SlugView } from './-ui.SlugView.tsx';
 
 type P = t.SampleProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { render: boolean };
+type Storage = Pick<P, 'theme' | 'debug' | 'docPath' | 'slugPath'> & {
+  render: boolean;
+  hostPadding?: boolean;
+};
 const defaults: Storage = {
+  render: true,
   debug: true,
   theme: 'Dark',
-  path: ['foo'],
-  render: true,
+  docPath: ['foo'],
+  slugPath: ['slug'],
+  hostPadding: true,
 };
 
 /**
@@ -37,7 +42,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -48,16 +52,24 @@ export function createDebugSignals() {
     monaco: s(),
   };
   const props = {
+    render: s(snap.render),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    path: s(snap.path),
-    render: s(snap.render),
+    docPath: s(snap.docPath),
+    slugPath: s(snap.slugPath),
+    hostPadding: s(snap.hostPadding),
+
+    // In-memory:
+    slug: s<t.Slug | undefined>(),
+    slugDiagnostics: s<t.Ary<t.Yaml.Diagnostic> | undefined>(),
   };
+
   const p = props;
   const api = {
     props,
     bus$: Monaco.Bus.make(),
     repo: createRepo(),
+    url: DevUrl.make(window),
     signals,
     reset,
     listen,
@@ -74,11 +86,19 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     store.change((d) => {
-      d.debug = p.debug.value;
       d.render = p.render.value;
+      d.hostPadding = p.hostPadding.value;
+      d.debug = p.debug.value;
       d.theme = p.theme.value;
-      d.path = p.path.value;
+      d.docPath = p.docPath.value;
+      d.slugPath = p.slugPath.value;
     });
+  });
+
+  // Sample: lift the parsed YAML data-value and store it on a root level signal.
+  Signal.effect(() => {
+    const next = signals.yaml.value?.data.value;
+    p.slug.value = next as t.Slug | undefined;
   });
 
   return api;
@@ -104,22 +124,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
-   * Helpers:
-   */
-  function changeYaml(fn: (args: { draft: O; path: t.ObjectPath }) => void) {
-    const doc = debug.signals.doc.value;
-    const path = p.path.value;
-    if (!!doc && !!path) {
-      doc.change((draft) => fn({ draft, path }));
-    }
-  }
-
-  /**
    * Render:
    */
-  const styles = {
-    base: css({}),
-  };
+  const theme = Color.theme();
+  const styles = { base: css({}) };
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -127,14 +135,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{D.name}</div>
         <div>{'(Slug)'}</div>
       </div>
-
       <Button
         block
         label={() => `render: ${p.render.value}`}
         onClick={() => Signal.toggle(p.render)}
       />
       <hr />
-
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -143,60 +149,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          const v = p.path.value;
-          return `path: ${v ? `"${v.join(' / ')}"` : `<undefined>`}`;
+          const v = p.docPath.value;
+          return `doc path: ${Arr.isArray(v) ? `[${v}]` : v}`;
         }}
-        onClick={() =>
-          Signal.cycle(p.path, [['foo'], ['my-text'], ['slug', 'foo', 'bar'], undefined])
-        }
-      />
-
-      <hr />
-      <div className={Styles.title.class}>{'Samples:'}</div>
-      <Button
-        block
-        label={() => `change: 🌳 { working slug }`}
-        onClick={() => {
-          Yaml;
-
-          const yaml = Str.dedent(`
-          foo:
-            id: example-slug
-            traits:
-              - as: primary
-                id: video
-            props:
-              primary:
-                src: "video.mp4"
-            `);
-
-          changeYaml((e) => {
-            Obj.Path.Mutate.set(e.draft, e.path, yaml);
-          });
-        }}
+        onClick={() => Signal.cycle(p.docPath, [['foo'], ['foo', 'bar'], undefined])}
       />
       <Button
         block
-        label={() => `change: 🐷 { invalid yaml }`}
+        label={() => {
+          const v = p.slugPath.value;
+          return `slug path: ${Arr.isArray(v) ? `[${v}]` : v}`;
+        }}
         onClick={() => {
-          const yaml = Str.dedent(`
-          foo: 
-            - 123
-            - 456
-          `);
-          changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, yaml));
+          Signal.cycle(p.slugPath, [['slug'], ['hello'], ['my', 'deep', 'nesting'], undefined]);
         }}
       />
       <hr />
-      <Button
-        block
-        label={() => `change: 💥 { break } ← cause error condition`}
-        onClick={() => {
-          changeYaml((e) => Obj.Path.Mutate.set(e.draft, e.path, { fail: '💥' }));
-        }}
-      />
-      <hr />
-
+      <div className={Styles.title.class}>{'Samples:'}</div>
+      {yamlSamples(debug)}
+      <hr style={{ marginTop: 40 }} />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -204,12 +175,27 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `(reset, reload)`}
+        label={() => `host padding: ${p.hostPadding.value}`}
+        onClick={() => Signal.toggle(p.hostPadding)}
+      />
+      <Button
+        block
+        label={() => `hide debug (via query-string → reload)`}
+        onClick={() => {
+          debug.url.debug = false;
+          window.location.reload();
+        }}
+      />
+
+      <Button
+        block
+        label={() => `(reset → reload)`}
         onClick={() => {
           debug.reset();
           window.location.reload();
         }}
       />
+
       <ObjectView style={{ marginTop: 15 }} expand={0} name={'debug'} data={Signal.toObject(p)} />
       <hr />
       <YamlObjectView
@@ -218,8 +204,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
         doc={s.doc?.value}
         editor={s.editor?.value}
       />
+      <CatalogObjectView
+        style={{ marginTop: 5 }}
+        expand={1}
+        slug={{
+          path: p.slugPath.value,
+          value: p.slug.value,
+          diagnostics: p.slugDiagnostics.value,
+        }}
+      />
 
-      <CatalogObjectView style={{ marginTop: 15 }} expand={1} />
+      <SlugView
+        theme={theme.name}
+        slug={Obj.Path.get(p.slug.value, p.slugPath.value ?? ['404'])}
+        style={{ marginTop: 50 }}
+      />
     </div>
   );
 };

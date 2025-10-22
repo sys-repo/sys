@@ -1,6 +1,6 @@
 {
   "name": "@sys/dev",
-  "version": "0.0.35",
+  "version": "0.0.45",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev    ./-scripts/-vite.ts --cmd=dev   --in=./src/-test/index.html",
@@ -9,15 +9,19 @@
     "serve": "deno run -P=serve  ./-scripts/-vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
-    "clean": "deno run -P=clean  ./-scripts/-clean.ts",
-    "help": "deno run -P=help   ./-scripts/-vite.ts --cmd=help",
-    "tmp": "deno run -P=tmp    ./-scripts/-tmp.ts"
+    "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "help": "deno run -P=help ./-scripts/-vite.ts --cmd=help",
+    "tmp": "deno run -A ./-scripts/-tmp.ts"
+  },
+  "compilerOptions": {
+    "types": ["./src/catalog.edu/t.global.d.ts"]
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./catalog/edu": "./src/catalog.edu/mod.ts",
-    "./catalog/harness": "./src/catalog.harness/mod.ts"
+    "./catalog.edu": "./src/catalog.edu/mod.ts",
+    "./catalog.harness": "./src/catalog.harness/mod.ts",
+    "./video": "./src/cli.video/mod.ts"
   }
 }

@@ -11,6 +11,7 @@ export {
   Is,
   isRecord,
   JsrUrl,
+  Log,
   Num,
   Obj,
   Path,
@@ -20,6 +21,7 @@ export {
   Str,
   Time,
   Timestamp,
+  Try,
   Url,
 } from '@sys/std';
 export { Schedule } from '@sys/std/async';

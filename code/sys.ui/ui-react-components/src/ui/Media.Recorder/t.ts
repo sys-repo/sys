@@ -6,9 +6,7 @@ export type MediaRecorderStatus = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
  * Library: Media recordeing tools.
  */
 export type MediaRecorderLib = {
-  /**
-   * UI Components:
-   */
+  readonly createRecorder: t.CreateMediaRecorder;
   readonly UI: {
     readonly Files: React.FC<t.MediaRecorderFilesProps>;
     readonly useRecorder: t.UseMediaRecorder;
@@ -29,12 +27,35 @@ export type MediaRecorderFilesProps = {
  */
 export type UseMediaRecorder = (
   stream?: MediaStream,
-  options?: UseMediaRecorderOptions,
+  options?: MediaRecorderOptions,
 ) => MediaRecorderHook;
+
 /** Options passed to the `UseMediaRecorder` hook. */
-export type UseMediaRecorderOptions = {
-  mimeType?: 'video/webm;codecs=vp9,opus';
+export type MediaRecorderOptions = {
+  mimeType?: string;
+  videoBitsPerSecond?: number;
+  audioBitsPerSecond?: number;
+  onStatusChange?: t.MediaRecorderStatusChangeHandler;
 };
+
+/** Callbacks for actino changes */
+export type MediaRecorderStatusChangeHandler = (e: MediaRecorderStatusChange) => void;
+export type MediaRecorderStatusChange = {
+  readonly status: t.MediaRecorderStatus;
+  readonly elapsed: t.Msecs;
+  readonly is: t.MediaRecorderHook['is'];
+  readonly bytes: t.MediaRecorderHook['bytes'];
+  readonly bitrate: t.MediaRecorderBitrate;
+  readonly capture: t.MediaRecorderCapture;
+};
+
+/**
+ * Create a high-quality, standards-compliant MediaRecorder for a given stream.
+ */
+export type CreateMediaRecorder = (
+  stream: MediaStream,
+  options?: t.MediaRecorderOptions,
+) => MediaRecorder;
 
 /**
  * UseMediaRecorder hook API:
@@ -44,6 +65,9 @@ export type MediaRecorderHook = {
   readonly is: Readonly<MediaRecorderHookFlags>;
   readonly blob: Blob | undefined;
   readonly bytes: t.NumberBytes;
+  readonly bitrate: t.MediaRecorderBitrate;
+  readonly capture: t.MediaRecorderCapture;
+  readonly elapsed: t.Msecs;
   /** Start recording. */
   start(): void;
   /** Pause recording. */
@@ -71,4 +95,18 @@ export type MediaRecorderHookFlags = {
 export type MediaRecorderHookStopped = {
   blob?: Blob;
   bytes: t.NumberBytes;
+};
+
+/** Bitrate settings for a MediaRecorder. */
+export type MediaRecorderBitrate = {
+  readonly video: number;
+  readonly audio: number;
+};
+
+/** Capture settings for a MediaStream video track. */
+export type MediaRecorderCapture = {
+  readonly width?: number;
+  readonly height?: number;
+  readonly frameRate?: number;
+  readonly aspectRatio?: number;
 };

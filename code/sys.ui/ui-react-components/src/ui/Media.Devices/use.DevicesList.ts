@@ -1,24 +1,64 @@
 import React from 'react';
-import { type t, Rx } from './common.ts';
+import { type t, logInfo, Rx, Time, Try } from './common.ts';
 import { getDevices } from './u.getDevices.ts';
 
 export const useDevicesList: t.UseMediaDevicesList = () => {
   const [items, setItems] = React.useState<MediaDeviceInfo[]>([]);
 
-  /**
-   * Effect:
-   */
   React.useEffect(() => {
-    const life = Rx.lifecycle();
+    const life = Rx.abortable();
+    const time = Time.until(life);
+    const { signal } = life;
 
-    getDevices().then((list) => {
-      if (life.disposed) return;
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
+      logInfo('MediaDevices not available in this environment.');
+      return life.dispose;
+    }
+
+    let seq = 0; //           Guard against out-of-order updates.
+    let pending = false; //   Coalesce re-entrant calls.
+    let delayed: t.Cancellable | undefined;
+
+    const update = async () => {
+      if (pending) return;
+      pending = true;
+      const mySeq = ++seq;
+
+      const result = await Try.catch(async () => getDevices());
+      if (life.disposed || mySeq !== seq) {
+        pending = false;
+        return;
+      }
+
+      if (!result.ok) {
+        logInfo('Device enumeration failed:', result.error);
+        pending = false;
+        return;
+      }
+
+      const list = result.data;
       setItems(list);
-    });
+      logInfo(
+        'Devices updated:',
+        list.map((d) => `${d.kind}:${d.label}`),
+      );
+      pending = false;
+    };
+
+    const onChange = () => {
+      // Calm cadence for virtual drivers; enumeration itself doesn’t open devices.
+      delayed?.cancel();
+      delayed = time.delay(180, () => void update());
+    };
+
+    navigator.mediaDevices.addEventListener('devicechange', onChange, { signal });
+    void update(); // Initial populate.
 
     return life.dispose;
   }, []);
 
-  // Finish up.
+  /**
+   * API:
+   */
   return { items };
 };

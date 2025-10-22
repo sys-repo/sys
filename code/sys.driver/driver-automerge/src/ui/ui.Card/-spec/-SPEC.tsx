@@ -50,7 +50,7 @@ export default Spec.describe(D.displayName, async (e) => {
               repo,
               signals: { doc: p.doc, textbox: p.textbox },
               initial: { count: 0 },
-              localstorage: STORAGE_KEY,
+              storageKey: STORAGE_KEY,
             }}
           />
         );

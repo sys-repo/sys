@@ -28,9 +28,9 @@ export type StdIsLib = {
   disposableLike(input?: unknown): input is t.DisposableLike;
 
   /**
-   * Determine if the value is a Promise.
+   * Determine if the value is a Promise or thenable.
    */
-  promise<T = any>(input?: unknown): input is Promise<T>;
+  promise<T = unknown>(input?: unknown): input is PromiseLike<T>;
 
   /**
    * Determine if the value is an observable Subject.
@@ -162,4 +162,9 @@ export type StdIsLib = {
    * Determine if the given value is an `AbortController`.
    */
   abortController(input?: unknown): input is AbortController;
+
+  /**
+   * Determine if the value conforms to an `Until`:
+   */
+  until(input?: unknown): input is t.Until;
 };

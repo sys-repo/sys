@@ -1,0 +1,67 @@
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
+
+import { type t, Crdt, D, STORAGE_KEY } from '../common.ts';
+import { CrdtLayout } from '../mod.ts';
+import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Foo } from './-ui.Foo.tsx';
+
+export default Spec.describe(D.displayName, (e) => {
+  const debug = createDebugSignals();
+  const p = debug.props;
+
+  e.it('init', (e) => {
+    const ctx = Spec.ctx(e);
+
+    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Signal.effect(() => {
+      debug.listen();
+      ctx.redraw();
+    });
+
+    ctx.debug.width(360);
+    ctx.subject
+      .size('fill')
+      .display('grid')
+      .render(() => {
+        const v = Signal.toObject(p);
+
+        const slots: t.CrdtLayoutSlots = {
+          main: (ctx) => <Foo ctx={ctx} label={'🌳 Main'} />,
+          sidebar: (ctx) => <Foo ctx={ctx} label={'🌳 Sidebar'} />,
+          footer: (ctx) => <Foo ctx={ctx} label={'🌳 Footer'} padding={0} />,
+        };
+
+        return (
+          <CrdtLayout.View
+            debug={v.debug}
+            theme={v.theme}
+            spinning={v.spinning}
+            signals={debug.signals}
+            crdt={debug.crdt}
+            header={v.header}
+            sidebar={v.sidebar}
+            cropmarks={v.cropmarks}
+            slots={v.debugSlots ? slots : undefined}
+          />
+        );
+      });
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(0)
+      .render(() => {
+        return (
+          <Crdt.UI.Repo.SyncEnabledSwitch
+            repo={debug.repo}
+            localstorage={STORAGE_KEY.DEV}
+            style={{ Padding: [14, 10] }}
+          />
+        );
+      });
+  });
+
+  e.it('ui:debug', (e) => {
+    const ctx = Spec.ctx(e);
+    ctx.debug.row(<Debug debug={debug} />);
+  });
+});

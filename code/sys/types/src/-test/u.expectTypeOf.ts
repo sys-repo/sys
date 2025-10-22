@@ -1,21 +1,21 @@
 import type { t } from './common.ts';
 
 /**
- * Compile-time equality assertion.
- *
- *  • Any mismatch raises a type-checker error.
- *  • Zero run-time overhead.
+ * Compile-time type assertions (no runtime cost).
  *
  * Usage:
- *
- *      expectTypeOf(value).toEqualTypeOf<Foo>();
- *
+ *   expectTypeOf(value).toEqualTypeOf<Foo>();   // exact, bi-directional equality
+ *   expectTypeOf(value).toMatchTypeOf<Foo>();   // assignability (T extends Foo)
  */
 export function expectTypeOf<T>(_value: T): t.TypeEqualityMatcher<T> {
   return matcher;
 }
 
-// NB A shared noop matcher instance - allocated only once.
+/**
+ * Shared no-op matcher instance.
+ * Methods are type-level only; implementations are runtime no-ops.
+ */
 const matcher: t.TypeEqualityMatcher<any> = {
-  toEqualTypeOf: () => {}, // (noop) – purely type-level.
+  toEqualTypeOf: () => {},
+  toMatchTypeOf: () => {},
 };

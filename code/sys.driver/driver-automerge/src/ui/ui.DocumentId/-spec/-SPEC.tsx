@@ -20,12 +20,12 @@ export default Spec.describe(D.displayName, (e) => {
      */
     const args: t.UseDocumentIdHookArgs<SampleDoc> = {
       repo: v.passRepo ? repo : undefined,
-      localstorage: v.localstorage,
       signals: { doc: p.doc, textbox: p.textbox, path: p.path },
       initial: () => ({ count: 0 }), // NB: dynamic generator.
+      readOnly: v.readOnly,
       url: v.url,
       urlKey: v.urlKey,
-      readOnly: v.readOnly,
+      storageKey: v.storageKey,
     };
 
     const hook = DocumentId.useController(args);
@@ -95,9 +95,9 @@ export default Spec.describe(D.displayName, (e) => {
               repo: v.passRepo ? repo : undefined,
               signals: { doc: p.doc, textbox: p.textbox },
               initial: { count: 0, text: '' }, // NB: static version.
-              localstorage: p.localstorage.value,
               url: v.url,
               urlKey: v.urlKey,
+              storageKey: p.storageKey.value,
             }}
           />
         );

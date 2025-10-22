@@ -5,36 +5,46 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const url = debug.url;
   const repo = debug.repo;
   const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    function update() {
+      ctx.debug.width(url.debug !== false ? 360 : 0);
+      ctx.subject.size('fill', p.hostPadding.value ? 50 : 0);
+      ctx.redraw();
+    }
+
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      update();
     });
+    update(); // initial
 
-    ctx.subject
-      .size('fill')
-      .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        if (!v.render) return null;
-        return (
-          <Sample
-            debug={v.debug}
-            theme={v.theme}
-            bus$={debug.bus$}
-            repo={repo}
-            path={v.path}
-            signals={debug.signals}
-            localstorage={STORAGE_KEY.DEV}
-          />
-        );
-      });
+    ctx.subject.display('grid').render(() => {
+      const v = Signal.toObject(p);
+      if (!v.render) return null;
+      return (
+        <Sample
+          debug={v.debug}
+          theme={v.theme}
+          bus$={debug.bus$}
+          repo={repo}
+          docPath={v.docPath}
+          slugPath={v.slugPath}
+          signals={debug.signals}
+          localstorage={STORAGE_KEY.DEV}
+          onDiagnostics={(e) => {
+            console.info(`⚡️ onDiagnostics:`, e);
+            p.slugDiagnostics.value = e.slugDiagnostics;
+          }}
+        />
+      );
+    });
 
     ctx.debug.footer
       .border(-0.1)

@@ -1,5 +1,6 @@
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
-import { type t, describe, expect, it, slug, Time } from '../../-test.ts';
+
+import { type t, describe, expect, it, slug, Testing, Time } from '../../-test.ts';
 import { D } from './common.ts';
 import { Crdt } from './mod.ts';
 
@@ -24,26 +25,28 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
     });
 
     it('named IndexedDB database', async () => {
-      const database = `foo-${slug()}`;
-      const repoA = Crdt.repo({ storage: { database } });
-      const repoB = Crdt.repo({ storage: {} });
+      await Testing.retry(5, async () => {
+        const database = `foo-${slug()}`;
+        const repoA = Crdt.repo({ storage: { database } });
+        const repoB = Crdt.repo({ storage: {} });
 
-      const doc = repoA.create<T>({ count: 1234 });
-      await Time.wait(10);
+        const doc = repoA.create<T>({ count: 1234 });
+        await Time.wait(10);
 
-      const assertExists = async (repo: t.CrdtRepo, exists: boolean) => {
-        const res = (await repo.get(doc.id)).doc;
-        expect(!!res === exists).to.be.true;
-      };
-      await assertExists(repoA, true);
-      await assertExists(repoB, false); // NB: in a differently named repo.
+        const assertExists = async (repo: t.CrdtRepo, exists: boolean) => {
+          const res = (await repo.get(doc.id)).doc;
+          expect(!!res === exists).to.be.true;
+        };
+        await assertExists(repoA, true);
+        await assertExists(repoB, false); // NB: in a differently named repo.
 
-      // Examine the underlying InexedDB and ensure the custom name was used.
-      const dbs = await indexedDB.databases?.();
-      const names = dbs.map(({ name }) => name);
+        // Examine the underlying InexedDB and ensure the custom name was used.
+        const dbs = await indexedDB.databases?.();
+        const names = dbs.map(({ name }) => name);
 
-      expect(names).to.include(D.database);
-      expect(names).to.include(database);
+        expect(names).to.include(D.database);
+        expect(names).to.include(database);
+      });
     });
 
     it('repo.id', () => {

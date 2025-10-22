@@ -1,10 +1,6 @@
 /**
- * @module YAML → Schema pipeline utilities.
- *
- * Provides a staged pipeline:
- * - Parse YAML text into AST or plain values.
- * - Extract candidate `slug` objects.
- * - Validate against schemas.
- * - Map structural errors onto AST ranges (for editor hints).
+ * @module YAML Pipeline
+ * Structural parse/validation pipeline for slugs and other schema-based documents.
+ * Re-exports `Slug.Domain` for convenience.
  */
 export { YamlPipeline } from './m.Pipeline.ts';

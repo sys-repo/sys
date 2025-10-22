@@ -2,4 +2,5 @@
  * @module
  * UI Development Helper Components
  */
-export { CatalogObjectView } from './ui.CatalogObjectView.tsx';
+export { DevUrl } from './m.DevUrl.ts';
+export { SlugObjectView as CatalogObjectView } from './ui.SlugObjectView.tsx';

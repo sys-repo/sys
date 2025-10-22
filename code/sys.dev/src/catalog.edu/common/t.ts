@@ -3,6 +3,7 @@
  */
 export type { Crdt } from '@sys/driver-automerge/t';
 export type {
+  DiagnosticSeverity,
   EditorDiagnostic,
   EditorEventBus,
   EditorYaml,
@@ -14,13 +15,18 @@ export type {
 /**
  * @system
  */
-export type { Yaml } from '@sys/std/t';
 export type * from '@sys/types';
+export type { Yaml } from '@sys/yaml/t';
 
 /** User Interface: */
 export type { ColorTheme } from '@sys/color/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
-export type { ObjectViewProps } from '@sys/ui-react-components/t';
+export type {
+  CropmarksProps,
+  MediaDevicesFilter,
+  MediaVideoStreamProps,
+  ObjectViewProps,
+} from '@sys/ui-react-components/t';
 
 /** Type Schema: */
 export type { Infer, Schema } from '@sys/schema/t';

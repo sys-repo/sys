@@ -233,7 +233,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `(reset, reload)`}
+        label={() => `(reset → reload)`}
         onClick={() => {
           debug.reset();
           window.location.reload();

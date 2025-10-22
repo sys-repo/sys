@@ -1,16 +1,26 @@
 import React from 'react';
+import { StatefulDeviceList } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
+
 import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { FILTER_SAMPLES } from './-u.samples.ts';
+
+const STORAGE_KEY = `dev:${D.displayName}`;
+const { Filters, Zoom } = Media.Config;
 
 type P = t.MediaVideoStreamProps;
-type L = {
+type Storage = Pick<P, 'theme' | 'debug' | 'muted' | 'filter' | 'borderRadius' | 'aspectRatio'> & {
   filters: Partial<t.MediaFilterValues>;
   zoom: Partial<t.MediaZoomValues>;
-  muted: P['muted'];
 };
-
-const { Filters, Zoom } = Media.Config;
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: false,
+  filters: Filters.values(Obj.keys(Filters.config)),
+  zoom: Zoom.values(Obj.keys(Zoom.config)),
+  muted: D.muted,
+};
 
 /**
  * Types:
@@ -22,38 +32,48 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
-  const initial: L = {
-    filters: Filters.values(Obj.keys(Filters.config)),
-    zoom: Zoom.values(Obj.keys(Zoom.config)),
-    muted: D.muted,
-  } as const;
-
-  const localstore = LocalStorage.immutable<L>(`dev:${D.name}`, initial);
-  const snap = localstore.current;
-
   const s = Signal.create;
+
+  const store = LocalStorage.immutable<Storage>(STORAGE_KEY, defaults);
+  const snap = { ...defaults, ...store.current };
+
   const props = {
-    debug: s(false),
-    selectedCamera: s<MediaDeviceInfo>(),
+    debug: s(snap.debug),
+    theme: s(snap.theme),
+    muted: s(snap.muted),
+    borderRadius: s(snap.borderRadius),
+    aspectRatio: s(snap.aspectRatio),
     configFilters: s(snap.filters),
     configZoom: s(snap.zoom),
-
-    theme: s<P['theme']>('Dark'),
     filter: s<P['filter']>(Filters.toString(snap.filters)),
     zoom: s<P['zoom']>(snap.zoom),
-    muted: s(snap.muted),
-    borderRadius: s<P['borderRadius']>(),
-    aspectRatio: s<P['aspectRatio']>(),
-
+    selectedVideo: s<MediaDeviceInfo>(),
+    selectedAudio: s<MediaDeviceInfo>(),
     stream: s<P['stream']>(),
   };
+  const p = props;
   const api = {
     props,
-    localstore,
-    listen() {
-      Signal.listen(props);
-    },
+    reset,
+    listen,
+    store,
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
+
+  Signal.effect(() => {
+    store.change((d) => {
+      d.theme = p.theme.value;
+      d.debug = p.debug.value;
+    });
+  });
+
   return api;
 }
 
@@ -86,11 +106,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Media.Devices.UI.List
+      <StatefulDeviceList
+        style={{ MarginX: 20 }}
+        storageKey={`${STORAGE_KEY}:selected:video`}
         filter={(e) => e.kind === 'videoinput'}
-        selected={p.selectedCamera.value}
-        onSelect={(e) => (p.selectedCamera.value = e.info)}
+        onSelect={(e) => (p.selectedVideo.value = e.device)}
       />
+      <hr />
+      <StatefulDeviceList
+        style={{ MarginX: 20 }}
+        storageKey={`${STORAGE_KEY}:selected:audio`}
+        filter={(e) => e.kind === 'audioinput'}
+        onSelect={(e) => (p.selectedAudio.value = e.device)}
+      />
+
+      <hr />
       <Media.Config.Filters.UI.List
         style={{ margin: 20 }}
         values={p.configFilters.value}
@@ -98,7 +128,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onChanged={(e) => {
           console.info('⚡️ Filters.onChanged:', e);
           p.filter.value = e.filter;
-          debug.localstore.change((d) => (d.filters = e.values));
+          debug.store.change((d) => (d.filters = e.values));
         }}
       />
 
@@ -109,21 +139,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onChange={(e) => (p.configZoom.value = e.values)}
         onChanged={(e) => {
           console.info('⚡️ Zoom.onChanged:', e);
-          debug.localstore.change((d) => (d.zoom = e.values));
+          debug.store.change((d) => (d.zoom = e.values));
           p.zoom.value = e.values;
         }}
       />
 
       <hr />
-      <Button
-        block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
-      />
+
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
@@ -162,7 +188,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {filterSampleButtons(p.filter)}
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(debug.props)} expand={0} />
+      <Button
+        block
+        label={() => `debug: ${p.debug.value}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };
@@ -190,35 +222,3 @@ export function filterSampleButtons(signal: t.Signal<P['filter']>) {
     </React.Fragment>
   );
 }
-
-export const FILTER_SAMPLES = {
-  /** “Blown-out spotlight” (extreme) */
-  blowOut: 'brightness(180%) contrast(130%) saturate(70%)',
-
-  /** High-key over-exposure (strong but still usable for faces) */
-  highKey: 'brightness(160%) contrast(120%) saturate(80%)',
-
-  /** Neutral daylight pop (balanced, vivid) */
-  vividPop: 'brightness(115%) contrast(110%) saturate(150%)',
-
-  /** Soft pastel wash (desaturated, low contrast) */
-  pastelSoft: 'brightness(110%) contrast(90%) saturate(70%)',
-
-  /** Classic noir (monochrome with punchy tones) */
-  noir: 'grayscale(100%) contrast(125%) brightness(110%)',
-
-  /** Vintage sepia */
-  sepia: 'sepia(85%) contrast(100%) brightness(105%)',
-
-  /** Warm sunset tint */
-  warmTint: 'hue-rotate(-20deg) saturate(120%) brightness(110%)',
-
-  /** Cool arctic tint */
-  coolTint: 'hue-rotate(190deg) saturate(120%) brightness(110%)',
-
-  /** Muted documentary (flat, slightly desat) */
-  muted: 'saturate(60%) contrast(95%) brightness(105%)',
-
-  /** Dreamy blur-soft focus */
-  dreamyBlur: 'blur(4px) brightness(120%) contrast(105%)',
-};

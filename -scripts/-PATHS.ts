@@ -3,8 +3,9 @@ export { Path } from '@sys/std';
 
 export const Paths = {
   workspace: denojson.workspace,
+  modules_: ['code/sys/tools'], // TEMP 🐷
   modules: [
-    // Pure types:
+    // types:
     'code/sys/types',
 
     /**
@@ -16,10 +17,11 @@ export const Paths = {
     'code/sys/cli',
     'code/sys/crypto',
     'code/sys/fs',
-    'code/sys/schema',
 
     'code/sys/testing',
     'code/sys/process',
+    'code/sys/yaml',
+    'code/sys/schema',
 
     'code/sys/event',
     'code/sys/cmd',
@@ -51,9 +53,11 @@ export const Paths = {
     'code/sys.driver/driver-prosemirror',
 
     /**
-     * Curated (named) entry points:
+     * Curated (named) entry points and
+     * higher-order bundles of system functionality:
      */
     'code/sys/crdt',
+    'code/sys/tools',
 
     /**
      * sys.dev: (programming system)

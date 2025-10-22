@@ -6,6 +6,7 @@ import {
   isObject,
   isPlainObject,
   isPlainRecord,
+  isPromise,
   isRecord,
 } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
@@ -24,6 +25,7 @@ export const Is: StdIsLib = {
   emptyRecord: isEmptyRecord,
   plainObject: isPlainObject,
   plainRecord: isPlainRecord,
+  promise: isPromise,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
@@ -83,13 +85,6 @@ export const Is: StdIsLib = {
     if (typeof value === 'string' && value.trim() === '') return true;
     if (Array.isArray(value) && value.filter((v) => !Is.blank(v)).length === 0) return true;
     return false;
-  },
-
-  /** Determine if the value is a promise. */
-  promise<T = any>(input?: any): input is Promise<T> {
-    return input !== null && input
-      ? typeof input === 'object' && typeof input.then === 'function'
-      : false;
   },
 
   /** Determine if the value is numeric, whether it be a number or a number in a string. */
@@ -224,5 +219,17 @@ export const Is: StdIsLib = {
     if (!isObject(input)) return false;
     const c = input as AbortController;
     return typeof c.abort === 'function' && !!c.signal && Is.abortSignal(c.signal);
+  },
+
+  /**
+   * Determine if the value conforms to an "until" termination signal.
+   */
+  until(input?: unknown): input is t.Until {
+    if (input === undefined) return false; // ergonomic at call-site, but not an until
+    if (Array.isArray(input)) return input.every((v) => Is.until(v));
+    if (Is.disposable(input)) return true;
+    if (Is.observable(input)) return true;
+    if (Is.subject(input)) return true;
+    return false;
   },
 };

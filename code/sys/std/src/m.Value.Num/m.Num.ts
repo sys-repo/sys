@@ -1,11 +1,13 @@
+import type { t } from './common.ts';
 import { Percent } from './m.Percent.ts';
-import type { NumberLib } from './t.ts';
+import { Ratio } from './m.Ratio.ts';
 
 /**
  * Tools for working with numbers.
  */
-export const Num: NumberLib = {
+export const Num: t.NumberLib = {
   Percent,
+  Ratio,
 
   /**
    * Rounds a number to the specified number of decimal places.
