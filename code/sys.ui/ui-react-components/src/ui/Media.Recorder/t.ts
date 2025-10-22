@@ -35,6 +35,16 @@ export type MediaRecorderOptions = {
   mimeType?: string;
   videoBitsPerSecond?: number;
   audioBitsPerSecond?: number;
+  onStatusChange?: t.MediaRecorderStatusChangeHandler;
+};
+
+/** Callbacks for actino changes */
+export type MediaRecorderStatusChangeHandler = (e: MediaRecorderStatusChange) => void;
+export type MediaRecorderStatusChange = {
+  status: t.MediaRecorderStatus;
+  started: boolean;
+  is: t.MediaRecorderHook['is'];
+  bytes: t.MediaRecorderHook['bytes'];
 };
 
 /**
