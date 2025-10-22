@@ -21,7 +21,7 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
   if (!recorder) return <div>{'`recorder` prop not specified'}</div>;
   const { status, is } = recorder;
   const canStart = !is.recording && status !== 'Paused';
-  const urlUseMediaRecorder = JsrUrl.Pkg.file(pkg, 'src/ui/Media.Recorder/use.Recorder.ts');
+  const hrefHookSource = JsrUrl.Pkg.file(pkg, 'src/ui/Media.Recorder/use.Recorder.ts');
 
   /**
    * Render:
@@ -45,38 +45,42 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
       display: 'grid',
       gap: 6,
     }),
-    row: css({
-      display: 'grid',
-      gridTemplateColumns: '1fr auto',
-      alignItems: 'center',
-    }),
-    title: css({ fontWeight: 'bold' }),
+    row: {
+      title: {
+        base: css({ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center' }),
+        label: css({ fontWeight: 'bold' }),
+      },
+      actions: {
+        base: css({ display: 'grid', gridTemplateColumns: '1fr auto', gap: 6 }),
+      },
+    },
+    body: css({ marginLeft: 14, display: 'grid', gap: 6 }),
     icon: css({
       opacity: is.recording || is.paused ? 1 : 0,
       color: is.recording ? Color.RED : theme.fg,
     }),
-    body: css({ marginLeft: 14, display: 'grid', gap: 6 }),
-    actionsRow: css({ display: 'grid', gridTemplateColumns: '1fr auto', gap: 6 }),
+    titleLink: {
+      color: !is.recording ? Color.MAGENTA : Color.alpha(theme.fg, 0.2),
+      transition: 'color 120ms',
+    },
   };
 
   const elStatus = <span style={{ color: statusColor, marginLeft: 5 }}>{status}</span>;
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.row.class}>
-        <div className={styles.title.class}>
+      <div className={styles.row.title.base.class}>
+        <div className={styles.row.title.label.class}>
           <ExternalLink
-            style={{
-              color: !is.recording ? Color.MAGENTA : Color.alpha(theme.fg, 0.2),
-              transition: 'color 120ms',
-            }}
-            href={urlUseMediaRecorder}
+            style={styles.titleLink}
+            href={hrefHookSource}
             children={'ƒ useMediaRecorder:'}
           />
           {elStatus}
         </div>
         <BulletIcon size={18} style={styles.icon} />
       </div>
+
       <div className={styles.body.class}>
         {!is.started && (
           <Button
@@ -94,7 +98,7 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
           <Button theme={theme.name} block label={'resume'} onClick={recorder.resume} />
         )}
 
-        <div className={styles.actionsRow.class}>
+        <div className={styles.row.actions.base.class}>
           <Button
             block
             theme={theme.name}
