@@ -7,7 +7,7 @@ type P = t.CrdtLayoutProps;
  * Libs:
  */
 export { Crdt } from '@sys/driver-automerge/web/ui';
-export { Media } from '@sys/ui-react-components';
+export { Media, Spinners } from '@sys/ui-react-components';
 
 /**
  * Constants:

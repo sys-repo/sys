@@ -15,7 +15,7 @@ import {
 } from '../common.ts';
 
 type P = t.CrdtLayoutProps;
-type Storage = Pick<P, 'theme' | 'debug'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'spinning'> & {
   header: Pick<t.CrdtLayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtLayoutSidebar;
   debugSlots?: boolean;
@@ -24,6 +24,7 @@ type Storage = Pick<P, 'theme' | 'debug'> & {
 const defaults: Storage = {
   debug: false,
   debugSlots: true,
+  spinning: false,
   theme: 'Dark',
   header: D.header,
   sidebar: D.sidebar,
@@ -60,6 +61,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     debugSlots: s(snap.debugSlots),
     theme: s(snap.theme),
+    spinning: s(snap.spinning),
     urlKey: s(snap.urlKey),
     header: {
       visible: s((snap.header ?? {}).visible),
@@ -95,6 +97,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.spinning = p.spinning.value;
       d.debugSlots = p.debugSlots.value;
       d.urlKey = p.urlKey.value;
 
@@ -145,6 +148,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `spinning: ${p.spinning.value}`}
+        onClick={() => Signal.toggle(p.spinning)}
       />
 
       <hr />

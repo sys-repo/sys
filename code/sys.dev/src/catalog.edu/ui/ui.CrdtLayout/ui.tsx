@@ -1,61 +1,45 @@
 import React from 'react';
 
-import { type t, Color, css } from './common.ts';
-import { toSidebarConfig } from './u.ts';
-import { Footer } from './ui.Footer.tsx';
-import { Header } from './ui.Header.tsx';
-import { Main } from './ui.Main.tsx';
-import { Sidebar } from './ui.Sidebar.tsx';
+import { type t, Color, css, Spinners } from './common.ts';
+import { Body } from './ui.Body.tsx';
 
 type P = t.CrdtLayoutProps;
 
 export const CrdtLayout: React.FC<P> = (props) => {
-  const { debug = false, crdt } = props;
-  const sidebar = toSidebarConfig(props.sidebar);
+  const { debug = false, spinning = false } = props;
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const colLeft =
-    sidebar.position === 'left' ? (sidebar.visible ? `${sidebar.width}px` : '0px') : '1fr';
-  const colRight =
-    sidebar.position === 'right' ? (sidebar.visible ? `${sidebar.width}px` : '0px') : 'auto';
   const styles = {
     base: css({
+      position: 'relative',
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       display: 'grid',
-      gridTemplateRows: 'auto 1fr auto',
       minHeight: 0,
     }),
     body: css({
-      display: 'grid',
-      gridTemplateColumns: sidebar.position === 'left' ? `${colLeft} 1fr` : `1fr ${colRight}`,
-      minHeight: 0,
-      overflow: 'hidden',
+      pointerEvents: spinning ? 'none' : 'auto',
+      opacity: spinning ? 0 : 1,
+      transition: 'opacity 120ms ease',
     }),
-
-    main: css({ minWidth: 0, minHeight: 0 }),
-    sidebar: css({
-      // NB: Always mounted; visually hidden + non-interactive when not visible.
-      opacity: sidebar.visible ? 1 : 0,
-      visibility: sidebar.visible ? 'visible' : 'hidden',
-      pointerEvents: sidebar.visible ? 'auto' : 'none',
+    spinning: css({
+      Absolute: 0,
+      display: 'grid',
+      placeItems: 'center',
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Header {...props} />
-
-      <div className={styles.body.class}>
-        {sidebar.position === 'left' && <Sidebar {...props} style={styles.sidebar} />}
-        <Main {...props} style={styles.main} />
-        {sidebar.position === 'right' && <Sidebar {...props} style={styles.sidebar} />}
-      </div>
-
-      <Footer {...props} />
+      <Body {...props} style={styles.body} />
+      {spinning && (
+        <div className={styles.spinning.class}>
+          <Spinners.Bar theme={theme.name} />
+        </div>
+      )}
     </div>
   );
 };

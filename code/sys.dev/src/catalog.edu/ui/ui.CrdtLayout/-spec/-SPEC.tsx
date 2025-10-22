@@ -35,6 +35,7 @@ export default Spec.describe(D.displayName, (e) => {
           <CrdtLayout.View
             debug={v.debug}
             theme={v.theme}
+            spinning={v.spinning}
             crdt={debug.crdt}
             header={v.header}
             sidebar={v.sidebar}

@@ -23,6 +23,7 @@ export type CrdtLayoutProps = {
   cropmarks?: CrdtLayoutCropmarks;
 
   // Appearance:
+  spinning?: boolean;
   theme?: t.CommonTheme;
   debug?: boolean;
   style?: t.CssInput;
