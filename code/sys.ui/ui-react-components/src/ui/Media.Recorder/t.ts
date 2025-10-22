@@ -64,6 +64,7 @@ export type MediaRecorderHook = {
   readonly is: Readonly<MediaRecorderHookFlags>;
   readonly blob: Blob | undefined;
   readonly bytes: t.NumberBytes;
+  readonly elapsed: t.Msecs;
   /** Start recording. */
   start(): void;
   /** Pause recording. */

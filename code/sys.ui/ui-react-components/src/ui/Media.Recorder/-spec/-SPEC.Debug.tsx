@@ -2,7 +2,7 @@ import React from 'react';
 import { RecorderHookView, StatefulDeviceList } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { type t, Button, Obj, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Signal } from '../common.ts';
+import { Color, css, D, LocalStorage, Signal, Time } from '../common.ts';
 import { Icons } from '../ui.Icons.ts';
 
 type P = t.MediaRecorderFilesProps;
@@ -49,6 +49,7 @@ export function createDebugSignals() {
     aspectRatio: s<string | number>('4/3'),
     selectedCamera: s<MediaDeviceInfo>(),
     selectedAudio: s<MediaDeviceInfo>(),
+    elapsed: s<t.Msecs>(0),
   };
   const p = props;
   const api = {
@@ -80,10 +81,14 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const elapsed = p.elapsed.value;
 
+  /**
+   * Hooks:
+   */
   const recorder = Media.Recorder.UI.useRecorder(p.stream.value, {
     onStatusChange(e) {
-      console.info(`⚡️ onAction:`, e);
+      p.elapsed.value = e.elapsed;
     },
   });
 
@@ -163,7 +168,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       {center(<Icons.Arrow.Down style={{ MarginY: [15, 5] }} />)}
 
-      <div className={Styles.title.class}>{'Stream'}</div>
+      <div className={Styles.title.class}>
+        <div>{'Stream'}</div>
+        <div>{elapsed > 0 && `${Time.duration(elapsed).toString()}`}</div>
+      </div>
       <RecorderHookView style={{ MarginX: 20 }} recorder={recorder} />
       {center(<Icons.Arrow.Down style={{ MarginY: [20, 10] }} />)}
       <Media.Recorder.UI.Files debug={p.debug.value} />

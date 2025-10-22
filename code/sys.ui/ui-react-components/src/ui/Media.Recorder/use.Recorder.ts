@@ -144,7 +144,9 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
       if (is.started) return bytes;
       return blob?.size ?? 0;
     },
-
+    get elapsed() {
+      return timer.elapsed;
+    },
     blob,
     start,
     stop,
