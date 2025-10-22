@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type t, D, logInfo } from './common.ts';
+
+import { type t, logInfo } from './common.ts';
 import { createMediaRecorder } from './u.createMediaRecorder.ts';
+import { useElapsedTimer } from './use.Recorder.elapsed.ts';
 
 /**
  * Hook: Manages a standard [MediaRecorder] video/audio stream recorder.
@@ -10,6 +12,8 @@ import { createMediaRecorder } from './u.createMediaRecorder.ts';
  *          https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder
  */
 export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
+  const { onStatusChange } = options;
+
   const chunksRef = useRef<BlobPart[]>([]);
   const recorderRef = useRef<MediaRecorder>(undefined);
   const optionsRef = useRef<t.MediaRecorderOptions>(options);
@@ -18,13 +22,23 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const [status, setStatus] = useState<t.MediaRecorderStatus>('Idle');
   const [bytes, setBytes] = useState(0);
   const [blob, setBlob] = useState<Blob>();
+  const timer = useElapsedTimer();
 
   /**
-   * Effects:
+   * Effects: Keep refs in-sync.
+   */
+  useEffect(() => void (optionsRef.current = options), [options]);
+
+  /**
+   * Effect: fire status events.
    */
   useEffect(() => {
-    optionsRef.current = options; // Keep refs in sync.
-  }, [options]);
+    if (!onStatusChange) return;
+    const started = status === 'Recording' || status === 'Paused';
+    const currentBytes = started ? bytes : (blob?.size ?? 0);
+    const is = wrangle.is(status);
+    onStatusChange({ status, started, elapsed: timer.elapsed, is, bytes: currentBytes });
+  }, [onStatusChange, status, bytes, blob, timer.elapsed]);
 
   /**
    * Helper: Recorder API.
@@ -67,6 +81,10 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const start = () => {
     if (!stream || status === 'Recording') return api;
     if (!recorderRef.current) init();
+
+    timer.reset(); // fresh run
+    timer.begin(); // start ticking while recording
+
     setBytes(0);
     recorderRef.current!.start(250);
     setStatus('Recording');
@@ -75,6 +93,7 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const pause = () => {
     if (recorderRef.current?.state === 'recording') {
       recorderRef.current.pause();
+      timer.end(true); // accumulate elapsed up to pause; stop ticking
       setStatus('Paused');
     }
   };
@@ -82,6 +101,7 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const resume = () => {
     if (recorderRef.current?.state === 'paused') {
       recorderRef.current.resume();
+      timer.begin();
       setStatus('Recording');
     }
   };
@@ -94,6 +114,7 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
       return new Promise<R>((resolve) => {
         stopResolversRef.current.push(resolve);
         recorderRef.current?.stop();
+        timer.end(true); // ← accumulate: fold in any remaining active segment.
         setStatus('Stopped');
       });
     }
@@ -108,6 +129,8 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
     setStatus('Idle');
     setBlob(undefined);
     setBytes(0);
+
+    timer.reset();
   };
 
   /**

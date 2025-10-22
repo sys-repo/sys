@@ -43,6 +43,7 @@ export type MediaRecorderStatusChangeHandler = (e: MediaRecorderStatusChange) =>
 export type MediaRecorderStatusChange = {
   status: t.MediaRecorderStatus;
   started: boolean;
+  elapsed: t.Msecs;
   is: t.MediaRecorderHook['is'];
   bytes: t.MediaRecorderHook['bytes'];
 };
