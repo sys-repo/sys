@@ -13,6 +13,9 @@
     "help": "deno run -P=help ./-scripts/-vite.ts --cmd=help",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
+  "compilerOptions": {
+    "types": ["./src/catalog.edu/t.global.d.ts"]
+  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
