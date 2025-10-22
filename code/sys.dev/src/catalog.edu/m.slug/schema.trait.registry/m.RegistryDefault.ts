@@ -1,9 +1,14 @@
-import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from '../schema.traits/mod.ts';
+import {
+  SlugIndexPropsSchema,
+  VideoPlayerPropsSchema,
+  VideoRecorderPropsSchema,
+} from '../schema.traits/mod.ts';
 import type { t } from './common.ts';
 import type { CatalogTraitId } from './m.ids.ts';
 import { makeRegistry } from './u.ts';
 
 const ENTRIES = [
+  { id: 'slug-index', propsSchema: SlugIndexPropsSchema },
   { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
   { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
 ] as const;
