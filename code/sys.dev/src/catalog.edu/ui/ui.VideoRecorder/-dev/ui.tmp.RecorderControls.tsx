@@ -24,6 +24,7 @@ export const RecorderControls: React.FC<P> = (props) => {
    */
   const recorder = Media.Recorder.UI.useRecorder(stream);
   const elapsed = recorder.elapsed;
+  const elapsedOut = elapsed < 1000 ? `-` : Time.duration(elapsed).toString();
 
   /**
    * Render:
@@ -54,7 +55,7 @@ export const RecorderControls: React.FC<P> = (props) => {
       <div className={styles.title.base.class}>
         <div>{title}</div>
         <div />
-        <div>{elapsed ? Time.duration(elapsed).toString() : null}</div>
+        <div>{elapsed > 0 ? elapsedOut : null}</div>
       </div>
       <RecorderHookView theme={theme.name} recorder={recorder} style={styles.recorder} />
     </div>
