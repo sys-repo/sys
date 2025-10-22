@@ -7,7 +7,7 @@ describe('Slug.Is', () => {
     expect(Traits.Is).to.equal(Is);
   });
 
-  describe('videoRecorderBinding', () => {
+  describe('Is.videoRecorderBinding', () => {
     it('signature', () => {
       type Expect = (m: unknown) => m is t.VideoRecorderBinding;
       expectTypeOf(Is.videoRecorderBinding).toEqualTypeOf<Expect>();
@@ -39,7 +39,7 @@ describe('Slug.Is', () => {
     });
   });
 
-  describe('videoRecorderProps', () => {
+  describe('Is.videoRecorderProps', () => {
     it('signature', () => {
       type Expect = (u: unknown) => u is t.VideoRecorderProps;
       expectTypeOf(Is.videoRecorderProps).toEqualTypeOf<Expect>();
@@ -81,7 +81,7 @@ describe('Slug.Is', () => {
     });
   });
 
-  describe('videoPlayerProps', () => {
+  describe('Is.videoPlayerProps', () => {
     it('signature', () => {
       type Expect = (u: unknown) => u is t.VideoPlayerProps;
       expectTypeOf(Is.videoPlayerProps).toEqualTypeOf<Expect>();
@@ -109,6 +109,39 @@ describe('Slug.Is', () => {
         expectTypeOf(input.src).toEqualTypeOf<string | undefined>();
       } else {
         expect(true).to.eql(false);
+      }
+    });
+  });
+
+  describe('Is.slugIndexBinding', () => {
+    it('signature', () => {
+      type Expect = (m: unknown) => m is t.SlugIndexBinding;
+      expectTypeOf(Is.slugIndexBinding).toEqualTypeOf<Expect>();
+    });
+
+    it('runtime truth table', () => {
+      const ok = { id: 'slug-index', as: 'idx1' };
+      const badId = { id: 'video-recorder', as: 'idx1' };
+      const missingAs = { id: 'slug-index' } as unknown;
+      const emptyAs = { id: 'slug-index', as: '' };
+
+      expect(Is.slugIndexBinding(ok)).to.eql(true);
+      expect(Is.slugIndexBinding(badId as unknown)).to.eql(false);
+      expect(Is.slugIndexBinding(missingAs)).to.eql(false);
+      expect(Is.slugIndexBinding(emptyAs)).to.eql(false);
+      expect(Is.slugIndexBinding(null)).to.eql(false);
+      expect(Is.slugIndexBinding(42)).to.eql(false);
+    });
+
+    it('narrows', () => {
+      const input: unknown = { id: 'slug-index', as: 'home' };
+      const ok = Is.slugIndexBinding(input);
+      expect(ok).to.eql(true); // runtime assertion
+
+      if (ok) {
+        expectTypeOf(input.id).toEqualTypeOf<'slug-index'>();
+        expectTypeOf(input.as).toEqualTypeOf<string>();
+        expect(input.as.length > 0).to.eql(true);
       }
     });
   });

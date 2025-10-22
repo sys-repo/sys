@@ -61,3 +61,30 @@ export type VideoRecorderProps = {
    */
   readonly file?: string;
 };
+
+/**
+ * Slug Index Properties
+ * – mirrors `m.slug.index.ts` (`SlugIndexPropsSchema`)
+ */
+export type SlugIndexProps = {
+  /** Display name (optional, non-empty if provided). */
+  readonly name?: string;
+
+  /** Top level summary. */
+  readonly description?: string;
+
+  /**
+   * Array of slug references.
+   * Each entry may include a human-friendly name and must include a CRDT ref.
+   */
+  readonly index: readonly {
+    /** Human label for the referenced slug. */
+    readonly name?: string;
+
+    /**
+     * CRDT Slug Reference (URN).
+     * Accepts "crdt:<uuid|base62-28>/[path]" | "urn:crdt:<uuid|base62-28>/[path]".
+     */
+    readonly ref: string;
+  }[];
+};

@@ -4,6 +4,14 @@ import { VideoRecorderPropsSchema } from './m.video.recorder.ts';
 
 export const Is: t.SlugTraitIsLib = {
   /**
+   * True iff the value is a valid "slug-index" trait binding
+   * with a non-empty `as` alias.
+   */
+  slugIndexBinding(m: unknown): m is t.SlugIndexBinding {
+    return is.record(m) && m.id === 'slug-index' && is.string(m.as) && m.as.length > 0;
+  },
+
+  /**
    * True iff the value is a valid "video-recorder" trait binding
    * with a non-empty `as` alias.
    */

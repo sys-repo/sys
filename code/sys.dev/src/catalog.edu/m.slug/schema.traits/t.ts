@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 export type * from './t.type-gen.ts';
 
+export type SlugIndexBinding = t.SlugTraitBindingOf<'slug-index'>;
 export type VideoRecorderBinding = t.SlugTraitBindingOf<'video-recorder'>;
 export type VideoPlayerBinding = t.SlugTraitBindingOf<'video-player'>;
 
@@ -9,6 +10,7 @@ export type VideoPlayerBinding = t.SlugTraitBindingOf<'video-player'>;
  */
 export type SlugTraitsLib = {
   readonly Is: t.SlugTraitIsLib;
+  readonly SlugIndexPropsSchema: t.TSchema;
   readonly VideoPlayerPropsSchema: t.TSchema;
   readonly VideoRecorderPropsSchema: t.TSchema;
 };
@@ -19,18 +21,23 @@ export type SlugTraitsLib = {
  */
 export type SlugTraitIsLib = {
   /**
+   * True iff the value is valid "slug-index" props per the schema.
+   */
+  slugIndexBinding(m: unknown): m is t.SlugIndexBinding;
+
+  /**
    * True iff the value is a valid "video-recorder" trait binding
    * with a non-empty `as` alias.
    */
-  readonly videoRecorderBinding: (m: unknown) => m is t.VideoRecorderBinding;
+  videoRecorderBinding(m: unknown): m is t.VideoRecorderBinding;
 
   /**
-   * True iff the value is valid video-recorder props per the schema.
+   * True iff the value is valid "video-recorder" props per the schema.
    */
-  readonly videoRecorderProps: (u: unknown) => u is t.VideoRecorderProps;
+  videoRecorderProps(u: unknown): u is t.VideoRecorderProps;
 
   /**
    * (Optional, symmetry) True iff the value is valid video-player props per the schema.
    */
-  readonly videoPlayerProps: (u: unknown) => u is t.VideoPlayerProps;
+  videoPlayerProps(u: unknown): u is t.VideoPlayerProps;
 };

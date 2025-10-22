@@ -5,19 +5,13 @@ import { Type as T } from './common.ts';
  */
 export const VideoPlayerPropsSchema = T.Object(
   {
-    /**
-     * Display name (optional, non-empty if provided).
-     */
+    /** Display name (optional, non-empty if provided). */
     name: T.Optional(T.String({ minLength: 1 })),
 
-    /**
-     * Top level summary.
-     */
+    /** Top level summary. */
     description: T.Optional(T.String()),
 
-    /**
-     * Video source (optional, non-empty if provided).
-     */
+    /** Video source (optional, non-empty if provided). */
     src: T.Optional(T.String({ minLength: 1 })),
   },
   {
