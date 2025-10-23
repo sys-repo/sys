@@ -24,15 +24,15 @@ export const RowTable: React.FC<P> = (props) => {
       textAlign: layout.keyAlign ?? D.layout.table.keyAlign,
       minWidth: 0,
       maxWidth: layout.keyMax,
-      ...toEllipsis(truncate),
       alignSelf: layout.align ?? 'baseline',
+      ...toEllipsis(truncate),
     }),
     val: css({
       gridColumn: '2',
       textAlign: 'left',
       minWidth: 0,
-      ...toEllipsis(truncate),
       alignSelf: layout.align ?? 'baseline',
+      ...toEllipsis(truncate),
     }),
   };
 
