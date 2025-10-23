@@ -72,6 +72,8 @@ export type KeyValueRow = {
   readonly v?: React.ReactNode;
   readonly mono?: boolean;
   readonly truncate?: boolean;
+  readonly x?: KeyValueSpacing; // spacing: [left, right]
+  readonly y?: KeyValueSpacing; // spacing: [top, bottom]
 };
 
 /**

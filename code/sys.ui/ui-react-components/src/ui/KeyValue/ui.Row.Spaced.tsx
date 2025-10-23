@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
-import { toEllipsis, toFont } from './u.ts';
+import { type t, Color, css, D } from './common.ts';
+import { toEllipsis, toFont, toSpacing } from './u.ts';
 
 type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
   layout: t.KeyValueLayoutSpaced;
@@ -9,18 +9,22 @@ type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
 
 export const RowSpaced: React.FC<P> = (props) => {
   const { debug = false, item, mono, truncate, layout } = props;
-  const theme = Color.theme(props.theme);
-  const { fontFamily } = toFont({ mono });
 
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
   const keyTrack = truncate ? 'fit-content(24ch)' : 'auto';
   const valueTrack = truncate ? '1fr' : 'minmax(16ch, 1fr)';
-
+  const spacing = toSpacing(item.x, item.y);
+  const { fontFamily } = toFont({ mono });
   const styles = {
     base: css({
+      Margin: spacing.edges,
       display: 'grid',
       gridTemplateColumns: `${keyTrack} ${valueTrack}`,
       columnGap: layout.columnGap ?? 12,
-      alignItems: layout.align ?? 'baseline',
+      alignItems: layout.align ?? D.layout.spaced.align,
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       fontFamily,
