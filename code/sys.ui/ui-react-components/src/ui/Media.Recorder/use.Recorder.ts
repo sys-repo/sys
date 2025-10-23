@@ -17,10 +17,10 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   /**
    * Refs:
    */
-  const revRef = useRef<number>(0);
   const chunksRef = useRef<BlobPart[]>([]);
   const recorderRef = useRef<MediaRecorder>(undefined);
   const optionsRef = useRef<t.MediaRecorderOptions>(options);
+  const onStatusChangeRef = useRef<t.MediaRecorderStatusHandler>(undefined);
   const stopResolversRef = useRef<((e: t.MediaRecorderHookStopped) => void)[]>([]);
 
   const [state, setState] = useState<t.MediaRecorderState>('Idle');
@@ -37,16 +37,14 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
    * Effects: Keep refs in-sync.
    */
   useEffect(() => void (optionsRef.current = options), [options]);
+  useEffect(() => void (onStatusChangeRef.current = onStatusChange), [onStatusChange]);
 
   /**
    * Effect: fire status events.
    */
   useEffect(() => {
-    if (!onStatusChange) return;
-    const is = wrangle.is(state);
-    const rev = ++revRef.current; // increment per emission
-    onStatusChange({
-      rev,
+    const cb = onStatusChangeRef.current;
+    cb?.({
       state,
       elapsed: timer.elapsed,
       is: wrangle.is(state),
@@ -54,7 +52,7 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
       bitrate: { video: vbpsRef.current, audio: abpsRef.current },
       capture: captureRef.current,
     });
-  }, [onStatusChange, state, bytes, blob, timer.elapsed]);
+  }, [state, bytes, blob, timer.elapsed]);
 
   /**
    * Helper: Recorder API.
@@ -145,19 +143,20 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
 
   const reset = async () => {
     if (recorderRef.current) await stop();
+    timer.reset();
 
+    // Refs:
     chunksRef.current = [];
     stopResolversRef.current = [];
     recorderRef.current = undefined;
-    setState('Idle');
-    setBlob(undefined);
-    setBytes(0);
     vbpsRef.current = 0;
     abpsRef.current = 0;
     captureRef.current = {};
-    revRef.current = 0;
 
-    timer.reset();
+    // State:
+    setState('Idle');
+    setBlob(undefined);
+    setBytes(0);
   };
 
   /**

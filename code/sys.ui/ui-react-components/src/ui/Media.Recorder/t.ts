@@ -42,7 +42,6 @@ export type MediaRecorderOptions = {
 /** Callbacks for status changes */
 export type MediaRecorderStatusHandler = (e: MediaRecorderStatus) => void;
 export type MediaRecorderStatus = {
-  readonly rev: number; // monotonic counter.
   readonly state: t.MediaRecorderState;
   readonly elapsed: t.Msecs;
   readonly is: t.MediaRecorderHook['is'];
