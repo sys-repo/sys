@@ -1,9 +1,29 @@
 import { type t, Str } from '../common.ts';
 import { Foo } from './-ui.Foo.tsx';
 
-export const items: t.KeyValueItem[] = [
-  { kind: 'title', v: 'Video Stream' },
+export type SampleKind = 'comprehensive' | 'simple';
 
+/**
+ * Sample data-sets:
+ */
+export const SAMPLE = {
+  items(sample?: SampleKind): t.KeyValueItem[] | undefined {
+    if (sample === 'comprehensive') return comprehensive;
+    if (sample === 'simple') return simple;
+    return undefined;
+  },
+} as const;
+
+const simple: t.KeyValueItem[] = [
+  { kind: 'title', v: 'Video Stream' },
+  { kind: 'row', k: 'id', v: 'f3e1c4a9-278b-44e9-9b71-23e2e3a16c8b' },
+  { kind: 'row', k: 'resolution', v: '1920×1080' },
+  { kind: 'row', k: 'fps', v: '60' },
+  { kind: 'row', k: 'device', v: 'Logitech BRIO 4K' },
+];
+
+const comprehensive: t.KeyValueItem[] = [
+  { kind: 'title', v: 'Video Stream' },
   { kind: 'row', k: 'id', v: 'f3e1c4a9-278b-44e9-9b71-23e2e3a16c8b' },
   { kind: 'row', k: 'resolution', v: '1920×1080' },
   { kind: 'row', k: 'fps', v: '60' },
@@ -25,17 +45,10 @@ export const items: t.KeyValueItem[] = [
 
   { kind: 'hr', x: 20, y: [20, 5], thickness: 3 },
 
-  { k: 'long value', v: Str.lorem },
-  { k: Str.lorem, v: 'long key' },
+  { k: 'long value →', v: Str.lorem },
+  { k: Str.lorem, v: '← long key' },
 
   { kind: 'hr' },
   { k: 'theme', v: 'Dark' },
   { k: 'element', v: <Foo /> },
 ];
-
-export const SAMPLE = {
-  items(sample?: 'default'): t.KeyValueItem[] | undefined {
-    if (sample === 'default') return items;
-    return undefined;
-  },
-} as const;

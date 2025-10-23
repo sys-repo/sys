@@ -1,12 +1,13 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-import { SAMPLE } from './-u.sample.tsx';
+import { Color, css, D, LocalStorage, Obj, Signal, type t } from '../common.ts';
+import { SAMPLE, type SampleKind } from './-u.sample.tsx';
 
 type P = t.KeyValueProps;
 type L = t.KeyValueLayout;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate'> & {
   layout: t.KeyValueLayout;
+  sample: SampleKind;
 };
 const defaults: Storage = {
   theme: 'Dark',
@@ -15,6 +16,7 @@ const defaults: Storage = {
   mono: D.mono,
   truncate: D.truncate,
   layout: D.layout,
+  sample: 'comprehensive',
 };
 
 /**
@@ -39,12 +41,16 @@ export function createDebugSignals() {
     mono: s(snap.mono),
     truncate: s(snap.truncate),
     layout: {
-      columnTemplate: s((snap.layout ?? {}).columnTemplate),
+      variant: s((snap.layout ?? {}).variant),
+      keyMax: s((snap.layout ?? {}).keyMax),
+      keyAlign: s((snap.layout ?? {}).keyAlign),
       columnGap: s((snap.layout ?? {}).columnGap),
       rowGap: s((snap.layout ?? {}).rowGap),
+      align: s((snap.layout ?? {}).align),
     },
     //
     items: s<t.KeyValueItem[]>(),
+    sample: s(snap.sample),
   };
   const p = props;
   const api = {
@@ -57,7 +63,7 @@ export function createDebugSignals() {
   }
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
-    p.items.value = SAMPLE.items('default');
+    p.items.value = SAMPLE.items('comprehensive');
   }
 
   Signal.effect(() => {
@@ -67,15 +73,19 @@ export function createDebugSignals() {
       d.size = p.size.value;
       d.mono = p.mono.value;
       d.truncate = p.truncate.value;
+      d.sample = p.sample.value;
 
       d.layout = d.layout ?? {};
-      d.layout.columnTemplate = p.layout.columnTemplate.value;
+      d.layout.variant = p.layout.variant.value;
+      d.layout.keyMax = p.layout.keyMax.value;
+      d.layout.keyAlign = p.layout.keyAlign.value;
       d.layout.columnGap = p.layout.columnGap.value;
       d.layout.rowGap = p.layout.rowGap.value;
+      d.layout.align = p.layout.align.value;
     });
   });
 
-  p.items.value = SAMPLE.items('default');
+  p.items.value = SAMPLE.items('comprehensive');
   return api;
 }
 
@@ -105,14 +115,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({ color: theme.fg }),
   };
 
-  type S = Parameters<(typeof SAMPLE)['items']>[0];
-  const itemsButton = (label: string, sample: S) => {
+  const itemsButton = (kind?: SampleKind, label?: string) => {
+    if (!label) label = `sample: ${kind}`;
     return (
       <Button
         //
         block
         label={label}
-        onClick={() => (p.items.value = SAMPLE.items(sample))}
+        onClick={() => (p.items.value = SAMPLE.items(kind))}
       />
     );
   };
@@ -141,14 +151,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `layout.columnTemplate: ${p.layout.columnTemplate.value}`}
+        label={() => `layout.variant: ${p.layout.variant.value ?? '(undefined)'}`}
         onClick={() => {
-          Signal.cycle<L['columnTemplate']>(p.layout.columnTemplate, [
-            D.layout.columnTemplate,
-            'minmax(80px,auto) 1fr',
-            '1fr 2fr',
-            'max-content 1fr',
-          ]);
+          Signal.cycle<L['variant']>(p.layout.variant, [D.layout.variant, 'table', undefined]);
+        }}
+      />
+      <Button
+        block
+        label={() => `layout.keyMax: ${p.layout.keyMax.value}`}
+        onClick={() => {
+          Signal.cycle<L['keyMax']>(p.layout.keyMax, [D.layout.keyMax, 60, '5ch']);
+        }}
+      />
+      <Button
+        block
+        label={() => `layout.keyAlign: ${p.layout.keyAlign.value}`}
+        onClick={() => {
+          Signal.cycle<L['keyAlign']>(p.layout.keyAlign, [D.layout.keyAlign, 'right']);
         }}
       />
       <Button
@@ -165,11 +184,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle<L['rowGap']>(p.layout.rowGap, [0, D.layout.rowGap, 6, 10]);
         }}
       />
+      <Button
+        block
+        label={() => `layout.align: ${p.layout.align.value}`}
+        onClick={() => {
+          Signal.cycle<L['align']>(p.layout.align, [D.layout.align, 'start', 'center']);
+        }}
+      />
 
       <hr />
       <div className={Styles.title.class}>{'Items:'}</div>
-      {itemsButton('(none)', undefined)}
-      {itemsButton('default sample', 'default')}
+      {itemsButton(undefined, '(none)')}
+      {itemsButton('comprehensive')}
+      {itemsButton('simple')}
 
       <hr />
       <Button

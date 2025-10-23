@@ -51,14 +51,16 @@ export type KeyValueItemProps = {
   style?: t.CssInput;
 };
 
-/** Layout configuration for key/value rows. */
+/**
+ * Layout config for key/value rows.
+ */
 export type KeyValueLayout = {
-  /** Grid template for key/value columns. */
-  columnTemplate?: string;
-  /** Horizontal gap between key and value columns. */
+  variant?: 'inline' | 'table';
+  keyMax?: string | t.Pixels;
+  keyAlign?: 'left' | 'right';
   columnGap?: t.Pixels;
-  /** Vertical gap between successive rows. */
   rowGap?: t.Pixels;
+  align?: 'baseline' | 'start' | 'center';
 };
 
 /**

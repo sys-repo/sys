@@ -16,9 +16,12 @@ export const D = {
   truncate: true satisfies NonNullable<P['truncate']>,
   spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValueSpacer>,
   layout: {
-    columnTemplate: 'auto 1fr',
+    variant: 'inline',
+    keyMax: '24ch',
+    keyAlign: 'left',
     columnGap: 12,
     rowGap: 4,
+    align: 'baseline',
   } satisfies NonNullable<t.KeyValueLayout>,
 } as const;
 export const DEFAULTS = D;
