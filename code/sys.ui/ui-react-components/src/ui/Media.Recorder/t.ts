@@ -1,9 +1,10 @@
 import type { t } from './common.ts';
 
-export type MediaRecorderStatus = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
+/** Status flags for the current state of the recorder. */
+export type MediaRecorderState = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
 
 /**
- * Library: Media recordeing tools.
+ * Library: Media recording tools.
  */
 export type MediaRecorderLib = {
   readonly createRecorder: t.CreateMediaRecorder;
@@ -35,13 +36,13 @@ export type MediaRecorderOptions = {
   mimeType?: string;
   videoBitsPerSecond?: number;
   audioBitsPerSecond?: number;
-  onStatusChange?: t.MediaRecorderStatusChangeHandler;
+  onStatusChange?: t.MediaRecorderStatusHandler;
 };
 
-/** Callbacks for actino changes */
-export type MediaRecorderStatusChangeHandler = (e: MediaRecorderStatusChange) => void;
-export type MediaRecorderStatusChange = {
-  readonly status: t.MediaRecorderStatus;
+/** Callbacks for status changes */
+export type MediaRecorderStatusHandler = (e: MediaRecorderStatus) => void;
+export type MediaRecorderStatus = {
+  readonly state: t.MediaRecorderState;
   readonly elapsed: t.Msecs;
   readonly is: t.MediaRecorderHook['is'];
   readonly bytes: t.MediaRecorderHook['bytes'];
@@ -61,7 +62,7 @@ export type CreateMediaRecorder = (
  * UseMediaRecorder hook API:
  */
 export type MediaRecorderHook = {
-  readonly status: t.MediaRecorderStatus;
+  readonly state: t.MediaRecorderState;
   readonly is: Readonly<MediaRecorderHookFlags>;
   readonly blob: Blob | undefined;
   readonly bytes: t.NumberBytes;
