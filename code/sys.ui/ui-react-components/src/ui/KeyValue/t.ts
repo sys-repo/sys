@@ -14,13 +14,7 @@ export type KeyValueSpacing = t.Pixels | [t.Pixels, t.Pixels];
  */
 export type KeyValueLib = {
   readonly View: React.FC<t.KeyValueProps>;
-  fromObject(
-    obj: Record<string, unknown>,
-    options?: {
-      filter?: (key: string, value: unknown) => boolean;
-      format?: (value: unknown) => React.ReactNode;
-    },
-  ): KeyValueItem[];
+  fromObject: KeyValueFromObject;
 };
 
 /**
@@ -107,4 +101,17 @@ export type KeyValueHr = {
 export type KeyValueSpacer = {
   readonly kind: 'spacer';
   readonly size?: number | string;
+};
+
+/**
+ * Build `KeyValueItem[]` rows from a plain object.
+ */
+export type KeyValueFromObject = (
+  obj?: Record<string, unknown>,
+  options?: KeyValueFromObjectOptions,
+) => KeyValueItem[];
+/** Options for the `KeyValue.fromObject` method. */
+export type KeyValueFromObjectOptions = {
+  filter?: (key: string, value: unknown) => boolean;
+  format?: (value: unknown) => React.ReactNode;
 };

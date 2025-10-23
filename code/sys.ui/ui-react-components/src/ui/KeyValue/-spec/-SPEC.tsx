@@ -27,7 +27,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         return (
-          <KeyValue
+          <KeyValue.View
             debug={v.debug}
             theme={v.theme}
             size={v.size}
