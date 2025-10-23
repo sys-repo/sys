@@ -45,8 +45,8 @@ const comprehensive: t.KeyValueItem[] = [
 
   { kind: 'hr', x: 20, y: [20, 5], thickness: 3 },
 
-  { k: 'long value →', v: Str.lorem },
-  { k: Str.lorem, v: '← long key' },
+  { k: 'key for long value →', v: Str.lorem },
+  { k: Str.lorem, v: '← value for long key' },
 
   { kind: 'hr' },
   { k: 'theme', v: 'Dark' },

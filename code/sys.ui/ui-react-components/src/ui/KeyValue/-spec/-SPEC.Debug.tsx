@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Obj, Signal, type t } from '../common.ts';
-import { SAMPLE, type SampleKind } from './-u.sample.tsx';
+import { SAMPLE, type SampleKind } from './-u.SAMPLES.tsx';
 import { LayoutButtons } from './-ui.LayoutButtons.tsx';
 
 type P = t.KeyValueProps;
@@ -50,7 +50,6 @@ export function createDebugSignals() {
       columnGap: s((snap.layoutSpaced ?? {}).columnGap),
       rowGap: s((snap.layoutSpaced ?? {}).rowGap),
       align: s((snap.layoutSpaced ?? {}).align),
-      keyAlign: s((snap.layoutSpaced ?? {}).keyAlign),
     },
     layoutTable: {
       kind: 'table',
@@ -98,7 +97,6 @@ export function createDebugSignals() {
       d.layoutSpaced.columnGap = p.layoutSpaced.columnGap.value;
       d.layoutSpaced.rowGap = p.layoutSpaced.rowGap.value;
       d.layoutSpaced.align = p.layoutSpaced.align.value;
-      d.layoutSpaced.keyAlign = p.layoutSpaced.keyAlign.value;
 
       d.layoutTable = d.layoutTable ?? {};
       d.layoutTable.keyMax = p.layoutTable.keyMax.value;

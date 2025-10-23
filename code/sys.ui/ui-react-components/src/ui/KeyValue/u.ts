@@ -14,6 +14,11 @@ export function toFont(props: Pick<P, 'size' | 'mono'>) {
   return { fontSize, fontFamily } as const;
 }
 
+/**
+ * Text overflow / wrapping helper.
+ * - When `truncate` is true → single-line with ellipsis.
+ * - When `truncate` is false → natural wrapping with safe word breaks.
+ */
 export function toEllipsis(truncate: boolean = D.truncate): t.CssProps {
   return truncate
     ? {
@@ -23,8 +28,8 @@ export function toEllipsis(truncate: boolean = D.truncate): t.CssProps {
       }
     : {
         whiteSpace: 'normal',
-        wordBreak: 'break-word',
-        overflowWrap: 'anywhere',
+        wordBreak: 'break-word', //     classic safe break
+        overflowWrap: 'break-word', //  ensure min-content doesn't collapse
       };
 }
 

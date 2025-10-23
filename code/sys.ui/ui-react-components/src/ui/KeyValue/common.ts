@@ -11,7 +11,6 @@ const commonLayout = {
   columnGap: 12,
   rowGap: 4,
   align: 'baseline',
-  keyAlign: 'left',
 } satisfies NonNullable<t.KeyValueLayoutCommon>;
 
 export const D = {
@@ -29,6 +28,7 @@ export const D = {
     table: {
       kind: 'table',
       keyMax: '24ch',
+      keyAlign: 'left',
       ...commonLayout,
     } satisfies NonNullable<t.KeyValueLayoutTable>,
   },

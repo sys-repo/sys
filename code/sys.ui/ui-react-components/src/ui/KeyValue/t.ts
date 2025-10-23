@@ -59,12 +59,12 @@ export type KeyValueLayoutSpaced = KeyValueLayoutCommon & { kind: 'spaced' };
 export type KeyValueLayoutTable = KeyValueLayoutCommon & {
   kind: 'table';
   keyMax?: string | t.Pixels;
+  keyAlign?: 'left' | 'right';
 };
 export type KeyValueLayoutCommon = {
   columnGap?: t.Pixels;
   rowGap?: t.Pixels;
-  align?: 'baseline' | 'start' | 'center';
-  keyAlign?: 'left' | 'right';
+  align?: 'baseline' | 'start' | 'center' | 'end';
 };
 
 /**

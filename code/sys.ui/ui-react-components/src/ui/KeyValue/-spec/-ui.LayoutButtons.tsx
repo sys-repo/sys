@@ -40,6 +40,25 @@ export const LayoutButtons: React.FC<P> = (props) => {
     body: css({ marginLeft: 44 }),
   };
 
+  const elTable = layout === 'table' && (
+    <>
+      <Button
+        block
+        label={() => `.keyMax: ${p.layoutTable.keyMax.value}`}
+        onClick={() => {
+          Signal.cycle<LT['keyMax']>(p.layoutTable.keyMax, [D.layout.table.keyMax, 60, '5ch']);
+        }}
+      />
+      <Button
+        block
+        label={() => `.keyAlign: ${p.layoutTable.keyAlign.value}`}
+        onClick={() => {
+          Signal.cycle<LT['keyAlign']>(p.layoutTable.keyAlign, ['left', 'right']);
+        }}
+      />
+    </>
+  );
+
   return (
     <div className={css(styles.base, props.style).class}>
       <Button
@@ -52,15 +71,7 @@ export const LayoutButtons: React.FC<P> = (props) => {
       />
       <div className={styles.body.class}>
         <CommonLayout {...props} layout={selected} defaults={defaults} />
-        {layout === 'table' && (
-          <Button
-            block
-            label={() => `layout.keyMax: ${p.layoutTable.keyMax.value}`}
-            onClick={() => {
-              Signal.cycle<LT['keyMax']>(p.layoutTable.keyMax, [D.layout.table.keyMax, 60, '5ch']);
-            }}
-          />
-        )}
+        {elTable}
       </div>
     </div>
   );
@@ -93,15 +104,7 @@ function CommonLayout(props: P & { layout?: SelectedLayout; defaults?: L }) {
         block
         label={() => `.align: ${layout.align.value}`}
         onClick={() => {
-          Signal.cycle<L['align']>(layout.align, [defaults.align, 'start', 'center']);
-        }}
-      />
-
-      <Button
-        block
-        label={() => `.keyAlign: ${layout.keyAlign.value}`}
-        onClick={() => {
-          Signal.cycle<L['keyAlign']>(layout.keyAlign, [defaults.keyAlign, 'right']);
+          Signal.cycle<L['align']>(layout.align, [defaults.align, 'start', 'center', 'end']);
         }}
       />
     </>
