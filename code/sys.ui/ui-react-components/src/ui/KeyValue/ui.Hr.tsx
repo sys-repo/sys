@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, Is } from './common.ts';
+import { toSpacing } from './u.ts';
 
 type P = t.KeyValueItemProps;
 
@@ -10,18 +11,15 @@ export const Hr: React.FC<P> = (props) => {
   const { debug = false, item } = props;
   if (item.kind !== 'hr') return null;
 
-  // item.
-  const x = toOffset(item.x);
-  const y = toOffset(item.y ?? 5);
-
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const spacing = toSpacing(item.x, item.y ?? 5);
   const styles = {
     base: css({
+      Margin: spacing.edges,
       position: 'relative',
-      Padding: [y[0], x[1], y[1], x[0]],
       display: 'grid',
     }),
     line: css({

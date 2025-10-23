@@ -21,13 +21,14 @@ export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
     base: css({
       position: 'relative',
       userSelect: 'none',
+      boxSizing: 'border-box',
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       fontSize,
       fontFamily,
       lineHeight: 1.35,
 
-      // Switch container model
+      // Switch container model:
       display: 'grid',
       gridTemplateColumns: isTable ? `${keyTrack} 1fr` : undefined,
       columnGap: isTable && layout.columnGap ? 12 : undefined,

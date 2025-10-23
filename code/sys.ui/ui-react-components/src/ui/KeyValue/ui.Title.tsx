@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
+import { toSpacing } from './u.ts';
 
 type P = t.KeyValueItemProps;
 
@@ -14,9 +15,10 @@ export const Title: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
+  const spacing = toSpacing(item.x, item.y ?? 5);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      Margin: spacing.edges,
       color: theme.fg,
       display: 'grid',
     }),

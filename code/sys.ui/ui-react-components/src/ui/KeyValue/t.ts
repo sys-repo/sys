@@ -1,10 +1,12 @@
 import type React from 'react';
 import type { t } from '../common.ts';
 
-/** Item kinds. */
-export type KeyValueItem = KeyValueRow | KeyValueTitle | KeyValueHr | KeyValueSpacer;
 /** Size flags. */
 export type KeyValueSize = 'xs' | 'sm' | 'md';
+/** Item kinds. */
+export type KeyValueItem = KeyValueRow | KeyValueTitle | KeyValueHr | KeyValueSpacer;
+/** Spacing offset around an item. */
+export type KeyValueSpacing = t.Pixels | [t.Pixels, t.Pixels];
 
 /**
  * Types for the KeyValue primitive.
@@ -84,6 +86,8 @@ export type KeyValueRow = {
 export type KeyValueTitle = {
   readonly kind: 'title';
   readonly v: React.ReactNode;
+  readonly x?: KeyValueSpacing; // spacing: [left, right]
+  readonly y?: KeyValueSpacing; // spacing: [top, bottom]
 };
 
 /**
@@ -91,10 +95,10 @@ export type KeyValueTitle = {
  */
 export type KeyValueHr = {
   readonly kind: 'hr';
-  readonly x?: t.Pixels | [t.Pixels, t.Pixels]; // [left, right]
-  readonly y?: t.Pixels | [t.Pixels, t.Pixels]; // [top, bottom]
   readonly thickness?: t.Pixels;
   readonly opacity?: t.Percent;
+  readonly x?: KeyValueSpacing; // spacing: [left, right]
+  readonly y?: KeyValueSpacing; // spacing: [top, bottom]
 };
 
 /**
