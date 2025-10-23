@@ -31,7 +31,7 @@ export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
       // Switch container model:
       display: 'grid',
       gridTemplateColumns: isTable ? `${keyTrack} 1fr` : undefined,
-      columnGap: isTable && layout.columnGap ? 12 : undefined,
+      columnGap: isTable ? (layout.columnGap ?? 12) : undefined,
       rowGap: layout.rowGap ?? 4,
     }),
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Obj, Signal, type t } from '../common.ts';
 import { SAMPLE, type SampleKind } from './-u.SAMPLES.tsx';
-import { LayoutButtons } from './-ui.LayoutButtons.tsx';
+import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
 
 type P = t.KeyValueProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate'> & {

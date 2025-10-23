@@ -90,7 +90,7 @@ function CommonLayout(props: P & { layout?: SelectedLayout; defaults?: L }) {
         block
         label={() => `.columnGap: ${layout.columnGap.value}`}
         onClick={() => {
-          Signal.cycle<L['columnGap']>(layout.columnGap, [4, 8, defaults.columnGap, 16, 20, 24]);
+          Signal.cycle<L['columnGap']>(layout.columnGap, [0, 4, 8, 16, 22, 36]);
         }}
       />
       <Button
