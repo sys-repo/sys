@@ -15,7 +15,7 @@ export const Title: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const spacing = toSpacing(item.x, item.y ?? 5);
+  const spacing = toSpacing(item.x, item.y ?? 1);
   const styles = {
     base: css({
       Margin: spacing.edges,
