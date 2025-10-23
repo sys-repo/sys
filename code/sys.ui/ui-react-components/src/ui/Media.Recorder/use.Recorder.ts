@@ -14,6 +14,10 @@ import { useElapsedTimer } from './use.Recorder.elapsed.ts';
 export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   const { onStatusChange } = options;
 
+  /**
+   * Refs:
+   */
+  const revRef = useRef<number>(0);
   const chunksRef = useRef<BlobPart[]>([]);
   const recorderRef = useRef<MediaRecorder>(undefined);
   const optionsRef = useRef<t.MediaRecorderOptions>(options);
@@ -40,7 +44,9 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
   useEffect(() => {
     if (!onStatusChange) return;
     const is = wrangle.is(state);
+    const rev = ++revRef.current; // increment per emission
     onStatusChange({
+      rev,
       state,
       elapsed: timer.elapsed,
       is: wrangle.is(state),
@@ -149,6 +155,7 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
     vbpsRef.current = 0;
     abpsRef.current = 0;
     captureRef.current = {};
+    revRef.current = 0;
 
     timer.reset();
   };
