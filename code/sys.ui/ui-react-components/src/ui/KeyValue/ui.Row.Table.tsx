@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
 import { toEllipsis, toFont } from './u.ts';
 
 type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
@@ -14,36 +14,32 @@ export const RowTable: React.FC<P> = (props) => {
 
   const styles = {
     row: css({
-      display: 'table-row',
-      backgroundColor: Color.ruby(debug),
+      display: 'contents',
       color: theme.fg,
       fontFamily,
     }),
     key: css({
-      display: 'table-cell',
-      verticalAlign: layout.align === 'baseline' ? 'baseline' : (layout.align ?? 'baseline'),
-      textAlign: layout.keyAlign ?? 'left',
+      gridColumn: '1',
       opacity: 0.7,
-      maxWidth: layout.keyMax, // optional cap
+      textAlign: layout.keyAlign ?? D.layout.table.keyAlign,
+      minWidth: 0,
+      maxWidth: layout.keyMax,
       ...toEllipsis(truncate),
-      // spacing to value cell
-      paddingRight: layout.columnGap ?? 12,
-      whiteSpace: 'nowrap', // typical table-label behavior
+      alignSelf: layout.align ?? 'baseline',
     }),
     val: css({
-      display: 'table-cell',
-      verticalAlign: layout.align === 'baseline' ? 'baseline' : (layout.align ?? 'baseline'),
-      width: '100%',
+      gridColumn: '2',
+      textAlign: 'left',
+      minWidth: 0,
       ...toEllipsis(truncate),
+      alignSelf: layout.align ?? 'baseline',
     }),
   };
 
   return (
     <div className={styles.row.class}>
       <div className={styles.key.class}>{item.k}</div>
-      <div className={styles.val.class} title={typeof item.v === 'string' ? item.v : undefined}>
-        {item.v}
-      </div>
+      <div className={styles.val.class}>{item.v}</div>
     </div>
   );
 };

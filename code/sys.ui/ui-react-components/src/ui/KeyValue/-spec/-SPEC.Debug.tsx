@@ -179,8 +179,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr style={{ marginTop: 15 }} />
       <div className={Styles.title.class}>{'Items:'}</div>
       {itemsButton(undefined, '(none)')}
-      {itemsButton('comprehensive')}
       {itemsButton('simple')}
+      {itemsButton('comprehensive')}
 
       <hr style={{ marginTop: 25 }} />
       <Button

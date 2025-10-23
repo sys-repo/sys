@@ -8,7 +8,7 @@ type P = t.KeyValueProps;
  */
 const name = 'KeyValue';
 const commonLayout = {
-  columnGap: 12,
+  columnGap: 20,
   rowGap: 4,
   align: 'baseline',
 } satisfies NonNullable<t.KeyValueLayoutCommon>;

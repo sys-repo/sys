@@ -18,7 +18,7 @@ export const RowSpaced: React.FC<P> = (props) => {
   const styles = {
     base: css({
       display: 'grid',
-      gridTemplateColumns: `${keyTrack} ${valueTrack}`, // ← use both tracks
+      gridTemplateColumns: `${keyTrack} ${valueTrack}`,
       columnGap: layout.columnGap ?? 12,
       alignItems: layout.align ?? 'baseline',
       backgroundColor: Color.ruby(debug),
@@ -32,9 +32,7 @@ export const RowSpaced: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.key.class}>{item.k}</div>
-      <div className={styles.val.class} title={typeof item.v === 'string' ? item.v : undefined}>
-        {item.v}
-      </div>
+      <div className={styles.val.class}>{item.v}</div>
     </div>
   );
 };
