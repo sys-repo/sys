@@ -137,6 +137,7 @@ export type StdIsLib = {
    * typeof === 'number'
    */
   number(input?: unknown): input is number;
+  num(input?: unknown): input is number;
 
   /**
    * Determine if the value is an array.

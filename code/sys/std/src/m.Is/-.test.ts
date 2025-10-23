@@ -18,6 +18,7 @@ describe('Is (common flags)', () => {
     expect(Is.plainObject).to.equal(isPlainObject);
     expect(Is.plainRecord).to.equal(isPlainRecord);
     expect(Is.promise).to.equal(isPromise);
+    expect(Is.num).to.equal(Is.number);
   });
 
   it('Rx: observable | subject', () => {

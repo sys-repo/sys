@@ -10,6 +10,7 @@ import {
   isRecord,
 } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
+import { number, numeric } from './u.number.ts';
 
 const { errorLike, stdError } = Err.Is;
 
@@ -26,6 +27,10 @@ export const Is: StdIsLib = {
   plainObject: isPlainObject,
   plainRecord: isPlainRecord,
   promise: isPromise,
+
+  numeric,
+  number,
+  num: number,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
@@ -85,29 +90,6 @@ export const Is: StdIsLib = {
     if (typeof value === 'string' && value.trim() === '') return true;
     if (Array.isArray(value) && value.filter((v) => !Is.blank(v)).length === 0) return true;
     return false;
-  },
-
-  /** Determine if the value is numeric, whether it be a number or a number in a string. */
-  numeric(input?: any) {
-    if (typeof input === 'number') {
-      return Number.isFinite(input); // Ensure not: NaN, Infinity, or -Infinity.
-    }
-    if (typeof input === 'bigint') {
-      return true;
-    }
-
-    if (typeof input === 'string') {
-      const trimmed = input.trim();
-      if (trimmed === '') return false; // Empty string, not a number.
-      const num = Number(trimmed);
-      return !Number.isNaN(num) && Number.isFinite(num);
-    }
-
-    return false;
-  },
-
-  number(input?: any): input is number {
-    return typeof input === 'number' && !Number.isNaN(input);
   },
 
   string(input?: any): input is string {
