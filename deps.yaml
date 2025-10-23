@@ -90,7 +90,7 @@ groups:
     - import: npm:ai@5.0.76
     - import: npm:@ai-sdk/openai@2.0.53
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.21.2
+    - import: npm:@mastra/core@0.22.2
       subpaths: ['agent', 'memory', 'storage']
     - import: npm:@mastra/libsql@0.16.0
     - import: npm:@mastra/loggers@0.10.17
