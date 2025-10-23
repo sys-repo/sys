@@ -2,12 +2,14 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Obj, Signal, type t } from '../common.ts';
 import { SAMPLE, type SampleKind } from './-u.sample.tsx';
+import { LayoutButtons } from './-ui.LayoutButtons.tsx';
 
 type P = t.KeyValueProps;
-type L = t.KeyValueLayout;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate'> & {
-  layout: t.KeyValueLayout;
-  sample: SampleKind;
+  layout: t.KeyValueLayout['kind'];
+  layoutSpaced: t.KeyValueLayoutSpaced;
+  layoutTable: t.KeyValueLayoutTable;
+  sample?: SampleKind;
 };
 const defaults: Storage = {
   theme: 'Dark',
@@ -15,7 +17,9 @@ const defaults: Storage = {
   size: D.size,
   mono: D.mono,
   truncate: D.truncate,
-  layout: D.layout,
+  layout: D.layout.default,
+  layoutSpaced: D.layout.spaced,
+  layoutTable: D.layout.table,
   sample: 'comprehensive',
 };
 
@@ -40,15 +44,22 @@ export function createDebugSignals() {
     size: s(snap.size),
     mono: s(snap.mono),
     truncate: s(snap.truncate),
-    layout: {
-      variant: s((snap.layout ?? {}).variant),
-      keyMax: s((snap.layout ?? {}).keyMax),
-      keyAlign: s((snap.layout ?? {}).keyAlign),
-      columnGap: s((snap.layout ?? {}).columnGap),
-      rowGap: s((snap.layout ?? {}).rowGap),
-      align: s((snap.layout ?? {}).align),
+    layout: s(snap.layout),
+    layoutSpaced: {
+      kind: 'spaced',
+      columnGap: s((snap.layoutSpaced ?? {}).columnGap),
+      rowGap: s((snap.layoutSpaced ?? {}).rowGap),
+      align: s((snap.layoutSpaced ?? {}).align),
+      keyAlign: s((snap.layoutSpaced ?? {}).keyAlign),
     },
-    //
+    layoutTable: {
+      kind: 'table',
+      keyMax: s((snap.layoutTable ?? {}).keyMax),
+      columnGap: s((snap.layoutTable ?? {}).columnGap),
+      rowGap: s((snap.layoutTable ?? {}).rowGap),
+      align: s((snap.layoutTable ?? {}).align),
+      keyAlign: s((snap.layoutTable ?? {}).keyAlign),
+    },
     items: s<t.KeyValueItem[]>(),
     sample: s(snap.sample),
   };
@@ -57,6 +68,12 @@ export function createDebugSignals() {
     props,
     reset,
     listen,
+    get layout(): t.KeyValueLayout | undefined {
+      const v = p.layout.value;
+      if (v === 'spaced') return Signal.toObject(p.layoutSpaced) as t.KeyValueLayoutSpaced;
+      if (v === 'table') return Signal.toObject(p.layoutTable) as t.KeyValueLayoutTable;
+      return;
+    },
   };
   function listen() {
     Signal.listen(props, true);
@@ -75,17 +92,24 @@ export function createDebugSignals() {
       d.truncate = p.truncate.value;
       d.sample = p.sample.value;
 
-      d.layout = d.layout ?? {};
-      d.layout.variant = p.layout.variant.value;
-      d.layout.keyMax = p.layout.keyMax.value;
-      d.layout.keyAlign = p.layout.keyAlign.value;
-      d.layout.columnGap = p.layout.columnGap.value;
-      d.layout.rowGap = p.layout.rowGap.value;
-      d.layout.align = p.layout.align.value;
+      d.layout = p.layout.value;
+
+      d.layoutSpaced = d.layoutSpaced ?? {};
+      d.layoutSpaced.columnGap = p.layoutSpaced.columnGap.value;
+      d.layoutSpaced.rowGap = p.layoutSpaced.rowGap.value;
+      d.layoutSpaced.align = p.layoutSpaced.align.value;
+      d.layoutSpaced.keyAlign = p.layoutSpaced.keyAlign.value;
+
+      d.layoutTable = d.layoutTable ?? {};
+      d.layoutTable.keyMax = p.layoutTable.keyMax.value;
+      d.layoutTable.columnGap = p.layoutTable.columnGap.value;
+      d.layoutTable.rowGap = p.layoutTable.rowGap.value;
+      d.layoutTable.align = p.layoutTable.align.value;
+      d.layoutTable.keyAlign = p.layoutTable.keyAlign.value;
     });
   });
 
-  p.items.value = SAMPLE.items('comprehensive');
+  p.items.value = SAMPLE.items(p.sample.value);
   return api;
 }
 
@@ -119,10 +143,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     if (!label) label = `sample: ${kind}`;
     return (
       <Button
-        //
         block
         label={label}
-        onClick={() => (p.items.value = SAMPLE.items(kind))}
+        onClick={() => {
+          p.items.value = SAMPLE.items(kind);
+          p.sample.value = kind;
+        }}
       />
     );
   };
@@ -149,56 +175,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
-        block
-        label={() => `layout.variant: ${p.layout.variant.value ?? '(undefined)'}`}
-        onClick={() => {
-          Signal.cycle<L['variant']>(p.layout.variant, [D.layout.variant, 'table', undefined]);
-        }}
-      />
-      <Button
-        block
-        label={() => `layout.keyMax: ${p.layout.keyMax.value}`}
-        onClick={() => {
-          Signal.cycle<L['keyMax']>(p.layout.keyMax, [D.layout.keyMax, 60, '5ch']);
-        }}
-      />
-      <Button
-        block
-        label={() => `layout.keyAlign: ${p.layout.keyAlign.value}`}
-        onClick={() => {
-          Signal.cycle<L['keyAlign']>(p.layout.keyAlign, [D.layout.keyAlign, 'right']);
-        }}
-      />
-      <Button
-        block
-        label={() => `layout.columnGap: ${p.layout.columnGap.value}`}
-        onClick={() => {
-          Signal.cycle<L['columnGap']>(p.layout.columnGap, [4, 8, D.layout.columnGap, 16, 20, 24]);
-        }}
-      />
-      <Button
-        block
-        label={() => `layout.rowGap: ${p.layout.rowGap.value}`}
-        onClick={() => {
-          Signal.cycle<L['rowGap']>(p.layout.rowGap, [0, D.layout.rowGap, 6, 10]);
-        }}
-      />
-      <Button
-        block
-        label={() => `layout.align: ${p.layout.align.value}`}
-        onClick={() => {
-          Signal.cycle<L['align']>(p.layout.align, [D.layout.align, 'start', 'center']);
-        }}
-      />
 
-      <hr />
+      <LayoutButtons debug={debug} theme={theme.name} />
+
+      <hr style={{ marginTop: 15 }} />
       <div className={Styles.title.class}>{'Items:'}</div>
       {itemsButton(undefined, '(none)')}
       {itemsButton('comprehensive')}
       {itemsButton('simple')}
 
-      <hr />
+      <hr style={{ marginTop: 25 }} />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}

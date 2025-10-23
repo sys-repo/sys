@@ -29,21 +29,6 @@ export function toEllipsis(truncate: boolean = D.truncate): t.CssProps {
 }
 
 export function toLayout(layout?: t.KeyValueLayout): NonNullable<t.KeyValueLayout> {
-  return {
-    variant: layout?.variant ?? D.layout.variant,
-    keyMax: layout?.keyMax ?? D.layout.keyMax,
-    keyAlign: layout?.keyAlign ?? D.layout.keyAlign,
-    columnGap: layout?.columnGap ?? D.layout.columnGap,
-    rowGap: layout?.rowGap ?? D.layout.rowGap,
-    align: layout?.align ?? D.layout.align,
-  };
-}
-
-export function toEdgeOffset(
-  value?: t.Pixels | [t.Pixels, t.Pixels],
-): [t.Pixels | undefined, t.Pixels | undefined] {
-  if (value == null) return [undefined, undefined];
-  if (Is.array(value)) return [value[0], value[1]];
-  if (Is.number(value)) return [value, value];
-  return [undefined, undefined];
+  if (layout?.kind === 'spaced' || layout?.kind === 'table') return layout;
+  return D.layout[D.layout.default];
 }

@@ -7,6 +7,13 @@ type P = t.KeyValueProps;
  * Constants:
  */
 const name = 'KeyValue';
+const commonLayout = {
+  columnGap: 12,
+  rowGap: 4,
+  align: 'baseline',
+  keyAlign: 'left',
+} satisfies NonNullable<t.KeyValueLayoutCommon>;
+
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
@@ -15,13 +22,15 @@ export const D = {
   mono: false satisfies NonNullable<P['mono']>,
   truncate: true satisfies NonNullable<P['truncate']>,
   spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValueSpacer>,
+
   layout: {
-    variant: 'inline',
-    keyMax: '24ch',
-    keyAlign: 'left',
-    columnGap: 12,
-    rowGap: 4,
-    align: 'baseline',
-  } satisfies NonNullable<t.KeyValueLayout>,
+    default: 'spaced' as const,
+    spaced: { kind: 'spaced', ...commonLayout } satisfies NonNullable<t.KeyValueLayoutSpaced>,
+    table: {
+      kind: 'table',
+      keyMax: '24ch',
+      ...commonLayout,
+    } satisfies NonNullable<t.KeyValueLayoutTable>,
+  },
 } as const;
 export const DEFAULTS = D;

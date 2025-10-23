@@ -38,7 +38,7 @@ const comprehensive: t.KeyValueItem[] = [
 
   { kind: 'spacer', size: 8 },
 
-  { kind: 'title', v: 'Flags' },
+  { kind: 'title', v: <Foo /> },
   { k: 'mono', v: true ? 'true' : 'false' },
   { k: 'truncate', v: 'true' },
   { k: 'columns.gap', v: '12 px' },

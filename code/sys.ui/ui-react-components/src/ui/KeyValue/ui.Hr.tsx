@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, D, Rx, Signal } from './common.ts';
-import { toEdgeOffset } from './u.ts';
+import React from 'react';
+import { type t, Color, css, Is } from './common.ts';
 
 type P = t.KeyValueItemProps;
 
@@ -12,8 +11,8 @@ export const Hr: React.FC<P> = (props) => {
   if (item.kind !== 'hr') return null;
 
   // item.
-  const x = toEdgeOffset(item.x);
-  const y = toEdgeOffset(item.y ?? 5);
+  const x = toOffset(item.x);
+  const y = toOffset(item.y ?? 5);
 
   /**
    * Render:
@@ -38,3 +37,15 @@ export const Hr: React.FC<P> = (props) => {
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+export function toOffset(
+  value?: t.Pixels | [t.Pixels, t.Pixels],
+): [t.Pixels | undefined, t.Pixels | undefined] {
+  if (value == null) return [undefined, undefined];
+  if (Is.array(value)) return [value[0], value[1]];
+  if (Is.number(value)) return [value, value];
+  return [undefined, undefined];
+}
