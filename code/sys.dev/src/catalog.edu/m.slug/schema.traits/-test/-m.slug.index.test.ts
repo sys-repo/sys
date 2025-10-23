@@ -8,12 +8,12 @@ describe('trait: slug-index', () => {
   describe('schema', () => {
     it('requires index; validates minimal object', () => {
       expect(Value.Check(SlugIndexPropsSchema, {})).to.eql(false); // missing required `index`
-      expect(Value.Check(SlugIndexPropsSchema, { index: [] })).to.eql(true);
+      expect(Value.Check(SlugIndexPropsSchema, { slugs: [] })).to.eql(true);
     });
 
     it('accepts entries with/without name; valid CRDT refs', () => {
       const ok1 = {
-        index: [
+        slugs: [
           { name: 'Intro', ref: 'urn:crdt:123e4567-e89b-12d3-a456-426614174000/slug' },
           { ref: 'crdt:abcdefghijklmnopqrstuvwxyzAB/path/to' }, // base62-28 + path
         ],

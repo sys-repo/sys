@@ -1,4 +1,5 @@
 import { type t, Type as T } from './common.ts';
+import { Pattern } from './u.Pattern.ts';
 
 /**
  * Bind a trait type (id) to a local alias (as).
@@ -10,8 +11,14 @@ export const TraitBindingSchema: t.TObject<{
   id: t.TString;
 }> = T.Object(
   {
-    as: T.String({ pattern: '^[a-z][a-z0-9-]*$' }),
-    id: T.String({ pattern: '^[a-z][a-z0-9-]*$' }),
+    id: T.String({
+      title: 'Binding id-ref.',
+      ...Pattern.idPattern(),
+    }),
+    as: T.String({
+      title: 'Property alias',
+      ...Pattern.idPattern(),
+    }),
   },
   { additionalProperties: false },
 );
@@ -25,7 +32,7 @@ export const TraitDefSchema: t.TObject<{
   props: t.TOptional<t.TUnknown>;
 }> = T.Object(
   {
-    id: T.String({ pattern: '^[a-z][a-z0-9-]*$' }),
+    id: T.String({ ...Pattern.idPattern() }),
     props: T.Optional(T.Unknown()),
   },
   { additionalProperties: false },

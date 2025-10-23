@@ -16,23 +16,43 @@ export function yamlSamples(debug: DebugSignals) {
     if (doc && path) doc.change((draft) => fn({ draft, path }));
   };
 
-  const samples: SampleItem[] = [
-    // ✅ Working:
-    {
-      label: 'working: 🌳 { slug: minimal }',
-      yaml: `
+  const hr = true;
+  const samples: SampleItem[] = [];
+  const sample = (label: string = 'untitled', yaml: string = '', dividerAfter?: boolean) => {
+    samples.push({ label, yaml, dividerAfter });
+  };
+
+  sample(
+    // ✅
+    'working: 🌳 { slug:minimal }',
+    `
         slug:
           id: example.minimal-01
           traits: []
+    `,
+  );
+  sample(
+    // ✅
+    'working: 🌳 { slug:index }',
+    `
+        slug:
+          id: my-id.foo-01
+          traits:
+            - id: slug-index
+              as: mything-v1.0
+          props:
+            mything-v1.0:
+              name: Name of Index 🌸
+              slugs:
+                - ref: crdt:create
+                  name: Name or Title
 
-      `,
-    },
-
-    // ✅ Working:
-    {
-      dividerAfter: true, // ← insert <hr /> right after this one
-      label: 'working: 🌳 { slug }',
-      yaml: `
+    `,
+  );
+  sample(
+    // ✅
+    'working: 🌳 { slug:comprehensive }',
+    `
         slug:
           id: example.slug-01
           traits:
@@ -41,30 +61,29 @@ export function yamlSamples(debug: DebugSignals) {
             - id: video-recorder
               as: recorder
             - id: slug-index
-              as: programme-slugs
+              as: my-index-1.0
           props:
-            programme-slugs:
-              index:
-                - name: hello
-                  ref: crdt:create
+            my-index-1.0:
+              slugs:
+                - ref: crdt:create
+                  name: my-slugs-1.0
             recorder:
               name: "Recorder A"
               description: The old man was dreaming about the lions.
-              # file: urn:crdt:39qozwJjQcq4erBWbMdGc4jkd3Xr/foo
               file: crdt:create
+              # file: urn:crdt:39qozwJjQcq4erBWbMdGc4jkd3Xr/foo
               script: |
                 He was an old man who fished alone in a skiff in the Gulf Stream and he had gone
                 eighty-four days now without taking a fish.
             player:
               name: "Player A"
 
-      `,
-    },
-
-    // 💥 Invalid YAML (syntax):
-    {
-      label: 'error: 💥 { invalid YAML (syntax) }',
-      yaml: `
+    `,
+    hr,
+  );
+  sample(
+    'error: 💥 { invalid YAML (syntax) }',
+    `
         slug:
           id: example-slug
           traits:
@@ -73,13 +92,12 @@ export function yamlSamples(debug: DebugSignals) {
           props:
             primary:
               src: "video.mp4   # ← missing closing quote
-      `,
-    },
 
-    // 🐷 Unknown trait id (semantic):
-    {
-      label: 'error: 🐷 { unknown trait id }',
-      yaml: `
+    `,
+  );
+  sample(
+    'error: 🐷 { unknown trait id }',
+    `
         slug:
           id: example-slug
           traits:
@@ -89,13 +107,11 @@ export function yamlSamples(debug: DebugSignals) {
             primary:
               src: "video.mp4"
 
-      `,
-    },
-
-    // 🐷 Duplicate alias:
-    {
-      label: 'error: 🐷 { duplicate alias }',
-      yaml: `
+    `,
+  );
+  sample(
+    'error: 🐷 { duplicate alias }',
+    `
         slug:
           id: example-slug
           traits:
@@ -107,13 +123,11 @@ export function yamlSamples(debug: DebugSignals) {
             primary:
               src: "video.mp4"
 
-      `,
-    },
-
-    // 🐷 Missing props for alias:
-    {
-      label: 'error: 🐷 { missing props for alias }',
-      yaml: `
+    `,
+  );
+  sample(
+    'error: 🐷 { missing props for alias }',
+    `
         slug:
           id: example-slug
           traits:
@@ -121,13 +135,11 @@ export function yamlSamples(debug: DebugSignals) {
               id: video-player
           props: {}
 
-      `,
-    },
-
-    // 🐷 Orphan props:
-    {
-      label: 'error: 🐷 { orphan props }',
-      yaml: `
+    `,
+  );
+  sample(
+    'error: 🐷 { orphan props }',
+    `
         slug:
           id: example-slug
           traits:
@@ -139,13 +151,11 @@ export function yamlSamples(debug: DebugSignals) {
             extra:
               note: "no matching trait alias"
 
-      `,
-    },
-
-    // 🐷 Invalid props shape:
-    {
-      label: 'error: 🐷 { invalid props shape }',
-      yaml: `
+    `,
+  );
+  sample(
+    'error: 🐷 { invalid props shape }',
+    `
         slug:
           id: example-slug
           traits:
@@ -155,9 +165,8 @@ export function yamlSamples(debug: DebugSignals) {
             primary:
               src: ""   # violates minLength: 1 in current schemas
 
-      `,
-    },
-  ];
+    `,
+  );
 
   return (
     <>

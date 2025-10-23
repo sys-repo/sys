@@ -24,7 +24,7 @@ describe('TraitRegistry (default)', () => {
     const index = TraitRegistryDefault.get('slug-index')!;
     expect(Value.Check(player.propsSchema, { name: 'Player A' })).to.eql(true);
     expect(Value.Check(recorder.propsSchema, { name: 'Recorder A' })).to.eql(true);
-    expect(Value.Check(index.propsSchema, { index: [] })).to.eql(true); // required for slug-index
+    expect(Value.Check(index.propsSchema, { slugs: [] })).to.eql(true); // required for slug-index
   });
 
   it('prop-schemas reject empty name', () => {

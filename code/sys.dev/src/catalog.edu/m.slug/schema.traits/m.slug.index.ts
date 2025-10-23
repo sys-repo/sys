@@ -1,5 +1,4 @@
-import { Type as T } from './common.ts';
-import { Pattern } from './u.Pattern.ts';
+import { Pattern, Type as T } from './common.ts';
 
 /**
  * Schema for a single slug-index entry.
@@ -10,7 +9,10 @@ export const SlugIndexEntrySchema = T.Object(
     name: T.Optional(T.String({ minLength: 1 })),
 
     /** CRDT reference to the slug (URN with optional path). */
-    ref: T.String({ title: 'CRDT Slug Reference (URN)', ...Pattern.refCrdt }),
+    ref: T.String({
+      title: 'Slug Reference (CRDT/URN)',
+      ...Pattern.crdtRefPattern(),
+    }),
   },
   { additionalProperties: false },
 );
@@ -27,7 +29,7 @@ export const SlugIndexPropsSchema = T.Object(
     description: T.Optional(T.String()),
 
     /** Array of slug references. */
-    index: T.Array(SlugIndexEntrySchema),
+    slugs: T.Array(SlugIndexEntrySchema),
   },
   {
     $id: 'trait.slug-index.props',

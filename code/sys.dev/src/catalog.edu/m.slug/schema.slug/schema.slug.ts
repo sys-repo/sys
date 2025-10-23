@@ -1,5 +1,6 @@
 import { type t, Type as T } from './common.ts';
 import { TraitBindingSchema } from './schema.trait.ts';
+import { Pattern } from './u.Pattern.ts';
 
 /**
  * Slug core (v0): stable identity + trait bindings.
@@ -12,8 +13,8 @@ export const SlugSchema: t.TObject<{
 }> = T.Object(
   {
     id: T.String({
-      description: `Stable slug identifier. Must start with a lowercase letter or number; may contain lowercase letters, numbers, hyphens, and periods (e.g. "video.player-01").`,
-      pattern: '^[a-z0-9][a-z0-9.-]*$',
+      title: 'Slug identifier.',
+      ...Pattern.idPattern(),
     }),
 
     traits: T.Array(TraitBindingSchema, {
@@ -22,7 +23,7 @@ export const SlugSchema: t.TObject<{
 
     props: T.Optional(
       T.Record(T.String(), T.Unknown(), {
-        description: `Properties keyed by trait alias. Each entry’s value is validated semantically according to the corresponding trait’s schema.`,
+        description: `Properties keyed by trait alias. Each entry's value is validated semantically according to the corresponding trait's schema.`,
       }),
     ),
   },

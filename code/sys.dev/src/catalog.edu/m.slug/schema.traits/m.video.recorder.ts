@@ -1,5 +1,4 @@
-import { Type as T } from './common.ts';
-import { Pattern } from './u.Pattern.ts';
+import { Pattern, Type as T } from './common.ts';
 
 /**
  * Properties: Video Recorder.
@@ -24,7 +23,7 @@ export const VideoRecorderPropsSchema = T.Object(
     file: T.Optional(
       T.String({
         title: 'CRDT File Reference (URN)',
-        ...Pattern.refCrdt,
+        ...Pattern.crdtRefPattern(),
       }),
     ),
   },
