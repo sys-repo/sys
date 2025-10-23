@@ -12,10 +12,13 @@ export const D = {
   displayName: Pkg.toString(pkg, name, false),
 
   size: 'sm' satisfies NonNullable<P['size']>,
-  mono: true satisfies NonNullable<P['mono']>,
+  mono: false satisfies NonNullable<P['mono']>,
   truncate: true satisfies NonNullable<P['truncate']>,
-
-  columns: { template: 'auto 1fr', gap: 12 } satisfies Required<NonNullable<P['columns']>>,
-  spacer: { kind: 'spacer', size: 8 } satisfies Required<t.KeyValueSpacer>,
+  spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValueSpacer>,
+  layout: {
+    columnTemplate: 'auto 1fr',
+    columnGap: 12,
+    rowGap: 4,
+  } satisfies NonNullable<t.KeyValueLayout>,
 } as const;
 export const DEFAULTS = D;

@@ -1,10 +1,10 @@
 import type React from 'react';
 import type { t } from '../common.ts';
 
-/**
- * Item kinds.
- */
+/** Item kinds. */
 export type KeyValueItem = KeyValueRow | KeyValueTitle | KeyValueHr | KeyValueSpacer;
+/** Size flags. */
+export type KeyValueSize = 'xs' | 'sm' | 'md';
 
 /**
  * Types for the KeyValue primitive.
@@ -18,16 +18,17 @@ export type KeyValueLib = {
       filter?: (key: string, value: unknown) => boolean;
       format?: (value: unknown) => React.ReactNode;
     },
-  ): readonly KeyValueItem[];
+  ): KeyValueItem[];
 };
 
 /**
- * Component: Props for the <KeyValue> component.
+ * Component: props for the <KeyValue> component.
  */
 export type KeyValueProps = {
-  items?: readonly KeyValueItem[];
-  columns?: KeyValuePropsColumns;
-  size?: 'xs' | 'sm' | 'md';
+  items?: KeyValueItem[];
+
+  layout?: KeyValueLayout;
+  size?: KeyValueSize;
   mono?: boolean;
   truncate?: boolean;
 
@@ -36,14 +37,35 @@ export type KeyValueProps = {
   style?: t.CssInput;
 };
 
-/** Configuration for how columns are laid out. */
-export type KeyValuePropsColumns = { template?: string; gap?: t.Pixels };
+/**
+ * Component: props for a single row within the <KeyValue> component.
+ */
+export type KeyValueItemProps = {
+  item: t.KeyValueItem;
+  mono?: boolean;
+  truncate?: boolean;
+  layout?: t.KeyValueLayout;
+  size?: t.KeyValueSize;
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};
+
+/** Layout configuration for key/value rows. */
+export type KeyValueLayout = {
+  /** Grid template for key/value columns. */
+  columnTemplate?: string;
+  /** Horizontal gap between key and value columns. */
+  columnGap?: t.Pixels;
+  /** Vertical gap between successive rows. */
+  rowGap?: t.Pixels;
+};
 
 /**
  * A single key/value row.
  */
 export type KeyValueRow = {
-  readonly kind: 'row';
+  readonly kind?: 'row';
   readonly k: React.ReactNode;
   readonly v?: React.ReactNode;
   readonly mono?: boolean;
@@ -55,7 +77,7 @@ export type KeyValueRow = {
  */
 export type KeyValueTitle = {
   readonly kind: 'title';
-  readonly node: React.ReactNode;
+  readonly v: React.ReactNode;
 };
 
 /**
@@ -63,7 +85,10 @@ export type KeyValueTitle = {
  */
 export type KeyValueHr = {
   readonly kind: 'hr';
-  readonly inset?: number;
+  readonly x?: t.Pixels | [t.Pixels, t.Pixels]; // [left, right]
+  readonly y?: t.Pixels | [t.Pixels, t.Pixels]; // [top, bottom]
+  readonly thickness?: t.Pixels;
+  readonly opacity?: t.Percent;
 };
 
 /**
@@ -71,5 +96,5 @@ export type KeyValueHr = {
  */
 export type KeyValueSpacer = {
   readonly kind: 'spacer';
-  readonly size?: number | string; // default: 8
+  readonly size?: number | string;
 };

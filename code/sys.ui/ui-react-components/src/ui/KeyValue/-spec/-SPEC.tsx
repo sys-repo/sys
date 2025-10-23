@@ -11,7 +11,7 @@ export default Spec.describe(D.displayName, (e) => {
     const ctx = Spec.ctx(e);
 
     function update() {
-      ctx.subject.size([280, null]);
+      ctx.subject.size([320, null]);
       ctx.redraw();
     }
 
@@ -26,7 +26,17 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <KeyValue debug={v.debug} theme={v.theme} />;
+        return (
+          <KeyValue
+            debug={v.debug}
+            theme={v.theme}
+            size={v.size}
+            mono={v.mono}
+            truncate={v.truncate}
+            layout={v.layout}
+            items={v.items}
+          />
+        );
       });
 
     update();

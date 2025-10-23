@@ -1,11 +1,12 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { SAMPLE } from './-u.sample.tsx';
 
 type P = t.KeyValueProps;
-type C = t.KeyValuePropsColumns;
+type L = t.KeyValueLayout;
 type Storage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate'> & {
-  columns: t.KeyValuePropsColumns;
+  layout: t.KeyValueLayout;
 };
 const defaults: Storage = {
   theme: 'Dark',
@@ -13,7 +14,7 @@ const defaults: Storage = {
   size: D.size,
   mono: D.mono,
   truncate: D.truncate,
-  columns: D.columns,
+  layout: D.layout,
 };
 
 /**
@@ -37,10 +38,13 @@ export function createDebugSignals() {
     size: s(snap.size),
     mono: s(snap.mono),
     truncate: s(snap.truncate),
-    columns: {
-      template: s((snap.columns ?? {}).template),
-      gap: s((snap.columns ?? {}).gap),
+    layout: {
+      columnTemplate: s((snap.layout ?? {}).columnTemplate),
+      columnGap: s((snap.layout ?? {}).columnGap),
+      rowGap: s((snap.layout ?? {}).rowGap),
     },
+    //
+    items: s<t.KeyValueItem[]>(),
   };
   const p = props;
   const api = {
@@ -48,13 +52,12 @@ export function createDebugSignals() {
     reset,
     listen,
   };
-
   function listen() {
     Signal.listen(props, true);
   }
-
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    p.items.value = SAMPLE.items('default');
   }
 
   Signal.effect(() => {
@@ -65,12 +68,14 @@ export function createDebugSignals() {
       d.mono = p.mono.value;
       d.truncate = p.truncate.value;
 
-      d.columns = d.columns ?? {};
-      d.columns.template = p.columns.template.value;
-      d.columns.gap = p.columns.gap.value;
+      d.layout = d.layout ?? {};
+      d.layout.columnTemplate = p.layout.columnTemplate.value;
+      d.layout.columnGap = p.layout.columnGap.value;
+      d.layout.rowGap = p.layout.rowGap.value;
     });
   });
 
+  p.items.value = SAMPLE.items('default');
   return api;
 }
 
@@ -100,6 +105,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({ color: theme.fg }),
   };
 
+  type S = Parameters<(typeof SAMPLE)['items']>[0];
+  const itemsButton = (label: string, sample: S) => {
+    return (
+      <Button
+        //
+        block
+        label={label}
+        onClick={() => (p.items.value = SAMPLE.items(sample))}
+      />
+    );
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
@@ -124,21 +141,35 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `columns.template: ${p.columns.template.value}`}
-        onClick={() =>
-          Signal.cycle<C['template']>(p.columns.template, [
-            D.columns.template,
+        label={() => `layout.columnTemplate: ${p.layout.columnTemplate.value}`}
+        onClick={() => {
+          Signal.cycle<L['columnTemplate']>(p.layout.columnTemplate, [
+            D.layout.columnTemplate,
             'minmax(80px,auto) 1fr',
             '1fr 2fr',
             'max-content 1fr',
-          ])
-        }
+          ]);
+        }}
       />
       <Button
         block
-        label={() => `columns.gap: ${p.columns.gap.value}`}
-        onClick={() => Signal.cycle<C['gap']>(p.columns.gap, [4, 8, D.columns.gap, 16, 20, 24])}
+        label={() => `layout.columnGap: ${p.layout.columnGap.value}`}
+        onClick={() => {
+          Signal.cycle<L['columnGap']>(p.layout.columnGap, [4, 8, D.layout.columnGap, 16, 20, 24]);
+        }}
       />
+      <Button
+        block
+        label={() => `layout.rowGap: ${p.layout.rowGap.value}`}
+        onClick={() => {
+          Signal.cycle<L['rowGap']>(p.layout.rowGap, [0, D.layout.rowGap, 6, 10]);
+        }}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Items:'}</div>
+      {itemsButton('(none)', undefined)}
+      {itemsButton('default sample', 'default')}
 
       <hr />
       <Button
