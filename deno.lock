@@ -49,13 +49,13 @@
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.0.9": "1.0.9",
     "npm:@ai-sdk/openai@2.0.53": "2.0.53_zod@4.1.12",
-    "npm:@automerge/automerge-repo-network-websocket@2.4.0": "2.4.0_ws@8.18.3",
+    "npm:@automerge/automerge-repo-network-websocket@2.4.0": "2.4.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.4.0": "2.4.0",
     "npm:@automerge/automerge-repo-storage-nodefs@2.4.0": "2.4.0",
     "npm:@automerge/automerge-repo@2.4.0": "2.4.0",
     "npm:@automerge/automerge@3.1.2": "3.1.2",
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
-    "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
+    "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.1.12__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:@farcaster/frame-sdk@0.1.12": "0.1.12",
     "npm:@mastra/core@0.22.2": "0.22.2_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.2.0__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.2",
     "npm:@mastra/libsql@0.16.0": "0.16.0_@mastra+core@0.22.2__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.2.0___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.2_react@19.2.0_@sinclair+typebox@0.34.41",
@@ -74,8 +74,8 @@
     "npm:@types/react-dom@19.2.2": "19.2.2_@types+react@19.2.2",
     "npm:@types/react@19.2.2": "19.2.2",
     "npm:@types/ws@8.18.1": "8.18.1",
-    "npm:@vitejs/plugin-react-swc@4.1.0": "4.1.0_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
-    "npm:ai@5.0.76": "5.0.76_zod@4.1.12",
+    "npm:@vitejs/plugin-react-swc@4.1.0": "4.1.0_vite@7.1.12__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
+    "npm:ai@5.0.78": "5.0.78_zod@4.1.12",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.0": "6.2.0",
     "npm:csstype@3": "3.1.3",
@@ -102,7 +102,7 @@
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
     "npm:prosemirror-model@1.25.4": "1.25.4",
     "npm:prosemirror-schema-basic@1.2.4": "1.2.4",
-    "npm:prosemirror-state@1.4.3": "1.4.3",
+    "npm:prosemirror-state@1.4.4": "1.4.4",
     "npm:prosemirror-view@1.41.3": "1.41.3",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.0": "19.2.0_react@19.2.0",
@@ -117,9 +117,9 @@
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.1.1": "10.1.1",
     "npm:ua-parser-js@2.0.6": "2.0.6",
-    "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
-    "npm:vite@*": "7.1.11_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
-    "npm:vite@7.1.11": "7.1.11_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
+    "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.1.12__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
+    "npm:vite@*": "7.1.12_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
+    "npm:vite@7.1.12": "7.1.12_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0",
     "npm:ws@8.18.3": "8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10",
     "npm:yaml@2.8.1": "2.8.1"
   },
@@ -358,6 +358,15 @@
         "zod@4.1.12"
       ]
     },
+    "@ai-sdk/gateway@2.0.1_zod@4.1.12": {
+      "integrity": "sha512-vPVIbnP35ZnayS937XLo85vynR85fpBQWHCdUweq7apzqFOTU2YkUd4V3msebEHbQ2Zro60ZShDDy9SMiyWTqA==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
+        "@vercel/oidc",
+        "zod@4.1.12"
+      ]
+    },
     "@ai-sdk/google@2.0.23_zod@4.1.12": {
       "integrity": "sha512-VbCnKR+6aWUVLkAiSW5gUEtST7KueEmlt+d6qwDikxlLnFG9pzy59je8MiDVeM5G2tuSXbvZQF78PGIfXDBmow==",
       "dependencies": [
@@ -470,14 +479,14 @@
         "js-yaml"
       ]
     },
-    "@automerge/automerge-repo-network-websocket@2.4.0_ws@8.18.3": {
+    "@automerge/automerge-repo-network-websocket@2.4.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10": {
       "integrity": "sha512-xdJEMO+7oK40Y7hs/YyiTwaOrgxWv4JCQlQnVZ5KlGIkTwyzFoPguZYZskxYIJqmx239XXm8YikVsmm0CSSlDQ==",
       "dependencies": [
         "@automerge/automerge-repo",
         "cbor-x",
         "debug@4.4.3",
         "eventemitter3@5.0.1",
-        "isomorphic-ws@5.0.0_ws@8.18.3",
+        "isomorphic-ws@5.0.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
         "ws@8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10"
       ]
     },
@@ -520,7 +529,7 @@
         "ordered-map",
         "prosemirror-changeset",
         "prosemirror-history",
-        "prosemirror-model@1.25.3",
+        "prosemirror-model",
         "prosemirror-schema-basic",
         "prosemirror-schema-list",
         "prosemirror-state",
@@ -536,8 +545,8 @@
         "picocolors"
       ]
     },
-    "@babel/helper-validator-identifier@7.27.1": {
-      "integrity": "sha512-D2hP9eA+Sqx1kBZgzxZh0y1trbuU+JoDkiEwqhQ36nodYqJwyEIhPSdMNd7lOm/4io72luTPWH20Yda0xOuUow=="
+    "@babel/helper-validator-identifier@7.28.5": {
+      "integrity": "sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q=="
     },
     "@babel/runtime@7.28.4": {
       "integrity": "sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ=="
@@ -572,22 +581,22 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@deno/vite-plugin@1.0.5_vite@7.1.11__picomatch@4.0.3": {
+    "@deno/vite-plugin@1.0.5_vite@7.1.12__picomatch@4.0.3": {
       "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
       "dependencies": [
-        "vite@7.1.11_picomatch@4.0.3"
+        "vite@7.1.12_picomatch@4.0.3"
       ]
     },
-    "@deno/vite-plugin@1.0.5_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1": {
+    "@deno/vite-plugin@1.0.5_vite@7.1.12__picomatch@4.0.3_yaml@2.8.1": {
       "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
       "dependencies": [
-        "vite@7.1.11_picomatch@4.0.3_yaml@2.8.1"
+        "vite@7.1.12_picomatch@4.0.3_yaml@2.8.1"
       ]
     },
-    "@deno/vite-plugin@1.0.5_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+    "@deno/vite-plugin@1.0.5_vite@7.1.12__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
       "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
       "dependencies": [
-        "vite@7.1.11_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
+        "vite@7.1.12_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
       ]
     },
     "@esbuild/aix-ppc64@0.21.5": {
@@ -2503,28 +2512,28 @@
     "@vercel/oidc@3.0.3": {
       "integrity": "sha512-yNEQvPcVrK9sIe637+I0jD6leluPxzwJKx/Haw6F4H77CdDsszUn5V3o96LPziXkSNE2B83+Z3mjqGKBK/R6Gg=="
     },
-    "@vitejs/plugin-react-swc@4.1.0_vite@7.1.11__picomatch@4.0.3": {
+    "@vitejs/plugin-react-swc@4.1.0_vite@7.1.12__picomatch@4.0.3": {
       "integrity": "sha512-Ff690TUck0Anlh7wdIcnsVMhofeEVgm44Y4OYdeeEEPSKyZHzDI9gfVBvySEhDfXtBp8tLCbfsVKPWEMEjq8/g==",
       "dependencies": [
         "@rolldown/pluginutils",
         "@swc/core",
-        "vite@7.1.11_picomatch@4.0.3"
+        "vite@7.1.12_picomatch@4.0.3"
       ]
     },
-    "@vitejs/plugin-react-swc@4.1.0_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1": {
+    "@vitejs/plugin-react-swc@4.1.0_vite@7.1.12__picomatch@4.0.3_yaml@2.8.1": {
       "integrity": "sha512-Ff690TUck0Anlh7wdIcnsVMhofeEVgm44Y4OYdeeEEPSKyZHzDI9gfVBvySEhDfXtBp8tLCbfsVKPWEMEjq8/g==",
       "dependencies": [
         "@rolldown/pluginutils",
         "@swc/core",
-        "vite@7.1.11_picomatch@4.0.3_yaml@2.8.1"
+        "vite@7.1.12_picomatch@4.0.3_yaml@2.8.1"
       ]
     },
-    "@vitejs/plugin-react-swc@4.1.0_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+    "@vitejs/plugin-react-swc@4.1.0_vite@7.1.12__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
       "integrity": "sha512-Ff690TUck0Anlh7wdIcnsVMhofeEVgm44Y4OYdeeEEPSKyZHzDI9gfVBvySEhDfXtBp8tLCbfsVKPWEMEjq8/g==",
       "dependencies": [
         "@rolldown/pluginutils",
         "@swc/core",
-        "vite@7.1.11_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
+        "vite@7.1.12_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
       ]
     },
     "abitype@1.1.1_zod@3.25.76": {
@@ -2592,6 +2601,16 @@
       "integrity": "sha512-ZCxi1vrpyCUnDbtYrO/W8GLvyacV9689f00yshTIQ3mFFphbD7eIv40a2AOZBv3GGRA7SSRYIDnr56wcS/gyQg==",
       "dependencies": [
         "@ai-sdk/gateway@2.0.0_zod@4.1.12",
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
+        "@opentelemetry/api",
+        "zod@4.1.12"
+      ]
+    },
+    "ai@5.0.78_zod@4.1.12": {
+      "integrity": "sha512-ec77fmQwJGLduswMrW4AAUGSOiu8dZaIwMmWHHGKsrMUFFS6ugfkTyx0srtuKYHNRRLRC2dT7cPirnUl98VnxA==",
+      "dependencies": [
+        "@ai-sdk/gateway@2.0.1_zod@4.1.12",
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
         "@opentelemetry/api",
@@ -2908,9 +2927,6 @@
     },
     "detect-libc@2.0.2": {
       "integrity": "sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw=="
-    },
-    "detect-libc@2.1.2": {
-      "integrity": "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ=="
     },
     "diff-match-patch@1.0.5": {
       "integrity": "sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw=="
@@ -3405,7 +3421,7 @@
         "ws@7.5.10"
       ]
     },
-    "isomorphic-ws@5.0.0_ws@8.18.3": {
+    "isomorphic-ws@5.0.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10": {
       "integrity": "sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==",
       "dependencies": [
         "ws@8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10"
@@ -3499,7 +3515,7 @@
       "integrity": "sha512-NscWthMQt7fpU8lqd7LXMvT9pi+KhhmTHAJWUB/Lj6MWa0MKFv0F2V4C6WKKpjCVZl0VwcDz4nOI3CyaT1DDiA==",
       "dependencies": [
         "@neon-rs/load",
-        "detect-libc@2.0.2"
+        "detect-libc"
       ],
       "optionalDependencies": [
         "@libsql/darwin-arm64",
@@ -3657,7 +3673,7 @@
     "node-gyp-build-optional-packages@5.1.1": {
       "integrity": "sha512-+P72GAjVAbTxjjwUmwjVrqrdZROD4nf8KgpBoDxqXXTiYZZt/ud60dE5yvCSr9lRO8e8yv6kgJIC0K0PfZFVQw==",
       "dependencies": [
-        "detect-libc@2.1.2"
+        "detect-libc"
       ],
       "bin": true
     },
@@ -3957,7 +3973,7 @@
     "prosemirror-commands@1.7.1": {
       "integrity": "sha512-rT7qZnQtx5c0/y/KlYaGvtG411S97UaL6gdp6RIZ23DLHanMYLyfGBV5DtSnZdthQql7W+lEVbpSfwtO8T+L2w==",
       "dependencies": [
-        "prosemirror-model@1.25.3",
+        "prosemirror-model",
         "prosemirror-state",
         "prosemirror-transform"
       ]
@@ -3988,7 +4004,7 @@
       "integrity": "sha512-z00qvurSdCEWUIulij/isHaqu4uLS8r/Fi61IbjdIPJEonQgggbJsLnstW7Lgdk4zQ68/yr6B6bf7sJXowIgdQ==",
       "dependencies": [
         "prosemirror-keymap",
-        "prosemirror-model@1.25.3",
+        "prosemirror-model",
         "prosemirror-state",
         "prosemirror-view"
       ]
@@ -4025,12 +4041,6 @@
         "prosemirror-state"
       ]
     },
-    "prosemirror-model@1.25.3": {
-      "integrity": "sha512-dY2HdaNXlARknJbrManZ1WyUtos+AP97AmvqdOQtWtrrC5g4mohVX5DTi9rXNFSk09eczLq9GuNTtq3EfMeMGA==",
-      "dependencies": [
-        "orderedmap"
-      ]
-    },
     "prosemirror-model@1.25.4": {
       "integrity": "sha512-PIM7E43PBxKce8OQeezAs9j4TP+5yDpZVbuurd1h5phUxEKIu+G2a+EUZzIC5nS1mJktDJWzbqS23n1tsAf5QA==",
       "dependencies": [
@@ -4040,21 +4050,21 @@
     "prosemirror-schema-basic@1.2.4": {
       "integrity": "sha512-ELxP4TlX3yr2v5rM7Sb70SqStq5NvI15c0j9j/gjsrO5vaw+fnnpovCLEGIcpeGfifkuqJwl4fon6b+KdrODYQ==",
       "dependencies": [
-        "prosemirror-model@1.25.3"
+        "prosemirror-model"
       ]
     },
     "prosemirror-schema-list@1.5.1": {
       "integrity": "sha512-927lFx/uwyQaGwJxLWCZRkjXG0p48KpMj6ueoYiu4JX05GGuGcgzAy62dfiV8eFZftgyBUvLx76RsMe20fJl+Q==",
       "dependencies": [
-        "prosemirror-model@1.25.3",
+        "prosemirror-model",
         "prosemirror-state",
         "prosemirror-transform"
       ]
     },
-    "prosemirror-state@1.4.3": {
-      "integrity": "sha512-goFKORVbvPuAQaXhpbemJFRKJ2aixr+AZMGiquiqKxaucC6hlpHNZHWgz5R7dS4roHiwq9vDctE//CZ++o0W1Q==",
+    "prosemirror-state@1.4.4": {
+      "integrity": "sha512-6jiYHH2CIGbCfnxdHbXZ12gySFY/fz/ulZE333G6bPqIZ4F+TXo9ifiR86nAHpWnfoNjOb3o5ESi7J8Uz1jXHw==",
       "dependencies": [
-        "prosemirror-model@1.25.3",
+        "prosemirror-model",
         "prosemirror-transform",
         "prosemirror-view"
       ]
@@ -4062,13 +4072,13 @@
     "prosemirror-transform@1.10.4": {
       "integrity": "sha512-pwDy22nAnGqNR1feOQKHxoFkkUtepoFAd3r2hbEDsnf4wp57kKA36hXsB3njA9FtONBEwSDnDeCiJe+ItD+ykw==",
       "dependencies": [
-        "prosemirror-model@1.25.3"
+        "prosemirror-model"
       ]
     },
     "prosemirror-view@1.41.3": {
       "integrity": "sha512-SqMiYMUQNNBP9kfPhLO8WXEk/fon47vc52FQsUiJzTBuyjKgEcoAwMyF04eQ4WZ2ArMn7+ReypYL60aKngbACQ==",
       "dependencies": [
-        "prosemirror-model@1.25.3",
+        "prosemirror-model",
         "prosemirror-state",
         "prosemirror-transform"
       ]
@@ -4595,26 +4605,26 @@
     "vary@1.1.2": {
       "integrity": "sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg=="
     },
-    "vite-plugin-wasm@3.5.0_vite@7.1.11__picomatch@4.0.3": {
+    "vite-plugin-wasm@3.5.0_vite@7.1.12__picomatch@4.0.3": {
       "integrity": "sha512-X5VWgCnqiQEGb+omhlBVsvTfxikKtoOgAzQ95+BZ8gQ+VfMHIjSHr0wyvXFQCa0eKQ0fKyaL0kWcEnYqBac4lQ==",
       "dependencies": [
-        "vite@7.1.11_picomatch@4.0.3"
+        "vite@7.1.12_picomatch@4.0.3"
       ]
     },
-    "vite-plugin-wasm@3.5.0_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1": {
+    "vite-plugin-wasm@3.5.0_vite@7.1.12__picomatch@4.0.3_yaml@2.8.1": {
       "integrity": "sha512-X5VWgCnqiQEGb+omhlBVsvTfxikKtoOgAzQ95+BZ8gQ+VfMHIjSHr0wyvXFQCa0eKQ0fKyaL0kWcEnYqBac4lQ==",
       "dependencies": [
-        "vite@7.1.11_picomatch@4.0.3_yaml@2.8.1"
+        "vite@7.1.12_picomatch@4.0.3_yaml@2.8.1"
       ]
     },
-    "vite-plugin-wasm@3.5.0_vite@7.1.11__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+    "vite-plugin-wasm@3.5.0_vite@7.1.12__picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
       "integrity": "sha512-X5VWgCnqiQEGb+omhlBVsvTfxikKtoOgAzQ95+BZ8gQ+VfMHIjSHr0wyvXFQCa0eKQ0fKyaL0kWcEnYqBac4lQ==",
       "dependencies": [
-        "vite@7.1.11_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
+        "vite@7.1.12_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0"
       ]
     },
-    "vite@7.1.11_picomatch@4.0.3": {
-      "integrity": "sha512-uzcxnSDVjAopEUjljkWh8EIrg6tlzrjFUfMcR1EVsRDGwf/ccef0qQPRyOrROwhrTDaApueq+ja+KLPlzR/zdg==",
+    "vite@7.1.12_picomatch@4.0.3": {
+      "integrity": "sha512-ZWyE8YXEXqJrrSLvYgrRP7p62OziLW7xI5HYGWFzOvupfAlrLvURSzv/FyGyy0eidogEM3ujU+kUG1zuHgb6Ug==",
       "dependencies": [
         "esbuild@0.25.11",
         "fdir",
@@ -4628,8 +4638,8 @@
       ],
       "bin": true
     },
-    "vite@7.1.11_picomatch@4.0.3_yaml@2.8.1": {
-      "integrity": "sha512-uzcxnSDVjAopEUjljkWh8EIrg6tlzrjFUfMcR1EVsRDGwf/ccef0qQPRyOrROwhrTDaApueq+ja+KLPlzR/zdg==",
+    "vite@7.1.12_picomatch@4.0.3_yaml@2.8.1": {
+      "integrity": "sha512-ZWyE8YXEXqJrrSLvYgrRP7p62OziLW7xI5HYGWFzOvupfAlrLvURSzv/FyGyy0eidogEM3ujU+kUG1zuHgb6Ug==",
       "dependencies": [
         "esbuild@0.25.11",
         "fdir",
@@ -4647,8 +4657,8 @@
       ],
       "bin": true
     },
-    "vite@7.1.11_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
-      "integrity": "sha512-uzcxnSDVjAopEUjljkWh8EIrg6tlzrjFUfMcR1EVsRDGwf/ccef0qQPRyOrROwhrTDaApueq+ja+KLPlzR/zdg==",
+    "vite@7.1.12_picomatch@4.0.3_yaml@2.8.1_@types+node@24.2.0": {
+      "integrity": "sha512-ZWyE8YXEXqJrrSLvYgrRP7p62OziLW7xI5HYGWFzOvupfAlrLvURSzv/FyGyy0eidogEM3ujU+kUG1zuHgb6Ug==",
       "dependencies": [
         "@types/node@24.2.0",
         "esbuild@0.25.11",
@@ -4833,7 +4843,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@5.0.76",
+      "npm:ai@5.0.78",
       "npm:approx-string-match@2",
       "npm:chai@6.2.0",
       "npm:csstype@3",
@@ -4855,7 +4865,7 @@
       "npm:prosemirror-example-setup@1.2.3",
       "npm:prosemirror-model@1.25.4",
       "npm:prosemirror-schema-basic@1.2.4",
-      "npm:prosemirror-state@1.4.3",
+      "npm:prosemirror-state@1.4.4",
       "npm:prosemirror-view@1.41.3",
       "npm:ramda@0.32.0",
       "npm:react-error-boundary@6.0.0",
@@ -4884,7 +4894,7 @@
         "npm:react@19.2.0",
         "npm:rollup@4.52.5",
         "npm:vite-plugin-wasm@3.5.0",
-        "npm:vite@7.1.11"
+        "npm:vite@7.1.12"
       ]
     }
   }
