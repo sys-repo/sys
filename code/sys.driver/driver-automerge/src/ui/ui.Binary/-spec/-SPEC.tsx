@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { DocumentId } from '../../ui.DocumentId/mod.ts';
 import { type t, Color, D } from '../common.ts';
-import { BinaryFile } from '../mod.ts';
+import { Binary } from '../mod.ts';
 import { createDebugSignals, Debug, STORAGE_KEY } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -43,7 +43,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         return (
-          <BinaryFile
+          <Binary.View
             //
             debug={v.debug}
             theme={v.theme}

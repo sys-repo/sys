@@ -17,7 +17,7 @@ export type * from './m.Debug/t.ts';
 export type * from './m.Server.client/t.ts';
 export type * from './m.Server/t.ts';
 
-export type * from './ui/ui.BinaryFile/t.ts';
+export type * from './ui/ui.Binary/t.ts';
 export type * from './ui/ui.Card/t.ts';
 export type * from './ui/ui.DocumentId/t.ts';
 export type * from './ui/ui.Layout/t.ts';

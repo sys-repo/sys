@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { BinaryFile } from '@sys/driver-automerge/web/ui';
 import type { FileshareSchema } from '../-schemas/mod.ts';
 import { type t, Color, Crdt, Cropmarks, css, Is } from '../common.ts';
 
@@ -36,7 +35,7 @@ export const FileshareHost: React.FC<FileshareHostProps> = (props) => {
 
   const elBody = (
     <div className={styles.body.class}>
-      <BinaryFile theme={theme.name} doc={doc} path={path} debug={debug} />
+      <Crdt.UI.Binary.View theme={theme.name} doc={doc} path={path} debug={debug} />
     </div>
   );
 

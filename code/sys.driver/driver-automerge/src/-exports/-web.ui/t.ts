@@ -7,9 +7,8 @@ export type CrdtViewLib = t.CrdtBrowserLib & {
   readonly UI: {
     // Components:
     readonly Repo: t.RepoLib;
-    readonly Card: React.FC<t.CardProps>;
     readonly DocumentId: t.DocumentIdLib;
-    readonly BinaryFile: React.FC<t.BinaryFileProps>;
+    readonly Binary: t.BinaryLib;
     readonly Layout: t.LayoutLib;
 
     // Hooks:

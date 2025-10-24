@@ -1,6 +1,9 @@
-import { type t, Hash, File as FileUtil } from './common.ts';
+import { type t, File as FileUtil, Hash } from './common.ts';
+import { BinaryFile as View } from './ui.tsx';
 
 export const Binary: t.BinaryLib = {
+  View,
+
   toBrowserFile(file) {
     const { bytes, type, name, modifiedAt } = file;
     return FileUtil.toFile({ bytes, type, name, modifiedAt });

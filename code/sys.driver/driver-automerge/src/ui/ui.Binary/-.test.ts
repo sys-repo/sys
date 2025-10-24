@@ -8,7 +8,7 @@ describe('BinaryFile', () => {
         {
           name: 'document start marker',
           src: `---
-foo: bar`,
+                foo: bar`,
           expected: true,
         },
         {
@@ -19,8 +19,8 @@ foo: bar`,
         {
           name: 'list item',
           src: `
-- apples
-- oranges`,
+            - apples
+            - oranges`,
           expected: true,
         },
         {
