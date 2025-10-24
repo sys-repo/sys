@@ -23,7 +23,9 @@ export type { ColorTheme } from '@sys/color/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type {
   CropmarksProps,
+  KeyValueItem,
   MediaDevicesFilter,
+  MediaRecorderStatus,
   MediaVideoStreamProps,
   ObjectViewProps,
 } from '@sys/ui-react-components/t';
