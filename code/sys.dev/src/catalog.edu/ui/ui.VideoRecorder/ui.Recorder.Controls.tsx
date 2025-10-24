@@ -37,11 +37,14 @@ export const RecorderControls: React.FC<P> = (props) => {
       display: 'grid',
     }),
     recorder: css({ MarginX: 20, MarginY: 15 }),
+    right: css({ fontSize: 11 }),
   };
+
+  const elRight = <div className={styles.right.class}>{elapsed > 0 ? elapsedOut : null}</div>;
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <TitleBar left={title} right={elapsed > 0 ? elapsedOut : null} theme={theme.name} />
+      <TitleBar left={title} right={elRight} theme={theme.name} />
       <RecorderHookView theme={theme.name} recorder={recorder} style={styles.recorder} />
     </div>
   );
