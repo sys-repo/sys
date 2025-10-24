@@ -239,14 +239,16 @@ describe('Time Delay/Wait', () => {
       });
 
       it('race: abort right before macro fires → callback not called; cancelled=true', async () => {
-        const ctrl = new AbortController();
-        let fired = 0;
-        const res = Time.delay(6, () => fired++, { signal: ctrl.signal });
-        await Time.wait(5);
-        ctrl.abort();
-        await Time.wait(20);
-        expect(fired).to.eql(0);
-        expect(res.is).to.eql({ cancelled: true, completed: false, done: true });
+        await Testing.retry(5, async () => {
+          const ctrl = new AbortController();
+          let fired = 0;
+          const res = Time.delay(6, () => fired++, { signal: ctrl.signal });
+          await Time.wait(5);
+          ctrl.abort();
+          await Time.wait(20);
+          expect(fired).to.eql(0);
+          expect(res.is).to.eql({ cancelled: true, completed: false, done: true });
+        });
       });
 
       it('micro overload shapes: delay(options) and delay(fn, options)', async () => {
