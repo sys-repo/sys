@@ -21,6 +21,7 @@ export const Title: React.FC<P> = (props) => {
       Margin: spacing.edges,
       color: theme.fg,
       display: 'grid',
+      fontFamily: 'sans-serif',
     }),
     label: css({
       fontWeight: 700,

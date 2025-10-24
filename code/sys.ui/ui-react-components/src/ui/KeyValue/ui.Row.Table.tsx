@@ -28,7 +28,8 @@ export const RowTable: React.FC<P> = (props) => {
     }),
     key: css({
       gridColumn: '1',
-      opacity: 0.55,
+      fontFamily: 'sans-serif',
+      opacity: 0.5,
       textAlign: layout.keyAlign ?? D.layout.table.keyAlign,
       minWidth: 0,
       maxWidth: layout.keyMax,

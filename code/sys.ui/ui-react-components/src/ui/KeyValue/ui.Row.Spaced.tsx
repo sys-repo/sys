@@ -29,8 +29,18 @@ export const RowSpaced: React.FC<P> = (props) => {
       color: theme.fg,
       fontFamily,
     }),
-    key: css({ minWidth: 0, opacity: 0.7, textAlign: 'left', ...toEllipsis(truncate) }),
-    val: css({ minWidth: 0, textAlign: truncate ? 'right' : 'left', ...toEllipsis(truncate) }),
+    key: css({
+      fontFamily: 'sans-serif',
+      minWidth: 0,
+      opacity: 0.5,
+      textAlign: 'left',
+      ...toEllipsis(truncate),
+    }),
+    val: css({
+      minWidth: 0,
+      textAlign: truncate ? 'right' : 'left',
+      ...toEllipsis(truncate),
+    }),
   };
 
   return (
