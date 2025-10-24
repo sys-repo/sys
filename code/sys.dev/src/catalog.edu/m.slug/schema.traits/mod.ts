@@ -9,11 +9,19 @@ import { SlugIndexPropsSchema } from './m.slug.index.ts';
 import { VideoPlayerPropsSchema } from './m.video.player.ts';
 import { VideoRecorderPropsSchema } from './m.video.recorder.ts';
 
-export const Traits: t.SlugTraitsLib = {
-  Is,
-  SlugIndexPropsSchema,
-  VideoPlayerPropsSchema,
-  VideoRecorderPropsSchema,
-};
-
 export { Is, SlugIndexPropsSchema, VideoPlayerPropsSchema, VideoRecorderPropsSchema };
+
+export const Traits: t.SlugTraitsLib = {
+  get Is() {
+    return Is;
+  },
+  get SlugIndexPropsSchema() {
+    return SlugIndexPropsSchema;
+  },
+  get VideoPlayerPropsSchema() {
+    return VideoPlayerPropsSchema;
+  },
+  get VideoRecorderPropsSchema() {
+    return VideoRecorderPropsSchema;
+  },
+};
