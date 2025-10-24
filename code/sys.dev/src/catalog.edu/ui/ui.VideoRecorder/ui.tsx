@@ -27,6 +27,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
   return (
     <CrdtLayout.View
       theme={props.theme}
+      spinning={wrangle.spinning(props)}
       crdt={crdt}
       signals={signals}
       header={header}
@@ -38,3 +39,17 @@ export const VideoRecorderView: React.FC<P> = (props) => {
     />
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  spinning(props: P): t.CrdtLayoutSpinning {
+    const { signals } = props;
+
+    let main = false;
+    if (!signals?.stream.value) main = true;
+
+    return { main };
+  },
+} as const;
