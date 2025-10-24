@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { type t, Color, css, D } from './common.ts';
+import { renderCtx } from './u.ts';
 import { Body } from './ui.Body.tsx';
 import { Spinner } from './ui.Spinner.tsx';
 
@@ -9,6 +10,7 @@ type P = t.CrdtLayoutProps;
 export const CrdtLayout: React.FC<P> = (props) => {
   const { debug = false, spinning } = props;
   const isSpinning = spinning === true;
+  const render = renderCtx(props);
 
   /**
    * Render:
@@ -24,7 +26,7 @@ export const CrdtLayout: React.FC<P> = (props) => {
     }),
     body: css({
       pointerEvents: isSpinning ? 'none' : 'auto',
-      opacity: isSpinning ? 0 : 1,
+      opacity: isSpinning || !render.ready ? 0 : 1,
       transition: D.spinningTransition,
     }),
   };

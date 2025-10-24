@@ -10,7 +10,7 @@ import { Sidebar } from './ui.Sidebar.tsx';
 type P = t.CrdtLayoutProps;
 
 export const Body: React.FC<P> = (props) => {
-  const { debug = false, spinning = false } = props;
+  const { debug = false } = props;
   const sidebar = toSidebarConfig(props.sidebar);
 
   /**

@@ -30,19 +30,18 @@ export const Sidebar: React.FC<P> = (props) => {
     body: css({
       position: 'relative',
       boxSizing: 'border-box',
-      opacity: isSpinning ? 0 : 1,
+      opacity: isSpinning || !render.ready ? 0 : 1,
       transition: D.spinningTransition,
       display: 'grid',
     }),
     empty: css({ padding: 10, backgroundColor: Color.ruby() }),
   };
 
-  const elEmpty = <div className={styles.empty.class}>{'🐷 slot: sidebar'}</div>;
   const el = render.ready ? slots?.sidebar?.(render.ctx) : null;
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>{el ?? elEmpty}</div>
+      <div className={styles.body.class}>{el}</div>
       {isSpinning && <Spinner theme={theme.name} />}
     </div>
   );

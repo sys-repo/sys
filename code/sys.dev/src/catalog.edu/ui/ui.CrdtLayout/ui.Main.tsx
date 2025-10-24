@@ -24,18 +24,17 @@ export const Main: React.FC<P> = (props) => {
     empty: css({ padding: 10, backgroundColor: Color.ruby() }),
     cropmarks: css({
       Absolute: 0,
-      opacity: isSpinning ? 0 : 1,
+      opacity: isSpinning || !render.ready ? 0 : 1,
       transition: D.spinningTransition,
     }),
   };
 
-  const elEmpty = <div className={styles.empty.class}>{'🐷 slot: main'}</div>;
   const el = render.ready ? slots?.main?.(render.ctx) : null;
 
   return (
     <div className={css(styles.base, props.style).class}>
       <Cropmarks {...cropmarksConfig} theme={theme.name} style={styles.cropmarks}>
-        <div className={styles.body.class}>{el ?? elEmpty}</div>
+        <div className={styles.body.class}>{el}</div>
       </Cropmarks>
       {isSpinning && <Spinner theme={theme.name} />}
     </div>
