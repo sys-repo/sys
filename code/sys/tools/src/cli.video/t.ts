@@ -17,6 +17,7 @@ export type VideoToolsLib = {
 
 /** Supported video conversion directions. */
 export type Conversion = 'webm-to-mp4' | 'mp4-to-webm';
+export type Command = Conversion | 'probe';
 
 /**
  * Convert: from .webm → .mp4

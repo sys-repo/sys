@@ -1,8 +1,8 @@
 import { type t, c, Cli, Fs } from './common.ts';
 
 type SelectArgs = {
-  readonly dir: t.StringDir;
-  readonly conversion: t.Conversion;
+  dir: t.StringDir;
+  command: t.Conversion;
 };
 
 /**
@@ -21,7 +21,7 @@ export async function selectSourceFile(args: SelectArgs): Promise<t.StringPath |
 
   const choice = await Cli.Prompt.Select.prompt<t.StringPath>({
     message:
-      args.conversion === 'webm-to-mp4'
+      args.command === 'webm-to-mp4'
         ? 'Choose a .webm file to convert → .mp4'
         : 'Choose a .mp4 file to convert → .webm',
     options,
@@ -47,7 +47,7 @@ export async function selectSourceFiles(args: SelectArgs): Promise<readonly t.St
   const selected =
     (await Cli.Prompt.Checkbox.prompt<t.StringPath>({
       message:
-        args.conversion === 'webm-to-mp4'
+        args.command === 'webm-to-mp4'
           ? 'Choose .webm files to convert → .mp4'
           : 'Choose .mp4 files to convert → .webm',
       options,
@@ -61,13 +61,13 @@ export async function selectSourceFiles(args: SelectArgs): Promise<readonly t.St
 /**
  * Helpers:
  */
-function extsFor(conversion: t.Conversion): ReadonlySet<string> {
-  return conversion === 'webm-to-mp4' ? new Set(['.webm']) : new Set(['.mp4']);
+function extsFor(command: t.Conversion): ReadonlySet<string> {
+  return command === 'webm-to-mp4' ? new Set(['.webm']) : new Set(['.mp4']);
 }
 
 async function listCandidates(args: SelectArgs): Promise<t.StringPath[]> {
-  const { dir, conversion } = args;
-  const wanted = extsFor(conversion);
+  const { dir, command } = args;
+  const wanted = extsFor(command);
   const files = await Fs.toDir(dir).ls();
   return files
     .filter((p) => wanted.has(Fs.extname(p).toLowerCase()))
@@ -76,7 +76,7 @@ async function listCandidates(args: SelectArgs): Promise<t.StringPath[]> {
 }
 
 function warnNone(args: SelectArgs) {
-  const { dir, conversion } = args;
-  const label = conversion === 'webm-to-mp4' ? '.webm' : '.mp4';
+  const { dir, command } = args;
+  const label = command === 'webm-to-mp4' ? '.webm' : '.mp4';
   console.warn(`No ${label} files found in: ${Fs.trimCwd(dir, { prefix: true })}`);
 }
