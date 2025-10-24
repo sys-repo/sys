@@ -35,8 +35,8 @@ describe('<Cropmarks> percent mode', { sanitizeResources: false, sanitizeOps: fa
 
     // Subject sizes via container query units (Happy DOM resolves var() in computed styles):
     const norm = (s: string) => s.replace(/\s+/g, '');
-    expect(norm(subjCS.getPropertyValue('inline-size'))).to.equal('calc(80*1cqi)');
-    expect(norm(subjCS.getPropertyValue('block-size'))).to.equal('calc(60*1cqb)');
+    expect(norm(subjCS.getPropertyValue('inline-size'))).to.equal('calc(min(80,100)*1cqi)');
+    expect(norm(subjCS.getPropertyValue('block-size'))).to.equal('calc(min(60,100)*1cqb)');
 
     root.unmount();
     mount.remove();
