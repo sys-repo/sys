@@ -1,6 +1,14 @@
 # @sys/tools
 Common system tools index (with Programmatic and CLI entrypoints).
 
+---
+
+Update to latest with:
+
+```bash
+deno run --reload jsr:@sys/tools
+```
+
 
 ### Video Tools
 
@@ -8,8 +16,3 @@ Common system tools index (with Programmatic and CLI entrypoints).
 deno run -A jsr:@sys/tools/video
 ```
 
-To update to latest:
-
-```bash
-deno run -A --reload jsr:@sys/tools/video
-```
