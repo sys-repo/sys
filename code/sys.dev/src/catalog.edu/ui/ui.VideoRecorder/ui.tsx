@@ -33,7 +33,10 @@ export const VideoRecorderView: React.FC<P> = (props) => {
       header={header}
       sidebar={sidebar}
       slots={slots}
-      cropmarks={{ size: { mode: 'percent', width: 80, aspectRatio } }}
+      cropmarks={{
+        size: { mode: 'percent', aspectRatio, width: 80 },
+        borderOpacity: 0.05,
+      }}
       debug={debug}
       style={props.style}
     />
@@ -46,10 +49,8 @@ export const VideoRecorderView: React.FC<P> = (props) => {
 const wrangle = {
   spinning(props: P): t.CrdtLayoutSpinning {
     const { signals } = props;
-
     let main = false;
     if (!signals?.stream.value) main = true;
-
     return { main };
   },
 } as const;

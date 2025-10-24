@@ -10,8 +10,6 @@ export { Crdt } from '@sys/driver-automerge/web/ui';
 export { Media } from '@sys/ui-react-components';
 export { CrdtLayout } from '../ui.CrdtLayout/mod.ts';
 
-type P = t.VideoRecorderViewProps;
-
 /**
  * Constants:
  */

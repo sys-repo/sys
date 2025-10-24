@@ -54,14 +54,16 @@ const wrangle = {
     const aspectRatio = capture.aspectRatio ? Num.round(capture.aspectRatio, 2) : '-';
     const fps = status.capture.frameRate;
 
-    items.push({ kind: 'title', v: 'MediaRecorder' });
-    items.push({ k: 'frame rate', v: Is.num(fps) ? `${fps} fps` : '-' });
-    items.push({ k: 'screen size', v: screen });
-    items.push({ k: 'aspect ratio', v: aspectRatio });
+    const indent = [12, 0] as const;
+
+    items.push({ kind: 'title', v: 'Stream' });
+    items.push({ k: 'frame rate', v: Is.num(fps) ? `${fps} fps` : '-', x: indent });
+    items.push({ k: 'screen size', v: screen, x: indent });
+    items.push({ k: 'aspect ratio', v: aspectRatio, x: indent });
     items.push({ kind: 'hr' });
-    items.push({ k: 'bitrate:' });
-    items.push({ k: '- video', v: `${video} Mbps`, x: [10, 0] });
-    items.push({ k: '- audio', v: `${audio} kbps`, x: [10, 0] });
+    items.push({ kind: 'title', v: 'Bitrate' });
+    items.push({ k: 'video', v: `${video} Mbps`, x: indent });
+    items.push({ k: 'audio', v: `${audio} kbps`, x: indent });
 
     return items;
   },
