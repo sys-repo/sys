@@ -1,5 +1,5 @@
 import { type t, c, Cli, Fs, pkg } from './common.ts';
-import { selectSourceFiles } from './u.convert.select.ts';
+import { selectAndConvert } from './u.cli.convert.ts';
 import { checkFfmpegInstalled } from './u.ffmpeg.ts';
 
 const OPTIONS: { name: string; value: t.Command }[] = [
@@ -25,7 +25,7 @@ export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
   switch (command) {
     case 'webm-to-mp4':
     case 'mp4-to-webm':
-      await selectSourceFiles({ dir, command });
+      await selectAndConvert({ dir, command });
       break;
 
     default:
