@@ -135,7 +135,6 @@ const wrangle = {
     const hasW = Is.number(size.width);
     const hasH = Is.number(size.height);
     const hasAR = size.aspectRatio != null;
-
     const css: t.CssProps = { placeSelf: 'center' };
 
     // Simple targets (include optional max caps blended into the target)
