@@ -12,7 +12,7 @@ export type MediaRecorderLib = {
     readonly useRecorder: t.UseMediaRecorder;
   };
   createRecorder: t.CreateMediaRecorder;
-  captureInfo(stream: MediaStream): t.MediaRecorderCapture;
+  captureInfo(stream?: MediaStream): t.MediaRecorderCapture;
 };
 
 /**

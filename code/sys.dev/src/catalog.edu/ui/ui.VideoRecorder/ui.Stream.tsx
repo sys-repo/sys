@@ -43,7 +43,7 @@ export const Stream: React.FC<P> = (props) => {
       theme={theme.name}
       constraints={{
         audio: micId ? bestAudio(micId, 'clean') : false, // NB: do not ask for audio until a real mic-id as been acquired.
-        video: camId ? bestVideo(camId, { aspectRatio }) : bestVideo(undefined, { aspectRatio }),
+        video: camId ? bestVideo(camId, { aspectRatio }) : false,
       }}
       onReady={(e) => {
         const stream = e.stream.filtered ?? e.stream.raw;

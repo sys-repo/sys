@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, css, Is, KeyValue, Num, Signal } from './common.ts';
+import { type t, css, Is, KeyValue, Media, Num, Signal } from './common.ts';
 
 export type InfoProps = {
   signals?: t.VideoRecorderViewSignals;
@@ -17,7 +17,8 @@ export const Info: React.FC<InfoProps> = (props) => {
 
   Signal.useEffect(() => {
     const status = signals?.recorder.value;
-    setItems(wrangle.stats(status));
+    const stream = signals?.stream.value;
+    setItems(wrangle.stats(status, stream));
   });
 
   /**
@@ -38,11 +39,11 @@ export const Info: React.FC<InfoProps> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  stats(status?: t.MediaRecorderStatus): t.KeyValueItem[] {
+  stats(status?: t.MediaRecorderStatus, stream?: MediaStream): t.KeyValueItem[] {
     if (!status) return [];
 
     const items: t.KeyValueItem[] = [];
-    const capture = status.capture;
+    const capture = stream ? Media.Recorder.captureInfo(stream) : status.capture;
     const { width, height } = capture;
 
     const num = (value: number): string => value.toLocaleString();
@@ -51,9 +52,10 @@ const wrangle = {
     const audio = num(bits.audio / 1_000);
     const screen = Is.num(width) && Is.num(height) ? `${width} x ${height}` : '-';
     const aspectRatio = capture.aspectRatio ? Num.round(capture.aspectRatio, 2) : '-';
+    const fps = status.capture.frameRate;
 
     items.push({ kind: 'title', v: 'MediaRecorder' });
-    items.push({ k: 'frame rate', v: `${status.capture.frameRate ?? '-'} fps` });
+    items.push({ k: 'frame rate', v: Is.num(fps) ? `${fps} fps` : '-' });
     items.push({ k: 'screen size', v: screen });
     items.push({ k: 'aspect ratio', v: aspectRatio });
     items.push({ kind: 'hr' });
