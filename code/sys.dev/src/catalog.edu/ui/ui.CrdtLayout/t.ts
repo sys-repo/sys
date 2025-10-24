@@ -45,7 +45,7 @@ export type CrdtLayoutCtx = {
   readonly theme: t.CommonTheme;
   readonly debug: boolean;
   readonly repo: t.Crdt.Repo;
-  readonly doc: t.Crdt.Ref;
+  readonly doc?: t.Crdt.Ref;
 };
 
 /**

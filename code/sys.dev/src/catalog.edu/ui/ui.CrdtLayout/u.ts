@@ -58,7 +58,7 @@ export function renderCtx(props: t.CrdtLayoutProps): RenderCtx {
   const doc = signals?.doc.value;
   const repo = crdt?.repo;
 
-  if (repo && doc) {
+  if (repo) {
     const ctx = { repo, doc, theme, debug } satisfies t.CrdtLayoutCtx;
     return { ready: true, ctx };
   }
