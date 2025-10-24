@@ -1,6 +1,8 @@
 import React from 'react';
+
 import { type t, Color, css, D } from './common.ts';
-import { toEllipsis, toFont, toSpacing } from './u.ts';
+import { toFont, toSpacing } from './u.ts';
+import { Cell } from './ui.Cell.tsx';
 
 type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
   layout: t.KeyValueLayoutSpaced;
@@ -29,24 +31,30 @@ export const RowSpaced: React.FC<P> = (props) => {
       color: theme.fg,
       fontFamily,
     }),
-    key: css({
-      fontFamily: 'sans-serif',
-      minWidth: 0,
-      opacity: 0.5,
-      textAlign: 'left',
-      ...toEllipsis(truncate),
-    }),
-    val: css({
-      minWidth: 0,
-      textAlign: truncate ? 'right' : 'left',
-      ...toEllipsis(truncate),
-    }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.key.class}>{item.k}</div>
-      <div className={styles.val.class}>{item.v}</div>
+      <Cell
+        role={'key'}
+        theme={theme.name}
+        debug={debug}
+        style={{ textAlign: 'left' }}
+        mono={mono}
+        truncate={truncate}
+        size={props.size}
+        children={item.k}
+      />
+      <Cell
+        role={'val'}
+        theme={theme.name}
+        debug={debug}
+        style={{ textAlign: truncate ? 'right' : 'left' }}
+        mono={mono}
+        truncate={truncate}
+        size={props.size}
+        children={item.v}
+      />
     </div>
   );
 };

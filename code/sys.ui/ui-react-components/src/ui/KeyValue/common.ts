@@ -22,6 +22,8 @@ export const D = {
   truncate: true satisfies NonNullable<P['truncate']>,
   spacer: { kind: 'spacer', size: 8 } satisfies NonNullable<t.KeyValueSpacer>,
 
+  keyOpacity: 0.5,
+
   layout: {
     default: 'spaced' as const,
     spaced: { kind: 'spaced', ...commonLayout } satisfies NonNullable<t.KeyValueLayoutSpaced>,
