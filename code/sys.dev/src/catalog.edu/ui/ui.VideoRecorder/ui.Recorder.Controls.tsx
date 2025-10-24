@@ -1,8 +1,5 @@
-import { Media } from '@sys/ui-react-components';
-import { RecorderHookView } from '@sys/ui-react-components/media/recorder/dev';
-
 import React from 'react';
-import { type t, Color, css, Time } from '../common.ts';
+import { type t, Color, css, Media, RecorderHookView, Time } from '../common.ts';
 
 export type RecorderControlsProps = {
   title?: string;
@@ -10,6 +7,7 @@ export type RecorderControlsProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onStatusChange?: (e: t.MediaRecorderStatus) => void;
 };
 type P = RecorderControlsProps;
 
@@ -17,12 +15,15 @@ type P = RecorderControlsProps;
  * Component:
  */
 export const RecorderControls: React.FC<P> = (props) => {
-  const { debug = false, stream, title = 'Recorder' } = props;
+  const { debug = false, stream, title = 'Recorder', onStatusChange } = props;
+
+  // TEMP 🐷 - get from YAML config?
+  const videoBitsPerSecond = 10_000_000; // 10-Mbps
 
   /**
    * Hooks:
    */
-  const recorder = Media.Recorder.UI.useRecorder(stream);
+  const recorder = Media.Recorder.UI.useRecorder(stream, { videoBitsPerSecond, onStatusChange });
   const elapsed = recorder.elapsed;
   const elapsedOut = elapsed < 1000 ? `-` : Time.duration(elapsed).toString();
 
@@ -44,10 +45,7 @@ export const RecorderControls: React.FC<P> = (props) => {
         gridTemplateColumns: 'auto 1fr auto',
       }),
     },
-    recorder: css({
-      MarginX: 20,
-      MarginY: [10, 15],
-    }),
+    recorder: css({ MarginX: 20, MarginY: [10, 15] }),
   };
 
   return (

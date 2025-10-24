@@ -47,6 +47,7 @@ export function createDebugSignals() {
     camera: s(),
     audio: s(),
     stream: s(),
+    recorder: s(),
   };
 
   const props = {

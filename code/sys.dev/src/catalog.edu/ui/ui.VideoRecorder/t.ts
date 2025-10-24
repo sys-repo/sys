@@ -19,6 +19,7 @@ export type VideoRecorderViewSignals = t.CrdtLayoutSignals & {
   camera: t.Signal<MediaDeviceInfo | undefined>;
   audio: t.Signal<MediaDeviceInfo | undefined>;
   stream: t.Signal<MediaStream | undefined>;
+  recorder: t.Signal<t.MediaRecorderStatus | undefined>;
 };
 
 /**
