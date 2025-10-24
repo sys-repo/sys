@@ -41,7 +41,7 @@ export async function main() {
     const el = await render(pkg, Specs, {
       hr: (e) => {
         if (e.next?.endsWith('ui.Repo')) return true;
-        if (e.prev?.endsWith('ui.DocumentId')) return true;
+        if (e.prev?.endsWith('ui.Layout')) return true;
       },
       style: { Absolute: 0 },
     });
