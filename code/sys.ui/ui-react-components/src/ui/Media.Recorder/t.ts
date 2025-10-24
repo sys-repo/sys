@@ -7,11 +7,12 @@ export type MediaRecorderState = 'Idle' | 'Recording' | 'Paused' | 'Stopped';
  * Library: Media recording tools.
  */
 export type MediaRecorderLib = {
-  readonly createRecorder: t.CreateMediaRecorder;
   readonly UI: {
     readonly Files: React.FC<t.MediaRecorderFilesProps>;
     readonly useRecorder: t.UseMediaRecorder;
   };
+  createRecorder: t.CreateMediaRecorder;
+  captureInfo(stream: MediaStream): t.MediaRecorderCapture;
 };
 
 /**
@@ -104,10 +105,26 @@ export type MediaRecorderBitrate = {
   readonly audio: number;
 };
 
-/** Capture settings for a MediaStream video track. */
+/** Realized settings of the stream's primary video track. */
 export type MediaRecorderCapture = {
   readonly width?: number;
   readonly height?: number;
   readonly frameRate?: number;
   readonly aspectRatio?: number;
+
+  /** Track/device context (when available). */
+  readonly deviceId?: string;
+  readonly facingMode?: 'user' | 'environment' | 'left' | 'right' | string;
+  readonly resizeMode?: 'none' | 'crop-and-scale' | string;
+
+  /** Screen-capture specific (present on display tracks). */
+  readonly displaySurface?: 'application' | 'browser' | 'monitor' | 'window' | string;
+  readonly logicalSurface?: boolean;
+  readonly cursor?: 'always' | 'motion' | 'never' | string;
+
+  /** Grouping hint from UA (same physical device cluster). */
+  readonly groupId?: string;
+
+  /** From MediaStreamTrack (not part of getSettings but useful signal). */
+  readonly contentHint?: string;
 };

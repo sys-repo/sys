@@ -7,6 +7,7 @@ export { Motion as M, Motion };
  */
 export {
   Arr,
+  Delete,
   Err,
   Is,
   isRecord,

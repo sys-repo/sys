@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { type t, Is, logInfo } from './common.ts';
+import { captureInfo } from './u.captureInfo.ts';
 import { createMediaRecorder } from './u.createMediaRecorder.ts';
 import { useElapsedTimer } from './use.Recorder.elapsed.ts';
 
@@ -63,15 +64,15 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
     const opts = optionsRef.current;
     const recorder = (recorderRef.current = createMediaRecorder(stream, opts));
 
-    logInfo('✨ created MediaRecorder');
-    logInfo(`- bitrate:video: ${recorder.videoBitsPerSecond / 1_000_000} Mbps`);
-    logInfo(`- bitrate:audio: ${recorder.audioBitsPerSecond / 1_000} kbps`);
-    logInfo('- stream:capture', wrangle.capture(stream));
-
     const toBitrate = (v: number, defaultValue: number = 0) => (Is.number(v) ? v : defaultValue);
     vbpsRef.current = toBitrate(recorder.videoBitsPerSecond, opts.videoBitsPerSecond);
     abpsRef.current = toBitrate(recorder.audioBitsPerSecond, opts.audioBitsPerSecond);
-    captureRef.current = wrangle.capture(stream);
+    captureRef.current = captureInfo(stream);
+
+    logInfo('✨ created MediaRecorder');
+    logInfo(`- bitrate:video: ${recorder.videoBitsPerSecond / 1_000_000} Mbps`);
+    logInfo(`- bitrate:audio: ${recorder.audioBitsPerSecond / 1_000} kbps`);
+    logInfo('- stream:capture', captureRef.current);
 
     recorder.ondataavailable = (e) => {
       const bytes = e.data.size;
@@ -200,16 +201,6 @@ const wrangle = {
       paused: status === 'Paused',
       started: status === 'Paused' || status === 'Recording',
       stopped: status === 'Stopped',
-    };
-  },
-
-  capture(stream: MediaStream): t.MediaRecorderCapture {
-    const s = stream.getVideoTracks?.()[0]?.getSettings?.() ?? {};
-    return {
-      width: s.width,
-      height: s.height,
-      frameRate: s.frameRate,
-      aspectRatio: s.aspectRatio,
     };
   },
 } as const;
