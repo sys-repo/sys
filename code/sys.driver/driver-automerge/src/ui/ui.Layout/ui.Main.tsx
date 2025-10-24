@@ -3,7 +3,7 @@ import { type t, Color, Cropmarks, css, D, Is } from './common.ts';
 import { renderCtx, toCropmarksConfig } from './u.ts';
 import { Spinner } from './ui.Spinner.tsx';
 
-type P = t.CrdtLayoutProps;
+type P = t.LayoutProps;
 
 /**
  * Component:

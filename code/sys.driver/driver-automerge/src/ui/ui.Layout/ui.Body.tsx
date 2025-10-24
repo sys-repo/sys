@@ -7,7 +7,7 @@ import { Header } from './ui.Header.tsx';
 import { Main } from './ui.Main.tsx';
 import { Sidebar } from './ui.Sidebar.tsx';
 
-type P = t.CrdtLayoutProps;
+type P = t.LayoutProps;
 
 export const Body: React.FC<P> = (props) => {
   const { debug = false } = props;

@@ -11,6 +11,7 @@ import type { t } from './common.ts';
 import { BinaryFile } from '../ui/ui.BinaryFile/mod.ts';
 import { Card } from '../ui/ui.Card/mod.ts';
 import { DocumentId } from '../ui/ui.DocumentId/mod.ts';
+import { Layout } from '../ui/ui.Layout/mod.ts';
 import { Repo } from '../ui/ui.Repo/mod.ts';
 
 export { A } from './common.ts';
@@ -31,6 +32,7 @@ export const Crdt: t.CrdtUiLib = {
     Repo,
     Card,
     DocumentId,
+    Layout,
     BinaryFile,
     useDoc,
     useRev,

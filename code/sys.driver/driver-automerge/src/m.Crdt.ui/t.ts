@@ -9,6 +9,7 @@ export type CrdtUiLib = t.CrdtBrowserLib & {
     readonly Card: React.FC<t.CardProps>;
     readonly DocumentId: t.DocumentIdLib;
     readonly BinaryFile: React.FC<t.BinaryFileProps>;
+    readonly Layout: t.LayoutLib;
 
     readonly useDoc: t.UseCrdtDoc;
     readonly useRev: t.UseCrdtRev;

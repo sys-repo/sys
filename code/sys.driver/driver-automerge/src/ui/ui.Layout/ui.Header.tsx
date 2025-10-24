@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, DocumentId, css } from './common.ts';
 import { toHeaderConfig } from './u.ts';
 
-type P = t.CrdtLayoutProps;
+type P = t.LayoutProps;
 
 /**
  * Component:

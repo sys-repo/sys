@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, Style } from '../common.ts';
 
 export type FooProps = {
-  ctx: t.CrdtLayoutCtx;
+  ctx: t.LayoutCtx;
   label?: React.ReactNode;
   style?: t.CssInput;
   padding?: t.CssEdgesInput;

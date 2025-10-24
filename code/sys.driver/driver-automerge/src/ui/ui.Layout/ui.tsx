@@ -5,9 +5,9 @@ import { renderCtx } from './u.ts';
 import { Body } from './ui.Body.tsx';
 import { Spinner } from './ui.Spinner.tsx';
 
-type P = t.CrdtLayoutProps;
+type P = t.LayoutProps;
 
-export const CrdtLayout: React.FC<P> = (props) => {
+export const Layout: React.FC<P> = (props) => {
   const { debug = false, spinning } = props;
   const isSpinning = spinning === true;
   const render = renderCtx(props);

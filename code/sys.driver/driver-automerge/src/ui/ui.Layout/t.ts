@@ -4,26 +4,26 @@ type Slot<TCtx> = (ctx: TCtx) => React.ReactNode;
 /**
  * Component API: CRDT-aware layout shell.
  */
-export type CrdtLayoutLib = {
-  View: React.FC<CrdtLayoutProps>;
+export type LayoutLib = {
+  View: React.FC<LayoutProps>;
   edgeBorder(theme: t.ColorTheme, opacity?: t.Percent): string;
 };
 
 /**
  * Component: CRDT-aware layout shell.
  */
-export type CrdtLayoutProps = {
-  slots?: CrdtLayoutSlots; // child views.
-  signals?: t.CrdtLayoutSignals;
+export type LayoutProps = {
+  slots?: LayoutSlots; // child views.
+  signals?: t.LayoutSignals;
 
   // Config:
-  crdt?: CrdtLayoutBindings;
-  header?: CrdtLayoutHeader;
-  sidebar?: CrdtLayoutSidebar;
-  cropmarks?: CrdtLayoutCropmarks;
+  crdt?: LayoutBindings;
+  header?: LayoutHeader;
+  sidebar?: LayoutSidebar;
+  cropmarks?: LayoutCropmarks;
 
   // Appearance:
-  spinning?: boolean | CrdtLayoutSpinning;
+  spinning?: boolean | LayoutSpinning;
   theme?: t.CommonTheme;
   debug?: boolean;
   style?: t.CssInput;
@@ -32,7 +32,7 @@ export type CrdtLayoutProps = {
 /**
  * CRDT bindings passed into the layout.
  */
-export type CrdtLayoutBindings = {
+export type LayoutBindings = {
   readonly repo?: t.Crdt.Repo;
   readonly storageKey?: t.StringKey;
   readonly urlKey?: t.StringKey;
@@ -41,7 +41,7 @@ export type CrdtLayoutBindings = {
 /**
  * Context passed to all slots.
  */
-export type CrdtLayoutCtx = {
+export type LayoutCtx = {
   readonly theme: t.CommonTheme;
   readonly debug: boolean;
   readonly repo: t.Crdt.Repo;
@@ -51,23 +51,23 @@ export type CrdtLayoutCtx = {
 /**
  * Child view-render slots within the layout shell.
  */
-export type CrdtLayoutSlots = {
-  main?: Slot<CrdtLayoutCtx>;
-  sidebar?: Slot<CrdtLayoutCtx>;
-  footer?: Slot<CrdtLayoutCtx>;
+export type LayoutSlots = {
+  main?: Slot<LayoutCtx>;
+  sidebar?: Slot<LayoutCtx>;
+  footer?: Slot<LayoutCtx>;
 };
 
 /**
  * Stateful live signals.
  */
-export type CrdtLayoutSignals = {
+export type LayoutSignals = {
   readonly doc: t.Signal<t.Crdt.Ref | undefined>;
 };
 
 /**
  * Configuration of the <DocumentId> header toolbar config.
  */
-export type CrdtLayoutHeader = {
+export type LayoutHeader = {
   visible?: boolean;
   readOnly?: boolean;
 };
@@ -75,20 +75,20 @@ export type CrdtLayoutHeader = {
 /**
  * Configuration of the sidebar panel.
  */
-export type CrdtLayoutSidebar = {
+export type LayoutSidebar = {
   visible?: boolean;
   position?: 'left' | 'right';
   width?: t.Pixels;
 };
 
 /** Configuration of the crop-marks within the `main` slot container. */
-export type CrdtLayoutCropmarks = Pick<
+export type LayoutCropmarks = Pick<
   t.CropmarksProps,
   'size' | 'borderWidth' | 'borderColor' | 'borderOpacity' | 'subjectOnly'
 >;
 
 /** Spinning flags. */
-export type CrdtLayoutSpinning = {
+export type LayoutSpinning = {
   readonly main?: boolean;
   readonly sidebar?: boolean;
   readonly footer?: boolean;
