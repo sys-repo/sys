@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
-import { toEllipsis, toFont, toSpacing } from './u.ts';
+import { toFont, toSpacing } from './u.ts';
+import { Cell } from './ui.Cell.tsx';
 
 type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
   layout: t.KeyValueLayoutTable;
@@ -28,14 +29,11 @@ export const RowTable: React.FC<P> = (props) => {
     }),
     key: css({
       gridColumn: '1',
-      fontFamily: 'sans-serif',
-      opacity: 0.5,
       textAlign: layout.keyAlign ?? D.layout.table.keyAlign,
       minWidth: 0,
       maxWidth: layout.keyMax,
       alignSelf: layout.align ?? 'baseline',
       Margin: [myT, 0, myB, mxL],
-      ...toEllipsis(truncate),
     }),
     val: css({
       gridColumn: '2',
@@ -43,14 +41,31 @@ export const RowTable: React.FC<P> = (props) => {
       minWidth: 0,
       alignSelf: layout.align ?? D.layout.table.align,
       Margin: [myT, mxR, myB, 0],
-      ...toEllipsis(truncate),
     }),
   };
 
   return (
     <div className={styles.base.class}>
-      <div className={styles.key.class}>{item.k}</div>
-      <div className={styles.val.class}>{item.v}</div>
+      <Cell
+        role={'key'}
+        theme={props.theme}
+        debug={debug}
+        mono={mono}
+        truncate={truncate}
+        size={props.size}
+        style={styles.key}
+        children={item.k}
+      />
+      <Cell
+        role={'val'}
+        theme={props.theme}
+        debug={debug}
+        mono={mono}
+        truncate={truncate}
+        size={props.size}
+        style={styles.val}
+        children={item.v}
+      />
     </div>
   );
 };

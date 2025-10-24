@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { type t, Color, css, D } from './common.ts';
 import { toFont, toSpacing } from './u.ts';
 import { Cell } from './ui.Cell.tsx';
