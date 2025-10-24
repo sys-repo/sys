@@ -26,7 +26,7 @@ export { useDoc, useRev };
 /**
  * CRDT UI Library:
  */
-export const Crdt: t.CrdtUiLib = {
+export const Crdt: t.CrdtViewLib = {
   ...Base,
   UI: {
     Repo,
