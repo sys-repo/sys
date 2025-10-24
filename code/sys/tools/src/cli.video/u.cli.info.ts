@@ -15,6 +15,6 @@ export async function selectAndProbe(args: { dir: t.StringDir }) {
 
     console.info();
     console.info(c.gray(`${title} ${path}`));
-    console.info(buildProbeTable(info));
+    console.info(buildProbeTable(info, { indent: 2 }));
   }
 }
