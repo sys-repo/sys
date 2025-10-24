@@ -38,3 +38,46 @@ export type Mp4ToWebm = (args: {
   readonly crf?: number; //       default: 32  (size-first: raise; quality-first: lower)
   readonly opusKbps?: number; //  default: 96
 }) => Promise<string>;
+
+/**
+ * Video probe meta-data information.
+ */
+export type VideoProbeInfo = {
+  readonly path: string;
+
+  // Container/format
+  readonly formatName?: string;
+  readonly formatLongName?: string;
+  readonly durationSec?: number;
+  readonly sizeBytes?: number;
+  readonly bitRate?: number; // container/global bps
+
+  // Video stream (v:0)
+  readonly video?: {
+    readonly codec?: string;
+    readonly codecLongName?: string;
+    readonly width?: number;
+    readonly height?: number;
+    readonly pixelFormat?: string;
+    readonly profile?: string;
+    readonly level?: number;
+    readonly bitRate?: number; // bps
+    readonly avgFrameRate?: string; // e.g. "30000/1001"
+    readonly rFrameRate?: string;
+    readonly fps?: number; // parsed numeric fps
+    readonly colorSpace?: string;
+    readonly colorTransfer?: string;
+    readonly colorPrimaries?: string;
+    readonly fieldOrder?: string;
+  };
+
+  // Audio stream (a:0)
+  readonly audio?: {
+    readonly codec?: string;
+    readonly codecLongName?: string;
+    readonly channels?: number;
+    readonly channelLayout?: string;
+    readonly sampleRate?: number; // Hz
+    readonly bitRate?: number; // bps
+  };
+};
