@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, CrdtLayout, D } from './common.ts';
+import { type t, Crdt, D } from './common.ts';
 import { Config } from './ui.Config.tsx';
 import { Main } from './ui.Main.tsx';
 
@@ -19,13 +19,13 @@ export const VideoRecorderView: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const slots: t.CrdtLayoutSlots = {
+  const slots: t.LayoutSlots = {
     sidebar: (ctx) => <Config {...props} />,
     main: (ctx) => <Main {...props} />,
   };
 
   return (
-    <CrdtLayout.View
+    <Crdt.UI.Layout.View
       theme={props.theme}
       spinning={wrangle.spinning(props)}
       crdt={crdt}
@@ -47,7 +47,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  spinning(props: P): t.CrdtLayoutSpinning {
+  spinning(props: P): t.LayoutSpinning {
     const { signals } = props;
     let main = false;
     if (!signals?.stream.value) main = true;

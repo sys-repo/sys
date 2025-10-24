@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Component:
  */
-export type VideoRecorderViewProps = Pick<t.CrdtLayoutProps, 'crdt' | 'header' | 'sidebar'> & {
+export type VideoRecorderViewProps = Pick<t.LayoutProps, 'crdt' | 'header' | 'sidebar'> & {
   signals?: t.VideoRecorderViewSignals;
   aspectRatio?: string | number;
   debug?: boolean;
@@ -15,7 +15,7 @@ export type VideoRecorderViewProps = Pick<t.CrdtLayoutProps, 'crdt' | 'header' |
 /**
  * State wrapped in signals.
  */
-export type VideoRecorderViewSignals = t.CrdtLayoutSignals & {
+export type VideoRecorderViewSignals = t.LayoutSignals & {
   readonly camera: t.Signal<MediaDeviceInfo | undefined>;
   readonly audio: t.Signal<MediaDeviceInfo | undefined>;
   readonly stream: t.Signal<MediaStream | undefined>;

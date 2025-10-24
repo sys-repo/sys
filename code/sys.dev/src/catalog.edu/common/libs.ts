@@ -10,6 +10,7 @@ export { Yaml } from '@sys/yaml';
 /**
  * UI:
  */
+export { Crdt } from '@sys/driver-automerge/web/ui';
 export { CommonThemeSchema, CssInputSchema } from '@sys/schema/std/ui';
 export { Color, Style, css } from '@sys/ui-css';
 export { Keyboard, LocalStorage } from '@sys/ui-dom';

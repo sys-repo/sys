@@ -1,12 +1,21 @@
 import type { t } from './common.ts';
+
 type Slot<TCtx> = (ctx: TCtx) => React.ReactNode;
 
 /**
  * Component API: CRDT-aware layout shell.
  */
 export type LayoutLib = {
-  View: React.FC<LayoutProps>;
+  readonly View: React.FC<LayoutProps>;
+  readonly defaults: LayoutDefaults;
   edgeBorder(theme: t.ColorTheme, opacity?: t.Percent): string;
+};
+
+/** Public defaults for the layout. */
+export type LayoutDefaults = {
+  readonly header: t.LayoutHeader;
+  readonly sidebar: t.LayoutSidebar;
+  readonly cropmarks: t.LayoutCropmarks;
 };
 
 /**

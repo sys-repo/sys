@@ -15,7 +15,7 @@ import { Layout } from '../../ui/ui.Layout/mod.ts';
 import { Repo } from '../../ui/ui.Repo/mod.ts';
 
 export { A } from './common.ts';
-export { BinaryFile, Card, DocumentId, Repo };
+export { BinaryFile, Card, DocumentId, Layout, Repo };
 
 /**
  * Hooks:

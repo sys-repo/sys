@@ -3,7 +3,7 @@
  * @types Type-library module.
  */
 export type * as A from '@automerge/automerge';
-export type { Crdt } from './t.namespace.ts';
+export type { Crdt } from './t.ns.ts';
 
 export type * from './-exports/-fs/t.ts';
 export type * from './-exports/-web.ui/t.ts';
