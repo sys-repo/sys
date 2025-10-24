@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Library: repository UI tools.
+ * UI tools for representing the CRDT repository.
  */
 export type RepoLib = {
   readonly SyncEnabledSwitch: React.FC<t.SyncEnabledSwitchProps>;

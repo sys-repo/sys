@@ -1,17 +1,6 @@
 /**
  * @module
+ * UI tools for representing the CRDT repository.
  */
-import type { t } from './common.ts';
-
-/**
- * Components:
- */
-import { SyncEnabledSwitch } from './ui.Switch.tsx';
-export { SyncEnabledSwitch };
-
-/**
- * Library:
- */
-export const Repo: t.RepoLib = {
-  SyncEnabledSwitch,
-};
+export { Repo } from './m.Repo.ts';
+export { SyncEnabledSwitch } from './ui.Switch.tsx';
