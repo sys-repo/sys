@@ -4,7 +4,7 @@ import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
 
 type P = t.MyComponentProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'debug' | 'theme'>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
