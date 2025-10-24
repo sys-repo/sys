@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 export type CropmarksProps = {
   debug?: boolean;
   children?: t.ReactNode;
-  /** When true cropmarks are abandonded and the subject (`children`) rendered only. */
+  /** When true: cropmarks are abandonded and the subject (`children`) rendered only. */
   subjectOnly?: boolean;
   size?: t.CropmarksSize;
   borderWidth?: number;
@@ -55,4 +55,8 @@ export type CropmarksSizePercent = {
   margin?: t.CssMarginInput;
   /** Aspect ratio (e.g. '16/9', '4/3' or 1.618...). Used when only one axis is provided. */
   aspectRatio?: string | number;
+  /** Max percentage of container width (0..100). Defaults to 100. */
+  maxWidth?: t.Percent;
+  /** Max percentage of container height (0..100). Defaults to 100. */
+  maxHeight?: t.Percent;
 };
