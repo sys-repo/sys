@@ -6,11 +6,11 @@ export type * as A from '@automerge/automerge';
 export type { Crdt } from './t.namespace.ts';
 
 export type * from './-exports/-fs/t.ts';
+export type * from './-exports/-web.ui/t.ts';
 export type * from './-exports/-web/t.ts';
 
 export type * from './m.Crdt.ref/t.ts';
 export type * from './m.Crdt.repo/t.ts';
-export type * from './m.Crdt.ui/t.ts';
 export type * from './m.Crdt/t.ts';
 export type * from './m.Debug/t.ts';
 

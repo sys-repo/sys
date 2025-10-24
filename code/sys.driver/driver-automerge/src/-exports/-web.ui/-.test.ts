@@ -1,10 +1,10 @@
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { Crdt } from './mod.ts';
 
-import { Card } from '../ui/ui.Card/mod.ts';
-import { DocumentId } from '../ui/ui.DocumentId/mod.ts';
-import { Layout } from '../ui/ui.Layout/mod.ts';
-import { useDoc } from '../ui/use/mod.ts';
+import { Card } from '../../ui/ui.Card/mod.ts';
+import { DocumentId } from '../../ui/ui.DocumentId/mod.ts';
+import { Layout } from '../../ui/ui.Layout/mod.ts';
+import { useDoc } from '../../ui/use/mod.ts';
 
 describe('Input UI', () => {
   it('API', async () => {
