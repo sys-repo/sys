@@ -5,23 +5,17 @@ import { type t, D, Num } from './common.ts';
  */
 export function bestVideo(
   camId?: string,
-  opts?: { aspectRatio?: string | number; fps60?: boolean },
+  opts?: { aspectRatio?: string | number },
 ): MediaTrackConstraints {
   const aspectRatio = wrangle.aspectRatio(opts?.aspectRatio);
 
-  const evenHeight = (w: number) => {
-    const h = Math.round(w / aspectRatio);
-    return (h & 1) === 0 ? h : h + 1; // ensure even height for encoder alignment
-  };
-
   const width = 1920; // target high 4:3 native mode (1920×1440)
-  const want60 = opts?.fps60 !== false;
 
   return {
     ...(camId ? { deviceId: { exact: camId } } : {}),
     aspectRatio: { exact: aspectRatio },
     width: { ideal: width },
-    frameRate: want60 ? { min: 30, ideal: 60, max: 60 } : { ideal: 30 },
+    frameRate: { ideal: 30, max: 30, min: 30 },
     resizeMode: 'none',
   };
 }

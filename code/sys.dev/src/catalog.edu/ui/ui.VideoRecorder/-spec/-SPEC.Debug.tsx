@@ -42,12 +42,22 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: P['signals'] = {
+  const signals: t.VideoRecorderViewSignals = {
     doc: s(),
     camera: s(),
     audio: s(),
     stream: s(),
     recorder: s(),
+    config: s(),
+  };
+
+  const repo = createRepo();
+  const crdt: t.CrdtLayoutBindings = {
+    repo,
+    storageKey: STORAGE_KEY.DEV,
+    get urlKey() {
+      return p.urlKey.value;
+    },
   };
 
   const props = {
@@ -65,16 +75,6 @@ export function createDebugSignals() {
       width: s((snap.sidebar ?? {}).width),
     },
   };
-
-  const repo = createRepo();
-  const crdt: t.CrdtLayoutBindings = {
-    repo,
-    storageKey: STORAGE_KEY.DEV,
-    get urlKey() {
-      return p.urlKey.value;
-    },
-  };
-
   const p = props;
   const api = {
     props,
@@ -82,7 +82,6 @@ export function createDebugSignals() {
     repo,
     crdt,
     url: DevUrl.make(window),
-
     reset,
     listen,
   };
@@ -114,6 +113,7 @@ export function createDebugSignals() {
     });
   });
 
+  if (api.url.debug === false) p.debug.value = false;
   return api;
 }
 
@@ -135,6 +135,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
   const signals = debug.signals;
   const doc = signals.doc?.value;
+
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -150,31 +151,31 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{D.name}</div>
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
-        label={() => `aspectRatio: ${p.aspectRatio.value}`}
+        label={() => `aspectRatio: ${p.aspectRatio.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle(p.aspectRatio, [D.aspectRatio, '16/9', 1.618])}
       />
 
       <hr />
       <Button
         block
-        label={() => `header.visible: ${p.header.visible.value ?? `<undefined>`}`}
+        label={() => `header.visible: ${p.header.visible.value ?? `(undefined)`}`}
         onClick={() => Signal.toggle(p.header.visible)}
       />
       <Button
         block
-        label={() => `header.readOnly: ${p.header.readOnly.value ?? `<undefined>`}`}
+        label={() => `header.readOnly: ${p.header.readOnly.value ?? `(undefined)`}`}
         onClick={() => Signal.toggle(p.header.readOnly)}
       />
       <hr />
 
       <Button
         block
-        label={() => `crdt.urlKey: ${p.urlKey.value ?? `<undefined>`}`}
+        label={() => `crdt.urlKey: ${p.urlKey.value ?? `(undefined)`}`}
         onClick={() => Signal.cycle(p.urlKey, ['foo', undefined])}
       />
 
@@ -198,7 +199,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `hide debug (via query-string → reload)`}
+        label={() => `debug=false (via query-string → reload)`}
         onClick={() => {
           debug.url.debug = false;
           window.location.reload();

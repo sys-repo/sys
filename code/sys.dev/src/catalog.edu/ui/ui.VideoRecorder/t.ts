@@ -16,10 +16,20 @@ export type VideoRecorderViewProps = Pick<t.CrdtLayoutProps, 'crdt' | 'header' |
  * State wrapped in signals.
  */
 export type VideoRecorderViewSignals = t.CrdtLayoutSignals & {
-  camera: t.Signal<MediaDeviceInfo | undefined>;
-  audio: t.Signal<MediaDeviceInfo | undefined>;
-  stream: t.Signal<MediaStream | undefined>;
-  recorder: t.Signal<t.MediaRecorderStatus | undefined>;
+  readonly camera: t.Signal<MediaDeviceInfo | undefined>;
+  readonly audio: t.Signal<MediaDeviceInfo | undefined>;
+  readonly stream: t.Signal<MediaStream | undefined>;
+  readonly recorder: t.Signal<t.MediaRecorderStatus | undefined>;
+  readonly config: t.Signal<t.VideoRecorderConfig | undefined>;
+};
+
+/**
+ * Configuration options for the MediaRecorder.
+ */
+export type VideoRecorderConfig = {
+  readonly mimeType?: string;
+  readonly videoBitsPerSecond?: number;
+  readonly audioBitsPerSecond?: number;
 };
 
 /**

@@ -31,7 +31,7 @@ export const Footer: React.FC<P> = (props) => {
       <RecorderInfo theme={theme.name} style={{ Margin: [13, 20, 15, 20] }} signals={signals} />
       <RecorderControls
         theme={theme.name}
-        stream={signals?.stream.value}
+        signals={signals}
         onStatusChange={(e) => {
           if (signals?.recorder) signals.recorder.value = e;
         }}
