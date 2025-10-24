@@ -1,11 +1,11 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, KeyValue } from './common.ts';
 
-type Row = { readonly k: string; readonly v: string };
+type Row = { k: string; v: string };
 type Filter = t.MediaVideoStreamProps['debugFilter'];
 
 export type InfoProps = {
-  stream?: MediaStream | { readonly raw?: MediaStream; readonly filtered?: MediaStream };
+  stream?: MediaStream | { raw?: MediaStream; filtered?: MediaStream };
   filter?: Filter;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -34,29 +34,22 @@ export const Info: React.FC<InfoProps> = (props) => {
       minWidth: 180,
       maxWidth: 360,
     }),
-    header: css({ fontWeight: 700, letterSpacing: 0.2, opacity: 0.9 }),
-    table: css({
-      display: 'grid',
-      gridTemplateColumns: 'auto 1fr',
-      columnGap: 12,
-      rowGap: 4,
-      alignItems: 'baseline',
-    }),
-    key: css({ opacity: 0.7, whiteSpace: 'nowrap' }),
-    val: css({ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }),
   };
+
+  const mono = true;
+  const truncate = true;
+  const kvItems: t.KeyValueItem[] = rows.map(({ k, v }) => ({ k, v, mono, truncate }));
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.header.class}>{D.name}</div>
-      <div className={styles.table.class}>
-        {rows.map(({ k, v }) => (
-          <React.Fragment key={k}>
-            <div className={styles.key.class}>{k}</div>
-            <div className={styles.val.class}>{v}</div>
-          </React.Fragment>
-        ))}
-      </div>
+      <KeyValue.View
+        items={[{ kind: 'title', v: D.name }, ...kvItems]}
+        size={'xs'}
+        mono
+        truncate
+        theme={'Light'}
+        layout={{ kind: 'table', keyAlign: 'right', columnGap: 15, rowGap: 4 }}
+      />
     </div>
   );
 };
@@ -64,8 +57,7 @@ export const Info: React.FC<InfoProps> = (props) => {
 /**
  * Helpers:
  */
-
-function toRowsFromStream(input: InfoProps['stream'], filter?: Filter): readonly Row[] {
+function toRowsFromStream(input: InfoProps['stream'], filter?: Filter): Row[] {
   if (!input) return [];
 
   // Normalise to a named pair so the panel can show both if present.
