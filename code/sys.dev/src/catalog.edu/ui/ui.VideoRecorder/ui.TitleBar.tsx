@@ -30,6 +30,7 @@ export const TitleBar: React.FC<TitleBarProps> = (props) => {
       lineHeight: 1.2,
       display: 'grid',
       gridTemplateColumns: 'auto 1fr auto',
+      alignItems: 'center',
     }),
   };
 
