@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Obj, ObjectView } from '../common.ts';
+import { type t, Crdt, Obj, ObjectView } from '../common.ts';
 
 export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> & {
   signals?: t.CrdtLayoutSignals;
