@@ -124,6 +124,7 @@ const wrangle = {
     if (Is.number(size.maxWidth)) out['--pct-w-max'] = String(size.maxWidth);
     if (Is.number(size.maxHeight)) out['--pct-h-max'] = String(size.maxHeight);
 
+    // Revert to the simpler, readable rule:
     out.containerType = hasH ? 'size' : 'inline-size';
     return out;
   },
@@ -136,13 +137,12 @@ const wrangle = {
     const hasAR = size.aspectRatio != null;
 
     const css: t.CssProps = { placeSelf: 'center' };
+
+    // Simple targets (include optional max caps blended into the target)
     if (hasW) css.inlineSize = 'calc(min(var(--pct-w), var(--pct-w-max, 100)) * 1cqi)';
     if (hasH) css.blockSize = 'calc(min(var(--pct-h), var(--pct-h-max, 100)) * 1cqb)';
 
-    // Only attach aspectRatio when available values are present:
-    // - With width only   →  compute height from aspect-ratio
-    // - With height only  →  compute width from aspect-ratio
-    // - With both axes    →  explicit sizes win; ignore aspect-ratio
+    // Aspect ratio only when a single axis is provided (unchanged)
     if (hasAR && !(hasW && hasH)) {
       css.aspectRatio = String(size.aspectRatio);
     }
