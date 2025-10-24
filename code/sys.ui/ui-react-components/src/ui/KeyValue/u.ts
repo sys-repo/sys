@@ -57,7 +57,7 @@ export function toSpacing(inputX?: t.KeyValueSpacing, inputY?: t.KeyValueSpacing
   const edges: t.CssEdgesArray = [y[0], x[1], y[1], x[0]];
   return { x, y, edges };
 }
-export function toSpacingTuple(value?: t.Pixels | [t.Pixels, t.Pixels]): PixelTuple {
+export function toSpacingTuple(value?: t.KeyValueSpacing): PixelTuple {
   if (value == null) return [undefined, undefined];
   if (Is.array(value)) return [value[0], value[1]];
   if (Is.number(value)) return [value, value];

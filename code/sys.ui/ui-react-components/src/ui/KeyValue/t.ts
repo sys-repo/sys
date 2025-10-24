@@ -6,7 +6,7 @@ export type KeyValueSize = 'xs' | 'sm' | 'md';
 /** Item kinds. */
 export type KeyValueItem = KeyValueRow | KeyValueTitle | KeyValueHr | KeyValueSpacer;
 /** Spacing offset around an item. */
-export type KeyValueSpacing = t.Pixels | [t.Pixels, t.Pixels];
+export type KeyValueSpacing = t.Pixels | [t.Pixels, t.Pixels] | readonly [t.Pixels, t.Pixels];
 
 /**
  * Types for the KeyValue primitive.
