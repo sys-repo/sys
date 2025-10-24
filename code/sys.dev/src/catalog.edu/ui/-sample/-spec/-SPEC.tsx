@@ -6,14 +6,13 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const url = debug.url;
-  const repo = debug.repo;
   const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
     function update() {
-      ctx.debug.width(url.debug !== false ? 360 : 0);
+      ctx.debug.width(url.debug !== false ? 400 : 0);
       ctx.subject.size('fill', p.hostPadding.value ? 50 : 0);
       ctx.redraw();
     }
@@ -33,7 +32,7 @@ export default Spec.describe(D.displayName, (e) => {
           debug={v.debug}
           theme={v.theme}
           bus$={debug.bus$}
-          repo={repo}
+          repo={debug.repo}
           docPath={v.docPath}
           slugPath={v.slugPath}
           signals={debug.signals}
@@ -52,7 +51,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         return (
           <Crdt.UI.Repo.SyncEnabledSwitch
-            repo={repo}
+            repo={debug.repo}
             localstorage={STORAGE_KEY.DEV}
             style={{ Padding: [14, 10] }}
           />

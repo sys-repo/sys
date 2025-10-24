@@ -1,16 +1,18 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
+import { Crdt, D, STORAGE_KEY } from '../common.ts';
 import { ConceptPlayer } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const url = debug.url;
   const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
     function update() {
+      ctx.debug.width(url.debug !== false ? 400 : 0);
       ctx.redraw();
     }
 
@@ -21,11 +23,31 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill')
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <ConceptPlayer debug={v.debug} theme={v.theme} />;
+        return (
+          <ConceptPlayer
+            debug={v.debug}
+            theme={v.theme}
+            crdt={debug.crdt}
+            signals={debug.signals}
+          />
+        );
+      });
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(0)
+      .render(() => {
+        return (
+          <Crdt.UI.Repo.SyncEnabledSwitch
+            repo={debug.repo}
+            localstorage={STORAGE_KEY.DEV}
+            style={{ Padding: [14, 10] }}
+          />
+        );
       });
 
     update();

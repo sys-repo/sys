@@ -1,9 +1,22 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { Crdt } from '@sys/driver-automerge/web/ui';
+import { pkg, Pkg } from '../common.ts';
+
 export * from '../common.ts';
+
+/**
+ * Libs:
+ */
+export { Crdt };
 
 /**
  * Constants:
  */
 const name = 'ConceptPlayer';
-export const D = { name, displayName: Pkg.toString(pkg, name, false) } as const;
+export const D = {
+  name,
+  displayName: Pkg.toString(pkg, name, false),
+  header: Crdt.UI.Layout.defaults.header,
+  sidebar: Crdt.UI.Layout.defaults.sidebar,
+} as const;
 export const DEFAULTS = D;
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

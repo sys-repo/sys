@@ -34,7 +34,7 @@ const defaults: Storage = {
   logEventBus: true,
 };
 
-export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}.docid` };
 
 /**
  * Types:

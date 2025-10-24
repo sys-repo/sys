@@ -1,13 +1,24 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-
-import { Button, ObjectView } from '../common.ts';
+import { SignalsObjectView } from '../-dev/ui.SignalsObjectView.tsx';
+import { createRepo, DevUrl } from '../../-test.ui.ts';
+import {
+  type t,
+  Button,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  STORAGE_KEY,
+} from '../common.ts';
 
 type P = t.ConceptPlayerProps;
-type Storage = Pick<P, 'theme' | 'debug'>;
+type Storage = Pick<P, 'debug' | 'theme'>;
 const defaults: Storage = {
-  theme: 'Dark',
   debug: false,
+  theme: 'Dark',
 };
 
 /**
@@ -25,6 +36,16 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  const signals: t.ConceptPlayerSignals = {
+    doc: s(),
+  };
+
+  const repo = createRepo();
+  const crdt: t.CrdtView.LayoutBindings = {
+    repo,
+    storageKey: STORAGE_KEY.DEV,
+  };
+
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -32,6 +53,10 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    signals,
+    repo,
+    crdt,
+    url: DevUrl.make(window),
     reset,
     listen,
   };
@@ -51,6 +76,7 @@ export function createDebugSignals() {
     });
   });
 
+  if (api.url.debug === false) p.debug.value = false;
   return api;
 }
 
@@ -96,8 +122,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `debug=false (via query-string → reload)`}
+        onClick={() => {
+          debug.url.debug = false;
+          window.location.reload();
+        }}
+      />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <SignalsObjectView signals={debug.signals} style={{ marginTop: 5 }} expand={1} />
     </div>
   );
 };

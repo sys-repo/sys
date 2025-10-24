@@ -7,7 +7,7 @@ export type SampleDoc = { text?: string };
 type P = t.TextPanelProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'label' | 'path' | 'scroll'> & { padding?: t.Pixels };
 
-export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}.docid` };
 
 /**
  * Types:

@@ -10,4 +10,4 @@ export const D = {
   displayName: Pkg.toString(pkg, name, false),
 } as const;
 export const DEFAULTS = D;
-export const STORAGE_KEY = { DEV: `dev:${D.name}` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

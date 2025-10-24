@@ -1,23 +1,41 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Crdt, D } from './common.ts';
 
-export const ConceptPlayer: React.FC<t.ConceptPlayerProps> = (props) => {
-  const { debug = false } = props;
+type P = t.ConceptPlayerProps;
+
+export const ConceptPlayer: React.FC<P> = (props) => {
+  const { debug = false, crdt, signals, header = D.header, sidebar = D.sidebar } = props;
 
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      padding: 10,
-    }),
+
+  const slots: t.CrdtView.LayoutSlots = {
+    sidebar: (ctx) => '👋 sidebar',
+    main: (ctx) => '👋 main concept',
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
-    </div>
+    <Crdt.UI.Layout.View
+      theme={props.theme}
+      spinning={wrangle.spinning(props)}
+      crdt={crdt}
+      signals={signals}
+      header={header}
+      sidebar={sidebar}
+      slots={slots}
+      debug={debug}
+      style={props.style}
+    />
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  spinning(props: P): t.CrdtView.LayoutSpinning {
+    const { signals } = props;
+    return {};
+  },
+} as const;

@@ -6,6 +6,7 @@ export * from '../common.ts';
  */
 export { DocumentId } from '../ui.DocumentId/mod.ts';
 export { Repo } from '../ui.Repo/mod.ts';
+export { useRev } from '../use/use.Rev.ts';
 
 /**
  * Constants:
@@ -33,4 +34,4 @@ export const D = {
   ...defaults,
 } as const;
 export const DEFAULTS = D;
-export const STORAGE_KEY = { DEV: `dev:${D.name}` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

@@ -17,7 +17,7 @@ const defaults: Storage = {
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
-export const STORAGE_KEY = { DEV: `dev:${D.name}.docid` };
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}.docid` };
 
 /**
  * Signals:
