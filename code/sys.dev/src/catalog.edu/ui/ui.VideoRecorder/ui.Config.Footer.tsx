@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { type t, Color, css } from './common.ts';
-import { edgeBorder } from './u.ts';
 import { RecorderControls } from './ui.Recorder.Controls.tsx';
 import { RecorderInfo } from './ui.Recorder.Info.tsx';
 import { TitleBar } from './ui.TitleBar.tsx';
