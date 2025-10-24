@@ -18,7 +18,7 @@ export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
   if (!(await checkFfmpegInstalled())) return;
 
   const chosen = await Cli.Prompt.Select.prompt<t.Conversion>({
-    message: 'Choose conversion type:',
+    message: 'Command:',
     options: OPTIONS,
   });
 
@@ -63,7 +63,6 @@ export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
 
 async function convertOne(args: { conversion: t.Conversion; src: string }) {
   const { conversion, src } = args;
-
   switch (conversion) {
     /**
      * WebM (VP9) → MP4 (H.264)

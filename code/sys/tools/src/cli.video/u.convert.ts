@@ -5,7 +5,8 @@ import { nextOutPath } from './u.file.name.ts';
  * WEBM (VP9/Opus) → MP4 (H.264/AAC)
  * Quality-first (CRF), yuv420p for broad compatibility.
  * Notes:
- * - Drop -r and -vsync (ffmpeg 7: -vsync deprecated; defaults preserve source fps).
+ * - Preserve source timestamps/cadence: -fps_mode:v passthrough (no CFR forcing).
+ * - ffmpeg 7: -vsync deprecated; we avoid it and do not set -r.
  * - Alpha is not supported in H.264/MP4; yuv420p flattens (no alpha).
  */
 export const webmToMp4: t.WebmToMp4 = async (args) => {
@@ -19,8 +20,10 @@ export const webmToMp4: t.WebmToMp4 = async (args) => {
     `
     ffmpeg -y -i "${src}" \
       -map 0:v -map 0:a? \
+      -fps_mode:v passthrough \
       -c:v libx264 -preset slow -profile:v high -pix_fmt yuv420p -crf ${crf} \
-      -c:a aac -b:a ${aac}k -ac 2 -movflags +faststart \
+      -c:a aac -b:a ${aac}k -ac 2 \
+      -movflags +faststart -video_track_timescale 90000 \
       "${out}"
   `,
     { silent: true },
@@ -31,7 +34,10 @@ export const webmToMp4: t.WebmToMp4 = async (args) => {
 
 /**
  * MP4 (H.264/AAC) → WEBM (VP9/Opus)
- * Small-by-default (CRF single-pass). You can later add a 2-pass path if needed.
+ * Small-by-default (CRF single-pass).
+ * Notes:
+ * - Preserve source timestamps/cadence: -fps_mode:v passthrough (no CFR forcing).
+ * - Avoid -r/-vsync to keep VFR truth unless you explicitly choose a CFR policy.
  */
 export const mp4ToWebm: t.Mp4ToWebm = async (args) => {
   const { src } = args;
@@ -44,6 +50,7 @@ export const mp4ToWebm: t.Mp4ToWebm = async (args) => {
     `
     ffmpeg -y -i "${src}" \
       -map 0:v -map 0:a? \
+      -fps_mode:v passthrough \
       -c:v libvpx-vp9 -b:v 0 -crf ${crf} \
       -row-mt 1 -tile-columns 2 -threads 8 -g 240 -aq-mode 0 -cpu-used 2 \
       -c:a libopus -b:a ${opus}k -ac 2 \

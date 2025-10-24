@@ -1,6 +1,6 @@
 {
   "name": "@sys/tools",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/-vite.ts --cmd=dev --in=./src/-test/index.html",
@@ -11,8 +11,8 @@
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "help": "deno run -P=dev   ./-scripts/-vite.ts --cmd=help",
-    "tmp__": "deno run -A ./-scripts/-tmp.ts",
-    "tmp": "deno run -P=testset @sys/dev/video"
+    "tmp": "deno run -A @sys/tools/video",
+    "tmp__": "deno run -P=testset @sys/dev/video"
   },
   "exports": {
     ".": "./src/mod.ts",
