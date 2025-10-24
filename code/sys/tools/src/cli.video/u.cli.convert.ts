@@ -7,7 +7,7 @@ type TResult = { src: string; out?: string; ok: boolean; err?: string };
 export async function selectAndConvert(args: { dir: t.StringDir; command: t.Conversion }) {
   const { dir, command } = args;
   const sources = await selectSourceFiles({ dir, command });
-  if (sources.length === 0) return;
+  if (sources.length === 0) return void console.info(c.yellow('No files selected'));
 
   const results: TResult[] = [];
   for (const src of sources) {

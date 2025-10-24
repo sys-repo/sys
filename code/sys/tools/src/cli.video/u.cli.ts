@@ -1,12 +1,7 @@
 import { type t, c, Cli, Fs, pkg } from './common.ts';
 import { selectAndConvert } from './u.cli.convert.ts';
+import { selectAndProbe } from './u.cli.info.ts';
 import { checkFfmpegInstalled } from './u.ffmpeg.ts';
-
-const OPTIONS: { name: string; value: t.Command }[] = [
-  { name: 'convert .webm → .mp4', value: 'webm-to-mp4' },
-  { name: 'convert .mp4 → .webm', value: 'mp4-to-webm' },
-  // { name: 'probe (info)', value: 'probe' },
-];
 
 export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
   const dir = opts.dir ?? Fs.cwd('terminal');
@@ -17,15 +12,25 @@ export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
 
   if (!(await checkFfmpegInstalled())) return;
 
+  const options: { name: string; value: t.Command }[] = [
+    { name: 'convert .webm → .mp4', value: 'webm-to-mp4' },
+    { name: 'convert .mp4 → .webm', value: 'mp4-to-webm' },
+    { name: 'video info', value: 'video-info' },
+  ];
+
   const command = (await Cli.Prompt.Select.prompt({
     message: 'Command:',
-    options: OPTIONS,
+    options,
   })) as t.Command;
 
   switch (command) {
     case 'webm-to-mp4':
     case 'mp4-to-webm':
       await selectAndConvert({ dir, command });
+      break;
+
+    case 'video-info':
+      await selectAndProbe({ dir });
       break;
 
     default:
