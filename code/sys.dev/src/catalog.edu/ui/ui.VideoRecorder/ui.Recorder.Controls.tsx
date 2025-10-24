@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, Media, RecorderHookView, Time } from '../common.ts';
+import { TitleBar } from './ui.TitleBar.tsx';
 
 export type RecorderControlsProps = {
   title?: string;
@@ -17,9 +18,6 @@ type P = RecorderControlsProps;
 export const RecorderControls: React.FC<P> = (props) => {
   const { debug = false, stream, title = 'Recorder', onStatusChange } = props;
 
-  // TEMP 🐷 - get from YAML config?
-  const videoBitsPerSecond = 10_000_000; // 10-Mbps
-
   /**
    * Hooks:
    */
@@ -32,29 +30,18 @@ export const RecorderControls: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ backgroundColor: Color.ruby(debug), color: theme.fg, display: 'grid' }),
-    title: {
-      base: css({
-        Padding: [5, 12, 5, 8],
-        backgroundColor: Color.alpha(theme.fg, 0.06),
-        borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.2)}`,
-        fontSize: 13,
-        lineHeight: 1.2,
-        marginBottom: 5,
-        display: 'grid',
-        gridTemplateColumns: 'auto 1fr auto',
-      }),
-    },
-    recorder: css({ MarginX: 20, MarginY: [10, 15] }),
+    base: css({
+      userSelect: 'none',
+      backgroundColor: Color.ruby(debug),
+      color: theme.fg,
+      display: 'grid',
+    }),
+    recorder: css({ MarginX: 20, MarginY: 15 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.title.base.class}>
-        <div>{title}</div>
-        <div />
-        <div>{elapsed > 0 ? elapsedOut : null}</div>
-      </div>
+      <TitleBar left={title} right={elapsed > 0 ? elapsedOut : null} theme={theme.name} />
       <RecorderHookView theme={theme.name} recorder={recorder} style={styles.recorder} />
     </div>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, css, Is, KeyValue, Media, Num, Signal } from './common.ts';
 
-export type InfoProps = {
+export type RecorderInfoProps = {
   signals?: t.VideoRecorderViewSignals;
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -11,7 +11,7 @@ export type InfoProps = {
 /**
  * Component:
  */
-export const Info: React.FC<InfoProps> = (props) => {
+export const RecorderInfo: React.FC<RecorderInfoProps> = (props) => {
   const { debug = false, signals } = props;
   const [items, setItems] = React.useState<t.KeyValueItem[]>([]);
 
