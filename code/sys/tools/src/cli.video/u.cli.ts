@@ -15,11 +15,11 @@ export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
   const options: { name: string; value: t.Command }[] = [
     { name: 'convert .webm → .mp4', value: 'webm-to-mp4' },
     { name: 'convert .mp4 → .webm', value: 'mp4-to-webm' },
-    { name: 'video info', value: 'video-info' },
+    { name: 'info (probe file)', value: 'video-info' },
   ];
 
   const command = (await Cli.Prompt.Select.prompt({
-    message: 'Command:',
+    message: 'Video Tools:',
     options,
   })) as t.Command;
 
