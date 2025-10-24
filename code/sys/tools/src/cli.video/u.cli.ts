@@ -1,6 +1,6 @@
 import { type t, c, Cli, Fs, pkg } from './common.ts';
+import { selectSourceFiles } from './u.convert.select.ts';
 import { checkFfmpegInstalled } from './u.ffmpeg.ts';
-import { selectSourceFiles } from './u.file.select.ts';
 
 const OPTIONS: { name: string; value: t.Command }[] = [
   { name: 'convert .webm → .mp4', value: 'webm-to-mp4' },

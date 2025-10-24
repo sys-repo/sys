@@ -1,7 +1,7 @@
-import { describe, expect, it } from '../-test.ts';
-import { Fs, Path } from './common.ts';
-import { VideoTools } from './mod.ts';
-import { nextOutPath } from './u.file.name.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Fs, Path } from '../common.ts';
+import { VideoTools } from '../mod.ts';
+import { nextOutPath } from '../u.file.name.ts';
 
 describe(`cli.video`, () => {
   it('API', async () => {
@@ -9,6 +9,7 @@ describe(`cli.video`, () => {
     expect(m.VideoTools).to.equal(VideoTools);
     expect(m.VideoTools.nextOutPath).to.equal(nextOutPath);
   });
+
   describe('filename: nextOutPath (chained lineage)', () => {
     const touch = async (p: string) => {
       await Fs.write(p, 'x', { force: true });
