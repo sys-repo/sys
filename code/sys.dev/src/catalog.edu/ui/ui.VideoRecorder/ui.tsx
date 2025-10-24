@@ -19,7 +19,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
   /**
    * Render:
    */
-  const slots: t.LayoutSlots = {
+  const slots: t.CrdtView.LayoutSlots = {
     sidebar: (ctx) => <Config {...props} />,
     main: (ctx) => <Main {...props} />,
   };
@@ -47,7 +47,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  spinning(props: P): t.LayoutSpinning {
+  spinning(props: P): t.CrdtView.LayoutSpinning {
     const { signals } = props;
     let main = false;
     if (!signals?.stream.value) main = true;

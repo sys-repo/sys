@@ -16,8 +16,8 @@ import {
 
 type P = t.VideoRecorderViewProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'aspectRatio'> & {
-  header: Pick<t.LayoutHeader, 'visible' | 'readOnly'>;
-  sidebar: t.LayoutSidebar;
+  header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
+  sidebar: t.CrdtView.LayoutSidebar;
   urlKey?: string;
 };
 const defaults: Storage = {
@@ -52,7 +52,7 @@ export function createDebugSignals() {
   };
 
   const repo = createRepo();
-  const crdt: t.LayoutBindings = {
+  const crdt: t.CrdtView.LayoutBindings = {
     repo,
     storageKey: STORAGE_KEY.DEV,
     get urlKey() {

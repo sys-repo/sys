@@ -4,7 +4,7 @@ import type { t } from './common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Core CRDT types:
+ * Core CRDT type namespace.
  */
 export namespace Crdt {
   export type Repo = t.CrdtRepo;
@@ -15,4 +15,24 @@ export namespace Crdt {
     export type Mark = AMMark;
     export type Range = AMMarkRange;
   }
+}
+
+/**
+ * Crdt user-interface namespace.
+ */
+export namespace CrdtView {
+  export type LayoutBindings = t.LayoutBindings;
+  export type LayoutHeader = t.LayoutHeader;
+  export type LayoutProps = t.LayoutProps;
+  export type LayoutSidebar = t.LayoutSidebar;
+  export type LayoutSignals = t.LayoutSignals;
+  export type LayoutSlots = t.LayoutSlots;
+  export type LayoutSpinning = t.LayoutSpinning;
+
+  export type DocumentIdProps = t.DocumentIdProps;
+  export type SyncEnabledSwitchProps = t.SyncEnabledSwitchProps;
+  export type CardProps = t.CardProps;
+
+  export type BinaryFileProps = t.BinaryFileProps;
+  export type BinaryFileMap = t.BinaryFileMap;
 }

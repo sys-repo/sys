@@ -29,13 +29,9 @@ export type BinaryLib = {
    */
   fromBrowserFile(file: File): Promise<t.BinaryFile>;
 
-  /**
-   * Converts a `BinaryFile` back into a browser `File` object.
-   */
+  /** Converts a `BinaryFile` back into a browser `File` object. */
   toBrowserFile(file: t.BinaryFile): File;
 
-  /**
-   * Converts a clipboard paste operation into an array of [BinaryFiles].
-   */
+  /** Converts a clipboard paste operation into an array of [BinaryFiles]. */
   fromClipboard(clipboardData: DataTransfer): Promise<t.BinaryFile[]>;
 };

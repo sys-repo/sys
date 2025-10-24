@@ -1,13 +1,12 @@
 /**
  * @drivers
  */
-export type { Crdt } from '@sys/driver-automerge/t';
+export type { Crdt, CrdtView } from '@sys/driver-automerge/t';
 export type {
   DiagnosticSeverity,
   EditorDiagnostic,
   EditorEventBus,
   EditorYaml,
-  LinePos,
   Monaco,
   YamlEditorSignals,
 } from '@sys/driver-monaco/t';
