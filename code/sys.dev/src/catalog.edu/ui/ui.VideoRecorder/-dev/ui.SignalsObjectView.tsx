@@ -1,8 +1,9 @@
 import React from 'react';
-import { type t, Color, css, Media, Obj, ObjectView } from '../common.ts';
+import { type t, Color, Crdt, css, Media, Obj, ObjectView } from '../common.ts';
 
 export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> & {
   signals?: t.VideoRecorderViewSignals;
+  doc?: t.Crdt.Ref;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -12,12 +13,10 @@ export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> 
  * Component:
  */
 export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
-  const { debug = false, signals, name = 'signals' } = props;
+  const { debug = false, signals, doc, name = 'signals', expand = 1 } = props;
   const stream = signals?.stream.value;
-  const field = {
-    camera: mediaField('camera:device', signals?.camera?.value),
-    audio: mediaField('audio:device', signals?.audio?.value),
-  };
+
+  Crdt.UI.useRev(doc); // ← redraw on change
 
   /**
    * Render:
@@ -31,18 +30,27 @@ export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
     }),
   };
 
+  const field = {
+    camera: mediaField('camera:device', signals?.camera?.value),
+    audio: mediaField('audio:device', signals?.audio?.value),
+    doc: doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc',
+  };
+  const data = {
+    [field.doc]: Obj.trimStringsDeep(doc?.current),
+    [field.camera.label]: field.camera.value,
+    [field.audio.label]: field.audio.value,
+    stream: Info.stream(stream),
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <ObjectView
+        //
         theme={theme.name}
         name={name}
-        data={{
-          [field.camera.label]: field.camera.value,
-          [field.audio.label]: field.audio.value,
-          stream: Info.stream(stream),
-        }}
+        data={data}
         style={{ marginTop: 5 }}
-        expand={1}
+        expand={expand}
       />
     </div>
   );
