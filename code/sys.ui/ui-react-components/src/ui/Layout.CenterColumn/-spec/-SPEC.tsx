@@ -1,15 +1,17 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
-import { MyComponent } from '../mod.ts';
+import { Color } from '../common.ts';
+import { LayoutCenterColumn } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export default Spec.describe(D.displayName, (e) => {
+export default Spec.describe('LayoutCenterColumn', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
     function update() {
+      const theme = Color.theme(p.theme.value);
+      ctx.host.tracelineColor(Color.alpha(theme.fg, 0.12));
       ctx.redraw();
     }
 
@@ -20,14 +22,23 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size()
+      .size('fill')
       .display('grid')
-      .render(() => {
+      .render((e) => {
         const v = Signal.toObject(p);
-        return <MyComponent debug={v.debug} theme={v.theme} />;
+        return (
+          <LayoutCenterColumn
+            theme={v.theme}
+            debug={v.debug}
+            left={v.left}
+            center={v.center}
+            right={v.right}
+            gap={v.gap}
+            centerWidth={v.centerWidth}
+            align={v.align}
+          />
+        );
       });
-
-    update();
   });
 
   e.it('ui:debug', (e) => {

@@ -8,7 +8,7 @@ type Storage = Pick<
   'theme' | 'debug' | 'enabled' | 'orientation' | 'defaultValue' | 'min' | 'max' | 'gutter' | 'only'
 > & { isControlled?: boolean };
 const defaults: Storage = {
-  theme: 'Dark',
+  theme: 'Light',
   debug: false,
   isControlled: true,
   //
@@ -52,10 +52,16 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    listen() {
-      Signal.listen(props);
-    },
+    listen,
+    reset,
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -163,11 +169,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `controlled component: ${p.isControlled.value}`}
         onClick={() => Signal.toggle(p.isControlled)}
       />
-      <Button
-        block
-        label={() => `(reset)`}
-        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
-      />
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );

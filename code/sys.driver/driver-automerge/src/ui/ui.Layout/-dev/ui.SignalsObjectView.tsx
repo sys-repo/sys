@@ -66,7 +66,7 @@ const wrangle = {
 
     lenses.forEach((lens: t.SignalsObjectViewLens) => {
       let value: any = Obj.Path.get(current, lens.path);
-      const truncate = 20;
+      const truncate = 15;
       if (Is.string(value)) value = Str.truncate(value, truncate);
       if (Is.record(value)) value = Obj.trimStringsDeep(value, truncate);
       res[lens.field] = value;
