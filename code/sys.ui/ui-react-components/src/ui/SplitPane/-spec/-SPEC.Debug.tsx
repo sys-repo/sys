@@ -172,7 +172,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           const defaultValue = p.defaultValue.value;
           const childCount = p.childCount.value;
-
           if (childCount === 2) {
             const seq = [0.3, D.defaultValue, 0.6, undefined] as const;
             const scalar = toScalar(defaultValue);
