@@ -32,6 +32,7 @@ export namespace CrdtView {
   export type DocumentIdProps = t.DocumentIdProps;
   export type SyncEnabledSwitchProps = t.SyncEnabledSwitchProps;
   export type CardProps = t.CardProps;
+  export type ObjectViewProps = t.CrdtObjectViewProps;
 
   export type BinaryFileProps = t.BinaryFileProps;
   export type BinaryFileMap = t.BinaryFileMap;

@@ -1,10 +1,10 @@
 import React from 'react';
-import { type t, Color, Crdt, css, Media, Obj, ObjectView } from '../common.ts';
+import { type t, Crdt, Media, Obj } from '../common.ts';
 
-export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> & {
+type Base = Pick<t.CrdtView.ObjectViewProps, 'expand' | 'name' | 'lenses'>;
+export type SignalsObjectViewProps = Base & {
   signals?: t.VideoRecorderViewSignals;
   doc?: t.Crdt.Ref;
-  debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -13,22 +13,8 @@ export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> 
  * Component:
  */
 export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
-  const { debug = false, signals, doc, name = 'signals', expand = 1 } = props;
+  const { signals, doc, name = 'signals', expand = 1 } = props;
   const stream = signals?.stream.value;
-
-  Crdt.UI.useRev(doc); // ← redraw on change
-
-  /**
-   * Render:
-   */
-  const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      display: 'grid',
-    }),
-  };
 
   const field = {
     camera: mediaField('camera:device', signals?.camera?.value),
@@ -44,16 +30,15 @@ export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
-      <ObjectView
-        //
-        theme={theme.name}
-        name={name}
-        data={data}
-        style={{ marginTop: 5 }}
-        expand={expand}
-      />
-    </div>
+    <Crdt.UI.Dev.ObjectView
+      name={name}
+      doc={doc}
+      append={data}
+      expand={expand}
+      lenses={props.lenses}
+      style={props.style}
+      theme={props.theme}
+    />
   );
 };
 

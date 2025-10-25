@@ -160,9 +160,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Crdt.UI.Dev.ObjectView
         doc={debug.signals.doc.value}
         style={{ marginTop: 5 }}
+        expand={['$', '$.doc:editor']}
         lenses={[
           {
-            name: 'data:editor',
+            name: 'doc:editor',
             path: Obj.Path.appendSuffix(p.docPath.value, '.parsed'),
           },
         ]}

@@ -3,6 +3,7 @@ import { SignalsObjectView } from '../-dev/ui.SignalsObjectView.tsx';
 import { createRepo, DevUrl } from '../../-test.ui.ts';
 import {
   type t,
+  Arr,
   Button,
   Color,
   css,
@@ -15,7 +16,7 @@ import {
 } from '../common.ts';
 
 type P = t.VideoRecorderViewProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'aspectRatio'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'aspectRatio' | 'docPath' | 'slugPath'> & {
   header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtView.LayoutSidebar;
   urlKey?: string;
@@ -23,6 +24,8 @@ type Storage = Pick<P, 'theme' | 'debug' | 'aspectRatio'> & {
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  docPath: ['yaml'],
+  slugPath: ['slug'],
   header: D.header,
   sidebar: D.sidebar,
   aspectRatio: D.aspectRatio,
@@ -63,6 +66,8 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    docPath: s(snap.docPath),
+    slugPath: s(snap.slugPath),
     aspectRatio: s(snap.aspectRatio),
     urlKey: s(snap.urlKey),
     header: {
@@ -99,6 +104,8 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.docPath = p.docPath.value;
+      d.slugPath = p.slugPath.value;
       d.aspectRatio = p.aspectRatio.value;
       d.urlKey = p.urlKey.value;
 
@@ -159,6 +166,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `aspectRatio: ${p.aspectRatio.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle(p.aspectRatio, [D.aspectRatio, '16/9', 1.618])}
       />
+      <Button
+        block
+        label={() => {
+          const v = p.docPath.value;
+          return `doc path: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
+        }}
+        onClick={() => Signal.cycle(p.docPath, [['yaml'], ['foo'], ['foo', 'bar'], undefined])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.slugPath.value;
+          return `slug path: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
+        }}
+        onClick={() => {
+          Signal.cycle(p.slugPath, [['slug'], ['hello', 'world'], undefined]);
+        }}
+      />
 
       <hr />
       <Button
@@ -207,7 +232,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <SignalsObjectView signals={signals} doc={doc} style={{ marginTop: 5 }} />
+      <SignalsObjectView
+        signals={signals}
+        doc={doc}
+        style={{ marginTop: 10 }}
+        expand={['$', '$.doc:editor']}
+        lenses={[
+          {
+            name: 'doc:editor',
+            path: Obj.Path.appendSuffix(p.docPath.value, '.parsed'),
+          },
+        ]}
+      />
     </div>
   );
 };

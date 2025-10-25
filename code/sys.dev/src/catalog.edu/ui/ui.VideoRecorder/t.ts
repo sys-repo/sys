@@ -5,7 +5,11 @@ import type { t } from './common.ts';
  */
 export type VideoRecorderViewProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 'sidebar'> & {
   signals?: t.VideoRecorderViewSignals;
+  docPath?: t.ObjectPath;
+  slugPath?: t.ObjectPath;
+  //
   aspectRatio?: string | number;
+  //
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
