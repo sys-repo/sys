@@ -6,7 +6,7 @@ describe('ViteConfig: common plugins', () => {
     const res = (await commonPlugins()).flat() as t.VitePlugin[];
     const includes = (name: string) => res.some((p) => p.name === name);
     expect(includes('vite-plugin-wasm')).to.be.true;
-    expect(includes('vite:react-swc')).to.be.true;
+    expect(includes('vite:react-babel')).to.be.true;
     expect(includes('deno')).to.be.true;
     expect(includes('deno:prefix')).to.be.true;
   });

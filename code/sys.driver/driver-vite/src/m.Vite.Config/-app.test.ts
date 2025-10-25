@@ -44,7 +44,7 @@ describe('Config.Build', () => {
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
 
       expect(includesPlugin(config, 'vite-plugin-wasm')).to.be.true;
-      expect(includesPlugin(config, 'vite:react-swc')).to.be.true;
+      expect(includesPlugin(config, 'vite:react-babel')).to.be.true;
     });
 
     it('no plugins', async () => {

@@ -1,6 +1,6 @@
 # Vite Driver
 
-Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler and design-time development harness 
+Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler and design-time development harness
 within a multi-module [Deno](https://docs.deno.com/) workspace.
 
 
@@ -11,7 +11,7 @@ within a multi-module [Deno](https://docs.deno.com/) workspace.
 
 #### Standards
 
-Bundled output from `@sys/driver-vite` is **ESM only** to conform with the [JSR package rules](https://jsr.io/docs/publishing-packages#jsr-package-rules)...not to mention it is the [actual standard](https://tc39.es/ecma262/#sec-modules) and has been for a decade. 
+Bundled output from `@sys/driver-vite` is **ESM only** to conform with the [JSR package rules](https://jsr.io/docs/publishing-packages#jsr-package-rules)...not to mention it is the [actual standard](https://tc39.es/ecma262/#sec-modules) and has been for a decade.
 It's time. Good things happen collectively when everything conforms to the same single common/open ideas. ("[Standards Make the World](https://summerofprotocols.com/research/standards-make-the-world)")
 
 
@@ -69,13 +69,13 @@ Call up "Help" to see available commands → `deno task help`:
 ```bash
 Usage: deno task [COMMAND]
 
-  deno task dev       Run the development server.                        
-  deno task build     Transpile to production bundle.                    
+  deno task dev       Run the development server.
+  deno task build     Transpile to production bundle.
   deno task serve     Run a local HTTP server over the production bundle.
-                                                                         
-  deno task upgrade   Upgrade to latest version.                         
-  deno task backup    Take a snapshot of the project.                    
-  deno task clean     Delete temporary files.                            
+
+  deno task upgrade   Upgrade to latest version.
+  deno task backup    Take a snapshot of the project.
+  deno task clean     Delete temporary files.
   deno task help      Show help.
 ```
 
@@ -92,30 +92,30 @@ Within the `vite.config.ts` file in the root of your module folder:
 ```ts
 import { Vite } from '@sys/driver-vite';
 import { defineConfig } from 'vite';
-import reactPlugin from '@vitejs/plugin-react-swc';
+import reactPlugin from '@vitejs/plugin-react';
 
 export default defineConfig(() => {
   const workspace = Vite.Plugin.workspace();
   return { plugins: [reactPlugin(), workspace] };
 });
 ```
- 
+
 Optionally, you can filter the workspace modules that are exposed
 to the Vite bundle:
- 
+
 ```ts
 export default defineConfig(() => {
   const workspace = Vite.Plugin.workspace({ filter: (e) => e.subpath.startsWith('/client') });
   return { plugins: [reactPlugin(), workspace] };
 });
 ```
- 
+
 Along with the option to manulate the configuration further after the initial
 baseline settings have initialized, using the `mutate` plugin callback.
 
 ```ts
 export default defineConfig(() => {
-  const workspace = Vite.Plugin.workspace({ 
+  const workspace = Vite.Plugin.workspace({
     mutate(e) {
       console.info(c.dim(`\n👋 (callback inside plugin)`));
       if (e.ws) console.info(e.ws.toString({ pad: true }));
