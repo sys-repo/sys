@@ -2,6 +2,7 @@ import React from 'react';
 import { createRepo, DevUrl } from '../../-test.ui.ts';
 import {
   type t,
+  Arr,
   Button,
   Color,
   Crdt,
@@ -15,10 +16,12 @@ import {
 } from '../common.ts';
 
 type P = t.ConceptPlayerProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  docPath: ['yaml'],
+  slugPath: ['slug'],
 };
 
 /**
@@ -49,6 +52,8 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    docPath: s(snap.docPath),
+    slugPath: s(snap.slugPath),
   };
   const p = props;
   const api = {
@@ -73,6 +78,8 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.docPath = p.docPath.value;
+      d.slugPath = p.slugPath.value;
     });
   });
 
@@ -115,6 +122,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => {
+          const v = p.docPath.value;
+          return `doc path: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
+        }}
+        onClick={() => Signal.cycle(p.docPath, [['yaml'], ['foo'], ['foo', 'bar'], undefined])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.slugPath.value;
+          return `slug path: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
+        }}
+        onClick={() => {
+          Signal.cycle(p.slugPath, [['slug'], ['hello', 'world'], undefined]);
+        }}
+      />
 
       <hr />
       <Button
@@ -132,7 +157,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <Crdt.UI.Layout.Dev.SignalsObjectView signals={debug.signals} style={{ marginTop: 5 }} />
+      <Crdt.UI.Layout.Dev.SignalsObjectView
+        signals={debug.signals}
+        style={{ marginTop: 5 }}
+        lenses={[
+          {
+            field: 'config',
+            path: Obj.Path.appendSuffix(p.docPath.value, '.parsed'),
+          },
+        ]}
+      />
     </div>
   );
 };

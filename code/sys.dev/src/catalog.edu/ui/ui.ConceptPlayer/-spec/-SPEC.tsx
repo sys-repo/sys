@@ -33,6 +33,8 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             crdt={debug.crdt}
             signals={debug.signals}
+            docPath={v.docPath}
+            slugPath={v.slugPath}
           />
         );
       });

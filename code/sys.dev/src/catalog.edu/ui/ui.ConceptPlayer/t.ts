@@ -5,6 +5,8 @@ import type { t } from './common.ts';
  */
 export type ConceptPlayerProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 'sidebar'> & {
   signals?: t.ConceptPlayerSignals;
+  docPath?: t.ObjectPath;
+  slugPath?: t.ObjectPath;
   //
   debug?: boolean;
   theme?: t.CommonTheme;

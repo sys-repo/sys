@@ -26,7 +26,7 @@ const defaults: Storage = {
   render: true,
   debug: true,
   theme: 'Dark',
-  docPath: ['foo'],
+  docPath: ['yaml'],
   slugPath: ['slug'],
   hostPadding: true,
 };
@@ -143,25 +143,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
         label={() => {
           const v = p.docPath.value;
-          return `doc path: ${Arr.isArray(v) ? `[${v}]` : v}`;
+          return `doc path: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
         }}
-        onClick={() => Signal.cycle(p.docPath, [['foo'], ['foo', 'bar'], undefined])}
+        onClick={() => Signal.cycle(p.docPath, [['yaml'], ['foo'], ['foo', 'bar'], undefined])}
       />
       <Button
         block
         label={() => {
           const v = p.slugPath.value;
-          return `slug path: ${Arr.isArray(v) ? `[${v}]` : v}`;
+          return `slug path: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
         }}
         onClick={() => {
-          Signal.cycle(p.slugPath, [['slug'], ['hello'], ['my', 'deep', 'nesting'], undefined]);
+          Signal.cycle(p.slugPath, [['slug'], ['hello', 'world'], undefined]);
         }}
       />
       <hr />
