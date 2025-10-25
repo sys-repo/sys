@@ -236,7 +236,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         signals={signals}
         doc={doc}
         style={{ marginTop: 10 }}
-        expand={['$', '$.doc:editor']}
+        // expand={['$', '$.doc:editor']}
         lenses={[
           {
             name: 'doc:editor',
