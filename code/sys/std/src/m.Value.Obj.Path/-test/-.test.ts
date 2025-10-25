@@ -325,4 +325,67 @@ describe('Obj.Path', () => {
       expect(Path.normalize(123)).to.eql([]);
     });
   });
+
+  describe('Obj.Path.appendSuffix', () => {
+    it('appends to the last token (basic)', () => {
+      const input = ['foo', 'bar'] as const;
+      const out = Path.appendSuffix(input.slice(), '.parsed');
+      expect(out).to.eql(['foo', 'bar.parsed']);
+    });
+
+    it('does not mutate the input array', () => {
+      const input = ['a', 'b'];
+      const copy = input.slice();
+      const out = Path.appendSuffix(input, '.x');
+      expect(out).to.eql(['a', 'b.x']);
+      expect(input).to.eql(copy); // unchanged
+      expect(out).to.not.equal(input); // new array instance
+    });
+
+    it('numeric last segment coerces to string then appended', () => {
+      const out = Path.appendSuffix(['items', 1], '.meta');
+      expect(out).to.eql(['items', '1.meta']);
+    });
+
+    it('empty suffix returns a new array equal to the input', () => {
+      const input = ['x', 'y'];
+      const out = Path.appendSuffix(input, '');
+      expect(out).to.eql(['x', 'y']);
+      expect(out).to.not.equal(input); // still a new array
+    });
+
+    it('empty path → empty path', () => {
+      const out = Path.appendSuffix([], '.z');
+      expect(out).to.eql([]);
+    });
+
+    it('accepts non-dot suffixes (e.g., "-v1")', () => {
+      const out = Path.appendSuffix(['id'], '-v1');
+      expect(out).to.eql(['id-v1']);
+    });
+
+    it('preserves arbitrary characters without sanitizing', () => {
+      const out = Path.appendSuffix(['k'], ' #tmp ');
+      expect(out).to.eql(['k #tmp ']); // spaces preserved
+    });
+
+    describe('overloads: <undefined> params', () => {
+      it('defined path → returns t.ObjectPath (solid type)', () => {
+        const input: t.ObjectPath = ['foo', 'bar'];
+        const out = Path.appendSuffix(input, '.x');
+        expect(out).to.eql(['foo', 'bar.x']);
+      });
+
+      it('undefined path → returns undefined', () => {
+        const out = Path.appendSuffix(undefined, '.x');
+        expect(out).to.equal(undefined);
+      });
+
+      it('empty array → returns empty array (not undefined)', () => {
+        const input: t.ObjectPath = [];
+        const out = Path.appendSuffix(input, '.x');
+        expect(out).to.eql([]);
+      });
+    });
+  });
 });

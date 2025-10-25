@@ -101,6 +101,19 @@ export interface ObjPathLib {
       numeric?: boolean;
     },
   ): t.ObjectPath;
+
+  /**
+   * Returns a new path where the last token has the given suffix appended.
+   * - The suffix is treated as an opaque string (no special handling for "." or anything else).
+   * - The input path is not mutated.
+   *
+   * Example:
+   *   Obj.Path.appendSuffix(['foo', 'bar'], '.parsed') → ['foo', 'bar.parsed']
+   *   Obj.Path.appendSuffix(['id'], '-v1')             → ['id-v1']
+   */
+  appendSuffix(path: t.ObjectPath, suffix: string): t.ObjectPath;
+  appendSuffix(path: undefined, suffix: string): undefined;
+  appendSuffix(path: t.ObjectPath | undefined, suffix: string): t.ObjectPath | undefined;
 }
 
 /**
