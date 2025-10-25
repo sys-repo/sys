@@ -117,4 +117,38 @@ describe('Value.Num', () => {
       expect(Number.isNaN(result)).to.be.true;
     });
   });
+
+  describe('Num.toLetter', () => {
+    // prettier-ignore
+    const ALPHABET = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'] as const
+
+    it('returns uppercase letters A-Z for 0-25', () => {
+      const results = Array.from({ length: 26 }, (_, i) => Num.toLetter(i));
+      expect(results).to.eql(ALPHABET);
+    });
+
+    it('wraps around after Z (mod 26)', () => {
+      expect(Num.toLetter(26)).to.eql('A');
+      expect(Num.toLetter(27)).to.eql('B');
+      expect(Num.toLetter(51)).to.eql('Z');
+    });
+
+    it('handles large indexes consistently (e.g., modulo wrap)', () => {
+      expect(Num.toLetter(52)).to.eql('A'); // 26×2
+      expect(Num.toLetter(78)).to.eql('A'); // 26×3
+      expect(Num.toLetter(79)).to.eql('B');
+    });
+
+    it('handles negative numbers by modular equivalence', () => {
+      expect(Num.toLetter(-1)).to.eql('Z');
+      expect(Num.toLetter(-2)).to.eql('Y');
+      expect(Num.toLetter(-27)).to.eql('Z');
+    });
+
+    it('coerces non-integer values via truncation (consistent with modulo)', () => {
+      expect(Num.toLetter(0.9)).to.eql('A');
+      expect(Num.toLetter(25.9)).to.eql('Z');
+      expect(Num.toLetter(26.1)).to.eql('A');
+    });
+  });
 });

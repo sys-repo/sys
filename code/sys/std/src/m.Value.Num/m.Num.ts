@@ -34,4 +34,13 @@ export const Num: t.NumberLib = {
     });
     return fmt.format(value);
   },
+
+  /**
+   * Convert a zero-based integer.
+   */
+  toLetter(i) {
+    const n = Math.trunc(i);
+    const mod = ((n % 26) + 26) % 26; // positive modulo
+    return String.fromCharCode(65 + mod);
+  },
 };
