@@ -34,12 +34,13 @@ export const SignalsObjectView: React.FC<SignalsObjectViewProps> = (props) => {
     camera: mediaField('camera:device', signals?.camera?.value),
     audio: mediaField('audio:device', signals?.audio?.value),
     doc: doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc',
+    stream: `media:stream`,
   };
   const data = {
     [field.doc]: Obj.trimStringsDeep(doc?.current),
     [field.camera.label]: field.camera.value,
     [field.audio.label]: field.audio.value,
-    stream: Info.stream(stream),
+    [field.stream]: Info.stream(stream),
   };
 
   return (
