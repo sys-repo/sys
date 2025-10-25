@@ -5,7 +5,6 @@ import { createRepo } from '../../-test.ui.ts';
 import {
   type t,
   Button,
-  Cropmarks,
   css,
   D,
   Is,
@@ -248,7 +247,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <SignalsObjectView signals={debug.signals} style={{ marginTop: 5 }} />
+      <SignalsObjectView
+        signals={debug.signals}
+        style={{ marginTop: 5 }}
+        lenses={[
+          { field: 'my-lens', path: ['.meta'] },
+          () => ({ field: 'via-ƒn', path: ['.meta'] }),
+        ]}
+      />
     </div>
   );
 };
