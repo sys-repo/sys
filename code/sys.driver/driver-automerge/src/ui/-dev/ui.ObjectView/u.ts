@@ -14,14 +14,19 @@ export function toLenses(lenses: t.SignalsObjectViewProps['lenses']): t.SignalsO
   return items.map(resolveLens).filter(isSolidLens).map(normalizeLens);
 }
 
-/** Narrow a partial lens to a solid lens (both fields present). Accepts undefined for filter-pipeline ergonomics. */
+/**
+ * Narrow a partial lens to a solid lens (both fields present).
+ * Accepts undefined for filter-pipeline ergonomics.
+ */
 export function isSolidLens(v: PartialLens | undefined): v is t.SignalsObjectViewLens {
   const hasPath = Array.isArray(v?.path);
   const hasField = typeof v?.field === 'string' && v.field.length > 0;
   return hasPath && hasField;
 }
 
-/** Optional normalization (trim `field`). */
+/**
+ * Lens normalization (trim `field`).
+ */
 function normalizeLens(v: t.SignalsObjectViewLens): t.SignalsObjectViewLens {
   return {
     path: v.path,
@@ -29,7 +34,9 @@ function normalizeLens(v: t.SignalsObjectViewLens): t.SignalsObjectViewLens {
   };
 }
 
-/** Resolve item or generator → partial lens (errors swallowed). */
+/**
+ * Resolve item or generator → partial lens (errors swallowed).
+ */
 function resolveLens(item: PartialLensItem): PartialLens | undefined {
   if (Is.func(item)) {
     const res = Try.catch(item as () => PartialLens);

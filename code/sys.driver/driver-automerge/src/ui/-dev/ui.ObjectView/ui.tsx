@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Is, Obj, ObjectView, Signal, Str, useRev } from '../common.ts';
+import { type t, Color, css, Is, Obj, ObjectView, Str, useRev } from '../common.ts';
 import { toLenses } from './u.ts';
 
 type P = t.SignalsObjectViewProps;
@@ -8,13 +8,11 @@ type P = t.SignalsObjectViewProps;
  * Component:
  */
 export const SignalsObjectView: React.FC<P> = (props) => {
-  const { debug = false, signals, name = 'signals' } = props;
-  const doc = signals?.doc?.value;
+  const { debug = false, doc, name = 'signals' } = props;
 
   /**
    * Hooks:
    */
-  Signal.useRedrawEffect(() => signals?.doc.value);
   useRev(doc);
 
   /**
@@ -46,16 +44,14 @@ export const SignalsObjectView: React.FC<P> = (props) => {
  */
 const wrangle = {
   fields(props: P) {
-    const { signals } = props;
-    const doc = signals?.doc?.value;
+    const { doc } = props;
     return {
       doc: doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc',
     } as const;
   },
 
   data(props: P): Record<string, unknown> {
-    const { signals } = props;
-    const doc = signals?.doc?.value;
+    const { doc } = props;
     const fields = wrangle.fields(props);
     const lenses = toLenses(props.lenses);
 

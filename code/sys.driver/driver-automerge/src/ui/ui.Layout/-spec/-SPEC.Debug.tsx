@@ -1,5 +1,5 @@
 import React from 'react';
-import { SignalsObjectView } from '../-dev/ui.SignalsObjectView.tsx';
+import { SignalsObjectView } from '../../-dev/mod.ts';
 import { createRepo } from '../../-test.ui.ts';
 
 import {
@@ -248,7 +248,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <SignalsObjectView
-        signals={debug.signals}
+        doc={debug.signals.doc.value}
         style={{ marginTop: 5 }}
         lenses={[
           { field: 'my-lens', path: ['.meta'] },
