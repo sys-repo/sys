@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, Is, LocalStorage, Obj, Signal } from '../common.ts';
-import { even, fromScalar, toLetter, toScalar } from './-u.ts';
+import { type t, Color, css, D, Is, LocalStorage, Num, Obj, Signal } from '../common.ts';
+import { even, fromScalar, toScalar } from './-u.ts';
 
 type P = t.SplitPaneProps;
 type Base = Pick<
@@ -148,7 +148,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const i = p.onlyIndex.value;
-          return `only: ${i != null ? toLetter(i) : '(undefined)'}`;
+          return `only: ${i != null ? Num.toLetter(i) : '(undefined)'}`;
         }}
         onClick={() => {
           const curr = p.onlyIndex.value;

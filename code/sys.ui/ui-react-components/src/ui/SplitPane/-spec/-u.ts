@@ -1,10 +1,6 @@
 import { type t, Num } from '../common.ts';
 export { normalize } from '../u.ts';
 
-export function toLetter(i: t.Index) {
-  return String.fromCharCode((i % 26) + 65);
-}
-
 export function even(n: number = 0) {
   const len = Math.max(1, n);
   const r = 1 / len;
