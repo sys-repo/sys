@@ -1,24 +1,36 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { even, labelOnly, toArray2, toScalar } from './-u.ts';
 
 type P = t.SplitPaneProps;
-type Storage = Pick<
+type Base = Pick<
   P,
-  'theme' | 'debug' | 'enabled' | 'orientation' | 'defaultValue' | 'min' | 'max' | 'gutter' | 'only'
-> & { isControlled?: boolean };
+  | 'theme'
+  | 'debug'
+  | 'enabled'
+  | 'orientation'
+  | 'defaultValue'
+  | 'min'
+  | 'max'
+  | 'gutter'
+  | 'onlyIndex'
+>;
+type Storage = Base & { isControlled?: boolean; childCount?: number; controlledRatios?: number[] };
 const defaults: Storage = {
   theme: 'Light',
   debug: false,
   isControlled: true,
-  //
+  childCount: 2,
+  controlledRatios: even(2),
+
+  defaultValue: toArray2(D.defaultValue),
   enabled: D.enabled,
   orientation: D.orientation,
-  defaultValue: D.defaultValue,
   min: D.min,
   max: D.max,
   gutter: D.gutter,
-  only: undefined,
+  onlyIndex: undefined,
 };
 
 /**
@@ -40,6 +52,8 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     isControlled: s(snap.isControlled),
+    childCount: s(snap.childCount),
+    controlledRatios: s(snap.controlledRatios),
 
     enabled: s(snap.enabled),
     orientation: s(snap.orientation),
@@ -47,7 +61,7 @@ export function createDebugSignals() {
     min: s(snap.min),
     max: s(snap.max),
     gutter: s(snap.gutter),
-    only: s(snap.only),
+    onlyIndex: s(snap.onlyIndex),
   };
   const p = props;
   const api = {
@@ -68,6 +82,8 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.isControlled = p.isControlled.value;
+      d.childCount = p.childCount.value;
+      d.controlledRatios = p.controlledRatios.value;
       //
       d.enabled = p.enabled.value;
       d.orientation = p.orientation.value;
@@ -75,7 +91,7 @@ export function createDebugSignals() {
       d.min = p.min.value;
       d.max = p.max.value;
       d.gutter = p.gutter.value;
-      d.only = p.only.value;
+      d.onlyIndex = p.onlyIndex.value;
     });
   });
 
@@ -103,9 +119,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Render:
    */
-  const styles = {
-    base: css({}),
-  };
+  const theme = Color.theme();
+  const styles = { base: css({ color: theme.fg }) };
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -113,48 +128,77 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
-        label={() => `enabled: ${p.enabled.value ?? `<undefined> (default: ${D.enabled})`}`}
+        label={() => `enabled: ${p.enabled.value ?? `(undefined) ← default: ${D.enabled}`}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
       <Button
         block
         label={() => {
           const v = p.orientation.value;
-          return `orientation: ${v ?? `<undefined> (default: ${D.orientation})`}`;
+          return `orientation: ${v ?? `(undefined) ← default: ${D.orientation}`}`;
         }}
         onClick={() => Signal.cycle(p.orientation, ['horizontal', 'vertical'])}
       />
       <Button
         block
-        label={() => `only: ${p.only.value ?? `<undefined>`}`}
-        onClick={() => Signal.cycle(p.only, ['A', 'B', undefined])}
+        label={() => `only: ${labelOnly(p.onlyIndex.value)}`}
+        onClick={() => {
+          const curr = p.onlyIndex.value;
+          const seq: (number | undefined)[] = [0, 1, undefined];
+          const idx = seq.findIndex((v) => v === curr);
+          const next = seq[(idx + 1 + seq.length) % seq.length];
+          p.onlyIndex.value = next;
+        }}
       />
       <hr />
       <Button
         block
-        label={() =>
-          `defaultValue: ${p.defaultValue.value ?? `<undefined> (default: ${D.defaultValue})`}`
-        }
-        onClick={() => Signal.cycle(p.defaultValue, [0.3, D.defaultValue, 0.6, undefined])}
+        label={() => {
+          const n = p.childCount.value ?? 2;
+          const dv = p.defaultValue.value;
+          const calcLeft = () => {
+            const left = toScalar(dv);
+            const defLeft = toScalar(toArray2(D.defaultValue));
+            return left != null ? String(left) : `(undefined) ← default: ${defLeft}`;
+          };
+          const text = n === 2 ? calcLeft() : `(len=${Array.isArray(dv) ? dv.length : 0})`;
+          return `defaultValue: ${text}`;
+        }}
+        onClick={() => {
+          const defaultValue = p.defaultValue.value;
+          const childCount = p.childCount.value;
+
+          if (childCount === 2) {
+            const seq = [0.3, D.defaultValue, 0.6, undefined] as const;
+            const scalar = toScalar(defaultValue);
+            const idx = seq.findIndex((n) => n === scalar);
+            const next = seq[(idx + 1 + seq.length) % seq.length];
+            p.defaultValue.value = toArray2(next);
+          } else {
+            // For N panes, toggle undefined ↔ even split:
+            const isDefined = Array.isArray(defaultValue) && defaultValue.length === childCount;
+            p.defaultValue.value = isDefined ? undefined : even(childCount);
+          }
+        }}
       />
       <Button
         block
-        label={() => `min: ${p.min.value ?? `<undefined> (default: ${D.min})`}`}
+        label={() => `min: ${p.min.value ?? `(undefined) ← default: ${D.min}`}`}
         onClick={() => Signal.cycle(p.min, [0, D.min, 0.3, 0.5, undefined])}
       />
       <Button
         block
-        label={() => `max: ${p.max.value ?? `<undefined> (default: ${D.max})`}`}
+        label={() => `max: ${p.max.value ?? `(undefined) ← default: ${D.max}`}`}
         onClick={() => Signal.cycle(p.max, [0.5, 0.8, D.max, 1, undefined])}
       />
       <Button
         block
-        label={() => `gutter: ${p.gutter.value ?? `<undefined> (default: ${D.gutter})`}`}
+        label={() => `gutter: ${p.gutter.value ?? `(undefined) ← default: ${D.gutter}`}`}
         onClick={() => Signal.cycle(p.gutter, [0, 3, D.gutter, 10, undefined])}
       />
 
@@ -166,8 +210,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `controlled component: ${p.isControlled.value}`}
+        label={() => {
+          const v = p.isControlled.value;
+          return `controlled: ${v} ← ${v ? '(signal state)' : '(internal state)'}`;
+        }}
         onClick={() => Signal.toggle(p.isControlled)}
+      />
+      <Button
+        block
+        label={() => `childCount: ${p.childCount.value}`}
+        onClick={() => Signal.cycle(p.childCount, [0, 1, 2, 3, 4, undefined])}
       />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
