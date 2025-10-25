@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import { SignalsObjectView } from './-dev/ui.SignalsObjectView.tsx';
 import { defaults } from './common.ts';
 import { Layout } from './mod.ts';
 import { Layout as View } from './ui.tsx';
@@ -9,6 +10,7 @@ describe('Crdt: Layout', () => {
     expect(m.Layout).to.equal(Layout);
     expect(m.Crdt.UI.Layout).to.equal(Layout);
     expect(m.Layout.View).to.equal(View);
+    expect(m.Layout.Dev.SignalsObjectView).to.equal(SignalsObjectView);
   });
 
   it('API: defaults', () => {

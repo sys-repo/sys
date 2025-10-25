@@ -1,3 +1,5 @@
+export type { FC } from 'react';
+
 export type {
   AutomergeUrl,
   DocHandle,

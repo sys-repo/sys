@@ -248,7 +248,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <SignalsObjectView signals={debug.signals} style={{ marginTop: 5 }} expand={1} />
+      <SignalsObjectView signals={debug.signals} style={{ marginTop: 5 }} />
     </div>
   );
 };

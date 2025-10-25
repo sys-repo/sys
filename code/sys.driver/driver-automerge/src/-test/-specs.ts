@@ -13,5 +13,5 @@ export const Specs = {
   [`${ns}: ui.Repo`]: () => import('../ui/ui.Repo/-spec/-SPEC.tsx'),
   [`${ns}: ui.DocumentId`]: () => import('../ui/ui.DocumentId/-spec/-SPEC.tsx'),
   [`${ns}: ui.Layout`]: () => import('../ui/ui.Layout/-spec/-SPEC.tsx'),
-  [`${ns}: ui.BinaryFile`]: () => import('../ui/ui.BinaryFile/-spec/-SPEC.tsx'),
+  [`${ns}: ui.Binary`]: () => import('../ui/ui.Binary/-spec/-SPEC.tsx'),
 } as t.SpecImports;
