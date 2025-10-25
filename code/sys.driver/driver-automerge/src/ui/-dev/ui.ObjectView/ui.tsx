@@ -13,7 +13,7 @@ export const CrdtObjectView: React.FC<P> = (props) => {
   /**
    * Hooks:
    */
-  useRev(doc);
+  useRev(doc); // ← redraw on change
 
   /**
    * Render:
@@ -43,15 +43,8 @@ export const CrdtObjectView: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  fields(props: P) {
-    const { doc } = props;
-    return {
-      doc: doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc',
-    } as const;
-  },
-
   data(props: P): Record<string, unknown> {
-    const { doc } = props;
+    const { doc, prepend = {}, append = {} } = props;
     const fields = wrangle.fields(props);
     const lenses = toLenses(props.lenses);
 
@@ -65,10 +58,17 @@ const wrangle = {
       const truncate = 15;
       if (Is.string(value)) value = Str.truncate(value, truncate);
       if (Is.record(value)) value = Obj.trimStringsDeep(value, truncate);
-      res[lens.field] = value;
+      res[lens.name] = value;
     });
 
-    return res;
+    return { ...prepend, ...res, ...append };
+  },
+
+  fields(props: P) {
+    const { doc } = props;
+    return {
+      doc: doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc',
+    } as const;
   },
 
   expand(props: P) {

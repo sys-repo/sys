@@ -250,8 +250,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         doc={debug.signals.doc.value}
         style={{ marginTop: 5 }}
         lenses={[
-          { field: 'my-lens', path: ['.meta'] },
-          () => ({ field: 'via-ƒn', path: ['.meta'] }),
+          //
+          { name: 'my-lens', path: ['.meta'] },
+          () => ({ name: 'via-ƒn', path: ['.meta'] }),
         ]}
       />
     </div>

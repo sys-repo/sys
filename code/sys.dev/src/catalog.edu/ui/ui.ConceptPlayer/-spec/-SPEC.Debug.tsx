@@ -162,7 +162,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 5 }}
         lenses={[
           {
-            field: 'data:editor',
+            name: 'data:editor',
             path: Obj.Path.appendSuffix(p.docPath.value, '.parsed'),
           },
         ]}
