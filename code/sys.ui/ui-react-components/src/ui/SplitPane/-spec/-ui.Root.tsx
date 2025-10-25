@@ -4,7 +4,7 @@ import { Arr, Signal } from '../common.ts';
 import { SplitPane } from '../mod.ts';
 
 import type { DebugSignals } from './-SPEC.Debug.tsx';
-import { normalize } from './-u.ts';
+import { normalize, toLetter } from './-u.ts';
 import { Dummy } from './-ui.Dummy.tsx';
 
 export function Root(props: { debug: DebugSignals }) {
@@ -29,11 +29,7 @@ export function Root(props: { debug: DebugSignals }) {
   }, [n, v.defaultValue, p.controlledRatios.value]);
 
   const elChildren = Array.from({ length: n }).map((_, i) => {
-    return (
-      <Dummy key={i} theme={v.theme}>
-        {String.fromCharCode((i % 26) + 65) /* ← letter from index, eg. "A" */}
-      </Dummy>
-    );
+    return <Dummy key={i} theme={v.theme} children={toLetter(i)} />;
   });
 
   return (

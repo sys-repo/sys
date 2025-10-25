@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-import { even, labelOnly, toArray2, toScalar } from './-u.ts';
+import { type t, Color, css, D, Is, LocalStorage, Obj, Signal } from '../common.ts';
+import { even, fromScalar, toLetter, toScalar } from './-u.ts';
 
 type P = t.SplitPaneProps;
 type Base = Pick<
@@ -24,7 +24,7 @@ const defaults: Storage = {
   childCount: 2,
   controlledRatios: even(2),
 
-  defaultValue: toArray2(D.defaultValue),
+  defaultValue: fromScalar(2, D.defaultValue),
   enabled: D.enabled,
   orientation: D.orientation,
   min: D.min,
@@ -146,7 +146,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `only: ${labelOnly(p.onlyIndex.value)}`}
+        label={() => {
+          const i = p.onlyIndex.value;
+          return `only: ${i != null ? toLetter(i) : '(undefined)'}`;
+        }}
         onClick={() => {
           const curr = p.onlyIndex.value;
           const seq: (number | undefined)[] = [0, 1, undefined];
@@ -163,7 +166,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const dv = p.defaultValue.value;
           const calcLeft = () => {
             const left = toScalar(dv);
-            const defLeft = toScalar(toArray2(D.defaultValue));
+            const defLeft = toScalar(fromScalar(n, D.defaultValue));
             return left != null ? String(left) : `(undefined) ← default: ${defLeft}`;
           };
           const text = n === 2 ? calcLeft() : `(len=${Array.isArray(dv) ? dv.length : 0})`;
@@ -177,7 +180,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
             const scalar = toScalar(defaultValue);
             const idx = seq.findIndex((n) => n === scalar);
             const next = seq[(idx + 1 + seq.length) % seq.length];
-            p.defaultValue.value = toArray2(next);
+            p.defaultValue.value = Is.num(next) ? fromScalar(2, next) : undefined;
           } else {
             // For N panes, toggle undefined ↔ even split:
             const isDefined = Array.isArray(defaultValue) && defaultValue.length === childCount;

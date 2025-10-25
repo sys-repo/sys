@@ -1,4 +1,9 @@
+import { type t, Num } from '../common.ts';
 export { normalize } from '../u.ts';
+
+export function toLetter(i: t.Index) {
+  return String.fromCharCode((i % 26) + 65);
+}
 
 export function even(n: number = 0) {
   const len = Math.max(1, n);
@@ -10,16 +15,22 @@ export function toScalar(arr: number[] | undefined): number | undefined {
   return Array.isArray(arr) && arr.length > 0 ? arr[0] : undefined;
 }
 
-export function toArray2(v: number | undefined): number[] | undefined {
-  if (typeof v !== 'number') return undefined;
-  const x = clamp01(v);
-  return [x, clamp01(1 - x)] as const;
-}
+/**
+ * Build an n-length ratios array from a scalar `x` (0..1).
+ * The `focus` pane gets `x`, the remainder is split evenly.
+ */
+export function fromScalar(n: number, x: number | undefined, focus = 0): number[] | undefined {
+  if (typeof x !== 'number' || n <= 0) return undefined;
+  const N = Math.max(1, n);
+  const F = Math.max(0, Math.min(N - 1, focus)) | 0;
+  const X = Num.clamp(0, 1, x);
 
-export function clamp01(n: number) {
-  return Math.max(0, Math.min(1, n));
-}
+  if (N === 1) return [1];
 
-export function labelOnly(curr?: number) {
-  return curr === 0 ? 'A' : curr === 1 ? 'B' : '(undefined)';
+  const rest = Math.max(0, 1 - X);
+  const each = rest / (N - 1);
+
+  const out = Array.from({ length: N }, () => each);
+  out[F] = X;
+  return out;
 }
