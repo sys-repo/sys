@@ -4,7 +4,16 @@ import { type t, Crdt, D } from './common.ts';
 type P = t.ConceptPlayerProps;
 
 export const ConceptPlayer: React.FC<P> = (props) => {
-  const { debug = false, crdt, signals, header = D.header, sidebar = D.sidebar } = props;
+  const {
+    debug = false,
+    crdt,
+    signals,
+    header = D.header,
+    sidebar = D.sidebar,
+    docPath,
+    slugPath,
+  } = props;
+
 
   /**
    * Render:
