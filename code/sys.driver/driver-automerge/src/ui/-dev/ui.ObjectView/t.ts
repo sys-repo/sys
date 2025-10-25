@@ -1,12 +1,11 @@
 import type { t } from '../common.ts';
 
-type PartialLens = Partial<t.SignalsObjectViewLens>;
-type PartialLensItem = PartialLens | (() => PartialLens);
-type PartialLensesInput = readonly PartialLensItem[];
-
-export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> & {
+/**
+ * Component: CRDT <ObjectView>.
+ */
+export type CrdtObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> & {
   doc?: t.Crdt.Ref;
-  lenses?: PartialLensesInput;
+  lenses?: CrdtPartialLenses;
   //
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -14,9 +13,13 @@ export type SignalsObjectViewProps = Pick<t.ObjectViewProps, 'expand' | 'name'> 
 };
 
 /**
- * A lends into the document to display.
+ * A lens into the document to display.
  */
-export type SignalsObjectViewLens = {
-  readonly path: t.ObjectPath;
+export type CrdtLens = {
   readonly field: string;
+  readonly path: t.ObjectPath;
 };
+/** Partial lens variants: */
+export type CrdtPartialLens = Partial<t.CrdtLens>;
+export type CrdtPartialLensInput = CrdtPartialLens | (() => CrdtPartialLens);
+export type CrdtPartialLenses = readonly CrdtPartialLensInput[];

@@ -2,12 +2,12 @@ import React from 'react';
 import { type t, Color, css, Is, Obj, ObjectView, Str, useRev } from '../common.ts';
 import { toLenses } from './u.ts';
 
-type P = t.SignalsObjectViewProps;
+type P = t.CrdtObjectViewProps;
 
 /**
  * Component:
  */
-export const SignalsObjectView: React.FC<P> = (props) => {
+export const CrdtObjectView: React.FC<P> = (props) => {
   const { debug = false, doc, name = 'signals' } = props;
 
   /**
@@ -60,7 +60,7 @@ const wrangle = {
       [fields.doc]: Obj.trimStringsDeep(current),
     };
 
-    lenses.forEach((lens: t.SignalsObjectViewLens) => {
+    lenses.forEach((lens: t.CrdtLens) => {
       let value: any = Obj.Path.get(current, lens.path);
       const truncate = 15;
       if (Is.string(value)) value = Str.truncate(value, truncate);

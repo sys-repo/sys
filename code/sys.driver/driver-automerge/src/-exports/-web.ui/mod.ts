@@ -8,6 +8,7 @@ import type { t } from './common.ts';
 /**
  * Components:
  */
+import { Dev } from '../../ui/-dev/mod.ts';
 import { Binary } from '../../ui/ui.Binary/mod.ts';
 import { Card } from '../../ui/ui.Card/mod.ts';
 import { DocumentId } from '../../ui/ui.DocumentId/mod.ts';
@@ -15,7 +16,7 @@ import { Layout } from '../../ui/ui.Layout/mod.ts';
 import { Repo } from '../../ui/ui.Repo/mod.ts';
 
 export { A } from './common.ts';
-export { Binary, Card, DocumentId, Layout, Repo };
+export { Binary, Card, Dev, DocumentId, Layout, Repo };
 
 /**
  * Hooks:
@@ -29,6 +30,7 @@ export { useDoc, useRev };
 export const Crdt: t.CrdtViewLib = {
   ...Base,
   UI: {
+    Dev,
     Repo,
     DocumentId,
     Layout,

@@ -1,1 +1,4 @@
-export * from './ui.tsx';
+/**
+ * @module
+ */
+export { CrdtObjectView } from './ui.tsx';

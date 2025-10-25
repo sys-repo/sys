@@ -2,8 +2,10 @@
  * @module
  * Testing tools running in the browser/ui.
  */
-import { Crdt } from '../-exports/-web/mod.ts';
+import { Crdt } from '../-exports/-web.ui/mod.ts';
 import { Url } from './common.ts';
+
+export { Crdt };
 
 export { expect } from '@sys/std/testing';
 export { Dev, Lorem, Spec } from '@sys/ui-react-devharness';

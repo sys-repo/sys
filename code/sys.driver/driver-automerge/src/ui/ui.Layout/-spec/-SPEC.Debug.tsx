@@ -1,6 +1,5 @@
 import React from 'react';
-import { SignalsObjectView } from '../../-dev/mod.ts';
-import { createRepo } from '../../-test.ui.ts';
+import { Crdt, createRepo } from '../../-test.ui.ts';
 
 import {
   type t,
@@ -247,7 +246,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <SignalsObjectView
+      <Crdt.UI.Dev.ObjectView
         doc={debug.signals.doc.value}
         style={{ marginTop: 5 }}
         lenses={[

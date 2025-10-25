@@ -9,11 +9,6 @@ export type LayoutLib = {
   readonly View: t.FC<LayoutProps>;
   readonly defaults: LayoutDefaults;
   edgeBorder(theme: t.ColorTheme, opacity?: t.Percent): string;
-
-  // Dev Config/Helpers:
-  readonly Dev: {
-    readonly SignalsObjectView: t.FC<t.SignalsObjectViewProps>;
-  };
 };
 
 /** Public defaults for the layout. */

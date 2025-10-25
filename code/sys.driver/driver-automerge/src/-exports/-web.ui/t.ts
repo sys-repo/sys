@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export type CrdtViewLib = t.CrdtBrowserLib & {
   readonly UI: {
     // Components:
+    readonly Dev: t.DevLib;
     readonly Repo: t.RepoLib;
     readonly DocumentId: t.DocumentIdLib;
     readonly Binary: t.BinaryLib;
