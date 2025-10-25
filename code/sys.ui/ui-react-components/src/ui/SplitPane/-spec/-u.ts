@@ -1,4 +1,4 @@
-import { type t, Num } from '../common.ts';
+import { Num } from '../common.ts';
 export { normalize } from '../u.ts';
 
 export function even(n: number = 0) {
