@@ -1,6 +1,6 @@
 {
   "name": "@sys/std",
-  "version": "0.0.212",
+  "version": "0.0.213",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
