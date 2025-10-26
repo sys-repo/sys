@@ -10,51 +10,51 @@ describe('schema.validation / validateTraitExistence', () => {
     expect(validateTraitExistence({ slug: { id: 's1' }, registry })).to.eql([]);
   });
 
-  it('no errors when all trait <ids> exist', () => {
+  it('no errors when all trait <of> values exist', () => {
     const slug = {
       id: 's1',
-      traits: [{ id: 'video-player', as: 'primary' }],
-      props: { primary: { name: 'ok' } },
+      traits: [{ of: 'video-player', as: 'primary' }],
+      data: { primary: { name: 'ok' } },
     };
     const errs = validateTraitExistence({ slug, registry: TraitRegistryDefault });
     expect(errs).to.eql([]);
   });
 
-  it('error when a trait id is <unknown>', () => {
+  it('error when a trait <of> is unknown', () => {
     const slug = {
       id: 's1',
       traits: [
-        { id: 'video-player', as: 'a' },
-        { id: 'nope', as: 'b' },
+        { of: 'video-player', as: 'a' },
+        { of: 'nope', as: 'b' },
       ],
-      props: { a: { name: 'x' }, b: { name: 'y' } },
+      data: { a: { name: 'x' }, b: { name: 'y' } },
     };
     const errs = validateTraitExistence({ slug, registry: TraitRegistryDefault });
     expect(errs.length).to.eql(1);
     const e = errs[0]!;
     expect(e.kind).to.eql('semantic');
     expect(e.message).to.contain('Unknown trait id: "nope"');
-    expect(e.path).to.eql(['traits', 1, 'id']);
+    expect(e.path).to.eql(['traits', 1, 'of']);
   });
 
   it('respects basePath when provided', () => {
-    const slug = { id: 's1', traits: [{ id: 'nope', as: 'x' }] };
+    const slug = { id: 's1', traits: [{ of: 'nope', as: 'x' }] };
     const errs = validateTraitExistence({
       slug,
       registry: TraitRegistryDefault,
       basePath: ['root', 'doc', 'section'],
     });
-    expect(errs[0]!.path).to.eql(['root', 'doc', 'section', 'traits', 0, 'id']);
+    expect(errs[0]!.path).to.eql(['root', 'doc', 'section', 'traits', 0, 'of']);
   });
 
-  it('ignores traits with non-string ids', () => {
-    const slug = { id: 's1', traits: [{ id: 123, as: 'x' }] };
+  it('ignores traits with non-string <of>', () => {
+    const slug = { id: 's1', traits: [{ of: 123, as: 'x' }] };
     const errs = validateTraitExistence({ slug, registry: TraitRegistryDefault });
-    expect(errs).to.eql([]); // existence rule only checks string ids
+    expect(errs).to.eql([]); // existence rule only checks string `of`
   });
 
   it('[] when traits is empty array', () => {
-    const slug = { id: 's1', traits: [], props: {} };
+    const slug = { id: 's1', traits: [], data: {} };
     const errs = validateTraitExistence({ slug, registry: TraitRegistryDefault });
     expect(errs).to.eql([]);
   });

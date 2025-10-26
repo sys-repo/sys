@@ -5,11 +5,11 @@ import { validateSlug, validateSlugAgainstRegistry } from '../mod.ts';
 describe('schema.validation / composite', () => {
   const registry = TraitRegistryDefault;
 
-  it('ok when traits + props are consistent', () => {
+  it('ok when traits + data are consistent', () => {
     const slug = {
       id: 's1',
-      traits: [{ id: 'video-player', as: 'p' }],
-      props: { p: { name: 'ok' } },
+      traits: [{ of: 'video-player', as: 'p' }],
+      data: { p: { name: 'ok' } },
     };
     const { valid, errors } = validateSlug({ slug, registry, basePath: [] });
     expect(valid).to.eql(true);
@@ -20,17 +20,22 @@ describe('schema.validation / composite', () => {
     const slug = {
       id: 's1',
       traits: [
-        { id: 'nope', as: 'a' },
-        { id: 'video-player', as: 'a' },
-      ], // dup alias + unknown id
-      props: { orphan: { name: '' }, a: { name: '' } }, // orphan + invalid shape
+        { of: 'nope', as: 'a' }, // unknown trait id
+        { of: 'video-player', as: 'a' }, // duplicate alias with the above
+      ],
+      data: {
+        orphan: { name: '' }, // orphan data
+        a: { name: '' }, // invalid shape (minLength: 1)
+      },
     };
+
     const errs = validateSlugAgainstRegistry({ slug, registry, basePath: [] });
     expect(errs.length).to.be.greaterThan(0);
 
-    // Spot-check a few:
-    expect(errs.some((e) => e.message.includes('Unknown trait id'))).to.eql(true);
-    expect(errs.some((e) => e.message.includes('Duplicate trait alias'))).to.eql(true);
-    expect(errs.some((e) => e.path.join('/') === 'props/orphan')).to.eql(true);
+    // Spot-check a few independent expectations:
+    expect(errs.some((e) => /Unknown trait id/i.test(e.message))).to.eql(true);
+    expect(errs.some((e) => /Duplicate .*alias/i.test(e.message))).to.eql(true);
+    expect(errs.some((e) => e.path.join('/') === 'data/orphan')).to.eql(true);
+    expect(errs.some((e) => e.path.join('/') === 'data/a/name')).to.eql(true);
   });
 });

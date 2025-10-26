@@ -37,9 +37,9 @@ export type SlugValidationLib = {
 export type SlugSemanticKeyword =
   | 'semantic/duplicate-alias'
   | 'semantic/unknown-trait'
-  | 'semantic/missing-props'
-  | 'semantic/orphan-props'
-  | 'semantic/invalid-props';
+  | 'semantic/missing-data'
+  | 'semantic/orphan-data'
+  | 'semantic/invalid-data';
 
 /**
  * Input to the semantic validator.
