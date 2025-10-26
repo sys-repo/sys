@@ -12,7 +12,7 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
   const {
     debug = false,
     children = [],
-    enabled = D.enabled,
+    active = D.active,
     orientation = D.orientation,
     defaultValue,
     value,
@@ -35,7 +35,6 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
    */
   const splitRatios = useSplitRatios({ n, value, defaultValue, min, max });
   const ratios = splitRatios.ratios;
-  // const { isControlled, ratios, setRatiosUnc, mins, maxs } = ratiosApi;
 
   /**
    * Drag interaction
@@ -43,7 +42,7 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const { pointer, activeGutterRef } = useSplitDrag({
     paneCount: n,
-    enabled,
+    active,
     orientation,
     gutter,
     collapsed,
@@ -57,7 +56,14 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
   /**
    * Grid template:
    */
-  const template = templateTracks({ ratios, gutter, orientation, collapsed, onlyIndex, n });
+  const template = templateTracks({
+    ratios,
+    gutter,
+    orientation,
+    collapsed,
+    onlyIndex,
+    paneCount: n,
+  });
 
   /**
    * Keyboard step (small ratio delta) for a given gutter:
@@ -94,7 +100,7 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
       height: '100%',
       minWidth: 0,
       minHeight: 0,
-      userSelect: enabled ? 'none' : 'auto',
+      userSelect: active ? 'none' : 'auto',
       touchAction: orientation === 'horizontal' ? 'pan-y' : 'pan-x',
       display: 'grid',
       gridTemplateColumns: template.cols,
@@ -127,7 +133,7 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
           index={i}
           debug={debug}
           theme={props.theme}
-          enabled={enabled}
+          active={active}
           collapsed={collapsed}
           orientation={orientation}
           ratios={ratios}

@@ -4,7 +4,7 @@ import { Debug } from './ui.Debug.tsx';
 
 export type GutterProps = {
   index: number; // NB: between pane i and i+1
-  enabled?: boolean;
+  active?: boolean;
   collapsed?: boolean;
   orientation?: t.Orientation;
   ratios: t.Percent[];
@@ -26,7 +26,7 @@ export type GutterProps = {
 export const Gutter: React.FC<GutterProps> = (props) => {
   const {
     index,
-    enabled = true,
+    active = true,
     collapsed = false,
     orientation = 'horizontal',
     ratios,
@@ -48,7 +48,7 @@ export const Gutter: React.FC<GutterProps> = (props) => {
       justifyItems: 'stretch',
       outline: 'none',
       cursor:
-        enabled && !collapsed
+        active && !collapsed
           ? orientation === 'horizontal'
             ? 'col-resize'
             : 'row-resize'
@@ -95,7 +95,7 @@ export const Gutter: React.FC<GutterProps> = (props) => {
       data-part={'gutter'}
       data-gutter-index={i}
       onKeyDown={(e) => {
-        if (!enabled || collapsed) return;
+        if (!active || collapsed) return;
         if (!onStep) return;
         const step = 0.02 as t.Percent;
         if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') onStep(i, -step);

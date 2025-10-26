@@ -38,7 +38,7 @@ export function Root(props: { debug: DebugSignals }) {
       theme={v.theme}
       value={v.isControlled ? ratios : undefined}
       defaultValue={v.defaultValue}
-      enabled={v.enabled}
+      active={v.active}
       orientation={v.orientation}
       min={v.min}
       max={v.max}

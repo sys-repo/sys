@@ -8,7 +8,7 @@ const name = 'SplitPane';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-  enabled: true,
+  active: true,
   orientation: 'horizontal' satisfies t.Orientation,
   defaultValue: 0.5,
   min: 0.1,

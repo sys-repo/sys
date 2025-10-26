@@ -5,9 +5,9 @@ import { clampPairWithBounds, renormalizePreservingPair } from './u.ts';
 type P = t.SplitPaneProps;
 type DragRef = {
   startRatios: t.Percent[];
-  active?: t.Index; // gutter index (between i and i+1)
+  active?: t.Index;
   containerSize: number;
-  usableSize: number; // containerSize - totalGutter
+  usableSize: number;
   startClient: t.Point;
 };
 
@@ -16,7 +16,7 @@ export function useSplitDrag(args: {
   containerRef: React.RefObject<HTMLDivElement | null>;
   splitRatios: t.SplitPaneRatios;
   collapsed: boolean;
-  enabled?: boolean;
+  active?: boolean;
   orientation?: t.Orientation;
   gutter?: number;
   onChange?: P['onChange'];
@@ -24,7 +24,7 @@ export function useSplitDrag(args: {
   onDragEnd?: P['onDragEnd'];
 }) {
   const {
-    enabled = D.enabled,
+    active = D.active,
     orientation = D.orientation,
     gutter = D.gutter,
     paneCount,
@@ -37,14 +37,31 @@ export function useSplitDrag(args: {
   } = args;
 
   const ratios = splitRatios.ratios;
-
-  const activeGutterRef = React.useRef<number | null>(null);
-  const dragRef = React.useRef<DragRef | null>(null);
-
   const totalGutterPx = collapsed ? 0 : Math.max(0, (paneCount - 1) * gutter);
 
+  /**
+   * Hooks:
+   */
+  const activeGutterRef = React.useRef<number | null>(null);
+  const dragRef = React.useRef<DragRef | null>(null);
+  const pointer = usePointer({
+    onDrag: (e) => applyDrag(e.client),
+    onDown(e) {
+      const i = activeGutterRef.current;
+      if (i == null || !active || collapsed) return;
+      startDrag(i, e.client);
+    },
+    onUp() {
+      activeGutterRef.current = null;
+      endDrag();
+    },
+  });
+
+  /**
+   * Methods:
+   */
   const startDrag = (gutterIndex: t.Index, client: t.Point) => {
-    if (!enabled || collapsed) return;
+    if (!active || collapsed) return;
     const el = containerRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
@@ -104,19 +121,6 @@ export function useSplitDrag(args: {
     if (d?.active != null) onDragEnd?.({ ratios, activeGutter: d.active });
     dragRef.current = null;
   };
-
-  const pointer = usePointer({
-    onDrag: (e) => applyDrag(e.client),
-    onDown(e) {
-      const i = activeGutterRef.current;
-      if (i == null || !enabled || collapsed) return;
-      startDrag(i, e.client);
-    },
-    onUp() {
-      activeGutterRef.current = null;
-      endDrag();
-    },
-  });
 
   /**
    * API:

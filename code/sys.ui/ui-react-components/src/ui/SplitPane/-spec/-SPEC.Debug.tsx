@@ -8,7 +8,7 @@ type Base = Pick<
   P,
   | 'theme'
   | 'debug'
-  | 'enabled'
+  | 'active'
   | 'orientation'
   | 'defaultValue'
   | 'min'
@@ -25,7 +25,7 @@ const defaults: Storage = {
   controlledRatios: even(2),
 
   defaultValue: fromScalar(2, D.defaultValue),
-  enabled: D.enabled,
+  active: D.active,
   orientation: D.orientation,
   min: D.min,
   max: D.max,
@@ -55,7 +55,7 @@ export function createDebugSignals() {
     childCount: s(snap.childCount),
     controlledRatios: s(snap.controlledRatios),
 
-    enabled: s(snap.enabled),
+    active: s(snap.active),
     orientation: s(snap.orientation),
     defaultValue: s(snap.defaultValue),
     min: s(snap.min),
@@ -85,7 +85,7 @@ export function createDebugSignals() {
       d.childCount = p.childCount.value;
       d.controlledRatios = p.controlledRatios.value;
       //
-      d.enabled = p.enabled.value;
+      d.active = p.active.value;
       d.orientation = p.orientation.value;
       d.defaultValue = p.defaultValue.value;
       d.min = p.min.value;
@@ -133,8 +133,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `enabled: ${p.enabled.value ?? `(undefined) ← default: ${D.enabled}`}`}
-        onClick={() => Signal.toggle(p.enabled)}
+        label={() => `active: ${p.active.value ?? `(undefined) ← default: ${D.active}`}`}
+        onClick={() => Signal.toggle(p.active)}
       />
       <Button
         block

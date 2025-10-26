@@ -8,8 +8,8 @@ export type SplitPaneProps = {
   /** Panes in order. */
   children?: React.ReactNode[];
 
-  /** Enabled state. */
-  enabled?: boolean;
+  /** Whether the split pane is currently draggable (resizable). */
+  active?: boolean;
 
   /** Layout orientation. */
   orientation?: t.Orientation;
