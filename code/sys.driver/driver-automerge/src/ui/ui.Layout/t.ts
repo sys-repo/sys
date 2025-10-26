@@ -85,8 +85,9 @@ export type LayoutHeader = {
  * Configuration of the sidebar panel.
  */
 export type LayoutSidebar = {
-  visible?: boolean;
   position?: 'left' | 'right';
+  visible?: boolean;
+  resizable?: boolean;
   width?: t.Pixels;
 };
 

@@ -70,6 +70,7 @@ export const Body: React.FC<P> = (props) => {
         <SplitPane
           orientation={'horizontal'}
           gutter={8}
+          active={sidebar.resizable}
           defaultValue={defaultValue}
           onlyIndex={onlyIndex}
           min={0.1}

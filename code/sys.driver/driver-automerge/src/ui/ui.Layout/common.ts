@@ -17,7 +17,7 @@ export const defaults: t.LayoutDefaults = {
     return { visible: true, readOnly: false };
   },
   get sidebar() {
-    return { visible: true, position: 'right' as const, width: 340 };
+    return { position: 'right', visible: true, resizable: true, width: 340 } as const;
   },
   get cropmarks() {
     return { borderOpacity: 0.08, subjectOnly: false };

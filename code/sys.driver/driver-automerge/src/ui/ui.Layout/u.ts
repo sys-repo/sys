@@ -24,8 +24,9 @@ export function toHeaderConfig(input?: t.LayoutHeader): t.LayoutHeader {
 export function toSidebarConfig(input?: t.LayoutSidebar): t.LayoutSidebar {
   const d = D.sidebar;
   return {
-    visible: input?.visible ?? d.visible,
     position: input?.position ?? d.position,
+    visible: input?.visible ?? d.visible,
+    resizable: input?.resizable ?? d.resizable,
     width: input?.width ?? d.width,
   };
 }
