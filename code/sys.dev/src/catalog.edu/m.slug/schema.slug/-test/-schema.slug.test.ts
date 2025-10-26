@@ -11,8 +11,8 @@ describe('SlugSchema', () => {
     const slug = {
       id: 's1',
       traits: [
-        { as: 'trait-1', id: 'video' },
-        { as: 'gallery', id: 'image-sequence' },
+        { as: 'trait-1', of: 'video' },
+        { as: 'gallery', of: 'image-sequence' },
       ],
       // NOTE: semantic validation not enforced yet; any shape is allowed per alias.
       props: {

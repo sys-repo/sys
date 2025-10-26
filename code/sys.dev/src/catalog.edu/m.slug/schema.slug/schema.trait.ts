@@ -2,21 +2,21 @@ import { type t, Type as T } from './common.ts';
 import { Pattern } from './u.Pattern.ts';
 
 /**
- * Bind a trait type (id) to a local alias (as).
- * - `as` lets us have multiple instances of the same trait type.
- * - `id` selects the trait type from the registry/defs.
+ * Bind a trait type ("of") to a local alias ("as").
+ * - "of" selects the trait's type from the registry/defs.
+ * - "as" lets us have multiple instances of the same trait type.
  */
 export const TraitBindingSchema: t.TObject<{
+  of: t.TString;
   as: t.TString;
-  id: t.TString;
 }> = T.Object(
   {
-    id: T.String({
-      title: 'Binding id-ref.',
+    of: T.String({
+      title: `Trait type reference.`,
       ...Pattern.idPattern(),
     }),
     as: T.String({
-      title: 'Property alias',
+      title: `Local alias path address for this trait's instance data.`,
       ...Pattern.idPattern(),
     }),
   },
@@ -24,16 +24,23 @@ export const TraitBindingSchema: t.TObject<{
 );
 
 /**
- * Trait definition descriptor (catalog-level).
- * Concrete prop schemas live in a runtime registry (regs.ts).
+ * Trait definition descriptor (root catalog-level).
+ * Concrete prop schemas live in a runtime registry (eg. `regs.ts`).
  */
 export const TraitDefSchema: t.TObject<{
   id: t.TString;
   props: t.TOptional<t.TUnknown>;
 }> = T.Object(
   {
-    id: T.String({ ...Pattern.idPattern() }),
-    props: T.Optional(T.Unknown()),
+    id: T.String({
+      title: 'Trait identifier.',
+      ...Pattern.idPattern(),
+    }),
+    props: T.Optional(
+      T.Unknown({
+        title: 'Property data',
+      }),
+    ),
   },
   { additionalProperties: false },
 );

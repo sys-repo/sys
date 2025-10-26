@@ -36,8 +36,8 @@ describe('trait: video-player', () => {
       let sample!: Narrow;
       expectTypeOf(sample).toEqualTypeOf<Narrow>();
 
-      // "id" literal stays locked to "video-player":
-      let id!: Narrow['id'];
+      // `id` (trait "of") literal stays locked to "video-player":
+      let id!: Narrow['of'];
       expectTypeOf(id).toEqualTypeOf<'video-player'>();
     });
   });

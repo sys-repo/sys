@@ -18,14 +18,14 @@ describe(`Slug/Traits:`, () => {
 
   describe('TraitBindingSchema', () => {
     it('accepts valid binding { as, id }', () => {
-      const ok = { as: 'trait-1', id: 'video' };
+      const ok = { as: 'trait-1', of: 'video' };
       expect(Value.Check(TraitBindingSchema, ok)).to.be.true;
 
       // Also valid under new idPattern (leading digit, dots, hyphens)
-      const ok2 = { as: 'trait-1.0', id: 'video.player-01' };
+      const ok2 = { as: 'trait-1.0', of: 'video.player-01' };
       expect(Value.Check(TraitBindingSchema, ok2)).to.be.true;
 
-      const ok3 = { as: '1x', id: '2d-plot' };
+      const ok3 = { as: '1x', of: '2d-plot' };
       expect(Value.Check(TraitBindingSchema, ok3)).to.be.true;
     });
 
@@ -97,7 +97,7 @@ describe(`Slug/Traits:`, () => {
     it('props keys may include dots when alias includes dots', () => {
       const ok = {
         id: 's1',
-        traits: [{ as: 't1.0', id: 'video' }],
+        traits: [{ as: 't1.0', of: 'video' }],
         // note: quoted key because dot is not an identifier
         props: { 't1.0': Symbol('anything-goes') as unknown },
       };
@@ -107,7 +107,7 @@ describe(`Slug/Traits:`, () => {
     it('traits must contain only TraitBinding-shaped items', () => {
       const bad = {
         id: 's1',
-        traits: [{ id: 'video' }], // missing `as`
+        traits: [{ of: 'video' }], // missing `as`
       };
       expect(Value.Check(SlugSchema, bad)).to.be.false;
     });
@@ -115,7 +115,7 @@ describe(`Slug/Traits:`, () => {
     it('props keys are strings; values are Unknown (structural pass only)', () => {
       const ok = {
         id: 's1',
-        traits: [{ as: 't1', id: 'video' }],
+        traits: [{ as: 't1', of: 'video' }],
         props: { t1: Symbol('anything-goes') as unknown }, // Unknown passes.
       };
       expect(Value.Check(SlugSchema, ok)).to.be.true;

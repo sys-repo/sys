@@ -30,7 +30,7 @@ export const SlugView: React.FC<SlugViewProps> = (props) => {
 
   const recorders = slug.traits.filter(Slug.Traits.Is.videoRecorderBinding);
   const elRecorders = recorders.map((trait, i) => {
-    const key = `${i}.${trait.id}:${trait.as}`;
+    const key = `${i}.${trait.of}:${trait.as}`;
     return null;
   });
 

@@ -30,7 +30,7 @@ describe('Slug.Is', () => {
     it('narrows', () => {
       const input: unknown = { id: 'video-recorder', as: 'cam' };
       if (Is.videoRecorderBinding(input)) {
-        expectTypeOf(input.id).toEqualTypeOf<'video-recorder'>();
+        expectTypeOf(input.of).toEqualTypeOf<'video-recorder'>();
         expectTypeOf(input.as).toEqualTypeOf<string>();
         expect(input.as.length > 0).to.eql(true);
       } else {
@@ -139,7 +139,7 @@ describe('Slug.Is', () => {
       expect(ok).to.eql(true); // runtime assertion
 
       if (ok) {
-        expectTypeOf(input.id).toEqualTypeOf<'slug-index'>();
+        expectTypeOf(input.of).toEqualTypeOf<'slug-index'>();
         expectTypeOf(input.as).toEqualTypeOf<string>();
         expect(input.as.length > 0).to.eql(true);
       }

@@ -51,8 +51,8 @@ describe('trait: video-recorder', () => {
       let sample!: Narrow;
       expectTypeOf(sample).toEqualTypeOf<Narrow>();
 
-      // "id" literal stays locked to "video-recorder":
-      let id!: Narrow['id'];
+      // `id` (trait "of") literal stays locked to "video-recorder":
+      let id!: Narrow['of'];
       expectTypeOf(id).toEqualTypeOf<'video-recorder'>();
     });
 

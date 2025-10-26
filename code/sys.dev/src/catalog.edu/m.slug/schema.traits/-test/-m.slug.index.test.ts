@@ -58,8 +58,8 @@ describe('trait: slug-index', () => {
       let sample!: Narrow;
       expectTypeOf(sample).toEqualTypeOf<Narrow>();
 
-      // "id" literal stays locked to "slug-index":
-      let id!: Narrow['id'];
+      // `id` (trait "of") literal stays locked to "slug-index":
+      let id!: Narrow['of'];
       expectTypeOf(id).toEqualTypeOf<'slug-index'>();
     });
 

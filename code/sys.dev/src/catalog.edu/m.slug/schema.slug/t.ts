@@ -29,6 +29,6 @@ export type SlugTraitBinding = t.Infer<typeof TraitBindingSchema>;
 /**
  * Utility: Narrowed binding for a specific trait-id.
  */
-export type SlugTraitBindingOf<K extends SlugTraitBinding['id']> = Omit<SlugTraitBinding, 'id'> & {
-  readonly id: K;
+export type SlugTraitBindingOf<K extends SlugTraitBinding['of']> = Omit<SlugTraitBinding, 'of'> & {
+  readonly of: K;
 };
