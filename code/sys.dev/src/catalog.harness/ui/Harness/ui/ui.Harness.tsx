@@ -1,7 +1,6 @@
-import { SplitPane } from '@sys/ui-react-components';
 import React from 'react';
 
-import { type t, Color, css } from '../common.ts';
+import { type t, Color, SplitPane, css } from '../common.ts';
 import { HarnessPropsSchema } from '../schema.ts';
 import { useSplitState } from './use.SplitState.ts';
 
@@ -20,7 +19,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
   /**
    * Hooks:
    */
-  const split = useSplitState(props.state);
+  const split = useSplitState(props.state); // split.ratio ∈ [0..1], split.setRatio(n)
 
   /**
    * Render:
@@ -48,11 +47,21 @@ export const Harness: React.FC<HarnessProps> = (props) => {
   const elLeft = slots?.left ?? unspecified('Left');
   const elRight = slots?.right ?? unspecified('Right');
 
+  // Controlled ratios for 2 panes: [left, right]
+  const left = split.ratio ?? 0.3; // ← fallback to sane default
+  const ratios: t.Percent[] = [left, 1 - left];
+
   return (
     <div className={css(styles.base, props.style).class}>
-      <SplitPane theme={theme.name} value={split.ratio} onChange={(e) => split.setRatio(e.ratio)}>
-        {elLeft}
-        {elRight}
+      <SplitPane
+        theme={theme.name}
+        value={ratios}
+        onChange={(e) => {
+          const nextLeft = e.ratios[0] ?? split.ratio;
+          split.setRatio(nextLeft);
+        }}
+      >
+        {[elLeft, elRight]}
       </SplitPane>
     </div>
   );
