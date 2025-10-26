@@ -38,10 +38,10 @@ export function yamlSamples(debug: DebugSignals) {
         slug:
           id: my-id.foo-01
           traits:
-            - id: slug-index
-              as: mything-v1.0
-          props:
-            mything-v1.0:
+            - of: slug-index
+              as: thing-v1
+          data:
+            thing-v1:
               name: Name of Index 🌸
               slugs:
                 - ref: crdt:create
@@ -56,17 +56,18 @@ export function yamlSamples(debug: DebugSignals) {
         slug:
           id: example.slug-01
           traits:
-            - id: video-player
+            - of: video-player
               as: player
-            - id: video-recorder
+            - of: video-recorder
               as: recorder
-            - id: slug-index
+            - of: slug-index
               as: my-index-1.0
-          props:
+          data:
             my-index-1.0:
               slugs:
                 - ref: crdt:create
                   name: my-slugs-1.0
+
             recorder:
               name: "Recorder A"
               description: The old man was dreaming about the lions.
@@ -75,6 +76,7 @@ export function yamlSamples(debug: DebugSignals) {
               script: |
                 He was an old man who fished alone in a skiff in the Gulf Stream and he had gone
                 eighty-four days now without taking a fish.
+
             player:
               name: "Player A"
 
@@ -87,23 +89,23 @@ export function yamlSamples(debug: DebugSignals) {
         slug:
           id: example-slug
           traits:
-            - as: primary
-              id: video-player
-          props:
+            - of: video-player
+              as: primary
+          data:
             primary:
               src: "video.mp4   # ← missing closing quote
 
     `,
   );
   sample(
-    'error: 🐷 { unknown trait id }',
+    'error: 🐷 { unknown trait id ("of") }',
     `
         slug:
           id: example-slug
           traits:
-            - as: primary
-              id: not-real
-          props:
+            - of: not-real
+              as: foo
+          data:
             primary:
               src: "video.mp4"
 
@@ -115,11 +117,11 @@ export function yamlSamples(debug: DebugSignals) {
         slug:
           id: example-slug
           traits:
-            - as: primary
-              id: video-player
-            - as: primary
-              id: video-player
-          props:
+            - of: video-player
+              as: primary
+            - of: video-player
+              as: primary
+          data:
             primary:
               src: "video.mp4"
 
@@ -131,9 +133,9 @@ export function yamlSamples(debug: DebugSignals) {
         slug:
           id: example-slug
           traits:
-            - as: primary
-              id: video-player
-          props: {}
+            - of: video-player
+              as: primary
+          data: {}
 
     `,
   );
@@ -143,9 +145,9 @@ export function yamlSamples(debug: DebugSignals) {
         slug:
           id: example-slug
           traits:
-            - as: primary
-              id: video-player
-          props:
+            - of: video-player
+              as: primary
+          data:
             primary:
               src: "video.mp4"
             extra:
@@ -159,9 +161,9 @@ export function yamlSamples(debug: DebugSignals) {
         slug:
           id: example-slug
           traits:
-            - as: primary
-              id: video-player
-          props:
+            - of: video-player
+              as: primary
+          data:
             primary:
               src: ""   # violates minLength: 1 in current schemas
 

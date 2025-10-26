@@ -15,7 +15,7 @@ describe('SlugSchema', () => {
         { as: 'gallery', of: 'image-sequence' },
       ],
       // NOTE: semantic validation not enforced yet; any shape is allowed per alias.
-      props: {
+      data: {
         'trait-1': { any: { nested: ['ok'] }, n: 123 },
         gallery: 'also-ok',
       },

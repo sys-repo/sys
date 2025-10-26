@@ -16,10 +16,10 @@ describe(`YamlPipeline`, () => {
       id: slug-001
       traits:
         - as: trait-1
-          id: video
+          of: video
         - as: gallery
-          id: image-sequence
-      props:
+          of: image-sequence
+      data:
         trait-1:
           src: https://example.com/video.mp4
           poster: https://example.com/poster.jpg
@@ -30,7 +30,7 @@ describe(`YamlPipeline`, () => {
             - https://example.com/2.png
       `;
 
-      const res = fromYaml(src); // root path
+      const res = fromYaml(src);
       expect(res.ok).to.be.true;
       if (res.ok) {
         console.info(c.bold(c.green('slugFromYaml:')));
@@ -145,12 +145,12 @@ describe(`YamlPipeline`, () => {
           const src = `
           id: s1
           traits:
-            - as: t1
-              id: video
-            - as: gallery
-              id: image-sequence
-            - as: t1
-              id: video
+            - of: video
+              as: t1
+            - of: image-sequence
+              as: gallery
+            - of: video
+              as: t1
           `;
           const res = fromYaml(src); // root path
           expect(res.ok).to.eql(false);
@@ -175,10 +175,10 @@ describe(`YamlPipeline`, () => {
           const src = `
           id: s1
           traits:
-            - as: t1
-              id: video
-            - as: t1
-              id: image-sequence
+            - of: t1
+              as: video
+            - of: t1
+              as: video
           `;
           const res = fromYaml(src);
           expect(res.ok).to.eql(false);
@@ -195,10 +195,10 @@ describe(`YamlPipeline`, () => {
           const src = `
           id: s2
           traits:
-            - as: video-hero
-              id: video
-            - as: gallery
-              id: image-sequence
+            - of: video
+              as: video-hero
+            - of: image-sequence
+              as: gallery
           `;
           const res = fromYaml(src);
           expect(res.ok).to.eql(true);

@@ -14,7 +14,7 @@ import {
   ObjectView,
   Signal,
 } from '../common.ts';
-import { yamlSamples } from './-u.yaml-samples.tsx';
+import { yamlSamples } from './-u.SAMPLES.tsx';
 import { SlugView } from './-ui.SlugView.tsx';
 
 type P = t.SampleProps;

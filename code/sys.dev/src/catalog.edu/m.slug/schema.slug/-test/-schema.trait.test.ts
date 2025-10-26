@@ -65,7 +65,7 @@ describe(`Slug/Traits:`, () => {
   describe('TraitDefSchema', () => {
     it('accepts minimal trait def with id (props optional)', () => {
       const ok1 = { id: 'video' };
-      const ok2 = { id: 'image-sequence', props: {} };
+      const ok2 = { id: 'image-sequence', data: {} };
       expect(Value.Check(TraitDefSchema, ok1)).to.be.true;
       expect(Value.Check(TraitDefSchema, ok2)).to.be.true;
 
@@ -99,7 +99,7 @@ describe(`Slug/Traits:`, () => {
         id: 's1',
         traits: [{ as: 't1.0', of: 'video' }],
         // note: quoted key because dot is not an identifier
-        props: { 't1.0': Symbol('anything-goes') as unknown },
+        data: { 't1.0': Symbol('anything-goes') as unknown },
       };
       expect(Value.Check(SlugSchema, ok)).to.be.true;
     });
@@ -116,7 +116,7 @@ describe(`Slug/Traits:`, () => {
       const ok = {
         id: 's1',
         traits: [{ as: 't1', of: 'video' }],
-        props: { t1: Symbol('anything-goes') as unknown }, // Unknown passes.
+        data: { t1: Symbol('anything-goes') as unknown }, // Unknown passes.
       };
       expect(Value.Check(SlugSchema, ok)).to.be.true;
     });

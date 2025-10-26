@@ -11,12 +11,9 @@ export const TraitBindingSchema: t.TObject<{
   as: t.TString;
 }> = T.Object(
   {
-    of: T.String({
-      title: `Trait type reference.`,
-      ...Pattern.idPattern(),
-    }),
+    of: T.String({ title: `Trait type reference`, ...Pattern.idPattern() }),
     as: T.String({
-      title: `Local alias path address for this trait's instance data.`,
+      title: `Local alias path address for this trait's instance data`,
       ...Pattern.idPattern(),
     }),
   },
@@ -29,18 +26,11 @@ export const TraitBindingSchema: t.TObject<{
  */
 export const TraitDefSchema: t.TObject<{
   id: t.TString;
-  props: t.TOptional<t.TUnknown>;
+  data: t.TOptional<t.TUnknown>;
 }> = T.Object(
   {
-    id: T.String({
-      title: 'Trait identifier.',
-      ...Pattern.idPattern(),
-    }),
-    props: T.Optional(
-      T.Unknown({
-        title: 'Property data',
-      }),
-    ),
+    id: T.String({ title: 'Trait type identifier', ...Pattern.idPattern() }),
+    data: T.Optional(T.Unknown({ title: 'Serialized instance data for this trait' })),
   },
   { additionalProperties: false },
 );

@@ -4,31 +4,28 @@ import { Pattern } from './u.Pattern.ts';
 
 /**
  * Slug core (v0): stable identity + trait bindings.
- * - `props` keyed by alias; semantic validation enforces per-trait shapes (next slice).
+ * - `data` keyed by alias; semantic validation enforces per-trait shapes (next slice).
  */
 export const SlugSchema: t.TObject<{
   id: t.TString;
   traits: t.TArray<typeof TraitBindingSchema>;
-  props: t.TOptional<t.TRecord<t.TString, t.TUnknown>>;
+  data: t.TOptional<t.TRecord<t.TString, t.TUnknown>>;
 }> = T.Object(
   {
-    id: T.String({
-      title: 'Slug identifier.',
-      ...Pattern.idPattern(),
-    }),
+    id: T.String({ title: `Slug identifier`, ...Pattern.idPattern() }),
 
     traits: T.Array(TraitBindingSchema, {
-      description: `Array of trait bindings applied to this slug. Each binding defines a trait ID and alias used in \`props\`.`,
+      description: `Array of trait bindings applied to this slug. Each binding selects a trait type (\`of\`) and assigns a local alias (\`as\`) used in \`data\`.`,
     }),
 
-    props: T.Optional(
+    data: T.Optional(
       T.Record(T.String(), T.Unknown(), {
-        description: `Properties keyed by trait alias. Each entry's value is validated semantically according to the corresponding trait's schema.`,
+        description: `Serialized instance data keyed by trait alias. Each value is validated semantically against the corresponding trait's schema.`,
       }),
     ),
   },
   {
     additionalProperties: false,
-    description: `Slug core schema (v0). Provides stable identity, trait bindings, and associated props keyed by alias.`,
+    description: `Slug core schema (v0). Provides stable identity, trait bindings, and instance data keyed by alias.`,
   },
 );
