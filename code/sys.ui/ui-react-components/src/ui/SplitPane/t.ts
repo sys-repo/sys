@@ -1,47 +1,62 @@
 import type { t } from './common.ts';
+export type * from './t.SplitRatio.ts';
 
 /**
- * Component: SplitPane.
+ * Component: SplitPane (N panes).
  */
 export type SplitPaneProps = {
-  /** Pane content */
-  children?: [React.ReactNode, React.ReactNode];
+  /** Panes in order. */
+  children?: React.ReactNode[];
 
   /** Enabled state. */
   enabled?: boolean;
+
   /** Layout orientation. */
   orientation?: t.Orientation;
-  /** Controlled ratio [0..1]. */
-  value?: t.Percent;
-  /** Uncontrolled initial ratio [0..1]. */
-  defaultValue?: t.Percent;
-  /** Minmum size. */
-  min?: t.Percent;
-  /** Maximum size. */
-  max?: t.Percent;
-  /** Flag indicating if only one of the panes should be displayed. */
-  only?: 'A' | 'B';
 
-  /** Gutter offset size. */
+  /**
+   * Controlled pane ratios. Must be same length as children.
+   * Should sum to ~1. If omitted, `defaultValue` is used (uncontrolled).
+   */
+  value?: t.Percent[];
+
+  /**
+   * Uncontrolled initial ratios; normalized to sum to 1.
+   * If omitted, divides evenly.
+   */
+  defaultValue?: t.Percent[];
+
+  /**
+   * Per-pane minimum ratio bounds. Single number applies to all.
+   * Default: 0.
+   */
+  min?: t.Percent | t.Percent[];
+
+  /**
+   * Per-pane maximum ratio bounds. Single number applies to all.
+   * Default: 1.
+   */
+  max?: t.Percent | t.Percent[];
+
+  /** If set, render only this pane index and hide others (gutters inert). */
+  onlyIndex?: t.Index;
+
+  /** Uniform gutter width (px). */
   gutter?: t.Pixels;
-  gutterOpacity?: t.Percent;
+
+  /** Visual line thickness within the gutter (px). */
   gutterLine?: t.Pixels;
 
+  /** Visual line opacity [0..1]. */
+  gutterOpacity?: t.Percent;
+
+  // Common:
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
   // Handlers:
-  onChange?: t.SplitPaneChangeHandler;
-  onDragStart?: t.SplitPaneChangeHandler;
-  onDragEnd?: t.SplitPaneChangeHandler;
+  onChange?: (e: { ratios: t.Percent[]; activeGutter?: number }) => void;
+  onDragStart?: (e: { ratios: t.Percent[]; activeGutter: number }) => void;
+  onDragEnd?: (e: { ratios: t.Percent[]; activeGutter: number }) => void;
 };
-
-/**
- * Events:
- */
-
-/** Change handlers: */
-export type SplitPaneChangeHandler = (e: SplitPaneChange) => void;
-/** Represents a change to the pane's position. */
-export type SplitPaneChange = { ratio: t.Percent };
