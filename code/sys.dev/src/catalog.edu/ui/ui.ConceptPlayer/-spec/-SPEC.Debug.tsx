@@ -16,12 +16,17 @@ import {
 } from '../common.ts';
 
 type P = t.ConceptPlayerProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath'> & {
+  header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
+  sidebar: t.CrdtView.LayoutSidebar;
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   docPath: ['yaml'],
   slugPath: ['slug'],
+  header: D.header,
+  sidebar: D.sidebar,
 };
 
 /**
@@ -54,6 +59,16 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     docPath: s(snap.docPath),
     slugPath: s(snap.slugPath),
+    header: {
+      visible: s((snap.header ?? {}).visible),
+      readOnly: s((snap.header ?? {}).readOnly),
+    },
+    sidebar: {
+      position: s((snap.sidebar ?? {}).position),
+      visible: s((snap.sidebar ?? {}).visible),
+      resizable: s((snap.sidebar ?? {}).resizable),
+      width: s((snap.sidebar ?? {}).width),
+    },
   };
   const p = props;
   const api = {
@@ -67,7 +82,8 @@ export function createDebugSignals() {
   };
 
   function listen() {
-    Signal.listen(props);
+    Signal.listen(p, true);
+    Signal.listen(signals);
   }
 
   function reset() {
@@ -80,6 +96,16 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
       d.docPath = p.docPath.value;
       d.slugPath = p.slugPath.value;
+
+      d.header = d.header ?? {};
+      d.header.visible = p.header.visible.value;
+      d.header.readOnly = p.header.readOnly.value;
+
+      d.sidebar = d.sidebar ?? {};
+      d.sidebar.position = p.sidebar.position.value;
+      d.sidebar.visible = p.sidebar.visible.value;
+      d.sidebar.resizable = p.sidebar.resizable.value;
+      d.sidebar.width = p.sidebar.width.value;
     });
   });
 
@@ -139,6 +165,35 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           Signal.cycle(p.slugPath, [['slug'], ['hello', 'world'], undefined]);
         }}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `header.visible: ${p.header.visible.value ?? `(undefined)`}`}
+        onClick={() => Signal.toggle(p.header.visible)}
+      />
+      <Button
+        block
+        label={() => `header.readOnly: ${p.header.readOnly.value ?? `(undefined)`}`}
+        onClick={() => Signal.toggle(p.header.readOnly)}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => `sidebar.position: ${p.sidebar.position.value}`}
+        onClick={() => Signal.cycle(p.sidebar.position, ['left', 'right'])}
+      />
+      <Button
+        block
+        label={() => `sidebar.visible: ${p.sidebar.visible.value}`}
+        onClick={() => Signal.toggle(p.sidebar.visible)}
+      />
+      <Button
+        block
+        label={() => `sidebar.resizable: ${p.sidebar.resizable.value}`}
+        onClick={() => Signal.toggle(p.sidebar.resizable)}
       />
 
       <hr />

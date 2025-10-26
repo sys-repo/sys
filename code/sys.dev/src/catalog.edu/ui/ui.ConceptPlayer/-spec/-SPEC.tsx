@@ -35,6 +35,8 @@ export default Spec.describe(D.displayName, (e) => {
             signals={debug.signals}
             docPath={v.docPath}
             slugPath={v.slugPath}
+            header={v.header}
+            sidebar={v.sidebar}
           />
         );
       });

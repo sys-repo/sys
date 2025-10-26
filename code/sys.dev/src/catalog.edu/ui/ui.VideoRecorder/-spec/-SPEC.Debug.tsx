@@ -75,8 +75,9 @@ export function createDebugSignals() {
       readOnly: s((snap.header ?? {}).readOnly),
     },
     sidebar: {
-      visible: s((snap.sidebar ?? {}).visible),
       position: s((snap.sidebar ?? {}).position),
+      visible: s((snap.sidebar ?? {}).visible),
+      resizable: s((snap.sidebar ?? {}).resizable),
       width: s((snap.sidebar ?? {}).width),
     },
   };
@@ -114,8 +115,9 @@ export function createDebugSignals() {
       d.header.readOnly = p.header.readOnly.value;
 
       d.sidebar = d.sidebar ?? {};
-      d.sidebar.visible = p.sidebar.visible.value;
       d.sidebar.position = p.sidebar.position.value;
+      d.sidebar.visible = p.sidebar.visible.value;
+      d.sidebar.resizable = p.sidebar.resizable.value;
       d.sidebar.width = p.sidebar.width.value;
     });
   });
@@ -196,8 +198,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `header.readOnly: ${p.header.readOnly.value ?? `(undefined)`}`}
         onClick={() => Signal.toggle(p.header.readOnly)}
       />
-      <hr />
 
+      <hr />
       <Button
         block
         label={() => `crdt.urlKey: ${p.urlKey.value ?? `(undefined)`}`}
@@ -207,13 +209,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
+        label={() => `sidebar.position: ${p.sidebar.position.value}`}
+        onClick={() => Signal.cycle(p.sidebar.position, ['left', 'right'])}
+      />
+      <Button
+        block
         label={() => `sidebar.visible: ${p.sidebar.visible.value}`}
         onClick={() => Signal.toggle(p.sidebar.visible)}
       />
       <Button
         block
-        label={() => `sidebar.position: ${p.sidebar.position.value}`}
-        onClick={() => Signal.cycle(p.sidebar.position, ['left', 'right'])}
+        label={() => `sidebar.resizable: ${p.sidebar.resizable.value}`}
+        onClick={() => Signal.toggle(p.sidebar.resizable)}
       />
 
       <hr />

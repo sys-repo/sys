@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { type t, Color, css, Media } from './common.ts';
-import { edgeBorder } from './u.ts';
 import { ConfigDevices } from './ui.Config.Devices.tsx';
 import { Footer } from './ui.Config.Footer.tsx';
 
@@ -20,8 +19,6 @@ export const Config: React.FC<P> = (props) => {
   const styles = {
     base: css({
       color: theme.fg,
-      borderLeft: edgeBorder(theme),
-      width: 340,
       display: 'grid',
       gridTemplateRows: '1fr auto',
     }),
