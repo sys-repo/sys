@@ -23,7 +23,7 @@ type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath'> & {
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  docPath: ['yaml'],
+  docPath: ['yaml.parsed'],
   slugPath: ['slug'],
   header: D.header,
   sidebar: D.sidebar,
@@ -154,7 +154,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const v = p.docPath.value;
           return `doc path: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
         }}
-        onClick={() => Signal.cycle(p.docPath, [['yaml'], ['foo'], ['foo', 'bar'], undefined])}
+        onClick={() =>
+          Signal.cycle(p.docPath, [['yaml.parsed'], ['foo'], ['foo', 'bar'], undefined])
+        }
       />
       <Button
         block
@@ -219,7 +221,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         lenses={[
           {
             name: 'doc:editor',
-            path: Obj.Path.appendSuffix(p.docPath.value, '.parsed'),
+            // path: Obj.Path.appendSuffix(p.docPath.value, '.parsed'),
+            path: p.docPath.value,
           },
         ]}
       />
