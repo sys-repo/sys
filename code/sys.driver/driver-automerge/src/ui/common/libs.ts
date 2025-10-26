@@ -19,6 +19,7 @@ export {
   Cropmarks,
   ObjectView,
   Spinners,
+  SplitPane,
   Switch,
   SwitchTheme,
   TextInput,

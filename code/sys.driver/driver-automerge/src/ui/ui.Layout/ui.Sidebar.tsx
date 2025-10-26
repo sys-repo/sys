@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D, Is } from './common.ts';
-import { edgeBorder, renderCtx, toSidebarConfig } from './u.ts';
+import { renderCtx, toSidebarConfig } from './u.ts';
 import { Spinner } from './ui.Spinner.tsx';
 
 type P = t.LayoutProps;
@@ -9,7 +9,7 @@ type P = t.LayoutProps;
  * Component:
  */
 export const Sidebar: React.FC<P> = (props) => {
-  const { debug = false, crdt, slots, spinning } = props;
+  const { debug = false, slots, spinning } = props;
   const config = toSidebarConfig(props.sidebar);
   const render = renderCtx(props);
   const isSpinning = Is.record(spinning) && spinning.sidebar === true;
@@ -20,12 +20,12 @@ export const Sidebar: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      position: 'relative',
-      color: theme.fg,
-      borderLeft: config.position === 'right' ? edgeBorder(theme) : undefined,
-      borderRight: config.position === 'left' ? edgeBorder(theme) : undefined,
-      width: config.width,
+      width: 'auto',
+      borderLeft: 'none',
+      borderRight: 'none',
       display: 'grid',
+      minWidth: 0,
+      minHeight: 0,
     }),
     body: css({
       position: 'relative',
@@ -34,14 +34,17 @@ export const Sidebar: React.FC<P> = (props) => {
       transition: D.spinningTransition,
       display: 'grid',
     }),
-    empty: css({ padding: 10, backgroundColor: Color.ruby() }),
+    empty: css({
+      padding: 10,
+      backgroundColor: Color.ruby(),
+    }),
   };
 
-  const el = render.ready ? slots?.sidebar?.(render.ctx) : null;
+  const elBody = render.ready ? slots?.sidebar?.(render.ctx) : null;
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>{el}</div>
+      <div className={styles.body.class}>{elBody}</div>
       {isSpinning && <Spinner theme={theme.name} />}
     </div>
   );

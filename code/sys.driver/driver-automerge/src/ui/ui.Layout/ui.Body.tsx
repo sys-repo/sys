@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, D, Num, SplitPane, useSizeObserver } from './common.ts';
 import { toSidebarConfig } from './u.ts';
 import { Footer } from './ui.Footer.tsx';
 import { Header } from './ui.Header.tsx';
@@ -11,14 +11,43 @@ type P = t.LayoutProps;
 
 export const Body: React.FC<P> = (props) => {
   const { debug = false } = props;
+  const theme = Color.theme(props.theme);
   const sidebar = toSidebarConfig(props.sidebar);
 
   /**
-   * Render:
+   * Measure the available width for translating a px sidebar width
+   * into an initial SplitPane ratio.
    */
-  const theme = Color.theme(props.theme);
-  const [colLeft, colRight] = wrangle.cols(props);
+  const size = useSizeObserver<HTMLDivElement>();
+  const containerW = size.width || 0;
 
+  /**
+   * px → ratio (guarded + clamped):
+   */
+  const sidebarRatio = React.useMemo<t.Percent>(() => {
+    if (!sidebar.visible || containerW <= 0) return 0.25;
+    const px = sidebar.width ?? D.sidebar.width ?? 0;
+    const r = px / Math.max(1, containerW);
+    return Num.clamp(0.1, 0.9, r);
+  }, [sidebar.visible, sidebar.width, containerW]);
+
+  /**
+   * SplitPane defaults/collapse:
+   */
+  const defaultValue: t.Percent[] =
+    sidebar.position === 'left'
+      ? [sidebarRatio, 1 - sidebarRatio]
+      : [1 - sidebarRatio, sidebarRatio];
+
+  const onlyIndex: t.Index | undefined = sidebar.visible
+    ? undefined
+    : sidebar.position === 'left'
+      ? 1
+      : 0;
+
+  /**
+   * Styles
+   */
   const styles = {
     base: css({
       color: theme.fg,
@@ -26,47 +55,31 @@ export const Body: React.FC<P> = (props) => {
       gridTemplateRows: 'auto 1fr auto',
       minHeight: 0,
     }),
-
-    body: css({
-      display: 'grid',
-      gridTemplateColumns: sidebar.position === 'left' ? `${colLeft} 1fr` : `1fr ${colRight}`,
-      minHeight: 0,
-      overflow: 'hidden',
-    }),
-
+    body: css({ minHeight: 0, overflow: 'hidden', display: 'grid' }),
     main: css({ minWidth: 0, minHeight: 0 }),
-    sidebar: css({
-      // NB: Always mounted; visually hidden + non-interactive when not visible.
-      opacity: sidebar.visible ? 1 : 0,
-      visibility: sidebar.visible ? 'visible' : 'hidden',
-      pointerEvents: sidebar.visible ? 'auto' : 'none',
-    }),
   };
+
+  const elSidebar = <Sidebar key={'sidebar'} {...props} />;
+  const elMain = <Main key={'main'} {...props} style={styles.main} />;
 
   return (
     <div className={css(styles.base, props.style).class}>
       <Header {...props} />
 
-      <div className={styles.body.class}>
-        {sidebar.position === 'left' && <Sidebar {...props} style={styles.sidebar} />}
-        <Main {...props} style={styles.main} />
-        {sidebar.position === 'right' && <Sidebar {...props} style={styles.sidebar} />}
+      <div ref={size.ref} className={styles.body.class}>
+        <SplitPane
+          orientation={'horizontal'}
+          gutter={8}
+          defaultValue={defaultValue}
+          onlyIndex={onlyIndex}
+          min={0.1}
+          debug={debug}
+          theme={theme.name}
+          children={sidebar.position === 'left' ? [elSidebar, elMain] : [elMain, elSidebar]}
+        />
       </div>
 
       <Footer {...props} />
     </div>
   );
 };
-
-/**
- * Helpers:
- */
-const wrangle = {
-  cols(props: P) {
-    const sidebar = toSidebarConfig(props.sidebar);
-    const { width, visible, position } = sidebar;
-    const left = sidebar.position === 'left' ? (visible ? `${width}px` : '0px') : '1fr';
-    const right = position === 'right' ? (visible ? `${width}px` : '0px') : 'auto';
-    return [left, right] as const;
-  },
-} as const;
