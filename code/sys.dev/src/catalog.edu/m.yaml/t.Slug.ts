@@ -2,7 +2,9 @@
  * Types for the YAML → Schema pipeline.
  */
 import type { t } from './common.ts';
-export type * from './t.Slug.Error.ts';
+
+export type * from './t.Slug.err.ts';
+export type * from './t.Slug.rules.ts';
 
 /**
  * Namespace: tools within the YAML pipeline related to slug interpretation.

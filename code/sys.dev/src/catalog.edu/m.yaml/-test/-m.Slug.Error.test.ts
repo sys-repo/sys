@@ -1,4 +1,5 @@
-import { describe, expect, it } from '../../-test.ts';
+import { type t, Is, describe, expect, it } from '../../-test.ts';
+import { Try } from '../common.ts';
 import { YamlPipeline } from '../mod.ts';
 
 describe('YamlPipeline.Slug.Error', () => {
@@ -67,6 +68,7 @@ describe('YamlPipeline.Slug.Error', () => {
   });
 
   describe('Error.attachSemanticRanges', () => {
+    // keep fixture minimal; existing tests rely only on range attachment behavior
     const YAML = `
     foo:
       bar:
@@ -84,7 +86,7 @@ describe('YamlPipeline.Slug.Error', () => {
       const errs = [
         // exact node: "traits" under the slug root
         { message: 'schema: traits wrong type', path: ['traits'] as (string | number)[] },
-      ] as unknown as Parameters<typeof YamlPipeline.Slug.Error.attachSemanticRanges>[1];
+      ] as unknown as t.Schema.ValidationError[];
 
       YamlPipeline.Slug.Error.attachSemanticRanges(res.ast, errs);
 
@@ -92,20 +94,20 @@ describe('YamlPipeline.Slug.Error', () => {
       expect(Array.isArray(r)).to.eql(true);
       if (Array.isArray(r)) {
         expect(r.length).to.be.greaterThanOrEqual(2);
-        expect(typeof r[0]).to.equal('number');
-        expect(typeof r[1]).to.equal('number');
+        expect(typeof r[0]).to.eql('number');
+        expect(typeof r[1]).to.eql('number');
       }
     });
 
     it('falls back to nearest ancestor with a node range', () => {
       const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
       const errs = [
-        // non-existent child under props → should fall back to "props" node
+        // non-existent child under props → should fall back to "props" node:
         {
           message: 'semantic: unknown props key',
           path: ['props', 'missing'] as (string | number)[],
         },
-      ] as unknown as Parameters<typeof YamlPipeline.Slug.Error.attachSemanticRanges>[1];
+      ] as unknown as t.Schema.ValidationError[];
 
       YamlPipeline.Slug.Error.attachSemanticRanges(res.ast, errs);
 
@@ -118,8 +120,8 @@ describe('YamlPipeline.Slug.Error', () => {
       const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
       const errs = [
         // nothing on this chain exists under the slug root
-        { message: 'semantic: totally wrong spot', path: ['not', 'here'] as (string | number)[] },
-      ] as unknown as Parameters<typeof YamlPipeline.Slug.Error.attachSemanticRanges>[1];
+        { message: 'semantic: totally wrong spot', path: ['not', 'here'] },
+      ] as t.Schema.ValidationError[];
 
       YamlPipeline.Slug.Error.attachSemanticRanges(res.ast, errs);
 
@@ -130,33 +132,131 @@ describe('YamlPipeline.Slug.Error', () => {
 
     it('does not overwrite an existing range (no-op if already set)', () => {
       const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
-      const preset = [1, 2] as unknown as Parameters<
-        typeof YamlPipeline.Slug.Error.attachSemanticRanges
-      >[1][number]['range'];
-
+      const preset = [1, 2] as t.Schema.ValidationError['range'];
       const errs = [
         {
           message: 'preset range should persist',
           path: ['id'] as (string | number)[],
           range: preset,
         },
-      ] as unknown as Parameters<typeof YamlPipeline.Slug.Error.attachSemanticRanges>[1];
+      ] as t.Schema.ValidationError[];
 
       YamlPipeline.Slug.Error.attachSemanticRanges(res.ast, errs);
-
-      expect(errs[0].range).to.equal(preset); // same reference, not replaced
+      expect(errs[0].range).to.equal(preset); // NB: same reference, not replaced.
     });
 
     it('mutates the provided array in place', () => {
       const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
-      const errs = [
-        { message: 'mutate in place', path: ['props'] as (string | number)[] },
-      ] as unknown as Parameters<typeof YamlPipeline.Slug.Error.attachSemanticRanges>[1];
+      const errs = [{ message: 'mutate in place', path: ['props'] }] as t.Schema.ValidationError[];
 
       const before = errs;
       YamlPipeline.Slug.Error.attachSemanticRanges(res.ast, errs);
       expect(errs).to.equal(before); // same array object
       expect(errs[0].range).to.exist;
     });
+  });
+
+  /**
+   * New semantic diagnostics via normalize:
+   */
+  describe('Error.normalize (semantic rules)', () => {
+    const withRegistry = (fn: () => void) => {
+      // Stub registry → scenario: only 'video' and 'image-sequence' are known:
+      const Domain = YamlPipeline.Slug?.Domain;
+      const prev = Domain?.Registry;
+      (Domain as any).Registry = { has: (id: string) => id === 'video' || id === 'image-sequence' };
+      Try.catch(fn);
+      (Domain as any).Registry = prev; // restore
+    };
+
+    it('unknown trait id (`of`) produces a semantic diagnostic with correct path', () =>
+      withRegistry(() => {
+        const YAML = `
+        foo:
+          bar:
+            id: example-slug
+            traits:
+              - of: not-real
+                as: primary
+            data:
+              primary:
+                src: "video.mp4"
+        `.trim();
+
+        const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
+        expect(res.errors.yaml.length).to.eql(0);
+        expect(res.errors.schema.length).to.eql(0);
+
+        const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
+        const diag = out.find(
+          (d) =>
+            Array.isArray(d.path) &&
+            Is.string(d.message) &&
+            d.path.join('/') === 'foo/bar/traits/0/of' &&
+            d.message.includes('Unknown trait id "not-real"'),
+        );
+        expect(diag).to.exist;
+      }));
+
+    it('missing data for alias produces a semantic diagnostic at traits[i].as', () =>
+      withRegistry(() => {
+        const YAML = `
+        foo:
+          bar:
+            id: example-slug
+            traits:
+              - of: video
+                as: primary
+            data: {}  # missing "primary"
+        `.trim();
+
+        const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
+        expect(res.errors.yaml.length).to.eql(0);
+        expect(res.errors.schema.length).to.eql(0);
+
+        const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
+        const diag = out.find(
+          (d) =>
+            Array.isArray(d.path) &&
+            Is.string(d.message) &&
+            d.path.join('/') === 'foo/bar/traits/0/as' &&
+            d.message.includes('Missing data for alias "primary"'),
+        );
+        expect(diag).to.exist;
+      }));
+
+    it('orphan data produces a semantic diagnostic at data.<key>', () =>
+      withRegistry(() => {
+        const YAML = `
+          foo:
+            bar:
+              id: example-slug
+              traits:
+                - of: video
+                  as: primary
+              data:
+                primary:
+                  src: "video.mp4"
+                extra:   # orphan: no matching alias
+                  any: true
+        `.trim();
+
+        const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
+        expect(res.errors.yaml.length).to.eql(0);
+        expect(res.errors.schema.length).to.eql(0);
+
+        const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
+
+        console.log('out', out);
+
+        const diag = out.find(
+          (d) =>
+            Array.isArray(d.path) &&
+            d.path.join('/').endsWith('/data/extra') &&
+            Is.string(d.message) &&
+            d.message.includes('Orphan'),
+        );
+        expect(diag).to.exist;
+      }));
   });
 });

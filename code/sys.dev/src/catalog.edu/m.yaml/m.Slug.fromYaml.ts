@@ -1,8 +1,16 @@
-import { type t, Is, Obj, Schema, SlugSchema, Value, Yaml } from './common.ts';
+import { type t, Is, Obj, Schema, Slug, SlugSchema, Value, Yaml } from './common.ts';
 import { Error } from './m.Slug.Error.ts';
 import { SlugRules } from './u.slug.rules.ts';
 
 type E = t.DeepMutable<t.SlugYamlErrors>;
+
+/**
+ * Narrow a domain-like object to one that exposes an optional Registry with a `has(id)` function.
+ * (No `any`; runtime guards only.)
+ */
+type HasFn = (id: string) => boolean;
+type MaybeRegistry = { has: HasFn };
+type DomainWithRegistry = { Registry: MaybeRegistry };
 
 export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
   const ast: t.Yaml.Ast = Is.string(yamlInput) ? Yaml.parseAst(yamlInput) : yamlInput;
@@ -38,8 +46,23 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
   // Structural validation | "Structural" = "does it match the schema shape?"
   const isSchemaValid = Value.Check(SlugSchema, candidate);
   if (isSchemaValid) {
-    // Semantic validation | "Semantic" = "is the object logically valid?"
+    /**
+     * 🌳 Semantic validation
+     *    Meaning:      checks logical correctness (rules)
+     *    Contrast to:  structural validation checks schema shape only.
+     */
     SlugRules.aliasUniqueness(errs.semantic, path, candidate);
+
+    // Optional registry-aware trait id check (no `any`):
+    const registry = wrangle.registry(Slug);
+    const isKnown = registry?.has.bind(registry); // ← passed method/func.
+    SlugRules.traitTypeKnown(errs.semantic, path, candidate, { isKnown });
+
+    // data ↔ alias consistency:
+    SlugRules.missingDataForAlias(errs.semantic, path, candidate);
+    SlugRules.orphanData(errs.semantic, path, candidate);
+
+    // Enrich semantic errors with AST ranges
     Error.attachSemanticRanges(ast, errs.semantic);
 
     // Finish up.
@@ -67,5 +90,15 @@ const wrangle = {
         return input.yaml;
       },
     };
+  },
+
+  registry(domain: unknown): MaybeRegistry | undefined {
+    if (!Is.record(domain)) return undefined;
+
+    const regUnknown = (domain as { Registry?: unknown }).Registry;
+    if (!Is.record(regUnknown)) return undefined;
+
+    const has = (regUnknown as { has?: unknown }).has;
+    return Is.func(has) ? (regUnknown as MaybeRegistry) : undefined;
   },
 } as const;
