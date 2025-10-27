@@ -1,13 +1,14 @@
-import { type t, c, Cli, Fs, pkg, Pkg } from './common.ts';
+import { type t, Cli, Fmt, Fs } from './common.ts';
 import { selectAndConvert } from './u.cli.convert.ts';
 import { selectAndProbe } from './u.cli.info.ts';
 import { checkFfmpegInstalled } from './u.ffmpeg.ts';
 
 export const cli: t.VideoLib['cli'] = async (opts = {}) => {
+  const toolname = 'Video';
   const dir = opts.dir ?? Fs.cwd('terminal');
+
   console.info();
-  console.info(c.gray(`${c.green('Video Tools')} v${pkg.version}`));
-  console.info(c.gray(await Fs.Fmt.treeFromDir(dir, { indent: 2 })));
+  console.info(await Fmt.header(toolname, dir));
   console.info();
 
   if (!(await checkFfmpegInstalled())) return;
@@ -38,5 +39,5 @@ export const cli: t.VideoLib['cli'] = async (opts = {}) => {
   }
 
   console.info();
-  console.info(c.dim(`${Pkg.toString(pkg)}:VideoTools`));
+  console.info(Fmt.signoff(toolname));
 };
