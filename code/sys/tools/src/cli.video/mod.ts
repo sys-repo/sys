@@ -10,7 +10,7 @@ import { Fs } from './common.ts';
 export { VideoTools } from './m.VideoTools.ts';
 
 /**
- * CLI entry:
+ * CLI entry-point:
  */
 if (import.meta.main) {
   const { cli } = await import('./u.cli.ts');

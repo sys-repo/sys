@@ -11,8 +11,12 @@ deno run --reload jsr:@sys/tools
 
 
 ### Video Tools
-
 ```bash
 deno run -A jsr:@sys/tools/video
 ```
 
+
+### Clipboard (Copy) Tools
+```bash
+deno run -A jsr:@sys/tools/cp
+```

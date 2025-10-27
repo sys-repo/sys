@@ -18,6 +18,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./cp": "./src/cli.clipboard/mod.ts",
     "./video": "./src/cli.video/mod.ts"
   }
 }
