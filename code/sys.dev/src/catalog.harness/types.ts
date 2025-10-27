@@ -2,7 +2,6 @@
  * @module
  * Catalog Types
  */
-import type { t } from './common.ts';
 
 /** Catalog Id union. */
 export type CatalogId = 'Harness:view';
@@ -11,6 +10,6 @@ export type CatalogId = 'Harness:view';
 export type CatalogSlot = 'left' | 'right';
 
 /**
- * UI:
+ * Library:
  */
 export type * from './ui/Harness/t.ts';
