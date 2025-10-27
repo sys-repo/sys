@@ -8,10 +8,10 @@ export const Paths = {
    * System Module Graph (ESM):
    */
   get modules() {
-    // return Paths.all;
-    return Paths.single; // 🐷 NARROW
+    return Paths.all;
+    // return Paths.single; // 🐷 NARROW
   },
-  single: ['code/sys/tools'],
+  single: ['code/sys.tools'],
   all: [
     // types:
     'code/sys/types',
@@ -65,7 +65,7 @@ export const Paths = {
      * higher-order bundles of system functionality:
      */
     'code/sys/crdt',
-    'code/sys/tools',
+    'code/sys.tools',
 
     /**
      * sys.dev: (programming system)
