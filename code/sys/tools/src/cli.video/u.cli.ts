@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, pkg, Pkg } from './common.ts';
+import { type t, c, Cli, Fs, Jsr, pkg, Pkg } from './common.ts';
 import { selectAndConvert } from './u.cli.convert.ts';
 import { selectAndProbe } from './u.cli.info.ts';
 import { checkFfmpegInstalled } from './u.ffmpeg.ts';
@@ -38,5 +38,6 @@ export const cli: t.VideoLib['cli'] = async (opts = {}) => {
   }
 
   console.info();
+  // console.info(c.dim(Jsr.Url.Pkg.version(pkg.name, pkg.name)));
   console.info(c.dim(`${Pkg.toString(pkg)}:VideoTools`));
 };
