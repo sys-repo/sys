@@ -16,7 +16,6 @@ export async function probeVideo(src: t.StringPath): Promise<t.VideoProbeInfo> {
     throw new Error(msg);
   }
 
-  // const json = safeJson(res.text.stdout);
   const json = Json.safeParse<any>(res.text.stdout).data;
   const format = json?.format ?? {};
   const streams: any[] = Array.isArray(json?.streams) ? json.streams : [];
