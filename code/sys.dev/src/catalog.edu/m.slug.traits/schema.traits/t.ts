@@ -6,7 +6,7 @@ export type VideoRecorderBinding = t.SlugTraitBindingOf<'video-recorder'>;
 export type VideoPlayerBinding = t.SlugTraitBindingOf<'video-player'>;
 
 /**
- *
+ * Aggregate entry for all known slug-trait schemas and type guards.
  */
 export type SlugTraitsLib = {
   readonly Is: t.SlugTraitIsLib;

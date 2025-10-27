@@ -1,10 +1,18 @@
-import { type t, describe, expect, it } from '../../../-test.ts';
-import { TraitRegistryDefault } from '../../mod.ts';
-import { Str, Yaml } from '../common.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { makeRegistry, Str, Type as T, Yaml } from '../common.ts';
 import { attachSemanticRanges, validateWithRanges } from '../mod.ts';
 
 describe('ranges', () => {
-  const registry = TraitRegistryDefault;
+  const registry = makeRegistry([
+    {
+      id: 'trait-alpha',
+      propsSchema: T.Object({
+        name: T.Optional(T.String({ minLength: 1 })),
+        description: T.Optional(T.String()),
+        src: T.Optional(T.String()),
+      }),
+    },
+  ]);
 
   describe('attachSemanticRanges', () => {
     it('no-op on empty errs', () => {
@@ -19,7 +27,7 @@ describe('ranges', () => {
         root:
           doc:
             traits:
-              - of: video-player
+              - of: trait-alpha
         `);
       const errs = [{ kind: 'semantic', path: ['traits', 0, 'of'], message: 'x' }];
       attachSemanticRanges(ast, errs as any[], { basePath: ['root', 'doc'] });
@@ -50,7 +58,7 @@ describe('ranges', () => {
       root:
         doc:
           traits:
-            - of: video-player
+            - of: trait-alpha
               as: primary
           data:
             primary:
@@ -60,7 +68,7 @@ describe('ranges', () => {
       const ast = Yaml.parseAst(yaml);
       const slug = {
         id: 's1',
-        traits: [{ of: 'video-player', as: 'primary' }],
+        traits: [{ of: 'trait-alpha', as: 'primary' }],
         data: { primary: { name: 'ok' } },
       };
 
@@ -99,7 +107,7 @@ describe('ranges', () => {
     it('attaches range for invalid data shape (nested under data.<alias>.*)', () => {
       const yaml = Str.dedent(`
         traits:
-          - of: video-player
+          - of: trait-alpha
             as: primary
         data:
           primary:
@@ -109,7 +117,7 @@ describe('ranges', () => {
       const ast = Yaml.parseAst(yaml);
       const slug = {
         id: 's1',
-        traits: [{ of: 'video-player', as: 'primary' }],
+        traits: [{ of: 'trait-alpha', as: 'primary' }],
         data: { primary: { name: '' } }, // violates minLength: 1
       };
 

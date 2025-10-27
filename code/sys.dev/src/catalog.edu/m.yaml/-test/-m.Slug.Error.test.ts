@@ -1,6 +1,6 @@
 import { type t, Is, describe, expect, it } from '../../-test.ts';
-import { Try } from '../common.ts';
 import { YamlPipeline } from '../mod.ts';
+import { withPipelineRegistryShim } from './u.ts';
 
 describe('YamlPipeline.Slug.Error', () => {
   describe('Error.normalize', () => {
@@ -160,17 +160,8 @@ describe('YamlPipeline.Slug.Error', () => {
    * New semantic diagnostics via normalize:
    */
   describe('Error.normalize (semantic rules)', () => {
-    const withRegistry = (fn: () => void) => {
-      // Stub registry → scenario: only 'video' and 'image-sequence' are known:
-      const Domain = YamlPipeline.Slug?.Domain;
-      const prev = Domain?.Registry;
-      (Domain as any).Registry = { has: (id: string) => id === 'video' || id === 'image-sequence' };
-      Try.catch(fn);
-      (Domain as any).Registry = prev; // restore
-    };
-
     it('unknown trait id (`of`) produces a semantic diagnostic with correct path', () =>
-      withRegistry(() => {
+      withPipelineRegistryShim(() => {
         const YAML = `
         foo:
           bar:
@@ -199,7 +190,7 @@ describe('YamlPipeline.Slug.Error', () => {
       }));
 
     it('missing data for alias produces a semantic diagnostic at traits[i].as', () =>
-      withRegistry(() => {
+      withPipelineRegistryShim(() => {
         const YAML = `
         foo:
           bar:
@@ -226,7 +217,7 @@ describe('YamlPipeline.Slug.Error', () => {
       }));
 
     it('orphan data produces a semantic diagnostic at data.<key>', () =>
-      withRegistry(() => {
+      withPipelineRegistryShim(() => {
         const YAML = `
           foo:
             bar:

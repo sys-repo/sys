@@ -1,8 +1,7 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
-import { Slug } from '../../mod.ts';
 
-import { type t, Value } from '../common.ts';
-import { VideoRecorderPropsSchema } from '../mod.ts';
+import { type t, Slug, Value } from '../common.ts';
+import { Traits, VideoRecorderPropsSchema } from '../mod.ts';
 
 describe('trait: video-recorder', () => {
   describe('schema', () => {
@@ -58,7 +57,7 @@ describe('trait: video-recorder', () => {
 
     it('Slug.Is.videoRecorderBinding signature stays correct', () => {
       type Expect = (m: unknown) => m is t.SlugTraitBindingOf<'video-recorder'>;
-      const fn = Slug.Traits.Is.videoRecorderBinding;
+      const fn = Traits.Is.videoRecorderBinding;
       expectTypeOf(fn).toEqualTypeOf<Expect>();
 
       // Minimal runtime sanity:

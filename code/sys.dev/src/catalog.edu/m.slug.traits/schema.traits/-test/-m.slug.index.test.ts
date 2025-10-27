@@ -1,8 +1,6 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
-import { Slug } from '../../mod.ts';
-
 import { type t, Value } from '../common.ts';
-import { SlugIndexPropsSchema } from '../mod.ts';
+import { SlugIndexPropsSchema, Traits } from '../mod.ts';
 
 describe('trait: slug-index', () => {
   describe('schema', () => {
@@ -65,7 +63,7 @@ describe('trait: slug-index', () => {
 
     it('Slug.Is.slugIndexBinding signature stays correct', () => {
       type Expect = (m: unknown) => m is t.SlugTraitBindingOf<'slug-index'>;
-      const fn = Slug.Traits.Is.slugIndexBinding;
+      const fn = Traits.Is.slugIndexBinding;
       expectTypeOf(fn).toEqualTypeOf<Expect>();
 
       // Minimal runtime sanity:

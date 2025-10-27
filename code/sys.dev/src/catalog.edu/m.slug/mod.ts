@@ -1,12 +1,10 @@
 /**
- * @module Slug
- * Domain schemas, trait registry, and semantic validation rules.
- * Format-agnostic; used by YAML pipelines and future data sources.
+ * @module Slug (core)
+ * Core schemas and semantic validation (no concrete traits).
  */
-export type { CatalogTraitId } from './schema.trait.registry/m.ids.ts';
-
 export { Slug } from './m.Slug.ts';
+export { Pattern } from './schema.slug/mod.ts';
+
 export * from './schema.slug/mod.ts';
-export * from './schema.trait.registry/mod.ts';
-export * from './schema.traits/mod.ts';
+export * from './schema.trait.registry/mod.ts'; // types + factory only.
 export * from './schema.validation/mod.ts';

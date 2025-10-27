@@ -6,8 +6,8 @@
  *    re-infer from the schemas (e.g. `t.Static<typeof FooSchema>`).
  */
 import type { t } from './common.ts';
+import type { CatalogTraitId } from './m.slug.traits/schema.trait.registry/m.ids.ts';
 import type { SlugSchema, TraitBindingSchema, TraitDefSchema } from './m.slug/mod.ts';
-import type { CatalogTraitId } from './m.slug/schema.trait.registry/m.ids.ts';
 
 /**
  * Core:

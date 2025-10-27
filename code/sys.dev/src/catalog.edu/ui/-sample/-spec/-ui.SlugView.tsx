@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, Slug } from '../common.ts';
+import { Traits } from '../../../m.slug.traits/mod.ts';
+import { type t, Color, css } from '../common.ts';
 
 export type SlugViewProps = {
   slug?: t.Slug;
@@ -28,7 +29,7 @@ export const SlugView: React.FC<SlugViewProps> = (props) => {
     }),
   };
 
-  const recorders = slug.traits.filter(Slug.Traits.Is.videoRecorderBinding);
+  const recorders = slug.traits.filter(Traits.Is.videoRecorderBinding);
   const elRecorders = recorders.map((trait, i) => {
     const key = `${i}.${trait.of}:${trait.as}`;
     return null;

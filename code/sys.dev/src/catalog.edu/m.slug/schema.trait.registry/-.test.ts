@@ -1,68 +1,79 @@
 import { describe, expect, expectTypeOf, it, Value } from '../../-test.ts';
-import { VideoPlayerPropsSchema } from '../schema.traits/mod.ts';
-import { TraitRegistryDefault } from './m.RegistryDefault.ts';
-import { makeRegistry } from './u.ts';
+import { Type as T } from './common.ts';
+import { makeRegistry } from './mod.ts';
 
-describe('TraitRegistry (default)', () => {
+describe('TraitRegistry (local mock)', () => {
+  const registry = makeRegistry([
+    {
+      id: 'trait-index',
+      propsSchema: T.Object({ slugs: T.Array(T.String()) }, { additionalProperties: false }),
+    },
+    { id: 'trait-alpha', propsSchema: T.Object({ name: T.Optional(T.String({ minLength: 1 })) }) },
+    { id: 'trait-beta', propsSchema: T.Object({ name: T.Optional(T.String({ minLength: 1 })) }) },
+  ]);
+
   it('exposes the seeded ids in stable order', () => {
-    const ids = TraitRegistryDefault.all.map((d) => d.id);
-    expect(ids).to.eql(['slug-index', 'video-player', 'video-recorder']);
+    type Entry = (typeof registry)['all'][number];
+    const ids = (registry.all as readonly Entry[]).map((d) => d.id);
+    expect(ids).to.eql(['trait-index', 'trait-alpha', 'trait-beta']);
   });
 
   it('get(id) returns entries; unknown returns <undefined>', () => {
-    const a = TraitRegistryDefault.get('video-player');
-    const b = TraitRegistryDefault.get('video-recorder');
-    const c = TraitRegistryDefault.get('slug-index');
-    const none = TraitRegistryDefault.get('nope' as any);
+    const a = registry.get('trait-alpha');
+    const b = registry.get('trait-beta');
+    const c = registry.get('trait-index');
+    const none = registry.get('nope' as never);
     expect(!!a && !!b && !!c).to.eql(true);
     expect(none).to.eql(undefined);
   });
 
   it('prop-schemas accept minimal shapes', () => {
-    const player = TraitRegistryDefault.get('video-player')!;
-    const recorder = TraitRegistryDefault.get('video-recorder')!;
-    const index = TraitRegistryDefault.get('slug-index')!;
-    expect(Value.Check(player.propsSchema, { name: 'Player A' })).to.eql(true);
-    expect(Value.Check(recorder.propsSchema, { name: 'Recorder A' })).to.eql(true);
-    expect(Value.Check(index.propsSchema, { slugs: [] })).to.eql(true); // required for slug-index
+    const alpha = registry.get('trait-alpha')!;
+    const beta = registry.get('trait-beta')!;
+    const index = registry.get('trait-index')!;
+    expect(Value.Check(alpha.propsSchema, { name: 'Alpha' })).to.eql(true);
+    expect(Value.Check(beta.propsSchema, { name: 'Beta' })).to.eql(true);
+    expect(Value.Check(index.propsSchema, { slugs: [] })).to.eql(true);
   });
 
   it('prop-schemas reject empty name', () => {
-    const player = TraitRegistryDefault.get('video-player')!;
-    const recorder = TraitRegistryDefault.get('video-recorder')!;
-    const index = TraitRegistryDefault.get('slug-index')!;
-    expect(Value.Check(player.propsSchema, { name: '' })).to.eql(false);
-    expect(Value.Check(recorder.propsSchema, { name: '' })).to.eql(false);
-    expect(Value.Check(index.propsSchema, { name: '', index: [] })).to.eql(false);
+    const alpha = registry.get('trait-alpha')!;
+    const beta = registry.get('trait-beta')!;
+    const index = registry.get('trait-index')!;
+    expect(Value.Check(alpha.propsSchema, { name: '' })).to.eql(false);
+    expect(Value.Check(beta.propsSchema, { name: '' })).to.eql(false);
+    expect(Value.Check(index.propsSchema, { name: '', slugs: [] })).to.eql(false);
   });
 
   it('ids are unique (dev sanity)', () => {
-    const ids = TraitRegistryDefault.all.map((d) => d.id);
+    type Entry = (typeof registry)['all'][number];
+    const ids = (registry.all as readonly Entry[]).map((d) => d.id);
     const unique = new Set(ids);
     expect(unique.size).to.eql(ids.length);
   });
 
   it('is strongly typed', () => {
-    type Id = Parameters<typeof TraitRegistryDefault.get>[0];
+    type Id = Parameters<typeof registry.get>[0];
 
-    // Compile-time assertion (pass a dummy value to satisfy the signature)
+    // Compile-time equality (zero runtime effect with dummy arg)
     expectTypeOf<Id>(undefined as unknown as Id).toEqualTypeOf<
-      'slug-index' | 'video-player' | 'video-recorder'
+      'trait-index' | 'trait-alpha' | 'trait-beta'
     >();
 
-    // Runtime usage checks (type-checked at compile time):
-    TraitRegistryDefault.get('video-player');
-    TraitRegistryDefault.get('video-recorder');
-    TraitRegistryDefault.get('slug-index');
+    // Runtime usage (compile-time checked)
+    registry.get('trait-alpha');
+    registry.get('trait-beta');
+    registry.get('trait-index');
 
-    // @ts-expect-error - unknown id should not be allowed:
-    TraitRegistryDefault.get('nope');
+    // Compile-time negative: unknown id must not be assignable.
+    type _ShouldError = 'nope' extends Id ? true : false;
+    expectTypeOf<_ShouldError>(false as unknown as _ShouldError).toEqualTypeOf<false>();
   });
 
   it('guard: throws on duplicate ids', () => {
     const dup = [
-      { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
-      { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
+      { id: 'trait-alpha', propsSchema: T.Object({}) },
+      { id: 'trait-alpha', propsSchema: T.Object({}) },
     ] as const;
     expect(() => makeRegistry(dup as any)).to.throw();
   });

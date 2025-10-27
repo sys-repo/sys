@@ -1,14 +1,23 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { TraitRegistryDefault } from '../../mod.ts';
+import { makeRegistry, Type as T } from '../common.ts';
 import { validateSlug, validateSlugAgainstRegistry } from '../mod.ts';
 
 describe('schema.validation / composite', () => {
-  const registry = TraitRegistryDefault;
+  const registry = makeRegistry([
+    {
+      id: 'trait-alpha',
+      propsSchema: T.Object({ name: T.Optional(T.String({ minLength: 1 })) }),
+    },
+    {
+      id: 'trait-beta',
+      propsSchema: T.Object({}),
+    },
+  ]);
 
   it('ok when traits + data are consistent', () => {
     const slug = {
       id: 's1',
-      traits: [{ of: 'video-player', as: 'p' }],
+      traits: [{ of: 'trait-alpha', as: 'p' }],
       data: { p: { name: 'ok' } },
     };
     const { valid, errors } = validateSlug({ slug, registry, basePath: [] });
@@ -21,7 +30,7 @@ describe('schema.validation / composite', () => {
       id: 's1',
       traits: [
         { of: 'nope', as: 'a' }, // unknown trait id
-        { of: 'video-player', as: 'a' }, // duplicate alias with the above
+        { of: 'trait-alpha', as: 'a' }, // duplicate alias with the above
       ],
       data: {
         orphan: { name: '' }, // orphan data

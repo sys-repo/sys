@@ -1,4 +1,6 @@
 export * from '../common.ts';
+
+export { TraitRegistryDefault } from '../m.slug.traits/mod.ts';
 export { Slug } from '../m.slug/mod.ts';
 export { YamlPipeline } from '../m.yaml/mod.ts';
 

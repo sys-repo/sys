@@ -4,3 +4,4 @@
  */
 export { SlugSchema } from './schema.slug.ts';
 export { TraitBindingSchema, TraitDefSchema } from './schema.trait.ts';
+export { Pattern } from './u.Pattern.ts';
