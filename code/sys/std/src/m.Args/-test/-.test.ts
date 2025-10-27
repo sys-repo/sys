@@ -1,6 +1,6 @@
 import { c } from '@sys/cli/fmt';
-import { describe, expect, it } from '../-test.ts';
-import { Args, parseArgs } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Args, parseArgs } from '../mod.ts';
 
 type O = Record<string, unknown>;
 
