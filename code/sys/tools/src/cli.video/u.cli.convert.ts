@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs } from './common.ts';
+import { type t, c, Cli, Fs, Str } from './common.ts';
 import { selectSourceFiles } from './u.convert.select.ts';
 import { mp4ToWebm, webmToMp4 } from './u.convert.ts';
 
@@ -9,19 +9,27 @@ export async function selectAndConvert(args: { dir: t.StringDir; command: t.Vide
   const sources = await selectSourceFiles({ dir, command });
   if (sources.length === 0) return void console.info(c.yellow('No files selected'));
 
+  const getBytes = async (src: string) => (await Fs.stat(src))?.size ?? 0;
+
   const results: TResult[] = [];
   for (const src of sources) {
+    const bytesBefore = await getBytes(src);
     const prettySrc = Fs.trimCwd(src, { prefix: true });
+
     const destLabel = command === 'webm-to-mp4' ? c.cyan('.mp4') : c.cyan('.webm');
-    const spin = Cli.spinner(c.gray(`Converting ${prettySrc} → ${destLabel}`));
+    const bytesBeforeLabel = c.white(Str.bytes(bytesBefore));
+    const spinnerLabel = c.gray(`Converting ${prettySrc} (${bytesBeforeLabel}) → ${destLabel}`);
+    const spin = Cli.spinner(spinnerLabel);
 
     try {
-      const out = await convertOne({ command: command, src });
-      const prettyOut = Fs.trimCwd(out, { prefix: true });
+      const out = await convertOne({ command, src });
+      const bytesAfter = await getBytes(out);
+      let trimmed = Fs.trimCwd(out, { prefix: true });
 
       // Stop spinner quietly and print our own single line (no trailing newline):
       spin.stop();
-      console.info(c.gray(`${c.green('✔ Saved')} → ${prettyOut}`));
+      const sizeAfter = `${Str.bytes(bytesBefore)} → ${c.white(Str.bytes(bytesAfter))}`;
+      console.info(c.gray(`${c.green('✔ Saved')} ${trimmed} | ${sizeAfter}`));
 
       results.push({ ok: true, src, out });
     } catch (err) {
