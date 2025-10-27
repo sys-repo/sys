@@ -1,7 +1,7 @@
 import { type t, c, Fs } from './common.ts';
 import { probeVideo } from './u.file.probe.ts';
 import { selectFiles } from './u.file.select.ts';
-import { buildProbeTable } from './u.fmt.info.ts';
+import { Fmt } from './u.fmt.ts';
 
 export async function selectAndProbe(args: { dir: t.StringDir }) {
   const { dir } = args;
@@ -15,6 +15,6 @@ export async function selectAndProbe(args: { dir: t.StringDir }) {
 
     console.info();
     console.info(c.gray(`${title} ${path}`));
-    console.info(buildProbeTable(info, { indent: 2 }));
+    console.info(Fmt.buildProbeTable(info, { indent: 2 }));
   }
 }

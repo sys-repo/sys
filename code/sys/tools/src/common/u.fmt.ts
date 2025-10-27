@@ -1,9 +1,10 @@
 import { pkg } from '../pkg.ts';
-import { c, Fs, Pkg } from './libs.ts';
+import { c, Fs, Pkg, Str } from './libs.ts';
 import * as t from './t.ts';
 
 export const Fmt = {
   builder,
+
   async header(toolname: string, dir: t.StringDir) {
     return builder()
       .line(c.gray(`${c.green(toolname)} v${pkg.version}`))
@@ -12,21 +13,24 @@ export const Fmt = {
   },
 
   signoff(toolname: string) {
-    return builder()
-      .line(c.dim(`${Pkg.toString(pkg)}:${toolname}`))
-      .toString();
+    const self = `${Pkg.toString(pkg)}:${toolname}`;
+    return builder().line(c.dim(self)).toString();
   },
 } as const;
 
 /**
  * Helpers:
  */
+
+/**
+ * TODO 🐷 move to @sys/std:Str
+ */
 function builder() {
-  let text = '';
+  let _text = '';
   const api = {
-    toString: () => text.trimEnd(),
-    line(input: string = '') {
-      text += `${input}\n`;
+    toString: () => _text.trimEnd(),
+    line(input: string = Str.SPACE) {
+      _text += `${input}\n`;
       return api;
     },
   } as const;

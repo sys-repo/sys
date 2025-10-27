@@ -4,7 +4,7 @@ import { mp4ToWebm, webmToMp4 } from './u.convert.ts';
 
 type TResult = { src: string; out?: string; ok: boolean; err?: string };
 
-export async function selectAndConvert(args: { dir: t.StringDir; command: t.Conversion }) {
+export async function selectAndConvert(args: { dir: t.StringDir; command: t.VideoConversion }) {
   const { dir, command } = args;
   const sources = await selectSourceFiles({ dir, command });
   if (sources.length === 0) return void console.info(c.yellow('No files selected'));
@@ -42,7 +42,7 @@ export async function selectAndConvert(args: { dir: t.StringDir; command: t.Conv
   );
 }
 
-async function convertOne(args: { command: t.Conversion; src: string }) {
+async function convertOne(args: { command: t.VideoConversion; src: string }) {
   const { command, src } = args;
   switch (command) {
     /**

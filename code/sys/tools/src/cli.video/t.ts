@@ -12,12 +12,14 @@ export type VideoLib = {
   /** Compute the next output file path (using the same lineage rules as CLI). */
   nextOutPath(args: { src: t.StringPath; toExt: '.mp4' | '.webm' }): Promise<t.StringPath>;
   /** Run the interactive CLI flow (prompts + spinner). */
-  cli(opts?: { dir?: t.StringDir }): Promise<void>;
+  cli(opts?: { dir?: t.StringDir; argv?: string[] }): Promise<void>;
 };
 
+export type VideoCliArgs = { help: boolean };
+
 /** Supported video conversion directions. */
-export type Conversion = 'webm-to-mp4' | 'mp4-to-webm';
-export type Command = Conversion | 'video-info';
+export type VideoConversion = 'webm-to-mp4' | 'mp4-to-webm';
+export type VideoCommand = VideoConversion | 'probe-file';
 
 /**
  * Convert: from .webm → .mp4

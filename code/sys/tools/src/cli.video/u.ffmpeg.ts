@@ -1,4 +1,9 @@
-import { c, Cli, Process } from './common.ts';
+import { type t, c, Cli, Fmt, Process } from './common.ts';
+
+export type FfmpegResult = {
+  readonly is: { readonly installed: boolean };
+  readonly version: t.StringSemver;
+};
 
 /**
  * Check whether `ffmpeg` is installed and accessible on the system PATH.
@@ -6,25 +11,47 @@ import { c, Cli, Process } from './common.ts';
  *
  * @returns `true` if ffmpeg is available, otherwise `false`.
  */
-export async function checkFfmpegInstalled(opts: { silent?: boolean } = {}): Promise<boolean> {
+export async function getVersion(opts: { silent?: boolean } = {}): Promise<FfmpegResult> {
   const { silent = false } = opts;
 
-  // Check exists:
-  const res = await Process.run(`ffmpeg -version`, { silent: true });
-  if (res.success) return true;
+  // Query `ffmpeg`:
+  const out = await Process.run('ffmpeg -version', { silent: true });
+  const installed = out.success;
+
+  const none = '0.0.0' as t.StringSemver;
+  const version = installed
+    ? // Example first line: "ffmpeg version 7.0.2 Copyright (c) ..."
+      (out.text.stdout.match(/^ffmpeg version ([^\s]+)/)?.[1] ?? none)
+    : none;
 
   // Print warning:
+  if (!installed && !silent) {
+    const msg = Fmt.builder()
+      .line(c.red('\n⚠️  `ffmpeg` not found on system PATH.'))
+      .line(c.gray('Please install it before running this command.'))
+      .line()
+      .line(fmtFfmpegInstall())
+      .line()
+      .toString();
+    console.error(msg);
+  }
+
+  return {
+    is: { installed },
+    version,
+  } as const;
+}
+
+export function fmtFfmpegInstall() {
   const table = Cli.table([]);
   table.push([c.green('macOS:'), 'brew install ffmpeg']);
   table.push([c.green('Ubuntu/Debian:'), 'sudo apt install ffmpeg']);
-
-  const msg = [
-    c.red('\n⚠️  `ffmpeg` not found on system PATH.\n'),
-    c.gray('Please install it before running this command.\n'),
-    '',
-    table.toString(),
-  ].join('');
-
-  if (!silent) console.error(msg);
-  return false;
+  return table.toString().trim();
 }
+
+/**
+ * Namespace for `ffmpeg` helpers.
+ */
+export const Ffmpeg = {
+  getVersion,
+};
