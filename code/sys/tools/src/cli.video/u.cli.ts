@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Jsr, pkg, Pkg } from './common.ts';
+import { type t, c, Cli, Fs, pkg, Pkg } from './common.ts';
 import { selectAndConvert } from './u.cli.convert.ts';
 import { selectAndProbe } from './u.cli.info.ts';
 import { checkFfmpegInstalled } from './u.ffmpeg.ts';
@@ -14,7 +14,7 @@ export const cli: t.VideoLib['cli'] = async (opts = {}) => {
 
   const options: { name: string; value: t.Command }[] = [
     { name: 'convert .webm → .mp4', value: 'webm-to-mp4' },
-    { name: 'convert .mp4 → .webm', value: 'mp4-to-webm' },
+    { name: 'convert .mp4  → .webm', value: 'mp4-to-webm' },
     { name: 'info (probe file)', value: 'video-info' },
   ];
 
@@ -38,6 +38,5 @@ export const cli: t.VideoLib['cli'] = async (opts = {}) => {
   }
 
   console.info();
-  // console.info(c.dim(Jsr.Url.Pkg.version(pkg.name, pkg.name)));
   console.info(c.dim(`${Pkg.toString(pkg)}:VideoTools`));
 };
