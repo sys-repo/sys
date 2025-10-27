@@ -13,7 +13,10 @@ export const create: t.GlobFactory = (dir = '.', baseOptions = {}) => {
     },
 
     async find(pattern, options = {}): Promise<WalkEntry[]> {
-      const { exclude, includeDirs, trimCwd, depth } = { ...baseOptions, ...options };
+      const params = { ...baseOptions, ...options };
+      const { includeDirs, trimCwd, depth } = params;
+      const exclude = params.exclude as string[] | undefined;
+
       pattern = Path.join(dir, pattern);
       const res: WalkEntry[] = [];
       const expanded = expandGlob(pattern, { exclude, includeDirs });
