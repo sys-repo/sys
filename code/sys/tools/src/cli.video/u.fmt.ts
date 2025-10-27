@@ -12,7 +12,7 @@ export const Fmt = {
     const ffmpeg = await Ffmpeg.getVersion({ silent: true });
 
     const gr = c.gray;
-    table.push([gr(` ├─ ${pkg.name}/video`), pkg.version]);
+    table.push([gr(` ├─ ${pkg.name}`), pkg.version]);
     table.push([gr(` └─ ${'ffmpeg'}`), ffmpeg.version]);
 
     return Base.builder()

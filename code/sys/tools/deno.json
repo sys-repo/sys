@@ -11,7 +11,7 @@
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "help": "deno run -P=dev   ./-scripts/-vite.ts --cmd=help",
-    "tmp": "deno run -A @sys/tools/video",
+    "tmp": "deno run -A @sys/tools/cp",
     "tmp__": "deno run -P=testset @sys/dev/video"
   },
   "exports": {
