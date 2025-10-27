@@ -13,7 +13,7 @@ import { type t, Fs, Path } from './common.ts';
  *
  * - Never overwrite: probe the filesystem and pick the first free counter.
  */
-export const nextOutPath: t.VideoToolsLib['nextOutPath'] = async (args): Promise<t.StringPath> => {
+export const nextOutPath: t.VideoLib['nextOutPath'] = async (args): Promise<t.StringPath> => {
   const { src, toExt } = args;
 
   const dir = Path.dirname(src);

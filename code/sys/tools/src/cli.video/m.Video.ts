@@ -8,7 +8,7 @@ import { nextOutPath } from './u.file.name.ts';
  * Programmatic utilities for video conversion.
  * Designed for direct use in code or automated pipelines (no CLI prompts).
  */
-export const VideoTools: t.VideoToolsLib = {
+export const VideoTools: t.VideoLib = {
   cli,
   webmToMp4,
   mp4ToWebm,

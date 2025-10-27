@@ -3,7 +3,7 @@ import { selectAndConvert } from './u.cli.convert.ts';
 import { selectAndProbe } from './u.cli.info.ts';
 import { checkFfmpegInstalled } from './u.ffmpeg.ts';
 
-export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
+export const cli: t.VideoLib['cli'] = async (opts = {}) => {
   const dir = opts.dir ?? Fs.cwd('terminal');
   console.info();
   console.info(c.gray(`${c.green('Video Tools')} v${pkg.version}`));

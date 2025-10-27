@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * CLI utilities for processing and transforming video files.
  * Minimal, composable helpers that shell out to ffmpeg via @sys/process.
  */
-export type VideoToolsLib = {
+export type VideoLib = {
   /** Convert a .webm file to .mp4 (H.264/AAC). */
   readonly webmToMp4: t.WebmToMp4;
   /** Convert a .mp4 file to .webm (VP9/Opus). */

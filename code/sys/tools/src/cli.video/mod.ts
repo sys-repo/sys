@@ -7,7 +7,7 @@ import { Fs } from './common.ts';
 /**
  * Library:
  */
-export { VideoTools } from './m.VideoTools.ts';
+export { VideoTools } from './m.Video.ts';
 
 /**
  * CLI entry-point:
