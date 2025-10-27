@@ -1,9 +1,5 @@
-import { Cli, c } from '@sys/cli';
-import { Fs } from '@sys/fs';
-import { Str } from '@sys/std';
-import { Token } from '@sys/text/gpt';
-import { DenoFile } from './common.ts';
-import { makeHeader } from './Task.-copy.u.header.ts';
+import { c, Cli, DenoFile, Fs, Str, Token } from './common.ts';
+import { makeHeader } from './u.copy.header.ts';
 
 type Section = {
   header: Awaited<ReturnType<typeof makeHeader>>;

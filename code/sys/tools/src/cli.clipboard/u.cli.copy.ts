@@ -1,0 +1,16 @@
+import { type t } from './common.ts';
+import { copyFiles } from './u.cli.copy.files.ts';
+
+export * from './u.cli.copy.files.ts';
+export * from './u.cli.copy.types.ts';
+
+/**
+ * Sub-command: Copy deno.json files
+ */
+export async function copyDenoFiles(dir: t.StringDir, options: { initial?: 'none' | 'all' } = {}) {
+  const { initial = 'all' } = options;
+  await copyFiles(dir, {
+    initial,
+    filter: (file) => file.name === 'deno.json',
+  });
+}

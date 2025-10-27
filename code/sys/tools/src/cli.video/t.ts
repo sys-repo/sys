@@ -15,6 +15,9 @@ export type VideoLib = {
   cli(opts?: { dir?: t.StringDir; argv?: string[] }): Promise<void>;
 };
 
+/**
+ * Command line arguments (argv).
+ */
 export type VideoCliArgs = { help: boolean };
 
 /** Supported video conversion directions. */

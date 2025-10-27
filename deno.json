@@ -15,7 +15,7 @@
 
     "bump": "deno run -P=ci ./-scripts/main.ts --bump",
     "tmpl": "deno run -P=build @sys/tmpl",
-    "cp": "deno run -P=clean ./-scripts/Task.-copy.ts",
+    "cp": "  deno run -P=ci @sys/tools/cp",
 
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },

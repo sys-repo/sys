@@ -15,6 +15,16 @@ export const cli: t.VideoLib['cli'] = async (opts = {}) => {
   console.info(await Fmt.header(toolname, dir));
   console.info();
 
+  await run(dir);
+
+  console.info();
+  console.info(Fmt.signoff(toolname));
+};
+
+/**
+ * Helpers:
+ */
+async function run(dir: t.StringDir) {
   const options: { name: string; value: t.VideoCommand }[] = [
     { name: 'convert .webm → .mp4', value: 'webm-to-mp4' },
     { name: 'convert .mp4  → .webm', value: 'mp4-to-webm' },
@@ -39,7 +49,4 @@ export const cli: t.VideoLib['cli'] = async (opts = {}) => {
     default:
       break;
   }
-
-  console.info();
-  console.info(Fmt.signoff(toolname));
-};
+}

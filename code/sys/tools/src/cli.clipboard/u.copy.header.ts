@@ -1,4 +1,4 @@
-import { Fs } from '@sys/fs';
+import { Fs } from './common.ts';
 
 export type Header = {
   file: string;

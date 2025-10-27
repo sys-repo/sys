@@ -6,3 +6,6 @@ export { Jsr } from '@sys/jsr';
 export { Arr, Err, Is, Json, Num, Obj, Pkg, Str, Time } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
+export { Token } from '@sys/text/gpt';
+
+export { DenoDeps, DenoFile } from '@sys/driver-deno/runtime';
