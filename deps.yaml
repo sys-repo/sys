@@ -87,8 +87,8 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.78
-    - import: npm:@ai-sdk/openai@2.0.53
+    - import: npm:ai@5.0.81
+    - import: npm:@ai-sdk/openai@2.0.56
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.23.1
       subpaths: ['agent', 'memory', 'storage']
@@ -127,7 +127,7 @@ deno.json:
   - import: npm:happy-dom@20.0.8
   - import: npm:hash-it@6.0.0
   - import: npm:ignore@7.0.5
-  - import: npm:immer@10.1.3
+  - import: npm:immer@10.2.0
   - import: npm:ora@9.0.0
   - import: npm:@preact/signals-core@1.12.1
   - import: npm:pretty-bytes@7.1.0
