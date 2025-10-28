@@ -6,7 +6,6 @@ import {
   VideoRecorderPropsSchema,
 } from '../schema.traits/mod.ts';
 
-// NOTE: paths here are from "schema.trait.registry" → go up two levels for these files:
 import { TRAIT_IDS } from './m.ids.ts';
 import { DefaultTraitRegistry } from './mod.ts';
 
@@ -39,23 +38,25 @@ describe('trait-registry', () => {
     expectTypeOf(someId).toEqualTypeOf<t.SchemaTraitId>();
   });
 
-  it('TRAIT_IDS includes all canonical ids (no duplicates)', () => {
-    const sorted = [...TRAIT_IDS].sort();
-    expect(sorted).to.eql(['slug-tree', 'video-player', 'video-recorder'].sort());
-    expect(new Set(TRAIT_IDS).size).to.eql(TRAIT_IDS.length);
-  });
+  describe('ids', () => {
+    it('TRAIT_IDS includes all canonical ids (no duplicates)', () => {
+      const sorted = [...TRAIT_IDS].sort();
+      expect(sorted).to.eql(['slug-tree', 'video-player', 'video-recorder'].sort());
+      expect(new Set(TRAIT_IDS).size).to.eql(TRAIT_IDS.length);
+    });
 
-  it('registry has schemas for all ids', () => {
-    for (const id of TRAIT_IDS) {
-      const s = schemaOf(id as t.SchemaTraitId);
-      expect(Boolean(s)).to.eql(true, `missing schema for id: ${id}`);
-    }
-  });
+    it('registry has schemas for all ids', () => {
+      for (const id of TRAIT_IDS) {
+        const s = schemaOf(id as t.SchemaTraitId);
+        expect(Boolean(s)).to.eql(true, `missing schema for id: ${id}`);
+      }
+    });
 
-  it('schema equality: each id maps to the expected schema', () => {
-    expect(schemaOf('slug-tree')).to.equal(SlugTreePropsSchema);
-    expect(schemaOf('video-player')).to.equal(VideoPlayerPropsSchema);
-    expect(schemaOf('video-recorder')).to.equal(VideoRecorderPropsSchema);
+    it('schema equality: each id maps to the expected schema', () => {
+      expect(schemaOf('slug-tree')).to.equal(SlugTreePropsSchema);
+      expect(schemaOf('video-player')).to.equal(VideoPlayerPropsSchema);
+      expect(schemaOf('video-recorder')).to.equal(VideoRecorderPropsSchema);
+    });
   });
 
   describe('Value.Check smoke tests via registry schemas', () => {
@@ -105,6 +106,25 @@ describe('trait-registry', () => {
         const viaAll = DefaultTraitRegistry.all.find((e) => e.id === id)!;
         expect(viaGet).to.eql(viaAll);
       }
+    });
+  });
+
+  describe('normalizer wiring via DefaultTraitRegistry', () => {
+    it('slug-tree: registry exposes a normalizer function that outputs canonical shape', () => {
+      const entry = DefaultTraitRegistry.get('slug-tree')!;
+      expect(typeof entry.normalize).to.eql('function');
+
+      // Minimal authoring DSL (pre-canonical form):
+      const authoring = [{ intro: { ref: 'crdt:create' } }];
+
+      // Apply normalizer then validate against the canonical schema:
+      const canonical = entry.normalize?.(authoring);
+      expect(Value.Check(entry.propsSchema, canonical)).to.eql(true);
+    });
+
+    it('video-player / video-recorder: no normalizer by default', () => {
+      expect(DefaultTraitRegistry.get('video-player')!.normalize).to.eql(undefined);
+      expect(DefaultTraitRegistry.get('video-recorder')!.normalize).to.eql(undefined);
     });
   });
 });

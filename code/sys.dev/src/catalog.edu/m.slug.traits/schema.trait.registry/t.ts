@@ -1,19 +1,13 @@
 import type { t } from './common.ts';
-
 export type { SchemaTraitId } from './m.ids.ts';
 
 /**
- * Single entry coupling id → props schema.
+ * Single trait entry mapping a canonical `SchemaTraitId` to
+ * its props schema and optional normalizer.
  */
-export type SchemaTraitRegistryEntry<Id extends t.SchemaTraitId = t.SchemaTraitId> = {
-  readonly id: Id;
-  readonly propsSchema: t.TSchema;
-};
+export type SchemaTraitRegistryEntry = t.SlugTraitRegistryEntry<t.SchemaTraitId>;
 
 /**
- * Collection + lookup for schema traits.
+ * Registry of all canonical schema traits with typed id lookup.
  */
-export type SchemaTraitRegistry<Id extends t.SchemaTraitId = t.SchemaTraitId> = {
-  readonly all: readonly SchemaTraitRegistryEntry<Id>[];
-  get(id: Id): SchemaTraitRegistryEntry<Id> | undefined;
-};
+export type SchemaTraitRegistry = t.SlugTraitRegistry<t.SchemaTraitId>;
