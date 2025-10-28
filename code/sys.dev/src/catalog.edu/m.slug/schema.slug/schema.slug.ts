@@ -1,6 +1,6 @@
 import { type t, Type as T } from './common.ts';
+import { Pattern } from './m.Pattern.ts';
 import { TraitBindingSchema } from './schema.trait.ts';
-import { Pattern } from './u.Pattern.ts';
 
 /**
  * Slug core (v0): stable identity + trait bindings.

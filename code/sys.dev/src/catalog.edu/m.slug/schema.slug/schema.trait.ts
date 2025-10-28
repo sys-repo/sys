@@ -1,5 +1,5 @@
 import { type t, Type as T } from './common.ts';
-import { Pattern } from './u.Pattern.ts';
+import { Pattern } from './m.Pattern.ts';
 
 /**
  * Bind a trait type ("of") to a local alias ("as").
