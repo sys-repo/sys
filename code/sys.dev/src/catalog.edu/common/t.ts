@@ -1,4 +1,9 @@
 /**
+ * @external
+ */
+export type { FC, ReactNode } from 'react';
+
+/**
  * @drivers
  */
 export type { Crdt, CrdtView } from '@sys/driver-automerge/t';
