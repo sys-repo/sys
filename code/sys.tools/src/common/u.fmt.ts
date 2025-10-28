@@ -22,9 +22,6 @@ export const Fmt = {
  * Helpers:
  */
 
-/**
- * TODO 🐷 move to @sys/std:Str
- */
 function builder() {
   let _text = '';
   const api = {
