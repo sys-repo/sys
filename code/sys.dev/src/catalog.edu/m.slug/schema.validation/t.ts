@@ -62,6 +62,6 @@ export type SlugValidateResult = {
 };
 
 export type SlugTraitAliasIndex = {
-  readonly byAlias: Map<string, number[]>; // alias -> indices
+  readonly byAlias: Map<string, number[]>; // alias → indices
   readonly aliases: string[];
 };

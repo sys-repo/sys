@@ -15,8 +15,8 @@ describe('trait-registry', () => {
 
   /**
    * Shim to extract a TSchema for a given id regardless of registry surface:
-   * - schema(id) -> TSchema
-   * - get(id) -> { propsSchema } | TSchema
+   * - schema(id) →  TSchema
+   * - get(id)    →  { propsSchema } | TSchema
    */
   function schemaOf(id: t.SchemaTraitId): t.TSchema | undefined {
     const anyReg = reg as any;

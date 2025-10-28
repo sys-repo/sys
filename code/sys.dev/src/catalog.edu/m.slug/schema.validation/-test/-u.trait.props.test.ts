@@ -122,11 +122,11 @@ describe('schema.validation (props)', () => {
         id: 's1',
         traits: [
           { of: 'trait-alpha', as: 'primary' },
-          { of: 'nope', as: 'x' }, // unknown trait id -> handled in existence validator, not here
+          { of: 'nope', as: 'x' }, // unknown trait id → handled in existence validator, not here
         ],
         data: {
           primary: { name: '' }, // invalid → should be reported
-          orphan: { name: '' }, //  orphan → ignored by shape pass
+          orphan: { name: '' }, //  orphan  → ignored by shape pass
         },
       };
       const errs = validatePropsShape({ slug, registry });
