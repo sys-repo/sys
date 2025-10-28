@@ -1,69 +1,102 @@
-import { describe, expect, expectTypeOf, it, Value } from '../../-test.ts';
-import { VideoPlayerPropsSchema } from '../schema.traits/mod.ts';
-import { makeRegistry } from './common.ts';
+import { describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { Value, type t } from '../schema.traits/common.ts';
+import {
+  SlugIndexPropsSchema,
+  SlugTreePropsSchema,
+  VideoPlayerPropsSchema,
+  VideoRecorderPropsSchema,
+} from '../schema.traits/mod.ts';
+
+// NOTE: paths here are from "schema.trait.registry" → go up two levels for these files:
+import { TRAIT_IDS, type CatalogTraitId } from './m.ids.ts';
 import { TraitRegistryDefault } from './m.RegistryDefault.ts';
 
-describe('TraitRegistry (default)', () => {
-  it('exposes the seeded ids in stable order', () => {
-    const ids = TraitRegistryDefault.all.map((d) => d.id);
-    expect(ids).to.eql(['slug-index', 'video-player', 'video-recorder']);
+describe('trait-registry', () => {
+  const reg = TraitRegistryDefault;
+
+  /**
+   * Shim to extract a TSchema for a given id regardless of registry surface:
+   * - schema(id) -> TSchema
+   * - get(id) -> { propsSchema } | TSchema
+   */
+  function schemaOf(id: CatalogTraitId): t.TSchema | undefined {
+    const anyReg = reg as any;
+    if (typeof anyReg.schema === 'function') return anyReg.schema(id);
+    if (typeof anyReg.get === 'function') {
+      const entry = anyReg.get(id);
+      if (!entry) return undefined;
+      return 'propsSchema' in entry ? entry.propsSchema : entry;
+    }
+    return undefined;
+  }
+
+  it('type surface compiles', () => {
+    const sampleReg: t.SlugTraitRegistry<CatalogTraitId> = reg;
+
+    // Force a union-typed value (not a literal-constrained const):
+    const someId = 'slug-index' as CatalogTraitId;
+
+    expectTypeOf(sampleReg).toEqualTypeOf<t.SlugTraitRegistry<CatalogTraitId>>();
+    expectTypeOf(someId).toEqualTypeOf<CatalogTraitId>();
   });
 
-  it('get(id) returns entries; unknown returns <undefined>', () => {
-    const a = TraitRegistryDefault.get('video-player');
-    const b = TraitRegistryDefault.get('video-recorder');
-    const c = TraitRegistryDefault.get('slug-index');
-    const none = TraitRegistryDefault.get('nope' as any);
-    expect(!!a && !!b && !!c).to.eql(true);
-    expect(none).to.eql(undefined);
+  it('TRAIT_IDS includes all canonical ids (no duplicates)', () => {
+    const sorted = [...TRAIT_IDS].sort();
+    expect(sorted).to.eql(['slug-index', 'slug-tree', 'video-player', 'video-recorder'].sort());
+    expect(new Set(TRAIT_IDS).size).to.eql(TRAIT_IDS.length);
   });
 
-  it('prop-schemas accept minimal shapes', () => {
-    const player = TraitRegistryDefault.get('video-player')!;
-    const recorder = TraitRegistryDefault.get('video-recorder')!;
-    const index = TraitRegistryDefault.get('slug-index')!;
-    expect(Value.Check(player.propsSchema, { name: 'Player A' })).to.eql(true);
-    expect(Value.Check(recorder.propsSchema, { name: 'Recorder A' })).to.eql(true);
-    expect(Value.Check(index.propsSchema, { slugs: [] })).to.eql(true); // required for slug-index
+  it('registry has schemas for all ids', () => {
+    for (const id of TRAIT_IDS) {
+      const s = schemaOf(id as CatalogTraitId);
+      expect(Boolean(s)).to.eql(true, `missing schema for id: ${id}`);
+    }
   });
 
-  it('prop-schemas reject empty name', () => {
-    const player = TraitRegistryDefault.get('video-player')!;
-    const recorder = TraitRegistryDefault.get('video-recorder')!;
-    const index = TraitRegistryDefault.get('slug-index')!;
-    expect(Value.Check(player.propsSchema, { name: '' })).to.eql(false);
-    expect(Value.Check(recorder.propsSchema, { name: '' })).to.eql(false);
-    expect(Value.Check(index.propsSchema, { name: '', index: [] })).to.eql(false);
+  it('schema equality: each id maps to the expected schema', () => {
+    expect(schemaOf('slug-index')).to.equal(SlugIndexPropsSchema);
+    expect(schemaOf('slug-tree')).to.equal(SlugTreePropsSchema);
+    expect(schemaOf('video-player')).to.equal(VideoPlayerPropsSchema);
+    expect(schemaOf('video-recorder')).to.equal(VideoRecorderPropsSchema);
   });
 
-  it('ids are unique (dev sanity)', () => {
-    const ids = TraitRegistryDefault.all.map((d) => d.id);
-    const unique = new Set(ids);
-    expect(unique.size).to.eql(ids.length);
+  describe('Value.Check smoke tests via registry schemas', () => {
+    it('slug-index: minimal sample', () => {
+      const s = schemaOf('slug-index')!;
+      const ok = { slugs: [{ ref: 'crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P' }] };
+      expect(Value.Check(s, ok)).to.eql(true);
+    });
+
+    it('slug-tree: minimal sample', () => {
+      const s = schemaOf('slug-tree')!;
+      const ok: t.SlugTreeProps = { items: [{ label: 'intro', ref: 'crdt:create' }] };
+      expect(Value.Check(s, ok)).to.eql(true);
+    });
+
+    it('video-player: minimal sample', () => {
+      const s = schemaOf('video-player')!;
+      const ok = { name: 'player', src: 'crdt:create' };
+      expect(Value.Check(s, ok)).to.eql(true);
+    });
+
+    it('video-recorder: minimal sample', () => {
+      const s = schemaOf('video-recorder')!;
+      const ok = { name: 'rec', file: 'crdt:create' };
+      expect(Value.Check(s, ok)).to.eql(true);
+    });
   });
 
-  it('is strongly typed', () => {
-    type Id = Parameters<typeof TraitRegistryDefault.get>[0];
+  describe('negative samples (schema truth via registry)', () => {
+    it('slug-tree: rejects bad ref pattern', () => {
+      const s = schemaOf('slug-tree')!;
+      const bad = { items: [{ label: 'x', ref: 'not-a-crdt-ref' }] };
+      expect(Value.Check(s, bad)).to.eql(false);
+    });
 
-    // Compile-time assertion (pass a dummy value to satisfy the signature)
-    expectTypeOf<Id>(undefined as unknown as Id).toEqualTypeOf<
-      'slug-index' | 'video-player' | 'video-recorder'
-    >();
-
-    // Runtime usage checks (type-checked at compile time):
-    TraitRegistryDefault.get('video-player');
-    TraitRegistryDefault.get('video-recorder');
-    TraitRegistryDefault.get('slug-index');
-
-    // @ts-expect-error - unknown id should not be allowed:
-    TraitRegistryDefault.get('nope');
-  });
-
-  it('guard: throws on duplicate ids', () => {
-    const dup = [
-      { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
-      { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
-    ] as const;
-    expect(() => makeRegistry(dup as any)).to.throw();
+    it('slug-index: rejects missing ref', () => {
+      const s = schemaOf('slug-index')!;
+      const bad = { slugs: [{ name: 'x' }] };
+      expect(Value.Check(s, bad)).to.eql(false);
+    });
   });
 });

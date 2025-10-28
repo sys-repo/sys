@@ -2,15 +2,21 @@ import type { t } from './common.ts';
 export type * from './t.type-gen.ts';
 
 export type SlugIndexBinding = t.SlugTraitBindingOf<'slug-index'>;
+export type SlugTreeBinding = t.SlugTraitBindingOf<'slug-tree'>;
 export type VideoRecorderBinding = t.SlugTraitBindingOf<'video-recorder'>;
 export type VideoPlayerBinding = t.SlugTraitBindingOf<'video-player'>;
 
 /**
  * Aggregate entry for all known slug-trait schemas and type guards.
+ * Note: keep this strictly aligned with actual exported schemas (truthful surface).
  */
 export type SlugTraitsLib = {
   readonly Is: t.SlugTraitIsLib;
+
+  // Schemas:
   readonly SlugIndexPropsSchema: t.TSchema;
+  readonly SlugTreeItemSchema: t.TSchema;
+  readonly SlugTreePropsSchema: t.TSchema;
   readonly VideoPlayerPropsSchema: t.TSchema;
   readonly VideoRecorderPropsSchema: t.TSchema;
 };
@@ -24,6 +30,11 @@ export type SlugTraitIsLib = {
    * True iff the value is valid "slug-index" props per the schema.
    */
   slugIndexBinding(m: unknown): m is t.SlugIndexBinding;
+
+  /**
+   * True iff the value is a valid "slug-tree" props per the schema.
+   */
+  slugTreeProps(u: unknown): u is t.SlugTreeProps;
 
   /**
    * True iff the value is a valid "video-recorder" trait binding

@@ -145,4 +145,78 @@ describe('Slug.Is', () => {
       }
     });
   });
+
+  describe('Is.slugTreeProps', () => {
+    it('valid: empty tree (items: [])', () => {
+      const ok: t.SlugTreeProps = { items: [] };
+      expect(Is.slugTreeProps(ok)).to.eql(true);
+    });
+
+    it('valid: leaf at root (label + ref)', () => {
+      const ok: t.SlugTreeProps = {
+        items: [{ label: 'intro', ref: 'crdt:create' }],
+      };
+      expect(Is.slugTreeProps(ok)).to.eql(true);
+      expectTypeOf(ok).toEqualTypeOf<t.SlugTreeProps>();
+    });
+
+    it('valid: group (label + items)', () => {
+      const ok: t.SlugTreeProps = {
+        items: [{ label: 'section', items: [{ label: 'child', ref: 'crdt:create' }] }],
+      };
+      expect(Is.slugTreeProps(ok)).to.eql(true);
+    });
+
+    it('valid: hybrid (label + ref + items)', () => {
+      const ok: t.SlugTreeProps = {
+        items: [{ label: 'hybrid', ref: 'crdt:create', items: [] }],
+      };
+      expect(Is.slugTreeProps(ok)).to.eql(true);
+    });
+
+    it('valid: deeper nesting (3 levels)', () => {
+      const ok: t.SlugTreeProps = {
+        items: [
+          {
+            label: 'level-1',
+            items: [
+              {
+                label: 'level-2',
+                items: [{ label: 'level-3-leaf', ref: 'crdt:create' }],
+              },
+            ],
+          },
+        ],
+      };
+      expect(Is.slugTreeProps(ok)).to.eql(true);
+    });
+
+    it('invalid: item missing label', () => {
+      const bad = { items: [{ ref: 'crdt:create' }] };
+      expect(Is.slugTreeProps(bad)).to.eql(false);
+    });
+
+    it('invalid: items must be an array when present', () => {
+      const bad = { items: [{ label: 'x', items: {} }] };
+      expect(Is.slugTreeProps(bad)).to.eql(false);
+    });
+
+    it('invalid: additional property on item is rejected (additionalProperties: false)', () => {
+      const bad = { items: [{ label: 'x', ref: 'crdt:create', foo: 1 }] };
+      expect(Is.slugTreeProps(bad)).to.eql(false);
+    });
+
+    it('invalid: bad ref pattern', () => {
+      const bad = { items: [{ label: 'bad', ref: 'not-a-crdt-ref' }] };
+      expect(Is.slugTreeProps(bad)).to.eql(false);
+    });
+
+    it('valid: summary allowed at root and item', () => {
+      const ok: t.SlugTreeProps = {
+        summary: 'root summary',
+        items: [{ label: 'node', summary: 'node summary', ref: 'crdt:create' }],
+      };
+      expect(Is.slugTreeProps(ok)).to.eql(true);
+    });
+  });
 });

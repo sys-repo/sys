@@ -1,4 +1,5 @@
 import { type t, Is as is, Value } from './common.ts';
+import { SlugTreePropsSchema } from './m.slug.tree.ts';
 import { VideoPlayerPropsSchema } from './m.video.player.ts';
 import { VideoRecorderPropsSchema } from './m.video.recorder.ts';
 
@@ -33,5 +34,13 @@ export const Is: t.SlugTraitIsLib = {
    */
   videoPlayerProps(u: unknown): u is t.VideoPlayerProps {
     return Value.Check(VideoPlayerPropsSchema, u as unknown);
+  },
+
+  /**
+   * True iff value conforms to the slug-tree props schema.
+   * (Schema-truthful; aligns with generated `t.SlugTreeProps`.)
+   */
+  slugTreeProps(u: unknown): u is t.SlugTreeProps {
+    return Value.Check(SlugTreePropsSchema, u as unknown);
   },
 } as const;

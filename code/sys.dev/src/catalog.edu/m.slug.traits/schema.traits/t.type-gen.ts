@@ -88,3 +88,44 @@ export type SlugIndexProps = {
     readonly ref: string;
   }[];
 };
+
+/**
+ * Slug Tree Item
+ * – mirrors `m.slug.tree.ts` (`SlugTreeItemSchema`)
+ *
+ * A node may:
+ *  • reference a document via `ref` (leaf),
+ *  • contain `items` (group),
+ *  • or do both (hybrid).
+ */
+export type SlugTreeItem = {
+  /** Human-readable label (node title). */
+  readonly label: string;
+
+  /**
+   * CRDT Slug Reference (URN).
+   * Accepts:
+   *   crdt:create
+   *   crdt:<uuid|base62-28>/[path]
+   *   urn:crdt:<uuid|base62-28>/[path]
+   */
+  readonly ref?: string;
+
+  /** Ordered children. */
+  readonly items?: readonly SlugTreeItem[];
+
+  /** Optional human summary/description. */
+  readonly summary?: string;
+};
+
+/**
+ * Slug Tree Properties
+ * – mirrors `m.slug.tree.ts` (`SlugTreePropsSchema`)
+ */
+export type SlugTreeProps = {
+  /** Ordered root items of the tree. */
+  readonly items: readonly SlugTreeItem[];
+
+  /** Optional human summary/description for the entire tree. */
+  readonly summary?: string;
+};

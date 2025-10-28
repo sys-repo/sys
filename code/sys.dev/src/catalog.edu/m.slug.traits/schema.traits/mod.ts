@@ -6,10 +6,18 @@ import { type t } from './common.ts';
 
 import { Is } from './m.Is.ts';
 import { SlugIndexPropsSchema } from './m.slug.index.ts';
+import { SlugTreeItemSchema, SlugTreePropsSchema } from './m.slug.tree.ts';
 import { VideoPlayerPropsSchema } from './m.video.player.ts';
 import { VideoRecorderPropsSchema } from './m.video.recorder.ts';
 
-export { Is, SlugIndexPropsSchema, VideoPlayerPropsSchema, VideoRecorderPropsSchema };
+export {
+  Is,
+  SlugIndexPropsSchema,
+  SlugTreeItemSchema,
+  SlugTreePropsSchema,
+  VideoPlayerPropsSchema,
+  VideoRecorderPropsSchema,
+};
 
 export const Traits: t.SlugTraitsLib = {
   get Is() {
@@ -17,6 +25,12 @@ export const Traits: t.SlugTraitsLib = {
   },
   get SlugIndexPropsSchema() {
     return SlugIndexPropsSchema;
+  },
+  get SlugTreeItemSchema() {
+    return SlugTreeItemSchema;
+  },
+  get SlugTreePropsSchema() {
+    return SlugTreePropsSchema;
   },
   get VideoPlayerPropsSchema() {
     return VideoPlayerPropsSchema;
