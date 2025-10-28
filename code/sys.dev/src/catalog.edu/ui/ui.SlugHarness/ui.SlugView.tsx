@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, D, Obj, Rx, Signal } from './common.ts';
+import React from 'react';
+import { type t, Color, css, Obj } from './common.ts';
 
 /**
  * Component:
