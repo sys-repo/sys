@@ -1,4 +1,4 @@
-import { type t, A, Bus, D, Rx, Schedule } from './common.ts';
+import { A, Bus, D, Rx, Schedule, type t } from './common.ts';
 import {
   clampOffsetSE,
   equalOffsets,
@@ -24,6 +24,7 @@ export function impl(args: {
 }) {
   const { bus$, model, path, editor, doc, life } = args;
   const observer = observe({ editor, bus$ }, life);
+  const isValid = (o: t.FoldOffset) => o.end > o.start;
 
   // Guards:
   let readyForEditorWrites = false; //  ← UI→CRDT allowed after initial seed.
@@ -101,12 +102,12 @@ export function impl(args: {
       return; // Path is missing / unsafe to read right now.
     }
 
+    // In syncFromCRDT():
     const marks = rawMarks.filter((m) => m.name === D.FOLD_MARK);
-    const nextOffsets = marks.map((m) => clampOffsetSE(model, m));
-
-    // Compare to current by offsets (derived from hidden areas).
-    const currentMarkRanges = toMarkRanges(model, getHiddenAreas(editor));
-    const currentOffsets = currentMarkRanges.map((r) => clampOffsetSE(model, r));
+    const nextOffsets = marks.map((m) => clampOffsetSE(model, m)).filter(isValid);
+    const currentOffsets = toMarkRanges(model, getHiddenAreas(editor))
+      .map((r) => clampOffsetSE(model, r))
+      .filter(isValid);
 
     // Fire initial <ready> event.
     if (!initialFired) fireInitial(marks);
@@ -160,8 +161,14 @@ export function impl(args: {
     if (!readyForEditorWrites) return;
     if (docUpdatingEditor) return;
 
-    const currentOffsets = toMarkRanges(model, e.areas).map((r) => clampOffsetSE(model, r));
-    const storedOffsets = readStoredOffsets(doc, path).map((o) => clampOffsetSE(model, o));
+    const currentOffsets = toMarkRanges(model, e.areas)
+      .map((r) => clampOffsetSE(model, r))
+      .filter(isValid);
+
+    const storedOffsets = readStoredOffsets(doc, path)
+      .map((o) => clampOffsetSE(model, o))
+      .filter(isValid);
+
     if (equalOffsets(storedOffsets, currentOffsets)) return;
 
     skipNextPatch += 1;
@@ -174,7 +181,6 @@ export function impl(args: {
       }
     });
 
-    // Emit as ranges:
     emitMarks('editor', storedOffsets, currentOffsets);
   });
 }

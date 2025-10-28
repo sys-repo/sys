@@ -1,9 +1,10 @@
-import { type t, describe, expect, it, MonacoFake, Rx, Time } from '../../-test.ts';
-import { Bus } from './common.ts';
-import { EditorFolding } from './mod.ts';
-import { bindFoldMarks } from './u.bind.ts';
-import { Sentinel } from './u.sentinel.ts';
-import { useFoldMarks } from './use.FoldMarks.ts';
+import { type t, describe, expect, it, MonacoFake, Rx, Time } from '../../../-test.ts';
+import { Bus } from '../common.ts';
+import { EditorFolding } from '../mod.ts';
+import { parentLinesFromOffsets } from '../u.bind.impl.u.ts';
+import { bindFoldMarks } from '../u.bind.ts';
+import { Sentinel } from '../u.sentinel.ts';
+import { useFoldMarks } from '../use.FoldMarks.ts';
 
 describe('Monaco.Folding', () => {
   it('API', () => {
@@ -283,4 +284,35 @@ describe('Monaco.Folding', () => {
       expect(called).to.eql(1);
     });
   });
+
+  // 🌸 ---------- ADDED: test-parent-lines-0-based ----------
+  describe.only('parentLinesFromOffsets', () => {
+    it('maps parent at line 1 to 0 (0-based selection line)', () => {
+      const editor = MonacoFake.editor('a\nb\nc\nd');
+      const model = editor.getModel()!;
+
+      const start = model.getOffsetAt({ lineNumber: 1, column: 1 });
+      const lines = parentLinesFromOffsets(model, [{ start, end: start + 1 }]);
+
+      expect(lines).to.eql([0]);
+    });
+
+    it('maps mid-file parents correctly and returns sorted uniques', () => {
+      const editor = MonacoFake.editor('a\nb\nc\nd');
+      const model = editor.getModel()!;
+
+      const s1 = model.getOffsetAt({ lineNumber: 3, column: 1 }); // parent line = 3 → 0-based 2
+      const s2 = model.getOffsetAt({ lineNumber: 2, column: 1 }); // parent line = 2 → 0-based 1
+      const s3 = model.getOffsetAt({ lineNumber: 2, column: 5 }); // same parent as s2 (dedup)
+
+      const lines = parentLinesFromOffsets(model, [
+        { start: s1, end: s1 + 1 },
+        { start: s2, end: s2 + 1 },
+        { start: s3, end: s3 + 2 },
+      ]);
+
+      expect(lines).to.eql([1, 2]);
+    });
+  });
+  // 🌸 ---------- /ADDED ----------
 });

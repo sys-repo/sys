@@ -15,6 +15,7 @@ export {
   R,
   Str,
   Time,
+  Try,
   Url,
   slug,
 } from '@sys/std';

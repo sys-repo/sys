@@ -1,5 +1,5 @@
 /**
- * @system ui
+ * @system
  */
 export { Color, Style, css } from '@sys/ui-css';
 export { Keyboard, LocalStorage } from '@sys/ui-dom';
