@@ -22,20 +22,20 @@ export const Traits: t.SlugTraitsLib = {
   // Schemas:
   Schema: {
     SlugTree: {
-      get ItemSchema() {
+      get Item() {
         return SlugTreeItemSchema;
       },
-      get PropsSchema() {
+      get Props() {
         return SlugTreePropsSchema;
       },
     },
     VideoPlayer: {
-      get PropsSchema() {
+      get Props() {
         return VideoPlayerPropsSchema;
       },
     },
     VideoRecorder: {
-      get PropsSchema() {
+      get Props() {
         return VideoRecorderPropsSchema;
       },
     },

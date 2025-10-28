@@ -4,7 +4,7 @@ import { type t, Is as is, Value } from './common.ts';
 export const Is: t.SlugTraitIsLib = {
   /** slug-tree: props schema */
   slugTreeProps(u: unknown): u is t.SlugTreeProps {
-    return Value.Check(Traits.Schema.SlugTree.PropsSchema, u as unknown);
+    return Value.Check(Traits.Schema.SlugTree.Props, u as unknown);
   },
 
   /** video-recorder: binding with non-empty as */
@@ -14,7 +14,7 @@ export const Is: t.SlugTraitIsLib = {
 
   /** video-recorder: props schema */
   videoRecorderProps(u: unknown): u is t.VideoRecorderProps {
-    return Value.Check(Traits.Schema.VideoRecorder.PropsSchema, u as unknown);
+    return Value.Check(Traits.Schema.VideoRecorder.Props, u as unknown);
   },
 
   /** video-player: binding with non-empty as */
@@ -24,6 +24,6 @@ export const Is: t.SlugTraitIsLib = {
 
   /** video-player: props schema */
   videoPlayerProps(u: unknown): u is t.VideoPlayerProps {
-    return Value.Check(Traits.Schema.VideoPlayer.PropsSchema, u as unknown);
+    return Value.Check(Traits.Schema.VideoPlayer.Props, u as unknown);
   },
 } as const;

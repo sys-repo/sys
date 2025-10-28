@@ -12,9 +12,9 @@ export type SlugTraitsLib = {
   readonly Normalizers: t.TraitNormalizers;
   // Schemas:
   readonly Schema: {
-    readonly SlugTree: { readonly ItemSchema: t.TSchema; readonly PropsSchema: t.TSchema };
-    readonly VideoPlayer: { readonly PropsSchema: t.TSchema };
-    readonly VideoRecorder: { readonly PropsSchema: t.TSchema };
+    readonly SlugTree: { readonly Item: t.TSchema; readonly Props: t.TSchema };
+    readonly VideoPlayer: { readonly Props: t.TSchema };
+    readonly VideoRecorder: { readonly Props: t.TSchema };
   };
 };
 
