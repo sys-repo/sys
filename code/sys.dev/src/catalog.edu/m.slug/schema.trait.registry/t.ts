@@ -1,11 +1,24 @@
 import type { t } from './common.ts';
 
 /**
- * Definition of a registered trait and its props schema.
+ * Authoring → canonical pre-validation transform.
+ */
+export type SlugTraitNormalizer = (input: unknown) => unknown;
+
+/**
+ * Map of normalizers keyed by trait-id.
+ */
+export type SlugTraitNormalizers<Id extends t.SlugTraitId = t.SlugTraitId> = Partial<
+  Record<Id, SlugTraitNormalizer>
+>;
+
+/**
+ * Single entry coupling id → props schema (+ optional normalize hook).
  */
 export type SlugTraitRegistryEntry<Id extends t.SlugTraitId = t.SlugTraitId> = {
   readonly id: Id;
   readonly propsSchema: t.TSchema;
+  readonly normalize?: SlugTraitNormalizer;
 };
 
 /**
@@ -15,19 +28,3 @@ export type SlugTraitRegistry<Id extends t.SlugTraitId = t.SlugTraitId> = {
   readonly all: readonly SlugTraitRegistryEntry<Id>[];
   get(id: Id): SlugTraitRegistryEntry<Id> | undefined;
 };
-
-/**
- * Function that converts a trait's authoring form into its canonical
- * schema shape before validation.
- *
- * Example:
- *   normalizeSlugTreeAuthoring(yamlValue) → { items: [...] }
- */
-export type SlugTraitNormalizer = (input: unknown) => unknown;
-
-/**
- * A map of trait-normalizers keyed by Id (all optional).
- */
-export type SlugTraitNormalizers<Id extends t.SlugTraitId = t.SlugTraitId> = Partial<
-  Record<Id, t.SlugTraitNormalizer>
->;

@@ -1,8 +1,8 @@
-import { describe, expect, expectTypeOf, it, Value } from '../../-test.ts';
-import { Type as T } from './common.ts';
-import { makeRegistry } from './mod.ts';
+import { describe, expect, expectTypeOf, it, Value } from '../../../-test.ts';
+import { Type as T } from '../common.ts';
+import { makeRegistry } from '../mod.ts';
 
-describe('TraitRegistry (local mock)', () => {
+describe('registry.surface', () => {
   const registry = makeRegistry([
     {
       id: 'trait-index',
