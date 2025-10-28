@@ -14,9 +14,11 @@ import {
   Signal,
   STORAGE_KEY,
 } from '../common.ts';
+import { registry } from './-u.registry.tsx';
+import { SlugViews } from './-ui.SlugViews.tsx';
 
 type P = t.SlugHarnessProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath' | 'view'> & {
   header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtView.LayoutSidebar;
 };
@@ -27,6 +29,7 @@ const defaults: Storage = {
   slugPath: ['slug'],
   header: D.header,
   sidebar: D.sidebar,
+  view: 'foo',
 };
 
 /**
@@ -59,6 +62,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     docPath: s(snap.docPath),
     slugPath: s(snap.slugPath),
+    view: s(snap.view),
     header: {
       visible: s((snap.header ?? {}).visible),
       readOnly: s((snap.header ?? {}).readOnly),
@@ -76,6 +80,7 @@ export function createDebugSignals() {
     signals,
     repo,
     crdt,
+    registry,
     url: DevUrl.make(window),
     reset,
     listen,
@@ -96,6 +101,7 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
       d.docPath = p.docPath.value;
       d.slugPath = p.slugPath.value;
+      d.view = p.view.value;
 
       d.header = d.header ?? {};
       d.header.visible = p.header.visible.value;
@@ -129,6 +135,8 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const docPath = p.docPath.value;
+
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -199,6 +207,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <SlugViews theme={theme.name} debug={debug} />
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -217,12 +228,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Crdt.UI.Dev.ObjectView
         doc={debug.signals.doc.value}
         style={{ marginTop: 5 }}
-        expand={['$', '$.doc:editor']}
+        expand={Crdt.UI.Dev.expandPaths([docPath])}
         lenses={[
           {
-            name: 'doc:editor',
-            // path: Obj.Path.appendSuffix(p.docPath.value, '.parsed'),
-            path: p.docPath.value,
+            name: Crdt.UI.Dev.fieldFromPath(docPath),
+            path: docPath,
           },
         ]}
       />

@@ -31,12 +31,14 @@ export default Spec.describe(D.displayName, (e) => {
           <SlugHarness
             debug={v.debug}
             theme={v.theme}
+            registry={debug.registry}
             crdt={debug.crdt}
             signals={debug.signals}
             docPath={v.docPath}
             slugPath={v.slugPath}
             header={v.header}
             sidebar={v.sidebar}
+            view={v.view}
           />
         );
       });
