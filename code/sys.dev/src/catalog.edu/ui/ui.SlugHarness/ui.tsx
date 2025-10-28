@@ -9,7 +9,7 @@ export const SlugHarness: React.FC<P> = (props) => {
     registry,
     crdt,
     signals,
-    view,
+    main,
     header = D.header,
     sidebar = D.sidebar,
     docPath,
@@ -25,15 +25,15 @@ export const SlugHarness: React.FC<P> = (props) => {
   const slots: t.CrdtView.LayoutSlots = {
     sidebar: (ctx) => '👋 sidebar',
     main: (ctx) => {
-      if (!slugPath || !docPath || !view) return null;
+      if (!slugPath || !docPath || !main) return null;
 
-      const renderer = registry?.get(view);
+      const renderer = registry?.get(main);
       if (!renderer) return null;
 
       const slug = Obj.Path.get<t.Slug>(doc?.current, docPath);
       if (!slug) return null;
 
-      return renderer?.({ view, slug });
+      return renderer?.({ view: main, slug });
     },
   };
 

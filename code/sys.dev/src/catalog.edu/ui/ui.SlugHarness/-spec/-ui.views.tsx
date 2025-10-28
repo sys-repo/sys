@@ -15,7 +15,7 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
   const { debug } = props;
   const registry = debug.registry;
   const p = debug.props;
-  const isCurrent = (id: t.StringId) => p.view.value === id;
+  const isCurrent = (id: t.StringId) => p.main.value === id;
 
   /**
    * Render:
@@ -34,8 +34,8 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
       <Button
         key={`${i}.${id}`}
         block
-        label={() => `view: ${id} ${isCurrent(id) ? '🌳' : ''}`}
-        onClick={() => (p.view.value = id)}
+        label={() => `main: ${id} ${isCurrent(id) ? '🌳' : ''}`}
+        onClick={() => (p.main.value = id)}
       />
     );
   });
@@ -43,7 +43,7 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {elButtons}
-      <Button block label={() => `(none)`} onClick={() => (p.view.value = undefined)} />
+      <Button block label={() => `(none)`} onClick={() => (p.main.value = undefined)} />
     </div>
   );
 };

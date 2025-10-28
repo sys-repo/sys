@@ -15,10 +15,10 @@ import {
   STORAGE_KEY,
 } from '../common.ts';
 import { registry } from './-u.registry.tsx';
-import { SlugViews } from './-ui.SlugViews.tsx';
+import { SlugViews } from './-ui.views.tsx';
 
 type P = t.SlugHarnessProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath' | 'view'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath' | 'main'> & {
   header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtView.LayoutSidebar;
 };
@@ -29,7 +29,7 @@ const defaults: Storage = {
   slugPath: ['slug'],
   header: D.header,
   sidebar: D.sidebar,
-  view: 'foo',
+  main: 'foo',
 };
 
 /**
@@ -62,7 +62,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     docPath: s(snap.docPath),
     slugPath: s(snap.slugPath),
-    view: s(snap.view),
+    main: s(snap.main),
     header: {
       visible: s((snap.header ?? {}).visible),
       readOnly: s((snap.header ?? {}).readOnly),
@@ -101,7 +101,7 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
       d.docPath = p.docPath.value;
       d.slugPath = p.slugPath.value;
-      d.view = p.view.value;
+      d.main = p.main.value;
 
       d.header = d.header ?? {};
       d.header.visible = p.header.visible.value;

@@ -38,7 +38,7 @@ export default Spec.describe(D.displayName, (e) => {
             slugPath={v.slugPath}
             header={v.header}
             sidebar={v.sidebar}
-            view={v.view}
+            main={v.main}
           />
         );
       });
