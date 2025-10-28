@@ -24,7 +24,7 @@ export function impl(args: {
 }) {
   const { bus$, model, path, editor, doc, life } = args;
   const observer = observe({ editor, bus$ }, life);
-  const isValid = (o: t.FoldOffset) => o.end > o.start;
+  const isValidFold = (o: t.FoldOffset) => o.end > o.start;
 
   // Guards:
   let readyForEditorWrites = false; //  ← UI→CRDT allowed after initial seed.
@@ -104,10 +104,10 @@ export function impl(args: {
 
     // In syncFromCRDT():
     const marks = rawMarks.filter((m) => m.name === D.FOLD_MARK);
-    const nextOffsets = marks.map((m) => clampOffsetSE(model, m)).filter(isValid);
+    const nextOffsets = marks.map((m) => clampOffsetSE(model, m)).filter(isValidFold);
     const currentOffsets = toMarkRanges(model, getHiddenAreas(editor))
       .map((r) => clampOffsetSE(model, r))
-      .filter(isValid);
+      .filter(isValidFold);
 
     // Fire initial <ready> event.
     if (!initialFired) fireInitial(marks);
@@ -163,11 +163,11 @@ export function impl(args: {
 
     const currentOffsets = toMarkRanges(model, e.areas)
       .map((r) => clampOffsetSE(model, r))
-      .filter(isValid);
+      .filter(isValidFold);
 
     const storedOffsets = readStoredOffsets(doc, path)
       .map((o) => clampOffsetSE(model, o))
-      .filter(isValid);
+      .filter(isValidFold);
 
     if (equalOffsets(storedOffsets, currentOffsets)) return;
 
