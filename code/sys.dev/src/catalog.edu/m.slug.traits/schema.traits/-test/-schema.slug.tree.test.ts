@@ -117,7 +117,11 @@ describe('trait: slug-tree', () => {
   });
 
   describe('normalizer', () => {
-    const normalize = Traits.Normalizers['slug-tree'];
+    const normalize = (() => {
+      const fn = Traits.Normalizers['slug-tree'];
+      if (!fn) throw new Error('missing slug-tree normalizer (test requires it)');
+      return fn;
+    })();
 
     it('sanity: assert CRDT ref pattern', () => {
       const a = Value.Check(SlugTreePropsSchema, { items: [{ name: 'x', ref: 'crdt:abc123' }] });
