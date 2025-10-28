@@ -1,6 +1,7 @@
-import type { t } from './common.ts';
+import { type t, SPACE } from './common.ts';
 
 import { Lorem } from './m.Lorem.ts';
+import { builder } from './u.builder.ts';
 import { bytes } from './u.bytes.ts';
 import { camelToKebab } from './u.camelToKebab.ts';
 import { capitalize } from './u.caps.ts';
@@ -14,7 +15,7 @@ import { truncate } from './u.truncate.ts';
 export { bytes, capitalize, diff, plural, shorten };
 
 export const Str: t.StrLib = {
-  SPACE: '\u200B',
+  SPACE,
   Lorem,
   lorem: Lorem.text,
   diff,
@@ -26,4 +27,5 @@ export const Str: t.StrLib = {
   truncate,
   replaceAll,
   dedent,
+  builder,
 } as const;

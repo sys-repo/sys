@@ -1,5 +1,5 @@
-import { describe, expect, it, type t } from '../-test.ts';
-import { Str } from './mod.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
+import { Str } from '../mod.ts';
 
 describe('Str (String)', () => {
   describe('Str.bytes', () => {
