@@ -38,7 +38,6 @@ import { Pattern, Type as T } from './common.ts';
  * Authoring-time YAML will be normalized into this shape within `m.yaml`
  * (see `u.slug.tree.normalize.ts`).
  */
-
 export const SlugTreeItemSchema = T.Recursive(
   (Self) =>
     T.Object(

@@ -1,7 +1,7 @@
 import { type t, Is as is, Value } from './common.ts';
-import { SlugTreePropsSchema } from './m.slug.tree.ts';
-import { VideoPlayerPropsSchema } from './m.video.player.ts';
-import { VideoRecorderPropsSchema } from './m.video.recorder.ts';
+import { SlugTreePropsSchema } from './schema.slug.tree.ts';
+import { VideoPlayerPropsSchema } from './schema.video.player.ts';
+import { VideoRecorderPropsSchema } from './schema.video.recorder.ts';
 
 export const Is: t.SlugTraitIsLib = {
   /**

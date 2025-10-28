@@ -6,8 +6,8 @@ import {
 } from '@sys/schema/testing';
 
 import { type t } from '../common.ts';
-import { VideoPlayerPropsSchema } from '../m.video.player.ts';
-import { VideoRecorderPropsSchema } from '../m.video.recorder.ts';
+import { VideoPlayerPropsSchema } from '../schema.video.player.ts';
+import { VideoRecorderPropsSchema } from '../schema.video.recorder.ts';
 
 /**
  * Compile-time schema/type locks.
