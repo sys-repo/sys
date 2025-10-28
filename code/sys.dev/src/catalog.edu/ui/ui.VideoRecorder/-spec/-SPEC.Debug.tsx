@@ -6,6 +6,7 @@ import {
   Arr,
   Button,
   Color,
+  Crdt,
   css,
   D,
   LocalStorage,
@@ -24,7 +25,7 @@ type Storage = Pick<P, 'theme' | 'debug' | 'aspectRatio' | 'docPath' | 'slugPath
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  docPath: ['yaml'],
+  docPath: ['yaml.parsed'],
   slugPath: ['slug'],
   header: D.header,
   sidebar: D.sidebar,
@@ -144,6 +145,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
   const signals = debug.signals;
   const doc = signals.doc?.value;
+  const docPath = p.docPath.value;
 
   Signal.useRedrawEffect(debug.listen);
 
@@ -243,11 +245,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         signals={signals}
         doc={doc}
         style={{ marginTop: 10 }}
-        // expand={['$', '$.doc:editor']}
+        expand={Crdt.UI.Dev.expandPaths([docPath])}
         lenses={[
           {
-            name: 'doc:editor',
-            path: Obj.Path.appendSuffix(p.docPath.value, '.parsed'),
+            name: Crdt.UI.Dev.fieldFromPath(docPath),
+            path: docPath,
           },
         ]}
       />
