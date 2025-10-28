@@ -1,11 +1,14 @@
 /**
- * Canonical trait id union for this catalog.
+ * Canonical trait ids for this schema registry.
  */
 export const TRAIT_IDS = [
   //
-  'slug-index',
   'slug-tree',
   'video-player',
   'video-recorder',
 ] as const;
-export type CatalogTraitId = (typeof TRAIT_IDS)[number];
+
+/**
+ * Narrow union derived from the canonical list above.
+ */
+export type SchemaTraitId = (typeof TRAIT_IDS)[number];

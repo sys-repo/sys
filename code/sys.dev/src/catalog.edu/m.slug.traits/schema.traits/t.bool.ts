@@ -6,11 +6,6 @@ import type { t } from './common.ts';
  */
 export type SlugTraitIsLib = {
   /**
-   * True iff the value is valid "slug-index" props per the schema.
-   */
-  slugIndexBinding(m: unknown): m is t.SlugIndexBinding;
-
-  /**
    * True iff the value is a valid "slug-tree" props per the schema.
    */
   slugTreeProps(u: unknown): u is t.SlugTreeProps;
@@ -27,7 +22,13 @@ export type SlugTraitIsLib = {
   videoRecorderProps(u: unknown): u is t.VideoRecorderProps;
 
   /**
-   * (Optional, symmetry) True iff the value is valid video-player props per the schema.
+   * True iff the value is a valid "video-player" trait binding
+   * with a non-empty `as` alias.
+   */
+  videoPlayerBinding(m: unknown): m is t.VideoPlayerBinding;
+
+  /**
+   * True iff the value is valid "video-player" props per the schema.
    */
   videoPlayerProps(u: unknown): u is t.VideoPlayerProps;
 };

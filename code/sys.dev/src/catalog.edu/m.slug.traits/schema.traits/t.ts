@@ -13,7 +13,6 @@ export type SlugTraitsLib = {
   readonly Normalizers: t.TraitNormalizers;
 
   // Schemas:
-  readonly SlugIndexPropsSchema: t.TSchema;
   readonly SlugTreeItemSchema: t.TSchema;
   readonly SlugTreePropsSchema: t.TSchema;
   readonly VideoPlayerPropsSchema: t.TSchema;
@@ -23,7 +22,6 @@ export type SlugTraitsLib = {
 /**
  * Slug bindings for each trait:
  */
-export type SlugIndexBinding = t.SlugTraitBindingOf<'slug-index'>;
 export type SlugTreeBinding = t.SlugTraitBindingOf<'slug-tree'>;
 export type VideoRecorderBinding = t.SlugTraitBindingOf<'video-recorder'>;
 export type VideoPlayerBinding = t.SlugTraitBindingOf<'video-player'>;

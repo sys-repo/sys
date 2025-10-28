@@ -6,7 +6,7 @@
  *    re-infer from the schemas (e.g. `t.Static<typeof FooSchema>`).
  */
 import type { t } from './common.ts';
-import type { CatalogTraitId } from './m.slug.traits/schema.trait.registry/m.ids.ts';
+import type { SchemaTraitId } from './m.slug.traits/schema.trait.registry/m.ids.ts';
 import type { SlugSchema, TraitBindingSchema, TraitDefSchema } from './m.slug/mod.ts';
 
 /**
@@ -17,4 +17,4 @@ export type TraitBinding = t.Infer<typeof TraitBindingSchema>;
 export type TraitDef = t.Infer<typeof TraitDefSchema>;
 
 /** Slug decorated with semantic registry validation (internal use). */
-export type SlugValidated = t.Infer<typeof SlugSchema> & { readonly registry: CatalogTraitId[] };
+export type SlugValidated = t.Infer<typeof SlugSchema> & { readonly registry: SchemaTraitId[] };

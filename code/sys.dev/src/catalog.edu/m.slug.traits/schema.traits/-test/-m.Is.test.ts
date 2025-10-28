@@ -39,6 +39,38 @@ describe('Slug.Is', () => {
     });
   });
 
+  describe('Is.videoPlayerBinding', () => {
+    it('signature', () => {
+      type Expect = (m: unknown) => m is t.VideoPlayerBinding;
+      expectTypeOf(Is.videoPlayerBinding).toEqualTypeOf<Expect>();
+    });
+
+    it('runtime truth table', () => {
+      const ok = { id: 'video-player', as: 'viewer1' };
+      const badId = { id: 'video-recorder', as: 'viewer1' };
+      const missingAs = { id: 'video-player' };
+      const emptyAs = { id: 'video-player', as: '' };
+
+      expect(Is.videoPlayerBinding(ok)).to.eql(true);
+      expect(Is.videoPlayerBinding(badId)).to.eql(false);
+      expect(Is.videoPlayerBinding(missingAs as unknown)).to.eql(false);
+      expect(Is.videoPlayerBinding(emptyAs)).to.eql(false);
+      expect(Is.videoPlayerBinding(undefined)).to.eql(false);
+      expect(Is.videoPlayerBinding(0)).to.eql(false);
+    });
+
+    it('narrows', () => {
+      const input: unknown = { id: 'video-player', as: 'vp' };
+      if (Is.videoPlayerBinding(input)) {
+        expectTypeOf(input.of).toEqualTypeOf<'video-player'>();
+        expectTypeOf(input.as).toEqualTypeOf<string>();
+        expect(input.as.length > 0).to.eql(true);
+      } else {
+        expect(true).to.eql(false);
+      }
+    });
+  });
+
   describe('Is.videoRecorderProps', () => {
     it('signature', () => {
       type Expect = (u: unknown) => u is t.VideoRecorderProps;
@@ -108,38 +140,6 @@ describe('Slug.Is', () => {
         expectTypeOf(input.src).toEqualTypeOf<string | undefined>();
       } else {
         expect(true).to.eql(false);
-      }
-    });
-  });
-
-  describe('Is.slugIndexBinding', () => {
-    it('signature', () => {
-      type Expect = (m: unknown) => m is t.SlugIndexBinding;
-      expectTypeOf(Is.slugIndexBinding).toEqualTypeOf<Expect>();
-    });
-
-    it('runtime truth table', () => {
-      const ok = { id: 'slug-index', as: 'idx1' };
-      const badId = { id: 'video-recorder', as: 'idx1' };
-      const missingAs = { id: 'slug-index' } as unknown;
-      const emptyAs = { id: 'slug-index', as: '' };
-
-      expect(Is.slugIndexBinding(ok)).to.eql(true);
-      expect(Is.slugIndexBinding(badId as unknown)).to.eql(false);
-      expect(Is.slugIndexBinding(missingAs)).to.eql(false);
-      expect(Is.slugIndexBinding(emptyAs)).to.eql(false);
-      expect(Is.slugIndexBinding(null)).to.eql(false);
-      expect(Is.slugIndexBinding(42)).to.eql(false);
-    });
-
-    it('narrows', () => {
-      const input: unknown = { id: 'slug-index', as: 'home' };
-      const ok = Is.slugIndexBinding(input);
-      expect(ok).to.eql(true);
-      if (ok) {
-        expectTypeOf(input.of).toEqualTypeOf<'slug-index'>();
-        expectTypeOf(input.as).toEqualTypeOf<string>();
-        expect(input.as.length > 0).to.eql(true);
       }
     });
   });

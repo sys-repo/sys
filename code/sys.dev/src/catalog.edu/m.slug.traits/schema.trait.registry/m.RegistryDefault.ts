@@ -1,20 +1,21 @@
-import {
-  SlugIndexPropsSchema,
-  SlugTreePropsSchema,
-  VideoPlayerPropsSchema,
-  VideoRecorderPropsSchema,
-} from '../schema.traits/mod.ts';
-import { type t, makeRegistry } from './common.ts';
-import type { CatalogTraitId } from './m.ids.ts';
+import { type t } from './common.ts';
 
-const ENTRIES = [
-  { id: 'slug-index', propsSchema: SlugIndexPropsSchema },
-  { id: 'slug-tree', propsSchema: SlugTreePropsSchema },
-  { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
-  { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
-] satisfies readonly t.SlugTraitRegistryEntry<CatalogTraitId>[];
+import { SlugTreePropsSchema } from '../schema.traits/schema.slug.tree.ts';
+import { VideoPlayerPropsSchema } from '../schema.traits/schema.video.player.ts';
+import { VideoRecorderPropsSchema } from '../schema.traits/schema.video.recorder.ts';
 
 /**
- * Default trait registry.
+ * Default schema registry.
  */
-export const TraitRegistryDefault: t.SlugTraitRegistry<CatalogTraitId> = makeRegistry(ENTRIES);
+export const RegistryDefault: t.SchemaTraitRegistry = {
+  get all() {
+    return [
+      { id: 'slug-tree', propsSchema: SlugTreePropsSchema },
+      { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
+      { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
+    ] as const;
+  },
+  get(id) {
+    return RegistryDefault.all.find((e) => e.id === id);
+  },
+};

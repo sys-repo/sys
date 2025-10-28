@@ -1,46 +1,29 @@
+import { Traits } from '../mod.ts';
 import { type t, Is as is, Value } from './common.ts';
-import { SlugTreePropsSchema } from './schema.slug.tree.ts';
-import { VideoPlayerPropsSchema } from './schema.video.player.ts';
-import { VideoRecorderPropsSchema } from './schema.video.recorder.ts';
 
 export const Is: t.SlugTraitIsLib = {
-  /**
-   * True iff the value is a valid "slug-index" trait binding
-   * with a non-empty `as` alias.
-   */
-  slugIndexBinding(m: unknown): m is t.SlugIndexBinding {
-    return is.record(m) && m.id === 'slug-index' && is.string(m.as) && m.as.length > 0;
+  /** slug-tree: props schema */
+  slugTreeProps(u: unknown): u is t.SlugTreeProps {
+    return Value.Check(Traits.SlugTreePropsSchema, u as unknown);
   },
 
-  /**
-   * True iff the value is a valid "video-recorder" trait binding
-   * with a non-empty `as` alias.
-   */
+  /** video-recorder: binding with non-empty as */
   videoRecorderBinding(m: unknown): m is t.VideoRecorderBinding {
     return is.record(m) && m.id === 'video-recorder' && is.string(m.as) && m.as.length > 0;
   },
 
-  /**
-   * True iff value conforms to the video-recorder props schema.
-   * (Schema-truthful; aligns with generated `t.VideoRecorderProps`.)
-   */
+  /** video-recorder: props schema */
   videoRecorderProps(u: unknown): u is t.VideoRecorderProps {
-    return Value.Check(VideoRecorderPropsSchema, u as unknown);
+    return Value.Check(Traits.VideoRecorderPropsSchema, u as unknown);
   },
 
-  /**
-   * True iff value conforms to the video-player props schema.
-   * (Schema-truthful; aligns with generated `t.VideoPlayerProps`.)
-   */
+  /** video-player: binding with non-empty as */
+  videoPlayerBinding(m: unknown): m is t.VideoPlayerBinding {
+    return is.record(m) && m.id === 'video-player' && is.string(m.as) && m.as.length > 0;
+  },
+
+  /** video-player: props schema */
   videoPlayerProps(u: unknown): u is t.VideoPlayerProps {
-    return Value.Check(VideoPlayerPropsSchema, u as unknown);
-  },
-
-  /**
-   * True iff value conforms to the slug-tree props schema.
-   * (Schema-truthful; aligns with generated `t.SlugTreeProps`.)
-   */
-  slugTreeProps(u: unknown): u is t.SlugTreeProps {
-    return Value.Check(SlugTreePropsSchema, u as unknown);
+    return Value.Check(Traits.VideoPlayerPropsSchema, u as unknown);
   },
 } as const;
