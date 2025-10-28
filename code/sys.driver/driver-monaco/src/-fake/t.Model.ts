@@ -38,6 +38,8 @@ export type FakeTextModel = Pick<
   //
   | 'onDidChangeContent'
   | 'onDidChangeLanguage'
+  | 'isDisposed'
+  | 'dispose'
 > & {
   __setLanguageId(next: t.EditorLanguage): void;
 };
