@@ -193,7 +193,6 @@ describe('YamlPipeline.Slug.Error', () => {
       expect(diag).to.exist;
     });
 
-    // 🌸 ---------- CHANGED: pass-isKnown-delegate ----------
     it('missing data for alias produces a semantic diagnostic at traits[i].as', () => {
       const YAML = `
         foo:
@@ -220,9 +219,7 @@ describe('YamlPipeline.Slug.Error', () => {
       );
       expect(diag).to.exist;
     });
-    // 🌸 ---------- /CHANGED ----------
 
-    // 🌸 ---------- CHANGED: pass-isKnown-delegate ----------
     it('orphan data produces a semantic diagnostic at data.<key>', () => {
       const YAML = `
         foo:
