@@ -1,5 +1,13 @@
 import React from 'react';
-import { type t, Color, css, Monaco, RegistryDefault, Slug, useSlugDiagnostics } from './common.ts';
+import {
+  type t,
+  Color,
+  css,
+  DefaultTraitRegistry,
+  Monaco,
+  Slug,
+  useSlugDiagnostics,
+} from './common.ts';
 import { Empty } from './ui.Empty.tsx';
 
 type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
@@ -20,7 +28,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
   const [ready, setReady] = React.useState<ReadyCtx>();
 
   // Run combined structural + semantic validation.
-  const registry = RegistryDefault;
+  const registry = DefaultTraitRegistry;
   const slugValidity = useSlugDiagnostics(registry, slugPath, yaml);
 
   // Push error markers into Monaco.

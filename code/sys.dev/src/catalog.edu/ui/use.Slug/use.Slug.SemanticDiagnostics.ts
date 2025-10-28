@@ -1,4 +1,4 @@
-import { type t, Obj, RegistryDefault, Slug, YamlPipeline } from './common.ts';
+import { type t, DefaultTraitRegistry, Obj, Slug, YamlPipeline } from './common.ts';
 
 export const useSlugSemanticDiagnostics: t.UseSlugSemanticDiagnostics = (args) => {
   const rev = args.yaml?.rev ?? 0;
@@ -12,7 +12,7 @@ export const useSlugSemanticDiagnostics: t.UseSlugSemanticDiagnostics = (args) =
   if (!result.ok || !result.slug) return { rev, diagnostics: [] };
 
   const slug = result.slug;
-  const registry = args.registry ?? RegistryDefault;
+  const registry = args.registry ?? DefaultTraitRegistry;
 
   // Run semantic checks & attach ranges (AST fallback)
   const errs = Slug.Validation.validateWithRanges({ ast, slug, registry, basePath: path });

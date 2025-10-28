@@ -7,18 +7,18 @@ import {
 } from '../schema.traits/mod.ts';
 
 // NOTE: paths here are from "schema.trait.registry" → go up two levels for these files:
-import { TRAIT_IDS, type SchemaTraitId } from './m.ids.ts';
-import { RegistryDefault } from './m.RegistryDefault.ts';
+import { TRAIT_IDS } from './m.ids.ts';
+import { DefaultTraitRegistry } from './mod.ts';
 
 describe('trait-registry', () => {
-  const reg = RegistryDefault;
+  const reg = DefaultTraitRegistry;
 
   /**
    * Shim to extract a TSchema for a given id regardless of registry surface:
    * - schema(id) -> TSchema
    * - get(id) -> { propsSchema } | TSchema
    */
-  function schemaOf(id: SchemaTraitId): t.TSchema | undefined {
+  function schemaOf(id: t.SchemaTraitId): t.TSchema | undefined {
     const anyReg = reg as any;
     if (typeof anyReg.schema === 'function') return anyReg.schema(id);
     if (typeof anyReg.get === 'function') {
@@ -30,13 +30,13 @@ describe('trait-registry', () => {
   }
 
   it('type surface compiles', () => {
-    const sampleReg: t.SlugTraitRegistry<SchemaTraitId> = reg;
+    const sampleReg: t.SlugTraitRegistry<t.SchemaTraitId> = reg;
 
     // Force a union-typed value (not a literal-constrained const):
-    const someId = 'slug-index' as SchemaTraitId;
+    const someId = 'slug-index' as t.SchemaTraitId;
 
-    expectTypeOf(sampleReg).toEqualTypeOf<t.SlugTraitRegistry<SchemaTraitId>>();
-    expectTypeOf(someId).toEqualTypeOf<SchemaTraitId>();
+    expectTypeOf(sampleReg).toEqualTypeOf<t.SlugTraitRegistry<t.SchemaTraitId>>();
+    expectTypeOf(someId).toEqualTypeOf<t.SchemaTraitId>();
   });
 
   it('TRAIT_IDS includes all canonical ids (no duplicates)', () => {
@@ -47,7 +47,7 @@ describe('trait-registry', () => {
 
   it('registry has schemas for all ids', () => {
     for (const id of TRAIT_IDS) {
-      const s = schemaOf(id as SchemaTraitId);
+      const s = schemaOf(id as t.SchemaTraitId);
       expect(Boolean(s)).to.eql(true, `missing schema for id: ${id}`);
     }
   });
@@ -94,15 +94,15 @@ describe('trait-registry', () => {
 
   describe('regsitry.get', () => {
     it('registry.get returns undefined for unknown ids', () => {
-      // @ts-expect-error ensure we don’t widen Id beyond SchemaTraitId
-      const out = RegistryDefault.get('not-a-trait');
+      // @ts-expect-error ensure we don't widen Id beyond t.SchemaTraitId
+      const out = DefaultTraitRegistry.get('not-a-trait');
       expect(out).to.eql(undefined);
     });
 
     it('registry.get(id) mirrors the entry in .all', () => {
       for (const id of TRAIT_IDS) {
-        const viaGet = RegistryDefault.get(id)!;
-        const viaAll = RegistryDefault.all.find((e) => e.id === id)!;
+        const viaGet = DefaultTraitRegistry.get(id)!;
+        const viaAll = DefaultTraitRegistry.all.find((e) => e.id === id)!;
         expect(viaGet).to.eql(viaAll);
       }
     });

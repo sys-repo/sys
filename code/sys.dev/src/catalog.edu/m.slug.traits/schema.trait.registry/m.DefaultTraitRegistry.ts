@@ -7,7 +7,7 @@ import { VideoRecorderPropsSchema } from '../schema.traits/schema.video.recorder
 /**
  * Default schema registry.
  */
-export const RegistryDefault: t.SchemaTraitRegistry = {
+export const DefaultTraitRegistry: t.SchemaTraitRegistry = {
   get all() {
     return [
       { id: 'slug-tree', propsSchema: SlugTreePropsSchema },
@@ -16,6 +16,6 @@ export const RegistryDefault: t.SchemaTraitRegistry = {
     ] as const;
   },
   get(id) {
-    return RegistryDefault.all.find((e) => e.id === id);
+    return DefaultTraitRegistry.all.find((e) => e.id === id);
   },
 };
