@@ -11,7 +11,7 @@ describe('trait: slug-tree', () => {
     });
 
     it('type surface: t.SlugTreeItem / t.SlugTreeProps compile', () => {
-      const item: t.SlugTreeItem = { label: 'x' };
+      const item: t.SlugTreeItem = { name: 'x' };
       const props: t.SlugTreeProps = { items: [item] };
       expectTypeOf(item).toEqualTypeOf<t.SlugTreeItem>();
       expectTypeOf(props).toEqualTypeOf<t.SlugTreeProps>();
@@ -25,22 +25,22 @@ describe('trait: slug-tree', () => {
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
 
-    it('valid: leaf node (label + ref)', () => {
-      const ok: t.SlugTreeProps = { items: [{ label: 'intro', ref: 'crdt:create' }] };
+    it('valid: leaf node (name + ref)', () => {
+      const ok: t.SlugTreeProps = { items: [{ name: 'intro', ref: 'crdt:create' }] };
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
 
-    it('valid: group node (label + items)', () => {
+    it('valid: group node (name + items)', () => {
       const ok: t.SlugTreeProps = {
-        items: [{ label: 'section', items: [{ label: 'child', ref: 'crdt:create' }] }],
+        items: [{ name: 'section', items: [{ name: 'child', ref: 'crdt:create' }] }],
       };
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
 
-    it('valid: hybrid node (label + ref + items)', () => {
+    it('valid: hybrid node (name + ref + items)', () => {
       const ok: t.SlugTreeProps = {
         items: [
-          { label: 'hybrid', ref: 'crdt:create', items: [{ label: 'child', ref: 'crdt:create' }] },
+          { name: 'hybrid', ref: 'crdt:create', items: [{ name: 'child', ref: 'crdt:create' }] },
         ],
       };
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
@@ -50,11 +50,11 @@ describe('trait: slug-tree', () => {
       const ok: t.SlugTreeProps = {
         items: [
           {
-            label: 'lvl1',
+            name: 'lvl1',
             items: [
               {
-                label: 'lvl2',
-                items: [{ label: 'lvl3', items: [{ label: 'leaf', ref: 'crdt:create' }] }],
+                name: 'lvl2',
+                items: [{ name: 'lvl3', items: [{ name: 'leaf', ref: 'crdt:create' }] }],
               },
             ],
           },
@@ -66,51 +66,51 @@ describe('trait: slug-tree', () => {
     it('valid: summaries (root + item)', () => {
       const ok: t.SlugTreeProps = {
         summary: 'root summary',
-        items: [{ label: 'node', summary: 'node summary', ref: 'crdt:create' }],
+        items: [{ name: 'node', summary: 'node summary', ref: 'crdt:create' }],
       };
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
   });
 
   describe('Value.Check (invalid cases)', () => {
-    it('invalid: missing label', () => {
+    it('invalid: missing name', () => {
       const bad = { items: [{ ref: 'crdt:create' }] };
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
       expect(Is.slugTreeProps(bad)).to.eql(false);
     });
 
     it('invalid: items must be an array when present', () => {
-      const bad = { items: [{ label: 'x', items: {} }] };
+      const bad = { items: [{ name: 'x', items: {} }] };
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
     });
 
     it('invalid: additionalProperties on item is rejected', () => {
-      const bad = { items: [{ label: 'x', ref: 'crdt:create', foo: 1 }] };
+      const bad = { items: [{ name: 'x', ref: 'crdt:create', foo: 1 }] };
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
     });
 
     it('invalid: bad ref pattern', () => {
-      const bad = { items: [{ label: 'x', ref: 'not-a-crdt-ref' }] };
+      const bad = { items: [{ name: 'x', ref: 'not-a-crdt-ref' }] };
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
     });
 
-    it('invalid: empty label', () => {
-      const bad = { items: [{ label: '', ref: 'crdt:create' }] };
+    it('invalid: empty name', () => {
+      const bad = { items: [{ name: '', ref: 'crdt:create' }] };
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
     });
   });
 
   describe('rounding out edge behavior', () => {
     it('group with empty items array is still valid (represents an empty section)', () => {
-      const ok: t.SlugTreeProps = { items: [{ label: 'empty', items: [] }] };
+      const ok: t.SlugTreeProps = { items: [{ name: 'empty', items: [] }] };
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
 
-    it('multiple siblings with same label are allowed by schema (identity is by position); lint later if desired', () => {
+    it('multiple siblings with same name are allowed by schema (identity is by position); lint later if desired', () => {
       const ok: t.SlugTreeProps = {
         items: [
-          { label: 'dup', ref: 'crdt:create' },
-          { label: 'dup', items: [{ label: 'child', ref: 'crdt:create' }] },
+          { name: 'dup', ref: 'crdt:create' },
+          { name: 'dup', items: [{ name: 'child', ref: 'crdt:create' }] },
         ],
       };
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);

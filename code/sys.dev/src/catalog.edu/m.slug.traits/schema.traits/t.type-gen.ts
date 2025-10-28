@@ -99,8 +99,11 @@ export type SlugIndexProps = {
  *  • or do both (hybrid).
  */
 export type SlugTreeItem = {
-  /** Human-readable label (node title). */
-  readonly label: string;
+  /**
+   * Human-readable display name (like a chapter or section title).
+   * Not globally unique; scope is local to this tree.
+   */
+  readonly name: string;
 
   /**
    * CRDT Slug Reference (URN).
@@ -111,21 +114,33 @@ export type SlugTreeItem = {
    */
   readonly ref?: string;
 
-  /** Ordered children. */
+  /**
+   * Ordered child nodes of this branch.
+   * Each may have its own CRDT ref, child items, or both.
+   */
   readonly items?: readonly SlugTreeItem[];
 
-  /** Optional human summary/description. */
+  /** Optional human summary for this node. */
   readonly summary?: string;
 };
 
 /**
  * Slug Tree Properties
  * – mirrors `m.slug.tree.ts` (`SlugTreePropsSchema`)
+ *
+ * Top-level structure defining a hierarchical set of slug references
+ * (tree of documents or sections).
  */
 export type SlugTreeProps = {
-  /** Ordered root items of the tree. */
+  /**
+   * Ordered root nodes of the slug tree.
+   * Each node may have its own CRDT ref, child items, or both.
+   */
   readonly items: readonly SlugTreeItem[];
 
-  /** Optional human summary/description for the entire tree. */
+  /**
+   * Optional human summary or high-level description for the entire tree.
+   * Useful for display in UIs.
+   */
   readonly summary?: string;
 };

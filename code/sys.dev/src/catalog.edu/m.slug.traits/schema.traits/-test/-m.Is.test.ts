@@ -72,7 +72,6 @@ describe('Slug.Is', () => {
     it('narrows', () => {
       const input: unknown = { name: 'Intro', file: 'crdt:create' };
       if (Is.videoRecorderProps(input)) {
-        // fully narrowed to public generated type
         expectTypeOf(input.name).toEqualTypeOf<string | undefined>();
         expectTypeOf(input.file).toEqualTypeOf<string | undefined>();
       } else {
@@ -136,8 +135,7 @@ describe('Slug.Is', () => {
     it('narrows', () => {
       const input: unknown = { id: 'slug-index', as: 'home' };
       const ok = Is.slugIndexBinding(input);
-      expect(ok).to.eql(true); // runtime assertion
-
+      expect(ok).to.eql(true);
       if (ok) {
         expectTypeOf(input.of).toEqualTypeOf<'slug-index'>();
         expectTypeOf(input.as).toEqualTypeOf<string>();
@@ -152,24 +150,24 @@ describe('Slug.Is', () => {
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
 
-    it('valid: leaf at root (label + ref)', () => {
+    it('valid: leaf at root (name + ref)', () => {
       const ok: t.SlugTreeProps = {
-        items: [{ label: 'intro', ref: 'crdt:create' }],
+        items: [{ name: 'intro', ref: 'crdt:create' }],
       };
       expect(Is.slugTreeProps(ok)).to.eql(true);
       expectTypeOf(ok).toEqualTypeOf<t.SlugTreeProps>();
     });
 
-    it('valid: group (label + items)', () => {
+    it('valid: group (name + items)', () => {
       const ok: t.SlugTreeProps = {
-        items: [{ label: 'section', items: [{ label: 'child', ref: 'crdt:create' }] }],
+        items: [{ name: 'section', items: [{ name: 'child', ref: 'crdt:create' }] }],
       };
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
 
-    it('valid: hybrid (label + ref + items)', () => {
+    it('valid: hybrid (name + ref + items)', () => {
       const ok: t.SlugTreeProps = {
-        items: [{ label: 'hybrid', ref: 'crdt:create', items: [] }],
+        items: [{ name: 'hybrid', ref: 'crdt:create', items: [] }],
       };
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
@@ -178,11 +176,11 @@ describe('Slug.Is', () => {
       const ok: t.SlugTreeProps = {
         items: [
           {
-            label: 'level-1',
+            name: 'level-1',
             items: [
               {
-                label: 'level-2',
-                items: [{ label: 'level-3-leaf', ref: 'crdt:create' }],
+                name: 'level-2',
+                items: [{ name: 'level-3-leaf', ref: 'crdt:create' }],
               },
             ],
           },
@@ -191,30 +189,30 @@ describe('Slug.Is', () => {
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
 
-    it('invalid: item missing label', () => {
+    it('invalid: item missing name', () => {
       const bad = { items: [{ ref: 'crdt:create' }] };
       expect(Is.slugTreeProps(bad)).to.eql(false);
     });
 
     it('invalid: items must be an array when present', () => {
-      const bad = { items: [{ label: 'x', items: {} }] };
+      const bad = { items: [{ name: 'x', items: {} }] };
       expect(Is.slugTreeProps(bad)).to.eql(false);
     });
 
     it('invalid: additional property on item is rejected (additionalProperties: false)', () => {
-      const bad = { items: [{ label: 'x', ref: 'crdt:create', foo: 1 }] };
+      const bad = { items: [{ name: 'x', ref: 'crdt:create', foo: 1 }] };
       expect(Is.slugTreeProps(bad)).to.eql(false);
     });
 
     it('invalid: bad ref pattern', () => {
-      const bad = { items: [{ label: 'bad', ref: 'not-a-crdt-ref' }] };
+      const bad = { items: [{ name: 'bad', ref: 'not-a-crdt-ref' }] };
       expect(Is.slugTreeProps(bad)).to.eql(false);
     });
 
     it('valid: summary allowed at root and item', () => {
       const ok: t.SlugTreeProps = {
         summary: 'root summary',
-        items: [{ label: 'node', summary: 'node summary', ref: 'crdt:create' }],
+        items: [{ name: 'node', summary: 'node summary', ref: 'crdt:create' }],
       };
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });

@@ -38,29 +38,44 @@ import { Pattern, Type as T } from './common.ts';
  * Authoring-time YAML will be normalized into this shape within `m.yaml`
  * (see `u.slug.tree.normalize.ts`).
  */
-const Label = T.String({ minLength: 1 });
 
 export const SlugTreeItemSchema = T.Recursive(
   (Self) =>
     T.Object(
       {
-        /** Human-readable label (rendered as the node title). */
-        label: Label,
+        name: T.String({
+          minLength: 1,
+          title: 'Node Name',
+          description: `Human-readable display name (like a chapter or section title). Not globally unique; scope is local to this tree.`,
+        }),
 
-        /** CRDT reference to the slug (URN with optional path). */
         ref: T.Optional(
           T.String({ title: 'Slug Reference (CRDT/URN)', ...Pattern.crdtRefPattern() }),
         ),
 
-        /** Optional nested children (ordered). */
-        items: T.Optional(T.Array(Self)),
+        items: T.Optional(
+          T.Array(Self, {
+            title: 'Child Items',
+            description: 'Optional ordered child nodes of this branch.',
+          }),
+        ),
 
-        /** Optional human summary/description for UIs. */
-        summary: T.Optional(T.String()),
+        summary: T.Optional(
+          T.String({
+            title: 'Summary',
+            description: 'Optional human summary for this node.',
+          }),
+        ),
       },
-      { additionalProperties: false },
+      {
+        additionalProperties: false,
+        description: 'A node in a Slug Tree: may have its own CRDT ref, child items, or both.',
+      },
     ),
-  { $id: 'trait.slug-tree.item', title: 'Slug Tree Item' },
+  {
+    $id: 'trait.slug-tree.item',
+    title: 'Slug Tree Item',
+  },
 );
 
 /**
@@ -93,15 +108,22 @@ export const SlugTreeItemSchema = T.Recursive(
  */
 export const SlugTreePropsSchema = T.Object(
   {
-    /** Ordered root items of the tree. */
-    items: T.Array(SlugTreeItemSchema),
+    items: T.Array(SlugTreeItemSchema, {
+      title: 'Root Items',
+      description: `Ordered root nodes of the slug tree. Each node may have its own CRDT ref, child items, or both.`,
+    }),
 
-    /** Optional human summary/description for the entire tree. */
-    summary: T.Optional(T.String()),
+    summary: T.Optional(
+      T.String({
+        title: 'Summary',
+        description: `Optional human summary or high-level description for the entire tree. Useful for display in UIs.`,
+      }),
+    ),
   },
   {
     $id: 'trait.slug-tree.props',
     title: 'Slug Tree Properties',
+    description: `Top-level structure defining a hierarchical set of slug references (tree of documents or sections).`,
     additionalProperties: false,
   },
 );

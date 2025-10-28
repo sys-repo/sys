@@ -69,7 +69,7 @@ describe('trait-registry', () => {
 
     it('slug-tree: minimal sample', () => {
       const s = schemaOf('slug-tree')!;
-      const ok: t.SlugTreeProps = { items: [{ label: 'intro', ref: 'crdt:create' }] };
+      const ok: t.SlugTreeProps = { items: [{ name: 'intro', ref: 'crdt:create' }] };
       expect(Value.Check(s, ok)).to.eql(true);
     });
 
