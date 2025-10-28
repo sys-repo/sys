@@ -12,7 +12,9 @@ import type { SlugSchema, TraitBindingSchema, TraitDefSchema } from './m.slug/mo
 /**
  * Core:
  */
-export type Slug = t.Infer<typeof SlugSchema>;
+export type SlugCanonical = t.Infer<typeof SlugSchema>;
+export type Slug = SlugCanonical; // alias for current callers
+
 export type TraitBinding = t.Infer<typeof TraitBindingSchema>;
 export type TraitDef = t.Infer<typeof TraitDefSchema>;
 

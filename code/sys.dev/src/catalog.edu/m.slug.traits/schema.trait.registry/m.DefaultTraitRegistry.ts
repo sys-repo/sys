@@ -15,7 +15,13 @@ export const DefaultTraitRegistry: t.SchemaTraitRegistry = {
       {
         id: 'slug-tree',
         propsSchema: SlugTreePropsSchema,
-        normalize: TraitNormalizers['slug-tree'],
+
+        /**
+         * 🐷
+         * NOTE: commented out - not yet working in down-stream editor
+         *       error parser, see: `useSlugSemanticDiagnostics`
+         */
+        // normalize: TraitNormalizers['slug-tree'],
       },
       { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
       { id: 'video-player', propsSchema: VideoPlayerPropsSchema },

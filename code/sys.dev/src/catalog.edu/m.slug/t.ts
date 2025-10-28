@@ -3,6 +3,7 @@ import type { t } from '../common.ts';
 export type * from './schema.slug/t.ts';
 export type * from './schema.trait.registry/t.ts';
 export type * from './schema.validation/t.ts';
+export type * from './t.dsl.ts';
 
 /**
  * Semantic Slug tools (core only).
