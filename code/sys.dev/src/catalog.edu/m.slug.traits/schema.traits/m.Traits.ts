@@ -20,16 +20,24 @@ export const Traits: t.SlugTraitsLib = {
   },
 
   // Schemas:
-  get SlugTreeItemSchema() {
-    return SlugTreeItemSchema;
-  },
-  get SlugTreePropsSchema() {
-    return SlugTreePropsSchema;
-  },
-  get VideoPlayerPropsSchema() {
-    return VideoPlayerPropsSchema;
-  },
-  get VideoRecorderPropsSchema() {
-    return VideoRecorderPropsSchema;
+  Schema: {
+    SlugTree: {
+      get ItemSchema() {
+        return SlugTreeItemSchema;
+      },
+      get PropsSchema() {
+        return SlugTreePropsSchema;
+      },
+    },
+    VideoPlayer: {
+      get PropsSchema() {
+        return VideoPlayerPropsSchema;
+      },
+    },
+    VideoRecorder: {
+      get PropsSchema() {
+        return VideoRecorderPropsSchema;
+      },
+    },
   },
 };

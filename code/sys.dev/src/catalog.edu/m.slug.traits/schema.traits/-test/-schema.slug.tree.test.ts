@@ -5,8 +5,8 @@ import { Is, SlugTreeItemSchema, SlugTreePropsSchema, Traits } from '../mod.ts';
 describe('trait: slug-tree', () => {
   describe('exports / shapes', () => {
     it('Traits exposes slug-tree schemas', () => {
-      expect(Traits.SlugTreeItemSchema).to.equal(SlugTreeItemSchema);
-      expect(Traits.SlugTreePropsSchema).to.equal(SlugTreePropsSchema);
+      expect(Traits.Schema.SlugTree.ItemSchema).to.equal(SlugTreeItemSchema);
+      expect(Traits.Schema.SlugTree.PropsSchema).to.equal(SlugTreePropsSchema);
     });
 
     it('type surface: t.SlugTreeItem / t.SlugTreeProps compile', () => {

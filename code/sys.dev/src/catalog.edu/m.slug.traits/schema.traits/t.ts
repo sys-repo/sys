@@ -6,17 +6,16 @@ export type * from './t.type-gen.ts';
 
 /**
  * Aggregate entry for all known slug-trait schemas and type guards.
- * Note: keep this strictly aligned with actual exported schemas (truthful surface).
  */
 export type SlugTraitsLib = {
   readonly Is: t.SlugTraitIsLib;
   readonly Normalizers: t.TraitNormalizers;
-
   // Schemas:
-  readonly SlugTreeItemSchema: t.TSchema;
-  readonly SlugTreePropsSchema: t.TSchema;
-  readonly VideoPlayerPropsSchema: t.TSchema;
-  readonly VideoRecorderPropsSchema: t.TSchema;
+  readonly Schema: {
+    readonly SlugTree: { readonly ItemSchema: t.TSchema; readonly PropsSchema: t.TSchema };
+    readonly VideoPlayer: { readonly PropsSchema: t.TSchema };
+    readonly VideoRecorder: { readonly PropsSchema: t.TSchema };
+  };
 };
 
 /**
