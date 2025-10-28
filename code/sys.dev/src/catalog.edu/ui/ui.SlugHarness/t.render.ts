@@ -12,6 +12,7 @@ export type SlugViewId = t.StringId;
 export type SlugViewProps = {
   readonly view: t.SlugViewId;
   readonly slug: t.Slug;
+  readonly theme?: t.CommonTheme;
 };
 
 /** Opaque renderer. */

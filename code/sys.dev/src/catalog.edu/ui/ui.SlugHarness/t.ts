@@ -4,7 +4,7 @@ export type * from './t.reg.ts';
 export type * from './t.render.ts';
 
 /**
- * Component:
+ * Component: Harness
  */
 export type SlugHarnessProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 'sidebar'> & {
   registry?: t.SlugViewRegistryReadonly;
@@ -22,3 +22,18 @@ export type SlugHarnessProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 
  * State wrapped in signals.
  */
 export type SlugHarnessSignals = t.CrdtView.LayoutSignals & {};
+
+/**
+ * Component: Single Slug
+ */
+export type SlugViewProps = {
+  view?: t.SlugViewId;
+  registry?: t.SlugViewRegistryReadonly;
+  doc?: t.Crdt.Ref;
+  docPath?: t.ObjectPath;
+  slugPath?: t.ObjectPath;
+  //
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};

@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Crdt, D, Obj } from './common.ts';
+import { type t, Color, Crdt, D } from './common.ts';
+import { SlugView } from './ui.SlugView.tsx';
 
 type P = t.SlugHarnessProps;
 
@@ -22,24 +23,28 @@ export const SlugHarness: React.FC<P> = (props) => {
   /**
    * Render:
    */
+  const theme = Color.theme(props.theme);
+
   const slots: t.CrdtView.LayoutSlots = {
     sidebar: (ctx) => '👋 sidebar',
     main: (ctx) => {
-      if (!slugPath || !docPath || !main) return null;
-
-      const renderer = registry?.get(main);
-      if (!renderer) return null;
-
-      const slug = Obj.Path.get<t.Slug>(doc?.current, docPath);
-      if (!slug) return null;
-
-      return renderer?.({ view: main, slug });
+      return (
+        <SlugView
+          //
+          doc={doc}
+          registry={registry}
+          view={main}
+          slugPath={slugPath}
+          docPath={docPath}
+          theme={theme.name}
+        />
+      );
     },
   };
 
   return (
     <Crdt.UI.Layout.View
-      theme={props.theme}
+      theme={theme.name}
       spinning={wrangle.spinning(props)}
       crdt={crdt}
       signals={signals}
