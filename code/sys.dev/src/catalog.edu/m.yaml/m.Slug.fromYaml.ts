@@ -3,16 +3,14 @@ import { Error } from './m.Slug.Error.ts';
 import { SlugRules } from './u.slug.rules.ts';
 
 type E = t.DeepMutable<t.SlugYamlErrors>;
-
-/**
- * Narrow a domain-like object to one that exposes an optional Registry with a `has(id)` function.
- * (No `any`; runtime guards only.)
- */
 type HasFn = (id: string) => boolean;
 type MaybeRegistry = { has: HasFn };
-type DomainWithRegistry = { Registry: MaybeRegistry };
 
-export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
+/**
+ * Extracts a slug from YAML (string or AST), validates structure (schema) and semantics (rules),
+ * and returns the candidate, AST, and categorized diagnostics.
+ */
+export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts) => {
   const ast: t.Yaml.Ast = Is.string(yamlInput) ? Yaml.parseAst(yamlInput) : yamlInput;
   const path: t.ObjectPath = Array.isArray(pathInput)
     ? pathInput
@@ -22,15 +20,15 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
   const root = ast.toJS?.();
   const candidate = Obj.Path.get(root, path);
 
-  // Errors:
+  // Collect errors:
   const errs: E = { schema: [], semantic: [], yaml: [] };
   if (Array.isArray(ast.errors) && ast.errors.length > 0) {
     errs.yaml.push(...Schema.Error.fromYaml(ast.errors));
   }
+
   const zero = (arr: ArrayLike<unknown>) => arr.length === 0;
   const isOk = () => zero(errs.schema) && zero(errs.semantic) && zero(errs.yaml);
 
-  // Helper to build a stable result shape:
   const done = (slug?: unknown): t.SlugFromYamlResult => ({
     ok: isOk(),
     path,
@@ -43,39 +41,32 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput) => {
     errors: wrangle.errors(errs),
   });
 
-  // Structural validation | "Structural" = "does it match the schema shape?"
+  // Structural validation (shape only):
   const isSchemaValid = Value.Check(SlugSchema, candidate);
-  if (isSchemaValid) {
-    /**
-     * 🌳 Semantic validation
-     *    Meaning:      checks logical correctness (rules)
-     *    Contrast to:  structural validation checks schema shape only.
-     */
-    SlugRules.aliasUniqueness(errs.semantic, path, candidate);
-
-    // Optional registry-aware trait id check (no `any`):
-    const registry = wrangle.registry(Slug);
-    const isKnown = registry?.has.bind(registry); // ← passed method/func.
-    SlugRules.traitTypeKnown(errs.semantic, path, candidate, { isKnown });
-
-    // data ↔ alias consistency:
-    SlugRules.missingDataForAlias(errs.semantic, path, candidate);
-    SlugRules.orphanData(errs.semantic, path, candidate);
-
-    // Enrich semantic errors with AST ranges
-    Error.attachSemanticRanges(ast, errs.semantic);
-
-    // Finish up.
-    return isOk() ? done(candidate) : done();
-  } else {
-    // Collect structural schema errors with ranges:
+  if (!isSchemaValid) {
     errs.schema.push(...Schema.Error.fromSchema(ast, Value.Errors(SlugSchema, candidate)));
     return done();
   }
+
+  // Semantic validation (logical rules):
+  SlugRules.aliasUniqueness(errs.semantic, path, candidate);
+
+  // Registry-aware trait-id existence (delegate → domain fallback):
+  const isKnown = wrangle.isKnown(opts, Slug);
+  SlugRules.traitTypeKnown(errs.semantic, path, candidate, { isKnown });
+
+  // data ↔ alias consistency:
+  SlugRules.missingDataForAlias(errs.semantic, path, candidate);
+  SlugRules.orphanData(errs.semantic, path, candidate);
+
+  // Attach AST ranges to semantic errors for editor mapping:
+  Error.attachSemanticRanges(ast, errs.semantic);
+
+  return isOk() ? done(candidate) : done();
 };
 
 /**
- * Helpers:
+ * Helpers
  */
 const wrangle = {
   errors(input: E): t.SlugYamlErrors {
@@ -94,11 +85,24 @@ const wrangle = {
 
   registry(domain: unknown): MaybeRegistry | undefined {
     if (!Is.record(domain)) return undefined;
+    const reg = (domain as { Registry?: unknown }).Registry;
+    if (!Is.record(reg)) return undefined;
+    const has = (reg as { has?: unknown }).has;
+    return Is.func(has) ? (reg as MaybeRegistry) : undefined;
+  },
 
-    const regUnknown = (domain as { Registry?: unknown }).Registry;
-    if (!Is.record(regUnknown)) return undefined;
-
-    const has = (regUnknown as { has?: unknown }).has;
-    return Is.func(has) ? (regUnknown as MaybeRegistry) : undefined;
+  /**
+   * Resolve the trait-existence checker in priority order:
+   * 1) explicit delegate (opts.isKnown),
+   * 2) domain Registry.has (if present),
+   * 3) <undefined> (rule becomes a no-op).
+   */
+  isKnown(
+    opts: { isKnown?: t.SlugIsKnown } | undefined,
+    domain: unknown,
+  ): t.SlugIsKnown | undefined {
+    if (opts?.isKnown) return opts.isKnown;
+    const reg = wrangle.registry(domain);
+    return reg?.has.bind(reg);
   },
 } as const;

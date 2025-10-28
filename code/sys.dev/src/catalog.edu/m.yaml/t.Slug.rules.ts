@@ -1,12 +1,16 @@
 import type { t } from './common.ts';
 
 /**
- * Shared semantic rule types for the YAML pipeline.
+ * Delegate used by the YAML pipeline to determine if a given
+ * trait ID exists in the active registry.
  */
-export type SlugRuleCtx = {
-  /** Optional registry membership check for trait types (eg. "video", "image-sequence"). */
-  isKnown?: (id: string) => boolean;
-};
+export type SlugIsKnown = (id: t.StringId) => boolean;
+
+/**
+ * Shared semantic rule types for the YAML pipeline.
+ * `isKnown` should return true iff the given trait `id` is in the active registry.
+ */
+export type SlugRuleCtx = { isKnown?: t.SlugIsKnown };
 
 /** Uniform signature for all semantic rules. */
 export type SlugRuleFn = (

@@ -10,11 +10,9 @@ const ENTRIES = [
   { id: 'slug-index', propsSchema: SlugIndexPropsSchema },
   { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
   { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
-] as const;
+] satisfies readonly t.SlugTraitRegistryEntry<CatalogTraitId>[];
 
 /**
  * Default trait registry.
  */
-export const TraitRegistryDefault: t.SlugTraitRegistry<CatalogTraitId> = makeRegistry(
-  ENTRIES satisfies readonly t.SlugTraitRegistryEntry<CatalogTraitId>[],
-);
+export const TraitRegistryDefault: t.SlugTraitRegistry<CatalogTraitId> = makeRegistry(ENTRIES);

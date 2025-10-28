@@ -27,6 +27,7 @@ export type YamlSlugLib = {
 export type SlugFromYaml = (
   input: string | t.Yaml.Ast,
   path?: t.ObjectPath | string,
+  opts?: { isKnown?: t.SlugIsKnown },
 ) => SlugFromYamlResult;
 
 /**

@@ -1,6 +1,9 @@
 import { type t, Is, describe, expect, it } from '../../-test.ts';
 import { YamlPipeline } from '../mod.ts';
-import { withPipelineRegistryShim } from './u.ts';
+
+function makeIsKnown(ids: string[]): t.SlugIsKnown {
+  return (id) => ids.includes(id);
+}
 
 describe('YamlPipeline.Slug.Error', () => {
   describe('Error.normalize', () => {
@@ -160,9 +163,8 @@ describe('YamlPipeline.Slug.Error', () => {
    * New semantic diagnostics via normalize:
    */
   describe('Error.normalize (semantic rules)', () => {
-    it('unknown trait id (`of`) produces a semantic diagnostic with correct path', () =>
-      withPipelineRegistryShim(() => {
-        const YAML = `
+    it('unknown trait id (`of`) produces a semantic diagnostic with correct path', () => {
+      const YAML = `
         foo:
           bar:
             id: example-slug
@@ -174,80 +176,82 @@ describe('YamlPipeline.Slug.Error', () => {
                 src: "video.mp4"
         `.trim();
 
-        const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
-        expect(res.errors.yaml.length).to.eql(0);
-        expect(res.errors.schema.length).to.eql(0);
+      // Minimal local registry delegate:
+      const isKnown = makeIsKnown(['trait-alpha', 'trait-beta']);
+      const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar'], { isKnown });
+      expect(res.errors.yaml.length).to.eql(0);
+      expect(res.errors.schema.length).to.eql(0);
 
-        const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
-        const diag = out.find(
-          (d) =>
-            Array.isArray(d.path) &&
-            Is.string(d.message) &&
-            d.path.join('/') === 'foo/bar/traits/0/of' &&
-            d.message.includes('Unknown trait id "not-real"'),
-        );
-        expect(diag).to.exist;
-      }));
+      const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
+      const diag = out.find(
+        (d) =>
+          Array.isArray(d.path) &&
+          Is.string(d.message) &&
+          d.path.join('/') === 'foo/bar/traits/0/of' &&
+          d.message.includes('Unknown trait id "not-real"'),
+      );
+      expect(diag).to.exist;
+    });
 
-    it('missing data for alias produces a semantic diagnostic at traits[i].as', () =>
-      withPipelineRegistryShim(() => {
-        const YAML = `
+    // 🌸 ---------- CHANGED: pass-isKnown-delegate ----------
+    it('missing data for alias produces a semantic diagnostic at traits[i].as', () => {
+      const YAML = `
+        foo:
+          bar:
+            id: example-slug
+            traits:
+              - of: alpha
+                as: primary
+            data: {}  # missing "primary"
+      `.trim();
+
+      const isKnown = makeIsKnown(['alpha', 'beta']);
+      const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar'], { isKnown });
+      expect(res.errors.yaml.length).to.eql(0);
+      expect(res.errors.schema.length).to.eql(0);
+
+      const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
+      const diag = out.find(
+        (d) =>
+          Array.isArray(d.path) &&
+          Is.string(d.message) &&
+          d.path.join('/') === 'foo/bar/traits/0/as' &&
+          d.message.includes('Missing data for alias "primary"'),
+      );
+      expect(diag).to.exist;
+    });
+    // 🌸 ---------- /CHANGED ----------
+
+    // 🌸 ---------- CHANGED: pass-isKnown-delegate ----------
+    it('orphan data produces a semantic diagnostic at data.<key>', () => {
+      const YAML = `
         foo:
           bar:
             id: example-slug
             traits:
               - of: video
                 as: primary
-            data: {}  # missing "primary"
-        `.trim();
+            data:
+              primary:
+                src: "video.mp4"
+              extra:   # orphan: no matching alias
+                any: true
+      `.trim();
 
-        const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
-        expect(res.errors.yaml.length).to.eql(0);
-        expect(res.errors.schema.length).to.eql(0);
+      const isKnown = makeIsKnown(['video', 'image']);
+      const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar'], { isKnown });
+      expect(res.errors.yaml.length).to.eql(0);
+      expect(res.errors.schema.length).to.eql(0);
 
-        const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
-        const diag = out.find(
-          (d) =>
-            Array.isArray(d.path) &&
-            Is.string(d.message) &&
-            d.path.join('/') === 'foo/bar/traits/0/as' &&
-            d.message.includes('Missing data for alias "primary"'),
-        );
-        expect(diag).to.exist;
-      }));
-
-    it('orphan data produces a semantic diagnostic at data.<key>', () =>
-      withPipelineRegistryShim(() => {
-        const YAML = `
-          foo:
-            bar:
-              id: example-slug
-              traits:
-                - of: video
-                  as: primary
-              data:
-                primary:
-                  src: "video.mp4"
-                extra:   # orphan: no matching alias
-                  any: true
-        `.trim();
-
-        const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
-        expect(res.errors.yaml.length).to.eql(0);
-        expect(res.errors.schema.length).to.eql(0);
-
-        const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
-
-        console.log('out', out);
-
-        const diag = out.find(
-          (d) =>
-            Array.isArray(d.path) &&
-            d.path.join('/').endsWith('/data/extra') &&
-            Is.string(d.message) &&
-            d.message.includes('Orphan'),
-        );
-        expect(diag).to.exist;
-      }));
+      const out = YamlPipeline.Slug.Error.normalize(res, { mode: 'absolute' });
+      const diag = out.find(
+        (d) =>
+          Array.isArray(d.path) &&
+          d.path.join('/').endsWith('/data/extra') &&
+          Is.string(d.message) &&
+          d.message.includes('Orphan'),
+      );
+      expect(diag).to.exist;
+    });
   });
 });
