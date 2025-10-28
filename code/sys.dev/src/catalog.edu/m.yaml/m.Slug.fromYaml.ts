@@ -1,6 +1,7 @@
 import { type t, Is, Obj, Schema, Slug, SlugSchema, Value, Yaml } from './common.ts';
 import { Error } from './m.Slug.Error.ts';
 import { SlugRules } from './u.slug.rules.ts';
+import { applyTraitNormalizers } from './u.trait.normalize.ts';
 
 type E = t.DeepMutable<t.SlugYamlErrors>;
 type HasFn = (id: string) => boolean;
@@ -26,6 +27,21 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts) => {
     errs.yaml.push(...Schema.Error.fromYaml(ast.errors));
   }
 
+  // Apply per-trait normalizers BEFORE validation (pure, exception-safe).
+  const candidateNormalized = (() => {
+    try {
+      const out = applyTraitNormalizers(candidate, opts?.normalizers);
+      return out ?? candidate;
+    } catch (err) {
+      (errs.semantic as t.Schema.ValidationError[]).push({
+        kind: 'semantic',
+        path: [],
+        message: `normalizer/exception: ${String((err as { message?: unknown })?.message ?? err)}`,
+      });
+      return candidate;
+    }
+  })();
+
   const zero = (arr: ArrayLike<unknown>) => arr.length === 0;
   const isOk = () => zero(errs.schema) && zero(errs.semantic) && zero(errs.yaml);
 
@@ -41,28 +57,29 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts) => {
     errors: wrangle.errors(errs),
   });
 
-  // Structural validation (shape only):
-  const isSchemaValid = Value.Check(SlugSchema, candidate);
+  // Structural validation (shape only) on normalized candidate:
+  const isSchemaValid = Value.Check(SlugSchema, candidateNormalized);
   if (!isSchemaValid) {
-    errs.schema.push(...Schema.Error.fromSchema(ast, Value.Errors(SlugSchema, candidate)));
+    const errors = Schema.Error.fromSchema(ast, Value.Errors(SlugSchema, candidateNormalized));
+    errs.schema.push(...errors);
     return done();
   }
 
-  // Semantic validation (logical rules):
-  SlugRules.aliasUniqueness(errs.semantic, path, candidate);
+  // Semantic validation (logical rules) on normalized candidate:
+  SlugRules.aliasUniqueness(errs.semantic, path, candidateNormalized);
 
-  // Registry-aware trait-id existence (delegate → domain fallback):
+  // Registry-aware trait-id existence (opt-in only via opts.isKnown):
   const isKnown = wrangle.isKnown(opts, Slug);
-  SlugRules.traitTypeKnown(errs.semantic, path, candidate, { isKnown });
+  SlugRules.traitTypeKnown(errs.semantic, path, candidateNormalized, { isKnown });
 
   // data ↔ alias consistency:
-  SlugRules.missingDataForAlias(errs.semantic, path, candidate);
-  SlugRules.orphanData(errs.semantic, path, candidate);
+  SlugRules.missingDataForAlias(errs.semantic, path, candidateNormalized);
+  SlugRules.orphanData(errs.semantic, path, candidateNormalized);
 
   // Attach AST ranges to semantic errors for editor mapping:
   Error.attachSemanticRanges(ast, errs.semantic);
 
-  return isOk() ? done(candidate) : done();
+  return isOk() ? done(candidateNormalized) : done();
 };
 
 /**
