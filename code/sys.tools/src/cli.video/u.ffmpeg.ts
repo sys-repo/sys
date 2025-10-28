@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fmt, Process } from './common.ts';
+import { type t, c, Cli, Process, Str } from './common.ts';
 
 export type FfmpegResult = {
   readonly is: { readonly installed: boolean };
@@ -26,7 +26,7 @@ export async function getVersion(opts: { silent?: boolean } = {}): Promise<Ffmpe
 
   // Print warning:
   if (!installed && !silent) {
-    const msg = Fmt.builder()
+    const msg = Str.builder()
       .line(c.red('\n⚠️  `ffmpeg` not found on system PATH.'))
       .line(c.gray('Please install it before running this command.'))
       .line()
