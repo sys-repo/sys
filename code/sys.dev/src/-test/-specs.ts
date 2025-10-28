@@ -11,8 +11,8 @@ const edu = `${ns}: catalog.edu`;
  */
 export const Specs = {
   [`${edu}: -sample (yaml editor)`]: () => import('../catalog.edu/ui/-sample/-spec/-SPEC.tsx'),
+  [`${edu}: SlugHarness`]: () => import('../catalog.edu/ui/ui.SlugHarness/-spec/-SPEC.tsx'),
   [`${edu}: VideoRecorder`]: () => import('../catalog.edu/ui/ui.VideoRecorder/-spec/-SPEC.tsx'),
-  [`${edu}: ConceptPlayer`]: () => import('../catalog.edu/ui/ui.ConceptPlayer/-spec/-SPEC.tsx'),
 
   [`${ns}: catalog.harness`]: () => import('../catalog.harness/-spec/-SPEC.tsx'),
   [`${ns}: -sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),

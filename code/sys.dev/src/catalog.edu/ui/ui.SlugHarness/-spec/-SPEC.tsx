@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Crdt, D, STORAGE_KEY } from '../common.ts';
-import { ConceptPlayer } from '../mod.ts';
+import { SlugHarness } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -28,7 +28,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         return (
-          <ConceptPlayer
+          <SlugHarness
             debug={v.debug}
             theme={v.theme}
             crdt={debug.crdt}

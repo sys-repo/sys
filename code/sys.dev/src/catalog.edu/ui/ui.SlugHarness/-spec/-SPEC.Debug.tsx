@@ -15,7 +15,7 @@ import {
   STORAGE_KEY,
 } from '../common.ts';
 
-type P = t.ConceptPlayerProps;
+type P = t.SlugHarnessProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath'> & {
   header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtView.LayoutSidebar;
@@ -44,7 +44,7 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: t.ConceptPlayerSignals = {
+  const signals: t.SlugHarnessSignals = {
     doc: s(),
   };
 

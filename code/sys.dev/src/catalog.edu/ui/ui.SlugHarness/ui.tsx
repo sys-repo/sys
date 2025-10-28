@@ -1,9 +1,9 @@
 import React from 'react';
 import { type t, Crdt, D } from './common.ts';
 
-type P = t.ConceptPlayerProps;
+type P = t.SlugHarnessProps;
 
-export const ConceptPlayer: React.FC<P> = (props) => {
+export const SlugHarness: React.FC<P> = (props) => {
   const {
     debug = false,
     crdt,
@@ -21,7 +21,7 @@ export const ConceptPlayer: React.FC<P> = (props) => {
 
   const slots: t.CrdtView.LayoutSlots = {
     sidebar: (ctx) => '👋 sidebar',
-    main: (ctx) => '👋 main concept',
+    main: (ctx) => '👋 main',
   };
 
   return (

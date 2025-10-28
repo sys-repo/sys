@@ -3,8 +3,8 @@ import type { t } from './common.ts';
 /**
  * Component:
  */
-export type ConceptPlayerProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 'sidebar'> & {
-  signals?: t.ConceptPlayerSignals;
+export type SlugHarnessProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 'sidebar'> & {
+  signals?: t.SlugHarnessSignals;
   docPath?: t.ObjectPath;
   slugPath?: t.ObjectPath;
   //
@@ -16,4 +16,4 @@ export type ConceptPlayerProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' 
 /**
  * State wrapped in signals.
  */
-export type ConceptPlayerSignals = t.CrdtView.LayoutSignals & {};
+export type SlugHarnessSignals = t.CrdtView.LayoutSignals & {};

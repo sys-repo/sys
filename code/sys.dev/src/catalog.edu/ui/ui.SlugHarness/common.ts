@@ -11,7 +11,7 @@ export { Crdt };
 /**
  * Constants:
  */
-const name = 'ConceptPlayer';
+const name = 'SlugHarness';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
