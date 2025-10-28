@@ -27,7 +27,7 @@ export default Spec.describe(D.displayName, async (e) => {
           repo,
           signals: { doc },
           initial: { text: '' },
-          localstorage: STORAGE_KEY.DEV,
+          storageKey: STORAGE_KEY.DEV,
         }}
         {...props}
       />
