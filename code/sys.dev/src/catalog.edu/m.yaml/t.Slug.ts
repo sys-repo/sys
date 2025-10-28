@@ -19,18 +19,6 @@ export type YamlSlugLib = {
 };
 
 /**
- * Function that converts a trait's YAML authoring form into its canonical
- * schema shape before validation.
- *
- * Example:
- *   normalizeSlugTreeAuthoring(yamlValue) → { items: [...] }
- */
-export type YamlTraitNormalizer = (input: unknown) => unknown;
-
-/** A map of trait-normalizers. */
-export type TraitNormalizers = Record<string, YamlTraitNormalizer>;
-
-/**
  * Options for `YamlSlug.fromYaml`.
  *
  * These extend the normal validation context with:
@@ -45,7 +33,7 @@ export type SlugFromYamlOptions = {
   /** Trait ID registry check. */
   isKnown?: t.SlugIsKnown;
   /** Trait-specific authoring→canonical transforms, keyed by trait id. */
-  normalizers?: t.TraitNormalizers;
+  normalizers?: t.SlugTraitNormalizers;
 };
 
 /**

@@ -9,7 +9,7 @@ export type * from './t.type-gen.ts';
  */
 export type SlugTraitsLib = {
   readonly Is: t.SlugTraitIsLib;
-  readonly Normalizers: t.TraitNormalizers;
+  readonly Normalizers: t.SlugTraitNormalizers;
   // Schemas:
   readonly Schema: {
     readonly SlugTree: { readonly Item: t.TSchema; readonly Props: t.TSchema };

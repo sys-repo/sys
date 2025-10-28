@@ -13,7 +13,10 @@ import { type t, Is } from './common.ts';
  *    • and `data[as]` is present.
  * - If a normalizer returns `undefined`, the authored value is left unchanged.
  */
-export const applyTraitNormalizers = (slug: unknown, normalizers?: t.TraitNormalizers): unknown => {
+export const applyTraitNormalizers = (
+  slug: unknown,
+  normalizers?: t.SlugTraitNormalizers,
+): unknown => {
   if (!normalizers) return slug;
   if (!Is.record(slug)) return slug;
 
