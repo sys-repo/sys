@@ -63,3 +63,12 @@ export type SlugFromYamlResult = {
   /** Categorised errors */
   readonly errors: t.SlugYamlErrors;
 };
+
+/**
+ * Loose trait binding shape used by YAML semantic rules and normalizers.
+ * Intentional unknowns: this lives on the validator side (pre-schema).
+ */
+export type SlugTraitBindingLike = {
+  readonly as?: unknown;
+  readonly of?: unknown;
+};

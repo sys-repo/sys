@@ -24,7 +24,7 @@ type Storage = Pick<P, 'theme' | 'debug' | 'docPath' | 'slugPath'> & {
 };
 const defaults: Storage = {
   render: true,
-  debug: true,
+  debug: false,
   theme: 'Dark',
   docPath: ['yaml'],
   slugPath: ['slug'],

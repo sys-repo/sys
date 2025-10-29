@@ -1,7 +1,5 @@
 import { type t, Is } from './common.ts';
 
-type O = Record<string, unknown>;
-
 /**
  * Semantic validation rules.
  * "Semantic" = "is the object logically valid?" (higher-order rules).
@@ -12,11 +10,10 @@ type O = Record<string, unknown>;
  */
 export const SlugRules: t.SlugRuleSuite = {
   aliasUniqueness(mutErrors, _base, slug): boolean {
-    const s = slug as t.Slug | undefined;
-    const traits = Array.isArray(s?.traits) ? s!.traits : [];
+    const traits = readTraits(slug);
 
     const seen = new Map<string, number[]>();
-    traits.forEach((tb, i) => {
+    traits.forEach((tb: t.SlugTraitBindingLike, i: number) => {
       const a = tb?.as;
       if (typeof a === 'string') {
         const arr = seen.get(a) ?? [];
@@ -44,10 +41,9 @@ export const SlugRules: t.SlugRuleSuite = {
     const isKnown = ctx?.isKnown;
     if (!isKnown) return true; // no registry available → skip
 
-    const s = slug as t.Slug | undefined;
-    const traits = Array.isArray(s?.traits) ? s!.traits : [];
+    const traits = readTraits(slug);
 
-    traits.forEach((tb, i) => {
+    traits.forEach((tb: t.SlugTraitBindingLike, i: number) => {
       const of = tb?.of;
       if (typeof of === 'string' && !isKnown(of)) {
         mutErrors.push({
@@ -62,13 +58,11 @@ export const SlugRules: t.SlugRuleSuite = {
   },
 
   missingDataForAlias(mutErrors, _base, slug): boolean {
-    const s = slug as t.Slug | undefined;
-    const traits = Array.isArray(s?.traits) ? s!.traits : [];
-    const data = (s as unknown as { data?: O } | undefined)?.data;
+    const traits = readTraits(slug);
+    const data = readData(slug);
+    if (!data) return true;
 
-    if (!data || typeof data !== 'object') return true;
-
-    traits.forEach((tb, i) => {
+    traits.forEach((tb: t.SlugTraitBindingLike, i: number) => {
       const key = tb?.as;
       if (typeof key === 'string' && !(key in data)) {
         mutErrors.push({
@@ -83,16 +77,15 @@ export const SlugRules: t.SlugRuleSuite = {
   },
 
   orphanData(mutErrors, _base, slug): boolean {
-    const s = slug as t.Slug | undefined;
-    const traits = Array.isArray(s?.traits) ? s!.traits : [];
+    const traits = readTraits(slug);
+    const data = readData(slug);
+    if (!data) return true;
+
     const aliases = new Set<string>(
       traits
-        .map((tb) => (Is.string(tb?.as) ? tb.as : undefined))
-        .filter((v): v is string => Is.string(v)),
+        .map((tb: t.SlugTraitBindingLike) => (Is.string(tb?.as) ? (tb.as as string) : undefined))
+        .filter((v: string | undefined): v is string => Is.string(v)),
     );
-
-    const data = (s as unknown as { data?: O } | undefined)?.data;
-    if (!Is.record(data)) return true;
 
     for (const key of Object.keys(data)) {
       if (!aliases.has(key)) {
@@ -107,3 +100,19 @@ export const SlugRules: t.SlugRuleSuite = {
     return true;
   },
 };
+
+/**
+ * Helpers:
+ */
+function readTraits(slug: unknown): readonly t.SlugTraitBindingLike[] {
+  // Normalize to a readonly array of loose bindings:
+  const s = slug as { traits?: unknown } | undefined;
+  const traits = Array.isArray(s?.traits) ? (s!.traits as unknown[]) : [];
+  return traits as readonly t.SlugTraitBindingLike[];
+}
+
+function readData(slug: unknown): Readonly<Record<string, unknown>> | undefined {
+  const s = slug as { data?: unknown } | undefined;
+  const d = s?.data;
+  return Is.record(d) ? (d as Readonly<Record<string, unknown>>) : undefined;
+}
