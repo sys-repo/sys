@@ -150,7 +150,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const v = p.docPath.value;
-          return `doc path: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
+          return `path doc: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
         }}
         onClick={() => Signal.cycle(p.docPath, [['yaml'], ['foo'], ['foo', 'bar'], undefined])}
       />
@@ -158,7 +158,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const v = p.slugPath.value;
-          return `slug path: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
+          return `path doc/slug: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
         }}
         onClick={() => {
           Signal.cycle(p.slugPath, [['slug'], ['hello', 'world'], undefined]);
