@@ -285,8 +285,7 @@ describe('Monaco.Folding', () => {
     });
   });
 
-  // 🌸 ---------- ADDED: test-parent-lines-0-based ----------
-  describe.only('parentLinesFromOffsets', () => {
+  describe('parentLinesFromOffsets', () => {
     it('maps parent at line 1 to 0 (0-based selection line)', () => {
       const editor = MonacoFake.editor('a\nb\nc\nd');
       const model = editor.getModel()!;
@@ -314,5 +313,4 @@ describe('Monaco.Folding', () => {
       expect(lines).to.eql([1, 2]);
     });
   });
-  // 🌸 ---------- /ADDED ----------
 });
