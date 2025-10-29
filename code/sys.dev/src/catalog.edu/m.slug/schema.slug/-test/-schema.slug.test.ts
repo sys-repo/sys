@@ -36,7 +36,7 @@ describe('SlugSchema', () => {
       const bad = { traits: [], extra: true };
       expect(Value.Check(SlugSchema, bad)).to.be.false;
 
-      // Dev ergonomics log:
+      // Dev ergonomics (kept minimal):
       const errs = Array.from(Value.Errors(SlugSchema, bad));
       console.info();
       console.info(`${c.green('Value.Check(SlugSchema)')}.${c.brightCyan('errors:')}`);
@@ -122,22 +122,49 @@ describe('SlugSchema', () => {
       expect(Value.Check(SlugSchema, slug)).to.be.true;
     });
 
-    it('validates ref pattern when present', () => {
+    it('validates ref pattern when present (crdt: and urn:crdt:; mixed-case base62; with/without path)', () => {
+      const id = 'AbC012xyzDEFghijkLMNoPQRsTuV'; // 28 chars, A–Z a–z 0–9
       const goods = [
         { ref: 'crdt:create' },
-        { ref: 'crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P' },
-        { ref: 'crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P/path/to/node' },
-        { ref: 'crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P/section.1' },
+        { ref: `crdt:${id}` },
+        { ref: `crdt:${id}/a` },
+        { ref: `crdt:${id}/a.B_c-1.v2` },
+        { ref: `urn:crdt:${id}` },
+        { ref: `urn:crdt:${id}/deep/path-01.v3` },
       ];
       for (const ok of goods) expect(Value.Check(SlugSchema, ok)).to.be.true;
+    });
 
+    it('enforces path segment rules (no empty segments, no dot segments, no leading non-alnum)', () => {
+      const id = '2JgVjx9KAMcB3D6EZEyBB18jBX6P';
       const bads = [
-        { ref: '' },
-        { ref: 'crdt:' },
-        { ref: 'urn:crdt:' },
-        { ref: '../escape' },
-        { ref: 'crdt:..' },
-        { ref: 'urn:crdt:123e4567-e89b-12d3-a456-426614174000' }, // NB: uuid, not base62
+        { ref: `crdt:${id}/` }, //      trailing slash → empty last segment
+        { ref: `crdt:${id}//a` }, //    empty middle segment
+        { ref: `crdt:${id}/.` }, //     dot segment
+        { ref: `crdt:${id}/..` }, //    dot-dot segment
+        { ref: `crdt:${id}/-seg` }, //  leading hyphen disallowed
+        { ref: `crdt:${id}/_seg` }, //  leading underscore disallowed
+        { ref: `crdt:${id}/.seg` }, //  leading dot disallowed
+      ];
+      for (const bad of bads) expect(Value.Check(SlugSchema, bad)).to.be.false;
+    });
+
+    it('rejects "crdt:create" when a path is appended', () => {
+      const bads = [{ ref: 'crdt:create/' }, { ref: 'crdt:create/a' }, { ref: 'crdt:create/a/b' }];
+      for (const bad of bads) expect(Value.Check(SlugSchema, bad)).to.be.false;
+    });
+
+    it('rejects UUID refs (crdt: and urn:crdt:)', () => {
+      const uuid = '123e4567-e89b-12d3-a456-426614174000';
+      const bads = [{ ref: `crdt:${uuid}` }, { ref: `urn:crdt:${uuid}` }];
+      for (const bad of bads) expect(Value.Check(SlugSchema, bad)).to.be.false;
+    });
+
+    it('rejects invalid id pattern even when ref is present', () => {
+      const bads = [
+        { id: '-bad', ref: 'crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P' },
+        { id: 'Bad', ref: 'urn:crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P/seg' },
+        { id: '', ref: 'crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P' },
       ];
       for (const bad of bads) expect(Value.Check(SlugSchema, bad)).to.be.false;
     });

@@ -7,16 +7,16 @@
  */
 import type { t } from './common.ts';
 import type { SchemaTraitId } from './m.slug.traits/schema.trait.registry/m.ids.ts';
-import type { SlugSchema, TraitBindingSchema, TraitDefSchema } from './m.slug/mod.ts';
+import type { SlugSchema } from './m.slug/mod.ts';
 
 /**
- * Core:
+ * Slug (Core):
  */
-export type SlugCanonical = t.Infer<typeof SlugSchema>;
-export type Slug = SlugCanonical; // alias for current callers
+export type * from './m.slug/t.inferred.ts';
 
-export type TraitBinding = t.Infer<typeof TraitBindingSchema>;
-export type TraitDef = t.Infer<typeof TraitDefSchema>;
-
-/** Slug decorated with semantic registry validation (internal use). */
-export type SlugValidated = t.Infer<typeof SlugSchema> & { readonly registry: SchemaTraitId[] };
+/**
+ * Slug decorated with semantic registry validation (internal use).
+ */
+export type SlugValidated = t.Infer<typeof SlugSchema> & {
+  readonly registry: SchemaTraitId[];
+};

@@ -59,7 +59,8 @@ describe('Slug (core)', () => {
 
       if (Slug.Has.traits(minimalWithTraits)) {
         // Guard returns union; exact type is SlugMinimal | SlugWithData
-        expectTypeOf(minimalWithTraits).toEqualTypeOf<t.SlugMinimal | t.SlugWithData>();
+        type R = (t.SlugMinimal | t.SlugWithData) & { traits: readonly t.SlugTraitBinding[] };
+        expectTypeOf(minimalWithTraits).toEqualTypeOf<R>();
       }
     });
 
