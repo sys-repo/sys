@@ -34,7 +34,10 @@ export function createDebugSignals() {
 
   const repo = Crdt.repo({
     storage: { database: 'dev.crdt' },
-    network: [{ ws: 'sync.db.team' }],
+    network: [
+      // { ws: 'sync.db.team' },
+      { ws: 'waiheke.sync.db.team' },
+    ],
   });
 
   const props = {

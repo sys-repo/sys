@@ -17,7 +17,13 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const repo = Crdt.repo({ storage: true, network: [{ ws: 'sync.db.team' }] });
+  const repo = Crdt.repo({
+    storage: true,
+    network: [
+      // { ws: 'sync.db.team' },
+      { ws: 'waiheke.sync.db.team' },
+    ],
+  });
 
   const defaults: Storage = {
     theme: 'Dark',
