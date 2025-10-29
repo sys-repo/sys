@@ -116,7 +116,6 @@ describe('trait-registry', () => {
        * NOTE: commented out - not yet working in down-stream editor
        *       error parser, see: `useSlugSemanticDiagnostics`
        */
-
       const entry = DefaultTraitRegistry.get('slug-tree')!;
       expect(typeof entry.normalize).to.eql('function');
 
