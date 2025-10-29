@@ -29,12 +29,12 @@ export function toTreeNode(item: t.SlugTreeItem, path: t.ObjectPath): t.TreeNode
 
   // Normalize value:
   //  -  ref only  → "crdt:..." (string)
-  //  -  summary only → string
-  //  -  both → { ref, summary }
+  //  -  description only → string
+  //  -  both → { ref, description }
   let value: unknown = undefined;
-  if (item.ref && item.summary) value = { ref: item.ref, summary: item.summary };
+  if (item.ref && item.description) value = { ref: item.ref, description: item.description };
   else if (item.ref) value = item.ref;
-  else if (item.summary) value = item.summary;
+  else if (item.description) value = item.description;
 
   const node: t.TreeNode = {
     path,
