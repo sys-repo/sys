@@ -49,13 +49,27 @@ export function impl(args: {
       const before = rangesToOffsets(model, areasBefore);
       const after = rangesToOffsets(model, getHiddenAreas(editor));
       emitMarks('crdt', before, after);
+
+      // If Monaco didn't land the desired set, repair via public commands only.
+      if (!equalOffsets(after, nextOffsets)) {
+        // Avoid a needless reset if we're already fully unfolded and target is empty.
+        if (nextOffsets.length === 0 && after.length === 0) return;
+
+        editor.trigger('monaco.hidden', 'editor.unfoldAll', undefined);
+
+        const parents = parentLinesFromOffsets(model, nextOffsets);
+        if (parents.length > 0) {
+          editor.trigger('monaco.hidden', 'editor.fold', { selectionLines: parents });
+        }
+
+        const corrected = rangesToOffsets(model, getHiddenAreas(editor));
+        emitMarks('crdt', after, corrected);
+      }
     };
 
     if (nextOffsets.length === 0) {
-      // No marks:
       trigger('editor.unfoldAll');
     } else {
-      // Has code-folded marks:
       trigger('editor.fold', parentLinesFromOffsets(model, nextOffsets));
     }
   }
@@ -144,16 +158,11 @@ export function impl(args: {
     .path(path)
     .$.pipe(Rx.takeUntil(life.dispose$))
     .subscribe((e) => {
-      const hasMarksPatch = e.patches.some((p) => Array.isArray((p as any).marks));
-      if (!hasMarksPatch) return;
-
       if (skipNextPatch > 0) {
         skipNextPatch -= 1;
         return; // echo of our last write
       }
-
-      // Coalesce to the next microtask and tie to lifecycle.
-      Schedule.queue(syncFromCRDT, 'micro', life);
+      Schedule.queue(syncFromCRDT, 'micro', life); // Coalesce to the next microtask and tie to lifecycle.
     });
 
   // Editor → CRDT: persist hidden areas iff they differ from stored marks.
