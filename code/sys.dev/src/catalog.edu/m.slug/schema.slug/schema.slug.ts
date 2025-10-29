@@ -27,7 +27,7 @@ const TRAITS = T.Array(TraitBindingSchema, {
  * - Disjoint branch: optional id/description, plus optional ref.
  * - May NOT coexist with traits or data.
  */
-export const SlugRefSchema = T.Object(
+export const SlugRefSchema: t.TSchema = T.Object(
   {
     ...SHARED,
     ref: T.Optional(
@@ -51,7 +51,7 @@ export const SlugRefSchema = T.Object(
  * - Optional traits.
  * - NO data field.
  */
-export const SlugMinimalSchema = T.Object(
+export const SlugMinimalSchema: t.TSchema = T.Object(
   {
     ...SHARED,
     traits: T.Optional(TRAITS),
@@ -69,7 +69,7 @@ export const SlugMinimalSchema = T.Object(
  * - REQUIRED traits.
  * - REQUIRED data record keyed by trait alias.
  */
-export const SlugWithDataSchema = T.Object(
+export const SlugWithDataSchema: t.TSchema = T.Object(
   {
     ...SHARED,
     traits: TRAITS,

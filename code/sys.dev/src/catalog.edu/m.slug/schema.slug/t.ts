@@ -26,11 +26,12 @@ export type SlugTraitAlias = string;
 /**
  * Canonical trait-binding type.
  */
-export type SlugTraitBinding = t.Infer<typeof TraitBindingSchema>;
+export type SlugTraitBinding = {
+  readonly of: t.SlugTraitId;
+  readonly as: t.SlugTraitAlias;
+};
 
-/**
- * Utility: Narrowed binding for a specific trait-id.
- */
+/** Narrow binding to a specific trait id. */
 export type SlugTraitBindingOf<K extends SlugTraitBinding['of']> = Omit<SlugTraitBinding, 'of'> & {
   readonly of: K;
 };
