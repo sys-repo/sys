@@ -62,10 +62,10 @@ describe('trait: slug-tree', () => {
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
 
-    it('valid: summaries (root + item)', () => {
+    it('valid: descriptions (root + item)', () => {
       const ok: t.SlugTreeProps = {
-        summary: 'root summary',
-        slugs: [{ name: 'node', summary: 'node summary', ref: 'crdt:create' }],
+        description: 'root description',
+        slugs: [{ name: 'node', description: 'node description', ref: 'crdt:create' }],
       };
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });

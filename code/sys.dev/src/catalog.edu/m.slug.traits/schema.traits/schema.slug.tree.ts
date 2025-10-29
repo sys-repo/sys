@@ -56,20 +56,20 @@ export const SlugTreeItemSchema = T.Recursive(
         }),
 
         ref: T.Optional(
-          T.String({ title: 'Slug Reference (CRDT/URN)', ...Pattern.crdtRefPattern() }),
+          T.String({ title: 'Slug Config Reference (CRDT/URN)', ...Pattern.crdtRefPattern() }),
         ),
 
         slugs: T.Optional(
           T.Array(Self, {
-            title: 'Child Items',
-            description: 'Optional ordered child nodes of this branch.',
+            title: 'Child Items (Slugs)',
+            description: 'Optional ordered child slugs on this branch.',
           }),
         ),
 
-        summary: T.Optional(
+        description: T.Optional(
           T.String({
-            title: 'Summary',
-            description: 'Optional human summary for this node.',
+            title: 'Description',
+            description: 'Optional human readable description of this slug.',
           }),
         ),
       },
@@ -119,10 +119,10 @@ export const SlugTreePropsSchema = T.Object(
       description: `Ordered root nodes of the slug tree. Each node may have its own CRDT ref, child items, or both.`,
     }),
 
-    summary: T.Optional(
+    description: T.Optional(
       T.String({
-        title: 'Summary',
-        description: `Optional human summary or high-level description for the entire tree. Useful for display in UIs.`,
+        title: 'Description',
+        description: `(Optional) human readable high-level description of the entire tree.`,
       }),
     ),
   },

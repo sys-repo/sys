@@ -211,8 +211,8 @@ describe('Slug.Is', () => {
 
     it('valid: summary allowed at root and item', () => {
       const ok: t.SlugTreeProps = {
-        summary: 'root summary',
-        slugs: [{ name: 'node', summary: 'node summary', ref: 'crdt:create' }],
+        description: 'root summary',
+        slugs: [{ name: 'node', description: 'node summary', ref: 'crdt:create' }],
       };
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });

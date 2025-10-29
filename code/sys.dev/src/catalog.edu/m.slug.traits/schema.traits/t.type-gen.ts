@@ -121,7 +121,7 @@ export type SlugTreeItem = {
   readonly items?: readonly SlugTreeItem[];
 
   /** Optional human summary for this node. */
-  readonly summary?: string;
+  readonly description?: string;
 };
 
 /**
@@ -134,13 +134,12 @@ export type SlugTreeItem = {
 export type SlugTreeProps = {
   /**
    * Ordered root nodes of the slug tree.
-   * Each node may have its own CRDT ref, child items, or both.
+   * Each slug (node) may have its own CRDT ref, child slugs, or both.
    */
   readonly slugs: readonly SlugTreeItem[];
 
   /**
-   * Optional human summary or high-level description for the entire tree.
-   * Useful for display in UIs.
+   * (Optional) human readable, high-level description of the entire tree.
    */
-  readonly summary?: string;
+  readonly description?: string;
 };
