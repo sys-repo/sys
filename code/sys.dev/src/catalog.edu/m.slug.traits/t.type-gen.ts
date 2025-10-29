@@ -110,7 +110,7 @@ export type SlugIndexProps = {
  *
  * A node may:
  *  • reference a document via `ref` (leaf),
- *  • contain `items` (group),
+ *  • contain `slugs` (group),
  *  • or do both (hybrid).
  */
 export type SlugTreeItem = {
@@ -131,9 +131,9 @@ export type SlugTreeItem = {
 
   /**
    * Ordered child nodes of this branch.
-   * Each may have its own CRDT ref, child items, or both.
+   * Each may have its own CRDT ref, child slugs, or both.
    */
-  readonly items?: readonly SlugTreeItem[];
+  readonly slugs?: readonly SlugTreeItem[];
 
   /** Optional human summary for this node. */
   readonly description?: string;
