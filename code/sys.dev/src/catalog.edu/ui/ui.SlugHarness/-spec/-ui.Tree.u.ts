@@ -13,21 +13,24 @@ export function toTreeStructure(
   input: t.SlugTreeProps,
   basePath: t.ObjectPath = [],
 ): t.TreeNodeList {
-  const items = input?.items ?? [];
+  const items = input?.slugs ?? [];
   return items.map((item) => toTreeNode(item, [...basePath, item.name]));
 }
 
 /** Single item → TreeNode with RFC6901 key built from the semantic path. */
 export function toTreeNode(item: t.SlugTreeItem, path: t.ObjectPath): t.TreeNode {
+  type CanonicalItem = { readonly slugs?: readonly t.SlugTreeItem[] };
+  const src = item as unknown as CanonicalItem;
+
   const children =
-    item.items && item.items.length
-      ? item.items.map((child) => toTreeNode(child, [...path, child.name]))
+    src.slugs && src.slugs.length
+      ? src.slugs.map((child) => toTreeNode(child, [...path, child.name]))
       : undefined;
 
   // Normalize value:
-  // • ref only  -> "crdt:..." (string)
-  // • summary only -> string
-  // • both -> { ref, summary }
+  //  -  ref only  → "crdt:..." (string)
+  //  -  summary only → string
+  //  -  both → { ref, summary }
   let value: unknown = undefined;
   if (item.ref && item.summary) value = { ref: item.ref, summary: item.summary };
   else if (item.ref) value = item.ref;
@@ -43,11 +46,6 @@ export function toTreeNode(item: t.SlugTreeItem, path: t.ObjectPath): t.TreeNode
 
   return node;
 }
-
-/**
- * TODO 🐷 refactor:
- *  - use pointer path tools from [sys:Obj.Path.xxx]
- */
 
 /** RFC6901 pointer from ObjectPath (escape "~" → "~0", "/" → "~1"). */
 function toPointerFromPath(path: t.ObjectPath): string {

@@ -9,17 +9,17 @@ import { Pattern, Type as T } from './common.ts';
  *  ✅
  *  Normalized canonical form (after DSL → schema normalization):
  *
- *    items:
+ *    slugs:
  *      - label: generic-canvas-program
  *        ref: crdt:create
- *        items:
+ *        slugs:
  *          - label: program-outline
  *            ref: crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P
  *          - label: trailer
  *            ref: crdt:create
  *          - label: business-model-design
  *            ref: crdt:create
- *            items:
+ *            slugs:
  *              - label: understanding-business-model
  *                ref: crdt:create
  *
@@ -30,12 +30,12 @@ import { Pattern, Type as T } from './common.ts';
  *
  *    - generic-canvas-program:
  *        ref: crdt:create
- *        items:
+ *        slugs:
  *          - program-outline: crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P
  *          - trailer: crdt:create
  *          - business-model-design:
  *              ref: crdt:create
- *              items:
+ *              slugs:
  *                - understanding-business-model: crdt:create
  *
  *
@@ -59,7 +59,7 @@ export const SlugTreeItemSchema = T.Recursive(
           T.String({ title: 'Slug Reference (CRDT/URN)', ...Pattern.crdtRefPattern() }),
         ),
 
-        items: T.Optional(
+        slugs: T.Optional(
           T.Array(Self, {
             title: 'Child Items',
             description: 'Optional ordered child nodes of this branch.',
@@ -91,20 +91,20 @@ export const SlugTreeItemSchema = T.Recursive(
  *
  *   programme-v1:
  *     - content-creation:
- *         items:
+ *         slugs:
  *           - example-scripts:
- *               items:
+ *               slugs:
  *                 - age-co-uk-example-script: crdt:create
  *                 - patagonia-example-script: crdt:create
  *
  * Canonical normalized form (validated by schema):
  *
  *   programme-v1:
- *     items:
+ *     slugs:
  *       - label: content-creation
- *         items:
+ *         slugs:
  *           - label: example-scripts
- *             items:
+ *             slugs:
  *               - label: age-co-uk-example-script
  *                 ref: crdt:create
  *               - label: patagonia-example-script
@@ -114,7 +114,7 @@ export const SlugTreeItemSchema = T.Recursive(
  */
 export const SlugTreePropsSchema = T.Object(
   {
-    items: T.Array(SlugTreeItemSchema, {
+    slugs: T.Array(SlugTreeItemSchema, {
       title: 'Root Items',
       description: `Ordered root nodes of the slug tree. Each node may have its own CRDT ref, child items, or both.`,
     }),

@@ -62,7 +62,7 @@ describe('trait-registry', () => {
   describe('Value.Check smoke tests via registry schemas', () => {
     it('slug-tree: minimal sample', () => {
       const s = schemaOf('slug-tree')!;
-      const ok: t.SlugTreeProps = { items: [{ name: 'intro', ref: 'crdt:create' }] };
+      const ok: t.SlugTreeProps = { slugs: [{ name: 'intro', ref: 'crdt:create' }] };
       expect(Value.Check(s, ok)).to.eql(true);
     });
 
@@ -82,7 +82,7 @@ describe('trait-registry', () => {
   describe('negative samples (schema truth via registry)', () => {
     it('slug-tree: rejects bad ref pattern', () => {
       const s = schemaOf('slug-tree')!;
-      const bad = { items: [{ label: 'x', ref: 'not-a-crdt-ref' }] };
+      const bad = { slugs: [{ label: 'x', ref: 'not-a-crdt-ref' }] };
       expect(Value.Check(s, bad)).to.eql(false);
     });
 

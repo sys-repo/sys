@@ -136,7 +136,7 @@ export type SlugTreeProps = {
    * Ordered root nodes of the slug tree.
    * Each node may have its own CRDT ref, child items, or both.
    */
-  readonly items: readonly SlugTreeItem[];
+  readonly slugs: readonly SlugTreeItem[];
 
   /**
    * Optional human summary or high-level description for the entire tree.

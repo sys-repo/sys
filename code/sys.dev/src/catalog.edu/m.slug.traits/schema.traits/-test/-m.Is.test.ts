@@ -145,74 +145,74 @@ describe('Slug.Is', () => {
   });
 
   describe('Is.slugTreeProps', () => {
-    it('valid: empty tree (items: [])', () => {
-      const ok: t.SlugTreeProps = { items: [] };
+    it('valid: empty tree (slugs: [])', () => {
+      const ok: t.SlugTreeProps = { slugs: [] };
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
 
     it('valid: leaf at root (name + ref)', () => {
       const ok: t.SlugTreeProps = {
-        items: [{ name: 'intro', ref: 'crdt:create' }],
+        slugs: [{ name: 'intro', ref: 'crdt:create' }],
       };
       expect(Is.slugTreeProps(ok)).to.eql(true);
       expectTypeOf(ok).toEqualTypeOf<t.SlugTreeProps>();
     });
 
     it('valid: group (name + items)', () => {
-      const ok: t.SlugTreeProps = {
-        items: [{ name: 'section', items: [{ name: 'child', ref: 'crdt:create' }] }],
-      };
+      const ok = {
+        slugs: [{ name: 'section', slugs: [{ name: 'child', ref: 'crdt:create' }] }],
+      } as const;
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
 
     it('valid: hybrid (name + ref + items)', () => {
-      const ok: t.SlugTreeProps = {
-        items: [{ name: 'hybrid', ref: 'crdt:create', items: [] }],
-      };
+      const ok = {
+        slugs: [{ name: 'hybrid', ref: 'crdt:create', slugs: [] }],
+      } as const;
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
 
     it('valid: deeper nesting (3 levels)', () => {
-      const ok: t.SlugTreeProps = {
-        items: [
+      const ok = {
+        slugs: [
           {
             name: 'level-1',
-            items: [
+            slugs: [
               {
                 name: 'level-2',
-                items: [{ name: 'level-3-leaf', ref: 'crdt:create' }],
+                slugs: [{ name: 'level-3-leaf', ref: 'crdt:create' }],
               },
             ],
           },
         ],
-      };
+      } as const;
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
 
     it('invalid: item missing name', () => {
-      const bad = { items: [{ ref: 'crdt:create' }] };
+      const bad = { slugs: [{ ref: 'crdt:create' }] };
       expect(Is.slugTreeProps(bad)).to.eql(false);
     });
 
     it('invalid: items must be an array when present', () => {
-      const bad = { items: [{ name: 'x', items: {} }] };
+      const bad = { slugs: [{ name: 'x', slugs: {} }] };
       expect(Is.slugTreeProps(bad)).to.eql(false);
     });
 
     it('invalid: additional property on item is rejected (additionalProperties: false)', () => {
-      const bad = { items: [{ name: 'x', ref: 'crdt:create', foo: 1 }] };
+      const bad = { slugs: [{ name: 'x', ref: 'crdt:create', foo: 1 }] };
       expect(Is.slugTreeProps(bad)).to.eql(false);
     });
 
     it('invalid: bad ref pattern', () => {
-      const bad = { items: [{ name: 'bad', ref: 'not-a-crdt-ref' }] };
+      const bad = { slugs: [{ name: 'bad', ref: 'not-a-crdt-ref' }] };
       expect(Is.slugTreeProps(bad)).to.eql(false);
     });
 
     it('valid: summary allowed at root and item', () => {
       const ok: t.SlugTreeProps = {
         summary: 'root summary',
-        items: [{ name: 'node', summary: 'node summary', ref: 'crdt:create' }],
+        slugs: [{ name: 'node', summary: 'node summary', ref: 'crdt:create' }],
       };
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });

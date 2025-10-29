@@ -13,6 +13,6 @@ export type SchemaTraitNormalizers = {
  * Returns the schema-shape payload expected at `data[as]`.
  */
 export type SlugTreeYamlNormalizer = (input: unknown) => {
-  readonly items: readonly t.SlugTreeItem[];
+  readonly slugs: readonly t.SlugTreeItem[];
   readonly summary?: string;
 };
