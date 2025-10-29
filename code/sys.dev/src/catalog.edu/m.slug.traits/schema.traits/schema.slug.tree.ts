@@ -6,16 +6,7 @@ import { Pattern, Type as T } from './common.ts';
  * ─────────────────────────────────────────────
  *  YAML authoring intent (concise DSL):
  *
- *    - generic-canvas-program:
- *        ref: crdt:create
- *        items:
- *          - program-outline: crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P
- *          - trailer: crdt:create
- *          - business-model-design:
- *              ref: crdt:create
- *              items:
- *                - understanding-business-model: crdt:create
- *
+ *  ✅
  *  Normalized canonical form (after DSL → schema normalization):
  *
  *    items:
@@ -32,10 +23,26 @@ import { Pattern, Type as T } from './common.ts';
  *              - label: understanding-business-model
  *                ref: crdt:create
  *
+ *
+ *
+ *    🐷🌸 NOTE: normalizer (WIP) - normalizer not exposed by schema
+ *    (awaiting complete YAML pipeline impl. → Validator-to-diagnostics → editor range errors/hints)
+ *
+ *    - generic-canvas-program:
+ *        ref: crdt:create
+ *        items:
+ *          - program-outline: crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P
+ *          - trailer: crdt:create
+ *          - business-model-design:
+ *              ref: crdt:create
+ *              items:
+ *                - understanding-business-model: crdt:create
+ *
+ *
  * ─────────────────────────────────────────────
  *
- * The schema below validates only the *canonical* normalized structure.
- * Authoring-time YAML will be normalized into this shape within `m.yaml`
+ * The schema below validates only the *canonical* (✅) normalized structure.
+ * Authoring-time YAML will be normalized into this shape within module: `m.yaml`
  * (see `u.slug.tree.normalize.ts`).
  */
 export const SlugTreeItemSchema = T.Recursive(
