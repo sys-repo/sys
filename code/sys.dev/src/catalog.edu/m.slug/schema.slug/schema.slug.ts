@@ -23,6 +23,28 @@ const TRAITS = T.Array(TraitBindingSchema, {
 });
 
 /**
+ * Slug (ref): optional id/description, and optional ref.
+ * May not coexist with traits/data (disjoint branch).
+ */
+const SlugRef = T.Object(
+  {
+    ...SHARED,
+    ref: T.Optional(
+      T.String({
+        title: `Reference`,
+        ...Pattern.crdtRefPattern(),
+        description: `Optional reference pointing to the slug definition (CRDT/URN).`,
+      }),
+    ),
+  },
+  {
+    $id: 'slug.ref',
+    additionalProperties: false,
+    description: `Slug (ref): optional id/description and pointer-reference. May not contain traits or data.`,
+  },
+);
+
+/**
  * Slug (minimal): optional id/description and optional traits, NO data.
  */
 const SlugMinimal = T.Object(
@@ -33,7 +55,7 @@ const SlugMinimal = T.Object(
   {
     $id: 'slug.minimal',
     additionalProperties: false,
-    description: `Slug (minimal): optional id/description and optional traits, and NO data.`,
+    description: `Slug (minimal): optional id/description and optional traits, with NO data.`,
   },
 );
 
@@ -55,8 +77,15 @@ const SlugWithData = T.Object(
   },
 );
 
-export const SlugSchema: t.TSchema = T.Union([SlugMinimal, SlugWithData], {
+/**
+ * Public schema: disjoint union of all valid slug variants.
+ *
+ * Rules:
+ * • "ref" variant cannot coexist with traits/data.
+ * • "inline" variants (minimal/rich) cannot include ref.
+ */
+export const SlugSchema: t.TSchema = T.Union([SlugRef, SlugMinimal, SlugWithData], {
   $id: 'slug',
   title: `Slug`,
-  description: `Slug core schema (v0). Provides stable identity, trait bindings, and instance data keyed by alias.`,
+  description: `Slug core schema (v0). A slug is either a reference to another entity, or an inline definition with optional traits and data.`,
 });

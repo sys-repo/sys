@@ -13,17 +13,10 @@ export const Pattern: t.SlugSchemaPatternLib = {
 
   crdtRefPattern() {
     const BASE62 = '[A-Za-z0-9]{28}';
-    const UUID = '[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}';
-    const ID = `(?:${BASE62}|${UUID})`;
-    const SEG = '[A-Za-z0-9][A-Za-z0-9._\\-]*'; //    Each segment must start with [A-Za-z0-9] (prevents "." and "..")
-    const PATH = `(?:\\/${SEG}(?:\\/${SEG})*)?`; //   (optional) "/seg(/seg)*"
+    const SEG = '[A-Za-z0-9][A-Za-z0-9._\\-]*';
+    const PATH = `(?:\\/${SEG}(?:\\/${SEG})*)?`;
     const pattern =
-      `^(?:` +
-      `crdt:create` + //              literal create
-      `|crdt:${ID}${PATH}` + //       crdt:<id>[/path]
-      `|urn:crdt:${ID}${PATH}` + //   urn:crdt:<id>[/path]
-      `)$`;
-
+      `^(?:` + `crdt:create` + `|crdt:${BASE62}${PATH}` + `|urn:crdt:${BASE62}${PATH}` + `)$`;
     return {
       description: `CRDT ref: "crdt:create" | crdt:<uuid|base62-28>[/path] | urn:crdt:<uuid|base62-28>[/path]`,
       pattern,
