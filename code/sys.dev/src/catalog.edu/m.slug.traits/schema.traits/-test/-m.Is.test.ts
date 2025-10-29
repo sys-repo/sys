@@ -83,7 +83,7 @@ describe('Slug.Is', () => {
       const ok3 = {
         description: 'Say hello',
         script: 'Read this...',
-        file: 'urn:crdt:123e4567-e89b-12d3-a456-426614174000/clip',
+        file: 'urn:crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P/clip',
       };
       const badName = { name: '' }; // violates minLength: 1
       const badFile = { file: 'not-a-crdt-ref' };

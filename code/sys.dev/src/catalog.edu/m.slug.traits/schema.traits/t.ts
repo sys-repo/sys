@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export type * from './t.bool.ts';
+export type * from './t.flags.ts';
 export type * from './t.normalize.ts';
 export type * from './t.type-gen.ts';
 

@@ -18,7 +18,7 @@ describe('trait: video-recorder', () => {
     });
 
     it('accepts urn:crdt and crdt:<uuid/base62-28> with optional path', () => {
-      const ok1 = 'urn:crdt:123e4567-e89b-12d3-a456-426614174000/foo/bar';
+      const ok1 = 'urn:crdt:abcdefghijklmnopqrstuvwxyzAA/foo/bar';
       const ok2 = 'crdt:abcdefghijklmnopqrstuvwxyzAB/foo';
       expect(Value.Check(VideoRecorderPropsSchema, { file: ok1 })).to.eql(true);
       expect(Value.Check(VideoRecorderPropsSchema, { file: ok2 })).to.eql(true);
