@@ -26,7 +26,7 @@ export type SlugHarnessSignals = t.CrdtView.LayoutSignals & {};
 /**
  * Component: Single Slug
  */
-export type SlugViewProps = {
+export type SlugHarnessViewProps = {
   view?: t.SlugViewId;
   registry?: t.SlugViewRegistryReadonly;
   doc?: t.Crdt.Ref;

@@ -21,9 +21,11 @@ type P = t.SlugHarnessProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath' | 'main'> & {
   header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtView.LayoutSidebar;
+  render: boolean;
 };
 const defaults: Storage = {
   debug: false,
+  render: true,
   theme: 'Dark',
   docPath: ['yaml.parsed'],
   slugPath: ['slug'],
@@ -59,6 +61,7 @@ export function createDebugSignals() {
 
   const props = {
     debug: s(snap.debug),
+    render: s(snap.render),
     theme: s(snap.theme),
     docPath: s(snap.docPath),
     slugPath: s(snap.slugPath),
@@ -97,8 +100,9 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     store.change((d) => {
-      d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.render = p.render.value;
+      d.theme = p.theme.value;
       d.docPath = p.docPath.value;
       d.slugPath = p.slugPath.value;
       d.main = p.main.value;
@@ -116,6 +120,9 @@ export function createDebugSignals() {
   });
 
   if (api.url.debug === false) p.debug.value = false;
+
+  p.sidebar.visible.value = false;
+
   return api;
 }
 
@@ -150,6 +157,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
+
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+      <hr />
 
       <Button
         block

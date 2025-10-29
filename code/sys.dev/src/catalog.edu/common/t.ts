@@ -32,6 +32,8 @@ export type {
   MediaRecorderStatus,
   MediaVideoStreamProps,
   ObjectViewProps,
+  TreeNode,
+  TreeNodeList,
 } from '@sys/ui-react-components/t';
 
 /** Type Schema: */

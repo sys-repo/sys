@@ -27,6 +27,7 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        if (!(v.render ?? true)) return null;
         return (
           <SlugHarness
             debug={v.debug}

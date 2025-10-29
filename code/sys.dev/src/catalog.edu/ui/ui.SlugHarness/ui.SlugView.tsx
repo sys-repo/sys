@@ -4,7 +4,7 @@ import { type t, Color, css, Obj } from './common.ts';
 /**
  * Component:
  */
-export const SlugView: React.FC<t.SlugViewProps> = (props) => {
+export const SlugView: React.FC<t.SlugHarnessViewProps> = (props) => {
   const { debug = false, doc, slugPath, docPath, view, registry } = props;
 
   if (!doc) return null;
@@ -31,6 +31,14 @@ export const SlugView: React.FC<t.SlugViewProps> = (props) => {
     }),
   };
 
-  const el = renderer?.({ view, slug, theme: theme.name });
+  const m: t.SlugViewProps = {
+    view,
+    slug,
+    path: { doc: docPath, slug: slugPath },
+    doc,
+    theme: theme.name,
+  };
+
+  const el = renderer?.(m);
   return <div className={css(styles.base, props.style).class}>{el}</div>;
 };

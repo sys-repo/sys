@@ -36,6 +36,7 @@ export default Spec.describe(D.displayName, (e) => {
             onPressDown={(e) => {
               console.info(`⚡️ onPressDown:`, e);
               if (e.hasChildren) p.path.value = e.node.path;
+              console.log('debug.root', debug.root);
             }}
             onPressUp={(e) => {
               console.info(`⚡️ onPressUp:`, e);
