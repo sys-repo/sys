@@ -1,9 +1,12 @@
 import type { t } from '../common.ts';
+export type * from './t.tree.ts';
 
 /**
- * Functions for validating slug YAML (semantic layer).
+ * Functions for validating slugs (semantic layer).
  */
 export type SlugValidationLib = {
+  readonly SlugTree: t.SlugTreeValidationLib;
+
   validateTraitExistence: (input: t.SlugValidateInput) => t.Schema.ValidationError[];
   validateAliasRules: (input: t.SlugValidateInput) => t.Schema.ValidationError[];
   validatePropsShape: (input: t.SlugValidateInput) => t.Schema.ValidationError[];

@@ -17,9 +17,17 @@ export const semanticErrorsToDiagnostics: L['semanticErrorsToDiagnostics'] = (
  * Default severity: 'Error' (Monaco semantics).
  */
 export const semanticErrorsToEditorDiagnostics: L['semanticErrorsToEditorDiagnostics'] = (
-  errors: t.Schema.ValidationError[],
-  opts?: { severity?: t.DiagnosticSeverity },
+  errors,
+  opts,
 ) => {
   const severity = opts?.severity ?? 'Error';
-  return errors.map((e) => ({ message: e.message, path: e.path, severity }));
+  return errors.map((e) => {
+    const { path, range, message } = e;
+    return {
+      message,
+      severity,
+      ...(range ? { range } : {}),
+      ...(path ? { path } : {}),
+    } satisfies t.EditorDiagnostic;
+  });
 };
