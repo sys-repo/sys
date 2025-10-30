@@ -1,6 +1,5 @@
-import { type t } from './common.ts';
+import { type t, Slug } from './common.ts';
 
-import { SlugTreePropsSchema } from '../schema.traits/schema.slug.tree.ts';
 import { VideoPlayerPropsSchema } from '../schema.traits/schema.video.player.ts';
 import { VideoRecorderPropsSchema } from '../schema.traits/schema.video.recorder.ts';
 
@@ -13,17 +12,7 @@ export const DefaultTraitRegistry: t.SchemaTraitRegistry = {
   },
   get all() {
     return [
-      {
-        id: 'slug-tree',
-        propsSchema: SlugTreePropsSchema,
-
-        /**
-         * 🐷
-         * NOTE: commented out - not yet working in down-stream editor
-         *       error parser, see: `useSlugSemanticDiagnostics`
-         */
-        // normalize: TraitNormalizers['slug-tree'],
-      },
+      { id: 'slug-tree', propsSchema: Slug.Schema.SlugTree.Props },
       { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
       { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
     ] as const;

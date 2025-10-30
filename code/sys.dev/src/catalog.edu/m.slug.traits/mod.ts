@@ -8,10 +8,4 @@
  * for trait validation and introspection across the system.
  */
 export * from './schema.trait.registry/mod.ts';
-export {
-  SlugTreeItemSchema,
-  SlugTreePropsSchema,
-  Traits,
-  VideoPlayerPropsSchema,
-  VideoRecorderPropsSchema,
-} from './schema.traits/mod.ts';
+export { Traits, VideoPlayerPropsSchema, VideoRecorderPropsSchema } from './schema.traits/mod.ts';

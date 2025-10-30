@@ -4,6 +4,12 @@
  */
 export { Pattern } from './m.Pattern.ts';
 export {
+  SlugTreeItemSchema,
+  SlugTreeItemSchemaInternal,
+  SlugTreePropsSchema,
+  SlugTreePropsSchemaInternal,
+} from './schema.slug.tree.ts';
+export {
   SlugMinimalSchema,
   SlugMinimalSchemaInternal,
   SlugRefSchema,

@@ -2,11 +2,8 @@
  * @module Trait-Schemas
  * Aggregates all trait prop-schema modules.
  */
-import { type t } from './common.ts';
-
+import { type t, Slug } from './common.ts';
 import { Is } from './m.Is.ts';
-
-import { SlugTreeItemSchema, SlugTreePropsSchema } from './schema.slug.tree.ts';
 import { VideoPlayerPropsSchema } from './schema.video.player.ts';
 import { VideoRecorderPropsSchema } from './schema.video.recorder.ts';
 
@@ -17,13 +14,8 @@ export const Traits: t.SlugTraitsLib = {
 
   // Schemas:
   Schema: {
-    SlugTree: {
-      get Item() {
-        return SlugTreeItemSchema;
-      },
-      get Props() {
-        return SlugTreePropsSchema;
-      },
+    get SlugTree() {
+      return Slug.Schema.SlugTree;
     },
     VideoPlayer: {
       get Props() {

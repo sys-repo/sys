@@ -1,11 +1,8 @@
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { Value, type t } from '../schema.traits/common.ts';
-import {
-  SlugTreePropsSchema,
-  VideoPlayerPropsSchema,
-  VideoRecorderPropsSchema,
-} from '../schema.traits/mod.ts';
+import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from '../schema.traits/mod.ts';
 
+import { Slug } from '../common.ts';
 import { TRAIT_IDS } from './m.ids.ts';
 import { DefaultTraitRegistry } from './mod.ts';
 
@@ -53,7 +50,7 @@ describe('trait-registry', () => {
     });
 
     it('schema equality: each id maps to the expected schema', () => {
-      expect(schemaOf('slug-tree')).to.equal(SlugTreePropsSchema);
+      expect(schemaOf('slug-tree')).to.equal(Slug.Schema.SlugTree.Props);
       expect(schemaOf('video-player')).to.equal(VideoPlayerPropsSchema);
       expect(schemaOf('video-recorder')).to.equal(VideoRecorderPropsSchema);
     });

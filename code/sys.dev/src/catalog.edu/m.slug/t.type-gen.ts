@@ -39,6 +39,13 @@
  */
 
 /**
+ * 🌼
+ * Source schemas from:
+ *  - ./schema.slug/*
+ *  - ./schema.slug.traits/*
+ */
+
+/**
  * Slug Reference
  * – mirrors `schema.slug.ts` (`SlugRefSchema`)
  *
@@ -125,3 +132,56 @@ export type SlugWithData = {
  * - `SlugWithData`: inline definition with traits and data.
  */
 export type Slug = SlugRef | SlugMinimal | SlugWithData;
+
+/**
+ * SlugTreeItem
+ * – mirrors `schema.slug.tree.ts` (`SlugTreeItemSchema`)
+ *
+ * A node carries a required display `slug` and may:
+ *  • reference another slug via `ref`
+ *  • inline its own traits + data
+ *  • contain nested `slugs` (child nodes)
+ *  • or combine all forms (hybrid)
+ */
+export type SlugTreeItem = {
+  /** Display label for this node (like a section or chapter title). */
+  readonly slug: string;
+
+  /** Optional CRDT or URN reference to an external slug config. */
+  readonly ref?: string;
+
+  /**
+   * Optional trait bindings applied inline to this slug.
+   * Each binding maps a trait type to a local alias.
+   */
+  readonly traits?: readonly {
+    /** Trait type identifier. */
+    readonly of: string;
+    /** Local alias name under which trait data is stored. */
+    readonly as: string;
+  }[];
+
+  /**
+   * Arbitrary data map keyed by local alias (trait instance data).
+   * Values are validated semantically by the respective trait schema.
+   */
+  readonly data?: { readonly [key: string]: unknown };
+
+  /** Optional description for this node. */
+  readonly description?: string;
+
+  /**
+   * Optional nested slug-tree children.
+   * Each may have its own slug label, ref, and traits/data.
+   */
+  readonly slugs?: readonly SlugTreeItem[];
+};
+
+/**
+ * SlugTreeProps
+ * – mirrors `schema.slug.tree.ts` (`SlugTreePropsSchema`)
+ *
+ * The trait’s value is an array of slug-tree items.
+ * Each node may contain nested items or inline slug configs.
+ */
+export type SlugTreeProps = readonly SlugTreeItem[];

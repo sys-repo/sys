@@ -1,13 +1,15 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { Slug } from '../../mod.ts';
+
 import type { t } from '../common.ts';
 import { Value } from '../common.ts';
-import { Is, SlugTreeItemSchema, SlugTreePropsSchema, Traits } from '../mod.ts';
+import { SlugTreeItemSchema, SlugTreePropsSchema } from '../mod.ts';
 
 describe('trait: slug-tree', () => {
   describe('exports / shape', () => {
     it('Traits exposes slug-tree schemas', () => {
-      expect(Traits.Schema.SlugTree.Item).to.equal(SlugTreeItemSchema);
-      expect(Traits.Schema.SlugTree.Props).to.equal(SlugTreePropsSchema);
+      expect(Slug.Schema.SlugTree.Item).to.equal(SlugTreeItemSchema);
+      expect(Slug.Schema.SlugTree.Props).to.equal(SlugTreePropsSchema);
     });
 
     it('type surface compiles', () => {
@@ -19,11 +21,6 @@ describe('trait: slug-tree', () => {
   });
 
   describe('Value.Check (valid cases)', () => {
-    it('valid: minimal empty tree', () => {
-      const ok: t.SlugTreeProps = [];
-      expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
-      expect(Is.slugTreeProps(ok)).to.eql(true);
-    });
 
     it('valid: simple node (slug only)', () => {
       const ok = [{ slug: 'Root Node' }] as const;
@@ -111,9 +108,7 @@ describe('trait: slug-tree', () => {
         { slug: 'EmptyTraits', traits: [] },
         { slug: 'EmptyData', data: {} },
       ] as const;
-
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
-      expect(Is.slugTreeProps(ok)).to.eql(true);
     });
   });
 
@@ -158,10 +153,7 @@ describe('trait: slug-tree', () => {
       const unknownKey = [{ slug: 'x', slugs: [], oops: true } as any];
 
       expect(Value.Check(SlugTreePropsSchema, missingSlug)).to.eql(false);
-      expect(Is.slugTreeProps(missingSlug as any)).to.eql(false);
-
       expect(Value.Check(SlugTreePropsSchema, unknownKey)).to.eql(false);
-      expect(Is.slugTreeProps(unknownKey as any)).to.eql(false);
     });
 
     it('rejects unknown key inside nested child item', () => {
@@ -182,7 +174,6 @@ describe('trait: slug-tree', () => {
     it('root must be an array (not object)', () => {
       const bad: any = { slug: 'Not in an array' };
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
-      expect(Is.slugTreeProps(bad)).to.eql(false);
     });
   });
 
@@ -220,9 +211,6 @@ describe('trait: slug-tree', () => {
 
       // Schema (Value.Check) is intentionally trait-agnostic: this should be true.
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
-
-      // The convenience guard mirrors schema-only behavior:
-      expect(Is.slugTreeProps(ok)).to.eql(true);
     });
   });
 });
