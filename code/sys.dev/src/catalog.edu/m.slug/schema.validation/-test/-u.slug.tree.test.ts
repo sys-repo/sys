@@ -1,6 +1,5 @@
 import { type t, describe, expect, it } from '../../../-test.ts';
-
-import { Type as T, Yaml } from '../common.ts';
+import { Obj, Type as T, Yaml } from '../common.ts';
 import { Validation } from '../m.Validation.ts';
 
 describe('schema.validation: SlugTree deep validation', () => {
@@ -151,7 +150,6 @@ describe('schema.validation: SlugTree deep validation', () => {
         data: { vid1: { src: 'https://example.com/clip.mp4' } },
       },
     ];
-
     const diags = Validation.SlugTree.validateWithRanges({
       ast,
       registry,
@@ -164,18 +162,19 @@ describe('schema.validation: SlugTree deep validation', () => {
     expect(diags.length).to.be.greaterThan(0);
 
     const P = [...base, 0] as t.ObjectPath;
-
-
     for (const d of diags) {
-      const p = (d as { path?: t.ObjectPath }).path;
+      const p = d.path;
       expect(Array.isArray(p)).to.eql(true);
 
-      // Must start with P:
-      const startsWithP = p!.slice(0, P.length).every((seg, i) => seg === P[i]);
-      expect(startsWithP).to.eql(true);
+      // Must start with P (allow equal):
+      expect(Obj.Path.Is.prefixOf(P, p!)).to.eql(true);
 
-      // And P must occur exactly once (no double-prefixing):
-      expect(occurrencesOf(p!, P)).to.eql(1);
+      // And P must occur exactly once at the head:
+      const tail = Obj.Path.slice(p!, P.length);
+      expect(Obj.Path.Is.prefixOf(P, tail)).to.eql(false);
+
+      const rel = Obj.Path.Rel.relate(P, p!);
+      expect(rel === 'equal' || rel === 'ancestor').to.eql(true);
     }
   });
 });
