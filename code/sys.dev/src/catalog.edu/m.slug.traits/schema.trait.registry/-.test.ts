@@ -50,7 +50,7 @@ describe('trait-registry', () => {
     });
 
     it('schema equality: each id maps to the expected schema', () => {
-      expect(schemaOf('slug-tree')).to.equal(Slug.Schema.SlugTree.Props);
+      expect(schemaOf('slug-tree')).to.equal(Slug.Schema.Slug.Tree.Props);
       expect(schemaOf('video-player')).to.equal(VideoPlayerPropsSchema);
       expect(schemaOf('video-recorder')).to.equal(VideoRecorderPropsSchema);
     });

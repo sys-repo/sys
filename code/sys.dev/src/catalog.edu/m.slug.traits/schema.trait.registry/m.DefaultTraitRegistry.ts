@@ -12,7 +12,7 @@ export const DefaultTraitRegistry: t.SchemaTraitRegistry = {
   },
   get all() {
     return [
-      { id: 'slug-tree', propsSchema: Slug.Schema.SlugTree.Props },
+      { id: 'slug-tree', propsSchema: Slug.Schema.Slug.Tree.Props },
       { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
       { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
     ] as const;

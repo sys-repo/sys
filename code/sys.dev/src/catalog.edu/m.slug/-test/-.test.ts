@@ -6,6 +6,16 @@ describe('Slug (core)', () => {
     const m = await import('@sys/dev/catalog.edu/slug');
     expect(m.Slug).to.equal(Slug);
     expect(m.Pattern).to.equal(Pattern);
+
+    // Schemas:
+    const slugSchema = await import('../schema.slug/mod.ts');
+    expect(m.Slug.Schema.Trait.Def).to.equal(slugSchema.TraitDefSchema);
+    expect(m.Slug.Schema.Trait.Binding).to.equal(slugSchema.TraitBindingSchema);
+
+    expect(m.Slug.Schema.Slug.Union).to.equal(slugSchema.SlugSchema);
+    expect(m.Slug.Schema.Slug.WithData).to.equal(slugSchema.SlugWithDataSchema);
+    expect(m.Slug.Schema.Slug.Ref).to.equal(slugSchema.SlugRefSchema);
+    expect(m.Slug.Schema.Slug.Minimal).to.equal(slugSchema.SlugMinimalSchema);
   });
 
   describe('Slug.Is', () => {

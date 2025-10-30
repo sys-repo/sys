@@ -15,17 +15,13 @@ export const Traits: t.SlugTraitsLib = {
   // Schemas:
   Schema: {
     get SlugTree() {
-      return Slug.Schema.SlugTree;
+      return Slug.Schema.Slug.Tree;
     },
-    VideoPlayer: {
-      get Props() {
-        return VideoPlayerPropsSchema;
-      },
+    get VideoPlayer() {
+      return { Props: VideoPlayerPropsSchema };
     },
-    VideoRecorder: {
-      get Props() {
-        return VideoRecorderPropsSchema;
-      },
+    get VideoRecorder() {
+      return { Props: VideoRecorderPropsSchema };
     },
   },
 };

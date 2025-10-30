@@ -8,9 +8,12 @@ import type { t } from './common.ts';
 import { Has } from './m.Slug.Has.ts';
 import { Is } from './m.Slug.Is.ts';
 import {
+  SlugMinimalSchema,
+  SlugRefSchema,
   SlugSchema,
   SlugTreeItemSchema,
   SlugTreePropsSchema,
+  SlugWithDataSchema,
   TraitBindingSchema,
   TraitDefSchema,
 } from './schema.slug/mod.ts';
@@ -25,16 +28,17 @@ export const Slug: t.SlugLib = {
   Has,
   Validation,
   Schema: {
-    SlugSchema,
-    SlugTree: {
-      get Item() {
-        return SlugTreeItemSchema;
-      },
-      get Props() {
-        return SlugTreePropsSchema;
-      },
+    get Slug() {
+      return {
+        Union: SlugSchema,
+        Ref: SlugRefSchema,
+        Minimal: SlugMinimalSchema,
+        WithData: SlugWithDataSchema,
+        Tree: { Props: SlugTreePropsSchema, Item: SlugTreeItemSchema },
+      };
     },
-    TraitBindingSchema,
-    TraitDefSchema,
+    get Trait() {
+      return { Binding: TraitBindingSchema, Def: TraitDefSchema };
+    },
   },
 };
