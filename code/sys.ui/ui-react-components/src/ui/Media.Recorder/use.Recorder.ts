@@ -52,6 +52,7 @@ export const useRecorder: t.UseMediaRecorder = (stream, options = {}) => {
       bytes: is.started ? bytes : (blob?.size ?? 0),
       bitrate: { video: vbpsRef.current, audio: abpsRef.current },
       capture: captureRef.current,
+      mimeType: recorderRef.current?.mimeType ?? '',
     });
   }, [state, bytes, blob, timer.elapsed]);
 

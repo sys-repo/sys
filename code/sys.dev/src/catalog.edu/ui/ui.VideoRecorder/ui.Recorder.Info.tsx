@@ -18,7 +18,7 @@ export const RecorderInfo: React.FC<RecorderInfoProps> = (props) => {
   Signal.useEffect(() => {
     const status = signals?.recorder.value;
     const stream = signals?.stream.value;
-    setItems(wrangle.stats(status, stream));
+    setItems(wrangle.stats({ status, stream }));
   });
 
   /**
@@ -39,7 +39,8 @@ export const RecorderInfo: React.FC<RecorderInfoProps> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  stats(status?: t.MediaRecorderStatus, stream?: MediaStream): t.KeyValueItem[] {
+  stats(args: { status?: t.MediaRecorderStatus; stream?: MediaStream }): t.KeyValueItem[] {
+    const { status, stream } = args;
     if (!status) return [];
 
     const items: t.KeyValueItem[] = [];
@@ -53,6 +54,8 @@ const wrangle = {
     const screen = Is.num(width) && Is.num(height) ? `${width} x ${height}` : '-';
     const aspectRatio = capture.aspectRatio ? Num.round(capture.aspectRatio, 2) : '-';
     const fps = status.capture.frameRate;
+    const mime = status.mimeType;
+    const encoding = mime ? mime.split(';').join('; ') : '';
 
     const indent = [12, 0] as const;
 
@@ -61,9 +64,10 @@ const wrangle = {
     items.push({ k: 'screen size', v: screen, x: indent });
     items.push({ k: 'aspect ratio', v: aspectRatio, x: indent });
     items.push({ kind: 'hr' });
-    items.push({ kind: 'title', v: 'Bitrate' });
-    items.push({ k: 'video', v: `${video} Mbps`, x: indent });
-    items.push({ k: 'audio', v: `${audio} kbps`, x: indent });
+    items.push({ kind: 'title', v: 'Quality' });
+    items.push({ k: 'video bitrate', v: `${video} Mbps`, x: indent });
+    items.push({ k: 'audio bitrate', v: `${audio} kbps`, x: indent });
+    items.push({ k: 'encoding', v: `${encoding || '-'}`, x: indent });
 
     return items;
   },

@@ -49,6 +49,7 @@ export type MediaRecorderStatus = {
   readonly bytes: t.MediaRecorderHook['bytes'];
   readonly bitrate: t.MediaRecorderBitrate;
   readonly capture: t.MediaRecorderCapture;
+  readonly mimeType: string;
 };
 
 /**
