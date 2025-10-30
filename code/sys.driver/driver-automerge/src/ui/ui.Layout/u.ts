@@ -28,6 +28,7 @@ export function toSidebarConfig(input?: t.LayoutSidebar): t.LayoutSidebar {
     visible: input?.visible ?? d.visible,
     resizable: input?.resizable ?? d.resizable,
     width: input?.width ?? d.width,
+    divider: input?.divider ?? d.divider,
   };
 }
 

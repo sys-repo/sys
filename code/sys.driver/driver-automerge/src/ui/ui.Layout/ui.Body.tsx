@@ -75,6 +75,7 @@ export const Body: React.FC<P> = (props) => {
           onlyIndex={onlyIndex}
           min={0.1}
           debug={debug}
+          dividerOpacity={sidebar.divider}
           theme={theme.name}
           children={sidebar.position === 'left' ? [elSidebar, elMain] : [elMain, elSidebar]}
         />

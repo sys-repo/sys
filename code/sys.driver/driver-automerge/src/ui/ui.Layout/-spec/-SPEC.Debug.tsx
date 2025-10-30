@@ -71,6 +71,7 @@ export function createDebugSignals() {
       visible: s((snap.sidebar ?? {}).visible),
       resizable: s((snap.sidebar ?? {}).resizable),
       width: s((snap.sidebar ?? {}).width),
+      divider: s((snap.sidebar ?? {}).divider),
     },
     cropmarks: {
       size: s((snap.cropmarks ?? {}).size),
@@ -114,6 +115,7 @@ export function createDebugSignals() {
       d.sidebar.visible = p.sidebar.visible.value;
       d.sidebar.resizable = p.sidebar.resizable.value;
       d.sidebar.width = p.sidebar.width.value;
+      d.sidebar.divider = p.sidebar.divider.value;
 
       d.cropmarks = d.cropmarks ?? {};
       d.cropmarks.size = p.cropmarks.size.value;
@@ -214,6 +216,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `sidebar.width: ${p.sidebar.width.value}px`}
         onClick={() => Signal.cycle(p.sidebar.width, [D.sidebar.width, 200, 420])}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.sidebar.divider.value;
+          return `sidebar.divider: ${v} (${Number(v) * 100}%)`;
+        }}
+        onClick={() => Signal.cycle(p.sidebar.divider, [0, D.sidebar.divider, 0.3, 0.6])}
       />
 
       <hr />

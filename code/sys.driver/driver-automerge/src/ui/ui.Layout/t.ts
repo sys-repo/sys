@@ -89,6 +89,7 @@ export type LayoutSidebar = {
   visible?: boolean;
   resizable?: boolean;
   width?: t.Pixels;
+  divider?: t.PercentOpacity;
 };
 
 /** Configuration of the crop-marks within the `main` slot container. */

@@ -12,12 +12,18 @@ export { Repo } from '../ui.Repo/mod.ts';
  */
 const name = 'Crdt.Layout';
 
-export const defaults: t.LayoutDefaults = {
+export const defaults: NonNullable<t.LayoutDefaults> = {
   get header() {
     return { visible: true, readOnly: false };
   },
   get sidebar() {
-    return { position: 'right', visible: true, resizable: true, width: 340 } as const;
+    return {
+      position: 'right',
+      visible: true,
+      resizable: true,
+      width: 340,
+      divider: 0.2,
+    } as const;
   },
   get cropmarks() {
     return { borderOpacity: 0.08, subjectOnly: false };
