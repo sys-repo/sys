@@ -107,23 +107,6 @@ describe('trait-registry', () => {
   });
 
   describe('normalizer wiring via DefaultTraitRegistry', () => {
-    it.skip('slug-tree: registry exposes a normalizer function that outputs canonical shape', () => {
-      /**
-       * 🐷
-       * NOTE: commented out - not yet working in down-stream editor
-       *       error parser, see: `useSlugSemanticDiagnostics`
-       */
-      const entry = DefaultTraitRegistry.get('slug-tree')!;
-      expect(typeof entry.normalize).to.eql('function');
-
-      // Minimal authoring DSL (pre-canonical form):
-      const authoring = [{ intro: { ref: 'crdt:create' } }];
-
-      // Apply normalizer then validate against the canonical schema:
-      const canonical = entry.normalize?.(authoring);
-      expect(Value.Check(entry.propsSchema, canonical)).to.eql(true);
-    });
-
     it('video-player / video-recorder: no normalizer by default', () => {
       expect(DefaultTraitRegistry.get('video-player')!.normalize).to.eql(undefined);
       expect(DefaultTraitRegistry.get('video-recorder')!.normalize).to.eql(undefined);
