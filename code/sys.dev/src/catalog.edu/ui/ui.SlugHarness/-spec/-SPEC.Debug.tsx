@@ -239,6 +239,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <hr />
       <Crdt.UI.Dev.ObjectView
         doc={debug.signals.doc.value}
         style={{ marginTop: 5 }}
