@@ -1,5 +1,5 @@
 /**
- * 🌸 ———— GENERATOR PROMPT:START ./t.type-gen.ts ———————————————————————————————————————
+ * 🌼 ———— GENERATOR PROMPT:START ./t.type-gen.ts ———————————————————————————————————————
  *
  * @file t.type-gen.ts
  * @summary Public, explicit TS types generated from local runtime schemas.
@@ -35,7 +35,7 @@
  *   then update these type aliases to match and recompile.
  * • Locks (if used) live in `t.type-gen.lock.ts` and are purely compile-time.
  *
- * 🌸 ———— GENERATOR PROMPT:END ./t.type-gen.ts ———————————————————————————————————————
+ * 🌼 ———— GENERATOR PROMPT:END ./t.type-gen.ts ———————————————————————————————————————
  */
 
 /**

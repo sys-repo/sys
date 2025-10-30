@@ -42,7 +42,7 @@ export function yamlSamples(debug: DebugSignals) {
               as: thing-v1
           data:
             thing-v1:
-              name: Name of Index 🌸
+              name: Name of Index 🌼
               slugs:
                 - ref: crdt:create
                   name: Name or Title
