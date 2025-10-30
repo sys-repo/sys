@@ -38,7 +38,10 @@ export const Slug: t.SlugLib = {
       };
     },
     get Trait() {
-      return { Binding: TraitBindingSchema, Def: TraitDefSchema };
+      return {
+        Binding: TraitBindingSchema,
+        Def: TraitDefSchema,
+      };
     },
   },
 };
