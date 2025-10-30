@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { makeRegistry, Type as T } from '../common.ts';
-import { validateTraitExistence } from '../mod.ts';
+import { validateTraitExistence } from '../u.trait.existence.ts';
 
-describe('schema.validation / validateTraitExistence', () => {
+describe('schema.validation: trait existence', () => {
   const registry = makeRegistry([
     {
       id: 'trait-alpha',

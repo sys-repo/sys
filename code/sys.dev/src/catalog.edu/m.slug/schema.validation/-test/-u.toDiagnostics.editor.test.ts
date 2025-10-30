@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { semanticErrorsToEditorDiagnostics } from '../mod.ts';
+import { semanticErrorsToEditorDiagnostics } from '../u.diagnostics.ts';
 
-describe('schema.validation / semanticErrorsToEditorDiagnostics (Editor adapter)', () => {
+describe('schema.validation: semanticErrorsToEditorDiagnostics (Editor adapter)', () => {
   it('[] → []', () => {
     const out = semanticErrorsToEditorDiagnostics([]);
     expect(out).to.eql([]);

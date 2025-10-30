@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { makeRegistry, Type as T } from '../common.ts';
-import { validateAliasRules, validatePropsShape } from '../mod.ts';
+import { validateAliasRules, validatePropsShape } from '../u.trait.props.ts';
 
-describe('schema.validation (props)', () => {
+describe('schema.validation: trait props', () => {
   const registry = makeRegistry([
     {
       id: 'trait-alpha',

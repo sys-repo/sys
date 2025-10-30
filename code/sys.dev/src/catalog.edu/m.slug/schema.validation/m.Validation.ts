@@ -1,42 +1,22 @@
 import type { t } from './common.ts';
-import {
+import { SlugTree } from './m.SlugTree.ts';
+
+import { semanticErrorsToDiagnostics, semanticErrorsToEditorDiagnostics } from './u.diagnostics.ts';
+import { attachSemanticRanges } from './u.ranges.attach.ts';
+import { validateWithRanges } from './u.ranges.validate.ts';
+import { validateTraitExistence } from './u.trait.existence.ts';
+import { validateAliasRules, validatePropsShape } from './u.trait.props.ts';
+import { validateSlug, validateSlugAgainstRegistry } from './u.traits.ts';
+
+export const Validation: t.SlugValidationLib = {
+  SlugTree,
+  validateTraitExistence,
+  validatePropsShape,
+  validateSlug,
+  validateSlugAgainstRegistry,
+  validateWithRanges,
   attachSemanticRanges,
   semanticErrorsToDiagnostics,
   semanticErrorsToEditorDiagnostics,
   validateAliasRules,
-  validatePropsShape,
-  validateSlug,
-  validateSlugAgainstRegistry,
-  validateTraitExistence,
-  validateWithRanges,
-} from './mod.ts';
-
-export const Validation: t.SlugValidationLib = {
-  get validateTraitExistence() {
-    return validateTraitExistence;
-  },
-  get validatePropsShape() {
-    return validatePropsShape;
-  },
-  get validateSlug() {
-    return validateSlug;
-  },
-  get validateSlugAgainstRegistry() {
-    return validateSlugAgainstRegistry;
-  },
-  get validateWithRanges() {
-    return validateWithRanges;
-  },
-  get attachSemanticRanges() {
-    return attachSemanticRanges;
-  },
-  get semanticErrorsToDiagnostics() {
-    return semanticErrorsToDiagnostics;
-  },
-  get semanticErrorsToEditorDiagnostics() {
-    return semanticErrorsToEditorDiagnostics;
-  },
-  get validateAliasRules() {
-    return validateAliasRules;
-  },
 };

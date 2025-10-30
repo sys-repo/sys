@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { makeRegistry, Type as T } from '../common.ts';
-import { validateSlug, validateSlugAgainstRegistry } from '../mod.ts';
+import { validateSlug, validateSlugAgainstRegistry } from '../u.traits.ts';
 
-describe('schema.validation / composite', () => {
+describe('schema.validation: composite traits', () => {
   const registry = makeRegistry([
     {
       id: 'trait-alpha',

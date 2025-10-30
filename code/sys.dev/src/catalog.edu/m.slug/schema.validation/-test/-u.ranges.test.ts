@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { makeRegistry, Str, Type as T, Yaml } from '../common.ts';
-import { attachSemanticRanges, validateWithRanges } from '../mod.ts';
+import { attachSemanticRanges } from '../u.ranges.attach.ts';
+import { validateWithRanges } from '../u.ranges.validate.ts';
 
 describe('ranges', () => {
   const registry = makeRegistry([
