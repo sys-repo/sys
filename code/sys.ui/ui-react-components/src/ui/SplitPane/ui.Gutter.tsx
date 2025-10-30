@@ -50,7 +50,9 @@ export const Gutter: React.FC<GutterProps> = (props) => {
   const styles = {
     base: css({ position: 'relative' }),
     body: css({
-      Absolute: [0, 0 - gutter / 2, 0, 0 - gutter / 2],
+      Absolute: isHorizontal
+        ? [0, 0 - gutter / 2, 0, 0 - gutter / 2]
+        : [0 - gutter / 2, 0, 0 - gutter / 2, 0],
       pointerEvents: collapsed ? 'none' : 'auto',
       color: theme.fg,
       cursor,
