@@ -19,8 +19,8 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
     min = 0,
     max = 1,
     gutter = D.gutter,
-    gutterOpacity = D.gutterOpacity,
-    gutterLine = D.gutterLine,
+    dividerOpacity = D.dividerOpacity,
+    dividerLine = D.dividerLine,
     onlyIndex,
     onChange,
     onDragStart,
@@ -137,8 +137,8 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
           collapsed={collapsed}
           orientation={orientation}
           ratios={ratios}
-          gutterLine={gutterLine}
-          gutterOpacity={gutterOpacity}
+          dividerLine={dividerLine}
+          dividerOpacity={dividerOpacity}
           pointerHandlers={pointer.handlers}
           onStep={(idx, delta) => stepPair(idx, delta)}
           setActive={(idx) => (activeGutterRef.current = idx)} // Mark which gutter should start dragging on pointer down.

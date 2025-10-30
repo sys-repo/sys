@@ -45,10 +45,10 @@ export type SplitPaneProps = {
   gutter?: t.Pixels;
 
   /** Visual line thickness within the gutter (px). */
-  gutterLine?: t.Pixels;
+  dividerLine?: t.Pixels;
 
   /** Visual line opacity [0..1]. */
-  gutterOpacity?: t.Percent;
+  dividerOpacity?: t.Percent;
 
   // Common:
   debug?: boolean;

@@ -14,7 +14,7 @@ export const DEFAULTS = {
   min: 0.1,
   max: 0.9,
   gutter: 6,
-  gutterOpacity: 0.2,
-  gutterLine: 1,
+  dividerOpacity: 0.2,
+  dividerLine: 1,
 } as const;
 export const D = DEFAULTS;

@@ -8,8 +8,8 @@ export type GutterProps = {
   collapsed?: boolean;
   orientation?: t.Orientation;
   ratios: t.Percent[];
-  gutterLine?: t.Pixels;
-  gutterOpacity?: t.Percent;
+  dividerLine?: t.Pixels;
+  dividerOpacity?: t.Percent;
   pointerHandlers: Record<string, unknown>; // Pointer handlers from usePointer.
 
   debug?: boolean;
@@ -30,8 +30,8 @@ export const Gutter: React.FC<GutterProps> = (props) => {
     collapsed = false,
     orientation = 'horizontal',
     ratios,
-    gutterLine = 2,
-    gutterOpacity = 0.2,
+    dividerLine = 2,
+    dividerOpacity = 0.2,
     debug = false,
     pointerHandlers,
     setActive,
@@ -58,10 +58,10 @@ export const Gutter: React.FC<GutterProps> = (props) => {
       color: theme.fg,
     }),
     line: css({
-      backgroundColor: Color.alpha(theme.fg, gutterOpacity),
+      backgroundColor: Color.alpha(theme.fg, dividerOpacity),
       ...(orientation === 'horizontal'
-        ? { width: gutterLine === 0 ? 0 : gutterLine, justifySelf: 'center' }
-        : { height: gutterLine === 0 ? 0 : gutterLine, alignSelf: 'center' }),
+        ? { width: dividerLine === 0 ? 0 : dividerLine, justifySelf: 'center' }
+        : { height: dividerLine === 0 ? 0 : dividerLine, alignSelf: 'center' }),
     }),
     handle: css({ position: 'absolute', inset: 0 }),
     debugLabel: css({
