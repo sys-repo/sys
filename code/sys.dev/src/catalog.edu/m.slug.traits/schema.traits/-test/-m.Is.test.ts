@@ -1,10 +1,11 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
-import { type t } from '../common.ts';
+import { type t, Slug } from '../common.ts';
 import { Is, Traits } from '../mod.ts';
 
 describe('Slug.Is', () => {
   it('API', () => {
     expect(Traits.Is).to.equal(Is);
+    expect(Traits.Is.slugTreeProps).to.equal(Slug.Tree.Is.props);
   });
 
   describe('Is.videoRecorderBinding', () => {
@@ -138,70 +139,6 @@ describe('Slug.Is', () => {
       const input: unknown = { src: 'clip.mp4' };
       if (Is.videoPlayerProps(input)) {
         expectTypeOf(input.src).toEqualTypeOf<string | undefined>();
-      } else {
-        expect(true).to.eql(false);
-      }
-    });
-  });
-
-  describe('Is.slugTreeProps', () => {
-    it('signature', () => {
-      type Expect = (u: unknown) => u is t.SlugTreeProps;
-      expectTypeOf(Is.slugTreeProps).toEqualTypeOf<Expect>();
-    });
-
-    it('runtime truth table: valid cases', () => {
-      const ok0: unknown = [];
-      const ok1: unknown = [{ slug: 'Root' }];
-      const ok2: unknown = [
-        {
-          slug: 'A',
-          slugs: [
-            { slug: 'B', ref: 'crdt:create' },
-            { slug: 'C', slugs: [{ slug: 'D', ref: 'crdt:create' }] },
-          ],
-        },
-      ];
-      const ok3_schemaOnlyPermissive: unknown = [
-        {
-          slug: 'Hybrid',
-          traits: [{ of: 'video-player', as: 'vid' }],
-          data: {
-            // schema-only: alias mismatch is allowed here; binding is separate
-            vid1: { src: 'https://example.com/clip.mp4' },
-          },
-        },
-      ];
-
-      expect(Is.slugTreeProps(ok0)).to.eql(true);
-      expect(Is.slugTreeProps(ok1)).to.eql(true);
-      expect(Is.slugTreeProps(ok2)).to.eql(true);
-      expect(Is.slugTreeProps(ok3_schemaOnlyPermissive)).to.eql(true);
-    });
-
-    it('runtime truth table: invalid cases', () => {
-      const notArray: unknown = { slug: 'nope' };
-      const missingSlug: unknown = [{ ref: 'crdt:create' }];
-      const emptySlug: unknown = [{ slug: '' }];
-      const badRefDeep: unknown = [{ slug: 'A', slugs: [{ slug: 'B', ref: 'bad-ref' }] }];
-      const unknownKeyNested: unknown = [{ slug: 'A', slugs: [{ slug: 'B', foo: 123 }] }];
-
-      expect(Is.slugTreeProps(notArray)).to.eql(false);
-      expect(Is.slugTreeProps(missingSlug)).to.eql(false);
-      expect(Is.slugTreeProps(emptySlug)).to.eql(false);
-      expect(Is.slugTreeProps(badRefDeep)).to.eql(false);
-      expect(Is.slugTreeProps(unknownKeyNested)).to.eql(false);
-    });
-
-    it('narrows to t.SlugTreeProps', () => {
-      const input: unknown = [{ slug: 'Z', slugs: [{ slug: 'Y', ref: 'crdt:create' }] }];
-      if (Is.slugTreeProps(input)) {
-        // Type narrowing:
-        expectTypeOf(input).toEqualTypeOf<t.SlugTreeProps>();
-        // A couple of concrete runtime checks:
-        expect(Array.isArray(input)).to.eql(true);
-        expect(input[0].slug).to.eql('Z');
-        expect(Array.isArray(input[0].slugs)).to.eql(true);
       } else {
         expect(true).to.eql(false);
       }

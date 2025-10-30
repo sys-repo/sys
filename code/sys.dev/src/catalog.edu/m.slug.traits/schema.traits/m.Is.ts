@@ -1,11 +1,9 @@
 import { Traits } from '../mod.ts';
-import { type t, Is as is, Value } from './common.ts';
+import { type t, Is as is, Slug, Value } from './common.ts';
 
 export const Is: t.SlugTraitIsLib = {
   /** slug-tree: props schema */
-  slugTreeProps(u: unknown): u is t.SlugTreeProps {
-    return Value.Check(Traits.Schema.SlugTree.Props, u as unknown);
-  },
+  slugTreeProps: Slug.Tree.Is.props,
 
   /** video-recorder: binding with non-empty as */
   videoRecorderBinding(m: unknown): m is t.VideoRecorderBinding {

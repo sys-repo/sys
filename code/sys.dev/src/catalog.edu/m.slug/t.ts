@@ -23,4 +23,15 @@ export type SlugLib = {
     };
     readonly Trait: { readonly Def: t.TSchema; readonly Binding: t.TSchema };
   };
+  readonly Tree: t.SlugTreeLib;
+};
+
+/**
+ * Trees of Slugs.
+ */
+export type SlugTreeLib = {
+  readonly Is: {
+    /** True iff `u` satisfies the core SlugTree props schema. */
+    props(u: unknown): u is t.SlugTreeProps;
+  };
 };

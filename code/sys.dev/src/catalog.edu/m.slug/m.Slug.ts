@@ -7,6 +7,7 @@ import type { t } from './common.ts';
 
 import { Has } from './m.Slug.Has.ts';
 import { Is } from './m.Slug.Is.ts';
+import { SlugTree as Tree } from './m.SlugTree.ts';
 import {
   SlugMinimalSchema,
   SlugRefSchema,
@@ -27,6 +28,7 @@ export const Slug: t.SlugLib = {
   Is,
   Has,
   Validation,
+  Tree,
   Schema: {
     get Slug() {
       return {
