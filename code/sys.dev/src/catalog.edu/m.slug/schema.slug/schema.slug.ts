@@ -1,26 +1,13 @@
 import { type t, Type as T } from './common.ts';
-import { Pattern } from './m.Pattern.ts';
-import { TraitBindingSchema } from './schema.trait.ts';
+import { SLUG } from './schema.slug.u.ts';
 
 /**
  * Shared (reused) fields across slug variants.
  */
 const SHARED = {
-  id: T.Optional(T.String({ title: 'Slug identifier', ...Pattern.idPattern() })),
-  description: T.Optional(
-    T.String({
-      title: 'Description',
-      description: `Optional human-readable summary of the slug's purpose or contents.`,
-    }),
-  ),
+  id: T.Optional(SLUG.ID),
+  description: T.Optional(SLUG.DESCRIPTION),
 } as const;
-
-/**
- * Traits array definition.
- */
-const TRAITS = T.Array(TraitBindingSchema, {
-  description: `List of trait bindings applied to this slug. Each binding selects a trait type ('of') and assigns a local alias ('as') used in 'data'.`,
-});
 
 /**
  * Slug (ref):
@@ -28,16 +15,7 @@ const TRAITS = T.Array(TraitBindingSchema, {
  * - May NOT coexist with traits or data.
  */
 export const SlugRefSchemaInternal = T.Object(
-  {
-    ...SHARED,
-    ref: T.Optional(
-      T.String({
-        ...Pattern.crdtRefPattern(),
-        title: 'Reference',
-        description: `Optional reference (URN or CRDT create tag) pointing to another slug definition.`,
-      }),
-    ),
-  },
+  { ...SHARED, ref: T.Optional(SLUG.REF) },
   {
     $id: 'slug.ref',
     additionalProperties: false,
@@ -52,10 +30,7 @@ export const SlugRefSchemaInternal = T.Object(
  * - NO data field.
  */
 export const SlugMinimalSchemaInternal = T.Object(
-  {
-    ...SHARED,
-    traits: T.Optional(TRAITS),
-  },
+  { ...SHARED, traits: T.Optional(SLUG.TRAITS) },
   {
     $id: 'slug.minimal',
     additionalProperties: false,
@@ -70,13 +45,7 @@ export const SlugMinimalSchemaInternal = T.Object(
  * - REQUIRED data record keyed by trait alias.
  */
 export const SlugWithDataSchemaInternal = T.Object(
-  {
-    ...SHARED,
-    traits: TRAITS,
-    data: T.Record(T.String(), T.Unknown(), {
-      description: `Serialized instance data keyed by trait alias. Each value is validated semantically against its trait's schema.`,
-    }),
-  },
+  { ...SHARED, traits: SLUG.TRAITS, data: SLUG.DATA },
   {
     $id: 'slug.with-data',
     additionalProperties: false,
@@ -103,7 +72,8 @@ export const SlugSchemaInternal = T.Union(
 /**
  * Public widened exports (JSR-safe: explicit t.TSchema surface).
  */
+export const SlugSchema: t.TSchema = SlugSchemaInternal;
+// Variants:
 export const SlugRefSchema: t.TSchema = SlugRefSchemaInternal;
 export const SlugMinimalSchema: t.TSchema = SlugMinimalSchemaInternal;
 export const SlugWithDataSchema: t.TSchema = SlugWithDataSchemaInternal;
-export const SlugSchema: t.TSchema = SlugSchemaInternal;

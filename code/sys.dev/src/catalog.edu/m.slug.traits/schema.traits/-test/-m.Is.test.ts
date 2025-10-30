@@ -145,76 +145,66 @@ describe('Slug.Is', () => {
   });
 
   describe('Is.slugTreeProps', () => {
-    it('valid: empty tree (slugs: [])', () => {
-      const ok: t.SlugTreeProps = { slugs: [] };
-      expect(Is.slugTreeProps(ok)).to.eql(true);
+    it('signature', () => {
+      type Expect = (u: unknown) => u is t.SlugTreeProps;
+      expectTypeOf(Is.slugTreeProps).toEqualTypeOf<Expect>();
     });
 
-    it('valid: leaf at root (name + ref)', () => {
-      const ok: t.SlugTreeProps = {
-        slugs: [{ name: 'intro', ref: 'crdt:create' }],
-      };
-      expect(Is.slugTreeProps(ok)).to.eql(true);
-      expectTypeOf(ok).toEqualTypeOf<t.SlugTreeProps>();
-    });
-
-    it('valid: group (name + items)', () => {
-      const ok = {
-        slugs: [{ name: 'section', slugs: [{ name: 'child', ref: 'crdt:create' }] }],
-      } as const;
-      expect(Is.slugTreeProps(ok)).to.eql(true);
-    });
-
-    it('valid: hybrid (name + ref + items)', () => {
-      const ok = {
-        slugs: [{ name: 'hybrid', ref: 'crdt:create', slugs: [] }],
-      } as const;
-      expect(Is.slugTreeProps(ok)).to.eql(true);
-    });
-
-    it('valid: deeper nesting (3 levels)', () => {
-      const ok = {
-        slugs: [
-          {
-            name: 'level-1',
-            slugs: [
-              {
-                name: 'level-2',
-                slugs: [{ name: 'level-3-leaf', ref: 'crdt:create' }],
-              },
-            ],
+    it('runtime truth table: valid cases', () => {
+      const ok0: unknown = [];
+      const ok1: unknown = [{ slug: 'Root' }];
+      const ok2: unknown = [
+        {
+          slug: 'A',
+          slugs: [
+            { slug: 'B', ref: 'crdt:create' },
+            { slug: 'C', slugs: [{ slug: 'D', ref: 'crdt:create' }] },
+          ],
+        },
+      ];
+      const ok3_schemaOnlyPermissive: unknown = [
+        {
+          slug: 'Hybrid',
+          traits: [{ of: 'video-player', as: 'vid' }],
+          data: {
+            // schema-only: alias mismatch is allowed here; binding is separate
+            vid1: { src: 'https://example.com/clip.mp4' },
           },
-        ],
-      } as const;
-      expect(Is.slugTreeProps(ok)).to.eql(true);
+        },
+      ];
+
+      expect(Is.slugTreeProps(ok0)).to.eql(true);
+      expect(Is.slugTreeProps(ok1)).to.eql(true);
+      expect(Is.slugTreeProps(ok2)).to.eql(true);
+      expect(Is.slugTreeProps(ok3_schemaOnlyPermissive)).to.eql(true);
     });
 
-    it('invalid: item missing name', () => {
-      const bad = { slugs: [{ ref: 'crdt:create' }] };
-      expect(Is.slugTreeProps(bad)).to.eql(false);
+    it('runtime truth table: invalid cases', () => {
+      const notArray: unknown = { slug: 'nope' };
+      const missingSlug: unknown = [{ ref: 'crdt:create' }];
+      const emptySlug: unknown = [{ slug: '' }];
+      const badRefDeep: unknown = [{ slug: 'A', slugs: [{ slug: 'B', ref: 'bad-ref' }] }];
+      const unknownKeyNested: unknown = [{ slug: 'A', slugs: [{ slug: 'B', foo: 123 }] }];
+
+      expect(Is.slugTreeProps(notArray)).to.eql(false);
+      expect(Is.slugTreeProps(missingSlug)).to.eql(false);
+      expect(Is.slugTreeProps(emptySlug)).to.eql(false);
+      expect(Is.slugTreeProps(badRefDeep)).to.eql(false);
+      expect(Is.slugTreeProps(unknownKeyNested)).to.eql(false);
     });
 
-    it('invalid: items must be an array when present', () => {
-      const bad = { slugs: [{ name: 'x', slugs: {} }] };
-      expect(Is.slugTreeProps(bad)).to.eql(false);
-    });
-
-    it('invalid: additional property on item is rejected (additionalProperties: false)', () => {
-      const bad = { slugs: [{ name: 'x', ref: 'crdt:create', foo: 1 }] };
-      expect(Is.slugTreeProps(bad)).to.eql(false);
-    });
-
-    it('invalid: bad ref pattern', () => {
-      const bad = { slugs: [{ name: 'bad', ref: 'not-a-crdt-ref' }] };
-      expect(Is.slugTreeProps(bad)).to.eql(false);
-    });
-
-    it('valid: summary allowed at root and item', () => {
-      const ok: t.SlugTreeProps = {
-        description: 'root summary',
-        slugs: [{ name: 'node', description: 'node summary', ref: 'crdt:create' }],
-      };
-      expect(Is.slugTreeProps(ok)).to.eql(true);
+    it('narrows to t.SlugTreeProps', () => {
+      const input: unknown = [{ slug: 'Z', slugs: [{ slug: 'Y', ref: 'crdt:create' }] }];
+      if (Is.slugTreeProps(input)) {
+        // Type narrowing:
+        expectTypeOf(input).toEqualTypeOf<t.SlugTreeProps>();
+        // A couple of concrete runtime checks:
+        expect(Array.isArray(input)).to.eql(true);
+        expect(input[0].slug).to.eql('Z');
+        expect(Array.isArray(input[0].slugs)).to.eql(true);
+      } else {
+        expect(true).to.eql(false);
+      }
     });
   });
 });

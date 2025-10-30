@@ -1,139 +1,113 @@
-import { type t, Pattern, Type as T } from './common.ts';
+import { SLUG } from '../../m.slug/schema.slug/schema.slug.u.ts';
+import { type t, Type as T } from './common.ts';
 
 /**
- * Canonical "slug tree" node schema.
+ * Canonical slug-tree item.
  *
- * ─────────────────────────────────────────────
- *  YAML authoring intent (concise DSL):
+ * Structure
+ * - Required: slug (human-facing display label).
+ * - Optional children: slugs?: SlugTreeItem[] (ordered, may be empty).
+ * - Inline slug surface (DRY from core): id, description, ref, traits, data.
  *
- *  ✅
- *  Normalized canonical form (after DSL → schema normalization):
+ * Semantics
+ * - Tree-only relaxation: ref MAY coexist with traits/data (hybrid).
+ * - Schema-only: does NOT require data keys to match traits[*].as
+ *   (semantic binding is validated elsewhere).
+ * - Unknown keys are rejected (additionalProperties: false).
+ * - All inline field atoms are sourced from core SLUG.* to avoid drift.
  *
+ * Examples
+ * ```yaml
+ *  # Minimal
+ *  - slug: Intro
+ *
+ *  # Ref-only
+ *  - slug: Intro
+ *    ref: crdt:create
+ *
+ *  # Inline traits + data
+ *  - slug: Video
+ *    traits:
+ *      - of: "video-player"
+ *        as: "vid"
+ *    data:
+ *      vid: { src: "intro.mp4", start: 3.2 }
+ *
+ *  # Hybrid (tree-only)
+ *  - slug: Video
+ *    ref: crdt:create
+ *    traits:
+ *      - of: "video-player"
+ *        as: "vid"
+ *    data:
+ *      vid: { src: "intro.mp4" }
+ *
+ *  # Nested
+ *  - slug: Section A
  *    slugs:
- *      - label: generic-canvas-program
+ *      - slug: Getting Started
  *        ref: crdt:create
- *        slugs:
- *          - label: program-outline
- *            ref: crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P
- *          - label: trailer
- *            ref: crdt:create
- *          - label: business-model-design
- *            ref: crdt:create
- *            slugs:
- *              - label: understanding-business-model
- *                ref: crdt:create
- *
- *
- *
- *    🐷🌸 NOTE: normalizer (WIP) - normalizer not exposed by schema
- *    (awaiting complete YAML pipeline impl. → Validator-to-diagnostics → editor range errors/hints)
- *
- *    - generic-canvas-program:
- *        ref: crdt:create
- *        slugs:
- *          - program-outline: crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P
- *          - trailer: crdt:create
- *          - business-model-design:
- *              ref: crdt:create
- *              slugs:
- *                - understanding-business-model: crdt:create
- *
- *
- * ─────────────────────────────────────────────
- *
- * The schema below validates only the *canonical* (✅) normalized structure.
- * Authoring-time YAML will be normalized into this shape within module: `m.yaml`
- * (see `u.slug.tree.normalize.ts`).
+ * ```
  */
-
 export const SlugTreeItemSchemaInternal = T.Recursive(
   (Self) =>
     T.Object(
       {
-        name: T.String({
+        // Tree-local scaffolding:
+        slug: T.String({
           minLength: 1,
-          title: 'Node Name',
-          description: `Human-readable display name (like a chapter or section title). Not globally unique; scope is local to this tree.`,
+          title: 'Display name',
+          description: `Human-readable label for this node (like a section or chapter title). Not globally unique.`,
         }),
-
-        ref: T.Optional(
-          T.String({ title: 'Slug Config Reference (CRDT/URN)', ...Pattern.crdtRefPattern() }),
-        ),
-
         slugs: T.Optional(
           T.Array(Self, {
-            title: 'Child Items (Slugs)',
-            description: 'Optional ordered child slugs on this branch.',
+            title: 'Child Slugs (Nodes)',
+            description: 'Optional ordered children for this branch.',
           }),
         ),
 
-        description: T.Optional(
-          T.String({
-            title: 'Description',
-            description: 'Optional human readable description of this slug.',
-          }),
-        ),
+        id: T.Optional(SLUG.ID),
+        description: T.Optional(SLUG.DESCRIPTION),
+        ref: T.Optional(SLUG.REF),
+        traits: T.Optional(SLUG.TRAITS),
+        data: T.Optional(SLUG.DATA),
       },
       {
-        additionalProperties: false,
-        description: 'A node in a Slug Tree: may have its own CRDT ref, child items, or both.',
+        additionalProperties: false, // reject unknown keys (eg "foo": 123)
+        description: `Slug-tree node: display label and optional children, with optional inline Slug surface.`,
       },
     ),
   {
     $id: 'trait.slug-tree.item',
     title: 'Slug Tree Item',
+    description: `A node in the slug-tree hierarchy that may inline or reference core slug configs.`,
   },
 );
 
 /**
- * Top-level "slug tree" props schema.
+ * Root trait data schema.
  *
- * YAML authoring intent (concise):
+ * YAML shape:
+ * data:
+ *   my-tree:
+ *     - slug: Section A
+ *       slugs:
+ *         - slug: Intro
+ *           ref: crdt:create
+ *         - slug: Video
+ *           traits:
+ *             - of: video-player
+ *               as: vid
+ *           data:
+ *             vid: { src: "intro.mp4", start: 3.2 }
  *
- *   programme-v1:
- *     - content-creation:
- *         slugs:
- *           - example-scripts:
- *               slugs:
- *                 - age-co-uk-example-script: crdt:create
- *                 - patagonia-example-script: crdt:create
- *
- * Canonical normalized form (validated by schema):
- *
- *   programme-v1:
- *     slugs:
- *       - label: content-creation
- *         slugs:
- *           - label: example-scripts
- *             slugs:
- *               - label: age-co-uk-example-script
- *                 ref: crdt:create
- *               - label: patagonia-example-script
- *                 ref: crdt:create
- *
- * Normalization handled by: `u.slug.tree.normalize.ts`
+ * Top-level value is an array of items (no wrapping object).
  */
-export const SlugTreePropsSchemaInternal = T.Object(
-  {
-    slugs: T.Array(SlugTreeItemSchemaInternal, {
-      title: 'Root Items',
-      description: `Ordered root nodes of the slug tree. Each node may have its own CRDT ref, child items, or both.`,
-    }),
-
-    description: T.Optional(
-      T.String({
-        title: 'Description',
-        description: `(Optional) human readable high-level description of the entire tree.`,
-      }),
-    ),
-  },
-  {
-    $id: 'trait.slug-tree.props',
-    title: 'Slug Tree Properties',
-    description: `Top-level structure defining a hierarchical set of slug references (tree of documents or sections).`,
-    additionalProperties: false,
-  },
-);
+export const SlugTreePropsSchemaInternal = T.Array(SlugTreeItemSchemaInternal, {
+  $id: 'trait.slug-tree',
+  title: 'Slug Tree',
+  description: `Ordered list of slug-tree items. Each item carries a display label and may inline core slug fields or reference external configs.`,
+});
 
 /**
  * Public widened exports (JSR-safe: explicit t.TSchema surface).

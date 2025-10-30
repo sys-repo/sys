@@ -62,7 +62,7 @@ describe('trait-registry', () => {
   describe('Value.Check smoke tests via registry schemas', () => {
     it('slug-tree: minimal sample', () => {
       const s = schemaOf('slug-tree')!;
-      const ok: t.SlugTreeProps = { slugs: [{ name: 'intro', ref: 'crdt:create' }] };
+      const ok: t.SlugTreeProps = [{ slug: 'intro', ref: 'crdt:create' }];
       expect(Value.Check(s, ok)).to.eql(true);
     });
 

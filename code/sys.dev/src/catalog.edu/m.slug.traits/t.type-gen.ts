@@ -1,5 +1,5 @@
 /**
- * 🌸 ———— GENERATOR PROMPT:START ./t.type-gen.ts ———————————————————————————————————————
+ * 🌼 ———— GENERATOR PROMPT:START ./t.type-gen.ts ———————————————————————————————————————
  *
  * @file t.type-gen.ts
  * @summary Public, explicit TS types generated from local runtime schemas.
@@ -35,7 +35,7 @@
  *   then update these type aliases to match and recompile.
  * • Locks (if used) live in `t.type-gen.lock.ts` and are purely compile-time.
  *
- * 🌸 ———— GENERATOR PROMPT:END ./t.type-gen.ts ———————————————————————————————————————
+ * 🌼 ———— GENERATOR PROMPT:END ./t.type-gen.ts ———————————————————————————————————————
  */
 
 /**
@@ -78,83 +78,54 @@ export type VideoRecorderProps = {
 };
 
 /**
- * Slug Index Properties
- * – mirrors `m.slug.index.ts` (`SlugIndexPropsSchema`)
- */
-export type SlugIndexProps = {
-  /** Display name (optional, non-empty if provided). */
-  readonly name?: string;
-
-  /** Top level summary. */
-  readonly description?: string;
-
-  /**
-   * Array of slug references.
-   * Each entry may include a human-friendly name and must include a CRDT ref.
-   */
-  readonly index: readonly {
-    /** Human label for the referenced slug. */
-    readonly name?: string;
-
-    /**
-     * CRDT Slug Reference (URN).
-     * Accepts "crdt:<uuid|base62-28>/[path]" | "urn:crdt:<uuid|base62-28>/[path]".
-     */
-    readonly ref: string;
-  }[];
-};
-
-/**
- * Slug Tree Item
- * – mirrors `m.slug.tree.ts` (`SlugTreeItemSchema`)
+ * SlugTreeItem
+ * – mirrors `schema.slug.tree.ts` (`SlugTreeItemSchema`)
  *
- * A node may:
- *  • reference a document via `ref` (leaf),
- *  • contain `slugs` (group),
- *  • or do both (hybrid).
+ * A node carries a required display `slug` and may:
+ *  • reference another slug via `ref`
+ *  • inline its own traits + data
+ *  • contain nested `slugs` (child nodes)
+ *  • or combine all forms (hybrid)
  */
 export type SlugTreeItem = {
-  /**
-   * Human-readable display name (like a chapter or section title).
-   * Not globally unique; scope is local to this tree.
-   */
-  readonly name: string;
+  /** Display label for this node (like a section or chapter title). */
+  readonly slug: string;
 
-  /**
-   * CRDT Slug Reference (URN).
-   * Accepts:
-   *   crdt:create
-   *   crdt:<uuid|base62-28>/[path]
-   *   urn:crdt:<uuid|base62-28>/[path]
-   */
+  /** Optional CRDT or URN reference to an external slug config. */
   readonly ref?: string;
 
   /**
-   * Ordered child nodes of this branch.
-   * Each may have its own CRDT ref, child slugs, or both.
+   * Optional trait bindings applied inline to this slug.
+   * Each binding maps a trait type to a local alias.
+   */
+  readonly traits?: readonly {
+    /** Trait type identifier. */
+    readonly of: string;
+    /** Local alias name under which trait data is stored. */
+    readonly as: string;
+  }[];
+
+  /**
+   * Arbitrary data map keyed by local alias (trait instance data).
+   * Values are validated semantically by the respective trait schema.
+   */
+  readonly data?: { readonly [key: string]: unknown };
+
+  /** Optional description for this node. */
+  readonly description?: string;
+
+  /**
+   * Optional nested slug-tree children.
+   * Each may have its own slug label, ref, and traits/data.
    */
   readonly slugs?: readonly SlugTreeItem[];
-
-  /** Optional human summary for this node. */
-  readonly description?: string;
 };
 
 /**
- * Slug Tree Properties
- * – mirrors `m.slug.tree.ts` (`SlugTreePropsSchema`)
+ * SlugTreeProps
+ * – mirrors `schema.slug.tree.ts` (`SlugTreePropsSchema`)
  *
- * Top-level structure defining a hierarchical set of slug references
- * (tree of documents or sections).
+ * The trait’s value is an array of slug-tree items.
+ * Each node may contain nested items or inline slug configs.
  */
-export type SlugTreeProps = {
-  /**
-   * Ordered root nodes of the slug tree.
-   * Each slug (node) may have its own CRDT ref, child slugs, or both.
-   */
-  readonly slugs: readonly SlugTreeItem[];
-
-  /**
-   * (Optional) human readable, high-level description of the entire tree.
-   */
-  readonly description?: string;
-};
+export type SlugTreeProps = readonly SlugTreeItem[];

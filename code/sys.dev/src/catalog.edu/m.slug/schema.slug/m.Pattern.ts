@@ -18,7 +18,7 @@ export const Pattern: t.SlugSchemaPatternLib = {
     const pattern =
       `^(?:` + `crdt:create` + `|crdt:${BASE62}${PATH}` + `|urn:crdt:${BASE62}${PATH}` + `)$`;
     return {
-      description: `CRDT ref: "crdt:create" | crdt:<uuid|base62-28>[/path] | urn:crdt:<uuid|base62-28>[/path]`,
+      description: `CRDT reference: "crdt:create" | crdt:<uuid|base62-28>[/path] | urn:crdt:<uuid|base62-28>[/path]`,
       pattern,
     };
   },

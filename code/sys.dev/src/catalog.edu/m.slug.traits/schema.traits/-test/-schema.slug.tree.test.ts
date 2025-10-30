@@ -1,118 +1,228 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
-import { type t, Value } from '../common.ts';
+import type { t } from '../common.ts';
+import { Value } from '../common.ts';
 import { Is, SlugTreeItemSchema, SlugTreePropsSchema, Traits } from '../mod.ts';
 
 describe('trait: slug-tree', () => {
-  describe('exports / shapes', () => {
+  describe('exports / shape', () => {
     it('Traits exposes slug-tree schemas', () => {
       expect(Traits.Schema.SlugTree.Item).to.equal(SlugTreeItemSchema);
       expect(Traits.Schema.SlugTree.Props).to.equal(SlugTreePropsSchema);
     });
 
-    it('type surface: t.SlugTreeItem / t.SlugTreeProps compile', () => {
-      const item: t.SlugTreeItem = { name: 'x' };
-      const props: t.SlugTreeProps = { slugs: [item] };
+    it('type surface compiles', () => {
+      const item: t.SlugTreeItem = { slug: 'foo' };
+      const props: t.SlugTreeProps = [{ slug: 'foo' }];
       expectTypeOf(item).toEqualTypeOf<t.SlugTreeItem>();
       expectTypeOf(props).toEqualTypeOf<t.SlugTreeProps>();
     });
   });
 
-  describe('Value.Check (schema truth)', () => {
+  describe('Value.Check (valid cases)', () => {
     it('valid: minimal empty tree', () => {
-      const ok: t.SlugTreeProps = { slugs: [] };
+      const ok: t.SlugTreeProps = [];
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
       expect(Is.slugTreeProps(ok)).to.eql(true);
     });
 
-    it('valid: leaf node (name + ref)', () => {
-      const ok: t.SlugTreeProps = { slugs: [{ name: 'intro', ref: 'crdt:create' }] };
+    it('valid: simple node (slug only)', () => {
+      const ok = [{ slug: 'Root Node' }] as const;
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
 
-    it('valid: group node (name + items)', () => {
-      const ok = {
-        slugs: [{ name: 'section', slugs: [{ name: 'child', ref: 'crdt:create' }] }],
-      } as const;
+    it('valid: node with external ref', () => {
+      const ok = [{ slug: 'Intro', ref: 'crdt:create' }] as const;
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
 
-    it('valid: hybrid node (name + ref + items)', () => {
-      const ok = {
-        slugs: [
-          { name: 'hybrid', ref: 'crdt:create', slugs: [{ name: 'child', ref: 'crdt:create' }] },
-        ],
-      } as const;
+    it('valid: nested children', () => {
+      const ok = [
+        {
+          slug: 'Root',
+          slugs: [
+            { slug: 'Child 1', ref: 'crdt:create' },
+            { slug: 'Child 2', slugs: [{ slug: 'Leaf', ref: 'crdt:create' }] },
+          ],
+        },
+      ] as const;
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
 
-    it('valid: deep nesting (3+ levels)', () => {
-      const ok = {
-        slugs: [
-          {
-            name: 'lvl1',
-            slugs: [
-              {
-                name: 'lvl2',
-                slugs: [{ name: 'lvl3', slugs: [{ name: 'leaf', ref: 'crdt:create' }] }],
-              },
-            ],
+    it('valid: inline traits and data (hybrid)', () => {
+      const ok = [
+        {
+          slug: 'Hybrid Node',
+          traits: [{ of: 'video-player', as: 'my-video' }],
+          data: {
+            'my-video': { source: 'vid.mp4', start: 3.2 },
           },
-        ],
-      } as const;
+        },
+      ] as const;
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
 
-    it('valid: descriptions (root + item)', () => {
-      const ok: t.SlugTreeProps = {
-        description: 'root description',
-        slugs: [{ name: 'node', description: 'node description', ref: 'crdt:create' }],
-      };
+    it('valid: hybrid with both ref and traits', () => {
+      const ok = [
+        {
+          slug: 'Referenced+Inline',
+          ref: 'crdt:create',
+          traits: [{ of: 'image-sequence', as: 'gallery' }],
+          data: { gallery: { files: ['a.png', 'b.png'] } },
+        },
+      ] as const;
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
+    });
+
+    it('valid: deep tree with mixed forms', () => {
+      const ok = [
+        {
+          slug: 'Level 1',
+          slugs: [
+            {
+              slug: 'Level 2',
+              ref: 'crdt:create',
+              slugs: [
+                {
+                  slug: 'Level 3',
+                  traits: [{ of: 'video-player', as: 'vid' }],
+                  data: { vid: { start: 1.5 } },
+                },
+              ],
+            },
+          ],
+        },
+      ] as const;
+      expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
+    });
+
+    it('accepts all allowed ref forms (crdt:create | urn:crdt:BASE62[/path])', () => {
+      const base62 = 'abcdefghijklmnopqrstuvwxyzAB'; // 28 chars
+      const ok = [
+        { slug: 'Create', ref: 'crdt:create' },
+        { slug: 'URN root', ref: `urn:crdt:${base62}` },
+        { slug: 'URN path', ref: `urn:crdt:${base62}/foo.bar-_1` },
+      ] as const;
+
+      expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
+    });
+
+    it('allows empty traits array and empty data object (schema-only permissive)', () => {
+      const ok = [
+        { slug: 'EmptyTraits', traits: [] },
+        { slug: 'EmptyData', data: {} },
+      ] as const;
+
+      expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
+      expect(Is.slugTreeProps(ok)).to.eql(true);
     });
   });
 
   describe('Value.Check (invalid cases)', () => {
-    it('invalid: missing name', () => {
-      const bad = { slugs: [{ ref: 'crdt:create' }] };
+    it('invalid: missing slug label', () => {
+      const bad = [{ ref: 'crdt:create' }] as any;
+      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
+    });
+
+    it('invalid: slug empty string', () => {
+      const bad = [{ slug: '', ref: 'crdt:create' }] as const;
+      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
+    });
+
+    it('invalid: slugs must be array', () => {
+      const bad = [{ slug: 'x', slugs: {} }] as any;
+      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
+    });
+
+    it('invalid: unknown extra property rejected', () => {
+      const bad = [{ slug: 'x', foo: 123 }] as any;
+      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
+    });
+
+    it('invalid: bad ref format', () => {
+      const bad = [{ slug: 'x', ref: 'bad-ref' }] as const;
+      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
+    });
+
+    it('rejects bad ref format deep in children', () => {
+      const bad = [
+        {
+          slug: 'Root',
+          slugs: [{ slug: 'Child', ref: 'not-a-valid-ref' }],
+        },
+      ] as const;
+      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
+    });
+
+    it('Is.slugTreeProps mirrors Value.Check on common invalids', () => {
+      const missingSlug = [{ ref: 'crdt:create' }] as const;
+      const unknownKey = [{ slug: 'x', slugs: [], oops: true } as any];
+
+      expect(Value.Check(SlugTreePropsSchema, missingSlug)).to.eql(false);
+      expect(Is.slugTreeProps(missingSlug as any)).to.eql(false);
+
+      expect(Value.Check(SlugTreePropsSchema, unknownKey)).to.eql(false);
+      expect(Is.slugTreeProps(unknownKey as any)).to.eql(false);
+    });
+
+    it('rejects unknown key inside nested child item', () => {
+      const bad = [
+        {
+          slug: 'A',
+          slugs: [
+            {
+              slug: 'B',
+              foo: 123, // unknown
+            } as any,
+          ],
+        },
+      ] as const;
+      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
+    });
+
+    it('root must be an array (not object)', () => {
+      const bad: any = { slug: 'Not in an array' };
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
       expect(Is.slugTreeProps(bad)).to.eql(false);
-    });
-
-    it('invalid: items must be an array when present', () => {
-      const bad = { slugs: [{ name: 'x', slugs: {} }] };
-      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
-    });
-
-    it('invalid: additionalProperties on item is rejected', () => {
-      const bad = { slugs: [{ name: 'x', ref: 'crdt:create', foo: 1 }] };
-      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
-    });
-
-    it('invalid: bad ref pattern', () => {
-      const bad = { slugs: [{ name: 'x', ref: 'not-a-crdt-ref' }] };
-      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
-    });
-
-    it('invalid: empty name', () => {
-      const bad = { slugs: [{ name: '', ref: 'crdt:create' }] };
-      expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
     });
   });
 
   describe('edge behavior', () => {
-    it('group with empty items array is still valid (represents an empty section)', () => {
-      const ok = { slugs: [{ name: 'empty', slugs: [] }] } as const;
+    it('group with empty slugs array is valid', () => {
+      const ok = [{ slug: 'Section', slugs: [] }] as const;
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
     });
 
-    it('multiple siblings with same name are allowed by schema (identity is by position); lint later if desired', () => {
-      const ok = {
-        slugs: [
-          { name: 'dup', ref: 'crdt:create' },
-          { name: 'dup', slugs: [{ name: 'child', ref: 'crdt:create' }] },
-        ],
-      } as const;
+    it('duplicate slugs allowed (identity by position, not name)', () => {
+      const ok = [
+        { slug: 'dup', ref: 'crdt:create' },
+        { slug: 'dup', slugs: [{ slug: 'child', ref: 'crdt:create' }] },
+      ] as const;
       expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
+    });
+
+    it('inline traits without data still valid (trait stub)', () => {
+      const ok = [{ slug: 'vid', traits: [{ of: 'video-player', as: 'vid' }] }] as const;
+      expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
+    });
+
+    it('schema-only: allows data keys not declared in traits (binding checked separately)', () => {
+      const ok = [
+        {
+          slug: 'MyThing',
+          traits: [{ of: 'video-player', as: 'vid' }],
+          data: {
+            // Note: "vid1" is not declared in traits[]; this should still pass schema-only checks.
+            //       Binding checked separately.
+            vid1: { src: 'https://example.com/clip.mp4' },
+          },
+        },
+      ] as const;
+
+      // Schema (Value.Check) is intentionally trait-agnostic: this should be true.
+      expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
+
+      // The convenience guard mirrors schema-only behavior:
+      expect(Is.slugTreeProps(ok)).to.eql(true);
     });
   });
 });
