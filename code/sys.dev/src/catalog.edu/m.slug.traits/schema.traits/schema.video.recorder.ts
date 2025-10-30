@@ -1,9 +1,9 @@
-import { Pattern, Type as T } from './common.ts';
+import { type t, Pattern, Type as T } from './common.ts';
 
 /**
  * Properties: Video Recorder.
  */
-export const VideoRecorderPropsSchema = T.Object(
+export const VideoRecorderPropsSchemaInternal = T.Object(
   {
     /** Display name (optional, non-empty if provided). */
     name: T.Optional(T.String({ minLength: 1 })),
@@ -33,3 +33,8 @@ export const VideoRecorderPropsSchema = T.Object(
     additionalProperties: false,
   },
 );
+
+/**
+ * Public widened exports (JSR-safe: explicit t.TSchema surface).
+ */
+export const VideoRecorderPropsSchema: t.TSchema = VideoRecorderPropsSchemaInternal;

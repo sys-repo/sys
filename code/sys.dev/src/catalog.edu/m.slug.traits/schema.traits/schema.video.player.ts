@@ -1,9 +1,9 @@
-import { Type as T } from './common.ts';
+import { type t, Type as T } from './common.ts';
 
 /**
  * Properties: Video Player.
  */
-export const VideoPlayerPropsSchema = T.Object(
+export const VideoPlayerPropsSchemaInternal = T.Object(
   {
     /** Display name (optional, non-empty if provided). */
     name: T.Optional(T.String({ minLength: 1 })),
@@ -20,3 +20,8 @@ export const VideoPlayerPropsSchema = T.Object(
     additionalProperties: false,
   },
 );
+
+/**
+ * Public widened exports (JSR-safe: explicit t.TSchema surface).
+ */
+export const VideoPlayerPropsSchema: t.TSchema = VideoPlayerPropsSchemaInternal;

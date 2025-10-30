@@ -6,6 +6,14 @@
 export { Is } from './m.Is.ts';
 export { Traits } from './m.Traits.ts';
 
-export { SlugTreeItemSchema, SlugTreePropsSchema } from './schema.slug.tree.ts';
-export { VideoPlayerPropsSchema } from './schema.video.player.ts';
-export { VideoRecorderPropsSchema } from './schema.video.recorder.ts';
+export {
+  SlugTreeItemSchema,
+  SlugTreeItemSchemaInternal,
+  SlugTreePropsSchema,
+  SlugTreePropsSchemaInternal,
+} from './schema.slug.tree.ts';
+export { VideoPlayerPropsSchema, VideoPlayerPropsSchemaInternal } from './schema.video.player.ts';
+export {
+  VideoRecorderPropsSchema,
+  VideoRecorderPropsSchemaInternal,
+} from './schema.video.recorder.ts';

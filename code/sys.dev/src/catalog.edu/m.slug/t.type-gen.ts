@@ -1,41 +1,41 @@
 /**
+ * 🌸 ———— GENERATOR PROMPT:START ./t.type-gen.ts ———————————————————————————————————————
+ *
  * @file t.type-gen.ts
- * @summary Generated TypeScript type definitions mapped from local runtime schemas.
+ * @summary Public, explicit TS types generated from local runtime schemas.
  *
- * Purpose:
- * • Provide stable, explicit TS types for external use (JSR-safe).
- * • Keep runtime schemas in `m.*.ts`; do NOT `Infer` from widened `t.TSchema`.
+ * Intent
+ * • Provide stable, JSR-safe type aliases for consumers.
+ * • Keep runtime schemas in `m.*.ts` and expose them only as `t.TSchema`.
+ * • Avoid `Infer<typeof ...>` in the public API to prevent slow types.
  *
- * Generation rules (concise, repeatable):
- * • Source: scan sibling `m.*.ts` files for `export const <Name>Schema = T.Object(...)` (and related).
- * • Emit: `export type <Name>... = { ... }` with props in the SAME order as the schema declaration.
- * • Optionality: `T.Optional(X)` → `prop?: ...`.
- * • Primitives: map directly (string | number | boolean).
- * • Arrays: `T.Array(U)` → `readonly U[]`.
- * • Records: `T.Record(T.String(), U)` → `{ readonly [key: string]: U }` (no `any`).
- * • Unions/Literals/Enums: preserve literal unions (e.g., `'a' | 'b' | 3`).
- * • Unknown: `T.Unknown()` → `unknown` (never `any`).
- * • Readonly: prefer `readonly` props and `readonly T[]` throughout.
- * • Style: type aliases (not interfaces), small functions, no classes/`this`, ASCII quotes only.
+ * Source of truth
+ * • Schemas live beside this file as `export const <Name>SchemaInternal = T.Object(...)`.
+ * • Public schema exports are widened: `export const <Name>Schema: t.TSchema = <Name>SchemaInternal`.
+ * • This file mirrors those schemas into explicit type aliases (no interfaces).
  *
- * Public API & JSR slow-type hygiene:
- * • Do NOT export variant runtime schemas directly; expose them only via a widened `t.TSchema` surface.
- * • All exported symbols in this file must be explicit type aliases (no inferred exports).
- * • Avoid emitting discriminated unions that mirror internal schema implementation details; only export
- *   unions that form part of the public conceptual model.
- * • No ambient declarations (`declare global`) or ambient module hacks.
+ * Generation rules
+ * • Preserve property order from the schema declarations.
+ * • `T.Optional(X)` → `prop?: ...`.
+ * • Primitives map directly (string | number | boolean).
+ * • `T.Array(U)` → `readonly U[]`.
+ * • `T.Record(T.String(), U)` → `{ readonly [key: string]: U }`.
+ * • Unions/literals/enums: keep exact literal unions (e.g., 'a' | 'b' | 3).
+ * • `T.Unknown()` → `unknown` (never `any`).
+ * • Use `readonly` on all properties/arrays per repo conventions.
+ * • ASCII quotes only; no classes; no `this`.
  *
- * Naming:
- * • Concrete object shapes end with `Props`, `Item`, or `Entry` as appropriate.
- * • Public unions end with the domain noun (e.g., `Thing`), not `Schema`.
+ * Public API hygiene
+ * • Export only explicit type aliases from this file (no inferred exports).
+ * • Do not export variant schemas directly; export only as `t.TSchema`.
+ * • Keep public unions conceptual (domain-level), not implementation details.
  *
- * Drift checks (local, not exported):
- * • For each generated type `X`, add a compile-time equality test against `t.Static<typeof XSchema>`
- *   using local test utilities. These tests live in test fixtures and are not exported.
+ * Regeneration notes
+ * • If a schema changes, update `<Name>SchemaInternal` first,
+ *   then update these type aliases to match and recompile.
+ * • Locks (if used) live in `t.type-gen.lock.ts` and are purely compile-time.
  *
- * Notes:
- * • Public runtime schemas may still be re-exported as `t.TSchema` for validation/metadata use.
- * • External consumers should import these generated types directly (not `Infer<typeof ...>`).
+ * 🌸 ———— GENERATOR PROMPT:END ./t.type-gen.ts ———————————————————————————————————————
  */
 
 /**

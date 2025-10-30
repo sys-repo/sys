@@ -1,4 +1,4 @@
-import { Pattern, Type as T } from './common.ts';
+import { type t, Pattern, Type as T } from './common.ts';
 
 /**
  * Canonical "slug tree" node schema.
@@ -45,7 +45,8 @@ import { Pattern, Type as T } from './common.ts';
  * Authoring-time YAML will be normalized into this shape within module: `m.yaml`
  * (see `u.slug.tree.normalize.ts`).
  */
-export const SlugTreeItemSchema = T.Recursive(
+
+export const SlugTreeItemSchemaInternal = T.Recursive(
   (Self) =>
     T.Object(
       {
@@ -112,9 +113,9 @@ export const SlugTreeItemSchema = T.Recursive(
  *
  * Normalization handled by: `u.slug.tree.normalize.ts`
  */
-export const SlugTreePropsSchema = T.Object(
+export const SlugTreePropsSchemaInternal = T.Object(
   {
-    slugs: T.Array(SlugTreeItemSchema, {
+    slugs: T.Array(SlugTreeItemSchemaInternal, {
       title: 'Root Items',
       description: `Ordered root nodes of the slug tree. Each node may have its own CRDT ref, child items, or both.`,
     }),
@@ -133,3 +134,9 @@ export const SlugTreePropsSchema = T.Object(
     additionalProperties: false,
   },
 );
+
+/**
+ * Public widened exports (JSR-safe: explicit t.TSchema surface).
+ */
+export const SlugTreeItemSchema: t.TSchema = SlugTreeItemSchemaInternal;
+export const SlugTreePropsSchema: t.TSchema = SlugTreePropsSchemaInternal;

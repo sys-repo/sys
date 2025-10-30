@@ -22,6 +22,8 @@
     "./types": "./src/types.ts",
     "./catalog.edu": "./src/catalog.edu/mod.ts",
     "./catalog.edu/slug": "./src/catalog.edu/m.slug/mod.ts",
+    "./catalog.edu/slug.traits": "./src/catalog.edu/m.slug.traits/mod.ts",
+    "./catalog.edu/t": "./src/catalog.edu/types.ts",
     "./catalog.harness": "./src/catalog.harness/mod.ts"
   }
 }

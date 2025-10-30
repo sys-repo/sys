@@ -27,7 +27,7 @@ const TRAITS = T.Array(TraitBindingSchema, {
  * - Disjoint branch: optional id/description, plus optional ref.
  * - May NOT coexist with traits or data.
  */
-export const SlugRefSchema: t.TSchema = T.Object(
+export const SlugRefSchemaInternal = T.Object(
   {
     ...SHARED,
     ref: T.Optional(
@@ -51,7 +51,7 @@ export const SlugRefSchema: t.TSchema = T.Object(
  * - Optional traits.
  * - NO data field.
  */
-export const SlugMinimalSchema: t.TSchema = T.Object(
+export const SlugMinimalSchemaInternal = T.Object(
   {
     ...SHARED,
     traits: T.Optional(TRAITS),
@@ -69,7 +69,7 @@ export const SlugMinimalSchema: t.TSchema = T.Object(
  * - REQUIRED traits.
  * - REQUIRED data record keyed by trait alias.
  */
-export const SlugWithDataSchema: t.TSchema = T.Object(
+export const SlugWithDataSchemaInternal = T.Object(
   {
     ...SHARED,
     traits: TRAITS,
@@ -91,11 +91,19 @@ export const SlugWithDataSchema: t.TSchema = T.Object(
  * • The "ref" variant cannot coexist with traits/data.
  * • The "inline" variants (minimal/rich) cannot include a ref.
  */
-export const SlugSchema: t.TSchema = T.Union(
-  [SlugRefSchema, SlugMinimalSchema, SlugWithDataSchema],
+export const SlugSchemaInternal = T.Union(
+  [SlugRefSchemaInternal, SlugMinimalSchemaInternal, SlugWithDataSchemaInternal],
   {
     $id: 'slug',
     title: 'Slug',
     description: `Slug core schema (v0): either a reference to another entity, or an inline definition with optional traits and data.`,
   },
 );
+
+/**
+ * Public widened exports (JSR-safe: explicit t.TSchema surface).
+ */
+export const SlugRefSchema: t.TSchema = SlugRefSchemaInternal;
+export const SlugMinimalSchema: t.TSchema = SlugMinimalSchemaInternal;
+export const SlugWithDataSchema: t.TSchema = SlugWithDataSchemaInternal;
+export const SlugSchema: t.TSchema = SlugSchemaInternal;
