@@ -13,6 +13,8 @@ export type SlugLib = {
   readonly Is: t.SlugIsLib;
   readonly Has: t.SlugHasLib;
   readonly Validation: t.SlugValidationLib;
+  readonly Tree: t.SlugTreeLib;
+  readonly Surface: t.SlugSurfaceLib;
   readonly Schema: {
     readonly Slug: {
       readonly Union: t.TSchema;
@@ -23,7 +25,6 @@ export type SlugLib = {
     };
     readonly Trait: { readonly Def: t.TSchema; readonly Binding: t.TSchema };
   };
-  readonly Tree: t.SlugTreeLib;
 };
 
 /**
@@ -34,4 +35,16 @@ export type SlugTreeLib = {
     /** True iff `u` satisfies the core SlugTree props schema. */
     props(u: unknown): u is t.SlugTreeProps;
   };
+};
+
+/**
+ * Lightweight projector for producing canonical “slug surfaces.”
+ * Converts complex tree nodes into their inline slug form
+ * (the union of fields shared by SlugRef | SlugMinimal | SlugWithData).
+ *
+ * Used by validators, normalizers, and serializers needing
+ * a consistent, child-free slug snapshot.
+ */
+export type SlugSurfaceLib = {
+  fromTreeItem(node: t.SlugTreeItem): t.SlugSurface;
 };

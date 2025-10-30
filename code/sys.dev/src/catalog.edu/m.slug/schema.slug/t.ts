@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-import { TraitBindingSchema } from './schema.trait.ts';
 
 export type * from './t.Pattern.ts';
 
@@ -31,7 +30,21 @@ export type SlugTraitBinding = {
   readonly as: t.SlugTraitAlias;
 };
 
-/** Narrow binding to a specific trait id. */
+/**
+ * Utility Type: Narrow binding to a specific trait id.
+ */
 export type SlugTraitBindingOf<K extends SlugTraitBinding['of']> = Omit<SlugTraitBinding, 'of'> & {
   readonly of: K;
+};
+
+/**
+ * Canonical "inline slug surface" (no children).
+ * Matches the union of fields shared by SlugRef | SlugMinimal | SlugWithData.
+ */
+export type SlugSurface = {
+  readonly id?: t.StringId;
+  readonly description?: string;
+  readonly ref?: string;
+  readonly traits?: readonly t.SlugTraitBinding[];
+  readonly data?: { readonly [key: string]: unknown };
 };
