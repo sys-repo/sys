@@ -58,7 +58,7 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
    */
   const template = templateTracks({
     ratios,
-    gutter,
+    gutter: dividerLine,
     orientation,
     collapsed,
     onlyIndex,
@@ -105,6 +105,7 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
       display: 'grid',
       gridTemplateColumns: template.cols,
       gridTemplateRows: template.rows,
+      isolation: 'isolate',
     }),
   };
 
@@ -137,6 +138,7 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
           collapsed={collapsed}
           orientation={orientation}
           ratios={ratios}
+          gutter={gutter}
           dividerLine={dividerLine}
           dividerOpacity={dividerOpacity}
           pointerHandlers={pointer.handlers}

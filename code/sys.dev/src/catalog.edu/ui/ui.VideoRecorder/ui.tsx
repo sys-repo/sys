@@ -31,7 +31,7 @@ export const VideoRecorderView: React.FC<P> = (props) => {
       crdt={crdt}
       signals={signals}
       header={header}
-      sidebar={{ ...sidebar, divider: D.sidebar.divider }}
+      sidebar={sidebar}
       slots={slots}
       cropmarks={{
         size: { mode: 'percent', aspectRatio, width: 80 },
