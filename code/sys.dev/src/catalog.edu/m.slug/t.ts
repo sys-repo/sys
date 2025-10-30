@@ -14,10 +14,13 @@ export type SlugLib = {
   readonly Has: t.SlugHasLib;
   readonly Validation: t.SlugValidationLib;
   readonly Schema: {
-    readonly SlugTree: { readonly Item: t.TSchema; readonly Props: t.TSchema };
-
-    readonly SlugSchema: t.TSchema;
-    readonly TraitBindingSchema: t.TSchema;
-    readonly TraitDefSchema: t.TSchema;
+    readonly Slug: {
+      readonly Union: t.TSchema;
+      readonly Ref: t.TSchema;
+      readonly Minimal: t.TSchema;
+      readonly WithData: t.TSchema;
+      readonly Tree: { readonly Props: t.TSchema; readonly Item: t.TSchema };
+    };
+    readonly Trait: { readonly Def: t.TSchema; readonly Binding: t.TSchema };
   };
 };
