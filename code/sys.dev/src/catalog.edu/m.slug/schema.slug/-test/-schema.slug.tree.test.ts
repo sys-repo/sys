@@ -21,6 +21,10 @@ describe('trait: slug-tree', () => {
   });
 
   describe('Value.Check (valid cases)', () => {
+    it('valid: minimal empty tree', () => {
+      const ok: t.SlugTreeProps = [];
+      expect(Value.Check(SlugTreePropsSchema, ok)).to.eql(true);
+    });
 
     it('valid: simple node (slug only)', () => {
       const ok = [{ slug: 'Root Node' }] as const;
