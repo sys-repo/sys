@@ -9,6 +9,7 @@ export {
   Err,
   Fn,
   Is,
+  Log,
   Num,
   Obj,
   Pkg,
