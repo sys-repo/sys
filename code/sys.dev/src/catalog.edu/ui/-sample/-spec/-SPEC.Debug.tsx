@@ -101,6 +101,13 @@ export function createDebugSignals() {
     p.slug.value = next as t.Slug | undefined;
   });
 
+  Signal.effect((e) => {
+    const doc = signals.doc.value;
+    doc?.events(e.dispose$).$.subscribe((e) => {
+      console.info('⚡️ Signal.effect(life):doc:', e);
+    });
+  });
+
   return api;
 }
 
