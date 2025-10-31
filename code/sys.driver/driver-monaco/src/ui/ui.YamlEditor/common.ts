@@ -21,6 +21,7 @@ export const DEFAULTS = {
   documentId,
   footer,
   diagnostics: 'syntax' satisfies t.YamlEditorDiagnostics,
+  debounce: 40,
 } as const;
 export const D = DEFAULTS;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

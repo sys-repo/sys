@@ -1,6 +1,7 @@
 import { YamlObjectView } from '@sys/driver-monaco/dev';
 import React from 'react';
 
+import { debounce } from 'rxjs';
 import { createRepo } from '../../-test.ui.ts';
 import {
   type t,
@@ -18,7 +19,7 @@ import {
 
 type P = t.YamlEditorProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'diagnostics'> & {
-  editor: Pick<t.YamlEditorMonacoProps, 'margin' | 'minimap' | 'spinning' | 'enabled'>;
+  editor: Pick<t.YamlEditorMonacoProps, 'margin' | 'minimap' | 'spinning' | 'enabled' | 'debounce'>;
   documentId: Pick<t.YamlEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
   footer: P['footer'];
   render?: boolean;
@@ -29,7 +30,7 @@ const defaults: Storage = {
   debug: false,
   path: ['foo'],
   documentId: { visible: true, readOnly: false, urlKey: undefined },
-  editor: { margin: 0, minimap: false, spinning: false, enabled: true },
+  editor: { margin: 0, minimap: false, spinning: false, enabled: true, debounce: D.debounce },
   footer: { visible: true, repo: true },
   diagnostics: D.diagnostics,
 };
@@ -72,6 +73,7 @@ export function createDebugSignals() {
       minimap: s((snap.editor ?? {}).minimap),
       spinning: s((snap.editor ?? {}).spinning),
       enabled: s((snap.editor ?? {}).enabled),
+      debounce: s((snap.editor ?? {}).debounce),
     },
     footer: {
       visible: s((snap.footer ?? {}).visible),
@@ -113,6 +115,7 @@ export function createDebugSignals() {
       d.editor.minimap = p.editor.minimap.value;
       d.editor.spinning = p.editor.spinning.value;
       d.editor.enabled = p.editor.enabled.value;
+      d.editor.debounce = p.editor.debounce.value;
 
       d.documentId = d.documentId ?? {};
       d.documentId.visible = p.documentId.visible.value;
@@ -208,6 +211,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `editor.enabled: ${p.editor.enabled.value}`}
         onClick={() => Signal.toggle(p.editor.enabled)}
+      />
+      <Button
+        block
+        label={() => `editor.debounce: ${p.editor.debounce.value}`}
+        onClick={() => Signal.cycle(p.editor.debounce, [0, 40, 100, 1000])}
       />
       <Button
         block

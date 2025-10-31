@@ -59,7 +59,7 @@ export type YamlEditorMonacoProps = Pick<
   | 'spinning'
   | 'wordWrap'
   | 'wordWrapColumn'
-> & { margin?: t.CssEdgesInput };
+> & { margin?: t.CssEdgesInput; debounce?: t.Msecs };
 
 /**
  * DocumentId sub-props:

@@ -94,8 +94,16 @@ export default Spec.describe(D.displayName, async (e) => {
     const v = Signal.toObject(p);
     const { monaco, editor, doc, path } = v;
     const bus$ = debug.bus$;
-
-    const yaml = Monaco.Yaml.useYaml({ bus$, monaco, editor, doc, path, errorMarkers: true });
+    const debounce = v.debounce ? 40 : 0;
+    const yaml = Monaco.Yaml.useYaml({
+      bus$,
+      monaco,
+      editor,
+      doc,
+      path,
+      debounce,
+      errorMarkers: true,
+    });
     if (yaml.current?.cursor.path.length === 0) return null;
 
     return (

@@ -29,8 +29,9 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   /**
    * Hook: YAML.
    */
+  const debounce = props.editor?.debounce ?? D.debounce;
   const errorMarkers = diagnostics === 'syntax'; // NB: display YAML parse errors inline within the code-editor.
-  const yaml = useYaml({ bus$, monaco, editor, doc, path, errorMarkers });
+  const yaml = useYaml({ bus$, monaco, editor, doc, path, debounce, errorMarkers });
 
   /**
    * Effects:
