@@ -1,5 +1,6 @@
+import { Pkg } from '@sys/fs';
 import { HttpServer } from '@sys/http/server';
-import { pkg, Pkg } from './common.ts';
+import { pkg } from '../src/pkg.ts';
 
 const dir = 'dist';
 const dist = (await Pkg.Dist.load(dir)).dist;

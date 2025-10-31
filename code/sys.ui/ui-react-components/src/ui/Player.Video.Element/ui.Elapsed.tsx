@@ -11,7 +11,7 @@ export const ElapsedTime: React.FC<P> = (props) => {
   const p = video?.props;
   const currentTime = p?.currentTime.value ?? 0;
 
-  Signal.useRedrawEffect(() => p?.currentTime.value);
+  Signal.useRedrawEffect(() => void p?.currentTime.value);
   if (!show) return null;
 
   /**

@@ -16,7 +16,7 @@ export const HostCanvas: React.FC<HostCanvasProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
 
-  Signal.useRedrawEffect(() => p.showCanvas.value);
+  Signal.useRedrawEffect(() => void p.showCanvas.value);
   if (!p.showCanvas.value) return null;
 
   const v = Signal.toObject(p);

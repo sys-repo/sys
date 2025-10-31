@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type EffectReturn = void | (() => void);
+
 /**
  * Signal.useEffect( ƒ ):
  * React hook variant: lifecycle-aware with a lazy Abortable.
@@ -13,7 +15,7 @@ import type { t } from './common.ts';
 export type UseSignalEffectListener = (fn: UseSignalEffectFn) => void;
 
 /** Effect callback receiving the run lifecycle context; may return a cleanup. */
-export type UseSignalEffectFn = (e: UseSignalEffectFnArgs) => void | (() => void);
+export type UseSignalEffectFn = (e: UseSignalEffectFnArgs) => EffectReturn;
 
 /** Lazy lifecycle for a single run; aborts on re-run or unmount. */
 export type UseSignalEffectFnArgs = { readonly life: t.Abortable };
@@ -29,4 +31,4 @@ export type UseSignalEffectFnArgs = { readonly life: t.Abortable };
 export type UseRedrawEffectListener = (fn: UseRedrawEffectFn) => void;
 
 /** Redraw callback; may optionally use `e.life` and/or return a cleanup. */
-export type UseRedrawEffectFn = (e: UseSignalEffectFnArgs) => void | (() => void);
+export type UseRedrawEffectFn = (e: UseSignalEffectFnArgs) => EffectReturn;
