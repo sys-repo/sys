@@ -41,10 +41,13 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
     text: { before: '', after: '' },
     errors: [],
   };
+  let _emitted = false;
+
   const emitChange = (e: Omit<TResult, 'rev' | 'ok'>) => {
     rev += 1;
     _current = { ...e, ok: isOk(e), rev } satisfies TResult;
     $$.next(_current);
+    _emitted = true;
   };
 
   /**
@@ -82,6 +85,8 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
     const after = sourceInput;
     _before = after;
 
+    if (_emitted && after === before) return;
+
     errors.clear();
     addPathErrors(); // Re-assert structural errors every time.
 
@@ -107,6 +112,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
         doc.target.change((d) => {
           const targetValue = Obj.Path.Mutate.ensure(d, path.target!, {});
           if (Is.record(value) && Is.record(targetValue)) {
+            // `diff` mutates targetValue in place; record ops for observers:
             const diff = Obj.Path.Mutate.diff(value, targetValue);
             ops.push(...diff.ops);
           } else {

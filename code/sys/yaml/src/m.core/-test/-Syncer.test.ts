@@ -285,6 +285,43 @@ describe('Yaml.syncer', () => {
     });
   });
 
+  describe('debounce', () => {
+    it('initial parse is not delayed by debounce', async () => {
+      type T = { text?: string; 'text.parsed'?: O };
+      const doc = Immutable.clonerRef<T>({ text: 'foo: 1' });
+      Yaml.syncer<T>({ doc, path: ['text'], debounce: 25 });
+
+      // Initial parse happens immediately (no debounce on init):
+      expect(doc.current['text.parsed']).to.eql({ foo: 1 });
+    });
+
+    it('debounce coalesces a burst into a single emission (last write wins)', async () => {
+      type T = { text?: string; 'text.parsed'?: O };
+      const doc = Immutable.clonerRef<T>({});
+      const syncer = Yaml.syncer<T>({ doc, path: ['text'], debounce: 30 });
+
+      const fired: t.YamlSyncParsed<T>[] = [];
+      syncer.$.subscribe((e) => fired.push(e));
+
+      // Rapid updates inside the debounce window:
+      doc.change((d) => (d.text = 'foo: 1'));
+      doc.change((d) => (d.text = 'foo: 2'));
+      doc.change((d) => (d.text = 'foo: 3'));
+
+      // Before debounce expiry → no emission yet, parsed remains null:
+      await Time.wait(10);
+      expect(doc.current['text.parsed']).to.eql(null);
+      expect(fired.length).to.eql(0);
+
+      // After debounce expiry → single emission with last value:
+      await Time.wait(40);
+      expect(doc.current['text.parsed']).to.eql({ foo: 3 });
+      expect(fired.length).to.eql(1);
+      expect(fired[0].value).to.eql({ foo: 3 });
+      expect(fired[0].text.after).to.eql('foo: 3');
+    });
+  });
+
   describe('Yaml.Syncer.defaultPath', () => {
     it('passes through empty path (same reference)', () => {
       const input: any[] = [];
