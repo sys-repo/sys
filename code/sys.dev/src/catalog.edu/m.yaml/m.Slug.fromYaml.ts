@@ -1,6 +1,6 @@
 import { type t, Is, Obj, Schema, Slug, SlugSchema, Value, Yaml } from './common.ts';
 import { Error } from './m.Slug.Error.ts';
-import { SlugRules } from './u.slug.rules.ts';
+import { evaluateSemanticRules } from './m.Slug.fromYaml.rules.ts';
 import { applyTraitNormalizers } from './u.trait.normalize.ts';
 
 type E = t.DeepMutable<t.SlugYamlErrors>;
@@ -11,7 +11,7 @@ type MaybeRegistry = { has: HasFn };
  * Extracts a slug from YAML (string or AST), validates structure (schema) and semantics (rules),
  * and returns the candidate, AST, and categorized diagnostics.
  */
-export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts) => {
+export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts = {}) => {
   const ast: t.Yaml.Ast = Is.string(yamlInput) ? Yaml.parseAst(yamlInput) : yamlInput;
   const path: t.ObjectPath = Array.isArray(pathInput)
     ? pathInput
@@ -30,7 +30,7 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts) => {
   // Apply per-trait normalizers BEFORE validation (pure, exception-safe).
   const candidateNormalized = (() => {
     try {
-      const out = applyTraitNormalizers(candidate, opts?.normalizers);
+      const out = applyTraitNormalizers(candidate, opts.normalizers);
       return out ?? candidate;
     } catch (err) {
       (errs.semantic as t.Schema.ValidationError[]).push({
@@ -44,7 +44,6 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts) => {
 
   const zero = (arr: ArrayLike<unknown>) => arr.length === 0;
   const isOk = () => zero(errs.schema) && zero(errs.semantic) && zero(errs.yaml);
-
   const done = (slug?: unknown): t.SlugFromYamlResult => ({
     ok: isOk(),
     path,
@@ -65,25 +64,25 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts) => {
     return done();
   }
 
-  // Semantic validation (logical rules) on normalized candidate:
-  SlugRules.aliasUniqueness(errs.semantic, path, candidateNormalized);
-
-  // Registry-aware trait-id existence (opt-in only via opts.isKnown):
   const isKnown = wrangle.isKnown(opts, Slug);
-  SlugRules.traitTypeKnown(errs.semantic, path, candidateNormalized, { isKnown });
-
-  // data ↔ alias consistency:
-  SlugRules.missingDataForAlias(errs.semantic, path, candidateNormalized);
-  SlugRules.orphanData(errs.semantic, path, candidateNormalized);
+  {
+    const semantic = evaluateSemanticRules({
+      ast,
+      path,
+      candidate: candidateNormalized as t.Slug,
+      isKnown,
+      registry: opts.registry,
+    });
+    errs.semantic.push(...semantic);
+  }
 
   // Attach AST ranges to semantic errors for editor mapping:
   Error.attachSemanticRanges(ast, errs.semantic);
-
   return isOk() ? done(candidateNormalized) : done();
 };
 
 /**
- * Helpers
+ * Helpers:
  */
 const wrangle = {
   errors(input: E): t.SlugYamlErrors {
@@ -115,10 +114,11 @@ const wrangle = {
    * 3) <undefined> (rule becomes a no-op).
    */
   isKnown(
-    opts: { isKnown?: t.SlugIsKnown } | undefined,
+    opts: { isKnown?: t.SlugIsKnown; registry?: t.SlugTraitRegistry },
     domain: unknown,
   ): t.SlugIsKnown | undefined {
-    if (opts?.isKnown) return opts.isKnown;
+    if (opts.isKnown) return opts.isKnown;
+    if (opts.registry) return (id: string) => !!opts.registry!.get(id);
     const reg = wrangle.registry(domain);
     return reg?.has.bind(reg);
   },

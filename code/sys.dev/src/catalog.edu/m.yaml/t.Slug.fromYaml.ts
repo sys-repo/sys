@@ -1,0 +1,59 @@
+import type { t } from './common.ts';
+
+/**
+ * Extract and validate a slug from YAML.
+ *
+ * Performs parse → normalize (if provided) → schema → semantic validation.
+ * Returns the parsed AST, candidate slug, and categorized diagnostics.
+ */
+export type SlugFromYaml = (
+  input: string | t.Yaml.Ast,
+  path?: t.ObjectPath | string,
+  opts?: SlugFromYamlOptions,
+) => SlugFromYamlResult;
+
+/**
+ * Options for `YamlSlug.fromYaml`.
+ *
+ * These extend the normal validation context with:
+ *  - `isKnown`: Registry predicate to test whether a trait ID exists.
+ *  - `normalizers`: Optional map of trait-specific YAML → canonical normalizers,
+ *    keyed by trait id (e.g. `'slug-tree'`).
+ *
+ * Each normalizer runs on its corresponding `slug.data[as]` block
+ * before schema validation, allowing concise authoring DSLs.
+ */
+export type SlugFromYamlOptions = {
+
+  /** Trait ID registry check. */
+  isKnown?: t.SlugIsKnown;
+  /** Full trait registry (preferred). When present, `isKnown` will be derived if not supplied. */
+  registry?: t.SlugTraitRegistry;
+  /** Trait-specific authoring→canonical transforms, keyed by trait id. */
+  normalizers?: t.SlugTraitNormalizers;
+};
+
+/**
+ * Result of extracting + validating a slug from YAML.
+ */
+export type SlugFromYamlResult = {
+  /** Overall structural check outcome. */
+  readonly ok: boolean;
+  /** Path used to locate the slug within the YAML doc. */
+  readonly path: t.ObjectPath;
+  /** The parsed YAML AST (hand back to editor for decoration mapping). */
+  readonly ast: t.Yaml.Ast;
+  /** Candidate slug value (only present when ok=true). */
+  readonly slug?: unknown;
+  /** Categorised errors */
+  readonly errors: t.SlugYamlErrors;
+};
+
+/**
+ * Loose trait binding shape used by YAML semantic rules and normalizers.
+ * Intentional unknowns: this lives on the validator side (pre-schema).
+ */
+export type SlugTraitBindingLike = {
+  readonly as?: unknown;
+  readonly of?: unknown;
+};
