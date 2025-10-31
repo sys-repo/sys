@@ -225,6 +225,66 @@ describe('Obj.Path', () => {
     });
   });
 
+  describe('Path.joinAll', () => {
+    it('returns [] with no segments', () => {
+      const out = Path.joinAll();
+      expect(out).to.eql([]);
+    });
+
+    it('defaults to absolute (concatenates)', () => {
+      const out = Path.joinAll(['a'], ['b'], ['c']);
+      expect(out).to.eql(['a', 'b', 'c']);
+    });
+
+    it('explicit "absolute" matches default', () => {
+      const a = ['a'];
+      const b = ['b', 'c'];
+      const x = Path.joinAll(a, b);
+      const y = Path.joinAll('absolute', a, b);
+      expect(x).to.eql(['a', 'b', 'c']);
+      expect(y).to.eql(['a', 'b', 'c']);
+      expect(x).to.eql(y);
+    });
+
+    it('relative: collapses to last non-empty segment', () => {
+      const out = Path.joinAll('relative', ['a'], [], ['b'], ['c', 'd']);
+      expect(out).to.eql(['c', 'd']);
+    });
+
+    it('skips empty segments', () => {
+      const out = Path.joinAll([], ['a'], [], ['b'], []);
+      expect(out).to.eql(['a', 'b']);
+    });
+
+    it('handles numeric tokens (array indices) without coercion', () => {
+      const out = Path.joinAll(['a'], [0], ['b', 1]);
+      expect(out).to.eql(['a', 0, 'b', 1]);
+    });
+
+    it('does not mutate input segments', () => {
+      const a: t.ObjectPath = ['x'];
+      const b: t.ObjectPath = ['y'];
+      const beforeA = [...a];
+      const beforeB = [...b];
+      const out = Path.joinAll(a, b);
+      expect(out).to.eql(['x', 'y']);
+      expect(a).to.eql(beforeA);
+      expect(b).to.eql(beforeB);
+      expect(out).to.not.equal(a); // new array, not same reference
+      expect(out).to.not.equal(b);
+    });
+
+    it('equivalence: reduce(join, "absolute") === joinAll', () => {
+      const segs: readonly t.ObjectPath[] = [['a'], ['b', 'c'], ['d']];
+      const viaReduce = segs.reduce<t.ObjectPath>(
+        (acc, seg) => Path.join(acc, seg, 'absolute'),
+        [],
+      );
+      const viaAll = Path.joinAll(...segs);
+      expect(viaAll).to.eql(viaReduce);
+    });
+  });
+
   describe('Path.slice', () => {
     const base: t.ObjectPath = ['a', 'b', 'c', 'd'];
 

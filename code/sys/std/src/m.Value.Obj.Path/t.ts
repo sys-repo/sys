@@ -76,6 +76,25 @@ export interface ObjPathLib {
   join(base: t.ObjectPath, rel?: t.ObjectPath, mode?: t.PathMode): t.ObjectPath;
 
   /**
+   * Concatenate multiple object-path segments into a single path.
+   *
+   * - Default mode: `'absolute'`
+   * - Optional first parameter may be `'absolute' | 'relative'` to override.
+   * - Skips empty or undefined segments.
+   * - Equivalent to:
+   *     ```ts
+   *     segments.reduce((acc, seg) => join(acc, seg, mode), [])
+   *     ```
+   *
+   * Examples:
+   *   Obj.Path.joinAll(['foo'], ['bar']);                    // → ['foo','bar']
+   *   Obj.Path.joinAll('relative', ['foo'], ['bar']);        // → ['bar']
+   *   Obj.Path.joinAll('absolute', ['a'], ['b','c'], ['d']); // → ['a','b','c','d']
+   */
+  joinAll(...segments: t.ObjectPath[]): t.ObjectPath;
+  joinAll(mode: t.PathMode, ...segments: t.ObjectPath[]): t.ObjectPath;
+
+  /**
    * Returns a shallow slice of the given object path.
    * Mirrors `Array.prototype.slice(start, end?)` (pure, half-open, immutable).
    *
