@@ -14,7 +14,7 @@ describe('Signal.effect', () => {
     Signal.effect(() => {
       const v = s.value;
       count++;
-      console.info('value:', v);
+      console.info('signal value:', v);
     });
 
     expect(count).to.eql(1); // first run
@@ -29,8 +29,8 @@ describe('Signal.effect', () => {
 
     effect((e) => {
       s.value; // Hook into value.
-      e.dispose$.subscribe(() => disposeCount++);
       count++;
+      e.dispose$.subscribe(() => disposeCount++);
     });
 
     expect(count).to.eql(1); // first run
@@ -46,5 +46,27 @@ describe('Signal.effect', () => {
 
     expect(count).to.eql(5);
     expect(disposeCount).to.eql(4);
+  });
+
+  it('effect(lifecycle): `e.dispose$` observable', () => {
+    const s = Signal.create<number>(0);
+    let count = 0;
+    let abortCount = 0;
+
+    effect((e) => {
+      s.value; // Hook into value.
+      count++;
+      e.signal.onabort = () => abortCount++;
+    });
+
+    expect(count).to.eql(1); // first run
+    expect(abortCount).to.eql(0);
+    s.value = 1234;
+    expect(count).to.eql(2);
+    expect(abortCount).to.eql(1);
+
+    s.value = 4566;
+    expect(count).to.eql(3);
+    expect(abortCount).to.eql(2);
   });
 });
