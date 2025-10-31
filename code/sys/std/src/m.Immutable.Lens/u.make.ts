@@ -1,49 +1,55 @@
 import { type t, Path } from './common.ts';
-import { joinAll } from './u.ts';
+
+type O = Record<string, unknown>;
 
 export function makeLens<T, P, V>(doc: t.Immutable<T, P>, path: t.ObjectPath): t.Lens<T, P, V> {
-  const get = (): V | undefined =>
-    Path.get<V>(doc.current as unknown as Record<string, unknown>, path);
+  function get(): V | undefined {
+    return Path.get<V>(doc.current as unknown as O, path);
+  }
 
-  const getOr = <D extends t.NonUndefined<V>>(def: D): V | D => {
+  function getOr<D extends t.NonUndefined<V>>(def: D): V | D {
     const v = get();
     return (v === undefined ? def : v) as V | D;
-  };
+  }
 
-  const exists = () => Path.exists(doc.current as unknown as Record<string, unknown>, path);
+  function exists(): boolean {
+    return Path.exists(doc.current as unknown as O, path);
+  }
 
-  const set = (value: V) =>
+  function set(value: V): void {
+    doc.change((draft: unknown) => Path.Mutate.set(draft as O, path, value));
+  }
+
+  function update(map: (curr?: V) => V): void {
     doc.change((draft: unknown) => {
-      Path.Mutate.set(draft as Record<string, unknown>, path, value);
+      const curr = Path.get<V>(draft as O, path);
+      Path.Mutate.set(draft as O, path, map(curr));
     });
+  }
 
-  const update = (map: (curr: V | undefined) => V) =>
-    doc.change((draft: unknown) => {
-      const curr = Path.get<V>(draft as Record<string, unknown>, path);
-      Path.Mutate.set(draft as Record<string, unknown>, path, map(curr));
-    });
-
-  const ensure = <D extends t.NonUndefined<V>>(def: D): V | D => {
+  function ensure<D extends t.NonUndefined<V>>(def: D): V | D {
     const curr = get();
     if (curr !== undefined) return curr as V | D;
-    doc.change((draft: unknown) => {
-      Path.Mutate.set(draft as Record<string, unknown>, path, def as unknown as V);
-    });
+    doc.change((draft: unknown) => Path.Mutate.set(draft as O, path, def as unknown as V));
     return getOr(def);
-  };
+  }
 
-  const del = () =>
-    doc.change((draft: unknown) => {
-      Path.Mutate.delete(draft as Record<string, unknown>, path);
-    });
+  function del(): void {
+    doc.change((draft: unknown) => Path.Mutate.delete(draft as O, path));
+  }
 
-  const child = <U = unknown>(sub: t.ObjectPath) =>
-    makeLens<T, P, U>(doc, Path.join(path, sub, 'absolute'));
+  function child<U = unknown>(sub: t.ObjectPath) {
+    return makeLens<T, P, U>(doc, Path.joinAll(path, sub));
+  }
 
-  const as = <U = unknown>() => makeLens<T, P, U>(doc, path);
+  function as<U = unknown>() {
+    return makeLens<T, P, U>(doc, path);
+  }
 
-  const at = <U = unknown>(...segments: t.ObjectPath[]) =>
-    makeLens<T, P, U>(doc, joinAll(path, segments));
+  function at<U = unknown>(...segments: t.ObjectPath[]) {
+    const joined = Path.joinAll(path, ...segments);
+    return makeLens<T, P, U>(doc, joined);
+  }
 
   /**
    * API:
