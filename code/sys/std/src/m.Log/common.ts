@@ -14,3 +14,10 @@ export const levels = [
   'error',
   'debug',
 ] as const satisfies readonly t.LogLevel[];
+
+/**
+ * Defaults:
+ */
+export const D = {
+  prefixColor: '#0af' satisfies t.LogOptions['prefixColor'],
+} as const;

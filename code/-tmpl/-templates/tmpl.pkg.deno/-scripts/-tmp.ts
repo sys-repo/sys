@@ -1,6 +1,6 @@
 import { Fs } from '@sys/fs';
 import { Log } from '@sys/std/log';
-const log = Log.category('Foobar');
+const log = Log.logger('Foobar');
 
 log('👋 Hello');
 log.sub('tmp')('🐷-tmp');

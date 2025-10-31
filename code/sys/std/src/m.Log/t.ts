@@ -36,9 +36,10 @@ export type LoggerFn = (...args: readonly unknown[]) => void;
 export type LogOptions = {
   /** Dynamic enable/disable source (checked each call). Default: true. */
   readonly enabled?: t.ReadableSignal<boolean>;
-
   /** Console methodLogLevelwith. Default: 'info'. */
   readonly method?: LogLevel;
+  /** Prefix color. */
+  readonly prefixColor?: t.StringHex;
 
   /**
    * Time formatter for timestamp inclusion.

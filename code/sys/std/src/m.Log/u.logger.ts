@@ -1,4 +1,4 @@
-import { type t, Is, Signal } from './common.ts';
+import { type t, D, Is, Signal } from './common.ts';
 
 /**
  * Create a category-based logger.
@@ -7,25 +7,27 @@ import { type t, Is, Signal } from './common.ts';
  * - Enabled: `enabled?: t.ReadableSignal<boolean>` (defaults to true). Parent AND child are combined.
  * - Browser styling: when `Is.browser()` is true, the prefix uses `%c` with a subtle CSS accent.
  */
-export const makeLogger: t.LogLib['logger'] = (category, options) => {
-  const parent = options ?? {};
+export const makeLogger: t.LogLib['logger'] = (category, opts = {}) => {
+  const parentOpts = opts ?? {};
 
-  function create(cat: string, child?: t.LogOptions): t.Logger {
-    const merged: t.LogOptions = {
-      ...parent,
-      ...child,
-      enabled: combineEnabled(parent.enabled, child?.enabled),
+  function create(cat: string, childOpts: t.LogOptions = {}): t.Logger {
+    const opts: t.LogOptions = {
+      ...parentOpts,
+      ...childOpts,
+      enabled: combineEnabled(parentOpts.enabled, childOpts.enabled),
+      prefixColor: childOpts.prefixColor ?? parentOpts.prefixColor,
     };
 
-    const method: t.LogLevel = merged.method ?? 'info';
+    const method: t.LogLevel = opts.method ?? 'info';
     const emit = getConsoleMethod(method);
-    const fmt = merged.timestamp === undefined ? defaultTimeFormatter : merged.timestamp;
+    const fmt = opts.timestamp === undefined ? defaultTimeFormatter : opts.timestamp;
 
     const useCss = Is.browser();
-    const css = 'color:#0af;font-weight:bold;';
+    const prefixColor = wrangle.hex(opts.prefixColor ?? D.prefixColor);
+    const css = `color:${prefixColor};font-weight:bold;`;
 
     const loggerFn: t.LoggerFn = (...args: readonly unknown[]) => {
-      if (Signal.read(merged.enabled) === false) return;
+      if (Signal.read(opts.enabled) === false) return;
 
       const now = new Date();
       const ts = fmt === null ? null : fmt(now);
@@ -45,7 +47,7 @@ export const makeLogger: t.LogLib['logger'] = (category, options) => {
     return logger;
   }
 
-  return create(category, options);
+  return create(category, parentOpts);
 };
 
 /**
@@ -70,3 +72,14 @@ function combineEnabled(
   if (b === undefined) return a;
   return () => Boolean(Signal.read(a)) && Boolean(Signal.read(b));
 }
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  hex(input: t.StringHex) {
+    const s = (input || '').trim().replace(/^#/, '').toLowerCase();
+    const clean = /^[0-9a-f]{3,8}$/.test(s) ? s : '000000';
+    return `#${clean}`;
+  },
+} as const;

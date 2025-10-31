@@ -1,8 +1,9 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { D, Is } from '../common.ts';
 import { Log } from '../mod.ts';
 import { stubConsole } from './-u.stub.ts';
 
-describe('Log.category', () => {
+describe('Log.logger (make)', () => {
   it('types', () => {
     // Function shape via exported types (no ad-hoc clones):
     expectTypeOf(Log.logger).toMatchTypeOf<t.LogLib['logger']>();
@@ -320,5 +321,131 @@ describe('Log.category', () => {
     } finally {
       restore();
     }
+  });
+
+  describe('Browser/CSS prefix color behavior', () => {
+    it('browser: uses %c and default prefix color (normalized)', () => {
+      const { calls, restore } = stubConsole('info');
+      const orig = Is.browser;
+      try {
+        (Is as any).browser = () => true;
+
+        const log = Log.logger('Foobar', { timestamp: () => 'T' });
+        log('hello', 123);
+
+        expect(calls.info.length).to.equal(1);
+        const [fmt, css, second, third] = calls.info[0];
+
+        expect(fmt).to.equal('%c[Foobar] T');
+        // default color should be used as-is (already valid hex) and formatted into CSS:
+        expect(css).to.equal(`color:${D.prefixColor};font-weight:bold;`);
+        expect(second).to.equal('hello');
+        expect(third).to.equal(123);
+      } finally {
+        (Is as any).browser = orig;
+        restore();
+      }
+    });
+
+    it('browser: provided prefix color is normalized (case, leading "#")', () => {
+      const { calls, restore } = stubConsole('info');
+      const orig = Is.browser;
+      try {
+        (Is as any).browser = () => true;
+
+        const input = '#F06' as t.StringHex; // 3-digit, mixed case
+        const expected = '#f06'; // normalized lower-case
+        const log = Log.logger('Foobar', { prefixColor: input, timestamp: () => 'T' });
+        log('x');
+
+        expect(calls.info.length).to.equal(1);
+        const [fmt, css, msg] = calls.info[0];
+        expect(fmt).to.equal('%c[Foobar] T');
+        expect(css).to.equal(`color:${expected};font-weight:bold;`);
+        expect(msg).to.equal('x');
+      } finally {
+        (Is as any).browser = orig;
+        restore();
+      }
+    });
+
+    it('browser: child inherits parent prefix color unless overridden (normalized)', () => {
+      const { calls, restore } = stubConsole('info');
+      const orig = Is.browser;
+      try {
+        (Is as any).browser = () => true;
+
+        const parentInput = '#0A0' as t.StringHex;
+        const childInput = '#A00' as t.StringHex;
+        const parent = Log.logger('Root', { prefixColor: parentInput, timestamp: () => 'T' });
+        const child1 = parent.sub('One'); // inherit
+        const child2 = parent.sub('Two', { prefixColor: childInput }); // override
+
+        child1('a');
+        child2('b');
+
+        expect(calls.info.length).to.equal(2);
+
+        {
+          const [fmt, css, msg] = calls.info[0];
+          expect(fmt).to.equal('%c[Root:One] T');
+          expect(css).to.equal('color:#0a0;font-weight:bold;');
+          expect(msg).to.equal('a');
+        }
+        {
+          const [fmt, css, msg] = calls.info[1];
+          expect(fmt).to.equal('%c[Root:Two] T');
+          expect(css).to.equal('color:#a00;font-weight:bold;');
+          expect(msg).to.equal('b');
+        }
+      } finally {
+        (Is as any).browser = orig;
+        restore();
+      }
+    });
+
+    it('browser: invalid prefixColor falls back to #000000', () => {
+      const { calls, restore } = stubConsole('info');
+      const orig = Is.browser;
+      try {
+        (Is as any).browser = () => true;
+
+        const log = Log.logger('Foo', {
+          prefixColor: 'red' as unknown as t.StringHex,
+          timestamp: () => 'T',
+        });
+        log('x');
+
+        expect(calls.info.length).to.equal(1);
+        const [fmt, css] = calls.info[0];
+        expect(fmt).to.equal('%c[Foo] T');
+        expect(css).to.equal('color:#000000;font-weight:bold;');
+      } finally {
+        (Is as any).browser = orig;
+        restore();
+      }
+    });
+
+    it('browser: long hex is normalized to lower-case (#FF00AA88 → #ff00aa88)', () => {
+      const { calls, restore } = stubConsole('info');
+      const orig = Is.browser;
+      try {
+        (Is as any).browser = () => true;
+
+        const log = Log.logger('Foo', {
+          prefixColor: '#FF00AA88' as t.StringHex,
+          timestamp: () => 'T',
+        });
+        log('x');
+
+        expect(calls.info.length).to.equal(1);
+        const [fmt, css] = calls.info[0];
+        expect(fmt).to.equal('%c[Foo] T');
+        expect(css).to.equal('color:#ff00aa88;font-weight:bold;');
+      } finally {
+        (Is as any).browser = orig;
+        restore();
+      }
+    });
   });
 });
