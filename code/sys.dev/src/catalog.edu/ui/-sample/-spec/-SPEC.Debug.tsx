@@ -104,7 +104,7 @@ export function createDebugSignals() {
 
   Signal.effect((e) => {
     const doc = signals.doc.value;
-    doc?.events(e.dispose$).$.subscribe((e) => {
+    doc?.events(e.life.dispose$).$.subscribe((e) => {
       const p = e.patches.length;
       const patches = `${p}-${Str.plural(p, 'patch', 'patches')}`;
       console.info(`⚡️ Signal.effect(life):doc(${patches}):`, e);
