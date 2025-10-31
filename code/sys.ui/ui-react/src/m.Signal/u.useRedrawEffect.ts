@@ -7,7 +7,7 @@ import { type t, useSignalEffect } from './common.ts';
  * - No deep walks; dependencies are whatever `cb()` reads.
  * - No Automerge/debug-tooling dependencies.
  */
-export const useRedrawEffect: t.SignalReactLib['useRedrawEffect'] = (cb) => {
+export const useSignalRedrawEffect: t.SignalReactLib['useRedrawEffect'] = (cb) => {
   const [, bump] = useRev('micro');
   useSignalEffect(() => {
     cb(); //    Establish reactive deps.

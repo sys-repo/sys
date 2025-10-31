@@ -1,7 +1,8 @@
 import type { SignalReactLib } from './t.ts';
 
-import { Std, useSignalEffect as useEffect, useSignal } from './common.ts';
-import { useRedrawEffect } from './u.useRedrawEffect.ts';
+import { Std, useSignal } from './common.ts';
+import { useSignalEffect as useEffect } from './u.useEffect.ts';
+import { useSignalRedrawEffect as useRedrawEffect } from './u.useRedrawEffect.ts';
 
 /**
  * Reactive Signals.
