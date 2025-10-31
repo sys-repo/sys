@@ -68,27 +68,38 @@ export function diff<T extends O = O>(
 
     // Plain objects:
     if (isPlainObject(aNode) && isPlainObject(bNode)) {
-      const keys = new Set([...Object.keys(aNode), ...Object.keys(bNode)]);
-      for (const key of keys) {
-        const next = [...path, key];
-        const aHas = key in aNode;
-        const bHas = key in bNode;
+      const aObj = aNode as O;
+      const bObj = bNode as O;
 
-        if (!bHas) {
+      // Fast path: both empty → nothing to do.
+      if (Object.keys(aObj).length === 0 && Object.keys(bObj).length === 0) return;
+
+      // Pass 1: removals/updates (iterate A's keys).
+      for (const key of Object.keys(aObj)) {
+        const next = [...path, key] as Path;
+        if (!Object.prototype.hasOwnProperty.call(bObj, key)) {
+          // present in A (target) only → remove
           pushOp(set(target, next, undefined));
           continue;
         }
-        if (!aHas) {
-          pushOp(set(target, next, (bNode as O)[key]));
-          continue;
-        }
-        walk(next, (aNode as O)[key], (bNode as O)[key]); // 🌳 ← recursion:
+        // present in both → recurse
+        walk(next, aObj[key], bObj[key]);
       }
+
+      // Pass 2: additions (iterate B's keys not seen in A).
+      for (const key of Object.keys(bObj)) {
+        if (!Object.prototype.hasOwnProperty.call(aObj, key)) {
+          const next = [...path, key] as Path;
+          pushOp(set(target, next, bObj[key]));
+        }
+      }
+
       return;
     }
 
     // Arrays:
     if (Array.isArray(aNode) && Array.isArray(bNode)) {
+      if (aNode.length === 0 && bNode.length === 0) return;
       if (diffArrays) {
         walkArray(bNode, aNode, path); // Fine-grained diff.
       } else {
