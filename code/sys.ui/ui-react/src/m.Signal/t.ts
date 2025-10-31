@@ -53,5 +53,5 @@ export type SignalReactLib = SignalLib & {
    *    Safe: == stops effect listeners on tear-down.
    *
    */
-  useRedrawEffect(cb: () => void): void;
+  useRedrawEffect: t.UseRedrawEffectListener;
 };

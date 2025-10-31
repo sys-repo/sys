@@ -1,6 +1,4 @@
-import type { SignalReactLib } from './t.ts';
-
-import { Std, useSignal } from './common.ts';
+import { type t, Std, useSignal } from './common.ts';
 import { useSignalEffect as useEffect } from './u.useEffect.ts';
 import { useSignalRedrawEffect as useRedrawEffect } from './u.useRedrawEffect.ts';
 
@@ -11,7 +9,7 @@ import { useSignalRedrawEffect as useRedrawEffect } from './u.useRedrawEffect.ts
  *    https://preactjs.com/blog/introducing-signals/
  *    https://preactjs.com/guide/v10/signals
  */
-export const Signal: SignalReactLib = {
+export const Signal: t.SignalReactLib = {
   ...Std,
   useSignal,
   useEffect,

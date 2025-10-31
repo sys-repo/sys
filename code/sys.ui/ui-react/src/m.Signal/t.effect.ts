@@ -17,3 +17,16 @@ export type UseSignalEffectFn = (e: UseSignalEffectFnArgs) => void | (() => void
 
 /** Lazy lifecycle for a single run; aborts on re-run or unmount. */
 export type UseSignalEffectFnArgs = { readonly life: t.Abortable };
+
+/**
+ * Signal.useRedrawEffect( ƒ ):
+ * React hook helper that triggers a safe redraw when signals read inside the
+ * callback change. Mirrors the lifecycle-aware `UseSignalEffect` types so
+ * implementors can lazily opt into `e.life` without forcing an Abortable.
+ */
+
+/** Register a lifecycle-aware redraw effect (React); no disposer is returned. */
+export type UseRedrawEffectListener = (fn: UseRedrawEffectFn) => void;
+
+/** Redraw callback; may optionally use `e.life` and/or return a cleanup. */
+export type UseRedrawEffectFn = (e: UseSignalEffectFnArgs) => void | (() => void);
