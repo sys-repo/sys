@@ -7,7 +7,7 @@ import { type t, Is, Signal } from './common.ts';
  * - Enabled: `enabled?: t.ReadableSignal<boolean>` (defaults to true). Parent AND child are combined.
  * - Browser styling: when `Is.browser()` is true, the prefix uses `%c` with a subtle CSS accent.
  */
-export const category: t.LogLib['category'] = (category, options) => {
+export const makeLogger: t.LogLib['logger'] = (category, options) => {
   const parent = options ?? {};
 
   function create(cat: string, child?: t.LogOptions): t.Logger {
@@ -37,8 +37,9 @@ export const category: t.LogLib['category'] = (category, options) => {
 
     const logger: t.Logger = Object.assign(loggerFn, {
       category: cat,
-      sub: (subCategory: string, subOpts?: t.LogOptions) =>
-        create(`${cat}:${subCategory}`, subOpts),
+      sub(subCategory: string, subOpts?: t.LogOptions) {
+        return create(`${cat}:${subCategory}`, subOpts);
+      },
     });
 
     return logger;

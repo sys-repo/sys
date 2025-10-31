@@ -10,7 +10,7 @@ export { Media } from '@sys/ui-react-components';
  * Constants:
  */
 const name = 'VideoRecorder:View';
-export const logInfo = Log.category(name);
+export const logInfo = Log.logger(name);
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),

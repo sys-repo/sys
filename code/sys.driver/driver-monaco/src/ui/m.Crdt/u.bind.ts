@@ -2,7 +2,7 @@ import { type t, A, Bus, Log, Obj, Rx, Schedule, Util } from './common.ts';
 import { diffToSplices } from './u.diffToSplices.ts';
 
 const DEBUG_LOG = false;
-const logInfo = Log.category('crdt: u.bind', { enabled: DEBUG_LOG });
+const logInfo = Log.logger('crdt: u.bind', { enabled: DEBUG_LOG });
 
 /**
  * Bind a Monaco text-model to a CRDT document reference.

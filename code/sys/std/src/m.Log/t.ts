@@ -13,16 +13,16 @@ export type LogLib = {
   readonly levels: readonly LogLevel[];
 
   /**
-   * Create a category-based logger.
+   * Create a category/timestamp prefixed logger function.
    *
    * Example:
-   *   const log = Log.category('Foobar');
+   *   const log = Log.logger('Foobar');
    *   log('ready'); // → [Foobar] 20:34:36.200 ready
    *
    *   const sub = log.sub('Subpart');
    *   sub('connected'); // → [Foobar:Subpart] 20:34:36.200 connected
    */
-  readonly category: (category: string, options?: LogOptions) => Logger;
+  readonly logger: (category: string, options?: LogOptions) => Logger;
 };
 
 /**

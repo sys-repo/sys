@@ -8,7 +8,7 @@ export { Log } from '../Media/m.Log.ts';
 export { Slider } from '../Slider/mod.ts';
 
 const name = 'Media.Video';
-export const logInfo = Log.category(name);
+export const logInfo = Log.logger(name);
 
 /**
  * Constants:

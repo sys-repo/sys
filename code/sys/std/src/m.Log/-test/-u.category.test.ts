@@ -5,17 +5,17 @@ import { stubConsole } from './-u.stub.ts';
 describe('Log.category', () => {
   it('types', () => {
     // Function shape via exported types (no ad-hoc clones):
-    expectTypeOf(Log.category).toMatchTypeOf<t.LogLib['category']>();
+    expectTypeOf(Log.logger).toMatchTypeOf<t.LogLib['logger']>();
 
     // Return type + members are correctly typed:
-    const log = Log.category('Foobar');
+    const log = Log.logger('Foobar');
     expectTypeOf(log).toMatchTypeOf<t.Logger>();
     expectTypeOf(log.category).toEqualTypeOf<string>();
     expectTypeOf(log.sub).toMatchTypeOf<t.Logger['sub']>();
   });
 
   it('category(...) returns a callable logger with metadata', () => {
-    const log = Log.category('Foobar');
+    const log = Log.logger('Foobar');
     expect(log).to.be.a('function');
     expect((log as any).category).to.equal('Foobar');
     expect(typeof (log as any).sub).to.equal('function');
@@ -37,7 +37,7 @@ describe('Log.category', () => {
   it('emits via console.info by default (with custom timestamp formatter)', () => {
     const { calls, restore } = stubConsole('info');
     try {
-      const log = Log.category('Foobar', { timestamp: () => 'T' });
+      const log = Log.logger('Foobar', { timestamp: () => 'T' });
       log('hello', { x: 1 });
       expect(calls.info.length).to.equal(1);
       const [first, second, third] = calls.info[0];
@@ -52,7 +52,7 @@ describe('Log.category', () => {
   it('omits timestamp when formatTime is null', () => {
     const { calls, restore } = stubConsole('info');
     try {
-      const log = Log.category('Foobar', { timestamp: null });
+      const log = Log.logger('Foobar', { timestamp: null });
       log('msg');
       expect(calls.info.length).to.equal(1);
       expect(calls.info[0][0]).to.equal('[Foobar]');
@@ -65,7 +65,7 @@ describe('Log.category', () => {
   it('child logger concatenates category with ":"', () => {
     const { calls, restore } = stubConsole('info');
     try {
-      const parent = Log.category('Foobar', { timestamp: () => 'T' });
+      const parent = Log.logger('Foobar', { timestamp: () => 'T' });
       const child = parent.sub('Subpart');
       child('connected');
       expect(calls.info.length).to.equal(1);
@@ -81,7 +81,7 @@ describe('Log.category', () => {
     for (const m of methods) {
       const { calls, restore } = stubConsole(m);
       try {
-        const log = Log.category('Foobar', { method: m, timestamp: () => 'T' });
+        const log = Log.logger('Foobar', { method: m, timestamp: () => 'T' });
         log('x');
         expect(calls[m].length).to.equal(1);
         expect(calls[m][0][0]).to.equal('[Foobar] T');
@@ -95,7 +95,7 @@ describe('Log.category', () => {
   it('enabled: defaults to true when undefined', () => {
     const { calls, restore } = stubConsole('info');
     try {
-      const log = Log.category('Foobar', { timestamp: () => 'T' });
+      const log = Log.logger('Foobar', { timestamp: () => 'T' });
       log('x');
       expect(calls.info.length).to.equal(1);
     } finally {
@@ -108,7 +108,7 @@ describe('Log.category', () => {
     {
       const { calls, restore } = stubConsole('info');
       try {
-        const log = Log.category('Foobar', { enabled: false, timestamp: () => 'T' });
+        const log = Log.logger('Foobar', { enabled: false, timestamp: () => 'T' });
         log('x');
         expect(calls.info.length).to.equal(0);
       } finally {
@@ -119,7 +119,7 @@ describe('Log.category', () => {
     {
       const { calls, restore } = stubConsole('info');
       try {
-        const log = Log.category('Foobar', { enabled: true, timestamp: () => 'T' });
+        const log = Log.logger('Foobar', { enabled: true, timestamp: () => 'T' });
         log('x');
         expect(calls.info.length).to.equal(1);
       } finally {
@@ -132,7 +132,7 @@ describe('Log.category', () => {
     const { calls, restore } = stubConsole('info');
     try {
       const flag = { value: true };
-      const log = Log.category('Foobar', { enabled: flag, timestamp: () => 'T' });
+      const log = Log.logger('Foobar', { enabled: flag, timestamp: () => 'T' });
 
       log('one');
       expect(calls.info.length).to.equal(1);
@@ -154,7 +154,7 @@ describe('Log.category', () => {
     const { calls, restore } = stubConsole('info');
     try {
       let on = true;
-      const log = Log.category('Foobar', { enabled: () => on, timestamp: () => 'T' });
+      const log = Log.logger('Foobar', { enabled: () => on, timestamp: () => 'T' });
 
       log('a');
       expect(calls.info.length).to.equal(1);
@@ -177,7 +177,7 @@ describe('Log.category', () => {
       const parentFlag = { value: true };
       const childFlag = { value: true };
 
-      const parent = Log.category('Foobar', { enabled: parentFlag, timestamp: () => 'T' });
+      const parent = Log.logger('Foobar', { enabled: parentFlag, timestamp: () => 'T' });
       const child = parent.sub('Subpart', { enabled: childFlag });
 
       child('1');
@@ -206,7 +206,7 @@ describe('Log.category', () => {
     const { calls, restore } = stubConsole('info');
     try {
       const parentFlag = { value: false }; // parent OFF
-      const parent = Log.category('Foobar', { enabled: parentFlag, timestamp: () => 'T' });
+      const parent = Log.logger('Foobar', { enabled: parentFlag, timestamp: () => 'T' });
       const child = parent.sub('Subpart'); // inherits parent OFF
 
       parent('p');
@@ -224,7 +224,7 @@ describe('Log.category', () => {
       const parentFlag = { value: true }; // parent ON
       const childFlag = { value: false }; // child OFF
 
-      const parent = Log.category('Foobar', { enabled: parentFlag, timestamp: () => 'T' });
+      const parent = Log.logger('Foobar', { enabled: parentFlag, timestamp: () => 'T' });
       const child = parent.sub('Subpart', { enabled: childFlag });
 
       parent('parent-msg');
@@ -243,7 +243,7 @@ describe('Log.category', () => {
   it('timestamp: null removes timestamp even if parent provided a formatter', () => {
     const { calls, restore } = stubConsole('info');
     try {
-      const parent = Log.category('Foobar', { timestamp: () => 'PARENT' });
+      const parent = Log.logger('Foobar', { timestamp: () => 'PARENT' });
       const child = parent.sub('Subpart', { timestamp: null });
       child('x');
       expect(calls.info.length).to.equal(1);
@@ -256,7 +256,7 @@ describe('Log.category', () => {
   it('child inherits options and can override them', () => {
     const { calls, restore } = stubConsole('warn');
     try {
-      const parent = Log.category('Foobar', {
+      const parent = Log.logger('Foobar', {
         method: 'warn',
         timestamp: () => 'T',
         enabled: true,
@@ -275,7 +275,7 @@ describe('Log.category', () => {
   });
 
   it('sub-category: sub(...) returns a new function (not identity) with correct metadata', () => {
-    const a = Log.category('Root');
+    const a = Log.logger('Root');
     const b = a.sub('Leaf');
     expect(a).to.not.equal(b);
     expect((b as any).category).to.equal('Root:Leaf');
@@ -284,7 +284,7 @@ describe('Log.category', () => {
   it('omits timestamp when formatTime is null (root logger)', () => {
     const { calls, restore } = stubConsole('info');
     try {
-      const log = Log.category('Foobar', { timestamp: null });
+      const log = Log.logger('Foobar', { timestamp: null });
       log('hello');
       expect(calls.info.length).to.equal(1);
       expect(calls.info[0][0]).to.equal('[Foobar]');
@@ -297,7 +297,7 @@ describe('Log.category', () => {
   it('child with [timestamp:null] removes timestamp even if parent provided one', () => {
     const { calls, restore } = stubConsole('info');
     try {
-      const parent = Log.category('Foobar', { timestamp: () => 'PARENT' });
+      const parent = Log.logger('Foobar', { timestamp: () => 'PARENT' });
       const child = parent.sub('Sub', { timestamp: null });
       child('msg');
       expect(calls.info.length).to.equal(1);
@@ -311,7 +311,7 @@ describe('Log.category', () => {
   it('child can enable timestamp when parent disabled it (override from null)', () => {
     const { calls, restore } = stubConsole('info');
     try {
-      const parent = Log.category('Foobar', { timestamp: null });
+      const parent = Log.logger('Foobar', { timestamp: null });
       const child = parent.sub('Sub', { timestamp: () => 'CHILD' });
       child('msg');
       expect(calls.info.length).to.equal(1);

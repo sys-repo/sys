@@ -7,7 +7,7 @@ export { Video } from '../Media.Video/mod.ts';
  * Constants:
  */
 const name = 'Media.Recorder';
-export const logInfo = Log.category(name);
+export const logInfo = Log.logger(name);
 
 export const DEFAULTS = {
   name,
