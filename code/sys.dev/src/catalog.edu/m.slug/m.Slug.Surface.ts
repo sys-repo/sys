@@ -5,11 +5,11 @@ export const SlugSurface: t.SlugSurfaceLib = {
    * Extract the inline surface (id?, description?, ref?, traits?, data?) from a SlugTreeItem.
    * Note: SlugTreeItem does not define `id`, so only present fields are copied.
    */
-  fromTreeItem(node): t.SlugSurface {
+  fromTreeItem(node) {
     if (!Is.record(node)) {
       // During live YAML editing, array slots can be `null`/scalar.
       // Return the empty surface rather than throwing.
-      return {} as t.SlugSurface;
+      return {} satisfies t.SlugSurface;
     }
 
     const out: Record<string, unknown> = {};
@@ -21,6 +21,6 @@ export const SlugSurface: t.SlugSurfaceLib = {
     if ('data' in node && node.data !== undefined) out.data = node.data;
 
     // Cast to the <readonly> surface shape (safe: we only set known keys).
-    return out as t.SlugSurface;
+    return out satisfies t.SlugSurface;
   },
 };
