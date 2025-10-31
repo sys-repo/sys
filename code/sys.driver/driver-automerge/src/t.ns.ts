@@ -11,6 +11,7 @@ export namespace Crdt {
   export type Ref<T extends O = O> = t.CrdtRef<T>;
   export type Events<T extends O = O> = t.CrdtEvents<T>;
   export type Patch = t.CrdtPatch;
+  export type Splice = t.CrdtStringSplice;
   export namespace Marks {
     export type Mark = AMMark;
     export type Range = AMMarkRange;

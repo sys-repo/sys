@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.str.ts';
 
 type O = Record<string, unknown>;
 

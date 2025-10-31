@@ -1,9 +1,7 @@
-import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { type t, describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import { diffToSplices } from '../u.diffToSplices.ts';
 
-type Splice = { index: number; delCount: number; insertText: string };
-
-const applySplices = (before: string, splices: readonly Splice[]) =>
+const applySplices = (before: string, splices: readonly t.Crdt.Splice[]) =>
   splices.reduce((acc, s) => {
     const head = acc.slice(0, s.index);
     const tail = acc.slice(s.index + s.delCount);
@@ -12,7 +10,17 @@ const applySplices = (before: string, splices: readonly Splice[]) =>
 
 describe('diffToSplices', () => {
   it('typing: returns Splice[]', () => {
-    expectTypeOf(diffToSplices('a', 'a')).toEqualTypeOf<Splice[]>();
+    type Splice = t.Crdt.Splice;
+    type Splices = readonly Splice[];
+
+    // Broad contract: always assignable to readonly Splice[]
+    expectTypeOf(diffToSplices('a', 'a')).toMatchTypeOf<Splices>();
+    expectTypeOf(diffToSplices('a', 'b')).toMatchTypeOf<Splices>();
+
+    // Practical usage check:
+    const asArray = (s: Splices): Splices => s;
+    expectTypeOf(asArray(diffToSplices('a', 'a'))).toMatchTypeOf<Splices>();
+    expectTypeOf(asArray(diffToSplices('a', 'b'))).toMatchTypeOf<Splices>();
   });
 
   it('no change → empty array', () => {
@@ -138,6 +146,15 @@ describe('diffToSplices', () => {
     const after = 'cafe';
     const res = diffToSplices(before, after);
     expect(res).to.eql([{ index: 3, delCount: 1, insertText: 'e' }]);
+    expect(applySplices(before, res)).to.eql(after);
+  });
+
+  it('unicode (astral emoji) behaves predictably', () => {
+    const before = 'a👋c'; // '👋' is 2 UTF-16 code units
+    const after = 'a🚀c'; //  '🚀' is also 2 code units
+    const res = diffToSplices(before, after);
+
+    expect(res).to.eql([{ index: 1, delCount: 2, insertText: '🚀' }]);
     expect(applySplices(before, res)).to.eql(after);
   });
 
