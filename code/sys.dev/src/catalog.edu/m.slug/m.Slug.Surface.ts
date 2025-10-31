@@ -5,8 +5,9 @@ export const SlugSurface: t.SlugSurfaceLib = {
    * Extract the inline surface (id?, description?, ref?, traits?, data?) from a SlugTreeItem.
    * Note: SlugTreeItem does not define `id`, so only present fields are copied.
    */
-  fromTreeItem(node: t.SlugTreeItem): t.SlugSurface {
+  fromTreeItem(node): t.SlugSurface {
     const out: Record<string, unknown> = {};
+    if (node == null) return out;
 
     // Copy only fields that exist on SlugTreeItem:
     if ('description' in node && node.description !== undefined) out.description = node.description;
@@ -17,4 +18,4 @@ export const SlugSurface: t.SlugSurfaceLib = {
     // Cast to the <readonly> surface shape (safe: we only set known keys).
     return out as t.SlugSurface;
   },
-} as const;
+};

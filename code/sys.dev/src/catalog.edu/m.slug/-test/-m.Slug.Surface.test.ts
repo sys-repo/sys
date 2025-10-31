@@ -22,6 +22,11 @@ describe('Slug.Surface', () => {
       expect(res).to.not.equal(base);
     });
 
+    it('returns empty when passing no param', () => {
+      expect(SlugSurface.fromTreeItem()).to.eql({});
+      expect(SlugSurface.fromTreeItem(null as any)).to.eql({});
+    });
+
     it('contains only allowed fields (id, description, ref, traits, data)', () => {
       const res = SlugSurface.fromTreeItem(base);
       expect(Object.keys(res)).to.eql(['description', 'ref', 'traits', 'data']);

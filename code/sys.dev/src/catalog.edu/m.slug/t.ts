@@ -46,5 +46,5 @@ export type SlugTreeLib = {
  * a consistent, child-free slug snapshot.
  */
 export type SlugSurfaceLib = {
-  fromTreeItem(node: t.SlugTreeItem): t.SlugSurface;
+  fromTreeItem(node?: t.SlugTreeItem): t.SlugSurface;
 };
