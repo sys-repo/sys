@@ -22,8 +22,8 @@ export type YamlRangeLib = {
 
   /**
    * Normalize a parser/emitter-provided range into a canonical `YamlRange`.
-   * - Accepts 2-tuple or 3-tuple; also tolerates `[start,end,undefined]`.
-   * - Returns `undefined` for falsy input.
+   * - Accepts `[start,end]`, `[start,end,nodeEnd]`, or any number[] variant.
+   * - Returns `undefined` for falsy or malformed input.
    */
-  normalize(range?: t.YamlRange | readonly [number, number, undefined]): t.YamlRange | undefined;
+  normalize(r?: t.YamlRange | t.Ary<number | undefined> | null): t.YamlRange | undefined;
 };

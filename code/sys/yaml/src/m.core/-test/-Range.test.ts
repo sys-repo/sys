@@ -55,6 +55,7 @@ describe('Yaml.Range', () => {
   describe('Range.normalize', () => {
     it('returns undefined for falsy input', () => {
       expect(Yaml.Range.normalize(undefined)).to.eql(undefined);
+      expect(Yaml.Range.normalize(null)).to.eql(undefined);
     });
 
     it('passes through [start,end] unchanged', () => {
@@ -72,7 +73,33 @@ describe('Yaml.Range', () => {
     it('coerces [start,end,undefined] → [start,end]', () => {
       const r = [7, 31, undefined] as const;
       const out = Yaml.Range.normalize(r);
-      expect(out).to.eql([7, 31]); // drops the <undefined> third element
+      expect(out).to.eql([7, 31]);
+    });
+
+    it('accepts mutable arrays (number[])', () => {
+      const mutable: number[] = [2, 8];
+      const out = Yaml.Range.normalize(mutable);
+      expect(out).to.eql([2, 8]);
+    });
+
+    it('accepts readonly arrays (ReadonlyArray<number|undefined>)', () => {
+      const readonlyArr: ReadonlyArray<number | undefined> = [10, 20, undefined] as const;
+      const out = Yaml.Range.normalize(readonlyArr);
+      expect(out).to.eql([10, 20]);
+    });
+
+    it('ignores elements beyond the third', () => {
+      const out = Yaml.Range.normalize([1, 4, 9, 99, 123]);
+      expect(out).to.eql([1, 4, 9]);
+    });
+
+    it('returns undefined for malformed arrays', () => {
+      expect(Yaml.Range.normalize([])).to.eql(undefined);
+      expect(Yaml.Range.normalize([5])).to.eql(undefined);
+      // @ts-expect-error: bad types on purpose
+      expect(Yaml.Range.normalize([1, 'x'])).to.eql(undefined);
+      expect(Yaml.Range.normalize([NaN, 3])).to.eql(undefined);
+      expect(Yaml.Range.normalize([2, Infinity])).to.eql(undefined);
     });
 
     it('is idempotent on normalized outputs', () => {
