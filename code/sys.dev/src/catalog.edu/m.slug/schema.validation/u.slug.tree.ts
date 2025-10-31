@@ -35,7 +35,7 @@ export const validateSlugTreeWithRanges: L['validateWithRanges'] = (args: {
     // 3. Emit final diagnostics as literals.
     for (const e of errs) {
       const { message, range } = e;
-      const p0 = e.path; // ← may be absolute (after attachSemanticRanges) or <undefined>.
+      const p0 = e.path; // ← may be absolute (after attachSemanticRanges) or undefined.
       const p = Array.isArray(p0) ? p0 : path;
       diagnostics.push({
         message,
