@@ -19,4 +19,11 @@ export type YamlRangeLib = {
    *          `end` is treated as exclusive in the input range.
    */
   toLinePos(text: string, range: t.YamlRange): t.YamlLinePosPair;
+
+  /**
+   * Normalize a parser/emitter-provided range into a canonical `YamlRange`.
+   * - Accepts 2-tuple or 3-tuple; also tolerates `[start,end,undefined]`.
+   * - Returns `undefined` for falsy input.
+   */
+  normalize(range?: t.YamlRange | readonly [number, number, undefined]): t.YamlRange | undefined;
 };

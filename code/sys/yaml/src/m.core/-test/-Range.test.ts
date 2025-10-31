@@ -51,4 +51,35 @@ describe('Yaml.Range', () => {
       expect(to).to.eql({ line: 1, col: 1 });
     });
   });
+
+  describe('Range.normalize', () => {
+    it('returns undefined for falsy input', () => {
+      expect(Yaml.Range.normalize(undefined)).to.eql(undefined);
+    });
+
+    it('passes through [start,end] unchanged', () => {
+      const r = [3, 9] as const;
+      const out = Yaml.Range.normalize(r);
+      expect(out).to.eql([3, 9]);
+    });
+
+    it('passes through [start,valueEnd,nodeEnd] unchanged', () => {
+      const r = [5, 12, 14] as const;
+      const out = Yaml.Range.normalize(r);
+      expect(out).to.eql([5, 12, 14]);
+    });
+
+    it('coerces [start,end,undefined] → [start,end]', () => {
+      const r = [7, 31, undefined] as const;
+      const out = Yaml.Range.normalize(r);
+      expect(out).to.eql([7, 31]); // drops the <undefined> third element
+    });
+
+    it('is idempotent on normalized outputs', () => {
+      const r1 = [2, 8] as const;
+      const r2 = [10, 20, 24] as const;
+      expect(Yaml.Range.normalize(Yaml.Range.normalize(r1)!)).to.eql([2, 8]);
+      expect(Yaml.Range.normalize(Yaml.Range.normalize(r2)!)).to.eql([10, 20, 24]);
+    });
+  });
 });
