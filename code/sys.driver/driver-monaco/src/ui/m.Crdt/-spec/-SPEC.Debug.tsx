@@ -17,6 +17,7 @@ import {
   ObjectView,
   Rx,
   Signal,
+  Str,
 } from '../common.ts';
 
 type P = t.MonacoEditorProps;
@@ -103,7 +104,9 @@ export async function createDebugSignals() {
   Signal.effect((e) => {
     const doc = p.doc.value;
     doc?.events(e.dispose$).$.subscribe((e) => {
-      console.info(`⚡️ Signal.effect(life):doc(${e.patches.length} patches):`, e);
+      const p = e.patches.length;
+      const patches = `${p}-${Str.plural(p, 'patch', 'patches')}`;
+      console.info(`⚡️ Signal.effect(life):doc(${patches}):`, e);
     });
   });
 

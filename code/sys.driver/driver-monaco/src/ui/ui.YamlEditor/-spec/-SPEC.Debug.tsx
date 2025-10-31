@@ -1,7 +1,6 @@
 import { YamlObjectView } from '@sys/driver-monaco/dev';
 import React from 'react';
 
-import { debounce } from 'rxjs';
 import { createRepo } from '../../-test.ui.ts';
 import {
   type t,
@@ -15,6 +14,7 @@ import {
   Rx,
   Signal,
   STORAGE_KEY,
+  Str,
 } from '../common.ts';
 
 type P = t.YamlEditorProps;
@@ -131,7 +131,9 @@ export function createDebugSignals() {
   Signal.effect((e) => {
     const doc = signals.doc?.value;
     doc?.events(e.dispose$).$.subscribe((e) => {
-      console.info(`⚡️ Signal.effect(life):doc(${e.patches.length} patches):`, e);
+      const p = e.patches.length;
+      const patches = `${p}-${Str.plural(p, 'patch', 'patches')}`;
+      console.info(`⚡️ Signal.effect(life):doc(${patches}):`, e);
     });
   });
 

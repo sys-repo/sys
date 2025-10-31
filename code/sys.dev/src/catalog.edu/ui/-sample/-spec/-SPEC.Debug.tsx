@@ -13,6 +13,7 @@ import {
   Obj,
   ObjectView,
   Signal,
+  Str,
 } from '../common.ts';
 import { yamlSamples } from './-u.SAMPLES.tsx';
 import { SlugView } from './-ui.SlugView.tsx';
@@ -104,7 +105,9 @@ export function createDebugSignals() {
   Signal.effect((e) => {
     const doc = signals.doc.value;
     doc?.events(e.dispose$).$.subscribe((e) => {
-      console.info(`⚡️ Signal.effect(life):doc(${e.patches.length} patches):`, e);
+      const p = e.patches.length;
+      const patches = `${p}-${Str.plural(p, 'patch', 'patches')}`;
+      console.info(`⚡️ Signal.effect(life):doc(${patches}):`, e);
     });
   });
 

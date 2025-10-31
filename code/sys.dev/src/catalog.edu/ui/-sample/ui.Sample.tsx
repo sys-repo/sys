@@ -65,7 +65,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         repo={repo}
         path={docPath} // Editor binds to YAML-in-CRDT.
         signals={signals}
-        editor={{ autoFocus: true }}
+        editor={{ autoFocus: true, debounce: 150 }}
         documentId={{ localstorage }}
         onReady={(e) => {
           const { monaco, editor, dispose$ } = e;
