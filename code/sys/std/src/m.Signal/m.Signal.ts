@@ -1,9 +1,10 @@
 import type { SignalLib } from './t.ts';
 
-import { batch, computed, effect, signal } from '@preact/signals-core';
+import { batch, computed, signal } from '@preact/signals-core';
 
 import { Is } from './m.Is.ts';
 import { cycle } from './u.cycle.ts';
+import { effect } from './u.effect.ts';
 import { listen, listeners } from './u.listen.ts';
 import { read } from './u.read.ts';
 import { toggle } from './u.toggle.ts';

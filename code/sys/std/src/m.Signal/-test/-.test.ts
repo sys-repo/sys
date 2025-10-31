@@ -2,13 +2,14 @@ import { type t, Time, describe, expect, it } from '../../-test.ts';
 import { Rx } from '../../m.Rx/mod.ts';
 import { Is } from '../m.Is.ts';
 import { Signal } from '../mod.ts';
+import { effect } from '../u.effect.ts';
 
 import * as Preact from '@preact/signals-core';
 
 describe('Signal', () => {
   it('API', () => {
     expect(Signal.create).to.equal(Preact.signal);
-    expect(Signal.effect).to.equal(Preact.effect);
+    expect(Signal.effect).to.equal(effect);
     expect(Signal.Is).to.equal(Is);
   });
 

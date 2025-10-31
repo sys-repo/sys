@@ -1,8 +1,12 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 import { Signal } from '../mod.ts';
-import { effectL } from '../u.effect.ts';
+import { effect } from '../u.effect.ts';
 
 describe('Signal.effect', () => {
+  it('API', () => {
+    expect(Signal.effect).to.equal(effect);
+  });
+
   it('basic reactivity', () => {
     const s = Signal.create<number>(0);
 
@@ -23,14 +27,11 @@ describe('Signal.effect', () => {
     let count = 0;
     let disposeCount = 0;
 
-    effectL((e) => {
+    effect((e) => {
       s.value; // Hook into value.
       e.dispose$.subscribe(() => disposeCount++);
       count++;
     });
-
-    console.log('count', count);
-    console.log('disposeCount', disposeCount);
 
     expect(count).to.eql(1); // first run
     expect(disposeCount).to.eql(0);

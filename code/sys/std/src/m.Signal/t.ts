@@ -20,7 +20,7 @@ export type SignalLib = {
   create: typeof Preact.signal;
 
   /** Create an effect to run arbitrary code in response to signal changes. */
-  effect: typeof Preact.effect;
+  effect: t.SignalEffectListener;
 
   /** Combine multiple value updates into one "commit" at the end of the provided callback. */
   batch: typeof Preact.batch;
