@@ -1,12 +1,10 @@
 import type Preact from '@preact/signals-core';
 import type { t } from './common.ts';
 
+export type * from './t.effect.ts';
 export type * from './t.walk.ts';
 
 type O = Record<string, unknown>;
-
-/** Callback passed into a signal effect. */
-export type SignalEffectFn = () => void | (() => void);
 
 /**
  * Reactive Signals.
