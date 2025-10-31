@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  type t,
-  Color,
-  css,
-  DefaultTraitRegistry,
-  Monaco,
-  Slug,
-  useSlugDiagnostics,
-} from './common.ts';
+import { type t, Color, css, DefaultTraitRegistry, Monaco, useSlugDiagnostics } from './common.ts';
 import { Empty } from './ui.Empty.tsx';
 
 type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
