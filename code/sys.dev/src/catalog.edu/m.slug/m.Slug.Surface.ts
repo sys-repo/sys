@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, Is } from './common.ts';
 
 export const SlugSurface: t.SlugSurfaceLib = {
   /**
@@ -6,8 +6,13 @@ export const SlugSurface: t.SlugSurfaceLib = {
    * Note: SlugTreeItem does not define `id`, so only present fields are copied.
    */
   fromTreeItem(node): t.SlugSurface {
+    if (!Is.record(node)) {
+      // During live YAML editing, array slots can be `null`/scalar.
+      // Return the empty surface rather than throwing.
+      return {} as t.SlugSurface;
+    }
+
     const out: Record<string, unknown> = {};
-    if (node == null) return out;
 
     // Copy only fields that exist on SlugTreeItem:
     if ('description' in node && node.description !== undefined) out.description = node.description;

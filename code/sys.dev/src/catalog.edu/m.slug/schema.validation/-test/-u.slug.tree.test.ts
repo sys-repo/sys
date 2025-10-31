@@ -177,4 +177,49 @@ describe('schema.validation: SlugTree deep validation', () => {
       expect(rel === 'equal' || rel === 'ancestor').to.eql(true);
     }
   });
+
+  it('null root slot → skipped; neighbour still validated at .../data/vid/src1', () => {
+    const yaml = `
+    slug:
+      traits:
+        - of: slug-tree
+          as: foo
+      data:
+        foo:
+          -      # null item (live edit gap)
+          - slug: Thing B
+            traits:
+              - of: video-player
+                as: vid
+            data:
+              vid:
+                src1: "oops"
+    `;
+
+    const ast = Yaml.parseAst(yaml);
+    const tree: t.SlugTreeProps = [
+      null as unknown as t.SlugTreeItem, // live-edit null slot
+      {
+        slug: 'Thing B',
+        traits: [{ of: 'sample-trait', as: 'vid' }],
+        data: { vid: { src1: 'oops' } },
+      },
+    ];
+
+    const diags = Validation.SlugTree.validateWithRanges({
+      ast,
+      registry,
+      tree,
+      basePath: ['data', 'foo'],
+      severity: 'Error',
+    });
+
+    expect(diags.length).to.be.greaterThan(0);
+
+    // The invalid neighbour must be located precisely:
+    const hit = diags.find(
+      (d) => Array.isArray(d.path) && d.path.join('/') === 'data/foo/1/data/vid/src1',
+    );
+    expect(!!hit).to.eql(true);
+  });
 });

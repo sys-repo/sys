@@ -1,7 +1,8 @@
-import { type t } from '../common.ts';
+import { type t, Is } from '../common.ts';
 import { SlugSurface } from '../m.Slug.Surface.ts';
 import { attachSemanticRanges } from './u.ranges.attach.ts';
 import { validateWithRanges } from './u.ranges.validate.ts';
+import { walkSlugTree } from './u.slug.tree.walk.ts';
 
 type L = t.SlugTreeValidationLib;
 
@@ -47,23 +48,3 @@ export const validateSlugTreeWithRanges: L['validateWithRanges'] = (args: {
 
   return diagnostics;
 };
-
-/**
- * DFS: Depth-first walk over SlugTree items, yielding {node, path} pairs.
- * - `path` is the object path of the current item root (eg: ['data','foo', 1]).
- */
-function* walkSlugTree(
-  tree: readonly t.SlugTreeItem[],
-  basePath: t.ObjectPath,
-): Generator<{ node: t.SlugTreeItem; path: t.ObjectPath }> {
-  for (let i = 0; i < tree.length; i++) {
-    const node = tree[i]!;
-    const path: t.ObjectPath = [...basePath, i];
-    yield { node, path };
-
-    const children = node.slugs ?? [];
-    if (children.length > 0) {
-      yield* walkSlugTree(children, [...path, 'slugs']);
-    }
-  }
-}
