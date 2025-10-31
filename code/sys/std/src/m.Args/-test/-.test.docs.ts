@@ -39,9 +39,10 @@ describe('Args: (docs)', () => {
 
   it('Booleans, strings, and numeric coercion', () => {
     const argv = ['--dry-run', '--port', '3000', '--id', '007'];
-    const options = { boolean: ['dry-run'], string: ['id'] as const };
-
-    const res = Args.parse(argv, options);
+    const res = Args.parse(argv, {
+      boolean: ['dry-run'],
+      string: ['id'] as const,
+    });
 
     expect(res['dry-run']).to.equal(true);
     expect(res.port).to.equal(3000); // numeric
