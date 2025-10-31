@@ -19,7 +19,7 @@ export const category: t.LogLib['category'] = (category, options) => {
 
     const method: t.LogLevel = merged.method ?? 'info';
     const emit = getConsoleMethod(method);
-    const fmt = merged.formatTime === undefined ? defaultFormatTime : merged.formatTime;
+    const fmt = merged.timestamp === undefined ? defaultTimeFormatter : merged.timestamp;
 
     const useCss = Is.browser();
     const css = 'color:#0af;font-weight:bold;';
@@ -50,7 +50,7 @@ export const category: t.LogLib['category'] = (category, options) => {
 /**
  * Helpers:
  */
-function defaultFormatTime(now: Date): string {
+function defaultTimeFormatter(now: Date): string {
   return now.toISOString().slice(11, 23);
 }
 

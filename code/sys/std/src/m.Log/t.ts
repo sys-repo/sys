@@ -46,7 +46,7 @@ export type LogOptions = {
    * - Return null (or set option to null) to omit timestamp entirely.
    * Default: `now.toISOString().slice(11, 23)` → "HH:MM:SS.mmm"
    */
-  readonly formatTime?: ((now: Date) => string | null) | null;
+  readonly timestamp?: ((now: Date) => string | null) | null;
 };
 
 /**
