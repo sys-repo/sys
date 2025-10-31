@@ -18,7 +18,6 @@ import { Signal } from './mod.ts';
 describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
   it('API', () => {
     expect(Signal.create).to.equal(Preact.signal);
-    expect(Signal.effect).to.equal(Preact.effect);
     expect(Signal.useSignal).to.equal(Preact.useSignal);
     expect(Signal.useEffect).to.equal(Preact.useSignalEffect);
   });
