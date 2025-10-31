@@ -8,30 +8,26 @@ import { validateSlugTreeDeep } from './u.slug.tree.ts';
  *
  * Notes:
  * - Deep slug-tree validation needs a SlugTraitRegistry to validate nested trait props.
- *   If none is available, we adapt `isKnown` into a minimal registry (propsSchema = T.Unknown()).
  *   This still surfaces orphan/missing data errors; prop-shape checks require a real registry.
  */
 export function evaluateSemanticRules(args: {
   ast: t.Yaml.Ast;
   path: t.ObjectPath;
   candidate: t.Slug; //              ← already schema-validated & normalized
-  isKnown?: t.SlugIsKnown; //        ← existence check for trait IDs
-  registry?: t.SlugTraitRegistry; // ← optional full registry (prefers this when available)
+  registry?: t.SlugTraitRegistry;
 }): t.Schema.ValidationError[] {
-  const { ast, path, candidate, isKnown } = args;
+  const { ast, path, candidate } = args;
   const out: t.Schema.ValidationError[] = [];
 
-  const effectiveIsKnown: t.SlugIsKnown | undefined =
-    isKnown ?? (args.registry ? (id) => !!args.registry!.get(id) : undefined);
+  const isKnown: t.SlugIsKnown | undefined = args.registry
+    ? (id) => !!args.registry!.get(id)
+    : undefined;
 
   /**
    * 1. Core slug-level semantic rules (flat, registry-aware where needed).
    */
   SlugRules.aliasUniqueness(out, path, candidate);
-
-  const isKnownOrUndefined = effectiveIsKnown ? { isKnown: effectiveIsKnown } : undefined;
-  SlugRules.traitTypeKnown(out, path, candidate, isKnownOrUndefined);
-
+  SlugRules.traitTypeKnown(out, path, candidate, isKnown ? { isKnown } : undefined);
   SlugRules.missingDataForAlias(out, path, candidate);
   SlugRules.orphanData(out, path, candidate);
 
@@ -40,8 +36,7 @@ export function evaluateSemanticRules(args: {
    */
   const registry = args.registry ?? {
     all: [],
-    get: (id: string) =>
-      effectiveIsKnown?.(id) ? { id, propsSchema: T.Unknown() as t.TSchema } : undefined,
+    get: (id: string) => (isKnown?.(id) ? { id, propsSchema: T.Unknown() } : undefined),
   };
 
   const deep = validateSlugTreeDeep({

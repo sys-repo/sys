@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { type t, Type as T, describe, expect, it } from '../../-test.ts';
 import { fromYaml } from '../m.Slug.fromYaml.ts';
 
 type O = Record<string, unknown>;
@@ -19,7 +19,7 @@ describe('trait normalizers (opts.normalizers) [mock]', () => {
     `;
 
     const res = fromYaml(src, undefined, {
-      isKnown,
+      registry,
       normalizers: { 'mock-tree': mockTreeDslNormalizer },
     });
 
@@ -45,7 +45,7 @@ describe('trait normalizers (opts.normalizers) [mock]', () => {
     `;
 
     const res = fromYaml(src, undefined, {
-      isKnown,
+      registry,
       normalizers: {
         'mock-tree': () => {
           throw new Error('boom');
@@ -74,7 +74,7 @@ describe('trait normalizers (opts.normalizers) [mock]', () => {
     `;
 
     const res = fromYaml(src, undefined, {
-      isKnown,
+      registry,
       normalizers: { 'sample-a': passThrough },
     });
 
@@ -90,11 +90,18 @@ describe('trait normalizers (opts.normalizers) [mock]', () => {
 /**
  * Helpers (test-only):
  */
-function isKnown(id: string): boolean {
-  // Known trait ids for tests that require registry awareness.
-  // Keep these obviously fake to avoid confusion with real traits.
-  return id === 'mock-tree' || id === 'sample-a' || id === 'sample-b';
-}
+const SampleSchema: t.TSchema = T.Object(
+  { src: T.Optional(T.String({ minLength: 1 })) },
+  { additionalProperties: false },
+);
+const registry: t.SlugTraitRegistry = {
+  all: [
+    { id: 'mock-tree', propsSchema: SampleSchema },
+    { id: 'sample-a', propsSchema: SampleSchema },
+    { id: 'sample-b', propsSchema: SampleSchema },
+  ],
+  get: (id) => registry.all.find((e) => e.id === id),
+};
 
 function passThrough<T>(v: T): T {
   // Pass-through normalizer (identity).

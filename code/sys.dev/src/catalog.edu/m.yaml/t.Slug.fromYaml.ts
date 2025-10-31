@@ -16,7 +16,6 @@ export type SlugFromYaml = (
  * Options for `YamlSlug.fromYaml`.
  *
  * These extend the normal validation context with:
- *  - `isKnown`: Registry predicate to test whether a trait ID exists.
  *  - `normalizers`: Optional map of trait-specific YAML → canonical normalizers,
  *    keyed by trait id (e.g. `'slug-tree'`).
  *
@@ -24,10 +23,7 @@ export type SlugFromYaml = (
  * before schema validation, allowing concise authoring DSLs.
  */
 export type SlugFromYamlOptions = {
-
-  /** Trait ID registry check. */
-  isKnown?: t.SlugIsKnown;
-  /** Full trait registry (preferred). When present, `isKnown` will be derived if not supplied. */
+  /** Full trait registry. */
   registry?: t.SlugTraitRegistry;
   /** Trait-specific authoring→canonical transforms, keyed by trait id. */
   normalizers?: t.SlugTraitNormalizers;

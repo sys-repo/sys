@@ -70,7 +70,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         onReady={(e) => {
           const { monaco, editor, dispose$ } = e;
           setReady({ monaco, editor });
-          e.$.subscribe((evt) => console.info('Monaco.Yaml.Editor/binding.$:', evt));
+          e.$.subscribe((evt) => console.info('⚡️ Monaco.Yaml.Editor/binding.$:', evt));
           if (repo) Monaco.Crdt.Link.enable({ monaco, editor }, repo, e.dispose$);
         }}
       />

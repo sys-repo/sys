@@ -1,5 +1,7 @@
 import { type t, describe, expect, it } from '../../-test.ts';
+import { Type as T } from '../common.ts';
 import { YamlPipeline } from '../mod.ts';
+import { makeTestRegistry } from './-u.ts';
 
 describe('YamlPipeline.Slug.Error', () => {
   /**
@@ -11,7 +13,7 @@ describe('YamlPipeline.Slug.Error', () => {
         bar:
           id: my-slug
           traits: 123
-    `.trim();
+    `;
 
     it('absolute mode: prefixes base path; locates the traits structural error', () => {
       const base = ['foo', 'bar'];
@@ -83,7 +85,7 @@ describe('YamlPipeline.Slug.Error', () => {
           data:
             primary:
               src: "video.mp4"
-    `.trim();
+    `;
 
     it('attaches range for an exact node path', () => {
       const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
@@ -165,10 +167,10 @@ describe('YamlPipeline.Slug.Error', () => {
             data:
               primary:
                 src: "video.mp4"
-      `.trim();
+      `;
 
-      const isKnown = makeIsKnown(['trait-alpha', 'trait-beta']);
-      const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar'], { isKnown });
+      const registry = makeTestRegistry(['trait-alpha', 'trait-beta']);
+      const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar'], { registry });
       expect(res.errors.yaml.length).to.eql(0);
       expect(res.errors.schema.length).to.eql(0);
 
@@ -191,10 +193,10 @@ describe('YamlPipeline.Slug.Error', () => {
               - of: alpha
                 as: primary
             data: {}  # missing "primary"
-      `.trim();
+      `;
 
-      const isKnown = makeIsKnown(['alpha', 'beta']);
-      const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar'], { isKnown });
+      const registry = makeTestRegistry(['alpha', 'beta']);
+      const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar'], { registry });
       expect(res.errors.yaml.length).to.eql(0);
       expect(res.errors.schema.length).to.eql(0);
 
@@ -221,10 +223,10 @@ describe('YamlPipeline.Slug.Error', () => {
                 src: "video.mp4"
               extra:   # orphan: no matching alias
                 any: true
-      `.trim();
+      `;
 
-      const isKnown = makeIsKnown(['video', 'image']);
-      const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar'], { isKnown });
+      const registry = makeTestRegistry(['video', 'image']);
+      const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar'], { registry });
       expect(res.errors.yaml.length).to.eql(0);
       expect(res.errors.schema.length).to.eql(0);
 
@@ -244,7 +246,7 @@ describe('YamlPipeline.Slug.Error', () => {
           bar:
             id: example-ref
             ref: urn:crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P/section.1
-      `.trim();
+      `;
 
       const res = YamlPipeline.Slug.fromYaml(YAML, ['foo', 'bar']);
       expect(res.errors.yaml.length).to.eql(0);
@@ -259,10 +261,6 @@ describe('YamlPipeline.Slug.Error', () => {
 /**
  * Helpers:
  */
-function makeIsKnown(ids: string[]): t.SlugIsKnown {
-  return (id) => ids.includes(id);
-}
-
 function joinPath(p: unknown): string {
   return Array.isArray(p) ? p.join('/') : '';
 }

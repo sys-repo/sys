@@ -68,3 +68,26 @@ export const applyTraitNormalizers = (
 
   return changed ? out : slug;
 };
+
+/**
+ * Apply per-trait normalizers exception-safely.
+ * - Returns `candidate` unchanged on error or undefined transform.
+ * - Pushes a semantic diagnostic when a normalizer throws.
+ */
+export function safeApplyNormalizers(
+  candidate: unknown,
+  normalizers: t.SlugTraitNormalizers | undefined,
+  sink: t.DeepMutable<t.SlugYamlErrors>['semantic'],
+): unknown {
+  try {
+    const out = applyTraitNormalizers(candidate, normalizers);
+    return out ?? candidate;
+  } catch (err) {
+    sink.push({
+      kind: 'semantic',
+      path: [],
+      message: `normalizer/exception: ${String((err as { message?: unknown })?.message ?? err)}`,
+    });
+    return candidate;
+  }
+}

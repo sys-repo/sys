@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
 import { Type as T, Yaml as Y } from '../common.ts';
 import { YamlPipeline } from '../mod.ts';
 import { expectDiagAt } from './-u.ts';
@@ -11,7 +11,7 @@ describe('Yaml.Slug.fromYaml (deep slug-tree wiring)', () => {
     { src: T.Optional(T.String({ minLength: 1 })) },
     { additionalProperties: false },
   );
-  const registry = {
+  const registry: t.SlugTraitRegistry = {
     all: [{ id: 'sample-trait', propsSchema: SampleSchema }],
     get: (id: string) => registry.all.find((e) => e.id === id),
   };
@@ -35,7 +35,7 @@ describe('Yaml.Slug.fromYaml (deep slug-tree wiring)', () => {
 
     const ast = Y.parseAst(yaml);
     const base = ['slug'];
-    const res = YamlPipeline.Slug.fromYaml(ast, base, { isKnown: (id) => !!registry.get(id) });
+    const res = YamlPipeline.Slug.fromYaml(ast, base, { registry });
 
     // Sanity: pipeline produced a parse result:
     expect(res.ok).to.eql(false);

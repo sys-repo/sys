@@ -11,7 +11,7 @@ describe('YamlPipeline: deep slug-tree validation', () => {
     { src: T.Optional(T.String({ minLength: 1 })) },
     { additionalProperties: false },
   );
-  const registry = {
+  const registry: t.SlugTraitRegistry = {
     all: [{ id: 'sample-trait', propsSchema: SampleSchema }],
     get: (id: string) => registry.all.find((e) => e.id === id),
   };

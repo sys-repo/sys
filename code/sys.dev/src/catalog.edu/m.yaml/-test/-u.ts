@@ -1,5 +1,5 @@
 import { type t, expect } from '../../-test.ts';
-import { Obj } from '../common.ts';
+import { Obj, Type as T } from '../common.ts';
 
 export function expectDiagAt(
   diags: t.Ary<{ path?: t.ObjectPath }>,
@@ -10,4 +10,12 @@ export function expectDiagAt(
   const hit = diags.find((d) => Array.isArray(d.path) && Obj.Path.eql(d.path!, abs));
   expect(!!hit).to.eql(true);
   return hit;
+}
+
+export function makeTestRegistry(ids: string[]) {
+  const registry: t.SlugTraitRegistry = {
+    all: ids.map((id) => ({ id, propsSchema: T.Unknown() })),
+    get: (id: string) => registry.all.find((t) => t.id === id),
+  };
+  return registry;
 }
