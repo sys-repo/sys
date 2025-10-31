@@ -1,7 +1,6 @@
-import { effect as preactEffect } from '@preact/signals-core';
-
 import { type t, Dispose, isRecord } from './common.ts';
 import { Is } from './m.Is.ts';
+import { effect as baseEffect } from './u.effect.ts';
 
 type O = Record<string, unknown>;
 
@@ -13,7 +12,7 @@ export const listeners: t.SignalLib['listeners'] = (until$) => {
   const disposers = new Set<() => void>();
 
   const effect = (fn: t.SignalEffectFn) => {
-    const dispose = preactEffect(fn);
+    const dispose = baseEffect(fn);
     disposers.add(dispose);
 
     const sub = life.dispose$.subscribe(() => {

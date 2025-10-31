@@ -1,28 +1,20 @@
 import type { t } from './common.ts';
 
-/** Callback passed into a signal effect. */
-export type SignalEffectFn = () => void | (() => void);
-
 /**
- * Signal.effect:
+ * Signal.effect( ƒ ):
  */
 
 /** Options for lifecycle-aware effects (forwarded name). */
 export type SignalEffectOptions = { name?: string };
 
 /** Lifecycle for a single run; aborts on re-run or final dispose. */
-export type SignalEffectWithLifecycleFnArgs = t.Abortable & {};
+export type SignalEffectFnArgs = t.Abortable & {};
 
 /** Optional cleanup invoked before next run and on final dispose. */
-export type SignalEffectWithLifecycleReturn = void | (() => void);
+export type SignalEffectReturn = void | (() => void);
 
 /** Effect callback receiving the run lifecycle; may return a cleanup. */
-export type SignalEffectWithLifecycleFn = (
-  e: SignalEffectWithLifecycleFnArgs,
-) => SignalEffectWithLifecycleReturn;
+export type SignalEffectFn = (e: SignalEffectFnArgs) => SignalEffectReturn;
 
 /** Register a lifecycle-aware effect; returns a disposer. */
-export type SignalEffectListener = (
-  fn: SignalEffectWithLifecycleFn,
-  opts?: SignalEffectOptions,
-) => () => void;
+export type SignalEffectListener = (fn: SignalEffectFn, opts?: SignalEffectOptions) => () => void;
