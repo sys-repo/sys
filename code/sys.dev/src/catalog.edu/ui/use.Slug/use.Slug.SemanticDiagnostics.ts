@@ -7,6 +7,7 @@ import { type t, DefaultTraitRegistry, Obj, Slug, YamlPipeline } from './common.
  */
 export const useSlugSemanticDiagnostics: t.UseSlugSemanticDiagnostics = (args) => {
   const rev = args.yaml?.rev ?? 0;
+  const registry = args.registry ?? DefaultTraitRegistry;
 
   // Normalize the incoming path to an RFC6901 pointer (what the pipeline expects).
   const path = Obj.Path.normalize(args.path, { codec: 'pointer', numeric: true });
@@ -16,11 +17,10 @@ export const useSlugSemanticDiagnostics: t.UseSlugSemanticDiagnostics = (args) =
   if (!ast) return { rev, diagnostics: [] };
 
   // Structural extract first (skip semantic when structure failed).
-  const result = YamlPipeline.Slug.fromYaml(ast, path);
+  const result = YamlPipeline.Slug.fromYaml(ast, path, { registry });
   if (!result.ok || !result.slug) return { rev, diagnostics: [] };
 
   const slug = result.slug;
-  const registry = args.registry ?? DefaultTraitRegistry;
 
   // Run semantic checks & attach ranges (AST fallback).
   const errs = Slug.Validation.validateWithRanges({

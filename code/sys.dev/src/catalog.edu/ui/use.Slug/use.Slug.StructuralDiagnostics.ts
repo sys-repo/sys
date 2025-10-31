@@ -1,6 +1,7 @@
 import { type t, Obj, YamlPipeline } from './common.ts';
 
 export const useSlugStructuralDiagnostics: t.UseSlugStructuralDiagnostics = (args) => {
+  const { registry } = args;
   const rev = args.yaml?.rev ?? 0;
   const path = Obj.Path.normalize(args.path, { codec: 'pointer', numeric: true });
 
@@ -9,7 +10,7 @@ export const useSlugStructuralDiagnostics: t.UseSlugStructuralDiagnostics = (arg
     return { ok: false, rev, result: undefined, diagnostics: [] };
   }
 
-  const result = YamlPipeline.Slug.fromYaml(ast, path);
+  const result = YamlPipeline.Slug.fromYaml(ast, path, { registry });
   const diagnostics = YamlPipeline.Slug.Error.normalize(result, 'absolute');
   const ok = result.ok && diagnostics.length === 0;
 
