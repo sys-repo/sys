@@ -3,9 +3,7 @@ import { YamlPipeline } from '../mod.ts';
 
 describe('YamlPipeline.Slug.Error', () => {
   /**
-   * ─────────────────────────────────────────────────────────────────────────────
-   *  Structural (schema) error normalization
-   * ─────────────────────────────────────────────────────────────────────────────
+   * Structural (schema) error normalization:
    */
   describe('Error.normalize (structural)', () => {
     const YAML_WITH_SCHEMA_ERROR = `
@@ -72,9 +70,7 @@ describe('YamlPipeline.Slug.Error', () => {
   });
 
   /**
-   * ─────────────────────────────────────────────────────────────────────────────
    *  AST range attachment
-   * ─────────────────────────────────────────────────────────────────────────────
    */
   describe('Error.attachSemanticRanges', () => {
     const YAML = `
@@ -155,9 +151,7 @@ describe('YamlPipeline.Slug.Error', () => {
   });
 
   /**
-   * ─────────────────────────────────────────────────────────────────────────────
-   *  Semantic rules
-   * ─────────────────────────────────────────────────────────────────────────────
+   * Semantic rules:
    */
   describe('Error.normalize (semantic rules)', () => {
     it('unknown trait id (`of`) produces a semantic diagnostic with correct path', () => {
