@@ -8,8 +8,8 @@ export const ViewRendererPropsSchemaInternal = T.Object(
   {
     view: T.Optional(
       T.String({
-        description: `Identifier of the SlugView renderer to use for this slug.`,
-        minLength: 1,
+        ...Pattern.idPattern(),
+        description: `Identifier of the view to render.`,
       }),
     ),
   },
