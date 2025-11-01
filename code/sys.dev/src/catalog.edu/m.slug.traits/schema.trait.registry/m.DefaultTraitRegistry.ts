@@ -1,7 +1,7 @@
 import { type t, Slug } from './common.ts';
 
-import { VideoPlayerPropsSchema } from '../schema.traits/schema.video.player.ts';
-import { VideoRecorderPropsSchema } from '../schema.traits/schema.video.recorder.ts';
+import { VideoPlayerPropsSchema } from '../schema.traits/schema.video-player.ts';
+import { VideoRecorderPropsSchema } from '../schema.traits/schema.video-recorder.ts';
 import { ViewRendererPropsSchema } from '../schema.traits/schema.view-renderer.ts';
 
 /**

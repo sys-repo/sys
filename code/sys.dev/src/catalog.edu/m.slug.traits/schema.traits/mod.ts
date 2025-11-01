@@ -6,8 +6,8 @@
 export { Is } from './m.Is.ts';
 export { Traits } from './m.Traits.ts';
 
-export { VideoPlayerPropsSchema, VideoPlayerPropsSchemaInternal } from './schema.video.player.ts';
+export { VideoPlayerPropsSchema, VideoPlayerPropsSchemaInternal } from './schema.video-player.ts';
 export {
   VideoRecorderPropsSchema,
   VideoRecorderPropsSchemaInternal,
-} from './schema.video.recorder.ts';
+} from './schema.video-recorder.ts';
