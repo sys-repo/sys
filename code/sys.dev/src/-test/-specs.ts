@@ -14,6 +14,5 @@ export const Specs = {
   [`${edu}: SlugHarness`]: () => import('../catalog.edu/ui/ui.SlugHarness/-spec/-SPEC.tsx'),
   [`${edu}: VideoRecorder`]: () => import('../catalog.edu/ui/ui.VideoRecorder/-spec/-SPEC.tsx'),
 
-  [`${ns}: catalog.harness`]: () => import('../catalog.harness/-spec/-SPEC.tsx'),
   [`${ns}: -sample`]: () => import('../ui/-sample/-spec/-SPEC.tsx'),
 } as t.SpecImports;

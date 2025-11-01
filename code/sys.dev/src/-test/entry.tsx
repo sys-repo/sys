@@ -32,7 +32,7 @@ export async function main() {
   const isDev = params.has('dev') || params.has('d');
   const root = createRoot(document.getElementById('root')!);
 
-  if (isDev) {
+  if (isDev || true) {
     /**
      * DevHarness:
      */
@@ -40,7 +40,6 @@ export async function main() {
     const { Specs } = await import('./-specs.ts');
     const el = await render(pkg, Specs, {
       hr(e) {
-        if (e.next?.endsWith(': catalog.harness')) return true;
         if (e.next?.endsWith(': -sample')) return true;
       },
       style: { Absolute: 0 },
@@ -49,27 +48,6 @@ export async function main() {
     function App() {
       useKeyboard();
       return el;
-    }
-
-    root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>,
-    );
-  } else {
-    /**
-     * Harness Catalog:
-     */
-    const { LocalStorage } = await import('@sys/ui-dom');
-    const { useKeyboard } = await import('@sys/ui-react-devharness');
-    const { makeRoot } = await import('../catalog.harness/-spec/-u.make.tsx');
-
-    const state = LocalStorage.immutable<{}>('dev:harness', {});
-    const catalog = makeRoot({ state });
-
-    function App() {
-      useKeyboard();
-      return catalog.render();
     }
 
     root.render(
