@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
 
-export type * from './t.Pattern.ts';
-
 /**
  * Stable, unique identifier of the slug.
  * - Machine-oriented.

@@ -1,5 +1,4 @@
-import { Type as T } from './common.ts';
-import { Pattern } from './m.Pattern.ts';
+import { Pattern, Type as T } from './common.ts';
 import { TraitBindingSchema } from './schema.trait.ts';
 
 const ID = T.String({ title: 'Slug identifier', ...Pattern.idPattern() });

@@ -2,7 +2,6 @@
  * @module Slug-Schemas
  * Core structural schemas for slugs and trait bindings.
  */
-export { Pattern } from './m.Pattern.ts';
 export {
   SlugTreeItemSchema,
   SlugTreeItemSchemaInternal,

@@ -6,8 +6,7 @@
  * • Use `*Internal` for precise composition and static-type recovery.
  * • Re-export widened `t.TSchema` symbols for public API/JSR safety.
  */
-import { type t, Type as T } from './common.ts';
-import { Pattern } from './m.Pattern.ts';
+import { Pattern, type t, Type as T } from './common.ts';
 
 /**
  * Bind a trait type ("of") to a local alias ("as").
