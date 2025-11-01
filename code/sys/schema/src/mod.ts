@@ -1,9 +1,9 @@
 /**
- * "Standard Schema" (Typescript/JSONSchema) tools.
+ * @module
+ * Standard Schema (Typescript/JSONSchema) tools.
  * Runtime type builder for:
  *  - Static type checking with Typescript.
  *  - Runtime reflection via JSONSchema.
- * @module
  */
 export { pkg } from './pkg.ts';
 /** Type library (barrel file). */
