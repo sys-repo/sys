@@ -1,7 +1,7 @@
 import { HttpServer } from '@sys/http/server';
 import { pkg, Pkg } from './common.ts';
 
-const dir = 'public';
+const dir = 'dist';
 const dist = (await Pkg.Dist.load(dir)).dist;
 const hash = dist?.hash.digest ?? '';
 const port = 8080;

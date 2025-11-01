@@ -1,13 +1,17 @@
-import { Fs, pkg, Pkg, Tmpl } from './common.ts';
+import { c, Fs, pkg, Pkg, TmplEngine } from './common.ts';
 
 /**
  * Pull in modules:
  */
 console.info();
+await Fs.remove('dist', { log: true });
 await Fs.copy('public/video', 'dist/video');
 
 // Write entry HTML.
-const tmpl = Tmpl.from('src/-tmpl');
+const tmpl = TmplEngine.makeTmpl('src/-tmpl', async (e) => {
+  const filepath = e.target.relative;
+});
+
 await tmpl.write('dist');
 
 /**
