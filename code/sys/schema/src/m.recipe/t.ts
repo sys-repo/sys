@@ -24,15 +24,18 @@ export type ValueLib = {
   boolean(o?: Omit<t.BoolSpec, 'kind'>): t.BoolSpec;
   literal(value: t.LitSpec['value']): t.LitSpec;
 
-  array(items: t.Recipe, o?: Omit<t.ArrSpec, 'kind' | 'items'>): t.ArrSpec;
+  array(items: t.SpecVariant, o?: Omit<t.ArrSpec, 'kind' | 'items'>): t.ArrSpec;
   object(props: t.ObjSpec['props'], o?: Omit<t.ObjSpec, 'kind' | 'props'>): t.ObjSpec;
-  union(variants: readonly t.Recipe[], o?: Omit<t.UnionSpec, 'kind' | 'variants'>): t.UnionSpec;
+  union(
+    variants: readonly t.SpecVariant[],
+    o?: Omit<t.UnionSpec, 'kind' | 'variants'>,
+  ): t.UnionSpec;
 
-  optional(of: t.Recipe): t.OptSpec;
+  optional(of: t.SpecVariant): t.OptSpec;
 };
 
 /** Discriminated union for all recipe nodes */
-export type Recipe =
+export type SpecVariant =
   | t.StrSpec
   | t.NumSpec
   | t.BoolSpec
@@ -43,7 +46,15 @@ export type Recipe =
   | t.OptSpec;
 
 /**
- * Compiles a value-level {@link t.Recipe} into a concrete TypeBox {@link t.TSchema}.
+ * Compiles a value-level {@link t.SpecVariant} into a concrete TypeBox {@link t.TSchema}.
  * The sole boundary between declarative recipe grammar and runtime schema form.
  */
-export type RecipeToSchema = (from: t.Recipe) => t.TSchema;
+export type RecipeToSchema = (from: t.SpecVariant) => t.TSchema;
+
+/**
+ * Make specific keys on a spec required and non-nullable
+ * while preserving readonly and other fields.
+ */
+export type SpecWith<T, K extends keyof T> = Omit<T, K> & {
+  readonly [P in K]-?: NonNullable<T[P]>;
+};

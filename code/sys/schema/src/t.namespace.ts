@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Schema common namespace:
+ * Schema common namespace.
  */
 export namespace Schema {
   export type Infer<S extends t.TSchema> = t.Static<S>;
@@ -16,26 +16,19 @@ export namespace Schema {
   export type ValidationError = t.SchemaValidationError;
   export type YamlError = t.SchemaYamlError;
 
-  // Recipe (core grammar layer):
-  export namespace Recipe {
-    export type Recipe = t.Recipe;
-    export type StrSpec = t.StrSpec;
-    export type NumSpec = t.NumSpec;
-    export type BoolSpec = t.BoolSpec;
-    export type LitSpec = t.LitSpec;
-    export type ArrSpec = t.ArrSpec;
-    export type ObjSpec = t.ObjSpec;
-    export type UnionSpec = t.UnionSpec;
-    export type OptSpec = t.OptSpec;
+  /**
+   * Spec — value-only grammar; compile to TSchema via toSchema.
+   */
+  export namespace Spec {
+    export type Variant = t.SpecVariant; // The discriminated union of all spec types.
+    export type Str = t.StrSpec;
+    export type Num = t.NumSpec;
+    export type Bool = t.BoolSpec;
+    export type Lit = t.LitSpec;
+    export type Arr = t.ArrSpec;
+    export type Obj = t.ObjSpec;
+    export type Union = t.UnionSpec;
+    export type Opt = t.OptSpec;
   }
-  // Root aliases for ergonomics (type-only)
-  export type Spec = Recipe.Recipe;
-  export type StrSpec = Recipe.StrSpec;
-  export type NumSpec = Recipe.NumSpec;
-  export type BoolSpec = Recipe.BoolSpec;
-  export type LitSpec = Recipe.LitSpec;
-  export type ArrSpec = Recipe.ArrSpec;
-  export type ObjSpec = Recipe.ObjSpec;
-  export type UnionSpec = Recipe.UnionSpec;
-  export type OptSpec = Recipe.OptSpec;
+  export type SpecWith<T, K extends keyof T> = t.SpecWith<T, K>;
 }

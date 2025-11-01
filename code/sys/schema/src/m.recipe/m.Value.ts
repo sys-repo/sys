@@ -10,7 +10,7 @@ export const Value: t.ValueLib = {
   boolean: (o: Omit<t.BoolSpec, 'kind'> = {}): t.BoolSpec => ({ kind: 'boolean', ...o }),
   literal: (value: t.LitSpec['value']): t.LitSpec => ({ kind: 'literal', value }),
 
-  array: (items: t.Recipe, o: Omit<t.ArrSpec, 'kind' | 'items'> = {}): t.ArrSpec => ({
+  array: (items: t.SpecVariant, o: Omit<t.ArrSpec, 'kind' | 'items'> = {}): t.ArrSpec => ({
     kind: 'array',
     items,
     ...o,
@@ -23,7 +23,7 @@ export const Value: t.ValueLib = {
   }),
 
   union: (
-    variants: readonly t.Recipe[],
+    variants: readonly t.SpecVariant[],
     o: Omit<t.UnionSpec, 'kind' | 'variants'> = {},
   ): t.UnionSpec => ({
     kind: 'union',
@@ -31,5 +31,5 @@ export const Value: t.ValueLib = {
     ...o,
   }),
 
-  optional: (of: t.Recipe): t.OptSpec => ({ kind: 'optional', of }),
+  optional: (of: t.SpecVariant): t.OptSpec => ({ kind: 'optional', of }),
 };

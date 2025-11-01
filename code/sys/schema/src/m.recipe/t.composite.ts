@@ -5,14 +5,14 @@ import { type t } from './common.ts';
  */
 export type ArrSpec = {
   readonly kind: 'array';
-  readonly items: t.Recipe;
+  readonly items: t.SpecVariant;
   readonly description?: string;
   readonly title?: string;
 };
 
 export type ObjSpec = {
   readonly kind: 'object';
-  readonly props: { readonly [k: string]: t.Recipe };
+  readonly props: { readonly [k: string]: t.SpecVariant };
   readonly additionalProperties?: boolean;
   readonly description?: string;
   readonly title?: string;
@@ -20,12 +20,12 @@ export type ObjSpec = {
 
 export type UnionSpec = {
   readonly kind: 'union';
-  readonly variants: readonly t.Recipe[];
+  readonly variants: readonly t.SpecVariant[];
   readonly description?: string;
   readonly title?: string;
 };
 
 export type OptSpec = {
   readonly kind: 'optional';
-  readonly of: t.Recipe;
+  readonly of: t.SpecVariant;
 };
