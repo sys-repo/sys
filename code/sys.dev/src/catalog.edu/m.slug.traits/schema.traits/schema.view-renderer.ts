@@ -1,4 +1,4 @@
-import { Pattern, type t, Type as T } from './common.ts';
+import { type t, Pattern, Type as T, toSchema } from './common.ts';
 
 /**
  * Properties: View Renderer.
@@ -12,6 +12,10 @@ export const ViewRendererPropsSchemaInternal = T.Object(
         description: `Identifier of the view to render.`,
       }),
     ),
+    cropmarks: T.Optional({
+      ...toSchema(Pattern.UI.Cropmarks.Size()),
+      description: 'Optional cropmarks sizing configuration.',
+    }),
   },
   {
     $id: 'trait.view-renderer.props',

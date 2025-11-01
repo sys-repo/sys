@@ -1,15 +1,13 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Value, toSchema } from '../common.ts';
-import { Cropmarks } from '../u.ui.Cropmarks.ts';
+import { Str, toSchema, Value, Yaml } from '../common.ts';
+import { Cropmarks } from '../u.Cropmarks.ts';
 
 describe('UI: Cropmarks Props Spec', () => {
   describe('Percent()', () => {
     const schema = toSchema(Cropmarks.Percent());
-
     it('valid: 0..100 inclusive', () => {
       for (const v of [0, 1, 50, 99.5, 100]) expect(Value.Check(schema, v)).to.eql(true);
     });
-
     it('invalid: <0 or >100 or non-number', () => {
       for (const v of [-1, 100.0001, '50', null, undefined, {}, []])
         expect(Value.Check(schema, v as unknown)).to.eql(false);
@@ -18,11 +16,9 @@ describe('UI: Cropmarks Props Spec', () => {
 
   describe('SizeMode()', () => {
     const schema = toSchema(Cropmarks.SizeMode());
-
     it('valid modes', () => {
       for (const v of ['center', 'fill', 'percent']) expect(Value.Check(schema, v)).to.eql(true);
     });
-
     it('invalid modes', () => {
       for (const v of ['', 'CENTER', 'fit', 0, null, undefined])
         expect(Value.Check(schema, v as unknown)).to.eql(false);
@@ -31,11 +27,9 @@ describe('UI: Cropmarks Props Spec', () => {
 
   describe('SizeCenter()', () => {
     const schema = toSchema(Cropmarks.SizeCenter());
-
     it('valid: mode only (width/height optional)', () => {
       for (const v of [{ mode: 'center' }]) expect(Value.Check(schema, v)).to.eql(true);
     });
-
     it('valid: width and/or height (>= 0)', () => {
       for (const v of [
         { mode: 'center', width: 0 },
@@ -46,7 +40,6 @@ describe('UI: Cropmarks Props Spec', () => {
       ])
         expect(Value.Check(schema, v)).to.eql(true);
     });
-
     it('invalid: negatives, wrong types, extra props', () => {
       for (const v of [
         { mode: 'center', width: -1 },
@@ -63,7 +56,6 @@ describe('UI: Cropmarks Props Spec', () => {
 
   describe('SizeFill()', () => {
     const schema = toSchema(Cropmarks.SizeFill());
-
     it('valid: mode only or with x/y/margin', () => {
       for (const v of [
         { mode: 'fill' },
@@ -76,7 +68,6 @@ describe('UI: Cropmarks Props Spec', () => {
       ])
         expect(Value.Check(schema, v)).to.eql(true);
     });
-
     it('invalid: wrong types, extra props', () => {
       for (const v of [
         { mode: 'fill', x: 'true' },
@@ -92,11 +83,9 @@ describe('UI: Cropmarks Props Spec', () => {
 
   describe('SizePercent()', () => {
     const schema = toSchema(Cropmarks.SizePercent());
-
     it('valid: mode only (width/height optional)', () => {
       for (const v of [{ mode: 'percent' }]) expect(Value.Check(schema, v)).to.eql(true);
     });
-
     it('valid: width/height 0..100; aspectRatio string or >0 number; maxWidth/maxHeight 0..100', () => {
       for (const v of [
         { mode: 'percent', width: 80 },
@@ -110,7 +99,6 @@ describe('UI: Cropmarks Props Spec', () => {
       ])
         expect(Value.Check(schema, v)).to.eql(true);
     });
-
     it('invalid: out-of-range percents, bad aspectRatio, extras', () => {
       for (const v of [
         { mode: 'percent', width: -1 },
@@ -127,27 +115,60 @@ describe('UI: Cropmarks Props Spec', () => {
     });
   });
 
-  describe('Size() [union]', () => {
+  describe('Size() [union] - YAML authoring samples', () => {
     const schema = toSchema(Cropmarks.Size());
+    const y = (src: string) => Yaml.parse(Str.dedent(src).trim()).data;
 
-    it('accepts any valid variant', () => {
-      for (const v of [
-        { mode: 'center' },
-        { mode: 'fill', x: true, y: false },
-        { mode: 'percent', width: 72, height: 72, maxWidth: 90, maxHeight: 80 },
-      ])
-        expect(Value.Check(schema, v)).to.eql(true);
+    it('valid: one YAML sample per variant', () => {
+      const good = [
+        y(`
+          mode: center
+          width: 640
+          height: 480
+        `),
+        y(`
+          mode: fill
+          x: true
+          margin: "8 12"
+        `),
+        y(`
+          mode: percent
+          width: 80
+          maxHeight: 90
+          aspectRatio: "16/9"
+          margin: 8
+        `),
+      ];
+      for (const v of good) expect(Value.Check(schema, v)).to.eql(true);
     });
 
-    it('rejects invalid objects or wrong mode', () => {
-      for (const v of [
-        { mode: 'center', margin: 8 },
-        { mode: 'fill', width: 50 },
-        { mode: 'percent', width: 120 },
-        { mode: 'unknown' },
-        {},
-      ])
-        expect(Value.Check(schema, v as unknown)).to.eql(false);
+    it('invalid: discriminator rejects cross-variant fields', () => {
+      const bad = [
+        y(`
+          mode: center
+          margin: 8
+        `),
+        y(`
+          mode: fill
+          width: 50
+        `),
+        y(`
+          mode: percent
+          width: 120
+        `),
+        y(`
+          mode: unknown
+        `),
+        y(`
+          mode: percent
+          aspectRatio: 0
+        `),
+        y(`
+          mode: center
+          foo: 1
+        `),
+      ];
+      for (const v of bad) expect(Value.Check(schema, v)).to.eql(false);
     });
   });
 });

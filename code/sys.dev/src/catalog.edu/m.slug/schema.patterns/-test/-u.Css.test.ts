@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Value, toSchema } from '../common.ts';
-import { Css } from '../u.ui.Css.ts';
+import { Css } from '../u.Css.ts';
 
 describe('UI: Css Props Spec', () => {
   describe('Css.Margin()', () => {
