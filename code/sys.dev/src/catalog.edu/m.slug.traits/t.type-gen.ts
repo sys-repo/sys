@@ -84,10 +84,57 @@ export type VideoRecorderProps = {
 };
 
 /**
+ * Cropmarks sizing (union variants), mirrors Pattern.UI.Cropmarks.Size():
+ * - center: optional width/height (px)
+ * - fill: optional x/y booleans, optional margin (number>=0 or string shorthand)
+ * - percent: optional width/height/maxWidth/maxHeight (0..100 at runtime), optional margin,
+ *            optional aspectRatio (string like "16/9" or positive number)
+ *
+ * Note: numeric ranges are enforced at runtime by the schema, not in TS types.
+ */
+export type CropmarksSizeCenter = {
+  readonly mode: 'center';
+  readonly width?: number;
+  readonly height?: number;
+};
+
+export type CropmarksSizeFill = {
+  readonly mode: 'fill';
+  readonly x?: boolean;
+  readonly y?: boolean;
+  readonly margin?: number | string;
+};
+
+export type CropmarksSizePercent = {
+  readonly mode: 'percent';
+  readonly width?: number;
+  readonly height?: number;
+  readonly margin?: number | string;
+  readonly aspectRatio?: string | number;
+  readonly maxWidth?: number;
+  readonly maxHeight?: number;
+};
+
+export type CropmarksSize = CropmarksSizeCenter | CropmarksSizeFill | CropmarksSizePercent;
+
+/**
+ * Cropmarks configuration object nested under `view-renderer.props.cropmarks`.
+ * Mirrors `schema.view-renderer.ts`.
+ */
+export type CropmarksConfig = {
+  /** Optional cropmarks sizing configuration. */
+  readonly size?: CropmarksSize;
+  /** Only show the subject and skip rendering cropmarks. */
+  readonly subjectOnly?: boolean;
+};
+
+/**
  * View Renderer Properties
  * - mirrors `schema.view-renderer.ts` (`ViewRendererPropsSchema`)
  */
 export type ViewRendererProps = {
   /** Display name (optional, non-empty if provided). */
   readonly view?: string;
+  /** Optional cropmarks configuration object. */
+  readonly cropmarks?: CropmarksConfig;
 };

@@ -51,10 +51,7 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const signals: t.SlugHarnessSignals = {
-    doc: s(),
-  };
-
+  const signals: t.SlugHarnessSignals = { doc: s() };
   const repo = createRepo();
   const crdt: t.CrdtView.LayoutBindings = {
     repo,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Crdt, D } from './common.ts';
+import { type t, Color, Crdt, D, Lens } from './common.ts';
 import { SlugView } from './ui.SlugView.tsx';
 
 type P = t.SlugHarnessProps;
@@ -18,19 +18,23 @@ export const SlugHarness: React.FC<P> = (props) => {
   } = props;
 
   const doc = signals?.doc.value;
+  const lens = wrangle.lenses(props);
+  const cropmarks = lens.ui?.get()?.cropmarks;
+
+  /**
+   * Effects:
+   */
   Crdt.UI.useRev(doc); // ← redraw on change
 
   /**
    * Render:
    */
   const theme = Color.theme(props.theme);
-
   const slots: t.CrdtView.LayoutSlots = {
     sidebar: (ctx) => '',
     main: (ctx) => {
       return (
         <SlugView
-          //
           doc={doc}
           registry={registry}
           view={main}
@@ -50,6 +54,10 @@ export const SlugHarness: React.FC<P> = (props) => {
       signals={signals}
       header={header}
       sidebar={sidebar}
+      cropmarks={{
+        subjectOnly: cropmarks?.subjectOnly,
+        size: cropmarks?.size,
+      }}
       slots={slots}
       debug={debug}
       style={props.style}
@@ -64,5 +72,13 @@ const wrangle = {
   spinning(props: P): t.CrdtView.LayoutSpinning {
     const { signals } = props;
     return {};
+  },
+
+  lenses(props: P) {
+    const { signals, docPath, slugPath } = props;
+    const doc = signals?.doc.value;
+    const slug = doc ? Lens.at(doc, docPath, slugPath) : undefined;
+    const ui = slug?.at<t.ViewRendererProps>(['data', 'ui']);
+    return { slug, ui } as const;
   },
 } as const;

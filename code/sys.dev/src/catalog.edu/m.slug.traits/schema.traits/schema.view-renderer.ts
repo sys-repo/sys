@@ -12,10 +12,26 @@ export const ViewRendererPropsSchemaInternal = T.Object(
         description: `Identifier of the view to render.`,
       }),
     ),
-    cropmarks: T.Optional({
-      ...toSchema(Pattern.UI.Cropmarks.Size()),
-      description: 'Optional cropmarks sizing configuration.',
-    }),
+    cropmarks: T.Optional(
+      T.Object(
+        {
+          size: T.Optional({
+            ...toSchema(Pattern.UI.Cropmarks.Size()),
+            description: `Cropmarks sizing configuration.`,
+          }),
+          subjectOnly: T.Optional(
+            T.Boolean({
+              description: `Only show the subject and skip rendering cropmarks`,
+              default: true,
+            }),
+          ),
+        },
+        {
+          additionalProperties: false,
+          description: 'Cropmarks configuration.',
+        },
+      ),
+    ),
   },
   {
     $id: 'trait.view-renderer.props',
