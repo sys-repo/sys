@@ -22,6 +22,14 @@ describe('trait: view-renderer', () => {
     it('Traits.Schema.ViewRenderer exposes the same schema object', () => {
       expect(Traits.Schema.ViewRenderer.Props).to.equal(ViewRendererPropsSchema);
     });
+
+    it('accepts id-pattern values; rejects invalid', () => {
+      const ok = ['video', 'video-player', 'video.player-01', 'v1'];
+      const bad = ['', '-video', '.video', 'Video', 'video player', 'video_1'];
+
+      ok.forEach((view) => expect(Value.Check(ViewRendererPropsSchema, { view })).to.eql(true));
+      bad.forEach((view) => expect(Value.Check(ViewRendererPropsSchema, { view })).to.eql(false));
+    });
   });
 
   describe('types', () => {

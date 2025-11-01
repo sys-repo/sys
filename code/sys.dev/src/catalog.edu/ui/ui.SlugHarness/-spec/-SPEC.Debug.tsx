@@ -17,7 +17,7 @@ import {
   STORAGE_KEY,
 } from '../common.ts';
 import { registry } from './-u.view.registry.tsx';
-import { SlugViews } from './-ui.views.tsx';
+import { SlugViews } from './-ui.debug.views.tsx';
 
 type P = t.SlugHarnessProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath' | 'main'> & {
