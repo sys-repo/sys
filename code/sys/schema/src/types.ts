@@ -7,7 +7,8 @@ import type { t } from './common.ts';
 /**
  * Library:
  */
-export type * from './m.Schema/t.ts';
+export type * from './m.schema/t.ts';
+export type * from './m.testing/t.ts';
 export type * from './t.typebox.ts';
 
 /** Type-level inference helper. */
@@ -29,4 +30,3 @@ export namespace Schema {
   export type ValidationError = t.SchemaValidationError;
   export type YamlError = t.SchemaYamlError;
 }
-export type * from './m.testing/t.ts';
