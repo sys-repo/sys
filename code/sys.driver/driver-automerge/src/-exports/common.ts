@@ -6,6 +6,7 @@ export {
   CrdtUrl,
   toAutomergeHandle,
   toAutomergeRepo,
+  toObject,
   toRepo,
   whenReady,
 } from '../m.Crdt/mod.ts';

@@ -12,6 +12,7 @@ import {
   CrdtUrl,
   createPeerId,
   Is,
+  toObject,
   toRepo,
   whenReady,
 } from './common.ts';
@@ -40,6 +41,7 @@ export const Crdt: t.CrdtFilesystemLib = {
   Is: CrdtIs,
   Url: CrdtUrl,
   whenReady,
+  toObject,
 };
 
 /**

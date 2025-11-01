@@ -1,3 +1,7 @@
+import type { t } from './common.ts';
+
+type O = Record<string, unknown>;
+
 /**
  * Represents a single text mutation within a string.
  *
@@ -14,3 +18,12 @@ export type CrdtStringSplice = {
   delCount: number;
   insertText: string;
 };
+
+/**
+ * Convert a CRDT-backed value into a plain JS object (POJO).
+ *
+ * Accepts either a Crdt.Ref<T> (Automerge doc ref) or a plain/proxied T (e.g. doc.current),
+ * and returns a deep, proxy-free object via Automerge.toJS. Suitable for JSON, hashing,
+ * and structural equality checks. If input is null/undefined, returns {} as T.
+ */
+export type CrdtToObject = <T extends O>(doc?: t.Crdt.Ref<T> | T) => T;

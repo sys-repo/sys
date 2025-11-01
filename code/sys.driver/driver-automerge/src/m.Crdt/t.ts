@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-export type * from './t.str.ts';
+export type * from './t.core.ts';
 
 type O = Record<string, unknown>;
 
@@ -10,6 +10,7 @@ export type CrdtLib = {
   readonly Is: t.CrdtIsLib;
   readonly Url: t.CrdtUrlLib;
   whenReady(doc?: t.Crdt.Ref): Promise<void>;
+  toObject: t.CrdtToObject;
 };
 
 /**

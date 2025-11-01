@@ -16,6 +16,7 @@ import {
   createPeerId,
   D,
   Is,
+  toObject,
   toRepo,
   whenReady,
 } from './common.ts';
@@ -43,6 +44,7 @@ export const Crdt: t.CrdtBrowserLib = {
   Is: CrdtIs,
   Url: CrdtUrl,
   whenReady,
+  toObject,
 };
 
 /**
