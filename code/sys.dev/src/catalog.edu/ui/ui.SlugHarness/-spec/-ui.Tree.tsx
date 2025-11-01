@@ -1,7 +1,7 @@
 import { IndexTree } from '@sys/ui-react-components';
 import React from 'react';
 import { Icons } from '../../ui.Icons.ts';
-import { type t, Button, Color, css, Obj } from '../common.ts';
+import { type t, Button, Color, css, Obj, Signal } from '../common.ts';
 import { PATH } from './-u.ts';
 import { toTreeStructure } from './-ui.Tree.u.ts';
 
@@ -78,7 +78,7 @@ export const Tree: React.FC<TreeProps> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      backgroundColor: Color.ruby(0.1),
       color: theme.fg,
       minWidth: 330,
       minHeight: 450,
@@ -94,7 +94,7 @@ export const Tree: React.FC<TreeProps> = (props) => {
       theme={theme.name}
       style={styles.back}
       enabled={(path ?? []).length > 0}
-      onClick={() => {
+      onMouseDown={() => {
         if (!path) return;
         const next = path.slice(0, -1);
         console.log('next', next);
