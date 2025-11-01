@@ -101,7 +101,7 @@ describe('Crdt.toObject', { sanitizeResources: false, sanitizeOps: false }, () =
     const date = new Date(0);
     const arr = [1, 2, 3];
 
-    expect(toObject({})).to.equal({});
+    expect(toObject({})).to.eql({});
     expect(toObject(plain)).to.equal(plain);
     expect(toObject(date as any)).to.equal(date);
     expect(toObject(arr as any)).to.equal(arr);
