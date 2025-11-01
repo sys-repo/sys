@@ -89,5 +89,5 @@ export type VideoRecorderProps = {
  */
 export type ViewRendererProps = {
   /** Display name (optional, non-empty if provided). */
-  readonly name?: string;
+  readonly view?: string;
 };

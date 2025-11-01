@@ -8,9 +8,11 @@ import {
   Crdt,
   css,
   D,
+  Lens,
   LocalStorage,
   Obj,
   ObjectView,
+  Rx,
   Signal,
   STORAGE_KEY,
 } from '../common.ts';
@@ -119,9 +121,26 @@ export function createDebugSignals() {
     });
   });
 
-  // Signal.
-  // TODO: listen to Slug - and read view-renderer:selected-view
-  // via Lens
+  /**
+   * Sync: loaded UI views based on Slug 'view-renderer' config.
+   */
+  Signal.effect((e) => {
+    const doc = signals.doc.value; // Hook into signal.
+    if (!doc) return;
+
+    const v = Signal.toObject(p);
+    const slug = Lens.at(doc, v.docPath, ['slug']);
+    const uiProps = slug.at<t.ViewRendererProps>(['data', 'ui']);
+
+    function update() {
+      const ui = uiProps.get();
+      p.main.value = ui?.view;
+    }
+
+    const $ = doc.events(e.life).$;
+    $.pipe(Rx.debounceTime(100)).subscribe(update);
+    update();
+  });
 
   // Hard Override defaults:
   if (api.url.debug === false) p.debug.value = false;
