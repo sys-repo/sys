@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.size.ts';
 
 /**
  * <Component>:
@@ -14,49 +15,4 @@ export type CropmarksProps = {
   borderColor?: string;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-};
-
-/**
- * The size configuration of the <Cropmarks>.
- */
-export type CropmarksSize = CropmarksSizeCenter | CropmarksSizeFill | CropmarksSizePercent;
-
-/** The display-mode flag for <Cropmarks> size. */
-export type CropmarksSizeMode = CropmarksSize['mode'];
-
-/** The subject is centered within the <Cropmaks> host. */
-export type CropmarksSizeCenter = {
-  mode: 'center';
-  width?: t.Pixels;
-  height?: t.Pixels;
-};
-
-/** The subject fills  the <Cropmaks> host. */
-export type CropmarksSizeFill = {
-  mode: 'fill';
-  /** Fills the X (horizontal) plane. */
-  x?: boolean;
-  /** Fills the Y (vertical) plane. */
-  y?: boolean;
-  /** Pixel margin around the edge.  */
-  margin?: t.CssMarginInput;
-};
-
-/**
- * Percent-based sizing of the subject relative to the <Cropmarks> container.
- */
-export type CropmarksSizePercent = {
-  mode: 'percent';
-  /** percentage of container width (0..100). Omit to leave width auto. */
-  width?: t.Percent;
-  /** percentage of container height (0..100). Omit to leave height auto. */
-  height?: t.Percent;
-  /** Pixel margin around the edge.  */
-  margin?: t.CssMarginInput;
-  /** Aspect ratio (e.g. '16/9', '4/3' or 1.618...). Used when only one axis is provided. */
-  aspectRatio?: string | number;
-  /** Max percentage of container width (0..100). Defaults to 100. */
-  maxWidth?: t.Percent;
-  /** Max percentage of container height (0..100). Defaults to 100. */
-  maxHeight?: t.Percent;
 };
