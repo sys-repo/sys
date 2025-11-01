@@ -1,7 +1,7 @@
 import { type t, Type, Value } from './common.ts';
 
 import { Error } from './m.Error.ts';
-import { asStandardSchema, isStandardSchema, toStandardSchema } from './u.StdSchema.ts';
+import { asStandardSchema, isStandardSchema, toStandardSchema } from './u.StandardSchema.ts';
 import { tryValidate } from './u.try.ts';
 
 export { Type, Value };
