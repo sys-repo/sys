@@ -14,9 +14,7 @@
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "compilerOptions": {
-    "types": [
-      "./src/catalog.edu/t.global.d.ts"
-    ]
+    "types": ["./src/catalog.edu/t.global.d.ts"]
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -25,7 +23,6 @@
     "./catalog.edu": "./src/catalog.edu/mod.ts",
     "./catalog.edu/slug": "./src/catalog.edu/m.slug/mod.ts",
     "./catalog.edu/slug.traits": "./src/catalog.edu/m.slug.traits/mod.ts",
-    "./catalog.edu/t": "./src/catalog.edu/types.ts",
-    "./catalog.harness": "./src/catalog.harness/mod.ts"
+    "./catalog.edu/t": "./src/catalog.edu/types.ts"
   }
 }
