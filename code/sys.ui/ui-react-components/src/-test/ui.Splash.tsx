@@ -25,7 +25,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div>
-        <div className={styles.icon.class}>{'🧫'}</div>
+        <div className={styles.icon.class}>{'🕳️'}</div>
         <a href={href} className={styles.a.class}>{`${href}`}</a>
       </div>
     </div>
