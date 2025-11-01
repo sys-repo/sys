@@ -11,7 +11,7 @@ type MutableValidationError = t.Schema.ValidationError & {
 const pathStr = (p: t.ObjectPath) => p.join('/');
 const rangeStr = (r: t.Yaml.Range) => `${r[0]},${r[1]}`;
 
-const logInfo = Log.category('slug:attachSemanticRanges', { enabled: false });
+const logInfo = Log.logger('slug:attachSemanticRanges', { enabled: false });
 
 /**
  * Attach YAML AST ranges to semantic validation errors.
