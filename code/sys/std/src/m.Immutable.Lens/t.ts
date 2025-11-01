@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+type PathInput = t.ObjectPath | undefined | null;
+
 /**
  * Root entry point for creating lenses over an `Immutable<T>` document.
  *
@@ -12,7 +14,7 @@ import type { t } from './common.ts';
 export type LensLib = {
   at<V = unknown, T = unknown, P = unknown>(
     doc: t.Immutable<T, P>,
-    ...path: t.ObjectPath[]
+    ...path: PathInput[]
   ): Lens<T, P, V>;
 };
 
@@ -49,7 +51,7 @@ export type Lens<T = unknown, P = unknown, V = unknown> = {
   delete(): void;
 
   /** Derive a child lens at a sub-path. */
-  child<U = unknown>(sub: t.ObjectPath): Lens<T, P, U>;
+  child<U = unknown>(sub: PathInput): Lens<T, P, U>;
 
   /** Re-type the viewed value (compile-time only). */
   as<U>(): Lens<T, P, U>;
@@ -63,5 +65,5 @@ export type Lens<T = unknown, P = unknown, V = unknown> = {
    * const base = Lens.at(doc, ['user']);
    * const name = base.at<string>(['profile'], ['displayName']);
    */
-  at<U = unknown>(...segments: t.ObjectPath[]): Lens<T, P, U>;
+  at<U = unknown>(...segments: PathInput[]): Lens<T, P, U>;
 };

@@ -6,7 +6,8 @@ import { makeLens } from './u.make.ts';
  */
 export const Lens: t.LensLib = {
   at<V = unknown, T = unknown, P = unknown>(doc: t.Immutable<T, P>, ...segments: t.ObjectPath[]) {
-    const path = Path.joinAll(...segments);
+    const safe = segments.filter(Boolean);
+    const path = Path.joinAll(...safe);
     return makeLens<T, P, V>(doc, path);
   },
 };

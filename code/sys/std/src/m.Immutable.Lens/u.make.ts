@@ -38,8 +38,10 @@ export function makeLens<T, P, V>(doc: t.Immutable<T, P>, path: t.ObjectPath): t
     doc.change((draft: unknown) => Path.Mutate.delete(draft as O, path));
   }
 
-  function child<U = unknown>(sub: t.ObjectPath) {
-    return makeLens<T, P, U>(doc, Path.joinAll(path, sub));
+  function child<U = unknown>(sub: t.ObjectPath | undefined | null) {
+    const safe = sub ? [sub] : [];
+    const joined = Path.joinAll(path, ...safe.filter(Boolean));
+    return makeLens<T, P, U>(doc, joined);
   }
 
   function as<U = unknown>() {
@@ -47,7 +49,8 @@ export function makeLens<T, P, V>(doc: t.Immutable<T, P>, path: t.ObjectPath): t
   }
 
   function at<U = unknown>(...segments: t.ObjectPath[]) {
-    const joined = Path.joinAll(path, ...segments);
+    const safe = segments.filter(Boolean);
+    const joined = Path.joinAll(path, ...safe);
     return makeLens<T, P, U>(doc, joined);
   }
 
