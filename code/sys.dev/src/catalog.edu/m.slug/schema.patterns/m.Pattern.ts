@@ -1,25 +1,19 @@
 import { type t } from './common.ts';
+import { crdtRefPattern, crdtRefRecipe } from './u.id.crdtRef.ts';
+import { idPattern, idRecipe } from './u.id.ts';
 
 /**
- * Common Schema Patterns.
+ * Common Schema Patterns (legacy surface: pattern string + description).
  */
 export const Pattern: t.SlugSchemaPatternLib = {
-  idPattern() {
-    return {
-      description: `Stable identifier. Must start with a lowercase letter or number; may contain lowercase letters, numbers, hyphens, and periods (e.g. "video.player-01").`,
-      pattern: '^[a-z0-9][a-z0-9.-]*$',
-    };
-  },
+  idPattern,
+  crdtRefPattern,
+} as const;
 
-  crdtRefPattern() {
-    const BASE62 = '[A-Za-z0-9]{28}';
-    const SEG = '[A-Za-z0-9][A-Za-z0-9._\\-]*';
-    const PATH = `(?:\\/${SEG}(?:\\/${SEG})*)?`;
-    const pattern =
-      `^(?:` + `crdt:create` + `|crdt:${BASE62}${PATH}` + `|urn:crdt:${BASE62}${PATH}` + `)$`;
-    return {
-      description: `CRDT reference: "crdt:create" | crdt:<uuid|base62-28>[/path] | urn:crdt:<uuid|base62-28>[/path]`,
-      pattern,
-    };
-  },
+/**
+ * New value-only recipe surface (compile with @sys/schema/m.recipe: toSchema).
+ */
+export const PatternRecipe = {
+  Id: idRecipe,
+  CrdtRef: crdtRefRecipe,
 } as const;
