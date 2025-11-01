@@ -13,7 +13,7 @@
  *
  *   @sys/schema/recipe   → Pure value constructors (V.*) and recipe grammar.
  *   @sys/schema/pattern  → Reusable schema "patterns" composed from recipes or TypeBox.
- *   @sys/schema/schema   → Published concrete TypeBox schemas with $id, titles, etc.
+ *   @sys/schema          → Published concrete TypeBox schemas with $id, titles, etc.
  *
  * ---------------------------------------------------------------------------
  * Invariants:
