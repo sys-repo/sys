@@ -17,7 +17,7 @@ export type TimestampLib = {
    * @param input    The string to test, e.g. "HH:MM:SS.mmm"
    * @param options  { strict?: boolean }
    *                 - strict (default `true`): enforces exactly two digits for MM and SS, and exactly three for mmm
-   *                 - loose  (strict = `false`): allows 1–2 digits for MM/SS and 1–3 digits for mmm
+   *                 - loose  (strict = `false`): allows 1-2 digits for MM/SS and 1-3 digits for mmm
    */
   isValid(input?: t.StringTimestamp, options?: { strict?: boolean }): input is t.StringTimestamp;
 

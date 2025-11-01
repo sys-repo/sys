@@ -4,7 +4,7 @@ import { indexAliases, readTraits } from './u.trait.alias.ts';
 type L = t.SlugValidationLib;
 
 /**
- * Validates alias–data consistency:
+ * Validates alias-data consistency:
  * - duplicate aliases
  * - missing data for declared aliases
  * - orphan data without matching traits

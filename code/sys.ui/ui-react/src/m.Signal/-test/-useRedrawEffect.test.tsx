@@ -60,11 +60,11 @@ describe('Signal.useRedrawEffect | ', () => {
     const rendersAfterFirst = Number(rendersEl.textContent);
 
     // Strict/dev (and polyfilled DOM) can double-invoke; allow a small bounded increase.
-    // In practice we see 1–4 depending on env. The key invariant: it's far less than 3.
+    // In practice we see 1-4 depending on env. The key invariant: it's far less than 3.
     const deltaFirst = rendersAfterFirst - rendersBefore;
     expect(deltaFirst).to.be.gte(1).and.to.be.lte(4);
 
-    // Do another burst; one more coalesced redraw to 6 (again allow 1–4 renders).
+    // Do another burst; one more coalesced redraw to 6 (again allow 1-4 renders).
     clickNoFlush(btn);
     await Testing.until(() => countEl.textContent === '6');
     const rendersAfterSecond = Number(rendersEl.textContent);
@@ -113,7 +113,7 @@ describe('Signal.useRedrawEffect | ', () => {
     await clickFlush(btn);
     await Testing.until(() => countEl.textContent === '2');
 
-    // Again be strict-mode tolerant; we care that we didn’t render 2–3 times *per update*.
+    // Again be strict-mode tolerant; we care that we didn’t render 2-3 times *per update*.
     const delta = Number(rendersEl.textContent) - baseRenders;
     expect(delta).to.be.gte(1).and.to.be.lte(4);
 

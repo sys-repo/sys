@@ -49,9 +49,9 @@ export type ArrayLib = {
   /**
    * Return a NEW array sorted by the given key.
    *
-   * @param items – source array (readonly is fine).
-   * @param key   – property to sort on.
-   * @param dir   – 'asc' | 'desc'  (default: 'asc').
+   * @param items = source array (readonly is fine).
+   * @param key   = property to sort on.
+   * @param dir   = 'asc' | 'desc'  (default: 'asc').
    *
    * • `undefined` values are pushed to the end for 'asc'
    *   (and to the front for 'desc').
@@ -64,8 +64,8 @@ export type ArrayLib = {
    * Determine whether `subject` begins with (i.e. has, in order, as its first elements)
    * every element of `prefix`.
    *
-   * @param subject – the candidate array you’re inspecting
-   * @param prefix  – the sequence that must appear at the start of `subject`
+   * @param subject - the candidate array you’re inspecting
+   * @param prefix  - the sequence that must appear at the start of `subject`
    * @returns `true` if `subject` starts with `prefix`; otherwise `false`
    */
   startsWith<T>(subject: readonly T[], prefix: readonly T[]): boolean;
@@ -74,8 +74,8 @@ export type ArrayLib = {
    * Compare two arrays for exact, index-wise equality.
    *
    * @template T
-   * @param {readonly T[]} a – the first array to compare.
-   * @param {readonly T[]} b – the second array to compare.
+   * @param {readonly T[]} a - the first array to compare.
+   * @param {readonly T[]} b - the second array to compare.
    * @returns {boolean} `true` if `a` and `b` have the same length
    *          and each element is exactly equal; otherwise `false`.
    */

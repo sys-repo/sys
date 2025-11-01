@@ -46,7 +46,7 @@
 
 /**
  * Video Player Properties
- * – mirrors `m.video.player.ts` (`VideoPlayerPropsSchema`)
+ * - mirrors `m.video.player.ts` (`VideoPlayerPropsSchema`)
  */
 export type VideoPlayerProps = {
   /** Display name (optional, non-empty if provided). */
@@ -61,7 +61,7 @@ export type VideoPlayerProps = {
 
 /**
  * Video Recorder Properties
- * – mirrors `m.video.recorder.ts` (`VideoRecorderPropsSchema`)
+ * - mirrors `m.video.recorder.ts` (`VideoRecorderPropsSchema`)
  */
 export type VideoRecorderProps = {
   /** Display name (optional, non-empty if provided). */
@@ -85,7 +85,7 @@ export type VideoRecorderProps = {
 
 /**
  * View Renderer Properties
- * – mirrors `schema.view-renderer.ts` (`ViewRendererPropsSchema`)
+ * - mirrors `schema.view-renderer.ts` (`ViewRendererPropsSchema`)
  */
 export type ViewRendererProps = {
   /** Display name (optional, non-empty if provided). */

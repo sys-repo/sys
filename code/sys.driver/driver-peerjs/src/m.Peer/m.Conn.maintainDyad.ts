@@ -84,7 +84,7 @@ export function maintainDyadConnection(args: Args): t.DyadConnection {
      */
     wireCall(c: t.PeerJS.MediaConnection) {
       if (call?.open && connected.remote) {
-        // There is already have a good connection – reject duplicate.
+        // There is already have a good connection - reject duplicate.
         c.close(); // ← tidy up caller’s attempt.
         return;
       }

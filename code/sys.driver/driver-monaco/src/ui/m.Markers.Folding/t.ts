@@ -25,8 +25,8 @@ export type EditorFoldingLib = {
    * Fold (hide) one or more whole lines (1-based, inclusive).
    *
    * @param editor  Monaco editor instance.
-   * @param start   First line to hide – 1-based.
-   * @param end     Last line to hide  – 1-based (defaults to `start`).
+   * @param start   First line to hide - 1-based.
+   * @param end     Last line to hide  - 1-based (defaults to `start`).
    */
   fold(ed: t.Monaco.Editor, start: t.Index, end?: t.Index): void;
 
@@ -34,8 +34,8 @@ export type EditorFoldingLib = {
    * Unfold (re-reveal) one or more whole lines (1-based, inclusive).
    *
    * @param ed     Monaco editor instance.
-   * @param start  First line to reveal – 1-based.
-   * @param end    Last line to reveal  – 1-based (defaults to `start`).
+   * @param start  First line to reveal - 1-based.
+   * @param end    Last line to reveal  - 1-based (defaults to `start`).
    */
   unfold(ed: t.Monaco.Editor, start: t.Index, end?: t.Index): void;
 

@@ -29,8 +29,8 @@ export const Pkg: PkgLib = {
     if (!isObject(input)) return { ...UNKNOWN };
 
     const pkg = input as t.Pkg;
-    const name = typeof pkg.name === 'string' ? pkg.name : defName ?? UNKNOWN.name;
-    const version = typeof pkg.version === 'string' ? pkg.version : defVersion ?? UNKNOWN.version;
+    const name = typeof pkg.name === 'string' ? pkg.name : (defName ?? UNKNOWN.name);
+    const version = typeof pkg.version === 'string' ? pkg.version : (defVersion ?? UNKNOWN.version);
 
     return { name, version };
   },
@@ -41,7 +41,7 @@ export const Pkg: PkgLib = {
 
   toPkg(input) {
     /**
-     * String form ­– "<name>@<version>".
+     * String form ­- "<name>@<version>".
      * Handles scoped names (e.g. "@scope/pkg@1.2.3").
      */
     if (typeof input === 'string') {
@@ -56,7 +56,7 @@ export const Pkg: PkgLib = {
     }
 
     /**
-     * Object form ­– { name, version }.
+     * Object form ­- { name, version }.
      */
     if (!isRecord(input)) return Pkg.unknown();
     const { name, version } = input as Record<string, unknown>;

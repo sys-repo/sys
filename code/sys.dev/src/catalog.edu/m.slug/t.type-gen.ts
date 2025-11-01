@@ -47,7 +47,7 @@
 
 /**
  * Slug Reference
- * – mirrors `schema.slug.ts` (`SlugRefSchema`)
+ * - mirrors `schema.slug.ts` (`SlugRefSchema`)
  *
  * Optional identifier and description; may include an optional CRDT/URN reference.
  * Cannot contain traits or data.
@@ -71,7 +71,7 @@ export type SlugRef = {
 
 /**
  * Slug Minimal
- * – mirrors `schema.slug.ts` (`SlugMinimalSchema`)
+ * - mirrors `schema.slug.ts` (`SlugMinimalSchema`)
  *
  * Optional id/description with optional trait bindings.
  * No `data` field.
@@ -95,7 +95,7 @@ export type SlugMinimal = {
 
 /**
  * Slug With Data
- * – mirrors `schema.slug.ts` (`SlugWithDataSchema`)
+ * - mirrors `schema.slug.ts` (`SlugWithDataSchema`)
  *
  * Optional id/description, required traits, and a required `data` record keyed by trait alias.
  */
@@ -124,7 +124,7 @@ export type SlugWithData = {
 
 /**
  * Slug
- * – mirrors `schema.slug.ts` (`SlugSchema`)
+ * - mirrors `schema.slug.ts` (`SlugSchema`)
  *
  * Disjoint union of all valid slug variants.
  * - `SlugRef`: pointer-only form.
@@ -135,7 +135,7 @@ export type Slug = SlugRef | SlugMinimal | SlugWithData;
 
 /**
  * SlugTreeItem
- * – mirrors `schema.slug.tree.ts` (`SlugTreeItemSchema`)
+ * - mirrors `schema.slug.tree.ts` (`SlugTreeItemSchema`)
  *
  * A node carries a required display `slug` and may:
  *  • reference another slug via `ref`
@@ -179,7 +179,7 @@ export type SlugTreeItem = {
 
 /**
  * SlugTreeProps
- * – mirrors `schema.slug.tree.ts` (`SlugTreePropsSchema`)
+ * - mirrors `schema.slug.tree.ts` (`SlugTreePropsSchema`)
  *
  * The trait’s value is an array of slug-tree items.
  * Each node may contain nested items or inline slug configs.

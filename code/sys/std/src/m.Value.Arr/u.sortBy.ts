@@ -1,9 +1,9 @@
 /**
  * Return a NEW array sorted by the given key.
  *
- * @param items – source array (readonly is fine).
- * @param key   – property to sort on.
- * @param dir   – 'asc' | 'desc'  (default: 'asc').
+ * @param items - source array (readonly is fine).
+ * @param key   - property to sort on.
+ * @param dir   - 'asc' | 'desc'  (default: 'asc').
  *
  *  •  `undefined` values are pushed to the end for 'asc'
  *     (and to the front for 'desc').

@@ -95,8 +95,8 @@ const wrangle = {
 
   /**
    * Border width per edge (px).
-   * – If that edge’s margin > 0 → 1 px (current behaviour)
-   * – If the margin is 0        → 0 px (removes the "ghost" pixel)
+   * - If that edge’s margin > 0 → 1 px (current behaviour)
+   * - If the margin is 0        → 0 px (removes the "ghost" pixel)
    */
   borderWidth(props: P) {
     const { borderWidth = 1 } = props;

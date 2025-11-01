@@ -123,7 +123,7 @@ describe('SlugSchema', () => {
     });
 
     it('validates ref pattern when present (crdt: and urn:crdt:; mixed-case base62; with/without path)', () => {
-      const id = 'AbC012xyzDEFghijkLMNoPQRsTuV'; // 28 chars, A–Z a–z 0–9
+      const id = 'AbC012xyzDEFghijkLMNoPQRsTuV'; // 28 chars, A-Z a-z 0-9
       const goods = [
         { ref: 'crdt:create' },
         { ref: `crdt:${id}` },

@@ -1,4 +1,4 @@
-import { type t, Time, File } from './common.ts';
+import { File, type t, Time } from './common.ts';
 import { Binary } from './m.Binary.ts';
 
 /**
@@ -30,7 +30,7 @@ export function dragdropFile(dt: DataTransfer, input: t.BinaryFile) {
   if (input == null) return;
   const file = Binary.toBrowserFile(input);
 
-  /** Modern – Chrome 86+, Edge, Safari 17 */
+  /** Modern - Chrome 86+, Edge, Safari 17 */
   dt.items.add(file); // copies bytes into the drag payload
 
   /** Fallback (old Chrome / Electron) */
