@@ -38,7 +38,15 @@ describe('trait-registry', () => {
   describe('ids', () => {
     it('TRAIT_IDS includes all canonical ids (no duplicates)', () => {
       const sorted = [...TRAIT_IDS].sort();
-      expect(sorted).to.eql(['slug-tree', 'video-player', 'video-recorder'].sort());
+      expect(sorted).to.eql(
+        [
+          // Traits:
+          'slug-tree',
+          'video-player',
+          'video-recorder',
+          'view-renderer',
+        ].sort(),
+      );
       expect(new Set(TRAIT_IDS).size).to.eql(TRAIT_IDS.length);
     });
 

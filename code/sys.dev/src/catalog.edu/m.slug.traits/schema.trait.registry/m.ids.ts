@@ -6,6 +6,7 @@ export const TRAIT_IDS = [
   'slug-tree',
   'video-player',
   'video-recorder',
+  'view-renderer',
 ] as const;
 
 /**

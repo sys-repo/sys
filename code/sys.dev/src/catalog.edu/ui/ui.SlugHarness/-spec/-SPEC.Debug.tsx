@@ -119,10 +119,15 @@ export function createDebugSignals() {
     });
   });
 
-  if (api.url.debug === false) p.debug.value = false;
+  // Signal.
+  // TODO: listen to Slug - and read view-renderer:selected-view
+  // via Lens
 
+  // Hard Override defaults:
+  if (api.url.debug === false) p.debug.value = false;
   p.sidebar.visible.value = false;
 
+  // Finish up.
   return api;
 }
 

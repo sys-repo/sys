@@ -82,3 +82,12 @@ export type VideoRecorderProps = {
    */
   readonly file?: string;
 };
+
+/**
+ * View Renderer Properties
+ * – mirrors `schema.view-renderer.ts` (`ViewRendererPropsSchema`)
+ */
+export type ViewRendererProps = {
+  /** Display name (optional, non-empty if provided). */
+  readonly name?: string;
+};

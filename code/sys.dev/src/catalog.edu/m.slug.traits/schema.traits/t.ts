@@ -10,6 +10,7 @@ export type SlugTraitsLib = {
     readonly SlugTree: { readonly Item: t.TSchema; readonly Props: t.TSchema };
     readonly VideoPlayer: { readonly Props: t.TSchema };
     readonly VideoRecorder: { readonly Props: t.TSchema };
+    readonly ViewRenderer: { readonly Props: t.TSchema };
   };
 };
 
@@ -19,3 +20,4 @@ export type SlugTraitsLib = {
 export type SlugTreeBinding = t.SlugTraitBindingOf<'slug-tree'>;
 export type VideoRecorderBinding = t.SlugTraitBindingOf<'video-recorder'>;
 export type VideoPlayerBinding = t.SlugTraitBindingOf<'video-player'>;
+export type ViewRendererBinding = t.SlugTraitBindingOf<'view-renderer'>;
