@@ -1,5 +1,5 @@
-import { CommonThemeSchema, CssInputSchema } from '@sys/schema/std/ui';
 import { type t, Type } from '../common.ts';
+import { CommonThemeSchema, CssInputSchema } from './schema.u.ts';
 
 /**
  * Precise TypeBox schema (JSR-friendly, inference-safe).
