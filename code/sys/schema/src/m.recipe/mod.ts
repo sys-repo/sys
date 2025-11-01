@@ -35,3 +35,4 @@
  *   // → TypeBox TSchema equivalent
  */
 export { Value as V, Value } from './m.Value.ts';
+export { toSchema } from './u.toSchema.ts';

@@ -41,3 +41,9 @@ export type Recipe =
   | t.ObjSpec
   | t.UnionSpec
   | t.OptSpec;
+
+/**
+ * Compiles a value-level {@link t.Recipe} into a concrete TypeBox {@link t.TSchema}.
+ * The sole boundary between declarative recipe grammar and runtime schema form.
+ */
+export type RecipeToSchema = (from: t.Recipe) => t.TSchema;
