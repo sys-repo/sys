@@ -15,9 +15,11 @@ export const levels = [
   'debug',
 ] as const satisfies readonly t.LogLevel[];
 
+export const CYAN = '#00c2ff';
+
 /**
  * Defaults:
  */
 export const D = {
-  prefixColor: '#0af' satisfies t.LogOptions['prefixColor'],
+  prefixColor: CYAN satisfies t.LogOptions['prefixColor'],
 } as const;

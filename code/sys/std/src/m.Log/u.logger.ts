@@ -1,4 +1,5 @@
 import { type t, D, Is, Signal } from './common.ts';
+import { cleanHexColor } from './u.ts';
 
 /**
  * Create a category-based logger.
@@ -23,7 +24,7 @@ export const makeLogger: t.LogLib['logger'] = (category, opts = {}) => {
     const fmt = opts.timestamp === undefined ? defaultTimeFormatter : opts.timestamp;
 
     const useCss = Is.browser();
-    const prefixColor = wrangle.hex(opts.prefixColor ?? D.prefixColor);
+    const prefixColor = cleanHexColor(opts.prefixColor ?? D.prefixColor);
     const css = `color:${prefixColor};font-weight:bold;`;
 
     const loggerFn: t.LoggerFn = (...args: readonly unknown[]) => {
@@ -72,14 +73,3 @@ function combineEnabled(
   if (b === undefined) return a;
   return () => Boolean(Signal.read(a)) && Boolean(Signal.read(b));
 }
-
-/**
- * Helpers:
- */
-const wrangle = {
-  hex(input: t.StringHex) {
-    const s = (input || '').trim().replace(/^#/, '').toLowerCase();
-    const clean = /^[0-9a-f]{3,8}$/.test(s) ? s : '000000';
-    return `#${clean}`;
-  },
-} as const;
