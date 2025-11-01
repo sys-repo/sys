@@ -1,4 +1,4 @@
-import { Pattern, type t, Type as T } from './common.ts';
+import { PatternRecipe, type t, Type as T } from './common.ts';
 
 /**
  * Properties: View Renderer.
@@ -8,7 +8,7 @@ export const ViewRendererPropsSchemaInternal = T.Object(
   {
     view: T.Optional(
       T.String({
-        ...Pattern.idPattern(),
+        ...PatternRecipe.Id(),
         description: `Identifier of the view to render.`,
       }),
     ),

@@ -37,7 +37,7 @@ export type {
 } from '@sys/ui-react-components/t';
 
 /** Type Schema: */
-export type { Infer, Schema } from '@sys/schema/t';
+export type { Schema, SpecWith } from '@sys/schema/t';
 export type * from '@sys/schema/t/primitives';
 export type * from '@sys/ui-factory/t';
 

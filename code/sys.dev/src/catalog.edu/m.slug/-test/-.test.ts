@@ -1,11 +1,11 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { Pattern, Slug } from '../mod.ts';
+import { PatternRecipe, Slug } from '../mod.ts';
 
 describe('Slug (core)', () => {
   it('API', async () => {
     const m = await import('@sys/dev/catalog.edu/slug');
     expect(m.Slug).to.equal(Slug);
-    expect(m.Pattern).to.equal(Pattern);
+    expect(m.PatternRecipe).to.equal(PatternRecipe);
 
     // Schemas:
     const slugSchema = await import('../schema.slug/mod.ts');

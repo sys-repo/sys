@@ -1,19 +1,12 @@
 import { type t } from './common.ts';
-import { crdtRefPattern, crdtRefRecipe } from './u.id.crdtRef.ts';
-import { idPattern, idRecipe } from './u.id.ts';
+import { CrdtRef } from './u.CrdtRef.ts';
+import { Id } from './u.Identity.ts';
 
 /**
- * Common Schema Patterns (legacy surface: pattern string + description).
+ * Value-only recipe surface for schema patterns.
+ * Compile with @sys/schema/recipe: toSchema.
  */
-export const Pattern: t.SlugSchemaPatternLib = {
-  idPattern,
-  crdtRefPattern,
-} as const;
-
-/**
- * New value-only recipe surface (compile with @sys/schema/m.recipe: toSchema).
- */
-export const PatternRecipe = {
-  Id: idRecipe,
-  CrdtRef: crdtRefRecipe,
+export const PatternRecipe: t.PatternRecipeLib = {
+  Id,
+  CrdtRef,
 } as const;
