@@ -1,6 +1,6 @@
 import { type t, V } from './common.ts';
 
-type L = t.PatternRecipeLib;
+type L = t.SlugPatternLib;
 
 export const ID_PATTERN = '^[a-z0-9][a-z0-9.-]*$';
 

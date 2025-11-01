@@ -1,7 +1,7 @@
-import { PatternRecipe, Type as T } from './common.ts';
+import { Pattern, Type as T } from './common.ts';
 import { TraitBindingSchema } from './schema.trait.ts';
 
-const ID = T.String({ title: 'Slug identifier', ...PatternRecipe.Id() });
+const ID = T.String({ title: 'Slug identifier', ...Pattern.Id() });
 
 const DESCRIPTION = T.String({
   title: 'Description',
@@ -9,7 +9,7 @@ const DESCRIPTION = T.String({
 });
 
 const REF = T.String({
-  ...PatternRecipe.CrdtRef(),
+  ...Pattern.CrdtRef(),
   title: 'Reference',
   description: `Optional reference (URN or CRDT create tag) pointing to another slug definition.`,
 });

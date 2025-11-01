@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { PatternRecipe } from '../mod.ts';
+import { Pattern } from '../mod.ts';
 
 describe('PatternRecipe.Id', () => {
-  const pattern = PatternRecipe.Id().pattern;
+  const pattern = Pattern.Id().pattern;
   const regex = new RegExp(pattern);
   expect(pattern, 'Id pattern must be defined').to.be.a('string');
 

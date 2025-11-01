@@ -2,4 +2,4 @@
  * @module
  * Common schema patterns.
  */
-export { PatternRecipe } from './m.Pattern.ts';
+export { Pattern } from './m.Pattern.ts';

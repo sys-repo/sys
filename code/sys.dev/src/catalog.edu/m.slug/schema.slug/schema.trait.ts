@@ -6,7 +6,7 @@
  * • Use `*Internal` for precise composition and static-type recovery.
  * • Re-export widened `t.TSchema` symbols for public API/JSR safety.
  */
-import { PatternRecipe, type t, Type as T } from './common.ts';
+import { Pattern, type t, Type as T } from './common.ts';
 
 /**
  * Bind a trait type ("of") to a local alias ("as").
@@ -15,10 +15,10 @@ import { PatternRecipe, type t, Type as T } from './common.ts';
  */
 export const TraitBindingSchemaInternal = T.Object(
   {
-    of: T.String({ title: 'Trait type reference', ...PatternRecipe.Id() }),
+    of: T.String({ title: 'Trait type reference', ...Pattern.Id() }),
     as: T.String({
       title: `Local alias path address for this trait's instance data`,
-      ...PatternRecipe.Id(),
+      ...Pattern.Id(),
     }),
   },
   { additionalProperties: false },
@@ -30,7 +30,7 @@ export const TraitBindingSchemaInternal = T.Object(
  */
 export const TraitDefSchemaInternal = T.Object(
   {
-    id: T.String({ title: 'Trait type identifier', ...PatternRecipe.Id() }),
+    id: T.String({ title: 'Trait type identifier', ...Pattern.Id() }),
     data: T.Optional(T.Unknown({ title: 'Serialized instance data for this trait' })),
   },
   { additionalProperties: false },

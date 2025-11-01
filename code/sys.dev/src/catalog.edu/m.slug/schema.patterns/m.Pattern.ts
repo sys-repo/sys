@@ -6,7 +6,7 @@ import { Id } from './u.Identity.ts';
  * Value-only recipe surface for schema patterns.
  * Compile with @sys/schema/recipe: toSchema.
  */
-export const PatternRecipe: t.PatternRecipeLib = {
+export const Pattern: t.SlugPatternLib = {
   Id,
   CrdtRef,
 } as const;

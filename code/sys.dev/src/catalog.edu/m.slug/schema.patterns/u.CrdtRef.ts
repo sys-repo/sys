@@ -1,6 +1,6 @@
 import { type t, V } from './common.ts';
 
-type L = t.PatternRecipeLib;
+type L = t.SlugPatternLib;
 
 const BASE62 = '[A-Za-z0-9]{28}';
 const SEG = '[A-Za-z0-9][A-Za-z0-9._\\-]*';

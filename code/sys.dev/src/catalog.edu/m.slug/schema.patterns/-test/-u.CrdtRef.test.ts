@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { PatternRecipe } from '../mod.ts';
+import { Pattern } from '../mod.ts';
 
 describe('PatternRecipe.CrdtRef (base62-only)', () => {
-  const pattern = PatternRecipe.CrdtRef().pattern;
+  const pattern = Pattern.CrdtRef().pattern;
   const regex = new RegExp(pattern);
   expect(pattern, 'CRDT pattern must be defined').to.be.a('string');
 
