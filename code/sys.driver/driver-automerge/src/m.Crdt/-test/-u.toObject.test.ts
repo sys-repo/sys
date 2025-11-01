@@ -1,4 +1,4 @@
-import { describe, expect, it, Obj } from '../../-test.ts';
+import { A, describe, expect, it, Obj } from '../../-test.ts';
 import { toObject } from '../u.toObject.ts';
 import { testRepo } from './-u.ts';
 
@@ -105,5 +105,32 @@ describe('Crdt.toObject', { sanitizeResources: false, sanitizeOps: false }, () =
     expect(toObject(plain)).to.equal(plain);
     expect(toObject(date as any)).to.equal(date);
     expect(toObject(arr as any)).to.equal(arr);
+  });
+
+  it('nested AM subtree (non-root) → plain POJO (decoupled)', () => {
+    type T = { view: { programme: { title: string; items: readonly { id: string }[] } } };
+    const repo = testRepo();
+    const doc = repo.create<T>({
+      view: { programme: { title: 'p', items: [{ id: 'a' }, { id: 'b' }] } },
+    });
+
+    // Sanity: ensure input is actually an AM-proxied nested value
+    const nested = doc.current.view.programme as unknown;
+    const isAM = A.getObjectId ? !!A.getObjectId(nested) : false;
+    expect(isAM).to.eql(true);
+
+    // When: convert nested (non-root) proxy
+    const plain = toObject<typeof doc.current.view.programme>(doc.current.view.programme);
+
+    // Then: clean POJO, deep-equal content, new refs vs AM proxies
+    expect(plain).to.eql({ title: 'p', items: [{ id: 'a' }, { id: 'b' }] });
+    expect(plain).to.not.equal(doc.current.view.programme);
+    expect(plain.items).to.not.equal(doc.current.view.programme.items);
+
+    // And: decoupled — mutating plain does not affect doc
+    const before = Obj.clone(doc.current);
+    (plain.items as { id: string }[]).push({ id: 'c' });
+    plain.title = 'q';
+    expect(doc.current).to.eql(before);
   });
 });
