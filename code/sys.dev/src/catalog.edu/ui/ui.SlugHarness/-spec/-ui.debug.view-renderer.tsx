@@ -27,7 +27,7 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
 
   const lens = doc ? Lens.at<O>(doc, v.docPath, v.slugPath) : undefined;
   const ui = lens?.at<t.ViewRendererProps>(['data', 'ui']);
-  const isCurrent = (id: t.StringId) => p.main.value === id;
+  const isCurrent = (id: t.StringId) => p.mainView.value === id;
 
   /**
    * Handlers:
@@ -57,7 +57,7 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
         block
         key={`${i}.${id}`}
         active={buttonsActive}
-        label={() => `main: ${id} ${isCurrent(id) ? '🌳' : ''}`}
+        label={() => `main view: ${id} ${isCurrent(id) ? '🌳' : ''}`}
         onClick={() => handleClick(item)}
       />
     );

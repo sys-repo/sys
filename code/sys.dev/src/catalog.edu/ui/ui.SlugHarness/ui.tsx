@@ -10,7 +10,7 @@ export const SlugHarness: React.FC<P> = (props) => {
     registry,
     crdt,
     signals,
-    main,
+    mainView: main,
     header = D.header,
     sidebar = D.sidebar,
     docPath,

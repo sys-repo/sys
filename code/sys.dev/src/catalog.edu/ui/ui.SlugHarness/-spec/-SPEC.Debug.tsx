@@ -20,7 +20,7 @@ import { registry } from './-u.view.registry.tsx';
 import { SlugViews } from './-ui.debug.view-renderer.tsx';
 
 type P = t.SlugHarnessProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath' | 'main'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath' | 'mainView'> & {
   header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtView.LayoutSidebar;
   render: boolean;
@@ -33,7 +33,7 @@ const defaults: Storage = {
   slugPath: ['slug'],
   header: D.header,
   sidebar: D.sidebar,
-  main: 'foo',
+  mainView: 'foo',
 };
 
 /**
@@ -64,7 +64,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     docPath: s(snap.docPath),
     slugPath: s(snap.slugPath),
-    main: s(snap.main),
+    mainView: s(snap.mainView),
     header: {
       visible: s((snap.header ?? {}).visible),
       readOnly: s((snap.header ?? {}).readOnly),
@@ -104,7 +104,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.docPath = p.docPath.value;
       d.slugPath = p.slugPath.value;
-      d.main = p.main.value;
+      d.mainView = p.mainView.value;
 
       d.header = d.header ?? {};
       d.header.visible = p.header.visible.value;
@@ -131,7 +131,7 @@ export function createDebugSignals() {
 
     function update() {
       const ui = uiProps.get();
-      p.main.value = ui?.view;
+      p.mainView.value = ui?.view;
     }
 
     const $ = doc.events(e.life).$;

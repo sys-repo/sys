@@ -11,7 +11,7 @@ export type SlugHarnessProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 
   signals?: t.SlugHarnessSignals;
   docPath?: t.ObjectPath;
   slugPath?: t.ObjectPath;
-  main?: t.SlugViewId;
+  mainView?: t.SlugViewId;
   //
   debug?: boolean;
   theme?: t.CommonTheme;
