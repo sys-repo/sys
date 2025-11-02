@@ -6,6 +6,7 @@ export * from '../common.ts';
 /**
  * Libs:
  */
+export { Icons } from '../ui.Icons.ts';
 export { Crdt };
 
 /**

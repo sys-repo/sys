@@ -8,6 +8,7 @@ import {
   Crdt,
   css,
   D,
+  Icons,
   Lens,
   LocalStorage,
   Obj,
@@ -33,7 +34,7 @@ const defaults: Storage = {
   docPath: ['yaml.parsed'],
   slugPath: ['slug'],
   header: D.header,
-  sidebar: D.sidebar,
+  sidebar: { ...D.sidebar, visible: false },
   slugView: 'foo',
 };
 
@@ -143,9 +144,8 @@ export function createDebugSignals() {
     update();
   });
 
-  // Hard Override defaults:
+  // ⚠️ Hard Override of defaults ⚠️
   if (api.url.debug === false) p.debug.value = false;
-  p.sidebar.visible.value = false;
 
   // Finish up.
   return api;
@@ -177,6 +177,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
+    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (
@@ -185,12 +186,27 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `render: ${p.render.value}`}
-        onClick={() => Signal.toggle(p.render)}
+        label={() => (
+          <div className={styles.vcenter.class}>
+            <Icons.ClosePanel.Right />
+            {`debug=false (via query-string → reload)`}
+          </div>
+        )}
+        onClick={() => {
+          debug.url.debug = false;
+          window.location.reload();
+        }}
       />
 
       <hr />
       <SlugViews theme={theme.name} debug={debug} />
+      <hr />
+
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
 
       <hr />
       <Button
@@ -253,14 +269,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
-      />
-      <Button
-        block
-        label={() => `debug=false (via query-string → reload)`}
-        onClick={() => {
-          debug.url.debug = false;
-          window.location.reload();
-        }}
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />

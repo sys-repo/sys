@@ -32,7 +32,7 @@ export const SlugHarness: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const slots: t.CrdtView.LayoutSlots = {
-    sidebar: (ctx) => '',
+    sidebar: (ctx) => <div>{`🐷 slug-harness sidebar`}</div>,
     main: (ctx) => {
       return (
         <SlugView

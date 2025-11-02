@@ -8,6 +8,7 @@ import {
   Color,
   css,
   D,
+  Icons,
   LocalStorage,
   Monaco,
   Obj,
@@ -137,7 +138,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
    * Render:
    */
   const theme = Color.theme();
-  const styles = { base: css({}) };
+  const styles = {
+    base: css({}),
+    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
+  };
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -180,6 +184,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr style={{ marginTop: 40 }} />
       <Button
         block
+        label={() => (
+          <div className={styles.vcenter.class}>
+            <Icons.ClosePanel.Right />
+            {`debug=false (via query-string → reload)`}
+          </div>
+        )}
+        onClick={() => {
+          debug.url.debug = false;
+          window.location.reload();
+        }}
+      />
+      <Button
+        block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
@@ -188,15 +205,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `host padding: ${p.hostPadding.value}`}
         onClick={() => Signal.toggle(p.hostPadding)}
       />
-      <Button
-        block
-        label={() => `hide debug (via query-string → reload)`}
-        onClick={() => {
-          debug.url.debug = false;
-          window.location.reload();
-        }}
-      />
-
       <Button
         block
         label={() => `(reset → reload)`}

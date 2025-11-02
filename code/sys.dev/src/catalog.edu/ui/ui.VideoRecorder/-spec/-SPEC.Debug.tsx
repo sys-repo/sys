@@ -9,6 +9,7 @@ import {
   Crdt,
   css,
   D,
+  Icons,
   LocalStorage,
   Obj,
   ObjectView,
@@ -155,11 +156,28 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
+    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
+
+      <Button
+        block
+        label={() => (
+          <div className={styles.vcenter.class}>
+            <Icons.ClosePanel.Right />
+            {`debug=false (via query-string → reload)`}
+          </div>
+        )}
+        onClick={() => {
+          debug.url.debug = false;
+          window.location.reload();
+        }}
+      />
+      <hr />
+
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
@@ -230,14 +248,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
-      />
-      <Button
-        block
-        label={() => `debug=false (via query-string → reload)`}
-        onClick={() => {
-          debug.url.debug = false;
-          window.location.reload();
-        }}
       />
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />

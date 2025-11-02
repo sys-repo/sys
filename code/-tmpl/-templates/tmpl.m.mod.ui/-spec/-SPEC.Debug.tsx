@@ -76,7 +76,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
    * Render:
    */
   const theme = Color.theme();
-  const styles = { base: css({ color: theme.fg }) };
+  const styles = {
+    base: css({ color: theme.fg }),
+    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
+  };
 
   return (
     <div className={css(styles.base, props.style).class}>

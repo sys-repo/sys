@@ -5,6 +5,7 @@ export * from '../common.ts';
  * Libs:
  */
 export { Media } from '@sys/ui-react-components';
+export { Icons } from '../ui.Icons.ts';
 
 /**
  * Constants:

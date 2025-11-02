@@ -18,8 +18,8 @@ export const defaults: NonNullable<t.LayoutDefaults> = {
   },
   get sidebar() {
     return {
-      position: 'right',
       visible: true,
+      position: 'right',
       resizable: true,
       width: 340,
       divider: 0.2,

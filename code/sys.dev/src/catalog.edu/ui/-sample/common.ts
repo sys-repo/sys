@@ -5,6 +5,7 @@ export { Monaco } from '@sys/driver-monaco';
 
 export { DefaultTraitRegistry } from '../../m.slug.traits/mod.ts';
 export { YamlPipeline } from '../../m.yaml/mod.ts';
+export { Icons } from '../ui.Icons.ts';
 export { useSlugDiagnostics } from '../use.Slug/mod.ts';
 
 export * from '../common.ts';
