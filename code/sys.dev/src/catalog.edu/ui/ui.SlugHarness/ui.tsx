@@ -71,7 +71,8 @@ export const SlugHarness: React.FC<P> = (props) => {
 const wrangle = {
   spinning(props: P): t.CrdtView.LayoutSpinning {
     const { signals } = props;
-    return {};
+    const doc = signals?.doc.value;
+    return { main: !doc };
   },
 
   lenses(props: P) {
