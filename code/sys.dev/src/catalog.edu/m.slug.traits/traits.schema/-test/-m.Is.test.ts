@@ -179,19 +179,26 @@ describe('Slug.Is', () => {
     });
 
     it('runtime truth table', () => {
-      const ok1 = { files: [] as string[] };
-      const ok2 = { files: ['a.txt'] };
-      const ok3 = { name: 'Docs', files: ['a.txt', 'b/c.md'] };
-      const ok4 = { name: '', files: [''] }; // empty strings allowed by schema
+      const ok1 = {}; // minimal: all optional
+      const ok2 = { name: 'Docs' }; // valid without files
+      const ok3 = { files: [] as string[] };
+      const ok4 = { files: ['a.txt'] };
+      const ok5 = { name: 'Docs', files: ['a.txt', 'b/c.md'] };
+      const ok6 = { name: '', files: [''] }; // empty strings allowed by schema
 
       const bads: unknown[] = [
-        {}, // missing required "files"
-        { name: 'Only name' },
         { files: 'not-an-array' },
         { files: [123] },
         { files: [null] },
+        { files: [{}] },
         { name: 123, files: [] },
         { name: { label: 'nope' }, files: ['a'] },
+        { description: 123, files: ['a'] },
+        { description: { text: 'nope' }, files: ['a'] },
+        { description: null, files: ['a'] },
+        { description: true, files: ['a'] },
+        { id: 42, files: ['a'] },
+        { id: { key: 'nope' }, files: ['a'] },
         { files: ['ok'], extra: true }, // additionalProperties: false
       ];
 
@@ -199,17 +206,25 @@ describe('Slug.Is', () => {
       expect(Is.fileListProps(ok2)).to.eql(true);
       expect(Is.fileListProps(ok3)).to.eql(true);
       expect(Is.fileListProps(ok4)).to.eql(true);
+      expect(Is.fileListProps(ok5)).to.eql(true);
+      expect(Is.fileListProps(ok6)).to.eql(true);
 
       for (const v of bads) expect(Is.fileListProps(v)).to.eql(false);
     });
 
     it('narrows', () => {
-      const input: unknown = { name: 'Docs', files: ['readme.md'] };
+      const input: unknown = { name: 'Docs' };
       if (Is.fileListProps(input)) {
+        // Optional field shape (object-level):
+        expectTypeOf(input).toMatchTypeOf<{ files?: readonly string[] }>();
+
+        // Scalar fields:
         expectTypeOf(input.name).toEqualTypeOf<string | undefined>();
-        expectTypeOf(input.files).toEqualTypeOf<readonly string[]>();
-        expectTypeOf(input.files[0]).toEqualTypeOf<string>();
-        expect(input.files.includes('readme.md')).to.eql(true);
+
+        // If present, it's a readonly string array:
+        if (input.files) {
+          expectTypeOf(input.files).toEqualTypeOf<readonly string[]>();
+        }
       } else {
         expect(true).to.eql(false);
       }

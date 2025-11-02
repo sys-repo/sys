@@ -13,9 +13,11 @@ export const FileListPropsSchemaInternal = T.Object(
      * Array of filesystem path references.
      * Paths are implementation-defined strings (no enforced pattern here).
      */
-    files: T.Array(T.String({ description: 'File path reference.' }), {
-      description: 'List of file path references.',
-    }),
+    files: T.Optional(
+      T.Array(T.String({ description: 'File path reference.' }), {
+        description: 'List of file path references.',
+      }),
+    ),
   },
   {
     $id: 'trait.file-list.props',
