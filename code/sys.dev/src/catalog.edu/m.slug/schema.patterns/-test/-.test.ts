@@ -4,7 +4,7 @@ import { Pattern } from '../m.Pattern.ts';
 import { CrdtRef } from '../u.CrdtRef.ts';
 import { Cropmarks } from '../u.Cropmarks.ts';
 import { Css } from '../u.Css.ts';
-import { Id } from '../u.Identity.ts';
+import { Id } from '../u.Id.ts';
 
 describe('Pattern', () => {
   it('API', () => {
