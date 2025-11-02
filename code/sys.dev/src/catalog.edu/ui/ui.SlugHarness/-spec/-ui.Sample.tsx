@@ -6,7 +6,7 @@ export const registry = makeRegistry();
  * Sample Component:
  */
 export function Sample(props: { prefix?: string; ctx: t.SlugViewProps }) {
-  const { prefix = '👋', ctx } = props;
+  const { prefix = '🐷', ctx } = props;
 
   const theme = Color.theme(ctx.theme);
   const styles = {
