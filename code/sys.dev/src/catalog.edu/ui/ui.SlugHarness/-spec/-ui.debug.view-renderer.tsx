@@ -27,7 +27,7 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
 
   const lens = doc ? Lens.at<O>(doc, v.docPath, v.slugPath) : undefined;
   const ui = lens?.at<t.ViewRendererProps>(['data', 'ui']);
-  const isCurrent = (id: t.StringId) => p.mainView.value === id;
+  const isCurrent = (id: t.StringId) => p.slugView.value === id;
 
   /**
    * Handlers:
@@ -57,38 +57,32 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
         block
         key={`${i}.${id}`}
         active={buttonsActive}
-        label={() => `main view: ${id} ${isCurrent(id) ? '🌳' : ''}`}
+        label={() => `slug-view: ${id} ${isCurrent(id) ? '🌳' : ''}`}
         onClick={() => handleClick(item)}
       />
     );
   });
 
-  let view = ui?.get()?.view ?? '';
+  let viewId = ui?.get()?.view ?? '';
 
   const elInfo = (
     <KeyValue.View
       theme={theme.name}
-      style={{ Margin: [40, 20] }}
+      style={{ Margin: [20, 45] }}
       items={[
         { kind: 'title', v: 'View Renderer' },
-        { k: 'view (key)', v: view },
+        { k: 'slug view (id)', v: viewId },
         { k: 'cropmarks', v: wrangle.cropmarks(ui?.get()?.cropmarks?.size) },
+        { kind: 'title', v: 'Slug Traits' },
+        ...registry.list().map((item) => {
+          const id = item.id;
+          return { k: `- ${id}`, v: isCurrent(id) ? `🌳` : '' };
+        }),
       ]}
     />
   );
 
-  return (
-    <div className={css(styles.base, props.style).class}>
-      {elButtons}
-      <Button
-        block
-        active={buttonsActive}
-        label={() => `(none)`}
-        onClick={() => handleClick(undefined)}
-      />
-      {elInfo}
-    </div>
-  );
+  return <div className={css(styles.base, props.style).class}>{elInfo}</div>;
 };
 
 /**

@@ -39,7 +39,7 @@ export default Spec.describe(D.displayName, (e) => {
             slugPath={v.slugPath}
             header={v.header}
             sidebar={v.sidebar}
-            mainView={v.mainView}
+            slugView={v.slugView}
           />
         );
       });
