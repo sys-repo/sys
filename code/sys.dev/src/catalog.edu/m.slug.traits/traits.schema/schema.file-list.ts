@@ -1,14 +1,13 @@
-import { type t, Type as T } from './common.ts';
+import { type t, Pattern, Type as T } from './common.ts';
 
 /**
  * Properties: File List.
  */
 export const FileListPropsSchemaInternal = T.Object(
   {
-    /**
-     * Optional human-readable label for this list.
-     */
-    name: T.Optional(T.String({ description: 'Optional display name for the file list.' })),
+    id: T.Optional(T.String({ title: 'Formal identifier of the file list.', ...Pattern.Id() })),
+    name: T.Optional(T.String({ description: 'Display name for the file list.' })),
+    description: T.Optional(T.String({ description: 'Description of the file list.' })),
 
     /**
      * Array of filesystem path references.
