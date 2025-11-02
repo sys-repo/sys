@@ -7,5 +7,5 @@
  * the global `CatalogTraitRegistry`, forming the authoritative reference
  * for trait validation and introspection across the system.
  */
-export * from './schema.trait.registry/mod.ts';
+export * from './traits.registry/mod.ts';
 export { Traits, VideoPlayerPropsSchema, VideoRecorderPropsSchema } from './traits.schema/mod.ts';
