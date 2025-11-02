@@ -2,6 +2,7 @@ import { type t } from './common.ts';
 
 import { CrdtRef } from './u.ref.CrdtRef.ts';
 import { Id } from './u.ref.Id.ts';
+import { PathRef } from './u.ref.PathRef.ts';
 import { Cropmarks } from './u.ui.Cropmarks.ts';
 import { Css } from './u.ui.Css.ts';
 
@@ -12,5 +13,6 @@ import { Css } from './u.ui.Css.ts';
 export const Pattern: t.SlugPatternLib = {
   Id,
   CrdtRef,
+  PathRef,
   UI: { Css, Cropmarks },
 } as const;

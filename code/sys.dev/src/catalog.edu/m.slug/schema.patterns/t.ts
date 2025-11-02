@@ -10,6 +10,7 @@ export type * from './t.ui.ts';
 export type SlugPatternLib = {
   Id(o?: Omit<Str, 'kind' | 'pattern'>): t.SpecWith<Str, 'pattern' | 'description'>;
   CrdtRef(o?: Omit<Str, 'kind' | 'pattern'>): t.SpecWith<Str, 'pattern' | 'description'>;
+  PathRef(o?: Omit<Str, 'kind' | 'pattern'>): t.SpecWith<Str, 'pattern' | 'description'>;
   readonly UI: {
     readonly Css: t.CssSpecLib;
     readonly Cropmarks: t.CropmarksSpecLib;
