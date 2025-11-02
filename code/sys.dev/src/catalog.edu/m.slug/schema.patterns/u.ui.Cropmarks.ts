@@ -1,5 +1,5 @@
 import { type t, V } from './common.ts';
-import { Css } from './u.Css.ts';
+import { Css } from './u.ui.Css.ts';
 
 /**
  * Cropmarks recipes (value-only).

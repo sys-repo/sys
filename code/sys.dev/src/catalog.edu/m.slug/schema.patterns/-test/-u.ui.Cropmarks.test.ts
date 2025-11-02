@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Str, toSchema, Value, Yaml } from '../common.ts';
-import { Cropmarks } from '../u.Cropmarks.ts';
+import { Cropmarks } from '../u.ui.Cropmarks.ts';
 
 describe('UI: Cropmarks Props Spec', () => {
   describe('Percent()', () => {
