@@ -12,6 +12,10 @@ export const ViewRendererPropsSchemaInternal = T.Object(
         description: `Identifier of the view to render.`,
       }),
     ),
+    props: T.Optional({
+      ...toSchema(Pattern.CrdtRef()),
+      description: 'Reference to properties of the view.',
+    }),
     cropmarks: T.Optional(
       T.Object(
         {
