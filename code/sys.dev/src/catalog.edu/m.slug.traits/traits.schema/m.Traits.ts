@@ -6,7 +6,7 @@ import { type t, Slug } from './common.ts';
 import { Is } from './m.Is.ts';
 
 import { ConceptLayoutPropsSchema } from './schema.concept-layout.ts';
-import { FileListPropsSchema } from './schema.file-list.ts';
+import { FileListItemSchema, FileListPropsSchema } from './schema.file-list.ts';
 import { TimeMapPropsSchema } from './schema.time-map.ts';
 import { VideoPlayerPropsSchema } from './schema.video-player.ts';
 import { VideoRecorderPropsSchema } from './schema.video-recorder.ts';
@@ -35,7 +35,7 @@ export const Traits: t.SlugTraitsLib = {
       return { Props: ConceptLayoutPropsSchema };
     },
     get FileList() {
-      return { Props: FileListPropsSchema };
+      return { Props: FileListPropsSchema, Item: FileListItemSchema };
     },
     get TimeMap() {
       return { Props: TimeMapPropsSchema };

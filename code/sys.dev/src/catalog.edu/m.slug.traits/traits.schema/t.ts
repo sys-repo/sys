@@ -9,12 +9,12 @@ export type * from './t.type-gen.ts';
 export type SlugTraitsLib = {
   readonly Is: t.SlugTraitIsLib;
   readonly Schema: {
-    readonly SlugTree: { readonly Item: t.TSchema; readonly Props: t.TSchema };
+    readonly SlugTree: { readonly Props: t.TSchema; readonly Item: t.TSchema };
     readonly VideoPlayer: { readonly Props: t.TSchema };
     readonly VideoRecorder: { readonly Props: t.TSchema };
     readonly ViewRenderer: { readonly Props: t.TSchema };
     readonly ConceptLayout: { readonly Props: t.TSchema };
-    readonly FileList: { readonly Props: t.TSchema };
+    readonly FileList: { readonly Props: t.TSchema; readonly Item: t.TSchema };
     readonly TimeMap: { readonly Props: t.TSchema };
   };
 };
