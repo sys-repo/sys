@@ -184,8 +184,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `render: ${p.render.value}`}
         onClick={() => Signal.toggle(p.render)}
       />
-      <hr />
 
+      <hr />
+      <SlugViews theme={theme.name} debug={debug} />
+
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -240,9 +243,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `sidebar.resizable: ${p.sidebar.resizable.value}`}
         onClick={() => Signal.toggle(p.sidebar.resizable)}
       />
-
-      <hr />
-      <SlugViews theme={theme.name} debug={debug} />
 
       <hr />
       <Button

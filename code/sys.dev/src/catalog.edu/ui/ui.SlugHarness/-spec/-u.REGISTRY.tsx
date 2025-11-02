@@ -12,8 +12,7 @@ const logInfo = Log.logger('view:registry', {
 });
 
 export const registry = makeRegistry()
-  .register('foobar', (ctx) => <Sample ctx={ctx} prefix={'👋'} />)
-  // .register('bar', (ctx) => <Sample ctx={ctx} prefix={'🌳'} />)
+  .register('foo', (ctx) => <Sample ctx={ctx} prefix={'👋'} />)
   .register('slug-tree', (ctx) => {
     const lens = ctx.doc ? Lens.at<O>(ctx.doc, ctx.path.doc, ctx.path.slug) : undefined;
 
@@ -28,5 +27,11 @@ export const registry = makeRegistry()
     return `🐷 ${ctx.view}`; // TODO 🐷 concept-layout
   })
   .register('file-list', (ctx) => {
+    return `🐷 ${ctx.view}`; // TODO 🐷 file-list
+  })
+  .register('video-recorder', (ctx) => {
+    return `🐷 ${ctx.view}`; // TODO 🐷 file-list
+  })
+  .register('slug-renderer', (ctx) => {
     return `🐷 ${ctx.view}`; // TODO 🐷 file-list
   });

@@ -77,7 +77,7 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
         { kind: 'title', v: 'Slug Traits' },
         ...registry.list().map((item) => {
           const id = item.id;
-          return { k: `- ${id}`, v: isCurrent(id) ? `🌳` : '' };
+          return { k: `- ${id}`, v: isCurrent(id) ? `🌳` : '', x: 5 };
         }),
       ]}
     />
