@@ -123,7 +123,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
 
     if (!silent) {
       const bytes = `bytes: ${start}-${end}:${size}, ${Str.bytes(size)}`;
-      console.info(`👊 media cache hit: ${bytes} • ${url}`);
+      console.info(`🌺 media cache hit: ${bytes} • ${url}`);
     }
 
     return new Response(slice, {
