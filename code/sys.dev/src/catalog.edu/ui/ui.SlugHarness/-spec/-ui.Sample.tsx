@@ -11,7 +11,7 @@ export function Sample(props: { prefix?: string; ctx: t.SlugViewProps }) {
   const theme = Color.theme(ctx.theme);
   const styles = {
     base: css({
-      Padding: [15, 20],
+      Padding: [15, 25],
       color: theme.fg,
       minWidth: 280,
     }),
