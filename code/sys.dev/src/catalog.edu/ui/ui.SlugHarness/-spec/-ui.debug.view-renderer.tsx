@@ -54,7 +54,6 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
         registry={registry}
         doc={doc}
         path={{ doc: v.path.doc, slug: v.path.slug }}
-        currentView={currentView}
       />
     </div>
   );
