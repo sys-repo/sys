@@ -12,7 +12,7 @@ const logInfo = Log.logger('view:registry', {
 });
 
 export const registry = makeRegistry()
-  .register('foo', (ctx) => <Sample ctx={ctx} prefix={'👋'} />)
+  .register('foo', (ctx) => <Sample ctx={ctx} />)
   .register('slug-tree', (ctx) => {
     const lens = ctx.doc ? Lens.at<O>(ctx.doc, ctx.path.doc, ctx.path.slug) : undefined;
 

@@ -6,24 +6,26 @@ export const registry = makeRegistry();
  * Sample Component:
  */
 export function Sample(props: { prefix?: string; ctx: t.SlugViewProps }) {
-  const { prefix = '🐷', ctx } = props;
+  const { prefix = '', ctx } = props;
 
   const theme = Color.theme(ctx.theme);
   const styles = {
     base: css({
-      padding: 20,
+      Padding: [15, 20],
       color: theme.fg,
       minWidth: 280,
     }),
     obj: css({
       marginTop: 10,
-      marginLeft: 22,
+      marginLeft: 15,
     }),
+    title: css({ fontSize: 36 }),
   };
 
   return (
     <div className={styles.base.class}>
-      {`${prefix} view: ${ctx.view}`}
+      <div className={styles.title.class}>{'🐷'}</div>
+      {`${prefix} render view: "${ctx.view}"`.trim()}
       <ObjectView data={ctx} theme={theme.name} name={'ctx'} expand={1} style={styles.obj} />
     </div>
   );
