@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Pattern } from '../mod.ts';
 
 describe('PatternRecipe.CrdtRef (create | self | base62)', () => {
-  const pattern = Pattern.CrdtRef().pattern;
+  const pattern = Pattern.Ref.Crdt().pattern;
   const regex = new RegExp(pattern);
   expect(pattern, 'CRDT pattern must be defined').to.be.a('string');
 

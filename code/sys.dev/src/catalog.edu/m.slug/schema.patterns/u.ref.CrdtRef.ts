@@ -1,6 +1,6 @@
 import { type t, V } from './common.ts';
 
-type L = t.SlugPatternLib;
+type L = t.SlugPatternLib['Ref'];
 
 const BASE62 = '[A-Za-z0-9]{28}';
 const SEG = '[A-Za-z0-9][A-Za-z0-9._\\-]*';
@@ -16,10 +16,10 @@ export const CRDT_PATTERN = `^(?:crdt:create|(?:crdt|urn:crdt):(self|${BASE62})$
  *   - urn:crdt:self[/path]
  *   - urn:crdt:<base62-28>[/path]
  */
-export const CrdtRef: L['CrdtRef'] = (o = {}) => {
+export const CrdtRef: L['Crdt'] = (o = {}) => {
   return V.string({
     pattern: CRDT_PATTERN,
     description: `CRDT reference ("crdt:create" or "self"/base62 id with optional /path).`,
     ...o,
-  }) as ReturnType<L['CrdtRef']>;
+  }) as ReturnType<L['Crdt']>;
 };

@@ -13,7 +13,7 @@ export const ConceptLayoutPropsSchemaInternal = T.Object(
      *  - "urn:crdt:<uuid|base62-28>/[path]"
      */
     slug: T.String({
-      ...Pattern.CrdtRef(),
+      ...Pattern.Ref.Crdt(),
       description: 'CRDT document reference for concept-layout configuration.',
     }),
   },

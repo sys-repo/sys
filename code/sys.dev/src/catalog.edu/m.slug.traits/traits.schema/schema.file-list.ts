@@ -5,7 +5,7 @@ import { type t, Pattern, Type as T } from './common.ts';
  * Minimal common shape for a single file reference.
  */
 export const FileListItemSchemaInternal = T.Object(
-  { ref: T.String({ ...Pattern.PathRef({ description: 'File reference of this item.' }) }) },
+  { ref: T.String({ ...Pattern.Ref.Path({ description: 'File reference of this item.' }) }) },
   {
     $id: 'trait.file-list.item',
     title: 'File List Item',
@@ -16,7 +16,7 @@ export const FileListItemSchemaInternal = T.Object(
 /** A single file reference, either a string path or an object `{ ref: string }`. */
 const FileListEntrySchemaInternal = T.Union(
   [
-    T.String({ ...Pattern.PathRef({ description: 'File reference.' }) }),
+    T.String({ ...Pattern.Ref.Path({ description: 'File reference.' }) }),
     FileListItemSchemaInternal,
   ],
   { description: 'File path or an object with a ref field.' },

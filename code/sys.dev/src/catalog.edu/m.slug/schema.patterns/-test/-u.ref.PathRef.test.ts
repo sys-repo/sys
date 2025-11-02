@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { Pattern } from '../mod.ts';
 
 describe('PatternRecipe.PathRef (placeholder, string shape)', () => {
-  const schema = Pattern.PathRef();
+  const schema = Pattern.Ref.Path();
   expect(schema).to.be.an('object');
   expect(schema.kind).to.eql('string');
 

@@ -18,7 +18,7 @@ export const ViewRendererPropsSchemaInternal = T.Object(
      * - a generic "property bag" object (Record<string, unknown>).
      */
     props: T.Optional(
-      T.Union([toSchema(Pattern.CrdtRef()), T.Record(T.String(), T.Unknown())], {
+      T.Union([toSchema(Pattern.Ref.Crdt()), T.Record(T.String(), T.Unknown())], {
         description: 'Reference to properties of the view, or an inline property bag.',
       }),
     ),

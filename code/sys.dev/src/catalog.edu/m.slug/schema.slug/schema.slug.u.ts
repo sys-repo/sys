@@ -9,7 +9,7 @@ const DESCRIPTION = T.String({
 });
 
 const REF = T.String({
-  ...Pattern.CrdtRef(),
+  ...Pattern.Ref.Crdt(),
   title: 'Reference',
   description: `Optional reference (URN or CRDT create tag) pointing to another slug definition.`,
 });

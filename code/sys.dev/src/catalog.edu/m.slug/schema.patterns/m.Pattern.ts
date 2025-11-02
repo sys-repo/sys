@@ -12,7 +12,6 @@ import { Css } from './u.ui.Css.ts';
  */
 export const Pattern: t.SlugPatternLib = {
   Id,
-  CrdtRef,
-  PathRef,
+  Ref: { Crdt: CrdtRef, Path: PathRef },
   UI: { Css, Cropmarks },
 } as const;

@@ -23,7 +23,7 @@ export const VideoRecorderPropsSchemaInternal = T.Object(
     file: T.Optional(
       T.String({
         title: 'CRDT File Reference (URN)',
-        ...Pattern.CrdtRef(),
+        ...Pattern.Ref.Crdt(),
       }),
     ),
   },
