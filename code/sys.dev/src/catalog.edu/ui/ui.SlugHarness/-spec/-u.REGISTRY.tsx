@@ -11,9 +11,9 @@ const logInfo = Log.logger('view:registry', {
 });
 
 export const registry = makeRegistry()
-  .register('foo', (ctx) => <Sample ctx={ctx} prefix={'👋'} />)
-  .register('bar', (ctx) => <Sample ctx={ctx} prefix={'🌳'} />)
-  .register('programme', (ctx) => {
+  .register('foo-🐷', (ctx) => <Sample ctx={ctx} prefix={'👋'} />)
+  // .register('bar', (ctx) => <Sample ctx={ctx} prefix={'🌳'} />)
+  .register('slug-tree', (ctx) => {
     const lens = ctx.doc ? Lens.at<O>(ctx.doc, ctx.path.doc, ctx.path.slug) : undefined;
 
     logInfo('slug renderer factory:');
