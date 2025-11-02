@@ -10,7 +10,7 @@ export const SlugHarness: React.FC<P> = (props) => {
     registry,
     crdt,
     signals,
-    slugView: main,
+    slugView,
     header = D.header,
     sidebar = D.sidebar,
     docPath,
@@ -37,7 +37,7 @@ export const SlugHarness: React.FC<P> = (props) => {
         <SlugView
           doc={doc}
           registry={registry}
-          view={main}
+          slugView={slugView}
           slugPath={slugPath}
           docPath={docPath}
           theme={theme.name}
@@ -55,7 +55,7 @@ export const SlugHarness: React.FC<P> = (props) => {
       header={header}
       sidebar={sidebar}
       cropmarks={{
-        subjectOnly: cropmarks?.subjectOnly,
+        subjectOnly: !slugView ? true : cropmarks?.subjectOnly, // NB: render nothing when no view.
         size: cropmarks?.size,
       }}
       slots={slots}
