@@ -55,7 +55,7 @@ export function Sample(props: { prefix?: string; ctx: t.SlugViewProps }) {
     <div className={styles.base.class}>
       <div className={css(styles.title.base).class}>
         <div className={styles.title.left.class}>{'🐷'}</div>
-        <div className={styles.title.right.class}>{String(ctx.view)}</div>
+        <div className={styles.title.right.class}>{`view: ${String(ctx.view)}`}</div>
       </div>
       <ObjectView
         name={'ctx'}
