@@ -1,5 +1,4 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
-
 import { type t, Value } from '../common.ts';
 import { VideoPlayerPropsSchema } from '../mod.ts';
 

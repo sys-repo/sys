@@ -176,3 +176,17 @@ export type FileListProps = {
   /** List of file path references. */
   readonly files: readonly string[];
 };
+
+/**
+ * Time Map Properties
+ * - mirrors `schema.time-map.ts` (`TimeMapPropsSchema`)
+ * Policy: strings may be empty (no minLength enforced in schema).
+ */
+export type TimeMapProps = {
+  /** Formal identifier of the time-map. */
+  readonly id?: string;
+  /** Display name for the time map. */
+  readonly name?: string;
+  /** Description of the time map. */
+  readonly description?: string;
+};

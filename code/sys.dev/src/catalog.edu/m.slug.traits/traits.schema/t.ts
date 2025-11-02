@@ -15,6 +15,7 @@ export type SlugTraitsLib = {
     readonly ViewRenderer: { readonly Props: t.TSchema };
     readonly ConceptLayout: { readonly Props: t.TSchema };
     readonly FileList: { readonly Props: t.TSchema };
+    readonly TimeMap: { readonly Props: t.TSchema };
   };
 };
 
@@ -27,3 +28,4 @@ export type VideoPlayerBinding = t.SlugTraitBindingOf<'video-player'>;
 export type ViewRendererBinding = t.SlugTraitBindingOf<'view-renderer'>;
 export type ConceptLayoutBinding = t.SlugTraitBindingOf<'concept-layout'>;
 export type FileListBinding = t.SlugTraitBindingOf<'file-list'>;
+export type TimeMapBinding = t.SlugTraitBindingOf<'time-map'>;

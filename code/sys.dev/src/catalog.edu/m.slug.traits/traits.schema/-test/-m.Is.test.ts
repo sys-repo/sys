@@ -215,4 +215,46 @@ describe('Slug.Is', () => {
       }
     });
   });
+
+  describe('Is.timeMapProps', () => {
+    it('signature', () => {
+      type Expect = (u: unknown) => u is t.TimeMapProps;
+      expectTypeOf(Is.timeMapProps).toEqualTypeOf<Expect>();
+    });
+
+    it('runtime truth table', () => {
+      const ok1 = {}; // all optional
+      const ok2 = { id: 'tm-001' };
+      const ok3 = { name: 'Release Markers', description: 'Named instants for milestones' };
+
+      const bads: unknown[] = [
+        { extra: true }, // additionalProperties: false
+        { id: 123 }, // wrong type
+        { name: 1 }, // wrong type
+        { description: null }, // wrong type
+        null,
+        undefined,
+        42,
+        'str',
+        true,
+      ];
+
+      expect(Is.timeMapProps(ok1)).to.eql(true);
+      expect(Is.timeMapProps(ok2)).to.eql(true);
+      expect(Is.timeMapProps(ok3)).to.eql(true);
+
+      for (const v of bads) expect(Is.timeMapProps(v)).to.eql(false);
+    });
+
+    it('narrows', () => {
+      const input: unknown = { name: 'Timeline' };
+      if (Is.timeMapProps(input)) {
+        expectTypeOf(input.id).toEqualTypeOf<string | undefined>();
+        expectTypeOf(input.name).toEqualTypeOf<string | undefined>();
+        expectTypeOf(input.description).toEqualTypeOf<string | undefined>();
+      } else {
+        expect(true).to.eql(false);
+      }
+    });
+  });
 });

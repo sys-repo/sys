@@ -34,4 +34,9 @@ export const Is: t.SlugTraitIsLib = {
   fileListProps(u: unknown): u is t.FileListProps {
     return Value.Check(Traits.Schema.FileList.Props, u as unknown);
   },
+
+  /** time-map: props schema */
+  timeMapProps(u: unknown): u is t.TimeMapProps {
+    return Value.Check(Traits.Schema.TimeMap.Props, u as unknown);
+  },
 } as const;

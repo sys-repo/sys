@@ -19,6 +19,11 @@ export {
 } from './schema.file-list.ts';
 export {
   //
+  TimeMapPropsSchema,
+  TimeMapPropsSchemaInternal,
+} from './schema.time-map.ts';
+export {
+  //
   VideoPlayerPropsSchema,
   VideoPlayerPropsSchemaInternal,
 } from './schema.video-player.ts';

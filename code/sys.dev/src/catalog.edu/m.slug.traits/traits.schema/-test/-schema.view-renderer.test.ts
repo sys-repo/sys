@@ -1,5 +1,4 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
-
 import { type t, Value } from '../common.ts';
 import { Traits } from '../mod.ts';
 import { ViewRendererPropsSchema } from '../schema.view-renderer.ts';

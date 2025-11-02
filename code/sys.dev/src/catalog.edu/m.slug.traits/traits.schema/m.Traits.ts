@@ -7,6 +7,7 @@ import { Is } from './m.Is.ts';
 
 import { ConceptLayoutPropsSchema } from './schema.concept-layout.ts';
 import { FileListPropsSchema } from './schema.file-list.ts';
+import { TimeMapPropsSchema } from './schema.time-map.ts';
 import { VideoPlayerPropsSchema } from './schema.video-player.ts';
 import { VideoRecorderPropsSchema } from './schema.video-recorder.ts';
 import { ViewRendererPropsSchema } from './schema.view-renderer.ts';
@@ -35,6 +36,9 @@ export const Traits: t.SlugTraitsLib = {
     },
     get FileList() {
       return { Props: FileListPropsSchema };
+    },
+    get TimeMap() {
+      return { Props: TimeMapPropsSchema };
     },
   },
 };
