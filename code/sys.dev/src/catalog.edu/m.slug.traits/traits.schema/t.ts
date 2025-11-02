@@ -15,7 +15,7 @@ export type SlugTraitsLib = {
     readonly ViewRenderer: { readonly Props: t.TSchema };
     readonly ConceptLayout: { readonly Props: t.TSchema };
     readonly FileList: { readonly Props: t.TSchema; readonly Item: t.TSchema };
-    readonly TimeMap: { readonly Props: t.TSchema };
+    readonly TimeMap: { readonly Props: t.TSchema; readonly Item: t.TSchema };
   };
 };
 
