@@ -1,6 +1,6 @@
+import { V } from '@sys/schema/recipe';
 import { describe, expect, it } from '../../-test.ts';
 import { Value as TB } from '../../m.schema/mod.ts';
-import { V, Value } from '../mod.ts';
 import { toSchema } from '../u.toSchema.ts';
 
 describe('toSchema (compile)', () => {
@@ -50,6 +50,20 @@ describe('toSchema (compile)', () => {
     const sArr = toSchema(V.array(Person));
     expect(TB.Check(sArr, [{ name: 'A', age: 1 }])).to.eql(true);
     expect(TB.Check(sArr, [{ name: 'A', age: -1 }])).to.eql(false);
+  });
+
+  it('array length constraints: enforces minItems/maxItems (exact 1|2|4)', () => {
+    const scalar = V.union([V.number({ minimum: 0 }), V.string()]);
+    const one = V.array(scalar, { minItems: 1, maxItems: 1 });
+    const two = V.array(scalar, { minItems: 2, maxItems: 2 });
+    const four = V.array(scalar, { minItems: 4, maxItems: 4 });
+    const s = toSchema(V.union([one, two, four]));
+
+    const ok = [[8], ['8'], [8, 12], ['8', '12'], [8, 12, 16, 4]];
+    const bad = [[], [8, 12, 16], [-1], [8, -12], [8, true, 0, 0]];
+
+    for (const v of ok) expect(TB.Check(s, v)).to.eql(true);
+    for (const v of bad) expect(TB.Check(s, v)).to.eql(false);
   });
 
   it('union([...])', () => {

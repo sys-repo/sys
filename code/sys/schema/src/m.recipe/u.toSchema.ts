@@ -11,6 +11,7 @@ export const toSchema: t.RecipeToSchema = (r) => {
         title: r.title,
         format: r.format,
       });
+
     case 'number':
       return T.Number({
         minimum: r.minimum,
@@ -20,25 +21,40 @@ export const toSchema: t.RecipeToSchema = (r) => {
         description: r.description,
         title: r.title,
       });
+
     case 'boolean':
       return T.Boolean({ description: r.description, title: r.title });
+
     case 'literal':
       return T.Literal(r.value);
-    case 'array':
-      return T.Array(toSchema(r.items), { description: r.description, title: r.title });
+
+    case 'array': {
+      const opts: Record<string, unknown> = {};
+      if (r.minItems !== undefined) opts.minItems = r.minItems;
+      if (r.maxItems !== undefined) opts.maxItems = r.maxItems;
+      if (r.description) opts.description = r.description;
+      if (r.title) opts.title = r.title;
+      return T.Array(toSchema(r.items), opts);
+    }
+
     case 'object':
       return T.Object(mapValues(r.props, toSchema), {
         additionalProperties: r.additionalProperties ?? false,
         description: r.description,
         title: r.title,
       });
+
     case 'union':
       return T.Union(r.variants.map(toSchema), { description: r.description, title: r.title });
+
     case 'optional':
       return T.Optional(toSchema(r.of));
   }
 };
 
+/**
+ * Helpers:
+ */
 function mapValues<A, B>(rec: Record<string, A>, f: (a: A) => B): Record<string, B> {
   const out: Record<string, B> = {};
   for (const k of Object.keys(rec)) out[k] = f(rec[k]!);

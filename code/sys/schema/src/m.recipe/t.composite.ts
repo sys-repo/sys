@@ -6,6 +6,8 @@ import { type t } from './common.ts';
 export type ArrSpec = {
   readonly kind: 'array';
   readonly items: t.SpecVariant;
+  readonly minItems?: number;
+  readonly maxItems?: number;
   readonly description?: string;
   readonly title?: string;
 };
