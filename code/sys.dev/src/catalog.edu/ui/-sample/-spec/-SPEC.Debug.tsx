@@ -147,8 +147,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
         <div>{D.name}</div>
-        <div>{'(Slug)'}</div>
+        <div>{'YAML Editor'}</div>
       </div>
+
+      <Button
+        block
+        label={() => (
+          <div className={styles.vcenter.class}>
+            <Icons.ClosePanel.Right />
+            {`debug=false (via query-string → reload)`}
+          </div>
+        )}
+        onClick={() => {
+          debug.url.debug = false;
+          window.location.reload();
+        }}
+      />
+
+      <hr />
       <Button
         block
         label={() => `render: ${p.render.value}`}
@@ -181,20 +197,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>{'Samples:'}</div>
       {yamlSamples(debug)}
+
       <hr style={{ marginTop: 40 }} />
-      <Button
-        block
-        label={() => (
-          <div className={styles.vcenter.class}>
-            <Icons.ClosePanel.Right />
-            {`debug=false (via query-string → reload)`}
-          </div>
-        )}
-        onClick={() => {
-          debug.url.debug = false;
-          window.location.reload();
-        }}
-      />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
