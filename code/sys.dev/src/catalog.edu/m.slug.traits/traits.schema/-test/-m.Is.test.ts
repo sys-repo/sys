@@ -171,4 +171,48 @@ describe('Slug.Is', () => {
       }
     });
   });
+
+  describe('Is.fileListProps', () => {
+    it('signature', () => {
+      type Expect = (u: unknown) => u is t.FileListProps;
+      expectTypeOf(Is.fileListProps).toEqualTypeOf<Expect>();
+    });
+
+    it('runtime truth table', () => {
+      const ok1 = { files: [] as string[] };
+      const ok2 = { files: ['a.txt'] };
+      const ok3 = { name: 'Docs', files: ['a.txt', 'b/c.md'] };
+      const ok4 = { name: '', files: [''] }; // empty strings allowed by schema
+
+      const bads: unknown[] = [
+        {}, // missing required "files"
+        { name: 'Only name' },
+        { files: 'not-an-array' },
+        { files: [123] },
+        { files: [null] },
+        { name: 123, files: [] },
+        { name: { label: 'nope' }, files: ['a'] },
+        { files: ['ok'], extra: true }, // additionalProperties: false
+      ];
+
+      expect(Is.fileListProps(ok1)).to.eql(true);
+      expect(Is.fileListProps(ok2)).to.eql(true);
+      expect(Is.fileListProps(ok3)).to.eql(true);
+      expect(Is.fileListProps(ok4)).to.eql(true);
+
+      for (const v of bads) expect(Is.fileListProps(v)).to.eql(false);
+    });
+
+    it('narrows', () => {
+      const input: unknown = { name: 'Docs', files: ['readme.md'] };
+      if (Is.fileListProps(input)) {
+        expectTypeOf(input.name).toEqualTypeOf<string | undefined>();
+        expectTypeOf(input.files).toEqualTypeOf<readonly string[]>();
+        expectTypeOf(input.files[0]).toEqualTypeOf<string>();
+        expect(input.files.includes('readme.md')).to.eql(true);
+      } else {
+        expect(true).to.eql(false);
+      }
+    });
+  });
 });

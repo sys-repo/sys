@@ -29,4 +29,9 @@ export const Is: t.SlugTraitIsLib = {
   conceptLayoutProps(u: unknown): u is t.ConceptLayoutProps {
     return Value.Check(Traits.Schema.ConceptLayout.Props, u as unknown);
   },
+
+  /** file-list: props schema */
+  fileListProps(u: unknown): u is t.FileListProps {
+    return Value.Check(Traits.Schema.FileList.Props, u as unknown);
+  },
 } as const;

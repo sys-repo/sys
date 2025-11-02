@@ -153,3 +153,14 @@ export type ConceptLayoutProps = {
    */
   readonly slug: t.StringCrdtRef;
 };
+
+/**
+ * File List Properties
+ * - mirrors `schema.file-list.ts` (`FileListPropsSchema`)
+ */
+export type FileListProps = {
+  /** Optional display name for the file list. */
+  readonly name?: string;
+  /** List of file path references. */
+  readonly files: readonly string[];
+};

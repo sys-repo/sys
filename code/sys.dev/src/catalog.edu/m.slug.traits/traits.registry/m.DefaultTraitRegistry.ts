@@ -1,6 +1,7 @@
 import { type t, Slug } from './common.ts';
 
 import { ConceptLayoutPropsSchema } from '../traits.schema/schema.concept-layout.ts';
+import { FileListPropsSchema } from '../traits.schema/schema.file-list.ts';
 import { VideoPlayerPropsSchema } from '../traits.schema/schema.video-player.ts';
 import { VideoRecorderPropsSchema } from '../traits.schema/schema.video-recorder.ts';
 import { ViewRendererPropsSchema } from '../traits.schema/schema.view-renderer.ts';
@@ -19,6 +20,7 @@ export const DefaultTraitRegistry: t.SchemaTraitRegistry = {
       { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
       { id: 'view-renderer', propsSchema: ViewRendererPropsSchema },
       { id: 'concept-layout', propsSchema: ConceptLayoutPropsSchema },
+      { id: 'file-list', propsSchema: FileListPropsSchema },
     ] as const;
   },
 };

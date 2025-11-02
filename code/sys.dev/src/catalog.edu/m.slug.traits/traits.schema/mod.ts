@@ -2,15 +2,26 @@
  * @module Trait-Schemas
  * Aggregates all trait prop-schema modules.
  */
-
 export { Is } from './m.Is.ts';
 export { Traits } from './m.Traits.ts';
 
+/**
+ * Schemas:
+ */
 export {
   ConceptLayoutPropsSchema,
   ConceptLayoutPropsSchemaInternal,
 } from './schema.concept-layout.ts';
-export { VideoPlayerPropsSchema, VideoPlayerPropsSchemaInternal } from './schema.video-player.ts';
+export {
+  //
+  FileListPropsSchema,
+  FileListPropsSchemaInternal,
+} from './schema.file-list.ts';
+export {
+  //
+  VideoPlayerPropsSchema,
+  VideoPlayerPropsSchemaInternal,
+} from './schema.video-player.ts';
 export {
   VideoRecorderPropsSchema,
   VideoRecorderPropsSchemaInternal,

@@ -24,5 +24,8 @@ export const registry = makeRegistry()
     return <Tree ctx={ctx} theme={ctx.theme} />;
   })
   .register('concept-layout', (ctx) => {
-    return `🐷 ${ctx.view}`;
+    return `🐷 ${ctx.view}`; // TODO 🐷 concept-layout
+  })
+  .register('file-list', (ctx) => {
+    return `🐷 ${ctx.view}`; // TODO 🐷 file-list
   });

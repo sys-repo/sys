@@ -46,6 +46,7 @@ describe('trait-registry', () => {
           'video-recorder',
           'view-renderer',
           'concept-layout',
+          'file-list',
         ].sort(),
       );
       expect(new Set(TRAIT_IDS).size).to.eql(TRAIT_IDS.length);
