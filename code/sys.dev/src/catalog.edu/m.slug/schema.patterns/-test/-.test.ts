@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Pattern } from '../m.Pattern.ts';
 
-import { CrdtRef } from '../u.CrdtRef.ts';
-import { Id } from '../u.Id.ts';
+import { CrdtRef } from '../u.ref.CrdtRef.ts';
+import { Id } from '../u.ref.Id.ts';
 import { Cropmarks } from '../u.ui.Cropmarks.ts';
 import { Css } from '../u.ui.Css.ts';
 
