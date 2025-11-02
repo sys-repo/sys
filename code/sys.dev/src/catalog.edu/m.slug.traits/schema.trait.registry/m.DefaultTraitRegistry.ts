@@ -1,8 +1,8 @@
 import { type t, Slug } from './common.ts';
 
-import { VideoPlayerPropsSchema } from '../schema.traits/schema.video-player.ts';
-import { VideoRecorderPropsSchema } from '../schema.traits/schema.video-recorder.ts';
-import { ViewRendererPropsSchema } from '../schema.traits/schema.view-renderer.ts';
+import { VideoPlayerPropsSchema } from '../traits.schema/schema.video-player.ts';
+import { VideoRecorderPropsSchema } from '../traits.schema/schema.video-recorder.ts';
+import { ViewRendererPropsSchema } from '../traits.schema/schema.view-renderer.ts';
 
 /**
  * Default schema registry.

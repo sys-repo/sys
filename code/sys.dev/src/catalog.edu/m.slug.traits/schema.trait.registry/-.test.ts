@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { Value, type t } from '../schema.traits/common.ts';
-import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from '../schema.traits/mod.ts';
+import { Value, type t } from '../traits.schema/common.ts';
+import { VideoPlayerPropsSchema, VideoRecorderPropsSchema } from '../traits.schema/mod.ts';
 
 import { Slug } from '../common.ts';
 import { TRAIT_IDS } from './m.ids.ts';

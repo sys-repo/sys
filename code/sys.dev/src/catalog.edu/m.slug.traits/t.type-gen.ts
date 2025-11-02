@@ -41,7 +41,7 @@
 /**
  * 🌼
  * Source schemas from:
- *  - ./schema.traits/*
+ *  - ./traits.schema/*
  */
 
 /**
