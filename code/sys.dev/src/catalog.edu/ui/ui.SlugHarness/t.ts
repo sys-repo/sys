@@ -12,6 +12,7 @@ export type SlugHarnessProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 
   docPath?: t.ObjectPath;
   slugPath?: t.ObjectPath;
   slugView?: t.SlugViewId;
+  slugProps?: t.StringCrdtRef | t.PropertyBag;
   //
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -32,6 +33,7 @@ export type SlugHarnessViewProps = {
   doc?: t.Crdt.Ref;
   docPath?: t.ObjectPath;
   slugPath?: t.ObjectPath;
+  slugProps?: t.StringCrdtRef | t.PropertyBag;
   //
   debug?: boolean;
   theme?: t.CommonTheme;

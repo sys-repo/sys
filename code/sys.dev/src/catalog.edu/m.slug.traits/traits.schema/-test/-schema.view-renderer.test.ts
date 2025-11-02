@@ -18,16 +18,29 @@ describe('trait: view-renderer', () => {
       expect(Value.Check(ViewRendererPropsSchema, { view: '' })).to.eql(false);
     });
 
-    it('`props` is optional and must not be a primitive', () => {
-      // Optional
-      expect(Value.Check(ViewRendererPropsSchema, { view: 'foo' })).to.eql(true);
+    it('`props` accepts a generic property bag object', () => {
+      const ok = {
+        props: {
+          a: 1,
+          b: { c: true, d: null, e: ['x', 2, { y: false }] },
+          f: 'str',
+        },
+      };
+      expect(Value.Check(ViewRendererPropsSchema, ok)).to.eql(true);
+    });
 
-      // Reject obvious wrong primitive shapes
-      expect(Value.Check(ViewRendererPropsSchema, { props: 'not-an-object' })).to.eql(false);
+    it('`props` rejects non-object non-string types (number/boolean/null/array)', () => {
       expect(Value.Check(ViewRendererPropsSchema, { props: 123 })).to.eql(false);
       expect(Value.Check(ViewRendererPropsSchema, { props: true })).to.eql(false);
       expect(Value.Check(ViewRendererPropsSchema, { props: null })).to.eql(false);
       expect(Value.Check(ViewRendererPropsSchema, { props: [] })).to.eql(false);
+    });
+
+    it('`props` rejects arbitrary strings that are not valid CRDT refs', () => {
+      // Note: CRDT-ref acceptance is governed by Pattern.CrdtRef(); here we assert a clearly invalid sample fails.
+      expect(Value.Check(ViewRendererPropsSchema, { props: 'not-a-crdt-ref' })).to.eql(false);
+      expect(Value.Check(ViewRendererPropsSchema, { props: '' })).to.eql(false);
+      expect(Value.Check(ViewRendererPropsSchema, { props: '   ' })).to.eql(false);
     });
 
     it('rejects unknown root-level properties (additionalProperties: false)', () => {

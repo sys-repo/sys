@@ -37,6 +37,7 @@ export default Spec.describe(D.displayName, (e) => {
             signals={debug.signals}
             docPath={v.docPath}
             slugPath={v.slugPath}
+            slugProps={v.slugProps}
             header={v.header}
             sidebar={v.sidebar}
             slugView={v.slugView}

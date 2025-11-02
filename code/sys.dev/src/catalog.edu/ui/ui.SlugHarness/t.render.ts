@@ -12,8 +12,9 @@ export type SlugViewId = t.StringId;
 export type SlugViewProps = {
   readonly view: t.SlugViewId;
   readonly slug: t.Slug;
-  readonly doc?: t.Crdt.Ref;
   readonly path: { readonly doc?: t.ObjectPath; readonly slug?: t.ObjectPath };
+  readonly doc?: t.Crdt.Ref;
+  readonly props?: t.PropertyBag | t.StringCrdtRef;
   readonly theme?: t.CommonTheme;
 };
 

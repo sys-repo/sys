@@ -136,11 +136,23 @@ export type CropmarksConfig = {
  * - mirrors `schema.view-renderer.ts` (`ViewRendererPropsSchema`)
  */
 export type ViewRendererProps = {
-  /** Display name (optional, non-empty if provided). */
+  /** Identifier of the view to render (id-pattern). */
   readonly view?: string;
+
+  /**
+   * Reference to properties of the view, or an inline property bag.
+   * Accepts:
+   *  - CRDT ref string (e.g., "crdt:create", "crdt:self/path", "crdt:<id>/path", "urn:crdt:<id>/path")
+   *  - arbitrary key/value object (PropertyBag)
+   */
+  readonly props?: t.StringCrdtRef | PropertyBag;
+
   /** Optional cropmarks configuration object. */
   readonly cropmarks?: CropmarksConfig;
 };
+
+/** Generic property bag (mirrors `T.Record(T.String(), T.Unknown())`). */
+export type PropertyBag = { readonly [key: string]: unknown };
 
 /**
  * Concept Layout Properties

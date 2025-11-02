@@ -11,6 +11,7 @@ export const SlugHarness: React.FC<P> = (props) => {
     crdt,
     signals,
     slugView,
+    slugProps,
     header = D.header,
     sidebar = D.sidebar,
     docPath,
@@ -39,6 +40,7 @@ export const SlugHarness: React.FC<P> = (props) => {
           registry={registry}
           slugView={slugView}
           slugPath={slugPath}
+          slugProps={slugProps}
           docPath={docPath}
           theme={theme.name}
         />

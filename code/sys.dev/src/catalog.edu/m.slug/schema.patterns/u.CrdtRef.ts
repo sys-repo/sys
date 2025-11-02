@@ -5,18 +5,21 @@ type L = t.SlugPatternLib;
 const BASE62 = '[A-Za-z0-9]{28}';
 const SEG = '[A-Za-z0-9][A-Za-z0-9._\\-]*';
 const PATH = `(?:\\/${SEG}(?:\\/${SEG})*)?`;
-export const CRDT_PATTERN = `^(?:crdt:create|crdt:${BASE62}${PATH}|urn:crdt:${BASE62}${PATH})$`;
+export const CRDT_PATTERN = `^(?:crdt:create|(?:crdt|urn:crdt):(self|${BASE62})${PATH})$`;
 
 /**
  * CRDT reference:
  *   - "crdt:create"
+ *   - "crdt:self"           // no path (legacy)        ← still matched via optional PATH
+ *   - "crdt:self[/path]"    // self behaves like an id
  *   - crdt:<base62-28>[/path]
+ *   - urn:crdt:self[/path]
  *   - urn:crdt:<base62-28>[/path]
  */
 export const CrdtRef: L['CrdtRef'] = (o = {}) => {
   return V.string({
     pattern: CRDT_PATTERN,
-    description: `CRDT reference ("crdt:create" or base62 id with optional /path).`,
+    description: `CRDT reference ("crdt:create" or "self"/base62 id with optional /path).`,
     ...o,
   }) as ReturnType<L['CrdtRef']>;
 };

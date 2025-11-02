@@ -12,10 +12,16 @@ export const ViewRendererPropsSchemaInternal = T.Object(
         description: `Identifier of the view to render.`,
       }),
     ),
-    props: T.Optional({
-      ...toSchema(Pattern.CrdtRef()),
-      description: 'Reference to properties of the view.',
-    }),
+    /**
+     * `props` may be:
+     * - a CRDT reference (string pattern), or
+     * - a generic "property bag" object (Record<string, unknown>).
+     */
+    props: T.Optional(
+      T.Union([toSchema(Pattern.CrdtRef()), T.Record(T.String(), T.Unknown())], {
+        description: 'Reference to properties of the view, or an inline property bag.',
+      }),
+    ),
     cropmarks: T.Optional(
       T.Object(
         {

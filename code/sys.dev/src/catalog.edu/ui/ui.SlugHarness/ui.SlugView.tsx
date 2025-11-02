@@ -1,11 +1,11 @@
 import React from 'react';
-import { type t, Color, css, Obj } from './common.ts';
+import { type t, Color, Crdt, css, Obj } from './common.ts';
 
 /**
  * Component:
  */
 export const SlugView: React.FC<t.SlugHarnessViewProps> = (props) => {
-  const { debug = false, doc, slugPath, docPath, slugView, registry } = props;
+  const { debug = false, registry, doc, slugPath, docPath, slugView, slugProps } = props;
 
   if (!doc) return null;
   if (!registry) return null;
@@ -16,8 +16,8 @@ export const SlugView: React.FC<t.SlugHarnessViewProps> = (props) => {
   const renderer = registry?.get(slugView);
   if (!renderer) return null;
 
-  const slug = Obj.Path.get<t.Slug>(doc?.current, docPath);
-  if (!slug) return null;
+  const slugRoot = Obj.Path.get<t.Slug>(doc?.current, docPath);
+  if (!slugRoot) return null;
 
   /**
    * Render:
@@ -33,8 +33,9 @@ export const SlugView: React.FC<t.SlugHarnessViewProps> = (props) => {
 
   const el = renderer?.({
     doc,
-    slug,
+    slug: slugRoot,
     view: slugView,
+    props: slugProps,
     path: { doc: docPath, slug: slugPath },
     theme: theme.name,
   });

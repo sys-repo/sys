@@ -20,6 +20,7 @@ import { registry } from './-u.REGISTRY.tsx';
 import { SlugViews } from './-ui.debug.view-renderer.tsx';
 
 type P = t.SlugHarnessProps;
+
 type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath' | 'slugView'> & {
   header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtView.LayoutSidebar;
@@ -75,6 +76,8 @@ export function createDebugSignals() {
       resizable: s((snap.sidebar ?? {}).resizable),
       width: s((snap.sidebar ?? {}).width),
     },
+
+    slugProps: s<t.StringCrdtRef | t.PropertyBag | undefined>(),
   };
   const p = props;
   const api = {
@@ -132,6 +135,7 @@ export function createDebugSignals() {
     function update() {
       const ui = uiProps.get();
       p.slugView.value = ui?.view;
+      p.slugProps.value = ui?.props;
     }
 
     const $ = doc.events(e.life).$;
