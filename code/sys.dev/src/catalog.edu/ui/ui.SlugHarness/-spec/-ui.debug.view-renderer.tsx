@@ -73,6 +73,7 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
         { kind: 'title', v: 'View Renderer' },
         { k: 'slug view (id)', v: viewId },
         { k: 'cropmarks', v: wrangle.cropmarks(ui?.get()?.cropmarks?.size) },
+        { kind: 'hr' },
         { kind: 'title', v: 'Slug Traits' },
         ...registry.list().map((item) => {
           const id = item.id;
