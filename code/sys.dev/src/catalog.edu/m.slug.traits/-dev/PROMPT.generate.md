@@ -1,8 +1,10 @@
-Run it like:
+🫵 Run it like:
 
-     Generate full schema integration for new trait: schema.audio-track.ts (trait id: audio-track)
+     Generate full schema integration for new trait:
+          `schema.time-map.ts`
+          (trait id: `time-map`)
 
-================
+============================================================================
 
 You are to add a new trait schema module under:
 
@@ -56,3 +58,5 @@ All code should use the repo’s conventions:
 When you respond:
   - Write out all modified and new files fully.
   - Include concise explanations for each step.
+
+============================================================================
