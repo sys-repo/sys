@@ -15,12 +15,12 @@ export const DefaultTraitRegistry: t.SchemaTraitRegistry = {
   },
   get all() {
     return [
-      { id: 'slug-tree', propsSchema: Slug.Schema.Slug.Tree.Props },
-      { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
-      { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
       { id: 'view-renderer', propsSchema: ViewRendererPropsSchema },
+      { id: 'slug-tree', propsSchema: Slug.Schema.Slug.Tree.Props },
       { id: 'concept-layout', propsSchema: ConceptLayoutPropsSchema },
       { id: 'file-list', propsSchema: FileListPropsSchema },
+      { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
+      { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
     ] as const;
   },
 };

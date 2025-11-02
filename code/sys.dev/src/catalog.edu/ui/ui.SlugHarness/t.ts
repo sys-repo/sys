@@ -9,8 +9,7 @@ export type * from './t.render.ts';
 export type SlugHarnessProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 'sidebar'> & {
   registry?: t.SlugViewRegistryReadonly;
   signals?: t.SlugHarnessSignals;
-  docPath?: t.ObjectPath;
-  slugPath?: t.ObjectPath;
+  path?: { doc?: t.ObjectPath; slug?: t.ObjectPath };
   slugView?: t.SlugViewId;
   slugProps?: t.StringCrdtRef | t.PropertyBag;
   //

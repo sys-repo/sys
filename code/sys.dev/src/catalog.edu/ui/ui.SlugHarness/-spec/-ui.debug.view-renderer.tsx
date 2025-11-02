@@ -1,7 +1,7 @@
-import { KeyValue } from '@sys/ui-react-components';
 import React from 'react';
 
-import { type t, Button, Color, Crdt, css, Lens, Signal } from '../common.ts';
+import { type t, Button, Color, Crdt, css, KeyValue, Lens, Signal } from '../common.ts';
+import { InfoPanel } from '../ui.InfoPanel.tsx';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 type O = Record<string, unknown>;
@@ -17,17 +17,13 @@ export type SlugViewsProps = {
  */
 export const SlugViews: React.FC<SlugViewsProps> = (props) => {
   const { debug } = props;
-  const buttonsActive = false; // NB: not-clickable → control from YAML editor.
 
   const registry = debug.registry;
   const s = debug.signals;
   const p = debug.props;
   const v = Signal.toObject(p);
   const doc = s.doc.value;
-
-  const lens = doc ? Lens.at<O>(doc, v.docPath, v.slugPath) : undefined;
-  const ui = lens?.at<t.ViewRendererProps>(['data', 'ui']);
-  const isCurrent = (id: t.StringId) => p.slugView.value === id;
+  const currentView = p.slugView.value;
 
   /**
    * Handlers:
@@ -50,82 +46,16 @@ export const SlugViews: React.FC<SlugViewsProps> = (props) => {
     base: css({ color: theme.fg, display: 'grid' }),
   };
 
-  const elButtons = registry.list().map((item, i) => {
-    const id = item.id;
-    return (
-      <Button
-        block
-        key={`${i}.${id}`}
-        active={buttonsActive}
-        label={() => `slug-view: ${id} ${isCurrent(id) ? '🌳' : ''}`}
-        onClick={() => handleClick(item)}
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <InfoPanel
+        theme={theme.name}
+        style={{ Margin: [20, 45] }}
+        registry={registry}
+        doc={doc}
+        path={{ doc: v.path.doc, slug: v.path.slug }}
+        currentView={currentView}
       />
-    );
-  });
-
-  let viewId = ui?.get()?.view ?? '';
-
-  const elInfo = (
-    <KeyValue.View
-      theme={theme.name}
-      style={{ Margin: [20, 45] }}
-      items={[
-        { kind: 'title', v: 'View Renderer' },
-        { k: 'slug view (id)', v: viewId },
-        { k: 'cropmarks', v: wrangle.cropmarks(ui?.get()?.cropmarks?.size) },
-        { kind: 'hr' },
-        { kind: 'title', v: 'Slug Traits' },
-        ...registry.list().map((item) => {
-          const id = item.id;
-          const label = id === 'slug-renderer' ? `${id} (self)` : id;
-          return { k: `- ${label}`, v: isCurrent(id) ? `🌳` : '', x: 5 };
-        }),
-      ]}
-    />
+    </div>
   );
-
-  return <div className={css(styles.base, props.style).class}>{elInfo}</div>;
 };
-
-/**
- * Helpers:
- */
-const wrangle = {
-  cropmarks(input?: t.CropmarksSize): string {
-    if (!input) return '-';
-    const { mode } = input;
-
-    switch (mode) {
-      case 'center': {
-        const { width, height } = input;
-        if (!width && !height) return 'center';
-        return `center (${width ?? 'auto'}x${height ?? 'auto'})`;
-      }
-
-      case 'fill': {
-        const { x, y, margin } = input;
-        const axes = x && y ? 'x,y' : x ? 'x' : y ? 'y' : '';
-        const parts = [axes, margin ? `margin:${margin}` : undefined].filter(Boolean);
-        return `fill${parts.length ? ` (${parts.join(', ')})` : ''}`;
-      }
-
-      case 'percent': {
-        const { width, height, maxWidth, maxHeight, margin, aspectRatio } = input;
-        const dims = [(width ?? height) ? `${width ?? ''}${height ? `×${height}` : ''}%` : '']
-          .filter(Boolean)
-          .join('');
-        const parts = [
-          dims,
-          maxWidth ? `max-width:${maxWidth}` : undefined,
-          maxHeight ? `max-height:${maxHeight}` : undefined,
-          margin ? `margin:${margin}` : undefined,
-          aspectRatio ? `ratio:${aspectRatio}` : undefined,
-        ].filter(Boolean);
-        return `percent${parts.length ? ` (${parts.join(', ')})` : ''}`;
-      }
-
-      default:
-        return '-';
-    }
-  },
-} as const;

@@ -23,15 +23,15 @@ export const registry = makeRegistry()
     logInfo('- ctx:', ctx);
     return <Tree ctx={ctx} theme={ctx.theme} />;
   })
-  .register('concept-layout', (ctx) => {
-    return `🐷 ${ctx.view}`; // TODO 🐷 concept-layout
-  })
   .register('file-list', (ctx) => {
-    return `🐷 ${ctx.view}`; // TODO 🐷 file-list
+    return <Sample ctx={ctx} />; // TODO 🐷
   })
   .register('video-recorder', (ctx) => {
-    return `🐷 ${ctx.view}`; // TODO 🐷 file-list
+    return <Sample ctx={ctx} />; // TODO 🐷
   })
   .register('slug-renderer', (ctx) => {
-    return `🐷 ${ctx.view}`; // TODO 🐷 file-list
+    return <Sample ctx={ctx} />; // TODO 🐷
+  })
+  .register('concept-layout', (ctx) => {
+    return <Sample ctx={ctx} />; // TODO 🐷
   });

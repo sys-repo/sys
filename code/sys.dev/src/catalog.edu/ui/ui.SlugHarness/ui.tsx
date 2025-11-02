@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, Crdt, D, Lens } from './common.ts';
+import { Sidebar } from './ui.-layout.Sidebar.tsx';
 import { SlugView } from './ui.SlugView.tsx';
 
 type P = t.SlugHarnessProps;
@@ -14,8 +15,7 @@ export const SlugHarness: React.FC<P> = (props) => {
     slugProps,
     header = D.header,
     sidebar = D.sidebar,
-    docPath,
-    slugPath,
+    path = {},
   } = props;
 
   const doc = signals?.doc.value;
@@ -32,16 +32,16 @@ export const SlugHarness: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const slots: t.CrdtView.LayoutSlots = {
-    sidebar: (ctx) => <div>{`🐷 slug-harness sidebar`}</div>,
+    sidebar: (ctx) => <Sidebar {...props} />,
     main: (ctx) => {
       return (
         <SlugView
           doc={doc}
           registry={registry}
           slugView={slugView}
-          slugPath={slugPath}
           slugProps={slugProps}
-          docPath={docPath}
+          slugPath={path.slug}
+          docPath={path.doc}
           theme={theme.name}
         />
       );
@@ -78,9 +78,9 @@ const wrangle = {
   },
 
   lenses(props: P) {
-    const { signals, docPath, slugPath } = props;
+    const { signals, path = {} } = props;
     const doc = signals?.doc.value;
-    const slug = doc ? Lens.at(doc, docPath, slugPath) : undefined;
+    const slug = doc ? Lens.at(doc, path.doc, path.slug) : undefined;
     const ui = slug?.at<t.ViewRendererProps>(['data', 'ui']);
     return { slug, ui } as const;
   },

@@ -3,12 +3,12 @@
  */
 export const TRAIT_IDS = [
   //
-  'slug-tree',
-  'video-player',
-  'video-recorder',
   'view-renderer',
+  'slug-tree',
   'concept-layout',
   'file-list',
+  'video-player',
+  'video-recorder',
 ] as const;
 
 /**

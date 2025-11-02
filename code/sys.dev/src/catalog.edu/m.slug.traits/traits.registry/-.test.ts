@@ -42,11 +42,11 @@ describe('trait-registry', () => {
         [
           // Traits:
           'slug-tree',
+          'view-renderer',
+          'file-list',
           'video-player',
           'video-recorder',
-          'view-renderer',
           'concept-layout',
-          'file-list',
         ].sort(),
       );
       expect(new Set(TRAIT_IDS).size).to.eql(TRAIT_IDS.length);

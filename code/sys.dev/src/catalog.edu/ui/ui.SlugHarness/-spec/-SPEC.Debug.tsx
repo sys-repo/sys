@@ -17,12 +17,12 @@ import {
   Signal,
   STORAGE_KEY,
 } from '../common.ts';
-import { registry } from './-u.REGISTRY.tsx';
+import { registry } from './-u.VIEW_REGISTRY.tsx';
 import { SlugViews } from './-ui.debug.view-renderer.tsx';
 
 type P = t.SlugHarnessProps;
 
-type Storage = Pick<P, 'debug' | 'theme' | 'docPath' | 'slugPath' | 'slugView'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'path' | 'slugView'> & {
   header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
   sidebar: t.CrdtView.LayoutSidebar;
   render: boolean;
@@ -31,8 +31,7 @@ const defaults: Storage = {
   debug: false,
   render: true,
   theme: 'Dark',
-  docPath: ['yaml.parsed'],
-  slugPath: ['slug'],
+  path: { doc: ['yaml.parsed'], slug: ['slug'] },
   header: D.header,
   sidebar: { ...D.sidebar, visible: false },
   slugView: 'foo',
@@ -64,9 +63,11 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     render: s(snap.render),
     theme: s(snap.theme),
-    docPath: s(snap.docPath),
-    slugPath: s(snap.slugPath),
     slugView: s(snap.slugView),
+    path: {
+      doc: s((snap.path ?? {}).doc),
+      slug: s((snap.path ?? {}).slug),
+    },
     header: {
       visible: s((snap.header ?? {}).visible),
       readOnly: s((snap.header ?? {}).readOnly),
@@ -106,9 +107,11 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
       d.render = p.render.value;
       d.theme = p.theme.value;
-      d.docPath = p.docPath.value;
-      d.slugPath = p.slugPath.value;
       d.slugView = p.slugView.value;
+
+      d.path = d.path ?? {};
+      d.path.doc = p.path.doc.value;
+      d.path.slug = p.path.slug.value;
 
       d.header = d.header ?? {};
       d.header.visible = p.header.visible.value;
@@ -130,7 +133,7 @@ export function createDebugSignals() {
     if (!doc) return;
 
     const v = Signal.toObject(p);
-    const slug = Lens.at(doc, v.docPath, ['slug']);
+    const slug = Lens.at(doc, v.path.doc, v.path.slug);
     const uiProps = slug.at<t.ViewRendererProps>(['data', 'ui']);
 
     function update() {
@@ -167,8 +170,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const docPath = p.docPath.value;
-
+  const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -217,21 +219,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          const v = p.docPath.value;
-          return `path doc: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
+          const v = p.path.doc.value;
+          return `path.doc: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
         }}
         onClick={() =>
-          Signal.cycle(p.docPath, [['yaml.parsed'], ['foo'], ['foo', 'bar'], undefined])
+          Signal.cycle(p.path.doc, [['yaml.parsed'], ['foo'], ['foo', 'bar'], undefined])
         }
       />
       <Button
         block
         label={() => {
-          const v = p.slugPath.value;
-          return `path doc/slug: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
+          const v = p.path.slug.value;
+          return `path.doc/slug: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
         }}
         onClick={() => {
-          Signal.cycle(p.slugPath, [['slug'], ['hello', 'world'], undefined]);
+          Signal.cycle(p.path.slug, [['slug'], ['hello', 'world'], undefined]);
         }}
       />
 
@@ -250,13 +252,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `sidebar.position: ${p.sidebar.position.value}`}
-        onClick={() => Signal.cycle(p.sidebar.position, ['left', 'right'])}
+        label={() => `sidebar.visible: ${p.sidebar.visible.value}`}
+        onClick={() => Signal.toggle(p.sidebar.visible)}
       />
       <Button
         block
-        label={() => `sidebar.visible: ${p.sidebar.visible.value}`}
-        onClick={() => Signal.toggle(p.sidebar.visible)}
+        label={() => `sidebar.position: ${p.sidebar.position.value}`}
+        onClick={() => Signal.cycle(p.sidebar.position, ['left', 'right'])}
       />
       <Button
         block
@@ -276,11 +278,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Crdt.UI.Dev.ObjectView
         doc={debug.signals.doc.value}
         style={{ marginTop: 5 }}
-        expand={Crdt.UI.Dev.expandPaths([docPath])}
+        expand={Crdt.UI.Dev.expandPaths([v.path.doc])}
         lenses={[
           {
-            name: Crdt.UI.Dev.fieldFromPath(docPath),
-            path: docPath,
+            name: Crdt.UI.Dev.fieldFromPath(v.path.doc),
+            path: v.path.doc,
           },
         ]}
       />

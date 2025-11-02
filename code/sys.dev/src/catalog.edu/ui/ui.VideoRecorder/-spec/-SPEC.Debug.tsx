@@ -229,13 +229,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `sidebar.position: ${p.sidebar.position.value}`}
-        onClick={() => Signal.cycle(p.sidebar.position, ['left', 'right'])}
+        label={() => `sidebar.visible: ${p.sidebar.visible.value}`}
+        onClick={() => Signal.toggle(p.sidebar.visible)}
       />
       <Button
         block
-        label={() => `sidebar.visible: ${p.sidebar.visible.value}`}
-        onClick={() => Signal.toggle(p.sidebar.visible)}
+        label={() => `sidebar.position: ${p.sidebar.position.value}`}
+        onClick={() => Signal.cycle(p.sidebar.position, ['left', 'right'])}
       />
       <Button
         block
