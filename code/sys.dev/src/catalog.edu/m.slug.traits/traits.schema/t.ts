@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
+
 export type * from './t.flags.ts';
+export type * from './t.type-gen.ts';
 
 /**
  * Aggregate entry for all known slug-trait schemas and type guards.
