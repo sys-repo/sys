@@ -94,6 +94,18 @@ describe('trait-registry', () => {
       const ok = { name: 'rec', file: 'crdt:create' };
       expect(Value.Check(s, ok)).to.eql(true);
     });
+
+    it('file-list: minimal sample', () => {
+      const s = schemaOf('file-list')!;
+      const ok = {}; // all optional
+      expect(Value.Check(s, ok)).to.eql(true);
+    });
+
+    it('time-map: minimal sample', () => {
+      const s = schemaOf('time-map')!;
+      const ok = {}; // all optional
+      expect(Value.Check(s, ok)).to.eql(true);
+    });
   });
 
   describe('negative samples (schema truth via registry)', () => {
