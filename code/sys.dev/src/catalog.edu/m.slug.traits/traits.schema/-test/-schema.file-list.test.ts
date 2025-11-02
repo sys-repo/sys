@@ -15,7 +15,7 @@ describe('schema.file-list', () => {
       { description: 'Some notes', files: ['a/b/c.txt'] },
       { description: '', files: ['a'] }, // empty description allowed
       { id: 'my-list', files: ['a'] }, // optional id allowed (pattern-owned)
-      { id: 'list_01-alpha', name: 'Label', description: 'Text', files: ['x', 'y'] },
+      { id: 'list-01-alpha', name: 'Label', description: 'Text', files: ['x', 'y'] },
     ] as const;
 
     for (const v of cases) expect(Value.Check(S, v)).to.eql(true);
