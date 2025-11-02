@@ -100,3 +100,9 @@ export type StringHttpDate = string;
  *    npm:rxjs@7
  */
 export type StringModuleSpecifier = string;
+
+/**
+ * CRDT document reference for this layout's config/state.
+ * Accepts "crdt:create" | "crdt:<uuid|base62-28>/[path]" | "urn:crdt:<uuid|base62-28>/[path]".
+ */
+export type StringCrdtRef = string;

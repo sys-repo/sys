@@ -81,4 +81,54 @@ describe('SlugViewRegistry', () => {
     expectTypeOf(items[0]).toEqualTypeOf<t.SlugViewRegistryItem>();
     expect(items[0]).to.eql({ id: 'z', meta: { aliases: ['zee'] } });
   });
+
+  it('types: default generic → string ids throughout', () => {
+    const reg = makeRegistry();
+
+    type RegisterId = Parameters<typeof reg.register>[0];
+    type GetParam = Parameters<typeof reg.get>[0];
+
+    // compile-time checks require a value; use typed dummies
+    expectTypeOf(null as unknown as RegisterId).toEqualTypeOf<string>();
+    expectTypeOf(null as unknown as GetParam).toEqualTypeOf<string | undefined>();
+
+    const items = reg.list();
+    type Item = (typeof items)[number];
+
+    expectTypeOf(null as unknown as typeof items).toEqualTypeOf<t.SlugViewRegistryItem<string>[]>();
+    expectTypeOf(null as unknown as Item['id']).toEqualTypeOf<string>();
+
+    const ro: t.SlugViewRegistryReadonly = reg;
+    type RoGetParam = Parameters<typeof ro.get>[0];
+    expectTypeOf(null as unknown as RoGetParam).toEqualTypeOf<string | undefined>();
+  });
+
+  it('types: narrowed TView union flows into register/get/list/readonly', () => {
+    const reg = makeRegistry<'a' | 'b'>();
+    const r: t.SlugViewRenderer = () => null;
+
+    // runtime: narrowed ids are accepted
+    reg.register('a', r).register('b', r);
+    expect(reg.get('a')).to.equal(r);
+    expect(reg.get('b')).to.equal(r);
+
+    // compile-time: parameters are narrowed
+    type RegisterId = Parameters<typeof reg.register>[0];
+    type GetParam = Parameters<typeof reg.get>[0];
+    expectTypeOf(null as unknown as RegisterId).toEqualTypeOf<'a' | 'b'>();
+    expectTypeOf(null as unknown as GetParam).toEqualTypeOf<'a' | 'b' | undefined>();
+
+    // compile-time: list() item ids are narrowed
+    const items = reg.list();
+    type Item = (typeof items)[number];
+    expectTypeOf(null as unknown as typeof items).toEqualTypeOf<
+      t.SlugViewRegistryItem<'a' | 'b'>[]
+    >();
+    expectTypeOf(null as unknown as Item['id']).toEqualTypeOf<'a' | 'b'>();
+
+    // readonly projection preserves the narrowed surface
+    const ro: t.SlugViewRegistryReadonly<'a' | 'b'> = reg;
+    type RoGetParam = Parameters<typeof ro.get>[0];
+    expectTypeOf(null as unknown as RoGetParam).toEqualTypeOf<'a' | 'b' | undefined>();
+  });
 });

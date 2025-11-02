@@ -7,6 +7,7 @@ export const TRAIT_IDS = [
   'video-player',
   'video-recorder',
   'view-renderer',
+  'concept-layout',
 ] as const;
 
 /**

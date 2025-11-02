@@ -24,4 +24,9 @@ export const Is: t.SlugTraitIsLib = {
   videoPlayerProps(u: unknown): u is t.VideoPlayerProps {
     return Value.Check(Traits.Schema.VideoPlayer.Props, u as unknown);
   },
+
+  /** concept-layout: props schema */
+  conceptLayoutProps(u: unknown): u is t.ConceptLayoutProps {
+    return Value.Check(Traits.Schema.ConceptLayout.Props, u as unknown);
+  },
 } as const;

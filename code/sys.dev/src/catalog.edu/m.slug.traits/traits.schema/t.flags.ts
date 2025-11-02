@@ -31,4 +31,9 @@ export type SlugTraitIsLib = {
    * True iff the value is valid "video-player" props per the schema.
    */
   videoPlayerProps(u: unknown): u is t.VideoPlayerProps;
+
+  /**
+   * True iff the value is valid "concept-layout" props per the schema.
+   */
+  conceptLayoutProps(u: unknown): u is t.ConceptLayoutProps;
 };

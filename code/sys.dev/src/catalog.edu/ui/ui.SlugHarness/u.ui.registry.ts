@@ -8,9 +8,9 @@ type Entry = {
 /**
  * Make a minimal in-memory SlugView registry.
  */
-export function makeRegistry(): t.SlugViewRegistry {
-  const map = new Map<t.SlugViewId, Entry>();
-  const api: t.SlugViewRegistry = {
+export function makeRegistry<TView extends t.SlugViewId = string>(): t.SlugViewRegistry<TView> {
+  const map = new Map<TView, Entry>();
+  const api: t.SlugViewRegistry<TView> = {
     get: (id) => (id ? map.get(id)?.render : undefined),
     register(id, render, meta) {
       const entry: Entry = { render, meta: meta ? Object.freeze({ ...meta }) : undefined };
@@ -18,7 +18,7 @@ export function makeRegistry(): t.SlugViewRegistry {
       return api;
     },
     list() {
-      const out: t.SlugViewRegistryItem[] = [];
+      const out: t.SlugViewRegistryItem<TView>[] = [];
       for (const [id, entry] of map) out.push({ id, meta: entry.meta });
       return out;
     },

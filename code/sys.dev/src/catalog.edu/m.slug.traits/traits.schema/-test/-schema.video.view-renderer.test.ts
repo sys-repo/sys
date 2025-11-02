@@ -33,7 +33,7 @@ describe('trait: view-renderer', () => {
   });
 
   describe('types', () => {
-    it('SlugTraitBindingOf<"view-renderer"> is assignable to SlugTraitBinding', () => {
+    it('types: SlugTraitBindingOf<"view-renderer"> is assignable to SlugTraitBinding', () => {
       type Narrow = t.SlugTraitBindingOf<'view-renderer'>;
 
       // One-way assignability (compile-time only):

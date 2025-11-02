@@ -144,4 +144,31 @@ describe('Slug.Is', () => {
       }
     });
   });
+
+  describe('Is.conceptLayoutProps', () => {
+    it('signature', () => {
+      type Expect = (u: unknown) => u is t.ConceptLayoutProps;
+      expectTypeOf(Is.conceptLayoutProps).toEqualTypeOf<Expect>();
+    });
+
+    it('runtime truth table', () => {
+      const ok = { slug: 'crdt:create' };
+      const bad = { slug: 'nope' };
+      const noise = { slug: 'crdt:create', extra: true } as unknown;
+
+      expect(Is.conceptLayoutProps(ok)).to.eql(true);
+      expect(Is.conceptLayoutProps(bad)).to.eql(false);
+      expect(Is.conceptLayoutProps(noise)).to.eql(false);
+      expect(Is.conceptLayoutProps(undefined)).to.eql(false);
+    });
+
+    it('narrows', () => {
+      const input: unknown = { slug: 'crdt:create' };
+      if (Is.conceptLayoutProps(input)) {
+        expectTypeOf(input.slug).toEqualTypeOf<string>();
+      } else {
+        expect(true).to.eql(false);
+      }
+    });
+  });
 });

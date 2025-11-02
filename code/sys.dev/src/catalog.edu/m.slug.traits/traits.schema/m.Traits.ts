@@ -5,6 +5,7 @@
 import { type t, Slug } from './common.ts';
 import { Is } from './m.Is.ts';
 
+import { ConceptLayoutPropsSchema } from './schema.concept-layout.ts';
 import { VideoPlayerPropsSchema } from './schema.video-player.ts';
 import { VideoRecorderPropsSchema } from './schema.video-recorder.ts';
 import { ViewRendererPropsSchema } from './schema.view-renderer.ts';
@@ -27,6 +28,9 @@ export const Traits: t.SlugTraitsLib = {
     },
     get ViewRenderer() {
       return { Props: ViewRendererPropsSchema };
+    },
+    get ConceptLayout() {
+      return { Props: ConceptLayoutPropsSchema };
     },
   },
 };

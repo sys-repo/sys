@@ -22,4 +22,7 @@ export const registry = makeRegistry()
     logInfo(`- ctx.slug:/${(ctx.path.slug ?? []).join('/')}`, Crdt.toObject(lens?.get()));
     logInfo('- ctx:', ctx);
     return <Tree ctx={ctx} theme={ctx.theme} />;
+  })
+  .register('concept-layout', (ctx) => {
+    return `🐷 ${ctx.view}`;
   });

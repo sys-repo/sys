@@ -35,8 +35,11 @@
  *   then update these type aliases to match and recompile.
  * • Locks (if used) live in `t.type-gen.lock.ts` and are purely compile-time.
  *
+ * DEEP-PASS
+ *
  * 🌼 ———— GENERATOR PROMPT:END ./t.type-gen.ts ———————————————————————————————————————
  */
+import type { t } from './common.ts';
 
 /**
  * 🌼
@@ -80,7 +83,7 @@ export type VideoRecorderProps = {
    * CRDT File Reference (URN).
    * Accepts "crdt:create" | "crdt:<uuid|base62-28>/[path]" | "urn:crdt:<uuid|base62-28>/[path]".
    */
-  readonly file?: string;
+  readonly file?: t.StringCrdtRef;
 };
 
 /**
@@ -137,4 +140,16 @@ export type ViewRendererProps = {
   readonly view?: string;
   /** Optional cropmarks configuration object. */
   readonly cropmarks?: CropmarksConfig;
+};
+
+/**
+ * Concept Layout Properties
+ * - mirrors `schema.concept-layout.ts` (`ConceptLayoutPropsSchema`)
+ */
+export type ConceptLayoutProps = {
+  /**
+   * CRDT document reference for this layout's config/state.
+   * Accepts "crdt:create" | "crdt:<uuid|base62-28>/[path]" | "urn:crdt:<uuid|base62-28>/[path]".
+   */
+  readonly slug: t.StringCrdtRef;
 };

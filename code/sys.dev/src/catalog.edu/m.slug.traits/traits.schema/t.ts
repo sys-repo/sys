@@ -13,6 +13,7 @@ export type SlugTraitsLib = {
     readonly VideoPlayer: { readonly Props: t.TSchema };
     readonly VideoRecorder: { readonly Props: t.TSchema };
     readonly ViewRenderer: { readonly Props: t.TSchema };
+    readonly ConceptLayout: { readonly Props: t.TSchema };
   };
 };
 
@@ -23,3 +24,4 @@ export type SlugTreeBinding = t.SlugTraitBindingOf<'slug-tree'>;
 export type VideoRecorderBinding = t.SlugTraitBindingOf<'video-recorder'>;
 export type VideoPlayerBinding = t.SlugTraitBindingOf<'video-player'>;
 export type ViewRendererBinding = t.SlugTraitBindingOf<'view-renderer'>;
+export type ConceptLayoutBinding = t.SlugTraitBindingOf<'concept-layout'>;
