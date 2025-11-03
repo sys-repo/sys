@@ -1,7 +1,8 @@
-import { describe, expect, it } from '../../-test.ts';
-import { ClipboardTools } from '../mod.ts';
+import { describe, expect, it } from '../-test.ts';
+import { D } from './common.ts';
+import { ClipboardTools } from './mod.ts';
 
-describe(`CLI: Clipboard Tools`, () => {
+describe(D.toolname, () => {
   it('API', async () => {
     const cp = await import('@sys/tools/cp');
     const copy = await import('@sys/tools/copy');
