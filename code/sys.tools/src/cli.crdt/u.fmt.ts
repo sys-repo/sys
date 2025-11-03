@@ -1,3 +1,4 @@
+import NodeDocumentPositionEnum from 'happy-dom';
 import { type t, Fmt as Base, c, Cli, D, pkg, Str, Time } from './common.ts';
 
 export const Fmt = {
@@ -18,6 +19,13 @@ export const Fmt = {
       .toString();
   },
 
+  noDocuments(opts: { pad?: boolean } = {}) {
+    const { pad = true } = opts;
+    if (pad) console.info();
+    console.info(c.gray(c.italic(' No documents are being watched')));
+    if (pad) console.info();
+  },
+
   itemTable(
     items: t.CrdtIndexItem[],
     opts: { sort?: boolean; appendColumn?: (e: t.CrdtIndexItem) => string | undefined | void } = {},
@@ -30,8 +38,9 @@ export const Fmt = {
       const elapsed = Time.elapsed(item.addedAt);
       const col1 = c.gray(` • crdt:${docid}`);
       const col2 = c.gray(`added ${c.white(elapsed.toString())} ago`);
-      const col3 = opts.appendColumn?.(item) ?? '';
-      table.push([col1, col2, col3].filter(Boolean));
+      const col3 = item.name ? c.cyan(Str.truncate(item.name.trim(), 25)) : '';
+      const col4 = opts.appendColumn?.(item) ?? '';
+      table.push([col1, col2, col3, col4].filter(Boolean));
     }
     return table.toString();
   },

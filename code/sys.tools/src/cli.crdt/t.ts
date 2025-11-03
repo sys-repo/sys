@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** The various copy options */
-export type CrdtCommand = 'sync' | 'add-doc' | 'remove-doc' | 'list';
+export type CrdtCommand = 'sync' | 'add-doc' | 'remove-doc' | 'list' | 'help';
 
 /**
  * CLI helpers for working with CRDT documents.
@@ -35,4 +35,5 @@ export type CrdtIndexDoc = { watching?: CrdtIndexItem[] };
 export type CrdtIndexItem = {
   docid: t.StringId;
   addedAt: t.UnixTimestamp;
+  name?: string;
 };

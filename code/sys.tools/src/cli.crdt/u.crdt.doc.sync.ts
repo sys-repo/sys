@@ -6,8 +6,9 @@ import { Fmt } from './u.fmt.ts';
  */
 export async function sync(index: t.CrdtIndexDocRef, repo: t.Crdt.Repo, until?: t.UntilObservable) {
   const items = (index.current.watching ?? []).sort((a, b) => a.addedAt - b.addedAt).toReversed();
+
   if (items.length === 0) {
-    return void console.info(c.gray(c.italic('\nNo documents are being watched')));
+    return void Fmt.noDocuments();
   }
 
   const appendColumn = (e: t.CrdtIndexItem) => {

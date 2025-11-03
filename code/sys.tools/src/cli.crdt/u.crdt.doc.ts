@@ -1,23 +1,33 @@
-import { type t, c, Rx, Str, Time } from './common.ts';
+import { type t, c, Delete, Str, Time } from './common.ts';
+import { setWatchingName } from './u.crdt.mutate.ts';
 import { Fmt } from './u.fmt.ts';
-import { promptDocumentListSelection, promptForDocumentId } from './u.prompt.ts';
+import { promptDocumentListSelection, promptForDocumentId, promptName } from './u.prompt.ts';
 
 /**
  * Add a document to the index.
  */
 export async function addDoc(index: t.CrdtIndexDocRef) {
   const docid = await promptForDocumentId();
-  const exists = (index.current.watching ?? []).some((m) => m.docid === docid);
+  const name = await promptName();
+
+  const items = index.current.watching ?? [];
+  const itemIndex = items.findIndex((m) => m.docid === docid);
+  const item = items[itemIndex];
+  const exists = !!item;
+
   if (exists) {
     console.info(c.gray(`Already watching document: ${c.white(docid)}`));
-    return;
-  } else {
-    index.change((d) => {
-      const list = d.watching || (d.watching = []);
-      list.push({ docid, addedAt: Time.now.timestamp });
-    });
-    console.info(c.gray(`Added document: ${c.white(docid)}`));
   }
+  index.change((d) => {
+    const list = d.watching || (d.watching = []);
+    if (!exists) {
+      list.push(Delete.undefined({ docid, addedAt: Time.now.timestamp, name }));
+      console.info(c.gray(`Document added: ${c.white(docid)}`));
+    } else {
+      setWatchingName(d, docid, name);
+    }
+  });
+
   await list(index);
 }
 
@@ -53,9 +63,10 @@ export async function list(index: t.CrdtIndexDocRef) {
   const items = (index.current.watching ?? []).sort((a, b) => a.addedAt - b.addedAt).toReversed();
 
   if (items.length === 0) {
-    return void console.info(c.gray(c.italic('\nNo documents are being watched')));
+    return void Fmt.noDocuments();
   }
 
   console.info(c.gray(`Watching:`));
   console.info(Fmt.itemTable(items));
+  console.info();
 }
