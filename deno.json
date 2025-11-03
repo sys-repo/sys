@@ -14,8 +14,10 @@
     "prep-ci": "deno run -P=dev ./-scripts/main.ts --prep-ci",
 
     "bump": "deno run -P=ci ./-scripts/main.ts --bump",
+
     "tmpl": "deno run -P=build @sys/tmpl",
     "cp": "  deno run -P=ci @sys/tools/cp",
+    "crdt": "  deno run -P=ci @sys/tools/crdt",
 
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
