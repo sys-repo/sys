@@ -57,6 +57,16 @@ export type StrLib = {
    */
   dedent(str: string): string;
 
+  /**
+   * Remove leading/trailing newlines only — preserves internal and first-char whitespace.
+   *
+   * @example
+   * ```ts
+   * Str.trimEdgeNewlines("\n\n  hello \n\n") // → "  hello "
+   * ```
+   */
+  trimEdgeNewlines(str?: string): string;
+
   /** Create a new string builder. */
   builder(): t.StrBuilder;
 };

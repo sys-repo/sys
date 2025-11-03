@@ -363,4 +363,48 @@ describe('Str (String)', () => {
       expect(res).to.eql(`one\n  two`);
     });
   });
+
+  describe('Str.trimEdgeNewlines', () => {
+    const fn = Str.trimEdgeNewlines;
+
+    it('returns empty string for undefined or empty input', () => {
+      expect(fn()).to.equal('');
+      expect(fn('')).to.equal('');
+    });
+
+    it('removes pure leading and trailing newlines', () => {
+      const input = '\n\nfoo\nbar\n\n';
+      expect(fn(input)).to.equal('foo\nbar');
+    });
+
+    it('removes whitespace-only lines at top and bottom', () => {
+      const input = '   \n\t \nfoo\nbar\n  \n ';
+      expect(fn(input)).to.equal('foo\nbar');
+    });
+
+    it('preserves indentation and internal spacing', () => {
+      const input = '\n  foo\n  bar\n\n';
+      expect(fn(input)).to.equal('  foo\n  bar');
+    });
+
+    it('handles Windows CRLF newlines', () => {
+      const input = '\r\n\r\nfoo\r\nbar\r\n\r\n';
+      expect(fn(input)).to.equal('foo\nbar');
+    });
+
+    it('does not modify text without edge padding', () => {
+      const input = 'foo\nbar';
+      expect(fn(input)).to.equal('foo\nbar');
+    });
+
+    it('preserves trailing spaces on the final content line', () => {
+      const input = '\nfoo  \n\n';
+      expect(fn(input)).to.equal('foo  ');
+    });
+
+    it('trims only edge blank lines when surrounded by content', () => {
+      const input = '\n\nfoo\n\nbar\n\n';
+      expect(fn(input)).to.equal('foo\n\nbar');
+    });
+  });
 });

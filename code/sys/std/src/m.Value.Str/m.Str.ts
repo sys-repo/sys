@@ -10,6 +10,7 @@ import { diff } from './u.diff.ts';
 import { plural } from './u.plural.ts';
 import { replaceAll } from './u.replace.ts';
 import { shorten } from './u.shorten.ts';
+import { trimEdgeNewlines } from './u.trim.ts';
 import { truncate } from './u.truncate.ts';
 
 export { bytes, capitalize, diff, plural, shorten };
@@ -27,5 +28,6 @@ export const Str: t.StrLib = {
   truncate,
   replaceAll,
   dedent,
+  trimEdgeNewlines,
   builder,
 } as const;
