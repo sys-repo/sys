@@ -38,8 +38,14 @@ export async function sync(index: t.CrdtIndexDocRef, repo: t.Crdt.Repo, until?: 
     });
   };
 
-  Rx.interval(800).pipe(Rx.takeUntil(life.dispose$)).subscribe(print);
   print();
+  Rx.interval(800)
+    .pipe(
+      Rx.takeUntil(life.dispose$),
+      Rx.map(() => changed.size),
+      Rx.distinctWhile((p, n) => p === n),
+    )
+    .subscribe(print);
 
   await repo.whenReady();
   await Promise.all(items.map(listen));
