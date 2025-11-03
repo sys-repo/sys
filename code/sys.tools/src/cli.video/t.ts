@@ -18,7 +18,7 @@ export type VideoToolsLib = {
 /**
  * Command line arguments (argv).
  */
-export type VideoCliArgs = { help: boolean };
+export type VideoCliArgs = t.ToolsCliArgs;
 
 /** Supported video conversion directions. */
 export type VideoConversion = 'webm-to-mp4' | 'mp4-to-webm';

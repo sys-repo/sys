@@ -34,3 +34,8 @@ deno run -A jsr:@sys/tools/cp
 ```bash
 deno run -A jsr:@sys/tools/crdt
 ```
+
+### Filesystem Tools
+```bash
+deno run -A jsr:@sys/tools/fs
+```

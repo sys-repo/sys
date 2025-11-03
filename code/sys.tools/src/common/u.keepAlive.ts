@@ -1,4 +1,5 @@
-import { type t, Rx } from './common.ts';
+import type { t } from '../common.ts';
+import { Rx } from './libs.ts';
 
 type Callback = (until: t.UntilObservable) => Promise<void> | void;
 

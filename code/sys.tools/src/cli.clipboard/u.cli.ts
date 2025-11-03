@@ -22,10 +22,10 @@ async function run(dir: t.StringDir) {
   const mode = (await Cli.Prompt.Select.prompt({
     message: 'Select copy mode:\n',
     options: [
-      { name: 'Copy Files (select)', value: 'files:select' as const },
-      { name: 'Copy Files (all)', value: 'files:all' as const },
-      { name: 'Copy Types', value: 'types' as const },
-      { name: 'Copy Files: deno.json', value: 'files:deno.json' as const },
+      { name: 'Copy Files (select)', value: 'files:select' },
+      { name: 'Copy Files (all)', value: 'files:all' },
+      { name: 'Copy Types', value: 'types' },
+      { name: 'Copy Files: deno.json', value: 'files:deno.json' },
     ],
   })) as t.ClipboardCopyAction;
 

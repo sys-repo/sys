@@ -1,10 +1,9 @@
-import { type t, c, Cli } from './common.ts';
+import { type t, c, Cli, keepAlive } from './common.ts';
 import { sync } from './u.crdt.doc.sync.ts';
 import { addDoc, list, removeDoc } from './u.crdt.doc.ts';
 import { removeEmpty } from './u.crdt.mutate.ts';
 import { Fmt } from './u.fmt.ts';
 import { getIndexJson } from './u.index.ts';
-import { keepAlive } from './u.keepAlive.ts';
 
 /**
  * Run CLI:

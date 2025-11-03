@@ -1,7 +1,6 @@
-import { type t, Args, c, Cli, Crdt, D, Fs, Rx, Time } from './common.ts';
+import { type t, Args, c, Cli, Crdt, D, Fs, keepAlive, Rx, Time } from './common.ts';
 import { run } from './u.cli.run.ts';
 import { Fmt } from './u.fmt.ts';
-import { keepAlive } from './u.keepAlive.ts';
 
 export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
   const toolname = D.toolname;

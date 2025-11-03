@@ -14,7 +14,7 @@ export type CrdtToolsLib = {
 /**
  * Command line arguments (argv).
  */
-export type CrdtCliArgs = { help: boolean };
+export type CrdtCliArgs = t.ToolsCliArgs;
 
 /** The structure of the index.json file that stores root information about where the document index is stored. */
 export type CrdtIndexJson = {

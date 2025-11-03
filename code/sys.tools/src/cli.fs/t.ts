@@ -1,13 +1,12 @@
 import type { t } from './common.ts';
 
 /** The various copy options */
-export type ClipboardCopyAction = 'types' | 'files:select' | 'files:all' | 'files:deno.json';
+export type FsCommand = 'rename-sha256';
 
 /**
- * CLI helpers for copying LLM friendly
- * text-file content to the clipboard.
+ * CLI helpers for performing common file-system tasks.
  */
-export type ClipboardToolsLib = {
+export type FsToolsLib = {
   /** Run the interactive CLI flow (prompts + spinner). */
   cli(opts?: { dir?: t.StringDir; argv?: string[] }): Promise<void>;
 };
@@ -15,4 +14,4 @@ export type ClipboardToolsLib = {
 /**
  * Command line arguments (argv).
  */
-export type ClipboardCliArgs = t.ToolsCliArgs;
+export type FsCliArgs = t.ToolsCliArgs;

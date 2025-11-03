@@ -1,6 +1,6 @@
 {
   "name": "@sys/tools",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/-vite.ts --cmd=dev --in=./src/-test/index.html",
@@ -22,6 +22,7 @@
     "./cp": "./src/cli.clipboard/mod.ts",
     "./copy": "./src/cli.clipboard/mod.ts",
     "./crdt": "./src/cli.crdt/mod.ts",
+    "./fs": "./src/cli.fs/mod.ts",
     "./video": "./src/cli.video/mod.ts"
   }
 }
