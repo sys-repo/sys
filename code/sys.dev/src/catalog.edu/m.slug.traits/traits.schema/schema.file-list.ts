@@ -27,23 +27,11 @@ const FileListEntrySchemaInternal = T.Union(
 /**
  * Properties: File List.
  */
-export const FileListPropsSchemaInternal = T.Object(
-  {
-    id: T.Optional(T.String({ title: 'Formal identifier of the file list.', ...Pattern.Id() })),
-    name: T.Optional(T.String({ description: 'Display name for the file list.' })),
-    description: T.Optional(T.String({ description: 'Description of the file list.' })),
-    files: T.Optional(
-      T.Array(FileListEntrySchemaInternal, {
-        description: 'List of file references (string or object form).',
-      }),
-    ),
-  },
-  {
-    $id: 'trait.file-list.props',
-    title: 'File List Properties',
-    additionalProperties: false,
-  },
-);
+export const FileListPropsSchemaInternal = T.Array(FileListEntrySchemaInternal, {
+  $id: 'trait.file-list.props',
+  title: 'File List Properties',
+  description: 'Root is an array of file references (string or object form).',
+});
 
 /**
  * Public widened export (JSR-safe: explicit t.TSchema surface).

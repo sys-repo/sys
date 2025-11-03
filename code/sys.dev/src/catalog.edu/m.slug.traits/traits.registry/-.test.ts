@@ -97,7 +97,7 @@ describe('trait-registry', () => {
 
     it('file-list: minimal sample', () => {
       const s = schemaOf('file-list')!;
-      const ok = {}; // all optional
+      const ok: unknown[] = []; // all optional
       expect(Value.Check(s, ok)).to.eql(true);
     });
 

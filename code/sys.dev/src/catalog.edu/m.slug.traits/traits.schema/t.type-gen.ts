@@ -167,15 +167,15 @@ export type ConceptLayoutProps = {
 };
 
 /**
- * File List Properties
- * - mirrors `schema.file-list.ts` (`FileListPropsSchema`)
+ * File List
+ * - mirrors `schema.file-list.ts` (`FileListItemSchema`, `FileListPropsSchema`)
  */
-export type FileListProps = {
-  /** Optional display name for the file list. */
-  readonly name?: string;
-  /** List of file path references. */
-  readonly files: readonly string[];
-};
+/** Object form of a file list entry: `{ ref: string }`. */
+export type FileListItem = { readonly ref: string };
+/** A file list entry: a string path or an object `{ ref }`. */
+export type FileListEntry = string | FileListItem;
+/** Root file list props: the list itself is the value. */
+export type FileListProps = readonly FileListEntry[];
 
 /**
  * Time Map Properties

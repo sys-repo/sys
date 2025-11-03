@@ -145,6 +145,37 @@ describe('Slug.Is', () => {
     });
   });
 
+  describe('Is.fileListProps', () => {
+    it('signature', () => {
+      type Expect = (u: unknown) => u is t.FileListProps;
+      expectTypeOf(Is.fileListProps).toEqualTypeOf<Expect>();
+    });
+
+    it('runtime: minimal positives and negatives', () => {
+      const positives: unknown[] = [
+        [], // empty list
+        ['a.txt', { ref: 'b/c.md' }], // mixed entry types
+      ];
+      const negatives: unknown[] = [
+        {}, // legacy object root
+        [123], // invalid entry
+      ];
+      for (const v of positives) expect(Is.fileListProps(v)).to.eql(true, JSON.stringify(v));
+      for (const v of negatives) expect(Is.fileListProps(v)).to.eql(false, JSON.stringify(v));
+    });
+
+    it('narrows: root becomes readonly array of entries', () => {
+      const input: unknown = ['a.txt', { ref: 'b/c.md' }];
+      if (Is.fileListProps(input)) {
+        expectTypeOf(input).toEqualTypeOf<t.FileListProps>();
+        const first = input[0];
+        expectTypeOf(first).toEqualTypeOf<t.FileListEntry>();
+      } else {
+        expect(true).to.eql(false);
+      }
+    });
+  });
+
   describe('Is.conceptLayoutProps', () => {
     it('signature', () => {
       type Expect = (u: unknown) => u is t.ConceptLayoutProps;
@@ -166,65 +197,6 @@ describe('Slug.Is', () => {
       const input: unknown = { slug: 'crdt:create' };
       if (Is.conceptLayoutProps(input)) {
         expectTypeOf(input.slug).toEqualTypeOf<string>();
-      } else {
-        expect(true).to.eql(false);
-      }
-    });
-  });
-
-  describe('Is.fileListProps', () => {
-    it('signature', () => {
-      type Expect = (u: unknown) => u is t.FileListProps;
-      expectTypeOf(Is.fileListProps).toEqualTypeOf<Expect>();
-    });
-
-    it('runtime truth table', () => {
-      const ok1 = {}; // minimal: all optional
-      const ok2 = { name: 'Docs' }; // valid without files
-      const ok3 = { files: [] as string[] };
-      const ok4 = { files: ['a.txt'] };
-      const ok5 = { name: 'Docs', files: ['a.txt', 'b/c.md'] };
-      const ok6 = { name: '', files: [''] }; // empty strings allowed by schema
-
-      const bads: unknown[] = [
-        { files: 'not-an-array' },
-        { files: [123] },
-        { files: [null] },
-        { files: [{}] },
-        { name: 123, files: [] },
-        { name: { label: 'nope' }, files: ['a'] },
-        { description: 123, files: ['a'] },
-        { description: { text: 'nope' }, files: ['a'] },
-        { description: null, files: ['a'] },
-        { description: true, files: ['a'] },
-        { id: 42, files: ['a'] },
-        { id: { key: 'nope' }, files: ['a'] },
-        { files: ['ok'], extra: true }, // additionalProperties: false
-      ];
-
-      expect(Is.fileListProps(ok1)).to.eql(true);
-      expect(Is.fileListProps(ok2)).to.eql(true);
-      expect(Is.fileListProps(ok3)).to.eql(true);
-      expect(Is.fileListProps(ok4)).to.eql(true);
-      expect(Is.fileListProps(ok5)).to.eql(true);
-      expect(Is.fileListProps(ok6)).to.eql(true);
-
-      for (const v of bads) expect(Is.fileListProps(v)).to.eql(false);
-    });
-
-    it('narrows', () => {
-      const input: unknown = { name: 'Docs' };
-      if (Is.fileListProps(input)) {
-        // Optional field shape (object-level):
-        expectTypeOf(input).toMatchTypeOf<{ files?: readonly string[] }>();
-
-        // Scalar fields:
-        expectTypeOf(input.name).toEqualTypeOf<string | undefined>();
-
-        // If present, it's a readonly string array:
-        if (input.files) {
-          expectTypeOf(input.files).toEqualTypeOf<readonly string[]>();
-        }
       } else {
         expect(true).to.eql(false);
       }
