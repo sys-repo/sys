@@ -1,9 +1,9 @@
-import { type t, Args, Cli, Fs } from './common.ts';
+import { type t, Args, Cli, D, Fs } from './common.ts';
 import { copyDenoFiles, copyFiles, copyTypes } from './u.cli.copy.ts';
 import { Fmt } from './u.fmt.ts';
 
 export const cli: t.ClipboardToolsLib['cli'] = async (opts = {}) => {
-  const toolname = 'Clipboard Tools';
+  const toolname = D.toolname;
   const dir = opts.dir ?? Fs.cwd('terminal');
   const args = Args.parse<t.VideoCliArgs>(opts.argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));

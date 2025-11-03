@@ -1,11 +1,11 @@
-import { type t, Args, Cli, Fs } from './common.ts';
+import { type t, Args, Cli, D, Fs } from './common.ts';
 import { selectAndConvert } from './u.cli.convert.ts';
 import { selectAndProbe } from './u.cli.probe.ts';
 import { Ffmpeg } from './u.ffmpeg.ts';
 import { Fmt } from './u.fmt.ts';
 
 export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
-  const toolname = 'Video Tools';
+  const toolname = D.toolname;
   const dir = opts.dir ?? Fs.cwd('terminal');
   const args = Args.parse<t.VideoCliArgs>(opts.argv, { alias: { h: 'help' } });
   if (!(await Ffmpeg.getVersion()).is.installed) return;
@@ -16,7 +16,6 @@ export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
   console.info();
 
   await run(dir);
-
   console.info();
   console.info(Fmt.signoff(toolname));
 };
