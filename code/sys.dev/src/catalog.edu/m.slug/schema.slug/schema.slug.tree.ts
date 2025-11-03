@@ -5,27 +5,22 @@ import { type t, Type as T } from './common.ts';
  * Canonical slug-tree item.
  *
  * Structure
- * - Required: slug (human-facing display label).
- * - Optional children: slugs?: SlugTreeItem[] (ordered, may be empty).
- * - Inline slug surface (DRY from core): id, description, ref, traits, data.
+ * - Required: slug (stable tree-local identity/label).
+ * - Variant A (Ref-only): slug + ref (and nothing else).
+ * - Variant B (Inline):   slug + optional description | traits | data | slugs (no ref).
  *
  * Semantics
- * - Tree-only relaxation: ref MAY coexist with traits/data (hybrid).
- * - Schema-only: does NOT require data keys to match traits[*].as
- *   (semantic binding is validated elsewhere).
+ * - Enforced structurally via a union: disallowed combos are rejected by the schema.
  * - Unknown keys are rejected (additionalProperties: false).
  * - All inline field atoms are sourced from core SLUG.* to avoid drift.
  *
  * Examples
  * ```yaml
- *  # Minimal
- *  - slug: Intro
- *
- *  # Ref-only
+ *  # Ref-only (A): slug + ref, no other keys
  *  - slug: Intro
  *    ref: crdt:create
  *
- *  # Inline traits + data
+ *  # Inline (B): slug + traits/data (no ref)
  *  - slug: Video
  *    traits:
  *      - of: "video-player"
@@ -33,16 +28,7 @@ import { type t, Type as T } from './common.ts';
  *    data:
  *      vid: { src: "intro.mp4", start: 3.2 }
  *
- *  # Hybrid (tree-only)
- *  - slug: Video
- *    ref: crdt:create
- *    traits:
- *      - of: "video-player"
- *        as: "vid"
- *    data:
- *      vid: { src: "intro.mp4" }
- *
- *  # Nested
+ *  # Inline with nesting (B)
  *  - slug: Section A
  *    slugs:
  *      - slug: Getting Started
@@ -51,36 +37,56 @@ import { type t, Type as T } from './common.ts';
  */
 export const SlugTreeItemSchemaInternal = T.Recursive(
   (Self) =>
-    T.Object(
-      {
-        // Tree-local scaffolding:
-        slug: T.String({
-          minLength: 1,
-          title: 'Display name',
-          description: `Human-readable label for this node (like a section or chapter title). Not globally unique.`,
-        }),
-        slugs: T.Optional(
-          T.Array(Self, {
-            title: 'Child Slugs (Nodes)',
-            description: 'Optional ordered children for this branch.',
-          }),
+    T.Union(
+      [
+        /**
+         * Variant A: Ref-only (slug + ref; no other properties)
+         */
+        T.Object(
+          {
+            slug: SLUG.ID, // required
+            ref: SLUG.REF, // required
+          },
+          {
+            additionalProperties: false,
+            title: 'Slug Tree Item (Ref Only)',
+            description: `Reference node: stable tree slug plus an external reference. No other properties allowed.`,
+          },
         ),
 
-        id: T.Optional(SLUG.ID),
-        description: T.Optional(SLUG.DESCRIPTION),
-        ref: T.Optional(SLUG.REF),
-        traits: T.Optional(SLUG.TRAITS),
-        data: T.Optional(SLUG.DATA),
-      },
+        /**
+         * Variant B: Inline (slug + inline surface; no ref)
+         */
+        T.Object(
+          {
+            slug: SLUG.ID, // required
+
+            description: T.Optional(SLUG.DESCRIPTION),
+            traits: T.Optional(SLUG.TRAITS),
+            data: T.Optional(SLUG.DATA),
+
+            slugs: T.Optional(
+              T.Array(Self, {
+                title: 'Child Slugs (Nodes)',
+                description: 'Optional ordered children for this branch.',
+              }),
+            ),
+          },
+          {
+            additionalProperties: false,
+            title: 'Slug Tree Item (Inline)',
+            description: `Inline node: stable tree slug plus optional description/traits/data/slugs. No ref allowed.`,
+          },
+        ),
+      ],
       {
-        additionalProperties: false, // reject unknown keys (eg "foo": 123)
-        description: `Slug-tree node: display label and optional children, with optional inline Slug surface.`,
+        description: `A node is either a ref-only pointer (slug+ref) or an inline node (slug with inline fields).`,
       },
     ),
   {
     $id: 'trait.slug-tree.item',
     title: 'Slug Tree Item',
-    description: `A node in the slug-tree hierarchy that may inline or reference core slug configs.`,
+    description: `A node in the slug-tree hierarchy: stable slug identity; either a ref-only pointer or an inline node.`,
   },
 );
 
@@ -106,7 +112,7 @@ export const SlugTreeItemSchemaInternal = T.Recursive(
 export const SlugTreePropsSchemaInternal = T.Array(SlugTreeItemSchemaInternal, {
   $id: 'trait.slug-tree',
   title: 'Slug Tree',
-  description: `Ordered list of slug-tree items. Each item carries a display label and may inline core slug fields or reference external configs.`,
+  description: `Ordered list of slug-tree items. Each item has a stable slug and is either ref-only or inline.`,
 });
 
 /**

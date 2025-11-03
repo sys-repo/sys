@@ -137,18 +137,24 @@ export type Slug = SlugRef | SlugMinimal | SlugWithData;
  * SlugTreeItem
  * - mirrors `schema.slug.tree.ts` (`SlugTreeItemSchema`)
  *
- * A node carries a required display `slug` and may:
- *  • reference another slug via `ref`
- *  • inline its own traits + data
- *  • contain nested `slugs` (child nodes)
- *  • or combine all forms (hybrid)
+ * A node has a stable required `slug` and is either:
+ *  • Ref-only: `slug` + `ref` (no other properties)
+ *  • Inline:  `slug` + optional `description` | `traits` | `data` | `slugs` (no `ref`)
  */
-export type SlugTreeItem = {
-  /** Display label for this node (like a section or chapter title). */
+
+export type SlugTreeItemRefOnly = {
+  /** Stable tree-local label or identifier. */
+  readonly slug: string;
+  /** External reference to a slug config. No other properties permitted in this variant. */
+  readonly ref: string;
+};
+
+export type SlugTreeItemInline = {
+  /** Stable tree-local label or identifier. */
   readonly slug: string;
 
-  /** Optional CRDT or URN reference to an external slug config. */
-  readonly ref?: string;
+  /** Optional human-readable description for this node. */
+  readonly description?: string;
 
   /**
    * Optional trait bindings applied inline to this slug.
@@ -167,15 +173,14 @@ export type SlugTreeItem = {
    */
   readonly data?: { readonly [key: string]: unknown };
 
-  /** Optional description for this node. */
-  readonly description?: string;
-
   /**
    * Optional nested slug-tree children.
-   * Each may have its own slug label, ref, and traits/data.
+   * Each may have its own slug label and inline structure.
    */
   readonly slugs?: readonly SlugTreeItem[];
 };
+
+export type SlugTreeItem = SlugTreeItemRefOnly | SlugTreeItemInline;
 
 /**
  * SlugTreeProps
