@@ -41,11 +41,11 @@ export async function sync(index: t.CrdtIndexDocRef, repo: t.Crdt.Repo, until?: 
   };
 
   print();
-  Rx.interval(800)
+  Rx.interval(5_000)
     .pipe(
       Rx.takeUntil(life.dispose$),
-      Rx.map(() => changed.size),
-      Rx.distinctWhile((p, n) => p === n),
+      // Rx.map(() => changed.size),
+      // Rx.distinctWhile((p, n) => p === n),
     )
     .subscribe(print);
 
