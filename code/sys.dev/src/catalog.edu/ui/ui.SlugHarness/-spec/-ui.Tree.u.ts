@@ -8,25 +8,32 @@ export function toTreeStructure(
   input: t.SlugTreeProps,
   basePath: t.ObjectPath = [],
 ): t.TreeNodeList {
-  const items: t.SlugTreeItem[] = Array.isArray(input) ? input : [];
+  const items: readonly t.SlugTreeItem[] = Array.isArray(input) ? input : [];
   return items.map((item) => toTreeNode(item, Obj.Path.join(basePath, [item.slug])));
+}
+
+function isRefOnly(item: t.SlugTreeItem): boolean {
+  return typeof (item as { ref?: unknown }).ref === 'string';
+}
+function isInline(item: t.SlugTreeItem): boolean {
+  return !isRefOnly(item);
 }
 
 /** Single item → TreeNode with RFC6901 key built from the semantic path. */
 export function toTreeNode(item: t.SlugTreeItem, path: t.ObjectPath): t.TreeNode {
+  const inline = item as t.SlugTreeItem & { readonly slugs?: readonly t.SlugTreeItem[] };
   const children =
-    Array.isArray(item.slugs) && item.slugs.length > 0
-      ? item.slugs.map((child) => toTreeNode(child, Obj.Path.join(path, [child.slug])))
+    isInline(inline) && Array.isArray(inline.slugs) && inline.slugs.length > 0
+      ? inline.slugs.map((child) => toTreeNode(child, Obj.Path.join(path, [child.slug])))
       : undefined;
 
-  // Normalize value:
-  //  -  ref only  → "crdt:..." (string)
-  //  -  description only → string
-  //  -  both → { ref, description }
   let value: unknown = undefined;
-  if (item.ref && item.description) value = { ref: item.ref, description: item.description };
-  else if (item.ref) value = item.ref;
-  else if (item.description) value = item.description;
+  if (isRefOnly(item)) {
+    value = (item as { ref: string }).ref;
+  } else {
+    const desc = (item as { description?: string }).description;
+    if (typeof desc === 'string' && desc.length > 0) value = desc;
+  }
 
   const node: t.TreeNode = {
     path,
