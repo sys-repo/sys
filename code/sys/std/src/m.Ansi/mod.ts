@@ -2,12 +2,13 @@
  * ANSI Color formatting tools for the terminal.
  * @module
  */
+import { escapePathComponent } from 'fast-json-patch';
+import type { t } from './common.ts';
 export { stripAnsi } from './common.ts';
 
 /** Standard ANSI colors. */
-import * as c from './u.stdlib.ts';
+import * as ansi from './u.stdlib.ts';
 
-export {
-  /** Standard ANSI colors. */
-  c,
-};
+/** Standard ANSI colors. */
+export const colors = ansi as unknown as t.AnsiColors;
+export const c = colors;
