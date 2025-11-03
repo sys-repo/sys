@@ -1,6 +1,6 @@
 {
   "name": "@sys/dev",
-  "version": "0.0.49",
+  "version": "0.0.50",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev    ./-scripts/-vite.ts --cmd=dev   --in=./src/-test/index.html",
@@ -14,7 +14,9 @@
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "compilerOptions": {
-    "types": ["./src/catalog.edu/t.global.d.ts"]
+    "types": [
+      "./src/catalog.edu/t.global.d.ts"
+    ]
   },
   "exports": {
     ".": "./src/mod.ts",
