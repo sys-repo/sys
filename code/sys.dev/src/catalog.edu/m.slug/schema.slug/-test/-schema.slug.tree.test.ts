@@ -146,7 +146,7 @@ describe('trait: slug-tree', () => {
 
   describe('Value.Check (invalid cases)', () => {
     it('invalid: missing slug (required in both variants)', () => {
-      const bad = [{ ref: 'crdt:create' }] as any;
+      const bad = [{ ref: 'crdt:create' }];
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
     });
 
@@ -161,12 +161,12 @@ describe('trait: slug-tree', () => {
     });
 
     it('invalid: unknown extra property rejected', () => {
-      const bad = [{ slug: 'x', foo: 123 }] as any;
+      const bad = [{ slug: 'x', foo: 123 }];
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
     });
 
     it('invalid: slugs must be array', () => {
-      const bad = [{ slug: 'x', slugs: {} }] as any;
+      const bad = [{ slug: 'x', slugs: {} }];
       expect(Value.Check(SlugTreePropsSchema, bad)).to.eql(false);
     });
 
@@ -228,7 +228,7 @@ describe('trait: slug-tree', () => {
             {
               slug: 'b',
               foo: 123, // unknown
-            } as any,
+            },
           ],
         },
       ] as const;
