@@ -4,7 +4,7 @@ import { selectAndProbe } from './u.cli.probe.ts';
 import { Ffmpeg } from './u.ffmpeg.ts';
 import { Fmt } from './u.fmt.ts';
 
-export const cli: t.VideoCliLib['cli'] = async (opts = {}) => {
+export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
   const toolname = 'Video Tools';
   const dir = opts.dir ?? Fs.cwd('terminal');
   const args = Args.parse<t.VideoCliArgs>(opts.argv, { alias: { h: 'help' } });

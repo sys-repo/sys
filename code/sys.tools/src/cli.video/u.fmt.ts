@@ -1,4 +1,4 @@
-import { Fmt as Base, Cli, Str, c, pkg } from './common.ts';
+import { Fmt as Base, Cli, D, Str, c, pkg } from './common.ts';
 import { Ffmpeg, fmtFfmpegInstall as ffmpegInstall } from './u.ffmpeg.ts';
 import { buildProbeTable } from './u.fmt.probe.ts';
 
@@ -7,7 +7,7 @@ export const Fmt = {
   buildProbeTable,
   ffmpegInstall,
 
-  async help(toolname: string = 'Video Tools') {
+  async help(toolname: string = D.toolname) {
     const table = Cli.table([]);
     const ffmpeg = await Ffmpeg.getVersion({ silent: true });
 

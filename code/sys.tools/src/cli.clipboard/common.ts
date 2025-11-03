@@ -8,3 +8,7 @@ export const exclude = [
   '**/-tmp/',
   '**/.DS_Store',
 ] as const;
+
+export const D = {
+  toolname: 'Clipboard Tools',
+} as const;

@@ -2,12 +2,12 @@
  * @module
  * CLI utilities for processing and transforming video files.
  */
-import { type t, Args, Fs } from './common.ts';
+import { Fs } from './common.ts';
 
 /**
  * Library:
  */
-export { VideoTools } from './m.Video.ts';
+export { VideoTools } from './m.VideoTools.ts';
 
 /**
  * CLI entry-point:

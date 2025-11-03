@@ -1,5 +1,5 @@
 export * from '../common.ts';
 
 export const D = {
-  toolname: 'Video Tools',
+  toolname: 'CRDT Tools',
 } as const;

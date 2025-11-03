@@ -7,7 +7,7 @@ export type ClipboardCopyAction = 'types' | 'files:select' | 'files:all' | 'file
  * CLI helpers for copying LLM friendly
  * text-file content to the clipboard.
  */
-export type ClipboardCliLib = {
+export type ClipboardToolsLib = {
   /** Run the interactive CLI flow (prompts + spinner). */
   cli(opts?: { dir?: t.StringDir; argv?: string[] }): Promise<void>;
 };

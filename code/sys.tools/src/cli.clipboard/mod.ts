@@ -7,7 +7,7 @@ import { Fs } from './common.ts';
 /**
  * Library:
  */
-export { Clipboard } from './m.Clipboard.ts';
+export { ClipboardTools } from './m.ClipboardTools.ts';
 
 /**
  * CLI entry-point:
