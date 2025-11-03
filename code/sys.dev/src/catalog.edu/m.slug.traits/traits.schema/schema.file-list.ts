@@ -7,6 +7,8 @@ import { type t, Pattern, Type as T } from './common.ts';
 export const FileListItemSchemaInternal = T.Object(
   {
     ref: T.String({ ...Pattern.Ref.Path({ description: 'File reference of this item.' }) }),
+    name: T.Optional(T.String({ description: 'Display name for the file.' })),
+    mime: T.Optional(T.String(Pattern.Type.Mime())),
   },
   {
     $id: 'trait.file-list.item',

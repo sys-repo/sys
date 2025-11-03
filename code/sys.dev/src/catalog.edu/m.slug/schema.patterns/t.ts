@@ -13,6 +13,9 @@ export type SlugPatternLib = {
     Crdt(o?: Omit<Str, 'kind' | 'pattern'>): t.SpecWith<Str, 'pattern' | 'description'>;
     Path(o?: Omit<Str, 'kind' | 'pattern'>): t.SpecWith<Str, 'pattern' | 'description'>;
   };
+  readonly Type: {
+    Mime(o?: Omit<Str, 'kind' | 'pattern'>): t.SpecWith<Str, 'pattern' | 'description'>;
+  };
   readonly UI: {
     readonly Css: t.CssSpecLib;
     readonly Cropmarks: t.CropmarksSpecLib;
