@@ -1,5 +1,6 @@
 export * from '../common.ts';
 
-export const D = {
-  toolname: 'Video Tools',
-} as const;
+/**
+ * Constants:
+ */
+export const D = { toolname: 'Video Tools' } as const;

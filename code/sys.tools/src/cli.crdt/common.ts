@@ -1,5 +1,11 @@
 export * from '../common.ts';
 
-export const D = {
-  toolname: 'CRDT Tools',
-} as const;
+/**
+ * Libs:
+ */
+export { Crdt } from '@sys/driver-automerge/fs';
+
+/**
+ * Constants:
+ */
+export const D = { toolname: 'CRDT Tools' } as const;
