@@ -10,6 +10,11 @@ Initial `install` and `update` to latest with:
 deno run --reload jsr:@sys/tools
 ```
 
+View base library help (including command for `~/.zhcrc` file if desired):
+```
+deno run -E jsr:@sys/tools --help
+```
+
 <p>&nbsp;</p>
 
 
