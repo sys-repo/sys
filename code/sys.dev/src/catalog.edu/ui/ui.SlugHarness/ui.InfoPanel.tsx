@@ -21,7 +21,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   if (!registry) return null;
 
   const lens = doc ? Lens.at<O>(doc, path.doc, path.slug) : undefined;
-  const ui = lens?.at<t.ViewRendererProps>(['data', 'ui']);
+  const ui = lens?.at<t.ViewRendererProps>(['data', 'ui']); //  TEMP 🐷 TODO: derive from trait
   const currentView = ui?.get()?.view ?? '';
   const isCurrent = (id: t.StringId) => id === currentView;
 
