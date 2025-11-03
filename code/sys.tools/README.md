@@ -20,3 +20,8 @@ deno run -A jsr:@sys/tools/video
 ```bash
 deno run -A jsr:@sys/tools/cp
 ```
+
+### CRDT Tools
+```bash
+deno run -A jsr:@sys/tools/crdt
+```

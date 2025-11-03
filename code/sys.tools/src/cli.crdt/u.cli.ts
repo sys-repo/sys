@@ -1,9 +1,9 @@
-import { type t, Args, c, Cli, D, Fs } from './common.ts';
+import { type t, Args, c, Cli, Crdt, D, Fs, Time } from './common.ts';
+import { sync } from './u.doc.sync.ts';
+import { addDoc, list, removeDoc } from './u.doc.ts';
 import { Fmt } from './u.fmt.ts';
 import { getIndexJson } from './u.index.ts';
-import { shutdown } from './u.repo.ts';
-
-import { addDoc, list, removeDoc } from './u.docs.ts';
+import { keepAlive } from './u.keepAlive.ts';
 
 export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
   const toolname = D.toolname;
@@ -13,17 +13,22 @@ export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
 
   console.info(await Fmt.header(toolname));
 
-  await run(dir);
-  await shutdown(dir);
+  const ws = D.Sync.server;
+  const repo = await Crdt.repo({ network: [{ ws }] }).whenReady();
+
+  await run(dir, repo);
   console.info();
   console.info(Fmt.signoff(toolname));
+
+  // Shutdown:
+  await Time.wait(0);
+  await repo.dispose();
 };
 
 /**
  * Helpers:
  */
-
-async function run(dir: t.StringDir) {
+async function run(dir: t.StringDir, repo: t.Crdt.Repo) {
   const options: { name: string; value: t.CrdtCommand }[] = [
     { name: 'sync/backup', value: 'sync' },
     { name: 'add', value: 'add-doc' },
@@ -36,11 +41,12 @@ async function run(dir: t.StringDir) {
     options,
   })) as t.CrdtCommand;
 
-  const index = await getIndexJson(dir);
+  const index = await getIndexJson(dir, repo);
 
   if (command === 'add-doc') return void (await addDoc(index.doc));
   if (command === 'remove-doc') return void (await removeDoc(index.doc, index.repo));
   if (command === 'list') return void (await list(index.doc));
+  if (command === 'sync') await keepAlive(async (until) => sync(index.doc, repo, until));
 
   console.info(c.gray('Nothing selected'));
 }

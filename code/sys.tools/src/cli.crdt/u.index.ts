@@ -1,11 +1,9 @@
 import { D, Fs, pkg, Pkg, type t, Time } from './common.ts';
-import { ensureRepo } from './u.repo.ts';
 
 /**
  * Retrieve the index doc.
  */
-export async function getIndexJson(cwd: t.StringDir) {
-  const repo = await ensureRepo(cwd);
+export async function getIndexJson(cwd: t.StringDir, repo: t.Crdt.Repo) {
   const path = Fs.join(cwd, D.Path.index);
   await Fs.ensureDir(Fs.dirname(path));
 

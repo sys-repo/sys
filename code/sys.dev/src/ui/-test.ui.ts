@@ -22,8 +22,9 @@ export function createRepo() {
     storage: { database: 'dev.crdt' },
     network: [
       { ws: 'waiheke.sync.db.team' },
+      // { ws: 'localhost:3030' },
       // { ws: 'sync.db.team' },
-      // isDev && { ws: 'localhost:3030' },
+      isDev && { ws: 'localhost:3030' },
       qsSyncServer && { ws: qsSyncServer },
     ],
   });
