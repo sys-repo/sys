@@ -1,4 +1,4 @@
-import { type t, Args, Crdt, D, Fs, Rx, Time } from './common.ts';
+import { type t, Args, c, Cli, Crdt, D, Fs, Rx, Time } from './common.ts';
 import { run } from './u.cli.run.ts';
 import { Fmt } from './u.fmt.ts';
 import { keepAlive } from './u.keepAlive.ts';
@@ -9,13 +9,19 @@ export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
   const args = Args.parse<t.CrdtCliArgs>(opts.argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
+  // Start repo:
   const ws = D.Sync.server;
   const repo = await Crdt.repo({ network: [{ ws }] }).whenReady();
-
   const shutdown = async () => {
     await Time.wait(0);
     await repo.dispose();
   };
+
+  // Pause as this will block/freeze while it gets the repo into memory.
+  console.info();
+  const spinner = Cli.spinner(c.gray('initializing...'));
+  await Time.wait(5_000);
+  spinner.stop();
 
   // Simple immediate exit on Ctrl-C.
   Deno.addSignalListener('SIGINT', async () => {
@@ -23,7 +29,7 @@ export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
     Deno.exit(0);
   });
 
-  // Root selection stays active until Ctrl-C; wire keepAlive → life.
+  // Loops on main seleection list:
   await keepAlive(async (until) => {
     const life = Rx.lifecycle(until);
 
