@@ -11,5 +11,5 @@ export { Crdt } from '@sys/driver-automerge/web/ui';
 export { Color, Style, css } from '@sys/ui-css';
 export { Keyboard, LocalStorage } from '@sys/ui-dom';
 export { usePointer, useSizeObserver } from '@sys/ui-react';
-export { Button, Cropmarks, KeyValue, Media, ObjectView } from '@sys/ui-react-components';
+export { Button, Cropmarks, KeyValue, Media, ObjectView, Player } from '@sys/ui-react-components';
 export { RecorderHookView } from '@sys/ui-react-components/media/recorder/dev';
