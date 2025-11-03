@@ -11,23 +11,26 @@ import { keepAlive } from './u.keepAlive.ts';
  */
 type T = { exit?: boolean | number };
 export async function run(dir: t.StringDir, repo: t.Crdt.Repo): Promise<T> {
-  const done = (res: T = { exit: false }): T => {
-    return res;
+  const done = (res: T = { exit: false }): T => res;
+
+  const prompt = async (message: string, options: Opt[]) => {
+    return (await Cli.Prompt.Select.prompt({ message, options })) as t.CrdtCommand;
   };
 
-  const options: { name: string; value: t.CrdtCommand }[] = [
-    { name: 'sync/backup', value: 'sync' },
-    { name: 'list', value: 'list' },
-    { name: 'add', value: 'add-doc' },
-    { name: 'delete (locally)', value: 'remove-doc' },
-    { name: 'help', value: 'help' },
-    { name: 'quit', value: 'quit' },
-  ];
-
-  const command = (await Cli.Prompt.Select.prompt({
-    message: 'Action:',
-    options,
-  })) as t.CrdtCommand;
+  type Opt = { name: string; value: t.CrdtCommand };
+  let command = await prompt('Action:', [
+    { name: '- sync/save', value: 'sync' },
+    { name: '- list', value: 'list' },
+    { name: '- modify', value: 'modify' },
+    { name: '- help', value: 'help' },
+    { name: '- quit', value: 'quit' },
+  ]);
+  if (command === 'modify') {
+    command = await prompt('Modification', [
+      { name: '- add', value: 'add-doc' },
+      { name: '- delete (locally)', value: 'remove-doc' },
+    ]);
+  }
 
   const index = await getIndexJson(dir, repo);
   index.doc?.change(removeEmpty);
@@ -49,7 +52,6 @@ export async function run(dir: t.StringDir, repo: t.Crdt.Repo): Promise<T> {
   }
   if (command === 'help') {
     console.info(await Fmt.help());
-    console.log('doc.current', index.doc?.current);
     return done();
   }
   if (command === 'quit') {

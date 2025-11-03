@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** The various copy options */
-export type CrdtCommand = 'sync' | 'add-doc' | 'remove-doc' | 'list' | 'help' | 'quit';
+export type CrdtCommand = 'sync' | 'modify' | 'add-doc' | 'remove-doc' | 'list' | 'help' | 'quit';
 
 /**
  * CLI helpers for working with CRDT documents.

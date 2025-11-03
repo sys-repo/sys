@@ -41,8 +41,7 @@ export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
     }
   });
 
-  console.info(Fmt.signoff(toolname));
-
   // Shutdown:
+  console.info(Fmt.signoff(toolname));
   await shutdown();
 };

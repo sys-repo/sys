@@ -4,7 +4,7 @@ import { type t, c, Cli, Crdt } from './common.ts';
  * Textbox: "document-id"
  */
 export async function promptForDocumentId(attempts = 0) {
-  if (attempts > 2) return '';
+  if (attempts >= 2) return '';
 
   const input = await Cli.Prompt.Input.prompt({ message: 'Enter document-id' });
   let docid = (input ?? '').trim();

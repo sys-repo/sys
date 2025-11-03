@@ -1,22 +1,10 @@
-import NodeDocumentPositionEnum from 'happy-dom';
-import { type t, Fmt as Base, c, Cli, D, pkg, Str, Time } from './common.ts';
+import { type t, Fmt as Base, c, Cli, D, Str, Time } from './common.ts';
 
 export const Fmt = {
   ...Base,
 
   async help(toolname: string = D.toolname) {
-    const table = Cli.table([]);
-
-    const gr = c.gray;
-    // table.push([gr(` ├─ ${pkg.name}`), pkg.version]);
-    table.push([gr(` └─ ${pkg.name}`), pkg.version]);
-
-    return Str.builder()
-      .line()
-      .line(c.gray(`${c.green(toolname)} `))
-      .line(table.toString().trim())
-      .line()
-      .toString();
+    return Base.help(toolname);
   },
 
   noDocuments(opts: { pad?: boolean } = {}) {

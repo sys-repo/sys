@@ -1,5 +1,5 @@
 import { pkg } from '../pkg.ts';
-import { c, Fs, Pkg, Str } from './libs.ts';
+import { c, Cli, Fs, Pkg, Str } from './libs.ts';
 import * as t from './t.ts';
 
 export const Fmt = {
@@ -13,5 +13,20 @@ export const Fmt = {
   signoff(toolname: string) {
     const self = `${Pkg.toString(pkg)}:${toolname}`;
     return Str.builder().line(c.dim(self)).toString();
+  },
+
+  async help(toolname: string = 'Tools') {
+    const table = Cli.table([]);
+
+    const gr = c.gray;
+    // table.push([gr(` ├─ ${pkg.name}`), pkg.version]);
+    table.push([gr(` └─ ${pkg.name}`), pkg.version]);
+
+    return Str.builder()
+      .line()
+      .line(c.gray(`${c.green(toolname)} `))
+      .line(table.toString().trim())
+      .line()
+      .toString();
   },
 } as const;
