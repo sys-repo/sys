@@ -26,6 +26,7 @@ export function toRepo(
 
   async function cleanup() {
     peers.clear();
+    await repo.flush();
     await silentShutdown(repo);
   }
   const life = Rx.lifecycleAsync(options.dispose$, cleanup);
