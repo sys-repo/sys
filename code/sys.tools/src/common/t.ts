@@ -10,6 +10,7 @@ export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
 export type { WalkEntry } from '@sys/fs/t';
+export type { AnsiColors } from '@sys/std/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
 
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';

@@ -1,7 +1,8 @@
 /**
  * @module
  */
-export { pkg } from './pkg.ts';
+import { pkg } from './pkg.ts';
+export { pkg };
 
 /** Type library (barrel file). */
 export type * as t from './types.ts';
@@ -11,5 +12,13 @@ export type * as t from './types.ts';
  */
 if (import.meta.main) {
   const { Fmt } = await import('./common.ts');
-  console.info(await Fmt.help('System Tools'));
+
+  const text = await Fmt.help('System Tools', (e, c) => {
+    const fmt = (path: string) => c.gray(`${pkg.name}/`) + path;
+    e.row(fmt('copy'), c.gray(`(← alias cp)`));
+    e.row(fmt('crdt'));
+    e.row(fmt('video'));
+  });
+
+  console.info(text);
 }
