@@ -16,8 +16,6 @@ export async function printHelp(argv: string[]) {
     const msg = `To enable the ${c.bold(c.cyan('sys'))} command globally, add the following snippet to your ${c.cyan('~/.zshrc')} file:`;
     console.info(msg);
     console.info(c.italic(c.yellow(BashCommand)));
-    console.info();
-    console.info();
   }
 }
 

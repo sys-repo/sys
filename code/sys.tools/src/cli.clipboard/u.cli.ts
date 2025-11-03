@@ -8,7 +8,6 @@ export const cli: t.ClipboardToolsLib['cli'] = async (opts = {}) => {
   const args = Args.parse<t.VideoCliArgs>(opts.argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
-  console.info();
   console.info(await Fmt.header(toolname, dir));
   await run(dir);
 
