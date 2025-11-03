@@ -58,6 +58,5 @@ export async function run(dir: t.StringDir, repo: t.Crdt.Repo): Promise<T> {
     return done({ exit: true });
   }
 
-  console.info(c.gray('Nothing selected'));
   return done();
 }
