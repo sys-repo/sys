@@ -1,7 +1,7 @@
 import { IndexTree } from '@sys/ui-react-components';
 import React from 'react';
 import { Icons } from '../../ui.Icons.ts';
-import { type t, Button, Color, css, Obj, Signal } from '../common.ts';
+import { type t, Button, Color, css, Obj } from '../common.ts';
 import { PATH } from './-u.ts';
 import { toTreeStructure } from './-ui.Tree.u.ts';
 
@@ -37,7 +37,7 @@ export const Tree: React.FC<TreeProps> = (props) => {
     const updateTree = () => {
       const parsed = (doc.current as any)?.['yaml.parsed']; // TEMP 🐷 hard-coded!
       if (!parsed) return reset();
-      const prog = ((parsed ?? {}) as any).slug?.data['programme-v1']; // 🐷
+      const prog = ((parsed ?? {}) as any).slug?.data['programme.p2p']; // 🐷 hard-coded!
       setRoot(toTreeStructure(prog));
     };
     updateTree();
