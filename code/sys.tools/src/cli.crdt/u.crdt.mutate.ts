@@ -24,3 +24,16 @@ export function setWatchingName(d: t.CrdtIndexDoc, docid?: string, name?: string
     }
   }
 }
+
+export function removeEmpty(d: t.CrdtIndexDoc) {
+  const list = d.watching || (d.watching = []);
+  if (list.length === 0) return;
+
+  // Remove items that have no valid docid (undefined, empty string, or non-string)
+  for (let i = list.length - 1; i >= 0; i--) {
+    const item = list[i];
+    if (!item?.docid || typeof item.docid !== 'string' || item.docid.trim() === '') {
+      list.splice(i, 1);
+    }
+  }
+}

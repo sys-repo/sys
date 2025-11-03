@@ -1,8 +1,6 @@
-import { type t, Args, c, Cli, Crdt, D, Fs, Is, Time } from './common.ts';
-import { sync } from './u.crdt.doc.sync.ts';
-import { addDoc, list, removeDoc } from './u.crdt.doc.ts';
+import { type t, Args, Crdt, D, Fs, Rx, Time } from './common.ts';
+import { run } from './u.cli.run.ts';
 import { Fmt } from './u.fmt.ts';
-import { getIndexJson } from './u.index.ts';
 import { keepAlive } from './u.keepAlive.ts';
 
 export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
@@ -11,64 +9,40 @@ export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
   const args = Args.parse<t.CrdtCliArgs>(opts.argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
-  console.info(await Fmt.header(toolname));
-
   const ws = D.Sync.server;
   const repo = await Crdt.repo({ network: [{ ws }] }).whenReady();
 
-  const res = await run(dir, repo);
+  const shutdown = async () => {
+    await Time.wait(0);
+    await repo.dispose();
+  };
+
+  // Simple immediate exit on Ctrl-C.
+  Deno.addSignalListener('SIGINT', async () => {
+    await shutdown();
+    Deno.exit(0);
+  });
+
+  // Root selection stays active until Ctrl-C; wire keepAlive → life.
+  await keepAlive(async (until) => {
+    const life = Rx.lifecycle(until);
+
+    try {
+      while (!life.disposed) {
+        console.info(await Fmt.header(toolname));
+        const res = await run(dir, repo);
+        if (res.exit) {
+          life.dispose('exit'); // signal termination
+          shutdown();
+          break;
+        }
+      }
+    } finally {
+    }
+  });
+
   console.info(Fmt.signoff(toolname));
 
   // Shutdown:
-  await Time.wait(0);
-  await repo.dispose();
-  if (res.exit) Deno.exit(Is.number(res.exit) ? res.exit : 0);
+  await shutdown();
 };
-
-/**
- * Helpers:
- */
-type T = { exit?: boolean | number };
-async function run(dir: t.StringDir, repo: t.Crdt.Repo): Promise<T> {
-  const done = (exit: T['exit'] = false): T => {
-    return { exit };
-  };
-
-  const options: { name: string; value: t.CrdtCommand }[] = [
-    { name: 'sync/backup', value: 'sync' },
-    { name: 'add', value: 'add-doc' },
-    { name: 'delete (locally)', value: 'remove-doc' },
-    { name: 'list', value: 'list' },
-    { name: 'help', value: 'help' },
-  ];
-
-  const command = (await Cli.Prompt.Select.prompt({
-    message: 'Document options:',
-    options,
-  })) as t.CrdtCommand;
-
-  const index = await getIndexJson(dir, repo);
-
-  if (command === 'sync') {
-    await keepAlive(async (until) => sync(index.doc, repo, until));
-  }
-  if (command === 'add-doc') {
-    await addDoc(index.doc);
-    return done();
-  }
-  if (command === 'remove-doc') {
-    await removeDoc(index.doc, index.repo);
-    return done();
-  }
-  if (command === 'list') {
-    await list(index.doc);
-    return done(true);
-  }
-  if (command === 'help') {
-    console.info(await Fmt.help());
-    return done(true);
-  }
-
-  console.info(c.gray('Nothing selected'));
-  return done();
-}

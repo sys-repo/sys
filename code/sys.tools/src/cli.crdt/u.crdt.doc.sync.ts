@@ -2,7 +2,7 @@ import { type t, c, Rx, Time } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 
 /**
- * Keep documents syncing locally
+ * Keep documents syncing locally.
  */
 export async function sync(index: t.CrdtIndexDocRef, repo: t.Crdt.Repo, until?: t.UntilObservable) {
   const items = (index.current.watching ?? []).sort((a, b) => a.addedAt - b.addedAt).toReversed();
@@ -19,6 +19,8 @@ export async function sync(index: t.CrdtIndexDocRef, repo: t.Crdt.Repo, until?: 
 
   const print = () => {
     console.clear();
+
+    console.info(c.gray(`${repo.sync.urls.join(', ')}`));
     console.info(Fmt.itemTable(items, { appendColumn }));
     console.info();
   };
