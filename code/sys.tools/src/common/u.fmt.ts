@@ -13,8 +13,11 @@ export const Fmt = {
    */
   async header(toolname: string, dir?: t.StringDir) {
     const b = Str.builder();
+    if (dir) {
+      b.line(c.gray(await Fs.Fmt.treeFromDir(dir, { indent: 2 })));
+      b.line();
+    }
     b.line(c.gray(`${c.green(toolname)} v${pkg.version}`));
-    if (dir) b.line(c.gray(await Fs.Fmt.treeFromDir(dir, { indent: 2 })));
     return b.toString();
   },
 

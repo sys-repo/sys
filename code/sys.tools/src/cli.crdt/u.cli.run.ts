@@ -18,7 +18,7 @@ export async function run(dir: t.StringDir, repo: t.Crdt.Repo): Promise<T> {
   };
 
   type Opt = { name: string; value: t.CrdtCommand };
-  let command = await prompt('Action:', [
+  let command = await prompt('Action:\n', [
     { name: '- sync/save', value: 'sync' },
     { name: '- list', value: 'list' },
     { name: '- modify', value: 'modify' },

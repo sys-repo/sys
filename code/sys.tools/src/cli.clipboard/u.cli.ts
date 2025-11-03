@@ -10,8 +10,6 @@ export const cli: t.ClipboardToolsLib['cli'] = async (opts = {}) => {
 
   console.info();
   console.info(await Fmt.header(toolname, dir));
-  console.info();
-
   await run(dir);
 
   console.info();
