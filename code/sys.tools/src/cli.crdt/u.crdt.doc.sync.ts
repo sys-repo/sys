@@ -19,7 +19,6 @@ export async function sync(index: t.CrdtIndexDocRef, repo: t.Crdt.Repo, until?: 
 
   const print = () => {
     console.clear();
-
     console.info(c.gray(`${repo.sync.urls.join(', ')}`));
     console.info(Fmt.itemTable(items, { appendColumn }));
     console.info();
