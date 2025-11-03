@@ -7,7 +7,15 @@ export async function main() {
     module: (await Fs.readText('.github/-tmpl/jsr.module.yaml')).data!,
   };
 
-  const incl = ['code/sys/', 'code/sys.ui/', 'code/sys.driver/', 'code/sys.dev', 'code/-tmpl'];
+  const incl = [
+    //
+    'code/sys/',
+    'code/sys.ui/',
+    'code/sys.driver/',
+    'code/sys.dev',
+    'code/sys.tools',
+    'code/-tmpl',
+  ];
   const paths = Paths.modules.filter((path) => incl.some((item) => path.startsWith(item)));
   let yaml = tmpl.header;
 
