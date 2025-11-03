@@ -22,6 +22,8 @@ export async function getIndexJson(cwd: t.StringDir) {
   const json = (await Fs.readJson<t.CrdtIndexJson>(path)).data;
   if (!json) throw new Error(`Failed to load index.json from path: ${path}`);
 
-  const doc = await repo.get<t.CrdtIndexDoc>(json.docid);
-  return { path, json, doc } as const;
+  const doc = (await repo.get<t.CrdtIndexDoc>(json.docid)).doc;
+  if (!doc) throw new Error(`Failed to retrieve index document: ${json.docid}`);
+
+  return { path, json, doc, repo } as const;
 }

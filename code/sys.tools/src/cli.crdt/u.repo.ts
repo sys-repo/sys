@@ -1,10 +1,10 @@
-import { type t, Crdt, D, Fs, Try } from './common.ts';
+import { type t, Crdt, D, Fs, Time, Try } from './common.ts';
 
 /**
  * In-process repo cache keyed by absolute repo dir.
  * Coalesces concurrent opens and avoids duplicate sockets/watchers.
  */
-const repoCache = new Map<string, Promise<t.Crdt.Repo>>();
+const cache = new Map<string, Promise<t.Crdt.Repo>>();
 
 /**
  * Construct (or reuse) a CRDT repo instance for a given cwd.
@@ -13,10 +13,10 @@ const repoCache = new Map<string, Promise<t.Crdt.Repo>>();
  */
 export async function ensureRepo(cwd: t.StringDir, ws?: string) {
   const dir = Fs.join(cwd, D.Path.repo);
-  let pending = repoCache.get(dir);
+  let pending = cache.get(dir);
   if (!pending) {
     pending = Crdt.repo({ dir, network: [ws] }).whenReady();
-    repoCache.set(dir, pending);
+    cache.set(dir, pending);
   }
   return pending;
 }
@@ -27,9 +27,10 @@ export async function ensureRepo(cwd: t.StringDir, ws?: string) {
  */
 export async function shutdown(cwd: t.StringDir) {
   const dir = Fs.join(cwd, D.Path.repo);
-  const pending = repoCache.get(dir);
+  const pending = cache.get(dir);
   if (!pending) return;
-  repoCache.delete(dir);
+  cache.delete(dir);
   const repo = await pending;
-  await Try.catch(repo.dispose);
+  await Time.wait(0); // NB: allow current writes to flush before closing.
+  await Try.catch(() => repo.dispose('shutdown'));
 }
