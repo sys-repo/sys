@@ -7,6 +7,7 @@ export async function printHelp(argv: string[]) {
     const fmt = (path: string) => c.gray(`${pkg.name}/`) + path;
     e.row(fmt('copy'), c.gray(`(← alias cp)`));
     e.row(fmt('crdt'));
+    e.row(fmt('fs'));
     e.row(fmt('video'));
   });
 
