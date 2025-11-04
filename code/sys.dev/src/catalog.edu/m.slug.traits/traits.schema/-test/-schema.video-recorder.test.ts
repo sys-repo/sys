@@ -1,10 +1,85 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import { type t, Value } from '../common.ts';
-import { Traits, VideoRecorderPropsSchema } from '../mod.ts';
+import { Is, Traits, VideoRecorderPropsSchema } from '../mod.ts';
 
 describe('trait: video-recorder', () => {
   it('API', () => {
     expect(Traits.Schema.VideoRecorder.Props).to.equal(VideoRecorderPropsSchema);
+  });
+
+  describe('Is', () => {
+    describe('Is.videoRecorderBinding', () => {
+      it('signature', () => {
+        type Expect = (m: unknown) => m is t.VideoRecorderBinding;
+        expectTypeOf(Is.videoRecorderBinding).toEqualTypeOf<Expect>();
+      });
+
+      it('runtime truth table', () => {
+        const ok = { id: 'video-recorder', as: 'rec1' };
+        const badId = { id: 'video-player', as: 'rec1' };
+        const missingAs = { id: 'video-recorder' };
+        const emptyAs = { id: 'video-recorder', as: '' };
+
+        expect(Is.videoRecorderBinding(ok)).to.eql(true);
+        expect(Is.videoRecorderBinding(badId)).to.eql(false);
+        expect(Is.videoRecorderBinding(missingAs as unknown)).to.eql(false);
+        expect(Is.videoRecorderBinding(emptyAs)).to.eql(false);
+        expect(Is.videoRecorderBinding(null)).to.eql(false);
+        expect(Is.videoRecorderBinding(42)).to.eql(false);
+      });
+
+      it('narrows', () => {
+        const input: unknown = { id: 'video-recorder', as: 'cam' };
+        if (Is.videoRecorderBinding(input)) {
+          expectTypeOf(input.of).toEqualTypeOf<'video-recorder'>();
+          expectTypeOf(input.as).toEqualTypeOf<string>();
+          expect(input.as.length > 0).to.eql(true);
+        } else {
+          expect(true).to.eql(false);
+        }
+      });
+    });
+
+    describe('Is.videoRecorderProps', () => {
+      it('signature', () => {
+        type Expect = (u: unknown) => u is t.VideoRecorderProps;
+        expectTypeOf(Is.videoRecorderProps).toEqualTypeOf<Expect>();
+      });
+
+      it('runtime truth table', () => {
+        const ok1 = {}; // all optional
+        const ok2 = { name: 'Record Intro', file: 'crdt:create' };
+        const ok3 = {
+          description: 'Say hello',
+          script: 'Read this...',
+          file: 'urn:crdt:2JgVjx9KAMcB3D6EZEyBB18jBX6P/clip',
+        };
+        const badName = { name: '' }; // violates minLength: 1
+        const badFile = { file: 'not-a-crdt-ref' };
+        const noise = { extra: true }; // disallowed by additionalProperties: false
+
+        expect(Is.videoRecorderProps(ok1)).to.eql(true);
+        expect(Is.videoRecorderProps(ok2)).to.eql(true);
+        expect(Is.videoRecorderProps(ok3)).to.eql(true);
+
+        expect(Is.videoRecorderProps(badName)).to.eql(false);
+        expect(Is.videoRecorderProps(badFile)).to.eql(false);
+        expect(Is.videoRecorderProps(noise as unknown)).to.eql(false);
+
+        expect(Is.videoRecorderProps(null)).to.eql(false);
+        expect(Is.videoRecorderProps(123)).to.eql(false);
+      });
+
+      it('narrows', () => {
+        const input: unknown = { name: 'Intro', file: 'crdt:create' };
+        if (Is.videoRecorderProps(input)) {
+          expectTypeOf(input.name).toEqualTypeOf<string | undefined>();
+          expectTypeOf(input.file).toEqualTypeOf<string | undefined>();
+        } else {
+          expect(true).to.eql(false);
+        }
+      });
+    });
   });
 
   describe('schema', () => {

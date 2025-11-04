@@ -1,12 +1,39 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { type t, describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import { Value } from '../common.ts';
-import { ConceptLayoutPropsSchema, Traits } from '../mod.ts';
+import { ConceptLayoutPropsSchema, Is, Traits } from '../mod.ts';
 
 describe('schema.concept-layout', () => {
   const S = Traits.Schema.ConceptLayout.Props;
 
   it('API', () => {
     expect(Traits.Schema.ConceptLayout.Props).to.equal(ConceptLayoutPropsSchema);
+  });
+
+  describe('Is.conceptLayoutProps', () => {
+    it('signature', () => {
+      type Expect = (u: unknown) => u is t.ConceptLayoutProps;
+      expectTypeOf(Is.conceptLayoutProps).toEqualTypeOf<Expect>();
+    });
+
+    it('runtime truth table', () => {
+      const ok = { slug: 'crdt:create' };
+      const bad = { slug: 'nope' };
+      const noise = { slug: 'crdt:create', extra: true } as unknown;
+
+      expect(Is.conceptLayoutProps(ok)).to.eql(true);
+      expect(Is.conceptLayoutProps(bad)).to.eql(false);
+      expect(Is.conceptLayoutProps(noise)).to.eql(false);
+      expect(Is.conceptLayoutProps(undefined)).to.eql(false);
+    });
+
+    it('narrows', () => {
+      const input: unknown = { slug: 'crdt:create' };
+      if (Is.conceptLayoutProps(input)) {
+        expectTypeOf(input.slug).toEqualTypeOf<string>();
+      } else {
+        expect(true).to.eql(false);
+      }
+    });
   });
 
   describe('schema', () => {

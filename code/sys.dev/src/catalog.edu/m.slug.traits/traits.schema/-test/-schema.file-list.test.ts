@@ -1,9 +1,10 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { type t, describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import { Value, Yaml } from '../common.ts';
 import {
   FileListItemSchema,
   FileListPropsInputSchema,
   FileListPropsSchema,
+  Is,
   normalizeFileList,
   Traits,
 } from '../mod.ts';
@@ -15,6 +16,37 @@ describe('schema.file-list', () => {
     expect(Traits.Schema.FileList.Input).to.equal(FileListPropsInputSchema);
     expect(Traits.Schema.FileList.Props).to.equal(FileListPropsSchema);
     expect(Traits.Schema.FileList.Item).to.equal(FileListItemSchema);
+  });
+
+  describe('Is.fileListProps', () => {
+    it('signature', () => {
+      type Expect = (u: unknown) => u is t.FileListProps;
+      expectTypeOf(Is.fileListProps).toEqualTypeOf<Expect>();
+    });
+
+    it('runtime: minimal positives and negatives', () => {
+      const positives: unknown[] = [
+        [], // empty list
+        ['a.txt', { ref: 'b/c.md' }], // mixed entry types
+      ];
+      const negatives: unknown[] = [
+        {}, // legacy object root
+        [123], // invalid entry
+      ];
+      for (const v of positives) expect(Is.fileListProps(v)).to.eql(true, JSON.stringify(v));
+      for (const v of negatives) expect(Is.fileListProps(v)).to.eql(false, JSON.stringify(v));
+    });
+
+    it('narrows: root becomes readonly array of entries', () => {
+      const input: unknown = ['a.txt', { ref: 'b/c.md' }];
+      if (Is.fileListProps(input)) {
+        expectTypeOf(input).toEqualTypeOf<t.FileListProps>();
+        const first = input[0];
+        expectTypeOf(first).toEqualTypeOf<t.FileListEntry>();
+      } else {
+        expect(true).to.eql(false);
+      }
+    });
   });
 
   describe('Schema', () => {
