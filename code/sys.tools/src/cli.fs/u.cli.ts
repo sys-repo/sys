@@ -12,7 +12,7 @@ export const cli: t.FsToolsLib['cli'] = async (opts = {}) => {
   const args = Args.parse<t.FsCliArgs>(opts.argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
-  console.info(await Fmt.header(toolname));
+  console.info(await Fmt.header(toolname, dir, { fileTree: { maxDepth: 1 } }));
   await run(dir);
 
   console.info();
@@ -26,9 +26,9 @@ async function run(dir: t.StringDir) {
   const mode = (await Cli.Prompt.Select.prompt({
     message: 'Select copy mode:\n',
     options: [
-      { name: 'Rename files to SHA-256', value: 'rename-sha256' },
-      { name: 'Extract SHA-256 files', value: 'extract-sha256-files' },
-      { name: 'Remove renamed SHA-256 files', value: 'remove-renamed-sha256' },
+      { name: 'Rename files → <filename>-sha-256.<ext>', value: 'rename-sha256' },
+      { name: 'Pluck/copy sha-256 files to folder: -sha256', value: 'extract-sha256-files' },
+      { name: 'Remove generated/renamed sha-256 files', value: 'remove-renamed-sha256' },
     ],
   })) as t.FsCommand;
 

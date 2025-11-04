@@ -70,11 +70,13 @@ export async function extractSha256Files(dir: t.StringDir) {
 }
 
 /**
- *
+ * Removes files that have been renamed with SHA-256 hashes.
  */
 export async function removeRenamedSh256Files(dir: t.StringDir, opts: { dryRun?: boolean } = {}) {
   const { dryRun = false } = opts;
   const paths = await getRenamedFilePaths(dir);
+
+  if (paths.length === 0) return void console.info(c.gray(c.italic(`\n no files to remove`)));
 
   // Confirm:
   console.info();

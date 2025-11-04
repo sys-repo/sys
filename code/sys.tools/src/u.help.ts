@@ -5,7 +5,7 @@ export async function printHelp(argv: string[]) {
 
   const text = await Fmt.help('System Tools', (e, c) => {
     const fmt = (path: string) => c.gray(`${pkg.name}/`) + path;
-    e.row(fmt('copy'), c.gray(`(← alias cp)`));
+    e.row(fmt('copy'), c.gray(`(← alias ${c.white('cp')}, ${c.italic(c.yellow('clipboard'))})`));
     e.row(fmt('crdt'));
     e.row(fmt('fs'));
     e.row(fmt('video'));

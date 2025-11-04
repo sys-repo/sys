@@ -11,10 +11,17 @@ export const Fmt = {
   /**
    * Common intro header.
    */
-  async header(toolname: string, dir?: t.StringDir) {
+  async header(
+    toolname: string,
+    dir?: t.StringDir,
+    opts: { fileTree?: { maxDepth?: number; indent?: number } } = {},
+  ) {
+    const { fileTree = {} } = opts;
+    const { maxDepth, indent } = fileTree;
+
     const b = Str.builder();
     if (dir) {
-      b.line(c.gray(await Fs.Fmt.treeFromDir(dir, { indent: 2 })));
+      b.line(c.gray(await Fs.Fmt.treeFromDir(dir, { indent, maxDepth })));
       b.line();
     }
     b.line(c.gray(`${c.green(toolname)} v${pkg.version}`));
@@ -43,7 +50,7 @@ export const Fmt = {
       },
     };
 
-    e.row(c.gray(pkg.name), pkg.version);
+    e.row(c.gray(pkg.name), c.cyan(pkg.version));
     fn?.(e, c);
 
     rows.forEach((col, i) => {
