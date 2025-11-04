@@ -1,4 +1,4 @@
-import { type t, Cli, Is, c, exclude } from '../common.ts';
+import { type t, c, Cli, EXCLUDE, Is } from '../common.ts';
 import { Fs } from './libs.ts';
 
 /**
@@ -9,6 +9,7 @@ export async function promptForFileSelection(
   opts: {
     defaultChecked?: (path: string) => boolean;
     filter?: (file: t.WalkEntry) => boolean;
+    deep?: boolean;
     exclude?: t.Ary<string>;
     sort?: boolean;
     maxRows?: number;
@@ -18,13 +19,15 @@ export async function promptForFileSelection(
   const {
     defaultChecked = () => false,
     sort = false,
+    deep = true,
     maxRows = 20,
     message = 'Select files',
+    exclude = EXCLUDE,
   } = opts;
 
   async function getPaths(dir: string) {
-    const glob = Fs.glob(dir, { exclude: opts.exclude ?? exclude, includeDirs: false });
-    return (await glob.find('**'))
+    const glob = Fs.glob(dir, { exclude, includeDirs: false });
+    return (await glob.find(deep ? '**' : '*'))
       .filter((file) => opts.filter?.(file) ?? true)
       .map((file) => file.path);
   }

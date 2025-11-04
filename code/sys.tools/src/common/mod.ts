@@ -10,11 +10,4 @@ export * from './u.prompt.ts';
 /**
  * Constants:
  */
-export const exclude = [
-  '**/node_modules/',
-  '**/.git/',
-  '**/dist/',
-  '**/.tmp/',
-  '**/-tmp/',
-  '**/.DS_Store',
-] as const;
+export const EXCLUDE = ['**/node_modules/', '**/.git/', '**/.DS_Store'] as const;

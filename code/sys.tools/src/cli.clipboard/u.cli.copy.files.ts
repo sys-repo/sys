@@ -1,4 +1,4 @@
-import { type t, detectRepoRoot, exclude, Fs } from './common.ts';
+import { type t, detectRepoRoot, Fs } from './common.ts';
 import { selectAndCopy } from './u.copy.ts';
 
 /**
@@ -11,7 +11,7 @@ export async function copyFiles(
   const { initial = 'all' } = options;
   const repoRootAbs = await detectRepoRoot(dir); // monorepo root (stable anchor)
 
-  const glob = Fs.glob(dir, { exclude, includeDirs: false });
+  const glob = Fs.glob(dir, { includeDirs: false });
   const paths = (await glob.find('**'))
     .filter((file) => options.filter?.(file) ?? true)
     .map((file) => file.path);

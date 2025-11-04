@@ -1,4 +1,5 @@
-import { type t, c, Cli, exclude, Fs, Hash, promptForFileSelection } from './common.ts';
+import { WalkEntry } from '../common/t.ts';
+import { type t, c, Cli, EXCLUDE, Fs, Hash, promptForFileSelection } from './common.ts';
 
 /**
  * Captures: "sha256-" + 64 hex chars + optional extension.
@@ -15,7 +16,10 @@ export async function selectFilesAndRenameToHash(dir: t.StringDir) {
   const res: T[] = [];
 
   const table = Cli.table([]);
-  const files = await promptForFileSelection(dir, { filter: (e) => !e.name.includes('→ sha256-') });
+  const files = await promptForFileSelection(dir, {
+    deep: false,
+    filter: (e) => !e.name.includes('→ sha256-'),
+  });
   const spinner = Cli.spinner();
 
   for (const path of files) {
@@ -37,7 +41,7 @@ export async function selectFilesAndRenameToHash(dir: t.StringDir) {
     res.push({ hx, in: path, out });
 
     const outShort = `${outFile.slice(0, 13)}..${c.green(hx.slice(-5))}${ext}`;
-    table.push([c.gray(path.slice(dir.length)), '→', c.gray(outShort)]);
+    table.push(['', c.gray(path.slice(dir.length)), '→', c.gray(outShort)]);
   }
 
   spinner.stop();
@@ -91,16 +95,20 @@ export async function removeRenamedSh256Files(dir: t.StringDir, opts: { dryRun?:
  * Helpers:
  */
 async function getRenamedFilePaths(dir: t.StringDir) {
-  const glob = Fs.glob(dir, { exclude });
+  const glob = Fs.glob(dir, { exclude: EXCLUDE });
   const entries = await glob.find('*');
+
+  type TFile = { from: t.StringPath; to: { filename: t.StringName } };
+  const mapFile = (e: WalkEntry) => {
+    const name = Fs.basename(e.path);
+    const hashName = sha256FileFromText(name) ?? sha256FileFromText(e.path);
+    return hashName ? { from: e.path, to: { filename: hashName } } : undefined;
+  };
+
   return entries
     .filter((e) => e.isFile)
-    .map((e) => {
-      const name = Fs.basename(e.path);
-      const hashName = sha256FileFromText(name) ?? sha256FileFromText(e.path);
-      return hashName ? { from: e.path, to: { filename: hashName } } : undefined;
-    })
-    .filter((v): v is { from: t.StringPath; to: { filename: string } } => !!v);
+    .map(mapFile)
+    .filter((v): v is TFile => !!v);
 }
 
 function sha256FileFromText(text: string): string | undefined {

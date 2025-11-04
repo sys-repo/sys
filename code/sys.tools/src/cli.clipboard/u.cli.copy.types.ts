@@ -1,4 +1,4 @@
-import { type t, Fs, detectRepoRoot, exclude } from './common.ts';
+import { type t, detectRepoRoot, EXCLUDE, Fs } from './common.ts';
 import { selectAndCopy } from './u.copy.ts';
 
 /**
@@ -19,7 +19,7 @@ export async function copyTypes(dir: t.StringDir, options: { initial?: 'none' | 
     return /^t(?:\.[A-Za-z0-9_-]+)*\.ts$/.test(base);
   };
 
-  const glob = Fs.glob(dir, { exclude, includeDirs: false });
+  const glob = Fs.glob(dir, { exclude: EXCLUDE, includeDirs: false });
   const allPaths = (await glob.find('**')).map((f) => f.path);
   const paths = allPaths.filter(isTypesFile);
 
