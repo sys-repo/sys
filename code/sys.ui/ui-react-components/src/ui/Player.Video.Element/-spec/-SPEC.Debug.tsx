@@ -1,9 +1,7 @@
-import { debug } from 'node:console';
-import { domainToASCII } from 'node:url';
 import React from 'react';
 import { Player } from '../../Player/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal, Str } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal, Str, Time } from '../common.ts';
 
 type P = t.VideoElementProps;
 type Storage = Pick<
@@ -23,6 +21,7 @@ type Storage = Pick<
   logSignals?: boolean;
   endpointLocalhost?: boolean;
   urlPath?: string;
+  urlCopied?: boolean;
 };
 
 /**
@@ -69,6 +68,8 @@ export function createDebugSignals() {
     autoPlay: s(snap.autoPlay),
 
     urlPath: s(snap.urlPath),
+    urlCopied: s(snap.urlCopied),
+
     muted: s(snap.muted),
     loop: s(snap.loop),
     cornerRadius: s(snap.cornerRadius),
@@ -185,6 +186,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
    */
   const styles = {
     base: css({}),
+    url: css({
+      boxSizing: 'border-box',
+      fontFamily: 'monospace',
+      textAlign: 'center',
+      fontSize: 9,
+      fontWeight: 600,
+      overflowWrap: 'anywhere',
+      wordBreak: 'break-all',
+    }),
   };
 
   return (
@@ -290,22 +300,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         '/video/540p/1068653222.mp4',
         '/video/v2/core/sha256-3ee12096a189525fcbb0e85d1781fc414e46e8c306b6ee170af17fe8bd2b11c7.webm',
       ].map((src, i) => videoButton(debug, p.urlPath, src))}
-      <div
-        className={
-          css({
-            boxSizing: 'border-box',
-            Padding: [15, 15, 8, 15],
-            fontFamily: 'monospace',
-            textAlign: 'center',
-            fontSize: 9,
-            fontWeight: 600,
-            overflowWrap: 'anywhere',
-            wordBreak: 'break-all',
-          }).class
-        }
-      >
-        {debug.src}
-      </div>
+      <div className={css(styles.url, { Padding: [15, 15, 8, 15] }).class}>{debug.src}</div>
+      <Button
+        block
+        label={() => (p.urlCopied.value ? 'copied' : `copy url`)}
+        onClick={() => {
+          navigator.clipboard.writeText(debug.src);
+          p.urlCopied.value = true;
+          Time.delay(1500, () => (p.urlCopied.value = false));
+        }}
+      />
       <hr />
       <Button
         block
@@ -364,7 +368,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `width: ${p.width.value}`}
         onClick={() => Signal.cycle(p.width, [320, 420, 420, 600])}
       />
-      <Button block label={() => `(reset)`} onClick={Debug.reset} />
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
 
       <ObjectView
         name={'debug'}

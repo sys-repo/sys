@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { Color, css, Dev, Signal, Spec, Str } from '../../-test.ui.ts';
-import { KeyValue } from '../../KeyValue/mod.ts';
+import { Color, css, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
 import { D, Url } from '../common.ts';
 import { useFileSize, VideoElement } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { InfoPanel } from './-ui.InfoPanel.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -66,7 +66,6 @@ export default Spec.describe(D.displayName, (e) => {
 
   function Root(props: { children?: React.ReactNode }) {
     const src = useFileSize(debug.src);
-    const size = Str.bytes(src.bytes);
 
     const theme = Color.theme('Dark');
     const styles = {
@@ -77,7 +76,6 @@ export default Spec.describe(D.displayName, (e) => {
           color: Color.alpha(theme.fg, 0.5),
           fontSize: 10,
           fontFamily: 'monospace',
-          // color: theme.fg,
 
           display: 'grid',
           gridAutoFlow: 'column', //          ← Lay items out in columns.
@@ -94,26 +92,11 @@ export default Spec.describe(D.displayName, (e) => {
       },
     };
 
-    const parsedUrl = Url.parse(debug.src);
-    const url = parsedUrl.ok ? parsedUrl.toURL() : undefined;
-
     const elInfoPanel = (
       <div className={styles.infoPanel.base.class}>
-        <KeyValue.View
-          theme={theme.name}
-          style={styles.infoPanel.inner}
-          layout={{ kind: 'table', columnGap: 20 }}
-          items={
-            !url
-              ? undefined
-              : [
-                  { k: 'protocol', v: url.protocol },
-                  { k: 'host', v: url.host },
-                  { k: 'path', v: Str.truncate(url.pathname, 50) },
-                  { k: 'size / bytes', v: src.bytes > 0 ? size : '-' },
-                ]
-          }
-        />
+        <div className={styles.infoPanel.inner.class}>
+          <InfoPanel theme={theme.name} src={debug.src} bytes={src.bytes} />
+        </div>
       </div>
     );
 

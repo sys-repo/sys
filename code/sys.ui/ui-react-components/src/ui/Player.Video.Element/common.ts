@@ -2,8 +2,10 @@ import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 export { Button } from '../Button/mod.ts';
+export { KeyValue } from '../KeyValue/mod.ts';
 export { BarSpinner } from '../Spinners.Bar/mod.ts';
 export { Icons } from '../ui.Icons.ts';
+
 export * from './const.READY_STATE.ts';
 
 /**
