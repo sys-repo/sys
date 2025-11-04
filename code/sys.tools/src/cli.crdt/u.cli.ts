@@ -10,7 +10,8 @@ export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
 
   // Start repo:
   const ws = D.Sync.server;
-  const repo = await Crdt.repo({ network: [{ ws }] }).whenReady();
+  const repo = await Crdt.repo({ dir: Fs.join(dir, D.Path.repo), network: [{ ws }] }).whenReady();
+
   const shutdown = async () => {
     await Time.wait(0);
     await repo.dispose();
