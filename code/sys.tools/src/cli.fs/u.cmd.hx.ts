@@ -1,5 +1,5 @@
 import { WalkEntry } from '../common/t.ts';
-import { type t, c, Cli, EXCLUDE, Fs, Hash, promptForFileSelection } from './common.ts';
+import { type t, c, Cli, EXCLUDE, Fs, Hash, promptForFileSelection, Str } from './common.ts';
 
 /**
  * Captures: "sha256-" + 64 hex chars + optional extension.
@@ -18,13 +18,17 @@ export async function listFileHashes(dir: t.StringDir) {
   }
 
   console.info();
-  const spinner = Cli.spinner();
+  const total = entries.length;
+  const spinnerMsg = `calculated ${total} ${Str.plural(total, 'hash', 'hashes')}`;
+  const spinner = Cli.spinner(c.gray(c.italic(spinnerMsg)));
+
   const table = Cli.table([]);
   for (const file of entries) {
     const path = file.path.slice(dir.length);
     const hx = await toHash(file.path);
     table.push([c.gray(path), '→', c.gray(hx.hash.short)]);
   }
+
   spinner.stop();
   console.info(table.toString());
 }
