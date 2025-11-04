@@ -6,6 +6,10 @@ import { type t, c, Cli, exclude, Fs, Hash, promptForFileSelection } from './com
  */
 const SHA256_FILE_RE = /(sha256-[a-f0-9]{64}(?:\.[\w.-]+)?)/i;
 
+/**
+ * Prompts the user to select files and renames each
+ * to its SHA-256 hash with extension.
+ */
 export async function selectFilesAndRenameToHash(dir: t.StringDir) {
   type T = { hx: string; in: t.StringPath; out: t.StringPath };
   const res: T[] = [];
@@ -42,31 +46,64 @@ export async function selectFilesAndRenameToHash(dir: t.StringDir) {
   return res;
 }
 
+/**
+ * Scans a directory for files named with a SHA-256 pattern and
+ * copies them into a "-sha256" folder.
+ */
 export async function extractSha256Files(dir: t.StringDir) {
-  const glob = Fs.glob(dir, { exclude });
-  const entries = await glob.find('*');
-
-  const paths = entries
-    .filter((e) => e.isFile)
-    .map((e) => {
-      const name = Fs.basename(e.path);
-      const hashFile = sha256FileFromText(name) ?? sha256FileFromText(e.path);
-      return hashFile ? { from: e.path, to: { filename: hashFile } } : undefined;
-    })
-    .filter((v): v is { from: t.StringPath; to: { filename: string } } => !!v);
-
+  const paths = await getRenamedFilePaths(dir);
   const outdir = Fs.join(dir, '-sha256');
   await Fs.ensureDir(outdir);
 
   const spinner = Cli.spinner();
   for (const path of paths) {
-    await Fs.copy(path.from, Fs.join(outdir, path.to.filename), { force: true });
+    const to = Fs.join(outdir, path.to.filename);
+    await Fs.copy(path.from, to, { force: true });
   }
   spinner.stop();
 
   return paths;
 }
-export const sha256FileFromText = (text: string): string | undefined => {
+
+/**
+ *
+ */
+export async function removeRenamedSh256Files(dir: t.StringDir, opts: { dryRun?: boolean } = {}) {
+  const { dryRun = false } = opts;
+  const paths = await getRenamedFilePaths(dir);
+
+  // Confirm:
+  console.info();
+  console.info(c.gray(`About to ${c.yellow('delete')} files:`));
+  console.info();
+  paths.forEach((e) => console.info(c.gray(` • ${Fs.basename(e.from)}`)));
+  console.info();
+
+  const yes = await Cli.Prompt.Confirm.prompt('Are you sure?');
+  if (!yes) return;
+
+  for (const path of paths) {
+    await Fs.remove(path.from, { dryRun, log: true });
+  }
+}
+
+/**
+ * Helpers:
+ */
+async function getRenamedFilePaths(dir: t.StringDir) {
+  const glob = Fs.glob(dir, { exclude });
+  const entries = await glob.find('*');
+  return entries
+    .filter((e) => e.isFile)
+    .map((e) => {
+      const name = Fs.basename(e.path);
+      const hashName = sha256FileFromText(name) ?? sha256FileFromText(e.path);
+      return hashName ? { from: e.path, to: { filename: hashName } } : undefined;
+    })
+    .filter((v): v is { from: t.StringPath; to: { filename: string } } => !!v);
+}
+
+function sha256FileFromText(text: string): string | undefined {
   const m = text.match(SHA256_FILE_RE);
   return m?.[1];
-};
+}

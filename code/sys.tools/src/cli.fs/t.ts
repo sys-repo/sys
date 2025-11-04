@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** The various copy options */
-export type FsCommand = 'rename-sha256' | 'extract-sha256-files';
+export type FsCommand = 'rename-sha256' | 'extract-sha256-files' | 'remove-renamed-sha256';
 
 /**
  * CLI helpers for performing common file-system tasks.
