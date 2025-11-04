@@ -1,3 +1,5 @@
+import { debug } from 'node:console';
+import { domainToASCII } from 'node:url';
 import React from 'react';
 import { Player } from '../../Player/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
@@ -10,13 +12,18 @@ type Storage = Pick<
   | 'debug'
   | 'muted'
   | 'autoPlay'
-  | 'src'
   | 'cornerRadius'
   | 'loop'
   | 'aspectRatio'
   | 'fadeMask'
   | 'crop'
-> & { width?: number; controlled?: boolean; logSignals?: boolean };
+> & {
+  width?: number;
+  controlled?: boolean;
+  logSignals?: boolean;
+  endpointLocalhost?: boolean;
+  urlPath?: string;
+};
 
 /**
  * Types:
@@ -33,7 +40,8 @@ const defaults: Storage = {
   loop: false,
   aspectRatio: '16/9',
   cornerRadius: 15,
-  src: 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4',
+  endpointLocalhost: false,
+  urlPath: '/video/540p/1068502644.mp4',
   controlled: false,
   fadeMask: undefined,
   crop: undefined,
@@ -49,24 +57,18 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const video = Player.Video.signals({
-    src: snap.src,
-    autoPlay: snap.autoPlay,
-    muted: snap.muted,
-    loop: snap.loop,
-  });
-
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
     width: s(snap.width),
     controlled: s(snap.controlled),
     logSignals: s(snap.logSignals),
+    endpointLocalhost: s(snap.endpointLocalhost),
 
     playing: s(false),
     autoPlay: s(snap.autoPlay),
 
-    src: s(snap.src),
+    urlPath: s(snap.urlPath),
     muted: s(snap.muted),
     loop: s(snap.loop),
     cornerRadius: s(snap.cornerRadius),
@@ -78,16 +80,41 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    video,
-    listen() {
-      Signal.listen(props);
-
-      const vp = video.props;
-      vp?.currentTime.value;
-      vp?.duration.value;
-      vp?.ready.value;
+    listen,
+    reset,
+    get video() {
+      return video;
+    },
+    get domain() {
+      return p.endpointLocalhost.value
+        ? 'http://localhost:8080'
+        : 'https://fs.socialleancanvas.com';
+    },
+    get src() {
+      const path = (p.urlPath.value || '').replace(/^\/+/, '');
+      const url = `${api.domain}/${path}`;
+      return url;
     },
   };
+
+  const video = Player.Video.signals({
+    src: api.src,
+    autoPlay: snap.autoPlay,
+    muted: snap.muted,
+    loop: snap.loop,
+  });
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
+
+  function listen() {
+    Signal.listen(props);
+    const vp = video.props;
+    vp?.currentTime.value;
+    vp?.duration.value;
+    vp?.ready.value;
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -96,8 +123,9 @@ export function createDebugSignals() {
       d.width = p.width.value;
       d.controlled = p.controlled.value;
       d.logSignals = p.logSignals.value;
+      d.endpointLocalhost = p.endpointLocalhost.value;
 
-      d.src = p.src.value;
+      d.urlPath = p.urlPath.value;
       d.autoPlay = p.autoPlay.value;
       d.muted = p.muted.value;
 
@@ -116,7 +144,7 @@ export function createDebugSignals() {
     const controlled = p.controlled.value;
     if (controlled) {
       const vp = video.props;
-      vp.src.value = p.src.value;
+      vp.src.value = api.src;
       vp.autoPlay.value = p.autoPlay.value ?? false;
       vp.muted.value = p.muted.value ?? false;
       vp.loop.value = p.loop.value ?? false;
@@ -125,6 +153,10 @@ export function createDebugSignals() {
       vp.scale.value = p.scale.value;
       vp.cornerRadius.value = p.cornerRadius.value;
     }
+  });
+
+  Signal.effect(() => {
+    // const
   });
 
   return api;
@@ -253,8 +285,27 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Video:'}</div>
-      {videoButton(p.src, 'https://fs.socialleancanvas.com/video/540p/1068502644.mp4')}
-      {videoButton(p.src, 'https://fs.socialleancanvas.com/video/540p/1068653222.mp4')}
+      {[
+        '/video/540p/1068502644.mp4',
+        '/video/540p/1068653222.mp4',
+        '/video/v2/core/sha256-3ee12096a189525fcbb0e85d1781fc414e46e8c306b6ee170af17fe8bd2b11c7.webm',
+      ].map((src, i) => videoButton(debug, p.urlPath, src))}
+      <div
+        className={
+          css({
+            boxSizing: 'border-box',
+            Padding: [15, 15, 8, 15],
+            fontFamily: 'monospace',
+            textAlign: 'center',
+            fontSize: 9,
+            fontWeight: 600,
+            overflowWrap: 'anywhere',
+            wordBreak: 'break-all',
+          }).class
+        }
+      >
+        {debug.src}
+      </div>
       <hr />
       <Button
         block
@@ -294,6 +345,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.debug)}
       />
       <Button
+        block
+        label={() => {
+          const v = p.endpointLocalhost.value;
+          return `endpoint: ${v ? '(localhost)' : 'public internet (ipfs)'}`;
+        }}
+        onClick={() => Signal.toggle(p.endpointLocalhost)}
+      />
+      <Button
         //
         block
         enabled={() => !!p.controlled.value}
@@ -305,17 +364,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `width: ${p.width.value}`}
         onClick={() => Signal.cycle(p.width, [320, 420, 420, 600])}
       />
-      <Button
-        block
-        label={() => `(reset)`}
-        onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
-      />
+      <Button block label={() => `(reset)`} onClick={Debug.reset} />
 
       <ObjectView
         name={'debug'}
         data={{
           ...Signal.toObject(p),
-          src: Str.truncate(p.src.value, 35),
+          src: Str.truncate(debug.src, 35),
         }}
         expand={0}
         style={{ marginTop: 15 }}
@@ -349,14 +404,15 @@ const wrangle = {
   },
 } as const;
 
-export function videoButton(signal: t.Signal<string | undefined>, src: string) {
-  return (
-    <Button
-      block
-      label={`src: ${Str.truncate(wrangle.srcLabel(src), 30)}`}
-      onClick={() => (signal.value = src)}
-    />
-  );
+export function videoButton(
+  debug: DebugSignals,
+  signal: t.Signal<string | undefined>,
+  path: string,
+) {
+  let label = `src: ${path.slice(0, 10)} .. ${debug.src.slice(-10)}`;
+  label = Str.truncate(label, 30);
+
+  return <Button block label={label} onClick={() => (signal.value = path)} />;
 }
 
 function CurrentTime(props: { video?: t.VideoPlayerSignals; prefix?: string }) {

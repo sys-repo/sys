@@ -18,7 +18,7 @@ export default Spec.describe(D.displayName, (e) => {
     return (
       <VideoElement
         style={{ width: v.width }}
-        src={v.src}
+        src={debug.src}
         debug={v.debug}
         theme={v.theme}
         muted={v.muted}
@@ -64,7 +64,7 @@ export default Spec.describe(D.displayName, (e) => {
   }
 
   function Root(props: { children?: React.ReactNode }) {
-    const src = useFileSize(p.src.value);
+    const src = useFileSize(debug.src);
     const size = Str.bytes(src.bytes);
 
     const theme = Color.theme('Dark');
@@ -84,6 +84,17 @@ export default Spec.describe(D.displayName, (e) => {
         columnGap: 5,
       }),
       size: css({ color: theme.fg }),
+      url: css({
+        Absolute: [null, 0, -115, 0],
+        fontFamily: 'monospace',
+        textAlign: 'center',
+        fontSize: 12,
+        lineHeight: 1.6,
+        overflowWrap: 'anywhere',
+        wordBreak: 'break-all',
+        opacity: 0.3,
+        ':hover': { opacity: 1, transition: 'opacity 120ms ease' },
+      }),
     };
 
     const elSizeLabel = (
@@ -92,10 +103,13 @@ export default Spec.describe(D.displayName, (e) => {
         <span className={styles.size.class}>{size}</span>
       </>
     );
+
+    const elUrl = <div className={styles.url.class}>{debug.src}</div>;
     return (
       <>
         {src.bytes > 0 && <div className={styles.base.class}>{elSizeLabel}</div>}
         {props.children}
+        {elUrl}
       </>
     );
   }
