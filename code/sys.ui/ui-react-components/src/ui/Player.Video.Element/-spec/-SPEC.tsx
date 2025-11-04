@@ -85,11 +85,11 @@ export default Spec.describe(D.displayName, (e) => {
       }),
       size: css({ color: theme.fg }),
       url: css({
-        Absolute: [null, 0, -115, 0],
+        Absolute: [null, 30, -115, 30],
         fontFamily: 'monospace',
         textAlign: 'center',
         fontSize: 12,
-        lineHeight: 1.6,
+        lineHeight: 1.65,
         overflowWrap: 'anywhere',
         wordBreak: 'break-all',
         opacity: 0.3,
