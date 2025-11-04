@@ -1,8 +1,12 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import { type t, Value } from '../common.ts';
-import { VideoPlayerPropsSchema } from '../mod.ts';
+import { Traits, VideoPlayerPropsSchema } from '../mod.ts';
 
 describe('trait: video-player', () => {
+  it('API', () => {
+    expect(Traits.Schema.VideoPlayer.Props).to.equal(VideoPlayerPropsSchema);
+  });
+
   describe('schema', () => {
     it('validates minimal object', () => {
       expect(Value.Check(VideoPlayerPropsSchema, { name: 'foo' })).to.eql(true);

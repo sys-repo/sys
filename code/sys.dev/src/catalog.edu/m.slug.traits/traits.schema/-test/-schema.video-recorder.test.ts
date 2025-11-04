@@ -3,6 +3,10 @@ import { type t, Value } from '../common.ts';
 import { Traits, VideoRecorderPropsSchema } from '../mod.ts';
 
 describe('trait: video-recorder', () => {
+  it('API', () => {
+    expect(Traits.Schema.VideoRecorder.Props).to.equal(VideoRecorderPropsSchema);
+  });
+
   describe('schema', () => {
     it('validates minimal object', () => {
       expect(Value.Check(VideoRecorderPropsSchema, { name: 'foo' })).to.eql(true);

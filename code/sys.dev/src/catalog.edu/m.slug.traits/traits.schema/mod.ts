@@ -31,3 +31,4 @@ export {
   VideoRecorderPropsSchema,
   VideoRecorderPropsSchemaInternal,
 } from './schema.video-recorder.ts';
+export { ViewRendererPropsSchema } from './schema.view-renderer.ts';

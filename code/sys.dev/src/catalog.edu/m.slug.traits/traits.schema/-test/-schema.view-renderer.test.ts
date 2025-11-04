@@ -1,9 +1,12 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import { type t, Value } from '../common.ts';
-import { Traits } from '../mod.ts';
-import { ViewRendererPropsSchema } from '../schema.view-renderer.ts';
+import { Traits, ViewRendererPropsSchema } from '../mod.ts';
 
 describe('trait: view-renderer', () => {
+  it('API', () => {
+    expect(Traits.Schema.ViewRenderer.Props).to.equal(ViewRendererPropsSchema);
+  });
+
   describe('schema', () => {
     it('validates minimal object', () => {
       expect(Value.Check(ViewRendererPropsSchema, { view: 'foo' })).to.eql(true);
