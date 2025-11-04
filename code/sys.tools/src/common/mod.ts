@@ -5,3 +5,16 @@ export * from './libs.ts';
 export * from './u.fmt.ts';
 export * from './u.fs.detectRepoRoot.ts';
 export * from './u.keepAlive.ts';
+export * from './u.prompt.ts';
+
+/**
+ * Constants:
+ */
+export const exclude = [
+  '**/node_modules/',
+  '**/.git/',
+  '**/dist/',
+  '**/.tmp/',
+  '**/-tmp/',
+  '**/.DS_Store',
+] as const;

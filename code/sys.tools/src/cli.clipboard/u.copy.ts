@@ -1,4 +1,4 @@
-import { c, Cli, DenoFile, Fs, Str, Token } from './common.ts';
+import { type t, c, Cli, DenoFile, Fs, promptForFileSelection, Str, Token } from './common.ts';
 import { makeHeader } from './u.copy.header.ts';
 
 type Section = {
@@ -126,17 +126,20 @@ type SelectAndCopyOptions = {
   message: string;
   totalLabel?: string;
   defaultChecked?: (path: string) => boolean;
+  filter?: (file: t.WalkEntry) => boolean;
   sort?: boolean;
   maxRows?: number;
 };
 
-export async function selectAndCopy(paths: string[], opts: SelectAndCopyOptions) {
+// export async function selectAndCopy(paths: string[], opts: SelectAndCopyOptions) {
+export async function selectAndCopy(paths: t.StringPath[], opts: SelectAndCopyOptions) {
   const {
     dir,
     repoRootAbs,
     message,
     totalLabel = 'files',
     defaultChecked = () => false,
+    filter,
     sort = false,
     maxRows = 20,
   } = opts;
@@ -144,25 +147,10 @@ export async function selectAndCopy(paths: string[], opts: SelectAndCopyOptions)
   console.info(Str.SPACE);
   console.info(c.gray(`Total: ${paths.length.toLocaleString()} ${totalLabel}`));
 
-  let options = paths.map((path) => {
-    const name = path.slice(dir.length + 1);
-    const checked = defaultChecked(path);
-    return {
-      name: checked ? c.green(name) : name,
-      value: path,
-      checked,
-    };
-  });
-
-  if (sort) options = options.sort((a, b) => a.value.localeCompare(b.value));
-
-  const selected = await Cli.Prompt.Checkbox.prompt({
-    message,
-    options,
-    check: c.green('●'),
-    uncheck: c.gray('○'),
-    maxRows,
-  });
+  const selected = await promptForFileSelection(
+    { paths, base: dir },
+    { message, maxRows, sort, filter, defaultChecked },
+  );
 
   if (selected.length > 0) {
     const text = await pathsToFileStrings(selected, repoRootAbs);
