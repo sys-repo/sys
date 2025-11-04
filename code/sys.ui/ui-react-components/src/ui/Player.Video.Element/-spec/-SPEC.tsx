@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { Color, css, Dev, Signal, Spec, Str } from '../../-test.ui.ts';
+import { KeyValue } from '../../KeyValue/mod.ts';
 import { Player } from '../../Player/m.Player.ts';
-import { D } from '../common.ts';
+import { D, Url } from '../common.ts';
 import { useFileSize, VideoElement } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -69,47 +70,57 @@ export default Spec.describe(D.displayName, (e) => {
 
     const theme = Color.theme('Dark');
     const styles = {
-      base: css({
-        Absolute: [null, 0, -25, 0],
-        PaddingX: 12,
-        fontSize: 10,
-        fontFamily: 'monospace',
-        color: Color.alpha(theme.fg, 0.5),
+      size: {
+        base: css({
+          Absolute: [-25, 0, null, 0],
+          PaddingX: 12,
+          color: Color.alpha(theme.fg, 0.5),
+          fontSize: 10,
+          fontFamily: 'monospace',
+          // color: theme.fg,
 
-        display: 'grid',
-        gridAutoFlow: 'column', //          ← Lay items out in columns.
-        gridAutoColumns: 'max-content', //  ← Size each implicit column to its content.
-        justifyContent: 'start', //         ← Align the whole grid to the left.
-        justifyItems: 'start',
-        columnGap: 5,
-      }),
-      size: css({ color: theme.fg }),
-      url: css({
-        Absolute: [null, 30, -115, 30],
-        fontFamily: 'monospace',
-        textAlign: 'center',
-        fontSize: 12,
-        lineHeight: 1.65,
-        overflowWrap: 'anywhere',
-        wordBreak: 'break-all',
-        opacity: 0.3,
-        ':hover': { opacity: 1, transition: 'opacity 120ms ease' },
-      }),
+          display: 'grid',
+          gridAutoFlow: 'column', //          ← Lay items out in columns.
+          gridAutoColumns: 'max-content', //  ← Size each implicit column to its content.
+          justifyContent: 'start', //         ← Align the whole grid to the left.
+          justifyItems: 'start',
+          columnGap: 5,
+        }),
+        label: css({}),
+      },
+      infoPanel: {
+        base: css({ Absolute: [null, 30, -40, 30] }),
+        inner: css({ Absolute: [0, 0, null, 0], display: 'grid' }),
+      },
     };
 
-    const elSizeLabel = (
-      <>
-        <span>{'network/file-size:'}</span>
-        <span className={styles.size.class}>{size}</span>
-      </>
+    const parsedUrl = Url.parse(debug.src);
+    const url = parsedUrl.ok ? parsedUrl.toURL() : undefined;
+
+    const elInfoPanel = (
+      <div className={styles.infoPanel.base.class}>
+        <KeyValue.View
+          theme={theme.name}
+          style={styles.infoPanel.inner}
+          layout={{ kind: 'table', columnGap: 20 }}
+          items={
+            !url
+              ? undefined
+              : [
+                  { k: 'protocol', v: url.protocol },
+                  { k: 'host', v: url.host },
+                  { k: 'path', v: Str.truncate(url.pathname, 50) },
+                  { k: 'size / bytes', v: src.bytes > 0 ? size : '-' },
+                ]
+          }
+        />
+      </div>
     );
 
-    const elUrl = <div className={styles.url.class}>{debug.src}</div>;
     return (
       <>
-        {src.bytes > 0 && <div className={styles.base.class}>{elSizeLabel}</div>}
         {props.children}
-        {elUrl}
+        {elInfoPanel}
       </>
     );
   }
