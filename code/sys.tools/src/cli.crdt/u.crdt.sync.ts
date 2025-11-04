@@ -18,8 +18,15 @@ export async function sync(index: t.CrdtIndexDocRef, repo: t.Crdt.Repo, until?: 
   };
 
   const print = () => {
+    const stripWs = (url: string) => url.replace(/^wss:\/+/, '');
+    const urls = repo.sync.urls.map((url) => {
+      if (url.startsWith('wss://')) url = `${c.white('wss://')}${stripWs(url)}`;
+      if (url.startsWith('ws://')) url = `${c.white('ws://')}${stripWs(url)}`;
+      return url;
+    });
+
     console.clear();
-    console.info(c.gray(`${repo.sync.urls.join(', ')}`));
+    console.info(c.gray(`${urls.join(', ')}`));
     console.info(Fmt.itemTable(items, { appendColumn }));
     console.info();
   };
