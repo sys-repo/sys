@@ -11,7 +11,7 @@ export async function keepAlive(run?: Callback) {
   try {
     if (run) await run(life.dispose$);
 
-    // Block until disposed (Ctrl-C or caller-driven)
+    // Block until disposed (Ctrl-C or caller-driven):
     await new Promise<void>((resolve) => {
       const sub = life.dispose$.subscribe(() => {
         sub.unsubscribe?.();

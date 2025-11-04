@@ -2,6 +2,7 @@ export { Args, Cli, c } from '@sys/cli';
 export { Fs, Path } from '@sys/fs';
 export { Process } from '@sys/process';
 
+export { Hash } from '@sys/crypto/hash';
 export { Jsr } from '@sys/jsr';
 export { Arr, Delete, Err, Is, Json, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';
 export { Schedule } from '@sys/std/async';
