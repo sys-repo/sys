@@ -1,9 +1,10 @@
-import { type t, Args, Cli, D, Fs, Hash } from './common.ts';
+import { type t, Args, Cli, D, Fs } from './common.ts';
 import {
-  extractSha256Files,
-  removeRenamedSh256Files,
+  listFileHashes,
+  removeRenamedSh256Files as removeRenamedSha256Files,
   selectFilesAndRenameToHash,
-} from './u.cmd.hash.ts';
+  tidySha256Files,
+} from './u.cmd.hx.ts';
 import { Fmt } from './u.fmt.ts';
 
 export const cli: t.FsToolsLib['cli'] = async (opts = {}) => {
@@ -26,15 +27,17 @@ async function run(dir: t.StringDir) {
   const mode = (await Cli.Prompt.Select.prompt({
     message: 'Select copy mode:\n',
     options: [
-      { name: 'Rename files → <filename>-sha-256.<ext>', value: 'rename-sha256' },
-      { name: 'Pluck/copy sha-256 files to folder: -sha256', value: 'extract-sha256-files' },
-      { name: 'Remove generated/renamed sha-256 files', value: 'remove-renamed-sha256' },
+      { name: 'Hash: List file hashes', value: 'hash:list' },
+      { name: 'Hash: Rename files → <filename>-sha-256.<ext>', value: 'hash:rename-sha256' },
+      { name: 'Hash: Tidy sha-256 files to folder: -sha256', value: 'hash:tidy-sha256-files' },
+      { name: 'Hash: Remove generated sha-256 files', value: 'hash:remove-renamed-sha256' },
     ],
   })) as t.FsCommand;
 
-  if (mode === 'rename-sha256') await selectFilesAndRenameToHash(dir);
-  if (mode === 'extract-sha256-files') await extractSha256Files(dir);
-  if (mode === 'remove-renamed-sha256') await removeRenamedSh256Files(dir);
+  if (mode === 'hash:list') await listFileHashes(dir);
+  if (mode === 'hash:rename-sha256') await selectFilesAndRenameToHash(dir);
+  if (mode === 'hash:tidy-sha256-files') await tidySha256Files(dir);
+  if (mode === 'hash:remove-renamed-sha256') await removeRenamedSha256Files(dir);
 
   return { mode };
 }
