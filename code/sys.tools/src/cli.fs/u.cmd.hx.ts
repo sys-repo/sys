@@ -19,14 +19,19 @@ export async function listFileHashes(dir: t.StringDir) {
 
   console.info();
   const total = entries.length;
-  const spinnerMsg = `calculated ${total} ${Str.plural(total, 'hash', 'hashes')}`;
+  const spinnerMsg = `calculating ${total} ${Str.plural(total, 'hash', 'hashes')}`;
   const spinner = Cli.spinner(c.gray(c.italic(spinnerMsg)));
 
   const table = Cli.table([]);
   for (const file of entries) {
-    const path = file.path.slice(dir.length);
+    let path = file.path.slice(dir.length);
+    const ext = Fs.extname(path);
+    const basename = Fs.basename(path);
+    path = Fs.join(Fs.dirname(path), `${c.white(basename.slice(0, -ext.length))}${ext}`);
+
     const hx = await toHash(file.path);
-    table.push([c.gray(path), '→', c.gray(hx.hash.short)]);
+    const hash = `${hx.hash.full.slice(0, -5)}${c.green(hx.hash.full.slice(-5))}`;
+    table.push([c.gray(path), '→', c.gray(hash)]);
   }
 
   spinner.stop();
