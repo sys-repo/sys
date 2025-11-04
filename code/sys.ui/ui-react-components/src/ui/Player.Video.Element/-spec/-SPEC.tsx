@@ -92,7 +92,7 @@ export default Spec.describe(D.displayName, (e) => {
       },
     };
 
-    const elInfoPanel = (
+    const elInfoPanel = p.infoPanel.value && (
       <div className={styles.infoPanel.base.class}>
         <div className={styles.infoPanel.inner.class}>
           <InfoPanel theme={theme.name} src={debug.src} bytes={src.bytes} />

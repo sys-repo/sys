@@ -22,6 +22,7 @@ type Storage = Pick<
   endpointLocalhost?: boolean;
   urlPath?: string;
   urlCopied?: boolean;
+  infoPanel?: boolean;
 };
 
 /**
@@ -39,12 +40,14 @@ const defaults: Storage = {
   loop: false,
   aspectRatio: '16/9',
   cornerRadius: 15,
-  endpointLocalhost: false,
   urlPath: '/video/540p/1068502644.mp4',
   controlled: false,
   fadeMask: undefined,
   crop: undefined,
+  // Debug:
   logSignals: true,
+  endpointLocalhost: false,
+  infoPanel: true,
 };
 
 /**
@@ -63,6 +66,7 @@ export function createDebugSignals() {
     controlled: s(snap.controlled),
     logSignals: s(snap.logSignals),
     endpointLocalhost: s(snap.endpointLocalhost),
+    infoPanel: s(snap.infoPanel),
 
     playing: s(false),
     autoPlay: s(snap.autoPlay),
@@ -125,6 +129,7 @@ export function createDebugSignals() {
       d.controlled = p.controlled.value;
       d.logSignals = p.logSignals.value;
       d.endpointLocalhost = p.endpointLocalhost.value;
+      d.infoPanel = p.infoPanel.value;
 
       d.urlPath = p.urlPath.value;
       d.autoPlay = p.autoPlay.value;
@@ -357,6 +362,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.endpointLocalhost)}
       />
       <Button
+        block
+        label={() => `show InfoPanel: ${p.infoPanel.value}`}
+        onClick={() => Signal.toggle(p.infoPanel)}
+      />
+      <Button
         //
         block
         enabled={() => !!p.controlled.value}
@@ -397,17 +407,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 /**
  * Helpers:
  */
-const wrangle = {
-  srcLabel(input: string) {
-    if (!input.startsWith('https:')) return input;
-
-    // Shorten URL:
-    const path = new URL(input).pathname;
-    const filename = path.substring(path.lastIndexOf('/') + 1);
-    return `https: → ${filename}`;
-  },
-} as const;
-
 export function videoButton(
   debug: DebugSignals,
   signal: t.Signal<string | undefined>,
@@ -415,7 +414,6 @@ export function videoButton(
 ) {
   let label = `src: ${path.slice(0, 10)} .. ${debug.src.slice(-10)}`;
   label = Str.truncate(label, 30);
-
   return <Button block label={label} onClick={() => (signal.value = path)} />;
 }
 
