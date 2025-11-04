@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Value } from '../common.ts';
+import { Value, Yaml } from '../common.ts';
 import {
   FileListItemSchema,
   FileListPropsInputSchema,
@@ -146,6 +146,13 @@ describe('schema.file-list', () => {
           expect(Value.Check(S, v)).to.eql(false);
         });
       }
+
+      describe('invalid arrays (when using Input, array branch must still be canonical)', () => {
+        it('array with invalid item → invalid', () => {
+          expect(Value.Check(S, [true as unknown as string])).to.eql(false);
+          expect(Value.Check(S, [{} as unknown])).to.eql(false); // missing ref
+        });
+      });
     });
   });
 
@@ -170,7 +177,24 @@ describe('schema.file-list', () => {
     });
   });
 
-  describe('integration (authoring) — root slug uses file-list scalar', () => {
+  describe('guardrails: Props vs Input', () => {
+    it('Props rejects singleton authoring forms (string and {ref})', () => {
+      // canonical schema must only accept the array-of-items shape:
+      expect(Value.Check(Traits.Schema.FileList.Props, 'a.txt')).to.eql(false);
+      expect(Value.Check(Traits.Schema.FileList.Props, { ref: 'a.txt' })).to.eql(false);
+    });
+
+    it('Input accepts singletons and normalizes to canonical array', () => {
+      const In = Traits.Schema.FileList.Input;
+      expect(Value.Check(In, 'a.txt')).to.eql(true);
+      expect(Value.Check(In, { ref: 'a.txt' })).to.eql(true);
+
+      expect(normalizeFileList('a.txt')).to.eql([{ ref: 'a.txt' }]);
+      expect(normalizeFileList({ ref: 'a.txt' })).to.eql([{ ref: 'a.txt' }]);
+    });
+  });
+
+  describe('integration — root slug uses file-list input/authoring variants', () => {
     it('validates scalar via Input schema and normalizes to array', () => {
       const doc = {
         slug: {
@@ -190,6 +214,52 @@ describe('schema.file-list', () => {
 
       // (Optional) If your runtime path validates against canonical Props:
       expect(Value.Check(Traits.Schema.FileList.Props, list)).to.eql(true);
+    });
+
+    it('sanity: validates all three input forms and normalizes to arrays', () => {
+      const yaml = `
+      slug:
+        id: test
+        traits:
+          - as: video-1
+            of: file-list
+          - as: video-2
+            of: file-list
+          - as: video-3
+            of: file-list
+        data:
+          video-1: https://domain.com/video.webm
+          video-2:
+            ref: https://domain.com/video.webm
+          video-3:
+            - ref: https://domain.com/video.webm
+    `;
+
+      type T = { slug: { data: Record<string, any> } };
+      const doc = Yaml.parse<T>(yaml).data!;
+      const { data } = doc.slug;
+
+      // Validate all forms against the authoring Input schema
+      const In = Traits.Schema.FileList.Input;
+      expect(Value.Check(In, data['video-1'])).to.eql(true);
+      expect(Value.Check(In, data['video-2'])).to.eql(true);
+      expect(Value.Check(In, data['video-3'])).to.eql(true);
+
+      // Normalize each and assert canonical output
+      const n1 = normalizeFileList(data['video-1']);
+      const n2 = normalizeFileList(data['video-2']);
+      const n3 = normalizeFileList(data['video-3']);
+
+      const expected = [{ ref: 'https://domain.com/video.webm' }];
+      expect(n1).to.eql(expected);
+      expect(n2).to.eql(expected);
+      expect(n3).to.eql(expected);
+
+      // Ensure canonical arrays pass the Props schema
+      const Props = Traits.Schema.FileList.Props;
+      expect(Value.Check(Props, n1)).to.eql(true);
+      expect(Value.Check(Props, n2)).to.eql(true);
+      expect(Value.Check(Props, n3)).to.eql(true);
     });
   });
 });
