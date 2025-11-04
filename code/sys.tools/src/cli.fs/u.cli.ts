@@ -1,5 +1,5 @@
 import { type t, Args, Cli, D, Fs, Hash } from './common.ts';
-import { selectFilesAndRenameToHash } from './u.cmd.hash.ts';
+import { extractSha256Files, selectFilesAndRenameToHash } from './u.cmd.hash.ts';
 import { Fmt } from './u.fmt.ts';
 
 export const cli: t.FsToolsLib['cli'] = async (opts = {}) => {
@@ -21,10 +21,14 @@ export const cli: t.FsToolsLib['cli'] = async (opts = {}) => {
 async function run(dir: t.StringDir) {
   const mode = (await Cli.Prompt.Select.prompt({
     message: 'Select copy mode:\n',
-    options: [{ name: 'Rename files to SHA256', value: 'rename-sha256' }],
+    options: [
+      { name: 'Rename files to SHA-256', value: 'rename-sha256' },
+      { name: 'Extract SHA-256 files', value: 'extract-sha256-files' },
+    ],
   })) as t.FsCommand;
 
   if (mode === 'rename-sha256') await selectFilesAndRenameToHash(dir);
+  if (mode === 'extract-sha256-files') await extractSha256Files(dir);
 
   return { mode };
 }
