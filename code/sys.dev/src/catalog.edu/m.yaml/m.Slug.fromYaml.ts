@@ -8,6 +8,14 @@ type E = t.DeepMutable<t.SlugYamlErrors>;
 /**
  * Extracts a slug from YAML (string or AST), validates structure (schema) and semantics (rules),
  * and returns the candidate, AST, and categorized diagnostics.
+ *
+ * Notes:
+ *  • No implicit normalizers are derived from the registry;
+ *    callers must pass opts.normalizers explicitly if needed.
+ *
+ *  • Deep validation uses stubs only to enable array-alias traversal;
+ *    it does not validate prop shapes unless real schemas are supplied.
+ *
  */
 export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts = {}) => {
   const ast: t.Yaml.Ast = Is.string(yamlInput) ? Yaml.parseAst(yamlInput) : yamlInput;
