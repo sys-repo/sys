@@ -42,7 +42,7 @@
 import type { t } from './common.ts';
 
 /**
- * 🌼
+ * 🌳
  * Source schemas from:
  *  - ./traits.schema/*
  */
@@ -168,14 +168,27 @@ export type ConceptLayoutProps = {
 
 /**
  * File List
- * - mirrors `schema.file-list.ts` (`FileListItemSchema`, `FileListPropsSchema`)
+ * - mirrors `schema.file-list.ts` (`FileListItemSchema`, `FileListPropsSchema`, `FileListPropsInputSchema`)
  */
-/** Object form of a file list entry: `{ ref: string }`. */
-export type FileListItem = { readonly ref: string };
-/** A file list entry: a string path or an object `{ ref }`. */
+/** Object form of a file list entry. */
+export type FileListItem = {
+  readonly ref: string;
+  readonly name?: string;
+  readonly mime?: string;
+};
+
+/** A file list entry: a string path or an object `{ ref, name?, mime? }`. */
 export type FileListEntry = string | FileListItem;
-/** Root file list props: the list itself is the value. */
+
+/** Root file list props (canonical): the list itself is the value (array root). */
 export type FileListProps = readonly FileListEntry[];
+
+/**
+ * Authoring-time input union (matches `FileListPropsInputSchema`):
+ * - a single entry (string | {ref,name?,mime?})
+ * - or the canonical array of entries
+ */
+export type FileListPropsInput = FileListEntry | readonly FileListEntry[];
 
 /**
  * Time Map Properties

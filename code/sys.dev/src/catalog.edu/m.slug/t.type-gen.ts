@@ -39,7 +39,7 @@
  */
 
 /**
- * 🌼
+ * 🌳
  * Source schemas from:
  *  - ./schema.slug/*
  *  - ./schema.slug.traits/*

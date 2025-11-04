@@ -27,7 +27,8 @@ const FileListEntrySchemaInternal = T.Union(
 );
 
 /**
- * Properties: File List.
+ * Properties: File List (canonical).
+ * Canonical runtime shape is an array of items.
  */
 export const FileListPropsSchemaInternal = T.Array(FileListEntrySchemaInternal, {
   $id: 'trait.file-list.props',
@@ -36,7 +37,21 @@ export const FileListPropsSchemaInternal = T.Array(FileListEntrySchemaInternal, 
 });
 
 /**
- * Public widened export (JSR-safe: explicit t.TSchema surface).
+ * Authoring-time input: accept either a single entry (string | {ref,...})
+ * OR the canonical array. Normalize to an array before use.
  */
+export const FileListPropsInputSchemaInternal = T.Union(
+  [FileListEntrySchemaInternal, FileListPropsSchemaInternal],
+  {
+    $id: 'trait.file-list.props.input',
+    title: 'File List (Input)',
+    description: 'Authoring convenience: single entry or array. Normalize to an array before use.',
+  },
+);
+
+/**
+ * Public widened exports (JSR-safe: explicit t.TSchema surface).
+ */
+export const FileListPropsInputSchema: t.TSchema = FileListPropsInputSchemaInternal;
 export const FileListPropsSchema: t.TSchema = FileListPropsSchemaInternal;
 export const FileListItemSchema: t.TSchema = FileListItemSchemaInternal;

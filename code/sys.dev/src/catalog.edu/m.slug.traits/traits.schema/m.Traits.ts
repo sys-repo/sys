@@ -40,8 +40,8 @@ export const Traits: t.SlugTraitsLib = {
     },
     get FileList() {
       return {
-        Props: FileListPropsSchema,
         Item: FileListItemSchema,
+        Props: FileListPropsSchema,
         Input: FileListPropsInputSchema,
       };
     },

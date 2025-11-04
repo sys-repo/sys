@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { Value, type t } from '../traits.schema/common.ts';
 import {
   ConceptLayoutPropsSchema,
-  FileListPropsSchema,
+  FileListPropsInputSchema,
   TimeMapPropsSchema,
   VideoPlayerPropsSchema,
   VideoRecorderPropsSchema,
@@ -72,7 +72,7 @@ describe('trait-registry', () => {
       expect(schemaOf('video-recorder')).to.equal(VideoRecorderPropsSchema);
       expect(schemaOf('time-map')).to.equal(TimeMapPropsSchema);
       expect(schemaOf('concept-layout')).to.equal(ConceptLayoutPropsSchema);
-      expect(schemaOf('file-list')).to.equal(FileListPropsSchema);
+      expect(schemaOf('file-list')).to.equal(FileListPropsInputSchema);
     });
   });
 

@@ -8,27 +8,14 @@ export { Traits } from './m.Traits.ts';
 /**
  * Schemas:
  */
+export { ConceptLayoutPropsSchema } from './schema.concept-layout.ts';
+export { normalizeFileList } from './schema.file-list.normalize.ts';
 export {
-  ConceptLayoutPropsSchema,
-  ConceptLayoutPropsSchemaInternal,
-} from './schema.concept-layout.ts';
-export {
-  //
+  FileListItemSchema,
+  FileListPropsInputSchema,
   FileListPropsSchema,
-  FileListPropsSchemaInternal,
 } from './schema.file-list.ts';
-export {
-  //
-  TimeMapPropsSchema,
-  TimeMapPropsSchemaInternal,
-} from './schema.time-map.ts';
-export {
-  //
-  VideoPlayerPropsSchema,
-  VideoPlayerPropsSchemaInternal,
-} from './schema.video-player.ts';
-export {
-  VideoRecorderPropsSchema,
-  VideoRecorderPropsSchemaInternal,
-} from './schema.video-recorder.ts';
+export { TimeMapPropsSchema } from './schema.time-map.ts';
+export { VideoPlayerPropsSchema } from './schema.video-player.ts';
+export { VideoRecorderPropsSchema } from './schema.video-recorder.ts';
 export { ViewRendererPropsSchema } from './schema.view-renderer.ts';
