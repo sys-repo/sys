@@ -1,11 +1,11 @@
 import React from 'react';
 
+import { InfoPanel } from '../-dev/mod.ts';
 import { Color, css, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
-import { D, Url } from '../common.ts';
+import { D } from '../common.ts';
 import { useFileSize, VideoElement } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { InfoPanel } from './-ui.InfoPanel.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -87,7 +87,7 @@ export default Spec.describe(D.displayName, (e) => {
         label: css({}),
       },
       infoPanel: {
-        base: css({ Absolute: [null, 30, -40, 30] }),
+        base: css({ Absolute: [null, 20, -30, 20] }),
         inner: css({ Absolute: [0, 0, null, 0], display: 'grid' }),
       },
     };

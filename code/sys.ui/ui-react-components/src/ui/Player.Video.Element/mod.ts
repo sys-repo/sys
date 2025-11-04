@@ -2,6 +2,7 @@
  * A <video> element wrapper providing standard player behaviors.
  * @module
  */
+export { InfoPanel } from './-dev/mod.ts';
 export { ElapsedTime } from './ui.Elapsed.tsx';
 export { VideoElement } from './ui.tsx';
 export { useFileSize } from './use.FileSize.ts';
