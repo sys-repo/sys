@@ -170,7 +170,7 @@ describe('schema.file-list', () => {
     });
   });
 
-  describe.only('integration (authoring) — root slug uses file-list scalar', () => {
+  describe('integration (authoring) — root slug uses file-list scalar', () => {
     it('validates scalar via Input schema and normalizes to array', () => {
       const doc = {
         slug: {
