@@ -10,6 +10,7 @@ import {
   FileListItemSchema,
   FileListPropsInputSchema,
   FileListPropsSchema,
+  normalizeFileList,
 } from './schema.file-list.ts';
 import { TimeMapPropsSchema, TimeMapValueItemSchema } from './schema.time-map.ts';
 import { VideoPlayerPropsSchema } from './schema.video-player.ts';
@@ -43,6 +44,7 @@ export const Traits: t.SlugTraitsLib = {
         Item: FileListItemSchema,
         Props: FileListPropsSchema,
         Input: FileListPropsInputSchema,
+        normalize: normalizeFileList,
       };
     },
     get TimeMap() {

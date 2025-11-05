@@ -16,6 +16,7 @@ describe('schema.file-list', () => {
     expect(Traits.Schema.FileList.Input).to.equal(FileListPropsInputSchema);
     expect(Traits.Schema.FileList.Props).to.equal(FileListPropsSchema);
     expect(Traits.Schema.FileList.Item).to.equal(FileListItemSchema);
+    expect(Traits.Schema.FileList.normalize).to.equal(normalizeFileList);
   });
 
   describe('Is.fileListProps', () => {

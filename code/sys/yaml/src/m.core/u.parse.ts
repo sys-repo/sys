@@ -1,5 +1,4 @@
 import { parse as _parse, parseDocument as _parseDocument } from 'yaml';
-
 import { type t, Err, ERR } from './common.ts';
 
 export const parse: t.YamlLib['parse'] = <T>(input: string) => {
