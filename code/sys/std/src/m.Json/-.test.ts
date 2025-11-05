@@ -1,9 +1,49 @@
 import { describe, expect, it, type t } from '../-test.ts';
 import { Json } from './mod.ts';
+import { circularReplacer } from './u.circularReplacer.ts';
 
 describe('Json', () => {
   const circular: any = { foo: 123 };
   circular.ref = circular;
+
+  it('API', () => {
+    expect(Json.circularReplacer).to.equal(circularReplacer);
+  });
+
+  describe('Json.circularReplacer', () => {
+    it('marks circular references with the default "[Circular]" tag', () => {
+      const a: any = { x: 1 };
+      a.self = a;
+      const text = JSON.stringify(a, Json.circularReplacer());
+      expect(text).to.eql('{"x":1,"self":"[Circular]"}');
+    });
+
+    it('supports a custom tag', () => {
+      const a: any = {};
+      a.loop = a;
+      const text = JSON.stringify(a, Json.circularReplacer('<loop>'));
+      expect(text).to.eql('{"loop":"<loop>"}');
+    });
+
+    it('does not affect non-circular objects', () => {
+      const obj = { a: { b: 1 } };
+      const text = JSON.stringify(obj, Json.circularReplacer());
+      expect(JSON.parse(text)).to.eql(obj);
+    });
+
+    it('handles deeply nested circular structures gracefully', () => {
+      const a: any = { name: 'root' };
+      const b: any = { parent: a };
+      const c: any = { parent: b };
+      a.child = b;
+      b.child = c;
+      c.child = a; // circular link back to root
+      const text = JSON.stringify(a, Json.circularReplacer());
+      const parsed = JSON.parse(text);
+      expect(parsed.name).to.eql('root');
+      expect(parsed.child.child.child).to.eql('[Circular]');
+    });
+  });
 
   describe('Json.stringify', () => {
     describe('complex values (multi-line, double-spaces, trailing new-line char)', () => {
@@ -33,9 +73,14 @@ describe('Json', () => {
         expect(b).to.not.eql(c);
       });
 
-      it('circular reference (safe)', () => {
+      it('circular reference (safe by default)', () => {
         const res = Json.stringify(circular, 0);
         expect(res).to.eql('{"foo":123,"ref":"[Circular]"}');
+      });
+
+      it('circular reference (custom tag)', () => {
+        const res = Json.stringify(circular, 0, '<loop>');
+        expect(res).to.eql('{"foo":123,"ref":"<loop>"}');
       });
     });
 

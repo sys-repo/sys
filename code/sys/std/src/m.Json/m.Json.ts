@@ -1,5 +1,5 @@
 import { type t, Delete, Err } from './common.ts';
-import type { JsonLib } from './t.ts';
+import { circularReplacer } from './u.circularReplacer.ts';
 
 type JsonInput = t.JsonString | undefined;
 
@@ -7,10 +7,12 @@ type JsonInput = t.JsonString | undefined;
  * Helpers for working with JavaScript Object Notation (JSON)
  * (RFC-8259).
  */
-export const Json: JsonLib = {
-  stringify(input: any, space: string | number = 2) {
+export const Json: t.JsonLib = {
+  circularReplacer,
+
+  stringify(input: any, space: string | number = 2, circularTag) {
     if (input === undefined) throw new Error(`[undefined] is not valid JSON input`);
-    const replacer = getCircularReplacer();
+    const replacer = circularReplacer(circularTag);
     const text = JSON.stringify(input, replacer, space);
     return text.includes('\n') ? `${text}\n` : text; // NB: trailing "new-line" only added if the JSON spans more than a single line
   },
@@ -66,14 +68,3 @@ const wrangle = {
     return input as T;
   },
 } as const;
-
-function getCircularReplacer(): (key: string, value: any) => any {
-  const seen = new WeakSet<object>();
-  return (_key: string, value: any): any => {
-    if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) return '[Circular]';
-      seen.add(value);
-    }
-    return value;
-  };
-}

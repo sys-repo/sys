@@ -8,7 +8,7 @@ type JsonInput = t.JsonString | undefined;
  */
 export type JsonLib = {
   /** Convert the given input to a serlalized JSON string. */
-  stringify(input: unknown, space?: string | number): string;
+  stringify(input: unknown, space?: string | number, circularTag?: string): string;
 
   /**
    * Parse a JSON string (or return the default/undefined) - throws.
@@ -31,6 +31,9 @@ export type JsonLib = {
     <T>(input: JsonInput): JsonParseResult<T | undefined>;
     <T>(input: JsonInput, defaultValue: JsonParseDefault<T>): JsonParseResult<T>;
   };
+
+  /** Factory for a replacer that elides circular refs as a tag. */
+  circularReplacer(tag?: string): (key: string, value: unknown) => unknown;
 };
 
 /** Default value to use when parsing. */
