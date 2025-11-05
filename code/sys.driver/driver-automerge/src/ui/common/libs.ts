@@ -17,6 +17,7 @@ export {
 export {
   Button,
   Cropmarks,
+  ErrorBoundary,
   ObjectView,
   Spinners,
   SplitPane,

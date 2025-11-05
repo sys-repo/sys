@@ -34,7 +34,7 @@ export const Layout: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Body {...props} style={styles.body} />
-      {isSpinning || (!render.ready && <Spinner theme={theme.name} />)}
+      {(isSpinning || !render.ready) && <Spinner theme={theme.name} />}
     </div>
   );
 };

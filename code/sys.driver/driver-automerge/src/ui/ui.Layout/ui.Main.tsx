@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Cropmarks, css, D, Is } from './common.ts';
+import { type t, Color, Cropmarks, css, D, ErrorBoundary, Is } from './common.ts';
 import { renderCtx, toCropmarksConfig } from './u.ts';
 import { Spinner } from './ui.Spinner.tsx';
 

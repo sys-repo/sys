@@ -4,6 +4,7 @@ import { type t, Color, D } from './common.ts';
  * Returns a themed 1px solid border string with the given opacity.
  */
 export function edgeBorder(theme: t.ColorTheme, opacity = D.edgeBorderOpacity) {
+  if (!opacity || opacity <= 0) return 'transparent';
   return `solid 1px ${Color.alpha(theme.fg, opacity)}`;
 }
 
@@ -23,12 +24,13 @@ export function toHeaderConfig(input?: t.LayoutHeader): t.LayoutHeader {
  */
 export function toSidebarConfig(input?: t.LayoutSidebar): t.LayoutSidebar {
   const d = D.sidebar;
+  const visible = input?.visible ?? d.visible;
   return {
     position: input?.position ?? d.position,
-    visible: input?.visible ?? d.visible,
+    visible,
     resizable: input?.resizable ?? d.resizable,
     width: input?.width ?? d.width,
-    divider: input?.divider ?? d.divider,
+    divider: visible ? (input?.divider ?? d.divider) : 0,
   };
 }
 

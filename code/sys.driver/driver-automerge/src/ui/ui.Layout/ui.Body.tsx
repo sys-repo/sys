@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, Num, SplitPane, useSizeObserver } from './common.ts';
+import { type t, Color, css, D, ErrorBoundary, Num, SplitPane, useSizeObserver } from './common.ts';
 import { toSidebarConfig } from './u.ts';
 import { Footer } from './ui.Footer.tsx';
 import { Header } from './ui.Header.tsx';
@@ -50,7 +50,11 @@ export const Body: React.FC<P> = (props) => {
    */
   const styles = {
     base: css({
+      position: 'relative',
       color: theme.fg,
+      display: 'grid',
+    }),
+    inner: css({
       display: 'grid',
       gridTemplateRows: 'auto 1fr auto',
       minHeight: 0,
@@ -62,26 +66,35 @@ export const Body: React.FC<P> = (props) => {
   const elSidebar = <Sidebar key={'sidebar'} {...props} />;
   const elMain = <Main key={'main'} {...props} style={styles.main} />;
 
+  // SplitPane seam controls (avoid hairline when hidden):
+  const splitGutter = sidebar.visible ? 8 : 0;
+  const splitDividerOpacity = sidebar.visible ? sidebar.divider : 0;
+  const splitActive = sidebar.visible && sidebar.resizable;
+
   return (
     <div className={css(styles.base, props.style).class}>
-      <Header {...props} />
+      <ErrorBoundary theme={theme.name}>
+        <div className={styles.inner.class}>
+          <Header {...props} />
 
-      <div ref={size.ref} className={styles.body.class}>
-        <SplitPane
-          orientation={'horizontal'}
-          gutter={8}
-          active={sidebar.resizable}
-          defaultValue={defaultValue}
-          onlyIndex={onlyIndex}
-          min={0.1}
-          debug={debug}
-          dividerOpacity={sidebar.divider}
-          theme={theme.name}
-          children={sidebar.position === 'left' ? [elSidebar, elMain] : [elMain, elSidebar]}
-        />
-      </div>
+          <div ref={size.ref} className={styles.body.class}>
+            <SplitPane
+              orientation={'horizontal'}
+              gutter={splitGutter}
+              active={splitActive}
+              defaultValue={defaultValue}
+              onlyIndex={onlyIndex}
+              min={0.1}
+              debug={debug}
+              dividerOpacity={splitDividerOpacity}
+              theme={theme.name}
+              children={sidebar.position === 'left' ? [elSidebar, elMain] : [elMain, elSidebar]}
+            />
+          </div>
 
-      <Footer {...props} />
+          <Footer {...props} />
+        </div>
+      </ErrorBoundary>
     </div>
   );
 };

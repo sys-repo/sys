@@ -12,7 +12,12 @@ const defaultFallback: t.ErrorBoundaryRenderer = (props) => <ErrorBoundaryFallba
 export const ErrorBoundary: React.FC<t.ErrorBoundaryProps> = (props) => {
   const { fallbackRender = defaultFallback, theme } = props;
   return (
-    <BaseErrorBoundary fallbackRender={(e) => fallbackRender({ ...e, theme })}>
+    <BaseErrorBoundary
+      fallbackRender={(e) => fallbackRender({ ...e, theme })}
+      resetKeys={props.resetKeys}
+      onError={props.onError}
+      onReset={props.onReset}
+    >
       {props.children}
     </BaseErrorBoundary>
   );
