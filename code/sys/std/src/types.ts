@@ -17,8 +17,6 @@ export type * from './m.Esm/t.ts';
 export type * from './m.Fn/t.ts';
 export type * from './m.History/t.ts';
 export type * from './m.Ignore/t.ts';
-export type * from './m.Immutable.Lens/t.ts';
-export type * from './m.Immutable/t.ts';
 export type * from './m.IndexedDb/t.ts';
 export type * from './m.Is/t.ts';
 export type * from './m.Json/t.ts';
