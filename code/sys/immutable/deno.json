@@ -16,6 +16,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
-    "./rfc6902": "./src/m.rfc6902/mod.ts"
+    "./rfc6902": "./src/m.rfc6902/mod.ts",
+    "./worker": "./src/m.worker/mod.ts"
   }
 }
