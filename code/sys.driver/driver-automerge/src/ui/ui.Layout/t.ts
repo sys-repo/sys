@@ -65,6 +65,7 @@ export type LayoutSlots = {
   sidebar?: Slot<LayoutCtx>;
   footer?: Slot<LayoutCtx>;
 };
+export type LayoutSlot = keyof LayoutSlots;
 
 /**
  * Stateful live signals.

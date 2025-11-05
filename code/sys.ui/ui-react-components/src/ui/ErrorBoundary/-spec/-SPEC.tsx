@@ -26,7 +26,11 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         return (
-          <ErrorBoundary theme={v.theme}>
+          <ErrorBoundary
+            theme={v.theme}
+            onError={(err, errInfo) => console.info(`⚡️ onError:`, err, errInfo)}
+            onReset={(e) => console.info(`⚡️ onReset:`, e)}
+          >
             <Sample debug={v.debug} theme={v.theme} />
           </ErrorBoundary>
         );
