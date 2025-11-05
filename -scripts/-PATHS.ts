@@ -28,11 +28,11 @@ export const Paths = {
 
     'code/sys/testing',
     'code/sys/process',
+    'code/sys/immutable',
     'code/sys/yaml',
     'code/sys/schema',
 
     'code/sys/event',
-    'code/sys/immutable',
     'code/sys/cmd',
     'code/sys/http',
     'code/sys/jsr',

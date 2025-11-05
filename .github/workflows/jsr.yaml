@@ -92,6 +92,12 @@ jobs:
           deno task test --parallel
           deno publish --allow-dirty
 
+      - name: publish module → "@sys/immutable"
+        run: |
+          cd code/sys/immutable
+          deno task test --parallel
+          deno publish --allow-dirty
+
       - name: publish module → "@sys/yaml"
         run: |
           cd code/sys/yaml
@@ -107,12 +113,6 @@ jobs:
       - name: publish module → "@sys/event"
         run: |
           cd code/sys/event
-          deno task test --parallel
-          deno publish --allow-dirty
-
-      - name: publish module → "@sys/immutable"
-        run: |
-          cd code/sys/immutable
           deno task test --parallel
           deno publish --allow-dirty
 
