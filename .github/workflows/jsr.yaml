@@ -41,5 +41,5 @@ jobs:
       - name: publish module → "@sys/immutable"
         run: |
           cd code/sys/immutable
-          deno task test --parallel --unstable-worker-options
+          deno task test --parallel
           deno publish --allow-dirty
