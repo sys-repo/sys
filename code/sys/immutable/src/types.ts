@@ -2,4 +2,4 @@
  * @module
  * @types Type-library module.
  */
-export type {};
+export type * from './core/m.Immutable/t.ts';
