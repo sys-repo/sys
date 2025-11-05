@@ -9,7 +9,7 @@ describe('Yaml.parseAst', () => {
     `;
     const doc = Yaml.parseAst(src);
     expect(doc.errors).to.eql([]); // no parse errors
-    expect(Yaml.toJS(doc).value).to.eql({ name: 'Alice', age: 42 }); // ← correct data.
+    expect(Yaml.toJS(doc).data).to.eql({ name: 'Alice', age: 42 }); // ← correct data.
   });
 
   it('retains source-token ranges for nodes', () => {

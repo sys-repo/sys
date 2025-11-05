@@ -15,7 +15,7 @@ describe('Schema: error', () => {
         traits: {}     # should be array
       `;
       const ast = Yaml.parseAst(src);
-      const data = ast.toJS();
+      const data = Yaml.toJS(ast).data;
 
       const T = Schema.Type;
       const SlugSchema = T.Object(

@@ -5,7 +5,7 @@ export const toJS: t.YamlLib['toJS'] = (doc) => {
   try {
     return {
       ok: true,
-      value: (doc as Y.Document.Parsed).toJS(),
+      data: (doc as Y.Document.Parsed).toJS(),
       errors: [],
     };
   } catch (err) {

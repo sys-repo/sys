@@ -103,7 +103,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
     if (ast.errors.length > 0) ast.errors.forEach((err) => errors.add(err));
 
     let ops: t.ObjDiffOp[] = [];
-    const value = ast.errors.length === 0 ? (toJS(ast).value as t.YamlValue<T>) : undefined;
+    const value = ast.errors.length === 0 ? (toJS(ast).data as t.YamlValue<T>) : undefined;
 
     const targetPath = path.target ?? [];
     if (ast.errors.length === 0 && targetPath.length > 0) {

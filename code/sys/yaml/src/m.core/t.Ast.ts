@@ -16,7 +16,7 @@ export type YamlToJsResult<T = unknown> = {
   /** True if conversion succeeded without errors. */ readonly ok: boolean;
 
   /** Parsed JavaScript value, present only if `ok` is true. */
-  readonly value?: T;
+  readonly data?: T;
 
   /** Normalized YAML diagnostics (e.g., unresolved alias, parser error). */
   readonly errors: readonly t.YamlDiagnostic[];

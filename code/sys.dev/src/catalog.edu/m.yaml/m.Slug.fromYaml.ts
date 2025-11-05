@@ -25,7 +25,7 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts = {}) => {
     : Obj.Path.decode(pathInput ?? '');
 
   // Extract candidate from plain JS value (not AST nodes):
-  const root = Yaml.toJS<O>(ast).value;
+  const root = Yaml.toJS<O>(ast).data;
   const candidate = Obj.Path.get(root, path);
 
   // Collect errors:

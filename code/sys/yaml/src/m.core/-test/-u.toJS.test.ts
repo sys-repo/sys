@@ -12,10 +12,10 @@ describe('Yaml.toJS', () => {
 
     expect(res.ok).to.eql(true);
     expect(res.errors.length).to.eql(0);
-    expect(res.value).to.eql({ foo: 1, bar: 'baz' });
+    expect(res.data).to.eql({ foo: 1, bar: 'baz' });
 
     // compile-time: generic type is respected
-    expectTypeOf(res.value).toEqualTypeOf<{ foo: number; bar: string } | undefined>();
+    expectTypeOf(res.data).toEqualTypeOf<{ foo: number; bar: string } | undefined>();
   });
 
   it('ok: sequence and nested shapes', () => {
@@ -32,7 +32,7 @@ describe('Yaml.toJS', () => {
 
     expect(res.ok).to.eql(true);
     expect(res.errors.length).to.eql(0);
-    expect(res.value).to.eql({ list: ['a', 'b'], nest: { x: 1, y: [2, 3] } });
+    expect(res.data).to.eql({ list: ['a', 'b'], nest: { x: 1, y: [2, 3] } });
   });
 
   it('ok: empty document → null value (yaml v2 semantics)', () => {
@@ -42,7 +42,7 @@ describe('Yaml.toJS', () => {
 
     expect(res.ok).to.eql(true);
     // yaml v2: empty doc materializes as `null`
-    expect(res.value).to.eql(null);
+    expect(res.data).to.eql(null);
   });
 
   it('error: unresolved alias (caught at toJS, no throw)', () => {
@@ -87,7 +87,7 @@ describe('Yaml.toJS', () => {
       expect(res.errors.length >= 0).to.eql(true);
       return;
     }
-    expectTypeOf(res.value).toEqualTypeOf<{ x: number } | undefined>();
-    expect(res.value?.x).to.eql(1);
+    expectTypeOf(res.data).toEqualTypeOf<{ x: number } | undefined>();
+    expect(res.data?.x).to.eql(1);
   });
 });
