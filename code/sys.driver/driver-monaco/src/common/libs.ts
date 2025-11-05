@@ -1,6 +1,7 @@
 /**
  * @system core
  */
+export { Immutable } from '@sys/immutable/core';
 export { Schema, Type } from '@sys/schema';
 export {
   Arr,
@@ -21,7 +22,6 @@ export {
   slug,
 } from '@sys/std';
 export { Schedule, singleton } from '@sys/std/async';
-export { Immutable } from '@sys/std/immutable';
 export { Rx } from '@sys/std/rx';
 export { Yaml } from '@sys/yaml';
 
