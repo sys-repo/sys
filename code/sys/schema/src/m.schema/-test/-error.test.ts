@@ -106,7 +106,10 @@ describe('Schema: error', () => {
       const T = Schema.Type;
       const S = T.Object({ slug: T.Object({ id: T.String(), traits: T.Array(T.Unknown()) }) });
 
-      const mappedSchema = Schema.Error.fromSchema(ast, Schema.Value.Errors(S, ast.toJS()));
+      const mappedSchema = Schema.Error.fromSchema(
+        ast,
+        Schema.Value.Errors(S, Yaml.toJS(ast).data),
+      );
       expect(mappedSchema.length).to.be.greaterThan(0);
       // Range can be undefined for some paths; at least one should have a tuple
       expect(mappedSchema.some((e) => Arr.isArray(e.range))).to.equal(true);
