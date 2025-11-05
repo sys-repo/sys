@@ -32,6 +32,7 @@ export const Paths = {
     'code/sys/schema',
 
     'code/sys/event',
+    'code/sys/immutable',
     'code/sys/cmd',
     'code/sys/http',
     'code/sys/jsr',
