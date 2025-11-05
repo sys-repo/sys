@@ -2,6 +2,7 @@ import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { ErrorBoundary } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Sample } from './-ui.Sample.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -24,7 +25,11 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <ErrorBoundary debug={v.debug} theme={v.theme} />;
+        return (
+          <ErrorBoundary theme={v.theme}>
+            <Sample debug={v.debug} theme={v.theme} />
+          </ErrorBoundary>
+        );
       });
 
     update();

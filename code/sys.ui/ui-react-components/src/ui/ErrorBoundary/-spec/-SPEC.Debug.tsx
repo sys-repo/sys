@@ -3,7 +3,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.ErrorBoundaryProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'theme'> & { debug?: boolean };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
