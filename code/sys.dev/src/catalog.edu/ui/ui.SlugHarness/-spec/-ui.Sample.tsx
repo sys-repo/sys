@@ -1,6 +1,5 @@
-import { type t, Color, Crdt, css, Delete, Obj, ObjectView } from '../common.ts';
-import { makeRegistry } from '../mod.ts';
-export const registry = makeRegistry();
+import { useState } from 'react';
+import { type t, Button, Color, Crdt, css, Delete, Obj, ObjectView } from '../common.ts';
 
 /**
  * Sample Component:
@@ -8,26 +7,39 @@ export const registry = makeRegistry();
 export function Sample(props: { prefix?: string; ctx: t.SlugViewProps }) {
   const { prefix = '', ctx } = props;
 
+  /**
+   * Hooks:
+   */
+  const [boom, setBoom] = useState(false);
+  if (boom) throw new Error('💥 Derp (render-throw to hit ErrorBoundary)');
+
+  /**
+   * Render
+   */
   const theme = Color.theme(ctx.theme);
   const styles = {
     base: css({
       Padding: [20, 30, 30, 30],
-      color: theme.fg,
       minWidth: 280,
+      color: theme.fg,
+      display: 'grid',
+      gridAutoFlow: 'row',
+      gridAutoRows: 'max-content',
+      rowGap: 15,
     }),
     obj: css({
       marginTop: 10,
       marginLeft: 15,
+      marginBottom: 15,
     }),
     title: {
       base: css({
-        borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
         display: 'grid',
-        width: '100%',
-        overflow: 'hidden',
-        gridTemplateColumns: 'auto 1fr',
-        gap: 15,
+        gridAutoFlow: 'column',
+        gridAutoColumns: 'max-content',
         alignItems: 'center',
+        gap: 15,
+        borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
       }),
       left: css({ fontSize: 36 }),
       right: css({
@@ -57,6 +69,7 @@ export function Sample(props: { prefix?: string; ctx: t.SlugViewProps }) {
         <div className={styles.title.left.class}>{'🐷'}</div>
         <div className={styles.title.right.class}>{`view: ${String(ctx.view)}`}</div>
       </div>
+      <Button label={'click to throw error'} theme={theme.name} onClick={() => setBoom(true)} />
       <ObjectView
         name={'ctx'}
         data={Delete.undefined(data)}
