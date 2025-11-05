@@ -33,7 +33,7 @@ export const Fileshare: React.FC<FileshareProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Crdt.UI.BinaryFile
+      <Crdt.UI.Binary.View
         theme={theme.name}
         style={styles.editor}
         doc={fileshare.doc}

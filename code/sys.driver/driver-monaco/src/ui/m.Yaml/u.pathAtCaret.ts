@@ -1,4 +1,3 @@
-import type { Document as YamlDocument } from 'yaml';
 import { Num, type t, Yaml } from './common.ts';
 
 type Result = Readonly<{ path: t.ObjectPath; offset: number }>;
@@ -9,7 +8,7 @@ type Result = Readonly<{ path: t.ObjectPath; offset: number }>;
  */
 export function pathAtCaret(
   model: t.Monaco.TextModel,
-  ast: YamlDocument.Parsed,
+  ast: t.Yaml.Ast,
   position: t.Monaco.I.IPosition,
   limit: number = 512,
 ): Result {

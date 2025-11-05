@@ -4,6 +4,7 @@ import { evaluateSemanticRules } from './m.Slug.fromYaml.rules.ts';
 import { safeApplyNormalizers } from './u.trait.normalize.ts';
 
 type E = t.DeepMutable<t.SlugYamlErrors>;
+type O = Record<string, unknown>;
 
 /**
  * Extracts a slug from YAML (string or AST), validates structure (schema) and semantics (rules),
@@ -24,7 +25,7 @@ export const fromYaml: t.SlugFromYaml = (yamlInput, pathInput, opts = {}) => {
     : Obj.Path.decode(pathInput ?? '');
 
   // Extract candidate from plain JS value (not AST nodes):
-  const root = ast.toJS?.();
+  const root = Yaml.toJS<O>(ast).value;
   const candidate = Obj.Path.get(root, path);
 
   // Collect errors:

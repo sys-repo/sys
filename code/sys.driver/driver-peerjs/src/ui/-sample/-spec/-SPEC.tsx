@@ -23,7 +23,7 @@ export default Spec.describe(D.displayName, (e) => {
           repo,
           signals: { doc: p.doc },
           initial: { count: 0 },
-          localstorage: STORAGE_KEY.DEV,
+          storageKey: STORAGE_KEY.DEV,
           urlKey: 'room',
           url: (e) => {
             const url = Url.parse(location.href).toURL();
