@@ -1,7 +1,6 @@
-import { type t, Color, Crdt, css, Lens, Log, ObjectView } from '../common.ts';
+import { Color, Crdt, Lens, Log } from '../common.ts';
 import { makeRegistry } from '../mod.ts';
 
-import { ErrorBoundary } from './-ui.ErrorBoundary.tsx';
 import { Sample } from './-ui.Sample.tsx';
 import { Tree } from './-ui.Tree.tsx';
 import { VideoPlayer } from './-ui.VideoPlayer.tsx';
@@ -42,9 +41,5 @@ export const registry = makeRegistry()
     return <Sample ctx={ctx} />; // TODO 🐷
   })
   .register('video-player', (ctx) => {
-    return (
-      <ErrorBoundary ctx={ctx}>
-        <VideoPlayer ctx={ctx} />
-      </ErrorBoundary>
-    );
+    return <VideoPlayer ctx={ctx} />;
   });
