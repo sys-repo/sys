@@ -104,4 +104,3 @@ export type YamlErr<E> = { readonly error: E; readonly data?: undefined };
 
 /** YAML-specific results (align with npm:yaml semantics). */
 export type YamlParseResult<T> = YamlOk<T | null> | YamlErr<t.StdError>; // yaml.parse('') → null (Ok)
-export type YamlParseAstResult = YamlOk<t.YamlAst> | YamlErr<t.StdError>; // AST always a Document; not null

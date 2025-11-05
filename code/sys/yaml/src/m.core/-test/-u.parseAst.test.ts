@@ -1,14 +1,12 @@
 import { Yaml } from '@sys/yaml/core';
 import { type t, describe, expect, it } from '../../-test.ts';
 
-type R = t.YamlParseResult<unknown>;
-
 describe('Yaml.parseAst', () => {
   it('parses valid YAML and returns the expected JS value', () => {
     const src = `
-    name: 'Alice'
-    age: 42
-  `;
+      name: 'Alice'
+      age: 42
+    `;
     const doc = Yaml.parseAst(src);
     expect(doc.errors).to.eql([]); // no parse errors
     expect(doc.toJS()).to.eql({ name: 'Alice', age: 42 }); // ← correct data.
@@ -26,5 +24,21 @@ describe('Yaml.parseAst', () => {
     expect(doc.errors.length).to.be.greaterThan(0);
     expect(doc.errors[0].name).to.eql('YAMLParseError');
     expect(doc.errors.length).to.eql(1);
+  });
+
+  describe('YAML anchors/aliases', () => {
+    it('throws on unresolved (unnamed) alias during toJS()', () => {
+      const src = `
+        tmpl: &video
+          - as: video
+            of: file-list
+        slugs:
+          - slug: *
+      `;
+      const doc = Yaml.parseAst(src);
+
+      // Resolution/JS conversion is where the error is raised:
+      expect(() => doc.toJS()).to.throw(/Unresolved alias/i);
+    });
   });
 });

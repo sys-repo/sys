@@ -1,13 +1,14 @@
 import { describe, expect, it } from '../../-test.ts';
 
-import { Yaml } from '@sys/yaml/core';
 import { Diagnostic } from '../m.Diagnostic.ts';
 import { Is } from '../m.Is.ts';
 import { Path } from '../m.Path.ts';
 import { Syncer } from '../m.Syncer.ts';
 
 describe('Yaml', () => {
-  it('API', () => {
+  it('API', async () => {
+    const { Yaml } = await import('@sys/yaml/core');
+
     expect(Yaml.Is).to.equal(Is);
     expect(Yaml.Syncer).to.equal(Syncer);
     expect(Yaml.syncer).to.equal(Syncer.make);
