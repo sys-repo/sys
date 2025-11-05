@@ -45,3 +45,11 @@ export function toTreeNode(item: t.SlugTreeItem, path: t.ObjectPath): t.TreeNode
 
   return node;
 }
+
+/**
+ * TODO 🐷
+ * - sample transformer (first draft) above.
+ * - refactor and put on, or
+ *    - TreeIndex.fromXXX
+ *    @sys/schema/slug:Slug.toTreeIndex(slug) 🐌
+ */

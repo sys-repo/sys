@@ -37,7 +37,7 @@ export const Tree: React.FC<TreeProps> = (props) => {
     const updateTree = () => {
       const parsed = (doc.current as any)?.['yaml.parsed']; // TEMP 🐷 hard-coded!
       if (!parsed) return reset();
-      const prog = ((parsed ?? {}) as any).slug?.data['programme.p2p']; // 🐷 hard-coded!
+      const prog = ((parsed ?? {}) as any).slug?.data['prog.p2p']; // 🐷 hard-coded!
       setRoot(toTreeStructure(prog));
     };
     updateTree();
@@ -52,7 +52,13 @@ export const Tree: React.FC<TreeProps> = (props) => {
     ev.$.subscribe(updateTree);
 
     ev.path(Path.join(PATH.dev, PATH.selectedPath)).$.subscribe((e) => {
+      // console.log(`⚡️💦🐷🌳🦄 🍌🧨🌼✨🧫 🫵 🐚👋🧠⚠️❌ 💥👁️💡─• ↑↓←→✔`);
+      // console.log('e', e);
+      // console.log('doc', doc);
       updatePath();
+      // if (!doc) return;
+      // const p = Obj.Path.get(doc.current, Path.join(PATH.dev, PATH.selectedPath));
+      // setPath(p as any);
     });
     updatePath();
 
@@ -113,6 +119,8 @@ export const Tree: React.FC<TreeProps> = (props) => {
         path={path}
         onPressDown={(e) => {
           console.log('click', e);
+          // handleClick(e.node.path);
+          // if (e.hasChildren) setPath(e.node.path);
           if (e.hasChildren) handleClick(e.node.path);
         }}
       />
