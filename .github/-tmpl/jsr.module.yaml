@@ -1,5 +1,5 @@
 - name: publish module → "NAME"
   run: |
     cd PATH
-    deno task test --parallel
+    deno task test --parallel --unstable-worker-options
     deno publish --allow-dirty
