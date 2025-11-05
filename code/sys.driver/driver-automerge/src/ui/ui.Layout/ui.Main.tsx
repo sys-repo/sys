@@ -39,8 +39,10 @@ export const Main: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {elCropmarks}
-      {isSpinning && <Spinner theme={theme.name} />}
+      <ErrorBoundary theme={theme.name}>
+        {elCropmarks}
+        {isSpinning && <Spinner theme={theme.name} />}
+      </ErrorBoundary>
     </div>
   );
 };

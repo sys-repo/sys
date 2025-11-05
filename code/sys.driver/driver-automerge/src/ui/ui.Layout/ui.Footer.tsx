@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, Is, Repo } from './common.ts';
+import { type t, Color, css, D, ErrorBoundary, Is, Repo } from './common.ts';
 import { edgeBorder, renderCtx } from './u.ts';
 import { Spinner } from './ui.Spinner.tsx';
 
@@ -50,12 +50,14 @@ export const Footer: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.body.class}>
-        <div className={styles.left.class}>{elSlot}</div>
-        <div />
-        <div className={styles.right.class}>{elRepoSwitch}</div>
-      </div>
-      {isSpinning && <Spinner theme={theme.name} />}
+      <ErrorBoundary theme={theme.name}>
+        <div className={styles.body.class}>
+          <div className={styles.left.class}>{elSlot}</div>
+          <div />
+          <div className={styles.right.class}>{elRepoSwitch}</div>
+        </div>
+        {isSpinning && <Spinner theme={theme.name} />}
+      </ErrorBoundary>
     </div>
   );
 };
