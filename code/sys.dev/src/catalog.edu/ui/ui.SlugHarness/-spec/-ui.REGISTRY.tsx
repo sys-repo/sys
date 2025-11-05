@@ -1,7 +1,10 @@
-import { Color, Crdt, Lens, Log } from '../common.ts';
+import { type t, Color, Crdt, css, Lens, Log, ObjectView } from '../common.ts';
 import { makeRegistry } from '../mod.ts';
+
+import { ErrorBoundary } from './-ui.ErrorBoundary.tsx';
 import { Sample } from './-ui.Sample.tsx';
 import { Tree } from './-ui.Tree.tsx';
+import { VideoPlayer } from './-ui.VideoPlayer.tsx';
 
 type O = Record<string, unknown>;
 
@@ -37,4 +40,11 @@ export const registry = makeRegistry()
   })
   .register('concept-layout', (ctx) => {
     return <Sample ctx={ctx} />; // TODO 🐷
+  })
+  .register('video-player', (ctx) => {
+    return (
+      <ErrorBoundary ctx={ctx}>
+        <VideoPlayer ctx={ctx} />
+      </ErrorBoundary>
+    );
   });

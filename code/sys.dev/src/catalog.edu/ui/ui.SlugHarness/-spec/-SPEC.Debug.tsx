@@ -17,7 +17,7 @@ import {
   Signal,
   STORAGE_KEY,
 } from '../common.ts';
-import { registry } from './-u.VIEW_REGISTRY.tsx';
+import { registry } from './-ui.REGISTRY.tsx';
 import { SlugViews } from './-ui.debug.view-renderer.tsx';
 
 type P = t.SlugHarnessProps;
