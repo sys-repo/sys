@@ -85,7 +85,7 @@ export type YamlLib = {
   readonly Range: t.YamlRangeLib;
 
   /** Parse YAML to a plain JS value (fast). */
-  parse<T>(input?: t.StringYaml): YamlParseResponse<T>;
+  parse<T>(input?: t.StringYaml): YamlParseResult<T>;
   /** Parse YAML and keep the full `Document` (ranges, comments, errors). */
   parseAst(src: t.StringYaml): t.YamlAst;
 
@@ -99,7 +99,7 @@ export type YamlLib = {
 };
 
 /** Response from the `Yaml.parse` method. */
-export type YamlParseResponse<T> = {
+export type YamlParseResult<T> = {
   readonly data?: T;
   readonly error?: t.StdError;
 };

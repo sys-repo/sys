@@ -1,7 +1,7 @@
 import { Yaml } from '@sys/yaml/core';
 import { type t, describe, expect, it } from '../../-test.ts';
 
-type R = t.YamlParseResponse<unknown>;
+type R = t.YamlParseResult<unknown>;
 
 describe('Yaml.parse', () => {
   it('parses valid YAML → returns data, no error', () => {
