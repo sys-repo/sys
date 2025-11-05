@@ -7,7 +7,7 @@ export { Repo as AutomergeRepo } from '@automerge/automerge-repo';
 /**
  * @system
  */
-export { Immutable } from '@sys/immutable/core';
+export { Immutable } from '@sys/immutable/rfc6902';
 export {
   Arr,
   Delete,

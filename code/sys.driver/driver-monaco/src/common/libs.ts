@@ -1,7 +1,7 @@
 /**
  * @system core
  */
-export { Immutable } from '@sys/immutable/core';
+export { Immutable } from '@sys/immutable/rfc6902';
 export { Schema, Type } from '@sys/schema';
 export {
   Arr,
