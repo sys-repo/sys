@@ -1,6 +1,6 @@
-import { type t, describe, expect, it } from '../../-test.ts';
-import { Is, Rx } from './common.ts';
-import { Immutable } from './mod.ts';
+import { type t, describe, expect, it } from '../../../-test.ts';
+import { Is, Rx } from '../common.ts';
+import { Immutable } from '../mod.ts';
 
 describe('Immutable Events', () => {
   type P = t.PatchOperation;

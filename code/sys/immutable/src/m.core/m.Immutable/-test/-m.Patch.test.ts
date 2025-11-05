@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../../-test.ts';
-import { Patch } from './m.Patch.ts';
-import { Immutable } from './mod.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { Patch } from '../m.Patch.ts';
+import { Immutable } from '../mod.ts';
 
 describe('Immutable.Patch (RFC-6902 JSON patch)', () => {
   it('API', () => {
