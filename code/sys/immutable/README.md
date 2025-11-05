@@ -4,7 +4,7 @@ Core immutable state primitives. Minimal, engine-agnostic primitives for working
 
 ### Entry points
 ```ts
-import { } from 'jsr:@sys/immutable/core';
+import { Immutable, Lens } from 'jsr:@sys/immutable/core';
 import { } from 'jsr:@sys/immutable/rfc6902';
 ```
 

@@ -1,9 +1,9 @@
 type O = Record<string, unknown>;
 
-export * from './u.Is.ts';
+export * from './m.Is.ts';
 export * from './u.Wrangle.ts';
 
-import { Is } from './u.Is.ts';
+import { Is } from './m.Is.ts';
 
 /**
  * Conver a composite <Map> object into a simple {object} ← [Immutable.current]
