@@ -1,5 +1,5 @@
-import { Yaml } from '@sys/yaml/core';
 import { type t, describe, expect, it } from '../../-test.ts';
+import { Yaml } from '../mod.ts';
 
 describe('Yaml.parseAst', () => {
   it('parses valid YAML and returns the expected JS value', () => {
@@ -9,7 +9,7 @@ describe('Yaml.parseAst', () => {
     `;
     const doc = Yaml.parseAst(src);
     expect(doc.errors).to.eql([]); // no parse errors
-    expect(doc.toJS()).to.eql({ name: 'Alice', age: 42 }); // ← correct data.
+    expect(Yaml.toJS(doc).value).to.eql({ name: 'Alice', age: 42 }); // ← correct data.
   });
 
   it('retains source-token ranges for nodes', () => {
@@ -38,7 +38,10 @@ describe('Yaml.parseAst', () => {
       const doc = Yaml.parseAst(src);
 
       // Resolution/JS conversion is where the error is raised:
-      expect(() => doc.toJS()).to.throw(/Unresolved alias/i);
+      const res = Yaml.toJS(doc);
+      expect(res.ok).to.eql(false);
     });
   });
 });
+
+describe('Yaml.toJS', () => {});

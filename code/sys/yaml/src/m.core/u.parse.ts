@@ -13,5 +13,5 @@ export const parse: t.YamlLib['parse'] = <T>(src?: string) => {
 };
 
 export const parseAst: t.YamlLib['parseAst'] = (src: string) => {
-  return _parseDocument(src);
+  return _parseDocument(src) as t.YamlAst;
 };

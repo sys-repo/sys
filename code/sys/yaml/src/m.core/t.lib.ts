@@ -24,6 +24,9 @@ export type YamlLib = {
   /** Parse YAML and keep the full `Document` (ranges, comments, errors). */
   parseAst(src: t.StringYaml): t.YamlAst;
 
+  /** Safe conversion — replaces direct .toJS() calls. */
+  readonly toJS: t.YamlToJs;
+
   /** Creates a new parse-syncer. */
   readonly Syncer: t.YamlSyncLib;
   readonly syncer: t.YamlSyncLib['make'];

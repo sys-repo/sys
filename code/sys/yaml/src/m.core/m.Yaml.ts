@@ -6,6 +6,7 @@ import { Path } from './m.Path.ts';
 import { Range } from './m.Range.ts';
 import { Syncer } from './m.Syncer.ts';
 import { parse, parseAst } from './u.parse.ts';
+import { toJS } from './u.toJS.ts';
 
 /**
  * Helpers for working with YAML.
@@ -17,6 +18,7 @@ export const Yaml: t.YamlLib = {
 
   parse,
   parseAst,
+  toJS,
 
   Syncer,
   syncer: Syncer.make,

@@ -1,5 +1,5 @@
-import { Yaml } from '@sys/yaml/core';
 import { type t, describe, expect, it } from '../../-test.ts';
+import { Yaml } from '../mod.ts';
 
 type R = t.YamlParseResult<unknown>;
 

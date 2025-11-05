@@ -129,7 +129,7 @@ describe('Yaml.syncer', () => {
         expect(syncer.current.text.after).to.eql(text ?? '');
         expect(syncer.current.ast).to.be.an('object');
         expect(syncer.current.ast?.errors ?? []).to.eql([]); // successful parse → no doc errors
-        expect(syncer.current.ast?.toJS()).to.eql(expected);
+        expect(Yaml.toJS(syncer.current.ast!).value).to.eql(expected);
       };
       test('', null);
       test('  ', null);
