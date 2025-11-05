@@ -1,4 +1,4 @@
-import { type FallbackProps, ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary';
+import { type FallbackProps } from 'react-error-boundary';
 import type { t } from './common.ts';
 
 /**
@@ -19,6 +19,5 @@ export type ErrorBoundaryRenderer = (props: ErrorBoundaryFallbackProps) => t.Rea
  * Props passed to the fallback renderer.
  */
 export type ErrorBoundaryFallbackProps = FallbackProps & {
-  debug?: boolean;
   theme?: t.CommonTheme;
 };

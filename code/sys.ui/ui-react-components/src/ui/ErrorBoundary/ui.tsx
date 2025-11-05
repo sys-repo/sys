@@ -1,23 +1,19 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { ErrorBoundary as BaseErrorBoundary } from 'react-error-boundary';
 
+import { type t } from './common.ts';
+import { ErrorBoundaryFallback } from './ui.Fallback.tsx';
+
+const defaultFallback: t.ErrorBoundaryRenderer = (props) => <ErrorBoundaryFallback {...props} />;
+
+/**
+ * Error boundary component.
+ */
 export const ErrorBoundary: React.FC<t.ErrorBoundaryProps> = (props) => {
-  const { debug = false } = props;
-
-  /**
-   * Render:
-   */
-  const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      padding: 10,
-    }),
-  };
-
+  const { fallbackRender = defaultFallback, theme } = props;
   return (
-    <div className={css(styles.base, props.style).class}>
-    </div>
+    <BaseErrorBoundary fallbackRender={(e) => fallbackRender({ ...e, theme })}>
+      {props.children}
+    </BaseErrorBoundary>
   );
 };

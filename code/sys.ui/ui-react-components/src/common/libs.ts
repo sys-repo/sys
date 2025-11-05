@@ -11,6 +11,7 @@ export {
   Err,
   Is,
   isRecord,
+  Json,
   JsrUrl,
   Log,
   Num,

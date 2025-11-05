@@ -33,7 +33,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
     }),
     emoji: css({ fontSize: 36 }),
     title: css({
-      fontSize: 24,
+      fontSize: 16,
       display: 'grid',
       gridAutoFlow: 'column',
       gridAutoColumns: 'max-content',

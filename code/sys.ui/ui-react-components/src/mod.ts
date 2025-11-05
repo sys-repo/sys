@@ -16,6 +16,7 @@ export { IconButtons } from './ui/Buttons.Icons/mod.ts';
 export { Switch, SwitchTheme } from './ui/Buttons.Switch/mod.ts';
 export { Buttons } from './ui/Buttons/mod.ts';
 export { Cropmarks } from './ui/Cropmarks/mod.ts';
+export { ErrorBoundary } from './ui/ErrorBoundary/mod.ts';
 export { FadeElement } from './ui/FadeElement/mod.ts';
 export { IconSwatches } from './ui/Icon.Swatches/mod.ts';
 export { Icon } from './ui/Icon/mod.ts';
