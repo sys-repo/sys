@@ -4,7 +4,7 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'MyComponent-🐷';
+const name = 'MyComponent';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
