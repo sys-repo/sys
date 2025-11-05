@@ -5,7 +5,7 @@ Core immutable state primitives. Minimal, engine-agnostic primitives for working
 ### Entry points
 ```ts
 import { Immutable, Lens } from 'jsr:@sys/immutable/core';
-import { } from 'jsr:@sys/immutable/rfc6902';
+import { Immutable, Lens } from 'jsr:@sys/immutable/rfc6902';
 ```
 
 This library defines the canonical `Immutable<T>` and `ImmutableRef<T>` shapes - objects exposing `.current`, `.change(fn)`, and `.events()` — along with lifecycle and observable utilities.
