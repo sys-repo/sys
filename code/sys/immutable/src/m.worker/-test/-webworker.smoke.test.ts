@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, c, describe, expect, it, slug } from '../../-test.ts';
 
 describe('immutable/worker: smoke', () => {
-  const url = new URL('./worker.ping.ts', import.meta.url);
+  const url = new URL('./-webworker.smoke.ping.worker.ts', import.meta.url);
   let w: Worker;
 
   beforeAll(() => {
