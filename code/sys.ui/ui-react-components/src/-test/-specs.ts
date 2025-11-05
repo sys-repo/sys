@@ -15,6 +15,7 @@ export const SpecsComponents = {
 
   [`${ns}: Bullet`]: () => import('../ui/Bullet/-SPEC.tsx'),
   [`${ns}: Cropmarks`]: () => import('../ui/Cropmarks/-spec/-SPEC.tsx'),
+  [`${ns}: ErrorBoundary`]: () => import('../ui/ErrorBoundary/-spec/-SPEC.tsx'),
   [`${ns}: FadeElement`]: () => import('../ui/FadeElement/-SPEC.tsx'),
   [`${ns}: Icon`]: () => import('../ui/Icon/-spec/-SPEC.tsx'),
   [`${ns}: Icon.Swatches`]: () => import('../ui/Icon.Swatches/-spec/-SPEC.tsx'),
