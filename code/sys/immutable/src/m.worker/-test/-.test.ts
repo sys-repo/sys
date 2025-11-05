@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { Foo } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Foo } from '../mod.ts';
 
 describe(`Immutable: web-worker (bridge)`, () => {
   it('API', async () => {

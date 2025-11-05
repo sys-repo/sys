@@ -1,1 +1,14 @@
-export * from './-test/mod.ts';
+export {
+  Testing,
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  c,
+  describe,
+  expect,
+  expectError,
+  expectTypeOf,
+  it,
+} from '@sys/testing/server';
+export * from './common.ts';
