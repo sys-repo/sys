@@ -1,5 +1,5 @@
 import { beforeEach, describe, DomMock, expect, it } from '../-test.ts';
-import { D } from './common.ts';
+import { type t, D } from './common.ts';
 import { WebFont } from './mod.ts';
 
 describe(`useWebFont`, () => {
@@ -202,6 +202,33 @@ describe(`useWebFont`, () => {
         const x2 = WebFont.inject('/fonts/x', { family: 'X', variable: true });
         expect(x1.id).to.eql(x2.id);
       });
+    });
+  });
+
+  describe('Webfont.def', () => {
+    const ET_BOOK: t.WebFontConfig = {
+      family: 'ET Book',
+      variable: false,
+      weights: [400, 600, 700],
+      italic: true,
+      local: ['ETBook-Roman', 'ETBook-Italic', 'ETBook-SemiBold', 'ETBook-Bold'],
+      fileForStatic: ({ dir, family, weight, italic }) => {
+        // Match your filenames exactly:
+        if (weight === 400 && !italic) return `${dir}/et-book-roman-old-style-figures.woff`;
+        if (weight === 400 && italic) return `${dir}/et-book-display-italic-old-style-figures.woff`;
+        if (weight === 600 && !italic) return `${dir}/et-book-semi-bold-old-style-figures.woff`;
+        if (weight === 700 && !italic) return `${dir}/et-book-bold-line-figures.woff`;
+        return `${dir}/et-book-roman-line-figures.woff`; // fallback
+      },
+    };
+
+    it("curry's the font options", () => {
+      const a = WebFont.def(ET_BOOK);
+      const b = WebFont.def(a);
+
+      expect(a).to.eql(b);
+      expect(b).to.eql(ET_BOOK);
+      expect(a).to.not.equal(ET_BOOK);
     });
   });
 });
