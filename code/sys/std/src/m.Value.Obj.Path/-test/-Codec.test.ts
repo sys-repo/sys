@@ -1,5 +1,5 @@
 import { type t, c, describe, expect, it } from '../../-test.ts';
-import { Str } from '../../m.Value.Str/mod.ts';
+import { Str } from '../../m.Str/mod.ts';
 import { Codec } from '../m.Codec.ts';
 import { Path } from '../mod.ts';
 
