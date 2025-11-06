@@ -8,26 +8,23 @@ type PathInput = t.PathLike | undefined | null;
  */
 export type ObjLensLib = {
   /** Create an unbound lens at a path. Accepts pointer string or ObjectPath. */
-  at<T = unknown>(...path: readonly PathInput[]): t.ObjLens<T>;
+  at<T = unknown>(...path: PathInput[]): t.ObjLens<T>;
 
   /**
    * Bind a subject to an optional path. Equivalent to: Obj.at(path).bind(subject).
    * When `path` is omitted, binds at the root [].
    */
-  bind<S extends O, T = unknown>(subject: S, ...path: readonly PathInput[]): t.BoundObjLens<S, T>;
+  bind<S extends O, T = unknown>(subject: S, ...path: PathInput[]): t.BoundObjLens<S, T>;
 
   /** Readonly variants. */
   readonly ReadOnly: {
-    at<T = unknown>(...path: readonly PathInput[]): t.ReadOnlyObjLens<T>;
+    at<T = unknown>(...path: PathInput[]): t.ReadOnlyObjLens<T>;
 
     /**
      * Readonly variant of `bind`. Equivalent to: Obj.ReadOnly.at(path).bind(subject).
      * When `path` is omitted, binds at the root [].
      */
-    bind<S extends O, T = unknown>(
-      subject: S,
-      ...path: readonly PathInput[]
-    ): t.ReadOnlyBoundObjLens<S, T>;
+    bind<S extends O, T = unknown>(subject: S, ...path: PathInput[]): t.ReadOnlyBoundObjLens<S, T>;
   };
 };
 
