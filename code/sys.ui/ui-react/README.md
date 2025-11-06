@@ -30,6 +30,9 @@ For more see [Deno docs](https://docs.deno.com/runtime/reference/ts_config_migra
 ```ts
 import { WebFont } from '@sys/ui-react';
 
+/**
+ * Define font (configuration):
+ */
 const ET_BOOK = WebFont.def({
   family: 'ET Book',
   variable: false,
@@ -49,7 +52,7 @@ const ET_BOOK = WebFont.def({
 
 function MyComponent(){
   /**
-   * Inject ET-Book font once.
+   * Inject ET-Book font once (idempotent).
    * Folder structure: /public/fonts/et-book/*.woff
    */
   WebFont.useWebFont('/fonts/et-book', ET_BOOK);
