@@ -57,6 +57,7 @@ export const SpecsComponents = {
 export const SpecsExternal = {
   'sys.ui.css: @container': () => import('../-sample/-css-container/-SPEC.tsx'),
   'sys.ui.react: usePointer': () => import('../-sample/-dom-usePointer/-SPEC.tsx'),
+  'sys.ui.react: useWebFont': () => import('../-sample/-css-useWebFont/-SPEC.tsx'),
   'sys.ui.react: useSizeObserver': () => import('../-sample/-dom-useSizeObserver/-SPEC.tsx'),
   'sys.std: Schedule': () => import('../-sample/-std-Schedule/-SPEC.tsx'),
 } as t.SpecImports;
