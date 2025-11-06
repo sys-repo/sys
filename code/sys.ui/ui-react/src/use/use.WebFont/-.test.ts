@@ -2,7 +2,7 @@ import { act, beforeEach, describe, DomMock, expect, it, renderHook } from '../.
 import { WebFont as Base } from './common.ts';
 import { useWebFont, WebFont } from './mod.ts';
 
-describe(`useWebFont`, () => {
+describe(`useWebFont`, { sanitizeResources: false, sanitizeOps: false }, () => {
   DomMock.polyfill();
 
   it('API', async () => {
