@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
-import { isObject, isRecord, isEmptyRecord } from '../common.ts';
-import { Arr } from '../m.Value.Arr/m.Arr.ts';
+import { isEmptyRecord, isObject, isRecord } from '../common.ts';
+import { Arr } from '../m.Arr/m.Arr.ts';
 import { Num, Value } from './mod.ts';
 
 describe('Value', () => {

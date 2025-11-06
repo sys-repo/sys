@@ -6,6 +6,7 @@ export type * from '@sys/types/t';
 
 export type * from './m.Ansi/t.ts';
 export type * from './m.Args/t.ts';
+export type * from './m.Arr/t.ts';
 export type * from './m.Async.Promise/t.ts';
 export type * from './m.Async.Schedule/t.ts';
 export type * from './m.Async/t.ts';
@@ -34,7 +35,6 @@ export type * from './m.Testing/t.ts';
 export type * from './m.Try/t.ts';
 export type * from './m.Url.Jsr/t.ts';
 export type * from './m.Url/t.ts';
-export type * from './m.Value.Arr/t.ts';
 export type * from './m.Value.Num/t.ts';
 export type * from './m.Value.Obj.Path/t.ts';
 export type * from './m.Value.Obj/t.ts';
