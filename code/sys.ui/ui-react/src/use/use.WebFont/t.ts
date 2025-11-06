@@ -1,5 +1,12 @@
-import type { WebFontOptions } from '@sys/ui-css/t';
+import type { WebFontLib as Base, WebFontOptions } from '@sys/ui-css/t';
 import type { t } from './common.ts';
+
+/**
+ * Tools for working with web-fonts.
+ */
+export type WebFontLib = Base & {
+  readonly useWebFont: t.UseWebFont;
+};
 
 /**
  * Hook that injects @font-face rules for the given family into <head> once.

@@ -1,5 +1,6 @@
 import { act, beforeEach, describe, DomMock, expect, it, renderHook } from '../../-test.ts';
-import { useWebFont } from './mod.ts';
+import { WebFont as Base } from './common.ts';
+import { useWebFont, WebFont } from './mod.ts';
 
 describe(`useWebFont`, () => {
   DomMock.polyfill();
@@ -7,6 +8,9 @@ describe(`useWebFont`, () => {
   it('API', async () => {
     const m = await import('@sys/ui-react/use');
     expect(m.useWebFont).to.equal(useWebFont);
+    expect(m.WebFont).to.equal(WebFont);
+    expect(m.WebFont.inject).to.equal(Base.inject);
+    expect(m.WebFont.useWebFont).to.equal(useWebFont);
   });
 
   describe('integration (delegates to @sys/ui-css/WebFont)', () => {
