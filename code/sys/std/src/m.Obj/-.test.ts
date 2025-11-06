@@ -1,10 +1,14 @@
 import { describe, expect, expectTypeOf, it } from '../-test.ts';
-import { Json } from '../m.Json/mod.ts';
+import { Lens } from '../m.Obj.Lens/mod.ts';
+import { Path } from '../m.Obj.Path/mod.ts';
 import { Obj } from './mod.ts';
 
 describe('Obj', () => {
-  it('API', () => {
-    expect(Obj.Json).to.equal(Json);
+  it('API', async () => {
+    const Value = await import('@sys/std/value');
+    expect(Value.Obj).to.equal(Obj);
+    expect(Obj.Lens).to.equal(Lens);
+    expect(Obj.Path).to.equal(Path);
   });
 
   describe('Obj.walk', () => {

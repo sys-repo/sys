@@ -1,6 +1,6 @@
 import type { ObjLib } from './t.ts';
 
-import { Json } from '../m.Json/mod.ts';
+import { Lens } from '../m.Obj.Lens/mod.ts';
 import { Path } from '../m.Obj.Path/mod.ts';
 
 import { isEmptyRecord, isObject, isRecord, R } from './common.ts';
@@ -12,8 +12,8 @@ import { entries, keys, pick, sortKeys, toArray } from './u.ts';
 import { walk } from './u.walk.ts';
 
 export const Obj: ObjLib = {
-  Json,
   Path,
+  Lens,
 
   walk,
   toArray,

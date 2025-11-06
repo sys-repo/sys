@@ -9,13 +9,13 @@ export type ObjExtend<T extends object, U extends object> = T & U;
  * Tools for working with objects.
  */
 export type ObjLib = {
-  eql: t.RLib['equals'];
-
-  /** Tool for working with JSON safely. */
-  readonly Json: t.JsonLib;
-
   /** Tools for working with objects via abstract path arrays. */
   readonly Path: t.ObjPathLib;
+  /** Tools for working with "view/window" lenses into Object via paths. */
+  readonly Lens: t.ObjLensLib;
+
+  /** Instance equality check. */
+  eql: t.RLib['equals'];
 
   /**
    * Walks an object tree (recursive descent) implementing

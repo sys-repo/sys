@@ -107,7 +107,7 @@ export interface ObjPathLib {
   slice(path: t.ObjectPath, start: number, end: number): t.ObjectPath;
 
   /**
-   * Normalize a “path-like” value into the canonical ObjectPath.
+   * Normalize a "path-like" value into the canonical ObjectPath.
    * - Arrays (`(string|number)[]`) pass through.
    * - Strings decode via the chosen codec (default: "pointer").
    * - `numeric: true` coerces digit-only tokens to numbers (e.g. "0" → 0).
