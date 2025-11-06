@@ -59,7 +59,7 @@ groups:
     - import: npm:@vitejs/plugin-react@5.1.0
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.52.5
-    - import: npm:vite@7.2.0
+    - import: npm:vite@7.2.1
     - import: npm:vite-plugin-wasm@3.5.0
 
   dev/tools:
@@ -87,8 +87,8 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.87
-    - import: npm:@ai-sdk/openai@2.0.63
+    - import: npm:ai@5.0.89
+    - import: npm:@ai-sdk/openai@2.0.64
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.0
       subpaths: ['agent', 'memory', 'storage']
@@ -153,7 +153,7 @@ deno.json:
   - import: npm:react-error-boundary@6.0.0
   - import: npm:react-inspector@9.0.0
   - import: npm:react-spinners@0.17.0
-  - import: npm:@preact/signals-react@3.3.1
+  - import: npm:@preact/signals-react@3.4.0
 
 package.json:
   - group: build/tools

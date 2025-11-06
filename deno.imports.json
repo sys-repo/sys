@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.63",
+    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.64",
     "@automerge/automerge": "npm:@automerge/automerge@3.2.0",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.4.0",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.4.0",
@@ -23,7 +23,7 @@
     "@noble/hashes/legacy.js": "npm:@noble/hashes@2.0.1/legacy.js",
     "@noble/hashes/sha2.js": "npm:@noble/hashes@2.0.1/sha2.js",
     "@preact/signals-core": "npm:@preact/signals-core@1.12.1",
-    "@preact/signals-react": "npm:@preact/signals-react@3.3.1",
+    "@preact/signals-react": "npm:@preact/signals-react@3.4.0",
     "@sinclair/typebox": "npm:@sinclair/typebox@0.34.41",
     "@sinclair/typebox-codegen": "npm:@sinclair/typebox-codegen@0.11.1",
     "@sinclair/typebox/errors": "npm:@sinclair/typebox@0.34.41/errors",
@@ -45,7 +45,7 @@
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
-    "ai": "npm:ai@5.0.87",
+    "ai": "npm:ai@5.0.89",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@6.2.0",
     "chai/": "npm:chai@6.2.0/",
