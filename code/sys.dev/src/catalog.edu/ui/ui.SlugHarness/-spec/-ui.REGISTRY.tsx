@@ -1,4 +1,4 @@
-import { Color, Crdt, Lens, Log } from '../common.ts';
+import { Color, Crdt, Immutable, Log } from '../common.ts';
 import { makeRegistry } from '../mod.ts';
 
 import { Sample } from './-ui.Sample.tsx';
@@ -16,7 +16,7 @@ const logInfo = Log.logger('view:registry', {
 export const registry = makeRegistry()
   .register('foo', (ctx) => <Sample ctx={ctx} />)
   .register('slug-tree', (ctx) => {
-    const lens = ctx.doc ? Lens.at<O>(ctx.doc, ctx.path.doc, ctx.path.slug) : undefined;
+    const lens = ctx.doc ? Immutable.Lens.at<O>(ctx.doc, ctx.path.doc, ctx.path.slug) : undefined;
 
     logInfo('slug renderer factory:');
     logInfo('- ctx.view:', ctx.view);

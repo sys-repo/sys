@@ -1,7 +1,7 @@
 /**
  * Core:
  */
-export { Lens } from '@sys/immutable/rfc6902';
+export { Immutable } from '@sys/immutable/rfc6902';
 export { Schema, Type, Value } from '@sys/schema';
 export { V, toSchema } from '@sys/schema/recipe';
 export { Arr, Delete, Err, Is, Log, Num, Obj, Pkg, Str, Time, Try, isRecord, slug } from '@sys/std';

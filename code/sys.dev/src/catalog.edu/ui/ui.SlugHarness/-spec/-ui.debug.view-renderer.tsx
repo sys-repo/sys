@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Button, Color, Crdt, css, KeyValue, Lens, Signal } from '../common.ts';
+import { type t, Color, Crdt, css, Signal } from '../common.ts';
 import { InfoPanel } from '../ui.InfoPanel.tsx';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 

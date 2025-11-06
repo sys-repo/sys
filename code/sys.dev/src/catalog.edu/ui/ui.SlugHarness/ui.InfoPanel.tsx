@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, KeyValue, Lens } from './common.ts';
+import { type t, Color, Immutable, KeyValue } from './common.ts';
 
 type O = Record<string, unknown>;
 type P = t.SlugHarnessProps;
@@ -20,7 +20,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const { debug = false, registry, path = {}, doc } = props;
   if (!registry) return null;
 
-  const lens = doc ? Lens.at<O>(doc, path.doc, path.slug) : undefined;
+  const lens = doc ? Immutable.Lens.at<O>(doc, path.doc, path.slug) : undefined;
   const ui = lens?.at<t.ViewRendererProps>(['data', 'ui']); //  TEMP 🐷 TODO: derive from trait
   const currentView = ui?.get()?.view ?? '';
   const isCurrent = (id: t.StringId) => id === currentView;

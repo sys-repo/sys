@@ -4,4 +4,4 @@
  *
  * Exports the current `Immutable` and `Lens` primitives built on JSON-Patch semantics.
  */
-export { Immutable, Lens } from '../m.core/mod.ts';
+export { Immutable } from '../m.core/mod.ts';

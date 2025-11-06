@@ -9,7 +9,7 @@ import {
   css,
   D,
   Icons,
-  Lens,
+  Immutable,
   LocalStorage,
   Obj,
   ObjectView,
@@ -133,7 +133,7 @@ export function createDebugSignals() {
     if (!doc) return;
 
     const v = Signal.toObject(p);
-    const slug = Lens.at(doc, v.path.doc, v.path.slug);
+    const slug = Immutable.Lens.at(doc, v.path.doc, v.path.slug);
     const uiProps = slug.at<t.ViewRendererProps>(['data', 'ui']);
 
     function update() {

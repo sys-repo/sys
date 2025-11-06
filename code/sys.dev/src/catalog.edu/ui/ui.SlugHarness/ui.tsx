@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Crdt, D, Lens } from './common.ts';
+import { type t, Color, Crdt, D, Immutable } from './common.ts';
 import { Sidebar } from './ui.-layout.Sidebar.tsx';
 import { SlugView } from './ui.SlugView.tsx';
 
@@ -80,7 +80,7 @@ const wrangle = {
   lenses(props: P) {
     const { signals, path = {} } = props;
     const doc = signals?.doc.value;
-    const slug = doc ? Lens.at(doc, path.doc, path.slug) : undefined;
+    const slug = doc ? Immutable.Lens.at(doc, path.doc, path.slug) : undefined;
     const ui = slug?.at<t.ViewRendererProps>(['data', 'ui']);
     return { slug, ui } as const;
   },
