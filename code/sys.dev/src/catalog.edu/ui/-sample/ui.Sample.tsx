@@ -68,7 +68,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         editor={{ autoFocus: true, debounce: 150 }}
         documentId={{ localstorage }}
         onReady={(e) => {
-          const { monaco, editor, dispose$ } = e;
+          const { monaco, editor } = e;
           setReady({ monaco, editor });
           e.$.subscribe((evt) => console.info('⚡️ Monaco.Yaml.Editor/binding.$:', evt));
           if (repo) Monaco.Crdt.Link.enable({ monaco, editor }, repo, e.dispose$);
