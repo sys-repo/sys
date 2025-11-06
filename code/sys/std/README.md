@@ -1,4 +1,4 @@
-# Standard Lib.
+# Standard Lib
 Standard system libraries.
 Common low(ish)-level utility functions and helpers.
 
