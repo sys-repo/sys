@@ -53,12 +53,13 @@ export async function main() {
     console.info();
 
     console.info('🧫');
+    console.info(`  ${c.cyan('System Runtime')}`);
     console.info(`  ${c.yellow('Deno')}.version  `, c.green(Deno.version.deno));
     console.info('    typescript  ', c.green(Deno.version.typescript));
     console.info('            v8  ', c.green(Deno.version.v8));
 
     console.info(c.bold('  ↓'));
-    console.info(c.yellow('  System'));
+    console.info(c.yellow('  Monorepo'));
     console.info(c.dim('  pattern.code  '), c.dim(pattern));
     console.info('         files  ', c.yellow(files.length.toLocaleString()));
     if (options.lines) {
