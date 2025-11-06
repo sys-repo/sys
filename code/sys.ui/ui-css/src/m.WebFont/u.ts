@@ -18,7 +18,7 @@ export function inferFormatFromUrl(url: string): 'woff2' | 'woff' | undefined {
 
 export function fontFaceBlock(args: {
   family: string;
-  display: t.UseWebFontOpts['display'];
+  display: t.WebFontOptions['display'];
   weight: string; // '400' or '100 900'
   style: 'normal' | 'italic';
   sources: string;
