@@ -2,7 +2,7 @@ import { isEmptyRecord, isObject, isRecord } from '../common.ts';
 import type { ValueLib } from './t.ts';
 
 import { Arr } from '../m.Arr/mod.ts';
-import { Num } from '../m.Value.Num/mod.ts';
+import { Num } from '../m.Num/mod.ts';
 import { Obj } from '../m.Value.Obj/mod.ts';
 import { Lorem, Str } from '../m.Value.Str/mod.ts';
 import { toggle } from './u.toggle.ts';

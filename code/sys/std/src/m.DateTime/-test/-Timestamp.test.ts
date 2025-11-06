@@ -1,5 +1,5 @@
 import { type t, describe, expect, it } from '../../-test.ts';
-import { Num } from '../../m.Value.Num/mod.ts';
+import { Num } from '../../m.Num/mod.ts';
 import { Time } from '../m.Time.ts';
 import { Timestamp } from '../mod.ts';
 
