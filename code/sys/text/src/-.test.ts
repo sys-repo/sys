@@ -1,9 +1,9 @@
-import { describe, expect, it } from './-test.ts';
-import { Value } from './common.ts';
+import { describe, expect, it, pkg } from './-test.ts';
 import { Str } from './mod.ts';
 
-describe('module: @sys/text', () => {
-  it('API', () => {
-    expect(Str).to.equal(Value.Str);
+describe(`module: ${pkg.name}`, () => {
+  it('API', async () => {
+    const m = await import('@sys/text');
+    expect(m.Str).to.equal(Str);
   });
 });

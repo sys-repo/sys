@@ -5,7 +5,6 @@ export { Err } from '../m.Err/mod.ts';
 export { Path } from '../m.Path/mod.ts';
 export { Rx } from '../m.Rx/mod.ts';
 export { Url } from '../m.Url/mod.ts';
-export { isObject } from '../m.Value/mod.ts';
 
 export const DEFAULTS = {
   get UNKNOWN(): t.Pkg {

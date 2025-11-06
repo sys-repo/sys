@@ -39,4 +39,3 @@ export type * from './m.Testing/t.ts';
 export type * from './m.Try/t.ts';
 export type * from './m.Url.Jsr/t.ts';
 export type * from './m.Url/t.ts';
-export type * from './m.Value/t.ts';

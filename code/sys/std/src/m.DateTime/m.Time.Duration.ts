@@ -1,13 +1,13 @@
 import type { TimeDurationLib } from './t.ts';
 
-import { StdDate, Value, type t } from './common.ts';
+import { Num, StdDate, type t } from './common.ts';
 const { MINUTE, SECOND, DAY, HOUR } = StdDate;
 
 const To: t.TimeDurationTo = {
-  sec: (msec: number, round?: number) => Value.round(msec / 1000, round),
-  min: (msec: number, round?: number) => Value.round(msec / 1000 / 60, round),
-  hour: (msec: number, round?: number) => Value.round(msec / 1000 / 60 / 60, round),
-  day: (msec: number, round?: number) => Value.round(msec / 1000 / 60 / 60 / 24, round),
+  sec: (msec: number, round?: number) => Num.round(msec / 1000, round),
+  min: (msec: number, round?: number) => Num.round(msec / 1000 / 60, round),
+  hour: (msec: number, round?: number) => Num.round(msec / 1000 / 60 / 60, round),
+  day: (msec: number, round?: number) => Num.round(msec / 1000 / 60 / 60 / 24, round),
 };
 
 /**

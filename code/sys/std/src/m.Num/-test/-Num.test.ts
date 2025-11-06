@@ -1,5 +1,4 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Value } from '../../m.Value/mod.ts';
 import { PercentRange } from '../m.Percent.Range.ts';
 import { Percent } from '../m.Percent.ts';
 import { Ratio } from '../m.Ratio.ts';
@@ -7,7 +6,6 @@ import { Num } from '../mod.ts';
 
 describe('Value.Num', () => {
   it('API', () => {
-    expect(Value.Num).to.equal(Num);
     expect(Num.Percent).to.equal(Percent);
     expect(Num.Percent.Range).to.eql(PercentRange);
     expect(Num.Ratio).to.equal(Ratio);
@@ -42,7 +40,7 @@ describe('Value.Num', () => {
     it('should round zero correctly', () => {
       expect(Num.round(0)).to.eql(0);
       expect(Num.round(0.1234, 2)).to.eql(0.12);
-      expect(Value.round(0, -1)).to.eql(0);
+      expect(Num.round(0, -1)).to.eql(0);
     });
   });
 

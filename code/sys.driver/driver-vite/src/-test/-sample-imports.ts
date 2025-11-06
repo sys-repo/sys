@@ -10,7 +10,7 @@
 const now = new Date();
 
 import { Jsr } from '@sys/jsr';
-import { Args, D, Path, Time, Value } from '@sys/std';
+import { Args, D, Path, Time } from '@sys/std';
 import { IndexedDb } from '@sys/std/indexeddb';
 import { Rx } from '@sys/std/rx';
 import { Semver } from '@sys/std/semver';
@@ -31,11 +31,11 @@ console.info('@sys/std:Time', Time);
 console.info('@sys/std:Args', Args, 'parsed:', Args.parse(['--foo', '--bar=baz', './file.txt']));
 console.info('@sys/std:IndexedDb', IndexedDb);
 console.info('@sys/text:Str', Str);
+console.info('@sys/std:Str.bytes:', Str.bytes(1234));
 console.info('@sys/text:Str.bytes', `"${Str.bytes(1337)}"`);
 console.log();
 console.info('@sys/std/jsr', Jsr);
 console.info('@sys/std/semver', Semver, Semver.parse('1.2.3'));
-console.info('@sys/std:Value.Str.bytes:', Value.Str.bytes(1234));
 
 console.groupEnd();
 

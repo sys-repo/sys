@@ -1,11 +1,9 @@
 import { describe, expect, expectTypeOf, it } from '../-test.ts';
 import { Json } from '../m.Json/mod.ts';
-import { Value } from '../m.Value/mod.ts';
 import { Obj } from './mod.ts';
 
-describe('Value.Obj', () => {
+describe('Obj', () => {
   it('API', () => {
-    expect(Value.Obj).to.equal(Obj);
     expect(Obj.Json).to.equal(Json);
   });
 
@@ -20,7 +18,7 @@ describe('Value.Obj', () => {
         child: { enabled: true, list: [1, 2] },
       };
 
-      Value.Obj.walk(input, ({ key, value, path }) => walked.push({ key, value, path }));
+      Obj.walk(input, ({ key, value, path }) => walked.push({ key, value, path }));
 
       expect(walked).to.eql([
         { key: 'name', value: 'foo', path: ['name'] },
@@ -36,7 +34,7 @@ describe('Value.Obj', () => {
     it('passes parent in callback', () => {
       const root = { child: { enabled: true, list: [1, 2] } };
       const parents: any[] = [];
-      Value.Obj.walk(root, (e) => parents.push(e.parent));
+      Obj.walk(root, (e) => parents.push(e.parent));
       expect(parents.length).to.eql(5);
       expect(parents[0]).to.eql(root);
       expect(parents[1]).to.eql(root.child);
@@ -49,7 +47,7 @@ describe('Value.Obj', () => {
       const walked: T[] = [];
       const input = ['foo', 123, { enabled: true, list: [1, 2] }];
 
-      Value.Obj.walk(input, ({ key, value, path }) => walked.push({ key, value, path }));
+      Obj.walk(input, ({ key, value, path }) => walked.push({ key, value, path }));
 
       expect(walked).to.eql([
         { key: 0, value: 'foo', path: [0] },
@@ -65,7 +63,7 @@ describe('Value.Obj', () => {
     it('processes nothing (non-object / array)', () => {
       const test = (input: any) => {
         const walked: any[] = [];
-        Value.Obj.walk(input, (e) => walked.push(e));
+        Obj.walk(input, (e) => walked.push(e));
         expect(walked).to.eql([]); // NB: nothing walked.
       };
       [0, true, '', null, undefined].forEach((input) => test(input));
@@ -78,7 +76,7 @@ describe('Value.Obj', () => {
         child: { enabled: true, list: [1, 2] },
       };
 
-      Value.Obj.walk(input, (e) => {
+      Obj.walk(input, (e) => {
         const { key, value, path } = e;
         if (value === true) return e.stop();
         walked.push({ key, value, path });
@@ -92,7 +90,7 @@ describe('Value.Obj', () => {
 
     it('mutates key/value', () => {
       const root = { child: { enabled: true, list: [1, 2] } };
-      Value.Obj.walk(root, (e) => {
+      Obj.walk(root, (e) => {
         if (e.key === 'enabled') e.mutate(false);
         if (e.key === 0) e.mutate('hello');
       });
@@ -107,7 +105,7 @@ describe('Value.Obj', () => {
         a.b = b; // Setup circular reference.
 
         let count = 0;
-        Value.Obj.walk(a, (e) => count++);
+        Obj.walk(a, (e) => count++);
         expect(count).to.eql(7); // NB: with no infinite loop.
       });
 
@@ -118,14 +116,14 @@ describe('Value.Obj', () => {
         a.push(b); // Setup circular references.
 
         let count = 0;
-        Value.Obj.walk(a, (e) => count++);
+        Obj.walk(a, (e) => count++);
         expect(count).to.eql(6); // NB: with no infinite loop.
       });
 
       it('multiple fields with same value (NB: not short-circuited by circular reference check)', () => {
         const test = (obj: any, expectKeys?: string[]) => {
           const keys: string[] = [];
-          Value.Obj.walk(obj, (e) => keys.push(String(e.key)));
+          Obj.walk(obj, (e) => keys.push(String(e.key)));
           if (expectKeys) expect(keys).to.eql(expectKeys);
           return keys;
         };
@@ -152,16 +150,16 @@ describe('Value.Obj', () => {
     const foos: IFoos = { one: { count: 1 }, two: { count: 2 } };
 
     it('empty', () => {
-      expect(Value.Obj.toArray({})).to.eql([]);
+      expect(Obj.toArray({})).to.eql([]);
     });
 
     it('converts to array (untyped)', () => {
-      const res = Value.Obj.toArray(foos);
+      const res = Obj.toArray(foos);
       expect(res.length).to.eql(2);
     });
 
     it('converts to array (typed object)', () => {
-      const res = Value.Obj.toArray<IFoos>(foos);
+      const res = Obj.toArray<IFoos>(foos);
       expect(res.length).to.eql(2);
 
       expect(res[0].key).to.eql('one');
@@ -173,7 +171,7 @@ describe('Value.Obj', () => {
 
     it('converts to array (typed key)', () => {
       type K = 'foo' | 'bar';
-      const res = Value.Obj.toArray<IFoos, K>(foos);
+      const res = Obj.toArray<IFoos, K>(foos);
       expect(res.length).to.eql(2);
     });
   });
@@ -191,8 +189,8 @@ describe('Value.Obj', () => {
         nil: null,
       };
 
-      const a = Value.Obj.trimStringsDeep(obj); // NB: default immutable.
-      const b = Value.Obj.trimStringsDeep(obj, { mutate: true });
+      const a = Obj.trimStringsDeep(obj); // NB: default immutable.
+      const b = Obj.trimStringsDeep(obj, { mutate: true });
 
       const expected = {
         ...obj,
@@ -223,7 +221,7 @@ describe('Value.Obj', () => {
         },
       };
 
-      const res = Value.Obj.trimStringsDeep(obj);
+      const res = Obj.trimStringsDeep(obj);
 
       expect(res).to.eql({
         name: `${name.substring(0, 35)}...`,
@@ -240,9 +238,9 @@ describe('Value.Obj', () => {
       const name = 'foo'.repeat(100);
       const obj = { name };
 
-      const a = Value.Obj.trimStringsDeep(obj, {});
-      const b = Value.Obj.trimStringsDeep(obj, { ellipsis: false, maxLength: 10 });
-      const c = Value.Obj.trimStringsDeep(obj, 10);
+      const a = Obj.trimStringsDeep(obj, {});
+      const b = Obj.trimStringsDeep(obj, { ellipsis: false, maxLength: 10 });
+      const c = Obj.trimStringsDeep(obj, 10);
 
       expect(a.name).to.eql(`${name.substring(0, 35)}...`); // NB: default
       expect(b.name).to.eql(name.substring(0, 10));
@@ -256,28 +254,28 @@ describe('Value.Obj', () => {
 
     it('defined object returns T (not T | undefined)', () => {
       const input = { name: 'x' } as const;
-      const out = Value.Obj.trimStringsDeep(input);
+      const out = Obj.trimStringsDeep(input);
       expectTypeOf(out).toEqualTypeOf<typeof input>();
       expect(out).to.eql(input); // unchanged because below max
     });
 
     it('mutate: true returns same instance', () => {
       const obj = { name: 'x'.repeat(100) };
-      const out = Value.Obj.trimStringsDeep(obj, { mutate: true, maxLength: 10 });
+      const out = Obj.trimStringsDeep(obj, { mutate: true, maxLength: 10 });
       expect(out).to.equal(obj);
       expect(obj.name).to.eql('x'.repeat(10) + '...');
     });
 
     it('numeric options respected', () => {
       const obj = { name: 'abcdef' };
-      const out = Value.Obj.trimStringsDeep(obj, 3);
+      const out = Obj.trimStringsDeep(obj, 3);
       expect(out.name).to.eql('abc...');
     });
 
     // (compile-time) null should not match T overload:
     {
       // @ts-expect-error null is not valid T (Record<string, unknown>)
-      Value.Obj.trimStringsDeep(null);
+      Obj.trimStringsDeep(null);
     }
   });
 
@@ -291,20 +289,20 @@ describe('Value.Obj', () => {
 
     it('no fields', () => {
       const obj = Sample.create();
-      const res = Value.Obj.pick(obj);
+      const res = Obj.pick(obj);
       expect(res).to.eql({});
     });
 
     it('subset of fields', () => {
       type P = Pick<T, 'a' | 'c'>;
       const obj = Sample.create();
-      const res = Value.Obj.pick<P>(obj, 'a', 'c');
+      const res = Obj.pick<P>(obj, 'a', 'c');
       expect(res).to.eql({ a: 1, c: 3 });
     });
 
     it('all fields (difference instance)', () => {
       const obj = Sample.create();
-      const res = Value.Obj.pick<T>(obj, 'a', 'b', 'c');
+      const res = Obj.pick<T>(obj, 'a', 'b', 'c');
       expect(res).to.eql(obj);
       expect(res).to.not.equal(obj);
     });
@@ -314,7 +312,7 @@ describe('Value.Obj', () => {
       const obj: W = { a: 1, b: 2, c: 3, msg: 'hello' };
 
       type P = Pick<T, 'b' | 'c'>;
-      const res = Value.Obj.pick<P>(obj, 'b', 'c');
+      const res = Obj.pick<P>(obj, 'b', 'c');
       expect(res).to.eql({ b: 2, c: 3 });
     });
   });
@@ -322,13 +320,13 @@ describe('Value.Obj', () => {
   describe('Obj.sortKeys', () => {
     it('empty', () => {
       const obj = {};
-      const res = Value.Obj.sortKeys(obj);
+      const res = Obj.sortKeys(obj);
       expect(res).to.not.equal(obj); // NB: new instance (immutable).
     });
 
     it('sorts keys', () => {
       const obj = { foo: 456, zoo: 'hello', apple: 123 };
-      const res = Value.Obj.sortKeys(obj);
+      const res = Obj.sortKeys(obj);
       expect(Object.keys(res)).to.not.eql(Object.keys(obj));
       expect(Object.keys(res).sort()).to.eql(Object.keys(obj).sort());
     });
@@ -337,7 +335,7 @@ describe('Value.Obj', () => {
   describe('Object.entries', () => {
     it('empty', () => {
       const obj = {};
-      const res = Value.Obj.entries(obj);
+      const res = Obj.entries(obj);
       expect(res).to.eql([]);
     });
 

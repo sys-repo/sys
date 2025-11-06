@@ -11,7 +11,7 @@ import type {
 } from '@cliffy/prompt';
 import type { Table as CliffyTable } from '@cliffy/table';
 
-import type { ArgsLib, PathFormatLib, PathLib, ValueLib } from '@sys/std/t';
+import type { ArgsLib, PathFormatLib, PathLib } from '@sys/std/t';
 import type { Ora as OraSpinner } from 'ora';
 import type { t } from './common.ts';
 
@@ -30,9 +30,6 @@ export type CliLib = {
 
   /** Tools for working with a CLI spinner. */
   readonly Spinner: t.CliSpinnerLib;
-
-  /** Tools for working on strings of text. */
-  readonly Value: ValueLib;
 
   /** Common formatting heleprs. */
   readonly Fmt: t.CliFormatLib;

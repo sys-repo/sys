@@ -1,7 +1,6 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
 
 import { Obj } from '../../m.Obj/mod.ts';
-import { Value } from '../../m.Value/mod.ts';
 import { Codec } from '../m.Codec.ts';
 import { decode, encode } from '../m.Codec.u.ts';
 import { Is } from '../m.Is.ts';
@@ -13,7 +12,6 @@ import { Path } from '../mod.ts';
 describe('Obj.Path', () => {
   it('API', () => {
     expect(Obj.Path).to.equal(Path);
-    expect(Value.Obj.Path).to.equal(Path);
     expect(Obj.Path.Mutate.diff).to.equal(diff);
     expect(Obj.Path.Mutate.delete).to.equal(del);
     expect(Obj.Path.Codec).to.equal(Codec);

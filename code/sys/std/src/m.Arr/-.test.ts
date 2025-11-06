@@ -1,29 +1,28 @@
 import { describe, expect, it } from '../-test.ts';
-import { Arr, Time, Value, asArray } from '../mod.ts';
+import { Arr, Time, asArray } from '../mod.ts';
 
-describe('Value.Arr (Array)', () => {
+describe('Arr (Array)', () => {
   it('API', async () => {
     const { Arr: Lib } = await import('./mod.ts');
     const { Arr } = await import('./m.Arr.ts');
     expect(Arr).to.equal(Lib);
-    expect(Value.Arr).to.eql(Lib);
   });
 
   describe('Arr.flatten', () => {
     it('makes no change', () => {
-      expect(Value.Arr.flatten([1, 2, 3])).to.eql([1, 2, 3]);
+      expect(Arr.flatten([1, 2, 3])).to.eql([1, 2, 3]);
     });
 
     it('return input value if an array is not passed', () => {
-      expect(Value.Arr.flatten(123)).to.eql([123]);
+      expect(Arr.flatten(123)).to.eql([123]);
     });
 
     it('flattens one level deep', () => {
-      expect(Value.Arr.flatten([1, [2, 3]])).to.eql([1, 2, 3]);
+      expect(Arr.flatten([1, [2, 3]])).to.eql([1, 2, 3]);
     });
 
     it('flattens many levels deep', () => {
-      expect(Value.Arr.flatten([1, [2, [3, [4, [5, 6]]]]])).to.eql([1, 2, 3, 4, 5, 6]);
+      expect(Arr.flatten([1, [2, [3, [4, [5, 6]]]]])).to.eql([1, 2, 3, 4, 5, 6]);
     });
   });
 
@@ -41,19 +40,19 @@ describe('Value.Arr (Array)', () => {
 
   describe('Arr.asArray', () => {
     it('same function as index', () => {
-      expect(Value.Arr.asArray).to.equal(asArray);
+      expect(Arr.asArray).to.equal(asArray);
     });
 
     it('already array', () => {
       const input = [{ count: 1 }, { count: 2 }, { count: 3 }];
-      const res = Value.Arr.asArray(input);
+      const res = Arr.asArray(input);
       expect(res).to.equal(input);
       expect(res[0].count).to.eql(1); // NB: Type inferred and returned.
     });
 
     it('convert to array', () => {
       const input = { count: 1 };
-      const res = Value.Arr.asArray(input);
+      const res = Arr.asArray(input);
       expect(res.length).to.eql(1);
       expect(res).to.not.equal(input); // NB: Converted into an array
       expect(res[0]).to.equal(input);
@@ -64,7 +63,7 @@ describe('Value.Arr (Array)', () => {
   describe('Arr.asyncFilter', () => {
     it('filters (async)', async () => {
       const list = ['cat', 'hello cat', 'foobar'];
-      const res = await Value.Arr.asyncFilter(list, async (value) => {
+      const res = await Arr.asyncFilter(list, async (value) => {
         await Time.wait(3);
         return value.includes('cat');
       });
@@ -74,22 +73,22 @@ describe('Value.Arr (Array)', () => {
 
   describe('Arr.page', () => {
     it('(undefined)', () => {
-      const res = Value.Arr.page(undefined, 1, 10);
+      const res = Arr.page(undefined, 1, 10);
       expect(res).to.eql([]);
     });
 
     it('empty', () => {
-      const res = Value.Arr.page([], 1, 10);
+      const res = Arr.page([], 1, 10);
       expect(res).to.eql([]);
     });
 
     it('page-1, page-2', () => {
       const list = [1, 2, 3, 4, 5, 6, 7, 8];
 
-      const page0 = Value.Arr.page(list, -1, -1); // NB: out-of-range (correct to: → 0)
-      const page1 = Value.Arr.page(list, 0, 5);
-      const page2 = Value.Arr.page(list, 1, 5);
-      const page3 = Value.Arr.page(list, 99, 5);
+      const page0 = Arr.page(list, -1, -1); // NB: out-of-range (correct to: → 0)
+      const page1 = Arr.page(list, 0, 5);
+      const page2 = Arr.page(list, 1, 5);
+      const page3 = Arr.page(list, 99, 5);
 
       expect(page0).to.eql([]);
       expect(page1).to.eql([1, 2, 3, 4, 5]);
@@ -99,7 +98,7 @@ describe('Value.Arr (Array)', () => {
   });
 
   describe('Arr.compare', () => {
-    const compare = Value.Arr.compare;
+    const compare = Arr.compare;
 
     it('init', () => {
       const subject = [1, 2];

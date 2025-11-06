@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Value, Str } from '@sys/std/value';
+ * import { Str } from '@sys/std/value';
  *
  * const long = 'hello world.'.repeat(100)'
  * const short = Str.shorten(long);
@@ -14,4 +14,4 @@
  * ```
  */
 export { Lorem } from './m.Lorem.ts';
-export { bytes, capitalize, diff, plural, shorten, Str } from './m.Str.ts';
+export { Str, bytes, capitalize, diff, plural, shorten } from './m.Str.ts';

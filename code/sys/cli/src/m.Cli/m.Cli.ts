@@ -1,5 +1,4 @@
-import { Args, Path, Time, Value, stripAnsi } from './common.ts';
-import type { CliLib } from './t.ts';
+import { type t, Args, Path, Time, stripAnsi } from './common.ts';
 
 import { Fmt } from './m.Fmt.ts';
 import { Keyboard } from './m.Keyboard.ts';
@@ -11,11 +10,10 @@ import { copyToClipboard } from './u.clipboard.ts';
 /**
  * Tools for the CLI (command-line interfaces):
  */
-export const Cli: CliLib = {
+export const Cli: t.CliLib = {
   Args,
   Table,
   Spinner,
-  Value,
   Path,
   Fmt,
   Keyboard,

@@ -1,4 +1,4 @@
-import { Value, type t } from './common.ts';
+import { Arr, type t } from './common.ts';
 import type { CmdPatchLib } from './t.ts';
 
 /**
@@ -7,7 +7,7 @@ import type { CmdPatchLib } from './t.ts';
 export const Patch: CmdPatchLib = {
   startsWith(patch: t.CmdPatch, def: t.ObjectPath) {
     const path = Patch.path(patch);
-    return !path ? false : Value.Arr.compare(path).startsWith(def);
+    return !path ? false : Arr.compare(path).startsWith(def);
   },
 
   path(patch: t.CmdPatch): t.ObjectPath {
