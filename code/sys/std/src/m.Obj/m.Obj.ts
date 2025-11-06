@@ -1,7 +1,7 @@
 import type { ObjLib } from './t.ts';
 
 import { Json } from '../m.Json/mod.ts';
-import { Path } from '../m.Value.Obj.Path/mod.ts';
+import { Path } from '../m.Obj.Path/mod.ts';
 
 import { isEmptyRecord, isObject, isRecord, R } from './common.ts';
 import { clone } from './u.clone.ts';

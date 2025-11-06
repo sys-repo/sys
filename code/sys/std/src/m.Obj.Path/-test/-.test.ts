@@ -1,6 +1,6 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
 
-import { Obj } from '../../m.Value.Obj/mod.ts';
+import { Obj } from '../../m.Obj/mod.ts';
 import { Value } from '../../m.Value/mod.ts';
 import { Codec } from '../m.Codec.ts';
 import { decode, encode } from '../m.Codec.u.ts';

@@ -1,6 +1,5 @@
 import { type t, describe, expect, it } from '../../-test.ts';
-import { Obj } from '../../m.Value.Obj/mod.ts';
-import { del } from '../m.Mutate.delete.ts';
+import { Obj } from '../../m.Obj/mod.ts';
 
 type O = Record<string, unknown>;
 
