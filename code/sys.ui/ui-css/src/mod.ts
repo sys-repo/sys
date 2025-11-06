@@ -13,4 +13,5 @@ export { pkg } from './pkg.ts';
 export type * as t from './types.ts';
 
 export { Color } from './common.ts';
-export { css, Style } from './m.Style/mod.ts';
+export { Style, css } from './m.Style/mod.ts';
+export { WebFont } from './m.WebFont/mod.ts';
