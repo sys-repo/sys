@@ -10,22 +10,22 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
-export { Args } from '@sys/std/args';
-export { D, Date, Duration, Time, Timestamp } from '@sys/std/datetime';
-export { Err, Try } from '@sys/std/error';
-export { Log } from '@sys/std/log';
-export { Path } from '@sys/std/path';
-export { Pkg } from '@sys/std/pkg';
-export { slug } from '@sys/std/random';
-export { Signal } from '@sys/std/signal';
-export { Url } from '@sys/std/url';
+export { Args } from './m.Args/mod.ts';
+export { D, Date, Duration, Time, Timestamp } from './m.DateTime/mod.ts';
 export { Delete } from './m.Delete/mod.ts';
 export { Dispose } from './m.Dispose/mod.ts';
+export { Err, Try } from './m.Err/mod.ts';
 export { Fn } from './m.Fn/mod.ts';
 export { History } from './m.History/mod.ts';
 export { Is } from './m.Is/mod.ts';
 export { Json } from './m.Json/mod.ts';
+export { Log } from './m.Log/mod.ts';
+export { Path } from './m.Path/mod.ts';
+export { Pkg } from './m.Pkg/mod.ts';
+export { slug } from './m.Random/mod.ts';
 export { Regex } from './m.Regex/mod.ts';
+export { Signal } from './m.Signal/mod.ts';
 export { JsrUrl } from './m.Url.Jsr/mod.ts';
+export { Url } from './m.Url/mod.ts';
 
 export { Arr, Num, Obj, R, Str, asArray, isEmptyRecord, isObject, isRecord } from './-value.ts';
