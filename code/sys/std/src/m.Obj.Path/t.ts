@@ -38,7 +38,7 @@ export interface ObjPathLib {
    * Utility: Coerce digit-only string tokens into numbers.
    * - Leaves non-digit strings intact (e.g. "01" stays "01").
    */
-  asNumeric(path: readonly (string | number)[]): readonly (string | number)[];
+  asNumeric(path: readonly (string | number)[]): t.ObjectPath;
 
   /** Tools for mutating an object in-place. */
   Mutate: ObjPathMutateLib;

@@ -1,4 +1,4 @@
-import { type t, Path } from './common.ts';
+import { type t } from './common.ts';
 
 type O = Record<string, unknown>;
 

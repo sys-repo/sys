@@ -40,6 +40,16 @@ describe('Obj.Lens', () => {
       const lens = Lens.at('/items/0/value');
       expect(lens.get(obj)).to.eql('ok');
     });
+
+    it('Lens.at(...path) composes pointer + array + nullish left→right', () => {
+      const s = { a: [{ b: { c: 'ok' } }] };
+      const lens = Lens.at<string>('/a/0', ['b'], null, undefined, '/c');
+      expect(lens.path).to.eql(['a', 0, 'b', 'c']);
+      expect(lens.get(s)).to.eql('ok');
+
+      lens.set(s, 'NEW');
+      expect(s).to.eql({ a: [{ b: { c: 'NEW' } }] });
+    });
   });
 
   describe('bound Lens.bind', () => {
@@ -82,6 +92,29 @@ describe('Obj.Lens', () => {
       j.set(2);
       expect(s).to.eql({ a: { b: { c: 2 } } });
     });
+
+    it('Lens.bind(subject, ...path) composes and mutates correctly', () => {
+      const s: any = {};
+      const l = Lens.bind(s, '/x', ['y', 0], null, '/z');
+      expect(l.path).to.eql(['x', 'y', 0, 'z']);
+
+      const v = l.ensure(1);
+      expect(v).to.eql(1);
+      expect(s).to.eql({ x: { y: [{ z: 1 }] } });
+
+      l.set(2);
+      expect(s).to.eql({ x: { y: [{ z: 2 }] } });
+    });
+
+    it('empty or all-nullish path binds to root [] (RW)', () => {
+      const s = { a: 1 };
+      const a = Lens.at().bind(s);
+      const b = Lens.bind(s, null, undefined);
+      expect(a.path).to.eql([]);
+      expect(b.path).to.eql([]);
+      expect(a.get()).to.eql(s);
+      expect(b.get()).to.eql(s);
+    });
   });
 
   describe('ReadOnly', () => {
@@ -115,6 +148,30 @@ describe('Obj.Lens', () => {
       expect(joined.get()).to.eql(1);
       expect(joined.path).to.eql(['x', 'y', 'z']);
     });
+
+    it('ReadOnly.at(...path) composes; ReadOnly.bind(subject, ...path) mirrors', () => {
+      const s = { a: [{ b: { c: 7 } }] };
+
+      const roA = Lens.ReadOnly.at<number>('/a/0', ['b'], null, '/c');
+      expect(roA.path).to.eql(['a', 0, 'b', 'c']);
+      expect(roA.get(s)).to.eql(7);
+      expect(roA.exists(s)).to.eql(true);
+
+      const roB = Lens.ReadOnly.bind(s, '/a', ['0', 'b'], undefined, '/c');
+      expect(roB.path).to.eql(['a', 0, 'b', 'c']);
+      expect(roB.get()).to.eql(7);
+      expect(() => (roB as any).set(8)).to.throw;
+    });
+
+    it('ReadOnly root binding when no/only nullish segments', () => {
+      const s = { x: 1 };
+      const a = Lens.ReadOnly.at().bind(s);
+      const b = Lens.ReadOnly.bind(s, null, undefined);
+      expect(a.path).to.eql([]);
+      expect(b.path).to.eql([]);
+      expect(a.get()).to.eql(s);
+      expect(b.get()).to.eql(s);
+    });
   });
 
   describe('type parity and invariants', () => {
@@ -139,6 +196,23 @@ describe('Obj.Lens', () => {
       const b = Lens.at([] as const).bind(subject);
       expect(a.path).to.eql(b.path);
       expect(a.get()).to.eql(b.get());
+    });
+
+    it('join() remains stable regardless of how the base path was constructed', () => {
+      const s = { r: { a: [{ b: { c: 1 } }] } };
+
+      // Bind first, then join (unbound join returns CurriedPath without .bind)
+      const a = Lens.at('/r', ['a', 0]).bind(s).join<number>(['b', 'c']); // mixed base
+      const b = Lens.at(['r', 'a', 0, 'b']).bind(s).join<number>(['c']); // array-only base
+
+      expect(a.path).to.eql(['r', 'a', 0, 'b', 'c']);
+      expect(b.path).to.eql(['r', 'a', 0, 'b', 'c']);
+
+      expect(a.get()).to.eql(1);
+      expect(b.get()).to.eql(1);
+
+      a.set(2);
+      expect(b.get()).to.eql(2);
     });
   });
 });
