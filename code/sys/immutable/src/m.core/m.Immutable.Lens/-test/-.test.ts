@@ -14,7 +14,7 @@ type T = {
 describe('Lens', () => {
   it('API', async () => {
     const m = await import('@sys/immutable/core');
-    expect(m.Lens).to.equal(Lens);
+    expect(m.Immutable.Lens).to.equal(Lens);
   });
 
   it('root lens reads the entire document', () => {

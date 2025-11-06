@@ -11,18 +11,18 @@ type PathInput = t.ObjectPath | undefined | null;
  * @example Root (empty path)
  * const root = Lens.at(doc);
  */
-export type LensLib = {
+export type ImmutableLensLib = {
   at<V = unknown, T = unknown, P = unknown>(
     doc: t.Immutable<T, P>,
     ...path: PathInput[]
-  ): Lens<T, P, V>;
+  ): ImmutableLens<T, P, V>;
 };
 
 /**
  * Lens<V>: binds an Immutable<T> + ObjectPath and forwards to Obj.Path + Immutable.change.
  * No events, no instance ID — just reads and immutable writes.
  */
-export type Lens<T = unknown, P = unknown, V = unknown> = {
+export type ImmutableLens<T = unknown, P = unknown, V = unknown> = {
   readonly doc: t.Immutable<T, P>;
   readonly path: t.ObjectPath;
 
@@ -51,10 +51,10 @@ export type Lens<T = unknown, P = unknown, V = unknown> = {
   delete(): void;
 
   /** Derive a child lens at a sub-path. */
-  child<U = unknown>(sub: PathInput): Lens<T, P, U>;
+  child<U = unknown>(sub: PathInput): ImmutableLens<T, P, U>;
 
   /** Re-type the viewed value (compile-time only). */
-  as<U>(): Lens<T, P, U>;
+  as<U>(): ImmutableLens<T, P, U>;
 
   /**
    * Create a new lens by appending one or more ObjectPath segments.
@@ -65,5 +65,5 @@ export type Lens<T = unknown, P = unknown, V = unknown> = {
    * const base = Lens.at(doc, ['user']);
    * const name = base.at<string>(['profile'], ['displayName']);
    */
-  at<U = unknown>(...segments: PathInput[]): Lens<T, P, U>;
+  at<U = unknown>(...segments: PathInput[]): ImmutableLens<T, P, U>;
 };

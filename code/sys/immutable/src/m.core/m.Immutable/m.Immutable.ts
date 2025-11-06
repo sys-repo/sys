@@ -1,5 +1,6 @@
 import type { ImmutableLib } from './t.ts';
 
+import { Lens } from '../m.Immutable.Lens/mod.ts';
 import { Events } from './m.Events.ts';
 import { cloner, clonerRef } from './m.Immutable.cloner.ts';
 import { Patch } from './m.Patch.ts';
@@ -12,6 +13,7 @@ export const Immutable: ImmutableLib = {
   Is,
   Events,
   Patch,
+  Lens,
   cloner,
   clonerRef,
   toObject,
