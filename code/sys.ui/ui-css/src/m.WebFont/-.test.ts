@@ -213,7 +213,7 @@ describe(`useWebFont`, () => {
       italic: true,
       local: ['ETBook-Roman', 'ETBook-Italic', 'ETBook-SemiBold', 'ETBook-Bold'],
       fileForStatic: ({ dir, family, weight, italic }) => {
-        // Match your filenames exactly:
+        // Example: matching filenames exactly:
         if (weight === 400 && !italic) return `${dir}/et-book-roman-old-style-figures.woff`;
         if (weight === 400 && italic) return `${dir}/et-book-display-italic-old-style-figures.woff`;
         if (weight === 600 && !italic) return `${dir}/et-book-semi-bold-old-style-figures.woff`;
