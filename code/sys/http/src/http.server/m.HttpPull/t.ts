@@ -165,7 +165,7 @@ export type HttpPullMapLib = {
   rebase(pathname: string, base: string | ''): string;
 
   /**
-   * Derive a normalized “base” from `relativeTo`:
+   * Derive a normalized "base" from `relativeTo`:
    *   - If URL: uses its `.pathname`
    *   - Else: uses the string as-is
    * Then `toRelPosix(...)` for normalization.
