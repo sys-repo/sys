@@ -1,5 +1,5 @@
-import { type t, Path } from './common.ts';
-import { bindRO, bindRW, makeCurried, toPath } from './u.ts';
+import { type t } from './common.ts';
+import { bindRO, bindRW, makeCurried } from './u.ts';
 
 type O = Record<string, unknown>;
 
@@ -8,6 +8,7 @@ type O = Record<string, unknown>;
  * Thin sugar over Obj.Path.curry + Mutate.
  */
 export const Lens: t.ObjLensLib = {
+  /** Create an unbound lens at a path. Accepts pointer string or ObjectPath. */
   at<T = unknown>(path: t.PathLike): t.ObjLens<T> {
     const cur = makeCurried<T>(path);
     const bind = <S extends O>(subject: S) => bindRW<S, T>(cur, subject);
@@ -15,29 +16,36 @@ export const Lens: t.ObjLensLib = {
     return { ...cur, bind } as t.ObjLens<T>;
   },
 
-  on<S extends O, T = unknown>(subject: S, path: t.PathLike): t.BoundObjLens<S, T> {
-    return Lens.at<T>(path).bind(subject);
+  // 🌸 ---------- ADDED: root-level-bind-sugar ----------
+  /**
+   * Bind a subject to an optional path. Equivalent to: Lens.at(path).bind(subject).
+   * When `path` is omitted, binds at the root [].
+   */
+  bind<S extends O, T = unknown>(subject: S, path?: t.PathLike): t.BoundObjLens<S, T> {
+    const p = path ?? [];
+    return this.at<T>(p).bind(subject);
   },
+  // 🌸 ---------- /ADDED ----------
 
-  of<S extends O>(subject: S): t.BoundObjLens<S, unknown> {
-    return Lens.on<S, unknown>(subject, []);
-  },
-
+  /** Readonly variants. */
   ReadOnly: {
     at<T = unknown>(path: t.PathLike): t.ReadOnlyObjLens<T> {
-      const full = Lens.at<T>(path);
-      const { path: p, get, exists, join } = full;
-      const bind = <S extends O>(subject: S) => bindRO<S, T>(makeCurried<T>(p), subject);
-      // Strip mutators; keep readonly surface + bind
+      const cur = makeCurried<T>(path);
+      const { path: p, get, exists, join } = cur;
+      const bind = <S extends O>(subject: S) => bindRO<S, T>(cur, subject);
+      // Return only the readonly surface + bind
       return { path: p, get, exists, join, bind } as t.ReadOnlyObjLens<T>;
     },
 
-    on<S extends O, T = unknown>(subject: S, path: t.PathLike): t.ReadOnlyBoundObjLens<S, T> {
-      return Lens.ReadOnly.at<T>(path).bind(subject);
+    // 🌸 ---------- ADDED: root-level-readonly-bind-sugar ----------
+    /**
+     * Readonly variant of `bind`. Equivalent to: Lens.ReadOnly.at(path).bind(subject).
+     * When `path` is omitted, binds at the root [].
+     */
+    bind<S extends O, T = unknown>(subject: S, path?: t.PathLike): t.ReadOnlyBoundObjLens<S, T> {
+      const p = path ?? [];
+      return this.at<T>(p).bind(subject);
     },
-
-    of<S extends O>(subject: S): t.ReadOnlyBoundObjLens<S, unknown> {
-      return Lens.ReadOnly.on<S, unknown>(subject, []);
-    },
+    // 🌸 ---------- /ADDED ----------
   },
 };

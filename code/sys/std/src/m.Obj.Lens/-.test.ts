@@ -5,7 +5,8 @@ describe('Obj.Lens', () => {
   it('exports stable surface', async () => {
     const { Obj } = await import('@sys/std/value');
     expect(Obj.Lens).to.equal(Lens);
-    expect(Lens).to.have.keys(['at', 'on', 'of', 'ReadOnly']);
+    expect(Lens).to.have.keys(['at', 'bind', 'ReadOnly']);
+    expect(Lens.ReadOnly).to.have.keys(['at', 'bind']);
   });
 
   describe('unbound Lens.at', () => {
@@ -41,8 +42,8 @@ describe('Obj.Lens', () => {
     });
   });
 
-  describe('bound Lens.on/of', () => {
-    it('bind() produces parity with manual subject passing', () => {
+  describe('bound Lens.bind', () => {
+    it('unbound.bind(subject) parity with manual subject passing', () => {
       const subject = { a: { b: 1 } };
       const unbound = Lens.at<number>(['a', 'b']);
       const bound = unbound.bind(subject);
@@ -55,21 +56,31 @@ describe('Obj.Lens', () => {
       expect(unbound.exists(subject)).to.eql(false);
     });
 
-    it('of() binds to root path []', () => {
+    it('Lens.bind(subject) binds at root []', () => {
       const subject = { x: 1 };
-      const lens = Lens.of(subject);
+      const lens = Lens.bind(subject);
       expect(lens.path).to.eql([]);
       expect(lens.get()).to.eql(subject);
-      lens.set({ y: 2 });
+      lens.set({ y: 2 } as any);
       expect(subject).to.eql({ y: 2 });
     });
 
-    it('ensure() creates intermediate objects', () => {
+    it('Lens.bind(subject, path) ensures intermediate objects', () => {
       const s: any = {};
-      const l = Lens.on(s, ['a', 'b', 'c']);
+      const l = Lens.bind(s, ['a', 'b', 'c']);
       const v = l.ensure(10);
       expect(v).to.eql(10);
       expect(s).to.eql({ a: { b: { c: 10 } } });
+    });
+
+    it('join() composes on bound lenses and shares subject', () => {
+      const s = { a: { b: { c: 1 } } };
+      const l = Lens.bind(s, ['a']);
+      const j = l.join<number>(['b', 'c']);
+      expect(j.path).to.eql(['a', 'b', 'c']);
+      expect(j.get()).to.eql(1);
+      j.set(2);
+      expect(s).to.eql({ a: { b: { c: 2 } } });
     });
   });
 
@@ -81,17 +92,26 @@ describe('Obj.Lens', () => {
       expect(lens.exists(obj)).to.eql(true);
     });
 
-    it('bound ReadOnly lens works and forbids mutation', () => {
+    it('Lens.ReadOnly.bind(subject, path) works and forbids mutation', () => {
       const subject = { a: { b: 2 } };
-      const lens = Lens.ReadOnly.on(subject, ['a', 'b']);
+      const lens = Lens.ReadOnly.bind(subject, ['a', 'b']);
       expect(lens.get()).to.eql(2);
       expect(() => (lens as any).set(3)).to.throw;
+      expect(() => (lens as any).delete()).to.throw;
+      expect(() => (lens as any).ensure(0)).to.throw;
     });
 
-    it('join() composes correctly on readonly lenses', () => {
+    it('Lens.ReadOnly.bind(subject) binds at root []', () => {
+      const subject = { x: { y: 1 } };
+      const root = Lens.ReadOnly.bind(subject);
+      expect(root.path).to.eql([]);
+      expect(root.get()).to.eql(subject);
+    });
+
+    it('join() composes correctly on readonly bound lenses', () => {
       const subject = { x: { y: { z: 1 } } };
-      const root = Lens.ReadOnly.on(subject, ['x']);
-      const joined = root.join(['y', 'z']);
+      const root = Lens.ReadOnly.bind(subject, ['x']);
+      const joined = root.join<number>(['y', 'z']);
       expect(joined.get()).to.eql(1);
       expect(joined.path).to.eql(['x', 'y', 'z']);
     });
@@ -109,6 +129,16 @@ describe('Obj.Lens', () => {
       expect(ro).to.not.have.property('set');
       expect(ro).to.not.have.property('ensure');
       expect(ro).to.not.have.property('delete');
+      // but has bind
+      expect(ro).to.have.property('bind');
+    });
+
+    it('root-level bind sugar equals at([]).bind(subject)', () => {
+      const subject = { a: 1 };
+      const a = Lens.bind(subject);
+      const b = Lens.at([] as const).bind(subject);
+      expect(a.path).to.eql(b.path);
+      expect(a.get()).to.eql(b.get());
     });
   });
 });
