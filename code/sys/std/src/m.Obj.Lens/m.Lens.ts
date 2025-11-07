@@ -34,24 +34,24 @@ export const Lens: t.ObjLensLib = {
     return this.at<T>(...path).bind(subject);
   },
 
-  /** Readonly variants. */
-  ReadOnly: {
-    at<T = unknown>(...path: PathInput[]): t.ReadOnlyObjLens<T> {
+  /** Read-only variants. */
+  Readonly: {
+    at<T = unknown>(...path: PathInput[]): t.ReadonlyObjLens<T> {
       const cur = makeCurriedAll<T>(...path);
       const { path: p, get, exists, at: join } = cur;
       const bind = <S extends Record<string, unknown>>(subject: S) => bindRO<S, T>(cur, subject);
       // Return only the readonly surface + bind
-      return { path: p, get, exists, at: join, bind } as t.ReadOnlyObjLens<T>;
+      return { path: p, get, exists, at: join, bind } as t.ReadonlyObjLens<T>;
     },
 
     /**
-     * Readonly variant of `bind`. Equivalent to: Lens.ReadOnly.at(path...).bind(subject).
+     * Readonly variant of `bind`. Equivalent to: Lens.Readonly.at(path...).bind(subject).
      * When no path segments are supplied or only null/undefined are given, binds at the root [].
      */
     bind<S extends Record<string, unknown>, T = unknown>(
       subject: S,
       ...path: PathInput[]
-    ): t.ReadOnlyObjLensRef<S, T> {
+    ): t.ReadonlyObjLensRef<S, T> {
       return this.at<T>(...path).bind(subject);
     },
   },

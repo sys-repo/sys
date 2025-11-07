@@ -117,56 +117,56 @@ describe('Obj.Lens', () => {
     });
   });
 
-  describe('ReadOnly', () => {
+  describe('Lens.Readonly', () => {
     it('matches unbound semantics (get/exists)', () => {
       const obj = { a: { b: 5 } };
-      const lens = Lens.ReadOnly.at<number>(['a', 'b']);
+      const lens = Lens.Readonly.at<number>(['a', 'b']);
       expect(lens.get(obj)).to.eql(5);
       expect(lens.exists(obj)).to.eql(true);
     });
 
-    it('Lens.ReadOnly.bind(subject, path) works and forbids mutation', () => {
+    it('Lens.Readonly.bind(subject, path) works and forbids mutation', () => {
       const subject = { a: { b: 2 } };
-      const lens = Lens.ReadOnly.bind(subject, ['a', 'b']);
+      const lens = Lens.Readonly.bind(subject, ['a', 'b']);
       expect(lens.get()).to.eql(2);
       expect(() => (lens as any).set(3)).to.throw;
       expect(() => (lens as any).delete()).to.throw;
       expect(() => (lens as any).ensure(0)).to.throw;
     });
 
-    it('Lens.ReadOnly.bind(subject) binds at root []', () => {
+    it('Lens.Readonly.bind(subject) binds at root []', () => {
       const subject = { x: { y: 1 } };
-      const root = Lens.ReadOnly.bind(subject);
+      const root = Lens.Readonly.bind(subject);
       expect(root.path).to.eql([]);
       expect(root.get()).to.eql(subject);
     });
 
     it('join() composes correctly on readonly bound lenses', () => {
       const subject = { x: { y: { z: 1 } } };
-      const root = Lens.ReadOnly.bind(subject, ['x']);
+      const root = Lens.Readonly.bind(subject, ['x']);
       const joined = root.at<number>(['y', 'z']);
       expect(joined.get()).to.eql(1);
       expect(joined.path).to.eql(['x', 'y', 'z']);
     });
 
-    it('ReadOnly.at(...path) composes; ReadOnly.bind(subject, ...path) mirrors', () => {
+    it('Readonly.at(...path) composes; Readonly.bind(subject, ...path) mirrors', () => {
       const s = { a: [{ b: { c: 7 } }] };
 
-      const roA = Lens.ReadOnly.at<number>('/a/0', ['b'], null, '/c');
+      const roA = Lens.Readonly.at<number>('/a/0', ['b'], null, '/c');
       expect(roA.path).to.eql(['a', 0, 'b', 'c']);
       expect(roA.get(s)).to.eql(7);
       expect(roA.exists(s)).to.eql(true);
 
-      const roB = Lens.ReadOnly.bind(s, '/a', ['0', 'b'], undefined, '/c');
+      const roB = Lens.Readonly.bind(s, '/a', ['0', 'b'], undefined, '/c');
       expect(roB.path).to.eql(['a', 0, 'b', 'c']);
       expect(roB.get()).to.eql(7);
       expect(() => (roB as any).set(8)).to.throw;
     });
 
-    it('ReadOnly root binding when no/only nullish segments', () => {
+    it('Readonly root binding when no/only nullish segments', () => {
       const s = { x: 1 };
-      const a = Lens.ReadOnly.at().bind(s);
-      const b = Lens.ReadOnly.bind(s, null, undefined);
+      const a = Lens.Readonly.at().bind(s);
+      const b = Lens.Readonly.bind(s, null, undefined);
       expect(a.path).to.eql([]);
       expect(b.path).to.eql([]);
       expect(a.get()).to.eql(s);
@@ -181,8 +181,8 @@ describe('Obj.Lens', () => {
       expect(bound.path).to.eql(unbound.path);
     });
 
-    it('ReadOnly lens surface omits mutators', () => {
-      const ro = Lens.ReadOnly.at(['foo']);
+    it('Readonly lens surface omits mutators', () => {
+      const ro = Lens.Readonly.at(['foo']);
       expect(ro).to.not.have.property('set');
       expect(ro).to.not.have.property('ensure');
       expect(ro).to.not.have.property('delete');
@@ -241,7 +241,7 @@ describe('Obj.Lens', () => {
 
     it('RO join: pointer + nullish inputs normalize correctly', () => {
       const s = { x: { y: [{ z: 5 }] } };
-      const l = Lens.ReadOnly.bind(s, '/x');
+      const l = Lens.Readonly.bind(s, '/x');
       const j = l.at('/y', null, '/0', undefined, '/z');
       expect(j.path).to.eql(['x', 'y', 0, 'z']);
       expect(j.get()).to.eql(5);
@@ -249,7 +249,7 @@ describe('Obj.Lens', () => {
 
     it('RO join: empty or nullish yields same lens path', () => {
       const s = { k: 1 };
-      const l = Lens.ReadOnly.bind(s, ['k']);
+      const l = Lens.Readonly.bind(s, ['k']);
       const j1 = l.at();
       const j2 = l.at(null, undefined);
       expect(j1.path).to.eql(l.path);

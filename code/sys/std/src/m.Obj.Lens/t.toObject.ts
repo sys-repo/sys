@@ -14,7 +14,7 @@ export type LensToObjectOptions = {
  * - Only "plain objects" recurse; non-plain objects are preserved as-is.
  */
 export type UnwrapLenses<T> =
-  T extends t.ReadOnlyObjLensRef<any, infer V>
+  T extends t.ReadonlyObjLensRef<any, infer V>
     ? UnwrapLenses<V>
     : T extends t.ObjLensRef<any, infer V>
       ? UnwrapLenses<V>

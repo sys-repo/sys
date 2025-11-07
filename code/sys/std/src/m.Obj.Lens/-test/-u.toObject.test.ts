@@ -7,7 +7,7 @@ describe('Lens.toObject', () => {
 
     type S = { a: { b: number }; arr: readonly string[] };
     type RW = t.ObjLensRef<S, number>;
-    type RO = t.ReadOnlyObjLensRef<S, string>;
+    type RO = t.ReadonlyObjLensRef<S, string>;
 
     type Mixed = {
       keep: { z: boolean };
@@ -52,7 +52,7 @@ describe('Lens.toObject', () => {
 
   it('replaces bound lens refs (RO) with .get() values', () => {
     const subject = { a: { b: 1 }, arr: [7, 8] };
-    const ro = Lens.ReadOnly.bind(subject);
+    const ro = Lens.Readonly.bind(subject);
     const tree = {
       one: ro.at('/a/b'),
       arr: [ro.at('/arr/0'), 'k'],
@@ -86,7 +86,7 @@ describe('Lens.toObject', () => {
 
   it('skips accessor getters by default; includes when requested', () => {
     const subject = { x: 1 };
-    const ro = Lens.ReadOnly.bind(subject);
+    const ro = Lens.Readonly.bind(subject);
     const withGetter = {
       lens: ro.at('/x'),
     } as any;
@@ -109,7 +109,7 @@ describe('Lens.toObject', () => {
 
   it('depth guard: limits recursion (lenses still unwrap at current depth)', () => {
     const subject = { a: { b: { c: 3 } } };
-    const ro = Lens.ReadOnly.bind(subject);
+    const ro = Lens.Readonly.bind(subject);
 
     // depth=1: unwrap lens to value once, but do not recurse into resulting object
     const out1 = Lens.toObject({ x: ro.at('/a') }, { depth: 1 });
@@ -123,7 +123,7 @@ describe('Lens.toObject', () => {
 
   it('cycle guard: preserves object identity on cycles', () => {
     const subject = { n: 1 };
-    const ro = Lens.ReadOnly.bind(subject);
+    const ro = Lens.Readonly.bind(subject);
 
     const a: any = { self: null, lens: ro.at('/n') };
     a.self = a;
@@ -137,7 +137,7 @@ describe('Lens.toObject', () => {
     const d = new Date('2020-01-01T00:00:00.000Z');
     const m = new Map<string, number>([['a', 1]]);
     const subject = { when: 1 };
-    const ro = Lens.ReadOnly.bind(subject);
+    const ro = Lens.Readonly.bind(subject);
 
     const tree = { d, m, lens: ro.at('/when') };
     const out = Lens.toObject(tree);

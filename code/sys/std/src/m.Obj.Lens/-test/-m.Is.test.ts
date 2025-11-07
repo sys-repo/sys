@@ -6,7 +6,7 @@ describe('Obj.Lens.Is', () => {
     const unbound = Lens.at('/a/b'); // ObjLens (unbound)
     expect(Lens.Is.lens(unbound)).to.eql(true);
     expect(Lens.Is.lensRef(unbound)).to.eql(false);
-    expect(Lens.Is.lensRefReadOnly(unbound)).to.eql(false);
+    expect(Lens.Is.lensRefReadonly(unbound)).to.eql(false);
     expect(Lens.Is.lensRefWritable(unbound)).to.eql(false);
     expect(Lens.Is.readonly(unbound)).to.eql(false);
 
@@ -24,7 +24,7 @@ describe('Obj.Lens.Is', () => {
     expect(Lens.Is.lens(rw)).to.eql(false);
     expect(Lens.Is.lensRef(rw)).to.eql(true);
     expect(Lens.Is.lensRefWritable(rw)).to.eql(true);
-    expect(Lens.Is.lensRefReadOnly(rw)).to.eql(false);
+    expect(Lens.Is.lensRefReadonly(rw)).to.eql(false);
     expect(Lens.Is.readonly(rw)).to.eql(false);
 
     // type narrowing
@@ -35,18 +35,18 @@ describe('Obj.Lens.Is', () => {
 
   it('lensRef: bound read-only lens', () => {
     const subject = { a: { b: 123 } };
-    const roRoot = Lens.ReadOnly.bind(subject); // read-only root
+    const roRoot = Lens.Readonly.bind(subject); // read-only root
     const ro = roRoot.at('/a/b');
 
     expect(Lens.Is.lens(ro)).to.eql(false);
     expect(Lens.Is.lensRef(ro)).to.eql(true);
-    expect(Lens.Is.lensRefReadOnly(ro)).to.eql(true);
+    expect(Lens.Is.lensRefReadonly(ro)).to.eql(true);
     expect(Lens.Is.lensRefWritable(ro)).to.eql(false);
     expect(Lens.Is.readonly(ro)).to.eql(true);
 
     // type narrowing
-    if (Lens.Is.lensRefReadOnly(ro)) {
-      expectTypeOf(ro).toMatchTypeOf<t.ReadOnlyObjLensRef<typeof subject, unknown>>();
+    if (Lens.Is.lensRefReadonly(ro)) {
+      expectTypeOf(ro).toMatchTypeOf<t.ReadonlyObjLensRef<typeof subject, unknown>>();
     }
   });
 
@@ -73,7 +73,7 @@ describe('Obj.Lens.Is', () => {
     for (const v of cases) {
       expect(Lens.Is.lens(v)).to.eql(false);
       expect(Lens.Is.lensRef(v)).to.eql(false);
-      expect(Lens.Is.lensRefReadOnly(v)).to.eql(false);
+      expect(Lens.Is.lensRefReadonly(v)).to.eql(false);
       expect(Lens.Is.lensRefWritable(v)).to.eql(false);
       expect(Lens.Is.readonly(v)).to.eql(false);
     }
@@ -82,7 +82,7 @@ describe('Obj.Lens.Is', () => {
   it('structural: bound lens has subject and path that are stable', () => {
     const subject = { x: { y: { z: 1 } } };
     const rw = Lens.bind(subject).at('/x/y/z');
-    const ro = Lens.ReadOnly.bind(subject).at('/x/y/z');
+    const ro = Lens.Readonly.bind(subject).at('/x/y/z');
 
     // ensure structural presence the guard relies on (sanity)
     expect('subject' in (rw as any)).to.eql(true);

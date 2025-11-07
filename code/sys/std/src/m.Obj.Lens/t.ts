@@ -31,16 +31,16 @@ export type ObjLensLib = {
   toObject<T>(input: T, opts?: t.LensToObjectOptions): t.UnwrapLenses<T>;
 
   /** Readonly variants. */
-  readonly ReadOnly: {
-    at<T = unknown>(...path: PathInput[]): t.ReadOnlyObjLens<T>;
+  readonly Readonly: {
+    at<T = unknown>(...path: PathInput[]): t.ReadonlyObjLens<T>;
 
     /**
-     * Readonly variant of `bind`. Equivalent to: Obj.ReadOnly.at(path).bind(subject).
+     * Readonly variant of `bind`. Equivalent to: Obj.Readonly.at(path).bind(subject).
      * When `path` is omitted, binds at the root [].
      */
     bind<T = unknown, S extends O = O>(
       subject: S,
       ...path: PathInput[]
-    ): t.ReadOnlyObjLensRef<S, T>;
+    ): t.ReadonlyObjLensRef<S, T>;
   };
 };

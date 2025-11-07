@@ -3,14 +3,14 @@ import { type t, isRecord, Path } from './common.ts';
 export const Is: t.ObjLensIsLib = {
   lens: isLensUnbound,
   lensRef: isLensRefAny,
-  lensRefReadOnly: isLensRefReadOnly,
+  lensRefReadonly: isLensRefReadonly,
   lensRefWritable: isLensRefWritable,
-  readonly: (v?: unknown): boolean => isLensRefReadOnly(v),
+  readonly: (v?: unknown): boolean => isLensRefReadonly(v),
 };
 
 function isLensRefAny(
   v: unknown,
-): v is t.ReadOnlyObjLensRef<any, unknown> | t.ObjLensRef<any, unknown> {
+): v is t.ReadonlyObjLensRef<any, unknown> | t.ObjLensRef<any, unknown> {
   if (!isRecord(v)) return false;
   if (!('subject' in v)) return false;
   if (!('path' in v)) return false;
@@ -27,7 +27,7 @@ function isLensRefWritable(v: unknown): v is t.ObjLensRef<any, unknown> {
   return hasFn(o, 'set') || hasFn(o, 'delete') || hasFn(o, 'ensure');
 }
 
-function isLensRefReadOnly(v: unknown): v is t.ReadOnlyObjLensRef<any, unknown> {
+function isLensRefReadonly(v: unknown): v is t.ReadonlyObjLensRef<any, unknown> {
   return isLensRefAny(v) && !isLensRefWritable(v);
 }
 

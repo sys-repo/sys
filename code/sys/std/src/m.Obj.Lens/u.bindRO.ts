@@ -10,7 +10,7 @@ type PathInput = t.PathLike | undefined | null;
 export function bindRO<S extends O, T>(
   cur: t.CurriedPath<T>,
   subject: S,
-): t.ReadOnlyObjLensRef<S, T> {
+): t.ReadonlyObjLensRef<S, T> {
   const { path } = cur;
 
   const get = (def?: t.NonUndefined<T>) => {
