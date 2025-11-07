@@ -21,6 +21,7 @@ export const DefaultDetails: React.FC<DefaultDetailsProps> = (props) => {
   const peerId = repo?.id.peer ?? '';
   const urls = repo?.sync.urls ?? [];
   const prefixLabel = enabled && urls.length > 0 ? 'network:' : repo ? 'private' : 'no repository';
+  const stores = (repo?.stores ?? []).map(toStoreInfoString);
 
   /**
    * Render:
@@ -41,10 +42,21 @@ export const DefaultDetails: React.FC<DefaultDetailsProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <span className={styles.dim.class}>{prefixLabel}</span>
-      {urls.length > 0 && enabled && <EndpointLabel urls={urls} />}
+      {urls.length > 0 && enabled && (
+        <EndpointLabel urls={urls} appendTooltip={stores.join('\n')} />
+      )}
       {peerId && enabled && <span className={styles.dim.class}>{'•'}</span>}
       {peerId && enabled && <PeerLabel peerId={peerId} />}
       {peerId && enabled && <Icons.Person color={theme.fg} size={16} opacity={1} />}
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+function toStoreInfoString(info: t.CrdtRepoStoreInfo) {
+  if (info.kind === 'indexed-db') return `localstore: ${info.database}`;
+  if (info.kind === 'fs') return `filesystem: ${info.dir}`;
+  return `local-store: <unknown>`;
+}

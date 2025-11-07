@@ -20,7 +20,18 @@ export type CrdtRepoProps = {
     readonly urls: t.StringUrl[];
     readonly peers: t.PeerId[];
   };
+  readonly stores: readonly CrdtRepoStoreInfo[];
 };
+
+/** Info about a repository store. */
+export type CrdtRepoStoreInfo = CrdtRepoStoreInfoIdb | CrdtRepoStoreInfoFs;
+export type CrdtRepoStoreInfoIdb = {
+  kind: 'indexed-db';
+  database: t.StringName;
+  store: t.StringName;
+};
+export type CrdtRepoStoreInfoFs = { kind: 'fs'; dir: t.StringDir };
+
 /** The methods of a CRDT Repo. */
 export type CrdtRepoMethods = {
   whenReady(): Promise<t.CrdtRepo>;

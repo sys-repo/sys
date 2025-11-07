@@ -30,6 +30,9 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
         const repoA = Crdt.repo({ storage: { database } });
         const repoB = Crdt.repo({ storage: {} });
 
+        expect(repoA.stores).to.eql([{ kind: 'indexed-db', database, store: D.store }]);
+        expect(repoB.stores).to.eql([]);
+
         const doc = repoA.create<T>({ count: 1234 });
         await Time.wait(10);
 

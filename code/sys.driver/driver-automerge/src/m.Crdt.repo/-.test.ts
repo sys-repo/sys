@@ -276,6 +276,13 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
   });
 
+  describe('stores (persistence)', () => {
+    it('has an empty stores list', () => {
+      const repo = toRepo(new AutomergeRepo({}));
+      expect(repo.stores).to.eql([]);
+    });
+  });
+
   describe('errors', () => {
     it('control: ensure monkey-patching is non-destructive', () => {
       const a = new AutomergeRepo();

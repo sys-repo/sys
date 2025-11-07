@@ -1,5 +1,6 @@
 import { Crdt } from '@sys/driver-automerge/fs';
-import { describe, expect, it, slug, Time } from '../../-test.ts';
+import { Fs } from '@sys/fs';
+import { describe, expect, it, slug, Testing, Time } from '../../-test.ts';
 
 describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
@@ -50,6 +51,13 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
       });
       expect(repo.id.peer.startsWith('crdt-peer-')).to.be.true;
       expect(repo.sync.urls).to.eql(['wss://sync.automerge.org']); // NB: the <undefined> entry filtered out.
+    });
+
+    it('repo: stores (info)', () => {
+      const fs = Testing.dir('repo.stores');
+      const dir = fs.dir;
+      const repo = Crdt.repo({ dir });
+      expect(repo.stores).to.eql([{ kind: 'fs', dir: Fs.resolve(dir) }]);
     });
   });
 

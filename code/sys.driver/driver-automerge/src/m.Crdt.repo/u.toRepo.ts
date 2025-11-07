@@ -19,7 +19,7 @@ const D = { timeout: 5_000 } as const;
  */
 export function toRepo(
   repo: Repo,
-  options: { peerId?: string; dispose$?: t.UntilInput } = {},
+  options: { peerId?: string; stores?: t.CrdtRepoStoreInfo[]; dispose$?: t.UntilInput } = {},
 ): t.CrdtRepo {
   let _enabled = true;
   let _ready = false;
@@ -32,8 +32,8 @@ export function toRepo(
   const schedule = Schedule.make(life, 'micro');
 
   const cloneProps = (): t.CrdtRepoProps => {
-    const { id, sync, ready } = api;
-    return { id, sync: { ...sync }, ready };
+    const { id, sync, stores, ready } = api;
+    return { id, ready, sync: { ...sync }, stores: [...stores] };
   };
 
   /**
@@ -132,6 +132,9 @@ export function toRepo(
       get peers() {
         return Array.from(peers);
       },
+    },
+    get stores() {
+      return options.stores ?? [];
     },
 
     create<T extends O>(input: T | (() => T)) {

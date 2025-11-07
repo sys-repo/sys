@@ -31,12 +31,17 @@ export const Crdt: t.CrdtFilesystemLib = {
   kind: 'Crdt:FileSystem',
   repo(input) {
     const args = wrangle.dir(input);
+    const dir = args.dir ?? '';
     const { sharePolicy = async () => true, denylist, dispose$ } = args;
     const storage = wrangle.storage(args);
     const network = wrangle.network(args);
     const peerId = createPeerId();
     const base = new AutomergeRepo({ storage, network, sharePolicy, denylist, peerId });
-    return toRepo(base, { peerId, dispose$ });
+    return toRepo(base, {
+      peerId,
+      dispose$,
+      stores: [{ kind: 'fs', dir }],
+    });
   },
   Is: CrdtIs,
   Url: CrdtUrl,
@@ -55,7 +60,7 @@ const wrangle = {
   },
 
   storage(args?: Args): NodeFSStorageAdapter | undefined {
-    const dir = args?.dir;
+    const dir = wrangle.dir(args).dir;
     return dir ? new NodeFSStorageAdapter(dir) : undefined;
   },
 

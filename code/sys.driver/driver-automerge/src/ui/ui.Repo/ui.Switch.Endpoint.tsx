@@ -1,11 +1,12 @@
 import React from 'react';
 
-import { type t, Url, css } from './common.ts';
+import { css, Str, type t, Url } from './common.ts';
 import { LabelStyle } from './u.Style.ts';
 
 export type EndpointLabelProps = {
   urls: string[];
   showProtocol?: boolean;
+  appendTooltip?: string;
   style?: t.CssInput;
 };
 
@@ -13,11 +14,13 @@ export type EndpointLabelProps = {
  * Component:
  */
 export const EndpointLabel: React.FC<EndpointLabelProps> = (props) => {
-  const { urls = [], showProtocol = false } = props;
+  const { urls = [], showProtocol = false, appendTooltip } = props;
   if (urls.length === 0) return null;
 
-  const tooltip = urls.length > 1 ? urls.reduce((acc, url) => acc + `\n${url}`, '').trim() : '';
   const parts = wrangle.parts(urls[0]);
+  let tooltip = urls.length > 1 ? urls.reduce((acc, url) => acc + `\n${url}`, '').trim() : '';
+  if (appendTooltip) tooltip += '\n' + appendTooltip;
+  tooltip = Str.trimEdgeNewlines(tooltip);
 
   /**
    * Render:

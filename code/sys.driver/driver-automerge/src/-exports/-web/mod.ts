@@ -35,11 +35,13 @@ export const Crdt: t.CrdtBrowserLib = {
   kind: 'Crdt:Browser',
   repo(args = {}) {
     const { sharePolicy, denylist, dispose$ } = args;
-    const storage = wrangle.storage(args);
+    const store = wrangle.storage(args);
+    const storage = store?.adapter;
+    const stores = store?.info ? [store.info] : [];
     const network = wrangle.network(args);
     const peerId = createPeerId();
     const base = new AutomergeRepo({ storage, network, sharePolicy, denylist, peerId });
-    return toRepo(base, { peerId, dispose$ });
+    return toRepo(base, { peerId, stores, dispose$ });
   },
   Is: CrdtIs,
   Url: CrdtUrl,
@@ -50,18 +52,40 @@ export const Crdt: t.CrdtBrowserLib = {
 /**
  * Helpers:
  */
+type TStore = { adapter: t.StorageAdapterInterface; info: t.CrdtRepoStoreInfoIdb };
 const wrangle = {
   indexedDb(options: { database?: string } = {}) {
     const { database = D.database } = options;
-    return new IndexedDBStorageAdapter(database);
+    const store = D.store;
+    const info: t.CrdtRepoStoreInfoIdb = { kind: 'indexed-db', database, store };
+    const adapter = new IndexedDBStorageAdapter(database, store);
+    return { adapter, info } as const;
   },
 
-  storage(args?: Args): t.StorageAdapterInterface | undefined {
+  storage(args?: Args): TStore | undefined {
     if (!args?.storage) return;
+    const done = (
+      adapter: t.StorageAdapterInterface,
+      maybeInfo?: t.CrdtRepoStoreInfoIdb,
+    ): TStore => {
+      return {
+        adapter,
+        info: maybeInfo ?? { kind: 'indexed-db', database: '<unknown>', store: '<unknown>' },
+      };
+    };
+
     const arg = args?.storage;
-    if (arg === 'IndexedDb' || arg === true) return wrangle.indexedDb();
-    if (arg instanceof IndexedDBStorageAdapter) return arg;
-    if (Is.record(arg) && Is.string(arg.database)) return wrangle.indexedDb(arg);
+    if (arg === 'IndexedDb' || arg === true) {
+      const db = wrangle.indexedDb();
+      return done(db.adapter, db.info);
+    }
+    if (arg instanceof IndexedDBStorageAdapter) {
+      return done(arg);
+    }
+    if (Is.record(arg) && Is.string(arg.database)) {
+      const db = wrangle.indexedDb(arg);
+      return done(db.adapter, db.info);
+    }
     return;
   },
 
