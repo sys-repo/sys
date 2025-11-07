@@ -35,7 +35,7 @@ export const Foo: React.FC<FooProps> = (props) => {
     body: css({
       display: 'grid',
       gridAutoFlow: 'column',
-      gap: 15,
+      gap: 10,
       justifyContent: 'start',
       alignContent: 'start',
     }),
@@ -45,6 +45,7 @@ export const Foo: React.FC<FooProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
         <div>{props.label ?? `🐷 Foo`}</div>
+        {'•'}
         <Button label={'throw error 💥'} theme={theme.name} onClick={() => setBoom(true)} />
       </div>
     </div>
