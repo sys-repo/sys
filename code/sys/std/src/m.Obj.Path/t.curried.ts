@@ -51,5 +51,5 @@ export type CurriedPath<T = unknown> = {
    * Creates a new curried path combining this path as the root
    * and the given sub-path.
    */
-  join<T = unknown>(subpath: t.ObjectPath): CurriedPath<T>;
+  at<T = unknown>(subpath: t.ObjectPath): CurriedPath<T>;
 };

@@ -201,18 +201,19 @@ describe('Obj.Path.Curried', () => {
     });
   });
 
-  describe('path.curry(...).join(...)', () => {
+  describe('path.curry(...).at(...)', () => {
     it('joins a sub-path', () => {
       const a = Path.curry<number>(['foo']);
       expect(a.path).to.eql(['foo']);
 
-      const b = a.join(['bar', 'zoo']);
+      const b = a.at(['bar', 'zoo']);
       expect(b.path).to.eql(['foo', 'bar', 'zoo']);
+      expect(a).to.not.equal(b); // NB: different instance.
     });
 
     it('empty sub-path', () => {
       const a = Path.curry<number>(['foo']);
-      const b = a.join([]);
+      const b = a.at([]);
       expect(a.path).to.eql(b.path);
       expect(a).to.not.equal(b); // NB: different instance.
     });

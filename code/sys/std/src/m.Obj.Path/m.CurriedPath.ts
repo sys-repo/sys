@@ -1,9 +1,9 @@
 import type { t } from './common.ts';
+import { del } from './m.Mutate.delete.ts';
 import { ensure } from './m.Mutate.ensure.ts';
 import { set } from './m.Mutate.set.ts';
-import { get } from './m.Path.get.ts';
-import { del } from './m.Mutate.delete.ts';
 import { exists } from './m.Path.exists.ts';
+import { get } from './m.Path.get.ts';
 
 type O = Record<string, unknown>;
 
@@ -28,7 +28,7 @@ export const CurriedPath: t.CurriedPathLib = {
       delete(subject: O) {
         return del(subject, path);
       },
-      join<T = unknown>(subpath: t.ObjectPath) {
+      at<T = unknown>(subpath: t.ObjectPath) {
         return CurriedPath.make<T>([...path, ...(subpath ?? [])]);
       },
     };
