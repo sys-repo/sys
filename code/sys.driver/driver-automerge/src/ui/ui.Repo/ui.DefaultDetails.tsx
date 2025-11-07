@@ -56,7 +56,7 @@ export const DefaultDetails: React.FC<DefaultDetailsProps> = (props) => {
  * Helpers:
  */
 function toStoreInfoString(info: t.CrdtRepoStoreInfo) {
-  if (info.kind === 'indexed-db') return `localstore: ${info.database}`;
+  if (info.kind === 'indexed-db') return `indexed-db: ${info.database}`;
   if (info.kind === 'fs') return `filesystem: ${info.dir}`;
   return `local-store: <unknown>`;
 }
