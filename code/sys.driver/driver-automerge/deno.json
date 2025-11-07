@@ -4,7 +4,7 @@
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/-test/index.html",
-    "test": "deno test -P=testset",
+    "test": "deno test -P=testset --unstable-worker-options",
     "build": "deno run -P=build ./-scripts/-main.ts --cmd=build  --in=./src/-test/index.html",
     "serve": "deno run -P=serve ./-scripts/-main.ts --cmd=serve",
     "ws": "deno run -P=serve @sys/driver-automerge/ws --port=3030 --dir=.tmp/sync.crdt",
