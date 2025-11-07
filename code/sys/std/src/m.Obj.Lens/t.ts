@@ -14,7 +14,7 @@ export type ObjLensLib = {
    * Bind a subject to an optional path. Equivalent to: Obj.at(path).bind(subject).
    * When `path` is omitted, binds at the root [].
    */
-  bind<S extends O, T = unknown>(subject: S, ...path: PathInput[]): t.BoundObjLens<S, T>;
+  bind<T = unknown, S extends O = O>(subject: S, ...path: PathInput[]): t.BoundObjLens<S, T>;
 
   /** Readonly variants. */
   readonly ReadOnly: {
@@ -24,7 +24,10 @@ export type ObjLensLib = {
      * Readonly variant of `bind`. Equivalent to: Obj.ReadOnly.at(path).bind(subject).
      * When `path` is omitted, binds at the root [].
      */
-    bind<S extends O, T = unknown>(subject: S, ...path: PathInput[]): t.ReadOnlyBoundObjLens<S, T>;
+    bind<T = unknown, S extends O = O>(
+      subject: S,
+      ...path: PathInput[]
+    ): t.ReadOnlyBoundObjLens<S, T>;
   };
 };
 
