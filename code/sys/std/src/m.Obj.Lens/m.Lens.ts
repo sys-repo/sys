@@ -25,7 +25,7 @@ export const Lens: t.ObjLensLib = {
   bind<S extends Record<string, unknown>, T = unknown>(
     subject: S,
     ...path: PathInput[]
-  ): t.BoundObjLens<S, T> {
+  ): t.ObjLensRef<S, T> {
     return this.at<T>(...path).bind(subject);
   },
 
@@ -46,7 +46,7 @@ export const Lens: t.ObjLensLib = {
     bind<S extends Record<string, unknown>, T = unknown>(
       subject: S,
       ...path: PathInput[]
-    ): t.ReadOnlyBoundObjLens<S, T> {
+    ): t.ReadOnlyObjLensRef<S, T> {
       return this.at<T>(...path).bind(subject);
     },
   },
