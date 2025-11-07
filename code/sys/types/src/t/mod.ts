@@ -16,6 +16,7 @@ export type * from './t.Json.ts';
 export type * from './t.Jsx.ts';
 export type * from './t.Module.ts';
 export type * from './t.Number.ts';
+export type * from './t.Object.ts';
 export type * from './t.Observable.ts';
 export type * from './t.Path.ts';
 export type * from './t.Pkg.dist.ts';
