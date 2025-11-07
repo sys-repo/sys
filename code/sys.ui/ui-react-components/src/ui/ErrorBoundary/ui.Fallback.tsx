@@ -30,7 +30,8 @@ export const ErrorBoundaryFallback: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      MarginX: 50,
+      MarginX: 30,
+      MarginY: 20,
       display: 'grid',
       alignContent: 'center',
     }),
@@ -75,7 +76,9 @@ export const ErrorBoundaryFallback: React.FC<P> = (props) => {
           <Button theme={theme.name} onClick={handleCopy}>
             <div className={styles.title.class}>
               <Icons.Copy.Basic size={20} />
-              <div className={styles.titleLabel.class}>{copied ? 'Copied' : `Uncaught Error`}</div>
+              <div className={styles.titleLabel.class}>
+                {copied ? 'Copied' : `Uncaught UI Error`}
+              </div>
             </div>
           </Button>
           <div />
