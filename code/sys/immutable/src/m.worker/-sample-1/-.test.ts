@@ -3,19 +3,17 @@ import { createWorker } from '../u.ts';
 
 import { createWorkerMirror } from './worker-mirror.ts';
 
+/**
+ * SAMPLE ONLY (WIP) - 🐷
+ */
 describe('immutable/worker: smoke', () => {
   const url = new URL('./immutable.worker.ts', import.meta.url);
-  let w: Worker;
-  beforeAll(() => void (w = createWorker(url)));
-  afterAll(() => w.terminate());
 
   it('run', async () => {
     type Counter = { count: number };
 
     // Mirror + worker under test:
-    const { worker, ref } = createWorkerMirror<Counter>(
-      new URL('./immutable.worker.ts', import.meta.url),
-    );
+    const { worker, ref } = createWorkerMirror<Counter>(url);
 
     // Helper: wait for a single worker message of a given kind.
     const once = <K extends string, T extends { kind: K }>(kind: K) =>
