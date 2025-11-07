@@ -26,4 +26,4 @@ export type CrdtStringSplice = {
  * and returns a deep, proxy-free object via Automerge.toJS. Suitable for JSON, hashing,
  * and structural equality checks. If input is null/undefined, returns {} as T.
  */
-export type CrdtToObject = <T extends O>(doc?: t.Crdt.Ref<T> | T) => T;
+export type CrdtToObject = <T extends O>(doc?: t.Crdt.Ref<T> | T | unknown) => T;

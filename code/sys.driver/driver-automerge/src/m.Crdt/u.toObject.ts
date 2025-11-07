@@ -6,7 +6,7 @@ type O = Record<string, unknown>;
 /**
  * Convert a CRDT-backed value into a plain JS object (POJO).
  */
-export const toObject: t.CrdtToObject = <T extends O>(input?: t.Crdt.Ref<T> | T): T => {
+export const toObject: t.CrdtToObject = <T extends O>(input?: t.Crdt.Ref<T> | T | unknown): T => {
   if (input == null) return {} as T;
 
   const ref = CrdtIs.ref<T>(input) ? (input as t.Crdt.Ref<T>) : undefined;
