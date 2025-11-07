@@ -215,4 +215,45 @@ describe('Obj.Lens', () => {
       expect(b.get()).to.eql(2);
     });
   });
+
+  describe('join() path composition edge cases', () => {
+    it('RW join: empty args returns same path', () => {
+      const s = { a: 1 };
+      const l = Lens.bind(s, ['a']);
+      const j = l.join();
+      expect(j.path).to.eql(l.path);
+    });
+
+    it('RW join: nullish args ignored', () => {
+      const s = { a: { b: 1 } };
+      const l = Lens.bind(s, ['a']);
+      const j = l.join(null, undefined);
+      expect(j.path).to.eql(l.path);
+    });
+
+    it('RW join: pointer + array normalize correctly', () => {
+      const s = { x: { y: [{ z: 5 }] } };
+      const l = Lens.bind(s, '/x');
+      const j = l.join('/y', ['0'], null, '/z');
+      expect(j.path).to.eql(['x', 'y', 0, 'z']);
+      expect(j.get()).to.eql(5);
+    });
+
+    it('RO join: pointer + nullish inputs normalize correctly', () => {
+      const s = { x: { y: [{ z: 5 }] } };
+      const l = Lens.ReadOnly.bind(s, '/x');
+      const j = l.join('/y', null, '/0', undefined, '/z');
+      expect(j.path).to.eql(['x', 'y', 0, 'z']);
+      expect(j.get()).to.eql(5);
+    });
+
+    it('RO join: empty or nullish yields same lens path', () => {
+      const s = { k: 1 };
+      const l = Lens.ReadOnly.bind(s, ['k']);
+      const j1 = l.join();
+      const j2 = l.join(null, undefined);
+      expect(j1.path).to.eql(l.path);
+      expect(j2.path).to.eql(l.path);
+    });
+  });
 });

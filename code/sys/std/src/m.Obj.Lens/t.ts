@@ -63,7 +63,7 @@ export type BoundObjLens<S extends O, T = unknown> = {
   delete(): t.ObjDiffOp | undefined;
 
   /** Compose a sub-lens (shares the same subject). */
-  join<U = unknown>(subpath: t.ObjectPath): t.BoundObjLens<S, U>;
+  join<U = unknown>(...subpath: PathInput[]): t.BoundObjLens<S, U>;
 };
 
 /**
@@ -88,5 +88,5 @@ export type ReadOnlyBoundObjLens<S extends O, T = unknown> = {
   exists(): boolean;
 
   /** Compose a sub-lens (shares the same subject). */
-  join<U = unknown>(subpath: t.ObjectPath): t.ReadOnlyBoundObjLens<S, U>;
+  join<U = unknown>(...subpath: PathInput[]): t.ReadOnlyBoundObjLens<S, U>;
 };

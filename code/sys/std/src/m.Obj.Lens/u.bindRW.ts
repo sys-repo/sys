@@ -1,6 +1,8 @@
-import { type t, Path } from './common.ts';
+import { Path, type t } from './common.ts';
+import { toPathAll } from './u.path.ts';
 
 type O = Record<string, unknown>;
+type PathInput = t.PathLike | undefined | null;
 
 /**
  * Bind a curried path to a subject to produce a bound read/write lens.
@@ -22,8 +24,6 @@ export function bindRW<S extends O, T>(cur: t.CurriedPath<T>, subject: S): t.Bou
 
   const set = (value: T) => {
     if (isRoot) {
-      // Replace subject structurally to equal `value`.
-      // Keeps the original object identity while syncing its contents.
       Path.Mutate.diff(value as unknown as O, subject as O);
       return undefined;
     }
@@ -31,10 +31,7 @@ export function bindRW<S extends O, T>(cur: t.CurriedPath<T>, subject: S): t.Bou
   };
 
   const ensure = (def: t.NonUndefined<T>) => {
-    if (isRoot) {
-      if (subject == null) return def;
-      return subject as any;
-    }
+    if (isRoot) return subject == null ? def : (subject as any);
     return cur.ensure(subject as O, def);
   };
 
@@ -46,16 +43,8 @@ export function bindRW<S extends O, T>(cur: t.CurriedPath<T>, subject: S): t.Bou
     return cur.delete(subject);
   };
 
-  const join = <U>(subpath: t.ObjectPath) => bindRW<S, U>(cur.join<U>(subpath), subject);
+  const join = <U>(...subpath: PathInput[]) =>
+    bindRW<S, U>(cur.join<U>(toPathAll(...subpath)), subject);
 
-  return {
-    subject,
-    path,
-    get: get as any,
-    exists,
-    set,
-    ensure,
-    delete: del,
-    join,
-  };
+  return { subject, path, get: get as any, exists, set, ensure, delete: del, join };
 }

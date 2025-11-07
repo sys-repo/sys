@@ -22,14 +22,14 @@ export function toPath(input: t.PathLike): t.ObjectPath {
 /**
  * Make an unbound curried path from many inputs.
  */
-export function makeCurriedAll<T>(...inputs: readonly PathInput[]): t.CurriedPath<T> {
+export function makeCurriedAll<T>(...inputs: PathInput[]): t.CurriedPath<T> {
   return Path.curry<T>(toPathAll(...inputs));
 }
 
 /**
  * Normalize many inputs (pointer strings / object paths), skipping null/undefined.
  */
-export function toPathAll(...inputs: readonly PathInput[]): t.ObjectPath {
+export function toPathAll(...inputs: PathInput[]): t.ObjectPath {
   const out: t.ObjectPath = [];
   for (const input of inputs) {
     if (input == null) continue;
