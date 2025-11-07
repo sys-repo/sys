@@ -3,6 +3,8 @@ import 'fake-indexeddb/auto';
 export {
   DomMock,
   Testing,
+  afterAll,
+  beforeAll,
   c,
   describe,
   expect,
