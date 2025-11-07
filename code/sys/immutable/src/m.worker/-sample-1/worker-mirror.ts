@@ -48,9 +48,3 @@ export function createWorkerMirror<T>(url: URL): {
 
   return { worker, ref };
 }
-
-// Example usage:
-// const { worker, ref } = createWorkerMirror<Counter>(new URL("./immutable.worker.ts", import.meta.url));
-// worker.postMessage({ kind: "increment" });
-// console.log(ref.current.count);
-// 🌸 ---------- /ADDED ----------

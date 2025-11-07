@@ -9,7 +9,6 @@ describe('immutable/worker: smoke', () => {
   beforeAll(() => void (w = createWorker(url)));
   afterAll(() => w.terminate());
 
-  // 🌸 ---------- ADDED: smoke-run-test-using-createWorkerMirror-proxy ----------
   it('run', async () => {
     type Counter = { count: number };
 
@@ -63,47 +62,4 @@ describe('immutable/worker: smoke', () => {
     expect(proxy.current.count).to.eql(7);
     console.log(c.cyan('proxy.current:'), proxy.current);
   });
-  // 🌸 ---------- /ADDED ----------
-
-  // 🌸 ---------- ADDED: smoke-run-test-using-worker-patches (narrow-non-remove) ----------
-  //   it('run', async () => {
-  //     type PatchOp =
-  //       | { op: 'add'; path: string; value: unknown }
-  //       | { op: 'replace'; path: string; value: unknown }
-  //       | { op: 'remove'; path: string };
-  //
-  //     function once<K extends string, T extends { kind: K }>(kind: K): Promise<T> {
-  //       return new Promise((resolve) => {
-  //         const handler = (e: MessageEvent) => {
-  //           const msg = e.data as { kind?: string };
-  //           if (msg?.kind === kind) {
-  //             w.removeEventListener('message', handler);
-  //             resolve(e.data as T);
-  //           }
-  //         };
-  //         w.addEventListener('message', handler);
-  //       });
-  //     }
-  //
-  //     // 1) Initial snapshot.
-  //     const init = await once<'init', { kind: 'init'; state: { count: number } }>('init');
-  //     expect(init.state).to.eql({ count: 0 });
-  //
-  //     // 2) Increment → expect a patch on "/count" with 1 (add|replace).
-  //     w.postMessage({ kind: 'increment' });
-  //     const p1 = await once<'patch', { kind: 'patch'; patches: readonly PatchOp[] }>('patch');
-  //     const op1 = p1.patches.find((p) => p.path === '/count')!;
-  //     expect(op1).to.not.eql(undefined);
-  //     expect(['add', 'replace']).to.contain(op1.op);
-  //     if (op1.op !== 'remove') expect(op1.value).to.eql(1);
-  //
-  //     // 3) Set → expect a patch on "/count" with 7 (add|replace).
-  //     w.postMessage({ kind: 'set', value: 7 });
-  //     const p2 = await once<'patch', { kind: 'patch'; patches: readonly PatchOp[] }>('patch');
-  //     const op2 = p2.patches.find((p) => p.path === '/count')!;
-  //     expect(op2).to.not.eql(undefined);
-  //     expect(['add', 'replace']).to.contain(op2.op);
-  //     if (op2.op !== 'remove') expect(op2.value).to.eql(7);
-  //   });
-  // 🌸 ---------- /ADDED ----------
 });

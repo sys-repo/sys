@@ -1,5 +1,4 @@
-// 🌸 ---------- ADDED: micro-json-patch-applier ----------
-export type PatchOp =
+ort type PatchOp =
   | { op: 'add'; path: string; value: unknown }
   | { op: 'replace'; path: string; value: unknown }
   | { op: 'remove'; path: string };
@@ -118,4 +117,3 @@ function assertKey(k: string | number): string {
   if (typeof k === 'string') return k;
   throw new Error(`Expected object key, got index "${k}"`);
 }
-// 🌸 ---------- /ADDED ----------
