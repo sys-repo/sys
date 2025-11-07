@@ -14,7 +14,7 @@ export type ObjLensLib = {
    * Bind a subject to an optional path. Equivalent to: Obj.at(path).bind(subject).
    * When `path` is omitted, binds at the root [].
    */
-  bind<T = unknown, S extends O = O>(subject: S, ...path: PathInput[]): t.BoundObjLens<S, T>;
+  bind<T = unknown, S extends O = O>(subject: S, ...path: PathInput[]): t.ObjLensRef<S, T>;
 
   /** Readonly variants. */
   readonly ReadOnly: {
@@ -27,7 +27,7 @@ export type ObjLensLib = {
     bind<T = unknown, S extends O = O>(
       subject: S,
       ...path: PathInput[]
-    ): t.ReadOnlyBoundObjLens<S, T>;
+    ): t.ReadOnlyObjLensRef<S, T>;
   };
 };
 
@@ -41,11 +41,11 @@ export type ObjLensLib = {
  */
 export type ObjLens<T = unknown> = t.CurriedPath<T> & {
   /** Bind a subject to get a convenient handle that no longer needs the subject argument. */
-  bind<S extends O>(subject: S): t.BoundObjLens<S, T>;
+  bind<S extends O>(subject: S): t.ObjLensRef<S, T>;
 };
 
 /** Bound lens (path + subject). */
-export type BoundObjLens<S extends O, T = unknown> = {
+export type ObjLensRef<S extends O, T = unknown> = {
   readonly subject: S;
   readonly path: t.ObjectPath;
 
@@ -66,7 +66,7 @@ export type BoundObjLens<S extends O, T = unknown> = {
   delete(): t.ObjDiffOp | undefined;
 
   /** Compose a sub-lens (shares the same subject). */
-  at<U = unknown>(...subpath: PathInput[]): t.BoundObjLens<S, U>;
+  at<U = unknown>(...subpath: PathInput[]): t.ObjLensRef<S, U>;
 };
 
 /**
@@ -76,13 +76,13 @@ export type ReadOnlyObjLens<T = unknown> = Pick<
   t.CurriedPath<T>,
   'at' | 'path' | 'get' | 'exists'
 > & {
-  bind<S extends O>(subject: S): t.ReadOnlyBoundObjLens<S, T>;
+  bind<S extends O>(subject: S): t.ReadOnlyObjLensRef<S, T>;
 };
 
 /**
  * Readonly bound lens (no mutation surface).
  */
-export type ReadOnlyBoundObjLens<S extends O, T = unknown> = {
+export type ReadOnlyObjLensRef<S extends O, T = unknown> = {
   readonly subject: S;
   readonly path: t.ObjectPath;
 
@@ -91,5 +91,5 @@ export type ReadOnlyBoundObjLens<S extends O, T = unknown> = {
   exists(): boolean;
 
   /** Compose a sub-lens (shares the same subject). */
-  at<U = unknown>(...subpath: PathInput[]): t.ReadOnlyBoundObjLens<S, U>;
+  at<U = unknown>(...subpath: PathInput[]): t.ReadOnlyObjLensRef<S, U>;
 };

@@ -7,7 +7,7 @@ type PathInput = t.PathLike | undefined | null;
 /**
  * Bind a curried path to a subject to produce a bound read/write lens.
  */
-export function bindRW<S extends O, T>(cur: t.CurriedPath<T>, subject: S): t.BoundObjLens<S, T> {
+export function bindRW<S extends O, T>(cur: t.CurriedPath<T>, subject: S): t.ObjLensRef<S, T> {
   const { path } = cur;
   const isRoot = path.length === 0;
 
