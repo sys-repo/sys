@@ -1,8 +1,9 @@
 import type { t } from './common.ts';
-import { LensIs as Is } from './m.Is.ts';
+import { Is } from './m.Is.ts';
 import { bindRO } from './u.bindRO.ts';
 import { bindRW } from './u.bindRW.ts';
 import { makeCurriedAll } from './u.path.ts';
+import { toObject } from './u.toObject.ts';
 
 type PathInput = t.PathLike | undefined | null;
 
@@ -12,6 +13,7 @@ type PathInput = t.PathLike | undefined | null;
  */
 export const Lens: t.ObjLensLib = {
   Is,
+  toObject,
 
   /** Create an unbound lens at a path. Accepts pointer string or ObjectPath. */
   at<T = unknown>(...path: PathInput[]): t.ObjLens<T> {

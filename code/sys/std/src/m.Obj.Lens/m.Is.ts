@@ -1,6 +1,6 @@
 import { type t, isRecord, Path } from './common.ts';
 
-export const LensIs: t.ObjLensIsLib = {
+export const Is: t.ObjLensIsLib = {
   lens: isLensUnbound,
   lensRef: isLensRefAny,
   lensRefReadOnly: isLensRefReadOnly,
@@ -45,4 +45,4 @@ function isLensUnbound(v: unknown): v is t.ObjLens<unknown> {
 /**
  * Helpers:
  */
-const hasFn = (o: Record<string, unknown>, k: string): boolean => typeof o[k] === 'function';
+export const hasFn = (o: Record<string, unknown>, k: string): boolean => typeof o[k] === 'function';
