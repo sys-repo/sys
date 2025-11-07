@@ -10,7 +10,7 @@ export { YamlPipeline } from '../m.yaml/mod.ts';
 export { Crdt } from '@sys/driver-automerge/web/ui';
 export { Color, Style, css } from '@sys/ui-css';
 export { Keyboard, LocalStorage } from '@sys/ui-dom';
-export { usePointer, useSizeObserver } from '@sys/ui-react';
+export { WebFont, usePointer, useSizeObserver, useWebFont } from '@sys/ui-react';
 export {
   Button,
   Cropmarks,
