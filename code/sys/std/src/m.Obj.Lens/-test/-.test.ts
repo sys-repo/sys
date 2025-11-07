@@ -1,11 +1,13 @@
-import { describe, expect, it } from '../-test.ts';
-import { Lens } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { LensIs } from '../m.Is.ts';
+import { Lens } from '../mod.ts';
 
 describe('Obj.Lens', () => {
   it('exports stable surface', async () => {
     const { Obj } = await import('@sys/std/value');
     expect(Obj.Lens).to.equal(Lens);
-    expect(Lens).to.have.keys(['at', 'bind', 'ReadOnly']);
+    expect(Obj.Lens.Is).to.equal(LensIs);
+    expect(Lens).to.have.keys(['at', 'bind', 'ReadOnly', 'Is']);
     expect(Lens.ReadOnly).to.have.keys(['at', 'bind']);
   });
 

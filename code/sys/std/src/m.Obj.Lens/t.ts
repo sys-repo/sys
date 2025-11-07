@@ -7,6 +7,9 @@ type PathInput = t.PathLike | undefined | null;
  * Library surface for Obj.Path.Lens (no implementation here; types only).
  */
 export type ObjLensLib = {
+  /** Guard checks on value types. */
+  readonly Is: t.ObjLensIsLib;
+
   /** Create an unbound lens at a path. Accepts pointer string or ObjectPath. */
   at<T = unknown>(...path: PathInput[]): t.ObjLens<T>;
 
@@ -32,6 +35,22 @@ export type ObjLensLib = {
 };
 
 /**
+ * Guard checks on value types.
+ */
+export type ObjLensIsLib = {
+  /** Unbound lens (path-only builder). */
+  lens(v?: unknown): v is t.ObjLens<unknown>;
+  /** Any bound lens (read-only or writable). */
+  lensRef(v?: unknown): v is t.ReadOnlyObjLensRef<any, unknown> | t.ObjLensRef<any, unknown>;
+  /** Bound read-only lens. */
+  lensRefReadOnly(v?: unknown): v is t.ReadOnlyObjLensRef<any, unknown>;
+  /** Bound writable lens. */
+  lensRefWritable(v?: unknown): v is t.ObjLensRef<any, unknown>;
+  /** True if `v` is a bound lens and exposes no mutating ops. */
+  readonly(v?: unknown): boolean;
+};
+
+/**
  * A passable "window/view" into a sub-tree, built on Obj.Path curry primitives.
  * No events, no .current/.change — pure get/exists and Mutate semantics.
  */
@@ -45,7 +64,7 @@ export type ObjLens<T = unknown> = t.CurriedPath<T> & {
 };
 
 /** Bound lens (path + subject). */
-export type ObjLensRef<S extends O, T = unknown> = {
+export type ObjLensRef<S extends O = O, T = unknown> = {
   readonly subject: S;
   readonly path: t.ObjectPath;
 
