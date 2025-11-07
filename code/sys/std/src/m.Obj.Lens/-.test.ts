@@ -30,7 +30,7 @@ describe('Obj.Lens', () => {
 
     it('joins subpaths without mutation', () => {
       const a = Lens.at(['foo']);
-      const b = a.join(['bar', 0, 'baz']);
+      const b = a.at(['bar', 0, 'baz']);
       expect(a.path).to.eql(['foo']);
       expect(b.path).to.eql(['foo', 'bar', 0, 'baz']);
     });
@@ -86,7 +86,7 @@ describe('Obj.Lens', () => {
     it('join() composes on bound lenses and shares subject', () => {
       const s = { a: { b: { c: 1 } } };
       const l = Lens.bind(s, ['a']);
-      const j = l.join<number>(['b', 'c']);
+      const j = l.at<number>(['b', 'c']);
       expect(j.path).to.eql(['a', 'b', 'c']);
       expect(j.get()).to.eql(1);
       j.set(2);
@@ -144,7 +144,7 @@ describe('Obj.Lens', () => {
     it('join() composes correctly on readonly bound lenses', () => {
       const subject = { x: { y: { z: 1 } } };
       const root = Lens.ReadOnly.bind(subject, ['x']);
-      const joined = root.join<number>(['y', 'z']);
+      const joined = root.at<number>(['y', 'z']);
       expect(joined.get()).to.eql(1);
       expect(joined.path).to.eql(['x', 'y', 'z']);
     });
@@ -198,12 +198,12 @@ describe('Obj.Lens', () => {
       expect(a.get()).to.eql(b.get());
     });
 
-    it('join() remains stable regardless of how the base path was constructed', () => {
+    it('at() remains stable regardless of how the base path was constructed', () => {
       const s = { r: { a: [{ b: { c: 1 } }] } };
 
       // Bind first, then join (unbound join returns CurriedPath without .bind)
-      const a = Lens.at('/r', ['a', 0]).bind(s).join<number>(['b', 'c']); // mixed base
-      const b = Lens.at(['r', 'a', 0, 'b']).bind(s).join<number>(['c']); // array-only base
+      const a = Lens.at('/r', ['a', 0]).bind(s).at<number>(['b', 'c']); // mixed base
+      const b = Lens.at(['r', 'a', 0, 'b']).bind(s).at<number>(['c']); // array-only base
 
       expect(a.path).to.eql(['r', 'a', 0, 'b', 'c']);
       expect(b.path).to.eql(['r', 'a', 0, 'b', 'c']);
@@ -216,25 +216,25 @@ describe('Obj.Lens', () => {
     });
   });
 
-  describe('join() path composition edge cases', () => {
+  describe('at() path composition edge cases', () => {
     it('RW join: empty args returns same path', () => {
       const s = { a: 1 };
       const l = Lens.bind(s, ['a']);
-      const j = l.join();
+      const j = l.at();
       expect(j.path).to.eql(l.path);
     });
 
     it('RW join: nullish args ignored', () => {
       const s = { a: { b: 1 } };
       const l = Lens.bind(s, ['a']);
-      const j = l.join(null, undefined);
+      const j = l.at(null, undefined);
       expect(j.path).to.eql(l.path);
     });
 
     it('RW join: pointer + array normalize correctly', () => {
       const s = { x: { y: [{ z: 5 }] } };
       const l = Lens.bind(s, '/x');
-      const j = l.join('/y', ['0'], null, '/z');
+      const j = l.at('/y', ['0'], null, '/z');
       expect(j.path).to.eql(['x', 'y', 0, 'z']);
       expect(j.get()).to.eql(5);
     });
@@ -242,7 +242,7 @@ describe('Obj.Lens', () => {
     it('RO join: pointer + nullish inputs normalize correctly', () => {
       const s = { x: { y: [{ z: 5 }] } };
       const l = Lens.ReadOnly.bind(s, '/x');
-      const j = l.join('/y', null, '/0', undefined, '/z');
+      const j = l.at('/y', null, '/0', undefined, '/z');
       expect(j.path).to.eql(['x', 'y', 0, 'z']);
       expect(j.get()).to.eql(5);
     });
@@ -250,8 +250,8 @@ describe('Obj.Lens', () => {
     it('RO join: empty or nullish yields same lens path', () => {
       const s = { k: 1 };
       const l = Lens.ReadOnly.bind(s, ['k']);
-      const j1 = l.join();
-      const j2 = l.join(null, undefined);
+      const j1 = l.at();
+      const j2 = l.at(null, undefined);
       expect(j1.path).to.eql(l.path);
       expect(j2.path).to.eql(l.path);
     });

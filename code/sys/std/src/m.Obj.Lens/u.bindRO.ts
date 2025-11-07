@@ -10,7 +10,7 @@ type PathInput = t.PathLike | undefined | null;
 export function bindRO<S extends O, T>(
   cur: t.CurriedPath<T>,
   subject: S,
-): t.ReadOnlyObjLensRef<S, T> {
+): t.ReadOnlyBoundObjLens<S, T> {
   const { path } = cur;
 
   const get = (def?: t.NonUndefined<T>) => {
@@ -22,15 +22,16 @@ export function bindRO<S extends O, T>(
 
   const exists = () => cur.exists(subject as O);
 
-  const join = <U>(...subpath: PathInput[]) => {
-    return bindRO<S, U>(cur.join<U>(toPathAll(...subpath)), subject);
+  const at = <U>(...subpath: PathInput[]) => {
+    const p = toPathAll(...subpath);
+    return bindRO<S, U>(cur.at<U>(p), subject);
   };
 
   return {
     subject,
     path,
-    get: get as any,
+    at,
     exists,
-    join,
+    get: get as any,
   };
 }

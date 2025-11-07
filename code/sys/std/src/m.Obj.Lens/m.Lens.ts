@@ -25,7 +25,7 @@ export const Lens: t.ObjLensLib = {
   bind<S extends Record<string, unknown>, T = unknown>(
     subject: S,
     ...path: PathInput[]
-  ): t.ObjLensRef<S, T> {
+  ): t.BoundObjLens<S, T> {
     return this.at<T>(...path).bind(subject);
   },
 
@@ -33,10 +33,10 @@ export const Lens: t.ObjLensLib = {
   ReadOnly: {
     at<T = unknown>(...path: PathInput[]): t.ReadOnlyObjLens<T> {
       const cur = makeCurriedAll<T>(...path);
-      const { path: p, get, exists, join } = cur;
+      const { path: p, get, exists, at: join } = cur;
       const bind = <S extends Record<string, unknown>>(subject: S) => bindRO<S, T>(cur, subject);
       // Return only the readonly surface + bind
-      return { path: p, get, exists, join, bind } as t.ReadOnlyObjLens<T>;
+      return { path: p, get, exists, at: join, bind } as t.ReadOnlyObjLens<T>;
     },
 
     /**
@@ -46,7 +46,7 @@ export const Lens: t.ObjLensLib = {
     bind<S extends Record<string, unknown>, T = unknown>(
       subject: S,
       ...path: PathInput[]
-    ): t.ReadOnlyObjLensRef<S, T> {
+    ): t.ReadOnlyBoundObjLens<S, T> {
       return this.at<T>(...path).bind(subject);
     },
   },
