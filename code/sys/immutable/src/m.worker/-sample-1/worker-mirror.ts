@@ -1,6 +1,4 @@
-// 🌸 ---------- ADDED: host-mirror-of-worker-state ----------
 import { applyJsonPatch } from './json-patch.ts';
-
 export type Counter = { count: number };
 
 export type ImmutableMirror<T> = {
