@@ -19,7 +19,7 @@ export type SlugTraitsLib = {
       readonly Item: t.TSchema;
       readonly Props: t.TSchema; // canonical
       readonly Input: t.TSchema; // authoring union
-      normalize(input?: t.FileListPropsInput | null): t.FileListProps;
+      normalize(input?: t.FileListPropsInput | null): t.FileListItem[];
     };
   };
 };
