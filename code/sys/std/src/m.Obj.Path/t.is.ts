@@ -4,6 +4,9 @@ import type { t } from './common.ts';
  * Predicates over object-paths (arrays of segments).
  */
 export type ObjPathIsLib = {
+  /** True if the value is an object path */
+  path(v?: unknown): v is t.ObjectPath;
+
   /** True if `a` is a prefix of `b` (including equal). */
   prefixOf(a: t.ObjectPath, b: t.ObjectPath): boolean;
 

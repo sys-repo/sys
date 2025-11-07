@@ -2,6 +2,56 @@ import { describe, expect, it } from '../../-test.ts';
 import { Path } from '../mod.ts';
 
 describe('Obj.Path.Is', () => {
+  describe('Path.Is.path', () => {
+    it('valid: empty', () => {
+      expect(Path.Is.path([])).to.equal(true);
+    });
+
+    it('valid: strings', () => {
+      expect(Path.Is.path(['a'])).to.equal(true);
+      expect(Path.Is.path(['a', 'b', 'c'])).to.equal(true);
+      expect(Path.Is.path(['0'])).to.equal(true); // string token is allowed
+    });
+
+    it('valid: integers', () => {
+      expect(Path.Is.path([0])).to.equal(true);
+      expect(Path.Is.path([0, 2, 10])).to.equal(true);
+    });
+
+    it('valid: mixed string/integer', () => {
+      expect(Path.Is.path(['a', 0, 'b', 2])).to.equal(true);
+    });
+
+    it('invalid: non-array', () => {
+      expect(Path.Is.path(undefined)).to.equal(false);
+      expect(Path.Is.path(null)).to.equal(false);
+      expect(Path.Is.path('a' as any)).to.equal(false);
+      expect(Path.Is.path(1 as any)).to.equal(false);
+      expect(Path.Is.path({} as any)).to.equal(false);
+    });
+
+    it('invalid: bad element types', () => {
+      expect(Path.Is.path([true] as any)).to.equal(false);
+      expect(Path.Is.path([Symbol('s')] as any)).to.equal(false);
+      expect(Path.Is.path([[0]] as any)).to.equal(false);
+      expect(Path.Is.path([{}] as any)).to.equal(false);
+      expect(Path.Is.path([() => 1] as any)).to.equal(false);
+    });
+
+    it('invalid: non-integer/unsafe numbers', () => {
+      expect(Path.Is.path([0.5] as any)).to.equal(false);
+      expect(Path.Is.path([NaN] as any)).to.equal(false);
+      expect(Path.Is.path([Infinity] as any)).to.equal(false);
+      expect(Path.Is.path([-Infinity] as any)).to.equal(false);
+      expect(Path.Is.path([Number.MAX_SAFE_INTEGER + 1] as any)).to.equal(false);
+    });
+
+    it('readonly arrays still pass (runtime check is structural)', () => {
+      const p = ['a', 1] as const;
+      expect(Path.Is.path(p)).to.equal(true);
+    });
+  });
+
   describe('equal', () => {
     it('[] == []', () => {
       expect(Path.Is.eql([], [])).to.be.true;
