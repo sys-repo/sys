@@ -9,6 +9,9 @@ describe('Obj.Lens', () => {
     expect(Obj.Lens.Is).to.equal(Is);
   });
 
+  /**
+   * Unbound (at) — core surface and semantics
+   */
   describe('unbound Lens.at', () => {
     it('get/exists/set/delete/ensure basic roundtrip', () => {
       const lens = Lens.at<number>(['foo', 'bar']);
@@ -35,7 +38,7 @@ describe('Obj.Lens', () => {
       expect(b.path).to.eql(['foo', 'bar', 0, 'baz']);
     });
 
-    it('handles string paths (pointer) with numeric coercion', () => {
+    it('handles pointer string paths with numeric coercion', () => {
       const obj = { items: [{ value: 'ok' }] };
       const lens = Lens.at('/items/0/value');
       expect(lens.get(obj)).to.eql('ok');
@@ -52,6 +55,53 @@ describe('Obj.Lens', () => {
     });
   });
 
+  /**
+   * at(): sanitize-aware behavior (pointer codec)
+   */
+  describe('Lens.at sanitizes string path inputs', () => {
+    it('accepts pointer string without leading slash (ensures leading "/")', () => {
+      const l = Lens.at('foo/bar');
+      expect(l.path).to.eql(['foo', 'bar']);
+    });
+
+    it('collapses multiple slashes and removes trailing slash', () => {
+      const l = Lens.at('/a//b///c/');
+      expect(l.path).to.eql(['a', 'b', 'c']);
+    });
+
+    it('empty string sanitizes to root []', () => {
+      const l = Lens.at('');
+      expect(l.path).to.eql([]);
+      const s = { x: 1 };
+      expect(l.get(s)).to.equal(s);
+    });
+
+    it('passes through array paths untouched', () => {
+      const l = Lens.at(['x', 1, 'y']);
+      expect(l.path).to.eql(['x', 1, 'y']);
+    });
+
+    it('ignores null/undefined variadic segments', () => {
+      const l = Lens.at(undefined, null, '/a');
+      expect(l.path).to.eql(['a']);
+    });
+
+    it('RFC-6901 escapes: "~1" → "/", "~0" → "~"', () => {
+      const l1 = Lens.at('/a~1b/c');
+      const l2 = Lens.at('/a~0b/c');
+      expect(l1.path).to.eql(['a/b', 'c']);
+      expect(l2.path).to.eql(['a~b', 'c']);
+    });
+
+    it('dot-notation strings are treated as literal keys (pointer default)', () => {
+      const l = Lens.at('a.b[1].c');
+      expect(l.path).to.eql(['a.b[1].c']);
+    });
+  });
+
+  /**
+   * Bound (bind) — core surface and semantics
+   */
   describe('bound Lens.bind', () => {
     it('unbound.bind(subject) parity with manual subject passing', () => {
       const subject = { a: { b: 1 } };
@@ -93,7 +143,7 @@ describe('Obj.Lens', () => {
       expect(s).to.eql({ a: { b: { c: 2 } } });
     });
 
-    it('Lens.bind(subject, ...path) composes and mutates correctly', () => {
+    it('Lens.bind(subject, ...path) composes and mutates correctly (sanitize in play)', () => {
       const s: any = {};
       const l = Lens.bind(s, '/x', ['y', 0], null, '/z');
       expect(l.path).to.eql(['x', 'y', 0, 'z']);
@@ -117,6 +167,9 @@ describe('Obj.Lens', () => {
     });
   });
 
+  /**
+   * Readonly variants — parity and safety
+   */
   describe('Lens.Readonly', () => {
     it('matches unbound semantics (get/exists)', () => {
       const obj = { a: { b: 5 } };
@@ -149,7 +202,7 @@ describe('Obj.Lens', () => {
       expect(joined.path).to.eql(['x', 'y', 'z']);
     });
 
-    it('Readonly.at(...path) composes; Readonly.bind(subject, ...path) mirrors', () => {
+    it('Readonly.at(...path) composes; Readonly.bind(subject, ...path) mirrors (sanitize in play)', () => {
       const s = { a: [{ b: { c: 7 } }] };
 
       const roA = Lens.Readonly.at<number>('/a/0', ['b'], null, '/c');
@@ -172,8 +225,26 @@ describe('Obj.Lens', () => {
       expect(a.get()).to.eql(s);
       expect(b.get()).to.eql(s);
     });
+
+    it('Readonly.at sanitizes sloppy strings', () => {
+      const l = Lens.Readonly.at('  foo//bar/  ');
+      expect(l.path).to.eql(['foo', 'bar']);
+    });
+
+    it('Readonly.at respects RFC-6901 escapes', () => {
+      const l = Lens.Readonly.at('/a~1b/~0c');
+      expect(l.path).to.eql(['a/b', '~c']);
+    });
+
+    it('Readonly.at treats dot-notation strings as literal keys under pointer default', () => {
+      const l = Lens.Readonly.at('a.b[1].c');
+      expect(l.path).to.eql(['a.b[1].c']);
+    });
   });
 
+  /**
+   * Parity and invariants
+   */
   describe('type parity and invariants', () => {
     it('produces structurally equal bound/unbound paths', () => {
       const unbound = Lens.at(['foo', 'bar']);
@@ -186,7 +257,6 @@ describe('Obj.Lens', () => {
       expect(ro).to.not.have.property('set');
       expect(ro).to.not.have.property('ensure');
       expect(ro).to.not.have.property('delete');
-      // but has bind
       expect(ro).to.have.property('bind');
     });
 
@@ -201,9 +271,8 @@ describe('Obj.Lens', () => {
     it('at() remains stable regardless of how the base path was constructed', () => {
       const s = { r: { a: [{ b: { c: 1 } }] } };
 
-      // Bind first, then join (unbound join returns CurriedPath without .bind)
-      const a = Lens.at('/r', ['a', 0]).bind(s).at<number>(['b', 'c']); // mixed base
-      const b = Lens.at(['r', 'a', 0, 'b']).bind(s).at<number>(['c']); // array-only base
+      const a = Lens.at('/r', ['a', 0]).bind(s).at<number>(['b', 'c']);
+      const b = Lens.at(['r', 'a', 0, 'b']).bind(s).at<number>(['c']);
 
       expect(a.path).to.eql(['r', 'a', 0, 'b', 'c']);
       expect(b.path).to.eql(['r', 'a', 0, 'b', 'c']);
@@ -216,6 +285,9 @@ describe('Obj.Lens', () => {
     });
   });
 
+  /**
+   * Edge cases for at() composition and sanitation
+   */
   describe('at() path composition edge cases', () => {
     it('RW join: empty args returns same path', () => {
       const s = { a: 1 };

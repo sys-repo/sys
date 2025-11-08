@@ -28,13 +28,32 @@ export function makeCurriedAll<T>(...inputs: PathInput[]): t.CurriedPath<T> {
 
 /**
  * Normalize many inputs (pointer strings / object paths), skipping null/undefined.
+ * - String segments are pre-sanitized and strictly decoded (pointer default).
+ * - Array segments pass through untouched.
  */
 export function toPathAll(...inputs: PathInput[]): t.ObjectPath {
   const out: t.ObjectPath = [];
-  for (const input of inputs) {
-    if (input == null) continue;
-    const p = toPath(input);
-    out.push(...p);
+  for (const seg of sanitizePathInputs(...inputs)) {
+    // Strings have already been decoded to ObjectPath;
+    // Arrays must still be coerced to numeric indices where applicable:
+    const arr = Array.isArray(seg) ? Path.asNumeric(seg) : seg;
+    out.push(...arr);
+  }
+  return out;
+}
+
+export function sanitizePathInputs(...segments: PathInput[]): t.PathLike[] {
+  const out: t.PathLike[] = [];
+  for (const seg of segments) {
+    if (seg == null) continue;
+    if (Array.isArray(seg)) {
+      out.push(seg);
+    } else if (typeof seg === 'string') {
+      // Tolerant repair, still strict decode:
+      out.push(Path.decode(seg, { safe: true }));
+    } else {
+      out.push(seg);
+    }
   }
   return out;
 }
