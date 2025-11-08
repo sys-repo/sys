@@ -1,5 +1,5 @@
 import { type t, Is as StdIs, isObject } from './common.ts';
-import { Symbols } from './m.Symbols.ts';
+import { markProxy } from './u.markProxy.ts';
 
 type O = Record<string, unknown>;
 
@@ -8,6 +8,11 @@ type O = Record<string, unknown>;
  */
 export const Is: t.ImmutableIsLib = {
   objectPath: StdIs.objectPath,
+
+  proxy<T extends O>(input: any): input is T {
+    if (!isObject(input)) return false;
+    return markProxy.has(input);
+  },
 
   immutable<D, P = unknown>(input: any): input is t.Immutable<D, P> {
     if (!isObject(input)) return false;
@@ -21,9 +26,16 @@ export const Is: t.ImmutableIsLib = {
     return Is.immutable(o) && typeof o.instance === 'string' && areFuncs(o.events);
   },
 
-  proxy<T extends O>(input: any): input is T {
+  readonlyImmutable<T>(input: unknown): input is t.ImmutableReadonly<T> {
+    return isObject(input) && isObject((input as any).current);
+  },
+
+  readonlyImmutableRef<D, P = unknown, E = unknown>(
+    input: unknown,
+  ): input is t.ImmutableRefReadonly<D, P, E> {
     if (!isObject(input)) return false;
-    return isObject(input) && Symbols.map.proxy in input;
+    const o = input as t.ImmutableRefReadonly<D, P, E>;
+    return typeof o.instance === 'string' && areFuncs(o.events);
   },
 } as const;
 

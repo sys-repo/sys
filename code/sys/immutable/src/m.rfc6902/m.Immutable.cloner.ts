@@ -1,4 +1,4 @@
-import { Obj, Rx, slug, type t } from './common.ts';
+import { type t, markProxy, Obj, Rx, slug, StdIs, Symbols, Try } from './common.ts';
 import { curryChangeFunction, viaObservable } from './m.Events.ts';
 import { Wrangle } from './u.ts';
 
@@ -50,7 +50,9 @@ export function clonerRef<T>(initial: T, options: { clone?: <T>(input: T) => T }
   const api: R = {
     instance: slug(),
     get current() {
-      return inner.current;
+      const value = inner.current;
+      markProxy.set(value);
+      return value;
     },
     change: curryChangeFunction<T, P>($, inner.change, () => inner.current),
     events: (until?: t.UntilInput) => viaObservable<T, P>($, until),

@@ -4,4 +4,6 @@
  */
 export { Is } from './m.Is.ts';
 export { Symbols } from './m.Symbols.ts';
+export { asReadonly } from './u.asReadonly.ts';
+export { markProxy } from './u.markProxy.ts';
 export { toObject } from './u.toObject.ts';

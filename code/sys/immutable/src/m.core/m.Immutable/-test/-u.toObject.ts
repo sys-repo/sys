@@ -1,6 +1,6 @@
 import { Immutable } from '@sys/immutable/rfc6902';
-import { type t, describe, expect, it } from '../../../-test.ts';
-import { toObject } from '../u.toObject.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { toObject } from '../mod.ts';
 
 describe('toObject', () => {
   it('returns plain object for normal input', () => {
