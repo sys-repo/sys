@@ -53,7 +53,7 @@ export function clonerRef<T>(initial: T, options: { clone?: <T>(input: T) => T }
       return inner.current;
     },
     change: curryChangeFunction<T, P>($, inner.change, () => inner.current),
-    events: (dispose$?: t.UntilObservable) => viaObservable<T, P>($, dispose$),
+    events: (until?: t.UntilInput) => viaObservable<T, P>($, until),
   };
   return api;
 }

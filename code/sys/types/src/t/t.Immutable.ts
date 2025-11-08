@@ -32,9 +32,8 @@ export type ImmutableChangeOptions<P> = { patches?: ImmutablePatchCallback<P> };
 export type ImmutableRef<T = O, P = unknown, E = t.ImmutableEvents<T, P>> = Immutable<T, P> & {
   /** The unique ID of the instance of the handle. */
   readonly instance: string; // Unique ID of the reference handle.
-
-  /** Generate a new Events object. */
-  events(dispose$?: t.UntilInput): E;
+  /** Generate a new change events instance. */
+  events(until?: t.UntilInput): E;
 };
 
 /**

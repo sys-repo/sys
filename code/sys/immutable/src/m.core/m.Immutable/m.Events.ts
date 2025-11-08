@@ -15,9 +15,9 @@ type DefaultPatch = t.PatchOperation;
  */
 export function viaObservable<T, P = DefaultPatch>(
   input$: t.Observable<t.ImmutableChange<T, P>>,
-  dispose$?: t.UntilInput,
+  until?: t.UntilInput,
 ): t.ImmutableEvents<T, P> {
-  const life = Rx.lifecycle(dispose$);
+  const life = Rx.lifecycle(until);
   const $ = input$.pipe(Rx.takeUntil(life.dispose$));
   const toPath = (patch: P) => {
     const o = patch as { path: string };
@@ -33,10 +33,10 @@ export function viaObservable<T, P = DefaultPatch>(
  */
 export function viaOverride<T, P = DefaultPatch>(
   source: t.Immutable<T, P>,
-  dispose$?: t.UntilInput,
+  until?: t.UntilInput,
 ): t.ImmutableEvents<T, P> {
   const $ = Rx.subject<t.ImmutableChange<T, P>>();
-  const api = viaObservable<T, P>($, dispose$);
+  const api = viaObservable<T, P>($, until);
   const base = source.change;
   api.dispose$.subscribe(() => (source.change = base));
   source.change = curryChangeFunction<T, P>($, base, () => source.current);
