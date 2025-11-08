@@ -7,7 +7,8 @@ import { Patch } from './m.Immutable/m.Patch.ts';
 
 describe('Immutable', () => {
   it('API', async () => {
-    const m = await import('@sys/immutable/core');
+    // NB: core implementation is exported under a (default) JSON patch standard RFC-6902.
+    const m = await import('@sys/immutable/rfc6902');
     expect(m.Immutable).to.equal(Immutable);
 
     expect(Immutable.Is).to.equal(Is);

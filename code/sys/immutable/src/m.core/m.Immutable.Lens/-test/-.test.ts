@@ -13,7 +13,7 @@ type T = {
 
 describe('Lens', () => {
   it('API', async () => {
-    const m = await import('@sys/immutable/core');
+    const m = await import('@sys/immutable/rfc6902');
     expect(m.Immutable.Lens).to.equal(Lens);
   });
 

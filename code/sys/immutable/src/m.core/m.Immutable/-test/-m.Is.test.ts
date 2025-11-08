@@ -10,9 +10,6 @@ describe('Immutable', () => {
   type D = { count: number; list?: number[] };
 
   it('API', async () => {
-    const m = await import('@sys/immutable/core');
-    expect(m.Immutable).to.equal(Immutable);
-
     expect(Immutable.Is).to.equal(Is);
     expect(Immutable.Patch).to.equal(Patch);
     expect(Immutable.Events).to.equal(Events);
