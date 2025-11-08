@@ -16,14 +16,17 @@ export default Spec.describe(D.displayName, (e) => {
         theme={v.theme}
         enabled={v.enabled}
         //
-        maskOpacity={v.maskOpacity}
-        maskHeight={v.maskHeight}
         buffering={video.buffering.value}
         buffered={video.buffered.value}
         playing={video.playing.value}
         muted={video.muted.value}
         currentTime={video.currentTime.value}
         duration={video.duration.value}
+        //
+        maskOpacity={v.maskOpacity}
+        maskHeight={v.maskHeight}
+        padding={v.padding}
+        background={v.background}
         //
         onClick={(e) => {
           console.info(`⚡️ onClick:`, e);

@@ -13,6 +13,7 @@ export type PlayerControlsProps = {
   playing?: boolean;
   muted?: boolean;
   enabled?: boolean;
+  padding?: t.CssPaddingInput;
 
   currentTime?: t.Secs;
   duration?: t.Secs;
@@ -22,6 +23,12 @@ export type PlayerControlsProps = {
   // Appearance:
   maskHeight?: t.Percent;
   maskOpacity?: t.Pixels;
+  background?: {
+    rounded?: t.Pixels;
+    opacity?: t.Percent;
+    blur?: t.Pixels;
+    shadow?: boolean;
+  };
   theme?: t.CommonTheme;
   style?: t.CssInput;
 

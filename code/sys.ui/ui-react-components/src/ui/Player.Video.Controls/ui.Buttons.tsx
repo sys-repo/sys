@@ -58,7 +58,7 @@ export type PlayButtonProps = Omit<ControlButtonProps, 'children'> & { playing?:
 export const PlayButton: React.FC<PlayButtonProps> = (props) => {
   const { playing = D.playing } = props;
   const marginRight = playing ? 0 : -1;
-  const marginBottom = -2;
+  const marginBottom = 0;
   const Icon = playing ? Icons.Pause : Icons.Play;
   return (
     <ControlButton {...props}>
@@ -74,7 +74,7 @@ export type MuteButtonProps = Omit<ControlButtonProps, 'children'> & { muted?: b
 export const MuteButton: React.FC<MuteButtonProps> = (props) => {
   const { muted = D.muted } = props;
   const marginLeft = muted ? 1 : -8;
-  const marginBottom = -3;
+  const marginBottom = -2;
   const Icon = muted ? Icons.Mute.On : Icons.Mute.Off;
   return (
     <ControlButton {...props}>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, Style } from './common.ts';
+import { Background } from './ui.Background.tsx';
 import { MuteButton, PlayButton } from './ui.Buttons.tsx';
 import { Mask } from './ui.Mask.tsx';
 import { SeekSlider } from './ui.SeekSlider.tsx';
@@ -11,9 +12,12 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
     enabled = D.enabled,
     playing = D.playing,
     muted = D.muted,
+    padding = D.padding,
+    background,
     currentTime = 0,
     duration = 0,
   } = props;
+  const hasBackground = (background?.opacity ?? 0) > 0;
 
   /**
    * Render:
@@ -23,7 +27,7 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
     base: css({
       position: 'relative',
       color: Color.WHITE,
-      padding: 10,
+      ...Style.toPadding(padding),
     }),
     mask: css({ Absolute: [null, 0, 0, 0], zIndex: 0 }),
     body: css({
@@ -33,11 +37,13 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
       columnGap: 10,
       zIndex: 10,
     }),
+    background: css({ Absolute: 0 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <Mask style={styles.mask} opacity={props.maskOpacity} height={props.maskHeight} />
+      {hasBackground && <Background {...props} style={styles.background} />}
       <div className={styles.body.class}>
         <PlayButton
           enabled={enabled}

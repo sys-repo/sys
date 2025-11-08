@@ -1,10 +1,23 @@
 import React from 'react';
 import { Player } from '../../Player/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Signal } from '../common.ts';
+import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.PlayerControlsProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'maskOpacity' | 'maskHeight' | 'enabled'>;
+type Storage = Pick<
+  P,
+  'theme' | 'debug' | 'maskOpacity' | 'maskHeight' | 'enabled' | 'background'
+> & { width?: number; padding?: t.Pixels };
+const defaults: Storage = {
+  theme: 'Dark',
+  enabled: D.enabled,
+  maskOpacity: D.maskHeight,
+  maskHeight: D.maskHeight,
+  background: D.background,
+  padding: D.padding,
+  debug: true,
+  width: 500,
+};
 
 /**
  * Types:
@@ -16,40 +29,51 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  * Signals:
  */
 export function createDebugSignals() {
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-    enabled: D.enabled,
-    maskOpacity: D.maskHeight,
-    maskHeight: D.maskHeight,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const video = Player.Video.signals();
   const v = video.props;
-  v.currentTime.value = 5;
-  v.duration.value = 20;
-  v.buffered.value = 15;
 
   const s = Signal.create;
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
     enabled: s(snap.enabled),
-    width: s(500),
+    width: s(snap.width),
     maskHeight: s(snap.maskHeight),
     maskOpacity: s(snap.maskOpacity),
+    padding: s(snap.padding),
+    background: {
+      opacity: s((snap.background ?? {}).opacity),
+      rounded: s((snap.background ?? {}).rounded),
+      blur: s((snap.background ?? {}).blur),
+      shadow: s((snap.background ?? {}).shadow),
+    },
   };
   const p = props;
   const api = {
     props,
     video,
-    listen() {
-      Signal.listen(props);
-      Signal.listen(video.props);
-    },
+    listen,
+    reset,
   };
+
+  function listen() {
+    Signal.listen(p, true);
+    Signal.listen(video.props);
+  }
+
+  function resetVideo() {
+    v.currentTime.value = 5;
+    v.duration.value = 20;
+    v.buffered.value = 15;
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    resetVideo();
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -58,9 +82,18 @@ export function createDebugSignals() {
       d.enabled = p.enabled.value;
       d.maskHeight = p.maskHeight.value;
       d.maskOpacity = p.maskOpacity.value;
+      d.padding = p.padding.value;
+      d.width = p.width.value;
+
+      d.background = d.background ?? {};
+      d.background.opacity = p.background.opacity.value;
+      d.background.rounded = p.background.rounded.value;
+      d.background.blur = p.background.blur.value;
+      d.background.shadow = p.background.shadow.value;
     });
   });
 
+  resetVideo();
   return api;
 }
 
@@ -96,8 +129,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `enabled: ${p.enabled.value}`}
+        onClick={() => Signal.toggle(p.enabled)}
       />
       <Button
         block
@@ -106,8 +144,31 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `enabled: ${p.enabled.value}`}
-        onClick={() => Signal.toggle(p.enabled)}
+        label={() => {
+          return `maskHeight: ${p.maskHeight.value ?? `(undefined) ← default: ${D.maskHeight}`}`;
+        }}
+        onClick={() => Signal.cycle(p.maskHeight, [120, 200, undefined])}
+      />
+      <Button
+        block
+        label={() => `padding: ${p.padding.value ?? `(undefined) ← default: ${D.padding}`}`}
+        onClick={() => Signal.cycle(p.padding, [10, 20, 30])}
+      />
+      <hr />
+      <Button
+        block
+        label={() => `background.rounded: ${p.background.rounded.value}`}
+        onClick={() => Signal.cycle(p.background.rounded, [0, 6, 12, 24])}
+      />
+      <Button
+        block
+        label={() => `background.opacity: ${p.background.opacity.value}`}
+        onClick={() => Signal.cycle(p.background.opacity, [0, 0.3, 0.5, 0.8])}
+      />
+      <Button
+        block
+        label={() => `background.shadow: ${p.background.shadow.value}`}
+        onClick={() => Signal.toggle(p.background.shadow)}
       />
 
       <hr />
@@ -120,6 +181,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `buffering: ${v.buffering.value}`}
         onClick={() => Signal.toggle(v.buffering)}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Samples:'}</div>
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Button
+        block
+        label={() => `rounded background`}
+        onClick={() => {
+          p.maskOpacity.value = 0;
+          p.background.rounded.value = defaults.background?.rounded;
+          p.background.opacity.value = 0.5;
+          p.padding.value = 20;
+        }}
       />
 
       <hr />
@@ -137,7 +212,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         name={'debug'}
         data={Signal.toObject(p)}
         expand={['$']}
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 20 }}
       />
     </div>
   );
