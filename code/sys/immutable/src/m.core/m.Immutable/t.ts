@@ -31,7 +31,7 @@ export type UnwrapImmutable<T> = T;
  * into its canonical readonly reference shape.
  */
 export type AsReadonly<T> =
-  // Explicit matches first (precise transforms)
+  // Explicit matches first (precise transforms):
   T extends t.ImmutableRef<infer A, infer P, infer E>
     ? t.ImmutableRefReadonly<A, P, E>
     : T extends t.ImmutableRefReadonly<infer A, infer P, infer E>
