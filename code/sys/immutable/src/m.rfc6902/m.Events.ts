@@ -70,7 +70,7 @@ export function curryChangeFunction<T, P = DefaultPatch>(
 /**
  * Library:
  */
-export const Events: t.ImmutableEventsLib = {
+export const Events: t.ImmutableRfc6902EventsLib = {
   viaOverride,
   viaObservable,
   pathFilter,

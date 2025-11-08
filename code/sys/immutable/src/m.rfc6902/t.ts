@@ -9,10 +9,10 @@ export type * from './t.patch.ts';
 /**
  * Library: Immutable (RFC6902 Patch Standard)
  */
-export type ImmutableLib = {
+export type ImmutableRfc6902Lib = {
   readonly Is: t.ImmutableIsLib;
-  readonly Events: ImmutableEventsLib;
-  readonly Patch: t.ImmutablePatchLib;
+  readonly Events: ImmutableRfc6902EventsLib;
+  readonly Patch: t.ImmutableRfc6902PatchLib;
   readonly Lens: t.ImmutableLensLib;
   cloner: Cloner;
   clonerRef: ClonerRef;
@@ -20,9 +20,9 @@ export type ImmutableLib = {
 };
 
 /**
- * Library: helpers for events.
+ * Helpers for RFC-6902 events.
  */
-export type ImmutableEventsLib = {
+export type ImmutableRfc6902EventsLib = {
   readonly viaOverride: EventsViaOverride;
   readonly viaObservable: EventsViaObservable;
   readonly pathFilter: PathEventsFactory;

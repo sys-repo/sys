@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Patch: t.ImmutablePatchLib = {
+export const Patch: t.ImmutableRfc6902PatchLib = {
   toObjectPath<P extends { path: string } | string>(input: P) {
     const pointer = typeof input === 'string' ? input : input.path;
 

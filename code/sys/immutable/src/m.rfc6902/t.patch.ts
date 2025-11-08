@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Library: helpers for working with RFC-6902 JSON patch standard.
  * https://tools.ietf.org/html/rfc6902
  */
-export type ImmutablePatchLib = {
+export type ImmutableRfc6902PatchLib = {
   /**
    * Convert an RFC-6901 JSON-Pointer (taken from a JSON-Patch operation or a raw
    * string) into an {@link t.ObjectPath}.

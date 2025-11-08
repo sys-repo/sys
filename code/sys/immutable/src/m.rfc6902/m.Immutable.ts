@@ -6,7 +6,7 @@ import { Patch } from './m.Patch.ts';
 /**
  * Helpers for working with raw Immutable<T> objects.
  */
-export const Immutable: t.ImmutableLib = {
+export const Immutable: t.ImmutableRfc6902Lib = {
   Is,
   Events,
   Patch,
