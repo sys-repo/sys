@@ -1,7 +1,7 @@
 import * as FastJsonPatch from 'fast-json-patch';
 import type { t } from './common.ts';
 
-type Patch = t.PatchOperation;
+type Patch = t.Rfc6902PatchOperation;
 
 export const Wrangle = {
   patches<T>(prev: T, next: T) {

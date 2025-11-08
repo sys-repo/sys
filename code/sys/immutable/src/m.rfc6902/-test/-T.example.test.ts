@@ -5,7 +5,7 @@ describe('T:Immutable', () => {
   /**
    * Types:
    */
-  type P = t.PatchOperation;
+  type P = t.Rfc6902PatchOperation;
 
   type MyState = { tmp: number };
   type MyStateEvent = t.InferImmutableEvent<MyStateEvents>;

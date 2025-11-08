@@ -7,7 +7,7 @@ import { Wrangle } from './u.ts';
  *    RFC-6902 JSON patch standard
  *    https://tools.ietf.org/html/rfc6902
  */
-type P = t.PatchOperation;
+type P = t.Rfc6902PatchOperation;
 
 /**
  * A simple Immutable<T> implementation using brute-force cloning.

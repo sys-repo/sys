@@ -1,4 +1,4 @@
-import type { PatchOperation } from '@sys/std/t';
+import type { Rfc6902PatchOperation } from '@sys/std/t';
 import type { t } from '../common.ts';
 
 type O = Record<string, unknown>;
@@ -7,7 +7,7 @@ type O = Record<string, unknown>;
  * Default patch type for abstract CRDT refs.
  * Downstreams (e.g. Automerge) can supply their own P.
  */
-type PDefault = PatchOperation;
+type PDefault = Rfc6902PatchOperation;
 type RefProps = t.Lifecycle & {
   readonly id: t.StringId;
   readonly deleted: boolean;
@@ -17,7 +17,7 @@ type RefProps = t.Lifecycle & {
  * A CRDT document reference (abstract, implementation-agnostic).
  *
  * T  = document value shape
- * P  = patch operation type (defaults to RFC JSON Patch)
+ * P  = patch operation type (defaults to RFC-6902 JSON Patch)
  * EX = extra event members to merge into the event surface
  * CX = extra fields to merge into the change payload
  */

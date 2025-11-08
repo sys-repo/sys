@@ -8,7 +8,7 @@ import { Wrangle } from './u.ts';
  *    RFC-6902 JSON patch standard
  *    https://tools.ietf.org/html/rfc6902
  */
-type DefaultPatch = t.PatchOperation;
+type DefaultPatch = t.Rfc6902PatchOperation;
 
 /**
  * ImmutableEvents<T> structure.

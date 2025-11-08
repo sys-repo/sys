@@ -1,11 +1,11 @@
-import { type t, Arr, Is, Rx, StdIs } from './common.ts';
+import { type t, Arr, Rx, StdIs } from './common.ts';
 
 /**
  * Change Patch Standard:
  *    RFC-6902 JSON patch standard
  *    https://tools.ietf.org/html/rfc6902
  */
-type DefaultPatch = t.PatchOperation;
+type DefaultPatch = t.Rfc6902PatchOperation;
 
 /**
  * Creates a factory function for filtering on changes at specific paths.

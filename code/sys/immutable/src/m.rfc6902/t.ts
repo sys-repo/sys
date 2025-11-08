@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
-type P = t.PatchOperation;
+type P = t.Rfc6902PatchOperation;
 type DefaultPatch = P;
 
 export type * from './t.patch.ts';

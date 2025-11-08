@@ -3,7 +3,7 @@ import { Rx, StdIs } from '../common.ts';
 import { Immutable } from '../mod.ts';
 
 describe('Immutable Events', () => {
-  type P = t.PatchOperation;
+  type P = t.Rfc6902PatchOperation;
   type C = t.ImmutableChange<D, P>;
   type D = { count: number; list: (string | number)[] };
 
@@ -32,7 +32,7 @@ describe('Immutable Events', () => {
       const obj = Immutable.cloner<D>({ count: 0, list: [] });
       const events = Immutable.Events.viaOverride(obj);
 
-      const patches: t.PatchOperation[] = [];
+      const patches: t.Rfc6902PatchOperation[] = [];
       const fired: t.ImmutableChange<D, P>[] = [];
       events.$.subscribe((e) => fired.push(e));
 
@@ -51,8 +51,8 @@ describe('Immutable Events', () => {
     describe('path() ← filter', () => {
       type PathEvents = t.ImmutablePathEvents<
         D,
-        t.PatchOperation,
-        t.ImmutableChange<D, t.PatchOperation>
+        t.Rfc6902PatchOperation,
+        t.ImmutableChange<D, t.Rfc6902PatchOperation>
       >;
 
       it('create', () => {

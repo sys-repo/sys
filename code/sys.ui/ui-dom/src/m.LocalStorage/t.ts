@@ -20,8 +20,8 @@ export type LocalStorageLib = {
  */
 export type LocalStorageImmutable<T> = t.ImmutableRef<
   T,
-  t.PatchOperation,
-  t.ImmutableEvents<T, t.PatchOperation, t.ImmutableChange<T, t.PatchOperation>>
+  t.Rfc6902PatchOperation,
+  t.ImmutableEvents<T, t.Rfc6902PatchOperation, t.ImmutableChange<T, t.Rfc6902PatchOperation>>
 > & {
   /** Clears the local-storage entry and resets to the default values passed in at creation. */
   reset(initial?: T): void;

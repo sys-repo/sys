@@ -3,7 +3,7 @@ import { Rx } from '../common.ts';
 import { Immutable } from '../mod.ts';
 
 describe('Immutable', () => {
-  type P = t.PatchOperation;
+  type P = t.Rfc6902PatchOperation;
   type D = { count: number; list?: number[] };
 
   describe('Immutable.cloner', () => {
@@ -38,7 +38,7 @@ describe('Immutable', () => {
       const initial = { count: 0, list: [] };
       const obj = Immutable.cloner<D>(initial);
 
-      const patches: t.PatchOperation[] = [];
+      const patches: t.Rfc6902PatchOperation[] = [];
       obj.change((d) => (d.count = 123), { patches: (e) => patches.push(...e) });
       obj.change(
         (d) => {
@@ -73,7 +73,7 @@ describe('Immutable', () => {
       expect(obj.current).to.not.equal(initial);
       expect(obj.current).to.eql({ count: 0 });
 
-      const patches: t.PatchOperation[] = [];
+      const patches: t.Rfc6902PatchOperation[] = [];
       obj.change((d) => (d.count = 123), { patches: (e) => patches.push(...e) });
       obj.change(
         (d) => (d.count = 456),
