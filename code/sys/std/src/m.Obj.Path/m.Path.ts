@@ -11,6 +11,7 @@ import { exists } from './m.Path.exists.ts';
 import { get } from './m.Path.get.ts';
 import { join, joinAll } from './m.Path.join.ts';
 import { normalize } from './m.Path.normalize.ts';
+import { sanitize } from './m.Path.sanitize.ts';
 import { slice } from './m.Path.slice.ts';
 import { Rel } from './m.Rel.ts';
 
@@ -27,6 +28,7 @@ export const Path: t.ObjPathLib = {
   encode,
   decode,
   normalize,
+  sanitize,
 
   asNumeric,
   eql,

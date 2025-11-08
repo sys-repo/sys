@@ -34,6 +34,12 @@ export interface ObjPathLib {
    */
   decode(text: string, opts?: t.PathDecodeOptions): t.ObjectPath;
 
+  /** Apply conservative repairs to a path string before decoding. */
+  sanitize(
+    text: string,
+    opts?: t.ObjPathSanitizeOptions,
+  ): { readonly text: string; readonly fixes: t.ObjPathFix[] };
+
   /**
    * Utility: Coerce digit-only string tokens into numbers.
    * - Leaves non-digit strings intact (e.g. "01" stays "01").
@@ -168,3 +174,36 @@ export type ObjPathMutateLib = {
    */
   diff<T extends O = O>(source: T, target: T, options?: t.ObjDiffOptions): t.ObjDiffReport;
 };
+
+/**
+ * Options and Result Structures:
+ */
+
+/** Options controlling how a path string is sanitized before decoding. */
+export type ObjPathSanitizeOptions = { codec?: t.ObjectPathCodecKind | t.ObjectPathCodec };
+
+/** String-level repair kinds applied by {@link Path.sanitize}. */
+export type ObjPathFix =
+  /** Removed leading/trailing whitespace. */
+  | 'trimmed'
+  /** Added a leading slash for non-empty pointer paths. */
+  | 'ensured-leading-slash'
+  /** Collapsed consecutive slashes into a single '/'. */
+  | 'collapsed-multiple-slashes'
+  /** Removed a trailing slash (except when the path is just '/'). */
+  | 'removed-trailing-slash';
+
+/** Options for tolerant decoding; extends PathDecodeOptions with a fallback path. */
+export type PathTryDecodeOptions = t.PathDecodeOptions & {
+  fallback?: t.ObjectPath;
+};
+
+/** Structured result returned from tryDecode, including success flag, path, and any applied fixes. */
+export type PathTryDecodeResult =
+  | { readonly ok: true; readonly path: t.ObjectPath; readonly fixes: readonly t.ObjPathFix[] }
+  | {
+      readonly ok: false;
+      readonly path: t.ObjectPath;
+      readonly fixes: readonly t.ObjPathFix[];
+      readonly error: Error;
+    };

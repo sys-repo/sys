@@ -1,6 +1,6 @@
 /**
- * Tools for working with Object paths.
  * @module
+ * Tools for working with Object paths.
  */
-export { Path } from './m.Path.ts';
 export { CurriedPath } from './m.CurriedPath.ts';
+export { Path } from './m.Path.ts';
