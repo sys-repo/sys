@@ -42,6 +42,20 @@ export function decode(text: string, opts: t.ObjPathDecodeOptions = {}): t.Objec
 }
 
 /**
+ * Tolerant decode that never throws; returns result with fixes and optional error.
+ */
+export function tryDecode(text = '', opts: t.PathTryDecodeOptions = {}): t.PathTryDecodeResult {
+  const { codec, numeric, fallback = [] } = opts;
+  const { text: repaired, fixes } = sanitize(text, { codec });
+  try {
+    const path = decode(repaired, { codec, numeric }); // still strict
+    return { ok: true, path, fixes };
+  } catch (error) {
+    return { ok: false, path: fallback, fixes, error: error as Error };
+  }
+}
+
+/**
  * Helpers:
  */
 

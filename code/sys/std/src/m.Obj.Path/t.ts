@@ -31,8 +31,14 @@ export interface ObjPathLib {
    * Decode a string → path array.
    * - Uses the given codec (defaults to `pointer`).
    * - `numeric: true` coerces digit-only tokens into numbers.
+   * - `safe: true` pre-sanitizes the string before strict decode (may still throw).
    */
   decode(text: string, opts?: t.ObjPathDecodeOptions): t.ObjectPath;
+
+  /**
+   * Tolerant decode that never throws; returns result with fixes and optional error.
+   */
+  tryDecode(text: string | undefined, opts?: t.PathTryDecodeOptions): t.PathTryDecodeResult;
 
   /** Apply conservative repairs to a path string before decoding. */
   sanitize(
@@ -202,10 +208,10 @@ export type PathTryDecodeOptions = t.ObjPathDecodeOptions & {
 
 /** Structured result returned from tryDecode, including success flag, path, and any applied fixes. */
 export type PathTryDecodeResult =
-  | { readonly ok: true; readonly path: t.ObjectPath; readonly fixes: readonly t.ObjPathFix[] }
+  | { readonly ok: true; readonly path: t.ObjectPath; readonly fixes: t.ObjPathFix[] }
   | {
       readonly ok: false;
       readonly path: t.ObjectPath;
-      readonly fixes: readonly t.ObjPathFix[];
+      readonly fixes: t.ObjPathFix[];
       readonly error: Error;
     };

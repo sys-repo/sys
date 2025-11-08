@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 import { Codec } from './m.Codec.ts';
-import { asNumeric, decode, encode } from './m.Codec.u.ts';
+import { asNumeric, decode, encode, tryDecode } from './m.Codec.u.ts';
 import { CurriedPath } from './m.CurriedPath.ts';
 import { Is } from './m.Is.ts';
 import { Mutate } from './m.Mutate.ts';
@@ -27,6 +27,7 @@ export const Path: t.ObjPathLib = {
   Codec,
   encode,
   decode,
+  tryDecode,
   normalize,
   sanitize,
 

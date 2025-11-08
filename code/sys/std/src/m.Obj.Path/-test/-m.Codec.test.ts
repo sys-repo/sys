@@ -1,4 +1,4 @@
-import { type t, c, describe, expect, it } from '../../-test.ts';
+import { type t, c, describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { Str } from '../../m.Str/mod.ts';
 import { Codec } from '../m.Codec.ts';
 import { Path } from '../mod.ts';
@@ -172,7 +172,7 @@ describe('Path.Codec', () => {
       });
     });
 
-    describe('numeric option', () => {
+    describe('Path.decode: numeric option', () => {
       it('pointer + numeric: digit-only tokens → numbers (default)', () => {
         const text = '/user/tags/0/id';
         const back = Path.decode(text, { codec: 'pointer' });
@@ -199,7 +199,7 @@ describe('Path.Codec', () => {
       });
     });
 
-    describe('round-trip via namespace', () => {
+    describe('encode → decode: round-trip via namespace', () => {
       it('pointer: path → encode → decode → stringified path', () => {
         const cases: (string | number)[][] = [
           [],
@@ -255,6 +255,141 @@ describe('Path.Codec', () => {
         // sanitize is no-op for 'dot' except trim; decode remains strict for dot-notation
         const out = Path.decode('a.b[2]', { safe: true, codec: 'dot' });
         expect(out).to.eql(['a', 'b', 2]);
+      });
+    });
+
+    describe('Path.tryDecode', () => {
+      it('ok: true on clean pointer input; no fixes', () => {
+        const res = Path.tryDecode('/a/b/0');
+        expect(res.ok).to.equal(true);
+        if (res.ok) {
+          expect(res.path).to.eql(['a', 'b', 0]);
+          expect(res.fixes).to.eql([]);
+        }
+      });
+
+      it('applies sanitize first (trim, ensure leading slash, collapse, remove trailing)', () => {
+        const res = Path.tryDecode('  foo//bar/  ');
+        expect(res.ok).to.equal(true);
+        if (res.ok) {
+          expect(res.path).to.eql(['foo', 'bar']);
+          expect(res.fixes).to.eql([
+            'trimmed',
+            'ensured-leading-slash',
+            'collapsed-multiple-slashes',
+            'removed-trailing-slash',
+          ]);
+        }
+      });
+
+      it('empty string → ok: true, path = [] (RFC-6901 root)', () => {
+        const test = (input?: string) => {
+          const res = Path.tryDecode(input);
+          expect(res.ok).to.equal(true);
+          if (res.ok) {
+            expect(res.path).to.eql([]);
+            expect(res.fixes).to.eql([]); // sanitize does nothing to ''
+          }
+        };
+        test('');
+        test(undefined);
+      });
+
+      it('numeric: false preserves digit tokens as strings', () => {
+        const res = Path.tryDecode('arr/10', { numeric: false });
+        expect(res.ok).to.equal(true);
+        if (res.ok) {
+          expect(res.path).to.eql(['arr', '10']); // not number
+        }
+      });
+
+      it('numeric: true coerces digit-only tokens to numbers', () => {
+        const res = Path.tryDecode('arr/10', { numeric: true });
+        expect(res.ok).to.equal(true);
+        if (res.ok) {
+          expect(res.path).to.eql(['arr', 10]);
+        }
+      });
+
+      it('codec: dot — ok on valid dot/bracket path', () => {
+        const res = Path.tryDecode('a.b[2].c', { codec: 'dot' });
+        expect(res.ok).to.equal(true);
+        if (res.ok) {
+          expect(res.path).to.eql(['a', 'b', 2, 'c']);
+          expect(res.fixes).to.eql([]); // sanitize does not alter dot codec beyond trim
+        }
+      });
+
+      it('failure case (dot codec): returns ok:false with fallback and error', () => {
+        const res = Path.tryDecode('a[b', { codec: 'dot', fallback: ['FALL', 'BACK'] });
+        expect(res.ok).to.equal(false);
+        if (!res.ok) {
+          expect(res.path).to.eql(['FALL', 'BACK']); // used fallback
+          expect(res.fixes).to.eql([]); // trim/collapse didn’t apply
+          expect(res.error).to.be.instanceOf(Error);
+          expect(String(res.error.message)).to.match(/Unclosed bracket/i);
+        }
+      });
+
+      it('uses provided fallback; default fallback is []', () => {
+        const r1 = Path.tryDecode('a[b', { codec: 'dot' }); // no fallback passed
+        expect(r1.ok).to.equal(false);
+        if (!r1.ok) {
+          expect(r1.path).to.eql([]); // default fallback
+        }
+
+        const r2 = Path.tryDecode('a[b', { codec: 'dot', fallback: ['x'] });
+        expect(r2.ok).to.equal(false);
+        if (!r2.ok) {
+          expect(r2.path).to.eql(['x']);
+        }
+      });
+
+      it('sanitizes then decodes strictly; non-standard "~2" is literal (RFC-6901)', () => {
+        const res = Path.tryDecode('/bad~2escape');
+        expect(res.ok).to.equal(true);
+        if (res.ok) {
+          expect(res.path).to.eql(['bad~2escape']);
+          expect(res.fixes).to.eql([]); // already valid pointer
+        }
+      });
+
+      it('accepts codec instance objects', () => {
+        const customPointer: t.ObjPathCodec = {
+          kind: 'pointer',
+          encode: (p) => Path.Codec.pointer.encode(p),
+          decode: (s) => Path.Codec.pointer.decode(s),
+        };
+        const res = Path.tryDecode('foo//bar/', { codec: customPointer });
+        expect(res.ok).to.equal(true);
+        if (res.ok) {
+          expect(res.path).to.eql(['foo', 'bar']);
+          expect(res.fixes).to.eql([
+            'ensured-leading-slash',
+            'collapsed-multiple-slashes',
+            'removed-trailing-slash',
+          ]);
+        }
+      });
+
+      it('type surface', () => {
+        const out = Path.tryDecode('/ok');
+        expectTypeOf(out).toMatchTypeOf<
+          | {
+              readonly ok: true;
+              readonly path: t.ObjectPath;
+              readonly fixes: readonly t.ObjPathFix[];
+            }
+          | {
+              readonly ok: false;
+              readonly path: t.ObjectPath;
+              readonly fixes: readonly t.ObjPathFix[];
+              readonly error: Error;
+            }
+        >();
+        // common fields
+        expectTypeOf(out.path).toEqualTypeOf<t.ObjectPath>();
+        expectTypeOf(out.fixes).toEqualTypeOf<t.ObjPathFix[]>();
       });
     });
   });
