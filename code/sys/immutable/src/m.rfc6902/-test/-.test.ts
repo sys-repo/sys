@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Immutable } from '../mod.ts';
 
-import { Is } from '../common.ts';
+import { Is, asReadonly, toObject } from '../common.ts';
 import { Events } from '../m.Events.ts';
 import { Patch } from '../m.Patch.ts';
 
@@ -10,5 +10,7 @@ describe('Immutable: RFC6902 (Patch Standard)', () => {
     expect(Immutable.Is).to.equal(Is);
     expect(Immutable.Patch).to.equal(Patch);
     expect(Immutable.Events).to.equal(Events);
+    expect(Immutable.asReadonly).to.equal(asReadonly);
+    expect(Immutable.toObject).to.equal(toObject);
   });
 });

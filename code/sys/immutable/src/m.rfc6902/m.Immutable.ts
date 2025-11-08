@@ -1,4 +1,4 @@
-import { type t, Is, Lens, toObject } from './common.ts';
+import { type t, asReadonly, Is, Lens, toObject } from './common.ts';
 import { Events } from './m.Events.ts';
 import { cloner, clonerRef } from './m.Immutable.cloner.ts';
 import { Patch } from './m.Patch.ts';
@@ -13,5 +13,6 @@ export const Immutable: t.ImmutableRfc6902Lib = {
   Lens,
   cloner,
   clonerRef,
+  asReadonly,
   toObject,
 } as const;

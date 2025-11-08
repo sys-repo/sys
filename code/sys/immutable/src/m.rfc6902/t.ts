@@ -16,6 +16,7 @@ export type ImmutableRfc6902Lib = {
   readonly Lens: t.ImmutableLensLib;
   cloner: Cloner;
   clonerRef: ClonerRef;
+  asReadonly<T>(input: T): t.AsReadonly<T>;
   toObject<T extends O = O>(input?: T): t.UnwrapImmutable<T>;
 };
 
