@@ -1,3 +1,5 @@
+export type * from '@sys/types';
+
 export type {
   Describe,
   Disposable,

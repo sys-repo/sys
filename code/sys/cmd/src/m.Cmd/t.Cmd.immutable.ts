@@ -29,7 +29,7 @@ export type CmdPatchLib = {
   path(patch: t.CmdPatch): t.ObjectPath;
 
   /** Determine if the given set includes any "change" patches. */
-  includesQueueChange(patches: t.CmdPatch[], paths: t.CmdPaths): boolean;
+  includesQueueChange(patches: t.Ary<t.CmdPatch>, paths: t.CmdPaths): boolean;
 
   /** Determine if the patch represents a change. */
   isQueueChange(patch: t.CmdPatch, paths: t.CmdPaths): boolean;
