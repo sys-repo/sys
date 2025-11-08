@@ -163,7 +163,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `background.opacity: ${p.background.opacity.value}`}
-        onClick={() => Signal.cycle(p.background.opacity, [0, 0.3, 0.5, 0.8])}
+        onClick={() => Signal.cycle(p.background.opacity, [0, 0.1, 0.3, 0.5, 0.8])}
       />
       <Button
         block
@@ -192,7 +192,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           p.maskOpacity.value = 0;
           p.background.rounded.value = defaults.background?.rounded;
-          p.background.opacity.value = 0.5;
+          p.background.opacity.value = 0.3;
           p.padding.value = 20;
         }}
       />
