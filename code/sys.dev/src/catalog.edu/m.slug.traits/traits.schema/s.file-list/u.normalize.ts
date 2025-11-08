@@ -1,4 +1,4 @@
-import { type t, Is } from './common.ts';
+import { type t, Is } from '../common.ts';
 
 type Entry = t.FileListEntry;
 type Item = t.FileListItem;

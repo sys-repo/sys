@@ -1,4 +1,4 @@
-import { type t, Pattern, Type as T } from './common.ts';
+import { type t, Pattern, Type as T } from '../common.ts';
 
 /**
  * Properties: Concept Layout.

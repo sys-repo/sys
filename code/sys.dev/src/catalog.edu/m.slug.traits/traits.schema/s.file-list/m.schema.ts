@@ -1,5 +1,5 @@
-import { type t, Pattern, Type as T } from './common.ts';
-export { normalizeFileList } from './schema.file-list.normalize.ts';
+import { type t, Pattern, Type as T } from '../common.ts';
+export { normalizeFileList } from './u.normalize.ts';
 
 /**
  * Item: File List entry (object form).

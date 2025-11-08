@@ -1,4 +1,4 @@
-import { type t, Type as T } from './common.ts';
+import { type t, Type as T } from '../common.ts';
 
 /**
  * Properties: Video Player.

@@ -44,7 +44,7 @@ import type { t } from './common.ts';
 /**
  * 🌳
  * Source schemas from:
- *  - ./traits.schema/*
+ *  - ./traits.schema/s.<schema-name>*
  */
 
 /**

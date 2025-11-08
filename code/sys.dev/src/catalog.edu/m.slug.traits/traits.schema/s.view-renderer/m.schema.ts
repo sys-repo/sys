@@ -1,4 +1,4 @@
-import { type t, Pattern, Type as T, toSchema } from './common.ts';
+import { type t, Pattern, Type as T, toSchema } from '../common.ts';
 
 /**
  * Properties: View Renderer.

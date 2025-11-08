@@ -1,4 +1,4 @@
-import { type t, Pattern, Type as T } from './common.ts';
+import { type t, Pattern, Type as T } from '../common.ts';
 
 /** WebVTT timestamp (dot before milliseconds). */
 const WEBVTT_TIMESTAMP = '^(?:\\d{2}:)?[0-5]\\d:[0-5]\\d\\.\\d{3}$';
