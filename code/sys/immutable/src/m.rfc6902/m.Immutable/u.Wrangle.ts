@@ -1,7 +1,5 @@
 import * as FastJsonPatch from 'fast-json-patch';
-
 import type { t } from './common.ts';
-export * from './m.Is.ts';
 
 type Patch = t.PatchOperation;
 

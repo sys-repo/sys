@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Immutable } from '../../m.Immutable/mod.ts';
+import { Immutable } from '../../../m.rfc6902/mod.ts';
 import { Lens } from '../mod.ts';
 
 type T = {

@@ -1,12 +1,12 @@
-import { type t, Is as StdIs, Symbols, isObject } from './common.ts';
-import type { ImmutableIsLib } from './t.ts';
+import { type t, Is as StdIs, isObject } from './common.ts';
+import { Symbols } from './m.Symbols.ts';
 
 type O = Record<string, unknown>;
 
 /**
  * Flag helpers for Immutable objects.
  */
-export const Is: ImmutableIsLib = {
+export const Is: t.ImmutableIsLib = {
   objectPath: StdIs.objectPath,
 
   immutable<D, P = unknown>(input: any): input is t.Immutable<D, P> {

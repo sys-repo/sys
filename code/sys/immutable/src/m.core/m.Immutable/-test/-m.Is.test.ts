@@ -1,36 +1,23 @@
-import { describe, expect, it, type t } from '../../../-test.ts';
-import { Immutable } from '../mod.ts';
+import { Immutable } from '@sys/immutable/rfc6902';
+import { describe, expect, it } from '../../../-test.ts';
 
-import { Events } from '../m.Events.ts';
-import { Is } from '../m.Is.ts';
-import { Patch } from '../m.Patch.ts';
-
-describe('Immutable', () => {
-  type P = t.PatchOperation;
+describe('Immutable.Is', () => {
   type D = { count: number; list?: number[] };
 
-  it('API', async () => {
-    expect(Immutable.Is).to.equal(Is);
-    expect(Immutable.Patch).to.equal(Patch);
-    expect(Immutable.Events).to.equal(Events);
+  const Is = Immutable.Is;
+  const NON = [123, 'abc', [], {}, undefined, null, true, Symbol('foo'), BigInt(0)];
+
+  it('Is.immutable', () => {
+    NON.forEach((v) => expect(Is.immutable(v)).to.eql(false));
+    const obj = Immutable.cloner<D>({ count: 0 });
+    expect(Is.immutable(obj)).to.eql(true);
   });
 
-  describe('Immutable.Is', () => {
-    const Is = Immutable.Is;
-    const NON = [123, 'abc', [], {}, undefined, null, true, Symbol('foo'), BigInt(0)];
-
-    it('Is.immutable', () => {
-      NON.forEach((v) => expect(Is.immutable(v)).to.eql(false));
-      const obj = Immutable.cloner<D>({ count: 0 });
-      expect(Is.immutable(obj)).to.eql(true);
-    });
-
-    it('Is.immutableRef', () => {
-      NON.forEach((v) => expect(Is.immutable(v)).to.eql(false));
-      const obj = Immutable.cloner<D>({ count: 0 });
-      const objRef = Immutable.clonerRef<D>({ count: 0 });
-      expect(Is.immutableRef(obj)).to.eql(false);
-      expect(Is.immutableRef(objRef)).to.eql(true);
-    });
+  it('Is.immutableRef', () => {
+    NON.forEach((v) => expect(Is.immutable(v)).to.eql(false));
+    const obj = Immutable.cloner<D>({ count: 0 });
+    const objRef = Immutable.clonerRef<D>({ count: 0 });
+    expect(Is.immutableRef(obj)).to.eql(false);
+    expect(Is.immutableRef(objRef)).to.eql(true);
   });
 });

@@ -1,4 +1,4 @@
-import { type t, Arr, Is, Rx } from './common.ts';
+import { type t, Arr, Is, Rx, StdIs } from './common.ts';
 
 /**
  * Change Patch Standard:
@@ -43,7 +43,7 @@ export function pathFilter<
 const wrangle = {
   pathOptions(input?: t.ImmutablePathEventsOptions | boolean): t.ImmutablePathEventsOptions {
     if (!input) return {};
-    if (Is.bool(input)) return { exact: input };
+    if (StdIs.bool(input)) return { exact: input };
     return input;
   },
 

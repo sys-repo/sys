@@ -1,5 +1,5 @@
 import { type t, describe, expect, it } from '../../../-test.ts';
-import { Is, Rx } from '../common.ts';
+import { Rx, StdIs } from '../common.ts';
 import { Immutable } from '../mod.ts';
 
 describe('Immutable Events', () => {
@@ -79,7 +79,7 @@ describe('Immutable Events', () => {
         assert(d, true, [['list']]);
         assert(e, false, [['list', 0]]);
 
-        expect(Is.observable(a.$)).to.be.true;
+        expect(StdIs.observable(a.$)).to.be.true;
         expect(a.$).to.not.equal(events.$);
       });
 

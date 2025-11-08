@@ -1,4 +1,4 @@
-import { Immutable } from '../../m.core/mod.ts';
+import { Immutable } from '../../m.rfc6902/mod.ts';
 
 export type Counter = { count: number };
 
