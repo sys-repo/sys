@@ -52,8 +52,6 @@ export async function main() {
     console.info(`        ${c.green(`repo     →`)} ${c.gray(`https://github.com/sys-repo/sys`)}`);
     console.info();
 
-    console.info('🧫');
-    console.info(`  ${c.cyan('System Runtime')}`);
     console.info(`  ${c.yellow('Deno')}.version  `, c.green(Deno.version.deno));
     console.info('    typescript  ', c.green(Deno.version.typescript));
     console.info('            v8  ', c.green(Deno.version.v8));
