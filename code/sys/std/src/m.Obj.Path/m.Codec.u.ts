@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 import { Codec } from './m.Codec.ts';
+import { sanitize } from './m.Path.sanitize.ts';
 
 /**
  * Coerce digit-only string tokens into numbers.
@@ -30,11 +31,13 @@ export function encode(path: t.ObjectPath, opts?: t.ObjPathEncodeOptions): strin
  * Decode a string → path array.
  * - Uses the given codec (defaults to `pointer`).
  * - `numeric: true` coerces digit-only tokens into numbers.
+ * - `safe: true` pre-sanitizes the string before strict decode (may still throw).
  */
 export function decode(text: string, opts: t.ObjPathDecodeOptions = {}): t.ObjectPath {
-  const { numeric = true } = opts;
+  const { numeric = true, safe = false } = opts;
   const c = resolveCodec(opts?.codec);
-  const out = c.decode(text);
+  const input = safe ? sanitize(text, { codec: c }).text : text; // ← only pre-process
+  const out = c.decode(input); // ← still strict; may throw
   return numeric ? asNumeric(out) : out;
 }
 

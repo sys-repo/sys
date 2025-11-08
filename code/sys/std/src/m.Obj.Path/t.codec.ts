@@ -49,12 +49,12 @@ export type ObjPathEncodeOptions = {
   codec?: ObjPathCodecKind | ObjPathCodec;
 };
 
-/**
- * Options for namespace-level decode.
+/** Options for namespace-level decode.
  * - `numeric: true` coerces digit-only tokens to numbers (e.g. "0" → 0).
- *   Pointer remains RFC-strict; coercion is applied *after* decode at the namespace.
+ * - `safe: true` pre-sanitizes the string before strict decode (may still throw).
  */
 export type ObjPathDecodeOptions = {
   codec?: ObjPathCodecKind | ObjPathCodec;
   numeric?: boolean;
+  safe?: boolean;
 };

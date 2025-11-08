@@ -230,5 +230,32 @@ describe('Path.Codec', () => {
         expect(back).to.eql(['foo', 'bar', 0, 'baz', 10]);
       });
     });
+
+    describe('Path.decode (safe)', () => {
+      it('safe=false (default): throws on missing leading "/" for pointer', () => {
+        expect(() => Path.decode('foo/bar')).to.throw();
+      });
+
+      it('safe=true: sanitizes then decodes (still strict decode)', () => {
+        const out = Path.decode('foo/bar', { safe: true }); // sanitized → "/foo/bar"
+        expect(out).to.eql(['foo', 'bar']);
+      });
+
+      it('safe=true: leaves non-standard escapes like "~2" untouched (RFC-6901)', () => {
+        const out = Path.decode('/bad~2escape', { safe: true });
+        expect(out).to.eql(['bad~2escape']);
+      });
+
+      it('safe=true + numeric=false: preserves numeric tokens as strings', () => {
+        const out = Path.decode('arr/10', { safe: true, numeric: false });
+        expect(out).to.eql(['arr', '10']); // not [ 'arr', 10 ]
+      });
+
+      it('safe=true respects explicit codec "dot"', () => {
+        // sanitize is no-op for 'dot' except trim; decode remains strict for dot-notation
+        const out = Path.decode('a.b[2]', { safe: true, codec: 'dot' });
+        expect(out).to.eql(['a', 'b', 2]);
+      });
+    });
   });
 });
