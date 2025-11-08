@@ -34,7 +34,7 @@ groups:
       subpaths: [bdd]
     - import: npm:chai@6.2.0
       subpaths: ['/', 'chai.js']
-    - import: npm:fake-indexeddb@6.2.4
+    - import: npm:fake-indexeddb@6.2.5
       subpaths: ['auto']
 
   automerge:
@@ -58,8 +58,8 @@ groups:
   build/tools:
     - import: npm:@vitejs/plugin-react@5.1.0
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.52.5
-    - import: npm:vite@7.2.1
+    - import: npm:rollup@4.53.1
+    - import: npm:vite@7.2.2
     - import: npm:vite-plugin-wasm@3.5.0
 
   dev/tools:
@@ -96,7 +96,7 @@ groups:
     - import: npm:@mastra/loggers@0.10.19
     - import: npm:@mastra/memory@0.15.11
     - import: npm:ollama@0.6.2
-    - import: npm:gpt-tokenizer@3.2.0
+    - import: npm:gpt-tokenizer@3.4.0
 
   yaml:
     - import: npm:yaml@2.8.1
