@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../../-test.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
 import { Rx, StdIs } from '../common.ts';
 import { Immutable } from '../mod.ts';
 

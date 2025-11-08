@@ -1,7 +1,5 @@
 /**
  * @module
  * RFC-6902–based implementation layer for the `Immutable<T>` pattern.
- *
- * Exports the current `Immutable` and `Lens` primitives built on JSON-Patch semantics.
  */
-export { Immutable } from './m.Immutable/mod.ts';
+export { Immutable } from './m.Immutable.ts';

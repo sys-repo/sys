@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { Immutable } from '../mod.ts';
 
 import { Is } from '../common.ts';

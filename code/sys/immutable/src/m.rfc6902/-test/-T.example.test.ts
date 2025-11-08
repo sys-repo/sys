@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, slug } from '../../../-test.ts';
+import { type t, describe, expect, it, slug } from '../../-test.ts';
 import { Immutable } from '../mod.ts';
 
 describe('T:Immutable', () => {
