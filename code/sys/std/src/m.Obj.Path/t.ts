@@ -25,14 +25,14 @@ export interface ObjPathLib {
    * Encode a path array → string.
    * - Uses the given codec (defaults to `pointer`).
    */
-  encode(path: t.ObjectPath, opts?: t.PathEncodeOptions): string;
+  encode(path: t.ObjectPath, opts?: t.ObjPathEncodeOptions): string;
 
   /**
    * Decode a string → path array.
    * - Uses the given codec (defaults to `pointer`).
    * - `numeric: true` coerces digit-only tokens into numbers.
    */
-  decode(text: string, opts?: t.PathDecodeOptions): t.ObjectPath;
+  decode(text: string, opts?: t.ObjPathDecodeOptions): t.ObjectPath;
 
   /** Apply conservative repairs to a path string before decoding. */
   sanitize(
@@ -122,7 +122,7 @@ export interface ObjPathLib {
   normalize(
     input: unknown,
     opts?: {
-      codec?: t.ObjectPathCodecKind | t.ObjectPathCodec;
+      codec?: t.ObjPathCodecKind | t.ObjPathCodec;
       numeric?: boolean;
     },
   ): t.ObjectPath;
@@ -180,7 +180,9 @@ export type ObjPathMutateLib = {
  */
 
 /** Options controlling how a path string is sanitized before decoding. */
-export type ObjPathSanitizeOptions = { codec?: t.ObjectPathCodecKind | t.ObjectPathCodec };
+export type ObjPathSanitizeOptions = {
+  codec?: t.ObjPathCodecKind | t.ObjPathCodec;
+};
 
 /** String-level repair kinds applied by {@link Path.sanitize}. */
 export type ObjPathFix =
@@ -194,7 +196,7 @@ export type ObjPathFix =
   | 'removed-trailing-slash';
 
 /** Options for tolerant decoding; extends PathDecodeOptions with a fallback path. */
-export type PathTryDecodeOptions = t.PathDecodeOptions & {
+export type PathTryDecodeOptions = t.ObjPathDecodeOptions & {
   fallback?: t.ObjectPath;
 };
 

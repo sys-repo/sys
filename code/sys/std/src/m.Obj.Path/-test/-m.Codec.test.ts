@@ -5,7 +5,7 @@ import { Path } from '../mod.ts';
 
 describe('Path.Codec', () => {
   describe('print', () => {
-    const printCodec = (codec: t.ObjectPathCodec, example: (string | number)[]) => {
+    const printCodec = (codec: t.ObjPathCodec, example: (string | number)[]) => {
       console.info(Str.SPACE);
       console.info(c.cyan(`Obj.Path.Codec.${c.bold(codec.kind)}:`));
       console.info(codec);

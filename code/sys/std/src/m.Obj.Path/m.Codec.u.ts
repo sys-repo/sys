@@ -21,7 +21,7 @@ export function asNumeric(path: readonly (string | number)[]): t.ObjectPath {
  * Encode a path array → string.
  * - Uses the given codec (defaults to `pointer`).
  */
-export function encode(path: t.ObjectPath, opts?: t.PathEncodeOptions): string {
+export function encode(path: t.ObjectPath, opts?: t.ObjPathEncodeOptions): string {
   const c = resolveCodec(opts?.codec);
   return c.encode(path);
 }
@@ -31,7 +31,7 @@ export function encode(path: t.ObjectPath, opts?: t.PathEncodeOptions): string {
  * - Uses the given codec (defaults to `pointer`).
  * - `numeric: true` coerces digit-only tokens into numbers.
  */
-export function decode(text: string, opts: t.PathDecodeOptions = {}): t.ObjectPath {
+export function decode(text: string, opts: t.ObjPathDecodeOptions = {}): t.ObjectPath {
   const { numeric = true } = opts;
   const c = resolveCodec(opts?.codec);
   const out = c.decode(text);
@@ -43,12 +43,12 @@ export function decode(text: string, opts: t.PathDecodeOptions = {}): t.ObjectPa
  */
 
 /** Resolve a codec from kind or instance. */
-function resolveCodec(kind?: t.ObjectPathCodecKind | t.ObjectPathCodec): t.ObjectPathCodec {
+function resolveCodec(kind?: t.ObjPathCodecKind | t.ObjPathCodec): t.ObjPathCodec {
   if (!kind) return Codec.default;
-  const maybe = kind as t.ObjectPathCodec;
+  const maybe = kind as t.ObjPathCodec;
   return typeof maybe.encode === 'function' && typeof maybe.decode === 'function'
     ? maybe
     : kind === 'dot'
-    ? Codec.dot
-    : Codec.pointer;
+      ? Codec.dot
+      : Codec.pointer;
 }

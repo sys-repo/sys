@@ -45,9 +45,7 @@ export const sanitize: t.ObjPathLib['sanitize'] = (text, opts) => {
 /**
  * Helpers:
  */
-function resolveCodecKind(
-  codec?: t.ObjectPathCodecKind | t.ObjectPathCodec,
-): t.ObjectPathCodecKind {
+function resolveCodecKind(codec?: t.ObjPathCodecKind | t.ObjPathCodec): t.ObjPathCodecKind {
   if (!codec) return 'pointer';
-  return typeof codec === 'string' ? codec : ((codec.kind as t.ObjectPathCodecKind) ?? 'pointer');
+  return typeof codec === 'string' ? codec : ((codec.kind as t.ObjPathCodecKind) ?? 'pointer');
 }

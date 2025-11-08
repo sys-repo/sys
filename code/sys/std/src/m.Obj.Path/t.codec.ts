@@ -8,7 +8,7 @@ import type { t } from './common.ts';
  *  - `default`   — the canonical codec (`pointer`).
  */
 export type ObjPathCodecLib = {
-  readonly default: t.ObjectPathCodec;
+  readonly default: t.ObjPathCodec;
 
   /**
    * JSON Pointer (RFC 6901) — lossless & unambiguous.
@@ -17,7 +17,7 @@ export type ObjPathCodecLib = {
    * - '~1' encodes '/', '~0' encodes '~'.
    * - Numbers are just strings here; still decode to number indices when they look numeric.
    */
-  readonly pointer: t.ObjectPathCodec;
+  readonly pointer: t.ObjPathCodec;
 
   /**
    * Dot/bracket — ergonomic, still round-trips typical keys.
@@ -25,18 +25,18 @@ export type ObjPathCodecLib = {
    * - Numbers inside brackets become number indices.
    * - Empty path → ''.
    */
-  readonly dot: t.ObjectPathCodec;
+  readonly dot: t.ObjPathCodec;
 };
 
 /** Kind of delimiter. */
-export type ObjectPathCodecKind = 'pointer' | 'dot';
+export type ObjPathCodecKind = 'pointer' | 'dot';
 
 /**
  * An [ObjectPath] array → string encoder/decoder.
  * Keep codecs *pure*; any ergonomics (numeric coercion) are layered at the namespace.
  */
-export type ObjectPathCodec = {
-  readonly kind: ObjectPathCodecKind | (string & {});
+export type ObjPathCodec = {
+  readonly kind: ObjPathCodecKind | (string & {});
   encode(path: t.ObjectPath): string;
   decode(text: string): t.ObjectPath; // pointer.decode returns string[] by design
 };
@@ -45,8 +45,8 @@ export type ObjectPathCodec = {
  * Options for namespace-level path encoding.
  * - `codec`: Which codec to use for encoding (defaults to `pointer`).
  */
-export type PathEncodeOptions = {
-  codec?: ObjectPathCodecKind | ObjectPathCodec;
+export type ObjPathEncodeOptions = {
+  codec?: ObjPathCodecKind | ObjPathCodec;
 };
 
 /**
@@ -54,7 +54,7 @@ export type PathEncodeOptions = {
  * - `numeric: true` coerces digit-only tokens to numbers (e.g. "0" → 0).
  *   Pointer remains RFC-strict; coercion is applied *after* decode at the namespace.
  */
-export type PathDecodeOptions = {
-  codec?: ObjectPathCodecKind | ObjectPathCodec;
+export type ObjPathDecodeOptions = {
+  codec?: ObjPathCodecKind | ObjPathCodec;
   numeric?: boolean;
 };

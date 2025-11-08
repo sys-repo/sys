@@ -73,7 +73,7 @@ describe('Path.sanitize', () => {
   });
 
   it('accepts a codec instance object (pointer-kind)', () => {
-    const customPointer: t.ObjectPathCodec = {
+    const customPointer: t.ObjPathCodec = {
       kind: 'pointer',
       encode: (p) => Path.Codec.pointer.encode(p),
       decode: (s) => Path.Codec.pointer.decode(s),

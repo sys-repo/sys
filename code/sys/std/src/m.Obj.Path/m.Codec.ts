@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-const pointer: t.ObjectPathCodec = {
+const pointer: t.ObjPathCodec = {
   kind: 'pointer',
   encode(path) {
     if (path.length === 0) return '';
@@ -19,7 +19,7 @@ const pointer: t.ObjectPathCodec = {
   },
 };
 
-const dot: t.ObjectPathCodec = {
+const dot: t.ObjPathCodec = {
   kind: 'dot',
   encode(path) {
     if (path.length === 0) return '';
