@@ -21,9 +21,9 @@
  * });
  */
 export {
+  Bdd,
   afterAll,
   afterEach,
-  Bdd,
   beforeAll,
   beforeEach,
   describe,
@@ -38,6 +38,6 @@ export { Testing } from './m.Testing.ts';
 /**
  * Common utility helpers.
  */
-export { Time } from '../m.DateTime/mod.ts';
 export { Path } from '../m.Path/mod.ts';
 export { slug } from '../m.Random/mod.ts';
+export { Time } from '../m.Time/mod.ts';

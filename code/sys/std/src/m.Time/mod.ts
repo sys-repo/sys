@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Date, D, Time, Format } from '@sys/std/datetime';
+ * import { Date, D, Time, Format } from '@sys/std/time';
  * ```
  *
  * The date helpers are within a structured named `Date` which if
@@ -12,7 +12,7 @@
  * If you don't wish to do that import the `D` alias instead.
  *
  * ```ts
- * import { D, Date, Time } from '@sys/std/datetime';
+ * import { D, Date, Time } from '@sys/std/time';
  * ```
  *
  * @example

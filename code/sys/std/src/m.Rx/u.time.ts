@@ -1,4 +1,4 @@
-import { Time } from '../m.DateTime/mod.ts';
+import { Time } from '../m.Time/mod.ts';
 import { type t, Dispose } from './common.ts';
 import { Subject, filter, take, takeUntil } from './u.Rx.libs.ts';
 

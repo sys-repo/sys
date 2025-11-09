@@ -1,6 +1,6 @@
 import { describe, expect, it, type t } from '../-test.ts';
-import { Time } from '../m.DateTime/mod.ts';
 import { Rx } from '../m.Rx/mod.ts';
+import { Time } from '../m.Time/mod.ts';
 import { Is } from '../mod.ts';
 import { Dispose } from './mod.ts';
 

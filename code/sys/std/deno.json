@@ -15,7 +15,7 @@
     "./async": "./src/m.Async/mod.ts",
     "./ansi/server": "./src/m.Ansi/mod.ts",
     "./args": "./src/m.Args/mod.ts",
-    "./datetime": "./src/m.DateTime/mod.ts",
+    "./time": "./src/m.Time/mod.ts",
     "./error": "./src/m.Err/mod.ts",
     "./esm": "./src/m.Esm/mod.ts",
     "./ignore": "./src/m.Ignore/mod.ts",
