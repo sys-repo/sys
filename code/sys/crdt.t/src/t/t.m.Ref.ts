@@ -43,11 +43,11 @@ export type CrdtEvents<
   CX extends object = {},
 > = t.ImmutableEvents<T, P, CrdtChange<T, P, CX>> & EX;
 
-/** Options passed to path-filtered event helpers. */
-export type CrdtPathEventsOptions = { exact?: boolean };
-
 /** Path-filtered event stream (shape reusable by downstreams). */
 export type CrdtPathEvents<T extends O = O, P = PDefault, CX extends object = {}> = {
   readonly $: t.Observable<CrdtChange<T, P, CX>>;
   readonly match: { readonly paths: t.ObjectPath[]; readonly exact: boolean };
 };
+
+/** Fired when a CRDT document is deleted. */
+export type CrdtDeleted = { readonly id: t.StringId };

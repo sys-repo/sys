@@ -5,10 +5,11 @@
  */
 import type { Rfc6902PatchOperation } from '@sys/std/t';
 import type {
-  //
-  CrdtRef,
   CrdtChange as _Change,
   CrdtEvents as _Events,
+  CrdtPathEvents as _PathEvents,
+  CrdtDeleted,
+  CrdtRef,
 } from './t.m.Ref.ts';
 
 type O = Record<string, unknown>;
@@ -39,4 +40,14 @@ export namespace Crdt {
     EX extends object = {},
     CX extends object = {},
   > = _Events<T, P, EX, CX>;
+
+  /** Path-filtered event stream. */
+  export type PathEvents<
+    T extends O = O,
+    P = Rfc6902PatchOperation,
+    CX extends object = {},
+  > = _PathEvents<T, P, CX>;
+
+  /** Fired when a CRDT document is deleted. */
+  export type Deleted = CrdtDeleted;
 }
