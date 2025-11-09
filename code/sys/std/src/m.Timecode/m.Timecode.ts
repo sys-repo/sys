@@ -1,8 +1,8 @@
 import { type t, PATTERN, RE } from './common.ts';
-import { format } from './u.fmt.ts';
-import { parseMs } from './u.parse.ts';
-import { sort } from './u.sort.ts';
-import { toEntries } from './u.toEntries.ts';
+import { format } from './m.Timecode.format.ts';
+import { parseMs } from './m.Timecode.parse.ts';
+import { sort } from './m.Timecode.sort.ts';
+import { toEntries } from './m.Timecode.toEntries.ts';
 import { is, kindOf } from './u.ts';
 
 export const Timecode: t.TimecodeLib = {
