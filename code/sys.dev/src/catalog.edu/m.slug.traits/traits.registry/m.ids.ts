@@ -7,7 +7,7 @@ export const TRAIT_IDS = [
   'slug-tree',
   'concept-layout',
   'file-list',
-  'time-map',
+  'timecode-map',
   'video-player',
   'video-recorder',
 ] as const;

@@ -12,5 +12,5 @@ export type SlugTraitIsLib = {
   videoPlayerProps(u: unknown): u is t.VideoPlayerProps;
   conceptLayoutProps(u: unknown): u is t.ConceptLayoutProps;
   fileListProps(u: unknown): u is t.FileListProps;
-  timestampsMap(u: unknown): u is t.Timestamps;
+  timecodeMap(u: unknown): u is t.Timestamps;
 };

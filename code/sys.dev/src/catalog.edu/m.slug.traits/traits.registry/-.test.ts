@@ -3,7 +3,7 @@ import { Value, type t } from '../traits.schema/common.ts';
 import {
   ConceptLayoutPropsSchema,
   FileListPropsInputSchema,
-  TimeMapSchema,
+  TimecodeMapSchema,
   VideoPlayerPropsSchema,
   VideoRecorderPropsSchema,
 } from '../traits.schema/mod.ts';
@@ -17,8 +17,8 @@ describe('trait-registry', () => {
 
   /**
    * Shim to extract a TSchema for a given id regardless of registry surface:
-   * - schema(id) →  TSchema
-   * - get(id)    →  { propsSchema } | TSchema
+   * - schema(id)  →  TSchema
+   * - get(id)     →  { propsSchema } | TSchema
    */
   function schemaOf(id: t.SchemaTraitId): t.TSchema | undefined {
     const anyReg = reg as any;
@@ -50,7 +50,7 @@ describe('trait-registry', () => {
           'slug-tree',
           'view-renderer',
           'file-list',
-          'time-map',
+          'timecode-map',
           'video-player',
           'video-recorder',
           'concept-layout',
@@ -70,7 +70,7 @@ describe('trait-registry', () => {
       expect(schemaOf('slug-tree')).to.equal(Slug.Schema.Slug.Tree.Props);
       expect(schemaOf('video-player')).to.equal(VideoPlayerPropsSchema);
       expect(schemaOf('video-recorder')).to.equal(VideoRecorderPropsSchema);
-      expect(schemaOf('time-map')).to.equal(TimeMapSchema);
+      expect(schemaOf('timecode-map')).to.equal(TimecodeMapSchema);
       expect(schemaOf('concept-layout')).to.equal(ConceptLayoutPropsSchema);
       expect(schemaOf('file-list')).to.equal(FileListPropsInputSchema);
     });
@@ -101,8 +101,8 @@ describe('trait-registry', () => {
       expect(Value.Check(s, ok)).to.eql(true);
     });
 
-    it('time-map: minimal sample', () => {
-      const s = schemaOf('time-map')!;
+    it('timecode-map: minimal sample', () => {
+      const s = schemaOf('timecode-map')!;
       const ok = {}; // all optional
       expect(Value.Check(s, ok)).to.eql(true);
     });

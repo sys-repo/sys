@@ -48,10 +48,10 @@ Once the filename is known, perform the following steps:
 ============================================================================
 
 Placeholders
-- <trait-kebab>: kebab-case trait id, e.g. time-map
-- <TraitPascal>: PascalCase, e.g. TimeMap
-- <TraitCamel>: camelCase, e.g. timeMap
-- <TraitTitle>: Human title, e.g. Time Map
+- <trait-kebab>: kebab-case trait id, e.g. file-list
+- <TraitPascal>: PascalCase, e.g. FileList
+- <TraitCamel>: camelCase, e.g. fileList
+- <TraitTitle>: Human title, e.g. File List
 
 Invariants
 - $id is stable and unique per trait: "trait.<trait-kebab>.props". Changing this is breaking.

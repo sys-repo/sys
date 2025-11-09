@@ -1,12 +1,12 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Value } from '../common.ts';
-import { TimeMapSchema, Traits } from '../mod.ts';
+import { TimecodeMapSchema, Traits } from '../mod.ts';
 
 describe('schema.time-map (root: Record<WebVTT, Record<string, unknown>>)', () => {
-  const S = Traits.Schema.TimeMap.Map;
+  const S = Traits.Schema.TimecodeMap.Map;
 
   it('API', () => {
-    expect(Traits.Schema.TimeMap.Map).to.equal(TimeMapSchema);
+    expect(Traits.Schema.TimecodeMap.Map).to.equal(TimecodeMapSchema);
   });
 
   describe('schema: root', () => {

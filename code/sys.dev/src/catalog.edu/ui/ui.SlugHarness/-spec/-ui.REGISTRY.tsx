@@ -28,7 +28,7 @@ export const registry = makeRegistry()
   .register('file-list', (ctx) => {
     return <Sample ctx={ctx} />; // TODO 🐷
   })
-  .register('time-map', (ctx) => {
+  .register('timecode-map', (ctx) => {
     return <Sample ctx={ctx} />; // TODO 🐷
   })
   .register('video-recorder', (ctx) => {

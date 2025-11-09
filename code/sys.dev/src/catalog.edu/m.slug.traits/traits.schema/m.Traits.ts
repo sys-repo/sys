@@ -12,7 +12,7 @@ import {
   FileListPropsSchema,
   normalizeFileList,
 } from './s.file-list/mod.ts';
-import { TimeMapSchema } from './s.time-map/mod.ts';
+import { TimecodeMapSchema } from './s.timecode-map/mod.ts';
 import { VideoPlayerPropsSchema } from './s.video-player/mod.ts';
 import { VideoRecorderPropsSchema } from './s.video-recorder/mod.ts';
 import { ViewRendererPropsSchema } from './s.view-renderer/mod.ts';
@@ -47,8 +47,8 @@ export const Traits: t.SlugTraitsLib = {
         normalize: normalizeFileList,
       };
     },
-    get TimeMap() {
-      return { Map: TimeMapSchema };
+    get TimecodeMap() {
+      return { Map: TimecodeMapSchema };
     },
   },
 };

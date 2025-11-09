@@ -35,8 +35,8 @@ export const Is: t.SlugTraitIsLib = {
     return Value.Check(Traits.Schema.FileList.Props, u as unknown);
   },
 
-  /** time-map: props schema */
-  timestampsMap(u: unknown): u is t.Timestamps {
-    return Value.Check(Traits.Schema.TimeMap.Map, u as unknown);
+  /** timecode-map: props schema */
+  timecodeMap(u: unknown): u is t.Timestamps {
+    return Value.Check(Traits.Schema.TimecodeMap.Map, u as unknown);
   },
 } as const;

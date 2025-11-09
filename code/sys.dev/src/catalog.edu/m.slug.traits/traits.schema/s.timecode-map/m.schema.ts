@@ -1,20 +1,17 @@
-import { type t, Type as T } from '../common.ts';
-
-/** Timestamp (WebVTT-flex): allow MM:SS, HH:MM:SS, HH:MM:SS.mmm. */
-const WEBVTT_TIMESTAMP = '^(?:\\d{2}:)?[0-5]\\d:[0-5]\\d(?:\\.\\d{3})?$';
+import { type t, Type as T, Timecode } from '../common.ts';
 
 // A single timestamp entry: arbitrary key-value metadata.
-const TimeMapEntrySchemaInternal = T.Record(T.String(), T.Unknown(), {
+const TimestampEntrySchemaInternal = T.Record(T.String(), T.Unknown(), {
   description: `Arbitrary key-value metadata for this time entry (e.g., { video?: string, name?: string, text?: string }).`,
 });
 
 // Root time map: timecode → entry record.
-const TimeMapSchemaInternal = T.Record(
+const TimecodeMapSchemaInternal = T.Record(
   T.String({
-    pattern: WEBVTT_TIMESTAMP,
+    pattern: Timecode.pattern, // Timestamp (WebVTT-flex): allow MM:SS, HH:MM:SS, HH:MM:SS.mmm.
     description: 'Timestamp: MM:SS | HH:MM:SS | HH:MM:SS.mmm.',
   }),
-  TimeMapEntrySchemaInternal,
+  TimestampEntrySchemaInternal,
   {
     $id: 'trait.time-map',
     title: 'Time Map',
@@ -23,4 +20,4 @@ const TimeMapSchemaInternal = T.Record(
   },
 );
 
-export const TimeMapSchema: t.TSchema = TimeMapSchemaInternal;
+export const TimecodeMapSchema: t.TSchema = TimecodeMapSchemaInternal;
