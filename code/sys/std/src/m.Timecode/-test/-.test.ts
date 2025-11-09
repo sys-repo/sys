@@ -1,5 +1,4 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { cmp } from '../m.Timecode.sort.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { Timecode } from '../mod.ts';
 
 describe('Timecode', () => {
