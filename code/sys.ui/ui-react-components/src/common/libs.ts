@@ -22,7 +22,6 @@ export {
   slug,
   Str,
   Time,
-  Timestamp,
   Try,
   Url,
 } from '@sys/std';

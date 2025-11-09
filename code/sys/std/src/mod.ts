@@ -26,8 +26,9 @@ export { Regex } from './m.Regex/mod.ts';
 export { Signal } from './m.Signal/mod.ts';
 export { Timecode } from './m.Time.Code/mod.ts';
 export { Date } from './m.Time.Date/mod.ts';
-export { Duration, Time, Timestamp } from './m.Time/mod.ts';
+export { Duration, Time } from './m.Time/mod.ts';
 export { JsrUrl } from './m.Url.Jsr/mod.ts';
 export { Url } from './m.Url/mod.ts';
 
+// Value helpers:
 export { Arr, Num, Obj, R, Str, asArray, isEmptyRecord, isObject, isRecord } from './-value.ts';

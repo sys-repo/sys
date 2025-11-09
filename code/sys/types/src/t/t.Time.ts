@@ -1,5 +1,3 @@
-import type { t } from './common.ts';
-
 /**
  * A number representing a time (eg. msecs, secs etc).
  */
@@ -58,20 +56,4 @@ export type TimeDuration = {
   readonly hour: Hours;
   readonly day: Days;
   toString(unit?: TimeUnit | { unit?: TimeUnit; round?: number }): string;
-};
-
-/**
- * A index/map of timestamp related data-objects.
- */
-export type Timestamps<T> = {
-  [HH_MM_SS_mmm: t.StringTimestamp]: T;
-};
-
-/**
- * A single timestamp with data and duration props.
- */
-export type Timestamp<T> = {
-  timestamp: t.StringTimestamp;
-  total: t.TimeDuration;
-  data: T;
 };

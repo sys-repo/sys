@@ -4,4 +4,3 @@
  */
 export { Duration } from './m.Time.Duration.ts';
 export { Time } from './m.Time.ts';
-export { Timestamp } from './m.Timestamp.ts';

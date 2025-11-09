@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 import { Timecode } from './mod.ts';
 import { is } from './u.ts';
 
