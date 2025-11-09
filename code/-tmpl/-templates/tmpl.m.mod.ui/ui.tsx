@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css, D, KeyValue } from './common.ts';
 
 export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
   const { debug = false } = props;
@@ -18,7 +18,13 @@ export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div>{`🐷 ${D.displayName}`}</div>
+      <KeyValue.View
+        theme={theme.name}
+        items={[
+          { kind: 'title', v: D.displayName },
+          { k: 'message', v: '👋 hello, world!' },
+        ]}
+      />
     </div>
   );
 };
