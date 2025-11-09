@@ -13,6 +13,7 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
     playing = D.playing,
     muted = D.muted,
     padding = D.padding,
+    margin = D.margin,
     background,
     currentTime = 0,
     duration = 0,
@@ -28,6 +29,7 @@ export const PlayerControls: React.FC<t.PlayerControlsProps> = (props) => {
       position: 'relative',
       color: Color.WHITE,
       ...Style.toPadding(padding),
+      ...Style.toMargins(margin),
     }),
     mask: css({ Absolute: [null, 0, 0, 0], zIndex: 0 }),
     body: css({

@@ -25,6 +25,7 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
     loop = D.loop,
     aspectRatio = D.aspectRatio,
     cornerRadius = D.cornerRadius,
+    showControls = D.showControls,
     buffered,
     buffering,
     fadeMask,
@@ -147,7 +148,10 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       overflow: 'hidden',
     }),
     debug: css({ Absolute: [6, null, null, 6] }),
-    controls: css({ Absolute: [null, 0, null, 0] }),
+    controls: css({
+      Absolute: [null, 0, null, 0],
+      pointerEvents: showControls ? 'auto' : 'none',
+    }),
     video: css({
       width: '100%',
       height: '100%',
@@ -193,7 +197,11 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
       <M.div
         className={styles.controls.class}
         initial={{ bottom: -20, opacity: 0 }}
-        animate={{ bottom: controlsUp ? 0 : -20, opacity: controlsUp ? 1 : 0 }}
+        animate={
+          showControls
+            ? { bottom: controlsUp ? 0 : -20, opacity: controlsUp ? 1 : 0 }
+            : { opacity: 0 }
+        }
         transition={{ duration: 0.25 }}
       >
         <PlayerControls
@@ -205,6 +213,11 @@ export const VideoElement: React.FC<t.VideoElementProps> = (props) => {
           currentTime={controls.seeking?.currentTime ?? progress.currentTime} // ← rebased to {crop} value.
           buffering={buffering || notReady}
           buffered={buffered}
+          padding={props.controls?.padding}
+          margin={props.controls?.margin}
+          maskOpacity={props.controls?.maskOpacity}
+          maskHeight={props.controls?.maskHeight}
+          background={props.controls?.background}
           //
           onSeeking={controls.onSeeking}
           onClick={(e) => {

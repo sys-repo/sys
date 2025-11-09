@@ -23,5 +23,6 @@ export const DEFAULTS = {
   maskOpacity: 1,
   background: { opacity: 0, rounded: 12, blur: 10, shadow: true } satisfies P['background'],
   padding: 10,
+  margin: 0,
 } as const;
 export const D = DEFAULTS;

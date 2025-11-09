@@ -15,6 +15,7 @@ type Storage = Pick<
   | 'aspectRatio'
   | 'fadeMask'
   | 'crop'
+  | 'controls'
 > & {
   width?: number;
   controlled?: boolean;
@@ -44,6 +45,7 @@ const defaults: Storage = {
   controlled: false,
   fadeMask: undefined,
   crop: undefined,
+  controls: D.controls,
   // Debug:
   logSignals: true,
   endpointLocalhost: false,
@@ -67,6 +69,17 @@ export function createDebugSignals() {
     logSignals: s(snap.logSignals),
     endpointLocalhost: s(snap.endpointLocalhost),
     infoPanel: s(snap.infoPanel),
+    controls: {
+      background: {
+        opacity: s((snap.controls?.background ?? {}).opacity),
+        rounded: s((snap.controls?.background ?? {}).rounded),
+        blur: s((snap.controls?.background ?? {}).blur),
+        shadow: s((snap.controls?.background ?? {}).shadow),
+      },
+      maskOpacity: s((snap.controls ?? {}).maskOpacity),
+      padding: s((snap.controls ?? {}).padding),
+      margin: s((snap.controls ?? {}).margin),
+    },
 
     playing: s(false),
     autoPlay: s(snap.autoPlay),
@@ -114,7 +127,7 @@ export function createDebugSignals() {
   }
 
   function listen() {
-    Signal.listen(props);
+    Signal.listen(p, true);
     const vp = video.props;
     vp?.currentTime.value;
     vp?.duration.value;
@@ -140,6 +153,16 @@ export function createDebugSignals() {
       d.aspectRatio = p.aspectRatio.value;
       d.fadeMask = p.fadeMask.value;
       d.crop = p.crop.value;
+
+      d.controls = d.controls ?? {};
+      d.controls.background = d.controls.background ?? {};
+      d.controls.background.opacity = p.controls.background.opacity.value;
+      d.controls.background.rounded = p.controls.background.rounded.value;
+      d.controls.background.blur = p.controls.background.blur.value;
+      d.controls.background.shadow = p.controls.background.shadow.value;
+      d.controls.maskOpacity = p.controls.maskOpacity.value;
+      d.controls.padding = p.controls.padding.value;
+      d.controls.margin = p.controls.margin.value;
     });
   });
 
@@ -159,10 +182,6 @@ export function createDebugSignals() {
       vp.scale.value = p.scale.value;
       vp.cornerRadius.value = p.cornerRadius.value;
     }
-  });
-
-  Signal.effect(() => {
-    // const
   });
 
   return api;
@@ -348,6 +367,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Samples:'}</div>
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Button
+        block
+        label={() => `controls → rounded inset`}
+        onClick={() => {
+          p.controls.maskOpacity.value = 0;
+          p.controls.margin.value = 10;
+          p.controls.padding.value = [12, 14];
+          p.controls.background.rounded.value = 10;
+          p.controls.background.opacity.value = 0.3;
+        }}
+      />
+
+      <hr />
       <Button
         block
         label={() => `debug: ${p.debug.value}`}
@@ -378,7 +412,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `width: ${p.width.value}`}
         onClick={() => Signal.cycle(p.width, [320, 420, 420, 600])}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
 
       <ObjectView
         name={'debug'}

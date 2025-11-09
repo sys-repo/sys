@@ -16,6 +16,7 @@ export default Spec.describe(D.displayName, (e) => {
     const log = (...parts: any) => {
       if (v.debug) console.info(...parts);
     };
+
     return (
       <VideoElement
         style={{ width: v.width }}
@@ -29,6 +30,7 @@ export default Spec.describe(D.displayName, (e) => {
         scale={v.scale}
         fadeMask={v.fadeMask}
         crop={v.crop}
+        controls={v.controls}
         //
         playing={v.playing}
         autoPlay={v.autoPlay}

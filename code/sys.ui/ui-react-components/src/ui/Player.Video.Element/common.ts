@@ -1,5 +1,7 @@
-import { pkg, Pkg } from '../common.ts';
+import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
+
+import { DEFAULTS as CONTROLS_DEFAULTS } from '../Player.Video.Controls/mod.ts';
 
 export { Button } from '../Button/mod.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
@@ -19,5 +21,9 @@ export const DEFAULTS = {
   loop: false,
   aspectRatio: '16/9',
   cornerRadius: 0,
+  showControls: true,
+  controls: {
+    background: CONTROLS_DEFAULTS.background,
+  } satisfies t.VideoElementProps['controls'],
 } as const;
 export const D = DEFAULTS;

@@ -13,28 +13,32 @@ export type PlayerControlsProps = {
   playing?: boolean;
   muted?: boolean;
   enabled?: boolean;
-  padding?: t.CssPaddingInput;
 
   currentTime?: t.Secs;
   duration?: t.Secs;
-  buffering?: boolean;
   buffered?: t.Secs;
+  buffering?: boolean;
 
   // Appearance:
+  padding?: t.CssPaddingInput;
+  margin?: t.CssMarginInput;
   maskHeight?: t.Percent;
   maskOpacity?: t.Pixels;
-  background?: {
-    rounded?: t.Pixels;
-    opacity?: t.Percent;
-    blur?: t.Pixels;
-    shadow?: boolean;
-  };
+  background?: PlayerControlsBackgroundProps;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
   // Handlers:
   onClick?: t.PlayerControlsButtonHandler;
   onSeeking?: t.PlayerControlSeekChangeHandler;
+};
+
+/** Background for the player-controls panel. */
+export type PlayerControlsBackgroundProps = {
+  rounded?: t.Pixels;
+  opacity?: t.Percent;
+  blur?: t.Pixels;
+  shadow?: boolean;
 };
 
 /**

@@ -26,6 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
         maskOpacity={v.maskOpacity}
         maskHeight={v.maskHeight}
         padding={v.padding}
+        margin={v.margin}
         background={v.background}
         //
         onClick={(e) => {

@@ -29,6 +29,10 @@ export type VideoElementProps = {
   buffered?: t.Secs;
 
   // Apperance:
+  controls?: Pick<
+    t.PlayerControlsProps,
+    'maskOpacity' | 'maskHeight' | 'background' | 'padding' | 'margin'
+  >;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

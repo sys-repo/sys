@@ -6,7 +6,7 @@ import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 type P = t.PlayerControlsProps;
 type Storage = Pick<
   P,
-  'theme' | 'debug' | 'maskOpacity' | 'maskHeight' | 'enabled' | 'background'
+  'theme' | 'debug' | 'maskOpacity' | 'maskHeight' | 'enabled' | 'background' | 'margin'
 > & { width?: number; padding?: t.Pixels };
 const defaults: Storage = {
   theme: 'Dark',
@@ -15,6 +15,7 @@ const defaults: Storage = {
   maskHeight: D.maskHeight,
   background: D.background,
   padding: D.padding,
+  margin: D.margin,
   debug: true,
   width: 500,
 };
@@ -44,6 +45,7 @@ export function createDebugSignals() {
     maskHeight: s(snap.maskHeight),
     maskOpacity: s(snap.maskOpacity),
     padding: s(snap.padding),
+    margin: s(snap.margin),
     background: {
       opacity: s((snap.background ?? {}).opacity),
       rounded: s((snap.background ?? {}).rounded),
@@ -84,6 +86,7 @@ export function createDebugSignals() {
       d.maskOpacity = p.maskOpacity.value;
       d.padding = p.padding.value;
       d.width = p.width.value;
+      d.margin = p.margin.value;
 
       d.background = d.background ?? {};
       d.background.opacity = p.background.opacity.value;
@@ -153,6 +156,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `padding: ${p.padding.value ?? `(undefined) ← default: ${D.padding}`}`}
         onClick={() => Signal.cycle(p.padding, [10, 20, 30])}
+      />
+      <Button
+        block
+        label={() => `margin: ${p.margin.value ?? `(undefined) ← default: ${D.margin}`}`}
+        onClick={() => Signal.cycle(p.margin, [0, 10, 30])}
       />
       <hr />
       <Button
