@@ -1,6 +1,6 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { cmp } from '../m.Timecode.sort.ts';
 import { Timecode } from '../mod.ts';
+import { cmp } from '../u.core.sort.ts';
 
 describe('Timecode (core)', () => {
   describe('type guards', () => {

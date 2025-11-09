@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { parseMs } from './m.Timecode.parse.ts';
+import { parseMs } from './u.core.parse.ts';
 import { is } from './u.ts';
 
 export function sort(values: readonly string[]): readonly string[] {
