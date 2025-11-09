@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Component:
  */
 export type TimestampsProps = {
-  timestamps?: t.TimeMap;
+  timestamps?: t.Timestamps;
 
   debug?: boolean;
   theme?: t.CommonTheme;

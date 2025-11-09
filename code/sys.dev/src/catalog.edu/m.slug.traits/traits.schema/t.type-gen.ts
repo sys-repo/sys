@@ -191,22 +191,9 @@ export type FileListProps = readonly FileListEntry[];
 export type FileListPropsInput = FileListEntry | readonly FileListEntry[];
 
 /**
- * Time Map Properties
- * - mirrors `schema.time-map.ts` (`TimeMapPropsSchema`)
- * Policy: strings may be empty (no minLength enforced in schema).
+ * Root timestamp map: timestamp → entry record.
  */
-export type TimeMapProps = {
-  /** Formal identifier of the time-map. */
-  readonly id?: string;
-  /** Display name for the time map. */
-  readonly name?: string;
-  /** Description of the time map. */
-  readonly description?: string;
-};
-
-
-/** Root time map: timestamp → entry record. */
-export type TimeMap<T = unknown> = { readonly [timestamp: string]: TimeMapEntry<T> };
+export type Timestamps<T = unknown> = t.TimecodeMap<T>;
 
 /** A single timestamp entry: arbitrary key-value metadata. */
-export type TimeMapEntry<T = unknown> = { readonly [key: string]: T };
+export type TimestampEntry<T = unknown> = { readonly [key: string]: T };
