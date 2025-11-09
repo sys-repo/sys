@@ -1,4 +1,4 @@
-import { type t, Is, Timestamp } from './common.ts';
+import { type t, Is, Timecode } from './common.ts';
 
 export const CalcTimestamp = {
   async render(
@@ -11,7 +11,8 @@ export const CalcTimestamp = {
 
     player.props.src.value;
     const secs = player.props.currentTime.value;
-    const match = Timestamp.find(timestamps, secs, { unit: 'secs' });
+    const entries = Timecode.toEntries(timestamps);
+    const match = entries.findLast((e) => secs * 1000 >= e.ms);
     const timestamp = match?.data;
     const renderer = wrangle.renderer(timestamp);
 

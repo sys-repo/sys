@@ -8,7 +8,7 @@ export {
   Signal,
   Str,
   Time,
-  Timestamp,
+  Timecode,
   Url,
   asArray,
   isRecord,

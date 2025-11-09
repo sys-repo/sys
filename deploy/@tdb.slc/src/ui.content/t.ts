@@ -1,6 +1,22 @@
 import type { t } from './common.ts';
 
 /**
+ * A index/map of timestamp related data-objects.
+ */
+export type Timestamps<T> = {
+  [HH_MM_SS_mmm: t.StringTimestamp]: T;
+};
+
+/**
+ * A single timestamp with data and duration props.
+ */
+export type Timestamp<T> = {
+  timestamp: t.StringTimestamp;
+  total: t.TimeDuration;
+  data: T;
+};
+
+/**
  * The content stages of the view.
  */
 export type ContentStage = 'Entry' | 'Trailer' | 'Overview' | 'Programme';

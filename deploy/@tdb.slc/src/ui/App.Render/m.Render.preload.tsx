@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 
-import { type t, Obj, Preload, Timestamp } from './common.ts';
+import { type t, Obj, Preload, Timecode } from './common.ts';
 import { render } from './m.Render.stack.tsx';
 
 /**
@@ -42,7 +42,7 @@ export const preloadTimestamps: t.AppRenderLib['preloadTimestamps'] = (content) 
   Obj.walk(content, (e) => {
     if (e.key === 'timestamps' && Obj.isRecord(e.value)) {
       Object.entries(e.value)
-        .filter(([timestamp]) => Timestamp.isValid(timestamp))
+        .filter(([timestamp]) => Timecode.is(timestamp))
         .forEach(([timestamp, value]) => {
           if (Obj.isRecord(value)) {
             Object.values(value)
