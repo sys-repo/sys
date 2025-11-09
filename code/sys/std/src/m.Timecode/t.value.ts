@@ -22,5 +22,5 @@ export type TimecodeEntry<T> = {
 
 /** A record of unvalidated timecode keys mapped to arbitrary data. */
 export type TimecodeMap<T> = {
-  readonly [key: string]: T;
+  readonly [HH_MM_SS_mmm: string]: T;
 };
