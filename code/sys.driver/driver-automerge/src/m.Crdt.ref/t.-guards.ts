@@ -17,19 +17,17 @@ type EX<T extends O = O> = {
  * Compile-time drift guards:
  */
 
-type Equal<A, B> =
-  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
-type Assert<T extends true> = T;
-
-/** 1) CrdtEvents remains a pure extension of abstract ImmutableEvents + EX */
-type _Guard_CrdtEvents<T extends O> = Assert<
-  Equal<CrdtEvents<T>, t.ImmutableEvents<T, P, CrdtChange<T>> & EX<T>>
+/** 1. CrdtEvents remains a pure extension of abstract ImmutableEvents + EX */
+type _Guard_CrdtEvents<T extends O> = t.Type.Assert<
+  t.Type.Equal<CrdtEvents<T>, t.ImmutableEvents<T, P, CrdtChange<T>> & EX<T>>
 >;
 
-/** 2) CrdtPathEvents equals the abstract specialization */
-type _Guard_PathEvents<T extends O> = Assert<Equal<CrdtPathEvents<T>, G.PathEvents<T, P, CX>>>;
+/** 2. CrdtPathEvents equals the abstract specialization */
+type _Guard_PathEvents<T extends O> = t.Type.Assert<
+  t.Type.Equal<CrdtPathEvents<T>, G.PathEvents<T, P, CX>>
+>;
 
-/** 3) Path() signature matches canonical base */
+/** 3. Path() signature matches canonical base */
 type _Guard_PathSignature<T extends O> = EX<T>['path'] extends (
   path: t.ObjectPath | t.ObjectPath[],
   options?: t.ImmutablePathEventsOptions | boolean,
@@ -38,7 +36,7 @@ type _Guard_PathSignature<T extends O> = EX<T>['path'] extends (
   : never;
 
 /**
- * Force instantiation so TS actually checks them:
+ * Force instantiation so TS actually checks:
  */
 type _test_events = _Guard_CrdtEvents<{ readonly _: 1 }>;
 type _test_paths = _Guard_PathEvents<{ readonly _: 1 }>;
