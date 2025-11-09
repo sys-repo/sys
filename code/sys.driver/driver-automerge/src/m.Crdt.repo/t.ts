@@ -13,8 +13,8 @@ export type CrdtRepo = CrdtRepoMethods & CrdtRepoProps & t.LifecycleAsync;
 
 /** The properties of a CRDT Repo. */
 export type CrdtRepoProps = {
-  readonly id: { readonly instance: t.StringId; readonly peer: t.StringId };
   readonly ready: boolean;
+  readonly id: { readonly instance: t.StringId; readonly peer: t.StringId };
   readonly sync: {
     enabled: boolean;
     readonly urls: t.StringUrl[];
@@ -24,13 +24,13 @@ export type CrdtRepoProps = {
 };
 
 /** Info about a repository store. */
-export type CrdtRepoStoreInfo = CrdtRepoStoreInfoIdb | CrdtRepoStoreInfoFs;
+export type CrdtRepoStoreInfo = CrdtRepoStoreInfoFs | CrdtRepoStoreInfoIdb;
+export type CrdtRepoStoreInfoFs = { kind: 'fs'; dir: t.StringDir };
 export type CrdtRepoStoreInfoIdb = {
   kind: 'indexed-db';
   database: t.StringName;
   store: t.StringName;
 };
-export type CrdtRepoStoreInfoFs = { kind: 'fs'; dir: t.StringDir };
 
 /** The methods of a CRDT Repo. */
 export type CrdtRepoMethods = {
