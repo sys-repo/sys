@@ -24,5 +24,7 @@
  * }
  * ```
  */
-export { TimecodeOps } from './m.Timecode.Ops.ts';
+export { Ops } from './m.Ops.ts';
 export { Timecode } from './m.Timecode.ts';
+
+export { between, find, findAtOrBefore, nearest, neighbors } from './u.ops.ts';

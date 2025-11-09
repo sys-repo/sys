@@ -15,7 +15,6 @@
     "./async": "./src/m.Async/mod.ts",
     "./ansi/server": "./src/m.Ansi/mod.ts",
     "./args": "./src/m.Args/mod.ts",
-    "./time": "./src/-exports/-time.ts",
     "./error": "./src/m.Err/mod.ts",
     "./esm": "./src/m.Esm/mod.ts",
     "./ignore": "./src/m.Ignore/mod.ts",
@@ -30,6 +29,8 @@
     "./signal": "./src/m.Signal/mod.ts",
     "./testing": "./src/m.Testing/mod.ts",
     "./testing/server": "./src/m.Testing.Server/mod.ts",
+    "./time": "./src/-exports/-time.ts",
+    "./time/timecode": "./src/m.Timecode/mod.ts",
     "./url": "./src/m.Url/mod.ts",
     "./value": "./src/-exports/-value.ts"
   }
