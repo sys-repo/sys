@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, expectTypeOf, it } from '../-test.ts';
 import { Timecode } from './mod.ts';
 import { cmp } from './u.sort.ts';
 
@@ -142,6 +142,78 @@ describe('Timecode', () => {
       expect(out.slice(0, 4)).to.eql(['00:10', '00:10.500', '03:00', '03:00.001']);
       // invalids in original relative order
       expect(out.slice(4)).to.eql(['xx', 'bad']);
+    });
+  });
+
+  describe('Timecode.toEntries', () => {
+    it('API: exists and has the right type', () => {
+      expect(typeof Timecode.toEntries).to.eql('function');
+      expectTypeOf(Timecode.toEntries).toEqualTypeOf<
+        <T>(bag: Readonly<Record<string, T>>) => readonly t.TimecodeEntry<T>[]
+      >();
+    });
+
+    it('empty bag → empty list', () => {
+      const out = Timecode.toEntries({});
+      expect(out).to.eql([]);
+    });
+
+    it('filters invalid keys and sorts valid ascending by time', () => {
+      const bag = {
+        xx: 'bad',
+        '3:25': 'bad', // invalid (single-digit minutes)
+        '00:00': 'a',
+        '00:59': 'b',
+        '01:00': 'c',
+        '00:00:01.250': 'd',
+        '00:00:01': 'e',
+        '00:00:01.100': 'f',
+        '12:34:56.789': 'g',
+      } as const;
+
+      const out = Timecode.toEntries(bag);
+      const seq = out.map((e) => e.tc);
+
+      expect(seq).to.eql([
+        '00:00',
+        '00:00:01',
+        '00:00:01.100',
+        '00:00:01.250',
+        '00:59',
+        '01:00',
+        '12:34:56.789',
+      ]);
+
+      // Data preserved
+      expect(out.map((e) => e.data)).to.eql(['a', 'e', 'f', 'd', 'b', 'c', 'g']);
+    });
+
+    it('typing: tc is VttTimecode; ms is Msecs; data is generic T', () => {
+      const bag: Readonly<Record<string, { fn: () => number }>> = {
+        '00:00': { fn: () => 1 },
+        '00:00:00.500': { fn: () => 2 },
+        bad: { fn: () => 999 },
+      };
+
+      const out = Timecode.toEntries(bag);
+      expect(out.length).to.eql(2);
+
+      // compile-time surface
+      const first = out[0];
+      expectTypeOf(first.tc).toEqualTypeOf<t.VttTimecode>();
+      expectTypeOf(first.ms).toEqualTypeOf<t.Msecs>();
+      expectTypeOf(first.data.fn).toEqualTypeOf<() => number>();
+
+      // runtime sanity
+      expect(first.data.fn()).to.eql(1);
+      expect(out[1].data.fn()).to.eql(2);
+      expect(out[0].ms).to.be.lessThan(out[1].ms);
+    });
+
+    it('invalid keys are excluded entirely', () => {
+      const bag = { bad: 1, 'also-bad': 2 } as const;
+      const out = Timecode.toEntries(bag);
+      expect(out).to.eql([]);
     });
   });
 });

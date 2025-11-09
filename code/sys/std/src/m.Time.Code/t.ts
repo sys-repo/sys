@@ -11,8 +11,15 @@ export type VttTimecode = string & { readonly __vtt: 'VttTimecode' };
 /** Lexical kind discriminator for valid timecodes. */
 export type TimecodeKind = 'MM:SS' | 'HH:MM:SS' | 'HH:MM:SS.mmm';
 
-/** Loose per-timestamp metadata bag (authoring-friendly). */
-export type TimecodeBag<T = unknown> = { readonly [key: string]: T };
+/** A single validated timecode entry with canonical milliseconds and associated data. */
+export type TimecodeEntry<T> = {
+  readonly tc: VttTimecode; // validated key
+  readonly ms: t.Msecs; // numeric canonical
+  readonly data: T;
+};
+
+/** A record of unvalidated timecode keys mapped to arbitrary data. */
+export type TimecodeRecord<T> = { readonly [key: string]: T };
 
 /**
  * Public library surface for timecodes.
@@ -28,6 +35,9 @@ export type TimecodeLib = {
   /** Type guard: true when input matches the grammar. */
   readonly is: (input: unknown) => input is VttTimecode;
 
+  /** Return the lexical form of a valid timecode. */
+  readonly kindOf: (timecode: string) => TimecodeKind;
+
   /** Parse a valid timecode to milliseconds. */
   readonly parse: (timecode: string) => t.Msecs;
 
@@ -38,6 +48,9 @@ export type TimecodeLib = {
    */
   readonly sort: (timecodes: string[]) => readonly string[];
 
+  /** Convert a record of timestamp-like keys to sorted validated entries. */
+  readonly toEntries: <T>(bag: Readonly<Record<string, T>>) => readonly TimecodeEntry<T>[];
+
   /**
    * Format milliseconds into a minimal legal timecode.
    * - withMillis: include .mmm
@@ -47,7 +60,4 @@ export type TimecodeLib = {
     ms: t.Msecs,
     opts?: { withMillis?: boolean; forceHours?: boolean },
   ) => VttTimecode;
-
-  /** Return the lexical form of a valid timecode. */
-  readonly kindOf: (timecode: string) => TimecodeKind;
 };
