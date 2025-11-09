@@ -203,3 +203,10 @@ export type TimeMapProps = {
   /** Description of the time map. */
   readonly description?: string;
 };
+
+
+/** Root time map: timestamp → entry record. */
+export type TimeMap<T = unknown> = { readonly [timestamp: string]: TimeMapEntry<T> };
+
+/** A single timestamp entry: arbitrary key-value metadata. */
+export type TimeMapEntry<T = unknown> = { readonly [key: string]: T };
