@@ -11,7 +11,6 @@ export type PlayerLib = {
     useSignals: t.UsePlayerSignals;
   };
   Timestamp: {
-    Thumbnails: { View: React.FC<t.ThumbnailsProps> };
     Elapsed: { View: React.FC<t.ElapsedTimeProps> };
   };
 };

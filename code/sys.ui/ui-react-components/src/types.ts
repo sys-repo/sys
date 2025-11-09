@@ -24,7 +24,6 @@ export type * from './ui/Media.Video/t.ts';
 export type * from './ui/Media/t.ts';
 export type * from './ui/ObjectView/t.ts';
 export type * from './ui/PathView/t.ts';
-export type * from './ui/Player.Thumbnails/t.ts';
 export type * from './ui/Player.Video.Controls/t.ts';
 export type * from './ui/Player.Video.Element/t.ts';
 export type * from './ui/Player.Video.signals/t.ts';
