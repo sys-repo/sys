@@ -14,7 +14,7 @@ export type SlugTraitsLib = {
     readonly VideoRecorder: { readonly Props: t.TSchema };
     readonly ViewRenderer: { readonly Props: t.TSchema };
     readonly ConceptLayout: { readonly Props: t.TSchema };
-    readonly TimeMap: { readonly Props: t.TSchema; readonly Item: t.TSchema };
+    readonly TimeMap: { readonly Map: t.TSchema };
     readonly FileList: {
       readonly Item: t.TSchema;
       readonly Props: t.TSchema; // canonical

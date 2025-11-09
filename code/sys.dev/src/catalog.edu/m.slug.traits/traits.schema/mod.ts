@@ -15,7 +15,7 @@ export {
   FileListPropsSchema,
   normalizeFileList,
 } from './s.file-list/mod.ts';
-export { TimeMapPropsSchema } from './s.time-map/mod.ts';
+export { TimeMapSchema } from './s.time-map/mod.ts';
 export { VideoPlayerPropsSchema } from './s.video-player/mod.ts';
 export { VideoRecorderPropsSchema } from './s.video-recorder/mod.ts';
 export { ViewRendererPropsSchema } from './s.view-renderer/mod.ts';

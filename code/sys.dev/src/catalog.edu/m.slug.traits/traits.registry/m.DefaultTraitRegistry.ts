@@ -3,7 +3,7 @@ import { type t, Slug } from './common.ts';
 import {
   ConceptLayoutPropsSchema,
   FileListPropsInputSchema,
-  TimeMapPropsSchema,
+  TimeMapSchema,
   VideoPlayerPropsSchema,
   VideoRecorderPropsSchema,
   ViewRendererPropsSchema,
@@ -22,7 +22,7 @@ export const DefaultTraitRegistry: t.SchemaTraitRegistry = {
       { id: 'slug-tree', propsSchema: Slug.Schema.Slug.Tree.Props },
       { id: 'concept-layout', propsSchema: ConceptLayoutPropsSchema },
       { id: 'file-list', propsSchema: FileListPropsInputSchema },
-      { id: 'time-map', propsSchema: TimeMapPropsSchema },
+      { id: 'time-map', propsSchema: TimeMapSchema },
       { id: 'video-recorder', propsSchema: VideoRecorderPropsSchema },
       { id: 'video-player', propsSchema: VideoPlayerPropsSchema },
     ] as const;

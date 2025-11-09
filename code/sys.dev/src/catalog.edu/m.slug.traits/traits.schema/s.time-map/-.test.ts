@@ -1,147 +1,80 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { Value } from '../common.ts';
-import { Is, TimeMapPropsSchema, Traits } from '../mod.ts';
+import { TimeMapSchema, Traits } from '../mod.ts';
 
-describe('schema.time-map', () => {
-  const S = Traits.Schema.TimeMap.Props;
+describe('schema.time-map (root: Record<WebVTT, Record<string, unknown>>)', () => {
+  const S = Traits.Schema.TimeMap.Map;
 
   it('API', () => {
-    expect(Traits.Schema.TimeMap.Props).to.equal(TimeMapPropsSchema);
+    expect(Traits.Schema.TimeMap.Map).to.equal(TimeMapSchema);
   });
 
-  describe('Is.timeMapProps', () => {
-    it('signature', () => {
-      type Expect = (u: unknown) => u is t.TimeMapProps;
-      expectTypeOf(Is.timeMapProps).toEqualTypeOf<Expect>();
+  describe('schema: root', () => {
+    describe('valid', () => {
+      it('valid: empty object', () => {
+        expect(Value.Check(S, {})).to.eql(true);
+      });
+
+      it('valid: minimal entries with arbitrary metadata bag', () => {
+        const ok = {
+          '00:00:00.000': { name: 'Intro (with millis)' },
+          '03:25.000': { video: '../video/0', text: 'Hello world.' },
+        };
+        expect(Value.Check(S, ok)).to.eql(true);
+      });
+
+      it('valid: MM:SS (hourless, no millis)', () => {
+        const ok = { '59:59': { cue: 'end-of-minute' }, '00:00': { cue: 'origin' } };
+        expect(Value.Check(S, ok)).to.eql(true);
+      });
+
+      it('valid: HH:MM:SS (with hours, no millis)', () => {
+        const ok = { '12:34:56': { note: 'hh:mm:ss accepted' }, '00:00:00': { at: 'zero' } };
+        expect(Value.Check(S, ok)).to.eql(true);
+      });
     });
 
-    it('runtime truth table', () => {
-      const ok1 = {}; // all optional
-      const ok2 = { id: 'tm-001' };
-      const ok3 = { name: 'Release Markers', description: 'Named instants for milestones' };
+    describe('invalid', () => {
+      it('invalid: non-WebVTT keys rejected', () => {
+        const v = { x: 1 };
+        const bads = [
+          { meta: { any: 'thing' } }, // non-matching key
+          { '0:0:0.000': v }, // single-digit segments
+          { '60:00.000': v }, // minutes tens place out of range
+          { '00:60:00.000': v }, // seconds out of range
+          { '00:00:60.000': v },
+          { '00:00:00,000': v }, // comma (SRT) not allowed
+          { '00:00:00.00': v }, // not 3-digit millis
+          { '00:00:00.0000': v }, // too many millis
+          { '3:25.000': v }, // single-digit minutes
+          { '3:25': v }, // single-digit minutes (no millis)
+          { '123:00:00.000': v }, // hours must be exactly two digits if present
+          { '123:00:00': v }, // same (no millis)
+        ];
+        for (const bad of bads) expect(Value.Check(S, bad)).to.eql(false, JSON.stringify(bad));
+      });
 
-      const bads: unknown[] = [
-        { extra: true }, // additionalProperties: false
-        { id: 123 }, // wrong type
-        { name: 1 }, // wrong type
-        { description: null }, // wrong type
-        null,
-        undefined,
-        42,
-        'str',
-        true,
-      ];
+      it('invalid: value at a key must be a Record<string, unknown>', () => {
+        const bads = [
+          { '00:00:01.000': 123 },
+          { '00:00:01': true },
+          { '59:59': 'media/intro' },
+          { '12:34:56': ['array'] },
+          { '00:00': null },
+        ];
+        for (const bad of bads) expect(Value.Check(S, bad)).to.eql(false, JSON.stringify(bad));
+      });
 
-      expect(Is.timeMapProps(ok1)).to.eql(true);
-      expect(Is.timeMapProps(ok2)).to.eql(true);
-      expect(Is.timeMapProps(ok3)).to.eql(true);
-
-      for (const v of bads) expect(Is.timeMapProps(v)).to.eql(false);
-    });
-
-    it('narrows', () => {
-      const input: unknown = { name: 'Timeline' };
-      if (Is.timeMapProps(input)) {
-        expectTypeOf(input.id).toEqualTypeOf<string | undefined>();
-        expectTypeOf(input.name).toEqualTypeOf<string | undefined>();
-        expectTypeOf(input.description).toEqualTypeOf<string | undefined>();
-      } else {
-        expect(true).to.eql(false);
-      }
-    });
-  });
-
-  describe('schema', () => {
-    it('valid: minimal root shape', () => {
-      expect(Value.Check(S, {})).to.eql(true);
-      expect(
-        Value.Check(S, { id: 'alpha.01', name: 'Release Markers', description: 'Notes' }),
-      ).to.eql(true);
-    });
-
-    it('invalid: root noise, wrong types', () => {
-      const bads: unknown[] = [
-        { extra: true }, // additionalProperties: false
-        { id: 123 },
-        { name: 1 },
-        { description: null },
-        null,
-        undefined,
-        42,
-        'str',
-        true,
-      ];
-      for (const v of bads) expect(Value.Check(S, v)).to.eql(false);
-    });
-
-    it('valid: timestamps as a map keyed by WebVTT; values may be path-ref string or {ref?,name?}', () => {
-      const cases = [
-        // Optional field and empty object:
-        { timestamps: {} },
-        // Mixed value entries:
-        {
-          timestamps: {
-            '00:00:00.000': 'media/intro', // path-ref string
-            '03:25.000': { ref: 'clips/scene-1', name: 'Scene 1' }, // object with ref+name
-            '12:34:56.789': { name: 'Peak' }, // object with name only
-            '00:59:59.999': { ref: 'segments/finale' }, // object with ref only
-          },
-        },
-        // Hours optional form accepted:
-        {
-          timestamps: { '59:59.999': { name: 'End of minute-hourless' } },
-        },
-      ] as const;
-
-      for (const v of cases) expect(Value.Check(S, v)).to.eql(true);
-    });
-
-    it('invalid: bad WebVTT keys (must be HH:MM:SS.mmm or MM:SS.mmm with dot milliseconds)', () => {
-      const badKeys = [
-        '0:0:0.000', // single digits not allowed
-        '60:00.000', // minutes tens place must be 0-5
-        '00:60:00.000', // seconds minutes out of range
-        '00:00:60.000',
-        '00:00:00,000', // comma is SRT, not WebVTT
-        '00:00:00.00', // not 3-digit millis
-        '00:00:00.0000', // too many millis
-        '3:25.000', // single-digit minutes
-        '123:00:00.000', // hours must be exactly two digits if present
-      ];
-
-      for (const k of badKeys) {
-        const v = { timestamps: { [k]: { name: 'x' } } };
-        expect(Value.Check(S, v)).to.eql(false);
-      }
-    });
-
-    it('invalid: bad value entries (wrong types / extra props)', () => {
-      const bads: unknown[] = [
-        { timestamps: { '00:00:01.000': 123 } }, // number
-        { timestamps: { '00:00:01.000': true } }, // boolean
-        { timestamps: { '00:00:01.000': [] } }, // array
-        { timestamps: { '00:00:01.000': { ref: 123 } } }, // ref wrong type
-        { timestamps: { '00:00:01.000': { name: 42 } } }, // name wrong type
-        { timestamps: { '00:00:01.000': { ref: 'clips/a', name: 'A', extra: 'nope' } } }, // additional props
-      ];
-
-      for (const v of bads) expect(Value.Check(S, v)).to.eql(false);
-    });
-
-    it('valid: realistic mixed object', () => {
-      const value = {
-        id: 'tm.alpha',
-        name: 'Chapter Marks',
-        description: 'Primary markers layered over transcript.',
-        timestamps: {
-          '00:00:00.000': 'media/intro',
+      it('valid: realistic mixed object (loose per-entry bag)', () => {
+        const ok = {
+          '00:00': { video: '../video', name: 'Display Name', text: 'Hello world.' },
           '00:00:03.250': { name: 'Hook' },
-          '00:01:00.000': { ref: 'chapters/1' },
+          '00:01:00': { ref: 'chapters/1' },
           '05:30.500': { ref: 'chapters/2', name: 'Discussion' },
-          '12:00:00.000': { name: 'Noon mark' },
-        },
-      };
-      expect(Value.Check(S, value)).to.eql(true);
+          '12:00:00': { name: 'Noon mark' },
+        };
+        expect(Value.Check(S, ok)).to.eql(true, JSON.stringify(ok));
+      });
     });
   });
 });
