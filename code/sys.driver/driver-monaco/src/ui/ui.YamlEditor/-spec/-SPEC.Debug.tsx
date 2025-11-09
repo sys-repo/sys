@@ -19,7 +19,10 @@ import {
 
 type P = t.YamlEditorProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'diagnostics'> & {
-  editor: Pick<t.YamlEditorMonacoProps, 'margin' | 'minimap' | 'spinning' | 'enabled' | 'debounce'>;
+  editor: Pick<
+    t.YamlEditorMonacoProps,
+    'margin' | 'minimap' | 'spinning' | 'enabled' | 'debounce' | 'wordWrap'
+  >;
   documentId: Pick<t.YamlEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
   footer: P['footer'];
   render?: boolean;
@@ -29,10 +32,17 @@ const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   path: ['foo'],
-  documentId: { visible: true, readOnly: false, urlKey: undefined },
-  editor: { margin: 0, minimap: false, spinning: false, enabled: true, debounce: D.debounce },
-  footer: { visible: true, repo: true },
   diagnostics: D.diagnostics,
+  documentId: { visible: true, readOnly: false, urlKey: undefined },
+  editor: {
+    margin: 0,
+    minimap: false,
+    spinning: false,
+    enabled: true,
+    debounce: D.debounce,
+    wordWrap: true,
+  },
+  footer: { visible: true, repo: true },
 };
 
 /**
@@ -74,6 +84,7 @@ export function createDebugSignals() {
       spinning: s((snap.editor ?? {}).spinning),
       enabled: s((snap.editor ?? {}).enabled),
       debounce: s((snap.editor ?? {}).debounce),
+      wordWrap: s((snap.editor ?? {}).wordWrap),
     },
     footer: {
       visible: s((snap.footer ?? {}).visible),
@@ -116,6 +127,7 @@ export function createDebugSignals() {
       d.editor.spinning = p.editor.spinning.value;
       d.editor.enabled = p.editor.enabled.value;
       d.editor.debounce = p.editor.debounce.value;
+      d.editor.wordWrap = p.editor.wordWrap.value;
 
       d.documentId = d.documentId ?? {};
       d.documentId.visible = p.documentId.visible.value;
@@ -214,6 +226,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `editor.enabled: ${p.editor.enabled.value}`}
         onClick={() => Signal.toggle(p.editor.enabled)}
       />
+
       <Button
         block
         label={() => `editor.debounce: ${p.editor.debounce.value}`}
@@ -223,6 +236,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `editor.spinning: ${p.editor.spinning.value}`}
         onClick={() => Signal.toggle(p.editor.spinning)}
+      />
+      <Button
+        block
+        label={() => `editor.wordWrap: ${p.editor.wordWrap.value}`}
+        onClick={() => Signal.toggle(p.editor.wordWrap)}
       />
 
       <hr />
