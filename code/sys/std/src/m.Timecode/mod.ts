@@ -24,4 +24,5 @@
  * }
  * ```
  */
+export { TimecodeOps } from './m.Timecode.Ops.ts';
 export { Timecode } from './m.Timecode.ts';
