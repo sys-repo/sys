@@ -1,5 +1,5 @@
 /** Assumes valid timecode. Use `is` before calling in untrusted paths. */
-export function parseMs(tc: string): number {
+export function parse(tc: string): number {
   const [hms, mmm] = tc.split('.');
   const parts = hms.split(':').map((x) => Number(x));
   let hh = 0,

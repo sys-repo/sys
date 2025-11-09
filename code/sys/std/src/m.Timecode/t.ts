@@ -8,6 +8,8 @@ export type * from './t.value.ts';
  * Implementation should provide a single frozen object matching this shape.
  */
 export type TimecodeLib = {
+  readonly Ops: t.TimecodeOpsLib;
+
   /** Regex pattern string for validation (HH optional, .mmm optional). */
   readonly pattern: string;
 

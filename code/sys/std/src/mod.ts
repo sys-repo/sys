@@ -27,7 +27,7 @@ export { Signal } from './m.Signal/mod.ts';
 export { JsrUrl } from './m.Url.Jsr/mod.ts';
 export { Url } from './m.Url/mod.ts';
 
-export { Date, Duration, Time, Timecode } from './-exports/-time.ts';
+export { Date, Duration, Time } from './-exports/-time.ts';
 
 export {
   Arr,

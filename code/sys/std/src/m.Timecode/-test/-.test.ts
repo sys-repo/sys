@@ -7,11 +7,13 @@ describe('Timecode', () => {
   it('API: /std/time', async () => {
     const m = await import('@sys/std/time');
     expect(m.Timecode).to.equal(Timecode);
+    expect(m.Timecode.Ops).to.equal(Ops);
   });
 
   it('API: /std/time/timecode', async () => {
     const m = await import('@sys/std/time/timecode');
     expect(m.Timecode).to.equal(Timecode);
+    expect(m.Timecode.Ops).to.equal(Ops);
     expect(m.Ops).to.equal(Ops);
 
     expect(m.find).to.equal(mod.find);

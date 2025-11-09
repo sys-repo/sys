@@ -1,7 +1,9 @@
-import { type t } from './common.ts';
-import { parseMs } from './u.core.parse.ts';
+import { parse } from './u.core.parse.ts';
 import { is } from './u.ts';
 
+/**
+ * Timecode sorter.
+ */
 export function sort(values: readonly string[]): readonly string[] {
   const decorated = values.map((value, idx) => {
     const valid = is(value);
@@ -9,7 +11,7 @@ export function sort(values: readonly string[]): readonly string[] {
       idx,
       value,
       valid,
-      ms: valid ? parseMs(value) : Number.POSITIVE_INFINITY,
+      ms: valid ? parse(value) : Number.POSITIVE_INFINITY,
     };
   });
   decorated.sort((a, b) => {
@@ -21,6 +23,9 @@ export function sort(values: readonly string[]): readonly string[] {
   return decorated.map((d) => d.value);
 }
 
+/**
+ * Comparitor.
+ */
 export function cmp(a: string, b: string): number {
-  return parseMs(a) - parseMs(b);
+  return parse(a) - parse(b);
 }
