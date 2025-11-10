@@ -39,13 +39,13 @@ export type CrdtRepoMethods = {
   create<T extends O>(initial: T | (() => T)): t.CrdtRef<T>;
   get<T extends O>(id: t.StringId, options?: CrdtRepoGetOptions): Promise<CrdtRefGetResponse<T>>;
   delete(id: t.StringId | t.Crdt.Ref): Promise<void>;
-  events(dispose?: t.UntilInput): t.CrdtRepoEvents;
+  events(until?: t.UntilInput): t.CrdtRepoEvents;
 };
 
 /** Response from the `repo.get` method. */
 export type CrdtRefGetResponse<T extends O> = {
   readonly doc?: t.CrdtRef<T> | undefined;
-  readonly error?: CrdtRepoError;
+  readonly error?: t.CrdtRepoError;
 };
 
 /** Repo related errors. */
