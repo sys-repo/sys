@@ -6,13 +6,13 @@ import type { t } from './common.ts';
  * Optional crop mirrors the lower-level element API (pass-through).
  */
 export type VideoPiece = {
-  readonly src: string;
-  readonly slice?: t.TimecodeSliceString;
-  readonly crop?: t.VideoCropRange | t.VideoCropRangeTuple;
+  src: string;
+  slice?: string | t.TimecodeSliceString;
+  crop?: t.VideoCropRange | t.VideoCropRangeTuple;
 };
 
 /** Authoring-time composition: an ordered list of pieces. */
-export type VideoCompositionSpec = readonly VideoPiece[];
+export type VideoCompositionSpec = VideoPiece[];
 
 /** Duration (ms) per source URL, supplied post metadata load. */
 export type VideoDurationMap = Readonly<Record<string, t.Msecs>>;

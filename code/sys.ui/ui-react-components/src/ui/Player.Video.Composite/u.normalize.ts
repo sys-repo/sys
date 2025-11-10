@@ -9,7 +9,7 @@ export function normalize(spec: t.VideoCompositionSpec): t.VideoCompositionSpec 
   for (const p of spec) {
     const src = String(p.src ?? '').trim();
     if (!src) continue;
-    const slice = p.slice ? (p.slice.trim() as t.TimecodeSliceString) : undefined;
+    const slice = p.slice ? String(p.slice).trim() : undefined;
     const crop = normalizeCrop(p.crop);
     out.push({ src, slice, crop });
   }

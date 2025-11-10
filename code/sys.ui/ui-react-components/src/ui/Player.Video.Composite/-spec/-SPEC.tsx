@@ -24,7 +24,7 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <CompositeVideo.View debug={v.debug} theme={v.theme} />;
+        return <CompositeVideo.View debug={v.debug} theme={v.theme} spec={v.spec} />;
       });
 
     update();

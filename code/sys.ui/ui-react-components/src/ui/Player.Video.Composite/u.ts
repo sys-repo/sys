@@ -11,11 +11,12 @@ export function normalizeCrop(
 }
 
 export function tryParseSlice(
-  input?: t.TimecodeSliceString,
+  input?: string | t.TimecodeSliceString,
 ): { ok: true; parsed?: t.TimecodeSlice } | { ok: false } {
   if (!input) return { ok: true };
-  if (!Timecode.Slice.is(input)) return { ok: false };
-  return { ok: true, parsed: Timecode.Slice.parse(input) };
+  const s = String(input);
+  if (!Timecode.Slice.is(s)) return { ok: false };
+  return { ok: true, parsed: Timecode.Slice.parse(s as t.TimecodeSliceString) };
 }
 
 export function resolvePiece(
@@ -27,10 +28,13 @@ export function resolvePiece(
   let to = duration;
 
   if (piece.slice) {
-    const parsed = Timecode.Slice.parse(piece.slice);
-    const r = Timecode.Slice.resolve(parsed, duration);
-    from = r.from;
-    to = r.to;
+    const parsed = tryParseSlice(piece.slice);
+    if (!parsed.ok) return null; // invalid slice → drop segment
+    if (parsed.parsed) {
+      const r = Timecode.Slice.resolve(parsed.parsed, duration);
+      from = r.from;
+      to = r.to;
+    }
   }
   if (to <= from) return null;
 
