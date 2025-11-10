@@ -1,4 +1,4 @@
-import { type t, isRecord } from './common.ts';
+import { type t, Is } from './common.ts';
 
 export const Walk: t.IconSwatchesLib['Walk'] = {
   icons(obj: unknown): t.IconSwatchItem[] {
@@ -33,7 +33,7 @@ function* walkIcons(obj: unknown, path: t.ObjectPath = []): Generator<t.IconSwat
   }
 
   // Plain objects:
-  if (!isRecord(obj)) return;
+  if (!Is.record(obj)) return;
   for (const [key, value] of Object.entries(obj)) {
     const next = [...path, key] as t.ObjectPath;
     if (isIconRenderer(value)) {
