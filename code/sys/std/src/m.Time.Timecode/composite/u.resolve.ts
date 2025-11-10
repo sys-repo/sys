@@ -67,7 +67,7 @@ export function resolve(
     v = seg.vTo;
   }
 
-  return { segments, total: v };
+  return { total: v, segments };
 }
 
 /** Parse "HH:MM:SS(.mmm)" into ms. Returns null if invalid. */

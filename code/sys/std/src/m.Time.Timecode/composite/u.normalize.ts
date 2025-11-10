@@ -1,5 +1,4 @@
-import { type t } from './common.ts';
-import { normalizeCrop } from './u.ts';
+import { type t, Delete } from './common.ts';
 
 /**
  * Sanitize authoring input (trim, drop empty, normalize crop).
@@ -9,9 +8,8 @@ export function normalize(spec: t.TimecodeCompositionSpec): t.TimecodeCompositio
   for (const p of spec) {
     const src = String(p.src ?? '').trim();
     if (!src) continue;
-    const slice = p.slice ? String(p.slice).trim() : undefined;
-    const crop = normalizeCrop(p.crop);
-    out.push({ src, slice, crop });
+    const slice = (p.slice ? String(p.slice).trim() : undefined) || undefined;
+    out.push(Delete.undefined({ src, slice }));
   }
-  return out as t.TimecodeCompositionSpec;
+  return out;
 }

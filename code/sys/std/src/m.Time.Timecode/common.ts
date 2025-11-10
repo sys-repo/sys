@@ -1,5 +1,7 @@
 export * from '../common.ts';
 
+export { Delete } from '../m.Delete/mod.ts';
+
 /**
  * WebVTT(-flexible)
  * Regex: MM:SS | HH:MM:SS | HH:MM:SS.mmm (HH optional, .mmm optional).

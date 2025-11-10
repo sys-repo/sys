@@ -1,4 +1,4 @@
-import { type t, c, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { type t, c, describe, expect, it } from '../../-test.ts';
 import { Composite } from './mod.ts';
 
 const asMs = (n: number) => n as t.Msecs;
@@ -14,22 +14,82 @@ describe('Composite:', () => {
     { src: SRC_B, slice: slice('00:00:10..') }, // 10s..end of B (→ 10..90 => 80s)
   ];
 
-  describe('normalize', () => {
-    it('trims src and keeps tuple/crop normalized', () => {
+  describe('Composite.normalize', () => {
+    it('trims src, drops empty entries, and preserves slice', () => {
       const spec: t.TimecodeCompositionSpec = [
         { src: ` ${SRC_A} `, slice: slice('..00:00:05') },
-        { src: '  ', slice: slice('00:00:01..00:00:02') }, // dropped
-        { src: SRC_B, crop: { start: 1, end: 2 } },
+        { src: '  ', slice: slice('00:00:01..00:00:02') }, // dropped (blank src)
+        { src: SRC_B }, // no slice
       ];
+
       const out = Composite.normalize(spec);
+
       expect(out.length).to.eql(2);
       expect(out[0].src).to.eql(SRC_A);
+      expect(out[0].slice).to.eql(String(slice('..00:00:05')).trim());
       expect(out[1].src).to.eql(SRC_B);
-      expect(out[1].crop).to.eql([1, 2]);
+      expect(out[1]).to.not.have.property('slice');
+
+      // Print:
+      console.info(c.cyan('\nComposite.normalize'));
+      console.log(out, '\n');
+    });
+
+    it('trims slice string', () => {
+      const spec: t.TimecodeCompositionSpec = [{ src: SRC_A, slice: '  00:00:01..00:00:02  ' }];
+      const out = Composite.normalize(spec);
+      expect(out).to.eql([{ src: SRC_A, slice: '00:00:01..00:00:02' }]);
+    });
+
+    it('is idempotent on already-normalized input', () => {
+      const spec: t.TimecodeCompositionSpec = [{ src: SRC_A, slice: '..00:00:05' }, { src: SRC_B }];
+      const once = Composite.normalize(spec);
+      const twice = Composite.normalize(once);
+      expect(twice).to.eql(once);
+    });
+
+    it('preserves order and returns new array/objects', () => {
+      const a = { src: ` ${SRC_A} `, slice: '..00:00:05' } as const;
+      const b = { src: SRC_B } as const;
+      const spec = [a, b] as unknown as t.TimecodeCompositionSpec;
+      const out = Composite.normalize(spec);
+
+      // order:
+      expect(out.map((p) => p.src)).to.eql([SRC_A, SRC_B]);
+
+      // new array instance:
+      expect(out).to.not.equal(spec);
+
+      // new object instances:
+      expect(out[0]).to.not.equal(a);
+      expect(out[1]).to.not.equal(b);
+    });
+
+    it('treats empty/whitespace slice as absent', () => {
+      const spec: t.TimecodeCompositionSpec = [
+        { src: SRC_A, slice: '' },
+        { src: SRC_B, slice: '   ' },
+      ];
+      const out = Composite.normalize(spec);
+      expect(out[0]).to.eql({ src: SRC_A });
+      expect(out[1]).to.eql({ src: SRC_B });
+    });
+
+    it('coerces non-string slice via String()', () => {
+      // Using a fake object with toString for coverage of String(p.slice)
+      const weird = { toString: () => '..00:00:03' };
+      const spec: t.TimecodeCompositionSpec = [{ src: SRC_A, slice: weird as any }];
+      const out = Composite.normalize(spec);
+      expect(out).to.eql([{ src: SRC_A, slice: '..00:00:03' }]);
+    });
+
+    it('handles empty input', () => {
+      const out = Composite.normalize([]);
+      expect(out).to.eql([]);
     });
   });
 
-  describe('validate', () => {
+  describe('Composite.validate', () => {
     it('ok for valid slices and present durations', () => {
       const r = Composite.validate(SPEC, DURS);
       expect(r.ok).to.eql(true);
@@ -58,7 +118,7 @@ describe('Composite:', () => {
     });
   });
 
-  describe('resolve', () => {
+  describe('Composite.resolve', () => {
     it('builds segments with vFrom/vTo accumulated', () => {
       const resolved = Composite.resolve(SPEC, DURS);
       expect(resolved.total).to.eql(asMs(60_000 + 80_000));
@@ -84,7 +144,7 @@ describe('Composite:', () => {
     });
   });
 
-  describe('mapToSource', () => {
+  describe('Composite.mapToSource', () => {
     const resolved = Composite.resolve(SPEC, DURS);
 
     it('maps inside range', () => {
@@ -101,7 +161,7 @@ describe('Composite:', () => {
     });
   });
 
-  describe('cursor', () => {
+  describe('Composite.cursor', () => {
     const resolved = Composite.resolve(SPEC, DURS);
     const c = Composite.cursor(resolved);
 
@@ -121,7 +181,7 @@ describe('Composite:', () => {
     });
   });
 
-  describe('Time', () => {
+  describe('Composite.Time', () => {
     const resolved = Composite.resolve(SPEC, DURS);
 
     it('toVirtual clamps to [vFrom, vTo) by exclusive end', () => {
@@ -139,7 +199,7 @@ describe('Composite:', () => {
     });
   });
 
-  describe('Ops', () => {
+  describe('Composite.Ops', () => {
     it('concat rebases second timeline', () => {
       const A = Composite.resolve([{ src: SRC_A, slice: slice('..00:00:10') }], DURS);
       const B = Composite.resolve([{ src: SRC_B, slice: slice('..00:00:05') }], DURS);
@@ -177,7 +237,7 @@ describe('Composite:', () => {
     });
   });
 
-  describe('Durations', () => {
+  describe('Composite.Durations', () => {
     it('diff reports changed keys', async () => {
       const prev: t.TimecodeDurationMap = { [SRC_A]: asMs(1), [SRC_B]: asMs(2) };
       const next: t.TimecodeDurationMap = { [SRC_A]: asMs(1), [SRC_B]: asMs(3), X: asMs(4) };

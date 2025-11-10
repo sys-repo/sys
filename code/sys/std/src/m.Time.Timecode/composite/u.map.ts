@@ -1,5 +1,4 @@
-import { type t } from './common.ts';
-import { findSegmentByVTime } from './u.ts';
+import type { t } from './common.ts';
 
 /**
  * Map a virtual time to its backing source segment/time (or null).
@@ -26,4 +25,20 @@ export function mapToSource(
  */
 function totalOf(segments: readonly t.TimecodeResolvedSegment[]): t.Msecs {
   return segments.length ? segments[segments.length - 1].vTo : (0 as t.Msecs);
+}
+
+export function findSegmentByVTime(
+  segments: readonly t.TimecodeResolvedSegment[],
+  vTime: t.TimecodeVTime,
+): number {
+  let lo = 0;
+  let hi = segments.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const s = segments[mid];
+    if (vTime < s.vFrom) hi = mid - 1;
+    else if (vTime >= s.vTo) lo = mid + 1;
+    else return mid;
+  }
+  return -1;
 }

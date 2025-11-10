@@ -84,14 +84,6 @@ export type TimecodeCompositeLib = {
 };
 
 /**
- * TODO 🐷 to Msecs
- */
-
-/** Specifies a time range to narrow within. */
-export type TimecodeCropRange = { start: t.Secs; end: t.Secs };
-export type TimecodeCropRangeTuple = [t.Secs, t.Secs];
-
-/**
  * Validation/diagnostic issues emitted by Composite.validate.
  */
 export type TimecodeCompositeIssue =
@@ -107,7 +99,6 @@ export type TimecodeCompositeIssue =
 export type TimecodeCompositePiece = {
   src: string;
   slice?: string | t.TimecodeSliceString;
-  crop?: t.TimecodeCropRange | t.TimecodeCropRangeTuple;
 };
 
 /** Authoring-time composition: an ordered list of pieces. */
@@ -122,12 +113,11 @@ export type TimecodeDurationMap = Readonly<Record<string, t.Msecs>>;
  * - [vFrom,vTo) are absolute milliseconds on the composite (virtual) timeline.
  */
 export type TimecodeResolvedSegment = {
-  readonly src: string;
+  readonly src: t.StringRef;
   readonly from: t.Msecs;
   readonly to: t.Msecs;
   readonly vFrom: t.Msecs;
   readonly vTo: t.Msecs;
-  readonly crop?: t.TimecodeCropRange | t.TimecodeCropRangeTuple;
 };
 
 /** Resolved composition and its total virtual duration. */
