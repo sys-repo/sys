@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { CompositeVideo } from './ui.tsx';
+export { CompositeVideo } from './m.Composite.ts';
