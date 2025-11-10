@@ -1,5 +1,5 @@
 import { type t, RE } from './common.ts';
-import { parse } from './u.core.parse.ts';
+import { parse } from './core/u.parse.ts';
 
 /**
  * Implementation of time-slice strings:

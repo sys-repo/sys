@@ -1,6 +1,6 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { cmp } from '../core/u.sort.ts';
 import { Timecode } from '../mod.ts';
-import { cmp } from '../u.core.sort.ts';
 
 describe('Timecode (core)', () => {
   describe('type guards', () => {
@@ -41,16 +41,16 @@ describe('Timecode (core)', () => {
       const invalids = [
         '',
         '0:00',
-        '3:25', // single-digit mins
+        '3:25', //          single-digit mins
         '60:00',
-        '59:60', // out-of-range mm/ss in MM:SS
+        '59:60', //         out-of-range mm/ss in MM:SS
         '00:60:00',
-        '00:00:60', // out-of-range ss in HH:MM:SS
+        '00:00:60', //      out-of-range ss in HH:MM:SS
         '00:00:00,000',
         '00:00.00',
         '00:00:00.00',
         '00:00:00.0000', // wrong millis
-        '123:00:00', // hours must be two digits
+        '123:00:00', //     hours must be two digits
         '00:0a',
         'aa:bb',
         '::',

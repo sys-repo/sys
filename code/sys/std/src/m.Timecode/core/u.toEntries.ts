@@ -1,6 +1,6 @@
-import type { t } from './common.ts';
-import { Timecode } from './mod.ts';
-import { is } from './u.ts';
+import type { t } from '../common.ts';
+import { is } from '../u.ts';
+import { parse } from './u.parse.ts';
 
 /**
  * Convert a record of timestamp-like keys into
@@ -10,6 +10,6 @@ export const toEntries = <T>(bag: Readonly<Record<string, T>>): readonly t.Timec
   const isVtt = (e: [string, T]): e is [t.VttTimecode, T] => is(e[0]);
   return Object.entries(bag)
     .filter(isVtt)
-    .map(([tc, data]) => ({ tc, ms: Timecode.parse(tc), data }))
+    .map(([tc, data]) => ({ tc, ms: parse(tc), data }))
     .sort((a, b) => a.ms - b.ms);
 };

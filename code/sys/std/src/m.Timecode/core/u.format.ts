@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 export const format: t.TimecodeLib['format'] = (ms: number, opts = {}): t.VttTimecode => {
   const { withMillis = false, forceHours = false } = opts;

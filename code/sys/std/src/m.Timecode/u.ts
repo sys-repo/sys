@@ -1,10 +1,15 @@
 import { type t, RE } from './common.ts';
 
-/** Type guard: true when input matches the grammar. */
+/**
+ * Check if a string is a valid VTT timecode (e.g. "00:01:23.456").
+ */
 export function is(input: unknown): input is t.VttTimecode {
   return typeof input === 'string' && RE.test(input);
 }
 
+/**
+ * Determine the timecode format kind (HH:MM:SS, HH:MM:SS.mmm, or MM:SS).
+ */
 export function kindOf(tc: string): t.TimecodeKind {
   const hasMillis = tc.includes('.');
   const core = hasMillis ? tc.split('.')[0] : tc;

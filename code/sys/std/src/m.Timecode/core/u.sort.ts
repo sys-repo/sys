@@ -1,5 +1,5 @@
-import { parse } from './u.core.parse.ts';
-import { is } from './u.ts';
+import { is } from '../u.ts';
+import { parse } from './u.parse.ts';
 
 /**
  * Timecode sorter.
