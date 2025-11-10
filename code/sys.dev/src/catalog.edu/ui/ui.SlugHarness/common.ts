@@ -1,6 +1,7 @@
 import { Crdt } from '@sys/driver-automerge/web/ui';
 import { pkg, Pkg } from '../common.ts';
 
+export { Traits } from '../../m.slug.traits/mod.ts';
 export * from '../common.ts';
 
 /**
