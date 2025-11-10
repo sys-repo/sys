@@ -1,7 +1,8 @@
 import type { t } from './common.ts';
 
-export type * from './t.ops.ts';
-export type * from './t.slice.ts';
+export type * from './composite/t.ts';
+export type * from './ops/t.ts';
+export type * from './slice/t.ts';
 
 /**
  * Public library surface for timecodes.
@@ -10,6 +11,7 @@ export type * from './t.slice.ts';
 export type TimecodeLib = {
   readonly Ops: t.TimecodeOpsLib;
   readonly Slice: t.TimecodeSliceLib;
+  readonly Composite: t.TimecodeCompositeLib;
 
   /** Regex pattern string for validation (HH optional, .mmm optional). */
   readonly pattern: string;

@@ -1,5 +1,5 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { Ops } from '../ops/mod.ts';
+import { Ops } from './mod.ts';
 
 describe('Timecode: Ops', () => {
   type T = { name: string; flag?: boolean };
@@ -105,8 +105,14 @@ describe('Timecode: Ops', () => {
 
   describe('Ops.neighbors', () => {
     it('prev undefined before first; next is first', () => {
-      const { prev, next } = Ops.neighbors(mapA, 0.0);
+      const { prev, next } = Ops.neighbors(mapA, -0.001); // strictly before the first entry (00:00)
       expect(prev).to.eql(undefined);
+      expect(next?.tc).to.eql('00:00'); // the first entry in temporal order
+    });
+
+    it('at first boundary (exact 0s): prev is first; next is second', () => {
+      const { prev, next } = Ops.neighbors(mapA, 0.0);
+      expect(prev?.tc).to.eql('00:00');
       expect(next?.tc).to.eql('00:05');
     });
 

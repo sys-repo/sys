@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /**
  * Helpers parsing and resolving timecode slice strings - "<from>..<to>"

@@ -81,7 +81,6 @@ export type VideoCompositeEvents = {
 
 /**
  * Optional control intents the orchestrator may expose upward.
- * These mirror what you’ll bind to <Player.Video.Element>.
  */
 export type VideoCompositeControls = {
   readonly play: () => Promise<void> | void;

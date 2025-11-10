@@ -1,10 +1,11 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../-test.ts';
 
-import * as mod from '../mod.ts';
-import { Timecode } from '../mod.ts';
+import * as mod from './mod.ts';
+import { Timecode } from './mod.ts';
 
-import { Ops } from '../ops/mod.ts';
-import { Slice } from '../slice/mod.ts';
+import { Composite } from './composite/mod.ts';
+import { Ops } from './ops/mod.ts';
+import { Slice } from './slice/mod.ts';
 
 describe('Timecode', () => {
   it('API: /std/time', async () => {
@@ -12,6 +13,7 @@ describe('Timecode', () => {
     expect(m.Timecode).to.equal(Timecode);
     expect(m.Timecode.Ops).to.equal(Ops);
     expect(m.Timecode.Slice).to.equal(Slice);
+    expect(m.Timecode.Composite).to.equal(Composite);
   });
 
   it('API: /std/time/timecode', async () => {
