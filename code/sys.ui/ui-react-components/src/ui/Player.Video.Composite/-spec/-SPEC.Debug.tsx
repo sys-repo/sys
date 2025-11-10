@@ -116,7 +116,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
               src: `${base}/video/v2/core/sha256-4f389f967e94fd9838d84619aaf06f68f984e2f7a6d40637df13a65476d047f9.webm`,
               slice: '00:00:03..00:00:06',
             },
-          ] satisfies t.VideoCompositionSpec;
+          ] satisfies t.TimecodeCompositionSpec;
         }}
       />
 
