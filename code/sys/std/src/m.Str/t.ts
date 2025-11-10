@@ -46,7 +46,29 @@ export type StrLib = {
    */
   truncate(text: string | undefined, max: number, opts?: { ellipsis?: string }): string;
 
-  /** Replace all matches of the given pattern in a single or multi-line string. */
+  /**
+   * Inserts an ellipsis into the middle of a string if it exceeds the given maximum length.
+   * - If `max` is a single number, start and end segments are split evenly.
+   * - If `max` is a tuple `[left, right]`, custom lengths are used for start and end.
+   * - Handles undefined/empty input safely.
+   * - Respects variable-length ellipsis (default '…').
+   *
+   * @example
+   *   Str.ellipsize("https://domain.com/path/to/file", 24)
+   *   // → "https://domai…/to/file"
+   *
+   *   Str.ellipsize("https://domain.com/path/to/file", [12, 8])
+   *   // → "https://domai…/to/file"
+   */
+  ellipsize(
+    text: string | undefined,
+    max: number | readonly [number, number],
+    opts?: { ellipsis?: string } | string,
+  ): string;
+
+  /**
+   * Replace all matches of the given pattern in a single or multi-line string.
+   */
   replaceAll(
     before: string,
     pattern: string | RegExp,

@@ -143,7 +143,7 @@ describe('Str (String)', () => {
     });
   });
 
-  describe('String.truncate', () => {
+  describe('Str.truncate', () => {
     it('returns the original text when length is less than max', () => {
       expect(Str.truncate('abc', 5)).to.eql('abc');
     });
@@ -181,6 +181,96 @@ describe('Str (String)', () => {
     it('respects custom multi-character ellipsis', () => {
       // max = 5, ellipsis = '...' (len 3) → keep first 2 chars + '...'
       expect(Str.truncate('abcdef', 5, { ellipsis: '...' })).to.eql('ab...');
+    });
+  });
+
+  describe('Str.ellipsize', () => {
+    const E = '…';
+
+    describe('scalar max', () => {
+      it('returns original when length <= max', () => {
+        expect(Str.ellipsize('abc', 3)).to.eql('abc');
+        expect(Str.ellipsize('abc', 4)).to.eql('abc');
+        expect(Str.ellipsize('', 5)).to.eql('');
+        expect(Str.ellipsize(undefined, 5)).to.eql('');
+      });
+
+      it('centers the ellipsis (even split)', () => {
+        // remain = 6 → start=3, end=3
+        expect(Str.ellipsize('abcdefghij', 7)).to.eql(`abc${E}hij`);
+      });
+
+      it('centers the ellipsis (odd split favors start)', () => {
+        // remain = 5 → start=3, end=2
+        expect(Str.ellipsize('abcdefghij', 6)).to.eql(`abc${E}ij`);
+      });
+
+      it('tiny max values', () => {
+        expect(Str.ellipsize('abcdef', 1)).to.eql(E); // ellipsis only
+        expect(Str.ellipsize('abcdef', 0)).to.eql(''); // no budget
+      });
+
+      it('custom ellipsis (scalar)', () => {
+        // remain = 6 → start=3, end=3
+        expect(Str.ellipsize('abcdefghij', 8, { ellipsis: '--' })).to.eql('abc--hij');
+      });
+
+      it('custom ellipsis - as string parameter', () => {
+        // remain = 6 → start=3, end=3
+        expect(Str.ellipsize('abcdefghij', 8, '..')).to.eql('abc..hij');
+      });
+
+      it('non-finite or negative max → empty', () => {
+        expect(Str.ellipsize('abcdef', Number.NaN as unknown as number)).to.eql('');
+        expect(Str.ellipsize('abcdef', -5)).to.eql('');
+      });
+    });
+
+    describe('tuple max = [left, right]', () => {
+      const text = 'https://domain.com/path/to/file';
+
+      it('returns original when text fits within budget', () => {
+        // budget = 10 + 10 + 1 = 21; text length < 21? If not, choose a short text:
+        expect(Str.ellipsize('short-file.txt', [8, 8])).to.eql('short-file.txt');
+      });
+
+      it('keeps exact left/right with default ellipsis', () => {
+        // budget = 12 + 8 + 1 = 21
+        const out = Str.ellipsize(text, [12, 8]);
+        expect(out).to.eql(`${text.slice(0, 12)}${E}${text.slice(text.length - 8)}`);
+      });
+
+      it('right-only or left-only', () => {
+        expect(Str.ellipsize(text, [12, 0])).to.eql(`${text.slice(0, 12)}${E}`);
+        expect(Str.ellipsize(text, [0, 10])).to.eql(`${E}${text.slice(text.length - 10)}`);
+      });
+
+      it('zero/zero → ellipsis only (default)', () => {
+        expect(Str.ellipsize(text, [0, 0])).to.eql(E);
+      });
+
+      it('custom ellipsis (tuple)', () => {
+        const ell = '---';
+        const out = Str.ellipsize(text, [8, 6], { ellipsis: ell });
+        expect(out).to.eql(`${text.slice(0, 8)}${ell}${text.slice(text.length - 6)}`);
+      });
+
+      it('text longer than [left,right] budget → left + ellipsis + right', () => {
+        // With tuple max, output is exactly left + ellipsis + right when truncation is needed.
+        const txt = 'abcdefghijklmnop'; // 16 chars
+        const out = Str.ellipsize(txt, [2, 1], { ellipsis: '==========' }); // budget = 13 < 16
+        expect(out).to.eql('ab==========p');
+      });
+
+      it('guards against over-budget ends (stability)', () => {
+        // Even if implementation changes, result must not exceed budget length
+        const left = 50,
+          right = 50; // huge requests
+        const ell = '..';
+        const budget = left + right + ell.length; // 102
+        const res = Str.ellipsize('0123456789', [left, right], { ellipsis: ell });
+        expect(res.length <= budget).to.eql(true);
+      });
     });
   });
 

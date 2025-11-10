@@ -7,6 +7,7 @@ import { camelToKebab } from './u.camelToKebab.ts';
 import { capitalize } from './u.caps.ts';
 import { dedent } from './u.dedent.ts';
 import { diff } from './u.diff.ts';
+import { ellipsize } from './u.ellipsize.ts';
 import { plural } from './u.plural.ts';
 import { replaceAll } from './u.replace.ts';
 import { trimEdgeNewlines } from './u.trim.ts';
@@ -24,6 +25,7 @@ export const Str: t.StrLib = {
   plural,
   bytes,
   truncate,
+  ellipsize,
   replaceAll,
   dedent,
   trimEdgeNewlines,
