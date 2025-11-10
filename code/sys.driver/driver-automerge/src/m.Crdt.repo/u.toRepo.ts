@@ -19,7 +19,7 @@ const D = { timeout: 5_000 } as const;
  */
 export function toRepo(
   repo: Repo,
-  options: { peerId?: string; stores?: t.CrdtRepoStoreInfo[]; dispose$?: t.UntilInput } = {},
+  options: { peerId?: string; stores?: t.CrdtRepoStoreInfo[]; until?: t.UntilInput } = {},
 ): t.CrdtRepo {
   let _enabled = true;
   let _ready = false;
@@ -28,7 +28,7 @@ export function toRepo(
     peers.clear();
     await silentShutdown(repo);
   }
-  const life = Rx.lifecycleAsync(options.dispose$, cleanup);
+  const life = Rx.lifecycleAsync(options.until, cleanup);
   const schedule = Schedule.make(life, 'micro');
 
   const cloneProps = (): t.CrdtRepoProps => {

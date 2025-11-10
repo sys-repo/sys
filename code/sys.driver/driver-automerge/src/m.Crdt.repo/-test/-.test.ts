@@ -347,11 +347,11 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('dispose from parameter observable', async () => {
-      const life = Rx.lifecycle();
-      const repo = Crdt.repo({ dispose$: life });
+      const until = Rx.lifecycle();
+      const repo = Crdt.repo({ until });
       expect(repo.disposed).to.eql(false);
 
-      life.dispose();
+      until.dispose();
       expect(repo.disposed).to.eql(false); // NB: async shutdown - not yet complete.
 
       await Time.wait(50);

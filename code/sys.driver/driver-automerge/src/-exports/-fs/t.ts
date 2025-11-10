@@ -17,7 +17,7 @@ export type CrdtFsRepoArgs = {
   network?: CrdtFsNetworkArgInput | CrdtFsNetworkArgInput[];
   sharePolicy?: SharePolicy;
   denylist?: AutomergeUrl[];
-  dispose$?: t.UntilInput;
+  until?: t.UntilInput;
 };
 
 /** Network connection argument. */
