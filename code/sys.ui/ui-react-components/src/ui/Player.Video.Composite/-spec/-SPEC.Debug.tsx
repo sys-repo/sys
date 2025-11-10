@@ -3,9 +3,9 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 
 type P = t.CompositeVideoProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'spec'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'videos'>;
 const defaults: Storage = {
-  spec: undefined,
+  videos: undefined,
   theme: 'Dark',
   debug: false,
 };
@@ -28,7 +28,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    spec: s(snap.spec),
+    videos: s(snap.videos),
   };
   const p = props;
   const api = {
@@ -49,7 +49,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.spec = p.spec.value;
+      d.videos = p.videos.value;
     });
   });
 
@@ -94,14 +94,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'video/specs:'}</div>
-      <Button block label={() => `(clear)`} onClick={() => (p.spec.value = undefined)} />
+      <div className={Styles.title.class}>{'videos/specs:'}</div>
+      <Button block label={() => `(clear)`} onClick={() => (p.videos.value = undefined)} />
       <Button
         block
         label={() => `sample-1`}
         onClick={() => {
           const base = 'https://fs.socialleancanvas.com';
-          p.spec.value = [
+          p.videos.value = [
             {
               src: `${base}/video/v2/core/sha256-3ee12096a189525fcbb0e85d1781fc414e46e8c306b6ee170af17fe8bd2b11c7.webm`,
               slice: '00:00:00..00:00:08',

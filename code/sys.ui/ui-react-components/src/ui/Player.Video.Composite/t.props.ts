@@ -8,7 +8,7 @@ export type * from './t.helpers.ts';
  */
 export type CompositeVideoProps = {
   /** Ordered pieces to stitch together. */
-  spec?: t.VideoCompositionSpec;
+  videos?: t.VideoCompositionSpec;
 
   /** Known durations (ms) per src; if omitted, you may probe. */
   durations?: t.VideoDurationMap;
@@ -20,7 +20,7 @@ export type CompositeVideoProps = {
   startAt?: t.VideoVTime;
 
   /** Handoff buffer before segment end (ms). Default: 250. */
-  handoffMs?: t.Msecs;
+  handoff?: t.Msecs;
 
   /** Loop the composite timeline. */
   loop?: boolean;
