@@ -26,9 +26,6 @@ export type StrLib = {
   /** Calculate a difference between two strings. */
   diff: t.TextDiffCalc;
 
-  /** Limit the length of a string inserting ellipsis when needed. */
-  shorten(input?: string, maxLength?: number, options?: { ellipsis?: string }): string;
-
   /** Capitalize the given word. */
   capitalize(word: string): string;
 
@@ -41,8 +38,13 @@ export type StrLib = {
   /** Convert bytes to a human-readable string, eg: 1337 → "1.34 kB". */
   bytes: t.FormatBytes;
 
-  /** Truncates a string with ellipsis if over a maximum length. */
-  truncate(text: string | undefined, max: number): string;
+  /**
+   * Truncates a string with an ellipsis if it exceeds the given maximum length.
+   * - Handles undefined/empty input safely.
+   * - Respects variable-length ellipsis (default '…').
+   * - Avoids negative slice values for very small max.
+   */
+  truncate(text: string | undefined, max: number, opts?: { ellipsis?: string }): string;
 
   /** Replace all matches of the given pattern in a single or multi-line string. */
   replaceAll(

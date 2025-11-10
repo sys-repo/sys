@@ -70,32 +70,6 @@ describe('Str (String)', () => {
     });
   });
 
-  describe('Str.shorten', () => {
-    it('empty', () => {
-      expect(Str.shorten(undefined)).to.eql('');
-      expect(Str.shorten('')).to.eql('');
-      expect(Str.shorten('  ')).to.eql('  ');
-    });
-
-    it('invalid input (to string)', () => {
-      const test = (input: any, expected: string) => {
-        expect(Str.shorten(input)).to.eql(expected);
-      };
-      test(123, '123');
-      test(null, 'null');
-      test(undefined, '');
-    });
-
-    it('does not add ellipsis', () => {
-      expect(Str.shorten('hello', 5)).to.eql('hello');
-    });
-
-    it('adds ellipsis', () => {
-      expect(Str.shorten('hello', 4)).to.eql('hel…');
-      expect(Str.shorten('hello', 4, { ellipsis: '...' })).to.eql('h...');
-    });
-  });
-
   describe('Str.caplitalize', () => {
     it('invalid input', () => {
       const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
@@ -179,12 +153,12 @@ describe('Str (String)', () => {
     });
 
     it('truncates the text when length is greater than max', () => {
-      // For max = 5, it takes the first 4 characters and appends an ellipsis.
+      // For max = 5, it takes the first (max - ellipsis.length) characters and appends the ellipsis.
       expect(Str.truncate('abcdef', 5)).to.eql('abcd…');
     });
 
     it('handles max = 1 correctly', () => {
-      // For a string longer than 1, it returns just the ellipsis.
+      // For a string longer than 1, with a single-char ellipsis, result is just the ellipsis.
       expect(Str.truncate('abc', 1)).to.eql('…');
       // When the text length equals max, no truncation happens.
       expect(Str.truncate('a', 1)).to.eql('a');
@@ -194,14 +168,19 @@ describe('Str (String)', () => {
       expect(Str.truncate('', 3)).to.eql('');
     });
 
-    it('handles edge case when max is 0', () => {
-      // With max = 0, "abc" becomes "abc".slice(0, -1) which is "ab", then an ellipsis is appended.
-      expect(Str.truncate('abc', 0)).to.eql('ab…');
+    it('returns an empty string when max = 0', () => {
+      // New behavior: never produce negative slices; with max <= 0, return ''.
+      expect(Str.truncate('abc', 0)).to.eql('');
     });
 
-    it('handles undefined', () => {
+    it('handles undefined input safely', () => {
       expect(Str.truncate(undefined, 5)).to.eql('');
       expect(Str.truncate(undefined, 0)).to.eql('');
+    });
+
+    it('respects custom multi-character ellipsis', () => {
+      // max = 5, ellipsis = '...' (len 3) → keep first 2 chars + '...'
+      expect(Str.truncate('abcdef', 5, { ellipsis: '...' })).to.eql('ab...');
     });
   });
 

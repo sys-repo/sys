@@ -9,18 +9,16 @@ import { dedent } from './u.dedent.ts';
 import { diff } from './u.diff.ts';
 import { plural } from './u.plural.ts';
 import { replaceAll } from './u.replace.ts';
-import { shorten } from './u.shorten.ts';
 import { trimEdgeNewlines } from './u.trim.ts';
 import { truncate } from './u.truncate.ts';
 
-export { bytes, capitalize, diff, plural, shorten };
+export { bytes, capitalize, diff, plural };
 
 export const Str: t.StrLib = {
   SPACE,
   Lorem,
   lorem: Lorem.text,
   diff,
-  shorten,
   capitalize,
   camelToKebab,
   plural,
