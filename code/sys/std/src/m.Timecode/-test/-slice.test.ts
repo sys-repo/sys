@@ -1,5 +1,5 @@
 import { type t, describe, expect, it } from '../../-test.ts';
-import { Slice } from '../m.Slice.ts';
+import { Slice } from '../slice/mod.ts';
 
 describe('Timecode.Slice', () => {
   describe('is(): lexical truth table', () => {

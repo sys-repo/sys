@@ -1,5 +1,5 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { Ops } from '../m.Ops.ts';
+import { Ops } from '../ops/mod.ts';
 
 describe('Timecode: Ops', () => {
   type T = { name: string; flag?: boolean };

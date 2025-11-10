@@ -1,5 +1,5 @@
 import type { t } from '../common.ts';
-import { is } from '../u.ts';
+import { is } from './u.is.ts';
 import { parse } from './u.parse.ts';
 
 /**

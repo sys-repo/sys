@@ -1,5 +1,5 @@
-import { type t } from './common.ts';
-import { toEntries } from './core/u.toEntries.ts';
+import { type t } from '../common.ts';
+import { toEntries } from '../core/u.toEntries.ts';
 
 /**
  * Return the first entry matching a predicate.

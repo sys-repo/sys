@@ -1,9 +1,10 @@
 import { describe, expect, it } from '../../-test.ts';
+
+import * as mod from '../mod.ts';
 import { Timecode } from '../mod.ts';
 
-import { Ops } from '../m.Ops.ts';
-import { Slice } from '../m.Slice.ts';
-import * as mod from '../mod.ts';
+import { Ops } from '../ops/mod.ts';
+import { Slice } from '../slice/mod.ts';
 
 describe('Timecode', () => {
   it('API: /std/time', async () => {

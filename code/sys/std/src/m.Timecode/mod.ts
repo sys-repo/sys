@@ -32,4 +32,4 @@
  * ```
  */
 export { Timecode } from './m.Timecode.ts';
-export { between, find, findAtOrBefore, nearest, neighbors } from './u.ops.ts';
+export { between, find, findAtOrBefore, nearest, neighbors } from './ops/mod.ts';
