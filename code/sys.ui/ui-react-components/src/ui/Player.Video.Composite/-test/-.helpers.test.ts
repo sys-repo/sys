@@ -1,5 +1,5 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../../-test.ts';
-import { Helpers } from '../m.Composite.helpers.ts';
+import { type t, c, describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { Helpers } from '../m.Helpers.ts';
 
 const asMs = (n: number) => n as t.Msecs;
 const slice = (s: string) => s as t.TimecodeSliceString;
@@ -153,6 +153,11 @@ describe('CompositeVideo: helpers', () => {
       const base = Helpers.resolve(SPEC, DURS); // [60s of A] [80s of B]
       const insert: t.VideoCompositionSpec = [{ src: SRC_A, slice: slice('00:00:30..00:00:40') }];
       const sp = Helpers.Ops.splice(base, 1, insert, DURS);
+
+      console.info();
+      console.info(c.cyan(`Helpers.Ops.splice:`));
+      console.info(sp);
+      console.info();
 
       // Expect order: A(0..60) + insert(A 30..40) + B(10..90), with vFrom/vTo rebased
       expect(sp.segments.length).to.eql(3);

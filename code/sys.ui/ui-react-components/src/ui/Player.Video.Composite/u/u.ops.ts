@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 import { resolve } from './u.resolve.ts';
 
 export const Ops: t.CompositeVideoHelpers['Ops'] = {

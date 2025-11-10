@@ -3,6 +3,7 @@ export {
   Testing,
   beforeAll,
   beforeEach,
+  c,
   describe,
   expect,
   expectError,

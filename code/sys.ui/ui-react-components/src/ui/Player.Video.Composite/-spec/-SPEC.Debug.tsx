@@ -101,14 +101,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `sample-1`}
         onClick={() => {
           const base = 'https://fs.socialleancanvas.com';
+
           p.videos.value = [
             {
               src: `${base}/video/v2/core/sha256-3ee12096a189525fcbb0e85d1781fc414e46e8c306b6ee170af17fe8bd2b11c7.webm`,
-              slice: '00:00:00..00:00:08',
+              slice: '00:00:00..00:00:02',
+            },
+            {
+              // src: `${base}/video/v2/core/sha256-4f389f967e94fd9838d84619aaf06f68f984e2f7a6d40637df13a65476d047f9.webm`,
+              src: `${base}/video/540p/1068653222.mp4`,
+              slice: '00:00:02..00:00:05',
             },
             {
               src: `${base}/video/v2/core/sha256-4f389f967e94fd9838d84619aaf06f68f984e2f7a6d40637df13a65476d047f9.webm`,
-              slice: '00:00:02..00:00:10',
+              slice: '00:00:03..00:00:06',
             },
           ] satisfies t.VideoCompositionSpec;
         }}

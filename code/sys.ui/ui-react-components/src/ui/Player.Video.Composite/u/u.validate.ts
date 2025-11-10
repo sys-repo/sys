@@ -1,4 +1,4 @@
-import { type t, Timecode } from './common.ts';
+import { type t, Timecode } from '../common.ts';
 import { tryParseSlice } from './u.ts';
 
 /**

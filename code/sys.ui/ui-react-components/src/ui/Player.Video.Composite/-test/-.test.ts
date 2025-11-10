@@ -1,5 +1,5 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../../-test.ts';
-import { Helpers } from '../m.Composite.helpers.ts';
+import { describe, expect, it } from '../../../-test.ts';
+import { Helpers } from '../m.Helpers.ts';
 import { CompositeVideo } from '../mod.ts';
 import { CompositeVideo as View } from '../ui.tsx';
 
