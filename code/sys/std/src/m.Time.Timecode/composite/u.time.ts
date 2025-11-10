@@ -7,9 +7,10 @@ export const Time: t.TimecodeCompositeLib['Time'] = {
 
 /**
  * Convert a source timestamp inside a segment to virtual time.
+ * Clamps `srcTime` into the segment's original span [from,to) to avoid the exclusive end.
  */
 export function toVirtual(
-  segments: readonly t.TimecodeResolvedSegment[],
+  segments: t.Ary<t.TimecodeResolvedSegment>,
   index: number,
   srcTime: t.Msecs,
 ): t.TimecodeVTime {
@@ -17,17 +18,20 @@ export function toVirtual(
   if (!seg) return 0 as t.TimecodeVTime;
 
   // Clamp source time into [from, to) to avoid landing on the exclusive end.
-  const upper = seg.to > seg.from ? ((seg.to - 1) as t.Msecs) : seg.to;
-  const clamped = srcTime < seg.from ? seg.from : srcTime > upper ? upper : srcTime;
+  const { original, virtual } = seg;
+  const upper = original.to > original.from ? ((original.to - 1) as t.Msecs) : original.to;
+  const clamped = srcTime < original.from ? original.from : srcTime > upper ? upper : srcTime;
 
-  const offset = (clamped - seg.from) as t.Msecs;
-  return (seg.vFrom + offset) as t.TimecodeVTime;
+  const offset = clamped - original.from;
+  return virtual.from + offset;
 }
 
-/** Clamp a virtual time into [0,total]. */
+/**
+ * Clamp a virtual time into [0,total). Keeps inside the exclusive end by returning total-1 when v ≥ total.
+ */
 export function clamp(v: t.TimecodeVTime, total: t.Msecs): t.TimecodeVTime {
-  if (total <= 0) return 0 as t.TimecodeVTime;
-  if (v < 0) return 0 as t.TimecodeVTime;
-  if (v >= total) return (total - 1) as t.TimecodeVTime; // keep inside exclusive end
+  if (total <= 0) return 0;
+  if (v < 0) return 0;
+  if (v >= total) return total - 1; // keep inside exclusive end
   return v;
 }

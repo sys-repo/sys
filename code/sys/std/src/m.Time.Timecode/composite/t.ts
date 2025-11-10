@@ -27,15 +27,14 @@ export type TimecodeCompositeLib = {
 
   /** Small time utilities on the virtual timeline. */
   readonly Time: {
+    /** Clamp a virtual time into [0,total]. */
+    readonly clamp: (v: t.TimecodeVTime, total: t.Msecs) => t.TimecodeVTime;
     /** Convert a source timestamp inside a segment to virtual time. */
     readonly toVirtual: (
-      segments: readonly t.TimecodeResolvedSegment[],
+      segments: t.Ary<t.TimecodeResolvedSegment>,
       index: number,
       srcTime: t.Msecs,
     ) => t.TimecodeVTime;
-
-    /** Clamp a virtual time into [0,total]. */
-    readonly clamp: (v: t.TimecodeVTime, total: t.Msecs) => t.TimecodeVTime;
   };
 
   /** Validate spec+durations for composability; never throws. */
@@ -109,15 +108,14 @@ export type TimecodeDurationMap = Readonly<Record<string, t.Msecs>>;
 
 /**
  * Resolved segment against real source metadata.
- * - [from,to) are absolute milliseconds within the source asset.
- * - [vFrom,vTo) are absolute milliseconds on the composite (virtual) timeline.
+ * - `original` → [from,to) in the original media (absolute ms within that file).
+ * - `virtual`  → [from,to) on the composite timeline (absolute ms on the constructed timeline).
+ * Invariants: original.to > original.from, virtual.to > virtual.from.
  */
 export type TimecodeResolvedSegment = {
   readonly src: t.StringRef;
-  readonly from: t.Msecs;
-  readonly to: t.Msecs;
-  readonly vFrom: t.Msecs;
-  readonly vTo: t.Msecs;
+  readonly original: t.MsecSpan;
+  readonly virtual: t.MsecSpan;
 };
 
 /** Resolved composition and its total virtual duration. */

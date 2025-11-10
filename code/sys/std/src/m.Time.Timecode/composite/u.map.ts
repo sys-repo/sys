@@ -15,16 +15,16 @@ export function mapToSource(
   if (index < 0) return null;
 
   const seg = segments[index];
-  const offset = (vTime - seg.vFrom) as t.Msecs;
-  const srcTime = (seg.from + offset) as t.Msecs;
+  const offset = (vTime - seg.virtual.from) as t.Msecs;
+  const srcTime = (seg.original.from + offset) as t.Msecs;
   return { index, seg, srcTime, offset };
 }
 
 /**
- * Helpers:
+ * Internal:
  */
 function totalOf(segments: readonly t.TimecodeResolvedSegment[]): t.Msecs {
-  return segments.length ? segments[segments.length - 1].vTo : (0 as t.Msecs);
+  return segments.length ? segments[segments.length - 1].virtual.to : (0 as t.Msecs);
 }
 
 export function findSegmentByVTime(
@@ -36,9 +36,10 @@ export function findSegmentByVTime(
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
     const s = segments[mid];
-    if (vTime < s.vFrom) hi = mid - 1;
-    else if (vTime >= s.vTo) lo = mid + 1;
+    if (vTime < s.virtual.from) hi = mid - 1;
+    else if (vTime >= s.virtual.to) lo = mid + 1;
     else return mid;
   }
   return -1;
 }
+// 🌸 ---------- /CHANGED ----------

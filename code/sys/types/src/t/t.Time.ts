@@ -57,3 +57,11 @@ export type TimeDuration = {
   readonly day: Days;
   toString(unit?: TimeUnit | { unit?: TimeUnit; round?: number }): string;
 };
+
+/**
+ * Half-open millisecond span [from,to).
+ */
+export type MsecSpan = {
+  readonly from: Msecs;
+  readonly to: Msecs;
+};

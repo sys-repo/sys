@@ -3,11 +3,12 @@ import { type t } from './common.ts';
 /**
  * Build a resolved timeline from authoring spec + known durations.
  * - Accepts slice forms:
- *    • "..END"          → start = 0, end = END
- *    • "START..END"     → start = START, end = END
- *    • "START.."        → start = START, end = durations[src] (required)
- *    • undefined        → start = 0, end = durations[src] (required)
- * - Computes virtual [vFrom..vTo) by accumulating each segment length.
+ *     - "..END"          → start = 0, end = END
+ *     - "START..END"     → start = START, end = END
+ *     - "START.."        → start = START, end = durations[src] (required)
+ *     - undefined        → start = 0, end = durations[src] (required)
+ * - Computes virtual span by accumulating each segment length.
+ *   (virtual is half-open [from,to) on the composite timeline)
  */
 export function resolve(
   spec: t.TimecodeCompositionSpec,
@@ -25,9 +26,8 @@ export function resolve(
 
     if (sliceStr) {
       const i = sliceStr.indexOf('..');
-      if (i < 0) {
-        continue; // invalid grammar → skip this piece
-      }
+      if (i < 0) continue; // invalid grammar → skip this piece
+
       const start = sliceStr.slice(0, i).trim();
       const end = sliceStr.slice(i + 2).trim();
 
@@ -45,10 +45,7 @@ export function resolve(
 
     if (to == null) {
       const d = durations[src];
-      if (typeof d !== 'number' || d <= 0) {
-        // no explicit end and no duration: cannot resolve this piece
-        continue;
-      }
+      if (typeof d !== 'number' || d <= 0) continue; // cannot resolve without duration
       to = d as t.Msecs;
     }
 
@@ -57,14 +54,12 @@ export function resolve(
 
     const seg: t.TimecodeResolvedSegment = {
       src,
-      from,
-      to,
-      vFrom: v,
-      vTo: (v + len) as t.Msecs,
-    } as t.TimecodeResolvedSegment;
+      original: { from, to },
+      virtual: { from: v, to: (v + len) as t.Msecs },
+    };
 
     segments.push(seg);
-    v = seg.vTo;
+    v = seg.virtual.to;
   }
 
   return { total: v, segments };
