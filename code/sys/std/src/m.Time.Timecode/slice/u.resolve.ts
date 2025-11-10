@@ -1,5 +1,4 @@
 import { type t } from '../common.ts';
-// import { resolveBound } from './u.ts';
 
 export const resolve: t.TimecodeSliceLib['resolve'] = (slice, total) => {
   const clamp = (n: number) => Math.max(0, Math.min(total, n));

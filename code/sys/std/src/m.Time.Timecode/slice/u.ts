@@ -32,3 +32,17 @@ export function toBound(s: string): t.TimecodeSliceBound {
   const ms = parse(s as t.VttTimecode);
   return { kind: 'abs', ms };
 }
+
+/**
+ * Format milliseconds → "HH:MM:SS" (adds .mmm if non-zero).
+ */
+export function toHms(ms: t.Msecs): string {
+  const totalMs = Number(ms);
+  const totalSec = Math.floor(totalMs / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const core = [h, m, s].map((n) => String(n).padStart(2, '0')).join(':');
+  const frac = totalMs % 1000;
+  return frac ? `${core}.${String(frac).padStart(3, '0')}` : core;
+}

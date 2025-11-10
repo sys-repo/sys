@@ -16,13 +16,60 @@ import type { t } from '../common.ts';
  */
 export type TimecodeSliceLib = {
   /** Quick structural check for the slice lexical form. */
-  readonly is: (input: unknown) => input is TimecodeSliceString;
+  is(input: unknown): input is TimecodeSliceString;
 
   /** Parse a valid slice string into a normalized structure. */
-  readonly parse: (input: TimecodeSliceString) => TimecodeSlice;
+  parse(input: TimecodeSliceString): TimecodeSlice;
 
   /** Resolve a parsed slice into an absolute millisecond window against total duration. */
-  readonly resolve: (slice: TimecodeSlice, total: t.Msecs) => TimeWindowMs;
+  resolve(slice: TimecodeSlice, total: t.Msecs): TimeWindowMs;
+
+  /**
+   * Render a parsed slice back to its canonical string form.
+   * Rules:
+   *  - abs(ms)   → "HH:MM:SS(.mmm)"
+   *  - open      → ""
+   *  - relEnd(ms)→ "-" + "HH:MM:SS(.mmm)"
+   * Example: {start: open, end: abs(60000)} → "..00:01:00"
+   */
+  toString(slice?: string | TimecodeSlice): TimecodeSliceString;
+
+  /**
+   * Build a canonical slice string from a concrete window
+   * (the inverse of `Slice.resolve`).
+   * If `total` is provided:
+   *  - when from === 0, start is open ("")
+   *  - when to === total, end is open ("")
+   *  - may be extended later to optionally emit relEnd for end-bound
+   * Without `total`, emits absolute times for both ends.
+   * Examples:
+   *  - fromWindow({from:0,to:60000}, 60000) → "..00:01:00"
+   *  - fromWindow({from:10000,to:20000})    → "00:00:10..00:00:20"
+   */
+  from(window: t.TimeWindowMs, total?: t.Msecs): TimecodeSliceString;
+
+  /**
+   * Split a slice string (e.g. "00:00:05..00:00:10", "..00:00:10", "00:00:05..")
+   * into friendly {start,end} parts without validation.
+   */
+  split(input?: string | TimecodeSlice): t.TimecodeSliceParts;
+
+  /**
+   * Compute duration between slice bounds.
+   */
+  duration(
+    slice: string | TimecodeSlice,
+    opts?: { unit?: t.TimeUnit; round?: number; total?: t.Msecs },
+  ): t.TimecodeSliceDuration | undefined;
+
+  /**
+   * Compute formatted start/end summaries for a slice.
+   * - Returns undefined if slice cannot be resolved.
+   */
+  positions(
+    slice: string | TimecodeSlice,
+    opts?: { round?: number; total?: t.Msecs },
+  ): t.TimecodeSlicePositions | undefined;
 };
 
 /**
@@ -64,4 +111,22 @@ export type TimecodeSlice = {
 export type TimeWindowMs = {
   readonly from: t.Msecs;
   readonly to: t.Msecs;
+};
+
+/** Friendly lexical representation of a slice's textual bounds. */
+export type TimecodeSliceParts = {
+  readonly start: string;
+  readonly end: string;
+};
+
+/** Duration summary of a time slice. */
+export type TimecodeSliceDuration = {
+  readonly ms: t.Msecs;
+  readonly text: string;
+};
+
+/** Formatted lexical start/end of a time slice. */
+export type TimecodeSlicePositions = {
+  readonly start: string;
+  readonly end: string;
 };
