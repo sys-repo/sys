@@ -18,7 +18,7 @@ import {
   TraitDefSchema,
 } from './schema.slug/mod.ts';
 import { Validation } from './schema.validation/mod.ts';
-import { SlugTree as Tree } from './tree/mod.ts';
+import { Tree } from './tree/mod.ts';
 
 /**
  * Semantic Slug domain tools (core only).

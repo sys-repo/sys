@@ -1,10 +1,10 @@
 import { type t, describe, expect, it } from '../../../-test.ts';
 import { Slug } from '../../mod.ts';
-import { SlugTree } from '../mod.ts';
+import { Tree } from '../mod.ts';
 
 describe('Slug.Tree', () => {
   it('API', () => {
-    expect(Slug.Tree).to.equal(SlugTree);
+    expect(Slug.Tree).to.equal(Tree);
   });
 
   describe('fromNode', () => {

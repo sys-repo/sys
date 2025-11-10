@@ -1,1 +1,1 @@
-export { SlugTree } from './m.SlugTree.ts';
+export { Tree } from './m.Tree.ts';
