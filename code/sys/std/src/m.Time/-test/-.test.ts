@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Date } from '../../m.Time.Date/mod.ts';
-import { Timecode } from '../../m.Timecode/mod.ts';
+import { Timecode } from '../../m.Time.Timecode/mod.ts';
 import { Duration, Time } from '../mod.ts';
 
 describe('Time', () => {

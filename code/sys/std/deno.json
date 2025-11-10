@@ -30,7 +30,7 @@
     "./testing": "./src/m.Testing/mod.ts",
     "./testing/server": "./src/m.Testing.Server/mod.ts",
     "./time": "./src/-exports/-time.ts",
-    "./time/timecode": "./src/m.Timecode/mod.ts",
+    "./time/timecode": "./src/m.Time.Timecode/mod.ts",
     "./url": "./src/m.Url/mod.ts",
     "./value": "./src/-exports/-value.ts"
   }
