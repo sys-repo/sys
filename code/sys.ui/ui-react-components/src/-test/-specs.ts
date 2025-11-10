@@ -38,6 +38,7 @@ export const SpecsComponents = {
 
   [`${ns}: Player.Video: Element`]: () => import('../ui/Player.Video.Element/-spec/-SPEC.tsx'),
   [`${ns}: Player.Video: Controls`]: () => import('../ui/Player.Video.Controls/-spec/-SPEC.tsx'),
+  [`${ns}: Player.Video.Composite`]: () => import('../ui/Player.Video.Composite/-spec/-SPEC.tsx'),
   [`${ns}: Player.Video: VimeoBackground`]: () => import('../ui/VimeoBackground/-SPEC.tsx'),
   [`${ns}: Player.YouTube`]: () => import('../ui/Player.YouTube/-spec/-SPEC.tsx'),
 

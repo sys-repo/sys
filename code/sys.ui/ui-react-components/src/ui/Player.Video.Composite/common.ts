@@ -1,11 +1,12 @@
-import { type t, pkg, Pkg } from '../common.ts';
+import { pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
+export { KeyValue } from '../KeyValue/mod.ts';
 
 /**
  * Constants:
  */
-const name = 'MyComponent';
+const name = 'CompositeVideo';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
