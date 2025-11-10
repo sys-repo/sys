@@ -2,6 +2,8 @@ import React from 'react';
 import { Timecode } from '../common.ts';
 import { type t, Color, css } from './common.ts';
 
+const Composite = Timecode.Composite;
+
 /**
  * Simulated Composite View
  * - No <video>; advances a virtual clock with RAF.
@@ -45,22 +47,21 @@ export const CompositeVideo: React.FC<t.CompositeVideoProps> = (props) => {
         return;
       }
 
-      const norm = Timecode.Composite.normalize(videos);
+      const norm = Composite.normalize(videos);
       const srcs = norm.map((p) => p.src);
 
       const probeFn =
-        durationsProbe ??
-        (async (ins: readonly string[]) => Timecode.Composite.Durations.probe(ins));
+        durationsProbe ?? (async (ins: readonly string[]) => Composite.Durations.probe(ins));
       const durations = durationsProp ?? (await probeFn(srcs));
 
-      const r = Timecode.Composite.resolve(norm, durations);
+      const r = Composite.resolve(norm, durations);
       if (cancelled) return;
 
-      const v0 = Timecode.Composite.Time.clamp(startAt, r.total);
-      const m = Timecode.Composite.mapToSource(r.segments, v0) ?? {
+      const v0 = Composite.Time.clamp(startAt, r.total);
+      const m = Composite.mapToSource(r.segments, v0) ?? {
         index: r.segments.length ? 0 : -1,
         seg: r.segments[0],
-        srcTime: r.segments[0]?.from ?? (0 as t.Msecs),
+        srcTime: r.segments[0]?.original.from ?? (0 as t.Msecs),
         offset: 0 as t.Msecs,
       };
 
@@ -74,7 +75,7 @@ export const CompositeVideo: React.FC<t.CompositeVideoProps> = (props) => {
         console.log('[CompositeSim.resolve]', {
           segments: r.segments.length,
           total: r.total,
-          issues: Timecode.Composite.validate(norm, durations),
+          issues: Composite.validate(norm, durations),
         });
       }
     })().catch(() => {});
@@ -113,11 +114,11 @@ export const CompositeVideo: React.FC<t.CompositeVideoProps> = (props) => {
       if (total <= 0) return;
 
       // advance vtime
-      const vNext = Timecode.Composite.Time.clamp(vtime + dt, total);
+      const vNext = Composite.Time.clamp(vtime + dt, total);
       if (vNext !== vtime) setVtime(vNext);
 
       // map -> emit
-      const mapped = Timecode.Composite.mapToSource(resolved.segments, vNext);
+      const mapped = Composite.mapToSource(resolved.segments, vNext);
       if (mapped) {
         if (mapped.index !== index) setIndex(mapped.index);
         props.onTimeUpdate?.({ v: vNext, index: mapped.index, seg: mapped.seg });
@@ -140,29 +141,6 @@ export const CompositeVideo: React.FC<t.CompositeVideoProps> = (props) => {
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolved, playing, loop, vtime, index]);
-
-  // Basic key handlers to poke the sim (optional, dev convenience)
-  React.useEffect(() => {
-    if (!debug) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === ' ') {
-        e.preventDefault();
-        setPlaying((p) => !p);
-      }
-      if (e.key === 'ArrowRight' && resolved) {
-        const step = 500 as t.Msecs;
-        const v = Timecode.Composite.Time.clamp(vtime + step, resolved.total);
-        setVtime(v);
-      }
-      if (e.key === 'ArrowLeft' && resolved) {
-        const step = 500 as t.Msecs;
-        const v = Timecode.Composite.Time.clamp(vtime - step, resolved.total);
-        setVtime(v);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [debug, resolved, vtime]);
 
   // Render (simple overlay of the math)
   const theme = Color.theme(props.theme);
@@ -215,8 +193,8 @@ export const CompositeVideo: React.FC<t.CompositeVideoProps> = (props) => {
   };
 
   const mapped =
-    resolved && Timecode.Composite.mapToSource(resolved.segments, vtime)
-      ? Timecode.Composite.mapToSource(resolved.segments, vtime)
+    resolved && Composite.mapToSource(resolved.segments, vtime)
+      ? Composite.mapToSource(resolved.segments, vtime)
       : null;
 
   const fmtMs = (ms: t.Msecs) => {
@@ -247,11 +225,12 @@ export const CompositeVideo: React.FC<t.CompositeVideoProps> = (props) => {
             <>
               <div>src: ...{mapped.seg.src.slice(-30)}</div>
               <div>
-                srcTime={fmtMs(mapped.srcTime)} • slice=[{fmtMs(mapped.seg.from)} ..{' '}
-                {fmtMs(mapped.seg.to)}]
+                srcTime={fmtMs(mapped.srcTime)} • slice=[
+                {fmtMs(mapped.seg.original.from)} .. {fmtMs(mapped.seg.original.to)}]
               </div>
               <div>
-                vSlice=[{fmtMs(mapped.seg.vFrom)} .. {fmtMs(mapped.seg.vTo)}] • handoff≈
+                vSlice=[{fmtMs(mapped.seg.virtual.from)} .. {fmtMs(mapped.seg.virtual.to)}] •
+                handoff≈
                 {Number(handoff)}ms
               </div>
             </>
