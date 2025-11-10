@@ -1,6 +1,6 @@
-import { type t, describe, expect, it, Rx, Time } from '../-test.ts';
-import { Crdt } from '../m.Server/common.ts';
-import { Server } from '../m.Server/mod.ts';
+import { type t, describe, expect, it, Rx, Time } from '../../-test.ts';
+import { Crdt } from '../../m.Server/common.ts';
+import { Server } from '../../m.Server/mod.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('events.dispose', async () => {
@@ -85,7 +85,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       // 1) disable → expect one prop-change
       const p1 = next();
-      repo.sync.enabled = false;
+      repo.sync.enable(false);
       const e1 = await p1;
 
       expect(e1.before.id).to.eql(e1.after.id);
@@ -95,7 +95,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       // 2) enable → expect second prop-change
       const p2 = next();
-      repo.sync.enabled = true;
+      repo.sync.enable(true);
       const e2 = await p2;
 
       expect(e2.before.sync.enabled).to.eql(false);
@@ -104,14 +104,14 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       // 3) no-op toggle shouldn’t emit
       const fired: (typeof e1)[] = [];
       const sub = events.prop$.subscribe((e) => fired.push(e));
-      repo.sync.enabled = true; // no-op
+      repo.sync.enable();
       await Time.delay(); // one microtask hop
       expect(fired.length).to.eql(0);
       sub.unsubscribe();
 
       // 4) after dispose, no more events
       events.dispose();
-      repo.sync.enabled = false;
+      repo.sync.enable(false);
       await Time.delay();
       expect(fired.length).to.eql(0);
 
@@ -153,7 +153,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(peerChangesB[0].after.sync.peers).to.eql([s.repo.id.peer]);
 
       // Take A offline:
-      a.sync.enabled = false;
+      a.sync.enable(false);
       await Time.wait(100);
       expect(a.sync.peers).to.eql([]);
       expect(b.sync.peers).to.eql([s.repo.id.peer]);
@@ -173,7 +173,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(lastPeerB.after.sync.peers).to.eql([s.repo.id.peer]);
 
       // Bring A back online:
-      a.sync.enabled = true;
+      a.sync.enable();
       await Time.wait(100);
       expect(a.sync.peers).to.eql([s.repo.id.peer]);
       expect(b.sync.peers).to.eql([s.repo.id.peer]);
@@ -229,7 +229,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(peers.includes(b.id.peer)).to.be.true;
 
       // Take peer-A offline:
-      a.sync.enabled = false;
+      a.sync.enable(false);
       await Time.wait(100);
 
       expect(sFired.length).to.eql(3);
@@ -240,7 +240,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(bFired.map((e) => e.type).slice(-1)).to.eql(['network/peer-online']); // NB: no knowledge of the other peer.
 
       // Bring peer-A back online:
-      a.sync.enabled = true;
+      a.sync.enable();
       await Time.wait(100);
 
       expect(sFired.length).to.eql(4);

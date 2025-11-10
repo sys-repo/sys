@@ -118,19 +118,19 @@ export function toRepo(
 
     sync: {
       urls,
+      get peers() {
+        return Array.from(peers);
+      },
       get enabled() {
         if (urls.length === 0) return false;
         return _enabled;
       },
-      set enabled(value) {
+      enable(value = true) {
         if (value === _enabled) return;
         const before = cloneProps();
         _enabled = value;
         void toggleAdapters(_enabled);
         fireChanged('sync.enabled', before);
-      },
-      get peers() {
-        return Array.from(peers);
       },
     },
     get stores() {

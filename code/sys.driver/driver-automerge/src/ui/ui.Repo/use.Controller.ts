@@ -57,7 +57,7 @@ export function useController(props: P) {
    */
   const updatedEnabled = (enabled: boolean) => {
     setEnabled(!!repo && enabled);
-    if (repo) repo.sync.enabled = enabled;
+    repo?.sync.enable(enabled);
   };
 
   /**
