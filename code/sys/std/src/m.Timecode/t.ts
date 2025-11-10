@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 export type * from './t.ops.ts';
-export type * from './t.value.ts';
+export type * from './t.slice.ts';
 
 /**
  * Public library surface for timecodes.
@@ -9,6 +9,7 @@ export type * from './t.value.ts';
  */
 export type TimecodeLib = {
   readonly Ops: t.TimecodeOpsLib;
+  readonly Slice: t.TimecodeSliceLib;
 
   /** Regex pattern string for validation (HH optional, .mmm optional). */
   readonly pattern: string;
@@ -45,3 +46,24 @@ export type TimecodeLib = {
     opts?: { withMillis?: boolean; forceHours?: boolean },
   ) => t.VttTimecode;
 };
+
+/**
+ * Branded media timecode:
+ * - MM:SS
+ * - HH:MM:SS
+ * - HH:MM:SS.mmm
+ */
+export type VttTimecode = string & { readonly __vtt: 'VttTimecode' };
+
+/** Lexical kind discriminator for valid timecodes. */
+export type TimecodeKind = 'MM:SS' | 'HH:MM:SS' | 'HH:MM:SS.mmm';
+
+/** A single validated timecode entry with canonical milliseconds and associated data. */
+export type TimecodeEntry<T = unknown> = {
+  readonly tc: VttTimecode; //  validated key
+  readonly ms: t.Msecs; //      numeric canonical
+  readonly data: T;
+};
+
+/** A record of unvalidated timecode keys mapped to arbitrary data. */
+export type TimecodeMap<T = unknown> = { readonly [HH_MM_SS_mmm: string]: T };
