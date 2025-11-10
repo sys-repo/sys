@@ -7,8 +7,6 @@ import type { t } from './common.ts';
 
 import { Has } from './m.Slug.Has.ts';
 import { Is } from './m.Slug.Is.ts';
-import { SlugSurface as Surface } from './m.Slug.Surface.ts';
-import { SlugTree as Tree } from './m.SlugTree.ts';
 import {
   SlugMinimalSchema,
   SlugRefSchema,
@@ -20,6 +18,7 @@ import {
   TraitDefSchema,
 } from './schema.slug/mod.ts';
 import { Validation } from './schema.validation/mod.ts';
+import { SlugTree as Tree } from './tree/mod.ts';
 
 /**
  * Semantic Slug domain tools (core only).
@@ -30,7 +29,6 @@ export const Slug: t.SlugLib = {
   Has,
   Validation,
   Tree,
-  Surface,
   Schema: {
     get Slug() {
       return {

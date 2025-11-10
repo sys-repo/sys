@@ -1,5 +1,5 @@
-import { type t, Is } from '../common.ts';
-import { SlugSurface } from '../m.Slug.Surface.ts';
+import { type t } from '../common.ts';
+import { SlugTree } from '../tree/mod.ts';
 import { attachSemanticRanges } from './u.ranges.attach.ts';
 import { validateWithRanges } from './u.ranges.validate.ts';
 import { walkSlugTree } from './u.slug.tree.walk.ts';
@@ -26,7 +26,7 @@ export const validateSlugTreeWithRanges: L['validateWithRanges'] = (args: {
 
   for (const { node, path } of walkSlugTree(tree, base)) {
     // 1. Validate to relative pathed errors (no `basePath` passed here).
-    const slug = SlugSurface.fromTreeItem(node);
+    const slug = SlugTree.fromNode(node);
     const errs = validateWithRanges({ ast, slug, registry });
 
     // 2. Attach ranges (this step applies the node `basePath` for YAML mapping).
