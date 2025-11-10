@@ -21,7 +21,7 @@ export type {
  */
 export type * from '@sys/types';
 
-export type { TimecodeMap } from '@sys/std/t';
+export type { TimecodeEntry, TimecodeMap } from '@sys/std/t';
 export type { Yaml } from '@sys/yaml/t';
 
 /** User Interface: */
