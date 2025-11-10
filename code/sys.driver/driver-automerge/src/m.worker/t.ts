@@ -1,10 +1,15 @@
-import type { t } from './common.ts';
+import type { t, WIRE_VERSION } from './common.ts';
+
+export type * from './t.wire.ts';
 
 /**
  * Type surface for the web-worker transport layer of the CRDT repo.
  * Defines the contract used by both the main-thread client and worker host.
  */
 export type CrdtWorkerLib = {
+  /** Protocol version tag for all CRDT wire messages. */
+  readonly version: typeof WIRE_VERSION;
+
   /** Creates a worker-backed `Crdt.Repo` client façade on the main thread. */
   readonly repo: (port: MessagePort, opts?: { until?: t.UntilInput }) => t.CrdtRepo;
 

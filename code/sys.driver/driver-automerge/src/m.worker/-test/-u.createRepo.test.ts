@@ -8,6 +8,7 @@ import {
   expectTypeOf,
   it,
 } from '../../-test.ts';
+import { WIRE_VERSION } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 
 describe('CrdtWorker.repo (shim)', () => {
@@ -27,7 +28,11 @@ describe('CrdtWorker.repo (shim)', () => {
     ports.clear();
   });
 
-  describe('construct: core invariants', () => {
+  it('API', () => {
+    expect(CrdtWorker.version).to.eql(WIRE_VERSION);
+  });
+
+  describe('construct (core invariants)', () => {
     it('exposes a t.CrdtRepo surface (structural typing)', async () => {
       const { port1 } = makePorts();
       const repo = CrdtWorker.repo(port1);
