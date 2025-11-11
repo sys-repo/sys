@@ -1,242 +1,122 @@
 import React from 'react';
-import { Timecode } from '../common.ts';
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, Num, ObjectView, Str, VideoElement } from './common.ts';
+import { useVirtualPlayback } from './use.VirtualPlayback.ts';
+import { useVirtualTimeline } from './use.VirtualTimeline.ts';
 
-const Composite = Timecode.Composite;
+type P = t.CompositeVideoProps;
 
 /**
- * Simulated Composite View
- * - No <video>; advances a virtual clock with RAF.
- * - Uses Timecode.Composite.{normalize, resolve, mapToSource, Time, cursor} only.
- * - Emits onReady/onTimeUpdate/onEnded like the real thing.
+ * Component:
  */
-export const CompositeVideo: React.FC<t.CompositeVideoProps> = (props) => {
-  const {
-    videos,
-    durations: durationsProp,
-    durationsProbe,
-    startAt = 0,
-    handoff = 250, // kept for parity; not used in sim other than display
-    loop = false,
-    playing: playingProp,
-    autoPlay = true,
-    debug = false,
-  } = props;
+export const CompositeVideo: React.FC<P> = (props) => {
+  const { debug = false, videos, startAt, autoPlay, loop } = props;
 
-  // State
-  const [resolved, setResolved] = React.useState<t.TimecodeCompositionResolved>();
-  const [index, setIndex] = React.useState<number>(-1);
-  const [vtime, setVtime] = React.useState<t.TimecodeVTime>(0);
-  const [playing, setPlaying] = React.useState<boolean>(Boolean(playingProp ?? autoPlay));
+  /**
+   * Hooks:
+   */
+  const timeline = useVirtualTimeline(videos);
+  const playback = useVirtualPlayback(timeline, {
+    startAt,
+    autoPlay,
+    loop,
+    speed: 1,
+  });
 
-  // Controlled/Uncontrolled playing
-  React.useEffect(() => {
-    if (playingProp === undefined) return;
-    setPlaying(Boolean(playingProp));
-  }, [playingProp]);
+  console.group(`🐷`);
+  console.log('timeline', timeline);
+  console.log('playback', playback);
 
   // Resolve composition (helpers only)
   React.useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      if (!videos || videos.length === 0) {
-        setResolved(undefined);
-        setIndex(-1);
-        setVtime(0);
-        return;
-      }
-
-      const norm = Composite.normalize(videos);
-      const srcs = norm.map((p) => p.src);
-
-      const probeFn =
-        durationsProbe ?? (async (ins: readonly string[]) => Composite.Durations.probe(ins));
-      const durations = durationsProp ?? (await probeFn(srcs));
-
-      const r = Composite.resolve(norm, durations);
-      if (cancelled) return;
-
-      const v0 = Composite.Time.clamp(startAt, r.total);
-      const m = Composite.mapToSource(r.segments, v0) ?? {
-        index: r.segments.length ? 0 : -1,
-        seg: r.segments[0],
-        srcTime: r.segments[0]?.original.from ?? (0 as t.Msecs),
-        offset: 0 as t.Msecs,
-      };
-
-      setResolved(r);
-      setVtime(v0);
-      setIndex(m.index);
-
-      props.onReady?.({ total: r.total, resolved: r });
-
-      if (debug) {
-        console.log('[CompositeSim.resolve]', {
-          segments: r.segments.length,
-          total: r.total,
-          issues: Composite.validate(norm, durations),
-        });
-      }
-    })().catch(() => {});
-
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [videos, durationsProp, durationsProbe, startAt, debug]);
+    if (!timeline) return;
+    props.onReady?.({ total: timeline.total, timeline });
+  }, [timeline.rev]);
 
   /**
-   * RAF loop: purely virtual time
-   * - dt from performance.now
-   * - v' = clamp(v + dt, total)
-   * - emit onTimeUpdate
-   * - at end: loop or onEnded
+   * Render:
    */
-  React.useEffect(() => {
-    if (!resolved || resolved.segments.length === 0) return;
-
-    let raf = 0;
-    let last = 0;
-
-    const run = (ts: number) => {
-      raf = requestAnimationFrame(run);
-      if (!playing) {
-        last = ts;
-        return;
-      }
-
-      if (last === 0) last = ts;
-      const dt = Math.max(0, ts - last); // ms
-      last = ts;
-
-      const total = resolved.total;
-      if (total <= 0) return;
-
-      // advance vtime
-      const vNext = Composite.Time.clamp(vtime + dt, total);
-      if (vNext !== vtime) setVtime(vNext);
-
-      // map -> emit
-      const mapped = Composite.mapToSource(resolved.segments, vNext);
-      if (mapped) {
-        if (mapped.index !== index) setIndex(mapped.index);
-        props.onTimeUpdate?.({ v: vNext, index: mapped.index, seg: mapped.seg });
-      }
-
-      // end / loop
-      if (Number(vNext) >= Number(resolved.total) - 1) {
-        if (loop) {
-          setVtime(0 as t.TimecodeVTime);
-          setIndex(0);
-          return;
-        } else {
-          setPlaying(false);
-          props.onEnded?.();
-        }
-      }
-    };
-
-    raf = requestAnimationFrame(run);
-    return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resolved, playing, loop, vtime, index]);
-
-  // Render (simple overlay of the math)
   const theme = Color.theme(props.theme);
-  const ar = props.element?.aspectRatio ?? '16/9';
-
   const styles = {
     base: css({
       position: 'relative',
-      width: '100%',
-      aspectRatio: ar,
-      minHeight: 220,
-      background: Color.alpha(theme.fg, 0.06),
+      backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      borderRadius: props.element?.cornerRadius ?? 8,
-      overflow: 'hidden',
       display: 'grid',
-      placeItems: 'center',
-      fontFamily:
-        'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
     }),
-    hud: css({
-      position: 'absolute',
-      left: 8,
-      bottom: 8,
-      padding: '6px 8px',
-      fontSize: 12,
-      background: 'rgba(0,0,0,0.5)',
-      color: 'white',
-      borderRadius: 6,
-      userSelect: 'none',
-      pointerEvents: 'none',
-      lineHeight: 1.3,
-    }),
-    badge: css({
-      position: 'absolute',
-      top: 8,
-      right: 8,
-      padding: '4px 8px',
-      fontSize: 11,
-      borderRadius: 999,
-      background: playing ? 'rgba(39,174,96,0.85)' : 'rgba(127,140,141,0.85)',
-      color: 'white',
-      userSelect: 'none',
-    }),
-    center: css({
-      textAlign: 'center',
-      fontSize: 14,
-      opacity: 0.8,
+    obj: {
+      // Anchor container just outside the right edge of the player:
+      base: css({
+        position: 'absolute',
+        top: 0,
+        left: '100%',
+        transform: 'translateX(15px) translateY(10px)',
+        width: 'max-content',
+        maxWidth: 'min(46vw, 720px)',
+      }),
+      inner: css({
+        display: 'block',
+        width: 'auto',
+        maxWidth: '100%',
+        whiteSpace: 'normal',
+        wordBreak: 'break-word',
+      }),
+    },
+    videos: css({
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+      alignItems: 'start',
+      gap: 16,
     }),
   };
 
-  const mapped =
-    resolved && Composite.mapToSource(resolved.segments, vtime)
-      ? Composite.mapToSource(resolved.segments, vtime)
-      : null;
+  const elObj = debug && (
+    <div className={styles.obj.base.class}>
+      <ObjectView
+        style={styles.obj.inner}
+        name={'playback'}
+        data={{
+          vtime: Num.round(playback.vtime),
+          index: playback.index,
+          seg: playback.seg,
+          src: Str.ellipsize(playback.seg?.src, [15, 20]),
+        }}
+        theme={theme.name}
+        expand={1}
+      />
+    </div>
+  );
 
-  const fmtMs = (ms: t.Msecs) => {
-    const s = Math.floor(Number(ms) / 1000);
-    const m = Math.floor(s / 60);
-    const ss = s % 60;
-    return `${m}:${String(ss).padStart(2, '0')}`;
+  const renderVideo = (index: t.Index, src?: string) => {
+    const isCurrent = index === playback.index;
+    return (
+      <VideoElement
+        key={index}
+        showControls={false}
+        src={src}
+        cornerRadius={10}
+        playing={isCurrent}
+        theme={theme.name}
+        muted={true}
+        style={{
+          width: '100%',
+          opacity: isCurrent ? 1 : 0.3,
+          filter: isCurrent ? 'none' : 'grayscale(100%) brightness(0.8)',
+          transition: 'opacity 120ms ease, filter 200ms ease',
+        }}
+      />
+    );
   };
+
+  const elVideos = (
+    <div className={styles.videos.class}>
+      {(timeline?.segments ?? []).map((seg, i) => renderVideo(i, seg.src))}
+    </div>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.center.class}>
-        <div>Composite Video (Simulated)</div>
-        <div style={{ marginTop: 6, fontSize: 12, opacity: 0.7 }}>
-          helpers-only • raf clock • no media elements
-        </div>
-        {!resolved && <div style={{ marginTop: 12 }}>waiting for resolution…</div>}
-      </div>
-
-      <div className={styles.badge.class}>{playing ? 'playing' : 'paused'}</div>
-
-      {resolved && (
-        <div className={styles.hud.class}>
-          <div>
-            v={fmtMs(vtime)} / {fmtMs(resolved.total)} • seg={index}
-          </div>
-          {mapped && (
-            <>
-              <div>src: ...{mapped.seg.src.slice(-30)}</div>
-              <div>
-                srcTime={fmtMs(mapped.srcTime)} • slice=[
-                {fmtMs(mapped.seg.original.from)} .. {fmtMs(mapped.seg.original.to)}]
-              </div>
-              <div>
-                vSlice=[{fmtMs(mapped.seg.virtual.from)} .. {fmtMs(mapped.seg.virtual.to)}] •
-                handoff≈
-                {Number(handoff)}ms
-              </div>
-            </>
-          )}
-        </div>
-      )}
+      {elVideos}
+      {elObj}
     </div>
   );
 };

@@ -1,7 +1,8 @@
 import { type t, Timecode } from './common.ts';
-import { CompositeVideo as View } from './ui.tsx';
+import { SpecInfo } from './ui.SpecInfo.tsx';
+import { CompositeVideo as Video } from './ui.tsx';
 
 export const CompositeVideo: t.CompositeVideoLib = {
-  View,
   Tools: Timecode.Composite,
+  View: { Video, SpecInfo },
 };

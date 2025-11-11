@@ -20,17 +20,21 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size([420, null])
+      .size([640, null])
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
         v.videos;
         return (
-          <CompositeVideo.View
+          <CompositeVideo.View.Video
             debug={v.debug}
             theme={v.theme}
             videos={v.videos}
             onTimeUpdate={(e) => console.info(`⚡️ onTimeUpdate`, e)}
+            onReady={(e) => {
+              console.info(`⚡️ onReady:`, e);
+              p.timeline.value = e.timeline;
+            }}
           />
         );
       });

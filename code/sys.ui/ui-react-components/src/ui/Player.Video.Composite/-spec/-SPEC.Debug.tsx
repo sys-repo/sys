@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { CompositeVideo } from '../mod.ts';
 
 type P = t.CompositeVideoProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'videos'>;
@@ -29,6 +30,8 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     videos: s(snap.videos),
+
+    timeline: s<t.TimecodeResolved>(),
   };
   const p = props;
   const api = {
@@ -105,16 +108,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
           p.videos.value = [
             {
               src: `${base}/video/v2/core/sha256-3ee12096a189525fcbb0e85d1781fc414e46e8c306b6ee170af17fe8bd2b11c7.webm`,
-              slice: '00:00:00..00:00:02',
+              slice: '00:00:00..00:00:01.001',
             },
             {
               // src: `${base}/video/v2/core/sha256-4f389f967e94fd9838d84619aaf06f68f984e2f7a6d40637df13a65476d047f9.webm`,
               src: `${base}/video/540p/1068653222.mp4`,
-              slice: '00:00:02..00:00:05',
+              slice: '00:02..00:00:03',
             },
             {
               src: `${base}/video/v2/core/sha256-4f389f967e94fd9838d84619aaf06f68f984e2f7a6d40637df13a65476d047f9.webm`,
-              slice: '00:00:03..00:00:06',
+              slice: '00:00:05..00:07',
             },
           ] satisfies t.TimecodeCompositionSpec;
         }}
@@ -128,6 +131,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView
+        name={'timeline'}
+        data={Signal.toObject(p.timeline)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
+
+      <hr style={{ marginTop: 30 }} />
+      <CompositeVideo.View.SpecInfo
+        videos={p.videos.value}
+        style={{ MarginX: 10, marginTop: 20 }}
+      />
     </div>
   );
 };
