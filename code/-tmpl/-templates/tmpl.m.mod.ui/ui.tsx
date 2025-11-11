@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, KeyValue } from './common.ts';
+import { type t, Color, css, D, KeyValue, Obj } from './common.ts';
 
 export const MyComponent: React.FC<t.MyComponentProps> = (props) => {
   const { debug = false } = props;
