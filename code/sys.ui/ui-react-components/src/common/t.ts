@@ -9,9 +9,11 @@ export type * from '@sys/ui-css/t';
 export type { ColorTheme } from '@sys/color/t';
 export type {
   TimecodeCompositeLib,
+  TimecodeCompositePiece,
   TimecodeCompositionResolved,
   TimecodeCompositionSpec,
   TimecodeDurationMap,
+  TimecodeResolved,
   TimecodeResolvedSegment,
   TimecodeSlice,
   TimecodeSliceString,
