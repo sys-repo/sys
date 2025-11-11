@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, Rx, useBus, YamlEditorFooter } from './common.ts';
+import { type t, Color, css, D, Obj, Rx, useBus, YamlEditorFooter } from './common.ts';
 import { Body } from './ui.Body.tsx';
 import { NotReady } from './ui.NotReady.tsx';
 import { useYamlController } from './use.YamlController.ts';
@@ -21,9 +21,10 @@ export const YamlEditor: React.FC<P> = (props) => {
    */
   const controller = useYamlController(bus$, props);
   const { ready, yaml, signals, doc } = controller;
+  const cursor = yaml?.current?.cursor;
 
   /**
-   * Effect: Alert listeners when CRDT document-loaded.
+   * Effect: alert listeners when CRDT document-loaded.
    */
   React.useEffect(() => {
     if (!doc) return;
@@ -32,6 +33,14 @@ export const YamlEditor: React.FC<P> = (props) => {
     props.onDocumentLoaded?.({ doc, events, dispose$ });
     return dispose;
   }, [doc?.id]);
+
+  /**
+   * Effect: alert listeners when cursor changes.
+   */
+  React.useEffect(() => {
+    if (!cursor) return;
+    props.onCursor?.(cursor);
+  }, [cursor?.editorId, Obj.hash(cursor?.path)]);
 
   /**
    * Render:
@@ -59,7 +68,7 @@ export const YamlEditor: React.FC<P> = (props) => {
     <YamlEditorFooter
       theme={theme.name}
       style={styles.footer}
-      path={yaml?.current?.cursor.path}
+      path={cursor?.path}
       visible={isFooterVisible}
       crdt={{ repo, visible: footer.repo ?? true }}
       errors={yaml?.current?.data.errors}

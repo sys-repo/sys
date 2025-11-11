@@ -21,6 +21,7 @@ export type YamlEditorProps = {
 
   onReady?: t.EditorCrdtBindingReadyHandler;
   onDocumentLoaded?: t.YamlEditorDocumentLoadedHandler;
+  onCursor?: (e: t.EditorCursor) => void;
 };
 
 /** Display settings for diagnostics (error markers).  */

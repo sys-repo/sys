@@ -47,7 +47,8 @@ export default Spec.describe(D.displayName, (e) => {
                 until: e.dispose$,
               });
             }}
-            onDocumentLoaded={(e) => console.info(`⚡️ MonacoEditor.onDocumentLoaded:`, e)}
+            onDocumentLoaded={(e) => console.info(`⚡️ Monaco.Yaml.Editor.onDocumentLoaded:`, e)}
+            onCursor={(e) => console.info(`⚡️ Monaco.Yaml.Editor.onCursor:`, e)}
           />
         );
       });
