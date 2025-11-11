@@ -1,18 +1,49 @@
 import { type t } from '../common.ts';
 
-export const resolve: t.TimecodeSliceLib['resolve'] = (slice, total) => {
-  const clamp = (n: number) => Math.max(0, Math.min(total, n));
+/**
+ * Resolve a parsed slice into a concrete [from,to) window.
+ */
+export function resolve(slice: t.TimecodeSlice, total: t.Msecs): t.TimeWindowMs {
+  const clamp = (n: number) => Math.max(0, Math.min(Number(total), n)) as t.Msecs;
 
-  const startMs = resolveBound(slice.start, total, 'start');
-  const endMs = resolveBound(slice.end, total, 'end');
+  // start
+  let from: t.Msecs;
+  switch (slice.start.kind) {
+    case 'open':
+      from = 0 as t.Msecs;
+      break;
+    case 'abs':
+      from = clamp(slice.start.ms);
+      break;
+    case 'relEnd':
+      from = clamp(Number(total) - Number(slice.start.ms));
+      break;
+  }
 
-  const from = clamp(startMs);
-  const to = clamp(endMs);
+  // end
+  let to: t.Msecs;
+  switch (slice.end.kind) {
+    case 'open':
+      to = total;
+      break;
+    case 'abs':
+      to = clamp(slice.end.ms);
+      break;
+    case 'relEnd':
+      // Absolute end position measured from total:
+      to = clamp(Number(total) - Number(slice.end.ms));
+      break;
+  }
 
-  // Coerce to a valid window ensuring from <= to:
-  if (from <= to) return { from, to };
-  return { from: to, to: from };
-};
+  // enforce half-open and monotonic ordering
+  if (Number(to) < Number(from)) {
+    const tmp = from;
+    from = to;
+    to = tmp;
+  }
+
+  return { from, to };
+}
 
 /**
  * Resolve a classified bound against total duration.

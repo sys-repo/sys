@@ -1,4 +1,5 @@
-import { type t } from './common.ts';
+import { type t, Slice } from './common.ts';
+import { normalize } from './u.normalize.ts';
 
 /**
  * Build a resolved timeline from authoring spec + known durations.
@@ -12,70 +13,46 @@ import { type t } from './common.ts';
  */
 export function resolve(
   spec: t.TimecodeCompositionSpec,
-  durations: t.TimecodeDurationMap = {},
+  durations: t.TimecodeDurationMap,
 ): t.TimecodeCompositionResolved {
+  const norm = normalize(spec);
   const segments: t.TimecodeResolvedSegment[] = [];
-  let v = 0 as t.Msecs;
+  let vFrom = 0 as t.Msecs;
 
-  for (const piece of spec) {
-    const src = piece.src;
-    const sliceStr = piece.slice ? String(piece.slice).trim() : undefined;
+  for (const p of norm) {
+    // 1) Pick total: inline duration wins; else duration map.
+    const total =
+      typeof p.duration === 'number' && isFinite(p.duration) && p.duration >= 0
+        ? (p.duration as t.Msecs)
+        : (durations[p.src] as t.Msecs | undefined);
 
-    let from = 0 as t.Msecs;
-    let to: t.Msecs | undefined;
+    if (typeof total !== 'number' || !isFinite(total) || total <= 0) continue;
 
-    if (sliceStr) {
-      const i = sliceStr.indexOf('..');
-      if (i < 0) continue; // invalid grammar → skip this piece
-
-      const start = sliceStr.slice(0, i).trim();
-      const end = sliceStr.slice(i + 2).trim();
-
-      const hasStart = start.length > 0;
-      const hasEnd = end.length > 0;
-
-      const startMs = hasStart ? toMs(start) : (0 as number | null);
-      const endMs = hasEnd ? toMs(end) : (durations[src] ?? null);
-
-      if (startMs == null || endMs == null) continue;
-
-      from = startMs as t.Msecs;
-      to = endMs as t.Msecs;
+    // 2) Resolve source window.
+    let win: t.TimeWindowMs;
+    if (p.slice) {
+      const s = String(p.slice);
+      if (!Slice.is(s)) continue; // guard: invalid slice (validate() would flag)
+      const parsed = Slice.parse(s as t.TimecodeSliceString);
+      win = Slice.resolve(parsed, total);
+    } else {
+      win = { from: 0 as t.Msecs, to: total };
     }
+    if (win.to <= win.from) continue;
 
-    if (to == null) {
-      const d = durations[src];
-      if (typeof d !== 'number' || d <= 0) continue; // cannot resolve without duration
-      to = d as t.Msecs;
-    }
+    // 3) Project into virtual timeline (half-open).
+    const len = (Number(win.to) - Number(win.from)) as t.Msecs;
+    const vTo = (Number(vFrom) + Number(len)) as t.Msecs;
 
-    const len = (to - from) as t.Msecs;
-    if (len <= 0) continue;
+    segments.push({
+      src: p.src,
+      original: { from: win.from, to: win.to },
+      virtual: { from: vFrom, to: vTo },
+    });
 
-    const seg: t.TimecodeResolvedSegment = {
-      src,
-      original: { from, to },
-      virtual: { from: v, to: (v + len) as t.Msecs },
-    };
-
-    segments.push(seg);
-    v = seg.virtual.to;
+    vFrom = vTo;
   }
 
-  return { total: v, segments };
-}
-
-/** Parse "HH:MM:SS(.mmm)" into ms. Returns null if invalid. */
-function toMs(hms: string): number | null {
-  const parts = hms.split(':'); // HH:MM:SS(.mmm)
-  if (parts.length < 3) return null;
-  const [hh, mm, ssRaw] = parts;
-  const [ss, ms = '0'] = ssRaw.split('.');
-  const h = Number(hh),
-    m = Number(mm),
-    s = Number(ss);
-  if (Number.isNaN(h) || Number.isNaN(m) || Number.isNaN(s)) return null;
-  const msNum = Number(ms.padEnd(3, '0').slice(0, 3));
-  if (Number.isNaN(msNum)) return null;
-  return (h * 3600 + m * 60 + s) * 1000 + msNum;
+  const totalV = segments.length ? segments[segments.length - 1].virtual.to : (0 as t.Msecs);
+  return { segments, total: totalV };
 }

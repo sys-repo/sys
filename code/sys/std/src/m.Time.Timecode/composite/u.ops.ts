@@ -9,44 +9,57 @@ export const Ops: t.TimecodeCompositeLib['Ops'] = {
 /**
  * Insert pieces at segment boundary; returns a new resolved timeline.
  */
-function splice(
+export function splice(
   resolved: t.TimecodeCompositionResolved,
   at: number,
   pieces: t.TimecodeCompositionSpec,
   durations: t.TimecodeDurationMap,
 ): t.TimecodeCompositionResolved {
-  const before = resolved.segments.slice(0, at);
-  const after = resolved.segments.slice(at);
+  const idx = Math.max(0, Math.min(at, resolved.segments.length));
 
-  const vFrom = before.length ? before[before.length - 1].virtual.to : (0 as t.Msecs);
+  const before = resolved.segments.slice(0, idx);
+  const after = resolved.segments.slice(idx);
+
+  // Resolve inserted with canonical path (prefers inline duration)
   const insertedResolved = resolve(pieces, durations);
+  const inserted = insertedResolved.segments;
 
-  // Rebase inserted to vFrom
-  let baseInserted = insertedResolved.segments;
-  if (baseInserted.length > 0) {
-    const base = baseInserted[0].virtual.from;
-    baseInserted = baseInserted.map((s) => ({
-      ...s,
-      virtual: {
-        from: (vFrom + (s.virtual.from - base)) as t.Msecs,
-        to: (vFrom + (s.virtual.to - base)) as t.Msecs,
-      },
-    }));
-  }
+  // Base offset for inserted block
+  const vBase = (before.at(-1)?.virtual.to ?? 0) as t.Msecs;
 
-  // Rebase "after"
-  const newStart = baseInserted.length ? baseInserted[baseInserted.length - 1].virtual.to : vFrom;
-  const delta = (newStart - (after[0]?.virtual.from ?? newStart)) as t.Msecs;
-  const rebasedAfter = after.map((s) => ({
-    ...s,
-    virtual: {
-      from: (s.virtual.from + delta) as t.Msecs,
-      to: (s.virtual.to + delta) as t.Msecs,
-    },
-  }));
+  // Re-base INSERTED → start at vBase
+  const rebasedInserted =
+    inserted.length === 0
+      ? inserted
+      : (() => {
+          const v0 = inserted[0].virtual.from;
+          return inserted.map((s) => ({
+            ...s,
+            virtual: {
+              from: (vBase + (s.virtual.from - v0)) as t.Msecs,
+              to: (vBase + (s.virtual.to - v0)) as t.Msecs,
+            },
+          }));
+        })();
 
-  const segments = [...before, ...baseInserted, ...rebasedAfter];
-  const total = segments.length ? segments[segments.length - 1].virtual.to : (0 as t.Msecs);
+  // Re-base AFTER to follow the inserted block (or vBase if none inserted)
+  const newAfterStart = (rebasedInserted.at(-1)?.virtual.to ?? vBase) as t.Msecs;
+  const oldAfterStart = (after[0]?.virtual.from ?? newAfterStart) as t.Msecs;
+  const delta = (newAfterStart - oldAfterStart) as t.Msecs;
+
+  const rebasedAfter =
+    delta === 0
+      ? after
+      : after.map((s) => ({
+          ...s,
+          virtual: {
+            from: (s.virtual.from + delta) as t.Msecs,
+            to: (s.virtual.to + delta) as t.Msecs,
+          },
+        }));
+
+  const segments = [...before, ...rebasedInserted, ...rebasedAfter];
+  const total = (segments.at(-1)?.virtual.to ?? 0) as t.Msecs;
   return { segments, total };
 }
 

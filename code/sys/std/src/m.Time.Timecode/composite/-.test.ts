@@ -180,8 +180,8 @@ describe('Composite', () => {
       const bad: t.TimecodeCompositionSpec = [{ src: SRC_A, slice: slice('bogus') }];
       const r = Composite.validate(bad, DURS);
       expect(r.ok).to.eql(false);
-      expect(r.issues[0].kind).to.eql('invalid-slice');
       expect((r.issues[0] as any).src).to.eql(SRC_A);
+      expect(r.issues[0].kind).to.eql('invalid-slice');
     });
 
     it('flags zero-length segment', () => {
@@ -189,6 +189,50 @@ describe('Composite', () => {
       const r = Composite.validate(z, DURS);
       expect(r.ok).to.eql(false);
       expect(r.issues[0]).to.eql({ kind: 'zero-length-segment', src: SRC_A });
+    });
+
+    it('ok when piece has inline duration without map entry', () => {
+      const spec: t.TimecodeCompositionSpec = [{ src: 'X.mp4', duration: asMs(10_000) }];
+      const r = Composite.validate(spec, {} as t.TimecodeDurationMap);
+      expect(r.ok).to.eql(true);
+      expect(r.issues).to.eql([]);
+    });
+
+    it('flags missing duration when neither inline nor map provides a finite value', () => {
+      const spec: t.TimecodeCompositionSpec = [{ src: 'X.mp4' }];
+      const r = Composite.validate(spec, {} as t.TimecodeDurationMap);
+      expect(r.ok).to.eql(false);
+      expect(r.issues[0]).to.eql({ kind: 'missing-duration', src: 'X.mp4' });
+    });
+
+    it('flags missing duration when inline is non-finite (NaN/±Infinity/negative)', () => {
+      const bads: t.TimecodeCompositionSpec = [
+        { src: SRC_A, duration: Number.NaN as t.Msecs },
+        { src: SRC_B, duration: Number.POSITIVE_INFINITY as t.Msecs },
+        { src: 'Y.mp4', duration: -1 as t.Msecs },
+      ];
+      const r = Composite.validate(bads, {} as t.TimecodeDurationMap);
+      expect(r.ok).to.eql(false);
+      expect(r.issues.map((i) => i.src)).to.eql([SRC_A, SRC_B, 'Y.mp4']);
+    });
+
+    it('prefers inline duration over map (validation passes regardless of map value)', () => {
+      const spec: t.TimecodeCompositionSpec = [{ src: SRC_A, duration: asMs(5000) }];
+      const map: t.TimecodeDurationMap = { [SRC_A]: asMs(120_000) };
+      const r = Composite.validate(spec, map);
+      expect(r.ok).to.eql(true);
+      expect(r.issues).to.eql([]);
+    });
+
+    it('prefers inline duration over duration map', () => {
+      const spec: t.TimecodeCompositionSpec = [
+        { src: SRC_A, slice: slice('..-00:00:08'), duration: asMs(10_000) }, // total=10s ⇒ 0..(10s-8s)=2s
+      ];
+      const res = Composite.resolve(spec, { [SRC_A]: asMs(120_000) }); // map says 120s, should be ignored
+      expect(res.total).to.eql(asMs(2_000));
+      expect(res.segments.length).to.eql(1);
+      expect(res.segments[0].original.from).to.eql(asMs(0));
+      expect(res.segments[0].original.to).to.eql(asMs(2_000));
     });
   });
 
@@ -278,36 +322,101 @@ describe('Composite', () => {
       const A = Composite.resolve([{ src: SRC_A, slice: slice('..00:00:10') }], DURS);
       const B = Composite.resolve([{ src: SRC_B, slice: slice('..00:00:05') }], DURS);
       const C = Composite.Ops.concat(A, B);
+
       expect(C.total).to.eql(asMs(10_000 + 5_000));
+      expect(C.segments.length).to.eql(2);
+      expect(C.segments[0].src).to.eql(SRC_A);
+      expect(C.segments[1].src).to.eql(SRC_B);
       expect(C.segments[1].virtual.from).to.eql(asMs(10_000));
       expect(C.segments[1].virtual.to).to.eql(asMs(15_000));
     });
 
     it('splice inserts and re-bases after segments', () => {
-      const base = Composite.resolve(SPEC, DURS); // [60s of A] [80s of B]
+      // Base: [A: 0..60s] [B: 10..90s] → virtual [0..60] [60..140]
+      const base = Composite.resolve(SPEC, DURS);
       const insert: t.TimecodeCompositionSpec = [
-        { src: SRC_A, slice: slice('00:00:30..00:00:40') },
+        { src: SRC_A, slice: slice('00:00:30..00:00:40') }, // 10s clip
       ];
       const sp = Composite.Ops.splice(base, 1, insert, DURS);
 
-      console.info();
-      console.info(c.cyan(`Composite.Ops.splice:`));
-      console.info(sp);
-      console.info();
-
       // Expect: A(0..60) + insert(A 30..40) + B(10..90), virtual spans rebased
       expect(sp.segments.length).to.eql(3);
-      expect(sp.segments[0].virtual.from).to.eql(asMs(0));
-      expect(sp.segments[0].virtual.to).to.eql(asMs(60_000));
 
-      expect(sp.segments[1].original.from).to.eql(asMs(30_000));
-      expect(sp.segments[1].original.to).to.eql(asMs(40_000));
-      expect(sp.segments[1].virtual.from).to.eql(asMs(60_000));
-      expect(sp.segments[1].virtual.to).to.eql(asMs(70_000));
+      expect(sp.segments[0].virtual).to.eql({ from: asMs(0), to: asMs(60_000) });
 
-      expect(sp.segments[2].virtual.from).to.eql(asMs(70_000));
-      expect(sp.segments[2].virtual.to).to.eql(asMs(150_000)); // 70k + 80s
+      expect(sp.segments[1].original).to.eql({ from: asMs(30_000), to: asMs(40_000) });
+      expect(sp.segments[1].virtual).to.eql({ from: asMs(60_000), to: asMs(70_000) });
+
+      expect(sp.segments[2].virtual).to.eql({ from: asMs(70_000), to: asMs(150_000) });
       expect(sp.total).to.eql(asMs(150_000));
+    });
+
+    it('splice: inserted pieces prefer inline duration over map', () => {
+      const base = Composite.resolve(
+        [{ src: SRC_A, slice: slice('..00:00:02') }],
+        { [SRC_A]: asMs(2_000) }, // key matches src "A.mp4"
+      );
+      // Map says 8s, inline says 2s → must use 2s
+      const insert: t.TimecodeCompositionSpec = [
+        { src: SRC_B, duration: asMs(2_000), slice: slice('..00:00:02') },
+      ];
+      const res = Composite.Ops.splice(
+        base,
+        1,
+        insert,
+        { [SRC_B]: asMs(8_000) }, // map exists but should be ignored in favor of inline
+      );
+
+      expect(res.segments.map((s) => s.src)).to.eql([SRC_A, SRC_B]);
+      expect(res.segments[0].virtual).to.eql({ from: asMs(0), to: asMs(2_000) });
+      expect(res.segments[1].virtual).to.eql({ from: asMs(2_000), to: asMs(4_000) });
+      expect(res.total).to.eql(asMs(4_000));
+    });
+
+    it('splice: open-end slice uses inline total for resolution (no map)', () => {
+      // Base: A 1s
+      const base = Composite.resolve(
+        [{ src: SRC_A, slice: slice('..00:00:01') }],
+        { [SRC_A]: asMs(1_000) }, // correct key
+      );
+
+      // Insert: B duration 3s, slice "1s..end" ⇒ 2s segment
+      const insert: t.TimecodeCompositionSpec = [
+        { src: SRC_B, duration: asMs(3_000), slice: slice('00:00:01..') },
+      ];
+      const res = Composite.Ops.splice(base, 1, insert, {}); // no map for B (inline wins)
+
+      expect(res.segments.map((s) => s.src)).to.eql([SRC_A, SRC_B]);
+      expect(res.segments[0].virtual).to.eql({ from: asMs(0), to: asMs(1_000) });
+
+      const segB = res.segments[1];
+      expect(segB.original).to.eql({ from: asMs(1_000), to: asMs(3_000) }); // 1s..3s of B
+      expect(segB.virtual).to.eql({ from: asMs(1_000), to: asMs(3_000) }); // appended after base
+
+      expect(res.total).to.eql(asMs(3_000)); // 1s base + 2s insert
+    });
+
+    it('splice: drops zero-length inserted segments and re-bases following segments', () => {
+      const base = Composite.resolve(
+        [
+          { src: SRC_A, slice: slice('..00:00:02') },
+          { src: SRC_B, slice: slice('..00:00:02') },
+        ],
+        { [SRC_A]: asMs(2_000), [SRC_B]: asMs(2_000) }, // correct keys
+      );
+
+      const insert: t.TimecodeCompositionSpec = [
+        { src: 'X', duration: asMs(0) }, // zero-length → dropped
+        { src: 'Y', duration: asMs(2_000), slice: slice('00:00:01..00:00:02') }, // 1s
+      ];
+
+      const res = Composite.Ops.splice(base, 1, insert, {}); // insert between A and B
+
+      expect(res.segments.map((s) => s.src)).to.eql([SRC_A, 'Y', SRC_B]);
+      expect(res.segments[0].virtual).to.eql({ from: asMs(0), to: asMs(2_000) });
+      expect(res.segments[1].virtual).to.eql({ from: asMs(2_000), to: asMs(3_000) });
+      expect(res.segments[2].virtual).to.eql({ from: asMs(3_000), to: asMs(5_000) });
+      expect(res.total).to.eql(asMs(5_000));
     });
   });
 
