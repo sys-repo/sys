@@ -137,7 +137,7 @@ const wrangle = {
 
     const { textMaxLength = 16 } = props;
     let text = (current?.text ?? '') as string;
-    if (text) text = Str.shorten(text, textMaxLength);
+    if (text) text = Str.truncate(text, textMaxLength);
 
     return { ...current, text };
   },
