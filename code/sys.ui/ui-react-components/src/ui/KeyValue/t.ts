@@ -81,7 +81,7 @@ export type KeyValueRow = {
  */
 export type KeyValueTitle = {
   readonly kind: 'title';
-  readonly v: React.ReactNode;
+  readonly v: React.ReactNode | [React.ReactNode, React.ReactNode];
   readonly x?: KeyValueSpacing; // spacing: [left, right]
   readonly y?: KeyValueSpacing; // spacing: [top, bottom]
 };

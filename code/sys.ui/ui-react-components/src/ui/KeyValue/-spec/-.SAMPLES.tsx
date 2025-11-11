@@ -31,7 +31,7 @@ const comprehensive: t.KeyValueItem[] = [
 
   { kind: 'hr' },
 
-  { kind: 'title', v: 'Audio Input' },
+  { kind: 'title', v: ['Audio Input', 'Right Aligned Title'] },
   { k: 'label', v: 'Yeti Nano', x: 10 },
   { k: 'sampleRate', v: '48000 Hz', x: 10 },
   { k: 'channels', v: '2', y: [6, 5], x: 10 },

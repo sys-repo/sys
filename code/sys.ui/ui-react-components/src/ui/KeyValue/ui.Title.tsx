@@ -11,6 +11,8 @@ export const Title: React.FC<P> = (props) => {
   const { debug = false, item } = props;
   if (item.kind !== 'title') return null;
 
+  const title = wrangle.parts(item);
+
   /**
    * Render:
    */
@@ -20,8 +22,9 @@ export const Title: React.FC<P> = (props) => {
     base: css({
       Margin: spacing.edges,
       color: theme.fg,
-      display: 'grid',
       fontFamily: 'sans-serif',
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr auto',
     }),
     label: css({
       fontWeight: 700,
@@ -32,7 +35,19 @@ export const Title: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.label.class}>{item.v}</div>
+      <div className={styles.label.class}>{title[0]}</div>
+      <div />
+      <div className={styles.label.class}>{title[1]}</div>
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  parts(item: t.KeyValueTitle) {
+    const v = item.v;
+    return Array.isArray(v) ? [v[0], v[1]] : [v, undefined];
+  },
+} as const;
