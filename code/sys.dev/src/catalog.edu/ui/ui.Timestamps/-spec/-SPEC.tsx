@@ -24,7 +24,7 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Timestamps debug={v.debug} theme={v.theme} />;
+        return <Timestamps.View debug={v.debug} theme={v.theme} />;
       });
 
     update();
