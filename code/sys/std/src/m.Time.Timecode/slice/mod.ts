@@ -2,6 +2,7 @@ import type { t } from '../common.ts';
 
 import { is } from './u.is.ts';
 import { parse } from './u.parse.ts';
+import { toRange } from './u.range.ts';
 import { resolve } from './u.resolve.ts';
 import { duration, from, positions, split, toString } from './u.string.ts';
 
@@ -21,8 +22,9 @@ export const Slice: t.TimecodeSliceLib = {
   parse,
   resolve,
   from,
-  toString,
   split,
   duration,
   positions,
+  toString,
+  toRange,
 };

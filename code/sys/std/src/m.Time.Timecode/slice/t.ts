@@ -70,6 +70,11 @@ export type TimecodeSliceLib = {
     slice: string | TimecodeSlice,
     opts?: { round?: number; total?: t.Msecs },
   ): t.TimecodeSlicePositions | undefined;
+
+  /**
+   * Convert a slice into a millisecond span [from,to).
+   */
+  toRange(input?: t.TimecodeSliceStringInput, total?: t.Secs): t.MsecSpan | undefined;
 };
 
 /**
@@ -88,6 +93,9 @@ export type TimecodeSliceLib = {
  *   "00:00:05..-00:00:02"    // from 5s to 2s before the end
  */
 export type TimecodeSliceString = string & { readonly __brand: 'TimecodeSliceString' };
+
+/** Looser param input for a timecode slice, eg. 'HH:MM:SS(.mmm)' */
+export type TimecodeSliceStringInput = TimecodeSliceString | string;
 
 /**
  * Bound kinds:

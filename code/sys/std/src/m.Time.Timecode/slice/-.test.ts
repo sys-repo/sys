@@ -1,12 +1,13 @@
 import { type t, describe, expect, it } from '../../-test.ts';
 import { Slice } from './mod.ts';
 
-const ms = (n: number) => n as t.Msecs;
+const ms = (n: number): t.Msecs => n;
+const secs = (n: number): t.Secs => n;
 
 describe('Timecode.Slice', () => {
   describe('is(): lexical truth table', () => {
     it('valid cases', () => {
-      const ok: readonly string[] = [
+      const ok: string[] = [
         '00:00..00:10',
         '00:00:05..00:00:10',
         '..00:00:10',
@@ -16,12 +17,13 @@ describe('Timecode.Slice', () => {
         '..-00:00:05',
         '00:10:00..00:10:00.250',
         '00:59..01:00',
+        '00:11:30..-00:10:00',
       ];
       for (const s of ok) expect(Slice.is(s)).to.eql(true, `expected valid: ${s}`);
     });
 
     it('invalid cases', () => {
-      const bad: readonly unknown[] = [
+      const bad: unknown[] = [
         null,
         undefined,
         123,
@@ -152,6 +154,13 @@ describe('Timecode.Slice', () => {
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(0), to: ms(90_000) });
     });
+
+    it('absolute → relEnd ("00:11:30..-00:10:00")', () => {
+      const total30m = ms(30 * 60 * 1000); // 30 minutes
+      const s = Slice.parse('00:11:30..-00:10:00' as t.TimecodeSliceString);
+      const r = Slice.resolve(s, total30m);
+      expect(r).to.eql({ from: ms(690_000), to: ms(1_200_000) }); // 11:30 → 20:00
+    });
   });
 
   describe('from()', () => {
@@ -235,7 +244,7 @@ describe('Timecode.Slice', () => {
     });
   });
 
-  describe('round-trip properties', () => {
+  describe('round-trip properties: resolve() → from() → toString() → parse()', () => {
     const total = ms(140_000);
 
     it('from(resolve(parse(str))) === canonical str (open end)', () => {
@@ -250,7 +259,7 @@ describe('Timecode.Slice', () => {
     });
   });
 
-  describe('Slice.split', () => {
+  describe('split()', () => {
     it('empty/undefined → {start:"", end:""}', () => {
       expect(Slice.split()).to.eql({ start: '', end: '' });
       expect(Slice.split('')).to.eql({ start: '', end: '' });
@@ -313,7 +322,7 @@ describe('Timecode.Slice', () => {
     });
   });
 
-  describe('Slice.duration', () => {
+  describe('duration()', () => {
     const ms = (n: number) => n as t.Msecs;
 
     it('absolute bounds (no total)', () => {
@@ -385,52 +394,73 @@ describe('Timecode.Slice', () => {
       // Default formatter auto-picks seconds for >= 1000ms.
       expect(out?.text).to.eql('1.23s', out?.text);
     });
+
+    it('abs..relEnd long-form with total=30m → 8m30s (510000ms)', () => {
+      const d = Slice.duration('00:11:30..-00:10:00', { total: ms(30 * 60 * 1000), unit: 'ms' })!;
+      expect(d.ms).to.eql(510_000);
+      expect(d.text).to.eql('510000ms');
+    });
   });
 
-  describe('Timecode.Slice.positions', () => {
-    const ms = (n: number) => n as t.Msecs;
-
-    it('absolute bounds (no total required)', () => {
-      const out = Slice.positions('00:00:01.500..00:00:02.600');
-      // Default formatter uses round=0 → whole units.
-      expect(out).to.eql({ start: '2s', end: '3s' });
+  describe('toRange() (→ MsecSpan)', () => {
+    it('undefined input → undefined', () => {
+      const out = Slice.toRange(undefined, secs(10));
+      expect(out).to.eql(undefined);
     });
 
-    it('open start → requires total; start=0ms', () => {
-      const out = Slice.positions('..00:00:10', { total: ms(60_000) });
-      expect(out).to.eql({ start: '0ms', end: '10s' });
+    it('invalid lexical slice → undefined', () => {
+      const out = Slice.toRange('not-a-slice', secs(10));
+      expect(out).to.eql(undefined);
     });
 
-    it('open end → requires total (MM:SS → 00:01 = 1s)', () => {
-      const out = Slice.positions('00:01..', { total: ms(120_000) });
-      expect(out).to.eql({ start: '1s', end: '2m' });
+    it('requires total (no-total returns undefined)', () => {
+      const out = Slice.toRange('00:00:01..00:00:02');
+      expect(out).to.eql(undefined);
     });
 
-    it('explicit minute form for start (HH:MM:SS → 01:00 = 1m)', () => {
-      const out = Slice.positions('00:01:00..', { total: ms(120_000) });
-      expect(out).to.eql({ start: '1m', end: '2m' });
+    it('open start ("..00:00:10")', () => {
+      const out = Slice.toRange('..00:00:10', secs(20))!;
+      expect(out).to.eql({ from: ms(0), to: ms(10_000) });
     });
 
-    it('relative end (end = total - offset)', () => {
-      const out = Slice.positions('00:01..-00:00:10', { total: ms(120_000) });
-      // start=1s; end=110s≈2m with default round=0
-      expect(out).to.eql({ start: '1s', end: '2m' });
+    it('open end ("00:00:10..")', () => {
+      const out = Slice.toRange('00:00:10..', secs(20))!;
+      expect(out).to.eql({ from: ms(10_000), to: ms(20_000) });
     });
 
-    it('undefined when non-absolute bounds but no total provided', () => {
-      expect(Slice.positions('..00:00:10')).to.eql(undefined);
-      expect(Slice.positions('00:00:05..')).to.eql(undefined);
-      expect(Slice.positions('00:00:05..-00:00:02')).to.eql(undefined);
+    it('relative end ("00:00:05..-00:00:02")', () => {
+      const out = Slice.toRange('00:00:05..-00:00:02', secs(10))!;
+      expect(out).to.eql({ from: ms(5_000), to: ms(8_000) });
     });
 
-    it('coerces swapped inputs via resolve()', () => {
-      const out = Slice.positions('00:00:10..00:00:05');
-      expect(out).to.eql({ start: '5s', end: '10s' });
+    it('full window ("..") resolves to [0,total]', () => {
+      const out = Slice.toRange('..', secs(12))!;
+      expect(out).to.eql({ from: ms(0), to: ms(12_000) });
     });
 
-    it('respects rounding option for formatted output', () => {
-      const out = Slice.positions('00:00:01.234..00:00:02.345', { round: 2 });
-      expect(out).to.eql({ start: '1.23s', end: '2.35s' });
+    it('absolute reversed coerced to ascending (min..max)', () => {
+      const out = Slice.toRange('00:00:12..00:00:01', secs(20))!;
+      expect(out).to.eql({ from: ms(1_000), to: ms(12_000) });
+    });
+
+    it('clamps to total (end beyond total)', () => {
+      const out = Slice.toRange('00:00:00..00:00:25', secs(20))!;
+      expect(out).to.eql({ from: ms(0), to: ms(20_000) });
+    });
+
+    it('total with fractional seconds is floored to ms', () => {
+      const out = Slice.toRange('..00:00:20', secs(10.9))!;
+      expect(out).to.eql({ from: ms(0), to: ms(10_900) });
+    });
+
+    it('abs..relEnd long-form ("00:11:30..-00:10:00")', () => {
+      const out = Slice.toRange('00:11:30..-00:10:00', secs(30 * 60))!;
+      expect(out).to.eql({ from: ms(690_000), to: ms(1_200_000) });
+    });
+
+    it('tolerates surrounding whitespace in slice input', () => {
+      const out = Slice.toRange('  00:00:10  ..  -00:00:20  ', secs(100))!;
+      expect(out).to.eql({ from: ms(10_000), to: ms(80_000) }); // 10s → (100s - 20s) = 80s
     });
   });
 });
