@@ -22,7 +22,6 @@ export const SpecsComponents = {
   [`${ns}: IFrame`]: () => import('../ui/IFrame/-SPEC.tsx'),
   [`${ns}: Image.Svg`]: () => import('../ui/Image.Svg/-SPEC.tsx'),
   [`${ns}: KeyValue`]: () => import('../ui/KeyValue/-spec/-SPEC.tsx'),
-  [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-spec/-SPEC.tsx'),
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
   [`${ns}: PathView`]: () => import('../ui/PathView/-spec/-SPEC.tsx'),
   [`${ns}: Preload`]: () => import('../ui/Preload/-SPEC.tsx'),
@@ -30,8 +29,10 @@ export const SpecsComponents = {
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-SPEC.tsx'),
   [`${ns}: Slider`]: () => import('../ui/Slider/-spec/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
-  [`${ns}: SplitPane`]: () => import('../ui/SplitPane/-spec/-SPEC.tsx'),
   [`${ns}: TextInput`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
+
+  [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-spec/-SPEC.tsx'),
+  [`${ns}: Layout.SplitPane`]: () => import('../ui/Layout.SplitPane/-spec/-SPEC.tsx'),
 
   [`${ns}: Tree.Index`]: () => import('../ui/Tree.Index/-spec/-SPEC.tsx'),
   [`${ns}: Tree.Index.Item`]: () => import('../ui/Tree.Index.Item/-spec/-SPEC.tsx'),
