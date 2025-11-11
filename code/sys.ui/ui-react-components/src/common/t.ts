@@ -17,6 +17,7 @@ export type {
   TimecodeResolvedSegment,
   TimecodeSlice,
   TimecodeSliceString,
+  TimecodeSliceStringInput,
   TimecodeVTime,
 } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
