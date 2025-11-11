@@ -8,7 +8,7 @@ const TimestampEntrySchemaInternal = T.Record(T.String(), T.Unknown(), {
 // Root time map: timecode → entry record.
 const TimecodeMapSchemaInternal = T.Record(
   T.String({
-    pattern: Timecode.pattern, // Timestamp (WebVTT-flex): allow MM:SS, HH:MM:SS, HH:MM:SS.mmm.
+    pattern: Timecode.Pattern.timecode, // Timestamp (WebVTT-flex): allow MM:SS, HH:MM:SS, HH:MM:SS.mmm.
     description: 'Timestamp: MM:SS | HH:MM:SS | HH:MM:SS.mmm.',
   }),
   TimestampEntrySchemaInternal,
