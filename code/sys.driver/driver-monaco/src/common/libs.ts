@@ -16,13 +16,13 @@ export {
   Pkg,
   R,
   Str,
-  Time,
   Try,
   Url,
   slug,
 } from '@sys/std';
 export { Schedule, singleton } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
+export { Time, Timecode } from '@sys/std/time';
 export { Yaml } from '@sys/yaml';
 
 /**

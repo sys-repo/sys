@@ -1,4 +1,4 @@
-import { type t, RE } from '../common.ts';
+import { type t } from '../common.ts';
 
 /**
  * Determine the timecode format kind (HH:MM:SS, HH:MM:SS.mmm, or MM:SS).

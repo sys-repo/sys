@@ -4,6 +4,7 @@ import * as mod from './mod.ts';
 import { Timecode } from './mod.ts';
 
 import { Composite } from './composite/mod.ts';
+import { Pattern } from './m.Pattern.ts';
 import { Ops } from './ops/mod.ts';
 import { Slice } from './slice/mod.ts';
 
@@ -14,6 +15,7 @@ describe('Timecode', () => {
     expect(m.Timecode.Ops).to.equal(Ops);
     expect(m.Timecode.Slice).to.equal(Slice);
     expect(m.Timecode.Composite).to.equal(Composite);
+    expect(m.Timecode.Pattern).to.equal(Pattern);
   });
 
   it('API: @sys/std/time/timecode (core)', async () => {

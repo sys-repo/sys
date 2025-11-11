@@ -12,12 +12,10 @@ export type TimecodeLib = {
   readonly Ops: t.TimecodeOpsLib;
   readonly Slice: t.TimecodeSliceLib;
   readonly Composite: t.TimecodeCompositeLib;
-
-  /** Regex pattern string for validation (HH optional, .mmm optional). */
-  readonly pattern: string;
-
-  /** Compiled RegExp of `pattern`. */
-  readonly regex: RegExp;
+  readonly Pattern: {
+    readonly timecode: string;
+    readonly slice: string;
+  };
 
   /** Type guard: true when input matches the grammar. */
   readonly is: (input: unknown) => input is t.VttTimecode;

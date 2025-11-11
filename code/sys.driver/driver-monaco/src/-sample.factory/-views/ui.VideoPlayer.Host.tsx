@@ -39,7 +39,7 @@ export const VideoPlayerHost: React.FC<VideoHostProps> = (props) => {
 
     const p = videoSignals.props;
     p.src.value = data.src;
-    p.crop.value = data?.crop;
+    p.slice.value = data?.slice;
     p.cornerRadius.value = data?.cornerRadius;
     p.muted.value = data?.muted ?? false;
     p.jumpTo.value = Is.record(data?.jumpTo) ? data?.jumpTo : undefined;

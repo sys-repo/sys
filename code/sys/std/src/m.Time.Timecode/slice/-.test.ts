@@ -57,7 +57,7 @@ describe('Timecode.Slice', () => {
 
   describe('parse(): structure + bound kinds', () => {
     it('absolute → absolute', () => {
-      const raw = '00:00:05..00:00:10' as t.TimecodeSliceString;
+      const raw = '00:00:05..00:00:10';
       const p = Slice.parse(raw);
       expect(p.raw).to.eql(raw);
       expect(p.start.kind).to.eql('abs');
@@ -67,32 +67,32 @@ describe('Timecode.Slice', () => {
     });
 
     it('open start', () => {
-      const p = Slice.parse('..00:00:10' as t.TimecodeSliceString);
+      const p = Slice.parse('..00:00:10');
       expect(p.start.kind).to.eql('open');
       expect(p.end.kind).to.eql('abs');
     });
 
     it('open end', () => {
-      const p = Slice.parse('00:01..' as t.TimecodeSliceString);
+      const p = Slice.parse('00:01..');
       expect(p.start.kind).to.eql('abs');
       expect(p.end.kind).to.eql('open');
     });
 
     it('relative-from-end in end bound', () => {
-      const p = Slice.parse('00:00:05..-00:00:02' as t.TimecodeSliceString);
+      const p = Slice.parse('00:00:05..-00:00:02');
       expect(p.start.kind).to.eql('abs');
       expect(p.end.kind).to.eql('relEnd');
       expect(p.end).to.have.property('ms');
     });
 
     it('relative-from-end in start bound', () => {
-      const p = Slice.parse('-00:00:05..' as t.TimecodeSliceString);
+      const p = Slice.parse('-00:00:05..');
       expect(p.start.kind).to.eql('relEnd');
       expect(p.end.kind).to.eql('open');
     });
 
     it('throws on invalid input (defensive)', () => {
-      const bad = '00:99..00:00' as unknown as t.TimecodeSliceString;
+      const bad = '00:99..00:00';
       const fn = () => Slice.parse(bad);
       expect(fn).to.throw(Error);
     });
@@ -102,62 +102,62 @@ describe('Timecode.Slice', () => {
     const total: t.Msecs = ms(120_000); // 2 minutes
 
     it('absolute range', () => {
-      const s = Slice.parse('00:00:05..00:00:10' as t.TimecodeSliceString);
+      const s = Slice.parse('00:00:05..00:00:10');
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(5_000), to: ms(10_000) });
     });
 
     it('open start → from 0', () => {
-      const s = Slice.parse('..00:00:10' as t.TimecodeSliceString);
+      const s = Slice.parse('..00:00:10');
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(0), to: ms(10_000) });
     });
 
     it('open end → to total', () => {
-      const s = Slice.parse('01:00..' as t.TimecodeSliceString);
+      const s = Slice.parse('01:00..');
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(60_000), to: ms(120_000) });
     });
 
     it('relEnd in end bound', () => {
-      const s = Slice.parse('01:00..-00:00:10' as t.TimecodeSliceString);
+      const s = Slice.parse('01:00..-00:00:10');
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(60_000), to: ms(110_000) });
     });
 
     it('relEnd in start bound', () => {
-      const s = Slice.parse('-00:00:10..' as t.TimecodeSliceString);
+      const s = Slice.parse('-00:00:10..');
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(110_000), to: ms(120_000) });
     });
 
     it('coerces when start > end (swapped inputs)', () => {
-      const s = Slice.parse('00:00:10..00:00:05' as t.TimecodeSliceString);
+      const s = Slice.parse('00:00:10..00:00:05');
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(5_000), to: ms(10_000) });
     });
 
     it('clamps outside total: huge relEnd becomes < 0', () => {
-      const s = Slice.parse('-00:05:00..' as t.TimecodeSliceString);
+      const s = Slice.parse('-00:05:00..');
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(0), to: ms(120_000) });
     });
 
     it('clamps absolute beyond total', () => {
-      const s = Slice.parse('00:03:00..00:04:00' as t.TimecodeSliceString);
+      const s = Slice.parse('00:03:00..00:04:00');
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(120_000), to: ms(120_000) });
     });
 
     it('mixed: open start to relEnd', () => {
-      const s = Slice.parse('..-00:00:30' as t.TimecodeSliceString);
+      const s = Slice.parse('..-00:00:30');
       const r = Slice.resolve(s, total);
       expect(r).to.eql({ from: ms(0), to: ms(90_000) });
     });
 
     it('absolute → relEnd ("00:11:30..-00:10:00")', () => {
       const total30m = ms(30 * 60 * 1000); // 30 minutes
-      const s = Slice.parse('00:11:30..-00:10:00' as t.TimecodeSliceString);
+      const s = Slice.parse('00:11:30..-00:10:00');
       const r = Slice.resolve(s, total30m);
       expect(r).to.eql({ from: ms(690_000), to: ms(1_200_000) }); // 11:30 → 20:00
     });
@@ -248,13 +248,13 @@ describe('Timecode.Slice', () => {
     const total = ms(140_000);
 
     it('from(resolve(parse(str))) === canonical str (open end)', () => {
-      const str = '..00:01:00' as t.TimecodeSliceString;
+      const str = '..00:01:00';
       const win = Slice.resolve(Slice.parse(str), total);
       expect(Slice.from(win, total)).to.eql('..00:01:00');
     });
 
     it('toString(parse(str)) === canonical str', () => {
-      const str = '00:00:10..-00:00:02' as t.TimecodeSliceString;
+      const str = '00:00:10..-00:00:02';
       expect(Slice.toString(Slice.parse(str))).to.eql(str);
     });
   });
@@ -307,7 +307,7 @@ describe('Timecode.Slice', () => {
     });
 
     it('accepts a parsed TimecodeSlice object', () => {
-      const parsed = Slice.parse('00:00:05..-00:00:02' as t.TimecodeSliceString);
+      const parsed = Slice.parse('00:00:05..-00:00:02');
       expect(Slice.split(parsed)).to.eql({
         start: '00:00:05',
         end: '-00:00:02',
@@ -315,7 +315,7 @@ describe('Timecode.Slice', () => {
     });
 
     it('round-trips with toString() for presentational parts', () => {
-      const raw = '..00:00:10' as t.TimecodeSliceString;
+      const raw = '..00:00:10';
       const p = Slice.parse(raw);
       const canon = Slice.toString(p);
       expect(Slice.split(canon)).to.eql({ start: '', end: '00:00:10' });
@@ -323,7 +323,7 @@ describe('Timecode.Slice', () => {
   });
 
   describe('duration()', () => {
-    const ms = (n: number) => n as t.Msecs;
+    const ms = (n: number): t.Msecs => n;
 
     it('absolute bounds (no total)', () => {
       const out = Slice.duration('00:00:05..00:00:10');

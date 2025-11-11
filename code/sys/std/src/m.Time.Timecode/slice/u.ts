@@ -1,5 +1,6 @@
-import { type t, RE } from '../common.ts';
+import { type t } from '../common.ts';
 import { parse } from '../core/u.parse.ts';
+import { RE } from '../m.Pattern.ts';
 
 export function splitOnce(input: string, token: string): [string, string] {
   const i = input.indexOf(token);
@@ -13,9 +14,9 @@ export function isBoundLex(s: string): boolean {
   if (s === '') return true; // open
   if (s.startsWith('-')) {
     const abs = s.slice(1);
-    return RE.test(abs);
+    return RE.timecode.test(abs);
   }
-  return RE.test(s);
+  return RE.timecode.test(s);
 }
 
 /**

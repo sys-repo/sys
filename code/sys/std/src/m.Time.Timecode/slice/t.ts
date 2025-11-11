@@ -19,7 +19,7 @@ export type TimecodeSliceLib = {
   is(input: unknown): input is TimecodeSliceString;
 
   /** Parse a valid slice string into a normalized structure. */
-  parse(input: TimecodeSliceString): TimecodeSlice;
+  parse(input: TimecodeSliceStringInput): TimecodeSlice;
 
   /** Resolve a parsed slice into an absolute millisecond window against total duration. */
   resolve(slice: TimecodeSlice, total: t.Msecs): TimeWindowMs;
