@@ -1,15 +1,16 @@
 import React from 'react';
 import { type t, Timecode } from './common.ts';
 
+type In = t.TimecodeCompositionSpec;
+type Out = t.TimecodeResolved & { readonly rev: number };
+
 /**
  * Hook: presentational virtual timeline resolver.
  * - Pure delegate to Timecode.Composite.toVirtualTimeline.
  * - Always returns an object; use res.is.empty/res.is.valid for quick checks.
  * - Adds a `rev` counter that increments each time the resolved timeline changes.
  */
-export function useVirtualTimeline(
-  spec?: t.TimecodeCompositionSpec,
-): t.TimecodeResolved & { readonly rev: number } {
+export function useVirtualTimeline(spec?: In): Out {
   const [rev, setRev] = React.useState(0);
   const prevRef = React.useRef<t.TimecodeResolved | undefined>(undefined);
   const resolved = React.useMemo(() => Timecode.Composite.toVirtualTimeline(spec), [spec]);
@@ -25,5 +26,6 @@ export function useVirtualTimeline(
     prevRef.current = resolved;
   }, [resolved]);
 
-  return { ...resolved, rev };
+  const value = React.useMemo(() => ({ ...resolved, rev }), [resolved, rev]);
+  return value satisfies Out;
 }
