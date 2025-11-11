@@ -9,7 +9,7 @@ export const Ops: t.TimecodeCompositeLib['Ops'] = {
 /**
  * Insert pieces at segment boundary; returns a new resolved timeline.
  */
-export function splice(
+function splice(
   resolved: t.TimecodeCompositionResolved,
   at: number,
   pieces: t.TimecodeCompositionSpec,
@@ -53,7 +53,7 @@ export function splice(
 /**
  * Concatenate two resolved timelines, rebasing vFrom/vTo.
  */
-export function concat(
+function concat(
   a: t.TimecodeCompositionResolved,
   b: t.TimecodeCompositionResolved,
 ): t.TimecodeCompositionResolved {

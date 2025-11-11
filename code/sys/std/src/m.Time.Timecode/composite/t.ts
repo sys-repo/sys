@@ -28,13 +28,13 @@ export type TimecodeCompositeLib = {
   /** Small time utilities on the virtual timeline. */
   readonly Time: {
     /** Clamp a virtual time into [0,total]. */
-    readonly clamp: (v: t.TimecodeVTime, total: t.Msecs) => t.TimecodeVTime;
+    clamp(v: t.TimecodeVTime, total: t.Msecs): t.TimecodeVTime;
     /** Convert a source timestamp inside a segment to virtual time. */
-    readonly toVirtual: (
+    toVirtual(
       segments: t.Ary<t.TimecodeResolvedSegment>,
       index: number,
       srcTime: t.Msecs,
-    ) => t.TimecodeVTime;
+    ): t.TimecodeVTime;
   };
 
   /** Validate spec+durations for composability; never throws. */
@@ -49,36 +49,38 @@ export type TimecodeCompositeLib = {
   /** Duration helpers (env-specific probing is left to caller; this is the contract). */
   readonly Durations: {
     /** Resolve durations per src (implementation may be provided by host app). */
-    readonly probe: (srcs: readonly string[]) => Promise<t.TimecodeDurationMap>;
+    probe(srcs: readonly string[]): Promise<t.TimecodeDurationMap>;
     /** List srcs whose duration changed. */
-    readonly diff: (prev: t.TimecodeDurationMap, next: t.TimecodeDurationMap) => readonly string[];
+    diff(prev: t.TimecodeDurationMap, next: t.TimecodeDurationMap): readonly string[];
+    /** Return a normalized spec with missing durations filled from map. */
+    with(spec: t.TimecodeCompositionSpec, map: t.TimecodeDurationMap): t.TimecodeCompositionSpec;
   };
 
   /** Indexing helpers over a resolved composition. */
   cursor(resolved: t.TimecodeCompositionResolved): {
     /** Lookup segment at virtual time (or null if out of range). */
-    readonly at: (v: t.TimecodeVTime) => t.TimecodeMapToSourceResult | null;
+    at(v: t.TimecodeVTime): t.TimecodeMapToSourceResult | null;
     /** Next segment index or null if none. */
-    readonly next: (index: number) => number | null;
+    next(index: number): number | null;
     /** Previous segment index or null if none. */
-    readonly prev: (index: number) => number | null;
+    prev(index: number): number | null;
   };
 
   /** Pure transforms on resolved timelines. */
   readonly Ops: {
     /** Insert pieces at segment boundary; returns a new resolved timeline. */
-    readonly splice: (
+    splice(
       resolved: t.TimecodeCompositionResolved,
       at: number,
       pieces: t.TimecodeCompositionSpec,
       durations: t.TimecodeDurationMap,
-    ) => t.TimecodeCompositionResolved;
+    ): t.TimecodeCompositionResolved;
 
     /** Concatenate two resolved timelines, rebasing vFrom/vTo. */
-    readonly concat: (
+    concat(
       a: t.TimecodeCompositionResolved,
       b: t.TimecodeCompositionResolved,
-    ) => t.TimecodeCompositionResolved;
+    ): t.TimecodeCompositionResolved;
   };
 };
 
@@ -96,8 +98,12 @@ export type TimecodeCompositeIssue =
  * Optional crop mirrors the lower-level element API (pass-through).
  */
 export type TimecodeCompositePiece = {
-  src: string;
-  slice?: string | t.TimecodeSliceString;
+  /** Source reference (URL, hash, or URN etc). */
+  readonly src: t.StringRef;
+  /** Optional slice window within the source. */
+  readonly slice?: string | t.TimecodeSliceString;
+  /** Optional total duration of the source media (ms). */
+  readonly duration?: t.Msecs;
 };
 
 /** Authoring-time composition: an ordered list of pieces. */

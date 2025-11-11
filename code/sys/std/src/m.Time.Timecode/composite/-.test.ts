@@ -81,6 +81,86 @@ describe('Composite', () => {
       const out = Composite.normalize([]);
       expect(out).to.eql([]);
     });
+
+    it('preserves numeric duration on normalize()', () => {
+      const spec: t.TimecodeCompositionSpec = [
+        { src: ` ${SRC_A} `, slice: slice('..00:00:05'), duration: asMs(120_000) },
+        { src: SRC_B, duration: asMs(90_000) },
+      ];
+
+      const out = Composite.normalize(spec);
+
+      expect(out.length).to.eql(2);
+      expect(out[0]).to.eql({ src: SRC_A, slice: '..00:00:05', duration: asMs(120_000) });
+      expect(out[1]).to.eql({ src: SRC_B, duration: asMs(90_000) });
+    });
+
+    it('drops empty src entries and does not affect duration on valid items', () => {
+      const spec: t.TimecodeCompositionSpec = [
+        { src: '  ', duration: asMs(1) }, // dropped (empty src)
+        { src: SRC_A, duration: asMs(2) }, // kept
+      ];
+      const out = Composite.normalize(spec);
+      expect(out).to.eql([{ src: SRC_A, duration: asMs(2) }]);
+    });
+
+    it('is idempotent with duration present', () => {
+      const spec: t.TimecodeCompositionSpec = [
+        { src: SRC_A, slice: '..00:00:05', duration: asMs(120_000) },
+        { src: SRC_B, duration: asMs(90_000) },
+      ];
+      const once = Composite.normalize(spec);
+      const twice = Composite.normalize(once);
+      expect(twice).to.eql(once);
+    });
+
+    describe('normalize (duration semantics)', () => {
+      it('preserves finite non-negative duration (including 0)', () => {
+        const spec: t.TimecodeCompositionSpec = [
+          { src: SRC_A, duration: asMs(0) },
+          { src: SRC_B, duration: asMs(90_000) },
+        ];
+        const out = Composite.normalize(spec);
+        expect(out).to.eql([
+          { src: SRC_A, duration: asMs(0) },
+          { src: SRC_B, duration: asMs(90_000) },
+        ]);
+      });
+
+      it('trims src and preserves duration', () => {
+        const spec: t.TimecodeCompositionSpec = [{ src: `  ${SRC_A}  `, duration: asMs(12_345) }];
+        const out = Composite.normalize(spec);
+        expect(out).to.eql([{ src: SRC_A, duration: asMs(12_345) }]);
+      });
+
+      it('drops non-finite or negative duration (Infinity, -1, NaN)', () => {
+        const spec: t.TimecodeCompositionSpec = [
+          { src: SRC_A, duration: Number.POSITIVE_INFINITY as t.Msecs },
+          { src: SRC_B, duration: -1 as t.Msecs },
+          { src: 'X.mp4', duration: Number.NaN as t.Msecs },
+        ];
+        const out = Composite.normalize(spec);
+        expect(out).to.eql([{ src: SRC_A }, { src: SRC_B }, { src: 'X.mp4' }]);
+      });
+
+      it('does not coerce non-number duration (e.g., string) — drops it', () => {
+        const spec: t.TimecodeCompositionSpec = [
+          { src: SRC_A, duration: '120000' as unknown as t.Msecs },
+        ];
+        const out = Composite.normalize(spec);
+        expect(out).to.eql([{ src: SRC_A }]);
+      });
+
+      it('is idempotent when duration is valid or absent', () => {
+        const spec: t.TimecodeCompositionSpec = [
+          { src: SRC_A, duration: asMs(120_000) },
+          { src: SRC_B }, // no duration
+        ];
+        const once = Composite.normalize(spec);
+        const twice = Composite.normalize(once);
+        expect(twice).to.eql(once);
+      });
+    });
   });
 
   describe('validate', () => {
@@ -243,6 +323,73 @@ describe('Composite', () => {
       const m = await Composite.Durations.probe([SRC_A, SRC_B]);
       expect(m[SRC_A]).to.eql(asMs(0));
       expect(m[SRC_B]).to.eql(asMs(0));
+    });
+
+    describe('with', () => {
+      it('fills missing finite durations from map', () => {
+        const spec: t.TimecodeCompositionSpec = [{ src: SRC_A }, { src: SRC_B }];
+        const map: t.TimecodeDurationMap = { [SRC_A]: asMs(1000), [SRC_B]: asMs(2000) };
+        const out = Composite.Durations.with(spec, map);
+
+        expect(out).to.eql([
+          { src: SRC_A, duration: asMs(1000) },
+          { src: SRC_B, duration: asMs(2000) },
+        ]);
+      });
+
+      it('preserves inline finite duration over map value', () => {
+        const spec: t.TimecodeCompositionSpec = [
+          { src: SRC_A, duration: asMs(9999) },
+          { src: SRC_B },
+        ];
+        const map: t.TimecodeDurationMap = { [SRC_A]: asMs(1), [SRC_B]: asMs(2) };
+        const out = Composite.Durations.with(spec, map);
+
+        expect(out).to.eql([
+          { src: SRC_A, duration: asMs(9999) },
+          { src: SRC_B, duration: asMs(2) },
+        ]);
+      });
+
+      it('drops non-finite or negative durations from map and inline', () => {
+        const spec: t.TimecodeCompositionSpec = [
+          { src: SRC_A, duration: Number.POSITIVE_INFINITY as t.Msecs },
+          { src: SRC_B, duration: -1 as t.Msecs },
+          { src: 'C.mp4' },
+        ];
+        const map: t.TimecodeDurationMap = {
+          [SRC_A]: asMs(10),
+          [SRC_B]: Number.NaN as t.Msecs,
+          'C.mp4': asMs(300),
+        };
+
+        const out = Composite.Durations.with(spec, map);
+        expect(out).to.eql([
+          { src: SRC_A, duration: asMs(10) },
+          { src: SRC_B },
+          { src: 'C.mp4', duration: asMs(300) },
+        ]);
+      });
+
+      it('returns normalized spec and remains idempotent', () => {
+        const spec: t.TimecodeCompositionSpec = [{ src: ` ${SRC_A} ` }, { src: SRC_B }];
+        const map: t.TimecodeDurationMap = { [SRC_A]: asMs(100), [SRC_B]: asMs(200) };
+        const once = Composite.Durations.with(spec, map);
+        const twice = Composite.Durations.with(once, map);
+
+        expect(once).to.eql([
+          { src: SRC_A, duration: asMs(100) },
+          { src: SRC_B, duration: asMs(200) },
+        ]);
+        expect(twice).to.eql(once);
+      });
+
+      it('does not add duration when missing in both inline and map', () => {
+        const spec: t.TimecodeCompositionSpec = [{ src: SRC_A }];
+        const map: t.TimecodeDurationMap = {};
+        const out = Composite.Durations.with(spec, map);
+        expect(out).to.eql([{ src: SRC_A }]);
+      });
     });
   });
 });
