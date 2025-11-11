@@ -202,7 +202,7 @@ export const View: React.FC<P> = (props) => {
           theme={theme.name}
           style={styles.textbox}
           inputStyle={{
-            opacity: !!transient.message ? 0.1 : 1,
+            opacity: readOnly ? 0.3 : !!transient.message ? 0.1 : 1,
             blur: !!transient.message ? 8 : 0,
           }}
           border={{ mode: 'underline', defaultColor: 0 }}
