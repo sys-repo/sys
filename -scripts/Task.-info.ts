@@ -48,7 +48,7 @@ export async function main() {
     const baseDir = Fs.join(import.meta.dirname ?? '', '..');
     const files = await Fs.glob(baseDir).find(pattern, { exclude });
 
-    console.info(`System: ${c.green(`@sys     →`)} ${c.gray(`https://jsr.io/@sys`)}`);
+    console.info(`${c.bold('System')}: ${c.green(`@sys     →`)} ${c.gray(`https://jsr.io/@sys`)}`);
     console.info(`        ${c.green(`repo     →`)} ${c.gray(`https://github.com/sys-repo/sys`)}`);
     console.info();
 
