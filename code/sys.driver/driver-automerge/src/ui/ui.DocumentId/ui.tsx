@@ -49,7 +49,7 @@ export const View: React.FC<P> = (props) => {
   const readOnly = controller.props.readOnly;
 
   let showActionD = useDebouncedValue(controller.ready && is.enabled.action && !readOnly, 50);
-  let showAction = showActionD || !textbox;
+  let showAction = (showActionD || !textbox) && !readOnly;
 
   /**
    * Effect: (mounted).
