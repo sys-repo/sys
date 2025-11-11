@@ -1,5 +1,5 @@
-import { type t, c, describe, expect, it } from '../../-test.ts';
-import { Composite } from './mod.ts';
+import { type t, c, describe, expect, it } from '../../../-test.ts';
+import { Composite } from '../mod.ts';
 
 const asMs = (n: number) => n as t.Msecs;
 const slice = (s: string) => s as t.TimecodeSliceString;

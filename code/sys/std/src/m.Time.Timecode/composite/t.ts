@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+export type * from './t.timeline.ts';
+
 /**
  * Canonical library of pure, programmatic operations for working with
  * composite time-based media structures (e.g. multi-clip video timelines).
@@ -82,6 +84,24 @@ export type TimecodeCompositeLib = {
       b: t.TimecodeCompositionResolved,
     ): t.TimecodeCompositionResolved;
   };
+
+  /**
+   * Build a purely-virtual resolved timeline from authoring spec only.
+   *
+   * Resolution rules (no environment metadata is consulted):
+   * - Length is determinable when either:
+   *    - slice is absolute "START..END" → len = END - START
+   *    - OR a `duration` is supplied on the piece:
+   *       - "..END"        → len = END - 0
+   *       - "START.."      → len = duration - START
+   *       - "START..-X"    → len = duration - START - X
+   *       - ".." or no slice → len = duration
+   * - Pieces whose length cannot be determined are excluded from `segments` and
+   *   reported as issues (see `unresolved-length`). Zero/negative lengths are dropped.
+   * - Segments are emitted contiguously on the virtual axis via accumulated lengths.
+   * - Always returns an object; use `is.empty` and `is.valid` for quick checks.
+   */
+  readonly toVirtualTimeline: (spec?: t.TimecodeCompositionSpec) => t.TimecodeResolved;
 };
 
 /**
@@ -126,8 +146,8 @@ export type TimecodeResolvedSegment = {
 
 /** Resolved composition and its total virtual duration. */
 export type TimecodeCompositionResolved = {
-  readonly segments: readonly TimecodeResolvedSegment[];
   readonly total: t.Msecs;
+  readonly segments: readonly TimecodeResolvedSegment[];
 };
 
 /** Virtual-time alias for clarity. */

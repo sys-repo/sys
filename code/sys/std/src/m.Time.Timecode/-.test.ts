@@ -8,7 +8,7 @@ import { Ops } from './ops/mod.ts';
 import { Slice } from './slice/mod.ts';
 
 describe('Timecode', () => {
-  it('API: /std/time', async () => {
+  it('API: @sys/std/time', async () => {
     const m = await import('@sys/std/time');
     expect(m.Timecode).to.equal(Timecode);
     expect(m.Timecode.Ops).to.equal(Ops);
@@ -16,7 +16,7 @@ describe('Timecode', () => {
     expect(m.Timecode.Composite).to.equal(Composite);
   });
 
-  it('API: /std/time/timecode', async () => {
+  it('API: @sys/std/time/timecode (core)', async () => {
     const m = await import('@sys/std/time/timecode');
     expect(m.Timecode).to.equal(Timecode);
     expect(m.Timecode.Ops).to.equal(Ops);
