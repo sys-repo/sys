@@ -2,7 +2,6 @@ import type { t } from './common.ts';
 
 /** Specifies a range to narrow the video within. */
 export type VideoCropRange = { start: t.Secs; end: t.Secs };
-export type VideoCropRangeTuple = [t.Secs, t.Secs];
 
 /**
  * A bidirectional Lens between full-length duration and

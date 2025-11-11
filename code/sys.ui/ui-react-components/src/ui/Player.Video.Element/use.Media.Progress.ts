@@ -4,9 +4,9 @@ import { Crop } from './m.Crop.ts';
 
 export function useMediaProgress(
   videoRef: React.RefObject<HTMLVideoElement | null>,
-  props: Pick<t.VideoElementProps, 'src' | 'crop' | 'onTimeUpdate' | 'onDurationChange'>,
+  props: Pick<t.VideoElementProps, 'src' | 'slice' | 'onTimeUpdate' | 'onDurationChange'>,
 ) {
-  const { src, crop, onTimeUpdate, onDurationChange } = props;
+  const { src, slice, onTimeUpdate, onDurationChange } = props;
 
   /**
    * Hooks:
@@ -14,8 +14,8 @@ export function useMediaProgress(
   const [currentTimeFull, setCurrentTimeFull] = useState(0);
   const [durationFull, setDurationFull] = useState(0);
   const lens = useMemo<t.VideoCropLens>(() => {
-    return Crop.lens(crop, durationFull);
-  }, [crop, durationFull]);
+    return Crop.lens(slice, durationFull);
+  }, [slice, durationFull]);
 
   /**
    * Effect: Reset when the `src` or `crop` changes.
@@ -25,7 +25,7 @@ export function useMediaProgress(
     setDurationFull(0);
     onTimeUpdate?.({ secs: 0 });
     onDurationChange?.({ secs: 0 });
-  }, [src, crop]);
+  }, [src, slice]);
 
   /**
    * Effect: listeners:
@@ -36,7 +36,7 @@ export function useMediaProgress(
 
     const update = () => {
       const fullDuration = Number.isFinite(el.duration) ? el.duration : 0;
-      const nextLens = Crop.lens(crop, fullDuration); // NB: rebuild with fresh duration; memo/state may still be stale this tick.
+      const nextLens = Crop.lens(slice, fullDuration); // NB: rebuild with fresh duration; memo/state may still be stale this tick.
 
       setDurationFull(fullDuration);
       onDurationChange?.({ secs: nextLens.duration.cropped });
@@ -55,7 +55,7 @@ export function useMediaProgress(
 
     update();
     return dispose;
-  }, [videoRef, src, crop, lens, onTimeUpdate, onDurationChange]);
+  }, [videoRef, src, slice, lens, onTimeUpdate, onDurationChange]);
 
   /**
    * API:

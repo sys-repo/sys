@@ -41,7 +41,7 @@ export type VideoPlayerSignalProps = Readonly<{
   duration: t.Signal<t.Secs>;
   buffering: t.Signal<boolean>;
   buffered: t.Signal<t.Secs | undefined>;
-  crop: t.Signal<t.VideoCropRange | t.VideoCropRangeTuple | undefined>;
+  slice: t.Signal<t.TimecodeSliceString | string | undefined>;
 
   /**
    * Appearance:
@@ -66,7 +66,7 @@ export type PlayerSignalsFactoryDefaults = {
   loop?: boolean;
   autoPlay?: boolean;
   muted?: boolean;
-  crop?: t.VideoCropRange | t.VideoCropRangeTuple;
+  slice?: t.TimecodeSliceString | string;
 
   // Apperance:
   showControls?: boolean;

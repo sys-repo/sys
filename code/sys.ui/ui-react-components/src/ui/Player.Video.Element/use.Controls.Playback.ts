@@ -4,7 +4,7 @@ import { type t, Rx } from './common.ts';
 export function usePlaybackControls(
   videoRef: React.RefObject<HTMLVideoElement | null>,
   lens: t.VideoCropLens,
-  props: Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted' | 'crop'>,
+  props: Pick<t.VideoElementProps, 'src' | 'playing' | 'muted' | 'defaultMuted' | 'slice'>,
 ) {
   const { src, playing, muted, defaultMuted } = props;
   const isUncontrolled = playing === undefined;
@@ -15,9 +15,9 @@ export function usePlaybackControls(
   const [seeking, setSeeking] = useState<{ currentTime: t.Secs }>();
 
   /**
-   * Effect: nuke seeking state on crop change.
+   * Effect: nuke seeking state on slice change.
    */
-  useEffect(() => void setSeeking(undefined), [props.crop]);
+  useEffect(() => void setSeeking(undefined), [props.slice]);
 
   /**
    * Effect: Apply controlled props to element.

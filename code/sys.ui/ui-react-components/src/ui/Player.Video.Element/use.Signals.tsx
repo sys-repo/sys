@@ -5,10 +5,7 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
   type P = R['props'];
   const { log = false } = options;
 
-  /**
-   * Effect: redraw
-   */
-  Signal.useRedrawEffect(() => {
+  function listen() {
     if (!signals) return;
     const p = signals.props;
     p.src.value;
@@ -26,8 +23,13 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
     p.jumpTo.value;
     p.buffered.value;
     p.buffering.value;
-    p.crop.value;
-  });
+    p.slice.value;
+  }
+
+  /**
+   * Effect: redraw
+   */
+  Signal.useRedrawEffect(listen);
 
   /**
    * Signals as view component property/handlers:
@@ -76,7 +78,7 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
       showControls: p.showControls.value,
       showFullscreenButton: p.showFullscreenButton.value,
       showVolumeControl: p.showVolumeControl.value,
-      crop: p.crop.value,
+      slice: p.slice.value,
 
       jumpTo: p.jumpTo.value,
 

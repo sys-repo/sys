@@ -14,7 +14,7 @@ type Storage = Pick<
   | 'loop'
   | 'aspectRatio'
   | 'fadeMask'
-  | 'crop'
+  | 'slice'
   | 'controls'
 > & {
   width?: number;
@@ -44,7 +44,7 @@ const defaults: Storage = {
   urlPath: '/video/540p/1068502644.mp4',
   controlled: false,
   fadeMask: undefined,
-  crop: undefined,
+  slice: undefined,
   controls: D.controls,
   // Debug:
   logSignals: true,
@@ -92,7 +92,7 @@ export function createDebugSignals() {
     cornerRadius: s(snap.cornerRadius),
     aspectRatio: s(snap.aspectRatio),
     fadeMask: s(snap.fadeMask),
-    crop: s(snap.crop),
+    slice: s(snap.slice),
     scale: s<P['scale']>(),
   };
   const p = props;
@@ -152,7 +152,7 @@ export function createDebugSignals() {
       d.cornerRadius = p.cornerRadius.value;
       d.aspectRatio = p.aspectRatio.value;
       d.fadeMask = p.fadeMask.value;
-      d.crop = p.crop.value;
+      d.slice = p.slice.value;
 
       d.controls = d.controls ?? {};
       d.controls.background = d.controls.background ?? {};
@@ -177,7 +177,7 @@ export function createDebugSignals() {
       vp.autoPlay.value = p.autoPlay.value ?? false;
       vp.muted.value = p.muted.value ?? false;
       vp.loop.value = p.loop.value ?? false;
-      vp.crop.value = p.crop.value;
+      vp.slice.value = p.slice.value;
       vp.fadeMask.value = p.fadeMask.value;
       vp.scale.value = p.scale.value;
       vp.cornerRadius.value = p.cornerRadius.value;
@@ -239,7 +239,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
@@ -271,11 +271,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         enabled={() => !p.controlled.value}
         label={() => {
-          const v = p.crop.value;
-          return `crop: ${v ? JSON.stringify(v) : `<undefined>`}`;
+          const v = p.slice.value;
+          return `slice: ${v ? v : `(undefined)`}`;
         }}
         onClick={() => {
-          Signal.cycle(p.crop, [undefined, { start: 11.5, end: 28.6 }, [11.5, -10]]);
+          Signal.cycle(p.slice, [
+            undefined,
+            '00:00:00..00:00:45',
+            '00:00:10..-00:00:20',
+            // '00:00..00:10',
+            // '00:00:05..00:00:10',
+            // '..00:00:10',
+            // '00:01..',
+            // '00:00:05..-00:00:02',
+            // '-00:00:05..',
+            // '..-00:00:05',
+            // '00:10:00..00:10:00.250',
+            // '00:59..01:00',
+          ]);
         }}
       />
 
@@ -285,7 +298,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         enabled={() => !p.controlled.value}
         label={() => {
           const value = p.fadeMask.value;
-          return `fadeMask: ${value ? JSON.stringify(value) : '<undefined>'}`;
+          return `fadeMask: ${value ? JSON.stringify(value) : '(undefined)'}`;
         }}
         onClick={() => {
           type T = t.VideoPlayerFadeMask | undefined;
@@ -303,7 +316,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         enabled={() => !p.controlled.value}
         label={() => {
           const current = p.scale.value;
-          return `scale: ${typeof current === 'function' ? 'ƒn' : (current ?? '<undefined>')}`;
+          return `scale: ${typeof current === 'function' ? 'ƒn' : (current ?? '(undefined)')}`;
         }}
         onClick={() => {
           const fn: t.VideoPlayerScale = (e) => {

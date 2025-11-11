@@ -29,7 +29,7 @@ export default Spec.describe(D.displayName, (e) => {
         aspectRatio={v.aspectRatio}
         scale={v.scale}
         fadeMask={v.fadeMask}
-        crop={v.crop}
+        slice={v.slice}
         controls={v.controls}
         //
         playing={v.playing}
