@@ -1,8 +1,8 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { WIRE_VERSION } from '../common.ts';
-import { Wire } from '../u.wire.ts';
+import { Wire } from '../u.event.wire.ts';
 
-describe('Wire helpers', () => {
+describe('Events: Wire helpers', () => {
   it('event(): repo "ready" payload', () => {
     const msg = Wire.event('crdt:repo', { type: 'ready', payload: true });
     expect(msg.version).to.eql(WIRE_VERSION);
