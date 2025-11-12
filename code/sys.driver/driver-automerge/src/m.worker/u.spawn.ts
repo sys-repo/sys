@@ -1,5 +1,6 @@
 import { type t, Schedule } from './common.ts';
 import { createRepo } from './u.createRepo.ts';
+import { Wire } from './u.evt.wire.ts';
 
 /**
  * Spawn a Web Worker and return { worker, repoFacade }.
@@ -13,7 +14,7 @@ export const spawn: t.CrdtWorkerLib['spawn'] = async (url, opts = {}) => {
 
   // Wire up a MessageChannel and send one end to the worker.
   const { port1, port2 } = new MessageChannel();
-  worker.postMessage({ kind: 'crdt:attach' }, [port2]);
+  worker.postMessage({ kind: Wire.Stream.attach }, [port2]);
 
   // Build the client-side façade on port1.
   const repo = createRepo(port1, { until });

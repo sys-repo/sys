@@ -17,6 +17,12 @@ export type CrdtWorkerLib = {
   readonly attach: (port: MessagePort, repo: t.CrdtRepo) => void;
 
   /**
+   * Listens for `crdt:attach` messages on the worker global scope and
+   * automatically binds the provided repo to the received MessagePort.
+   */
+  readonly listen: (self: typeof globalThis, repo: t.CrdtRepo) => void;
+
+  /**
    * Spawns a worker and connects to its existing CRDT repo.
    * Establishes a MessageChannel link and returns both the worker handle
    * and the client-side repo facade bound to that connection.
