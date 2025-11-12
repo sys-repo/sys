@@ -19,6 +19,7 @@ export type RxLib = RxjsLib & {
 
   // Helpers:
   subject<T = void>(): rxjs.Subject<T>;
+  behaviorSubject<T = void>(initial: T): rxjs.BehaviorSubject<T>;
   withinTimeThreshold<T>(
     $: t.Observable<T>,
     timeout: t.Msecs,

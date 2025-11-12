@@ -35,4 +35,7 @@ export const Rx: t.RxLib = {
   subject<T>() {
     return new lib.Subject<T>();
   },
+  behaviorSubject<T>(initial: T) {
+    return new lib.BehaviorSubject<T>(initial);
+  },
 };
