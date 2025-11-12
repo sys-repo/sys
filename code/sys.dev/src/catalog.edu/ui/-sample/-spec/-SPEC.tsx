@@ -5,24 +5,23 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
-  const url = debug.url;
   const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
     function update() {
-      ctx.debug.width(url.debug !== false ? 400 : 0);
+      ctx.debug.width(debug.url.debug !== false ? 400 : 0);
       ctx.subject.size('fill', p.hostPadding.value ? 50 : 0);
       ctx.redraw();
     }
 
+    update(); // initial
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       update();
     });
-    update(); // initial
 
     ctx.subject.display('grid').render(() => {
       const v = Signal.toObject(p);

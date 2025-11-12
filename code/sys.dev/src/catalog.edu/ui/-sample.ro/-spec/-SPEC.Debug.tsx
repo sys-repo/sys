@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { createRepo, DevUrl, YamlObjectView } from '../../-test.ui.ts';
+import { type t, Color, css, D, Icons, LocalStorage, Obj, Signal } from '../common.ts';
 
 import { Button, ObjectView } from '../common.ts';
 
@@ -32,6 +33,8 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    url: DevUrl.make(window),
+    repo: createRepo(),
     reset,
     listen,
   };
@@ -83,7 +86,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{D.name}</div>
+        <div>{'(Rowan Editor)'}</div>
+      </div>
+
+      <Button
+        block
+        label={() => (
+          <div className={styles.vcenter.class}>
+            <Icons.ClosePanel.Right />
+            {`debug=false (via query-string → reload)`}
+          </div>
+        )}
+        onClick={() => {
+          debug.url.debug = false;
+          window.location.reload();
+        }}
+      />
+
+      <hr />
 
       <Button
         block

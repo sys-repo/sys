@@ -73,12 +73,12 @@ export function createDebugSignals() {
     repo: createRepo(),
     url: DevUrl.make(window),
     signals,
-    reset,
     listen,
+    reset,
   };
 
   function listen() {
-    Signal.listen(props);
+    Signal.listen(props, true);
     Signal.listen(signals, true);
   }
 

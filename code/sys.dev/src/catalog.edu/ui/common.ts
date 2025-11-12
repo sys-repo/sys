@@ -19,5 +19,6 @@ export {
   Media,
   ObjectView,
   Player,
+  SplitPane,
 } from '@sys/ui-react-components';
 export { RecorderHookView } from '@sys/ui-react-components/media/recorder/dev';
