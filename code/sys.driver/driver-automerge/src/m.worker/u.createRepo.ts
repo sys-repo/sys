@@ -39,12 +39,14 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     if (!msg || msg.type !== 'event' || msg.stream !== Wire.Stream.repo) return;
     const e = msg.event;
 
+    // 1. Ready + snapshot (init state):
     if (e.type === 'ready' || e.type === 'props/snapshot') {
       if (e.type === 'props/snapshot') state.props = e.payload;
       const next = !!e.payload.ready;
       return void (next !== state.ready ? updateReady(next) : undefined);
     }
 
+    // 2. Repo prop changes (mirrors state + pushes to prop$):
     if (e.type === 'props/change') {
       const before = Wire.clone(e.payload.before);
       const after = Wire.clone(e.payload.after);
@@ -52,12 +54,19 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       return void prop$.next({ prop: e.payload.prop, before, after });
     }
 
+    // 3. Network events (peer online/offline/close):
     if (Wire.Is.networkEvent(e)) {
       return void network$.next(e);
     }
 
-    // Fallback: pass through any other repo event
-    event$.next(e as t.CrdtRepoEvent);
+    // 4. Lifecycle signals at the wire layer only (ignored at repo surface):
+    if (Wire.Is.streamLifecycle(e)) {
+      return;
+    }
+
+    // 5. Nothing else remains
+    //    All other event variants are worker-internal and should not surface.
+    return;
   }
 
   port.addEventListener?.('message', onMessage);

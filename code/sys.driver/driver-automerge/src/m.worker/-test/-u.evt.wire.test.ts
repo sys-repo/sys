@@ -158,4 +158,37 @@ describe('Event helpers', () => {
       });
     });
   });
+
+  describe('Wire.Is', () => {
+    type N = t.NetworkAdapterInterface;
+    const { Is } = Wire;
+    const peerId = 'p1' as t.PeerId;
+
+    it('networkEvent', () => {
+      expect(Is.networkEvent({ type: 'network/peer-online', payload: { peerId } })).to.be.true;
+      expect(Is.networkEvent({ type: 'network/close', payload: { adapter: {} as N } })).to.be.true;
+      expect(Is.networkEvent({ type: 'ready', payload: { ready: true } })).to.be.false;
+      expect(Is.networkEvent({ type: 'stream/open', payload: {} })).to.be.false;
+    });
+
+    it('streamLifecycle', () => {
+      expect(Is.streamLifecycle({ type: 'stream/open', payload: {} })).to.be.true;
+      expect(Is.streamLifecycle({ type: 'stream/error', payload: {} })).to.be.true;
+      expect(Is.streamLifecycle({ type: 'network/peer-online', payload: { peerId } })).to.be.false;
+      expect(Is.streamLifecycle({ type: 'ready', payload: { ready: true } })).to.be.false;
+    });
+
+    it('repoEvent', () => {
+      expect(Is.repoEvent({ type: 'ready', payload: { ready: true } })).to.be.true;
+      expect(
+        Is.repoEvent({
+          type: 'props/change',
+          payload: { prop: 'sync.enabled', before: {} as any, after: {} as any },
+        }),
+      ).to.eql(true);
+
+      expect(Is.repoEvent({ type: 'stream/open', payload: {} })).to.eql(false);
+      expect(Is.repoEvent({ type: 'stream/error', payload: {} })).to.eql(false);
+    });
+  });
 });

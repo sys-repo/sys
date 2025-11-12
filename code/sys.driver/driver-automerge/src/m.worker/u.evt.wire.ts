@@ -18,6 +18,26 @@ export const Wire = {
         e.type === 'network/close'
       );
     },
+
+    /** True when event is a transport-only lifecycle signal. */
+    streamLifecycle(
+      e: t.WireRepoEventPayload,
+    ): e is
+      | { type: 'stream/open'; payload: {} }
+      | { type: 'stream/close'; payload: {} }
+      | { type: 'stream/error'; payload: { message?: string } } {
+      return e.type === 'stream/open' || e.type === 'stream/close' || e.type === 'stream/error';
+    },
+
+    /** True when the event is a CRDT repo API event (not a wire lifecycle signal). */
+    repoEvent(e: t.WireRepoEventPayload): e is t.CrdtRepoEvent {
+      return (
+        e.type === 'ready' ||
+        e.type === 'props/snapshot' ||
+        e.type === 'props/change' ||
+        Wire.Is.networkEvent(e)
+      );
+    },
   },
 
   call<M extends t.WireRepoMethod>(
