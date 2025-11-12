@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { Rx } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Rx } from '../mod.ts';
 
 describe('Observable/Rx', () => {
   const Is = Rx.Is;

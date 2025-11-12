@@ -1,6 +1,6 @@
-import { type t, describe, expect, it, Testing, Time } from '../-test.ts';
-import { Dispose } from '../mod.ts';
-import { Rx } from './mod.ts';
+import { type t, describe, expect, it, Testing, Time } from '../../-test.ts';
+import { Dispose } from '../../mod.ts';
+import { Rx } from '../mod.ts';
 
 describe('Observable/rx', () => {
   it('API', async () => {
@@ -40,6 +40,20 @@ describe('Observable/rx', () => {
       subject.subscribe((e) => fired.push(e));
       subject.next({ type: 'foo' });
       expect(fired[0]).to.eql({ type: 'foo' });
+    });
+  });
+
+  describe('Rx.behaviorSubject (factory)', () => {
+    it('replay latest on connect - <T>', () => {
+      const subject = Rx.behaviorSubject(0);
+
+      const fired: number[] = [];
+      subject.subscribe((e) => fired.push(e));
+      subject.next(123);
+
+      expect(fired.length).to.eql(2);
+      expect(fired[0]).to.eql(0);
+      expect(fired[1]).to.eql(123);
     });
   });
 
