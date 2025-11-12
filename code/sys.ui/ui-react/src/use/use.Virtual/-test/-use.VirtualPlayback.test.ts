@@ -10,25 +10,7 @@ import {
   Timecode,
 } from '../../../-test.ts';
 import { useVirtualPlayback } from '../mod.ts';
-
-const seg = (
-  vf: number,
-  vt: number,
-  of: number,
-  src: t.StringRef = 'test:0' as t.StringRef,
-): t.TimecodeResolvedSegment => ({
-  src,
-  virtual: { from: vf as t.Msecs, to: vt as t.Msecs },
-  original: { from: of as t.Msecs, to: (of + (vt - vf)) as t.Msecs },
-});
-
-const resolved = (
-  total: number,
-  segments: readonly t.TimecodeResolvedSegment[],
-): t.TimecodeCompositionResolved => ({
-  total: total as t.Msecs,
-  segments,
-});
+import { resolved, seg } from './-u.ts';
 
 describe('useVirtualPlayback', () => {
   DomMock.polyfill();
