@@ -19,6 +19,7 @@ export namespace Monaco {
   export type Range = monaco.Range;
   export type CancellationToken = monaco.CancellationToken;
   export type LinePos = t.LinePos;
+  export type Cursor = t.EditorCursor;
 
   /** Nested namespace for all the I-prefixed interfaces */
   export namespace I {
