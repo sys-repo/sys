@@ -8,7 +8,9 @@ export type TimecodeLib = {
   readonly Ops: t.TimecodeOpsLib;
   readonly Slice: t.TimecodeSliceLib;
   readonly Composite: t.TimecodeCompositeLib;
+
   readonly VTime: t.VTimeLib;
+  readonly VClock: t.VirtualClockLib;
 
   /** Regular-expression patterns. */
   readonly Pattern: {
