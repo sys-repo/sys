@@ -31,5 +31,5 @@
  * }
  * ```
  */
+export { between, find, findAtOrBefore, nearest, neighbors } from './core.ops/mod.ts';
 export { Timecode } from './m.Timecode.ts';
-export { between, find, findAtOrBefore, nearest, neighbors } from './ops/mod.ts';

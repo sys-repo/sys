@@ -4,8 +4,8 @@ import * as mod from './mod.ts';
 import { Timecode } from './mod.ts';
 
 import { Composite } from './composite/mod.ts';
+import { Ops } from './core.ops/mod.ts';
 import { Pattern } from './m.Pattern.ts';
-import { Ops } from './ops/mod.ts';
 import { Slice } from './slice/mod.ts';
 
 describe('Timecode', () => {

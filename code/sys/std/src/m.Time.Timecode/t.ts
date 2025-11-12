@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 export type * from './composite/t.ts';
-export type * from './ops/t.ts';
+export type * from './core.ops/t.ts';
 export type * from './slice/t.ts';
 export type * from './t.lib.ts';
 
