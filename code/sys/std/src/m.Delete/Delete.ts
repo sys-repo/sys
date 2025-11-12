@@ -39,4 +39,15 @@ export const Delete: t.DeleteLib = {
     for (const key of keys) delete clone[key as PropertyKey];
     return clone as Omit<T, K[number]>;
   },
+
+  /**
+   * Removes any function-valued fields from an object (shallow clone).
+   */
+  funcs<T extends O>(obj: T): T {
+    const clone: Record<string, unknown> = { ...(obj as any) };
+    for (const key of Object.keys(clone)) {
+      if (typeof clone[key] === 'function') delete clone[key];
+    }
+    return clone as T;
+  },
 };

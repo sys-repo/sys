@@ -110,4 +110,78 @@ describe('Delete', () => {
       const _c: string = res.c;
     });
   });
+
+  describe('Delete.funcs', () => {
+    it('removes top-level function-valued fields (shallow) and returns a clone', () => {
+      const src = {
+        a: 1,
+        b: 'x',
+        f1: () => 123,
+        f2: function () {
+          return 456;
+        },
+      };
+      const out = Delete.funcs(src);
+
+      // clone, not same reference
+      expect(out).to.not.equal(src);
+
+      // functions removed
+      expect(out).to.eql({ a: 1, b: 'x' });
+
+      // source not mutated
+      expect('f1' in src).to.equal(true);
+      expect('f2' in src).to.equal(true);
+    });
+
+    it('does not descend: nested object functions are preserved', () => {
+      const src = {
+        nested: {
+          keep: true,
+          fn: () => 'nested',
+        },
+      };
+      const out = Delete.funcs(src);
+
+      // shallow clone keeps nested object
+      expect(out).to.not.equal(src);
+      expect(out.nested).to.eql(src.nested);
+
+      // nested function remains (no deep delete)
+      expect(typeof out.nested.fn).to.equal('function');
+    });
+
+    it('does not modify arrays or their elements', () => {
+      const fn = () => 0;
+      const src = { arr: [1, fn, 3] };
+      const out = Delete.funcs(src);
+
+      expect(Array.isArray(out.arr)).to.equal(true);
+      expect(out.arr.length).to.eql(3);
+      expect(out.arr[0]).to.eql(1);
+      expect(typeof out.arr[1]).to.equal('function');
+      expect(out.arr[2]).to.eql(3);
+    });
+
+    it('preserves non-function falsy values (0, "", false, null, undefined)', () => {
+      const src = {
+        n: 0,
+        s: '',
+        b: false,
+        nil: null as null | object,
+        u: undefined as unknown,
+        fn: () => 1,
+      };
+      const out = Delete.funcs(src);
+
+      // only the function is removed
+      expect(out).to.eql({ n: 0, s: '', b: false, nil: null, u: undefined });
+      expect('fn' in out).to.equal(false);
+    });
+
+    it('handles empty objects safely', () => {
+      const out = Delete.funcs({});
+      expect(out).to.eql({});
+    });
+  });
 });

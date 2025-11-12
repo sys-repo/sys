@@ -20,4 +20,10 @@ export type DeleteLib = {
     obj: T,
     ...keys: K
   ) => Omit<T, K[number]>;
+
+  /**
+   * Removes any function-valued fields from an object (shallow clone).
+   * Returns a new object of the same type with those keys omitted.
+   */
+  funcs<T extends Record<string, unknown>>(obj: T): T;
 };
