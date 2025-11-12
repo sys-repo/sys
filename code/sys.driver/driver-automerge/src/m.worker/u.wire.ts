@@ -44,8 +44,6 @@ export const Wire = {
   Stream: {
     repo: 'crdt:repo' as const,
     doc: (id: t.StringId) => `crdt:doc:${id}` as const,
-    isDoc(s: t.WireStream): s is `crdt:doc:${string}` {
-      return s.startsWith('crdt:doc:');
-    },
+    isDoc: (s: t.WireStream): s is `crdt:doc:${string}` => s.startsWith('crdt:doc:'),
   },
 } as const;
