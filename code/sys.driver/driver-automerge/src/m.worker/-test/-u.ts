@@ -1,7 +1,7 @@
 import { Crdt } from '@sys/driver-automerge/fs';
 
 import { type t, Schedule } from '../common.ts';
-import { CrdtWorker } from '../m.Worker.ts';
+import { CrdtWorker } from '../m.CrdtWorker.ts';
 
 /**
  * Common test utilities for worker-based CRDT repo.
