@@ -19,6 +19,8 @@ export type {
   TimecodeSliceString,
   TimecodeSliceStringInput,
   TimecodeVTime,
+  VirtualClock,
+  VirtualClockState,
 } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { KeyboardModifierFlags, LocalStorageImmutable } from '@sys/ui-dom/t';

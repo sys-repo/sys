@@ -139,9 +139,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ marginTop: 30 }} />
+      <div className={Styles.title.class}>{'SpecInfo:'}</div>
+
       <CompositeVideo.View.SpecInfo
         videos={p.videos.value}
-        style={{ MarginX: 10, marginTop: 20 }}
+        style={{ MarginX: 15, marginTop: 20 }}
       />
     </div>
   );
