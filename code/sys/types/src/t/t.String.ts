@@ -42,6 +42,9 @@ export type StringSemver = string;
 /** String that represents a <name> of something. */
 export type StringName = string;
 
+/** String contains a regular-expression */
+export type StringReg = string;
+
 /** String that represents a `tx` (transaction identifier). */
 export type StringTx = string;
 

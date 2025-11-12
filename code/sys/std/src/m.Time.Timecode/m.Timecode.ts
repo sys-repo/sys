@@ -1,3 +1,4 @@
+import { VTime } from './clock/mod.ts';
 import { type t } from './common.ts';
 import { Composite } from './composite/mod.ts';
 import { Ops } from './core.ops/mod.ts';
@@ -11,6 +12,7 @@ export const Timecode: t.TimecodeLib = {
   Ops,
   Slice,
   Composite,
+  VTime,
 
   is,
   parse,

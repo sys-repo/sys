@@ -3,6 +3,7 @@ import { describe, expect, it } from '../-test.ts';
 import * as mod from './mod.ts';
 import { Timecode } from './mod.ts';
 
+import { VTime } from './clock/mod.ts';
 import { Composite } from './composite/mod.ts';
 import { Ops } from './core.ops/mod.ts';
 import { Pattern } from './m.Pattern.ts';
@@ -16,6 +17,7 @@ describe('Timecode', () => {
     expect(m.Timecode.Slice).to.equal(Slice);
     expect(m.Timecode.Composite).to.equal(Composite);
     expect(m.Timecode.Pattern).to.equal(Pattern);
+    expect(m.Timecode.VTime).to.equal(VTime);
   });
 
   it('API: @sys/std/time/timecode (core)', async () => {
