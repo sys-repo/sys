@@ -68,7 +68,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
-        <Switch value={enabled} theme={switchTheme} height={16} onMouseDown={onClick} />
+        <Switch value={enabled || false} theme={switchTheme} height={16} onMouseDown={onClick} />
         {elDefault}
         {elNetworkIcons}
       </div>

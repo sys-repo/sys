@@ -1,4 +1,4 @@
-import { type t, WIRE_VERSION } from './common.ts';
+import { type t, Delete, WIRE_VERSION } from './common.ts';
 
 /**
  * Simple factories for well-formed messages.
@@ -47,7 +47,7 @@ export const Wire = {
     return { kind, message: String(e ?? 'UNKNOWN') };
   },
 
-  clone(p: t.WireRepoProps): t.WireRepoProps {
+  clone(p: t.CrdtRepoProps): t.CrdtRepoProps {
     return {
       ready: p.ready,
       id: p.id,

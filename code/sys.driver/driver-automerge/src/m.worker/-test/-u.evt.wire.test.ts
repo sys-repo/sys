@@ -119,7 +119,7 @@ describe('Event helpers', () => {
       });
     });
 
-    describe('Wire.Stream helpers', () => {
+    describe('Wire.Stream (helpers)', () => {
       it('repo constant', () => {
         expect(Wire.Stream.repo).to.eql<'crdt:repo'>('crdt:repo');
         expectTypeOf(Wire.Stream.repo).toEqualTypeOf<'crdt:repo'>();
@@ -138,6 +138,23 @@ describe('Event helpers', () => {
         const b: t.WireStream = Wire.Stream.doc('x');
         expect(Wire.Stream.isDoc(a)).to.eql(false);
         expect(Wire.Stream.isDoc(b)).to.eql(true);
+      });
+    });
+
+    describe('Wire.clone', () => {
+      it('Wire.clone returns a deep array copy, same scalars', () => {
+        const p: t.CrdtRepoProps = {
+          ready: true,
+          id: { instance: 'i', peer: 'p' },
+          sync: { peers: ['a' as t.PeerId], urls: ['u'], enabled: false },
+          stores: [{ id: 's' } as unknown as t.CrdtRepoStoreInfo],
+        };
+        const out = Wire.clone(p);
+
+        expect(out).to.eql(p);
+        expect(out.sync.peers).to.not.equal(p.sync.peers);
+        expect(out.sync.urls).to.not.equal(p.sync.urls);
+        expect(out.stores).to.not.equal(p.stores);
       });
     });
   });

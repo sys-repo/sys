@@ -1,0 +1,207 @@
+import {
+  type t,
+  Obj,
+  Rx,
+  Schedule,
+  afterEach,
+  describe,
+  expect,
+  expectTypeOf,
+  it,
+} from '../../-test.ts';
+import { CrdtWorker } from '../mod.ts';
+import { Wait, createTestHelpers } from './-u.ts';
+
+describe('CrdtWorker.repo (shim)', () => {
+  const Test = createTestHelpers();
+
+  afterEach(async () => {
+    Test.clearPorts();
+    await Schedule.macro();
+  });
+
+  describe('smoke', () => {
+    it('smoke: real repo over MessagePort → stream/open + ready + live', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const real = Test.realRepo();
+
+      const client = CrdtWorker.repo(port1);
+      const { events, stop } = Test.collectRepoEvents(port1);
+
+      CrdtWorker.attach(port2, real);
+
+      // stream/open first
+      await Wait.waitFor(() => events.length >= 1);
+      expect(events[0]).to.eql({ type: 'stream/open', payload: {} });
+
+      // at least one ready; client resolves
+      await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
+      await client.whenReady();
+      expect(client.ready).to.eql(true);
+
+      stop();
+      await real.dispose();
+      await client.dispose();
+    });
+
+    it('client mirrors id from props/snapshot', async () => {
+      const client = Test.clientRepo();
+      const real = Test.realRepo();
+
+      CrdtWorker.attach(client.port2, real);
+      await Wait.waitFor(() => Obj.hash(client.repo.id) === Obj.hash(real.id));
+
+      expect(client.repo.id.instance).to.eql(real.id.instance);
+      expect(client.repo.id.peer).to.eql(real.id.peer);
+
+      await real.dispose();
+    });
+  });
+
+  describe('construct (core invariants)', () => {
+    it('exposes a t.CrdtRepo surface (structural typing)', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const repo = CrdtWorker.repo(port1);
+      // Type-level: should be assignable to t.CrdtRepo
+      expectTypeOf(repo).toMatchTypeOf<t.CrdtRepo>();
+
+      repo.dispose();
+    });
+
+    it('branding: via === "worker" (stable discriminant)', () => {
+      const { port1 } = Test.makePorts();
+      const repo = CrdtWorker.repo(port1);
+      expect((repo as t.CrdtRepoWorkerShim).via).to.eql('worker');
+    });
+
+    it('lifecycle: dispose emits once, sets disposed, and is idempotent', async () => {
+      const { port1 } = Test.makePorts();
+      const repo = CrdtWorker.repo(port1);
+
+      const fired: t.DisposeAsyncEvent[] = [];
+      repo.dispose$.subscribe((e) => fired.push(e));
+      expect(repo.disposed).to.eql(false);
+
+      await repo.dispose();
+      expect(repo.disposed).to.eql(true);
+      expect(fired.map((e) => e.payload.stage)).to.eql(['start', 'complete']);
+
+      // Idempotent:
+      await repo.dispose();
+      expect(repo.disposed).to.eql(true);
+      expect(fired.length).to.eql(2);
+    });
+
+    it('lifecycle: dispose via `until` parameter option', async () => {
+      const until = Rx.lifecycle();
+
+      const { port1 } = Test.makePorts();
+      const repo = CrdtWorker.repo(port1, { until });
+      expect(repo.disposed).to.eql(false);
+
+      until.dispose();
+      expect(repo.disposed).to.eql(false);
+      await Schedule.micro();
+      expect(repo.disposed).to.eql(true);
+    });
+  });
+
+  describe('props/change (shim → prop$)', () => {
+    it('emits prop$ with {prop,before,after} and mirrors client state', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const client = CrdtWorker.repo(port1);
+
+      // collect prop$ from the shim
+      const until = Rx.lifecycle();
+      const propsEvents: t.CrdtRepoPropChangeEvent['payload'][] = [];
+      client.events(until).prop$.subscribe((e) => propsEvents.push(e));
+
+      // craft a wire props/change
+      const before: t.CrdtRepoProps = {
+        ready: true,
+        id: { instance: 'inst-1' as t.StringId, peer: 'peer-1' as t.StringId },
+        sync: { peers: [], urls: [], enabled: false },
+        stores: [],
+      };
+      const after: t.CrdtRepoProps = {
+        ...before,
+        sync: { peers: ['p2' as t.PeerId], urls: ['wss://x' as t.StringUrl], enabled: true },
+      };
+
+      const evt: t.WireMessage = {
+        version: CrdtWorker.version,
+        type: 'event',
+        stream: 'crdt:repo',
+        event: { type: 'props/change', payload: { prop: 'sync.peers', before, after } },
+      };
+
+      // drive the client by posting from the other end of the channel
+      port2.postMessage(evt);
+
+      // assert: prop$ fired once with cloned payload
+      await Wait.waitFor(() => propsEvents.length === 1);
+      const payload = propsEvents[0];
+
+      expect(payload.prop).to.eql('sync.peers');
+      expect(payload.before).to.eql(before);
+      expect(payload.after).to.eql(after);
+
+      // ensure arrays are defensively cloned (no shared refs)
+      expect(payload.after.sync.peers).to.not.equal(after.sync.peers);
+      expect(payload.after.sync.urls).to.not.equal(after.sync.urls);
+      expect(payload.after.stores).to.not.equal(after.stores);
+
+      // client mirrors AFTER state via getters
+      expect(client.id).to.eql(after.id);
+      expect(client.sync.enabled).to.eql(true);
+      expect(client.sync.peers).to.eql(after.sync.peers);
+      expect(client.sync.urls).to.eql(after.sync.urls);
+
+      until.dispose();
+      await client.dispose();
+    });
+
+    it('does not toggle ready$ for non-ready prop changes', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const client = CrdtWorker.repo(port1);
+
+      const until = Rx.lifecycle();
+      const readies: boolean[] = [];
+      client.events(until).ready$.subscribe((r) => readies.push(r));
+
+      const base: t.CrdtRepoProps = {
+        ready: false,
+        id: { instance: 'i' as t.StringId, peer: 'p' as t.StringId },
+        sync: { peers: [], urls: [], enabled: false },
+        stores: [],
+      };
+
+      const evt: t.WireMessage = {
+        version: CrdtWorker.version,
+        type: 'event',
+        stream: 'crdt:repo',
+        event: {
+          type: 'props/change',
+          payload: {
+            prop: 'sync.enabled',
+            before: base,
+            after: { ...base, sync: { ...base.sync, enabled: true } },
+          },
+        },
+      };
+
+      port2.postMessage(evt);
+
+      // allow microtask turn for subscriptions to process
+      await Schedule.micro();
+
+      // ready$ should still be only the initial value (false) and not flip
+      // (BehaviorSubject emits the seed once)
+      expect(readies[0]).to.eql(false);
+      expect(readies.length).to.eql(1);
+
+      until.dispose();
+      await client.dispose();
+    });
+  });
+});

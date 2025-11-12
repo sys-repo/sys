@@ -5,7 +5,7 @@ import { EndpointLabel } from './ui.Switch.Endpoint.tsx';
 import { PeerLabel } from './ui.Switch.Peer.tsx';
 
 export type DefaultDetailsProps = {
-  enabled?: boolean;
+  enabled?: boolean | null;
   repo?: t.Crdt.Repo;
 
   debug?: boolean;

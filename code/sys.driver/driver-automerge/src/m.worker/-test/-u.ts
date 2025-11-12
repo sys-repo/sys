@@ -1,7 +1,14 @@
+import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { Crdt } from '@sys/driver-automerge/fs';
 
 import { type t, Schedule } from '../common.ts';
 import { CrdtWorker } from '../m.CrdtWorker.ts';
+
+const createAdapters = () => {
+  const net1 = new BrowserWebSocketClientAdapter('wss://sync.automerge.org');
+  const net2 = new BrowserWebSocketClientAdapter('wss://sync.db.team');
+  return { net1, net2 } as const;
+};
 
 /**
  * Common test utilities for worker-based CRDT repo.
@@ -31,8 +38,12 @@ export function createTestHelpers() {
       } as const;
     },
 
-    realRepo() {
-      return Crdt.repo();
+    realRepo(opts: { network?: boolean } = {}) {
+      const network: t.CrdtFsNetworkArgInput[] = [];
+      if (opts.network) {
+        network.push(new BrowserWebSocketClientAdapter('wss://sync.automerge.org'));
+      }
+      return Crdt.repo({ network });
     },
 
     collectRepoEvents(port: MessagePort) {

@@ -88,16 +88,11 @@ export type WireResultErr = {
 /** Discriminated union of result envelopes. */
 export type WireResult = WireResultOk | WireResultErr;
 
-/** Serializable view of repo props for wire transport (derived to avoid drift). */
-export type WireRepoProps = Pick<t.CrdtRepoProps, 'ready' | 'id' | 'stores'> & {
-  readonly sync: Pick<t.CrdtRepoProps['sync'], 'peers' | 'urls' | 'enabled'>;
-};
-
 /** Serializable prop-change payload for wire events (derived). */
 export type WireRepoPropChange = {
   readonly prop: 'ready' | 'sync.enabled' | 'sync.peers';
-  readonly before: WireRepoProps;
-  readonly after: WireRepoProps;
+  readonly before: t.CrdtRepoProps;
+  readonly after: t.CrdtRepoProps;
 };
 
 /**
@@ -105,8 +100,8 @@ export type WireRepoPropChange = {
  * Includes stream lifecycle signals for future resource tracking.
  */
 export type WireRepoEventPayload =
-  | { readonly type: 'props/change'; readonly payload: WireRepoPropChange }
-  | { readonly type: 'props/snapshot'; readonly payload: WireRepoProps }
+  | { readonly type: 'props/change'; readonly payload: t.WireRepoPropChange }
+  | { readonly type: 'props/snapshot'; readonly payload: t.CrdtRepoProps }
   | { readonly type: 'ready'; readonly payload: { readonly ready: boolean } }
   | { readonly type: 'stream/open'; readonly payload: Record<never, never> }
   | { readonly type: 'stream/close'; readonly payload: Record<never, never> }

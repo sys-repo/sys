@@ -1,8 +1,9 @@
-import { type t, Rx, Try } from './common.ts';
+import { type t, Obj, Rx, Try } from './common.ts';
 import { Wire } from './u.evt.wire.ts';
 
 type O = Record<string, unknown>;
 
+// TEMP streams (to be replaced as we wire more events across the port). 🐷
 const __tmp$ = Rx.subject<any>().asObservable();
 const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
 
@@ -17,42 +18,44 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   port.start?.();
 
   /** Local ready state mirrored from wire. */
-  const state: { ready: boolean; props?: t.WireRepoProps } = { ready: false };
+  const state: { ready: boolean; props?: t.CrdtRepoProps } = { ready: false };
 
   /** Behavior-like subject so late subscribers see last value. */
-  const ready$ = Rx.subject<boolean>();
-  ready$.next(state.ready);
+  const ready$ = Rx.behaviorSubject<boolean>(state.ready);
+  const event$ = Rx.subject<t.CrdtRepoEvent>();
+  const prop$ = Rx.subject<t.CrdtRepoPropChangeEvent['payload']>();
+  const network$ = Rx.subject<t.CrdtNetworkChangeEvent>();
 
-  /** Handle incoming repo stream events. */
-  const onMessage = (ev: MessageEvent) => {
+  function updateReady(next: boolean) {
+    state.ready = next;
+    ready$.next(next);
+  }
+
+  /**
+   * Handle incoming repo stream events.
+   */
+  function onMessage(ev: MessageEvent) {
     const msg = ev.data as t.WireMessage | undefined;
     if (!msg || msg.type !== 'event' || msg.stream !== Wire.Stream.repo) return;
-
     const e = msg.event;
 
-    if (e.type === 'props/snapshot') {
-      state.props = e.payload;
+    if (e.type === 'ready' || e.type === 'props/snapshot') {
+      if (e.type === 'props/snapshot') state.props = e.payload;
       const next = !!e.payload.ready;
-      if (next !== state.ready) {
-        state.ready = next;
-        ready$.next(next);
-      }
-      return;
+      return void (next !== state.ready ? updateReady(next) : undefined);
     }
 
     if (e.type === 'props/change') {
-      state.props = e.payload.after;
-      return;
+      const before = Wire.clone(e.payload.before);
+      const after = Wire.clone(e.payload.after);
+      state.props = after;
+      return void prop$.next({ prop: e.payload.prop, before, after });
     }
 
-    if (e.type === 'ready') {
-      const next = !!e.payload.ready;
-      if (next !== state.ready) {
-        state.ready = next;
-        ready$.next(next);
-      }
-    }
-  };
+
+    // Fallback: pass through any other repo event
+    event$.next(e as t.CrdtRepoEvent);
+  }
 
   port.addEventListener?.('message', onMessage);
 
@@ -117,10 +120,10 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     events(until) {
       const gate = Rx.lifecycle([life.dispose$, until]);
       return Rx.toLifecycle<t.CrdtRepoEvents>(gate, {
-        $: __tmp$ as t.Observable<t.CrdtRepoEvent>,
-        prop$: __tmp$ as t.Observable<t.CrdtRepoPropChangeEvent['payload']>,
-        ready$: ready$.asObservable(),
-        network$: __tmp$ as t.Observable<t.CrdtNetworkChangeEvent>,
+        $: event$.pipe(Rx.takeUntil(gate.dispose$)),
+        prop$: prop$.pipe(Rx.takeUntil(gate.dispose$)),
+        ready$: ready$.pipe(Rx.takeUntil(gate.dispose$)),
+        network$: network$.pipe(Rx.takeUntil(gate.dispose$)),
       });
     },
 
@@ -139,6 +142,10 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   life.dispose$.subscribe(() => {
     Try.catch(() => port.removeEventListener?.('message', onMessage));
     Try.catch(() => port.close?.());
+    Try.catch(() => ready$.complete());
+    Try.catch(() => event$.complete());
+    Try.catch(() => prop$.complete());
+    Try.catch(() => network$.complete());
   });
 
   return repo;

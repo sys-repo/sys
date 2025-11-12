@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type t, LocalStorage, Rx } from './common.ts';
+import { type t, Is, LocalStorage, Rx } from './common.ts';
 
 type P = t.SyncEnabledSwitchProps;
 type Store = { syncEnabled?: boolean };
@@ -11,25 +11,25 @@ export function useController(props: P) {
    * Hooks:
    */
   const [store, setStore] = useState(wrangle.localstore(props));
-  const [enabled, setEnabled] = useState(wrangle.enabled(store?.current, repo));
+  const [enabled, setEnabled] = useState<boolean | null>(wrangle.enabled(store?.current, repo));
   const [peers, setPeers] = useState<readonly t.PeerId[]>([]);
   const [, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
 
   /**
-   * EFFECT: refresh local-store handle when the storage key changes.
+   * Effect: refresh local-store handle when the storage key changes.
    */
   useEffect(() => void setStore(wrangle.localstore(props)), [localstorage]);
 
   /**
-   * EFFECT: persist changes made by this hook back to local-storage.
+   * Effect: persist changes made by this hook back to local-storage.
    */
   useEffect(() => {
-    store?.change((d) => (d.syncEnabled = enabled));
+    store?.change((d) => (d.syncEnabled = Is.bool(enabled) ? enabled : undefined));
   }, [store, enabled]);
 
   /**
-   * EFFECT:
+   * Effect:
    *  - keep `enabled` in-sync with repo‐side toggles done elsewhere.
    */
   useEffect(() => {
@@ -55,9 +55,10 @@ export function useController(props: P) {
   /**
    * Methods:
    */
-  const updatedEnabled = (enabled: boolean) => {
-    setEnabled(!!repo && enabled);
-    repo?.sync.enable(enabled);
+  /** Only forward to repo when next is boolean; null = no adapters (no-op). */
+  const updatedEnabled = (next: boolean | null) => {
+    setEnabled(next);
+    if (repo && Is.bool(next)) repo.sync.enable(next);
   };
 
   /**
@@ -76,12 +77,12 @@ export function useController(props: P) {
 const wrangle = {
   localstore(props: P) {
     const { repo, localstorage } = props;
-    const syncEnabled = repo?.sync.enabled ?? false;
+    const syncEnabled = Is.bool(repo?.sync.enabled) ? repo.sync.enabled : undefined;
     if (!localstorage) return;
     else return LocalStorage.immutable<Store>(localstorage, { syncEnabled });
   },
 
   enabled(store?: Store, repo?: t.CrdtRepo) {
-    return store?.syncEnabled ?? repo?.sync.enabled ?? false;
+    return store?.syncEnabled ?? repo?.sync.enabled ?? null;
   },
 } as const;
