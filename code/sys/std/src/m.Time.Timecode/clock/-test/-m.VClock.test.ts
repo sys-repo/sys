@@ -1,5 +1,4 @@
 import { type t, describe, expect, it } from '../../../-test.ts';
-
 import { VClock, VTime } from '../mod.ts';
 
 describe('VClock - Virtual Clock', () => {
