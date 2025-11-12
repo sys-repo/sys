@@ -1,4 +1,4 @@
-import { type t, Delete, WIRE_VERSION } from './common.ts';
+import { type t, WIRE_VERSION } from './common.ts';
 
 /**
  * Simple factories for well-formed messages.
@@ -8,6 +8,16 @@ export const Wire = {
     repo: 'crdt:repo' as const,
     doc: (id: t.StringId) => `crdt:doc:${id}` as const,
     isDoc: (s: t.WireStream): s is `crdt:doc:${string}` => s.startsWith('crdt:doc:'),
+  },
+
+  Is: {
+    networkEvent(e: t.WireRepoEventPayload): e is t.CrdtNetworkChangeEvent {
+      return (
+        e.type === 'network/peer-online' ||
+        e.type === 'network/peer-offline' ||
+        e.type === 'network/close'
+      );
+    },
   },
 
   call<M extends t.WireRepoMethod>(

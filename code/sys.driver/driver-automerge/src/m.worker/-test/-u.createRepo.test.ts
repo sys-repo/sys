@@ -10,6 +10,7 @@ import {
   it,
 } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
+import { Wire } from '../u.evt.wire.ts';
 import { Wait, createTestHelpers } from './-u.ts';
 
 describe('CrdtWorker.repo (shim)', () => {
@@ -199,6 +200,45 @@ describe('CrdtWorker.repo (shim)', () => {
       // (BehaviorSubject emits the seed once)
       expect(readies[0]).to.eql(false);
       expect(readies.length).to.eql(1);
+
+      until.dispose();
+      await client.dispose();
+    });
+  });
+
+  describe('network events', () => {
+    it('forwards wire network events → client.events().network$', async () => {
+      const { port1 } = Test.makePorts();
+      const client = CrdtWorker.repo(port1);
+
+      const until = Rx.lifecycle();
+      const networkEvents: t.CrdtNetworkChangeEvent[] = [];
+      client.events(until).network$.subscribe((e) => networkEvents.push(e));
+
+      // Craft a wire-level network event (peer-online).
+      const payload: t.CrdtNetworkPeerOnlineEvent = {
+        type: 'network/peer-online',
+        payload: { peerId: 'peer-1' as t.PeerId },
+      };
+
+      const msg: t.WireMessage = {
+        version: CrdtWorker.version,
+        type: 'event',
+        stream: Wire.Stream.repo,
+        event: payload,
+      };
+
+      // Push the message into the same MessagePort the shim is listening on.
+      port1.dispatchEvent(new MessageEvent('message', { data: msg } as MessageEventInit));
+
+      // Wait for the shim to see and forward it.
+      await Wait.waitFor(() => networkEvents.length >= 1);
+
+      const first = networkEvents[0]!;
+      expect(first.type).to.eql('network/peer-online');
+      if (first.type === 'network/peer-online') {
+        expect(first.payload.peerId).to.eql('peer-1');
+      }
 
       until.dispose();
       await client.dispose();

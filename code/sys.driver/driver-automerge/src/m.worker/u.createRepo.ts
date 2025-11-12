@@ -52,6 +52,9 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       return void prop$.next({ prop: e.payload.prop, before, after });
     }
 
+    if (Wire.Is.networkEvent(e)) {
+      return void network$.next(e);
+    }
 
     // Fallback: pass through any other repo event
     event$.next(e as t.CrdtRepoEvent);
