@@ -3,55 +3,15 @@ import type { t } from './common.ts';
 export type * from './composite/t.ts';
 export type * from './ops/t.ts';
 export type * from './slice/t.ts';
-
-/**
- * Public library surface for timecodes.
- * Implementation should provide a single frozen object matching this shape.
- */
-export type TimecodeLib = {
-  readonly Ops: t.TimecodeOpsLib;
-  readonly Slice: t.TimecodeSliceLib;
-  readonly Composite: t.TimecodeCompositeLib;
-  readonly Pattern: {
-    readonly timecode: string;
-    readonly slice: string;
-  };
-
-  /** Type guard: true when input matches the grammar. */
-  readonly is: (input: unknown) => input is t.VttTimecode;
-
-  /** Return the lexical form of a valid timecode. */
-  readonly kindOf: (timecode: string) => t.TimecodeKind;
-
-  /** Parse a valid timecode to milliseconds. */
-  readonly parse: (timecode: string) => t.Msecs;
-
-  /**
-   * Stable sort by time:
-   * - valid timecodes first, ordered by time
-   * - non-timecodes after, original relative order preserved
-   */
-  readonly sort: (timecodes: string[]) => readonly string[];
-
-  /** Convert a record of timestamp-like keys to sorted validated entries. */
-  readonly toEntries: <T>(bag: Readonly<Record<string, T>>) => readonly t.TimecodeEntry<T>[];
-
-  /**
-   * Format milliseconds into a minimal legal timecode.
-   * - withMillis: include .mmm
-   * - forceHours: emit HH:MM:SS even when HH === 0
-   */
-  readonly format: (
-    ms: t.Msecs,
-    opts?: { withMillis?: boolean; forceHours?: boolean },
-  ) => t.VttTimecode;
-};
+export type * from './t.lib.ts';
 
 /**
  * Branded media timecode:
  * - MM:SS
  * - HH:MM:SS
  * - HH:MM:SS.mmm
+ * Standard:
+ *    WebVTT: The Web Video Text Tracks Format (W3C Recommendation)
  */
 export type VttTimecode = string & { readonly __vtt: 'VttTimecode' };
 
