@@ -1,5 +1,5 @@
 import { type t, afterEach, describe, expect, it } from '../../-test.ts';
-import { attach } from '../u.attach.ts';
+import { attach } from '../u.repo.attach.ts';
 import { workerTestHelpers } from './-u.ts';
 
 describe('CrdtWorker.attach', () => {

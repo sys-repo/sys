@@ -1,4 +1,4 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t, Try } from './common.ts';
 import { Wire } from './u.event.ts';
 import { onMessageErrorHandler } from './u.onErrorMessage.ts';
 
@@ -15,6 +15,7 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   const life = Rx.abortable(repo.dispose$);
   life.dispose$.subscribe(() => {
     send({ type: 'stream/close', payload: {} });
+    Try.catch(() => port.close?.());
   });
 
   // Stream open; emit initial readiness snapshot.

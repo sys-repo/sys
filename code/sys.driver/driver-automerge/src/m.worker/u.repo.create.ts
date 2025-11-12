@@ -1,4 +1,4 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t, Try } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -81,6 +81,9 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       return life.disposed;
     },
   };
+
+  // Ensure port is closed when the façade is disposed.
+  life.dispose$.subscribe(() => Try.catch(() => port.close?.()));
 
   return repo;
 };

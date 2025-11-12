@@ -16,6 +16,15 @@ export type CrdtWorkerLib = {
   /** Attaches a real repo instance to a `MessagePort` inside the worker. */
   readonly attach: (port: MessagePort, repo: t.CrdtRepo) => void;
 
+  /**
+   * Spawns a worker and connects to its existing CRDT repo.
+   * Establishes a MessageChannel link and returns both the worker handle
+   * and the client-side repo facade bound to that connection.
+   */
+  readonly spawn: (
+    url: string | URL,
+    opts?: { worker?: WorkerOptions; until?: t.UntilInput },
+  ) => Promise<{ readonly worker: Worker; readonly repo: t.CrdtRepo }>;
 };
 
 /**
