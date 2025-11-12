@@ -30,11 +30,11 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             videos={v.videos}
-            onTimeUpdate={(e) => console.info(`⚡️ onTimeUpdate`, e)}
             onReady={(e) => {
               console.info(`⚡️ onReady:`, e);
               p.timeline.value = e.timeline;
             }}
+            // onTimeUpdate={(e) => console.info(`⚡️ onTimeUpdate:`, e)}
           />
         );
       });
