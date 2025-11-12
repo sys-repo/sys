@@ -10,46 +10,25 @@ export function workerTestHelpers() {
   const ports = new Set<MessagePort>();
 
   const api = {
-    clear() {
+    clearPorts() {
       ports.forEach((p) => p.close());
       ports.clear();
     },
 
-    ports() {
+    makePorts() {
       const channel = new MessageChannel();
       ports.add(channel.port1);
       ports.add(channel.port2);
       return channel;
     },
 
-    repo() {
-      const { port1, port2 } = api.ports();
+    clientRepo() {
+      const { port1, port2 } = api.makePorts();
       return { repo: CrdtWorker.repo(port1), port2 } as const;
     },
 
     realRepo() {
-      return Crdt.repo().whenReady();
-    },
-
-    /** Flush a single MessagePort delivery cycle (macro) then microtasks. */
-    async tick() {
-      await Schedule.macro(); // MessageChannel deliveries land on the task (macro) queue
-      await Schedule.micro(); // drain follow-on microtasks scheduled by handlers
-    },
-
-    /** Flush N cycles. */
-    async flush(rounds = 2) {
-      for (let i = 0; i < rounds; i++) await api.tick();
-    },
-
-    async waitFor(pred: () => boolean, timeoutMs = 1500) {
-      const deadline = Date.now() + timeoutMs;
-      await api.tick(); // initial settle
-      while (Date.now() < deadline) {
-        if (pred()) return;
-        await api.tick();
-      }
-      throw new Error('waitFor: timeout');
+      return Crdt.repo();
     },
 
     collectRepoEvents(port: MessagePort) {
@@ -69,3 +48,29 @@ export function workerTestHelpers() {
 
   return api;
 }
+
+/**
+ * Wait helpers:
+ */
+export const Wait = {
+  /** Flush a single MessagePort delivery cycle (macro) then microtasks. */
+  async tick() {
+    await Schedule.macro(); // MessageChannel deliveries land on the task (macro) queue
+    await Schedule.micro(); // drain follow-on microtasks scheduled by handlers
+  },
+
+  /** Flush N cycles. */
+  async flush(rounds = 2) {
+    for (let i = 0; i < rounds; i++) await Wait.tick();
+  },
+
+  async waitFor(pred: () => boolean, timeoutMs = 1500) {
+    const deadline = Date.now() + timeoutMs;
+    await Wait.tick(); // initial settle
+    while (Date.now() < deadline) {
+      if (pred()) return;
+      await Wait.tick();
+    }
+    throw new Error('waitFor: timeout');
+  },
+};

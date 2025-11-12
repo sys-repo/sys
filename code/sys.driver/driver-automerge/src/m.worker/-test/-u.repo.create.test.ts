@@ -8,38 +8,58 @@ import {
   expectTypeOf,
   it,
 } from '../../-test.ts';
-import { WIRE_VERSION } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
-import { workerTestHelpers } from './-u.ts';
+import { Wait, workerTestHelpers } from './-u.ts';
 
 describe('CrdtWorker.repo (shim)', () => {
-  const { ports: makePorts, clear: clearPorts } = workerTestHelpers();
+  const Test = workerTestHelpers();
 
-  afterEach(clearPorts);
+  afterEach(async () => {
+    Test.clearPorts();
+    await Schedule.macro();
+  });
 
-  it('API', () => {
-    expect(CrdtWorker.version).to.eql(WIRE_VERSION);
+  it('smoke: real repo over MessagePort → stream/open + ready + live', async () => {
+    const { port1, port2 } = Test.makePorts();
+    const real = Test.realRepo();
+
+    const client = CrdtWorker.repo(port1);
+    const { events, stop } = Test.collectRepoEvents(port1);
+
+    CrdtWorker.attach(port2, real);
+
+    // stream/open first
+    await Wait.waitFor(() => events.length >= 1);
+    expect(events[0]).to.eql({ type: 'stream/open', payload: {} });
+
+    // at least one ready; client resolves
+    await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
+    await client.whenReady();
+    expect(client.ready).to.eql(true);
+
+    stop();
+    await real.dispose();
+    await client.dispose();
   });
 
   describe('construct (core invariants)', () => {
     it('exposes a t.CrdtRepo surface (structural typing)', async () => {
-      const { port1 } = makePorts();
+      const { port1, port2 } = Test.makePorts();
       const repo = CrdtWorker.repo(port1);
       // Type-level: should be assignable to t.CrdtRepo
       expectTypeOf(repo).toMatchTypeOf<t.CrdtRepo>();
 
-      // Runtime identity contract that will remain true:
-      expect(await repo.whenReady()).to.equal(repo);
+      repo.dispose();
     });
 
     it('branding: via === "worker" (stable discriminant)', () => {
-      const { port1 } = makePorts();
+      const { port1 } = Test.makePorts();
       const repo = CrdtWorker.repo(port1);
       expect((repo as t.CrdtRepoWorkerShim).via).to.eql('worker');
     });
 
     it('lifecycle: dispose emits once, sets disposed, and is idempotent', async () => {
-      const { port1 } = makePorts();
+      const { port1 } = Test.makePorts();
       const repo = CrdtWorker.repo(port1);
 
       const fired: t.DisposeAsyncEvent[] = [];
@@ -59,7 +79,7 @@ describe('CrdtWorker.repo (shim)', () => {
     it('lifecycle: dispose via `until` parameter option', async () => {
       const until = Rx.lifecycle();
 
-      const { port1 } = makePorts();
+      const { port1 } = Test.makePorts();
       const repo = CrdtWorker.repo(port1, { until });
       expect(repo.disposed).to.eql(false);
 

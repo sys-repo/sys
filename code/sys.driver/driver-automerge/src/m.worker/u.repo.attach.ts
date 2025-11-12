@@ -1,4 +1,4 @@
-import { Rx, type t, Try } from './common.ts';
+import { type t, Rx, Schedule, Try } from './common.ts';
 import { Wire } from './u.event.ts';
 import { onMessageErrorHandler } from './u.onErrorMessage.ts';
 
@@ -19,8 +19,10 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   });
 
   // Stream open; emit initial readiness snapshot.
+  const sendReady = () => send({ type: 'ready', payload: { ready: repo.ready } });
   send({ type: 'stream/open', payload: {} });
-  send({ type: 'ready', payload: repo.ready });
+  sendReady(); //               send snapshot immediately for already-listening clients...
+  Schedule.micro(sendReady); // ...and once more on the next microtask for late listeners
 
   /**
    * Live forwarding (wire-safe):
@@ -28,7 +30,7 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   const ev = repo.events(life);
 
   // Forward continuous ready$ updates.
-  ev.ready$.subscribe((payload) => send({ type: 'ready', payload }));
+  ev.ready$.subscribe((ready) => send({ type: 'ready', payload: { ready } }));
 
   ev.prop$.subscribe((e) => {
     const payload: t.WireRepoPropChange = {

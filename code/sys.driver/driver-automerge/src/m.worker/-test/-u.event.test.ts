@@ -5,12 +5,12 @@ import { Wire } from '../u.event.ts';
 describe('Event helpers', () => {
   describe('Wire', () => {
     it('event(): repo "ready" payload', () => {
-      const msg = Wire.event('crdt:repo', { type: 'ready', payload: true });
+      const msg = Wire.event('crdt:repo', { type: 'ready', payload: { ready: true } });
       expect(msg.version).to.eql(WIRE_VERSION);
       expect(msg.type).to.eql('event');
       expect(msg.stream).to.eql('crdt:repo');
       expect(msg.event.type).to.eql('ready');
-      expect(msg.event.payload).to.eql(true);
+      if (msg.event.type === 'ready') expect(msg.event.payload.ready).to.eql(true);
 
       expectTypeOf(msg).toMatchTypeOf<t.WireEvent>();
     });

@@ -106,7 +106,7 @@ export type WireRepoPropChange = {
  */
 export type WireRepoEventPayload =
   | { readonly type: 'prop-change'; readonly payload: WireRepoPropChange }
-  | { readonly type: 'ready'; readonly payload: boolean }
+  | { readonly type: 'ready'; readonly payload: { readonly ready: boolean } }
   | { readonly type: 'stream/open'; readonly payload: Record<never, never> }
   | { readonly type: 'stream/close'; readonly payload: Record<never, never> }
   | { readonly type: 'stream/error'; readonly payload: { readonly message?: string } }

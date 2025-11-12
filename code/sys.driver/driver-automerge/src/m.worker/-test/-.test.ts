@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import { WIRE_VERSION } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 import { attach } from '../u.repo.attach.ts';
 import { createRepo } from '../u.repo.create.ts';
@@ -9,5 +10,6 @@ describe(`CRDT: web-worker transport`, () => {
     expect(CrdtWorker.repo).to.equal(createRepo);
     expect(CrdtWorker.attach).to.equal(attach);
     expect(CrdtWorker.spawn).to.equal(spawn);
+    expect(CrdtWorker.version).to.eql(WIRE_VERSION);
   });
 });
