@@ -73,37 +73,19 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
      * Methods:
      */
     async whenReady() {
-      if (state.ready) return repo as t.CrdtRepo;
-
+      if (state.ready) return repo;
       await new Promise<void>((resolve) => {
-        const gate = Rx.lifecycle([life.dispose$]);
-
-        const cleanup = () => {
-          try {
-            (subReady as unknown as { unsubscribe?: () => void })?.unsubscribe?.();
-          } catch {}
-          try {
-            (subGate as unknown as { unsubscribe?: () => void })?.unsubscribe?.();
-          } catch {}
-          gate.dispose();
-        };
-
-        const subReady = ready$.subscribe((rdy) => {
-          if (rdy) {
-            cleanup();
-            resolve();
-          }
-        });
-
-        // Resolve quietly if disposed before ready.
-        const subGate = gate.dispose$.subscribe(() => {
-          cleanup();
-          resolve();
-        });
+        ready$
+          .pipe(
+            Rx.takeUntil(life.dispose$),
+            Rx.filter((r) => r === true),
+            Rx.take(1),
+          )
+          .subscribe({ next: () => resolve(), complete: () => resolve() });
       });
-
-      return repo as t.CrdtRepo;
+      return repo;
     },
+
     create<T extends O>() {
       throw notImpl('CrdtRef.create/change');
     },
@@ -115,9 +97,10 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     async delete() {
       throw notImpl('repo.delete');
     },
+
     events(until) {
-      const life2 = Rx.lifecycle([life.dispose$, until]);
-      return Rx.toLifecycle<t.CrdtRepoEvents>(life2, {
+      const gate = Rx.lifecycle([life.dispose$, until]);
+      return Rx.toLifecycle<t.CrdtRepoEvents>(gate, {
         $: __tmp$ as t.Observable<t.CrdtRepoEvent>,
         prop$: __tmp$ as t.Observable<t.CrdtRepoPropChangeEvent['payload']>,
         ready$: ready$.asObservable(),
