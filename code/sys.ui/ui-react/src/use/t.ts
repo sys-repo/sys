@@ -7,4 +7,5 @@ export type * from './use.ObservableRev/t.ts';
 export type * from './use.Pointer/t.ts';
 export type * from './use.Rev/t.ts';
 export type * from './use.SizeObserver/t.ts';
+export type * from './use.Virtual/t.ts';
 export type * from './use.VisibilityThreshold/t.ts';

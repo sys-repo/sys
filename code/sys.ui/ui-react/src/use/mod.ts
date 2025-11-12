@@ -12,5 +12,6 @@ export * from './use.ObservableRev/mod.ts';
 export * from './use.Pointer/mod.ts';
 export * from './use.Rev/mod.ts';
 export * from './use.SizeObserver/mod.ts';
+export * from './use.Virtual/mod.ts';
 export * from './use.VisibilityThreshold/mod.ts';
 export * from './use.WebFont/mod.ts';

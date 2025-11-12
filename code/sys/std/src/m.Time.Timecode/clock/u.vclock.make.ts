@@ -123,7 +123,7 @@ function saneSpeed(n: number | undefined): number {
 /** Map virtual time → segment + source time. */
 function mapToSourceInner(
   v: t.VTime,
-  timeline: t.TimecodeResolved | undefined,
+  timeline: t.TimecodeCompositionResolved | undefined,
 ): MappedSouceInner | null {
   const segs = timeline?.segments ?? [];
   if (segs.length === 0) return null;

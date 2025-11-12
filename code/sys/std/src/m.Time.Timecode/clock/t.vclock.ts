@@ -5,7 +5,7 @@ import type { t } from '../common.ts';
  */
 export type VirtualClockLib = {
   /** Create a new virtual clock bound to a resolved timeline. */
-  make(timeline?: t.TimecodeResolved, opts?: VirtualClockOpts): t.VirtualClock;
+  make(timeline?: t.TimecodeCompositionResolved, opts?: VirtualClockOpts): t.VirtualClock;
 };
 
 /** Options controlling initial playback and behavior. */
