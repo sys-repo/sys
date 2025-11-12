@@ -25,8 +25,8 @@ export const CompositeVideo: React.FC<P> = (props) => {
   console.group(`🐷`);
   console.log('timeline', timeline);
   console.log('playback', playback);
+  console.groupEnd();
 
-  // Resolve composition (helpers only)
   React.useEffect(() => {
     if (!timeline) return;
     props.onReady?.({ total: timeline.total, timeline });
