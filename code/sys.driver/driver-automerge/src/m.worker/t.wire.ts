@@ -88,16 +88,29 @@ export type WireResultErr = {
 /** Discriminated union of result envelopes. */
 export type WireResult = WireResultOk | WireResultErr;
 
+/** Serializable view of repo props for wire transport (derived to avoid drift). */
+export type WireRepoProps = Pick<t.CrdtRepoProps, 'ready' | 'id' | 'stores'> & {
+  readonly sync: Pick<t.CrdtRepoProps['sync'], 'peers' | 'urls' | 'enabled'>;
+};
+
+/** Serializable prop-change payload for wire events (derived). */
+export type WireRepoPropChange = {
+  readonly prop: 'ready' | 'sync.enabled' | 'sync.peers';
+  readonly before: WireRepoProps;
+  readonly after: WireRepoProps;
+};
+
 /**
  * Event message payloads (repo/doc streams).
  * Includes stream lifecycle signals for future resource tracking.
  */
 export type WireRepoEventPayload =
-  | { readonly type: 'prop-change'; readonly payload: t.CrdtRepoPropChange }
+  | { readonly type: 'prop-change'; readonly payload: WireRepoPropChange }
   | { readonly type: 'ready'; readonly payload: boolean }
   | { readonly type: 'stream/open'; readonly payload: Record<never, never> }
   | { readonly type: 'stream/close'; readonly payload: Record<never, never> }
-  | t.CrdtNetworkChangeEvent; // already discriminated by its own 'type'
+  | { readonly type: 'stream/error'; readonly payload: { readonly message?: string } }
+  | t.CrdtNetworkChangeEvent;
 
 /** Event envelope for repo/doc streams. */
 export type WireEvent = {

@@ -10,23 +10,12 @@ import {
 } from '../../-test.ts';
 import { WIRE_VERSION } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
+import { workerTestHelpers } from './-u.ts';
 
 describe('CrdtWorker.repo (shim)', () => {
-  const ports = new Set<MessagePort>();
-  const makePorts = () => {
-    const channel = new MessageChannel();
-    ports.add(channel.port1);
-    ports.add(channel.port2);
-    return channel;
-  };
-  const makeRepo = () => {
-    const { port1, port2 } = makePorts();
-    return { repo: CrdtWorker.repo(port1), port2 } as const;
-  };
-  afterEach(() => {
-    ports.forEach((p) => p.close());
-    ports.clear();
-  });
+  const { ports: makePorts, clear: clearPorts } = workerTestHelpers();
+
+  afterEach(clearPorts);
 
   it('API', () => {
     expect(CrdtWorker.version).to.eql(WIRE_VERSION);
