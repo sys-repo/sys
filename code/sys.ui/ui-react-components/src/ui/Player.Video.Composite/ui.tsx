@@ -1,7 +1,15 @@
 import React from 'react';
-import { type t, Color, css, Num, ObjectView, Str, VideoElement } from './common.ts';
-import { useVirtualPlayback } from './use.VirtualPlayback.ts';
-import { useVirtualTimeline } from './use.VirtualTimeline.ts';
+import {
+  type t,
+  Color,
+  css,
+  Num,
+  ObjectView,
+  Str,
+  useVirtualPlayback,
+  useVirtualTimeline,
+  VideoElement,
+} from './common.ts';
 
 type P = t.CompositeVideoProps;
 
