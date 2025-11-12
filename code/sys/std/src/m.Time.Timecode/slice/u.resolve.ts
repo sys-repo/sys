@@ -4,20 +4,22 @@ import { type t } from '../common.ts';
  * Resolve a parsed slice into a concrete [from,to) window.
  */
 export function resolve(slice: t.TimecodeSlice, total: t.Msecs): t.TimeWindowMs {
-  const clamp = (n: number) => Math.max(0, Math.min(Number(total), n)) as t.Msecs;
+  const clamp = (n: number): t.Msecs => Math.max(0, Math.min(Number(total), n));
 
   // start
   let from: t.Msecs;
   switch (slice.start.kind) {
     case 'open':
-      from = 0 as t.Msecs;
+      from = 0;
       break;
     case 'abs':
       from = clamp(slice.start.ms);
       break;
-    case 'relEnd':
-      from = clamp(Number(total) - Number(slice.start.ms));
+    case 'relEnd': {
+      const ms = Number(slice.start.ms);
+      from = ms === 0 ? 0 : clamp(Number(total) - ms);
       break;
+    }
   }
 
   // end
@@ -29,32 +31,17 @@ export function resolve(slice: t.TimecodeSlice, total: t.Msecs): t.TimeWindowMs 
     case 'abs':
       to = clamp(slice.end.ms);
       break;
-    case 'relEnd':
-      // Absolute end position measured from total:
-      to = clamp(Number(total) - Number(slice.end.ms));
+    case 'relEnd': {
+      const ms = Number(slice.end.ms);
+      to = ms === 0 ? total : clamp(Number(total) - ms);
       break;
+    }
   }
 
-  // enforce half-open and monotonic ordering
   if (Number(to) < Number(from)) {
     const tmp = from;
     from = to;
     to = tmp;
   }
-
   return { from, to };
-}
-
-/**
- * Resolve a classified bound against total duration.
- */
-function resolveBound(bound: t.TimecodeSliceBound, total: t.Msecs, side: 'start' | 'end'): t.Msecs {
-  switch (bound.kind) {
-    case 'abs':
-      return bound.ms;
-    case 'relEnd':
-      return total - bound.ms;
-    case 'open':
-      return side === 'start' ? 0 : total;
-  }
 }

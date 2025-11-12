@@ -12,6 +12,9 @@ export function splitOnce(input: string, token: string): [string, string] {
  */
 export function isBoundLex(s: string): boolean {
   if (s === '') return true; // open
+  if (s === '0') return true; // zero shorthand
+  if (s === '-0') return true; // negative zero → treat as zero
+
   if (s.startsWith('-')) {
     const abs = s.slice(1);
     return RE.timecode.test(abs);
@@ -24,12 +27,15 @@ export function isBoundLex(s: string): boolean {
  */
 export function toBound(s: string): t.TimecodeSliceBound {
   if (s === '') return { kind: 'open' };
+  if (s === '0') return { kind: 'abs', ms: 0 as t.Msecs };
+  if (s === '-0') return { kind: 'relEnd', ms: 0 as t.Msecs }; // preserve intent
+
   if (s.startsWith('-')) {
     const abs = s.slice(1);
-    // TimeSlice.is() guarantees lexical validity, so parse is safe here.
     const ms = parse(abs as t.VttTimecode);
     return { kind: 'relEnd', ms };
   }
+
   const ms = parse(s as t.VttTimecode);
   return { kind: 'abs', ms };
 }

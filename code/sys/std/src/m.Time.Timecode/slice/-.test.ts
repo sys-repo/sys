@@ -18,8 +18,27 @@ describe('Timecode.Slice', () => {
         '00:10:00..00:10:00.250',
         '00:59..01:00',
         '00:11:30..-00:10:00',
+        '00:11:30..-00:10:00.000',
+        '0..01:02:03.000',
+        '0..09:06',
+        '-0..01:05',
       ];
       for (const s of ok) expect(Slice.is(s)).to.eql(true, `expected valid: ${s}`);
+    });
+
+    it('valid: 0 (zero)', () => {
+      expect(Slice.is('0..09:06')).to.eql(true);
+      expect(Slice.is('-0..01:05')).to.eql(true);
+      expect(Slice.is('..-0')).to.eql(true);
+
+      const total = 90 as t.Secs;
+      const r1 = Slice.toRange('0..09:06', total)!;
+      const r2 = Slice.toRange('-0..09:06', total)!; // start normalized to 0
+      expect(r1).to.eql(r2);
+
+      const r3 = Slice.toRange('00:01..-0', total)!; // end normalized to total
+      const r4 = Slice.toRange('00:01..', total)!; //   open-end equivalence
+      expect(r3).to.eql(r4);
     });
 
     it('invalid cases', () => {
