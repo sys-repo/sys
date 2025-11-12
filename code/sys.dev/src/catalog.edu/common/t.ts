@@ -26,6 +26,7 @@ export type { Yaml } from '@sys/yaml/t';
 
 /** User Interface: */
 export type { ColorTheme } from '@sys/color/t';
+export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type {
   CropmarksProps,
