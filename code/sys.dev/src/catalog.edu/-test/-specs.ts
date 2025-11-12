@@ -15,5 +15,4 @@ export const Specs = {
   [`${edu}: -sample-2 ← (yaml editor)`]: () => import('../ui/-sample.editor-2/-spec/-SPEC.tsx'),
   [`${edu}: SlugHarness`]: () => import('../ui/ui.SlugHarness/-spec/-SPEC.tsx'),
   [`${edu}: VideoRecorder`]: () => import('../ui/ui.VideoRecorder/-spec/-SPEC.tsx'),
-  [`${edu}: Timestamps`]: () => import('../ui/ui.Timestamps/-spec/-SPEC.tsx'),
 } as t.SpecImports;
