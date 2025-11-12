@@ -6,7 +6,7 @@ import { CrdtWorker } from '../m.CrdtWorker.ts';
 /**
  * Common test utilities for worker-based CRDT repo.
  */
-export function workerTestHelpers() {
+export function createTestHelpers() {
   const ports = new Set<MessagePort>();
 
   const api = {
@@ -24,7 +24,11 @@ export function workerTestHelpers() {
 
     clientRepo() {
       const { port1, port2 } = api.makePorts();
-      return { repo: CrdtWorker.repo(port1), port2 } as const;
+      return {
+        port1,
+        port2,
+        repo: CrdtWorker.repo(port1),
+      } as const;
     },
 
     realRepo() {

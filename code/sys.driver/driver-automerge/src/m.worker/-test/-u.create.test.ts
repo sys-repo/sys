@@ -1,5 +1,6 @@
 import {
   type t,
+  Obj,
   Rx,
   Schedule,
   afterEach,
@@ -9,37 +10,52 @@ import {
   it,
 } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
-import { Wait, workerTestHelpers } from './-u.ts';
+import { Wait, createTestHelpers } from './-u.ts';
 
 describe('CrdtWorker.repo (shim)', () => {
-  const Test = workerTestHelpers();
+  const Test = createTestHelpers();
 
   afterEach(async () => {
     Test.clearPorts();
     await Schedule.macro();
   });
 
-  it('smoke: real repo over MessagePort → stream/open + ready + live', async () => {
-    const { port1, port2 } = Test.makePorts();
-    const real = Test.realRepo();
+  describe('smoke', () => {
+    it('smoke: real repo over MessagePort → stream/open + ready + live', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const real = Test.realRepo();
 
-    const client = CrdtWorker.repo(port1);
-    const { events, stop } = Test.collectRepoEvents(port1);
+      const client = CrdtWorker.repo(port1);
+      const { events, stop } = Test.collectRepoEvents(port1);
 
-    CrdtWorker.attach(port2, real);
+      CrdtWorker.attach(port2, real);
 
-    // stream/open first
-    await Wait.waitFor(() => events.length >= 1);
-    expect(events[0]).to.eql({ type: 'stream/open', payload: {} });
+      // stream/open first
+      await Wait.waitFor(() => events.length >= 1);
+      expect(events[0]).to.eql({ type: 'stream/open', payload: {} });
 
-    // at least one ready; client resolves
-    await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
-    await client.whenReady();
-    expect(client.ready).to.eql(true);
+      // at least one ready; client resolves
+      await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
+      await client.whenReady();
+      expect(client.ready).to.eql(true);
 
-    stop();
-    await real.dispose();
-    await client.dispose();
+      stop();
+      await real.dispose();
+      await client.dispose();
+    });
+
+    it('client mirrors id from props/snapshot', async () => {
+      const client = Test.clientRepo();
+      const real = Test.realRepo();
+
+      CrdtWorker.attach(client.port2, real);
+      await Wait.waitFor(() => Obj.hash(client.repo.id) === Obj.hash(real.id));
+
+      expect(client.repo.id.instance).to.eql(real.id.instance);
+      expect(client.repo.id.peer).to.eql(real.id.peer);
+
+      await real.dispose();
+    });
   });
 
   describe('construct (core invariants)', () => {

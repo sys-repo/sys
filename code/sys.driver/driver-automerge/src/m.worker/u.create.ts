@@ -1,9 +1,10 @@
-import { Rx, type t, Try } from './common.ts';
+import { type t, Rx, Try } from './common.ts';
+import { Wire } from './u.evt.wire.ts';
 
 type O = Record<string, unknown>;
 
-// TEMP streams (to be replaced as we wire more events across the port). 🐷
 const __tmp$ = Rx.subject<any>().asObservable();
+const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
 
 /**
  * Factory: repo client façade over a MessagePort.
@@ -16,7 +17,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   port.start?.();
 
   /** Local ready state mirrored from wire. */
-  const state = { ready: false };
+  const state: { ready: boolean; props?: t.WireRepoProps } = { ready: false };
 
   /** Behavior-like subject so late subscribers see last value. */
   const ready$ = Rx.subject<boolean>();
@@ -25,9 +26,24 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   /** Handle incoming repo stream events. */
   const onMessage = (ev: MessageEvent) => {
     const msg = ev.data as t.WireMessage | undefined;
-    if (!msg || msg.type !== 'event' || msg.stream !== 'crdt:repo') return;
+    if (!msg || msg.type !== 'event' || msg.stream !== Wire.Stream.repo) return;
 
     const e = msg.event;
+
+    if (e.type === 'props/snapshot') {
+      state.props = e.payload;
+      const next = !!e.payload.ready;
+      if (next !== state.ready) {
+        state.ready = next;
+        ready$.next(next);
+      }
+      return;
+    }
+
+    if (e.type === 'props/change') {
+      state.props = e.payload.after;
+      return;
+    }
 
     if (e.type === 'ready') {
       const next = !!e.payload.ready;
@@ -53,20 +69,20 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       return state.ready;
     },
     get id() {
-      return { instance: 'worker-shim', peer: 'worker-shim' } as const;
+      return state.props?.id ?? { ...EMPTY_ID };
     },
     get sync() {
       return {
-        peers: [] as t.PeerId[],
-        urls: [] as t.StringUrl[],
-        enabled: false,
+        peers: (state.props?.sync.peers ?? []) as t.PeerId[],
+        urls: (state.props?.sync.urls ?? []) as t.StringUrl[],
+        enabled: !!state.props?.sync.enabled,
         enable() {
           /* no-op until transport lands */
         },
       };
     },
     get stores() {
-      return [] as readonly t.CrdtRepoStoreInfo[];
+      return (state.props?.stores ?? []) as readonly t.CrdtRepoStoreInfo[];
     },
 
     /**

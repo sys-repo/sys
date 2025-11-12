@@ -105,7 +105,8 @@ export type WireRepoPropChange = {
  * Includes stream lifecycle signals for future resource tracking.
  */
 export type WireRepoEventPayload =
-  | { readonly type: 'prop-change'; readonly payload: WireRepoPropChange }
+  | { readonly type: 'props/change'; readonly payload: WireRepoPropChange }
+  | { readonly type: 'props/snapshot'; readonly payload: WireRepoProps }
   | { readonly type: 'ready'; readonly payload: { readonly ready: boolean } }
   | { readonly type: 'stream/open'; readonly payload: Record<never, never> }
   | { readonly type: 'stream/close'; readonly payload: Record<never, never> }

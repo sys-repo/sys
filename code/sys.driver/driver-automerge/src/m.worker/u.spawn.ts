@@ -1,5 +1,5 @@
 import { type t, Schedule } from './common.ts';
-import { createRepo } from './u.repo.create.ts';
+import { createRepo } from './u.create.ts';
 
 /**
  * Spawn a Web Worker and return { worker, repoFacade }.

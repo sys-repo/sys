@@ -46,4 +46,17 @@ export const Wire = {
     }
     return { kind, message: String(e ?? 'UNKNOWN') };
   },
+
+  clone(p: t.WireRepoProps): t.WireRepoProps {
+    return {
+      ready: p.ready,
+      id: p.id,
+      sync: {
+        peers: [...p.sync.peers],
+        urls: [...p.sync.urls],
+        enabled: p.sync.enabled,
+      },
+      stores: [...p.stores],
+    };
+  },
 } as const;

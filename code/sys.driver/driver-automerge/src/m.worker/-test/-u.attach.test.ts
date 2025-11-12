@@ -1,9 +1,9 @@
 import { type t, afterEach, describe, expect, it } from '../../-test.ts';
-import { attach } from '../u.repo.attach.ts';
-import { Wait, workerTestHelpers } from './-u.ts';
+import { attach } from '../u.attach.ts';
+import { Wait, createTestHelpers } from './-u.ts';
 
 describe('CrdtWorker.attach', () => {
-  const Test = workerTestHelpers();
+  const Test = createTestHelpers();
   afterEach(Test.clearPorts);
 
   it('smoke: stream/open → ready (snapshot), then live ready$ change', async () => {
@@ -74,5 +74,26 @@ describe('CrdtWorker.attach', () => {
 
     expect(events[events.length - 1]).to.eql({ type: 'stream/close', payload: {} });
     stop();
+  });
+
+  it('emits props/snapshot with real id, before ready flips', async () => {
+    const { port1, port2 } = Test.makePorts();
+    const real = Test.realRepo();
+    const { events, stop } = Test.collectRepoEvents(port1);
+
+    attach(port2, real);
+    await Wait.waitFor(() => events.some((e) => e.type === 'props/snapshot'));
+
+    type T = Extract<t.WireRepoEventPayload, { type: 'props/snapshot' }>;
+    const snap = events.find((e) => e.type === 'props/snapshot') as T | undefined;
+
+    expect(snap?.payload.id.instance).to.eql(real.id.instance);
+    expect(snap?.payload.id.peer).to.eql(real.id.peer);
+
+    // The ready edge may happen right after; we only assert ordering with stream/open before snapshot.
+    expect(events[0]).to.eql({ type: 'stream/open', payload: {} });
+
+    stop();
+    await real.dispose();
   });
 });

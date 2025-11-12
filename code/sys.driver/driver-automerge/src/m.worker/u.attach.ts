@@ -1,5 +1,5 @@
 import { type t, Rx, Schedule, Try } from './common.ts';
-import { Wire } from './u.event.ts';
+import { Wire } from './u.evt.wire.ts';
 import { onMessageErrorHandler } from './u.onErrorMessage.ts';
 
 /**
@@ -20,13 +20,13 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
 
   // Stream open; emit initial readiness snapshot.
   const sendReady = () => send({ type: 'ready', payload: { ready: repo.ready } });
-  const sendSnapshot = () => send({ type: 'props/snapshot', payload: toWireProps(repo) });
-  send({ type: 'stream/open', payload: {} });
+  const sendSnapshot = () => send({ type: 'props/snapshot', payload: Wire.clone(repo) });
 
-  // Send snapshot immediately for already-listening clients...
+  // Send immediately for early listeners...
+  send({ type: 'stream/open', payload: {} });
   sendReady();
   sendSnapshot();
-  // ...and once more on the next microtask for late listeners
+  // ...and again next microtask for late listeners.
   Schedule.micro(() => {
     sendReady();
     sendSnapshot();
@@ -43,15 +43,15 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   ev.prop$.subscribe((e) => {
     const payload: t.WireRepoPropChange = {
       prop: e.prop,
-      before: toWireProps(e.before),
-      after: toWireProps(e.after),
+      before: Wire.clone(e.before),
+      after: Wire.clone(e.after),
     };
 
     send({ type: 'props/change', payload });
   });
 
   // Network events are already discriminated data payloads; forward as-is.
-  ev.network$.subscribe((payload: t.CrdtNetworkChangeEvent) => send(payload));
+  ev.network$.subscribe((payload) => send(payload));
 
   /**
    * Safety:
@@ -60,19 +60,3 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
    */
   onMessageErrorHandler(port, repo, dispatch, life);
 };
-
-/**
- * Helpers:
- */
-function toWireProps(p: t.CrdtRepoProps): t.WireRepoProps {
-  return {
-    ready: p.ready,
-    id: p.id,
-    sync: {
-      peers: [...p.sync.peers],
-      urls: [...p.sync.urls],
-      enabled: p.sync.enabled,
-    },
-    stores: [...p.stores],
-  };
-}
