@@ -4,7 +4,7 @@ import { css, Str, type t, Url } from './common.ts';
 import { LabelStyle } from './u.Style.ts';
 
 export type EndpointLabelProps = {
-  urls: string[];
+  urls: t.Ary<string>;
   showProtocol?: boolean;
   appendTooltip?: string;
   style?: t.CssInput;

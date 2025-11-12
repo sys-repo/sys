@@ -37,17 +37,17 @@ describe('CrdtWorker.attach', () => {
     repo.sync.enable(false);
     await Wait.waitFor(() => {
       return events.some((e) => {
-        return e.type === 'prop-change' ? e.payload.prop === 'sync.enabled' : false;
+        return e.type === 'props/change' ? e.payload.prop === 'sync.enabled' : false;
       });
     });
 
     // And back again (false -> true).
     repo.sync.enable(true);
-    await Wait.waitFor(() => events.filter((e) => e.type === 'prop-change').length >= 2);
+    await Wait.waitFor(() => events.filter((e) => e.type === 'props/change').length >= 2);
 
     const last = events
-      .filter((e) => e.type === 'prop-change')
-      .map((e) => e as { type: 'prop-change'; payload: t.CrdtRepoPropChange })
+      .filter((e) => e.type === 'props/change')
+      .map((e) => e as { type: 'props/change'; payload: t.CrdtRepoPropChange })
       .at(-1)!;
 
     expect(last.payload.prop).to.eql('sync.enabled');
@@ -61,7 +61,6 @@ describe('CrdtWorker.attach', () => {
     stop();
     await repo.dispose();
   });
-
 
   it('emits stream/close when upstream repo lifecycle disposes', async () => {
     const { port1, port2 } = Test.makePorts();

@@ -80,7 +80,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  switchTheme(props: P, peers: t.PeerId[]) {
+  switchTheme(props: P, peers: readonly t.PeerId[]) {
     const theme = Color.theme(props.theme);
     const base = SwitchTheme.fromName(theme.name);
     return peers.length > 0 ? base.default : base.yellow;

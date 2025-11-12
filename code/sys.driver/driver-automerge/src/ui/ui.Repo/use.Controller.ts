@@ -12,7 +12,7 @@ export function useController(props: P) {
    */
   const [store, setStore] = useState(wrangle.localstore(props));
   const [enabled, setEnabled] = useState(wrangle.enabled(store?.current, repo));
-  const [peers, setPeers] = useState<t.PeerId[]>([]);
+  const [peers, setPeers] = useState<readonly t.PeerId[]>([]);
   const [, setRender] = useState(0);
   const redraw = () => setRender((n) => n + 1);
 
@@ -48,7 +48,7 @@ export function useController(props: P) {
    * Monitor peers:
    */
   useEffect(() => {
-    const peers = repo?.sync.peers ?? [];
+    const peers = (repo?.sync.peers ?? []) as readonly t.PeerId[];
     setPeers(peers);
   }, [repo?.id.instance, repo?.sync.peers.join()]);
 

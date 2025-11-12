@@ -20,9 +20,17 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
 
   // Stream open; emit initial readiness snapshot.
   const sendReady = () => send({ type: 'ready', payload: { ready: repo.ready } });
+  const sendSnapshot = () => send({ type: 'props/snapshot', payload: toWireProps(repo) });
   send({ type: 'stream/open', payload: {} });
-  sendReady(); //               send snapshot immediately for already-listening clients...
-  Schedule.micro(sendReady); // ...and once more on the next microtask for late listeners
+
+  // Send snapshot immediately for already-listening clients...
+  sendReady();
+  sendSnapshot();
+  // ...and once more on the next microtask for late listeners
+  Schedule.micro(() => {
+    sendReady();
+    sendSnapshot();
+  });
 
   /**
    * Live forwarding (wire-safe):
@@ -39,7 +47,7 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
       after: toWireProps(e.after),
     };
 
-    send({ type: 'prop-change', payload });
+    send({ type: 'props/change', payload });
   });
 
   // Network events are already discriminated data payloads; forward as-is.

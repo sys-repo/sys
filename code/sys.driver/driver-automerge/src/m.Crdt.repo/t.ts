@@ -16,8 +16,8 @@ export type CrdtRepoProps = {
   readonly ready: boolean;
   readonly id: { readonly instance: t.StringId; readonly peer: t.StringId };
   readonly sync: {
-    readonly peers: t.PeerId[];
-    readonly urls: t.StringUrl[];
+    readonly peers: readonly t.PeerId[];
+    readonly urls: readonly t.StringUrl[];
     readonly enabled: boolean;
     enable(enabled?: boolean): void;
   };

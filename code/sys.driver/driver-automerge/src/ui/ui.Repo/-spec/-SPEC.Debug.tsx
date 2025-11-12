@@ -99,7 +99,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({}),
   };
 
-  async function pullServerInfo(urls: string[]) {
+  async function pullServerInfo(urls: t.Ary<t.StringUrl>) {
     urls = urls.map((text) => {
       const url = new URL(text);
       const protocol = url.protocol === 'ws:' ? 'http:' : 'https:';

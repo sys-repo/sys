@@ -4,6 +4,12 @@ import { type t, WIRE_VERSION } from './common.ts';
  * Simple factories for well-formed messages.
  */
 export const Wire = {
+  Stream: {
+    repo: 'crdt:repo' as const,
+    doc: (id: t.StringId) => `crdt:doc:${id}` as const,
+    isDoc: (s: t.WireStream): s is `crdt:doc:${string}` => s.startsWith('crdt:doc:'),
+  },
+
   call<M extends t.WireRepoMethod>(
     id: t.WireId,
     method: M,
@@ -39,11 +45,5 @@ export const Wire = {
       }
     }
     return { kind, message: String(e ?? 'UNKNOWN') };
-  },
-
-  Stream: {
-    repo: 'crdt:repo' as const,
-    doc: (id: t.StringId) => `crdt:doc:${id}` as const,
-    isDoc: (s: t.WireStream): s is `crdt:doc:${string}` => s.startsWith('crdt:doc:'),
   },
 } as const;
