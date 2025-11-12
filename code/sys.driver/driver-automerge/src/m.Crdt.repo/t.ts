@@ -9,19 +9,20 @@ export type CrdtRepoGetOptions = { timeout?: t.Msecs };
 /**
  * A repository of CRDT documents:
  */
-export type CrdtRepo = CrdtRepoMethods & CrdtRepoProps & t.LifecycleAsync;
+export type CrdtRepo = t.LifecycleAsync &
+  CrdtRepoMethods &
+  CrdtRepoProps & { readonly sync: CrdtRepoProps['sync'] & { enable(enabled?: boolean): void } };
 
-/** The properties of a CRDT Repo. */
+/** Pure event properties of the CRDT repo. */
 export type CrdtRepoProps = {
   readonly ready: boolean;
   readonly id: { readonly instance: t.StringId; readonly peer: t.StringId };
+  readonly stores: readonly t.CrdtRepoStoreInfo[];
   readonly sync: {
     readonly peers: readonly t.PeerId[];
     readonly urls: readonly t.StringUrl[];
-    readonly enabled: boolean;
-    enable(enabled?: boolean): void;
+    readonly enabled: boolean | null;
   };
-  readonly stores: readonly CrdtRepoStoreInfo[];
 };
 
 /** Info about a repository store. */

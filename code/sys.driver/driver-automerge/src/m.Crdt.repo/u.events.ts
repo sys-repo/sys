@@ -7,7 +7,7 @@ export function eventsFactory($: t.Observable<t.CrdtRepoEvent>, life: t.Lifecycl
   $ = $.pipe(Rx.takeUntil(life.dispose$));
 
   const prop$ = $.pipe(
-    Rx.filter((e) => e.type === 'prop-change'),
+    Rx.filter((e) => e.type === 'props/change'),
     Rx.map((e) => e.payload),
   );
 

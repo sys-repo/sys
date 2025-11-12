@@ -1,7 +1,7 @@
 import { type DocumentId, isValidAutomergeUrl, Repo } from '@automerge/automerge-repo';
 import { CrdtIs } from '../m.Crdt/m.Is.ts';
 
-import { type t, Err, Rx, Schedule, slug, Time, toRef, whenReady } from './common.ts';
+import { type t, Delete, Err, Rx, Schedule, slug, Time, toRef, whenReady } from './common.ts';
 import { eventsFactory } from './u.events.ts';
 import { monitorNetwork } from './u.monitorNetwork.ts';
 import { silentShutdown } from './u.shutdown.ts';
@@ -32,8 +32,9 @@ export function toRepo(
   const schedule = Schedule.make(life, 'micro');
 
   const cloneProps = (): t.CrdtRepoProps => {
-    const { id, sync, stores, ready } = api;
-    return { id, ready, sync: { ...sync }, stores: [...stores] };
+    const { id, stores, ready } = api;
+    const sync = Delete.undefined({ ...api.sync, enable: undefined }); // NB: ensure method does not leak onto pure DTO props.
+    return { id, ready, sync, stores: [...stores] };
   };
 
   /**
@@ -45,7 +46,7 @@ export function toRepo(
     prop: t.CrdtRepoPropChange['prop'],
     before: t.CrdtRepoProps,
     after: t.CrdtRepoProps = cloneProps(),
-  ) => emitAsync({ type: 'prop-change', payload: { prop, before, after } });
+  ) => emitAsync({ type: 'props/change', payload: { prop, before, after } });
 
   /**
    * State:
@@ -122,7 +123,7 @@ export function toRepo(
         return Array.from(peers);
       },
       get enabled() {
-        if (urls.length === 0) return false;
+        if (urls.length === 0) return null;
         return _enabled;
       },
       enable(value = true) {

@@ -6,8 +6,17 @@ import type { CrdtRepo, CrdtRepoEvents, CrdtRepoMethods, CrdtRepoProps } from '.
  */
 
 // 1. Repo composition stays methods & props & lifecycle
-type _Guard_Repo_Composition = t.Type.Assert<
-  t.Type.Equal<CrdtRepo, CrdtRepoMethods & CrdtRepoProps & t.LifecycleAsync>
+/** CrdtRepo includes the base composition. */
+type _Guard_Repo_ComposesBase = t.Type.Assert<
+  t.Type.Extends<CrdtRepo, CrdtRepoMethods & CrdtRepoProps & t.LifecycleAsync>
+>;
+
+/** CrdtRepo’s sync includes the enable() augmentation. */
+type _Guard_Repo_HasSyncEnable = t.Type.Assert<
+  t.Type.Extends<
+    CrdtRepo,
+    { readonly sync: CrdtRepoProps['sync'] & { enable(enabled?: boolean): void } }
+  >
 >;
 
 // 2. Events surface remains stable (primary $, prop$, ready$, network$)
@@ -43,4 +52,12 @@ type _Guard_RepoMethods = t.Type.Assert<
 /**
  * Force instantiation so TS actually checks:
  */
-type _ = _Guard_Repo_Composition & _Guard_RepoEvents & _Guard_RepoMethods;
+type _ = _Guard_Repo_ComposesBase &
+  _Guard_Repo_HasSyncEnable &
+  _Guard_RepoEvents &
+  _Guard_RepoMethods;
+
+// no function sneaks into props:
+type _Guard_Props_NoEnable = t.Type.Assert<
+  t.Type.Equal<Extract<keyof CrdtRepoProps['sync'], 'enable'>, never>
+>;

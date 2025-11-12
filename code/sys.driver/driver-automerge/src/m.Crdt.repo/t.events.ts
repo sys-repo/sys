@@ -28,7 +28,7 @@ export type CrdtRepoEvent = CrdtRepoPropChangeEvent | CrdtNetworkChangeEvent;
 export type CrdtRepoPropChangeHandler = (e: CrdtRepoPropChangeEvent) => void;
 /** Represents a change to the repo state (event). */
 export type CrdtRepoPropChangeEvent = {
-  type: 'prop-change';
+  type: 'props/change';
   payload: CrdtRepoPropChange;
 };
 /** Represents a change to the repo state. */

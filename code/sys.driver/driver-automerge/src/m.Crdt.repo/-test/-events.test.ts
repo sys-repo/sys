@@ -46,8 +46,15 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       // Should have fired exactly one "ready" change:
       const readyChanges = fired.filter((c) => c.prop === 'ready');
       expect(readyChanges.length).to.eql(1);
-      expect(readyChanges[0].before.ready).to.eql(false);
-      expect(readyChanges[0].after.ready).to.eql(true);
+
+      const ev = readyChanges[0];
+      expect(ev.before.ready).to.eql(false);
+      expect(ev.after.ready).to.eql(true);
+
+      // Events should not leak methods.
+      type T = t.Crdt.Repo['sync'];
+      expect((ev.before.sync as T).enable).to.eql(undefined);
+      expect((ev.before.sync as T).enable).to.eql(undefined);
 
       events.dispose();
     });

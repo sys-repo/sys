@@ -258,7 +258,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(b.sync.urls).to.eql(['wss://sync.automerge.org']);
       expect(c.sync.urls).to.eql(['wss://sync.automerge.org', 'wss://sync.db.team']);
 
-      expect(a.sync.enabled).to.eql(false);
+      expect(a.sync.enabled).to.eql(null);
       expect(b.sync.enabled).to.eql(true);
       expect(c.sync.enabled).to.eql(true);
     });
@@ -268,11 +268,13 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       const a = toRepo(new AutomergeRepo({}));
       const b = toRepo(new AutomergeRepo({ network: [net1] }));
 
-      expect(a.sync.enabled).to.eql(false);
+      expect(a.sync.enabled).to.eql(null);
       expect(b.sync.enabled).to.eql(true);
 
       a.sync.enable();
-      expect(a.sync.enabled).to.eql(false);
+      b.sync.enable(false);
+      expect(a.sync.enabled).to.eql(null);
+      expect(b.sync.enabled).to.eql(false);
     });
   });
 
