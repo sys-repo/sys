@@ -26,7 +26,7 @@ export const Fmt = {
       const elapsed = Time.elapsed(item.addedAt);
       const col1 = c.gray(` • crdt:${docid}`);
       const col2 = c.gray(`added ${c.white(elapsed.toString())} ago`);
-      const col3 = item.name ? c.cyan(Str.truncate(item.name.trim(), 25)) : '';
+      const col3 = item.name ? c.cyan(Str.truncate(item.name.trim(), 35)) : '';
       const col4 = opts.appendColumn?.(item) ?? '';
       table.push([col1, col2, col3, col4].filter(Boolean));
     }
