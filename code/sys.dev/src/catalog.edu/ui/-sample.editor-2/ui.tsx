@@ -118,6 +118,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
         enabled: !!docSignal.value,
         autoFocus: false,
         debounce: 150,
+        wordWrap: true,
       }}
       documentId={{
         visible: false,
