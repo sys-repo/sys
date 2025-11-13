@@ -6,7 +6,7 @@ export type CenterColumnAlign = 'Left' | 'Center' | 'Right';
 /**
  * <Component>:
  */
-export type LayoutCenterColumnProps = {
+export type CenterColumnLayoutProps = {
   align?: t.CenterColumnAlign;
   centerWidth?: t.Pixels;
   gap?: t.Pixels;

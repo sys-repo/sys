@@ -1,6 +1,6 @@
 import { type t, Color, css } from '../../u.ts';
 
-type P = t.LayoutCenterColumnProps;
+type P = t.CenterColumnLayoutProps;
 
 type Props = Pick<P, 'theme' | 'align'> & {
   onAlignChange?: (e: { align: P['align'] }) => void;

@@ -23,7 +23,7 @@ export { Icon } from './ui/Icon/mod.ts';
 export { IFrame } from './ui/IFrame/mod.ts';
 export { Svg } from './ui/Image.Svg/mod.ts';
 export { KeyValue } from './ui/KeyValue/mod.ts';
-export { LayoutCenterColumn } from './ui/Layout.CenterColumn/mod.ts';
+export { CenterColumn } from './ui/Layout.CenterColumn/mod.ts';
 export { SplitPane } from './ui/Layout.SplitPane/mod.ts';
 export { ObjectView } from './ui/ObjectView/mod.ts';
 export { PathView } from './ui/PathView/mod.ts';

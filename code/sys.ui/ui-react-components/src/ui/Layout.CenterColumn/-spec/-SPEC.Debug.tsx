@@ -3,7 +3,7 @@ import { type t, Button, Color, LocalStorage, Obj, ObjectView } from '../../u.ts
 import { css, D, Signal } from '../common.ts';
 import { renderColumns } from './-u.render.tsx';
 
-type P = t.LayoutCenterColumnProps;
+type P = t.CenterColumnLayoutProps;
 
 type Storage = Pick<P, 'debug' | 'theme' | 'centerWidth' | 'align' | 'gap'>;
 const defaults: Storage = {

@@ -1,9 +1,9 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Color } from '../common.ts';
-import { LayoutCenterColumn } from '../mod.ts';
+import { CenterColumn } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export default Spec.describe('LayoutCenterColumn', (e) => {
+export default Spec.describe('CenterColumn (Layout)', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
@@ -27,7 +27,7 @@ export default Spec.describe('LayoutCenterColumn', (e) => {
       .render((e) => {
         const v = Signal.toObject(p);
         return (
-          <LayoutCenterColumn
+          <CenterColumn
             theme={v.theme}
             debug={v.debug}
             left={v.left}
