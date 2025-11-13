@@ -22,9 +22,9 @@ describe(`Debug Tools`, () => {
 
     Debug.Reentry.enter('tripwire', () => {
       if (desc?.writable) {
-        A.getHeads(doc); // patched mode -> warns
+        A.getHeads(doc); // patched mode → warns
       } else {
-        expect(() => Debug.getHeadsSafe(doc)).to.throw(/getHeadsSafe/); // fallback mode -> warns + throws
+        expect(() => Debug.getHeadsSafe(doc)).to.throw(/getHeadsSafe/); // fallback mode → warns + throws
       }
     });
 

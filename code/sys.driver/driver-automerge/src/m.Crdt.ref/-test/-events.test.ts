@@ -101,7 +101,7 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
       c.$.subscribe((e) => firedC.push(e));
       d.$.subscribe((e) => firedD.push(e));
 
-      // 1) push to foo -> should match 'foo' (non-exact) only
+      // 1) push to foo → should match 'foo' (non-exact) only
       doc.change((d) => d.foo.push('hello'));
 
       await Testing.until(
@@ -109,7 +109,7 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
           firedA.length === 0 && firedB.length === 1 && firedC.length === 0 && firedD.length === 0,
       );
 
-      // 2) insert at index 1, then push again -> first insert matches ['foo', 1]
+      // 2) insert at index 1, then push again → first insert matches ['foo', 1]
       doc.change((d) => {
         d.foo.splice(1, 0, '👋');
         d.foo.push('🌳'); // this one should not match ['foo', 1]

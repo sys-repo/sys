@@ -34,7 +34,7 @@ describe('Slug.Tree.walk', () => {
     ];
 
     const parents: Record<string, t.SlugTreeWalkParent['kind']> = {};
-    const owners: Record<string, string | undefined> = {}; // child -> parentNode.slug when kind==='array'
+    const owners: Record<string, string | undefined> = {}; // child → parentNode.slug when kind==='array'
 
     Tree.walk(root, (e) => {
       parents[e.value.slug] = e.parent.kind;

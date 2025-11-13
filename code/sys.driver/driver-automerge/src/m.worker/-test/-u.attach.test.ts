@@ -1,7 +1,7 @@
 import { type t, Rx, afterEach, describe, expect, it } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
 import { attach } from '../u.attach.ts';
-import { Wait, createTestHelpers } from './-u.ts';
+import { Wait, createTestHelpers } from './u.ts';
 
 describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, () => {
   const Test = createTestHelpers();
@@ -19,7 +19,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     CrdtWorker.attach(port2, repo);
     await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
 
-    // Force a real internal change (_enabled true -> false).
+    // Force a real internal change (_enabled true → false).
     repo.sync.enable(false);
     await Wait.waitFor(() => {
       return events.some((e) => {
@@ -27,7 +27,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
       });
     });
 
-    // And back again (false -> true).
+    // And back again (false → true).
     repo.sync.enable(true);
     await Wait.waitFor(() => events.filter((e) => e.type === 'props/change').length >= 2);
 
@@ -121,7 +121,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     expect(real.sync.enabled).to.eql(true);
     expect(client.sync.enabled).to.eql(true);
 
-    // cause a real change on the real repo: true -> false
+    // cause a real change on the real repo: true → false
     real.sync.enable(false);
 
     // wait until we see the sync.enabled change over the wire

@@ -5,7 +5,7 @@ describe('Types: {object}', () => {
   describe('IsPlainObject<T>', () => {
     const v: any = undefined; // dummy runtime value for type assertions
 
-    it('primitives -> false', () => {
+    it('primitives → false', () => {
       expectTypeOf<t.IsPlainObject<string>>(v).toEqualTypeOf<false>();
       expectTypeOf<t.IsPlainObject<number>>(v).toEqualTypeOf<false>();
       expectTypeOf<t.IsPlainObject<boolean>>(v).toEqualTypeOf<false>();
@@ -15,19 +15,19 @@ describe('Types: {object}', () => {
       expectTypeOf<t.IsPlainObject<undefined>>(v).toEqualTypeOf<false>();
     });
 
-    it('functions -> false', () => {
+    it('functions → false', () => {
       type F = () => void;
       expectTypeOf<t.IsPlainObject<F>>(v).toEqualTypeOf<false>();
     });
 
-    it('arrays and tuples -> false', () => {
+    it('arrays and tuples → false', () => {
       expectTypeOf<t.IsPlainObject<string[]>>(v).toEqualTypeOf<false>();
       expectTypeOf<t.IsPlainObject<readonly number[]>>(v).toEqualTypeOf<false>();
       expectTypeOf<t.IsPlainObject<[number, string]>>(v).toEqualTypeOf<false>();
       expectTypeOf<t.IsPlainObject<readonly [number]>>(v).toEqualTypeOf<false>();
     });
 
-    it('well-known objects -> false', () => {
+    it('well-known objects → false', () => {
       expectTypeOf<t.IsPlainObject<Date>>(v).toEqualTypeOf<false>();
       expectTypeOf<t.IsPlainObject<RegExp>>(v).toEqualTypeOf<false>();
       expectTypeOf<t.IsPlainObject<Map<string, number>>>(v).toEqualTypeOf<false>();
@@ -36,7 +36,7 @@ describe('Types: {object}', () => {
       expectTypeOf<t.IsPlainObject<WeakSet<object>>>(v).toEqualTypeOf<false>();
     });
 
-    it('plain objects -> true', () => {
+    it('plain objects → true', () => {
       expectTypeOf<t.IsPlainObject<{}>>(v).toEqualTypeOf<true>();
       expectTypeOf<t.IsPlainObject<Record<string, unknown>>>(v).toEqualTypeOf<true>();
       expectTypeOf<t.IsPlainObject<{ a: number }>>(v).toEqualTypeOf<true>();

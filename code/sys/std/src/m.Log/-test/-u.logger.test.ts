@@ -184,16 +184,16 @@ describe('Log.logger (make)', () => {
       child('1');
       expect(calls.info.length).to.equal(1);
 
-      parentFlag.value = false; // parent off -> all off
+      parentFlag.value = false; // parent off → all off
       child('2');
       expect(calls.info.length).to.equal(1);
 
-      parentFlag.value = true; // parent on but child off -> off
+      parentFlag.value = true; // parent on but child off → off
       childFlag.value = false;
       child('3');
       expect(calls.info.length).to.equal(1);
 
-      childFlag.value = true; // both on -> logs
+      childFlag.value = true; // both on → logs
       child('4');
       expect(calls.info.length).to.equal(2);
       expect(calls.info[1][0]).to.equal('[Foobar:Subpart] T');
@@ -203,7 +203,7 @@ describe('Log.logger (make)', () => {
     }
   });
 
-  it('parent disabled -> child (subcategory) is also disabled (no prints)', () => {
+  it('parent disabled → child (subcategory) is also disabled (no prints)', () => {
     const { calls, restore } = stubConsole('info');
     try {
       const parentFlag = { value: false }; // parent OFF
