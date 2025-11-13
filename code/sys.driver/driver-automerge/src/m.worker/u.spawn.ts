@@ -1,4 +1,4 @@
-import { type t, Schedule } from './common.ts';
+import { type t, Rx, Schedule } from './common.ts';
 import { createRepo } from './u.createRepo.ts';
 import { Wire } from './u.evt.wire.ts';
 
@@ -13,8 +13,27 @@ export const spawn: t.CrdtWorkerLib['spawn'] = async (url, opts = {}) => {
   const { port1, port2 } = new MessageChannel();
   const repo = createRepo(port1, { until });
 
-  // Important: include the port in data, not just in the transfer list.
-  worker.postMessage({ kind: Wire.Stream.attach, port: port2 }, [port2]);
+  /**
+   * Wait for the worker to signal that its `listen()` handler
+   * is installed and it is ready to accept the `crdt:attach` port.
+   */
+  await new Promise<void>((resolve) => {
+    const { signal, dispose } = Rx.abortable();
+    const onReady = (ev: MessageEvent) => {
+      const data = ev.data as { kind?: string } | undefined;
+      if (data?.kind === Wire.Stream.workerReady) {
+        dispose();
+        resolve();
+      }
+    };
+    worker.addEventListener('message', onReady, { signal });
+  });
+
+  /**
+   * Important: include the port in data, not just in the transfer list.
+   */
+  const kind = Wire.Stream.attach;
+  worker.postMessage({ kind, port: port2 }, [port2]);
 
   await Schedule.micro(); // ← Allow wire events to flush before returning.
   return {

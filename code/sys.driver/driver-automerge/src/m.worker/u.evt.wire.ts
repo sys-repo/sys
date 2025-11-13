@@ -7,6 +7,7 @@ export const Wire = {
   Stream: {
     repo: 'crdt:repo' as const,
     attach: 'crdt:attach' as const,
+    workerReady: 'crdt:worker:ready' as const,
     doc: (id: t.StringId) => `crdt:doc:${id}` as const,
     isDoc: (s: t.WireStream): s is `crdt:doc:${string}` => s.startsWith('crdt:doc:'),
   },

@@ -13,23 +13,46 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
 
   it('forwards prop$ → sync.enabled (enable/disable)', async () => {
     const { port1, port2 } = Test.makePorts();
-    const repo = Test.realRepo();
+    const repo = Test.realRepo({ network: true });
     const { events, stop } = Test.collectRepoEvents(port1);
 
     CrdtWorker.attach(port2, repo);
+
+    // Wait for initial ready/snapshot over the wire.
     await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
 
-    // Force a real internal change (_enabled true → false).
-    repo.sync.enable(false);
-    await Wait.waitFor(() => {
-      return events.some((e) => {
-        return e.type === 'props/change' ? e.payload.prop === 'sync.enabled' : false;
-      });
-    });
+    // Networked repo: enabled should be boolean (not null).
+    const initial = repo.sync.enabled;
+    expect(initial).to.not.eql(null);
 
-    // And back again (false → true).
+    /**
+     * Disable sync: true → false (or false → false if already disabled).
+     * Expect a props/change event for sync.enabled.
+     */
+    repo.sync.enable(false);
+    await Wait.waitFor(() =>
+      events.some(
+        (e) =>
+          e.type === 'props/change' &&
+          e.payload.prop === 'sync.enabled' &&
+          e.payload.after.sync.enabled === false,
+      ),
+    );
+
+    /**
+     * Enable sync: false → true.
+     * Expect a second props/change event for sync.enabled.
+     */
     repo.sync.enable(true);
-    await Wait.waitFor(() => events.filter((e) => e.type === 'props/change').length >= 2);
+    await Wait.waitFor(
+      () =>
+        events.filter(
+          (e) =>
+            e.type === 'props/change' &&
+            e.payload.prop === 'sync.enabled' &&
+            e.payload.after.sync.enabled === true,
+        ).length >= 1,
+    );
 
     const last = events
       .filter((e) => e.type === 'props/change')
@@ -38,10 +61,8 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
 
     expect(last.payload.prop).to.eql('sync.enabled');
 
-    // With no adapters, the public getter is defined to be <null>.
-    // Event payload mirrors the public props surface.
-    expect(repo.sync.urls.length).to.eql(0);
-    expect(repo.sync.enabled).to.eql(null);
+    // Event payload mirrors the public props surface (boolean for networked repos).
+    expect(typeof repo.sync.enabled).to.eql('boolean');
     expect(last.payload.after.sync.enabled).to.eql(repo.sync.enabled);
 
     stop();

@@ -1,5 +1,4 @@
 import { afterEach, c, describe, expect, it } from '../../-test.ts';
-import { Schedule } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers } from './u.ts';
 
@@ -16,7 +15,7 @@ describe('CrdtWorker.spawn (smoke test, real worker)', () => {
     expect(repo.ready).to.eql(true);
 
     console.info();
-    console.info(c.cyan(`repo (client shim):`));
+    console.info(c.cyan(`repo (client proxy):`));
     console.info(repo);
     console.info();
 
