@@ -8,14 +8,14 @@ export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
   const plugins: t.VitePluginOption[] = [];
 
   /**
-   * The official Deno™️ vite-plugin.
+   * The official Deno vite-plugin:
    */
   if (options.deno ?? true) {
     plugins.push(deno() as t.VitePlugin[]);
   }
 
   /**
-   * WASM support.
+   * WASM support:
    */
   if (options.wasm ?? true) {
     // deno-lint-ignore ban-ts-comment
@@ -24,12 +24,11 @@ export async function commonPlugins(options: t.ViteConfigCommonPlugins = {}) {
   }
 
   /**
-   * React (via the SWC compiler).
-   *  -  https://github.com/vitejs/vite-plugin-react-swc
-   *  -  https://swc.rs
+   * React:
    */
   if (options.react ?? true) {
-    plugins.push(react() as t.VitePluginOption[]);
+    const exclude = [/(\.|^)worker\.tsx?$/];
+    plugins.push(react({ exclude }));
   }
 
   // Finish up.
