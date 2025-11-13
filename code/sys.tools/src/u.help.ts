@@ -17,15 +17,15 @@ export async function printHelp(argv: string[]) {
   if (args.help) {
     const msg = `To enable the ${c.bold(c.cyan('sys'))} command globally, add the following snippet to your ${c.cyan('~/.zshrc')} file:`;
     console.info(msg);
-    console.info(c.italic(c.yellow(BashCommand)));
+    console.info(c.italic(c.yellow(ShellCommand)));
   }
 }
 
-const BashCommand = `
+const ShellCommand = `
   # ------------------------------------------------------------------------
   # @sys: tools
   # ------------------------------------------------------------------------
-  alias sys-update='deno run -A --reload jsr:@sys/tools'
+  alias sys-update='deno cache -A --reload jsr:@sys/tools'
   sys() {
     # Run the root tool if there are no arguments or if the first argument is a flag
     if (( $# == 0 )) || [[ "$1" == -* ]]; then

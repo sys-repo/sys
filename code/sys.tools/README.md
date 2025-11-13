@@ -2,6 +2,27 @@
 Common system tools index (with Programmatic and CLI entry-points).
 
 
+<p>&nbsp;</p>
+
+## Setup
+
+To install and view the base library help (including the optional shell command for your `~/.zshrc`):
+```
+deno run -E jsr:@sys/tools --help
+```
+
+To update to the latest version:
+```bash
+deno cache --reload jsr:@sys/tools
+```
+
+
+
+<p>&nbsp;</p>
+
+
+## Tools
+
 ```bash
 System Tools
  ├─ @sys/tools          <version>
@@ -14,48 +35,31 @@ System Tools
 
 <p>&nbsp;</p>
 
-## Installation
 
-Initial `install` and `update` to latest with:
-```bash
-deno run --reload jsr:@sys/tools
-```
-
-View base library help (including command for `~/.zhcrc` file if desired):
-```
-deno run -E jsr:@sys/tools --help
-```
-
-<p>&nbsp;</p>
-
----
-<p>&nbsp;</p>
-
-## Tools
-
-#### Video Tools
+#### Video
 ```bash
 deno run -A jsr:@sys/tools/video
 ```
 
 
-#### Copy to Clipboard Tools
+#### Copy to Clipboard
 ```bash
 deno run -A jsr:@sys/tools/copy
 deno run -A jsr:@sys/tools/cp
 ```
 
-#### CRDT Tools
+#### CRDT (Conflict-Free Replicated Datatype)
+
 ```bash
 deno run -A jsr:@sys/tools/crdt
 ```
 
-#### Filesystem Tools
+#### Filesystem
 ```bash
 deno run -A jsr:@sys/tools/fs
 ```
 
-#### Update Tools
+#### Update (Self)
 ```bash
 deno run -A jsr:@sys/tools/update
 ```
@@ -65,13 +69,13 @@ deno run -A jsr:@sys/tools/update
 <p>&nbsp;</p>
 
 ## Shell Alias
-To enable the `sys` command globally, add the following snippet to your `~/.zshrc` file:
+To enable the `sys` command globally, add the following to your `~/.zshrc`:
 
 ```bash
   # ------------------------------------------------------------------------
   # @sys: tools
   # ------------------------------------------------------------------------
-  alias sys-update='deno run -A --reload jsr:@sys/tools'
+  alias sys-update='deno cache -A --reload jsr:@sys/tools'
   sys() {
     # Run the root tool if there are no arguments or if the first argument is a flag
     if (( $# == 0 )) || [[ "$1" == -* ]]; then
