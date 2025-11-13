@@ -55,7 +55,11 @@ export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
       debug,
     };
 
-    if (kind === 'row') return <Row key={i} {...args} />;
+    if (kind === 'row') {
+      const row = item as t.KeyValueRow;
+      const rowArgs: t.KeyValueItemProps = { ...args, mono: row.mono ?? mono };
+      return <Row key={i} {...rowArgs} />;
+    }
 
     // For non-row items, optionally span both columns in table mode:
     if (kind === 'title') return spanAll(i, <Title {...args} />);
