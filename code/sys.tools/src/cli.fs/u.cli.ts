@@ -25,7 +25,7 @@ export const cli: t.FsToolsLib['cli'] = async (opts = {}) => {
  */
 async function run(dir: t.StringDir) {
   const mode = (await Cli.Prompt.Select.prompt({
-    message: 'Select copy mode:\n',
+    message: 'Select file-system operation:\n',
     options: [
       { name: 'Hash: List file hashes', value: 'hash:list' },
       { name: 'Hash: Rename files → <filename>-sha-256.<ext>', value: 'hash:rename-sha256' },

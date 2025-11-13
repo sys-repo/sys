@@ -9,6 +9,7 @@ export async function printHelp(argv: string[]) {
     e.row(fmt('crdt'));
     e.row(fmt('fs'));
     e.row(fmt('video'));
+    e.row(fmt('update'));
   });
 
   console.info(text);

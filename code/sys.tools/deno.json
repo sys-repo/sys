@@ -23,6 +23,7 @@
     "./copy": "./src/cli.clipboard/mod.ts",
     "./crdt": "./src/cli.crdt/mod.ts",
     "./fs": "./src/cli.fs/mod.ts",
-    "./video": "./src/cli.video/mod.ts"
+    "./video": "./src/cli.video/mod.ts",
+    "./update": "./src/cli.update/mod.ts"
   }
 }
