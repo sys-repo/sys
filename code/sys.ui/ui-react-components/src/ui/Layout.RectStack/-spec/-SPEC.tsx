@@ -1,7 +1,8 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { RectStack } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Foo } from './-ui.Foo.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -20,10 +21,19 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size('fill')
+      .size([450, null])
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        const items: t.RectStackItem[] = Array(v.showTotal)
+          .fill(undefined)
+          .map((_, i) => {
+            return {
+              id: `item-${i}`,
+              render: () => <Foo index={i} theme={v.theme} />,
+            };
+          });
+
         return (
           <RectStack
             debug={v.debug}
@@ -32,6 +42,7 @@ export default Spec.describe(D.displayName, (e) => {
             activeIndex={v.activeIndex}
             gap={v.gap}
             aspectRatio={v.aspectRatio}
+            items={items}
           />
         );
       });

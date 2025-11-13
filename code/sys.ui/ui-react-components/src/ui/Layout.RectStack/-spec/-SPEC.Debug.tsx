@@ -14,15 +14,17 @@ type Storage = Pick<
   | 'gap'
   | 'aspectRatio'
   | 'activeIndex'
->;
+> & { showTotal?: number };
 const defaults: Storage = {
   debug: true,
   theme: 'Dark',
   mode: D.mode,
   gap: D.gap,
   activeIndex: D.activeIndex,
-  aspectRatio: D.aspectRatio,
+  aspectRatio: 16 / 9,
   minColumnWidth: D.minColumnWidth,
+
+  showTotal: 4,
 };
 
 /**
@@ -48,6 +50,8 @@ export function createDebugSignals() {
     aspectRatio: s(snap.aspectRatio),
     minColumnWidth: s(snap.minColumnWidth),
     gap: s(snap.gap),
+
+    showTotal: s(snap.showTotal),
   };
   const p = props;
   const api = {
@@ -74,6 +78,8 @@ export function createDebugSignals() {
       d.aspectRatio = p.aspectRatio.value;
       d.minColumnWidth = p.minColumnWidth.value;
       d.gap = p.gap.value;
+
+      d.showTotal = p.showTotal.value;
     });
   });
 
@@ -120,11 +126,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
-        block
-        label={() => `activeIndex: ${p.activeIndex.value}`}
-        onClick={() => Signal.cycle(p.activeIndex, [0, 1, 2, 3, 4])}
-      />
       <hr />
 
       <Button
@@ -166,12 +167,33 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button
+        block
+        label={() => `showTotal: ${p.showTotal.value}`}
+        onClick={() => Signal.cycle(p.showTotal, [0, 1, 2, 3, 4, 5, 8, 12])}
+      />
+      <Button
+        block
+        label={() => `activeIndex: ${p.activeIndex.value}`}
+        onClick={() =>
+          Signal.cycle(
+            p.activeIndex,
+            Array(v.showTotal)
+              .fill(null)
+              .map((_, i) => i),
+          )
+        }
+      />
+
+      <hr />
       <div className={Styles.title.class}>{'Samples:'}</div>
       <Button
         block
         label={() => `- stack`}
         onClick={() => {
           p.mode.value = 'stack';
+          p.showTotal.value = 4;
+          p.aspectRatio.value = 16 / 9;
         }}
       />
       <Button
@@ -179,6 +201,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `- grid`}
         onClick={() => {
           p.mode.value = 'grid';
+          p.showTotal.value = 4;
         }}
       />
       <Button
@@ -186,6 +209,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `- stream`}
         onClick={() => {
           p.mode.value = 'stream';
+          p.showTotal.value = 4;
         }}
       />
       <Button block label={() => `(reset)`} onClick={debug.reset} />

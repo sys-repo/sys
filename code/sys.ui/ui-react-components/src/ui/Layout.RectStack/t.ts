@@ -19,7 +19,7 @@ export type RectStackProps = {
   /** Space between items in grid and stream modes (in px). */
   gap?: t.Pixels;
   /** Fixed aspect ratio applied to each item's frame (width / height). */
-  aspectRatio?: t.Percent;
+  aspectRatio?: number;
 
   // Appearance:
   debug?: boolean;
