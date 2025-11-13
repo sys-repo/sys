@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type t, Color, css, D, DocumentId, ObjectView, Repo, Str } from './common.ts';
+import { type t, Color, css, D, DocumentId, Obj, ObjectView, Repo, Str } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
 
 type O = Record<string, unknown>;
@@ -103,9 +103,9 @@ export const Card: React.FC<P> = (props) => {
   const elDoc = (
     <ObjectView
       name={'Doc:T'}
-      data={wrangle.data(props, docSignal?.value)}
+      data={Obj.trimStringsDeep(wrangle.data(props, docSignal?.value))}
       expand={1}
-      fontSize={28}
+      fontSize={16}
       theme={theme.name}
       style={styles.objectDoc}
     />
