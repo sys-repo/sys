@@ -166,8 +166,32 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <div className={Styles.title.class}>{'Samples:'}</div>
+      <Button
+        block
+        label={() => `- stack`}
+        onClick={() => {
+          p.mode.value = 'stack';
+        }}
+      />
+      <Button
+        block
+        label={() => `- grid`}
+        onClick={() => {
+          p.mode.value = 'grid';
+        }}
+      />
+      <Button
+        block
+        label={() => `- stream`}
+        onClick={() => {
+          p.mode.value = 'stream';
+        }}
+      />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
+
+      <hr />
+      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
