@@ -75,7 +75,6 @@ To enable the `sys` command globally, add the following to your `~/.zshrc`:
   # ------------------------------------------------------------------------
   # @sys: tools
   # ------------------------------------------------------------------------
-  alias sys-update='deno cache -A --reload jsr:@sys/tools'
   sys() {
     # Run the root tool if there are no arguments or if the first argument is a flag
     if (( $# == 0 )) || [[ "$1" == -* ]]; then
