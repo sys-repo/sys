@@ -88,7 +88,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
         <div>{D.name}</div>
-        <div>{'(Rowan Editor)'}</div>
+        <div>{'Slug'}</div>
       </div>
 
       <Button
