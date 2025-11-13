@@ -1,24 +1,38 @@
-import { Fmt as Base, c, D, Str } from './common.ts';
+import { type t, Fmt as Base, c, Cli, D, pkg, Str } from './common.ts';
+import { getVersionInfo } from './u.ts';
 
 export const Fmt = {
   ...Base,
 
   async help(toolname: string = D.toolname) {
+    const str = Str.builder();
+    const version = await getVersionInfo();
     const base = await Base.help(toolname, (e) => e.row(c.gray(`@sys/tools/${c.white('update')}`)));
-    return `${base}\n${Fmt.shellcommand()}`;
+    str.line(base).line(Fmt.versionInfoTable(version)).line();
+    if (!version.is.latest) str.line(Fmt.shellcommand()).line();
+    return String(str);
   },
 
   shellcommand() {
     const str = Str.builder();
-    const a = 'sys update --latest';
-    const b = 'deno run -A jsr:@sys/tools/update --latest';
+    const cmd = 'sys update --latest';
     str
       .line(c.gray('To update to latest run:'))
       .line()
-      .line(c.italic(c.yellow(`  ${a}`)))
-      .line(c.gray('    or'))
-      .line(c.italic(c.yellow(`  ${b}`)))
+      .line(c.italic(c.yellow(`  ${cmd}`)))
       .line();
     return String(str);
+  },
+
+  versionInfoTable(info: t.UpdateVersionInfo) {
+    const formatVersion = (v?: t.StringSemver) => {
+      if (!v) return c.gray('-');
+      return v === info.latest ? c.green(v) : c.yellow(v);
+    };
+    const table = Cli.table([]);
+    table.push([c.gray('Package'), pkg.name]);
+    table.push([c.gray('  local'), formatVersion(info.local)]);
+    table.push([c.gray('  remote'), formatVersion(info.remote)]);
+    return Str.trimEdgeNewlines(String(table));
   },
 } as const;

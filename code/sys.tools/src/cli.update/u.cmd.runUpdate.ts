@@ -1,4 +1,6 @@
 import { type t, c, Cli, Jsr, pkg, Process, Semver } from './common.ts';
+import { Fmt } from './u.fmt.ts';
+import { getVersionInfo } from './u.ts';
 
 export type UpdateOptions = {
   cwd?: t.StringPath; // default: Deno.cwd()
@@ -9,28 +11,12 @@ export type UpdateOptions = {
  */
 export async function runUpdate(options: UpdateOptions = {}): Promise<void> {
   const cwd = options.cwd ?? Deno.cwd();
+  const version = await getVersionInfo();
 
-  const jsr = await Jsr.Fetch.Pkg.info('@sys/tools');
-  const version = {
-    local: pkg.version,
-    remote: jsr.data?.pkg.version,
-    get latest() {
-      return Semver.latest(version.local, version.remote) ?? '-';
-    },
-  };
-
-  const formatVersion = (v?: t.StringSemver) => {
-    if (!v) return c.gray('-');
-    return v === version.latest ? c.green(v) : c.yellow(v);
-  };
-
-  const table = Cli.table([]);
-  table.push([c.gray('Package'), pkg.name]);
-  table.push([c.gray('  local'), formatVersion(version.local)]);
-  table.push([c.gray('  remote'), formatVersion(version.remote)]);
+  console.info(Fmt.versionInfoTable(version));
   console.info();
 
-  if (version.local === version.latest) {
+  if (version.is.latest) {
     const msg = `Local version ${c.green(version.local)} of ${c.white(pkg.name)} is the most recent release`;
     console.info(c.gray(msg));
     console.info();
@@ -43,7 +29,7 @@ export async function runUpdate(options: UpdateOptions = {}): Promise<void> {
     cmd: 'deno',
     args: ['cache', '--reload', 'jsr:@sys/tools'],
     cwd,
-    silent: true, // print controlled manually
+    silent: false,
   });
 
   spinner.stop();

@@ -13,3 +13,13 @@ export type UpdateToolsLib = {
  * Command line arguments (argv).
  */
 export type UpdateCliArgs = t.ToolsCliArgs & { latest?: boolean };
+
+/**
+ * Table of update versions
+ */
+export type UpdateVersionInfo = {
+  readonly local: t.StringSemver;
+  readonly remote: t.StringSemver;
+  readonly latest: t.StringSemver;
+  readonly is: { readonly latest: boolean };
+};
