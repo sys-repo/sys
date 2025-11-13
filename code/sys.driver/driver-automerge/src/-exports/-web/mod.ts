@@ -13,6 +13,7 @@ import {
   AutomergeRepo,
   CrdtIs,
   CrdtUrl,
+  CrdtWorker,
   createPeerId,
   D,
   Is,
@@ -45,6 +46,7 @@ export const Crdt: t.CrdtBrowserLib = {
   },
   Is: CrdtIs,
   Url: CrdtUrl,
+  Worker: CrdtWorker,
   whenReady,
   toObject,
 };

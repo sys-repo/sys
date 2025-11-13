@@ -9,6 +9,7 @@ type O = Record<string, unknown>;
 export type CrdtLib = {
   readonly Is: t.CrdtIsLib;
   readonly Url: t.CrdtUrlLib;
+  readonly Worker: t.CrdtWorkerLib;
   whenReady(doc?: t.Crdt.Ref): Promise<void>;
   toObject: t.CrdtToObject;
 };

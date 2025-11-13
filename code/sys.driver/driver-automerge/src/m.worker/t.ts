@@ -41,5 +41,5 @@ export type CrdtWorkerLib = {
  */
 export type CrdtRepoWorkerShim = t.CrdtRepo & {
   /** Branding flag that distinguishes worker-based repos from local ones. */
-  readonly via: 'worker';
+  readonly via: 'worker-proxy';
 };

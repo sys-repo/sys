@@ -4,6 +4,7 @@ export * from '../common.ts';
 export {
   CrdtIs,
   CrdtUrl,
+  CrdtWorker,
   toAutomergeHandle,
   toAutomergeRepo,
   toObject,

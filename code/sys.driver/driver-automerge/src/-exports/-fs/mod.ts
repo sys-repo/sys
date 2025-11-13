@@ -10,6 +10,7 @@ import {
   AutomergeRepo,
   CrdtIs,
   CrdtUrl,
+  CrdtWorker,
   createPeerId,
   Is,
   toObject,
@@ -45,6 +46,7 @@ export const Crdt: t.CrdtFilesystemLib = {
   },
   Is: CrdtIs,
   Url: CrdtUrl,
+  Worker: CrdtWorker,
   whenReady,
   toObject,
 };

@@ -1,10 +1,19 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  Color,
+  Crdt,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Rx,
+  Signal,
+} from '../common.ts';
 
-import { Button, ObjectView } from '../common.ts';
-
-type P = t.MyComponentProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = { debug?: boolean; theme?: t.CommonTheme };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
@@ -14,27 +23,34 @@ const defaults: Storage = {
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
  * Signals:
  */
-export function createDebugSignals() {
+export async function createDebugSignals() {
   const s = Signal.create;
 
+  const life = Rx.lifecycle();
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  const url = new URL('./-worker.ts', import.meta.url);
+  const { worker, repo } = await Crdt.Worker.spawn(url, { worker: { type: 'module' } });
+
   const props = {
+    rev: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
   };
   const p = props;
-  const api = {
+  const api = Rx.toLifecycle(life, {
     props,
+    repo,
+    worker,
     reset,
     listen,
-  };
+  });
 
   function listen() {
     Signal.listen(props);
@@ -50,6 +66,9 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
     });
   });
+
+  const events = repo.events(life);
+  events.$.subscribe(() => (p.rev.value += 1));
 
   return api;
 }
@@ -83,7 +102,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{D.name}</div>
+        <div>{`(Worker-Proxy)`}</div>
+      </div>
 
       <Button
         block
@@ -99,6 +121,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView name={'repo'} data={debug.repo} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
 };

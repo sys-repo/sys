@@ -72,7 +72,7 @@ describe('CrdtWorker.repo (shim)', () => {
     it('branding: via === "worker" (stable discriminant)', () => {
       const { port1 } = Test.makePorts();
       const repo = CrdtWorker.repo(port1);
-      expect((repo as t.CrdtRepoWorkerShim).via).to.eql('worker');
+      expect((repo as t.CrdtRepoWorkerShim).via).to.eql('worker-proxy');
     });
 
     it('lifecycle: dispose emits once, sets disposed, and is idempotent', async () => {

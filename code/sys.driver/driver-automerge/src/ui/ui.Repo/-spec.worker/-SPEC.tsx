@@ -1,10 +1,10 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { MyComponent } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Sample } from './-ui.tsx';
 
-export default Spec.describe(D.displayName, (e) => {
-  const debug = createDebugSignals();
+export default Spec.describe(D.displayName, async (e) => {
+  const debug = await createDebugSignals();
   const p = debug.props;
 
   e.it('init', (e) => {
@@ -24,7 +24,7 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <MyComponent debug={v.debug} theme={v.theme} />;
+        return <Sample theme={v.theme} debug={v.debug} repo={debug.repo} />;
       });
 
     update();

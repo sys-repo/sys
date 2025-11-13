@@ -2,6 +2,7 @@
  * @module
  * Core CRDT primitives.
  */
+export { CrdtWorker } from '../m.worker/mod.ts';
 export { CrdtIs } from './m.Is.ts';
 export { CrdtUrl } from './m.Url.ts';
 
