@@ -13,6 +13,7 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "prettier.useLocalVersion": false,
+  "prettier.requireConfig": false,
   "prettier.resolveGlobalModules": false,
   "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
