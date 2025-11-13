@@ -6,8 +6,8 @@ import { Button, ObjectView } from '../common.ts';
 type P = t.MyComponentProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
 const defaults: Storage = {
-  theme: 'Dark',
   debug: false,
+  theme: 'Dark',
 };
 
 /**
@@ -70,6 +70,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -87,16 +88,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
-        block
-        label={() => `debug: ${p.debug.value}`}
-        onClick={() => Signal.toggle(p.debug)}
-      />
+      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
