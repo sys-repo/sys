@@ -24,7 +24,16 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <RectStack debug={v.debug} theme={v.theme} />;
+        return (
+          <RectStack
+            debug={v.debug}
+            theme={v.theme}
+            mode={v.mode}
+            activeIndex={v.activeIndex}
+            gap={v.gap}
+            aspectRatio={v.aspectRatio}
+          />
+        );
       });
 
     update();
