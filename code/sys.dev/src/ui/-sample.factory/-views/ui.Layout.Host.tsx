@@ -39,7 +39,6 @@ export const LayoutHost: React.FC<LayoutHostProps> = (props) => {
     center: css({
       backgroundColor: Color.WHITE,
       minWidth: 380,
-      // backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
     }),
   };
 
