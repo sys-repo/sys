@@ -15,11 +15,11 @@ export const Fmt = {
 
   shellcommand() {
     const str = Str.builder();
-    const cmd = 'sys update --latest';
+    const cmd = c.yellow(`sys update --latest ${c.gray('[-l]')}`);
     str
       .line(c.gray('To update to latest run:'))
       .line()
-      .line(c.italic(c.yellow(`  ${cmd}`)))
+      .line(c.italic(`  ${cmd}`))
       .line();
     return String(str);
   },
