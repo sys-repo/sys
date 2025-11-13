@@ -32,6 +32,7 @@ export const SpecsComponents = {
   [`${ns}: TextInput`]: () => import('../ui/Text.Input/-spec/-SPEC.tsx'),
 
   [`${ns}: Layout.CenterColumn`]: () => import('../ui/Layout.CenterColumn/-spec/-SPEC.tsx'),
+  [`${ns}: Layout.RectStack`]: () => import('../ui/Layout.RectStack/-spec/-SPEC.tsx'),
   [`${ns}: Layout.SplitPane`]: () => import('../ui/Layout.SplitPane/-spec/-SPEC.tsx'),
 
   [`${ns}: Tree.Index`]: () => import('../ui/Tree.Index/-spec/-SPEC.tsx'),
