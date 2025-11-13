@@ -10,6 +10,7 @@ import { Release } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Prefix } from './m.Prefix.ts';
 import { coerce } from './u.coerce.ts';
+import { latest } from './u.latest.ts';
 import { parse, range } from './u.parse.ts';
 import { sort } from './u.sort.ts';
 
@@ -43,6 +44,9 @@ export const Semver: SemverLib = {
 
   /** Compare two SemVers. */
   compare,
+
+  /** Return the greatest (latest) semver from the given list. */
+  latest,
 
   /** Format a SemVer object into a string. */
   toString(input) {
