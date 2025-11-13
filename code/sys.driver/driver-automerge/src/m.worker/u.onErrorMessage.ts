@@ -28,7 +28,7 @@ export function onMessageErrorHandler(
     errCount += 1;
     const data = wrangle.messageData(e as MessageEvent<unknown>);
     const message = data ? `messageerror: ${data}` : 'messageerror';
-    const payload = Wire.event(Wire.Stream.repo, { type: 'stream/error', payload: { message } });
+    const payload = Wire.event(Wire.Kind.repo, { type: 'stream/error', payload: { message } });
     send(payload);
 
     if (errCount >= MAX_ERRORS) life.dispose();

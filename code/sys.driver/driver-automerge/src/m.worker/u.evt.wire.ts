@@ -4,7 +4,7 @@ import { type t, WIRE_VERSION } from './common.ts';
  * Simple factories for well-formed messages.
  */
 export const Wire = {
-  Stream: {
+  Kind: {
     repo: 'crdt:repo' as const,
     attach: 'crdt:attach' as const,
     workerReady: 'crdt:worker:ready' as const,

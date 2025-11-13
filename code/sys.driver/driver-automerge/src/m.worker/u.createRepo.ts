@@ -1,10 +1,7 @@
-import { type t, Obj, Rx, Try } from './common.ts';
+import { type t, Rx, Try } from './common.ts';
 import { Wire } from './u.evt.wire.ts';
 
 type O = Record<string, unknown>;
-
-// TEMP streams (to be replaced as we wire more events across the port). 🐷
-const __tmp$ = Rx.subject<any>().asObservable();
 const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
 
 /**
@@ -36,7 +33,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
    */
   function onMessage(ev: MessageEvent) {
     const msg = ev.data as t.WireMessage | undefined;
-    if (!msg || msg.type !== 'event' || msg.stream !== Wire.Stream.repo) return;
+    if (!msg || msg.type !== 'event' || msg.stream !== Wire.Kind.repo) return;
     const e = msg.event;
 
     // 1. Ready + snapshot (init state):

@@ -121,13 +121,13 @@ describe('Event helpers', () => {
 
     describe('Wire.Stream (helpers)', () => {
       it('repo constant', () => {
-        expect(Wire.Stream.repo).to.eql<'crdt:repo'>('crdt:repo');
-        expectTypeOf(Wire.Stream.repo).toEqualTypeOf<'crdt:repo'>();
+        expect(Wire.Kind.repo).to.eql<'crdt:repo'>('crdt:repo');
+        expectTypeOf(Wire.Kind.repo).toEqualTypeOf<'crdt:repo'>();
       });
 
       it('doc(id) formats stream id', () => {
         const id: t.StringId = 'abc123';
-        const s = Wire.Stream.doc(id);
+        const s = Wire.Kind.doc(id);
         expect(s).to.eql(`crdt:doc:${id}`);
         // type: template literal with string tail
         expectTypeOf(s).toEqualTypeOf<`crdt:doc:${string}`>();
@@ -135,9 +135,9 @@ describe('Event helpers', () => {
 
       it('isDoc guards correctly', () => {
         const a: t.WireStream = 'crdt:repo';
-        const b: t.WireStream = Wire.Stream.doc('x');
-        expect(Wire.Stream.isDoc(a)).to.eql(false);
-        expect(Wire.Stream.isDoc(b)).to.eql(true);
+        const b: t.WireStream = Wire.Kind.doc('x');
+        expect(Wire.Kind.isDoc(a)).to.eql(false);
+        expect(Wire.Kind.isDoc(b)).to.eql(true);
       });
     });
 

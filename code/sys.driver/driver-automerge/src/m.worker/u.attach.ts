@@ -9,7 +9,7 @@ import { onMessageErrorHandler } from './u.onErrorMessage.ts';
 export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   port.start?.();
   const dispatch = (e: t.WireEvent) => port.postMessage(e);
-  const send = (e: t.WireRepoEventPayload) => dispatch(Wire.event(Wire.Stream.repo, e));
+  const send = (e: t.WireRepoEventPayload) => dispatch(Wire.event(Wire.Kind.repo, e));
 
   /**
    * Lifecycle:

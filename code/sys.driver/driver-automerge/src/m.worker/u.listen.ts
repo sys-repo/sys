@@ -11,7 +11,7 @@ export const listen: t.CrdtWorkerLib['listen'] = (self, repo) => {
    */
   self.addEventListener('message', (ev) => {
     const data = ev.data as { kind?: string; port?: MessagePort } | undefined;
-    if (data?.kind !== Wire.Stream.attach) return;
+    if (data?.kind !== Wire.Kind.attach) return;
 
     const port = ev.ports?.[0] ?? data.port;
     if (!port) return;

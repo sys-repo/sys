@@ -21,7 +21,7 @@ export const spawn: t.CrdtWorkerLib['spawn'] = async (url, opts = {}) => {
     const { signal, dispose } = Rx.abortable();
     const onReady = (ev: MessageEvent) => {
       const data = ev.data as { kind?: string } | undefined;
-      if (data?.kind === Wire.Stream.workerReady) {
+      if (data?.kind === Wire.Kind.workerReady) {
         dispose();
         resolve();
       }
@@ -32,7 +32,7 @@ export const spawn: t.CrdtWorkerLib['spawn'] = async (url, opts = {}) => {
   /**
    * Important: include the port in data, not just in the transfer list.
    */
-  const kind = Wire.Stream.attach;
+  const kind = Wire.Kind.attach;
   worker.postMessage({ kind, port: port2 }, [port2]);
 
   await Schedule.micro(); // ← Allow wire events to flush before returning.

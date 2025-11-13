@@ -220,7 +220,7 @@ describe('CrdtWorker.repo (shim)', () => {
       const msg: t.WireMessage = {
         version: CrdtWorker.version,
         type: 'event',
-        stream: Wire.Stream.repo,
+        stream: Wire.Kind.repo,
         event: payload,
       };
 
