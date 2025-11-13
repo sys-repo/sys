@@ -16,7 +16,7 @@ export const Fmt = {
   shellcommand() {
     const str = Str.builder();
     const a = c.yellow(`sys update --latest ${c.gray('[-l]')}`);
-    const b = c.gray(`# ↑ equiv: deno cache --reload jsr:@sys/tools --latest`);
+    const b = c.gray(`# ↑ equiv: deno cache --reload jsr:@sys/tools`);
     str
       .line(c.gray('To update to latest run:'))
       .line()
