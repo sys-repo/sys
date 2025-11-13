@@ -5,7 +5,7 @@ import { Wait, createTestHelpers } from './u.ts';
 
 describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, () => {
   const Test = createTestHelpers();
-  afterEach(Test.clearPorts);
+  afterEach(Test.reset);
 
   it('API', () => {
     expect(CrdtWorker.attach).to.equal(attach);

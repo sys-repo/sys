@@ -87,10 +87,11 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       return state.props?.id ?? { ...EMPTY_ID };
     },
     get sync() {
+      const sync = state.props?.sync;
       return {
-        peers: (state.props?.sync.peers ?? []) as t.PeerId[],
-        urls: (state.props?.sync.urls ?? []) as t.StringUrl[],
-        enabled: !!state.props?.sync.enabled,
+        peers: (sync?.peers ?? []) as t.PeerId[],
+        urls: (sync?.urls ?? []) as t.StringUrl[],
+        enabled: sync?.enabled ?? null,
         enable() {
           /* no-op until transport lands */
         },
