@@ -35,6 +35,6 @@ export async function runUpdate(options: UpdateOptions = {}): Promise<void> {
   spinner.stop();
   if (!out.success) throw new Error(out.toString());
 
-  console.info(c.gray(`Updated ${c.white(pkg.name)} to ${c.green(version.latest)}`));
+  console.info(c.gray(`Updated ${c.white(pkg.name)} to latest ${c.green(version.latest)}`));
   console.info();
 }
