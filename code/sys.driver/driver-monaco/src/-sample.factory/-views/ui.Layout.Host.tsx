@@ -1,4 +1,4 @@
-import { Cropmarks, LayoutCenterColumn } from '@sys/ui-react-components';
+import { CenterColumn, Cropmarks } from '@sys/ui-react-components';
 import {} from '@sys/ui-react-components/t';
 
 import React from 'react';
@@ -39,7 +39,6 @@ export const LayoutHost: React.FC<LayoutHostProps> = (props) => {
     center: css({
       backgroundColor: Color.WHITE,
       minWidth: 380,
-      // backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
     }),
   };
 
@@ -52,7 +51,7 @@ export const LayoutHost: React.FC<LayoutHostProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={theme.name} borderOpacity={0.12} size={{ mode: 'fill', margin: 60 }}>
-        <LayoutCenterColumn center={elCenter} align={data.align as any} />
+        <CenterColumn center={elCenter} align={data.align as any} />
       </Cropmarks>
     </div>
   );
