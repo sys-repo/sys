@@ -36,9 +36,9 @@ export const RowSpaced: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Cell
         role={'key'}
+        layout={layout}
         theme={theme.name}
         debug={debug}
-        style={{ textAlign: 'left' }}
         mono={mono}
         truncate={truncate}
         size={props.size}
@@ -46,6 +46,7 @@ export const RowSpaced: React.FC<P> = (props) => {
       />
       <Cell
         role={'val'}
+        layout={layout}
         theme={theme.name}
         debug={debug}
         style={{ textAlign: truncate ? 'right' : 'left' }}

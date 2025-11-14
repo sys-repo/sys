@@ -48,6 +48,7 @@ export const RowTable: React.FC<P> = (props) => {
     <div className={styles.base.class}>
       <Cell
         role={'key'}
+        layout={layout}
         theme={props.theme}
         debug={debug}
         mono={mono}
@@ -58,6 +59,7 @@ export const RowTable: React.FC<P> = (props) => {
       />
       <Cell
         role={'val'}
+        layout={layout}
         theme={props.theme}
         debug={debug}
         mono={mono}
