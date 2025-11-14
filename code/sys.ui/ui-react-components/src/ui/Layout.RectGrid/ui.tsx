@@ -79,7 +79,7 @@ export const RectGrid: React.FC<t.RectGridProps> = (props) => {
       {items.map((item, i) => {
         const isActive = i === activeIndex;
         return (
-          <div key={item.id} className={styles.cell.class} style={{ opacity: isActive ? 1 : 0.6 }}>
+          <div key={item.id} className={styles.cell.class}>
             <div className={styles.cellInner.class}>{item.render()}</div>
           </div>
         );

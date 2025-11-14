@@ -32,7 +32,14 @@ export default Spec.describe(D.displayName, (e) => {
             return {
               id: `item-${i}`,
               render() {
-                return <Foo index={i} theme={v.theme} onClick={() => (p.activeIndex.value = i)} />;
+                return (
+                  <Foo
+                    index={i}
+                    theme={v.theme}
+                    selected={v.activeIndex === i}
+                    onClick={() => (p.activeIndex.value = i)}
+                  />
+                );
               },
             };
           });

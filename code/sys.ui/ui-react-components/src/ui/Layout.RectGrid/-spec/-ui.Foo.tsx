@@ -21,7 +21,7 @@ export const Foo: React.FC<FooProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(selected ? 0.3 : 0.1),
+      backgroundColor: Color.ruby(selected ? 0.4 : 0.1),
       color: theme.fg,
       display: 'grid',
       padding: 20,
