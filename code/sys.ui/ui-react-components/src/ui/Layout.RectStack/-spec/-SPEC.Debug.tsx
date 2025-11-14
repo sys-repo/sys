@@ -14,7 +14,7 @@ type Storage = Pick<
   | 'gap'
   | 'aspectRatio'
   | 'activeIndex'
-> & { showTotal?: number };
+> & { total?: number };
 const defaults: Storage = {
   debug: true,
   theme: 'Dark',
@@ -24,7 +24,7 @@ const defaults: Storage = {
   aspectRatio: 16 / 9,
   minColumnWidth: D.minColumnWidth,
 
-  showTotal: 4,
+  total: 4,
 };
 
 /**
@@ -51,7 +51,7 @@ export function createDebugSignals() {
     minColumnWidth: s(snap.minColumnWidth),
     gap: s(snap.gap),
 
-    showTotal: s(snap.showTotal),
+    total: s(snap.total),
   };
   const p = props;
   const api = {
@@ -79,7 +79,7 @@ export function createDebugSignals() {
       d.minColumnWidth = p.minColumnWidth.value;
       d.gap = p.gap.value;
 
-      d.showTotal = p.showTotal.value;
+      d.total = p.total.value;
     });
   });
 
@@ -169,20 +169,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `showTotal: ${p.showTotal.value}`}
-        onClick={() => Signal.cycle(p.showTotal, [0, 1, 2, 3, 4, 5, 8, 12])}
-      />
-      <Button
-        block
         label={() => `activeIndex: ${p.activeIndex.value}`}
         onClick={() =>
           Signal.cycle(
             p.activeIndex,
-            Array(v.showTotal)
+            Array(v.total)
               .fill(null)
               .map((_, i) => i),
           )
         }
+      />
+
+      <Button
+        block
+        label={() => `total: add`}
+        onClick={() => (p.total.value = (v.total ?? 0) + 1)}
+      />
+      <Button
+        block
+        label={() => `total: remove`}
+        onClick={() => (p.total.value = Num.clamp(0, Number.POSITIVE_INFINITY, (v.total ?? 0) - 1))}
       />
 
       <hr />
@@ -192,7 +198,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `- stack`}
         onClick={() => {
           p.mode.value = 'stack';
-          p.showTotal.value = 4;
+          p.total.value = 4;
           p.aspectRatio.value = 16 / 9;
         }}
       />
@@ -201,7 +207,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `- grid`}
         onClick={() => {
           p.mode.value = 'grid';
-          p.showTotal.value = 4;
+          p.total.value = 4;
         }}
       />
       <Button
@@ -209,7 +215,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `- stream`}
         onClick={() => {
           p.mode.value = 'stream';
-          p.showTotal.value = 4;
+          p.total.value = 4;
         }}
       />
       <Button block label={() => `(reset)`} onClick={debug.reset} />

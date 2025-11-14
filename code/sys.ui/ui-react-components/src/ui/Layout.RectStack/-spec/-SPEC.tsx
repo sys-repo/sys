@@ -21,11 +21,11 @@ export default Spec.describe(D.displayName, (e) => {
     });
 
     ctx.subject
-      .size([450, null])
+      .size('fill')
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        const items: t.RectStackItem[] = Array(v.showTotal)
+        const items: t.RectStackItem[] = Array(v.total)
           .fill(undefined)
           .map((_, i) => {
             return {
