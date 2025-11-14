@@ -6,19 +6,11 @@ import { Num } from '../../common.ts';
 type P = t.RectStackProps;
 type Storage = Pick<
   P,
-  | 'debug'
-  | 'theme'
-  | 'mode'
-  | 'activeIndex'
-  | 'minColumnWidth'
-  | 'gap'
-  | 'aspectRatio'
-  | 'activeIndex'
+  'debug' | 'theme' | 'activeIndex' | 'minColumnWidth' | 'gap' | 'aspectRatio' | 'activeIndex'
 > & { total?: number };
 const defaults: Storage = {
   debug: true,
   theme: 'Dark',
-  mode: D.mode,
   gap: D.gap,
   activeIndex: D.activeIndex,
   aspectRatio: 16 / 9,
@@ -45,7 +37,6 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    mode: s(snap.mode),
     activeIndex: s(snap.activeIndex),
     aspectRatio: s(snap.aspectRatio),
     minColumnWidth: s(snap.minColumnWidth),
@@ -73,7 +64,6 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
 
-      d.mode = p.mode.value;
       d.activeIndex = p.activeIndex.value;
       d.aspectRatio = p.aspectRatio.value;
       d.minColumnWidth = p.minColumnWidth.value;
@@ -128,11 +118,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <hr />
 
-      <Button
-        block
-        label={() => `mode: ${v.mode ?? `(undefined) ← default: ${D.mode}`}`}
-        onClick={() => Signal.cycle<t.RectStackMode>(p.mode, ['stream', 'stack', 'grid'])}
-      />
       <Button
         block
         label={() =>
@@ -192,36 +177,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'Samples:'}</div>
-      <Button
-        block
-        label={() => `- stack`}
-        onClick={() => {
-          p.mode.value = 'stack';
-          p.total.value = 4;
-          p.aspectRatio.value = 16 / 9;
-        }}
-      />
-      <Button
-        block
-        label={() => `- grid`}
-        onClick={() => {
-          p.mode.value = 'grid';
-          p.total.value = 4;
-        }}
-      />
-      <Button
-        block
-        label={() => `- stream`}
-        onClick={() => {
-          p.mode.value = 'stream';
-          p.total.value = 4;
-        }}
-      />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-
-      <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );

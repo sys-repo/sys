@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, M, D } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
 
 export const RectStack: React.FC<t.RectStackProps> = (props) => {
   const {
@@ -9,7 +9,6 @@ export const RectStack: React.FC<t.RectStackProps> = (props) => {
     aspectRatio = D.aspectRatio,
     minColumnWidth = D.minColumnWidth,
     gap = D.gap,
-    // mode = D.mode, // grid-only for now; mode ignored
   } = props;
 
   const count = items.length;
@@ -56,7 +55,7 @@ export const RectStack: React.FC<t.RectStackProps> = (props) => {
       width: '100%',
       aspectRatio,
       overflow: 'hidden',
-      borderRadius: 16,
+      borderRadius: 12,
     }),
 
     cellInner: css({
@@ -74,27 +73,17 @@ export const RectStack: React.FC<t.RectStackProps> = (props) => {
    * Render:
    */
   return (
-    <M.div className={css(styles.base, style).class}>
+    <div className={css(styles.base, style).class}>
       {elEmpty}
 
       {items.map((item, i) => {
         const isActive = i === activeIndex;
-
         return (
-          <M.div
-            key={item.id}
-            layout
-            className={styles.cell.class}
-            animate={{
-              opacity: isActive ? 1 : 0.45,
-              scale: isActive ? 1 : 0.97,
-            }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
-          >
-            <M.div className={styles.cellInner.class}>{item.render()}</M.div>
-          </M.div>
+          <div key={item.id} className={styles.cell.class} style={{ opacity: isActive ? 1 : 0.6 }}>
+            <div className={styles.cellInner.class}>{item.render()}</div>
+          </div>
         );
       })}
-    </M.div>
+    </div>
   );
 };

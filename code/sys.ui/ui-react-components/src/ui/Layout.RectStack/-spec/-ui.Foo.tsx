@@ -3,15 +3,17 @@ import { type t, Color, css } from '../common.ts';
 
 export type FooProps = {
   index?: number;
+  selected?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onClick?: () => void;
 };
 
 /**
  * Component:
  */
 export const Foo: React.FC<FooProps> = (props) => {
-  const { index = 0 } = props;
+  const { index = 0, selected = false } = props;
 
   /**
    * Render:
@@ -19,7 +21,7 @@ export const Foo: React.FC<FooProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(0.1),
+      backgroundColor: Color.ruby(selected ? 0.3 : 0.1),
       color: theme.fg,
       display: 'grid',
       padding: 20,
@@ -27,7 +29,7 @@ export const Foo: React.FC<FooProps> = (props) => {
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} onPointerDown={props.onClick}>
       <div>{`🐷 index-${index}`}</div>
     </div>
   );

@@ -10,7 +10,6 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   activeIndex: 0,
-  mode: 'stack' satisfies t.RectStackMode,
   minColumnWidth: 280,
   aspectRatio: undefined,
   gap: 16,

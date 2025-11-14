@@ -25,12 +25,15 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+
         const items: t.RectStackItem[] = Array(v.total)
           .fill(undefined)
           .map((_, i) => {
             return {
               id: `item-${i}`,
-              render: () => <Foo index={i} theme={v.theme} />,
+              render() {
+                return <Foo index={i} theme={v.theme} onClick={() => (p.activeIndex.value = i)} />;
+              },
             };
           });
 
@@ -38,7 +41,6 @@ export default Spec.describe(D.displayName, (e) => {
           <RectStack
             debug={v.debug}
             theme={v.theme}
-            mode={v.mode}
             activeIndex={v.activeIndex}
             gap={v.gap}
             aspectRatio={v.aspectRatio}
