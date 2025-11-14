@@ -23,7 +23,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         return (
-          <Repo.SyncEnabledSwitch
+          <Repo.SyncSwitch
             theme={v.theme}
             debug={v.debug}
             //
@@ -32,7 +32,7 @@ export default Spec.describe(D.displayName, (e) => {
             localstorage={v.localstorage}
             onChange={(e) => {
               v.redraw += 1;
-              console.info(`⚡️ SyncEnabledSwitch.onChange:`, e);
+              console.info(`⚡️ SyncSwitch.onChange:`, e);
             }}
           />
         );
@@ -42,7 +42,7 @@ export default Spec.describe(D.displayName, (e) => {
       .border(-0.1)
       .padding(10)
       .render(() => {
-        return <Repo.SyncEnabledSwitch repo={repo} localstorage={STORAGE_KEY.DEV.SUBJECT} />;
+        return <Repo.SyncSwitch repo={repo} localstorage={STORAGE_KEY.DEV.SUBJECT} />;
       });
   });
 

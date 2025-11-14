@@ -12,7 +12,7 @@ export const DEFAULTS = {
   displayName: Pkg.toString(pkg, name, false),
   syncEnabled: true,
   silent: false,
-  mode: 'default' satisfies t.SyncEnabledSwitchProps['mode'],
+  mode: 'default' satisfies t.RepoSyncSwitchProps['mode'],
 } as const;
 export const D = DEFAULTS;
 

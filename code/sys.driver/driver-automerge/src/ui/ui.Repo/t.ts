@@ -8,7 +8,7 @@ export type * from './t.switch.ts';
  */
 export type RepoLib = {
   readonly Info: t.FC<t.RepoInfoProps>;
-  readonly SyncEnabledSwitch: t.FC<t.SyncEnabledSwitchProps>;
+  readonly SyncSwitch: t.FC<t.RepoSyncSwitchProps>;
 };
 
 /**

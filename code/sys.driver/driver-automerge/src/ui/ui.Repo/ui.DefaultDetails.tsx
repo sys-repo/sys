@@ -1,8 +1,8 @@
 import React from 'react';
 import { type t, Color, css, Icons } from './common.ts';
 import { LabelStyle } from './u.Style.ts';
-import { EndpointLabel } from './ui.Switch.Endpoint.tsx';
-import { PeerLabel } from './ui.Switch.Peer.tsx';
+import { EndpointLabel } from './ui.SyncSwitch.Endpoint.tsx';
+import { PeerLabel } from './ui.SyncSwitch.Peer.tsx';
 
 export type DefaultDetailsProps = {
   enabled?: boolean | null;

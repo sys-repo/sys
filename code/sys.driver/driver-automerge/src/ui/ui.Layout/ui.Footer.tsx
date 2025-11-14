@@ -38,7 +38,7 @@ export const Footer: React.FC<P> = (props) => {
   };
 
   const elRepoSwitch = (
-    <Repo.SyncEnabledSwitch
+    <Repo.SyncSwitch
       repo={crdt?.repo}
       localstorage={storageKey}
       mode={'switch + network-icons'}

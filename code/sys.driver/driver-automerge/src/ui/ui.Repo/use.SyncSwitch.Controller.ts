@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { type t, Is, LocalStorage, Rx } from './common.ts';
 
-type P = t.SyncEnabledSwitchProps;
+type P = t.RepoSyncSwitchProps;
 type Store = { syncEnabled?: boolean };
 
 export function useController(props: P) {

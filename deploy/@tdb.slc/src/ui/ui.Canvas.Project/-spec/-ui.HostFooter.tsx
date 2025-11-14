@@ -12,11 +12,7 @@ export function HostFooter(props: { repo: t.Crdt.Repo; theme?: t.CommonTheme }) 
   };
   return (
     <div className={styles.base.class}>
-      <Crdt.UI.Repo.SyncEnabledSwitch
-        theme={theme.name}
-        repo={repo}
-        localstorage={STORAGE_KEY.DEV}
-      />
+      <Crdt.UI.Repo.SyncSwitch theme={theme.name} repo={repo} localstorage={STORAGE_KEY.DEV} />
     </div>
   );
 }

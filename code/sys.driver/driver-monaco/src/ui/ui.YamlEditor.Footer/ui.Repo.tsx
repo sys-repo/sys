@@ -41,7 +41,7 @@ export const Repo: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Crdt.UI.Repo.SyncEnabledSwitch
+      <Crdt.UI.Repo.SyncSwitch
         theme={theme.name}
         repo={repo}
         localstorage={crdt.localstorage}

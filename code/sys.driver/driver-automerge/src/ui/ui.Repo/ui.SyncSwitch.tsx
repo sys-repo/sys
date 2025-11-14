@@ -1,18 +1,15 @@
 import React from 'react';
 
 import { type t, Color, css, D, Switch, SwitchTheme } from './common.ts';
+import { getStatus } from './u.status.ts';
 import { LabelStyle } from './u.Style.ts';
 import { DefaultDetails } from './ui.DefaultDetails.tsx';
 import { NetworkIcons } from './ui.Icons.Network.tsx';
-import { useController } from './use.Controller.ts';
-import { getStatus } from './u.status.ts';
+import { useController } from './use.SyncSwitch.Controller.ts';
 
-type P = t.SyncEnabledSwitchProps;
+type P = t.RepoSyncSwitchProps;
 
-/**
- * Component:
- */
-export const SyncEnabledSwitch: React.FC<P> = (props) => {
+export const SyncSwitch: React.FC<P> = (props) => {
   const { repo, mode = D.mode } = props;
   const urls = repo?.sync.urls ?? [];
 

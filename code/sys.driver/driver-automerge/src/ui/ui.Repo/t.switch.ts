@@ -14,7 +14,7 @@ import { type t } from './common.ts';
  * Persists the last toggle state when `localstorage` is provided.
  * Emits `{ enabled }` on change.
  */
-export type SyncEnabledSwitchProps = {
+export type RepoSyncSwitchProps = {
   repo?: t.CrdtRepo;
   debug?: boolean;
   localstorage?: t.StringKey;

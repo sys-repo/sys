@@ -52,7 +52,7 @@ export default Spec.describe(D.displayName, (e) => {
       .padding(0)
       .render(() => {
         return (
-          <Repo.SyncEnabledSwitch
+          <Repo.SyncSwitch
             repo={debug.repo}
             localstorage={STORAGE_KEY.DEV}
             style={{ Padding: [14, 10] }}

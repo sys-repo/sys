@@ -75,7 +75,7 @@ export const Card: React.FC<P> = (props) => {
 
   const elFooter = (
     <div className={styles.footer.class}>
-      <Repo.SyncEnabledSwitch
+      <Repo.SyncSwitch
         theme={theme.name}
         repo={repo}
         localstorage={localstorage}
