@@ -18,10 +18,9 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   const state: { ready: boolean; props?: t.CrdtRepoProps } = { ready: false };
 
   /** Behavior-like subject so late subscribers see last value. */
-  const ready$ = Rx.behaviorSubject<boolean>(state.ready);
+  const emit = (e: t.CrdtRepoEvent) => event$.next(e);
   const event$ = Rx.subject<t.CrdtRepoEvent>();
-  const prop$ = Rx.subject<t.CrdtRepoPropChangeEvent['payload']>();
-  const network$ = Rx.subject<t.CrdtNetworkChangeEvent>();
+  const ready$ = Rx.behaviorSubject<boolean>(state.ready);
 
   function updateReady(next: boolean) {
     state.ready = next;
@@ -40,7 +39,8 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     if (e.type === 'ready' || e.type === 'props/snapshot') {
       if (e.type === 'props/snapshot') state.props = e.payload;
       const next = !!e.payload.ready;
-      return void (next !== state.ready ? updateReady(next) : undefined);
+      next !== state.ready ? updateReady(next) : undefined;
+      return;
     }
 
     // 2. Repo prop changes (mirrors state + pushes to prop$):
@@ -48,12 +48,14 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       const before = Wire.clone(e.payload.before);
       const after = Wire.clone(e.payload.after);
       state.props = after;
-      return void prop$.next({ prop: e.payload.prop, before, after });
+      emit({ type: 'props/change', payload: { prop: e.payload.prop, before, after } });
+      return;
     }
 
     // 3. Network events (peer online/offline/close):
     if (Wire.Is.networkEvent(e)) {
-      return void network$.next(e);
+      emit(e);
+      return;
     }
 
     // 4. Lifecycle signals at the wire layer only (ignored at repo surface):
@@ -107,7 +109,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
         ready$
           .pipe(
             Rx.takeUntil(life.dispose$),
-            Rx.filter((r) => r === true),
+            Rx.filter((ready) => ready === true),
             Rx.take(1),
           )
           .subscribe({ next: () => resolve(), complete: () => resolve() });
@@ -129,11 +131,15 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
 
     events(until) {
       const gate = Rx.lifecycle([life.dispose$, until]);
+      const $ = event$.pipe(Rx.takeUntil(gate.dispose$));
       return Rx.toLifecycle<t.CrdtRepoEvents>(gate, {
-        $: event$.pipe(Rx.takeUntil(gate.dispose$)),
-        prop$: prop$.pipe(Rx.takeUntil(gate.dispose$)),
+        $,
         ready$: ready$.pipe(Rx.takeUntil(gate.dispose$)),
-        network$: network$.pipe(Rx.takeUntil(gate.dispose$)),
+        network$: $.pipe(Rx.filter((e) => Wire.Is.networkEvent(e))),
+        prop$: $.pipe(
+          Rx.filter((e) => e.type === 'props/change'),
+          Rx.map((e) => e.payload),
+        ),
       });
     },
 
@@ -154,8 +160,6 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     Try.catch(() => port.close?.());
     Try.catch(() => ready$.complete());
     Try.catch(() => event$.complete());
-    Try.catch(() => prop$.complete());
-    Try.catch(() => network$.complete());
   });
 
   return repo;
