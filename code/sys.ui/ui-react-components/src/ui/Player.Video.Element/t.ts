@@ -16,7 +16,7 @@ export type VideoElementProps = {
   src?: string;
   poster?: string;
   loop?: boolean;
-  aspectRatio?: string; // e.g. "16/9"
+  aspectRatio?: string | number; // e.g. "16/9"
   cornerRadius?: t.Pixels;
   scale?: t.Percent | t.VideoPlayerScale;
   fadeMask?: t.VideoPlayerFadeMask;

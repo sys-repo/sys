@@ -2,6 +2,7 @@ import React from 'react';
 import {
   type t,
   Color,
+  RectGrid,
   css,
   Num,
   ObjectView,
@@ -10,6 +11,7 @@ import {
   useVirtualTimeline,
   VideoElement,
 } from './common.ts';
+import { render } from '../Preload/u.render.tsx';
 
 type P = t.CompositeVideoProps;
 
@@ -69,12 +71,7 @@ export const CompositeVideo: React.FC<P> = (props) => {
         wordBreak: 'break-word',
       }),
     },
-    videos: css({
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-      alignItems: 'start',
-      gap: 16,
-    }),
+    videos: css({}),
   };
 
   const elObj = debug && (
@@ -94,6 +91,8 @@ export const CompositeVideo: React.FC<P> = (props) => {
     </div>
   );
 
+  const aspectRatio = 4 / 3;
+
   const renderVideo = (index: t.Index, src?: string) => {
     const isCurrent = index === playback.index;
     return (
@@ -102,6 +101,7 @@ export const CompositeVideo: React.FC<P> = (props) => {
         showControls={false}
         src={src}
         cornerRadius={10}
+        aspectRatio={aspectRatio}
         playing={isCurrent}
         theme={theme.name}
         muted={true}
@@ -115,11 +115,14 @@ export const CompositeVideo: React.FC<P> = (props) => {
     );
   };
 
-  const elVideos = (
-    <div className={styles.videos.class}>
-      {(timeline?.segments ?? []).map((seg, i) => renderVideo(i, seg.src))}
-    </div>
-  );
+  const items = (timeline?.segments ?? []).map((seg, i) => ({
+    id: `item-${i}`,
+    render() {
+      return renderVideo(i, seg.src);
+    },
+  }));
+
+  const elVideos = <RectGrid theme={theme.name} items={items} aspectRatio={aspectRatio} />;
 
   return (
     <div className={css(styles.base, props.style).class}>

@@ -9,6 +9,7 @@ export * from '../common.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
 export { ObjectView } from '../ObjectView/mod.ts';
 export { VideoElement } from '../Player.Video.Element/mod.ts';
+export { RectGrid } from '../Layout.RectGrid/mod.ts';
 
 /**
  * Constants:
