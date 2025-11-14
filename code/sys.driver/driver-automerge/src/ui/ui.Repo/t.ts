@@ -1,23 +1,14 @@
 import type { t } from './common.ts';
 
+export type * from './t.info.ts';
+export type * from './t.switch.ts';
+
 /**
  * UI tools for representing the CRDT repository.
  */
 export type RepoLib = {
-  readonly SyncEnabledSwitch: React.FC<t.SyncEnabledSwitchProps>;
-};
-
-/**
- * <Component>:
- */
-export type SyncEnabledSwitchProps = {
-  repo?: t.CrdtRepo;
-  debug?: boolean;
-  localstorage?: t.StringKey;
-  mode?: 'default' | 'switch-only' | 'switch + network-icons';
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-  onChange?: (e: { enabled: boolean }) => void;
+  readonly Info: t.FC<t.RepoInfoProps>;
+  readonly SyncEnabledSwitch: t.FC<t.SyncEnabledSwitchProps>;
 };
 
 /**

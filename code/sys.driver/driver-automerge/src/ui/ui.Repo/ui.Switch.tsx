@@ -69,7 +69,6 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
         <Switch value={enabled || false} theme={switchTheme} height={16} onMouseDown={onClick} />
-        {/* prefixLabel currently unused in the visual, but still available here if you wire it into text */}
         {elDefault}
         {elNetworkIcons}
       </div>
