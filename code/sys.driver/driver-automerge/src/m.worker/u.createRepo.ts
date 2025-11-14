@@ -17,14 +17,15 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   /** Local ready state mirrored from wire. */
   const state: { ready: boolean; props?: t.CrdtRepoProps } = { ready: false };
 
-  /** Behavior-like subject so late subscribers see last value. */
-  const emit = (e: t.CrdtRepoEvent) => event$.next(e);
+  /** Canonical repo event stream (props/change + network). */
   const event$ = Rx.subject<t.CrdtRepoEvent>();
-  const ready$ = Rx.behaviorSubject<boolean>(state.ready);
+  const emit = (e: t.CrdtRepoEvent) => event$.next(e);
 
+  /** Ready-state latch so late subscribers see the last value. */
+  const ready$ = Rx.behaviorSubject<boolean>(state.ready);
+  ready$.subscribe((next) => (state.ready = next));
   function updateReady(next: boolean) {
-    state.ready = next;
-    ready$.next(next);
+    if (next !== state.ready) ready$.next(next);
   }
 
   /**
@@ -37,24 +38,35 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
 
     // 1. Ready + snapshot (init state):
     if (e.type === 'ready' || e.type === 'props/snapshot') {
-      if (e.type === 'props/snapshot') state.props = e.payload;
+      if (e.type === 'props/snapshot') {
+        state.props = e.payload;
+      }
       const next = !!e.payload.ready;
-      next !== state.ready ? updateReady(next) : undefined;
+      updateReady(next);
       return;
     }
 
-    // 2. Repo prop changes (mirrors state + pushes to prop$):
+    // 2. Repo prop changes (mirror state + emit normalized props/change event):
     if (e.type === 'props/change') {
       const before = Wire.clone(e.payload.before);
       const after = Wire.clone(e.payload.after);
       state.props = after;
-      emit({ type: 'props/change', payload: { prop: e.payload.prop, before, after } });
+
+      // Keep ready latch in sync if "ready" moved via props/change.
+      if (e.payload.prop === 'ready') {
+        updateReady(!!after.ready);
+      }
+
+      emit({
+        type: 'props/change',
+        payload: { prop: e.payload.prop, before, after },
+      });
       return;
     }
 
     // 3. Network events (peer online/offline/close):
     if (Wire.Is.networkEvent(e)) {
-      emit(e);
+      emit(e as t.CrdtNetworkChangeEvent);
       return;
     }
 
@@ -63,8 +75,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       return;
     }
 
-    // 5. Nothing else remains
-    //    All other event variants are worker-internal and should not surface.
+    // 5. Nothing else remains; worker-internal variants are not surfaced.
     return;
   }
 

@@ -108,10 +108,14 @@ describe('CrdtWorker.repo (shim)', () => {
       const { port1, port2 } = Test.makePorts();
       const client = CrdtWorker.repo(port1);
 
-      // collect prop$ from the shim
+      // collect events from the shim
       const until = Rx.lifecycle();
       const propsEvents: t.CrdtRepoPropChangeEvent['payload'][] = [];
-      client.events(until).prop$.subscribe((e) => propsEvents.push(e));
+      const repoEvents: t.CrdtRepoEvent[] = [];
+      const events = client.events(until);
+
+      events.prop$.subscribe((e) => propsEvents.push(e));
+      events.$.subscribe((e) => repoEvents.push(e));
 
       // craft a wire props/change
       const before: t.CrdtRepoProps = {
@@ -153,6 +157,11 @@ describe('CrdtWorker.repo (shim)', () => {
       expect(client.sync.enabled).to.eql(true);
       expect(client.sync.peers).to.eql(after.sync.peers);
       expect(client.sync.urls).to.eql(after.sync.urls);
+
+      await Wait.waitFor(() => repoEvents.length === 1);
+      const evt$ = repoEvents[0];
+      expect(evt$.type).to.eql('props/change');
+      expect(evt$.payload).to.eql(payload);
 
       until.dispose();
       await client.dispose();
@@ -203,13 +212,17 @@ describe('CrdtWorker.repo (shim)', () => {
   });
 
   describe('network events', () => {
-    it('forwards wire network events → client.events().network$', async () => {
+    it('forwards wire network events → client.events().network$ (and $)', async () => {
       const { port1 } = Test.makePorts();
       const client = CrdtWorker.repo(port1);
 
       const until = Rx.lifecycle();
       const networkEvents: t.CrdtNetworkChangeEvent[] = [];
-      client.events(until).network$.subscribe((e) => networkEvents.push(e));
+      const repoEvents: t.CrdtRepoEvent[] = [];
+      const events = client.events(until);
+
+      events.network$.subscribe((e) => networkEvents.push(e));
+      events.$.subscribe((e) => repoEvents.push(e));
 
       // Craft a wire-level network event (peer-online).
       const payload: t.CrdtNetworkPeerOnlineEvent = {
@@ -234,6 +247,13 @@ describe('CrdtWorker.repo (shim)', () => {
       expect(first.type).to.eql('network/peer-online');
       if (first.type === 'network/peer-online') {
         expect(first.payload.peerId).to.eql('peer-1');
+      }
+
+      await Wait.waitFor(() => repoEvents.length >= 1);
+      const first$ = repoEvents[0]!;
+      expect(first$.type).to.eql('network/peer-online');
+      if (first$.type === 'network/peer-online') {
+        expect(first$.payload.peerId).to.eql('peer-1');
       }
 
       until.dispose();
