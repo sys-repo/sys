@@ -10,6 +10,8 @@ export const Fmt = {
     const base = await Base.help(toolname, (e) => e.row(c.gray(`@sys/tools/${c.white('update')}`)));
     str.line(base).line(Fmt.versionInfoTable(version)).line();
     if (!version.is.latest) str.line(Fmt.shellcommand()).line();
+    if (version.is.latest) str.line(c.italic(Fmt.localVersionIsMostRecent(version))).line();
+
     return String(str);
   },
 
@@ -26,15 +28,20 @@ export const Fmt = {
     return String(str);
   },
 
-  versionInfoTable(info: t.UpdateVersionInfo) {
+  versionInfoTable(version: t.UpdateVersionInfo) {
     const formatVersion = (v?: t.StringSemver) => {
       if (!v) return c.gray('-');
-      return v === info.latest ? c.green(v) : c.yellow(v);
+      return v === version.latest ? c.green(v) : c.yellow(v);
     };
     const table = Cli.table([]);
     table.push([c.gray('Package'), pkg.name]);
-    table.push([c.gray('  local'), formatVersion(info.local)]);
-    table.push([c.gray('  remote'), formatVersion(info.remote)]);
+    table.push([c.gray('  local'), formatVersion(version.local)]);
+    table.push([c.gray('  remote'), formatVersion(version.remote)]);
     return Str.trimEdgeNewlines(String(table));
+  },
+
+  localVersionIsMostRecent(version: t.UpdateVersionInfo) {
+    const msg = `Local version ${c.green(version.local)} of ${c.white(pkg.name)} is the most recent release`;
+    return c.gray(msg);
   },
 } as const;
