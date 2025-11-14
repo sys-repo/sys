@@ -5,6 +5,7 @@ import { LabelStyle } from './u.Style.ts';
 import { DefaultDetails } from './ui.DefaultDetails.tsx';
 import { NetworkIcons } from './ui.Icons.Network.tsx';
 import { useController } from './use.Controller.ts';
+import { getStatus } from './u.status.ts';
 
 type P = t.SyncEnabledSwitchProps;
 
@@ -13,7 +14,6 @@ type P = t.SyncEnabledSwitchProps;
  */
 export const SyncEnabledSwitch: React.FC<P> = (props) => {
   const { repo, mode = D.mode } = props;
-  const peerId = repo?.id.peer ?? '';
   const urls = repo?.sync.urls ?? [];
 
   /**
@@ -21,7 +21,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
    */
   const controller = useController(props);
   const enabled = controller.enabled;
-  const prefixLabel = enabled && urls.length > 0 ? 'network:' : repo ? 'private' : 'no repository';
+  const status = repo ? getStatus(repo) : undefined;
 
   /**
    * Handlers:
@@ -40,7 +40,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const switchTheme = wrangle.switchTheme(props, controller.peers);
+  const switchTheme = wrangle.switchTheme(props, status);
   const styles = {
     base: css({
       position: 'relative',
@@ -69,6 +69,7 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
         <Switch value={enabled || false} theme={switchTheme} height={16} onMouseDown={onClick} />
+        {/* prefixLabel currently unused in the visual, but still available here if you wire it into text */}
         {elDefault}
         {elNetworkIcons}
       </div>
@@ -80,9 +81,19 @@ export const SyncEnabledSwitch: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  switchTheme(props: P, peers: readonly t.PeerId[]) {
+  switchTheme(props: P, status?: t.RepoStatus) {
     const theme = Color.theme(props.theme);
     const base = SwitchTheme.fromName(theme.name);
-    return peers.length > 0 ? base.default : base.yellow;
+
+    if (!status) return base.yellow;
+
+    switch (status.status) {
+      case 'online':
+        return base.default;
+      case 'connecting':
+      case 'offline':
+      default:
+        return base.yellow;
+    }
   },
 } as const;
