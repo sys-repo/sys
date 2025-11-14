@@ -1,6 +1,6 @@
 import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { RectStack } from '../mod.ts';
+import { RectGrid } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { Foo } from './-ui.Foo.tsx';
 
@@ -26,7 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
 
-        const items: t.RectStackItem[] = Array(v.total)
+        const items: t.RectGridItem[] = Array(v.total)
           .fill(undefined)
           .map((_, i) => {
             return {
@@ -38,7 +38,7 @@ export default Spec.describe(D.displayName, (e) => {
           });
 
         return (
-          <RectStack
+          <RectGrid
             debug={v.debug}
             theme={v.theme}
             activeIndex={v.activeIndex}

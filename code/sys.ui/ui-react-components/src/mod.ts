@@ -25,7 +25,7 @@ export { Svg } from './ui/Image.Svg/mod.ts';
 export { KeyValue } from './ui/KeyValue/mod.ts';
 export { CenterColumn } from './ui/Layout.CenterColumn/mod.ts';
 export { SplitPane } from './ui/Layout.SplitPane/mod.ts';
-export { RectStack } from './ui/Layout.RectStack/mod.ts';
+export { RectGrid } from './ui/Layout.RectGrid/mod.ts';
 export { ObjectView } from './ui/ObjectView/mod.ts';
 export { PathView } from './ui/PathView/mod.ts';
 export { Preload } from './ui/Preload/mod.ts';

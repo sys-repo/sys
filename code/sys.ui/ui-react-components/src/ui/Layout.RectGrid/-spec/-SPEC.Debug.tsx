@@ -3,7 +3,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Num } from '../../common.ts';
 
-type P = t.RectStackProps;
+type P = t.RectGridProps;
 type Storage = Pick<
   P,
   'debug' | 'theme' | 'activeIndex' | 'minColumnWidth' | 'gap' | 'aspectRatio' | 'activeIndex'

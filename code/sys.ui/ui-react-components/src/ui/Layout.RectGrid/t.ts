@@ -4,8 +4,8 @@ import { type t } from './common.ts';
  * Layout container for a list of same-ratio items,
  * rendered within a flexible layout grid.
  */
-export type RectStackProps = {
-  items?: t.Ary<RectStackItem>;
+export type RectGridProps = {
+  items?: t.Ary<RectGridItem>;
   activeIndex?: t.Index;
   minColumnWidth?: t.Pixels;
   gap?: t.Pixels;
@@ -20,7 +20,7 @@ export type RectStackProps = {
 /**
  * A single renderable element within the grid.
  */
-export type RectStackItem = {
+export type RectGridItem = {
   readonly id: t.StringId;
   render(): React.ReactNode;
 };

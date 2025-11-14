@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
 
-export const RectStack: React.FC<t.RectStackProps> = (props) => {
+export const RectGrid: React.FC<t.RectGridProps> = (props) => {
   const {
     debug = false,
     style,

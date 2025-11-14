@@ -16,7 +16,7 @@ export type * from './ui/IFrame/t.ts';
 export type * from './ui/Image.Svg/t.ts';
 export type * from './ui/KeyValue/t.ts';
 export type * from './ui/Layout.CenterColumn/t.ts';
-export type * from './ui/Layout.RectStack/t.ts';
+export type * from './ui/Layout.RectGrid/t.ts';
 export type * from './ui/Layout.SplitPane/t.ts';
 export type * from './ui/Media.AudioWaveform/t.ts';
 export type * from './ui/Media.Config/t.ts';

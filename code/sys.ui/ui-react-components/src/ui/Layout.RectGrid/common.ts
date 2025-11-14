@@ -5,7 +5,7 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'RectStack';
+const name = 'RectGrid';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
