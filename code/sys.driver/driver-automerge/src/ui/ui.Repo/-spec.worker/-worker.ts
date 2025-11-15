@@ -1,10 +1,12 @@
-import { Crdt } from '../../../-exports/-web/mod.ts';
+import { Log } from '@sys/std';
 import { createRepo } from '../../-test.ui.createRepo.ts';
+import { Crdt } from '@sys/driver-automerge/web';
 
 const repo = createRepo();
 
-console.log('[worker] repo', repo);
-console.info(`[worker] Crdt.Worker.listen: "${repo.id.instance}"`);
+const log = Log.logger('worker', { timestamp: null });
+log('repo', repo);
+log(`Crdt.Worker.listen: "${repo.id.instance}"`);
 
 /**
  * Start the CRDT worker message pump.

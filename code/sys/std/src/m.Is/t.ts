@@ -88,8 +88,16 @@ export type StdIsLib = {
   /** Determine if the HTTP status code is within the 200 range.  */
   statusOK(status: number): boolean;
 
-  /** Determines if currently running within a browser environment. */
+  /**
+   * True if running inside *any* browser JS runtime:
+   * window, iframe, or any Web Worker.
+   */
   browser(): boolean;
+
+  /**
+   * True if running inside a Web Worker (Dedicated/Shared/Service).
+   */
+  worker(): boolean;
 
   /** Determine if the given input is typeof {object} and not Null. */
   object(input?: unknown): input is object;

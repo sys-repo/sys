@@ -146,8 +146,20 @@ export const Is: StdIsLib = {
    * Determines if currently running within a browser environment.
    */
   browser() {
-    const g = globalThis;
-    return typeof g.window === 'object' && typeof g.document === 'object';
+    // navigator exists in all browser contexts (including workers)
+    return typeof navigator === 'object' && typeof navigator.userAgent === 'string';
+  },
+
+  /**
+   * Determine if currently running within a web-worker.
+   */
+  worker() {
+    const ctor = globalThis.constructor?.name;
+    return (
+      ctor === 'DedicatedWorkerGlobalScope' ||
+      ctor === 'SharedWorkerGlobalScope' ||
+      ctor === 'ServiceWorkerGlobalScope'
+    );
   },
 
   /**
