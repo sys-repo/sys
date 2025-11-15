@@ -33,10 +33,21 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     options.chunks(chunker);
   }
 
+  const format = 'es';
+  const output: t.Rollup.OutputOptions = {
+    format,
+    manualChunks,
+    chunkFileNames: 'pkg/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
+    assetFileNames: 'pkg/a.[hash].[ext]', //  |←  a.<hash> == "asset"
+    entryFileNames(chunkInfo) {
+      if (chunkInfo.name === 'sw') return 'sw.js';
+      return 'pkg/-entry.[hash].js';
+    },
+  };
+
   /**
    * Config.
    */
-  const format = 'es';
   const plugins = await commonPlugins(options.plugins);
   const build: t.ViteBuildEnvironmentOptions = {
     target: 'esnext',
@@ -45,16 +56,7 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     outDir,
     rollupOptions: {
       input: Delete.undefined<{}>({ main, sw }),
-      output: {
-        format,
-        manualChunks,
-        chunkFileNames: 'pkg/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
-        assetFileNames: 'pkg/a.[hash].[ext]', //  |←  a.<hash> == "asset"
-        entryFileNames(chunkInfo) {
-          if (chunkInfo.name === 'sw') return 'sw.js';
-          return 'pkg/-entry.[hash].js';
-        },
-      },
+      output,
     },
   };
 
@@ -63,7 +65,11 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
     publicDir,
     base: paths.app.base,
     server: { fs: { allow: ['..'] } }, // NB: allows stepping up out of the {cwd} and access other folders in the monorepo.
-    worker: { format },
+    worker: {
+      format,
+      plugins: () => plugins,
+      rollupOptions: { output },
+    },
     get build() {
       return build;
     },
@@ -103,7 +109,6 @@ const wrangle = {
 
   path(envKey: string) {
     const path = Deno.env.get(envKey) ?? '';
-    // if (!path) throw new Error(`Path at env-key "${envKey}" not found`);
     return path ? Path.resolve(path) : '';
   },
 } as const;

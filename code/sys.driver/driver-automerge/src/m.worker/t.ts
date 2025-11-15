@@ -28,7 +28,7 @@ export type CrdtWorkerLib = {
    * and the client-side repo facade bound to that connection.
    */
   readonly spawn: (
-    url: string | URL,
+    url: string | URL | Worker,
     opts?: { worker?: WorkerOptions; until?: t.UntilInput },
   ) => Promise<{ readonly worker: Worker; readonly repo: t.CrdtRepo }>;
 };

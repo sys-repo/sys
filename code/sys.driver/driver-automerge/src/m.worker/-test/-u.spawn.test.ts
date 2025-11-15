@@ -24,6 +24,25 @@ describe('CrdtWorker.spawn (smoke test, real worker)', () => {
     await repo.dispose();
   });
 
+  it('accepts a Worker instance and wires the same worker', async () => {
+    const url = new URL('./worker.ts', import.meta.url);
+    const worker = new Worker(url, { type: 'module' });
+
+    const result = await CrdtWorker.spawn(worker);
+    const { repo } = result;
+
+    // The spawn helper should use the same worker instance.
+    expect(result.worker).to.equal(worker);
+
+    expect(repo.ready).to.eql(false);
+    await repo.whenReady();
+    expect(repo.ready).to.eql(true);
+
+    // Cleanup:
+    worker.terminate();
+    await repo.dispose();
+  });
+
   describe('CrdtWorker.spawn/listen handshake', () => {
     it('wires repo events over a spawned worker-style boundary', async () => {
       const real = Test.realRepo();
