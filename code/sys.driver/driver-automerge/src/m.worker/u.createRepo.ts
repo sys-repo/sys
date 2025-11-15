@@ -1,5 +1,5 @@
 import { type t, Rx, Try } from './common.ts';
-import { Wire } from './u.evt.wire.ts';
+import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;
 const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
@@ -96,7 +96,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     get id() {
       return state.props?.id ?? { ...EMPTY_ID };
     },
-    get sync() {
+    get sync(): t.CrdtRepo['sync'] {
       const sync = state.props?.sync;
       return {
         peers: (sync?.peers ?? []) as t.PeerId[],
@@ -104,6 +104,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
         enabled: sync?.enabled ?? null,
         enable() {
           /* no-op until transport lands */
+          return;
         },
       };
     },

@@ -1,6 +1,6 @@
 import { type t, Is } from './common.ts';
 import { attach } from './u.attach.ts';
-import { Wire } from './u.evt.wire.ts';
+import { Wire } from './u.wire.ts';
 
 /**
  * Install worker-side wiring for CRDT repo events.
@@ -23,5 +23,5 @@ export const listen: t.CrdtWorkerLib['listen'] = (self, repo) => {
    * Signal to `CrdtWorker.spawn` that this worker has installed its
    * message handler and is ready to accept a `crdt:attach` port.
    */
-  if (Is.func(self.postMessage)) self.postMessage({ kind: 'crdt:worker:ready' });
+  if (Is.func(self.postMessage)) self.postMessage({ kind: Wire.Kind.workerReady });
 };

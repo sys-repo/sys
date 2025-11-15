@@ -1,6 +1,6 @@
 import { type t, Rx, Schedule } from './common.ts';
 import { createRepo } from './u.createRepo.ts';
-import { Wire } from './u.evt.wire.ts';
+import { Wire } from './u.wire.ts';
 
 /**
  * Spawn a Web Worker and return { worker, repoFacade }.

@@ -1,6 +1,6 @@
 import type { t, WIRE_VERSION } from './common.ts';
 
-export type * from './t.evt.wire.ts';
+export type * from './t.wire.ts';
 
 /**
  * Type surface for the web-worker transport layer of the CRDT repo.

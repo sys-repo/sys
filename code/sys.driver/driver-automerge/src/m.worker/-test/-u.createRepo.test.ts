@@ -10,7 +10,7 @@ import {
   it,
 } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
-import { Wire } from '../u.evt.wire.ts';
+import { Wire } from '../u.wire.ts';
 import { Wait, createTestHelpers } from './u.ts';
 
 describe('CrdtWorker.repo (shim)', () => {

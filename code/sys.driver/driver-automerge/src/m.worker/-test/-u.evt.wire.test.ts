@@ -1,6 +1,6 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { WIRE_VERSION } from '../common.ts';
-import { Wire } from '../u.evt.wire.ts';
+import { Wire } from '../u.wire.ts';
 
 describe('Event helpers', () => {
   describe('Wire', () => {

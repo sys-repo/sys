@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { Wire } from './u.evt.wire.ts';
+import { Wire } from './u.wire.ts';
 
 /**
  * Observes MessagePort "messageerror" events.
