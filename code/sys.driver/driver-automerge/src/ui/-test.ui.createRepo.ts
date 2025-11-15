@@ -4,7 +4,7 @@
  * No UI modules leak into this boundary.
  */
 import { Crdt } from '../-exports/-web.ui/mod.ts';
-import { Url } from '../common.ts';
+import { Url } from '@sys/std';
 
 export { Crdt };
 
