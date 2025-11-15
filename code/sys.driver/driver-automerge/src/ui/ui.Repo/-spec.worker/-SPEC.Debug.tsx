@@ -6,12 +6,14 @@ import {
   Crdt,
   css,
   D,
+  Delete,
   LocalStorage,
   Obj,
   ObjectView,
   Rx,
   Signal,
 } from '../common.ts';
+import { Repo } from '../mod.ts';
 
 type Storage = { debug?: boolean; theme?: t.CommonTheme };
 const defaults: Storage = {
@@ -35,8 +37,9 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const url = new URL('./-worker.ts', import.meta.url);
-  const { worker, repo } = await Crdt.Worker.spawn(url, { worker: { type: 'module' } });
+  // NB: worker instantiation required here for Vite to properly bundle the worker asset.
+  const worker = new Worker(new URL('./-worker.ts', import.meta.url), { type: 'module' });
+  const { repo } = await Crdt.Worker.spawn(worker);
 
   const props = {
     rev: s(0),
@@ -44,13 +47,15 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
   };
   const p = props;
-  const api = Rx.toLifecycle(life, {
+  const api = {
+    life,
     props,
     repo,
     worker,
     reset,
     listen,
-  });
+    redraw,
+  };
 
   function listen() {
     Signal.listen(props);
@@ -60,6 +65,10 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
   }
 
+  function redraw() {
+    p.rev.value += 1;
+  }
+
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
@@ -67,8 +76,7 @@ export async function createDebugSignals() {
     });
   });
 
-  const events = repo.events(life);
-  events.$.subscribe(() => (p.rev.value += 1));
+  repo.events(life).$.subscribe(redraw);
 
   return api;
 }
@@ -104,8 +112,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
         <div>{D.name}</div>
-        <div>{`(Worker-Proxy)`}</div>
+        <div>{`( Worker-Proxy )`}</div>
       </div>
+
+      <Repo.StatusBullet repo={debug.repo} />
 
       <Button
         block
@@ -116,12 +126,28 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
+        label={() => `tmp`}
+        onClick={() => {
+          const repo = debug.repo;
+          console.log('repo', repo);
+          console.log('repo.ready', repo.ready);
+        }}
+      />
+
+      <hr />
+      <Button
+        block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView name={'repo'} data={debug.repo} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView
+        name={'repo'}
+        data={Delete.funcs(debug.repo)}
+        style={{ marginTop: 10 }}
+        expand={1}
+      />
     </div>
   );
 };

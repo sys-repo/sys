@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
+import { css, D, STORAGE_KEY } from '../common.ts';
+import { Repo } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { Sample } from './-ui.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -24,7 +24,16 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Sample theme={v.theme} debug={v.debug} repo={debug.repo} />;
+        return <Repo.Info theme={v.theme} debug={v.debug} repo={debug.repo} />;
+      });
+
+    ctx.host.tracelineColor(0.04);
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(10)
+      .render(() => {
+        return <Repo.SyncSwitch repo={debug.repo} localstorage={STORAGE_KEY.DEV.SUBJECT} />;
       });
 
     update();

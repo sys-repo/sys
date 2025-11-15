@@ -12,3 +12,18 @@ export type RepoInfoProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
+
+/**
+ * Small indicator dot showing the repo's current connectivity state.
+ *
+ * - Green (selected) when the repo is online.
+ * - Dim/neutral when offline or no status available.
+ *
+ * Accepts an explicit `status` or derives it from the given `repo`.
+ */
+export type RepoStatusBulletProps = {
+  repo?: t.Crdt.Repo;
+  status?: t.RepoStatus;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};

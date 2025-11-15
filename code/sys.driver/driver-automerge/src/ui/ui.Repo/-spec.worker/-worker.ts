@@ -1,6 +1,9 @@
-import { Crdt } from '../../../-exports/-web/mod.ts'; // NB: pure non-UI (non-react) boundary.
+import { Crdt } from '../../../-exports/-web/mod.ts';
+import { createRepo } from '../../-test.ui.createRepo.ts';
 
-const repo = Crdt.repo({});
+const repo = createRepo();
+
+console.log('[worker] repo', repo);
 console.info(`[worker] Crdt.Worker.listen: "${repo.id.instance}"`);
 
 /**

@@ -3,7 +3,7 @@
  * Safe: CRDT repository setup for web/workers.
  * No UI modules leak into this boundary.
  */
-import { Crdt } from '../-exports/-web.ui/mod.ts';
+import { Crdt } from '../-exports/-web/mod.ts';
 import { Url } from '@sys/std';
 
 export { Crdt };

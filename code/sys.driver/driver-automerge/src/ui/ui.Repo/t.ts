@@ -7,8 +7,9 @@ export type * from './t.switch.ts';
  * UI tools for representing the CRDT repository.
  */
 export type RepoLib = {
-  readonly Info: t.FC<t.RepoInfoProps>;
   readonly SyncSwitch: t.FC<t.RepoSyncSwitchProps>;
+  readonly Info: t.FC<t.RepoInfoProps>;
+  readonly StatusBullet: t.FC<t.RepoStatusBulletProps>;
 };
 
 /**

@@ -1,10 +1,11 @@
 import React from 'react';
-import { type t, Bullet, Color, css, Icons, KeyValue, Str } from './common.ts';
+import { type t, Color, css, Icons, KeyValue, Str } from './common.ts';
 import { getStatus } from './u.status.ts';
+import { StatusBullet } from './ui.StatusBullet.tsx';
 
 type P = t.RepoInfoProps;
 
-export const RepoInfo: React.FC<P> = (props) => {
+export const Info: React.FC<P> = (props) => {
   const { debug = false } = props;
   const items = wrangle.items(props);
 
@@ -49,12 +50,9 @@ const wrangle = {
     hr();
 
     if (sync.urls.length > 0) {
-      const online = status?.status === 'online';
-      const color = Color.GREEN;
       const server = <Icons.Network.On size={14} style={{ position: 'relative', top: 3 }} />;
-      const badge = <Bullet theme={theme} selected={online} selectedColor={color} filled={true} />;
 
-      rows.push({ k: 'Network', v: badge });
+      rows.push({ k: 'Network', v: <StatusBullet theme={theme} status={status} /> });
       sync.urls.forEach((url) => {
         const k = server;
         const v = url;
