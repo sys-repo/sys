@@ -29,7 +29,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   }
 
   /**
-   * Handle incoming repo stream events.
+   * Handle incoming stream of events from repo.
    */
   function onMessage(ev: MessageEvent) {
     const msg = ev.data as t.WireMessage | undefined;
