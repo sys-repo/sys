@@ -16,15 +16,16 @@ export type WireStream = 'crdt:repo' | `crdt:doc:${t.StringId}`;
 
 /**
  * Method names supported by the repo RPC.
- * Keep parity with `t.CrdtRepoMethods`.
+ * Parity with `t.CrdtRepoMethods`.
  */
-export type WireRepoMethod = 'whenReady' | 'create' | 'get' | 'delete';
+export type WireRepoMethod = 'whenReady' | 'create' | 'get' | 'delete' | 'sync.enable';
 
 /**
  * Argument tuples per method.
  */
 export type WireRepoArgs = {
   whenReady: [];
+  'sync.enable': [boolean?];
   create: [unknown]; // initial document value
   get: [t.StringId, t.CrdtRepoGetOptions?];
   delete: [t.StringId];
