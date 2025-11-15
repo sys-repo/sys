@@ -44,7 +44,7 @@ const wrangle = {
 
     rows.push({ k: 'Repo', v: repo.ready ? 'ready' : 'starting...', mono: true });
     rows.push({ k: 'Instance', v: repo.id.instance || '-', mono: true, x: indent });
-    rows.push({ k: 'Peer', v: repo.id.peer || '-', mono: true, x: indent });
+    rows.push({ k: 'Peer Identity', v: repo.id.peer || '-', mono: true, x: indent });
 
     hr();
 
