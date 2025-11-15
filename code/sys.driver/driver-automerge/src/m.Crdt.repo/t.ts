@@ -16,7 +16,11 @@ export type CrdtRepo = t.LifecycleAsync &
 /** Pure event properties of the CRDT repo. */
 export type CrdtRepoProps = {
   readonly ready: boolean;
-  readonly id: { readonly instance: t.StringId; readonly peer: t.StringId };
+  /** Opaque identifier string's for uniqueness only; format is not a semantic contract. */
+  readonly id: {
+    readonly instance: t.StringId;
+    readonly peer: t.StringId;
+  };
   readonly stores: readonly t.CrdtRepoStoreInfo[];
   readonly sync: {
     readonly peers: readonly t.PeerId[];

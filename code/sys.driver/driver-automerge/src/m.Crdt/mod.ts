@@ -10,3 +10,4 @@ export { toAutomergeHandle, toRef } from '../m.Crdt.ref/mod.ts';
 export { toAutomergeRepo, toRepo } from '../m.Crdt.repo/mod.ts';
 export { A, whenReady } from './common.ts';
 export { toObject } from './u.toObject.ts';
+export { createPeerId } from './u.createPeerId.ts';
