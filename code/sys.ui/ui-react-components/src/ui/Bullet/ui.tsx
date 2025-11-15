@@ -22,8 +22,9 @@ export const Bullet: React.FC<P> = (props) => {
     }),
     body: css({
       borderRadius: '50%',
-      backgroundColor,
       border: `solid 1px ${Color.alpha(theme.fg, 0.16)}`,
+      backgroundColor,
+      transition: 'background-color 120ms ease',
     }),
   };
 
