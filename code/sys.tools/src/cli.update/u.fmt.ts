@@ -1,6 +1,9 @@
 import { type t, Fmt as Base, c, Cli, D, pkg, Str } from './common.ts';
 import { getVersionInfo } from './u.ts';
 
+const g = c.green;
+const w = c.white;
+
 export const Fmt = {
   ...Base,
 
@@ -41,7 +44,10 @@ export const Fmt = {
   },
 
   localVersionIsMostRecent(version: t.UpdateVersionInfo) {
-    const msg = `Local version ${c.green(version.local)} of ${c.white(pkg.name)} is the most recent release`;
-    return c.gray(msg);
+    const str = Str.builder();
+    str
+      .line(`No update required`)
+      .line(`Local version ${g(version.local)} of ${w(pkg.name)} is the most recent release`);
+    return c.gray(String(str));
   },
 } as const;
