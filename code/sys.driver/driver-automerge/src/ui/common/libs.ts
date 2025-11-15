@@ -23,6 +23,7 @@ export {
   ObjectView,
   Spinners,
   SplitPane,
+  Bullet,
   Switch,
   SwitchTheme,
   TextInput,
