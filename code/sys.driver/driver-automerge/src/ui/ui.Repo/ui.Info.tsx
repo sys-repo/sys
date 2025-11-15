@@ -76,7 +76,18 @@ const wrangle = {
     hr();
 
     if (sync.urls.length > 0) {
-      const server = <Icons.Network.On size={14} style={{ position: 'relative', top: 3 }} />;
+      const server = (
+        <Icons.Network.On
+          size={14}
+          style={{
+            position: 'relative',
+            display: 'inline-block',
+            verticalAlign: 'middle',
+            lineHeight: 0,
+            top: 2,
+          }}
+        />
+      );
 
       rows.push({ k: 'Network', v: <StatusBullet theme={theme} status={status} /> });
       sync.urls.forEach((url) => {
