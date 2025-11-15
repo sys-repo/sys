@@ -63,10 +63,10 @@
     "jsr:@sys/ui-react@^0.0.162": "0.0.162",
     "jsr:@sys/yaml@^0.0.12": "0.0.12",
     "npm:@ai-sdk/openai@2.0.65": "2.0.65_zod@4.1.12",
-    "npm:@automerge/automerge-repo-network-websocket@2.4.0": "2.4.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
-    "npm:@automerge/automerge-repo-storage-indexeddb@2.4.0": "2.4.0",
-    "npm:@automerge/automerge-repo-storage-nodefs@2.4.0": "2.4.0",
-    "npm:@automerge/automerge-repo@2.4.0": "2.4.0",
+    "npm:@automerge/automerge-repo-network-websocket@2.5.0": "2.5.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
+    "npm:@automerge/automerge-repo-storage-indexeddb@2.5.0": "2.5.0",
+    "npm:@automerge/automerge-repo-storage-nodefs@2.5.0": "2.5.0",
+    "npm:@automerge/automerge-repo@2.5.0": "2.5.0",
     "npm:@automerge/automerge@3.2.0": "3.2.0",
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
     "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.2.2__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1",
@@ -336,10 +336,6 @@
         "jsr:@sys/ui-react-components",
         "jsr:@sys/ui-react-devharness",
         "npm:@automerge/automerge",
-        "npm:@automerge/automerge-repo",
-        "npm:@automerge/automerge-repo-network-websocket",
-        "npm:@automerge/automerge-repo-storage-indexeddb",
-        "npm:@automerge/automerge-repo-storage-nodefs",
         "npm:react",
         "npm:react-icons",
         "npm:ws"
@@ -756,8 +752,8 @@
         "js-yaml"
       ]
     },
-    "@automerge/automerge-repo-network-websocket@2.4.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10": {
-      "integrity": "sha512-xdJEMO+7oK40Y7hs/YyiTwaOrgxWv4JCQlQnVZ5KlGIkTwyzFoPguZYZskxYIJqmx239XXm8YikVsmm0CSSlDQ==",
+    "@automerge/automerge-repo-network-websocket@2.5.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10": {
+      "integrity": "sha512-zrwbkW8hk3fWkXdeaH+YDfGG63WaB9WLfWYyinZx2AQv4mr6D6UhIhviIjweMmRxMLen6NlIcdu3toHV33ZuKg==",
       "dependencies": [
         "@automerge/automerge-repo",
         "cbor-x",
@@ -767,21 +763,21 @@
         "ws@8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10"
       ]
     },
-    "@automerge/automerge-repo-storage-indexeddb@2.4.0": {
-      "integrity": "sha512-oZlcr0Cp091aKr01F5YMPLhxpUxNfTEL6q/Ywjf7wMruSCWApA6Lt/S/jbU4bXIyvwjLUPQ6Ok7dzk1dr6Sdsg==",
+    "@automerge/automerge-repo-storage-indexeddb@2.5.0": {
+      "integrity": "sha512-7MJYJ5S6K7dHlbvs5/u/v9iexqOeprU/qQonup28r2IoVqwzjuN5ezaoVk6JRBMDI/ZxWfU4rNrqVrVlB49yXA==",
       "dependencies": [
         "@automerge/automerge-repo"
       ]
     },
-    "@automerge/automerge-repo-storage-nodefs@2.4.0": {
-      "integrity": "sha512-nviM1e75KfB0hAz1SHFvdRdeuaxUo/Ve+glcR8cUdDhaO9rlD2+y2biVrxdhNUVT15czbmqPLMNJy5bTg//kYw==",
+    "@automerge/automerge-repo-storage-nodefs@2.5.0": {
+      "integrity": "sha512-tvqSh7WjatZsR3LZafzmkanbaJ/oANM+nRPoMgNtRcNXVdlNEuLmXz+FU+kGAaymyZaCWz1X6llGuXN3vCwC6w==",
       "dependencies": [
         "@automerge/automerge-repo",
         "rimraf"
       ]
     },
-    "@automerge/automerge-repo@2.4.0": {
-      "integrity": "sha512-cpSl4VRyu4iDoxi1eFl91mAND+VXnZUt80Clxd15JMn6XD6RUzpAGVACVKLLhgsccqpQQ5VeFuyTFrszHV6PsA==",
+    "@automerge/automerge-repo@2.5.0": {
+      "integrity": "sha512-bdxuMuKmxw0ZjwQXecrIX1VrHXf445bYCftNJJ5vqgGWVvINB5ZKFYAbtgPIyu1Y0TXQKvc6eqESaDeL+g8MmA==",
       "dependencies": [
         "@automerge/automerge@3.2.0",
         "bs58check",
@@ -5002,10 +4998,10 @@
       "jsr:@std/testing@1.0.16",
       "jsr:@std/uuid@1.0.9",
       "npm:@ai-sdk/openai@2.0.65",
-      "npm:@automerge/automerge-repo-network-websocket@2.4.0",
-      "npm:@automerge/automerge-repo-storage-indexeddb@2.4.0",
-      "npm:@automerge/automerge-repo-storage-nodefs@2.4.0",
-      "npm:@automerge/automerge-repo@2.4.0",
+      "npm:@automerge/automerge-repo-network-websocket@2.5.0",
+      "npm:@automerge/automerge-repo-storage-indexeddb@2.5.0",
+      "npm:@automerge/automerge-repo-storage-nodefs@2.5.0",
+      "npm:@automerge/automerge-repo@2.5.0",
       "npm:@automerge/automerge@3.2.0",
       "npm:@automerge/prosemirror@0.1.0",
       "npm:@farcaster/frame-sdk@0.1.12",
