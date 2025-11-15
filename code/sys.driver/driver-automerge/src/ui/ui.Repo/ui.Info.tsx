@@ -1,13 +1,33 @@
 import React from 'react';
-import { type t, Color, css, Icons, KeyValue, Str } from './common.ts';
+import { type t, Color, css, Icons, KeyValue, Rx, Str, Time } from './common.ts';
 import { getStatus } from './u.status.ts';
 import { StatusBullet } from './ui.StatusBullet.tsx';
 
 type P = t.RepoInfoProps;
 
 export const Info: React.FC<P> = (props) => {
-  const { debug = false } = props;
-  const items = wrangle.items(props);
+  const { repo, debug = false } = props;
+
+  const [startupMsecs, setStartupMsecs] = React.useState<t.Msecs | undefined>(undefined);
+  const items = wrangle.items(props, startupMsecs);
+
+  /**
+   * Effect: track startup elapsed time (msecs).
+   */
+  React.useEffect(() => {
+    if (!repo) return void setStartupMsecs(undefined);
+
+    const timer = Time.timer();
+    const ev = repo.events();
+    ev.ready$
+      .pipe(
+        Rx.filter((ready) => ready === true),
+        Rx.take(1),
+      )
+      .subscribe(() => setStartupMsecs(timer.elapsed.msec));
+
+    return ev.dispose;
+  }, [repo]);
 
   /**
    * Render:
@@ -31,19 +51,25 @@ export const Info: React.FC<P> = (props) => {
 /**
  * Helpers:
  */
+function formatStartupElapsed(startupElapsed?: t.Msecs): string {
+  if (typeof startupElapsed !== 'number' || startupElapsed < 0) return '-';
+  return Time.duration(startupElapsed).toString();
+}
+
 const wrangle = {
-  items(props: P): t.KeyValueItem[] {
+  items(props: P, startupElapsedMsecs?: t.Msecs): t.KeyValueItem[] {
     const { repo, theme } = props;
     if (!repo) return [];
 
     const status = getStatus(repo);
-    const indent = [15, 0] as const;
+    const msecs = formatStartupElapsed(startupElapsedMsecs);
 
     const { sync, stores } = repo;
     const rows: t.KeyValueItem[] = [];
+    const indent = [15, 0] as const;
     const hr = () => rows.push({ kind: 'hr' });
 
-    rows.push({ k: 'Repo', v: repo.ready ? 'ready' : 'starting...', mono: true });
+    rows.push({ k: 'Repo', v: repo.ready ? `ready (${msecs})` : 'starting...', mono: true });
     rows.push({ k: 'Instance', v: repo.id.instance || '-', mono: true, x: indent });
     rows.push({ k: 'Peer Identity', v: repo.id.peer || '-', mono: true, x: indent });
 
