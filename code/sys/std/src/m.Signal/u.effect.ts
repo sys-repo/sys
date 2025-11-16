@@ -31,10 +31,10 @@ export const effect: t.SignalEffectListener = (fn, opts = {}) => {
 
     // Cleanup for this run (before next run or on final dispose).
     return () => {
-      if (typeof cleanup === 'function') Try.catch(cleanup);
+      if (typeof cleanup === 'function') Try.run(cleanup);
 
       // Abort/Dispose this run's lifecycle (only if created):
-      if (life && !life.disposed) Try.catch(life.dispose);
+      if (life && !life.disposed) Try.run(life.dispose);
 
       // Finally:
       if (current === life) current = undefined;
@@ -45,7 +45,7 @@ export const effect: t.SignalEffectListener = (fn, opts = {}) => {
    * External disposer for the whole effect:
    */
   return () => {
-    Try.catch(stop);
+    Try.run(stop);
     // Cleanup (only if a `lifecycle` was ever created for the current run):
     const last = current;
     current = undefined;

@@ -1,4 +1,40 @@
-import type { t } from './common.ts';
+/**
+ * Helpers for safe try/catch execution.
+ */
+export type TryLib = {
+  /**
+   * Execute a function (sync or async) and optionally handle failures via a chained handler.
+   *
+   * Sync:
+   *   Try
+   *     .run(() => doSomething())
+   *     .catch((err) => console.error('sync failure', err));
+   *
+   * Sync with result:
+   *   const { result } = Try.run(() => computeValue());
+   *   if (!result.ok) {
+   *     console.error('sync failure', result.error);
+   *   } else {
+   *     console.log('value:', result.data);
+   *   }
+   *
+   * Async:
+   *   const { result } = await Try.run(async () => doSomethingAsync());
+   *   if (!result.ok) {
+   *     console.error('async failure', result.error);
+   *   }
+   *
+   * Async with handler:
+   *   const result = (await Try.run(async () => saveToStore(input)))
+   *     .catch((err) => {
+   *       console.error('save failed', err);
+   *     });
+   *   if (result.ok) {
+   *     console.log('saved:', result.data);
+   *   }
+   */
+  readonly run: TryRun;
+};
 
 /** Successful result containing resolved data and no error. */
 export type TryOk<T> = {
@@ -13,20 +49,27 @@ export type TryFail = {
   readonly error: Error;
 };
 
-/** Discriminated union representing the outcome of a Try.catch call. */
+/** Discriminated union representing the outcome of a Try.run call. */
 export type TryResult<T> = TryOk<T> | TryFail;
 
-/** Overload: sync thunk → TryResult<T>; async thunk → Promise<TryResult<T>>. */
-export type TryCatch = {
-  <T = never>(fn: () => never): TryResult<T>; //        pure throwers
-  <T>(fn: () => Promise<T>): Promise<TryResult<T>>; //  async thunk
-  <T>(fn: () => T): TryResult<T>; //                    sync thunk
+/** Result of a Try.run invocation, with a handler helper. */
+export type TryRunResult<T> = {
+  /** Underlying TryResult from the attempted execution. */
+  readonly result: TryResult<T>;
+  /**
+   * Invoke the given handler only when the execution failed.
+   * Returns the original TryResult for further inspection if needed.
+   */
+  readonly catch: (fn: (error: Error) => void) => TryResult<T>;
 };
 
 /**
- * Helpers for safe try/catch execution.
+ * Runner for side-effecting code with optional error handler.
+ *
+ * - Sync thunk  → TryRunResult<T>
+ * - Async thunk → Promise<TryRunResult<T>>
  */
-export type TryLib = {
-  /** Execute a function safely, returning a result object instead of throwing. */
-  readonly catch: TryCatch;
+export type TryRun = {
+  <T>(fn: () => Promise<T>): Promise<TryRunResult<T>>;
+  <T>(fn: () => T): TryRunResult<T>;
 };
