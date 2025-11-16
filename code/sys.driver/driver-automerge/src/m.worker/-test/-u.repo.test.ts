@@ -392,9 +392,7 @@ describe('CrdtWorker.repo (shim)', () => {
         calls.push({ id, options });
 
         // Minimal deterministic payload – we only care that it round-trips.
-        const result: t.CrdtRefGetResponse<T> = {
-          doc: {} as unknown as t.CrdtRef<T>,
-        };
+        const result: t.CrdtRefGetResponse<T> = { doc: {} as unknown as t.CrdtRef<T> };
 
         return result;
       }) as typeof real.get;
