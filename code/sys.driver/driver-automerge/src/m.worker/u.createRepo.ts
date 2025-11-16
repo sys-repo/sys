@@ -28,55 +28,99 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     if (next !== state.ready) ready$.next(next);
   }
 
+  /** RPC call tracking for client → worker method calls. */
+  type RpcPendingEntry = {
+    readonly resolve: (value: unknown) => void;
+    readonly reject: (error: unknown) => void;
+  };
+  let nextId: t.WireId = 1;
+  const pending = new Map<t.WireId, RpcPendingEntry>();
+
+  function rpc<M extends t.WireRepoMethod>(
+    method: M,
+    ...args: t.WireRepoArgs[M]
+  ): Promise<unknown> {
+    const id: t.WireId = nextId++;
+    const msg = Wire.call(id, method, ...args);
+
+    return new Promise<unknown>((resolve, reject) => {
+      pending.set(id, { resolve, reject });
+      Try.run(() => port.postMessage(msg)).catch((err) => {
+        pending.delete(id);
+        reject(err);
+      });
+    });
+  }
+
   /**
-   * Handle incoming stream of events from repo.
+   * Handle incoming repo stream events.
    */
   function onMessage(ev: MessageEvent) {
     const msg = ev.data as t.WireMessage | undefined;
-    if (!msg || msg.type !== 'event' || msg.stream !== Wire.Kind.repo) return;
-    const e = msg.event;
+    if (!msg) return;
 
-    // 1. Ready + snapshot (init state):
-    if (e.type === 'ready' || e.type === 'props/snapshot') {
-      if (e.type === 'props/snapshot') {
-        state.props = e.payload;
-      }
-      const next = !!e.payload.ready;
-      updateReady(next);
-      return;
-    }
+    if (msg.type === 'event') {
+      if (msg.stream !== Wire.Kind.repo) return;
+      const e = msg.event;
 
-    // 2. Repo prop changes (mirror state + emit normalized props/change event):
-    if (e.type === 'props/change') {
-      const before = Wire.clone(e.payload.before);
-      const after = Wire.clone(e.payload.after);
-      state.props = after;
-
-      // Keep ready latch in sync if "ready" moved via props/change.
-      if (e.payload.prop === 'ready') {
-        updateReady(!!after.ready);
+      // 1. Ready + snapshot (init state):
+      if (e.type === 'ready' || e.type === 'props/snapshot') {
+        if (e.type === 'props/snapshot') {
+          state.props = e.payload;
+        }
+        const next = !!e.payload.ready;
+        updateReady(next);
+        return;
       }
 
-      emit({
-        type: 'props/change',
-        payload: { prop: e.payload.prop, before, after },
-      });
+      // 2. Repo prop changes (mirror state + emit normalized props/change event):
+      if (e.type === 'props/change') {
+        const before = Wire.clone(e.payload.before);
+        const after = Wire.clone(e.payload.after);
+        state.props = after;
+
+        // Keep ready latch in sync if "ready" moved via props/change.
+        if (e.payload.prop === 'ready') {
+          updateReady(!!after.ready);
+        }
+
+        emit({
+          type: 'props/change',
+          payload: { prop: e.payload.prop, before, after },
+        });
+        return;
+      }
+
+      // 3. Network events (peer online/offline/close):
+      if (Wire.Is.networkEvent(e)) {
+        emit(e as t.CrdtNetworkChangeEvent);
+        return;
+      }
+
+      // 4. Lifecycle signals at the wire layer only (ignored at repo surface):
+      if (Wire.Is.streamLifecycle(e)) {
+        return;
+      }
+
+      // 5. Nothing else remains; worker-internal variants are not surfaced.
       return;
     }
 
-    // 3. Network events (peer online/offline/close):
-    if (Wire.Is.networkEvent(e)) {
-      emit(e as t.CrdtNetworkChangeEvent);
+    if (msg.type === 'result') {
+      const { id } = msg;
+      const pendingCall = pending.get(id);
+      if (!pendingCall) return;
+
+      pending.delete(id);
+      if (msg.ok) {
+        pendingCall.resolve(msg.data);
+      } else {
+        pendingCall.reject(msg.error);
+      }
       return;
     }
 
-    // 4. Lifecycle signals at the wire layer only (ignored at repo surface):
-    if (Wire.Is.streamLifecycle(e)) {
-      return;
-    }
-
-    // 5. Nothing else remains; worker-internal variants are not surfaced.
-    return;
+    // 'call' and 'cancel' are not used on the client side.
   }
 
   port.addEventListener?.('message', onMessage);
@@ -102,9 +146,8 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
         peers: (sync?.peers ?? []) as t.PeerId[],
         urls: (sync?.urls ?? []) as t.StringUrl[],
         enabled: sync?.enabled ?? null,
-        enable() {
-          /* no-op until transport lands */
-          return;
+        enable(enabled?: boolean) {
+          void rpc('sync.enable', enabled);
         },
       };
     },
@@ -168,10 +211,14 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   };
 
   life.dispose$.subscribe(() => {
-    Try.catch(() => port.removeEventListener?.('message', onMessage));
-    Try.catch(() => port.close?.());
-    Try.catch(() => ready$.complete());
-    Try.catch(() => event$.complete());
+    Try.run(() => port.removeEventListener?.('message', onMessage));
+    Try.run(() => port.close?.());
+    Try.run(() => ready$.complete());
+    Try.run(() => event$.complete());
+
+    const err = new Error('Crdt worker repo disposed');
+    pending.forEach((e) => e.reject(err));
+    pending.clear();
   });
 
   return repo;

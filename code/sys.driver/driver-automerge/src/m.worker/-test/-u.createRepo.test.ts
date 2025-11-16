@@ -260,4 +260,48 @@ describe('CrdtWorker.repo (shim)', () => {
       await client.dispose();
     });
   });
+
+  describe('rpc: sync.enable', () => {
+    it('forwards sync.enable calls from client to worker repo', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const real = Test.realRepo();
+
+      /**
+       * Spy on the real repo's sync.enable, while preserving original behavior.
+       */
+      const calls: (boolean | undefined)[] = [];
+      const sync = real.sync;
+      const originalEnable = sync.enable.bind(sync);
+
+      sync.enable = ((enabled?: boolean) => {
+        calls.push(enabled);
+        return originalEnable(enabled);
+      }) as typeof sync.enable;
+
+      const client = CrdtWorker.repo(port1);
+
+      // Bind worker side to port2.
+      CrdtWorker.attach(port2, real);
+
+      // Ensure client is ready so we know wiring is live.
+      await client.whenReady();
+
+      // Act: invoke enable with various inputs.
+      client.sync.enable(true);
+      client.sync.enable(false);
+      client.sync.enable(); // implicit true
+
+      // Wait for calls to land on the worker side.
+      await Wait.waitFor(() => calls.length >= 3);
+
+      expect(calls).to.eql<[boolean | undefined, boolean | undefined, boolean | undefined]>([
+        true,
+        false,
+        undefined, // implicit case: enabled? argument omitted
+      ]);
+
+      await client.dispose();
+      await real.dispose();
+    });
+  });
 });
