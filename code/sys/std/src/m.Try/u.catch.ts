@@ -28,6 +28,26 @@ export function _catch<T>(fn: () => T | Promise<T>): t.TryResult<T> | Promise<t.
  * Helpers:
  */
 function toError(cause: unknown): Error {
-  // Coerce any thrown value to a native Error:
-  return Err.Is.errorLike(cause) ? (cause as Error) : new Error(String(cause));
+  // Preserve native Error instances as-is.
+  if (cause instanceof Error) return cause;
+
+  // Preserve structured "error-like" objects by lifting them into a real Error,
+  // while copying fields across (kind, name, code, etc).
+  if (Err.Is.errorLike(cause)) {
+    const src = cause as { [key: string]: unknown; message: string };
+
+    const error = new Error(src.message);
+
+    // Preserve an explicit name if present (e.g. "CrdtRepoError").
+    if (typeof src.name === 'string') {
+      error.name = src.name;
+    }
+
+    // Copy all enumerable fields onto the Error instance for downstream access.
+    Object.assign(error, src);
+    return error;
+  }
+
+  // Fallback: stringify anything else (numbers, booleans, null, etc).
+  return new Error(String(cause));
 }
