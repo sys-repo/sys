@@ -13,26 +13,26 @@ export type CrdtWorkerLib = {
   readonly version: typeof WIRE_VERSION;
 
   /** Creates a worker-backed `t.CrdtRepo` client facade on the main thread. */
-  readonly repo: (port: MessagePort, opts?: { until?: t.UntilInput }) => t.CrdtRepo;
+  repo(port: MessagePort, opts?: { until?: t.UntilInput }): t.CrdtRepo;
 
   /** Attaches a real repo instance to a `MessagePort` inside the worker. */
-  readonly attach: (port: MessagePort, repo: t.CrdtRepo) => void;
+  attach(port: MessagePort, repo: t.CrdtRepo): void;
 
   /**
    * Listens for `crdt:attach` messages on the worker global scope and
    * automatically binds the provided repo to the received MessagePort.
    */
-  readonly listen: (self: typeof globalThis, repo: t.CrdtRepo) => void;
+  listen(self: typeof globalThis, repo: t.CrdtRepo): void;
 
   /**
    * Spawns a worker and connects to its existing CRDT repo.
    * Establishes a MessageChannel link and returns both the worker handle
    * and the client-side repo facade bound to that connection.
    */
-  readonly spawn: (
+  spawn(
     url: string | URL | Worker,
     opts?: { worker?: WorkerOptions; until?: t.UntilInput },
-  ) => Promise<{ readonly worker: Worker; readonly repo: t.CrdtRepo }>;
+  ): Promise<{ readonly worker: Worker; readonly repo: t.CrdtRepo }>;
 
   /**
    * Convenience helper for fetching a document via RPC and returning a

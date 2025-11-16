@@ -1,5 +1,16 @@
 import React from 'react';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  Crdt,
+} from '../common.ts';
 
 type P = t.MediaCompositionProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -12,16 +23,19 @@ const defaults: Storage = {
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
  * Signals:
  */
-export function createDebugSignals() {
+export async function createDebugSignals() {
   const s = Signal.create;
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+
+  const worker = new Worker(new URL('./-u.worker.ts', import.meta.url), { type: 'module' });
+  const { repo } = await Crdt.Worker.spawn(worker);
 
   const props = {
     debug: s(snap.debug),
@@ -30,6 +44,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    repo,
     reset,
     listen,
   };
@@ -69,6 +84,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
+  const repo = debug.repo;
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -94,6 +110,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+
+      <hr style={{ marginTop: 50 }} />
+      <Crdt.UI.Repo.Info repo={repo} style={{ marginTop: 10 }} />
     </div>
   );
 };

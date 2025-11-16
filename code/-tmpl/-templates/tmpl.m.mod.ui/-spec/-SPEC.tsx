@@ -3,8 +3,8 @@ import { D } from '../common.ts';
 import { MyComponent } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
-export default Spec.describe(D.displayName, (e) => {
-  const debug = createDebugSignals();
+export default Spec.describe(D.displayName, async (e) => {
+  const debug = await createDebugSignals();
   const p = debug.props;
 
   e.it('init', (e) => {

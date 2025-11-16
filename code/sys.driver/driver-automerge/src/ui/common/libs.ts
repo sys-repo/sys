@@ -14,7 +14,7 @@ export {
   useSizeObserver,
 } from '@sys/ui-react';
 
-export { Signal } from '@sys/ui-react';
+export { Signal, useRev } from '@sys/ui-react';
 export {
   Button,
   Cropmarks,

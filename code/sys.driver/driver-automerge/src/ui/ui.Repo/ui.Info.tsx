@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Icons, KeyValue, Rx, Str, Time } from './common.ts';
+import { type t, Color, css, Icons, KeyValue, Rx, Str, Time, useRev } from './common.ts';
 import { getStatus } from './u.status.ts';
 import { StatusBullet } from './ui.StatusBullet.tsx';
 
@@ -8,8 +8,21 @@ type P = t.RepoInfoProps;
 export const Info: React.FC<P> = (props) => {
   const { repo, debug = false } = props;
 
+  /**
+   * Hooks:
+   */
+  const [, bump] = useRev();
   const [startupMsecs, setStartupMsecs] = React.useState<t.Msecs | undefined>(undefined);
   const items = wrangle.items(props, startupMsecs);
+
+  /**
+   * Effect: redraw
+   */
+  React.useEffect(() => {
+    const ev = repo?.events();
+    ev?.$.pipe(Rx.debounceTime(120)).subscribe(bump);
+    return ev?.dispose;
+  }, [repo?.id.instance]);
 
   /**
    * Effect: track startup elapsed time (msecs).
@@ -27,7 +40,7 @@ export const Info: React.FC<P> = (props) => {
       .subscribe(() => setStartupMsecs(timer.elapsed.msec));
 
     return ev.dispose;
-  }, [repo]);
+  }, [repo?.id.instance]);
 
   /**
    * Render:

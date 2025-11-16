@@ -38,7 +38,7 @@ export async function createDebugSignals() {
   const snap = store.current;
 
   // NB: worker instantiation required here for Vite to properly bundle the worker asset.
-  const worker = new Worker(new URL('./-worker.ts', import.meta.url), { type: 'module' });
+  const worker = new Worker(new URL('./-u.worker.ts', import.meta.url), { type: 'module' });
   const { repo } = await Crdt.Worker.spawn(worker);
 
   const props = {

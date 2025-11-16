@@ -13,12 +13,12 @@ const defaults: Storage = {
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
  * Signals:
  */
-export function createDebugSignals() {
+export async function createDebugSignals() {
   const s = Signal.create;
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
