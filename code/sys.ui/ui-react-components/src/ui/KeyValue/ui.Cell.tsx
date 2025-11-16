@@ -37,6 +37,7 @@ export const Cell: React.FC<CellProps> = (props) => {
       fontSize,
       fontFamily,
       opacity: opacity ?? 1,
+      transition: 'opacity 120ms ease',
       ...(truncate && isTextChild ? toEllipsis(true) : {}), // Ellipsis: only for text children when truncate is enabled.
 
       // In spaced layout, use an inner grid so
