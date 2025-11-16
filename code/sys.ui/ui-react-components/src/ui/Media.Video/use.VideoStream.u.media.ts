@@ -9,18 +9,26 @@ export function isVirtualLabel(label: string) {
  * Optional: warm up the audio track by actually pulling it through Web Audio.
  */
 export async function warmAudio(stream: MediaStream) {
-  await Try.catch(async () => {
+  const { result } = await Try.run(async () => {
     const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
     if (!AudioCtx) return;
+
     const ctx = new AudioCtx();
     if (ctx.state === 'suspended') {
-      await Try.catch(() => ctx.resume());
+      // Fire-and-forget; Try swallows any rejection.
+      void Try.run(() => ctx.resume());
     }
+
     const src = ctx.createMediaStreamSource(stream);
     const gain = ctx.createGain();
     gain.gain.value = 0;
     src.connect(gain).connect(ctx.destination);
   });
+
+  // Optional: debug logging if warm-up fails.
+  if (!result.ok) {
+    console.warn('warmAudio failed', result.error);
+  }
 }
 
 export const withAudio = (origin: MediaStream, target: MediaStream): MediaStream => {
@@ -28,9 +36,7 @@ export const withAudio = (origin: MediaStream, target: MediaStream): MediaStream
     origin.getAudioTracks().forEach((t) => target.addTrack(t.clone())); // isolate lifecycles
   } else {
     target.getAudioTracks().forEach((t) => {
-      if (t.readyState === 'ended') {
-        Try.catch(() => target.removeTrack(t));
-      }
+      if (t.readyState === 'ended') Try.run(() => target.removeTrack(t));
     });
     if (target.getAudioTracks().length === 0) {
       origin.getAudioTracks().forEach((t) => target.addTrack(t.clone()));
@@ -45,7 +51,7 @@ export async function applyVirtualConstraintsIfNeeded(s: MediaStream) {
   const label = a.label ?? '';
   if (!isVirtualLabel(label)) return;
 
-  await Try.catch(async () => {
+  await Try.run(async () => {
     await a.applyConstraints({
       echoCancellation: false,
       noiseSuppression: false,

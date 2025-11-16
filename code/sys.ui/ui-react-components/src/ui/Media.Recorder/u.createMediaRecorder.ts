@@ -34,13 +34,13 @@ export const createMediaRecorder: t.CreateMediaRecorder = (stream, options = {})
  * Helpers:
  */
 function setContentHintDetail(stream: MediaStream) {
-  const res = Try.catch(() => {
+  const { result } = Try.run(() => {
     const vt = stream.getVideoTracks?.()[0];
     if (vt && vt.contentHint !== 'detail') vt.contentHint = 'detail';
     return true as const;
   });
-  if (res.ok) logInfo('set → contentHint=detail (encoder crispness)');
-  else logInfo('contentHint=detail not applied', res.error);
+  if (result.ok) logInfo('set → contentHint=detail (encoder crispness)');
+  else logInfo('contentHint=detail not applied', result.error);
 }
 
 /** Resolve final recorder bitrates from a stream, honoring explicit overrides. */

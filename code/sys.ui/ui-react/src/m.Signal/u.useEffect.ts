@@ -21,8 +21,8 @@ export const useSignalEffect: t.UseSignalEffectListener = (cb) => {
     const cleanup = cb(e);
 
     return () => {
-      if (Is.func(cleanup)) Try.catch(cleanup);
-      if (life && !life.disposed) Try.catch(life.dispose);
+      if (Is.func(cleanup)) Try.run(cleanup);
+      if (life && !life.disposed) Try.run(life.dispose);
     };
   });
 };

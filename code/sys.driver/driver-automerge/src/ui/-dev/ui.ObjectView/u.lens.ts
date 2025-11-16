@@ -32,8 +32,8 @@ function normalizeLens(v: t.CrdtLens): t.CrdtLens {
  */
 function resolveLens(item: t.CrdtPartialLensInput): t.CrdtPartialLens | undefined {
   if (Is.func(item)) {
-    const res = Try.catch(item as () => t.CrdtPartialLens);
-    return res.ok ? res.data : undefined;
+    const result = Try.run(item as () => t.CrdtPartialLens).result;
+    return result.ok ? result.data : undefined;
   }
   return item;
 }

@@ -19,7 +19,7 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   const life = Rx.abortable(repo.dispose$);
   life.dispose$.subscribe(() => {
     sendRepoEvent({ type: 'stream/close', payload: {} });
-    Try.catch(() => port.close?.());
+    Try.run(() => port.close?.());
   });
 
   /**

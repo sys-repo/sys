@@ -24,7 +24,7 @@ export const useDevicesList: t.UseMediaDevicesList = () => {
       pending = true;
       const mySeq = ++seq;
 
-      const result = await Try.catch(async () => getDevices());
+      const { result } = await Try.run(async () => getDevices());
       if (life.disposed || mySeq !== seq) {
         pending = false;
         return;
