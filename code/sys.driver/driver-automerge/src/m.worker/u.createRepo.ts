@@ -30,7 +30,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
 
   /** RPC call tracking for client → worker method calls. */
   type RpcPendingEntry = {
-    readonly resolve: (value: unknown) => void;
+    readonly resolve: (value: t.WireRepoResultData[t.WireRepoMethod]) => void;
     readonly reject: (error: unknown) => void;
   };
   let nextId: t.WireId = 1;
@@ -39,12 +39,15 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   function rpc<M extends t.WireRepoMethod>(
     method: M,
     ...args: t.WireRepoArgs[M]
-  ): Promise<unknown> {
+  ): Promise<t.WireRepoResultData[M]> {
     const id: t.WireId = nextId++;
     const msg = Wire.call(id, method, ...args);
 
-    return new Promise<unknown>((resolve, reject) => {
-      pending.set(id, { resolve, reject });
+    return new Promise<t.WireRepoResultData[M]>((resolve, reject) => {
+      pending.set(id, {
+        resolve: (value) => resolve(value as t.WireRepoResultData[M]),
+        reject,
+      });
       Try.run(() => port.postMessage(msg)).catch((err) => {
         pending.delete(id);
         reject(err);
