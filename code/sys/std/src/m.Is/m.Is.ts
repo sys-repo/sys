@@ -12,14 +12,16 @@ import {
 import { Err } from '../m.Err/mod.ts';
 import { number, numeric } from './u.number.ts';
 
-const { errorLike, stdError } = Err.Is;
-
 /**
  * Common flag evaluators.
  */
 export const Is: StdIsLib = {
-  errorLike,
-  stdError,
+  get errorLike() {
+    return Err.Is.errorLike;
+  },
+  get stdError() {
+    return Err.Is.stdError;
+  },
 
   object: isObject,
   record: isRecord,

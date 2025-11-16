@@ -1,4 +1,4 @@
-import { type t, isPromise } from './common.ts';
+import { type t, isPromise, Err } from './common.ts';
 
 // Overload: throws → sync result
 export function _catch<T = never>(fn: () => never): t.TryResult<T>;
@@ -29,5 +29,5 @@ export function _catch<T>(fn: () => T | Promise<T>): t.TryResult<T> | Promise<t.
  */
 function toError(cause: unknown): Error {
   // Coerce any thrown value to a native Error:
-  return cause instanceof Error ? cause : new Error(String(cause));
+  return Err.Is.errorLike(cause) ? (cause as Error) : new Error(String(cause));
 }
