@@ -3,7 +3,7 @@ import React from 'react';
 import { type t, Color, css, D, Switch, SwitchTheme } from './common.ts';
 import { getStatus } from './u.status.ts';
 import { LabelStyle } from './u.Style.ts';
-import { DefaultDetails } from './ui.DefaultDetails.tsx';
+import { DefaultDetails } from './ui.SyncSwitch.DefaultDetails.tsx';
 import { NetworkIcons } from './ui.Icons.Network.tsx';
 import { useController } from './use.SyncSwitch.Controller.ts';
 

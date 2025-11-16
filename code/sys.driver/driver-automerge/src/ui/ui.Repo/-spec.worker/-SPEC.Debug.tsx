@@ -97,6 +97,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
+  const repo = debug.repo;
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -128,7 +129,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `tmp`}
         onClick={() => {
-          const repo = debug.repo;
           console.log('repo', repo);
           console.log('repo.ready', repo.ready);
         }}

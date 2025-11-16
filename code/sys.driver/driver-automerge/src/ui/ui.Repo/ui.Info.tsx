@@ -89,11 +89,14 @@ const wrangle = {
         />
       );
 
-      rows.push({ k: 'Network', v: <StatusBullet theme={theme} status={status} /> });
+      rows.push({
+        k: 'Network',
+        v: status.syncEnabled ? <StatusBullet theme={theme} status={status} /> : '(disabled)',
+      });
       sync.urls.forEach((url) => {
         const k = server;
         const v = url;
-        rows.push({ k, v: v, x: indent });
+        rows.push({ k, v: v, x: indent, opacity: sync.enabled ? 1 : 0.2 });
       });
     }
     if (stores.length > 0) {
