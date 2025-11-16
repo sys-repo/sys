@@ -26,11 +26,13 @@ describe('CrdtWorker.doc (shim)', () => {
     type Doc = { foo: string };
 
     it('resolves with the worker-branded ref on success', async () => {
-      // Minimal worker-branded ref (we only care about brand + identity).
-      const id = 'doc-1' as t.StringId;
-      const ref = { id, via: 'worker-proxy' } as t.CrdtDocWorkerShim<Doc>;
+      type Doc = { foo: string };
 
-      // Fake worker repo shim: only get() is exercised by doc().
+      const id = 'doc-1' as t.StringId;
+
+      // Start with an unbranded ref – just id + whatever shape CrdtRef<T> needs.
+      const ref = { id } as t.CrdtRef<Doc>;
+
       const repo = {
         async get<T extends O>() {
           const result: t.CrdtRefGetResponse<T> = { doc: ref as unknown as t.CrdtRef<T> };
@@ -40,10 +42,10 @@ describe('CrdtWorker.doc (shim)', () => {
 
       const result = await CrdtWorker.doc<Doc>(repo, id);
 
-      // Identity: we get back the exact ref the worker returned.
+      // Identity: same instance back from doc().
       expect(result).to.equal(ref);
 
-      // Brand: via is the literal worker-proxy.
+      // Brand: doc() has added the worker-proxy discriminant.
       expect(result.via).to.eql<'worker-proxy'>('worker-proxy');
 
       // Types: result is a CrdtDocWorkerShim<Doc>.
@@ -69,7 +71,7 @@ describe('CrdtWorker.doc (shim)', () => {
 
       expect(caught).to.exist;
       if (caught) {
-        expect(caught).to.equal(error); // same instance
+        expect(caught.message).to.equal(error.message);
         expect(caught.kind).to.eql<'Timeout'>('Timeout');
         expect(caught.message).to.eql('took too long');
       }

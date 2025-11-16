@@ -16,9 +16,13 @@ export async function doc<T extends O = O>(
 ): Promise<t.CrdtDocWorkerShim<T>> {
   const result = await repo.get<T>(id, options);
 
-  // Domain-level repo errors come back as rejections here.
   if (result.error) throw result.error;
   if (!result.doc) throw new Error(`CrdtWorker.doc: repo.get("${id}") returned no doc`);
 
-  return result.doc as t.CrdtDocWorkerShim<T>;
+  const ref = result.doc as t.CrdtDocWorkerShim<T>;
+
+  // Ensure the worker brand is present at runtime.
+  (ref as { via?: 'worker-proxy' }).via = 'worker-proxy';
+
+  return ref;
 }
