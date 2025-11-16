@@ -54,7 +54,7 @@ export const Wire = {
     return { version: WIRE_VERSION, type: 'event', stream, event };
   },
 
-  ok(id: t.WireId, data: unknown): t.WireResult {
+  ok(id: t.WireId, data: t.WireRepoResultData[t.WireRepoMethod]): t.WireResult {
     return { version: WIRE_VERSION, type: 'result', id, ok: true, data };
   },
 

@@ -1,11 +1,13 @@
-import type { t } from './common.ts';
-import { WIRE_VERSION } from './common.ts';
-
 /**
  * @module
  * Wire-protocol envelope types for CRDT Repo communication.
  * Used by both main-thread clients and worker hosts over a MessagePort.
  */
+
+import type { t } from './common.ts';
+import { WIRE_VERSION } from './common.ts';
+
+type O = Record<string, unknown>;
 
 /**
  * Stream identifiers.
@@ -32,22 +34,29 @@ export type WireRepoArgs = {
 };
 
 /**
- * Method-specific success payloads for RPC results.
- * Each entry describes the `data` shape for a successful call.
+ * Map from method name → result payload type.
+ * NOTE: keep in sync with `WireRepoMethod` and `WireRepoArgs`.
  */
 export type WireRepoResultData = {
   whenReady: void;
   'sync.enable': void;
-  create: unknown;
-  get: unknown;
-  delete: unknown;
+  create: WireRepoCreateResult;
+  get: WireRepoGetResult;
+  delete: void;
 };
+
+/**
+ * Result payloads per repo RPC method.
+ * Keeps `WireCall`/`WireResult` strongly typed without exploding union types.
+ */
+export type WireRepoCreateResult = { readonly id: t.StringId };
+export type WireRepoGetResult<T extends O = O> = t.CrdtRefGetResponse<T>;
 
 /**
  * Optional, non-semantic metadata for tracing/observability.
  * Safe to ignore; useful for requestId/spanId/origin, etc.
  */
-export type WireMeta = Readonly<Record<string, unknown>>;
+export type WireMeta = Readonly<O>;
 
 /**
  * Standard error envelope crossing the wire.

@@ -73,12 +73,14 @@ describe('Event helpers', () => {
     });
 
     it('ok(): result envelope', () => {
-      const r = Wire.ok(5, { ok: true });
+      const payload: t.WireRepoCreateResult = { id: 'doc-1' };
+      const r = Wire.ok(5, payload);
+
       expect(r.version).to.eql(WIRE_VERSION);
       expect(r.type).to.eql('result');
       expect(r.id).to.eql(5);
       expect(r.ok).to.eql(true);
-      expect((r as t.WireResultOk).data).to.eql({ ok: true });
+      expect((r as t.WireResultOk<'create'>).data).to.eql(payload);
 
       expectTypeOf(r).toMatchTypeOf<t.WireResult>();
     });

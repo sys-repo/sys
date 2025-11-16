@@ -55,7 +55,7 @@ describe('CrdtWorker.repo (shim)', () => {
     });
   });
 
-  describe('construct (core invariants)', () => {
+  describe('core invariants', () => {
     it('exposes a t.CrdtRepo surface (structural typing)', async () => {
       const { port1, port2 } = Test.makePorts();
       const repo = CrdtWorker.repo(port1);
@@ -299,6 +299,165 @@ describe('CrdtWorker.repo (shim)', () => {
         false,
         undefined, // implicit case: enabled? argument omitted
       ]);
+
+      await client.dispose();
+      await real.dispose();
+    });
+  });
+
+  describe('rpc: create', () => {
+    it('routes create calls to the worker repo and returns the new id', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const real = Test.realRepo();
+
+      // Spy on the real repo's create, but avoid spinning up real refs/timers.
+      const calls: unknown[] = [];
+      const fakeId = 'doc-from-test' as t.StringId;
+
+      const originalCreate = real.create.bind(real);
+      real.create = ((initial: any) => {
+        calls.push(initial);
+
+        // Return a minimal, timer-free stub ref.
+        const ref = { id: fakeId } as unknown as t.CrdtRef<typeof initial>;
+        return ref;
+      }) as typeof real.create;
+
+      // Attach worker side.
+      CrdtWorker.attach(port2, real);
+
+      // Prepare a known initial value.
+      const initial = { foo: 'bar' };
+
+      // Craft a raw wire call for "create".
+      const id: t.WireId = 1;
+      const call: t.WireCall<'create'> = {
+        version: CrdtWorker.version,
+        type: 'call',
+        id,
+        method: 'create',
+        args: [initial],
+      };
+
+      // Capture the result message returned over the port.
+      const results: t.WireResult[] = [];
+      const onMessage = (ev: MessageEvent) => {
+        const msg = ev.data as t.WireMessage | undefined;
+        if (msg?.type === 'result') results.push(msg);
+      };
+
+      port1.addEventListener('message', onMessage);
+      port1.start?.();
+
+      // Act: send the call into the worker.
+      port1.postMessage(call);
+
+      // Wait for a result to come back.
+      await Wait.waitFor(() => results.length >= 1);
+      const result = results[0] as t.WireResultOk<'create'>;
+
+      expect(result.ok).to.eql(true);
+      expect(result.id).to.eql(id);
+
+      // The payload should be the create result with an id.
+      const data = result.data as t.WireRepoCreateResult;
+      expect(data.id).to.eql(fakeId);
+
+      // And the worker should have called create with our initial object.
+      expect(calls).to.eql([initial]);
+
+      port1.removeEventListener('message', onMessage);
+      await real.dispose();
+
+      // Optional: restore in case this helper is reused in future tests.
+      real.create = originalCreate;
+    });
+  });
+
+  describe('rpc: get', () => {
+    it('forwards repo.get via RPC and returns the worker result', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const real = Test.realRepo();
+
+      /**
+       * Spy on the real repo's get, while preserving original behavior.
+       */
+      const calls: { id: t.StringId; options?: t.CrdtRepoGetOptions }[] = [];
+      const originalGet = real.get.bind(real);
+
+      real.get = (async <T extends Record<string, unknown>>(
+        id: t.StringId,
+        options?: t.CrdtRepoGetOptions,
+      ) => {
+        calls.push({ id, options });
+
+        // Minimal deterministic payload – we only care that it round-trips.
+        const result: t.CrdtRefGetResponse<T> = {
+          doc: {} as unknown as t.CrdtRef<T>,
+        };
+
+        return result;
+      }) as typeof real.get;
+
+      const client = CrdtWorker.repo(port1);
+
+      // Bind worker side to port2.
+      CrdtWorker.attach(port2, real);
+
+      // Ensure client is ready so we know wiring is live.
+      await client.whenReady();
+
+      const id = 'doc-1' as t.StringId;
+      const options: t.CrdtRepoGetOptions = { timeout: 250 as t.Msecs };
+
+      const result = await client.get<{ foo: string }>(id, options);
+
+      // Assert the worker's get was invoked with the same arguments.
+      expect(calls.length).to.eql(1);
+      expect(calls[0]?.id).to.eql(id);
+      expect(calls[0]?.options).to.eql(options);
+
+      // And the client sees exactly what the worker returned.
+      expect(result.error).to.eql(undefined);
+      expect(result.doc).to.exist;
+
+      await client.dispose();
+      await real.dispose();
+    });
+  });
+
+  describe('rpc: delete', () => {
+    it('forwards delete calls from client to worker repo', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const real = Test.realRepo();
+
+      /**
+       * Spy on the real repo's delete, while preserving signature.
+       */
+      const calls: t.StringId[] = [];
+      const originalDelete = real.delete.bind(real);
+
+      real.delete = (async (id: t.StringId | t.Crdt.Ref) => {
+        calls.push(id as t.StringId); // in this test we only pass a string
+        // We don't need to call the original; avoiding side-effects is fine here.
+      }) as typeof real.delete;
+
+      const client = CrdtWorker.repo(port1);
+
+      // Wire the worker side to port2.
+      CrdtWorker.attach(port2, real);
+
+      // Ensure the client is ready so RPC is live.
+      await client.whenReady();
+
+      // Act: invoke delete on the client shim.
+      const id = 'doc-1' as t.StringId;
+      await client.delete(id);
+
+      // Wait for the call to land on the worker side.
+      await Wait.waitFor(() => calls.length >= 1);
+
+      expect(calls).to.eql<[t.StringId]>([id]);
 
       await client.dispose();
       await real.dispose();

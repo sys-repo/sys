@@ -2,6 +2,8 @@ import { type t, Rx, Schedule, Try } from './common.ts';
 import { Wire } from './u.wire.ts';
 import { onMessageErrorHandler } from './u.onErrorMessage.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * Attaches a real repo instance to a `MessagePort` inside the worker.
  * Forwards repo lifecycle and event streams over the port using wire-safe payloads.
@@ -64,10 +66,24 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   /**
    * RPC: handle client → worker calls on this port.
    */
-  type RpcHandler = (...args: unknown[]) => unknown | Promise<unknown>;
+  type R = t.WireRepoResultData[t.WireRepoMethod];
+  type RpcHandler = (...args: unknown[]) => R | Promise<R>;
   type RpcHandlerTable = Partial<Record<t.WireRepoMethod, RpcHandler>>;
   const handlers: RpcHandlerTable = {
-    'sync.enable': (enabled?: unknown) => repo.sync.enable(enabled as boolean | undefined),
+    'sync.enable'(enabled?: unknown) {
+      return repo.sync.enable(enabled as boolean | undefined);
+    },
+    create(initial: unknown) {
+      // NB: Use the real repo.create, but only return a wire-safe payload.
+      const doc = repo.create(initial as O);
+      return { id: doc.id as t.StringId } satisfies t.WireRepoCreateResult;
+    },
+    get(id: unknown, options?: unknown) {
+      return repo.get(id as t.StringId, options as t.CrdtRepoGetOptions | undefined);
+    },
+    delete(id: unknown) {
+      return repo.delete(id as t.StringId);
+    },
   };
 
   const onMessage = (ev: MessageEvent) => {

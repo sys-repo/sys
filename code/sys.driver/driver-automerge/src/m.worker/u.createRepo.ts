@@ -1,4 +1,4 @@
-import { type t, Rx, Try } from './common.ts';
+import { type t, Is, Rx, Try } from './common.ts';
 import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;
@@ -178,13 +178,17 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     create<T extends O>() {
       throw notImpl('CrdtRef.create/change');
     },
-    async get<T extends O>() {
-      return {
-        error: { kind: 'NotFound', message: 'not implemented (worker get)' } as t.CrdtRepoError,
-      };
+
+    async get<T extends O>(
+      id: t.StringId,
+      options?: t.CrdtRepoGetOptions,
+    ): Promise<t.CrdtRefGetResponse<T>> {
+      return (await rpc('get', id, options)) as t.CrdtRefGetResponse<T>;
     },
-    async delete() {
-      throw notImpl('repo.delete');
+
+    async delete(input: t.StringId | t.Crdt.Ref) {
+      const docId: t.StringId = Is.string(input) ? input : input.id;
+      await rpc('delete', docId);
     },
 
     events(until) {
