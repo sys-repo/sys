@@ -34,10 +34,4 @@ export {
 } from './m.Bdd.ts';
 
 export { Testing } from './m.Testing.ts';
-
-/**
- * Common utility helpers.
- */
-export { Path } from '../m.Path/mod.ts';
-export { slug } from '../m.Random/mod.ts';
-export { Time } from '../m.Time/mod.ts';
+export { DomMock } from '../m.Testing.DomMock/mod.ts';

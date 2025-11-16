@@ -8,7 +8,7 @@
  * DomMock.polyfill();
  * ```
  */
-import type { DomMockLib } from './t.ts';
+import type { t } from './common.ts';
 
 import { Keyboard } from './m.Keyboard.ts';
 import { polyfill, unpolyfill } from './u.polyfill.ts';
@@ -16,8 +16,11 @@ import { polyfill, unpolyfill } from './u.polyfill.ts';
 /**
  * Helpers for testing DOM related action in unit-tests.
  */
-export const DomMock: DomMockLib = {
+export const DomMock: t.DomMockLib = {
   Keyboard,
   polyfill,
   unpolyfill,
+  get isPolyfilled() {
+    return (globalThis as any).__SYS_BROWSER_MOCK__ === true;
+  },
 };

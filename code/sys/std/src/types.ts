@@ -36,6 +36,7 @@ export type * from './m.Signal/t.ts';
 export type * from './m.Str/t.ts';
 export type * from './m.Testing.Server/t.ts';
 export type * from './m.Testing/t.ts';
+export type * from './m.Testing.DomMock/t.ts';
 export type * from './m.Time.Date/t.ts';
 export type * from './m.Time.Timecode/t.ts';
 export type * from './m.Time/t.ts';

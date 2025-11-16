@@ -2,14 +2,16 @@
  * Represents the overall DOM Mock Library.
  */
 export type DomMockLib = {
+  /** Keyboard event utilities. */
+  readonly Keyboard: DomMockKeyboardLib;
+  /** Flag indicating if the environment is currently poly-filled with the dom-mocks. */
+  readonly isPolyfilled: boolean;
+
   /** Ensure `globalThis` is polyfilled with window/document. */
   polyfill(options?: { url?: string }): void;
 
   /** Returns the `globalThis` to it's original state. */
   unpolyfill(): void;
-
-  /** Keyboard event utilities. */
-  readonly Keyboard: DomMockKeyboardLib;
 };
 
 export type DomMockKeyboardLib = {

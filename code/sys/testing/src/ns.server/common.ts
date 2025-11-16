@@ -11,7 +11,6 @@ export {
   describe,
   expect,
   expectError,
+  DomMock,
   it,
-  slug,
-  Time,
 } from '@sys/std/testing';

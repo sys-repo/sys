@@ -1,5 +1,5 @@
 import { Window } from 'happy-dom';
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 let _window: Window | undefined;
 
@@ -14,21 +14,25 @@ const ORIGINAL = {
 export const polyfill: t.DomMockLib['polyfill'] = (options = {}) => {
   const { url = 'http://localhost:1234' } = options;
   const win = _window || (_window = new Window({ url }));
+
   Object.assign(globalThis, {
     window: win,
     document: win.document,
     MediaStream: win.MediaStream,
     MediaStreamTrack: win.MediaStreamTrack,
     HTMLElement: win.HTMLElement,
-    self: globalThis, // AMD loader checks `self` (if that is ever used by tests).
+    self: globalThis, // AMD loader checks `self`.
   });
+
+  (globalThis as any).__SYS_BROWSER_MOCK__ = true;
 };
 
 /**
- * Returns the `globalThis` to it's original state.
+ * Returns the `globalThis` to its original state.
  */
 export const unpolyfill: t.DomMockLib['polyfill'] = () => {
+  _window = undefined;
   globalThis.window = ORIGINAL.window;
   globalThis.document = ORIGINAL.document;
-  _window = undefined;
+  delete (globalThis as any).__SYS_BROWSER_MOCK__;
 };

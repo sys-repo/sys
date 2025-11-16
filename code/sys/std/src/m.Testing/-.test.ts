@@ -1,5 +1,6 @@
 import { Random } from '../m.Random/mod.ts';
-import { Testing, Time, describe, expect, expectError, expectTypeOf, it } from './mod.ts';
+import { Testing, describe, expect, expectError, expectTypeOf, it } from './mod.ts';
+import { Time } from '../m.Time/mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
   await test.step('eql', () => {

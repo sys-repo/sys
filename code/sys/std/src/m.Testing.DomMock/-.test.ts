@@ -1,6 +1,7 @@
 import { Document, Window } from 'happy-dom';
-import { describe, expect, it } from '../-test.ts';
+import { describe, expect, it, afterEach } from '../-test.ts';
 import { DomMock } from './mod.ts';
+import { Is } from '../m.Is/mod.ts';
 
 describe(
   'Mock (DOM)',
@@ -10,6 +11,8 @@ describe(
 
   () => {
     describe('polyfill', () => {
+      afterEach(DomMock.unpolyfill);
+
       it('polyfill', () => {
         expect(globalThis.window).to.eql(undefined);
         expect(globalThis.document).to.eql(undefined);
@@ -25,8 +28,6 @@ describe(
         DomMock.polyfill();
         DomMock.polyfill();
         expect(window).to.equal(before); // NB: instance re-used.
-
-        DomMock.unpolyfill();
       });
 
       it('polyfill: custom URL', () => {
@@ -46,6 +47,18 @@ describe(
 
         DomMock.polyfill();
         expect(window).to.not.equal(before); // NB: instance reset.
+      });
+
+      it('env flags (is)', () => {
+        expect((globalThis as any).__SYS_BROWSER_MOCK__).to.not.eql(true);
+        expect(DomMock.isPolyfilled).to.eql(false);
+        expect(Is.browser()).to.eql(false);
+
+        DomMock.polyfill();
+
+        expect((globalThis as any).__SYS_BROWSER_MOCK__).to.eql(true);
+        expect(DomMock.isPolyfilled).to.eql(true);
+        expect(Is.browser()).to.eql(true);
       });
     });
 
