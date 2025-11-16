@@ -161,13 +161,24 @@ export type WireRepoPropChange = {
 };
 
 /**
+ * Lightweight repo health snapshot for event streams.
+ * - busy: true while the worker is inside a known long-running section.
+ * - lastProgressAt: msecs timestamp of most recent successful progress.
+ */
+export type WireRepoHealth = {
+  readonly busy: boolean;
+  readonly lastProgressAt: t.Msecs;
+};
+
+/**
  * Event message payloads (repo/doc streams).
  * Includes stream lifecycle signals for future resource tracking.
  */
 export type WireRepoEventPayload =
-  | { readonly type: 'props/change'; readonly payload: t.WireRepoPropChange }
+  | { readonly type: 'props/change'; readonly payload: WireRepoPropChange }
   | { readonly type: 'props/snapshot'; readonly payload: t.CrdtRepoProps }
   | { readonly type: 'ready'; readonly payload: { readonly ready: boolean } }
+  | { readonly type: 'health'; readonly payload: WireRepoHealth }
   | { readonly type: 'stream/open'; readonly payload: Record<never, never> }
   | { readonly type: 'stream/close'; readonly payload: Record<never, never> }
   | { readonly type: 'stream/error'; readonly payload: { readonly message?: string } }

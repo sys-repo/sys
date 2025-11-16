@@ -15,6 +15,39 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   const sendEvent = (e: t.WireEvent) => port.postMessage(e);
   const sendRepoEvent = (e: t.WireRepoEventPayload) => sendEvent(Wire.event(Wire.Kind.repo, e));
 
+  let busyCount = 0;
+  let lastProgressAt = Date.now();
+  const emitHealth = () => {
+    const health: t.WireRepoHealth = { busy: busyCount > 0, lastProgressAt };
+    sendRepoEvent({ type: 'health', payload: health });
+  };
+
+  const withBusy = async <R>(fn: () => R | Promise<R>): Promise<R> => {
+    busyCount += 1;
+    emitHealth();
+    const run = () => fn();
+    try {
+      const result = run();
+      if (result instanceof Promise) {
+        return result.finally(() => {
+          busyCount -= 1;
+          lastProgressAt = Date.now();
+          emitHealth();
+        });
+      } else {
+        busyCount -= 1;
+        lastProgressAt = Date.now();
+        emitHealth();
+        return Promise.resolve(result);
+      }
+    } catch (error) {
+      busyCount -= 1;
+      lastProgressAt = Date.now();
+      emitHealth();
+      throw error;
+    }
+  };
+
   /**
    * Lifecycle:
    */
@@ -34,6 +67,7 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   sendRepoEvent({ type: 'stream/open', payload: {} });
   sendReady();
   sendSnapshot();
+  emitHealth();
   // ...and again next microtask for late listeners.
   Schedule.micro(() => {
     sendReady();
@@ -71,18 +105,22 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   type RpcHandlerTable = Partial<Record<t.WireRepoMethod, RpcHandler>>;
   const handlers: RpcHandlerTable = {
     'sync.enable'(enabled?: unknown) {
-      return repo.sync.enable(enabled as boolean | undefined);
+      return withBusy(() => repo.sync.enable(enabled as boolean | undefined));
     },
     create(initial: unknown) {
       // NB: Use the real repo.create, but only return a wire-safe payload.
-      const doc = repo.create(initial as O);
-      return { id: doc.id as t.StringId } satisfies t.WireRepoCreateResult;
+      return withBusy(() => {
+        const doc = repo.create(initial as O);
+        return { id: doc.id as t.StringId } satisfies t.WireRepoCreateResult;
+      });
     },
     get(id: unknown, options?: unknown) {
-      return repo.get(id as t.StringId, options as t.CrdtRepoGetOptions | undefined);
+      return withBusy(() => {
+        return repo.get(id as t.StringId, options as t.CrdtRepoGetOptions | undefined);
+      });
     },
     delete(id: unknown) {
-      return repo.delete(id as t.StringId);
+      return withBusy(() => repo.delete(id as t.StringId));
     },
   };
 
