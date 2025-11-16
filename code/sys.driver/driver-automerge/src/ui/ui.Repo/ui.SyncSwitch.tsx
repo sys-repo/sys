@@ -11,23 +11,24 @@ type P = t.RepoSyncSwitchProps;
 
 export const SyncSwitch: React.FC<P> = (props) => {
   const { repo, mode = D.mode } = props;
-  const urls = repo?.sync.urls ?? [];
 
   /**
    * Hooks:
    */
   const controller = useController(props);
   const enabled = controller.enabled;
+  const pending = controller.pending;
   const status = repo ? getStatus(repo) : undefined;
 
   /**
    * Handlers:
    */
-  const onClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleEnabled();
   };
   const toggleEnabled = () => {
+    if (pending) return;
     const next = !enabled;
     controller.updatedEnabled(next);
     props.onChange?.({ enabled: next });
@@ -65,7 +66,12 @@ export const SyncSwitch: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class} onMouseDown={toggleEnabled}>
       <div className={styles.body.class}>
-        <Switch value={enabled || false} theme={switchTheme} height={16} onMouseDown={onClick} />
+        <Switch
+          theme={switchTheme}
+          height={16}
+          value={enabled || false}
+          onMouseDown={handleClick}
+        />
         {elDefault}
         {elNetworkIcons}
       </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type t, Is, LocalStorage, Rx } from './common.ts';
+import { type t, Is, LocalStorage, Rx, useRev } from './common.ts';
 
 type P = t.RepoSyncSwitchProps;
 type Store = { syncEnabled?: boolean };
@@ -13,8 +13,8 @@ export function useController(props: P) {
   const [store, setStore] = useState(wrangle.localstore(props));
   const [enabled, setEnabled] = useState<boolean | null>(wrangle.enabled(store?.current, repo));
   const [peers, setPeers] = useState<readonly t.PeerId[]>([]);
-  const [, setRender] = useState(0);
-  const redraw = () => setRender((n) => n + 1);
+  const [pending, setPending] = useState(false);
+  const [, bump] = useRev();
 
   /**
    * Effect: refresh local-store handle when the storage key changes.
@@ -34,13 +34,18 @@ export function useController(props: P) {
    */
   useEffect(() => {
     const events = repo?.events();
-    events?.$.subscribe(redraw);
+    events?.$.subscribe(bump);
     events?.prop$.pipe(Rx.filter((e) => e.prop === 'sync.enabled')).subscribe((e) => {
       const next = e.after.sync.enabled;
-      if (e.before.sync.enabled !== next) updatedEnabled(next);
+      if (e.before.sync.enabled !== next) {
+        setEnabled(next);
+        setPending(false);
+      }
     });
 
+    // Initial sync: repo/localstore → enabled (and repo if localstore overrides).
     updatedEnabled(wrangle.enabled(store?.current, repo));
+
     return events?.dispose;
   }, [repo?.id.instance]);
 
@@ -58,7 +63,23 @@ export function useController(props: P) {
   /** Only forward to repo when next is boolean; null = no adapters (no-op). */
   const updatedEnabled = (next: boolean | null) => {
     setEnabled(next);
-    if (repo && Is.bool(next)) repo.sync.enable(next);
+
+    if (!repo || !Is.bool(next)) {
+      // No repo or no concrete value: treat as "no adapters" / no-op.
+      setPending(false);
+      return;
+    }
+
+    const current = repo.sync.enabled;
+    if (current === next) {
+      // Already in desired state: no command, no pending.
+      setPending(false);
+      return;
+    }
+
+    // Real state transition: mark pending and send command.
+    setPending(true);
+    repo.sync.enable(next);
   };
 
   /**
@@ -68,6 +89,7 @@ export function useController(props: P) {
     enabled,
     updatedEnabled,
     peers,
+    pending,
   } as const;
 }
 
