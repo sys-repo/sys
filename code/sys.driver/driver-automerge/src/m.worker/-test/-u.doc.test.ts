@@ -64,8 +64,8 @@ describe('CrdtWorker.doc (shim)', () => {
         },
       } as unknown as t.CrdtRepoWorkerShim;
 
-      let caught: t.CrdtRepoError | undefined;
-      await Try.run(() => CrdtWorker.doc<Doc>(repo, id)).catch((err) => (caught = err));
+      const { result } = await Try.run(() => CrdtWorker.doc<Doc>(repo, id));
+      const caught = result.error as t.CrdtRepoError | undefined;
 
       expect(caught).to.exist;
       if (caught) {
@@ -84,8 +84,8 @@ describe('CrdtWorker.doc (shim)', () => {
         },
       } as unknown as t.CrdtRepoWorkerShim;
 
-      let caught: Error | undefined;
-      await Try.run(() => CrdtWorker.doc<Doc>(repo, id)).catch((err) => (caught = err));
+      const { result } = await Try.run(() => CrdtWorker.doc<Doc>(repo, id));
+      const caught = result.error as Error | undefined;
 
       expect(caught).to.exist;
       expect(caught?.message).to.contain('CrdtWorker.doc: repo.get("doc-missing") returned no doc');
