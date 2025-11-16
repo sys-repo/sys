@@ -55,12 +55,13 @@ groups:
     - import: npm:@sinclair/typebox@0.34.41
       subpaths: ['value', 'errors']
 
-  build/tools:
+  build/tools/vite:
     - import: npm:@vitejs/plugin-react@5.1.1
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.53.2
     - import: npm:vite@7.2.2
     - import: npm:vite-plugin-wasm@3.5.0
+    - import: npm:rollup-plugin-visualizer@6.0.5
 
   dev/tools:
     - import: npm:prettier@3.6.2
@@ -156,7 +157,7 @@ deno.json:
   - import: npm:@preact/signals-react@3.6.0
 
 package.json:
-  - group: build/tools
+  - group: build/tools/vite
     dev: true
   - group: dev/tools
     dev: true

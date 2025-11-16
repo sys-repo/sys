@@ -1,7 +1,8 @@
 import type { ManualChunksOption } from 'rollup';
-import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
+import { visualizer } from 'rollup-plugin-visualizer';
 
-import { type t, asArray, Delete, Path, R } from './common.ts';
+import { workspace } from '../m.Vite.Config.Workspace/mod.ts';
+import { type t, Is, asArray, Delete, Path, R } from './common.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
 
@@ -46,9 +47,18 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
   };
 
   /**
-   * Config.
+   * Plugins
    */
   const plugins = await commonPlugins(options.plugins);
+  if (options.visualizer) {
+    // NB: if added, must be last.
+    const filename = Is.string(options.visualizer) ? options.visualizer : 'dist/stats.html';
+    plugins.push(visualizer({ filename }));
+  }
+
+  /**
+   * Config:
+   */
   const build: t.ViteBuildEnvironmentOptions = {
     target: 'esnext',
     minify,

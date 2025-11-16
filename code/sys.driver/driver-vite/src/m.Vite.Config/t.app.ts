@@ -37,4 +37,10 @@ export type ViteConfigAppOptions = {
    * Common plugins to include (default true).
    */
   plugins?: t.ViteConfigCommonPlugins;
+
+  /**
+   * Flag indicating if the `rollup-plugin-visualizer` should be applied to the bundle.
+   * Out to (default) `dist/stats.html` or the path provided.
+   */
+  visualizer?: boolean | t.StringPath;
 };

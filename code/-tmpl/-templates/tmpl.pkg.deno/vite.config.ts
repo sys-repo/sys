@@ -7,6 +7,7 @@ export default defineConfig(() => {
   const paths = Vite.Config.paths({ app: { entry, sw } });
   return Vite.Config.app({
     paths,
+    visualizer: false,
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');
