@@ -23,7 +23,14 @@ export type WireStream = 'crdt:repo' | `crdt:doc:${t.StringId}`;
 export type WireRepoMethod = 'whenReady' | 'create' | 'get' | 'delete' | 'sync.enable';
 
 /**
- * Argument tuples per method.
+ * Method names reserved for future doc-level RPC.
+ * These are not yet used by `WireCall`/`WireResult`, but define the
+ * stable string surface for document operations over the wire.
+ */
+export type WireDocMethod = 'doc.change' | 'doc.dispose' | 'doc.path' | 'doc.events';
+
+/**
+ * Argument tuples per repo method.
  */
 export type WireRepoArgs = {
   whenReady: [];
@@ -34,7 +41,32 @@ export type WireRepoArgs = {
 };
 
 /**
- * Map from method name → result payload type.
+ * Argument tuples per doc method (reserved for doc-level RPC).
+ * These are shaped around the existing `CrdtRef` surface:
+ * - `doc.change` → mutate a document by id with a change function or patch descriptor.
+ * - `doc.dispose` → dispose a document ref on the worker side.
+ * - `doc.path` → subscribe to path-based events for a given document.
+ * - `doc.events` → subscribe to the full event stream for a document.
+ *
+ * NOTE:
+ *   These are not yet used by the runtime; they define the contract
+ *   we will wire up when the document shim lands.
+ */
+export type WireDocArgs = {
+  'doc.change': [t.StringId, unknown];
+  'doc.dispose': [t.StringId];
+  'doc.path': [t.StringId, t.ObjectPath | readonly t.ObjectPath[], t.ImmutablePathEventsOptions?];
+  'doc.events': [t.StringId];
+};
+
+/**
+ * Combined method discriminant for future use when repo+doc RPC
+ * are unified at the call/result layer.
+ */
+export type WireMethod = WireRepoMethod | WireDocMethod;
+
+/**
+ * Map from repo method name → result payload type.
  * NOTE: keep in sync with `WireRepoMethod` and `WireRepoArgs`.
  */
 export type WireRepoResultData = {
@@ -43,6 +75,17 @@ export type WireRepoResultData = {
   create: WireRepoCreateResult;
   get: WireRepoGetResult;
   delete: void;
+};
+
+/**
+ * Map from doc method name → result payload type.
+ * Reserved for document RPC; not yet used by `WireResultOk`.
+ */
+export type WireDocResultData = {
+  'doc.change': void;
+  'doc.dispose': void;
+  'doc.path': void;
+  'doc.events': void;
 };
 
 /**

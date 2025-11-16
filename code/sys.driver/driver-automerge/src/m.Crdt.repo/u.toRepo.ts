@@ -89,16 +89,40 @@ export function toRepo(
   /**
    * Helpers:
    */
+  type NetworkAdapter = t.NetworkAdapterInterface & {
+    /**
+     * Optional teardown hook.
+     * Some adapters expose a synchronous `disconnect`, others may omit it entirely.
+     */
+    readonly disconnect?: () => void | Promise<void>;
+  };
   const toggleAdapters = async (enabled: boolean) => {
-    await schedule(); // hop off caller's stack
-    for (const a of adapters) {
+    // Hop off the caller's stack so lifecycle edges (dispose, enable/disable)
+    // are always observed from a clean microtask.
+    await schedule();
+
+    for (const adapter of adapters as readonly t.NetworkAdapterInterface[]) {
+      if (life.disposed) break;
       try {
-        await a.whenReady();
-        if (life.disposed) return;
-        if (enabled) a.connect(peerId, {});
-        else (a as { disconnect?: () => void }).disconnect?.();
+        // Wait until the adapter has finished any internal initialization.
+        await adapter.whenReady();
+        if (life.disposed) break;
+
+        if (enabled) {
+          adapter.connect(peerId, {});
+        } else {
+          // Normalize sync/async disconnect to a single awaitable.
+          await Promise.resolve(adapter.disconnect?.());
+        }
       } catch {
-        /* swallow benign races/pre-open throws */
+        /**
+         * Swallow benign races / pre-open teardown errors:
+         * - WebSocket closed before fully open
+         * - whenReady() rejecting due to concurrent dispose
+         *
+         * Domain-level failures are surfaced via repo events; adapter
+         * connect/disconnect should never crash the process or test runner.
+         */
       }
     }
   };
