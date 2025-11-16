@@ -22,6 +22,15 @@ export type ErrLib = {
    * Create a new error collection builder.
    */
   errors(): t.ErrorCollection;
+
+  /**
+   * Normalize arbitrary input into a native `Error` instance.
+   *
+   * - Returns `error` unchanged when already an `Error`.
+   * - Lifts objects with a `message` field into an `Error` and copies enumerable fields.
+   * - Falls back to `new Error(String(input))` for all other values.
+   */
+  normalize(input: unknown): Error;
 };
 
 /**
