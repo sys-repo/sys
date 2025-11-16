@@ -32,6 +32,18 @@ export type WireRepoArgs = {
 };
 
 /**
+ * Method-specific success payloads for RPC results.
+ * Each entry describes the `data` shape for a successful call.
+ */
+export type WireRepoResultData = {
+  whenReady: void;
+  'sync.enable': void;
+  create: unknown;
+  get: unknown;
+  delete: unknown;
+};
+
+/**
  * Optional, non-semantic metadata for tracing/observability.
  * Safe to ignore; useful for requestId/spanId/origin, etc.
  */
@@ -67,12 +79,12 @@ export type WireCall<M extends WireRepoMethod = WireRepoMethod> = {
 };
 
 /** RPC success result envelope. */
-export type WireResultOk = {
+export type WireResultOk<M extends WireRepoMethod = WireRepoMethod> = {
   readonly version: typeof WIRE_VERSION;
   readonly type: 'result';
   readonly id: WireId;
   readonly ok: true;
-  readonly data: unknown;
+  readonly data: WireRepoResultData[M];
   readonly meta?: WireMeta;
 };
 
