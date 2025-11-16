@@ -34,4 +34,3 @@ export {
 } from './m.Bdd.ts';
 
 export { Testing } from './m.Testing.ts';
-export { DomMock } from '../m.Testing.DomMock/mod.ts';
