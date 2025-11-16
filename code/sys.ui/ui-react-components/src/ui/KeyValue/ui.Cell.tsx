@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { type t, Color, css } from './common.ts';
 import { toEllipsis, toFont } from './u.ts';
 
 type Base = Pick<t.KeyValueProps, 'theme' | 'debug' | 'style' | 'mono' | 'truncate' | 'size'>;
@@ -7,13 +7,14 @@ export type CellProps = Base & {
   layout: t.KeyValueLayout;
   children: React.ReactNode;
   role: 'key' | 'val';
+  opacity?: t.Percent; // Final computed opacity for this cell (including any row-level logic).
 };
 
 /**
  * Component:
  */
 export const Cell: React.FC<CellProps> = (props) => {
-  const { debug = false, role, mono, truncate, size, layout } = props;
+  const { debug = false, role, mono, truncate, size, layout, opacity } = props;
   const isKey = role === 'key';
   const isSpaced = layout.kind === 'spaced';
 
@@ -35,6 +36,7 @@ export const Cell: React.FC<CellProps> = (props) => {
       minWidth: 0,
       fontSize,
       fontFamily,
+      opacity: opacity ?? 1,
       ...(truncate && isTextChild ? toEllipsis(true) : {}), // Ellipsis: only for text children when truncate is enabled.
 
       // In spaced layout, use an inner grid so
@@ -48,10 +50,7 @@ export const Cell: React.FC<CellProps> = (props) => {
           }
         : {}),
     }),
-    asKey: css({
-      fontFamily: 'sans-serif',
-      opacity: D.keyOpacity,
-    }),
+    asKey: css({ fontFamily: 'sans-serif' }),
   };
 
   const className = css(styles.base, isKey && styles.asKey, props.style).class;

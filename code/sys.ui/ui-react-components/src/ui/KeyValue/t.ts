@@ -9,6 +9,13 @@ export type KeyValueItem = KeyValueRow | KeyValueTitle | KeyValueHr | KeyValueSp
 export type KeyValueSpacing = t.Pixels | [t.Pixels, t.Pixels] | readonly [t.Pixels, t.Pixels];
 
 /**
+ * Optional opacity overrides for key/value pairs.
+ * - Single number: applied uniformly to both key and value.
+ * - Object: per-side overrides (k = key, v = value).
+ */
+export type KeyValueOpacity = t.Percent | { readonly k?: t.Percent; readonly v?: t.Percent };
+
+/**
  * Types for the KeyValue primitive.
  * A minimal table for rendering key/value data with optional titles and dividers.
  */
@@ -74,6 +81,12 @@ export type KeyValueRow = {
   readonly truncate?: boolean;
   readonly x?: KeyValueSpacing; // spacing: [left, right]
   readonly y?: KeyValueSpacing; // spacing: [top, bottom]
+  /**
+   * Row-level opacity overrides.
+   * - Number: dims both key and value by this factor.
+   * - Object: per-side overrides (k = key, v = value).
+   */
+  readonly opacity?: KeyValueOpacity;
 };
 
 /**
@@ -112,6 +125,7 @@ export type KeyValueFromObject = (
   obj?: Record<string, unknown>,
   options?: KeyValueFromObjectOptions,
 ) => KeyValueItem[];
+
 /** Options for the `KeyValue.fromObject` method. */
 export type KeyValueFromObjectOptions = {
   filter?: (key: string, value: unknown) => boolean;

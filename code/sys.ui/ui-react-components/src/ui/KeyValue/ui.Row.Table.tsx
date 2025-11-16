@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
-import { toFont, toSpacing } from './u.ts';
+import { toFont, toSpacing, toRowOpacity } from './u.ts';
 import { Cell } from './ui.Cell.tsx';
 
 type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
@@ -10,6 +10,7 @@ type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
 
 export const RowTable: React.FC<P> = (props) => {
   const { debug = false, item, mono, truncate, layout } = props;
+  const opacity = toRowOpacity(item.opacity, { k: D.keyOpacity, v: 1 });
 
   /**
    * Render:
@@ -55,6 +56,7 @@ export const RowTable: React.FC<P> = (props) => {
         truncate={truncate}
         size={props.size}
         style={styles.key}
+        opacity={opacity.k}
         children={item.k}
       />
       <Cell
@@ -66,6 +68,7 @@ export const RowTable: React.FC<P> = (props) => {
         truncate={truncate}
         size={props.size}
         style={styles.val}
+        opacity={opacity.v}
         children={item.v}
       />
     </div>

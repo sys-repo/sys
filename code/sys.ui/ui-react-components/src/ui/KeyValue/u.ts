@@ -3,6 +3,9 @@ import { type t, D, Is } from './common.ts';
 type P = t.KeyValueProps;
 type PixelTuple = [t.Pixels | undefined, t.Pixels | undefined];
 
+export { fromObject } from './u.fromObject.ts';
+export { toRowOpacity } from './u.opacity.ts';
+
 /**
  * Produce plain CSS size value.
  */

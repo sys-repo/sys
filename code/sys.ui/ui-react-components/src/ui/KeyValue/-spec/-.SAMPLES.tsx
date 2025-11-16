@@ -2,7 +2,7 @@ import { type t, Color, Str } from '../common.ts';
 import { Foo } from './-ui.Foo.tsx';
 import { Bullet } from '../../Bullet/mod.ts';
 
-export type SampleKind = 'comprehensive' | 'simple';
+export type SampleKind = 'comprehensive' | 'simple' | 'opacity';
 
 /**
  * Sample data-sets:
@@ -11,6 +11,7 @@ export const SAMPLE = {
   items(sample?: SampleKind): t.KeyValueItem[] | undefined {
     if (sample === 'comprehensive') return comprehensive();
     if (sample === 'simple') return simple();
+    if (sample === 'opacity') return opacity();
     return undefined;
   },
 } as const;
@@ -59,5 +60,16 @@ function comprehensive(): t.KeyValueItem[] {
     { kind: 'hr', y: [25, 10] },
     { k: 'theme', v: 'Dark' },
     { k: 'element', v: <Foo /> },
+  ];
+}
+
+function opacity(): t.KeyValueItem[] {
+  const x = [15, 0] as const;
+  return [
+    { kind: 'title', v: 'Opacity Variants' },
+    { kind: 'row', k: 'default', v: 'Hello, world', x },
+    { kind: 'row', k: 'uniform opacity', v: '0.3', opacity: 0.3, x },
+    { kind: 'row', k: 'key opacity 1', v: 'hello', opacity: { k: 1 }, x },
+    { kind: 'row', k: 'value opacity 0.5', v: '👋', opacity: { v: 0.5 }, x },
   ];
 }

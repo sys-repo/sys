@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
-import { toFont, toSpacing } from './u.ts';
+import { toFont, toRowOpacity, toSpacing } from './u.ts';
 import { Cell } from './ui.Cell.tsx';
 
 type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
@@ -10,6 +10,7 @@ type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
 
 export const RowSpaced: React.FC<P> = (props) => {
   const { debug = false, item, mono, truncate, layout } = props;
+  const opacity = toRowOpacity(item.opacity, { k: D.keyOpacity, v: 1 });
 
   /**
    * Render:
@@ -42,6 +43,7 @@ export const RowSpaced: React.FC<P> = (props) => {
         mono={mono}
         truncate={truncate}
         size={props.size}
+        opacity={opacity.k}
         children={item.k}
       />
       <Cell
@@ -53,6 +55,7 @@ export const RowSpaced: React.FC<P> = (props) => {
         mono={mono}
         truncate={truncate}
         size={props.size}
+        opacity={opacity.v}
         children={item.v}
       />
     </div>

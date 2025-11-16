@@ -181,6 +181,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {itemsButton(undefined, '(none)')}
       {itemsButton('simple')}
       {itemsButton('comprehensive')}
+      {itemsButton('opacity')}
 
       <hr style={{ marginTop: 25 }} />
       <Button
