@@ -50,8 +50,8 @@ export const app: t.ViteConfigLib['app'] = async (options = {}) => {
    * Plugins
    */
   const plugins = await commonPlugins(options.plugins);
-  if (options.visualizer) {
-    // NB: if added, must be last.
+  if (Boolean(options.visualizer)) {
+    // NB: the visualizer must be added last.
     const filename = Is.string(options.visualizer) ? options.visualizer : 'dist/stats.html';
     plugins.push(visualizer({ filename }));
   }

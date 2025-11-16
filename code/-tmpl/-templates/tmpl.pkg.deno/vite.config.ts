@@ -11,8 +11,8 @@ export default defineConfig(() => {
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');
-      e.chunk('sys', ['@sys/std']);
-      e.chunk('css', ['@sys/ui-css']);
+      e.chunk('sys', '@sys/std');
+      e.chunk('css', '@sys/ui-css');
     },
   });
 });

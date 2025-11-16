@@ -7,11 +7,17 @@ export default defineConfig(() => {
   const paths = Vite.Config.paths({ app: { entry, sw } });
   return Vite.Config.app({
     paths,
+    visualizer: true,
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');
-      e.chunk('sys', ['@sys/std']);
-      e.chunk('css', ['@sys/ui-css']);
+      e.chunk('sys', '@sys/std');
+      e.chunk('css', '@sys/ui-css');
+      e.chunk('yaml', 'yaml');
+      e.chunk('svg', '@svgdotjs/svg.js');
+      e.chunk('motion', 'motion');
+      e.chunk('automerge', '@automerge/automerge');
+      e.chunk('automerge-repo', '@automerge/automerge-repo');
     },
   });
 });
