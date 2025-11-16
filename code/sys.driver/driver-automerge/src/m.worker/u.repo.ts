@@ -3,6 +3,7 @@ import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;
 const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
+const STALL_AFTER_MS = 8_000;
 
 /**
  * Factory: repo client façade over a MessagePort.
@@ -14,8 +15,15 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   const life = Rx.lifecycleAsync(opts.until);
   port.start?.();
 
-  /** Local ready state mirrored from wire. */
-  const state: { ready: boolean; props?: t.CrdtRepoProps } = { ready: false };
+  /** Local ready + health state mirrored from wire. */
+  const state: {
+    ready: boolean;
+    props?: t.CrdtRepoProps;
+    health: t.WireRepoHealth;
+  } = {
+    ready: false,
+    health: { busy: false, lastProgressAt: 0 },
+  };
 
   /** Canonical repo event stream (props/change + network). */
   const event$ = Rx.subject<t.CrdtRepoEvent>();
@@ -27,6 +35,12 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   function updateReady(next: boolean) {
     if (next !== state.ready) ready$.next(next);
   }
+
+  /** Health-state latch so consumers can sample diagnostics. */
+  const health$ = Rx.behaviorSubject<t.WireRepoHealth>(state.health);
+  health$.subscribe((next) => {
+    state.health = next;
+  });
 
   /** RPC call tracking for client → worker method calls. */
   type RpcPendingEntry = {
@@ -100,12 +114,19 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
         return;
       }
 
-      // 4. Lifecycle signals at the wire layer only (ignored at repo surface):
+      // 4. Health events (busy/progress diagnostics):
+      if (e.type === 'health') {
+        const payload = e.payload as t.WireRepoHealth;
+        health$.next(payload);
+        return;
+      }
+
+      // 5. Lifecycle signals at the wire layer only (ignored at repo surface):
       if (Wire.Is.streamLifecycle(e)) {
         return;
       }
 
-      // 5. Nothing else remains; worker-internal variants are not surfaced.
+      // 6. Nothing else remains; worker-internal variants are not surfaced.
       return;
     }
 
@@ -156,6 +177,27 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     },
     get stores() {
       return (state.props?.stores ?? []) as readonly t.CrdtRepoStoreInfo[];
+    },
+
+    /**
+     * Health/status diagnostics (worker-only extension).
+     */
+    get status() {
+      const health = state.health;
+      const { busy, lastProgressAt } = health;
+      const now = Date.now();
+      const stalled =
+        !!busy &&
+        typeof lastProgressAt === 'number' &&
+        lastProgressAt > 0 &&
+        now - lastProgressAt > STALL_AFTER_MS;
+
+      return {
+        ready: state.ready,
+        busy: !!busy,
+        stalled,
+        lastProgressAt,
+      };
     },
 
     /**
@@ -222,6 +264,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     Try.run(() => port.close?.());
     Try.run(() => ready$.complete());
     Try.run(() => event$.complete());
+    Try.run(() => health$.complete());
 
     const err = new Error('Crdt worker repo disposed');
     pending.forEach((e) => e.reject(err));

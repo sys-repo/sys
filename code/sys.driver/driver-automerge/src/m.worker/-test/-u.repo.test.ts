@@ -559,4 +559,86 @@ describe('CrdtWorker.repo (shim)', () => {
       await real.dispose();
     });
   });
+
+  describe('status/health diagnostics', () => {
+    it('status mirrors ready + health busy/lastProgressAt', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const real = Test.realRepo();
+      const client = CrdtWorker.repo(port1) as t.CrdtRepoWorkerShim;
+
+      // Wire the worker side to port2 and wait for ready.
+      CrdtWorker.attach(port2, real);
+      await client.whenReady();
+
+      // Initial state should reflect ready, non-busy.
+      const initialStatus = client.status;
+      expect(initialStatus.ready).to.eql(true);
+      expect(initialStatus.busy).to.eql(false);
+
+      // Craft a health event indicating the worker is busy "now".
+      const now = Date.now();
+      const health: t.WireRepoHealth = { busy: true, lastProgressAt: now };
+
+      const msg: t.WireMessage = {
+        version: CrdtWorker.version,
+        type: 'event',
+        stream: Wire.Kind.repo,
+        event: { type: 'health', payload: health },
+      };
+
+      // Push the health message into the same MessagePort the shim is listening on.
+      port1.dispatchEvent(new MessageEvent('message', { data: msg }));
+
+      // Allow the shim to process and mirror the health state.
+      await Schedule.micro();
+
+      const status = client.status;
+      expect(status.ready).to.eql(true);
+      expect(status.busy).to.eql(true);
+      expect(status.lastProgressAt).to.eql(health.lastProgressAt);
+
+      await client.dispose();
+      await real.dispose();
+    });
+
+    it('status.stalled flips true when busy and progress is stale', async () => {
+      const { port1 } = Test.makePorts();
+      const client = CrdtWorker.repo(port1) as t.CrdtRepoWorkerShim;
+
+      const baseNow = Date.now();
+      const originalNow = Date.now;
+
+      try {
+        let now = baseNow;
+        (Date as unknown as { now: () => number }).now = () => now;
+
+        // Health event: busy and just made progress at baseNow.
+        const health: t.WireRepoHealth = { busy: true, lastProgressAt: baseNow };
+        const msg: t.WireMessage = {
+          version: CrdtWorker.version,
+          type: 'event',
+          stream: Wire.Kind.repo,
+          event: { type: 'health', payload: health },
+        };
+
+        port1.dispatchEvent(new MessageEvent('message', { data: msg }));
+        await Schedule.micro();
+
+        // Fresh progress → not stalled yet.
+        const statusFresh = client.status;
+        expect(statusFresh.busy).to.eql(true);
+        expect(statusFresh.stalled).to.eql(false);
+
+        // Advance virtual clock beyond the stall threshold (8s+).
+        now = baseNow + 9_000;
+
+        const statusStalled = client.status;
+        expect(statusStalled.busy).to.eql(true);
+        expect(statusStalled.stalled).to.eql(true);
+      } finally {
+        (Date as unknown as { now: () => number }).now = originalNow;
+        await client.dispose();
+      }
+    });
+  });
 });

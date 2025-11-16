@@ -49,6 +49,16 @@ export type CrdtWorkerLib = {
 };
 
 /**
+ * Repo status/health summary.
+ */
+export type CrdtRepoStatus = {
+  readonly ready: boolean;
+  readonly busy: boolean;
+  readonly stalled: boolean;
+  readonly lastProgressAt: t.UnixTimestamp;
+};
+
+/**
  * Worker-backed facade for a CRDT repo.
  *
  * Structurally a `t.CrdtRepo` with an extra `via: 'worker-proxy'` brand
@@ -56,6 +66,7 @@ export type CrdtWorkerLib = {
  */
 export type CrdtRepoWorkerShim = t.CrdtRepo & {
   readonly via: 'worker-proxy';
+  readonly status: CrdtRepoStatus;
 };
 
 /**
