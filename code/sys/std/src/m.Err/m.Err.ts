@@ -4,6 +4,7 @@ import { Try } from './common.ts';
 import { Is } from './m.Is.ts';
 import { Name } from './m.Name.ts';
 import { errors } from './u.errors.ts';
+import { normalize } from './u.normalize.ts';
 import { std } from './u.std.ts';
 
 /**
@@ -15,4 +16,5 @@ export const Err: t.ErrLib = {
   Try,
   std,
   errors,
+  normalize,
 };

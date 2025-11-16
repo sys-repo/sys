@@ -16,38 +16,10 @@ export function _catch<T>(fn: () => T | Promise<T>): t.TryResult<T> | Promise<t.
     if (isPromise(out)) {
       return Promise.resolve(out)
         .then((data) => ({ ok: true as const, data, error: undefined }))
-        .catch((e) => ({ ok: false as const, error: toError(e) }));
+        .catch((e) => ({ ok: false as const, error: Err.normalize(e) }));
     }
     return { ok: true, data: out as T, error: undefined };
   } catch (e) {
-    return { ok: false, error: toError(e) };
+    return { ok: false, error: Err.normalize(e) };
   }
-}
-
-/**
- * Helpers:
- */
-function toError(cause: unknown): Error {
-  // Preserve native Error instances as-is.
-  if (cause instanceof Error) return cause;
-
-  // Preserve structured "error-like" objects by lifting them into a real Error,
-  // while copying fields across (kind, name, code, etc).
-  if (Err.Is.errorLike(cause)) {
-    const src = cause as { [key: string]: unknown; message: string };
-
-    const error = new Error(src.message);
-
-    // Preserve an explicit name if present (e.g. "CrdtRepoError").
-    if (typeof src.name === 'string') {
-      error.name = src.name;
-    }
-
-    // Copy all enumerable fields onto the Error instance for downstream access.
-    Object.assign(error, src);
-    return error;
-  }
-
-  // Fallback: stringify anything else (numbers, booleans, null, etc).
-  return new Error(String(cause));
 }
