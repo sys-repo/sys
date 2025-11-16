@@ -100,6 +100,9 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
 
     Promise.resolve()
       .then(() => handler(...(args as unknown[])))
+      // NB:
+      // - Domain-level errors should be returned as data (eg `{ error: CrdtRepoError }`).
+      // - Thrown errors here are treated as transport/RPC failures and sent via `WireError`.
       .then((data) => sendResult(Wire.ok(id, data)))
       .catch((error) => sendResult(Wire.err(id, Wire.errFrom(error))));
   };

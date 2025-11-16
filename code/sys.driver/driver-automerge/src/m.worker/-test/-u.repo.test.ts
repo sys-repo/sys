@@ -422,6 +422,103 @@ describe('CrdtWorker.repo (shim)', () => {
       await client.dispose();
       await real.dispose();
     });
+
+    describe('errors', () => {
+      it('propagates repo.get domain errors via response.error (ok === true)', async () => {
+        const { port1, port2 } = Test.makePorts();
+        const real = Test.realRepo();
+
+        /**
+         * Spy on the real repo's get and make it return a domain-level error,
+         * not throw. This should come back to the client as `result.error`.
+         */
+        const calls: { id: t.StringId; options?: t.CrdtRepoGetOptions }[] = [];
+        const originalGet = real.get.bind(real);
+
+        real.get = (async <T extends Record<string, unknown>>(
+          id: t.StringId,
+          options?: t.CrdtRepoGetOptions,
+        ) => {
+          calls.push({ id, options });
+
+          const error = {
+            kind: 'Timeout' as t.CrdtRepoErrorKind,
+            message: 'took too long',
+          } as t.CrdtRepoError;
+
+          const result: t.CrdtRefGetResponse<T> = { error };
+          return result;
+        }) as typeof real.get;
+
+        const client = CrdtWorker.repo(port1);
+
+        CrdtWorker.attach(port2, real);
+        await client.whenReady();
+
+        const id = 'doc-err' as t.StringId;
+        const options: t.CrdtRepoGetOptions = { timeout: 123 as t.Msecs };
+
+        const result = await client.get<{ foo: string }>(id, options);
+
+        // Worker called with the same args.
+        expect(calls.length).to.eql(1);
+        expect(calls[0]?.id).to.eql(id);
+        expect(calls[0]?.options).to.eql(options);
+
+        // Domain error comes back on the happy path response.
+        expect(result.doc).to.eql(undefined);
+        expect(result.error).to.exist;
+        expect(result.error?.kind).to.eql<'Timeout'>('Timeout');
+        expect(result.error?.message).to.eql('took too long');
+
+        await client.dispose();
+        await real.dispose();
+
+        // Restore for future tests.
+        real.get = originalGet;
+      });
+
+      it('wraps thrown repo.get errors as WireError (client rejects)', async () => {
+        const { port1, port2 } = Test.makePorts();
+        const real = Test.realRepo();
+
+        const originalGet = real.get.bind(real);
+
+        const thrown = {
+          kind: 'Timeout' as t.CrdtRepoErrorKind,
+          message: 'boom',
+        } as t.CrdtRepoError;
+
+        real.get = (async () => {
+          throw thrown;
+        }) as typeof real.get;
+
+        const client = CrdtWorker.repo(port1);
+
+        CrdtWorker.attach(port2, real);
+        await client.whenReady();
+
+        let caught: t.WireError | undefined;
+
+        try {
+          await client.get<{ foo: string }>('doc-err' as t.StringId);
+        } catch (err) {
+          caught = err as t.WireError;
+        }
+
+        expect(caught).to.exist;
+        if (caught) {
+          // kind/message preserved through Wire.errFrom + Wire.err → rpc() rejection.
+          expect(caught.kind).to.eql<'Timeout'>('Timeout');
+          expect(caught.message).to.eql('boom');
+        }
+
+        await client.dispose();
+        await real.dispose();
+
+        real.get = originalGet;
+      });
+    });
   });
 
   describe('rpc: delete', () => {
