@@ -51,24 +51,25 @@ describe('CrdtWorker.repo (shim)', () => {
       expect(client.repo.id.instance).to.eql(real.id.instance);
       expect(client.repo.id.peer).to.eql(real.id.peer);
 
+      await client.repo.dispose();
       await real.dispose();
     });
   });
 
   describe('core invariants', () => {
     it('exposes a t.CrdtRepo surface (structural typing)', async () => {
-      const { port1, port2 } = Test.makePorts();
+      const { port1 } = Test.makePorts();
       const repo = CrdtWorker.repo(port1);
       // Type-level: should be assignable to t.CrdtRepo
       expectTypeOf(repo).toMatchTypeOf<t.CrdtRepo>();
-
-      repo.dispose();
+      await repo.dispose();
     });
 
-    it('branding: via === "worker" (stable discriminant)', () => {
+    it('branding: via === "worker-proxy" (stable discriminant)', async () => {
       const { port1 } = Test.makePorts();
       const repo = CrdtWorker.repo(port1);
       expect((repo as t.CrdtRepoWorkerShim).via).to.eql('worker-proxy');
+      await repo.dispose();
     });
 
     it('lifecycle: dispose emits once, sets disposed, and is idempotent', async () => {
