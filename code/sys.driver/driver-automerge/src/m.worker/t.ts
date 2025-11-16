@@ -33,6 +33,19 @@ export type CrdtWorkerLib = {
     url: string | URL | Worker,
     opts?: { worker?: WorkerOptions; until?: t.UntilInput },
   ) => Promise<{ readonly worker: Worker; readonly repo: t.CrdtRepo }>;
+
+  /**
+   * Convenience helper for fetching a document via RPC and returning a
+   * worker-branded CRDT ref. Wraps `repo.get(id, options)` and enforces
+   * the `CrdtDocWorkerShim<T>` surface on success.
+   *
+   * Domain errors (e.g. timeouts) are surfaced as rejections.
+   */
+  readonly doc: <T extends O = O>(
+    repo: CrdtRepoWorkerShim,
+    id: t.StringId,
+    options?: t.CrdtRepoGetOptions,
+  ) => Promise<CrdtDocWorkerShim<T>>;
 };
 
 /**
