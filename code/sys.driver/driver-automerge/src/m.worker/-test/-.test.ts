@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { WIRE_VERSION } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 import { attach } from '../u.attach.ts';
-import { createRepo } from '../u.createRepo.ts';
+import { createRepo } from '../u.repo.ts';
 import { spawn } from '../u.spawn.ts';
 
 describe(`CRDT: web-worker transport`, () => {
