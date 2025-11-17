@@ -85,11 +85,10 @@ function formatRepoLabel(repo: t.CrdtRepo, startupElapsedMsecs?: t.Msecs): strin
 }
 
 const wrangle = {
-  items(props: P, startupElapsedMsecs?: t.Msecs): t.KeyValueItem[] {
-    const { repo, theme } = props;
+  items(props: P, startupElapsed?: t.Msecs): t.KeyValueItem[] {
+    const { repo } = props;
     if (!repo) return [];
 
-    const status = getStatus(repo);
     const { sync, stores } = repo;
     const rows: t.KeyValueItem[] = [];
     const indent = [15, 0] as const;
@@ -97,7 +96,7 @@ const wrangle = {
 
     rows.push({
       k: CrdtIs.proxy(repo) ? 'Repo ( Worker )' : 'Repo',
-      v: formatRepoLabel(repo, startupElapsedMsecs),
+      v: formatRepoLabel(repo, startupElapsed),
       mono: true,
     });
     rows.push({ k: 'Instance', v: repo.id.instance || '-', mono: true, x: indent });
@@ -127,7 +126,7 @@ const wrangle = {
       });
     }
     if (stores.length > 0) {
-      rows.push({ k: 'Storage', y: [10, 0] });
+      rows.push({ k: 'Storage', y: [5, 0] });
       stores.forEach((s) => {
         let k = '';
         let v = '';
