@@ -6,14 +6,18 @@ An `Immutable<T>` implementation using [Automerge](https://automerge.org/) as th
 - [github.com/automerge](https://github.com/automerge) (MIT)
 
 
-### Types
+<p>&nbsp;</p>
 
+
+### Types
 ```ts
 import { Crdt } from 'jsr:@sys/driver-automerge/t';
 //       ↑
 //       Crdt.Ref
 //       Crdt.Repo
 ```
+
+<p>&nbsp;</p>
 
 ### Environment: FileSystem
 Programatically import into a runtime environment that has a file-system:
@@ -50,12 +54,26 @@ const repo = Crdt.repo({
     { ws: 'sync.automerge.org' },   // sample sync-server, see: `@sys/driver-automerge/ws` to stand-up dedicated server.
   ],
 });
-
-
 ```
 
+<p>&nbsp;</p>
 
-### WebSocket Sync Server
+
+## Worker
+Run the CRDT repository inside a background web-worker, keeping the main (UI) thread free while all heavy operations — merging, patch application, change replay, and network syncing — execute off-thread.
+
+```ts
+const url = new URL('./-u.worker.ts', import.meta.url)
+const worker = new Worker(url, { type: 'module' });
+
+const { repo } = await Crdt.Worker.spawn(worker);
+//        ↑
+//        type = Crdt.Repo (proxy)
+```
+
+<p>&nbsp;</p>
+
+## Sync Server - WebSockets
 During development, you can start the local web-socket server on `localhost`:
 
 ```bash
