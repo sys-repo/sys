@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  */
 export type DocumentLib = {
   readonly Id: t.DocumentIdLib;
+  readonly Info: t.FC<t.DocumentProps>;
 };
 
 /**

@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Color, CrdtIs, css, Icons, KeyValue, Rx, Str, Time, useRev } from './common.ts';
 import { getStatus } from './u.status.ts';
 import { StatusBullet } from './ui.StatusBullet.tsx';
+import { CrdtWorker } from '../../m.worker/m.CrdtWorker.ts';
 
 type P = t.RepoInfoProps;
 
@@ -95,7 +96,7 @@ const wrangle = {
     const hr = () => rows.push({ kind: 'hr' });
 
     rows.push({
-      k: 'Repo',
+      k: CrdtIs.proxy(repo) ? 'Repo ( Worker )' : 'Repo',
       v: formatRepoLabel(repo, startupElapsedMsecs),
       mono: true,
     });
@@ -118,10 +119,7 @@ const wrangle = {
         />
       );
 
-      rows.push({
-        k: 'Network',
-        v: status.syncEnabled ? <StatusBullet theme={theme} status={status} /> : '(disabled)',
-      });
+      rows.push({ k: 'Network', v: <SyncStatusRow {...props} /> });
       sync.urls.forEach((url) => {
         const k = server;
         const v = url;
@@ -148,3 +146,27 @@ const wrangle = {
     return rows;
   },
 } as const;
+
+/**
+ * Component: Sync-Status
+ */
+function SyncStatusRow(props: P) {
+  const { theme, repo } = props;
+  if (!repo) return null;
+
+  const status = getStatus(repo);
+  const styles = {
+    base: css({ display: 'flex', alignItems: 'center', gap: 6, lineHeight: 1 }),
+    bullet: css({ position: 'relative', top: -1 }),
+    disabled: css({
+      opacity: repo.sync.enabled ? 0 : 1,
+      transition: 'opacity 120ms ease',
+    }),
+  };
+  return (
+    <div className={styles.base.class}>
+      {<div className={styles.disabled.class}>{'(disabled)'}</div>}
+      <StatusBullet theme={theme} status={status} style={styles.bullet} />
+    </div>
+  );
+}

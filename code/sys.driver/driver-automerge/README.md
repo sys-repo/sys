@@ -34,6 +34,7 @@ doc.change((d) => (d.count = 1234)); // ← Immutable<T>
 console.info(doc.current);           // ← { count:1234 }
 ```
 
+<p>&nbsp;</p>
 
 
 ### Environment: Web Browser

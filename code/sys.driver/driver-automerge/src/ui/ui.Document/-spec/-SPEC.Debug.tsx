@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
 import { createRepo } from '../../../-test.createRepo.ts';
+import { Crdt } from '../../-test.ui.ts';
 
 type P = t.DocumentProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -28,12 +29,14 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    doc: s<t.Crdt.Ref>(),
   };
   const p = props;
   const api = {
     props,
     reset,
     listen,
+    repo: createRepo(),
   };
 
   function listen() {
@@ -69,6 +72,7 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
+  const repo = debug.repo;
   const p = debug.props;
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
@@ -84,6 +88,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <Crdt.UI.Repo.Info repo={repo} />
+
+      <hr style={{ marginTop: 20, marginBottom: 20 }} />
       <div className={Styles.title.class}>{D.name}</div>
 
       <Button
@@ -96,6 +103,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView
+        name={'doc'}
+        data={Signal.toObject(p.doc.value?.current)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
