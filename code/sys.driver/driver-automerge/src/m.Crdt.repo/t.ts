@@ -38,6 +38,7 @@ export type CrdtRepoProps = {
  * Repo status/health summary.
  */
 export type CrdtRepoStatus = {
+  readonly ready: boolean;
   readonly stalled: boolean;
 };
 

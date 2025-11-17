@@ -28,7 +28,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
    * If no props have been seen yet, we report a benign default.
    */
   function computeStatus(): t.CrdtRepoStatus {
-    return state.props?.status ?? { stalled: false };
+    return state.props?.status ?? { ready: false, stalled: false };
   }
 
   /** Canonical repo event stream (props/change + network). */

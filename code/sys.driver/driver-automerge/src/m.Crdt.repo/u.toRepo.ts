@@ -126,10 +126,10 @@ export function toRepo(
   const api: t.CrdtRepo = {
     id: { peer, instance: `repo-crdt-${slug()}` },
     get ready() {
-      return _ready;
+      return api.status.ready;
     },
     get status(): t.CrdtRepoStatus {
-      return { stalled: false };
+      return { ready: _ready, stalled: false };
     },
 
     async whenReady() {
