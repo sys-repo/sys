@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Icons, KeyValue, Rx, Str, Time, useRev } from './common.ts';
+import { type t, Color, CrdtIs, css, Icons, KeyValue, Rx, Str, Time, useRev } from './common.ts';
 import { getStatus } from './u.status.ts';
 import { StatusBullet } from './ui.StatusBullet.tsx';
 
@@ -69,20 +69,37 @@ function formatStartupElapsed(startupElapsed?: t.Msecs): string {
   return Time.duration(startupElapsed).toString();
 }
 
+function formatRepoLabel(repo: t.CrdtRepo, startupElapsedMsecs?: t.Msecs): string {
+  const msecs = formatStartupElapsed(startupElapsedMsecs);
+
+  if (CrdtIs.proxy(repo)) {
+    const worker = repo as t.CrdtRepoWorkerShim;
+    const { ready, busy, stalled } = worker.status;
+    if (!ready) return 'starting...';
+    if (stalled) return 'stalled (worker busy)';
+    if (busy) return 'busy...';
+    return `ready (${msecs})`;
+  }
+
+  return repo.ready ? `ready (${msecs})` : 'starting...';
+}
+
 const wrangle = {
   items(props: P, startupElapsedMsecs?: t.Msecs): t.KeyValueItem[] {
     const { repo, theme } = props;
     if (!repo) return [];
 
     const status = getStatus(repo);
-    const msecs = formatStartupElapsed(startupElapsedMsecs);
-
     const { sync, stores } = repo;
     const rows: t.KeyValueItem[] = [];
     const indent = [15, 0] as const;
     const hr = () => rows.push({ kind: 'hr' });
 
-    rows.push({ k: 'Repo', v: repo.ready ? `ready (${msecs})` : 'starting...', mono: true });
+    rows.push({
+      k: 'Repo',
+      v: formatRepoLabel(repo, startupElapsedMsecs),
+      mono: true,
+    });
     rows.push({ k: 'Instance', v: repo.id.instance || '-', mono: true, x: indent });
     rows.push({ k: 'Peer Identity', v: repo.id.peer || '-', mono: true, x: indent });
 
