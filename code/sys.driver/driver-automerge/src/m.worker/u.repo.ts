@@ -14,7 +14,7 @@ const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
  */
 export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}) => {
   const life = Rx.lifecycleAsync(opts.until);
-  const stalledAfter = opts.stalledAfter ?? 3_000;
+  const stalledAfter = opts.stalledAfter ?? 1_500;
   port.start?.();
 
   /**
