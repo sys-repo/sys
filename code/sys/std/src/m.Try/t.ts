@@ -1,3 +1,5 @@
+import type { t } from './common.ts';
+
 /**
  * Helpers for safe try/catch execution.
  */
@@ -36,31 +38,16 @@ export type TryLib = {
   readonly run: TryRun;
 };
 
-/** Successful result containing resolved data and no error. */
-export type TryOk<T> = {
-  readonly ok: true;
-  readonly data: T;
-  readonly error: undefined;
-};
-
-/** Failed result containing a native Error. */
-export type TryFail = {
-  readonly ok: false;
-  readonly error: Error;
-};
-
-/** Discriminated union representing the outcome of a Try.run call. */
-export type TryResult<T> = TryOk<T> | TryFail;
-
 /** Result of a Try.run invocation, with a handler helper. */
 export type TryRunResult<T> = {
   /** Underlying TryResult from the attempted execution. */
-  readonly result: TryResult<T>;
+  readonly result: t.TryResult<T>;
+
   /**
    * Invoke the given handler only when the execution failed.
    * Returns the original TryResult for further inspection if needed.
    */
-  readonly catch: (fn: (error: Error) => void) => TryResult<T>;
+  readonly catch: (fn: (error: Error) => void) => t.TryResult<T>;
 };
 
 /**
