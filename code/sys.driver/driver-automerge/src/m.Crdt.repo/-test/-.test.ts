@@ -98,8 +98,6 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       expect(repo.ready).to.eql(false);
       const initialStatus = repo.status;
-      expect(initialStatus.ready).to.eql(false);
-      expect(initialStatus.busy).to.eql(false);
       expect(initialStatus.stalled).to.eql(false);
 
       const readyRepo = await repo.whenReady();
@@ -107,21 +105,16 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(readyRepo).to.equal(repo);
 
       const statusAfterReady = repo.status;
-      expect(statusAfterReady.ready).to.eql(true);
-      expect(statusAfterReady.busy).to.eql(false);
       expect(statusAfterReady.stalled).to.eql(false);
 
       await repo.whenReady();
       expect(repo.ready).to.eql(true);
-      expect(repo.status.ready).to.eql(true);
     });
 
     it('status (core defaults)', () => {
       const repo = Crdt.repo();
       const status = repo.status;
 
-      expect(status.ready).to.eql(false);
-      expect(status.busy).to.eql(false);
       expect(status.stalled).to.eql(false);
     });
 

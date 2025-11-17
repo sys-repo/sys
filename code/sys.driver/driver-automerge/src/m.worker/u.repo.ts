@@ -1,8 +1,8 @@
-import { type t, Is, Rx, Try, Time } from './common.ts';
+import { type t, Is, Rx, Try } from './common.ts';
 import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;
-type State = { ready: boolean; props?: t.CrdtRepoProps; health: t.WireRepoHealth };
+type State = { ready: boolean; props?: t.CrdtRepoProps };
 
 const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
 
@@ -14,7 +14,6 @@ const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
  */
 export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}) => {
   const life = Rx.lifecycleAsync(opts.until);
-  const stalledAfter = opts.stalledAfter ?? 1_500;
   port.start?.();
 
   /**
@@ -22,59 +21,14 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
    */
   const state: State = {
     ready: false,
-    health: { busy: false, lastProgressAt: 0 },
   };
 
   /**
-   * Derive a stable status shape from current state.
+   * Status is mirrored from the latest repo props.
+   * If no props have been seen yet, we report a benign default.
    */
   function computeStatus(): t.CrdtRepoStatus {
-    const { ready, health } = state;
-    const { busy, lastProgressAt } = health;
-    const now = Date.now();
-    const stalled =
-      !!busy && Is.num(lastProgressAt) && lastProgressAt > 0 && now - lastProgressAt > stalledAfter;
-    return { ready, busy: !!busy, stalled };
-  }
-
-  /**
-   * Schedule a one-shot check at (stall threshold - elapsed).
-   * If, at that time, the repo is still busy and has become stalled,
-   * emit a synthetic props/change("status") event.
-   */
-  let stallTimer: t.Cancellable | undefined;
-  function scheduleStallTimer() {
-    clearStallTimer();
-    const { health } = state;
-    if (!health.busy || !Is.num(health.lastProgressAt) || health.lastProgressAt <= 0) return;
-
-    const now = Time.now.timestamp;
-    const elapsed = now - health.lastProgressAt;
-    const remaining = stalledAfter - elapsed;
-    const delay = remaining > 0 ? remaining : 0;
-
-    function handleTimeout() {
-      stallTimer = undefined;
-      if (life.disposed || !state.props) return;
-
-      const current = computeStatus();
-      if (!current.busy || !current.stalled) return;
-
-      const beforeStatus: t.CrdtRepoStatus = { ...current, stalled: false };
-      const before: t.CrdtRepoProps = { ...state.props, status: beforeStatus };
-      const after: t.CrdtRepoProps = { ...state.props, status: current };
-      state.props = after;
-      emit({
-        type: 'props/change',
-        payload: { prop: 'status', before, after },
-      });
-    }
-
-    stallTimer = Time.delay(delay, handleTimeout);
-  }
-  function clearStallTimer() {
-    stallTimer?.cancel();
-    stallTimer = undefined;
+    return state.props?.status ?? { stalled: false };
   }
 
   /** Canonical repo event stream (props/change + network). */
@@ -136,20 +90,6 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
         if (e.type === 'props/snapshot') {
           const snapshot = Wire.clone(e.payload);
           state.props = snapshot;
-
-          // Seed health from snapshot.status where available.
-          const status = snapshot.status;
-          if (status) {
-            state.health = {
-              busy: status.busy,
-              lastProgressAt: status.busy ? Date.now() : 0,
-            };
-            if (status.busy) {
-              scheduleStallTimer();
-            } else {
-              clearStallTimer();
-            }
-          }
         }
 
         const nextReady = !!e.payload.ready;
@@ -191,52 +131,13 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       }
 
       /**
-       * 4. Health events (busy/progress diagnostics):
-       *    - mirror health into local state
-       *    - synthesize a props/change("status") on actual status transitions.
-       *    - schedule a timer-based stall check while busy.
-       */
-      if (e.type === 'health') {
-        const prevStatus = computeStatus();
-        state.health = e.payload as t.WireRepoHealth;
-        const nextStatus = computeStatus();
-
-        // Only emit a synthetic status change if something actually changed and
-        // we have a props snapshot to base the before/after on.
-        if (state.props) {
-          const changed =
-            prevStatus.ready !== nextStatus.ready ||
-            prevStatus.busy !== nextStatus.busy ||
-            prevStatus.stalled !== nextStatus.stalled;
-
-          if (changed) {
-            const before: t.CrdtRepoProps = { ...state.props, status: prevStatus };
-            const after: t.CrdtRepoProps = { ...state.props, status: nextStatus };
-            state.props = after;
-            emit({
-              type: 'props/change',
-              payload: { prop: 'status', before, after },
-            });
-          }
-        }
-
-        if (nextStatus.busy) {
-          scheduleStallTimer();
-        } else {
-          clearStallTimer();
-        }
-
-        return;
-      }
-
-      /**
-       * 5. Lifecycle signals at the wire layer only (ignored at repo surface):
+       * 4. Lifecycle signals at the wire layer only (ignored at repo surface):
        */
       if (Wire.Is.streamLifecycle(e)) {
         return;
       }
 
-      // 6. Nothing else remains; worker-internal variants are not surfaced.
+      // 5. Nothing else remains; worker-internal variants are not surfaced.
       return;
     }
 
@@ -296,7 +197,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     },
 
     /**
-     * Health/status diagnostics (override).
+     * Health/status diagnostics (mirror from props).
      */
     get status() {
       return computeStatus();
@@ -374,7 +275,6 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     Try.run(() => port.close?.());
     Try.run(() => ready$.complete());
     Try.run(() => event$.complete());
-    Try.run(() => clearStallTimer());
 
     const err = new Error('Crdt worker repo disposed');
     pending.forEach((entry) => entry.reject(err));

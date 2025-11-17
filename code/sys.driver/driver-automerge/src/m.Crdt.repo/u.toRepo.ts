@@ -129,7 +129,7 @@ export function toRepo(
       return _ready;
     },
     get status(): t.CrdtRepoStatus {
-      return { ready: _ready, busy: false, stalled: false };
+      return { stalled: false };
     },
 
     async whenReady() {

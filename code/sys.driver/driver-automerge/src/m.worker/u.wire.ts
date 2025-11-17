@@ -106,11 +106,7 @@ export const Wire = {
     return {
       id: p.id,
       ready: p.ready,
-      status: {
-        ready: p.status.ready,
-        busy: p.status.busy,
-        stalled: p.status.stalled,
-      },
+      status: { stalled: p.status.stalled },
       sync: {
         peers: [...p.sync.peers],
         urls: [...p.sync.urls],
