@@ -35,7 +35,7 @@ export default Spec.describe(D.displayName, (e) => {
           docPath={v.docPath}
           slugPath={v.slugPath}
           signals={debug.signals}
-          localstorage={STORAGE_KEY.DEV}
+          storageKey={STORAGE_KEY.DEV}
           onDiagnostics={(e) => {
             console.info(`⚡️ onDiagnostics:`, e);
             p.slugDiagnostics.value = e.slugDiagnostics;
@@ -51,7 +51,7 @@ export default Spec.describe(D.displayName, (e) => {
         return (
           <Crdt.UI.Repo.SyncSwitch
             repo={debug.repo}
-            localstorage={STORAGE_KEY.DEV}
+            storageKey={STORAGE_KEY.DEV}
             style={{ Padding: [14, 10] }}
           />
         );

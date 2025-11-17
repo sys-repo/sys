@@ -33,7 +33,7 @@ export default Spec.describe(D.displayName, (e) => {
             crdt={{
               repo,
               visible: v.crdt.visible,
-              localstorage: STORAGE_KEY.DEV,
+              storageKey: STORAGE_KEY.DEV,
             }}
           />
         );
@@ -46,7 +46,7 @@ export default Spec.describe(D.displayName, (e) => {
         return (
           <Crdt.UI.Repo.SyncSwitch
             repo={repo}
-            localstorage={STORAGE_KEY.DEV}
+            storageKey={STORAGE_KEY.DEV}
             style={{ Padding: [14, 10] }}
           />
         );

@@ -17,7 +17,7 @@ import { type t } from './common.ts';
 export type RepoSyncSwitchProps = {
   repo?: t.CrdtRepo;
   debug?: boolean;
-  localstorage?: t.StringKey;
+  storageKey?: t.StringKey;
   mode?: 'default' | 'switch-only' | 'switch + network-icons';
   theme?: t.CommonTheme;
   style?: t.CssInput;

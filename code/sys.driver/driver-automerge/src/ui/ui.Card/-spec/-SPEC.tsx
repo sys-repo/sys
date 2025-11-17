@@ -33,7 +33,7 @@ export default Spec.describe(D.displayName, async (e) => {
           debug={p.debug.value}
           theme={p.theme.value}
           headerStyle={{ topOffset: -29 }}
-          localstorage={STORAGE_KEY}
+          storageKey={STORAGE_KEY}
           repo={repo}
           signals={{ textbox: p.textbox, doc: p.doc }}
         />

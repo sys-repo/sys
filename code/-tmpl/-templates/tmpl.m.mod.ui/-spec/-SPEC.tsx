@@ -9,6 +9,8 @@ export default Spec.describe(D.displayName, async (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
+
+    update();
     function update() {
       ctx.redraw();
     }
@@ -26,8 +28,6 @@ export default Spec.describe(D.displayName, async (e) => {
         const v = Signal.toObject(p);
         return <MyComponent debug={v.debug} theme={v.theme} />;
       });
-
-    update();
   });
 
   e.it('ui:debug', (e) => {

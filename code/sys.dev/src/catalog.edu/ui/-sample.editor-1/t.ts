@@ -13,7 +13,7 @@ export type SampleProps = {
   slugPath?: t.ObjectPath;
 
   signals?: Partial<t.YamlEditorSignals>;
-  localstorage?: t.StringId;
+  storageKey?: t.StringId;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

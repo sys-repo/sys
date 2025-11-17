@@ -76,7 +76,7 @@ export function createDebugSignals() {
       visible: s((snap.documentId ?? {}).visible),
       readOnly: s((snap.documentId ?? {}).readOnly),
       urlKey: s((snap.documentId ?? {}).urlKey),
-      localstorage: STORAGE_KEY.DEV,
+      storageKey: STORAGE_KEY.DEV,
     },
     editor: {
       margin: s((snap.editor ?? {}).margin),

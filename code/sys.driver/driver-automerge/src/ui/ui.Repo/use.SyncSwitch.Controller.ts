@@ -5,7 +5,7 @@ type P = t.RepoSyncSwitchProps;
 type Store = { syncEnabled?: boolean };
 
 export function useController(props: P) {
-  const { repo, localstorage } = props;
+  const { repo, storageKey } = props;
 
   /**
    * Hooks:
@@ -19,7 +19,7 @@ export function useController(props: P) {
   /**
    * Effect: refresh local-store handle when the storage key changes.
    */
-  useEffect(() => void setStore(wrangle.localstore(props)), [localstorage]);
+  useEffect(() => void setStore(wrangle.localstore(props)), [storageKey]);
 
   /**
    * Effect: persist changes made by this hook back to local-storage.
@@ -104,10 +104,10 @@ export function useController(props: P) {
  */
 const wrangle = {
   localstore(props: P) {
-    const { repo, localstorage } = props;
+    const { repo, storageKey } = props;
     const syncEnabled = Is.bool(repo?.sync.enabled) ? repo.sync.enabled : undefined;
-    if (!localstorage) return;
-    else return LocalStorage.immutable<Store>(localstorage, { syncEnabled });
+    if (!storageKey) return;
+    else return LocalStorage.immutable<Store>(storageKey, { syncEnabled });
   },
 
   enabled(store?: Store, repo?: t.CrdtRepo) {

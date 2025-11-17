@@ -20,7 +20,7 @@ export const Body: React.FC<P> = (props) => {
   const DOC = {
     visible: props.documentId?.visible ?? D.documentId.visible,
     readOnly: props.documentId?.readOnly ?? D.documentId.readOnly,
-    localstorage: props.documentId?.localstorage,
+    storageKey: props.documentId?.storageKey,
     urlKey: props.documentId?.urlKey,
   } as const;
 
@@ -61,7 +61,7 @@ export const Body: React.FC<P> = (props) => {
           repo,
           signals: { doc: signals.doc },
           initial: {},
-          storageKey: DOC.localstorage,
+          storageKey: DOC.storageKey,
           urlKey: DOC.urlKey,
           readOnly: DOC.readOnly,
         }}

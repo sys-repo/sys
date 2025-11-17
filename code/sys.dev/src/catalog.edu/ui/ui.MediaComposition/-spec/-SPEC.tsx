@@ -35,7 +35,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .border(-0.1)
       .padding(10)
       .render(() => {
-        return <Crdt.UI.Repo.SyncSwitch repo={debug.repo} localstorage={STORAGE_KEY.DEV} />;
+        return <Crdt.UI.Repo.SyncSwitch repo={debug.repo} storageKey={STORAGE_KEY.DEV} />;
       });
   });
 

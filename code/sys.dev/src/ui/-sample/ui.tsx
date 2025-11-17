@@ -86,7 +86,7 @@ export const Sample: React.FC<P> = (props) => {
           yaml: signals.yaml,
         }}
         path={paths.yaml}
-        documentId={{ localstorage: STORAGE_KEY.DEV }}
+        documentId={{ storageKey: STORAGE_KEY.DEV }}
         editor={{ autoFocus: true, minimap: false }}
         onReady={(e) => {
           console.info(`⚡️ MonacoEditor.onReady:`, e);

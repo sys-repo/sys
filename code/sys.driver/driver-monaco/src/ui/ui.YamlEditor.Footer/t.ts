@@ -18,5 +18,5 @@ export type YamlEditorFooterProps = {
 export type YamlEditorFooterCrdt = {
   visible?: boolean;
   repo?: t.CrdtRepo;
-  localstorage?: t.StringKey;
+  storageKey?: t.StringKey;
 };

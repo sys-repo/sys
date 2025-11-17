@@ -29,7 +29,7 @@ export default Spec.describe(D.displayName, (e) => {
             //
             repo={v.noRepo ? undefined : debug.repo}
             mode={v.mode}
-            localstorage={v.localstorage}
+            storageKey={v.storageKey}
             onChange={(e) => {
               v.redraw += 1;
               console.info(`⚡️ SyncSwitch.onChange:`, e);
@@ -42,7 +42,7 @@ export default Spec.describe(D.displayName, (e) => {
       .border(-0.1)
       .padding(10)
       .render(() => {
-        return <Repo.SyncSwitch repo={repo} localstorage={STORAGE_KEY.DEV.SUBJECT} />;
+        return <Repo.SyncSwitch repo={repo} storageKey={STORAGE_KEY.DEV.SUBJECT} />;
       });
   });
 

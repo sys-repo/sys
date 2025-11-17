@@ -33,7 +33,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .border(-0.1)
       .padding(10)
       .render(() => {
-        return <Repo.SyncSwitch repo={debug.repo} localstorage={STORAGE_KEY.DEV.SUBJECT} />;
+        return <Repo.SyncSwitch repo={debug.repo} storageKey={STORAGE_KEY.DEV.SUBJECT} />;
       });
 
     update();

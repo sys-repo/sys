@@ -45,7 +45,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
             theme={theme.name}
             headerStyle={{ topOffset: -30 }}
             repo={repo}
-            localstorage={`${pkg.name}:splash`}
+            storageKey={`${pkg.name}:splash`}
           />
         </div>
       </Cropmarks>

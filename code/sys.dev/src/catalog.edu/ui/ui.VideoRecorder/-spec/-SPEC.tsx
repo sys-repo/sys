@@ -49,7 +49,7 @@ export default Spec.describe(D.displayName, (e) => {
         return (
           <Crdt.UI.Repo.SyncSwitch
             repo={debug.repo}
-            localstorage={STORAGE_KEY.DEV}
+            storageKey={STORAGE_KEY.DEV}
             style={{ Padding: [14, 10] }}
           />
         );

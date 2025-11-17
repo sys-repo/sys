@@ -6,7 +6,7 @@ type O = Record<string, unknown>;
 type P = t.CardProps;
 
 export const Card: React.FC<P> = (props) => {
-  const { debug = false, headerStyle = {}, localstorage, repo } = props;
+  const { debug = false, headerStyle = {}, storageKey: localstorage, repo } = props;
 
   /**
    * Hooks:
@@ -78,7 +78,7 @@ export const Card: React.FC<P> = (props) => {
       <Repo.SyncSwitch
         theme={theme.name}
         repo={repo}
-        localstorage={localstorage}
+        storageKey={localstorage}
         onChange={(e) => {}}
       />
       <div />

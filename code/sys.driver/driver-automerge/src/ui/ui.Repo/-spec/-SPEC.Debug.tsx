@@ -14,12 +14,12 @@ import {
 } from '../common.ts';
 
 type P = t.RepoSyncSwitchProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'localstorage' | 'mode'> & { noRepo?: boolean };
+type Storage = Pick<P, 'theme' | 'debug' | 'storageKey' | 'mode'> & { noRepo?: boolean };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   noRepo: false,
-  localstorage: STORAGE_KEY.DEV.SUBJECT,
+  storageKey: STORAGE_KEY.DEV.SUBJECT,
   mode: D.mode,
 };
 
@@ -42,7 +42,7 @@ export function createDebugSignals() {
     redraw: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
-    localstorage: s(snap.localstorage),
+    storageKey: s(snap.storageKey),
     mode: s(snap.mode),
     noRepo: s(snap.noRepo),
   };
@@ -62,7 +62,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.noRepo = p.noRepo.value;
-      d.localstorage = p.localstorage.value;
+      d.storageKey = p.storageKey.value;
       d.mode = p.mode.value;
     });
   });
@@ -163,11 +163,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => {
-          const v = p.localstorage.value;
+          const v = p.storageKey.value;
           return `debug: localstorage: ${v ? `"${v}"` : '(none)'}`;
         }}
         onClick={() => {
-          const s = p.localstorage;
+          const s = p.storageKey;
           s.value = s.value ? undefined : STORAGE_KEY.DEV.SUBJECT;
         }}
       />

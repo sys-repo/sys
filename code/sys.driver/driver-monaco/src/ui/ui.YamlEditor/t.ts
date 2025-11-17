@@ -68,6 +68,6 @@ export type YamlEditorMonacoProps = Pick<
 export type YamlEditorDocumentIdProps = {
   visible?: boolean;
   readOnly?: boolean;
-  localstorage?: t.StringKey;
+  storageKey?: t.StringKey;
   urlKey?: t.StringKey;
 };

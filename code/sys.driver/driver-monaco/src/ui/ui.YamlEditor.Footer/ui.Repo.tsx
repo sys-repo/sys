@@ -44,7 +44,7 @@ export const Repo: React.FC<P> = (props) => {
       <Crdt.UI.Repo.SyncSwitch
         theme={theme.name}
         repo={repo}
-        localstorage={crdt.localstorage}
+        storageKey={crdt.storageKey}
         mode={'switch + network-icons'}
         onChange={(e) => setEnabled(e.enabled)}
       />
