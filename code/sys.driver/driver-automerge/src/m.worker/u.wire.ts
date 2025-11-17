@@ -58,7 +58,7 @@ export const Wire = {
     id: t.WireId,
     method: M,
     ...args: t.WireRepoArgs[M]
-  ): t.WireCall<M> {
+  ): t.WireRepoCall<M> {
     return { version: WIRE_VERSION, type: 'call', id, method, args };
   },
 

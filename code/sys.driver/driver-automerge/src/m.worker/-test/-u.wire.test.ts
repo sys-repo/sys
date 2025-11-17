@@ -31,7 +31,7 @@ describe('Event helpers', () => {
       expect(Array.isArray(c.args)).to.eql(true);
       expect(c.args.length).to.eql(0);
 
-      expectTypeOf(c).toMatchTypeOf<t.WireCall<'whenReady'>>();
+      expectTypeOf(c).toMatchTypeOf<t.WireRepoCall<'whenReady'>>();
     });
 
     it('call(): create carries initial value (tuple arity = 1)', () => {
@@ -41,7 +41,7 @@ describe('Event helpers', () => {
       expect(c.args[0]).to.eql(init);
       expect(c.args.length).to.eql(1);
 
-      expectTypeOf(c).toMatchTypeOf<t.WireCall<'create'>>();
+      expectTypeOf(c).toMatchTypeOf<t.WireRepoCall<'create'>>();
       type Args = t.WireRepoArgs['create'];
       expectTypeOf(c.args).toMatchTypeOf<Args>();
     });
@@ -57,8 +57,8 @@ describe('Event helpers', () => {
       expect(c2.args[1]).to.eql({ timeout: 10 });
       expect(c2.args.length).to.eql(2);
 
-      expectTypeOf(c1).toMatchTypeOf<t.WireCall<'get'>>();
-      expectTypeOf(c2).toMatchTypeOf<t.WireCall<'get'>>();
+      expectTypeOf(c1).toMatchTypeOf<t.WireRepoCall<'get'>>();
+      expectTypeOf(c2).toMatchTypeOf<t.WireRepoCall<'get'>>();
     });
 
     it('ok(): result envelope', () => {
@@ -69,7 +69,7 @@ describe('Event helpers', () => {
       expect(r.type).to.eql('result');
       expect(r.id).to.eql(5);
       expect(r.ok).to.eql(true);
-      expect((r as t.WireResultOk<'create'>).data).to.eql(payload);
+      expect((r as t.WireRepoResultOk<'create'>).data).to.eql(payload);
 
       expectTypeOf(r).toMatchTypeOf<t.WireResult>();
     });
@@ -81,7 +81,7 @@ describe('Event helpers', () => {
       expect(r.type).to.eql('result');
       expect(r.id).to.eql(6);
       expect(r.ok).to.eql(false);
-      expect((r as t.WireResultErr).error).to.eql(e);
+      expect((r as t.WireRepoResultErr).error).to.eql(e);
 
       expectTypeOf(r).toMatchTypeOf<t.WireResult>();
     });

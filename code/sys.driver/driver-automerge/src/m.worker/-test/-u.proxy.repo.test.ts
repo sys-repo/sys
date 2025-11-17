@@ -377,7 +377,7 @@ describe('CrdtWorker.repo (shim)', () => {
 
         // Craft a raw wire call for "create".
         const id: t.WireId = 1;
-        const call: t.WireCall<'create'> = {
+        const call: t.WireRepoCall<'create'> = {
           version: CrdtWorker.version,
           type: 'call',
           id,
@@ -400,7 +400,7 @@ describe('CrdtWorker.repo (shim)', () => {
 
         // Wait for a result to come back.
         await Wait.waitFor(() => results.length >= 1);
-        const result = results[0] as t.WireResultOk<'create'>;
+        const result = results[0] as t.WireRepoResultOk<'create'>;
 
         expect(result.ok).to.eql(true);
         expect(result.id).to.eql(id);
