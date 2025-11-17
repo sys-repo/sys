@@ -20,6 +20,7 @@ export type * from './m.worker/t.ts';
 export type * from './ui/-dev/t.ts';
 export type * from './ui/ui.Binary/t.ts';
 export type * from './ui/ui.Card/t.ts';
+export type * from './ui/ui.Document/t.ts';
 export type * from './ui/ui.DocumentId/t.ts';
 export type * from './ui/ui.Layout/t.ts';
 export type * from './ui/ui.Repo/t.ts';
