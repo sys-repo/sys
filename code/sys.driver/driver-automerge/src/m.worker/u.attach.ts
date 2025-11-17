@@ -45,7 +45,6 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
 
   sendRepoEvent({ type: 'stream/open', payload: {} });
   sendSnapshot();
-
   Schedule.micro(() => {
     if (!repo.disposed) sendSnapshot();
   });
@@ -57,18 +56,25 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
    *   a dedicated wire-level ready event anymore.
    */
   const ev = repo.events(life);
-  ev.prop$.subscribe((change) => {
-    const before = Wire.clone(change.before);
-    const after = Wire.clone(change.after);
+  ev.network$.subscribe((e) => sendRepoEvent(e));
+  ev.prop$.subscribe((e) => {
+    const before = Wire.clone(e.before);
+    const after = Wire.clone(e.after);
     sendRepoEvent({
       type: 'props/change',
-      payload: { prop: change.prop, before, after },
+      payload: { prop: e.prop, before, after },
     });
   });
 
-  ev.network$.subscribe((networkEvent) => {
-    sendRepoEvent(networkEvent);
-  });
+  /**
+   * Send "proof of life" ping.
+   */
+  Rx.interval(500)
+    .pipe(
+      Rx.takeUntil(life.dispose$),
+      Rx.filter(() => repo.status.ready),
+    )
+    .subscribe(() => sendRepoEvent({ type: 'stream/ping', payload: {} }));
 
   /**
    * RPC: client → worker calls on this port.

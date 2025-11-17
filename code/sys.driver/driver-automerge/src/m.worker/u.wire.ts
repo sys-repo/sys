@@ -30,7 +30,12 @@ export const Wire = {
 
     /** Transport-only lifecycle signals. */
     streamLifecycle(e: { type: string; payload: unknown }): boolean {
-      return e.type === 'stream/open' || e.type === 'stream/close' || e.type === 'stream/error';
+      return (
+        e.type === 'stream/open' ||
+        e.type === 'stream/close' ||
+        e.type === 'stream/error' ||
+        e.type === 'stream/ping'
+      );
     },
 
     /**

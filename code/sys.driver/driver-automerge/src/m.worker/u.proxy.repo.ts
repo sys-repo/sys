@@ -1,4 +1,5 @@
 import { type t, Is, Rx, Try } from './common.ts';
+import { createStallDetector } from './u.stall.ts';
 import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;
@@ -43,6 +44,18 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     });
   }
 
+  const stallDetector = createStallDetector({
+    until: life.dispose$,
+    stallAfter: opts.stalledAfter ?? 2_000,
+    onStalledChange(stalled) {
+      if (!state.props) return; // If we don’t yet have props, there’s nothing meaningful to emit.
+      const before = Wire.clone(state.props);
+      const after: t.CrdtRepoProps = { ...state.props, status: { ...state.props.status, stalled } };
+      state.props = after;
+      emit({ type: 'props/change', payload: { prop: 'status', before, after } });
+    },
+  });
+
   /**
    * RPC call tracking for client → worker method calls.
    */
@@ -79,6 +92,8 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   function onMessage(ev: MessageEvent) {
     const msg = ev.data as t.WireMessage | undefined;
     if (!msg) return;
+
+    stallDetector.touch();
 
     if (msg.type === 'event') {
       if (msg.stream !== Wire.Kind.repo) return;

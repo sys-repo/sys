@@ -164,9 +164,11 @@ describe('Event helpers', () => {
 
     it('streamLifecycle', () => {
       expect(Is.streamLifecycle({ type: 'stream/open', payload: {} })).to.be.true;
+      expect(Is.streamLifecycle({ type: 'stream/close', payload: {} })).to.be.true;
+      expect(Is.streamLifecycle({ type: 'stream/ping', payload: {} })).to.be.true;
       expect(Is.streamLifecycle({ type: 'stream/error', payload: {} })).to.be.true;
       expect(Is.streamLifecycle({ type: 'network/peer-online', payload: { peerId } })).to.be.false;
-      expect(Is.streamLifecycle({ type: 'ready', payload: { ready: true } })).to.be.false;
+      expect(Is.streamLifecycle({ type: 'foo', payload: { bar: 123 } })).to.be.false;
     });
 
     it('repoEvent', () => {
