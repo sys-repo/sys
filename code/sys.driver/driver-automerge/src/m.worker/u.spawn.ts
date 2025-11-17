@@ -1,5 +1,5 @@
 import { type t, Rx, Schedule } from './common.ts';
-import { createRepo } from './u.repo.ts';
+import { createRepo } from './u.proxy.repo.ts';
 import { Wire } from './u.wire.ts';
 
 /**
