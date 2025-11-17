@@ -23,6 +23,14 @@ export type CrdtIsLib = {
 
   /** Determine if the given value is a valid CRDT document id. */
   id(input?: unknown): input is t.DocumentId;
+
+  /**
+   * Determine if the given value is a worker-backed proxy shim.
+   *
+   * Implementations typically brand shims with `via: 'worker-proxy'`
+   * so this check is structural and does not require importing worker types.
+   */
+  proxy(input?: unknown): input is { via: 'worker-proxy' };
 };
 
 /**

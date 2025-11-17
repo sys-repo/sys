@@ -12,7 +12,7 @@ describe('Crdt.Is', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(Is.ref(doc)).to.be.true;
 
     const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-    NON.forEach((value: any) => expect(CrdtIs.ref(value)).to.be.false);
+    NON.forEach((value: any) => expect(Is.ref(value)).to.be.false);
   });
 
   it('Is.id', () => {
@@ -21,6 +21,34 @@ describe('Crdt.Is', { sanitizeResources: false, sanitizeOps: false }, () => {
     expect(Is.id(String(doc.id))).to.be.true;
 
     const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-    NON.forEach((value: any) => expect(CrdtIs.ref(value)).to.be.false);
+    NON.forEach((value: any) => expect(Is.id(value)).to.be.false);
+  });
+
+  it('Is.proxy (worker shims branded via "worker-proxy")', () => {
+    const proxyLike = { via: 'worker-proxy' as const };
+    const proxyExtended = {
+      via: 'worker-proxy' as const,
+      status: { ready: true, busy: false },
+    };
+
+    // Structural positives.
+    expect(Is.proxy(proxyLike)).to.be.true;
+    expect(Is.proxy(proxyExtended)).to.be.true;
+
+    // Negatives: wrong brand, missing brand, non-object, etc.
+    const NON = [
+      undefined,
+      null,
+      '',
+      123,
+      true,
+      {},
+      [],
+      { via: 'local' },
+      { via: 'WORKER-PROXY' },
+      { via: 42 },
+    ];
+
+    NON.forEach((value: any) => expect(Is.proxy(value)).to.be.false);
   });
 });

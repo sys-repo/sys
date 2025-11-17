@@ -14,4 +14,10 @@ export const CrdtIs: t.CrdtIsLib = {
   id(input?: unknown): input is t.DocumentId {
     return isValidDocumentId(input);
   },
+
+  proxy(input?: unknown): input is { via: 'worker-proxy' } {
+    if (input == null || !Obj.isObject(input)) return false;
+    const via = (input as { via?: unknown }).via;
+    return via === 'worker-proxy';
+  },
 };
