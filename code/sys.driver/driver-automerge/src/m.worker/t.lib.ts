@@ -46,7 +46,7 @@ export type CrdtWorkerLib = {
    *   - Delegates to `repo.get(id, options)` on the worker side.
    *   - Domain failures (timeouts, not-found, deleted, etc) are returned as a
    *     `TryResult` failure.
-   *   - Successful fetches return `{ ok: true, data: CrdtDocWorkerShim<T> }`.
+   *   - Successful fetches return `{ ok: true, data: CrdtDocWorkerProxy<T> }`.
    *
    * This is the core worker-side doc retrieval primitive upon which all
    * higher-level helpers build.

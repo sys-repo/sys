@@ -13,15 +13,15 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
   describe('API', () => {
     it('structural typing', () => {
       type Base = t.CrdtRef<Doc>;
-      type Shim = t.CrdtDocWorkerProxy<Doc>;
-      const value = {} as Shim;
+      type Proxy = t.CrdtDocWorkerProxy<Doc>;
+      const value = {} as Proxy;
 
       // Must behave as a normal CrdtRef<Doc>.
       expectTypeOf(value).toMatchTypeOf<Base>();
 
       // Runtime witness for the branding field.
       // And the branding flag must be exactly the literal 'worker-proxy'.
-      const via: Shim['via'] = 'worker-proxy';
+      const via: Proxy['via'] = 'worker-proxy';
       expectTypeOf(via).toEqualTypeOf<'worker-proxy'>();
     });
   });
@@ -49,7 +49,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       CrdtWorker.attach(port2, realRepo);
 
       // Client proxy repo.
-      const proxyRepo = await CrdtWorker.repo(port1).whenReady(); //as t.CrdtRepoWorkerShim
+      const proxyRepo = await CrdtWorker.repo(port1).whenReady();
 
       // 5. Fetch the doc through the worker doc shim.
       const res = await CrdtWorker.doc<Doc>(proxyRepo, realDoc.id);
