@@ -100,8 +100,10 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
       return { id: doc.id } as t.WireRepoCreateResult;
     },
 
-    get(id: unknown, options?: unknown) {
-      return repo.get(id as t.StringId, options as t.CrdtRepoGetOptions | undefined);
+    async get(id: unknown, options?: unknown) {
+      const { doc, error } = await repo.get(id as t.StringId, options as t.CrdtRepoGetOptions);
+      const data: t.WireRepoGetResult = doc ? { doc: { id: doc.id } } : error ? { error } : {};
+      return data;
     },
 
     delete(id: unknown) {

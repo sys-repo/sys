@@ -35,17 +35,27 @@ export type CrdtWorkerLib = {
   ): Promise<{ readonly worker: Worker; readonly repo: t.CrdtRepo }>;
 
   /**
-   * Convenience helper for fetching a document via RPC and returning a
-   * worker-branded CRDT ref. Wraps `repo.get(id, options)` and enforces
-   * the `CrdtDocWorkerShim<T>` surface on success.
+   * Fetch a document from a worker-proxied repo over RPC and return a
+   * worker-branded CRDT ref wrapped in a TryResult.
    *
-   * Domain errors (e.g. timeouts) are surfaced as rejections.
+   * Precondition:
+   *   - `repo` MUST be a worker-proxy. Passing a local repo is a programmer
+   *     error and results in a thrown exception.
+   *
+   * Semantics:
+   *   - Delegates to `repo.get(id, options)` on the worker side.
+   *   - Domain failures (timeouts, not-found, deleted, etc) are returned as a
+   *     `TryResult` failure.
+   *   - Successful fetches return `{ ok: true, data: CrdtDocWorkerShim<T> }`.
+   *
+   * This is the core worker-side doc retrieval primitive upon which all
+   * higher-level helpers build.
    */
   readonly doc: <T extends O = O>(
-    repo: CrdtRepoWorkerShim,
+    repo: CrdtRepoWorkerShim | t.Crdt.Repo, // ← NB: throws if repo not a proxy/shim.
     id: t.StringId,
     options?: t.CrdtRepoGetOptions,
-  ) => Promise<CrdtDocWorkerShim<T>>;
+  ) => Promise<t.TryResult<t.CrdtDocWorkerShim<T>>>;
 };
 
 /**

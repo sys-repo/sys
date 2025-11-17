@@ -93,7 +93,10 @@ export type WireDocResultData = {
  * Keeps `WireCall`/`WireResult` strongly typed without exploding union types.
  */
 export type WireRepoCreateResult = { readonly id: t.StringId };
-export type WireRepoGetResult<T extends O = O> = t.CrdtRefGetResponse<T>;
+export type WireRepoGetResult<T extends O = O> = {
+  readonly doc?: { readonly id: t.StringId };
+  readonly error?: t.CrdtRepoError;
+};
 
 /**
  * Optional, non-semantic metadata for tracing/observability.
