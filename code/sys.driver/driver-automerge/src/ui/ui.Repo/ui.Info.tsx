@@ -74,14 +74,13 @@ function formatRepoLabel(repo: t.CrdtRepo, startupElapsedMsecs?: t.Msecs): strin
   const msecs = formatStartupElapsed(startupElapsedMsecs);
 
   if (CrdtIs.proxy(repo)) {
-    const ready = repo.ready;
-    const stalled = repo.status.stalled;
+    const { ready, stalled } = repo.status;
     if (!ready) return 'starting...';
     if (stalled) return 'stalled (worker busy)';
     return `ready (in ${msecs})`;
   }
 
-  return repo.ready ? `ready (${msecs})` : 'starting...';
+  return repo.status.ready ? `ready (${msecs})` : 'starting...';
 }
 
 const wrangle = {

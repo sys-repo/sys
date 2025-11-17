@@ -34,7 +34,7 @@ describe('CrdtWorker.repo (shim)', () => {
       // at least one ready; client resolves
       await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
       await client.whenReady();
-      expect(client.ready).to.eql(true);
+      expect(client.status.ready).to.eql(true);
 
       stop();
       await real.dispose();
@@ -113,7 +113,6 @@ describe('CrdtWorker.repo (shim)', () => {
 
       // Drive a props/snapshot into the shim.
       const props: t.CrdtRepoProps = {
-        ready: true,
         status: { ready: true, stalled: true },
         id: { instance: 'repo-x' as t.StringId, peer: 'peer-x' as t.StringId },
         sync: { peers: [], urls: [], enabled: false },
@@ -153,7 +152,6 @@ describe('CrdtWorker.repo (shim)', () => {
 
       // craft a wire props/change
       const before: t.CrdtRepoProps = {
-        ready: true,
         status: { ready: true, stalled: false },
         id: { instance: 'inst-1' as t.StringId, peer: 'peer-1' as t.StringId },
         sync: { peers: [], urls: [], enabled: false },
@@ -211,7 +209,6 @@ describe('CrdtWorker.repo (shim)', () => {
       client.events(until).ready$.subscribe((r) => readies.push(r));
 
       const base: t.CrdtRepoProps = {
-        ready: false,
         status: { ready: false, stalled: false },
         id: { instance: 'i' as t.StringId, peer: 'p' as t.StringId },
         sync: { peers: [], urls: [], enabled: false },

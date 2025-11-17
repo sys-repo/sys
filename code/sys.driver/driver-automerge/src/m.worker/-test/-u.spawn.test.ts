@@ -10,9 +10,9 @@ describe('CrdtWorker.spawn (smoke test, real worker)', () => {
     const url = new URL('./worker.ts', import.meta.url);
     const { worker, repo } = await CrdtWorker.spawn(url, { worker: { type: 'module' } });
 
-    expect(repo.ready).to.eql(false);
+    expect(repo.status.ready).to.eql(false);
     await repo.whenReady();
-    expect(repo.ready).to.eql(true);
+    expect(repo.status.ready).to.eql(true);
 
     console.info();
     console.info(c.cyan(`repo (client proxy):`));
@@ -34,9 +34,9 @@ describe('CrdtWorker.spawn (smoke test, real worker)', () => {
     // The spawn helper should use the same worker instance.
     expect(result.worker).to.equal(worker);
 
-    expect(repo.ready).to.eql(false);
+    expect(repo.status.ready).to.eql(false);
     await repo.whenReady();
-    expect(repo.ready).to.eql(true);
+    expect(repo.status.ready).to.eql(true);
 
     // Cleanup:
     worker.terminate();
@@ -52,10 +52,10 @@ describe('CrdtWorker.spawn (smoke test, real worker)', () => {
       fakeWorker.postMessage({ kind: 'crdt:attach', port: port2 }, [port2]);
 
       const client = CrdtWorker.repo(port1);
-      expect(client.ready).to.eql(false);
+      expect(client.status.ready).to.eql(false);
 
       await client.whenReady();
-      expect(client.ready).to.eql(true);
+      expect(client.status.ready).to.eql(true);
       expect(client.sync.enabled).to.eql(real.sync.enabled);
 
       // Cleanup:

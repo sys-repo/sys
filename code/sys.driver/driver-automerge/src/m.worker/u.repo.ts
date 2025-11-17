@@ -28,7 +28,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
    * If no props have been seen yet, we report a benign default.
    */
   function computeStatus(): t.CrdtRepoStatus {
-    return state.props?.status ?? { ready: false, stalled: false };
+    return state.props?.status ?? { ready: state.ready, stalled: false };
   }
 
   /** Canonical repo event stream (props/change + network). */
@@ -92,7 +92,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
           state.props = snapshot;
         }
 
-        const nextReady = !!e.payload.ready;
+        const nextReady = e.type === 'ready' ? e.payload.ready : e.payload.status.ready;
         updateReady(nextReady);
         return;
       }
@@ -107,7 +107,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
 
         // Keep ready latch in sync if "ready" moved via props/change.
         if (e.payload.prop === 'ready') {
-          updateReady(!!after.ready);
+          updateReady(!!after.status.ready);
         }
 
         emit({
@@ -172,12 +172,12 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     /**
      * Properties:
      */
-    get ready() {
-      return state.ready;
-    },
-
     get id() {
       return state.props?.id ?? { ...EMPTY_ID };
+    },
+
+    get status() {
+      return computeStatus();
     },
 
     get sync(): t.CrdtRepo['sync'] {
@@ -194,13 +194,6 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
 
     get stores() {
       return (state.props?.stores ?? []) as readonly t.CrdtRepoStoreInfo[];
-    },
-
-    /**
-     * Health/status diagnostics (mirror from props).
-     */
-    get status() {
-      return computeStatus();
     },
 
     /**

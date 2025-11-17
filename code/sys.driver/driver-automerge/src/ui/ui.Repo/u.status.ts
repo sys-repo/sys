@@ -5,7 +5,7 @@ import { type t } from './common.ts';
  * Returns undefined when no repo exists.
  */
 export function getStatus(repo: t.Crdt.Repo): t.RepoInfoStatus {
-  const ready = !!repo.ready;
+  const ready = !!repo.status.ready;
   const syncEnabled = !!repo.sync.enabled;
   const peers = repo.sync.peers ?? [];
   const urls = repo.sync.urls ?? [];

@@ -127,16 +127,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `tmp`}
-        onClick={() => {
-          console.log('repo', repo);
-          console.log('repo.ready', repo.ready);
-        }}
-      />
-
-      <hr />
-      <Button
-        block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />

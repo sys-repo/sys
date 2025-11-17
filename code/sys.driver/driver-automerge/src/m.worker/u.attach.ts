@@ -28,7 +28,7 @@ export const attach: t.CrdtWorkerLib['attach'] = (port, repo) => {
   /**
    * Open stream; emit initial readiness snapshots.
    */
-  const sendReady = () => sendRepoEvent({ type: 'ready', payload: { ready: repo.ready } });
+  const sendReady = () => sendRepoEvent({ type: 'ready', payload: { ready: repo.status.ready } });
 
   const sendSnapshot = () =>
     sendRepoEvent({

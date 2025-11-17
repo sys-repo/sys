@@ -108,7 +108,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     const { port1, port2 } = Test.makePorts();
     const repo = Test.realRepo();
     const { events, stop } = Test.collectRepoEvents(port1);
-    expect(repo.ready).to.eql(false);
+    expect(repo.status.ready).to.eql(false);
 
     CrdtWorker.attach(port2, repo);
     await Wait.waitFor(() => events.length >= 1);
@@ -117,7 +117,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
 
     const ready = events.filter((e) => e.type === 'ready');
     expect(ready.map((e) => e.payload.ready)).to.eql([false, false, true]);
-    expect(repo.ready).to.eql(true); // sanity (real repo)
+    expect(repo.status.ready).to.eql(true); // sanity (real repo)
 
     stop();
     await repo.dispose();

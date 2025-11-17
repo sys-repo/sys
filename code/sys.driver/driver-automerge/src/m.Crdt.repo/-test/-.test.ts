@@ -96,19 +96,19 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     it('ready flag + whenReady() (no network)', async () => {
       const repo = Crdt.repo();
 
-      expect(repo.ready).to.eql(false);
+      expect(repo.status.ready).to.eql(false);
       const initialStatus = repo.status;
       expect(initialStatus.stalled).to.eql(false);
 
       const readyRepo = await repo.whenReady();
-      expect(repo.ready).to.eql(true);
+      expect(repo.status.ready).to.eql(true);
       expect(readyRepo).to.equal(repo);
 
       const statusAfterReady = repo.status;
       expect(statusAfterReady.stalled).to.eql(false);
 
       await repo.whenReady();
-      expect(repo.ready).to.eql(true);
+      expect(repo.status.ready).to.eql(true);
     });
 
     it('status (core defaults)', () => {
@@ -153,7 +153,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       await repo.whenReady();
       const dt = Date.now() - t0;
 
-      expect(repo.ready).to.eql(true);
+      expect(repo.status.ready).to.eql(true);
       expect(dt).to.be.at.least(15);
     });
   });
