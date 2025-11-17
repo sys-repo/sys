@@ -169,7 +169,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   /**
    * API:
    */
-  const repo: t.CrdtRepoWorkerShim = {
+  const repo: t.CrdtRepoWorkerProxy = {
     via: 'worker-proxy' as const,
 
     /**

@@ -82,7 +82,7 @@ describe('CrdtWorker.repo (shim)', () => {
     it('branding: via === "worker-proxy" (stable discriminant)', async () => {
       const { port1 } = Test.makePorts();
       const repo = CrdtWorker.repo(port1);
-      expect((repo as t.CrdtRepoWorkerShim).via).to.eql('worker-proxy');
+      expect((repo as t.CrdtRepoWorkerProxy).via).to.eql('worker-proxy');
       await repo.dispose();
     });
 
@@ -119,7 +119,7 @@ describe('CrdtWorker.repo (shim)', () => {
 
     it('status mirrors latest props.status (default: stalled=false)', async () => {
       const { port1 } = Test.makePorts();
-      const repo = CrdtWorker.repo(port1) as t.CrdtRepoWorkerShim;
+      const repo = CrdtWorker.repo(port1) as t.CrdtRepoWorkerProxy;
 
       // Before any props, status should be a benign default.
       const initialStatus = repo.status;

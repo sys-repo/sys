@@ -13,7 +13,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
   describe('API', () => {
     it('structural typing', () => {
       type Base = t.CrdtRef<Doc>;
-      type Shim = t.CrdtDocWorkerShim<Doc>;
+      type Shim = t.CrdtDocWorkerProxy<Doc>;
       const value = {} as Shim;
 
       // Must behave as a normal CrdtRef<Doc>.
@@ -57,7 +57,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       if (res.ok) {
         expect(res.data.id).to.eql(realDoc.id);
         expect(res.data.via === 'worker-proxy').to.be.true;
-        expectTypeOf(res.data).toMatchTypeOf<t.CrdtDocWorkerShim<Doc>>(); // Branded worker discriminant.
+        expectTypeOf(res.data).toMatchTypeOf<t.CrdtDocWorkerProxy<Doc>>(); // Branded worker discriminant.
       }
 
       // Cleanup:
