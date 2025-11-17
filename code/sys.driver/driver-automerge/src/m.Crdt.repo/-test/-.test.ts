@@ -78,8 +78,8 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
         const initial = { title: 'hello' };
         const doc = repo.create(initial);
 
-        expect(doc.current).to.eql(initial); //                  ← Doc retains its properties unchanged.
-        expect((doc.current as any)['.meta']).to.eql(undefined); // ← No ['.meta'] was injected.
+        expect(doc.current).to.eql(initial);
+        expect((doc.current as any)['.meta']).to.eql(undefined);
       });
 
       it('does not clobber an explicit `.meta` passed by caller', () => {
@@ -87,7 +87,6 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
         const explicit = { ['.meta']: { createdAt: 42, note: 'manual' } };
         const doc = repo.create(explicit);
 
-        // Original ['.meta'] preserved exactly as given:
         expect(doc.current['.meta']).to.eql(explicit['.meta']);
       });
     });
@@ -96,16 +95,34 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   describe('ready', () => {
     it('ready flag + whenReady() (no network)', async () => {
       const repo = Crdt.repo();
-      expect(repo.ready).to.eql(false);
 
-      // Await ready.
+      expect(repo.ready).to.eql(false);
+      const initialStatus = repo.status;
+      expect(initialStatus.ready).to.eql(false);
+      expect(initialStatus.busy).to.eql(false);
+      expect(initialStatus.stalled).to.eql(false);
+
       const readyRepo = await repo.whenReady();
       expect(repo.ready).to.eql(true);
       expect(readyRepo).to.equal(repo);
 
-      // Second call should resolve immediately.
+      const statusAfterReady = repo.status;
+      expect(statusAfterReady.ready).to.eql(true);
+      expect(statusAfterReady.busy).to.eql(false);
+      expect(statusAfterReady.stalled).to.eql(false);
+
       await repo.whenReady();
       expect(repo.ready).to.eql(true);
+      expect(repo.status.ready).to.eql(true);
+    });
+
+    it('status (core defaults)', () => {
+      const repo = Crdt.repo();
+      const status = repo.status;
+
+      expect(status.ready).to.eql(false);
+      expect(status.busy).to.eql(false);
+      expect(status.stalled).to.eql(false);
     });
 
     it('ready$ emits once and completes', async () => {
@@ -156,8 +173,8 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       const a = repoA.create<T>({ count: 0 });
       expect(a.current).to.eql({ count: 0 });
 
-      const b = (await repoB.get<T>(` ${a.id}   `)).doc!; // NB: test input address cleanup.
-      expect(a).to.not.equal(b); // NB: difference repo (not-cached).
+      const b = (await repoB.get<T>(` ${a.id}   `)).doc!;
+      expect(a).to.not.equal(b);
       expect(a.id).to.eql(b.id);
       expect(a.instance).to.not.eql(b.instance);
 
@@ -210,7 +227,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(doc.deleted).to.eql(true);
       expect(doc.disposed).to.eql(true);
 
-      await repo.delete(doc); // NB: safely no-op after deleted.
+      await repo.delete(doc);
     });
 
     it('removes document (after ready) - multiple refs', async () => {
@@ -228,7 +245,6 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     it('fires deleted event from document', async () => {
       const repo = Crdt.repo();
       const doc = repo.create<T>({ count: 0 });
-      expect(doc.deleted).to.eql(false);
 
       const fired: t.CrdtDeleted[] = [];
       doc.events().deleted$.subscribe((e) => fired.push(e));
@@ -306,7 +322,6 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       const base = new AutomergeRepo();
       const repo = toRepo(base);
 
-      // Monkey-patch the internal `find` method to simulate a too long retrieval.
       (base as any).find = async () => Time.wait(50_000);
 
       const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y', { timeout: 5 });
@@ -318,7 +333,6 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       const base = new AutomergeRepo();
       const error = '💥 test explosion';
 
-      // Monkey-patch the internal `find` method to simulate failure.
       (base as any).find = () => {
         throw new Error(error);
       };
@@ -341,7 +355,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
       await repo.dispose();
       await repo.dispose();
-      await repo.dispose(); // NB: only called once.
+      await repo.dispose();
 
       expect(fired.length).to.eql(2);
       expect(fired[1].payload.is.done).to.eql(true);
@@ -354,7 +368,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(repo.disposed).to.eql(false);
 
       until.dispose();
-      expect(repo.disposed).to.eql(false); // NB: async shutdown - not yet complete.
+      expect(repo.disposed).to.eql(false);
 
       await Time.wait(50);
       expect(repo.disposed).to.eql(true);

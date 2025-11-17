@@ -180,7 +180,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     },
 
     /**
-     * Health/status diagnostics (worker-only extension).
+     * Health/status diagnostics (override).
      */
     get status() {
       const health = state.health;
@@ -191,12 +191,10 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
         typeof lastProgressAt === 'number' &&
         lastProgressAt > 0 &&
         now - lastProgressAt > STALL_AFTER_MS;
-
       return {
         ready: state.ready,
         busy: !!busy,
         stalled,
-        lastProgressAt,
       };
     },
 

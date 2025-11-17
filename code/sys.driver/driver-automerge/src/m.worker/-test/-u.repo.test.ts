@@ -595,7 +595,6 @@ describe('CrdtWorker.repo (shim)', () => {
       const status = client.status;
       expect(status.ready).to.eql(true);
       expect(status.busy).to.eql(true);
-      expect(status.lastProgressAt).to.eql(health.lastProgressAt);
 
       await client.dispose();
       await real.dispose();

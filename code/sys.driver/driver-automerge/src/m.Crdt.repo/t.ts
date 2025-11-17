@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+
 export type * from './t.events.ts';
 
 type O = Record<string, unknown>;
@@ -11,11 +12,15 @@ export type CrdtRepoGetOptions = { timeout?: t.Msecs };
  */
 export type CrdtRepo = t.LifecycleAsync &
   CrdtRepoMethods &
-  CrdtRepoProps & { readonly sync: CrdtRepoProps['sync'] & { enable(enabled?: boolean): void } };
+  CrdtRepoProps & {
+    readonly status: t.CrdtRepoStatus;
+    readonly sync: CrdtRepoProps['sync'] & { enable(enabled?: boolean): void };
+  };
 
 /** Pure event properties of the CRDT repo. */
 export type CrdtRepoProps = {
   readonly ready: boolean;
+
   /** Opaque identifier string's for uniqueness only; format is not a semantic contract. */
   readonly id: {
     readonly instance: t.StringId;
@@ -27,6 +32,15 @@ export type CrdtRepoProps = {
     readonly urls: readonly t.StringUrl[];
     readonly enabled: boolean | null;
   };
+};
+
+/**
+ * Repo status/health summary.
+ */
+export type CrdtRepoStatus = {
+  readonly ready: boolean;
+  readonly busy: boolean;
+  readonly stalled: boolean;
 };
 
 /** Info about a repository store. */

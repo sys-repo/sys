@@ -13,7 +13,7 @@ export type RepoInfoLib = {
 };
 
 /**
- * Consolidated, derived connection state for a CRDT repo.
+ * Consolidated, derived connection state for the Repo <Info> panel.
  */
 export type RepoInfoStatus = {
   /** High-level connection state derived from syncEnabled + peers:

@@ -89,19 +89,12 @@ export function toRepo(
   /**
    * Helpers:
    */
-  type NetworkAdapter = t.NetworkAdapterInterface & {
-    /**
-     * Optional teardown hook.
-     * Some adapters expose a synchronous `disconnect`, others may omit it entirely.
-     */
-    readonly disconnect?: () => void | Promise<void>;
-  };
   const toggleAdapters = async (enabled: boolean) => {
     // Hop off the caller's stack so lifecycle edges (dispose, enable/disable)
     // are always observed from a clean microtask.
     await schedule();
 
-    for (const adapter of adapters as readonly t.NetworkAdapterInterface[]) {
+    for (const adapter of adapters as t.NetworkAdapterInterface[]) {
       if (life.disposed) break;
       try {
         // Wait until the adapter has finished any internal initialization.
@@ -136,6 +129,14 @@ export function toRepo(
     get ready() {
       return _ready;
     },
+    get status(): t.CrdtRepoStatus {
+      return {
+        ready: _ready,
+        busy: false,
+        stalled: false,
+      };
+    },
+
     async whenReady() {
       await readyOnce;
       return api;
