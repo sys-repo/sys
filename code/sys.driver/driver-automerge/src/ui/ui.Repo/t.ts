@@ -6,16 +6,16 @@ export type * from './t.switch.ts';
 /**
  * UI tools for representing the CRDT repository.
  */
-export type RepoLib = {
-  readonly SyncSwitch: t.FC<t.RepoSyncSwitchProps>;
+export type RepoInfoLib = {
   readonly Info: t.FC<t.RepoInfoProps>;
+  readonly SyncSwitch: t.FC<t.RepoSyncSwitchProps>;
   readonly StatusBullet: t.FC<t.RepoStatusBulletProps>;
 };
 
 /**
  * Consolidated, derived connection state for a CRDT repo.
  */
-export type RepoStatus = {
+export type RepoInfoStatus = {
   /** High-level connection state derived from syncEnabled + peers:
    *  - 'offline'    → sync disabled
    *  - 'connecting' → sync enabled but no peers yet

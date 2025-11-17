@@ -83,7 +83,7 @@ export const SyncSwitch: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  switchTheme(props: P, status?: t.RepoStatus) {
+  switchTheme(props: P, status?: t.RepoInfoStatus) {
     const theme = Color.theme(props.theme);
     const base = SwitchTheme.fromName(theme.name);
 

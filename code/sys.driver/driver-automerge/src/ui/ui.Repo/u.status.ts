@@ -4,7 +4,7 @@ import { type t } from './common.ts';
  * Consolidated state snapshot for a CrdtRepo.
  * Returns undefined when no repo exists.
  */
-export function getStatus(repo: t.Crdt.Repo): t.RepoStatus {
+export function getStatus(repo: t.Crdt.Repo): t.RepoInfoStatus {
   const ready = !!repo.ready;
   const syncEnabled = !!repo.sync.enabled;
   const peers = repo.sync.peers ?? [];
@@ -13,7 +13,7 @@ export function getStatus(repo: t.Crdt.Repo): t.RepoStatus {
   const hasPeers = peers.length > 0;
   const hasServers = urls.length > 0;
 
-  let status: t.RepoStatus['status'];
+  let status: t.RepoInfoStatus['status'];
   if (!syncEnabled) {
     status = 'offline';
   } else if (!hasPeers) {
