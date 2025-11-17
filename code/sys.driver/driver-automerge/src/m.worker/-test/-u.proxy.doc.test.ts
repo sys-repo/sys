@@ -26,18 +26,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
   });
 
-  describe('Crdt.Worker.doc', () => {
-    it('throws if passed repo not a worker-proxy', async () => {
-      const realRepo = Test.realRepo();
-      expect(CrdtIs.proxy(realRepo)).to.eql(false); // sanity
-      await expectError(
-        () => CrdtWorker.doc<Doc>(realRepo, '4Hitb4MhfusQm28o8Ca7vdoLvBqC'),
-        'invalid repo, worker-proxy expected',
-      );
-    });
-  });
-
-  describe('.get()', () => {
+  describe('Crdt.Worker.doc()', () => {
     it('reads a doc from a worker-backed proxy repo', async () => {
       // Real repo/doc on the simulated worker-host.
       const realRepo = Test.realRepo();
@@ -68,6 +57,15 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
   });
 
   describe('errors (failure conditions)', () => {
+    it('hard throws if passed `repo` is not a worker-proxy', async () => {
+      const realRepo = Test.realRepo();
+      expect(CrdtIs.proxy(realRepo)).to.eql(false); // sanity
+      await expectError(
+        () => CrdtWorker.doc<Doc>(realRepo, '4Hitb4MhfusQm28o8Ca7vdoLvBqC'),
+        'invalid repo, worker-proxy expected',
+      );
+    });
+
     it('returns TryFail when repo.get returns a CrdtRepoError', async () => {
       const realRepo = Test.realRepo();
       const err: t.CrdtRepoError = {
