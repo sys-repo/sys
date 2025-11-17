@@ -13,7 +13,7 @@ export type CrdtWorkerLib = {
   readonly version: typeof WIRE_VERSION;
 
   /** Creates a worker-backed `t.CrdtRepo` client facade on the main thread. */
-  repo(port: MessagePort, opts?: { until?: t.UntilInput }): t.CrdtRepo;
+  repo(port: MessagePort, opts?: { until?: t.UntilInput; stalledAfter?: t.Msecs }): t.CrdtRepo;
 
   /** Attaches a real repo instance to a `MessagePort` inside the worker. */
   attach(port: MessagePort, repo: t.CrdtRepo): void;

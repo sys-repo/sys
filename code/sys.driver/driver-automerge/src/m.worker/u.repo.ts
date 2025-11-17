@@ -1,11 +1,10 @@
-import { type t, Is, Rx, Try } from './common.ts';
+import { type t, Is, Rx, Try, Time } from './common.ts';
 import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;
 type State = { ready: boolean; props?: t.CrdtRepoProps; health: t.WireRepoHealth };
 
 const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
-const STALL_AFTER: t.Msecs = 3_000;
 
 /**
  * Factory: repo client façade over a MessagePort.
@@ -15,6 +14,7 @@ const STALL_AFTER: t.Msecs = 3_000;
  */
 export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}) => {
   const life = Rx.lifecycleAsync(opts.until);
+  const stalledAfter = opts.stalledAfter ?? 3_000;
   port.start?.();
 
   /**
@@ -33,36 +33,29 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     const { busy, lastProgressAt } = health;
     const now = Date.now();
     const stalled =
-      !!busy && Is.num(lastProgressAt) && lastProgressAt > 0 && now - lastProgressAt > STALL_AFTER;
+      !!busy && Is.num(lastProgressAt) && lastProgressAt > 0 && now - lastProgressAt > stalledAfter;
     return { ready, busy: !!busy, stalled };
   }
 
-  let stallTimer: ReturnType<typeof setTimeout> | undefined;
-  function clearStallTimer() {
-    if (stallTimer !== undefined) {
-      clearTimeout(stallTimer);
-      stallTimer = undefined;
-    }
-  }
   /**
    * Schedule a one-shot check at (stall threshold - elapsed).
    * If, at that time, the repo is still busy and has become stalled,
    * emit a synthetic props/change("status") event.
    */
+  let stallTimer: t.Cancellable | undefined;
   function scheduleStallTimer() {
     clearStallTimer();
     const { health } = state;
     if (!health.busy || !Is.num(health.lastProgressAt) || health.lastProgressAt <= 0) return;
 
-    const now = Date.now();
+    const now = Time.now.timestamp;
     const elapsed = now - health.lastProgressAt;
-    const remaining = STALL_AFTER - elapsed;
+    const remaining = stalledAfter - elapsed;
     const delay = remaining > 0 ? remaining : 0;
 
-    stallTimer = setTimeout(() => {
+    function handleTimeout() {
       stallTimer = undefined;
-      if (life.disposed) return;
-      if (!state.props) return;
+      if (life.disposed || !state.props) return;
 
       const current = computeStatus();
       if (!current.busy || !current.stalled) return;
@@ -71,12 +64,17 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       const before: t.CrdtRepoProps = { ...state.props, status: beforeStatus };
       const after: t.CrdtRepoProps = { ...state.props, status: current };
       state.props = after;
-
       emit({
         type: 'props/change',
         payload: { prop: 'status', before, after },
       });
-    }, delay);
+    }
+
+    stallTimer = Time.delay(delay, handleTimeout);
+  }
+  function clearStallTimer() {
+    stallTimer?.cancel();
+    stallTimer = undefined;
   }
 
   /** Canonical repo event stream (props/change + network). */

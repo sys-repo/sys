@@ -650,118 +650,99 @@ describe('CrdtWorker.repo (shim)', () => {
       }
     });
 
-    it('emits props/change("status") when health reports stale progress (simulated worker stall)', async () => {
+    it('emits props/change("status") when worker goes busy then stalls (timer-based)', async () => {
       const { port1 } = Test.makePorts();
-      const client = CrdtWorker.repo(port1) as t.CrdtRepoWorkerShim;
-      const until = Rx.lifecycle();
-      const propsEvents: t.CrdtRepoPropChangeEvent['payload'][] = [];
-      client.events(until).prop$.subscribe((e) => propsEvents.push(e));
 
-      const baseNow = Date.now();
-      const originalNow = Date.now;
-      type DateFake = { now: () => number };
-
-      try {
-        let now = baseNow;
-        (Date as unknown as DateFake).now = () => now;
-
-        // Seed a snapshot so the shim has props + ready=true, not busy, not stalled.
-        const props: t.CrdtRepoProps = {
-          ready: true,
-          status: { ready: true, busy: false, stalled: false },
-          id: { instance: 'repo-x' as t.StringId, peer: 'peer-x' as t.StringId },
-          sync: { peers: [], urls: [], enabled: false },
-          stores: [],
-        };
-
-        const snapshotMsg: t.WireMessage = {
-          version: CrdtWorker.version,
-          type: 'event',
-          stream: Wire.Kind.repo,
-          event: { type: 'props/snapshot', payload: props },
-        };
-
-        port1.dispatchEvent(new MessageEvent('message', { data: snapshotMsg }));
-        await Schedule.micro();
-
-        // Simulate a worker that has been busy but made no progress for >4s.
-        now = baseNow + 4_000;
-        const health: t.WireRepoHealth = { busy: true, lastProgressAt: baseNow };
-
-        const msg: t.WireMessage = {
-          version: CrdtWorker.version,
-          type: 'event',
-          stream: Wire.Kind.repo,
-          event: { type: 'health', payload: health },
-        };
-
-        port1.dispatchEvent(new MessageEvent('message', { data: msg }));
-        await Schedule.micro();
-
-        const statusEvents = propsEvents.filter((e) => e.prop === 'status');
-        expect(statusEvents.length).to.eql(1);
-
-        const evt = statusEvents[0]!;
-        expect(evt.before.status.ready).to.eql(true);
-        expect(evt.before.status.busy).to.eql(false);
-        expect(evt.before.status.stalled).to.eql(false);
-
-        expect(evt.after.status.ready).to.eql(true);
-        expect(evt.after.status.busy).to.eql(true);
-        expect(evt.after.status.stalled).to.eql(true);
-      } finally {
-        (Date as unknown as DateFake).now = originalNow;
-        until.dispose();
-        await client.dispose();
-      }
-    });
-
-    it('emits props/change("status") when health-derived status changes', async () => {
-      const { port1, port2 } = Test.makePorts();
-      const real = Test.realRepo();
-      const client = CrdtWorker.repo(port1) as t.CrdtRepoWorkerShim;
+      // Use a tiny stall window so the test is fast.
+      const stalledAfter: t.Msecs = 20;
+      const client = CrdtWorker.repo(port1, { stalledAfter });
 
       const until = Rx.lifecycle();
       const propsEvents: t.CrdtRepoPropChangeEvent['payload'][] = [];
       client.events(until).prop$.subscribe((e) => propsEvents.push(e));
 
-      // Wire the worker side and ensure we have an initial props snapshot.
-      CrdtWorker.attach(port2, real);
-      await Wait.waitFor(() => client.id.instance !== '');
+      // 1) Seed a snapshot: ready + not busy + not stalled.
+      const props: t.CrdtRepoProps = {
+        ready: true,
+        status: { ready: true, busy: false, stalled: false },
+        id: { instance: 'repo-x' as t.StringId, peer: 'peer-x' as t.StringId },
+        sync: { peers: [], urls: [], enabled: false },
+        stores: [],
+      };
 
-      // At this point, initial status should be ready=false/true depending
-      // on the real repo, but busy/stalled should be false.
-      const now = Date.now();
-      const health: t.WireRepoHealth = { busy: true, lastProgressAt: now };
+      const snapshotMsg: t.WireMessage = {
+        version: CrdtWorker.version,
+        type: 'event',
+        stream: Wire.Kind.repo,
+        event: { type: 'props/snapshot', payload: props },
+      };
 
-      const msg: t.WireMessage = {
+      port1.dispatchEvent(new MessageEvent('message', { data: snapshotMsg }));
+      await Schedule.micro();
+
+      // Sanity: no status change yet.
+      expect(propsEvents.filter((e) => e.prop === 'status').length).to.eql(0);
+
+      // 2) Tell the shim: worker is busy "now" and then goes silent.
+      const health: t.WireRepoHealth = {
+        busy: true,
+        lastProgressAt: Date.now(),
+      };
+
+      const healthMsg: t.WireMessage = {
         version: CrdtWorker.version,
         type: 'event',
         stream: Wire.Kind.repo,
         event: { type: 'health', payload: health },
       };
 
-      // Push the health message into the same MessagePort the shim is listening on.
-      port1.dispatchEvent(new MessageEvent('message', { data: msg }));
-
-      // Allow the shim to process and emit the synthesized props/change.
+      port1.dispatchEvent(new MessageEvent('message', { data: healthMsg }));
       await Schedule.micro();
 
-      const statusEvent = propsEvents.find((e) => e.prop === 'status');
-      expect(statusEvent).to.exist;
+      // From this point on, we do not send anything else over the port.
+      // The worker is effectively "unresponsive". The shim's internal stall
+      // timer should fire after `stalledAfter` and synthesize a status change.
 
-      if (statusEvent) {
-        // Ready should be the same across the transition; busy flips false → true.
-        expect(statusEvent.before.status.ready).to.eql(statusEvent.after.status.ready);
-        expect(statusEvent.before.status.busy).to.eql(false);
-        expect(statusEvent.after.status.busy).to.eql(true);
-        expect(statusEvent.before.status.stalled).to.eql(false);
-        expect(statusEvent.after.status.stalled).to.eql(false);
+      await Wait.waitFor(() => {
+        return propsEvents.some(
+          (e) =>
+            e.prop === 'status' &&
+            e.before.status.ready === true &&
+            e.before.status.busy === true &&
+            e.before.status.stalled === false &&
+            e.after.status.ready === true &&
+            e.after.status.busy === true &&
+            e.after.status.stalled === true,
+        );
+      });
+
+      const statusEvents = propsEvents.filter((e) => e.prop === 'status');
+      expect(statusEvents.length).to.be.greaterThan(0);
+
+      const stallEvt = statusEvents.find(
+        (e) =>
+          e.before.status.ready === true &&
+          e.before.status.busy === true &&
+          e.before.status.stalled === false &&
+          e.after.status.ready === true &&
+          e.after.status.busy === true &&
+          e.after.status.stalled === true,
+      );
+
+      expect(stallEvt).to.exist;
+
+      if (stallEvt) {
+        expect(stallEvt.before.status.ready).to.eql(true);
+        expect(stallEvt.before.status.busy).to.eql(true);
+        expect(stallEvt.before.status.stalled).to.eql(false);
+
+        expect(stallEvt.after.status.ready).to.eql(true);
+        expect(stallEvt.after.status.busy).to.eql(true);
+        expect(stallEvt.after.status.stalled).to.eql(true);
       }
 
       until.dispose();
       await client.dispose();
-      await real.dispose();
     });
   });
 });
