@@ -1,4 +1,5 @@
 export * from '../common.ts';
+export { CrdtIs } from '../m.Crdt/m.Is.ts';
 
 /**
  * Protocol version tag for all message envelopes

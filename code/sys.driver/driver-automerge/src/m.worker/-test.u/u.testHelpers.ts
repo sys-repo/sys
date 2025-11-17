@@ -4,6 +4,8 @@ import { Crdt } from '@sys/driver-automerge/fs';
 import { type t } from '../common.ts';
 import { CrdtWorker } from '../m.CrdtWorker.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * Common test utilities for worker-based CRDT repo.
  */
@@ -96,6 +98,17 @@ export function createTestHelpers() {
 
       CrdtWorker.listen(fakeSelf, repo);
       return { postMessage, terminate };
+    },
+
+    stubRepoGet<Doc extends O = O>(
+      repo: t.CrdtRepo,
+      impl: (id: t.StringId, options?: t.CrdtRepoGetOptions) => Promise<t.CrdtRefGetResponse<Doc>>,
+    ) {
+      const original = repo.get.bind(repo);
+      repo.get = impl as typeof repo.get;
+      return () => {
+        repo.get = original;
+      };
     },
   } as const;
 
