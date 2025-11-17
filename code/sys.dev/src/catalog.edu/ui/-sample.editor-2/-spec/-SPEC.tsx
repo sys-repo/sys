@@ -5,6 +5,7 @@ import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
+  const repo = debug.repo;
   const p = debug.props;
 
   e.it('init', (e) => {
@@ -26,7 +27,7 @@ export default Spec.describe(D.displayName, (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Sample debug={debug} />;
+        return <Sample repo={repo} debug={v.debug} theme={v.theme} wordWrap={v.wordWrap} />;
       });
 
     ctx.debug.footer

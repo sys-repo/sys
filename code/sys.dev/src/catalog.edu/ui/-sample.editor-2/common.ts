@@ -7,6 +7,7 @@ export { Monaco } from '@sys/driver-monaco';
 
 export * from '../common.ts';
 export { Icons } from '../ui.Icons.ts';
+export { useSlugDiagnostics } from '../use.Slug/mod.ts';
 
 /**
  * Constants:

@@ -1,14 +1,15 @@
 import React from 'react';
-import { createRepo, DevUrl, YamlObjectView } from '../../-test.ui.ts';
+import { createRepo, DevUrl } from '../../-test.ui.ts';
 import { type t, Color, css, D, Icons, LocalStorage, Obj, Signal } from '../common.ts';
 
 import { Button, ObjectView } from '../common.ts';
 
-type P = t.SampleProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type P = t.Sample2Props;
+type Storage = Pick<P, 'debug' | 'theme' | 'wordWrap'>;
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  wordWrap: false,
 };
 
 /**
@@ -29,6 +30,7 @@ export function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    wordWrap: s(snap.wordWrap),
   };
   const p = props;
   const api = {
@@ -51,6 +53,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.wordWrap = p.wordWrap.value;
     });
   });
 
@@ -111,6 +114,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `wordWrap: ${p.wordWrap.value}`}
+        onClick={() => Signal.toggle(p.wordWrap)}
       />
 
       <hr />

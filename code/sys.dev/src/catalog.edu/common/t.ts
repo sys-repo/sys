@@ -48,4 +48,3 @@ export type * from '@sys/ui-factory/t';
  * @local
  */
 export type * from '../types.ts';
-export type * from '../ui/-sample.editor-1/t.ts';

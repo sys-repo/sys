@@ -7,8 +7,8 @@ type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
 /**
  * Sample view showing YAML editing + merged slug diagnostics.
  */
-export const Sample: React.FC<t.SampleProps> = (props) => {
-  const { debug = false, bus$, repo, localstorage, signals } = props;
+export const Sample: React.FC<t.Sample1Props> = (props) => {
+  const { debug = false, bus$, repo, storageKey, signals } = props;
   const yaml = signals?.yaml?.value;
 
   const docPath: t.ObjectPath = props.docPath ?? []; //   ← CRDT document location of YAML text.
@@ -21,23 +21,23 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
 
   // Run combined structural + semantic validation.
   const registry = DefaultTraitRegistry;
-  const slugValidity = useSlugDiagnostics(registry, slugPath, yaml);
+  const slugValidation = useSlugDiagnostics(registry, slugPath, yaml);
 
   // Push error markers into Monaco.
   Monaco.Yaml.useYamlErrorMarkers({
     enabled: !!ready && !!yaml?.data?.ast,
     monaco: ready?.monaco,
     editor: ready?.editor,
-    errors: slugValidity.diagnostics,
+    errors: slugValidation.diagnostics,
   });
 
   /**
-   * Effects:
+   * Effects: bubble events.
    */
   React.useEffect(() => {
-    const slugDiagnostics = slugValidity.diagnostics ?? [];
+    const slugDiagnostics = slugValidation.diagnostics ?? [];
     props.onDiagnostics?.({ slugDiagnostics });
-  }, [slugValidity.rev]);
+  }, [slugValidation.rev]);
 
   /**
    * Render:
@@ -66,7 +66,7 @@ export const Sample: React.FC<t.SampleProps> = (props) => {
         path={docPath} // Editor binds to YAML-in-CRDT.
         signals={signals}
         editor={{ autoFocus: true, debounce: 150 }}
-        documentId={{ localstorage }}
+        documentId={{ storageKey }}
         onReady={(e) => {
           const { monaco, editor } = e;
           setReady({ monaco, editor });

@@ -19,7 +19,7 @@ import {
 import { yamlSamples } from './-u.SAMPLES.tsx';
 import { SlugView } from './-ui.SlugView.tsx';
 
-type P = t.SampleProps;
+type P = t.Sample1Props;
 type Storage = Pick<P, 'theme' | 'debug' | 'docPath' | 'slugPath'> & {
   render: boolean;
   hostPadding?: boolean;

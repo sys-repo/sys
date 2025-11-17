@@ -19,3 +19,6 @@ export type * from './ui/ui.MediaComposition/t.ts';
 export type * from './ui/ui.SlugHarness/t.ts';
 export type * from './ui/ui.VideoRecorder/t.ts';
 export type * from './ui/use.Slug/t.ts';
+
+export type * from './ui/-sample.editor-1/t.ts';
+export type * from './ui/-sample.editor-2/t.ts';

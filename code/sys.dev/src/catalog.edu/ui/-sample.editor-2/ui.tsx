@@ -6,18 +6,17 @@ import {
   Color,
   Crdt,
   css,
+  DefaultTraitRegistry,
   Is,
   Monaco,
   Obj,
   Signal,
+  useSlugDiagnostics,
   SplitPane,
   STORAGE_KEY,
 } from './common.ts';
 
-type SampleProps = {
-  debug: DebugSignals;
-  style?: t.CssInput;
-};
+type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
 
 const KEY = { INDEX: 'index', MAIN: 'main' };
 const PATH = {
@@ -25,36 +24,61 @@ const PATH = {
   MAIN: ['slug'],
 };
 
-export const Sample: React.FC<SampleProps> = (props) => {
-  const { debug } = props;
-  const repo = debug.repo;
+export const Sample: React.FC<t.Sample2Props> = (props) => {
+  const { repo, debug = false, wordWrap = false } = props;
 
-  const v = Signal.toObject(debug.props);
-  const docSignal = Signal.useSignal<t.Crdt.Ref | undefined>();
+  const signals = {
+    index: {
+      doc: Signal.useSignal<t.Crdt.Ref | undefined>(),
+      yaml: Signal.create<t.EditorYaml | undefined>(),
+    },
+    main: {
+      doc: Signal.useSignal<t.Crdt.Ref | undefined>(),
+      yaml: Signal.create<t.EditorYaml | undefined>(),
+    },
+  } as const;
+
+  // 🐷
+  Signal.useEffect(() => {
+    console.log('signals.index.yaml', signals.index.yaml.value);
+  });
 
   /**
    * Hooks:
    */
-  Signal.useRedrawEffect(() => void docSignal.value);
+  const [leftCtx, setLeftCtx] = React.useState<ReadyCtx>();
+  const [rightCtx, setRightCtx] = React.useState<ReadyCtx>();
   const [indexDoc, setIndexDoc] = React.useState<t.Crdt.Ref>();
   const [selectedDocid, setSelectedDocid] = React.useState<string>();
+
+  // Run combined structural + semantic validation.
+  const registry = DefaultTraitRegistry;
+  const leftValidation = useSlugDiagnostics(registry, PATH.INDEX, signals.index.yaml.value);
+
+  // Push error markers into Monaco.
+  Monaco.Yaml.useYamlErrorMarkers({
+    // enabled: !!ready && !!yaml?.data?.ast,
+    monaco: leftCtx?.monaco,
+    editor: leftCtx?.editor,
+    errors: leftValidation.diagnostics,
+  });
+
+  Signal.useEffect(() => {
+    console.log('signals.index.doc.value', signals.index.doc.value);
+    console.log('signals.index.yaml.value', signals.index.yaml.value);
+  });
 
   /**
    * Effects:
    */
+  Signal.useRedrawEffect(() => void signals.main.doc.value);
   React.useEffect(() => {
-    if (!selectedDocid) {
-      docSignal.value = undefined;
-      return;
-    }
-
+    if (!selectedDocid) return void (signals.main.doc.value = undefined);
     let cancelled = false;
-
     (async () => {
       const { doc } = await repo.get(selectedDocid);
-      if (!cancelled) docSignal.value = doc;
+      if (!cancelled) signals.main.doc.value = doc;
     })();
-
     return () => void (cancelled = true);
   }, [selectedDocid, repo]);
 
@@ -80,7 +104,7 @@ export const Sample: React.FC<SampleProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(v.theme);
+  const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg, display: 'grid' }),
   };
@@ -89,18 +113,24 @@ export const Sample: React.FC<SampleProps> = (props) => {
     <Monaco.Yaml.Editor
       diagnostics="syntax" // Keep the raw YAML syntax diagnostics active.
       theme={theme.name}
-      debug={v.debug}
+      debug={debug}
       repo={repo}
       path={PATH.INDEX}
-      editor={{ autoFocus: true, debounce: 150 }}
+      signals={signals.index}
+      editor={{
+        autoFocus: true,
+        debounce: 150,
+        wordWrap,
+      }}
       documentId={{
-        localstorage: `${STORAGE_KEY.DEV}.${KEY.INDEX}`,
+        storageKey: `${STORAGE_KEY.DEV}.${KEY.INDEX}`,
         urlKey: KEY.INDEX,
       }}
       onDocumentLoaded={(e) => setIndexDoc(e.doc)}
       onCursor={(e) => handleCursorChange(e)}
       onReady={(e) => {
         const { monaco, editor } = e;
+        setLeftCtx({ monaco, editor });
         if (repo) Monaco.Crdt.Link.enable({ monaco, editor }, repo, e.dispose$);
       }}
     />
@@ -110,24 +140,25 @@ export const Sample: React.FC<SampleProps> = (props) => {
     <Monaco.Yaml.Editor
       diagnostics="syntax" // Keep the raw YAML syntax diagnostics active.
       theme={theme.name}
-      debug={v.debug}
+      debug={debug}
       repo={repo}
       path={PATH.MAIN}
-      signals={{ doc: docSignal }}
+      signals={signals.main}
       editor={{
-        enabled: !!docSignal.value,
+        enabled: !!signals.main.doc.value,
         autoFocus: false,
         debounce: 150,
-        wordWrap: true,
+        wordWrap,
       }}
       documentId={{
         visible: false,
-        localstorage: `${STORAGE_KEY.DEV}.${KEY.MAIN}`,
+        storageKey: `${STORAGE_KEY.DEV}.${KEY.MAIN}`,
         urlKey: KEY.MAIN,
         readOnly: true,
       }}
       onReady={(e) => {
         const { monaco, editor } = e;
+        setRightCtx({ monaco, editor });
         if (repo) Monaco.Crdt.Link.enable({ monaco, editor }, repo, e.dispose$);
       }}
     />
