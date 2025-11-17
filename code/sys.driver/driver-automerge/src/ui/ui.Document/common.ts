@@ -12,3 +12,4 @@ export const D = {
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };
+export const PATH = { meta: ['.meta'] };

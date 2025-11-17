@@ -9,6 +9,17 @@ export type DocumentLib = {
 };
 
 /**
+ * Statustics derived from a CRDT documetn.
+ */
+export type DocumentStats = {
+  readonly bytes: number;
+  readonly total: {
+    readonly changes: number;
+    readonly ops: number;
+  };
+};
+
+/**
  * Component:
  */
 export type DocumentProps = {
