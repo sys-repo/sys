@@ -44,7 +44,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(repo.status.ready).to.eql(true);
 
       // Should have fired exactly one "ready" change:
-      const readyChanges = fired.filter((c) => c.prop === 'ready');
+      const readyChanges = fired.filter((c) => c.prop === 'status');
       expect(readyChanges.length).to.eql(1);
 
       const ev = readyChanges[0];

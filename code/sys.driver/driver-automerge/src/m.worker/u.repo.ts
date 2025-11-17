@@ -8,9 +8,6 @@ const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
 
 /**
  * Factory: repo client façade over a MessagePort.
- * - Preserves the `t.CrdtRepo` surface.
- * - Mutations throw "NotImplemented" (until transport RPC lands).
- * - Lifecycle is real (dispose$/dispose) using Rx helpers.
  */
 export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}) => {
   const life = Rx.lifecycleAsync(opts.until);
@@ -28,18 +25,22 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
    * If no props have been seen yet, we report a benign default.
    */
   function computeStatus(): t.CrdtRepoStatus {
-    return state.props?.status ?? { ready: state.ready, stalled: false };
+    if (!state.props) return { ready: state.ready, stalled: false };
+    return { ...state.props.status };
   }
 
   /** Canonical repo event stream (props/change + network). */
   const event$ = Rx.subject<t.CrdtRepoEvent>();
   const emit = (e: t.CrdtRepoEvent) => event$.next(e);
 
-  /** Ready-state latch so late subscribers see the last value. */
-  const ready$ = Rx.behaviorSubject<boolean>(state.ready);
-  ready$.subscribe((next) => (state.ready = next));
   function updateReady(next: boolean) {
-    if (next !== state.ready) ready$.next(next);
+    if (next === state.ready) return;
+    const before = Wire.clone(repo);
+    state.ready = next;
+    emit({
+      type: 'props/change',
+      payload: { prop: 'status', before, after: Wire.clone(repo) },
+    });
   }
 
   /**
@@ -84,7 +85,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       const e = msg.event;
 
       /**
-       * 1. Ready + snapshot (init state):
+       * 1. Ready + snapshot (initial state):
        */
       if (e.type === 'ready' || e.type === 'props/snapshot') {
         if (e.type === 'props/snapshot') {
@@ -106,17 +107,10 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
         state.props = after;
 
         // Keep ready latch in sync if "ready" moved via props/change.
-        if (e.payload.prop === 'ready') {
-          updateReady(!!after.status.ready);
-        }
-
+        if (e.payload.prop === 'status') updateReady(!!after.status.ready);
         emit({
           type: 'props/change',
-          payload: {
-            prop: e.payload.prop,
-            before,
-            after,
-          },
+          payload: { prop: 'status', before, after },
         });
 
         return;
@@ -137,7 +131,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
         return;
       }
 
-      // 5. Nothing else remains; worker-internal variants are not surfaced.
+      // Nothing else remains; worker-internal variants not surfaced.
       return;
     }
 
@@ -157,8 +151,6 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
 
       return;
     }
-
-    // 'call' and 'cancel' are not used on the client side.
   }
 
   port.addEventListener?.('message', onMessage);
@@ -201,18 +193,12 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
      */
     async whenReady() {
       if (state.ready) return repo;
-
       await new Promise<void>((resolve) => {
-        ready$
-          .pipe(
-            Rx.takeUntil(life.dispose$),
-            Rx.filter((ready) => ready === true),
-            Rx.take(1),
-          )
-          .subscribe({
-            next: () => resolve(),
-            complete: () => resolve(),
-          });
+        const ev = repo.events();
+        ev.ready$.pipe(Rx.take(1)).subscribe({
+          next: () => resolve(),
+          complete: () => resolve(),
+        });
       });
 
       return repo;
@@ -240,12 +226,17 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
 
       return Rx.toLifecycle<t.CrdtRepoEvents>(gate, {
         $,
-        ready$: ready$.pipe(Rx.takeUntil(gate.dispose$)),
-        network$: $.pipe(Rx.filter((e) => Wire.Is.networkEvent(e))),
+        ready$: $.pipe(
+          Rx.filter((e) => e.type === 'props/change'),
+          Rx.filter((e) => e.payload.prop === 'status'),
+          Rx.map((e) => e.payload.after.status.ready),
+          Rx.distinctWhile((prev, next) => prev === next),
+        ),
         prop$: $.pipe(
           Rx.filter((e) => e.type === 'props/change'),
           Rx.map((e) => e.payload),
         ),
+        network$: $.pipe(Rx.filter((e) => Wire.Is.networkEvent(e))),
       });
     },
 
@@ -253,11 +244,9 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
      * Lifecycle:
      */
     dispose: life.dispose,
-
     get dispose$() {
       return life.dispose$;
     },
-
     get disposed() {
       return life.disposed;
     },
@@ -266,7 +255,6 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   life.dispose$.subscribe(() => {
     Try.run(() => port.removeEventListener?.('message', onMessage));
     Try.run(() => port.close?.());
-    Try.run(() => ready$.complete());
     Try.run(() => event$.complete());
 
     const err = new Error('Crdt worker repo disposed');

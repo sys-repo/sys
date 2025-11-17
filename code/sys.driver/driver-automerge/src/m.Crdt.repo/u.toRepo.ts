@@ -69,7 +69,7 @@ export function toRepo(
     if (!_ready) {
       const before = cloneProps();
       _ready = true;
-      fireChanged('ready', before);
+      fireChanged('status', before);
     }
   })();
 

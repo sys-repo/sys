@@ -12,7 +12,7 @@ export function eventsFactory($: t.Observable<t.CrdtRepoEvent>, life: t.Lifecycl
   );
 
   const ready$ = prop$.pipe(
-    Rx.filter((change) => change.prop === 'ready'),
+    Rx.filter((e) => e.prop === 'status'),
     Rx.map((change) => change.after.status.ready === true),
     Rx.take(1),
   );

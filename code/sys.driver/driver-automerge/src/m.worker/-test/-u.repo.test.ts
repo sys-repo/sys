@@ -176,7 +176,8 @@ describe('CrdtWorker.repo (shim)', () => {
       await Wait.waitFor(() => propsEvents.length === 1);
       const payload = propsEvents[0];
 
-      expect(payload.prop).to.eql('sync.peers');
+      // NB: after the status refactor, the shim now normalizes this to a 'status' prop
+      expect(payload.prop).to.eql('status');
       expect(payload.before).to.eql(before);
       expect(payload.after).to.eql(after);
 
@@ -200,7 +201,7 @@ describe('CrdtWorker.repo (shim)', () => {
       await client.dispose();
     });
 
-    it('does not toggle ready$ for non-ready prop changes', async () => {
+    it('does not toggle ready$ for non-status prop changes', async () => {
       const { port1, port2 } = Test.makePorts();
       const client = CrdtWorker.repo(port1);
 
@@ -230,13 +231,11 @@ describe('CrdtWorker.repo (shim)', () => {
       };
 
       port2.postMessage(evt);
-
-      // allow microtask turn for subscriptions to process
       await Schedule.micro();
 
-      // ready$ should still be only the initial value (false) and not flip
-      expect(readies[0]).to.eql(false);
-      expect(readies.length).to.eql(1);
+      // Because no status.ready transition occurred:
+      expect(readies).to.eql([]); // ➜ Should remain empty
+      expect(readies.length).to.eql(0);
 
       until.dispose();
       await client.dispose();

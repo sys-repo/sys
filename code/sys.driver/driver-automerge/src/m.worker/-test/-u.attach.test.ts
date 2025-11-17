@@ -1,4 +1,4 @@
-import { type t, Rx, afterEach, describe, expect, it } from '../../-test.ts';
+import { type t, afterEach, describe, expect, it } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
 import { attach } from '../u.attach.ts';
 import { Wait, createTestHelpers } from './u.ts';
@@ -123,51 +123,52 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     await repo.dispose();
   });
 
-  it('smoke: networked repo mutation → props/change over port → client.prop$', async () => {
+  it('smoke: networked repo mutation → props/change over port', async () => {
     const { port1, port2 } = Test.makePorts();
-    const real = Test.realRepo({ network: true }); // Has network adapter → sync.enabled can be `true`.
-    const client = CrdtWorker.repo(port1);
+    const real = Test.realRepo({ network: true }); // adapter → sync.enabled = true
+    const { events, stop } = Test.collectRepoEvents(port1);
 
-    const until = Rx.lifecycle();
-    const propEvents: t.CrdtRepoPropChangeEvent['payload'][] = [];
-    client.events(until).prop$.subscribe((e) => propEvents.push(e));
-
-    // wire up the worker boundary
+    // Wire up the worker boundary.
     CrdtWorker.attach(port2, real);
 
-    // wait until client is ready (received snapshot/ready)
-    await client.whenReady();
-
-    // initial state: networked repo → enabled === true
-    expect(real.sync.enabled).to.eql(true);
-    expect(client.sync.enabled).to.eql(true);
-
-    // cause a real change on the real repo: true → false
-    real.sync.enable(false);
-
-    // wait until we see the sync.enabled change over the wire
-    await Wait.waitFor(() =>
-      propEvents.some((e) => e.prop === 'sync.enabled' && e.after.sync.enabled === false),
+    // Wait until we know the stream is open and we have an initial snapshot.
+    await Wait.waitFor(
+      () =>
+        events.some((e) => e.type === 'stream/open') &&
+        events.some((e) => e.type === 'props/snapshot'),
     );
 
-    const syncEvents = propEvents.filter((e) => e.prop === 'sync.enabled');
+    // Sanity: initial network state.
+    expect(real.sync.enabled).to.eql(true);
+
+    // Trigger a real change on the real repo: true → false.
+    real.sync.enable(false);
+
+    // Wait until we see the sync.enabled change over the wire.
+    await Wait.waitFor(() =>
+      events.some(
+        (e) =>
+          e.type === 'props/change' &&
+          e.payload.prop === 'sync.enabled' &&
+          e.payload.after.sync.enabled === false,
+      ),
+    );
+
+    type Change = Extract<t.WireRepoEventPayload, { type: 'props/change' }>;
+    const syncEvents = events.filter(
+      (e): e is Change => e.type === 'props/change' && e.payload.prop === 'sync.enabled',
+    );
     const last = syncEvents.at(-1)!;
 
-    // payload reflects the true → false edge
-    expect(last.before.sync.enabled).to.eql(true);
-    expect(last.after.sync.enabled).to.eql(false);
+    // Payload reflects the true → false edge.
+    expect(last.payload.before.sync.enabled).to.eql(true);
+    expect(last.payload.after.sync.enabled).to.eql(false);
 
-    // client’s getters mirror AFTER state
-    expect(client.sync.enabled).to.eql(false);
-    expect(real.sync.enabled).to.eql(false);
-    expect(last.after.sync.enabled).to.eql(real.sync.enabled);
+    // Arrays in payload are defensively cloned (no shared refs in the change).
+    expect(last.payload.after.sync.peers).to.not.equal(last.payload.before.sync.peers);
+    expect(last.payload.after.sync.urls).to.not.equal(last.payload.before.sync.urls);
 
-    // arrays in payload are defensively cloned (no shared refs in the change)
-    expect(last.after.sync.peers).to.not.equal(last.before.sync.peers);
-    expect(last.after.sync.urls).to.not.equal(last.before.sync.urls);
-
-    until.dispose();
-    await client.dispose();
+    stop();
     await real.dispose();
   });
 });

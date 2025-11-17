@@ -26,9 +26,8 @@ export type CrdtRepoWireEvent = CrdtRepoPropChangeEvent | CrdtNetworkChangeEvent
 /**
  * Events:
  * - Wire-level events (CrdtRepoWireEvent).
- * - Local derived status events (CrdtRepoStatusEvent).
  */
-export type CrdtRepoEvent = CrdtRepoWireEvent | CrdtRepoStatusEvent;
+export type CrdtRepoEvent = CrdtRepoWireEvent;
 
 /**
  * Event: Repo property change
@@ -43,26 +42,9 @@ export type CrdtRepoPropChangeEvent = {
 
 /** Represents a change to the repo state. */
 export type CrdtRepoPropChange = {
-  readonly prop: 'ready' | 'status' | 'sync.enabled' | 'sync.peers';
+  readonly prop: 'status' | 'sync.enabled' | 'sync.peers';
   readonly before: t.CrdtRepoProps;
   readonly after: t.CrdtRepoProps;
-};
-
-/**
- * Event: Repo status change (derived from health diagnostics).
- */
-export type CrdtRepoStatusChangeHandler = (e: CrdtRepoStatusEvent) => void;
-
-/** Status change event (ready/busy/stalled). */
-export type CrdtRepoStatusEvent = {
-  type: 'status';
-  payload: CrdtRepoStatusChange;
-};
-
-/** Status change payload. */
-export type CrdtRepoStatusChange = {
-  readonly before: t.CrdtRepoStatus;
-  readonly after: t.CrdtRepoStatus;
 };
 
 /**
