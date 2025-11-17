@@ -78,7 +78,6 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
 
     // Ensure the stream is open before disposing.
     await Wait.waitFor(() => events.some((e) => e.type === 'stream/open'));
-
     await repo.dispose();
     await Wait.waitFor(() => events.at(-1)?.type === 'stream/close');
 

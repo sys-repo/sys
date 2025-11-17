@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { type t, Is, LocalStorage, Rx, useRev } from './common.ts';
+import { type t, Is, LocalStorage, useRev } from './common.ts';
 
 type P = t.RepoSyncSwitchProps;
 type Store = { syncEnabled?: boolean };
@@ -31,30 +31,36 @@ export function useController(props: P) {
   /**
    * Effect:
    *  - keep `enabled` in-sync with repo‐side toggles done elsewhere.
+   *  - treat any props/change as a potential sync.enabled change (since the
+   *    canonical value is always present on the props payload).
    */
   useEffect(() => {
-    const events = repo?.events();
-    events?.$.subscribe(bump);
-    events?.prop$.pipe(Rx.filter((e) => e.prop === 'sync.enabled')).subscribe((e) => {
-      const next = e.after.sync.enabled;
-      if (e.before.sync.enabled !== next) {
-        setEnabled(next);
-        setPending(false);
-      }
+    if (!repo) return;
+
+    const events = repo.events();
+    events.$.subscribe(bump);
+    events.prop$.subscribe((e) => {
+      const next = Is.bool(e.after.sync.enabled)
+        ? e.after.sync.enabled
+        : Is.bool(repo.sync.enabled)
+          ? (repo.sync.enabled as boolean)
+          : null;
+
+      setEnabled(next);
+      setPending(false);
     });
 
     // Initial sync: repo/localstore → enabled (and repo if localstore overrides).
     updatedEnabled(wrangle.enabled(store?.current, repo));
 
-    return events?.dispose;
+    return events.dispose;
   }, [repo?.id.instance]);
 
   /**
    * Monitor peers:
    */
   useEffect(() => {
-    const peers = (repo?.sync.peers ?? []) as readonly t.PeerId[];
-    setPeers(peers);
+    setPeers(repo?.sync.peers ?? []);
   }, [repo?.id.instance, repo?.sync.peers.join()]);
 
   /**
