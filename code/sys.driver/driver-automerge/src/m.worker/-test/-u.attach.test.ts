@@ -203,13 +203,8 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
 
     // Trigger a worker RPC that is wrapped in withBusy (sync.enable over wire).
     client.sync.enable(false);
-
-    await Wait.waitFor(() =>
-      events.some((e) => e.type === 'health' && (e as any).payload.busy === true),
-    );
-    await Wait.waitFor(() =>
-      events.some((e) => e.type === 'health' && (e as any).payload.busy === false),
-    );
+    await Wait.waitFor(() => events.some((e) => e.type === 'health' && e.payload.busy === true));
+    await Wait.waitFor(() => events.some((e) => e.type === 'health' && e.payload.busy === false));
 
     type HealthEvent = Extract<t.WireRepoEventPayload, { type: 'health' }>;
     const healthEvents = events.filter((e) => e.type === 'health') as HealthEvent[];

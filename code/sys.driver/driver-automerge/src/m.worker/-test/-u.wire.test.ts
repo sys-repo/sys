@@ -186,7 +186,7 @@ describe('Event helpers', () => {
       expect(
         Is.repoEvent({
           type: 'props/change',
-          payload: { prop: 'sync.enabled', before: {} as any, after: {} as any },
+          payload: { prop: 'sync.enabled', before: {}, after: {} },
         }),
       ).to.eql(true);
 

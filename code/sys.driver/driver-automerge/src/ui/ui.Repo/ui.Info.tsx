@@ -16,13 +16,14 @@ export const Info: React.FC<P> = (props) => {
   const items = wrangle.items(props, startupMsecs);
 
   /**
-   * Effect: redraw
+   * Effect: redraw on repo events (props/status/network).
    */
   React.useEffect(() => {
-    const ev = repo?.events();
-    ev?.$.pipe(Rx.debounceTime(120)).subscribe(bump);
-    return ev?.dispose;
-  }, [repo?.id.instance]);
+    if (!repo) return;
+    const ev = repo.events();
+    ev.$.pipe(Rx.debounceTime(120)).subscribe(bump);
+    return ev.dispose;
+  }, [repo?.id.instance, bump]);
 
   /**
    * Effect: track startup elapsed time (msecs).

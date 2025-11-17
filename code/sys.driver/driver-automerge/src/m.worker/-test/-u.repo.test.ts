@@ -650,6 +650,72 @@ describe('CrdtWorker.repo (shim)', () => {
       }
     });
 
+    it('emits props/change("status") when health reports stale progress (simulated worker stall)', async () => {
+      const { port1 } = Test.makePorts();
+      const client = CrdtWorker.repo(port1) as t.CrdtRepoWorkerShim;
+      const until = Rx.lifecycle();
+      const propsEvents: t.CrdtRepoPropChangeEvent['payload'][] = [];
+      client.events(until).prop$.subscribe((e) => propsEvents.push(e));
+
+      const baseNow = Date.now();
+      const originalNow = Date.now;
+      type DateFake = { now: () => number };
+
+      try {
+        let now = baseNow;
+        (Date as unknown as DateFake).now = () => now;
+
+        // Seed a snapshot so the shim has props + ready=true, not busy, not stalled.
+        const props: t.CrdtRepoProps = {
+          ready: true,
+          status: { ready: true, busy: false, stalled: false },
+          id: { instance: 'repo-x' as t.StringId, peer: 'peer-x' as t.StringId },
+          sync: { peers: [], urls: [], enabled: false },
+          stores: [],
+        };
+
+        const snapshotMsg: t.WireMessage = {
+          version: CrdtWorker.version,
+          type: 'event',
+          stream: Wire.Kind.repo,
+          event: { type: 'props/snapshot', payload: props },
+        };
+
+        port1.dispatchEvent(new MessageEvent('message', { data: snapshotMsg }));
+        await Schedule.micro();
+
+        // Simulate a worker that has been busy but made no progress for >4s.
+        now = baseNow + 4_000;
+        const health: t.WireRepoHealth = { busy: true, lastProgressAt: baseNow };
+
+        const msg: t.WireMessage = {
+          version: CrdtWorker.version,
+          type: 'event',
+          stream: Wire.Kind.repo,
+          event: { type: 'health', payload: health },
+        };
+
+        port1.dispatchEvent(new MessageEvent('message', { data: msg }));
+        await Schedule.micro();
+
+        const statusEvents = propsEvents.filter((e) => e.prop === 'status');
+        expect(statusEvents.length).to.eql(1);
+
+        const evt = statusEvents[0]!;
+        expect(evt.before.status.ready).to.eql(true);
+        expect(evt.before.status.busy).to.eql(false);
+        expect(evt.before.status.stalled).to.eql(false);
+
+        expect(evt.after.status.ready).to.eql(true);
+        expect(evt.after.status.busy).to.eql(true);
+        expect(evt.after.status.stalled).to.eql(true);
+      } finally {
+        (Date as unknown as DateFake).now = originalNow;
+        until.dispose();
+        await client.dispose();
+      }
+    });
+
     it('emits props/change("status") when health-derived status changes', async () => {
       const { port1, port2 } = Test.makePorts();
       const real = Test.realRepo();
@@ -681,7 +747,7 @@ describe('CrdtWorker.repo (shim)', () => {
       // Allow the shim to process and emit the synthesized props/change.
       await Schedule.micro();
 
-      const statusEvent = propsEvents.find((e) => e.prop === ('status' as any));
+      const statusEvent = propsEvents.find((e) => e.prop === 'status');
       expect(statusEvent).to.exist;
 
       if (statusEvent) {

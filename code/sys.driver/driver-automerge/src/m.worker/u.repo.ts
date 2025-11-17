@@ -2,8 +2,10 @@ import { type t, Is, Rx, Try } from './common.ts';
 import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;
+type State = { ready: boolean; props?: t.CrdtRepoProps; health: t.WireRepoHealth };
+
 const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
-const STALL_AFTER_MS = 8_000;
+const STALL_AFTER: t.Msecs = 3_000;
 
 /**
  * Factory: repo client façade over a MessagePort.
@@ -16,34 +18,65 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   port.start?.();
 
   /**
-   * Local ready + props + health state mirrored from wire.
+   * Local state mirrored from wire.
    */
-  const state: {
-    ready: boolean;
-    props?: t.CrdtRepoProps;
-    health: t.WireRepoHealth;
-  } = {
+  const state: State = {
     ready: false,
     health: { busy: false, lastProgressAt: 0 },
   };
 
   /**
-   * Derive a stable status shape from current ready + health.
+   * Derive a stable status shape from current state.
    */
   function computeStatus(): t.CrdtRepoStatus {
     const { ready, health } = state;
     const { busy, lastProgressAt } = health;
     const now = Date.now();
     const stalled =
-      !!busy &&
-      Is.num(lastProgressAt) &&
-      lastProgressAt > 0 &&
-      now - lastProgressAt > STALL_AFTER_MS;
-    return {
-      ready,
-      busy: !!busy,
-      stalled,
-    };
+      !!busy && Is.num(lastProgressAt) && lastProgressAt > 0 && now - lastProgressAt > STALL_AFTER;
+    return { ready, busy: !!busy, stalled };
+  }
+
+  let stallTimer: ReturnType<typeof setTimeout> | undefined;
+  function clearStallTimer() {
+    if (stallTimer !== undefined) {
+      clearTimeout(stallTimer);
+      stallTimer = undefined;
+    }
+  }
+  /**
+   * Schedule a one-shot check at (stall threshold - elapsed).
+   * If, at that time, the repo is still busy and has become stalled,
+   * emit a synthetic props/change("status") event.
+   */
+  function scheduleStallTimer() {
+    clearStallTimer();
+    const { health } = state;
+    if (!health.busy || !Is.num(health.lastProgressAt) || health.lastProgressAt <= 0) return;
+
+    const now = Date.now();
+    const elapsed = now - health.lastProgressAt;
+    const remaining = STALL_AFTER - elapsed;
+    const delay = remaining > 0 ? remaining : 0;
+
+    stallTimer = setTimeout(() => {
+      stallTimer = undefined;
+      if (life.disposed) return;
+      if (!state.props) return;
+
+      const current = computeStatus();
+      if (!current.busy || !current.stalled) return;
+
+      const beforeStatus: t.CrdtRepoStatus = { ...current, stalled: false };
+      const before: t.CrdtRepoProps = { ...state.props, status: beforeStatus };
+      const after: t.CrdtRepoProps = { ...state.props, status: current };
+      state.props = after;
+
+      emit({
+        type: 'props/change',
+        payload: { prop: 'status', before, after },
+      });
+    }, delay);
   }
 
   /** Canonical repo event stream (props/change + network). */
@@ -111,8 +144,13 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
           if (status) {
             state.health = {
               busy: status.busy,
-              lastProgressAt: state.health.lastProgressAt,
+              lastProgressAt: status.busy ? Date.now() : 0,
             };
+            if (status.busy) {
+              scheduleStallTimer();
+            } else {
+              clearStallTimer();
+            }
           }
         }
 
@@ -158,6 +196,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
        * 4. Health events (busy/progress diagnostics):
        *    - mirror health into local state
        *    - synthesize a props/change("status") on actual status transitions.
+       *    - schedule a timer-based stall check while busy.
        */
       if (e.type === 'health') {
         const prevStatus = computeStatus();
@@ -181,6 +220,12 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
               payload: { prop: 'status', before, after },
             });
           }
+        }
+
+        if (nextStatus.busy) {
+          scheduleStallTimer();
+        } else {
+          clearStallTimer();
         }
 
         return;
@@ -331,6 +376,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     Try.run(() => port.close?.());
     Try.run(() => ready$.complete());
     Try.run(() => event$.complete());
+    Try.run(() => clearStallTimer());
 
     const err = new Error('Crdt worker repo disposed');
     pending.forEach((entry) => entry.reject(err));
