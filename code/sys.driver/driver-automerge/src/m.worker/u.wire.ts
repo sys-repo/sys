@@ -29,22 +29,15 @@ export const Wire = {
     },
 
     /** Transport-only lifecycle signals. */
-    streamLifecycle(e: {
-      type: string;
-      payload: unknown;
-    }): e is
-      | { type: 'stream/open'; payload: {} }
-      | { type: 'stream/close'; payload: {} }
-      | { type: 'stream/error'; payload: { message?: string } } {
+    streamLifecycle(e: { type: string; payload: unknown }): boolean {
       return e.type === 'stream/open' || e.type === 'stream/close' || e.type === 'stream/error';
     },
 
     /**
-     * True when the event is a CRDT repo API *wire* event (not lifecycle/health).
+     * True when the event is a CRDT repo API *wire* event (not lifecycle).
      *
      * NOTE:
-     *  - This intentionally narrows to CrdtRepoWireEvent (no 'status' here).
-     *  - 'health' is wire-only diagnostics → consumed to derive local status.
+     *  - This intentionally narrows to the events surfaced to clients.
      */
     repoEvent(e: { type: string; payload: unknown }): e is t.CrdtRepoWireEvent {
       return (
