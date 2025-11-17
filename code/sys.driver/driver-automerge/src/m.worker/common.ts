@@ -6,3 +6,12 @@ export { CrdtIs } from '../m.Crdt/m.Is.ts';
  * exchanged over the MessagePort.
  */
 export const WIRE_VERSION = 1 as const;
+
+/**
+ * Helpers:
+ */
+export const notImpl = (name: string) => {
+  const err = new Error(`🐷 ${name} not implemented in worker client yet`);
+  (err as any).kind = 'NotImplemented';
+  return err;
+};

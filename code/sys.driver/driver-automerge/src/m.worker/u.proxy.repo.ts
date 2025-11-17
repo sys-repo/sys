@@ -1,4 +1,4 @@
-import { type t, Is, Rx, Try } from './common.ts';
+import { type t, Is, Rx, Try, notImpl } from './common.ts';
 import { createStallDetector } from './u.stall.ts';
 import { Wire } from './u.wire.ts';
 
@@ -216,6 +216,9 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     },
 
     create<T extends O>(_initial: T | (() => T)): t.CrdtRef<T> {
+      /**
+       * TODO 🐷
+       */
       throw notImpl('CrdtRef.create/change');
     },
 
@@ -234,7 +237,6 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     events(until) {
       const gate = Rx.lifecycle([life.dispose$, until]);
       const $ = event$.pipe(Rx.takeUntil(gate.dispose$));
-
       return Rx.toLifecycle<t.CrdtRepoEvents>(gate, {
         $,
         ready$: $.pipe(
@@ -274,13 +276,4 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
   });
 
   return repo;
-};
-
-/**
- * Helpers:
- */
-const notImpl = (name: string) => {
-  const err = new Error(`🐷 ${name} not implemented in worker client yet`);
-  (err as any).kind = 'NotImplemented';
-  return err;
 };
