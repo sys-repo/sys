@@ -12,6 +12,7 @@ import {
 import { CrdtWorker } from '../mod.ts';
 import { Wire } from '../u.wire.ts';
 import { Wait, createTestHelpers } from './u.ts';
+import { getRepoPort } from '../u.proxy.repo.ts';
 
 type O = Record<string, unknown>;
 
@@ -146,6 +147,13 @@ describe('CrdtWorker.repo (shim)', () => {
       const status = repo.status;
       expect(status.stalled).to.eql(true);
 
+      await repo.dispose();
+    });
+
+    it('port is retrieval from repo/proxy instance', async () => {
+      const { port1 } = Test.makePorts();
+      const repo = CrdtWorker.repo(port1) as t.CrdtRepoWorkerProxy;
+      expect(getRepoPort(repo)).to.equal(port1);
       await repo.dispose();
     });
   });

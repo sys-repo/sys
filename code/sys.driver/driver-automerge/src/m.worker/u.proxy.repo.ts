@@ -6,6 +6,7 @@ type O = Record<string, unknown>;
 type State = { ready: boolean; props?: t.CrdtRepoProps };
 
 const EMPTY_ID: t.Crdt.Repo['id'] = { instance: '', peer: '' };
+const PORT = new WeakMap<t.CrdtRepoWorkerProxy, MessagePort>();
 
 /**
  * Factory: repo client façade over a MessagePort.
@@ -164,8 +165,6 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     }
   }
 
-  port.addEventListener?.('message', onMessage);
-
   /**
    * API:
    */
@@ -275,5 +274,17 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     pending.clear();
   });
 
+  port.addEventListener?.('message', onMessage);
+  PORT.set(repo, port);
   return repo;
 };
+
+/**
+ * Internal helper — retrieve the MessagePort for a given worker-proxy repo.
+ * Throws if not a proxy or if no port exists.
+ */
+export function getRepoPort(repo: t.CrdtRepoWorkerProxy): MessagePort {
+  const port = PORT.get(repo);
+  if (!port) throw new Error(`No MessagePort associated with repo-proxy "${repo.id}"`);
+  return port;
+}

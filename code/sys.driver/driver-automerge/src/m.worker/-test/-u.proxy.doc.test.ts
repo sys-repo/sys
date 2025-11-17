@@ -10,6 +10,28 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
   const Test = createTestHelpers();
   afterEach(Test.reset);
 
+  async function sampleSetup() {
+    const { port1, port2 } = Test.makePorts();
+    const realRepo = await Test.realRepo().whenReady();
+    CrdtWorker.attach(port2, realRepo);
+    const proxyRepo = await CrdtWorker.repo(port1).whenReady();
+    const realDoc = realRepo.create<Doc>({ foo: 123 });
+
+    async function dispose() {
+      realDoc.dispose();
+      await proxyRepo.dispose();
+      await realRepo.dispose();
+    }
+
+    return {
+      port1,
+      port2,
+      real: { repo: realRepo, doc: realDoc },
+      proxy: { repo: proxyRepo },
+      dispose,
+    } as const;
+  }
+
   describe('API', () => {
     it('structural typing', () => {
       type Base = t.CrdtRef<Doc>;
@@ -32,6 +54,10 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const realRepo = Test.realRepo();
       const realDoc = realRepo.create<Doc>({ foo: 123 });
       expect((await realRepo.get(realDoc.id)).doc?.id).to.eql(realDoc.id); // sanity
+
+      const ev = realDoc.events();
+      const m = ev.deleted$;
+      // realDoc.instance
 
       // Wire up ports.
       const { port1, port2 } = Test.makePorts();
@@ -128,7 +154,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
   });
 
-  describe('doc proxy surface', () => {
+  describe('createDocProxy: proxy surface', () => {
     it('behaves like a CrdtRef<T> on the main thread', async () => {
       // Real repo/doc on the simulated worker-host.
       const realRepo = Test.realRepo();
@@ -148,11 +174,39 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       expect(res.ok).to.eql(true);
       if (!res.ok) throw res.error; // keep type-narrowed below
 
+      // Identity + brand.
+      const doc = res.data;
+      expect(doc.id).to.eql(realDoc.id);
+      expect(doc.instance.length > 4).to.be.true;
+      expect(doc.via).to.eql<'worker-proxy'>('worker-proxy');
+
       // Cleanup.
       // ev.dispose?.();
       realDoc.dispose();
       await proxyRepo.dispose();
       await realRepo.dispose();
+    });
+
+    describe('lifecycle', () => {
+      it('disposes when parent repo disposes', async () => {
+        const sample = await sampleSetup();
+        const { real, proxy } = sample;
+
+        const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
+        expect(res.ok).to.eql(true);
+        if (!res.ok) throw res.error;
+        const doc = res.data;
+
+        let completed = false;
+        doc.dispose$.subscribe({ complete: () => (completed = true) });
+
+        expect(doc.disposed).to.eql(false);
+        await proxy.repo.dispose();
+        expect(doc.disposed).to.eql(true);
+        expect(completed).to.eql(true);
+
+        await sample.dispose();
+      });
     });
   });
 });

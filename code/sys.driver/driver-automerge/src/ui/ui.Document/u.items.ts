@@ -13,7 +13,7 @@ export function toItems(doc?: t.Crdt.Ref, stats?: t.DocumentStats): t.KeyValueIt
 
     items.push({ k: 'Identity' });
     items.push({ k: 'Document', v: `crdt:${doc.id}`, x });
-    items.push({ k: 'Ref / handle', v: `instance-${doc.instance}`, x });
+    items.push({ k: 'Handle', v: `instance-${doc.instance}`, x });
     if (Is.num(createdAt)) {
       const elapsed = Time.elapsed(createdAt);
       items.push({ k: 'Created', v: `${elapsed.toString()} ago`, x });

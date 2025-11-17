@@ -10,16 +10,47 @@ describe('Event helpers', () => {
 
       expect(open.version).to.eql(WIRE_VERSION);
       expect(open.type).to.eql('event');
+      expect(open.stream).to.eql<'crdt:repo'>('crdt:repo');
       expect(open.event.type).to.eql('stream/open');
       expect(open.event.payload).to.eql({});
 
       expect(close.version).to.eql(WIRE_VERSION);
       expect(close.type).to.eql('event');
+      expect(close.stream).to.eql<'crdt:repo'>('crdt:repo');
       expect(close.event.type).to.eql('stream/close');
       expect(close.event.payload).to.eql({});
 
+      // Structural typing: repo-variant and union.
+      expectTypeOf(open).toMatchTypeOf<t.WireEventRepo>();
+      expectTypeOf(close).toMatchTypeOf<t.WireEventRepo>();
       expectTypeOf(open).toMatchTypeOf<t.WireEvent>();
       expectTypeOf(close).toMatchTypeOf<t.WireEvent>();
+    });
+
+    it('event(): doc/snapshot event yields a WireEventDoc with doc payload', () => {
+      type Doc = { foo: number };
+      const id = 'doc-123' as t.StringId;
+      const stream = Wire.Kind.doc(id);
+
+      const snapshotPayload: t.WireDocEventPayload<Doc> = {
+        type: 'doc/snapshot',
+        payload: { id, value: { foo: 123 } },
+      };
+
+      const ev = Wire.event(stream, snapshotPayload);
+
+      expect(ev.version).to.eql(WIRE_VERSION);
+      expect(ev.type).to.eql('event');
+      expect(ev.stream).to.eql(stream);
+
+      // Narrow on the discriminant before touching `value`.
+      if (ev.event.type !== 'doc/snapshot') throw new Error('expected doc/snapshot event');
+
+      expect(ev.event.payload.id).to.eql(id);
+      expect(ev.event.payload.value.foo).to.eql(123);
+
+      expectTypeOf(ev).toMatchTypeOf<t.WireEventDoc>();
+      expectTypeOf(ev).toMatchTypeOf<t.WireEvent>();
     });
 
     it('call(): whenReady has no args', () => {

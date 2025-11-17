@@ -59,12 +59,25 @@ export type WireId = number;
 /** Discriminated union of result envelopes. */
 export type WireResult = t.WireRepoResultOk | t.WireRepoResultErr;
 
-/** Event envelope for repo/doc streams. */
-export type WireEvent = {
+/**
+ * Event envelope for repo/doc streams.
+ *
+ * - 'crdt:repo'      → WireRepoEventPayload
+ * - 'crdt:doc:<id>'  → WireDocEventPayload
+ */
+export type WireEvent = WireEventRepo | WireEventDoc;
+export type WireEventRepo = {
   readonly version: typeof WIRE_VERSION;
   readonly type: 'event';
-  readonly stream: t.WireStream;
+  readonly stream: 'crdt:repo';
   readonly event: t.WireRepoEventPayload;
+  readonly meta?: WireMeta;
+};
+export type WireEventDoc = {
+  readonly version: typeof WIRE_VERSION;
+  readonly type: 'event';
+  readonly stream: `crdt:doc:${t.StringId}`;
+  readonly event: t.WireDocEventPayload;
   readonly meta?: WireMeta;
 };
 
