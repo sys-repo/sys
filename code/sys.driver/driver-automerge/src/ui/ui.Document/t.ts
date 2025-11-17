@@ -12,6 +12,7 @@ export type DocumentLib = {
  * Component:
  */
 export type DocumentProps = {
+  doc?: t.Crdt.Ref;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

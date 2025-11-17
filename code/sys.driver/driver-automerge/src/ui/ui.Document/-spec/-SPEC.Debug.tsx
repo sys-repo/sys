@@ -16,6 +16,7 @@ const defaults: Storage = {
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+type Doc = { count?: number };
 
 /**
  * Signals:
@@ -29,7 +30,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    doc: s<t.Crdt.Ref>(),
+    doc: s<t.Crdt.Ref<Doc>>(),
   };
   const p = props;
   const api = {
@@ -75,7 +76,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const repo = debug.repo;
   const p = debug.props;
   const v = Signal.toObject(p);
+  const doc = v.doc;
+
   Signal.useRedrawEffect(debug.listen);
+  Crdt.UI.useRev(doc);
 
   /**
    * Render:
@@ -100,14 +104,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button
+        block
+        label={() => `change: increment`}
+        onClick={() => doc?.change((d) => (d.count = (d.count ?? 0) + 1))}
+      />
+      <Button
+        block
+        label={() => `change: decrement`}
+        onClick={() => doc?.change((d) => (d.count = (d.count ?? 0) - 1))}
+      />
+
+      <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
         name={'doc'}
-        data={Signal.toObject(p.doc.value?.current)}
-        expand={0}
+        data={Obj.trimStringsDeep(Signal.toObject(p.doc.value?.current))}
         style={{ marginTop: 10 }}
+        expand={1}
       />
     </div>
   );

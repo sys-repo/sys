@@ -7,8 +7,7 @@ import { monitorNetwork } from './u.monitorNetwork.ts';
 import { silentShutdown } from './u.shutdown.ts';
 import { REF } from './u.toAutomergeRepo.ts';
 
-type SysMeta = { readonly createdAt: number };
-type Seeded<T extends O> = T & { readonly ['.meta']?: SysMeta };
+type Seeded<T extends O> = T & { readonly ['.meta']?: t.SysMeta };
 type O = Record<string, unknown>;
 
 const D = { timeout: 5_000 } as const;

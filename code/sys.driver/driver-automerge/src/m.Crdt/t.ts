@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
+
 export type * from './t.core.ts';
+export type * from './t.meta.ts';
 
 type O = Record<string, unknown>;
 

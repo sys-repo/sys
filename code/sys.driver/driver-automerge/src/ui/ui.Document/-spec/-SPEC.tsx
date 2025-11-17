@@ -23,13 +23,14 @@ export default Spec.describe(D.displayName, async (e) => {
     });
 
     ctx.subject
-      .size([360, null])
+      .size([320, null])
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Document.Info debug={v.debug} theme={v.theme} />;
+        return <Document.Info debug={v.debug} theme={v.theme} doc={v.doc} />;
       });
 
+    ctx.host.tracelineColor(0.03);
     ctx.host.header.padding(0).render(() => {
       const v = Signal.toObject(p);
       const theme = Color.theme(v.theme);
