@@ -112,11 +112,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
-        <div>{D.name}</div>
+        <div className={styles.vcenter.class}>
+          {D.name}
+          <Repo.StatusBullet repo={debug.repo} style={{}} />
+        </div>
         <div>{`( Worker-Proxy )`}</div>
       </div>
-
-      <Repo.StatusBullet repo={debug.repo} />
 
       <Button
         block
@@ -138,6 +139,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 10 }}
         expand={1}
       />
+
+      <hr />
+      <Repo.Info repo={repo} style={{ MarginX: [20], marginTop: 40 }} />
     </div>
   );
 };
