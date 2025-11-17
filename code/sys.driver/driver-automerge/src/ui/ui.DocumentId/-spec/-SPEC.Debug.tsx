@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createRepo } from '../../-test.ui.ts';
+import { createRepo } from '../../../-test.createRepo.ts';
 import { type t, Button, css, D, Is, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.DocumentIdProps;

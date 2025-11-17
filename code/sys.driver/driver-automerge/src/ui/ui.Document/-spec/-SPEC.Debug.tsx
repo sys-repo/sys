@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
+import { createRepo } from '../../../-test.createRepo.ts';
 
 type P = t.DocumentProps;
 type Storage = Pick<P, 'debug' | 'theme'>;

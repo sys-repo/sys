@@ -8,6 +8,7 @@ export type CrdtViewLib = t.CrdtBrowserLib & {
     // Components:
     readonly Dev: t.DevLib;
     readonly Repo: t.RepoInfoLib;
+    readonly Document: t.DocumentLib;
     readonly DocumentId: t.DocumentIdLib;
     readonly Binary: t.BinaryLib;
     readonly Layout: t.LayoutLib;

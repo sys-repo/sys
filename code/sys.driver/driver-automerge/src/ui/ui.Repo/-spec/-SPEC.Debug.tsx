@@ -1,6 +1,6 @@
 import React from 'react';
-import { createRepo } from '../../-test.ui.ts';
-import { ServerInfo } from '../../../m.Server.client/mod.ts';
+import { createRepo } from '../../../-test.createRepo.ts';
+import { ServerInfo } from '@sys/driver-automerge/ws/client';
 import {
   type t,
   Button,
