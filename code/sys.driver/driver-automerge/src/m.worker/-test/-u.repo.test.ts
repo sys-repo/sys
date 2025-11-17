@@ -32,7 +32,7 @@ describe('CrdtWorker.repo (shim)', () => {
       expect(events[0]).to.eql({ type: 'stream/open', payload: {} });
 
       // at least one ready; client resolves
-      await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
+      await Wait.waitFor(() => events.some((e) => e.type === 'props/change'));
       await client.whenReady();
       expect(client.status.ready).to.eql(true);
 

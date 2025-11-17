@@ -18,8 +18,8 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
 
     CrdtWorker.attach(port2, repo);
 
-    // Wait for initial ready/snapshot over the wire.
-    await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
+    // Wait for initial snapshot over the wire.
+    await Wait.waitFor(() => events.some((e) => e.type === 'props/snapshot'));
 
     // Networked repo: enabled should be boolean (not null).
     const initial = repo.sync.enabled;
@@ -75,7 +75,10 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     const repo = Test.realRepo();
 
     CrdtWorker.attach(port2, repo);
-    await Wait.waitFor(() => events.some((e) => e.type === 'ready'));
+
+    // Ensure the stream is open before disposing.
+    await Wait.waitFor(() => events.some((e) => e.type === 'stream/open'));
+
     await repo.dispose();
     await Wait.waitFor(() => events.at(-1)?.type === 'stream/close');
 
@@ -83,7 +86,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     stop();
   });
 
-  it('emits props/snapshot with real id, before ready flips', async () => {
+  it('emits props/snapshot with real id, and stream/open is first', async () => {
     const { port1, port2 } = Test.makePorts();
     const real = Test.realRepo();
     const { events, stop } = Test.collectRepoEvents(port1);
@@ -97,27 +100,59 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     expect(snap?.payload.id.instance).to.eql(real.id.instance);
     expect(snap?.payload.id.peer).to.eql(real.id.peer);
 
-    // The ready edge may happen right after; we only assert ordering with stream/open before snapshot.
+    // Ordering: stream/open must be first.
     expect(events[0]).to.eql({ type: 'stream/open', payload: {} });
 
     stop();
     await real.dispose();
   });
 
-  it('smoke: stream/open → ready (snapshot), then live ready$ change', async () => {
+  it('smoke: stream/open → status snapshot, then status.ready change', async () => {
     const { port1, port2 } = Test.makePorts();
     const repo = Test.realRepo();
     const { events, stop } = Test.collectRepoEvents(port1);
+
     expect(repo.status.ready).to.eql(false);
 
     CrdtWorker.attach(port2, repo);
-    await Wait.waitFor(() => events.length >= 1);
+
+    // Wait until we have stream/open + an initial snapshot.
+    await Wait.waitFor(
+      () =>
+        events.some((e) => e.type === 'stream/open') &&
+        events.some((e) => e.type === 'props/snapshot'),
+    );
 
     expect(events[0]).to.eql({ type: 'stream/open', payload: {} });
 
-    const ready = events.filter((e) => e.type === 'ready');
-    expect(ready.map((e) => e.payload.ready)).to.eql([false, false, true]);
-    expect(repo.status.ready).to.eql(true); // sanity (real repo)
+    type Snap = Extract<t.WireRepoEventPayload, { type: 'props/snapshot' }>;
+    const snapshot = events.find((e) => e.type === 'props/snapshot') as Snap | undefined;
+    expect(snapshot?.payload.status.ready).to.eql(false);
+
+    // Drive the real repo to "ready" and expect a status prop change over the wire.
+    await repo.whenReady();
+
+    await Wait.waitFor(() =>
+      events.some(
+        (e) =>
+          e.type === 'props/change' &&
+          e.payload.prop === 'status' &&
+          e.payload.after.status.ready === true,
+      ),
+    );
+
+    type Change = Extract<t.WireRepoEventPayload, { type: 'props/change' }>;
+    const statusEvents = events.filter(
+      (e): e is Change =>
+        e.type === 'props/change' &&
+        e.payload.prop === 'status' &&
+        e.payload.after.status.ready === true,
+    );
+
+    const first = statusEvents[0];
+    expect(first.payload.before.status.ready).to.eql(false);
+    expect(first.payload.after.status.ready).to.eql(true);
+    expect(repo.status.ready).to.eql(true);
 
     stop();
     await repo.dispose();

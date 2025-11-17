@@ -87,14 +87,10 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       /**
        * 1. Ready + snapshot (initial state):
        */
-      if (e.type === 'ready' || e.type === 'props/snapshot') {
-        if (e.type === 'props/snapshot') {
-          const snapshot = Wire.clone(e.payload);
-          state.props = snapshot;
-        }
-
-        const nextReady = e.type === 'ready' ? e.payload.ready : e.payload.status.ready;
-        updateReady(nextReady);
+      if (e.type === 'props/snapshot') {
+        const snapshot = Wire.clone(e.payload);
+        state.props = snapshot;
+        updateReady(e.payload.status.ready);
         return;
       }
 

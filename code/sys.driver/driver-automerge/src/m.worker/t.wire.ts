@@ -170,7 +170,6 @@ export type WireRepoPropChange = {
 export type WireRepoEventPayload =
   | { readonly type: 'props/change'; readonly payload: WireRepoPropChange }
   | { readonly type: 'props/snapshot'; readonly payload: t.CrdtRepoProps }
-  | { readonly type: 'ready'; readonly payload: { readonly ready: boolean } }
   | { readonly type: 'stream/open'; readonly payload: Record<never, never> }
   | { readonly type: 'stream/close'; readonly payload: Record<never, never> }
   | { readonly type: 'stream/error'; readonly payload: { readonly message?: string } }
