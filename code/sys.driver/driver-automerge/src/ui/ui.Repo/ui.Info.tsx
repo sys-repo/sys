@@ -79,7 +79,7 @@ function formatRepoLabel(repo: t.CrdtRepo, startupElapsedMsecs?: t.Msecs): strin
     if (!ready) return 'starting...';
     if (stalled) return 'stalled (worker busy)';
     if (busy) return 'busy...';
-    return `ready (${msecs})`;
+    return `ready (in ${msecs})`;
   }
 
   return repo.ready ? `ready (${msecs})` : 'starting...';
