@@ -13,13 +13,13 @@ export type CrdtRepoGetOptions = { timeout?: t.Msecs };
 export type CrdtRepo = t.LifecycleAsync &
   CrdtRepoMethods &
   CrdtRepoProps & {
-    readonly status: t.CrdtRepoStatus;
     readonly sync: CrdtRepoProps['sync'] & { enable(enabled?: boolean): void };
   };
 
 /** Pure event properties of the CRDT repo. */
 export type CrdtRepoProps = {
   readonly ready: boolean;
+  readonly status: t.CrdtRepoStatus;
 
   /** Opaque identifier string's for uniqueness only; format is not a semantic contract. */
   readonly id: {

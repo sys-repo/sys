@@ -121,6 +121,11 @@ describe('CrdtWorker.repo (shim)', () => {
       // craft a wire props/change
       const before: t.CrdtRepoProps = {
         ready: true,
+        status: {
+          ready: true,
+          busy: false,
+          stalled: false,
+        },
         id: { instance: 'inst-1' as t.StringId, peer: 'peer-1' as t.StringId },
         sync: { peers: [], urls: [], enabled: false },
         stores: [],
@@ -178,6 +183,11 @@ describe('CrdtWorker.repo (shim)', () => {
 
       const base: t.CrdtRepoProps = {
         ready: false,
+        status: {
+          ready: false,
+          busy: false,
+          stalled: false,
+        },
         id: { instance: 'i' as t.StringId, peer: 'p' as t.StringId },
         sync: { peers: [], urls: [], enabled: false },
         stores: [],

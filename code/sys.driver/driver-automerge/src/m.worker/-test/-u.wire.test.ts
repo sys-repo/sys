@@ -147,6 +147,7 @@ describe('Event helpers', () => {
       it('Wire.clone returns a deep array copy, same scalars', () => {
         const p: t.CrdtRepoProps = {
           ready: true,
+          status: { ready: true, stalled: false, busy: false },
           id: { instance: 'i', peer: 'p' },
           sync: { peers: ['a' as t.PeerId], urls: ['u'], enabled: false },
           stores: [{ id: 's' } as unknown as t.CrdtRepoStoreInfo],

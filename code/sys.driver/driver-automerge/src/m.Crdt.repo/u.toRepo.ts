@@ -32,9 +32,9 @@ export function toRepo(
   const schedule = Schedule.make(life, 'micro');
 
   const cloneProps = (): t.CrdtRepoProps => {
-    const { id, stores, ready } = api;
+    const { id, stores, ready, status } = api;
     const sync = Delete.undefined({ ...api.sync, enable: undefined }); // NB: ensure method does not leak onto pure DTO props.
-    return { id, ready, sync, stores: [...stores] };
+    return { id, ready, sync, status, stores: [...stores] };
   };
 
   /**
@@ -125,16 +125,11 @@ export function toRepo(
    */
   const api: t.CrdtRepo = {
     id: { peer, instance: `repo-crdt-${slug()}` },
-
     get ready() {
       return _ready;
     },
     get status(): t.CrdtRepoStatus {
-      return {
-        ready: _ready,
-        busy: false,
-        stalled: false,
-      };
+      return { ready: _ready, busy: false, stalled: false };
     },
 
     async whenReady() {

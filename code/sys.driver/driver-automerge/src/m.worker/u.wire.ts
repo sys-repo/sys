@@ -81,8 +81,13 @@ export const Wire = {
 
   clone(p: t.CrdtRepoProps): t.CrdtRepoProps {
     return {
-      ready: p.ready,
       id: p.id,
+      ready: p.ready,
+      status: {
+        ready: p.status.ready,
+        busy: p.status.busy,
+        stalled: p.status.stalled,
+      },
       sync: {
         peers: [...p.sync.peers],
         urls: [...p.sync.urls],
