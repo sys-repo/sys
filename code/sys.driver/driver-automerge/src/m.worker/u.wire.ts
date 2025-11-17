@@ -13,7 +13,14 @@ export const Wire = {
   },
 
   Is: {
-    networkEvent(e: t.WireRepoEventPayload): e is t.CrdtNetworkChangeEvent {
+    /**
+     * True when event is a network-level repo event.
+     *
+     * Note:
+     *  - Accepts a structural payload so it can be reused on both wire payloads
+     *    and local CrdtRepoEvent objects.
+     */
+    networkEvent(e: { type: string; payload: unknown }): e is t.CrdtNetworkChangeEvent {
       return (
         e.type === 'network/peer-online' ||
         e.type === 'network/peer-offline' ||
@@ -21,22 +28,29 @@ export const Wire = {
       );
     },
 
-    /** True when event is a transport-only lifecycle signal. */
-    streamLifecycle(
-      e: t.WireRepoEventPayload,
-    ): e is
+    /** Transport-only lifecycle signals. */
+    streamLifecycle(e: {
+      type: string;
+      payload: unknown;
+    }): e is
       | { type: 'stream/open'; payload: {} }
       | { type: 'stream/close'; payload: {} }
       | { type: 'stream/error'; payload: { message?: string } } {
       return e.type === 'stream/open' || e.type === 'stream/close' || e.type === 'stream/error';
     },
 
-    /** True when the event is a CRDT repo API event (not a wire lifecycle signal). */
-    repoEvent(e: t.WireRepoEventPayload): e is t.CrdtRepoEvent {
+    /**
+     * True when the event is a CRDT repo API *wire* event (not lifecycle/health).
+     *
+     * NOTE:
+     *  - This intentionally narrows to CrdtRepoWireEvent (no 'status' here).
+     *  - 'health' is wire-only diagnostics → consumed to derive local status.
+     */
+    repoEvent(e: { type: string; payload: unknown }): e is t.CrdtRepoWireEvent {
       return (
         e.type === 'ready' ||
-        e.type === 'props/snapshot' ||
         e.type === 'props/change' ||
+        e.type === 'props/snapshot' ||
         Wire.Is.networkEvent(e)
       );
     },
@@ -64,8 +78,13 @@ export const Wire = {
 
   errFrom(e: unknown, kind: t.WireErrorKind = 'UNKNOWN'): t.WireError {
     if (e instanceof Error) {
-      return { kind, message: e.message, stack: e.stack };
+      return {
+        kind,
+        message: e.message,
+        stack: e.stack,
+      };
     }
+
     if (e && typeof e === 'object') {
       const anyErr = e as { kind?: string; message?: unknown; stack?: unknown };
       if (typeof anyErr.kind === 'string' && typeof anyErr.message === 'string') {
@@ -76,9 +95,13 @@ export const Wire = {
         };
       }
     }
+
     return { kind, message: String(e ?? 'UNKNOWN') };
   },
 
+  /**
+   * Clone CrdtRepoProps.
+   */
   clone(p: t.CrdtRepoProps): t.CrdtRepoProps {
     return {
       id: p.id,

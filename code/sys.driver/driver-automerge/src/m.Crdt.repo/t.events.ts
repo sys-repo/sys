@@ -18,30 +18,58 @@ export type CrdtRepoEvents = t.Lifecycle & {
 };
 
 /**
- * Events:
+ * Wire-level repo events (i.e. things that actually travel over the wire).
+ * - Used by Wire.Is.repoEvent and by the worker attach layer.
  */
-export type CrdtRepoEvent = CrdtRepoPropChangeEvent | CrdtNetworkChangeEvent;
+export type CrdtRepoWireEvent = CrdtRepoPropChangeEvent | CrdtNetworkChangeEvent;
+
+/**
+ * Events:
+ * - Wire-level events (CrdtRepoWireEvent).
+ * - Local derived status events (CrdtRepoStatusEvent).
+ */
+export type CrdtRepoEvent = CrdtRepoWireEvent | CrdtRepoStatusEvent;
 
 /**
  * Event: Repo property change
  */
 export type CrdtRepoPropChangeHandler = (e: CrdtRepoPropChangeEvent) => void;
+
 /** Represents a change to the repo state (event). */
 export type CrdtRepoPropChangeEvent = {
   type: 'props/change';
   payload: CrdtRepoPropChange;
 };
+
 /** Represents a change to the repo state. */
 export type CrdtRepoPropChange = {
-  readonly prop: 'ready' | 'sync.enabled' | 'sync.peers';
+  readonly prop: 'ready' | 'status' | 'sync.enabled' | 'sync.peers';
   readonly before: t.CrdtRepoProps;
   readonly after: t.CrdtRepoProps;
+};
+
+/**
+ * Event: Repo status change (derived from health diagnostics).
+ */
+export type CrdtRepoStatusChangeHandler = (e: CrdtRepoStatusEvent) => void;
+
+/** Status change event (ready/busy/stalled). */
+export type CrdtRepoStatusEvent = {
+  type: 'status';
+  payload: CrdtRepoStatusChange;
+};
+
+/** Status change payload. */
+export type CrdtRepoStatusChange = {
+  readonly before: t.CrdtRepoStatus;
+  readonly after: t.CrdtRepoStatus;
 };
 
 /**
  * Event: Describes a network-level change to the repo.
  */
 export type CrdtNetworkChangeHandler = (e: CrdtNetworkChangeEvent) => void;
+
 /** Describes a network-level change to the repo (payload). */
 export type CrdtNetworkChangeEvent =
   | CrdtNetworkPeerOnlineEvent
@@ -53,14 +81,19 @@ export type CrdtNetworkPeerOnlineEvent = {
   type: 'network/peer-online';
   payload: CrdtNetworkPeerOnline;
 };
+
 /** New peer becomes available. */
-export type CrdtNetworkPeerOnline = { peerId: t.PeerId; metadata?: t.PeerMetadata };
+export type CrdtNetworkPeerOnline = {
+  peerId: t.PeerId;
+  metadata?: t.PeerMetadata;
+};
 
 /** Peer went away (event). */
 export type CrdtNetworkPeerOfflineEvent = {
   type: 'network/peer-offline';
   payload: CrdtNetworkPeerOffline;
 };
+
 /** Peer went away. */
 export type CrdtNetworkPeerOffline = { peerId: t.PeerId };
 
@@ -69,5 +102,6 @@ export type CrdtNetworkCloseEvent = {
   type: 'network/close';
   payload: CrdtNetworkClose;
 };
+
 /** Whole network adapter closed/shutdown. */
 export type CrdtNetworkClose = { adapter: t.NetworkAdapterInterface };

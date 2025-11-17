@@ -155,7 +155,7 @@ export type WireResult = WireResultOk | WireResultErr;
 
 /** Serializable prop-change payload for wire events (derived). */
 export type WireRepoPropChange = {
-  readonly prop: 'ready' | 'sync.enabled' | 'sync.peers';
+  readonly prop: 'ready' | 'status' | 'sync.enabled' | 'sync.peers';
   readonly before: t.CrdtRepoProps;
   readonly after: t.CrdtRepoProps;
 };

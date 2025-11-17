@@ -649,5 +649,53 @@ describe('CrdtWorker.repo (shim)', () => {
         await client.dispose();
       }
     });
+
+    it('emits props/change("status") when health-derived status changes', async () => {
+      const { port1, port2 } = Test.makePorts();
+      const real = Test.realRepo();
+      const client = CrdtWorker.repo(port1) as t.CrdtRepoWorkerShim;
+
+      const until = Rx.lifecycle();
+      const propsEvents: t.CrdtRepoPropChangeEvent['payload'][] = [];
+      client.events(until).prop$.subscribe((e) => propsEvents.push(e));
+
+      // Wire the worker side and ensure we have an initial props snapshot.
+      CrdtWorker.attach(port2, real);
+      await Wait.waitFor(() => client.id.instance !== '');
+
+      // At this point, initial status should be ready=false/true depending
+      // on the real repo, but busy/stalled should be false.
+      const now = Date.now();
+      const health: t.WireRepoHealth = { busy: true, lastProgressAt: now };
+
+      const msg: t.WireMessage = {
+        version: CrdtWorker.version,
+        type: 'event',
+        stream: Wire.Kind.repo,
+        event: { type: 'health', payload: health },
+      };
+
+      // Push the health message into the same MessagePort the shim is listening on.
+      port1.dispatchEvent(new MessageEvent('message', { data: msg }));
+
+      // Allow the shim to process and emit the synthesized props/change.
+      await Schedule.micro();
+
+      const statusEvent = propsEvents.find((e) => e.prop === ('status' as any));
+      expect(statusEvent).to.exist;
+
+      if (statusEvent) {
+        // Ready should be the same across the transition; busy flips false → true.
+        expect(statusEvent.before.status.ready).to.eql(statusEvent.after.status.ready);
+        expect(statusEvent.before.status.busy).to.eql(false);
+        expect(statusEvent.after.status.busy).to.eql(true);
+        expect(statusEvent.before.status.stalled).to.eql(false);
+        expect(statusEvent.after.status.stalled).to.eql(false);
+      }
+
+      until.dispose();
+      await client.dispose();
+      await real.dispose();
+    });
   });
 });
