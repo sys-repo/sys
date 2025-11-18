@@ -12,7 +12,7 @@ export type WireDocMethod = 'doc.change' | 'doc.dispose' | 'doc.path' | 'doc.eve
 /**
  * Argument tuples per doc method (reserved for doc-level RPC).
  * These are shaped around the existing `CrdtRef` surface:
- * - `doc.change`   → mutate a document by id with a change function or patch descriptor.
+ * - `doc.change`   → mutate a document by id with a change patch descriptor.
  * - `doc.dispose`  → dispose a document ref on the worker side.
  * - `doc.path`     → subscribe to path-based events for a given document.
  * - `doc.events`   → subscribe to the full event stream for a document.
@@ -22,7 +22,7 @@ export type WireDocMethod = 'doc.change' | 'doc.dispose' | 'doc.path' | 'doc.eve
  *   we will wire up when the document shim lands.
  */
 export type WireDocArgs = {
-  'doc.change': [t.StringId, unknown];
+  'doc.change': [t.StringId, WireDocChangeInput];
   'doc.dispose': [t.StringId];
   'doc.path': [t.StringId, t.ObjectPath | readonly t.ObjectPath[], t.ImmutablePathEventsOptions?];
   'doc.events': [t.StringId];
@@ -62,7 +62,17 @@ type WireDocSnapshot<T extends O = O> = {
 };
 
 /** Minimal patch details for wire-transport. */
-type WirePatch = { readonly path: t.ObjectPath };
+export type WirePatch = { readonly path: t.ObjectPath };
+
+/**
+ * Input payload for a doc.change RPC.
+ * Carries the post-change value plus optional minimal patch metadata
+ * (paths only) for bookkeeping or debugging on the worker side.
+ */
+export type WireDocChangeInput<T extends O = O> = {
+  readonly value: T;
+  readonly patches?: readonly WirePatch[];
+};
 
 /**
  * Post-change snapshot for a document.

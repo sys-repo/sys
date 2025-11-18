@@ -21,7 +21,10 @@ export type CrdtDeleted = G.Deleted;
 
 /** Automerge-specific change payload extensions. */
 export type CrdtChangeExtras = CX;
-type CX = { readonly source: t.Automerge.PatchSource };
+type CX = { readonly source: t.CrdtPatchSource };
+
+/** The source of a change patch. */
+export type CrdtPatchSource = t.Automerge.PatchSource;
 
 /**
  * Events filtered to value path(s) within the document.

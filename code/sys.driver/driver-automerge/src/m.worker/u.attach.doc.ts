@@ -27,7 +27,7 @@ export function attachDoc<T extends O = O>(
   const emitSnapshot = () => {
     const msg: t.WireDocEventPayload<T> = {
       type: 'doc/snapshot',
-      payload: { id: doc.id, value: doc.current as T },
+      payload: { id: doc.id, value: doc.current },
     };
     const payload = Wire.event(stream, msg);
     port.postMessage(payload);
@@ -54,12 +54,64 @@ export function attachDoc<T extends O = O>(
   });
 
   ev.deleted$.subscribe((e) => {
-    const msg: t.WireDocEventPayload<T> = {
-      type: 'doc/deleted',
-      payload: { id: doc.id },
-    };
+    const msg: t.WireDocEventPayload<T> = { type: 'doc/deleted', payload: { id: doc.id } };
     port.postMessage(Wire.event(stream, msg));
   });
 
+  /**
+   * Inbound handler: apply proxy-origin `doc/change` events back into
+   * the real CrdtRef<T> hosted inside this worker.
+   *
+   * ⚠️ WARNING (2025-11):
+   * This path currently performs a *structural overwrite* based on
+   * `payload.value` (the proxy’s post-change snapshot). It does **not**
+   * replay real Automerge operations such as:
+   *
+   *   • A.splice / text inserts / deletions
+   *   • mark add/remove ops
+   *   • list/seq targeted mutations
+   *   • incremental map/set operations
+   *
+   * Meaning:
+   * - These changes are faithfully reproduced as final state, but they
+   *   are *not* applied as CRDT operations inside the real document.
+   * - This is sufficient for functional correctness, but it discards
+   *   the semantic intent of advanced text operations.
+   *
+   * FUTURE:
+   * - We will lift this to an op-driven protocol:
+   *     proxy:   derive intent → send typed doc/op commands
+   *     worker:  replay real Automerge ops (A.splice, mark, list ops, etc)
+   * - Until that lands, consider this a *safe fallback* implementation,
+   *   not the final transport for text-level or mark-level editing.
+   */
+  const onMessage = (event: MessageEvent) => {
+    const msg = event.data as t.WireMessage | undefined;
+    if (!msg || msg.type !== 'event') return;
+    if (msg.stream !== stream) return;
+
+    const wire = msg.event as t.WireDocEventPayload<T>;
+    if (wire.type !== 'doc/change') return;
+
+    const { value } = wire.payload;
+
+    // Apply the new value to the real Automerge-backed document.
+    void doc.change((draft: T) => {
+      const dst = draft as any;
+      const src = value as any;
+
+      // Remove keys that no longer exist:
+      for (const key of Object.keys(dst)) {
+        if (!(key in src)) delete dst[key];
+      }
+
+      // Assign incoming keys:
+      for (const [key, val] of Object.entries(src)) {
+        dst[key] = val;
+      }
+    });
+  };
+
+  port.addEventListener?.('message', onMessage, { signal: life.signal });
   return life;
 }

@@ -1,8 +1,21 @@
 import React from 'react';
 
-import { createRepo } from '../../../-test.createRepo.ts';
-import { type t, Button, css, D, Is, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { CrdtWorker } from '../../../m.worker/mod.ts';
+import { Repo } from '../../ui.Repo/mod.ts';
+import {
+  type t,
+  Rx,
+  Button,
+  css,
+  D,
+  Is,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+} from '../common.ts';
 
+type Doc = { count?: number };
 type P = t.DocumentIdProps;
 export const STORAGE_KEY = `dev:${D.name}.input`;
 
@@ -17,7 +30,7 @@ export const sampleUrlFactory: t.DocumentIdUrlFactory = (e) => {
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 type Storage = {
   controlled?: boolean;
   passRepo?: boolean;
@@ -42,11 +55,15 @@ const defaults: Storage = {
 /**
  * Signals:
  */
-export function createDebugSignals() {
+export async function createDebugSignals() {
   const s = Signal.create;
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+
+  const url = new URL('../../../-test.worker.ts', import.meta.url);
+  const worker = new Worker(url, { type: 'module' });
+  const { repo } = await CrdtWorker.spawn(worker);
 
   const props = {
     redraw: s(0),
@@ -57,7 +74,7 @@ export function createDebugSignals() {
     storageKey: s(snap.storageKey),
 
     textbox: s<string | undefined>(),
-    doc: s<t.CrdtRef>(),
+    doc: s<t.CrdtRef<Doc>>(),
     path: s<t.ObjectPath>(),
 
     label: s(snap.label),
@@ -70,12 +87,12 @@ export function createDebugSignals() {
     url: s<t.UseDocumentIdHookArgs['url']>(snap.url === 'ƒ' ? sampleUrlFactory : snap.url),
   };
   const p = props;
-  const repo = createRepo();
   const api = {
     props,
     repo,
     listen,
     reset,
+    redraw: () => p.redraw.value++,
   };
 
   function listen() {
@@ -104,6 +121,11 @@ export function createDebugSignals() {
     });
   });
 
+  Signal.effect((e) => {
+    const doc = p.doc.value;
+    doc?.events(e.life).$.pipe(Rx.debounceTime(50)).subscribe(api.redraw);
+  });
+
   return api;
 }
 
@@ -122,6 +144,7 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
+  const repo = debug.repo;
   const p = debug.props;
   Signal.useRedrawEffect(() => debug.listen());
 
@@ -218,9 +241,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button
+        block
+        label={() => `change: count++`}
+        onClick={() => p.doc.value?.change((d) => (d.count = (d.count ?? 0) + 1))}
+      />
+      <Button
+        block
+        label={() => `change: count--`}
+        onClick={() => p.doc.value?.change((d) => (d.count = (d.count ?? 0) - 1))}
+      />
+
+      <hr />
       <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 10 }} />
-      <ObjectView name={'doc'} data={p.doc.value?.current} style={{ marginTop: 10 }} />
-      <ObjectView name={'path'} data={p.path.value ?? []} style={{ marginTop: 10 }} />
+      <ObjectView name={'path'} data={p.path.value ?? []} style={{ marginTop: 5 }} />
+      <ObjectView name={'doc'} data={p.doc.value?.current} style={{ marginTop: 5 }} />
+
+      <hr />
+      <Repo.Info repo={repo} style={{ MarginX: [20], marginTop: 40 }} />
     </div>
   );
 };

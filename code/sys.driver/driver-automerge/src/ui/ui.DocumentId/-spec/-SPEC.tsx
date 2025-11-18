@@ -6,8 +6,8 @@ import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 type SampleDoc = { count: number; text?: string };
 
-export default Spec.describe(D.displayName, (e) => {
-  const debug = createDebugSignals();
+export default Spec.describe(D.displayName, async (e) => {
+  const debug = await createDebugSignals();
   const repo = debug.repo;
   const p = debug.props;
 

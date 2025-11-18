@@ -1,4 +1,6 @@
-import { type t, Immutable, Rx, notImpl, slug } from './common.ts';
+import { type t, Immutable, Rx, slug } from './common.ts';
+import { changePatches } from './u.proxy.doc.change.ts';
+import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;
 
@@ -76,17 +78,18 @@ export function createDocProxy<T extends O = O>(
     }
   };
 
+  const ensureCurrent = () => {
+    if (current !== undefined) return current;
+    throw new Error(`Crdt.Worker.ProxyDoc.current("${id}") used before first snapshot`);
+  };
+
   const api: t.CrdtDocWorkerProxy<T> = {
     id,
     via: 'worker-proxy',
     instance: slug(),
 
     get current() {
-      if (current === undefined) {
-        const err = `CrdtDocWorkerProxy.current("${id}") used before first snapshot`;
-        throw new Error(err);
-      }
-      return current;
+      return ensureCurrent();
     },
 
     get deleted() {
@@ -100,7 +103,6 @@ export function createDocProxy<T extends O = O>(
         $,
         (patch) => patch.path,
       );
-
       return Rx.toLifecycle<t.CrdtEvents<T>>(gate, {
         $,
         deleted$: deleted$.pipe(Rx.takeUntil(gate.dispose$)),
@@ -109,8 +111,36 @@ export function createDocProxy<T extends O = O>(
     },
 
     change(fn) {
-      // NB: This will call into doc-level RPC later (`WireDocMethod: 'doc.change'`).
-      throw notImpl('Document is readonly');
+      if (life.disposed) return;
+
+      const before = ensureCurrent();
+      const changed = changePatches<T>(fn, before);
+      const after = changed.after;
+
+      // Convert Automerge patches to simple wire-patch shape.
+      const wirePatches = changed.patches.map((patch) => {
+        const path = (patch.path ?? []) as t.ObjectPath;
+        return { path } satisfies t.WirePatch;
+      });
+
+      // 1) Optimistic local state + event (proxy-origin).
+      current = after;
+      const patches = wirePatches.map((p) => p as t.CrdtPatch);
+      change$.next({ source: 'change', before, after, patches });
+
+      /**
+       * TODO: expand `source` → sys-level origin enum
+       * (workerProxy / workerRepo / workerSync / workerLoad).
+       */
+
+      // 2) Ship intent to the worker as a doc-level wire event.
+      const stream = Wire.Kind.doc(id);
+      const event: t.WireDocEventPayload<T> = {
+        type: 'doc/change',
+        payload: { id, value: after, patches: wirePatches },
+      };
+
+      port.postMessage(Wire.event(stream, event));
     },
 
     /**

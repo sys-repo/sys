@@ -1,5 +1,6 @@
 import {
   type t,
+  A,
   Is,
   afterEach,
   Obj,
@@ -201,7 +202,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
   });
 
-  describe('document event-stream (host attach → proxy ref)', () => {
+  describe('proxy-doc: event-stream (host attach → proxy ref)', () => {
     it('populated with initial snapshot', async () => {
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
@@ -263,22 +264,6 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
 
       const fn = () => Schedule.waitFor(() => doc.current.foo === 'hello', 50);
       await expectError(fn, 'timeout');
-
-      // Cleanup:
-      await sample.dispose();
-    });
-
-    it('doc.change() → throw: not implemented (read only)', async () => {
-      const sample = await Test.sample<Doc>({ foo: 123 });
-      const { real, proxy } = sample;
-
-      const res = await proxy.repo.get<Doc>(real.doc.id);
-      if (!res.doc) throw res.error;
-      const doc = res.doc;
-
-      const fn = () => doc.change((d) => (d.foo = 'hello'));
-      expect(fn).to.throw(/not implemented/);
-      expect(fn).to.throw(/Document is readonly/);
 
       // Cleanup:
       await sample.dispose();
@@ -396,6 +381,67 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
         { path: ['obj', 'foo', 'msg'] },
         { path: ['obj', 'foo', 'msg', 0] },
       ]);
+
+      // Cleanup:
+      await sample.dispose();
+      expect(doc.disposed).to.eql(true);
+    });
+  });
+
+  describe('proxy-doc: change', () => {
+    it('doc.change: simple', async () => {
+      const sample = await Test.sample<Doc>({ foo: 123 });
+      const { real, proxy } = sample;
+      const { doc, error } = await proxy.repo.get<Doc>(real.doc.id);
+      if (error) throw error;
+      expect(real.doc).to.not.equal(doc); // sanity
+
+      const changeEvents: t.CrdtChange<Doc>[] = [];
+      doc.events().$.subscribe((e) => changeEvents.push(e));
+
+      // Make a change:
+      doc.change((d) => (d.foo = 'hello'));
+
+      // Assert immediate change (client-side).
+      expect(doc.current).to.eql({ foo: 'hello' });
+      expect(changeEvents.length).to.eql(1);
+
+      const ev = changeEvents[0];
+      expect(ev.before).to.eql({ foo: 123 });
+      expect(ev.after).to.eql({ foo: 'hello' });
+      expect(ev.patches).to.eql([{ path: ['foo'] }, { path: ['foo', 0] }]);
+
+      // Assert change on worker-side.
+      expect(real.doc.current.foo).to.eql(123);
+      await Schedule.waitFor(() => real.doc.current.foo === 'hello');
+      expect(real.doc.current.foo).to.eql('hello');
+
+      // Cleanup:
+      await sample.dispose();
+      expect(doc.disposed).to.eql(true);
+    });
+
+    it('doc.change: slice (simplistic)', async () => {
+      const sample = await Test.sample<Doc>({ foo: 'hello foobar' });
+      const { real, proxy } = sample;
+      const { doc, error } = await proxy.repo.get<Doc>(real.doc.id);
+      if (error) throw error;
+
+      /**
+       * WARNING:
+       * `A.splice` here runs only on the ephemeral local doc used to
+       * derive the `after` snapshot. The worker does NOT perform a real
+       * Automerge text-splice; it applies a whole-value field replace.
+       * This test only verifies final-value sync, not CRDT splice semantics.
+       */
+      doc.change((d) => {
+        A.splice(d, ['foo'], 5, 0, ' world');
+        d.obj = { foo: { msg: 'done' } };
+      });
+
+      expect(real.doc.current).to.not.eql(doc.current);
+      await Schedule.waitFor(() => !!real.doc.current.obj?.foo);
+      expect(real.doc.current).to.eql(doc.current);
 
       // Cleanup:
       await sample.dispose();
