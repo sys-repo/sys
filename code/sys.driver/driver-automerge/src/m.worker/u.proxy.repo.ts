@@ -215,7 +215,21 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     },
 
     async create<T extends O>(_initial: T | (() => T)) {
-      throw notImpl('CrdtRef.create');
+      try {
+        const initial = Is.func(_initial) ? _initial() : _initial;
+        const wire = (await rpc('create', initial)) as t.WireRepoCreateResult;
+        const id = wire.id;
+
+        if (!id) {
+          const err = 'Crdt.Worker.repo.create: worker returned no id';
+          return { ok: false, error: toWorkerError(err) };
+        }
+
+        // Reuse the existing get-path to build the worker-proxy ref and attach doc.
+        return await repo.get<T>(id);
+      } catch (err: any) {
+        return { ok: false, error: toWorkerError(err.message) };
+      }
     },
 
     async get<T extends O>(

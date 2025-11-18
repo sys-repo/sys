@@ -392,37 +392,18 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
         const { port1, port2 } = Test.makePorts();
         const real = Test.realRepo();
 
-        // Spy on the real repo's create, but avoid spinning up real refs/timers.
-        const calls: unknown[] = [];
-        const fakeId = 'doc-from-test' as t.StringId;
-
-        const originalCreate = real.create.bind(real);
-        real.create = (async <T extends O>(initial: T | (() => T)) => {
-          calls.push(initial);
-
-          // Minimal stub ref for the newly created document.
-          const ref = { id: fakeId } as unknown as t.CrdtRef<T>;
-
-          const result: t.CrdtRefResult<T> = {
-            ok: true,
-            doc: ref,
-          };
-
-          return result;
-        }) as typeof real.create;
-
-        // Attach worker side.
+        // Bind the worker-side repo to port2.
         CrdtWorker.attach(port2, real);
 
-        // Prepare a known initial value.
+        // Known initial value we expect to be stored in the created doc.
         const initial = { foo: 'bar' };
 
         // Craft a raw wire call for "create".
-        const id: t.WireId = 1;
+        const wireId: t.WireId = 1;
         const call: t.WireRepoCall<'create'> = {
           version: CrdtWorker.version,
           type: 'call',
-          id,
+          id: wireId,
           method: 'create',
           args: [initial],
         };
@@ -442,23 +423,29 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
 
         // Wait for a result to come back.
         await Schedule.waitFor(() => results.length >= 1);
+
         const result = results[0] as t.WireRepoResultOk<'create'>;
 
+        // Wire-level assertions.
         expect(result.ok).to.eql(true);
-        expect(result.id).to.eql(id);
+        expect(result.id).to.eql(wireId);
 
-        // The payload should be the create result with an id.
         const data = result.data as t.WireRepoCreateResult;
-        expect(data.id).to.eql(fakeId);
+        const createdId = data.id;
 
-        // And the worker should have called create with our initial object.
-        expect(calls).to.eql([initial]);
+        expect(createdId).to.be.a('string');
+        expect(createdId.length).to.be.greaterThan(0);
 
+        // End-to-end sanity: the real repo should now have a doc with that id + value.
+        const created = await real.get<typeof initial>(createdId);
+        expect(created.ok).to.eql(true);
+        expect(created.error).to.eql(undefined);
+        expect(created.doc).to.exist;
+        expect(created.doc!.current).to.eql(initial);
+
+        // Cleanup.
         port1.removeEventListener('message', onMessage);
         await real.dispose();
-
-        // Optional: restore in case this helper is reused in future tests.
-        real.create = originalCreate;
       });
     });
 
