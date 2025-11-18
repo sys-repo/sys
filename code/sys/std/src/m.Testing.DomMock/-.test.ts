@@ -1,7 +1,7 @@
 import { Document, Window } from 'happy-dom';
-import { describe, expect, it, afterEach, beforeEach } from '../-test.ts';
-import { DomMock } from './mod.ts';
+import { afterEach, describe, expect, it } from '../-test.ts';
 import { Is } from '../m.Is/mod.ts';
+import { DomMock } from './mod.ts';
 
 describe(
   'Mock (DOM)',
