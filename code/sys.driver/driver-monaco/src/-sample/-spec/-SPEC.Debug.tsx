@@ -132,7 +132,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         name={'signals'}
         data={{
           ...Signal.toObject(signals),
-          doc: Obj.trimStringsDeep(signals.doc.value?.current ?? {}),
+          doc: Obj.truncateStrings(signals.doc.value?.current ?? {}),
         }}
         expand={['$']}
         style={{ marginTop: 5 }}

@@ -255,7 +255,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         name={'notes'}
         data={{
           'doc.id': notes.doc?.id,
-          doc: Obj.trimStringsDeep(notes.doc?.current ?? {}, 25),
+          doc: Obj.truncateStrings(notes.doc?.current ?? {}, 25),
         }}
         expand={2}
         style={{ marginTop: 5 }}

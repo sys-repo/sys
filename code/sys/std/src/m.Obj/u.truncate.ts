@@ -5,7 +5,7 @@ import { walk } from './u.walk.ts';
 /**
  * Walk the tree and ensure all strings are less than the given max-length.
  */
-export const trimStringsDeep: t.ObjLib['trimStringsDeep'] = (
+export const truncateStrings: t.ObjLib['truncateStrings'] = (
   obj?: unknown,
   options?: { maxLength?: number; ellipsis?: boolean; mutate?: boolean } | number,
 ) => {

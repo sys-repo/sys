@@ -116,7 +116,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
         name={v.doc ? `doc(${v.doc.id.slice(-5)})` : `doc`}
-        data={Obj.trimStringsDeep(Signal.toObject(v.doc?.current))}
+        data={Obj.truncateStrings(Signal.toObject(v.doc?.current))}
         expand={0}
         style={{ marginTop: 10 }}
       />

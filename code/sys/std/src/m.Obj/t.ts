@@ -33,17 +33,17 @@ export type ObjLib = {
    * - Returns `T` when an object is provided.
    * - Returns `undefined` when no object is provided.
    */
-  trimStringsDeep: {
+  truncateStrings: {
     // object → object
-    <T extends Record<string, unknown>>(obj: T, options?: t.ObjTrimStringsDeepOptions | number): T;
+    <T extends Record<string, unknown>>(obj: T, options?: t.ObjTruncateStringsOptions | number): T;
 
     // undefined → undefined
-    (obj: undefined, options?: t.ObjTrimStringsDeepOptions | number): undefined;
+    (obj: undefined, options?: t.ObjTruncateStringsOptions | number): undefined;
 
     // T | undefined → T | undefined    ← handles optional chaining at call sites
     <T extends Record<string, unknown>>(
       obj: T | undefined,
-      options?: t.ObjTrimStringsDeepOptions | number,
+      options?: t.ObjTruncateStringsOptions | number,
     ): T | undefined;
   };
 
@@ -105,7 +105,7 @@ export type ObjWalkFnArgs = {
 };
 
 /** Options passed to the `Obj.trimStringsDeep` method. */
-export type ObjTrimStringsDeepOptions = {
+export type ObjTruncateStringsOptions = {
   maxLength?: number;
   ellipsis?: boolean;
   mutate?: boolean;

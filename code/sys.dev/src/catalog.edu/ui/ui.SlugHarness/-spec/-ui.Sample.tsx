@@ -54,7 +54,7 @@ export function Sample(props: { prefix?: string; ctx: t.SlugViewProps }) {
   const d = {
     doc: {
       field: doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc',
-      value: doc ? Obj.trimStringsDeep(Crdt.toObject(doc.current)) : null,
+      value: doc ? Obj.truncateStrings(Crdt.toObject(doc.current)) : null,
     },
   };
   const data = {

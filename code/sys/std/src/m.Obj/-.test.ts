@@ -180,7 +180,7 @@ describe('Obj', () => {
     });
   });
 
-  describe('Obj.trimStringsDeep', () => {
+  describe('Obj.truncateStrings', () => {
     it('shallow', () => {
       const name = 'foo'.repeat(100);
       const obj = {
@@ -193,8 +193,8 @@ describe('Obj', () => {
         nil: null,
       };
 
-      const a = Obj.trimStringsDeep(obj); // NB: default immutable.
-      const b = Obj.trimStringsDeep(obj, { mutate: true });
+      const a = Obj.truncateStrings(obj); // NB: default immutable.
+      const b = Obj.truncateStrings(obj, { mutate: true });
 
       const expected = {
         ...obj,
@@ -225,7 +225,7 @@ describe('Obj', () => {
         },
       };
 
-      const res = Obj.trimStringsDeep(obj);
+      const res = Obj.truncateStrings(obj);
 
       expect(res).to.eql({
         name: `${name.substring(0, 35)}...`,
@@ -242,9 +242,9 @@ describe('Obj', () => {
       const name = 'foo'.repeat(100);
       const obj = { name };
 
-      const a = Obj.trimStringsDeep(obj, {});
-      const b = Obj.trimStringsDeep(obj, { ellipsis: false, maxLength: 10 });
-      const c = Obj.trimStringsDeep(obj, 10);
+      const a = Obj.truncateStrings(obj, {});
+      const b = Obj.truncateStrings(obj, { ellipsis: false, maxLength: 10 });
+      const c = Obj.truncateStrings(obj, 10);
 
       expect(a.name).to.eql(`${name.substring(0, 35)}...`); // NB: default
       expect(b.name).to.eql(name.substring(0, 10));
@@ -252,34 +252,34 @@ describe('Obj', () => {
     });
 
     it('<undefined> object with options', () => {
-      expect(Obj.trimStringsDeep(undefined, 10)).to.eql(undefined);
-      expect(Obj.trimStringsDeep(undefined, { maxLength: 5, ellipsis: false })).to.eql(undefined);
+      expect(Obj.truncateStrings(undefined, 10)).to.eql(undefined);
+      expect(Obj.truncateStrings(undefined, { maxLength: 5, ellipsis: false })).to.eql(undefined);
     });
 
     it('defined object returns T (not T | undefined)', () => {
       const input = { name: 'x' } as const;
-      const out = Obj.trimStringsDeep(input);
+      const out = Obj.truncateStrings(input);
       expectTypeOf(out).toEqualTypeOf<typeof input>();
       expect(out).to.eql(input); // unchanged because below max
     });
 
     it('mutate: true returns same instance', () => {
       const obj = { name: 'x'.repeat(100) };
-      const out = Obj.trimStringsDeep(obj, { mutate: true, maxLength: 10 });
+      const out = Obj.truncateStrings(obj, { mutate: true, maxLength: 10 });
       expect(out).to.equal(obj);
       expect(obj.name).to.eql('x'.repeat(10) + '...');
     });
 
     it('numeric options respected', () => {
       const obj = { name: 'abcdef' };
-      const out = Obj.trimStringsDeep(obj, 3);
+      const out = Obj.truncateStrings(obj, 3);
       expect(out.name).to.eql('abc...');
     });
 
     // (compile-time) null should not match T overload:
     {
       // @ts-expect-error null is not valid T (Record<string, unknown>)
-      Obj.trimStringsDeep(null);
+      Obj.truncateStrings(null);
     }
   });
 

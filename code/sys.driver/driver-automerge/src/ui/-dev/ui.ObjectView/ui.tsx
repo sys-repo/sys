@@ -50,14 +50,14 @@ const wrangle = {
 
     const current = doc?.current;
     const res = {
-      [fields.doc]: Obj.trimStringsDeep(current),
+      [fields.doc]: Obj.truncateStrings(current),
     };
 
     lenses.forEach((lens: t.CrdtLens) => {
       let value: any = Obj.Path.get(current, lens.path);
       const truncate = 15;
       if (Is.string(value)) value = Str.truncate(value, truncate);
-      if (Is.record(value)) value = Obj.trimStringsDeep(value, truncate);
+      if (Is.record(value)) value = Obj.truncateStrings(value, truncate);
       res[lens.name] = value;
     });
 

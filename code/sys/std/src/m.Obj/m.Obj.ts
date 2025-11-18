@@ -7,7 +7,7 @@ import { isEmptyRecord, isObject, isRecord, R } from './common.ts';
 import { clone } from './u.clone.ts';
 import { extend } from './u.extend.ts';
 import { hash } from './u.hash.ts';
-import { trimStringsDeep } from './u.trim.ts';
+import { truncateStrings } from './u.truncate.ts';
 import { entries, keys, pick, sortKeys, toArray } from './u.ts';
 import { walk } from './u.walk.ts';
 
@@ -17,7 +17,7 @@ export const Obj: ObjLib = {
 
   walk,
   toArray,
-  trimStringsDeep,
+  truncateStrings,
   pick,
   keys,
   entries,

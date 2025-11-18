@@ -103,7 +103,7 @@ export const Card: React.FC<P> = (props) => {
   const elDoc = (
     <ObjectView
       name={'Doc:T'}
-      data={Obj.trimStringsDeep(wrangle.data(props, docSignal?.value))}
+      data={Obj.truncateStrings(wrangle.data(props, docSignal?.value))}
       expand={1}
       fontSize={16}
       theme={theme.name}
