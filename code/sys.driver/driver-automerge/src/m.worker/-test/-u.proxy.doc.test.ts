@@ -44,7 +44,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     it('reads a doc from a worker-backed proxy repo', async () => {
       // Real repo/doc on the simulated worker-host.
       const realRepo = Test.realRepo();
-      const realDoc = realRepo.create<Doc>({ foo: 123 });
+      const realDoc = (await realRepo.create<Doc>({ foo: 123 })).doc!;
       expect((await realRepo.get(realDoc.id)).doc?.id).to.eql(realDoc.id); // sanity
 
       const ev = realDoc.events();
@@ -139,7 +139,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     it('behaves like a CrdtRef<T> on the main thread', async () => {
       // Real repo/doc on the simulated worker-host.
       const realRepo = Test.realRepo();
-      const realDoc = realRepo.create<Doc>({ foo: 123 });
+      const realDoc = (await realRepo.create<Doc>({ foo: 123 })).doc!;
       expect((await realRepo.get(realDoc.id)).doc?.current).to.eql({ foo: 123 }); // sanity
 
       // Wire up ports.

@@ -40,7 +40,8 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
 
   it('events.deleted$', async () => {
     const repo = Crdt.repo();
-    const doc = repo.create<T>({ count: 0, foo: [] });
+    const { doc, error } = await repo.create<T>({ count: 0, foo: [] });
+    if (error) throw error;
     expect(doc.deleted).to.eql(false);
 
     const fired: t.CrdtDeleted[] = [];

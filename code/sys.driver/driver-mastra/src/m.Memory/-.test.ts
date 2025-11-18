@@ -62,23 +62,21 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
     let storage: t.MastraStorage;
     let memory: InstanceType<typeof MastraMemory>;
 
-    const setup = () => {
+    const setup = async () => {
       const repo = Crdt.repo();
-      const doc = repo.create<t.MastraStorageDoc>({ threads: {}, messages: {}, resources: {} });
+      const { doc, error } = await repo.create<t.MastraStorageDoc>({
+        threads: {},
+        messages: {},
+        resources: {},
+      });
+      if (error) throw error;
       const storage = Memory.Storage.crdt({ doc });
       const memory = new MastraMemory({ storage, options: { semanticRecall: false } });
       return { repo, doc, storage, memory } as const;
     };
 
-    const m = () => {
-      const repo = Crdt.repo();
-      const initial: t.MastraStorageDoc = { threads: {}, messages: {}, resources: {} };
-      const doc = repo.create(initial);
-      const storage = Memory.Storage.crdt({ doc });
-    };
-
     beforeEach(async () => {
-      ({ doc, storage, memory } = setup());
+      ({ doc, storage, memory } = await setup());
       await storage.init();
     });
 
@@ -449,10 +447,10 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
                     typeof p === 'string'
                       ? p
                       : typeof p?.text === 'string'
-                      ? p.text
-                      : typeof p?.content === 'string'
-                      ? p.content
-                      : '',
+                        ? p.text
+                        : typeof p?.content === 'string'
+                          ? p.content
+                          : '',
                   )
                   .join('');
               }
@@ -468,16 +466,16 @@ describe('Memory.Storage', { sanitizeResources: false, sanitizeOps: false }, () 
     });
 
     describe('print:', () => {
-      it('Storage', () => {
-        const { storage } = setup();
+      it('Storage', async () => {
+        const { storage } = await setup();
         console.info();
         console.info(c.green(`API: Memory.Storage.${`crdt( ${c.cyan('doc')} ):`}`));
         console.info(c.cyan(`${c.bold('Adapter')}: MastraStorage:\n`), storage);
         console.info();
       });
 
-      it('Memory/Doc: initial', () => {
-        const { doc } = setup();
+      it('Memory/Doc: initial', async () => {
+        const { doc } = await setup();
         console.info();
         console.info(c.gray(`Memory/CRDT: initial (empty)`));
         console.info(c.cyan(c.bold(`T:Crdt<${c.green('MastraStorage')}Doc>:`)));

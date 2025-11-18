@@ -11,8 +11,10 @@ describe('CRDT: Data Types (Automerge)', { sanitizeResources: false, sanitizeOps
     const path = ['foo', 'bar', 'text'];
     const repo = Crdt.repo();
 
-    it('assign text (deep)', () => {
-      const doc = repo.create<T>({});
+    it('assign text (deep)', async () => {
+      const { doc, error } = await repo.create<T>({});
+      if (error) throw error;
+
       const path = ['foo', 'bar', 'text'];
       expect(doc.current.foo?.bar?.text).to.eql(undefined);
 
@@ -20,8 +22,9 @@ describe('CRDT: Data Types (Automerge)', { sanitizeResources: false, sanitizeOps
       expect(doc.current.foo?.bar?.text).to.eql('hello');
     });
 
-    it('ensure: "text" (deep)', () => {
-      const doc = repo.create<T>({});
+    it('ensure: "text" (deep)', async () => {
+      const { doc, error } = await repo.create<T>({});
+      if (error) throw error;
 
       expect(doc.current.foo?.bar?.text).to.eql(undefined);
       doc.change((d) => Obj.Path.Mutate.ensure(d, path, ''));
@@ -31,8 +34,9 @@ describe('CRDT: Data Types (Automerge)', { sanitizeResources: false, sanitizeOps
       expect(doc.current.foo?.bar?.text).to.eql(''); // NB: already set to "".
     });
 
-    it('ensure: null (deep)', () => {
-      const doc = repo.create<T>({});
+    it('ensure: null (deep)', async () => {
+      const { doc, error } = await repo.create<T>({});
+      if (error) throw error;
 
       doc.change((d) => Obj.Path.Mutate.ensure(d, path, null));
       expect(doc.current.foo?.bar?.text).to.eql(null);

@@ -38,7 +38,9 @@ type _Guard_RepoMethods = t.Type.Assert<
     CrdtRepoMethods,
     {
       whenReady(): Promise<t.CrdtRepo>;
-      create<T extends Record<string, unknown>>(initial: T | (() => T)): t.CrdtRef<T>;
+      create<T extends Record<string, unknown>>(
+        initial: T | (() => T),
+      ): Promise<t.CrdtRefResult<T>>;
       get<T extends Record<string, unknown>>(
         id: t.StringId,
         options?: { timeout?: t.Msecs },

@@ -109,6 +109,7 @@ export function createDocProxy<T extends O = O>(
     },
 
     change(fn) {
+      // NB: This will call into doc-level RPC later (`WireDocMethod: 'doc.change'`).
       throw notImpl('Document is readonly');
     },
 

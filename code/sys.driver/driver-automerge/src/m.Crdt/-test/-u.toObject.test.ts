@@ -9,11 +9,12 @@ describe('Crdt.toObject', { sanitizeResources: false, sanitizeOps: false }, () =
     expect(original).to.eql(snapshot); // deep-equal unchanged after mutating the plain clone
   };
 
-  it('Crdt.Ref<T> → plain POJO (decoupled)', () => {
+  it('Crdt.Ref<T> → plain POJO (decoupled)', async () => {
     // given
     type T = { count: number; nested?: { label: string } };
     const repo = testRepo();
-    const doc = repo.create<T>({ count: 0, nested: { label: 'x' } });
+    const { doc, error } = await repo.create<T>({ count: 0, nested: { label: 'x' } });
+    if (error) throw error;
 
     // when
     const plain = toObject<T>(doc);
@@ -27,10 +28,11 @@ describe('Crdt.toObject', { sanitizeResources: false, sanitizeOps: false }, () =
     });
   });
 
-  it('doc.current (AM proxy) → plain POJO (decoupled)', () => {
+  it('doc.current (AM proxy) → plain POJO (decoupled)', async () => {
     type T = { values: readonly number[] };
     const repo = testRepo();
-    const doc = repo.create<T>({ values: [1, 2, 3] });
+    const { doc, error } = await repo.create<T>({ values: [1, 2, 3] });
+    if (error) throw error;
 
     const plain = toObject<T>(doc.current);
 
@@ -61,7 +63,7 @@ describe('Crdt.toObject', { sanitizeResources: false, sanitizeOps: false }, () =
     expect(b).to.eql({});
   });
 
-  it('deep materialization: maps, arrays, and nested objects', () => {
+  it('deep materialization: maps, arrays, and nested objects', async () => {
     type Item = { id: string; n: number };
     type T = {
       items: readonly Item[];
@@ -69,13 +71,14 @@ describe('Crdt.toObject', { sanitizeResources: false, sanitizeOps: false }, () =
     };
 
     const repo = testRepo();
-    const doc = repo.create<T>({
+    const { doc, error } = await repo.create<T>({
       items: [
         { id: 'a', n: 1 },
         { id: 'b', n: 2 },
       ],
       meta: { tags: ['x', 'y'], info: { kind: 'k' } },
     });
+    if (error) throw error;
 
     const out = toObject<T>(doc);
 
@@ -107,12 +110,13 @@ describe('Crdt.toObject', { sanitizeResources: false, sanitizeOps: false }, () =
     expect(toObject(arr as any)).to.equal(arr);
   });
 
-  it('nested AM subtree (non-root) → plain POJO (decoupled)', () => {
+  it('nested AM subtree (non-root) → plain POJO (decoupled)', async () => {
     type T = { view: { programme: { title: string; items: readonly { id: string }[] } } };
     const repo = testRepo();
-    const doc = repo.create<T>({
+    const { doc, error } = await repo.create<T>({
       view: { programme: { title: 'p', items: [{ id: 'a' }, { id: 'b' }] } },
     });
+    if (error) throw error;
 
     // Sanity: ensure input is actually an AM-proxied nested value
     const nested = doc.current.view.programme as unknown;

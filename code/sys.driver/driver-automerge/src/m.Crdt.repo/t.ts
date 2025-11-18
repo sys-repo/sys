@@ -53,13 +53,13 @@ export type CrdtRepoStoreInfoIdb = {
 /** The methods of a CRDT Repo. */
 export type CrdtRepoMethods = {
   whenReady(): Promise<t.CrdtRepo>;
-  create<T extends O>(initial: T | (() => T)): t.CrdtRef<T>;
+  create<T extends O>(initial: T | (() => T)): Promise<CrdtRefResult<T>>;
   get<T extends O>(id: t.StringId, options?: CrdtRepoGetOptions): Promise<CrdtRefResult<T>>;
   delete(id: t.StringId | t.Crdt.Ref): Promise<void>;
   events(until?: t.UntilInput): t.CrdtRepoEvents;
 };
 
-/** Response from methods retrieveing doc handles. */
+/** Response from methods retrieveing doc/ref handles. */
 export type CrdtRefResult<T extends O> = CrdtRefOk<T> | CrdtRefFail;
 export type CrdtRefOk<T extends O> = {
   readonly ok: true;

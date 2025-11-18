@@ -14,14 +14,14 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
 
       const repoA = Crdt.repo({ storage: 'IndexedDb' });
 
-      const a = repoA.create<T>({ count: 0 });
-      a.change((d) => (d.count = 1234));
+      const a = await repoA.create<T>({ count: 0 });
+      a.doc!.change((d) => (d.count = 1234));
 
       await Time.wait(500);
 
       const repoB = Crdt.repo({ storage: new IndexedDBStorageAdapter(D.database) });
-      const b = (await repoB.get<T>(a.id)).doc!;
-      expect(b.current).to.eql({ count: 1234 }); // NB: read from IndexedDb.
+      const b = await repoB.get<T>(a.doc!.id);
+      expect(b.doc!.current).to.eql({ count: 1234 }); // NB: read from IndexedDb.
     });
 
     it('named IndexedDB database', async () => {
@@ -33,7 +33,8 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
         expect(repoA.stores).to.eql([{ kind: 'indexed-db', database, store: D.store }]);
         expect(repoB.stores).to.eql([]);
 
-        const doc = repoA.create<T>({ count: 1234 });
+        const { doc, error } = await repoA.create<T>({ count: 1234 });
+        if (error) throw error;
         await Time.wait(10);
 
         const assertExists = async (repo: t.CrdtRepo, exists: boolean) => {

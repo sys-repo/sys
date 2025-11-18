@@ -112,7 +112,7 @@ export function createTestHelpers() {
 
       CrdtWorker.attach(port2, realRepo);
       const proxyRepo = await CrdtWorker.repo(port1).whenReady();
-      const realDoc = realRepo.create<D>(initial);
+      const realDoc = (await realRepo.create<D>(initial)).doc!;
 
       async function dispose() {
         realDoc.dispose();

@@ -34,7 +34,7 @@ describe('Monaco.Yaml', { sanitizeResources: false, sanitizeOps: false }, () => 
 
       type T = { foo?: string };
       const repo = await Crdt.repo().whenReady();
-      const doc = repo.create<T>({ foo: 'bar' });
+      const doc = (await repo.create<T>({ foo: 'bar' })).doc!;
 
       const { result, unmount } = renderHook(() =>
         EditorYaml.useYaml({ bus$, doc, path: ['text'], editor, monaco }),

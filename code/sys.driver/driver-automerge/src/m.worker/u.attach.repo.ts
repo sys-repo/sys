@@ -3,6 +3,8 @@ import { attachDoc } from './u.attach.doc.ts';
 import { onMessageErrorHandler } from './u.onErrorMessage.ts';
 import { Wire } from './u.wire.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * Attach a real repo instance to a MessagePort.
  * Forwards:
@@ -96,8 +98,9 @@ export const attachRepo: t.CrdtWorkerLib['attach'] = (port, repo) => {
       repo.sync.enable(enabled as boolean | undefined);
     },
 
-    create(initial: unknown) {
-      const doc = repo.create(initial as Record<string, unknown>);
+    async create(initial: unknown) {
+      const { doc, error } = await repo.create(initial as O);
+      if (error) throw error;
       return { id: doc.id } as t.WireRepoCreateResult;
     },
 

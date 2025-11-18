@@ -214,11 +214,8 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       return repo;
     },
 
-    create<T extends O>(_initial: T | (() => T)): t.CrdtRef<T> {
-      /**
-       * TODO 🐷
-       */
-      throw notImpl('CrdtRef.create/change');
+    async create<T extends O>(_initial: T | (() => T)) {
+      throw notImpl('CrdtRef.create');
     },
 
     async get<T extends O>(

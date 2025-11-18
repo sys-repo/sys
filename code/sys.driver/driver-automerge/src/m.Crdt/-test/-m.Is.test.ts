@@ -7,16 +7,18 @@ describe('Crdt.Is', { sanitizeResources: false, sanitizeOps: false }, () => {
   const repo = testRepo();
   const Is = CrdtIs;
 
-  it('Is.ref', () => {
-    const doc = repo.create<T>({ count: 0 });
+  it('Is.ref', async () => {
+    const { doc } = await repo.create<T>({ count: 0 });
     expect(Is.ref(doc)).to.be.true;
 
     const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
     NON.forEach((value: any) => expect(Is.ref(value)).to.be.false);
   });
 
-  it('Is.id', () => {
-    const doc = repo.create<T>({ count: 0 });
+  it('Is.id', async () => {
+    const { doc, error } = await repo.create<T>({ count: 0 });
+    if (error) throw error;
+
     expect(Is.id(doc.id)).to.be.true;
     expect(Is.id(String(doc.id))).to.be.true;
 

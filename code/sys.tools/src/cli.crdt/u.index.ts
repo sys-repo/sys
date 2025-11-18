@@ -1,4 +1,4 @@
-import { D, Fs, pkg, Pkg, type t, Time } from './common.ts';
+import { type t, D, Fs, pkg, Pkg, Time } from './common.ts';
 
 /**
  * Retrieve the index doc.
@@ -8,7 +8,8 @@ export async function getIndexJson(cwd: t.StringDir, repo: t.Crdt.Repo) {
   await Fs.ensureDir(Fs.dirname(path));
 
   if (!(await Fs.exists(path))) {
-    const doc = repo.create({});
+    const { doc, error } = await repo.create({});
+    if (error) throw error;
     const json: t.CrdtIndexJson = {
       kind: 'crdt:index',
       docid: doc.id,

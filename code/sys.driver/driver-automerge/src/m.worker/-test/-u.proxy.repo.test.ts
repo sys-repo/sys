@@ -397,12 +397,18 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
         const fakeId = 'doc-from-test' as t.StringId;
 
         const originalCreate = real.create.bind(real);
-        real.create = ((initial: any) => {
+        real.create = (async <T extends O>(initial: T | (() => T)) => {
           calls.push(initial);
 
-          // Return a minimal, timer-free stub ref.
-          const ref = { id: fakeId } as unknown as t.CrdtRef<typeof initial>;
-          return ref;
+          // Minimal stub ref for the newly created document.
+          const ref = { id: fakeId } as unknown as t.CrdtRef<T>;
+
+          const result: t.CrdtRefResult<T> = {
+            ok: true,
+            doc: ref,
+          };
+
+          return result;
         }) as typeof real.create;
 
         // Attach worker side.
@@ -463,7 +469,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
         const real = Test.realRepo();
 
         // Seed a real document so get(id) is valid.
-        const realDoc = real.create<Doc>({ foo: 'hello' });
+        const realDoc = (await real.create<Doc>({ foo: 'hello' })).doc!;
 
         /**
          * Spy on the real repo's get, while preserving original behavior.

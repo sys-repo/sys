@@ -16,22 +16,26 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   describe('create factory (toRepo)', () => {
-    it('create (doc)', () => {
+    it('create (doc)', async () => {
       const repo = toRepo(new AutomergeRepo());
       expect(repo.id.peer).to.eql('');
       expect(repo.id.instance).to.be.a('string');
       expect(repo.disposed).to.eql(false);
 
       const initial = { count: 0 };
-      const doc = repo.create<T>(initial);
+      const { ok, doc, error } = await repo.create<T>(initial);
+      expect(ok).to.be.true;
+      if (error) throw error;
+
       expect(doc.current).to.eql(initial);
       expect(doc.current).to.not.equal(initial);
     });
 
-    it('create (doc) → initial as function', () => {
+    it('create (doc) → initial as function', async () => {
       const repo = toRepo(new AutomergeRepo());
       const initial: T = { count: 1234 };
-      const doc = repo.create<T>(() => initial);
+      const { doc, error } = await repo.create<T>(() => initial);
+      if (error) throw error;
       expect(doc.current).to.eql(initial);
       expect(doc.current).to.not.equal(initial);
     });
@@ -45,28 +49,31 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(b.id.peer).to.eql(peerId);
     });
 
-    it('create via `Crdt.repo` API', () => {
+    it('create via `Crdt.repo` API', async () => {
       const repo = Crdt.repo();
       const initial = { count: 0 };
-      const doc = repo.create<T>(initial);
+      const { doc, error } = await repo.create<T>(initial);
+      if (error) throw error;
+
       expect(doc.current).to.eql(initial);
       expect(doc.current).to.not.equal(initial);
       expect(repo.disposed).to.eql(false);
     });
 
     describe('initial seed property on document', () => {
-      it('create seeds empty initial with `.meta.createdAt`', () => {
+      it('create seeds empty initial with `.meta.createdAt`', async () => {
         const repo = toRepo(new AutomergeRepo());
-        const a = repo.create<{}>({}); // empty
-        const b = repo.create<{ count: number }>({ count: 1 }); // non-empty
-        expect(typeof (a.current as any)['.meta']?.createdAt).to.eql('number');
-        expect((b.current as any)['.meta']).to.eql(undefined);
+        const a = await repo.create<{}>({}); // empty
+        const b = await repo.create<{ count: number }>({ count: 1 }); // non-empty
+        expect(typeof (a.doc!.current as any)['.meta']?.createdAt).to.eql('number');
+        expect((b.doc!.current as any)['.meta']).to.eql(undefined);
       });
 
       it('seeded empty doc is durable immediately', async () => {
         const base = new AutomergeRepo();
         const repoA = toRepo(base);
-        const doc = repoA.create<{}>({});
+        const { doc, error } = await repoA.create<{}>({});
+        if (error) throw error;
 
         const repoB = toRepo(base);
         const got = await repoB.get<{}>(doc.id);
@@ -76,16 +83,18 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       it('does not override existing props in non-empty initial', async () => {
         const repo = toRepo(new AutomergeRepo());
         const initial = { title: 'hello' };
-        const doc = repo.create(initial);
+        const { doc, error } = await repo.create(initial);
+        if (error) throw error;
 
         expect(doc.current).to.eql(initial);
         expect((doc.current as any)['.meta']).to.eql(undefined);
       });
 
-      it('does not clobber an explicit `.meta` passed by caller', () => {
+      it('does not clobber an explicit `.meta` passed by caller', async () => {
         const repo = toRepo(new AutomergeRepo());
         const explicit = { ['.meta']: { createdAt: 42, note: 'manual' } };
-        const doc = repo.create(explicit);
+        const { doc, error } = await repo.create(explicit);
+        if (error) throw error;
 
         expect(doc.current['.meta']).to.eql(explicit['.meta']);
       });
@@ -163,56 +172,57 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       const base = new AutomergeRepo();
       const repoA = toRepo(base);
       const repoB = toRepo(base);
-      const a = repoA.create<T>({ count: 0 });
-      expect(a.current).to.eql({ count: 0 });
+      const a = await repoA.create<T>({ count: 0 });
+      expect(a.doc!.current).to.eql({ count: 0 });
 
-      const b = (await repoB.get<T>(` ${a.id}   `)).doc!;
+      const b = await repoB.get<T>(` ${a.doc!.id}   `);
       expect(a).to.not.equal(b);
-      expect(a.id).to.eql(b.id);
-      expect(a.instance).to.not.eql(b.instance);
+      expect(a.doc!.id).to.eql(b.doc!.id);
+      expect(a.doc!.instance).to.not.eql(b.doc!.instance);
 
-      a.change((d) => (d.count = 1234));
-      expect(b.current.count).to.eql(1234);
+      a.doc!.change((d) => (d.count = 1234));
+      expect(b.doc!.current.count).to.eql(1234);
     });
 
     it('get: automerge-URL', async () => {
       const repo = toRepo(new AutomergeRepo());
-      const a = repo.create<T>({ count: 0 });
-      const b = (await repo.get<T>(`  automerge:${a.id}  `)).doc!;
-      expect(b.instance).to.not.eql(a.instance);
-      expect(b.id).to.eql(a.id);
-      expect(b.current).to.eql({ count: 0 });
+      const a = await repo.create<T>({ count: 0 });
+      const b = await repo.get<T>(`  automerge:${a.doc!.id}  `);
+      expect(b.doc!.instance).to.not.eql(a.doc!.instance);
+      expect(b.doc!.id).to.eql(a.doc!.id);
+      expect(b.doc!.current).to.eql({ count: 0 });
     });
 
     it('get: "crdt:<docid> URI', async () => {
       const repo = toRepo(new AutomergeRepo());
-      const a = repo.create<T>({ count: 0 });
-      const b = (await repo.get<T>(`  crdt:${a.id}  `)).doc!;
-      expect(b.instance).to.not.eql(a.instance);
-      expect(b.id).to.eql(a.id);
-      expect(b.current).to.eql({ count: 0 });
+      const a = await repo.create<T>({ count: 0 });
+      const b = await repo.get<T>(`  crdt:${a.doc!.id}  `);
+      expect(b.doc!.instance).to.not.eql(a.doc!.instance);
+      expect(b.doc!.id).to.eql(a.doc!.id);
+      expect(b.doc!.current).to.eql({ count: 0 });
     });
 
     it('sync between different doc/ref instances', async () => {
       const base = new AutomergeRepo();
       const repoA = toRepo(base);
       const repoB = toRepo(base);
-      const a = repoA.create<T>({ count: 0 });
-      const b = (await repoB.get<T>(a.id)).doc!;
-      expect(a.instance).to.not.eql(b.instance);
+      const a = await repoA.create<T>({ count: 0 });
+      const b = await repoB.get<T>(a.doc!.id);
+      expect(a.doc!.instance).to.not.eql(b.doc!.instance);
 
       expect(a).to.not.equal(b);
-      expect(a.current).to.eql(b.current);
+      expect(a.doc!.current).to.eql(b.doc!.current);
 
-      a.change((d) => d.count++);
-      expect(a.current).to.eql(b.current);
+      a.doc!.change((d) => d.count++);
+      expect(a.doc!.current).to.eql(b.doc!.current);
     });
   });
 
   describe('repo.delete', () => {
     it('removes document (before ready)', async () => {
       const repo = Crdt.repo();
-      const doc = repo.create<T>({ count: 0 });
+      const { doc, error } = await repo.create<T>({ count: 0 });
+      if (error) throw error;
       expect(doc.deleted).to.eql(false);
       expect(doc.disposed).to.eql(false);
 
@@ -225,19 +235,20 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
     it('removes document (after ready) - multiple refs', async () => {
       const repo = Crdt.repo();
-      const a = repo.create<T>({ count: 0 });
-      const b = (await repo.get<T>(a.id)).doc;
-      expect(a.deleted).to.eql(false);
-      expect(b?.deleted).to.eql(false);
+      const a = await repo.create<T>({ count: 0 });
+      const b = await repo.get<T>(a.doc!.id);
+      expect(a.doc!.deleted).to.eql(false);
+      expect(b?.doc!.deleted).to.eql(false);
 
-      await repo.delete(a);
-      expect(a.deleted).to.eql(true);
-      expect(b?.deleted).to.eql(true);
+      await repo.delete(a.doc!);
+      expect(a.doc!.deleted).to.eql(true);
+      expect(b?.doc!.deleted).to.eql(true);
     });
 
     it('fires deleted event from document', async () => {
       const repo = Crdt.repo();
-      const doc = repo.create<T>({ count: 0 });
+      const { doc, error } = await repo.create<T>({ count: 0 });
+      if (error) throw error;
 
       const fired: t.CrdtDeleted[] = [];
       doc.events().deleted$.subscribe((e) => fired.push(e));

@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, MonacoFake, Rx } from '../../../-test.ts';
+import { type t, Schedule, describe, expect, it, MonacoFake, Rx } from '../../../-test.ts';
 import { Crdt } from '../common.ts';
 import { EditorCrdt } from '../mod.ts';
 import { __test as RegisterTest } from '../u.Link.register.ts';
@@ -25,13 +25,13 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
           dispose$: life.dispose$,
         };
       };
-      it('emits click event with correct payload (id + path)', () => {
+      it('emits click event with correct payload (id + path)', async () => {
         const monaco = MonacoFake.monaco();
         const src = 'foo crdt:abc/one/two bar';
         const model = MonacoFake.model(src, { uri: 'inmemory://m/alpha' });
 
         let ev: t.EditorCrdtLinkClick | undefined;
-        const life = EditorCrdt.Link.register(ready(model, monaco), {
+        const life = await EditorCrdt.Link.register(ready(model, monaco), {
           language: 'yaml',
           onLinkClick: (e) => (ev = e),
         });
@@ -64,12 +64,12 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         life.dispose();
       });
 
-      it('handles crdt:create (is.create=true) with empty path', () => {
+      it('handles crdt:create (is.create=true) with empty path', async () => {
         const monaco = MonacoFake.monaco();
         const model = MonacoFake.model('x crdt:create y', { uri: 'inmemory://m/create' });
 
         let ev: t.EditorCrdtLinkClick | undefined;
-        const life = EditorCrdt.Link.register(ready(model, monaco), (e) => (ev = e)); // handler shorthand
+        const life = await EditorCrdt.Link.register(ready(model, monaco), (e) => (ev = e)); // handler shorthand
 
         const list = monaco.languages._provideLinks('yaml', model)!;
         const uri = list.links[0]!.url as t.Monaco.Uri;
@@ -84,12 +84,12 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         life.dispose();
       });
 
-      it('scopes provider to the given language id', () => {
+      it('scopes provider to the given language id', async () => {
         const monaco = MonacoFake.monaco();
         const model = MonacoFake.model('crdt:abc/x');
 
         // Register under 'json' not 'yaml':
-        const life = EditorCrdt.Link.register(ready(model, monaco), {
+        const life = await EditorCrdt.Link.register(ready(model, monaco), {
           language: 'json',
           onLinkClick: () => {},
         });
@@ -105,11 +105,13 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         life.dispose();
       });
 
-      it('lifecycle: disposing removes opener and provider', () => {
+      it('lifecycle: disposing removes opener and provider', async () => {
         const monaco = MonacoFake.monaco();
         const model = MonacoFake.model('crdt:abc/x', { uri: 'inmemory://m/life' });
 
-        const life = EditorCrdt.Link.register(ready(model, monaco), { onLinkClick: () => {} });
+        const life = await EditorCrdt.Link.register(ready(model, monaco), {
+          onLinkClick: () => {},
+        });
 
         // Links exist pre-dispose
         const list = monaco.languages._provideLinks('yaml', model);
@@ -127,13 +129,13 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         expect(() => monaco.editor._open(uri)).to.throw(/No link opener registered/);
       });
 
-      it('encodes and decodes bounds round-trip (positions & offsets)', () => {
+      it('encodes and decodes bounds round-trip (positions & offsets)', async () => {
         const monaco = MonacoFake.monaco();
         const src = 'alpha\nbravo crdt:xyz/state tango\ncharlie';
         const model = MonacoFake.model(src, { uri: 'inmemory://m/round' });
 
         let ev: t.EditorCrdtLinkClick | undefined;
-        const life = EditorCrdt.Link.register(ready(model, monaco), {
+        const life = await EditorCrdt.Link.register(ready(model, monaco), {
           onLinkClick: (e) => (ev = e),
         });
 
@@ -163,7 +165,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
     describe('Link.create', () => {
       const repo = Crdt.repo();
 
-      it('creates a doc, inserts `crdt:<id>` token, moves caret, and returns { doc }', () => {
+      it('creates a doc, inserts `crdt:<id>` token, moves caret, and returns { doc }', async () => {
         // Arrange.
         const ctx = MonacoFake.ctx(); // { monaco, editor, ... }
         const { editor } = ctx;
@@ -182,7 +184,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         } as unknown as t.EditorLinkBounds;
 
         // Act.
-        const res = EditorCrdt.Link.create(ctx, repo, bounds);
+        const res = await EditorCrdt.Link.create(ctx, repo, bounds);
 
         // Assert: result shape.
         expect(res).to.be.ok;
@@ -207,7 +209,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         expect(pos?.column).to.eql(expectedPos.column);
       });
 
-      it('returns { error } and performs no edits when bounds.model.uri != active model', () => {
+      it('returns { error } and performs no edits when bounds.model.uri != active model', async () => {
         // Arrange
         const ctx = MonacoFake.ctx();
         const { monaco, editor } = ctx;
@@ -229,7 +231,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         } as unknown as t.EditorLinkBounds;
 
         // Act
-        const res = EditorCrdt.Link.create(ctx, repo, bounds);
+        const res = await EditorCrdt.Link.create(ctx, repo, bounds);
 
         // Assert: error result and no buffer change.
         expect(res).to.be.ok;
@@ -250,7 +252,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
     describe('Link.enable', () => {
       const repo = Crdt.repo();
 
-      it('registers a listener and, on create-event, inserts token and calls onCreate', () => {
+      it('registers a listener and, on create-event, inserts token and calls onCreate', async () => {
         // Arrange.
         const ctx = MonacoFake.ctx();
         const { editor } = ctx;
@@ -262,7 +264,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const { range, startOffset } = substringBounds(model, placeholder);
 
         let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
-        const life = EditorCrdt.Link.enable(ctx, repo, {
+        const life = await EditorCrdt.Link.enable(ctx, repo, {
           onCreate: (res) => (onCreateCalled = res),
         });
 
@@ -279,6 +281,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         });
 
         RegisterTest.lastHandler!(ev);
+        await Schedule.waitFor(() => onCreateCalled !== undefined);
 
         // Assert: onCreate called with { doc }.
         expect(onCreateCalled).to.be.ok;
@@ -306,7 +309,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         life.dispose();
       });
 
-      it('returns { error } via onCreate and performs no edits when bounds.model.uri != active model', () => {
+      it('returns { error } via onCreate and performs no edits when bounds.model.uri != active model', async () => {
         // Arrange
         const ctx = MonacoFake.ctx();
         const { monaco, editor } = ctx;
@@ -318,7 +321,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const { range, startOffset } = substringBounds(modelA, 'crdt:create');
 
         let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
-        const life = EditorCrdt.Link.enable(ctx, repo, {
+        const life = await EditorCrdt.Link.enable(ctx, repo, {
           onCreate: (res) => (onCreateCalled = res),
         });
 
@@ -335,6 +338,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         });
 
         RegisterTest.lastHandler!(ev);
+        await Schedule.waitFor(() => onCreateCalled !== undefined);
 
         // Assert: onCreate called with error, no doc.
         expect(onCreateCalled).to.be.ok;
@@ -353,7 +357,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         life.dispose();
       });
 
-      it('ignores non-create events', () => {
+      it('ignores non-create events', async () => {
         // Arrange.
         const ctx = MonacoFake.ctx();
         const { editor } = ctx;
@@ -361,7 +365,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         model.setValue('hello world');
 
         let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
-        const life = EditorCrdt.Link.enable(ctx, repo, {
+        const life = await EditorCrdt.Link.enable(ctx, repo, {
           onCreate: (res) => (onCreateCalled = res),
         });
 
@@ -389,7 +393,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
 
       it('does nothing when disposed', () => {});
 
-      it('does nothing when disposed (dispose returned lifecycle)', () => {
+      it('does nothing when disposed (dispose returned lifecycle)', async () => {
         const ctx = MonacoFake.ctx();
         const { editor } = ctx;
         const model = editor.getModel()!;
@@ -399,7 +403,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const { range, startOffset } = substringBounds(model, placeholder);
 
         let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
-        const life = EditorCrdt.Link.enable(ctx, repo, {
+        const life = await EditorCrdt.Link.enable(ctx, repo, {
           onCreate: (res) => (onCreateCalled = res),
         });
 
@@ -434,7 +438,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         expect(afterPos?.column).to.eql(beforePos?.column);
       });
 
-      it('does nothing when external `until` lifecycle is disposed', () => {
+      it('does nothing when external `until` lifecycle is disposed', async () => {
         const ctx = MonacoFake.ctx();
         const { editor } = ctx;
         const model = editor.getModel()!;
@@ -445,7 +449,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
 
         let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
         const until = Rx.lifecycle();
-        const life = EditorCrdt.Link.enable(ctx, repo, {
+        const life = await EditorCrdt.Link.enable(ctx, repo, {
           until,
           onCreate: (res) => (onCreateCalled = res),
         });

@@ -154,11 +154,11 @@ export function toRepo(
       return options.stores ?? [];
     },
 
-    create<T extends O>(input: T | (() => T)) {
+    async create<T extends O>(input: T | (() => T)) {
       const initial = seedInitial<T>(input);
       const handle = repo.create<T>(initial);
       const doc = toRef(handle);
-      return doc;
+      return { ok: true, doc };
     },
 
     get<T extends O>(id: t.StringId, options: t.CrdtRepoGetOptions = {}) {

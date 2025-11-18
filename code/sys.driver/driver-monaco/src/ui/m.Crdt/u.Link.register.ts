@@ -12,7 +12,7 @@ export const __test = {
 /**
  * Method:
  */
-export const register: t.EditorCrdtRegisterLink = (ctx, opt) => {
+export const register: t.EditorCrdtRegisterLink = async (ctx, opt) => {
   const { monaco, editor } = ctx;
 
   const options = wrangle.options(opt);
