@@ -40,7 +40,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
   });
 
-  describe('Crdt.Worker.doc()', () => {
+  describe('repo.get(): → proxy-doc', () => {
     it('reads a doc from a worker-backed proxy repo', async () => {
       // Real repo/doc on the simulated worker-host.
       const realRepo = Test.realRepo();
@@ -134,7 +134,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
   });
 
-  describe('createDocProxy: proxy surface', () => {
+  describe('proxy-doc: API surface', () => {
     it('behaves like a CrdtRef<T> on the main thread', async () => {
       // Real repo/doc on the simulated worker-host.
       const realRepo = Test.realRepo();
