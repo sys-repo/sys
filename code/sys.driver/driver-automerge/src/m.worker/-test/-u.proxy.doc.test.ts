@@ -305,7 +305,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       await sample.dispose();
     });
 
-    it('throw: not implemented', async () => {
+    it('throw: not implemented (read only)', async () => {
       const sample = await sampleSetup();
       const { real, proxy } = sample;
 
@@ -315,6 +315,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
 
       const fn = () => doc.change((d) => (d.foo = 'hello'));
       expect(fn).to.throw(/not implemented/);
+      expect(fn).to.throw(/Document is readonly/);
 
       // Cleanup:
       await sample.dispose();

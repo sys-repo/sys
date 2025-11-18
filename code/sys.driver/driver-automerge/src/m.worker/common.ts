@@ -10,8 +10,8 @@ export const WIRE_VERSION = 1 as const;
 /**
  * Helpers:
  */
-export const notImpl = (name: string) => {
-  const err = new Error(`🐷 ${name} not implemented in worker client yet`);
+export const notImpl = (msg: string) => {
+  const err = new Error(`🐷 not implemented: ${msg}`);
   (err as any).kind = 'NotImplemented';
   return err;
 };
