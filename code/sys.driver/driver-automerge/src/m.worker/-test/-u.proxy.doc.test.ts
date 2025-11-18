@@ -239,7 +239,6 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
   });
 
   describe('doc event stream (host attach → proxy ref)', () => {
-    // populated with initial snapshot
     it('populated with initial snapshot', async () => {
       const sample = await sampleSetup();
       const { real, proxy } = sample;
@@ -277,6 +276,45 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
 
       expect(doc.current).to.eql({ foo: 456 });
       expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
+
+      // Cleanup:
+      await sample.dispose();
+    });
+
+    it('lifecycle: document disposes and stops recieving updates', async () => {
+      const sample = await sampleSetup();
+      const { real, proxy } = sample;
+
+      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
+      if (!res.ok) throw res.error;
+      const doc = res.data;
+
+      expect(doc.current).to.eql({ foo: 123 });
+      real.doc.change((d) => (d.foo = 456));
+      await Schedule.waitFor(() => doc.current.foo === 456);
+
+      doc.dispose();
+      expect(doc.disposed).to.eql(true);
+
+      real.doc.change((d) => (d.foo = 'hello'));
+
+      const fn = () => Schedule.waitFor(() => doc.current.foo === 'hello', 50);
+      await expectError(fn, 'timeout');
+
+      // Cleanup:
+      await sample.dispose();
+    });
+
+    it('throw: not implemented', async () => {
+      const sample = await sampleSetup();
+      const { real, proxy } = sample;
+
+      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
+      if (!res.ok) throw res.error;
+      const doc = res.data;
+
+      const fn = () => doc.change((d) => (d.foo = 'hello'));
+      expect(fn).to.throw(/not implemented/);
 
       // Cleanup:
       await sample.dispose();
