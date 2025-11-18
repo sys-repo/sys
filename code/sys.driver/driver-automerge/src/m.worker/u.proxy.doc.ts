@@ -1,6 +1,4 @@
 import { type t, CrdtIs, Try } from './common.ts';
-import { createDocProxy } from './u.proxy.docRef.ts';
-import { getRepoPort } from './u.proxy.repo.ts';
 
 type O = Record<string, unknown>;
 
@@ -15,29 +13,14 @@ export async function doc<T extends O = O>(
 ): Promise<t.TryResult<t.CrdtDocWorkerProxy<T>>> {
   if (!CrdtIs.proxy(repo)) throw new Error('invalid repo, worker-proxy expected');
 
-  const port = getRepoPort(repo);
-  const ref = createDocProxy<T>(id, port, repo.dispose$);
-
   const { result } = await Try.run<t.CrdtDocWorkerProxy<T>>(async () => {
     const { doc, error } = await repo.get<T>(id, options);
+    if (error) throw error;
+    if (!doc) throw new Error(`CrdtWorker.doc: repo.get("${id}") returned no doc`);
+    if (!CrdtIs.proxy(doc))
+      throw new Error('CrdtWorker.doc: expected worker-proxy ref from repo.get');
 
-    if (error) {
-      ref.dispose();
-      throw error;
-    }
-
-    if (!doc) {
-      ref.dispose();
-      throw new Error(`CrdtWorker.doc: repo.get("${id}") returned no doc`);
-    }
-
-    if (doc.id !== id) {
-      ref.dispose();
-      const err = `CrdtWorker.doc: repo.get("${id}") returned doc "${doc.id}" (expected "${id}")`;
-      throw new Error(err);
-    }
-
-    return ref;
+    return doc as t.CrdtDocWorkerProxy<T>;
   });
 
   return result;

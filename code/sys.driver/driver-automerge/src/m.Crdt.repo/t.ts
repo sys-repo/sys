@@ -66,6 +66,6 @@ export type CrdtRefGetResponse<T extends O> = {
 };
 
 /** Repo related errors. */
-export type CrdtRepoErrorKind = 'NotFound' | 'Timeout' | 'UNKNOWN';
+export type CrdtRepoErrorKind = 'NotFound' | 'Timeout' | 'Worker' | 'UNKNOWN';
 /** A standard Repo error. */
 export type CrdtRepoError = t.StdError & { kind: t.CrdtRepoErrorKind };

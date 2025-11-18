@@ -9,6 +9,7 @@ import {
   expectTypeOf,
   it,
 } from '../../-test.ts';
+import { CrdtIs } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 import { getRepoPort } from '../u.proxy.repo.ts';
 import { Wire } from '../u.wire.ts';
@@ -16,7 +17,7 @@ import { createTestHelpers } from './u.ts';
 
 type O = Record<string, unknown>;
 
-describe('CrdtWorker.repo (shim)', () => {
+describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: false }, () => {
   const Test = createTestHelpers();
   afterEach(Test.reset);
 
@@ -456,9 +457,13 @@ describe('CrdtWorker.repo (shim)', () => {
     });
 
     describe('rpc: get', () => {
-      it('forwards repo.get via RPC and returns the worker result', async () => {
+      it('forwards repo.get via RPC and returns a worker-proxy ref', async () => {
+        type Doc = { foo: string };
         const { port1, port2 } = Test.makePorts();
         const real = Test.realRepo();
+
+        // Seed a real document so get(id) is valid.
+        const realDoc = real.create<Doc>({ foo: 'hello' });
 
         /**
          * Spy on the real repo's get, while preserving original behavior.
@@ -468,11 +473,7 @@ describe('CrdtWorker.repo (shim)', () => {
 
         real.get = (async <T extends O>(id: t.StringId, options?: t.CrdtRepoGetOptions) => {
           calls.push({ id, options });
-
-          // Minimal deterministic payload – we only care that it round-trips.
-          const result: t.CrdtRefGetResponse<T> = { doc: {} as unknown as t.CrdtRef<T> };
-
-          return result;
+          return originalGet<T>(id, options);
         }) as typeof real.get;
 
         const client = CrdtWorker.repo(port1);
@@ -483,19 +484,24 @@ describe('CrdtWorker.repo (shim)', () => {
         // Ensure client is ready so we know wiring is live.
         await client.whenReady();
 
-        const id = 'doc-1' as t.StringId;
+        const id = realDoc.id;
         const options: t.CrdtRepoGetOptions = { timeout: 250 as t.Msecs };
 
-        const result = await client.get<{ foo: string }>(id, options);
+        const result = await client.get<Doc>(id, options);
 
         // Assert the worker's get was invoked with the same arguments.
         expect(calls.length).to.eql(1);
         expect(calls[0]?.id).to.eql(id);
         expect(calls[0]?.options).to.eql(options);
 
-        // And the client sees exactly what the worker returned.
+        // And the client sees a worker-proxy ref, not the raw wire shape.
         expect(result.error).to.eql(undefined);
         expect(result.doc).to.exist;
+
+        if (result.doc) {
+          expect(result.doc.id).to.eql(id);
+          expect(CrdtIs.proxy(result.doc)).to.eql(true);
+        }
 
         await client.dispose();
         await real.dispose();
