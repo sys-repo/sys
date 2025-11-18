@@ -109,7 +109,7 @@ export function createDocProxy<T extends O = O>(
     },
 
     change(fn) {
-      throw notImpl('[doc-proxy].change');
+      throw notImpl('Document is readonly');
     },
 
     /**

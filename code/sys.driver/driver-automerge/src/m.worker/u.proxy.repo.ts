@@ -1,5 +1,5 @@
 import { type t, Is, Rx, Try, notImpl, Err } from './common.ts';
-import { createDocProxy } from './u.proxy.docRef.ts';
+import { createDocProxy } from './u.proxy.doc.ts';
 import { createStallDetector } from './u.stall.ts';
 import { Wire } from './u.wire.ts';
 
