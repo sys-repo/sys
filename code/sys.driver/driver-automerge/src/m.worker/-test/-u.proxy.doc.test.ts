@@ -204,7 +204,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
           doc.dispose$.subscribe({ complete: () => (completed = true) });
 
           if (disposeOf === 'real-repo') await real.repo.dispose();
-          if (disposeOf === 'proxy-repo') await proxy.repo.dispose();
+          if (disposeOf === 'proxy-repo') proxy.repo.dispose();
 
           await Wait.waitFor(() => doc.disposed);
 
