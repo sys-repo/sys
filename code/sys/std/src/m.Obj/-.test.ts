@@ -238,6 +238,94 @@ describe('Obj', () => {
       });
     });
 
+    it('maxDepth: 0 → root only', () => {
+      const name = 'foo'.repeat(20);
+      const obj = {
+        name,
+        child: { name, child: { name } },
+      };
+
+      const res = Obj.truncateStrings(obj, {
+        maxDepth: 0,
+        maxLength: 10,
+        ellipsis: false,
+      });
+
+      expect(res).to.eql({
+        name: name.substring(0, 10), // root truncated
+        child: {
+          name, // unchanged (depth 1)
+          child: {
+            name, // unchanged (depth 2)
+          },
+        },
+      });
+    });
+
+    it('maxDepth: 1 → root + first level', () => {
+      const name = 'foo'.repeat(20);
+      const obj = {
+        name,
+        child: {
+          name,
+          child: { name },
+        },
+      };
+
+      const res = Obj.truncateStrings(obj, {
+        maxDepth: 1,
+        maxLength: 8,
+        ellipsis: true,
+      });
+
+      expect(res).to.eql({
+        name: `${name.substring(0, 8)}...`, // root
+        child: {
+          name: `${name.substring(0, 8)}...`, // depth 1
+          child: {
+            name, // depth 2 (beyond maxDepth) → unchanged
+          },
+        },
+      });
+    });
+
+    it('maxDepth: 2 → root + two levels deep', () => {
+      const name = 'foo'.repeat(20);
+      const obj = {
+        name,
+        child: {
+          name,
+          child: {
+            name,
+            child: {
+              name,
+            },
+          },
+        },
+      };
+
+      const res = Obj.truncateStrings(obj, {
+        maxDepth: 2,
+        maxLength: 6,
+        ellipsis: false,
+      });
+
+      const truncated = name.substring(0, 6);
+
+      expect(res).to.eql({
+        name: truncated, // root
+        child: {
+          name: truncated, // depth 1
+          child: {
+            name: truncated, // depth 2
+            child: {
+              name, // depth 3 (beyond maxDepth) → unchanged
+            },
+          },
+        },
+      });
+    });
+
     it('options: no ellipsis, maxLength', () => {
       const name = 'foo'.repeat(100);
       const obj = { name };

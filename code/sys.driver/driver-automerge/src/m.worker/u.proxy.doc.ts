@@ -155,10 +155,8 @@ export function createDocProxy<T extends O = O>(
     },
   };
 
-  life.dispose$.subscribe(() => {
-    // TODO: 🌸 detach listeners / any extra cleanup if needed.
-  });
-
   port.addEventListener?.('message', onMessage, { signal: life.signal });
+  life.dispose$.subscribe(() => {});
+
   return api;
 }

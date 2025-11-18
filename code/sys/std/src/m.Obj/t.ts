@@ -109,4 +109,12 @@ export type ObjTruncateStringsOptions = {
   maxLength?: number;
   ellipsis?: boolean;
   mutate?: boolean;
+  /**
+   * Maximum object/array nesting depth to traverse.
+   * - `0`  → only inspect `obj` itself (no traversal into children).
+   * - `1`  → inspect direct properties of `obj` (one level deep).
+   * - `2+` → keep recursing up to that many levels.
+   * - `undefined` → no depth limit (default).
+   */
+  maxDepth?: number;
 };
