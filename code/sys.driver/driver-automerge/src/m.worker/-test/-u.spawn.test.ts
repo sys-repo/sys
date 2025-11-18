@@ -6,8 +6,9 @@ describe('CrdtWorker.spawn (smoke test, real worker)', () => {
   const Test = createTestHelpers();
   afterEach(Test.reset);
 
+  const url = new URL('./u.worker.ts', import.meta.url);
+
   it('creates a worker-backed repo and reaches ready state', async () => {
-    const url = new URL('./worker.ts', import.meta.url);
     const { worker, repo } = await CrdtWorker.spawn(url, { worker: { type: 'module' } });
 
     expect(repo.status.ready).to.eql(false);
@@ -25,7 +26,6 @@ describe('CrdtWorker.spawn (smoke test, real worker)', () => {
   });
 
   it('accepts a Worker instance and wires the same worker', async () => {
-    const url = new URL('./worker.ts', import.meta.url);
     const worker = new Worker(url, { type: 'module' });
 
     const result = await CrdtWorker.spawn(worker);
