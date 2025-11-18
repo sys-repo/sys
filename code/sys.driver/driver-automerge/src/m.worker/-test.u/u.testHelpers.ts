@@ -80,22 +80,17 @@ export function createTestHelpers() {
     fakeWorkerLikeScope(repo: t.CrdtRepo) {
       type MessageHandler = (ev: MessageEvent) => void;
       const handlers: MessageHandler[] = [];
-
       function addEventListener(type: string, handler: MessageHandler) {
         if (type === 'message') handlers.push(handler);
       }
-
       function postMessage(data: unknown, ports: MessagePort[] = []) {
         const ev = { data, ports } as unknown as MessageEvent;
         handlers.forEach((fn) => fn(ev));
       }
-
       function terminate() {
         handlers.length = 0;
       }
-
       const fakeSelf = { addEventListener } as typeof globalThis;
-
       CrdtWorker.listen(fakeSelf, repo);
       return { postMessage, terminate };
     },
@@ -109,6 +104,35 @@ export function createTestHelpers() {
       return () => {
         repo.get = original;
       };
+    },
+
+    async sample<D extends O = O>(initial: D) {
+      const { port1, port2 } = api.makePorts();
+      const realRepo = await api.realRepo().whenReady();
+
+      CrdtWorker.attach(port2, realRepo);
+      const proxyRepo = await CrdtWorker.repo(port1).whenReady();
+      const realDoc = realRepo.create<D>(initial);
+
+      async function dispose() {
+        realDoc.dispose();
+        await proxyRepo.dispose();
+        await realRepo.dispose();
+      }
+
+      return {
+        port1,
+        port2,
+        real: { repo: realRepo, doc: realDoc },
+        proxy: { repo: proxyRepo },
+        collectRepoEvents() {
+          return {
+            port1: api.collectRepoEvents(port1),
+            port2: api.collectRepoEvents(port2),
+          } as const;
+        },
+        dispose,
+      } as const;
     },
   } as const;
 

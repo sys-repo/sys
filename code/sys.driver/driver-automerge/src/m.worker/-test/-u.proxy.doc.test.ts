@@ -24,35 +24,6 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
   const Test = createTestHelpers();
   afterEach(Test.reset);
 
-  async function sampleSetup() {
-    const { port1, port2 } = Test.makePorts();
-    const realRepo = await Test.realRepo().whenReady();
-
-    CrdtWorker.attach(port2, realRepo);
-    const proxyRepo = await CrdtWorker.repo(port1).whenReady();
-    const realDoc = realRepo.create<Doc>({ foo: 123 });
-
-    async function dispose() {
-      realDoc.dispose();
-      await proxyRepo.dispose();
-      await realRepo.dispose();
-    }
-
-    return {
-      port1,
-      port2,
-      real: { repo: realRepo, doc: realDoc },
-      proxy: { repo: proxyRepo },
-      collectRepoEvents() {
-        return {
-          port1: Test.collectRepoEvents(port1),
-          port2: Test.collectRepoEvents(port2),
-        } as const;
-      },
-      dispose,
-    } as const;
-  }
-
   describe('API', () => {
     it('structural typing', () => {
       type Base = t.CrdtRef<Doc>;
@@ -211,7 +182,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     describe('lifecycle', () => {
       it('disposes when parent/host repo disposes', async () => {
         const test = async (disposeOf: 'real-repo' | 'proxy-repo') => {
-          const sample = await sampleSetup();
+          const sample = await Test.sample<Doc>({ foo: 123 });
           const { real, proxy } = sample;
 
           const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
@@ -245,7 +216,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
 
   describe('document event-stream (host attach → proxy ref)', () => {
     it('populated with initial snapshot', async () => {
-      const sample = await sampleSetup();
+      const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
@@ -268,7 +239,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
 
     it('mirrors host changes over the wire', async () => {
-      const sample = await sampleSetup();
+      const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
@@ -287,7 +258,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
 
     it('lifecycle: document disposes and stops recieving updates', async () => {
-      const sample = await sampleSetup();
+      const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
@@ -311,7 +282,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
 
     it('doc.change() → throw: not implemented (read only)', async () => {
-      const sample = await sampleSetup();
+      const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
@@ -327,7 +298,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
 
     it('mirrors host delete over the wire (deleted flag + deleted$)', async () => {
-      const sample = await sampleSetup();
+      const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
@@ -355,7 +326,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
 
     it('events().$: change', async () => {
-      const sample = await sampleSetup();
+      const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
@@ -383,7 +354,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
 
     it('events().deleted$', async () => {
-      const sample = await sampleSetup();
+      const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
@@ -407,7 +378,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
 
     it('events().path(...): change events', async () => {
-      const sample = await sampleSetup();
+      const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
