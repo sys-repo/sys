@@ -59,12 +59,13 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const proxyRepo = await CrdtWorker.repo(port1).whenReady();
 
       // 5. Fetch the doc through the worker doc shim.
-      const res = await CrdtWorker.doc<Doc>(proxyRepo, realDoc.id);
-      expect(res.ok).to.be.true;
-      if (res.ok) {
-        expect(res.data.id).to.eql(realDoc.id);
-        expect(res.data.via === 'worker-proxy').to.be.true;
-        expectTypeOf(res.data).toMatchTypeOf<t.CrdtDocWorkerProxy<Doc>>(); // Branded worker discriminant.
+      const res = await proxyRepo.get<Doc>(realDoc.id);
+      expect(res.error).to.eql(undefined);
+      if (res.doc) {
+        type P = t.CrdtDocWorkerProxy;
+        expect(res.doc.id).to.eql(realDoc.id);
+        expect((res.doc as unknown as P).via === 'worker-proxy').to.be.true;
+        expectTypeOf(res.doc).toMatchTypeOf<t.Crdt.Ref<Doc>>(); // Branded worker discriminant.
       }
 
       // Cleanup:
@@ -74,15 +75,6 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
 
     describe('errors (failure conditions)', () => {
-      it('hard throws if passed `repo` is not a worker-proxy', async () => {
-        const realRepo = Test.realRepo();
-        expect(CrdtIs.proxy(realRepo)).to.eql(false); // sanity
-        await expectError(
-          () => CrdtWorker.doc<Doc>(realRepo, '4Hitb4MhfusQm28o8Ca7vdoLvBqC'),
-          'invalid repo, worker-proxy expected',
-        );
-      });
-
       it('returns TryFail when repo.get returns a CrdtRepoError', async () => {
         const realRepo = Test.realRepo();
         const err: t.CrdtRepoError = {
@@ -101,12 +93,10 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
         CrdtWorker.attach(port2, realRepo);
         const proxyRepo = await CrdtWorker.repo(port1).whenReady();
 
-        const res = await CrdtWorker.doc<Doc>(proxyRepo, 'fake-id');
-
-        expect(res.ok).to.eql(false);
-        if (!res.ok) {
+        const res = await proxyRepo.get<Doc>('fake-id');
+        if (res.error) {
           // Identity: the same error object survived the round trip.
-          const caught = res.error as t.CrdtRepoError;
+          const caught = res.error;
           expect(caught.kind).to.eql<'Timeout'>('Timeout');
           expect(caught.name).to.eql('CrdtRepoError');
           expect(caught.message).to.eql('took too long');
@@ -130,10 +120,8 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
 
         const proxyRepo = CrdtWorker.repo(port1);
         const id = 'doc-missing' as t.StringId;
-        const res = await CrdtWorker.doc<Doc>(proxyRepo, id);
-
-        expect(res.ok).to.eql(false);
-        if (!res.ok) {
+        const res = await proxyRepo.get<Doc>(id);
+        if (res.error) {
           const msg = res.error.message;
           expect(msg).to.contain(`CrdtWorker.doc: repo.get("${id}") returned no doc`);
         }
@@ -161,19 +149,18 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const proxyRepo = await CrdtWorker.repo(port1).whenReady();
 
       // Fetch the doc through the worker doc helper.
-      const res = await CrdtWorker.doc<Doc>(proxyRepo, realDoc.id);
-
-      expect(res.ok).to.eql(true);
-      if (!res.ok) throw res.error; // keep type-narrowed below
+      const res = await proxyRepo.get<Doc>(realDoc.id);
+      expect(res.error).to.be.undefined;
 
       // Identity + brand.
-      const doc = res.data;
-      expect(doc.id).to.eql(realDoc.id);
-      expect(doc.instance.length > 4).to.be.true;
-      expect(doc.via).to.eql<'worker-proxy'>('worker-proxy');
+      if (res.doc) {
+        const doc = res.doc as t.CrdtDocWorkerProxy<Doc>;
+        expect(doc.id).to.eql(realDoc.id);
+        expect(doc.instance.length > 4).to.be.true;
+        expect(doc.via).to.eql<'worker-proxy'>('worker-proxy');
+      }
 
       // Cleanup.
-      // ev.dispose?.();
       realDoc.dispose();
       await proxyRepo.dispose();
       await realRepo.dispose();
@@ -185,11 +172,10 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
           const sample = await Test.sample<Doc>({ foo: 123 });
           const { real, proxy } = sample;
 
-          const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-          expect(res.ok).to.eql(true);
-          if (!res.ok) throw res.error;
+          const res = await proxy.repo.get<Doc>(real.doc.id);
+          if (!res.doc) throw res.error;
 
-          const doc = res.data;
+          const doc = res.doc;
           expect(doc.disposed).to.eql(false);
 
           let completed = false;
@@ -219,9 +205,9 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
-      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-      if (!res.ok) throw res.error;
-      const doc = res.data;
+      const res = await proxy.repo.get<Doc>(real.doc.id);
+      if (!res.doc) throw res.error;
+      const doc = res.doc;
       expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
 
       // Print:
@@ -242,9 +228,9 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
-      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-      if (!res.ok) throw res.error;
-      const doc = res.data;
+      const res = await proxy.repo.get<Doc>(real.doc.id);
+      if (!res.doc) throw res.error;
+      const doc = res.doc;
       expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
       expect(doc.current).to.eql({ foo: 123 });
 
@@ -261,9 +247,9 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
-      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-      if (!res.ok) throw res.error;
-      const doc = res.data;
+      const res = await proxy.repo.get<Doc>(real.doc.id);
+      if (!res.doc) throw res.error;
+      const doc = res.doc;
 
       expect(doc.current).to.eql({ foo: 123 });
       real.doc.change((d) => (d.foo = 456));
@@ -285,9 +271,9 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
-      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-      if (!res.ok) throw res.error;
-      const doc = res.data;
+      const res = await proxy.repo.get<Doc>(real.doc.id);
+      if (!res.doc) throw res.error;
+      const doc = res.doc;
 
       const fn = () => doc.change((d) => (d.foo = 'hello'));
       expect(fn).to.throw(/not implemented/);
@@ -301,9 +287,9 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
-      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-      if (!res.ok) throw res.error;
-      const doc = res.data;
+      const res = await proxy.repo.get<Doc>(real.doc.id);
+      if (!res.doc) throw res.error;
+      const doc = res.doc;
 
       expect(doc.deleted).to.eql(false);
 
@@ -329,10 +315,9 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
-      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-      if (!res.ok) throw res.error;
-      const doc = res.data;
-      expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
+      const res = await proxy.repo.get<Doc>(real.doc.id);
+      if (!res.doc) throw res.error;
+      const doc = res.doc;
       expect(doc.current).to.eql({ foo: 123 });
 
       const changeEvents: t.CrdtChange<Doc>[] = [];
@@ -357,9 +342,9 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
-      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-      if (!res.ok) throw res.error;
-      const doc = res.data;
+      const res = await proxy.repo.get<Doc>(real.doc.id);
+      if (!res.doc) throw res.error;
+      const doc = res.doc;
 
       const deletedEvents: t.CrdtDeleted[] = [];
       doc.events().deleted$.subscribe((e) => deletedEvents.push(e));
@@ -381,10 +366,9 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const sample = await Test.sample<Doc>({ foo: 123 });
       const { real, proxy } = sample;
 
-      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-      if (!res.ok) throw res.error;
-      const doc = res.data;
-      expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
+      const res = await proxy.repo.get<Doc>(real.doc.id);
+      if (!res.doc) throw res.error;
+      const doc = res.doc;
       expect(doc.current).to.eql({ foo: 123 });
 
       const changeEvents: t.CrdtChange<Doc>[] = [];
