@@ -1,11 +1,12 @@
-import { type t, Is, Obj, PATH, Str, Time } from './common.ts';
+import { type t, Is, Obj, PATH, Str, Time, CrdtIs } from './common.ts';
 
 export function toItems(doc?: t.Crdt.Ref, stats?: t.DocumentStats): t.KeyValueItem[] {
   const items: t.KeyValueItem[] = [];
+
   if (!doc) return items;
 
   const x = [10, 0] as const;
-  items.push({ kind: 'title', v: 'CRDT Document', y: [0, 10] });
+  items.push({ kind: 'title', v: 'CRDT Document', y: [0, 3] });
 
   if (doc) {
     const meta = Obj.Lens.bind<t.SysMeta>(doc.current, PATH.meta);
@@ -20,7 +21,7 @@ export function toItems(doc?: t.Crdt.Ref, stats?: t.DocumentStats): t.KeyValueIt
     }
   }
 
-  if (stats) {
+  if (CrdtIs.ref(doc) && stats) {
     items.push({ kind: 'hr' });
     items.push({ k: 'Metrics' });
     items.push({ k: 'Serialized size', v: `${Str.bytes(stats.bytes)}`, x });

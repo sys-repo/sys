@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Color, Crdt, D, STORAGE_KEY } from '../common.ts';
+import { Color, css, Crdt, D, STORAGE_KEY } from '../common.ts';
 import { MediaComposition } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -39,20 +39,39 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           style={{ backgroundColor: Color.alpha(theme.fg, 0.04) }}
           buttonStyle={{ margin: 4 }}
-          controller={{
-            repo,
-            signals: { doc: p.doc },
-            storageKey: STORAGE_KEY.DEV,
-          }}
+          controller={{ repo, signals: { doc: p.doc }, storageKey: STORAGE_KEY.DEV }}
         />
       );
     });
 
     ctx.debug.footer
       .border(-0.1)
-      .padding(10)
+      .padding(0)
       .render(() => {
-        return <Crdt.UI.Repo.SyncSwitch repo={debug.repo} storageKey={STORAGE_KEY.DEV} />;
+        const doc = p.doc.value;
+        const theme = Color.theme();
+        const styles = {
+          base: css({}),
+          doc: css({
+            borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
+            Padding: [10, 15],
+          }),
+        };
+
+        return (
+          <div className={styles.base.class}>
+            {doc && (
+              <div className={styles.doc.class}>
+                <Crdt.UI.Document.Info doc={doc} />
+              </div>
+            )}
+            <Crdt.UI.Repo.SyncSwitch
+              repo={debug.repo}
+              storageKey={STORAGE_KEY.DEV}
+              style={{ margin: 10 }}
+            />
+          </div>
+        );
       });
   });
 

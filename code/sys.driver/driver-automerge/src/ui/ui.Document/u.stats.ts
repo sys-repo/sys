@@ -1,7 +1,7 @@
 import { type t, A, CrdtIs } from './common.ts';
 
 export function getStats(doc: A.Doc<unknown>): t.DocumentStats {
-  if (CrdtIs.proxy(doc))
+  if (!CrdtIs.ref(doc))
     // NB: Cannot calculate stats on a worker-proxy document.
     // Future: calculate on the worker via a command.
     return {
