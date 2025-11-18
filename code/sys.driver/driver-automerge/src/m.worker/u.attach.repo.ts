@@ -1,6 +1,7 @@
 import { type t, Rx, Schedule, Try } from './common.ts';
 import { onMessageErrorHandler } from './u.onErrorMessage.ts';
 import { Wire } from './u.wire.ts';
+import { attachDoc } from './u.attach.doc.ts';
 
 /**
  * Attach a real repo instance to a MessagePort.

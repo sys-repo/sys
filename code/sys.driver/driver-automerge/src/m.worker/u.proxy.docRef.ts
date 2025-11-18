@@ -88,7 +88,9 @@ export function createDocProxy<T extends O = O>(
      * Lifecycle:
      */
     dispose: life.dispose,
-    dispose$: life.dispose$,
+    get dispose$() {
+      return life.dispose$;
+    },
     get disposed() {
       return life.disposed;
     },

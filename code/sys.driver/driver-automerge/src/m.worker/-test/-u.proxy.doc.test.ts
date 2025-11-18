@@ -1,4 +1,14 @@
-import { type t, afterEach, describe, expect, expectError, expectTypeOf, it } from '../../-test.ts';
+import {
+  type t,
+  Str,
+  c,
+  afterEach,
+  describe,
+  expect,
+  expectError,
+  expectTypeOf,
+  it,
+} from '../../-test.ts';
 import { CrdtIs, Schedule } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers, Wait } from './u.ts';
@@ -198,9 +208,10 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
           expect(res.ok).to.eql(true);
           if (!res.ok) throw res.error;
 
-          let completed = false;
           const doc = res.data;
           expect(doc.disposed).to.eql(false);
+
+          let completed = false;
           doc.dispose$.subscribe({ complete: () => (completed = true) });
 
           if (disposeOf === 'real-repo') await real.repo.dispose();
@@ -218,6 +229,27 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
 
         await test('real-repo');
         await test('proxy-repo');
+      });
+    });
+
+    describe('doc stream (host attach → proxy ref)', () => {
+      it('mirrors host doc changes over the worker wire', async () => {
+        const sample = await sampleSetup();
+        const { real, proxy } = sample;
+
+        const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
+        if (!res.ok) throw res.error;
+
+        const doc = res.data;
+
+        // Print:
+        console.info();
+        console.info(c.cyan(`Crdt.Worker.doc: (Proxy)`));
+        console.info(doc);
+        console.info();
+
+        // Cleanup:
+        await sample.dispose();
       });
     });
   });
