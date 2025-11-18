@@ -1,3 +1,5 @@
+import { type t, Err } from '../common.ts';
+
 export * from '../common.ts';
 export { CrdtIs } from '../m.Crdt/m.Is.ts';
 
@@ -15,3 +17,8 @@ export const notImpl = (msg: string) => {
   (err as any).kind = 'NotImplemented';
   return err;
 };
+
+export const toWorkerError = (msg: string): t.CrdtRepoError => ({
+  ...Err.std(msg),
+  kind: 'Worker',
+});

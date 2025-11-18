@@ -157,13 +157,14 @@ export function toRepo(
     create<T extends O>(input: T | (() => T)) {
       const initial = seedInitial<T>(input);
       const handle = repo.create<T>(initial);
-      return toRef(handle);
+      const doc = toRef(handle);
+      return doc;
     },
 
     get<T extends O>(id: t.StringId, options: t.CrdtRepoGetOptions = {}) {
-      type R = t.CrdtRefGetResponse<T>;
+      type R = t.CrdtRefResult<T>;
       return new Promise<R>(async (resolve) => {
-        const fail = (error: t.CrdtRepoError) => resolve({ error });
+        const fail = (error: t.CrdtRepoError) => resolve({ ok: false, error });
         id = wrangle.id(id);
 
         try {
@@ -178,7 +179,7 @@ export function toRepo(
           const doc = toRef(handle);
 
           timeout.cancel();
-          if (!timeout.is.completed) resolve({ doc });
+          if (!timeout.is.completed) resolve({ ok: true, doc });
         } catch (err: any) {
           const message = err?.message ?? '';
           if (message.includes('is unavailable')) return fail(wrangle.error('NotFound', message));

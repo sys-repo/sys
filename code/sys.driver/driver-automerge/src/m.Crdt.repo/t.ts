@@ -54,15 +54,22 @@ export type CrdtRepoStoreInfoIdb = {
 export type CrdtRepoMethods = {
   whenReady(): Promise<t.CrdtRepo>;
   create<T extends O>(initial: T | (() => T)): t.CrdtRef<T>;
-  get<T extends O>(id: t.StringId, options?: CrdtRepoGetOptions): Promise<CrdtRefGetResponse<T>>;
+  get<T extends O>(id: t.StringId, options?: CrdtRepoGetOptions): Promise<CrdtRefResult<T>>;
   delete(id: t.StringId | t.Crdt.Ref): Promise<void>;
   events(until?: t.UntilInput): t.CrdtRepoEvents;
 };
 
-/** Response from the `repo.get` method. */
-export type CrdtRefGetResponse<T extends O> = {
-  readonly doc?: t.CrdtRef<T> | undefined;
-  readonly error?: t.CrdtRepoError;
+/** Response from methods retrieveing doc handles. */
+export type CrdtRefResult<T extends O> = CrdtRefOk<T> | CrdtRefFail;
+export type CrdtRefOk<T extends O> = {
+  readonly ok: true;
+  readonly doc: t.CrdtRef<T>;
+  readonly error?: undefined;
+};
+export type CrdtRefFail = {
+  readonly ok: false;
+  readonly doc?: undefined;
+  readonly error: t.CrdtRepoError;
 };
 
 /** Repo related errors. */

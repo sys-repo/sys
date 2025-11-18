@@ -42,7 +42,7 @@ type _Guard_RepoMethods = t.Type.Assert<
       get<T extends Record<string, unknown>>(
         id: t.StringId,
         options?: { timeout?: t.Msecs },
-      ): Promise<{ readonly doc?: t.CrdtRef<T>; readonly error?: t.CrdtRepoError }>;
+      ): Promise<t.CrdtRefResult<T>>;
       delete(id: t.StringId | t.Crdt.Ref): Promise<void>;
       events(dispose?: t.UntilInput): t.CrdtRepoEvents;
     }

@@ -73,7 +73,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
         expect(!!got.doc).to.eql(true);
       });
 
-      it('does not override existing props in non-empty initial', () => {
+      it('does not override existing props in non-empty initial', async () => {
         const repo = toRepo(new AutomergeRepo());
         const initial = { title: 'hello' };
         const doc = repo.create(initial);
@@ -306,6 +306,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     it('error: NotFound', async () => {
       const repo = toRepo(new AutomergeRepo());
       const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
+      expect(res.ok).to.eql(false);
       expect(res.doc).to.eql(undefined);
       expect(res.error?.kind === 'NotFound').to.be.true;
       expect(res.error?.message).to.include('Document Juwryn74i3Aia5Kb529XUm3hU4Y is unavailable');
@@ -318,6 +319,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       (base as any).find = async () => Time.wait(50_000);
 
       const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y', { timeout: 5 });
+      expect(res.ok).to.eql(false);
       expect(res.error?.kind === 'Timeout').to.be.true;
       expect(res.error?.message).to.include('Timed out retrieving document');
     });
@@ -333,6 +335,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       const repo = toRepo(base);
       const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
 
+      expect(res.ok).to.eql(false);
       expect(res.error?.message).to.eql(error);
       expect(res.error?.kind === 'UNKNOWN').to.be.true;
     });

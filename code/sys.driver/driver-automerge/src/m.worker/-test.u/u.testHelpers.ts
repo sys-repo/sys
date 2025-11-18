@@ -97,7 +97,7 @@ export function createTestHelpers() {
 
     stubRepoGet<Doc extends O = O>(
       repo: t.CrdtRepo,
-      impl: (id: t.StringId, options?: t.CrdtRepoGetOptions) => Promise<t.CrdtRefGetResponse<Doc>>,
+      impl: (id: t.StringId, options?: t.CrdtRepoGetOptions) => Promise<t.CrdtRefResult<Doc>>,
     ) {
       const original = repo.get.bind(repo);
       repo.get = impl as typeof repo.get;

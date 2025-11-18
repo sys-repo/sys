@@ -527,7 +527,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
               message: 'took too long',
             } as t.CrdtRepoError;
 
-            const result: t.CrdtRefGetResponse<T> = { error };
+            const result: t.CrdtRefResult<T> = { ok: false, error };
             return result;
           }) as typeof real.get;
 

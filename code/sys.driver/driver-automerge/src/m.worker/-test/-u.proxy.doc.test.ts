@@ -10,7 +10,7 @@ import {
   expectTypeOf,
   it,
 } from '../../-test.ts';
-import { CrdtIs, Schedule } from '../common.ts';
+import { CrdtIs, Schedule, toWorkerError } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers } from './u.ts';
 
@@ -85,7 +85,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
 
         // Stub worker-side get to always return an error.
         const restoreGet = Test.stubRepoGet<Doc>(realRepo, async (id, options) => {
-          const result: t.CrdtRefGetResponse<Doc> = { error: err };
+          const result: t.CrdtRefResult<Doc> = { ok: false, error: err };
           return result;
         });
 
@@ -108,10 +108,11 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
         await realRepo.dispose();
       });
 
-      it('returns TryFail when repo.get returns neither doc nor error', async () => {
+      it('returns TryFail when repo.get returns neither `doc` nor `error`', async () => {
         const realRepo = Test.realRepo();
         const restoreGet = Test.stubRepoGet<Doc>(realRepo, async (id, options) => {
-          const result: t.CrdtRefGetResponse<Doc> = { doc: undefined, error: undefined };
+          const error = toWorkerError(`No document for id "${id}" in repo`);
+          const result: t.CrdtRefResult<Doc> = { ok: false, doc: undefined, error };
           return result;
         });
 
@@ -123,7 +124,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
         const res = await proxyRepo.get<Doc>(id);
         if (res.error) {
           const msg = res.error.message;
-          expect(msg).to.contain(`CrdtWorker.doc: repo.get("${id}") returned no doc`);
+          expect(msg).to.contain(`No document for id "${id}" in repo`);
         }
 
         // Cleanup:

@@ -1,4 +1,4 @@
-import { type t, Is, Rx, Try, notImpl, Err } from './common.ts';
+import { type t, Is, Rx, Try, notImpl, Err, toWorkerError } from './common.ts';
 import { createDocProxy } from './u.proxy.doc.ts';
 import { createStallDetector } from './u.stall.ts';
 import { Wire } from './u.wire.ts';
@@ -224,31 +224,32 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
     async get<T extends O>(
       id: t.StringId,
       options?: t.CrdtRepoGetOptions,
-    ): Promise<t.CrdtRefGetResponse<T>> {
+    ): Promise<t.CrdtRefResult<T>> {
       // Create the proxy ref *before* we ask the worker to attach the real doc.
-      const ref = createDocProxy<T>(id, port, life.dispose$);
+      const doc = createDocProxy<T>(id, port, life.dispose$);
       const wire = (await rpc('get', id, options)) as t.WireRepoGetResult;
 
       if (wire.error) {
-        ref.dispose();
-        return { error: wire.error };
+        doc.dispose();
+        return { ok: false, error: wire.error };
       }
 
       if (!wire.doc) {
-        ref.dispose();
-        return { doc: undefined, error: undefined };
+        doc.dispose();
+        const err = `No document for id "${id}" in repo`;
+        return { ok: false, error: toWorkerError(err) };
       }
 
       // Sanity: defensive check that worker responded with the correct id.
       if (wire.doc.id !== id) {
-        ref.dispose();
+        doc.dispose();
         const wireId = wire.doc.id;
         const err = `Crdt.Worker.repo.get("${id}") returned doc "${wireId}" (expected "${id}")`;
-        const error: t.CrdtRepoError = { ...Err.std(err), kind: 'Worker' };
-        return { error };
+        const error = toWorkerError(err);
+        return { ok: false, error };
       }
 
-      return { doc: ref };
+      return { ok: true, doc };
     },
 
     async delete(input: t.StringId | t.Crdt.Ref) {
