@@ -1,15 +1,10 @@
 import { type t, afterEach, describe, expect, it } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
-import { attach } from '../u.attach.ts';
 import { Wait, createTestHelpers } from './u.ts';
 
 describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, () => {
   const Test = createTestHelpers();
   afterEach(Test.reset);
-
-  it('API', () => {
-    expect(CrdtWorker.attach).to.equal(attach);
-  });
 
   it('forwards prop$ → sync.enabled (enable/disable)', async () => {
     const { port1, port2 } = Test.makePorts();

@@ -1,5 +1,5 @@
 import { type t, Is } from './common.ts';
-import { attach } from './u.attach.ts';
+import { attachRepo } from './u.attach.repo.ts';
 import { Wire } from './u.wire.ts';
 
 /**
@@ -16,7 +16,7 @@ export const listen: t.CrdtWorkerLib['listen'] = (self, repo) => {
     const port = ev.ports?.[0] ?? data.port;
     if (!port) return;
 
-    attach(port, repo);
+    attachRepo(port, repo);
   });
 
   /**
