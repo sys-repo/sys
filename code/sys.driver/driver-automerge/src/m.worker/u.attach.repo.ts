@@ -1,7 +1,7 @@
 import { type t, Rx, Schedule, Try } from './common.ts';
+import { attachDoc } from './u.attach.doc.ts';
 import { onMessageErrorHandler } from './u.onErrorMessage.ts';
 import { Wire } from './u.wire.ts';
-import { attachDoc } from './u.attach.doc.ts';
 
 /**
  * Attach a real repo instance to a MessagePort.
@@ -103,6 +103,12 @@ export const attachRepo: t.CrdtWorkerLib['attach'] = (port, repo) => {
 
     async get(id: unknown, options?: unknown) {
       const { doc, error } = await repo.get(id as t.StringId, options as t.CrdtRepoGetOptions);
+
+      // Only attach a doc-stream for *real* t.Crdt.Ref (Document) instances.
+      if (doc && typeof doc.events === 'function') {
+        attachDoc(port, doc, life.dispose$);
+      }
+
       const data: t.WireRepoGetResult = doc ? { doc: { id: doc.id } } : error ? { error } : {};
       return data;
     },

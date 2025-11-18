@@ -39,6 +39,12 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       port2,
       real: { repo: realRepo, doc: realDoc },
       proxy: { repo: proxyRepo },
+      collectRepoEvents() {
+        return {
+          port1: Test.collectRepoEvents(port1),
+          port2: Test.collectRepoEvents(port2),
+        } as const;
+      },
       dispose,
     } as const;
   }
@@ -231,26 +237,30 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
         await test('proxy-repo');
       });
     });
+  });
 
-    describe('doc stream (host attach → proxy ref)', () => {
-      it('mirrors host doc changes over the worker wire', async () => {
-        const sample = await sampleSetup();
-        const { real, proxy } = sample;
+  describe('doc event stream (host attach → proxy ref)', () => {
+    it('mirrors host doc changes over the worker wire', async () => {
+      const sample = await sampleSetup();
+      const { real, proxy } = sample;
 
-        const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-        if (!res.ok) throw res.error;
+      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
+      if (!res.ok) throw res.error;
+      const doc = res.data;
 
-        const doc = res.data;
+      // Print:
+      console.info();
+      console.info(c.cyan(`Crdt.Worker.doc: (Proxy)`));
+      console.info(doc);
+      console.info();
+      console.info(c.cyan('current:'), doc.current);
+      console.info();
 
-        // Print:
-        console.info();
-        console.info(c.cyan(`Crdt.Worker.doc: (Proxy)`));
-        console.info(doc);
-        console.info();
+      expect(CrdtIs.proxy(doc)).to.be.true;
+      expect(doc.current).to.eql({ foo: 123 });
 
-        // Cleanup:
-        await sample.dispose();
-      });
+      // Cleanup:
+      await sample.dispose();
     });
   });
 });

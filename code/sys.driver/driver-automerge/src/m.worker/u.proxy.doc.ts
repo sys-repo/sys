@@ -15,21 +15,28 @@ export async function doc<T extends O = O>(
 ): Promise<t.TryResult<t.CrdtDocWorkerProxy<T>>> {
   if (!CrdtIs.proxy(repo)) throw new Error('invalid repo, worker-proxy expected');
 
+  const port = getRepoPort(repo);
+  const ref = createDocProxy<T>(id, port, repo.dispose$);
+
   const { result } = await Try.run<t.CrdtDocWorkerProxy<T>>(async () => {
     const { doc, error } = await repo.get<T>(id, options);
 
-    // Prefer domain error if present.
-    if (error) throw error;
+    if (error) {
+      ref.dispose();
+      throw error;
+    }
 
-    // No doc and no error – this is a protocol violation.
-    if (!doc) throw new Error(`CrdtWorker.doc: repo.get("${id}") returned no doc`);
+    if (!doc) {
+      ref.dispose();
+      throw new Error(`CrdtWorker.doc: repo.get("${id}") returned no doc`);
+    }
 
-    // Retrieve the port to run over.
-    const port = getRepoPort(repo);
-    if (!port) throw new Error(`A port for the parent repo "${repo.id}" could not be retrieved.`);
+    if (doc.id !== id) {
+      ref.dispose();
+      const err = `CrdtWorker.doc: repo.get("${id}") returned doc "${doc.id}" (expected "${id}")`;
+      throw new Error(err);
+    }
 
-    // Construct the document-proxy.
-    const ref = createDocProxy<T>(doc.id, port, repo.dispose$);
     return ref;
   });
 

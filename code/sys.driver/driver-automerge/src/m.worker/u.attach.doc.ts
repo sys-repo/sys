@@ -18,10 +18,8 @@ export function attachDoc<T extends O = O>(
   doc: t.CrdtRef<T>,
   until?: t.UntilInput,
 ): t.Lifecycle {
-  const id = doc.id;
   const life = Rx.abortable(until);
-  const stream = Wire.Kind.doc(id);
-
+  const stream = Wire.Kind.doc(doc.id);
 
   /**
    * Emit initial snapshot so the proxy can populate `current`.
@@ -29,23 +27,24 @@ export function attachDoc<T extends O = O>(
   const emitSnapshot = () => {
     const msg: t.WireDocEventPayload<T> = {
       type: 'doc/snapshot',
-      payload: { id, value: doc.current as T },
+      payload: { id: doc.id, value: doc.current as T },
     };
-    port.postMessage(Wire.event(stream, msg));
+    console.log('Wire.event(stream, msg)', Wire.event(stream, msg));
+    const payload = Wire.event(stream, msg);
+    port.postMessage(payload);
   };
 
-  // emitSnapshot();
+  emitSnapshot();
 
   /**
    * Subscribe to doc events and mirror them to wire.
    */
+
   const ev = doc.events(life.dispose$);
   ev.$.subscribe((change) => {
   });
 
-  ev.deleted$.subscribe(() => {
-    const msg: t.WireDocEventPayload<T> = { type: 'doc/deleted', payload: { id } };
-    port.postMessage(Wire.event(stream, msg));
+  ev.deleted$.subscribe((e) => {
   });
 
   return life;
