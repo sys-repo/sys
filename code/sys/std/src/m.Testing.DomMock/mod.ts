@@ -4,8 +4,10 @@
  *
  * @example
  * ```ts
- * import { DomMock } from '@sys/testing/server';
- * DomMock.polyfill();
+ * import { DomMock, beforeEach, afterEach } from '@sys/std/testing/server';
+ *
+ * beforeEach(DomMock.polyfill);
+ * afterEach(DomMock.unpolyfill);
  * ```
  */
 import type { t } from './common.ts';

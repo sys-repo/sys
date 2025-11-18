@@ -1,5 +1,5 @@
 import { Document, Window } from 'happy-dom';
-import { describe, expect, it, afterEach } from '../-test.ts';
+import { describe, expect, it, afterEach, beforeEach } from '../-test.ts';
 import { DomMock } from './mod.ts';
 import { Is } from '../m.Is/mod.ts';
 
@@ -10,6 +10,11 @@ describe(
   { sanitizeOps: false, sanitizeResources: false },
 
   () => {
+    it('API', async () => {
+      const m = await import('@sys/std/testing/server');
+      expect(m.DomMock).to.equal(DomMock);
+    });
+
     describe('polyfill', () => {
       afterEach(DomMock.unpolyfill);
 
