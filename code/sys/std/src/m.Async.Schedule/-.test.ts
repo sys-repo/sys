@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../-test.ts';
+import { type t, describe, expect, it, expectError } from '../-test.ts';
 import { Rx } from './common.ts';
 import { Schedule } from './mod.ts';
 
@@ -505,6 +505,104 @@ describe(`Schedule`, () => {
       // All three exactly once (idempotent for this test shape).
       expect(order.length).to.eql(3);
       expect(order.sort()).to.eql(['macro', 'micro', 'raf'].sort());
+    });
+  });
+
+  describe('Schedule.tick', () => {
+    it('advances macro then micro (message-port style ordering)', async () => {
+      const log: string[] = [];
+
+      // 1. Queue a macro task that itself queues a microtask.
+      Schedule.macro(() => {
+        log.push('macro');
+        // Microtask scheduled from within the macro handler.
+        void Promise.resolve().then(() => log.push('micro-from-macro'));
+      });
+
+      // 2. At this point nothing has run yet.
+      expect(log).to.eql([]);
+
+      // 3. Advance one "turn": macro, then micro.
+      await Schedule.tick();
+
+      // 4. Both the macro and the microtask it scheduled should have run,
+      //    in that order.
+      expect(log).to.eql(['macro', 'micro-from-macro']);
+    });
+
+    it('is equivalent to awaiting macro() followed by micro()', async () => {
+      const logA: string[] = [];
+      const logB: string[] = [];
+
+      // Queue the same pattern twice: once for tick, once for explicit macro+micro.
+      Schedule.macro(() => {
+        logA.push('macro');
+        void Promise.resolve().then(() => logA.push('micro'));
+      });
+
+      Schedule.macro(() => {
+        logB.push('macro');
+        void Promise.resolve().then(() => logB.push('micro'));
+      });
+
+      // Route A: tick.
+      await Schedule.tick();
+
+      // Route B: explicit macro+micro.
+      await Schedule.macro();
+      await Schedule.micro();
+
+      expect(logA).to.eql(['macro', 'micro']);
+      expect(logB).to.eql(['macro', 'micro']);
+    });
+  });
+
+  describe('Schedule.waitFor', () => {
+    it('resolves when predicate becomes true before timeout', async () => {
+      let value = 0;
+
+      // Flip the flag after a short delay.
+      void Schedule.sleep(10, 'macro').then(() => (value = 42));
+      await Schedule.waitFor(() => value === 42, 1000);
+
+      expect(value).to.eql(42);
+    });
+
+    it('throws when predicate never becomes true before timeout', async () => {
+      await expectError(() => Schedule.waitFor(() => false, 20), 'waitFor: timeout');
+    });
+
+    it('evaluates predicate immediately (no extra delay when already true)', async () => {
+      let calls = 0;
+      const pred = () => {
+        calls += 1;
+        return true;
+      };
+
+      await Schedule.waitFor(pred, 1000);
+
+      // Should have short-circuited on the first evaluation.
+      expect(calls).to.eql(1);
+    });
+
+    it('polls via tick (macro+micro) instead of busy-waiting', async () => {
+      const steps: string[] = [];
+
+      // Each macro hop appends a marker; we’ll flip the predicate after the first hop.
+      let ready = false;
+
+      Schedule.macro(() => {
+        steps.push('macro-1');
+        ready = true;
+        // The micro hop after this macro should also be included in the tick cycle.
+        void Promise.resolve().then(() => steps.push('micro-after-macro-1'));
+      });
+
+      await Schedule.waitFor(() => ready, 200);
+
+      // We don’t assert exact counts beyond the first cycle, but we *do*
+      // assert that at least the macro and its follow-on micro have run.
+      expect(steps).to.eql(['macro-1', 'micro-after-macro-1']);
     });
   });
 });

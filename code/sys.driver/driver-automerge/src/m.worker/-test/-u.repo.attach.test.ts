@@ -1,6 +1,6 @@
-import { type t, afterEach, describe, expect, it } from '../../-test.ts';
+import { type t, afterEach, describe, expect, it, Schedule } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
-import { Wait, createTestHelpers } from './u.ts';
+import { createTestHelpers } from './u.ts';
 
 describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, () => {
   const Test = createTestHelpers();
@@ -13,8 +13,8 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
 
     CrdtWorker.attach(port2, repo);
 
-    // Wait for initial snapshot over the wire.
-    await Wait.waitFor(() => events.some((e) => e.type === 'props/snapshot'));
+    // Schedule for initial snapshot over the wire.
+    await Schedule.waitFor(() => events.some((e) => e.type === 'props/snapshot'));
 
     // Networked repo: enabled should be boolean (not null).
     const initial = repo.sync.enabled;
@@ -25,7 +25,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
      * Expect a props/change event for sync.enabled.
      */
     repo.sync.enable(false);
-    await Wait.waitFor(() =>
+    await Schedule.waitFor(() =>
       events.some(
         (e) =>
           e.type === 'props/change' &&
@@ -39,7 +39,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
      * Expect a second props/change event for sync.enabled.
      */
     repo.sync.enable(true);
-    await Wait.waitFor(
+    await Schedule.waitFor(
       () =>
         events.filter(
           (e) =>
@@ -72,9 +72,9 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     CrdtWorker.attach(port2, repo);
 
     // Ensure the stream is open before disposing.
-    await Wait.waitFor(() => events.some((e) => e.type === 'stream/open'));
+    await Schedule.waitFor(() => events.some((e) => e.type === 'stream/open'));
     await repo.dispose();
-    await Wait.waitFor(() => events.at(-1)?.type === 'stream/close');
+    await Schedule.waitFor(() => events.at(-1)?.type === 'stream/close');
 
     expect(events[events.length - 1]).to.eql({ type: 'stream/close', payload: {} });
     stop();
@@ -86,7 +86,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     const { events, stop } = Test.collectRepoEvents(port1);
 
     CrdtWorker.attach(port2, real);
-    await Wait.waitFor(() => events.some((e) => e.type === 'props/snapshot'));
+    await Schedule.waitFor(() => events.some((e) => e.type === 'props/snapshot'));
 
     type T = Extract<t.WireRepoEventPayload, { type: 'props/snapshot' }>;
     const snap = events.find((e) => e.type === 'props/snapshot') as T | undefined;
@@ -110,8 +110,8 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
 
     CrdtWorker.attach(port2, repo);
 
-    // Wait until we have stream/open + an initial snapshot.
-    await Wait.waitFor(
+    // Schedule until we have stream/open + an initial snapshot.
+    await Schedule.waitFor(
       () =>
         events.some((e) => e.type === 'stream/open') &&
         events.some((e) => e.type === 'props/snapshot'),
@@ -126,7 +126,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     // Drive the real repo to "ready" and expect a status prop change over the wire.
     await repo.whenReady();
 
-    await Wait.waitFor(() =>
+    await Schedule.waitFor(() =>
       events.some(
         (e) =>
           e.type === 'props/change' &&
@@ -160,8 +160,8 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     // Wire up the worker boundary.
     CrdtWorker.attach(port2, real);
 
-    // Wait until we know the stream is open and we have an initial snapshot.
-    await Wait.waitFor(
+    // Schedule until we know the stream is open and we have an initial snapshot.
+    await Schedule.waitFor(
       () =>
         events.some((e) => e.type === 'stream/open') &&
         events.some((e) => e.type === 'props/snapshot'),
@@ -173,8 +173,8 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     // Trigger a real change on the real repo: true → false.
     real.sync.enable(false);
 
-    // Wait until we see the sync.enabled change over the wire.
-    await Wait.waitFor(() =>
+    // Schedule until we see the sync.enabled change over the wire.
+    await Schedule.waitFor(() =>
       events.some(
         (e) =>
           e.type === 'props/change' &&

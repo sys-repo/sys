@@ -1,8 +1,7 @@
 import {
   type t,
-  Str,
-  c,
   afterEach,
+  c,
   describe,
   expect,
   expectError,
@@ -11,7 +10,7 @@ import {
 } from '../../-test.ts';
 import { CrdtIs, Schedule } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
-import { createTestHelpers, Wait } from './u.ts';
+import { createTestHelpers } from './u.ts';
 
 type O = Record<string, unknown>;
 type Doc = { foo: string | number };
@@ -223,7 +222,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
           if (disposeOf === 'real-repo') await real.repo.dispose();
           if (disposeOf === 'proxy-repo') proxy.repo.dispose();
 
-          await Wait.waitFor(() => doc.disposed);
+          await Schedule.waitFor(() => doc.disposed);
 
           expect(doc.disposed).to.eql(true);
           expect(completed).to.eql(true);
@@ -274,7 +273,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
 
       expect(doc.current).to.eql({ foo: 123 });
       real.doc.change((d) => (d.foo = 456));
-      await Wait.waitFor(() => doc.current.foo === 456);
+      await Schedule.waitFor(() => doc.current.foo === 456);
 
       expect(doc.current).to.eql({ foo: 456 });
       expect(CrdtIs.proxy(doc)).to.be.true; // sanity.

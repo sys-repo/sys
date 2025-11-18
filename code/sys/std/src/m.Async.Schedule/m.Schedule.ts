@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 import { queue } from './u.queue.ts';
 import { makeScheduleFn } from './u.scheduleFunction.ts';
 import { sleep } from './u.sleep.ts';
+import { tick, waitFor } from './u.turn.ts';
 
 /**
  * Minimal, consistent API for deferring work (microtask, macrotask, or frame),
@@ -11,6 +12,8 @@ export const Schedule: t.SchedulerLib = {
   make: (life, mode = 'micro') => makeScheduleFn(mode, life),
   queue,
   sleep,
+  tick,
+  waitFor,
 
   async frames(count = 1) {
     const n = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;

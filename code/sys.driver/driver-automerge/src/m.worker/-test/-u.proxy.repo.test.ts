@@ -10,9 +10,9 @@ import {
   it,
 } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
-import { Wire } from '../u.wire.ts';
-import { Wait, createTestHelpers } from './u.ts';
 import { getRepoPort } from '../u.proxy.repo.ts';
+import { Wire } from '../u.wire.ts';
+import { createTestHelpers } from './u.ts';
 
 type O = Record<string, unknown>;
 
@@ -31,11 +31,11 @@ describe('CrdtWorker.repo (shim)', () => {
       CrdtWorker.attach(port2, real);
 
       // stream/open first
-      await Wait.waitFor(() => events.length >= 1);
+      await Schedule.waitFor(() => events.length >= 1);
       expect(events[0]).to.eql({ type: 'stream/open', payload: {} });
 
       // at least one ready; client resolves
-      await Wait.waitFor(() => events.some((e) => e.type === 'props/change'));
+      await Schedule.waitFor(() => events.some((e) => e.type === 'props/change'));
       await client.whenReady();
       expect(client.status.ready).to.eql(true);
 
@@ -49,7 +49,7 @@ describe('CrdtWorker.repo (shim)', () => {
       const real = Test.realRepo();
 
       CrdtWorker.attach(client.port2, real);
-      await Wait.waitFor(() => Obj.hash(client.repo.id) === Obj.hash(real.id));
+      await Schedule.waitFor(() => Obj.hash(client.repo.id) === Obj.hash(real.id));
 
       expect(client.repo.id.instance).to.eql(real.id.instance);
       expect(client.repo.id.peer).to.eql(real.id.peer);
@@ -84,7 +84,7 @@ describe('CrdtWorker.repo (shim)', () => {
         expect(proxyRepo.disposed).to.eql(false);
 
         await realRepo.dispose();
-        await Wait.waitFor(() => proxyRepo.disposed);
+        await Schedule.waitFor(() => proxyRepo.disposed);
 
         expect(realRepo.disposed).to.eql(true);
         expect(proxyRepo.disposed).to.eql(true);
@@ -222,7 +222,7 @@ describe('CrdtWorker.repo (shim)', () => {
       port2.postMessage(evt);
 
       // assert: prop$ fired once with cloned payload
-      await Wait.waitFor(() => propsEvents.length === 1);
+      await Schedule.waitFor(() => propsEvents.length === 1);
       const payload = propsEvents[0];
 
       // NB: after the status refactor, the shim now normalizes this to a 'status' prop
@@ -241,7 +241,7 @@ describe('CrdtWorker.repo (shim)', () => {
       expect(client.sync.peers).to.eql(after.sync.peers);
       expect(client.sync.urls).to.eql(after.sync.urls);
 
-      await Wait.waitFor(() => repoEvents.length === 1);
+      await Schedule.waitFor(() => repoEvents.length === 1);
       const evt$ = repoEvents[0];
       expect(evt$.type).to.eql('props/change');
       expect(evt$.payload).to.eql(payload);
@@ -321,7 +321,7 @@ describe('CrdtWorker.repo (shim)', () => {
       port1.dispatchEvent(new MessageEvent('message', { data: msg } as MessageEventInit));
 
       // Wait for the shim to see and forward it.
-      await Wait.waitFor(() => networkEvents.length >= 1);
+      await Schedule.waitFor(() => networkEvents.length >= 1);
 
       const first = networkEvents[0]!;
       expect(first.type).to.eql('network/peer-online');
@@ -329,7 +329,7 @@ describe('CrdtWorker.repo (shim)', () => {
         expect(first.payload.peerId).to.eql('peer-1');
       }
 
-      await Wait.waitFor(() => repoEvents.length >= 1);
+      await Schedule.waitFor(() => repoEvents.length >= 1);
       const first$ = repoEvents[0]!;
       expect(first$.type).to.eql('network/peer-online');
       if (first$.type === 'network/peer-online') {
@@ -373,7 +373,7 @@ describe('CrdtWorker.repo (shim)', () => {
         client.sync.enable(); // implicit true
 
         // Wait for calls to land on the worker side.
-        await Wait.waitFor(() => calls.length >= 3);
+        await Schedule.waitFor(() => calls.length >= 3);
 
         expect(calls).to.eql<[boolean | undefined, boolean | undefined, boolean | undefined]>([
           true,
@@ -434,7 +434,7 @@ describe('CrdtWorker.repo (shim)', () => {
         port1.postMessage(call);
 
         // Wait for a result to come back.
-        await Wait.waitFor(() => results.length >= 1);
+        await Schedule.waitFor(() => results.length >= 1);
         const result = results[0] as t.WireRepoResultOk<'create'>;
 
         expect(result.ok).to.eql(true);
@@ -625,7 +625,7 @@ describe('CrdtWorker.repo (shim)', () => {
         await client.delete(id);
 
         // Wait for the call to land on the worker side.
-        await Wait.waitFor(() => calls.length >= 1);
+        await Schedule.waitFor(() => calls.length >= 1);
 
         expect(calls).to.eql<[t.StringId]>([id]);
 
