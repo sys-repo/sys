@@ -4,7 +4,7 @@
  */
 import type { TestingHttpLib } from './t.ts';
 
-import { Testing as Base } from '@sys/std/testing';
+import { Testing as Base } from '../m.Testing/mod.ts';
 export {
   afterAll,
   afterEach,
