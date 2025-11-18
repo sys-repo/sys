@@ -1,5 +1,5 @@
 import { type t, afterEach, describe, expect, expectError, expectTypeOf, it } from '../../-test.ts';
-import { CrdtIs } from '../common.ts';
+import { CrdtIs, Schedule } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers, Wait } from './u.ts';
 
