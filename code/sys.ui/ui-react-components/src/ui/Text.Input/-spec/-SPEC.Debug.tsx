@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
+import { type t, Obj, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
 
 type P = t.TextInputProps;
 type Storage = Pick<
@@ -17,6 +17,17 @@ type Storage = Pick<
   | 'borderRadius'
   | 'spellCheck'
 >;
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: false,
+  background: -0.05,
+  border: { mode: 'underline' },
+  borderRadius: 4,
+  autoFocus: true,
+  disabled: D.disabled,
+  readOnly: D.readOnly,
+  spellCheck: D.spellCheck,
+};
 
 /**
  * Types:
@@ -30,17 +41,6 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 export function createDebugSignals() {
   const s = Signal.create;
 
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: false,
-    background: -0.05,
-    border: { mode: 'underline' },
-    borderRadius: 4,
-    autoFocus: true,
-    disabled: D.disabled,
-    readOnly: D.readOnly,
-    spellCheck: D.spellCheck,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -64,15 +64,23 @@ export function createDebugSignals() {
     suffix: s<P['suffix']>(),
   };
 
+  const p = props;
   const api = {
     get props() {
       return props;
     },
     localstore: store,
-    listen() {
-      Signal.listen(props);
-    },
+    listen,
+    reset,
   };
+
+  function listen() {
+    Signal.listen(props, true);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -219,6 +227,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button block label={() => `(reset)`} onClick={debug.reset} />
+
       <ObjectView
         name={'debug'}
         data={Signal.toObject(p)}

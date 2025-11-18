@@ -61,6 +61,8 @@ export type TextInputProps = {
   onFocus?: t.TextInputFocusHandler;
   /** Fires when the textbox loses focus. */
   onBlur?: t.TextInputFocusHandler;
+  /** Fires when the textbox is pasted into (before the browser mutates the value). */
+  onPaste?: t.TextInputPasteHandler;
 };
 
 /**
@@ -105,4 +107,21 @@ export type TextInputKeyArgs = BaseArgs<React.KeyboardEvent<HTMLInputElement>> &
 export type TextInputReadyHandler = (e: TextInputReadyArgs) => void;
 export type TextInputReadyArgs = {
   readonly input: HTMLInputElement;
+};
+
+/** Fires when the textbox is pasted into. */
+export type TextInputPasteHandler = (e: TextInputPasteArgs) => void;
+export type TextInputPasteArgs = {
+  /** Plain text from the clipboard. */
+  readonly text: string;
+  /**
+   * Replace the text that will be inserted.
+   * Call multiple times to refine; the last call wins.
+   */
+  modify(replacement: string): void;
+  /**
+   * Cancel this paste operation completely.
+   * Prevents default browser behaviour and stops propagation.
+   */
+  cancel(): void;
 };

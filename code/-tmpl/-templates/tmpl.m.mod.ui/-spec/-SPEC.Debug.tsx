@@ -31,8 +31,8 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    reset,
     listen,
+    reset,
   };
 
   function listen() {
