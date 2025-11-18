@@ -68,7 +68,10 @@ type WireDocSnapshot<T extends O = O> = {
  */
 type WireDocChange<T extends O = O> = {
   readonly type: 'doc/change';
-  readonly payload: { readonly id: t.StringId; readonly value: T; readonly deleted?: boolean };
+  readonly payload: {
+    readonly id: t.StringId;
+    readonly value: T;
+  };
 };
 
 /**

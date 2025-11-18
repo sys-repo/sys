@@ -29,7 +29,6 @@ export function attachDoc<T extends O = O>(
       type: 'doc/snapshot',
       payload: { id: doc.id, value: doc.current as T },
     };
-    console.log('Wire.event(stream, msg)', Wire.event(stream, msg));
     const payload = Wire.event(stream, msg);
     port.postMessage(payload);
   };
@@ -39,12 +38,26 @@ export function attachDoc<T extends O = O>(
   /**
    * Subscribe to doc events and mirror them to wire.
    */
-
   const ev = doc.events(life.dispose$);
-  ev.$.subscribe((change) => {
+  ev.$.subscribe((e) => {
+    /**
+     * Forward normalized doc changes over the wire.
+     * We only send the updated value; patches/before-state remain internal
+     * to the Automerge layer.
+     */
+    const msg: t.WireDocEventPayload<T> = {
+      type: 'doc/change',
+      payload: { id: doc.id, value: e.after },
+    };
+    port.postMessage(Wire.event(stream, msg));
   });
 
   ev.deleted$.subscribe((e) => {
+    const msg: t.WireDocEventPayload<T> = {
+      type: 'doc/deleted',
+      payload: { id: doc.id },
+    };
+    port.postMessage(Wire.event(stream, msg));
   });
 
   return life;

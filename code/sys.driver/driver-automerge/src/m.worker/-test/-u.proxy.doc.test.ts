@@ -246,6 +246,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
       if (!res.ok) throw res.error;
       const doc = res.data;
+      expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
 
       // Print:
       console.info();
@@ -256,7 +257,6 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       console.info();
 
       expect(doc.current).to.eql({ foo: 123 });
-      expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
 
       // Cleanup:
       await sample.dispose();
@@ -269,16 +269,44 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
       if (!res.ok) throw res.error;
       const doc = res.data;
-
+      expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
       expect(doc.current).to.eql({ foo: 123 });
+
       real.doc.change((d) => (d.foo = 456));
       await Schedule.waitFor(() => doc.current.foo === 456);
 
       expect(doc.current).to.eql({ foo: 456 });
-      expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
 
       // Cleanup:
       await sample.dispose();
+    });
+
+    it('doc.events().$: change events', async () => {
+      const sample = await sampleSetup();
+      const { real, proxy } = sample;
+
+      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
+      if (!res.ok) throw res.error;
+      const doc = res.data;
+      expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
+      expect(doc.current).to.eql({ foo: 123 });
+
+      const changeEvents: t.CrdtChange<Doc>[] = [];
+      doc.events().$.subscribe((e) => changeEvents.push(e));
+
+      real.doc.change((d) => (d.foo = Number(d.foo) + 1));
+      await Schedule.waitFor(() => doc.current.foo === 124);
+
+      expect(changeEvents.length).to.eql(1);
+      const evt = changeEvents[0];
+      expect(evt.before).to.eql({ foo: 123 });
+      expect(evt.after).to.eql({ foo: 124 });
+      expect(evt.source).to.eql('change');
+      expect(evt.patches).to.eql([]);
+
+      // Cleanup:
+      await sample.dispose();
+      expect(doc.disposed).to.eql(true);
     });
 
     it('lifecycle: document disposes and stops recieving updates', async () => {
@@ -305,7 +333,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       await sample.dispose();
     });
 
-    it('throw: not implemented (read only)', async () => {
+    it('doc.change() → throw: not implemented (read only)', async () => {
       const sample = await sampleSetup();
       const { real, proxy } = sample;
 
@@ -318,6 +346,34 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       expect(fn).to.throw(/Document is readonly/);
 
       // Cleanup:
+      await sample.dispose();
+    });
+
+    it('mirrors host delete over the wire (deleted flag + deleted$)', async () => {
+      const sample = await sampleSetup();
+      const { real, proxy } = sample;
+
+      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
+      if (!res.ok) throw res.error;
+      const doc = res.data;
+
+      expect(doc.deleted).to.eql(false);
+
+      const ev = doc.events();
+      const deletedEvents: t.CrdtDeleted[] = [];
+      ev.deleted$.subscribe((e) => deletedEvents.push(e));
+
+      // Trigger a real delete on the host-side doc.
+      await real.repo.delete(real.doc.id);
+
+      // Wait for the proxy to observe the delete.
+      await Schedule.waitFor(() => doc.deleted === true);
+
+      expect(doc.deleted).to.eql(true);
+      expect(deletedEvents.length).to.eql(1);
+      expect(deletedEvents[0].id).to.eql(doc.id);
+
+      ev.dispose?.();
       await sample.dispose();
     });
   });

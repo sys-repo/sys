@@ -30,17 +30,34 @@ export function createDocProxy<T extends O = O>(
 
     if (payload.type === 'doc/snapshot') {
       current = payload.payload.value as T;
+
+      // Intentionally no `change$` event emission here:
+      //    This is just the initial state hydrate.
+      //    Consumers that care about the first "real" change
+      //    subscribe to doc/change → synthesized CrdtChange<T>.
+      //
       return;
     }
 
     if (payload.type === 'doc/change') {
-      current = payload.payload.value as T;
+      const next = payload.payload.value as T;
+      const prev = current as T | undefined;
 
+      // Update local snapshot.
+      current = next;
 
-      if (payload.payload.deleted) {
-        deleted = true;
-        deleted$.next({ id });
-      }
+      // Synthesize a minimal CrdtChange<T> for listeners.
+      const change: t.CrdtChange<T> = {
+        source: 'change',
+        before: prev ?? next,
+        after: next,
+        // NB: Patches are intentionally empty – worker wire protocol
+        // ships snapshot-only (no before/after deltas).
+        // Patch-aware mode will be added behind an explicit opt-in later.
+        patches: [],
+      };
+
+      change$.next(change);
       return;
     }
 
@@ -58,7 +75,8 @@ export function createDocProxy<T extends O = O>(
 
     get current() {
       if (current === undefined) {
-        throw new Error(`CrdtDocWorkerProxy.current("${id}") used before first snapshot`);
+        const err = `CrdtDocWorkerProxy.current("${id}") used before first snapshot`;
+        throw new Error(err);
       }
       return current;
     },
@@ -97,6 +115,7 @@ export function createDocProxy<T extends O = O>(
   };
 
   life.dispose$.subscribe(() => {
+    // TODO: 🌸 detach listeners / any extra cleanup if needed.
   });
 
   port.addEventListener?.('message', onMessage, { signal: life.signal });
