@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, A, Color, css, Is, KeyValue, Obj, Rx, Str, Time, PATH } from './common.ts';
+import { type t, Color, css, KeyValue, Rx, Spinners } from './common.ts';
 import { toItems } from './u.items.ts';
 import { getStats } from './u.stats.ts';
 
@@ -36,14 +36,28 @@ export const Document: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
     }),
+    spinner: css({
+      Absolute: 0,
+      display: 'grid',
+      placeItems: 'center',
+    }),
   };
+
+  const isLoading = !!doc && !stats;
+  const elSpinner = isLoading && (
+    <div className={styles.spinner.class}>
+      <Spinners.Bar theme={theme.name} />
+    </div>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
       <KeyValue.View mono={true} items={items} theme={theme.name} />
+      {elSpinner}
     </div>
   );
 };

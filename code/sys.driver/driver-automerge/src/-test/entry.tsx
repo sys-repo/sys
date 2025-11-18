@@ -58,9 +58,12 @@ export async function main() {
      * Entry/Splash:
      */
     const { useKeyboard } = await import('@sys/ui-react-devharness');
-    const { createRepo } = await import('../ui/-test.ui.ts');
+    const { Crdt } = await import('@sys/driver-automerge/web');
     const { Splash } = await import('./ui.Splash.tsx');
-    const repo = createRepo();
+
+    const url = new URL('../-test.worker.ts', import.meta.url);
+    const worker = new Worker(url, { type: 'module' });
+    const { repo } = await Crdt.Worker.spawn(worker);
 
     function App() {
       useKeyboard();
