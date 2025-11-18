@@ -57,7 +57,9 @@ describe('CrdtWorker.repo (shim)', () => {
       await client.repo.dispose();
       await real.dispose();
     });
+  });
 
+  describe('lifecycle', () => {
     it('create → dispose: no timer leaks', async () => {
       const { port1, port2 } = Test.makePorts();
       const realRepo = Test.realRepo();
@@ -68,6 +70,31 @@ describe('CrdtWorker.repo (shim)', () => {
       // Cleanup:
       await proxyRepo.dispose();
       await realRepo.dispose();
+    });
+
+    it('disposing of host worker-repo causes proxy-repo to dispose', async () => {
+      const test = async (awaitWhenReady: boolean) => {
+        const { port1, port2 } = Test.makePorts();
+        const realRepo = Test.realRepo();
+        CrdtWorker.attach(port2, realRepo);
+        const proxyRepo = CrdtWorker.repo(port1);
+        if (awaitWhenReady) await proxyRepo.whenReady();
+
+        expect(realRepo.disposed).to.eql(false);
+        expect(proxyRepo.disposed).to.eql(false);
+
+        await realRepo.dispose();
+        await Wait.waitFor(() => proxyRepo.disposed);
+
+        expect(realRepo.disposed).to.eql(true);
+        expect(proxyRepo.disposed).to.eql(true);
+
+        // Final cleanup.
+        await proxyRepo.dispose();
+      };
+
+      await test(false);
+      await test(true);
     });
   });
 

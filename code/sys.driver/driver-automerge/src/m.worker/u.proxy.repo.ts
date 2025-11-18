@@ -101,7 +101,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       const e = msg.event;
 
       /**
-       * 1. Ready + snapshot (initial state):
+       * Ready + snapshot (initial state):
        */
       if (e.type === 'props/snapshot') {
         const snapshot = Wire.clone(e.payload);
@@ -111,7 +111,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       }
 
       /**
-       * 2. Repo prop changes (mirror state + emit normalized props/change event):
+       * Repo prop changes (mirror state + emit normalized props/change event):
        */
       if (e.type === 'props/change') {
         const before = Wire.clone(e.payload.before);
@@ -129,7 +129,7 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       }
 
       /**
-       * 3. Network events (peer online/offline/close):
+       * Network events (peer online/offline/close):
        */
       if (Wire.Is.networkEvent(e)) {
         emit(e as t.CrdtNetworkChangeEvent);
@@ -137,9 +137,13 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
       }
 
       /**
-       * 4. Lifecycle signals at the wire layer only (ignored at repo surface):
+       * Lifecycle signals at the wire layer only (ignored at repo surface):
        */
       if (Wire.Is.streamLifecycle(e)) {
+        if (e.type === 'stream/close') {
+          // The host worker-repo has gone away → dispose proxy.
+          repo.dispose('worker:repo:stream/close');
+        }
         return;
       }
 
@@ -169,19 +173,16 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
    * API:
    */
   const repo: t.CrdtRepoWorkerProxy = {
-    via: 'worker-proxy' as const,
-
     /**
      * Properties:
      */
+    via: 'worker-proxy',
     get id() {
       return state.props?.id ?? { ...EMPTY_ID };
     },
-
     get status() {
       return computeStatus();
     },
-
     get sync(): t.CrdtRepo['sync'] {
       const sync = state.props?.sync;
       return {
@@ -193,9 +194,8 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
         },
       };
     },
-
     get stores() {
-      return (state.props?.stores ?? []) as readonly t.CrdtRepoStoreInfo[];
+      return state.props?.stores ?? [];
     },
 
     /**
@@ -210,7 +210,6 @@ export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}
           complete: () => resolve(),
         });
       });
-
       return repo;
     },
 
