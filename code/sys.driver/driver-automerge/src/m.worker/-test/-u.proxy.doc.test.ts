@@ -1,7 +1,7 @@
 import { type t, afterEach, describe, expect, expectError, expectTypeOf, it } from '../../-test.ts';
 import { CrdtIs } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
-import { createTestHelpers } from './u.ts';
+import { createTestHelpers, Wait } from './u.ts';
 
 type O = Record<string, unknown>;
 type Doc = { foo: string | number };
@@ -13,6 +13,7 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
   async function sampleSetup() {
     const { port1, port2 } = Test.makePorts();
     const realRepo = await Test.realRepo().whenReady();
+
     CrdtWorker.attach(port2, realRepo);
     const proxyRepo = await CrdtWorker.repo(port1).whenReady();
     const realDoc = realRepo.create<Doc>({ foo: 123 });
@@ -188,24 +189,35 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
     });
 
     describe('lifecycle', () => {
-      it('disposes when parent repo disposes', async () => {
-        const sample = await sampleSetup();
-        const { real, proxy } = sample;
+      it('disposes when parent/host repo disposes', async () => {
+        const test = async (disposeOf: 'real-repo' | 'proxy-repo') => {
+          const sample = await sampleSetup();
+          const { real, proxy } = sample;
 
-        const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
-        expect(res.ok).to.eql(true);
-        if (!res.ok) throw res.error;
-        const doc = res.data;
+          const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
+          expect(res.ok).to.eql(true);
+          if (!res.ok) throw res.error;
 
-        let completed = false;
-        doc.dispose$.subscribe({ complete: () => (completed = true) });
+          let completed = false;
+          const doc = res.data;
+          expect(doc.disposed).to.eql(false);
+          doc.dispose$.subscribe({ complete: () => (completed = true) });
 
-        expect(doc.disposed).to.eql(false);
-        await proxy.repo.dispose();
-        expect(doc.disposed).to.eql(true);
-        expect(completed).to.eql(true);
+          if (disposeOf === 'real-repo') await real.repo.dispose();
+          if (disposeOf === 'proxy-repo') await proxy.repo.dispose();
 
-        await sample.dispose();
+          await Wait.waitFor(() => doc.disposed);
+
+          expect(doc.disposed).to.eql(true);
+          expect(completed).to.eql(true);
+          if (disposeOf === 'real-repo') expect(real.repo.disposed).to.eql(true);
+          if (disposeOf === 'proxy-repo') expect(proxy.repo.disposed).to.eql(true);
+
+          await sample.dispose();
+        };
+
+        await test('real-repo');
+        await test('proxy-repo');
       });
     });
   });
