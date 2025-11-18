@@ -8,9 +8,17 @@ export const cli: t.CrdtToolsLib['cli'] = async (opts = {}) => {
   const args = Args.parse<t.CrdtCliArgs>(opts.argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
-  // Start repo:
+  /**
+   * Start the repo:
+   */
   const ws = D.Sync.server;
   const repo = await Crdt.repo({ dir: Fs.join(dir, D.Path.repo), network: [{ ws }] }).whenReady();
+
+  // Worker version:
+  const url = new URL('./w.worker.ts', import.meta.url);
+  url.searchParams.set('dir', dir);
+  const worker = new Worker(url, { type: 'module' });
+  // const { repo } = await Crdt.Worker.spawn(worker);
 
   const shutdown = async () => {
     await Time.wait(0);

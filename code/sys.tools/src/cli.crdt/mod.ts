@@ -2,7 +2,6 @@
  * @module
  * CLI tools for working with CRDT documents.
  */
-import type { t } from './common.ts';
 import { Fs } from './common.ts';
 
 /**
@@ -15,5 +14,6 @@ export { CrdtTools } from './m.CrdtTools.ts';
  */
 if (import.meta.main) {
   const { cli } = await import('./u.cli.ts');
-  await cli({ dir: Fs.cwd('terminal'), argv: Deno.args });
+  const dir = Fs.cwd('terminal');
+  await cli({ dir, argv: Deno.args });
 }
