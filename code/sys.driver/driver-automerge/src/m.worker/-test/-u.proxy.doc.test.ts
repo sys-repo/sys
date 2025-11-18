@@ -240,7 +240,8 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
   });
 
   describe('doc event stream (host attach → proxy ref)', () => {
-    it('mirrors host doc changes over the worker wire', async () => {
+    // populated with initial snapshot
+    it('populated with initial snapshot', async () => {
       const sample = await sampleSetup();
       const { real, proxy } = sample;
 
@@ -256,8 +257,27 @@ describe('CrdtWorker.doc (shim)', { sanitizeResources: false, sanitizeOps: false
       console.info(c.cyan('current:'), doc.current);
       console.info();
 
-      expect(CrdtIs.proxy(doc)).to.be.true;
       expect(doc.current).to.eql({ foo: 123 });
+      expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
+
+      // Cleanup:
+      await sample.dispose();
+    });
+
+    it('mirrors host changes over the wire', async () => {
+      const sample = await sampleSetup();
+      const { real, proxy } = sample;
+
+      const res = await CrdtWorker.doc<Doc>(proxy.repo, real.doc.id);
+      if (!res.ok) throw res.error;
+      const doc = res.data;
+
+      expect(doc.current).to.eql({ foo: 123 });
+      real.doc.change((d) => (d.foo = 456));
+      await Wait.waitFor(() => doc.current.foo === 456);
+
+      expect(doc.current).to.eql({ foo: 456 });
+      expect(CrdtIs.proxy(doc)).to.be.true; // sanity.
 
       // Cleanup:
       await sample.dispose();
