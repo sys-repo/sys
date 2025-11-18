@@ -58,10 +58,7 @@ export type WireDocEventPayload<T extends O = O> =
  */
 type WireDocSnapshot<T extends O = O> = {
   readonly type: 'doc/snapshot';
-  readonly payload: {
-    readonly id: t.StringId;
-    readonly value: T;
-  };
+  readonly payload: { readonly id: t.StringId; readonly value: T };
 };
 
 /**
@@ -71,11 +68,7 @@ type WireDocSnapshot<T extends O = O> = {
  */
 type WireDocChange<T extends O = O> = {
   readonly type: 'doc/change';
-  readonly payload: {
-    readonly id: t.StringId;
-    readonly value: T;
-    readonly deleted?: boolean;
-  };
+  readonly payload: { readonly id: t.StringId; readonly value: T; readonly deleted?: boolean };
 };
 
 /**
@@ -84,7 +77,5 @@ type WireDocChange<T extends O = O> = {
  */
 type WireDocDeleted = {
   readonly type: 'doc/deleted';
-  readonly payload: {
-    readonly id: t.StringId;
-  };
+  readonly payload: { readonly id: t.StringId };
 };
