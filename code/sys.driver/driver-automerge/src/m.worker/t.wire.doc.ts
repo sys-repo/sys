@@ -61,16 +61,20 @@ type WireDocSnapshot<T extends O = O> = {
   readonly payload: { readonly id: t.StringId; readonly value: T };
 };
 
+/** Minimal patch details for wire-transport. */
+type WirePatch = { readonly path: t.ObjectPath };
+
 /**
  * Post-change snapshot for a document.
- * Carries the updated value and an optional `deleted` flag when the
- * document has just transitioned into a deleted state.
+ * Carries the updated value and minimal patch metadata (paths only)
+ * so that path-filtered listeners can still work on the proxy side.
  */
 type WireDocChange<T extends O = O> = {
   readonly type: 'doc/change';
   readonly payload: {
     readonly id: t.StringId;
     readonly value: T;
+    readonly patches: readonly WirePatch[];
   };
 };
 

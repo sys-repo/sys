@@ -42,12 +42,13 @@ export function attachDoc<T extends O = O>(
   ev.$.subscribe((e) => {
     /**
      * Forward normalized doc changes over the wire.
-     * We only send the updated value; patches/before-state remain internal
-     * to the Automerge layer.
+     * Send only the minimal wire-transport version of patches.
+     * The key information is what `path` was involved in each patch.
      */
+    const patches = e.patches.map(({ path }) => ({ path }));
     const msg: t.WireDocEventPayload<T> = {
       type: 'doc/change',
-      payload: { id: doc.id, value: e.after },
+      payload: { id: doc.id, value: e.after, patches },
     };
     port.postMessage(Wire.event(stream, msg));
   });

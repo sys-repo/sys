@@ -1,4 +1,4 @@
-import { type t, Rx, notImpl, slug } from './common.ts';
+import { type t, Immutable, Rx, notImpl, slug } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -22,26 +22,27 @@ export function createDocProxy<T extends O = O>(
   const change$ = Rx.subject<t.CrdtChange<T>>();
   const deleted$ = Rx.subject<t.CrdtDeleted>();
 
-  const onMessage = (event: MessageEvent) => {
-    const msg = event.data as t.WireEvent | undefined;
+  const onMessage = (ev: MessageEvent) => {
+    const msg = ev.data as t.WireEvent | undefined;
     if (!msg || msg.type !== 'event' || msg.stream !== streamId) return;
 
-    const payload = msg.event as t.WireDocEventPayload<T>;
+    const event = msg.event as t.WireDocEventPayload<T>;
 
-    if (payload.type === 'doc/snapshot') {
-      current = payload.payload.value as T;
-
-      // Intentionally no `change$` event emission here:
-      //    This is just the initial state hydrate.
-      //    Consumers that care about the first "real" change
-      //    subscribe to doc/change → synthesized CrdtChange<T>.
-      //
+    if (event.type === 'doc/snapshot') {
+      current = event.payload.value as T;
+      /**
+       * Intentionally no `change$` event emission here:
+       *    This is just the initial state hydrate.
+       *    Consumers that care about the first "real" change
+       *    subscribe to doc/change → synthesized CrdtChange<T>.
+       */
       return;
     }
 
-    if (payload.type === 'doc/change') {
-      const next = payload.payload.value as T;
+    if (event.type === 'doc/change') {
+      const next = event.payload.value as T;
       const prev = current as T | undefined;
+      const patches = event.payload.patches ?? [];
 
       // Update local snapshot.
       current = next;
@@ -51,17 +52,24 @@ export function createDocProxy<T extends O = O>(
         source: 'change',
         before: prev ?? next,
         after: next,
-        // NB: Patches are intentionally empty – worker wire protocol
-        // ships snapshot-only (no before/after deltas).
-        // Patch-aware mode will be added behind an explicit opt-in later.
-        patches: [],
+        /**
+         * NB:
+         * These patches contain *only* object-paths extracted from the
+         * worker wire payload. They do NOT include values or operations.
+         *
+         * Rationale:
+         * - Keep the worker protocol lightweight (snapshot + paths).
+         * - Enable path-based filtering (`events().path(...)`) on the proxy.
+         * - Full Automerge-style patches remain a future explicit opt-in.
+         */
+        patches: patches as t.CrdtPatch[],
       };
 
       change$.next(change);
       return;
     }
 
-    if (payload.type === 'doc/deleted') {
+    if (event.type === 'doc/deleted') {
       deleted = true;
       deleted$.next({ id });
       return;
@@ -88,13 +96,15 @@ export function createDocProxy<T extends O = O>(
     events(untilInput) {
       const gate = Rx.lifecycle([life, untilInput]);
       const $ = change$.pipe(Rx.takeUntil(gate.dispose$));
+      const path = Immutable.Events.pathFilter<T, t.CrdtPatch, t.CrdtChange<T>>(
+        $,
+        (patch) => patch.path,
+      );
 
       return Rx.toLifecycle<t.CrdtEvents<T>>(gate, {
         $,
         deleted$: deleted$.pipe(Rx.takeUntil(gate.dispose$)),
-        path(path, opts = {}) {
-          throw notImpl('[doc-proxy].events().path');
-        },
+        path,
       });
     },
 
