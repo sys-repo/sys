@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Crdt, D, STORAGE_KEY } from '../common.ts';
+import { Color, Crdt, D, STORAGE_KEY } from '../common.ts';
 import { MediaComposition } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -30,6 +30,23 @@ export default Spec.describe(D.displayName, async (e) => {
         const v = Signal.toObject(p);
         return <MediaComposition debug={v.debug} theme={v.theme} />;
       });
+
+    ctx.host.header.padding(0).render(() => {
+      const v = Signal.toObject(p);
+      const theme = Color.theme(v.theme);
+      return (
+        <Crdt.UI.Document.Id.View
+          theme={v.theme}
+          style={{ backgroundColor: Color.alpha(theme.fg, 0.04) }}
+          buttonStyle={{ margin: 4 }}
+          controller={{
+            repo,
+            signals: { doc: p.doc },
+            storageKey: STORAGE_KEY.DEV,
+          }}
+        />
+      );
+    });
 
     ctx.debug.footer
       .border(-0.1)

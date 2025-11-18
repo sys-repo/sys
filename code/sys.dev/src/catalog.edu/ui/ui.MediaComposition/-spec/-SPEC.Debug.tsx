@@ -40,6 +40,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    doc: s<t.Crdt.Ref>(),
   };
   const p = props;
   const api = {
@@ -98,6 +99,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <Crdt.UI.Repo.Info repo={repo} style={{ marginBottom: 50 }} />
+
+      {/* <hr /> */}
       <div className={Styles.title.class}>{D.name}</div>
 
       <Button
@@ -110,9 +114,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-
-      <hr style={{ marginTop: 50 }} />
-      <Crdt.UI.Repo.Info repo={repo} style={{ marginTop: 10 }} />
+      <ObjectView
+        name={v.doc ? `doc(${v.doc.id.slice(-5)})` : `doc`}
+        data={Obj.trimStringsDeep(Signal.toObject(v.doc?.current))}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
