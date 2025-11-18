@@ -216,6 +216,14 @@ export const View: React.FC<P> = (props) => {
             if (readOnly) setFocused(false);
             else setFocused(e.focused);
           }}
+          onPaste={(e) => {
+            /**
+             * Clean pasted string:
+             */
+            let text = e.text.trim();
+            if (text.startsWith('crdt:')) text = text.replace(/^crdt\:/, '');
+            e.modify(text);
+          }}
         />
       </div>
       {elActionButton}
