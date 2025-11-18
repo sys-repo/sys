@@ -69,7 +69,7 @@ groups:
   ui/react:
     - import: npm:react@19.2.0
     - import: npm:react-dom@19.2.0
-    - import: npm:@types/react@19.2.5
+    - import: npm:@types/react@19.2.6
     - import: npm:@types/react-dom@19.2.3
     - import: npm:@testing-library/react@16.3.0
 
@@ -88,7 +88,7 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.93
+    - import: npm:ai@5.0.94
     - import: npm:@ai-sdk/openai@2.0.68
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.1
@@ -146,7 +146,7 @@ deno.json:
   - import: npm:@types/ws@8.18.1
 
   # Browser:
-  - import: npm:csstype@3.2.2
+  - import: npm:csstype@3.2.3
   - import: npm:ua-parser-js@2.0.6
 
   # UI:

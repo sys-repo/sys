@@ -58,17 +58,15 @@
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@sinclair/typebox@0.34.41": "0.34.41",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
-    "npm:@testing-library/react@16.3.0": "16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.5_@types+react-dom@19.2.3__@types+react@19.2.5_react@19.2.0_react-dom@19.2.0__react@19.2.0",
+    "npm:@testing-library/react@16.3.0": "16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_@types+react-dom@19.2.3__@types+react@19.2.6_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:@types/node@*": "24.2.0",
     "npm:@types/ramda@0.31.1": "0.31.1",
-    "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.5",
-    "npm:@types/react@19.2.5": "19.2.5",
+    "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.6",
+    "npm:@types/react@19.2.6": "19.2.6",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.1": "5.1.1_vite@7.2.2__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.1",
-    "npm:ai@5.0.93": "5.0.93_zod@4.1.12",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.1": "6.2.1",
-    "npm:csstype@3.2.2": "3.2.2",
     "npm:date-fns@4": "4.1.0",
     "npm:diff@8.0.2": "8.0.2",
     "npm:fake-indexeddb@*": "6.2.5",
@@ -293,15 +291,6 @@
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
-        "@vercel/oidc",
-        "zod@4.1.12"
-      ]
-    },
-    "@ai-sdk/gateway@2.0.9_zod@4.1.12": {
-      "integrity": "sha512-E6x4h5CPPPJ0za1r5HsLtHbeI+Tp3H+YFtcH8G3dSSPFE6w+PZINzB4NxLZmg1QqSeA5HTP3ZEzzsohp0o2GEw==",
-      "dependencies": [
-        "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.17_zod@4.1.12",
         "@vercel/oidc",
         "zod@4.1.12"
       ]
@@ -2182,7 +2171,7 @@
         "pretty-format"
       ]
     },
-    "@testing-library/react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.5_@types+react-dom@19.2.3__@types+react@19.2.5_react@19.2.0_react-dom@19.2.0__react@19.2.0": {
+    "@testing-library/react@16.3.0_@testing-library+dom@10.4.1_@types+react@19.2.6_@types+react-dom@19.2.3__@types+react@19.2.6_react@19.2.0_react-dom@19.2.0__react@19.2.0": {
       "integrity": "sha512-kFSyxiEDwv1WLl2fgsq6pPBbw5aWKrsY2/noi1Id0TK0UParSF62oFQFGHXIyaG4pp2tEub/Zlel+fjjZILDsw==",
       "dependencies": [
         "@babel/runtime",
@@ -2349,14 +2338,14 @@
     "@types/range-parser@1.2.7": {
       "integrity": "sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ=="
     },
-    "@types/react-dom@19.2.3_@types+react@19.2.5": {
+    "@types/react-dom@19.2.3_@types+react@19.2.6": {
       "integrity": "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==",
       "dependencies": [
         "@types/react"
       ]
     },
-    "@types/react@19.2.5": {
-      "integrity": "sha512-keKxkZMqnDicuvFoJbzrhbtdLSPhj/rZThDlKWCDbgXmUg0rEUFtRssDXKYmtXluZlIqiC5VqkCgRwzuyLHKHw==",
+    "@types/react@19.2.6": {
+      "integrity": "sha512-p/jUvulfgU7oKtj6Xpk8cA2Y1xKTtICGpJYeJXz2YVO2UcvjQgeRMLDGfDeqeRW2Ta+0QNFwcc8X3GH8SxZz6w==",
       "dependencies": [
         "csstype"
       ]
@@ -2488,16 +2477,6 @@
         "@ai-sdk/gateway@2.0.0_zod@4.1.12",
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
-        "@opentelemetry/api",
-        "zod@4.1.12"
-      ]
-    },
-    "ai@5.0.93_zod@4.1.12": {
-      "integrity": "sha512-9eGcu+1PJgPg4pRNV4L7tLjRR3wdJC9CXQoNMvtqvYNOLZHFCzjHtVIOr2SIkoJJeu2+sOy3hyiSuTmy2MA40g==",
-      "dependencies": [
-        "@ai-sdk/gateway@2.0.9_zod@4.1.12",
-        "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.17_zod@4.1.12",
         "@opentelemetry/api",
         "zod@4.1.12"
       ]
@@ -4743,10 +4722,10 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@5.0.93",
+      "npm:ai@5.0.94",
       "npm:approx-string-match@2",
       "npm:chai@6.2.1",
-      "npm:csstype@3.2.2",
+      "npm:csstype@3.2.3",
       "npm:date-fns@4",
       "npm:diff@8.0.2",
       "npm:fake-indexeddb@6.2.5",
@@ -4784,7 +4763,7 @@
         "npm:@deno/vite-plugin@1.0.5",
         "npm:@testing-library/react@16.3.0",
         "npm:@types/react-dom@19.2.3",
-        "npm:@types/react@19.2.5",
+        "npm:@types/react@19.2.6",
         "npm:@vitejs/plugin-react@5.1.1",
         "npm:hono@4.10.6",
         "npm:motion@12.23.24",
