@@ -67,6 +67,7 @@
     "npm:@vitejs/plugin-react@5.1.1": "5.1.1_vite@7.2.2__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.1",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.1": "6.2.1",
+    "npm:csstype@3.2.3": "3.2.3",
     "npm:date-fns@4": "4.1.0",
     "npm:diff@8.0.2": "8.0.2",
     "npm:fake-indexeddb@*": "6.2.5",
@@ -2768,8 +2769,8 @@
         "which"
       ]
     },
-    "csstype@3.2.2": {
-      "integrity": "sha512-D80T+tiqkd/8B0xNlbstWDG4x6aqVfO52+OlSUNIdkTvmNw0uQpJLeos2J/2XvpyidAFuTPmpad+tUxLndwj6g=="
+    "csstype@3.2.3": {
+      "integrity": "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ=="
     },
     "data-uri-to-buffer@4.0.1": {
       "integrity": "sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A=="
@@ -4722,7 +4723,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@5.0.94",
+      "npm:ai@5.0.95",
       "npm:approx-string-match@2",
       "npm:chai@6.2.1",
       "npm:csstype@3.2.3",
