@@ -9,24 +9,6 @@
 
   "deno.enablePathsRefactor": false, // NB: Deno LSP is too slow to make this useful.
 
-  // --- Formatting (Prettier, fast; no import pruning) ----------
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.useLocalVersion": false,
-  "prettier.requireConfig": false,
-  "prettier.resolveGlobalModules": false,
-  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-
-  "editor.formatOnPaste": false,
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": "never",
-    "source.removeUnusedImports": "never",
-    "source.fixAll": "never"
-  },
-
   // --- Editor QoL -------------------------------------------
   "editor.snippetSuggestions": "top",
   "editor.suggest.snippetsPreventQuickSuggestions": false,
