@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
-import { getOrCreate, getter } from './u.get.ts';
+import { getOrCreate } from './u.getOrCreate.ts';
+import { getter } from './u.getter.ts';
 
 type D = t.JsonFileDoc;
 

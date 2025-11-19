@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it, slug } from '../-test.ts';
-import { type t, Time, Fs } from './common.ts';
+import { Fs, type t, Time } from './common.ts';
 import { JsonFile } from './mod.ts';
 
 describe('ConfigFile', () => {

@@ -3,7 +3,8 @@
  * Simple JSON based file-persitence with an ImmutableRef<T> handle API.
  */
 import { type t } from './common.ts';
-import { getOrCreate, getter } from './u.get.ts';
+import { getOrCreate } from './u.getOrCreate.ts';
+import { getter } from './u.getter.ts';
 import { defaultDoc } from './u.ts';
 
 /**
