@@ -11,12 +11,12 @@
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "help": "deno run -P=help ./-scripts/-vite.ts --cmd=help",
-    "tmp": "deno run -A ./-scripts/-tmp.ts"
+
+    "tmp": "deno run -A ./-scripts/-tmp.ts",
+    "snap": "deno run -A ./-scripts/-snapshot.ts"
   },
   "compilerOptions": {
-    "types": [
-      "./src/catalog.edu/t.global.d.ts"
-    ]
+    "types": ["./src/catalog.edu/t.global.d.ts"]
   },
   "exports": {
     ".": "./src/mod.ts",
