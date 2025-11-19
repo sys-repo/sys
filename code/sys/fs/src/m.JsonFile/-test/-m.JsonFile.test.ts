@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it, slug } from '../../-test.ts';
 import { Fs, type t, Time } from '../common.ts';
 import { JsonFile } from '../mod.ts';
 
-describe('ConfigFile', () => {
+describe('JsonFile', () => {
   const root = '.tmp/test/m.JsonFile';
   beforeAll(async () => void (await Fs.remove(root)));
 
@@ -13,7 +13,7 @@ describe('ConfigFile', () => {
     expect(m.JsonFile).to.equal(JsonFile);
   });
 
-  it('ConfigFile.default()', () => {
+  it('JsonFile.default()', () => {
     const a = JsonFile.default();
     const b = JsonFile.default();
     expect(a).to.eql({ '.meta': { createdAt: 0 } });
@@ -83,6 +83,35 @@ describe('ConfigFile', () => {
       expect(json['.meta'].modifiedAt).to.be.within(now - 10, now + 10);
       expect(json['.meta'].modifiedAt).to.not.eql(json['.meta'].createdAt);
       expect(json.count).to.eql(1234);
+    });
+
+    it('persists and preserves `.meta.createdAt` across saves and reloads', async () => {
+      const path = Fs.join(root, slug(), 'foo-created-at.json');
+      const first = await JsonFile.get<D>(path, initial);
+
+      // Lazy write: no file on disk yet.
+      expect(await Fs.exists(first.fs.path)).to.eql(false);
+
+      const createdAt1 = first.current['.meta'].createdAt;
+      expect(createdAt1).to.be.a('number');
+      expect(createdAt1).to.not.eql(0);
+
+      // First save writes the normalised createdAt to disk.
+      await first.fs.save();
+      expect(await Fs.exists(first.fs.path)).to.eql(true);
+
+      const second = await JsonFile.get<D>(path, initial);
+      const createdAt2 = second.current['.meta'].createdAt;
+      expect(createdAt2).to.eql(createdAt1);
+
+      // Mutate and save again.
+      second.change((d) => (d.count = 999));
+      await second.fs.save();
+
+      const third = await JsonFile.get<D>(path, initial);
+      const createdAt3 = third.current['.meta'].createdAt;
+      expect(createdAt3).to.eql(createdAt1);
+      expect(third.current.count).to.eql(999);
     });
 
     it('reads from file-system', async () => {
