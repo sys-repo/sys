@@ -21,15 +21,15 @@ describe('ConfigFile', () => {
   });
 
   describe('get', () => {
-    it('getOrCreate', async () => {
+    it('gets a new file', async () => {
       const dir = Fs.join(root, slug());
       const pathA = Fs.join(dir, 'foo.json');
       const pathB = Fs.join(dir, 'bar.json');
 
       // NB: zero `createdAt` date is auto-updated by at creation by the tool.
       const initial: D = { '.meta': { createdAt: 0 }, count: 0 };
-      const a = await JsonFile.getOrCreate<D>(pathA, initial);
-      const b = await JsonFile.getOrCreate<D>(pathB, initial);
+      const a = await JsonFile.get<D>(pathA, initial);
+      const b = await JsonFile.get<D>(pathB, initial);
 
       const now = Time.now.timestamp;
       expect(a.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
@@ -42,7 +42,23 @@ describe('ConfigFile', () => {
       expect(a).to.not.equal(b);
     });
 
-    it('getter', async () => {
+    it('extend fields including .meta', async () => {
+      type T = t.JsonFileDoc & {
+        '.meta': t.JsonFileDoc['.meta'] & { tmp: number };
+        foo: string;
+      };
+
+      const initial: T = { '.meta': { createdAt: 0, tmp: 123 }, foo: 'hello' };
+      const path = Fs.join(root, slug(), 'foo.json');
+      const file = await JsonFile.get<T>(path, initial);
+
+      const now = Time.now.timestamp;
+      expect(file.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
+      expect(file.current['.meta'].tmp).to.eql(123);
+      expect(file.current.foo).to.eql('hello');
+    });
+
+    it('getter ____ OBSOLETE 🐷', async () => {
       const dir = Fs.join(root, slug());
       const initial = { '.meta': { createdAt: 0 }, count: 0 };
       const getA = JsonFile.getter<D>({ filename: 'foo.json' }, initial);
@@ -60,23 +76,6 @@ describe('ConfigFile', () => {
       // Different instances based on directory.
       expect(a).to.not.equal(b);
     });
-
-    it('extend fields including .meta', async () => {
-      type T = t.JsonFileDoc & {
-        '.meta': t.JsonFileDoc['.meta'] & { tmp: number };
-        foo: string;
-      };
-
-      const dir = Fs.join(root, slug());
-      const initial: T = { '.meta': { createdAt: 0, tmp: 123 }, foo: 'hello' };
-      const fn = JsonFile.getter<T>({ filename: 'my-file.json' }, initial);
-      const file = await fn(dir);
-
-      const now = Time.now.timestamp;
-      expect(file.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
-      expect(file.current['.meta'].tmp).to.eql(123);
-      expect(file.current.foo).to.eql('hello');
-    });
   });
 
   describe('save', () => {
@@ -87,7 +86,7 @@ describe('ConfigFile', () => {
 
     it('saves to file-system', async () => {
       const path = Fs.join(root, slug(), 'foo.json');
-      const file = await JsonFile.getOrCreate<D>(path, initial);
+      const file = await JsonFile.get<D>(path, initial);
       expect(await Fs.exists(file.fs.path)).to.eql(false);
 
       file.change((d) => (d.count = 1234));
@@ -107,13 +106,13 @@ describe('ConfigFile', () => {
 
     it('reads from file-system', async () => {
       const path = Fs.join(root, slug(), 'foo.json');
-      const a = await JsonFile.getOrCreate<D>(path, initial);
+      const a = await JsonFile.get<D>(path, initial);
       expect(a.current.count).to.eql(0);
 
       a.change((d) => (d.count = 888));
       await a.fs.save();
 
-      const b = await JsonFile.getOrCreate<D>(path, initial);
+      const b = await JsonFile.get<D>(path, initial);
       expect(b.current.count).to.eql(888); // NB: loaded from saved file
     });
 
@@ -121,7 +120,7 @@ describe('ConfigFile', () => {
       it('error: failed to read file (corrupt)', async () => {
         const path = Fs.join(root, slug(), 'foo.json');
 
-        const a = await JsonFile.getOrCreate<D>(path, initial);
+        const a = await JsonFile.get<D>(path, initial);
         await a.fs.save();
 
         // Setup an initially corrupt seed file.
@@ -130,7 +129,7 @@ describe('ConfigFile', () => {
 
         let threwError = false;
         try {
-          await JsonFile.getOrCreate<D>(path, initial);
+          await JsonFile.get<D>(path, initial);
         } catch (error: any) {
           threwError = true;
           expect(error.name).to.eql('SyntaxError');
@@ -144,7 +143,7 @@ describe('ConfigFile', () => {
         const dir = Fs.join(root, slug());
         const path = Fs.join(dir, 'foo.json');
 
-        const file = await JsonFile.getOrCreate<D>(path, initial);
+        const file = await JsonFile.get<D>(path, initial);
 
         // First save: should succeed and set modifiedAt.
         await file.fs.save();

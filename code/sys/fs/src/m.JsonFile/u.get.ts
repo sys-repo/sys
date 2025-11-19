@@ -3,7 +3,7 @@ import { type t, Fs, Immutable, Obj, Time } from './common.ts';
 /**
  * Get or create a file handle.
  */
-export async function getOrCreate<D extends t.JsonFileDoc>(
+export async function get<D extends t.JsonFileDoc>(
   path: t.StringPath,
   initial: D,
 ): Promise<t.JsonFile<D>> {

@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { getOrCreate } from './u.getOrCreate.ts';
+import { get } from './u.get.ts';
 import { getter } from './u.getter.ts';
 
 type D = t.JsonFileDoc;
@@ -11,7 +11,7 @@ export type JsonFileLib = {
   /** Common defaults */
   default(): JsonFileDoc;
   /** Get or create a config file handle (based on dir). */
-  readonly getOrCreate: typeof getOrCreate;
+  readonly get: typeof get;
   /** Creates a generator function with a curried type and base options. */
   readonly getter: typeof getter;
 };
