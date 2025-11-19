@@ -1,6 +1,6 @@
-import { Crdt } from '@sys/driver-automerge/fs';
 import { Fs } from '@sys/fs';
 import { describe, expect, it, slug, Testing, Time } from '../../-test.ts';
+import { Crdt } from '@sys/driver-automerge/fs';
 
 describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };

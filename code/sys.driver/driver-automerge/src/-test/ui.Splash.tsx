@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card } from '@sys/driver-automerge/web/ui';
+import { Card } from '../-exports/-web.ui/mod.ts';
 import { type t, Button, Color, Cropmarks, css, pkg, useDist } from './common.ts';
 
 export type SplashProps = {

@@ -2,7 +2,7 @@
  * @module
  * User Interface Components.
  */
-import { Crdt as Base } from '@sys/driver-automerge/web';
+import { Crdt as Base } from '../-web/mod.ts';
 import type { t } from './common.ts';
 
 /**

@@ -1,5 +1,5 @@
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
-import { Crdt } from '@sys/driver-automerge/fs';
+import { Crdt } from '../../-exports/-fs/mod.ts';
 
 import { type t } from '../common.ts';
 import { CrdtWorker } from '../m.CrdtWorker.ts';
