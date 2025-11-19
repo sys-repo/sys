@@ -77,11 +77,16 @@ async function process(
   return done();
 }
 
-console.info();
-console.info(c.cyan('Snapshot'));
-const { dir } = await process(ID.program);
-console.info();
-console.info(c.gray(`Total ${String(await Fs.Size.dir(dir))}`));
+async function run(id: t.StringId) {
+  console.info();
+  console.info(c.cyan('Snapshot'));
+  console.info(c.gray(`entry: crdt:${c.white(id.slice(0, -5))}${c.green(id.slice(-5))}`));
+  const { dir } = await process(id);
+  console.info();
+  console.info(c.gray(`Total ${String(await Fs.Size.dir(dir))}`));
+}
+
+await run(ID.program);
 
 await repo.dispose();
 Deno.exit(0);
