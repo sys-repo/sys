@@ -12,7 +12,7 @@ export type FsCommand =
  */
 export type FsToolsLib = {
   /** Run the interactive CLI flow (prompts + spinner). */
-  cli(opts?: { dir?: t.StringDir; argv?: string[] }): Promise<void>;
+  cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 };
 
 /**
