@@ -16,4 +16,5 @@ export type * from './cli.crdt/t.ts';
 export type * from './cli.fs/t.ts';
 export type * from './cli.update/t.ts';
 export type * from './cli.video/t.ts';
-export type * from './m.ConfigFile/t.ts';
+
+export type * from './m.JsonFile/t.ts';

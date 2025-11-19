@@ -1,69 +1,70 @@
-import { beforeAll, describe, expect, Fs, it, slug } from '../-test.ts';
+import { Try, beforeAll, describe, expect, Fs, it, slug } from '../-test.ts';
 import { type t, Time } from './common.ts';
-import { ConfigFile } from '@sys/tools/config-file';
+import { JsonFile } from './mod.ts';
 
 describe('ConfigFile', () => {
   const root = '.tmp/test/m.ConfigFile';
   beforeAll(async () => void (await Fs.remove(root)));
 
-  type D = t.ConfigFileDoc & { msg?: string; count: number };
+  type D = t.JsonFileDoc & { msg?: string; count: number };
 
   it('ConfigFile.default()', () => {
-    const a = ConfigFile.default();
-    const b = ConfigFile.default();
+    const a = JsonFile.default();
+    const b = JsonFile.default();
     expect(a).to.eql({ '.meta': { createdAt: 0 } });
     expect(a).to.not.equal(b);
   });
 
-  describe('ConfigFile.getOrCreate', () => {
+  describe('get', () => {
     it('getOrCreate', async () => {
-      const dirA = Fs.join(root, slug());
-      const dirB = Fs.join(root, slug());
+      const dir = Fs.join(root, slug());
+      const pathA = Fs.join(dir, 'foo.json');
+      const pathB = Fs.join(dir, 'bar.json');
 
-      // NB: zero createAt date is auto-updated by at creation by the tool.
+      // NB: zero `createdAt` date is auto-updated by at creation by the tool.
       const initial: D = { '.meta': { createdAt: 0 }, count: 0 };
-      const a = await ConfigFile.getOrCreate<D>(dirA, initial);
-      const b = await ConfigFile.getOrCreate<D>(dirB, initial, { filename: 'foo.json' });
+      const a = await JsonFile.getOrCreate<D>(pathA, initial);
+      const b = await JsonFile.getOrCreate<D>(pathB, initial);
 
       const now = Time.now.timestamp;
       expect(a.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
       expect(b.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
 
-      expect(a.file.path).to.eql(Fs.resolve(dirA, 'config.json'));
-      expect(b.file.path).to.eql(Fs.resolve(dirB, 'foo.json'));
+      expect(a.file.path).to.eql(Fs.resolve(pathA));
+      expect(b.file.path).to.eql(Fs.resolve(pathB));
 
       // Different instances based on directory.
       expect(a).to.not.equal(b);
     });
-  });
 
-  describe('getter (factory)', () => {
-    it('curried settings', async () => {
-      const dirA = Fs.join(root, slug());
-      const dirB = Fs.join(root, slug());
+    it('getter', async () => {
+      const dir = Fs.join(root, slug());
+      const initial = { '.meta': { createdAt: 0 }, count: 0 };
+      const getA = JsonFile.getter<D>({ filename: 'foo.json' }, initial);
+      const getB = JsonFile.getter<D>({ filename: 'bar.json' }, () => initial);
 
-      const getA = ConfigFile.getter<D>({ '.meta': { createdAt: 0 }, count: 0 });
-      const getB = ConfigFile.getter<D>(() => ({ '.meta': { createdAt: 0 }, count: 0 }));
-
-      const a = await getA(dirA);
-      const b = await getB(dirB);
+      const a = await getA(dir);
+      const b = await getB(dir);
 
       const now = Time.now.timestamp;
       expect(a.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
       expect(b.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
+
+      expect(initial['.meta'].createdAt).to.eql(0); // NB: ensure the initial input was not mutated.
 
       // Different instances based on directory.
       expect(a).to.not.equal(b);
     });
 
     it('extend fields including .meta', async () => {
-      type T = t.ConfigFileDoc & {
-        '.meta': t.ConfigFileDoc['.meta'] & { tmp: number };
+      type T = t.JsonFileDoc & {
+        '.meta': t.JsonFileDoc['.meta'] & { tmp: number };
         foo: string;
       };
 
       const dir = Fs.join(root, slug());
-      const fn = ConfigFile.getter<T>({ '.meta': { createdAt: 0, tmp: 123 }, foo: 'hello' });
+      const initial: T = { '.meta': { createdAt: 0, tmp: 123 }, foo: 'hello' };
+      const fn = JsonFile.getter<T>({ filename: 'my-file.json' }, initial);
       const config = await fn(dir);
 
       const now = Time.now.timestamp;
@@ -74,9 +75,11 @@ describe('ConfigFile', () => {
   });
 
   describe('save', () => {
+    const initial: D = { '.meta': { createdAt: 0 }, count: 0 };
+
     it('saves to file-system', async () => {
       const dir = Fs.join(root, slug());
-      const get = ConfigFile.getter<D>({ '.meta': { createdAt: 0 }, count: 0 });
+      const get = JsonFile.getter<D>({ filename: 'foo.json' }, initial);
 
       const config = await get(dir);
       expect(await Fs.exists(config.file.path)).to.eql(false);
@@ -98,7 +101,7 @@ describe('ConfigFile', () => {
 
     it('reads from file-system', async () => {
       const dir = Fs.join(root, slug());
-      const get = ConfigFile.getter<D>({ '.meta': { createdAt: 0 }, count: 0 });
+      const get = JsonFile.getter<D>({ filename: 'foo.json' }, initial);
 
       const a = await get(dir);
       expect(a.current.count).to.eql(0);
@@ -108,6 +111,29 @@ describe('ConfigFile', () => {
 
       const b = await get(dir);
       expect(b.current.count).to.eql(888);
+    });
+
+    describe('error: corrupt file', () => {
+      it('error: failed to read file (corrupt)', async () => {
+        const dir = Fs.join(root, slug());
+        const get = JsonFile.getter<D>({ filename: 'foo.json' }, initial);
+
+        // Setup corrupt file.
+        const invalid = ',{not}json,💥';
+        await Fs.write(Fs.join(dir, 'foo.json'), invalid);
+
+        let threwError = false;
+        try {
+          await get(dir);
+        } catch (error: any) {
+          threwError = true;
+          expect(error.name).to.eql('SyntaxError');
+          expect(error.message).to.include('Unexpected token');
+          expect(error.message).to.include(invalid);
+        }
+
+        expect(threwError).to.be.true;
+      });
     });
   });
 });
