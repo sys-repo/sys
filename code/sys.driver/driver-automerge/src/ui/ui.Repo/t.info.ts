@@ -23,7 +23,6 @@ export type RepoInfoProps = {
  */
 export type RepoStatusBulletProps = {
   repo?: t.Crdt.Repo;
-  status?: t.RepoInfoStatus;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

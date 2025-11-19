@@ -6,9 +6,10 @@ type P = t.RepoStatusBulletProps;
 
 export const StatusBullet: React.FC<P> = (props) => {
   const { repo } = props;
-  const status = props.status ?? (repo ? getStatus(repo) : undefined);
+  const status = repo ? getStatus(repo) : undefined;
   const online = status?.status === 'online';
-  const color = online ? Color.GREEN : Color.YELLOW;
+  let color = Color.YELLOW;
+  if (online && !repo?.status.stalled) color = Color.GREEN;
 
   return (
     <Bullet

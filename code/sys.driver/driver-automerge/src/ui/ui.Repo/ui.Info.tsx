@@ -165,7 +165,7 @@ function SyncStatusRow(props: P) {
   return (
     <div className={styles.base.class}>
       {<div className={styles.disabled.class}>{'(disabled)'}</div>}
-      <StatusBullet theme={theme} status={status} style={styles.bullet} />
+      <StatusBullet theme={theme} repo={repo} style={styles.bullet} />
     </div>
   );
 }
