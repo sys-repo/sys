@@ -30,7 +30,11 @@ export type ConfigFile<T extends D = D> = t.ImmutableRef<T> & {
   /** File-system API for the config. */
   readonly file: {
     readonly path: t.StringPath;
+    save(): Promise<{ error?: t.StdError }>;
   };
 };
 export type ConfigFileDoc = { '.meta': ConfigFileMeta };
-export type ConfigFileMeta = { createdAt: t.UnixTimestamp };
+export type ConfigFileMeta = {
+  createdAt: t.UnixTimestamp;
+  modifiedAt?: t.UnixTimestamp;
+};
