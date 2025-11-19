@@ -1,12 +1,12 @@
 import * as t from '@sys/types/t';
 
 import { c, Cli } from '@sys/cli';
-import { Time, slug, Is, Obj } from '@sys/std';
+import { Time, Str, slug, Is, Obj } from '@sys/std';
 import { Fs } from '@sys/fs';
 import { Crdt } from '@sys/driver-automerge/fs';
 import { CrdtRef } from '@sys/driver-automerge/t';
 
-const root = '.tmp/backup';
+const root = './-backup';
 const ID = {
   program: '28k1CyQUNXnx74LhBoyvP2kif4GF',
 };
@@ -21,10 +21,6 @@ const isCrdtUri = (value?: string) => (value || '').trim().startsWith('crdt:');
 const cleanId = (input: string) => (input || '').trim().replace(/^crdt\:/, '');
 
 /**
- * Save a CRDT snapshot.
- */
-
-/**
  * Process a CRDT
  */
 async function process(
@@ -34,13 +30,20 @@ async function process(
   const { depth = 0, processed = [] } = opts;
   const dir = opts.dir ?? Fs.join(root, 'snapshots', `${now}.${slug()}`);
   id = cleanId(id);
-  if (processed.includes(id)) return;
+  const done = () => ({ dir });
+  if (processed.includes(id)) return done();
 
   // Retrieve document.
   repo.whenReady();
   const { doc, ok } = await repo.get(id);
-  if (!ok) return void console.warn(c.yellow(`Failed to retrieve crdt:${c.white(id)}`));
-  if (!Obj.isRecord(doc.current)) return void console.info(`crdt:${id} current is not an object`);
+  if (!ok) {
+    console.warn(c.yellow(`Failed to retrieve crdt:${c.white(id)}`));
+    return done();
+  }
+  if (!Obj.isRecord(doc.current)) {
+    console.info(`crdt:${id} current is not an object`);
+    return done();
+  }
 
   // Save snapshot:
   if (!processed.includes(id)) {
@@ -64,14 +67,21 @@ async function process(
     filename = isRoot ? `-root.${filename}` : filename;
     const out = Fs.join(dir, filename);
     await Fs.writeJson(out, (doc.current ?? {}) as t.JsonMap);
-    console.info(c.gray(`  ${dir}/${c.green(filename)}`));
+
+    const stats = await Fs.stat(out);
+    const size = stats?.size ?? 0;
+
+    console.info(c.gray(`  ${dir}/${c.green(filename)} - ${Str.bytes(size)}`));
   }
+
+  return done();
 }
 
 console.info();
 console.info(c.cyan('Snapshot'));
-await process(ID.program);
+const { dir } = await process(ID.program);
 console.info();
+console.info(c.gray(`Total ${String(await Fs.Size.dir(dir))}`));
 
 await repo.dispose();
 Deno.exit(0);
