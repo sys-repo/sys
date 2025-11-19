@@ -126,6 +126,19 @@ describe('JsonFile', () => {
       expect(b.current.count).to.eql(888); // NB: loaded from saved file
     });
 
+    it('savePending toggles on change and clears on save', async () => {
+      const path = Fs.join(root, slug(), 'foo.json');
+      const file = await JsonFile.get(path, initial);
+
+      expect(file.fs.savePending).to.eql(false);
+
+      file.change((d) => d.count++);
+      expect(file.fs.savePending).to.eql(true);
+
+      await file.fs.save();
+      expect(file.fs.savePending).to.eql(false);
+    });
+
     describe('error: corrupt file', () => {
       it('error: failed to read file (corrupt)', async () => {
         const path = Fs.join(root, slug(), 'foo.json');

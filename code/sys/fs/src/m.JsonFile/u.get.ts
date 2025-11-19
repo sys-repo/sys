@@ -16,7 +16,38 @@ export async function get<D extends t.JsonFileDoc>(
   /**
    * Immutable handle:
    */
+  let savePending = false;
+  let changeVersion = 0;
+
   const doc = Immutable.clonerRef(seed) as unknown as F;
+  doc.events().$.subscribe(() => {
+    changeVersion += 1;
+    savePending = true;
+  });
+
+  async function save() {
+    const before = doc.current['.meta'].modifiedAt;
+
+    // Apply our own change; this will bump changeVersion via events().
+    doc.change((d) => (d['.meta'].modifiedAt = Time.now.timestamp));
+
+    // Snapshot the version *after* our change.
+    const versionAtSaveStart = changeVersion;
+
+    const { error } = await Fs.writeJson(path, doc.current);
+    if (error) {
+      // Revert change on error.
+      doc.change((d) => (d['.meta'].modifiedAt = before));
+      return { error };
+    }
+
+    // Only clear pending if nothing else changed during the save.
+    if (changeVersion === versionAtSaveStart) {
+      savePending = false;
+    }
+
+    return { error };
+  }
 
   /**
    * Filesystem Methods:
@@ -25,16 +56,10 @@ export async function get<D extends t.JsonFileDoc>(
     get path() {
       return path;
     },
-    async save() {
-      const before = doc.current['.meta'].modifiedAt;
-      doc.change((d) => (d['.meta'].modifiedAt = Time.now.timestamp));
-
-      const { error } = await Fs.writeJson(path, doc.current);
-
-      // Revert change on error.
-      if (error) doc.change((d) => (d['.meta'].modifiedAt = before));
-      return { error };
+    get savePending() {
+      return savePending;
     },
+    save,
   };
 
   // Extend the API.

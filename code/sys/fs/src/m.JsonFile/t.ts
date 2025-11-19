@@ -66,9 +66,11 @@ export type JsonFile<T extends D = D> = t.ImmutableRef<T> & {
   /** File-system API for the file. */
   readonly fs: {
     readonly path: t.StringPath;
+    readonly savePending: boolean;
     save(): Promise<{ error?: t.StdError }>;
   };
 };
+
 export type JsonFileDoc = { '.meta': JsonFileMeta };
 export type JsonFileMeta = {
   createdAt: t.UnixTimestamp;
