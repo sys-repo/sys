@@ -8,10 +8,8 @@ export function getter<D extends t.JsonFileDoc>(
   initial: D | (() => D),
 ): t.JsonFileGetter<D> {
   return async (dir) => {
-    // 🌸🌸 ---------- CHANGED: derive-absolute-config-path ----------
     const resolvedDir = Fs.resolve(dir);
     const path = Fs.join(resolvedDir, args.filename);
-    // 🌸 ---------- /CHANGED ----------
     return getOrCreate<D>(path, Is.func(initial) ? initial() : initial);
   };
 }
@@ -25,11 +23,9 @@ export async function getOrCreate<D extends t.JsonFileDoc>(
 ): Promise<t.JsonFile<D>> {
   type F = t.JsonFile<D>;
 
-  // 🌸🌸 ---------- CHANGED: normalize-path-and-load-seed ----------
   path = Fs.resolve(path);
   const exists = await Fs.exists(path);
   const seed = await wrangle.seed<D>({ path, exists, initial });
-  // 🌸 ---------- /CHANGED ----------
 
   /**
    * Immutable handle:

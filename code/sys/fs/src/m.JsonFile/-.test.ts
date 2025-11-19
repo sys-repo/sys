@@ -1,5 +1,5 @@
-import { Try, beforeAll, describe, expect, Fs, it, slug } from '../-test.ts';
-import { type t, Time } from './common.ts';
+import { beforeAll, describe, expect, it, slug } from '../-test.ts';
+import { type t, Time, Fs } from './common.ts';
 import { JsonFile } from './mod.ts';
 
 describe('ConfigFile', () => {
@@ -7,6 +7,11 @@ describe('ConfigFile', () => {
   beforeAll(async () => void (await Fs.remove(root)));
 
   type D = t.JsonFileDoc & { msg?: string; count: number };
+
+  it('API', async () => {
+    const m = await import('@sys/fs/file');
+    expect(m.JsonFile).to.equal(JsonFile);
+  });
 
   it('ConfigFile.default()', () => {
     const a = JsonFile.default();

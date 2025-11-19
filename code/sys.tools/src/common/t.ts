@@ -9,7 +9,7 @@ export type { ReactElement, ReactNode } from 'react';
 export type * from '@sys/types';
 
 export type { ColorTheme } from '@sys/color/t';
-export type { WalkEntry } from '@sys/fs/t';
+export type { WalkEntry, JsonFileDoc, JsonFile } from '@sys/fs/t';
 export type { ProcOutput } from '@sys/process/t';
 export type { AnsiColors } from '@sys/std/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
