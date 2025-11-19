@@ -61,9 +61,8 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const url = new URL('../../../-test.worker.ts', import.meta.url);
-  const worker = new Worker(url, { type: 'module' });
-  const { repo } = await CrdtWorker.spawn(worker);
+  const w = new Worker(new URL('../../../-test.worker.ts', import.meta.url), { type: 'module' });
+  const { repo } = await CrdtWorker.spawn(w);
 
   const props = {
     redraw: s(0),

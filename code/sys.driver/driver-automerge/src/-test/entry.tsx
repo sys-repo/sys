@@ -61,8 +61,7 @@ export async function main() {
     const { Crdt } = await import('@sys/driver-automerge/web');
     const { Splash } = await import('./ui.Splash.tsx');
 
-    const url = new URL('../-test.worker.ts', import.meta.url);
-    const worker = new Worker(url, { type: 'module' });
+    const worker = new Worker(new URL('../-test.worker.ts', import.meta.url), { type: 'module' });
     const { repo } = await Crdt.Worker.spawn(worker);
 
     function App() {

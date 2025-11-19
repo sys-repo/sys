@@ -37,10 +37,8 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  // NB: worker instantiation required here for Vite to properly bundle the worker asset.
-  const url = new URL('../../../-test.worker.ts', import.meta.url);
-  const worker = new Worker(url, { type: 'module' });
-  const { repo } = await Crdt.Worker.spawn(worker);
+  const w = new Worker(new URL('../../../-test.worker.ts', import.meta.url), { type: 'module' });
+  const { repo } = await Crdt.Worker.spawn(w);
 
   const props = {
     rev: s(0),
@@ -52,7 +50,6 @@ export async function createDebugSignals() {
     life,
     props,
     repo,
-    worker,
     reset,
     listen,
     redraw,
