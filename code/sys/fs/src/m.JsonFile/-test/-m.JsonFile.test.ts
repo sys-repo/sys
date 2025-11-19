@@ -1,9 +1,9 @@
-import { beforeAll, describe, expect, it, slug } from '../-test.ts';
-import { Fs, type t, Time } from './common.ts';
-import { JsonFile } from './mod.ts';
+import { beforeAll, describe, expect, it, slug } from '../../-test.ts';
+import { Fs, type t, Time } from '../common.ts';
+import { JsonFile } from '../mod.ts';
 
 describe('ConfigFile', () => {
-  const root = '.tmp/test/m.ConfigFile';
+  const root = '.tmp/test/m.JsonFile';
   beforeAll(async () => void (await Fs.remove(root)));
 
   type D = t.JsonFileDoc & { msg?: string; count: number };
@@ -56,25 +56,6 @@ describe('ConfigFile', () => {
       expect(file.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
       expect(file.current['.meta'].tmp).to.eql(123);
       expect(file.current.foo).to.eql('hello');
-    });
-
-    it('getter ____ OBSOLETE 🐷', async () => {
-      const dir = Fs.join(root, slug());
-      const initial = { '.meta': { createdAt: 0 }, count: 0 };
-      const getA = JsonFile.getter<D>({ filename: 'foo.json' }, initial);
-      const getB = JsonFile.getter<D>({ filename: 'bar.json' }, () => initial);
-
-      const a = await getA(dir);
-      const b = await getB(dir);
-
-      const now = Time.now.timestamp;
-      expect(a.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
-      expect(b.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
-
-      expect(initial['.meta'].createdAt).to.eql(0); // NB: ensure the initial input was not mutated.
-
-      // Different instances based on directory.
-      expect(a).to.not.equal(b);
     });
   });
 

@@ -1,25 +1,63 @@
 import type { t } from './common.ts';
-import { get } from './u.get.ts';
-import { getter } from './u.getter.ts';
 
 type D = t.JsonFileDoc;
 
 /**
- * Simple JSON based file-persitence for configuration settings file.
+ * Simple JSON based file-persistence with an ImmutableRef<T> handle API.
  */
 export type JsonFileLib = {
   /** Common defaults */
   default(): JsonFileDoc;
-  /** Get or create a config file handle (based on dir). */
-  readonly get: typeof get;
-  /** Creates a generator function with a curried type and base options. */
-  readonly getter: typeof getter;
+
+  /** Get JsonFile handle for the given path (pure, non-cached). */
+  readonly get: JsonFileGet;
+
+  /** Singleton pool, keyed by resolved path. */
+  readonly Singleton: JsonFileSingletonLib;
 };
 
-/** A curried file getter function  */
-export type JsonFileGetter<T extends D = D> = (dir: t.StringDir) => Promise<t.JsonFile<T>>;
-/** Curried arguments for the getter function */
-export type JsonFileGetterArgs = { filename: string };
+/**
+ * Singleton pool API for JsonFile handles.
+ */
+export type JsonFileSingletonLib = {
+  /**
+   * Get a shared JsonFile handle for the given path.
+   *
+   * - If an instance already exists for the resolved path, it is returned.
+   * - If no instance exists and `initial` is provided, a new handle is created,
+   *   cached, and returned.
+   * - If no instance exists and `initial` is omitted, an error is thrown
+   *   (runtime contract).
+   */
+  readonly get: <T extends JsonFileDoc = JsonFileDoc>(
+    path: t.StringPath,
+    initial?: T | (() => T),
+  ) => Promise<t.JsonFile<T>>;
+
+  /** Resolved file paths currently in the singleton pool. */
+  readonly keys: () => readonly t.StringPath[];
+
+  /** Snapshot of the singleton pool as [path, JsonFile] tuples. */
+  readonly entries: () => readonly (readonly [t.StringPath, t.JsonFile<JsonFileDoc>])[];
+
+  /** Clear all singleton instances (intended for tests / teardown). */
+  readonly clear: () => void;
+};
+
+/**
+ * Get a JsonFile handle for the given path.
+ *
+ * - If the file does not exist, it is created on disk using `initial`.
+ * - If the file exists, the JSON is loaded from disk and used as the seed.
+ * - In both cases, `.meta.createdAt` is ensured to be set on the seed document.
+ *
+ * The returned handle is an `ImmutableRef<T>` extended with an `fs` helper
+ * for file-system operations (currently `{ path, save() }`).
+ */
+export type JsonFileGet = <D extends t.JsonFileDoc>(
+  path: t.StringPath,
+  initial: D,
+) => Promise<t.JsonFile<D>>;
 
 /**
  * Immutable representation of a persistable JSON file.
