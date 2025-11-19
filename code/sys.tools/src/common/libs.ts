@@ -4,7 +4,7 @@ export { Process } from '@sys/process';
 
 export { Hash } from '@sys/crypto/hash';
 export { Jsr } from '@sys/jsr';
-export { Arr, Delete, Err, Is, Json, Log, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';
+export { Arr, Delete, Err, Is, Json, Log, Num, Obj, Pkg, Str, Time, Try, slug } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Token } from '@sys/text/gpt';
