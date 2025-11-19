@@ -8,14 +8,12 @@ type D = t.JsonFileDoc;
  * Simple JSON based file-persitence for configuration settings file.
  */
 export type JsonFileLib = {
-  /** Get or create a config file handle (based on dir). */
-  readonly getOrCreate: typeof getOrCreate;
-
-  /** Creates a generator function with a curried type and base options. */
-  readonly getter: typeof getter;
-
   /** Common defaults */
   default(): JsonFileDoc;
+  /** Get or create a config file handle (based on dir). */
+  readonly getOrCreate: typeof getOrCreate;
+  /** Creates a generator function with a curried type and base options. */
+  readonly getter: typeof getter;
 };
 
 /** A curried file getter function  */
@@ -28,7 +26,7 @@ export type JsonFileGetterArgs = { filename: string };
  */
 export type JsonFile<T extends D = D> = t.ImmutableRef<T> & {
   /** File-system API for the file. */
-  readonly file: {
+  readonly fs: {
     readonly path: t.StringPath;
     save(): Promise<{ error?: t.StdError }>;
   };

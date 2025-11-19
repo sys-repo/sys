@@ -1,21 +1,7 @@
-import { type t, Is, Time, Immutable, Fs, Obj } from './common.ts';
+import { type t, Fs, Immutable, Obj, Time } from './common.ts';
 
 /**
- * Creates a generator function with a curried type and base options.
- */
-export function getter<D extends t.JsonFileDoc>(
-  args: t.JsonFileGetterArgs,
-  initial: D | (() => D),
-): t.JsonFileGetter<D> {
-  return async (dir) => {
-    const resolvedDir = Fs.resolve(dir);
-    const path = Fs.join(resolvedDir, args.filename);
-    return getOrCreate<D>(path, Is.func(initial) ? initial() : initial);
-  };
-}
-
-/**
- * Get or create a config file handle.
+ * Get or create a file handle.
  */
 export async function getOrCreate<D extends t.JsonFileDoc>(
   path: t.StringPath,
@@ -35,7 +21,7 @@ export async function getOrCreate<D extends t.JsonFileDoc>(
   /**
    * Filesystem Methods:
    */
-  const file: F['file'] = {
+  const file: F['fs'] = {
     get path() {
       return path;
     },
@@ -44,17 +30,15 @@ export async function getOrCreate<D extends t.JsonFileDoc>(
       doc.change((d) => (d['.meta'].modifiedAt = Time.now.timestamp));
 
       const { error } = await Fs.writeJson(path, doc.current);
-      if (error) {
-        // Revert change on error.
-        doc.change((d) => (d['.meta'].modifiedAt = before));
-      }
 
+      // Revert change on error.
+      if (error) doc.change((d) => (d['.meta'].modifiedAt = before));
       return { error };
     },
   };
 
   // Extend the API.
-  Object.defineProperty(doc, 'file', { get: () => file, enumerable: true, configurable: false });
+  Object.defineProperty(doc, 'fs', { get: () => file, enumerable: true, configurable: false });
   return doc as t.JsonFile<D>;
 }
 
@@ -80,7 +64,7 @@ const wrangle = {
     if (!res.data) {
       // Corrupt or unreadable JSON. Fail explicitly instead of exploding
       // on a non-null assertion later.
-      const error = res.error ?? new Error(`Failed to read config file at "${path}"`);
+      const error = res.error ?? new Error(`Failed to read file at "${path}"`);
       throw error;
     }
 

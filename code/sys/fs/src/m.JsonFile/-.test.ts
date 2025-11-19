@@ -35,8 +35,8 @@ describe('ConfigFile', () => {
       expect(a.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
       expect(b.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
 
-      expect(a.file.path).to.eql(Fs.resolve(pathA));
-      expect(b.file.path).to.eql(Fs.resolve(pathB));
+      expect(a.fs.path).to.eql(Fs.resolve(pathA));
+      expect(b.fs.path).to.eql(Fs.resolve(pathB));
 
       // Different instances based on directory.
       expect(a).to.not.equal(b);
@@ -70,34 +70,35 @@ describe('ConfigFile', () => {
       const dir = Fs.join(root, slug());
       const initial: T = { '.meta': { createdAt: 0, tmp: 123 }, foo: 'hello' };
       const fn = JsonFile.getter<T>({ filename: 'my-file.json' }, initial);
-      const config = await fn(dir);
+      const file = await fn(dir);
 
       const now = Time.now.timestamp;
-      expect(config.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
-      expect(config.current['.meta'].tmp).to.eql(123);
-      expect(config.current.foo).to.eql('hello');
+      expect(file.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
+      expect(file.current['.meta'].tmp).to.eql(123);
+      expect(file.current.foo).to.eql('hello');
     });
   });
 
   describe('save', () => {
-    const initial: D = { '.meta': { createdAt: 0 }, count: 0 };
+    const initial: D = {
+      '.meta': { createdAt: 0 },
+      count: 0,
+    };
 
     it('saves to file-system', async () => {
-      const dir = Fs.join(root, slug());
-      const get = JsonFile.getter<D>({ filename: 'foo.json' }, initial);
+      const path = Fs.join(root, slug(), 'foo.json');
+      const file = await JsonFile.getOrCreate<D>(path, initial);
+      expect(await Fs.exists(file.fs.path)).to.eql(false);
 
-      const config = await get(dir);
-      expect(await Fs.exists(config.file.path)).to.eql(false);
-
-      config.change((d) => (d.count = 1234));
+      file.change((d) => (d.count = 1234));
 
       await Time.wait(100); // NB: setup for test for modified date on save.
-      const res = await config.file.save();
+      const res = await file.fs.save();
 
       expect(res.error).to.eql(undefined);
-      expect(await Fs.exists(config.file.path)).to.eql(true);
+      expect(await Fs.exists(file.fs.path)).to.eql(true);
 
-      const json = (await Fs.readJson<D>(config.file.path)).data!;
+      const json = (await Fs.readJson<D>(file.fs.path)).data!;
       const now = Time.now.timestamp;
       expect(json['.meta'].modifiedAt).to.be.within(now - 10, now + 10);
       expect(json['.meta'].modifiedAt).to.not.eql(json['.meta'].createdAt);
@@ -105,39 +106,64 @@ describe('ConfigFile', () => {
     });
 
     it('reads from file-system', async () => {
-      const dir = Fs.join(root, slug());
-      const get = JsonFile.getter<D>({ filename: 'foo.json' }, initial);
-
-      const a = await get(dir);
+      const path = Fs.join(root, slug(), 'foo.json');
+      const a = await JsonFile.getOrCreate<D>(path, initial);
       expect(a.current.count).to.eql(0);
 
       a.change((d) => (d.count = 888));
-      await a.file.save();
+      await a.fs.save();
 
-      const b = await get(dir);
-      expect(b.current.count).to.eql(888);
+      const b = await JsonFile.getOrCreate<D>(path, initial);
+      expect(b.current.count).to.eql(888); // NB: loaded from saved file
     });
 
     describe('error: corrupt file', () => {
       it('error: failed to read file (corrupt)', async () => {
-        const dir = Fs.join(root, slug());
-        const get = JsonFile.getter<D>({ filename: 'foo.json' }, initial);
+        const path = Fs.join(root, slug(), 'foo.json');
 
-        // Setup corrupt file.
+        const a = await JsonFile.getOrCreate<D>(path, initial);
+        await a.fs.save();
+
+        // Setup an initially corrupt seed file.
         const invalid = ',{not}json,💥';
-        await Fs.write(Fs.join(dir, 'foo.json'), invalid);
+        await Fs.write(path, invalid);
 
         let threwError = false;
         try {
-          await get(dir);
+          await JsonFile.getOrCreate<D>(path, initial);
         } catch (error: any) {
           threwError = true;
           expect(error.name).to.eql('SyntaxError');
           expect(error.message).to.include('Unexpected token');
           expect(error.message).to.include(invalid);
         }
-
         expect(threwError).to.be.true;
+      });
+
+      it('does not update `.meta.modifiedAt` on save error', async () => {
+        const dir = Fs.join(root, slug());
+        const path = Fs.join(dir, 'foo.json');
+
+        const file = await JsonFile.getOrCreate<D>(path, initial);
+
+        // First save: should succeed and set modifiedAt.
+        await file.fs.save();
+        const before = file.current['.meta'].modifiedAt;
+        expect(before).to.be.a('number');
+
+        // Break the path so subsequent save fails:
+        // 1. Remove the file.
+        await Fs.remove(path);
+        // 2. Create a directory with the same name as the file.
+        await Fs.ensureDir(path);
+
+        // Second save: should error.
+        const res = await file.fs.save();
+        expect(res.error).to.not.eql(undefined);
+
+        // Ensure modifiedAt was reverted to the previous value.
+        const after = file.current['.meta'].modifiedAt;
+        expect(after).to.eql(before);
       });
     });
   });
