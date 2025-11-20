@@ -2,7 +2,7 @@ import { type t, afterEach, describe, expect, it, Schedule } from '../../-test.t
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers } from './u.ts';
 
-describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('CrdtWorker.Host.attach', { sanitizeResources: false, sanitizeOps: false }, () => {
   const Test = createTestHelpers();
   afterEach(Test.reset);
 
@@ -11,7 +11,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     const repo = Test.realRepo({ network: true });
     const { events, stop } = Test.collectRepoEvents(port1);
 
-    CrdtWorker.attach(port2, repo);
+    CrdtWorker.Host.attach(port2, repo);
 
     // Schedule for initial snapshot over the wire.
     await Schedule.waitFor(() => events.some((e) => e.type === 'props/snapshot'));
@@ -69,7 +69,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     const { events, stop } = Test.collectRepoEvents(port1);
     const repo = Test.realRepo();
 
-    CrdtWorker.attach(port2, repo);
+    CrdtWorker.Host.attach(port2, repo);
 
     // Ensure the stream is open before disposing.
     await Schedule.waitFor(() => events.some((e) => e.type === 'stream/open'));
@@ -85,7 +85,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     const real = Test.realRepo();
     const { events, stop } = Test.collectRepoEvents(port1);
 
-    CrdtWorker.attach(port2, real);
+    CrdtWorker.Host.attach(port2, real);
     await Schedule.waitFor(() => events.some((e) => e.type === 'props/snapshot'));
 
     type T = Extract<t.WireRepoEventPayload, { type: 'props/snapshot' }>;
@@ -108,7 +108,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
 
     expect(repo.status.ready).to.eql(false);
 
-    CrdtWorker.attach(port2, repo);
+    CrdtWorker.Host.attach(port2, repo);
 
     // Schedule until we have stream/open + an initial snapshot.
     await Schedule.waitFor(
@@ -158,7 +158,7 @@ describe('CrdtWorker.attach', { sanitizeResources: false, sanitizeOps: false }, 
     const { events, stop } = Test.collectRepoEvents(port1);
 
     // Wire up the worker boundary.
-    CrdtWorker.attach(port2, real);
+    CrdtWorker.Host.attach(port2, real);
 
     // Schedule until we know the stream is open and we have an initial snapshot.
     await Schedule.waitFor(

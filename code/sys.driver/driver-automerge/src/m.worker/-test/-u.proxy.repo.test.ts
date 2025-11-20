@@ -29,7 +29,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
       const client = CrdtWorker.Client.repo(port1);
       const { events, stop } = Test.collectRepoEvents(port1);
 
-      CrdtWorker.attach(port2, real);
+      CrdtWorker.Host.attach(port2, real);
 
       // stream/open first
       await Schedule.waitFor(() => events.length >= 1);
@@ -49,7 +49,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
       const client = Test.clientRepo();
       const real = Test.realRepo();
 
-      CrdtWorker.attach(client.port2, real);
+      CrdtWorker.Host.attach(client.port2, real);
       await Schedule.waitFor(() => Obj.hash(client.repo.id) === Obj.hash(real.id));
 
       expect(client.repo.id.instance).to.eql(real.id.instance);
@@ -65,7 +65,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
       const { port1, port2 } = Test.makePorts();
       const realRepo = Test.realRepo();
 
-      CrdtWorker.attach(port2, realRepo);
+      CrdtWorker.Host.attach(port2, realRepo);
       const proxyRepo = CrdtWorker.Client.repo(port1);
 
       // Cleanup:
@@ -77,7 +77,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
       const test = async (awaitWhenReady: boolean) => {
         const { port1, port2 } = Test.makePorts();
         const realRepo = Test.realRepo();
-        CrdtWorker.attach(port2, realRepo);
+        CrdtWorker.Host.attach(port2, realRepo);
         const proxyRepo = CrdtWorker.Client.repo(port1);
         if (awaitWhenReady) await proxyRepo.whenReady();
 
@@ -363,7 +363,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
         const client = CrdtWorker.Client.repo(port1);
 
         // Bind worker side to port2.
-        CrdtWorker.attach(port2, real);
+        CrdtWorker.Host.attach(port2, real);
 
         // Ensure client is ready so we know wiring is live.
         await client.whenReady();
@@ -393,7 +393,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
         const real = Test.realRepo();
 
         // Bind the worker-side repo to port2.
-        CrdtWorker.attach(port2, real);
+        CrdtWorker.Host.attach(port2, real);
 
         // Known initial value we expect to be stored in the created doc.
         const initial = { foo: 'bar' };
@@ -472,7 +472,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
         const client = CrdtWorker.Client.repo(port1);
 
         // Bind worker side to port2.
-        CrdtWorker.attach(port2, real);
+        CrdtWorker.Host.attach(port2, real);
 
         // Ensure client is ready so we know wiring is live.
         await client.whenReady();
@@ -526,7 +526,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
 
           const client = CrdtWorker.Client.repo(port1);
 
-          CrdtWorker.attach(port2, real);
+          CrdtWorker.Host.attach(port2, real);
           await client.whenReady();
 
           const id = 'doc-err' as t.StringId;
@@ -569,7 +569,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
 
           const client = CrdtWorker.Client.repo(port1);
 
-          CrdtWorker.attach(port2, real);
+          CrdtWorker.Host.attach(port2, real);
           await client.whenReady();
 
           let caught: t.WireError | undefined;
@@ -614,7 +614,7 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
         const client = CrdtWorker.Client.repo(port1);
 
         // Wire the worker side to port2.
-        CrdtWorker.attach(port2, real);
+        CrdtWorker.Host.attach(port2, real);
 
         // Ensure the client is ready so RPC is live.
         await client.whenReady();

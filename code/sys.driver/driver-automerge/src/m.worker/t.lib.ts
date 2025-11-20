@@ -10,25 +10,6 @@ export type CrdtWorkerLib = {
 
   /** Protocol version tag for all CRDT wire messages. */
   readonly version: typeof WIRE_VERSION;
-
-  /** Attaches a real repo instance to a `MessagePort` inside the worker. */
-  attach(port: MessagePort, repo: t.CrdtRepo): void;
-
-  /**
-   * Worker host: listen for `crdt:attach` messages on the worker global scope
-   * and bind a repo to the received `MessagePort`.
-   *
-   * Overloads:
-   * - `listen(self, repo)`:
-   *     Use an already-created `t.CrdtRepo` instance (legacy/simple path).
-   *
-   * - `listen(self, factory)`:
-   *     Lazily create the repo when the first `crdt:attach` arrives, with
-   *     access to the optional spawn-time `config`. The factory may return
-   *     the repo synchronously or as a Promise.
-   */
-  //   listen(self: typeof globalThis, repo: t.CrdtRepo): void;
-  //   listen(self: typeof globalThis, factory: t.CrdtRepoFactory): void;
 };
 
 /**

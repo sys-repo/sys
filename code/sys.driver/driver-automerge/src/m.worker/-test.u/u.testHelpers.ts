@@ -110,7 +110,7 @@ export function createTestHelpers() {
       const { port1, port2 } = api.makePorts();
       const realRepo = await api.realRepo().whenReady();
 
-      CrdtWorker.attach(port2, realRepo);
+      CrdtWorker.Host.attach(port2, realRepo);
       const proxyRepo = await CrdtWorker.Client.repo(port1).whenReady();
       const realDoc = (await realRepo.create<D>(initial)).doc!;
 

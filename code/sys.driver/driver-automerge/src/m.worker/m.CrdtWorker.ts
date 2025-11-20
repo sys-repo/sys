@@ -22,6 +22,4 @@ export const CrdtWorker: t.CrdtWorkerLib = {
 
   Client,
   Host,
-
-  attach,
 };

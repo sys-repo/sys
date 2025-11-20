@@ -57,7 +57,7 @@ describe(
 
         // Wire up ports.
         const { port1, port2 } = Test.makePorts();
-        CrdtWorker.attach(port2, realRepo);
+        CrdtWorker.Host.attach(port2, realRepo);
 
         // Client proxy repo.
         const proxyRepo = await CrdtWorker.Client.repo(port1).whenReady();
@@ -94,7 +94,7 @@ describe(
           });
 
           const { port1, port2 } = Test.makePorts();
-          CrdtWorker.attach(port2, realRepo);
+          CrdtWorker.Host.attach(port2, realRepo);
           const proxyRepo = await CrdtWorker.Client.repo(port1).whenReady();
 
           const res = await proxyRepo.get<Doc>('fake-id');
@@ -121,7 +121,7 @@ describe(
           });
 
           const { port1, port2 } = Test.makePorts();
-          CrdtWorker.attach(port2, realRepo);
+          CrdtWorker.Host.attach(port2, realRepo);
 
           const proxyRepo = CrdtWorker.Client.repo(port1);
           const id = 'doc-missing' as t.StringId;
@@ -148,7 +148,7 @@ describe(
 
         // Wire up ports.
         const { port1, port2 } = Test.makePorts();
-        CrdtWorker.attach(port2, realRepo);
+        CrdtWorker.Host.attach(port2, realRepo);
 
         // Client proxy repo.
         const proxyRepo = await CrdtWorker.Client.repo(port1).whenReady();

@@ -14,7 +14,7 @@ type O = Record<string, unknown>;
  *   - network events
  *   - RPC calls (whenReady, create, get, delete, sync.enable)
  */
-export const attachRepo: t.CrdtWorkerLib['attach'] = (port, repo) => {
+export const attachRepo: t.CrdtWorkerHostLib['attach'] = (port, repo) => {
   port.start?.();
 
   /**
