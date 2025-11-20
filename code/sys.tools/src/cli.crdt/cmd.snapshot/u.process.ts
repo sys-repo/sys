@@ -1,11 +1,12 @@
-import { type t, Rx, Fs, Is, Obj, Str, Time, c, slug } from '../common.ts';
+import { type t, Fs, Is, Obj, Time, slug, Schedule } from '../common.ts';
 
 const isCrdtUri = (value?: string) => (value || '').trim().startsWith('crdt:');
 const cleanId = (input: string) => (input || '').trim().replace(/^crdt\:/, '');
 
-export type ProcessEvent = {
-  // ???
-};
+/**
+ * Sum byte counts.
+ */
+const sumBytes = (values: readonly number[]) => values.reduce((total, n) => total + n, 0);
 
 type Args = {
   repo: t.Crdt.Repo;
@@ -16,65 +17,119 @@ type Args = {
   depth?: number;
   now?: t.UnixTimestamp;
   processed?: t.StringId[]; // ← internal DAG tracking
+  bytes?: number[]; // ← internal byte aggregate
   //
-  onProgress?: (e: ProcessEvent) => void;
+  onProgress?: (e: t.CrdtSnapshotProgress) => void;
+};
+
+export type ProcessResult = {
+  readonly dir: t.StringDir;
+  readonly processed: readonly t.StringId[];
+  readonly bytes: number;
 };
 
 /**
  * Process ("walk") a CRDT reference chain saving each
- * linked "crdt:id" document reference bound in the
+ * linked "crdt:id" document reference found in the
  * object-tree.
  */
-export async function process(args: Args) {
-  const { base, depth = 0, processed = [], repo } = args;
+export async function process(args: Args): Promise<ProcessResult> {
+  const { base, depth = 0, processed = [], repo, onProgress } = args;
   const now = args.now ?? Time.now.timestamp;
+  const bytes = args.bytes ?? [];
+
+  const emit = (event: t.CrdtSnapshotProgress) => onProgress?.(event);
 
   const id = cleanId(args.id);
+  const isRoot = depth === 0;
   const dir = args.dir ?? Fs.join(base, `crdt.${id}`, `snap.${now}.${slug().slice(3)}`);
 
-  const done = () => ({ dir });
-  if (processed.includes(id)) return done();
+  if (isRoot) {
+    emit({ kind: 'start', rootId: id, dir, timestamp: now });
+  }
+
+  if (processed.includes(id)) {
+    emit({ kind: 'doc:skip', id, reason: 'already-processed' });
+    return { dir, processed, bytes: sumBytes(bytes) };
+  }
 
   // Retrieve document.
-  repo.whenReady();
   const { doc, ok } = await repo.get(id);
-  if (!ok) {
-    console.warn(c.yellow(`Failed to retrieve crdt:${c.white(id)}`));
-    return done();
+  if (!ok || !doc) {
+    emit({ kind: 'doc:skip', id, reason: 'not-found' });
+    return { dir, processed, bytes: sumBytes(bytes) };
   }
+
   if (!Obj.isRecord(doc.current)) {
-    console.info(`crdt:${id} current is not an object`);
-    return done();
+    emit({ kind: 'doc:skip', id, reason: 'not-object' });
+    return { dir, processed, bytes: sumBytes(bytes) };
   }
 
-  // Save snapshot:
-  if (!processed.includes(id)) {
-    await save(dir, doc, depth === 0);
-    processed.push(id);
-  }
+  // Save snapshot for this document.
+  await saveDoc(dir, doc, isRoot, depth, bytes);
+  processed.push(id);
 
+  // Discover referenced CRDT documents.
   const refs: t.StringId[] = [];
-  Obj.walk(doc?.current, (e) => {
+  Obj.walk(doc.current, (e) => {
     if (!Is.string(e.value)) return;
     if (!isCrdtUri(e.value)) return;
     refs.push(cleanId(e.value));
   });
 
-  for (const id of refs) {
-    await process({ repo, id, base, dir, now, processed, depth: depth + 1 }); // 🌳 ← recursion
+  emit({ kind: 'doc:refs', id, refs });
+
+  // Recurse into referenced documents (🌳).
+  for (const refId of refs) {
+    await process({
+      repo,
+      id: refId,
+      base,
+      dir,
+      now,
+      processed,
+      bytes,
+      depth: depth + 1,
+      onProgress,
+    });
+
+    // Give the event-loop a breath so the spinner/UI can repaint between docs.
+    await Schedule.macro();
   }
 
-  async function save(dir: t.StringDir, doc: t.Crdt.Ref, isRoot: boolean) {
-    let filename = `${doc.id}.json`;
-    filename = isRoot ? `-root.${filename}` : filename;
-    const out = Fs.join(dir, filename);
-    await Fs.writeJson(out, (doc.current ?? {}) as t.JsonMap);
+  if (isRoot) {
+    emit({ kind: 'complete', rootId: id, dir, processed });
+  }
 
-    const stats = await Fs.stat(out);
+  return { dir, processed, bytes: sumBytes(bytes) };
+
+  async function saveDoc(
+    targetDir: t.StringDir,
+    docRef: t.Crdt.Ref,
+    root: boolean,
+    depthValue: number,
+    byteAggregate: number[],
+  ) {
+    let filename = `${docRef.id}.json`;
+    if (root) filename = `-root.${filename}`;
+    const path = Fs.join(targetDir, filename);
+
+    const json = (docRef.current ?? {}) as t.JsonMap;
+    await Fs.writeJson(path, json);
+
+    const stats = await Fs.stat(path);
     const size = stats?.size ?? 0;
+    byteAggregate.push(size);
 
-    console.info(c.gray(`  ${dir}/${c.green(filename)} - ${Str.bytes(size)}`));
+    emit({
+      kind: 'doc:saved',
+      id: docRef.id,
+      depth: depthValue,
+      dir: targetDir,
+      filename,
+      path,
+      bytes: size,
+      isRoot: root,
+    });
   }
-
-  return done();
 }

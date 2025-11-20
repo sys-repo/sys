@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+export type * from './cmd.snapshot/t.ts';
+
 /** The various copy options */
 export type CrdtCommand = 'modify:add' | 'modify:remove' | 'snapshot';
 
