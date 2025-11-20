@@ -17,17 +17,21 @@ export const Fmt = {
     const config = await getConfig(dir);
     const docs = config.current.docs ?? [];
 
+    const now = Time.now.timestamp;
     docs.forEach((item, i, total) => {
       const isLast = i === total.length - 1;
       let prefix = isLast ? '└─' : '├─';
       const document = c.gray(` ${prefix} ${c.white(item.name ?? '')}`);
-      const id = c.gray(`${item.id.slice(0, -5)}${c.green(item.id.slice(-5))}`);
-      table.push([document, id]);
+      const id = c.gray(`crdt:${item.id.slice(0, -5)}${c.green(item.id.slice(-5))}`);
+      const elapsed = item.createdAt ? Time.elapsed(item.createdAt, now) : undefined;
+      const age = c.gray(elapsed?.toString() || '-');
+      table.push([document, id, age]);
     });
 
+    const empty = docs.length > 0 ? '' : c.italic(c.dim('  (no documents added)'));
     const str = Str.builder()
-      .line(c.gray('Documents:'))
-      .line(Str.trimEdgeNewlines(String(table)));
+      .line(c.gray('Tracking:'))
+      .line(empty || Str.trimEdgeNewlines(String(table)));
 
     return String(str);
   },
