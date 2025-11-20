@@ -18,10 +18,10 @@ const Host: t.CrdtWorkerHostLib = {
 };
 
 export const CrdtWorker: t.CrdtWorkerLib = {
+  version, // TEMP 🐷
+
   Client,
   Host,
 
-  version,
   attach,
-  listen,
 };

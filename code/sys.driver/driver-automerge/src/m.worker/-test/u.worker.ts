@@ -6,4 +6,4 @@ import type { t } from '../common.ts';
  */
 const repo = Crdt.repo({ dir: '.tmp/-worker' });
 await repo.whenReady();
-Crdt.Worker.listen(self, repo);
+Crdt.Worker.Host.listen(self, repo);

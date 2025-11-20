@@ -15,7 +15,7 @@ type AttachMessage = {
  * - listen(self, repo)           ← existing repo instance
  * - listen(self, factory)        ← lazy repo creation with spawn-time config
  */
-export const listen: t.CrdtWorkerLib['listen'] = (self, args) => {
+export const listen: t.CrdtWorkerHostLib['listen'] = (self, args) => {
   let { repo, factory } = wrangle.args(args);
 
   /**

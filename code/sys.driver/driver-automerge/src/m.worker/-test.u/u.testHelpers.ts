@@ -91,7 +91,7 @@ export function createTestHelpers() {
         handlers.length = 0;
       }
       const fakeSelf = { addEventListener } as typeof globalThis;
-      CrdtWorker.listen(fakeSelf, repo);
+      CrdtWorker.Host.listen(fakeSelf, repo);
       return { postMessage, terminate };
     },
 

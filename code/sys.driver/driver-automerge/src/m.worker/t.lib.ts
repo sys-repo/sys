@@ -27,8 +27,8 @@ export type CrdtWorkerLib = {
    *     access to the optional spawn-time `config`. The factory may return
    *     the repo synchronously or as a Promise.
    */
-  listen(self: typeof globalThis, repo: t.CrdtRepo): void;
-  listen(self: typeof globalThis, factory: t.CrdtRepoFactory): void;
+  //   listen(self: typeof globalThis, repo: t.CrdtRepo): void;
+  //   listen(self: typeof globalThis, factory: t.CrdtRepoFactory): void;
 };
 
 /**

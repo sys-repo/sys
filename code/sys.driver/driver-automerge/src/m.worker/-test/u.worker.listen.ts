@@ -1,7 +1,7 @@
 import { Crdt } from '../../-exports/-fs/mod.ts';
 import { type t } from '../common.ts';
 
-Crdt.Worker.listen(self, (e) => {
+Crdt.Worker.Host.listen(self, (e) => {
   const config: t.CrdtWorkerSpawnConfig = e.config ?? {
     kind: 'fs',
     storage: '.tmp/-worker-factory',

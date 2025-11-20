@@ -6,7 +6,7 @@ const info = Log.logger('crdt:worker', { timestamp: null, enabled: !silent });
 /**
  * Single-repo worker host.
  */
-Crdt.Worker.listen(self, async ({ config }) => {
+Crdt.Worker.Host.listen(self, async ({ config }) => {
   if (!config || config.kind !== 'fs')
     throw new Error(`Configuration kind "${config?.kind}" not supported.`);
 
@@ -16,7 +16,7 @@ Crdt.Worker.listen(self, async ({ config }) => {
 
   info('Repo:');
   info(`- filesystem: ${dir}`);
-  info(`Crdt.Worker.listen: "${repo.id.instance}"`);
+  info(`Crdt.Worker.Host.listen: "${repo.id.instance}"`);
   network.forEach((e) => info(`- network: ${e.ws}`));
   repo.events().$.subscribe((e) => info('⚡️', e.type));
 
