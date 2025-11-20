@@ -12,7 +12,7 @@ type StringDatabaseName = string;
  * API for CRDT's on IndexedDB (browser):
  */
 export type CrdtBrowserLib = t.CrdtLib & {
-  readonly kind: 'Crdt:Browser';
+  readonly kind: 'crdt:web';
   repo(args?: CrdtBrowserRepoArgs): t.CrdtRepo;
 };
 

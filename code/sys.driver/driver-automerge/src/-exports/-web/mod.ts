@@ -33,7 +33,7 @@ export { A, AutomergeRepo, toAutomergeHandle, toAutomergeRepo } from './common.t
  * Library:
  */
 export const Crdt: t.CrdtBrowserLib = {
-  kind: 'Crdt:Browser',
+  kind: 'crdt:web',
   repo(args = {}) {
     const { sharePolicy, denylist, until } = args;
     const store = wrangle.storage(args);

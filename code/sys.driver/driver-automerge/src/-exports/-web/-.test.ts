@@ -10,7 +10,7 @@ describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () =
   describe('Crdt.repo', () => {
     it('imports', async () => {
       const { Crdt } = await import('@sys/driver-automerge/web');
-      expect(Crdt.kind).to.eql('Crdt:Browser');
+      expect(Crdt.kind).to.eql('crdt:web');
 
       const repoA = Crdt.repo({ storage: 'IndexedDb' });
 

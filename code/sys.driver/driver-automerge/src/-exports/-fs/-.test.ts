@@ -19,7 +19,7 @@ describe('Crdt: fs (file-system)', { sanitizeResources: false, sanitizeOps: fals
 
       it('import: with path', async () => {
         const { Crdt } = await import('@sys/driver-automerge/fs');
-        expect(Crdt.kind).to.eql('Crdt:FileSystem');
+        expect(Crdt.kind).to.eql('crdt:fs');
 
         const dir = `.tmp/test/crdt.import/${slug()}`;
         const repoA = Crdt.repo({ dir });

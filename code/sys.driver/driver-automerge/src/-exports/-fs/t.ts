@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  * API for CRDT's on a file-system:
  */
 export type CrdtFilesystemLib = t.CrdtLib & {
-  readonly kind: 'Crdt:FileSystem';
+  readonly kind: 'crdt:fs';
   repo(args?: t.StringDir | t.CrdtFsRepoArgs): t.CrdtRepo;
 };
 

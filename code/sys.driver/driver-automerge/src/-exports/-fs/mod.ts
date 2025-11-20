@@ -29,7 +29,7 @@ export { A, toAutomergeHandle, toAutomergeRepo } from './common.ts';
  * Library:
  */
 export const Crdt: t.CrdtFilesystemLib = {
-  kind: 'Crdt:FileSystem',
+  kind: 'crdt:fs',
   repo(input) {
     const args = wrangle.dir(input);
     const dir = args.dir ?? '';
