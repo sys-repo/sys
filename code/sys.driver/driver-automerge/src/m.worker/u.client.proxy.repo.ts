@@ -1,6 +1,6 @@
 import { type t, Is, Rx, Try, toWorkerError } from './common.ts';
-import { createDocProxy } from './u.proxy.doc.ts';
-import { createStallDetector } from './u.stall.ts';
+import { createDocProxy } from './u.client.proxy.doc.ts';
+import { createStallDetector } from './u.client.stall.ts';
 import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;

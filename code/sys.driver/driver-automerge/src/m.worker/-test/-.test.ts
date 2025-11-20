@@ -4,8 +4,8 @@ import { WIRE_VERSION } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
 import { attachRepo } from '../u.host.attach.repo.ts';
 import { listen } from '../u.host.listen.ts';
-import { createRepo } from '../u.proxy.repo.ts';
-import { spawn } from '../u.spawn.ts';
+import { createRepo } from '../u.client.proxy.repo.ts';
+import { spawn } from '../u.client.spawn.ts';
 
 describe(`CRDT: web-worker transport`, () => {
   it('API', async () => {

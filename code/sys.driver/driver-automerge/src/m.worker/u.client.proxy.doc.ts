@@ -1,5 +1,5 @@
 import { type t, Immutable, Rx, slug } from './common.ts';
-import { changePatches } from './u.proxy.doc.change.ts';
+import { changePatches } from './u.client.proxy.doc.change.ts';
 import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;

@@ -11,7 +11,7 @@ import {
 } from '../../-test.ts';
 import { CrdtIs } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
-import { getRepoPort } from '../u.proxy.repo.ts';
+import { getRepoPort } from '../u.client.proxy.repo.ts';
 import { Wire } from '../u.wire.ts';
 import { createTestHelpers } from './u.ts';
 
