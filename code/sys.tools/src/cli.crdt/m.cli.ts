@@ -1,9 +1,11 @@
 import { snapshot } from './cmd.snapshot/mod.ts';
-import { type t, Args, c, D, Fs, getConfig, Prompt, Str } from './common.ts';
-import { Fmt } from './u.fmt.ts';
-import { promptRemoveDocument, promptAddDocument } from './u.prompt.modify.ts';
-import { CrdtUri } from './u.ts';
+import { type t, Args, c, D, Fs, getConfig, Is, Prompt } from './common.ts';
 import { normalize } from './u.config.doc.ts';
+import { Fmt } from './u.fmt.ts';
+import { promptAddDocument, promptRemoveDocument } from './u.prompt.modify.ts';
+import { CrdtUri } from './u.ts';
+
+type RunReturn = { exit: number | boolean };
 
 /**
  * Main entry:
@@ -15,17 +17,23 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   if (args.help) return void console.info(await Fmt.help(toolname, dir));
 
   console.info(await Fmt.header(toolname));
-  await run(dir);
+  const res = await run(dir);
   console.info();
   console.info(Fmt.signoff(toolname));
+
+  const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
+  if (exit > -1) Deno.exit(exit);
 };
 
 /**
  * Execution:
  */
-async function run(dir: t.StringDir) {
+
+async function run(dir: t.StringDir): Promise<RunReturn> {
   const config = await getConfig(dir);
   await normalize(config);
+
+  const done = (exit: number | boolean = false): RunReturn => ({ exit });
 
   const listing = (config.current.docs ?? []).map((doc, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
@@ -47,10 +55,10 @@ async function run(dir: t.StringDir) {
   let id = CrdtUri.hasPrefix(optionA) ? CrdtUri.trimPrefix(optionA) : '';
   if (optionA === 'modify:add') {
     const res = await promptAddDocument(dir);
-    if (!res?.id) return;
+    if (!res?.id) return done();
     id = res.id;
   }
-  if (!id) return;
+  if (!id) return done();
 
   const optionB = (await Prompt.Select.prompt<t.CrdtCommand>({
     message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
@@ -62,10 +70,13 @@ async function run(dir: t.StringDir) {
 
   if (optionB === 'modify:remove') {
     await promptRemoveDocument(dir, id);
-    return;
+    return done();
   }
 
   if (optionB === 'snapshot') {
     await snapshot(dir, id);
+    return done(0);
   }
+
+  return done();
 }
