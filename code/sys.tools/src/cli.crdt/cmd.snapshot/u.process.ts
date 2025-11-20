@@ -1,11 +1,7 @@
-import { type t, Fs, Is, Obj, Time, slug, Schedule } from '../common.ts';
+import { type t, Fs, Is, Obj, Schedule, Time, slug } from '../common.ts';
 
 const isCrdtUri = (value?: string) => (value || '').trim().startsWith('crdt:');
 const cleanId = (input: string) => (input || '').trim().replace(/^crdt\:/, '');
-
-/**
- * Sum byte counts.
- */
 const sumBytes = (values: readonly number[]) => values.reduce((total, n) => total + n, 0);
 
 type Args = {
@@ -53,8 +49,8 @@ export async function process(args: Args): Promise<ProcessResult> {
     return { dir, processed, bytes: sumBytes(bytes) };
   }
 
-  // Retrieve document.
-  const { doc, ok } = await repo.get(id);
+  // Retrieve document (with a minimal retry for transient failures).
+  const { doc, ok } = await getWithRetry();
   if (!ok || !doc) {
     emit({ kind: 'doc:skip', id, reason: 'not-found' });
     return { dir, processed, bytes: sumBytes(bytes) };
@@ -101,7 +97,30 @@ export async function process(args: Args): Promise<ProcessResult> {
     emit({ kind: 'complete', rootId: id, dir, processed });
   }
 
-  return { dir, processed, bytes: sumBytes(bytes) };
+  return {
+    dir,
+    processed,
+    bytes: sumBytes(bytes),
+  };
+
+  /**
+   * Helpers:
+   */
+  async function getWithRetry(): Promise<{ ok: boolean; doc?: t.Crdt.Ref }> {
+    const maxAttempts = 2;
+    let attempt = 0;
+
+    while (true) {
+      const res = await repo.get(id);
+      if (res.ok && res.doc) return { ok: true, doc: res.doc };
+
+      attempt += 1;
+      if (attempt > maxAttempts) return { ok: false };
+
+      // Small async hop before retrying, to avoid hammering the worker.
+      await Schedule.macro();
+    }
+  }
 
   async function saveDoc(
     targetDir: t.StringDir,
