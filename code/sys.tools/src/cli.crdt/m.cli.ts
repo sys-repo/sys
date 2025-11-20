@@ -39,8 +39,9 @@ async function run(dir: t.StringDir) {
     };
   });
 
+  console.info();
   const optionA = (await Prompt.Select.prompt<t.CrdtCommand>({
-    message: 'CRDT to operate on:\n',
+    message: 'Choose operation:\n',
     options: [{ name: 'Add <document>', value: 'modify:add' }, ...listing],
   })) as t.CrdtCommand;
 
@@ -53,10 +54,10 @@ async function run(dir: t.StringDir) {
   if (!id) return;
 
   const optionB = (await Prompt.Select.prompt<t.CrdtCommand>({
-    message: 'CRDT Operation:\n',
+    message: `With ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
     options: [
-      { name: 'Snapshot backup', value: 'snapshot' },
-      { name: 'Remove document', value: 'modify:remove' },
+      { name: 'Backup (Snapshot)', value: 'snapshot' },
+      { name: 'Forget', value: 'modify:remove' },
     ],
   })) as t.CrdtCommand;
 
