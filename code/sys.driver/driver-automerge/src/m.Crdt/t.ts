@@ -13,6 +13,7 @@ export type CrdtLib = {
   readonly Is: t.CrdtIsLib;
   readonly Url: t.CrdtUrlLib;
   readonly Worker: t.CrdtWorkerLib;
+  readonly Graph: t.CrdtGraphLib;
   whenReady(doc?: t.Crdt.Ref): Promise<void>;
   toObject: t.CrdtToObject;
 };

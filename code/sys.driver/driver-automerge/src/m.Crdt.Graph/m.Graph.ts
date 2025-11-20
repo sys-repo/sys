@@ -1,7 +1,7 @@
+import { type t } from './common.ts';
+
 /**
- * @module
  * CRDT Graph Utilities
- *
  * Provides a generic, repo-backed DAG walker for CRDT documents.
  */
-export { CrdtGraph } from './m.Graph.ts';
+export const CrdtGraph: t.CrdtGraphLib = {};

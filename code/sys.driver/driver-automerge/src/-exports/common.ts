@@ -1,5 +1,6 @@
 export * from '../common.ts';
 export {
+  CrdtGraph,
   CrdtIs,
   CrdtUrl,
   CrdtWorker,

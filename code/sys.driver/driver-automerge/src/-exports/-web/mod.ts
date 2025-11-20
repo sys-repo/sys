@@ -11,6 +11,7 @@ import {
   type t,
   Arr,
   AutomergeRepo,
+  CrdtGraph,
   CrdtIs,
   CrdtUrl,
   CrdtWorker,
@@ -47,6 +48,7 @@ export const Crdt: t.CrdtWebLib = {
   Is: CrdtIs,
   Url: CrdtUrl,
   Worker: CrdtWorker,
+  Graph: CrdtGraph,
   whenReady,
   toObject,
 };
