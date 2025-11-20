@@ -4,7 +4,7 @@ import {
   removeRenamedSh256Files as removeRenamedSha256Files,
   selectFilesAndRenameToHash,
   tidySha256Files,
-} from './u.cmd.hx.ts';
+} from './u.cmd.hash.ts';
 import { Fmt } from './u.fmt.ts';
 
 export const cli: t.FsToolsLib['cli'] = async (cwd, argv) => {
