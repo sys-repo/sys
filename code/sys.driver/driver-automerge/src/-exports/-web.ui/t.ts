@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Browser CRDT tools with UI components attached.
  */
-export type CrdtViewLib = t.CrdtBrowserLib & {
+export type CrdtViewLib = t.CrdtWebLib & {
   readonly UI: {
     // Components:
     readonly Dev: t.DevLib;

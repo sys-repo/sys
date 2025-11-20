@@ -22,7 +22,7 @@ import {
   whenReady,
 } from './common.ts';
 
-type Args = t.CrdtBrowserRepoArgs;
+type Args = t.CrdtWebRepoArgs;
 
 /**
  * Exports:
@@ -32,7 +32,7 @@ export { A, AutomergeRepo, toAutomergeHandle, toAutomergeRepo } from './common.t
 /**
  * Library:
  */
-export const Crdt: t.CrdtBrowserLib = {
+export const Crdt: t.CrdtWebLib = {
   kind: 'crdt:web',
   repo(args = {}) {
     const { sharePolicy, denylist, until } = args;
@@ -100,7 +100,7 @@ const wrangle = {
     return adapters;
   },
 
-  adapter(arg?: t.CrdtBrowserNetworkArgInput) {
+  adapter(arg?: t.CrdtWebNetworkArgInput) {
     if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
     return arg as t.NetworkAdapterInterface;
   },

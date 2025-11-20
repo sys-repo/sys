@@ -4,7 +4,7 @@ import { type t, describe, expect, it, slug, Testing, Time } from '../../-test.t
 import { D } from './common.ts';
 import { Crdt } from './mod.ts';
 
-describe('Crdt: browser', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('Crdt: web/browser', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
 
   describe('Crdt.repo', () => {

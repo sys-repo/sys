@@ -60,6 +60,6 @@ export type CrdtWorkerSpawnConfigFs = {
 };
 export type CrdtWorkerSpawnConfigBrowser = {
   kind: 'web';
-  storage?: t.CrdtBrowserStorageArg;
+  storage?: t.CrdtWebStorageArg;
   network?: t.CrdtWebsocketNetworkArg[] | t.Falsy;
 };
