@@ -5,11 +5,14 @@ import type { t, WIRE_VERSION } from './common.ts';
  * Defines the contract used by both the main-thread client and worker host.
  */
 export type CrdtWorkerLib = {
-  readonly Client: t.CrdtWorkerClientLib;
-  readonly Host: t.CrdtWorkerHostLib;
-
   /** Protocol version tag for all CRDT wire messages. */
   readonly version: typeof WIRE_VERSION;
+
+  /** Main-thread client API (spawn, repo proxy over MessagePort). */
+  readonly Client: t.CrdtWorkerClientLib;
+
+  /** Worker-side host API (listen/attach real repos to ports). */
+  readonly Host: t.CrdtWorkerHostLib;
 };
 
 /**
@@ -18,9 +21,6 @@ export type CrdtWorkerLib = {
  * `CrdtRepo` proxies over a `MessagePort`.
  */
 export type CrdtWorkerClientLib = {
-  /** Protocol version tag for all CRDT wire messages. */
-  readonly version: typeof WIRE_VERSION;
-
   /** Creates a worker-backed `t.CrdtRepo` client facade on the main thread. */
   repo(port: MessagePort, opts?: { until?: t.UntilInput; stalledAfter?: t.Msecs }): t.CrdtRepo;
 
@@ -41,9 +41,6 @@ export type CrdtWorkerClientLib = {
  * and expose it over a `MessagePort` (listen/attach).
  */
 export type CrdtWorkerHostLib = {
-  /** Protocol version tag for all CRDT wire messages. */
-  readonly version: typeof WIRE_VERSION;
-
   /** Attaches a real repo instance to a `MessagePort` inside the worker. */
   attach(port: MessagePort, repo: t.CrdtRepo): void;
 
@@ -67,9 +64,9 @@ export type CrdtWorkerHostLib = {
 /**
  * Factory that produces a repository.
  */
-export type CrdtRepoFactory = (args: {
-  config?: t.CrdtWorkerSpawnConfig;
-}) => t.CrdtRepo | Promise<t.CrdtRepo>;
+type R = t.Crdt.Repo;
+export type CrdtRepoFactory = (args: t.CrdtRepoFactoryArgs) => R | Promise<R>;
+export type CrdtRepoFactoryArgs = { config?: t.CrdtWorkerSpawnConfig };
 
 /** Options for `Crdt.Worker.Client.spawn` */
 export type CrdtWorkerSpawnOptions = {
