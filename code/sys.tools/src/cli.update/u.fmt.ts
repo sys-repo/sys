@@ -34,7 +34,7 @@ export const Fmt = {
   versionInfoTable(version: t.UpdateVersionInfo) {
     const formatVersion = (v?: t.StringSemver) => {
       if (!v) return c.gray('-');
-      return v === version.latest ? c.green(v) : c.yellow(v);
+      return v === version.latest ? c.green(`${v} ✔`) : c.yellow(v);
     };
     const table = Cli.table([]);
     table.push([c.gray('Package'), pkg.name]);
