@@ -126,17 +126,46 @@ describe('JsonFile', () => {
       expect(b.current.count).to.eql(888); // NB: loaded from saved file
     });
 
-    it('savePending toggles on change and clears on save', async () => {
-      const path = Fs.join(root, slug(), 'foo.json');
-      const file = await JsonFile.get(path, initial);
+    it('savePending: new file starts dirty, clears on save, reload starts clean, change marks dirty', async () => {
+      const path = Fs.join(root, slug(), 'foo.save-pending.json');
 
-      expect(file.fs.savePending).to.eql(false);
+      // 1. Brand-new file: no file on disk yet → unsaved state is "dirty".
+      const first = await JsonFile.get<D>(path, initial);
+      expect(await Fs.exists(first.fs.path)).to.eql(false);
+      expect(first.fs.savePending).to.eql(true);
 
-      file.change((d) => d.count++);
-      expect(file.fs.savePending).to.eql(true);
+      // 2. First save writes to disk and clears the pending flag.
+      await first.fs.save();
+      expect(await Fs.exists(first.fs.path)).to.eql(true);
+      expect(first.fs.savePending).to.eql(false);
 
-      await file.fs.save();
-      expect(file.fs.savePending).to.eql(false);
+      // 3. Reload from disk → clean (in-memory matches on-disk).
+      const second = await JsonFile.get<D>(path, initial);
+      expect(second.fs.savePending).to.eql(false);
+
+      // 4. Any change after reload marks the file as dirty again.
+      second.change((d) => (d.count += 1));
+      expect(second.fs.savePending).to.eql(true);
+    });
+
+    it('touch: materialises a new file and starts clean (savePending = false)', async () => {
+      const path = Fs.join(root, slug(), 'foo.touch.json');
+
+      // Brand-new file with touch → should be written immediately and start clean.
+      const first = await JsonFile.get<D>(path, initial, { touch: true });
+
+      expect(await Fs.exists(first.fs.path)).to.eql(true);
+      expect(first.fs.savePending).to.eql(false);
+
+      const json = (await Fs.readJson<D>(first.fs.path)).data!;
+      expect(json['.meta'].createdAt).to.be.a('number');
+      expect(json['.meta'].modifiedAt).to.be.a('number');
+
+      // Reload: still clean, same meta values.
+      const second = await JsonFile.get<D>(path, initial);
+      expect(second.fs.savePending).to.eql(false);
+      expect(second.current['.meta'].createdAt).to.eql(json['.meta'].createdAt);
+      expect(second.current['.meta'].modifiedAt).to.eql(json['.meta'].modifiedAt);
     });
 
     describe('error: corrupt file', () => {

@@ -129,4 +129,27 @@ describe('JsonFile.Singleton', () => {
     expect(again.current['.meta'].createdAt).to.eql(createdAt);
     expect(again.current['.meta'].modifiedAt).to.eql(afterSave);
   });
+
+  it('touch: materialises a new singleton file and starts clean (savePending = false)', async () => {
+    JsonFile.Singleton.clear();
+
+    const dir = Fs.join(root, slug());
+    const path = Fs.join(dir, 'foo.touch.json');
+
+    // Brand-new singleton with touch → should be written immediately and start clean.
+    const first = await JsonFile.Singleton.get<D>(path, initial, { touch: true });
+
+    expect(await Fs.exists(first.fs.path)).to.eql(true);
+    expect(first.fs.path).to.eql(Fs.resolve(path));
+    expect(first.fs.savePending).to.eql(false);
+
+    const json = (await Fs.readJson<D>(first.fs.path)).data!;
+    expect(json['.meta'].createdAt).to.be.a('number');
+    expect(json['.meta'].modifiedAt).to.be.a('number');
+
+    // Second get without initial uses the same instance from the pool.
+    const second = await JsonFile.Singleton.get<D>(path);
+    expect(second).to.equal(first);
+    expect(second.fs.savePending).to.eql(false);
+  });
 });

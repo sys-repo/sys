@@ -6,6 +6,7 @@ import { type t, Fs, Immutable, Obj, Time } from './common.ts';
 export async function get<D extends t.JsonFileDoc>(
   path: t.StringPath,
   initial: D,
+  options: t.JsonFileGetOptions = {},
 ): Promise<t.JsonFile<D>> {
   type F = t.JsonFile<D>;
 
@@ -16,7 +17,7 @@ export async function get<D extends t.JsonFileDoc>(
   /**
    * Immutable handle:
    */
-  let savePending = false;
+  let savePending = !exists; // brand-new file starts "dirty"
   let changeVersion = 0;
 
   const doc = Immutable.clonerRef(seed) as unknown as F;
@@ -31,7 +32,7 @@ export async function get<D extends t.JsonFileDoc>(
     // Apply our own change; this will bump changeVersion via events().
     doc.change((d) => (d['.meta'].modifiedAt = Time.now.timestamp));
 
-    // Snapshot the version *after* our change.
+    // Snapshot the version after our change.
     const versionAtSaveStart = changeVersion;
 
     const { error } = await Fs.writeJson(path, doc.current);
@@ -49,9 +50,6 @@ export async function get<D extends t.JsonFileDoc>(
     return { error };
   }
 
-  /**
-   * Filesystem Methods:
-   */
   const file: F['fs'] = {
     save,
     get path() {
@@ -62,8 +60,14 @@ export async function get<D extends t.JsonFileDoc>(
     },
   };
 
-  // Extend the API.
   Object.defineProperty(doc, 'fs', { get: () => file, enumerable: true, configurable: false });
+
+  // If this is a brand-new file and the caller requested `touch`,
+  // synchronise the initial state to disk immediately and start clean.
+  if (!exists && options.touch) {
+    await file.save();
+  }
+
   return doc as t.JsonFile<D>;
 }
 

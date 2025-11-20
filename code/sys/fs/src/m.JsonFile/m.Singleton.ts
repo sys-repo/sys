@@ -10,6 +10,7 @@ export const Singleton: t.JsonFileSingletonLib = {
   async get<D extends t.JsonFileDoc = t.JsonFileDoc>(
     path: t.StringPath,
     initial?: D | (() => D),
+    options: t.JsonFileGetOptions = {},
   ): Promise<t.JsonFile<D>> {
     const resolved = Fs.resolve(path);
     const existing = pool.get(resolved);
@@ -21,7 +22,7 @@ export const Singleton: t.JsonFileSingletonLib = {
     }
 
     const value = Is.func(initial) ? (initial as () => D)() : initial;
-    const file = await get<D>(resolved, value);
+    const file = await get<D>(resolved, value, options);
     pool.set(resolved, file);
     return file;
   },
