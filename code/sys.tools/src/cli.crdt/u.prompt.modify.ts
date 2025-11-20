@@ -1,4 +1,4 @@
-import { type t, c, Crdt, Delete, getConfig, Prompt } from './common.ts';
+import { type t, c, Crdt, Delete, getConfig, Prompt, Time } from './common.ts';
 
 /**
  * Add a document to the config.
@@ -18,7 +18,8 @@ export async function promptAddDocument(dir: t.StringDir) {
     return;
   }
 
-  const entry: t.CrdtConfigDocEntry = Delete.empty({ id, name });
+  const createdAt = Time.now.timestamp;
+  const entry: t.CrdtConfigDocEntry = Delete.empty({ id, name, createdAt });
   config.change((d) => (d.docs || (d.docs = [])).push(entry));
   await config.fs.save();
 

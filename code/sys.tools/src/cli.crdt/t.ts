@@ -28,4 +28,5 @@ export type CrdtConfigDoc = t.JsonFileDoc & {
 export type CrdtConfigDocEntry = {
   id: t.StringId;
   name?: t.StringName;
+  createdAt?: t.UnixTimestamp;
 };

@@ -3,6 +3,7 @@ import { type t, Args, c, D, Fs, getConfig, Prompt, Str } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument, promptAddDocument } from './u.prompt.modify.ts';
 import { CrdtUri } from './u.ts';
+import { normalize } from './u.config.doc.ts';
 
 /**
  * Main entry:
@@ -24,6 +25,7 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
  */
 async function run(dir: t.StringDir) {
   const config = await getConfig(dir);
+  await normalize(config);
 
   const listing = (config.current.docs ?? []).map((doc, i, docs) => {
     const isLast = i === docs.length - 1;
@@ -42,7 +44,7 @@ async function run(dir: t.StringDir) {
   console.info();
   const optionA = (await Prompt.Select.prompt<t.CrdtCommand>({
     message: 'Choose:\n',
-    options: [{ name: 'Add <document>', value: 'modify:add' }, ...listing],
+    options: [{ name: ' add: <document>', value: 'modify:add' }, ...listing],
   })) as t.CrdtCommand;
 
   let id = CrdtUri.hasPrefix(optionA) ? CrdtUri.trimPrefix(optionA) : '';

@@ -1,4 +1,4 @@
-import { type t, JsonFile, Fs, pkg } from '../common.ts';
+import { type t, Fs, JsonFile } from '../common.ts';
 
 export * from '../common.ts';
 
@@ -25,9 +25,10 @@ export const D = {
 } as const;
 
 /**
- * Retrieval of the stateful config-file.
+ * Get or create the `crdt.config.json` file.
  */
-export async function getConfig(dir: t.StringDir) {
+export async function getConfig(dir: t.StringDir): Promise<t.CrdtConfig> {
   const path = Fs.join(dir, D.config.filename);
-  return JsonFile.Singleton.get<t.CrdtConfigDoc>(path, D.config.doc, { touch: true });
+  const doc = JsonFile.Singleton.get<t.CrdtConfigDoc>(path, D.config.doc, { touch: true });
+  return doc;
 }
