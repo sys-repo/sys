@@ -93,12 +93,12 @@ export type JsonFile<T extends D = D> = t.ImmutableRef<T> & {
      * True when the in-memory document has diverged from the last
      * successfully persisted snapshot (i.e. there are unsaved changes).
      */
-    readonly savePending: boolean;
+    readonly pending: boolean;
 
     /**
      * Persist the current document to disk.
      *
-     * - On success, `savePending` may be cleared (if no additional changes
+     * - On success, `pending` may be cleared (if no additional changes
      *   occurred during the save).
      * - On error, the attempt to update `.meta.modifiedAt` is reverted.
      */

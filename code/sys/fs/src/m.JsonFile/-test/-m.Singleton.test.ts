@@ -130,7 +130,7 @@ describe('JsonFile.Singleton', () => {
     expect(again.current['.meta'].modifiedAt).to.eql(afterSave);
   });
 
-  it('touch: materialises a new singleton file and starts clean (savePending = false)', async () => {
+  it('touch: materialises a new singleton file and starts clean (pending = false)', async () => {
     JsonFile.Singleton.clear();
 
     const dir = Fs.join(root, slug());
@@ -141,7 +141,7 @@ describe('JsonFile.Singleton', () => {
 
     expect(await Fs.exists(first.fs.path)).to.eql(true);
     expect(first.fs.path).to.eql(Fs.resolve(path));
-    expect(first.fs.savePending).to.eql(false);
+    expect(first.fs.pending).to.eql(false);
 
     const json = (await Fs.readJson<D>(first.fs.path)).data!;
     expect(json['.meta'].createdAt).to.be.a('number');
@@ -150,6 +150,6 @@ describe('JsonFile.Singleton', () => {
     // Second get without initial uses the same instance from the pool.
     const second = await JsonFile.Singleton.get<D>(path);
     expect(second).to.equal(first);
-    expect(second.fs.savePending).to.eql(false);
+    expect(second.fs.pending).to.eql(false);
   });
 });

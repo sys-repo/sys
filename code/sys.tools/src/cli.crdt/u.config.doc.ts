@@ -16,4 +16,5 @@ export async function normalize(config: t.CrdtConfig) {
   /**
    * Save if changed
    */
+  if (config.fs.pending) await config.fs.save();
 }

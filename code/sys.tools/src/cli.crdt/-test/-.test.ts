@@ -23,7 +23,7 @@ describe('cli.crdt', () => {
 
       // touch: file is materialised immediately and starts clean.
       expect(await Fs.exists(path)).to.eql(true);
-      expect(a.fs.savePending).to.eql(false);
+      expect(a.fs.pending).to.eql(false);
 
       // Config seed is as declared in D.config.doc.
       const json = (await Fs.readJson<Doc>(path)).data!;

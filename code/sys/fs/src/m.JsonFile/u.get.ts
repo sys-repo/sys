@@ -15,15 +15,15 @@ export async function get<D extends t.JsonFileDoc>(
   const seed = await wrangle.seed<D>({ path, exists, initial });
 
   /**
-   * Immutable handle:
+   * ImmutableRef<T> handle for JSON file:
    */
-  let savePending = !exists; // brand-new file starts "dirty"
+  let pending = !exists; // brand-new file starts "dirty"
   let changeVersion = 0;
 
   const doc = Immutable.clonerRef(seed) as unknown as F;
   doc.events().$.subscribe(() => {
     changeVersion += 1;
-    savePending = true;
+    pending = true;
   });
 
   async function save() {
@@ -44,7 +44,7 @@ export async function get<D extends t.JsonFileDoc>(
 
     // Only clear pending if nothing else changed during the save.
     if (changeVersion === versionAtSaveStart) {
-      savePending = false;
+      pending = false;
     }
 
     return { error };
@@ -55,8 +55,8 @@ export async function get<D extends t.JsonFileDoc>(
     get path() {
       return path;
     },
-    get savePending() {
-      return savePending;
+    get pending() {
+      return pending;
     },
   };
 
