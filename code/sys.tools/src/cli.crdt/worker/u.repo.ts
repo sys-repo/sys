@@ -1,4 +1,4 @@
-import { type t, Crdt, D } from '../common.ts';
+import { type t, Crdt, D, Fs } from '../common.ts';
 
 export async function startRepoWorker(dir: t.StringDir, opts: { silent?: boolean } = {}) {
   const { silent = true } = opts;
@@ -7,7 +7,7 @@ export async function startRepoWorker(dir: t.StringDir, opts: { silent?: boolean
   const { repo } = await Crdt.Worker.Client.spawn(url, {
     config: {
       kind: 'fs',
-      storage: dir,
+      storage: Fs.join(dir, D.Path.repo),
       network: [{ ws: D.Sync.server }],
       silent,
     },

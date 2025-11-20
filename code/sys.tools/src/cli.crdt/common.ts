@@ -15,7 +15,7 @@ export const D = {
   toolname: 'CRDT Tools',
   Sync: { server: 'waiheke.sync.db.team' },
   Path: {
-    repo: './.crdt.repo',
+    repo: './.repo.crdt',
     config: './tools.config.json',
   },
   config: {

@@ -5,10 +5,12 @@ import { type t, c, Crdt, Delete, getConfig, Prompt } from './common.ts';
  */
 export async function promptAddDocument(dir: t.StringDir) {
   const config = await getConfig(dir);
-  const id = await Prompt.Input.prompt({
+  let id = await Prompt.Input.prompt({
     message: 'Document-id',
-    validate: (value) => Crdt.Is.id(value),
+    validate: (value) => Crdt.Is.id(value.trim()),
   });
+  id = id.trim();
+
   const name = await Prompt.Input.prompt('Display name (optional)');
   const exists = (config.current.docs ?? []).some((d) => d.id === id);
   if (exists) {

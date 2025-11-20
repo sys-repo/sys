@@ -28,9 +28,10 @@ async function run(dir: t.StringDir) {
   const listing = (config.current.docs ?? []).map((doc, i, docs) => {
     const isLast = i === docs.length - 1;
     const prefix = isLast ? '└─' : '├─';
-    const id = Str.ellipsize(doc.id, [5, 5], '..');
-    let name = `${c.gray(prefix)} crdt:${id}`;
-    if (doc.name) name += ` ─ ${doc.name}`;
+    const id = `crdt:${doc.id.slice(0, 5)}..${c.green(doc.id.slice(-5))}`;
+
+    let name = `${'Act on:'} ${c.gray(prefix)} ${id}`;
+    if (doc.name) name += `  •  ${doc.name}`;
 
     return {
       name,
@@ -40,7 +41,7 @@ async function run(dir: t.StringDir) {
 
   const optionA = (await Prompt.Select.prompt<t.CrdtCommand>({
     message: 'CRDT to operate on:\n',
-    options: [{ name: 'Add document', value: 'modify:add' }, ...listing],
+    options: [{ name: 'Add <document>', value: 'modify:add' }, ...listing],
   })) as t.CrdtCommand;
 
   let id = CrdtUri.hasPrefix(optionA) ? CrdtUri.trimPrefix(optionA) : '';
