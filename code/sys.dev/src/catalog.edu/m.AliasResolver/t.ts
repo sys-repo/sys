@@ -17,6 +17,7 @@ export type AliasResolverLib = {
   /**
    * Expand one RawPath string using an AliasMap.
    * Nested alias references allowed; cycles forbidden.
+   */
 };
 
 /**
