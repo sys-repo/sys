@@ -53,6 +53,17 @@ export const Card: React.FC<P> = (props) => {
       gridTemplateRows: `auto 1fr auto`,
     }),
     header: css({ marginTop: headerStyle.topOffset }),
+
+    body: {
+      base: css({
+        position: 'relative',
+      }),
+      inner: css({
+        Absolute: 0,
+        Scroll: true,
+        backgroundColor: Color.ruby(0.05),
+      }),
+    },
     objectDoc: css({
       opacity: current === undefined || !head ? 0.25 : 1,
       Margin: 30,
@@ -121,7 +132,9 @@ export const Card: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {elDocumentId}
-      {elDoc}
+      <div className={styles.body.base.class}>
+        <div className={styles.body.inner.class}>{elDoc}</div>
+      </div>
       {elFooter}
     </div>
   );
