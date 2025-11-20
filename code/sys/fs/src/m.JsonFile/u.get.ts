@@ -53,13 +53,13 @@ export async function get<D extends t.JsonFileDoc>(
    * Filesystem Methods:
    */
   const file: F['fs'] = {
+    save,
     get path() {
       return path;
     },
     get savePending() {
       return savePending;
     },
-    save,
   };
 
   // Extend the API.
