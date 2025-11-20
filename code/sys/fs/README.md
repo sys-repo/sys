@@ -25,7 +25,7 @@ import { Watch } from '@sys/fs/watch';
 
 
 ## JsonFile
-A minimal, immutable JSON-on-disk primitive that gives you a typed ImmutableRef<T> backed by a file, with automatic .meta.createdAt management and an ergonomic fs.save() for persistence.
+A minimal, immutable JSON-on-disk primitive that gives you a typed `ImmutableRef<T>` backed by a file, with automatic `.meta.createdAt/.modifiedAt` management and an ergonomic `fs.save()` for persistence.
 
 ```ts
 import type * as t from '@sys/fs/t';
