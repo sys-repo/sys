@@ -1,13 +1,70 @@
-import { type t, Args, D, Fs, getConfig } from './common.ts';
+import { snapshot } from './cmd.snapshot.ts';
+import { type t, Args, c, D, Fs, getConfig, Prompt, Str } from './common.ts';
 import { Fmt } from './u.fmt.ts';
+import { promptRemoveDocument, promptAddDocument } from './u.prompt.modify.ts';
+import { CrdtUri } from './u.ts';
 
+/**
+ * Main entry:
+ */
 export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
   const dir = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.CrdtCliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
-
+  console.info(await Fmt.header(toolname));
+  await run(dir);
   console.info();
   console.info(Fmt.signoff(toolname));
 };
+
+/**
+ * Execution:
+ */
+async function run(dir: t.StringDir) {
+  const config = await getConfig(dir);
+
+  const listing = (config.current.docs ?? []).map((doc, i, docs) => {
+    const isLast = i === docs.length - 1;
+    const prefix = isLast ? '└─' : '├─';
+    const id = Str.ellipsize(doc.id, [5, 5], '..');
+    let name = `${c.gray(prefix)} crdt:${id}`;
+    if (doc.name) name += ` ─ ${doc.name}`;
+
+    return {
+      name,
+      value: `crdt:${doc.id}`,
+    };
+  });
+
+  const optionA = (await Prompt.Select.prompt<t.CrdtCommand>({
+    message: 'CRDT to operate on:\n',
+    options: [{ name: 'Add document', value: 'modify:add' }, ...listing],
+  })) as t.CrdtCommand;
+
+  let id = CrdtUri.hasPrefix(optionA) ? CrdtUri.trimPrefix(optionA) : '';
+  if (optionA === 'modify:add') {
+    const res = await promptAddDocument(dir);
+    if (!res?.id) return;
+    id = res.id;
+  }
+  if (!id) return;
+
+  const optionB = (await Prompt.Select.prompt<t.CrdtCommand>({
+    message: 'CRDT Operation:\n',
+    options: [
+      { name: 'Snapshot backup', value: 'snapshot' },
+      { name: 'Remove document', value: 'modify:remove' },
+    ],
+  })) as t.CrdtCommand;
+
+  if (optionB === 'modify:remove') {
+    await promptRemoveDocument(dir, id);
+    return;
+  }
+
+  if (optionB === 'snapshot') {
+    await snapshot(dir, id);
+  }
+}

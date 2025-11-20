@@ -7,6 +7,9 @@ import {
 } from './u.cmd.hash.ts';
 import { Fmt } from './u.fmt.ts';
 
+/**
+ * Main entry:
+ */
 export const cli: t.FsToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
   const dir = cwd ?? Fs.cwd('terminal');
@@ -20,7 +23,7 @@ export const cli: t.FsToolsLib['cli'] = async (cwd, argv) => {
 };
 
 /**
- * Helpers:
+ * Execution:
  */
 async function run(dir: t.StringDir) {
   const mode = (await Cli.Prompt.Select.prompt({
@@ -37,6 +40,4 @@ async function run(dir: t.StringDir) {
   if (mode === 'hash:rename-sha256') await selectFilesAndRenameToHash(dir);
   if (mode === 'hash:tidy-sha256-files') await tidySha256Files(dir);
   if (mode === 'hash:remove-renamed-sha256') await removeRenamedSha256Files(dir);
-
-  return { mode };
 }

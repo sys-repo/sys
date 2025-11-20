@@ -1,4 +1,4 @@
-export { Args, Cli, c } from '@sys/cli';
+export { Args, Cli, Prompt, c } from '@sys/cli';
 export { Hash } from '@sys/crypto/hash';
 export { Fs, Path } from '@sys/fs';
 export { JsonFile } from '@sys/fs/file';

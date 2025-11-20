@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** The various copy options */
-export type CrdtCommand = 'snapshot';
+export type CrdtCommand = 'modify:add' | 'modify:remove' | 'snapshot';
 
 /**
  * CLI helpers for working with CRDT documents.
@@ -20,4 +20,12 @@ export type CrdtCliArgs = t.ToolsCliArgs;
  * Config File
  */
 export type CrdtConfig = t.JsonFile<CrdtConfigDoc>;
-export type CrdtConfigDoc = t.JsonFileDoc & { version: string };
+export type CrdtConfigDoc = t.JsonFileDoc & {
+  version: string;
+  docs?: CrdtConfigDocEntry[];
+};
+
+export type CrdtConfigDocEntry = {
+  id: t.StringId;
+  name?: t.StringName;
+};
