@@ -65,11 +65,11 @@ describe('CrdtWorker.spawn (real worker)', () => {
         network: [],
       };
 
-      // Wait for worker to echo { kind: 'config', config } before calling spawn.
+      // Wait for worker to echo { kind: 'test/config', config } before calling spawn.
       const receivedConfig = new Promise<t.CrdtWorkerSpawnConfig>((resolve) => {
         const onMessage = (ev: MessageEvent) => {
           const data = ev.data as { kind?: string; config?: t.CrdtWorkerSpawnConfig } | undefined;
-          if (data?.kind === 'config' && data.config) {
+          if (data?.kind === 'test/config' && data.config) {
             worker.removeEventListener('message', onMessage);
             resolve(data.config);
           }

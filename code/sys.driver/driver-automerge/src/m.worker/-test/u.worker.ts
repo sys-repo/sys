@@ -1,13 +1,14 @@
 import { Crdt } from '../../-exports/-fs/mod.ts';
+import type { t } from '../common.ts';
 
 /**
- * Echo: for spawn with config test.
+ * Echo: for `Worker.spawn` with config test.
  */
-self.addEventListener('message', (ev) => {
-  const data = ev.data as { kind?: string; config?: unknown } | undefined;
-  if (data?.kind === 'crdt:attach' && data.config !== undefined) {
-    self.postMessage({ kind: 'config', config: data.config });
-  }
+Crdt.Worker.onConfig<t.CrdtWorkerSpawnConfigFs>((e) => {
+  /**
+   * In normal usage (not tests) - setup the repo here.
+   */
+  self.postMessage({ kind: 'test/config', config: e });
 });
 
 /**
