@@ -8,8 +8,8 @@ export const Paths = {
    * System Module Graph (ESM):
    */
   get modules() {
-    // return Paths.all;
-    return Paths.single; // 🐷 NARROW
+    return Paths.all;
+    // return Paths.single; // 🐷 NARROW
   },
   single: ['code/sys.tools'],
   all: [
@@ -24,11 +24,11 @@ export const Paths = {
     'code/sys/color',
     'code/sys/cli',
     'code/sys/crypto',
+    'code/sys/immutable',
     'code/sys/fs',
 
     'code/sys/testing',
     'code/sys/process',
-    'code/sys/immutable',
     'code/sys/yaml',
     'code/sys/schema',
 
