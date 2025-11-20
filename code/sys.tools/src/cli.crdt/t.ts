@@ -1,9 +1,10 @@
 import type { t } from './common.ts';
 
 export type * from './cmd.snapshot/t.ts';
+export type * from './cmd.tasks/t.ts';
 
 /** The various copy options */
-export type CrdtCommand = 'modify:add' | 'modify:remove' | 'snapshot';
+export type CrdtCommand = 'modify:add' | 'modify:remove' | 'snapshot' | 'tasks:find';
 
 /**
  * CLI helpers for working with CRDT documents.

@@ -1,4 +1,4 @@
-import { type t, slug, c, Cli, Rx, Str, Time } from '../common.ts';
+import { type t, c, Cli, Str, Time } from '../common.ts';
 import { startRepoWorker } from '../worker/mod.ts';
 import { process } from './u.process.ts';
 
@@ -6,13 +6,10 @@ const Tree = Cli.Fmt.Tree;
 
 export async function snapshot(dir: t.StringDir, id: t.StringId) {
   /**
-   * Prepare CRDT respository on background worker.
+   * Prepare CRDT repository on background worker.
    */
   const spinner = Cli.spinner();
   const repo = await startRepoWorker(dir);
-  const evt = repo.events();
-  const ready$ = evt.ready$.pipe(Rx.take(1));
-  await Rx.firstValueFrom(ready$);
   spinner.stop();
 
   /**

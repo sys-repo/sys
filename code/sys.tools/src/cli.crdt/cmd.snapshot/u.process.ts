@@ -5,8 +5,8 @@ const cleanId = (input: string) => (input || '').trim().replace(/^crdt\:/, '');
 const sumBytes = (values: readonly number[]) => values.reduce((total, n) => total + n, 0);
 
 type Args = {
+  id: t.Crdt.Id;
   repo: t.Crdt.Repo;
-  id: t.StringId;
   base: t.StringDir;
   //
   dir?: t.StringDir;
