@@ -107,6 +107,9 @@ describe('marks', { sanitizeResources: false, sanitizeOps: false }, () => {
       ]);
     });
 
+    /**
+     * TODO 🐷 move to Monaco - sample 'toggleFoldMark' to Monaco - proper API:
+     */
     describe('edge cases', () => {
       type Doc = { a: string; b?: string };
 
