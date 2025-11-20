@@ -1,6 +1,6 @@
 import { type t, Rx, Schedule, Try } from './common.ts';
 import { attachDoc } from './u.host.attach.doc.ts';
-import { onMessageErrorHandler } from './u.onErrorMessage.ts';
+import { onMessageErrorHandler } from './u.wire.onErrorMessage.ts';
 import { Wire } from './u.wire.ts';
 
 type O = Record<string, unknown>;

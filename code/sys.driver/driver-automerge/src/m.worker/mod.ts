@@ -5,4 +5,4 @@
  * isolating heavy Automerge work from the UI thread while preserving
  * the standard the `Crdt.Repo` interface.
  */
-export { CrdtWorker } from './m.CrdtWorker.ts';
+export { CrdtWorker } from './m.Crdt.Worker.ts';
