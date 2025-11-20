@@ -95,7 +95,7 @@ const wrangle = {
     const hr = () => rows.push({ kind: 'hr' });
 
     rows.push({
-      k: CrdtIs.proxy(repo) ? 'Repo ( Worker )' : 'Repo',
+      k: CrdtIs.proxy(repo) ? 'Repository ( Proxy )' : 'Repository',
       v: formatRepoLabel(repo, startupElapsed),
       mono: true,
     });
