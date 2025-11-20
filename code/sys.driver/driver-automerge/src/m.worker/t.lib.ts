@@ -30,7 +30,26 @@ export type CrdtWorkerLib = {
    * and the client-side repo facade bound to that connection.
    */
   spawn(
-    url: string | URL | Worker,
-    opts?: { worker?: WorkerOptions; until?: t.UntilInput },
+    url: URL | Worker,
+    opts?: {
+      worker?: WorkerOptions;
+      config?: t.CrdtWorkerSpawnConfig;
+      until?: t.UntilInput;
+    },
   ): Promise<{ readonly worker: Worker; readonly repo: t.CrdtRepo }>;
+};
+
+/**
+ * Configuration passed over the wire to the worker for repo initialization.
+ */
+export type CrdtWorkerSpawnConfig = CrdtWorkerSpawnConfigFs | CrdtWorkerSpawnConfigBrowser;
+export type CrdtWorkerSpawnConfigFs = {
+  kind: 'fs';
+  storage?: t.StringDir;
+  network?: t.CrdtWebsocketNetworkArg[] | t.Falsy;
+};
+export type CrdtWorkerSpawnConfigBrowser = {
+  kind: 'web';
+  storage?: t.CrdtBrowserStorageArg;
+  network?: t.CrdtWebsocketNetworkArg[] | t.Falsy;
 };

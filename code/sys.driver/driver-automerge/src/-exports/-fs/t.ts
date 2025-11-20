@@ -1,8 +1,6 @@
 import type { AutomergeUrl, NetworkAdapterInterface, SharePolicy } from '@automerge/automerge-repo';
 import type { t } from './common.ts';
 
-type StringWebsocketEndpoint = string;
-
 /**
  * API for CRDT's on a file-system:
  */
@@ -22,8 +20,8 @@ export type CrdtFsRepoArgs = {
 
 /** Network connection argument. */
 export type CrdtFsNetworkArg =
-  | StringWebsocketEndpoint // ↓ shorthand for: ↓
-  | { ws: StringWebsocketEndpoint };
+  | t.StringWebsocketEndpoint // ↓ shorthand for: ↓
+  | t.CrdtWebsocketNetworkArg;
 
 /** Looser input args taking specific CRDT args, and general network interface types. */
 export type CrdtFsNetworkArgInput = CrdtFsNetworkArg | NetworkAdapterInterface | t.Falsy;

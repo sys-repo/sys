@@ -7,7 +7,7 @@ import { Wire } from './u.wire.ts';
  * Client-side helper: creates MessageChannel, posts port2 to worker, binds facade to port1.
  */
 export const spawn: t.CrdtWorkerLib['spawn'] = async (input, opts = {}) => {
-  const { until } = opts;
+  const { until, config } = opts;
   const worker =
     input instanceof Worker ? input : new Worker(input, opts.worker ?? { type: 'module' });
 
@@ -34,9 +34,9 @@ export const spawn: t.CrdtWorkerLib['spawn'] = async (input, opts = {}) => {
    * Important: include the port in data, not just in the transfer list.
    */
   const kind = Wire.Kind.attach;
-  worker.postMessage({ kind, port: port2 }, [port2]);
-
+  worker.postMessage({ kind, port: port2, config }, [port2]);
   await Schedule.micro(); // ← Allow wire events to flush before returning.
+
   return {
     worker,
     repo,

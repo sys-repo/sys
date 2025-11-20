@@ -7,7 +7,6 @@ import type {
 import type { t } from './common.ts';
 
 type StringDatabaseName = string;
-type StringWebsocketEndpoint = string;
 
 /**
  * API for CRDT's on IndexedDB (browser):
@@ -32,6 +31,6 @@ export type CrdtBrowserStorageArg = 'IndexedDb' | { database?: StringDatabaseNam
 export type CrdtBrowserStorageArgInput = CrdtBrowserStorageArg | StorageAdapterInterface;
 
 /** Network connection argument. */
-export type CrdtBrowserNetworkArg = { ws: StringWebsocketEndpoint };
+export type CrdtBrowserNetworkArg = t.CrdtWebsocketNetworkArg;
 /** Looser input args taking specific CRDT args, and general network interface types. */
 export type CrdtBrowserNetworkArgInput = CrdtBrowserNetworkArg | NetworkAdapterInterface | t.Falsy;

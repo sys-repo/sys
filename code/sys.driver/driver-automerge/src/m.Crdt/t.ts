@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 export type * from './t.core.ts';
 export type * from './t.meta.ts';
+export type * from './t.network.ts';
 
 type O = Record<string, unknown>;
 
