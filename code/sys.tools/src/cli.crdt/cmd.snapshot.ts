@@ -13,6 +13,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
 
   console.info();
   console.info();
-  console.info('TODO - snapshot 🐷 ');
+  console.info('       TODO - snapshot 🐷 ');
+  console.info(c.green(`       repo(proxy):`), repo.id);
 
 }
