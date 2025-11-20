@@ -10,5 +10,4 @@ import { Fs } from './common.ts';
 if (import.meta.main) {
   const { cli } = await import('./m.cli.ts');
   await cli(Fs.cwd('terminal'), Deno.args);
-
 }
