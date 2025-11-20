@@ -28,12 +28,14 @@ describe('JsonFile', () => {
 
       // NB: zero `createdAt` date is auto-updated by at creation by the tool.
       const initial: D = { '.meta': { createdAt: 0 }, count: 0 };
+
+      const before = Time.now.timestamp;
       const a = await JsonFile.get<D>(pathA, initial);
       const b = await JsonFile.get<D>(pathB, initial);
+      const after = Time.now.timestamp;
 
-      const now = Time.now.timestamp;
-      expect(a.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
-      expect(b.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
+      expect(a.current['.meta'].createdAt).to.be.within(before, after);
+      expect(b.current['.meta'].createdAt).to.be.within(before, after);
 
       expect(a.fs.path).to.eql(Fs.resolve(pathA));
       expect(b.fs.path).to.eql(Fs.resolve(pathB));
@@ -50,10 +52,13 @@ describe('JsonFile', () => {
 
       const initial: T = { '.meta': { createdAt: 0, tmp: 123 }, foo: 'hello' };
       const path = Fs.join(root, slug(), 'foo.json');
-      const file = await JsonFile.get<T>(path, initial);
 
-      const now = Time.now.timestamp;
-      expect(file.current['.meta'].createdAt).to.be.within(now - 10, now + 10);
+      const before = Time.now.timestamp;
+      const file = await JsonFile.get<T>(path, initial);
+      const after = Time.now.timestamp;
+
+      expect(file.current['.meta'].createdAt).to.be.within(before, after);
+
       expect(file.current['.meta'].tmp).to.eql(123);
       expect(file.current.foo).to.eql('hello');
     });
@@ -73,14 +78,16 @@ describe('JsonFile', () => {
       file.change((d) => (d.count = 1234));
 
       await Time.wait(100); // NB: setup for test for modified date on save.
+
+      const before = Time.now.timestamp;
       const res = await file.fs.save();
+      const after = Time.now.timestamp;
 
       expect(res.error).to.eql(undefined);
       expect(await Fs.exists(file.fs.path)).to.eql(true);
 
       const json = (await Fs.readJson<D>(file.fs.path)).data!;
-      const now = Time.now.timestamp;
-      expect(json['.meta'].modifiedAt).to.be.within(now - 10, now + 10);
+      expect(json['.meta'].modifiedAt).to.be.within(before, after);
       expect(json['.meta'].modifiedAt).to.not.eql(json['.meta'].createdAt);
       expect(json.count).to.eql(1234);
     });
