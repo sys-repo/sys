@@ -42,7 +42,7 @@ export type CrdtWorkerLib = {
 };
 
 /**
- * Factor that produces a repository.
+ * Factory that produces a repository.
  */
 export type CrdtRepoFactory = (args: {
   config?: t.CrdtWorkerSpawnConfig;
