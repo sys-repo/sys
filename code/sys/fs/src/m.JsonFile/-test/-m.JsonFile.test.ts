@@ -13,11 +13,59 @@ describe('JsonFile', () => {
     expect(m.JsonFile).to.equal(JsonFile);
   });
 
-  it('JsonFile.default()', () => {
-    const a = JsonFile.default();
-    const b = JsonFile.default();
-    expect(a).to.eql({ '.meta': { createdAt: 0 } });
-    expect(a).to.not.equal(b);
+  describe('JsonFile.default()', () => {
+    type Doc = t.JsonFileDoc & { msg?: string; count: number };
+
+    it('no-arg default returns fresh base doc', () => {
+      const a = JsonFile.default();
+      const b = JsonFile.default();
+
+      expect(a).to.eql({ '.meta': { createdAt: 0 } });
+      expect(b).to.eql({ '.meta': { createdAt: 0 } });
+
+      // distinct objects
+      expect(a).to.not.equal(b);
+      expect(a['.meta']).to.not.equal(b['.meta']);
+    });
+
+    it('seeded default merges base meta', () => {
+      const doc = JsonFile.default<Doc>({ count: 0 });
+
+      expect(doc).to.eql({
+        '.meta': { createdAt: 0 },
+        count: 0,
+      });
+    });
+
+    it('seeded default respects provided .meta values', () => {
+      const seed: Doc = {
+        '.meta': {
+          createdAt: 123 as t.UnixTimestamp,
+          modifiedAt: 456 as t.UnixTimestamp,
+        },
+        count: 1,
+        msg: 'hello',
+      };
+
+      const doc = JsonFile.default<Doc>(seed);
+
+      expect(doc.count).to.eql(1);
+      expect(doc.msg).to.eql('hello');
+      expect(doc['.meta'].createdAt).to.eql(123);
+      expect(doc['.meta'].modifiedAt).to.eql(456);
+    });
+
+    it('seeded default does not share object references', () => {
+      const seed: Doc = {
+        '.meta': { createdAt: 789 as t.UnixTimestamp },
+        count: 1,
+      };
+
+      const doc = JsonFile.default<Doc>(seed);
+
+      expect(doc).to.not.equal(seed);
+      expect(doc['.meta']).to.not.equal(seed['.meta']);
+    });
   });
 
   describe('get', () => {
@@ -28,6 +76,7 @@ describe('JsonFile', () => {
 
       // NB: zero `createdAt` date is auto-updated by at creation by the tool.
       const initial: D = { '.meta': { createdAt: 0 }, count: 0 };
+      JsonFile.default<D>({ count: 0 });
 
       const before = Time.now.timestamp;
       const a = await JsonFile.get<D>(pathA, initial);

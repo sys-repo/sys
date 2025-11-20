@@ -1,5 +1,5 @@
-# @sys/fs
-File system utilities.
+# Filesystem
+Primary `@sys/fs` file-system tools.
 
 ## Overview
 `@sys/fs` provides a unified abstraction for working with the file system, environment setup, and directory watching.
@@ -9,6 +9,7 @@ It standardizes essential I/O and workspace setup operations across the sys runt
 - `Fs` — Core file and directory operations.
 - `Path` — Path utilities.
 - `FileMap` — Declarative file-tree representation.
+- `JsonFile` —
 - `Watch` — Directory watching.
 - `Env` — Environment initialization helpers.
 
@@ -19,10 +20,42 @@ import { FileMap } from '@sys/fs/filemap';
 import { Watch } from '@sys/fs/watch';
 ```
 
+
+<p>&nbsp;</p>
+
+
+## JsonFile
+A minimal, immutable JSON-on-disk primitive that gives you a typed ImmutableRef<T> backed by a file, with automatic .meta.createdAt management and an ergonomic fs.save() for persistence.
+
+```ts
+import type * as t from '@sys/fs/t';
+import { JsonFile } from '@sys/fs/file';
+
+type Doc = t.JsonFileDoc & { msg?: string; count: number };
+const initial = JsonFile.default<Doc>({ count: 123 });
+//       ↑
+//       ↑ { '.meta': { createdAt: 0 }, count: 123 }
+
+
+// Load a JSON file (in-memory until explicitly saved):
+const file = await JsonFile.get('./config.json', initial);
+
+
+// Read + modify through common ImmutableRef<T> interface:
+console.info(file.current.count);  // → 123
+file.change((d) => d.count++);
+
+
+// Persist changes to disk.
+await file.fs.save();
+```
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 <p>&nbsp;</p>
 
 ---
-### (Convenience) - Bootstrap Environment
+### Programming Environment Bootstrap
 From a clean folder with, say, a `main.ts` entry point:
 
 ```bash

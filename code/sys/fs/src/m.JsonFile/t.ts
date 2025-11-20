@@ -2,12 +2,17 @@ import type { t } from './common.ts';
 
 type D = t.JsonFileDoc;
 
+export type JsonFileSeed<T extends JsonFileDoc> = Omit<T, '.meta'> & {
+  readonly '.meta'?: Partial<JsonFileMeta>;
+};
+
 /**
  * Simple JSON based file-persistence with an ImmutableRef<T> handle API.
  */
 export type JsonFileLib = {
   /** Common defaults */
   default(): JsonFileDoc;
+  default<T extends JsonFileDoc>(seed: JsonFileSeed<T>): T;
 
   /** Get JsonFile handle for the given path (pure, non-cached). */
   readonly get: JsonFileGet;
