@@ -30,7 +30,7 @@ async function run(dir: t.StringDir) {
   const listing = (config.current.docs ?? []).map((doc, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
     const id = `crdt:${doc.id.slice(0, 5)}..${c.green(doc.id.slice(-5))}`;
-    let name = `${'with:'} ${c.gray(branch)} ${id}`;
+    let name = `${'with:'} ${branch} ${id}`;
     if (doc.name) name += `  •  ${doc.name}`;
     return {
       name,
