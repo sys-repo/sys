@@ -9,8 +9,8 @@ export type * from './-exports/-fs/t.ts';
 export type * from './-exports/-web.ui/t.ts';
 export type * from './-exports/-web/t.ts';
 
-export type * from './m.Crdt.ref/t.ts';
-export type * from './m.Crdt.repo/t.ts';
+export type * from './m.Crdt.Ref/t.ts';
+export type * from './m.Crdt.Repo/t.ts';
 export type * from './m.Crdt/t.ts';
 export type * from './m.Debug/t.ts';
 export type * from './m.Server.client/t.ts';
