@@ -1,3 +1,5 @@
+import { exitCode } from 'node:process';
+
 /**
  * @external
  */
@@ -8,6 +10,7 @@ export type { ReactElement, ReactNode } from 'react';
  */
 export type * from '@sys/types';
 
+export type { CliTable } from '@sys/cli/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { WalkEntry, JsonFileDoc, JsonFile } from '@sys/fs/t';
 export type { ProcOutput } from '@sys/process/t';
