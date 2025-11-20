@@ -11,7 +11,7 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
   const dir = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.CrdtCliArgs>(argv, { alias: { h: 'help' } });
-  if (args.help) return void console.info(await Fmt.help(toolname));
+  if (args.help) return void console.info(await Fmt.help(toolname, dir));
 
   console.info(await Fmt.header(toolname));
   await run(dir);
