@@ -4,6 +4,7 @@ type O = Record<string, unknown>;
 
 export type * from './t.lib.ts';
 export type * from './t.wire.ts';
+export type * from './t.config.ts';
 
 /**
  * Worker-backed facade for a CRDT repo.

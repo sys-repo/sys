@@ -21,7 +21,10 @@ export type CrdtLib = {
  * Boolean flag evaluators:
  */
 export type CrdtIsLib = {
-  /** Determine if the given value is a <CrdtRef> instance. */
+  /** Determine if the given value is a Repo instance. */
+  repo(input?: unknown): input is t.Crdt.Repo;
+
+  /** Determine if the given value is a t.Crdt.Ref (document) instance. */
   ref<T extends O>(input?: unknown): input is t.CrdtRef<T>;
 
   /** Determine if the given value is a valid CRDT document id. */

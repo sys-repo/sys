@@ -4,8 +4,38 @@ import { testRepo } from './-u.ts';
 
 describe('Crdt.Is', { sanitizeResources: false, sanitizeOps: false }, () => {
   type T = { count: number };
-  const repo = testRepo();
   const Is = CrdtIs;
+  const repo = testRepo();
+
+  it('Is.repo', () => {
+    // Positive: real repo instance from test helper.
+    expect(Is.repo(repo)).to.be.true;
+
+    // Negatives: primitives, nullish, and structural near-misses.
+    const NON = [
+      undefined,
+      null,
+      '',
+      123,
+      true,
+      {},
+      [],
+      { id: 'x' },
+      { sync: {} },
+      { id: 'x', sync: {}, stores: [] },
+      { id: 'x', sync: {}, stores: [], events: () => {} },
+      {
+        id: 'x',
+        sync: {},
+        stores: [],
+        events: () => {},
+        whenReady: () => Promise.resolve(),
+        // missing create/get/delete
+      },
+    ];
+
+    NON.forEach((value: any) => expect(Is.repo(value)).to.be.false);
+  });
 
   it('Is.ref', async () => {
     const { doc } = await repo.create<T>({ count: 0 });

@@ -1,9 +1,5 @@
 import type { t, WIRE_VERSION } from './common.ts';
 
-type O = Record<string, unknown>;
-
-export type * from './t.wire.ts';
-
 /**
  * Type surface for the web-worker transport layer of the CRDT repo.
  * Defines the contract used by both the main-thread client and worker host.
@@ -19,10 +15,20 @@ export type CrdtWorkerLib = {
   attach(port: MessagePort, repo: t.CrdtRepo): void;
 
   /**
-   * Listens for `crdt:attach` messages on the worker global scope and
-   * automatically binds the provided repo to the received MessagePort.
+   * Worker host: listen for `crdt:attach` messages on the worker global scope
+   * and bind a repo to the received `MessagePort`.
+   *
+   * Overloads:
+   * - `listen(self, repo)`:
+   *     Use an already-created `t.CrdtRepo` instance (legacy/simple path).
+   *
+   * - `listen(self, factory)`:
+   *     Lazily create the repo when the first `crdt:attach` arrives, with
+   *     access to the optional spawn-time `config`. The factory may return
+   *     the repo synchronously or as a Promise.
    */
   listen(self: typeof globalThis, repo: t.CrdtRepo): void;
+  listen(self: typeof globalThis, factory: t.CrdtRepoFactory): void;
 
   /**
    * Spawns a worker and connects to its existing CRDT repo.
@@ -50,16 +56,8 @@ export type CrdtWorkerLib = {
 };
 
 /**
- * Configuration passed over the wire to the worker for repo initialization.
+ * Factor that produces a repository.
  */
-export type CrdtWorkerSpawnConfig = CrdtWorkerSpawnConfigFs | CrdtWorkerSpawnConfigBrowser;
-export type CrdtWorkerSpawnConfigFs = {
-  kind: 'fs';
-  storage?: t.StringDir;
-  network?: t.CrdtWebsocketNetworkArg[] | t.Falsy;
-};
-export type CrdtWorkerSpawnConfigBrowser = {
-  kind: 'web';
-  storage?: t.CrdtWebStorageArg;
-  network?: t.CrdtWebsocketNetworkArg[] | t.Falsy;
-};
+export type CrdtRepoFactory = (args: {
+  config?: t.CrdtWorkerSpawnConfig;
+}) => t.CrdtRepo | Promise<t.CrdtRepo>;

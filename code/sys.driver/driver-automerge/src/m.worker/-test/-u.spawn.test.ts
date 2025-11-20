@@ -86,6 +86,39 @@ describe('CrdtWorker.spawn (real worker)', () => {
     });
   });
 
+  describe('listen(factory) with spawn config', () => {
+    const url = new URL('./u.worker.factory.ts', import.meta.url);
+
+    it('creates repo via factory and receives config in worker', async () => {
+      const worker = new Worker(url, { type: 'module' });
+      const config: t.CrdtWorkerSpawnConfig = {
+        kind: 'fs',
+        storage: '.tmp/-worker-factory-config',
+        network: [],
+      };
+
+      const receivedConfig = new Promise<t.CrdtWorkerSpawnConfig>((resolve) => {
+        const onMessage = (ev: MessageEvent) => {
+          const data = ev.data as { kind?: string; config?: t.CrdtWorkerSpawnConfig } | undefined;
+          if (data?.kind === 'test/config/factory' && data.config) {
+            worker.removeEventListener('message', onMessage);
+            resolve(data.config);
+          }
+        };
+        worker.addEventListener('message', onMessage);
+      });
+
+      const { repo } = await CrdtWorker.spawn(worker, { config });
+      await repo.whenReady();
+
+      expect(repo.status.ready).to.eql(true);
+      expect(await receivedConfig).to.eql(config);
+
+      worker.terminate();
+      await repo.dispose();
+    });
+  });
+
   /**
    * ---------------------------------------------------------------------------
    * 3. Spawn/listen handshake (fake worker boundary test)
