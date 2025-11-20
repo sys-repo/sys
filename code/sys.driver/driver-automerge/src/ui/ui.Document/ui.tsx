@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, KeyValue, Rx, Spinners } from './common.ts';
-import { toItems } from './u.items.ts';
+import { toItems } from './u.toItems.ts';
 import { getStats } from './u.stats.ts';
 
 type P = t.DocumentProps;

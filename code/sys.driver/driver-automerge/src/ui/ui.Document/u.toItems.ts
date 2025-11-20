@@ -6,7 +6,12 @@ export function toItems(doc?: t.Crdt.Ref, stats?: t.DocumentStats): t.KeyValueIt
   if (!doc) return items;
 
   const x = [10, 0] as const;
-  items.push({ kind: 'title', v: 'CRDT Document', y: [0, 3] });
+  let title = 'CRDT Document';
+  items.push({
+    kind: 'title',
+    v: CrdtIs.proxy(doc) ? [title, '( Proxy )'] : title,
+    y: [0, 3],
+  });
 
   if (doc) {
     const meta = Obj.Lens.bind<t.SysMeta>(doc.current, PATH.meta);
