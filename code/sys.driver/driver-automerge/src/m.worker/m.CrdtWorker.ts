@@ -24,6 +24,4 @@ export const CrdtWorker: t.CrdtWorkerLib = {
   version,
   attach,
   listen,
-  // repo,
-  spawn,
 };

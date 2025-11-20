@@ -55,7 +55,7 @@ export const listen: t.CrdtWorkerLib['listen'] = (self, args) => {
   });
 
   /**
-   * Signal to `CrdtWorker.spawn` that this worker has installed its
+   * Signal to `CrdtWorker.Client.spawn` that this worker has installed its
    * message handler and is ready to accept a `crdt:attach` port.
    */
   if (Is.func(self.postMessage)) self.postMessage({ kind: Wire.Kind.workerReady });

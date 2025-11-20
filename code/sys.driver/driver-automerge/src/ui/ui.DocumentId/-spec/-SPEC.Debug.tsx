@@ -62,7 +62,7 @@ export async function createDebugSignals() {
   const snap = store.current;
 
   const w = new Worker(new URL('../../../-test.worker.ts', import.meta.url), { type: 'module' });
-  const { repo } = await CrdtWorker.spawn(w);
+  const { repo } = await CrdtWorker.Client.spawn(w);
 
   const props = {
     redraw: s(0),

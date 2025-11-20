@@ -10,7 +10,7 @@ describe(`CRDT: web-worker transport`, () => {
   it('API', async () => {
     // Client:
     expect(CrdtWorker.Client.repo).to.equal(createRepo);
-    expect(CrdtWorker.spawn).to.equal(spawn);
+    expect(CrdtWorker.Client.spawn).to.equal(spawn);
 
     // Host:
     expect(CrdtWorker.attach).to.equal(attachRepo);

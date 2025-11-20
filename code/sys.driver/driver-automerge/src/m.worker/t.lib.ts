@@ -29,16 +29,6 @@ export type CrdtWorkerLib = {
    */
   listen(self: typeof globalThis, repo: t.CrdtRepo): void;
   listen(self: typeof globalThis, factory: t.CrdtRepoFactory): void;
-
-  /**
-   * Spawns a worker and connects to its existing CRDT repo.
-   * Establishes a MessageChannel link and returns both the worker handle
-   * and the client-side repo facade bound to that connection.
-   */
-  spawn(
-    url: URL | Worker,
-    opts?: t.CrdtWorkerSpawnOptions,
-  ): Promise<{ readonly worker: Worker; readonly repo: t.CrdtRepo }>;
 };
 
 /**
@@ -100,7 +90,7 @@ export type CrdtRepoFactory = (args: {
   config?: t.CrdtWorkerSpawnConfig;
 }) => t.CrdtRepo | Promise<t.CrdtRepo>;
 
-/** Options for `Crdt.Worker.spawn` */
+/** Options for `Crdt.Worker.Client.spawn` */
 export type CrdtWorkerSpawnOptions = {
   worker?: WorkerOptions;
   config?: t.CrdtWorkerSpawnConfig;

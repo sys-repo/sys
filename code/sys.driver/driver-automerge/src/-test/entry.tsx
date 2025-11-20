@@ -62,7 +62,7 @@ export async function main() {
     const { Splash } = await import('./ui.Splash.tsx');
 
     const worker = new Worker(new URL('../-test.worker.ts', import.meta.url), { type: 'module' });
-    const { repo } = await Crdt.Worker.spawn(worker);
+    const { repo } = await Crdt.Worker.Client.spawn(worker);
 
     function App() {
       useKeyboard();

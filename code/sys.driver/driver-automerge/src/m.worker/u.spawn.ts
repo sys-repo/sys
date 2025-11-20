@@ -6,7 +6,7 @@ import { Wire } from './u.wire.ts';
  * Spawn a Web Worker and return { worker, repoFacade }.
  * Client-side helper: creates MessageChannel, posts port2 to worker, binds facade to port1.
  */
-export const spawn: t.CrdtWorkerLib['spawn'] = async (input, opts = {}) => {
+export const spawn: t.CrdtWorkerClientLib['spawn'] = async (input, opts = {}) => {
   const { until, config } = opts;
   const worker =
     input instanceof Worker ? input : new Worker(input, opts.worker ?? { type: 'module' });

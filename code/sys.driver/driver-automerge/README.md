@@ -67,7 +67,7 @@ Run the CRDT repository inside a background web-worker, keeping the main (UI) th
 const url = new URL('./-u.worker.ts', import.meta.url)
 const worker = new Worker(url, { type: 'module' });
 
-const { repo } = await Crdt.Worker.spawn(worker);
+const { repo } = await Crdt.Worker.Client.spawn(worker);
 //        ↑
 //        type = Crdt.Repo (proxy)
 ```

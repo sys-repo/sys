@@ -2,7 +2,7 @@ import { type t, afterEach, c, describe, expect, it } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers } from './u.ts';
 
-describe('CrdtWorker.spawn (real worker)', () => {
+describe('CrdtWorker.Client.spawn (real worker)', () => {
   const Test = createTestHelpers();
   afterEach(Test.reset);
 
@@ -14,7 +14,7 @@ describe('CrdtWorker.spawn (real worker)', () => {
    * ---------------------------------------------------------------------------
    */
   it('creates a worker-backed repo and reaches ready state', async () => {
-    const { worker, repo } = await CrdtWorker.spawn(url, { worker: { type: 'module' } });
+    const { worker, repo } = await CrdtWorker.Client.spawn(url, { worker: { type: 'module' } });
 
     expect(repo.status.ready).to.eql(false);
     await repo.whenReady();
@@ -33,7 +33,7 @@ describe('CrdtWorker.spawn (real worker)', () => {
   it('accepts an existing Worker instance and wires the same worker', async () => {
     const worker = new Worker(url, { type: 'module' });
 
-    const result = await CrdtWorker.spawn(worker);
+    const result = await CrdtWorker.Client.spawn(worker);
     const { repo } = result;
 
     // The spawn helper should use the same worker instance.
@@ -77,7 +77,7 @@ describe('CrdtWorker.spawn (real worker)', () => {
         worker.addEventListener('message', onMessage);
       });
 
-      const { repo } = await CrdtWorker.spawn(worker, { config });
+      const { repo } = await CrdtWorker.Client.spawn(worker, { config });
       await repo.whenReady();
 
       expect(repo.status.ready).to.eql(true);
