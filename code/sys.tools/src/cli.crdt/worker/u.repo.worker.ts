@@ -1,14 +1,14 @@
 import { Crdt, Log } from './common.ts';
 
-const silent = false;
-const info = Log.logger('crdt:worker', { timestamp: null, enabled: !silent });
-
 /**
  * Single-repo worker host.
  */
 Crdt.Worker.Host.listen(self, async ({ config }) => {
   if (!config || config.kind !== 'fs')
     throw new Error(`Configuration kind "${config?.kind}" not supported.`);
+
+  const silent = config.silent;
+  const info = Log.logger('crdt:worker', { timestamp: null, enabled: !silent });
 
   const dir = config.storage;
   const network = config.network || [];
