@@ -60,7 +60,7 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
     const isLast = index === subPackages.length - 1;
     const child = (await Dist.load(Path.join(dir, Path.dirname(path)))).dist;
     if (child) {
-      const prefix = isLast && content.length === 0 ? '└──' : '├──';
+      const branch = Cli.Fmt.Tree.branch(isLast && content.length === 0, 1);
       const mod = toModuleString(child.pkg);
       const size = child.build.size;
       totalBytes.subpackages += size.total;
@@ -72,7 +72,7 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
       const version = c.gray(`sha256:${hx}`);
       const dir = c.gray(Path.dirname(path));
 
-      table.push([c.gray(` ${prefix} ${mod}`), dir, fmtTotalSize, fmtPkgSize, version]);
+      table.push([c.gray(` ${branch} ${mod}`), dir, fmtTotalSize, fmtPkgSize, version]);
     }
   }
 

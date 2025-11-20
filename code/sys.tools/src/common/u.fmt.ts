@@ -8,6 +8,8 @@ export type HelpCallbackArgs = {
 };
 
 export const Fmt = {
+  Tree: Cli.Fmt.Tree,
+
   /**
    * Common intro header.
    */
@@ -53,10 +55,9 @@ export const Fmt = {
     e.row(c.gray(pkg.name), c.cyan(pkg.version));
     fn?.(e, c);
 
-    rows.forEach((col, i) => {
-      const last = i === rows.length - 1;
-      const prefix = last ? '└─' : '├─';
-      table.push([` ${c.gray(prefix)} ${col[0]}`, ...col.slice(1)]);
+    rows.forEach((col, i, total) => {
+      const branch = Fmt.Tree.branch([i, total]);
+      table.push([` ${c.gray(branch)} ${col[0]}`, ...col.slice(1)]);
     });
 
     return Str.builder()

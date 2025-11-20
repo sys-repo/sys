@@ -145,6 +145,15 @@ export type CliFormatLib = {
     str: (path: string) => string;
     fmt: (opts?: {}) => t.PathFormatter;
   };
+
+  /** Glyphs for representing a tree hierarchy */
+  readonly Tree: {
+    readonly vert: '│';
+    readonly mid: '├';
+    readonly last: '└';
+    readonly bar: '─';
+    branch(isLastOrTuple: boolean | [t.Index, unknown[]], extend?: number): string;
+  };
 };
 
 /**

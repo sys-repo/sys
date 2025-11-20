@@ -27,14 +27,11 @@ async function run(dir: t.StringDir) {
   const config = await getConfig(dir);
   await normalize(config);
 
-  const listing = (config.current.docs ?? []).map((doc, i, docs) => {
-    const isLast = i === docs.length - 1;
-    const prefix = isLast ? '└─' : '├─';
+  const listing = (config.current.docs ?? []).map((doc, i, total) => {
+    const branch = Fmt.Tree.branch([i, total]);
     const id = `crdt:${doc.id.slice(0, 5)}..${c.green(doc.id.slice(-5))}`;
-
-    let name = `${'with:'} ${c.gray(prefix)} ${id}`;
+    let name = `${'with:'} ${c.gray(branch)} ${id}`;
     if (doc.name) name += `  •  ${doc.name}`;
-
     return {
       name,
       value: `crdt:${doc.id}`,

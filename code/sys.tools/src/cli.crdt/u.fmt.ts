@@ -19,9 +19,8 @@ export const Fmt = {
 
     const now = Time.now.timestamp;
     docs.forEach((item, i, total) => {
-      const isLast = i === total.length - 1;
-      let prefix = isLast ? '└─' : '├─';
-      const document = c.gray(` ${prefix} ${c.white(item.name ?? '')}`);
+      const branch = Fmt.Tree.branch([i, total]);
+      const document = c.gray(` ${branch} ${c.white(item.name ?? '')}`);
       const id = c.gray(`crdt:${item.id.slice(0, -5)}${c.green(item.id.slice(-5))}`);
       const elapsed = item.createdAt ? Time.elapsed(item.createdAt, now) : undefined;
       const age = c.gray(elapsed?.toString() || '-');
