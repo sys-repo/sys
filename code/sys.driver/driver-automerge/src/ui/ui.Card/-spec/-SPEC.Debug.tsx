@@ -43,13 +43,17 @@ export async function createDebugSignals() {
     props,
     store,
     repo,
+    listen,
     reset,
-    listen() {
-      Object.values(p)
-        .filter(Signal.Is.signal)
-        .forEach((s) => s.value);
-    },
   };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -69,10 +73,6 @@ export async function createDebugSignals() {
     events = doc?.events();
     events?.$.subscribe(() => p.redraw.value++);
   });
-
-  function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
-  }
 
   return api;
 }
