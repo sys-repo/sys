@@ -37,22 +37,8 @@ export type CrdtWorkerLib = {
    */
   spawn(
     url: URL | Worker,
-    opts?: {
-      worker?: WorkerOptions;
-      config?: t.CrdtWorkerSpawnConfig;
-      until?: t.UntilInput;
-    },
+    opts?: t.CrdtWorkerSpawnOptions,
   ): Promise<{ readonly worker: Worker; readonly repo: t.CrdtRepo }>;
-
-  /**
-   * Worker-only: register a callback to receive the spawn-time config
-   * sent via `spawn(..., { config })`.
-   *
-   * The handler fires once (if config exists), and only once.
-   * If config has already arrived from `crdt:attach`, the handler
-   * fires immediately. Otherwise it is queued.
-   */
-  onConfig<T extends t.CrdtWorkerSpawnConfig>(handler: (config: T) => void | Promise<void>): void;
 };
 
 /**
@@ -61,3 +47,10 @@ export type CrdtWorkerLib = {
 export type CrdtRepoFactory = (args: {
   config?: t.CrdtWorkerSpawnConfig;
 }) => t.CrdtRepo | Promise<t.CrdtRepo>;
+
+/** Options for `Crdt.Worker.spawn` */
+export type CrdtWorkerSpawnOptions = {
+  worker?: WorkerOptions;
+  config?: t.CrdtWorkerSpawnConfig;
+  until?: t.UntilInput;
+};

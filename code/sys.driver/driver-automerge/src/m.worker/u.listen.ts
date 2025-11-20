@@ -1,6 +1,5 @@
 import { type t, CrdtIs, Is } from './common.ts';
 import { attachRepo } from './u.attach.repo.ts';
-import { deliverConfig } from './u.listen.onConfig.ts';
 import { Wire } from './u.wire.ts';
 
 type AttachMessage = {
@@ -11,6 +10,10 @@ type AttachMessage = {
 
 /**
  * Install worker-side wiring for CRDT repo events.
+ *
+ * Supports two worker-host patterns:
+ * - listen(self, repo)           ← existing repo instance
+ * - listen(self, factory)        ← lazy repo creation with spawn-time config
  */
 export const listen: t.CrdtWorkerLib['listen'] = (self, args) => {
   let { repo, factory } = wrangle.args(args);
@@ -23,7 +26,6 @@ export const listen: t.CrdtWorkerLib['listen'] = (self, args) => {
   self.addEventListener('message', (ev) => {
     const data = ev.data as AttachMessage | undefined;
     if (data?.kind !== Wire.Kind.attach) return;
-    if (data.config) deliverConfig(data.config);
 
     const port = ev.ports?.[0] ?? data.port;
     if (!port) return;
@@ -31,7 +33,10 @@ export const listen: t.CrdtWorkerLib['listen'] = (self, args) => {
     const attach = (instance: t.CrdtRepo) => attachRepo(port, instance);
 
     // Repo already exists (legacy path or first attach already handled).
-    if (repo) return void attach(repo);
+    if (repo) {
+      attach(repo);
+      return;
+    }
 
     // Lazily create repo via factory on first attach.
     if (factory) {
