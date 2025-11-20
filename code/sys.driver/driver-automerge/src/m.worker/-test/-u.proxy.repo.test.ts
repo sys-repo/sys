@@ -17,7 +17,7 @@ import { createTestHelpers } from './u.ts';
 
 type O = Record<string, unknown>;
 
-describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOps: false }, () => {
   const Test = createTestHelpers();
   afterEach(Test.reset);
 
@@ -26,7 +26,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
       const { port1, port2 } = Test.makePorts();
       const real = Test.realRepo();
 
-      const client = CrdtWorker.repo(port1);
+      const client = CrdtWorker.Client.repo(port1);
       const { events, stop } = Test.collectRepoEvents(port1);
 
       CrdtWorker.attach(port2, real);
@@ -66,7 +66,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
       const realRepo = Test.realRepo();
 
       CrdtWorker.attach(port2, realRepo);
-      const proxyRepo = CrdtWorker.repo(port1);
+      const proxyRepo = CrdtWorker.Client.repo(port1);
 
       // Cleanup:
       await proxyRepo.dispose();
@@ -78,7 +78,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
         const { port1, port2 } = Test.makePorts();
         const realRepo = Test.realRepo();
         CrdtWorker.attach(port2, realRepo);
-        const proxyRepo = CrdtWorker.repo(port1);
+        const proxyRepo = CrdtWorker.Client.repo(port1);
         if (awaitWhenReady) await proxyRepo.whenReady();
 
         expect(realRepo.disposed).to.eql(false);
@@ -102,7 +102,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
   describe('core invariants', () => {
     it('exposes a t.CrdtRepo surface (structural typing)', async () => {
       const { port1 } = Test.makePorts();
-      const repo = CrdtWorker.repo(port1);
+      const repo = CrdtWorker.Client.repo(port1);
       // Type-level: should be assignable to t.CrdtRepo
       expectTypeOf(repo).toMatchTypeOf<t.CrdtRepo>();
       await repo.dispose();
@@ -110,14 +110,14 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
 
     it('branding: via === "worker-proxy" (stable discriminant)', async () => {
       const { port1 } = Test.makePorts();
-      const repo = CrdtWorker.repo(port1);
+      const repo = CrdtWorker.Client.repo(port1);
       expect((repo as t.CrdtRepoWorkerProxy).via).to.eql('worker-proxy');
       await repo.dispose();
     });
 
     it('lifecycle: dispose emits once, sets disposed, and is idempotent', async () => {
       const { port1 } = Test.makePorts();
-      const repo = CrdtWorker.repo(port1);
+      const repo = CrdtWorker.Client.repo(port1);
 
       const fired: t.DisposeAsyncEvent[] = [];
       repo.dispose$.subscribe((e) => fired.push(e));
@@ -137,7 +137,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
       const until = Rx.lifecycle();
 
       const { port1 } = Test.makePorts();
-      const repo = CrdtWorker.repo(port1, { until });
+      const repo = CrdtWorker.Client.repo(port1, { until });
       expect(repo.disposed).to.eql(false);
 
       until.dispose();
@@ -148,7 +148,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
 
     it('status mirrors latest props.status (default: stalled=false)', async () => {
       const { port1 } = Test.makePorts();
-      const repo = CrdtWorker.repo(port1) as t.CrdtRepoWorkerProxy;
+      const repo = CrdtWorker.Client.repo(port1) as t.CrdtRepoWorkerProxy;
 
       // Before any props, status should be a benign default.
       const initialStatus = repo.status;
@@ -180,7 +180,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
 
     it('port is retrieval from repo/proxy instance', async () => {
       const { port1 } = Test.makePorts();
-      const repo = CrdtWorker.repo(port1) as t.CrdtRepoWorkerProxy;
+      const repo = CrdtWorker.Client.repo(port1) as t.CrdtRepoWorkerProxy;
       expect(getRepoPort(repo)).to.equal(port1);
       await repo.dispose();
     });
@@ -189,7 +189,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
   describe('props/change (shim → prop$)', () => {
     it('emits prop$ with {prop,before,after} and mirrors client state', async () => {
       const { port1, port2 } = Test.makePorts();
-      const client = CrdtWorker.repo(port1);
+      const client = CrdtWorker.Client.repo(port1);
 
       // collect events from the shim
       const until = Rx.lifecycle();
@@ -253,7 +253,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
 
     it('does not toggle ready$ for non-status prop changes', async () => {
       const { port1, port2 } = Test.makePorts();
-      const client = CrdtWorker.repo(port1);
+      const client = CrdtWorker.Client.repo(port1);
 
       const until = Rx.lifecycle();
       const readies: boolean[] = [];
@@ -295,7 +295,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
   describe('network events', () => {
     it('forwards wire network events → client.events().network$ (and $)', async () => {
       const { port1 } = Test.makePorts();
-      const client = CrdtWorker.repo(port1);
+      const client = CrdtWorker.Client.repo(port1);
 
       const until = Rx.lifecycle();
       const networkEvents: t.CrdtNetworkChangeEvent[] = [];
@@ -360,7 +360,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
           return originalEnable(enabled);
         }) as typeof sync.enable;
 
-        const client = CrdtWorker.repo(port1);
+        const client = CrdtWorker.Client.repo(port1);
 
         // Bind worker side to port2.
         CrdtWorker.attach(port2, real);
@@ -469,7 +469,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
           return originalGet<T>(id, options);
         }) as typeof real.get;
 
-        const client = CrdtWorker.repo(port1);
+        const client = CrdtWorker.Client.repo(port1);
 
         // Bind worker side to port2.
         CrdtWorker.attach(port2, real);
@@ -524,7 +524,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
             return result;
           }) as typeof real.get;
 
-          const client = CrdtWorker.repo(port1);
+          const client = CrdtWorker.Client.repo(port1);
 
           CrdtWorker.attach(port2, real);
           await client.whenReady();
@@ -567,7 +567,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
             throw thrown;
           }) as typeof real.get;
 
-          const client = CrdtWorker.repo(port1);
+          const client = CrdtWorker.Client.repo(port1);
 
           CrdtWorker.attach(port2, real);
           await client.whenReady();
@@ -611,7 +611,7 @@ describe('CrdtWorker.repo (shim)', { sanitizeResources: false, sanitizeOps: fals
           // We don't need to call the original; avoiding side-effects is fine here.
         }) as typeof real.delete;
 
-        const client = CrdtWorker.repo(port1);
+        const client = CrdtWorker.Client.repo(port1);
 
         // Wire the worker side to port2.
         CrdtWorker.attach(port2, real);

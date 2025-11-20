@@ -1,4 +1,4 @@
-import { type t, Is, Rx, Try, notImpl, Err, toWorkerError } from './common.ts';
+import { type t, Is, Rx, Try, toWorkerError } from './common.ts';
 import { createDocProxy } from './u.proxy.doc.ts';
 import { createStallDetector } from './u.stall.ts';
 import { Wire } from './u.wire.ts';
@@ -12,7 +12,7 @@ const PORT = new WeakMap<t.CrdtRepoWorkerProxy, MessagePort>();
 /**
  * Factory: repo client façade over a MessagePort.
  */
-export const createRepo: t.CrdtWorkerLib['repo'] = (port: MessagePort, opts = {}) => {
+export const createRepo: t.CrdtWorkerClientLib['repo'] = (port: MessagePort, opts = {}) => {
   const life = Rx.lifecycleAsync(opts.until);
   port.start?.();
 

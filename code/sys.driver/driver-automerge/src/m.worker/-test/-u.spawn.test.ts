@@ -104,7 +104,7 @@ describe('CrdtWorker.spawn (real worker)', () => {
       const { port1, port2 } = new MessageChannel();
       fakeWorker.postMessage({ kind: 'crdt:attach', port: port2 }, [port2]);
 
-      const client = CrdtWorker.repo(port1);
+      const client = CrdtWorker.Client.repo(port1);
       expect(client.status.ready).to.eql(false);
 
       await client.whenReady();

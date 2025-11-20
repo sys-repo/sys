@@ -38,7 +38,7 @@ export function createTestHelpers() {
       return {
         port1,
         port2,
-        repo: CrdtWorker.repo(port1),
+        repo: CrdtWorker.Client.repo(port1),
       } as const;
     },
 
@@ -111,7 +111,7 @@ export function createTestHelpers() {
       const realRepo = await api.realRepo().whenReady();
 
       CrdtWorker.attach(port2, realRepo);
-      const proxyRepo = await CrdtWorker.repo(port1).whenReady();
+      const proxyRepo = await CrdtWorker.Client.repo(port1).whenReady();
       const realDoc = (await realRepo.create<D>(initial)).doc!;
 
       async function dispose() {
