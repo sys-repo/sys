@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
 import { CrdtIs } from '../mod.ts';
 import { testRepo } from './-u.ts';
 
@@ -54,6 +54,34 @@ describe('Crdt.Is', { sanitizeResources: false, sanitizeOps: false }, () => {
 
     const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
     NON.forEach((value: any) => expect(Is.id(value)).to.be.false);
+  });
+
+  it('Is.uri', () => {
+    // Use a known-good document id (must satisfy CrdtIs.id(validId) === true).
+    const validId = 'pz1U8r3FH2ubPjnBzTMtFB8Yaaw' as t.DocumentId;
+    const uri = `crdt:${validId}`;
+
+    // happy path
+    expect(CrdtIs.id(validId)).to.eql(true);
+    expect(CrdtIs.uri(uri)).to.eql(true);
+
+    // plain id is not a URI
+    expect(CrdtIs.uri(validId)).to.eql(false);
+
+    // wrong scheme
+    expect(CrdtIs.uri(`foo:${validId}`)).to.eql(false);
+    expect(CrdtIs.uri(`CRDT:${validId}`)).to.eql(false); // case-sensitive
+
+    // malformed URIs
+    expect(CrdtIs.uri('crdt:')).to.eql(false); // missing id
+    expect(CrdtIs.uri('crdt: ')).to.eql(false); // space instead of id
+    expect(CrdtIs.uri(`crdt:${validId}x`)).to.eql(false); // extra junk
+
+    // non-strings
+    expect(CrdtIs.uri(undefined)).to.eql(false);
+    expect(CrdtIs.uri(null)).to.eql(false);
+    expect(CrdtIs.uri(123)).to.eql(false);
+    expect(CrdtIs.uri({ uri })).to.eql(false);
   });
 
   it('Is.proxy (worker shims branded via "worker-proxy")', () => {

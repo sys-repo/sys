@@ -30,6 +30,14 @@ export const CrdtIs: t.CrdtIsLib = {
     return isValidDocumentId(input);
   },
 
+  uri(input?: unknown): boolean {
+    if (typeof input !== 'string') return false;
+    if (!input.startsWith('crdt:')) return false;
+
+    const id = input.slice('crdt:'.length);
+    return typeof id === 'string' && isValidDocumentId(id);
+  },
+
   proxy(input?: unknown): input is { via: 'worker-proxy' } {
     if (input == null || !Obj.isObject(input)) return false;
     const via = (input as { via?: unknown }).via;
