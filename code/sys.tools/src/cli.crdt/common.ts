@@ -1,4 +1,4 @@
-import { type t, JsonFile, Fs } from '../common.ts';
+import { type t, JsonFile, Fs, pkg } from '../common.ts';
 
 export * from '../common.ts';
 
@@ -12,7 +12,7 @@ export { Immutable } from '@sys/immutable/rfc6902';
  * Constants:
  */
 export const D = {
-  toolname: 'CRDT Tools',
+  toolname: `system/crdt:tools`,
   Sync: { server: 'waiheke.sync.db.team' },
   Path: {
     repo: './.repo.crdt',

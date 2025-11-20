@@ -1,4 +1,4 @@
-import { snapshot } from './cmd.snapshot.ts';
+import { snapshot } from './cmd.snapshot/mod.ts';
 import { type t, Args, c, D, Fs, getConfig, Prompt, Str } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument, promptAddDocument } from './u.prompt.modify.ts';
@@ -30,7 +30,7 @@ async function run(dir: t.StringDir) {
     const prefix = isLast ? '└─' : '├─';
     const id = `crdt:${doc.id.slice(0, 5)}..${c.green(doc.id.slice(-5))}`;
 
-    let name = `${'Act on:'} ${c.gray(prefix)} ${id}`;
+    let name = `${'with:'} ${c.gray(prefix)} ${id}`;
     if (doc.name) name += `  •  ${doc.name}`;
 
     return {
@@ -41,7 +41,7 @@ async function run(dir: t.StringDir) {
 
   console.info();
   const optionA = (await Prompt.Select.prompt<t.CrdtCommand>({
-    message: 'Choose operation:\n',
+    message: 'Choose:\n',
     options: [{ name: 'Add <document>', value: 'modify:add' }, ...listing],
   })) as t.CrdtCommand;
 
@@ -54,7 +54,7 @@ async function run(dir: t.StringDir) {
   if (!id) return;
 
   const optionB = (await Prompt.Select.prompt<t.CrdtCommand>({
-    message: `With ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
+    message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
     options: [
       { name: 'Backup (Snapshot)', value: 'snapshot' },
       { name: 'Forget', value: 'modify:remove' },

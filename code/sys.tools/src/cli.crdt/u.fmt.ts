@@ -5,7 +5,6 @@ export const Fmt = {
 
   async help(toolname: string = D.toolname, dir: t.StringDir) {
     const str = Str.builder()
-
       .line(await Base.help(toolname))
       .line(await Fmt.documentsTable(dir))
       .line();
