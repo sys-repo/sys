@@ -2,8 +2,8 @@ import { describe, expect, it } from '../../-test.ts';
 
 import { WIRE_VERSION } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
-import { attachRepo } from '../u.attach.repo.ts';
-import { listen } from '../u.listen.ts';
+import { attachRepo } from '../u.host.attach.repo.ts';
+import { listen } from '../u.host.listen.ts';
 import { createRepo } from '../u.proxy.repo.ts';
 import { spawn } from '../u.spawn.ts';
 

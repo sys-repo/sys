@@ -1,5 +1,5 @@
 import { type t, CrdtIs, Is } from './common.ts';
-import { attachRepo } from './u.attach.repo.ts';
+import { attachRepo } from './u.host.attach.repo.ts';
 import { Wire } from './u.wire.ts';
 
 type AttachMessage = {

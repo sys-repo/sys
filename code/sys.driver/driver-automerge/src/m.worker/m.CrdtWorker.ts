@@ -1,7 +1,7 @@
 import { type t, WIRE_VERSION as version } from './common.ts';
 
-import { attachRepo as attach } from './u.attach.repo.ts';
-import { listen } from './u.listen.ts';
+import { attachRepo as attach } from './u.host.attach.repo.ts';
+import { listen } from './u.host.listen.ts';
 import { createRepo as repo } from './u.proxy.repo.ts';
 import { spawn } from './u.spawn.ts';
 

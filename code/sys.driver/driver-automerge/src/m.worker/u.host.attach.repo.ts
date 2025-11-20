@@ -1,5 +1,5 @@
 import { type t, Rx, Schedule, Try } from './common.ts';
-import { attachDoc } from './u.attach.doc.ts';
+import { attachDoc } from './u.host.attach.doc.ts';
 import { onMessageErrorHandler } from './u.onErrorMessage.ts';
 import { Wire } from './u.wire.ts';
 
