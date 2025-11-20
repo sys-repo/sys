@@ -10,6 +10,7 @@ export type * from './-exports/-web.ui/t.ts';
 export type * from './-exports/-web/t.ts';
 
 export type * from './m.Crdt.Graph/t.ts';
+export type * from './m.Crdt.Id/t.ts';
 export type * from './m.Crdt.Ref/t.ts';
 export type * from './m.Crdt.Repo/t.ts';
 export type * from './m.Crdt/t.ts';

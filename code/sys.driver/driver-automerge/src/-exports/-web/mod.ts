@@ -16,6 +16,7 @@ import {
   CrdtUrl,
   CrdtWorker,
   createPeerId,
+  CrdtId,
   D,
   Is,
   toObject,
@@ -45,6 +46,7 @@ export const Crdt: t.CrdtWebLib = {
     const base = new AutomergeRepo({ storage, network, sharePolicy, denylist, peerId });
     return toRepo(base, { peerId, stores, until });
   },
+  Id: CrdtId,
   Is: CrdtIs,
   Url: CrdtUrl,
   Worker: CrdtWorker,

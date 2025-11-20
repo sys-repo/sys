@@ -11,6 +11,7 @@ type O = Record<string, unknown>;
  */
 export type CrdtLib = {
   readonly Is: t.CrdtIsLib;
+  readonly Id: t.CrdtIdLib;
   readonly Url: t.CrdtUrlLib;
   readonly Worker: t.CrdtWorkerLib;
   readonly Graph: t.CrdtGraphLib;

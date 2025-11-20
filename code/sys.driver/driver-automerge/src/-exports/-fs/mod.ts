@@ -11,6 +11,7 @@ import {
   CrdtGraph,
   CrdtIs,
   CrdtUrl,
+  CrdtId,
   CrdtWorker,
   createPeerId,
   Is,
@@ -45,6 +46,7 @@ export const Crdt: t.CrdtFilesystemLib = {
       stores: [{ kind: 'fs', dir }],
     });
   },
+  Id: CrdtId,
   Is: CrdtIs,
   Url: CrdtUrl,
   Worker: CrdtWorker,
