@@ -1,4 +1,4 @@
-import { type t, c, Cli, Str, Time } from '../common.ts';
+import { type t, c, Cli, Crdt, Str, Time } from '../common.ts';
 import { startRepoWorker } from '../worker/mod.ts';
 import { process } from './u.snapshot.process.ts';
 
@@ -13,15 +13,20 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
   spinner.stop();
 
   /**
+   * Normalise the incoming id (may be "crdt:<id>" or bare).
+   */
+  const rootId = Crdt.Id.clean(id) ?? (id as t.Crdt.Id);
+
+  /**
    * Process snapshot/backup request.
    */
   const table = Cli.table([]);
-  const formatId = (id: string) => `crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`;
-  const appendTable = (table: t.CliTable, e: t.CrdtSnapshotProgressSaved) => {
+  const formatId = (value: string) => `crdt:${value.slice(0, -5)}${c.green(value.slice(-5))}`;
+  const appendTable = (tbl: t.CliTable, e: t.CrdtSnapshotProgressSaved) => {
     const coloredId = formatId(e.id);
     const branch = Tree.branch(false);
     const identity = c.gray(`${branch} ${e.isRoot ? c.white(coloredId) : coloredId}`);
-    table.push([identity, c.gray(Str.bytes(e.bytes))]);
+    tbl.push([identity, c.gray(Str.bytes(e.bytes))]);
   };
 
   const tableText = () => {
@@ -34,9 +39,10 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
 
   const timer = Time.timer();
   const progress: t.CrdtSnapshotProgress[] = [];
+
   const res = await process({
     repo,
-    id,
+    id: rootId,
     base: '-backup',
     onProgress(e) {
       progress.push(e);
@@ -51,27 +57,36 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
    * Print summary:
    */
   const total = res.processed.length;
-  const completed = `${c.green('completed snapshot')}`;
-  const summary = `${c.white(Str.bytes(res.bytes))} across ${total} ${Str.plural(total, 'document', 'documents')} in ${String(timer.elapsed)}`;
+  const completed = `${c.green('↑ completed snapshot')}`;
+  const summary = `${c.white(Str.bytes(res.bytes))} across ${total} ${Str.plural(
+    total,
+    'document',
+    'documents',
+  )} in ${String(timer.elapsed)}`;
+
   table.push([c.gray(Tree.vert)]);
   table.push([c.gray(`${Tree.branch(true)} ${c.italic(completed)}`)]);
   table.push([c.gray(`   ${c.italic(summary)}`)]);
   console.info(String(table));
 
+  /**
+   * Warn on missing linked documents.
+   */
   const notFound = progress
     .filter((e) => e.kind === 'doc:skip')
     .filter((e) => e.reason === 'not-found');
 
   if (notFound.length > 0) {
-    const table = Cli.table([]);
-    table.push([c.gray(Tree.vert)]);
-    notFound.forEach((e, i, total) => {
-      const branch = Tree.branch([i, total]);
-      const id = formatId(e.id);
-      table.push([c.gray(`${branch} ${id}`), c.yellow('skipped')]);
+    const warnTable = Cli.table([]);
+    warnTable.push([c.gray(Tree.vert)]);
+    notFound.forEach((e, i, totalCount) => {
+      const branch = Tree.branch([i, totalCount]);
+      const formattedId = formatId(e.id);
+      warnTable.push([c.gray(`${branch} ${formattedId}`), c.yellow('skipped')]);
     });
+
     console.info();
     console.info(c.gray(`${c.yellow('Warning')} the following linked documents were not found:`));
-    console.info(Str.trimEdgeNewlines(String(table)));
+    console.info(Str.trimEdgeNewlines(String(warnTable)));
   }
 }
