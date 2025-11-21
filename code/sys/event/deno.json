@@ -12,6 +12,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./bus": "./src/m.Event/mod.ts"
+    "./bus": "./src/-exports/-bus.ts",
+    "./cmd": "./src/-exports/-cmd.ts"
   }
 }

@@ -1,13 +1,14 @@
 import { type t, describe, expect, expectTypeOf, it, Rx, Schedule } from '../-test.ts';
-import { emit, emitFor } from './mod.ts';
+import { emit, emitFor, filterFor } from './mod.ts';
 
-describe(`Event (@module)`, () => {
+describe(`Event`, () => {
   const makeBus = () => Rx.subject<t.EventWithKind>();
 
   it('API', async () => {
     const m = await import('@sys/event/bus');
     expect(m.emit).to.equal(emit);
     expect(m.emitFor).to.equal(m.emitFor);
+    expect(m.filterFor).to.equal(filterFor);
   });
 
   it('types', () => {

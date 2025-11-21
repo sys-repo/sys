@@ -5,3 +5,4 @@
 
 export type * from './m.Event.Filter/t.ts';
 export type * from './m.Event/t.ts';
+export type * from './m.Cmd/t.ts';
