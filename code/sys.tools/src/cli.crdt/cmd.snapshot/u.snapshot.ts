@@ -1,5 +1,6 @@
-import { type t, c, Cli, Crdt, Str, Time } from '../common.ts';
+import { type t, c, Cli, Crdt, Fs, Str, Time } from '../common.ts';
 import { startRepoWorker } from '../worker/mod.ts';
+import { calcAndSaveDist } from './u. calcAndSaveDist.ts';
 import { process } from './u.snapshot.process.ts';
 
 const Tree = Cli.Fmt.Tree;
@@ -20,7 +21,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
   /**
    * Process snapshot/backup request.
    */
-  const table = Cli.table([]);
+  const tblProc = Cli.table([]);
   const formatId = (value: string) => `crdt:${value.slice(0, -5)}${c.green(value.slice(-5))}`;
   const appendTable = (tbl: t.CliTable, e: t.CrdtSnapshotProgressSaved) => {
     const coloredId = formatId(e.id);
@@ -31,7 +32,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
 
   const tableText = () => {
     const str = Str.builder().line(c.gray('processing...'));
-    str.line(Str.trimEdgeNewlines(String(table)));
+    str.line(Str.trimEdgeNewlines(String(tblProc)));
     return String(str);
   };
 
@@ -46,12 +47,17 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     base: '-backup',
     onProgress(e) {
       progress.push(e);
-      if (e.kind === 'doc:saved') appendTable(table, e);
+      if (e.kind === 'doc:saved') appendTable(tblProc, e);
       spinner.text = tableText();
     },
   });
 
   spinner.stop();
+
+  /**
+   * Save dist.json (meta-data and pkg/file hashes)
+   */
+  const info = await calcAndSaveDist(res.dir, rootId);
 
   /**
    * Print summary:
@@ -64,10 +70,10 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     'documents',
   )} in ${String(timer.elapsed)}`;
 
-  table.push([c.gray(Tree.vert)]);
-  table.push([c.gray(`${Tree.branch(true)} ${c.italic(completed)}`)]);
-  table.push([c.gray(`   ${c.italic(summary)}`)]);
-  console.info(String(table));
+  tblProc.push([c.gray(Tree.vert)]);
+  tblProc.push([c.gray(`${Tree.branch(true)} ${c.italic(completed)}`)]);
+  tblProc.push([c.gray(`   ${c.italic(summary)}`)]);
+  console.info(String(tblProc));
 
   /**
    * Warn on missing linked documents.
@@ -89,4 +95,18 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     console.info(c.gray(`${c.yellow('Warning')} the following linked documents were not found:`));
     console.info(Str.trimEdgeNewlines(String(warnTable)));
   }
+
+  /**
+   * Print: snapshot digest/info
+   */
+  const bundleDir = c.dim(Fs.dirname(Fs.trimCwd(info.path)));
+  let bundlePath = c.gray(`${bundleDir}/${Fs.basename(info.path)}`);
+  const digest = info.dist.hash.digest;
+  let hx = `${digest.slice(0, -5)}${c.green(digest.slice(-5))}`;
+
+  const tblInfo = Cli.table([]);
+  tblInfo.push([c.gray(`hash`), c.gray(hx)]);
+  tblInfo.push([c.gray(`bundle`), bundlePath]);
+  console.info();
+  console.info(Str.trimEdgeNewlines(String(tblInfo)));
 }

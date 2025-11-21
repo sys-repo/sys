@@ -16,7 +16,7 @@ export async function saveDoc(args: {
   let filename = `${doc.id}.crdt.json`;
   if (isRoot) filename = `-root.${filename}`;
 
-  const path = Fs.join(dir, 'data', filename);
+  const path = Fs.join(dir, 'pkg', filename);
   const json = (doc.current ?? {}) as t.JsonMap;
 
   await Fs.writeJson(path, json);
