@@ -40,8 +40,8 @@ describe(`Crdt.Graph`, () => {
       repo,
       id: A.id,
 
-      onDoc: ({ id }) => {
-        seenDocs.push(id);
+      onDoc: ({ doc }) => {
+        seenDocs.push(doc.id);
       },
 
       onRefs: ({ id, refs }) => {

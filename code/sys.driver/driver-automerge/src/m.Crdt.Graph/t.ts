@@ -19,9 +19,8 @@ export type CrdtGraphSkipReason = 'already-processed' | 'not-found' | 'not-objec
  * Arguments passed to `onDoc` for each successfully loaded document.
  */
 export type CrdtGraphWalkOnDocArgs<T extends O = O> = {
-  readonly id: t.Crdt.Id;
-  readonly depth: number;
   readonly doc: t.Crdt.Ref<T>;
+  readonly depth: number;
 };
 
 /**

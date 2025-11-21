@@ -50,7 +50,7 @@ async function walkImpl<T extends O = O>(
 
   // 4. Mark as processed and invoke `onDoc`.
   processed.push(id);
-  await onDoc({ id, depth, doc });
+  await onDoc({ depth, doc });
 
   // 5. Discover outbound references using CrdtIs/CrdtId.
   const refs: t.Crdt.Id[] = [];
