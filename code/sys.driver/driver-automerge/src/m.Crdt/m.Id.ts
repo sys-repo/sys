@@ -14,7 +14,6 @@ export const CrdtId: t.CrdtIdLib = {
   fromUri(value) {
     if (typeof value !== 'string') return undefined;
     if (!value.startsWith(URI_PREFIX)) return undefined;
-
     const id = value.slice(URI_PREFIX.length);
     return CrdtIs.id(id) ? id : undefined;
   },
@@ -33,14 +32,9 @@ export const CrdtId: t.CrdtIdLib = {
    * - Throws if the input is not a valid id or URI.
    */
   clean(value) {
-    if (typeof value !== 'string') {
-      throw new Error('CrdtId.clean: value must be a string.');
-    }
-
+    if (typeof value !== 'string') return undefined;
     const fromUri = CrdtId.fromUri(value);
     if (fromUri) return fromUri;
-    if (CrdtIs.id(value)) return value;
-
-    throw new Error(`CrdtId.clean: invalid CRDT id or uri: "${value}"`);
+    return CrdtIs.id(value) ? value : undefined;
   },
 };
