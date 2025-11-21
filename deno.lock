@@ -38,19 +38,20 @@
     "jsr:@std/testing@1.0.16": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.0.9": "1.0.9",
+    "npm:@ai-sdk/openai@2.0.71": "2.0.71_zod@4.1.12",
     "npm:@automerge/automerge-repo-network-websocket@2.5.0": "2.5.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.0": "2.5.0",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.0": "2.5.0",
     "npm:@automerge/automerge-repo@2.5.0": "2.5.0",
     "npm:@automerge/automerge@3.2.0": "3.2.0",
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
-    "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.2.2__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1",
+    "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.2.4__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1",
     "npm:@farcaster/frame-sdk@0.1.12": "0.1.12",
-    "npm:@mastra/core@0.24.2": "0.24.2_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.0.1__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.6",
-    "npm:@mastra/libsql@0.16.2": "0.16.2_@mastra+core@0.24.2__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41",
-    "npm:@mastra/loggers@0.10.19": "0.10.19_@mastra+core@0.24.2__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41",
-    "npm:@mastra/memory@0.15.11": "0.15.11_@mastra+core@0.24.2__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41",
-    "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.54.0_react@19.2.0_react-dom@19.2.0__react@19.2.0",
+    "npm:@mastra/core@0.24.4": "0.24.4_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.0.1__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.6",
+    "npm:@mastra/libsql@0.16.2": "0.16.2_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41",
+    "npm:@mastra/loggers@0.10.19": "0.10.19_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41",
+    "npm:@mastra/memory@0.15.11": "0.15.11_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41",
+    "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@preact/signals-core@1.12.1": "1.12.1",
     "npm:@preact/signals-react@3.6.1": "3.6.1_react@19.2.0",
@@ -63,7 +64,8 @@
     "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.6",
     "npm:@types/react@19.2.6": "19.2.6",
     "npm:@types/ws@8.18.1": "8.18.1",
-    "npm:@vitejs/plugin-react@5.1.1": "5.1.1_vite@7.2.2__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.1",
+    "npm:@vitejs/plugin-react@5.1.1": "5.1.1_vite@7.2.4__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.1",
+    "npm:ai@5.0.98": "5.0.98_zod@4.1.12",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.1": "6.2.1",
     "npm:csstype@3.2.3": "3.2.3",
@@ -78,7 +80,7 @@
     "npm:hono@4.10.6": "4.10.6",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:immer@10.2.0": "10.2.0",
-    "npm:monaco-editor@0.54.0": "0.54.0",
+    "npm:monaco-editor@0.55.1": "0.55.1",
     "npm:motion@12.23.24": "12.23.24_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:ollama-ai-provider@1.2.0": "1.2.0",
     "npm:ollama@0.6.3": "0.6.3",
@@ -105,9 +107,9 @@
     "npm:tinycolor2@1.6.0": "1.6.0",
     "npm:ts-essentials@10.1.1": "10.1.1",
     "npm:ua-parser-js@2.0.6": "2.0.6",
-    "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.2.2__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1",
-    "npm:vite@*": "7.2.2_@types+node@24.2.0_yaml@2.8.1_picomatch@4.0.3",
-    "npm:vite@7.2.2": "7.2.2_@types+node@24.2.0_yaml@2.8.1_picomatch@4.0.3",
+    "npm:vite-plugin-wasm@3.5.0": "3.5.0_vite@7.2.4__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1",
+    "npm:vite@*": "7.2.4_@types+node@24.2.0_yaml@2.8.1_picomatch@4.0.3",
+    "npm:vite@7.2.4": "7.2.4_@types+node@24.2.0_yaml@2.8.1_picomatch@4.0.3",
     "npm:ws@8.18.3": "8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10",
     "npm:yaml@2.8.1": "2.8.1"
   },
@@ -282,7 +284,7 @@
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.10_zod@4.1.12",
-        "@vercel/oidc",
+        "@vercel/oidc@3.0.5",
         "zod@4.1.12"
       ]
     },
@@ -291,15 +293,24 @@
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
-        "@vercel/oidc",
+        "@vercel/oidc@3.0.3",
         "zod@4.1.12"
       ]
     },
-    "@ai-sdk/google@2.0.23_zod@4.1.12": {
-      "integrity": "sha512-VbCnKR+6aWUVLkAiSW5gUEtST7KueEmlt+d6qwDikxlLnFG9pzy59je8MiDVeM5G2tuSXbvZQF78PGIfXDBmow==",
+    "@ai-sdk/gateway@2.0.13_zod@4.1.12": {
+      "integrity": "sha512-q8M+7+VEKp91I295cjNDgQ4LyGImKj5cDLVARDay7nBTXGjIRZOlthYE7K6Rbz2yHKFyTmKH7MMkYavAM7L/UQ==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
+        "@ai-sdk/provider-utils@3.0.17_zod@4.1.12",
+        "@vercel/oidc@3.0.5",
+        "zod@4.1.12"
+      ]
+    },
+    "@ai-sdk/google@2.0.40_zod@4.1.12": {
+      "integrity": "sha512-E7MTVE6vhWXQJzXQDvojwA9t5xlhWpxttCH3R/kUyiE6y0tT8Ay2dmZLO+bLpFBQ5qrvBMrjKWpDVQMoo6TJZg==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.17_zod@4.1.12",
         "zod@4.1.12"
       ]
     },
@@ -324,6 +335,14 @@
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
+        "zod@4.1.12"
+      ]
+    },
+    "@ai-sdk/openai@2.0.71_zod@4.1.12": {
+      "integrity": "sha512-tg+gj+R0z/On9P4V7hy7/7o04cQPjKGayMCL3gzWD/aNGjAKkhEnaocuNDidSnghizt8g2zJn16cAuAolnW+qQ==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.17_zod@4.1.12",
         "zod@4.1.12"
       ]
     },
@@ -365,6 +384,15 @@
     },
     "@ai-sdk/provider-utils@3.0.16_zod@4.1.12": {
       "integrity": "sha512-lsWQY9aDXHitw7C1QRYIbVGmgwyT98TF3MfM8alNIXKpdJdi+W782Rzd9f1RyOfgRmZ08gJ2EYNDhWNK7RqpEA==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@standard-schema/spec",
+        "eventsource-parser",
+        "zod@4.1.12"
+      ]
+    },
+    "@ai-sdk/provider-utils@3.0.17_zod@4.1.12": {
+      "integrity": "sha512-TR3Gs4I3Tym4Ll+EPdzRdvo/rc8Js6c4nVhFLuvGLX/Y4V9ZcQMa/HTiYsHEgmYrf1zVi6Q145UEZUfleOwOjw==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@standard-schema/spec",
@@ -652,7 +680,7 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@deno/vite-plugin@1.0.5_vite@7.2.2__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1": {
+    "@deno/vite-plugin@1.0.5_vite@7.2.4__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1": {
       "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
       "dependencies": [
         "vite"
@@ -976,12 +1004,12 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@mastra/core@0.24.2_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.0.1__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.6": {
-      "integrity": "sha512-z5M8sbS15vlRH5EMcvzgEOAXb/XNrsFxGvusF7vzii5+aLt4jSTvdpAet3MQ/m994eaPpd4qbj9ts0Y79glzfg==",
+    "@mastra/core@0.24.4_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.0.1__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.6": {
+      "integrity": "sha512-xM21S5oAS3zvemXTUTKtnyqObKwHcVVLhb+oNf8FIp7zb5gF/2+qb6n80HxMb2Q21qAFVeeRXbMKLvVl7xVB3w==",
       "dependencies": [
         "@a2a-js/sdk",
         "@ai-sdk/anthropic-v5@npm:@ai-sdk/anthropic@2.0.33_zod@4.1.12",
-        "@ai-sdk/google-v5@npm:@ai-sdk/google@2.0.23_zod@4.1.12",
+        "@ai-sdk/google-v5@npm:@ai-sdk/google@2.0.40_zod@4.1.12",
         "@ai-sdk/mistral-v5@npm:@ai-sdk/mistral@2.0.23_zod@4.1.12",
         "@ai-sdk/openai-compatible-v5@npm:@ai-sdk/openai-compatible@1.0.22_zod@4.1.12",
         "@ai-sdk/openai-v5@npm:@ai-sdk/openai@2.0.53_zod@4.1.12",
@@ -1028,14 +1056,14 @@
         "zod-to-json-schema"
       ]
     },
-    "@mastra/libsql@0.16.2_@mastra+core@0.24.2__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41": {
+    "@mastra/libsql@0.16.2_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-yQ3FYQkRdmIE9Z0RJqVJsKH7H4YjgYb4WcpTfe1C7ulz6OS0VANyXUxiggUhs/mC/WCRjXYlMIj5D19+8o+KeA==",
       "dependencies": [
         "@libsql/client",
         "@mastra/core"
       ]
     },
-    "@mastra/loggers@0.10.19_@mastra+core@0.24.2__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41": {
+    "@mastra/loggers@0.10.19_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-H4qTgqKt3YJxz6B1I0lOPqRpOpR8gEzYYNZ6iO/TGQ11r+wvug/i80MAKr0B1IBZvr9l18vr7wjYCdTxPqaAGg==",
       "dependencies": [
         "@mastra/core",
@@ -1043,7 +1071,7 @@
         "pino-pretty"
       ]
     },
-    "@mastra/memory@0.15.11_@mastra+core@0.24.2__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41": {
+    "@mastra/memory@0.15.11_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-HxcvJ+JBCEN9f8JQ+mPgxBm2K9Ln52aGsX0OeqG1sgt1vac60PqQi1MbywbiIsLxlMkVFysE2C/7bFh+d6vtjQ==",
       "dependencies": [
         "@mastra/core",
@@ -1080,7 +1108,7 @@
         "state-local"
       ]
     },
-    "@monaco-editor/react@4.7.0_monaco-editor@0.54.0_react@19.2.0_react-dom@19.2.0__react@19.2.0": {
+    "@monaco-editor/react@4.7.0_monaco-editor@0.55.1_react@19.2.0_react-dom@19.2.0__react@19.2.0": {
       "integrity": "sha512-cyzXQCtO47ydzxpQtCGSQGOC8Gk3ZUeBXFAxD+CWXYFo5OqZyZUonFl0DwUlTyAfRHntBfw2p3w4s9R6oe1eCA==",
       "dependencies": [
         "@monaco-editor/loader",
@@ -2354,6 +2382,9 @@
         "@types/node@24.2.0"
       ]
     },
+    "@types/trusted-types@2.0.7": {
+      "integrity": "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="
+    },
     "@types/uuid@8.3.4": {
       "integrity": "sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw=="
     },
@@ -2381,7 +2412,10 @@
     "@vercel/oidc@3.0.3": {
       "integrity": "sha512-yNEQvPcVrK9sIe637+I0jD6leluPxzwJKx/Haw6F4H77CdDsszUn5V3o96LPziXkSNE2B83+Z3mjqGKBK/R6Gg=="
     },
-    "@vitejs/plugin-react@5.1.1_vite@7.2.2__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.1": {
+    "@vercel/oidc@3.0.5": {
+      "integrity": "sha512-fnYhv671l+eTTp48gB4zEsTW/YtRgRPnkI2nT7x6qw5rkI1Lq2hTmQIpHPgyThI0znLK+vX2n9XxKdXZ7BUbbw=="
+    },
+    "@vitejs/plugin-react@5.1.1_vite@7.2.4__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.1": {
       "integrity": "sha512-WQfkSw0QbQ5aJ2CHYw23ZGkqnRwqKHD/KYsMeTkZzPT4Jcf0DcBxBtwMJxnu6E7oxw5+JC6ZAiePgh28uJ1HBA==",
       "dependencies": [
         "@babel/core",
@@ -2460,6 +2494,16 @@
         "@ai-sdk/gateway@2.0.0_zod@4.1.12",
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
+        "@opentelemetry/api",
+        "zod@4.1.12"
+      ]
+    },
+    "ai@5.0.98_zod@4.1.12": {
+      "integrity": "sha512-RpMnwnml68Swblobvk6IdF7HLZrog72Ve6H5J3aN+A/JPg4y5CjCXeQyK1N4wJStyuTa6AoKYfJR5F4e/aVpHQ==",
+      "dependencies": [
+        "@ai-sdk/gateway@2.0.13_zod@4.1.12",
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.17_zod@4.1.12",
         "@opentelemetry/api",
         "zod@4.1.12"
       ]
@@ -2808,8 +2852,11 @@
     "dom-accessibility-api@0.5.16": {
       "integrity": "sha512-X7BJ2yElsnOJ30pZF4uIIDfBEVgF4XEBxL9Bxhy6dnrm5hkzqmsWHGTiHqRiITNhMyFLyAiWndIJP7Z1NTteDg=="
     },
-    "dompurify@3.1.7": {
-      "integrity": "sha512-VaTstWtsneJY8xzy7DekmYWEOZcmzIe3Qb3zPd4STve1OBTa+e+WmS1ITQec1fZYXI3HCsOZZiSMpG6oxoWMWQ=="
+    "dompurify@3.2.7": {
+      "integrity": "sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==",
+      "optionalDependencies": [
+        "@types/trusted-types"
+      ]
     },
     "dotenv@16.6.1": {
       "integrity": "sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow=="
@@ -3478,8 +3525,8 @@
     "module-details-from-path@1.0.4": {
       "integrity": "sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w=="
     },
-    "monaco-editor@0.54.0": {
-      "integrity": "sha512-hx45SEUoLatgWxHKCmlLJH81xBo0uXP4sRkESUpmDQevfi+e7K1VuiSprK6UpQ8u4zOcKNiH0pMvHvlMWA/4cw==",
+    "monaco-editor@0.55.1": {
+      "integrity": "sha512-jz4x+TJNFHwHtwuV9vA9rMujcZRb0CEilTEwG2rRSpe/A7Jdkuj8xPKttCgOh+v/lkHy7HsZ64oj+q3xoAFl9A==",
       "dependencies": [
         "dompurify",
         "marked"
@@ -4513,14 +4560,14 @@
     "vary@1.1.2": {
       "integrity": "sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg=="
     },
-    "vite-plugin-wasm@3.5.0_vite@7.2.2__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1": {
+    "vite-plugin-wasm@3.5.0_vite@7.2.4__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1": {
       "integrity": "sha512-X5VWgCnqiQEGb+omhlBVsvTfxikKtoOgAzQ95+BZ8gQ+VfMHIjSHr0wyvXFQCa0eKQ0fKyaL0kWcEnYqBac4lQ==",
       "dependencies": [
         "vite"
       ]
     },
-    "vite@7.2.2_@types+node@24.2.0_yaml@2.8.1_picomatch@4.0.3": {
-      "integrity": "sha512-BxAKBWmIbrDgrokdGZH1IgkIk/5mMHDreLDmCJ0qpyJaAteP8NvMhkwr/ZCQNqNH97bw/dANTE9PDzqwJghfMQ==",
+    "vite@7.2.4_@types+node@24.2.0_yaml@2.8.1_picomatch@4.0.3": {
+      "integrity": "sha512-NL8jTlbo0Tn4dUEXEsUg8KeyG/Lkmc4Fnzb8JXN/Ykm9G4HNImjtABMJgkQoVjOBN/j2WAwDTRytdqJbZsah7w==",
       "dependencies": [
         "@types/node@24.2.0",
         "esbuild",
@@ -4684,7 +4731,7 @@
       "jsr:@std/semver@1.0.7",
       "jsr:@std/testing@1.0.16",
       "jsr:@std/uuid@1.0.9",
-      "npm:@ai-sdk/openai@2.0.69",
+      "npm:@ai-sdk/openai@2.0.71",
       "npm:@automerge/automerge-repo-network-websocket@2.5.0",
       "npm:@automerge/automerge-repo-storage-indexeddb@2.5.0",
       "npm:@automerge/automerge-repo-storage-nodefs@2.5.0",
@@ -4692,7 +4739,7 @@
       "npm:@automerge/automerge@3.2.0",
       "npm:@automerge/prosemirror@0.1.0",
       "npm:@farcaster/frame-sdk@0.1.12",
-      "npm:@mastra/core@0.24.2",
+      "npm:@mastra/core@0.24.4",
       "npm:@mastra/libsql@0.16.2",
       "npm:@mastra/loggers@0.10.19",
       "npm:@mastra/memory@0.15.11",
@@ -4705,7 +4752,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@5.0.97",
+      "npm:ai@5.0.98",
       "npm:approx-string-match@2",
       "npm:chai@6.2.1",
       "npm:csstype@3.2.3",
@@ -4718,7 +4765,7 @@
       "npm:hash-it@6.0.1",
       "npm:ignore@7.0.5",
       "npm:immer@10.2.0",
-      "npm:monaco-editor@0.54.0",
+      "npm:monaco-editor@0.55.1",
       "npm:ollama-ai-provider@1.2.0",
       "npm:ollama@0.6.3",
       "npm:ora@9.0.0",
@@ -4757,7 +4804,7 @@
         "npm:rollup-plugin-visualizer@6.0.5",
         "npm:rollup@4.53.3",
         "npm:vite-plugin-wasm@3.5.0",
-        "npm:vite@7.2.2"
+        "npm:vite@7.2.4"
       ]
     }
   }
