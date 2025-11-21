@@ -1,5 +1,5 @@
-import { type t, Rx } from './common.ts';
-import { isCmdResultEnvelope, createId } from './u.ts';
+import { type t, createId, Rx } from './common.ts';
+import { CmdIs } from './m.Is.ts';
 
 /**
  * Internal: pending call entry (client side).
@@ -22,7 +22,7 @@ export function createClient<
 
   const onMessage = (event: MessageEvent) => {
     const msg = event.data;
-    if (!isCmdResultEnvelope(msg)) return;
+    if (!CmdIs.response(msg)) return;
 
     const entry = pending.get(msg.id);
     if (!entry) return;

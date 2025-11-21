@@ -1,5 +1,5 @@
 import { type t, Rx } from './common.ts';
-import { isCmdEnvelope } from './u.ts';
+import { CmdIs } from './m.Is.ts';
 
 /**
  * Create a command host bound to the given endpoint.
@@ -13,7 +13,7 @@ export function createHost<
 
   const onMessage = async (event: MessageEvent) => {
     const msg = event.data;
-    if (!isCmdEnvelope(msg)) return;
+    if (!CmdIs.request(msg)) return;
 
     const { id, name, payload } = msg;
 

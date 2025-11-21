@@ -8,6 +8,7 @@ import type { t } from './common.ts';
  * command set (e.g. worker commands in @sys/driver-automerge).
  */
 export type CmdLib = {
+  readonly Is: t.CmdIsLib;
   make<
     N extends string = t.CmdName,
     P extends t.CmdPayloadMap<N> = t.CmdPayloadMap<N>,
