@@ -11,7 +11,7 @@ export type CmdLib = {
   make<
     N extends string = t.CmdName,
     P extends t.CmdPayloadMap<N> = t.CmdPayloadMap<N>,
-    R extends t.CmdResultPayloadMap<N> = t.CmdResultPayloadMap<N>,
+    R extends t.CmdPayloadResultMap<N> = t.CmdPayloadResultMap<N>,
   >(): t.CmdInstance<N, P, R>;
 };
 
@@ -24,7 +24,7 @@ export type CmdLib = {
 export type CmdInstance<
   N extends string,
   P extends t.CmdPayloadMap<N>,
-  R extends t.CmdResultPayloadMap<N>,
+  R extends t.CmdPayloadResultMap<N>,
 > = {
   client(endpoint: t.CmdEndpoint): t.CmdClient<N, P, R>;
   host(endpoint: t.CmdEndpoint, handlers: t.CmdHandlers<N, P, R>): t.CmdHost;

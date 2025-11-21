@@ -20,7 +20,7 @@ export type CmdEndpoint = {
  * Concrete libs define their own name + maps (e.g. WorkerCmdName, etc).
  */
 export type CmdPayloadMap<N extends string = t.CmdName> = { readonly [K in N]: unknown };
-export type CmdResultPayloadMap<N extends string = t.CmdName> = { readonly [K in N]: unknown };
+export type CmdPayloadResultMap<N extends string = t.CmdName> = { readonly [K in N]: unknown };
 
 /**
  * Client surface: send a named command and await a typed result.
@@ -28,7 +28,7 @@ export type CmdResultPayloadMap<N extends string = t.CmdName> = { readonly [K in
 export type CmdClient<
   N extends string,
   P extends CmdPayloadMap<N>,
-  R extends CmdResultPayloadMap<N>,
+  R extends CmdPayloadResultMap<N>,
 > = t.Lifecycle & {
   send<K extends N>(name: K, payload: P[K]): Promise<R[K]>;
 };
@@ -39,7 +39,7 @@ export type CmdClient<
 export type CmdHandler<
   N extends string,
   P extends CmdPayloadMap<N>,
-  R extends CmdResultPayloadMap<N>,
+  R extends CmdPayloadResultMap<N>,
   K extends N = N,
 > = (payload: P[K]) => R[K] | Promise<R[K]>;
 
@@ -49,7 +49,7 @@ export type CmdHandler<
 export type CmdHandlers<
   N extends string,
   P extends CmdPayloadMap<N>,
-  R extends CmdResultPayloadMap<N>,
+  R extends CmdPayloadResultMap<N>,
 > = {
   readonly [K in N]: CmdHandler<N, P, R, K>;
 };
