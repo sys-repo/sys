@@ -7,6 +7,7 @@ export { Repo as AutomergeRepo } from '@automerge/automerge-repo';
 /**
  * @system
  */
+export { Cmd } from '@sys/event/cmd';
 export { Immutable } from '@sys/immutable/rfc6902';
 export {
   Arr,
