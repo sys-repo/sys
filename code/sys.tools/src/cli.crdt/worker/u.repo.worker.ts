@@ -1,4 +1,4 @@
-import { Crdt, Log } from './common.ts';
+import { Crdt, Log } from '../common.ts';
 
 /**
  * Single-repo worker host.
