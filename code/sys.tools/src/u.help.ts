@@ -1,4 +1,4 @@
-import { type t, Args, c, Fmt, pkg } from './common.ts';
+import { type t, Args, c, Fmt, pkg, Str } from './common.ts';
 
 export async function printHelp(argv: string[]) {
   const args = Args.parse<t.ToolsCliArgs>(argv, { alias: { h: 'help' } });
@@ -15,9 +15,14 @@ export async function printHelp(argv: string[]) {
   console.info(text);
 
   if (args.help) {
-    const msg = `To enable the ${c.bold(c.cyan('sys'))} command globally, add the following snippet to your ${c.cyan('~/.zshrc')} file:`;
-    console.info(msg);
-    console.info(c.italic(c.yellow(ShellCommand)));
+    const sys = c.bold(c.green('sys'));
+    const cmd = c.white('deno run jsr:@sys/tools');
+    const str = Str.builder()
+      .line(`  Installs ${sys} as a lightweight shell alias over the raw`)
+      .line(`  ${c.bold(cmd)} command. For convenience, you may`)
+      .line(`  want to add it to your ${c.cyan('~/.zshrc')} or an equivalent file`);
+    console.info(c.italic(c.gray(String(str))));
+    console.info(c.yellow(ShellCommand));
   }
 }
 
