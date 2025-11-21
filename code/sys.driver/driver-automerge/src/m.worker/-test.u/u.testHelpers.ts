@@ -2,7 +2,7 @@ import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network
 import { Crdt } from '../../-exports/-fs/mod.ts';
 
 import { type t } from '../common.ts';
-import { CrdtWorker } from '../m.Crdt.Worker.ts';
+import { CrdtWorker } from '../m.Worker.ts';
 
 type O = Record<string, unknown>;
 

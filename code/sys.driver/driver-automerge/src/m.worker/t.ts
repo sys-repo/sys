@@ -2,9 +2,10 @@ import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
 
+export type * from './t.cmd.ts';
+export type * from './t.config.ts';
 export type * from './t.lib.ts';
 export type * from './t.wire.ts';
-export type * from './t.config.ts';
 
 /**
  * Worker-backed facade for a CRDT repo.

@@ -2,7 +2,6 @@ import React from 'react';
 import { type t, Color, CrdtIs, css, Icons, KeyValue, Rx, Str, Time, useRev } from './common.ts';
 import { getStatus } from './u.status.ts';
 import { StatusBullet } from './ui.StatusBullet.tsx';
-import { CrdtWorker } from '../../m.worker/m.Crdt.Worker.ts';
 
 type P = t.RepoInfoProps;
 
