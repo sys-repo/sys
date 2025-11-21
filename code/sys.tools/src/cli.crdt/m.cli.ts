@@ -19,7 +19,6 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
 
   console.info(await Fmt.header(toolname));
   const res = await run(dir);
-  console.info();
   console.info(Fmt.signoff(toolname));
 
   const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
