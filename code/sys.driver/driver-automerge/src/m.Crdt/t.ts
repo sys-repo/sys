@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
 
 export type * from './t.core.ts';
-export type * from './t.id.ts';
-export type * from './t.is.ts';
+export type * from './t.Id.ts';
+export type * from './t.Is.ts';
 export type * from './t.meta.ts';
 export type * from './t.network.ts';
 
