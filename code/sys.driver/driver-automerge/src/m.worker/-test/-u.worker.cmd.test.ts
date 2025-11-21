@@ -1,14 +1,11 @@
 import { describe, expect, it } from '../../-test.ts';
-import { type t, Cmd } from '../common.ts';
+import { type t } from '../common.ts';
+import { CrdtWorker } from '../mod.ts';
 
-describe('Crdt.Worker.Cmd (Cmd bus)', () => {
-  it('attach command roundtrip over MessageChannel', async () => {
+describe('Crdt.Worker.Cmd (RPC)', () => {
+  it('Cmd: attach roundtrip over a bare MessageChannel', async () => {
     // 1. Instantiate a typed command set for the worker control channel.
-    const workerCmd = Cmd.make<
-      t.CrdtWorkerCmdName,
-      t.CrdtWorkerCmdPayload,
-      t.CrdtWorkerCmdResult
-    >();
+    const cmd = CrdtWorker.Cmd.make();
 
     // 2. Create a MessageChannel to simulate worker <-> main boundary.
     const { port1, port2 } = new MessageChannel();
@@ -16,7 +13,7 @@ describe('Crdt.Worker.Cmd (Cmd bus)', () => {
     // 3. Host: handle `attach` on one side.
     let receivedConfig: t.CrdtWorkerCmdPayload['attach']['config'] | undefined;
 
-    const host = workerCmd.host(port1, {
+    const host = cmd.host(port1, {
       attach: ({ config }) => {
         receivedConfig = config;
         return { ok: true };
@@ -24,7 +21,7 @@ describe('Crdt.Worker.Cmd (Cmd bus)', () => {
     });
 
     // 4. Client: send `attach` from the other side.
-    const client = workerCmd.client(port2);
+    const client = cmd.client(port2);
 
     const config: t.CrdtWorkerCmdPayload['attach']['config'] = {
       kind: 'fs',

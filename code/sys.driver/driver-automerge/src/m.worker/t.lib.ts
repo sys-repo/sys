@@ -13,6 +13,9 @@ export type CrdtWorkerLib = {
 
   /** Worker-side host API (listen/attach real repos to ports). */
   readonly Host: t.CrdtWorkerHostLib;
+
+  /** Worker-level command RPC. */
+  readonly Cmd: t.CrdtWorkerCmdLib;
 };
 
 /**
