@@ -35,7 +35,9 @@ export const Fmt = {
    */
   signoff(toolname: string) {
     const self = `${Pkg.toString(pkg)}:${toolname}`;
-    return Str.builder().line(c.dim(self)).toString();
+    return Str.builder()
+      .line(c.dim(c.gray(self)))
+      .toString();
   },
 
   /**
