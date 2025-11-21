@@ -1,12 +1,11 @@
-import { snapshot } from './cmd.snapshot/mod.ts';
 import { type t, Args, c, D, Fs, getConfig, Is, Prompt } from './common.ts';
+
+import { snapshot } from './cmd.snapshot/mod.ts';
+import { findTasks } from './cmd.tasks/mod.ts';
 import { normalize } from './u.config.doc.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.modify.ts';
 import { CrdtUri } from './u.ts';
-import { findTasks } from './cmd.tasks/mod.ts';
-
-type RunReturn = { exit: number | boolean };
 
 /**
  * Main entry:
@@ -29,11 +28,11 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 
-async function run(dir: t.StringDir): Promise<RunReturn> {
+async function run(dir: t.StringDir): Promise<t.RunReturn> {
   const config = await getConfig(dir);
   await normalize(config);
 
-  const done = (exit: number | boolean = false): RunReturn => ({ exit });
+  const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
 
   const listing = (config.current.docs ?? []).map((doc, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);

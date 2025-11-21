@@ -8,6 +8,7 @@ export type ToolsCliArgs = { help: boolean };
 /**
  * Common result response from tool runs.
  */
-export type RunResult = {
+export type RunReturn = {
+  /** Process exit code to invoke. True = exit(0); */
   exit: number | boolean;
 };
