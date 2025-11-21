@@ -40,8 +40,15 @@ export function createHost<
   };
 
   endpoint.addEventListener('message', onMessage);
-  life.dispose$.subscribe(() => endpoint.removeEventListener('message', onMessage));
   endpoint.start?.();
+
+  /**
+   * Lifecycle:
+   */
+  life.dispose$.subscribe(() => {
+    endpoint.removeEventListener('message', onMessage);
+    endpoint.close?.();
+  });
 
   /**
    * API:

@@ -59,6 +59,9 @@ export function createClient<
     });
   };
 
+  /**
+   * Lifecycle:
+   */
   life.dispose$.subscribe(() => {
     endpoint.removeEventListener('message', onMessage);
     const error = new Error('Command client disposed before response was received.');
@@ -66,6 +69,7 @@ export function createClient<
       entry.reject(error);
     }
     pending.clear();
+    endpoint.close?.();
   });
 
   /**

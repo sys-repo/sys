@@ -13,6 +13,7 @@ export type CmdEndpoint = {
   addEventListener(type: 'message', fn: (event: MessageEvent) => void): void;
   removeEventListener(type: 'message', fn: (event: MessageEvent) => void): void;
   start?: () => void;
+  close?: () => void;
 };
 
 /**
