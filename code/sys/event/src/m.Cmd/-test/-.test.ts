@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { CmdIs } from '../m.Is.ts';
 import { Cmd } from '../mod.ts';
 
-describe(`Cmd: Command But`, () => {
+describe(`Cmd: Command (Bus)`, () => {
   it('API', async () => {
     const m = await import('@sys/event/cmd');
     expect(m.Cmd).to.equal(Cmd);
