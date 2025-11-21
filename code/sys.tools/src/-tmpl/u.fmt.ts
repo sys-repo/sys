@@ -1,4 +1,4 @@
-import { type t, Fmt as Base, c, Cli, D, getConfig, Str, Time } from './common.ts';
+import { type t, Fmt as Base, c, Cli, D, Fs, getConfig, Str, Time } from './common.ts';
 
 export const Fmt = {
   ...Base,
@@ -7,6 +7,7 @@ export const Fmt = {
     const config = await getConfig(dir);
 
     const str = Str.builder()
+      .line(c.gray(`working dir: ${Fs.trimCwd(dir)}`))
       .line(await Base.help(toolname))
       .line();
 

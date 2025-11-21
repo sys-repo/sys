@@ -1,20 +1,16 @@
 import { type t, Fs, JsonFile } from '../common.ts';
-
 export * from '../common.ts';
-
-/**
- * Libs:
- */
 
 /**
  * Constants:
  */
+const toolname = `__NAME__`;
 export const D = {
-  toolname: `__NAME__`,
+  toolname,
   Path: {},
   config: {
     filename: '__NAME__.config.json',
-    doc: JsonFile.default<t.__NAME__ConfigDoc>({ version: '1.0.0' }),
+    doc: JsonFile.default<t.__NAME__ConfigDoc>({ name: toolname }),
   },
 } as const;
 

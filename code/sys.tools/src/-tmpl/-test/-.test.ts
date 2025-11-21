@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, it, slug } from '../../-test.ts';
 import { type t, D, Fs, getConfig } from '../common.ts';
 
-describe('cli.crdt', () => {
-  const root = '.tmp/test/cli.crdt.getConfig';
+describe('tool: __NAME__', () => {
+  const root = `.tmp/test/${D.config.filename}`;
 
   beforeAll(async () => void (await Fs.remove(root)));
 

@@ -10,7 +10,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
-    "tmpl": "deno run -P=ci @sys/tools/-tmpl",
+    "tmpl": "deno run -P=ci ./src/-tmpl/mod.ts",
     "help": "deno run -P=dev   ./-scripts/-vite.ts --cmd=help",
     "tmp": "deno run -P=ci ./-scripts/-tmp.ts"
   },
@@ -23,7 +23,6 @@
     "./crdt": "./src/cli.crdt/mod.ts",
     "./fs": "./src/cli.fs/mod.ts",
     "./video": "./src/cli.video/mod.ts",
-    "./update": "./src/cli.update/mod.ts",
-    "./-tmpl": "./src/-tmpl/mod.ts"
+    "./update": "./src/cli.update/mod.ts"
   }
 }

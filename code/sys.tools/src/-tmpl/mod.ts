@@ -1,6 +1,6 @@
 /**
  * @module
- * CLI tools for working with CRDT documents.
+ * __NAME__ CLI tools.
  */
 import { Fs } from './common.ts';
 

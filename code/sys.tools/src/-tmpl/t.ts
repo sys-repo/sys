@@ -27,5 +27,5 @@ export type __NAME__CliArgs = t.ToolsCliArgs;
  */
 export type __NAME__Config = t.JsonFile<__NAME__ConfigDoc>;
 export type __NAME__ConfigDoc = t.JsonFileDoc & {
-  version: string;
+  name: string;
 };
