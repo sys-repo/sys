@@ -1,6 +1,6 @@
 import { type t, c, Cli, Crdt, Fs, Str, Time } from '../common.ts';
 import { startRepoWorker } from '../worker/mod.ts';
-import { calcAndSaveDist } from './u. calcAndSaveDist.ts';
+import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
 import { process } from './u.snapshot.process.ts';
 
 const Tree = Cli.Fmt.Tree;
