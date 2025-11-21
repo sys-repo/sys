@@ -27,7 +27,7 @@ describe('tool: __NAME__', () => {
 
       // Config seed is as declared in D.config.doc.
       const json = (await Fs.readJson<Doc>(path)).data!;
-      expect(json.version).to.eql(D.config.doc.version);
+      expect(json.name).to.eql(D.config.doc.name);
 
       // Singleton semantics: same dir → same instance.
       expect(a).to.equal(b);
