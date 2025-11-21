@@ -48,39 +48,39 @@ async function run(dir: t.StringDir): Promise<RunReturn> {
   });
 
   console.info();
-  const optionA = (await Prompt.Select.prompt<t.CrdtCommand>({
+  const A = (await Prompt.Select.prompt<t.CrdtCommand>({
     message: 'Choose:\n',
     options: [{ name: ' add: <document>', value: 'modify:add' }, ...listing],
   })) as t.CrdtCommand;
 
-  let id = CrdtUri.hasPrefix(optionA) ? CrdtUri.trimPrefix(optionA) : '';
-  if (optionA === 'modify:add') {
+  let id = CrdtUri.hasPrefix(A) ? CrdtUri.trimPrefix(A) : '';
+  if (A === 'modify:add') {
     const res = await promptAddDocument(dir);
     if (!res?.id) return done();
     id = res.id;
   }
   if (!id) return done();
 
-  const optionB = (await Prompt.Select.prompt<t.CrdtCommand>({
+  const B = (await Prompt.Select.prompt<t.CrdtCommand>({
     message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
     options: [
       { name: 'Backup (Snapshot)', value: 'snapshot' },
-      { name: 'List Tasks', value: 'tasks:find' },
-      { name: 'Forget', value: 'modify:remove' },
+      { name: 'Filter Tasks', value: 'filter:tasks' },
+      { name: '(Forget)', value: 'modify:remove' },
     ],
   })) as t.CrdtCommand;
 
-  if (optionB === 'snapshot') {
+  if (B === 'snapshot') {
     await snapshot(dir, id);
     return done(0);
   }
 
-  if (optionB === 'tasks:find') {
+  if (B === 'filter:tasks') {
     findTasks(dir, id);
     return done(0);
   }
 
-  if (optionB === 'modify:remove') {
+  if (B === 'modify:remove') {
     await promptRemoveDocument(dir, id);
     return done();
   }

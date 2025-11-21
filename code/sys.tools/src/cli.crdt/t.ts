@@ -4,7 +4,7 @@ export type * from './cmd.snapshot/t.ts';
 export type * from './cmd.tasks/t.ts';
 
 /** The various copy options */
-export type CrdtCommand = 'modify:add' | 'modify:remove' | 'snapshot' | 'tasks:find';
+export type CrdtCommand = 'modify:add' | 'modify:remove' | 'snapshot' | 'filter:tasks';
 
 /**
  * CLI helpers for working with CRDT documents.
