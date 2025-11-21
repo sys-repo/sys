@@ -1,4 +1,4 @@
-import { type t, Fs } from '../common.ts';
+import { type t, A, Fs, Crdt, toAutomergeHandle } from '../common.ts';
 
 /**
  * Persist a single document snapshot to disk and record its size.
@@ -13,10 +13,10 @@ export async function saveDoc(args: {
 }) {
   const { dir, doc, isRoot, bytes, emit, depth } = args;
 
-  let filename = `${doc.id}.json`;
+  let filename = `${doc.id}.crdt.json`;
   if (isRoot) filename = `-root.${filename}`;
 
-  const path = Fs.join(dir, filename);
+  const path = Fs.join(dir, 'data', filename);
   const json = (doc.current ?? {}) as t.JsonMap;
 
   await Fs.writeJson(path, json);

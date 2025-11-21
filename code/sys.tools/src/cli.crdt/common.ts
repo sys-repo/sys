@@ -5,7 +5,7 @@ export * from '../common.ts';
 /**
  * Libs:
  */
-export { Crdt } from '@sys/driver-automerge/fs';
+export { Crdt, toAutomergeHandle, A } from '@sys/driver-automerge/fs';
 export { Immutable } from '@sys/immutable/rfc6902';
 
 /**

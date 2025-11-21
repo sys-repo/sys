@@ -46,7 +46,6 @@ export async function process(args: Args): Promise<ProcessResult> {
      */
     async onDoc({ depth, doc }) {
       const isRoot = doc.id === rootId;
-
       await saveDoc({ dir, doc, depth, isRoot, bytes, emit });
     },
 
