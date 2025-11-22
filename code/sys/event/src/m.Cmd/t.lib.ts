@@ -27,6 +27,9 @@ export type CmdInstance<
   P extends t.CmdPayloadMap<N>,
   R extends t.CmdPayloadResultMap<N>,
 > = {
-  client(endpoint: t.CmdEndpoint): t.CmdClient<N, P, R>;
+  client(endpoint: t.CmdEndpoint, opts?: t.CmdClientOptions): t.CmdClient<N, P, R>;
   host(endpoint: t.CmdEndpoint, handlers: t.CmdHandlers<N, P, R>): t.CmdHost;
 };
+
+/** Options passed to `Cmd.make().client()` */
+export type CmdClientOptions = { timeout?: t.Msecs };

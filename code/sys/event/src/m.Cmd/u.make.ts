@@ -11,7 +11,7 @@ export function make<
   R extends t.CmdPayloadResultMap<N> = t.CmdPayloadResultMap<N>,
 >(): t.CmdInstance<N, P, R> {
   return {
-    client: (endpoint) => createClient<N, P, R>(endpoint),
+    client: (endpoint, opts) => createClient<N, P, R>(endpoint, opts),
     host: (endpoint, handlers) => createHost<N, P, R>(endpoint, handlers),
   };
 }

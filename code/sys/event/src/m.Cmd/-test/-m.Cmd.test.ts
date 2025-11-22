@@ -1,4 +1,5 @@
-import { describe, expect, it } from '../../-test.ts';
+import { type t, describe, expect, it, Schedule } from '../../-test.ts';
+import { throwError } from 'rxjs';
 import { Cmd } from '../mod.ts';
 
 describe('Cmd (core)', () => {
@@ -28,9 +29,8 @@ describe('Cmd (core)', () => {
       });
 
       const client = cmd.client(port2);
-
       const res = await client.send('echo', { msg: 'hi' });
-      expect(res.reply).to.equal('HI');
+      expect(res.reply).to.eql('HI');
 
       client.dispose();
       host.dispose();
@@ -47,23 +47,30 @@ describe('Cmd (core)', () => {
       const { port1, port2 } = new MessageChannel();
 
       const host = cmd.host(port1, {
-        fail: () => {
+        fail() {
           throw new Error('boom');
         },
       });
 
       const client = cmd.client(port2);
 
-      let err: unknown;
+      let thrownError: unknown;
       try {
         await client.send('fail', {});
         expect.fail('Expected client.send to throw');
       } catch (e) {
-        err = e;
+        thrownError = e;
       }
 
+      const err = thrownError as t.CmdError;
       expect(err).to.be.instanceOf(Error);
-      expect((err as Error).message).to.equal('boom');
+      expect(err.message).to.eql('boom');
+
+      expect(err.name).to.eql('CmdErrorRemote');
+      expect(err.cmd).to.be.an('object');
+      expect(err.cmd?.name).to.eql('fail');
+      expect(err.cmd?.id).to.be.a('string');
+      expect(err.cmd?.id).to.match(/^req-/);
 
       client.dispose();
       host.dispose();
@@ -77,25 +84,70 @@ describe('Cmd (core)', () => {
       const cmd = Cmd.make<Name, Payload, Result>();
       const { port1, port2 } = new MessageChannel();
 
-      const host = cmd.host(port1, {
-        foo: () => ({}),
-      });
-
+      const host = cmd.host(port1, { foo: () => ({}) });
       const client = cmd.client(port2);
 
       // @ts-expect-error name is wrong — runtime should error too.
       const p = client.send('bar', {});
 
-      let err: unknown;
+      let thrownError: unknown;
       try {
         await p;
         expect.fail('Expected client.send to throw for unknown command');
+      } catch (e) {
+        thrownError = e;
+      }
+
+      const err = thrownError as t.CmdError;
+      expect(err).to.be.instanceOf(Error);
+      expect(err.message).to.match(/No handler registered for command "bar"/);
+
+      expect(err.name).to.eql('CmdErrorRemote');
+      expect(err.cmd).to.be.an('object');
+      expect(err.cmd?.name).to.eql('bar');
+      expect(err.cmd?.id).to.be.a('string');
+      expect(err.cmd?.id).to.match(/^req-/);
+
+      client.dispose();
+      host.dispose();
+    });
+
+    // 🌸🌸 ---------- CHANGED: cmd-timeout-error-and-meta ----------
+    it('client timeout rejects pending request with CmdErrorTimeout and cmd meta', async () => {
+      type Name = 'slow';
+      type Payload = { slow: {} };
+      type Result = { slow: {} };
+
+      const cmd = Cmd.make<Name, Payload, Result>();
+      const { port1, port2 } = new MessageChannel();
+
+      const host = cmd.host(port1, {
+        async slow() {
+          /* Intentionally never resolve - ensure timeout error */
+          await new Promise<never>(() => {});
+        },
+      });
+
+      const client = cmd.client(port2, { timeout: 10 });
+      const p = client.send('slow', {});
+
+      let err: unknown;
+      try {
+        await p;
+        expect.fail('Expected client.send to throw on timeout');
       } catch (e) {
         err = e;
       }
 
       expect(err).to.be.instanceOf(Error);
-      expect((err as Error).message).to.match(/No handler registered for command "bar"/);
+      const error = err as t.CmdError;
+      expect(error.name).to.eql('CmdErrorTimeout');
+      expect(error.message).to.contain('timed out');
+
+      expect(error.cmd).to.be.an('object');
+      expect(error.cmd?.name).to.eql('slow');
+      expect(error.cmd?.id).to.be.a('string');
+      expect(error.cmd?.id).to.match(/^req-/);
 
       client.dispose();
       host.dispose();
@@ -112,8 +164,8 @@ describe('Cmd (core)', () => {
       const { port1, port2 } = new MessageChannel();
 
       const host = cmd.host(port1, {
-        slow: async () => {
-          await new Promise((r) => setTimeout(r, 50));
+        async slow() {
+          await Schedule.sleep(50);
           return {};
         },
       });
@@ -122,16 +174,20 @@ describe('Cmd (core)', () => {
       const p = client.send('slow', {});
       client.dispose();
 
-      let err: unknown;
+      let thrownError: unknown;
       try {
         await p;
         expect.fail('Expected pending request to be rejected on dispose');
       } catch (e) {
-        err = e;
+        thrownError = e;
       }
 
+      const err = thrownError as t.CmdError;
       expect(err).to.be.instanceOf(Error);
-      expect((err as Error).message).to.contain('disposed');
+      expect(err.message).to.contain('disposed');
+
+      expect(err.name).to.eql('CmdErrorClientDisposed');
+      expect(err.cmd).to.eql(undefined);
 
       host.dispose();
     });
