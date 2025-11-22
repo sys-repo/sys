@@ -1,5 +1,9 @@
 import { type t } from './common.ts';
 
+type Name = t.CrdtWorkerCmdName;
+type Payload = t.CrdtWorkerCmdPayload;
+type Result = t.CrdtWorkerCmdResult;
+
 /**
  * Worker-level command RPC.
  */
@@ -16,11 +20,15 @@ export type CrdtWorkerCmdLib = {
  *   - `.client(port)` → command client bound to a MessagePort
  *   - `.host(port, handlers)` → handler-side command host
  */
-export type CrdtWorkerCmdInstance = t.CmdInstance<
-  t.CrdtWorkerCmdName,
-  t.CrdtWorkerCmdPayload,
-  t.CrdtWorkerCmdResult
->;
+export type CrdtWorkerCmdInstance = t.CmdInstance<Name, Payload, Result>;
+
+/**
+ * Typed set of worker-side command handlers.
+ *
+ * For each command name:
+ *   handler(args) → result | Promise<result>
+ */
+export type CrdtWorkerCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
 
 /**
  * Command names supported by the CRDT worker.

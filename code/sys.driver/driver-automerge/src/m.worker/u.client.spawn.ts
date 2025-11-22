@@ -1,4 +1,5 @@
 import { type t, Rx, Schedule } from './common.ts';
+import { CrdtWorkerCmd } from './m.Cmd.ts';
 import { createRepo } from './u.client.proxy.repo.ts';
 import { Wire } from './u.wire.ts';
 
@@ -35,8 +36,18 @@ export const spawn: t.CrdtWorkerClientLib['spawn'] = async (input, opts = {}) =>
    */
   const kind = Wire.Kind.attach;
   worker.postMessage({ kind, port: port2, config }, [port2]);
-  await Schedule.micro(); // ← Allow wire events to flush before returning.
 
+  /**
+   * Worker-level command handshake:
+   * - Use the typed Cmd client over `port1` to invoke `attach`, which in turn
+   *   binds the real repo instance on the worker side via `attachRepo(...)`.
+   */
+  const cmd = CrdtWorkerCmd.make();
+  const client = cmd.client(port1);
+  await client.send('attach', { config });
+
+  // Finish up.
+  await Schedule.micro(); // ← Allow wire events to flush before returning.
   return {
     worker,
     repo,

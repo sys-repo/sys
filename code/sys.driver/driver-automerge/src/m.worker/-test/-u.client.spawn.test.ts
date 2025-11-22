@@ -1,6 +1,7 @@
 import { type t, afterEach, c, describe, expect, it } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers } from './u.ts';
+import { CrdtWorkerCmd } from '../m.Cmd.ts';
 
 describe('CrdtWorker.Client.spawn (real worker)', () => {
   const Test = createTestHelpers();
@@ -16,7 +17,6 @@ describe('CrdtWorker.Client.spawn (real worker)', () => {
   it('creates a worker-backed repo and reaches ready state', async () => {
     const { worker, repo } = await CrdtWorker.Client.spawn(url, { worker: { type: 'module' } });
 
-    expect(repo.status.ready).to.eql(false);
     await repo.whenReady();
     expect(repo.status.ready).to.eql(true);
 
@@ -39,7 +39,6 @@ describe('CrdtWorker.Client.spawn (real worker)', () => {
     // The spawn helper should use the same worker instance.
     expect(result.worker).to.equal(worker);
 
-    expect(repo.status.ready).to.eql(false);
     await repo.whenReady();
     expect(repo.status.ready).to.eql(true);
 
@@ -102,11 +101,20 @@ describe('CrdtWorker.Client.spawn (real worker)', () => {
       const fakeWorker = Test.fakeWorkerLikeScope(real);
 
       const { port1, port2 } = new MessageChannel();
+
+      // 1. Tell the fake worker to install its listen() handler and bind to `port2`.
       fakeWorker.postMessage({ kind: 'crdt:attach', port: port2 }, [port2]);
 
+      // 2. Create the client-side repo facade on `port1` so it can receive events.
       const client = CrdtWorker.Client.repo(port1);
       expect(client.status.ready).to.eql(false);
 
+      // 3. Drive the new typed command handshake: `attach` over the same port.
+      const cmd = CrdtWorkerCmd.make();
+      const cmdClient = cmd.client(port1);
+      await cmdClient.send('attach', { config: undefined });
+
+      // 4. Now the host has called attachRepo(...), so the client should reach ready.
       await client.whenReady();
       expect(client.status.ready).to.eql(true);
       expect(client.sync.enabled).to.eql(real.sync.enabled);

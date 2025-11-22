@@ -1,5 +1,6 @@
 import { type t, CrdtIs, Is } from './common.ts';
-import { attachRepo } from './u.host.attach.repo.ts';
+import { CrdtWorkerCmd } from './m.Cmd.ts';
+import { makeAttach } from './u.host.cmd.ts';
 import { Wire } from './u.wire.ts';
 
 type AttachMessage = {
@@ -16,42 +17,34 @@ type AttachMessage = {
  * - listen(self, factory)        ← lazy repo creation with spawn-time config
  */
 export const listen: t.CrdtWorkerHostLib['listen'] = (self, args) => {
+  const cmd = CrdtWorkerCmd.make();
   let { repo, factory } = wrangle.args(args);
 
   /**
    * Message handler: look for `crdt:attach` and bind the provided port.
-   * If a factory was provided, lazily create the repo on first attach
-   * with access to the optional spawn-time config.
+   * If a factory was provided, lazily create the repo on first attach via the
+   * typed `attach` command with access to the optional spawn-time config.
    */
   self.addEventListener('message', (ev) => {
     const data = ev.data as AttachMessage | undefined;
-    if (data?.kind !== Wire.Kind.attach) return;
+    if (!data) return;
+    if (data.kind !== Wire.Kind.attach) return;
 
     const port = ev.ports?.[0] ?? data.port;
     if (!port) return;
 
-    const attach = (instance: t.CrdtRepo) => attachRepo(port, instance);
+    /**
+     * Command handlers for this port.
+     * (Each handler corresponds to a typed RPC method.)
+     */
+    const attach = makeAttach({ port, repo, factory }, (created) => (repo = created));
 
-    // Repo already exists (legacy path or first attach already handled).
-    if (repo) {
-      attach(repo);
-      return;
-    }
-
-    // Lazily create repo via factory on first attach.
-    if (factory) {
-      const config = data.config;
-      void (async () => {
-        try {
-          const created = await factory({ config });
-          repo = created;
-          attach(created);
-        } catch {
-          // Swallow factory errors here: transport-level failure would be
-          // surfaced via repo wiring if needed. For now we keep this silent.
-        }
-      })();
-    }
+    /**
+     * Bind the command host to the MessagePort.
+     */
+    cmd.host(port, {
+      attach,
+    });
   });
 
   /**
