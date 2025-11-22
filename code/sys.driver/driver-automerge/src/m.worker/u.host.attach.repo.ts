@@ -121,7 +121,7 @@ export const attachRepo: t.CrdtWorkerHostLib['attach'] = (port, repo) => {
     },
   };
 
-  const onMessage = (event: MessageEvent) => {
+  function onMessage(event: MessageEvent) {
     const msg = event.data as t.WireMessage | undefined;
     if (!msg || msg.type !== 'call') return;
 
@@ -134,11 +134,12 @@ export const attachRepo: t.CrdtWorkerHostLib['attach'] = (port, repo) => {
       return;
     }
 
+    type M = t.WireRepoResultData[t.WireRepoMethod];
     Promise.resolve()
       .then(() => handler(...(args as unknown[])))
-      .then((data) => sendResult(Wire.ok(id, data as t.WireRepoResultData[t.WireRepoMethod])))
+      .then((data) => sendResult(Wire.ok(id, data as M)))
       .catch((error) => sendResult(Wire.err(id, Wire.errFrom(error))));
-  };
+  }
 
   port.addEventListener?.('message', onMessage, { signal: life.signal });
 
