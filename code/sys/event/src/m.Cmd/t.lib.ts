@@ -13,7 +13,9 @@ export type CmdLib = {
     N extends string = t.CmdName,
     P extends t.CmdPayloadMap<N> = t.CmdPayloadMap<N>,
     R extends t.CmdPayloadResultMap<N> = t.CmdPayloadResultMap<N>,
-  >(): t.CmdInstance<N, P, R>;
+  >(
+    opts?: t.CmdMakeOptions,
+  ): t.CmdInstance<N, P, R>;
 };
 
 /**
@@ -31,5 +33,14 @@ export type CmdInstance<
   host(endpoint: t.CmdEndpoint, handlers: t.CmdHandlers<N, P, R>): t.CmdHost;
 };
 
+/** Options passed to `Cmd.make()` */
+export type CmdMakeOptions = {
+  /** Optional namespace used to disambiguate shared transports. */
+  ns?: t.CmdNamespace;
+};
+
 /** Options passed to `Cmd.make().client()` */
-export type CmdClientOptions = { timeout?: t.Msecs };
+export type CmdClientOptions = {
+  /** Optional timeout in milliseconds for each command request. */
+  timeout?: t.Msecs;
+};

@@ -4,11 +4,16 @@ import { CmdIs } from './m.Is.ts';
 /**
  * Create a command host bound to the given endpoint.
  */
-export function createHost<
+export function makeHost<
   N extends string,
   P extends t.CmdPayloadMap<N>,
   R extends t.CmdPayloadResultMap<N>,
->(endpoint: t.CmdEndpoint, handlers: t.CmdHandlers<N, P, R>): t.CmdHost {
+>(
+  endpoint: t.CmdEndpoint,
+  handlers: t.CmdHandlers<N, P, R>,
+  opts: { ns?: t.CmdNamespace } = {},
+): t.CmdHost {
+  const { ns } = opts;
   const life = Rx.abortable();
 
   const onMessage = async (event: MessageEvent) => {

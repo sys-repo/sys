@@ -13,12 +13,15 @@ type TimeoutHandle = ReturnType<typeof setTimeout>;
 /**
  * Create a command client bound to the given endpoint.
  */
-export function createClient<
+export function makeClient<
   N extends string,
   P extends t.CmdPayloadMap<N>,
   R extends t.CmdPayloadResultMap<N>,
->(endpoint: t.CmdEndpoint, opts: t.CmdClientOptions = {}): t.CmdClient<N, P, R> {
-  const { timeout } = opts;
+>(
+  endpoint: t.CmdEndpoint,
+  opts: { timeout?: t.Msecs; ns?: t.CmdNamespace } = {},
+): t.CmdClient<N, P, R> {
+  const { timeout, ns } = opts;
   const life = Rx.lifecycle();
 
   const pending = new Map<t.CmdReqId, PendingEntry>();
