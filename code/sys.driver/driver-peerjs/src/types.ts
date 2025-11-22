@@ -1,6 +1,5 @@
 /**
- * @module
- * @types Type-library module.
+ * @module types
  */
 export type * from './m.Peer/t.ts';
 export type * from './t.ts';

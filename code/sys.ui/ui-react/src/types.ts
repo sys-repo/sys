@@ -1,6 +1,5 @@
 /**
- * @module
- * @types Type-library module.
+ * @module types
  */
 import type { JSX } from 'react';
 export type { FC } from 'react';

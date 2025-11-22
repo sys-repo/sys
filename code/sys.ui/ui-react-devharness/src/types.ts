@@ -1,6 +1,5 @@
 /**
- * @module
- * @types Type-library module.
+ * @module types
  */
 export type * from './t/mod.ts';
 export type * from './u/m.RxBus/t.ts';

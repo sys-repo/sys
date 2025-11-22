@@ -1,6 +1,5 @@
 /**
- * @module
- * @types Type-library module.
+ * @module types
  */
 export type * from './ui/Bullet/t.ts';
 export type * from './ui/Button/t.ts';

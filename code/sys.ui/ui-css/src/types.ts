@@ -1,6 +1,5 @@
 /**
- * @module
- * @types Type-library module.
+ * @module types
  */
 /** A string that represents a CSS selector. */
 export type StringCssSelector = string;
