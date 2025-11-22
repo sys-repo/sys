@@ -7,10 +7,12 @@ export type CmdErrorKind = 'CmdErrorTimeout' | 'CmdErrorClientDisposed' | 'CmdEr
 export type CmdErrorMeta = {
   readonly name: t.CmdName;
   readonly id?: t.CmdReqId;
+  readonly ns?: t.CmdNamespace;
 };
 
 /** Error instance produced by the command client. */
 export type CmdError = Error & {
-  name: CmdErrorKind;
-  cmd?: CmdErrorMeta;
+  readonly name: CmdErrorKind;
+  readonly cmd?: CmdErrorMeta;
+  readonly ns?: t.CmdNamespace;
 };

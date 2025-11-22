@@ -112,7 +112,6 @@ describe('Cmd (core)', () => {
       host.dispose();
     });
 
-    // 🌸🌸 ---------- CHANGED: cmd-timeout-error-and-meta ----------
     it('client timeout rejects pending request with CmdErrorTimeout and cmd meta', async () => {
       type Name = 'slow';
       type Payload = { slow: {} };

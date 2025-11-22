@@ -28,8 +28,8 @@ export type CmdReqId = `req-${string}`;
  */
 export type CmdEnvelope = {
   readonly kind: 'cmd';
-  readonly ns?: t.CmdNamespace;
   readonly id: t.CmdReqId;
+  readonly ns?: t.CmdNamespace;
   readonly name: CmdName;
   readonly payload?: unknown;
 };
@@ -39,9 +39,9 @@ export type CmdEnvelope = {
  */
 export type CmdResultEnvelope = {
   readonly kind: 'cmd:result';
-  readonly ns?: t.CmdNamespace;
   readonly id: string;
   readonly name: CmdName;
+  readonly ns?: t.CmdNamespace;
   readonly payload?: unknown;
   readonly error?: string;
 };

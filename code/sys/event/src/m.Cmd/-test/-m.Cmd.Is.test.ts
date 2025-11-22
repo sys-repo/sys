@@ -89,7 +89,7 @@ describe('Cmd.Is', () => {
 
   describe('Cmd.Is.error:', () => {
     it('returns true for a valid CmdErrorTimeout', () => {
-      const err = new Error('x') as t.CmdError;
+      const err = new Error('x') as t.DeepMutable<t.CmdError>;
       err.name = 'CmdErrorTimeout';
       err.cmd = { name: 'foo', id: 'req-123' };
 
@@ -104,7 +104,7 @@ describe('Cmd.Is', () => {
     });
 
     it('returns true for CmdErrorRemote', () => {
-      const err = new Error('boom') as t.CmdError;
+      const err = new Error('boom') as t.DeepMutable<t.CmdError>;
       err.name = 'CmdErrorRemote';
       err.cmd = { name: 'fail', id: 'req-abc' };
 

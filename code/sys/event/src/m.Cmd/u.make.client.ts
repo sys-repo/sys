@@ -31,6 +31,9 @@ export function makeClient<
     const msg = event.data;
     if (!CmdIs.response(msg)) return;
 
+    // Ignore responses for other namespaces, if configured.
+    if (ns !== undefined && msg.ns !== ns) return;
+
     const id = msg.id as t.CmdReqId;
     const name = msg.name as t.CmdName;
     const entry = pending.get(id);
@@ -49,7 +52,7 @@ export function makeClient<
         makeError({
           kind: 'CmdErrorRemote',
           message: msg.error,
-          meta: { name, id },
+          meta: { name, id, ns },
         }),
       );
     } else {
@@ -59,7 +62,13 @@ export function makeClient<
 
   const send: t.CmdClient<N, P, R>['send'] = (name, payload) => {
     const id = createId();
-    const envelope: t.CmdEnvelope = { kind: 'cmd', id, name, payload };
+    const envelope: t.CmdEnvelope = {
+      kind: 'cmd',
+      ns,
+      id,
+      name,
+      payload,
+    };
 
     return new Promise<R[typeof name]>((resolve, reject) => {
       const entry: PendingEntry = {
@@ -79,7 +88,7 @@ export function makeClient<
           const error = makeError({
             kind: 'CmdErrorTimeout',
             message: `Command "${name}" timed out after ${timeout}ms.`,
-            meta: { name, id },
+            meta: { name, id, ns },
           });
           pendingEntry.reject(error);
         }
@@ -133,8 +142,14 @@ const makeError = (args: {
   readonly meta?: t.CmdErrorMeta;
 }): t.CmdError => {
   const { kind, message, meta } = args;
-  const err = new Error(message) as t.CmdError;
+
+  const err = new Error(message) as t.DeepMutable<t.CmdError>;
   err.name = kind;
-  if (meta) err.cmd = meta;
+
+  if (meta) {
+    err.cmd = meta;
+    err.ns = meta.ns;
+  }
+
   return err;
 };
