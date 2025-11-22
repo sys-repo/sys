@@ -5,6 +5,10 @@ import { type t, Cmd } from './common.ts';
  */
 export const CrdtWorkerCmd: t.CrdtWorkerCmdLib = {
   make() {
-    return Cmd.make<t.CrdtWorkerCmdName, t.CrdtWorkerCmdPayload, t.CrdtWorkerCmdResult>();
+    type Name = t.CrdtWorkerCmdName;
+    type Payload = t.CrdtWorkerCmdPayload;
+    type Result = t.CrdtWorkerCmdResult;
+
+    return Cmd.make<Name, Payload, Result>();
   },
 };
