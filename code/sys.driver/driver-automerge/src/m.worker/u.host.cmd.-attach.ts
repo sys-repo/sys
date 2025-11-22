@@ -9,7 +9,6 @@ export function makeAttach(
   onRepoCreated: (created: t.CrdtRepo) => void,
 ): Methods['attach'] {
   return async ({ config }) => {
-    // Normalise the canonical "ok" response once.
     const ok: t.CrdtWorkerCmdResult['attach'] = { ok: true };
 
     // Repo already exists.
@@ -22,11 +21,12 @@ export function makeAttach(
     if (args.factory) {
       const created = await args.factory({ config });
       onRepoCreated(created);
-      attachRepo(args.port, created);
+      const instance = created;
+      attachRepo(args.port, instance);
       return ok;
     }
 
-    // No repo or factory available: nothing to attach, but keep protocol simple.
+    // No repo or factory available.
     return ok;
   };
 }
