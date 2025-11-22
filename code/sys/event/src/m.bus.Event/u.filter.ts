@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { makeFilter } from './u.makeFilter.ts';
+import { makeFilter } from './u.filter.make.ts';
 
 type B = t.EventWithKind;
 

@@ -1,5 +1,7 @@
 import { type t } from './common.ts';
 
+export type * from './t.filter.ts';
+
 /** Any event with a string literal `kind`. */
 export type EventWithKind<T = string> = { readonly kind: T };
 

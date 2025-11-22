@@ -1,6 +1,6 @@
 /**
  * @module
- * Core event-bus observable shape.
+ * Core event-bus observable shape with strongly-typed filtering helpers.
  */
-export { filterFor } from '../m.bus.Event.Filter/mod.ts';
+export { filterFor } from './u.filter.ts';
 export { emit, emitFor } from './u.emit.ts';

@@ -1,5 +1,5 @@
-import { type t, describe, expect, expectTypeOf, it, Rx, Schedule } from '../-test.ts';
-import { emit, emitFor, filterFor } from './mod.ts';
+import { type t, describe, expect, expectTypeOf, it, Rx, Schedule } from '../../-test.ts';
+import { emit, emitFor, filterFor } from '../mod.ts';
 
 describe(`Event`, () => {
   const makeBus = () => Rx.subject<t.EventWithKind>();
