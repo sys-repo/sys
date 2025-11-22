@@ -1,8 +1,7 @@
 import { type t, describe, expect, it, Schedule } from '../../-test.ts';
-import { throwError } from 'rxjs';
 import { Cmd } from '../mod.ts';
 
-describe('Cmd (core)', () => {
+describe('Cmd: core command behavior', () => {
   it('Cmd.make returns a typed instance', () => {
     type Name = 'foo';
     type Payload = { foo: { n: number } };
@@ -72,6 +71,10 @@ describe('Cmd (core)', () => {
       expect(err.cmd?.id).to.be.a('string');
       expect(err.cmd?.id).to.match(/^req-/);
 
+      // No namespace configured → ns should be undefined.
+      expect(err.ns).to.eql(undefined);
+      expect(err.cmd?.ns).to.eql(undefined);
+
       client.dispose();
       host.dispose();
     });
@@ -107,6 +110,10 @@ describe('Cmd (core)', () => {
       expect(err.cmd?.name).to.eql('bar');
       expect(err.cmd?.id).to.be.a('string');
       expect(err.cmd?.id).to.match(/^req-/);
+
+      // No namespace configured → ns should be undefined.
+      expect(err.ns).to.eql(undefined);
+      expect(err.cmd?.ns).to.eql(undefined);
 
       client.dispose();
       host.dispose();
@@ -148,6 +155,10 @@ describe('Cmd (core)', () => {
       expect(error.cmd?.id).to.be.a('string');
       expect(error.cmd?.id).to.match(/^req-/);
 
+      // No namespace configured → ns should be undefined.
+      expect(error.ns).to.eql(undefined);
+      expect(error.cmd?.ns).to.eql(undefined);
+
       client.dispose();
       host.dispose();
     });
@@ -171,7 +182,9 @@ describe('Cmd (core)', () => {
 
       const client = cmd.client(port2);
       const p = client.send('slow', {});
+
       client.dispose();
+      host.dispose(); // NB: required to stop Schedule.sleep()
 
       let thrownError: unknown;
       try {
@@ -187,7 +200,105 @@ describe('Cmd (core)', () => {
 
       expect(err.name).to.eql('CmdErrorClientDisposed');
       expect(err.cmd).to.eql(undefined);
+      expect(err.ns).to.eql(undefined);
+    });
+  });
 
+  describe('namespaces', () => {
+    it('routes commands by ns on a shared MessageChannel', async () => {
+      // Command set A
+      type NameA = 'pingA';
+      type PayloadA = { pingA: {} };
+      type ResultA = { pingA: { reply: string } };
+
+      // Command set B
+      type NameB = 'pingB';
+      type PayloadB = { pingB: {} };
+      type ResultB = { pingB: { reply: string } };
+
+      const nsA: t.CmdNamespace = 'ns/A';
+      const nsB: t.CmdNamespace = 'ns/B';
+
+      const cmdA = Cmd.make<NameA, PayloadA, ResultA>({ ns: nsA });
+      const cmdB = Cmd.make<NameB, PayloadB, ResultB>({ ns: nsB });
+      const { port1, port2 } = new MessageChannel();
+
+      let calledA = 0;
+      let calledB = 0;
+
+      const hostA = cmdA.host(port1, {
+        pingA() {
+          calledA += 1;
+          return { reply: 'A' };
+        },
+      });
+
+      const hostB = cmdB.host(port1, {
+        pingB() {
+          calledB += 1;
+          return { reply: 'B' };
+        },
+      });
+
+      const clientA = cmdA.client(port2);
+      const clientB = cmdB.client(port2);
+
+      const resA = await clientA.send('pingA', {});
+      const resB = await clientB.send('pingB', {});
+
+      expect(resA.reply).to.eql('A');
+      expect(resB.reply).to.eql('B');
+
+      // Each host only handled its own namespace.
+      expect(calledA).to.eql(1);
+      expect(calledB).to.eql(1);
+
+      clientA.dispose();
+      clientB.dispose();
+      hostA.dispose();
+      hostB.dispose();
+    });
+
+    it('attaches ns to CmdError when configured', async () => {
+      type Name = 'fail';
+      type Payload = { fail: {} };
+      type Result = { fail: {} };
+
+      const ns: t.CmdNamespace = 'worker/fail';
+
+      const cmd = Cmd.make<Name, Payload, Result>({ ns });
+      const { port1, port2 } = new MessageChannel();
+
+      const host = cmd.host(port1, {
+        fail() {
+          throw new Error('ns-boom');
+        },
+      });
+
+      const client = cmd.client(port2);
+
+      let thrown: unknown;
+      try {
+        await client.send('fail', {});
+        expect.fail('Expected client.send to throw');
+      } catch (e) {
+        thrown = e;
+      }
+
+      const err = thrown as t.CmdError;
+      expect(err).to.be.instanceOf(Error);
+      expect(err.message).to.eql('ns-boom');
+      expect(err.name).to.eql('CmdErrorRemote');
+
+      // Namespace is attached at the top level and within cmd meta.
+      expect(err.ns).to.eql(ns);
+      expect(err.cmd).to.be.an('object');
+      expect(err.cmd?.name).to.eql('fail');
+      expect(err.cmd?.id).to.be.a('string');
+      expect(err.cmd?.id).to.match(/^req-/);
+      expect(err.cmd?.ns).to.eql(ns);
+
+      client.dispose();
       host.dispose();
     });
   });
