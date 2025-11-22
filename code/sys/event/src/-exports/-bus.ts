@@ -1,5 +1,5 @@
 /**
  * @module
- * Core event shape.
+ * Core event-bus observable shape.
  */
-export { emit, emitFor, filterFor } from '../m.Event/mod.ts';
+export { emit, emitFor, filterFor } from '../m.bus.Event/mod.ts';

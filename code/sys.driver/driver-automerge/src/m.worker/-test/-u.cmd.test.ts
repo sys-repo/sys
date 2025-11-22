@@ -4,17 +4,21 @@ import { CrdtWorker } from '../mod.ts';
 
 describe('Crdt.Worker.Cmd (RPC)', () => {
   it('Cmd: attach roundtrip over a bare MessageChannel', async () => {
+    //
     // 1. Instantiate a typed command set for the worker control channel.
     const cmd = CrdtWorker.Cmd.make();
 
-    // 2. Create a MessageChannel to simulate worker <-> main boundary.
+    //
+    // 2. Create a MessageChannel to simulate worker ←→ main boundary.
     const { port1, port2 } = new MessageChannel();
 
-    // 3. Host: handle `attach` on one side.
+    //
+    // 3. Host: handle `attach` on one side (ie. in the worker).
     let receivedConfig: t.CrdtWorkerCmdPayload['attach']['config'] | undefined;
 
     const host = cmd.host(port1, {
-      attach: ({ config }) => {
+      /** Strongly typed method: */
+      attach: async ({ config }) => {
         receivedConfig = config;
         return { ok: true };
       },

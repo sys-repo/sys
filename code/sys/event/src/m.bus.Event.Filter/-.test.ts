@@ -1,6 +1,5 @@
 import { type t, Rx, describe, expect, expectTypeOf, it } from '../-test.ts';
-
-import { emit } from '../m.Event/mod.ts';
+import { emit } from '../m.bus.Event/mod.ts';
 import { filterFor } from './mod.ts';
 
 describe('Filter', () => {

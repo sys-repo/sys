@@ -44,7 +44,7 @@ export function createClient<
     const envelope: t.CmdEnvelope = {
       kind: 'cmd',
       id,
-      name: name as t.CmdName,
+      name,
       payload,
     };
 

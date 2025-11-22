@@ -5,5 +5,5 @@ export * from '../common.ts';
  * Simple id generator
  */
 export function createId(): string {
-  return `cmd-${slug()}`;
+  return `req-${slug()}`;
 }
