@@ -88,10 +88,10 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.98
+    - import: npm:ai@5.0.99
     - import: npm:@ai-sdk/openai@2.0.71
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@0.24.4
+    - import: npm:@mastra/core@0.24.5
       subpaths: ['agent', 'memory', 'storage']
     - import: npm:@mastra/libsql@0.16.2
     - import: npm:@mastra/loggers@0.10.19

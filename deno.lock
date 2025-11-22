@@ -47,10 +47,10 @@
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
     "npm:@deno/vite-plugin@1.0.5": "1.0.5_vite@7.2.4__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@types+node@24.2.0_yaml@2.8.1",
     "npm:@farcaster/frame-sdk@0.1.12": "0.1.12",
-    "npm:@mastra/core@0.24.4": "0.24.4_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.0.1__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.6",
-    "npm:@mastra/libsql@0.16.2": "0.16.2_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41",
-    "npm:@mastra/loggers@0.10.19": "0.10.19_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41",
-    "npm:@mastra/memory@0.15.11": "0.15.11_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41",
+    "npm:@mastra/core@0.24.5": "0.24.5_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.0.1__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.6",
+    "npm:@mastra/libsql@0.16.2": "0.16.2_@mastra+core@0.24.5__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41",
+    "npm:@mastra/loggers@0.10.19": "0.10.19_@mastra+core@0.24.5__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41",
+    "npm:@mastra/memory@0.15.11": "0.15.11_@mastra+core@0.24.5__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.55.1_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@preact/signals-core@1.12.1": "1.12.1",
@@ -65,7 +65,7 @@
     "npm:@types/react@19.2.6": "19.2.6",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.1": "5.1.1_vite@7.2.4__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.1",
-    "npm:ai@5.0.98": "5.0.98_zod@4.1.12",
+    "npm:ai@5.0.99": "5.0.99_zod@4.1.12",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.1": "6.2.1",
     "npm:csstype@3.2.3": "3.2.3",
@@ -1004,8 +1004,8 @@
       "os": ["win32"],
       "cpu": ["x64"]
     },
-    "@mastra/core@0.24.4_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.0.1__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.6": {
-      "integrity": "sha512-xM21S5oAS3zvemXTUTKtnyqObKwHcVVLhb+oNf8FIp7zb5gF/2+qb6n80HxMb2Q21qAFVeeRXbMKLvVl7xVB3w==",
+    "@mastra/core@0.24.5_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_@opentelemetry+api@1.9.0_@opentelemetry+core@2.0.1__@opentelemetry+api@1.9.0_react@19.2.0_@sinclair+typebox@0.34.41_hono@4.10.6": {
+      "integrity": "sha512-qeME8S7bgc1dbgx5lUcTwt0EOHLu6YBUOHmhRstQFWGRtq3lxMexJ1RPmhZLiOcGPR6/8D8mWDnv/dMOKA8E8w==",
       "dependencies": [
         "@a2a-js/sdk",
         "@ai-sdk/anthropic-v5@npm:@ai-sdk/anthropic@2.0.33_zod@4.1.12",
@@ -1056,14 +1056,14 @@
         "zod-to-json-schema"
       ]
     },
-    "@mastra/libsql@0.16.2_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41": {
+    "@mastra/libsql@0.16.2_@mastra+core@0.24.5__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-yQ3FYQkRdmIE9Z0RJqVJsKH7H4YjgYb4WcpTfe1C7ulz6OS0VANyXUxiggUhs/mC/WCRjXYlMIj5D19+8o+KeA==",
       "dependencies": [
         "@libsql/client",
         "@mastra/core"
       ]
     },
-    "@mastra/loggers@0.10.19_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41": {
+    "@mastra/loggers@0.10.19_@mastra+core@0.24.5__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_react@19.2.0_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-H4qTgqKt3YJxz6B1I0lOPqRpOpR8gEzYYNZ6iO/TGQ11r+wvug/i80MAKr0B1IBZvr9l18vr7wjYCdTxPqaAGg==",
       "dependencies": [
         "@mastra/core",
@@ -1071,7 +1071,7 @@
         "pino-pretty"
       ]
     },
-    "@mastra/memory@0.15.11_@mastra+core@0.24.4__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41": {
+    "@mastra/memory@0.15.11_@mastra+core@0.24.5__zod@4.1.12__ai@4.3.19___react@19.2.0___zod@4.1.12__@opentelemetry+api@1.9.0__@opentelemetry+core@2.0.1___@opentelemetry+api@1.9.0__react@19.2.0__@sinclair+typebox@0.34.41__hono@4.10.6_zod@4.1.12_ai@4.3.19__react@19.2.0__zod@4.1.12_react@19.2.0_pg@8.16.3_@sinclair+typebox@0.34.41": {
       "integrity": "sha512-HxcvJ+JBCEN9f8JQ+mPgxBm2K9Ln52aGsX0OeqG1sgt1vac60PqQi1MbywbiIsLxlMkVFysE2C/7bFh+d6vtjQ==",
       "dependencies": [
         "@mastra/core",
@@ -2498,8 +2498,8 @@
         "zod@4.1.12"
       ]
     },
-    "ai@5.0.98_zod@4.1.12": {
-      "integrity": "sha512-RpMnwnml68Swblobvk6IdF7HLZrog72Ve6H5J3aN+A/JPg4y5CjCXeQyK1N4wJStyuTa6AoKYfJR5F4e/aVpHQ==",
+    "ai@5.0.99_zod@4.1.12": {
+      "integrity": "sha512-omnQLLi5yNQWLLJAaQdACsgBSj+c9LTCWwl9z+6albiqlATNF3AGdpr1ZMTJosGkupwswZc6LDIMa3cfHR4x/g==",
       "dependencies": [
         "@ai-sdk/gateway@2.0.13_zod@4.1.12",
         "@ai-sdk/provider@2.0.0",
@@ -4739,7 +4739,7 @@
       "npm:@automerge/automerge@3.2.0",
       "npm:@automerge/prosemirror@0.1.0",
       "npm:@farcaster/frame-sdk@0.1.12",
-      "npm:@mastra/core@0.24.4",
+      "npm:@mastra/core@0.24.5",
       "npm:@mastra/libsql@0.16.2",
       "npm:@mastra/loggers@0.10.19",
       "npm:@mastra/memory@0.15.11",
@@ -4752,7 +4752,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@5.0.98",
+      "npm:ai@5.0.99",
       "npm:approx-string-match@2",
       "npm:chai@6.2.1",
       "npm:csstype@3.2.3",
