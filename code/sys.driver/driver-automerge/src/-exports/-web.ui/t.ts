@@ -14,7 +14,8 @@ export type CrdtViewLib = t.CrdtWebLib & {
     readonly Layout: t.LayoutLib;
 
     // Hooks:
-    readonly useDoc: t.UseCrdtDoc;
     readonly useRev: t.UseCrdtRev;
+    readonly useDoc: t.UseCrdtDoc;
+    readonly useDocStats: t.UseCrdtDocStats;
   };
 };

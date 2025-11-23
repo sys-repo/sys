@@ -33,3 +33,4 @@ export {
  * local:
  */
 export { CrdtIs, toAutomergeHandle, toAutomergeRepo } from '../../m.Crdt/mod.ts';
+export { CrdtCmd } from '../../m.Crdt.Cmd/mod.ts';

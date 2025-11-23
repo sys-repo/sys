@@ -2,7 +2,7 @@
  * @module
  * User Interface Components.
  */
-import { Crdt as Base } from '../-web/mod.ts';
+import { Crdt as Base } from '@sys/driver-automerge/web';
 import type { t } from './common.ts';
 
 /**
@@ -22,8 +22,8 @@ export { Binary, Card, Dev, DocumentId, Layout, Repo };
 /**
  * Hooks:
  */
-import { useDoc, useRev } from '../../ui/use/mod.ts';
-export { useDoc, useRev };
+import { useDoc, useDocStats, useRev } from '../../ui/use/mod.ts';
+export { useDoc, useDocStats, useRev };
 
 /**
  * CRDT UI Library:
@@ -39,5 +39,6 @@ export const Crdt: t.CrdtViewLib = {
     Binary,
     useDoc,
     useRev,
+    useDocStats,
   },
 };

@@ -74,8 +74,7 @@ export async function createDebugSignals() {
     });
   });
 
-  repo.events(life).$.subscribe(redraw);
-
+  repo.events(life).$.pipe(Rx.debounceTime(100)).subscribe(redraw);
   return api;
 }
 

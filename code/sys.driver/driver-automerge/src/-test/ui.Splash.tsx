@@ -29,10 +29,9 @@ export const Splash: React.FC<SplashProps> = (props) => {
   /**
    * Hooks:
    */
+  const [doc, setDoc] = React.useState<t.Crdt.Ref>();
   const size = useSizeObserver();
   const dist = useDist({ sampleFallback: true });
-  const [doc, setDoc] = React.useState<t.Crdt.Ref>();
-
   const isSidebarVisible = size.ready && size.width > 1150;
 
   /**
@@ -98,7 +97,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
     <div className={styles.sidebar.class}>
       <Crdt.UI.Repo.Info theme={theme.name} repo={repo} />
       <div />
-      <Crdt.UI.Document.Info theme={theme.name} doc={doc} />
+      <Crdt.UI.Document.Info theme={theme.name} doc={doc} repo={repo} />
     </div>
   );
 
