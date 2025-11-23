@@ -4,7 +4,6 @@ type O = Record<string, unknown>;
 
 export type * from './t.config.ts';
 export type * from './t.lib.ts';
-export type * from './t.wire.cmd.ts';
 export type * from './t.wire.ts';
 
 /**

@@ -1,5 +1,5 @@
-import { type t, Rx, Schedule } from './common.ts';
-import { CrdtWorkerCmd } from './m.Cmd.ts';
+import { type t, CrdtCmd, Rx, Schedule } from './common.ts';
+
 import { createRepo } from './u.client.proxy.repo.ts';
 import { Wire } from './u.wire.ts';
 
@@ -42,7 +42,7 @@ export const spawn: t.CrdtWorkerClientLib['spawn'] = async (input, opts = {}) =>
    * - Use the typed Cmd client over `port1` to invoke `attach`, which in turn
    *   binds the real repo instance on the worker side via `attachRepo(...)`.
    */
-  const cmd = CrdtWorkerCmd.make();
+  const cmd = CrdtCmd.make();
   const client = cmd.client(port1);
   await client.send('attach', { config });
 

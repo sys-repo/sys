@@ -4,6 +4,15 @@ import { getRepoPort } from '../u.client.proxy.repo.ts';
 
 /**
  * Create an isolated CRDT worker fixture for tests.
+ *
+ * @example
+ * ```ts
+ * describe('test suite', () => {
+ *   let env: t.TestWorkerFixture;
+ *   beforeAll(async () => void (env = await makeWorkerFixture()));
+ *   afterAll(() => env?.dispose());
+ * });
+ * ```
  */
 export async function makeWorkerFixture(opts: { silent?: boolean; storage?: boolean } = {}) {
   const { silent = true, storage = true } = opts;

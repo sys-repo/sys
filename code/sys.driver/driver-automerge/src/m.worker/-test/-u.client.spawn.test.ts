@@ -1,7 +1,7 @@
 import { type t, afterEach, c, describe, expect, it } from '../../-test.ts';
 import { CrdtWorker } from '../mod.ts';
 import { createTestHelpers } from './u.ts';
-import { CrdtWorkerCmd } from '../m.Cmd.ts';
+import { CrdtCmd } from '../common.ts';
 
 describe('CrdtWorker.Client.spawn (real worker)', () => {
   const Test = createTestHelpers();
@@ -110,7 +110,7 @@ describe('CrdtWorker.Client.spawn (real worker)', () => {
       expect(client.status.ready).to.eql(false);
 
       // 3. Drive the new typed command handshake: `attach` over the same port.
-      const cmd = CrdtWorkerCmd.make();
+      const cmd = CrdtCmd.make();
       const cmdClient = cmd.client(port1);
       await cmdClient.send('attach', { config: undefined });
 

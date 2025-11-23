@@ -3,6 +3,7 @@ import { type t, Err } from '../common.ts';
 export * from '../common.ts';
 export { toAutomergeHandle } from '../m.Crdt.Ref/u.toAutomergeHandle.ts';
 export { CrdtIs } from '../m.Crdt/m.Is.ts';
+export { CrdtCmd } from '../m.Crdt.Cmd/mod.ts';
 
 /**
  * Protocol version tag for all message envelopes

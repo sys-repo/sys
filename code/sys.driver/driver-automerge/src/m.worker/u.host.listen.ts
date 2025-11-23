@@ -1,5 +1,4 @@
-import { type t, CrdtIs, Is } from './common.ts';
-import { CrdtWorkerCmd } from './m.Cmd.ts';
+import { type t, CrdtCmd, CrdtIs, Is } from './common.ts';
 import { makeAttach, makeStats } from './u.host.cmd.ts';
 import { Wire } from './u.wire.ts';
 
@@ -16,7 +15,7 @@ type AttachMessage = {
  * - listen(self, factory)        ← lazy repo creation with spawn-time config
  */
 export const listen: t.CrdtWorkerHostLib['listen'] = (self, args) => {
-  const cmd = CrdtWorkerCmd.make();
+  const cmd = CrdtCmd.make();
   let { repo, factory } = wrangle.args(args);
 
   /**

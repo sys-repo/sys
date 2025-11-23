@@ -6,12 +6,10 @@ import { attachRepo } from '../u.host.attach.repo.ts';
 import { listen } from '../u.host.listen.ts';
 import { createRepo } from '../u.client.proxy.repo.ts';
 import { spawn } from '../u.client.spawn.ts';
-import { CrdtWorkerCmd } from '../m.Cmd.ts';
 
 describe(`CRDT: web-worker transport`, () => {
   it('API', async () => {
     expect(CrdtWorker.version).to.equal(WIRE_VERSION);
-    expect(CrdtWorker.Cmd).to.equal(CrdtWorkerCmd);
 
     // Client:
     expect(CrdtWorker.Client.repo).to.equal(createRepo);

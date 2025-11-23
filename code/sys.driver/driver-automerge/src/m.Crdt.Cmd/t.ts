@@ -1,13 +1,13 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 type Name = t.CrdtWorkerCmdName;
 type Payload = t.CrdtWorkerCmdPayload;
 type Result = t.CrdtWorkerCmdResult;
 
 /**
- * Worker-level command RPC.
+ * CRDT command RPC.
  */
-export type CrdtWorkerCmdLib = {
+export type CrdtCmdLib = {
   make(): t.CrdtWorkerCmdInstance;
 };
 

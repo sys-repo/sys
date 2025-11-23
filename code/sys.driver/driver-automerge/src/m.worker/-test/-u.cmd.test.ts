@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, slug } from '../../-test.ts';
 import { type t, Cmd } from '../common.ts';
 
 describe('Crdt.Worker.Cmd (RPC)', () => {
@@ -32,7 +32,7 @@ describe('Crdt.Worker.Cmd (RPC)', () => {
 
     const config: t.CrdtWorkerCmdPayload['attach']['config'] = {
       kind: 'fs',
-      storage: '.tmp/test-crdt-worker-cmd',
+      storage: `.tmp/test/sample/${slug()}`,
       network: [],
       silent: true,
     };

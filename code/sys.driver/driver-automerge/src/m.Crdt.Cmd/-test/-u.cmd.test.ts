@@ -1,20 +1,11 @@
-import { afterAll, beforeAll, describe, expect, it } from '../../-test.ts';
+import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '../../-test.ts';
 import { type t, Rx } from '../common.ts';
-import { CrdtWorker } from '../mod.ts';
-import { makeWorkerFixture } from './u.ts';
+import { CrdtCmd } from '../mod.ts';
 
 describe('Crdt.Worker (integration)', () => {
   let env: t.TestWorkerFixture;
-
-  beforeAll(async () => {
-    env = await makeWorkerFixture();
-  });
-
+  beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());
-
-  it('FOO', async () => {
-    console.log('env', env);
-  });
 
   describe('command: stats', () => {
     it('retrieve document stats (roundtrip) over worker', async () => {
@@ -26,7 +17,7 @@ describe('Crdt.Worker (integration)', () => {
       const doc = create.doc;
 
       // 2. Command client over the same MessagePort as the repo.
-      const cmd = CrdtWorker.Cmd.make();
+      const cmd = CrdtCmd.make();
       const client = cmd.client(env.port);
 
       // 3. Initial stats.
