@@ -1,32 +1,44 @@
 import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '../../-test.ts';
 import { type t, CrdtIs } from '../common.ts';
 import { CrdtCmd } from '../mod.ts';
+import { Crdt } from './-u.ts';
 
 describe('Crdt.Cmd.fromRepo', () => {
-  let env: t.TestWorkerFixture;
+  let fixture: t.TestWorkerFixture;
+  beforeAll(async () => void (fixture = await makeWorkerFixture()));
+  afterAll(() => fixture?.dispose());
 
-  beforeAll(async () => void (env = await makeWorkerFixture()));
-  afterAll(() => env?.dispose());
+  /**
+   * Shared assertion: `fromRepo` produces a working command client
+   * for the given repo, proven by a successful `stats` roundtrip.
+   */
+  async function assertFromRepoWorks(repo: t.Crdt.Repo, label: string) {
+    const cmd = CrdtCmd.fromRepo(repo);
 
-  it('fromRepo: derives a working command client for a worker-backed repo', async () => {
-    // 1. Repo must be worker-backed (precondition for using fromRepo).
-    expect(CrdtIs.proxy(env.repo)).to.eql(true);
-
-    // 2. Derive a command client from the repo.
-    const cmd = CrdtCmd.fromRepo(env.repo);
-
-    // 3. Create a small document in the worker-backed repo.
     type D = { foo: number };
-    const created = await env.repo.create<D>({ foo: 0 });
-    if (!created.ok) throw new Error(`create failed: ${created.error.message}`);
-    const doc = created.doc;
+    const created = await repo.create<D>({ foo: 0 });
+    if (!created.ok) {
+      throw new Error(`create failed [${label}]: ${created.error.message}`);
+    }
 
-    // 4. Use the derived command client to fetch stats for that doc.
+    const doc = created.doc;
     const stats = await cmd.send('stats', { doc: doc.id });
 
-    // 5. Smoke-level assertions: command path is wired and returns sane values.
-    expect(stats.bytes).to.be.greaterThan(0);
-    expect(stats.total.changes).to.be.greaterThan(0);
-    expect(stats.total.ops).to.be.greaterThan(0);
+    expect(stats.bytes, `${label}: bytes`).to.be.greaterThan(0);
+    expect(stats.total.changes, `${label}: changes`).to.be.greaterThan(0);
+    expect(stats.total.ops, `${label}: ops`).to.be.greaterThan(0);
+  }
+
+  it('derives a working command client for a worker-backed repo', async () => {
+    const repo = fixture.repo;
+    expect(CrdtIs.proxy(repo)).to.be.true;
+    await assertFromRepoWorks(repo, 'worker-proxy');
+  });
+
+  it('derives a working command client for a concrete repo', async () => {
+    const repo = Crdt.repo();
+    expect(CrdtIs.proxy(repo)).to.be.false;
+    await assertFromRepoWorks(repo, 'concrete');
+    await repo.dispose();
   });
 });
