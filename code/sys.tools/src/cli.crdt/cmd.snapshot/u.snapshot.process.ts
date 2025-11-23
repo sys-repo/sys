@@ -14,7 +14,7 @@ type Args = {
 export type ProcessResult = {
   readonly dir: t.StringDir;
   readonly processed: readonly t.Crdt.Id[];
-  readonly bytes: number;
+  readonly bytes: { json: number; binary: number };
 };
 
 /**
@@ -31,7 +31,7 @@ export async function process(args: Args): Promise<ProcessResult> {
   const rootId = args.id;
   const dir = Fs.join(base, `crdt.${rootId}`, `snap.${now}.${slug().slice(3)}`);
 
-  const bytes: number[] = [];
+  const bytes: { json: number[]; binary: number[] } = { json: [], binary: [] };
   const processed: t.Crdt.Id[] = [];
 
   emit({ kind: 'start', rootId, dir, timestamp: now });
@@ -46,7 +46,7 @@ export async function process(args: Args): Promise<ProcessResult> {
      */
     async onDoc({ depth, doc }) {
       const isRoot = doc.id === rootId;
-      await saveDoc({ dir, doc, depth, isRoot, bytes, emit });
+      await saveDoc({ repo, dir, doc, depth, isRoot, bytes, emit });
     },
 
     /**
@@ -69,6 +69,9 @@ export async function process(args: Args): Promise<ProcessResult> {
   return {
     dir,
     processed,
-    bytes: sumBytes(bytes),
+    bytes: {
+      json: sumBytes(bytes.json),
+      binary: sumBytes(bytes.binary),
+    },
   };
 }

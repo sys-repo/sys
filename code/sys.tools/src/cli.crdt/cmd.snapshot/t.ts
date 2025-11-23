@@ -29,7 +29,8 @@ export type CrdtSnapshotProgressSaved = {
   readonly dir: t.StringDir;
   readonly filename: string;
   readonly path: t.StringPath;
-  readonly bytes: number;
+  readonly bytes: { json: number; binary: number };
+  readonly hash: t.StringHash;
   readonly isRoot: boolean;
 };
 

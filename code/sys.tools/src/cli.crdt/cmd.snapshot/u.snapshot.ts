@@ -27,7 +27,10 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     const coloredId = formatId(e.id);
     const branch = Tree.branch(false);
     const identity = c.gray(`${branch} ${e.isRoot ? c.white(coloredId) : coloredId}`);
-    tbl.push([identity, c.gray(Str.bytes(e.bytes))]);
+    tbl.push([
+      identity,
+      c.gray(`${Str.bytes(e.bytes.json)} json, ${Str.bytes(e.bytes.binary)} binary`),
+    ]);
   };
 
   const tableText = () => {
@@ -64,14 +67,13 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
    */
   const total = res.processed.length;
   const completed = `${c.green('↑ completed snapshot')}`;
-  const summary = `${c.white(Str.bytes(res.bytes))} across ${total} ${Str.plural(
-    total,
-    'document',
-    'documents',
-  )} in ${String(timer.elapsed)}`;
+  let summary = `across ${total}`;
+  summary += ` ${Str.plural(total, 'document', 'documents')} in ${String(timer.elapsed)}`;
+  const totals = `${Str.bytes(res.bytes.json)} json, ${Str.bytes(res.bytes.binary)} binary`;
 
   tblProc.push([c.gray(Tree.vert)]);
   tblProc.push([c.gray(`${Tree.branch(true)} ${c.italic(completed)}`)]);
+  tblProc.push([c.white(`   ${totals}`)]);
   tblProc.push([c.gray(`   ${c.italic(summary)}`)]);
   console.info(String(tblProc));
 
