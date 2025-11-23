@@ -9,13 +9,13 @@ import { getRepoPort } from '../u.client.proxy.repo.ts';
  * - Uses a unique `.tmp/test/worker-fixture/<slug>` storage path per call.
  * - Returns both the repo facade and low-level worker/port handles.
  */
-export async function makeWorkerFixture(opts: { silent?: boolean } = {}) {
-  const { silent = true } = opts;
-  const url = new URL('./u.fixture.worker.ts', import.meta.url);
+export async function makeWorkerFixture(opts: { silent?: boolean; storage?: boolean } = {}) {
+  const { silent = true, storage = true } = opts;
 
+  const url = new URL('./u.fixture.worker.ts', import.meta.url);
   const config: t.CrdtWorkerSpawnConfigFs = {
     kind: 'fs',
-    storage: `.tmp/test/worker-fixture/${slug()}`,
+    storage: storage ? `.tmp/test/worker-fixture/${slug()}` : undefined,
     network: [],
     silent,
   };
