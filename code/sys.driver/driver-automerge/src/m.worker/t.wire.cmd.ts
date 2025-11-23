@@ -34,7 +34,7 @@ export type CrdtWorkerCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
  * Command names supported by the CRDT worker.
  * Currently a single handshake command: 'attach'.
  */
-export type CrdtWorkerCmdName = 'attach';
+export type CrdtWorkerCmdName = 'attach' | 'stats';
 
 /**
  * Payloads keyed by command name.
@@ -42,6 +42,7 @@ export type CrdtWorkerCmdName = 'attach';
  */
 export type CrdtWorkerCmdPayload = {
   attach: { config?: t.CrdtWorkerSpawnConfig };
+  stats: { doc: t.Crdt.Id };
 };
 
 /**
@@ -50,4 +51,5 @@ export type CrdtWorkerCmdPayload = {
  */
 export type CrdtWorkerCmdResult = {
   attach: { ok: true };
+  stats: t.DocumentStats;
 };

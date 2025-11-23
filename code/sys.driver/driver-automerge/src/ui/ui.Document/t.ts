@@ -9,7 +9,7 @@ export type DocumentLib = {
 };
 
 /**
- * Statustics derived from a CRDT documetn.
+ * Statistics derived from a CRDT documetn.
  */
 export type DocumentStats = {
   readonly bytes: number;

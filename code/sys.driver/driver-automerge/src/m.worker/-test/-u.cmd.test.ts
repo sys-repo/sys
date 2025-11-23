@@ -1,12 +1,15 @@
 import { describe, expect, it } from '../../-test.ts';
-import { type t } from '../common.ts';
-import { CrdtWorker } from '../mod.ts';
+import { type t, Cmd } from '../common.ts';
 
 describe('Crdt.Worker.Cmd (RPC)', () => {
   it('Cmd: attach roundtrip over a bare MessageChannel', async () => {
     //
     // 1. Instantiate a typed command set for the worker control channel.
-    const cmd = CrdtWorker.Cmd.make();
+    type Name = 'attach';
+    type Payload = Pick<t.CrdtWorkerCmdPayload, Name>;
+    type Result = Pick<t.CrdtWorkerCmdResult, Name>;
+
+    const cmd = Cmd.make<Name, Payload, Result>();
 
     //
     // 2. Create a MessageChannel to simulate worker ←→ main boundary.
