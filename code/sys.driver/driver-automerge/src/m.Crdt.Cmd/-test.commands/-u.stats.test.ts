@@ -36,4 +36,12 @@ describe('Command: stats', () => {
     expect(res2.total.changes).to.be.greaterThan(res1.total.changes);
     expect(res2.total.ops).to.be.greaterThan(res1.total.ops);
   });
+
+  /**
+   * NOTE: additional test scenarios:
+   * - error: no repo
+   * - error: no Fs
+   * - error: 404 document
+   * - error: ...
+   */
 });
