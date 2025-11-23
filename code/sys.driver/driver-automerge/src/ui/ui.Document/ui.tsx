@@ -1,34 +1,17 @@
 import React from 'react';
-import { type t, Color, css, KeyValue, Rx, Spinners } from './common.ts';
+import { type t, Color, css, KeyValue, Spinners, useDocStats } from './common.ts';
 import { toItems } from './u.toItems.ts';
-import { getStats } from './u.stats.ts';
 
 type P = t.DocumentProps;
 
 export const Document: React.FC<P> = (props) => {
-  const { debug = false, doc } = props;
+  const { debug = false, repo, doc } = props;
 
   /**
    * Hooks:
    */
-  const [stats, setStats] = React.useState<t.DocumentStats>();
-  const items = toItems(doc, stats);
-
-  /**
-   * Effects:
-   */
-  React.useEffect(() => {
-    function update() {
-      const current = doc?.current;
-      setStats(current ? getStats(current) : undefined);
-    }
-
-    const ev = doc?.events();
-    ev?.$.pipe(Rx.debounceTime(300)).subscribe(update);
-    update();
-
-    return ev?.dispose;
-  }, [doc?.id]);
+  const stats = useDocStats(repo, doc?.id);
+  const items = toItems(doc, stats.info);
 
   /**
    * Render:
