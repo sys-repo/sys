@@ -232,7 +232,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const v = p.path.value;
           return `path: ${v ? `[ ${v} ]` : `<undefined>`}`;
         }}
-        onClick={() => Signal.cycle(p.path, [['foo'], ['sample', 'deep'], undefined])}
+        onClick={() => Signal.cycle(p.path, [['foo'], ['slug'], ['sample', 'deep'], undefined])}
       />
 
       <hr />

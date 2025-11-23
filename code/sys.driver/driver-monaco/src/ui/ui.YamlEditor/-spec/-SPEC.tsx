@@ -13,7 +13,7 @@ export default Spec.describe(D.displayName, (e) => {
     const border = `solid 1px ${Color.alpha(theme.fg, 0.1)}`;
     const styles = {
       base: css({ position: 'relative', boxSizing: 'border-box' }),
-      info: css({ Padding: [15, 45], borderTop: border, borderBottom: border }),
+      info: css({ Padding: [15, 65], borderTop: border, borderBottom: border }),
       switch: css({ Padding: [14, 10] }),
     };
     return (
