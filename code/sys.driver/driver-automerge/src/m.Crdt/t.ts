@@ -15,6 +15,7 @@ export type CrdtLib = {
   readonly Is: t.CrdtIsLib;
   readonly Id: t.CrdtIdLib;
   readonly Url: t.CrdtUrlLib;
+  readonly Cmd: t.CrdtCmdLib;
   readonly Worker: t.CrdtWorkerLib;
   readonly Graph: t.CrdtGraphLib;
   whenReady(doc?: t.Crdt.Ref): Promise<void>;

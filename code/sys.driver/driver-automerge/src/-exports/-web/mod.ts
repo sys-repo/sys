@@ -1,6 +1,6 @@
 /**
- * CRDTs that work in a browser environment.
  * @module
+ * CRDTs that work in a browser environment.
  */
 import {
   BrowserWebSocketClientAdapter,
@@ -11,12 +11,13 @@ import {
   type t,
   Arr,
   AutomergeRepo,
+  CrdtCmd,
   CrdtGraph,
+  CrdtId,
   CrdtIs,
   CrdtUrl,
   CrdtWorker,
   createPeerId,
-  CrdtId,
   D,
   Is,
   toObject,
@@ -49,6 +50,7 @@ export const Crdt: t.CrdtWebLib = {
   Id: CrdtId,
   Is: CrdtIs,
   Url: CrdtUrl,
+  Cmd: CrdtCmd,
   Worker: CrdtWorker,
   Graph: CrdtGraph,
   whenReady,

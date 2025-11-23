@@ -1,5 +1,5 @@
 import { type t, describe, expect, it } from '../../-test.ts';
-import { CrdtGraph, CrdtId, CrdtIs, CrdtUrl, CrdtWorker, toObject } from '../mod.ts';
+import { CrdtCmd, CrdtGraph, CrdtId, CrdtIs, CrdtUrl, CrdtWorker, toObject } from '../mod.ts';
 
 describe('Crdt (Core API)', () => {
   it('API', async () => {
@@ -10,6 +10,7 @@ describe('Crdt (Core API)', () => {
       expect(Crdt.Is).to.equal(CrdtIs);
       expect(Crdt.Worker).to.equal(CrdtWorker);
       expect(Crdt.Graph).to.equal(CrdtGraph);
+      expect(Crdt.Cmd).to.equal(CrdtCmd);
     };
 
     const fs = await import('@sys/driver-automerge/fs');

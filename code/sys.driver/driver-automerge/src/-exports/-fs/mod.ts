@@ -1,6 +1,6 @@
 /**
- * CRDTs that work on a local/native file-system.
  * @module
+ * CRDTs that work on a local/native file-system.
  */
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
@@ -8,10 +8,11 @@ import {
   type t,
   Arr,
   AutomergeRepo,
+  CrdtCmd,
   CrdtGraph,
+  CrdtId,
   CrdtIs,
   CrdtUrl,
-  CrdtId,
   CrdtWorker,
   createPeerId,
   Is,
@@ -49,6 +50,7 @@ export const Crdt: t.CrdtFilesystemLib = {
   Id: CrdtId,
   Is: CrdtIs,
   Url: CrdtUrl,
+  Cmd: CrdtCmd,
   Worker: CrdtWorker,
   Graph: CrdtGraph,
   whenReady,
