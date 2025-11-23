@@ -1,6 +1,6 @@
-import { type t, getRepoPort, CrdtIs } from './common.ts';
-import { make } from './u.make.ts';
+import { type t, CrdtIs, getRepoPort } from './common.ts';
 import { attachCmdHostToPort } from './u.host.ts';
+import { make } from './u.make.ts';
 
 /**
  * Derive a command client from a CRDT repo.
@@ -12,22 +12,22 @@ import { attachCmdHostToPort } from './u.host.ts';
  * In both cases, the command client is disposed when the repo is disposed.
  * For local repos we also close the ports and dispose the host.
  */
-export const fromRepo: t.CrdtCmdLib['fromRepo'] = (repo) => {
-  return CrdtIs.proxy(repo) ? fromProxyRepo(repo) : fromConcreteRepo(repo);
+export const fromRepo: t.CrdtCmdLib['fromRepo'] = (repo, until) => {
+  return CrdtIs.proxy(repo) ? fromProxyRepo(repo, until) : fromConcreteRepo(repo, until);
 };
 
 /**
  * Internal:
  */
-function fromProxyRepo(repo: t.Crdt.Repo) {
+function fromProxyRepo(repo: t.Crdt.Repo, until?: t.UntilInput) {
   const cmd = make();
   const port = getRepoPort(repo as t.CrdtRepoWorkerProxy);
   const client = cmd.client(port);
-  repo.events().dispose$.subscribe(() => client.dispose());
+  repo.events(until).dispose$.subscribe(() => client.dispose());
   return client;
 }
 
-function fromConcreteRepo(repo: t.Crdt.Repo) {
+function fromConcreteRepo(repo: t.Crdt.Repo, until: t.UntilInput) {
   const { port1, port2 } = new MessageChannel();
   const host = attachCmdHostToPort(port1, () => repo);
   const cmd = make();
@@ -40,6 +40,6 @@ function fromConcreteRepo(repo: t.Crdt.Repo) {
     port2.close();
   }
 
-  repo.events().dispose$.subscribe(teardown);
+  repo.events(until).dispose$.subscribe(teardown);
   return client;
 }
