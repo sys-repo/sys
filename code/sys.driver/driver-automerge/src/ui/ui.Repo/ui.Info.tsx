@@ -30,6 +30,7 @@ export const Info: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     if (!repo) return void setStartupMsecs(undefined);
+    if (repo.status.ready) return void setStartupMsecs(0);
 
     const timer = Time.timer();
     const ev = repo.events();
