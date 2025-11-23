@@ -14,6 +14,7 @@ export type {
   EditorYaml,
   Monaco,
   YamlEditorSignals,
+  EditorEvent,
 } from '@sys/driver-monaco/t';
 
 /**
