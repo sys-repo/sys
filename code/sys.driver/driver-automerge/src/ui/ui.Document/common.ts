@@ -1,6 +1,8 @@
 import { type t, pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
+export { useDocStats } from '../use/mod.ts';
+export { Crdt } from '../../-exports/-web/mod.ts';
 
 /**
  * Constants:

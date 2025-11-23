@@ -26,7 +26,7 @@ export function toItems(doc?: t.Crdt.Ref, stats?: t.DocumentStats): t.KeyValueIt
     }
   }
 
-  if (CrdtIs.ref(doc) && stats) {
+  if (stats) {
     items.push({ kind: 'hr' });
     items.push({ k: 'Metrics' });
     items.push({ k: 'Serialized size', v: `${Str.bytes(stats.bytes)}`, x });

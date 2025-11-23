@@ -1,8 +1,18 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-import { Button, ObjectView } from '../common.ts';
-import { createRepo } from '../../../-test.createRepo.ts';
-import { Crdt } from '../../-test.ui.ts';
+import {
+  type t,
+  Rx,
+  Button,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Crdt,
+  Obj,
+  ObjectView,
+  Signal,
+} from '../common.ts';
+import { Repo } from '../../ui.Repo/mod.ts';
 
 type P = t.DocumentProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -24,20 +34,27 @@ type Doc = { count?: number };
 export async function createDebugSignals() {
   const s = Signal.create;
 
+  const life = Rx.lifecycle();
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  const w = new Worker(new URL('../../../-test.worker.ts', import.meta.url), { type: 'module' });
+  const { repo } = await Crdt.Worker.Client.spawn(w);
+
   const props = {
+    rev: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
     doc: s<t.Crdt.Ref<Doc>>(),
   };
   const p = props;
   const api = {
+    life,
     props,
     reset,
     listen,
-    repo: createRepo(),
+    redraw,
+    repo,
   };
 
   function listen() {
@@ -48,6 +65,10 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
   }
 
+  function redraw() {
+    p.rev.value += 1;
+  }
+
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
@@ -55,6 +76,7 @@ export async function createDebugSignals() {
     });
   });
 
+  repo.events(life).$.pipe(Rx.debounceTime(100)).subscribe(redraw);
   return api;
 }
 
@@ -79,7 +101,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const doc = v.doc;
 
   Signal.useRedrawEffect(debug.listen);
-  Crdt.UI.useRev(doc);
 
   /**
    * Render:
@@ -92,7 +113,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Crdt.UI.Repo.Info repo={repo} />
+      <Repo.Info repo={repo} />
 
       <hr style={{ marginTop: 20, marginBottom: 20 }} />
       <div className={Styles.title.class}>{D.name}</div>

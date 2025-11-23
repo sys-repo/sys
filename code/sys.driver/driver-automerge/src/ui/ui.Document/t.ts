@@ -23,6 +23,7 @@ export type DocumentStats = {
  * Component:
  */
 export type DocumentProps = {
+  repo?: t.Crdt.Repo;
   doc?: t.Crdt.Ref;
   debug?: boolean;
   theme?: t.CommonTheme;

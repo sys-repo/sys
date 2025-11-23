@@ -27,7 +27,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <Document.Info debug={v.debug} theme={v.theme} doc={v.doc} />;
+        return <Document.Info debug={v.debug} theme={v.theme} doc={v.doc} repo={repo} />;
       });
 
     ctx.host.tracelineColor(0.03);
