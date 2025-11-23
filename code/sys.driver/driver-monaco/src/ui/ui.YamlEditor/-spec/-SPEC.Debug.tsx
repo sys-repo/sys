@@ -1,7 +1,6 @@
-import { YamlObjectView } from '@sys/driver-monaco/dev';
 import React from 'react';
+import { YamlObjectView } from '../../-dev/mod.ts';
 
-import { normalizeSourcePath } from '../u.ts';
 import { createUiRepo } from '../../-test.ui.ts';
 import {
   type t,
@@ -17,6 +16,7 @@ import {
   STORAGE_KEY,
   Str,
 } from '../common.ts';
+import { normalizeSourcePath } from '../u.ts';
 
 type P = t.YamlEditorProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'diagnostics'> & {

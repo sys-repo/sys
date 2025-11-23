@@ -1,4 +1,4 @@
-import { YamlObjectView } from '@sys/driver-monaco/dev';
+import { YamlObjectView } from '../../-dev/mod.ts';
 import React from 'react';
 
 import { createUiRepo } from '../../-test.ui.ts';

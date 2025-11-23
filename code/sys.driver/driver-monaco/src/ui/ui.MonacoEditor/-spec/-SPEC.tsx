@@ -1,6 +1,4 @@
-import { Monaco } from '@sys/driver-monaco';
-import { Color, Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
-
+import { Color, Dev, Monaco, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { EditorCrdt } from '@sys/driver-monaco/crdt';
+import { EditorCrdt } from '../m.Crdt/mod.ts';
 import { useYaml } from '../m.Yaml/use.Yaml.ts';
 
 import { type t, D, Obj, Signal } from './common.ts';

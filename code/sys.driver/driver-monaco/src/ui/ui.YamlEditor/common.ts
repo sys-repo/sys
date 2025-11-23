@@ -1,7 +1,7 @@
 import { type t, pkg, Pkg } from '../common.ts';
 
 export { Crdt } from '@sys/driver-automerge/web/ui';
-export { Monaco } from '@sys/driver-monaco';
+export { Monaco } from '../../m.Monaco/mod.ts';
 
 export * from '../common.ts';
 export { YamlEditorFooter } from '../ui.YamlEditor.Footer/mod.ts';

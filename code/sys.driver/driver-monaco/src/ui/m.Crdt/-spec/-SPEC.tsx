@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DocumentId } from '@sys/driver-automerge/web/ui';
-import { Monaco } from '@sys/driver-monaco';
+import { Monaco } from '../../../m.Monaco/mod.ts';
 
 import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
