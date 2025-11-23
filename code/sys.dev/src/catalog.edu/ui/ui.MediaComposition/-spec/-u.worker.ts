@@ -1,4 +1,4 @@
-import { Crdt, createRepo, Log } from '../../../../-test.createRepo.ts';
+import { Crdt, createRepo, Log } from '../../../../-test.repo.ts';
 
 const log = Log.logger('repo:worker', { timestamp: null });
 const repo = createRepo();

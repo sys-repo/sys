@@ -1,6 +1,6 @@
 import React from 'react';
 import { Crdt } from '../../-test.ui.ts';
-import { createRepo } from '../../../-test.createRepo.ts';
+import { createRepo } from '../../../-test.repo.ts';
 
 import {
   type t,

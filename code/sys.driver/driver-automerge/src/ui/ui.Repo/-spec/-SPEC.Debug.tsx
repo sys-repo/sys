@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRepo } from '../../../-test.createRepo.ts';
+import { createRepo } from '../../../-test.repo.ts';
 import { ServerInfo } from '../../../m.Server.client/mod.ts';
 import {
   type t,

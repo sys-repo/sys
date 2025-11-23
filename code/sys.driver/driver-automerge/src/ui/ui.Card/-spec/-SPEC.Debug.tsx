@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createRepo } from '../../../-test.createRepo.ts';
+import { createRepo } from '../../../-test.repo.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.CardProps;
