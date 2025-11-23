@@ -40,7 +40,7 @@ export async function saveDoc(args: {
    * Binary File
    */
   const cmd = Crdt.Cmd.fromRepo(repo);
-  const res = await cmd.send('save', { doc: doc.id, path: path.binary });
+  const res = await cmd.send('fs:save', { doc: doc.id, path: path.binary });
 
   const toSize = async (path: string) => (await Fs.stat(path))?.size ?? 0;
   const size = {
