@@ -21,7 +21,7 @@ type P = YamlObjectViewProps;
  * current YAML editor state (CRDT doc + YAML parse + cursor position).
  */
 export const YamlObjectView: React.FC<P> = (props) => {
-  const { debug = false, title = 'editor', editor, bus$, expand = 1 } = props;
+  const { debug = false, title = 'editor', doc, editor, bus$, expand = 1 } = props;
 
   /**
    * Local state:

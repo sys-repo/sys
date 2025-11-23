@@ -345,7 +345,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
  * Helpers:
  */
 function safeProps(debug: DebugSignals) {
-  const p = { ...debug.props } as any;
-  delete p.doc;
+  const p = { ...debug.props };
+  delete (p as any).doc;
   return Signal.toObject(p);
 }
