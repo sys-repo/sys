@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Monaco } from '../../mod.ts';
-import { Crdt, D, STORAGE_KEY } from '../common.ts';
+import { Color, Crdt, D, STORAGE_KEY, css } from '../common.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -54,15 +54,28 @@ export default Spec.describe(D.displayName, (e) => {
       });
 
     ctx.debug.footer
-      .border(-0.1)
+      .border(0)
       .padding(0)
       .render(() => {
+        const theme = Color.theme();
+        const styles = {
+          base: css({ position: 'relative', boxSizing: 'border-box' }),
+          info: css({ Padding: [10, 15] }),
+          switch: css({ borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}`, Padding: [14, 10] }),
+        };
         return (
-          <Crdt.UI.Repo.SyncSwitch
-            repo={repo}
-            storageKey={STORAGE_KEY.DEV}
-            style={{ Padding: [14, 10] }}
-          />
+          <div className={styles.base.class}>
+            <div className={styles.info.class}>
+              <Crdt.UI.Repo.Info repo={repo} style={styles.info} theme={theme.name} />
+            </div>
+            <div className={styles.switch.class}>
+              <Crdt.UI.Repo.SyncSwitch
+                repo={repo}
+                storageKey={STORAGE_KEY.DEV}
+                theme={theme.name}
+              />
+            </div>
+          </div>
         );
       });
   });
