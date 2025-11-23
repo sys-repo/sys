@@ -5,8 +5,6 @@ export type GetWithRetryOptions = {
   /**
    * Maximum time (in milliseconds) to keep retrying when the repo
    * reports success (`ok: true`) but the document is not yet present.
-   *
-   * Defaults to 500ms.
    */
   readonly timeout?: t.Msecs;
 };
@@ -20,7 +18,7 @@ export async function getWithRetry<T extends O = O>(
   id: t.Crdt.Id,
   options: GetWithRetryOptions = {},
 ): Promise<{ ok: boolean; doc?: t.Crdt.Ref<T> }> {
-  const { timeout = 500 } = options;
+  const { timeout = 1500 } = options;
   const start = Date.now();
 
   while (true) {
