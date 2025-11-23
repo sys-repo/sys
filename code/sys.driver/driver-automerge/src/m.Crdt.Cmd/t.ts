@@ -19,4 +19,4 @@ export type CrdtCmdInstance = t.CmdInstance<Name, Payload, Result>;
 /**
  * Command client: `.send(name, payload)` → Promise<result>.
  */
-export type CrdtCmdClient = t.CmdInstance<Name, Payload, Result>;
+export type CrdtCmdClient = t.CmdClient<Name, Payload, Result>;
