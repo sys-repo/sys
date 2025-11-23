@@ -2,6 +2,7 @@ import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
 
 import { Color, css, D, ObjectView } from '../common.ts';
 import { DocumentId } from '../mod.ts';
+import { Repo } from '../../ui.Repo/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 type SampleDoc = { count: number; text?: string };
@@ -101,6 +102,14 @@ export default Spec.describe(D.displayName, async (e) => {
             }}
           />
         );
+      });
+
+    ctx.debug.footer
+      .border(-0.1)
+      .padding(10)
+      .render(() => {
+        const v = Signal.toObject(p);
+        return <Repo.SyncSwitch repo={repo} storageKey={v.storageKey} />;
       });
   });
 

@@ -11,6 +11,7 @@ import {
   Obj,
   ObjectView,
   Signal,
+  STORAGE_KEY,
 } from '../common.ts';
 import { Repo } from '../../ui.Repo/mod.ts';
 
@@ -35,7 +36,7 @@ export async function createDebugSignals() {
   const s = Signal.create;
 
   const life = Rx.lifecycle();
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV, defaults);
   const snap = store.current;
 
   const w = new Worker(new URL('../../../-test.worker.ts', import.meta.url), { type: 'module' });

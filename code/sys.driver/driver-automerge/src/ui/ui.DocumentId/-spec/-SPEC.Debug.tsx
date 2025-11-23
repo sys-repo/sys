@@ -13,11 +13,11 @@ import {
   Obj,
   ObjectView,
   Signal,
+  STORAGE_KEY,
 } from '../common.ts';
 
 type Doc = { count?: number };
 type P = t.DocumentIdProps;
-export const STORAGE_KEY = `dev:${D.name}.input`;
 
 export const sampleUrlFactory: t.DocumentIdUrlFactory = (e) => {
   const url = new URL(location.href);
@@ -49,7 +49,7 @@ const defaults: Storage = {
   controlled: true,
   url: true,
   urlKey: D.urlKey,
-  storageKey: STORAGE_KEY,
+  storageKey: `${STORAGE_KEY.DEV}-input`,
 };
 
 /**
@@ -58,7 +58,7 @@ const defaults: Storage = {
 export async function createDebugSignals() {
   const s = Signal.create;
 
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV, defaults);
   const snap = store.current;
 
   const w = new Worker(new URL('../../../-test.worker.ts', import.meta.url), { type: 'module' });
@@ -145,6 +145,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const repo = debug.repo;
   const p = debug.props;
+  const v = Signal.toObject(p);
   Signal.useRedrawEffect(() => debug.listen());
 
   /**
@@ -254,7 +255,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 10 }} />
       <ObjectView name={'path'} data={p.path.value ?? []} style={{ marginTop: 5 }} />
-      <ObjectView name={'doc'} data={p.doc.value?.current} style={{ marginTop: 5 }} />
+      <ObjectView
+        name={v.doc ? `doc(${v.doc.id.slice(-5)})` : 'doc'}
+        data={Obj.truncateStrings(v.doc?.current)}
+        style={{ marginTop: 5 }}
+      />
 
       <hr />
       <Repo.Info repo={repo} style={{ MarginX: [20], marginTop: 40 }} />
