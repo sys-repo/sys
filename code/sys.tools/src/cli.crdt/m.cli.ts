@@ -4,7 +4,7 @@ import { snapshot } from './cmd.snapshot/mod.ts';
 import { findTasks } from './cmd.tasks/mod.ts';
 import { normalize } from './u.config.doc.ts';
 import { Fmt } from './u.fmt.ts';
-import { promptAddDocument, promptRemoveDocument } from './u.prompt.modify.ts';
+import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
 import { CrdtUri } from './u.ts';
 
 /**
