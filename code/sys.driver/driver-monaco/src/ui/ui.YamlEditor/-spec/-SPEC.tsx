@@ -23,6 +23,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         if (!v.render) return null;
+
         return (
           <Monaco.Yaml.Editor
             bus$={debug.bus$}
@@ -31,7 +32,7 @@ export default Spec.describe(D.displayName, (e) => {
             documentId={v.documentId}
             editor={v.editor}
             footer={v.footer}
-            path={v.path}
+            path={debug.path}
             diagnostics={v.diagnostics}
             debug={v.debug}
             theme={v.theme}

@@ -1,6 +1,7 @@
 import { YamlObjectView } from '@sys/driver-monaco/dev';
 import React from 'react';
 
+import { normalizeSourcePath } from '../u.ts';
 import { createUiRepo } from '../../-test.ui.ts';
 import {
   type t,
@@ -25,12 +26,16 @@ type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'diagnostics'> & {
   >;
   documentId: Pick<t.YamlEditorDocumentIdProps, 'visible' | 'readOnly' | 'urlKey'>;
   footer: P['footer'];
+  storeParsedYaml?: boolean;
   render?: boolean;
 };
 
 const defaults: Storage = {
-  theme: 'Dark',
   debug: false,
+  render: true,
+  storeParsedYaml: false,
+  //
+  theme: 'Dark',
   path: ['foo'],
   diagnostics: D.diagnostics,
   documentId: { visible: true, readOnly: false, urlKey: undefined },
@@ -66,8 +71,10 @@ export function createDebugSignals() {
   };
 
   const props = {
-    render: s(true),
+    render: s(snap.render),
     debug: s(snap.debug),
+    storeParsedYaml: s(snap.storeParsedYaml),
+
     theme: s(snap.theme),
     path: s(snap.path),
     diagnostics: s(snap.diagnostics),
@@ -98,6 +105,13 @@ export function createDebugSignals() {
     repo: createUiRepo(),
     bus$: Rx.subject<t.EditorEvent>(),
     signals,
+    get path() {
+      const storeYaml = p.storeParsedYaml.value;
+      const path = normalizeSourcePath(p.path.value);
+      return storeYaml && path
+        ? { source: path, target: Obj.Path.appendSuffix(path, '.parsed') }
+        : path;
+    },
     reset,
     listen,
   };
@@ -116,10 +130,13 @@ export function createDebugSignals() {
 
   Signal.effect(() => {
     store.change((d) => {
-      d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.render = p.render.value;
+      d.storeParsedYaml = p.storeParsedYaml.value;
+
       d.path = p.path.value;
       d.diagnostics = p.diagnostics.value;
+      d.theme = p.theme.value;
 
       d.editor = d.editor ?? {};
       d.editor.margin = p.editor.margin.value;
@@ -169,19 +186,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const s = debug.signals;
   const p = debug.props;
+  const sourcePath = () => Obj.Path.appendSuffix(normalizeSourcePath(p.path.value), '.parsed');
 
   Signal.useRedrawEffect(() => debug.listen());
   Crdt.UI.useRev(s.doc?.value, {
-    path: p.path.value,
+    path: sourcePath(),
     onRedraw: (e) => console.info(`⚡️ onRedraw:`, e),
   });
 
   /**
    * Render:
    */
-  const styles = {
-    base: css({}),
-  };
+  const styles = { base: css({}) };
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -194,8 +210,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `render: ${p.render.value}`}
         onClick={() => Signal.toggle(p.render)}
       />
-      <hr />
 
+      <Button
+        block
+        label={() => {
+          const v = p.storeParsedYaml.value;
+          return `store parsed yaml: ${v} ${!v ? '← (memory only)' : ''}`;
+        }}
+        onClick={() => Signal.toggle(p.storeParsedYaml)}
+      />
+
+      <hr />
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -270,6 +295,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `footer.repo: ${p.footer.repo.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.footer.repo)}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Mutate'}</div>
+
+      <Button
+        block
+        label={() => `delete: "${sourcePath()?.join('/')}"`}
+        onClick={() => {
+          const path = sourcePath();
+          const doc = s.doc?.value;
+          if (path) doc?.change((d) => Obj.Path.Mutate.delete(d, path));
+        }}
       />
 
       <hr />

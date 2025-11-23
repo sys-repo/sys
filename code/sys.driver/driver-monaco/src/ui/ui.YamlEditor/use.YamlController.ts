@@ -1,14 +1,16 @@
 import React from 'react';
-import { EditorCrdt } from '../m.Crdt/mod.ts';
+import { EditorCrdt } from '@sys/driver-monaco/crdt';
 import { useYaml } from '../m.Yaml/use.Yaml.ts';
 
 import { type t, D, Obj, Signal } from './common.ts';
+import { normalizeSourcePath } from './u.ts';
 import { useSignals } from './use.Signals.ts';
 
 type P = Omit<t.YamlEditorProps, 'bus$'>;
 
 export function useYamlController(bus$: t.EditorEventBus, props: P) {
-  const { path, onReady, diagnostics = D.diagnostics } = props;
+  const { onReady, diagnostics = D.diagnostics, path } = props;
+  const sourcePath = normalizeSourcePath(props.path);
   const pathKey = React.useMemo(() => Obj.hash(path), [path]);
 
   /**
@@ -21,7 +23,7 @@ export function useYamlController(bus$: t.EditorEventBus, props: P) {
   /**
    * Hook: CRDT binding.
    */
-  EditorCrdt.useBinding({ bus$, monaco, editor, doc, path, foldMarks: true }, (e) => {
+  EditorCrdt.useBinding({ bus$, monaco, editor, doc, foldMarks: true, path: sourcePath }, (e) => {
     setReady(true);
     onReady?.(e);
   });

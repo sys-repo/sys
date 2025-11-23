@@ -7,7 +7,7 @@ export type YamlEditorProps = {
   bus$?: t.EditorEventBus;
   repo?: t.CrdtRepo;
   signals?: Partial<t.YamlEditorSignals>;
-  path?: t.ObjectPath;
+  path?: t.YamlSyncArgsInput['path'];
 
   documentId?: t.YamlEditorDocumentIdProps;
   editor?: t.YamlEditorMonacoProps;
