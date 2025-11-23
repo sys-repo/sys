@@ -1,14 +1,14 @@
 import type { t } from './common.ts';
 
-type Name = t.CrdtWorkerCmdName;
-type Payload = t.CrdtWorkerCmdPayload;
-type Result = t.CrdtWorkerCmdResult;
+type Name = t.CrdtCmdName;
+type Payload = t.CrdtCmdPayload;
+type Result = t.CrdtCmdResult;
 
 /**
  * CRDT command RPC.
  */
 export type CrdtCmdLib = {
-  make(): t.CrdtWorkerCmdInstance;
+  make(): t.CrdtCmdInstance;
 };
 
 /**
@@ -20,7 +20,7 @@ export type CrdtCmdLib = {
  *   - `.client(port)` → command client bound to a MessagePort
  *   - `.host(port, handlers)` → handler-side command host
  */
-export type CrdtWorkerCmdInstance = t.CmdInstance<Name, Payload, Result>;
+export type CrdtCmdInstance = t.CmdInstance<Name, Payload, Result>;
 
 /**
  * Typed set of worker-side command handlers.
@@ -28,19 +28,19 @@ export type CrdtWorkerCmdInstance = t.CmdInstance<Name, Payload, Result>;
  * For each command name:
  *   handler(args) → result | Promise<result>
  */
-export type CrdtWorkerCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
+export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
 
 /**
  * Command names supported by the CRDT worker.
  * Currently a single handshake command: 'attach'.
  */
-export type CrdtWorkerCmdName = 'attach' | 'stats';
+export type CrdtCmdName = 'attach' | 'stats';
 
 /**
  * Payloads keyed by command name.
  * - attach → optional spawn-time configuration.
  */
-export type CrdtWorkerCmdPayload = {
+export type CrdtCmdPayload = {
   attach: { config?: t.CrdtWorkerSpawnConfig };
   stats: { doc: t.Crdt.Id };
 };
@@ -49,7 +49,7 @@ export type CrdtWorkerCmdPayload = {
  * Result payloads keyed by command name.
  * - attach → simple success acknowledgement.
  */
-export type CrdtWorkerCmdResult = {
+export type CrdtCmdResult = {
   attach: { ok: true };
   stats: t.DocumentStats;
 };

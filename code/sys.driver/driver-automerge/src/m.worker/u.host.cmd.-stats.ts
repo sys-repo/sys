@@ -9,9 +9,7 @@ const EMPTY = {
   },
 };
 
-export function makeStats(
-  getRepo: () => t.Crdt.Repo | undefined,
-): t.CrdtWorkerCmdHandlers['stats'] {
+export function makeStats(getRepo: () => t.Crdt.Repo | undefined): t.CrdtCmdHandlers['stats'] {
   return async (params) => {
     const repo = getRepo();
     if (!repo) return EMPTY.stats;

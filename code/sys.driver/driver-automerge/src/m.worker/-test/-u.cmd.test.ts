@@ -6,8 +6,8 @@ describe('Crdt.Worker.Cmd (RPC)', () => {
     //
     // 1. Instantiate a typed command set for the worker control channel.
     type Name = 'attach';
-    type Payload = Pick<t.CrdtWorkerCmdPayload, Name>;
-    type Result = Pick<t.CrdtWorkerCmdResult, Name>;
+    type Payload = Pick<t.CrdtCmdPayload, Name>;
+    type Result = Pick<t.CrdtCmdResult, Name>;
 
     const cmd = Cmd.make<Name, Payload, Result>();
 
@@ -17,7 +17,7 @@ describe('Crdt.Worker.Cmd (RPC)', () => {
 
     //
     // 3. Host: handle `attach` on one side (ie. in the worker).
-    let receivedConfig: t.CrdtWorkerCmdPayload['attach']['config'] | undefined;
+    let receivedConfig: t.CrdtCmdPayload['attach']['config'] | undefined;
 
     const host = cmd.host(port1, {
       /** Strongly typed method: */
@@ -30,7 +30,7 @@ describe('Crdt.Worker.Cmd (RPC)', () => {
     // 4. Client: send `attach` from the other side.
     const client = cmd.client(port2);
 
-    const config: t.CrdtWorkerCmdPayload['attach']['config'] = {
+    const config: t.CrdtCmdPayload['attach']['config'] = {
       kind: 'fs',
       storage: `.tmp/test/sample/${slug()}`,
       network: [],

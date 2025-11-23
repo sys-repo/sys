@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 import { attachRepo } from './u.host.attach.repo.ts';
 
-type Methods = t.CrdtWorkerCmdHandlers;
+type Methods = t.CrdtCmdHandlers;
 type Args = { port: MessagePort; repo?: t.CrdtRepo; factory?: t.CrdtRepoFactory };
 
 export function makeAttach(
@@ -9,7 +9,7 @@ export function makeAttach(
   onRepoCreated: (created: t.CrdtRepo) => void,
 ): Methods['attach'] {
   return async ({ config }) => {
-    const ok: t.CrdtWorkerCmdResult['attach'] = { ok: true };
+    const ok: t.CrdtCmdResult['attach'] = { ok: true };
 
     // Repo already exists.
     if (args.repo) {
