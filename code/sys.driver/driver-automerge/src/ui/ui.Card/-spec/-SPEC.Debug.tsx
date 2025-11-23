@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createRepo } from '../../../-test.repo.ts';
+import { createUiRepo } from '../../-test.ui.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.CardProps;
@@ -28,6 +28,7 @@ export async function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
 
   const props = {
     debug: s(snap.debug),
@@ -38,7 +39,6 @@ export async function createDebugSignals() {
   };
 
   const p = props;
-  const repo = createRepo();
   const api = {
     props,
     store,

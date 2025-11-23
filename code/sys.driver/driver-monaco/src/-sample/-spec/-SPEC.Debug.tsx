@@ -1,6 +1,6 @@
 import React from 'react';
 import { SampleFactory } from '../../-sample.factory/mod.ts';
-import { createRepo } from '../../ui/-test.ui.ts';
+import { createUiRepo } from '../../ui/-test.ui.ts';
 
 import { type t, Button, Crdt, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { createSignals } from '../mod.ts';
@@ -27,6 +27,7 @@ export async function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
 
   const props = {
     debug: s(snap.debug),
@@ -34,7 +35,6 @@ export async function createDebugSignals() {
     debugMargin: s(snap.debugMargin),
     factory: s<t.Factory>(SampleFactory),
   };
-  const repo = createRepo();
   const signals = createSignals();
   const p = props;
   const api = {

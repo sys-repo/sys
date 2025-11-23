@@ -1,19 +1,19 @@
 import React from 'react';
+import { spawnUiRepoWorker } from '../../-test.ui.ts';
+import { Repo } from '../../ui.Repo/mod.ts';
 import {
   type t,
-  Rx,
   Button,
   Color,
   css,
   D,
   LocalStorage,
-  Crdt,
   Obj,
   ObjectView,
+  Rx,
   Signal,
   STORAGE_KEY,
 } from '../common.ts';
-import { Repo } from '../../ui.Repo/mod.ts';
 
 type P = t.DocumentProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -33,20 +33,19 @@ type Doc = { count?: number };
  * Signals:
  */
 export async function createDebugSignals() {
+  const life = Rx.lifecycle();
   const s = Signal.create;
 
-  const life = Rx.lifecycle();
   const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV, defaults);
   const snap = store.current;
-
-  const w = new Worker(new URL('../../../-test.worker.ts', import.meta.url), { type: 'module' });
-  const { repo } = await Crdt.Worker.Client.spawn(w);
+  const { repo } = await spawnUiRepoWorker();
 
   const props = {
     rev: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
     doc: s<t.Crdt.Ref<Doc>>(),
+    render: s(true),
   };
   const p = props;
   const api = {
@@ -118,6 +117,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr style={{ marginTop: 20, marginBottom: 20 }} />
       <div className={Styles.title.class}>{D.name}</div>
+
+      <Button
+        block
+        label={() => `render: ${p.render.value}`}
+        onClick={() => Signal.toggle(p.render)}
+      />
+
+      <hr />
 
       <Button
         block

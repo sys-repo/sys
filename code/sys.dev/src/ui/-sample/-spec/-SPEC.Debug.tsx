@@ -1,6 +1,6 @@
 import React from 'react';
 import { SampleFactory } from '../../-sample.factory/mod.ts';
-import { createRepo } from '../../-test.ui.ts';
+import { createUiRepo } from '../../-test.ui.ts';
 
 import { type t, Button, Crdt, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { createSignals } from '../mod.ts';
@@ -34,7 +34,7 @@ export async function createDebugSignals() {
     debugMargin: s(snap.debugMargin),
     factory: s<t.Factory>(SampleFactory),
   };
-  const repo = createRepo();
+  const repo = createUiRepo();
   const signals = createSignals();
   const p = props;
   const api = {

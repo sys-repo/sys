@@ -1,7 +1,7 @@
 import { YamlObjectView } from '@sys/driver-monaco/dev';
 import React from 'react';
 
-import { createRepo } from '../../-test.ui.ts';
+import { createUiRepo } from '../../-test.ui.ts';
 import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
 import {
@@ -51,6 +51,7 @@ export async function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
 
   const props = {
     debug: s(snap.debug),
@@ -69,7 +70,6 @@ export async function createDebugSignals() {
     hiddenAreas: s<t.Monaco.I.IRange[]>(),
   };
   const p = props;
-  const repo = createRepo();
   const api = {
     props,
     repo,

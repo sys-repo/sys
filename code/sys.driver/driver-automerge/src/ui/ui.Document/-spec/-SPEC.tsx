@@ -27,6 +27,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
+        if (!v.render) return null;
         return <Document.Info debug={v.debug} theme={v.theme} doc={v.doc} repo={repo} />;
       });
 

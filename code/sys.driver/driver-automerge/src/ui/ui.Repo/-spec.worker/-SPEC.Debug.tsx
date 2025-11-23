@@ -1,4 +1,5 @@
 import React from 'react';
+import { spawnUiRepoWorker } from '../../-test.ui.ts';
 import {
   type t,
   Button,
@@ -31,14 +32,12 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  * Signals:
  */
 export async function createDebugSignals() {
+  const life = Rx.lifecycle();
   const s = Signal.create;
 
-  const life = Rx.lifecycle();
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
-
-  const w = new Worker(new URL('../../../-test.worker.ts', import.meta.url), { type: 'module' });
-  const { repo } = await Crdt.Worker.Client.spawn(w);
+  const { repo } = await spawnUiRepoWorker();
 
   const props = {
     rev: s(0),

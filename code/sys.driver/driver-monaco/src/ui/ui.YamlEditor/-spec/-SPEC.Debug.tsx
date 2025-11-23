@@ -1,7 +1,7 @@
 import { YamlObjectView } from '@sys/driver-monaco/dev';
 import React from 'react';
 
-import { createRepo } from '../../-test.ui.ts';
+import { createUiRepo } from '../../-test.ui.ts';
 import {
   type t,
   Button,
@@ -95,7 +95,7 @@ export function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    repo: createRepo(),
+    repo: createUiRepo(),
     bus$: Rx.subject<t.EditorEvent>(),
     signals,
     reset,

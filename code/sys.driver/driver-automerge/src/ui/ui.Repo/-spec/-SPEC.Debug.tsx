@@ -1,6 +1,7 @@
+import { ServerInfo } from '@sys/driver-automerge/ws/client';
 import React from 'react';
-import { createRepo } from '../../../-test.repo.ts';
-import { ServerInfo } from '../../../m.Server.client/mod.ts';
+
+import { createUiRepo } from '../../-test.ui.repo.ts';
 import {
   type t,
   Button,
@@ -37,6 +38,7 @@ export function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV.SPEC, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
 
   const props = {
     redraw: s(0),
@@ -47,7 +49,6 @@ export function createDebugSignals() {
     noRepo: s(snap.noRepo),
   };
   const p = props;
-  const repo = createRepo();
   const api = {
     props,
     repo,

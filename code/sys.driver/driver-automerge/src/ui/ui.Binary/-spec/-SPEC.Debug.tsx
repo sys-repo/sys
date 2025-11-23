@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createRepo } from '../../../-test.repo.ts';
+import { createUiRepo } from '../../-test.ui.ts';
 import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.BinaryFileProps;
@@ -27,6 +27,7 @@ export function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
 
   const props = {
     debug: s(snap.debug),
@@ -35,7 +36,6 @@ export function createDebugSignals() {
     doc: s<t.Crdt.Ref>(),
   };
   const p = props;
-  const repo = createRepo();
   const api = {
     props,
     repo,

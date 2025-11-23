@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { CrdtWorker } from '../../../m.worker/mod.ts';
+import { spawnUiRepoWorker } from '../../-test.ui.ts';
 import { Repo } from '../../ui.Repo/mod.ts';
 import {
   type t,
-  Rx,
   Button,
   css,
   D,
@@ -12,6 +11,7 @@ import {
   LocalStorage,
   Obj,
   ObjectView,
+  Rx,
   Signal,
   STORAGE_KEY,
 } from '../common.ts';
@@ -60,9 +60,7 @@ export async function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV, defaults);
   const snap = store.current;
-
-  const w = new Worker(new URL('../../../-test.worker.ts', import.meta.url), { type: 'module' });
-  const { repo } = await CrdtWorker.Client.spawn(w);
+  const { repo } = await spawnUiRepoWorker();
 
   const props = {
     redraw: s(0),
@@ -236,7 +234,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => {
           const s = p.storageKey;
-          s.value = s.value ? undefined : STORAGE_KEY;
+          s.value = s.value ? undefined : defaults.storageKey!;
         }}
       />
 

@@ -1,32 +1,10 @@
 /**
- * Testing tools running in the browser/ui.
  * @module
+ * Testing tools running in the browser/ui.
  */
-import { Crdt, Url } from './common.ts';
 
 export { expect } from '@sys/std/testing';
 export { Dev, Lorem, Spec } from '@sys/ui-react-devharness';
 export * from './common.ts';
 
-/**
- * Create "dev" CRDT repository instance:
- */
-export function createRepo() {
-  /**
-   * CRDT:
-   */
-  const qs = Url.parse(location.href).toURL().searchParams.get('ws');
-  const isLocalhost = location.hostname === 'localhost';
-  const isDev = isLocalhost && location.port !== '8080';
-
-  const repo = Crdt.repo({
-    storage: { database: 'dev.crdt' },
-    network: [
-      qs && { ws: qs },
-      !qs && isDev && { ws: 'localhost:3030' },
-      !qs && !isDev && { ws: 'waiheke.sync.db.team' },
-    ],
-  });
-
-  return repo;
-}
+export { createUiRepo } from './-test.ui.repo.ts';

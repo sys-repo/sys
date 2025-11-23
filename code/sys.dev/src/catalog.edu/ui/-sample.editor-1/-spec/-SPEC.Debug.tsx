@@ -1,6 +1,6 @@
 import React from 'react';
 import { CatalogObjectView } from '../../-dev/mod.ts';
-import { createRepo, DevUrl, YamlObjectView } from '../../-test.ui.ts';
+import { createUiRepo, DevUrl, YamlObjectView } from '../../-test.ui.ts';
 import {
   type t,
   Arr,
@@ -70,7 +70,7 @@ export function createDebugSignals() {
   const api = {
     props,
     bus$: Monaco.Bus.make(),
-    repo: createRepo(),
+    repo: createUiRepo(),
     url: DevUrl.make(window),
     signals,
     listen,

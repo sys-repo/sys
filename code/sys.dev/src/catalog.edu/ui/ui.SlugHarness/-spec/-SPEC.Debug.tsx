@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRepo, DevUrl } from '../../-test.ui.ts';
+import { createUiRepo, DevUrl } from '../../-test.ui.ts';
 import {
   type t,
   Arr,
@@ -53,7 +53,7 @@ export function createDebugSignals() {
   const snap = store.current;
 
   const signals: t.SlugHarnessSignals = { doc: s() };
-  const repo = createRepo();
+  const repo = createUiRepo();
   const crdt: t.CrdtView.LayoutBindings = {
     repo,
     storageKey: STORAGE_KEY.DEV,

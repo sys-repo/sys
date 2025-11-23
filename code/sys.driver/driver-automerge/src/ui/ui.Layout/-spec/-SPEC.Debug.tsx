@@ -1,7 +1,5 @@
 import React from 'react';
-import { Crdt } from '../../-test.ui.ts';
-import { createRepo } from '../../../-test.repo.ts';
-
+import { Crdt, createUiRepo } from '../../-test.ui.ts';
 import {
   type t,
   Button,
@@ -48,7 +46,7 @@ export function createDebugSignals() {
   const snap = store.current;
 
   const signals: t.LayoutSignals = { doc: s<t.Crdt.Ref>() };
-  const repo = createRepo();
+  const repo = createUiRepo();
   const crdt: t.LayoutBindings = {
     repo,
     storageKey: STORAGE_KEY.DEV,

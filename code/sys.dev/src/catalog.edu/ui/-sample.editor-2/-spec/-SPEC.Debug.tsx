@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRepo, DevUrl } from '../../-test.ui.ts';
+import { createUiRepo, DevUrl } from '../../-test.ui.ts';
 import { type t, Color, css, D, Icons, LocalStorage, Obj, Signal } from '../common.ts';
 
 import { Button, ObjectView } from '../common.ts';
@@ -36,7 +36,7 @@ export function createDebugSignals() {
   const api = {
     props,
     url: DevUrl.make(window),
-    repo: createRepo(),
+    repo: createUiRepo(),
     reset,
     listen,
   };
