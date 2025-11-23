@@ -65,7 +65,6 @@
     "npm:@types/react@19.2.6": "19.2.6",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.1": "5.1.1_vite@7.2.4__@types+node@24.2.0__yaml@2.8.1__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.1",
-    "npm:ai@5.0.99": "5.0.99_zod@4.1.12",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.1": "6.2.1",
     "npm:csstype@3.2.3": "3.2.3",
@@ -79,7 +78,6 @@
     "npm:hash-it@6.0.1": "6.0.1",
     "npm:hono@4.10.6": "4.10.6",
     "npm:ignore@7.0.5": "7.0.5",
-    "npm:immer@10.2.0": "10.2.0",
     "npm:monaco-editor@0.55.1": "0.55.1",
     "npm:motion@12.23.24": "12.23.24_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:ollama-ai-provider@1.2.0": "1.2.0",
@@ -294,15 +292,6 @@
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
         "@vercel/oidc@3.0.3",
-        "zod@4.1.12"
-      ]
-    },
-    "@ai-sdk/gateway@2.0.13_zod@4.1.12": {
-      "integrity": "sha512-q8M+7+VEKp91I295cjNDgQ4LyGImKj5cDLVARDay7nBTXGjIRZOlthYE7K6Rbz2yHKFyTmKH7MMkYavAM7L/UQ==",
-      "dependencies": [
-        "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.17_zod@4.1.12",
-        "@vercel/oidc@3.0.5",
         "zod@4.1.12"
       ]
     },
@@ -2498,16 +2487,6 @@
         "zod@4.1.12"
       ]
     },
-    "ai@5.0.99_zod@4.1.12": {
-      "integrity": "sha512-omnQLLi5yNQWLLJAaQdACsgBSj+c9LTCWwl9z+6albiqlATNF3AGdpr1ZMTJosGkupwswZc6LDIMa3cfHR4x/g==",
-      "dependencies": [
-        "@ai-sdk/gateway@2.0.13_zod@4.1.12",
-        "@ai-sdk/provider@2.0.0",
-        "@ai-sdk/provider-utils@3.0.17_zod@4.1.12",
-        "@opentelemetry/api",
-        "zod@4.1.12"
-      ]
-    },
     "ansi-regex@5.0.1": {
       "integrity": "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="
     },
@@ -3260,9 +3239,6 @@
     },
     "ignore@7.0.5": {
       "integrity": "sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg=="
-    },
-    "immer@10.2.0": {
-      "integrity": "sha512-d/+XTN3zfODyjr89gM3mPq1WNX2B8pYsu7eORitdwyA2sBubnTl3laYlBk4sXY5FUa5qTZGBDPJICVbvqzjlbw=="
     },
     "import-in-the-middle@1.15.0_acorn@8.15.0": {
       "integrity": "sha512-bpQy+CrsRmYmoPMAE/0G33iwRqwW4ouqdRg8jgbH3aKuCtOc8lxgmYXg2dMM92CRiGP660EtBcymH/eVUpCSaA==",
@@ -4752,7 +4728,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@5.0.99",
+      "npm:ai@5.0.100",
       "npm:approx-string-match@2",
       "npm:chai@6.2.1",
       "npm:csstype@3.2.3",
@@ -4764,7 +4740,6 @@
       "npm:happy-dom@20.0.10",
       "npm:hash-it@6.0.1",
       "npm:ignore@7.0.5",
-      "npm:immer@10.2.0",
       "npm:monaco-editor@0.55.1",
       "npm:ollama-ai-provider@1.2.0",
       "npm:ollama@0.6.3",
