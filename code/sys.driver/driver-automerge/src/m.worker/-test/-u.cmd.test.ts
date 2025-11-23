@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { type t, Cmd } from '../common.ts';
 
 describe('Crdt.Worker.Cmd (RPC)', () => {
-  it('Cmd: attach roundtrip over a bare MessageChannel', async () => {
+  it('attach roundtrip over a bare MessageChannel', async () => {
     //
     // 1. Instantiate a typed command set for the worker control channel.
     type Name = 'attach';
