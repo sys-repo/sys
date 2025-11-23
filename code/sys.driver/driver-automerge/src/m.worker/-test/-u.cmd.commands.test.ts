@@ -1,7 +1,7 @@
-import { describe, it, beforeAll, afterAll, expect } from '../../-test.ts';
-import { type t } from '../common.ts';
-import { makeWorkerFixture } from './u.ts';
+import { afterAll, beforeAll, describe, expect, it } from '../../-test.ts';
+import { type t, Rx } from '../common.ts';
 import { CrdtWorker } from '../mod.ts';
+import { makeWorkerFixture } from './u.ts';
 
 describe('Crdt.Worker (integration)', () => {
   let env: t.TestWorkerFixture;
@@ -18,26 +18,30 @@ describe('Crdt.Worker (integration)', () => {
 
   describe('command: stats', () => {
     it('retrieve document stats (roundtrip) over worker', async () => {
-      // Create a real doc in the worker-backed repo.
       type D = { foo: number };
+
+      // 1. Create a doc inside the worker-backed repo.
       const create = await env.repo.create<D>({ foo: 0 });
       if (!create.ok) throw new Error(`create failed: ${create.error.message}`);
-
       const doc = create.doc;
 
-      // Command client over the same MessagePort as the repo.
+      // 2. Command client over the same MessagePort as the repo.
       const cmd = CrdtWorker.Cmd.make();
       const client = cmd.client(env.port);
 
+      // 3. Initial stats.
       const res1 = await client.send('stats', { doc: doc.id });
       expect(res1.bytes).to.be.greaterThan(0);
       expect(res1.total.changes).to.be.greaterThan(0);
       expect(res1.total.ops).to.be.greaterThan(0);
 
-      // Make a change; see different stats:
+      // 4. Mutate the doc and wait for commit propagation.
       doc.change((d) => (d.foo = 1234));
+      await Rx.firstValueFrom(doc.events().$.pipe(Rx.take(1)));
 
+      // 5. Stats after change should be strictly greater.
       const res2 = await client.send('stats', { doc: doc.id });
+
       expect(res2.bytes).to.be.greaterThan(res1.bytes);
       expect(res2.total.changes).to.be.greaterThan(res1.total.changes);
       expect(res2.total.ops).to.be.greaterThan(res1.total.ops);
