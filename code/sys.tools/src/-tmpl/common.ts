@@ -9,7 +9,7 @@ export const D = {
   toolname,
   Path: {},
   config: {
-    filename: '__NAME__.config.json',
+    filename: '-__NAME__.config.json',
     doc: JsonFile.default<t.__NAME__ConfigDoc>({ name: toolname }),
   },
 } as const;

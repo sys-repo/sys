@@ -23,6 +23,7 @@
     "./crdt": "./src/cli.crdt/mod.ts",
     "./fs": "./src/cli.fs/mod.ts",
     "./video": "./src/cli.video/mod.ts",
+    "./serve": "./src/cli.serve/mod.ts",
     "./update": "./src/cli.update/mod.ts"
   }
 }

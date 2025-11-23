@@ -19,7 +19,7 @@ export const D = {
     config: './tools.config.json',
   },
   config: {
-    filename: 'crdt.config.json',
+    filename: '-crdt.config.json',
     doc: { '.meta': { createdAt: 0 }, version: '1.0.0' } satisfies t.CrdtConfigDoc,
   },
 } as const;
