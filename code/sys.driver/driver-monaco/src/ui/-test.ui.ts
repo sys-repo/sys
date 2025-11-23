@@ -15,7 +15,7 @@ export function createRepo() {
   /**
    * CRDT:
    */
-  const qsSyncServer = Url.parse(location.href).toURL().searchParams.get('ws');
+  const qs = Url.parse(location.href).toURL().searchParams.get('ws');
   const isLocalhost = location.hostname === 'localhost';
   const isDev = isLocalhost && location.port !== '8080';
 
@@ -25,7 +25,7 @@ export function createRepo() {
       { ws: 'waiheke.sync.db.team' },
       // { ws: 'sync.db.team' },
       isDev && { ws: 'localhost:3030' },
-      qsSyncServer && { ws: qsSyncServer },
+      qs && { ws: qs },
     ],
   });
 
