@@ -6,14 +6,14 @@ import {
   expect,
   expectTypeOf,
   it,
-  spawnTestWorker,
+  makeWorkerFixture,
 } from '../../-test.ts';
 
 import { CrdtGraph } from '../mod.ts';
 
 describe(`Crdt.Graph`, () => {
-  let env: t.TestWorkerEnv;
-  beforeAll(async () => void (env = await spawnTestWorker()));
+  let env: t.TestWorkerFixture;
+  beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());
 
   it('walks a simple A → B → C DAG', async () => {

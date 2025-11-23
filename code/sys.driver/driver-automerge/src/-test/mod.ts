@@ -15,5 +15,5 @@ export {
   it,
 } from '@sys/testing/server';
 
-export { spawnTestWorker } from '../-test.fs.worker/mod.ts';
+export { makeWorkerFixture } from '../m.worker/-test.u/u.fixture.client.ts';
 export * from '../common.ts';

@@ -1,7 +1,6 @@
 /**
  * @external
  */
-export type * from '../-test.fs.worker/t.ts';
 export type * from './t.Automerge.ts';
 export type * from '../m.worker/-test.u/t.ts';
 

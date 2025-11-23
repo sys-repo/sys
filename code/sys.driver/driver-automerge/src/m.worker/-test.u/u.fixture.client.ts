@@ -4,10 +4,6 @@ import { getRepoPort } from '../u.client.proxy.repo.ts';
 
 /**
  * Create an isolated CRDT worker fixture for tests.
- *
- * - Spawns a worker using `u.fixture.worker.ts` and attaches a repo.
- * - Uses a unique `.tmp/test/worker-fixture/<slug>` storage path per call.
- * - Returns both the repo facade and low-level worker/port handles.
  */
 export async function makeWorkerFixture(opts: { silent?: boolean; storage?: boolean } = {}) {
   const { silent = true, storage = true } = opts;
