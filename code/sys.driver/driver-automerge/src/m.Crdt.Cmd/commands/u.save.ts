@@ -5,7 +5,7 @@ import { Hash } from '@sys/crypto/hash';
 export function makeSaveHandler(
   getRepo: () => t.Crdt.Repo | undefined,
   Fs?: t.FsLib,
-): t.CrdtCmdHandlers['save'] {
+): t.CrdtCmdHandlers['fs:save'] {
   return async (params) => {
     const repo = getRepo();
     const path = params.path;

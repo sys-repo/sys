@@ -34,17 +34,13 @@ export const listen: t.CrdtWorkerHostLib['listen'] = (self, args, opts = {}) => 
     if (!port) return;
 
     /**
-     * Command handlers for this port.
-     * (Each handler corresponds to a typed RPC method.)
+     * Bind the RPC command host to the MessagePort.
      */
-    const attach = makeAttachHandler({ port, repo, factory }, (created) => (repo = created));
-    const stats = makeStatsHandler(() => repo);
-    const save = makeSaveHandler(() => repo, Fs);
-
-    /**
-     * Bind the command host to the MessagePort.
-     */
-    cmd.host(port, { attach, stats, save });
+    cmd.host(port, {
+      attach: makeAttachHandler({ port, repo, factory }, (created) => (repo = created)),
+      stats: makeStatsHandler(() => repo),
+      'fs:save': makeSaveHandler(() => repo, Fs),
+    });
   });
 
   /**

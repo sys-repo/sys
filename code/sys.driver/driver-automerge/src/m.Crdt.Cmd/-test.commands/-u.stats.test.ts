@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '..
 import { type t, Rx } from '../common.ts';
 import { CrdtCmd } from '../mod.ts';
 
-describe('Cmd: stats', () => {
+describe('Command: stats', () => {
   let env: t.TestWorkerFixture;
   beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());

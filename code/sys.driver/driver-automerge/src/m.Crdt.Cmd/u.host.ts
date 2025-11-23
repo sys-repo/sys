@@ -17,7 +17,7 @@ export const attachCmdHostToPort = (
   const handlers: t.CrdtCmdHandlers = {
     attach: () => ({ ok: true }), // no handshake needed locally
     stats: makeStatsHandler(getRepo),
-    save: makeSaveHandler(getRepo),
+    'fs:save': makeSaveHandler(getRepo),
   };
 
   return cmd.host(port, handlers);
