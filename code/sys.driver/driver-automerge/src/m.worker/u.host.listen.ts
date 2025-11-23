@@ -6,7 +6,6 @@ import { Wire } from './u.wire.ts';
 type AttachMessage = {
   kind?: string;
   port?: MessagePort;
-  config?: t.CrdtWorkerSpawnConfig;
 };
 
 /**

@@ -35,7 +35,7 @@ export const spawn: t.CrdtWorkerClientLib['spawn'] = async (input, opts = {}) =>
    * Important: include the port in data, not just in the transfer list.
    */
   const kind = Wire.Kind.attach;
-  worker.postMessage({ kind, port: port2, config }, [port2]);
+  worker.postMessage({ kind, port: port2 }, [port2]);
 
   /**
    * Worker-level command handshake:
