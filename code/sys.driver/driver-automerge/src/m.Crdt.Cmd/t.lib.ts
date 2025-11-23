@@ -18,5 +18,5 @@ export type CrdtCmdLib = {
    * - If `repo` is local/in-process, this creates a synthetic MessageChannel
    *   and binds a host to the real repo, so the client behaves identically.
    */
-  // fromRepo(repo: t.CrdtRepo): t.CrdtCmdClient;
+  fromRepo(repo: t.CrdtRepo): t.CrdtCmdClient;
 };

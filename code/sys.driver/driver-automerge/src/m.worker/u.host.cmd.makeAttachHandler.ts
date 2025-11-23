@@ -4,7 +4,7 @@ import { attachRepo } from './u.host.attach.repo.ts';
 type Methods = t.CrdtCmdHandlers;
 type Args = { port: MessagePort; repo?: t.CrdtRepo; factory?: t.CrdtRepoFactory };
 
-export function makeAttach(
+export function makeAttachHandler(
   args: Args,
   onRepoCreated: (created: t.CrdtRepo) => void,
 ): Methods['attach'] {

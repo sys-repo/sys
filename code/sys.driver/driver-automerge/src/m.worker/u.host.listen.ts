@@ -1,5 +1,6 @@
 import { type t, CrdtCmd, CrdtIs, Is } from './common.ts';
-import { makeAttach, makeStats } from './u.host.cmd.ts';
+import { makeAttachHandler } from './u.host.cmd.makeAttachHandler.ts';
+import { makeStatsHandler } from '../m.Crdt.Cmd/commands/mod.ts';
 import { Wire } from './u.wire.ts';
 
 type AttachMessage = {
@@ -35,8 +36,8 @@ export const listen: t.CrdtWorkerHostLib['listen'] = (self, args) => {
      * Command handlers for this port.
      * (Each handler corresponds to a typed RPC method.)
      */
-    const attach = makeAttach({ port, repo, factory }, (created) => (repo = created));
-    const stats = makeStats(() => repo);
+    const attach = makeAttachHandler({ port, repo, factory }, (created) => (repo = created));
+    const stats = makeStatsHandler(() => repo);
 
     /**
      * Bind the command host to the MessagePort.

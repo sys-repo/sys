@@ -1,7 +1,5 @@
 import { type t, WIRE_VERSION } from './common.ts';
 
-const version = WIRE_VERSION;
-
 /**
  * Simple factories for well-formed messages.
  */
@@ -61,7 +59,13 @@ export const Wire = {
     method: M,
     ...args: t.WireRepoArgs[M]
   ): t.WireRepoCall<M> {
-    return { version, type: 'call', id, method, args };
+    return {
+      version: WIRE_VERSION,
+      type: 'call',
+      id,
+      method,
+      args,
+    };
   },
 
   /**
@@ -74,15 +78,15 @@ export const Wire = {
     stream: S,
     event: S extends 'crdt:repo' ? t.WireRepoEventPayload : t.WireDocEventPayload,
   ): S extends 'crdt:repo' ? t.WireEventRepo : t.WireEventDoc {
-    return { version, type: 'event', stream, event } as any;
+    return { version: WIRE_VERSION, type: 'event', stream, event } as any;
   },
 
   ok(id: t.WireId, data: t.WireRepoResultData[t.WireRepoMethod]): t.WireResult {
-    return { version, type: 'result', id, ok: true, data };
+    return { version: WIRE_VERSION, type: 'result', id, ok: true, data };
   },
 
   err(id: t.WireId, error: t.WireError): t.WireResult {
-    return { version, type: 'result', id, ok: false, error };
+    return { version: WIRE_VERSION, type: 'result', id, ok: false, error };
   },
 
   errFrom(e: unknown, kind: t.WireErrorKind = 'UNKNOWN'): t.WireError {
@@ -111,12 +115,12 @@ export const Wire = {
     return {
       id: p.id,
       status: { ready: p.status.ready, stalled: p.status.stalled },
+      stores: [...p.stores],
       sync: {
         peers: [...p.sync.peers],
         urls: [...p.sync.urls],
         enabled: p.sync.enabled,
       },
-      stores: [...p.stores],
     };
   },
 } as const;
