@@ -12,5 +12,4 @@ export type UseCrdtDocStats = (repo?: t.Crdt.Repo, docid?: t.Crdt.Id) => t.CrdtD
  */
 export type CrdtDocStatsHook = {
   readonly info?: t.DocumentStats;
-  readonly error?: t.StdError;
 };

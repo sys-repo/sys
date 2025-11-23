@@ -2,21 +2,28 @@ import { useEffect, useState } from 'react';
 import { type t, CrdtCmd, Rx } from './common.ts';
 
 /**
- * Hook that computes and tracks stats for the given CRDT doc.
- *
- * Accepts either:
- * - a document ref (`t.Crdt.Ref`), or
- * - a document-id (`t.StringDocumentId`) to resolve via `repo.get`.
+ * Hook that computes and tracks stats for the given CRDT doc-id.
  */
 export const useDocStats: t.UseCrdtDocStats = (repo, docid) => {
   const [info, setInfo] = useState<t.DocumentStats>();
-  const [error, setError] = useState<t.StdError>();
 
-    }
+  useEffect(() => {
+    // Reset whenever the driving inputs change.
+    setInfo(undefined);
 
-    update();
+    if (!repo || !docid) return;
+    const life = Rx.lifecycle();
+    const cmd = CrdtCmd.fromRepo(repo, life);
+
+    (async () => {
+      try {
+        const stats = await cmd.send('stats', { doc: docid });
+        if (!life.disposed) setInfo(stats);
+      } catch {}
+    })();
+
     return life.dispose;
   }, [repo?.id, docid]);
 
-  return { info, error };
+  return { info };
 };
