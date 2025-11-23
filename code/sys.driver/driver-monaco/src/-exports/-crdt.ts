@@ -2,5 +2,4 @@
  * @module
  * Tools for working with the Monaco code-editor with a CRDT (Automerge) data-structure.
  */
-export { EditorCrdt } from './m.Crdt.ts';
-export { useCrdtBinding } from './use.CrdtBinding.ts';
+export * from '../ui/m.Crdt/mod.ts';
