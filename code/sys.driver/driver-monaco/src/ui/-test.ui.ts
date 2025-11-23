@@ -24,7 +24,7 @@ export function createRepo() {
     network: [
       qs && { ws: qs },
       !qs && isDev && { ws: 'localhost:3030' },
-      !qs && { ws: 'waiheke.sync.db.team' },
+      !qs && !isDev && { ws: 'waiheke.sync.db.team' },
     ],
   });
 

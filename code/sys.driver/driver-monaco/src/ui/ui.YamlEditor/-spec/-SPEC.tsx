@@ -58,15 +58,16 @@ export default Spec.describe(D.displayName, (e) => {
       .padding(0)
       .render(() => {
         const theme = Color.theme();
+        const border = `solid 1px ${Color.alpha(theme.fg, 0.1)}`;
         const styles = {
           base: css({ position: 'relative', boxSizing: 'border-box' }),
-          info: css({ Padding: [10, 15] }),
-          switch: css({ borderTop: `solid 1px ${Color.alpha(theme.fg, 0.1)}`, Padding: [14, 10] }),
+          info: css({ Padding: [15, 30], borderTop: border, borderBottom: border }),
+          switch: css({ Padding: [14, 10] }),
         };
         return (
           <div className={styles.base.class}>
             <div className={styles.info.class}>
-              <Crdt.UI.Repo.Info repo={repo} style={styles.info} theme={theme.name} />
+              <Crdt.UI.Repo.Info repo={repo} theme={theme.name} />
             </div>
             <div className={styles.switch.class}>
               <Crdt.UI.Repo.SyncSwitch
