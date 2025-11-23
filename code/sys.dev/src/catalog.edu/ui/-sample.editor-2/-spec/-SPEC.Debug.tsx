@@ -1,6 +1,8 @@
 import React from 'react';
+import { YamlObjectView } from '@sys/driver-monaco/dev';
+
 import { createUiRepo, DevUrl } from '../../-test.ui.ts';
-import { type t, Color, css, D, Icons, LocalStorage, Obj, Signal } from '../common.ts';
+import { type t, Color, css, D, Icons, LocalStorage, Rx, Obj, Signal } from '../common.ts';
 
 import { Button, ObjectView } from '../common.ts';
 
@@ -26,8 +28,19 @@ export function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const repo = createUiRepo();
+
+  const bus: t.Sample2Bus = {
+    left$: Rx.subject<t.EditorEvent>(),
+    right$: Rx.subject<t.EditorEvent>(),
+  };
+  const signals: t.Sample2Signals = {
+    left: { doc: s(), yaml: s(), editor: s() },
+    right: { doc: s(), yaml: s(), editor: s() },
+  };
 
   const props = {
+    rev: s(0),
     debug: s(snap.debug),
     theme: s(snap.theme),
     wordWrap: s(snap.wordWrap),
@@ -36,17 +49,24 @@ export function createDebugSignals() {
   const api = {
     props,
     url: DevUrl.make(window),
-    repo: createUiRepo(),
+    repo,
+    bus,
+    signals,
+    redraw,
     reset,
     listen,
   };
 
   function listen() {
-    Signal.listen(props);
+    Signal.listen(props, true);
+    Signal.listen(signals, true);
   }
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  }
+  function redraw() {
+    p.rev.value += 1;
   }
 
   Signal.effect(() => {
@@ -127,8 +147,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button block label={() => `redraw`} onClick={() => debug.redraw()} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <YamlObjectView
+        style={{ marginTop: 10 }}
+        title={'editor(left)'}
+        bus$={debug.bus.left$}
+        doc={debug.signals.left.doc.value}
+        editor={debug.signals.left.editor.value}
+      />
+      <YamlObjectView
+        style={{ marginTop: 10 }}
+        title={'editor(right)'}
+        bus$={debug.bus.right$}
+        doc={debug.signals.right.doc.value}
+        editor={debug.signals.right.editor.value}
+      />
     </div>
   );
 };

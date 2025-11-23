@@ -25,23 +25,7 @@ const PATH = {
 };
 
 export const Sample: React.FC<t.Sample2Props> = (props) => {
-  const { repo, debug = false, wordWrap = false } = props;
-
-  const signals = {
-    index: {
-      doc: Signal.useSignal<t.Crdt.Ref | undefined>(),
-      yaml: Signal.create<t.EditorYaml | undefined>(),
-    },
-    main: {
-      doc: Signal.useSignal<t.Crdt.Ref | undefined>(),
-      yaml: Signal.create<t.EditorYaml | undefined>(),
-    },
-  } as const;
-
-  // 🐷
-  Signal.useEffect(() => {
-    console.log('signals.index.yaml', signals.index.yaml.value);
-  });
+  const { bus, signals, repo, debug = false, wordWrap = false } = props;
 
   /**
    * Hooks:
@@ -53,31 +37,26 @@ export const Sample: React.FC<t.Sample2Props> = (props) => {
 
   // Run combined structural + semantic validation.
   const registry = DefaultTraitRegistry;
-  const leftValidation = useSlugDiagnostics(registry, PATH.INDEX, signals.index.yaml.value);
+  // const leftValidation = useSlugDiagnostics(registry, PATH.INDEX, signals.left.yaml.value);
 
   // Push error markers into Monaco.
   Monaco.Yaml.useYamlErrorMarkers({
     // enabled: !!ready && !!yaml?.data?.ast,
     monaco: leftCtx?.monaco,
     editor: leftCtx?.editor,
-    errors: leftValidation.diagnostics,
-  });
-
-  Signal.useEffect(() => {
-    console.log('signals.index.doc.value', signals.index.doc.value);
-    console.log('signals.index.yaml.value', signals.index.yaml.value);
+    // errors: leftValidation.diagnostics,
   });
 
   /**
    * Effects:
    */
-  Signal.useRedrawEffect(() => void signals.main.doc.value);
+  Signal.useRedrawEffect(() => void signals.right.doc.value);
   React.useEffect(() => {
-    if (!selectedDocid) return void (signals.main.doc.value = undefined);
+    if (!selectedDocid) return void (signals.right.doc.value = undefined);
     let cancelled = false;
     (async () => {
       const { doc } = await repo.get(selectedDocid);
-      if (!cancelled) signals.main.doc.value = doc;
+      if (!cancelled) signals.right.doc.value = doc;
     })();
     return () => void (cancelled = true);
   }, [selectedDocid, repo]);
@@ -109,14 +88,15 @@ export const Sample: React.FC<t.Sample2Props> = (props) => {
     base: css({ color: theme.fg, display: 'grid' }),
   };
 
-  const elIndex = (
+  const elLeft = (
     <Monaco.Yaml.Editor
+      bus$={bus.left$}
       diagnostics="syntax" // Keep the raw YAML syntax diagnostics active.
       theme={theme.name}
       debug={debug}
       repo={repo}
       path={PATH.INDEX}
-      signals={signals.index}
+      signals={signals.left}
       editor={{
         autoFocus: true,
         debounce: 150,
@@ -126,26 +106,28 @@ export const Sample: React.FC<t.Sample2Props> = (props) => {
         storageKey: `${STORAGE_KEY.DEV}.${KEY.INDEX}`,
         urlKey: KEY.INDEX,
       }}
-      onDocumentLoaded={(e) => setIndexDoc(e.doc)}
       onCursor={(e) => handleCursorChange(e)}
+      onDocumentLoaded={(e) => setIndexDoc(e.doc)}
       onReady={(e) => {
         const { monaco, editor } = e;
+        signals.left.editor.value = editor;
         setLeftCtx({ monaco, editor });
         if (repo) Monaco.Crdt.Link.enable({ monaco, editor }, repo, e.dispose$);
       }}
     />
   );
 
-  const elMain = (
+  const elRight = (
     <Monaco.Yaml.Editor
+      bus$={bus.right$}
       diagnostics="syntax" // Keep the raw YAML syntax diagnostics active.
       theme={theme.name}
       debug={debug}
       repo={repo}
       path={PATH.MAIN}
-      signals={signals.main}
+      signals={signals.right}
       editor={{
-        enabled: !!signals.main.doc.value,
+        enabled: !!signals.right.doc.value,
         autoFocus: false,
         debounce: 150,
         wordWrap,
@@ -158,6 +140,7 @@ export const Sample: React.FC<t.Sample2Props> = (props) => {
       }}
       onReady={(e) => {
         const { monaco, editor } = e;
+        signals.right.editor.value = editor;
         setRightCtx({ monaco, editor });
         if (repo) Monaco.Crdt.Link.enable({ monaco, editor }, repo, e.dispose$);
       }}
@@ -172,8 +155,8 @@ export const Sample: React.FC<t.Sample2Props> = (props) => {
         onDragEnd={(e) => console.info(`⚡️ SplitPane:onDragEnd`, e)}
         onChange={(e) => console.info(`⚡️ SplitPane:onChange`, e)}
       >
-        {elIndex}
-        {elMain}
+        {elLeft}
+        {elRight}
       </SplitPane>
     </div>
   );

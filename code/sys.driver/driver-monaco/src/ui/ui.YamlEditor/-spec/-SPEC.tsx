@@ -8,6 +8,26 @@ export default Spec.describe(D.displayName, (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
+  function DebugFooter() {
+    const theme = Color.theme();
+    const border = `solid 1px ${Color.alpha(theme.fg, 0.1)}`;
+    const styles = {
+      base: css({ position: 'relative', boxSizing: 'border-box' }),
+      info: css({ Padding: [15, 45], borderTop: border, borderBottom: border }),
+      switch: css({ Padding: [14, 10] }),
+    };
+    return (
+      <div className={styles.base.class}>
+        <div className={styles.info.class}>
+          <Crdt.UI.Repo.Info repo={repo} theme={theme.name} />
+        </div>
+        <div className={styles.switch.class}>
+          <Crdt.UI.Repo.SyncSwitch repo={repo} storageKey={STORAGE_KEY.DEV} theme={theme.name} />
+        </div>
+      </div>
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
@@ -57,29 +77,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.debug.footer
       .border(0)
       .padding(0)
-      .render(() => {
-        const theme = Color.theme();
-        const border = `solid 1px ${Color.alpha(theme.fg, 0.1)}`;
-        const styles = {
-          base: css({ position: 'relative', boxSizing: 'border-box' }),
-          info: css({ Padding: [15, 45], borderTop: border, borderBottom: border }),
-          switch: css({ Padding: [14, 10] }),
-        };
-        return (
-          <div className={styles.base.class}>
-            <div className={styles.info.class}>
-              <Crdt.UI.Repo.Info repo={repo} theme={theme.name} />
-            </div>
-            <div className={styles.switch.class}>
-              <Crdt.UI.Repo.SyncSwitch
-                repo={repo}
-                storageKey={STORAGE_KEY.DEV}
-                theme={theme.name}
-              />
-            </div>
-          </div>
-        );
-      });
+      .render(() => <DebugFooter />);
   });
 
   e.it('ui:debug', (e) => {
