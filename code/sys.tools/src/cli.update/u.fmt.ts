@@ -41,7 +41,7 @@ export const Fmt = {
     const upToDate = version.is.latest;
     const local = formatVersion(version.local, upToDate);
     const remote = formatVersion(version.remote, upToDate);
-    const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(update required)'))}`);
+    const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(update available)'))}`);
 
     table.push([c.gray('Package'), pkg.name]);
     table.push([c.gray('  local'), `${local}     ${updateReq}`.trim()]);
