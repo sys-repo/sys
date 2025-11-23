@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Bus, Color, css, ObjectView, Rx, Str, useRev } from '../common.ts';
+import { type t, Bus, Color, css, Obj, ObjectView, Rx, Str, useRev } from '../common.ts';
 import { EditorYaml } from '../m.Yaml/mod.ts';
 
 export type YamlObjectViewProps = {
@@ -99,7 +99,7 @@ const wrangle = {
         };
     return {
       rev,
-      [docField]: doc?.current,
+      [docField]: Obj.truncateStrings(doc?.current),
       yaml: yamlDisplay,
       'yaml.ok': yamlDisplay?.ok ?? null,
       'yaml.cursor': cursor,
