@@ -1,14 +1,5 @@
 import { type t, A, toAutomergeHandle } from '../common.ts';
 
-const EMPTY = {
-  get stats(): t.DocumentStats {
-    return {
-      bytes: -1,
-      total: { changes: -1, ops: -1 },
-    };
-  },
-};
-
 export function makeStatsHandler(
   getRepo: () => t.Crdt.Repo | undefined,
 ): t.CrdtCmdHandlers['stats'] {
@@ -36,3 +27,15 @@ export function makeStatsHandler(
     }
   };
 }
+
+/**
+ * Helpers:
+ */
+const EMPTY = {
+  get stats(): t.DocumentStats {
+    return {
+      bytes: -1,
+      total: { changes: -1, ops: -1 },
+    };
+  },
+};

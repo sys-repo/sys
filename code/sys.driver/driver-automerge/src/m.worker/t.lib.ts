@@ -57,8 +57,8 @@ export type CrdtWorkerHostLib = {
    *     access to the optional spawn-time `config`. The factory may return
    *     the repo synchronously or as a Promise.
    */
-  listen(self: typeof globalThis, repo: t.CrdtRepo): void;
-  listen(self: typeof globalThis, factory: t.CrdtRepoFactory): void;
+  listen(self: typeof globalThis, repo: t.CrdtRepo, opts?: CrdtWorkerListenOptions): void;
+  listen(self: typeof globalThis, factory: t.CrdtRepoFactory, opts?: CrdtWorkerListenOptions): void;
 };
 
 /**
@@ -73,4 +73,10 @@ export type CrdtWorkerSpawnOptions = {
   worker?: WorkerOptions;
   config?: t.CrdtWorkerSpawnConfig;
   until?: t.UntilInput;
+};
+
+/** Options for `Crdt.Worker.Host.listen` */
+export type CrdtWorkerListenOptions = {
+  /** A file-system for commands that need read/write file access. */
+  Fs?: t.FsLib;
 };

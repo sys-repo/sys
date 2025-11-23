@@ -16,6 +16,7 @@ export type {
  */
 export type * from '@sys/types';
 
+export type { FsLib } from '@sys/fs/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { CmdClient, CmdHandlers, CmdHost, CmdInstance } from '@sys/event/t';
 export type { HistoryStack, TimeDelayPromise, UnwrapSignals } from '@sys/std/t';

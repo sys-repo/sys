@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 import { make } from './u.make.ts';
-import { makeStatsHandler } from './commands/u.stats.ts';
+import { makeStatsHandler, makeSaveHandler } from './commands/mod.ts';
 
 /**
  * Attach a CRDT command host to a MessagePort for a given repo getter.
@@ -17,6 +17,7 @@ export const attachCmdHostToPort = (
   const handlers: t.CrdtCmdHandlers = {
     attach: () => ({ ok: true }), // no handshake needed locally
     stats: makeStatsHandler(getRepo),
+    save: makeSaveHandler(getRepo),
   };
 
   return cmd.host(port, handlers);

@@ -1,6 +1,6 @@
 import { type t, CrdtCmd, CrdtIs, Is } from './common.ts';
 import { makeAttachHandler } from './u.host.cmd.makeAttachHandler.ts';
-import { makeStatsHandler } from '../m.Crdt.Cmd/commands/mod.ts';
+import { makeStatsHandler, makeSaveHandler } from '../m.Crdt.Cmd/commands/mod.ts';
 import { Wire } from './u.wire.ts';
 
 type AttachMessage = {
@@ -15,7 +15,8 @@ type AttachMessage = {
  * - listen(self, repo)           ← existing repo instance
  * - listen(self, factory)        ← lazy repo creation with spawn-time config
  */
-export const listen: t.CrdtWorkerHostLib['listen'] = (self, args) => {
+export const listen: t.CrdtWorkerHostLib['listen'] = (self, args, opts = {}) => {
+  const { Fs } = opts;
   const cmd = CrdtCmd.make();
   let { repo, factory } = wrangle.args(args);
 
@@ -38,11 +39,12 @@ export const listen: t.CrdtWorkerHostLib['listen'] = (self, args) => {
      */
     const attach = makeAttachHandler({ port, repo, factory }, (created) => (repo = created));
     const stats = makeStatsHandler(() => repo);
+    const save = makeSaveHandler(() => repo, Fs);
 
     /**
      * Bind the command host to the MessagePort.
      */
-    cmd.host(port, { attach, stats });
+    cmd.host(port, { attach, stats, save });
   });
 
   /**
