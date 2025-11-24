@@ -29,7 +29,7 @@ export const TestConfig = {
   /**
    * For UI/browser based testing.
    */
-  web(opts: { silent?: boolean } = {}): t.CrdtWorkerWebConfig {
+  web(opts: { silent?: boolean } = {}): t.CrdtWorkerConfigWeb {
     const { silent } = opts;
     const { qs, isDev } = browserEnvironment();
     return {
@@ -37,7 +37,6 @@ export const TestConfig = {
       silent,
       storage: { database: 'dev.crdt' },
       network: [
-        { ws: 'waiheke.sync.db.team' },
         qs && { ws: qs },
         !qs && isDev && { ws: 'localhost:3030' },
         !qs && !isDev && { ws: 'waiheke.sync.db.team' },

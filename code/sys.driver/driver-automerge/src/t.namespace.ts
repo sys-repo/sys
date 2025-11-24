@@ -18,6 +18,17 @@ export namespace Crdt {
     export type Mark = AMMark;
     export type Range = AMMarkRange;
   }
+  export namespace Graph {
+    export type DiscoverRefs = t.CrdtGraphDiscoverRefs;
+    export type WalkDocArgs = t.CrdtGraphWalkDocArgs;
+    export type WalkRefsArgs = t.CrdtGraphWalkRefsArgs;
+    export type WalkSkipArgs = t.CrdtGraphWalkSkipArgs;
+  }
+  export namespace Worker {
+    export type Config = t.CrdtWorkerConfig;
+    export type ConfigWeb = t.CrdtWorkerConfigWeb;
+    export type ConfigFs = t.CrdtWorkerConfigFs;
+  }
 }
 
 /**

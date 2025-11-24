@@ -161,7 +161,7 @@ export function toRepo(
       return { ok: true, doc };
     },
 
-    get<T extends O>(id: t.StringId, options: t.CrdtRepoGetOptions = {}) {
+    get<T extends O>(id: t.Crdt.Id, options: t.CrdtRepoGetOptions = {}) {
       type R = t.CrdtRefResult<T>;
       return new Promise<R>(async (resolve) => {
         const fail = (error: t.CrdtRepoError) => resolve({ ok: false, error });
