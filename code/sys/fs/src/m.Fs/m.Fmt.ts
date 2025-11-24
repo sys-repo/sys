@@ -72,14 +72,14 @@ function visit(
   dirNames.forEach((d, i) => {
     const isLast = i === dirNames.length - 1 && fileNames.length === 0;
     const branch = Cli.Fmt.Tree.branch(isLast);
-    out.push(`${pad}${prefix}${branch}${d}/`);
+    out.push(`${pad}${prefix}${branch} ${d}/`);
     const nextPrefix = prefix + (isLast ? '   ' : '│  ');
     visit(node.dirs.get(d)!, nextPrefix, depth + 1, opt, out, pad);
   });
 
   fileNames.forEach((f, i, total) => {
     const branch = Cli.Fmt.Tree.branch([i, total]);
-    out.push(`${pad}${prefix}${branch}${f}`);
+    out.push(`${pad}${prefix}${branch} ${f}`);
   });
 }
 
