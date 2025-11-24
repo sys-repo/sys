@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { type t, Str, describe, expect, it } from '../../-test.ts';
 import { Yaml } from '../mod.ts';
 
 describe('Yaml.parseAst', () => {
@@ -42,6 +42,28 @@ describe('Yaml.parseAst', () => {
       expect(res.ok).to.eql(false);
     });
   });
-});
 
-describe('Yaml.toJS', () => {});
+  describe('sample: programatically change AST', () => {
+    it('ast.setIn', () => {
+      const before = `
+        foo:
+          bar:
+            baz: hello
+            # Comment
+            foo: 123
+      `;
+
+      const ast = Yaml.parseAst(before);
+      ast.setIn(['foo', 'bar', 'baz'], 'world');
+
+      const after = `
+        foo:
+          bar:
+            baz: world
+            # Comment
+            foo: 123
+      `;
+      expect(String(ast).trim()).to.eql(Str.dedent(after));
+    });
+  });
+});
