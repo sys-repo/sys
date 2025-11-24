@@ -30,6 +30,7 @@ System Tools
  ├─ @sys/tools/crdt
  ├─ @sys/tools/fs
  ├─ @sys/tools/video
+ ├─ @sys/tools/serve
  └─ @sys/tools/update
 ```
 
