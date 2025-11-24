@@ -66,12 +66,12 @@ export type CrdtWorkerHostLib = {
  */
 type R = t.Crdt.Repo;
 export type CrdtRepoFactory = (args: t.CrdtRepoFactoryArgs) => R | Promise<R>;
-export type CrdtRepoFactoryArgs = { config?: t.CrdtWorkerSpawnConfig };
+export type CrdtRepoFactoryArgs = { config?: t.CrdtWorkerConfig };
 
 /** Options for `Crdt.Worker.Client.spawn` */
 export type CrdtWorkerSpawnOptions = {
   worker?: WorkerOptions;
-  config?: t.CrdtWorkerSpawnConfig;
+  config?: t.CrdtWorkerConfig;
   until?: t.UntilInput;
 };
 

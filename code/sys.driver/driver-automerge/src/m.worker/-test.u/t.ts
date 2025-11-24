@@ -14,7 +14,7 @@ export type TestWorkerFixture = {
   };
 
   /** Spawn configuration used for this worker repo. */
-  readonly config: t.CrdtWorkerSpawnConfigFs;
+  readonly config: t.CrdtWorkerConfigFs;
 
   /** Underlying MessagePort used for repo RPC and commands. */
   readonly port: MessagePort;

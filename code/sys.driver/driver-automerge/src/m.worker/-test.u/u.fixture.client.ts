@@ -18,7 +18,7 @@ export async function makeWorkerFixture(opts: { silent?: boolean; storage?: bool
   const { silent = true, storage = true } = opts;
 
   const url = new URL('./u.fixture.worker.ts', import.meta.url);
-  const config: t.CrdtWorkerSpawnConfigFs = {
+  const config: t.CrdtWorkerConfigFs = {
     kind: 'fs',
     storage: storage ? `.tmp/test/worker-fixture/${slug()}` : undefined,
     network: [],

@@ -59,15 +59,15 @@ describe('CrdtWorker.Client.spawn (real worker)', () => {
 
     it('creates repo via factory and receives config in worker', async () => {
       const worker = new Worker(url, { type: 'module' });
-      const config: t.CrdtWorkerSpawnConfig = {
+      const config: t.CrdtWorkerConfig = {
         kind: 'fs',
         storage: '.tmp/-worker-factory-config',
         network: [],
       };
 
-      const receivedConfig = new Promise<t.CrdtWorkerSpawnConfig>((resolve) => {
+      const receivedConfig = new Promise<t.CrdtWorkerConfig>((resolve) => {
         const onMessage = (ev: MessageEvent) => {
-          const data = ev.data as { kind?: string; config?: t.CrdtWorkerSpawnConfig } | undefined;
+          const data = ev.data as { kind?: string; config?: t.CrdtWorkerConfig } | undefined;
           if (data?.kind === 'test/config/factory' && data.config) {
             worker.removeEventListener('message', onMessage);
             resolve(data.config);

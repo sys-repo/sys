@@ -16,7 +16,7 @@ export const TestConfig = {
   /**
    * File-system unit-tests.
    */
-  fs(opts: { uniq?: boolean; silent?: boolean } = {}): t.CrdtWorkerSpawnConfigFs {
+  fs(opts: { uniq?: boolean; silent?: boolean } = {}): t.CrdtWorkerConfigFs {
     const { uniq = true, silent } = opts;
     return {
       kind: 'fs',

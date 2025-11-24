@@ -15,7 +15,7 @@ export type CrdtCmdName = 'attach' | 'stats' | 'fs:save';
  * - stats  → document id to inspect.
  */
 export type CrdtCmdPayload = {
-  attach: { config?: t.CrdtWorkerSpawnConfig };
+  attach: { config?: t.CrdtWorkerConfig };
   stats: { doc: t.Crdt.Id };
   'fs:save': { doc: t.Crdt.Id; path: t.StringPath };
 };
