@@ -65,7 +65,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     options: [
       { name: 'Backup (Snapshot)', value: 'snapshot' },
       { name: 'Filter Tasks', value: 'filter:tasks' },
-      { name: '(Forget)', value: 'modify:remove' },
+      { name: '(forget)', value: 'modify:remove' },
       { name: '🐷', value: 'tmp' },
     ],
   })) as t.CrdtCommand;
