@@ -42,11 +42,30 @@ export type CrdtGraphWalkOnRefsArgs = {
 };
 
 /**
+ * Arguments passed to `discoverRefs` for computing outbound edges from a doc.
+ */
+export type CrdtGraphDiscoverRefsArgs = {
+  readonly doc: t.Crdt.Ref;
+  readonly depth: number;
+};
+
+/**
+ * Optional hook to customize how outbound references are discovered
+ * from a given document.
+ *
+ * Return zero or more CRDT ids (sync or async). The walker will treat
+ * these as the DAG edges for that document.
+ */
+export type CrdtGraphDiscoverRefs = (
+  args: CrdtGraphDiscoverRefsArgs,
+) => Promise<t.Ary<t.Crdt.Id>> | t.Ary<t.Crdt.Id>;
+
+/**
  * Configuration for walking a CRDT reference DAG.
  *
  * Starting from a root id:
  * - loads docs via `repo.get()`
- * - resolves outbound `crdt:` references
+ * - resolves outbound references
  * - prevents cycles using `processed[]`
  * - fires structured callbacks for each phase
  */
@@ -60,6 +79,13 @@ export type CrdtGraphWalkArgs<T extends O = O> = {
   readonly onDoc: (args: CrdtGraphWalkOnDocArgs<T>) => void | Promise<void>;
   readonly onSkip?: (args: CrdtGraphWalkOnSkipArgs) => void;
   readonly onRefs?: (args: CrdtGraphWalkOnRefsArgs) => void;
+
+  /**
+   * Optional hook to customize how outbound references are discovered
+   * for each document. If omitted, a default implementation scans
+   * `doc.current` for CRDT URIs using `CrdtIs`/`CrdtId`.
+   */
+  readonly discoverRefs?: CrdtGraphDiscoverRefs;
 };
 
 /**

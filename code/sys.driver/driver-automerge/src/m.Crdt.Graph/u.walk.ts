@@ -1,4 +1,5 @@
-import { type t, Obj, Schedule, CrdtIs, CrdtId } from './common.ts';
+import { type t, Obj, Schedule } from './common.ts';
+import { defaultDiscoverRefs } from './u.defaultDiscoverRefs.ts';
 import { getWithRetry } from './u.getWithRetry.ts';
 
 type O = Record<string, unknown>;
@@ -17,13 +18,15 @@ export const walk: t.CrdtGraphWalk = (args) => walkImpl(args);
  * - `onRefs` : observed outbound refs for each doc
  *
  * Discovery:
- * - Scans `doc.current` for string values that are CRDT URIs (`CrdtIs.uri`).
- * - Normalises them to bare ids via `CrdtId.clean` and uses those as DAG edges.
+ * - By default: scans `doc.current` for string values that are CRDT URIs (`CrdtIs.uri`),
+ *   normalises them via `CrdtId.clean`, and uses those as DAG edges.
+ * - Can be overridden via `discoverRefs` on the walk args.
  */
 async function walkImpl<T extends O = O>(
   args: t.CrdtGraphWalkArgs<T>,
 ): Promise<t.CrdtGraphWalkResult> {
-  const { repo, onDoc, onSkip, onRefs } = args;
+  const { repo, onDoc, onSkip, onRefs, discoverRefs } = args;
+  const edgeDiscovery = discoverRefs ?? defaultDiscoverRefs;
 
   const id = args.id;
   const depth = args.depth ?? 0;
@@ -52,18 +55,10 @@ async function walkImpl<T extends O = O>(
   processed.push(id);
   await onDoc({ depth, doc });
 
-  // 5. Discover outbound references using CrdtIs/CrdtId.
-  const refs: t.Crdt.Id[] = [];
-  Obj.walk(doc.current, (e) => {
-    const value = e.value;
-    if (typeof value !== 'string') return;
-    if (!CrdtIs.uri(value)) return;
-
-    const refId = CrdtId.clean(value);
-    if (!refId) return;
-
-    refs.push(refId);
-  });
+  // 5. Discover outbound references using either the caller-supplied
+  //    `discoverRefs` hook or the default CRDT-URI-based implementation.
+  const refsAry = await edgeDiscovery({ doc, depth });
+  const refs: t.Crdt.Id[] = [...refsAry];
 
   if (refs.length > 0) {
     onRefs?.({ id, depth, refs });
@@ -79,6 +74,7 @@ async function walkImpl<T extends O = O>(
       onDoc,
       onSkip,
       onRefs,
+      discoverRefs,
     });
 
     // Give the event-loop a breath so other work (spinners/UI) can run between docs.
