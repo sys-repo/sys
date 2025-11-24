@@ -1,6 +1,8 @@
 import { type t, Cli, TmplEngine, Args, c, D, Fs, getConfig, Is, Prompt } from './common.ts';
 import { normalize } from './u.config.doc.ts';
 import { Fmt } from './u.fmt.ts';
+import { promptAddServeLocation, promptRemoveDocument } from './u.prompt.ts';
+import { startServing } from './u.serve.ts';
 
 /**
  * Main entry:
@@ -27,14 +29,47 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   await normalize(config);
   const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
 
+  const listing = (config.current.locations ?? []).map((item, i, total) => {
+    const branch = Fmt.Tree.branch([i, total]);
+    let name = `${branch} ${'with:'} ${c.green(item.name)}`;
+    return { name, value: item.dir };
+  });
+
   console.info();
   const A = (await Prompt.Select.prompt<t.ServeCommand>({
     message: 'Choose:\n',
-    options: [{ name: 'add: <directory>', value: 'modify:add' }],
+    options: [{ name: 'add: <serve location>', value: 'modify:add' }, ...listing],
   })) as t.ServeCommand;
 
-  console.log(`-------------------------------------------`);
-  console.log('A', A);
+  if (A === 'modify:add') {
+    await promptAddServeLocation(dir);
+    return done();
+  }
+
+  const location = (config.current.locations ?? []).find((m) => m.dir === A);
+  if (!location) {
+    console.info();
+    console.info(c.yellow(`Could not find a server configuration`));
+    console.info(c.gray(`directory: ${A}`));
+    console.info();
+    return done();
+  }
+
+  const B = (await Prompt.Select.prompt<t.ServeCommand>({
+    message: `with: ${c.gray(location.name)}`,
+    options: [
+      { name: 'Start Serving (HTTP)', value: 'serve:start' },
+      { name: '(Forget)', value: 'modify:remove' },
+    ],
+  })) as t.ServeCommand;
+
+  if (B === 'modify:remove') {
+    await promptRemoveDocument(dir, location);
+  }
+
+  if (B === 'serve:start') {
+    await startServing(location);
+  }
 
   return done();
 }
