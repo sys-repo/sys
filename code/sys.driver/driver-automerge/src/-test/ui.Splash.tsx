@@ -72,7 +72,6 @@ export const Splash: React.FC<SplashProps> = (props) => {
             repo={repo}
             storageKey={`${pkg.name}:splash`}
             onChange={(e) => {
-              console.log('e', e);
               Signal.effect(() => {
                 const doc = e.signals.doc.value;
                 setDoc(doc);

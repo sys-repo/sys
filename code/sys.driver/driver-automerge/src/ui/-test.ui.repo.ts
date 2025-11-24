@@ -3,41 +3,30 @@
  * Safe: CRDT repository setup for web/workers.
  * No UI modules leak into this boundary.
  */
-import { Crdt } from '@sys/driver-automerge/web';
-import { Url } from '@sys/std';
-
+import { Crdt } from '../-exports/-web.ui/mod.ts';
 export { Log, Url } from '@sys/std';
-export { Crdt };
+import { TestConfig } from '../-test.repo.ts';
 
-export { TestConfig } from '../-test.repo.ts';
+export { Crdt, TestConfig };
 
 /**
  * Create "dev" CRDT repository instance:
  */
-export function createUiRepo() {
-  if (!location) throw new Error('UI test repo only');
-
-  const qs = Url.parse(location.href).toURL().searchParams.get('ws');
-  const isLocalhost = location.hostname === 'localhost';
-  const isDev = isLocalhost && location.port !== '8080';
-
-  const repo = Crdt.repo({
-    storage: { database: 'dev.crdt' },
-    network: [
-      qs && { ws: qs },
-      !qs && isDev && { ws: 'localhost:3030' },
-      !qs && !isDev && { ws: 'waiheke.sync.db.team' },
-    ],
-  });
-
+export function createUiRepo(opts: { silent?: boolean } = {}) {
+  const { silent } = opts;
+  const { storage, network } = TestConfig.web({ silent });
+  const repo = Crdt.repo({ storage, network });
   return repo;
 }
 
 /**
  * Spawns a test UI repo on a background web worker.
  */
-export async function spawnUiRepoWorker() {
-  const w = new Worker(new URL('./-test.ui.repo.worker.ts', import.meta.url), { type: 'module' });
-  const { repo } = await Crdt.Worker.Client.spawn(w);
-  return { repo };
+export async function spawnUiRepoWorker(opts: { silent?: boolean } = {}) {
+  const { silent } = opts;
+  const config = TestConfig.web({ silent });
+
+  const url = new URL('./-test.ui.repo.worker.ts', import.meta.url);
+  const { repo } = await Crdt.Worker.Client.spawn(url, { config });
+  return repo;
 }

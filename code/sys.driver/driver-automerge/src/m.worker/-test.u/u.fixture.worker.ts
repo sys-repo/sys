@@ -5,8 +5,8 @@ import { Crdt } from '../../-exports/-fs/mod.ts';
 import { CrdtWorker } from '../mod.ts';
 
 const factory: t.CrdtRepoFactory = async ({ config }) => {
-  if (!config || config.kind !== 'fs') {
-    throw new Error(`Unsupported worker config kind: "${config?.kind ?? 'undefined'}"`);
+  if (config?.kind !== 'fs') {
+    throw new Error(`Unsupported worker config kind: "${config?.kind}"`);
   }
 
   const dir = config.storage ?? '.tmp/test/crdt-worker';

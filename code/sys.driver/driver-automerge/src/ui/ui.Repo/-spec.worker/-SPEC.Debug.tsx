@@ -37,7 +37,7 @@ export async function createDebugSignals() {
 
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
-  const { repo } = await spawnUiRepoWorker();
+  const repo = await spawnUiRepoWorker();
 
   const props = {
     rev: s(0),

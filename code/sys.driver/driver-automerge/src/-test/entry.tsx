@@ -60,7 +60,7 @@ export async function main() {
     const { useKeyboard } = await import('@sys/ui-react-devharness');
     const { spawnUiRepoWorker } = await import('../ui/-test.ui.repo.ts');
     const { Splash } = await import('./ui.Splash.tsx');
-    const { repo } = await spawnUiRepoWorker();
+    const repo = await spawnUiRepoWorker();
 
     function App() {
       useKeyboard();

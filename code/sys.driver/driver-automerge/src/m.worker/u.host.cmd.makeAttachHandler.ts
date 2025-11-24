@@ -1,8 +1,12 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 import { attachRepo } from './u.host.attach.repo.ts';
 
 type Methods = t.CrdtCmdHandlers;
-type Args = { port: MessagePort; repo?: t.CrdtRepo; factory?: t.CrdtRepoFactory };
+type Args = {
+  port: MessagePort;
+  repo?: t.CrdtRepo;
+  factory?: t.CrdtRepoFactory;
+};
 
 export function makeAttachHandler(
   args: Args,

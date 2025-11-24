@@ -7,12 +7,12 @@ export type CrdtWorkerConfig = CrdtWorkerConfigFs | CrdtWorkerWebConfig;
 export type CrdtWorkerConfigFs = {
   kind: 'fs';
   storage?: t.StringDir;
-  network?: t.CrdtWebsocketNetworkArg[] | t.Falsy;
+  network?: (t.CrdtWebsocketNetworkArg | t.Falsy)[];
   silent?: boolean;
 };
 export type CrdtWorkerWebConfig = {
   kind: 'web';
   storage?: t.CrdtWebStorageArg;
-  network?: t.CrdtWebsocketNetworkArg[] | t.Falsy;
+  network?: (t.CrdtWebsocketNetworkArg | t.Falsy)[];
   silent?: boolean;
 };
