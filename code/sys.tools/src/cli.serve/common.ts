@@ -15,26 +15,6 @@ export const D = {
     filename: '-serve.config.json',
     doc: JsonFile.default<t.ServeConfigDoc>({ name: toolname }),
   },
-  mime: {
-    images: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
-    videos: ['video/webm', 'video/mp4'],
-    documents: ['application/pdf', 'application/json', 'application/yaml'],
-    get extensionMap(): Record<string, string> {
-      const extForMime: Record<string, readonly string[]> = {
-        'image/png': ['png'],
-        'image/jpeg': ['jpg', 'jpeg'],
-        'image/webp': ['webp'],
-        'image/svg+xml': ['svg'],
-        'video/webm': ['webm'],
-        'video/mp4': ['mp4'],
-        'application/pdf': ['pdf'],
-        'application/json': ['json'],
-        'application/yaml': ['yaml', 'yml'],
-      };
-      const entries = Object.entries(extForMime);
-      return Object.fromEntries(entries.flatMap(([mime, exts]) => exts.map((ext) => [ext, mime])));
-    },
-  },
 } as const;
 
 /**

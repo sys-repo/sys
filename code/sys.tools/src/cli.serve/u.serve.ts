@@ -1,15 +1,17 @@
-import { type t, D, Fs, Str, HttpServer, Net, pkg, Pkg, Cli } from './common.ts';
+import { type t, Cli, Fs, HttpServer, Net, Str } from './common.ts';
+import { Fmt } from './u.fmt.ts';
+import { Mime } from './u.mime.ts';
 
 const Tree = Cli.Fmt.Tree;
 
-export async function startServing(location: t.ServeConfigLocation): Promise<void> {
-  const { dir, types } = location;
+export async function startServing(location: t.ServeDirConfig): Promise<void> {
+  const { dir, contentTypes } = location;
 
   /**
    * Map extensions → MIME types (subset of ServeType).
    */
-  const mimeByExt = D.mime.extensionMap;
-  const allowedMimes = new Set<string>(types);
+  const mimeByExt = Mime.extensionMap;
+  const allowedMimes = new Set<string>(contentTypes);
   const app = HttpServer.create({ static: false });
 
   app.use('*', async (c) => {
@@ -19,32 +21,13 @@ export async function startServing(location: t.ServeConfigLocation): Promise<voi
     const rel = reqPath.startsWith('/') ? reqPath.slice(1) : reqPath;
     const filePath = `${dir}/${rel}`;
 
-    const notFound = () => {
-      const str = Str.builder()
-        .line('404 - Not found')
-        .line(`path: ${reqPath}`)
-        .line()
-        .line(`Serving from: ${dir}`)
-        .line(` ${Tree.vert}`);
-
-      let i = 0;
-      for (const mime of allowedMimes) {
-        i++;
-        const isLast = i === allowedMimes.size;
-        str.line(` ${Tree.branch(isLast)} ${mime}`);
-      }
-
-      str
-        //
-        .line()
-        .line()
-        .line(`module: ${pkg.name}/serve@${pkg.version}`);
-
-      return String(str);
+    const notFound = async () => {
+      const tree = await Fmt.folderAsText({ dir, reqPath });
+      return tree;
     };
 
     const stat = await Fs.stat(filePath);
-    if (!stat?.isFile) return c.text(notFound(), 404);
+    if (!stat?.isFile) return c.text(await notFound(), 404);
 
     // Extract extension.
     const dotIndex = reqPath.lastIndexOf('.');
@@ -52,7 +35,7 @@ export async function startServing(location: t.ServeConfigLocation): Promise<voi
     const mime = mimeByExt[ext];
 
     // Only allow the configured serve types.
-    if (!mime || !allowedMimes.has(mime)) return c.text(notFound(), 404);
+    if (!mime || !allowedMimes.has(mime)) return c.text(await notFound(), 404);
 
     // Load and serve manually.
     const file = await Fs.read(filePath);

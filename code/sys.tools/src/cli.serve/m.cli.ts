@@ -29,16 +29,16 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   await normalize(config);
   const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
 
-  const listing = (config.current.locations ?? []).map((item, i, total) => {
+  const listing = (config.current.dirs ?? []).map((item, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
-    let name = `${branch} ${'with:'} ${c.green(item.name)}`;
+    let name = ` ${branch} ${'serve:'} ${c.green(item.name)}`;
     return { name, value: item.dir };
   });
 
   console.info();
   const A = (await Prompt.Select.prompt<t.ServeCommand>({
-    message: 'Choose:\n',
-    options: [{ name: 'add: <serve location>', value: 'modify:add' }, ...listing],
+    message: 'Action:',
+    options: [{ name: '(+) serve from new <directory>', value: 'modify:add' }, ...listing],
   })) as t.ServeCommand;
 
   if (A === 'modify:add') {
@@ -46,7 +46,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     return done();
   }
 
-  const location = (config.current.locations ?? []).find((m) => m.dir === A);
+  const location = (config.current.dirs ?? []).find((m) => m.dir === A);
   if (!location) {
     console.info();
     console.info(c.yellow(`Could not find a server configuration`));
@@ -58,8 +58,8 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   const B = (await Prompt.Select.prompt<t.ServeCommand>({
     message: `with: ${c.gray(location.name)}`,
     options: [
-      { name: 'Start Serving (HTTP)', value: 'serve:start' },
-      { name: '(Forget)', value: 'modify:remove' },
+      { name: 'Start HTTP server', value: 'serve:start' },
+      { name: '(forget)', value: 'modify:remove' },
     ],
   })) as t.ServeCommand;
 

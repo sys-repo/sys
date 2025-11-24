@@ -1,4 +1,5 @@
-import { type t, Fs, c, Delete, getConfig, Prompt, Time, D } from './common.ts';
+import { type t, c, Fs, getConfig, Prompt, Time } from './common.ts';
+import { Mime } from './u.mime.ts';
 
 /**
  * Add a document to the config.
@@ -7,7 +8,7 @@ export async function promptAddServeLocation(dir: t.StringDir) {
   const config = await getConfig(dir);
 
   let path = await Prompt.Input.prompt({
-    message: 'Serve from directory (or Enter to use current)',
+    message: 'Directory (or Enter to use current)',
     async validate(value) {
       const path = value.trim() || dir;
       const stats = await Fs.stat(path);
@@ -15,7 +16,7 @@ export async function promptAddServeLocation(dir: t.StringDir) {
       if (!stats) return `Path does not exist ${current}`;
       if (!stats?.isDirectory) return 'Path is not a directory';
 
-      const alreadyExists = (config.current.locations ?? []).find((item) => item.dir === path);
+      const alreadyExists = (config.current.dirs ?? []).find((item) => item.dir === path);
       if (alreadyExists) return `Path already added ${current}`;
 
       return true;
@@ -23,12 +24,14 @@ export async function promptAddServeLocation(dir: t.StringDir) {
   });
   path = path.trim() || dir;
 
-  const selectedTypes = await Prompt.Checkbox.prompt({
-    message: 'File types\n',
+  const selectedGroups = await Prompt.Checkbox.prompt({
+    message: '\nAllowed MIME-types',
     options: [
       { name: 'images (png, jpeg, webp, svg)', value: 'images', checked: true },
-      { name: 'videos (webm, mp4)', value: 'video', checked: true },
-      { name: 'documents (pdf, json)', value: 'documents', checked: true },
+      { name: 'videos (webm, mp4)', value: 'videos', checked: true },
+      { name: 'documents (pdf, json, yaml)', value: 'documents', checked: true },
+      { name: 'code (js, wasm)', value: 'code', checked: true },
+      { name: 'text (txt, html)', value: 'text', checked: true },
     ],
     check: c.green('●'),
     uncheck: c.gray('○'),
@@ -42,20 +45,23 @@ export async function promptAddServeLocation(dir: t.StringDir) {
     },
   });
 
-  function update(location: Partial<t.ServeConfigLocation>): t.ServeConfigLocation {
+  function update(location: Partial<t.ServeDirConfig>): t.ServeDirConfig {
     location.dir = path;
-    const types = location.types || (location.types = []);
-    if (selectedTypes.includes('images')) types.push(...D.mime.images);
-    if (selectedTypes.includes('videos')) types.push(...D.mime.videos);
-    if (selectedTypes.includes('documents')) types.push(...D.mime.documents);
-    location.types = types;
+    const types: t.MimeType[] = [];
+    const groups = selectedGroups as readonly t.MimeGroup[];
+
+    for (const group of groups) {
+      types.push(...Mime.groups[group]);
+    }
+    location.contentTypes = types;
     location.name = name;
-    return location as t.ServeConfigLocation;
+
+    return location as t.ServeDirConfig;
   }
 
   config.change((d) => {
     const now = Time.now.timestamp;
-    const locations = d.locations || (d.locations = []);
+    const locations = d.dirs || (d.dirs = []);
     const index = locations.findIndex((item) => item.dir === path);
     if (index > -1) {
       locations[index].modifiedAt = now;
@@ -63,7 +69,7 @@ export async function promptAddServeLocation(dir: t.StringDir) {
     } else {
       locations.push(update({ createdAt: now }));
     }
-    d.locations = locations;
+    d.dirs = locations;
   });
 
   await config.fs.save();
@@ -73,13 +79,14 @@ export async function promptAddServeLocation(dir: t.StringDir) {
 /**
  * Remove a document from the config.
  */
-export async function promptRemoveDocument(dir: t.StringDir, location: t.ServeConfigLocation) {
+export async function promptRemoveDocument(dir: t.StringDir, location: t.ServeDirConfig) {
   const config = await getConfig(dir);
-  const ok = await Prompt.Confirm.prompt('Are you sure?');
+  const ok = await Prompt.Confirm.prompt('Are you sure? Remove this directory from your config?');
   if (!ok) return;
 
   config.change((d) => {
-    d.locations = (d.locations ?? []).filter((item) => item.dir !== location.dir);
+    d.dirs = (d.dirs ?? []).filter(({ dir }) => dir !== location.dir);
   });
+
   await config.fs.save();
 }

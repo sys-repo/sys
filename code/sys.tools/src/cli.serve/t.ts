@@ -22,24 +22,39 @@ export type ServeCliArgs = t.ToolsCliArgs;
 export type ServeConfig = t.JsonFile<ServeConfigDoc>;
 export type ServeConfigDoc = t.JsonFileDoc & {
   name: string;
-  locations?: ServeConfigLocation[];
+  dirs?: ServeDirConfig[];
 };
 
-export type ServeConfigLocation = {
+export type ServeDirConfig = {
+  name: string; // Display name
   dir: t.StringDir;
-  name: string;
-  types: ServeType[];
+  contentTypes: MimeType[];
   createdAt: t.UnixTimestamp;
   modifiedAt?: t.UnixTimestamp;
 };
 
-export type ServeType =
+/**
+ * Allowed MIME types for static asset responses.
+ */
+export type MimeGroup = 'images' | 'videos' | 'documents' | 'code' | 'text';
+export type MimeType =
+  // Text / docs:
+  | 'text/plain'
+  | 'text/html'
+  | 'application/json'
+  | 'application/pdf'
+  | 'application/yaml'
+
+  // JS / WASM:
+  | 'application/javascript'
+  | 'application/wasm'
+
+  // Images:
   | 'image/png'
   | 'image/jpeg'
   | 'image/webp'
   | 'image/svg+xml'
+
+  // Video:
   | 'video/webm'
-  | 'video/mp4'
-  | 'application/pdf'
-  | 'application/json'
-  | 'application/yaml';
+  | 'video/mp4';
