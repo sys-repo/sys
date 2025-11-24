@@ -27,6 +27,8 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
     maxPayload = 16 * 1024 * 1024, // 16MB
   } = options;
 
+  installBrokenPipeTrap(silent);
+
   // Establish port to use.
   const port = Is.number(options.port) ? Net.port(options.port) : Net.port();
   if (Is.number(options.port) && options.port !== port) {
@@ -78,12 +80,11 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
   });
 
   // Observability on low-level server errors:
-  wss.on('error', (err: unknown) => console.error('[wss:error]', err));
+  wss.on('error', (err: unknown) => logWssError('[wss:error]', err, silent));
+  wss.on('wsClientError', (err: unknown) => logWssError('[wss:error:client]', err, silent));
 
   // Custom headers handshake:
-  wss.on('headers', (headers: string[]) => {
-    headers.push(`sys-pkg: ${Pkg.toString(pkg)}`);
-  });
+  wss.on('headers', (headers: string[]) => headers.push(`sys-pkg: ${Pkg.toString(pkg)}`));
 
   // Initialize the Automerge network and repo:
   let network: NodeWSServerAdapter;
@@ -100,10 +101,6 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
     } catch {}
     throw err;
   }
-
-  // Low level error logging.
-  wss.on('error', (err: unknown) => console.error('[wss:error]', err));
-  wss.on('wsClientError', (err: unknown) => console.error('[wss:error:client]', err));
 
   /**
    * Lifecycle:
@@ -173,4 +170,41 @@ async function probeListen(
     throw new Error(`Failed to start server on ${host}:${port}`, { cause: res.error });
   }
   res.socket.close();
+}
+
+/**
+ * Helpers:
+ */
+function isBrokenPipeError(err: unknown): boolean {
+  if (err instanceof Deno.errors.BrokenPipe) return true;
+  if (typeof err === 'object' && err !== null) {
+    const code = (err as { code?: unknown }).code;
+    if (code === 'EPIPE') return true;
+  }
+  return false;
+}
+
+function logWssError(prefix: string, err: unknown, silent?: boolean) {
+  if (isBrokenPipeError(err)) {
+    if (!silent) console.info(`${prefix} [broken-pipe]`);
+    return;
+  }
+  console.error(prefix, err);
+}
+
+/**
+ * Suppresses unhandled BrokenPipe/EPIPE rejections from dropped WS peers.
+ * Safe: BrokenPipe only indicates a closed peer socket, not data loss.
+ */
+let brokenPipeTrapInstalled = false;
+function installBrokenPipeTrap(silent?: boolean) {
+  if (brokenPipeTrapInstalled) return;
+  brokenPipeTrapInstalled = true;
+  globalThis.addEventListener('unhandledrejection', (event) => {
+    if (isBrokenPipeError(event.reason)) {
+      // Treat as normal disconnect: don’t crash the server.
+      event.preventDefault();
+      if (!silent) console.info('[unhandledrejection][broken-pipe] peer disconnected during send');
+    }
+  });
 }
