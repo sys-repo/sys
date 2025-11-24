@@ -5,6 +5,7 @@ import { findTasks } from './cmd.tasks/mod.ts';
 import { normalize } from './u.config.doc.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
+import { tmp } from './u.tmp.ts';
 import { CrdtUri } from './u.ts';
 
 /**
@@ -65,6 +66,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
       { name: 'Backup (Snapshot)', value: 'snapshot' },
       { name: 'Filter Tasks', value: 'filter:tasks' },
       { name: '(Forget)', value: 'modify:remove' },
+      { name: '🐷', value: 'tmp' },
     ],
   })) as t.CrdtCommand;
 
@@ -80,6 +82,11 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
 
   if (B === 'modify:remove') {
     await promptRemoveDocument(dir, id);
+    return done();
+  }
+
+  if (B === 'tmp') {
+    await tmp(dir, id);
     return done();
   }
 

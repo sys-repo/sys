@@ -1,4 +1,4 @@
-import { type t, Crdt, Fs, Time, slug } from '../common.ts';
+import { type t, Crdt, Fs, Is, Obj, slug, Time, Yaml } from '../common.ts';
 import { saveDoc } from './u.saveDoc.ts';
 
 const sumBytes = (values: readonly number[]) => values.reduce((total, n) => total + n, 0);
@@ -62,10 +62,28 @@ export async function process(args: Args): Promise<ProcessResult> {
     onRefs({ id, refs }) {
       emit({ kind: 'doc:refs', id, refs });
     },
+
+    discoverRefs({ doc }) {
+      const path = ['slug'];
+
+      const yaml = Obj.Path.get<string>(doc.current, path);
+      if (!Is.string(yaml)) return [];
+
+      const obj = Yaml.parse(yaml).data;
+      if (!Obj.isRecord(obj)) return [];
+
+      const refs: t.Crdt.Id[] = [];
+      Obj.walk(obj, (e) => {
+        const id = Crdt.Id.fromUri(e.value);
+        if (id) refs.push(id);
+      });
+
+      return refs;
+    },
   });
 
+  // Finish up:
   emit({ kind: 'complete', rootId, dir, processed });
-
   return {
     dir,
     processed,

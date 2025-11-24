@@ -1,4 +1,6 @@
-import { type t, D, Fs, Str, HttpServer, Net } from './common.ts';
+import { type t, D, Fs, Str, HttpServer, Net, pkg, Pkg, Cli } from './common.ts';
+
+const Tree = Cli.Fmt.Tree;
 
 export async function startServing(location: t.ServeConfigLocation): Promise<void> {
   const { dir, types } = location;
@@ -18,7 +20,26 @@ export async function startServing(location: t.ServeConfigLocation): Promise<voi
     const filePath = `${dir}/${rel}`;
 
     const notFound = () => {
-      const str = Str.builder().line('404 - Not found').line(`Serving from ${dir}`);
+      const str = Str.builder()
+        .line('404 - Not found')
+        .line(`path: ${reqPath}`)
+        .line()
+        .line(`Serving from: ${dir}`)
+        .line(` ${Tree.vert}`);
+
+      let i = 0;
+      for (const mime of allowedMimes) {
+        i++;
+        const isLast = i === allowedMimes.size;
+        str.line(` ${Tree.branch(isLast)} ${mime}`);
+      }
+
+      str
+        //
+        .line()
+        .line()
+        .line(`module: ${pkg.name}/serve@${pkg.version}`);
+
       return String(str);
     };
 
