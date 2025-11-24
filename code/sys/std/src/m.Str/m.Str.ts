@@ -5,6 +5,7 @@ import { builder } from './u.builder.ts';
 import { bytes } from './u.bytes.ts';
 import { camelToKebab } from './u.camelToKebab.ts';
 import { capitalize } from './u.caps.ts';
+import { count } from './u.count.ts';
 import { dedent } from './u.dedent.ts';
 import { diff } from './u.diff.ts';
 import { ellipsize } from './u.ellipsize.ts';
@@ -29,5 +30,6 @@ export const Str: t.StrLib = {
   replaceAll,
   dedent,
   trimEdgeNewlines,
+  count,
   builder,
 } as const;

@@ -91,6 +91,9 @@ export type StrLib = {
    */
   trimEdgeNewlines(str?: string): string;
 
+  /** Count non-overlapping occurrences of a substring. */
+  count(text: string, sub: string): number;
+
   /** Create a new string builder. */
   builder(): t.StrBuilder;
 };
