@@ -67,16 +67,22 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
     throw new Error(`Failed to create WebSocketServer on ${host}:${port}`, { cause });
   }
 
-  // Enforce max-clients:
-  wss.on('connection', (ws: WebSocket) => {
+  // Enforce max-clients and attach per-socket error logging.
+  wss.on('connection', (socket: WebSocket) => {
+    // Guard against overload.
     if (wss.clients.size > maxClients) {
       try {
-        ws.close(1013, 'server overloaded');
+        socket.close(1013, 'server overloaded');
       } catch {}
       try {
-        ws.terminate?.();
+        socket.terminate?.();
       } catch {}
+      return;
     }
+
+    // Ensure socket-level protocol errors (eg. max payload, broken pipe)
+    // are logged and do not crash the process.
+    socket.on('error', (err: unknown) => logWssError('[ws:error]', err, silent));
   });
 
   // Observability on low-level server errors:
@@ -121,7 +127,7 @@ export const ws: t.SyncServerLib['ws'] = async (options = {}) => {
    */
   await probeListen(port, host, { attempts: 5, delay: 200, backoff: 1.5 });
 
-  // Best-effort address; if the probe socket doesn’t surface addr, synthesize.
+  // Best-effort address; if the probe socket doesn't surface addr, synthesize.
   const addr = { hostname: host, port } as unknown as Deno.NetAddr;
 
   /**
@@ -175,6 +181,12 @@ async function probeListen(
 /**
  * Helpers:
  */
+function isMaxPayloadError(err: unknown): boolean {
+  if (!(err instanceof RangeError)) return false;
+  if (typeof err.message !== 'string') return false;
+  return err.message.includes('Max payload size exceeded');
+}
+
 function isBrokenPipeError(err: unknown): boolean {
   if (err instanceof Deno.errors.BrokenPipe) return true;
   if (typeof err === 'object' && err !== null) {
@@ -189,6 +201,12 @@ function logWssError(prefix: string, err: unknown, silent?: boolean) {
     if (!silent) console.info(`${prefix} [broken-pipe]`);
     return;
   }
+
+  if (isMaxPayloadError(err)) {
+    if (!silent) console.error(`${prefix} [max-payload]`, err);
+    return;
+  }
+
   console.error(prefix, err);
 }
 
@@ -202,9 +220,11 @@ function installBrokenPipeTrap(silent?: boolean) {
   brokenPipeTrapInstalled = true;
   globalThis.addEventListener('unhandledrejection', (event) => {
     if (isBrokenPipeError(event.reason)) {
-      // Treat as normal disconnect: don’t crash the server.
+      // Treat as normal disconnect: don't crash the server.
       event.preventDefault();
-      if (!silent) console.info('[unhandledrejection][broken-pipe] peer disconnected during send');
+      if (!silent) {
+        console.info('[unhandledrejection][broken-pipe] peer disconnected during send');
+      }
     }
   });
 }
