@@ -1,11 +1,12 @@
 import { type t, Args, c, D, Fs, getConfig, Is, Prompt } from './common.ts';
 
+import { tmp } from './-u.tmp.ts';
 import { snapshot } from './cmd.snapshot/mod.ts';
+import { SyncTools } from './cmd.sync/mod.ts';
 import { findTasks } from './cmd.tasks/mod.ts';
 import { normalize } from './u.config.doc.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
-import { tmp } from './-u.tmp.ts';
 import { CrdtUri } from './u.ts';
 
 /**
@@ -57,7 +58,8 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
       options: [
         { name: '  add: <document>', value: 'modify:add' },
         ...listing,
-        { name: '(quit)', value: 'quit' },
+        { name: ' Sync Tools', value: 'sync' },
+        { name: c.gray('(quit)'), value: 'quit' },
       ],
     })) as t.CrdtCommand;
 
@@ -68,51 +70,57 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
       id = res.id;
     }
 
-    if (!id) return done(0);
+    // if (!id) return done(0);
     if (A === 'quit') return done(0);
 
     /** --------------------------------------------------------
      * Document Menu
      */
     {
-      const B = (await Prompt.Select.prompt<t.CrdtCommand>({
-        message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
-        options: [
-          { name: ' 🐷', value: 'tmp:🐷' },
-          { name: ' Backup (Snapshot)', value: 'snapshot' },
-          { name: ' Filter Tasks', value: 'filter:tasks' },
-          { name: '(forget)', value: 'modify:remove' },
-        ],
-      })) as t.CrdtCommand;
+      if (A.startsWith('crdt:')) {
+        const B = (await Prompt.Select.prompt<t.CrdtCommand>({
+          message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
+          options: [
+            { name: ' 🐷', value: 'tmp:🐷' },
+            { name: ' Backup (Snapshot)', value: 'snapshot' },
+            { name: ' Filter Tasks', value: 'filter:tasks' },
+            { name: '(forget)', value: 'modify:remove' },
+          ],
+        })) as t.CrdtCommand;
 
-      if (B === 'snapshot') {
-        await snapshot(dir, id);
-        return done(0);
+        if (B === 'snapshot') {
+          await snapshot(dir, id);
+          return done(0);
+        }
+
+        if (B === 'filter:tasks') {
+          findTasks(dir, id);
+          return done(0);
+        }
+
+        if (B === 'modify:remove') {
+          await promptRemoveDocument(dir, id);
+          return done(0);
+        }
+
+        if (B === 'tmp:🐷') {
+          await tmp(dir, id);
+          return done(0);
+        }
+
+        if (B === 'quit') return done(0);
       }
-
-      if (B === 'filter:tasks') {
-        findTasks(dir, id);
-        return done(0);
-      }
-
-      if (B === 'modify:remove') {
-        await promptRemoveDocument(dir, id);
-        return done(0);
-      }
-
-      if (B === 'tmp:🐷') {
-        await tmp(dir, id);
-        return done(0);
-      }
-
-      if (B === 'quit') return done(0);
     }
-  }
 
-  /** --------------------------------------------------------
-   * Sync
-   */
-  {
+    /** --------------------------------------------------------
+     * Sync
+     */
+    {
+      if (A === 'sync') {
+        console.log(`⚡️💦🐷🌳🦄🐌 🍌🧨🌼✨🧫 🫵 🐚👋🧠⚠️❌ 💥👁️💡─ ↑↓←→✔✅•`);
+        await SyncTools.start(dir);
+      }
+    }
   }
 
   // End

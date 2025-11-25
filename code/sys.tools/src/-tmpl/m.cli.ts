@@ -73,7 +73,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
       options: [
         { name: ` Thing ${c.cyan('Ba')}`, value: 'option-ba' },
         { name: ` Thing ${c.cyan('Bb')}`, value: 'option-bb' },
-        { name: '(quit)', value: 'quit' },
+        { name: c.gray('(quit)'), value: 'quit' },
       ],
     })) as t.__NAME__Command;
 

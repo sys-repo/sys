@@ -1,6 +1,6 @@
 import { makeDiscoverRefs } from './cmd.snapshot/mod.ts';
 import { type t, c, Cli, Crdt, Is, Obj, Schedule, Str, Yaml } from './common.ts';
-import { startRepoWorker } from './worker/mod.ts';
+import { startRepoOnWorker } from './worker/mod.ts';
 
 type Todo = { todo: string; comment?: string };
 type TRef = { doc: t.Crdt.Ref; depth: number; backRefs: number; todos?: Todo[] };
@@ -14,7 +14,7 @@ export async function tmp(dir: t.StringDir, id: t.Crdt.Id) {
    * Retrieve the repo.
    */
   const spinner = Cli.spinner();
-  const repo = await startRepoWorker(dir, {
+  const repo = await startRepoOnWorker(dir, {
     // ws: 'localhost:3030',
     silent: true,
   });

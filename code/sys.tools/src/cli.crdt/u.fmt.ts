@@ -34,4 +34,8 @@ export const Fmt = {
 
     return String(str);
   },
+
+  spinnerText(text: string) {
+    return c.italic(c.gray(text));
+  },
 } as const;

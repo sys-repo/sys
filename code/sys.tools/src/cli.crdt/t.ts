@@ -1,9 +1,13 @@
 import type { t } from './common.ts';
 
+/**
+ * Exports:
+ */
 export type * from './cmd.snapshot/t.ts';
+export type * from './cmd.sync/t.ts';
 export type * from './cmd.tasks/t.ts';
 
-/** The various copy options */
+/** The tool's commands */
 export type CrdtCommand =
   | 'snapshot'
   | 'modify:add'

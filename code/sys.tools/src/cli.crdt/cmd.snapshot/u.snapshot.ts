@@ -1,5 +1,5 @@
 import { type t, c, Cli, Crdt, Fs, Str, Time } from '../common.ts';
-import { startRepoWorker } from '../worker/mod.ts';
+import { startRepoOnWorker } from '../worker/mod.ts';
 import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
 import { process } from './u.process.ts';
 
@@ -10,7 +10,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
    * Prepare CRDT repository on background worker.
    */
   const spinner = Cli.spinner();
-  const repo = await startRepoWorker(dir);
+  const repo = await startRepoOnWorker(dir);
   spinner.stop();
 
   /**

@@ -58,7 +58,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   const B = (await Prompt.Select.prompt<t.ServeCommand>({
     message: `With: ${c.gray(location.name)}`,
     options: [
-      { name: 'Start HTTP server', value: 'serve:start' },
+      { name: ' Start HTTP server', value: 'serve:start' },
       { name: '(forget)', value: 'modify:remove' },
     ],
   })) as t.ServeCommand;

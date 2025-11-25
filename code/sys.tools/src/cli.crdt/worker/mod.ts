@@ -1,1 +1,1 @@
-export { startRepoWorker } from './u.repo.ts';
+export { startRepoOnWorker } from './u.repo.ts';

@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-/** The various copy options */
+/** The tool's commands */
 export type FsCommand =
   | 'hash:rename-sha256'
   | 'hash:tidy-sha256-files'

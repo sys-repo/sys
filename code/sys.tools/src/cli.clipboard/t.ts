@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-/** The various copy options */
+/** The tool's commands */
 export type ClipboardCopyAction = 'types' | 'files:select' | 'files:all' | 'files:deno.json';
 
 /**

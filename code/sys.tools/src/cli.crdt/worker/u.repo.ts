@@ -1,6 +1,6 @@
 import { type t, Crdt, D, Fs, Rx } from '../common.ts';
 
-export async function startRepoWorker(
+export async function startRepoOnWorker(
   dir: t.StringDir,
   opts: { silent?: boolean; ws?: string } = {},
 ) {
