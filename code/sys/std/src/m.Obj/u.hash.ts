@@ -1,4 +1,4 @@
-import toHash from 'hash-it';
+import { hash as hashit } from 'hash-it';
 import { type t } from './common.ts';
 
 /**
@@ -6,5 +6,5 @@ import { type t } from './common.ts';
  * "fast, consistent, unique hashCode" on any JS value object.
  */
 export const hash: t.ObjLib['hash'] = <T>(value: T): number => {
-  return toHash<T>(value);
+  return hashit<T>(value);
 };

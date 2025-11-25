@@ -69,7 +69,7 @@ groups:
   ui/react:
     - import: npm:react@19.2.0
     - import: npm:react-dom@19.2.0
-    - import: npm:@types/react@19.2.6
+    - import: npm:@types/react@19.2.7
     - import: npm:@types/react-dom@19.2.3
     - import: npm:@testing-library/react@16.3.0
 
@@ -88,8 +88,8 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.100
-    - import: npm:@ai-sdk/openai@2.0.71
+    - import: npm:ai@5.0.101
+    - import: npm:@ai-sdk/openai@2.0.72
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.5
       subpaths: ['agent', 'memory', 'storage']
@@ -126,7 +126,7 @@ deno.json:
   - import: npm:@farcaster/frame-sdk@0.1.12
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.0.10
-  - import: npm:hash-it@6.0.1
+  - import: npm:hash-it@7.0.1
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.0.0
   - import: npm:@preact/signals-core@1.12.1
