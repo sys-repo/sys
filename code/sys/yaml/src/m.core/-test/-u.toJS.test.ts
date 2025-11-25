@@ -63,7 +63,7 @@ describe('Yaml.toJS', () => {
     ).to.eql(true);
   });
 
-  it('zero-throw invariant: never throws regardless of input', () => {
+  it('zero-throw invariant: never throws regardless of input (document)', () => {
     const cases = [``, `foo: 1`, `- a\n- b`, `slug: *missing`];
     for (const src of cases) {
       const doc = Yaml.parseAst(src);
@@ -89,5 +89,83 @@ describe('Yaml.toJS', () => {
     }
     expectTypeOf(res.data).toEqualTypeOf<{ x: number } | undefined>();
     expect(res.data?.x).to.eql(1);
+  });
+
+  it('accepts a scalar node (subtree) as input', () => {
+    const src = `
+      foo: 123
+    `;
+    const doc = Yaml.parseAst(src) as any;
+    const root = doc.contents;
+    const pair = root.items.find((p: any) => p?.key?.value === 'foo');
+    const scalarNode = pair.value;
+
+    const res = Yaml.toJS<number>(scalarNode);
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors.length).to.eql(0);
+    expect(res.data).to.eql(123);
+    expectTypeOf(res.data).toEqualTypeOf<number | undefined>();
+  });
+
+  it('accepts a sequence node (subtree) as input', () => {
+    const src = `
+      list:
+        - first
+        - second
+    `;
+    const doc = Yaml.parseAst(src) as any;
+    const root = doc.contents;
+    const listPair = root.items.find((p: any) => p?.key?.value === 'list');
+    const seqNode = listPair.value;
+
+    const res = Yaml.toJS<string[]>(seqNode);
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors.length).to.eql(0);
+    expect(res.data).to.eql(['first', 'second']);
+    expectTypeOf(res.data).toEqualTypeOf<string[] | undefined>();
+  });
+
+  it('zero-throw invariant: never throws when given subtree nodes', () => {
+    const src = `
+      root:
+        list:
+          - a
+          - b
+        map:
+          x: 1
+          y: 2
+        aliasRef: *missing
+    `;
+    const doc = Yaml.parseAst(src) as any;
+    const root = doc.contents;
+
+    const listPair = root.items.find((p: any) => p?.key?.value === 'list');
+    const mapPair = root.items.find((p: any) => p?.key?.value === 'map');
+    const aliasPair = root.items.find((p: any) => p?.key?.value === 'aliasRef');
+
+    const nodes = [root, listPair?.value, mapPair?.value, aliasPair?.value].filter(Boolean);
+
+    for (const node of nodes) {
+      let crashed = false;
+      try {
+        void Yaml.toJS(node);
+      } catch {
+        crashed = true;
+      }
+      expect(crashed).to.eql(false, 'toJS should not throw for subtree node');
+    }
+  });
+
+  it('pair node input yields ok:true and undefined data', () => {
+    const src = `foo: 1`;
+    const doc = Yaml.parseAst(src) as any;
+    const root = doc.contents;
+    const pair = root.items[0]; // YAML Pair
+
+    const res = Yaml.toJS(pair);
+    expect(res.ok).to.eql(true);
+    expect(res.data).to.eql(undefined);
   });
 });

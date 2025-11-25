@@ -8,17 +8,32 @@ import type { t } from './common.ts';
 export type YamlAst = Omit<Y.Document.Parsed, 'toJS'>;
 
 /**
- * Safely converts a parsed YAML AST into a JavaScript value.
+ * Inputs accepted by `Yaml.toJS`:
+ * - full parsed document (`YamlAst`)
+ * - AST node (`Yaml.Node`)
+ * - collection pair node (`Yaml.Pair`)
+ *
+ * When given a document, we delegate to the underlying `Document.toJS`
+ * and preserve alias error semantics (may yield `ok: false` with diagnostics).
+ *
+ * When given a node/pair, we convert that subtree only:
+ *   - Scalars → primitive values
+ *   - Sequences → JS arrays (recursive)
+ *   - Maps → JS objects (string keys, recursive)
+ *   - Aliases / unknown → `undefined` (but `ok` remains `true`)
+ */
+export type YamlToJsInput = t.YamlAst | t.Yaml.Node | t.Yaml.Pair;
+
+/**
+ * Safely converts a parsed YAML AST document or subtree into a JavaScript value.
  * Always returns a normalized result object instead of throwing.
  */
-export type YamlToJs = <T = unknown>(doc: t.YamlAst) => YamlToJsResult<T>;
+export type YamlToJs = <T = unknown>(input: YamlToJsInput) => YamlToJsResult<T>;
 export type YamlToJsResult<T = unknown> = {
   /** True if conversion succeeded without errors. */
   readonly ok: boolean;
-
   /** Parsed JavaScript value, present only if `ok` is true. */
   readonly data?: T;
-
   /** Normalized YAML diagnostics (e.g., unresolved alias, parser error). */
   readonly errors: readonly t.YamlDiagnostic[];
 };
@@ -31,7 +46,7 @@ export type YamlAstDocument = t.YamlAst;
 /**
  * Content nodes within a YAML document (things that appear under `doc.contents`).
  */
-export type YamlAstContentNode = Y.Scalar | Y.YAMLMap<Y.Node, Y.Node> | Y.YAMLSeq<Y.Node> | Y.Alias;
+export type YamlAstContentNode = t.Yaml.Scalar | t.Yaml.Map | t.Yaml.Seq | t.Yaml.Alias;
 
 /**
  * All nodes that may be visited during a walk.
@@ -45,11 +60,7 @@ export type YamlAstNode = YamlAstContentNode | Y.Pair<Y.Node, Y.Node>;
  * - Collections (Map / Seq)
  * - Pair (for key/value children)
  */
-export type YamlAstParent =
-  | YamlAstDocument
-  | Y.YAMLMap<Y.Node, Y.Node>
-  | Y.YAMLSeq<Y.Node>
-  | Y.Pair<Y.Node, Y.Node>;
+export type YamlAstParent = YamlAstDocument | t.Yaml.Map | t.Yaml.Seq | t.Yaml.Pair;
 
 /**
  * Event payload passed to each visitor call during a YAML AST walk.
