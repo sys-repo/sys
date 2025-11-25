@@ -24,9 +24,6 @@ export const Fmt = {
     const { dir, reqPath, indent = 3, maxDepth = 1 } = args;
     const tree = await Fs.Fmt.treeFromDir(Fs.join(dir, reqPath), { maxDepth, indent });
 
-    console.log('reqPath', reqPath);
-    console.log('Fs.dirname(reqPath)', Fs.dirname(reqPath));
-
     const str = Str.builder()
       .line(Fs.dirname(Fs.join(dir, reqPath)))
       .line()

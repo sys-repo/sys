@@ -27,8 +27,17 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
     const filePath = `${dir}/${rel}`;
 
     const notFound = async (): Promise<string> => {
-      const tree = await Fmt.folderAsText({ dir, reqPath });
-      return tree;
+      try {
+        const tree = await Fmt.folderAsText({ dir, reqPath });
+        return tree;
+      } catch (error) {
+        const msg = Str.builder()
+          .line('404 - Not found')
+          .line(`Serving from ${dir}`)
+          .line(`Path: ${reqPath}`)
+          .toString();
+        return msg;
+      }
     };
 
     const stat = await Fs.stat(filePath);
