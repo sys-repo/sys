@@ -1,4 +1,5 @@
-import { type t, Crdt, Fs, Is, Obj, slug, Time, Yaml } from '../common.ts';
+import { type t, Crdt, Fs, slug, Time } from '../common.ts';
+import { makeDiscoverRefs } from './u.process.discoverRefs.ts';
 import { saveDoc } from './u.saveDoc.ts';
 
 const sumBytes = (values: readonly number[]) => values.reduce((total, n) => total + n, 0);
@@ -7,6 +8,7 @@ type Args = {
   id: t.Crdt.Id;
   repo: t.Crdt.Repo;
   base: t.StringDir;
+  yamlPath: t.ObjectPath;
   now?: t.UnixTimestamp;
   onProgress?: (e: t.CrdtSnapshotProgress) => void;
 };
@@ -57,28 +59,11 @@ export async function process(args: Args): Promise<ProcessResult> {
     },
 
     /**
-     * Ref handler: expose graph edges as snapshot progress events.
+     * Ref handlers.
      */
+    discoverRefs: makeDiscoverRefs(args.yamlPath),
     onRefs({ id, refs }) {
       emit({ kind: 'doc:refs', id, refs });
-    },
-
-    discoverRefs({ doc }) {
-      const path = ['slug'];
-
-      const yaml = Obj.Path.get<string>(doc.current, path);
-      if (!Is.string(yaml)) return [];
-
-      const obj = Yaml.parse(yaml).data;
-      if (!Obj.isRecord(obj)) return [];
-
-      const refs: t.Crdt.Id[] = [];
-      Obj.walk(obj, (e) => {
-        const id = Crdt.Id.fromUri(e.value);
-        if (id) refs.push(id);
-      });
-
-      return refs;
     },
   });
 

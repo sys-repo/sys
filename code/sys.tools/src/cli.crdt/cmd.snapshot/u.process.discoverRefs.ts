@@ -1,0 +1,25 @@
+import { type t, Crdt, Is, Obj, Yaml } from '../common.ts';
+
+/**
+ * Function factory:
+ * Lookup up "crdt:<id>" references within the given document.
+ */
+export function makeDiscoverRefs(path: t.ObjectPath) {
+  const discoverRefs: t.Crdt.Graph.DiscoverRefs = ({ doc }) => {
+    const yaml = Obj.Path.get<string>(doc.current, path);
+    if (!Is.string(yaml)) return [];
+
+    const obj = Yaml.parse(yaml).data;
+    if (!Obj.isRecord(obj)) return [];
+
+    const refs: t.Crdt.Id[] = [];
+    Obj.walk(obj, (e) => {
+      const id = Crdt.Id.fromUri(e.value);
+      if (id) refs.push(id);
+    });
+
+    return refs;
+  };
+
+  return discoverRefs;
+}

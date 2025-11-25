@@ -50,6 +50,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     repo,
     id: rootId,
     base: '-backup',
+    yamlPath: ['slug'],
     onProgress(e) {
       progress.push(e);
       if (e.kind === 'doc:saved') appendTable(tblProc, e);
