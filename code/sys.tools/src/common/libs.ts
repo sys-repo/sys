@@ -1,5 +1,6 @@
 export { Args, Cli, Prompt, c } from '@sys/cli';
 export { Hash } from '@sys/crypto/hash';
+export { Cmd } from '@sys/event/cmd';
 export { Fs, Path, Pkg } from '@sys/fs';
 export { JsonFile } from '@sys/fs/file';
 export { Jsr } from '@sys/jsr';
