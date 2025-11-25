@@ -119,4 +119,76 @@ describe('Yaml.Is', () => {
       expect(Yaml.Is.parseErrorArray([e1, { pos: [0] } as any])).to.eql(false);
     });
   });
+
+  describe('value-node guards (scalar/map/seq/pair/alias)', () => {
+    const yaml = `
+      scalar: hello
+      mapping:
+        key: value
+      seq:
+        - one
+        - two
+      base: &base 123
+      alias: *base
+    `;
+
+    const doc = Yaml.parseAst(yaml);
+    const root = (doc as any).contents as any; // root mapping
+
+    const getPair = (k: string) => root.items.find((p: any) => p?.key?.value === k);
+
+    it('map / seq / pair / scalar / alias → true on correct nodes', () => {
+      // root is a mapping
+      expect(Yaml.Is.map(root)).to.eql(true);
+      expect(Yaml.Is.seq(root)).to.eql(false);
+      expect(Yaml.Is.pair(root)).to.eql(false);
+      expect(Yaml.Is.scalar(root)).to.eql(false);
+      expect(Yaml.Is.alias(root)).to.eql(false);
+
+      // scalar: hello
+      const scalarPair = getPair('scalar');
+      const scalarNode = scalarPair.value;
+      expect(Yaml.Is.pair(scalarPair)).to.eql(true);
+      expect(Yaml.Is.scalar(scalarNode)).to.eql(true);
+      expect(Yaml.Is.map(scalarNode)).to.eql(false);
+      expect(Yaml.Is.seq(scalarNode)).to.eql(false);
+      expect(Yaml.Is.alias(scalarNode)).to.eql(false);
+
+      // mapping:
+      const mappingPair = getPair('mapping');
+      const mappingNode = mappingPair.value;
+      expect(Yaml.Is.map(mappingNode)).to.eql(true);
+      expect(Yaml.Is.seq(mappingNode)).to.eql(false);
+      expect(Yaml.Is.scalar(mappingNode)).to.eql(false);
+      expect(Yaml.Is.alias(mappingNode)).to.eql(false);
+
+      // seq:
+      const seqPair = getPair('seq');
+      const seqNode = seqPair.value;
+      expect(Yaml.Is.seq(seqNode)).to.eql(true);
+      expect(Yaml.Is.map(seqNode)).to.eql(false);
+      expect(Yaml.Is.scalar(seqNode)).to.eql(false);
+      expect(Yaml.Is.alias(seqNode)).to.eql(false);
+
+      // alias:
+      const aliasPair = getPair('alias');
+      const aliasNode = aliasPair.value;
+      expect(Yaml.Is.alias(aliasNode)).to.eql(true);
+      expect(Yaml.Is.scalar(aliasNode)).to.eql(false);
+      expect(Yaml.Is.map(aliasNode)).to.eql(false);
+      expect(Yaml.Is.seq(aliasNode)).to.eql(false);
+    });
+
+    it('guards return false for non-node values', () => {
+      const NON: unknown[] = ['', 123, true, null, undefined, {}, []];
+
+      for (const v of NON) {
+        expect(Yaml.Is.scalar(v)).to.eql(false);
+        expect(Yaml.Is.map(v)).to.eql(false);
+        expect(Yaml.Is.seq(v)).to.eql(false);
+        expect(Yaml.Is.pair(v)).to.eql(false);
+        expect(Yaml.Is.alias(v)).to.eql(false);
+      }
+    });
+  });
 });

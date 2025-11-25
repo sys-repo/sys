@@ -1,4 +1,4 @@
-import { YAMLError } from 'yaml';
+import { YAMLError, isAlias, isMap, isPair, isScalar, isSeq } from 'yaml';
 import { type t, ERR } from './common.ts';
 
 export const Is: t.YamlIsLib = {
@@ -63,4 +63,13 @@ export const Is: t.YamlIsLib = {
   diagnosticArray(input?: unknown): input is t.YamlDiagnostic[] {
     return Array.isArray(input) && input.every((v) => Is.diagnostic(v));
   },
+
+  /**
+   * Value types:
+   */
+  scalar: (input: unknown): input is t.Yaml.Scalar => isScalar(input),
+  map: (input: unknown): input is t.Yaml.Node => isMap(input),
+  seq: (input: unknown): input is t.Yaml.Node => isSeq(input),
+  pair: (input: unknown): input is t.Yaml.Pair => isPair(input),
+  alias: (input: unknown): input is t.Yaml.Node => isAlias(input),
 };
