@@ -8,7 +8,14 @@ import type { t } from './common.ts';
  * command set (e.g. worker commands in @sys/driver-automerge).
  */
 export type CmdLib = {
+  /** Type guards. */
   readonly Is: t.CmdIsLib;
+  /** Transport adapters for wiring Cmd to various message endpoints. */
+  readonly Transport: t.CmdTransportLib;
+
+  /**
+   * Create a typed command instance for a specific command set.
+   */
   make<
     N extends string = t.CmdName,
     P extends t.CmdPayloadMap<N> = t.CmdPayloadMap<N>,
@@ -16,6 +23,14 @@ export type CmdLib = {
   >(
     opts?: t.CmdMakeOptions,
   ): t.CmdInstance<N, P, R>;
+};
+
+/**
+ * Transport adapters for wiring Cmd to various message endpoints.
+ */
+export type CmdTransportLib = {
+  /** Adapt a WebSocket into a CmdEndpoint using JSON-encoded messages. */
+  fromWebSocket(ws: WebSocket): t.CmdEndpoint;
 };
 
 /**
