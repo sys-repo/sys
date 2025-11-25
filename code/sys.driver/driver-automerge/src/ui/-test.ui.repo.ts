@@ -26,7 +26,9 @@ export async function spawnUiRepoWorker(opts: { silent?: boolean } = {}) {
   const { silent } = opts;
   const config = TestConfig.web({ silent });
 
-  const url = new URL('./-test.ui.repo.worker.ts', import.meta.url);
-  const { repo } = await Crdt.Worker.Client.spawn(url, { config });
+  // NB: URL must declared be within Worker constructor for vite to bundle it correctly.
+  const w = new Worker(new URL('./-test.ui.repo.worker.ts', import.meta.url), { type: 'module' });
+  const { repo } = await Crdt.Worker.Client.spawn(w, { config });
+
   return repo;
 }
