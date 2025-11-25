@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+import { attachHost } from './u.attachHost.ts';
 import { fromRepo } from './u.fromRepo.ts';
 import { make } from './u.make.ts';
 
@@ -9,4 +10,5 @@ import { make } from './u.make.ts';
 export const CrdtCmd: t.CrdtCmdLib = {
   make,
   fromRepo,
+  attachHost,
 };

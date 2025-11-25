@@ -1,5 +1,5 @@
 import { type t, CrdtIs, getRepoPort } from './common.ts';
-import { attachCmdHostToPort } from './u.host.ts';
+import { attachHandlers } from './u.attachHandlers.ts';
 import { make } from './u.make.ts';
 
 /**
@@ -29,7 +29,7 @@ function fromProxyRepo(repo: t.Crdt.Repo, until?: t.UntilInput) {
 
 function fromConcreteRepo(repo: t.Crdt.Repo, until: t.UntilInput) {
   const { port1, port2 } = new MessageChannel();
-  const host = attachCmdHostToPort(port1, () => repo);
+  const host = attachHandlers(port1, () => repo);
   const cmd = make();
   const client = cmd.client(port2);
 

@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /**
  * CRDT command RPC library surface.
@@ -9,6 +9,14 @@ export type CrdtCmdLib = {
    * The returned instance exposes `.client(port)` / `.host(port, handlers)`.
    */
   make(): t.CrdtCmdInstance;
+
+  /**
+   * Attach a command host for the given repo to a command endpoint.
+   *
+   * Exposes the CRDT command set of methods over any transport
+   * that satisfies `t.CmdEndpoint` (MessagePort, WebSocket, etc).
+   */
+  attachHost(repo: t.CrdtRepo, endpoint: t.CmdEndpoint, until?: t.UntilInput): t.CmdHost;
 
   /**
    * Derive a command client from a CRDT repo.

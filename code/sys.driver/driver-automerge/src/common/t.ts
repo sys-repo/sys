@@ -16,9 +16,9 @@ export type {
  */
 export type * from '@sys/types';
 
-export type { FsLib } from '@sys/fs/t';
 export type { ColorTheme } from '@sys/color/t';
-export type { CmdClient, CmdHandlers, CmdHost, CmdInstance } from '@sys/event/t';
+export type { CmdClient, CmdEndpoint, CmdHandlers, CmdHost, CmdInstance } from '@sys/event/t';
+export type { FsLib } from '@sys/fs/t';
 export type { HistoryStack, TimeDelayPromise, UnwrapSignals } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
