@@ -1,6 +1,6 @@
 /**
  * @module
- * Sync-server daemon for CRDT repos.
+ * Daemon for CRDT repos.
  *
  * Runs a long-lived local process that hosts a CRDT repo and exposes a
  * typed Cmd control plane over WebSocket, bridging browser clients,
@@ -10,7 +10,7 @@ import { type t, Cli, c, keepAlive } from '../common.ts';
 import { startRepoOnWorker } from '../worker/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
-export const SyncTools = {
+export const RepoDaemon = {
   async start(dir: t.StringDir) {
     console.clear();
 
@@ -22,23 +22,22 @@ export const SyncTools = {
     spinner.stop();
 
     /**
-     * Print
+     * Print.
      */
     console.clear();
     console.info();
-    console.log('🐷 repo', repo);
+    console.info('🐷 repo', repo);
     console.info();
     console.info(c.gray(`(Ctrl-C to exit)`));
 
-    await keepAlive(async (e) => {
-      // Cleanup:
-      spinner.start(Fmt.spinnerText('shutting down...'));
-      await repo.dispose();
-      spinner.stop();
+    await keepAlive(async ({ life }) => {
+      life.dispose$.subscribe({
+        complete: async () => {
+          spinner.start(Fmt.spinnerText('shutting down...'));
+          await repo.dispose();
+          spinner.stop();
+        },
+      });
     });
   },
 } as const;
-
-/**
- * Helpers:
- */

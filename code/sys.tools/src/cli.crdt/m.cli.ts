@@ -2,7 +2,7 @@ import { type t, Args, c, D, Fs, getConfig, Is, Prompt } from './common.ts';
 
 import { tmp } from './-u.tmp.ts';
 import { snapshot } from './cmd.snapshot/mod.ts';
-import { SyncTools } from './cmd.sync/mod.ts';
+import { RepoDaemon } from './cmd.repo/mod.ts';
 import { findTasks } from './cmd.tasks/mod.ts';
 import { normalize } from './u.config.doc.ts';
 import { Fmt } from './u.fmt.ts';
@@ -58,7 +58,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
       options: [
         { name: '  add: <document>', value: 'modify:add' },
         ...listing,
-        { name: ' Sync Tools', value: 'sync' },
+        { name: ' start repository', value: 'repo:start' },
         { name: c.gray('(quit)'), value: 'quit' },
       ],
     })) as t.CrdtCommand;
@@ -113,16 +113,15 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     }
 
     /** --------------------------------------------------------
-     * Sync
+     * Repo
      */
     {
-      if (A === 'sync') {
-        console.log(`⚡️💦🐷🌳🦄🐌 🍌🧨🌼✨🧫 🫵 🐚👋🧠⚠️❌ 💥👁️💡─ ↑↓←→✔✅•`);
-        await SyncTools.start(dir);
+      if (A === 'repo:start') {
+        await RepoDaemon.start(dir);
       }
     }
   }
 
-  // End
+  // End.
   return done(0);
 }

@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Exports:
  */
 export type * from './cmd.snapshot/t.ts';
-export type * from './cmd.sync/t.ts';
+export type * from './cmd.repo/t.ts';
 export type * from './cmd.tasks/t.ts';
 
 /** The tool's commands */
@@ -13,7 +13,7 @@ export type CrdtCommand =
   | 'modify:add'
   | 'modify:remove'
   | 'filter:tasks'
-  | 'sync'
+  | 'repo:start'
   | 'quit'
   | 'tmp:🐷';
 
