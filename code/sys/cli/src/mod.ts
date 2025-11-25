@@ -8,7 +8,6 @@
  * import { c, Colors, stripAnsi } from '@sys/cli/fmt';
  * ```
  */
-import { Cli, Prompt } from './m.Cli/mod.ts';
 export { pkg } from './pkg.ts';
 
 /** Types */
@@ -18,6 +17,4 @@ export type * as t from './types.ts';
  * Library
  */
 export { Args, c, Color, stripAnsi } from './common.ts';
-export { Cli, Prompt };
-
-export default Cli;
+import { Cli, Prompt } from './-exports/-cli.ts';

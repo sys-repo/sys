@@ -1,7 +1,6 @@
-import { Args, Path } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
-
-import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from './mod.ts';
+import { Args, Path } from '../common.ts';
+import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from '@sys/cli/cli';
 import { copyToClipboard } from './u.clipboard.ts';
 
 describe('Cli', () => {
