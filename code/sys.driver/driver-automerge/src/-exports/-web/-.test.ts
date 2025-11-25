@@ -61,14 +61,14 @@ describe('Crdt: web/browser', { sanitizeResources: false, sanitizeOps: false }, 
       expect(a.id.instance).to.not.eql(b.id.instance);
 
       expect(a.id.peer).to.eql(''); // ← no network...no peer-id.
-      expect(b.id.peer.startsWith('repo-peer-')).to.be.true;
+      expect(b.id.peer.startsWith('peer-')).to.be.true;
     });
 
     it('repo: network with <Falsy> in it', () => {
       const repo = Crdt.repo({
         network: [{ ws: 'sync.automerge.org' }, undefined, null, false, 0, ''],
       });
-      expect(repo.id.peer.startsWith('repo-peer-')).to.be.true;
+      expect(repo.id.peer.startsWith('peer-')).to.be.true;
       expect(repo.sync.urls).to.eql(['wss://sync.automerge.org']); // NB: the <undefined> entry filtered out.
     });
   });

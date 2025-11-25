@@ -19,7 +19,7 @@ describe('Crdt: SyncServer', { sanitizeResources: false, sanitizeOps: false }, (
       const port = Testing.randomPort();
       const ws = await Server.ws({ dir, port });
 
-      expect(ws.repo.id.peer.startsWith('repo-peer-')).to.be.true;
+      expect(ws.repo.id.peer.startsWith('peer-')).to.be.true;
       expect(ws.addr.port).to.eql(port);
       expect(await Fs.exists(dir)).to.eql(true);
 

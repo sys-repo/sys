@@ -9,5 +9,5 @@ import { type t, slug } from './common.ts';
  * notice.
  */
 export function createPeerId() {
-  return `repo-peer-${slug()}` as t.PeerId;
+  return `peer-${slug()}` as t.PeerId;
 }
