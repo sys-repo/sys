@@ -6,6 +6,7 @@ import { Prompt } from './m.Prompt.ts';
 import { Spinner } from './m.Spinner.ts';
 import { Table } from './m.Table.ts';
 import { copyToClipboard } from './u.clipboard.ts';
+import { keepAlive } from './u.keepAlive.ts';
 
 /**
  * Tools for the CLI (command-line interfaces):
@@ -28,4 +29,5 @@ export const Cli: t.CliLib = {
   confirm: (options) => Prompt.Confirm.prompt(options),
   stripAnsi,
   copyToClipboard,
+  keepAlive,
 };

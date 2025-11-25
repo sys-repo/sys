@@ -1,4 +1,4 @@
-import { Rx } from './libs.ts';
+import { type t, Rx } from './common.ts';
 
 /**
  * Keep a long-running CLI process alive until disposed.
@@ -6,13 +6,16 @@ import { Rx } from './libs.ts';
  * Installs a SIGINT (Ctrl-C) handler, runs the optional callback with
  * the lifecycle, then blocks until `life.dispose()` is triggered.
  */
-export async function keepAlive(exitCode = 0) {
+export const keepAlive: t.CliLib['keepAlive'] = async (opts = {}) => {
+  const { exitCode = 0, onStart } = opts;
   const life = Rx.lifecycle();
   const onSigint = () => life.dispose();
 
   Deno.addSignalListener('SIGINT', onSigint);
 
   try {
+    if (onStart) await onStart(life);
+
     // Block until disposal (completion of dispose$).
     await new Promise<void>((resolve) => {
       const sub = life.dispose$.subscribe({
@@ -30,4 +33,4 @@ export async function keepAlive(exitCode = 0) {
   // Now that we've signalled shutdown to the rest of the system,
   // actually terminate the process.
   Deno.exit(exitCode);
-}
+};

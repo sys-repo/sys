@@ -49,4 +49,12 @@ export type CliLib = {
 
   /** Copy arbitrary text to the system clipboard from a Deno CLI context. */
   copyToClipboard(text: string): Promise<t.CliCopyResult>;
+
+  /**
+   * Keep a long-running CLI process alive until Ctrl-C.
+   *
+   * Installs a SIGINT handler, forwards it to a lifecycle, waits for
+   * disposal, then exits the process with the given exit code.
+   */
+  keepAlive: (options?: t.CliKeepAliveOptions) => Promise<never>;
 };

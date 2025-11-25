@@ -1,3 +1,8 @@
+export type { Ora as OraSpinner } from 'ora';
+
+/**
+ * Cliffy:
+ */
 export type { keypress as CliffyKeypress } from '@cliffy/keypress';
 export type {
   Checkbox as CliffyCheckbox,
@@ -9,4 +14,4 @@ export type {
   Select as CliffySelect,
   Toggle as CliffyToggle,
 } from '@cliffy/prompt';
-export type { Ora as OraSpinner } from 'ora';
+export type { Table as CliffyTable } from '@cliffy/table';

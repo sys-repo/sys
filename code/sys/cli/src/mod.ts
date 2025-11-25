@@ -17,4 +17,4 @@ export type * as t from './types.ts';
  * Library
  */
 export { Args, c, Color, stripAnsi } from './common.ts';
-import { Cli, Prompt } from './-exports/-cli.ts';
+export { Cli, Prompt, Table } from './-exports/-cli.ts';

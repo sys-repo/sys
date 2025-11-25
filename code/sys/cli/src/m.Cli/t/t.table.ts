@@ -1,12 +1,10 @@
-import type { Table as CliffyTable } from '@cliffy/table';
+import type { CliffyTable } from './t.ext.ts';
 
 /**
  * Tools for working with CLI tables.
  */
 export type CliTableLib = {
-  /**
-   * Create a new Table generator instance.
-   */
+  /** Create a new Table generator instance. */
   create(...items: string[][]): CliTable;
 };
 
