@@ -2,6 +2,7 @@ import type * as Y from 'yaml';
 import type { t } from './common.ts';
 
 export type * from './t.lib.ts';
+export type * from './t.namespace.ts';
 
 export type * from './t.Ast.ts';
 export type * from './t.Diagnostic.ts';
@@ -10,28 +11,6 @@ export type * from './t.Path.ts';
 export type * from './t.Range.ts';
 export type * from './t.Syncer.ts';
 export type * from './t.Value.ts';
-
-/**
- * Concise YAML type namespace.
- */
-export namespace Yaml {
-  // Errors:
-  export type Error = t.YamlError;
-  export type Diagnostic = t.YamlDiagnostic;
-
-  // Position:
-  export type Range = t.YamlRange;
-  export type LinePos = t.YamlLinePos;
-  export type LinePosTuple = t.YamlLinePosTuple;
-
-  // Values:
-  export type Node = Y.Node;
-  export type Pair = Y.Pair;
-  export type Scalar = Y.Scalar;
-
-  // Ast:
-  export type Ast = t.YamlAst;
-}
 
 /**
  * Error reported directly by the YAML parser.

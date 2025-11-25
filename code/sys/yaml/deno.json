@@ -13,6 +13,6 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./core": "./src/m.core/mod.ts"
+    "./core": "./src/-exports/-core.ts"
   }
 }
