@@ -35,7 +35,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     const A = (await Prompt.Select.prompt<t.__NAME__Command>({
       message: 'Choose:\n',
       options: [
-        { name: ' Option A (duplicate `-tmpl` as template)', value: 'option-a' },
+        { name: ` Option A (clone \`-tmpl\` as new ${c.green('<tool>')})`, value: 'option-a' },
         { name: ' Option B', value: 'option-b' },
       ],
     })) as t.__NAME__Command;
@@ -44,8 +44,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     // 🐷 TODO: Replace here ↓
     //
     if (A === 'option-a') {
-      console.log('🐷 A:', A);
-      const dirname = await Cli.Prompt.Input.prompt('Directory Name:');
+      const dirname = await Cli.Prompt.Input.prompt('Clone to directory (name):');
       const dirs = {
         target: Fs.join(dir, dirname),
         source: Fs.dirname(Fs.Path.fromFileUrl(import.meta.url)),
@@ -70,10 +69,10 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
    */
   {
     const B = (await Prompt.Select.prompt<t.__NAME__Command>({
-      message: `with:`,
+      message: `With:`,
       options: [
-        { name: ' Option Ba', value: 'option-ba' },
-        { name: ' Option Bb', value: 'option-bb' },
+        { name: ` Thing ${c.cyan('Ba')}`, value: 'option-ba' },
+        { name: ` Thing ${c.cyan('Bb')}`, value: 'option-bb' },
         { name: '(quit)', value: 'quit' },
       ],
     })) as t.__NAME__Command;
