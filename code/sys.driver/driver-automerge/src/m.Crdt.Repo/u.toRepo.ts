@@ -123,7 +123,7 @@ export function toRepo(
    * API:
    */
   const api: t.CrdtRepo = {
-    id: { peer, instance: `repo-crdt-${slug()}` },
+    id: { peer, instance: `repo-${slug()}` },
     get status(): t.CrdtRepoStatus {
       return { ready: _ready, stalled: false };
     },

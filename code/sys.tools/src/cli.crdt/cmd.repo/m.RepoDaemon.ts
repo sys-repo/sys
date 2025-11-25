@@ -1,15 +1,16 @@
-import { type t, Time, Cli, c, keepAlive, Rx } from '../common.ts';
+import { type t, Cli, keepAlive, Rx, Time } from '../common.ts';
 import { startRepoOnWorker } from '../worker/mod.ts';
 import { Fmt } from './u.fmt.ts';
 
 export const RepoDaemon = {
   async start(dir: t.StringDir) {
-    console.clear();
     const eventlog = new Set<t.CrdtRepoLogEntry>();
+    const port = 49494;
 
     /**
      * Prepare CRDT repository on background worker.
      */
+    console.clear();
     const spinner = Cli.spinner(Fmt.spinnerText('starting repository...'));
     const repo = await startRepoOnWorker(dir);
     const events = repo.events();
@@ -20,7 +21,7 @@ export const RepoDaemon = {
      */
     const print = () => {
       const alive = repo.status.ready && !repo.status.stalled;
-      const screen = Fmt.Repo.screen(repo, alive, [...eventlog]);
+      const screen = Fmt.Repo.screen({ repo, port, alive, events: [...eventlog] });
       console.clear();
       if (!alive) {
         const msg = Fmt.spinnerText(`momentarily stalled...`);
