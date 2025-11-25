@@ -45,28 +45,6 @@ export const Fixture = {
       ws.onerror = (err) => reject(err);
     });
   },
-
-  /**
-   * Create a CmdEndpoint adapter over a MessagePort-like transport.
-   */
-  toEndpoint(input: t.CmdMessagePort | WebSocket): t.CmdEndpoint {
-    const portLike = wrangle.port(input);
-    const listeners = new Set<(event: MessageEvent) => void>();
-
-    portLike.addEventListener('message', (event: unknown) => {
-      const ev = event as MessageEvent;
-      for (const fn of listeners) fn(ev);
-    });
-
-    type H = (event: MessageEvent) => void;
-    return {
-      postMessage: (data: unknown) => portLike.postMessage(data),
-      addEventListener: (_type: 'message', handler: H) => listeners.add(handler),
-      removeEventListener: (_type: 'message', handler: H) => listeners.delete(handler),
-      start: portLike.start,
-      close: portLike.close,
-    };
-  },
 } as const;
 
 /**

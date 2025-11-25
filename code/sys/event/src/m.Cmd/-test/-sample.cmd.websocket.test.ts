@@ -61,18 +61,19 @@ describe('Cmd over WebSocket', () => {
 
   describe('Cmd → WebSocket (host/client)', () => {
     it('roundtrip', async () => {
-      // 🐷 TODO
-      // 1. Setup dynamic port (Net.port()).
-      // 2. Start Deno.serve() with ws upgrade.
-      // 3. Inside upgrade handler → create Cmd.host over portFromWebSocket.
-      // 4. Connect client WebSocket.
-      // 5. Wrap with portFromWebSocket → Cmd.client.
-      // 6. Send one or more commands.
-      // 7. Assert results.
-      // 8. Close client & server sockets.
-      // 9. Abort server.
-      // 10. Await all closure promises.
-      // 🌸🌸 ---------- ADDED: cmd-websocket-host-client ----------
+      /**
+       * Sequence:
+       * 1. Setup dynamic port (Net.port()).
+       * 2. Start Deno.serve() with WebSocket upgrade.
+       * 3. Inside upgrade handler → adapt the WebSocket with fromWebSocket() and create Cmd.host.
+       * 4. Connect client WebSocket.
+       * 5. Adapt client WebSocket with fromWebSocket() and create Cmd.client.
+       * 6. Send one or more commands.
+       * 7. Assert results.
+       * 8. Close client & server sockets.
+       * 9. Abort server.
+       * 10. Await all closure promises.
+       */
       type CmdName = 'ping';
       type CmdPayload = { ping: { count: number } };
       type CmdResult = { ping: { count: number; ok: boolean } };
@@ -85,16 +86,11 @@ describe('Cmd over WebSocket', () => {
 
       Deno.serve({ hostname: '127.0.0.1', port, signal: ac.signal }, (req) => {
         const { socket, response } = Deno.upgradeWebSocket(req);
-        const endpoint = Fixture.toEndpoint(socket);
+        const endpoint = fromWebSocket(socket);
         serverEndpoint = endpoint;
 
-        const host = cmd.host(endpoint, {
-          ping: (e) => ({ ok: true, count: e.count + 1 }),
-        });
-
-        socket.onclose = () => {
-          host.dispose();
-        };
+        const host = cmd.host(endpoint, { ping: (e) => ({ ok: true, count: e.count + 1 }) });
+        socket.onclose = () => host.dispose();
 
         return response;
       });
@@ -103,7 +99,7 @@ describe('Cmd over WebSocket', () => {
       const clientClosed = new Promise<void>((resolve) => (ws.onclose = () => resolve()));
       await Fixture.waitForOpen(ws);
 
-      const clientEndpoint = Fixture.toEndpoint(ws);
+      const clientEndpoint = fromWebSocket(ws);
       const client = cmd.client(clientEndpoint);
 
       const result = await client.send('ping', { count: 41 });
