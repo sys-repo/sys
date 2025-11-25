@@ -1,8 +1,7 @@
 import { type t } from './common.ts';
 
 /**
- * Consolidated state snapshot for a CrdtRepo.
- * Returns undefined when no repo exists.
+ * Consolidated state snapshot for a CRDT Repo.
  */
 export function getStatus(repo: t.Crdt.Repo): t.RepoInfoStatus {
   const ready = !!repo.status.ready;
