@@ -36,7 +36,7 @@ export const RepoDaemon = {
         const msg = stalled ? `momentarily stalled...` : `sync reconciliation....`;
         spinner.start(Fmt.spinnerText(msg) + screen);
       } else {
-        const msg = c.gray('(Ctrl-C to exit)');
+        const msg = c.dim(c.gray('(Ctrl-C to exit)'));
         spinner.stop();
         console.info(msg + screen);
       }
