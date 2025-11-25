@@ -17,7 +17,7 @@ export const RepoDaemon = {
     /**
      * Prepare CRDT repository on background worker.
      */
-    const spinner = Cli.spinner(Fmt.spinnerText('starting crdt repository...'));
+    const spinner = Cli.spinner(Fmt.spinnerText('starting repository...'));
     const repo = await startRepoOnWorker(dir);
     spinner.stop();
 
