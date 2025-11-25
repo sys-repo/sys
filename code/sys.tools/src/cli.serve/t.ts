@@ -54,6 +54,7 @@ export type MimeType =
   | 'image/jpeg'
   | 'image/webp'
   | 'image/svg+xml'
+  | 'image/x-icon'
 
   // Video:
   | 'video/webm'

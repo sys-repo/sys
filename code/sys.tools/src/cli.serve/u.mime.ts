@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 export const Mime = {
-  images: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'],
+  images: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml', 'image/x-icon'],
   videos: ['video/webm', 'video/mp4'],
   documents: ['application/pdf', 'application/json', 'application/yaml'],
   code: ['application/javascript', 'application/wasm'],
@@ -17,13 +17,14 @@ export const Mime = {
     };
   },
 
-  get extensionMap(): Record<string, string> {
-    const ext: Record<string, readonly string[]> = {
+  get extensionMap(): Record<string, t.MimeType> {
+    const ext: Record<t.MimeType, readonly string[]> = {
       // Images
       'image/png': ['png'],
       'image/jpeg': ['jpg', 'jpeg'],
       'image/webp': ['webp'],
       'image/svg+xml': ['svg'],
+      'image/x-icon': ['ico'],
 
       // Video
       'video/webm': ['webm'],
@@ -44,6 +45,8 @@ export const Mime = {
     };
 
     const entries = Object.entries(ext);
-    return Object.fromEntries(entries.flatMap(([mime, exts]) => exts.map((ext) => [ext, mime])));
+    return Object.fromEntries(
+      entries.flatMap(([mime, exts]) => exts.map((ext) => [ext, mime])),
+    ) as Record<string, t.MimeType>;
   },
 } as const;
