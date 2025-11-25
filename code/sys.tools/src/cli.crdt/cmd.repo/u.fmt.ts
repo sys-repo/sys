@@ -28,11 +28,10 @@ export const Fmt = {
       if (repo.id.peer) id += `; ${repo.id.peer}`;
 
       const str = Str.builder()
-        //
         .line()
         .line(String(table))
-        .line(c.gray(`     ${br(y)} identity: ${id}`))
-        .line(c.gray(`     ${br(n)} port:     ${port}`));
+        .line(c.gray(`     ${br(n)} identity: ${id}`))
+        .line(c.gray(`     ${br(y)} port:     ${port}`));
 
       return String(str);
     },
