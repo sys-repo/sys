@@ -34,9 +34,9 @@ export type CrdtGraphWalkArgs<T extends O = O> = {
   readonly depth?: number;
   readonly processed?: t.Crdt.Id[];
 
-  readonly onDoc: (args: CrdtGraphWalkOnDocArgs<T>) => void | Promise<void>;
-  readonly onSkip?: (args: CrdtGraphWalkOnSkipArgs) => void;
-  readonly onRefs?: (args: CrdtGraphWalkOnRefsArgs) => void;
+  readonly onDoc: (args: CrdtGraphWalkDocArgs<T>) => void | Promise<void>;
+  readonly onSkip?: (args: CrdtGraphWalkSkipArgs) => void;
+  readonly onRefs?: (args: CrdtGraphWalkRefsArgs) => void;
 
   /**
    * Optional hook to customize how outbound references are discovered
@@ -54,7 +54,7 @@ export type CrdtGraphSkipReason = 'already-processed' | 'not-found' | 'not-objec
 /**
  * Arguments passed to `onDoc` for each successfully loaded document.
  */
-export type CrdtGraphWalkOnDocArgs<T extends O = O> = {
+export type CrdtGraphWalkDocArgs<T extends O = O> = {
   readonly doc: t.Crdt.Ref<T>;
   readonly depth: number;
 };
@@ -62,7 +62,7 @@ export type CrdtGraphWalkOnDocArgs<T extends O = O> = {
 /**
  * Arguments passed to `onSkip` when a document is not processed.
  */
-export type CrdtGraphWalkOnSkipArgs = {
+export type CrdtGraphWalkSkipArgs = {
   readonly id: t.Crdt.Id;
   readonly depth: number;
   readonly reason: CrdtGraphSkipReason;
@@ -71,7 +71,7 @@ export type CrdtGraphWalkOnSkipArgs = {
 /**
  * Arguments passed to `onRefs` for discovered outbound references.
  */
-export type CrdtGraphWalkOnRefsArgs = {
+export type CrdtGraphWalkRefsArgs = {
   readonly id: t.Crdt.Id;
   readonly depth: number;
   readonly refs: readonly t.Crdt.Id[];
