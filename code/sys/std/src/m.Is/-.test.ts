@@ -12,24 +12,24 @@ import { Err, Is } from '../mod.ts';
 
 describe('Is (common flags)', () => {
   it('API', () => {
-    expect(Is.object).to.equal(isObject);
+    expect(Is.object).to.eql(isObject);
     expect(Is.record).to.eql(isRecord);
     expect(Is.emptyRecord).to.eql(isEmptyRecord);
-    expect(Is.plainObject).to.equal(isPlainObject);
-    expect(Is.plainRecord).to.equal(isPlainRecord);
-    expect(Is.promise).to.equal(isPromise);
-    expect(Is.num).to.equal(Is.number);
+    expect(Is.plainObject).to.eql(isPlainObject);
+    expect(Is.plainRecord).to.eql(isPlainRecord);
+    expect(Is.promise).to.eql(isPromise);
+    expect(Is.num).to.eql(Is.number);
   });
 
   it('Rx: observable | subject', () => {
     // NB: tested in the corresponding module file.
-    expect(Is.observable).to.equal(Rx.Is.observable);
-    expect(Is.subject).to.equal(Rx.Is.subject);
+    expect(Is.observable).to.eql(Rx.Is.observable);
+    expect(Is.subject).to.eql(Rx.Is.subject);
   });
 
   it('error', () => {
-    expect(Is.errorLike).to.equal(Err.Is.errorLike);
-    expect(Is.stdError).to.equal(Err.Is.stdError);
+    expect(Is.errorLike).to.eql(Err.Is.errorLike);
+    expect(Is.stdError).to.eql(Err.Is.stdError);
   });
 
   it('Is.promise', () => {
@@ -168,7 +168,7 @@ describe('Is (common flags)', () => {
     });
 
     it('is Uint8Array', () => {
-      expect(Is.uint8Array(binary)).to.equal(true);
+      expect(Is.uint8Array(binary)).to.eql(true);
     });
   });
 
@@ -509,44 +509,44 @@ describe('Is (common flags)', () => {
 
   describe('Is.until', () => {
     it('rejects undefined and null', () => {
-      expect(Is.until(undefined)).to.equal(false);
-      expect(Is.until(null)).to.equal(false);
+      expect(Is.until(undefined)).to.eql(false);
+      expect(Is.until(null)).to.eql(false);
     });
 
     it('accepts a Disposable', () => {
       const disposable: t.Disposable = Rx.disposable();
-      expect(Is.until(disposable)).to.equal(true);
+      expect(Is.until(disposable)).to.eql(true);
     });
 
     it('accepts an Observable', () => {
       const observable: t.Observable<unknown> = Rx.of(1);
-      expect(Is.until(observable)).to.equal(true);
+      expect(Is.until(observable)).to.eql(true);
     });
 
     it('accepts a Subject', () => {
       const subject: t.Subject<unknown> = Rx.subject();
-      expect(Is.until(subject)).to.equal(true);
+      expect(Is.until(subject)).to.eql(true);
     });
 
     it('accepts arrays of until values', () => {
       const d: t.Disposable = Rx.disposable();
       const s: t.Subject<unknown> = Rx.subject();
-      expect(Is.until([d, s])).to.equal(true);
-      expect(Is.until([[d], [s]])).to.equal(true);
+      expect(Is.until([d, s])).to.eql(true);
+      expect(Is.until([[d], [s]])).to.eql(true);
     });
 
     it('rejects arrays containing non-until values', () => {
       const d: t.Disposable = Rx.disposable();
-      expect(Is.until([d, undefined])).to.equal(false);
-      expect(Is.until([d, null])).to.equal(false);
-      expect(Is.until([d, 123])).to.equal(false);
+      expect(Is.until([d, undefined])).to.eql(false);
+      expect(Is.until([d, null])).to.eql(false);
+      expect(Is.until([d, 123])).to.eql(false);
     });
 
     it('rejects primitive and unrelated values', () => {
-      expect(Is.until(42)).to.equal(false);
-      expect(Is.until('abc')).to.equal(false);
-      expect(Is.until({})).to.equal(false);
-      expect(Is.until(() => {})).to.equal(false);
+      expect(Is.until(42)).to.eql(false);
+      expect(Is.until('abc')).to.eql(false);
+      expect(Is.until({})).to.eql(false);
+      expect(Is.until(() => {})).to.eql(false);
     });
   });
 
