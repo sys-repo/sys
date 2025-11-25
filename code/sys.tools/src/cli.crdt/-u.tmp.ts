@@ -27,21 +27,37 @@ export async function tmp(dir: t.StringDir, id: t.Crdt.Id) {
   console.info(`crdt:${c.green(id)}`);
   const refs: TRef[] = [];
 
-  async function flush(sleep = 10_000) {
+  async function flush(sleep = 20_000) {
     spinner.start('flush');
     await Schedule.sleep(sleep);
     spinner.stop();
   }
 
+  const FROM = 'crdt:28k1CyQUNXnx74LhBoyvP2kif4GF';
+  const TO = 'crdt:3CrboJyYVAwjeXBQctNHzNLLF3vy';
+
   async function process(e: t.Crdt.Graph.WalkDocArgs) {
     const { doc, depth } = e;
     const yaml = lens.get(doc.current) ?? '';
-    const backRefs = Str.count(yaml, id);
-    refs.push({ doc, depth, backRefs });
+    // const backRefs = Str.count(yaml, id);
+    // refs.push({ doc, depth, backRefs });
+
+    const ast = Yaml.parseAst(yaml);
+
+    Yaml.walk(ast, (e) => {
+      if (!Yaml.Is.scalar(e.node)) return;
+      //
+
+      if (e.node.value === FROM) {
+        e.node.value = TO;
+        console.log('replaced', c.yellow(FROM), '→', c.green(TO));
+        console.log('Yaml.toJS(e.node)', Yaml.toJS(e.node));
+      }
+    });
   }
 
   async function walk() {
-    spinner.start('walking graph');
+    // spinner.start('walking graph');
     await Crdt.Graph.walk({
       id,
       repo,
@@ -49,25 +65,38 @@ export async function tmp(dir: t.StringDir, id: t.Crdt.Id) {
       onDoc: (e) => process(e),
     });
 
-    spinner.stop();
+    // spinner.stop();
   }
+
   await walk();
+  await flush();
 
   async function updateRefs(doc?: t.Crdt.Ref) {
     if (!doc) return;
     const ast = Yaml.parseAst(lens.get(doc.current) ?? '');
+    const dryRun = true;
 
     Yaml.walk(ast, (e) => {
       if (Yaml.Is.scalar(e.node)) {
-        if (e.node.value === 'crdt:foo') {
-          console.log(`⚡️💦🐷🌳🦄🐌 🍌🧨🌼✨🧫 🫵 🐚👋🧠⚠️❌ 💥👁️💡─ ↑↓←→✔✅•`);
-          e.node.value = 'crdt:bar';
+        if (String(e.node.value).startsWith('crdt:')) {
+          console.log('e.node.value', e.node.value);
         }
+
+        if (e.node.value === FROM) {
+          console.log('replace', c.yellow(FROM), '→', c.green(TO));
+        }
+        // if (e.node.value === 'crdt:bar') {
+        //   console.log(`🌼🌼🌼🌼🌼🌼🌼`);
+        //   e.node.value = 'crdt:foo';
+        // } else if(e.node.value === 'crdt:foo') {
+        //   console.log(`🌳🌳🌳🌳🌳🌳🌳`);
+        //   e.node.value = 'crdt:bar';
+        // }
       }
     });
 
     if (lens.get(doc.current) !== String(ast)) {
-      console.log('String(ast)', String(ast));
+      // console.log('String(ast)', String(ast));
       doc.change((d) => lens.set(d, String(ast)));
     }
 
@@ -76,36 +105,36 @@ export async function tmp(dir: t.StringDir, id: t.Crdt.Id) {
 
   // await updateRefs(doc);
 
-  async function findTasks(doc?: t.Crdt.Ref) {
-    if (!doc) return;
-    const ast = Yaml.parseAst(lens.get(doc.current) ?? '');
-    const todos: Todo[] = [];
-
-    Yaml.walk(ast, (e) => {
-      if (String(e.key).toLowerCase() === 'tasks') {
-        console.log('doc:', prettyUri(doc.id));
-        const todo = Yaml.toJS(e.node).data;
-        if (Is.array(todo)) {
-          todo
-            .filter((item) => Is.record(item))
-            .filter((item) => Is.string(item.TODO))
-            .forEach((item) => {
-              const todo = Is.string(item.TODO) ? item.TODO : 'Unknown';
-              const comment = Is.string(item.comment) ? item.comment : undefined;
-              todos.push({ todo, comment });
-            });
-        }
-      }
-    });
-
-    return todos;
-  }
-
-  for (const item of refs) {
-    const todos = await findTasks(item.doc);
-    item.todos = todos;
-  }
+  //   async function findTasks(doc?: t.Crdt.Ref) {
+  //     if (!doc) return;
+  //     const ast = Yaml.parseAst(lens.get(doc.current) ?? '');
+  //     const todos: Todo[] = [];
+  //
+  //     Yaml.walk(ast, (e) => {
+  //       if (String(e.key).toLowerCase() === 'tasks') {
+  //         console.log('doc:', prettyUri(doc.id));
+  //         const todo = Yaml.toJS(e.node).data;
+  //         if (Is.array(todo)) {
+  //           todo
+  //             .filter((item) => Is.record(item))
+  //             .filter((item) => Is.string(item.TODO))
+  //             .forEach((item) => {
+  //               const todo = Is.string(item.TODO) ? item.TODO : 'Unknown';
+  //               const comment = Is.string(item.comment) ? item.comment : undefined;
+  //               todos.push({ todo, comment });
+  //             });
+  //         }
+  //       }
+  //     });
+  //
+  //     return todos;
+  //   }
+  //   for (const item of refs) {
+  //     // const todos = await findTasks(item.doc);
+  //     // item.todos = todos;
+  //   }
   console.info();
+
   refs
     .filter((e) => (e.todos ?? []).length > 0)
     .forEach((e) => {
