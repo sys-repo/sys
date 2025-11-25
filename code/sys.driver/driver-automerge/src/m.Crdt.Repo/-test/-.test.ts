@@ -145,10 +145,16 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('whenReady waits for adapter.whenReady()', async () => {
+      let resolveReady!: () => void;
+      const ready = new Promise<void>((resolve) => {
+        resolveReady = resolve;
+      });
+
       class SlowAdapter {
         url = 'wss://example';
         async whenReady() {
-          await Time.wait(20);
+          // The repo must await this promise.
+          await ready;
         }
         connect() {}
         disconnect() {}
@@ -157,13 +163,23 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       }
 
       const repo = Crdt.repo({ network: [new SlowAdapter() as any] });
-      const t0 = Date.now();
 
-      await repo.whenReady();
-      const dt = Date.now() - t0;
+      let finished = false;
+      const p = repo.whenReady().then(() => {
+        finished = true;
+      });
 
+      // Give the event loop a tick; if whenReady didn't actually wait,
+      // `finished` will already be true here.
+      await Time.wait(0);
+      expect(finished).to.eql(false);
+
+      // Now let the adapter become ready.
+      resolveReady();
+      await p;
+
+      expect(finished).to.eql(true);
       expect(repo.status.ready).to.eql(true);
-      expect(dt).to.be.at.least(15);
     });
   });
 
