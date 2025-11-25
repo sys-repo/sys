@@ -152,7 +152,7 @@ export type CliFormatLib = {
     readonly mid: '├';
     readonly last: '└';
     readonly bar: '─';
-    branch(isLastOrTuple: boolean | [t.Index, unknown[]], extend?: number): string;
+    branch(isLastOrTuple: boolean | [t.Index, t.Ary<unknown>], extend?: number): string;
   };
 };
 
