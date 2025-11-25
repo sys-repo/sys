@@ -1,0 +1,50 @@
+import { type t, slug, Fs } from '../common.ts';
+
+export type Captured =
+  | { kind: 'text'; status: number; body: string }
+  | { kind: 'response'; status: number; body: Uint8Array; headers: Headers };
+
+export type HonoCtx = Parameters<t.HonoMiddlewareHandler>[0];
+export type HonoNext = Parameters<t.HonoMiddlewareHandler>[1];
+
+/**
+ * Test helpers
+ */
+export const Fixture = {
+  async makeTempDir(section = 'serve-route') {
+    const dir = `.tmp/test/${section}/${slug()}`;
+    await Fs.remove(dir);
+    await Fs.ensureDir(dir);
+    return dir;
+  },
+
+  async writeFile(dir: string, rel: string, data: string) {
+    await Fs.write(`${dir}/${rel}`, data);
+  },
+
+  makeCtx(path: string, captured: { current?: Captured }) {
+    const req = { path };
+
+    const text = async (body: string, status = 200) => {
+      captured.current = { kind: 'text', status, body };
+      return new Response(body, { status });
+    };
+
+    const newResponse = (body: BodyInit, init?: ResponseInit) => {
+      const status = init?.status ?? 200;
+      const headers = new Headers(init?.headers);
+      const bytes = body instanceof Uint8Array ? body : new TextEncoder().encode(String(body));
+      captured.current = { kind: 'response', status, body: bytes, headers };
+      return new Response(body, init);
+    };
+
+    // Only the bits route() actually uses.
+    const ctx = { req, text, newResponse };
+    return ctx as unknown as HonoCtx;
+  },
+
+  makeNext() {
+    const next: HonoNext = async () => {};
+    return next;
+  },
+} as const;
