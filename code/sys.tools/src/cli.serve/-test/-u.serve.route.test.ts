@@ -1,6 +1,6 @@
 import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { route } from '../u.serve.route.ts';
-import { type Captured, Fixture } from './u.fixture.ts';
+import { type FixtureCaptured, Fixture } from './u.fixture.ts';
 
 describe('serve route', () => {
   it('serves an allowed file with correct MIME', async () => {
@@ -10,7 +10,7 @@ describe('serve route', () => {
     const contentTypes: readonly t.MimeType[] = ['text/plain'];
     const handler = route({ dir, contentTypes });
 
-    const captured: { current?: Captured } = {};
+    const captured: { current?: FixtureCaptured } = {};
     const ctx = Fixture.makeCtx('/hello.txt', captured);
 
     await handler(ctx, Fixture.makeNext());
@@ -31,7 +31,7 @@ describe('serve route', () => {
     const contentTypes: readonly t.MimeType[] = ['text/plain'];
     const handler = route({ dir, contentTypes });
 
-    const captured: { current?: Captured } = {};
+    const captured: { current?: FixtureCaptured } = {};
     const ctx = Fixture.makeCtx('/does-not-exist.txt', captured);
 
     await handler(ctx, Fixture.makeNext());
@@ -52,7 +52,7 @@ describe('serve route', () => {
     const contentTypes: readonly t.MimeType[] = ['image/png'];
     const handler = route({ dir, contentTypes });
 
-    const captured: { current?: Captured } = {};
+    const captured: { current?: FixtureCaptured } = {};
     const ctx = Fixture.makeCtx('/note.txt', captured);
 
     await handler(ctx, Fixture.makeNext());

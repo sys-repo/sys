@@ -1,11 +1,11 @@
 import { type t, slug, Fs } from '../common.ts';
 
-export type Captured =
+export type FixtureCaptured =
   | { kind: 'text'; status: number; body: string }
   | { kind: 'response'; status: number; body: Uint8Array; headers: Headers };
 
-export type HonoCtx = Parameters<t.HonoMiddlewareHandler>[0];
-export type HonoNext = Parameters<t.HonoMiddlewareHandler>[1];
+export type FixtureHonoCtx = Parameters<t.HonoMiddlewareHandler>[0];
+export type FixtureHonoNext = Parameters<t.HonoMiddlewareHandler>[1];
 
 /**
  * Test helpers
@@ -22,7 +22,7 @@ export const Fixture = {
     await Fs.write(`${dir}/${rel}`, data);
   },
 
-  makeCtx(path: string, captured: { current?: Captured }) {
+  makeCtx(path: string, captured: { current?: FixtureCaptured }) {
     const req = { path };
 
     const text = async (body: string, status = 200) => {
@@ -40,11 +40,11 @@ export const Fixture = {
 
     // Only the bits route() actually uses.
     const ctx = { req, text, newResponse };
-    return ctx as unknown as HonoCtx;
+    return ctx as unknown as FixtureHonoCtx;
   },
 
   makeNext() {
-    const next: HonoNext = async () => {};
+    const next: FixtureHonoNext = async () => {};
     return next;
   },
 } as const;
