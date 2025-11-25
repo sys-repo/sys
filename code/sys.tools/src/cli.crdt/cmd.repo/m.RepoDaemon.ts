@@ -1,4 +1,4 @@
-import { type t, Cli, keepAlive, Rx, Time } from '../common.ts';
+import { type t, c, Cli, keepAlive, Rx, Time, Crdt, Cmd } from '../common.ts';
 import { startRepoOnWorker } from '../worker/mod.ts';
 import { Fmt } from './u.fmt.ts';
 
@@ -6,6 +6,15 @@ export const RepoDaemon = {
   async start(dir: t.StringDir) {
     const eventlog = new Set<t.CrdtRepoLogEntry>();
     const port = 49494;
+
+    let hasBecomeAlive = false;
+    const getStatus = () => {
+      const status = repo.status;
+      const alive = status.ready && !status.stalled;
+      if (alive) hasBecomeAlive = true;
+      const stalled = hasBecomeAlive && !alive;
+      return { alive, stalled };
+    };
 
     /**
      * Prepare CRDT repository on background worker.
@@ -20,15 +29,16 @@ export const RepoDaemon = {
      * Print screen:
      */
     const print = () => {
-      const alive = repo.status.ready && !repo.status.stalled;
+      const { alive, stalled } = getStatus();
       const screen = Fmt.Repo.screen({ repo, port, alive, events: [...eventlog] });
       console.clear();
-      if (!alive) {
-        const msg = Fmt.spinnerText(`momentarily stalled...`);
-        spinner.start(msg + screen);
+      if (!alive || stalled) {
+        const msg = stalled ? `momentarily stalled...` : `sync reconciliation....`;
+        spinner.start(Fmt.spinnerText(msg) + screen);
       } else {
+        const msg = c.gray('(Ctrl-C to exit)');
         spinner.stop();
-        console.info(screen);
+        console.info(msg + screen);
       }
     };
     print();

@@ -2,6 +2,8 @@ import { type t, Str, c, Cli } from '../common.ts';
 import { Fmt as Base } from '../u.fmt.ts';
 
 const Tree = Base.Tree;
+const y = true;
+const n = false;
 
 export const Fmt = {
   ...Base,
@@ -25,21 +27,12 @@ export const Fmt = {
       let id = repo.id.instance;
       if (repo.id.peer) id += `; ${repo.id.peer}`;
 
-      const t = true;
-      const f = false;
-
       const str = Str.builder()
         //
         .line()
         .line(String(table))
-        .line(c.gray(`     ${br(f)} identity: ${id}`))
-        .line(c.gray(`     ${br(t)} port:     ${port}`));
-
-      str
-        //
-        .line()
-        .line()
-        .line(c.gray(`(Ctrl-C to exit)`));
+        .line(c.gray(`     ${br(y)} identity: ${id}`))
+        .line(c.gray(`     ${br(n)} port:     ${port}`));
 
       return String(str);
     },
