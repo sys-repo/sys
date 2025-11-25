@@ -5,10 +5,11 @@ export type * from './cmd.tasks/t.ts';
 
 /** The various copy options */
 export type CrdtCommand =
+  | 'snapshot'
   | 'modify:add'
   | 'modify:remove'
-  | 'snapshot'
   | 'filter:tasks'
+  | 'sync'
   | 'quit'
   | 'tmp:🐷';
 

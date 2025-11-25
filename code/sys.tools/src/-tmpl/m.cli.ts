@@ -27,54 +27,72 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   await normalize(config);
   const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
 
-  console.info();
-  const A = (await Prompt.Select.prompt<t.__NAME__Command>({
-    message: 'Choose:\n',
-    options: [
-      { name: 'Option A (duplicate `-tmpl` as template)', value: 'option-a' },
-      { name: 'Option B', value: 'option-b' },
-    ],
-  })) as t.__NAME__Command;
+  /** --------------------------------------------------------
+   * Root Menu
+   */
+  {
+    console.info();
+    const A = (await Prompt.Select.prompt<t.__NAME__Command>({
+      message: 'Choose:\n',
+      options: [
+        { name: ' Option A (duplicate `-tmpl` as template)', value: 'option-a' },
+        { name: ' Option B', value: 'option-b' },
+      ],
+    })) as t.__NAME__Command;
 
-  //
-  // 🐷 TODO: Replace here ↓
-  //
-  if (A === 'option-a') {
-    console.log('🐷 A:', A);
-    const dirname = await Cli.Prompt.Input.prompt('Directory Name:');
-    const dirs = {
-      target: Fs.join(dir, dirname),
-      source: Fs.dirname(Fs.Path.fromFileUrl(import.meta.url)),
-    };
+    //
+    // 🐷 TODO: Replace here ↓
+    //
+    if (A === 'option-a') {
+      console.log('🐷 A:', A);
+      const dirname = await Cli.Prompt.Input.prompt('Directory Name:');
+      const dirs = {
+        target: Fs.join(dir, dirname),
+        source: Fs.dirname(Fs.Path.fromFileUrl(import.meta.url)),
+      };
 
-    const name = await Cli.Prompt.Input.prompt('__NAME__ → <MyName>');
-    const tmpl = TmplEngine.makeTmpl(dirs.source, async (e) => {
-      const replaced = (e.text ?? '').replaceAll('__NAME__', name);
-      e.modify(replaced);
-    });
+      const name = await Cli.Prompt.Input.prompt('__NAME__ → <MyName>');
+      const tmpl = TmplEngine.makeTmpl(dirs.source, async (e) => {
+        const replaced = (e.text ?? '').replaceAll('__NAME__', name);
+        e.modify(replaced);
+      });
 
-    // Write to disk.
-    await tmpl.write(dirs.target);
-    return done();
+      // Write to disk.
+      await tmpl.write(dirs.target);
+      return done();
+    }
+
+    if (A === 'quit') return done(0);
   }
 
-  const B = (await Prompt.Select.prompt<t.__NAME__Command>({
-    message: `with:`,
-    options: [
-      { name: 'Option Ba', value: 'option-ba' },
-      { name: 'Option Bb', value: 'option-bb' },
-    ],
-  })) as t.__NAME__Command;
+  /** --------------------------------------------------------
+   * Sub-Menu
+   */
+  {
+    const B = (await Prompt.Select.prompt<t.__NAME__Command>({
+      message: `with:`,
+      options: [
+        { name: ' Option Ba', value: 'option-ba' },
+        { name: ' Option Bb', value: 'option-bb' },
+        { name: '(quit)', value: 'quit' },
+      ],
+    })) as t.__NAME__Command;
 
-  if (B === 'option-ba') {
-    console.log('🐷 B:', B);
-    return done(0);
+    if (B === 'option-ba') {
+      console.log('🐷 B:', B);
+      return done(0);
+    }
+
+    if (B === 'option-bb') {
+      console.log('🐷 B:', B);
+      return done(0);
+    }
+
+    if (B === 'quit') return done(0);
   }
 
-  if (B === 'option-bb') {
-    console.log('🐷 B:', B);
-    return done(0);
-  }
-
+  /** --------------------------------------------------------
+   * End
+   */
   return done();
 }

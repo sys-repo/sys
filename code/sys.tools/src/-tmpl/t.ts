@@ -7,7 +7,8 @@ export type __NAME__Command =
   | 'option-aa'
   | 'option-ab'
   | 'option-ba'
-  | 'option-bb';
+  | 'option-bb'
+  | 'quit';
 
 /**
  * CLI helpers for working with __NAME__.
