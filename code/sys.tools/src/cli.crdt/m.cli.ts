@@ -36,21 +36,21 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
 
   const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
 
-  const listing = (config.current.docs ?? []).map((doc, i, total) => {
-    const branch = Fmt.Tree.branch([i, total]);
-    const id = `crdt:${doc.id.slice(0, 5)}..${c.green(doc.id.slice(-5))}`;
-    let name = `${' with:'} ${branch} ${id}`;
-    if (doc.name) name += `  •  ${doc.name}`;
-    return {
-      name,
-      value: `crdt:${doc.id}`,
-    };
-  });
+  const listing = (config.current.docs ?? [])
+    .map((doc) => ({ doc, name: doc.name ?? '', value: `crdt:${doc.id}` }))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((e, i, total) => {
+      const { doc } = e;
+      const branch = Fmt.Tree.branch([i, total]);
+      const id = `crdt:${doc.id.slice(0, 5)}..${c.green(doc.id.slice(-5))}`;
+      let name = `${' with:'} ${branch} ${id}`;
+      if (doc.name) name += `  •  ${doc.name}`;
+      return { name, value: e.value };
+    });
 
   /** --------------------------------------------------------
    * Root Menu
    */
-  let id: t.Crdt.Id | undefined;
   {
     console.info();
     const A = (await Prompt.Select.prompt<t.CrdtCommand>({
@@ -70,7 +70,6 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
       id = res.id;
     }
 
-    // if (!id) return done(0);
     if (A === 'quit') return done(0);
 
     /** --------------------------------------------------------

@@ -1,7 +1,8 @@
-import { type t, c, Cli, Crdt, Fs, Str, Time } from '../common.ts';
+import { type t, Schedule, c, Cli, Crdt, Fs, Str, Time } from '../common.ts';
 import { startRepoOnWorker } from '../worker/mod.ts';
 import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
 import { process } from './u.process.ts';
+import { Fmt } from '../u.fmt.ts';
 
 const Tree = Cli.Fmt.Tree;
 
