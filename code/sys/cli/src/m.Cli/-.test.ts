@@ -71,4 +71,17 @@ describe('Cli', () => {
       });
     });
   });
+
+  describe('Cli.table', () => {
+    it('creates with/without params', () => {
+      const a = Cli.table([]);
+      const b = Cli.table();
+
+      a.push(['foo', 'bar']);
+      b.push(['foo', 'bar']);
+
+      console.info(String(a).trim());
+      console.info(String(b).trim());
+    });
+  });
 });
