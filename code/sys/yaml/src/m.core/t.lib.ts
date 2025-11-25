@@ -34,6 +34,14 @@ export type YamlLib = {
   /** YAML path helpers. */
   readonly Path: t.YamlPathLib;
   readonly path: t.YamlPathLib['make'];
+
+  // 🌸🌸 ---------- ADDED: yaml-ast-walk-method ----------
+  /**
+   * Walk the full YAML AST (Document + nodes) with a visitor,
+   * using logical object-path semantics (parallel to Obj.walk).
+   */
+  readonly walk: t.YamlAstWalk;
+  // 🌸 ---------- /ADDED ----------
 };
 
 /** Generic result arms (mutually exclusive). */
