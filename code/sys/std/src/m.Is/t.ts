@@ -176,4 +176,9 @@ export type StdIsLib = {
    * Determine if the value conforms to an `Until`:
    */
   until(input?: unknown): input is t.Until;
+
+  /**
+   * True if the value structurally matches a WebSocket.
+   */
+  websocket(input?: unknown): input is WebSocket;
 };

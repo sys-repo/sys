@@ -549,4 +549,27 @@ describe('Is (common flags)', () => {
       expect(Is.until(() => {})).to.equal(false);
     });
   });
+
+  describe('Is.websocket', () => {
+    it('returns true for an object structurally matching WebSocket', () => {
+      const fake = {
+        send: () => {},
+        close: () => {},
+        addEventListener: () => {},
+      };
+
+      expect(Is.websocket(fake)).to.eql(true);
+    });
+
+    it('returns false for non-WebSocket values', () => {
+      expect(Is.websocket(undefined)).to.eql(false);
+      expect(Is.websocket(null)).to.eql(false);
+      expect(Is.websocket(42)).to.eql(false);
+      expect(Is.websocket('ws')).to.eql(false);
+      expect(Is.websocket({})).to.eql(false);
+      expect(Is.websocket({ send: () => {} })).to.eql(false);
+      expect(Is.websocket({ close: () => {} })).to.eql(false);
+      expect(Is.websocket({ addEventListener: () => {} })).to.eql(false);
+    });
+  });
 });

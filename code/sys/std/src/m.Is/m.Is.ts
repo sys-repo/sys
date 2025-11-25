@@ -11,6 +11,7 @@ import {
 } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
 import { number, numeric } from './u.number.ts';
+import { websocket } from './u.websocket.ts';
 
 /**
  * Common flag evaluators.
@@ -29,6 +30,7 @@ export const Is: StdIsLib = {
   plainObject: isPlainObject,
   plainRecord: isPlainRecord,
   promise: isPromise,
+  websocket,
 
   numeric,
   number,
