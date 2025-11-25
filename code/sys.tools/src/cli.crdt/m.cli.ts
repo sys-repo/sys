@@ -38,7 +38,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   const listing = (config.current.docs ?? []).map((doc, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
     const id = `crdt:${doc.id.slice(0, 5)}..${c.green(doc.id.slice(-5))}`;
-    let name = `${'with:'} ${branch} ${id}`;
+    let name = `${' with:'} ${branch} ${id}`;
     if (doc.name) name += `  •  ${doc.name}`;
     return {
       name,
@@ -49,7 +49,11 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   console.info();
   const A = (await Prompt.Select.prompt<t.CrdtCommand>({
     message: 'Choose:\n',
-    options: [{ name: ' add: <document>', value: 'modify:add' }, ...listing],
+    options: [
+      { name: '  add: <document>', value: 'modify:add' },
+      ...listing,
+      { name: '(quit)', value: 'quit' },
+    ],
   })) as t.CrdtCommand;
 
   let id = CrdtUri.hasPrefix(A) ? CrdtUri.trimPrefix(A) : '';
@@ -63,10 +67,10 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   const B = (await Prompt.Select.prompt<t.CrdtCommand>({
     message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
     options: [
+      { name: '🐷', value: 'tmp:🐷' },
       { name: 'Backup (Snapshot)', value: 'snapshot' },
       { name: 'Filter Tasks', value: 'filter:tasks' },
       { name: '(forget)', value: 'modify:remove' },
-      { name: '🐷', value: 'tmp' },
     ],
   })) as t.CrdtCommand;
 
@@ -85,8 +89,12 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     return done(0);
   }
 
-  if (B === 'tmp') {
+  if (B === 'tmp:🐷') {
     await tmp(dir, id);
+    return done(0);
+  }
+
+  if (B === 'quit') {
     return done(0);
   }
 
