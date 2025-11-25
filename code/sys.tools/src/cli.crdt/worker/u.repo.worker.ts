@@ -1,4 +1,4 @@
-import { Crdt, Log, Fs } from '../common.ts';
+import { Crdt, Fs, Is, Log } from '../common.ts';
 
 /**
  * Single-repo worker host.
@@ -16,10 +16,10 @@ Crdt.Worker.Host.listen(
     const network = config.network || [];
     const repo = await Crdt.repo({ dir, network }).whenReady();
 
+    info(`Crdt.Worker.Host.listen: "${repo.id.instance}"`);
     info('Repo:');
     info(`- filesystem: ${dir}`);
-    info(`Crdt.Worker.Host.listen: "${repo.id.instance}"`);
-    network.forEach((e) => info(`- network: ${e.ws}`));
+    network.filter((e) => Is.record(e)).forEach((e) => info(`- network: ${e.ws}`));
     repo.events().$.subscribe((e) => info('⚡️', e.type));
 
     return repo;
