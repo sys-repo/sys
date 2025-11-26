@@ -1,5 +1,5 @@
-import { type t, Cli, TmplEngine, Args, c, D, Fs, getConfig, Is, Prompt } from './common.ts';
-import { normalize } from './u.config.doc.ts';
+import { type t, Args, c, Cli, D, Fs, Is, Prompt, TmplEngine } from './common.ts';
+import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 
 /**

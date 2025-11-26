@@ -1,4 +1,6 @@
-import { type t, Time } from './common.ts';
+import { type t, Time, getConfig } from './common.ts';
+
+export { getConfig };
 
 export async function normalize(config: t.CrdtConfig) {
   /**
