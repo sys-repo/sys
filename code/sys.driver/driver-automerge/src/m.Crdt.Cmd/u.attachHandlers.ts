@@ -1,4 +1,4 @@
-import { makeSaveHandler, makeStatsHandler } from '../m.commands/mod.ts';
+import { makeGetDocHandler, makeSaveHandler, makeStatsHandler } from '../m.commands/mod.ts';
 import { type t, Is } from './common.ts';
 import { make } from './u.make.ts';
 
@@ -21,6 +21,7 @@ export const attachHandlers = (args: {
     attach: () => ({ ok: true }), // ← no handshake needed locally
     stats: makeStatsHandler(getRepo),
     'fs:save': makeSaveHandler(getRepo),
+    'doc:get': makeGetDocHandler(getRepo),
     ...args.handlers,
   };
 
