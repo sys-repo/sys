@@ -56,7 +56,7 @@ export async function traverseDocumentGraph(root: t.Crdt.Id) {
  * Helpers:
  */
 async function buildProcessedTable(cmd: Client, processed: t.Crdt.Id[], startedAt: t.Msecs) {
-  const pipe = c.gray(`  ${Tree.vert}`);
+  const pipe = c.dim(c.gray(`  ${Tree.vert}`));
   const ops = c.dim(c.gray('ops'));
   const changes = c.dim(c.gray('changes'));
   const table = Cli.table([pipe, '', ops, changes]);
