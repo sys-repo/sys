@@ -1,25 +1,32 @@
-import { type t, Crdt, D, Fs, Rx } from '../common.ts';
+import { type t, Crdt, D, Fs, Is, Rx } from '../common.ts';
 
 export async function startRepoOnWorker(
   dir: t.StringDir,
-  opts: { silent?: boolean; ws?: string } = {},
+  opts: { silent?: boolean; ws?: string; port?: number } = {},
 ) {
-  const { silent = true } = opts;
+  const { silent = true, port } = opts;
   const url = new URL('./u.repo.worker.ts', import.meta.url);
 
+  /**
+   * Construct the repo.
+   */
   const config: t.Crdt.Worker.ConfigFs = {
     kind: 'fs',
     storage: Fs.join(dir, D.Path.repo),
     network: [{ ws: opts.ws ?? D.Sync.server }],
+    publish: Is.num(port) ? { port } : undefined,
     silent,
   };
-
   const { repo } = await Crdt.Worker.Client.spawn(url, { config });
 
+  /**
+   * Wait for ready state.
+   */
   const evt = repo.events();
   const ready$ = evt.ready$.pipe(Rx.take(1));
   await Rx.firstValueFrom(ready$);
   evt.dispose();
 
+  // Finish up.
   return repo;
 }
