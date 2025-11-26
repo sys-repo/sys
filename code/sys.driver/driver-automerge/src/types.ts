@@ -8,13 +8,13 @@ export type * from './-exports/-fs/t.ts';
 export type * from './-exports/-web.ui/t.ts';
 export type * from './-exports/-web/t.ts';
 
-export type * from './m.commands/t.ts';
 export type * from './m.Cmd/t.ts';
-export type * from './m.Crdt.Graph/t.ts';
+export type * from './m.commands/t.ts';
 export type * from './m.Crdt.Ref/t.ts';
 export type * from './m.Crdt.Repo/t.ts';
 export type * from './m.Crdt/t.ts';
 export type * from './m.Debug/t.ts';
+export type * from './m.Graph/t.ts';
 export type * from './m.Server.client/t.ts';
 export type * from './m.Server/t.ts';
 export type * from './m.worker/t.ts';

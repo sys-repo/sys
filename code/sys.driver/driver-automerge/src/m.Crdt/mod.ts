@@ -3,7 +3,7 @@
  * Core CRDT primitives.
  */
 export { CrdtCmd } from '../m.Cmd/mod.ts';
-export { CrdtGraph } from '../m.Crdt.Graph/mod.ts';
+export { CrdtGraph } from '../m.Graph/mod.ts';
 export { CrdtWorker } from '../m.worker/mod.ts';
 
 export { CrdtId } from './m.Id.ts';
