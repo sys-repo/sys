@@ -4,6 +4,8 @@ import { RepoProcess } from '../u.repo/mod.ts';
 
 type Client = t.Crdt.Cmd.Client;
 
+const Tree = Cli.Fmt.Tree;
+
 export async function traverseDocumentGraph(dir: t.StringDir, root: t.Crdt.Id) {
   const cmd = await RepoProcess.tryClient(D.port);
   if (!cmd) return;
@@ -13,12 +15,14 @@ export async function traverseDocumentGraph(dir: t.StringDir, root: t.Crdt.Id) {
    * Print:
    */
   async function buildTable(cmd: Client) {
-    const table = Cli.table();
+    const table = Cli.table([c.gray(' •'), '', c.dim(c.gray('ops')), c.dim(c.gray('changes'))]);
     for (const [i, doc] of processed.entries()) {
+      const is = { first: i === 0, last: i === processed.length - 1 } as const;
       const stats = await cmd.send('doc:stats', { doc });
 
       const uri = Fmt.prettyUri(doc);
-      const identity = i === 0 ? uri : c.gray(uri);
+      let identity = is.first ? uri : c.gray(uri);
+      identity = ` ${c.dim(Tree.branch(is.last))} ${identity}`;
 
       const warnAt = 1024 * 1024; // 1-MB
       const bytes = (bytes: number) => {
@@ -34,12 +38,13 @@ export async function traverseDocumentGraph(dir: t.StringDir, root: t.Crdt.Id) {
       table.push([identity, size, ops, changes]);
     }
 
-    return String(table);
+    return Str.trimEdgeNewlines(String(table));
   }
 
   async function print(cmd: Client) {
     const tbl = await buildTable(cmd);
     console.info(tbl);
+    console.info();
   }
 
   /**
