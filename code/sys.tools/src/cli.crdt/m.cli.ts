@@ -86,7 +86,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
           options: [
             { name: ' Backup', value: 'snapshot' },
-            { name: ' Document Graph → Stats/Info', value: 'doc:info-graph' },
+            { name: ' Doc Graph → Stats', value: 'doc:info-graph' },
             // { name: ' Filter Tasks', value: 'filter:tasks' },
             { name: '(forget)', value: 'doc:remove' },
             // { name: ' 🐷', value: 'tmp:🐷' },
