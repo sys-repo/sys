@@ -1,3 +1,3 @@
-export { makeGetDocHandler } from './cmd.doc.get.ts';
+export { makeDocCurrentHandler } from './cmd.doc.current.ts';
+export { makeDocStatsHandler } from './cmd.doc.stats.ts';
 export { makeSaveHandler } from './cmd.save.ts';
-export { makeStatsHandler } from './cmd.stats.ts';

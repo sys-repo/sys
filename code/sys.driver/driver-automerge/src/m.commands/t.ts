@@ -7,7 +7,7 @@ type Result = t.CrdtCmdResult;
 /**
  * Command names supported by the CRDT command layer.
  */
-export type CrdtCmdName = 'attach' | 'fs:save' | 'doc:get' | 'doc:stats';
+export type CrdtCmdName = 'attach' | 'fs:save' | 'doc:stats' | 'doc:current';
 
 /**
  * Typed set of worker-side command handlers.
@@ -19,29 +19,29 @@ export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
 
 /**
  * Payloads keyed by command name.
- * - attach   → optional spawn-time configuration.
- * - stats    → document id to inspect.
- * - fs:save  → persist document to a file path.
- * - doc:get  → fetch a document by id.
+ * - attach       → optional spawn-time configuration.
+ * - stats        → document id to inspect.
+ * - fs:save      → persist document to a file path.
+ * - doc:current  → fetch a document by id.
  */
 export type CrdtCmdPayload = {
   attach: { config?: t.CrdtWorkerConfig };
   'fs:save': { doc: t.Crdt.Id; path: t.StringPath };
-  'doc:get': { doc: t.Crdt.Id };
+  'doc:current': { doc: t.Crdt.Id };
   'doc:stats': { doc: t.Crdt.Id };
 };
 
 /**
  * Result payloads keyed by command name.
- * - attach   → simple success acknowledgement.
- * - stats    → document statistics.
- * - fs:save  → file-system save result.
- * - doc:get  → document reference (if present).
+ * - attach       → simple success acknowledgement.
+ * - stats        → document statistics.
+ * - fs:save      → file-system save result.
+ * - doc:current  → document reference (if present).
  */
 export type CrdtCmdResult = {
   attach: CrdtCommands.AttachResult;
   'fs:save': CrdtCommands.SaveResult;
-  'doc:get': CrdtCommands.GetDocResult;
+  'doc:current': CrdtCommands.GetDocResult;
   'doc:stats': t.DocumentStats;
 };
 

@@ -1,4 +1,4 @@
-import { makeGetDocHandler, makeSaveHandler, makeStatsHandler } from '../m.commands/mod.ts';
+import { makeDocCurrentHandler, makeSaveHandler, makeDocStatsHandler } from '../m.commands/mod.ts';
 import { type t, Is } from './common.ts';
 import { make } from './u.make.ts';
 
@@ -20,8 +20,8 @@ export const attachHandlers = (args: {
   const handlers: t.CrdtCmdHandlers = {
     attach: () => ({ ok: true }), // ← no handshake needed locally
     'fs:save': makeSaveHandler(getRepo),
-    'doc:get': makeGetDocHandler(getRepo),
-    'doc:stats': makeStatsHandler(getRepo),
+    'doc:current': makeDocCurrentHandler(getRepo),
+    'doc:stats': makeDocStatsHandler(getRepo),
     ...args.handlers,
   };
 

@@ -1,6 +1,8 @@
 import { type t, A, toAutomergeHandle } from './common.ts';
 
-export function makeStatsHandler(getRepo: t.CrdtGetRepoInput): t.CrdtCmdHandlers['doc:stats'] {
+type H = t.CrdtCmdHandlers;
+
+export function makeDocStatsHandler(getRepo: t.CrdtGetRepoInput): H['doc:stats'] {
   return async (params) => {
     const repo = getRepo();
     if (!repo) return EMPTY.stats;

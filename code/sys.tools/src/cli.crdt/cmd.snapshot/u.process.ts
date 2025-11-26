@@ -40,7 +40,7 @@ export async function process(args: Args): Promise<ProcessResult> {
 
   await Crdt.Graph.walk({
     load: async (id) => {
-      const { doc } = await cmd.send('doc:get', { doc: id });
+      const { doc } = await cmd.send('doc:current', { doc: id });
       return doc ?? undefined;
     },
 
