@@ -1,4 +1,4 @@
-import { type t, Fmt as Base, c, Cli, D, getConfig, Str, Time } from './common.ts';
+import { type t, Fmt as Base, c, Cli, Crdt, D, getConfig, Str, Time } from './common.ts';
 
 export const Fmt = {
   ...Base,
@@ -37,5 +37,11 @@ export const Fmt = {
 
   spinnerText(text: string) {
     return c.italic(c.gray(text));
+  },
+
+  prettyUri(input: t.Crdt.Id) {
+    const id = Crdt.Id.clean(input) ?? input;
+    const pretty = `${id.slice(0, -5)}${c.green(id.slice(-5))}`;
+    return Crdt.Is.uri(input) ? `crdt:${pretty}` : pretty;
   },
 } as const;

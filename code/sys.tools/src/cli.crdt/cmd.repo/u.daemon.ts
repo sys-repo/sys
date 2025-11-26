@@ -35,7 +35,7 @@ export async function daemon(dir: t.StringDir) {
     const screen = Fmt.Repo.screen({ repo, port, alive, events: [...eventlog] });
     console.clear();
     if (!alive || stalled) {
-      const msg = stalled ? `momentarily busy...` : `sync reconciliation....`;
+      const msg = stalled ? `momentarily busy...` : `initial document reconciliation....`;
       spinner.start(Fmt.spinnerText(msg) + screen);
     } else {
       const msg = c.dim(c.gray('(Ctrl-C to exit)'));
