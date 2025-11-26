@@ -1,5 +1,4 @@
-import { type t, c, Cmd, Crdt, D, Str } from '../common.ts';
-import { waitForOpen } from './u.waitForOpen.ts';
+import { type t, c, Cmd, Crdt, D, Net, Str } from '../common.ts';
 
 /**
  * Connects to the repository daemon and returns a typed command client.
@@ -20,7 +19,7 @@ export async function client(port: number): Promise<t.Crdt.Cmd.Client> {
   ws.addEventListener('error', onError);
 
   try {
-    await waitForOpen(ws);
+    await Net.waitFor(ws);
 
     if (networkError) {
       // WebSocket errored *before* or *during* open.

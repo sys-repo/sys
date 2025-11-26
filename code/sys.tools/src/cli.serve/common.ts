@@ -1,7 +1,6 @@
 import { type t, Fs, JsonFile } from '../common.ts';
 
 export { HttpServer } from '@sys/http/server';
-export { Net } from '@sys/net';
 export * from '../common.ts';
 
 /**

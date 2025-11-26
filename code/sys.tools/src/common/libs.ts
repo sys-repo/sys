@@ -4,6 +4,7 @@ export { Cmd } from '@sys/event/cmd';
 export { Fs, Path, Pkg } from '@sys/fs';
 export { JsonFile } from '@sys/fs/file';
 export { Jsr } from '@sys/jsr';
+export { Net } from '@sys/net';
 export { Process } from '@sys/process';
 export { Arr, Delete, Err, Is, Json, Log, Num, Obj, Str, Time, Try, slug } from '@sys/std';
 export { Schedule } from '@sys/std/async';
