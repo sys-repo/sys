@@ -7,13 +7,10 @@ type Payload = t.CrdtCmdPayload;
 type Result = t.CrdtCmdResult;
 
 /**
- * Fully-typed command set for CRDT commands.
- *
- * Instances are produced by `Crdt.Cmd.make()` and expose:
- *   - `.client(port)` → command client bound to a MessagePort
- *   - `.host(port, handlers)` → handler-side command host
+ * Factory for the typed CRDT command set.
+ * Produced by `Crdt.Cmd.make()`, providing `.client(port)` and `.host(port, handlers)`.
  */
-export type CrdtCmdInstance = t.CmdInstance<Name, Payload, Result>;
+export type CrdtCmdFactory = t.CmdInstance<Name, Payload, Result>;
 
 /**
  * Command client: `.send(name, payload)` → Promise<result>.

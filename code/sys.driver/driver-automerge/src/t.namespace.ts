@@ -29,6 +29,10 @@ export namespace Crdt {
     export type ConfigWeb = t.CrdtWorkerConfigWeb;
     export type ConfigFs = t.CrdtWorkerConfigFs;
   }
+  export namespace Cmd {
+    export type Factory = t.CrdtCmdFactory;
+    export type Client = t.CrdtCmdClient;
+  }
 }
 
 /**

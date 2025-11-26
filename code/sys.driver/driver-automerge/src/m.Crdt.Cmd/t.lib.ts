@@ -8,7 +8,7 @@ export type CrdtCmdLib = {
    * Low-level factory for command instances.
    * The returned instance exposes `.client(port)` / `.host(port, handlers)`.
    */
-  make(): t.CrdtCmdInstance;
+  make(): t.CrdtCmdFactory;
 
   /**
    * Attach a command host for the given repo to a command endpoint.
