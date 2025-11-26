@@ -13,7 +13,7 @@ export type CrdtCommand =
   | 'modify:add'
   | 'modify:remove'
   | 'filter:tasks'
-  | 'repo:start'
+  | 'repo:daemon:start'
   | 'quit'
   | 'tmp:🐷';
 

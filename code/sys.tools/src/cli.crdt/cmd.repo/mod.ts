@@ -6,4 +6,4 @@
  * typed Cmd control plane over WebSocket, bridging browser clients,
  * local filesystem persistence, and upstream sync servers.
  */
-export { RepoDaemon } from './m.RepoDaemon.ts';
+export { RepoProcess } from './m.RepoProcess.ts';
