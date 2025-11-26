@@ -9,6 +9,7 @@ import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
 import { CrdtUri } from './u.ts';
 import { traverseDocumentGraph } from './cmds/mod.ts';
+import { startSyncServer } from './cmds/mod.ts';
 
 type C = t.CrdtCommand;
 
@@ -61,7 +62,8 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
       options: [
         { name: '  add: <document>', value: 'doc:add' satisfies C },
         ...listing,
-        { name: ' repo: start daemon', value: 'repo:daemon:start' satisfies C },
+        { name: ' start: sync server', value: 'sync-server:start' satisfies C },
+        { name: ' start: repository daemon', value: 'repo:daemon:start' satisfies C },
         { name: c.gray('(quit)'), value: 'quit' },
       ],
     })) as C;
@@ -121,11 +123,15 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     }
 
     /** --------------------------------------------------------
-     * Repo
+     * Daemons/Services
      */
     {
       if (A === 'repo:daemon:start') {
         await RepoProcess.daemon(dir);
+      }
+
+      if (A === 'sync-server:start') {
+        await startSyncServer(dir);
       }
     }
   }

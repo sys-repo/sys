@@ -22,7 +22,7 @@
     "./fs": "./src/-exports/-fs/mod.ts",
     "./web": "./src/-exports/-web/mod.ts",
     "./web/ui": "./src/-exports/-web.ui/mod.ts",
-    "./ws": "./src/m.Server/mod.ts",
-    "./ws/client": "./src/m.Server.client/mod.ts"
+    "./ws": "./src/-exports/-ws.ts",
+    "./ws/client": "./src/-exports/-ws.client.ts"
   }
 }

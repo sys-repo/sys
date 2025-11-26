@@ -15,6 +15,7 @@ export type CrdtCommand =
   | 'filter:tasks'
   | 'doc:info-graph'
   | 'repo:daemon:start'
+  | 'sync-server:start'
   | 'quit'
   | 'tmp:🐷';
 
