@@ -1,12 +1,15 @@
-import { type t, Args, c, D, Fs, getConfig, Is, Prompt } from './common.ts';
+import { type t, Args, c, D, Fs, Is, Prompt } from './common.ts';
 
 import { tmp } from './-u.tmp.ts';
+import { RepoProcess } from './cmd.repo/mod.ts';
 import { snapshot } from './cmd.snapshot/mod.ts';
-import { RepoDaemon } from './cmd.repo/mod.ts';
 import { findTasks } from './cmd.tasks/mod.ts';
+import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
 import { CrdtUri } from './u.ts';
+
+type C = t.CrdtCommand;
 
 /**
  * Main entry:
@@ -52,15 +55,15 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
    */
   {
     console.info();
-    const A = (await Prompt.Select.prompt<t.CrdtCommand>({
+    const A = (await Prompt.Select.prompt<C>({
       message: 'Choose:\n',
       options: [
-        { name: '  add: <document>', value: 'modify:add' },
+        { name: '  add: <document>', value: 'modify:add' satisfies C },
         ...listing,
-        { name: ' start repository', value: 'repo:start' },
+        { name: ' repo: start daemon', value: 'repo:daemon:start' satisfies C },
         { name: c.gray('(quit)'), value: 'quit' },
       ],
-    })) as t.CrdtCommand;
+    })) as C;
 
     let id = CrdtUri.hasPrefix(A) ? CrdtUri.trimPrefix(A) : '';
     if (A === 'modify:add') {
@@ -79,7 +82,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
         const B = (await Prompt.Select.prompt<t.CrdtCommand>({
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
           options: [
-            { name: ' 🐷', value: 'tmp:🐷' },
+            // { name: ' 🐷', value: 'tmp:🐷' },
             { name: ' Backup (Snapshot)', value: 'snapshot' },
             { name: ' Filter Tasks', value: 'filter:tasks' },
             { name: '(forget)', value: 'modify:remove' },
@@ -114,8 +117,8 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
      * Repo
      */
     {
-      if (A === 'repo:start') {
-        await RepoDaemon.start(dir);
+      if (A === 'repo:daemon:start') {
+        await RepoProcess.daemon(dir);
       }
     }
   }
