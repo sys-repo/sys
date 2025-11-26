@@ -16,12 +16,12 @@ describe('serve route', () => {
     await handler(ctx, Fixture.makeNext());
 
     const hit = captured.current;
-    expect(hit && hit.kind).to.equal('response');
+    expect(hit && hit.kind).to.eql('response');
     if (hit && hit.kind === 'response') {
       const text = new TextDecoder().decode(hit.body);
-      expect(text).to.equal('hello world');
-      expect(hit.headers.get('content-type')).to.equal('text/plain');
-      expect(hit.status).to.equal(200);
+      expect(text).to.eql('hello world');
+      expect(hit.headers.get('content-type')).to.eql('text/plain');
+      expect(hit.status).to.eql(200);
     }
   });
 
@@ -37,9 +37,9 @@ describe('serve route', () => {
     await handler(ctx, Fixture.makeNext());
 
     const hit = captured.current;
-    expect(hit && hit.kind).to.equal('text');
+    expect(hit && hit.kind).to.eql('text');
     if (hit && hit.kind === 'text') {
-      expect(hit.status).to.equal(404);
+      expect(hit.status).to.eql(404);
       expect(hit.body).to.contain('404 - Not found');
     }
   });
@@ -58,9 +58,9 @@ describe('serve route', () => {
     await handler(ctx, Fixture.makeNext());
 
     const hit = captured.current;
-    expect(hit && hit.kind).to.equal('text');
+    expect(hit && hit.kind).to.eql('text');
     if (hit && hit.kind === 'text') {
-      expect(hit.status).to.equal(404);
+      expect(hit.status).to.eql(404);
     }
   });
 

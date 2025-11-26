@@ -23,7 +23,21 @@ export const Fixture = {
   },
 
   makeCtx(path: string, captured: { current?: FixtureCaptured }) {
-    const req = { path };
+    const url = new URL(`http://localhost${path}`);
+
+    const req = {
+      url: url.toString(),
+      path: url.pathname,
+      query(name?: string) {
+        if (!name) {
+          const all: Record<string, string> = {};
+          url.searchParams.forEach((value, key) => (all[key] = value));
+          return all;
+        }
+        const value = url.searchParams.get(name);
+        return value === null ? undefined : value;
+      },
+    };
 
     const text = async (body: string, status = 200) => {
       captured.current = { kind: 'text', status, body };

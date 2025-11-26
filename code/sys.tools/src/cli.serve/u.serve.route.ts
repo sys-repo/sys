@@ -18,15 +18,12 @@ export type ServeRouteArgs = {
  */
 export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
   const { dir, contentTypes } = args;
-  const allowedMimes = new Set<string>(contentTypes);
+  const allowedMimes = new Set<t.MimeType>(contentTypes);
 
   return async (c) => {
-    const rawUrl = c.req.url;
-    const url = new URL(rawUrl, 'http://localhost'); // base only used if relative
-    const viewParam = url.searchParams.get('view');
-    const reqPath = url.pathname;
-
+    const viewParam = c.req.query('view');
     const view: t.ServeRouteView | undefined = viewParam === 'json' ? 'json' : undefined;
+    const reqPath = c.req.path;
 
     // Normalise, trim leading slash.
     const rel = reqPath.startsWith('/') ? reqPath.slice(1) : reqPath;
@@ -55,7 +52,7 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
 
     const exists = !!stat;
     const isFile = Boolean(stat?.isFile);
-    const isAllowedMime = Boolean(mime && allowedMimes.has(mime));
+    const isAllowedMime = Boolean(mime && allowedMimes.has(mime as t.MimeType));
 
     // Special JSON view.
     if (view === 'json' && exists) {
@@ -69,7 +66,7 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
     if (!isFile) return c.text(await notFound(), 404);
 
     // Only allow the configured serve types.
-    if (!mime || !allowedMimes.has(mime)) return c.text(await notFound(), 404);
+    if (!mime || !allowedMimes.has(mime as t.MimeType)) return c.text(await notFound(), 404);
 
     // Load and serve manually.
     const file = await Fs.read(fsPath);
