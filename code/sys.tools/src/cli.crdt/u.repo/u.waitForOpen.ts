@@ -1,4 +1,15 @@
 /**
+ * TODO 🐷 move to @sys/net
+ */
+// export type NetLib = {
+//   port,          // existing port allocator
+//   waitFor,       // waitFor(ws | other transport types)
+//   WebSocket: {
+//     waitForOpen, // optional specific helper, if you keep the older name
+//   },
+// };
+
+/**
  * Wait until the WebSocket is open.
  */
 export function waitForOpen(ws: WebSocket): Promise<void> {

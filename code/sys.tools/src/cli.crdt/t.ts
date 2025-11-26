@@ -4,8 +4,8 @@ import type { t } from './common.ts';
  * Exports:
  */
 export type * from './cmd.snapshot/t.ts';
-export type * from './cmd.repo/t.ts';
 export type * from './cmd.tasks/t.ts';
+export type * from './u.repo/t.ts';
 
 /** The tool's commands */
 export type CrdtCommand =
