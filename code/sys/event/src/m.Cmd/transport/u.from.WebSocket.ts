@@ -1,4 +1,4 @@
-import { type t } from '../common.ts';
+import { type t, Json } from '../common.ts';
 
 /**
  * Adapt a WebSocket into a CmdEndpoint using JSON-encoded messages.
@@ -24,7 +24,7 @@ export function fromWebSocket(ws: WebSocket): t.CmdEndpoint {
 
   type H = (event: MessageEvent) => void;
   return {
-    postMessage: (data: unknown) => ws.send(JSON.stringify(data)),
+    postMessage: (data: unknown) => ws.send(Json.stringify(data)),
     addEventListener: (_type: 'message', handler: H) => listeners.add(handler),
     removeEventListener: (_type: 'message', handler: H) => listeners.delete(handler),
     start() {
