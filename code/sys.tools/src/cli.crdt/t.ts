@@ -10,8 +10,8 @@ export type * from './u.repo/t.ts';
 /** The tool's commands */
 export type CrdtCommand =
   | 'snapshot'
-  | 'modify:add'
-  | 'modify:remove'
+  | 'doc:add'
+  | 'doc:remove'
   | 'filter:tasks'
   | 'doc:info-graph'
   | 'repo:daemon:start'

@@ -59,7 +59,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     const A = (await Prompt.Select.prompt<C>({
       message: 'Option:\n',
       options: [
-        { name: '  add: <document>', value: 'modify:add' satisfies C },
+        { name: '  add: <document>', value: 'doc:add' satisfies C },
         ...listing,
         { name: ' repo: start daemon', value: 'repo:daemon:start' satisfies C },
         { name: c.gray('(quit)'), value: 'quit' },
@@ -67,7 +67,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     })) as C;
 
     let id = CrdtUri.hasPrefix(A) ? CrdtUri.trimPrefix(A) : '';
-    if (A === 'modify:add') {
+    if (A === 'doc:add') {
       const res = await promptAddDocument(dir);
       if (!res?.id) return done();
       id = res.id;
@@ -86,7 +86,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
             { name: ' Backup (Snapshot)', value: 'snapshot' },
             { name: ' Document Graph → Stats', value: 'doc:info-graph' },
             { name: ' Filter Tasks', value: 'filter:tasks' },
-            { name: '(forget)', value: 'modify:remove' },
+            { name: '(forget)', value: 'doc:remove' },
             // { name: ' 🐷', value: 'tmp:🐷' },
           ],
         })) as t.CrdtCommand;
@@ -106,7 +106,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
           return done(0);
         }
 
-        if (B === 'modify:remove') {
+        if (B === 'doc:remove') {
           await promptRemoveDocument(dir, id);
           return done(0);
         }
