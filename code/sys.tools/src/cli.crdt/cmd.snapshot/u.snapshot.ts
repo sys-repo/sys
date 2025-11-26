@@ -1,5 +1,5 @@
-import { type t, Schedule, c, Cli, Crdt, Fs, Str, Time } from '../common.ts';
-import { startRepoOnWorker } from '../worker/mod.ts';
+import { RepoProcess } from '../cmd.repo/mod.ts';
+import { type t, c, Cli, Crdt, D, Fs, Str, Time } from '../common.ts';
 import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
 import { process } from './u.process.ts';
 import { Fmt } from '../u.fmt.ts';
@@ -7,12 +7,7 @@ import { Fmt } from '../u.fmt.ts';
 const Tree = Cli.Fmt.Tree;
 
 export async function snapshot(dir: t.StringDir, id: t.StringId) {
-  /**
-   * Prepare CRDT repository on background worker.
-   */
-  const spinner = Cli.spinner();
-  const repo = await startRepoOnWorker(dir);
-  spinner.stop();
+  const cmd = await RepoProcess.client(D.port);
 
   /**
    * Normalise the incoming id (may be "crdt:<id>" or bare).
@@ -23,9 +18,9 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
    * Process snapshot/backup request.
    */
   const tblProc = Cli.table([]);
-  const formatId = (value: string) => `crdt:${value.slice(0, -5)}${c.green(value.slice(-5))}`;
+  // const formatId = (value: string) => `crdt:${value.slice(0, -5)}${c.green(value.slice(-5))}`;
   const appendTable = (tbl: t.CliTable, e: t.CrdtSnapshotProgressSaved) => {
-    const coloredId = formatId(e.id);
+    const coloredId = Fmt.prettyUri(e.id);
     const branch = Tree.branch(false);
     const identity = c.gray(`${branch} ${e.isRoot ? c.white(coloredId) : coloredId}`);
     const warnAt = 1024 * 1024;
@@ -42,13 +37,13 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     return String(str);
   };
 
-  spinner.start(tableText());
+  const spinner = Cli.spinner(tableText());
 
   const timer = Time.timer();
   const progress: t.CrdtSnapshotProgress[] = [];
 
   const res = await process({
-    repo,
+    cmd,
     id: rootId,
     base: '-backup',
     yamlPath: ['slug'],
@@ -93,7 +88,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     warnTable.push([c.gray(Tree.vert)]);
     notFound.forEach((e, i, totalCount) => {
       const branch = Tree.branch([i, totalCount]);
-      const formattedId = formatId(e.id);
+      const formattedId = Fmt.prettyUri(e.id);
       warnTable.push([c.gray(`${branch} ${formattedId}`), c.yellow('skipped')]);
     });
 

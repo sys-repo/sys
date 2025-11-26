@@ -24,7 +24,7 @@ export function fromWebSocket(ws: WebSocket): t.CmdEndpoint {
 
   type H = (event: MessageEvent) => void;
   return {
-    postMessage: (data: unknown) => ws.send(Json.stringify(data)),
+    postMessage: (data: unknown) => ws.send(Json.stringify(data, 0)),
     addEventListener: (_type: 'message', handler: H) => listeners.add(handler),
     removeEventListener: (_type: 'message', handler: H) => listeners.delete(handler),
     start() {

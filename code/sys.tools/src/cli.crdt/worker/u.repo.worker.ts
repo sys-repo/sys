@@ -1,28 +1,24 @@
-import { Crdt, Fs, Is, Log } from '../common.ts';
+import { Crdt, Is, Log } from '../common.ts';
 
 /**
  * Single-repo worker host.
  */
-Crdt.Worker.Host.listen(
-  self,
-  async ({ config }) => {
-    if (!config || config.kind !== 'fs')
-      throw new Error(`Configuration kind "${config?.kind}" not supported.`);
+Crdt.Worker.Host.listen(self, async ({ config }) => {
+  if (!config || config.kind !== 'fs')
+    throw new Error(`Configuration kind "${config?.kind}" not supported.`);
 
-    const silent = config.silent;
-    const info = Log.logger('crdt:worker', { timestamp: null, enabled: !silent });
+  const silent = config.silent;
+  const info = Log.logger('crdt:worker', { timestamp: null, enabled: !silent });
 
-    const dir = config.storage;
-    const network = config.network || [];
-    const repo = await Crdt.repo({ dir, network }).whenReady();
+  const dir = config.storage;
+  const network = config.network || [];
+  const repo = await Crdt.repo({ dir, network }).whenReady();
 
-    info(`Crdt.Worker.Host.listen: "${repo.id.instance}"`);
-    info('Repo:');
-    info(`- filesystem: ${dir}`);
-    network.filter((e) => Is.record(e)).forEach((e) => info(`- network: ${e.ws}`));
-    repo.events().$.subscribe((e) => info('⚡️', e.type));
+  info(`Crdt.Worker.Host.listen: "${repo.id.instance}"`);
+  info('Repo:');
+  info(`- filesystem: ${dir}`);
+  network.filter((e) => Is.record(e)).forEach((e) => info(`- network: ${e.ws}`));
+  repo.events().$.subscribe((e) => info('⚡️', e.type));
 
-    return repo;
-  },
-  { Fs },
-);
+  return repo;
+});

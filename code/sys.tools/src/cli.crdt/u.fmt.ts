@@ -42,6 +42,6 @@ export const Fmt = {
   prettyUri(input: t.Crdt.Id) {
     const id = Crdt.Id.clean(input) ?? input;
     const pretty = `${id.slice(0, -5)}${c.green(id.slice(-5))}`;
-    return Crdt.Is.uri(input) ? `crdt:${pretty}` : pretty;
+    return `crdt:${pretty}`;
   },
 } as const;

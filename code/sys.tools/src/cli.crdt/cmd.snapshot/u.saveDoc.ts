@@ -4,7 +4,7 @@ import { type t, A, Fs, Crdt, toAutomergeHandle } from '../common.ts';
  * Persist a single document snapshot to disk and record its size.
  */
 export async function saveDoc(args: {
-  repo: t.Crdt.Repo;
+  cmd: t.Crdt.Cmd.Client;
   doc: t.Crdt.Ref;
   dir: t.StringDir;
   depth: number;
@@ -12,7 +12,7 @@ export async function saveDoc(args: {
   bytes: { json: number[]; binary: number[] };
   emit: (e: t.CrdtSnapshotProgress) => void;
 }) {
-  const { repo, dir, doc, isRoot, bytes, emit, depth } = args;
+  const { cmd, dir, doc, isRoot, bytes, emit, depth } = args;
 
   const filename = {
     json: `${doc.id}.crdt.json`,
@@ -39,7 +39,6 @@ export async function saveDoc(args: {
   /**
    * Binary File
    */
-  const cmd = Crdt.Cmd.fromRepo(repo);
   const res = await cmd.send('fs:save', { doc: doc.id, path: path.binary });
 
   const toSize = async (path: string) => (await Fs.stat(path))?.size ?? 0;

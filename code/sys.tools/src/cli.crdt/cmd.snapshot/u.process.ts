@@ -5,8 +5,8 @@ import { saveDoc } from './u.saveDoc.ts';
 const sumBytes = (values: readonly number[]) => values.reduce((total, n) => total + n, 0);
 
 type Args = {
+  cmd: t.Crdt.Cmd.Client;
   id: t.Crdt.Id;
-  repo: t.Crdt.Repo;
   base: t.StringDir;
   yamlPath: t.ObjectPath;
   now?: t.UnixTimestamp;
@@ -26,7 +26,7 @@ export type ProcessResult = {
  * Delegates DAG traversal to `Crdt.Graph.walk`.
  */
 export async function process(args: Args): Promise<ProcessResult> {
-  const { base, repo, onProgress } = args;
+  const { base, cmd, onProgress } = args;
 
   const emit = (event: t.CrdtSnapshotProgress) => onProgress?.(event);
   const now = args.now ?? Time.now.timestamp;
@@ -39,7 +39,11 @@ export async function process(args: Args): Promise<ProcessResult> {
   emit({ kind: 'start', rootId, dir, timestamp: now });
 
   await Crdt.Graph.walk({
-    repo,
+    load: async (id) => {
+      const { doc } = await cmd.send('doc:get', { doc: id });
+      return doc ?? undefined;
+    },
+
     id: rootId,
     processed,
 
@@ -48,7 +52,7 @@ export async function process(args: Args): Promise<ProcessResult> {
      */
     async onDoc({ depth, doc }) {
       const isRoot = doc.id === rootId;
-      await saveDoc({ repo, dir, doc, depth, isRoot, bytes, emit });
+      await saveDoc({ cmd, dir, doc, depth, isRoot, bytes, emit });
     },
 
     /**
