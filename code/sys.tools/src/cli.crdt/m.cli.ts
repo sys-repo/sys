@@ -1,13 +1,14 @@
 import { type t, Args, c, D, Fs, Is, Prompt } from './common.ts';
 
 import { tmp } from './-u.tmp.ts';
-import { RepoProcess } from './cmd.repo/mod.ts';
+import { RepoProcess } from './u.repo/mod.ts';
 import { snapshot } from './cmd.snapshot/mod.ts';
 import { findTasks } from './cmd.tasks/mod.ts';
 import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
 import { CrdtUri } from './u.ts';
+import { traverseDocumentGraph } from './cmds/mod.ts';
 
 type C = t.CrdtCommand;
 
@@ -56,7 +57,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   {
     console.info();
     const A = (await Prompt.Select.prompt<C>({
-      message: 'Choose:\n',
+      message: 'Option:\n',
       options: [
         { name: '  add: <document>', value: 'modify:add' satisfies C },
         ...listing,
@@ -82,16 +83,22 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
         const B = (await Prompt.Select.prompt<t.CrdtCommand>({
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
           options: [
-            // { name: ' 🐷', value: 'tmp:🐷' },
             { name: ' Backup (Snapshot)', value: 'snapshot' },
+            { name: ' Document Graph → Stats', value: 'doc:info-graph' },
             { name: ' Filter Tasks', value: 'filter:tasks' },
             { name: '(forget)', value: 'modify:remove' },
+            // { name: ' 🐷', value: 'tmp:🐷' },
           ],
         })) as t.CrdtCommand;
 
         if (B === 'snapshot') {
           await snapshot(dir, id);
           return done(0);
+        }
+
+        if (B === 'doc:info-graph') {
+          await traverseDocumentGraph(dir, id);
+          return done();
         }
 
         if (B === 'filter:tasks') {
