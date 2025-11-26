@@ -11,8 +11,12 @@ type Node = {
 export const Fmt: t.FsFmtLib = {
   tree(paths, opt = {}) {
     const options = wrangle.options(opt);
+    const rels = [...paths]
+      .filter(Boolean)
+      .map(normalizeRel)
+      .filter((path) => (options.filter ? options.filter(path) : true))
+      .sort();
 
-    const rels = [...paths].filter(Boolean).map(normalizeRel).sort();
     const root: Node = { name: '', files: [], dirs: new Map() };
     for (const p of rels) insert(root, p.split('/'));
 

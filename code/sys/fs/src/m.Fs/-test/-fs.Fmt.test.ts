@@ -90,5 +90,37 @@ describe('Fs.Fmt', () => {
         await Fs.remove(tmp.absolute);
       });
     });
+
+    describe('filter', () => {
+      it('excludes matching paths in tree()', () => {
+        const rels = ['include/keep.txt', 'exclude/skip.txt', 'other/file.md'];
+        const out = Fs.Fmt.tree(rels, {
+          label: 'root/',
+          filter: (path) => !path.startsWith('exclude/'),
+        });
+
+        expect(out).to.include('keep.txt');
+        expect(out).to.include('file.md');
+        expect(out).to.not.include('skip.txt');
+      });
+
+      it('excludes matching paths in treeFromDir()', async () => {
+        const tmp = await Fs.makeTempDir({ prefix: 'fmt-tree-filter-' });
+        const keep = Path.join(tmp.absolute, 'keep/keep.txt');
+        const skip = Path.join(tmp.absolute, 'skip/skip.txt');
+
+        await Fs.write(keep, 'keep', { force: true });
+        await Fs.write(skip, 'skip', { force: true });
+
+        const out = await Fs.Fmt.treeFromDir(tmp.absolute, {
+          filter: (path) => !path.startsWith('skip/'),
+        });
+
+        expect(out).to.include('keep.txt');
+        expect(out).to.not.include('skip.txt');
+
+        await Fs.remove(tmp.absolute);
+      });
+    });
   });
 });
