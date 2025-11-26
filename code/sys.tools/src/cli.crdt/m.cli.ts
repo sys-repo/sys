@@ -83,9 +83,9 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
         const B = (await Prompt.Select.prompt<t.CrdtCommand>({
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
           options: [
-            { name: ' Backup (Snapshot)', value: 'snapshot' },
-            { name: ' Document Graph → Stats', value: 'doc:info-graph' },
-            { name: ' Filter Tasks', value: 'filter:tasks' },
+            { name: ' Backup', value: 'snapshot' },
+            { name: ' Document Graph → Stats/Info', value: 'doc:info-graph' },
+            // { name: ' Filter Tasks', value: 'filter:tasks' },
             { name: '(forget)', value: 'doc:remove' },
             // { name: ' 🐷', value: 'tmp:🐷' },
           ],
