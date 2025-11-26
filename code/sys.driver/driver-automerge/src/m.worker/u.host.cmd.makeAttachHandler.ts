@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import { type t, Is } from './common.ts';
 import { attachRepo } from './u.host.attach.repo.ts';
 
 type Methods = t.CrdtCmdHandlers;
@@ -23,10 +23,19 @@ export function makeAttachHandler(
 
     // Lazily create repo via factory on first attach.
     if (args.factory) {
-      const created = await args.factory({ config });
-      onRepoCreated(created);
-      const instance = created;
-      attachRepo(args.port, instance);
+      const repo = await args.factory({ config });
+      onRepoCreated(repo);
+
+      // If this is an filesystem-based worker with a publish config,
+      // start the WebSocket command server for this repo.
+      if (config?.kind === 'fs' && config.publish) {
+        if (Is.browser()) throw new Error(`Cannot load an "fs" configuration in the browser`);
+        const { publishCommands } = await import('./u.host.publishCommands.ts');
+        const { port, hostname } = config.publish;
+        publishCommands({ repo, port, hostname });
+      }
+
+      attachRepo(args.port, repo);
       return ok;
     }
 
