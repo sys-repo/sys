@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '../../-test.ts';
 import { type t, Rx } from '../common.ts';
-import { CrdtCmd } from '../mod.ts';
+import { CrdtCmd } from './u.ts';
 
 describe('Command: stats', () => {
   let env: t.TestWorkerFixture;

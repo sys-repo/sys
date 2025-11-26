@@ -1,6 +1,6 @@
 import { type t, CrdtCmd, CrdtIs, Is } from './common.ts';
 import { makeAttachHandler } from './u.host.cmd.makeAttachHandler.ts';
-import { makeStatsHandler, makeSaveHandler } from '../m.Crdt.Cmd/commands/mod.ts';
+import { makeStatsHandler, makeSaveHandler } from '../m.commands/mod.ts';
 import { Wire } from './u.wire.ts';
 
 type AttachMessage = {

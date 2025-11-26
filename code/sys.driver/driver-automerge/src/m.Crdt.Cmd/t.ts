@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 
 export type * from './t.lib.ts';
-export type * from './t.commands.ts';
 
 type Name = t.CrdtCmdName;
 type Payload = t.CrdtCmdPayload;

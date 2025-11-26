@@ -1,4 +1,4 @@
-import { type t, A, toAutomergeHandle } from '../common.ts';
+import { type t, A, toAutomergeHandle } from './common.ts';
 
 export function makeStatsHandler(
   getRepo: () => t.Crdt.Repo | undefined,

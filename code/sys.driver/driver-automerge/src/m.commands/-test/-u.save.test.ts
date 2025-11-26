@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '../../-test.ts';
 import { type t, A, slug } from '../common.ts';
-import { CrdtCmd } from '../mod.ts';
+import { CrdtCmd } from './u.ts';
 
 import { Hash } from '@sys/crypto/hash';
 import { Fs } from '@sys/fs';

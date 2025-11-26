@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import { make } from './u.make.ts';
-import { makeStatsHandler, makeSaveHandler } from './commands/mod.ts';
+import { makeStatsHandler, makeSaveHandler } from '../m.commands/mod.ts';
 
 /**
  * Attach a CRDT command host to a command endpoint.
