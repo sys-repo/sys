@@ -1,7 +1,7 @@
-import { Net } from '@sys/http';
 import { c, describe, expect, it, pkg } from '../-test.ts';
 import { Server } from '../m.Server/mod.ts';
 import { ServerInfo } from './mod.ts';
+import { Net } from './common.ts';
 
 describe('Crdt: SyncServer - client tools', () => {
   it('API', async () => {

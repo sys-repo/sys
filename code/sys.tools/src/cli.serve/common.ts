@@ -1,8 +1,8 @@
-import { typeByExtension } from 'jsr:@std/media-types@^1.1.0/type-by-extension';
 import { type t, Fs, JsonFile } from '../common.ts';
 
+export { HttpServer } from '@sys/http/server';
+export { Net } from '@sys/net';
 export * from '../common.ts';
-export { HttpServer, Net } from '@sys/http/server';
 
 /**
  * Constants:

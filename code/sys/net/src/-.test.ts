@@ -1,8 +1,9 @@
 import { type t, describe, it, expect, Pkg, pkg } from './-test.ts';
+import { Net } from './m.Net/mod.ts';
 
 describe(`module: ${Pkg.toString(pkg)}`, () => {
-  it('exists', () => {
-    console.info(`💦 Module`, pkg);
-    expect(typeof pkg.name === 'string').to.be.true;
+  it('API', async () => {
+    const m = await import('@sys/net');
+    expect(m.Net).to.equal(Net);
   });
 });
