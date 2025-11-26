@@ -1,4 +1,4 @@
-import { type t, c, Cli, keepAlive, Rx, Time, Crdt, Cmd } from '../common.ts';
+import { type t, c, Cli, Rx, Time } from '../common.ts';
 import { startRepoOnWorker } from '../worker/mod.ts';
 import { Fmt } from './u.fmt.ts';
 
@@ -21,7 +21,7 @@ export const RepoDaemon = {
      */
     console.clear();
     const spinner = Cli.spinner(Fmt.spinnerText('starting repository...'));
-    const repo = await startRepoOnWorker(dir);
+    const repo = await startRepoOnWorker(dir, { port });
     const events = repo.events();
     spinner.stop();
 
@@ -52,7 +52,7 @@ export const RepoDaemon = {
     });
 
     // 1. Wait here until Ctrl-C.
-    await keepAlive();
+    await Cli.keepAlive();
 
     // 2. Then shut down, fully awaited.
     spinner.start(Fmt.spinnerText('shutting down...'));
