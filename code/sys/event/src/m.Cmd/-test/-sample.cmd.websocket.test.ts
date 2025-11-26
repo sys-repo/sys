@@ -1,4 +1,4 @@
-import { Net } from '@sys/http/server';
+import { Net } from '@sys/net';
 import { describe, expect, it, type t } from '../../-test.ts';
 import { Cmd } from '../mod.ts';
 import { Fixture } from './u.fixture.ts';
