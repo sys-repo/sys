@@ -17,7 +17,7 @@ export const useDocStats: t.UseCrdtDocStats = (repo, docid) => {
 
     (async () => {
       try {
-        const stats = await cmd.send('stats', { doc: docid });
+        const stats = await cmd.send('doc:stats', { doc: docid });
         if (!life.disposed) setInfo(stats);
       } catch {}
     })();

@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '..
 import { type t, Rx } from '../common.ts';
 import { CrdtCmd } from './u.ts';
 
-describe('Command: stats', () => {
+describe('Command: "doc:stats"', () => {
   let env: t.TestWorkerFixture;
   beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());
@@ -20,7 +20,7 @@ describe('Command: stats', () => {
     const client = cmd.client(env.port);
 
     // 3. Initial stats.
-    const res1 = await client.send('stats', { doc: doc.id });
+    const res1 = await client.send('doc:stats', { doc: doc.id });
     expect(res1.bytes).to.be.greaterThan(0);
     expect(res1.total.changes).to.be.greaterThan(0);
     expect(res1.total.ops).to.be.greaterThan(0);
@@ -30,7 +30,7 @@ describe('Command: stats', () => {
     await Rx.firstValueFrom(doc.events().$.pipe(Rx.take(1)));
 
     // 5. Stats after change should be strictly greater.
-    const res2 = await client.send('stats', { doc: doc.id });
+    const res2 = await client.send('doc:stats', { doc: doc.id });
 
     expect(res2.bytes).to.be.greaterThan(res1.bytes);
     expect(res2.total.changes).to.be.greaterThan(res1.total.changes);

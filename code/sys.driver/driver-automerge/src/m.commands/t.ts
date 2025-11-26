@@ -7,7 +7,7 @@ type Result = t.CrdtCmdResult;
 /**
  * Command names supported by the CRDT command layer.
  */
-export type CrdtCmdName = 'attach' | 'stats' | 'fs:save' | 'doc:get';
+export type CrdtCmdName = 'attach' | 'fs:save' | 'doc:get' | 'doc:stats';
 
 /**
  * Typed set of worker-side command handlers.
@@ -26,9 +26,9 @@ export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
  */
 export type CrdtCmdPayload = {
   attach: { config?: t.CrdtWorkerConfig };
-  stats: { doc: t.Crdt.Id };
   'fs:save': { doc: t.Crdt.Id; path: t.StringPath };
   'doc:get': { doc: t.Crdt.Id };
+  'doc:stats': { doc: t.Crdt.Id };
 };
 
 /**
@@ -40,9 +40,9 @@ export type CrdtCmdPayload = {
  */
 export type CrdtCmdResult = {
   attach: CrdtCommands.AttachResult;
-  stats: t.DocumentStats;
   'fs:save': CrdtCommands.SaveResult;
   'doc:get': CrdtCommands.GetDocResult;
+  'doc:stats': t.DocumentStats;
 };
 
 /**
