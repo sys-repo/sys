@@ -60,6 +60,7 @@ export type PkgDistComputeArgs = {
   entry?: string;
   url?: t.DistPkg['url'];
   save?: boolean;
+  filter?(path: t.StringPath): boolean;
 };
 
 /**

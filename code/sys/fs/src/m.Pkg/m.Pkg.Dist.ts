@@ -19,7 +19,7 @@ export const Dist: PkgDistFsLib = {
    * Prepare and save a "distribution package" meta-data file `pkg.json`.
    */
   async compute(args) {
-    const { entry = '', save = false } = args;
+    const { entry = '', save = false, filter } = args;
     const dir = Fs.resolve(args.dir);
     let error: t.StdError | undefined;
 
@@ -39,7 +39,7 @@ export const Dist: PkgDistFsLib = {
     /**
      * Prepare the "distribution-package" json.
      */
-    const hash = exists ? await wrangle.hashes(dir) : { digest: '', parts: {} };
+    const hash = exists ? await wrangle.hashes(dir, filter) : { digest: '', parts: {} };
     const size: t.DistPkg['build']['size'] = {
       total: await wrangle.bytes(dir, Object.keys(hash.parts)),
       pkg: CompositeHash.size(hash.parts, (m) => Pkg.Dist.Is.codePath(m.path)) ?? 0,
@@ -81,7 +81,7 @@ export const Dist: PkgDistFsLib = {
   },
 
   /**
-   * Load a `dist.json` file into a \<DistPackage\> type.
+   * Load a `dist.json` file into a <DistPackage> type.
    */
   async load(dir) {
     dir = Fs.resolve(dir);
@@ -146,9 +146,13 @@ export const Dist: PkgDistFsLib = {
  * Helpers
  */
 const wrangle = {
-  async hashes(path: t.StringDir) {
-    const filter = (path: string) => path !== './dist.json';
-    const res = await DirHash.compute(path, { filter });
+  async hashes(path: t.StringDir, filter?: (path: t.StringPath) => boolean) {
+    const excludeDistJson = (value: string) => value !== './dist.json';
+    const mergedFilter = (value: string) => {
+      if (!excludeDistJson(value)) return false;
+      return filter ? filter(value) : true;
+    };
+    const res = await DirHash.compute(path, { filter: mergedFilter });
     return res.hash;
   },
 

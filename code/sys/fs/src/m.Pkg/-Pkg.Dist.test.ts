@@ -72,6 +72,48 @@ describe('Pkg.Dist', () => {
       expect(dist.hash.parts).to.eql(dirhash.hash.parts);
     });
 
+    it('Dist.compute(): applies custom filter to hash manifest (in addition to dist.json exclusion)', async () => {
+      const sample = await Sample.init();
+      const { dir, entry } = sample.path;
+
+      const pkg = { name: 'my-package', version: '0.0.0' };
+      const builder = { name: 'my-builder', version: '0.0.0' };
+
+      /**
+       * Prepare an extra file that will be ignored by the filter.
+       */
+      const ignoredFilename = 'ignore.me';
+      const ignoredAbsPath = Path.join(dir, ignoredFilename);
+      await Fs.write(ignoredAbsPath, 'ignore-this-file');
+      const ignoredRelPath = `./${ignoredFilename}`;
+
+      /**
+       * Dist.compute filter:
+       *   - always exclude "./dist.json" (inside Dist implementation)
+       *   - additionally exclude "./ignore.me" (here)
+       */
+      const filter = (p: t.StringPath) => p !== ignoredRelPath;
+      const res = await Pkg.Dist.compute({ dir, pkg, builder, entry, filter });
+      const dist = res.dist;
+
+      expect(res.exists).to.eql(true);
+      expect(res.error).to.eql(undefined);
+
+      /**
+       * Reference hash using the equivalent combined filter:
+       *   - ex: "./dist.json"
+       *   - ex: "./ignore.me"
+       */
+      const dirhash = await Dir.Hash.compute(
+        dir,
+        (p) => p !== './dist.json' && p !== ignoredRelPath,
+      );
+
+      expect(dist.hash.digest).to.eql(dirhash.hash.digest);
+      expect(dist.hash.parts).to.eql(dirhash.hash.parts);
+      expect(Object.prototype.hasOwnProperty.call(dist.hash.parts, ignoredRelPath)).to.eql(false);
+    });
+
     it('custom: url/base (compiled pathing)', async () => {
       const pkg = { name: 'my-package', version: '0.0.0' };
       const builder = { name: 'my-builder', version: '0.0.0' };
