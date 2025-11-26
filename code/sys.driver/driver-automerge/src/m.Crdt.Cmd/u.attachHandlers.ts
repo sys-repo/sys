@@ -1,5 +1,5 @@
 import { makeSaveHandler, makeStatsHandler } from '../m.commands/mod.ts';
-import type { t } from './common.ts';
+import { type t, Is } from './common.ts';
 import { make } from './u.make.ts';
 
 /**
@@ -10,11 +10,12 @@ import { make } from './u.make.ts';
  */
 export const attachHandlers = (args: {
   endpoint: t.CmdEndpoint;
-  getRepo: () => t.Crdt.Repo | undefined;
+  repo: t.CrdtRepoInput;
   handlers?: Partial<t.CrdtCmdHandlers>;
 }): t.CmdHost => {
-  const { endpoint, getRepo } = args;
+  const { endpoint } = args;
   const cmd = make();
+  const getRepo = () => (Is.func(args.repo) ? args.repo() : args.repo);
 
   const handlers: t.CrdtCmdHandlers = {
     attach: () => ({ ok: true }), // ← no handshake needed locally

@@ -8,7 +8,7 @@ import { attachHandlers } from './u.attachHandlers.ts';
  * and the endpoint is closed at the same time.
  */
 export const attachHost: t.CrdtCmdLib['attachHost'] = (repo, endpoint, until) => {
-  const host = attachHandlers({ endpoint, getRepo: () => repo });
+  const host = attachHandlers({ endpoint, repo });
 
   const events = repo.events(until);
   const sub = events.dispose$.subscribe(() => {

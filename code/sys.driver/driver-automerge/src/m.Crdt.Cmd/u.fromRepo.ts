@@ -29,7 +29,7 @@ function fromProxyRepo(repo: t.Crdt.Repo, until?: t.UntilInput) {
 
 function fromConcreteRepo(repo: t.Crdt.Repo, until: t.UntilInput) {
   const { port1, port2 } = new MessageChannel();
-  const host = attachHandlers({ endpoint: port1, getRepo: () => repo });
+  const host = attachHandlers({ endpoint: port1, repo });
   const cmd = make();
   const client = cmd.client(port2);
 

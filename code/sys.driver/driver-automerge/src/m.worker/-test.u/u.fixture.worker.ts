@@ -1,6 +1,5 @@
-import { Fs } from '@sys/fs';
+import { Crdt } from '@sys/driver-automerge/fs';
 import { type t } from '../common.ts';
-import { Crdt } from '../../-exports/-fs/mod.ts';
 
 import { CrdtWorker } from '../mod.ts';
 
@@ -16,4 +15,4 @@ const factory: t.CrdtRepoFactory = async ({ config }) => {
 };
 
 // Install the host listener using the factory (lazy repo creation).
-CrdtWorker.Host.listen(self, factory, { Fs });
+CrdtWorker.Host.listen(self, factory);

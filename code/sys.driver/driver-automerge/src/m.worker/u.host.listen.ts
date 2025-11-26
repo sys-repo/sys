@@ -17,7 +17,6 @@ type AttachMessage = {
  * - listen(self, factory)        ← lazy repo creation with spawn-time config
  */
 export const listen: t.CrdtWorkerHostLib['listen'] = (self, args, opts = {}) => {
-  const { Fs } = opts;
   let { repo, factory } = wrangle.args(args);
 
   /**
@@ -39,7 +38,7 @@ export const listen: t.CrdtWorkerHostLib['listen'] = (self, args, opts = {}) => 
     const attach = makeAttachHandler({ port, repo, factory }, (created) => (repo = created));
     attachHandlers({
       endpoint: port,
-      getRepo: () => repo,
+      repo: () => repo,
       handlers: { attach },
     });
   });

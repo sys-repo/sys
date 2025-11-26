@@ -1,11 +1,14 @@
 import type { t } from './common.ts';
-
 export type * from './t.events.ts';
 
 type O = Record<string, unknown>;
 
 /** Options passed to the `Repo.get` method. */
 export type CrdtRepoGetOptions = { timeout?: t.Msecs };
+
+/** A loose late-bound input the resolves to a repo. */
+export type CrdtRepoInput = t.Crdt.Repo | undefined | CrdtGetRepoInput;
+export type CrdtGetRepoInput = () => t.Crdt.Repo | undefined;
 
 /**
  * A repository of CRDT documents:
