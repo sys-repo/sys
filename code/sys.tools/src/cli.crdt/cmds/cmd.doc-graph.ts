@@ -1,4 +1,4 @@
-import { type t, c, Cli, Crdt, D, Str } from '../common.ts';
+import { type t, c, Cli, Crdt, D, Str, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { RepoProcess } from '../u.repo/mod.ts';
 
@@ -33,10 +33,11 @@ export async function traverseDocumentGraph(root: t.Crdt.Id) {
   }
 
   try {
+    const startedAt = Time.now.timestamp;
     spinner.start(Fmt.spinnerText('walking graph...'));
     await walk(cmd);
     spinner.stop();
-    await print(cmd);
+    await print(cmd, startedAt);
   } finally {
     cmd.dispose?.(); // Release network resources.
   }
@@ -44,8 +45,8 @@ export async function traverseDocumentGraph(root: t.Crdt.Id) {
   /**
    * Print:
    */
-  async function print(cmd: Client) {
-    console.info(await buildProcessedTable(cmd, processed));
+  async function print(cmd: Client, startedAt: t.Msecs) {
+    console.info(await buildProcessedTable(cmd, processed, startedAt));
     if (skipped.length > 0) console.info(await buildNotFoundTable(skipped));
     console.info();
   }
@@ -54,11 +55,12 @@ export async function traverseDocumentGraph(root: t.Crdt.Id) {
 /**
  * Helpers:
  */
-async function buildProcessedTable(cmd: Client, processed: t.Crdt.Id[]) {
+async function buildProcessedTable(cmd: Client, processed: t.Crdt.Id[], startedAt: t.Msecs) {
   const pipe = c.gray(`  ${Tree.vert}`);
   const ops = c.dim(c.gray('ops'));
   const changes = c.dim(c.gray('changes'));
   const table = Cli.table([pipe, '', ops, changes]);
+  const branch = c.dim(c.gray(Tree.branch(false)));
 
   for (const [i, doc] of processed.entries()) {
     const is = { first: i === 0, last: i === processed.length - 1 } as const;
@@ -66,7 +68,7 @@ async function buildProcessedTable(cmd: Client, processed: t.Crdt.Id[]) {
 
     const uri = Fmt.prettyUri(doc);
     let identity = is.first ? uri : c.gray(uri);
-    identity = `  ${c.dim(Tree.branch(is.last))} ${identity}`;
+    identity = `  ${branch} ${identity}`;
 
     const warnAt = 1024 * 1024; // 1-MB
     const bytes = (bytes: number) => {
@@ -82,21 +84,27 @@ async function buildProcessedTable(cmd: Client, processed: t.Crdt.Id[]) {
     table.push([identity, size, ops, changes]);
   }
 
+  const elapsed = String(Time.elapsed(startedAt));
+  const total = processed.length;
+  let summary = `walked ${total}`;
+  summary += ` ${Str.plural(total, 'document', 'documents')} in ${elapsed}`;
+  table.push([c.dim(c.gray(`  ${Tree.vert}`))]);
+  table.push([c.gray(`  ${c.italic(summary)}`)]);
+
   return Str.trimEdgeNewlines(String(table));
 }
 
 async function buildNotFoundTable(skipped: t.Crdt.Graph.WalkSkipArgs[]) {
+  skipped = skipped.filter((e) => e.reason === 'not-found');
   if ((skipped ?? []).length === 0) return '';
 
   const warnTable = Cli.table([]);
   warnTable.push([c.gray(Tree.vert)]);
-  skipped
-    .filter((e) => e.reason === 'not-found')
-    .forEach((e, i, totalCount) => {
-      const branch = Tree.branch([i, totalCount]);
-      const skipped = c.gray(`${c.yellow('skipped')}; ${e.reason}, depth=${e.depth}`);
-      warnTable.push([c.gray(`${branch} ${Fmt.prettyUri(e.id)}`), skipped]);
-    });
+  skipped.forEach((e, i, totalCount) => {
+    const branch = Tree.branch([i, totalCount]);
+    const skipped = c.gray(`${c.yellow('skipped')}; ${e.reason}, depth=${e.depth}`);
+    warnTable.push([c.gray(`${branch} ${Fmt.prettyUri(e.id)}`), skipped]);
+  });
 
   const notFound = c.white('not found');
   const str = Str.builder()
