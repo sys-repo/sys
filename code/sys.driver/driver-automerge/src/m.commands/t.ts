@@ -10,6 +10,14 @@ type Result = t.CrdtCmdResult;
 export type CrdtCmdName = 'attach' | 'stats' | 'fs:save';
 
 /**
+ * Typed set of worker-side command handlers.
+ *
+ * For each command name:
+ *   handler(args) → result | Promise<result>
+ */
+export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
+
+/**
  * Payloads keyed by command name.
  * - attach → optional spawn-time configuration.
  * - stats  → document id to inspect.
@@ -19,14 +27,6 @@ export type CrdtCmdPayload = {
   stats: { doc: t.Crdt.Id };
   'fs:save': { doc: t.Crdt.Id; path: t.StringPath };
 };
-
-/**
- * Typed set of worker-side command handlers.
- *
- * For each command name:
- *   handler(args) → result | Promise<result>
- */
-export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
 
 /**
  * Result payloads keyed by command name.

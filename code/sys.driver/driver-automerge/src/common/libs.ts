@@ -19,6 +19,7 @@ export {
   Is,
   Num,
   Obj,
+  Path,
   Pkg,
   R,
   Str,

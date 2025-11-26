@@ -1,6 +1,7 @@
-import { type t, CrdtCmd, CrdtIs, Is } from './common.ts';
+import { attachHandlers } from '../m.Crdt.Cmd/u.attachHandlers.ts';
+import { type t, CrdtIs, Is } from './common.ts';
 import { makeAttachHandler } from './u.host.cmd.makeAttachHandler.ts';
-import { makeStatsHandler, makeSaveHandler } from '../m.commands/mod.ts';
+
 import { Wire } from './u.wire.ts';
 
 type AttachMessage = {
@@ -17,7 +18,6 @@ type AttachMessage = {
  */
 export const listen: t.CrdtWorkerHostLib['listen'] = (self, args, opts = {}) => {
   const { Fs } = opts;
-  const cmd = CrdtCmd.make();
   let { repo, factory } = wrangle.args(args);
 
   /**
@@ -36,10 +36,11 @@ export const listen: t.CrdtWorkerHostLib['listen'] = (self, args, opts = {}) => 
     /**
      * Bind the RPC command host to the MessagePort.
      */
-    cmd.host(port, {
-      attach: makeAttachHandler({ port, repo, factory }, (created) => (repo = created)),
-      stats: makeStatsHandler(() => repo),
-      'fs:save': makeSaveHandler(() => repo, Fs),
+    const attach = makeAttachHandler({ port, repo, factory }, (created) => (repo = created));
+    attachHandlers({
+      endpoint: port,
+      getRepo: () => repo,
+      handlers: { attach },
     });
   });
 

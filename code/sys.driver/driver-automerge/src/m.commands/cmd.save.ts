@@ -1,16 +1,16 @@
-import { type t, A, Hash, toAutomergeHandle } from './common.ts';
+import { type t, A, Hash, Is, toAutomergeHandle } from './common.ts';
 
 export function makeSaveHandler(
   getRepo: () => t.Crdt.Repo | undefined,
-  Fs?: t.FsLib,
 ): t.CrdtCmdHandlers['fs:save'] {
   return async (params) => {
     const repo = getRepo();
     const path = params.path;
 
     // Environment checks:
-    if (!repo) throw new Error('Failed to retrieve repo');
-    if (!Fs) throw new Error(`Not initialized with a filesystem.`);
+    if (!repo) throw new Error('No repo to operate on.');
+    if (Is.browser()) throw new Error('Cannot save to file-system on browser');
+    const { Fs } = await import('@sys/fs');
 
     // Retrieve document
     const { ok, doc } = await repo.get(params.doc);
