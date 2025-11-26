@@ -3,13 +3,11 @@ import { type t, Args, c, D, Fs, Is, Prompt } from './common.ts';
 import { tmp } from './-u.tmp.ts';
 import { RepoProcess } from './cmd.repo.daemon/mod.ts';
 import { snapshot } from './cmd.snapshot/mod.ts';
-import { findTasks } from './cmd.tasks/mod.ts';
+import { startSyncServer, traverseDocumentGraph } from './cmds/mod.ts';
 import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
 import { CrdtUri } from './u.ts';
-import { traverseDocumentGraph } from './cmds/mod.ts';
-import { startSyncServer } from './cmds/mod.ts';
 
 type C = t.CrdtCommand;
 
@@ -100,11 +98,6 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
 
         if (B === 'doc:info-graph') {
           await traverseDocumentGraph(id);
-          return done(0);
-        }
-
-        if (B === 'filter:tasks') {
-          findTasks(dir, id);
           return done(0);
         }
 
