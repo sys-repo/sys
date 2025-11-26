@@ -1,11 +1,25 @@
-import { type t, c, Cli, D, Rx, Time } from '../common.ts';
+import { type t, c, Cli, D, Rx, Time, Str } from '../common.ts';
 import { startRepoOnWorker } from '../worker/mod.ts';
 import { Fmt } from './u.fmt.ts';
+import { tryClient } from './u.client.ts';
 
 /**
  * Runs the CRDT repo as a long-lived daemon rendering a live terminal UI.
  */
 export async function daemon(dir: t.StringDir) {
+  const cmd = await tryClient(D.port);
+
+  if (cmd) {
+    const port = c.white(String(D.port));
+    const str = Str.builder()
+      .line()
+      .line(c.yellow(`  Could not start the daemon, already running on port ${port}`))
+      .line(c.italic(c.gray(`  You can use use the already running service`)))
+      .line();
+    console.info(String(str));
+    return;
+  }
+
   const eventlog = new Set<t.CrdtRepoLogEntry>();
   const port = D.port;
 
