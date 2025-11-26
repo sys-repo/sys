@@ -9,7 +9,7 @@ export function make<
   N extends string = t.CmdName,
   P extends t.CmdPayloadMap<N> = t.CmdPayloadMap<N>,
   R extends t.CmdPayloadResultMap<N> = t.CmdPayloadResultMap<N>,
->(opts: t.CmdMakeOptions = {}): t.CmdInstance<N, P, R> {
+>(opts: t.CmdMakeOptions = {}): t.CmdFactory<N, P, R> {
   const { ns } = opts;
   return {
     client: (endpoint, opts) => makeClient<N, P, R>(endpoint, { ...opts, ns }),

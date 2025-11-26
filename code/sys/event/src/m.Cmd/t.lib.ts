@@ -16,46 +16,11 @@ export type CmdLib = {
   /**
    * Create a typed command instance for a specific command set.
    */
-  make<
-    N extends string = t.CmdName,
-    P extends t.CmdPayloadMap<N> = t.CmdPayloadMap<N>,
-    R extends t.CmdPayloadResultMap<N> = t.CmdPayloadResultMap<N>,
-  >(
-    opts?: t.CmdMakeOptions,
-  ): t.CmdInstance<N, P, R>;
-};
-
-/**
- * Transport adapters for wiring Cmd to various message endpoints.
- */
-export type CmdTransportLib = {
-  /** Adapt a WebSocket into a CmdEndpoint using JSON-encoded messages. */
-  fromWebSocket(ws: WebSocket): t.CmdEndpoint;
-};
-
-/**
- * Typed instance for a concrete command set:
- * - N: command names
- * - P: payloads per name
- * - R: result payloads per name
- */
-export type CmdInstance<
-  N extends string,
-  P extends t.CmdPayloadMap<N>,
-  R extends t.CmdPayloadResultMap<N>,
-> = {
-  client(endpoint: t.CmdEndpoint, opts?: t.CmdClientOptions): t.CmdClient<N, P, R>;
-  host(endpoint: t.CmdEndpoint, handlers: t.CmdHandlers<N, P, R>): t.CmdHost;
+  readonly make: t.CmdMakeFactory;
 };
 
 /** Options passed to `Cmd.make()` */
 export type CmdMakeOptions = {
   /** Optional namespace used to disambiguate shared transports. */
   ns?: t.CmdNamespace;
-};
-
-/** Options passed to `Cmd.make().client()` */
-export type CmdClientOptions = {
-  /** Optional timeout in milliseconds for each command request. */
-  timeout?: t.Msecs;
 };
