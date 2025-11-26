@@ -24,7 +24,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     const coloredId = Fmt.prettyUri(e.id);
     const branch = Tree.branch(false);
     const identity = c.gray(`${branch} ${e.isRoot ? c.white(coloredId) : coloredId}`);
-    const warnAt = 1024 * 1024;
+    const warnAt = 1024 * 1024; // 1-MB
     const bytes = (bytes: number) => {
       const s = Str.bytes(bytes);
       return bytes > warnAt ? c.yellow(s) : s;
