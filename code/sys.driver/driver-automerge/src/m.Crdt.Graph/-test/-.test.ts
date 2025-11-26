@@ -150,16 +150,7 @@ describe(`Crdt.Graph`, () => {
     const seenDocs: t.Crdt.Id[] = [];
 
     const discoverRefs: t.CrdtGraphDiscoverRefs = async (args): Promise<readonly t.Crdt.Id[]> => {
-      const { depth } = args;
       const doc = args.doc as t.Crdt.Ref<T>;
-
-      // const discoverRefs = async ({
-      //   doc,
-      // }: {
-      //   doc: t.Crdt.Ref<{ next?: string }>;
-      //   depth: number;
-      // }): Promise<readonly t.Crdt.Id[]> => {
-
       const current = doc.current;
       const next = current.next;
       if (!next || !next.startsWith('doc:')) return [];
@@ -181,6 +172,65 @@ describe(`Crdt.Graph`, () => {
     // visited both docs via async discoverRefs
     expect(res.processed).to.eql([A.id, B.id]);
     expect(seenDocs).to.eql([A.id, B.id]);
+    expectTypeOf(res.processed).toEqualTypeOf<readonly t.Crdt.Id[]>();
+  });
+
+  it('walks a DAG via loader-only args (no repo on walk args)', async () => {
+    const { repo } = env;
+
+    /**
+     * 1. Create documents A, B, C as a simple A → B → C chain.
+     */
+    type T = { next?: string };
+    const A = (await repo.create<T>({ next: '' })).doc!;
+    const B = (await repo.create<T>({ next: '' })).doc!;
+    const C = (await repo.create<{ value: number }>({ value: 123 })).doc!;
+
+    A.change((d) => (d.next = `crdt:${B.id}`));
+    B.change((d) => (d.next = `crdt:${C.id}`));
+
+    /**
+     * 2. Implement a loader that mimics the remote/daemon path.
+     *
+     * In production this would usually be `cmd.send('doc:get', { id })`,
+     * but here we simulate it in-process using `repo.get` so we can keep
+     * the worker fixture and focus on the CrdtGraph surface.
+     */
+    const load = async (id: t.Crdt.Id): Promise<t.Crdt.Ref | undefined> => {
+      const res = await repo.get(id);
+      return res.doc ?? undefined;
+    };
+
+    const seenDocs: t.Crdt.Id[] = [];
+    const seenRefs: Record<t.Crdt.Id, readonly t.Crdt.Id[]> = {};
+
+    const res = await CrdtGraph.walk({
+      load,
+      id: A.id,
+
+      onDoc: ({ doc }) => {
+        seenDocs.push(doc.id);
+      },
+
+      onRefs: ({ id, refs }) => {
+        seenRefs[id] = refs;
+      },
+    });
+
+    /**
+     * 3. Assertions
+     *
+     * Behaviour should match the repo-backed walk:
+     * same processed order, same edge structure.
+     */
+    expect(res.processed).to.eql([A.id, B.id, C.id]);
+    expect(seenDocs).to.eql([A.id, B.id, C.id]);
+
+    expect(seenRefs[A.id]).to.eql([B.id]);
+    expect(seenRefs[B.id]).to.eql([C.id]);
+    expect(seenRefs[C.id] || []).to.eql([]);
+
+    // still the same compile-time shape for processed ids
     expectTypeOf(res.processed).toEqualTypeOf<readonly t.Crdt.Id[]>();
   });
 });

@@ -4,7 +4,9 @@ type O = Record<string, unknown>;
 
 /**
  * CRDT Graph Utilities
- * Provides a generic, repo-backed DAG walker for CRDT documents.
+ * Provides a generic DAG walker for CRDT documents.
+ *
+ * Documents are loaded either via a concrete repo or a custom loader.
  */
 export type CrdtGraphLib = {
   readonly walk: CrdtGraphWalk;
@@ -19,16 +21,19 @@ export type CrdtGraphWalk = <T extends O = O>(
 ) => Promise<CrdtGraphWalkResult>;
 
 /**
- * Configuration for walking a CRDT reference DAG.
- *
- * Starting from a root id:
- * - loads docs via `repo.get()`
- * - resolves outbound references
- * - prevents cycles using `processed[]`
- * - fires structured callbacks for each phase
+ * Loader used when the walker is not bound directly to a repo.
+ * Example implementations:
+ *  - in-process: `id => repo.get<T>(id)`
+ *  - RPC: `id => cmd.send('doc:get', { id }).then(r => r.doc)`
  */
-export type CrdtGraphWalkArgs<T extends O = O> = {
-  readonly repo: t.Crdt.Repo;
+export type CrdtGraphLoadDoc<T extends O = O> = (
+  id: t.Crdt.Id,
+) => Promise<t.Crdt.Ref<T> | undefined>;
+
+/**
+ * Common options for walking a CRDT reference DAG.
+ */
+export type CrdtGraphWalkArgsBase<T extends O = O> = {
   readonly id: t.Crdt.Id;
 
   readonly depth?: number;
@@ -45,6 +50,33 @@ export type CrdtGraphWalkArgs<T extends O = O> = {
    */
   readonly discoverRefs?: CrdtGraphDiscoverRefs;
 };
+
+/**
+ * Repo-backed args: the walker will call `repo.get(id)` to load docs.
+ */
+export type CrdtGraphWalkArgsRepo<T extends O = O> = CrdtGraphWalkArgsBase<T> & {
+  readonly repo: t.Crdt.Repo;
+};
+
+/**
+ * Loader-backed args: the walker will call `load(id)` to load docs.
+ */
+export type CrdtGraphWalkArgsLoad<T extends O = O> = CrdtGraphWalkArgsBase<T> & {
+  readonly load: CrdtGraphLoadDoc<T>;
+};
+
+/**
+ * Configuration for walking a CRDT reference DAG.
+ *
+ * Starting from a root id the walker will:
+ * - load docs via `repo.get()` or `load(id)`
+ * - resolve outbound references
+ * - prevent cycles using `processed[]`
+ * - fire structured callbacks for each phase
+ */
+export type CrdtGraphWalkArgs<T extends O = O> =
+  | CrdtGraphWalkArgsRepo<T>
+  | CrdtGraphWalkArgsLoad<T>;
 
 /**
  * Reason a CRDT document was skipped during a graph walk.

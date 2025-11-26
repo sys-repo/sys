@@ -21,16 +21,41 @@ export const walk: t.CrdtGraphWalk = (args) => walkImpl(args);
  * - By default: scans `doc.current` for string values that are CRDT URIs (`CrdtIs.uri`),
  *   normalises them via `CrdtId.clean`, and uses those as DAG edges.
  * - Can be overridden via `discoverRefs` on the walk args.
+ *
+ * Loading:
+ * - If `repo` is provided: documents are loaded via `repo.get` with a bounded retry
+ *   window (`getWithRetry`).
+ * - If `load` is provided: documents are loaded via the caller-supplied loader.
  */
 async function walkImpl<T extends O = O>(
   args: t.CrdtGraphWalkArgs<T>,
 ): Promise<t.CrdtGraphWalkResult> {
-  const { repo, onDoc, onSkip, onRefs, discoverRefs } = args;
+  const { onDoc, onSkip, onRefs, discoverRefs } = args;
   const edgeDiscovery = discoverRefs ?? defaultDiscoverRefs;
 
   const id = args.id;
   const depth = args.depth ?? 0;
   const processed = args.processed ?? [];
+
+  /**
+   * Normalized document loader.
+   *
+   * Note: narrowing is done directly with `'repo' in args` / `'load' in args`
+   * so the compiler can see the union arms; we avoid storing those as booleans.
+   */
+  const loadDoc = async (docId: t.Crdt.Id): Promise<t.Crdt.Ref<T> | undefined> => {
+    if ('repo' in args) {
+      const { ok, doc } = await getWithRetry<T>(args.repo, docId);
+      return ok ? doc : undefined;
+    }
+
+    if ('load' in args) {
+      const doc = await args.load(docId);
+      return doc ?? undefined;
+    }
+
+    return undefined;
+  };
 
   // 1. Cycle protection.
   if (processed.includes(id)) {
@@ -38,9 +63,9 @@ async function walkImpl<T extends O = O>(
     return { processed };
   }
 
-  // 2. Retrieve document (with a minimal retry for transient failures).
-  const { ok, doc } = await getWithRetry<T>(repo, id);
-  if (!ok || !doc) {
+  // 2. Retrieve document via the normalized loader.
+  const doc = await loadDoc(id);
+  if (!doc) {
     onSkip?.({ id, depth, reason: 'not-found' });
     return { processed };
   }
@@ -67,14 +92,10 @@ async function walkImpl<T extends O = O>(
   // 6. Recurse into referenced documents (DAG walk).
   for (const refId of refs) {
     await walkImpl<T>({
-      repo,
+      ...(args as t.CrdtGraphWalkArgs<T>),
       id: refId,
       depth: depth + 1,
       processed,
-      onDoc,
-      onSkip,
-      onRefs,
-      discoverRefs,
     });
 
     // Give the event-loop a breath so other work (spinners/UI) can run between docs.
