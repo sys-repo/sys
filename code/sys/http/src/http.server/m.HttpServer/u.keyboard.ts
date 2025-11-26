@@ -1,5 +1,5 @@
 import { Process } from '@sys/process';
-import { Cli, c } from './common.ts';
+import { Cli, Fmt, c } from './common.ts';
 
 /**
  * Create a keyboard listener to control the running dev server.
@@ -10,15 +10,13 @@ export async function keyboard(args: {
   dispose?: () => Promise<void>;
 }) {
   if (args.print) {
-    const table = Cli.table([c.bold(c.gray('Keyboard:'))]);
-    const push = (description: string, keyCommand: string) => {
-      description = c.gray(` ${description}`);
-      table.push([description, keyCommand]);
+    const branch = (isLast: boolean, indent = 0) => {
+      const b = Fmt.Tree.branch(isLast);
+      return c.gray(`${' '.repeat(indent)}${c.dim(b)}`);
     };
-    push(`Open`, `O ${c.italic(c.gray('(in browser)'))}`);
-    push('Quit ', `Ctrl+C ${c.gray('or')} Q`);
-
-    console.info(table.toString().trim());
+    console.info(c.gray('Keyboard:'));
+    console.info(branch(false, 1), c.gray(`${c.white('O')} ${c.italic('(in browser)')}`));
+    console.info(branch(true, 1), c.gray(`${c.white('Ctrl+C')} or ${c.white('Q')} to exist`));
     console.info();
   }
 

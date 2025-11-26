@@ -4,7 +4,7 @@
  *
  * @example
  * ```ts
- * import { Cli } from '@sys/cli';
+ * import { Cli, Fmt, Table } from '@sys/cli';
  * import { c, Colors, stripAnsi } from '@sys/cli/fmt';
  * ```
  */
@@ -16,5 +16,5 @@ export type * as t from './types.ts';
 /**
  * Library
  */
-export { Args, c, Color, stripAnsi } from './common.ts';
-export { Cli, Prompt, Table } from './-exports/-cli.ts';
+export { Cli, Fmt, Prompt, Table } from '@sys/cli/cli';
+export { Args, Color, c, stripAnsi } from './common.ts';

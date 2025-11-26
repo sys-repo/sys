@@ -34,7 +34,8 @@ export const Fmt = {
         .line()
         .line(String(table))
         .line(c.gray(`     ${br(false)} port:     ${port}`))
-        .line(c.gray(`     ${br(false)} identity: ${id}`));
+        .line(c.gray(`     ${br(false)} identity: ${repo.id.instance}`))
+        .line(c.gray(`     ${Tree.vert}            ${repo.id.peer ?? c.dim('-')}`));
 
       if (!has.network) {
         str.line(c.gray(`     ${br(false)} network:  ${c.dim('(none)')}`));
