@@ -1,6 +1,6 @@
 import { type t, c, Cli, Crdt, D, Str, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
-import { RepoProcess } from '../u.repo/mod.ts';
+import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 
 type Client = t.Crdt.Cmd.Client;
 

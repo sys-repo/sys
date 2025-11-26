@@ -1,5 +1,5 @@
 import { type t, c, Cli, Cmd, Crdt, D } from './common.ts';
-import { RepoProcess } from './u.repo/mod.ts';
+import { RepoProcess } from './cmd.repo.daemon/mod.ts';
 import { Fmt } from './u.fmt.ts';
 
 type Todo = { todo: string; comment?: string };

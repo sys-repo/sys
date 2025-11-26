@@ -1,7 +1,7 @@
 import { type t, Args, c, D, Fs, Is, Prompt } from './common.ts';
 
 import { tmp } from './-u.tmp.ts';
-import { RepoProcess } from './u.repo/mod.ts';
+import { RepoProcess } from './cmd.repo.daemon/mod.ts';
 import { snapshot } from './cmd.snapshot/mod.ts';
 import { findTasks } from './cmd.tasks/mod.ts';
 import { getConfig, normalize } from './u.config.ts';
