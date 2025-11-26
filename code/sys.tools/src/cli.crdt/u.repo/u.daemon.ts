@@ -13,8 +13,8 @@ export async function daemon(dir: t.StringDir) {
     const port = c.white(String(D.port));
     const str = Str.builder()
       .line()
-      .line(c.yellow(`  Could not start the daemon, already running on port ${port}`))
-      .line(c.italic(c.gray(`  You can use use the already running service`)))
+      .line(c.yellow(`  Cannot start daemon — already running on port ${port}`))
+      .line(c.italic(c.gray(`  Use the existing service.`)))
       .line();
     console.info(String(str));
     return;
