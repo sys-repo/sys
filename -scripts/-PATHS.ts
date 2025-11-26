@@ -29,11 +29,12 @@ export const Paths = {
 
     'code/sys/testing',
     'code/sys/process',
+    'code/sys/net',
+    'code/sys/event',
+    'code/sys/http',
     'code/sys/yaml',
     'code/sys/schema',
 
-    'code/sys/event',
-    'code/sys/http',
     'code/sys/jsr',
     'code/sys/text',
     'code/sys/tmpl-engine',

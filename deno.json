@@ -41,6 +41,7 @@
     "code/sys/event",
     "code/sys/immutable",
     "code/sys/jsr",
+    "code/sys/net",
     "code/sys/fs",
     "code/sys/cli",
     "code/sys/process",

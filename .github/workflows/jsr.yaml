@@ -178,23 +178,9 @@ jobs:
           echo "publish failed after 3 attempts"
           exit 1
 
-      - name: publish module → "@sys/yaml"
+      - name: publish module → "@sys/net"
         run: |
-          cd code/sys/yaml
-          deno task test --parallel
-          for i in 1 2 3; do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              echo "publish failed (attempt $i), retrying in 15s…"
-              sleep 150
-          done
-          echo "publish failed after 3 attempts"
-          exit 1
-
-      - name: publish module → "@sys/schema"
-        run: |
-          cd code/sys/schema
+          cd code/sys/net
           deno task test --parallel
           for i in 1 2 3; do
               if deno publish --allow-dirty; then
@@ -223,6 +209,34 @@ jobs:
       - name: publish module → "@sys/http"
         run: |
           cd code/sys/http
+          deno task test --parallel
+          for i in 1 2 3; do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              echo "publish failed (attempt $i), retrying in 15s…"
+              sleep 150
+          done
+          echo "publish failed after 3 attempts"
+          exit 1
+
+      - name: publish module → "@sys/yaml"
+        run: |
+          cd code/sys/yaml
+          deno task test --parallel
+          for i in 1 2 3; do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              echo "publish failed (attempt $i), retrying in 15s…"
+              sleep 150
+          done
+          echo "publish failed after 3 attempts"
+          exit 1
+
+      - name: publish module → "@sys/schema"
+        run: |
+          cd code/sys/schema
           deno task test --parallel
           for i in 1 2 3; do
               if deno publish --allow-dirty; then
