@@ -20,7 +20,7 @@ describe('Crdt.Cmd.attachHost', () => {
     if (!created.ok) throw new Error(`create failed: ${created.error.message}`);
 
     const doc = created.doc;
-    const stats = await client.send('stats', { doc: doc.id });
+    const stats = await client.send('doc:stats', { doc: doc.id });
 
     expect(stats.bytes, 'bytes').to.be.greaterThan(0);
     expect(stats.total.changes, 'changes').to.be.greaterThan(0);
@@ -49,7 +49,7 @@ describe('Crdt.Cmd.attachHost', () => {
     if (!created.ok) throw new Error(`create failed: ${created.error.message}`);
 
     const doc = created.doc;
-    await client.send('stats', { doc: doc.id });
+    await client.send('doc:stats', { doc: doc.id });
 
     // Dispose the repo → should trigger endpoint.close().
     await repo.dispose();

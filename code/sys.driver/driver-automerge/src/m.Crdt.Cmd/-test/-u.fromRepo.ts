@@ -23,7 +23,7 @@ describe('Crdt.Cmd.fromRepo', () => {
     }
 
     const doc = created.doc;
-    const stats = await cmd.send('stats', { doc: doc.id });
+    const stats = await cmd.send('doc:stats', { doc: doc.id });
 
     expect(stats.bytes, `${label}: bytes`).to.be.greaterThan(0);
     expect(stats.total.changes, `${label}: changes`).to.be.greaterThan(0);
