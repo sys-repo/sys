@@ -7,9 +7,12 @@ type Client = t.Crdt.Cmd.Client;
 const Tree = Cli.Fmt.Tree;
 
 export async function traverseDocumentGraph(dir: t.StringDir, root: t.Crdt.Id) {
-  const cmd = await RepoProcess.tryClient(D.port);
+  const port = D.port.repo;
+  const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
+
   const processed: t.Crdt.Id[] = [];
+  const spinner = Cli.spinner();
 
   /**
    * Print:
@@ -68,7 +71,9 @@ export async function traverseDocumentGraph(dir: t.StringDir, root: t.Crdt.Id) {
   }
 
   try {
+    spinner.start(Fmt.spinnerText('walking graph...'));
     await walk(cmd);
+    spinner.stop();
     await print(cmd);
   } finally {
     cmd.dispose?.(); // Release network resources.
