@@ -30,28 +30,27 @@ export async function process(args: Args): Promise<ProcessResult> {
 
   const emit = (event: t.CrdtSnapshotProgress) => onProgress?.(event);
   const now = args.now ?? Time.now.timestamp;
-  const rootId = args.id;
-  const dir = Fs.join(base, `crdt.${rootId}`, `snap.${now}.${slug().slice(3)}`);
+  const root = args.id;
+  const dir = Fs.join(base, `crdt.${root}`, `snap.${now}.${slug().slice(3)}`);
 
   const bytes: { json: number[]; binary: number[] } = { json: [], binary: [] };
   const processed: t.Crdt.Id[] = [];
 
-  emit({ kind: 'start', rootId, dir, timestamp: now });
+  emit({ kind: 'start', root, dir, timestamp: now });
 
   await Crdt.Graph.walk({
+    id: root,
+    processed,
     load: async (id) => {
       const { doc } = await cmd.send('doc:current', { doc: id });
       return doc ?? undefined;
     },
 
-    id: rootId,
-    processed,
-
     /**
      * Per-document handler: persist a JSON snapshot and track size.
      */
     async onDoc({ depth, doc }) {
-      const isRoot = doc.id === rootId;
+      const isRoot = doc.id === root;
       await saveDoc({ cmd, dir, doc, depth, isRoot, bytes, emit });
     },
 
@@ -72,7 +71,7 @@ export async function process(args: Args): Promise<ProcessResult> {
   });
 
   // Finish up:
-  emit({ kind: 'complete', rootId, dir, processed });
+  emit({ kind: 'complete', root, dir, processed });
   return {
     dir,
     processed,

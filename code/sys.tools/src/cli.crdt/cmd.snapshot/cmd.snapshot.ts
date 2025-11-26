@@ -6,7 +6,7 @@ import { process } from './u.process.ts';
 
 const Tree = Cli.Fmt.Tree;
 
-export async function snapshot(dir: t.StringDir, id: t.StringId) {
+export async function snapshot(dir: t.StringDir, id: t.Crdt.Id) {
   const port = D.port.repo;
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
@@ -14,7 +14,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
   /**
    * Normalise the incoming id (may be "crdt:<id>" or bare).
    */
-  const rootId = Crdt.Id.clean(id) ?? (id as t.Crdt.Id);
+  const root = Crdt.Id.clean(id) ?? (id as t.Crdt.Id);
 
   /**
    * Process snapshot/backup request.
@@ -44,7 +44,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
 
   const res = await process({
     cmd,
-    id: rootId,
+    id: root,
     base: '-backup',
     yamlPath: ['slug'],
     onProgress(e) {
@@ -59,7 +59,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
   /**
    * Save dist.json (meta-data and pkg/file hashes)
    */
-  const info = await calcAndSaveDist(res.dir, rootId);
+  const info = await calcAndSaveDist(res.dir, root);
 
   /**
    * Print summary:

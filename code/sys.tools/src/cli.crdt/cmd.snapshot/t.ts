@@ -5,7 +5,7 @@ import type { t } from '../common.ts';
  */
 export type CrdtSnapshotProgressStart = {
   readonly kind: 'start';
-  readonly rootId: t.StringId;
+  readonly root: t.Crdt.Id;
   readonly dir: t.StringDir;
   readonly timestamp: t.UnixTimestamp;
 };
@@ -15,7 +15,7 @@ export type CrdtSnapshotProgressStart = {
  */
 export type CrdtSnapshotProgressSkip = {
   readonly kind: 'doc:skip';
-  readonly id: t.StringId;
+  readonly id: t.Crdt.Id;
   readonly reason: 'already-processed' | 'not-found' | 'not-object';
 };
 
@@ -24,7 +24,7 @@ export type CrdtSnapshotProgressSkip = {
  */
 export type CrdtSnapshotProgressSaved = {
   readonly kind: 'doc:saved';
-  readonly id: t.StringId;
+  readonly id: t.Crdt.Id;
   readonly depth: number;
   readonly dir: t.StringDir;
   readonly filename: string;
@@ -39,8 +39,8 @@ export type CrdtSnapshotProgressSaved = {
  */
 export type CrdtSnapshotProgressRefs = {
   readonly kind: 'doc:refs';
-  readonly id: t.StringId;
-  readonly refs: readonly t.StringId[];
+  readonly id: t.Crdt.Id;
+  readonly refs: readonly t.Crdt.Id[];
 };
 
 /**
@@ -48,7 +48,7 @@ export type CrdtSnapshotProgressRefs = {
  */
 export type CrdtSnapshotProgressComplete = {
   readonly kind: 'complete';
-  readonly rootId: t.StringId;
+  readonly root: t.Crdt.Id;
   readonly dir: t.StringDir;
   readonly processed: readonly t.StringId[];
 };
