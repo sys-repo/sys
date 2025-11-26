@@ -1,4 +1,4 @@
-import { attachHandlers } from '../m.Crdt.Cmd/u.attachHandlers.ts';
+import { attachHandlers } from '../m.Cmd/u.attachHandlers.ts';
 import { type t, CrdtIs, Is } from './common.ts';
 import { makeAttachHandler } from './u.host.cmd.makeAttachHandler.ts';
 

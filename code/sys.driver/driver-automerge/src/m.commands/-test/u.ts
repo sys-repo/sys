@@ -1,1 +1,1 @@
-export { CrdtCmd } from '../../m.Crdt.Cmd/mod.ts';
+export { CrdtCmd } from '../../m.Cmd/mod.ts';
