@@ -45,7 +45,7 @@ export const Fmt = {
 
     table.push([c.gray('Package'), pkg.name]);
     table.push([c.gray('  local'), `${local}     ${updateReq}`.trim()]);
-    table.push([c.gray('  remote'), remote]);
+    table.push([c.gray('  registry'), remote]);
     return Str.trimEdgeNewlines(String(table));
   },
 
