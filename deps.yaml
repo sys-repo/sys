@@ -88,7 +88,7 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.101
+    - import: npm:ai@5.0.102
     - import: npm:@ai-sdk/openai@2.0.72
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.5

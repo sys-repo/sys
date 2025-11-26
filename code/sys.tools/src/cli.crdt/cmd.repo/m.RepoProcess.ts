@@ -1,4 +1,4 @@
-import { client } from './u.client.ts';
+import { client, tryClient } from './u.client.ts';
 import { daemon } from './u.daemon.ts';
 
 export const RepoProcess = {
@@ -11,4 +11,5 @@ export const RepoProcess = {
    * Connects to the repository daemon and returns a typed command client.
    */
   client,
+  tryClient,
 } as const;

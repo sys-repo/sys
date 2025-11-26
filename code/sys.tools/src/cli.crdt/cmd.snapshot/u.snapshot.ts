@@ -1,13 +1,14 @@
 import { RepoProcess } from '../cmd.repo/mod.ts';
 import { type t, c, Cli, Crdt, D, Fs, Str, Time } from '../common.ts';
+import { Fmt } from '../u.fmt.ts';
 import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
 import { process } from './u.process.ts';
-import { Fmt } from '../u.fmt.ts';
 
 const Tree = Cli.Fmt.Tree;
 
 export async function snapshot(dir: t.StringDir, id: t.StringId) {
-  const cmd = await RepoProcess.client(D.port);
+  const cmd = await RepoProcess.tryClient(D.port);
+  if (!cmd) return;
 
   /**
    * Normalise the incoming id (may be "crdt:<id>" or bare).
