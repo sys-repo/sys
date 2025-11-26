@@ -11,6 +11,7 @@ export { Hash } from '@sys/crypto/hash';
 export { Cmd } from '@sys/event/cmd';
 export { Immutable } from '@sys/immutable/rfc6902';
 export {
+  Args,
   Arr,
   Delete,
   Dispose,

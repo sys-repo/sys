@@ -14,7 +14,10 @@ export { Yaml } from '@sys/yaml';
  */
 export const D = {
   toolname: `system/crdt:tools`,
-  port: 49494,
+  port: {
+    repo: 49494,
+    sync: 3030,
+  },
   Sync: { server: 'waiheke.sync.db.team' },
   Path: {
     repo: './.repo.crdt',

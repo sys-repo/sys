@@ -1,15 +1,24 @@
-import { type t, c, Cli, Crdt, D, Str } from '../common.ts';
+import { Server } from '@sys/driver-automerge/ws';
+import { type t, Cli, D } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
-import { RepoProcess } from '../u.repo/mod.ts';
 
-type Client = t.Crdt.Cmd.Client;
+export async function startSyncServer(dir: t.StringDir, port?: number) {
+  port = port ?? D.port.sync;
 
-const Tree = Cli.Fmt.Tree;
+  // Wait here until Ctrl-C.
+  await Cli.keepAlive({
+    async onStart(life) {
+      const server = await Server.ws({ port, dir });
 
-export async function startSyncServer(dir: t.StringDir) {
-  const cmd = await RepoProcess.tryClient(D.port);
-  if (!cmd) return;
-
-
-  return;
+      life.dispose$.subscribe({
+        async complete() {
+          const spinner = Cli.spinner();
+          spinner.start(Fmt.spinnerText('shutting down...'));
+          await server.dispose();
+          spinner.stop();
+        },
+      });
+    },
+    exitCode: 0,
+  });
 }

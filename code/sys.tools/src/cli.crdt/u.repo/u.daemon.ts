@@ -7,13 +7,13 @@ import { tryClient } from './u.client.ts';
  * Runs the CRDT repo as a long-lived daemon rendering a live terminal UI.
  */
 export async function daemon(dir: t.StringDir) {
-  const cmd = await tryClient(D.port);
+  const port = D.port.repo;
+  const cmd = await tryClient(port);
 
   if (cmd) {
-    const port = c.white(String(D.port));
     const str = Str.builder()
       .line()
-      .line(c.yellow(`  Cannot start daemon — already running on port ${port}`))
+      .line(c.yellow(`  Cannot start daemon — already running on port ${c.white(String(port))}`))
       .line(c.italic(c.gray(`  Use the existing service.`)))
       .line();
     console.info(String(str));
@@ -21,7 +21,6 @@ export async function daemon(dir: t.StringDir) {
   }
 
   const eventlog = new Set<t.CrdtRepoLogEntry>();
-  const port = D.port;
 
   let hasStarted = false;
   const getStatus = () => {

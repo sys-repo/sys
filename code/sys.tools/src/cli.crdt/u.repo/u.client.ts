@@ -57,7 +57,7 @@ export async function tryClient(port: number): Promise<t.Crdt.Cmd.Client | undef
   } catch (err) {
     const str = Str.builder()
       .line()
-      .line(c.yellow(`  Could not connect to repository daemon on port ${c.white(String(D.port))}`))
+      .line(c.yellow(`  Could not connect to repository daemon on port ${c.white(String(port))}`))
       .line(c.italic(c.gray(`  Start the daemon before continuing`)))
       .line();
     console.info(String(str));

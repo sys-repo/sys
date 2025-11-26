@@ -7,7 +7,8 @@ import { process } from './u.process.ts';
 const Tree = Cli.Fmt.Tree;
 
 export async function snapshot(dir: t.StringDir, id: t.StringId) {
-  const cmd = await RepoProcess.tryClient(D.port);
+  const port = D.port.repo;
+  const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 
   /**

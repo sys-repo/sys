@@ -6,9 +6,9 @@ type Todo = { todo: string; comment?: string };
 type TRef = { doc: t.Crdt.Ref; depth: number; backRefs: number; todos?: Todo[] };
 
 export async function tmp(dir: t.StringDir, doc: t.Crdt.Id) {
-  const port = D.port;
+  const port = D.port.repo;
 
-  const cmd = await RepoProcess.tryClient(D.port);
+  const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 
   console.info('cmd(rpc):', cmd, '\n');
