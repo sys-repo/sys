@@ -3,6 +3,12 @@ import type { t } from './common.ts';
 /** The tool's commands */
 export type ServeCommand = 'modify:add' | 'modify:remove' | 'serve:start';
 
+/** Alternative view formats for rendering a route. */
+export type ServeRouteView = 'json';
+
+/** Abstract lookup for supported MIME types. */
+export type ServeMimeLookup = { has(mime: t.MimeType): boolean };
+
 /**
  * CLI helpers for working with Serve.
  */
@@ -59,3 +65,21 @@ export type MimeType =
   // Video:
   | 'video/webm'
   | 'video/mp4';
+
+/**
+ * JSON view outcome for a requestable path.
+ */
+export type ServeJsonViewResult = ServeJsonViewFile | ServeJsonViewFolder;
+export type ServeJsonViewFile = {
+  readonly kind: 'file';
+  readonly body: {
+    mime: t.MimeType;
+    path: t.StringPath;
+    hash: t.StringHash;
+    bytes: t.NumberBytes;
+  };
+};
+export type ServeJsonViewFolder = {
+  readonly kind: 'folder';
+  readonly body: t.DistPkg;
+};

@@ -20,9 +20,10 @@ export const Fmt = {
     reqPath: string;
     indent?: number;
     maxDepth?: number;
+    filter?: (path: t.StringPath) => boolean;
   }) {
-    const { dir, reqPath, indent = 3, maxDepth = 1 } = args;
-    const tree = await Fs.Fmt.treeFromDir(Fs.join(dir, reqPath), { maxDepth, indent });
+    const { dir, reqPath, indent = 3, maxDepth = 1, filter } = args;
+    const tree = await Fs.Fmt.treeFromDir(Fs.join(dir, reqPath), { maxDepth, indent, filter });
 
     const str = Str.builder()
       .line(Fs.dirname(Fs.join(dir, reqPath)))
