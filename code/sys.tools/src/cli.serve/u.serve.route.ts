@@ -21,9 +21,12 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
   const allowedMimes = new Set<string>(contentTypes);
 
   return async (c) => {
-    const viewParam = c.req.query('view');
+    const rawUrl = c.req.url;
+    const url = new URL(rawUrl, 'http://localhost'); // base only used if relative
+    const viewParam = url.searchParams.get('view');
+    const reqPath = url.pathname;
+
     const view: t.ServeRouteView | undefined = viewParam === 'json' ? 'json' : undefined;
-    const reqPath = c.req.path;
 
     // Normalise, trim leading slash.
     const rel = reqPath.startsWith('/') ? reqPath.slice(1) : reqPath;
