@@ -99,8 +99,8 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
         }
 
         if (B === 'doc:info-graph') {
-          await traverseDocumentGraph(dir, id);
-          return done();
+          await traverseDocumentGraph(id);
+          return done(0);
         }
 
         if (B === 'filter:tasks') {

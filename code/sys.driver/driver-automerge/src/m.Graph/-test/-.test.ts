@@ -192,7 +192,7 @@ describe(`Crdt.Graph`, () => {
     /**
      * 2. Implement a loader that mimics the remote/daemon path.
      *
-     * In production this would usually be `cmd.send('doc:get', { id })`,
+     * In production this would usually be `cmd.send('doc:current', { id })`,
      * but here we simulate it in-process using `repo.get` so we can keep
      * the worker fixture and focus on the CrdtGraph surface.
      */

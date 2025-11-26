@@ -19,8 +19,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
   /**
    * Process snapshot/backup request.
    */
-  const tblProc = Cli.table([]);
-  // const formatId = (value: string) => `crdt:${value.slice(0, -5)}${c.green(value.slice(-5))}`;
+  const tableProcessed = Cli.table([]);
   const appendTable = (tbl: t.CliTable, e: t.CrdtSnapshotProgressSaved) => {
     const coloredId = Fmt.prettyUri(e.id);
     const branch = Tree.branch(false);
@@ -35,12 +34,11 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
 
   const tableText = () => {
     const str = Str.builder().line(c.gray('processing...'));
-    str.line(Str.trimEdgeNewlines(String(tblProc)));
+    str.line(Str.trimEdgeNewlines(String(tableProcessed)));
     return String(str);
   };
 
   const spinner = Cli.spinner(tableText());
-
   const timer = Time.timer();
   const progress: t.CrdtSnapshotProgress[] = [];
 
@@ -51,7 +49,7 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     yamlPath: ['slug'],
     onProgress(e) {
       progress.push(e);
-      if (e.kind === 'doc:saved') appendTable(tblProc, e);
+      if (e.kind === 'doc:saved') appendTable(tableProcessed, e);
       spinner.text = tableText();
     },
   });
@@ -72,11 +70,11 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
   summary += ` ${Str.plural(total, 'document', 'documents')} in ${String(timer.elapsed)}`;
   const totals = `${Str.bytes(res.bytes.json)} json, ${Str.bytes(res.bytes.binary)} binary`;
 
-  tblProc.push([c.gray(Tree.vert)]);
-  tblProc.push([c.gray(`${Tree.branch(true)} ${c.italic(completed)}`)]);
-  tblProc.push([c.white(`   ${totals}`)]);
-  tblProc.push([c.gray(`   ${c.italic(summary)}`)]);
-  console.info(String(tblProc));
+  tableProcessed.push([c.gray(Tree.vert)]);
+  tableProcessed.push([c.gray(`${Tree.branch(true)} ${c.italic(completed)}`)]);
+  tableProcessed.push([c.white(`   ${totals}`)]);
+  tableProcessed.push([c.gray(`   ${c.italic(summary)}`)]);
+  console.info(String(tableProcessed));
 
   /**
    * Warn on missing linked documents.
@@ -90,8 +88,8 @@ export async function snapshot(dir: t.StringDir, id: t.StringId) {
     warnTable.push([c.gray(Tree.vert)]);
     notFound.forEach((e, i, totalCount) => {
       const branch = Tree.branch([i, totalCount]);
-      const formattedId = Fmt.prettyUri(e.id);
-      warnTable.push([c.gray(`${branch} ${formattedId}`), c.yellow('skipped')]);
+      const skipped = c.gray(`${c.yellow('skipped')}; ${e.reason}`);
+      warnTable.push([c.gray(`${branch} ${Fmt.prettyUri(e.id)}`), skipped]);
     });
 
     console.info();

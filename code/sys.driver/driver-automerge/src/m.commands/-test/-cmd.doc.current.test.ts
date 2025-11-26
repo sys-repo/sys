@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '..
 import { type t } from '../common.ts';
 import { makeDocCurrentHandler } from '../mod.ts';
 
-describe('Command: "doc:get"', () => {
+describe('Command: "doc:current"', () => {
   let env: t.TestWorkerFixture;
   beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());

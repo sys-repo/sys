@@ -24,7 +24,7 @@ export type CrdtGraphWalk = <T extends O = O>(
  * Loader used when the walker is not bound directly to a repo.
  * Example implementations:
  *  - in-process: `id => repo.get<T>(id)`
- *  - RPC: `id => cmd.send('doc:get', { id }).then(r => r.doc)`
+ *  - RPC: `id => cmd.send('doc:current', { id }).then(r => r.doc)`
  */
 export type CrdtGraphLoadDoc<T extends O = O> = (
   id: t.Crdt.Id,
