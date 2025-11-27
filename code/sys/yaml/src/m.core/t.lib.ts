@@ -1,3 +1,4 @@
+import type * as Y from 'yaml';
 import type { t } from './common.ts';
 
 export type * from './t.Diagnostic.ts';
@@ -24,6 +25,9 @@ export type YamlLib = {
   /** Parse YAML and keep the full `Document` (ranges, comments, errors). */
   parseAst(src?: t.StringYaml): t.YamlAst;
 
+  /** Stringify a plain JS value into YAML. */
+  stringify<T>(value: T, options?: t.YamlStringifyOptions): t.YamlStringifyResult;
+
   /** Safe conversion — replaces direct .toJS() calls. */
   readonly toJS: t.YamlToJs;
 
@@ -48,3 +52,11 @@ export type YamlErr<E> = { readonly error: E; readonly data?: undefined };
 
 /** YAML-specific results (align with npm:yaml semantics). */
 export type YamlParseResult<T> = YamlOk<T | null> | YamlErr<t.StdError>; // yaml.parse('') → null (Ok)
+
+/**
+ * Result of stringifying to YAML.
+ */
+export type YamlStringifyResult = YamlOk<t.StringYaml> | YamlErr<t.StdError>;
+
+/** Options for the `Yaml.stringify` method (direct alias of `yaml.ToStringOptions`). */
+export type YamlStringifyOptions = Y.ToStringOptions;

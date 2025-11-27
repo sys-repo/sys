@@ -8,6 +8,7 @@ import { Syncer } from './m.Syncer.ts';
 import { parse, parseAst } from './u.parse.ts';
 import { toJS } from './u.toJS.ts';
 import { walk } from './u.walk.ts';
+import { stringify } from './u.stringify.ts';
 
 /**
  * Helpers for working with YAML.
@@ -19,6 +20,7 @@ export const Yaml: t.YamlLib = {
 
   parse,
   parseAst,
+  stringify,
   walk,
   toJS,
 
