@@ -11,6 +11,7 @@ import {
 } from '../common.ts';
 import { Err } from '../m.Err/mod.ts';
 import { number, numeric } from './u.number.ts';
+import { string } from './u.string.ts';
 import { websocket } from './u.websocket.ts';
 
 /**
@@ -35,6 +36,9 @@ export const Is: StdIsLib = {
   numeric,
   number,
   num: number,
+
+  string,
+  str: string,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;
@@ -94,10 +98,6 @@ export const Is: StdIsLib = {
     if (typeof value === 'string' && value.trim() === '') return true;
     if (Array.isArray(value) && value.filter((v) => !Is.blank(v)).length === 0) return true;
     return false;
-  },
-
-  string(input?: any): input is string {
-    return typeof input === 'string';
   },
 
   bool(input?: any): input is boolean {
