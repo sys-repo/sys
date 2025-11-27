@@ -1,5 +1,6 @@
 import { type t } from './common.ts';
 import { walk } from './u.walk.ts';
+import { defaultDiscoverRefs } from './u.defaultDiscoverRefs.ts';
 
 /**
  * CRDT Graph Utilities
@@ -7,4 +8,7 @@ import { walk } from './u.walk.ts';
  */
 export const CrdtGraph: t.CrdtGraphLib = {
   walk,
+  default: {
+    discoverRefs: defaultDiscoverRefs,
+  },
 };

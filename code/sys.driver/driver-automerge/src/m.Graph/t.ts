@@ -10,6 +10,9 @@ type O = Record<string, unknown>;
  */
 export type CrdtGraphLib = {
   readonly walk: CrdtGraphWalk;
+  readonly default: {
+    readonly discoverRefs: t.CrdtGraphDiscoverRefs;
+  };
 };
 
 /**
