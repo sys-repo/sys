@@ -11,9 +11,9 @@ export async function traverseDocumentGraph(root: t.Crdt.Id) {
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 
+  const spinner = Cli.spinner();
   const skipped: t.Crdt.Graph.WalkSkipArgs[] = [];
   const processed: t.Crdt.Id[] = [];
-  const spinner = Cli.spinner();
 
   /**
    * Process (walk the graph)
