@@ -6,7 +6,7 @@ type O = Record<string, unknown>;
 /**
  * Graph walker entrypoint.
  */
-export const walk: t.GraphWalk = (args) => walkImpl(args);
+export const walk: t.Graph.Walk = (args) => walkImpl(args);
 
 /**
  * Graph walker implementation.
@@ -23,7 +23,7 @@ export const walk: t.GraphWalk = (args) => walkImpl(args);
  * Loading:
  * - Documents are loaded via the caller-supplied `load(id)` function.
  */
-async function walkImpl<T extends O = O>(args: t.GraphWalkArgs<T>): Promise<t.GraphWalkResult> {
+async function walkImpl<T extends O = O>(args: t.Graph.WalkArgs<T>): Promise<t.Graph.WalkResult> {
   const { onDoc, onSkip, onRefs, discoverRefs, load } = args;
   const edgeDiscovery = discoverRefs ?? defaultDiscoverRefs;
 

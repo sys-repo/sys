@@ -45,12 +45,12 @@ describe(`Graph`, () => {
     add(B, { next: `id:${C}` });
     add(C, { value: 123 });
 
-    const load: t.GraphLoadDoc<Node> = async (id) => docs.get(id);
+    const load: t.Graph.LoadDoc<Node> = async (id) => docs.get(id);
 
     const seenDocs: t.StringId[] = [];
     const seenRefs: Record<t.StringId, readonly t.StringId[]> = {};
 
-    const discoverRefs: t.GraphDiscoverRefs = ({ doc }) => {
+    const discoverRefs: t.Graph.DiscoverRefs = ({ doc }) => {
       const current = doc.current as Node;
       const next = current.next;
       if (!next || !next.startsWith('id:')) return [];
@@ -105,13 +105,13 @@ describe(`Graph`, () => {
     add(B, { next: `node:${C}` });
     add(C, { value: 123 });
 
-    const load: t.GraphLoadDoc<Node> = async (id) => docs.get(id);
+    const load: t.Graph.LoadDoc<Node> = async (id) => docs.get(id);
 
     const seenDocs: t.StringId[] = [];
     const seenRefs: Record<t.StringId, readonly t.StringId[]> = {};
     const seenDepths: Record<t.StringId, number> = {};
 
-    const discoverRefs: t.GraphDiscoverRefs = ({ id, doc, depth }) => {
+    const discoverRefs: t.Graph.DiscoverRefs = ({ id, doc, depth }) => {
       const current = doc.current as Node;
       seenDepths[id] = depth;
 
@@ -166,11 +166,11 @@ describe(`Graph`, () => {
     add(A, { next: `node:${B}` });
     add(B, { value: 123 });
 
-    const load: t.GraphLoadDoc<Node> = async (id) => docs.get(id);
+    const load: t.Graph.LoadDoc<Node> = async (id) => docs.get(id);
 
     const seenDocs: t.StringId[] = [];
 
-    const discoverRefs: t.GraphDiscoverRefs = async ({ doc }): Promise<readonly t.StringId[]> => {
+    const discoverRefs: t.Graph.DiscoverRefs = async ({ doc }): Promise<readonly t.StringId[]> => {
       const current = doc.current as Node;
       const next = current.next;
       if (!next || !next.startsWith('node:')) return [];

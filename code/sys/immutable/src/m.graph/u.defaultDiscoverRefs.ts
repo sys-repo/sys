@@ -35,7 +35,7 @@ import { type t } from './common.ts';
  * };
  * ```
  */
-export const defaultDiscoverRefs: t.GraphDiscoverRefs = () => {
+export const defaultDiscoverRefs: t.Graph.DiscoverRefs = () => {
   // No outbound references by default.
   return [];
 };
