@@ -211,19 +211,84 @@ function logWssError(prefix: string, err: unknown, silent?: boolean) {
 }
 
 /**
- * Suppresses unhandled BrokenPipe/EPIPE rejections from dropped WS peers.
- * Safe: BrokenPipe only indicates a closed peer socket, not data loss.
+ * Detects Automerge WASM out-of-memory traps so we can
+ * treat them as non-fatal at the process boundary.
+ *
+ * Signature is based on:
+ *   - "__rg_oom" (Rust OOM hook) ← "out of memory"
+ *   - "automerge_wasm" in the stack
+ *   - "RuntimeError: unreachable" from the WASM trap
+ */
+function isAutomergeOomError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+
+  const stack = typeof err.stack === 'string' ? err.stack : '';
+  const message = `${err.name}: ${err.message}`;
+  const text = `${message}\n${stack}`;
+
+  if (!text) return false;
+
+  if (text.includes('__rg_oom')) return true;
+  if (text.includes('automerge_wasm')) return true;
+  if (text.includes('RuntimeError: unreachable') && text.includes('automerge::')) return true;
+
+  return false;
+}
+
+/**
+ * Suppresses known benign runtime errors:
+ *
+ * - BrokenPipe/EPIPE rejections from dropped WS peers.
+ * - Automerge WASM OOM traps during sync ("RuntimeError: unreachable" / __rg_oom).
+ *
+ * Goal: keep the sync server process alive; peers/docs may fail, but the
+ * daemon stays up and logs clearly what happened.
  */
 let brokenPipeTrapInstalled = false;
 function installBrokenPipeTrap(silent?: boolean) {
   if (brokenPipeTrapInstalled) return;
   brokenPipeTrapInstalled = true;
+
   globalThis.addEventListener('unhandledrejection', (event) => {
-    if (isBrokenPipeError(event.reason)) {
+    const reason = event.reason;
+
+    /**
+     * Broken pipe.
+     */
+    if (isBrokenPipeError(reason)) {
       // Treat as normal disconnect: don't crash the server.
       event.preventDefault();
       if (!silent) {
         console.info('[unhandledrejection][broken-pipe] peer disconnected during send');
+      }
+      return;
+    }
+
+    /**
+     * Automerge OOM (out-of-memory).
+     */
+    if (isAutomergeOomError(reason)) {
+      // Automerge WASM ran out of memory reconstructing a doc.
+      // Log and keep the server process alive.
+      event.preventDefault();
+      if (!silent) {
+        const msg = `[unhandledrejection][automerge:oom] sync message caused OOM (out-of-memory)`;
+        console.error(msg, reason);
+      }
+      return;
+    }
+
+    // Fallthrough: other errors escalate normally
+  });
+
+  globalThis.addEventListener('error', (event) => {
+    const reason = (event as ErrorEvent).error;
+
+    if (isAutomergeOomError(reason)) {
+      // Same OOM case, but surfaced as a top-level error instead of a rejection.
+      event.preventDefault();
+      if (!silent) {
+        console.error('[error][automerge:oom] sync message caused OOM', reason);
       }
     }
   });
