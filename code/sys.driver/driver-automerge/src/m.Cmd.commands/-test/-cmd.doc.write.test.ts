@@ -41,10 +41,39 @@ describe('Command: "doc:write"', () => {
     expect(current.foo.bar).to.eql(456);
   });
 
+  describe('error conditions', () => {
+    it('throws when the target document does not exist', async () => {
+      const { repo } = env;
+      const handler = makeDocWriteHandler(() => repo);
+      const missingId = 'does-not-exist';
 
       await expectError(
         () => handler({ doc: missingId, path: ['foo'], value: 123 }),
         `Failed to load document for write (id: ${missingId}).`,
+      );
+    });
+
+    it('throws when no repo is available', async () => {
+      const { repo } = env;
+      const existing = (await repo.create<{ foo: number }>({ foo: 1 })).doc!;
+      const handler = makeDocWriteHandler(() => undefined);
+
+      await expectError(
+        () => handler({ doc: existing.id, path: ['foo'], value: 999 }),
+        'No repo to operate on.',
+      );
+    });
+
+    it('throws when the object path is empty (root writes not supported)', async () => {
+      const { repo } = env;
+      const handler = makeDocWriteHandler(() => repo);
+
+      const created = await repo.create<{ foo: number }>({ foo: 1 });
+      const doc = created.doc!;
+
+      await expectError(
+        () => handler({ doc: doc.id, path: [], value: 999 }),
+        'doc:write requires a non-empty object path.',
       );
     });
   });
