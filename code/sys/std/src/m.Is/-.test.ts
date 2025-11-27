@@ -301,6 +301,10 @@ describe('Is (common flags)', () => {
   });
 
   describe('Is.number', () => {
+    it('alias', () => {
+      expect(Is.number).to.equal(Is.num);
+    });
+
     it('Is.number: true', () => {
       expect(Is.number(0)).to.eql(true);
       expect(Is.number(123)).to.eql(true);
@@ -313,6 +317,10 @@ describe('Is (common flags)', () => {
   });
 
   describe('Is.string', () => {
+    it('alias', () => {
+      expect(Is.string).to.equal(Is.str);
+    });
+
     it('Is.string: true', () => {
       expect(Is.string('')).to.eql(true);
       expect(Is.string('hello')).to.eql(true);

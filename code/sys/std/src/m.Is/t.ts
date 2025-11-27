@@ -129,16 +129,17 @@ export type StdIsLib = {
   func(input?: unknown): input is Function;
 
   /**
-   * Determine if the value is a string.
-   * typeof === 'string'
-   */
-  string(input?: unknown): input is string;
-
-  /**
    * Determine if the value is a boolean.
    * typeof === 'boolean'
    */
   bool(input?: unknown): input is boolean;
+
+  /**
+   * Determine if the value is a string.
+   * typeof === 'string'
+   */
+  string(input?: unknown): input is string;
+  str(input?: unknown): input is string;
 
   /**
    * Determine if the value is a number.
