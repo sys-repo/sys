@@ -44,7 +44,7 @@ export type ArrayLib = {
   /**
    * Returns a new array with duplicates removed.
    */
-  uniq<T>(values: readonly T[]): T[];
+  uniq<T>(values: t.Ary<T>): T[];
 
   /**
    * Return a NEW array sorted by the given key.

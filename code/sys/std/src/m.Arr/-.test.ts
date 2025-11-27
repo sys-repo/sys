@@ -132,6 +132,16 @@ describe('Arr (Array)', () => {
       const input: number[] = [];
       const out = Arr.uniq(input);
       expect(out).to.eql([]);
+      // Ensure we hit the "slice" path and still get a new instance.
+      expect(out).to.not.equal(input);
+    });
+
+    it('returns a new array for single-element input', () => {
+      const input = [42];
+      const out = Arr.uniq(input);
+      expect(out).to.eql([42]);
+      // Also via the "slice" path; must be a new instance.
+      expect(out).to.not.equal(input);
     });
 
     it('removes duplicate primitives and keeps original order', () => {
@@ -160,7 +170,7 @@ describe('Arr (Array)', () => {
       expect(out).to.eql([a, b]); // only the ref-dup removed.
     });
 
-    it('returns a new array instance every time', () => {
+    it('returns a new array instance every time (multi-element case)', () => {
       const input = [99, 99];
       const out = Arr.uniq(input);
       expect(out).to.not.equal(input);

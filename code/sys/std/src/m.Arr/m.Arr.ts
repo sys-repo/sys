@@ -44,7 +44,9 @@ export const Arr: ArrayLib = {
     };
   },
 
-  uniq<T>(list: readonly T[]): T[] {
+  uniq<T>(list: T[]): T[] {
+    // Return a new array even when no dedupe needed (avoids Set constructor cost)
+    if (list.length <= 1) return list.slice();
     return [...new Set(list)];
   },
 };
