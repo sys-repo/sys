@@ -1,4 +1,4 @@
-import { Immutable } from '@sys/immutable/rfc6902';
+import { Immutable } from '../../../m.rfc6902/mod.ts';
 import { describe, expect, it } from '../../../-test.ts';
 
 describe('Immutable.Is', () => {

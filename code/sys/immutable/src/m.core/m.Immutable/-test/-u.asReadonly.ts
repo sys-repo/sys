@@ -1,4 +1,4 @@
-import { Immutable } from '@sys/immutable/rfc6902';
+import { Immutable } from '../../../m.rfc6902/mod.ts';
 import { type t, describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import { asReadonly } from '../mod.ts';
 
