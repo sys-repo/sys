@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Exports:
  */
 export type * from './cmd.snapshot/t.ts';
-export type * from './cmd.repo.daemon/t.ts';
+export type * from './cmd.daemon.repo/t.ts';
 
 /** The tool's commands */
 export type CrdtCommand =
@@ -12,6 +12,8 @@ export type CrdtCommand =
   | 'doc:add'
   | 'doc:remove'
   | 'doc:info-graph'
+  | 'doc:viewer:yaml'
+  | 'doc:config:print'
   | 'repo:daemon:start'
   | 'sync-server:start'
   | 'quit'
@@ -36,11 +38,23 @@ export type CrdtCliArgs = t.ToolsCliArgs;
 export type CrdtConfig = t.JsonFile<CrdtConfigDoc>;
 export type CrdtConfigDoc = t.JsonFileDoc & {
   version: string;
-  docs?: CrdtConfigDocEntry[];
+  docs?: t.CrdtConfigDocumentEntry[];
+  repo: t.CrdtConfigRepo;
 };
 
-export type CrdtConfigDocEntry = {
+/**
+ * Documents:
+ */
+export type CrdtConfigDocumentEntry = {
   id: t.StringId;
   name?: t.StringName;
   createdAt?: t.UnixTimestamp;
+};
+
+/**
+ * Repositories:
+ */
+export type CrdtConfigRepo = { daemon: CrdtConfigRepoDaemon };
+export type CrdtConfigRepoDaemon = {
+  sync: { websockets: [] };
 };

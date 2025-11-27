@@ -1,7 +1,7 @@
 import { type t, Args, c, D, Fs, Is, Prompt } from './common.ts';
 
 import { tmp } from './-u.tmp.ts';
-import { RepoProcess } from './cmd.repo.daemon/mod.ts';
+import { RepoProcess } from './cmd.daemon.repo/mod.ts';
 import { snapshot } from './cmd.snapshot/mod.ts';
 import { startSyncServer, traverseDocumentGraph } from './cmds/mod.ts';
 import { getConfig, normalize } from './u.config.ts';
@@ -60,7 +60,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
       options: [
         { name: '  add: <document>', value: 'doc:add' satisfies C },
         ...listing,
-        { name: ' start: sync server', value: 'sync-server:start' satisfies C },
+        { name: ' start: sync server (websockets)', value: 'sync-server:start' satisfies C },
         { name: ' start: repository daemon', value: 'repo:daemon:start' satisfies C },
         { name: c.gray('(quit)'), value: 'quit' },
       ],
@@ -83,11 +83,13 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
         const B = (await Prompt.Select.prompt<t.CrdtCommand>({
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
           options: [
-            { name: ' 🐷', value: 'tmp:🐷' },
-            { name: ' Backup', value: 'snapshot' },
-            { name: ' Ref Graph → Stats', value: 'doc:info-graph' },
+            { name: '  Snapshot', value: 'snapshot' },
+            { name: '  Ref Graph → Stats', value: 'doc:info-graph' },
+            { name: '  Yaml Viewer', value: 'doc:viewer:yaml' },
+            { name: '  Print Config', value: 'doc:config:print' },
             // { name: ' Filter Tasks', value: 'filter:tasks' },
-            { name: '(forget)', value: 'doc:remove' },
+            // { name: '  🐷', value: 'tmp:🐷' },
+            { name: c.gray(c.dim(' (forget)')), value: 'doc:remove' },
           ],
         })) as t.CrdtCommand;
 
@@ -98,6 +100,18 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
 
         if (B === 'doc:info-graph') {
           await traverseDocumentGraph(id);
+          return done(0);
+        }
+
+        if (B === 'doc:viewer:yaml') {
+          const m = await import('./cmds/cmd.yaml-viewer.ts');
+          const path = ['slug']; // TEMP 🐷
+          await m.startYamlViewer(dir, id, path);
+          return done(0);
+        }
+
+        if (B === 'doc:config:print') {
+          console.info(Fmt.printDocConfig(config.current, id));
           return done(0);
         }
 

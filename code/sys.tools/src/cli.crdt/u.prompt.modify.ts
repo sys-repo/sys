@@ -19,7 +19,7 @@ export async function promptAddDocument(dir: t.StringDir) {
   }
 
   const createdAt = Time.now.timestamp;
-  const entry: t.CrdtConfigDocEntry = Delete.empty({ id, name, createdAt });
+  const entry: t.CrdtConfigDocumentEntry = Delete.empty({ id, name, createdAt });
   config.change((d) => (d.docs || (d.docs = [])).push(entry));
   await config.fs.save();
 

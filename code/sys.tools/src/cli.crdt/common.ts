@@ -20,12 +20,19 @@ export const D = {
   },
   Sync: { server: 'waiheke.sync.db.team' },
   Path: {
-    repo: './.repo.crdt',
     config: './tools.config.json',
+    Repo: {
+      daemon: './.repo/daemon.crdt',
+      syncserver: './.repo/syncserver.crdt',
+    },
   },
   config: {
     filename: '-crdt.config.json',
-    doc: { '.meta': { createdAt: 0 }, version: '1.0.0' } satisfies t.CrdtConfigDoc,
+    doc: {
+      '.meta': { createdAt: 0 },
+      version: '1.0.0',
+      repo: { daemon: { sync: { websockets: [] } } },
+    } satisfies t.CrdtConfigDoc,
   },
 } as const;
 
