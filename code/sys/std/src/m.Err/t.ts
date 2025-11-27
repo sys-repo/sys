@@ -75,9 +75,14 @@ export type ErrNameLib = {
 };
 
 /**
- * Type guards (boolean evaluators).
+ * Type guards.
  */
 export type ErrIs = {
+  /**
+   * Determine if the given value is an Error instance.
+   */
+  error(input: unknown): input is Error;
+
   /**
    * Determine if the given value is "like" an error in that it
    * exposes a {message} property.

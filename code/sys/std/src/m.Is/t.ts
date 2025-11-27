@@ -43,6 +43,10 @@ export type StdIsLib = {
   observable<T = unknown>(input?: any): input is t.Observable<T>;
 
   /**
+   * Determine if the given value is an Error instance.
+   */
+  error: t.ErrIs['error'];
+  /**
    * Determine if the value is like an Error object.
    */
   errorLike: t.ErrIs['errorLike'];

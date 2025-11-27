@@ -28,6 +28,7 @@ describe('Is (common flags)', () => {
   });
 
   it('error', () => {
+    expect(Is.error).to.eql(Err.Is.error);
     expect(Is.errorLike).to.eql(Err.Is.errorLike);
     expect(Is.stdError).to.eql(Err.Is.stdError);
   });

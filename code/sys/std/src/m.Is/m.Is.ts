@@ -18,6 +18,9 @@ import { websocket } from './u.websocket.ts';
  * Common flag evaluators.
  */
 export const Is: StdIsLib = {
+  get error() {
+    return Err.Is.error;
+  },
   get errorLike() {
     return Err.Is.errorLike;
   },
