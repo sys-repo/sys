@@ -1,5 +1,5 @@
 import { c, describe, expect, it, pkg } from '../-test.ts';
-import { Server } from '../m.Server/mod.ts';
+import { Server } from '../m.server/mod.ts';
 import { ServerInfo } from './mod.ts';
 import { Net } from './common.ts';
 

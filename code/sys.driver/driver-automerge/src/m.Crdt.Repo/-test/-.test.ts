@@ -1,7 +1,7 @@
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { type t, AutomergeRepo, describe, expect, it, Rx, Time } from '../../-test.ts';
 
-import { Crdt } from '../../m.Server/common.ts';
+import { Crdt } from '../../m.server/common.ts';
 import { toAutomergeRepo, toRepo } from '../mod.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {

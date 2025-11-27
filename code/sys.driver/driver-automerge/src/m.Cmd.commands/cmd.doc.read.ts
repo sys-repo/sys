@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 
 type H = t.CrdtCmdHandlers;
 
-export function makeDocCurrentHandler(getRepo: t.CrdtGetRepoInput): H['doc:read'] {
+export function makeDocReadHandler(getRepo: t.CrdtGetRepoInput): H['doc:read'] {
   return async (params) => {
     const repo = getRepo();
     if (!repo) return { doc: undefined };

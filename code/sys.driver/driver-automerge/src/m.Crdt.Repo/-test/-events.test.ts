@@ -1,6 +1,6 @@
 import { type t, describe, expect, it, Rx, Time } from '../../-test.ts';
-import { Crdt } from '../../m.Server/common.ts';
-import { Server } from '../../m.Server/mod.ts';
+import { Crdt } from '../../m.server/common.ts';
+import { Server } from '../../m.server/mod.ts';
 
 describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('events.dispose', async () => {

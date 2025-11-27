@@ -22,7 +22,7 @@ export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
  * - attach       → optional spawn-time configuration.
  * - stats        → document id to inspect.
  * - fs:save      → persist document to a file path.
- * - doc:current  → fetch a document by id.
+ * - doc:read     → fetch a document by id.
  */
 export type CrdtCmdPayload = {
   attach: { config?: t.CrdtWorkerConfig };

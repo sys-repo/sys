@@ -1,5 +1,5 @@
 import { type t, AutomergeRepo, describe, expect, Is, it, Rx, Testing } from '../../-test.ts';
-import { Crdt } from '../../m.Server/common.ts';
+import { Crdt } from '../../m.server/common.ts';
 import { toRef } from '../mod.ts';
 
 describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps: false }, () => {

@@ -1,15 +1,15 @@
 import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '../../-test.ts';
 import { type t } from '../common.ts';
-import { makeDocCurrentHandler } from '../mod.ts';
+import { makeDocReadHandler } from '../mod.ts';
 
-describe('Command: "doc:current"', () => {
+describe('Command: "doc:read"', () => {
   let env: t.TestWorkerFixture;
   beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());
 
   it('returns an existing document', async () => {
     const { repo } = env;
-    const handler = makeDocCurrentHandler(() => repo);
+    const handler = makeDocReadHandler(() => repo);
 
     const created = await repo.create<{ value: number }>({ value: 123 });
     const doc = created.doc!;
@@ -22,7 +22,7 @@ describe('Command: "doc:current"', () => {
 
   it('returns undefined for a missing document', async () => {
     const { repo } = env;
-    const handler = makeDocCurrentHandler(() => repo);
+    const handler = makeDocReadHandler(() => repo);
 
     const res = await handler({ doc: 'crdt:does-not-exist' as t.Crdt.Id });
     expect(res.doc).to.eql(undefined);
@@ -32,7 +32,7 @@ describe('Command: "doc:current"', () => {
     const { repo } = env;
     const existing = (await repo.create<{ value: number }>({ value: 1 })).doc!;
 
-    const handler = makeDocCurrentHandler(() => undefined);
+    const handler = makeDocReadHandler(() => undefined);
     const res = await handler({ doc: existing.id });
 
     expect(res.doc).to.eql(undefined);

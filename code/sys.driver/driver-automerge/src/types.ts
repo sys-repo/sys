@@ -15,8 +15,8 @@ export type * from './m.Crdt.Repo/t.ts';
 export type * from './m.Crdt/t.ts';
 export type * from './m.Debug/t.ts';
 export type * from './m.Graph/t.ts';
-export type * from './m.Server.client/t.ts';
-export type * from './m.Server/t.ts';
+export type * from './m.server.client/t.ts';
+export type * from './m.server/t.ts';
 export type * from './m.worker/t.ts';
 
 export type * from './ui/-dev/t.ts';

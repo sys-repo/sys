@@ -1,10 +1,10 @@
 /**
  * @module CRDT sync-server.
  */
-import { Server } from '../m.Server/mod.ts';
+import { Server } from '../m.server/mod.ts';
 import { type t, Args, Str } from './common.ts';
 
-export * from '../m.Server/mod.ts';
+export * from '../m.server/mod.ts';
 
 /**
  * @module
