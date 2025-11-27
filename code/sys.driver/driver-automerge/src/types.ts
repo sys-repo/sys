@@ -8,8 +8,8 @@ export type * from './-exports/-fs/t.ts';
 export type * from './-exports/-web.ui/t.ts';
 export type * from './-exports/-web/t.ts';
 
+export type * from './m.Cmd.commands/t.ts';
 export type * from './m.Cmd/t.ts';
-export type * from './m.commands/t.ts';
 export type * from './m.Crdt.Ref/t.ts';
 export type * from './m.Crdt.Repo/t.ts';
 export type * from './m.Crdt/t.ts';

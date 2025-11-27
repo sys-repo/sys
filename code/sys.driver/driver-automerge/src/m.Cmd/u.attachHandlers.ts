@@ -1,4 +1,8 @@
-import { makeDocCurrentHandler, makeSaveHandler, makeDocStatsHandler } from '../m.commands/mod.ts';
+import {
+  makeDocCurrentHandler,
+  makeSaveHandler,
+  makeDocStatsHandler,
+} from '../m.Cmd.commands/mod.ts';
 import { type t, Is } from './common.ts';
 import { make } from './u.make.ts';
 
