@@ -7,7 +7,7 @@
           exit 0
         fi
         echo "publish failed (attempt $i), retrying in 15s…"
-        sleep 150
+        sleep 5
     done
     echo "publish failed after 3 attempts"
     exit 1
