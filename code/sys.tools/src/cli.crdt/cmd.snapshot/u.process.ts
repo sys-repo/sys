@@ -42,7 +42,7 @@ export async function process(args: Args): Promise<ProcessResult> {
     id: root,
     processed,
     load: async (id) => {
-      const { doc } = await cmd.send('doc:current', { doc: id });
+      const { doc } = await cmd.send('doc:read', { doc: id });
       return doc ?? undefined;
     },
 

@@ -23,9 +23,9 @@ export const attachHandlers = (args: {
 
   const handlers: t.CrdtCmdHandlers = {
     attach: () => ({ ok: true }), // ← no handshake needed locally
-    'fs:save': makeSaveHandler(getRepo),
-    'doc:current': makeDocCurrentHandler(getRepo),
+    'doc:read': makeDocCurrentHandler(getRepo),
     'doc:stats': makeDocStatsHandler(getRepo),
+    'fs:save': makeSaveHandler(getRepo),
     ...args.handlers,
   };
 
