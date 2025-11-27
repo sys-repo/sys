@@ -1,3 +1,4 @@
 export { makeDocReadHandler } from './cmd.doc.read.ts';
+export { makeDocSaveHandler } from './cmd.doc.save.ts';
 export { makeDocStatsHandler } from './cmd.doc.stats.ts';
-export { makeSaveHandler } from './cmd.save.ts';
+export { makeDocWriteHandler } from './cmd.doc.write.ts';
