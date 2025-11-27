@@ -1,5 +1,6 @@
-import { type t, Is, Obj, Lazy } from './common.ts';
+import { type t, Lazy, Obj } from './common.ts';
 import { AliasIs } from './m.Is.ts';
+import { ensureIsObject } from './u.ts';
 
 type O = Record<string, unknown>;
 
@@ -25,11 +26,6 @@ export const make: t.AliasResolverLib['make'] = (obj, opts = {}) => {
 /**
  * Helpers:
  */
-function ensureIsObject(input?: O): O {
-  if (!input) return {};
-  if (!Is.record(input)) return {};
-  return input;
-}
 
 function cleanMap(input?: O): t.Alias.Map {
   const obj = ensureIsObject(input);

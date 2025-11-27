@@ -1,7 +1,7 @@
-import { type t, describe, expect, expectTypeOf, it, Yaml } from '../../-test.ts';
+import { c, describe, expect, it, Yaml } from '../../-test.ts';
 import { AliasResolver } from '../mod.ts';
 
-describe(`AliasResolver`, () => {
+describe(`AliasResolver.make`, () => {
   const yamlIndex = `
     # :index
     # crdt:28k1CyQUNXnx74LhBoyvP2kif4GF
@@ -9,7 +9,7 @@ describe(`AliasResolver`, () => {
     alias:
       :core:   /slug/data/prog.core
       :p2p:    /slug/data/prog.p2p
-      :assets: fs:/Users/rowanyeoman/Documents/All-docs/TeamDB/Design/Video/P2P-program/Oct-2025/publish/
+      :assets: fs:/Users/name/Documents/Video/P2P-program/v2/publish/
 
     slug:
       traits:
@@ -59,5 +59,13 @@ describe(`AliasResolver`, () => {
     expect((resolver.alias as any)['not-an-alias']).to.eql(undefined);
     expect(resolver.alias[':index']).to.eql('crdt:28k1CyQUNXnx74LhBoyvP2kif4GF');
     expect(resolver.alias[':core-slugs']).to.eql('/:index/alias/:core');
+
+    console.info();
+    console.info(c.cyan('AliasResolver.make → resolver.alias'));
+    console.info();
+    console.info(resolver.alias);
+    console.info();
+
+    // console.log('resolver.', resolver.root);
   });
 });

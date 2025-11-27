@@ -15,9 +15,14 @@ export type AliasResolverLib = {
   make(obj: O, opts?: { root?: t.ObjectPath; alias?: t.ObjectPath }): t.Alias.Resolver;
 
   /**
-   * Expand one RawPath string using an AliasMap.
-   * Nested alias references allowed; cycles forbidden.
+   * Analyze the alias table at the given root:
+   * - returns the same Resolver as `make`
+   * - plus diagnostics for any discarded or problematic entries.
+   *
+   * This stays sync and side-effect free; callers (e.g. Crdt.Graph.walk)
+   * are responsible for attaching doc ids, logging, or editor markers.
    */
+  analyze(obj: O, opts?: { root?: t.ObjectPath; alias?: t.ObjectPath }): t.Alias.TableAnalysis;
 };
 
 /**
