@@ -4,7 +4,7 @@
  */
 export type * from '@sys/types/t';
 
-export type * from './m.AliasResolver/t.ts';
+export type * from './m.Alias/t.ts';
 export type * from './m.Ansi/t.ts';
 export type * from './m.Args/t.ts';
 export type * from './m.Arr/t.ts';
