@@ -2,6 +2,7 @@ import { type t, c, Cli, D, Rx, Time, Str } from '../common.ts';
 import { startRepoOnWorker } from '../worker/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { tryClient } from './u.client.ts';
+import { getConfig } from '../u.config.ts';
 
 /**
  * Runs the CRDT repo as a long-lived daemon rendering a live terminal UI.
@@ -9,7 +10,6 @@ import { tryClient } from './u.client.ts';
 export async function daemon(dir: t.StringDir) {
   const port = D.port.repo;
   const cmd = await tryClient(port);
-
   if (cmd) {
     const str = Str.builder()
       .line()
@@ -20,6 +20,8 @@ export async function daemon(dir: t.StringDir) {
     return;
   }
 
+  const config = await getConfig(dir);
+  const websockets = config.current.repo?.daemon?.sync?.websockets ?? [];
   const eventlog = new Set<t.CrdtRepoLogEntry>();
 
   let hasStarted = false;
@@ -31,12 +33,14 @@ export async function daemon(dir: t.StringDir) {
     return { alive, stalled };
   };
 
+  console.log('websockets', websockets);
+
   /**
    * Prepare CRDT repository on background worker.
    */
   console.clear();
   const spinner = Cli.spinner(Fmt.spinnerText('starting repository...'));
-  const repo = await startRepoOnWorker(dir, { port });
+  const repo = await startRepoOnWorker(dir, { port, websockets });
   const events = repo.events();
   spinner.stop();
 

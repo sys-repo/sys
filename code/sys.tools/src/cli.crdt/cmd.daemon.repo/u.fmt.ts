@@ -40,8 +40,13 @@ export const Fmt = {
       if (!has.network) {
         str.line(c.gray(`     ${br(false)} network:  ${c.dim('(none)')}`));
       } else {
-        repo.sync.urls.forEach((url) => {
-          str.line(c.gray(`     ${br(false)} network:  ${url}`));
+        repo.sync.urls.forEach((url, i) => {
+          url = url.replace(/^wss?:\/\//, '');
+          const first = i === 0;
+          let label = 'network:';
+          if (!first) label = ' '.repeat(label.length);
+          const branch = first ? br(false) : `${c.gray(Tree.vert)} `;
+          str.line(c.gray(`     ${branch} ${label}  ${url}`));
         });
       }
 
