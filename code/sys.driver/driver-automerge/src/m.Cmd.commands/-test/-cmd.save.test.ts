@@ -5,7 +5,7 @@ import { CrdtCmd } from './u.ts';
 import { Hash } from '@sys/crypto/hash';
 import { Fs } from '@sys/fs';
 
-describe('Command: fs:save', () => {
+describe('Command: "doc:save"', () => {
   let env: t.TestWorkerFixture;
   beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());
@@ -25,7 +25,7 @@ describe('Command: fs:save', () => {
     const client = cmd.client(env.port);
 
     // 3. Save.
-    const res = await client.send('fs:save', { doc: doc.id, path });
+    const res = await client.send('doc:save', { doc: doc.id, path });
     const file = await Fs.read(Fs.resolve(res.path));
     expect(file.data?.byteLength).to.eql(res.bytes);
     expect(Hash.sha256(file.data)).to.eql(res.hash);

@@ -39,7 +39,7 @@ export async function saveDoc(args: {
   /**
    * Binary File
    */
-  const res = await cmd.send('fs:save', { doc: doc.id, path: path.binary });
+  const res = await cmd.send('doc:save', { doc: doc.id, path: path.binary });
 
   const toSize = async (path: string) => (await Fs.stat(path))?.size ?? 0;
   const size = {

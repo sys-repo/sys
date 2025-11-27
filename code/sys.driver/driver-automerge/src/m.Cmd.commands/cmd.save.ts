@@ -2,7 +2,7 @@ import { type t, A, Hash, Is, toAutomergeHandle } from './common.ts';
 
 type H = t.CrdtCmdHandlers;
 
-export function makeSaveHandler(getRepo: t.CrdtGetRepoInput): H['fs:save'] {
+export function makeSaveHandler(getRepo: t.CrdtGetRepoInput): H['doc:save'] {
   return async (params) => {
     const repo = getRepo();
     const path = params.path;

@@ -21,7 +21,7 @@ export const attachHandlers = (args: {
     attach: () => ({ ok: true }), // ← no handshake needed locally
     'doc:read': makeDocReadHandler(getRepo),
     'doc:stats': makeDocStatsHandler(getRepo),
-    'fs:save': makeSaveHandler(getRepo),
+    'doc:save': makeSaveHandler(getRepo),
     ...args.handlers,
   };
 
