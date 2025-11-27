@@ -28,3 +28,9 @@ export type CliKeepAliveOptions = {
    */
   readonly exitCode?: number;
 };
+
+/** Current terminal dimensions in character cells. */
+export type CliSize = {
+  readonly width: number;
+  readonly height: number;
+};

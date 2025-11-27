@@ -7,6 +7,7 @@ import { Spinner } from './m.Spinner.ts';
 import { Table } from './m.Table.ts';
 import { copyToClipboard } from './u.clipboard.ts';
 import { keepAlive } from './u.keepAlive.ts';
+import { size } from './u.size.ts';
 
 /**
  * Tools for the CLI (command-line interfaces):
@@ -30,4 +31,5 @@ export const Cli: t.CliLib = {
   stripAnsi,
   copyToClipboard,
   keepAlive,
+  size,
 };

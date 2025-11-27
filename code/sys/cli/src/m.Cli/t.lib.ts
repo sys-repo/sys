@@ -57,4 +57,9 @@ export type CliLib = {
    * disposal, then exits the process with the given exit code.
    */
   keepAlive: (options?: t.CliKeepAliveOptions) => Promise<never>;
+
+  /**
+   * Measure the terminal’s current width and height in character cells.
+   */
+  size(): t.CliSize;
 };
