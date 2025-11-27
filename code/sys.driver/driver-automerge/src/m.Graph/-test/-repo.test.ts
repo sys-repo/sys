@@ -12,7 +12,7 @@ import {
 import { CrdtGraph } from '../mod.ts';
 import { defaultDiscoverRefs } from '../u.defaultDiscoverRefs.ts';
 
-describe(`Crdt.Graph`, () => {
+describe(`Crdt.Graph: using concrete repo`, () => {
   let env: t.TestWorkerFixture;
   beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());
