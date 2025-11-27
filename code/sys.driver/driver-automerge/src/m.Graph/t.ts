@@ -3,6 +3,14 @@ import type { t } from './common.ts';
 type O = Record<string, unknown>;
 
 /**
+ * Internal graph document shape: a read-only snapshot of the current value.
+ *
+ * This is intentionally minimal (`{ current: T }`), allowing documents to be
+ * backed by CRDT refs, command-based loaders, or any other immutable source.
+ */
+type GraphDoc<T extends O = O> = t.ImmutableSnapshot<T>;
+
+/**
  * CRDT Graph Utilities
  * Provides a generic DAG walker for CRDT documents.
  *
@@ -29,9 +37,7 @@ export type CrdtGraphWalk = <T extends O = O>(
  *  - in-process: `id => repo.get<T>(id)`
  *  - RPC: `id => cmd.send('doc:read', { id }).then(r => r.doc)`
  */
-export type CrdtGraphLoadDoc<T extends O = O> = (
-  id: t.Crdt.Id,
-) => Promise<t.Crdt.Ref<T> | undefined>;
+export type CrdtGraphLoadDoc<T extends O = O> = (id: t.Crdt.Id) => Promise<GraphDoc<T> | undefined>;
 
 /**
  * Common options for walking a CRDT reference DAG.
@@ -90,7 +96,8 @@ export type CrdtGraphSkipReason = 'already-processed' | 'not-found' | 'not-objec
  * Arguments passed to `onDoc` for each successfully loaded document.
  */
 export type CrdtGraphWalkDocArgs<T extends O = O> = {
-  readonly doc: t.Crdt.Ref<T>;
+  readonly id: t.Crdt.Id;
+  readonly doc: GraphDoc<T>;
   readonly depth: number;
 };
 
@@ -116,7 +123,8 @@ export type CrdtGraphWalkRefsArgs = {
  * Arguments passed to `discoverRefs` for computing outbound edges from a doc.
  */
 export type CrdtGraphDiscoverRefsArgs = {
-  readonly doc: t.Crdt.Ref;
+  readonly id: t.Crdt.Id;
+  readonly doc: GraphDoc;
   readonly depth: number;
 };
 

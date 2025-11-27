@@ -43,7 +43,7 @@ async function walkImpl<T extends O = O>(
    * Note: narrowing is done directly with `'repo' in args` / `'load' in args`
    * so the compiler can see the union arms; we avoid storing those as booleans.
    */
-  const loadDoc = async (docId: t.Crdt.Id): Promise<t.Crdt.Ref<T> | undefined> => {
+  const loadDoc: t.CrdtGraphLoadDoc<T> = async (docId) => {
     if ('repo' in args) {
       const { ok, doc } = await getWithRetry<T>(args.repo, docId);
       return ok ? doc : undefined;
@@ -78,13 +78,12 @@ async function walkImpl<T extends O = O>(
 
   // 4. Mark as processed and invoke `onDoc`.
   processed.push(id);
-  await onDoc({ depth, doc });
+  await onDoc({ id, depth, doc });
 
   // 5. Discover outbound references using either the caller-supplied
   //    `discoverRefs` hook or the default CRDT-URI-based implementation.
-  const refsAry = await edgeDiscovery({ doc, depth });
-  const refs: t.Crdt.Id[] = [...refsAry];
-
+  const refsList = await edgeDiscovery({ id, doc, depth });
+  const refs: t.Crdt.Id[] = [...refsList];
   if (refs.length > 0) {
     onRefs?.({ id, depth, refs });
   }
@@ -92,7 +91,7 @@ async function walkImpl<T extends O = O>(
   // 6. Recurse into referenced documents (DAG walk).
   for (const refId of refs) {
     await walkImpl<T>({
-      ...(args as t.CrdtGraphWalkArgs<T>),
+      ...args,
       id: refId,
       depth: depth + 1,
       processed,

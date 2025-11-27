@@ -7,10 +7,10 @@ import {
   expectTypeOf,
   it,
   makeWorkerFixture,
-} from '../../-test.ts';
+} from '../-test.ts';
 
-import { CrdtGraph } from '../mod.ts';
-import { defaultDiscoverRefs } from '../u.defaultDiscoverRefs.ts';
+import { CrdtGraph } from './mod.ts';
+import { defaultDiscoverRefs } from './u.defaultDiscoverRefs.ts';
 
 describe(`Crdt.Graph`, () => {
   let env: t.TestWorkerFixture;
@@ -45,8 +45,9 @@ describe(`Crdt.Graph`, () => {
       repo,
       id: A.id,
 
-      onDoc: ({ doc }) => {
-        seenDocs.push(doc.id);
+      // id is now passed separately from the snapshot
+      onDoc: ({ id }) => {
+        seenDocs.push(id);
       },
 
       onRefs: ({ id, refs }) => {
@@ -98,22 +99,23 @@ describe(`Crdt.Graph`, () => {
     const seenDepths: Record<t.Crdt.Id, number> = {};
 
     const discoverRefs: t.CrdtGraphDiscoverRefs = (args) => {
-      const { doc, depth } = args;
+      const { id, doc, depth } = args;
       const current = doc.current as { next?: string };
-      seenDepths[doc.id] = depth;
+
+      seenDepths[id] = depth;
 
       const next = current.next;
       if (!next) return [];
       if (!next.startsWith('doc:')) return [];
 
-      const id = next.slice('doc:'.length) as t.Crdt.Id;
-      return [id];
+      const nextId = next.slice('doc:'.length) as t.Crdt.Id;
+      return [nextId];
     };
 
     const res = await CrdtGraph.walk({
       repo,
       id: A.id,
-      onDoc: ({ doc }) => void seenDocs.push(doc.id),
+      onDoc: ({ id }) => void seenDocs.push(id),
       onRefs: ({ id, refs }) => (seenRefs[id] = refs),
       discoverRefs,
     });
@@ -155,8 +157,8 @@ describe(`Crdt.Graph`, () => {
     const seenDocs: t.Crdt.Id[] = [];
 
     const discoverRefs: t.CrdtGraphDiscoverRefs = async (args): Promise<readonly t.Crdt.Id[]> => {
-      const doc = args.doc as t.Crdt.Ref<T>;
-      const current = doc.current;
+      const { doc } = args;
+      const current = doc.current as T;
       const next = current.next;
       if (!next || !next.startsWith('doc:')) return [];
       const id = next.slice('doc:'.length) as t.Crdt.Id;
@@ -167,8 +169,8 @@ describe(`Crdt.Graph`, () => {
       repo,
       id: A.id,
 
-      onDoc: ({ doc }) => {
-        seenDocs.push(doc.id);
+      onDoc: ({ id }) => {
+        seenDocs.push(id);
       },
 
       discoverRefs,
@@ -213,8 +215,8 @@ describe(`Crdt.Graph`, () => {
       load,
       id: A.id,
 
-      onDoc: ({ doc }) => {
-        seenDocs.push(doc.id);
+      onDoc: ({ id }) => {
+        seenDocs.push(id);
       },
 
       onRefs: ({ id, refs }) => {
