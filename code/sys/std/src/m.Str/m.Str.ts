@@ -13,6 +13,7 @@ import { plural } from './u.plural.ts';
 import { replaceAll } from './u.replace.ts';
 import { trimEdgeNewlines } from './u.trim.ts';
 import { truncate } from './u.truncate.ts';
+import { indent } from './u.indent.ts';
 
 export { bytes, capitalize, diff, plural };
 
@@ -28,6 +29,7 @@ export const Str: t.StrLib = {
   truncate,
   ellipsize,
   replaceAll,
+  indent,
   dedent,
   trimEdgeNewlines,
   count,

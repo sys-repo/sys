@@ -76,6 +76,11 @@ export type StrLib = {
   ): { readonly changed: boolean; readonly before: string; readonly after: string };
 
   /**
+   * Adds a fixed indentation to all non-blank lines of a multi-line string.
+   */
+  indent(str: string, chars: number, opts?: { char?: string }): string;
+
+  /**
    * Removes the smallest common indentation from all non-blank lines
    * of a multi-line string, preserving relative structure.
    */

@@ -385,6 +385,37 @@ describe('Str (String)', () => {
     });
   });
 
+  describe('Str.indent', () => {
+    it('returns original string when empty or chars <= 0', () => {
+      const input = 'line';
+      expect(Str.indent('', 2)).to.equal('');
+      expect(Str.indent(input, 0)).to.equal(input);
+      expect(Str.indent(input, -2)).to.equal(input);
+    });
+
+    it('adds space indentation to all non-blank lines', () => {
+      const input = 'one\n  two\nthree';
+      const result = Str.indent(input, 2);
+
+      expect(result).to.eql('  one\n    two\n  three');
+    });
+
+    it('preserves blank and whitespace-only lines', () => {
+      const input = 'one\n\n  \n two\n';
+      const result = Str.indent(input, 2);
+
+      // middle blank lines unchanged, non-blank indented
+      expect(result).to.eql('  one\n\n  \n   two\n');
+    });
+
+    it('uses custom indent character when provided', () => {
+      const input = 'one\ntwo';
+      const result = Str.indent(input, 3, { char: '.' });
+
+      expect(result).to.eql('...one\n...two');
+    });
+  });
+
   describe('Str.dedent', () => {
     it('removes shared leading indentation', () => {
       const input = `
