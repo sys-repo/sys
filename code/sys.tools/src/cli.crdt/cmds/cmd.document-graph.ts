@@ -1,8 +1,10 @@
 import { type t, c, Cli, Crdt, D, Str, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
-import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
+import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
 
+type O = Record<string, unknown>;
 type Client = t.Crdt.Cmd.Client;
+type Scratch = { doc: t.Crdt.Id; print?: () => string };
 
 const Tree = Cli.Fmt.Tree;
 
@@ -10,6 +12,9 @@ export async function traverseDocumentGraph(root: t.Crdt.Id) {
   const port = D.port.repo;
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
+
+  const scratches: Scratch[] = [];
+  const scratch = (doc: t.Crdt.Id, print?: () => string) => scratches.push({ doc, print });
 
   const spinner = Cli.spinner();
   const skipped: t.Crdt.Graph.WalkSkipArgs[] = [];
@@ -23,12 +28,16 @@ export async function traverseDocumentGraph(root: t.Crdt.Id) {
       id: root,
       processed,
       async load(id) {
-        const { doc } = await cmd.send('doc:current', { doc: id });
+        const { doc } = await cmd.send('doc:read', { doc: id });
         return doc ?? undefined;
       },
       async onDoc(e) {},
       onSkip: (e) => skipped.push(e),
       onRefs(e) {},
+      discoverRefs(e) {
+        function check(id: string) {
+          const yaml = (e.doc.current as any).slug as string;
+          const includes = yaml.includes(`crdt:${id}`);
     });
   }
 
@@ -48,6 +57,7 @@ export async function traverseDocumentGraph(root: t.Crdt.Id) {
   async function print(cmd: Client, startedAt: t.Msecs) {
     console.info(await buildProcessedTable(cmd, processed, startedAt));
     if (skipped.length > 0) console.info(await buildNotFoundTable(skipped));
+    if (scratches.length > 0) console.info(await buildScrachTable(scratches));
     console.info();
   }
 }
@@ -98,20 +108,37 @@ async function buildNotFoundTable(skipped: t.Crdt.Graph.WalkSkipArgs[]) {
   skipped = skipped.filter((e) => e.reason === 'not-found');
   if ((skipped ?? []).length === 0) return '';
 
-  const warnTable = Cli.table([]);
-  warnTable.push([c.gray(Tree.vert)]);
+  const table = Cli.table([]);
+  table.push([c.gray(Tree.vert)]);
   skipped.forEach((e, i, totalCount) => {
     const branch = Tree.branch([i, totalCount]);
     const skipped = c.gray(`${c.yellow('skipped')}; ${e.reason}, depth=${e.depth}`);
-    warnTable.push([c.gray(`${branch} ${Fmt.prettyUri(e.id)}`), skipped]);
+    table.push([c.gray(`${branch} ${Fmt.prettyUri(e.id)}`), skipped]);
   });
 
   const notFound = c.white('not found');
   const str = Str.builder()
     .line()
     .line(c.gray(`${c.yellow('Warning')} the following linked documents were ${notFound}:`))
-    .line(Str.trimEdgeNewlines(String(warnTable)))
+    .line(Str.trimEdgeNewlines(String(table)))
     .line();
+
+  return String(str);
+}
+
+async function buildScrachTable(scratches: Scratch[]) {
+  const total = (scratches ?? []).length;
+  if (total === 0) return '';
+
+  const str = Str.builder().line(c.yellow('Scratchpad:')).line();
+  scratches.forEach((e, i, totalCount) => {
+    str.line(c.gray(c.dim(`🐷-crdt:${c.green(e.doc.slice(-5))}`)));
+    if (e.print) str.line(e.print());
+    str.line();
+  });
+  str
+    .line(c.yellow('―'.repeat(3)))
+    .line(c.italic(c.yellow(`${total} scratchpad ${Str.plural(total, 'item', 'items')}`)));
 
   return String(str);
 }
