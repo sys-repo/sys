@@ -211,26 +211,33 @@ function logWssError(prefix: string, err: unknown, silent?: boolean) {
 }
 
 /**
- * Detects Automerge WASM out-of-memory traps so we can
+ * Detects Automerge WASM fatal traps (OOM / capacity overflow / aliasing) so we can
  * treat them as non-fatal at the process boundary.
  *
  * Signature is based on:
  *   - "__rg_oom" (Rust OOM hook) ← "out of memory"
+ *   - "capacity overflow" / "alloc::raw_vec::capacity_overflow"
+ *   - "recursive use of an object detected which would lead to unsafe aliasing in rust"
  *   - "automerge_wasm" in the stack
  *   - "RuntimeError: unreachable" from the WASM trap
  */
 function isAutomergeOomError(err: unknown): boolean {
-  if (!(err instanceof Error)) return false;
+  if (!Is.error(err)) return false;
 
   const stack = typeof err.stack === 'string' ? err.stack : '';
-  const message = `${err.name}: ${err.message}`;
-  const text = `${message}\n${stack}`;
+  const text = `${err.name}: ${err.message}\n${stack}`.toLowerCase();
+  const incl = (s: string) => text.includes(s);
 
-  if (!text) return false;
+  const triggers = [
+    '__rg_oom',
+    'capacity overflow',
+    'alloc::raw_vec::capacity_overflow',
+    'recursive use of an object detected which would lead to unsafe aliasing in rust',
+    'automerge_wasm',
+  ] as const;
 
-  if (text.includes('__rg_oom')) return true;
-  if (text.includes('automerge_wasm')) return true;
-  if (text.includes('RuntimeError: unreachable') && text.includes('automerge::')) return true;
+  if (triggers.some(incl)) return true;
+  if (incl('runtimeerror: unreachable') && incl('automerge::')) return true;
 
   return false;
 }
@@ -239,7 +246,7 @@ function isAutomergeOomError(err: unknown): boolean {
  * Suppresses known benign runtime errors:
  *
  * - BrokenPipe/EPIPE rejections from dropped WS peers.
- * - Automerge WASM OOM traps during sync ("RuntimeError: unreachable" / __rg_oom).
+ * - Automerge WASM OOM/aliasing traps during sync ("RuntimeError: unreachable" / __rg_oom / borrow_fail).
  *
  * Goal: keep the sync server process alive; peers/docs may fail, but the
  * daemon stays up and logs clearly what happened.
@@ -258,22 +265,21 @@ function installBrokenPipeTrap(silent?: boolean) {
     if (isBrokenPipeError(reason)) {
       // Treat as normal disconnect: don't crash the server.
       event.preventDefault();
-      if (!silent) {
-        console.info('[unhandledrejection][broken-pipe] peer disconnected during send');
-      }
+      if (!silent) console.info('[unhandledrejection][broken-pipe] peer disconnected during send');
       return;
     }
 
     /**
-     * Automerge OOM (out-of-memory).
+     * Automerge OOM/aliasing panic.
      */
     if (isAutomergeOomError(reason)) {
-      // Automerge WASM ran out of memory reconstructing a doc.
-      // Log and keep the server process alive.
+      // Automerge WASM ran out of memory or hit a capacity/aliasing panic
+      // reconstructing a doc. Log and keep the server process alive.
       event.preventDefault();
       if (!silent) {
-        const msg = `[unhandledrejection][automerge:oom] sync message caused OOM (out-of-memory)`;
-        console.error(msg, reason);
+        const msg = `[unhandledrejection][automerge:oom] sync message caused Automerge OOM/panic (out-of-memory or capacity/aliasing overflow)`;
+        const summary = Is.error(reason) ? `${reason.name}: ${reason.message}` : String(reason);
+        console.error(msg, summary);
       }
       return;
     }
@@ -285,10 +291,12 @@ function installBrokenPipeTrap(silent?: boolean) {
     const reason = (event as ErrorEvent).error;
 
     if (isAutomergeOomError(reason)) {
-      // Same OOM case, but surfaced as a top-level error instead of a rejection.
+      // Same OOM/capacity/aliasing case, but surfaced as a top-level error instead of a rejection.
       event.preventDefault();
       if (!silent) {
-        console.error('[error][automerge:oom] sync message caused OOM', reason);
+        const msg = `[error][automerge:oom] sync message caused Automerge OOM/panic (out-of-memory or capacity/aliasing overflow)`;
+        const summary = Is.error(reason) ? `${reason.name}: ${reason.message}` : String(reason);
+        console.error(msg, summary);
       }
     }
   });
