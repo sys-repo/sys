@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 
+type O = Record<string, unknown>;
 type Name = t.CrdtCmdName;
 type Payload = t.CrdtCmdPayload;
 type Result = t.CrdtCmdResult;
@@ -27,7 +28,7 @@ export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
  */
 export type CrdtCmdPayload = {
   attach: { config?: t.CrdtWorkerConfig };
-  'doc:read': { doc: t.Crdt.Id };
+  'doc:read': { doc: t.Crdt.Id; path?: t.ObjectPath };
   'doc:write': { doc: t.Crdt.Id; value: t.Json; path?: t.ObjectPath };
   'doc:stats': { doc: t.Crdt.Id };
   'doc:save': { doc: t.Crdt.Id; path: t.StringPath };
@@ -54,9 +55,7 @@ export type CrdtCmdResult = {
  */
 export namespace CrdtCommands {
   export type AttachResult = { readonly ok: true };
-  export type DocReadResult = {
-    readonly doc?: t.Crdt.Ref | undefined;
-  };
+  export type DocReadResult = { readonly value?: t.Json };
   export type DocWriteResult = { readonly ok: true };
   export type DocStatsResult = t.DocumentStats;
   export type DocSaveResult = {

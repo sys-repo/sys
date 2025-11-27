@@ -7,19 +7,33 @@ describe('Command: "doc:read"', () => {
   beforeAll(async () => void (env = await makeWorkerFixture()));
   afterAll(() => env?.dispose());
 
-  type Doc = { value: number };
+  type Doc = { count: number; nested?: { foo: string } };
 
-  it('returns an existing document', async () => {
-    const { repo } = env;
-    const handler = makeDocReadHandler(() => repo);
+  describe('happy path', () => {
+    it('returns the root document value', async () => {
+      const { repo } = env;
+      const handler = makeDocReadHandler(() => repo);
 
-    const created = await repo.create<Doc>({ value: 123 });
-    const doc = created.doc!;
-    const res = await handler({ doc: doc.id });
+      const created = await repo.create<Doc>({ count: 123 });
+      const doc = created.doc!;
+      const res = await handler({ doc: doc.id });
 
-    expect(res.doc).to.be.ok;
-    expect(res.doc?.id).to.eql(doc.id);
-    expect((res.doc?.current as Doc).value).to.eql(123);
+      expect(res.value).to.eql({ count: 123 });
+    });
+
+    it('returns a nested value when a path is provided', async () => {
+      const { repo } = env;
+      const handler = makeDocReadHandler(() => repo);
+
+      const created = await repo.create<Doc>({ count: 1, nested: { foo: 'bar' } });
+      const doc = created.doc!;
+      const res = await handler({
+        doc: doc.id,
+        path: ['nested', 'foo'] as t.ObjectPath,
+      });
+
+      expect(res.value).to.equal('bar');
+    });
   });
 
   describe('not-found conditions', () => {
@@ -27,29 +41,44 @@ describe('Command: "doc:read"', () => {
       const { repo } = env;
       const handler = makeDocReadHandler(() => repo);
 
-      const created = await repo.create<Doc>({ value: 123 });
+      const created = await repo.create<Doc>({ count: 123 });
       const doc = created.doc!;
       const res = await handler({ doc: `crdt:${doc.id}` });
 
-      expect(res.doc).to.eql(undefined);
+      expect(res.value).to.eql(undefined);
+    });
+
+    it('returns <undefined> when the requested path does not exist', async () => {
+      const { repo } = env;
+      const handler = makeDocReadHandler(() => repo);
+
+      const created = await repo.create<Doc>({ count: 1, nested: { foo: 'bar' } });
+      const doc = created.doc!;
+
+      const res = await handler({
+        doc: doc.id,
+        path: ['nested', 'missing'],
+      });
+
+      expect(res.value).to.eql(undefined);
     });
 
     it('returns <undefined> for a missing document', async () => {
       const { repo } = env;
       const handler = makeDocReadHandler(() => repo);
 
-      const res = await handler({ doc: 'does-not-exist' as t.Crdt.Id });
-      expect(res.doc).to.eql(undefined);
+      const res = await handler({ doc: 'does-not-exist' });
+      expect(res.value).to.eql(undefined);
     });
 
     it('returns <undefined> when no repo is available', async () => {
       const { repo } = env;
-      const existing = (await repo.create<Doc>({ value: 1 })).doc!;
+      const existing = (await repo.create<Doc>({ count: 1 })).doc!;
 
       const handler = makeDocReadHandler(() => undefined);
       const res = await handler({ doc: existing.id });
 
-      expect(res.doc).to.eql(undefined);
+      expect(res.value).to.eql(undefined);
     });
   });
 });
