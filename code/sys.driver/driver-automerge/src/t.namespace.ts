@@ -33,6 +33,9 @@ export namespace Crdt {
     export type Factory = t.CrdtCmdFactory;
     export type Client = t.CrdtCmdClient;
   }
+  export namespace Sync {
+    export type Server = t.SyncServer;
+  }
 }
 
 /**
