@@ -11,7 +11,7 @@ export const Paths = {
     return Paths.all;
     // return Paths.single; // 🐷 NARROW
   },
-  single: ['code/sys.tools'],
+  single: ['code/sys/std', 'code/sys.tools'],
   all: [
     // types:
     'code/sys/types',
