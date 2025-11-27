@@ -1,7 +1,13 @@
-import { type t, Str, describe, expect, it } from '../../-test.ts';
+import { Str, describe, expect, it } from '../../-test.ts';
 import { Yaml } from '../mod.ts';
 
 describe('Yaml.parseAst', () => {
+  it('parses from <undefined> entry param', () => {
+    const doc = Yaml.parseAst();
+    expect(doc.errors).to.eql([]); // no parse errors
+    expect(Yaml.toJS(doc).data).to.eql(null);
+  });
+
   it('parses valid YAML and returns the expected JS value', () => {
     const src = `
       name: 'Alice'

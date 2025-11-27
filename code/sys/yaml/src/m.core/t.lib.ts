@@ -22,7 +22,7 @@ export type YamlLib = {
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(src?: t.StringYaml): YamlParseResult<T>;
   /** Parse YAML and keep the full `Document` (ranges, comments, errors). */
-  parseAst(src: t.StringYaml): t.YamlAst;
+  parseAst(src?: t.StringYaml): t.YamlAst;
 
   /** Safe conversion — replaces direct .toJS() calls. */
   readonly toJS: t.YamlToJs;
