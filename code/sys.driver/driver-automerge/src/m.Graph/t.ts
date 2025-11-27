@@ -3,65 +3,35 @@ import type { t } from './common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Internal graph document shape: a read-only snapshot of the current value.
- *
- * This is intentionally minimal (`{ current: T }`), allowing documents to be
- * backed by CRDT refs, command-based loaders, or any other immutable source.
- */
-type GraphDoc<T extends O = O> = t.ImmutableSnapshot<T>;
-
-/**
  * CRDT Graph Utilities
- * Provides a generic DAG walker for CRDT documents.
  *
- * Documents are loaded either via a concrete repo or a custom loader.
+ * Thin facade over the generic immutable graph walker, specialised
+ * for CRDT document graphs and a CRDT-flavoured default discoverRefs.
  */
 export type CrdtGraphLib = {
   readonly walk: CrdtGraphWalk;
   readonly default: {
-    readonly discoverRefs: t.CrdtGraphDiscoverRefs;
+    readonly discoverRefs: CrdtGraphDiscoverRefs;
   };
 };
 
 /**
- * Graph walker entrypoint.
- * Generic in `T` for callers that want typed `doc.current`.
- */
-export type CrdtGraphWalk = <T extends O = O>(
-  args: CrdtGraphWalkArgs<T>,
-) => Promise<CrdtGraphWalkResult>;
-
-/**
  * Loader used when the walker is not bound directly to a repo.
- * Example implementations:
- *  - in-process: `id => repo.get<T>(id)`
- *  - RPC: `id => cmd.send('doc:read', { id }).then(r => r.doc)`
+ *
+ * Alias of the generic `Graph.LoadDoc` loader shape.
  */
-export type CrdtGraphLoadDoc<T extends O = O> = (id: t.Crdt.Id) => Promise<GraphDoc<T> | undefined>;
+export type CrdtGraphLoadDoc<T extends O = O> = t.Graph.LoadDoc<T>;
 
 /**
  * Common options for walking a CRDT reference DAG.
+ *
+ * Alias of the generic `Graph.WalkArgsBase` shape.
  */
-export type CrdtGraphWalkArgsBase<T extends O = O> = {
-  readonly id: t.Crdt.Id;
-
-  readonly depth?: number;
-  readonly processed?: t.Crdt.Id[];
-
-  readonly onDoc: (args: CrdtGraphWalkDocArgs<T>) => void | Promise<void>;
-  readonly onSkip?: (args: CrdtGraphWalkSkipArgs) => void;
-  readonly onRefs?: (args: CrdtGraphWalkRefsArgs) => void;
-
-  /**
-   * Optional hook to customize how outbound references are discovered
-   * for each document. If omitted, a default implementation scans
-   * `doc.current` for CRDT URIs using `CrdtIs`/`CrdtId`.
-   */
-  readonly discoverRefs?: CrdtGraphDiscoverRefs;
-};
+export type CrdtGraphWalkArgsBase<T extends O = O> = t.Graph.WalkArgsBase<T>;
 
 /**
- * Repo-backed args: the walker will call `repo.get(id)` to load docs.
+ * Repo-backed args: the walker will call `repo.get(id)` to load docs
+ * using the CRDT repo plus `getWithRetry`.
  */
 export type CrdtGraphWalkArgsRepo<T extends O = O> = CrdtGraphWalkArgsBase<T> & {
   readonly repo: t.Crdt.Repo;
@@ -78,7 +48,7 @@ export type CrdtGraphWalkArgsLoad<T extends O = O> = CrdtGraphWalkArgsBase<T> & 
  * Configuration for walking a CRDT reference DAG.
  *
  * Starting from a root id the walker will:
- * - load docs via `repo.get()` or `load(id)`
+ * - load docs via `repo.get()` (with retry) or `load(id)`
  * - resolve outbound references
  * - prevent cycles using `processed[]`
  * - fire structured callbacks for each phase
@@ -88,60 +58,49 @@ export type CrdtGraphWalkArgs<T extends O = O> =
   | CrdtGraphWalkArgsLoad<T>;
 
 /**
+ * Graph walker entrypoint for CRDT documents.
+ *
+ * This mirrors the generic `Graph.Walk` shape, but is specialised on
+ * `CrdtGraphWalkArgs` so the CRDT layer can support both `repo` and `load`.
+ */
+export type CrdtGraphWalk = <T extends O = O>(
+  args: CrdtGraphWalkArgs<T>,
+) => Promise<CrdtGraphWalkResult>;
+
+/**
  * Reason a CRDT document was skipped during a graph walk.
  */
-export type CrdtGraphSkipReason = 'already-processed' | 'not-found' | 'not-object';
+export type CrdtGraphSkipReason = t.Graph.SkipReason;
 
 /**
  * Arguments passed to `onDoc` for each successfully loaded document.
  */
-export type CrdtGraphWalkDocArgs<T extends O = O> = {
-  readonly id: t.Crdt.Id;
-  readonly doc: GraphDoc<T>;
-  readonly depth: number;
-};
+export type CrdtGraphWalkDocArgs<T extends O = O> = t.Graph.WalkDocArgs<T>;
 
 /**
  * Arguments passed to `onSkip` when a document is not processed.
  */
-export type CrdtGraphWalkSkipArgs = {
-  readonly id: t.Crdt.Id;
-  readonly depth: number;
-  readonly reason: CrdtGraphSkipReason;
-};
+export type CrdtGraphWalkSkipArgs = t.Graph.WalkSkipArgs;
 
 /**
  * Arguments passed to `onRefs` for discovered outbound references.
  */
-export type CrdtGraphWalkRefsArgs = {
-  readonly id: t.Crdt.Id;
-  readonly depth: number;
-  readonly refs: readonly t.Crdt.Id[];
-};
+export type CrdtGraphWalkRefsArgs = t.Graph.WalkRefsArgs;
 
 /**
  * Arguments passed to `discoverRefs` for computing outbound edges from a doc.
  */
-export type CrdtGraphDiscoverRefsArgs = {
-  readonly id: t.Crdt.Id;
-  readonly doc: GraphDoc;
-  readonly depth: number;
-};
+export type CrdtGraphDiscoverRefsArgs = t.Graph.DiscoverRefsArgs;
 
 /**
- * Optional hook to customize how outbound references are discovered
- * from a given document.
+ * Optional hook to customise how outbound references are discovered
+ * from a given CRDT document.
  *
- * Return zero or more CRDT ids (sync or async). The walker will treat
- * these as the DAG edges for that document.
+ * Alias of the generic `Graph.DiscoverRefs` hook.
  */
-export type CrdtGraphDiscoverRefs = (
-  args: CrdtGraphDiscoverRefsArgs,
-) => Promise<t.Ary<t.Crdt.Id>> | t.Ary<t.Crdt.Id>;
+export type CrdtGraphDiscoverRefs = t.Graph.DiscoverRefs;
 
 /**
- * Result of a graph walk.
+ * Result of a CRDT graph walk.
  */
-export type CrdtGraphWalkResult = {
-  readonly processed: readonly t.Crdt.Id[];
-};
+export type CrdtGraphWalkResult = t.Graph.WalkResult;

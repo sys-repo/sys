@@ -10,6 +10,7 @@ export { Repo as AutomergeRepo } from '@automerge/automerge-repo';
 export { Hash } from '@sys/crypto/hash';
 export { Cmd } from '@sys/event/cmd';
 export { Http } from '@sys/http/client';
+export { Graph } from '@sys/immutable/graph';
 export { Immutable } from '@sys/immutable/rfc6902';
 export { Net } from '@sys/net';
 export {

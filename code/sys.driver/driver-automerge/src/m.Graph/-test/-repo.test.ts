@@ -7,10 +7,10 @@ import {
   expectTypeOf,
   it,
   makeWorkerFixture,
-} from '../-test.ts';
+} from '../../-test.ts';
 
-import { CrdtGraph } from './mod.ts';
-import { defaultDiscoverRefs } from './u.defaultDiscoverRefs.ts';
+import { CrdtGraph } from '../mod.ts';
+import { defaultDiscoverRefs } from '../u.defaultDiscoverRefs.ts';
 
 describe(`Crdt.Graph`, () => {
   let env: t.TestWorkerFixture;
