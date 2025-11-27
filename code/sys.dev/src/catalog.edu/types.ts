@@ -11,7 +11,6 @@ export type CatalogSlot = never;
 /**
  * Library:
  */
-export type * from './m.AliasResolver/t.ts';
 export type * from './m.slug.traits/t.ts';
 export type * from './m.slug/t.ts';
 export type * from './m.yaml/t.ts';

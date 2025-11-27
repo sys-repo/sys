@@ -1,4 +1,5 @@
-import { c, describe, expect, it, Yaml } from '../../-test.ts';
+import Yaml from 'yaml';
+import { c, describe, expect, it } from '../../-test.ts';
 import { AliasResolver } from '../mod.ts';
 
 describe(`AliasResolver.make`, () => {
@@ -46,11 +47,11 @@ describe(`AliasResolver.make`, () => {
           slice: 00:00..01:15
   `;
 
-  it('expand nested alias chains from yaml', async () => {
-    // NB: simulate the root path to the object-value on the CRDT document
+  it('expand nested alias chains from yaml', () => {
+    // NB: simulate the root path to the object-value on a CRDT document
     const doc = {
-      index: { ['slug.parsed']: Yaml.toJS(Yaml.parseAst(yamlIndex)).data },
-      local: { ['slug.parsed']: Yaml.toJS(Yaml.parseAst(yamlSlug)).data },
+      index: { ['slug.parsed']: Yaml.parse(yamlIndex) },
+      local: { ['slug.parsed']: Yaml.parse(yamlSlug) },
     };
 
     const resolver = AliasResolver.make(doc.local, { root: ['slug.parsed'] });
@@ -65,7 +66,5 @@ describe(`AliasResolver.make`, () => {
     console.info();
     console.info(resolver.alias);
     console.info();
-
-    // console.log('resolver.', resolver.root);
   });
 });
