@@ -1,4 +1,4 @@
-import { type t, c, Cmd, Crdt, D, Net, Str } from '../common.ts';
+import { type t, c, Cmd, Crdt, Net, Str } from '../common.ts';
 
 /**
  * Connects to the repository daemon and returns a typed command client.

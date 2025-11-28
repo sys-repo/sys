@@ -1,6 +1,6 @@
+import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
 import { type t, c, Cli, Crdt, D, Str, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
-import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
 
 type O = Record<string, unknown>;
 type Client = t.Crdt.Cmd.Client;
@@ -23,21 +23,42 @@ export async function traverseDocumentGraph(root: t.Crdt.Id) {
   /**
    * Process (walk the graph)
    */
-  async function walk(cmd: Client) {
-    await Crdt.Graph.walk({
+  async function walk(client: Client) {
+    /**
+     * Command-backed loader:
+     *   cmd.send('doc:read', { doc: id }) → { value: T }
+     * Adapt into the immutable Graph doc shape: { current: T }.
+     */
+    const load: t.Crdt.Graph.LoadDoc<O> = async (id) => {
+      const result = await client.send('doc:read', { doc: id });
+      const current = result.value as O | undefined;
+      return current ? ({ current } as t.ImmutableSnapshot<O>) : undefined;
+    };
+
+    await Crdt.Graph.walk<O>({
       id: root,
       processed,
-      async load(id) {
-        const { doc } = await cmd.send('doc:read', { doc: id });
-        return doc ?? undefined;
+      load,
+      onDoc: async () => {
+        // no-op for now; reserved for future per-doc hooks.
       },
-      async onDoc(e) {},
       onSkip: (e) => skipped.push(e),
-      onRefs(e) {},
+      onRefs: () => {
+        // currently not rendering per-edge detail; reserved for future extensions.
+      },
       discoverRefs(e) {
-        function check(id: string) {
-          const yaml = (e.doc.current as any).slug as string;
-          const includes = yaml.includes(`crdt:${id}`);
+        // function check(targetId: string) {
+        //   const yaml = (e.doc.current as any).slug as string;
+        //   const includes = typeof yaml === 'string' && yaml.includes(`crdt:${targetId}`);
+        //   if (includes) {
+        //     scratch(e.id, () => `${e.id} includes → ${targetId}`);
+        //   }
+        // }
+        // // check('42Jpm3zw8V9Rpi3cx6cyHmDDoRbF');
+        // check('28k1CyQUNXnx74LhBoyvP2kif4GF');
+
+        return Crdt.Graph.default.discoverRefs(e);
+      },
     });
   }
 
