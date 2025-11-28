@@ -34,6 +34,18 @@ export type ImmutableRef<T = O, P = unknown, E = t.ImmutableEvents<T, P>> = Immu
 };
 
 /**
+ * A plain, immutable view of a value.
+ *
+ * `ImmutableSnapshot<T>` represents the current state of an immutable
+ * reference at a single point in time. It contains no event system,
+ * no change mechanics, and no identity — just the `current` value.
+ *
+ * This is the minimal shape required for read-only operations such as
+ * graph walks, structural inspection, serialization, or diffing.
+ */
+export type ImmutableSnapshot<T = O> = { readonly current: T };
+
+/**
  * Represents a before/after patched change to the immutable state.
  */
 export type ImmutableChange<T, P> = {
