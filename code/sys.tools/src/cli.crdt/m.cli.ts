@@ -3,7 +3,7 @@ import { type t, Args, c, D, Fs, Is, Prompt } from './common.ts';
 import { tmp } from './-u.tmp.ts';
 import { RepoProcess } from './cmd.daemon.repo/mod.ts';
 import { snapshot } from './cmd.snapshot/mod.ts';
-import { startSyncServer, traverseDocumentGraph } from './cmds/mod.ts';
+import { startSyncServer } from './cmds/mod.ts';
 import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
@@ -16,12 +16,12 @@ type C = t.CrdtCommand;
  */
 export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
-  const dir = cwd ?? Fs.cwd('terminal');
+  cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.CrdtCliArgs>(argv, { alias: { h: 'help' } });
-  if (args.help) return void console.info(await Fmt.help(toolname, dir));
+  if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
   console.info(await Fmt.header(toolname));
-  const res = await run(dir);
+  const res = await run(cwd);
   console.info(Fmt.signoff(toolname));
 
   const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
@@ -31,9 +31,8 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-
-async function run(dir: t.StringDir): Promise<t.RunReturn> {
-  const config = await getConfig(dir);
+async function run(cwd: t.StringDir): Promise<t.RunReturn> {
+  const config = await getConfig(cwd);
   await normalize(config);
 
   const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
@@ -56,7 +55,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   {
     console.info();
     const A = (await Prompt.Select.prompt<C>({
-      message: 'Option:\n',
+      message: 'Tools:\n',
       options: [
         { name: '  add: <document>', value: 'doc:add' satisfies C },
         ...listing,
@@ -68,7 +67,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
 
     let id = CrdtUri.hasPrefix(A) ? CrdtUri.trimPrefix(A) : '';
     if (A === 'doc:add') {
-      const res = await promptAddDocument(dir);
+      const res = await promptAddDocument(cwd);
       if (!res?.id) return done();
       id = res.id;
     }
@@ -83,18 +82,18 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
         const B = (await Prompt.Select.prompt<t.CrdtCommand>({
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
           options: [
+            { name: '  🐷', value: 'tmp:🐷' },
             { name: '  Snapshot', value: 'snapshot' },
-            { name: '  Ref Graph → Stats', value: 'doc:info-graph' },
+            { name: '  Walk Document Graph', value: 'doc:info-graph' },
             { name: '  Yaml Viewer', value: 'doc:viewer:yaml' },
             { name: '  Print Config', value: 'doc:config:print' },
             // { name: ' Filter Tasks', value: 'filter:tasks' },
-            // { name: '  🐷', value: 'tmp:🐷' },
             { name: c.gray(c.dim(' (forget)')), value: 'doc:remove' },
           ],
         })) as t.CrdtCommand;
 
         if (B === 'snapshot') {
-          await snapshot(dir, id);
+          await snapshot(cwd, id);
           return done(0);
         }
 
@@ -116,12 +115,12 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
         }
 
         if (B === 'doc:remove') {
-          await promptRemoveDocument(dir, id);
+          await promptRemoveDocument(cwd, id);
           return done(0);
         }
 
         if (B === 'tmp:🐷') {
-          await tmp(dir, id);
+          await tmp(cwd, id);
           return done(0);
         }
 
@@ -134,11 +133,11 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
      */
     {
       if (A === 'repo:daemon:start') {
-        await RepoProcess.daemon(dir);
+        await RepoProcess.daemon(cwd);
       }
 
       if (A === 'sync-server:start') {
-        await startSyncServer(dir);
+        await startSyncServer(cwd);
       }
     }
   }

@@ -3,10 +3,10 @@ import { type t, Fmt as Base, Fs, c, Cli, Crdt, D, getConfig, Json, Str, Time } 
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.toolname, dir: t.StringDir) {
+  async help(toolname: string = D.toolname, cwd: t.StringDir) {
     const str = Str.builder()
       .line(await Base.help(toolname))
-      .line(await Fmt.Table.configuredDocs(dir))
+      .line(await Fmt.Table.configuredDocs(cwd))
       .line();
 
     return String(str);

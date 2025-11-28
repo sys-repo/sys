@@ -4,7 +4,7 @@ import { Fmt } from '../u.fmt.ts';
 
 type O = Record<string, unknown>;
 
-export async function startYamlViewer(dir: t.StringDir, doc: t.Crdt.Id, path?: t.ObjectPath) {
+export async function startYamlViewer(cwd: t.StringDir, doc: t.Crdt.Id, path?: t.ObjectPath) {
   const port = D.port.repo;
   const cmd = (await RepoProcess.tryClient(port))!;
   if (!cmd) return;

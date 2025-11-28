@@ -7,12 +7,12 @@ import { Fmt } from './u.fmt.ts';
  */
 export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
-  const dir = cwd ?? Fs.cwd('terminal');
+  cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.__NAME__CliArgs>(argv, { alias: { h: 'help' } });
-  if (args.help) return void console.info(await Fmt.help(toolname, dir));
+  if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
   console.info(await Fmt.header(toolname));
-  const res = await run(dir);
+  const res = await run(cwd);
   console.info(Fmt.signoff(toolname));
 
   const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
@@ -22,8 +22,8 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(dir: t.StringDir): Promise<t.RunReturn> {
-  const config = await getConfig(dir);
+async function run(cwd: t.StringDir): Promise<t.RunReturn> {
+  const config = await getConfig(cwd);
   await normalize(config);
   const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
 
@@ -46,7 +46,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
     if (A === 'option-a') {
       const dirname = await Cli.Prompt.Input.prompt('Clone to directory (name):');
       const dirs = {
-        target: Fs.join(dir, dirname),
+        target: Fs.join(cwd, dirname),
         source: Fs.dirname(Fs.Path.fromFileUrl(import.meta.url)),
       };
 

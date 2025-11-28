@@ -4,6 +4,7 @@ import type { t } from './common.ts';
  * Exports:
  */
 export type * from './cmd.daemon.repo/t.ts';
+export type * from './cmd.graph/t.ts';
 export type * from './cmd.snapshot/t.ts';
 
 /** The tool's commands */

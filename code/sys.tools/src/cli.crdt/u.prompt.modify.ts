@@ -3,8 +3,8 @@ import { type t, c, Crdt, Delete, getConfig, Prompt, Time } from './common.ts';
 /**
  * Add a document to the config.
  */
-export async function promptAddDocument(dir: t.StringDir) {
-  const config = await getConfig(dir);
+export async function promptAddDocument(cwd: t.StringDir) {
+  const config = await getConfig(cwd);
   let id = await Prompt.Input.prompt({
     message: 'Document-id',
     validate: (value) => Crdt.Is.id(value.trim()),

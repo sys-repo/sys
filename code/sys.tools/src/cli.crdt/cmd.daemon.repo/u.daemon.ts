@@ -7,7 +7,7 @@ import { getConfig } from '../u.config.ts';
 /**
  * Runs the CRDT repo as a long-lived daemon rendering a live terminal UI.
  */
-export async function daemon(dir: t.StringDir) {
+export async function daemon(cwd: t.StringDir) {
   const port = D.port.repo;
   const cmd = await tryClient(port);
   if (cmd) {
@@ -20,7 +20,7 @@ export async function daemon(dir: t.StringDir) {
     return;
   }
 
-  const config = await getConfig(dir);
+  const config = await getConfig(cwd);
   const websockets = config.current.repo?.daemon?.sync?.websockets ?? [];
   const eventlog = new Set<t.CrdtRepoLogEntry>();
 
@@ -40,7 +40,7 @@ export async function daemon(dir: t.StringDir) {
    */
   console.clear();
   const spinner = Cli.spinner(Fmt.spinnerText('starting repository...'));
-  const repo = await startRepoOnWorker(dir, { port, websockets });
+  const repo = await startRepoOnWorker(cwd, { port, websockets });
   const events = repo.events();
   spinner.stop();
 
