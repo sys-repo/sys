@@ -1,4 +1,4 @@
-import { type t, CrdtId, Obj } from './common.ts';
+import { type t, Is, CrdtId, Obj } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -13,7 +13,7 @@ export const defaultDiscoverRefs: t.CrdtGraphDiscoverRefs = ({ doc }) => {
   const refs: t.Crdt.Id[] = [];
 
   Obj.walk(doc.current, (e) => {
-    const id = CrdtId.fromUri(e.value);
+    const id = Is.str(e.value) ? CrdtId.fromUri(e.value) : '';
     if (id) refs.push(id);
   });
 

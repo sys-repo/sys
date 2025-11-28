@@ -96,10 +96,10 @@ export type ObjLib = {
 export type ObjWalkFn = (e: ObjWalkFnArgs) => void;
 /** Arguments passed to the `Obj.walk` callback. */
 export type ObjWalkFnArgs = {
-  readonly parent: object | any[];
+  readonly parent: object | readonly unknown[] | unknown;
   readonly path: t.ObjectPath;
   readonly key: string | number;
-  readonly value: any;
+  readonly value: unknown;
   stop(): void;
   mutate<T>(value: T): void;
 };

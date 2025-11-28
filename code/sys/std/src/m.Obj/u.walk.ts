@@ -4,14 +4,14 @@ import { type t } from './common.ts';
  * Walks an object tree (recursive descent) implementing
  * a visitor callback for each item.
  */
-export function walk<T extends object | any[]>(parent: T, fn: t.ObjWalkFn) {
-  const walked = new Map<any, boolean>(); // NB: protect against circular-references.
+export function walk<T extends object | unknown[]>(parent: T, fn: t.ObjWalkFn) {
+  const walked = new Map<unknown, boolean>(); // NB: protect against circular-references.
 
-  const walk = <T extends object | any[]>(parent: T, levelPath: t.ObjectPath, fn: t.ObjWalkFn) => {
+  const walk = (parent: object | unknown[], levelPath: t.ObjectPath, fn: t.ObjWalkFn) => {
     let _stopped = false;
     const stop = () => (_stopped = true);
 
-    const process = (key: string | number, value: any) => {
+    const process = (key: string | number, value: unknown) => {
       const isArray = Array.isArray(value);
       const isObject = value !== null && typeof value === 'object';
       const hasWalked = (isObject || isArray) && walked.has(value);
@@ -24,7 +24,7 @@ export function walk<T extends object | any[]>(parent: T, fn: t.ObjWalkFn) {
       if (_stopped || hasWalked) return; // NB: visit if already walked, but don't recurse.
       if (isObject || isArray) {
         walked.set(value, true);
-        walk(value, path, fn); // <== RECURSION 🌳
+        walk(value as any, path, fn); // ← recursion
       }
     };
 
@@ -36,5 +36,5 @@ export function walk<T extends object | any[]>(parent: T, fn: t.ObjWalkFn) {
   };
 
   // Start.
-  walk<T>(parent, [], fn);
+  walk(parent, [], fn);
 }
