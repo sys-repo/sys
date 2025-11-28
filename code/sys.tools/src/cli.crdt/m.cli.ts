@@ -1,4 +1,4 @@
-import { type t, Args, c, D, Fs, Is, Prompt } from './common.ts';
+import { type t, Args, c, Crdt, D, Fs, Is, Prompt } from './common.ts';
 
 import { tmp } from './-u.tmp.ts';
 import { RepoProcess } from './cmd.daemon.repo/mod.ts';
@@ -7,7 +7,6 @@ import { startSyncServer } from './cmds/mod.ts';
 import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
-import { CrdtUri } from './u.ts';
 
 type C = t.CrdtCommand;
 
@@ -65,7 +64,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       ],
     })) as C;
 
-    let id = CrdtUri.hasPrefix(A) ? CrdtUri.trimPrefix(A) : '';
+    let id = Crdt.Is.uri(A) ? Crdt.Id.fromUri(A) || '' : '';
     if (A === 'doc:add') {
       const res = await promptAddDocument(cwd);
       if (!res?.id) return done();
