@@ -23,6 +23,7 @@ export namespace Crdt {
     export type WalkDocArgs = t.CrdtGraphWalkDocArgs;
     export type WalkRefsArgs = t.CrdtGraphWalkRefsArgs;
     export type WalkSkipArgs = t.CrdtGraphWalkSkipArgs;
+    export type LoadDoc<T extends O = O> = t.CrdtGraphLoadDoc<T>;
   }
   export namespace Worker {
     export type Config = t.CrdtWorkerConfig;
