@@ -19,7 +19,6 @@ export const cli: t.ClipboardToolsLib['cli'] = async (cwd, argv) => {
  * Helpers:
  */
 async function run(cwd: t.StringDir) {
-  console.log(`⚡️💦🐷🌳🦄🐌 🍌🧨🌼✨🧫 🫵 🐚👋🧠⚠️❌ 💥👁️💡─ ↑↓←→✔✅•`);
   const mode = (await Cli.Prompt.Select.prompt({
     message: 'Select copy mode:\n',
     options: [
