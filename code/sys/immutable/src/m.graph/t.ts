@@ -7,9 +7,7 @@ type O = Record<string, unknown>;
  */
 export type GraphLib = {
   readonly walk: t.Graph.Walk;
-  readonly default: {
-    readonly discoverRefs: t.Graph.DiscoverRefs;
-  };
+  readonly default: { readonly discoverRefs: t.Graph.DiscoverRefs };
 };
 
 /**
