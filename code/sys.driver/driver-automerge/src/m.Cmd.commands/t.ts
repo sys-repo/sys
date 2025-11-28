@@ -29,7 +29,7 @@ export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
 export type CrdtCmdPayload = {
   attach: { config?: t.CrdtWorkerConfig };
   'doc:read': { doc: t.Crdt.Id; path?: t.ObjectPath };
-  'doc:write': { doc: t.Crdt.Id; value: t.Json; path?: t.ObjectPath };
+  'doc:write': { doc: t.Crdt.Id; value: t.Json; path: t.ObjectPath };
   'doc:stats': { doc: t.Crdt.Id };
   'doc:save': { doc: t.Crdt.Id; path: t.StringPath };
 };
