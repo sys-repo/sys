@@ -7,9 +7,9 @@ export * from './u.cli.copy.types.ts';
 /**
  * Sub-command: Copy deno.json files
  */
-export async function copyDenoFiles(dir: t.StringDir, options: { initial?: 'none' | 'all' } = {}) {
+export async function copyDenoFiles(cwd: t.StringDir, options: { initial?: 'none' | 'all' } = {}) {
   const { initial = 'all' } = options;
-  await copyFiles(dir, {
+  await copyFiles(cwd, {
     initial,
     filter: (file) => file.name === 'deno.json',
   });

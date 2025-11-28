@@ -15,5 +15,5 @@ export { UpdateTools } from './m.Update.ts';
  */
 if (import.meta.main) {
   const { cli } = await import('./u.cli.ts');
-  await cli({ dir: Fs.cwd('terminal'), argv: Deno.args });
+  await cli(Fs.cwd('terminal'), Deno.args);
 }

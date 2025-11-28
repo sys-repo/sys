@@ -12,12 +12,12 @@ import { Fmt } from './u.fmt.ts';
  */
 export const cli: t.FsToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
-  const dir = cwd ?? Fs.cwd('terminal');
+  cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.FsCliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
-  console.info(await Fmt.header(toolname, dir, { fileTree: { maxDepth: 1 } }));
-  await run(dir);
+  console.info(await Fmt.header(toolname, cwd, { fileTree: { maxDepth: 1 } }));
+  await run(cwd);
   console.info();
   console.info(Fmt.signoff(toolname));
 };
@@ -25,7 +25,7 @@ export const cli: t.FsToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(dir: t.StringDir) {
+async function run(cwd: t.StringDir) {
   const mode = (await Cli.Prompt.Select.prompt({
     message: 'Select file-system operation:\n',
     options: [
@@ -36,8 +36,8 @@ async function run(dir: t.StringDir) {
     ],
   })) as t.FsCommand;
 
-  if (mode === 'hash:list') await listFileHashes(dir);
-  if (mode === 'hash:rename-sha256') await selectFilesAndRenameToHash(dir);
-  if (mode === 'hash:tidy-sha256-files') await tidySha256Files(dir);
-  if (mode === 'hash:remove-renamed-sha256') await removeRenamedSha256Files(dir);
+  if (mode === 'hash:list') await listFileHashes(cwd);
+  if (mode === 'hash:rename-sha256') await selectFilesAndRenameToHash(cwd);
+  if (mode === 'hash:tidy-sha256-files') await tidySha256Files(cwd);
+  if (mode === 'hash:remove-renamed-sha256') await removeRenamedSha256Files(cwd);
 }

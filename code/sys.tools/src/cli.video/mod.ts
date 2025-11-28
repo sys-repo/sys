@@ -13,6 +13,6 @@ export { VideoTools } from './m.VideoTools.ts';
  * CLI entry-point:
  */
 if (import.meta.main) {
-  const { cli } = await import('./u.cli.ts');
-  await cli({ dir: Fs.cwd('terminal'), argv: Deno.args });
+  const { cli } = await import('./m.cli.ts');
+  await cli(Fs.cwd('terminal'), Deno.args);
 }

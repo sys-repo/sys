@@ -6,7 +6,7 @@ import type { t } from './common.ts';
  */
 export type UpdateToolsLib = {
   /** Run the interactive CLI flow (prompts + spinner). */
-  cli(opts?: { dir?: t.StringDir; argv?: string[] }): Promise<void>;
+  cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 };
 
 /**

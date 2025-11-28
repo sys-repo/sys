@@ -9,12 +9,12 @@ import { startServing } from './u.serve.ts';
  */
 export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
-  const dir = cwd ?? Fs.cwd('terminal');
+  cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.ServeCliArgs>(argv, { alias: { h: 'help' } });
-  if (args.help) return void console.info(await Fmt.help(toolname, dir));
+  if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
   console.info(await Fmt.header(toolname));
-  const res = await run(dir);
+  const res = await run(cwd);
   console.info(Fmt.signoff(toolname));
 
   const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
@@ -24,8 +24,8 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(dir: t.StringDir): Promise<t.RunReturn> {
-  const config = await getConfig(dir);
+async function run(cwd: t.StringDir): Promise<t.RunReturn> {
+  const config = await getConfig(cwd);
   await normalize(config);
   const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
 
@@ -42,7 +42,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   })) as t.ServeCommand;
 
   if (A === 'modify:add') {
-    await promptAddServeLocation(dir);
+    await promptAddServeLocation(cwd);
     return done();
   }
 
@@ -64,7 +64,7 @@ async function run(dir: t.StringDir): Promise<t.RunReturn> {
   })) as t.ServeCommand;
 
   if (B === 'modify:remove') {
-    await promptRemoveDocument(dir, location);
+    await promptRemoveDocument(cwd, location);
   }
 
   if (B === 'serve:start') {

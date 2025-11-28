@@ -4,13 +4,13 @@ import { Mime } from './u.mime.ts';
 /**
  * Add a document to the config.
  */
-export async function promptAddServeLocation(dir: t.StringDir) {
-  const config = await getConfig(dir);
+export async function promptAddServeLocation(cwd: t.StringDir) {
+  const config = await getConfig(cwd);
 
   let path = await Prompt.Input.prompt({
     message: 'Directory (or Enter to use current)',
     async validate(value) {
-      const path = value.trim() || dir;
+      const path = value.trim() || cwd;
       const stats = await Fs.stat(path);
       const current = `${!value ? '(current)' : ''}`;
       if (!stats) return `Path does not exist ${current}`;
@@ -22,7 +22,7 @@ export async function promptAddServeLocation(dir: t.StringDir) {
       return true;
     },
   });
-  path = path.trim() || dir;
+  path = path.trim() || cwd;
 
   const selectedGroups = await Prompt.Checkbox.prompt({
     message: '\nAllowed MIME-types',

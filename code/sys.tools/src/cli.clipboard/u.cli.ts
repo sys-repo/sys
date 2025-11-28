@@ -2,14 +2,14 @@ import { type t, Args, Cli, D, Fs } from './common.ts';
 import { copyDenoFiles, copyFiles, copyTypes } from './u.cli.copy.ts';
 import { Fmt } from './u.fmt.ts';
 
-export const cli: t.ClipboardToolsLib['cli'] = async (opts = {}) => {
+export const cli: t.ClipboardToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
-  const dir = opts.dir ?? Fs.cwd('terminal');
-  const args = Args.parse<t.VideoCliArgs>(opts.argv, { alias: { h: 'help' } });
+  cwd = cwd ?? Fs.cwd('terminal');
+  const args = Args.parse<t.VideoCliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
-  console.info(await Fmt.header(toolname, dir));
-  await run(dir);
+  console.info(await Fmt.header(toolname, cwd));
+  await run(cwd);
 
   console.info();
   console.info(Fmt.signoff(toolname));
@@ -18,7 +18,8 @@ export const cli: t.ClipboardToolsLib['cli'] = async (opts = {}) => {
 /**
  * Helpers:
  */
-async function run(dir: t.StringDir) {
+async function run(cwd: t.StringDir) {
+  console.log(`⚡️💦🐷🌳🦄🐌 🍌🧨🌼✨🧫 🫵 🐚👋🧠⚠️❌ 💥👁️💡─ ↑↓←→✔✅•`);
   const mode = (await Cli.Prompt.Select.prompt({
     message: 'Select copy mode:\n',
     options: [
@@ -29,10 +30,10 @@ async function run(dir: t.StringDir) {
     ],
   })) as t.ClipboardCopyAction;
 
-  if (mode === 'files:select') await copyFiles(dir, { initial: 'none' });
-  else if (mode === 'files:all') await copyFiles(dir, { initial: 'all' });
-  else if (mode === 'types') await copyTypes(dir, { initial: 'all' });
-  else if (mode === 'files:deno.json') await copyDenoFiles(dir, {});
+  if (mode === 'files:select') await copyFiles(cwd, { initial: 'none' });
+  else if (mode === 'files:all') await copyFiles(cwd, { initial: 'all' });
+  else if (mode === 'types') await copyTypes(cwd, { initial: 'all' });
+  else if (mode === 'files:deno.json') await copyDenoFiles(cwd, {});
 
   return { mode };
 }

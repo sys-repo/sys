@@ -2,7 +2,12 @@ import { type t, c, Cli, Fs, Str } from './common.ts';
 import { selectSourceFiles } from './u.convert.select.ts';
 import { mp4ToWebm, webmToMp4 } from './u.convert.ts';
 
-type TResult = { src: string; out?: string; ok: boolean; err?: string };
+type TResult = {
+  src: string;
+  out?: string;
+  ok: boolean;
+  err?: string;
+};
 
 export async function selectAndConvert(args: { dir: t.StringDir; command: t.VideoConversion }) {
   const { dir, command } = args;

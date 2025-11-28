@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { cli } from './u.cli.ts';
+import { cli } from './m.cli.ts';
 import { mp4ToWebm, webmToMp4 } from './u.convert.ts';
 import { nextOutPath } from './u.file.name.ts';
 

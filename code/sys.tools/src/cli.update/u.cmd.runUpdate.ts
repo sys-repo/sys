@@ -2,15 +2,10 @@ import { type t, c, Cli, Jsr, pkg, Process, Semver } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { getVersionInfo } from './u.ts';
 
-export type UpdateOptions = {
-  cwd?: t.StringPath; // default: Deno.cwd()
-};
-
 /**
  * Update JUST the @sys/tools CLI by refreshing the JSR cache.
  */
-export async function runUpdate(options: UpdateOptions = {}): Promise<void> {
-  const cwd = options.cwd ?? Deno.cwd();
+export async function runUpdate(cwd: t.StringDir): Promise<void> {
   const version = await getVersionInfo();
 
   console.info();

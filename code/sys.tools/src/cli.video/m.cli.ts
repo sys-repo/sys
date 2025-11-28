@@ -4,18 +4,18 @@ import { selectAndProbe } from './u.cli.probe.ts';
 import { Ffmpeg } from './u.ffmpeg.ts';
 import { Fmt } from './u.fmt.ts';
 
-export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
+export const cli: t.VideoToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
-  const dir = opts.dir ?? Fs.cwd('terminal');
-  const args = Args.parse<t.VideoCliArgs>(opts.argv, { alias: { h: 'help' } });
+  cwd = cwd ?? Fs.cwd('terminal');
+  const args = Args.parse<t.VideoCliArgs>(argv, { alias: { h: 'help' } });
   if (!(await Ffmpeg.getVersion()).is.installed) return;
   if (args.help) return void console.info(await Fmt.help(toolname));
 
   console.info();
-  console.info(await Fmt.header(toolname, dir));
+  console.info(await Fmt.header(toolname, cwd));
   console.info();
 
-  await run(dir);
+  await run(cwd);
   console.info();
   console.info(Fmt.signoff(toolname));
 };
@@ -23,7 +23,7 @@ export const cli: t.VideoToolsLib['cli'] = async (opts = {}) => {
 /**
  * Helpers:
  */
-async function run(dir: t.StringDir) {
+async function run(cwd: t.StringDir) {
   const options: { name: string; value: t.VideoCommand }[] = [
     { name: 'convert .webm → .mp4', value: 'webm-to-mp4' },
     { name: 'convert .mp4  → .webm', value: 'mp4-to-webm' },
@@ -38,11 +38,11 @@ async function run(dir: t.StringDir) {
   switch (command) {
     case 'webm-to-mp4':
     case 'mp4-to-webm':
-      await selectAndConvert({ dir, command });
+      await selectAndConvert({ dir: cwd, command });
       break;
 
     case 'probe-file':
-      await selectAndProbe({ dir });
+      await selectAndProbe({ dir: cwd });
       break;
 
     default:

@@ -10,8 +10,8 @@ const SHA256_FILE_RE = /(sha256-[a-f0-9]{64}(?:\.[\w.-]+)?)/i;
 /**
  * List files within the directory showing their SHA-256 hash next to their filename.
  */
-export async function listFileHashes(dir: t.StringDir) {
-  const entries = (await listFiles(dir, { depth: 3 })).filter((m) => !isSha256File(m.name));
+export async function listFileHashes(cwd: t.StringDir) {
+  const entries = (await listFiles(cwd, { depth: 3 })).filter((m) => !isSha256File(m.name));
   if (entries.length === 0) {
     console.info(c.gray(c.italic(`\n no files in directory`)));
     return;
@@ -24,7 +24,7 @@ export async function listFileHashes(dir: t.StringDir) {
 
   const table = Cli.table([]);
   for (const file of entries) {
-    let path = file.path.slice(dir.length);
+    let path = file.path.slice(cwd.length);
     const ext = Fs.extname(path);
     const basename = Fs.basename(path);
     path = Fs.join(Fs.dirname(path), `${c.white(basename.slice(0, -ext.length))}${ext}`);

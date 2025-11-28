@@ -4,11 +4,11 @@ import { type t, Pkg, pkg, Fmt as Base, c, Cli, D, Fs, getConfig, Str, Time } fr
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.toolname, dir: t.StringDir) {
-    const config = await getConfig(dir);
+  async help(toolname: string = D.toolname, cwd: t.StringDir) {
+    const config = await getConfig(cwd);
 
     const str = Str.builder()
-      .line(c.gray(`working dir: ${Fs.trimCwd(dir)}`))
+      .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))
       .line(await Base.help(toolname))
       .line();
 

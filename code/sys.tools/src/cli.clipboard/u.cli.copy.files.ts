@@ -5,13 +5,13 @@ import { selectAndCopy } from './u.copy.ts';
  * Sub-command: Copy Files ("src" code).
  */
 export async function copyFiles(
-  dir: t.StringDir,
+  cwd: t.StringDir,
   options: { initial?: 'none' | 'all'; filter?: (file: t.WalkEntry) => boolean } = {},
 ) {
   const { initial = 'all' } = options;
-  const repoRootAbs = await detectRepoRoot(dir); // monorepo root (stable anchor)
+  const repoRootAbs = await detectRepoRoot(cwd); // monorepo root (stable anchor)
 
-  const glob = Fs.glob(dir, { includeDirs: false });
+  const glob = Fs.glob(cwd, { includeDirs: false });
   const paths = (await glob.find('**'))
     .filter((file) => options.filter?.(file) ?? true)
     .map((file) => file.path);
@@ -30,7 +30,7 @@ export async function copyFiles(
   });
 
   await selectAndCopy(eligible, {
-    dir,
+    dir: cwd,
     repoRootAbs, // pass monorepo root explicitly
     message: 'Select files to copy:\n',
     totalLabel: 'files',
