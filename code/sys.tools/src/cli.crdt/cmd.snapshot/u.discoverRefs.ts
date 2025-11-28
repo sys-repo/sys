@@ -13,11 +13,12 @@ export function makeDiscoverRefs(path: t.ObjectPath) {
     if (!Obj.isRecord(obj)) return [];
 
     const refs: t.Crdt.Id[] = [];
-    Obj.walk(obj, (e) => {
-      const id = Crdt.Id.fromUri(e.value);
+    const pushIfId = (value: unknown) => {
+      const id = Is.str(value) ? Crdt.Id.fromUri(value) : '';
       if (id) refs.push(id);
-    });
+    };
 
+    Obj.walk(obj, (e) => pushIfId(e.value));
     return refs;
   };
 

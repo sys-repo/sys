@@ -1,5 +1,5 @@
-import { type t, Crdt, Fs, slug, Time } from '../common.ts';
-import { makeDiscoverRefs } from './u.process.discoverRefs.ts';
+import { type t, Crdt, Fs, Is, slug, Time } from '../common.ts';
+import { makeDiscoverRefs } from './u.discoverRefs.ts';
 import { saveDoc } from './u.saveDoc.ts';
 
 const sumBytes = (values: readonly number[]) => values.reduce((total, n) => total + n, 0);
@@ -41,17 +41,17 @@ export async function process(args: Args): Promise<ProcessResult> {
   await Crdt.Graph.walk({
     id: root,
     processed,
-    load: async (id) => {
-      const { doc } = await cmd.send('doc:read', { doc: id });
-      return doc ?? undefined;
+    async load(doc) {
+      const res = await cmd.send('doc:read', { doc });
+      const current = Is.record(res.value) ? res.value : undefined;
+      return current ? { current } : undefined;
     },
 
     /**
      * Per-document handler: persist a JSON snapshot and track size.
      */
-    async onDoc({ depth, doc }) {
-      const isRoot = doc.id === root;
-      await saveDoc({ cmd, dir, doc, depth, isRoot, bytes, emit });
+    async onDoc({ id, depth }) {
+      await saveDoc({ cmd, dir, root, doc: id, depth, bytes, emit });
     },
 
     /**

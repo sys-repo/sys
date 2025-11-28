@@ -6,7 +6,7 @@ export { JsonFile } from '@sys/fs/file';
 export { Jsr } from '@sys/jsr';
 export { Net } from '@sys/net';
 export { Process } from '@sys/process';
-export { Arr, Delete, Err, Is, Json, Log, Num, Obj, Str, Time, Try, slug } from '@sys/std';
+export { Arr, Delete, Err, Is, Json, Log, Num, Obj, Str, Time, Try, slug, Lazy } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Token } from '@sys/text/gpt';

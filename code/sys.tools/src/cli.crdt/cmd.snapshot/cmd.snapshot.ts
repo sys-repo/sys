@@ -1,6 +1,7 @@
+import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
+
 import { type t, c, Cli, Crdt, D, Fs, Str, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
-import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
 import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
 import { process } from './u.process.ts';
 
@@ -10,6 +11,8 @@ export async function snapshot(dir: t.StringDir, id: t.Crdt.Id) {
   const port = D.port.repo;
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
+
+  console.log('cmd', cmd);
 
   /**
    * Normalise the incoming id (may be "crdt:<id>" or bare).
@@ -24,7 +27,7 @@ export async function snapshot(dir: t.StringDir, id: t.Crdt.Id) {
     const coloredId = Fmt.prettyUri(e.id);
     const branch = Tree.branch(false);
     const identity = c.gray(`${branch} ${e.isRoot ? c.white(coloredId) : coloredId}`);
-    const warnAt = 1024 * 1024; // 1-MB
+    const warnAt = 1024 * 1024; // 1MB
     const bytes = (bytes: number) => {
       const s = Str.bytes(bytes);
       return bytes > warnAt ? c.yellow(s) : s;
@@ -42,6 +45,7 @@ export async function snapshot(dir: t.StringDir, id: t.Crdt.Id) {
   const timer = Time.timer();
   const progress: t.CrdtSnapshotProgress[] = [];
 
+  // Walk the tree:
   const res = await process({
     cmd,
     id: root,
@@ -54,12 +58,10 @@ export async function snapshot(dir: t.StringDir, id: t.Crdt.Id) {
     },
   });
 
-  spinner.stop();
-
-  /**
-   * Save dist.json (meta-data and pkg/file hashes)
-   */
+  // Save dist.json (meta-data and pkg/file hashes)
   const info = await calcAndSaveDist(res.dir, root);
+
+  spinner.stop();
 
   /**
    * Print summary:

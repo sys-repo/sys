@@ -1,22 +1,23 @@
-import { type t, A, Fs, Crdt, toAutomergeHandle } from '../common.ts';
+import { type t, Fs } from '../common.ts';
 
 /**
  * Persist a single document snapshot to disk and record its size.
  */
 export async function saveDoc(args: {
   cmd: t.Crdt.Cmd.Client;
-  doc: t.Crdt.Ref;
   dir: t.StringDir;
+  root: t.Crdt.Id;
+  doc: t.Crdt.Id;
   depth: number;
-  isRoot: boolean;
   bytes: { json: number[]; binary: number[] };
   emit: (e: t.CrdtSnapshotProgress) => void;
 }) {
-  const { cmd, dir, doc, isRoot, bytes, emit, depth } = args;
+  const { cmd, dir, doc, bytes, emit, depth } = args;
+  const isRoot = args.root === doc;
 
   const filename = {
-    json: `${doc.id}.crdt.json`,
-    binary: `${doc.id}.crdt`,
+    json: `${doc}.crdt.json`,
+    binary: `${doc}.crdt`,
   };
 
   if (isRoot) {
@@ -33,13 +34,14 @@ export async function saveDoc(args: {
   /**
    * Json File:
    */
-  const json = (doc.current ?? {}) as t.JsonMap;
+  const current = (await cmd.send('doc:read', { doc })).value ?? {};
+  const json = current as t.JsonMap;
   await Fs.writeJson(path.json, json);
 
   /**
    * Binary File
    */
-  const res = await cmd.send('doc:save', { doc: doc.id, path: path.binary });
+  const res = await cmd.send('doc:save', { doc, path: path.binary });
 
   const toSize = async (path: string) => (await Fs.stat(path))?.size ?? 0;
   const size = {
@@ -51,7 +53,7 @@ export async function saveDoc(args: {
 
   emit({
     kind: 'doc:saved',
-    id: doc.id,
+    id: doc,
     depth,
     dir,
     filename: filename.json,
