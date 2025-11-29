@@ -20,9 +20,9 @@ export async function daemon(cwd: t.StringDir) {
     return;
   }
 
+  const eventlog = new Set<t.CrdtRepoLogEntry>();
   const config = await getConfig(cwd);
   const websockets = config.current.repo?.daemon?.sync?.websockets ?? [];
-  const eventlog = new Set<t.CrdtRepoLogEntry>();
 
   let hasStarted = false;
   const getStatus = () => {
@@ -33,7 +33,13 @@ export async function daemon(cwd: t.StringDir) {
     return { alive, stalled };
   };
 
-  console.log('websockets', websockets);
+  if (websockets.length === 0) {
+    const str = Str.builder();
+    const err = `Please make sure at least one network endpoint (websockets) is configured`;
+    str.line().line(c.yellow(err)).line();
+    console.info(String(str));
+    return;
+  }
 
   /**
    * Prepare CRDT repository on background worker.
