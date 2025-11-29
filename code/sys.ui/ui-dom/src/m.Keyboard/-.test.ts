@@ -7,9 +7,11 @@ describe(
   'Keyboard',
   { sanitizeOps: false, sanitizeResources: false }, // NB: leaked timers left around by the "happy-dom" module.
   () => {
-    it('(polyfill)', () => DomMock.polyfill());
+    DomMock.polyfill();
 
-    it('API', () => {
+    it('API', async () => {
+      const m = await import('@sys/ui-dom/keyboard');
+      expect(m.Keyboard).to.equal(Keyboard);
       expect(Keyboard).to.equal(Kbd);
     });
 

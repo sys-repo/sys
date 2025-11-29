@@ -2,6 +2,11 @@ import { describe, expect, it, type t } from '../-test.ts';
 import { UserAgent } from './mod.ts';
 
 describe('UserAgent', () => {
+  it('API', async () => {
+    const m = await import('@sys/ui-dom/user-agent');
+    expect(m.UserAgent).to.equal(UserAgent);
+  });
+
   /**
    * https://useragents.io
    */

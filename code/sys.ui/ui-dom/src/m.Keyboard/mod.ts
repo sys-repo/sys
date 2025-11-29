@@ -1,6 +1,6 @@
 /**
- * Tools for working with global keyboard events.
  * @module
+ * Tools for working with global keyboard events.
  *
  * @example
  * ```ts
@@ -16,7 +16,6 @@
  * life.dispose();
  * ```
  */
-
 export { KeyboardMonitor } from './m.Keyboard.Monitor.ts';
 export { Keyboard, Kbd } from './m.Keyboard.ts';
 export { KeyListener } from './m.KeyListener.ts';
