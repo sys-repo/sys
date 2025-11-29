@@ -4,19 +4,12 @@ export const Theme = {
   init(monaco: t.Monaco.Monaco) {
     Theme.Light.define(monaco);
     Theme.Dark.define(monaco);
-    Theme.Monokai.define(monaco);
   },
 
-  toRegisteredName(theme: t.MonacoEditorTheme = 'Light') {
+  toRegisteredName(theme: t.CommonTheme = 'Light') {
     if (theme === 'Light') return Theme.Light.name;
     if (theme === 'Dark') return Theme.Dark.name;
-    if (theme === 'Monokai') return Theme.Monokai.name;
     throw new Error(`Theme '${theme}' not supported`);
-  },
-
-  toCommonTheme(input?: t.MonacoEditorTheme): t.CommonTheme {
-    if (input === 'Monokai') return 'Dark';
-    return input ?? 'Dark';
   },
 
   Light: {
@@ -50,34 +43,12 @@ export const Theme = {
       monaco.editor.defineTheme(Theme.Dark.name, {
         base: 'vs-dark',
         inherit: true,
-        rules: [],
-        colors,
-      });
-    },
-  },
-
-  Monokai: {
-    name: 'sys-monokai',
-    define(monaco: t.Monaco.Monaco) {
-      const base = Color.DARK;
-
-      const colors: Record<string, string> = {
-        ...darkChromeColors(base),
-
-        // Monokai editor foreground + selection + guides:
-        'editor.foreground': '#F8F8F2',
-        'editorCursor.foreground': '#F8F8F0',
-        'editor.selectionBackground': '#49483E',
-        'editor.inactiveSelectionBackground': '#3E3D32',
-        'editorIndentGuide.background': alpha(base, 0.35),
-        'editorIndentGuide.activeBackground': alpha(base, 0.55),
-      };
-
-      monaco.editor.defineTheme(Theme.Monokai.name, {
-        base: 'vs-dark',
-        inherit: true,
+        // Monokai-style token colors over dark chrome palette.
         rules: [
-          { token: '', foreground: 'f8f8f2', background: '272822' },
+          // Default text:
+          { token: '', foreground: 'f8f8f2' },
+
+          // Core Monokai-ish palette:
           { token: 'comment', foreground: '75715e' },
           { token: 'string', foreground: 'e6db74' },
           { token: 'number', foreground: 'ae81ff' },
@@ -89,6 +60,8 @@ export const Theme = {
           { token: 'operator', foreground: 'f92672' },
           { token: 'variable', foreground: 'f8f8f2' },
           { token: 'variable.predefined', foreground: '66d9ef' },
+
+          // Error/invalid highlight:
           { token: 'invalid', background: 'f92672' },
         ],
         colors,
@@ -131,8 +104,8 @@ const darkChromeColors = (base: t.StringHex): Record<string, string> => {
     'editorWidget.background': surface1,
 
     // Focused line: subtle band + soft edge, both near the base tone.
-    'editor.lineHighlightBackground': alpha(surface1, 0.95),
-    'editor.lineHighlightBorder': alpha(borderSoft, 0.5),
+    'editor.lineHighlightBackground': alpha(surface1, 0.2),
+    'editor.lineHighlightBorder': alpha(borderSoft, 0.1),
 
     // Fold regions (slightly deeper wash).
     'editor.foldBackground': alpha(bg.darken(4), 0.5),
@@ -183,11 +156,12 @@ const darkChromeColors = (base: t.StringHex): Record<string, string> => {
     'editorSuggestWidget.selectedForeground': '#FFFFFF',
     'editorSuggestWidget.highlightForeground': '#00B2FF',
 
-    // Scrollbar slider (track + thumb) – shared by Dark + Monokai:
+    // Scrollbar slider (track + thumb):
+    'scrollbar.background': surface3,
     'scrollbar.shadow': Color.TRANSPARENT,
-    'scrollbarSlider.background': alpha(borderSoft, 0.35), // default
-    'scrollbarSlider.hoverBackground': alpha(borderSoft, 0.55), // hover
-    'scrollbarSlider.activeBackground': alpha(borderSoft, 0.85), // dragging
+    'scrollbarSlider.background': alpha(borderSoft, 0.35),
+    'scrollbarSlider.hoverBackground': alpha(borderSoft, 0.55),
+    'scrollbarSlider.activeBackground': alpha(borderSoft, 0.85),
 
     // Sticky-scroll:
     'editorStickyScroll.border': borderStrong,

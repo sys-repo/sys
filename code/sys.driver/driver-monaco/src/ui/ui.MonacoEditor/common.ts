@@ -21,7 +21,7 @@ const props: t.PickRequired<
   | 'fontSize'
   | 'spinning'
 > = {
-  theme: 'Monokai',
+  theme: 'Dark',
   enabled: true,
   readOnly: false,
   minimap: true,

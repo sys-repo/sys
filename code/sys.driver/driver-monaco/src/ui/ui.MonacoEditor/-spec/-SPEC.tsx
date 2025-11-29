@@ -48,7 +48,7 @@ export default Spec.describe('MonacoEditor', (e) => {
         prefix={'Monaco.Dev.PathView:'}
         prefixColor={Color.CYAN}
         path={v.selectedPath}
-        theme={Theme.toCommonTheme(v.theme)}
+        theme={v.theme}
       />
     );
   }
@@ -56,15 +56,10 @@ export default Spec.describe('MonacoEditor', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    function update() {
-      Dev.Theme.background(ctx, Theme.toCommonTheme(p.theme.value), 1);
-      ctx.redraw();
-    }
-
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      update();
+      ctx.redraw();
     });
 
     ctx.subject
