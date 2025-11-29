@@ -8,7 +8,19 @@ import { getConfig } from '../u.config.ts';
  * Runs the CRDT repo as a long-lived daemon rendering a live terminal UI.
  */
 export async function daemon(cwd: t.StringDir) {
+  const config = await getConfig(cwd);
   const port = D.port.repo;
+  const eventlog = new Set<t.CrdtRepoLogEntry>();
+  const websockets = config.current.repo?.daemon?.sync?.websockets ?? [];
+
+  if (websockets.length === 0) {
+    const str = Str.builder();
+    const err = `Please make sure at least one network endpoint (websockets) is configured`;
+    str.line().line(c.yellow(err)).line();
+    console.info(String(str));
+    return;
+  }
+
   const cmd = await tryClient(port);
   if (cmd) {
     const str = Str.builder()
@@ -20,10 +32,6 @@ export async function daemon(cwd: t.StringDir) {
     return;
   }
 
-  const eventlog = new Set<t.CrdtRepoLogEntry>();
-  const config = await getConfig(cwd);
-  const websockets = config.current.repo?.daemon?.sync?.websockets ?? [];
-
   let hasStarted = false;
   const getStatus = () => {
     const status = repo.status;
@@ -32,14 +40,6 @@ export async function daemon(cwd: t.StringDir) {
     const stalled = hasStarted && !alive;
     return { alive, stalled };
   };
-
-  if (websockets.length === 0) {
-    const str = Str.builder();
-    const err = `Please make sure at least one network endpoint (websockets) is configured`;
-    str.line().line(c.yellow(err)).line();
-    console.info(String(str));
-    return;
-  }
 
   /**
    * Prepare CRDT repository on background worker.
