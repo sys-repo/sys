@@ -29,4 +29,15 @@ export type ErrLib = {
    * - Falls back to `new Error(String(input))` for all other values.
    */
   normalize(input: unknown): Error;
+
+  /**
+   * Produce a clean, stable human-readable summary of an unknown error-like value.
+   */
+  summary(input: unknown, opts?: t.ErrSummaryOptions): string;
+};
+
+/** Options for the `Err.summary` method. */
+export type ErrSummaryOptions = {
+  stack?: boolean;
+  cause?: boolean;
 };
