@@ -2,7 +2,7 @@ import type { OnChange, OnMount } from '@monaco-editor/react';
 import React, { useRef } from 'react';
 
 import { type t, Color, css, D, Rx, Spinners, Util } from './common.ts';
-import { defaultKeyBindings } from './u.Keyboard.ts';
+import { defaultKeyBindings } from './u.keyboard.ts';
 import { defaultLanguageConfig } from './u.languages.ts';
 import { Theme } from '../ui.MonacoEditor.theme/mod.ts';
 import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
