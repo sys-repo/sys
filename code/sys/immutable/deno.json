@@ -15,6 +15,7 @@
     "./types": "./src/types.ts",
     "./core": "./src/-exports/-core.ts",
     "./graph": "./src/-exports/-graph.ts",
-    "./rfc6902": "./src/-exports/-rfc6902.ts"
+    "./rfc6902": "./src/-exports/-rfc6902.ts",
+    "./url": "./src/-exports/-url.ts"
   }
 }
