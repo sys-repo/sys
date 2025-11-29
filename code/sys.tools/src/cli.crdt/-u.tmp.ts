@@ -2,8 +2,8 @@ import { type t, Str, Is, Yaml, Obj, c, Cli, Cmd, Crdt, D, Time } from './common
 import { RepoProcess } from './cmd.daemon.repo/mod.ts';
 
 import { swapoutRef } from './u.patch/u.swapoutRef.ts';
-import { normalizeAliases } from './u.patch/u.normalizeAliases.ts';
-import { AliasResolver } from '@sys/std/alias';
+// import { normalizeAliases } from './u.patch/u.normalizeAliases.ts';
+// import { AliasResolver } from '@sys/std/alias';
 
 type O = Record<string, unknown>;
 type Client = t.Crdt.Cmd.Client;
