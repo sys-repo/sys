@@ -14,6 +14,18 @@ export function dsl<C>(
 ): t.UrlDslRef<C> {
   const urlRef = ref(init);
 
+  const url: t.ImmutableRefReadonly<URL, t.Rfc6902PatchOperation> = {
+    get current() {
+      return urlRef.current;
+    },
+    get instance() {
+      return urlRef.instance;
+    },
+    events(until) {
+      return urlRef.events(until);
+    },
+  };
+
   const change = (fn: (draft: C) => void) => {
     const draft = read(urlRef.current);
     fn(draft);
@@ -21,11 +33,11 @@ export function dsl<C>(
   };
 
   const api: t.UrlDslRef<C> = {
-    url: urlRef,
+    url,
+    change,
     get current() {
       return read(urlRef.current);
     },
-    change,
   };
 
   return api;

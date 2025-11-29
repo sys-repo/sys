@@ -10,6 +10,13 @@ describe('Url.dsl', () => {
 
   /**
    * Define DSL:
+   *
+   * Maps URL <-> SampleConfig:
+   * - debug=false  → { debug: false }
+   * - debug=true   → { debug: true }
+   * - debug=<str>  → { debug: <str> }
+   * - ?d           → { debug: true }
+   * - (none)       → { debug: false }
    */
   const read = (url: URL): SampleConfig => {
     const { searchParams } = url;
@@ -58,30 +65,30 @@ describe('Url.dsl', () => {
     const makeDsl = () => Url.dsl(init, read, write);
 
     it('projects a config view from a URL', () => {
-      const dev = makeDsl();
+      const dsl = makeDsl();
       const base = UrlBase.parse(init).toURL();
 
       // `current` is the projected SampleConfig.
-      expect(dev.current).to.eql({ path: '/foo', debug: false });
+      expect(dsl.current).to.eql({ path: '/foo', debug: false });
 
       // Underlying URL is accessible via `url.current`.
-      expect(dev.url.current.origin).to.eql(base.origin);
-      expect(dev.url.current.pathname).to.eql('/foo');
+      expect(dsl.url.current.origin).to.eql(base.origin);
+      expect(dsl.url.current.pathname).to.eql('/foo');
     });
 
     it('applies config changes back onto the URL', () => {
-      const dev = makeDsl();
+      const dsl = makeDsl();
 
-      dev.change((draft) => {
+      dsl.change((draft) => {
         draft.path = '/bar';
         draft.debug = true;
       });
 
       // Config view updated.
-      expect(dev.current).to.eql({ path: '/bar', debug: true });
+      expect(dsl.current).to.eql({ path: '/bar', debug: true });
 
       // Underlying URL updated via the write mapping.
-      const url = dev.url.current;
+      const url = dsl.url.current;
       expect(url.pathname).to.eql('/bar');
       expect(url.searchParams.has('d')).to.eql(true);
       expect(url.searchParams.get('debug')).to.eql(null);
@@ -97,23 +104,57 @@ describe('Url.dsl', () => {
     const makeDsl = () => Url.dsl(init, read, write);
 
     it('reads short flag ?d as debug = true', () => {
-      const dev = makeDsl();
-      expect(dev.current).to.eql({ path: '/foo', debug: true });
+      const dsl = makeDsl();
+      expect(dsl.current).to.eql({ path: '/foo', debug: true });
+      expect(dsl.url.current.searchParams.has('d')).to.eql(true);
+      expect(dsl.url.current.searchParams.get('debug')).to.eql(null);
     });
 
     it('writes debug string as ?debug=<label>', () => {
-      const dev = makeDsl();
+      const dsl = makeDsl();
 
-      dev.change((draft) => {
+      dsl.change((draft) => {
         draft.path = '/bar';
         draft.debug = 'foobar';
       });
 
-      const url = dev.url.current;
+      const url = dsl.url.current;
       expect(url.pathname).to.eql('/bar');
       expect(url.searchParams.get('debug')).to.eql('foobar');
       expect(url.searchParams.has('d')).to.eql(false);
-      expect(dev.current.debug).to.eql('foobar');
+
+      // Config view and URL encoding stay in sync.
+      expect(dsl.current).to.eql({ path: '/bar', debug: 'foobar' });
+    });
+  });
+
+  /**
+   * Ensures the DSL still exposes URL-level change events via `dsl.url.events()`,
+   * even though config changes go through the single `change` surface.
+   */
+  describe('events: url change stream', () => {
+    const init = 'https://example.com/foo?debug=false';
+    const makeDsl = () => Url.dsl(init, read, write);
+
+    it('emits URL change events when the DSL updates config', () => {
+      const dsl = makeDsl();
+      const ev = dsl.url.events();
+
+      const seen: t.ImmutableChangeReadonly<URL, t.UrlPatch>[] = [];
+      ev.$.subscribe((e) => seen.push(e));
+
+      dsl.change((draft) => {
+        draft.path = '/events';
+        draft.debug = true;
+      });
+
+      expect(seen.length).to.be.greaterThan(0);
+
+      const last = seen[seen.length - 1];
+      expect(last.after.pathname).to.eql('/events');
+      expect(last.after.searchParams.has('d')).to.eql(true);
+      expect(last.after.searchParams.get('debug')).to.eql(null);
+      expect(last.before.href).to.not.eql(last.after.href);
     });
   });
 });
