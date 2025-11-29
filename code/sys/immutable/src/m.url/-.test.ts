@@ -1,4 +1,4 @@
-import { Url as Base } from '@sys/std';
+import { Url as UrlBase } from '@sys/std';
 import { describe, expect, it } from '../-test.ts';
 import { Url } from './mod.ts';
 
@@ -8,9 +8,9 @@ describe(`Url`, () => {
     expect(m.Url).to.equal(Url);
 
     // Ensure all base Url fields are preserved by reference.
-    const keys = Object.keys(Base) as (keyof typeof Base)[];
+    const keys = Object.keys(UrlBase) as (keyof typeof UrlBase)[];
     for (const key of keys) {
-      expect(Url[key]).to.equal(Base[key]);
+      expect(Url[key]).to.equal(UrlBase[key]);
     }
   });
 
@@ -23,6 +23,14 @@ describe(`Url`, () => {
       expect(ref.current.href).to.eql(input.href);
     });
 
+    it('constructs from a plain href string', () => {
+      const href = 'https://example.com/from-string?x=1#hash';
+      const ref = Url.ref(href);
+
+      expect(ref.current).to.be.instanceOf(URL);
+      expect(ref.current.href).to.eql(href);
+    });
+
     it('constructs from a { href } object', () => {
       const input = { href: 'https://example.com/bar?x=1' };
       const ref = Url.ref(input);
@@ -31,7 +39,7 @@ describe(`Url`, () => {
     });
 
     it('constructs from a Std HttpUrl (toURL)', () => {
-      const parsed = Base.parse('https://example.com/baz');
+      const parsed = UrlBase.parse('https://example.com/baz');
       expect(parsed.ok).to.eql(true);
 
       const ref = Url.ref(parsed);

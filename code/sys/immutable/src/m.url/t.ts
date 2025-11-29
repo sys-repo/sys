@@ -15,7 +15,7 @@ export type ImmutableUrlLib = t.StdUrlLib & {
    * - safe mutation via `change`
    * - RFC-6902 diff events via `events()`
    */
-  ref(init: t.UrlLike): UrlRef;
+  ref(init: t.UrlLike | t.StringUrl): UrlRef;
 };
 
 /**
