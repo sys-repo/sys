@@ -97,14 +97,15 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         }
 
         if (B === 'doc:info-graph') {
-          await traverseDocumentGraph(id);
+          const m = await import('./cmd.graph/mod.ts');
+          await m.walkDocumentGraph(cwd, id);
           return done(0);
         }
 
         if (B === 'doc:viewer:yaml') {
           const m = await import('./cmds/cmd.yaml-viewer.ts');
           const path = ['slug']; // TEMP 🐷
-          await m.startYamlViewer(dir, id, path);
+          await m.startYamlViewer(cwd, id, path);
           return done(0);
         }
 
