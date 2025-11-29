@@ -1,5 +1,5 @@
 import { Color, Dev, Monaco, PathView, Signal, Spec } from '../../-test.ui.ts';
-import { MonacoEditor, Theme } from '../mod.ts';
+import { MonacoEditor } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('MonacoEditor', (e) => {

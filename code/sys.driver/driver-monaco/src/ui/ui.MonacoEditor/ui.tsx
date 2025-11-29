@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { type t, Color, css, D, Rx, Spinners, Util } from './common.ts';
 import { defaultKeyBindings } from './u.Keyboard.ts';
 import { defaultLanguageConfig } from './u.languages.ts';
-import { Theme } from './u.Theme.ts';
+import { Theme } from '../ui.MonacoEditor.theme/mod.ts';
 import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
 
 /**

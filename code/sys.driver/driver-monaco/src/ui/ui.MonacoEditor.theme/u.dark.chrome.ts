@@ -1,5 +1,5 @@
 import { type t, Color } from './common.ts';
-import { hex, alpha } from './u.Theme.u.ts';
+import { hex, alpha } from './u.ts';
 
 export function darkChromeColors(base: t.StringHex): Record<string, string> {
   const bg = hex(base);

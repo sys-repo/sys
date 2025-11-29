@@ -1,7 +1,7 @@
 import { type t, Color } from './common.ts';
-import { darkChromeColors } from './u.Theme.dark.chrome.ts';
-import { Token } from './u.Theme.dark.tokens.ts';
-import { hex } from './u.Theme.u.ts';
+import { darkChromeColors } from './u.dark.chrome.ts';
+import { Token } from './u.dark.tokens.ts';
+import { hex } from './u.ts';
 
 export const Theme = {
   init(monaco: t.Monaco.Monaco) {
