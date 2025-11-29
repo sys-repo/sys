@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 
-/** RFC-6902 patch operation for URL mutations. */
-export type UrlPatch = t.Rfc6902PatchOperation;
+type UrlInput = t.UrlLike | t.StringUrl;
 
 /**
  * Immutable URL helpers layered on top of the standard UrlLib.
@@ -15,7 +14,19 @@ export type ImmutableUrlLib = t.StdUrlLib & {
    * - safe mutation via `change`
    * - RFC-6902 diff events via `events()`
    */
-  ref(init: t.UrlLike | t.StringUrl): UrlRef;
+  ref(init: UrlInput): UrlRef;
+
+  /**
+   * Create a tiny DSL wrapper around a UrlRef.
+   *
+   * - `read` maps the underlying URL snapshot to a config shape.
+   * - `write` reapplies the config to the UrlRef.
+   */
+  dsl<C>(
+    init: UrlInput,
+    read: (url: URL) => C,
+    write: (ref: UrlRef, config: C) => void,
+  ): UrlDslRef<C>;
 };
 
 /**
@@ -26,3 +37,16 @@ export type ImmutableUrlLib = t.StdUrlLib & {
  * - `events()` exposes patch-based change streams.
  */
 export type UrlRef = t.ImmutableRef<URL, UrlPatch>;
+/** RFC-6902 patch operation for URL mutations. */
+export type UrlPatch = t.Rfc6902PatchOperation;
+
+/**
+ * Immutable DSL handle derived from a UrlRef.
+ *
+ * - `current` is the underlying URL snapshot.
+ * - `change` mutates a config draft derived from the URL, then reapplies it.
+ */
+export type UrlDslRef<C> = {
+  readonly current: URL;
+  readonly change: (fn: (draft: C) => void) => void;
+};
