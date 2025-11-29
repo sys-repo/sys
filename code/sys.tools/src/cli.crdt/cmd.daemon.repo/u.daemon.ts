@@ -1,4 +1,4 @@
-import { type t, c, Cli, D, Rx, Time, Str } from '../common.ts';
+import { type t, Fs, c, Cli, D, Rx, Time, Str } from '../common.ts';
 import { startRepoOnWorker } from '../worker/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { tryClient } from './u.client.ts';
@@ -15,8 +15,11 @@ export async function daemon(cwd: t.StringDir) {
 
   if (websockets.length === 0) {
     const str = Str.builder();
-    const err = `Please make sure at least one network endpoint (websockets) is configured`;
-    str.line().line(c.yellow(err)).line();
+    str
+      .line()
+      .line(c.yellow(`  Please make sure at least one network endpoint (websockets) is configured`))
+      .line(c.gray(`  ${c.italic('Look in the config file:')} ${Fs.trimCwd(config.fs.path)}`))
+      .line();
     console.info(String(str));
     return;
   }
