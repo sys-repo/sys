@@ -14,12 +14,15 @@ describe('Url.dsl', () => {
   const read = (url: URL): SampleConfig => {
     const { searchParams } = url;
     const explicit = searchParams.get('debug');
+
     if (explicit !== null) {
       if (explicit === 'true') return { path: url.pathname, debug: true };
       if (explicit === 'false') return { path: url.pathname, debug: false };
       return { path: url.pathname, debug: explicit };
     }
+
     if (searchParams.has('d')) return { path: url.pathname, debug: true };
+
     return { path: url.pathname, debug: false };
   };
 
@@ -34,7 +37,12 @@ describe('Url.dsl', () => {
 
       const { debug } = config;
       if (debug === false) return;
-      if (debug === true) return void searchParams.set('d', ''); // Short-flag form.
+
+      if (debug === true) {
+        // Short-flag form.
+        searchParams.set('d', '');
+        return;
+      }
 
       // String label form.
       searchParams.set('debug', String(debug));
@@ -51,11 +59,14 @@ describe('Url.dsl', () => {
 
     it('projects a config view from a URL', () => {
       const dev = makeDsl();
-      const config = read(dev.current);
       const base = UrlBase.parse(init).toURL();
 
-      expect(config).to.eql({ path: '/foo', debug: false });
-      expect(dev.current.origin).to.eql(base.origin);
+      // `current` is the projected SampleConfig.
+      expect(dev.current).to.eql({ path: '/foo', debug: false });
+
+      // Underlying URL is accessible via `url.current`.
+      expect(dev.url.current.origin).to.eql(base.origin);
+      expect(dev.url.current.pathname).to.eql('/foo');
     });
 
     it('applies config changes back onto the URL', () => {
@@ -66,11 +77,14 @@ describe('Url.dsl', () => {
         draft.debug = true;
       });
 
-      const config = read(dev.current);
-      expect(config).to.eql({ path: '/bar', debug: true });
-      expect(dev.current.pathname).to.eql('/bar');
-      expect(dev.current.searchParams.has('d')).to.eql(true);
-      expect(dev.current.searchParams.get('debug')).to.eql(null);
+      // Config view updated.
+      expect(dev.current).to.eql({ path: '/bar', debug: true });
+
+      // Underlying URL updated via the write mapping.
+      const url = dev.url.current;
+      expect(url.pathname).to.eql('/bar');
+      expect(url.searchParams.has('d')).to.eql(true);
+      expect(url.searchParams.get('debug')).to.eql(null);
     });
   });
 
@@ -84,8 +98,7 @@ describe('Url.dsl', () => {
 
     it('reads short flag ?d as debug = true', () => {
       const dev = makeDsl();
-      const config = read(dev.current);
-      expect(config).to.eql({ path: '/foo', debug: true });
+      expect(dev.current).to.eql({ path: '/foo', debug: true });
     });
 
     it('writes debug string as ?debug=<label>', () => {
@@ -96,10 +109,11 @@ describe('Url.dsl', () => {
         draft.debug = 'foobar';
       });
 
-      const url = dev.current;
+      const url = dev.url.current;
       expect(url.pathname).to.eql('/bar');
       expect(url.searchParams.get('debug')).to.eql('foobar');
       expect(url.searchParams.has('d')).to.eql(false);
+      expect(dev.current.debug).to.eql('foobar');
     });
   });
 });

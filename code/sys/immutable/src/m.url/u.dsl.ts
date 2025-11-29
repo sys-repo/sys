@@ -21,10 +21,11 @@ export function dsl<C>(
   };
 
   const api: t.UrlDslRef<C> = {
-    change,
+    url: urlRef,
     get current() {
-      return urlRef.current;
+      return read(urlRef.current);
     },
+    change,
   };
 
   return api;

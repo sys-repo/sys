@@ -43,10 +43,12 @@ export type UrlPatch = t.Rfc6902PatchOperation;
 /**
  * Immutable DSL handle derived from a UrlRef.
  *
- * - `current` is the underlying URL snapshot.
- * - `change` mutates a config draft derived from the URL, then reapplies it.
+ * - `url` exposes the underlying UrlRef.
+ * - `current` is the projected config shape C.
+ * - `change` mutates a config draft, then reapplies it to the URL.
  */
 export type UrlDslRef<C> = {
-  readonly current: URL;
+  readonly url: UrlRef;
+  readonly current: C;
   readonly change: (fn: (draft: C) => void) => void;
 };
