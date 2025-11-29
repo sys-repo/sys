@@ -1,37 +1,8 @@
 import type { t } from '../common.ts';
 
-type ErrorGeneratorInput = unknown | Response;
+export type * from './t.lib.ts';
 
-/**
- * Helpers for working with errors.
- */
-export type ErrLib = {
-  /** Type guards (boolean evaluators). */
-  readonly Is: t.ErrIs;
-  /** The standard named error types. */
-  readonly Name: t.ErrNameLib;
-  /** Safe unified try/catch execution for sync, async, and thenable functions. */
-  readonly Try: t.TryLib;
-
-  /**
-   * Take unknown input and produce a standard error object.
-   */
-  std(input: ErrorGeneratorInput, options?: t.ErrStdOptions | string): t.StdError;
-
-  /**
-   * Create a new error collection builder.
-   */
-  errors(): t.ErrorCollection;
-
-  /**
-   * Normalize arbitrary input into a native `Error` instance.
-   *
-   * - Returns `error` unchanged when already an `Error`.
-   * - Lifts objects with a `message` field into an `Error` and copies enumerable fields.
-   * - Falls back to `new Error(String(input))` for all other values.
-   */
-  normalize(input: unknown): Error;
-};
+export type ErrorGeneratorInput = unknown | Response;
 
 /**
  * The response (and/or error) from an [Err.catch] method call.
@@ -120,8 +91,8 @@ export type ErrorCollection = {
   readonly is: { readonly empty: boolean };
 
   /** Add a new error. */
-  push(error: ErrorGeneratorInput | ErrorGeneratorInput[]): ErrorCollection;
-  push(error: ErrorGeneratorInput, options?: t.ErrStdOptions | string): ErrorCollection;
+  push(error: t.ErrorGeneratorInput | t.ErrorGeneratorInput[]): ErrorCollection;
+  push(error: t.ErrorGeneratorInput, options?: t.ErrStdOptions | string): ErrorCollection;
 
   /**
    * Resolve the collection of errors to either
