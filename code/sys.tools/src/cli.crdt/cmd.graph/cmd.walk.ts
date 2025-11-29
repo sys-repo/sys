@@ -1,13 +1,14 @@
 import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
 
-import { type t, Cli, Crdt, D, Str, Time } from '../common.ts';
+import { type t, Cli, Crdt, D, Obj, Str, Time } from '../common.ts';
 import { Fmt } from './u.fmt.ts';
 import { loadDocumentHook } from './u.hook.ts';
+import { makeDiscoverRefs } from './u.discoverRefs.ts';
 
 type O = Record<string, unknown>;
 type Client = t.Crdt.Cmd.Client;
 
-export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id) {
+export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id, path: t.ObjectPath) {
   const port = D.port.repo;
   const cmd = (await RepoProcess.tryClient(port))!;
   if (!cmd) return;
@@ -47,7 +48,7 @@ export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id) {
         cmd,
         root,
         id,
-        snapshot: e.doc,
+        doc: e.doc,
         depth,
         log: (...msg) => log.line(String(msg.join(' '))),
       });
@@ -60,9 +61,7 @@ export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id) {
       onDoc,
       onSkip: (e) => skipped.push(e),
       onRefs: (e) => {},
-      async discoverRefs(e) {
-        return Crdt.Graph.default.discoverRefs(e);
-      },
+      discoverRefs: makeDiscoverRefs(path),
     });
   }
 

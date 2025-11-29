@@ -12,8 +12,6 @@ export async function snapshot(cwd: t.StringDir, id: t.Crdt.Id) {
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 
-  console.log('cmd', cmd);
-
   /**
    * Normalise the incoming id (may be "crdt:<id>" or bare).
    */
