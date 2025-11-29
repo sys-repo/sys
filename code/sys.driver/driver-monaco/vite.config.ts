@@ -12,6 +12,10 @@ export default defineConfig(() => {
       e.chunk('react.dom', 'react-dom');
       e.chunk('sys', ['@sys/std']);
       e.chunk('css', ['@sys/ui-css']);
+      e.chunk('yaml', ['yaml']);
+      e.chunk('motion', ['motion']);
+      e.chunk('crdt', ['@sys/driver-automerge']);
+      e.chunk('monaco-react', ['@monaco-editor/react']);
     },
   });
 });
