@@ -38,6 +38,7 @@ export namespace Monaco {
     export type IModelLanguageChangedEvent = editor.IModelLanguageChangedEvent;
     export type ICodeEditor = editor.ICodeEditor;
     export type IStandaloneCodeEditor = editor.IStandaloneCodeEditor;
+    export type IStandaloneThemeData = editor.IStandaloneThemeData;
     export type IMarkerData = editor.IMarkerData;
     export type IEditorDecorationsCollection = editor.IEditorDecorationsCollection;
   }

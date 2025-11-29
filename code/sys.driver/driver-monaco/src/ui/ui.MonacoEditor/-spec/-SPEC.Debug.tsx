@@ -12,7 +12,7 @@ import {
   Signal,
   Util,
 } from '../common.ts';
-import { SAMPLE_CODE } from './-SPEC.u.code.ts';
+import { SAMPLE_CODE } from './-SAMPLE.ts';
 import { LanguagesList } from './-ui.ts';
 
 type P = t.MonacoEditorProps;

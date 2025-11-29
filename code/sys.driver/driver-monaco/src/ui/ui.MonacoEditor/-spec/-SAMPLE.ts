@@ -2,14 +2,21 @@ import { type t, Str } from '../common.ts';
 
 export const javascript = 'const foo = 123;';
 export const typescript = `
-const foo: number = 123;
+/**
+ * Language tokens
+ */
+export type User = { id: number; name: string };
 
-const bar = {
-  msg: "👋",
-  async join<T>(msg: string) {
-    return \`\${msg} \${bar.msg}\`;
-  }
-} as const
+const MAGIC: number = 42;
+
+// Comment
+export const makeGreeting = async <T extends User>(
+  user: T,
+  prefix = 'Hi',
+): Promise<string> => {
+  const label = \`\${prefix} \${user.name} #\${user.id}\`;
+  return label + \` (\${MAGIC})\`;
+};
 `;
 
 export const python = `
@@ -55,13 +62,14 @@ export const yaml = `
 long: looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong
 
 foo:
-  - one
-  - two
+  - 1
+  - 2
   - three
 
 bar:
-  - one
-  - two
+  - { one }
+  - two:
+      msg: 👋
   - three
 
 baz:
