@@ -44,6 +44,7 @@ export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id) {
       const log = Str.builder();
       hookLog.push({ id, depth, log });
       await onDocHook({
+        cmd,
         root,
         id,
         snapshot: e.doc,

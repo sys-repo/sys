@@ -28,6 +28,7 @@ export type DocumentGraphHook<T extends O = O> = (
  * - `log`      Lightweight logging helper for hook output.
  */
 export type DocumentGraphHookCtx<T extends O = O> = {
+  readonly cmd: t.Crdt.Cmd.Client;
   readonly root: t.Crdt.Id;
   readonly id: t.Crdt.Id;
   readonly snapshot: t.ImmutableSnapshot<T>;
