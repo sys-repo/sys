@@ -73,5 +73,22 @@ describe(`Url`, () => {
       sub.unsubscribe();
       events.dispose();
     });
+
+    it('mutates core URL components via change()', () => {
+      const ref = Url.ref(new URL('https://example.com/foo?x=1#old'));
+
+      ref.change((u) => {
+        u.protocol = 'http:'; //          protocol
+        u.hostname = 'example.org'; //    host
+        u.port = '8080'; //               port
+        u.pathname = '/bar/baz'; //       path
+        u.hash = '#new'; //               fragment
+        u.searchParams.delete('x'); //    search (query-string)
+        u.searchParams.set('y', '2');
+      });
+
+      const { current } = ref;
+      expect(current.href).to.eql('http://example.org:8080/bar/baz?y=2#new');
+    });
   });
 });
