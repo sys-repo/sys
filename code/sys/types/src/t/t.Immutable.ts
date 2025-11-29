@@ -34,18 +34,6 @@ export type ImmutableRef<T = O, P = unknown, E = t.ImmutableEvents<T, P>> = Immu
 };
 
 /**
- * A plain, immutable view of a value.
- *
- * `ImmutableSnapshot<T>` represents the current state of an immutable
- * reference at a single point in time. It contains no event system,
- * no change mechanics, and no identity — just the `current` value.
- *
- * This is the minimal shape required for read-only operations such as
- * graph walks, structural inspection, serialization, or diffing.
- */
-export type ImmutableSnapshot<T = O> = { readonly current: T };
-
-/**
  * Represents a before/after patched change to the immutable state.
  */
 export type ImmutableChange<T, P> = {
@@ -66,6 +54,7 @@ export type ImmutableChangeReadonly<T, P> = {
  * Read-only immutable snapshot handle (no mutation surface).
  */
 export type ImmutableReadonly<T = O> = { readonly current: T };
+
 /**
  * Read-only reference handle.
  * Mirrors ImmutableRef without `change`.
@@ -78,3 +67,12 @@ export type ImmutableRefReadonly<
   readonly instance: string;
   events(until?: t.UntilInput): E;
 };
+
+/**
+ * Alias for a read-only immutable snapshot.
+ *
+ * `ImmutableSnapshot<T>` is a semantic alias for `ImmutableReadonly<T>`,
+ * kept for clarity in call-sites that want to emphasise "point-in-time
+ * capture" rather than “ongoing read-only view”.
+ */
+export type ImmutableSnapshot<T = O> = ImmutableReadonly<T>;
