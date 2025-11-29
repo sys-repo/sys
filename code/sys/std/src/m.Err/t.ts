@@ -1,7 +1,9 @@
 import type { t } from '../common.ts';
 
 export type * from './t.lib.ts';
+export type * from './t.is.ts';
 
+/** Input for an error generator. */
 export type ErrorGeneratorInput = unknown | Response;
 
 /**
@@ -43,33 +45,6 @@ export type ErrNameLib = {
   readonly link: 'LinkError';
   readonly runtime: 'RuntimeError';
   readonly internal: 'InternalError';
-};
-
-/**
- * Type guards.
- */
-export type ErrIs = {
-  /**
-   * Determine if the given value is an Error instance.
-   */
-  error(input: unknown): input is Error;
-
-  /**
-   * Determine if the given value is "like" an error in that it
-   * exposes a {message} property.
-   */
-  errorLike(input: unknown): input is t.ErrorLike;
-
-  /**
-   * Determine if the given value conforms to the `StdError` type.
-   */
-  stdError(input: unknown): input is t.StdError;
-
-  /**
-   * Determine if the `StdError` is an aggregate of other errors,
-   * (aka. it has a [errors] array).
-   */
-  aggregate(input: unknown): input is t.StdError;
 };
 
 /**

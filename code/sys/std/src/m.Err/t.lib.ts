@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type ErrLib = {
   /** Type guards (boolean evaluators). */
-  readonly Is: t.ErrIs;
+  readonly Is: t.ErrIsLib;
   /** The standard named error types. */
   readonly Name: t.ErrNameLib;
   /** Safe unified try/catch execution for sync, async, and thenable functions. */
