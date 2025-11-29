@@ -186,4 +186,14 @@ export type StdIsLib = {
    * True if the value structurally matches a WebSocket.
    */
   websocket(input?: unknown): input is WebSocket;
+
+  /**
+   * Determine if the given value is structurally URL-like.
+   *
+   * Matches:
+   *  - `URL` instances
+   *  - any `{ href: string }`
+   *  - any `{ toURL(): URL }`
+   */
+  urlLike(input?: unknown): input is t.UrlLike;
 };

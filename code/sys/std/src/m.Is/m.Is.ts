@@ -13,6 +13,7 @@ import { Err } from '../m.Err/mod.ts';
 import { number, numeric } from './u.number.ts';
 import { string } from './u.string.ts';
 import { websocket } from './u.websocket.ts';
+import { urlLike } from './u.url.ts';
 
 /**
  * Common flag evaluators.
@@ -34,14 +35,14 @@ export const Is: StdIsLib = {
   plainObject: isPlainObject,
   plainRecord: isPlainRecord,
   promise: isPromise,
-  websocket,
 
   numeric,
   number,
   num: number,
-
   string,
   str: string,
+  urlLike,
+  websocket,
 
   disposable(input?: any): input is t.Disposable {
     if (!isObject(input)) return false;

@@ -581,4 +581,41 @@ describe('Is (common flags)', () => {
       expect(Is.websocket({ addEventListener: () => {} })).to.eql(false);
     });
   });
+
+  describe('Is.urlLike', () => {
+    it('matches URL instances', () => {
+      const url = new URL('https://example.com/foo');
+      expect(Is.urlLike(url)).to.eql(true);
+    });
+
+    it('matches plain objects with an href string', () => {
+      const value = { href: 'https://example.com/bar' };
+      expect(Is.urlLike(value)).to.eql(true);
+    });
+
+    it('matches objects with a toURL(): URL method', () => {
+      const value = {
+        toURL() {
+          return new URL('https://example.com/baz');
+        },
+      };
+      expect(Is.urlLike(value)).to.eql(true);
+    });
+
+    it('rejects non-URL-like values', () => {
+      const samples: unknown[] = [
+        undefined,
+        null,
+        123,
+        'https://example.com',
+        {},
+        { href: 123 },
+        { toURL: 'not-a-function' },
+      ];
+
+      for (const input of samples) {
+        expect(Is.urlLike(input)).to.eql(false);
+      }
+    });
+  });
 });
