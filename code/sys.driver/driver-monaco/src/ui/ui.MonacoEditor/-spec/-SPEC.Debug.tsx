@@ -40,7 +40,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 const defaults: Storage = {
   render: true,
   debug: false,
-  theme: 'Dark',
+  theme: D.props.theme,
   enabled: D.props.enabled,
   readOnly: D.props.readOnly,
   autoFocus: true,
@@ -152,7 +152,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark', 'Monokai'])}
       />
       <Button
         block
@@ -254,10 +254,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
     </div>
   );
 };
-
-/**
- * Helpers:
- */
 
 /**
  * Helpers:

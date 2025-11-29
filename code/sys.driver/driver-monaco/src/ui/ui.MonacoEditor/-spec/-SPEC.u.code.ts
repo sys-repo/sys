@@ -1,7 +1,16 @@
 import { type t, Str } from '../common.ts';
 
-export const typescript = 'const foo: number = 123;';
 export const javascript = 'const foo = 123;';
+export const typescript = `
+const foo: number = 123;
+
+const bar = {
+  msg: "👋",
+  async join<T>(msg: string) {
+    return \`\${msg} \${bar.msg}\`;
+  }
+} as const
+`;
 
 export const python = `
 def greet(name):

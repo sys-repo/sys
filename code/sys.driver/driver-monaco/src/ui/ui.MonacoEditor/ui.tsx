@@ -26,7 +26,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
     fontSize = DP.fontSize,
     spinning = DP.spinning,
   } = props;
-  const editorTheme = Theme.toName(props.theme);
+  const editorTheme = Theme.toRegisteredName(props.theme);
   const isPlaceholderText = typeof placeholder === 'string';
 
   /**
@@ -155,7 +155,7 @@ export const MonacoEditor: React.FC<t.MonacoEditorProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
+  const theme = Color.theme(Theme.toCommonTheme(props.theme));
   const styles = {
     base: css({
       position: 'relative',

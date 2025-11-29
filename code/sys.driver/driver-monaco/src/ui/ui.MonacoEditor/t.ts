@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+export type MonacoEditorTheme = t.CommonTheme | 'Monokai';
+
 /**
  * <Component>:
  */
@@ -24,7 +26,7 @@ export type MonacoEditorProps = {
   wordWrapColumn?: number;
 
   // Appearance:
-  theme?: t.CommonTheme;
+  theme?: t.MonacoEditorTheme;
   style?: t.CssInput;
   debug?: boolean;
 

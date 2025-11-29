@@ -1,5 +1,5 @@
 import { Color, Dev, Monaco, PathView, Signal, Spec } from '../../-test.ui.ts';
-import { MonacoEditor } from '../mod.ts';
+import { MonacoEditor, Theme } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('MonacoEditor', (e) => {
@@ -48,7 +48,7 @@ export default Spec.describe('MonacoEditor', (e) => {
         prefix={'Monaco.Dev.PathView:'}
         prefixColor={Color.CYAN}
         path={v.selectedPath}
-        theme={v.theme}
+        theme={Theme.toCommonTheme(v.theme)}
       />
     );
   }
@@ -56,10 +56,15 @@ export default Spec.describe('MonacoEditor', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
+    function update() {
+      Dev.Theme.background(ctx, Theme.toCommonTheme(p.theme.value), 1);
+      ctx.redraw();
+    }
+
     Dev.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
+      update();
     });
 
     ctx.subject
