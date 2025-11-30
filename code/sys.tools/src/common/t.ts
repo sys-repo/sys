@@ -10,7 +10,7 @@ export type * from '@sys/types';
 
 export type { CliTable } from '@sys/cli/t';
 export type { ColorTheme } from '@sys/color/t';
-export type { JsonFile, JsonFileDoc, WalkEntry } from '@sys/fs/t';
+export type { FileMap, JsonFile, JsonFileDoc, WalkEntry } from '@sys/fs/t';
 export type { HonoMiddlewareHandler } from '@sys/http/t';
 export type { ProcOutput } from '@sys/process/t';
 export type { AnsiColors, StrBuilder } from '@sys/std/t';

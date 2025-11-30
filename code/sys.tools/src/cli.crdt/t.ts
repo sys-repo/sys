@@ -16,6 +16,7 @@ export type CrdtCommand =
   | 'doc:graph'
   | 'doc:viewer:yaml'
   | 'doc:config:print'
+  | 'doc:tmpl:hookfile'
   | 'repo:daemon:start'
   | 'sync-server:start'
   | 'quit'

@@ -20,7 +20,7 @@ export async function normalize(config: t.CrdtConfig) {
    * Ensure the `config.repo` configuration exists.
    */
   if (!Is.record(current?.repo?.daemon)) {
-    const DEF = D.config.doc.repo;
+    const DEF = D.Config.doc.repo;
     config.change((d) => {
       const repo = d.repo || (d.repo = Obj.clone(DEF));
       repo.daemon = repo.daemon || (repo.daemon = Obj.clone(DEF.daemon));

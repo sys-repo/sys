@@ -14,19 +14,15 @@ export { Yaml } from '@sys/yaml';
  */
 export const D = {
   toolname: `system/crdt:tools`,
-  port: {
-    repo: 49494,
-    sync: 3030,
-  },
+  port: { repo: 49494, sync: 3030 },
   Sync: { server: 'waiheke.sync.db.team' },
   Path: {
-    config: './tools.config.json',
     Repo: {
       daemon: './.repo/daemon.crdt',
       syncserver: './.repo/syncserver.crdt',
     },
   },
-  config: {
+  Config: {
     filename: '-crdt.config.json',
     doc: {
       '.meta': { createdAt: 0 },
@@ -34,13 +30,14 @@ export const D = {
       repo: { daemon: { sync: { websockets: [] } } },
     } satisfies t.CrdtConfigDoc,
   },
+  Hook: { filename: 'hook.ts' },
 } as const;
 
 /**
  * Get or create the `crdt.config.json` file.
  */
 export async function getConfig(dir: t.StringDir): Promise<t.CrdtConfig> {
-  const path = Fs.join(dir, D.config.filename);
-  const doc = JsonFile.Singleton.get<t.CrdtConfigDoc>(path, D.config.doc, { touch: true });
+  const path = Fs.join(dir, D.Config.filename);
+  const doc = JsonFile.Singleton.get<t.CrdtConfigDoc>(path, D.Config.doc, { touch: true });
   return doc;
 }

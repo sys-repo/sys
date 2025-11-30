@@ -2,8 +2,6 @@ import { type t, Args, c, Crdt, D, Fs, Is, Prompt } from './common.ts';
 
 import { tmp } from './-u.tmp.ts';
 import { RepoProcess } from './cmd.daemon.repo/mod.ts';
-import { snapshot } from './cmd.snapshot/mod.ts';
-import { startSyncServer } from './cmds/mod.ts';
 import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
@@ -48,6 +46,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       return { name, value: e.value };
     });
 
+  const opt = (name: string, value: C) => ({ name, value });
+
   /** --------------------------------------------------------
    * Root Menu
    */
@@ -56,11 +56,11 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     const A = (await Prompt.Select.prompt<C>({
       message: 'Tools:\n',
       options: [
-        { name: '  add: <document>', value: 'doc:add' satisfies C },
+        opt('  add: <document>', 'doc:add'),
         ...listing,
-        { name: ' start: sync server (websockets)', value: 'sync-server:start' satisfies C },
-        { name: ' start: repository daemon', value: 'repo:daemon:start' satisfies C },
-        { name: c.gray('(quit)'), value: 'quit' },
+        opt(' start: sync server (websockets)', 'sync-server:start'),
+        opt(' start: repository daemon', 'repo:daemon:start'),
+        opt(c.gray('(quit)'), 'quit'),
       ],
     })) as C;
 
@@ -77,28 +77,36 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
      * Document Menu
      */
     {
+      const { makeHookTmpl } = await import('./cmd.graph/mod.ts');
+      const hookTmpl = await makeHookTmpl(cwd);
+
       if (A.startsWith('crdt:')) {
+        const options = [
+          // { name: '  🐷', value: 'tmp:🐷' },
+          opt('  Snapshot', 'snapshot'),
+          opt('  Walk Document Graph → Stats', 'doc:graph'),
+          opt('  Lint Document Graph 🐷', 'doc:lint'),
+          opt('  View Yaml', 'doc:viewer:yaml'),
+          opt('  View Config', 'doc:config:print'),
+        ];
+
+        if (!hookTmpl.exists) {
+          options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
+        }
+
+        options.push(...[opt(c.gray(c.dim(' (forget)')), 'doc:remove')]);
+
         const B = (await Prompt.Select.prompt<t.CrdtCommand>({
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
-          options: [
-            // { name: '  🐷', value: 'tmp:🐷' },
-            { name: '  Snapshot', value: 'snapshot' },
-            { name: '  Walk Document Graph → Stats', value: 'doc:graph' },
-            { name: '  Lint Document Graph', value: 'doc:lint' },
-            { name: '  View Yaml', value: 'doc:viewer:yaml' },
-            { name: '  Print Configfile', value: 'doc:config:print' },
-            { name: c.gray(c.dim(' (forget)')), value: 'doc:remove' },
-          ],
+          options,
         })) as t.CrdtCommand;
 
         if (B === 'snapshot') {
-          await snapshot(cwd, id);
+          const m = await import('./cmd.snapshot/mod.ts');
+          await m.snapshot(cwd, id);
           return done(0);
         }
 
-        /**
-         * TODO 🐷 - make path configurable (via prompt)
-         */
         const yamlPath = ['slug'];
 
         if (B === 'doc:graph') {
@@ -121,6 +129,11 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
         if (B === 'doc:config:print') {
           console.info(Fmt.printDocConfig(config.current, id));
+          return done(0);
+        }
+
+        if (B === 'doc:tmpl:hookfile') {
+          await hookTmpl.write();
           return done(0);
         }
 
@@ -147,6 +160,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       }
 
       if (A === 'sync-server:start') {
+        const { startSyncServer } = await import('./cmds/mod.ts');
         await startSyncServer(cwd);
       }
     }

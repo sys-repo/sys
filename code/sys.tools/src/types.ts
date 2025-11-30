@@ -2,9 +2,6 @@
  * @module types
  */
 
-/**
- * Library:
- */
 export type * from './-tmpl/t.ts';
 export type * from './cli.clipboard/t.ts';
 export type * from './cli.crdt/t.ts';

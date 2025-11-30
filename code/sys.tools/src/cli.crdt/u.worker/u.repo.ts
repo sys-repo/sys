@@ -7,7 +7,7 @@ export async function startRepoOnWorker(
   const { silent = true, port } = opts;
   const url = new URL('./u.repo.worker.ts', import.meta.url);
   const network = Arr.uniq([
-    ...D.config.doc.repo.daemon.sync.websockets,
+    ...D.Config.doc.repo.daemon.sync.websockets,
     ...(opts.websockets ?? []),
   ]).map((ws) => ({ ws }));
 

@@ -11,7 +11,7 @@ describe('cli.crdt', () => {
       type Doc = t.CrdtConfigDoc;
 
       const dir = Fs.join(root, slug());
-      const path = Fs.join(dir, D.config.filename);
+      const path = Fs.join(dir, D.Config.filename);
 
       const a = await getConfig(dir);
       const b = await getConfig(dir);
@@ -27,7 +27,7 @@ describe('cli.crdt', () => {
 
       // Config seed is as declared in D.config.doc.
       const json = (await Fs.readJson<Doc>(path)).data!;
-      expect(json.version).to.eql(D.config.doc.version);
+      expect(json.version).to.eql(D.Config.doc.version);
 
       // Singleton semantics: same dir → same instance.
       expect(a).to.equal(b);
