@@ -6,9 +6,10 @@ type O = Record<string, unknown>;
 
 /**
  * Alias table utilities:
- * - `make`    → lazy resolver over a YAML-ish object tree
- * - `analyze` → resolver plus table diagnostics
- * - `expand`  → pure string-level alias expansion
+ * - `make`        → lazy resolver over a YAML-ish object tree
+ * - `analyze`     → resolver plus table diagnostics
+ * - `expand`      → pure string-level alias expansion
+ * - `expandChain` → multi-table alias expansion with user-supplied hops
  */
 export type AliasResolverLib = {
   readonly Is: t.AliasResolverIsLib;
@@ -48,6 +49,20 @@ export type AliasResolverLib = {
     map: t.Alias.Map,
     opts?: { maxDepth?: number },
   ): t.Alias.ExpandResult;
+
+  /**
+   * Chained alias expansion across one or more tables.
+   *
+   * - starts from the given `resolver`
+   * - uses `expand` at each step
+   * - when unresolved tokens remain, optionally calls `loadNext`
+   *   so callers can supply a new resolver or bare alias map
+   */
+  expandChain<T extends O = O>(
+    raw: t.Alias.RawPath,
+    resolver: t.Alias.Resolver<T>,
+    opts?: t.AliasExpandChainOptions<T>,
+  ): Promise<t.Alias.ExpandChainResult>;
 };
 
 /**
@@ -59,4 +74,12 @@ export type AliasResolverIsLib = {
    * Shape: ":" + lowercase letters/digits in hyphen-separated segments.
    */
   aliasKey(input?: unknown): input is t.Alias.Key;
+};
+
+/** Options passed to the `.expandChain` method. */
+export type AliasExpandChainOptions<T extends O = O> = {
+  readonly maxDepth?: number;
+  readonly loadNext?: (
+    e: t.Alias.ExpandChainNextArgs<T>,
+  ) => Promise<t.Alias.Resolver<T> | t.Alias.Map | null | undefined>;
 };

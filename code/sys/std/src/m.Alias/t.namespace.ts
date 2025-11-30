@@ -27,9 +27,7 @@ export namespace Alias {
   export type ResolvedPath = string;
 
   /** AliasMap: the table mapping symbolic alias keys to raw path strings. */
-  export type Map = {
-    readonly [K in Alias.Key]?: Alias.RawPath;
-  };
+  export type Map = { readonly [K in Alias.Key]?: Alias.RawPath };
 
   /**
    * A semantic reference produced after alias expansion + resolution.
@@ -112,6 +110,46 @@ export namespace Alias {
   export type ExpandResult = {
     readonly value: Alias.RawPath;
     readonly used: readonly Alias.Key[];
+    readonly remaining: readonly Alias.Key[];
+  };
+
+  /**
+   * One step in a chained alias expansion:
+   * captures the local table, the expanded value, and which tokens were used.
+   */
+  export type ExpandChainStep = {
+    readonly value: Alias.RawPath;
+    readonly used: readonly Alias.Key[];
+    readonly remaining: readonly Alias.Key[];
+    readonly alias: Alias.Map;
+  };
+
+  /**
+   * Arguments provided to `loadNext` during chained expansion.
+   *
+   * Each hop sees:
+   * - the current raw value
+   * - the per-step expansion result
+   * - the resolver whose table was just applied
+   * - the current depth (0-based)
+   */
+  export type ExpandChainNextArgs<T extends O = O> = {
+    readonly value: Alias.RawPath;
+    readonly step: Alias.ExpandResult;
+    readonly resolver: Alias.Resolver<T>;
+    readonly depth: number;
+  };
+
+  /**
+   * Result of chained alias expansion across one or more tables.
+   *
+   * - `value`     : final raw value after all hops
+   * - `steps`     : per-hop results (local table + expansion metadata)
+   * - `remaining` : tokens still present after the last hop
+   */
+  export type ExpandChainResult = {
+    readonly value: Alias.RawPath;
+    readonly steps: readonly Alias.ExpandChainStep[];
     readonly remaining: readonly Alias.Key[];
   };
 }

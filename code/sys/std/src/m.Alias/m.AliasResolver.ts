@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 import { AliasIs as Is } from './m.Is.ts';
 import { analyze } from './u.analyze.ts';
 import { expand } from './u.expand.ts';
+import { expandChain } from './u.expandChain.ts';
 import { make } from './u.make.ts';
 
 export const AliasResolver: t.AliasResolverLib = {
@@ -9,4 +10,5 @@ export const AliasResolver: t.AliasResolverLib = {
   make,
   analyze,
   expand,
+  expandChain,
 };
