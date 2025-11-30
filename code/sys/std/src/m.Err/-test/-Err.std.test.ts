@@ -1,5 +1,5 @@
 import { type t, describe, expect, it } from '../../-test.ts';
-import { Err } from '@sys/std/error';
+import { Err } from '../mod.ts';
 
 describe('Err.std - (system standard error shape)', () => {
   const name = Err.Name.error;

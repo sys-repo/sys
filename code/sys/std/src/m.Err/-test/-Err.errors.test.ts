@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Err } from '@sys/std/error';
+import { Err } from '../mod.ts';
 
 describe('Err.errors (Errors Collection Builder)', () => {
   it(`generates distinct instances`, () => {

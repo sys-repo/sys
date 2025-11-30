@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 
-import { Timecode } from '@sys/std/time/timecode';
+import { Timecode } from '../../mod.ts';
 import { VClock, VTime } from '../mod.ts';
 
 describe('VirtualClock', () => {

@@ -1,4 +1,4 @@
-import { Pkg } from '@sys/std/pkg';
+import { Pkg } from '../mod.ts';
 import { describe, expect, it, pkg } from '../-test.ts';
 
 describe(`module: ${Pkg.toString(pkg)}`, () => {
