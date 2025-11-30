@@ -23,3 +23,4 @@ export type * from './ui/use.Slug/t.ts';
 
 export type * from './ui/-sample.editor-1/t.ts';
 export type * from './ui/-sample.editor-2/t.ts';
+export type * from './ui/-sample.tmp/t.ts';

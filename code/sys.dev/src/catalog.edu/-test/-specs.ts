@@ -16,4 +16,5 @@ export const Specs = {
   [`${edu}: SlugHarness`]: () => import('../ui/ui.SlugHarness/-spec/-SPEC.tsx'),
   [`${edu}: VideoRecorder`]: () => import('../ui/ui.VideoRecorder/-spec/-SPEC.tsx'),
   [`${edu}: MediaComposition`]: () => import('../ui/ui.MediaComposition/-spec/-SPEC.tsx'),
+  [`${ns}: TMP 🐷`]: () => import('../ui/-sample.tmp/-spec/-SPEC.tsx'),
 } as t.SpecImports;

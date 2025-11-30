@@ -1,48 +1,41 @@
 import type { t } from './common.ts';
 
 /**
- * Dev-harness URL interpretation types.
+ * Public DevUrl library surface.
+ *
+ * - `ref` is pure: URL-like in → DevUrl DSL (no DOM).
+ * - `forWindow` is the “old make” replacement:
+ *   derives from window.location, binds to the DOM, returns the same DSL.
  */
-export type DevUrlConfig = {
-  readonly showDebug: boolean | null;
+export type DevUrlLib = {
+  /**
+   * Pure DevUrlConfig DSL around a URL-like input.
+   */
+  ref(init: t.UrlLike | t.StringUrl): t.DevUrlDsl;
+
+  /**
+   * Convenience: derive from `win.location.href` and
+   * bind the underlying UrlRef to `window.location` via @sys/ui-dom.
+   *
+   * This is effectively the spiritual replacement for the old `makeDevUrl`.
+   */
+  forWindow(win: Window, options?: t.DomUrlBindOptions): t.DevUrlDsl;
 };
 
 /**
- * Parse a dev URL into a typed configuration object.
+ * Instance of a Dev-harness URL/DSL.
  */
-export type ReadDevUrl = (input: t.StringUrl | URL) => DevUrlConfig;
+export type DevUrlDsl = t.UrlDslRef<t.DevUrlConfig>;
 
 /**
- * Produce a new URL instance from the given one,
- * applying configuration cues from a DevUrlConfig object.
+ * Dev-harness URL/DSL.
  */
-export type ChangeDevUrl = (input: t.StringUrl | URL, value: Partial<DevUrlConfig>) => URL;
+export type DevUrlConfig = {
+  showDebug: boolean | null;
+};
 
 /**
  * Value type for dev URL toggles.
  * `null` means "not specified" (param removed).
  */
 export type DevToggle = boolean | null;
-
-/**
- * Proxy instance returned by `DevUrl.make`.
- * Exposes declarative getters/setters that read/write the address bar.
- */
-export type DevUrlProxy = {
-  get debug(): DevToggle;
-  set debug(v: DevToggle);
-};
-
-/**
- * Factory for a proxy bound to a specific window.
- */
-export type DevUrlMake = (win: Window) => DevUrlProxy;
-
-/**
- * Public DevUrl library surface.
- */
-export type DevUrlLib = {
-  readonly make: DevUrlMake;
-  readonly read: ReadDevUrl;
-  readonly change: ChangeDevUrl;
-};

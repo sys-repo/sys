@@ -37,6 +37,7 @@ export type ImmutableUrlLib = t.StdUrlLib & {
  * - `events()` exposes patch-based change streams.
  */
 export type UrlRef = t.ImmutableRef<URL, UrlPatch>;
+export type UrlRefReadonly = t.ImmutableRefReadonly<URL, UrlPatch>;
 /** RFC-6902 patch operation for URL mutations. */
 export type UrlPatch = t.Rfc6902PatchOperation;
 
@@ -49,7 +50,7 @@ export type UrlPatch = t.Rfc6902PatchOperation;
  * - `change` mutates a config draft, then reapplies it to the URL.
  */
 export type UrlDslRef<C> = {
-  readonly url: t.ImmutableRefReadonly<URL, UrlPatch>;
+  readonly url: t.UrlRefReadonly;
   readonly current: C;
   readonly change: (fn: (draft: C) => void) => void;
 };

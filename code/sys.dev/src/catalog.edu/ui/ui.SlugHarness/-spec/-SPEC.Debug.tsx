@@ -88,7 +88,7 @@ export function createDebugSignals() {
     repo,
     crdt,
     registry,
-    url: DevUrl.make(window),
+    location: DevUrl.forWindow(window),
     reset,
     listen,
   };
@@ -148,7 +148,7 @@ export function createDebugSignals() {
   });
 
   // ⚠️ Hard Override of defaults ⚠️
-  if (api.url.debug === false) p.debug.value = false;
+  if (api.location.current.showDebug === false) p.debug.value = false;
 
   // Finish up.
   return api;
@@ -195,7 +195,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           </div>
         )}
         onClick={() => {
-          debug.url.debug = false;
+          debug.location.change((url) => (url.showDebug = false));
           window.location.reload();
         }}
       />

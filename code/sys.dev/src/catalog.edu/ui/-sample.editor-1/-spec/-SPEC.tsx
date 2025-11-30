@@ -11,7 +11,7 @@ export default Spec.describe(D.displayName, (e) => {
     const ctx = Spec.ctx(e);
 
     function update() {
-      ctx.debug.width(debug.url.debug !== false ? 400 : 0);
+      ctx.debug.width(debug.location.current.showDebug !== false ? 400 : 0);
       ctx.subject.size('fill', p.hostPadding.value ? 50 : 0);
       ctx.redraw();
     }

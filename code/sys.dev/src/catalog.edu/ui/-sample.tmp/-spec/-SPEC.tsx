@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { MyComponent } from '../mod.ts';
+import { Tmp } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -13,6 +13,7 @@ export default Spec.describe(D.displayName, async (e) => {
     update();
     function update() {
       debug.listen();
+      ctx.debug.width(debug.location.current.showDebug !== false ? 400 : 0);
       ctx.redraw();
     }
 
@@ -24,7 +25,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <MyComponent debug={v.debug} theme={v.theme} />;
+        return <Tmp debug={v.debug} theme={v.theme} />;
       });
   });
 

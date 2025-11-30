@@ -89,7 +89,7 @@ export function createDebugSignals() {
     signals,
     repo,
     crdt,
-    url: DevUrl.make(window),
+    location: DevUrl.forWindow(window),
     reset,
     listen,
   };
@@ -124,7 +124,7 @@ export function createDebugSignals() {
     });
   });
 
-  if (api.url.debug === false) p.debug.value = false;
+  if (api.location.current.showDebug === false) p.debug.value = false;
   return api;
 }
 
@@ -172,7 +172,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           </div>
         )}
         onClick={() => {
-          debug.url.debug = false;
+          debug.location.change((url) => (url.showDebug = false));
           window.location.reload();
         }}
       />

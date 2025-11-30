@@ -9,7 +9,7 @@ export type DomUrl = t.ImmutableUrlLib & {
    *
    * This is a one-way binding: UrlRef → window.location.
    */
-  bindToWindow(ref: t.UrlRef, options?: DomUrlBindOptions): DomUrlBinding;
+  bindToWindow(ref: t.UrlRefReadonly, options?: t.DomUrlBindOptions): DomUrlBinding;
 };
 
 /**

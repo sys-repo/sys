@@ -31,16 +31,14 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
     function update() {
-      ctx.debug.width(debug.url.debug !== false ? 400 : 0);
+      debug.listen();
+      ctx.debug.width(debug.location.current.showDebug !== false ? 400 : 0);
       ctx.redraw();
     }
 
     update(); // initial
     Dev.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      update();
-    });
+    Signal.effect(update);
 
     ctx.subject
       .size('fill')

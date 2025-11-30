@@ -71,7 +71,7 @@ export function createDebugSignals() {
     props,
     bus$: Monaco.Bus.make(),
     repo: createUiRepo(),
-    url: DevUrl.make(window),
+    location: DevUrl.forWindow(window),
     signals,
     listen,
     reset,
@@ -159,7 +159,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           </div>
         )}
         onClick={() => {
-          debug.url.debug = false;
+          debug.location.change((url) => (url.showDebug = false));
           window.location.reload();
         }}
       />

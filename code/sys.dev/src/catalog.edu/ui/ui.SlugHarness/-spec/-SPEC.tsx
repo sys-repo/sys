@@ -5,14 +5,14 @@ import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
-  const url = debug.url;
+  const url = debug.location;
   const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
     function update() {
-      ctx.debug.width(url.debug !== false ? 400 : 0);
+      ctx.debug.width(url.current.showDebug !== false ? 400 : 0);
       ctx.redraw();
     }
 

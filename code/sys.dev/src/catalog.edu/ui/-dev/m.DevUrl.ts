@@ -1,9 +1,14 @@
 import type { t } from './common.ts';
-import { changeDevUrl as change, makeDevUrl as make, readDevUrl as read } from './u.dev.url.ts';
+import { makeDevUrlRef as ref } from './m.DevUrl.ref.ts';
+import { Url } from '@sys/ui-dom/url';
 
 
 export const DevUrl: t.DevUrlLib = {
-  make,
-  read,
-  change,
+  ref,
+
+  forWindow(win, options) {
+    const dev = ref(win.location.href);
+    Url.bindToWindow(dev.url, options);
+    return dev;
+  },
 };
