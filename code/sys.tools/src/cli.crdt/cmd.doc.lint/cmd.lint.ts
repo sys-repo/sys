@@ -1,8 +1,7 @@
-import { type t, Is, c, Str, Cli, D, Time, Yaml, Obj, Graph, AliasResolver } from '../common.ts';
+import { buildDocumentDAG } from '../cmd.doc.graph/mod.ts';
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
+import { type t, AliasResolver, c, Cli, D, Graph, Is, Obj, Str, Yaml } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
-import { walkDocumentGraph } from '../cmd.graph/mod.ts';
-import { buildDocumentDAG } from '../cmd.graph/mod.ts';
 
 type N = t.Graph.Dag.Node;
 type O = Record<string, unknown>;
@@ -35,8 +34,6 @@ export async function lintDocumentGraph(cwd: t.StringDir, docid: t.Crdt.Id, path
     },
   } as const;
 
-  // console.log(`-------------------------------------------`);
-  // console.log('dag.nodes[0]', dag.nodes[0]);
   const root = dag.nodes[0];
   const rootAlias = Resolve.parts(root).alias;
 
