@@ -11,7 +11,8 @@ describe('AliasResolver.analyze (basic)', () => {
       },
     };
 
-    const res = AliasResolver.analyze(obj);
+    // Default usage now treats the argument as the alias table itself.
+    const res = AliasResolver.analyze(obj.alias);
     const { diagnostics } = res;
 
     // Sanity: we expect at least one diagnostic
@@ -36,10 +37,11 @@ describe('AliasResolver.analyze (basic)', () => {
       other: { foo: 123 },
     };
 
-    const { resolver, diagnostics } = AliasResolver.analyze(obj);
+    // Pass the table directly.
+    const { resolver, diagnostics } = AliasResolver.analyze(obj.alias);
 
-    // Root and alias map.
-    expect(resolver.root).to.eql(obj);
+    // Root and alias map (root is now the table itself).
+    expect(resolver.root).to.eql(obj.alias);
     expect(resolver.alias).to.eql({
       ':core': '/slug/data/prog.core',
       ':p2p': '/slug/data/prog.p2p',
@@ -52,8 +54,8 @@ describe('AliasResolver.analyze (basic)', () => {
 
 describe('AliasResolver.analyze (table diagnostics)', () => {
   it('reports non-object alias tables and falls back to empty map', () => {
-    const obj = { alias: 'not-an-object' as unknown };
-    const { resolver, diagnostics } = AliasResolver.analyze(obj);
+    const table = 'not-an-object' as unknown;
+    const { resolver, diagnostics } = AliasResolver.analyze(table as any);
 
     // Alias map is empty when the table is not an object.
     expect(resolver.alias).to.eql({});
@@ -63,14 +65,36 @@ describe('AliasResolver.analyze (table diagnostics)', () => {
     const d = diagnostics[0];
 
     expect(d.kind).to.eql('alias:non-object-table');
-    expect(d.path).to.eql(['alias']);
+    // For table-only analysis, the table lives at the "root" path: [].
+    expect(d.path).to.eql([]);
     expect(d.value).to.eql('not-an-object');
     expect(d.message).to.be.a('string');
   });
 
-  it('does not emit diagnostics when alias table is missing', () => {
+  it('treats plain objects as alias tables and reports invalid-key entries', () => {
+    const table = { foo: 123 };
+    const { resolver, diagnostics } = AliasResolver.analyze(table);
+
+    // No valid aliases in the map.
+    expect(resolver.alias).to.eql({});
+
+    // We expect at least one invalid-key diagnostic for "foo".
+    const invalidKey = diagnostics.find((d) => d.kind === 'alias:invalid-key');
+    expect(invalidKey, 'missing alias:invalid-key diagnostic').to.not.eql(undefined);
+    expect(invalidKey!.key).to.eql('foo');
+    expect(invalidKey!.path).to.eql(['foo']);
+  });
+});
+
+describe('AliasResolver.analyze (missing alias table in document)', () => {
+  it('does not emit diagnostics when alias table is missing at the configured path', () => {
     const obj = { foo: 123 };
-    const { resolver, diagnostics } = AliasResolver.analyze(obj);
+
+    // Explicit document + path semantics (old default behavior).
+    const { resolver, diagnostics } = AliasResolver.analyze(obj, {
+      alias: ['alias'], // look for obj.alias (which is missing)
+    });
+
     expect(resolver.alias).to.eql({});
     expect(diagnostics).to.eql([]);
   });
@@ -78,15 +102,13 @@ describe('AliasResolver.analyze (table diagnostics)', () => {
 
 describe('AliasResolver.analyze (entry diagnostics)', () => {
   it('reports invalid keys and non-string values and keeps only valid entries', () => {
-    const obj = {
-      alias: {
-        ':ok': '/path/ok',
-        'not-an-alias': '/path/bad-key',
-        ':wrong-type': 123,
-      },
+    const alias = {
+      ':ok': '/path/ok',
+      'not-an-alias': '/path/bad-key',
+      ':wrong-type': 123,
     };
 
-    const { resolver, diagnostics } = AliasResolver.analyze(obj);
+    const { resolver, diagnostics } = AliasResolver.analyze(alias);
 
     // Only the valid alias survives into the map.
     expect(resolver.alias).to.eql({ ':ok': '/path/ok' });
@@ -97,12 +119,13 @@ describe('AliasResolver.analyze (entry diagnostics)', () => {
     const invalidKey = diagnostics.find((d) => d.kind === 'alias:invalid-key');
     expect(invalidKey, 'missing alias:invalid-key diagnostic').to.not.eql(undefined);
     expect(invalidKey!.key).to.eql('not-an-alias');
-    expect(invalidKey!.path).to.eql(['alias', 'not-an-alias']);
+    // Table-only mode: entry path is just [key].
+    expect(invalidKey!.path).to.eql(['not-an-alias']);
 
     const nonString = diagnostics.find((d) => d.kind === 'alias:non-string-value');
     expect(nonString, 'missing alias:non-string-value diagnostic').to.not.eql(undefined);
     expect(nonString!.key).to.eql(':wrong-type');
-    expect(nonString!.path).to.eql(['alias', ':wrong-type']);
+    expect(nonString!.path).to.eql([':wrong-type']);
     expect(nonString!.value).to.eql(123);
   });
 });
@@ -139,8 +162,8 @@ describe('AliasResolver.analyze (root/alias options)', () => {
 
 describe('AliasResolver.analyze (types)', () => {
   it('returns diagnostics with the Alias.Diagnostic shape', () => {
-    const obj = { alias: { 'not-an-alias': 123 } };
-    const analysis = AliasResolver.analyze(obj);
+    const alias = { 'not-an-alias': 123 };
+    const analysis = AliasResolver.analyze(alias);
     expectTypeOf(analysis.diagnostics).toEqualTypeOf<readonly t.Alias.Diagnostic[]>();
   });
 });
