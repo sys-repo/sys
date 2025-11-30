@@ -17,7 +17,7 @@ export async function daemon(cwd: t.StringDir) {
     const str = Str.builder();
     str
       .line()
-      .line(c.yellow(`  Please make sure at least one network endpoint (websockets) is configured`))
+      .line(c.yellow(`  Please make sure at least one network endpoint is configured (websockets)`))
       .line(c.gray(`  ${c.italic('Look in the config file:')} ${Fs.trimCwd(config.fs.path)}`))
       .line();
     console.info(String(str));
