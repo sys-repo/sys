@@ -9,9 +9,10 @@ export const Fmt = {
 
   async buildProcessedTable(cmd: Client, processed: t.Crdt.Id[], startedAt: t.Msecs) {
     const pipe = c.dim(c.gray(`  ${Tree.vert}`));
+    const size = c.dim(c.gray('binary'));
     const ops = c.dim(c.gray('ops'));
     const changes = c.dim(c.gray('changes'));
-    const table = Cli.table([pipe, '', ops, changes]);
+    const table = Cli.table([pipe, size, ops, changes]);
     const branch = c.dim(c.gray(Tree.branch(false)));
 
     for (const [i, doc] of processed.entries()) {
@@ -32,7 +33,7 @@ export const Fmt = {
       const size = bytes(stats.bytes);
 
       const changes = c.gray(total.changes.toLocaleString());
-      const ops = c.gray(total.ops.toLocaleString());
+      const ops = c.gray(Fmt.number(total.ops, 250_000));
       table.push([identity, size, ops, changes]);
     }
 
