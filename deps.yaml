@@ -100,7 +100,7 @@ groups:
     - import: npm:gpt-tokenizer@3.4.0
 
   yaml:
-    - import: npm:yaml@2.8.1
+    - import: npm:yaml@2.8.2
       subpaths: [types]
 
 deno.json:

@@ -84,7 +84,7 @@
     "ts-essentials": "npm:ts-essentials@10.1.1",
     "ua-parser-js": "npm:ua-parser-js@2.0.6",
     "ws": "npm:ws@8.18.3",
-    "yaml": "npm:yaml@2.8.1",
-    "yaml/types": "npm:yaml@2.8.1/types"
+    "yaml": "npm:yaml@2.8.2",
+    "yaml/types": "npm:yaml@2.8.2/types"
   }
 }
