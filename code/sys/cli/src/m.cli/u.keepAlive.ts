@@ -8,9 +8,9 @@ import { type t, Rx } from './common.ts';
  */
 export const keepAlive: t.CliLib['keepAlive'] = async (opts = {}) => {
   const { exitCode = 0, onStart } = opts;
-  const life = Rx.lifecycle();
-  const onSigint = () => life.dispose();
+  const life = opts.life ?? Rx.lifecycle();
 
+  const onSigint = () => life.dispose();
   Deno.addSignalListener('SIGINT', onSigint);
 
   try {
