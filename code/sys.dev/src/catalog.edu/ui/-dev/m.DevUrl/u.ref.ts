@@ -1,4 +1,4 @@
-import { type t, Url } from './common.ts';
+import { type t, Url } from '../common.ts';
 
 const TRUTHY = ['', '1', 'true', 'yes', 'on'] as const;
 const FALSY = ['0', 'false', 'no', 'off'] as const;

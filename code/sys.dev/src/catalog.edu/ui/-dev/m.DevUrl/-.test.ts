@@ -1,5 +1,5 @@
 import { type t, describe, DomMock, expect, expectTypeOf, it } from '../../../-test.ts';
-import { DevUrl } from '../m.DevUrl.ts';
+import { DevUrl } from './mod.ts';
 
 describe('dev: url (DevUrlConfig DSL)', () => {
   DomMock.polyfill();

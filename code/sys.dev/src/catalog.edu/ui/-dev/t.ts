@@ -1,1 +1,1 @@
-export type * from './t.dev.url.ts';
+export type * from './m.DevUrl/t.ts';
