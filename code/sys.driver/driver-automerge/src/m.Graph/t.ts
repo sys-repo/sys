@@ -19,6 +19,12 @@ export type CrdtGraphLib = {
   readonly walk: CrdtGraphWalk;
 
   /**
+   * Materialize a full DAG structure from a root id (nodes + edges),
+   * using the same CRDT-aware loading behaviour as `walk`.
+   */
+  readonly dag: CrdtGraphDag;
+
+  /**
    * Default helpers (e.g. CRDT-flavoured outbound-reference discovery).
    */
   readonly default: {
@@ -78,3 +84,54 @@ export type CrdtGraphWalkArgs<T extends O = O> =
 export type CrdtGraphWalk = <T extends O = O>(
   args: CrdtGraphWalkArgs<T>,
 ) => Promise<t.Graph.WalkResult>;
+
+/**
+ * Base options for building a CRDT DAG.
+ *
+ * Mirrors the generic `Graph.Dag.BuildArgs<T>` shape but uses
+ * the CRDT-specific loader layer (repo | load).
+ */
+export type CrdtGraphDagArgsBase<T extends O = O> = {
+  readonly id: t.StringId;
+  readonly depth?: number;
+  readonly processed?: t.StringId[];
+  readonly discoverRefs?: t.Graph.DiscoverRefs;
+
+  /**
+   * Include nodes that were only ever seen via `onSkip`
+   * (e.g. not-found, already-processed) in the `nodes` list.
+   *
+   * Default: false.
+   */
+  readonly includeSkipped?: boolean;
+};
+
+/**
+ * Repo-backed args for DAG materialisation.
+ */
+export type CrdtGraphDagArgsRepo<T extends O = O> = CrdtGraphDagArgsBase<T> & {
+  readonly repo: t.Crdt.Repo;
+};
+
+/**
+ * Loader-backed args for DAG materialisation.
+ */
+export type CrdtGraphDagArgsLoad<T extends O = O> = CrdtGraphDagArgsBase<T> & {
+  readonly load: CrdtGraphLoadDoc<T>;
+};
+
+/**
+ * Arguments for building a CRDT DAG via the generic immutable DAG builder.
+ *
+ * Repo-backed and loader-backed variants, matching `CrdtGraphWalkArgs<T>`
+ * but without the low-level callbacks.
+ */
+export type CrdtGraphDagArgs<T extends O = O> = CrdtGraphDagArgsRepo<T> | CrdtGraphDagArgsLoad<T>;
+
+/**
+ * CRDT DAG builder: thin adapter over `Graph.dag`, using the same
+ * repo/load normalisation as `CrdtGraphWalk`.
+ */
+export type CrdtGraphDag = <T extends O = O>(
+  args: CrdtGraphDagArgs<T>,
+) => Promise<t.Graph.Dag.Result<T>>;

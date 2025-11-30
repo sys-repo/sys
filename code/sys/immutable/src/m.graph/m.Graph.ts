@@ -7,7 +7,7 @@ import { dag } from './u.dag.ts';
  * Generic, repo-backed DAG walker for document graphs.
  */
 export const Graph: t.GraphLib = {
-  default: { discoverRefs },
-  walk,
   dag,
+  walk,
+  default: { discoverRefs },
 };
