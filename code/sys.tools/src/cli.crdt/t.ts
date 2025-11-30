@@ -18,7 +18,7 @@ export type CrdtCommand =
   | 'doc:config:print'
   | 'doc:tmpl:hookfile'
   | 'repo:daemon:start'
-  | 'sync-server:start'
+  | 'repo:syncserver:start'
   | 'quit'
   | 'tmp:🐷';
 

@@ -58,7 +58,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       options: [
         opt('  add: <document>', 'doc:add'),
         ...listing,
-        opt(' start: sync server (websockets)', 'sync-server:start'),
+        opt(' start: sync server (websockets)', 'repo:syncserver:start'),
         opt(' start: repository daemon', 'repo:daemon:start'),
         opt(c.gray('(quit)'), 'quit'),
       ],
@@ -159,7 +159,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         await RepoProcess.daemon(cwd);
       }
 
-      if (A === 'sync-server:start') {
+      if (A === 'repo:syncserver:start') {
         const { startSyncServer } = await import('./cmds/mod.ts');
         await startSyncServer(cwd);
       }
