@@ -5,5 +5,10 @@ import { type t } from '../common.ts';
  */
 export type CrdtRepoLogEntry = {
   readonly at: t.UnixTimestamp;
-  readonly ev: t.CrdtRepoWireEvent;
+  readonly event: CrdtRepoLogEvent;
 };
+
+export type CrdtRepoLogEvent =
+  | { kind: 'wire'; payload: t.CrdtRepoWireEvent }
+  | { kind: 'daemon:error'; message: string; detail: unknown }
+  | { kind: 'daemon:info'; message: string };

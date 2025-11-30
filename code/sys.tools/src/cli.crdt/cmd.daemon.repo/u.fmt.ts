@@ -11,7 +11,7 @@ export const Fmt = {
     screen(args: {
       repo: t.Crdt.Repo;
       port: number;
-      alive: boolean;
+      alive?: boolean;
       events: readonly t.CrdtRepoLogEntry[];
     }) {
       const { repo, alive, events } = args;
