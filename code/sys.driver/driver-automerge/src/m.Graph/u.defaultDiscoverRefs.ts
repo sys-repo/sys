@@ -9,7 +9,7 @@ type O = Record<string, unknown>;
  * - looks for string values that are CRDT URIs
  * - normalises them to bare ids via `CrdtId.clean`
  */
-export const defaultDiscoverRefs: t.CrdtGraphDiscoverRefs = ({ doc }) => {
+export const defaultDiscoverRefs: t.Crdt.Graph.DiscoverRefs = ({ doc }) => {
   const refs: t.Crdt.Id[] = [];
 
   Obj.walk(doc.current, (e) => {

@@ -98,7 +98,7 @@ describe(`Crdt.Graph: using concrete repo`, () => {
     const seenRefs: Record<t.Crdt.Id, readonly t.Crdt.Id[]> = {};
     const seenDepths: Record<t.Crdt.Id, number> = {};
 
-    const discoverRefs: t.CrdtGraphDiscoverRefs = (args) => {
+    const discoverRefs: t.Graph.DiscoverRefs = (args) => {
       const { id, doc, depth } = args;
       const current = doc.current as { next?: string };
 
@@ -156,7 +156,7 @@ describe(`Crdt.Graph: using concrete repo`, () => {
 
     const seenDocs: t.Crdt.Id[] = [];
 
-    const discoverRefs: t.CrdtGraphDiscoverRefs = async (args): Promise<readonly t.Crdt.Id[]> => {
+    const discoverRefs: t.Graph.DiscoverRefs = async (args): Promise<readonly t.Crdt.Id[]> => {
       const { doc } = args;
       const current = doc.current as T;
       const next = current.next;

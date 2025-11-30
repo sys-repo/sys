@@ -18,13 +18,6 @@ export namespace Crdt {
     export type Mark = AMMark;
     export type Range = AMMarkRange;
   }
-  export namespace Graph {
-    export type DiscoverRefs = t.CrdtGraphDiscoverRefs;
-    export type WalkDocArgs = t.CrdtGraphWalkDocArgs;
-    export type WalkRefsArgs = t.CrdtGraphWalkRefsArgs;
-    export type WalkSkipArgs = t.CrdtGraphWalkSkipArgs;
-    export type LoadDoc<T extends O = O> = t.CrdtGraphLoadDoc<T>;
-  }
   export namespace Worker {
     export type Config = t.CrdtWorkerConfig;
     export type ConfigWeb = t.CrdtWorkerConfigWeb;
@@ -36,6 +29,25 @@ export namespace Crdt {
   }
   export namespace Sync {
     export type Server = t.SyncServer;
+  }
+
+  export namespace Graph {
+    /**
+     * CRDT-flavoured outbound-reference discovery function.
+     * This uses the generic graph DiscoverRefs shape, with a CRDT-specific
+     * default implementation provided elsewhere.
+     */
+    export type DiscoverRefs = t.Graph.DiscoverRefs;
+
+    /** Loader used when walking CRDT graphs without a repo. */
+    export type LoadDoc<T extends O = O> = t.Graph.LoadDoc<T>;
+
+    /**
+     * Pure generic graph walker callback types re-exported for convenience.
+     */
+    export type WalkDocArgs<T extends O = O> = t.Graph.WalkDocArgs<T>;
+    export type WalkRefsArgs = t.Graph.WalkRefsArgs;
+    export type WalkSkipArgs = t.Graph.WalkSkipArgs;
   }
 }
 

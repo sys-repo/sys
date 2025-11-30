@@ -15,7 +15,7 @@ export const walk: t.CrdtGraphWalk = (args) => walkImpl(args);
 
 async function walkImpl<T extends O = O>(
   args: t.CrdtGraphWalkArgs<T>,
-): Promise<t.CrdtGraphWalkResult> {
+): Promise<t.Graph.WalkResult> {
   /**
    * Normalised loader:
    * - If `repo` is present, use `getWithRetry(repo, id)`.

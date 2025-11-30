@@ -9,9 +9,20 @@ type O = Record<string, unknown>;
  * for CRDT document graphs and a CRDT-flavoured default discoverRefs.
  */
 export type CrdtGraphLib = {
+  /**
+   * Graph walker entrypoint for CRDT documents.
+   *
+   * Supports both:
+   * - repo-backed usage (`repo`), and
+   * - loader-backed usage (`load`).
+   */
   readonly walk: CrdtGraphWalk;
+
+  /**
+   * Default helpers (e.g. CRDT-flavoured outbound-reference discovery).
+   */
   readonly default: {
-    readonly discoverRefs: CrdtGraphDiscoverRefs;
+    readonly discoverRefs: t.Graph.DiscoverRefs;
   };
 };
 
@@ -60,47 +71,10 @@ export type CrdtGraphWalkArgs<T extends O = O> =
 /**
  * Graph walker entrypoint for CRDT documents.
  *
- * This mirrors the generic `Graph.Walk` shape, but is specialised on
- * `CrdtGraphWalkArgs` so the CRDT layer can support both `repo` and `load`.
+ * Specialised on `CrdtGraphWalkArgs` so the CRDT layer can support
+ * both repo-backed and loader-backed usage, while still returning
+ * the generic `Graph.WalkResult`.
  */
 export type CrdtGraphWalk = <T extends O = O>(
   args: CrdtGraphWalkArgs<T>,
-) => Promise<CrdtGraphWalkResult>;
-
-/**
- * Reason a CRDT document was skipped during a graph walk.
- */
-export type CrdtGraphSkipReason = t.Graph.SkipReason;
-
-/**
- * Arguments passed to `onDoc` for each successfully loaded document.
- */
-export type CrdtGraphWalkDocArgs<T extends O = O> = t.Graph.WalkDocArgs<T>;
-
-/**
- * Arguments passed to `onSkip` when a document is not processed.
- */
-export type CrdtGraphWalkSkipArgs = t.Graph.WalkSkipArgs;
-
-/**
- * Arguments passed to `onRefs` for discovered outbound references.
- */
-export type CrdtGraphWalkRefsArgs = t.Graph.WalkRefsArgs;
-
-/**
- * Arguments passed to `discoverRefs` for computing outbound edges from a doc.
- */
-export type CrdtGraphDiscoverRefsArgs = t.Graph.DiscoverRefsArgs;
-
-/**
- * Optional hook to customise how outbound references are discovered
- * from a given CRDT document.
- *
- * Alias of the generic `Graph.DiscoverRefs` hook.
- */
-export type CrdtGraphDiscoverRefs = t.Graph.DiscoverRefs;
-
-/**
- * Result of a CRDT graph walk.
- */
-export type CrdtGraphWalkResult = t.Graph.WalkResult;
+) => Promise<t.Graph.WalkResult>;
