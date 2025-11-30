@@ -1,11 +1,10 @@
-import type { DebugSignals } from './-spec/-SPEC.Debug.tsx';
-
 import React from 'react';
 import {
   type t,
   Color,
   Crdt,
   css,
+  Yaml,
   DefaultTraitRegistry,
   Is,
   Monaco,
@@ -17,6 +16,8 @@ import {
 } from './common.ts';
 
 type ReadyCtx = { monaco: t.Monaco.Monaco; editor: t.Monaco.Editor };
+
+type O = Record<string, unknown>;
 
 const KEY = { INDEX: 'index', MAIN: 'main' };
 const PATH = {
@@ -68,15 +69,21 @@ export const Sample: React.FC<t.Sample2Props> = (props) => {
     const doc = indexDoc;
     if (!doc?.current) return;
 
-    const root = Obj.Path.appendSuffix(PATH.INDEX, '.parsed');
-    const lens = Obj.Lens.Readonly.at<string>(root, e.path).bind(doc.current);
-    let v = lens.get();
+    const yamlLens = Obj.Lens.Readonly.at<string>(PATH.INDEX);
+    const yaml = yamlLens.get(doc.current) ?? '';
+    const parsed = Yaml.parse<O>(yaml).data;
+
+    const reset = () => setSelectedDocid(undefined);
+    if (!Is.record(parsed)) return void reset();
+
+    const cursorLens = Obj.Lens.Readonly.at(e.path).bind(parsed);
+    const v = cursorLens.get(doc.current);
 
     if (Is.string(v) && v.startsWith('crdt:')) {
       const isDocid = Crdt.Is.id(v.replace(/^crdt\:/, ''));
       setSelectedDocid(isDocid ? v : undefined);
     } else {
-      setSelectedDocid(undefined);
+      reset();
     }
   }
 
