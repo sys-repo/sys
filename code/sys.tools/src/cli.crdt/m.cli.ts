@@ -1,7 +1,4 @@
 import { type t, Args, c, Crdt, D, Fs, Is, Prompt } from './common.ts';
-
-import { tmp } from './-u.tmp.ts';
-import { RepoProcess } from './cmd.repo.daemon/mod.ts';
 import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
@@ -77,7 +74,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
      * Document Menu
      */
     {
-      const { makeHookTmpl } = await import('./cmd.graph/mod.ts');
+      const { makeHookTmpl } = await import('./cmd.doc.graph/mod.ts');
       const hookTmpl = await makeHookTmpl(cwd);
 
       if (A.startsWith('crdt:')) {
@@ -102,7 +99,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         })) as t.CrdtCommand;
 
         if (B === 'snapshot') {
-          const m = await import('./cmd.snapshot/mod.ts');
+          const m =
+            (await import('./cmd.doc.snapshot/mod.ts')) as typeof import('./cmd.doc.snapshot/mod.ts');
           await m.snapshot(cwd, id);
           return done(0);
         }
@@ -110,19 +108,22 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         const yamlPath = ['slug'];
 
         if (B === 'doc:graph') {
-          const m = await import('./cmd.graph/mod.ts');
+          const m =
+            (await import('./cmd.doc.graph/mod.ts')) as typeof import('./cmd.doc.graph/mod.ts');
           await m.walkDocumentGraph(cwd, id, yamlPath);
           return done(0);
         }
 
         if (B === 'doc:viewer:yaml') {
-          const m = await import('./cmds/cmd.yaml-viewer.ts');
+          const m =
+            (await import('./cmds/cmd.doc.viewer.yaml.ts')) as typeof import('./cmds/cmd.doc.viewer.yaml.ts');
           await m.startYamlViewer(cwd, id, yamlPath);
           return done(0);
         }
 
         if (B === 'doc:lint') {
-          const m = await import('./cmds/cmd.lint.ts');
+          const m =
+            (await import('./cmd.doc.lint/mod.ts')) as typeof import('./cmd.doc.lint/mod.ts');
           await m.lintDocumentGraph(cwd, id, yamlPath);
           return done(0);
         }
@@ -143,7 +144,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         }
 
         if (B === 'tmp:🐷') {
-          await tmp(cwd, id);
+          const m = await import('./-tmp.ts');
+          await m.tmp(cwd, id);
           return done(0);
         }
 
@@ -156,11 +158,14 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
      */
     {
       if (A === 'repo:daemon:start') {
-        await RepoProcess.daemon(cwd);
+        const m =
+          (await import('./cmd.repo.daemon/mod.ts')) as typeof import('./cmd.repo.daemon/mod.ts');
+        await m.RepoProcess.daemon(cwd);
       }
 
       if (A === 'repo:syncserver:start') {
-        const { startSyncServer } = await import('./cmds/mod.ts');
+        const { startSyncServer } =
+          (await import('./cmds/cmd.doc.syncserver.ts')) as typeof import('./cmds/cmd.doc.syncserver.ts');
         await startSyncServer(cwd);
       }
     }
