@@ -1,5 +1,5 @@
 import { type t, Crdt, Fs, Is, slug, Time } from '../common.ts';
-import { makeDiscoverRefs } from './u.discoverRefs.ts';
+import { makeDiscoverRefs } from '../cmd.graph/mod.ts';
 import { saveDoc } from './u.saveDoc.ts';
 
 const sumBytes = (values: readonly number[]) => values.reduce((total, n) => total + n, 0);
@@ -25,7 +25,7 @@ export type ProcessResult = {
  *
  * Delegates DAG traversal to `Crdt.Graph.walk`.
  */
-export async function process(args: Args): Promise<ProcessResult> {
+export async function walk(args: Args): Promise<ProcessResult> {
   const { base, cmd, onProgress } = args;
 
   const emit = (event: t.CrdtSnapshotProgress) => onProgress?.(event);

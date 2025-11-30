@@ -3,7 +3,7 @@ import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
 import { type t, c, Cli, Crdt, D, Fs, Str, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
-import { process } from './u.process.ts';
+import { walk } from './u.walk.ts';
 
 const Tree = Cli.Fmt.Tree;
 
@@ -25,12 +25,9 @@ export async function snapshot(cwd: t.StringDir, id: t.Crdt.Id) {
     const coloredId = Fmt.prettyUri(e.id);
     const branch = Tree.branch(false);
     const identity = c.gray(`${branch} ${e.isRoot ? c.white(coloredId) : coloredId}`);
-    const warnAt = 1024 * 1024; // 1MB
-    const bytes = (bytes: number) => {
-      const s = Str.bytes(bytes);
-      return bytes > warnAt ? c.yellow(s) : s;
-    };
-    tbl.push([identity, c.gray(`${bytes(e.bytes.json)} json, ${bytes(e.bytes.binary)} binary`)]);
+    const bytes = (bytes: number) => Fmt.bytes(bytes, 1024 * 1024 /* warn at 1MB */);
+    const size = c.gray(`${bytes(e.bytes.json)} json, ${bytes(e.bytes.binary)} binary`);
+    tbl.push([identity, size]);
   };
 
   const tableText = () => {
@@ -44,7 +41,7 @@ export async function snapshot(cwd: t.StringDir, id: t.Crdt.Id) {
   const progress: t.CrdtSnapshotProgress[] = [];
 
   // Walk the tree:
-  const res = await process({
+  const res = await walk({
     cmd,
     id: root,
     base: '-backup',
@@ -65,8 +62,8 @@ export async function snapshot(cwd: t.StringDir, id: t.Crdt.Id) {
    * Print summary:
    */
   const total = res.processed.length;
-  const completed = `${c.green('↑ completed snapshot')}`;
-  let summary = `across ${total}`;
+  const completed = `${c.green('↑ snapshot backed up')}`;
+  let summary = `across ${c.white(String(total))}`;
   summary += ` ${Str.plural(total, 'document', 'documents')} in ${String(timer.elapsed)}`;
   const totals = `${Str.bytes(res.bytes.json)} json, ${Str.bytes(res.bytes.binary)} binary`;
 
