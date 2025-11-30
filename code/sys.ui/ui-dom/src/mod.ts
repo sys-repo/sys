@@ -40,7 +40,8 @@ export { pkg } from './pkg.ts';
 /** Type library (barrel file). */
 export type * as t from './types.ts';
 
+export { File } from '@sys/ui-dom/file';
+export { Kbd, Keyboard } from '@sys/ui-dom/keyboard';
+export { LocalStorage } from './-exports/-localStorage.ts';
+export { Url } from '@sys/ui-dom/url';
 export { Dom } from './m.Dom/mod.ts';
-export { File } from './m.File/mod.ts';
-export { Keyboard, Kbd } from './m.Keyboard/mod.ts';
-export { LocalStorage } from './m.LocalStorage/mod.ts';

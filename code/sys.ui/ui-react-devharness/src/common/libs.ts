@@ -9,5 +9,5 @@ export { Rx } from '@sys/std/rx';
 export { Lorem, Str } from '@sys/std/value';
 
 export { Color, Style, css } from '@sys/ui-css';
-export { Keyboard } from '@sys/ui-dom';
+export { Keyboard, Url } from '@sys/ui-dom';
 export { FC, Signal, useDist, usePointer } from '@sys/ui-react';
