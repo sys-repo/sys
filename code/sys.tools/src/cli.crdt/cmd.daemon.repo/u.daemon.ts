@@ -1,6 +1,6 @@
 import { type t, c, Cli, D, Err, Fs, Rx, Str, Time } from '../common.ts';
 import { getConfig } from '../u.config.ts';
-import { startRepoOnWorker } from '../worker/mod.ts';
+import { startRepoOnWorker } from '../u.worker/mod.ts';
 import { tryClient } from './u.client.ts';
 import { Fmt } from './u.fmt.ts';
 
