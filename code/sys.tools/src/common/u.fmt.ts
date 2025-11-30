@@ -69,4 +69,16 @@ export const Fmt = {
       .line()
       .toString();
   },
+
+  bytes(bytes: t.NumberBytes, warnAt?: t.NumberBytes) {
+    const s = Str.bytes(bytes);
+    if (warnAt === undefined) return s;
+    return bytes > warnAt ? c.yellow(s) : s;
+  },
+
+  number(value: number, warnAt?: number): string {
+    const s = value.toLocaleString();
+    if (warnAt === undefined) return s;
+    return value > warnAt ? c.yellow(s) : s;
+  },
 } as const;
