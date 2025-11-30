@@ -30,7 +30,7 @@ describe(`Crdt.Graph.dag`, () => {
     B.change((d) => (d.next = `crdt:${C.id}`));
 
     // 2. Build DAG via repo-backed CrdtGraph.dag.
-    const res = await CrdtGraph.dag<T>({ repo, id: A.id });
+    const res = await CrdtGraph.Dag.build<T>({ repo, id: A.id });
 
     const getNode = (id: t.Crdt.Id) => res.nodes.find((n) => n.id === id)!;
 
@@ -89,7 +89,7 @@ describe(`Crdt.Graph.dag`, () => {
       return [nextId];
     };
 
-    const res = await CrdtGraph.dag<T>({
+    const res = await CrdtGraph.Dag.build<T>({
       load,
       id: A.id,
       discoverRefs,

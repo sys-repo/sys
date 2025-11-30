@@ -21,8 +21,11 @@ export type CrdtGraphLib = {
   /**
    * Materialize a full DAG structure from a root id (nodes + edges),
    * using the same CRDT-aware loading behaviour as `walk`.
+   * - `build`: materialize a DAG from a root id
+   * - `index`: derive a fast id → node lookup map.
+   * - `forEach`: iterate nodes in the stored order.
    */
-  readonly dag: CrdtGraphDag;
+  readonly Dag: { build: CrdtGraphDag };
 
   /**
    * Default helpers (e.g. CRDT-flavoured outbound-reference discovery).

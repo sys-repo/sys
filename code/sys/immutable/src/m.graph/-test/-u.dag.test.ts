@@ -2,7 +2,7 @@ import { type t, c, describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { Immutable } from '../../m.rfc6902/mod.ts';
 import { Graph } from '../mod.ts';
 
-describe(`Graph.dag`, () => {
+describe(`Graph.Dag.build`, () => {
   it('materializes a simple A → B → C DAG', async () => {
     type Node = { next?: string; value?: number };
 
@@ -33,7 +33,7 @@ describe(`Graph.dag`, () => {
       return [id];
     };
 
-    const res = await Graph.dag<Node>({
+    const res = await Graph.Dag.build<Node>({
       id: A,
       load,
       discoverRefs,
@@ -124,8 +124,8 @@ describe(`Graph.dag`, () => {
 
     const baseArgs = { id: A, load, discoverRefs };
 
-    const withoutSkipped = await Graph.dag<Node>(baseArgs);
-    const withSkipped = await Graph.dag<Node>({ ...baseArgs, includeSkipped: true });
+    const withoutSkipped = await Graph.Dag.build<Node>(baseArgs);
+    const withSkipped = await Graph.Dag.build<Node>({ ...baseArgs, includeSkipped: true });
 
     // Without skipped nodes: only successfully processed docs (A, B).
     const idsWithout = withoutSkipped.nodes.map((n) => n.id).sort();
@@ -197,7 +197,7 @@ describe(`Graph.dag`, () => {
     const seenRefs: Record<t.StringId, readonly t.StringId[]> = {};
     const skips: t.Graph.WalkSkipArgs[] = [];
 
-    const res = await Graph.dag<Node>({
+    const res = await Graph.Dag.build<Node>({
       id: A,
       load,
       discoverRefs,

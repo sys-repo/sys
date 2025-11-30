@@ -14,7 +14,7 @@ export async function buildDocumentDAG(
   const load = makeLoad(cmd);
   const discoverRefs = makeDiscoverRefs(path);
 
-  return await Crdt.Graph.dag<O>({
+  return await Crdt.Graph.Dag.build<O>({
     id: root,
     load,
     discoverRefs,

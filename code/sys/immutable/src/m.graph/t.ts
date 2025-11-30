@@ -12,8 +12,15 @@ export type GraphLib = {
   /** Walk a document-reference DAG using user-supplied loaders and hooks. */
   readonly walk: t.Graph.Walk;
 
-  /** Materialize a full DAG structure from a root id (nodes + edges). */
-  readonly dag: t.Graph.Dag.Build;
+  /**
+   * DAG helpers:
+   * - `build`: materialize a DAG from a root id (nodes + edges).
+   * - `index`: derive a fast id → node lookup map.
+   * - `forEach`: iterate nodes in the stored order.
+   */
+  readonly Dag: {
+    readonly build: t.Graph.Dag.Build;
+  };
 };
 
 /**

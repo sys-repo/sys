@@ -92,10 +92,16 @@ async function buildDag<T extends O = O>(
 
   return {
     root: walkArgs.id,
-    nodes,
-    edges,
-    processed,
+    get nodes() {
+      return nodes;
+    },
+    get edges() {
+      return edges;
+    },
+    get processed() {
+      return processed;
+    },
   };
 }
 
-export const dag: t.GraphLib['dag'] = buildDag;
+export const build: t.GraphLib['Dag']['build'] = buildDag;

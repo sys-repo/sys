@@ -4,8 +4,8 @@ import { getWithRetry } from './u.getWithRetry.ts';
 
 type O = Record<string, unknown>;
 
-export const dag: t.CrdtGraphDag = async <T extends O>(args: t.CrdtGraphDagArgs<T>) =>
-  Graph.dag<T>({
+export const build: t.CrdtGraphDag = async <T extends O>(args: t.CrdtGraphDagArgs<T>) =>
+  Graph.Dag.build<T>({
     ...(args as t.Graph.Dag.BuildArgs<T>),
     discoverRefs: args.discoverRefs ?? defaultDiscoverRefs,
     async load(id) {

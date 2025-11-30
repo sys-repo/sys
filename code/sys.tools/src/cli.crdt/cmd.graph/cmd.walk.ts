@@ -74,13 +74,6 @@ export async function walkDocumentGraph(
     await walk(cmd);
     spinner.stop();
 
-    const d = await Crdt.Graph.dag<O>({
-      id: root,
-      load,
-      discoverRefs,
-    });
-    console.log('d', d);
-
     /**
      * Print:
      */
