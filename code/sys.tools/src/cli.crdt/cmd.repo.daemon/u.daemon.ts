@@ -7,11 +7,20 @@ import { Fmt } from './u.fmt.ts';
 /**
  * Runs the CRDT repo as a long-lived daemon rendering a live terminal UI.
  */
-export async function daemon(cwd: t.StringDir) {
+export async function daemon(
+  cwd: t.StringDir,
+  opts: { until?: t.UntilInput; allowConsoleClear?: boolean } = {},
+) {
+  const { allowConsoleClear = true } = opts;
+  const life = Rx.lifecycle(opts.until);
   const config = await getConfig(cwd);
   const port = D.port.repo;
   const eventlog = new Set<t.CrdtRepoLogEntry>();
   const websockets = config.current.repo?.daemon?.sync?.websockets ?? [];
+
+  const clear = () => {
+    if (allowConsoleClear) console.clear();
+  };
 
   if (websockets.length === 0) {
     const str = Str.builder();
@@ -47,7 +56,7 @@ export async function daemon(cwd: t.StringDir) {
   /**
    * Prepare CRDT repository on background worker.
    */
-  console.clear();
+  clear();
   const spinner = Cli.spinner(Fmt.spinnerText('starting repository...'));
 
   /**
@@ -88,21 +97,22 @@ export async function daemon(cwd: t.StringDir) {
     at: Time.now.timestamp,
     event: { kind: 'daemon:info', message: `daemon started on port ${String(port)}` },
   });
-  const events = repo.events();
   spinner.stop();
 
   /**
    * Print screen:
    */
+  let _rev = 0;
   const print = () => {
+    _rev++;
     const { alive, stalled } = getStatus();
     const screen = Fmt.Repo.screen({ repo, port, alive, events: [...eventlog] });
-    console.clear();
+    clear();
     if (!alive || stalled) {
       const msg = stalled ? `momentarily busy...` : `initial document reconciliation....`;
       spinner.start(Fmt.spinnerText(msg) + screen);
     } else {
-      const msg = c.dim(c.gray('(Ctrl-C to exit)'));
+      const msg = c.dim(c.gray(`(Ctrl-C to exit)`));
       spinner.stop();
       console.info(msg + screen);
     }
@@ -112,13 +122,18 @@ export async function daemon(cwd: t.StringDir) {
   /**
    * Monitor:
    */
-  events.$.pipe(Rx.debounceTime(120)).subscribe((payload) => {
-    eventlog.add({ at: Time.now.timestamp, event: { kind: 'wire', payload } });
-    print();
-  });
+  Cli.Screen.events(life).resize$.subscribe(print);
+  repo
+    .events(life)
+    .$.pipe(Rx.debounceTime(120))
+    .subscribe((payload) => {
+      const at = Time.now.timestamp;
+      eventlog.add({ at, event: { kind: 'wire', payload } });
+      print();
+    });
 
   // 1. Wait here until Ctrl-C.
-  await Cli.keepAlive();
+  await Cli.keepAlive({ life });
 
   // 2. Then shut down, fully awaited.
   spinner.start(Fmt.spinnerText('shutting down...'));
