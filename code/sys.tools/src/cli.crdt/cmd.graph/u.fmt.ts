@@ -1,4 +1,4 @@
-import { type t, Crdt, c, Cli, Str, Time } from '../common.ts';
+import { type t, c, Cli, Str, Time } from '../common.ts';
 import { Fmt as Base } from '../u.fmt.ts';
 
 const Tree = Cli.Fmt.Tree;
@@ -15,32 +15,28 @@ export const Fmt = {
     const table = Cli.table([pipe, size, ops, changes]);
     const branch = c.dim(c.gray(Tree.branch(false)));
 
+    let bytes = 0;
     for (const [i, doc] of processed.entries()) {
       const is = { first: i === 0, last: i === processed.length - 1 } as const;
       const stats = await cmd.send('doc:stats', { doc });
+      bytes += stats.bytes;
 
       const uri = Fmt.prettyUri(doc);
       let identity = is.first ? uri : c.gray(uri);
       identity = `  ${branch} ${identity}`;
 
-      const warnAt = 1024 * 1024; // 1MB
-      const bytes = (bytes: number) => {
-        const s = Str.bytes(bytes);
-        return bytes > warnAt ? c.yellow(s) : s;
-      };
-
-      const total = stats.total;
-      const size = bytes(stats.bytes);
-
-      const changes = c.gray(total.changes.toLocaleString());
-      const ops = c.gray(Fmt.number(total.ops, 250_000));
+      const size = Fmt.bytes(stats.bytes, 1024 * 1024 /* 1MB */);
+      const changes = c.gray(stats.total.changes.toLocaleString());
+      const ops = c.gray(Fmt.number(stats.total.ops, 250_000));
       table.push([identity, size, ops, changes]);
     }
 
     const elapsed = String(Time.elapsed(startedAt));
-    const total = processed.length;
-    let summary = `walked ${c.white(String(total))}`;
-    summary += ` ${Str.plural(total, 'document', 'documents')} in ${elapsed}`;
+
+    const total = { docs: processed.length };
+    let summary = `walked ${c.white(String(total.docs))}`;
+    summary += ` ${Str.plural(total.docs, 'document', 'documents')} in ${elapsed}`;
+    summary += `, ${Fmt.bytes(bytes)} binary`;
     table.push([c.dim(c.gray(`  ${Tree.vert}`))]);
     table.push([c.gray(`  ${c.italic(summary)}`)]);
 
