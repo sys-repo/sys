@@ -6,7 +6,7 @@ const expand = AliasResolver.expand;
 describe('AliasResolver.expand', () => {
   it('returns identity for paths with no alias tokens', () => {
     const map = {};
-    const res = expand('/slug/data/prog.core', map as any);
+    const res = expand('/slug/data/prog.core', map);
 
     expect(res.value).to.eql('/slug/data/prog.core');
     expect(res.used).to.eql([]);

@@ -61,13 +61,24 @@ describe('AliasResolver.expandChain', () => {
     // Tiny sanity check so the test is not "print only".
     expect(result.value).to.include('p2p 5.8 conclusion.webm.02.mp4.webm');
 
+    /**
+     * expandChain is scheme-agnostic and may leave "//" joins in place.
+     * Here we treat the final value as a POSIX-ish filesystem path and
+     * normalize multiple slashes as part of the call-site semantics.
+     */
+    const normalizedFsPath = result.value.replace(/\/+/g, '/');
+    expect(normalizedFsPath).to.eql(
+      `/Users/username/Documents/Video/P2P-program/v2/publish/p2p-5.0-strategy-2025/videos/p2p 5.8 conclusion.webm.02.mp4.webm`,
+    );
+
     console.info();
     console.info(c.cyan('AliasResolver.expandChain:'));
     console.info(c.gray(`raw: ${c.italic(raw)}\n`));
     console.info(c.magenta('localAlias:'), localAlias);
     console.info(c.magenta('indexAlias:'), indexAlias);
     console.info();
-    console.info(c.cyan('result:'), result);
+    console.info(c.cyan('result (raw):'), result);
+    console.info(c.cyan('result (normalizedFsPath):'), normalizedFsPath);
     console.info();
   });
 
