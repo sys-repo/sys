@@ -13,8 +13,9 @@ export async function startYamlViewer(cwd: t.StringDir, doc: t.Crdt.Id, path?: t
   const print = (current: O) => printScreen({ doc, current, path, startedAt });
 
   async function run(life: t.Lifecycle) {
-    const current = (await cmd.send('doc:read', { doc })).value ?? {};
-    print(current as O);
+    const current = ((await cmd.send('doc:read', { doc })).value ?? {}) as O;
+    Cli.Screen.events(life).$.subscribe((e) => print(current));
+    print(current);
 
     /**
      * Lifecycle:
