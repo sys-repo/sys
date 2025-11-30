@@ -6,7 +6,7 @@ export const Token = {
   },
   palette: {
     fg: 'F8F8F2',
-    comment: '717883',
+    comment: '7F848E',
 
     yellow: 'E6DB74', // strings
     purple: 'AE81FF', // numbers
@@ -14,6 +14,8 @@ export const Token = {
     cyan: '66D9EF', // canonical "blue"/cyan
     pink: 'F92672', // (keep around if you want it later)
     lime: 'A6E22E', // identifiers
+
+    docComment: '82A1AC',
   },
 } as const;
 
@@ -24,7 +26,7 @@ const rules: t.Monaco.I.IStandaloneThemeData['rules'] = [
   // comments
   { token: 'comment', foreground: palette.comment },
   { token: 'comment.ts', foreground: palette.comment },
-  { token: 'comment.doc.ts', foreground: palette.comment },
+  { token: 'comment.doc.ts', foreground: palette.docComment, fontStyle: 'italic' },
 
   // strings / numbers
   { token: 'string', foreground: palette.yellow },
