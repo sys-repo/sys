@@ -99,4 +99,19 @@ export namespace Alias {
     readonly resolver: Resolver<T>;
     readonly diagnostics: readonly Diagnostic[];
   };
+
+  /**
+   * Result of syntactic alias expansion:
+   * - value     : the transformed path after applying the alias map
+   * - used      : aliases that were expanded
+   * - remaining : aliases still present in the resulting value
+   *
+   * Callers may treat `value` as a ResolvedPath *iff* remaining.length === 0.
+   * The expand step itself does not upgrade the type.
+   */
+  export type ExpandResult = {
+    readonly value: Alias.RawPath;
+    readonly used: readonly Alias.Key[];
+    readonly remaining: readonly Alias.Key[];
+  };
 }

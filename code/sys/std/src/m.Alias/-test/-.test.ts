@@ -1,4 +1,4 @@
-import { type t, describe, it, expect } from '../../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { AliasResolver } from '../mod.ts';
 
 describe('Alias', () => {
