@@ -1,5 +1,5 @@
 import { type t, Crdt, Fs, Is, slug, Time, Num } from '../common.ts';
-import { makeDiscoverRefs } from '../cmd.graph/mod.ts';
+import { makeDiscoverRefs } from '../cmd.doc.graph/mod.ts';
 import { saveDoc } from './u.saveDoc.ts';
 
 type Args = {
@@ -26,7 +26,6 @@ export type ProcessResult = {
 export async function walk(args: Args): Promise<ProcessResult> {
   const { base, cmd, onProgress } = args;
 
-  const emit = (event: t.CrdtSnapshotProgress) => onProgress?.(event);
   const now = args.now ?? Time.now.timestamp;
   const root = args.id;
   const dir = Fs.join(base, `crdt.${root}`, `snap.${now}.${slug().slice(3)}`);
@@ -34,6 +33,7 @@ export async function walk(args: Args): Promise<ProcessResult> {
   const bytes: { json: number[]; binary: number[] } = { json: [], binary: [] };
   const processed: t.Crdt.Id[] = [];
 
+  const emit = (event: t.CrdtSnapshotProgress) => onProgress?.(event);
   emit({ kind: 'start', root, dir, timestamp: now });
 
   await Crdt.Graph.walk({
