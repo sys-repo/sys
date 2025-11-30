@@ -32,7 +32,6 @@ export const Fmt = {
     }
 
     const elapsed = String(Time.elapsed(startedAt));
-
     const total = { docs: processed.length };
     let summary = `walked ${c.white(String(total.docs))}`;
     summary += ` ${Str.plural(total.docs, 'document', 'documents')} in ${elapsed}`;

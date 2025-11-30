@@ -80,7 +80,7 @@ export const Fmt = {
   },
 
   /**
-   * Formats bytes using Str.bytes and optional warning.
+   * Formats bytes using `Str.bytes` and optional warning color.
    */
   bytes(bytes: t.NumberBytes, warnAt?: t.NumberBytes): string {
     return Fmt.number(bytes, warnAt, Str.bytes);
