@@ -48,6 +48,12 @@ export namespace Crdt {
     export type WalkDocArgs<T extends O = O> = t.Graph.WalkDocArgs<T>;
     export type WalkRefsArgs = t.Graph.WalkRefsArgs;
     export type WalkSkipArgs = t.Graph.WalkSkipArgs;
+
+    /**
+     * DAG:
+     */
+    export type Node<T extends O = O> = t.Graph.Node<T>;
+    export type Edge = t.Graph.Edge;
   }
 }
 

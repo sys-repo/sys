@@ -143,6 +143,10 @@ export namespace Graph {
     readonly processed: readonly t.StringId[];
   };
 
+  // Alias:
+  export type Node<T extends O = O> = t.Graph.Dag.Node<T>;
+  export type Edge = t.Graph.Dag.Edge;
+
   /**
    * DAG materialization API.
    */

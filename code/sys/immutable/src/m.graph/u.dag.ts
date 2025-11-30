@@ -85,7 +85,9 @@ async function buildDag<T extends O = O>(
       id,
       depth: m.depth,
       doc: m.doc,
-      refs: [...m.refs],
+      get refs() {
+        return [...m.refs];
+      },
       reason: m.reason,
     });
   }
