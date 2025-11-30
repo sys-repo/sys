@@ -116,6 +116,7 @@ export async function lintDocumentGraph(cwd: t.StringDir, docid: t.Crdt.Id, path
         const { video, slice, timestamps } = item;
 
         const videoExp = expandAliasValue(video, map);
+        console.log('raw', c.cyan(String(video)));
         console.log('videoExp', videoExp);
 
         return {
@@ -137,7 +138,7 @@ export async function lintDocumentGraph(cwd: t.StringDir, docid: t.Crdt.Id, path
   table.push([c.gray(' root document:'), Fmt.prettyUri(docid)]);
   table.push([c.gray(` yaml path:`), path ? `/${path.join('/')}` : '-']);
   table.push([
-    c.gray(` total:`),
+    c.gray(` graph:`),
     `${_total} ${c.gray(Str.plural(_total, 'document', 'documents'))}`,
   ]);
 

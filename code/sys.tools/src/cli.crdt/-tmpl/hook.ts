@@ -1,14 +1,18 @@
-import { Env } from 'jsr:@sys/fs/env';
+import 'jsr:@sys/tools/env';
 import { Obj, Str } from 'jsr:@sys/std';
 import { type t } from 'jsr:@sys/tools';
 
-await Env.init({ silent: true }); // ensure deno environment is setup on first run.
-
+/**
+ * Graph-walk document hook.
+ *
+ * Called once for every document encountered during a DAG walk.
+ * Use this to inspect, validate, or mutate documents via CRDT commands.
+ */
 export const onDoc: t.DocumentGraphHook = async (e) => {
   const { cmd } = e;
   const current = e.doc.current;
 
-  // 🐷 Hint: perform your actions on each document in the graph here.
+  // 🐷 ↓ perform actions on each document in the graph here.
 
   if (e.is.root) {
     e.log('hook: root document 👋');

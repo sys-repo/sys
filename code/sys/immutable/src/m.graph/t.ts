@@ -21,7 +21,7 @@ export type GraphLib = {
   readonly Dag: {
     readonly build: t.Graph.Dag.Build;
     readonly index: t.Graph.Dag.Index;
-    readonly forEach: t.Graph.Dag.ForEach;
+    readonly forEach: t.Graph.Dag.ForEachSync;
     readonly forEachAsync: t.Graph.Dag.ForEachAsync;
   };
 };
@@ -206,7 +206,10 @@ export namespace Graph {
     /**
      * Iterate all nodes in the DAG in stored order.
      */
-    export type ForEach = <T extends O = O>(dag: Result<T>, fn: (node: Node<T>) => void) => void;
+    export type ForEachSync = <T extends O = O>(
+      dag: Result<T>,
+      fn: (node: Node<T>) => void,
+    ) => void;
     export type ForEachAsync = <T extends O = O>(
       dag: Result<T>,
       fn: (node: Node<T>) => Promise<void> | void,
