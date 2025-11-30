@@ -6,13 +6,31 @@ const expandChain = AliasResolver.expandChain;
 describe('AliasResolver.expandChain', () => {
   it('print sample', async () => {
     const localAlias = {
+      /**
+       * NOTE: AliasResolver treats this exactly the same as any other alias key.
+       * It has *zero* built-in semantic meaning.
+       *
+       * We (the call-site) choose to *interpret* ":index" as
+       * "the CRDT document whose alias table we should jump into next".
+       *
+       * That interpretation lives ONLY in loadNext — not in the resolver.
+       */
       ':index': 'crdt:21JvXzARPYFXDVMag3x4UhLgHcQi',
-      ':p2p-assets': ':index/alias/:assets/p2p-5.0-strategy-2025',
+
+      /**
+       * Pure symbolic wiring. No CRDT, no file paths, no magic.
+       * AliasResolver only sees a flat token→string map.
+       */
+      ':p2p-assets': ':assets/p2p-5.0-strategy-2025',
       ':p2p-videos': ':p2p-assets/videos',
     };
 
+    /**
+     * The alias table we hop into only *if* loadNext decides it applies.
+     * Again: no special semantics here, just another alias map.
+     */
     const indexAlias = {
-      ':assets': '/Users/username/Documents/Design/Video/P2P-program/v2/publish/',
+      ':assets': '/Users/username/Documents/Video/P2P-program/v2/publish/',
     };
 
     const resolver: t.Alias.Resolver = {
@@ -24,17 +42,32 @@ describe('AliasResolver.expandChain', () => {
 
     const result = await expandChain(raw, resolver, {
       async loadNext({ step }) {
-        // When we see ":assets" still unresolved, hop to the index alias table.
-        if (step.remaining.includes(':assets')) return { root: indexAlias, alias: indexAlias };
+        /**
+         * Call-site semantic decision:
+         *
+         *    "If unresolved tokens include :assets, then we
+         *    know that the next table we want is indexAlias."
+         *
+         * This is where :index / :assets gain meaning — and only here.
+         * The pure AliasResolver remains completely ignorant of this logic.
+         */
+        if (step.remaining.includes(':assets')) {
+          return { root: indexAlias, alias: indexAlias };
+        }
         return null;
       },
     });
 
-    // Tiny sanity check so the test is not “print only”.
+    // Tiny sanity check so the test is not "print only".
     expect(result.value).to.include('p2p 5.8 conclusion.webm.02.mp4.webm');
 
-    console.info(c.cyan('\nAliasResolver.expandChain:\n'));
-    console.info(result);
+    console.info();
+    console.info(c.cyan('AliasResolver.expandChain:'));
+    console.info(c.gray(`raw: ${c.italic(raw)}\n`));
+    console.info(c.magenta('localAlias:'), localAlias);
+    console.info(c.magenta('indexAlias:'), indexAlias);
+    console.info();
+    console.info(c.cyan('result:'), result);
     console.info();
   });
 
