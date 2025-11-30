@@ -14,8 +14,8 @@
     "./events": "./src/-exports/-events.ts",
     "./file": "./src/-exports/-file.ts",
     "./keyboard": "./src/-exports/-keyboard.ts",
-    "./local-storage": "./src/-exports/-localstorage.ts",
+    "./local-storage": "./src/-exports/-local-storage.ts",
     "./url": "./src/-exports/-url.ts",
-    "./user-agent": "./src/-exports/-useragent.ts"
+    "./user-agent": "./src/-exports/-user-agent.ts"
   }
 }
