@@ -20,8 +20,11 @@ export type CliScreenSize = {
 /**
  * Terminal screen events.
  */
-export type CliScreenEvents = t.Lifecycle & { readonly $: t.Observable<CliScreenSizeEvent> };
-export type CliScreenSizeEvent = CliScreenSizeChanged;
+export type CliScreenEvents = t.Lifecycle & {
+  readonly $: t.Observable<t.CliScreenEvent>;
+  readonly resize$: t.Observable<t.CliScreenSizeChanged>;
+};
+export type CliScreenEvent = CliScreenSizeChanged;
 export type CliScreenSizeChanged = {
   readonly kind: 'size:changed';
   readonly before: t.CliScreenSize;

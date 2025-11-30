@@ -5,10 +5,10 @@ export function events(until?: t.UntilInput): t.CliScreenEvents {
   const life = Rx.abortable(until);
   let before = size();
 
-  const $ = Rx.subject<t.CliScreenSizeEvent>();
+  const $$ = Rx.subject<t.CliScreenEvent>();
   const handler = () => {
     const after = size();
-    $.next({ kind: 'size:changed', before, after });
+    $$.next({ kind: 'size:changed', before, after });
     before = { ...after };
   };
 
@@ -19,7 +19,9 @@ export function events(until?: t.UntilInput): t.CliScreenEvents {
   /**
    * API:
    */
+  const $ = $$.pipe(Rx.takeUntil(life.dispose$));
   return Rx.toLifecycle<t.CliScreenEvents>(life, {
-    $: $.pipe(Rx.takeUntil(life.dispose$)),
+    $,
+    resize$: $.pipe(Rx.filter((e) => e.kind === 'size:changed')),
   });
 }
