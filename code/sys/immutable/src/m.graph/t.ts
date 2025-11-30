@@ -20,6 +20,9 @@ export type GraphLib = {
    */
   readonly Dag: {
     readonly build: t.Graph.Dag.Build;
+    readonly index: t.Graph.Dag.Index;
+    readonly forEach: t.Graph.Dag.ForEach;
+    readonly forEachAsync: t.Graph.Dag.ForEachAsync;
   };
 };
 
@@ -190,6 +193,20 @@ export namespace Graph {
        */
       readonly processed: readonly t.StringId[];
     };
+
+    /**
+     * Build an index of nodes keyed by id.
+     */
+    export type Index = <T extends O = O>(dag: Result<T>) => ReadonlyMap<t.StringId, Node<T>>;
+
+    /**
+     * Iterate all nodes in the DAG in stored order.
+     */
+    export type ForEach = <T extends O = O>(dag: Result<T>, fn: (node: Node<T>) => void) => void;
+    export type ForEachAsync = <T extends O = O>(
+      dag: Result<T>,
+      fn: (node: Node<T>) => Promise<void> | void,
+    ) => Promise<void>;
 
     /**
      * Arguments for building a DAG via the walker.
