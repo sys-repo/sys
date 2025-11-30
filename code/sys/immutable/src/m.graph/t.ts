@@ -6,8 +6,14 @@ type O = Record<string, unknown>;
  * Generic DAG walker for document graphs.
  */
 export type GraphLib = {
-  readonly walk: t.Graph.Walk;
+  /** Default helpers (e.g. naive outbound-reference discovery). */
   readonly default: { readonly discoverRefs: t.Graph.DiscoverRefs };
+
+  /** Walk a document-reference DAG using user-supplied loaders and hooks. */
+  readonly walk: t.Graph.Walk;
+
+  /** Materialize a full DAG structure from a root id (nodes + edges). */
+  readonly dag: t.Graph.Dag.Build;
 };
 
 /**
@@ -126,4 +132,81 @@ export namespace Graph {
   export type WalkResult = {
     readonly processed: readonly t.StringId[];
   };
+
+  /**
+   * DAG materialization API.
+   */
+  export namespace Dag {
+    /**
+     * Node within the materialized DAG.
+     *
+     * - `doc` is present for successfully loaded documents.
+     * - `reason` is present when the node was observed only as a skip
+     *   (e.g. not-found, already-processed).
+     */
+    export type Node<T extends O = O> = {
+      readonly id: t.StringId;
+      readonly depth: number;
+      readonly doc?: Doc<T>;
+      readonly refs: readonly t.StringId[];
+      readonly reason?: Graph.SkipReason;
+    };
+
+    /**
+     * Edge between two nodes in the DAG.
+     */
+    export type Edge = {
+      readonly from: t.StringId;
+      readonly to: t.StringId;
+    };
+
+    /**
+     * Materialized DAG result from a walk.
+     */
+    export type Result<T extends O = O> = {
+      readonly root: t.StringId;
+
+      /**
+       * All nodes encountered during the walk.
+       * (You can derive maps/indexes as needed on top of this.)
+       */
+      readonly nodes: readonly Node<T>[];
+
+      /**
+       * All directed edges discovered during the walk.
+       */
+      readonly edges: readonly Edge[];
+
+      /**
+       * IDs in the order they were processed by the underlying walker.
+       * Mirrors `Graph.WalkResult.processed`.
+       */
+      readonly processed: readonly t.StringId[];
+    };
+
+    /**
+     * Arguments for building a DAG via the walker.
+     *
+     * This is essentially `Graph.WalkArgs<T>` with the callbacks removed,
+     * plus a small option to decide whether to retain skipped nodes.
+     */
+    export type BuildArgs<T extends O = O> = Omit<
+      Graph.WalkArgs<T>,
+      'onDoc' | 'onSkip' | 'onRefs'
+    > & {
+      /**
+       * Include nodes that were only ever seen via `onSkip`
+       * (e.g. not-found, already-processed) in the `nodes` list.
+       *
+       * Default: false.
+       */
+      readonly includeSkipped?: boolean;
+    };
+
+    /**
+     * Build a materialized DAG from the given root using `Graph.walk`
+     * under the hood.
+     */
+    export type Build = <T extends O = O>(args: BuildArgs<T>) => Promise<Result<T>>;
+  }
 }
