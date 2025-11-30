@@ -149,4 +149,31 @@ describe('Value.Num', () => {
       expect(Num.toLetter(26.1)).to.eql('A');
     });
   });
+
+  describe('Num.sum', () => {
+    it('returns 0 for an empty array', () => {
+      const res = Num.sum([]);
+      expect(res).to.equal(0);
+    });
+
+    it('sums a single value', () => {
+      const res = Num.sum([7]);
+      expect(res).to.equal(7);
+    });
+
+    it('sums multiple values', () => {
+      const res = Num.sum([1, 2, 3, 4]);
+      expect(res).to.equal(10);
+    });
+
+    it('handles negative numbers', () => {
+      const res = Num.sum([5, -2, -3]);
+      expect(res).to.equal(0);
+    });
+
+    it('handles floating point values', () => {
+      const res = Num.sum([0.25, 0.25, 0.5]);
+      expect(res).to.equal(1);
+    });
+  });
 });

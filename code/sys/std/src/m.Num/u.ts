@@ -14,3 +14,12 @@ export const round: t.NumberLib['round'] = (value, precision) => {
 export const clamp: t.NumberLib['clamp'] = (min, max, value) => {
   return Math.max(min, Math.min(max, value));
 };
+
+/**
+ * Sum a list of numbers (empty list → 0).
+ */
+export const sum: t.NumberLib['sum'] = (values) => {
+  let total = 0;
+  for (const n of values) total += n;
+  return total;
+};
