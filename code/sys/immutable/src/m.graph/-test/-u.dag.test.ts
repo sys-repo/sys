@@ -164,4 +164,85 @@ describe(`Graph.dag`, () => {
     // compile-time shape still holds
     expectTypeOf(withSkipped.nodes).toEqualTypeOf<readonly t.Graph.Dag.Node<Node>[]>();
   });
+
+  it('forwards user hooks while building the DAG', async () => {
+    type Node = { next?: string; label?: string };
+
+    const A: t.StringId = 'A';
+    const B: t.StringId = 'B';
+    const MISSING: t.StringId = 'MISSING';
+
+    const docs = new Map<t.StringId, t.ImmutableSnapshot<Node>>();
+
+    const addNode = (id: t.StringId, value: Node) => {
+      const ref = Immutable.clonerRef<Node>(value);
+      const snapshot: t.ImmutableSnapshot<Node> = { current: ref.current };
+      docs.set(id, snapshot);
+    };
+
+    // A → B → MISSING
+    addNode(A, { label: 'A', next: `node:${B}` });
+    addNode(B, { label: 'B', next: `node:${MISSING}` });
+
+    const load: t.Graph.LoadDoc<Node> = async (id) => docs.get(id);
+
+    const discoverRefs: t.Graph.DiscoverRefs = ({ doc }) => {
+      const current = doc.current as Node;
+      const next = current.next;
+      if (!next || !next.startsWith('node:')) return [];
+      return [next.slice('node:'.length) as t.StringId];
+    };
+
+    const seenDocs: t.StringId[] = [];
+    const seenRefs: Record<t.StringId, readonly t.StringId[]> = {};
+    const skips: t.Graph.WalkSkipArgs[] = [];
+
+    const res = await Graph.dag<Node>({
+      id: A,
+      load,
+      discoverRefs,
+      includeSkipped: true,
+
+      onDoc: ({ id }) => {
+        seenDocs.push(id);
+      },
+
+      onRefs: ({ id, refs }) => {
+        seenRefs[id] = refs;
+      },
+
+      onSkip: (e) => {
+        skips.push(e);
+      },
+    });
+
+    // DAG structure still correct.
+    expect(res.root).to.eql(A);
+    expect(res.processed).to.eql([A, B]);
+
+    const ids = res.nodes.map((n) => n.id);
+    expect(ids).to.include(A);
+    expect(ids).to.include(B);
+    expect(ids).to.include(MISSING);
+
+    const nodeA = res.nodes.find((n) => n.id === A)!;
+    const nodeB = res.nodes.find((n) => n.id === B)!;
+    const nodeMissing = res.nodes.find((n) => n.id === MISSING)!;
+
+    expect(nodeA.refs).to.eql([B]);
+    expect(nodeB.refs).to.eql([MISSING]);
+    expect(nodeMissing.refs).to.eql([]);
+
+    // User hooks see the same traversal.
+    expect(seenDocs).to.eql([A, B]);
+    expect(seenRefs[A]).to.eql([B]);
+    expect(seenRefs[B]).to.eql([MISSING]);
+
+    // Skip hook fired for the missing node.
+    const missingSkip = skips.find((e) => e.id === MISSING)!;
+    expect(missingSkip.reason).to.eql('not-found');
+
+    // Type shape still good.
+    expectTypeOf(res.nodes).toEqualTypeOf<readonly t.Graph.Dag.Node<Node>[]>();
+  });
 });

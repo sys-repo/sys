@@ -187,8 +187,9 @@ export namespace Graph {
     /**
      * Arguments for building a DAG via the walker.
      *
-     * This is essentially `Graph.WalkArgs<T>` with the callbacks removed,
-     * plus a small option to decide whether to retain skipped nodes.
+     * Based on `Graph.WalkArgs<T>`, but:
+     * - `onDoc` / `onSkip` / `onRefs` are optional and will be invoked
+     *   in addition to the DAG accumulator.
      */
     export type BuildArgs<T extends O = O> = Omit<
       Graph.WalkArgs<T>,
@@ -201,6 +202,13 @@ export namespace Graph {
        * Default: false.
        */
       readonly includeSkipped?: boolean;
+
+      /**
+       * Optional user hooks, invoked alongside the DAG accumulator.
+       */
+      readonly onDoc?: Graph.WalkArgs<T>['onDoc'];
+      readonly onSkip?: Graph.WalkArgs<T>['onSkip'];
+      readonly onRefs?: Graph.WalkArgs<T>['onRefs'];
     };
 
     /**

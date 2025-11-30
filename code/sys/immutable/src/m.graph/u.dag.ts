@@ -16,7 +16,13 @@ type MutableNode<T extends O = O> = {
 async function buildDag<T extends O = O>(
   args: t.Graph.Dag.BuildArgs<T>,
 ): Promise<t.Graph.Dag.Result<T>> {
-  const { includeSkipped = false, ...rest } = args;
+  const {
+    includeSkipped = false,
+    onDoc: userOnDoc,
+    onSkip: userOnSkip,
+    onRefs: userOnRefs,
+    ...rest
+  } = args;
 
   const byId = new Map<t.StringId, MutableNode<T>>();
   const edges: t.Graph.Dag.Edge[] = [];
@@ -32,23 +38,35 @@ async function buildDag<T extends O = O>(
     return node;
   };
 
-  const onDoc: t.Graph.WalkArgs<T>['onDoc'] = ({ id, depth, doc }) => {
+  const onDoc: t.Graph.WalkArgs<T>['onDoc'] = async (e) => {
+    const { id, depth, doc } = e;
     const node = ensureMutable(id, depth);
     node.doc = doc;
+    if (userOnDoc) {
+      await userOnDoc(e);
+    }
   };
 
-  const onSkip: t.Graph.WalkArgs<T>['onSkip'] = ({ id, depth, reason }) => {
-    if (!includeSkipped) return;
-    if (reason === 'already-processed') return;
-    const node = ensureMutable(id, depth);
-    node.reason = reason;
+  const onSkip: t.Graph.WalkArgs<T>['onSkip'] = (e) => {
+    const { id, depth, reason } = e;
+    if (includeSkipped && reason !== 'already-processed') {
+      const node = ensureMutable(id, depth);
+      node.reason = reason;
+    }
+    if (userOnSkip) {
+      userOnSkip(e);
+    }
   };
 
-  const onRefs: t.Graph.WalkArgs<T>['onRefs'] = ({ id, depth, refs }) => {
+  const onRefs: t.Graph.WalkArgs<T>['onRefs'] = (e) => {
+    const { id, depth, refs } = e;
     const node = ensureMutable(id, depth);
     node.refs = [...refs];
     for (const to of refs) {
       edges.push({ from: id, to });
+    }
+    if (userOnRefs) {
+      userOnRefs(e);
     }
   };
 
