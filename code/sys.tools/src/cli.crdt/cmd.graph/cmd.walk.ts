@@ -1,14 +1,19 @@
 import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
 
-import { type t, Cli, Crdt, D, Obj, Str, Time } from '../common.ts';
+import { type t, Cli, Crdt, D, Str, Time } from '../common.ts';
+import { makeDiscoverRefs } from './u.discoverRefs.ts';
 import { Fmt } from './u.fmt.ts';
 import { loadDocumentHook } from './u.hook.ts';
-import { makeDiscoverRefs } from './u.discoverRefs.ts';
 
 type O = Record<string, unknown>;
 type Client = t.Crdt.Cmd.Client;
 
-export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id, path: t.ObjectPath) {
+export async function walkDocumentGraph(
+  cwd: t.StringDir,
+  root: t.Crdt.Id,
+  path: t.ObjectPath,
+  onDoc?: t.DocumentGraphHook,
+) {
   const port = D.port.repo;
   const cmd = (await RepoProcess.tryClient(port))!;
   if (!cmd) return;
@@ -17,9 +22,11 @@ export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id, path:
   const skipped: t.Crdt.Graph.WalkSkipArgs[] = [];
   const processed: t.Crdt.Id[] = [];
 
-  const hookModule = await loadDocumentHook(cwd);
-  const onDocHook = hookModule?.onDoc;
   const hookLog: t.DocumentGraphHookLog[] = [];
+  const hookModule = await loadDocumentHook(cwd);
+  const hooks: t.DocumentGraphHook[] = [];
+  if (onDoc) hooks.push(onDoc);
+  if (hookModule?.onDoc) hooks.push(hookModule.onDoc);
 
   /**
    * Process (walk the graph)
@@ -40,19 +47,22 @@ export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id, path:
     };
 
     const onDoc = async (e: t.Crdt.Graph.WalkDocArgs) => {
-      if (!onDocHook) return;
+      if (hooks.length === 0) return;
       const { id, depth } = e;
-      const log = Str.builder();
-      hookLog.push({ id, depth, log });
-      await onDocHook({
-        cmd,
-        root,
-        id,
-        doc: e.doc,
-        depth,
-        is: { root: id === root },
-        log: (...msg) => log.line(String(msg.join(' '))),
-      });
+
+      for (const hook of hooks) {
+        const log = Str.builder();
+        hookLog.push({ id, depth, log });
+        await hook({
+          cmd,
+          root,
+          id,
+          doc: e.doc,
+          depth,
+          is: { root: id === root },
+          log: (...msg) => log.line(String(msg.join(' '))),
+        });
+      }
     };
 
     await Crdt.Graph.walk<O>({
