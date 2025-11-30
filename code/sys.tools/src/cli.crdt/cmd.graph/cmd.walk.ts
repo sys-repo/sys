@@ -50,6 +50,7 @@ export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id, path:
         id,
         doc: e.doc,
         depth,
+        is: { root: id === root },
         log: (...msg) => log.line(String(msg.join(' '))),
       });
     };
@@ -58,10 +59,10 @@ export async function walkDocumentGraph(cwd: t.StringDir, root: t.Crdt.Id, path:
       id: root,
       processed,
       load,
-      onDoc,
-      onSkip: (e) => skipped.push(e),
-      onRefs: (e) => {},
       discoverRefs: makeDiscoverRefs(path),
+      onRefs: (e) => {},
+      onSkip: (e) => skipped.push(e),
+      onDoc,
     });
   }
 

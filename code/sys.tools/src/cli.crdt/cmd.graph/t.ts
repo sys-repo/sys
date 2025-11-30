@@ -33,6 +33,7 @@ export type DocumentGraphHookCtx<T extends O = O> = {
   readonly id: t.Crdt.Id;
   readonly doc: t.ImmutableSnapshot<T>;
   readonly depth: number;
+  readonly is: { root: boolean };
   log(...msg: (string | number)[]): void;
 };
 
