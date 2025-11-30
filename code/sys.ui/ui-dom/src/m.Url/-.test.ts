@@ -20,9 +20,8 @@ describe('Url', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   describe('Url.bindToWindow', () => {
     it('has the expected signature', () => {
-      expectTypeOf(Url.bindToWindow).toEqualTypeOf<
-        (ref: t.UrlRef, options?: t.DomUrlBindOptions) => t.DomUrlBinding
-      >();
+      type T = (ref: t.UrlRef, options?: t.DomUrlBindOptions) => t.DomUrlBinding;
+      expectTypeOf(Url.bindToWindow).toEqualTypeOf<T>();
     });
 
     it('mirrors UrlRef changes into window.location (replace mode, same-origin)', () => {

@@ -10,7 +10,7 @@ export type EnvLib = Readonly<{
   load(): Promise<Env>;
 
   /** Initializes for known environments (eg. "VSCode"). */
-  init(): Promise<void>;
+  init(opts?: { silent?: boolean }): Promise<void>;
 }>;
 
 /**

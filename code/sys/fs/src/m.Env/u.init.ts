@@ -1,7 +1,7 @@
 import { type t, c } from './common.ts';
 import { Is } from './m.Is.ts';
 
-export const init: t.EnvLib['init'] = async () => {
+export const init: t.EnvLib['init'] = async (opts = {}) => {
   const { Fs } = await import('@sys/fs');
   let added = false;
 
@@ -26,7 +26,7 @@ export const init: t.EnvLib['init'] = async () => {
     }
   }
 
-  if (!added) {
-    console.info(c.gray(`No environment templates added.`));
+  if (!added && !opts.silent) {
+    console.info(c.italic(c.gray(`No environment templates added.`)));
   }
 };
