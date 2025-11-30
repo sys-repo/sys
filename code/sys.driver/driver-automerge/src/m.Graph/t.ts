@@ -28,7 +28,7 @@ export type CrdtGraphLib = {
   readonly Dag: {
     build: CrdtGraphDag;
     index: t.Graph.Dag.Index;
-    forEach: t.Graph.Dag.ForEach;
+    forEach: t.Graph.Dag.ForEachSync;
     forEachAsync: t.Graph.Dag.ForEachAsync;
   };
 
