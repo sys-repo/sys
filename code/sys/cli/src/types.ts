@@ -1,4 +1,4 @@
 /**
  * @module types
  */
-export type * from './m.Cli/t.ts';
+export type * from './m.cli/t.ts';
