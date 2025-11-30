@@ -64,7 +64,7 @@ groups:
     - import: npm:rollup-plugin-visualizer@6.0.5
 
   dev/tools:
-    - import: npm:prettier@3.7.2
+    - import: npm:prettier@3.7.3
 
   ui/react:
     - import: npm:react@19.2.0
