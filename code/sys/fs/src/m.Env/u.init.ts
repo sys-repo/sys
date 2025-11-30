@@ -22,7 +22,7 @@ export const init: t.EnvLib['init'] = async (opts = {}) => {
       };
       await Fs.writeJson(path, settings);
       added = true;
-      console.info(c.gray(`Added: ${c.cyan(pathname)}`));
+      if (!opts.silent) console.info(c.gray(`Added: ${c.cyan(pathname)}`));
     }
   }
 
