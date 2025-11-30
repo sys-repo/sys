@@ -1,7 +1,9 @@
-import type { t } from './common.ts';
-import { walk } from './u.walk.ts';
-import { defaultDiscoverRefs as discoverRefs } from './u.defaultDiscoverRefs.ts';
+import { type t, Graph } from './common.ts';
 import { build } from './u.dag.ts';
+import { defaultDiscoverRefs as discoverRefs } from './u.defaultDiscoverRefs.ts';
+import { walk } from './u.walk.ts';
+
+const { index, forEach, forEachAsync } = Graph.Dag;
 
 /**
  * CRDT Graph Utilities
@@ -9,6 +11,6 @@ import { build } from './u.dag.ts';
  */
 export const CrdtGraph: t.CrdtGraphLib = {
   default: { discoverRefs },
-  Dag: { build },
+  Dag: { build, index, forEach, forEachAsync },
   walk,
 };

@@ -25,7 +25,12 @@ export type CrdtGraphLib = {
    * - `index`: derive a fast id → node lookup map.
    * - `forEach`: iterate nodes in the stored order.
    */
-  readonly Dag: { build: CrdtGraphDag };
+  readonly Dag: {
+    build: CrdtGraphDag;
+    index: t.Graph.Dag.Index;
+    forEach: t.Graph.Dag.ForEach;
+    forEachAsync: t.Graph.Dag.ForEachAsync;
+  };
 
   /**
    * Default helpers (e.g. CRDT-flavoured outbound-reference discovery).
