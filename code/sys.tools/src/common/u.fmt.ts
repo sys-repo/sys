@@ -70,15 +70,19 @@ export const Fmt = {
       .toString();
   },
 
-  bytes(bytes: t.NumberBytes, warnAt?: t.NumberBytes) {
-    const s = Str.bytes(bytes);
-    if (warnAt === undefined) return s;
-    return bytes > warnAt ? c.yellow(s) : s;
-  },
-
-  number(value: number, warnAt?: number): string {
-    const s = value.toLocaleString();
+  /**
+   * Generic number formatter with optional warning color.
+   */
+  number(value: number, warnAt?: number, fmt?: (n: number) => string): string {
+    const s = fmt ? fmt(value) : value.toLocaleString();
     if (warnAt === undefined) return s;
     return value > warnAt ? c.yellow(s) : s;
+  },
+
+  /**
+   * Formats bytes using Str.bytes and optional warning.
+   */
+  bytes(bytes: t.NumberBytes, warnAt?: t.NumberBytes): string {
+    return Fmt.number(bytes, warnAt, Str.bytes);
   },
 } as const;
