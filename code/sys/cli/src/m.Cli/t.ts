@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  */
 export type * from './t.lib.ts';
 export type * from './t/t.format.ts';
+export type * from './t/t.screen.ts';
 export type * from './t/t.keyboard.ts';
 export type * from './t/t.prompt.ts';
 export type * from './t/t.spinner.ts';
@@ -27,10 +28,4 @@ export type CliKeepAliveOptions = {
    * Defaults to 0 (success).
    */
   readonly exitCode?: number;
-};
-
-/** Current terminal dimensions in character cells. */
-export type CliSize = {
-  readonly width: number;
-  readonly height: number;
 };

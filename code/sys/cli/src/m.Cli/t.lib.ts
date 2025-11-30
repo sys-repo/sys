@@ -26,6 +26,9 @@ export type CliLib = {
   /** Index of input prompts */
   readonly Prompt: t.CliPromptLib;
 
+  /** Tools for working with a terminal screen. */
+  readonly Screen: t.CliScreenLib;
+
   /** Parse command-line argments into an object (argv). */
   args: ArgsLib['parse'];
 
@@ -57,9 +60,4 @@ export type CliLib = {
    * disposal, then exits the process with the given exit code.
    */
   keepAlive: (options?: t.CliKeepAliveOptions) => Promise<never>;
-
-  /**
-   * Measure the terminal’s current width and height in character cells.
-   */
-  size(): t.CliSize;
 };

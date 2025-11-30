@@ -1,6 +1,6 @@
 import { type t, Is } from './common.ts';
 
-export const size: t.CliLib['size'] = () => {
+export const size: t.CliScreenLib['size'] = () => {
   const fallback: t.CliSize = { width: 80, height: 24 };
 
   // Deno (preferred):

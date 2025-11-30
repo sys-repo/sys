@@ -56,7 +56,7 @@ function printScreen(args: {
   const yaml = Is.str(subject) ? subject : (Yaml.stringify(subject).data ?? '');
 
   // Terminal size
-  const { width, height } = Cli.size();
+  const { width, height } = Cli.Screen.size();
   const maxWidth = Math.min(80, width);
 
   // Reserve rows for the table + breathing room
