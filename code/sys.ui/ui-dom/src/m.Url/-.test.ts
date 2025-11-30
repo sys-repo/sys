@@ -4,7 +4,7 @@ import { Url as UrlBase } from '@sys/immutable/url';
 import { type t, DomMock, describe, expect, expectTypeOf, it } from '../-test.ts';
 import { Url } from './mod.ts';
 
-describe('Url', () => {
+describe('Url', { sanitizeResources: false, sanitizeOps: false }, () => {
   DomMock.polyfill();
 
   it('API', async () => {
