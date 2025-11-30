@@ -26,5 +26,5 @@ async function _forEachAsync<T extends O = O>(
   }
 }
 
-export const forEach: t.Graph.Dag.ForEach = _forEach;
+export const forEach: t.Graph.Dag.ForEachSync = _forEach;
 export const forEachAsync: t.Graph.Dag.ForEachAsync = _forEachAsync;
