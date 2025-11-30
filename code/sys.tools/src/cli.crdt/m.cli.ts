@@ -81,12 +81,12 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         const B = (await Prompt.Select.prompt<t.CrdtCommand>({
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
           options: [
-            { name: '  🐷', value: 'tmp:🐷' },
+            // { name: '  🐷', value: 'tmp:🐷' },
             { name: '  Snapshot', value: 'snapshot' },
-            { name: '  Walk Document Graph', value: 'doc:info-graph' },
-            { name: '  Yaml Viewer', value: 'doc:viewer:yaml' },
-            { name: '  Print Config', value: 'doc:config:print' },
-            // { name: ' Filter Tasks', value: 'filter:tasks' },
+            { name: '  Walk Document Graph → Stats', value: 'doc:graph' },
+            { name: '  Lint Document Graph', value: 'doc:lint' },
+            { name: '  View Yaml', value: 'doc:viewer:yaml' },
+            { name: '  Print Configfile', value: 'doc:config:print' },
             { name: c.gray(c.dim(' (forget)')), value: 'doc:remove' },
           ],
         })) as t.CrdtCommand;
@@ -96,19 +96,26 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           return done(0);
         }
 
-        if (B === 'doc:info-graph') {
+        /**
+         * TODO 🐷 - make path configurable (via prompt)
+         */
+        const yamlPath = ['slug'];
+
+        if (B === 'doc:graph') {
           const m = await import('./cmd.graph/mod.ts');
-          await m.walkDocumentGraph(cwd, id, ['slug']);
+          await m.walkDocumentGraph(cwd, id, yamlPath);
           return done(0);
         }
 
         if (B === 'doc:viewer:yaml') {
           const m = await import('./cmds/cmd.yaml-viewer.ts');
-          /**
-           * TODO 🐷 prompt for Path - store on config-doc
-           */
-          const path = ['slug']; // TEMP 🐷
-          await m.startYamlViewer(cwd, id, path);
+          await m.startYamlViewer(cwd, id, yamlPath);
+          return done(0);
+        }
+
+        if (B === 'doc:lint') {
+          const m = await import('./cmds/cmd.lint.ts');
+          await m.lintDocumentGraph(cwd, id, yamlPath);
           return done(0);
         }
 
