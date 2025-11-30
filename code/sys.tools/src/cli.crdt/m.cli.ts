@@ -1,7 +1,7 @@
 import { type t, Args, c, Crdt, D, Fs, Is, Prompt } from './common.ts';
 
 import { tmp } from './-u.tmp.ts';
-import { RepoProcess } from './cmd.daemon.repo/mod.ts';
+import { RepoProcess } from './cmd.repo.daemon/mod.ts';
 import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';

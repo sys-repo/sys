@@ -1,5 +1,5 @@
 import { type t, Is, c, Str, Cli, D, Time, Yaml, Obj } from '../common.ts';
-import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
+import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
 type O = Record<string, unknown>;

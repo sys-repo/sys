@@ -1,4 +1,4 @@
-import { RepoProcess } from '../cmd.daemon.repo/mod.ts';
+import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 
 import { type t, Cli, Crdt, D, Str, Time } from '../common.ts';
 import { makeDiscoverRefs } from './u.discoverRefs.ts';

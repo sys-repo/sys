@@ -1,5 +1,5 @@
 import { type t, Str, Is, Yaml, Fs, Obj, c, Cli, Cmd, Crdt, D, Time } from './common.ts';
-import { RepoProcess } from './cmd.daemon.repo/mod.ts';
+import { RepoProcess } from './cmd.repo.daemon/mod.ts';
 
 // import { swapoutRef } from './u.patch/u.swapoutRef.ts';
 // import { normalizeAliases } from './u.patch/u.normalizeAliases.ts';
