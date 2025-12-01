@@ -20,6 +20,7 @@ export type CrdtToolsLib = {
  * The `@sys/tools/crdt` type namespace.
  */
 export namespace CrdtTool {
+  /** Command names */
   export type Command =
     | 'snapshot'
     | 'doc:add'
@@ -33,36 +34,36 @@ export namespace CrdtTool {
     | 'repo:syncserver:start'
     | 'exit'
     | 'tmp:🐷';
+
+  /**
+   * Command line arguments (argv).
+   */
+  export type CliArgs = t.ToolsCliArgs;
+
+  /**
+   * Config File
+   */
+  export type Config = t.JsonFile<ConfigDoc>;
+  export type ConfigDoc = t.JsonFileDoc & {
+    version: string;
+    docs?: ConfigDocumentEntry[];
+    repo: ConfigRepo;
+  };
+
+  /**
+   * Documents:
+   */
+  export type ConfigDocumentEntry = {
+    id: t.StringId;
+    name?: t.StringName;
+    createdAt?: t.UnixTimestamp;
+  };
+
+  /**
+   * Repositories:
+   */
+  export type ConfigRepo = { daemon: ConfigRepoDaemon };
+  export type ConfigRepoDaemon = {
+    sync: { websockets: [] };
+  };
 }
-
-/**
- * Command line arguments (argv).
- */
-export type CrdtCliArgs = t.ToolsCliArgs;
-
-/**
- * Config File
- */
-export type CrdtConfig = t.JsonFile<CrdtConfigDoc>;
-export type CrdtConfigDoc = t.JsonFileDoc & {
-  version: string;
-  docs?: t.CrdtConfigDocumentEntry[];
-  repo: t.CrdtConfigRepo;
-};
-
-/**
- * Documents:
- */
-export type CrdtConfigDocumentEntry = {
-  id: t.StringId;
-  name?: t.StringName;
-  createdAt?: t.UnixTimestamp;
-};
-
-/**
- * Repositories:
- */
-export type CrdtConfigRepo = { daemon: CrdtConfigRepoDaemon };
-export type CrdtConfigRepoDaemon = {
-  sync: { websockets: [] };
-};

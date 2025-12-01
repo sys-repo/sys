@@ -22,7 +22,7 @@ export const Fmt = {
     return `crdt:${pretty}`;
   },
 
-  printDocConfig(config: t.CrdtConfigDoc, doc: t.Crdt.Id) {
+  printDocConfig(config: t.CrdtTool.ConfigDoc, doc: t.Crdt.Id) {
     const str = Str.builder();
     const uri = Fmt.prettyUri(doc);
     const item = (config.docs ?? []).find((d) => d.id === doc);

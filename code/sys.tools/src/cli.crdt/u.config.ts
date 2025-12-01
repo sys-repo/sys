@@ -2,7 +2,7 @@ import { type t, D, Is, Time, getConfig, Obj } from './common.ts';
 
 export { getConfig };
 
-export async function normalize(config: t.CrdtConfig) {
+export async function normalize(config: t.CrdtTool.Config) {
   const current = config.current;
   /**
    * Ensure all items have a `createdAt` timestamp.

@@ -29,7 +29,7 @@ export const D = {
       '.meta': { createdAt: 0 },
       version: '1.0.0',
       repo: { daemon: { sync: { websockets: [] } } },
-    } satisfies t.CrdtConfigDoc,
+    } satisfies t.CrdtTool.ConfigDoc,
   },
   Hook: { filename: 'hook.ts' },
 } as const;

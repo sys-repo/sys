@@ -8,7 +8,7 @@ describe('cli.crdt', () => {
 
   describe('config file', () => {
     it('singleton JsonFile for the terminal/working directory', async () => {
-      type Doc = t.CrdtConfigDoc;
+      type Doc = t.CrdtTool.ConfigDoc;
 
       const dir = Fs.join(root, slug());
       const path = Fs.join(dir, D.Config.filename);
