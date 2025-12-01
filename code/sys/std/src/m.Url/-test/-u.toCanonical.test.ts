@@ -35,8 +35,13 @@ describe('Url.toCanonical', () => {
     const input = 'not a url';
     const res = Url.toCanonical(input);
     expect(res.ok).to.eql(false);
-    // optional, if parse keeps the raw input:
     expect(res.raw).to.eql(input);
+  });
+
+  it('returns a failed HttpUrl when input is undefined', () => {
+    const res = Url.toCanonical(undefined);
+    expect(res.ok).to.eql(false);
+    expect(res.raw).to.eql('');
   });
 
   it('accepts a URL instance and normalizes it the same way', () => {
@@ -46,7 +51,14 @@ describe('Url.toCanonical', () => {
     expect(res.href).to.eql('https://example.com/foo/module.bar/dist.json');
   });
 
-  it('is idempotent when given an already canonical URL', () => {
+  it('accepts a HttpUrl instance and canonicalizes it', () => {
+    const http = Url.parse('https://example.com/a/b/c?x=1#z');
+    const res = Url.toCanonical(http);
+    expect(res.ok).to.eql(true);
+    expect(res.href).to.eql('https://example.com/a/b/c');
+  });
+
+  it('is idempotent when given an already canonical URL string', () => {
     const input = 'https://example.com/foo/module.bar/dist.json';
     const once = Url.toCanonical(input);
     const twice = Url.toCanonical(once.href);
@@ -56,5 +68,45 @@ describe('Url.toCanonical', () => {
 
     expect(twice.ok).to.eql(true);
     expect(twice.href).to.eql(once.href);
+  });
+
+  it('is idempotent for HttpUrl input', () => {
+    const http = Url.parse('https://example.com/alpha/beta');
+    const once = Url.toCanonical(http);
+    const twice = Url.toCanonical(once);
+
+    expect(once.ok).to.eql(true);
+    expect(twice.ok).to.eql(true);
+    expect(once.href).to.eql('https://example.com/alpha/beta');
+    expect(twice.href).to.eql(once.href);
+  });
+
+  it('handles dot-segments using native URL normalization', () => {
+    const input = 'https://example.com/a/b/../c/./d?x=1';
+    const res = Url.toCanonical(input);
+    // native URL normalizes this to /a/c/d
+    expect(res.ok).to.eql(true);
+    expect(res.href).to.eql('https://example.com/a/c/d');
+  });
+
+  it('preserves percent-encoding in paths', () => {
+    const input = 'https://example.com/a%20b/c%3Ad?x=1#hash';
+    const res = Url.toCanonical(input);
+    expect(res.ok).to.eql(true);
+    expect(res.href).to.eql('https://example.com/a%20b/c%3Ad');
+  });
+
+  it('handles IPv4 hosts correctly', () => {
+    const input = 'http://127.0.0.1:8080/foo/bar?x=1#frag';
+    const res = Url.toCanonical(input);
+    expect(res.ok).to.eql(true);
+    expect(res.href).to.eql('http://127.0.0.1:8080/foo/bar');
+  });
+
+  it('handles IPv6 hosts correctly', () => {
+    const input = 'http://[2001:db8::1]:9090/a/b?x=1#frag';
+    const res = Url.toCanonical(input);
+    expect(res.ok).to.eql(true);
+    expect(res.href).to.eql('http://[2001:db8::1]:9090/a/b');
   });
 });

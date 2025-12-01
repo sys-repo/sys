@@ -11,7 +11,7 @@ export type UrlLib = {
    * Return the canonical (origin + pathname) form of a URL.
    * Removes query string and hash fragment.
    */
-  toCanonical(input: string | URL | t.HttpUrl): t.HttpUrl;
+  toCanonical(input?: string | URL | t.HttpUrl): t.HttpUrl;
 };
 
 /**
