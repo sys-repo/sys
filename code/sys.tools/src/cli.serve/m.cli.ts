@@ -2,7 +2,7 @@ import { type t, Args, c, Cli, D, Fs, getConfig, Is, Prompt } from './common.ts'
 import { normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddServeLocation, promptRemoveDocument } from './u.prompt.ts';
-import { startServing } from './u.serve.ts';
+import { startServing } from './cmd.serve/mod.ts';
 
 /**
  * Main entry:

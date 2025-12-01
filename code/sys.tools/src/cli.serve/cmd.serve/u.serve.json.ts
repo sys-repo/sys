@@ -1,4 +1,4 @@
-import { type t, Fs, Hash, Pkg, pkg } from './common.ts';
+import { type t, Fs, Hash, Pkg, pkg } from '../common.ts';
 import { makeFilter } from './u.serve.filter.ts';
 
 type Args = {

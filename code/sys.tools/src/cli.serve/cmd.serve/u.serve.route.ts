@@ -1,5 +1,5 @@
-import { type t, Fs, Str } from './common.ts';
-import { Fmt } from './u.fmt.ts';
+import { type t, Fs, Str } from '../common.ts';
+import { Fmt } from '../u.fmt.ts';
 import { Mime } from './u.mime.ts';
 import { serveJsonView } from './u.serve.json.ts';
 import { makeFilter } from './u.serve.filter.ts';

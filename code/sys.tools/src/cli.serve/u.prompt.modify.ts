@@ -1,5 +1,5 @@
 import { type t, c, Fs, getConfig, Prompt, Time } from './common.ts';
-import { Mime } from './u.mime.ts';
+import { Mime } from './cmd.serve/mod.ts';
 
 /**
  * Add a document to the config.

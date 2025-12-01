@@ -1,5 +1,5 @@
 import { type t, describe, it, expect, expectTypeOf } from '../../-test.ts';
-import { Mime } from '../u.mime.ts';
+import { Mime } from '../cmd.serve/mod.ts';
 
 describe('MIME-types', () => {
   const as = <X>() => null as any as X;

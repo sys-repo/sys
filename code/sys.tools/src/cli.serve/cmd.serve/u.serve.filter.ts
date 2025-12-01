@@ -1,5 +1,5 @@
-import { type t, Path } from './common.ts';
-import { Mime } from './u.mime.ts';
+import { type t, Path } from '../common.ts';
+import { Mime } from '../cmd.serve/mod.ts';
 
 type F = (path: t.StringPath) => boolean;
 

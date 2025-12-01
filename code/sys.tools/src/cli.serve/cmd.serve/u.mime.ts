@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 export const Mime = {
   images: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml', 'image/x-icon'],
