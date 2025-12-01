@@ -1,6 +1,7 @@
-import { type t, Fs, JsonFile } from '../common.ts';
+import { type t } from '../common.ts';
 
 export * from '../common.ts';
+export { getConfig } from './u.configfile.ts';
 
 /**
  * Libs:
@@ -32,12 +33,3 @@ export const D = {
   },
   Hook: { filename: 'hook.ts' },
 } as const;
-
-/**
- * Get or create the `crdt.config.json` file.
- */
-export async function getConfig(dir: t.StringDir): Promise<t.CrdtConfig> {
-  const path = Fs.join(dir, D.Config.filename);
-  const doc = JsonFile.Singleton.get<t.CrdtConfigDoc>(path, D.Config.doc, { touch: true });
-  return doc;
-}

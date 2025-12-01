@@ -2,6 +2,7 @@ import { Fs } from '@sys/fs';
 
 console.info('🐷-tmp');
 // await clear('./.tmp');
+await Fs.remove('./.tmp/hook.ts');
 
 /**
  * Helpers:

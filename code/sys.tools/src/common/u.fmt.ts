@@ -71,6 +71,19 @@ export const Fmt = {
   },
 
   /**
+   * Common prerequisites:
+   */
+  Prereqs: {
+    folderNotConfigured(cwd: t.StringDir, toolname: string) {
+      const str = Str.builder()
+        .line()
+        .line(c.yellow(c.italic(`  Folder is not yet configured for ${c.white(toolname)}.`)))
+        .line();
+      return String(str);
+    },
+  },
+
+  /**
    * Generic number formatter with optional warning color.
    */
   number(value: number, warnAt?: number, fmt?: (n: number) => string): string {
