@@ -6,6 +6,12 @@ import type { t } from './common.ts';
 export type UrlLib = {
   /** Generator function for a new URL helpers instance. */
   parse(base: t.StringUrl | Deno.NetAddr | undefined): t.HttpUrl;
+
+  /**
+   * Return the canonical (origin + pathname) form of a URL.
+   * Removes query string and hash fragment.
+   */
+  toCanonical(input: string | URL | t.HttpUrl): t.HttpUrl;
 };
 
 /**
@@ -22,7 +28,7 @@ export type HttpUrl = {
   readonly raw: string;
 
   /** The URL href. */
-  readonly href: string;
+  readonly href: t.StringUrl;
 
   /** Join parts of a URL path. */
   join(...parts: string[]): string;

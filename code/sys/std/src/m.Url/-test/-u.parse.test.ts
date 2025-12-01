@@ -1,13 +1,8 @@
-import { describe, expect, it } from '../-test.ts';
-import { Testing } from '../m.Testing.Server/mod.ts';
-import { Url } from './mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Testing } from '@sys/std/testing/server';
+import { Url } from '../mod.ts';
 
-describe('Url', () => {
-  it('API', async () => {
-    const m = await import('@sys/std/url');
-    expect(m.Url).to.equal(Url);
-  });
-
+describe('Url.parse', () => {
   describe('parse', () => {
     it('parse: factory methods', () => {
       const raw = 'https://foo.com/v1';
@@ -64,7 +59,7 @@ describe('Url', () => {
     });
   });
 
-  it('Url.join', () => {
+  it('url.join', () => {
     const url = Url.parse('https://foo.com/v1');
     expect(url.join('foo')).to.eql('https://foo.com/v1/foo');
     expect(url.join('/foo')).to.eql('https://foo.com/v1/foo');
@@ -73,7 +68,7 @@ describe('Url', () => {
     expect(url.join('foo/bar?s=123')).to.eql('https://foo.com/v1/foo/bar?s=123');
   });
 
-  it('Url.toObject', () => {
+  it('url.toObject', () => {
     const href = 'https://foo.com/v1?d=true#123';
     const url = Url.parse(href);
     expect(url.toURL().href).to.eql(href);
