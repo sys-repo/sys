@@ -12,7 +12,12 @@ export type ServeToolsLib = {
  * The `@sys/tools/serve` type namespace.
  */
 export namespace ServeTool {
-  export type Command = 'modify:add' | 'modify:remove' | 'serve:start' | 'exit';
+  export type Command =
+    | 'modify:add'
+    | 'modify:remove'
+    | 'serve:start'
+    | 'serve:pull-bundle'
+    | 'exit';
 
   /** Alternative view formats for rendering a route. */
   export type RouteView = 'json';

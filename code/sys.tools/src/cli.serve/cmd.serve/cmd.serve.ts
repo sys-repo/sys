@@ -2,7 +2,10 @@ import { type t, HttpServer, Net } from '../common.ts';
 import { Mime } from './u.mime.ts';
 import { route } from './u.serve.route.ts';
 
-export async function startServing(location: t.ServeTool.DirConfig): Promise<void> {
+export async function startServing(
+  cwd: t.StringDir,
+  location: t.ServeTool.DirConfig,
+): Promise<void> {
   const { dir, contentTypes } = location;
 
   /**

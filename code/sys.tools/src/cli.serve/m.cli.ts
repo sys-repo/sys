@@ -39,7 +39,9 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
 async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   const config = await getConfig(cwd);
   await normalize(config);
+
   const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
+  const opt = (name: string, value: C) => ({ name, value });
 
   const listing = (config.current.dirs ?? []).map((item, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
@@ -47,13 +49,17 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     return { name, value: item.dir };
   });
 
-  const opt = (name: string, value: C) => ({ name, value });
-
   console.info();
   const A = (await Prompt.Select.prompt<t.ServeTool.Command>({
     message: 'Action:',
-    options: [{ name: '(+) serve from new <directory>', value: 'modify:add' }, ...listing],
+    options: [
+      opt('(+) serve from new <directory>', 'modify:add'),
+      ...listing,
+      opt(c.dim(c.gray('(exit)')), 'exit'),
+    ],
   })) as t.ServeTool.Command;
+
+  if (A === 'exit') return done();
 
   if (A === 'modify:add') {
     await promptAddServeLocation(cwd);
@@ -80,19 +86,28 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     const B = (await Prompt.Select.prompt<t.ServeTool.Command>({
       message: `With: ${c.gray(location.name)}`,
       options: [
-        { name: ' Start HTTP server', value: 'serve:start' },
-        { name: '(forget)', value: 'modify:remove' },
+        opt(' Start http server', 'serve:start'),
+        opt(' Pull bundle', 'serve:pull-bundle'),
+        opt(c.dim(c.gray('(forget)')), 'modify:remove'),
       ],
     })) as t.ServeTool.Command;
 
     if (B === 'modify:remove') {
       await promptRemoveDocument(cwd, location);
+      return done(0);
     }
 
     if (B === 'serve:start') {
-      await startServing(location);
+      await startServing(cwd, location);
+      return done(0);
+    }
+
+    if (B === 'serve:pull-bundle') {
+      const m = (await import('./cmd.pull/mod.ts')) satisfies typeof import('./cmd.pull/mod.ts');
+      await m.pullBundle(cwd, location);
+      return done(0);
     }
   }
 
-  return done();
+  return done(0);
 }
