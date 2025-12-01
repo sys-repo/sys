@@ -12,7 +12,7 @@ type C = t.ServeTool.Command;
 export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
   cwd = cwd ?? Fs.cwd('terminal');
-  const args = Args.parse<t.ServeCliArgs>(argv, { alias: { h: 'help' } });
+  const args = Args.parse<t.ServeTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
   /**

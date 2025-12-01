@@ -7,7 +7,7 @@ export const Mime = {
   code: ['application/javascript', 'application/wasm'],
   text: ['text/plain', 'text/html'],
 
-  get groups(): Record<t.MimeGroup, readonly t.MimeType[]> {
+  get groups(): Record<t.ServeTool.MimeGroup, readonly t.ServeTool.MimeType[]> {
     return {
       images: Mime.images,
       videos: Mime.videos,
@@ -17,8 +17,8 @@ export const Mime = {
     };
   },
 
-  get extensionMap(): Record<string, t.MimeType> {
-    const ext: Record<t.MimeType, readonly string[]> = {
+  get extensionMap(): Record<string, t.ServeTool.MimeType> {
+    const ext: Record<t.ServeTool.MimeType, readonly string[]> = {
       // Images
       'image/png': ['png'],
       'image/jpeg': ['jpg', 'jpeg'],
@@ -47,6 +47,6 @@ export const Mime = {
     const entries = Object.entries(ext);
     return Object.fromEntries(
       entries.flatMap(([mime, exts]) => exts.map((ext) => [ext, mime])),
-    ) as Record<string, t.MimeType>;
+    ) as Record<string, t.ServeTool.MimeType>;
   },
 } as const;

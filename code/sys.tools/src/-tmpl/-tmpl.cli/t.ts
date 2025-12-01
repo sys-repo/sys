@@ -1,20 +1,6 @@
 import type { t } from './common.ts';
 
 /**
- * The __NAME__ type namespace.
- */
-export namespace __NAME__Tool {
-  export type Command =
-    | 'option-a'
-    | 'option-b'
-    | 'option-aa'
-    | 'option-ab'
-    | 'option-ba'
-    | 'option-bb'
-    | 'quit';
-}
-
-/**
  * CLI helpers for working with __NAME__.
  */
 export type __NAME__ToolsLib = {
@@ -23,14 +9,25 @@ export type __NAME__ToolsLib = {
 };
 
 /**
- * Command line arguments (argv).
+ * The __NAME__ type namespace.
  */
-export type __NAME__CliArgs = t.ToolsCliArgs;
+export namespace __NAME__Tool {
+  /** Command names */
+  export type Command =
+    | 'option-a'
+    | 'option-b'
+    | 'option-aa'
+    | 'option-ab'
+    | 'option-ba'
+    | 'option-bb'
+    | 'quit';
 
-/**
- * Config File
- */
-export type __NAME__Config = t.JsonFile<__NAME__ConfigDoc>;
-export type __NAME__ConfigDoc = t.JsonFileDoc & {
-  name: string;
-};
+  /** Command line arguments (argv). */
+  export type CliArgs = t.ToolsCliArgs;
+
+  /** Configuration File */
+  export type Config = t.JsonFile<__NAME__Tool.ConfigDoc>;
+  export type ConfigDoc = t.JsonFileDoc & {
+    name: string;
+  };
+}

@@ -8,7 +8,7 @@ describe('tool: __NAME__', () => {
 
   describe('config file', () => {
     it('singleton JsonFile for the terminal/working directory', async () => {
-      type Doc = t.__NAME__ConfigDoc;
+      type Doc = t.__NAME__Tool.ConfigDoc;
 
       const dir = Fs.join(root, slug());
       const path = Fs.join(dir, D.Config.filename);

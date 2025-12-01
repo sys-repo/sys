@@ -9,32 +9,31 @@ export type * from './cmd.doc.snapshot/t.ts';
 export type * from './cmd.repo.daemon/t.ts';
 
 /**
- * The `@sys/tools/crdt` type namespace.
- */
-export namespace CrdtTool {}
-
-/** The tool's commands */
-export type CrdtCommand =
-  | 'snapshot'
-  | 'doc:add'
-  | 'doc:remove'
-  | 'doc:lint'
-  | 'doc:graph'
-  | 'doc:viewer:yaml'
-  | 'doc:config:print'
-  | 'doc:tmpl:hookfile'
-  | 'repo:daemon:start'
-  | 'repo:syncserver:start'
-  | 'exit'
-  | 'tmp:🐷';
-
-/**
  * CLI helpers for working with CRDT documents.
  */
 export type CrdtToolsLib = {
   /** Run the interactive CLI flow (prompts + spinner). */
   cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 };
+
+/**
+ * The `@sys/tools/crdt` type namespace.
+ */
+export namespace CrdtTool {
+  export type Command =
+    | 'snapshot'
+    | 'doc:add'
+    | 'doc:remove'
+    | 'doc:lint'
+    | 'doc:graph'
+    | 'doc:viewer:yaml'
+    | 'doc:config:print'
+    | 'doc:tmpl:hookfile'
+    | 'repo:daemon:start'
+    | 'repo:syncserver:start'
+    | 'exit'
+    | 'tmp:🐷';
+}
 
 /**
  * Command line arguments (argv).

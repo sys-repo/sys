@@ -7,7 +7,7 @@ describe('serve route', () => {
     const dir = await Fixture.makeTempDir();
     await Fixture.writeFile(dir, 'hello.txt', 'hello world');
 
-    const contentTypes: readonly t.MimeType[] = ['text/plain'];
+    const contentTypes: readonly t.ServeTool.MimeType[] = ['text/plain'];
     const handler = route({ dir, contentTypes });
 
     const captured: { current?: FixtureCaptured } = {};
@@ -28,7 +28,7 @@ describe('serve route', () => {
   it('returns 404 for missing file', async () => {
     const dir = await Fixture.makeTempDir();
 
-    const contentTypes: readonly t.MimeType[] = ['text/plain'];
+    const contentTypes: readonly t.ServeTool.MimeType[] = ['text/plain'];
     const handler = route({ dir, contentTypes });
 
     const captured: { current?: FixtureCaptured } = {};
@@ -49,7 +49,7 @@ describe('serve route', () => {
     await Fixture.writeFile(dir, 'note.txt', 'hello');
 
     // Only images are allowed, but we request a .txt
-    const contentTypes: readonly t.MimeType[] = ['image/png'];
+    const contentTypes: readonly t.ServeTool.MimeType[] = ['image/png'];
     const handler = route({ dir, contentTypes });
 
     const captured: { current?: FixtureCaptured } = {};

@@ -54,14 +54,14 @@ describe('MIME-types', () => {
 
     type FromExtMap = (typeof Mime.extensionMap)[string];
 
-    expectTypeOf(as<FromGroups>()).toEqualTypeOf<t.MimeType>();
-    expectTypeOf(as<FromExtMap>()).toEqualTypeOf<t.MimeType>();
+    expectTypeOf(as<FromGroups>()).toEqualTypeOf<t.ServeTool.MimeType>();
+    expectTypeOf(as<FromExtMap>()).toEqualTypeOf<t.ServeTool.MimeType>();
   });
 
   it('composes contentTypes from selected MimeGroup values (like the CLI update)', () => {
-    const selectedGroups: readonly t.MimeGroup[] = ['images', 'text'];
+    const selectedGroups: readonly t.ServeTool.MimeGroup[] = ['images', 'text'];
 
-    const types: t.MimeType[] = [];
+    const types: t.ServeTool.MimeType[] = [];
     for (const group of selectedGroups) {
       types.push(...Mime.groups[group]);
     }
@@ -77,6 +77,6 @@ describe('MIME-types', () => {
       // text:
       'text/plain',
       'text/html',
-    ] as t.MimeType[]);
+    ] as t.ServeTool.MimeType[]);
   });
 });

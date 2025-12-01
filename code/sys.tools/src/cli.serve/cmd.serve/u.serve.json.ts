@@ -3,16 +3,16 @@ import { makeFilter } from './u.serve.filter.ts';
 
 type Args = {
   stat: Deno.FileInfo;
-  mime: t.MimeType;
+  mime: t.ServeTool.MimeType;
   fsPath: t.StringPath;
   reqPath: t.StringPath;
-  allowedMimes: t.ServeMimeLookup;
+  allowedMimes: t.ServeTool.MimeLookup;
 };
 
 /**
  * Pure async helper for the JSON "view" of the serve route.
  */
-export async function serveJsonView(args: Args): Promise<t.ServeJsonViewResult> {
+export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonViewResult> {
   const { stat, mime, allowedMimes } = args;
   if (stat.isFile) {
     /**

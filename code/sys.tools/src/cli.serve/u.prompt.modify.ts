@@ -45,10 +45,10 @@ export async function promptAddServeLocation(cwd: t.StringDir) {
     },
   });
 
-  function update(location: Partial<t.ServeDirConfig>): t.ServeDirConfig {
+  function update(location: Partial<t.ServeTool.DirConfig>): t.ServeTool.DirConfig {
     location.dir = path;
-    const types: t.MimeType[] = [];
-    const groups = selectedGroups as readonly t.MimeGroup[];
+    const types: t.ServeTool.MimeType[] = [];
+    const groups = selectedGroups as readonly t.ServeTool.MimeGroup[];
 
     for (const group of groups) {
       types.push(...Mime.groups[group]);
@@ -56,7 +56,7 @@ export async function promptAddServeLocation(cwd: t.StringDir) {
     location.contentTypes = types;
     location.name = name;
 
-    return location as t.ServeDirConfig;
+    return location as t.ServeTool.DirConfig;
   }
 
   config.change((d) => {
@@ -79,7 +79,7 @@ export async function promptAddServeLocation(cwd: t.StringDir) {
 /**
  * Remove a document from the config.
  */
-export async function promptRemoveDocument(dir: t.StringDir, location: t.ServeDirConfig) {
+export async function promptRemoveDocument(dir: t.StringDir, location: t.ServeTool.DirConfig) {
   const config = await getConfig(dir);
   const ok = await Prompt.Confirm.prompt('Are you sure? Remove this directory from your config?');
   if (!ok) return;

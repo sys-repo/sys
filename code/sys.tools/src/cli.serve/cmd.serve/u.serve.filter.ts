@@ -3,7 +3,7 @@ import { Mime } from '../cmd.serve/mod.ts';
 
 type F = (path: t.StringPath) => boolean;
 
-export function makeFilter(args: { allowedMimes: t.ServeMimeLookup }): F {
+export function makeFilter(args: { allowedMimes: t.ServeTool.MimeLookup }): F {
   return (path: string) => {
     const base = Path.basename(path);
 

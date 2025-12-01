@@ -8,7 +8,7 @@ import { Fmt } from './u.fmt.ts';
 export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
   cwd = cwd ?? Fs.cwd('terminal');
-  const args = Args.parse<t.__NAME__CliArgs>(argv, { alias: { h: 'help' } });
+  const args = Args.parse<t.__NAME__Tool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
   /**

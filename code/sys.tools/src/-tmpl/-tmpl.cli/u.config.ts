@@ -2,7 +2,7 @@ import { type t, Is, getConfig } from './common.ts';
 
 export { getConfig };
 
-export async function normalize(input: t.__NAME__Config | t.StringDir) {
+export async function normalize(input: t.__NAME__Tool.Config | t.StringDir) {
   const config = Is.string(input) ? await getConfig(input) : input;
 
   /** Save if changed */
