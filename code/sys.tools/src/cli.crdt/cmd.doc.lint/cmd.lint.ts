@@ -1,10 +1,42 @@
 import { buildDocumentDAG } from '../cmd.doc.graph/mod.ts';
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
-import { type t, AliasResolver, c, Cli, D, Graph, Is, Obj, Str, Yaml } from '../common.ts';
+import {
+  type t,
+  Hash,
+  Fs,
+  AliasResolver,
+  c,
+  Cli,
+  D,
+  Graph,
+  Is,
+  Obj,
+  Str,
+  Yaml,
+} from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 
 type N = t.Graph.Dag.Node;
 type O = Record<string, unknown>;
+
+// 🌸🌸 ---------- ADDED: doc-lint-normalize-index-fs-path ----------
+function normalizeIndexFsPath(value: string): string {
+  /**
+   * CLI-only normalization for filesystem-ish paths:
+   * - strip leading "/crdt:<id>/alias/" prefix if present
+   * - collapse repeated "/" into a single "/"
+   * - if the result is "/~/foo/..." (tilde path from alias),
+   *   drop the leading "/" → "~/foo/..."
+   */
+  const withoutIndexPrefix = value.replace(/^\/?crdt:[^/]+\/alias\//, '/');
+  const collapsed = withoutIndexPrefix.replace(/\/+/g, '/');
+
+  // Preserve user-authored tilde paths (e.g. "~/Documents/...").
+  if (collapsed.startsWith('/~/')) return collapsed.slice(1);
+
+  return collapsed;
+}
+// 🌸 ---------- /ADDED ----------
 
 export async function lintDocumentGraph(cwd: t.StringDir, docid: t.Crdt.Id, path: t.ObjectPath) {
   const port = D.port.repo;
@@ -12,6 +44,19 @@ export async function lintDocumentGraph(cwd: t.StringDir, docid: t.Crdt.Id, path
   if (!cmd) return;
 
   let _total = 0;
+
+  // 🌸🌸 ---------- REFACTORED: doc-lint-video-lint-buffer ----------
+  const _videoLint: {
+    readonly nodeId: string;
+    readonly videoRaw: string;
+    readonly resolvedPath: string;
+    readonly hops: number;
+    readonly fullyResolved: boolean;
+    readonly remainingTokens: readonly string[];
+    readonly hasIndexAliasPrefix: boolean;
+  }[] = [];
+  // 🌸 ---------- /REFACTORED ----------
+
   const dag = await buildDocumentDAG(cmd, docid, path);
   const Lens = {
     yaml: Obj.Lens.at(path),
@@ -26,7 +71,7 @@ export async function lintDocumentGraph(cwd: t.StringDir, docid: t.Crdt.Id, path
       const slug = Yaml.parse<O>(yaml).data;
       return Is.record(slug) ? slug : undefined;
     },
-    parts(node: N) {
+    slugParts(node: N) {
       const slug = Resolve.slug(node);
       const alias = slug ? Lens.alias.get(slug) : undefined;
       const sequence = slug ? Lens.sequence.get(slug) : undefined;
@@ -35,112 +80,208 @@ export async function lintDocumentGraph(cwd: t.StringDir, docid: t.Crdt.Id, path
   } as const;
 
   const root = dag.nodes[0];
-  const rootAlias = Resolve.parts(root).alias;
+  const rootAlias = Resolve.slugParts(root).alias;
+
+  // 🌸🌸 ---------- ADDED: doc-lint-root-assets-path ----------
+  const rootAssetsPath =
+    Is.record(rootAlias) && Is.str((rootAlias as O)[':assets'])
+      ? String((rootAlias as O)[':assets'])
+      : undefined;
+  // 🌸 ---------- /ADDED ----------
+
+  // 🌸🌸 ---------- REFACTORED: doc-lint-alias-expand-chain ----------
+  /**
+   * Optional “index” alias resolver derived from the root document.
+   * If the root has a top-level alias table, we treat that as a second hop.
+   */
+  const indexAnalysis = Is.record(rootAlias) ? AliasResolver.analyze(rootAlias) : null;
+  const indexResolver = indexAnalysis?.resolver;
 
   /**
-   * Process the graph of odcuments
+   * For video → filesystem paths, the index key we care about is ":assets".
+   * Keys like ":core" / ":p2p" point to YAML paths, not files.
+   */
+  const ASSETS_KEY: t.Alias.Key = ':assets';
+  const indexHasAssets = !!(indexResolver && indexResolver.alias[ASSETS_KEY]);
+
+  /**
+   * Walk each document in the DAG:
+   * - find its `slug.data.alias` table (if any)
+   * - analyze the table (normalize + diagnostics)
+   * - optionally expand `sequence[].video` using local + index alias tables
    */
   await Graph.Dag.forEachAsync(dag, async (node) => {
-    const { alias, sequence } = Resolve.parts(node);
+    const { alias, sequence } = Resolve.slugParts(node);
     if (!Is.record(alias)) return;
     _total++;
 
-    console.log(`-------------------------------------------`);
-    console.log('node.id', node.id);
-    console.log('alias', alias);
+    // 1) Analyze the local alias table.
+    const { resolver: localResolver, diagnostics } = AliasResolver.analyze(alias);
+    const localMap = localResolver.alias;
 
-    // 1) Analyze the table: normalize + collect diagnostics.
-    const { resolver, diagnostics } = AliasResolver.analyze(
-      { alias }, // root object
-      { alias: ['alias'] }, // path to the alias table
-    );
-
-    const map = resolver.alias; // t.Alias.Map
-
-    // 2) You can now *lint* the alias table itself:
-    //    - invalid keys
-    //    - non-string values
+    // TODO: pipe diagnostics into a structured lint report / markers.
     if (diagnostics.length > 0) {
-      // surface in your table / markers instead of console later
       for (const d of diagnostics) {
         // d.kind, d.path, d.key, d.value, d.message
       }
     }
 
-    // 3) Optionally check self-consistency by expanding each alias value.
-    for (const [key, raw] of Object.entries(map)) {
+    // 2) Self-check each alias value by expanding within the local table.
+    for (const [key, raw] of Object.entries(localMap)) {
       if (raw == null) continue;
-
-      const { value, remaining } = AliasResolver.expand(raw, map);
-
-      console.log('value', value);
-      console.log('remaining', remaining);
-
+      const { value, remaining } = AliasResolver.expand(raw, localMap);
       const fullyResolved = remaining.length === 0;
-      // e.g. record this for lint output:
-      // - key
-      // - raw (original)
-      // - value (expanded)
-      // - fullyResolved (boolean)
+      // TODO: record (key, raw, value, fullyResolved) as part of the lint output.
+      void value;
+      void fullyResolved;
+      void key;
+      void remaining;
     }
-
-    // 4) And you can use the map for “real” expansion checks:
-    //    e.g. validate that some known path field under `slug` fully resolves.
-    // const rawPath = slug.path as string | undefined;
-    // if (rawPath) {
-    //   const { value, remaining } = AliasResolver.expand(rawPath, map);
-    //   const ok = remaining.length === 0;
-    //   ...
-    // }
-
-    // console.log('sequence', sequence);
 
     /**
-     * Expand a raw (string) value using the given alias map.
-     * Pure: no external state, no mutation.
+     * 3) Helper: expand a path using local aliases, optionally
+     *    chaining into the index resolver when ":assets" remains.
      */
-    function expandAliasValue(raw: unknown, map: t.Alias.Map) {
+    const expandVideoPath = async (raw: unknown) => {
       if (typeof raw !== 'string') return undefined;
-      return AliasResolver.expand(raw, map);
-    }
 
-    type TSeq = { video?: t.StringPath; slice?: t.Timecode.SliceString; timestamps?: unknown[] };
+      // No index table → single-table expansion.
+      if (!indexResolver || !indexHasAssets) {
+        return AliasResolver.expand(raw, localMap);
+      }
 
-    const m = (Is.array(sequence) ? sequence : [])
-      .filter((item) => Is.record(item))
-      .map((item) => item as TSeq)
-      .map((item) => {
-        const { video, slice, timestamps } = item;
-
-        const videoExp = expandAliasValue(video, map);
-        console.log('raw', c.cyan(String(video)));
-        console.log('videoExp', videoExp);
-
-        return {
-          video,
-          slice,
-          get timestamps() {
-            return timestamps;
-          },
-        };
+      const chain = await AliasResolver.expandChain(raw, localResolver, {
+        async loadNext({ step }) {
+          const hasAssetsToken = step.remaining.includes(ASSETS_KEY);
+          return hasAssetsToken ? indexResolver : null;
+        },
       });
 
-    console.log('m', m);
+      return chain;
+    };
 
-    // AliasResolver
+    type TSeq = { video?: t.StringPath; slice?: t.Timecode.SliceString; timestamps?: unknown[] };
+    const seqItems = (Is.array(sequence) ? sequence : []).filter(Is.record) as TSeq[];
+
+    // 4) Expand any sequence video paths using the helper above.
+    for (const item of seqItems) {
+      const { video, slice, timestamps } = item;
+      if (!video) continue;
+
+      const expanded = await expandVideoPath(video);
+      if (!expanded) continue;
+
+      const rawExpanded = expanded.value;
+      const normalizedFsPath = normalizeIndexFsPath(rawExpanded);
+
+      // Derive resolution metadata from the expanded result.
+      const steps = Is.array((expanded as any).steps)
+        ? ((expanded as any).steps as readonly unknown[])
+        : undefined;
+      const hops = steps ? steps.length : 1;
+
+      const remainingTokens = Is.array((expanded as any).remaining)
+        ? ((expanded as any).remaining as string[])
+        : [];
+
+      const hasIndexAliasPrefix = /\/:index\/alias\//.test(rawExpanded);
+
+      const fullyResolved = remainingTokens.length === 0 && !hasIndexAliasPrefix;
+
+      // 🌸🌸 ---------- ADDED: doc-lint-video-lint-collect ----------
+      _videoLint.push({
+        nodeId: node.id,
+        videoRaw: video,
+        resolvedPath: normalizedFsPath,
+        hops,
+        fullyResolved,
+        remainingTokens,
+        hasIndexAliasPrefix,
+      });
+      void slice;
+      void timestamps;
+      // 🌸 ---------- /ADDED ----------
+    }
   });
+  // 🌸 ---------- /REFACTORED ----------
 
   const table = Cli.table();
   table.push([c.bold(c.cyan('Lint'))]);
-  table.push([c.gray(' root document:'), Fmt.prettyUri(docid)]);
-  table.push([c.gray(` yaml path:`), path ? `/${path.join('/')}` : '-']);
+  table.push([c.gray('  root document:'), Fmt.prettyUri(docid)]);
+  table.push([c.gray(`  yaml path:`), path ? `/${path.join('/')}` : '-']);
   table.push([
-    c.gray(` graph:`),
+    c.gray(`  graph:`),
     `${_total} ${c.gray(Str.plural(_total, 'document', 'documents'))}`,
   ]);
 
   console.info(String(table));
-
   console.info();
-  console.log('rootAlias', rootAlias);
+
+  function expandTilde(path: string): string {
+    const home = Deno.env.get('HOME');
+    if (!home) return path;
+
+    // "~" → "/Users/phil"
+    if (path === '~') return home;
+
+    // "~/foo/bar" → "/Users/phil/foo/bar"
+    if (path.startsWith('~/')) return `${home}/${path.slice(2)}`;
+
+    return path;
+  }
+
+  // 🌸🌸 ---------- ADDED: doc-lint-video-lint-print ----------
+  if (_videoLint.length > 0) {
+    for (const row of _videoLint) {
+      const pathOut = row.resolvedPath;
+      const status = row.fullyResolved ? c.green('✔') : c.yellow('~');
+      const suffix =
+        !row.fullyResolved && row.remainingTokens.length > 0
+          ? `  remaining: [${row.remainingTokens.join(', ')}]`
+          : row.hasIndexAliasPrefix
+            ? '  (has :index/alias prefix)'
+            : '';
+
+      // Optional existence check (kept silent for now).
+      if (row.fullyResolved) {
+        const filePath = expandTilde(pathOut);
+        const exists = await Fs.exists(filePath);
+        // console.log('exists', exists, path);
+        if (!exists) {
+          // const noise = crypto.randomUUID() + '\n' + Math.random();
+          // await Fs.write(path, new TextEncoder().encode(noise));
+        }
+        if (exists && rootAssetsPath) {
+          // console.log('rootAssetsPath', rootAssetsPath);
+          const assetsDir = Fs.resolve(expandTilde(rootAssetsPath), '..', 'publish.assets') ?? '';
+          // console.log('assetsDir', assetsDir);
+          await Fs.ensureDir(assetsDir);
+
+          const file = (await Fs.read(filePath)).data;
+          // console.log('file', file?.byteLength);
+          if (file && assetsDir) {
+            const hashFilename = Hash.sha256(file);
+
+            // console.log('hashFilename', hashFilename);
+            const hashPath = `${Fs.join(assetsDir, hashFilename)}${Fs.extname(filePath)}`;
+            // console.log('hashpath', c.green(hashPath));
+            await Fs.write(hashPath, file);
+          }
+        }
+      } else {
+        console.warn(c.yellow(`🫵  Path contains errors: `), pathOut);
+      }
+    }
+  }
+
+  // Print the root-level :assets path after all resolved paths.
+  // This is the canonical “base” folder the videos should live under.
+  if (rootAssetsPath) {
+    console.info();
+    console.log('assets', c.gray(c.cyan(rootAssetsPath)));
+  }
+  // 🌸 ---------- /ADDED ----------
+
+  void cwd;
+  void rootAlias;
 }
