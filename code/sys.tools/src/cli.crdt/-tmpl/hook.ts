@@ -1,5 +1,6 @@
-import 'jsr:@sys/tools/env';
-import { Obj, Str } from 'jsr:@sys/std';
+import { env } from 'jsr:@sys/tools/env';
+import { c, Cli } from 'jsr:@sys/cli';
+import { Obj, Arr, Str, Num, Is } from 'jsr:@sys/std';
 import { type t } from 'jsr:@sys/tools';
 
 /**
@@ -13,8 +14,7 @@ export const onDoc: t.DocumentGraphHook = async (e) => {
   const current = e.doc.current;
 
   // 🐷 ↓ perform actions on each document in the graph here.
-
   if (e.is.root) {
-    e.log('hook: root document 👋');
+    e.log(`hook: from root document 👋 | ${c.green(e.id)}`);
   }
 };

@@ -258,13 +258,9 @@ export async function lintDocumentGraph(cwd: t.StringDir, docid: t.Crdt.Id, path
           await Fs.ensureDir(assetsDir);
 
           const file = (await Fs.read(filePath)).data;
-          // console.log('file', file?.byteLength);
           if (file && assetsDir) {
             const hashFilename = Hash.sha256(file);
-
-            // console.log('hashFilename', hashFilename);
             const hashPath = `${Fs.join(assetsDir, hashFilename)}${Fs.extname(filePath)}`;
-            // console.log('hashpath', c.green(hashPath));
             await Fs.write(hashPath, file);
           }
         }
