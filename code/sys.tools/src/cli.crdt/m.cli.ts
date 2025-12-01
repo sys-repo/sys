@@ -67,7 +67,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         ...listing,
         opt(' start: sync server (websockets)', 'repo:syncserver:start'),
         opt(' start: repository daemon', 'repo:daemon:start'),
-        opt(c.gray('(quit)'), 'quit'),
+        opt(c.gray('(exit)'), 'exit'),
       ],
     })) as C;
 
@@ -78,7 +78,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       id = res.id;
     }
 
-    if (A === 'quit') return done(0);
+    if (A === 'exit') return done(0);
 
     /** --------------------------------------------------------
      * Document Menu
@@ -159,7 +159,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           return done(0);
         }
 
-        if (B === 'quit') return done(0);
+        if (B === 'exit') return done(0);
       }
     }
 

@@ -20,7 +20,7 @@ export type CrdtCommand =
   | 'doc:tmpl:hookfile'
   | 'repo:daemon:start'
   | 'repo:syncserver:start'
-  | 'quit'
+  | 'exit'
   | 'tmp:🐷';
 
 /**
