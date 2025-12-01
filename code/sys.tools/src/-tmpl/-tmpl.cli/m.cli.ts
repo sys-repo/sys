@@ -11,6 +11,16 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
   const args = Args.parse<t.__NAME__CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
+  /**
+   * Check pre-reqs:
+   */
+  const configpath = Fs.join(cwd, D.Config.filename);
+  if (!(await Fs.exists(configpath))) {
+    console.info(Fmt.Prereqs.folderNotConfigured(cwd, D.toolname));
+    const yes = await Cli.Prompt.Confirm.prompt({ message: `Create config file now?` });
+    if (!yes) Deno.exit(0);
+  }
+
   console.info(await Fmt.header(toolname));
   const res = await run(cwd);
   console.info(Fmt.signoff(toolname));

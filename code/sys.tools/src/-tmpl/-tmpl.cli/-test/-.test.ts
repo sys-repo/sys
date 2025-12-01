@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it, slug } from '../../../-test.ts';
 import { type t, D, Fs, getConfig } from '../common.ts';
 
 describe('tool: __NAME__', () => {
-  const root = `.tmp/test/${D.config.filename}`;
+  const root = `.tmp/test/${D.Config.filename}`;
 
   beforeAll(async () => void (await Fs.remove(root)));
 
@@ -11,7 +11,7 @@ describe('tool: __NAME__', () => {
       type Doc = t.__NAME__ConfigDoc;
 
       const dir = Fs.join(root, slug());
-      const path = Fs.join(dir, D.config.filename);
+      const path = Fs.join(dir, D.Config.filename);
 
       const a = await getConfig(dir);
       const b = await getConfig(dir);
@@ -27,7 +27,7 @@ describe('tool: __NAME__', () => {
 
       // Config seed is as declared in D.config.doc.
       const json = (await Fs.readJson<Doc>(path)).data!;
-      expect(json.name).to.eql(D.config.doc.name);
+      expect(json.name).to.eql(D.Config.doc.name);
 
       // Singleton semantics: same dir → same instance.
       expect(a).to.equal(b);
