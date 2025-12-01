@@ -1,4 +1,4 @@
-import { type t, Args, c, Crdt, D, Fs, Is, Prompt } from './common.ts';
+import { type t, Args, c, Crdt, D, Fs, Is, Prompt, Cli } from './common.ts';
 import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
@@ -13,6 +13,16 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.CrdtCliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
+
+  /**
+   * Check pre-reqs:
+   */
+  const configpath = Fs.join(cwd, D.Config.filename);
+  if (!(await Fs.exists(configpath))) {
+    console.info(Fmt.Prereqs.folderNotConfigured(cwd, D.toolname));
+    const yes = await Cli.Prompt.Confirm.prompt({ message: `Create config file now?` });
+    if (!yes) Deno.exit(0);
+  }
 
   console.info(await Fmt.header(toolname));
   const res = await run(cwd);
