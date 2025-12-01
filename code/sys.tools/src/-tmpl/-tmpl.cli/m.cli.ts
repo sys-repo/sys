@@ -42,13 +42,13 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
    */
   {
     console.info();
-    const A = (await Prompt.Select.prompt<t.__NAME__Command>({
+    const A = (await Prompt.Select.prompt<t.__NAME__Tool.Command>({
       message: 'Option:\n',
       options: [
         { name: ` Option A (clone \`-tmpl\` as new ${c.green('<tool>')})`, value: 'option-a' },
         { name: ' Option B', value: 'option-b' },
       ],
-    })) as t.__NAME__Command;
+    })) as t.__NAME__Tool.Command;
 
     //
     // 🐷 TODO: Replace here ↓
@@ -78,14 +78,14 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
    * Sub-Menu
    */
   {
-    const B = (await Prompt.Select.prompt<t.__NAME__Command>({
+    const B = (await Prompt.Select.prompt<t.__NAME__Tool.Command>({
       message: `With:`,
       options: [
         { name: ` Thing ${c.cyan('Ba')}`, value: 'option-ba' },
         { name: ` Thing ${c.cyan('Bb')}`, value: 'option-bb' },
         { name: c.gray('(quit)'), value: 'quit' },
       ],
-    })) as t.__NAME__Command;
+    })) as t.__NAME__Tool.Command;
 
     if (B === 'option-ba') {
       console.log('🐷 B:', B);

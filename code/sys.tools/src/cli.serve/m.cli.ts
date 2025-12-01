@@ -4,6 +4,8 @@ import { Fmt } from './u.fmt.ts';
 import { promptAddServeLocation, promptRemoveDocument } from './u.prompt.ts';
 import { startServing } from './cmd.serve/mod.ts';
 
+type C = t.ServeTool.Command;
+
 /**
  * Main entry:
  */
@@ -45,40 +47,51 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     return { name, value: item.dir };
   });
 
+  const opt = (name: string, value: C) => ({ name, value });
+
   console.info();
-  const A = (await Prompt.Select.prompt<t.ServeCommand>({
+  const A = (await Prompt.Select.prompt<t.ServeTool.Command>({
     message: 'Action:',
     options: [{ name: '(+) serve from new <directory>', value: 'modify:add' }, ...listing],
-  })) as t.ServeCommand;
+  })) as t.ServeTool.Command;
 
   if (A === 'modify:add') {
     await promptAddServeLocation(cwd);
     return done();
   }
 
-  const location = (config.current.dirs ?? []).find((m) => m.dir === A);
-  if (!location) {
-    console.info();
-    console.info(c.yellow(`Could not find a server configuration`));
-    console.info(c.gray(`directory: ${A}`));
-    console.info();
-    return done();
-  }
+  /** --------------------------------------------------------
+   * Serve location (folder):
+   */
+  {
+    const location = (config.current.dirs ?? []).find((m) => m.dir === A);
+    if (!location) {
+      console.info();
+      console.info(c.yellow(`Could not find a server configuration`));
+      console.info(c.gray(`directory: ${A}`));
+      console.info();
+      return done();
+    }
 
-  const B = (await Prompt.Select.prompt<t.ServeCommand>({
-    message: `With: ${c.gray(location.name)}`,
-    options: [
-      { name: ' Start HTTP server', value: 'serve:start' },
-      { name: '(forget)', value: 'modify:remove' },
-    ],
-  })) as t.ServeCommand;
+    if (Fs.cwd() !== location.dir) {
+      console.info(c.gray(`directory: ${location.dir}`));
+    }
 
-  if (B === 'modify:remove') {
-    await promptRemoveDocument(cwd, location);
-  }
+    const B = (await Prompt.Select.prompt<t.ServeTool.Command>({
+      message: `With: ${c.gray(location.name)}`,
+      options: [
+        { name: ' Start HTTP server', value: 'serve:start' },
+        { name: '(forget)', value: 'modify:remove' },
+      ],
+    })) as t.ServeTool.Command;
 
-  if (B === 'serve:start') {
-    await startServing(location);
+    if (B === 'modify:remove') {
+      await promptRemoveDocument(cwd, location);
+    }
+
+    if (B === 'serve:start') {
+      await startServing(location);
+    }
   }
 
   return done();

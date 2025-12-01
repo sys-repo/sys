@@ -1,14 +1,18 @@
 import type { t } from './common.ts';
 
-/** The tool's commands */
-export type __NAME__Command =
-  | 'option-a'
-  | 'option-b'
-  | 'option-aa'
-  | 'option-ab'
-  | 'option-ba'
-  | 'option-bb'
-  | 'quit';
+/**
+ * The __NAME__ type namespace.
+ */
+export namespace __NAME__Tool {
+  export type Command =
+    | 'option-a'
+    | 'option-b'
+    | 'option-aa'
+    | 'option-ab'
+    | 'option-ba'
+    | 'option-bb'
+    | 'quit';
+}
 
 /**
  * CLI helpers for working with __NAME__.

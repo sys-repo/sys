@@ -1,7 +1,11 @@
 import type { t } from './common.ts';
 
-/** The tool's commands */
-export type ServeCommand = 'modify:add' | 'modify:remove' | 'serve:start';
+/**
+ * The `@sys/tools/serve` type namespace.
+ */
+export namespace ServeTool {
+  export type Command = 'modify:add' | 'modify:remove' | 'serve:start' | 'exit';
+}
 
 /** Alternative view formats for rendering a route. */
 export type ServeRouteView = 'json';

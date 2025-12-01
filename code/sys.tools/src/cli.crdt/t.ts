@@ -8,6 +8,11 @@ export type * from './cmd.doc.lint/t.ts';
 export type * from './cmd.doc.snapshot/t.ts';
 export type * from './cmd.repo.daemon/t.ts';
 
+/**
+ * The `@sys/tools/crdt` type namespace.
+ */
+export namespace CrdtTool {}
+
 /** The tool's commands */
 export type CrdtCommand =
   | 'snapshot'
