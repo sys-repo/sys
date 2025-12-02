@@ -16,6 +16,8 @@ export function stream(
   dir: t.StringDir,
   options: t.HttpPullOptions = {},
 ): t.HttpPullStream {
+  const { map, retry } = options;
+
   const client = options.client ?? HttpClient.fetcher();
   const concurrency = Math.max(1, options.concurrency ?? 8);
   const total = urls.length;
@@ -51,7 +53,7 @@ export function stream(
       }
 
       try {
-        const record = await pullOne(source, dir, client, options.map, signal);
+        const record = await pullOne(source, dir, client, { map, signal, retry });
         if (signal.aborted) return; // Silent bail on cancellation.
 
         const ev: t.HttpPullEvent = record.ok

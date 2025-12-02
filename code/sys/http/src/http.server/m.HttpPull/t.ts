@@ -56,6 +56,17 @@ export type HttpPullOptions = {
 
   /** Cancel pull operation. */
   readonly until?: t.UntilInput;
+
+  /** Retry options */
+  readonly retry?: HttpPullRetry | boolean;
+};
+
+/** Retry options */
+export type HttpPullRetry = {
+  readonly attempts?: number;
+  readonly base?: t.Msecs;
+  readonly factor?: number;
+  readonly jitter?: boolean;
 };
 
 /**
