@@ -36,7 +36,7 @@ export type TimeLib = {
    * (NB: use with `await`.)
    * @param msecs: delay in milliseconds.
    */
-  wait(msecs?: t.Msecs): t.TimeDelayPromise;
+  wait(msecs?: t.Msecs, options?: { signal?: AbortSignal } | AbortSignal): t.TimeDelayPromise;
 
   /**
    * Wait until a predicate resolves truthy or timeout expires.
@@ -44,7 +44,7 @@ export type TimeLib = {
    */
   waitFor<T>(
     fn: () => T | Promise<T>,
-    options?: { readonly interval?: t.Msecs; readonly timeout?: t.Msecs },
+    options?: { readonly interval?: t.Msecs; readonly timeout?: t.Msecs; signal?: AbortSignal },
   ): Promise<T>;
 
   /** A Time helper that runs only until it has been disposed. */

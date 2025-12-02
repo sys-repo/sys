@@ -1,12 +1,13 @@
-import type { t } from './common.ts';
+import { type t, Is } from './common.ts';
 import { delay } from './m.Time.delay.ts';
 
 /**
  * Wait for the specified milliseconds
  * (NB: use with `await`.)
  */
-export const wait: t.TimeLib['wait'] = (msecs) => {
-  return delay(msecs);
+export const wait: t.TimeLib['wait'] = (msecs, options = {}) => {
+  const opts = Is.abortSignal(options) ? { signal: options } : options;
+  return delay(msecs, opts);
 };
 
 /**
@@ -14,12 +15,17 @@ export const wait: t.TimeLib['wait'] = (msecs) => {
  * Evaluates `fn` repeatedly using a fixed interval.
  */
 export const waitFor: t.TimeLib['waitFor'] = async (fn, options = {}) => {
-  const { interval = 30, timeout = 2000 } = options;
+  const { interval = 30, timeout = 2000, signal } = options;
   const start = Date.now();
+
   while (true) {
     const result = await fn();
     if (result) return result;
-    if (Date.now() - start > timeout) throw new Error('Time.waitFor: timeout exceeded');
-    await delay(interval);
+
+    if (Date.now() - start > timeout) {
+      throw new Error('Time.waitFor: timeout exceeded');
+    }
+
+    await delay(interval, { signal });
   }
 };
