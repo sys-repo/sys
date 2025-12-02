@@ -1,6 +1,6 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { route } from '../cmd.serve/u.serve.route.ts';
-import { type FixtureCaptured, Fixture } from './u.fixture.ts';
+import { type t, describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { route } from '../u.serve.route.ts';
+import { type FixtureCaptured, Fixture } from './u.ts';
 
 describe('serve route', () => {
   it('serves an allowed file with correct MIME', async () => {
