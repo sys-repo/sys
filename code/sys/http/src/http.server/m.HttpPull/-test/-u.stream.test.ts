@@ -129,6 +129,77 @@ describe('HttpPull.stream', () => {
     await server.dispose();
   });
 
+  describe('retry', () => {
+    it('retries on transient HTTP 503 and eventually succeeds', async () => {
+      let count = 0;
+
+      // Server: first request → 503, second → 200 OK.
+      const server = Testing.Http.server((req) => {
+        count++;
+        if (count === 1) {
+          return Testing.Http.error(503, 'TEMP');
+        }
+        return Testing.Http.text(req, 'OK');
+      });
+
+      try {
+        const url = server.url.join('p', 'file.txt');
+        const outDir = await mkTmpDir();
+
+        const events: t.HttpPullEvent[] = [];
+        for await (const ev of HttpPull.stream([url], outDir)) events.push(ev);
+
+        const starts = events.filter((e) => e.kind === 'start');
+        const dones = events.filter((e) => e.kind === 'done');
+        const errors = events.filter((e) => e.kind === 'error');
+
+        // No terminal error; done event present.
+        expect(starts).to.have.length(1);
+        expect(errors).to.have.length(0);
+        expect(dones).to.have.length(1);
+
+        const record = dones[0].record;
+        expect(record.ok).to.eql(true);
+
+        const text = await Fs.readText(record.path.target);
+        expect(text.ok).to.eql(true);
+        expect(text.data).to.eql('OK');
+      } finally {
+        await server.dispose();
+      }
+    });
+
+    it('fails after max retries on repeated 503', async () => {
+      // Always fail with 503.
+      const server = Testing.Http.server(() => Testing.Http.error(503, 'TEMP'));
+
+      try {
+        const url = server.url.join('p', 'never.txt');
+        const outDir = await mkTmpDir();
+
+        const events: t.HttpPullEvent[] = [];
+        for await (const ev of HttpPull.stream([url], outDir)) events.push(ev);
+
+        const starts = events.filter((e) => e.kind === 'start');
+        const dones = events.filter((e) => e.kind === 'done');
+        const errors = events.filter((e) => e.kind === 'error');
+
+        expect(starts).to.have.length(1);
+        expect(dones).to.have.length(0);
+        expect(errors).to.have.length(1);
+
+        const rec = errors[0].record;
+        expect(rec.ok).to.eql(false);
+        expect(rec.status).to.eql(503);
+
+        // Should not write a file.
+        expect(await Fs.exists(rec.path.target)).to.eql(false);
+      } finally {
+        await server.dispose();
+      }
+    });
+  });
+
   describe('stream.events() - observable', () => {
     it('emits start/done and completes (observable)', async () => {
       // Keep server simple; start events may be missed by late subscription.
