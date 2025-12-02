@@ -5,7 +5,7 @@ export const Mime = {
   videos: ['video/webm', 'video/mp4'],
   documents: ['application/pdf', 'application/json', 'application/yaml'],
   code: ['application/javascript', 'application/wasm'],
-  text: ['text/plain', 'text/html'],
+  text: ['text/plain', 'text/html', 'text/css'],
 
   get groups(): Record<t.ServeTool.MimeGroup, readonly t.ServeTool.MimeType[]> {
     return {
@@ -35,9 +35,10 @@ export const Mime = {
       'application/json': ['json'],
       'application/yaml': ['yaml', 'yml'],
 
-      // Text & HTML
+      // Text & HTML & CSS
       'text/plain': ['txt'],
       'text/html': ['html', 'htm'],
+      'text/css': ['css'],
 
       // JS & WASM
       'application/javascript': ['js', 'mjs'],

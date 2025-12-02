@@ -77,6 +77,7 @@ describe('MIME-types', () => {
       // text:
       'text/plain',
       'text/html',
+      'text/css',
     ] as t.ServeTool.MimeType[]);
   });
 });
