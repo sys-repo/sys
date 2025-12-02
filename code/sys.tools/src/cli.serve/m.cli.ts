@@ -52,7 +52,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   const defaultCommand = listing.length > 0 ? listing[0].value : ('modify:add' satisfies C);
   const A = (await Prompt.Select.prompt<C>({
     message: 'Tool:\n',
-    options: [opt('(+) add local <mount-point>', 'modify:add'), ...listing],
+    options: [opt('(+) add <local-dir>', 'modify:add'), ...listing],
     default: defaultCommand as C,
     hideDefault: true,
   })) as C;
