@@ -1,8 +1,9 @@
-import { type t, Args, c, Cli, D, Fs, getConfig, Is, Prompt } from './common.ts';
-import { normalize } from './u.config.ts';
+import { type t, Args, c, Cli, D, done, Fs, Is, Prompt } from './common.ts';
+
+import { startServing } from './cmd.serve/mod.ts';
+import { Config, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddServeLocation, promptRemoveDocument } from './u.prompt.ts';
-import { startServing } from './cmd.serve/mod.ts';
 
 type C = t.ServeTool.Command;
 
@@ -37,10 +38,9 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function run(cwd: t.StringDir): Promise<t.RunReturn> {
-  const config = await getConfig(cwd);
+  const config = await Config.get(cwd);
   await normalize(config);
 
-  const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
   const opt = (name: string, value: C) => ({ name, value });
 
   const listing = (config.current.dirs ?? []).map((item, i, total) => {
@@ -50,14 +50,14 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   });
 
   console.info();
-  const A = (await Prompt.Select.prompt<t.ServeTool.Command>({
+  const A = (await Prompt.Select.prompt<C>({
     message: 'Action:',
     options: [
       opt('(+) serve from new <directory>', 'modify:add'),
       ...listing,
       opt(c.dim(c.gray('(exit)')), 'exit'),
     ],
-  })) as t.ServeTool.Command;
+  })) as C;
 
   if (A === 'exit') return done();
 
@@ -70,7 +70,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
    * Serve location (folder):
    */
   {
-    const location = (config.current.dirs ?? []).find((m) => m.dir === A);
+    const location = Config.findLocation(config, A);
     if (!location) {
       console.info();
       console.info(c.yellow(`Could not find a server configuration`));
@@ -83,14 +83,14 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       console.info(c.gray(`directory: ${location.dir}`));
     }
 
-    const B = (await Prompt.Select.prompt<t.ServeTool.Command>({
+    const B = (await Prompt.Select.prompt<C>({
       message: `With: ${c.gray(location.name)}`,
       options: [
-        opt(' Start http server', 'serve:start'),
-        opt(' Pull bundle', 'serve:pull-bundle'),
+        opt(' start http server', 'serve:start'),
+        opt(' app bundles', 'bundle'),
         opt(c.dim(c.gray('(forget)')), 'modify:remove'),
       ],
-    })) as t.ServeTool.Command;
+    })) as C;
 
     if (B === 'modify:remove') {
       await promptRemoveDocument(cwd, location);
@@ -102,7 +102,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       return done(0);
     }
 
-    if (B === 'serve:pull-bundle') {
+    if (B === 'bundle') {
       const m = (await import('./cmd.pull/mod.ts')) satisfies typeof import('./cmd.pull/mod.ts');
       await m.pullBundle(cwd, location);
       return done(0);

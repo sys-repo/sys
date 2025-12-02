@@ -98,4 +98,11 @@ export const Fmt = {
   bytes(bytes: t.NumberBytes, warnAt?: t.NumberBytes): string {
     return Fmt.number(bytes, warnAt, Str.bytes);
   },
+
+  /**
+   * Common format for text in a waiting spinner.
+   */
+  spinnerText(text: string) {
+    return c.italic(c.gray(text));
+  },
 } as const;

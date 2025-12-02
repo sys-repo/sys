@@ -1,4 +1,4 @@
-import { type t, HttpServer, Net } from '../common.ts';
+import { type t, Http, Net } from '../common.ts';
 import { Mime } from './u.mime.ts';
 import { route } from './u.serve.route.ts';
 
@@ -12,7 +12,7 @@ export async function startServing(
    * Map extensions → MIME types (subset of ServeType).
    */
   const mimeByExt = Mime.extensionMap;
-  const app = HttpServer.create({ static: false });
+  const app = Http.Server.create({ static: false });
 
   // Pass the readonly MimeType[] directly to the route factory.
   app.use('*', route({ dir, contentTypes }));
@@ -23,19 +23,19 @@ export async function startServing(
     Object.entries(mimeByExt).filter(([, mime]) => allowedMimes.has(mime)),
   );
 
-  app.use('*', HttpServer.static({ root: dir, mimes: staticMimes }));
+  app.use('*', Http.Server.static({ root: dir, mimes: staticMimes }));
 
   console.info();
   const port = Net.port(3000);
-  const baseOptions = HttpServer.options({ port, dir, silent: false });
+  const baseOptions = Http.Server.options({ port, dir, silent: false });
   const ac = new AbortController();
   const server = Deno.serve({ ...baseOptions, signal: ac.signal }, app.fetch);
 
   // Block here until the keyboard helper decides we're done.
-  await HttpServer.keyboard({
+  await Http.Server.keyboard({
     port,
     print: true,
-    dispose: async () => {
+    async dispose() {
       ac.abort();
       await server.finished;
     },

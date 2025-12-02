@@ -1,5 +1,6 @@
 import { type t, c, Fs, getConfig, Prompt, Time } from './common.ts';
 import { Mime } from './cmd.serve/mod.ts';
+import { Config } from './u.config.ts';
 
 /**
  * Add a document to the config.
@@ -53,16 +54,15 @@ export async function promptAddServeLocation(cwd: t.StringDir) {
     for (const group of groups) {
       types.push(...Mime.groups[group]);
     }
+
     location.contentTypes = types;
     location.name = name;
-
     return location as t.ServeTool.DirConfig;
   }
 
   config.change((d) => {
     const now = Time.now.timestamp;
-    const locations = d.dirs || (d.dirs = []);
-    const index = locations.findIndex((item) => item.dir === path);
+    const { locations, index } = Config.Mutate.getLocation(d, path);
     if (index > -1) {
       locations[index].modifiedAt = now;
       update(locations[index]);

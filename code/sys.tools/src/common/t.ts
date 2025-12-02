@@ -11,7 +11,7 @@ export type * from '@sys/types';
 export type { CliTable } from '@sys/cli/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { FileMap, JsonFile, JsonFileDoc, WalkEntry } from '@sys/fs/t';
-export type { HonoMiddlewareHandler } from '@sys/http/t';
+export type { HonoMiddlewareHandler, HttpPullToDirResult } from '@sys/http/t';
 export type { Graph } from '@sys/immutable/t';
 export type { ProcOutput } from '@sys/process/t';
 export type { Alias, AnsiColors, StrBuilder, Timecode } from '@sys/std/t';

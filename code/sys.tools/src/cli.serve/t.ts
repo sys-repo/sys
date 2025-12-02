@@ -16,7 +16,9 @@ export namespace ServeTool {
     | 'modify:add'
     | 'modify:remove'
     | 'serve:start'
-    | 'serve:pull-bundle'
+    | 'bundle'
+    | 'bundle:add-remote'
+    | 'bundle:pull-latest'
     | 'exit';
 
   /** Alternative view formats for rendering a route. */
@@ -36,37 +38,32 @@ export namespace ServeTool {
   };
 
   export type DirConfig = {
-    name: string; // display name
+    /** Display name */
+    name: string;
+    /** The path location of the serve directory. */
     dir: t.StringDir;
+    /** Supported mime-types */
     contentTypes: MimeType[];
+    /** Timestamps */
     createdAt: t.UnixTimestamp;
     modifiedAt?: t.UnixTimestamp;
+    /** Optional list of remote bundles that can be pulled into this directory. */
+    remoteBundles?: DirBundleConfig[];
+  };
+
+  /**
+   * Mapping between a remote bundle and its local mount-point.
+   */
+  export type DirBundleConfig = {
+    /** Remote dist.json endpoint (source of the bundle). */
+    remote: { dist: t.StringUrl };
+    /** Local destination for the bundle, relative to DirConfig.dir. */
+    local: { dir: t.StringRelativeDir };
   };
 
   /** Allowed MIME types for static asset responses. */
   export type MimeGroup = 'images' | 'videos' | 'documents' | 'code' | 'text';
-  export type MimeType =
-    // Text / docs:
-    | 'text/plain'
-    | 'text/html'
-    | 'application/json'
-    | 'application/pdf'
-    | 'application/yaml'
-
-    // JS / WASM:
-    | 'application/javascript'
-    | 'application/wasm'
-
-    // Images:
-    | 'image/png'
-    | 'image/jpeg'
-    | 'image/webp'
-    | 'image/svg+xml'
-    | 'image/x-icon'
-
-    // Video:
-    | 'video/webm'
-    | 'video/mp4';
+  export type MimeType = t.MimeType;
 
   /**
    * JSON view outcome for a requestable path.
@@ -86,3 +83,26 @@ export namespace ServeTool {
     readonly body: t.DistPkg;
   };
 }
+
+export type MimeType =
+  // Text / docs:
+  | 'text/plain'
+  | 'text/html'
+  | 'application/json'
+  | 'application/pdf'
+  | 'application/yaml'
+
+  // JS / WASM:
+  | 'application/javascript'
+  | 'application/wasm'
+
+  // Images:
+  | 'image/png'
+  | 'image/jpeg'
+  | 'image/webp'
+  | 'image/svg+xml'
+  | 'image/x-icon'
+
+  // Video:
+  | 'video/webm'
+  | 'video/mp4';

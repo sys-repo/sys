@@ -1,9 +1,9 @@
-import { type t, Args, c, Crdt, D, Fs, Is, Prompt, Cli } from './common.ts';
+import { type t, Args, c, Cli, Crdt, D, done, Fs, Is, Prompt } from './common.ts';
 import { getConfig, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
 
-type C = t.CrdtCommand;
+type C = t.CrdtTool.Command;
 
 /**
  * Main entry:
@@ -11,7 +11,7 @@ type C = t.CrdtCommand;
 export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.toolname;
   cwd = cwd ?? Fs.cwd('terminal');
-  const args = Args.parse<t.CrdtCliArgs>(argv, { alias: { h: 'help' } });
+  const args = Args.parse<t.CrdtTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
   /**
@@ -38,8 +38,6 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
 async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   const config = await getConfig(cwd);
   await normalize(config);
-
-  const done = (exit: number | boolean = false): t.RunReturn => ({ exit });
 
   const listing = (config.current.docs ?? [])
     .map((doc) => ({ doc, name: doc.name ?? '', value: `crdt:${doc.id}` }))
@@ -103,10 +101,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
         options.push(...[opt(c.gray(c.dim(' (forget)')), 'doc:remove')]);
 
-        const B = (await Prompt.Select.prompt<t.CrdtCommand>({
+        const B = (await Prompt.Select.prompt<t.CrdtTool.Command>({
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
           options,
-        })) as t.CrdtCommand;
+        })) as t.CrdtTool.Command;
 
         if (B === 'snapshot') {
           const m =

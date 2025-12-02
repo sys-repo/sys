@@ -1,4 +1,4 @@
-import { type t, Fmt as Base, Fs, c, Cli, Crdt, D, getConfig, Json, Str, Time } from './common.ts';
+import { type t, Fmt as Base, c, Cli, Crdt, D, getConfig, Json, Str, Time } from './common.ts';
 
 export const Fmt = {
   ...Base,
@@ -10,10 +10,6 @@ export const Fmt = {
       .line();
 
     return String(str);
-  },
-
-  spinnerText(text: string) {
-    return c.italic(c.gray(text));
   },
 
   prettyUri(input: t.Crdt.Id) {
