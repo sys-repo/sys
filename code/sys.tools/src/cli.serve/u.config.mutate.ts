@@ -43,7 +43,7 @@ export const MutateConfig = {
     if (exists) {
       bundle = bundles[index]!;
     } else {
-      bundle = { remote: { dist: distUrl }, local: { dir: '' } };
+      bundle = { local: { dir: '' }, remote: { dist: distUrl } };
       bundles.push(bundle);
     }
 
