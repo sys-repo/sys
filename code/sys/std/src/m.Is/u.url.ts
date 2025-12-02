@@ -8,7 +8,7 @@ import { type t, isRecord } from '../common.ts';
  *  - any `{ href: string }`
  *  - any `{ toURL(): URL }`
  */
-export const urlLike: t.StdIsLib['urlLike'] = (input?: unknown): input is t.UrlLike => {
+export const urlLike: t.StdIsLib['urlLike'] = (input): input is t.UrlLike => {
   if (input instanceof URL) return true;
 
   if (isRecord(input)) {
@@ -17,4 +17,21 @@ export const urlLike: t.StdIsLib['urlLike'] = (input?: unknown): input is t.UrlL
   }
 
   return false;
+};
+
+/**
+ * True if the input is a valid http/https URL string.
+ *
+ * Only absolute http/https URLs are treated as URL strings;
+ * everything else (relative, malformed, non-string) returns false.
+ */
+export const urlString: t.StdIsLib['urlString'] = (input): input is t.StringUrl => {
+  if (typeof input !== 'string') return false;
+  if (!/^https?:\/\//i.test(input)) return false;
+  try {
+    new URL(input);
+    return true;
+  } catch {
+    return false;
+  }
 };

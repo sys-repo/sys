@@ -12,8 +12,8 @@ import {
 import { Err } from '../m.Err/mod.ts';
 import { number, numeric } from './u.number.ts';
 import { string } from './u.string.ts';
+import { urlLike, urlString } from './u.url.ts';
 import { websocket } from './u.websocket.ts';
-import { urlLike } from './u.url.ts';
 
 /**
  * Common flag evaluators.
@@ -42,6 +42,7 @@ export const Is: StdIsLib = {
   string,
   str: string,
   urlLike,
+  urlString,
   websocket,
 
   disposable(input?: any): input is t.Disposable {

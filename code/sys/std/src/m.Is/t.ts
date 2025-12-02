@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 type O = Record<string, unknown>;
 
 /**
- * Boolean flag evaluators.
+ * Boolean type guard evaluators.
  */
 export type StdIsLib = {
   /**
@@ -196,4 +196,12 @@ export type StdIsLib = {
    *  - any `{ toURL(): URL }`
    */
   urlLike(input?: unknown): input is t.UrlLike;
+
+  /**
+   * True if the input is a valid http/https URL string.
+   *
+   * Only absolute http/https URLs are treated as URL strings;
+   * everything else (relative, malformed, non-string) returns false.
+   */
+  urlString(input: unknown): input is t.StringUrl;
 };
