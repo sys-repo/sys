@@ -196,8 +196,11 @@ describe('Json', () => {
       const res = Json.safeParse(`$-FAIL`, {});
       expect(res.ok).to.eql(false);
       expect(res.data).to.eql(undefined);
-      expect(res.error?.message).to.include(`Unexpected token '$', "$-FAIL" is not valid JSON`);
-      expect(res.error?.name).to.eql('SyntaxError');
+
+      const err = res.error!;
+      expect(err.message).to.include('Failed while parsing JSON');
+      expect(err.cause?.message).to.include(`Unexpected token '$', "$-FAIL" is not valid JSON`);
+      expect(err.cause?.name).to.eql('SyntaxError');
     });
   });
 });
