@@ -9,7 +9,7 @@
     "build:rx": "deno bundle --platform=browser --minify -o src/m.Rx/vendor/rx.esm.bundle.js src/m.Rx/vendor/rx.esm.ts"
   },
   "exports": {
-    ".": "./src/mod.ts",
+    ".": "./src/-exports/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./alias": "./src/-exports/-alias.ts",
@@ -21,10 +21,10 @@
     "./ignore": "./src/m.Ignore/mod.ts",
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
     "./log": "./src/m.Log/mod.ts",
-    "./path": "./src/m.Path/mod.ts",
+    "./path": "./src/-exports/-path.ts",
     "./pkg": "./src/-exports/-pkg.ts",
-    "./random": "./src/m.Random/mod.ts",
-    "./rx": "./src/m.Rx/mod.ts",
+    "./random": "./src/-exports/-random.ts",
+    "./rx": "./src/-exports/-rx.ts",
     "./semver": "./src/m.Semver/mod.ts",
     "./semver/server": "./src/m.Semver.Server/mod.ts",
     "./signal": "./src/m.Signal/mod.ts",

@@ -1,6 +1,6 @@
 /**
- * Tools for generating random values.
  * @module
+ * Tools for generating random values.
  */
 import type { RandomLib } from './t.ts';
 

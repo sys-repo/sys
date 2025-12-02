@@ -15,7 +15,7 @@ export type UrlLib = {
 };
 
 /**
- * Represents a URL endpoint of an HTTP service.
+ * Represents a URL endpoint of an HTTP resource.
  */
 export type HttpUrl = {
   /** Flag indicating if the parse was OK - false if there is an error. */
