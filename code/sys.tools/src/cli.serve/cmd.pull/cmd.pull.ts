@@ -65,6 +65,8 @@ export async function pullBundle(
     });
 
     if (config.fs.pending) await config.fs.save();
+
+    // Re-load menu, with fresh copy of the adjusted config.
     return pullBundle(cwd, Config.findLocation(config, location.dir)!);
   }
 
@@ -73,6 +75,7 @@ export async function pullBundle(
     const bundle = Config.findBundle(config, location.dir, distUrl);
     if (!bundle) throw new Error(`Expected a bundle entry. ${distUrl}`);
     await pullRemoteBundle(location.dir, bundle);
+    return done();
   }
 
   return done();
