@@ -88,6 +88,7 @@ export type MimeType =
   // Text / docs:
   | 'text/plain'
   | 'text/html'
+  | 'text/css'
   | 'application/json'
   | 'application/pdf'
   | 'application/yaml'
