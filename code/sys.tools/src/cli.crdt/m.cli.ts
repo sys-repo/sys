@@ -58,6 +58,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
    */
   {
     console.info();
+    const defaultCommand = listing.length > 0 ? listing[0].value : ('doc:add' satisfies C);
     const A = (await Prompt.Select.prompt<C>({
       message: 'Tools:\n',
       options: [
@@ -65,8 +66,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         ...listing,
         opt(' start: sync server (websockets)', 'repo:syncserver:start'),
         opt(' start: repository daemon', 'repo:daemon:start'),
-        opt(c.gray('(exit)'), 'exit'),
+        // opt(c.gray('(exit)'), 'exit'),
       ],
+      default: defaultCommand as C,
+      hideDefault: true,
     })) as C;
 
     let id = Crdt.Is.uri(A) ? Crdt.Id.fromUri(A) || '' : '';

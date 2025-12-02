@@ -49,14 +49,12 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     return { name, value: item.dir };
   });
 
-  console.info();
+  const defaultCommand = listing.length > 0 ? listing[0].value : ('modify:add' satisfies C);
   const A = (await Prompt.Select.prompt<C>({
-    message: 'Action:',
-    options: [
-      opt('(+) serve from new <directory>', 'modify:add'),
-      ...listing,
-      opt(c.dim(c.gray('(exit)')), 'exit'),
-    ],
+    message: 'Tool:\n',
+    options: [opt('(+) add local <mount-point>', 'modify:add'), ...listing],
+    default: defaultCommand as C,
+    hideDefault: true,
   })) as C;
 
   if (A === 'exit') return done();
@@ -105,6 +103,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     if (B === 'bundle') {
       const m = (await import('./cmd.pull/mod.ts')) satisfies typeof import('./cmd.pull/mod.ts');
       await m.pullBundle(cwd, location);
+      console.info();
       return done(0);
     }
   }
