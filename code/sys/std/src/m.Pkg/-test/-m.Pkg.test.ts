@@ -1,5 +1,5 @@
 import { type t, describe, expect, it, pkg } from '../../-test.ts';
-import { DEFAULTS } from '../common.ts';
+import { D } from '../common.ts';
 import { Pkg } from '../mod.ts';
 
 describe('Pkg', () => {
@@ -135,7 +135,7 @@ describe('Pkg', () => {
     const a = Pkg.unknown();
     const b = Pkg.unknown();
 
-    expect(a).to.eql(DEFAULTS.UNKNOWN);
+    expect(a).to.eql(D.unknown());
     expect(a).to.eql(b);
     expect(a).to.not.equal(b);
   });
@@ -157,7 +157,7 @@ describe('Pkg', () => {
       ];
       NON.forEach((value: any) => {
         const res = Pkg.toPkg(value);
-        expect(res).to.eql(DEFAULTS.UNKNOWN);
+        expect(res).to.eql(D.unknown());
       });
     });
 

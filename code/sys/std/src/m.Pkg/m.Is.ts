@@ -1,16 +1,16 @@
-import { type t, DEFAULTS, isObject } from './common.ts';
-import type { PkgIsLib } from './t.ts';
+import { type t, D, isObject } from './common.ts';
 
-export const Is: PkgIsLib = {
+export const PkgIs: t.PkgIsLib = {
   unknown(input) {
-    const UNKNOWN = DEFAULTS.UNKNOWN;
     if (isObject(input)) {
       const { name, version } = input;
       if (typeof name !== 'string') return true;
       if (typeof version !== 'string') return true;
+      const UNKNOWN = D.unknown();
       return name === UNKNOWN.name && version === UNKNOWN.version;
     }
     if (typeof input !== 'string') return true;
+    const UNKNOWN = D.unknown();
     return input === `${UNKNOWN.name}@${UNKNOWN.version}`;
   },
 
@@ -23,7 +23,7 @@ export const Is: PkgIsLib = {
   dist(input: any): input is t.DistPkg {
     if (!isObject(input)) return false;
     const dist = input as t.DistPkg;
-    if (!Is.pkg(dist.pkg)) return false;
+    if (!PkgIs.pkg(dist.pkg)) return false;
     return (
       typeof dist.entry === 'string' &&
       typeof dist.hash.digest === 'string' &&

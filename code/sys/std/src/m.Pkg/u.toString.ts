@@ -2,9 +2,10 @@ import { type t, D, isRecord } from './common.ts';
 
 export const toString: t.PkgLib['toString'] = (pkg, suffix, input) => {
   const options = wrangle.options(input);
-  if (!pkg || !isRecord(pkg)) return toString(D.UNKNOWN);
+  if (!pkg || !isRecord(pkg)) return toString(D.unknown());
 
-  const { name = D.UNKNOWN.name, version = D.UNKNOWN.version } = pkg;
+  const UNKNOWN = D.unknown();
+  const { name = UNKNOWN.name, version = UNKNOWN.version } = pkg;
   let res = name;
   if (options.version ?? true) res += `@${version}`;
 

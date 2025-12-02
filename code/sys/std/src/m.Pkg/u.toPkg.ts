@@ -13,15 +13,13 @@ export const toPkg: t.PkgLib['toPkg'] = (input) => {
       const version = text.slice(i + 1);
       if (name && version) return { name, version };
     }
-    return { ...D.UNKNOWN };
+    return D.unknown();
   }
 
   /**
    * Object form ­- { name, version }.
    */
-  if (!isRecord(input)) return { ...D.UNKNOWN };
+  if (!isRecord(input)) return D.unknown();
   const { name, version } = input as Record<string, unknown>;
-  return typeof name === 'string' && typeof version === 'string'
-    ? { name, version }
-    : { ...D.UNKNOWN };
+  return typeof name === 'string' && typeof version === 'string' ? { name, version } : D.unknown();
 };
