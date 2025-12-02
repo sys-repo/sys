@@ -1,6 +1,6 @@
-import { describe, expect, it, pkg, Testing } from '../../-test.ts';
-import { Fs, Http, Pkg } from './common.ts';
-import { HttpServer } from './mod.ts';
+import { describe, expect, it, pkg, Testing } from '../../../-test.ts';
+import { Fs, Http, Pkg } from '../common.ts';
+import { HttpServer } from '../mod.ts';
 
 describe('HTTP: Server', () => {
   describe('HttpServer: create → fetch', () => {

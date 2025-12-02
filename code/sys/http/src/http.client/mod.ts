@@ -1,6 +1,5 @@
 /**
- * @module HttpClient
- * Client fetch tools.
+ * @module Client HTTP fetch tools.
  */
 export { Http, HttpClient } from './m.HttpClient/mod.ts';
 

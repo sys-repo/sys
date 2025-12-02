@@ -1,6 +1,5 @@
 /**
- * @module @sys/http/serve
- *
+ * @module
  * CLI entrypoint for starting an HTTP static file server.
  *
  * ```bash

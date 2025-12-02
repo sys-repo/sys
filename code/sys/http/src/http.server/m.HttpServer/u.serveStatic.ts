@@ -1,6 +1,7 @@
 import { serveFile } from '@std/http/file-server';
 import { serveStatic as honoStatic } from 'hono/deno';
 import { type t, Fs, Path } from './common.ts';
+import { serveFileWithEtag } from './u.serveFileWithEtag.ts';
 
 type Input = Parameters<t.HttpServeStatic>[0];
 
@@ -47,7 +48,14 @@ export const serveStatic: t.HttpServeStatic = (input: Input) => {
 
       // NB: If the target is a directory, serve the `index.html` file.
       const target = info.isDirectory ? Path.join(filePath, 'index.html') : filePath;
-      return await serveFile(c.req.raw, target);
+      const targetInfo = info.isDirectory ? await Fs.stat(target) : info;
+      if (!targetInfo || !targetInfo.isFile) return await notFound();
+
+      return await serveFileWithEtag({
+        req: c.req.raw,
+        path: target,
+        stat: targetInfo,
+      });
     } catch (err) {
       if (err instanceof Deno.errors.NotFound) return await notFound();
       throw err;
