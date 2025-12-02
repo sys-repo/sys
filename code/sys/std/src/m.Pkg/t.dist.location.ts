@@ -6,16 +6,11 @@ import type { t } from './common.ts';
  *  - a URL/href pointing at a `dist.json` file, or
  *  - a directory-like root path.
  *
- * Overload behaviour:
- *  - URL/href input → `PkgDistLocationUrl`
- *  - dir/path input → `PkgDistLocationDir`
- *
  * This is path/URL normalization only; no I/O or fetching.
  */
-export type PkgDistAsLocation = {
-  (href: t.StringUrl | URL | t.HttpUrl): PkgDistLocationUrl;
-  (dir: t.StringDir | t.StringPath): PkgDistLocationDir;
-};
+export type PkgDistLocationFn = (
+  input: URL | t.HttpUrl | t.StringUrl | t.StringDir | t.StringPath,
+) => PkgDistLocation;
 
 /**
  * Normalized root of a distribution bundle.

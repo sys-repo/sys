@@ -8,6 +8,27 @@ describe('Pkg.Dist', () => {
     expect(Pkg.Dist).to.equal(Dist);
   });
 
+  describe('Dist.Is', () => {
+    it('Is.codePath: true', () => {
+      const test = (path: string, expected: boolean) => {
+        expect(Pkg.Dist.Is.codePath(path)).to.eql(expected);
+      };
+
+      test('pkg', false);
+      test('pkg/', true);
+      test('/pkg/', true);
+      test('/pkg/foo', true);
+      test('/pkg/foo/pkg/bar', true);
+      test('/pkg/bar', true);
+
+      test('', false);
+      test('foo', false);
+
+      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      NON.forEach((value: any) => test(value, false));
+    });
+  });
+
   describe('Dist.fetch', () => {
     const SAMPLE = {
       dist(): t.DistPkg {
@@ -96,27 +117,6 @@ describe('Pkg.Dist', () => {
 
       expect(a.href).to.eql(server.url.href + `dist.json`);
       expect(b.href).to.eql(server.url.href + pathname);
-    });
-  });
-
-  describe('Dist.Is', () => {
-    it('Is.codePath: true', () => {
-      const test = (path: string, expected: boolean) => {
-        expect(Pkg.Dist.Is.codePath(path)).to.eql(expected);
-      };
-
-      test('pkg', false);
-      test('pkg/', true);
-      test('/pkg/', true);
-      test('/pkg/foo', true);
-      test('/pkg/foo/pkg/bar', true);
-      test('/pkg/bar', true);
-
-      test('', false);
-      test('foo', false);
-
-      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((value: any) => test(value, false));
     });
   });
 });
