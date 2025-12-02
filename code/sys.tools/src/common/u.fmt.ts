@@ -16,17 +16,23 @@ export const Fmt = {
   async header(
     toolname: string,
     dir?: t.StringDir,
-    opts: { fileTree?: { maxDepth?: number; indent?: number } } = {},
+    opts: {
+      fileTree?: { maxDepth?: number; indent?: number };
+      exitHint?: boolean;
+    } = {},
   ) {
-    const { fileTree = {} } = opts;
+    const { fileTree = {}, exitHint = true } = opts;
     const { maxDepth, indent } = fileTree;
+
+    let identity = c.gray(`${c.green(toolname)} v${pkg.version}`);
+    if (exitHint) identity += c.gray(c.dim(` (Ctrl-C to exit)`));
 
     const b = Str.builder();
     if (dir) {
       b.line(c.gray(await Fs.Fmt.treeFromDir(dir, { indent, maxDepth })));
       b.line();
     }
-    b.line(c.gray(`${c.green(toolname)} v${pkg.version}`));
+    b.line(identity);
     return b.toString();
   },
 
@@ -104,5 +110,12 @@ export const Fmt = {
    */
   spinnerText(text: string) {
     return c.italic(c.gray(text));
+  },
+
+  prettyPath(path: t.StringPath, highlightLevels = 1) {
+    const parts = path.split('/');
+    const start = parts.slice(0, -highlightLevels);
+    const end = parts.slice(-highlightLevels);
+    return c.gray(`${start.join('/')}/${c.cyan(end.join('/'))}`);
   },
 } as const;
