@@ -3,5 +3,4 @@
  * Tools for working with the standard system `{pkg}` metadata and
  * its compiled distribution packages (`dist.json` + bundle geometry).
  */
-export { Dist } from './m.Dist.ts';
-export { Pkg } from './m.Pkg.ts';
+export * from '../m.Pkg/mod.ts';

@@ -22,7 +22,7 @@
     "./indexeddb": "./src/m.IndexedDb/mod.ts",
     "./log": "./src/m.Log/mod.ts",
     "./path": "./src/m.Path/mod.ts",
-    "./pkg": "./src/m.Pkg/mod.ts",
+    "./pkg": "./src/-exports/-pkg.ts",
     "./random": "./src/m.Random/mod.ts",
     "./rx": "./src/m.Rx/mod.ts",
     "./semver": "./src/m.Semver/mod.ts",

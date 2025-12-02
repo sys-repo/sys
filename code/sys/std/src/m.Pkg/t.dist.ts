@@ -5,14 +5,20 @@ import type { t } from './common.ts';
  * ie. an ESM output typically written to a `/dist` folder.
  */
 export type PkgDistLib = {
+  /** Type guards. */
+  readonly Is: PkgDistIsLib;
+
   /** HTTP fetch the `dist.json` file. */
   fetch(options?: t.PkgDistFetchOptions | t.StringUrl): Promise<PkgDistFetchResponse>;
 
-  /** Boolean checks */
-  readonly Is: {
-    /** Determine if the given path represents a commoly known /pkg/ path pattern. */
-    codePath(path: t.StringPath): boolean;
-  };
+};
+
+/**
+ * Type guards:
+ */
+export type PkgDistIsLib = {
+  /** Determine if the given path represents a commoly known /pkg/ path pattern. */
+  codePath(path: t.StringPath): boolean;
 };
 
 /** Options passed to the [Pkg.Dist.fetch] method. */

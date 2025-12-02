@@ -1,5 +1,3 @@
-type O = Record<string, unknown>;
-
 /**
  * True if input is a non-null object (includes arrays, functions, etc.).
  */
