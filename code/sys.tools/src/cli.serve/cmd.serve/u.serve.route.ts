@@ -1,12 +1,19 @@
-import { type t, Fs, Str } from '../common.ts';
+import { type t, Fs, Hash, Str } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { Mime } from './u.mime.ts';
-import { serveJsonView } from './u.serve.json.ts';
 import { makeFilter } from './u.serve.filter.ts';
+import { serveJsonView } from './u.serve.json.ts';
 
 export type ServeRouteArgs = {
   readonly dir: string;
   readonly contentTypes: readonly t.ServeTool.MimeType[];
+};
+
+type Target = {
+  readonly path: t.StringPath;
+  readonly mime: t.MimeType;
+  readonly is: { readonly file: boolean; readonly allowedMime: boolean };
+  readonly stat?: Deno.FileInfo;
 };
 
 /**
@@ -52,22 +59,12 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
      *  - optional "index.html" fallback for directories (if allowed)
      *  - derived MIME and flags
      */
-    async function resolveTarget(path: t.StringPath) {
+    async function resolveTarget(path: t.StringPath): Promise<Target> {
       let stat = await Fs.stat(path);
 
-      // Directory → try "index.html" (only if MIME is allowed).
-      if (stat && !stat.isFile) {
-        const basePath = path.endsWith('/') ? path : `${path}/`;
-        const indexPath = `${basePath}index.html`;
-        const indexStat = await Fs.stat(indexPath);
-        if (indexStat?.isFile) {
-          const indexMime = Mime.extensionMap['html'];
-          if (indexMime && allowedMimes.has(indexMime as t.ServeTool.MimeType)) {
-            path = indexPath;
-            stat = indexStat;
-          }
-        }
-      }
+      const resolved = await resolveDirectoryIndex({ path, stat, allowedMimes });
+      path = resolved.path;
+      stat = resolved.stat;
 
       const dotIndex = path.lastIndexOf('.');
       const ext = dotIndex === -1 ? '' : path.slice(dotIndex + 1).toLowerCase();
@@ -78,8 +75,6 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
       };
       return { path, stat, mime, is };
     }
-
-    type Target = Awaited<ReturnType<typeof resolveTarget>>;
 
     /**
      * Handle the `?view=json` variant for files and folders.
@@ -121,12 +116,63 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
     }
 
     const body = new Uint8Array(file.data);
+    const etag = `"${Hash.sha256(body)}"`;
+
+    /**
+     * Read If-None-Match in a way compatible with both real Hono and test fixtures.
+     */
+    let ifNoneMatch: string | null = null;
+    const reqAny = c.req as unknown as {
+      header?: (name: string) => string | null;
+      raw?: { headers?: { get?: (name: string) => string | null } };
+    };
+
+    if (typeof reqAny.header === 'function') {
+      ifNoneMatch = reqAny.header('if-none-match');
+    } else if (reqAny.raw?.headers?.get) {
+      ifNoneMatch = reqAny.raw.headers.get('if-none-match') ?? null;
+    }
+
+    if (ifNoneMatch && ifNoneMatch === etag) {
+      return c.newResponse(null, {
+        status: 304,
+        headers: { etag },
+      });
+    }
+
     return c.newResponse(body, {
       status: 200,
       headers: {
         'content-type': mime,
         'content-length': String(body.byteLength),
+        etag,
       },
     });
   };
+}
+
+/**
+ * Resolve a directory path to an "index.html" file, if present and allowed.
+ */
+async function resolveDirectoryIndex(args: {
+  path: t.StringPath;
+  stat?: Deno.FileInfo;
+  allowedMimes: ReadonlySet<t.ServeTool.MimeType>;
+}): Promise<{ path: t.StringPath; stat?: Deno.FileInfo }> {
+  let { path, stat, allowedMimes } = args;
+
+  if (stat && !stat.isFile) {
+    const basePath = path.endsWith('/') ? path : `${path}/`;
+    const indexPath = `${basePath}index.html`;
+    const indexStat = await Fs.stat(indexPath);
+    if (indexStat?.isFile) {
+      const indexMime = Mime.extensionMap['html'];
+      if (indexMime && allowedMimes.has(indexMime as t.ServeTool.MimeType)) {
+        path = indexPath;
+        stat = indexStat;
+      }
+    }
+  }
+
+  return { path, stat };
 }
