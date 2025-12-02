@@ -1,4 +1,4 @@
-import { type t, Fs, Hash, Str } from '../common.ts';
+import { type t, Fs, Str, serveFileWithEtag } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { Mime } from './u.mime.ts';
 import { makeFilter } from './u.serve.filter.ts';
@@ -44,7 +44,7 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
       try {
         const tree = await Fmt.folderAsText({ dir, reqPath, filter });
         return tree;
-      } catch (error) {
+      } catch (_error) {
         const msg = Str.builder()
           .line('404 - Not found')
           .line(`Serving from ${dir}`)
@@ -105,49 +105,48 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
       return c.text(await notFound(), 404);
     }
 
-    // Load and serve the file manually.
-    const file = await Fs.read(target.path);
-    if (!file.data) {
-      const code = 500;
-      const msg = Str.builder()
-        .line(`${code} - Failed to load file: ${file.errorReason}`)
-        .line(`Serving from ${dir}`);
-      return c.text(String(msg), code);
+    /**
+     * Delegate to shared HTTP helper:
+     *  - preserves Range / 206 from `serveFile`
+     *  - adds ETag / If-None-Match handling
+     *
+     * We adapt the Response back through `c.newResponse` so the
+     * test fixture’s capture hooks still see a "response" hit.
+     */
+    const reqAny = c.req as unknown as { raw?: Request; url: string };
+    const req = reqAny.raw instanceof Request ? reqAny.raw : new Request(reqAny.url);
+
+    const res = await serveFileWithEtag({
+      req,
+      path: target.path,
+      stat: target.stat,
+    });
+
+    // For 304 (and any status with no body), keep the body null.
+    let body: Uint8Array | null = null;
+    if (res.body && res.status !== 304) {
+      const buf = await res.arrayBuffer();
+      body = new Uint8Array(buf);
     }
 
-    const body = new Uint8Array(file.data);
-    const etag = `"${Hash.sha256(body)}"`;
+    // Convert Headers → plain record for our fixture’s capture + ResponseInit,
+    // but normalise Content-Type to the route’s explicit MIME (no charset).
+    const headers: Record<string, string> = {};
+    res.headers.forEach((value, key) => {
+      const k = key.toLowerCase();
+      if (k === 'content-type' && mime) {
+        headers[key] = mime;
+      } else {
+        headers[key] = value;
+      }
+    });
 
-    /**
-     * Read If-None-Match in a way compatible with both real Hono and test fixtures.
-     */
-    let ifNoneMatch: string | null = null;
-    const reqAny = c.req as unknown as {
-      header?: (name: string) => string | null;
-      raw?: { headers?: { get?: (name: string) => string | null } };
+    const init: ResponseInit = {
+      status: res.status,
+      headers,
     };
 
-    if (typeof reqAny.header === 'function') {
-      ifNoneMatch = reqAny.header('if-none-match');
-    } else if (reqAny.raw?.headers?.get) {
-      ifNoneMatch = reqAny.raw.headers.get('if-none-match') ?? null;
-    }
-
-    if (ifNoneMatch && ifNoneMatch === etag) {
-      return c.newResponse(null, {
-        status: 304,
-        headers: { etag },
-      });
-    }
-
-    return c.newResponse(body, {
-      status: 200,
-      headers: {
-        'content-type': mime,
-        'content-length': String(body.byteLength),
-        etag,
-      },
-    });
+    return c.newResponse(body as any, init as any);
   };
 }
 
