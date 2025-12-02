@@ -4,8 +4,7 @@ import { makeFilter } from './u.serve.filter.ts';
 type Args = {
   stat: Deno.FileInfo;
   mime: t.ServeTool.MimeType;
-  fsPath: t.StringPath;
-  reqPath: t.StringPath;
+  path: { fs: t.StringPath; req: t.StringPath };
   allowedMimes: t.ServeTool.MimeLookup;
 };
 
@@ -19,8 +18,8 @@ export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonViewRes
      * File:
      */
     const bytes = stat.size;
-    const path = args.reqPath;
-    const file = await Fs.read(args.fsPath);
+    const path = args.path.req;
+    const file = await Fs.read(args.path.fs);
     const hash = file.data ? Hash.sha256(file.data) : '-';
     return {
       kind: 'file',
@@ -32,7 +31,7 @@ export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonViewRes
      */
     const filter = makeFilter({ allowedMimes });
     const res = await Pkg.Dist.compute({
-      dir: args.fsPath,
+      dir: args.path.fs,
       pkg: { ...pkg, name: Fs.join(pkg.name, 'serve') },
       builder: pkg,
       filter,
