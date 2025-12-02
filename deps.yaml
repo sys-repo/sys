@@ -39,7 +39,7 @@ groups:
 
   automerge:
     # https://automerge.org
-    - import: npm:@automerge/automerge@3.2.0
+    - import: npm:@automerge/automerge@3.2.1
     - import: npm:@automerge/automerge-repo@2.5.0
     - import: npm:@automerge/automerge-repo-network-websocket@2.5.0
     - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.0
@@ -59,7 +59,7 @@ groups:
     - import: npm:@vitejs/plugin-react@5.1.1
     - import: npm:@deno/vite-plugin@1.0.5
     - import: npm:rollup@4.53.3
-    - import: npm:vite@7.2.4
+    - import: npm:vite@7.2.6
     - import: npm:vite-plugin-wasm@3.5.0
     - import: npm:rollup-plugin-visualizer@6.0.5
 
@@ -81,15 +81,15 @@ groups:
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.4
     - import: npm:prosemirror-state@1.4.4
-    - import: npm:prosemirror-view@1.41.3
+    - import: npm:prosemirror-view@1.41.4
       subpaths: [style/prosemirror.css]
     - import: npm:prosemirror-example-setup@1.2.3
       subpaths: [style/style.css]
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.104
-    - import: npm:@ai-sdk/openai@2.0.74
+    - import: npm:ai@5.0.106
+    - import: npm:@ai-sdk/openai@2.0.75
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.6
       subpaths: ['agent', 'memory', 'storage']
@@ -164,5 +164,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.23.24
+  - import: npm:motion@12.23.25
   - import: npm:hono@4.10.7
