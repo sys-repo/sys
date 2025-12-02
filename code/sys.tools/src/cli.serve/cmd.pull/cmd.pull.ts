@@ -1,11 +1,10 @@
 import { type t, c, Cli, done, Fs, getConfig, Url } from '../common.ts';
 import { Config } from '../u.config.ts';
 import { Fmt } from '../u.fmt.ts';
-import { pullRemoteBundle } from './u.http.ts';
+import { pullRemoteBundle } from './u.pull.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
 type C = t.ServeTool.Command;
-const Tree = Fmt.Tree;
 
 export async function pullBundle(
   cwd: t.StringDir,
@@ -15,7 +14,6 @@ export async function pullBundle(
   const opt = (name: string, value: C) => ({ name, value });
 
   const PULL_PREFIX = 'bundle:pull-latest:';
-
   const optBundles = (location.remoteBundles ?? []).map((m, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
     let name = `${' pull:'} ${branch} ${m.remote.dist}`;
@@ -25,7 +23,11 @@ export async function pullBundle(
 
   const A = (await Cli.Prompt.Select.prompt<C>({
     message: 'Action:',
-    options: [opt('  add: <remote>', 'bundle:add-remote'), ...optBundles],
+    options: [
+      //
+      ...optBundles,
+      opt('  add: <remote>', 'bundle:add-remote'),
+    ],
   })) as C;
 
   if (A === 'exit') return done(0);
@@ -92,6 +94,12 @@ export async function validateSubdir(input: string, location: t.ServeTool.DirCon
 
   const target = Fs.join(location.dir, input);
   if (await Fs.exists(target)) return 'Directory already exists';
+
+  const alreadyUsed = (location.remoteBundles ?? []).find((m) => m.local.dir === input);
+  if (alreadyUsed) {
+    const url = alreadyUsed.remote.dist;
+    return `Directory name already been used by:\n  ${c.gray(c.italic(url))}`;
+  }
 
   return true;
 }

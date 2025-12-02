@@ -1,4 +1,4 @@
-import { type t, Err, Http, Pkg, Url } from '../common.ts';
+import { type t, c, Err, Http, Pkg, Url } from '../common.ts';
 
 export type DistUrlCheck =
   | { ok: true; url: t.StringUrl }
@@ -27,7 +27,9 @@ export async function validateDistUrl(input: t.StringUrl): Promise<DistUrlCheck>
     const http = Http.client();
     const res = await http.json(url);
 
-    if (!Pkg.Is.dist(res.data)) return fail(url, 'Not a valid dist.json file.');
+    if (!Pkg.Is.dist(res.data)) {
+      return fail(url, `Does not have a valid ${c.cyan('dist.json')} file.`);
+    }
 
     return { ok: true, url };
   } catch (err) {

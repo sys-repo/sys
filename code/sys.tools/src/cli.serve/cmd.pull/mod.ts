@@ -1,1 +1,1 @@
-export { pullBundle } from './cmd.pullBundle.ts';
+export { pullBundle } from './cmd.pull.ts';
