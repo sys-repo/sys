@@ -8,7 +8,7 @@ export const Dist: t.PkgDistLib = {
     const errors = Err.errors();
     const controller = new AbortController();
     const signal = controller.signal;
-    const life = Rx.disposable(options.dispose$);
+    const life = Rx.disposable(options.until);
     life.dispose$.subscribe(() => controller.abort(options.disposeReason ?? 'disposed'));
 
     const url = new URL(Path.join(origin, pathname));

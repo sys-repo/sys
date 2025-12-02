@@ -2,6 +2,9 @@ import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
 
+export type * from './t.dist.ts';
+export type * from './t.is.ts';
+
 /**
  * Tools for working with the standard system
  * `{pkg}` package meta-data structure.
@@ -44,50 +47,4 @@ export type PkgLib = {
 export type PkgToStringOptions = {
   /** Include the version in the display string - @default true */
   version?: boolean;
-};
-
-/**
- * Boolean tests on a {pkg} structure.
- */
-export type PkgIsLib = {
-  /** Determines if the input is a string of the default "unknown" */
-  unknown(input?: string | t.Pkg): boolean;
-
-  /** Determine if the given input is a `Pkg` */
-  pkg(input: unknown): input is t.Pkg;
-
-  /** Determine if the given input is a `DistPkg` */
-  dist(input: unknown): input is t.DistPkg;
-};
-
-/**
- * Tools for working with "distribution-package"
- * ie. an ESM output typically written to a `/dist` folder.
- */
-export type PkgDistLib = {
-  /** HTTP fetch the `dist.json` file. */
-  fetch(options?: t.PkgDistFetchOptions | t.StringUrl): Promise<PkgDistFetchResponse>;
-
-  /** Boolean checks */
-  readonly Is: {
-    /** Determine if the given path represents a commoly known /pkg/ path pattern. */
-    codePath(path: t.StringPath): boolean;
-  };
-};
-
-/** Options passed to the [Pkg.Dist.fetch] method. */
-export type PkgDistFetchOptions = {
-  dispose$?: t.UntilObservable;
-  disposeReason?: string;
-  origin?: string;
-  pathname?: string;
-};
-
-/** Response returned from the [Pkg.Dist.fetch] method. */
-export type PkgDistFetchResponse = {
-  readonly ok: boolean;
-  readonly status: number;
-  readonly href: t.StringUrl;
-  readonly dist?: t.DistPkg;
-  readonly error?: t.StdError;
 };
