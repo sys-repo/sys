@@ -69,43 +69,48 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
         }
       }
 
-      // Derive extension and MIME from the effective path.
       const dotIndex = path.lastIndexOf('.');
       const ext = dotIndex === -1 ? '' : path.slice(dotIndex + 1).toLowerCase();
       const mime = Mime.extensionMap[ext];
-      const exists = !!stat;
       const is = {
         file: Boolean(stat?.isFile),
-        allowedMime: Boolean(mime && allowedMimes.has(mime)),
+        allowedMime: Boolean(mime && allowedMimes.has(mime as t.ServeTool.MimeType)),
       };
-      return { path, stat, mime, exists, is };
+      return { path, stat, mime, is };
     }
 
-    const target = await resolveTarget(fsBasePath);
-    const { stat, mime } = target;
+    type Target = Awaited<ReturnType<typeof resolveTarget>>;
 
-    // Special JSON view.
-    if (view === 'json' && stat) {
-      if (!target.is.file || (target.is.file && target.is.allowedMime && !!stat)) {
-        const result = await serveJsonView({
-          stat,
-          mime,
-          path: { fs: target.path, req: reqPath },
-          allowedMimes,
-        });
+    /**
+     * Handle the `?view=json` variant for files and folders.
+     * Returns a JSON response or `undefined` to continue normal handling.
+     */
+    async function handleJsonView(target: Target) {
+      const { stat, mime, is } = target;
+      if (view !== 'json' || !stat) return;
+
+      // Allowed for directories, or files with allowed MIME.
+      if (!is.file || is.allowedMime) {
+        const path = { fs: target.path, req: reqPath };
+        const result = await serveJsonView({ stat, mime, path, allowedMimes });
         const status = result.kind === 'file' ? 200 : 404;
         return c.json(result.body, status);
       }
     }
 
+    const target = await resolveTarget(fsBasePath);
+    const jsonResponse = await handleJsonView(target);
+    if (jsonResponse) return jsonResponse;
+
     if (!target.is.file) return c.text(await notFound(), 404);
 
     // Only allow the configured serve types.
+    const { mime } = target;
     if (!mime || !allowedMimes.has(mime as t.ServeTool.MimeType)) {
       return c.text(await notFound(), 404);
     }
 
-    // Load and serve manually.
+    // Load and serve the file manually.
     const file = await Fs.read(target.path);
     if (!file.data) {
       const code = 500;
