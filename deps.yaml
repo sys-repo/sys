@@ -40,10 +40,10 @@ groups:
   automerge:
     # https://automerge.org
     - import: npm:@automerge/automerge@3.2.1
-    - import: npm:@automerge/automerge-repo@2.5.0
-    - import: npm:@automerge/automerge-repo-network-websocket@2.5.0
-    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.0
-    - import: npm:@automerge/automerge-repo-storage-nodefs@2.5.0
+    - import: npm:@automerge/automerge-repo@2.5.1
+    - import: npm:@automerge/automerge-repo-network-websocket@2.5.1
+    - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.1
+    - import: npm:@automerge/automerge-repo-storage-nodefs@2.5.1
     - import: npm:@automerge/prosemirror@0.1.0
 
   crypto:
@@ -89,7 +89,7 @@ groups:
 
   ai:
     - import: npm:ai@5.0.106
-    - import: npm:@ai-sdk/openai@2.0.75
+    - import: npm:@ai-sdk/openai@2.0.76
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.6
       subpaths: ['agent', 'memory', 'storage']
