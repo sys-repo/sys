@@ -1,5 +1,6 @@
-import { type t, Cli, Err, Http } from '../common.ts';
+import { type t, c, Cli, Err, Http, Url } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
+import { rewriteTags } from './u.pull.rewriteTags.ts';
 
 /**
  * Pulls a remote `dist.json` bundle into a local directory using resilient HTTP fetch.
@@ -11,16 +12,23 @@ export async function pullRemoteBundle(
 ): Promise<t.HttpPullToDirResult> {
   const spinner = Cli.spinner();
   const targetDir = `${baseDir}/${bundle.local.dir}`;
-  const distUrl = bundle.remote.dist;
+  const distUrl = Url.toCanonical(bundle.remote.dist);
+  if (!distUrl.ok) throw new Error(`Invalid dist.json URL: ${distUrl.href}`);
 
   spinner.start(Fmt.spinnerText('pulling remote bundle...'));
   try {
-    const result = await pullDir(distUrl, targetDir);
+    const result = await pullDir(distUrl.href, targetDir);
+    const host = distUrl.toURL().host;
+
+    await rewriteTags(baseDir, bundle, host);
 
     if (!result.ok) {
       spinner.fail(summarizePullFailure(result));
     } else {
-      spinner.succeed(`bundle pulled → ${targetDir}`);
+      const fullpath = Fmt.prettyPath(targetDir);
+      const path = `./${c.cyan(bundle.local.dir)}\n  ${fullpath}`;
+      const msg = c.gray(`${c.green('bundle pulled')} → ${path}`);
+      spinner.succeed(msg);
     }
 
     return result;
@@ -69,7 +77,7 @@ async function pullDir(distUrl: t.StringUrl, targetDir: t.StringDir) {
   // Include dist.json itself so it’s cached alongside the assets.
   const urls = [distUrlObj.href, ...assetUrls];
 
-  return Http.Pull.toDir(urls, targetDir, {
+  const dir = await Http.Pull.toDir(urls, targetDir, {
     retry: { attempts: 8, base: 200, factor: 2, jitter: true },
     map: {
       /**
@@ -84,6 +92,8 @@ async function pullDir(distUrl: t.StringUrl, targetDir: t.StringDir) {
       relativeTo,
     },
   });
+
+  return { ...dir, dist } as const;
 }
 
 /**
