@@ -1,4 +1,4 @@
-import { Url, Is } from '../common.ts';
+import { Url } from '../common.ts';
 
 export function toDistUrl(input?: string): URL | undefined {
   const parsed = Url.parse(input);
