@@ -3,7 +3,8 @@
  *
  *     import type { Crdt } from '@sys/crdt/t';
  */
-import type { Rfc6902PatchOperation } from '@sys/std/t';
+import type { t } from '../common.ts';
+
 import type {
   CrdtChange as _Change,
   CrdtEvents as _Events,
@@ -21,22 +22,22 @@ export namespace Crdt {
   /** Immutable CRDT document reference. */
   export type Ref<
     T extends O = O,
-    P = Rfc6902PatchOperation,
+    P = t.Rfc6902PatchOperation,
     EX extends object = {},
     CX extends object = {},
   > = CrdtRef<T, P, EX, CX>;
 
   /** Change payload. */
-  export type Change<T extends O = O, P = Rfc6902PatchOperation, CX extends object = {}> = _Change<
-    T,
-    P,
-    CX
-  >;
+  export type Change<
+    T extends O = O,
+    P = t.Rfc6902PatchOperation,
+    CX extends object = {},
+  > = _Change<T, P, CX>;
 
   /** Event surface. */
   export type Events<
     T extends O = O,
-    P = Rfc6902PatchOperation,
+    P = t.Rfc6902PatchOperation,
     EX extends object = {},
     CX extends object = {},
   > = _Events<T, P, EX, CX>;
@@ -44,7 +45,7 @@ export namespace Crdt {
   /** Path-filtered event stream. */
   export type PathEvents<
     T extends O = O,
-    P = Rfc6902PatchOperation,
+    P = t.Rfc6902PatchOperation,
     CX extends object = {},
   > = _PathEvents<T, P, CX>;
 

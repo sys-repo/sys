@@ -2,7 +2,7 @@ import type Preact from '@preact/signals-react';
 import type { SignalLib } from '@sys/std/t';
 import type { t } from './common.ts';
 
-export type { ReadonlySignal, Signal, SignalValue, UnwrapSignals } from '@sys/std/t';
+export type { ReadonlySignal, Signal, SignalValue, UnwrapSignals } from '@sys/types';
 export type * from './t.effect.ts';
 
 /**

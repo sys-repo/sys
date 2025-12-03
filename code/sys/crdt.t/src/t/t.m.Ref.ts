@@ -1,4 +1,3 @@
-import type { Rfc6902PatchOperation } from '@sys/std/t';
 import type { t } from '../common.ts';
 
 type O = Record<string, unknown>;
@@ -7,7 +6,7 @@ type O = Record<string, unknown>;
  * Default patch type for abstract CRDT refs.
  * Downstreams (e.g. Automerge) can supply their own P.
  */
-type PDefault = Rfc6902PatchOperation;
+type PDefault = t.Rfc6902PatchOperation;
 type RefProps = t.Lifecycle & {
   readonly id: t.StringId;
   readonly deleted: boolean;
