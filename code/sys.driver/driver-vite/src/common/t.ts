@@ -15,7 +15,7 @@ export type {
 /**
  * System
  */
-export type * from '@sys/std/t';
+export type * from '@sys/types';
 
 export type {
   DenoFileJson,
