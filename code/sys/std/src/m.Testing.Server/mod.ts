@@ -1,6 +1,6 @@
 /**
- * Test HTTP server tools.
  * @module
+ * Test HTTP server tools.
  */
 import type { TestingHttpLib } from './t.ts';
 

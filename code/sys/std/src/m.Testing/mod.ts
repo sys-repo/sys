@@ -1,6 +1,6 @@
 /**
- * Tools for writing and controlling automated tests.
  * @module
+ * Tools for writing and controlling automated tests.
  *
  * @example
  * A simple unit-test file, named: `-<Subject>.test.ts`.
