@@ -42,7 +42,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   {
     console.info();
     const A = (await Prompt.Select.prompt<t.__NAME__Tool.Command>({
-      message: 'Tool:\n',
+      message: 'Tools:\n',
       options: [
         { name: ` Option A (clone \`-tmpl\` as new ${c.green('<tool>')})`, value: 'option-a' },
         { name: ' Option B', value: 'option-b' },

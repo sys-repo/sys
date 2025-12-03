@@ -45,14 +45,19 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
   const listing = (config.current.dirs ?? []).map((item, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
-    let name = ` ${branch} ${'serve:'} ${c.green(item.name)}`;
+    let name = ` ${'serve:'} ${branch} ${c.green(item.name)}`;
     return { name, value: item.dir };
   });
 
   const defaultCommand = listing.length > 0 ? listing[0].value : ('modify:add' satisfies C);
   const A = (await Prompt.Select.prompt<C>({
-    message: 'Tool:\n',
-    options: [opt('(+) add <local-dir>', 'modify:add'), ...listing],
+    message: 'Tools:\n',
+    options: [
+      //
+      opt('   add: <local-dir>', 'modify:add'),
+      ...listing,
+      opt(c.gray('(exit)'), 'exit'),
+    ],
     default: defaultCommand as C,
     hideDefault: true,
   })) as C;
