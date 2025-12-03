@@ -54,7 +54,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     message: 'Tools:\n',
     options: [
       //
-      opt('   add: <local-dir>', 'modify:add'),
+      opt('   add: <local>', 'modify:add'),
       ...listing,
       opt(c.gray('(exit)'), 'exit'),
     ],

@@ -3,14 +3,14 @@ import { type t, Args, c, Fmt, pkg, Str } from './common.ts';
 export async function printHelp(argv: string[]) {
   const args = Args.parse<t.ToolsCliArgs>(argv, { alias: { h: 'help' } });
 
-  const text = await Fmt.help('System Tools', (e, c) => {
+  const text = await Fmt.help(' system:tools', (e, c) => {
     const fmt = (path: string) => c.gray(`${pkg.name}/`) + path;
     e.row(fmt('copy'), c.gray(`(← alias ${c.white('cp')}, ${c.italic(c.yellow('clipboard'))})`));
     e.row(fmt('crdt'));
+    e.row(fmt('serve'));
     e.row(fmt('fs'));
     e.row(fmt('video'));
-    e.row(fmt('serve'));
-    e.row(fmt('update'));
+    e.row(fmt(c.green('update')));
   });
 
   console.info(text);
