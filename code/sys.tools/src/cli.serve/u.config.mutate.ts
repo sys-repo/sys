@@ -19,9 +19,15 @@ export const MutateConfig = {
 
   /**
    * Ensure a remote-bundle entry exists or create it.
+   * Identity is a pair: (remote.dist + local.dir) for a given location.
    * Returns clean bundle-centric handles (no redundant prefixes).
    */
-  getRemoteBundle(d: Draft, locationDir: t.StringDir, distUrl: t.StringUrl) {
+  getRemoteBundle(
+    d: Draft,
+    locationDir: t.StringDir,
+    distUrl: t.StringUrl,
+    localDir: t.StringRelativeDir,
+  ) {
     const loc = MutateConfig.getLocation(d, locationDir);
 
     // No location defined → return clean empty structure.
@@ -36,14 +42,14 @@ export const MutateConfig = {
     }
 
     const bundles = loc.location.remoteBundles || (loc.location.remoteBundles = []);
-    const index = bundles.findIndex((b) => b.remote.dist === distUrl);
+    const index = bundles.findIndex((b) => b.remote.dist === distUrl && b.local.dir === localDir);
     let bundle: t.ServeTool.DirBundleConfig | undefined;
     const exists = index > -1;
 
     if (exists) {
       bundle = bundles[index]!;
     } else {
-      bundle = { local: { dir: '' }, remote: { dist: distUrl } };
+      bundle = { local: { dir: localDir }, remote: { dist: distUrl } };
       bundles.push(bundle);
     }
 

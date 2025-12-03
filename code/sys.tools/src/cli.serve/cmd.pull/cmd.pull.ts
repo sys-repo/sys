@@ -1,10 +1,21 @@
 import { type t, c, Cli, done, Fs, getConfig, Url } from '../common.ts';
 import { Config } from '../u.config.ts';
-import { Fmt } from '../u.fmt.ts';
+import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { pullRemoteBundle } from './u.pull.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
 type C = t.ServeTool.Command;
+
+export const stripHttp = (value: string): string => value.replace(/^https?:\/\//, '');
+
+const Fmt = {
+  ...BaseFmt,
+  distUrl(url: t.StringUrl) {
+    url = stripHttp(url);
+    const i = url.lastIndexOf('/');
+    return url.slice(0, i) + c.dim(url.slice(i));
+  },
+} as const;
 
 export async function pullBundle(
   cwd: t.StringDir,
@@ -16,8 +27,8 @@ export async function pullBundle(
   const PULL_PREFIX = 'bundle:pull-latest:';
   const optBundles = (location.remoteBundles ?? []).map((m, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
-    let name = `${' pull:'} ${branch} ${m.remote.dist}`;
-    const value = `${PULL_PREFIX}${m.remote.dist}`;
+    const name = `${' pull:'} ${branch} ${m.local.dir} ← ${Fmt.distUrl(m.remote.dist)}`;
+    const value = `${PULL_PREFIX}${i}`;
     return { name, value };
   });
 
@@ -58,7 +69,7 @@ export async function pullBundle(
 
     // Write to the config file.
     config.change((d) => {
-      const { bundle } = Config.Mutate.getRemoteBundle(d, location.dir, distUrl.href);
+      const { bundle } = Config.Mutate.getRemoteBundle(d, location.dir, distUrl.href, localDir);
       if (!bundle) throw new Error(`Expected a bundle entry. ${distUrl.href}`);
       bundle.remote.dist = distUrl.href;
       bundle.local.dir = localDir;
@@ -71,9 +82,11 @@ export async function pullBundle(
   }
 
   if (A.startsWith(PULL_PREFIX)) {
-    const distUrl = A.slice(PULL_PREFIX.length);
-    const bundle = Config.findBundle(config, location.dir, distUrl);
-    if (!bundle) throw new Error(`Expected a bundle entry. ${distUrl}`);
+    const index = Number(A.slice(PULL_PREFIX.length));
+    const loc = Config.findLocation(config, location.dir) ?? location;
+    const bundles = loc.remoteBundles ?? [];
+    const bundle = bundles[index];
+    if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
     await pullRemoteBundle(location.dir, bundle);
     return done();
   }
