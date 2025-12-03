@@ -1,6 +1,16 @@
-import { type t, c, Cli, Err, Http, Url } from '../common.ts';
-import { Fmt } from '../u.fmt.ts';
+import { type t, c, Cli, Err, Http, Str, Url } from '../common.ts';
+import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { rewriteTags } from './u.pull.rewriteTags.ts';
+
+const Fmt = {
+  ...BaseFmt,
+  pullingSpinnerText(after: string = '') {
+    return Fmt.spinnerText(`pulling remote bundle... ${after}`.trim());
+  },
+  bundleSize(dist: t.DistPkg) {
+    return Str.bytes(dist.build.size.total);
+  },
+} as const;
 
 /**
  * Pulls a remote `dist.json` bundle into a local directory using resilient HTTP fetch.
@@ -15,18 +25,23 @@ export async function pullRemoteBundle(
   const distUrl = Url.toCanonical(bundle.remote.dist);
   if (!distUrl.ok) throw new Error(`Invalid dist.json URL: ${distUrl.href}`);
 
-  spinner.start(Fmt.spinnerText('pulling remote bundle...'));
-  try {
-    const result = await pullDir(distUrl.href, targetDir);
-    const host = distUrl.toURL().host;
+  // Pull `dist.json` manifest:
+  spinner.start(Fmt.pullingSpinnerText());
+  const dist = await pullDist(distUrl.href);
+  spinner.text = Fmt.pullingSpinnerText(c.dim(`(${Fmt.bundleSize(dist)})`));
 
+  // Pull folder from manifest:
+  try {
+    const result = await pullDir(distUrl.href, targetDir, dist);
+    const host = distUrl.toURL().host;
     await rewriteTags(baseDir, bundle, host);
 
     if (!result.ok) {
       spinner.fail(summarizePullFailure(result));
     } else {
+      const size = c.dim(`(${Fmt.bundleSize(dist)})`);
       const fullpath = Fmt.prettyPath(targetDir);
-      const path = `./${c.cyan(bundle.local.dir)}\n  ${fullpath}`;
+      const path = `./${c.cyan(bundle.local.dir)} ${size}\n  ${fullpath}`;
       const msg = c.gray(`${c.green('bundle pulled')} → ${path}`);
       spinner.succeed(msg);
     }
@@ -55,8 +70,8 @@ async function pullDist(distUrl: t.StringUrl): Promise<t.DistPkg> {
  * Pull all files listed in the dist manifest into `targetDir`.
  * The directory containing `dist.json` is treated as the remote bundle root.
  */
-async function pullDir(distUrl: t.StringUrl, targetDir: t.StringDir) {
-  const dist = await pullDist(distUrl);
+async function pullDir(distUrl: t.StringUrl, targetDir: t.StringDir, dist?: t.DistPkg) {
+  dist = dist ?? (await pullDist(distUrl));
   const distUrlObj = new URL(distUrl);
 
   /**

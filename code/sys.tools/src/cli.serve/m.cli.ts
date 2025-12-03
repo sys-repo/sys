@@ -85,7 +85,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       message: `With: ${c.gray(location.name)}`,
       options: [
         opt(' start http server', 'serve:start'),
-        opt(' app bundles', 'bundle'),
+        opt(' dist/pkg bundles', 'bundle'),
         opt(c.dim(c.gray('(forget)')), 'modify:remove'),
       ],
     })) as C;
