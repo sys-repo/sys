@@ -66,7 +66,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         ...listing,
         opt(' start: sync server (websockets)', 'repo:syncserver:start'),
         opt(' start: repository daemon', 'repo:daemon:start'),
-        // opt(c.gray('(exit)'), 'exit'),
+        opt(c.gray('(exit)'), 'exit'),
       ],
       default: defaultCommand as C,
       hideDefault: true,

@@ -11,10 +11,10 @@
  *  Other absolute paths (e.g. to a different bundle root) are left untouched.
  */
 export function rewriteAssetUrls(html: string, bundleDir: string, bundleRootPath: string): string {
-  const assetRx = /(href|src)=(["'])(\/[^"']*)\2/g;
   const isRootBundle = bundleRootPath === '/' || bundleRootPath === '';
   const rootPrefix = bundleRootPath.endsWith('/') ? bundleRootPath : `${bundleRootPath}/`;
 
+  const assetRx = /(href|src)=(["'])(\/[^"']*)\2/g;
   return html.replace(assetRx, (match, attr, quote, fullPath) => {
     // Root bundle: re-root everything under "/<bundleDir>", but
     // avoid double-prefixing if it's already there ("/my-bundle/...").
@@ -24,7 +24,7 @@ export function rewriteAssetUrls(html: string, bundleDir: string, bundleRootPath
         return match;
       }
 
-      const newPath = `/${bundleDir}${fullPath}`;
+      const newPath = normalizeAssetPath(`/${bundleDir}${fullPath}`);
       return `${attr}=${quote}${newPath}${quote}`;
     }
 
@@ -38,7 +38,17 @@ export function rewriteAssetUrls(html: string, bundleDir: string, bundleRootPath
     // e.g. fullPath:  "/bundles/my-bundle/pkg/entry.js"
     //      rootPrefix:"/bundles/my-bundle/"
     //      → "pkg/entry.js"
-    const trimmed = fullPath.slice(rootPrefix.length);
+    const trimmed = normalizeAssetPath(fullPath.slice(rootPrefix.length));
     return `${attr}=${quote}${trimmed}${quote}`;
   });
+}
+
+/**
+ * Collapse simple "/./" path segments to their canonical form.
+ *
+ * Keeps semantics identical but produces cleaner URLs like:
+ *   "/sys/ui.components/./pkg/x.js" → "/sys/ui.components/pkg/x.js"
+ */
+function normalizeAssetPath(path: string): string {
+  return path.replace(/\/\.\//g, '/');
 }
