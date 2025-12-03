@@ -1,5 +1,16 @@
 /**
- * Library:
+ * @module
+ * Standard system library.
+ */
+export { pkg } from '../pkg.ts';
+
+/**
+ * Types:
+ */
+export type * as t from '@sys/types/t';
+
+/**
+ * Libraries:
  */
 export { Args } from '../m.Args/mod.ts';
 export { Schedule } from '../m.Async.Schedule/mod.ts';
