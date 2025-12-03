@@ -11,14 +11,7 @@ export type PkgDistLib = {
   /** HTTP fetch the `dist.json` file. */
   fetch(options?: t.PkgDistFetchOptions | t.StringUrl): Promise<PkgDistFetchResponse>;
 
-  /**
-   * Normalize a dist location into a typed `PkgDistLocation`.
-   *
-   * - URL/href input → `PkgDistLocationUrl` (remote bundle anchor).
-   * - Dir/path input → `PkgDistLocationDir` (directory anchor).
-   *
-   * This is a pure calculation utility; no network or filesystem I/O.
-   */
+  /** Normalize a dist location into a typed `PkgDistLocation`. */
   location: t.PkgDistLocationFn;
 };
 
