@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+export type * from './cmd.pull/t.ts';
+
 /**
  * CLI helpers for working with Serve.
  */
@@ -48,17 +50,19 @@ export namespace ServeTool {
     createdAt: t.UnixTimestamp;
     modifiedAt?: t.UnixTimestamp;
     /** Optional list of remote bundles that can be pulled into this directory. */
-    remoteBundles?: DirBundleConfig[];
+    remoteBundles?: DirRemoteBundle[];
   };
 
   /**
    * Mapping between a remote bundle and its local mount-point.
    */
-  export type DirBundleConfig = {
+  export type DirRemoteBundle = {
     /** Remote dist.json endpoint (source of the bundle). */
     remote: { dist: t.StringUrl };
     /** Local destination for the bundle, relative to DirConfig.dir. */
     local: { dir: t.StringRelativeDir };
+    /** Actions log */
+    log: { pulls: t.DirPullBundleLogEntry[] };
   };
 
   /** Allowed MIME types for static asset responses. */

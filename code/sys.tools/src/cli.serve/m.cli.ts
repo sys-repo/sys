@@ -73,7 +73,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
    * Serve location (folder):
    */
   {
-    const location = Config.findLocation(config, A);
+    const location = Config.findLocation(config.current, A);
     if (!location) {
       console.info();
       console.info(c.yellow(`Could not find a server configuration`));

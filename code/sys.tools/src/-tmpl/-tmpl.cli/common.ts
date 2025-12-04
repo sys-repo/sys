@@ -1,7 +1,6 @@
-import { type t, Fs, JsonFile } from '../common.ts';
+import { type t, JsonFile } from '../common.ts';
 
 export * from '../common.ts';
-export { getConfig } from './u.config.get.ts';
 
 /**
  * Constants:

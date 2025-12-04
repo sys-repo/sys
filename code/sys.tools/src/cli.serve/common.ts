@@ -4,7 +4,6 @@ import { type t, JsonFile } from '../common.ts';
  * Libs:
  */
 export * from '../common.ts';
-export { getConfig } from './u.config.get.ts';
 export { Http, serveFileWithEtag } from '@sys/http/server';
 
 /**

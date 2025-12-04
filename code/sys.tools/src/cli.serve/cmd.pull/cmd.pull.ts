@@ -1,6 +1,7 @@
-import { type t, c, Cli, done, Fs, getConfig, Url } from '../common.ts';
+import { type t, c, Cli, done, Fs, Url } from '../common.ts';
 import { Config } from '../u.config.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
+import { logPullOperation } from './u.pull.logOperation.ts';
 import { pullRemoteBundle } from './u.pull.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
@@ -21,7 +22,7 @@ export async function pullBundle(
   cwd: t.StringDir,
   location: t.ServeTool.DirConfig,
 ): Promise<t.RunReturn> {
-  const config = await getConfig(cwd);
+  const config = await Config.get(cwd);
   const opt = (name: string, value: C) => ({ name, value });
 
   const PULL_PREFIX = 'bundle:pull-latest:';
@@ -78,20 +79,24 @@ export async function pullBundle(
     if (config.fs.pending) await config.fs.save();
 
     // Re-load menu, with fresh copy of the adjusted config.
-    return pullBundle(cwd, Config.findLocation(config, location.dir)!);
+    return pullBundle(cwd, Config.findLocation(config.current, location.dir)!);
   }
 
   if (A.startsWith(PULL_PREFIX)) {
     const index = Number(A.slice(PULL_PREFIX.length));
-    const loc = Config.findLocation(config, location.dir) ?? location;
+    const loc = Config.findLocation(config.current, location.dir) ?? location;
     const bundles = loc.remoteBundles ?? [];
     const bundle = bundles[index];
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
-    await pullRemoteBundle(location.dir, bundle);
-    return done();
+
+    // Pull directory and log the result into the JSON doc.
+    logPullOperation(config, location, bundle, await pullRemoteBundle(location.dir, bundle));
+    await config.fs.save();
+
+    return done(0);
   }
 
-  return done();
+  return done(0);
 }
 
 /**

@@ -1,12 +1,12 @@
-import { type t, c, Fs, getConfig, Prompt, Time } from './common.ts';
 import { Mime } from './cmd.serve/mod.ts';
+import { type t, c, Fs, Prompt, Time } from './common.ts';
 import { Config } from './u.config.ts';
 
 /**
  * Add a document to the config.
  */
 export async function promptAddServeLocation(cwd: t.StringDir) {
-  const config = await getConfig(cwd);
+  const config = await Config.get(cwd);
 
   let path = await Prompt.Input.prompt({
     message: 'Directory (or Enter to use current)',
@@ -80,7 +80,7 @@ export async function promptAddServeLocation(cwd: t.StringDir) {
  * Remove a document from the config.
  */
 export async function promptRemoveDocument(dir: t.StringDir, location: t.ServeTool.DirConfig) {
-  const config = await getConfig(dir);
+  const config = await Config.get(dir);
   const ok = await Prompt.Confirm.prompt('Are you sure? Remove this directory from your config?');
   if (!ok) return;
 

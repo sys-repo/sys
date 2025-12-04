@@ -7,6 +7,9 @@ import { normalize } from './u.config.normalize.ts';
 export { normalize };
 export * from './u.config.get.ts';
 
+/**
+ * Config file namespace.
+ */
 export const Config = {
   Mutate,
   normalize,
@@ -15,8 +18,8 @@ export const Config = {
   /**
    * Lookup a remote bundle mounted under a given serve-location.
    */
-  findLocation(config: t.ServeTool.Config, dir: t.StringDir) {
-    return (config.current.dirs ?? []).find((m) => m.dir === dir);
+  findLocation(config: t.ServeTool.ConfigDoc, dir: t.StringDir) {
+    return (config.dirs ?? []).find((m) => m.dir === dir);
   },
 
   /**
@@ -26,7 +29,7 @@ export const Config = {
    *   - new:    by (distUrl + localDir) when both provided
    */
   findBundle(
-    config: t.ServeTool.Config,
+    config: t.ServeTool.ConfigDoc,
     locationDir: t.StringDir,
     distUrl: t.StringUrl,
     localDir?: t.StringRelativeDir,

@@ -1,4 +1,4 @@
-import { type t, c, Cli, Err, Http, Str, Url } from '../common.ts';
+import { c, Cli, Err, Http, Str, type t, Url } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { rewriteTags } from './u.pull.rewriteTags.ts';
 
@@ -18,8 +18,8 @@ const Fmt = {
  */
 export async function pullRemoteBundle(
   baseDir: t.StringDir,
-  bundle: t.ServeTool.DirBundleConfig,
-): Promise<t.HttpPullToDirResult> {
+  bundle: t.ServeTool.DirRemoteBundle,
+): Promise<t.PullBundleResult> {
   const spinner = Cli.spinner();
   const targetDir = `${baseDir}/${bundle.local.dir}`;
   const distUrl = Url.toCanonical(bundle.remote.dist);
@@ -45,7 +45,13 @@ export async function pullRemoteBundle(
       spinner.succeed(msg);
     }
 
-    return result;
+    return {
+      ...result,
+      dist,
+      get ops() {
+        return result.ops;
+      },
+    };
   } catch (error) {
     spinner.fail('bundle pull error');
     throw error;

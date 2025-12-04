@@ -1,5 +1,5 @@
 import { type t, done, Args, c, Cli, D, Fs, Is, Prompt, TmplEngine } from './common.ts';
-import { getConfig, normalize } from './u.config.ts';
+import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 
 /**
@@ -33,8 +33,8 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function run(cwd: t.StringDir): Promise<t.RunReturn> {
-  const config = await getConfig(cwd);
-  await normalize(config);
+  const config = await Config.get(cwd);
+  await Config.normalize(config);
 
   /** --------------------------------------------------------
    * Root Menu

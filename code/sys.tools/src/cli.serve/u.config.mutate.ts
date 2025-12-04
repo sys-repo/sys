@@ -36,20 +36,24 @@ export const MutateConfig = {
         bundle: undefined,
         exists: false,
         index: -1,
-        bundles: undefined as t.ServeTool.DirBundleConfig[] | undefined,
+        bundles: undefined as t.ServeTool.DirRemoteBundle[] | undefined,
         location: loc,
       };
     }
 
     const bundles = loc.location.remoteBundles || (loc.location.remoteBundles = []);
     const index = bundles.findIndex((b) => b.remote.dist === distUrl && b.local.dir === localDir);
-    let bundle: t.ServeTool.DirBundleConfig | undefined;
+    let bundle: t.ServeTool.DirRemoteBundle | undefined;
     const exists = index > -1;
 
     if (exists) {
       bundle = bundles[index]!;
     } else {
-      bundle = { local: { dir: localDir }, remote: { dist: distUrl } };
+      bundle = {
+        local: { dir: localDir },
+        remote: { dist: distUrl },
+        log: { pulls: [] },
+      };
       bundles.push(bundle);
     }
 

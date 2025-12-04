@@ -1,5 +1,5 @@
-import { LuFolderTree } from 'react-icons/lu';
-import { type t, Pkg, pkg, Fmt as Base, c, Cli, D, Fs, getConfig, Str, Time } from './common.ts';
+import { type t, Fmt as Base, c, D, Fs, Pkg, pkg, Str } from './common.ts';
+import { getConfig } from './u.config.ts';
 
 export const Fmt = {
   ...Base,
