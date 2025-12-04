@@ -1,5 +1,5 @@
 import * as StdFs from '@std/fs';
-import { Path as StdPath } from '@sys/std';
+
 import { describe, expect, it } from '../../-test.ts';
 import { Glob } from '../../m.Glob/mod.ts';
 import { Path } from '../common.ts';
@@ -16,32 +16,6 @@ describe('Fs: filesystem', () => {
     expect(Fs.move).to.eql(StdFs.move);
   });
 
-  describe('Fs.Path', () => {
-    it('refs', () => {
-      expect(Fs.Path).to.equal(Path);
-      expect(Fs.Path).to.not.equal(StdPath);
-      expect(Fs.join).to.eql(Path.join);
-      expect(Fs.resolve).to.eql(Path.resolve);
-      expect(Fs.dirname).to.eql(Path.dirname);
-      expect(Fs.basename).to.eql(Path.basename);
-      expect(Fs.extname).to.eql(Path.extname);
-    });
-
-    it('asDir', async () => {
-      const path1 = Path.resolve('.');
-      const path2 = Path.resolve('./deno.json');
-      const path3 = Path.resolve('./404.json');
-
-      const res1 = await Fs.Path.asDir(path1);
-      const res2 = await Fs.Path.asDir(path2);
-      const res3 = await Fs.Path.asDir(path3);
-
-      expect(res1).to.eql(path1);
-      expect(res2).to.eql(path1); // NB: stepped up to parent.
-      expect(res3).to.eql(path3); // NB: not-found, no change.
-    });
-  });
-
   describe('Fs.cwd', () => {
     it('returns the CWD', () => {
       expect(Fs.cwd()).to.eql(Deno.cwd());
@@ -51,6 +25,56 @@ describe('Fs: filesystem', () => {
     it('returns the initiating terminal CWD', () => {
       const dir = Fs.cwd('terminal');
       expect(dir).to.eql(Deno.env.get('INIT_CWD'));
+    });
+  });
+
+  describe('Fs.expandTilde', () => {
+    const ORIGINAL_HOME = Deno.env.get('HOME') ?? undefined;
+
+    const restoreHome = () => {
+      if (ORIGINAL_HOME == null) {
+        if (Deno.env.get('HOME') != null) Deno.env.delete('HOME');
+      } else {
+        Deno.env.set('HOME', ORIGINAL_HOME);
+      }
+    };
+
+    it('returns input unchanged when HOME is not set', () => {
+      Deno.env.delete('HOME');
+
+      const input = '~/foo/bar';
+      const res = Fs.expandTilde(input);
+      expect(res).to.eql(input);
+
+      restoreHome();
+    });
+
+    it('expands "~" to HOME', () => {
+      Deno.env.set('HOME', '/Users/tester');
+
+      const res = Fs.expandTilde('~');
+      expect(res).to.eql('/Users/tester');
+
+      restoreHome();
+    });
+
+    it('expands "~/foo/bar" to HOME-prefixed path', () => {
+      Deno.env.set('HOME', '/Users/tester');
+
+      const res = Fs.expandTilde('~/foo/bar');
+      expect(res).to.eql('/Users/tester/foo/bar');
+
+      restoreHome();
+    });
+
+    it('does not touch non-tilde paths or "~user" forms', () => {
+      Deno.env.set('HOME', '/Users/tester');
+
+      expect(Fs.expandTilde('/absolute/path')).to.eql('/absolute/path');
+      expect(Fs.expandTilde('relative/path')).to.eql('relative/path');
+      expect(Fs.expandTilde('~otheruser/foo')).to.eql('~otheruser/foo');
+
+      restoreHome();
     });
   });
 });

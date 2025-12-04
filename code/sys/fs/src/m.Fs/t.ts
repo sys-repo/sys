@@ -66,12 +66,11 @@ export type FsLib = Methods & {
   /** Generator function that produces `FsDir` data-structures. */
   toDir: t.FsDirFactory;
 
+  /** Expands a leading "~" or "~/" to the user's home directory. */
+  expandTilde: t.FsExpandTilde;
+
   /** Create a new temporary directory and return it as an FsDir handle. */
-  makeTempDir(options?: {
-    readonly dir?: t.StringDir;
-    readonly prefix?: string;
-    readonly suffix?: string;
-  }): Promise<t.FsDir>;
+  makeTempDir: t.FsMakeTempDir;
 };
 
 /**
@@ -300,3 +299,19 @@ export type FsDirSize = {
   readonly total: { files: number; bytes: number };
   toString(options?: t.FormatBytesOptions): string;
 };
+
+/**
+ * Create a new temporary directory and return it as an FsDir handle.
+ */
+export type FsMakeTempDir = (options?: t.FsMakeTempDirOptions) => Promise<t.FsDir>;
+export type FsMakeTempDirOptions = {
+  readonly dir?: t.StringDir;
+  readonly prefix?: string;
+  readonly suffix?: string;
+};
+
+/**
+ * Expands a leading "~" or "~/" to the user's home directory.
+ * Returns the input unchanged if no tilde expansion applies.
+ */
+export type FsExpandTilde = (input: t.StringPath) => t.StringPath;
