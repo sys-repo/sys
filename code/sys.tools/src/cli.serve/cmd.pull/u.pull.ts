@@ -33,8 +33,7 @@ export async function pullRemoteBundle(
   // Pull folder from manifest:
   try {
     const result = await pullDir(distUrl.href, targetDir, dist);
-    const host = distUrl.toURL().host;
-    await rewriteTags(baseDir, bundle, host);
+    await rewriteTags(baseDir, bundle);
 
     if (!result.ok) {
       spinner.fail(summarizePullFailure(result));
@@ -92,7 +91,7 @@ async function pullDir(distUrl: t.StringUrl, targetDir: t.StringDir, dist?: t.Di
   // Include dist.json itself so it’s cached alongside the assets.
   const urls = [distUrlObj.href, ...assetUrls];
 
-  const dir = await Http.Pull.toDir(urls, targetDir, {
+  return await Http.Pull.toDir(urls, targetDir, {
     retry: { attempts: 8, base: 200, factor: 2, jitter: true },
     map: {
       /**
@@ -107,8 +106,6 @@ async function pullDir(distUrl: t.StringUrl, targetDir: t.StringDir, dist?: t.Di
       relativeTo,
     },
   });
-
-  return { ...dir, dist } as const;
 }
 
 /**

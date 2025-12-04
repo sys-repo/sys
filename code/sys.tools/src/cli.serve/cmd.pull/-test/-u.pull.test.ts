@@ -1,167 +1,127 @@
-import { describe, expect, it } from '../../../-test.ts';
-import { computeBaseHref } from '../u.url.computeBaseHref.ts';
-import { rewriteAssetUrls } from '../u.url.rewrite.assetUrls.ts';
-import { rewriteHtml } from '../u.url.rewrite.html.ts';
+import { slug, describe, expect, it, Fs } from '../../../-test.ts';
+import { type t } from '../../common.ts';
+import { rewriteTags } from '../u.pull.rewriteTags.ts';
 
 describe('cli.serve/cmd.pull → URL + HTML helpers', () => {
-  describe('computeBaseHref', () => {
-    it('returns base for index at bundle root', () => {
-      const rootDir = '/tmp/my-bundle';
-      const filePath = '/tmp/my-bundle/index.html';
-      const res = computeBaseHref(rootDir, filePath, 'my-bundle');
-      expect(res).to.eql('/my-bundle/');
+  const makeTestDir = async () => {
+    const dir = Fs.resolve(`./.tmp/test/cmd.pull/${slug()}`);
+    await Fs.ensureDir(dir);
+    return dir;
+  };
+
+  describe('rewriteTags', () => {
+    it('rewrites root index base from remote host to local mount (/foo/)', async () => {
+      const baseDir = (await makeTestDir()) as t.StringDir;
+      const bundle: t.ServeTool.DirBundleConfig = {
+        remote: { dist: 'https://example.com/dist.json' },
+        local: { dir: 'foo' },
+      };
+
+      const remote = `
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+        <base href="https://example.com">
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>example.com</title>
+            <link rel="stylesheet" href="styles.css" />
+          </head>
+          <body>
+            <ul>
+              <li><a href="./sys/dev/?d">sys:dev</a></li>
+              <hr />
+              <li><a href="./sys/ui.components/?d">sys:ui.components</a></li>
+              <li><a href="./sys/ui.factory/?d">sys:ui.factory</a></li>
+              <hr />
+              <li><a href="./sys/driver.automerge/">sys:driver.automerge</a></li>
+              <li><a href="./sys/driver.monaco/?d">sys:driver.monaco</a></li>
+              <li><a href="./sys/driver.peerjs/?d">sys:driver.peerjs</a></li>
+              <li><a href="./sys/driver.prosemirror/?d">sys:driver.prosemirror</a></li>
+              <hr />
+              <li><a href="./dist.json">dist.json (#a7d17)</a></li>
+            </ul>
+          </body>
+        </html>
+        `;
+
+      const dir = Fs.join(baseDir, 'foo');
+      const indexPath = Fs.join(dir, 'index.html');
+
+      await Fs.ensureDir(dir);
+      await Fs.write(indexPath, remote, { force: true });
+
+      await rewriteTags(baseDir, bundle);
+
+      const res = (await Fs.readText(indexPath)).data;
+
+      // Base tag is rewritten to the local mount (/foo/).
+      expect(res).to.include('<base href="/foo/">');
+      // Remote host is stripped.
+      expect(res).to.not.include('https://example.com');
+      // Links remain relative; resolution is via the new base.
+      expect(res).to.include('<a href="./sys/dev/?d">sys:dev</a>');
     });
 
-    it('returns base for index in nested subdirectory', () => {
-      const rootDir = '/tmp/my-bundle';
-      const filePath = '/tmp/my-bundle/app/example/index.html';
+    it('rewrites bundle index base and asset URLs for /sys/sys/ui.components/', async () => {
+      const baseDir = (await makeTestDir()) as t.StringDir;
+      const bundle: t.ServeTool.DirBundleConfig = {
+        remote: { dist: 'https://example.com/dist.json' },
+        local: { dir: 'sys' },
+      };
 
-      const res = computeBaseHref(rootDir, filePath, 'my-bundle');
-      expect(res).to.eql('/my-bundle/app/example/');
-    });
+      const remote = `
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+        <base href="https://example.com/sys/ui.components/">
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>loading...</title>
+            <script type="module" crossorigin src="/sys/ui.components/./pkg/-entry.Vary2Qzy.js"></script>
+            <link rel="modulepreload" crossorigin href="/sys/ui.components/./pkg/m.C_5SYDux.js">
+            <link rel="modulepreload" crossorigin href="/sys/ui.components/./pkg/m.CUBIzhyw.js">
+            <link rel="modulepreload" crossorigin href="/sys/ui.components/./pkg/m.CUy3WF6Y.js">
+            <link rel="modulepreload" crossorigin href="/sys/ui.components/./pkg/m.BswPaJ8Z.js">
+            <link rel="modulepreload" crossorigin href="/sys/ui.components/./pkg/m.CknerPxH.js">
+          </head>
+          <body>
+            <div id="root"></div>
+          </body>
+        </html>
+        `;
 
-    it('normalizes trailing slash on rootDir', () => {
-      const rootDir = '/tmp/my-bundle/';
-      const filePath = '/tmp/my-bundle/index.html';
+      // NOTE:
+      //   baseDir       → /.../.tmp/<slug>
+      //   local.dir     → 'sys'
+      //   index path    → <baseDir>/sys/sys/ui.components/index.html
+      //   dirname       → <baseDir>/sys/sys/ui.components
+      //   slice(baseDir.length) → /sys/sys/ui.components
+      //   ensureSlashWrap       → /sys/sys/ui.components/
+      const dir = Fs.join(baseDir, 'sys', 'sys', 'ui.components');
+      const indexPath = Fs.join(dir, 'index.html');
 
-      const res = computeBaseHref(rootDir, filePath, 'my-bundle');
-      expect(res).to.eql('/my-bundle/');
-    });
+      await Fs.ensureDir(dir);
+      await Fs.write(indexPath, remote, { force: true });
 
-    it('computes base href for mount + nested bundle ("/foo/sys.ui.components")', () => {
-      const rootDir = '/tmp/foo';
-      const filePath = '/tmp/foo/sys.ui.components/index.html';
+      await rewriteTags(baseDir, bundle);
 
-      // Mount dir: "foo"
-      const res = computeBaseHref(rootDir, filePath, 'foo');
+      const res = (await Fs.readText(indexPath)).data;
 
-      // Local URL:
-      expect(res).to.eql('/foo/sys.ui.components/');
-    });
-  });
+      // Base is now the local bundle base, derived from baseDir + local.dir.
+      expect(res).to.include('<base href="/sys/sys/ui.components/">');
+      // Remote host is stripped.
+      expect(res).to.not.include('https://example.com');
 
-  describe('rewriteAssetUrls', () => {
-    it('roots absolute paths under bundleDir for root bundle', () => {
-      const html = '<link href="/styles.css">' + '<script src="/my-bundle/app.js"></script>';
-      const out = rewriteAssetUrls(html, 'my-bundle', '/');
+      // Root-absolute asset URLs under /sys/ui.components/... are normalized
+      // by trimming the '/./' segment to become bundle-relative ./pkg/...:
+      expect(res).to.include(
+        '<script type="module" crossorigin src="./pkg/-entry.Vary2Qzy.js"></script>',
+      );
+      expect(res).to.include('<link rel="modulepreload" crossorigin href="./pkg/m.C_5SYDux.js">');
 
-      expect(out).to.contain('href="/my-bundle/styles.css"');
-
-      // Already rooted under "/my-bundle" → unchanged.
-      expect(out).to.contain('src="/my-bundle/app.js"');
-    });
-
-    it('strips bundleRootPath prefix for nested bundle and leaves others', () => {
-      const html =
-        '<script src="/bundles/my-bundle/pkg/entry.js"></script>' +
-        '<link href="/other/styles.css">';
-
-      const out = rewriteAssetUrls(html, 'my-bundle', '/bundles/my-bundle');
-
-      // Path under this bundle root becomes relative.
-      expect(out).to.contain('src="pkg/entry.js"');
-      // Path under a different root is untouched.
-      expect(out).to.contain('href="/other/styles.css"');
-    });
-
-    it('normalizes "/./" segments in rewritten asset URLs', () => {
-      const html =
-        '<script src="/bundles/my-bundle/./pkg/entry.js"></script>' +
-        '<link href="/bundles/my-bundle/./pkg/m.chunk.js">';
-
-      const out = rewriteAssetUrls(html, 'my-bundle', '/bundles/my-bundle');
-
-      // Both paths should have "/./" collapsed, and trimming the bundle root
-      // yields a relative path starting with "./"
-      expect(out).to.contain('src="./pkg/entry.js"');
-      expect(out).to.contain('href="./pkg/m.chunk.js"');
-    });
-  });
-
-  describe('rewriteHtml', () => {
-    it('rewrites <base> for matching host and rewrites asset URLs', () => {
-      const html = [
-        '<!doctype html>',
-        '<html>',
-        '<head>',
-        '  <base href="https://example.com/bundles/my-bundle/">',
-        '  <link href="/bundles/my-bundle/pkg/entry.js">',
-        '  <link href="/other/styles.css">',
-        '</head>',
-        '<body>',
-        '  <script src="/bundles/my-bundle/app.js"></script>',
-        '</body>',
-        '</html>',
-      ].join('\n');
-
-      const result = rewriteHtml({
-        html,
-        path: '/tmp/my-bundle/index.html',
-        rootDir: '/tmp/my-bundle',
-        bundleDir: 'my-bundle',
-        bundleRootPath: '/bundles/my-bundle',
-        host: 'example.com',
-      });
-
-      // 1) <base> is rewritten to a local bundle-relative base.
-      expect(result).to.contain('<base href="/my-bundle/">');
-
-      // 2) Assets under the bundle root are rewritten to relative paths.
-      expect(result).to.contain('href="pkg/entry.js"');
-      expect(result).to.contain('src="app.js"');
-
-      // 3) Assets outside the bundle root are untouched.
-      expect(result).to.contain('href="/other/styles.css"');
-    });
-
-    it('does not touch <base> tags for other hosts', () => {
-      const html = [
-        '<head>',
-        '  <base href="https://other.example.com/bundles/my-bundle/">',
-        '</head>',
-      ].join('\n');
-
-      const result = rewriteHtml({
-        html,
-        path: '/tmp/my-bundle/index.html',
-        rootDir: '/tmp/my-bundle',
-        bundleDir: 'my-bundle',
-        bundleRootPath: '/bundles/my-bundle',
-        host: 'example.com',
-      });
-
-      // unchanged, because host does not match.
-      expect(result).to.contain('<base href="https://other.example.com/bundles/my-bundle/">');
-    });
-
-    it('handles example.com → "/foo/sys.ui.components" mount scenario', () => {
-      const html = [
-        '<!doctype html>',
-        '<html>',
-        '<head>',
-        '  <base href="https://example.com/sys.ui.components/">',
-        '  <script type="module" src="/sys.ui.components/pkg/-entry.Vary2Qzy.js"></script>',
-        '</head>',
-        '<body>',
-        '  <div id="root"></div>',
-        '</body>',
-        '</html>',
-      ].join('\n');
-
-      const result = rewriteHtml({
-        html,
-        path: '/tmp/sys/sys.ui.components/index.html',
-        rootDir: '/tmp/foo',
-        bundleDir: 'foo',
-        bundleRootPath: '/sys.ui.components',
-        host: 'example.com',
-      });
-
-      // Base is now bundle-relative under the "/sys" mount.
-      expect(result).to.contain('<base href="/foo/sys.ui.components/">');
-
-      // Asset URL should now be relative to the base (no "/sys.ui.components/" prefix).
-      expect(result).to.contain('src="pkg/-entry.Vary2Qzy.js"');
+      // Ensure no lingering root-absolute bundle asset URLs with '/./'.
+      expect(res).to.not.include('/sys/ui.components/./pkg/');
     });
   });
 });
