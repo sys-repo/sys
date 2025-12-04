@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.76",
+    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.77",
     "@automerge/automerge": "npm:@automerge/automerge@3.2.1",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.5.1",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.5.1",

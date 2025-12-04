@@ -64,11 +64,11 @@ groups:
     - import: npm:rollup-plugin-visualizer@6.0.5
 
   dev/tools:
-    - import: npm:prettier@3.7.3
+    - import: npm:prettier@3.7.4
 
   ui/react:
-    - import: npm:react@19.2.0
-    - import: npm:react-dom@19.2.0
+    - import: npm:react@19.2.1
+    - import: npm:react-dom@19.2.1
     - import: npm:@types/react@19.2.7
     - import: npm:@types/react-dom@19.2.3
     - import: npm:@testing-library/react@16.3.0
@@ -89,7 +89,7 @@ groups:
 
   ai:
     - import: npm:ai@5.0.106
-    - import: npm:@ai-sdk/openai@2.0.76
+    - import: npm:@ai-sdk/openai@2.0.77
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.6
       subpaths: ['agent', 'memory', 'storage']
