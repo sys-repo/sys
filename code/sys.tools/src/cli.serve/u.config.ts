@@ -2,11 +2,14 @@ import type { t } from './common.ts';
 import { getConfig as get } from './u.config.get.ts';
 import { MutateConfig as Mutate } from './u.config.mutate.ts';
 
+import { normalize } from './u.config.normalize.ts';
+
+export { normalize };
 export * from './u.config.get.ts';
-export * from './u.config.normalize.ts';
 
 export const Config = {
   Mutate,
+  normalize,
   get,
 
   /**
