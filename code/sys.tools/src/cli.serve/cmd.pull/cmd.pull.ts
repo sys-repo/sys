@@ -1,7 +1,6 @@
 import { type t, c, Cli, done, Fs, Url } from '../common.ts';
 import { Config } from '../u.config.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
-import { logPullOperation } from './u.pull.logOperation.ts';
 import { pullRemoteBundle } from './u.pull.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
@@ -89,10 +88,7 @@ export async function pullBundle(
     const bundle = bundles[index];
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
 
-    // Pull directory and log the result into the JSON doc.
-    logPullOperation(config, location, bundle, await pullRemoteBundle(location.dir, bundle));
-    await config.fs.save();
-
+    await pullRemoteBundle(location.dir, bundle);
     return done(0);
   }
 

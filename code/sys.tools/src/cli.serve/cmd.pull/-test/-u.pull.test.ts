@@ -15,7 +15,6 @@ describe('cli.serve/cmd.pull → URL + HTML helpers', () => {
       const bundle: t.ServeTool.DirRemoteBundle = {
         remote: { dist: 'https://example.com/dist.json' },
         local: { dir: 'foo' },
-        log: { pulls: [] },
       };
 
       const remote = `
@@ -69,7 +68,6 @@ describe('cli.serve/cmd.pull → URL + HTML helpers', () => {
       const bundle: t.ServeTool.DirRemoteBundle = {
         remote: { dist: 'https://example.com/dist.json' },
         local: { dir: 'sys' },
-        log: { pulls: [] },
       };
 
       const remote = `

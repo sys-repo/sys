@@ -61,8 +61,6 @@ export namespace ServeTool {
     remote: { dist: t.StringUrl };
     /** Local destination for the bundle, relative to DirConfig.dir. */
     local: { dir: t.StringRelativeDir };
-    /** Actions log */
-    log: { pulls: t.DirPullBundleLogEntry[] };
   };
 
   /** Allowed MIME types for static asset responses. */
