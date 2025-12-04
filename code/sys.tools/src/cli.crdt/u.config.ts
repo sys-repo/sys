@@ -1,7 +1,25 @@
-import { type t, D, Is, Time, getConfig, Obj } from './common.ts';
+import { type t, D, Fs, Is, JsonFile, Obj, Time } from './common.ts';
 
-export { getConfig };
+/**
+ * Config file helpers.
+ */
+export const Config = {
+  get: getConfig,
+  normalize,
+} as const;
 
+/**
+ * Get or create the `-crdt.config.json` file.
+ */
+export async function getConfig(dir: t.StringDir): Promise<t.CrdtTool.Config> {
+  const path = Fs.join(dir, D.Config.filename);
+  const doc = JsonFile.Singleton.get<t.CrdtTool.ConfigDoc>(path, D.Config.doc, { touch: true });
+  return doc;
+}
+
+/**
+ * Perform migrations and other maintenance on the config-file data structure.
+ */
 export async function normalize(config: t.CrdtTool.Config) {
   const current = config.current;
   /**

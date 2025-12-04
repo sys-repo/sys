@@ -1,10 +1,11 @@
-import { type t, c, Crdt, Delete, getConfig, Prompt, Time } from './common.ts';
+import { type t, c, Crdt, Delete, Prompt, Time } from './common.ts';
+import { Config } from './u.config.ts';
 
 /**
  * Add a document to the config.
  */
 export async function promptAddDocument(cwd: t.StringDir) {
-  const config = await getConfig(cwd);
+  const config = await Config.get(cwd);
   let id = await Prompt.Input.prompt({
     message: 'Document-id',
     validate: (value) => Crdt.Is.id(value.trim()),
@@ -30,7 +31,7 @@ export async function promptAddDocument(cwd: t.StringDir) {
  * Remove a document from the config.
  */
 export async function promptRemoveDocument(dir: t.StringDir, id: t.StringId) {
-  const config = await getConfig(dir);
+  const config = await Config.get(dir);
   const ok = await Prompt.Confirm.prompt('Are you sure?');
   if (!ok) return;
 

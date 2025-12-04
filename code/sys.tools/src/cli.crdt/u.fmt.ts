@@ -1,4 +1,5 @@
-import { type t, Fmt as Base, c, Cli, Crdt, D, getConfig, Json, Str, Time } from './common.ts';
+import { type t, Fmt as Base, c, Cli, Crdt, D, Json, Str, Time } from './common.ts';
+import { Config } from './u.config.ts';
 
 export const Fmt = {
   ...Base,
@@ -41,7 +42,7 @@ export const Fmt = {
   Table: {
     async configuredDocs(dir: t.StringDir) {
       const table = Cli.table([]);
-      const config = await getConfig(dir);
+      const config = await Config.get(dir);
       const docs = config.current.docs ?? [];
 
       const now = Time.now.timestamp;

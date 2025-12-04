@@ -1,9 +1,12 @@
 import { type t, D, Fs, Is, JsonFile } from './common.ts';
 
-export async function normalize(config: t.__NAME__Tool.Config) {
-  /** Save if changed */
-  if (config.fs.pending) await config.fs.save();
-}
+/**
+ * Config file helpers.
+ */
+export const Config = {
+  normalize,
+  get: getConfig,
+} as const;
 
 /**
  * Get or create the `-<name>.config.json` file.
@@ -15,9 +18,9 @@ export async function getConfig(dir: t.StringDir): Promise<t.__NAME__Tool.Config
 }
 
 /**
- * Config file namespace.
+ * Perform migrations and other maintenance on the config-file data structure.
  */
-export const Config = {
-  normalize,
-  get: getConfig,
-} as const;
+export async function normalize(config: t.__NAME__Tool.Config) {
+  /** Save if changed */
+  if (config.fs.pending) await config.fs.save();
+}
