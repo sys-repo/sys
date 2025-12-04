@@ -10,9 +10,6 @@ export type PkgDistLib = {
 
   /** HTTP fetch the `dist.json` file. */
   fetch(options?: t.PkgDistFetchOptions | t.StringUrl): Promise<PkgDistFetchResponse>;
-
-  /** Normalize a dist location into a typed `PkgDistLocation`. */
-  location: t.PkgDistLocationFn;
 };
 
 /**

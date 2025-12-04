@@ -2,7 +2,6 @@ import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
 
-export type * from './t.dist.location.ts';
 export type * from './t.dist.ts';
 export type * from './t.is.ts';
 
