@@ -49,6 +49,8 @@ export namespace ServeTool {
     /** Timestamps */
     createdAt: t.UnixTimestamp;
     modifiedAt?: t.UnixTimestamp;
+    lastUsedAt?: t.UnixTimestamp;
+
     /** Optional list of remote bundles that can be pulled into this directory. */
     remoteBundles?: DirRemoteBundle[];
   };

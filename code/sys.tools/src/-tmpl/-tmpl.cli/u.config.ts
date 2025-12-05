@@ -1,9 +1,10 @@
-import { type t, D, Fs, Is, JsonFile } from './common.ts';
+import { type t, D, Fs, Is, JsonFile, Config as Base } from './common.ts';
 
 /**
  * Config file helpers.
  */
 export const Config = {
+  ...Base,
   normalize,
   get: getConfig,
 } as const;

@@ -1,11 +1,16 @@
-import { type t, D, Fs, Is, JsonFile, Obj, Time } from './common.ts';
+import { type t, Config as Base, D, Fs, Is, JsonFile, Obj, Time } from './common.ts';
 
 /**
  * Config file helpers.
  */
 export const Config = {
+  ...Base,
   get: getConfig,
   normalize,
+  findDocEntry(config: t.CrdtTool.ConfigDoc, docid: t.Crdt.Id) {
+    const dirs = config.docs || (config.docs = []);
+    return dirs.find((m) => m.id === docid);
+  },
 } as const;
 
 /**

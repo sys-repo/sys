@@ -1,4 +1,4 @@
-import { type t, Args, c, Cli, D, done, Fs, Is, Prompt } from './common.ts';
+import { type t, Args, c, Cli, D, done, Fs, Is, Prompt, Time } from './common.ts';
 
 import { startServing } from './cmd.serve/mod.ts';
 import { Config, normalize } from './u.config.ts';
@@ -43,7 +43,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
   const opt = (name: string, value: C) => ({ name, value });
 
-  const listing = (config.current.dirs ?? []).map((item, i, total) => {
+  const listing = Config.orderByRecency(config.current.dirs).map((item, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
     let name = ` ${'serve:'} ${branch} ${c.green(item.name)}`;
     return { name, value: item.dir };
@@ -73,14 +73,20 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
    * Serve location (folder):
    */
   {
-    const location = Config.findLocation(config.current, A);
-    if (!location) {
+    const findSelectedLocation = () => Config.findLocation(config.current, A)!;
+    if (!findSelectedLocation()) {
       console.info();
       console.info(c.yellow(`Could not find a server configuration`));
       console.info(c.gray(`directory: ${A}`));
       console.info();
       return done();
     }
+    config.change((d) => {
+      const dir = Config.findLocation(d, A);
+      if (dir) dir.lastUsedAt = Time.now.timestamp;
+    });
+    config.fs.save();
+    const location = findSelectedLocation();
 
     if (Fs.cwd() !== location.dir) {
       console.info(c.gray(`directory: ${location.dir}`));

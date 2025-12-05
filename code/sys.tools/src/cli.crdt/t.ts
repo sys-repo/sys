@@ -57,6 +57,7 @@ export namespace CrdtTool {
     id: t.StringId;
     name?: t.StringName;
     createdAt?: t.UnixTimestamp;
+    lastUsedAt?: t.UnixTimestamp;
   };
 
   /**

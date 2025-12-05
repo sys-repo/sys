@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import { type t, Config as Base } from './common.ts';
 import { getConfig as get } from './u.config.get.ts';
 import { MutateConfig as Mutate } from './u.config.mutate.ts';
 
@@ -11,6 +11,8 @@ export * from './u.config.get.ts';
  * Config file namespace.
  */
 export const Config = {
+  ...Base,
+
   Mutate,
   normalize,
   get,
