@@ -1,5 +1,5 @@
-import { type t, Args, c, Cli, Crdt, D, done, Fs, Is, Prompt } from './common.ts';
-import { getConfig, normalize } from './u.config.ts';
+import { type t, Time, Args, c, Cli, Crdt, D, done, Fs, Is, Prompt } from './common.ts';
+import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
 
@@ -36,12 +36,11 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function run(cwd: t.StringDir): Promise<t.RunReturn> {
-  const config = await getConfig(cwd);
-  await normalize(config);
+  const config = await Config.get(cwd);
+  await Config.normalize(config);
 
-  const listing = (config.current.docs ?? [])
+  const listing = Config.orderByRecency(config.current.docs)
     .map((doc) => ({ doc, name: doc.name ?? '', value: `crdt:${doc.id}` }))
-    .sort((a, b) => a.name.localeCompare(b.name))
     .map((e, i, total) => {
       const { doc } = e;
       const branch = Fmt.Tree.branch([i, total]);
@@ -73,6 +72,14 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     })) as C;
 
     let id = Crdt.Is.uri(A) ? Crdt.Id.fromUri(A) || '' : '';
+    if (id) {
+      config.change((d) => {
+        const entry = Config.findDocEntry(d, id);
+        if (entry) entry.lastUsedAt = Time.now.timestamp;
+      });
+      await config.fs.save();
+    }
+
     if (A === 'doc:add') {
       const res = await promptAddDocument(cwd);
       if (!res?.id) return done();
