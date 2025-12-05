@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 export type * from './t.SplitRatio.ts';
 
 /**
- * Component: SplitPane (N panes).
+ * Component: SplitPane (n-panes).
  */
 export type SplitPaneProps = {
   /** Panes in order. */
