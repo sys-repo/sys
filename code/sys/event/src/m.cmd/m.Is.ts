@@ -10,6 +10,12 @@ export const CmdIs: t.CmdIsLib = {
     return msg.kind === 'cmd' && Is.string(msg.id) && Is.string(msg.name);
   },
 
+  event(input: unknown): input is t.CmdEventEnvelope {
+    if (!Is.record(input)) return false;
+    const msg = input as t.CmdEventEnvelope;
+    return msg.kind === 'cmd:event' && Is.string(msg.id) && Is.string(msg.name);
+  },
+
   response(input: unknown): input is t.CmdResultEnvelope {
     if (!Is.record(input)) return false;
     const msg = input as t.CmdResultEnvelope;

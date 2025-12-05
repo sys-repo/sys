@@ -1,9 +1,9 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /**
  * Discriminant for command wire messages.
  */
-export type CmdKind = 'cmd' | 'cmd:result';
+export type CmdKind = 'cmd' | 'cmd:event' | 'cmd:result';
 
 /**
  * Command indentifying name.
@@ -24,6 +24,11 @@ export type CmdNamespace = string;
 export type CmdReqId = `req-${string}`;
 
 /**
+ * Union of all command wire envelopes.
+ */
+export type CmdWireEnvelope = CmdEnvelope | CmdEventEnvelope | CmdResultEnvelope;
+
+/**
  * Wire envelope sent from client → host.
  */
 export type CmdEnvelope = {
@@ -35,11 +40,22 @@ export type CmdEnvelope = {
 };
 
 /**
+ * Wire envelope sent from host → client for streamed events.
+ */
+export type CmdEventEnvelope = {
+  readonly kind: 'cmd:event';
+  readonly id: t.CmdReqId;
+  readonly name: CmdName;
+  readonly ns?: t.CmdNamespace;
+  readonly payload?: unknown;
+};
+
+/**
  * Wire envelope sent from host → client.
  */
 export type CmdResultEnvelope = {
   readonly kind: 'cmd:result';
-  readonly id: string;
+  readonly id: t.CmdReqId;
   readonly name: CmdName;
   readonly ns?: t.CmdNamespace;
   readonly payload?: unknown;

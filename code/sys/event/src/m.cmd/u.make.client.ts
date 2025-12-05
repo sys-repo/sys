@@ -123,13 +123,21 @@ export function makeClient<
     endpoint.close?.();
   }
 
+  life.dispose$.subscribe(teardown);
+  endpoint.addEventListener('message', onMessage);
+  endpoint.start?.();
+
   /**
    * API:
    */
-  endpoint.addEventListener('message', onMessage);
-  endpoint.start?.();
-  const client = Rx.toLifecycle<t.CmdClient<N, P, R>>(life, { send });
-  life.dispose$.subscribe(teardown);
+  const client = Rx.toLifecycle<t.CmdClient<N, P, R>>(life, {
+    send,
+    stream<K extends N>(name: K, payload: P[K]) {
+      throw new Error('CmdClient.stream is not implemented yet');
+    },
+  });
+
+  // Finish up.
   return client;
 }
 

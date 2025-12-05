@@ -21,17 +21,62 @@ export type CmdEndpoint = {
  * Concrete libs define their own name + maps (e.g. WorkerCmdName, etc).
  */
 export type CmdPayloadMap<N extends string = t.CmdName> = { readonly [K in N]: unknown };
+/**
+ * Maps from command name → result payload.
+ */
 export type CmdPayloadResultMap<N extends string = t.CmdName> = { readonly [K in N]: unknown };
+/**
+ * Maps from command name → event payload for streaming commands.
+ * Concrete command sets can specialise this, or fall back to `unknown`.
+ */
+export type CmdPayloadEventMap<N extends string = t.CmdName> = { readonly [K in N]: unknown };
 
 /**
  * Client surface: send a named command and await a typed result.
+ * Base (unary-only) shape.
  */
-export type CmdClient<
+export type CmdClientUnary<
   N extends string,
   P extends CmdPayloadMap<N>,
   R extends CmdPayloadResultMap<N>,
 > = t.Lifecycle & {
   send<K extends N>(name: K, payload: P[K]): Promise<R[K]>;
+};
+
+/**
+ * Handle returned from a streaming command invocation.
+ *
+ * - `id`: the underlying request identifier.
+ * - `done`: resolves with the terminal result payload.
+ * - `dispose`: cancels the stream (if still active).
+ * - `onEvent`: subscribe to mid-stream events for this command.
+ */
+export type CmdStream<
+  N extends string,
+  R extends CmdPayloadResultMap<N>,
+  E extends CmdPayloadEventMap<N> = CmdPayloadEventMap<N>,
+  K extends N = N,
+> = {
+  readonly id: t.CmdReqId;
+  readonly done: Promise<R[K]>;
+  dispose(): void;
+  onEvent(fn: (event: E[K]) => void): t.Lifecycle;
+};
+
+/**
+ * Full client: unary + streaming.
+ *
+ * Most callers should depend on this type.
+ * More constrained surfaces can type against `CmdClientUnary` if they
+ * only care about `send`.
+ */
+export type CmdClient<
+  N extends string,
+  P extends CmdPayloadMap<N>,
+  R extends CmdPayloadResultMap<N>,
+  E extends CmdPayloadEventMap<N> = CmdPayloadEventMap<N>,
+> = CmdClientUnary<N, P, R> & {
+  stream<K extends N>(name: K, payload: P[K]): CmdStream<N, R, E, K>;
 };
 
 /**

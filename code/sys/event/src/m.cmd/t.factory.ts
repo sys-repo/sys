@@ -13,8 +13,8 @@ export type CmdFactory<
   P extends t.CmdPayloadMap<N>,
   R extends t.CmdPayloadResultMap<N>,
 > = {
-  client(endpoint: t.CmdEndpoint, opts?: t.CmdClientOptions): t.CmdClient<N, P, R>;
   host(endpoint: t.CmdEndpoint, handlers: t.CmdHandlers<N, P, R>): t.CmdHost;
+  client(endpoint: t.CmdEndpoint, opts?: t.CmdClientOptions): t.CmdClient<N, P, R>;
 };
 
 /** Options passed to `Cmd.make().client()` */

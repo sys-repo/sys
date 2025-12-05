@@ -2,7 +2,7 @@ import { type t, describe, expect, it } from '../../-test.ts';
 import { CmdIs } from '../m.Is.ts';
 
 describe('Cmd.Is', () => {
-  describe('Cmd.Is.request:', () => {
+  describe('Cmd.Is.request', () => {
     it('matches a valid command envelope', () => {
       const msg = {
         kind: 'cmd',
@@ -45,7 +45,57 @@ describe('Cmd.Is', () => {
     });
   });
 
-  describe('Cmd.Is.response:', () => {
+  describe('Cmd.Is.event', () => {
+    it('matches a valid event envelope', () => {
+      const msg = {
+        kind: 'cmd:event',
+        id: 'req-123',
+        name: 'worker/progress',
+        payload: { step: 1 },
+      };
+
+      expect(CmdIs.event(msg)).to.eql(true);
+    });
+
+    it('rejects non-record values', () => {
+      expect(CmdIs.event(null)).to.eql(false);
+      expect(CmdIs.event(undefined)).to.eql(false);
+      expect(CmdIs.event(123)).to.eql(false);
+      expect(CmdIs.event('cmd:event')).to.eql(false);
+      expect(CmdIs.event([])).to.eql(false);
+    });
+
+    it('rejects wrong kind', () => {
+      const asCmd = {
+        kind: 'cmd',
+        id: 'req-123',
+        name: 'worker/progress',
+      };
+
+      const asResult = {
+        kind: 'cmd:result',
+        id: 'req-123',
+        name: 'worker/progress',
+      };
+
+      expect(CmdIs.event(asCmd)).to.eql(false);
+      expect(CmdIs.event(asResult)).to.eql(false);
+    });
+
+    it('rejects missing or invalid id/name', () => {
+      const noId = { kind: 'cmd:event', name: 'foo' };
+      const noName = { kind: 'cmd:event', id: 'req-123' };
+      const badId = { kind: 'cmd:event', id: 123, name: 'foo' };
+      const badName = { kind: 'cmd:event', id: 'req-123', name: 42 };
+
+      expect(CmdIs.event(noId)).to.eql(false);
+      expect(CmdIs.event(noName)).to.eql(false);
+      expect(CmdIs.event(badId)).to.eql(false);
+      expect(CmdIs.event(badName)).to.eql(false);
+    });
+  });
+
+  describe('Cmd.Is.response', () => {
     it('matches a valid result envelope', () => {
       const msg = {
         kind: 'cmd:result',
@@ -87,7 +137,7 @@ describe('Cmd.Is', () => {
     });
   });
 
-  describe('Cmd.Is.error:', () => {
+  describe('Cmd.Is.error', () => {
     it('returns true for a valid CmdErrorTimeout', () => {
       const err = new Error('x') as t.DeepMutable<t.CmdError>;
       err.name = 'CmdErrorTimeout';
