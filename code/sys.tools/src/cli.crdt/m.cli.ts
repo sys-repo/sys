@@ -93,7 +93,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           // { name: '  🐷', value: 'tmp:🐷' },
           opt('  Snapshot', 'snapshot'),
           opt('  Walk Document Graph → Stats', 'doc:graph'),
-          opt('  Lint Document Graph 🐷', 'doc:lint'),
+          opt('  Bundle Document Graph 🐷', 'doc:lint'),
           opt('  View Yaml', 'doc:viewer:yaml'),
           opt('  View Config', 'doc:config:print'),
         ];
