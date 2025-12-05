@@ -18,6 +18,10 @@ export type RowProps = {
 export const Row: React.FC<RowProps> = (props) => {
   const { debug = false, index, device, selected } = props;
 
+  // NB: when devices are not yet allowed - the label will be empty.
+  //     no need to render, wait for the permissions to be granted first.
+  if (!device.label) return null;
+
   /**
    * Render:
    */

@@ -22,7 +22,10 @@ export default Spec.describe('Devices', (e) => {
       items,
       storageKey: `dev:${D.displayName}:selected`,
       selected: p.selected.value,
-      prefs: { kindOrder: ['videoinput', 'audioinput', 'audiooutput'], requireLabel: true },
+      prefs: {
+        kindOrder: ['videoinput', 'audioinput', 'audiooutput'],
+        requireLabel: true,
+      },
       onResolve: (e) => {
         console.info(`⚡️ useDeviceSelectionLifecycle.onResolve:`, e);
         p.selected.value = e.device;
