@@ -27,7 +27,7 @@ export async function lintDocumentGraph(
   type TFile = { path: string; exists: boolean };
   const files: TFile[] = [];
   const addFile = async (path: string) => {
-    path = Fs.expandTilde(path);
+    path = Fs.Tilde.expand(path);
     const exists = await Fs.exists(path);
     files.push({ exists, path });
   };
@@ -63,7 +63,7 @@ export async function lintDocumentGraph(
   await Fs.writeJson(Fs.join(outDir, 'manifest.json'), { files });
 
   const spinner = Cli.spinner();
-  const baseDir = Fs.expandTilde((rootAlias as O)[':assets'] as string);
+  const baseDir = Fs.Tilde.expand((rootAlias as O)[':assets'] as string);
 
   for (const item of files.filter((m) => m.exists)) {
     const target = Fs.join(outDir, item.path.slice(baseDir.length));
@@ -80,5 +80,9 @@ export async function lintDocumentGraph(
     });
 
   console.info('rootAlias', rootAlias);
-  console.info('✨ DONE! - Hey Rowan 👋');
+  console.info();
+  console.info('✨ DONE! - 👋 Hello Rowan 🌈🦄 ');
+  console.info(c.italic(c.yellow('   Now zip folder and copy to Phil in Telegram')));
+  console.info(c.gray(`   ${outDir}`));
+  console.info();
 }
