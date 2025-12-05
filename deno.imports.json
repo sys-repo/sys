@@ -11,6 +11,7 @@
     "@cliffy/prompt": "jsr:@cliffy/prompt@1.0.0-rc.8",
     "@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.8",
     "@farcaster/frame-sdk": "npm:@farcaster/frame-sdk@0.1.12",
+    "@google/genai": "npm:@google/genai@1.31.0",
     "@mastra/core": "npm:@mastra/core@0.24.6",
     "@mastra/core/agent": "npm:@mastra/core@0.24.6/agent",
     "@mastra/core/memory": "npm:@mastra/core@0.24.6/memory",
