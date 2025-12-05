@@ -60,7 +60,7 @@ export async function lintDocumentGraph(
    * Write bundle to disk.
    */
   const outDir = Fs.join(cwd, 'bundle.assets');
-  await Fs.writeJson(Fs.join(outDir, 'manifest.json'), { files });
+  await Fs.writeJson(Fs.join(outDir, '-manifest.json'), { files });
 
   const spinner = Cli.spinner();
   const baseDir = Fs.Tilde.expand((rootAlias as O)[':assets'] as string);
