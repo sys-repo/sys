@@ -154,7 +154,7 @@ const sub = stream.onEvent((event) => {
 const final = await stream.done;
 // final: { reply: string }
 
-// Cleanup:
+// cleanup:
 sub.dispose();
 client.dispose();
 host.dispose();
