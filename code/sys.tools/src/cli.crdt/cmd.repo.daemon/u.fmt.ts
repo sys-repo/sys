@@ -1,4 +1,4 @@
-import { type t, Fs, Str, c, Cli } from '../common.ts';
+import { type t, c, Cli, D, Fs, Str } from '../common.ts';
 import { Fmt as Base } from '../u.fmt.ts';
 
 const Tree = Base.Tree;
@@ -32,6 +32,7 @@ export const Fmt = {
 
       const str = Str.builder()
         .line()
+        .line(c.dim(Fmt.signoff(D.toolname)))
         .line(String(table))
         .line(c.gray(`     ${br(false)} port:     ${port}`))
         .line(c.gray(`     ${br(false)} identity: ${repo.id.instance}`))
