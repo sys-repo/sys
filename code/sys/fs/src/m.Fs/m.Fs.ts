@@ -16,7 +16,7 @@ import { toDir } from './u.toDir.ts';
 import { toFile } from './u.toFile.ts';
 import { walk, walkUp } from './u.walk.ts';
 import { write, writeJson } from './u.write.ts';
-import { expandTilde } from './u.expandTilde.ts';
+import { Tilde } from './m.Tilde.ts';
 
 export { Path };
 const { join, resolve, basename, dirname, extname } = Path;
@@ -39,6 +39,9 @@ export const Fs: FsLib = {
   },
   get Fmt() {
     return Fmt;
+  },
+  get Tilde() {
+    return Tilde;
   },
 
   stat,
@@ -74,7 +77,6 @@ export const Fs: FsLib = {
   copyFile,
   move,
   makeTempDir,
-  expandTilde,
 
   walk,
   walkUp,

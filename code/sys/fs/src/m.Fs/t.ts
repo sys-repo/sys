@@ -9,7 +9,7 @@ export type * from './t.File.ts';
 export type * from './t.Fmt.ts';
 export type { WalkEntry };
 
-type Methods = StdMethods & IndexMethods & GlobMethods;
+type Methods = StdMethods & NamespaceMembers & GlobMethods;
 
 /**
  * Tools for working with the file-system.
@@ -66,17 +66,14 @@ export type FsLib = Methods & {
   /** Generator function that produces `FsDir` data-structures. */
   toDir: t.FsDirFactory;
 
-  /** Expands a leading "~" or "~/" to the user's home directory. */
-  expandTilde: t.FsExpandTilde;
-
   /** Create a new temporary directory and return it as an FsDir handle. */
   makeTempDir: t.FsMakeTempDir;
 };
 
 /**
- * Index properties.
+ * Sub-namespace properties.
  */
-type IndexMethods = {
+type NamespaceMembers = {
   /** Helpers for working with resource paths. */
   readonly Path: t.FsPathLib;
 
@@ -91,6 +88,9 @@ type IndexMethods = {
 
   /** Formatting helpers (pretty console output). */
   readonly Fmt: t.FsFmtLib;
+
+  /** Tilde (~) home path helpers. */
+  readonly Tilde: t.FsTildeLib;
 };
 
 type GlobMethods = {
@@ -311,7 +311,18 @@ export type FsMakeTempDirOptions = {
 };
 
 /**
- * Expands a leading "~" or "~/" to the user's home directory.
- * Returns the input unchanged if no tilde expansion applies.
+ * Tilde (~) home path helpers.
  */
-export type FsExpandTilde = (input: t.StringPath) => t.StringPath;
+export type FsTildeLib = {
+  /**
+   * Expand a leading "~" or "~/" to the current user's home directory.
+   * Returns the input unchanged when no expansion applies.
+   */
+  expand(input: t.StringPath): t.StringPath;
+
+  /**
+   * Collapse the user's home directory to a leading "~" when applicable.
+   * Returns the input unchanged when no collapse applies.
+   */
+  collapse(input: t.StringPath): t.StringPath;
+};
