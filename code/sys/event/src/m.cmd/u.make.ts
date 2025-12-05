@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
-import { makeClient } from './u.make.client.ts';
-import { makeHost } from './u.make.host.ts';
+import { makeClient } from './u.client.ts';
+import { makeHost } from './u.host.ts';
 
 /**
  * Create a typed command-bus instance for a concrete command set.
