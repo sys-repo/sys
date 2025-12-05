@@ -17,10 +17,11 @@ export function makeClient<
   N extends string,
   P extends t.CmdPayloadMap<N>,
   R extends t.CmdPayloadResultMap<N>,
+  E extends t.CmdPayloadEventMap<N> = t.CmdPayloadEventMap<N>,
 >(
   endpoint: t.CmdEndpoint,
   opts: { timeout?: t.Msecs; ns?: t.CmdNamespace } = {},
-): t.CmdClient<N, P, R> {
+): t.CmdClient<N, P, R, E> {
   const { timeout, ns } = opts;
   const life = Rx.lifecycle();
 
@@ -151,7 +152,7 @@ export function makeClient<
       endpoint.postMessage(envelope);
     });
 
-    const streamHandle: t.CmdStream<N, R, t.CmdPayloadEventMap<N>, K> = {
+    const streamHandle: t.CmdStream<N, R, E, K> = {
       id,
       done,
       dispose() {
@@ -166,7 +167,7 @@ export function makeClient<
       },
       onEvent(fn) {
         const life = Rx.lifecycle();
-        const handler = (event: unknown) => fn(event as t.CmdPayloadEventMap<N>[K]);
+        const handler = (event: unknown) => fn(event as E[K]);
 
         let set = eventHandlers.get(id);
         if (!set) {
@@ -218,8 +219,7 @@ export function makeClient<
   /**
    * API:
    */
-  const client = Rx.toLifecycle<t.CmdClient<N, P, R>>(life, { send, stream });
-  return client;
+  return Rx.toLifecycle<t.CmdClient<N, P, R, E>>(life, { send, stream });
 }
 
 /**

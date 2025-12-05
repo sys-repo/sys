@@ -14,7 +14,7 @@ describe('Cmd: core command behavior', () => {
     expect(cmd.host).to.be.a('function');
   });
 
-  describe('request/response', () => {
+  describe('unary: request/response', () => {
     it('roundtrip → success', async () => {
       type Name = 'echo';
       type Payload = { echo: { msg: string } };

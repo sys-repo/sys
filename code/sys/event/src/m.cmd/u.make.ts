@@ -9,10 +9,15 @@ export function make<
   N extends string = t.CmdName,
   P extends t.CmdPayloadMap<N> = t.CmdPayloadMap<N>,
   R extends t.CmdPayloadResultMap<N> = t.CmdPayloadResultMap<N>,
->(opts: t.CmdMakeOptions = {}): t.CmdFactory<N, P, R> {
+  E extends t.CmdPayloadEventMap<N> = t.CmdPayloadEventMap<N>,
+>(opts: t.CmdMakeOptions = {}): t.CmdFactory<N, P, R, E> {
   const { ns } = opts;
   return {
-    client: (endpoint, opts) => makeClient<N, P, R>(endpoint, { ...opts, ns }),
-    host: (endpoint, handlers) => makeHost<N, P, R>(endpoint, handlers, { ns }),
+    client(endpoint, clientOpts) {
+      return makeClient<N, P, R, E>(endpoint, { ...clientOpts, ns });
+    },
+    host(endpoint, handlers) {
+      return makeHost<N, P, R>(endpoint, handlers, { ns });
+    },
   };
 }

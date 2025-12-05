@@ -11,7 +11,7 @@ describe('Cmd:unary req/res → 👋 Hello World', () => {
     // 2. Instantiate a typed command set.
     const cmd = Cmd.make<Name, Payload, Result>();
 
-    // 3. For the demo, create a MessageChannel (browser/WebWorker/WinterTG).
+    // 3. For the demo, create a MessageChannel (browser/WebWorker/WinterTC).
     const { port1, port2 } = new MessageChannel();
 
     // 4. Create the host on one side.
