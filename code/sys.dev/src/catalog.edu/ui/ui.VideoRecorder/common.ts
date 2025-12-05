@@ -4,7 +4,7 @@ export * from '../common.ts';
 /**
  * Libs:
  */
-export { Media } from '@sys/ui-react-components';
+export { Media, Spinners } from '@sys/ui-react-components';
 export { Icons } from '../ui.Icons.ts';
 
 /**
@@ -15,11 +15,6 @@ export const logInfo = Log.logger(name);
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-  header: Crdt.UI.Layout.defaults.header,
-  sidebar: {
-    ...Crdt.UI.Layout.defaults.sidebar,
-    divider: 0,
-  },
   aspectRatio: '4/3',
   config: {
     mimeType: 'video/webm;codecs=vp9,opus',

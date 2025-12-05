@@ -33,24 +33,9 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             signals={debug.signals}
-            crdt={debug.crdt}
-            header={v.header}
-            sidebar={v.sidebar}
+            storageKey={STORAGE_KEY.DEV}
             aspectRatio={v.aspectRatio}
             onStreamError={(e) => console.info(`⚡️ ${D.name}.onStreamError`, e)}
-          />
-        );
-      });
-
-    ctx.debug.footer
-      .border(-0.1)
-      .padding(0)
-      .render(() => {
-        return (
-          <Crdt.UI.Repo.SyncSwitch
-            repo={debug.repo}
-            storageKey={STORAGE_KEY.DEV}
-            style={{ Padding: [14, 10] }}
           />
         );
       });

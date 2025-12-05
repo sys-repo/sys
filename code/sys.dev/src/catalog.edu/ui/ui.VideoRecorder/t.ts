@@ -3,10 +3,9 @@ import type { t } from './common.ts';
 /**
  * Component:
  */
-export type VideoRecorderViewProps = Pick<t.CrdtView.LayoutProps, 'crdt' | 'header' | 'sidebar'> & {
+export type VideoRecorderViewProps = {
   signals?: t.VideoRecorderViewSignals;
-  docPath?: t.ObjectPath;
-  slugPath?: t.ObjectPath;
+  storageKey?: t.StringId;
   //
   aspectRatio?: string | number;
   //

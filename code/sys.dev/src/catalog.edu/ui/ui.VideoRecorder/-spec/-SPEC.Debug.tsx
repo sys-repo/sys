@@ -1,6 +1,6 @@
 import React from 'react';
 import { SignalsObjectView } from '../-dev/ui.SignalsObjectView.tsx';
-import { createUiRepo, DevUrl } from '../../-test.ui.ts';
+import { DevUrl } from '../../-test.ui.ts';
 import {
   type t,
   Arr,
@@ -14,22 +14,13 @@ import {
   Obj,
   ObjectView,
   Signal,
-  STORAGE_KEY,
 } from '../common.ts';
 
 type P = t.VideoRecorderViewProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'aspectRatio' | 'docPath' | 'slugPath'> & {
-  header: Pick<t.CrdtView.LayoutHeader, 'visible' | 'readOnly'>;
-  sidebar: t.CrdtView.LayoutSidebar;
-  urlKey?: string;
-};
+type Storage = Pick<P, 'theme' | 'debug' | 'aspectRatio'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  docPath: ['yaml.parsed'],
-  slugPath: ['slug'],
-  header: D.header,
-  sidebar: D.sidebar,
   aspectRatio: D.aspectRatio,
 };
 
@@ -56,39 +47,17 @@ export function createDebugSignals() {
     config: s(),
   };
 
-  const repo = createUiRepo();
-  const crdt: t.CrdtView.LayoutBindings = {
-    repo,
-    storageKey: STORAGE_KEY.DEV,
-    get urlKey() {
-      return p.urlKey.value;
-    },
-  };
-
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    docPath: s(snap.docPath),
-    slugPath: s(snap.slugPath),
     aspectRatio: s(snap.aspectRatio),
-    urlKey: s(snap.urlKey),
-    header: {
-      visible: s((snap.header ?? {}).visible),
-      readOnly: s((snap.header ?? {}).readOnly),
-    },
-    sidebar: {
-      position: s((snap.sidebar ?? {}).position),
-      visible: s((snap.sidebar ?? {}).visible),
-      resizable: s((snap.sidebar ?? {}).resizable),
-      width: s((snap.sidebar ?? {}).width),
-    },
   };
   const p = props;
   const api = {
     props,
     signals,
-    repo,
-    crdt,
+    // repo,
+    // crdt,
     location: DevUrl.forWindow(window),
     reset,
     listen,
@@ -107,20 +76,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.docPath = p.docPath.value;
-      d.slugPath = p.slugPath.value;
       d.aspectRatio = p.aspectRatio.value;
-      d.urlKey = p.urlKey.value;
-
-      d.header = d.header ?? {};
-      d.header.visible = p.header.visible.value;
-      d.header.readOnly = p.header.readOnly.value;
-
-      d.sidebar = d.sidebar ?? {};
-      d.sidebar.position = p.sidebar.position.value;
-      d.sidebar.visible = p.sidebar.visible.value;
-      d.sidebar.resizable = p.sidebar.resizable.value;
-      d.sidebar.width = p.sidebar.width.value;
     });
   });
 
@@ -146,7 +102,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const p = debug.props;
   const signals = debug.signals;
   const doc = signals.doc?.value;
-  const docPath = p.docPath.value;
 
   Signal.useRedrawEffect(debug.listen);
 
@@ -188,60 +143,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `aspectRatio: ${p.aspectRatio.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle(p.aspectRatio, [D.aspectRatio, '16/9', 1.618])}
       />
-      <Button
-        block
-        label={() => {
-          const v = p.docPath.value;
-          return `path doc: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
-        }}
-        onClick={() => Signal.cycle(p.docPath, [['yaml'], ['foo'], ['foo', 'bar'], undefined])}
-      />
-      <Button
-        block
-        label={() => {
-          const v = p.slugPath.value;
-          return `path doc/slug: ${Arr.isArray(v) ? `[${v}]` : (v ?? '(undefined)')}`;
-        }}
-        onClick={() => {
-          Signal.cycle(p.slugPath, [['slug'], ['hello', 'world'], undefined]);
-        }}
-      />
-
-      <hr />
-      <Button
-        block
-        label={() => `header.visible: ${p.header.visible.value ?? `(undefined)`}`}
-        onClick={() => Signal.toggle(p.header.visible)}
-      />
-      <Button
-        block
-        label={() => `header.readOnly: ${p.header.readOnly.value ?? `(undefined)`}`}
-        onClick={() => Signal.toggle(p.header.readOnly)}
-      />
-
-      <hr />
-      <Button
-        block
-        label={() => `crdt.urlKey: ${p.urlKey.value ?? `(undefined)`}`}
-        onClick={() => Signal.cycle(p.urlKey, ['foo', undefined])}
-      />
-
-      <hr />
-      <Button
-        block
-        label={() => `sidebar.visible: ${p.sidebar.visible.value}`}
-        onClick={() => Signal.toggle(p.sidebar.visible)}
-      />
-      <Button
-        block
-        label={() => `sidebar.position: ${p.sidebar.position.value}`}
-        onClick={() => Signal.cycle(p.sidebar.position, ['left', 'right'])}
-      />
-      <Button
-        block
-        label={() => `sidebar.resizable: ${p.sidebar.resizable.value}`}
-        onClick={() => Signal.toggle(p.sidebar.resizable)}
-      />
 
       <hr />
       <Button
@@ -252,18 +153,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <hr />
-      <SignalsObjectView
-        signals={signals}
-        doc={doc}
-        style={{ marginTop: 10 }}
-        expand={Crdt.UI.Dev.expandPaths([docPath])}
-        lenses={[
-          {
-            name: Crdt.UI.Dev.fieldFromPath(docPath),
-            path: docPath,
-          },
-        ]}
-      />
+      <SignalsObjectView signals={signals} doc={doc} style={{ marginTop: 10 }} />
     </div>
   );
 };
