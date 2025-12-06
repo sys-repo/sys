@@ -45,7 +45,7 @@ export async function pullBundle(
 
   if (A === 'bundle:add-remote') {
     const B = await Cli.Prompt.Input.prompt({
-      message: `Remote ${c.cyan('dist.json')} url`,
+      message: `Remote ${c.italic('dist.json')} url`,
       async validate(input) {
         const spinner = Cli.spinner(Fmt.spinnerText('validating url...'));
         const ok = await validateUrl(input);

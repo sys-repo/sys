@@ -28,7 +28,7 @@ export async function validateDistUrl(input: t.StringUrl): Promise<DistUrlCheck>
     const res = await http.json(url);
 
     if (!Pkg.Is.dist(res.data)) {
-      return fail(url, `Does not have a valid ${c.cyan('dist.json')} file.`);
+      return fail(url, `Does not have a valid ${c.italic(c.cyan('dist.json'))} file.`);
     }
 
     return { ok: true, url };
