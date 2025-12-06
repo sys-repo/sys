@@ -29,8 +29,9 @@ describe('HttpPull.stream', () => {
       const fast = server.url.join('path', 'sample', 'fast.txt');
       const outDir = await mkTmpDir();
 
-      const events: any[] = [];
-      for await (const ev of HttpPull.stream([slow, fast], outDir, { concurrency: 2 })) {
+      const stream = HttpPull.stream([slow, fast], outDir, { concurrency: 2 });
+      const events: t.HttpPullEvent[] = [];
+      for await (const ev of stream) {
         events.push(ev);
       }
 
@@ -58,6 +59,14 @@ describe('HttpPull.stream', () => {
       expect(tb.ok).to.eql(true);
       expect(ta.data).to.eql('FAST');
       expect(tb.data).to.eql('SLOW');
+
+      const result = await stream.done;
+      expect(result.ok).to.eql(true);
+      expect(result.ops).to.have.length(2);
+
+      const sources = result.ops.map((r) => r.path.source).sort();
+      expect(sources[0].endsWith('/fast.txt')).to.eql(true);
+      expect(sources[1].endsWith('/slow.txt')).to.eql(true);
     } finally {
       await server.dispose();
     }
@@ -68,8 +77,10 @@ describe('HttpPull.stream', () => {
     const url = server.url.join('path', 'sample', 'missing.txt');
     const outDir = await mkTmpDir();
 
-    const events: any[] = [];
-    for await (const ev of HttpPull.stream([url], outDir)) events.push(ev);
+    const stream = HttpPull.stream([url], outDir);
+
+    const events: t.HttpPullEvent[] = [];
+    for await (const ev of stream) events.push(ev);
 
     const starts = events.filter((e) => e.kind === 'start');
     const errs = events.filter((e) => e.kind === 'error');
@@ -82,6 +93,15 @@ describe('HttpPull.stream', () => {
     expect(err.status).to.eql(404);
     expect(await Fs.exists(err.path.target)).to.eql(false);
 
+    const result = await stream.done;
+    expect(result.ok).to.eql(false);
+    expect(result.ops).to.have.length(1);
+
+    const op = result.ops[0];
+    expect(op.ok).to.eql(false);
+    expect(op.status).to.eql(404);
+    expect(await Fs.exists(op.path.target)).to.eql(false);
+
     await server.dispose();
   });
 
@@ -89,8 +109,10 @@ describe('HttpPull.stream', () => {
     const outDir = await mkTmpDir();
     const bad = '::::bad::::';
 
-    const events: any[] = [];
-    for await (const ev of HttpPull.stream([bad], outDir)) events.push(ev);
+    const stream = HttpPull.stream([bad], outDir);
+
+    const events: t.HttpPullEvent[] = [];
+    for await (const ev of stream) events.push(ev);
 
     const starts = events.filter((e) => e.kind === 'start');
     const errs = events.filter((e) => e.kind === 'error');
@@ -106,6 +128,15 @@ describe('HttpPull.stream', () => {
     const base = Path.basename(rec.path.target);
     expect(base.includes('/')).to.eql(false);
     expect(await Fs.exists(rec.path.target)).to.eql(false);
+
+    const result = await stream.done;
+    expect(result.ok).to.eql(false);
+    expect(result.ops).to.have.length(1);
+
+    const op = result.ops[0];
+    expect(op.ok).to.eql(false);
+    expect(op.error).to.eql('Invalid URL');
+    expect(await Fs.exists(op.path.target)).to.eql(false);
   });
 
   it('cancels via `until` (no done/error)', async () => {
@@ -117,14 +148,19 @@ describe('HttpPull.stream', () => {
 
     const until = Rx.disposable();
     const events: t.HttpPullEvent[] = [];
-    const iter = HttpPull.stream([a, b], outDir, { until, concurrency: 2 });
+
+    const stream = HttpPull.stream([a, b], outDir, { until, concurrency: 2 });
     queueMicrotask(() => until.dispose()); // ← cancel immediately on next microtask.
 
-    for await (const ev of iter) events.push(ev);
+    for await (const ev of stream) events.push(ev);
 
     // Cancellation is quiet: no 'done' and no 'error'
     expect(events.some((e) => e.kind === 'done')).to.eql(false);
     expect(events.some((e) => e.kind === 'error')).to.eql(false);
+
+    const result = await stream.done;
+    expect(result.ok).to.eql(true); // empty ops → trivially true
+    expect(result.ops).to.have.length(0);
 
     await server.dispose();
   });
@@ -146,8 +182,10 @@ describe('HttpPull.stream', () => {
         const url = server.url.join('p', 'file.txt');
         const outDir = await mkTmpDir();
 
+        const stream = HttpPull.stream([url], outDir);
+
         const events: t.HttpPullEvent[] = [];
-        for await (const ev of HttpPull.stream([url], outDir)) events.push(ev);
+        for await (const ev of stream) events.push(ev);
 
         const starts = events.filter((e) => e.kind === 'start');
         const dones = events.filter((e) => e.kind === 'done');
@@ -164,6 +202,15 @@ describe('HttpPull.stream', () => {
         const text = await Fs.readText(record.path.target);
         expect(text.ok).to.eql(true);
         expect(text.data).to.eql('OK');
+
+        const result = await stream.done;
+        expect(result.ok).to.eql(true);
+        expect(result.ops).to.have.length(1);
+
+        const op = result.ops[0];
+        expect(op.ok).to.eql(true);
+        expect(op.status).to.eql(200);
+        expect(await Fs.exists(op.path.target)).to.eql(true);
       } finally {
         await server.dispose();
       }
@@ -177,8 +224,10 @@ describe('HttpPull.stream', () => {
         const url = server.url.join('p', 'never.txt');
         const outDir = await mkTmpDir();
 
+        const stream = HttpPull.stream([url], outDir);
+
         const events: t.HttpPullEvent[] = [];
-        for await (const ev of HttpPull.stream([url], outDir)) events.push(ev);
+        for await (const ev of stream) events.push(ev);
 
         const starts = events.filter((e) => e.kind === 'start');
         const dones = events.filter((e) => e.kind === 'done');
@@ -194,6 +243,15 @@ describe('HttpPull.stream', () => {
 
         // Should not write a file.
         expect(await Fs.exists(rec.path.target)).to.eql(false);
+
+        const result = await stream.done;
+        expect(result.ok).to.eql(false);
+        expect(result.ops).to.have.length(1);
+
+        const op = result.ops[0];
+        expect(op.ok).to.eql(false);
+        expect(op.status).to.eql(503);
+        expect(await Fs.exists(op.path.target)).to.eql(false);
       } finally {
         await server.dispose();
       }
@@ -231,6 +289,10 @@ describe('HttpPull.stream', () => {
       expect(errors.length).to.eql(0);
       expect(starts.length).to.be.gte(0).and.lte(2);
 
+      const result = await stream.done;
+      expect(result.ok).to.eql(true);
+      expect(result.ops).to.have.length(2);
+
       await server.dispose();
     });
 
@@ -259,6 +321,10 @@ describe('HttpPull.stream', () => {
 
       expect(events.some((e) => e.kind === 'done')).to.eql(false);
       expect(events.some((e) => e.kind === 'error')).to.eql(false);
+
+      const result = await stream.done;
+      expect(result.ok).to.eql(true);
+      expect(result.ops).to.have.length(0);
 
       await server.dispose();
     });
@@ -304,6 +370,10 @@ describe('HttpPull.stream', () => {
       expect(obsEvents.length).to.be.gte(0); // may be 0 or a few 'start' depending on timing
       expect(iterStarts).to.eql(2);
       expect(iterDones).to.eql(2);
+
+      const result = await stream.done;
+      expect(result.ok).to.eql(true);
+      expect(result.ops).to.have.length(2);
 
       await server.dispose();
     });

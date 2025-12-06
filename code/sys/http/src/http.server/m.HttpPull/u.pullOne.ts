@@ -113,9 +113,15 @@ export async function pullOne(
   }
 
   try {
-    await Fs.ensureDir(Path.dirname(target) as t.StringDir);
+    await Fs.ensureDir(Path.dirname(target));
 
-    const result = await fetchWithRetry(u.toURL());
+    const fetchPromise = fetchWithRetry(u.toURL());
+    const result: FetchResponse =
+      signal == null
+        ? //
+          await fetchPromise
+        : await fetchWithAbortRace(signal, fetchPromise);
+
     if (!result.ok) {
       return {
         ok: false,
@@ -169,4 +175,38 @@ function normalizeRetry(retry: t.HttpPullOptions['retry']): NormalizedRetry {
     factor: retry.factor ?? 2,
     jitter: retry.jitter ?? true,
   };
+}
+
+/**
+ * Races a fetch-style promise against an AbortSignal.
+ *
+ * Behaviour:
+ *   - If the fetch promise settles first, its FetchResponse is returned.
+ *   - If the signal aborts first, a DOMException("Aborted", "AbortError") is thrown.
+ *
+ * This mirrors the semantics of a cancelled fetch so that `isAbortError(...)`
+ * higher up can recognise and handle the abort in a consistent way.
+ */
+async function fetchWithAbortRace(
+  signal: AbortSignal,
+  fetchPromise: Promise<FetchResponse>,
+): Promise<FetchResponse> {
+  // If already aborted, fail fast with a standard AbortError.
+  if (signal.aborted) {
+    throw new DOMException('Aborted', 'AbortError');
+  }
+
+  // Promise that resolves when the abort signal fires; used as the other side of the race.
+  const abortPromise = new Promise<'aborted'>((resolve) => {
+    signal.addEventListener('abort', () => resolve('aborted'), { once: true });
+  });
+
+  const winner = await Promise.race<FetchResponse | 'aborted'>([fetchPromise, abortPromise]);
+
+  // If the abort side won the race, propagate a proper AbortError.
+  if (winner === 'aborted') {
+    throw new DOMException('Aborted', 'AbortError');
+  }
+
+  return winner;
 }

@@ -22,6 +22,12 @@ export function stream(
   const concurrency = Math.max(1, options.concurrency ?? 8);
   const total = urls.length;
 
+  /**
+   * Aggregated records for the stream.
+   * Used to compute the final HttpPullToDirResult returned via `done`.
+   */
+  const records: t.HttpPullRecord[] = [];
+
   // System lifecycle (drives cancellation via dispose$ → controller.abort()).
   const life = Rx.abortable(options.until);
   const { signal } = life;
@@ -56,6 +62,9 @@ export function stream(
         const record = await pullOne(source, dir, client, { map, signal, retry });
         if (signal.aborted) return; // Silent bail on cancellation.
 
+        // Track every attempted URL so `done` can compute the HttpPullToDirResult.
+        records.push(record);
+
         const ev: t.HttpPullEvent = record.ok
           ? { kind: 'done', index: i, total, record, url: source }
           : { kind: 'error', index: i, total, record, url: source };
@@ -67,31 +76,53 @@ export function stream(
         if (!isAbortError(err)) {
           const error = err instanceof Error ? err.message : String(err);
           const target = resolveTarget(source, dir, options.map);
-          const ev: t.HttpPullEvent = {
-            kind: 'error',
-            index: i,
-            total,
-            url: source,
-            record: { ok: false, error, path: { source, target } },
-          };
-          q.push(ev);
-          subject$.next(ev);
+
+          const record: t.HttpPullRecord = { ok: false, error, path: { source, target } };
+          records.push(record);
+
+          const errEvent: t.HttpPullEvent = { kind: 'error', index: i, total, url: source, record };
+          q.push(errEvent);
+          subject$.next(errEvent);
         }
       }
     }),
   );
 
-  // Close the queue when all tasks settle (including on cancel).
+  /**
+   * Shared completion for all pull tasks.
+   * Both the queue-closer and `done` derive from this.
+   */
+  const settled = Promise.allSettled(tasks);
+
+  /**
+   * Aggregated result of the pull-stream.
+   *
+   * Resolves when all tasks have settled (success, error, or cancellation).
+   * - `ok` is true only if every attempted record succeeded.
+   * - `ops` contains one HttpPullRecord per attempted URL.
+   */
+  const done: Promise<t.HttpPullToDirResult> = (async () => {
+    await settled;
+
+    const ops = records as readonly t.HttpPullRecord[];
+    const ok = ops.every((r) => r.ok);
+
+    return { ok, ops };
+  })();
+
+  /** Close the queue when all tasks settle (including on cancel). */
   (async () => {
     try {
-      await Promise.allSettled(tasks);
+      // Only depend on task settlement, not on `done` itself,
+      // to avoid any accidental cycles.
+      await settled;
     } finally {
       q.close();
       if (!cancelled) subject$.complete();
     }
   })();
 
-  // Async generator loop:
+  /** Async generator loop: */
   const iterator = async function* () {
     try {
       for await (const ev of q) {
@@ -104,11 +135,17 @@ export function stream(
     }
   };
 
+  /**
+   * API:
+   */
   return {
     [Symbol.asyncIterator]: () => iterator(),
 
     /** Abort in-flight requests and complete the stream. */
     cancel: (reason?: unknown) => life.dispose(reason),
+
+    /** Aggregated pull result. */
+    done,
 
     /** Observable of progress events (completes on finish/cancel). */
     events(until?: t.UntilInput) {

@@ -70,20 +70,38 @@ export type HttpPullRetry = {
 };
 
 /**
- * An API to a stream of downloading URLs.
- * - Async-iterable of progress events (`for await ...`).
- * - `events()` returns an observable that completes on finish/cancel.
+ * API to a pull-stream of HTTP downloads.
+ *
+ * Features:
+ * - Async iterable of progress events (`for await ... of stream`).
+ * - `events()` exposes an observable that completes on finish or cancel.
+ * - `done` resolves with the aggregated `HttpPullToDirResult`.
  * - `cancel()` aborts in-flight work and completes the stream.
  */
 export type HttpPullStream = {
-  /** Async-iteration over progress events. */
+  /** Async iteration over progress events. */
   readonly [Symbol.asyncIterator]: () => AsyncIterator<t.HttpPullEvent>;
 
-  /** Observable of progress events (completes on finish/cancel). */
+  /**
+   * Observable view of progress events.
+   * Completes when the stream finishes or is cancelled.
+   */
   readonly events: (until?: t.UntilInput) => HttpPullStreamEvents;
 
-  /** Abort in-flight requests and complete the stream. */
+  /**
+   * Abort in-flight requests, stop emitting events,
+   * and complete the stream.
+   */
   readonly cancel: (reason?: unknown) => void;
+
+  /**
+   * Aggregated result of the pull.
+   *
+   * Resolves when the stream finishes or is cancelled.
+   * - `ok` is `true` only if all completed records succeeded.
+   * - `ops` contains one `HttpPullRecord` per attempted URL.
+   */
+  readonly done: Promise<HttpPullToDirResult>;
 };
 
 /**
