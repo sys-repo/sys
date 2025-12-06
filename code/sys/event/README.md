@@ -147,10 +147,16 @@ const stream = client.stream('ping', { msg: 'hello' });
 
 const events: Events['ping'][] = [];
 const sub = stream.onEvent((event) => {
-  // event: { tick: number }
+  // Per-event callback (fires as events arrive)
   events.push(event);
 });
 
+// Async iteration over the same event stream (alternative to onEvent)
+for await (const ev of stream) {
+  // ev is typed: Events['ping']
+}
+
+// Wait for the terminal result once the stream finishes
 const final = await stream.done;
 // final: { reply: string }
 
@@ -158,5 +164,4 @@ const final = await stream.done;
 sub.dispose();
 client.dispose();
 host.dispose();
-
 ```
