@@ -3,6 +3,9 @@ import { c, Cli } from 'jsr:@sys/cli';
 import { Obj, Arr, Str, Num, Is } from 'jsr:@sys/std';
 import { type t } from 'jsr:@sys/tools';
 
+/** Ensure environment (only need to run once). */
+await env();
+
 /**
  * Graph-walk document hook.
  *
@@ -30,7 +33,7 @@ export const onDag: t.DocumentGraphDagHook = async (e) => {
 
   // 🐷
   console.info();
-  console.info(c.cyan(`onDag:`), c.gray(`${e.root.slice(0, -5)}${c.green(e.root.slice(-5))}`));
+  console.info(c.cyan(`⚡️onDag:`), c.gray(`${e.root.slice(0, -5)}${c.green(e.root.slice(-5))}`));
   console.info();
   console.info(dag);
   console.info();

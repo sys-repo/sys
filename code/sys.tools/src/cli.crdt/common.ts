@@ -7,7 +7,6 @@ export * from '../common.ts';
  */
 export { A, Crdt, toAutomergeHandle } from '@sys/driver-automerge/fs';
 export { Immutable } from '@sys/immutable/rfc6902';
-export { Yaml } from '@sys/yaml';
 
 /**
  * Constants:

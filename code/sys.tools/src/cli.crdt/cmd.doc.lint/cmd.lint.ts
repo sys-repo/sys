@@ -80,8 +80,6 @@ export async function lintDocumentGraphCommand(
     });
 
   console.info('rootAlias', rootAlias);
-  console.info();
-  console.info('✨ DONE! - 👋 Hello Rowan 🌈🦄 ');
   console.info(c.italic(c.yellow('   Now zip folder and copy to Phil in Telegram')));
   console.info(c.gray(`   ${outDir}`));
   console.info();

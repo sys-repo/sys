@@ -29,5 +29,6 @@ export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Token } from '@sys/text/gpt';
 export { TmplEngine } from '@sys/tmpl-engine';
+export { Yaml } from '@sys/yaml';
 
 export { DenoDeps, DenoFile } from '@sys/driver-deno/runtime';
