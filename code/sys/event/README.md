@@ -66,7 +66,10 @@ bus$
 <p>&nbsp;</p>
 
 ## Cmd (Command)
-Small, transport-agnostic command bus providing **typed request/response and streaming** over
+
+> *A minimal, transport-agnostic, strongly-typed command algebra for unary and streaming operations — providing a simple, strongly-typed boundary between semantics and transport.*
+
+Small command bus providing **typed request/response and streaming** over
 any `MessagePort`-like endpoint ([Web Worker](https://html.spec.whatwg.org/multipage/workers.html),
 `MessageChannel`, `window.postMessage`, etc).
 
