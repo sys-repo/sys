@@ -1,6 +1,6 @@
 /**
- * DevHarness visual specs.
  * @module
+ * DevHarness visual specs.
  */
 import type { t } from './common.ts';
 export const ns = 'sys.ui.component';
@@ -25,7 +25,6 @@ export const SpecsComponents = {
   [`${ns}: ObjectView`]: () => import('../ui/ObjectView/-SPEC.tsx'),
   [`${ns}: PathView`]: () => import('../ui/PathView/-spec/-SPEC.tsx'),
   [`${ns}: Preload`]: () => import('../ui/Preload/-SPEC.tsx'),
-  [`${ns}: PropsGrid`]: () => import('../ui/PropsGrid/-spec/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui/Sheet/-SPEC.tsx'),
   [`${ns}: Slider`]: () => import('../ui/Slider/-spec/-SPEC.tsx'),
   [`${ns}: Spinners.Bar`]: () => import('../ui/Spinners.Bar/-SPEC.tsx'),
