@@ -13,9 +13,9 @@ const Fmt = {
     const { dist, progress } = opts;
     const a: string[] = [];
     if (dist) a.push(Fmt.bundleSize(dist));
-    if (progress) a.push(`${progress.index + 1}/${progress.total}`);
-    const after = a.length === 0 ? '' : `(${a.join(', ')})`;
-    return Fmt.spinnerText(`pulling remote bundle... ${c.dim(after)}`.trim());
+    if (progress) a.push(`${progress.index + 1}/${progress.total} files`);
+    const after = a.length === 0 ? '' : `(${a.join(' · ')})`;
+    return Fmt.spinnerText(`pulling remote bundle... ${after}`.trim());
   },
 } as const;
 
