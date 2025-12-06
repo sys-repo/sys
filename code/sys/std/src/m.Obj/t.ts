@@ -63,6 +63,29 @@ export type ObjLib = {
   entries<T extends object>(obj: T): [keyof T, T[keyof T]][];
 
   /**
+   * Convert one or more properties on the given object into accessor
+   * (getter-backed) properties that return their existing values.
+   *
+   * This is primarily useful for development ergonomics, allowing heavy
+   * fields to be hidden behind getters so that console inspection does
+   * not eagerly expand large nested structures.
+   *
+   * - When `keys` is omitted or `null`, all own enumerable keys are wrapped.
+   * - When a single key or list of keys is provided, only those are wrapped.
+   */
+  asGetter: {
+    // All fields, optional options.
+    <T extends O>(obj: T, options?: t.ObjAsGetterOptions): T;
+
+    // Specific fields, optional options.
+    <T extends O, K extends keyof T>(
+      obj: T,
+      keys: K | readonly K[] | null,
+      options?: t.ObjAsGetterOptions,
+    ): T;
+  };
+
+  /**
    * Sort the keys of an object.
    */
   sortKeys<T extends O>(obj: T): T;
@@ -117,4 +140,15 @@ export type ObjTruncateStringsOptions = {
    * - `undefined` → no depth limit (default).
    */
   maxDepth?: number;
+};
+
+/**
+ * Options controlling how accessor properties created by `Obj.asGetter`
+ * are defined on the target object.
+ *
+ * These map directly onto the standard JavaScript accessor descriptor flags.
+ */
+export type ObjAsGetterOptions = {
+  readonly enumerable?: boolean;
+  readonly configurable?: boolean;
 };
