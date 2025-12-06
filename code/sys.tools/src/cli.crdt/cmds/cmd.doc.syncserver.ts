@@ -2,7 +2,7 @@ import { Server } from '@sys/driver-automerge/ws';
 import { type t, Cli, D, Path } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 
-export async function startSyncServer(cwd: t.StringDir, port?: number) {
+export async function startSyncServerCommand(cwd: t.StringDir, port?: number) {
   port = port ?? D.port.sync;
 
   async function run(life: t.Lifecycle) {

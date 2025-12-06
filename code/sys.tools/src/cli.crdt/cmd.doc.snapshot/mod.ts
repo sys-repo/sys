@@ -1,1 +1,1 @@
-export { snapshot } from './cmd.snapshot.ts';
+export { snapshotCommand } from './cmd.snapshot.ts';

@@ -5,7 +5,7 @@ import { makeResolvers } from './u.resolve.ts';
 
 type O = Record<string, unknown>;
 
-export async function lintDocumentGraph(
+export async function lintDocumentGraphCommand(
   cwd: t.StringDir,
   docid: t.Crdt.Id,
   yamlPath: t.ObjectPath,

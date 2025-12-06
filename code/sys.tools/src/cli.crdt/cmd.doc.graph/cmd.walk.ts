@@ -9,7 +9,7 @@ import { makeLoad } from './u.load.ts';
 type O = Record<string, unknown>;
 type CmdClient = t.Crdt.Cmd.Client;
 
-export async function walkDocumentGraph(
+export async function walkDocumentGraphCommand(
   cwd: t.StringDir,
   root: t.Crdt.Id,
   path: t.ObjectPath,

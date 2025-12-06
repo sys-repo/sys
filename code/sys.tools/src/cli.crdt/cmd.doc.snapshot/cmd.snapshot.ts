@@ -7,7 +7,7 @@ import { walk } from './u.walk.ts';
 
 const Tree = Cli.Fmt.Tree;
 
-export async function snapshot(cwd: t.StringDir, id: t.Crdt.Id) {
+export async function snapshotCommand(cwd: t.StringDir, id: t.Crdt.Id) {
   const port = D.port.repo;
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;

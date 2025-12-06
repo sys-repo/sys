@@ -32,7 +32,6 @@ export const Fmt = {
 
       const str = Str.builder()
         .line()
-        .line(c.dim(Fmt.signoff(D.toolname)))
         .line(String(table))
         .line(c.gray(`     ${br(false)} port:     ${port}`))
         .line(c.gray(`     ${br(false)} identity: ${repo.id.instance}`))
@@ -62,7 +61,12 @@ export const Fmt = {
         });
       }
 
-      str.line().line().line().line();
+      str
+        .line()
+        .line()
+        .line()
+        .line(c.dim(Fmt.signoff(D.toolname)))
+        .line();
       return String(str);
     },
   },
