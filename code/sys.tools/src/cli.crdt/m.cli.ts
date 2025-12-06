@@ -98,9 +98,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       if (A.startsWith('crdt:')) {
         const options = [
           // { name: '  🐷', value: 'tmp:🐷' },
-          opt('  Snapshot', 'snapshot'),
-          opt('  Walk Document Graph → Stats', 'doc:graph'),
-          opt('  Bundle Document Graph 🐷', 'doc:lint'),
+          opt('  Snapshot (Backup)', 'snapshot'),
+          opt('  Document Graph → Walk → Stats', 'doc:graph:walk'),
+          opt('  Document Graph → DAG (hook)', 'doc:graph:dag'),
+          opt('  Lint 🐷', 'doc:lint'),
           opt('  View Yaml', 'doc:viewer:yaml'),
           opt('  View Config', 'doc:config:print'),
         ];
@@ -119,30 +120,38 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         if (B === 'snapshot') {
           const m =
             (await import('./cmd.doc.snapshot/mod.ts')) as typeof import('./cmd.doc.snapshot/mod.ts');
-          await m.snapshot(cwd, id);
+          await m.snapshotCommand(cwd, id);
           return done(0);
         }
 
         const yamlPath = ['slug'];
 
-        if (B === 'doc:graph') {
+        if (B.startsWith('doc:graph')) {
           const m =
             (await import('./cmd.doc.graph/mod.ts')) as typeof import('./cmd.doc.graph/mod.ts');
-          await m.walkDocumentGraph(cwd, id, yamlPath);
-          return done(0);
+
+          if (B === 'doc:graph:walk') {
+            await m.walkDocumentGraphCommand(cwd, id, yamlPath);
+            return done(0);
+          }
+
+          if (B === 'doc:graph:dag') {
+            await m.dagHookCommand(cwd, id, yamlPath);
+            return done(0);
+          }
         }
 
         if (B === 'doc:viewer:yaml') {
           const m =
             (await import('./cmds/cmd.doc.viewer.yaml.ts')) as typeof import('./cmds/cmd.doc.viewer.yaml.ts');
-          await m.startYamlViewer(cwd, id, yamlPath);
+          await m.startYamlViewerCommand(cwd, id, yamlPath);
           return done(0);
         }
 
         if (B === 'doc:lint') {
           const m =
             (await import('./cmd.doc.lint/mod.ts')) as typeof import('./cmd.doc.lint/mod.ts');
-          await m.lintDocumentGraph(cwd, id, yamlPath);
+          await m.lintDocumentGraphCommand(cwd, id, yamlPath);
           return done(0);
         }
 
@@ -182,9 +191,9 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       }
 
       if (A === 'repo:syncserver:start') {
-        const { startSyncServer } =
+        const { startSyncServerCommand } =
           (await import('./cmds/cmd.doc.syncserver.ts')) as typeof import('./cmds/cmd.doc.syncserver.ts');
-        await startSyncServer(cwd);
+        await startSyncServerCommand(cwd);
       }
     }
   }

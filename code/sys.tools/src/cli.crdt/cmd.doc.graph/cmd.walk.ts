@@ -13,21 +13,21 @@ export async function walkDocumentGraphCommand(
   cwd: t.StringDir,
   root: t.Crdt.Id,
   path: t.ObjectPath,
-  onDoc?: t.DocumentGraphHook,
+  onWalk?: t.DocumentGraphWalkHook,
 ) {
   const port = D.port.repo;
   const cmd = (await RepoProcess.tryClient(port))!;
   if (!cmd) return;
 
-  const spinner = Cli.spinner();
   const skipped: t.Crdt.Graph.WalkSkipArgs[] = [];
   const processed: t.Crdt.Id[] = [];
 
+  /** Prepare hook */
   const hookLog: t.DocumentGraphHookLog[] = [];
   const hookModule = await loadDocumentHook(cwd);
-  const hooks: t.DocumentGraphHook[] = [];
-  if (onDoc) hooks.push(onDoc);
-  if (hookModule?.onDoc) hooks.push(hookModule.onDoc);
+  const hooks: t.DocumentGraphWalkHook[] = [];
+  if (onWalk) hooks.push(onWalk);
+  if (hookModule?.onWalk) hooks.push(hookModule.onWalk);
 
   const load = makeLoad(cmd);
   const discoverRefs = makeDiscoverRefs(path);
@@ -70,7 +70,7 @@ export async function walkDocumentGraphCommand(
      * Run:
      */
     const startedAt = Time.now.timestamp;
-    spinner.start(Fmt.spinnerText('walking graph...'));
+    const spinner = Cli.spinner(Fmt.spinnerText('walking graph...'));
     await walk(cmd);
     spinner.stop();
 
