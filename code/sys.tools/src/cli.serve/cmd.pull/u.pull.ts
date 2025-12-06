@@ -1,14 +1,21 @@
-import { c, Cli, Err, Http, Str, type t, Url } from '../common.ts';
+import { type t, c, Cli, Err, Http, Str, Url } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { rewriteTags } from './u.pull.rewriteTags.ts';
 
+type Progress = { index: t.Index; total: number };
+
 const Fmt = {
   ...BaseFmt,
-  pullingSpinnerText(after: string = '') {
-    return Fmt.spinnerText(`pulling remote bundle... ${after}`.trim());
-  },
   bundleSize(dist: t.DistPkg) {
     return Str.bytes(dist.build.size.total);
+  },
+  pullingSpinnerText(opts: { dist?: t.DistPkg; progress?: Progress } = {}) {
+    const { dist, progress } = opts;
+    const a: string[] = [];
+    if (dist) a.push(Fmt.bundleSize(dist));
+    if (progress) a.push(`${progress.index + 1}/${progress.total}`);
+    const after = a.length === 0 ? '' : `(${a.join(', ')})`;
+    return Fmt.spinnerText(`pulling remote bundle... ${c.dim(after)}`.trim());
   },
 } as const;
 
@@ -28,11 +35,15 @@ export async function pullRemoteBundle(
   // Pull `dist.json` manifest:
   spinner.start(Fmt.pullingSpinnerText());
   const dist = await pullDist(distUrl.href);
-  spinner.text = Fmt.pullingSpinnerText(c.dim(`(${Fmt.bundleSize(dist)})`));
+
+  const updateSpinnerText = (progress?: Progress) => Fmt.pullingSpinnerText({ dist, progress });
+  const updateSpinner = (progress?: Progress) => (spinner.text = updateSpinnerText(progress));
+  updateSpinner();
+  const onStream = (e: t.HttpPullEvent) => updateSpinner(e);
 
   // Pull folder from manifest:
   try {
-    const result = await pullDir(distUrl.href, targetDir, dist);
+    const result = await pullDir(distUrl.href, targetDir, { dist, onStream });
     await rewriteTags(baseDir, bundle);
 
     if (!result.ok) {
@@ -75,8 +86,12 @@ async function pullDist(distUrl: t.StringUrl): Promise<t.DistPkg> {
  * Pull all files listed in the dist manifest into `targetDir`.
  * The directory containing `dist.json` is treated as the remote bundle root.
  */
-async function pullDir(distUrl: t.StringUrl, targetDir: t.StringDir, dist?: t.DistPkg) {
-  dist = dist ?? (await pullDist(distUrl));
+async function pullDir(
+  distUrl: t.StringUrl,
+  targetDir: t.StringDir,
+  opts: { dist?: t.DistPkg; onStream?: (e: t.HttpPullEvent) => void } = {},
+) {
+  const dist = opts.dist ?? (await pullDist(distUrl));
   const distUrlObj = new URL(distUrl);
 
   /**
@@ -94,10 +109,10 @@ async function pullDir(distUrl: t.StringUrl, targetDir: t.StringDir, dist?: t.Di
   // Manifest paths → absolute URLs.
   const assetUrls = Object.keys(dist.hash.parts).map((p) => new URL(p, baseUrl).href);
 
-  // Include dist.json itself so it’s cached alongside the assets.
+  // Include dist.json itself so it's cached alongside the assets.
   const urls = [distUrlObj.href, ...assetUrls];
 
-  return await Http.Pull.toDir(urls, targetDir, {
+  const stream = Http.Pull.stream(urls, targetDir, {
     retry: { attempts: 8, base: 200, factor: 2, jitter: true },
     map: {
       /**
@@ -112,6 +127,12 @@ async function pullDir(distUrl: t.StringUrl, targetDir: t.StringDir, dist?: t.Di
       relativeTo,
     },
   });
+
+  for await (const ev of stream) {
+    opts.onStream?.(ev);
+  }
+
+  return stream.done;
 }
 
 /**
