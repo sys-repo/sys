@@ -73,8 +73,10 @@ Small command bus providing **typed request/response and streaming** over
 any `MessagePort`-like endpoint ([Web Worker](https://html.spec.whatwg.org/multipage/workers.html),
 `MessageChannel`, `window.postMessage`, etc).
 
-You define a command set once as **name → payload / result / event-maps**, then
-get a strongly-typed `host` and `client`.
+You define a command set once as **name → payload / result / event-maps**, then get a
+strongly-typed `host` and `client`.
+
+<p>&nbsp;</p>
 
 ```ts
 import { Cmd } from '@sys/event/cmd';
