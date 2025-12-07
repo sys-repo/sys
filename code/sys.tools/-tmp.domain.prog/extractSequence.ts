@@ -1,16 +1,14 @@
-import { type t, Obj, Is } from './common.ts';
-import { makeResolvers } from './u.resolve.ts';
-import { makeParser } from './u.parseNode.ts';
+import { type t, c, Is, Obj } from './common.ts';
+import { makeParser } from './u.parser.ts';
 
 type N = t.Graph.Dag.Node;
 type O = Record<string, unknown>;
 
 export async function extractSequence(e: t.DocumentGraphDagHookCtx) {
-  const { Lens, Resolve } = makeResolvers(e.path.yaml);
-  const Parse = makeParser(e);
+  const Parse = makeParser(e.path.yaml);
 
-  const root = Parse.parseRoot(e);
-  const node = Parse.findParsedNode(e, '4VxV2qemEge2SLvANvD9SxZJGJGq');
+  const root = Parse.parseRoot(e.dag);
+  const node = Parse.findParsedNode(e.dag, '4VxV2qemEge2SLvANvD9SxZJGJGq');
   if (!node || !node.slug || !node.alias) return;
 
   // REQUIRED: both resolvers
@@ -27,25 +25,23 @@ export async function extractSequence(e: t.DocumentGraphDagHookCtx) {
   }
 
   // Sequence
-  const seq = Lens.sequence.get(node.slug) ?? [];
+  const seq = Parse.Lens.sequence.get(node.slug) ?? [];
   asGetters(seq);
 
-  console.log('localResolver.alias', localResolver.alias);
-  console.log('indexResolver.alias', indexResolver.alias);
+  console.info(c.cyan('localResolver.alias'), localResolver.alias);
+  console.info(c.cyan('indexResolver.alias (root)'), indexResolver.alias);
 
   console.log('-------------------------------------------');
-
   for (const item of seq) {
     try {
       const raw = item?.video;
       console.log('video', raw);
-      console.log('Is.str(video)', Is.str(raw));
 
       if (!Is.str(raw)) continue;
 
-      const resolved = Resolve.path(raw, localResolver, indexResolver);
+      const resolved = Parse.Resolve.path(raw, localResolver, indexResolver);
 
-      console.log('result', resolved?.value);
+      console.log(c.green('result (path)'), resolved?.value);
       console.log('remaining', resolved?.remaining);
     } catch (err) {
       console.error('Resolve.path error:', err);

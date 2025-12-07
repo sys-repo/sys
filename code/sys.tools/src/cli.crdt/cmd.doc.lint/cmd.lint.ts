@@ -1,6 +1,6 @@
 import { buildDocumentDAG } from '../cmd.doc.graph/mod.ts';
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
-import { type t, AliasResolver, c, Cli, D, Fs, Is, Str } from '../common.ts';
+import { type t, c, D } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 
 type O = Record<string, unknown>;
@@ -15,12 +15,12 @@ export async function lintDocumentGraphCommand(
   if (!cmd) return;
 
   const dag = await buildDocumentDAG(cmd, docid, yamlPath);
-
   console.info();
   console.info(c.cyan(`🐷 Lint:`), Fmt.prettyUri(docid));
   console.info();
-  console.info(dag);
-  console.info();
 
-  // Derive root-level :index alias resolver (for second-hop resolution).
+  const domain =
+    (await import('../../../-tmp.domain.prog/mod.ts')) as typeof import('../../../-tmp.domain.prog/mod.ts');
+
+  await domain.lint(dag, yamlPath);
 }

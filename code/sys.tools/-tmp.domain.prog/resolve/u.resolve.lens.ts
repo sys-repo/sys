@@ -1,4 +1,4 @@
-import { type t, Is, Obj, Yaml } from './common.ts';
+import { type t, Is, Obj, Yaml } from '../common.ts';
 import { resolvePath } from './u.resolve.path.ts';
 
 type N = t.Graph.Dag.Node;
@@ -8,18 +8,7 @@ export function makeLenses(yamlPath: t.ObjectPath) {
   const yaml = Obj.Lens.at<string>(yamlPath);
   const alias = Obj.Lens.at<O>(['alias']);
   const sequence = Obj.Lens.at<O[]>(['data', 'sequence']);
-  const Lens = {
-    get yaml() {
-      return yaml;
-    },
-    get alias() {
-      return alias;
-    },
-    get sequence() {
-      return sequence;
-    },
-  } as const;
-  return Lens;
+  return Obj.asGetter({ yaml, alias, sequence });
 }
 
 export function makeResolvers(yamlPath: t.ObjectPath) {

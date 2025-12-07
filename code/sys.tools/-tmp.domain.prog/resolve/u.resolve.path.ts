@@ -1,4 +1,4 @@
-import { type t, AliasResolver, Is } from './common.ts';
+import { type t, AliasResolver, Is } from '../common.ts';
 
 /**
  * Resolve an alias-based path using:

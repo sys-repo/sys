@@ -1,10 +1,11 @@
-import { type t, Obj, Is, AliasResolver } from './common.ts';
-import { makeResolvers } from './u.resolve.ts';
+import { type t, AliasResolver, Obj } from './common.ts';
+import { makeResolvers } from './resolve/mod.ts';
 
 type N = t.Graph.Dag.Node;
 type O = Record<string, unknown>;
 type NodeAlias = t.Alias.TableAnalysis | undefined;
 
+type Dag = t.Graph.Dag.Result;
 type ParsedNode = {
   readonly node: N;
   readonly isRoot: boolean;
@@ -12,8 +13,9 @@ type ParsedNode = {
   readonly alias?: NodeAlias;
 };
 
-export function makeParser(e: t.DocumentGraphDagHookCtx) {
-  const { Lens, Resolve } = makeResolvers(e.path.yaml);
+// export function makeParser( e: t.DocumentGraphDagHookCtx) {
+export function makeParser(yamlPath: t.ObjectPath) {
+  const { Lens, Resolve } = makeResolvers(yamlPath);
 
   /**
    * Parse a DAG node into:
@@ -32,16 +34,16 @@ export function makeParser(e: t.DocumentGraphDagHookCtx) {
   /**
    * Convenience: parse the DAG root once.
    */
-  function parseRoot(e: t.DocumentGraphDagHookCtx): ParsedNode {
-    const rootNode = e.dag.nodes[0];
+  function parseRoot(dag: Dag): ParsedNode {
+    const rootNode = dag.nodes[0];
     return parseNode(rootNode, true);
   }
 
   /**
    * Convenience: find and parse a node by CRDT id.
    */
-  function findParsedNode(e: t.DocumentGraphDagHookCtx, id: t.Crdt.Id): ParsedNode | undefined {
-    const node = e.dag.nodes.find((d) => d.id === id);
+  function findParsedNode(dag: Dag, id: t.Crdt.Id): ParsedNode | undefined {
+    const node = dag.nodes.find((d) => d.id === id);
     return node ? parseNode(node, false) : undefined;
   }
 
