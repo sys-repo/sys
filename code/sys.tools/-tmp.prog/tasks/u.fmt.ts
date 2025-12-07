@@ -19,29 +19,30 @@ export function tasks(docs: readonly t.DocTasks[]): string {
 
   docs.forEach((entry, docIndex) => {
     const { doc, tasks } = entry;
-
     if (docIndex > 0) b.blank();
 
-    const uri = Base.prettyUri(doc.id);
-    b.line(`${c.bold(c.cyan('Document'))} ${c.gray(uri)}`).blank();
+    const uri = c.gray(`${c.green('crdt')}:${doc.id.slice(0, -6)}${c.green(doc.id.slice(-5))}`);
+    b.line(uri).blank();
 
-    if (!tasks.length) {
-      b.line(c.gray('  (no tasks)'));
-      return;
-    }
-
-    tasks.forEach((task) => {
-      const todoLines = wrapText(task.TODO, TODO_WIDTH);
-      const commentLines = task.comment ? wrapText(task.comment, COMMENT_WIDTH) : [];
-      const rowHeight = Math.max(todoLines.length, commentLines.length || 1);
-
-      for (let i = 0; i < rowHeight; i += 1) {
-        const todoCell = todoLines[i] ?? '';
-        const commentCell = commentLines[i] ?? '';
-        row(b, todoCell, commentCell);
+    b.indent(2, (bb) => {
+      if (!tasks.length) {
+        bb.line(c.gray('(no tasks)'));
+        return;
       }
 
-      b.blank();
+      tasks.forEach((task) => {
+        const todoLines = wrapText(task.TODO, TODO_WIDTH);
+        const commentLines = task.comment ? wrapText(task.comment, COMMENT_WIDTH) : [];
+        const rowHeight = Math.max(todoLines.length, commentLines.length || 1);
+
+        for (let i = 0; i < rowHeight; i += 1) {
+          const todoCell = todoLines[i] ?? '';
+          const commentCell = commentLines[i] ?? '';
+          row(bb, todoCell, commentCell);
+        }
+
+        bb.blank();
+      });
     });
   });
 
@@ -54,7 +55,7 @@ export function tasks(docs: readonly t.DocTasks[]): string {
 function row(b: t.StrBuilder, todo: string, comment: string) {
   const todoText = pad(todo, TODO_WIDTH);
   const commentText = pad(comment, COMMENT_WIDTH);
-  b.line(`  ${todoText}  ${c.italic(c.gray(commentText))}`);
+  b.line(`${todoText}  ${c.italic(c.gray(commentText))}`);
 }
 
 /**
