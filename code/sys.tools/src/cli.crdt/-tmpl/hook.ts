@@ -1,7 +1,7 @@
 import { env } from 'jsr:@sys/tools/env';
 import { c, Cli } from 'jsr:@sys/cli';
 import { Obj, Arr, Str, Num, Is } from 'jsr:@sys/std';
-import { type t } from 'jsr:@sys/tools';
+import type { t } from 'jsr:@sys/tools';
 
 /** Ensure environment (only need to run once). */
 await env();

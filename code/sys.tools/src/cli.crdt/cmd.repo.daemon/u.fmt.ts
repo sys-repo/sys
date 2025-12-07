@@ -62,11 +62,9 @@ export const Fmt = {
       }
 
       str
-        .line()
-        .line()
-        .line()
+        .blank(3)
         .line(c.dim(Fmt.signoff(D.toolname)))
-        .line();
+        .blank();
       return String(str);
     },
   },

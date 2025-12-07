@@ -25,10 +25,17 @@ export async function dagHookCommand(cwd: t.StringDir, root: t.Crdt.Id, yamlPath
     if (Is.func(hookModule?.onDag)) {
       await hookModule.onDag({ cmd, root, path: { yaml: yamlPath }, dag, startedAt });
     } else {
+      const yi = (s: string) => c.yellow(c.italic(s));
+      const yid = (s: string) => c.dim(yi(s));
+      const gi = (s: string) => c.gray(c.italic(s));
+
       const str = Str.builder()
         .line()
-        .line(c.yellow(c.italic(`  No ${c.white('onDag(e)')} hook ƒunction available`)))
-        .line(c.gray(c.italic(`  Ensure you have generated a ${c.white('hook.ts')} file`)))
+        .line(yi(`  No hook ƒunction available`))
+        .line(gi(`  Create a ${c.white('hook.ts')} file exporting a DAG hook:`))
+        .line()
+        .line(yid(`    import type { t } from 'jsr:@sys/tools';`))
+        .line(yid(`    export const onDag: t.DocumentGraphDagHook = async (e) => { ... }`))
         .line();
       console.info(String(str));
     }
