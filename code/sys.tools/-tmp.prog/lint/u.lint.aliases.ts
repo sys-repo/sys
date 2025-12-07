@@ -6,11 +6,24 @@ export type AliasLintKind =
   | 'index-has-alias-segment'
   | 'index-alias-fragment';
 
-export type AliasLint = {
-  readonly kind: AliasLintKind;
+/**
+ * Alias-specific lint issue:
+ * extends the shared `LintIssue` with key/value context.
+ */
+export type AliasLint = t.LintIssue<AliasLintKind> & {
   readonly key: t.Alias.Key;
   readonly value: string;
-  readonly message: string;
+};
+
+/**
+ * Concrete result type for this linter.
+ *
+ * Note: we intersect with `t.LintResult` so this still
+ * satisfies the generic lint contract (`issues` array),
+ * but narrows `issues` to `AliasLint[]`.
+ */
+export type AliasLintResult = t.LintResult<AliasLintKind> & {
+  readonly issues: readonly AliasLint[];
 };
 
 /**
@@ -23,7 +36,7 @@ export type AliasLint = {
  *      • must not contain "/alias".
  *  - No legacy ":index/alias/..." fragments in *any* alias value.
  */
-export function lintAliases(map: t.Alias.Map): readonly AliasLint[] {
+export function lintAliases(map: t.Alias.Map): AliasLintResult {
   const issues: AliasLint[] = [];
 
   const entries = Object.entries(map ?? {}) as [string, unknown][];
@@ -104,5 +117,5 @@ export function lintAliases(map: t.Alias.Map): readonly AliasLint[] {
     }
   }
 
-  return issues;
+  return { issues };
 }

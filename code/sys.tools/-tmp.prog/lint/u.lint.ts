@@ -1,44 +1,70 @@
-import { type t, c } from '../common.ts';
+import { type t, Obj } from '../common.ts';
 import { makeParser } from '../u.parser.ts';
+import { lintResultToTable } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
-import { extractSequence } from '../extractSequence.ts';
+import { lintSequenceFilepaths } from './u.lint.seq.filepaths.ts';
 
-export async function lint(dag: t.Graph.Dag.Result, yamlPath: t.ObjectPath) {
+export async function lint(
+  dag: t.Graph.Dag.Result,
+  yamlPath: t.ObjectPath,
+): Promise<t.DocLintResult> {
   const Parse = makeParser(yamlPath);
-  let total = { docs: 0, issues: 0 };
+  const allIssues: t.DocLintIssue[] = [];
 
   /**
-   * Check aliases
+   * Lint aliases
    */
   for (const node of dag.nodes) {
     const slug = Parse.findParsedNode(dag, node.id);
     const alias = slug?.alias;
     if (!alias) continue;
 
-    const lint = lintAliases(alias.resolver.alias);
-    if (lint.length > 0) {
-      console.info(c.yellow('   Problem'), node.id);
-    }
+    const baseResult = lintAliases(alias.resolver.alias);
 
-    total.docs += 1;
-    total.issues += lint.length;
+    // Attach docId to each issue for this node.
+    const issuesForNode: t.DocLintIssue[] = baseResult.issues.map((issue) => ({
+      ...issue,
+      doc: { id: node.id },
+    }));
+
+    printLintSection(issuesForNode);
+    for (const issue of issuesForNode) {
+      allIssues.push(issue);
+    }
   }
 
-  const white = (total: number) => c.white(String(total));
-  console.info();
-  const summary = c.gray(`  ${white(total.docs)} documents with ${white(total.issues)} problems`);
-  console.info(c.italic(summary));
-
   /**
-   * Check file paths
+   * Lint sequence file paths
    */
   for (const node of dag.nodes) {
-    await extractSequence(dag, yamlPath, node.id);
+    const baseResult = await lintSequenceFilepaths(dag, yamlPath, node.id);
+
+    const issuesForNode: t.DocLintIssue[] = baseResult.issues.map((issue) => ({
+      ...issue,
+      doc: { id: node.id },
+    }));
+
+    printLintSection(issuesForNode);
+    for (const issue of issuesForNode) {
+      allIssues.push(issue);
+    }
   }
 
   /**
-   * Finish up.
+   * Final result
    */
-  const ok = total.issues === 0;
-  return { ok, total: { issues: total.issues } } as const;
+  const ok = allIssues.length === 0;
+  const total = { issues: allIssues.length };
+
+  return Obj.asGetter({ ok, total, issues: allIssues }, ['issues']);
+}
+
+/**
+ * Centralized formatted output for a linter module.
+ * Expects issues that already carry `docId`.
+ */
+function printLintSection(issues: t.DocLintIssue[] = []) {
+  if (issues.length === 0) return;
+  const table = lintResultToTable(issues);
+  if (table) console.info(table + '\n');
 }
