@@ -27,7 +27,7 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   }
 
   console.info(await Fmt.header(toolname));
-  const res = await run(cwd);
+  const res = await run(cwd, args);
   console.info(Fmt.signoff(toolname));
 
   const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
@@ -37,7 +37,8 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(cwd: t.StringDir): Promise<t.RunReturn> {
+async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunReturn> {
+  const port = Is.num(args.port) ? args.port : D.port;
   const config = await Config.get(cwd);
   await normalize(config);
 
@@ -92,11 +93,12 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       console.info(c.gray(`directory: ${location.dir}`));
     }
 
+    const fmtLocalhost = c.gray(`(${c.cyan(`localhost:${port}`)})`);
     const B = (await Prompt.Select.prompt<C>({
       message: `With: ${c.gray(location.name)}`,
       options: [
-        opt(' start http server', 'serve:start'),
-        opt(' dist/pkg bundles', 'bundle'),
+        opt(` start server ${fmtLocalhost}`, 'serve:start'),
+        opt(' manage bundles', 'bundle'),
         opt(c.dim(c.gray('(forget)')), 'modify:remove'),
       ],
     })) as C;
@@ -107,7 +109,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     }
 
     if (B === 'serve:start') {
-      await startServing(cwd, location);
+      await startServing(cwd, location, { port });
       return done(0);
     }
 

@@ -54,21 +54,24 @@ export async function extractSequence(dag: Dag, yamlPath: t.ObjectPath, docid: t
       if (!exists) total.notExist++;
 
       if (!exists) {
-        const siblings = await Fs.glob(Fs.dirname(path)).find('*');
-        const filenames = siblings.map((f) => f.path).map((f) => Fs.basename(f));
-        const filename = Fs.basename(path);
-        console.log('looking for', c.green(filename));
-
-        const closest = findClosestFilename(filename, filenames);
-        console.log('maybe', c.italic(c.cyan(closest?.name ?? '-')));
       }
 
       if (!exists) {
-        kv('doc:', c.white(docid));
-        kv('- raw:', c.gray(raw));
-        kv('- resolved:', resolved?.value ? c.green(resolved.value) : '');
-        kv('- exists:', exists ? c.green('✔ ' + exists) : c.red(String(exists)));
+        console.info('doc:', c.gray(docid));
+        console.info('- raw:', c.gray(raw));
+        console.info(
+          '- resolved:\n ',
+          resolved?.value ? (exists ? c.green(resolved.value) : c.red(resolved.value)) : '',
+        );
+        console.info('- exists:', exists ? c.green('✔ ' + exists) : c.red(String(exists)));
         table.push([]);
+
+        // Maybe
+        const siblings = await Fs.glob(Fs.dirname(path)).find('*');
+        const filenames = siblings.map((f) => f.path).map((f) => Fs.basename(f));
+        const filename = Fs.basename(path);
+        const closest = findClosestFilename(filename, filenames);
+        console.log('maybe', c.italic(c.cyan(closest?.name ?? '-')), '?');
       }
 
       // console.log(c.green('result (path)'), resolved?.value);

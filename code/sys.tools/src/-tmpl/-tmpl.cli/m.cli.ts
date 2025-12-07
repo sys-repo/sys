@@ -22,7 +22,7 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
   }
 
   console.info(await Fmt.header(toolname));
-  const res = await run(cwd);
+  const res = await run(cwd, args);
   console.info(Fmt.signoff(toolname));
 
   const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
@@ -32,7 +32,7 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(cwd: t.StringDir): Promise<t.RunReturn> {
+async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunReturn> {
   const config = await Config.get(cwd);
   await Config.normalize(config);
 

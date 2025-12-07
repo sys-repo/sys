@@ -24,6 +24,7 @@ export namespace __NAME__Tool {
 
   /** Command line arguments (argv). */
   export type CliArgs = t.ToolsCliArgs;
+  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
   /** Configuration File */
   export type Config = t.JsonFile<__NAME__Tool.ConfigDoc>;

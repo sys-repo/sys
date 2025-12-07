@@ -12,6 +12,7 @@ export { Http, serveFileWithEtag } from '@sys/http/server';
 const toolname = `system/serve:tools`;
 export const D = {
   toolname,
+  port: 3030,
   Path: {},
   Config: {
     filename: '-serve.config.json',

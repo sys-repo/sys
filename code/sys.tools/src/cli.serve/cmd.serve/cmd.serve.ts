@@ -1,10 +1,11 @@
-import { type t, Http, Net } from '../common.ts';
+import { type t, Http, Is, Net, D } from '../common.ts';
 import { Mime } from './u.mime.ts';
 import { route } from './u.serve.route.ts';
 
 export async function startServing(
   cwd: t.StringDir,
   location: t.ServeTool.DirConfig,
+  opts: { port?: number } = {},
 ): Promise<void> {
   const { dir, contentTypes } = location;
 
@@ -26,7 +27,7 @@ export async function startServing(
   app.use('*', Http.Server.static({ root: dir, mimes: staticMimes }));
 
   console.info();
-  const port = Net.port(3000);
+  const port = Net.port(opts.port ?? D.port);
   const baseOptions = Http.Server.options({ port, dir, silent: false });
   const ac = new AbortController();
   const server = Deno.serve({ ...baseOptions, signal: ac.signal }, app.fetch);

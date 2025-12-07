@@ -27,8 +27,8 @@ export async function dagHookCommand(cwd: t.StringDir, root: t.Crdt.Id, yamlPath
     } else {
       const str = Str.builder()
         .line()
-        .line(c.yellow(c.italic(`  No \`onDag()\` hook function available`)))
-        .line(c.gray(c.italic(`  Ensure you have generated a hook.ts file`)))
+        .line(c.yellow(c.italic(`  No ${c.white('onDag(e)')} hook ƒunction available`)))
+        .line(c.gray(c.italic(`  Ensure you have generated a ${c.white('hook.ts')} file`)))
         .line();
       console.info(String(str));
     }
