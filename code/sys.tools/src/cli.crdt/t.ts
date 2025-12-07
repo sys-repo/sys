@@ -4,7 +4,6 @@ import type { t } from './common.ts';
  * Re-exports:
  */
 export type * from './cmd.doc.graph/t.ts';
-export type * from './cmd.doc.lint/t.ts';
 export type * from './cmd.doc.snapshot/t.ts';
 export type * from './cmd.repo.daemon/t.ts';
 

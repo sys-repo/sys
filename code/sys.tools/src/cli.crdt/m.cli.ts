@@ -156,8 +156,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         }
 
         if (B === 'doc:lint') {
-          const m =
-            (await import('./cmd.doc.lint/mod.ts')) as typeof import('./cmd.doc.lint/mod.ts');
+          const m = (await import('./cmds/cmd.lint.ts')) as typeof import('./cmds/cmd.lint.ts');
           await m.lintDocumentGraphCommand(cwd, id, yamlPath);
           return done(0);
         }
