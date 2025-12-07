@@ -14,6 +14,7 @@ export type ServeToolsLib = {
  * The `@sys/tools/serve` type namespace.
  */
 export namespace ServeTool {
+  /** Command names */
   export type Command =
     | 'modify:add'
     | 'modify:remove'
@@ -21,7 +22,9 @@ export namespace ServeTool {
     | 'bundle'
     | 'bundle:add-remote'
     | 'bundle:pull-latest'
+    | 'bundle:open'
     | 'exit';
+  export type MenuOption = { name: string; value: Command };
 
   /** Alternative view formats for rendering a route. */
   export type RouteView = 'json';
@@ -64,6 +67,8 @@ export namespace ServeTool {
     remote: { dist: t.StringUrl };
     /** Local destination for the bundle, relative to DirConfig.dir. */
     local: { dir: t.StringRelativeDir };
+    /** Timestamps */
+    lastUsedAt?: t.UnixTimestamp;
   };
 
   /** Allowed MIME types for static asset responses. */

@@ -1,11 +1,16 @@
-import { type t, Http, Is, Net, D } from '../common.ts';
+import { type t, D, Http, Net } from '../common.ts';
 import { Mime } from './u.mime.ts';
 import { route } from './u.serve.route.ts';
 
+type Opts = { port?: number };
+
+/**
+ * Start a local HTTP server for the given directory.
+ */
 export async function startServing(
   cwd: t.StringDir,
   location: t.ServeTool.DirConfig,
-  opts: { port?: number } = {},
+  opts: Opts = {},
 ): Promise<void> {
   const { dir, contentTypes } = location;
 

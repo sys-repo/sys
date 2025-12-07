@@ -21,6 +21,7 @@ export namespace __NAME__Tool {
     | 'option-ba'
     | 'option-bb'
     | 'quit';
+  export type MenuOption = { name: string; value: Command };
 
   /** Command line arguments (argv). */
   export type CliArgs = t.ToolsCliArgs;
