@@ -1,5 +1,6 @@
-import { type t, c, D, Http, Process } from '../common.ts';
+import { type t, c, Cli, D, Http, Process } from '../common.ts';
 import { startServing } from './cmd.serve.ts';
+import { Fmt } from '../u.fmt.ts';
 
 type Opts = { port?: number; silent?: boolean };
 
@@ -21,14 +22,37 @@ export async function ensureStartedThenOpen(
   };
 
   /** Fast probe: is the dist endpoint reachable within a small budget? */
-  const alreadyUp = await Http.Client.isAlive(url.dist, {
-    timeout: 2_000,
-    interval: 120,
-    method: 'HEAD',
-  });
+  let alreadyUp = false;
+
+  if (silent) {
+    // No spinner, just a straight probe.
+    alreadyUp = await Http.Client.isAlive(url.dist, {
+      timeout: 2_000,
+      interval: 120,
+      method: 'HEAD',
+    });
+  } else {
+    const spinner = Cli.spinner(Fmt.spinnerText('Checking server...')).start();
+    try {
+      alreadyUp = await Http.Client.isAlive(url.dist, {
+        timeout: 2_000,
+        interval: 120,
+        method: 'HEAD',
+      });
+
+      if (alreadyUp) {
+        spinner.succeed(Fmt.spinnerText('Server ready'));
+      } else {
+        spinner.stop(); // not an error, we’ll just start it.
+      }
+    } catch {
+      spinner.stop();
+      alreadyUp = false;
+    }
+  }
 
   if (alreadyUp) {
-    // Print + open browser immediately.
+    // Server is already running: print + open, then exit.
     if (!silent) console.info(c.cyan(url.bundleDir));
 
     await Process.invoke({
@@ -40,28 +64,6 @@ export async function ensureStartedThenOpen(
     return;
   }
 
-  /** Not already running — start server and open once ready. */
-  void (async () => {
-    try {
-      await Http.Client.waitFor(url.dist, {
-        timeout: 5_000,
-        interval: 120,
-        method: 'HEAD',
-      });
-
-      if (!silent) console.info(c.cyan(url.bundleDir));
-
-      await Process.invoke({
-        cmd: 'open',
-        args: [url.bundleDir],
-        cwd,
-        silent: true,
-      });
-    } catch {
-      // Best-effort only; ignore readiness/open failure.
-    }
-  })();
-
-  /** Block like a normal `serve` command. */
+  /** Not already running — just start the server like normal. */
   await startServing(cwd, location, { ...opts, port });
 }
