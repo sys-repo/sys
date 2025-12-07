@@ -19,10 +19,10 @@ export async function lintDocumentGraphCommand(
   console.info(c.cyan(`🐷 Lint:`), Fmt.prettyUri(docid));
   console.info();
 
-  const domain =
-    (await import('../../../-tmp.domain.prog/mod.ts')) as typeof import('../../../-tmp.domain.prog/mod.ts');
+  const m =
+    (await import('../../../-tmp.prog/mod.ts')) as typeof import('../../../-tmp.prog/mod.ts');
 
-  const res = await domain.lint(dag, yamlPath);
+  const res = await m.lint(dag, yamlPath);
 
   console.log(`-------------------------------------------`);
   console.log('lint 🐷', res);
