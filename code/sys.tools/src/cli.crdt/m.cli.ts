@@ -100,7 +100,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           // { name: '  🐷', value: 'tmp:🐷' },
           opt('  Snapshot (Backup)', 'snapshot'),
           opt('  Document Graph → DAG (hook)', 'doc:graph:dag'),
-          opt('  Lint 🐷', 'doc:lint'),
           opt('  Document Graph → Walk → Stats', 'doc:graph:walk'),
           opt('  Lint', 'doc:lint'),
           opt('  View Yaml', 'doc:viewer:yaml'),
@@ -125,6 +124,9 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           return done(0);
         }
 
+        /**
+         * TODO 🐷 - make path configurable (via prompt)
+         */
         const yamlPath = ['slug'];
 
         if (B.startsWith('doc:graph')) {
