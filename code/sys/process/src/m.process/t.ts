@@ -27,6 +27,13 @@ export type ProcLib = {
   invoke(config: t.ProcInvokeArgs): Promise<t.ProcOutput>;
 
   /**
+   * Execute a command in a fire-and-forget manner,
+   * detaching stdio and unref'ing the child so the host
+   * process is free to exit immediately.
+   */
+  invokeDetached(config: t.ProcInvokeArgs): { pid: number };
+
+  /**
    * Spawn a child process to run a <unix>-like command
    * and retrieve a streaming handle to monitor and control it.
    */
