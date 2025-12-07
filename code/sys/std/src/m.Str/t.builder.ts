@@ -39,6 +39,16 @@ export type StrBuilder = {
   lines(items: readonly string[]): StrBuilder;
 
   /**
+   * Execute a scoped, indented block. All lines written via the provided
+   * builder are prefixed with the given number of spaces, while sharing
+   * the same underlying buffer.
+   *
+   * This does not mutate any global indent state; indentation is confined
+   * to the duration of the callback.
+   */
+  indent(spaces: number, fn: (b: StrBuilder) => void): StrBuilder;
+
+  /**
    * Render to string using defaults (typically `trimEnd: true`).
    * Equivalent to `toText()` with no options.
    */

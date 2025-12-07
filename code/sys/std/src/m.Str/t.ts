@@ -100,7 +100,7 @@ export type StrLib = {
   count(text: string, sub: string): number;
 
   /** Create a new string builder. */
-  builder(): t.StrBuilder;
+  builder(options?: t.StrBuilderOptions): t.StrBuilder;
 };
 
 /**
