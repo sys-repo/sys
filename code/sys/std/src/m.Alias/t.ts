@@ -48,7 +48,7 @@ export type AliasResolverLib = {
     raw: t.Alias.RawPath,
     map: t.Alias.Map,
     opts?: { maxDepth?: number },
-  ): t.Alias.ExpandResult;
+  ): t.Alias.Expand.Result;
 
   /**
    * Chained alias expansion across one or more tables.
@@ -62,7 +62,7 @@ export type AliasResolverLib = {
     raw: t.Alias.RawPath,
     resolver: t.Alias.Resolver<T>,
     opts?: t.AliasExpandChainOptions<T>,
-  ): Promise<t.Alias.ExpandChainResult>;
+  ): Promise<t.Alias.Expand.Chain.Result>;
 };
 
 /**
@@ -80,6 +80,6 @@ export type AliasResolverIsLib = {
 export type AliasExpandChainOptions<T extends O = O> = {
   readonly maxDepth?: number;
   readonly loadNext?: (
-    e: t.Alias.ExpandChainNextArgs<T>,
+    e: t.Alias.Expand.Chain.NextArgs<T>,
   ) => Promise<t.Alias.Resolver<T> | t.Alias.Map | null | undefined>;
 };

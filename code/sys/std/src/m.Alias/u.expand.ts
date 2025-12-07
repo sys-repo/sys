@@ -12,7 +12,7 @@ export function expand(
   raw: t.Alias.RawPath,
   map: t.Alias.Map,
   opts: { maxDepth?: number } = {},
-): t.Alias.ExpandResult {
+): t.Alias.Expand.Result {
   const maxDepth = opts.maxDepth ?? 8; // cycle protection
   let value = raw;
   const used: t.Alias.Key[] = [];

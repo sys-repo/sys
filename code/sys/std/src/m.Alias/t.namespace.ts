@@ -99,57 +99,67 @@ export namespace Alias {
   };
 
   /**
-   * Result of syntactic alias expansion:
-   * - value     : the transformed path after applying the alias map
-   * - used      : aliases that were expanded
-   * - remaining : aliases still present in the resulting value
-   *
-   * Callers may treat `value` as a ResolvedPath *iff* remaining.length === 0.
-   * The expand step itself does not upgrade the type.
+   * Types relating to path expansion.
    */
-  export type ExpandResult = {
-    readonly value: Alias.RawPath;
-    readonly used: readonly Alias.Key[];
-    readonly remaining: readonly Alias.Key[];
-  };
+  export namespace Expand {
+    /**
+     * Result of syntactic alias expansion:
+     * - value     : the transformed path after applying the alias map
+     * - used      : aliases that were expanded
+     * - remaining : aliases still present in the resulting value
+     *
+     * Callers may treat `value` as a ResolvedPath *iff* remaining.length === 0.
+     * The expand step itself does not upgrade the type.
+     */
+    export type Result = {
+      readonly value: Alias.RawPath;
+      readonly used: readonly Alias.Key[];
+      readonly remaining: readonly Alias.Key[];
+    };
 
-  /**
-   * One step in a chained alias expansion:
-   * captures the local table, the expanded value, and which tokens were used.
-   */
-  export type ExpandChainStep = {
-    readonly value: Alias.RawPath;
-    readonly used: readonly Alias.Key[];
-    readonly remaining: readonly Alias.Key[];
-    readonly alias: Alias.Map;
-  };
+    /**
+     * Types relating to chain expansion.
+     */
+    export namespace Chain {
+      /**
+       * One step in a chained alias expansion:
+       * captures the local table, the expanded value, and which tokens were used.
+       */
+      export type Step = {
+        readonly value: Alias.RawPath;
+        readonly used: readonly Alias.Key[];
+        readonly remaining: readonly Alias.Key[];
+        readonly alias: Alias.Map;
+      };
 
-  /**
-   * Arguments provided to `loadNext` during chained expansion.
-   *
-   * Each hop sees:
-   * - the current raw value
-   * - the per-step expansion result
-   * - the resolver whose table was just applied
-   * - the current depth (0-based)
-   */
-  export type ExpandChainNextArgs<T extends O = O> = {
-    readonly value: Alias.RawPath;
-    readonly step: Alias.ExpandResult;
-    readonly resolver: Alias.Resolver<T>;
-    readonly depth: number;
-  };
+      /**
+       * Arguments provided to `loadNext` during chained expansion.
+       *
+       * Each hop sees:
+       * - the current raw value
+       * - the per-step expansion result
+       * - the resolver whose table was just applied
+       * - the current depth (0-based)
+       */
+      export type NextArgs<T extends O = O> = {
+        readonly value: Alias.RawPath;
+        readonly step: Alias.Expand.Result;
+        readonly resolver: Alias.Resolver<T>;
+        readonly depth: number;
+      };
 
-  /**
-   * Result of chained alias expansion across one or more tables.
-   *
-   * - `value`     : final raw value after all hops
-   * - `steps`     : per-hop results (local table + expansion metadata)
-   * - `remaining` : tokens still present after the last hop
-   */
-  export type ExpandChainResult = {
-    readonly value: Alias.RawPath;
-    readonly steps: readonly Alias.ExpandChainStep[];
-    readonly remaining: readonly Alias.Key[];
-  };
+      /**
+       * Result of chained alias expansion across one or more tables.
+       *
+       * - `value`     : final raw value after all hops
+       * - `steps`     : per-hop results (local table + expansion metadata)
+       * - `remaining` : tokens still present after the last hop
+       */
+      export type Result = {
+        readonly value: Alias.RawPath;
+        readonly steps: readonly Alias.Expand.Chain.Step[];
+        readonly remaining: readonly Alias.Key[];
+      };
+    }
+  }
 }

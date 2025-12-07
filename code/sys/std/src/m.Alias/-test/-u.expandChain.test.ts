@@ -242,6 +242,6 @@ describe('AliasResolver.expandChain', () => {
     const { resolver } = AliasResolver.analyze(table);
 
     const res = await expandChain('/:core', resolver);
-    expectTypeOf(res.steps).toEqualTypeOf<readonly t.Alias.ExpandChainStep[]>();
+    expectTypeOf(res.steps).toEqualTypeOf<readonly t.Alias.Expand.Chain.Step[]>();
   });
 });

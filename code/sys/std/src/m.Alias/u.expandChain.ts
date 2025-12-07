@@ -21,11 +21,11 @@ export async function expandChain<T extends O = O>(
   raw: t.Alias.RawPath,
   resolver: t.Alias.Resolver<T>,
   opts: t.AliasExpandChainOptions<T> = {},
-): Promise<t.Alias.ExpandChainResult> {
+): Promise<t.Alias.Expand.Chain.Result> {
   const maxDepth = opts.maxDepth ?? 8;
   const { loadNext } = opts;
 
-  const steps: t.Alias.ExpandChainStep[] = [];
+  const steps: t.Alias.Expand.Chain.Step[] = [];
 
   let value: t.Alias.RawPath = raw;
   let currentResolver: t.Alias.Resolver<T> = resolver;
@@ -34,7 +34,7 @@ export async function expandChain<T extends O = O>(
     // 1. Expand against the current table.
     const step = expand(value, currentResolver.alias);
 
-    const chainStep: t.Alias.ExpandChainStep = {
+    const chainStep: t.Alias.Expand.Chain.Step = {
       value: step.value,
       used: step.used,
       remaining: step.remaining,
