@@ -23,7 +23,7 @@ export async function dagHookCommand(cwd: t.StringDir, root: t.Crdt.Id, yamlPath
      */
     const hookModule = await loadDocumentHook(cwd);
     if (Is.func(hookModule?.onDag)) {
-      hookModule.onDag({ cmd, root, path: { yaml: yamlPath }, dag, startedAt });
+      await hookModule.onDag({ cmd, root, path: { yaml: yamlPath }, dag, startedAt });
     } else {
       const str = Str.builder()
         .line()

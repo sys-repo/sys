@@ -98,10 +98,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       if (A.startsWith('crdt:')) {
         const options = [
           // { name: '  🐷', value: 'tmp:🐷' },
-          opt('  Snapshot (Backup)', 'snapshot'),
           opt('  Document Graph → DAG (hook)', 'doc:graph:dag'),
-          opt('  Document Graph → Walk → Stats', 'doc:graph:walk'),
           opt('  Lint', 'doc:lint'),
+          opt('  Snapshot (Backup)', 'snapshot'),
+          opt('  Document Graph → Walk → Stats', 'doc:graph:walk'),
           opt('  View Yaml', 'doc:viewer:yaml'),
           opt('  View Config', 'doc:config:print'),
         ];

@@ -1,6 +1,10 @@
 import { type t } from '../common.ts';
 
-export type AliasLintKind = 'value-leading-slash' | 'index-not-crdt-id' | 'index-has-alias-segment';
+export type AliasLintKind =
+  | 'value-leading-slash'
+  | 'index-not-crdt-id'
+  | 'index-has-alias-segment'
+  | 'index-alias-fragment';
 
 export type AliasLint = {
   readonly kind: AliasLintKind;
@@ -17,6 +21,7 @@ export type AliasLint = {
  *  - If ":index" is present:
  *      • value must be a bare "crdt:<id>" (no extra segments),
  *      • must not contain "/alias".
+ *  - No legacy ":index/alias/..." fragments in *any* alias value.
  */
 export function lintAliases(map: t.Alias.Map): readonly AliasLint[] {
   const issues: AliasLint[] = [];
@@ -78,6 +83,24 @@ export function lintAliases(map: t.Alias.Map): readonly AliasLint[] {
           message: '":index" must be a bare "crdt:<id>" document identifier.',
         });
       }
+    }
+
+    /**
+     * 3) Legacy ":index/alias/…" hop fragments anywhere in the table.
+     *
+     *    Old pattern (to be removed):
+     *      ":core-slugs:  :index/alias/:core"
+     *    New pattern:
+     *      ":core-slugs:  :index/:core"
+     */
+    if (value.includes(':index/alias')) {
+      issues.push({
+        kind: 'index-alias-fragment',
+        key,
+        value,
+        message:
+          'Legacy pattern ":index/alias/…" found. Replace with ":index/:core", ":index/:assets/…", etc. No "/alias" segment.',
+      });
     }
   }
 

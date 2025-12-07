@@ -22,5 +22,8 @@ export async function lintDocumentGraphCommand(
   const domain =
     (await import('../../../-tmp.domain.prog/mod.ts')) as typeof import('../../../-tmp.domain.prog/mod.ts');
 
-  await domain.lint(dag, yamlPath);
+  const res = await domain.lint(dag, yamlPath);
+
+  console.log(`-------------------------------------------`);
+  console.log('lint 🐷', res);
 }
