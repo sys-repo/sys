@@ -1,2 +1,1 @@
-console.info('🐷 tmp');
-    contents: prompt,
+console.log('🐷-tmp');
