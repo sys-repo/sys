@@ -1,12 +1,6 @@
 /**
- * Tools for working with strings of text.
  * @module
- *
- * @example
- * ```ts
- * import { Str, Diff } from '@sys/text';
- * import { Fuzzy } from '@sys/text/fuzzy';
- * ```
+ * Tools for working with strings of text.
  */
 export { pkg } from './pkg.ts';
 /** Type library (barrel file). */
