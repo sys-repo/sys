@@ -3,24 +3,8 @@ import { c, Cli } from 'jsr:@sys/cli';
 import { Obj, Arr, Str, Num, Is } from 'jsr:@sys/std';
 import type { t } from 'jsr:@sys/tools';
 
-/** Ensure environment (only need to run once). */
+/** Ensure VSCode environment setup (need only run once). */
 await env();
-
-/**
- * Graph-walk document hook.
- *
- * Called once for every document encountered during a DAG walk.
- * Use this to inspect, validate, or mutate documents via CRDT commands.
- */
-export const onWalk: t.DocumentGraphWalkHook = async (e) => {
-  const { cmd } = e;
-  const current = e.doc.current;
-
-  // 🐷 ↓ perform actions on each document in the graph here.
-  if (e.is.root) {
-    e.log(`hook: from root document 👋 | ${c.green(e.id)}`);
-  }
-};
 
 /**
  * DAG calculated hook.
@@ -37,4 +21,20 @@ export const onDag: t.DocumentGraphDagHook = async (e) => {
   console.info();
   console.info(dag);
   console.info();
+};
+
+/**
+ * Graph-walk document hook.
+ *
+ * Called once for every document encountered during a DAG walk.
+ * Use this to inspect, validate, or mutate documents via CRDT commands.
+ */
+export const onWalk: t.DocumentGraphWalkHook = async (e) => {
+  const { cmd } = e;
+  const current = e.doc.current;
+
+  // 🐷 ↓ perform actions on each document in the graph here.
+  if (e.is.root) {
+    e.log(`hook: from root document 👋 | ${c.green(e.id)}`);
+  }
 };
