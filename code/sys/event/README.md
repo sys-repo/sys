@@ -67,14 +67,11 @@ bus$
 
 ## Cmd (Command)
 
-> *A minimal, transport-agnostic, strongly-typed command algebra for unary and streaming operations — providing a simple, strongly-typed boundary between semantics and transport.*
+> *A minimal, transport-agnostic, strongly-typed command algebra for **unary** and **streaming** operations — a small, explicit boundary between semantics and transport.*
 
-Small command bus providing **typed request/response and streaming** over
-any `MessagePort`-like endpoint ([Web Worker](https://html.spec.whatwg.org/multipage/workers.html),
+`Cmd` provides **typed request/response and streaming events** over any
+`MessagePort`-like endpoint ([Web Worker](https://html.spec.whatwg.org/multipage/workers.html),
 `MessageChannel`, `window.postMessage`, etc).
-
-You define a command set once as **name → payload / result / event-maps**, then get a
-strongly-typed `host` and `client`.
 
 <p>&nbsp;</p>
 
