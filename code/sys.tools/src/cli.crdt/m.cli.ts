@@ -101,7 +101,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
       if (A.startsWith('crdt:')) {
         const options = [
-          // { name: '  🐷', value: 'tmp:🐷' },
+          { name: '  🐷', value: 'doc:graph:dag' },
           opt('  Lint', 'doc:graph:lint'),
           opt('  Tasks', 'doc:graph:tasks'),
           opt('  Snapshot (Backup)', 'snapshot'),
