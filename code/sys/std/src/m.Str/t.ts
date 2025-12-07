@@ -111,29 +111,3 @@ export type StrLoremLib = {
   toString(): string;
   words(count?: number): string;
 };
-
-/**
- * Mutable string builder with simple line-based composition.
- *
- * @example
- * ```ts
- * const text = builder()
- *   .line('Hello, world!')
- *   .line('This is another line.')
- *   .toString();
- *
- * console.log(text);
- * // → "Hello, world!\nThis is another line."
- */
-export type StrBuilder = {
-  /**
-   * Appends a line of text to the builder followed by a newline (`\n`).
-   * If no input is provided, a single space is used by default.
-   */
-  line(input?: string): StrBuilder;
-
-  /**
-   * Returns the concatenated string accumulated so far.
-   */
-  toString(): string;
-};
