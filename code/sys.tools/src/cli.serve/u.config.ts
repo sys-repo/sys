@@ -1,11 +1,10 @@
 import { type t, Config as Base } from './common.ts';
 import { getConfig as get } from './u.config.get.ts';
 import { MutateConfig as Mutate } from './u.config.mutate.ts';
-
 import { normalize } from './u.config.normalize.ts';
 
-export { normalize };
 export * from './u.config.get.ts';
+export { normalize };
 
 /**
  * Config file namespace.
@@ -33,18 +32,12 @@ export const Config = {
   findBundle(
     config: t.ServeTool.ConfigDoc,
     locationDir: t.StringDir,
-    distUrl: t.StringUrl,
     localDir?: t.StringRelativeDir,
   ) {
+    if (!localDir) return;
     const loc = Config.findLocation(config, locationDir);
     const bundles = loc?.remoteBundles ?? [];
-
-    if (localDir === undefined) {
-      // Back-compat: first match on dist only.
-      return bundles.find((m) => m.remote.dist === distUrl);
-    }
-
-    // New identity: (dist + localDir).
-    return bundles.find((m) => m.remote.dist === distUrl && m.local.dir === localDir);
+    localDir = localDir.replace(/^\/+/, '');
+    return bundles.find((m) => m.local.dir === localDir);
   },
 } as const;

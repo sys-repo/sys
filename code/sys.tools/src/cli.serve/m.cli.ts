@@ -42,6 +42,23 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
   const config = await Config.get(cwd);
   await normalize(config);
 
+  const Update = {
+    async locationLastUsedAt(locationDir: t.StringDir) {
+      config.change((d) => {
+        const dir = Config.findLocation(d, locationDir);
+        if (dir) dir.lastUsedAt = Time.now.timestamp;
+      });
+      await config.fs.save();
+    },
+    async bundleLastUsed(locationDir: t.StringDir, localDir?: t.StringRelativeDir) {
+      config.change((d) => {
+        const bundle = Config.findBundle(d, locationDir, localDir);
+        if (bundle) bundle.lastUsedAt = Time.now.timestamp;
+      });
+      await config.fs.save();
+    },
+  } as const;
+
   const listing = Config.orderByRecency(config.current.dirs).map((item, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
     let name = ` ${'serve:'} ${branch} ${c.green(item.name)}`;
@@ -72,20 +89,15 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
    * Serve location (folder):
    */
   {
-    const findSelectedLocation = () => Config.findLocation(config.current, A)!;
-    if (!findSelectedLocation()) {
+    const location = Config.findLocation(config.current, A)!;
+    if (!location) {
       console.info();
       console.info(c.yellow(`Could not find a server configuration`));
       console.info(c.gray(`directory: ${A}`));
       console.info();
       return done();
     }
-    config.change((d) => {
-      const dir = Config.findLocation(d, A);
-      if (dir) dir.lastUsedAt = Time.now.timestamp;
-    });
-    config.fs.save();
-    const location = findSelectedLocation();
+    await Update.locationLastUsedAt(location.dir);
 
     if (Fs.cwd() !== location.dir) {
       console.info(c.gray(`directory: ${location.dir}`));
@@ -114,14 +126,15 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
 
     if (B.startsWith('bundle:open' satisfies C)) {
       const bundleDir = B.slice(B.indexOf('/')) ?? '';
+      await Update.bundleLastUsed(location.dir, bundleDir);
       await ensureStartedThenOpen(cwd, location, bundleDir, { port });
       return done(0);
     }
 
     if (B === 'bundle') {
       const m = (await import('./cmd.pull/mod.ts')) satisfies typeof import('./cmd.pull/mod.ts');
-      await m.pullBundle(cwd, location);
-      console.info();
+      const { bundle } = await m.pullBundle(cwd, location);
+      if (bundle?.local) await Update.bundleLastUsed(location.dir, bundle.local.dir);
       return done(0);
     }
   }

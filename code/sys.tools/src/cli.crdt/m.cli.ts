@@ -39,6 +39,16 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   const config = await Config.get(cwd);
   await Config.normalize(config);
 
+  const Update = {
+    async docLastUsedAt(id: t.Crdt.Id) {
+      config.change((d) => {
+        const entry = Config.findDocEntry(d, id);
+        if (entry) entry.lastUsedAt = Time.now.timestamp;
+      });
+      await config.fs.save();
+    },
+  } as const;
+
   const listing = Config.orderByRecency(config.current.docs)
     .map((doc) => ({ doc, name: doc.name ?? '', value: `crdt:${doc.id}` }))
     .map((e, i, total) => {
@@ -72,13 +82,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     })) as C;
 
     let id = Crdt.Is.uri(A) ? Crdt.Id.fromUri(A) || '' : '';
-    if (id) {
-      config.change((d) => {
-        const entry = Config.findDocEntry(d, id);
-        if (entry) entry.lastUsedAt = Time.now.timestamp;
-      });
-      await config.fs.save();
-    }
+    if (id) await Update.docLastUsedAt(id);
 
     if (A === 'doc:add') {
       const res = await promptAddDocument(cwd);

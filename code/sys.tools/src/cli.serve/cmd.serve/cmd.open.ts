@@ -1,6 +1,6 @@
 import { type t, c, Cli, D, Http, Process } from '../common.ts';
-import { startServing } from './cmd.serve.ts';
 import { Fmt } from '../u.fmt.ts';
+import { startServing } from './cmd.serve.ts';
 
 type Opts = { port?: number; silent?: boolean };
 
@@ -15,6 +15,8 @@ export async function ensureStartedThenOpen(
   opts: Opts = {},
 ) {
   const { silent = false, port = D.port } = opts;
+
+  /** URLs */
   const baseUrl = `http://localhost:${port}`;
   const url = {
     dist: `${baseUrl}/dist.json`,

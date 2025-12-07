@@ -1,12 +1,13 @@
-import { type t, c, Cli, done, Fs, Url } from '../common.ts';
+import { type t, c, Cli, Fs, opt, Url } from '../common.ts';
 import { Config } from '../u.config.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { pullRemoteBundle } from './u.pull.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
 type C = t.ServeTool.Command;
+type R = { bundle?: t.ServeTool.DirRemoteBundle };
 
-export const stripHttp = (value: string): string => value.replace(/^https?:\/\//, '');
+const stripHttp = (value: string): string => value.replace(/^https?:\/\//, '');
 
 const Fmt = {
   ...BaseFmt,
@@ -17,12 +18,11 @@ const Fmt = {
   },
 } as const;
 
-export async function pullBundle(
-  cwd: t.StringDir,
-  location: t.ServeTool.DirConfig,
-): Promise<t.RunReturn> {
+export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.DirConfig): Promise<R> {
   const config = await Config.get(cwd);
-  const opt = (name: string, value: C) => ({ name, value });
+  // const opt = (name: string, value: C) => ({ name, value });
+
+  const done = (bundle?: t.ServeTool.DirRemoteBundle) => ({ bundle });
 
   const PULL_PREFIX = 'bundle:pull-latest:';
   const optBundles = (location.remoteBundles ?? []).map((m, i, total) => {
@@ -41,7 +41,7 @@ export async function pullBundle(
     ],
   })) as C;
 
-  if (A === 'exit') return done(0);
+  if (A === 'exit') return done();
 
   if (A === 'bundle:add-remote') {
     const B = await Cli.Prompt.Input.prompt({
@@ -87,12 +87,11 @@ export async function pullBundle(
     const bundles = loc.remoteBundles ?? [];
     const bundle = bundles[index];
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
-
     await pullRemoteBundle(location.dir, bundle);
-    return done(0);
+    return done(bundle);
   }
 
-  return done(0);
+  return done();
 }
 
 /**
