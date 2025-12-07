@@ -102,8 +102,9 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       if (A.startsWith('crdt:')) {
         const options = [
           // { name: '  🐷', value: 'tmp:🐷' },
+          opt('  Lint', 'doc:graph:lint'),
+          opt('  Tasks', 'doc:graph:tasks'),
           opt('  Document Graph → DAG (hook)', 'doc:graph:dag'),
-          opt('  Lint', 'doc:lint'),
           opt('  Snapshot (Backup)', 'snapshot'),
           opt('  Document Graph → Walk → Stats', 'doc:graph:walk'),
           opt('  View Yaml', 'doc:viewer:yaml'),
@@ -155,9 +156,17 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           return done(0);
         }
 
-        if (B === 'doc:lint') {
-          const m = (await import('./cmds/cmd.lint.ts')) as typeof import('./cmds/cmd.lint.ts');
+        if (B === 'doc:graph:lint') {
+          const m =
+            (await import('./cmds/cmd.doc.graph.lint.ts')) as typeof import('./cmds/cmd.doc.graph.lint.ts');
           await m.lintDocumentGraphCommand(cwd, id, yamlPath);
+          return done(0);
+        }
+
+        if (B === 'doc:graph:tasks') {
+          const m =
+            (await import('./cmds/cmd.doc.graph.tasks.ts')) as typeof import('./cmds/cmd.doc.graph.tasks.ts');
+          await m.documentGraphTasksCommand(cwd, id, yamlPath);
           return done(0);
         }
 

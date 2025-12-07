@@ -1,2 +1,6 @@
 import type { t } from '../common.ts';
-export {};
+
+/**
+ * The result of querying a document-graph for tasks.
+ */
+export type DocGraphTasksResult = {};
