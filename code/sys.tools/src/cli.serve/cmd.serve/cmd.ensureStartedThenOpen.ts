@@ -21,7 +21,10 @@ export async function ensureStartedThenOpen(
     bundleDir: `${baseUrl}/${bundleDir.replace(/^\/+/, '')}`,
   };
 
-  /** Fast probe: is the dist endpoint reachable within a small budget? */
+  /**
+   * Fast probe: is the dist endpoint reachable within a small budget?
+   * Spinner lives ONLY in this short prelude, never during the long-lived server.
+   */
   let alreadyUp = false;
 
   if (silent) {
@@ -43,7 +46,8 @@ export async function ensureStartedThenOpen(
       if (alreadyUp) {
         spinner.succeed(Fmt.spinnerText('Server ready'));
       } else {
-        spinner.stop(); // not an error, we’ll just start it.
+        // Not an error: we’ll just start it in-process.
+        spinner.stop();
       }
     } catch {
       spinner.stop();
@@ -51,19 +55,43 @@ export async function ensureStartedThenOpen(
     }
   }
 
+  /**
+   * Server already running → print, open (detached), and exit.
+   */
   if (alreadyUp) {
-    // Server is already running: print + open, then exit.
     if (!silent) console.info(c.cyan(url.bundleDir));
 
-    await Process.invoke({
+    // Fire-and-forget: do NOT block this process on the browser.
+    void Process.invokeDetached({
       cmd: 'open',
       args: [url.bundleDir],
       cwd,
       silent: true,
     });
+
     return;
   }
 
-  /** Not already running — just start the server like normal. */
+  /**
+   * Not already running — start the server and schedule a detached open.
+   * No spinner here, so Ctrl+C behaviour is owned purely by the serve keyboard helper.
+   */
+  if (!silent) {
+    console.info(Fmt.spinnerText('Starting server...'));
+  }
+
+  // Give the server a short head-start, then open in the browser.
+  setTimeout(() => {
+    void Process.invokeDetached({
+      cmd: 'open',
+      args: [url.bundleDir],
+      cwd,
+      silent: true,
+    });
+  }, 600);
+
+  /**
+   * Enter serve-mode (blocks until keyboard exit).
+   */
   await startServing(cwd, location, { ...opts, port });
 }
