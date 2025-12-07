@@ -46,8 +46,11 @@ describe('Net.Port', () => {
       await Testing.retry(3, () => {
         const port = Port.random();
         const listener = Deno.listen({ hostname: '0.0.0.0', port });
-        expect(Port.inUse(port)).to.eql(true);
-        listener.close();
+        try {
+          expect(Port.inUse(port)).to.eql(true);
+        } finally {
+          listener.close();
+        }
       });
     });
 
@@ -83,13 +86,13 @@ describe('Net.Port', () => {
         const b = a + 1;
         const l1 = Deno.listen({ hostname: '0.0.0.0', port: a });
         const l2 = Deno.listen({ hostname: '0.0.0.0', port: b });
-
-        const res = Port.get(a);
-
-        l1.close();
-        l2.close();
-
-        expect(res).to.eql(a + 2);
+        try {
+          const res = Port.get(a);
+          expect(res).to.eql(a + 2);
+        } finally {
+          l1.close();
+          l2.close();
+        }
       });
     });
 
@@ -109,9 +112,12 @@ describe('Net.Port', () => {
     it('throws when preferred port is taken and {throw:true}', () => {
       const port = Port.random();
       const listener = Deno.listen({ hostname: '0.0.0.0', port });
-      const fn = () => Port.get(port, { throw: true });
-      expect(fn).to.throw(`Port already in use: ${port}`);
-      listener.close();
+      try {
+        const fn = () => Port.get(port, { throw: true });
+        expect(fn).to.throw(`Port already in use: ${port}`);
+      } finally {
+        listener.close();
+      }
     });
 
     it('no preference → returns random unused port', () => {
