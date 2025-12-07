@@ -43,4 +43,4 @@ export { pkg } from './pkg.ts';
 /**
  * Library
  */
-export { Process } from './m.Process/mod.ts';
+export { Process } from './m.process/mod.ts';

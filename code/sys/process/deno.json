@@ -11,6 +11,6 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./process": "./src/m.Process/mod.ts"
+    "./process": "./src/m.process/mod.ts"
   }
 }
