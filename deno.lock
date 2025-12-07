@@ -38,6 +38,31 @@
     "jsr:@std/testing@1.0.16": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.0.9": "1.0.9",
+    "jsr:@sys/cli@^0.0.169": "0.0.169",
+    "jsr:@sys/color@^0.0.141": "0.0.141",
+    "jsr:@sys/crdt-t@^0.0.48": "0.0.48",
+    "jsr:@sys/crypto@^0.0.169": "0.0.169",
+    "jsr:@sys/driver-automerge@^0.0.138": "0.0.138",
+    "jsr:@sys/driver-deno@^0.0.192": "0.0.192",
+    "jsr:@sys/event@^0.0.43": "0.0.43",
+    "jsr:@sys/fs@^0.0.188": "0.0.188",
+    "jsr:@sys/http@^0.0.157": "0.0.157",
+    "jsr:@sys/immutable@^0.0.32": "0.0.32",
+    "jsr:@sys/jsr@^0.0.150": "0.0.150",
+    "jsr:@sys/net@^0.0.18": "0.0.18",
+    "jsr:@sys/process@^0.0.171": "0.0.171",
+    "jsr:@sys/std@^0.0.245": "0.0.245",
+    "jsr:@sys/testing@^0.0.180": "0.0.180",
+    "jsr:@sys/text@^0.0.179": "0.0.179",
+    "jsr:@sys/tmpl-engine@^0.0.185": "0.0.185",
+    "jsr:@sys/tools@*": "0.0.128",
+    "jsr:@sys/types@^0.0.187": "0.0.187",
+    "jsr:@sys/ui-css@^0.0.176": "0.0.176",
+    "jsr:@sys/ui-dom@^0.0.182": "0.0.182",
+    "jsr:@sys/ui-react-components@^0.0.141": "0.0.141",
+    "jsr:@sys/ui-react-devharness@^0.0.187": "0.0.187",
+    "jsr:@sys/ui-react@^0.0.189": "0.0.189",
+    "jsr:@sys/yaml@^0.0.39": "0.0.39",
     "npm:@ai-sdk/openai@2.0.77": "2.0.77_zod@4.1.12",
     "npm:@automerge/automerge-repo-network-websocket@2.5.1": "2.5.1_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.1": "2.5.1",
@@ -253,6 +278,323 @@
       "dependencies": [
         "jsr:@std/bytes",
         "jsr:@std/crypto"
+      ]
+    },
+    "@sys/cli@0.0.169": {
+      "integrity": "08083303b2ad1dcf380696856f97add26a42d7c2255d922c3b505e58e53802fe",
+      "dependencies": [
+        "jsr:@cliffy/keypress",
+        "jsr:@cliffy/prompt",
+        "jsr:@cliffy/table",
+        "jsr:@sys/color",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:ora"
+      ]
+    },
+    "@sys/color@0.0.141": {
+      "integrity": "5a56efc68762c94d1f2a8585ef76bb59681b01df014075538371a21cf718ed0d",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:tinycolor2"
+      ]
+    },
+    "@sys/crdt-t@0.0.48": {
+      "integrity": "4af0b2a4931cf0a032cdbfbc6d27c7f932fbc9d8b448713c7be12a6708a88f87",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/crypto@0.0.169": {
+      "integrity": "667c3a46a9647b9df10fcbe7cc9edbaf5ab0b6fc526cb459c53ce44944f1dd57",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:@noble/hashes"
+      ]
+    },
+    "@sys/driver-automerge@0.0.138": {
+      "integrity": "536ef6376b2f43c3b854cc682e3d3bb88733b9c55013c2148d9cd5b0daf5fc46",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/color",
+        "jsr:@sys/crdt-t",
+        "jsr:@sys/crypto",
+        "jsr:@sys/event",
+        "jsr:@sys/fs",
+        "jsr:@sys/http",
+        "jsr:@sys/immutable",
+        "jsr:@sys/net",
+        "jsr:@sys/std",
+        "jsr:@sys/testing",
+        "jsr:@sys/types",
+        "jsr:@sys/ui-css",
+        "jsr:@sys/ui-dom",
+        "jsr:@sys/ui-react",
+        "jsr:@sys/ui-react-components",
+        "jsr:@sys/ui-react-devharness",
+        "npm:@automerge/automerge",
+        "npm:@automerge/automerge-repo",
+        "npm:@automerge/automerge-repo-network-websocket",
+        "npm:@automerge/automerge-repo-storage-indexeddb",
+        "npm:@automerge/automerge-repo-storage-nodefs",
+        "npm:react",
+        "npm:react-icons",
+        "npm:ws"
+      ]
+    },
+    "@sys/driver-deno@0.0.192": {
+      "integrity": "367a2e989f9e71778a7bb6f908900f936445d37d0a7c880af5a7fbfec841ae3a",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/color",
+        "jsr:@sys/fs",
+        "jsr:@sys/http",
+        "jsr:@sys/jsr",
+        "jsr:@sys/process",
+        "jsr:@sys/std",
+        "jsr:@sys/tmpl-engine",
+        "jsr:@sys/types",
+        "npm:yaml"
+      ]
+    },
+    "@sys/event@0.0.43": {
+      "integrity": "f951b6ce188969b0c75e686474097090fe74ac4507640cd96f33b4d5db174102",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/fs@0.0.188": {
+      "integrity": "70909fb3a28959dbb6ffadc1a0bfe6496c6c187869f2d4a340f13c44d1f86bd3",
+      "dependencies": [
+        "jsr:@std/dotenv",
+        "jsr:@std/encoding@1.0.10",
+        "jsr:@std/fs@1.0.20",
+        "jsr:@std/path@1.1.3",
+        "jsr:@sys/cli",
+        "jsr:@sys/crypto",
+        "jsr:@sys/fs",
+        "jsr:@sys/immutable",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:yaml"
+      ]
+    },
+    "@sys/http@0.0.157": {
+      "integrity": "b75c7269c1e84ccd20be81ac7caa0fb7a1cd63474a24c6b48d30dff4b232a21c",
+      "dependencies": [
+        "jsr:@std/http",
+        "jsr:@sys/cli",
+        "jsr:@sys/crypto",
+        "jsr:@sys/fs",
+        "jsr:@sys/net",
+        "jsr:@sys/process",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:hono"
+      ]
+    },
+    "@sys/immutable@0.0.32": {
+      "integrity": "3cfe569f0c2693423510eddba56d14fc467273ca9fded2d616ca4fd2f4bbbbc1",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:fast-json-patch"
+      ]
+    },
+    "@sys/jsr@0.0.150": {
+      "integrity": "148ca9cb3c9f06e20ec01b71707d8ff09f8e4fbb819f07faf91f92b9703aa45d",
+      "dependencies": [
+        "jsr:@sys/crypto",
+        "jsr:@sys/fs",
+        "jsr:@sys/http",
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/net@0.0.18": {
+      "integrity": "454c86104e5d89c263ebc102ab2795053bd661dfb0cc9b8f79b2f4a604d8c945",
+      "dependencies": [
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/process@0.0.171": {
+      "integrity": "5d7d09075cf24315155b2a4941ec645d0191a7e09a97477d4104bb8eb2590664",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/std@0.0.245": {
+      "integrity": "54243fbed51935cec0f04f240da6dc5e5a68f4e58ab068a9f04517540d913e9a",
+      "dependencies": [
+        "jsr:@std/datetime",
+        "jsr:@std/path@1.1.3",
+        "jsr:@std/semver",
+        "jsr:@std/testing",
+        "jsr:@sys/types",
+        "npm:@preact/signals-core",
+        "npm:chai",
+        "npm:date-fns",
+        "npm:fast-json-patch",
+        "npm:happy-dom",
+        "npm:hash-it",
+        "npm:ignore",
+        "npm:pretty-bytes",
+        "npm:ramda",
+        "npm:rxjs",
+        "npm:strip-ansi"
+      ]
+    },
+    "@sys/testing@0.0.180": {
+      "integrity": "a1f2078592409e1f1c6e0d2c9801d3482cbff16fe4029eeb2ab00df97893d40f",
+      "dependencies": [
+        "jsr:@sys/color",
+        "jsr:@sys/crypto",
+        "jsr:@sys/fs",
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/text@0.0.179": {
+      "integrity": "c73a79fc65a38c1320076d0c4840fd16a2a9a07cc7198bfb0716c621265628da",
+      "dependencies": [
+        "jsr:@sys/jsr",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:gpt-tokenizer"
+      ]
+    },
+    "@sys/tmpl-engine@0.0.185": {
+      "integrity": "394b1fffa9d995133abf2b325ec90c8252b2b2f202d5c378d18791cd94c920d0",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/fs",
+        "jsr:@sys/std",
+        "jsr:@sys/types"
+      ]
+    },
+    "@sys/tools@0.0.128": {
+      "integrity": "bba636ae07b3a7f451204f0ed6f7b66622193d98eba9b65a2aff18ea8c76ed00",
+      "dependencies": [
+        "jsr:@sys/cli",
+        "jsr:@sys/color",
+        "jsr:@sys/crypto",
+        "jsr:@sys/driver-automerge",
+        "jsr:@sys/driver-deno",
+        "jsr:@sys/event",
+        "jsr:@sys/fs",
+        "jsr:@sys/http",
+        "jsr:@sys/immutable",
+        "jsr:@sys/jsr",
+        "jsr:@sys/net",
+        "jsr:@sys/process",
+        "jsr:@sys/std",
+        "jsr:@sys/testing",
+        "jsr:@sys/text",
+        "jsr:@sys/tmpl-engine",
+        "jsr:@sys/types",
+        "jsr:@sys/ui-css",
+        "jsr:@sys/ui-dom",
+        "jsr:@sys/ui-react-devharness",
+        "jsr:@sys/yaml",
+        "npm:react"
+      ]
+    },
+    "@sys/types@0.0.187": {
+      "integrity": "255044b3be91c24199582250b3da0b6841597257cdd3ec9674848a6d5ae152e8",
+      "dependencies": [
+        "jsr:@std/semver",
+        "jsr:@std/testing",
+        "jsr:@sys/types",
+        "npm:@preact/signals-core",
+        "npm:fast-json-patch",
+        "npm:rxjs",
+        "npm:ts-essentials"
+      ]
+    },
+    "@sys/ui-css@0.0.176": {
+      "integrity": "d7a10b92be0c4b65990fef6ae2c0acf439c8852ea015d55d6ae075a9d47939a0",
+      "dependencies": [
+        "jsr:@sys/color",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:react"
+      ]
+    },
+    "@sys/ui-dom@0.0.182": {
+      "integrity": "ef63167ffadaa2abb002975f24ebd6781423c16a9def9d2ad81f1c155c452f51",
+      "dependencies": [
+        "jsr:@sys/color",
+        "jsr:@sys/immutable",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:ua-parser-js"
+      ]
+    },
+    "@sys/ui-react@0.0.189": {
+      "integrity": "fa9f5632ca9a942aa5972c4a65dc5ed7d207145bbf33ea6aa57d15c8c1501504",
+      "dependencies": [
+        "jsr:@sys/http",
+        "jsr:@sys/std",
+        "jsr:@sys/testing",
+        "jsr:@sys/types",
+        "jsr:@sys/ui-css",
+        "jsr:@sys/ui-dom",
+        "npm:@preact/signals-react",
+        "npm:react"
+      ]
+    },
+    "@sys/ui-react-components@0.0.141": {
+      "integrity": "7effcf1b1bfca9cfb66fefcf595ac82beed9bd112f3f7e37fb4769d4fe52234c",
+      "dependencies": [
+        "jsr:@sys/color",
+        "jsr:@sys/http",
+        "jsr:@sys/std",
+        "jsr:@sys/testing",
+        "jsr:@sys/types",
+        "jsr:@sys/ui-css",
+        "jsr:@sys/ui-dom",
+        "jsr:@sys/ui-react",
+        "jsr:@sys/yaml",
+        "npm:@svgdotjs/svg.js",
+        "npm:motion",
+        "npm:react",
+        "npm:react-dom",
+        "npm:react-error-boundary",
+        "npm:react-icons",
+        "npm:react-inspector",
+        "npm:react-spinners"
+      ]
+    },
+    "@sys/ui-react-devharness@0.0.187": {
+      "integrity": "b82da949d2b99bd2d4d4e26658fa43ca471737397c3f86265251a666982344dd",
+      "dependencies": [
+        "jsr:@sys/color",
+        "jsr:@sys/std",
+        "jsr:@sys/testing",
+        "jsr:@sys/types",
+        "jsr:@sys/ui-css",
+        "jsr:@sys/ui-dom",
+        "jsr:@sys/ui-react",
+        "npm:react",
+        "npm:react-error-boundary",
+        "npm:react-icons"
+      ]
+    },
+    "@sys/yaml@0.0.39": {
+      "integrity": "59655d9acdaeb3c8c55cac4aac57d2b6b2ffbafe252547799fc6683ced9e6d46",
+      "dependencies": [
+        "jsr:@sys/immutable",
+        "jsr:@sys/std",
+        "jsr:@sys/types",
+        "npm:yaml"
       ]
     }
   },
