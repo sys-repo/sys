@@ -1,6 +1,14 @@
 import type { t } from '../common.ts';
 
 /**
- * The result of querying a document-graph for tasks.
+ * A single task entry
  */
-export type DocGraphTasksResult = {};
+export type Task = {
+  TODO: string;
+  comment?: string;
+};
+
+export type DocTasks = {
+  doc: { id: t.Crdt.Id };
+  tasks: Task[];
+};

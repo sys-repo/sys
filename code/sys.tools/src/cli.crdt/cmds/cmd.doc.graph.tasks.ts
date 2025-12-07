@@ -26,4 +26,5 @@ export async function documentGraphTasksCommand(
 
   console.log(`-------------------------------------------`);
   console.log('tasks 🐷', res);
+  console.info(String(res));
 }

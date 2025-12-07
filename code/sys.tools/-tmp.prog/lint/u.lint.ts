@@ -1,6 +1,6 @@
 import { type t, Obj } from '../common.ts';
 import { makeParser } from '../u.parser.ts';
-import { lintResultToTable } from './u.fmt.ts';
+import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.filepaths.ts';
 
@@ -12,7 +12,7 @@ export async function lint(
   const allIssues: t.DocLintIssue[] = [];
 
   /**
-   * Lint aliases
+   * Lint each node in the DAG.
    */
   for (const node of dag.nodes) {
     const slug = Parse.findParsedNode(dag, node.id);
@@ -65,6 +65,6 @@ export async function lint(
  */
 function printLintSection(issues: t.DocLintIssue[] = []) {
   if (issues.length === 0) return;
-  const table = lintResultToTable(issues);
+  const table = Fmt.lintResults(issues);
   if (table) console.info(table + '\n');
 }

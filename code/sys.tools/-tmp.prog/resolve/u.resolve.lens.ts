@@ -8,7 +8,13 @@ export function makeLenses(yamlPath: t.ObjectPath) {
   const yaml = Obj.Lens.at<string>(yamlPath);
   const alias = Obj.Lens.at<O>(['alias']);
   const sequence = Obj.Lens.at<O[]>(['data', 'sequence']);
-  return Obj.asGetter({ yaml, alias, sequence });
+  const tasks = Obj.Lens.at<t.Task[]>(['TASKS']);
+  return Obj.asGetter({
+    yaml,
+    alias,
+    sequence,
+    tasks,
+  });
 }
 
 export function makeResolvers(yamlPath: t.ObjectPath) {

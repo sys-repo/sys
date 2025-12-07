@@ -1,8 +1,14 @@
 import { type t, c, Str } from '../common.ts';
+import { Fmt as Base } from '../u.fmt.ts';
 
 const i = c.italic;
 const g = c.gray;
 const gi = (s: string) => g(i(s));
+
+export const Fmt = {
+  ...Base,
+  lintResults,
+} as const;
 
 /**
  * Renders a generic lint result into a CLI-friendly multi-line string.
@@ -13,7 +19,7 @@ const gi = (s: string) => g(i(s));
  *     path: ...
  *     message: ...
  */
-export function lintResultToTable<K extends string>(issues: t.DocLintIssue[]): string {
+export function lintResults(issues: t.DocLintIssue[]): string {
   if (issues.length === 0) return '';
 
   const b = Str.builder();
