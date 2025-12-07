@@ -1,5 +1,5 @@
-import { type t, Is, Obj } from './common.ts';
-import { makeParser } from './u.parser.ts';
+import { type t, Is, Obj } from '../common.ts';
+import { makeParser } from '../u.parser.ts';
 
 type Dag = t.Graph.Dag.Result;
 type N = t.Graph.Dag.Node;

@@ -1,5 +1,5 @@
 import { type t, Obj, Fs, Is } from '../common.ts';
-import { extractSequence } from '../extractSequence.ts';
+import { extractSequence } from '../sequence/mod.ts';
 import { findClosestFilename } from '../u.findClose.ts';
 import { makeParser } from '../u.parser.ts';
 
