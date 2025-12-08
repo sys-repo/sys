@@ -5,6 +5,17 @@ import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
 
 type C = t.CrdtTool.Command;
 
+const Imports = {
+  snapshot: () => import('./cmd.doc.snapshot/mod.ts'),
+  docGraph: () => import('./cmd.doc.graph/mod.ts'),
+  docGraphLint: () => import('./cmd.doc.graph.lint/mod.ts'),
+  docGraphTasks: () => import('./cmds/cmd.doc.graph.tasks.ts'),
+  docYamlViewer: () => import('./cmds/cmd.doc.viewer.yaml.ts'),
+  daemon: () => import('./cmd.repo.daemon/mod.ts'),
+  syncServer: () => import('./cmds/cmd.doc.syncserver.ts'),
+  tmp: () => import('./-tmp.ts'),
+} as const;
+
 /**
  * Main entry:
  */
@@ -96,7 +107,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
      * Document Menu
      */
     {
-      const { makeHookTmpl } = await import('./cmd.doc.graph/mod.ts');
+      const { makeHookTmpl } = await Imports.docGraph();
       const hookTmpl = await makeHookTmpl(cwd);
 
       if (A.startsWith('crdt:')) {
@@ -123,8 +134,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         })) as t.CrdtTool.Command;
 
         if (B === 'snapshot') {
-          const m =
-            (await import('./cmd.doc.snapshot/mod.ts')) as typeof import('./cmd.doc.snapshot/mod.ts');
+          const m = await Imports.snapshot();
           await m.snapshotCommand(cwd, id);
           return done(0);
         }
@@ -135,8 +145,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         const yamlPath = ['slug'];
 
         if (B.startsWith('doc:graph')) {
-          const m =
-            (await import('./cmd.doc.graph/mod.ts')) as typeof import('./cmd.doc.graph/mod.ts');
+          const m = await Imports.docGraph();
 
           if (B === 'doc:graph:walk') {
             await m.walkDocumentGraphCommand(cwd, id, yamlPath);
@@ -150,22 +159,19 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         }
 
         if (B === 'doc:viewer:yaml') {
-          const m =
-            (await import('./cmds/cmd.doc.viewer.yaml.ts')) as typeof import('./cmds/cmd.doc.viewer.yaml.ts');
+          const m = await Imports.docYamlViewer();
           await m.startYamlViewerCommand(cwd, id, yamlPath);
           return done(0);
         }
 
         if (B === 'doc:graph:lint') {
-          const m =
-            (await import('./cmds/cmd.doc.graph.lint.ts')) as typeof import('./cmds/cmd.doc.graph.lint.ts');
+          const m = await Imports.docGraphLint();
           await m.lintDocumentGraphCommand(cwd, id, yamlPath);
           return done(0);
         }
 
         if (B === 'doc:graph:tasks') {
-          const m =
-            (await import('./cmds/cmd.doc.graph.tasks.ts')) as typeof import('./cmds/cmd.doc.graph.tasks.ts');
+          const m = await Imports.docGraphTasks();
           await m.documentGraphTasksCommand(cwd, id, yamlPath);
           return done(0);
         }
@@ -186,7 +192,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         }
 
         if (B === 'tmp:🐷') {
-          const m = await import('./-tmp.ts');
+          const m = await Imports.tmp();
           await m.tmp(cwd, id);
           return done(0);
         }
@@ -200,14 +206,12 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
      */
     {
       if (A === 'repo:daemon:start') {
-        const m =
-          (await import('./cmd.repo.daemon/mod.ts')) as typeof import('./cmd.repo.daemon/mod.ts');
+        const m = await Imports.daemon();
         await m.RepoProcess.daemon(cwd);
       }
 
       if (A === 'repo:syncserver:start') {
-        const { startSyncServerCommand } =
-          (await import('./cmds/cmd.doc.syncserver.ts')) as typeof import('./cmds/cmd.doc.syncserver.ts');
+        const { startSyncServerCommand } = await Imports.syncServer();
         await startSyncServerCommand(cwd);
       }
     }

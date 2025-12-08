@@ -11,7 +11,7 @@ export type SequenceFilepathLint = t.DocLintIssue<SequenceFilepathLintKind> & {
   readonly closestMatch?: string;
 };
 
-export type SequenceFilepathLintResult = t.DocLintResult<SequenceFilepathLintKind>;
+export type SequenceFilepathLintResult = t.LintResult<SequenceFilepathLintKind>;
 type Dag = t.Graph.Dag.Result;
 
 /**
@@ -37,9 +37,7 @@ export async function lintSequenceFilepaths(
 
   // If we cannot resolve aliases for this document, we currently skip path linting.
   if (!indexResolver || !localResolver || !node || !seq) {
-    const ok = issues.length === 0;
-    const total = { issues: issues.length };
-    return { ok, total, issues };
+    return { issues };
   }
 
   for (const item of seq) {
@@ -94,6 +92,5 @@ export async function lintSequenceFilepaths(
   }
 
   const ok = issues.length === 0;
-  const total = { issues: issues.length };
-  return Obj.asGetter({ ok, total, issues }, ['issues']);
+  return Obj.asGetter({ issues }, ['issues']);
 }

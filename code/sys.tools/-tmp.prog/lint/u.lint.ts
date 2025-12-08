@@ -1,6 +1,6 @@
 import { makeParser } from '../u.parser.ts';
 
-import { type t, c, Cli, DocLintFacets as Facets, Obj } from './common.ts';
+import { type t, c, Cli, Obj, DocLintFacets as Facets } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.filepaths.ts';
@@ -26,7 +26,7 @@ async function run(
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
   opts: { facets?: t.DocLintFacet[]; interactive?: boolean } = {},
-): Promise<t.DocLintResult> {
+): Promise<t.LintAggregateResult> {
   const { interactive = false } = opts;
   const issues: t.DocLintIssue[] = [];
   const Parse = makeParser(yamlPath);
@@ -34,7 +34,10 @@ async function run(
   /**
    * Determine facets to lint on.
    */
-  let facets = opts.facets ?? ['aliases', 'sequence:schema', 'sequence:filepaths'];
+  let facets = opts.facets ?? Facets;
+  facets = ['sequence:schema']; // TEMP 🐷
+  facets = facets.filter((facet) => Facets.includes(facet)); // Ensure facet exists in supported set.
+
   if (interactive) {
     const opt = (value: t.DocLintFacet, checked?: boolean) => ({
       name: `${value}`,
@@ -106,8 +109,7 @@ async function run(
    * Final result
    */
   const ok = issues.length === 0;
-  const total = { issues: issues.length };
-  return Obj.asGetter({ ok, total, facets, issues }, ['issues']);
+  return Obj.asGetter({ ok, facets, issues }, ['issues']);
 }
 
 /**

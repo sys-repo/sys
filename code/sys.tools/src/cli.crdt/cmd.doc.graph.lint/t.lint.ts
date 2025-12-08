@@ -1,5 +1,3 @@
-import type { t } from './common.ts';
-
 /**
  * Optional severity for an issue.
  */
@@ -35,6 +33,6 @@ export type LintResult<K extends string = string> = {
  */
 export type LintAggregateResult<I extends LintIssue = LintIssue> = {
   readonly ok: boolean;
-  readonly total: { readonly issues: number };
   readonly issues: readonly I[];
+  readonly facets: string[];
 };
