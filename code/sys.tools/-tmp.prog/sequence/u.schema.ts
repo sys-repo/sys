@@ -143,9 +143,3 @@ export const SequenceRecipe = V.array(SequenceItem, {
   title: 'Sequence',
   description: 'Complete ordered sequence of composite items for a slug.',
 });
-
-/**
- * Optional: helper type tying the recipe to your TS shape.
- * (Assumes your t.Sequence is the runtime/authoring type.)
- */
-export type Sequence = t.Sequence;

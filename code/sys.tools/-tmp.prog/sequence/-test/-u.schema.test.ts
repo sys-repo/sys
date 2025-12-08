@@ -31,4 +31,22 @@ describe('schema: sequence', () => {
     const value = [{ script: 'missing video' }];
     expect(TB.Check(S, value)).to.eql(false);
   });
+
+  it('normalised timestamp text (null → missing) passes schema', () => {
+    const TB = Schema.Value;
+    const S = toSchema(SequenceRecipe);
+
+    const value: t.Sequence = [
+      {
+        video: '/video.mp4',
+        script: 'intro script',
+        slice: '00:00..00:10',
+        timestamps: {
+          '00:00:00.000': { text: { body: 'hello world', headline: undefined } },
+        },
+      },
+    ];
+
+    expect(TB.Check(S, value)).to.eql(true);
+  });
 });
