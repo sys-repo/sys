@@ -1,6 +1,6 @@
-import { type t, Obj, Fs, Is, makeParser } from './common.ts';
 import { Sequence } from '../sequence/mod.ts';
-import { findClosestFilename } from '../u.findClose.ts';
+import { type t, Fs, Is, makeParser, Obj } from './common.ts';
+import { findClosestFilename } from './u.findClose.ts';
 
 export type SequenceFilepathLintKind = 'video-path:not-found';
 
