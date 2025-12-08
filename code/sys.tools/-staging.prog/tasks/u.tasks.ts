@@ -1,5 +1,4 @@
-import { type t, Obj, Is } from '../common.ts';
-import { makeParser } from '../u.parser.ts';
+import { type t, Is, makeParser, Obj } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 
 export type R = {

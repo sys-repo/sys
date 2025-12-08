@@ -4,7 +4,7 @@ import { resolvePath } from './u.resolve.path.ts';
 type N = t.Graph.Dag.Node;
 type O = Record<string, unknown>;
 
-export function makeLenses(yamlPath: t.ObjectPath) {
+export function makeLenses(yamlPath: t.ObjectPath): t.LensLib {
   const yaml = Obj.Lens.at<string>(yamlPath);
   const alias = Obj.Lens.at<O>(['alias']);
   const sequence = Obj.Lens.at<O[]>(['data', 'sequence']);
@@ -17,10 +17,10 @@ export function makeLenses(yamlPath: t.ObjectPath) {
   });
 }
 
-export function makeResolvers(yamlPath: t.ObjectPath) {
+export function makeResolvers(yamlPath: t.ObjectPath): t.ResolversLib {
   const Lens = makeLenses(yamlPath);
 
-  const Resolve = {
+  const Resolve: t.ResolveLib = {
     path: resolvePath,
 
     slug(node: N) {

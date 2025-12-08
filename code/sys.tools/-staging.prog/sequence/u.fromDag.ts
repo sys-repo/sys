@@ -1,5 +1,4 @@
-import { type t, Is, Obj } from '../common.ts';
-import { makeParser } from '../u.parser.ts';
+import { type t, Is, makeParser, Obj } from './common.ts';
 import { normalizeEditorSequenceForTypedYaml } from './u.normalize.ts';
 import { validateSequence } from './u.schema.validate.ts';
 

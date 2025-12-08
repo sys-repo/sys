@@ -1,6 +1,4 @@
-import { makeParser } from '../u.parser.ts';
-
-import { type t, c, Cli, Obj, DocLintFacets as Facets } from './common.ts';
+import { type t, c, Cli, DocLintFacets as Facets, makeParser, Obj } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.filepaths.ts';

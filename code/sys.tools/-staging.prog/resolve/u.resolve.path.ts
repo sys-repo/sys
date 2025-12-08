@@ -10,11 +10,7 @@ import { type t, AliasResolver, Is } from '../common.ts';
  *   - `:index` is a control token: "switch to root resolver"
  *   - once in root, resolution stays there (no switching back)
  */
-export function resolvePath(
-  raw: unknown,
-  local: t.Alias.Resolver | undefined,
-  index?: t.Alias.Resolver,
-): t.Alias.Expand.Chain.Result | undefined {
+export const resolvePath: t.ResolvePathFn = (raw, local, index) => {
   if (!Is.str(raw)) return undefined;
   if (!local) return undefined;
 
@@ -90,7 +86,7 @@ export function resolvePath(
     steps,
     remaining,
   };
-}
+};
 
 /**
  * Return a shallow clone of the alias map with `:index` removed.

@@ -1,6 +1,5 @@
 import { Sequence, SequenceSchema } from '../sequence/mod.ts';
-import { makeParser } from '../u.parser.ts';
-import { type t, c, Schema } from './common.ts';
+import { type t, c, makeParser, Schema } from './common.ts';
 
 const T = Schema.Value;
 
