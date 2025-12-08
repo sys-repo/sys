@@ -89,7 +89,7 @@ async function run(
   /**
    * Lint sequence data-structure shape.
    */
-  if (facets.includes('schema:sequence')) {
+  if (facets.includes('sequence:schema')) {
     for (const node of dag.nodes) {
       const baseResult = await lintTypedYamlSequence(dag, yamlPath, node.id);
       const issuesForNode: t.DocLintIssue[] = baseResult.issues.map((issue) => ({

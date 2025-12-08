@@ -7,7 +7,7 @@ export type R = {
   toString(): string;
 };
 
-export async function tasks(dag: t.Graph.Dag.Result, yamlPath: t.ObjectPath): Promise<R> {
+export const find: t.TasksLib['find'] = async (dag, yamlPath) => {
   const Parse = makeParser(yamlPath);
   const docs: t.DocTasks[] = [];
 
@@ -34,4 +34,4 @@ export async function tasks(dag: t.Graph.Dag.Result, yamlPath: t.ObjectPath): Pr
   const total = { docs: docs.length };
   const toString = () => Fmt.tasks(docs);
   return Obj.asGetter({ total, docs, toString }, ['docs']) satisfies R;
-}
+};
