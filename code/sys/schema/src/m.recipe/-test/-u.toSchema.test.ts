@@ -1,4 +1,4 @@
-import { V } from '@sys/schema/recipe';
+import { V } from '../mod.ts';
 import { describe, expect, it } from '../../-test.ts';
 import { Value as TB } from '../../m.schema/mod.ts';
 import { toSchema } from '../u.toSchema.ts';
@@ -84,6 +84,17 @@ describe('toSchema (compile)', () => {
     expect(TB.Check(s, { foo: 0 })).to.eql(false);
     expect(TB.Check(s, { foo: '2' })).to.eql(false);
     expect(TB.Check(s, { foo: 2, extra: 1 })).to.eql(false); // no extras
+  });
+
+  it('record: string-keyed map with value schema', () => {
+    const Rec = V.record(V.number({ minimum: 0 }), { keyPattern: '^foo-' });
+    const s = toSchema(Rec);
+
+    // Keys are arbitrary strings; all values must satisfy the inner schema.
+    expect(TB.Check(s, { 'foo-1': 0, 'bar-2': 42 })).to.eql(true);
+
+    // invalid: value violates inner minimum constraint
+    expect(TB.Check(s, { 'foo-1': -1 })).to.eql(false);
   });
 
   it('compiler does not mutate the input recipe (purity)', () => {

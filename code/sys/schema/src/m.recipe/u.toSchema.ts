@@ -47,6 +47,23 @@ export const toSchema: t.RecipeToSchema = (r) => {
     case 'union':
       return T.Union(r.variants.map(toSchema), { description: r.description, title: r.title });
 
+    case 'record': {
+      const valueSchema = toSchema(r.value);
+
+      const opts: Record<string, unknown> = {};
+      if (r.description) opts.description = r.description;
+      if (r.title) opts.title = r.title;
+      if (r.keyPattern) {
+        // Preserve intent as metadata without claiming runtime enforcement.
+        (opts as Record<string, unknown>)['x-keyPattern'] = r.keyPattern;
+      }
+
+      // Semantics (truthful to TypeBox):
+      // - arbitrary string keys
+      // - all values must satisfy `valueSchema`
+      return T.Record(T.String(), valueSchema, opts);
+    }
+
     case 'optional':
       return T.Optional(toSchema(r.of));
   }

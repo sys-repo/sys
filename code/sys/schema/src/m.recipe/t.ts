@@ -26,6 +26,7 @@ export type ValueLib = {
 
   array(items: t.SpecVariant, o?: Omit<t.ArrSpec, 'kind' | 'items'>): t.ArrSpec;
   object(props: t.ObjSpec['props'], o?: Omit<t.ObjSpec, 'kind' | 'props'>): t.ObjSpec;
+  record(value: t.SpecVariant, o?: Omit<t.RecordSpec, 'kind' | 'value'>): t.RecordSpec;
   union(
     variants: readonly t.SpecVariant[],
     o?: Omit<t.UnionSpec, 'kind' | 'variants'>,
@@ -43,7 +44,8 @@ export type SpecVariant =
   | t.ArrSpec
   | t.ObjSpec
   | t.UnionSpec
-  | t.OptSpec;
+  | t.OptSpec
+  | t.RecordSpec;
 
 /**
  * Compiles a value-level {@link t.SpecVariant} into a concrete TypeBox {@link t.TSchema}.

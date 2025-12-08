@@ -22,6 +22,12 @@ export const Value: t.ValueLib = {
     ...o,
   }),
 
+  record: (value: t.SpecVariant, o: Omit<t.RecordSpec, 'kind' | 'value'> = {}): t.RecordSpec => ({
+    kind: 'record',
+    value,
+    ...o,
+  }),
+
   union: (
     variants: readonly t.SpecVariant[],
     o: Omit<t.UnionSpec, 'kind' | 'variants'> = {},
