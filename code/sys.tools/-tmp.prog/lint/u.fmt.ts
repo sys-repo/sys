@@ -1,4 +1,4 @@
-import { type t, c, Str } from '../common.ts';
+import { type t, c, Str } from './common.ts';
 import { Fmt as Base } from '../u.fmt.ts';
 
 const i = c.italic;
