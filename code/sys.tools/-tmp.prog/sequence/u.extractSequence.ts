@@ -2,7 +2,6 @@ import { type t, Is, Obj } from '../common.ts';
 import { makeParser } from '../u.parser.ts';
 
 type Dag = t.Graph.Dag.Result;
-type N = t.Graph.Dag.Node;
 type O = Record<string, unknown>;
 
 export async function extractSequence(dag: Dag, yamlPath: t.ObjectPath, docid: t.Crdt.Id) {
@@ -12,24 +11,21 @@ export async function extractSequence(dag: Dag, yamlPath: t.ObjectPath, docid: t
 
   if (!node || !node.slug || !node.alias) return;
 
-  // REQUIRED: both resolvers
+  // Required: both resolvers
   const indexResolver = root.alias?.resolver;
   const localResolver = node.alias.resolver;
-
   if (!localResolver) {
-    console.error('⚠️ Missing local alias resolver on slug node.');
-    return;
+    return void console.error('⚠️ Missing local alias resolver on slug node.', docid);
   }
   if (!indexResolver) {
-    console.error('⚠️ Missing index (root) alias resolver.');
-    return;
+    return void console.error('⚠️ Missing index (root) alias resolver.', docid);
   }
 
   // Sequence
   const seq = Parse.Lens.sequence.get(node.slug) ?? [];
   asGetters(seq);
 
-  return seq;
+  return seq as unknown as t.Sequence;
 }
 
 /**

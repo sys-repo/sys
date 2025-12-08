@@ -55,7 +55,7 @@ export async function lintDocumentGraphCommand(
   const success = res.ok ? c.green : c.red;
   kv(success(`${res.ok ? '✔' : '✘'} Lint`));
   kv('  Issues:', success(String(res.issues.length)));
-  kv('  Facets:', c.gray(Linter.Facets.join(' | ')));
+  kv('  Facets:', c.gray(res.facets.join(' | ')));
   kv('  Yaml Path:', c.gray(`/${yamlPath.join('/')}`));
   console.info(Str.trimEdgeNewlines(String(table)));
   console.info();

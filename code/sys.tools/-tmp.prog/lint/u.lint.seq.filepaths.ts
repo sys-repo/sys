@@ -41,7 +41,9 @@ export async function lintSequenceFilepaths(
   }
 
   for (const item of seq) {
-    const raw = item?.video;
+    if (!('video' in item)) continue;
+
+    const raw = item.video;
     if (!Is.str(raw)) continue;
 
     try {
@@ -91,6 +93,5 @@ export async function lintSequenceFilepaths(
     }
   }
 
-  const ok = issues.length === 0;
   return Obj.asGetter({ issues }, ['issues']);
 }
