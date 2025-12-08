@@ -34,9 +34,6 @@ export const fromDag: t.SequenceLib['fromDag'] = async (
   // Raw YAML sequence from the slug node.
   const seqRaw = Parse.Lens.sequence.get(node.slug) ?? [];
 
-  // Apply getter transforms on the raw objects (unchanged behavior).
-  asGetters(seqRaw);
-
   // Normalize loose editor YAML into the typed-YAML shape.
   const normalized = normalizeEditorSequenceForTypedYaml(seqRaw);
   if (!normalized) return;
@@ -51,18 +48,3 @@ export const fromDag: t.SequenceLib['fromDag'] = async (
 
   return result.sequence;
 };
-
-/**
- * Apply getter transforms (unchanged).
- */
-function asGetters(seq: unknown) {
-  if (!Array.isArray(seq)) return;
-  for (const item of seq) {
-    Obj.asGetter(item, ['script']);
-    if (Is.record((item as O).timestamps)) {
-      Object.values((item as O).timestamps ?? {})
-        .filter((v) => Is.record(v))
-        .forEach((v) => Obj.asGetter(v as O));
-    }
-  }
-}

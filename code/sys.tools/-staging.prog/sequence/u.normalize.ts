@@ -1,5 +1,7 @@
 import { type t } from '../common.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * Normalize an editor-authored YAML sequence into the typed YAML shape (`t.Sequence`).
  *
@@ -23,12 +25,12 @@ export function normalizeEditorSequenceForTypedYaml(input: unknown): t.Sequence 
  */
 function normalizeSequenceItem(item: unknown): unknown {
   if (!item || typeof item !== 'object') return item;
-  const anyItem = item as Record<string, unknown>;
-  const clone: Record<string, unknown> = { ...anyItem };
+  const anyItem = item as O;
+  const clone: O = { ...anyItem };
 
-  const timestamps = clone.timestamps as Record<string, unknown> | undefined;
+  const timestamps = clone.timestamps as O | undefined;
   if (timestamps && typeof timestamps === 'object') {
-    const nextTs: Record<string, unknown> = {};
+    const nextTs: O = {};
     for (const [key, value] of Object.entries(timestamps)) {
       nextTs[key] = normalizeTimestampEntry(value);
     }
@@ -47,17 +49,15 @@ function normalizeSequenceItem(item: unknown): unknown {
  */
 function normalizeTimestampEntry(entry: unknown): unknown {
   if (!entry || typeof entry !== 'object') return entry;
-  const anyEntry = entry as Record<string, unknown>;
-  const clone: Record<string, unknown> = { ...anyEntry };
+  const anyEntry = entry as O;
+  const clone: O = { ...anyEntry };
 
-  const text = clone.text as Record<string, unknown> | undefined;
+  const text = clone.text as O | undefined;
   if (text && typeof text === 'object') {
-    const nextText: Record<string, unknown> = { ...text };
+    const nextText: O = { ...text };
 
     for (const key of ['headline', 'tagline', 'body'] as const) {
-      if (nextText[key] === null) {
-        delete nextText[key];
-      }
+      if (nextText[key] === null) delete nextText[key];
     }
 
     clone.text = nextText;

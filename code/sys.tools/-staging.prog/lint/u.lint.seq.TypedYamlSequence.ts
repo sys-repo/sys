@@ -25,6 +25,7 @@ export async function lintTypedYamlSequence(
 
   // Slow path:
   const errors = Array.from(T.Errors(SequenceSchema, sequence));
+
   if (debug) {
     console.info(`${c.cyan('Lint Errors:')} ${import.meta.filename}`);
     errors.forEach((error) => {
