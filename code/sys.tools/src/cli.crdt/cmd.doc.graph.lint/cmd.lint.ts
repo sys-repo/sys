@@ -30,8 +30,7 @@ export async function lintDocumentGraphCommand(
    * Encapsulates the configured set of doc-lint facets; can be swapped for a
    * plugin implementation in future.
    */
-  const { Linter } =
-    (await import('../../../-tmp.prog/mod.ts')) as typeof import('../../../-tmp.prog/mod.ts');
+  const { Linter } = await import('../../../-staging.prog/mod.ts');
 
   /**
    * Run linter:

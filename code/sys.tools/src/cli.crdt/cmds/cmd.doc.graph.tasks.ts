@@ -19,9 +19,12 @@ export async function documentGraphTasksCommand(
   console.info(c.cyan(`🐷 Tasks:`), Fmt.prettyUri(docid));
   console.info();
 
-  const m =
-    (await import('../../../-tmp.prog/mod.ts')) as typeof import('../../../-tmp.prog/mod.ts');
-
+  /**
+   * Import the helpers (current built-in implementation).
+   * Encapsulates the configured set of doc-lint facets; can be swapped for a
+   * plugin implementation in future.
+   */
+  const m = await import('../../../-staging.prog/mod.ts');
   const res = await m.tasks(dag, yamlPath);
 
   console.log(`-------------------------------------------`);
