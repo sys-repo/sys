@@ -10,7 +10,7 @@ export async function startYamlViewerCommand(
   path?: t.ObjectPath,
 ) {
   const port = D.port.repo;
-  const cmd = (await RepoProcess.tryClient(port))!;
+  const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 
   const startedAt = Time.now.timestamp;

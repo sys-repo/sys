@@ -11,10 +11,10 @@ export async function lintDocumentGraphCommand(
   yamlPath: t.ObjectPath,
 ) {
   const port = D.port.repo;
-  const cmd = (await RepoProcess.tryClient(port))!;
+  const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 
-  /** Build DAG */
+  /** Build document graph (DAG) for the given YAML path. */
   const dag = await buildDocumentDAG(cmd, docid, yamlPath);
   console.info();
   console.info(c.cyan(`Lint Document Graph:`), Fmt.prettyUri(docid));
@@ -40,9 +40,9 @@ export async function lintDocumentGraphCommand(
   const kv = (k: string, v: t.Json = '') => table.push([c.gray(k), String(v)]);
   const success = res.ok ? c.green : c.red;
   kv(success(`Lint ${res.ok ? '✔' : '✘'}`));
-  kv(' • Issues:', success(String(res.total.issues)));
-  kv(' • Facets:', c.gray(Linter.Facets.join(' | ')));
-  kv(' • Path (yaml):', c.gray(`/${yamlPath.join('/')}`));
+  kv(' Issues:', success(String(res.total.issues)));
+  kv(' Facets:', c.gray(Linter.Facets.join(' | ')));
+  kv(' Path (yaml):', c.gray(`/${yamlPath.join('/')}`));
   console.info(Str.trimEdgeNewlines(String(table)));
   console.info();
 }

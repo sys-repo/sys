@@ -6,7 +6,7 @@ import { loadDocumentHook } from './u.hook.ts';
 
 export async function dagHookCommand(cwd: t.StringDir, root: t.Crdt.Id, yamlPath: t.ObjectPath) {
   const port = D.port.repo;
-  const cmd = (await RepoProcess.tryClient(port))!;
+  const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 
   try {

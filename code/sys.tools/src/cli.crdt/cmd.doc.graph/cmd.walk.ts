@@ -16,7 +16,7 @@ export async function walkDocumentGraphCommand(
   onWalk?: t.DocumentGraphWalkHook,
 ) {
   const port = D.port.repo;
-  const cmd = (await RepoProcess.tryClient(port))!;
+  const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 
   const skipped: t.Crdt.Graph.WalkSkipArgs[] = [];
