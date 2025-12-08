@@ -1,20 +1,15 @@
-import { type t, Schema, toSchema } from '../common.ts';
+import { type t, Schema } from '../common.ts';
 import { SequenceIs } from './m.Is.ts';
-import { SequenceRecipe } from './u.schema.ts';
+import { SequenceSchema } from './u.schema.ts';
 
-/**
- * Precomputed runtime schema for the sequence.
- */
-const SequenceSchema = toSchema(SequenceRecipe);
+type M = t.SequenceLib['validate'];
+type R = ReturnType<M>;
 
 /**
  * Validates a raw YAML sequence against the SequenceRecipe schema
  * and returns a strongly-typed t.Sequence.
  */
-type M = t.SequenceLib['validate'];
-type R = ReturnType<M>;
-
-export const validate: M = (input: unknown) => {
+export const validateSequence: M = (input: unknown) => {
   const ok = (sequence: t.Sequence): R => ({ ok: true, sequence });
   const fail = (message: string): R => ({ ok: false, error: new Error(message) });
 

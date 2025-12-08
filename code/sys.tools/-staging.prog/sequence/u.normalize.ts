@@ -11,7 +11,6 @@ import { type t } from '../common.ts';
  */
 export function normalizeEditorSequenceForTypedYaml(input: unknown): t.Sequence | undefined {
   if (!Array.isArray(input)) return undefined;
-
   return input.map((item) => normalizeSequenceItem(item)) as t.Sequence;
 }
 

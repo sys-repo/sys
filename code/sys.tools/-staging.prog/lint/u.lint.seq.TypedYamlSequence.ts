@@ -1,10 +1,8 @@
-import { normalizeEditorSequenceForTypedYaml, SequenceRecipe } from '../sequence/mod.ts';
+import { Sequence, SequenceSchema } from '../sequence/mod.ts';
 import { makeParser } from '../u.parser.ts';
-import { type t, c, Schema, toSchema, Obj } from './common.ts';
+import { type t, c, Schema } from './common.ts';
 
-type O = Record<string, unknown>;
-const TB = Schema.Value;
-const SequenceSchema = toSchema(SequenceRecipe);
+const T = Schema.Value;
 
 export async function lintTypedYamlSequence(
   dag: t.Graph.Dag.Result,
@@ -18,16 +16,16 @@ export async function lintTypedYamlSequence(
   const node = Parse.findParsedNode(dag, docId);
   if (!node) return { issues: [] };
 
-  let sequence = normalizeEditorSequenceForTypedYaml(Parse.Lens.sequence.get(node.slug));
+  let sequence = await Sequence.fromDag(dag, yamlPath, docId, { validate: false });
   if (!sequence) return { issues: [] };
 
   // Fast pass:
-  if (TB.Check(SequenceSchema, sequence)) {
+  if (T.Check(SequenceSchema, sequence)) {
     return { issues: [] };
   }
 
   // Slow path:
-  const errors = Array.from(TB.Errors(SequenceSchema, sequence));
+  const errors = Array.from(T.Errors(SequenceSchema, sequence));
   if (debug) {
     console.info(`${c.cyan('Lint Errors:')} ${import.meta.filename}`);
     errors.forEach((error) => {

@@ -1,4 +1,4 @@
-import { type t, V } from '../common.ts';
+import { type t, V, toSchema } from '../common.ts';
 
 /**
  * Text block used inside timestamp entries and pause cards.
@@ -136,3 +136,8 @@ export const SequenceRecipe = V.array(SequenceItem, {
   title: 'Sequence',
   description: 'Complete ordered sequence of composite items for a slug.',
 });
+
+/**
+ * Precomputed runtime schema for the sequence.
+ */
+export const SequenceSchema = toSchema(SequenceRecipe);

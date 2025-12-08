@@ -1,5 +1,5 @@
 import { type t, Obj, Fs, Is } from './common.ts';
-import { extractSequence } from '../sequence/mod.ts';
+import { Sequence } from '../sequence/mod.ts';
 import { findClosestFilename } from '../u.findClose.ts';
 import { makeParser } from '../u.parser.ts';
 
@@ -31,7 +31,7 @@ export async function lintSequenceFilepaths(
 
   const indexResolver = root.alias?.resolver;
   const localResolver = node?.alias?.resolver;
-  const seq = await extractSequence(dag, yamlPath, docid);
+  const seq = await Sequence.fromDag(dag, yamlPath, docid, { validate: false });
 
   const issues: SequenceFilepathLint[] = [];
 

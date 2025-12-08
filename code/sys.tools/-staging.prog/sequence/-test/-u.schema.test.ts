@@ -3,7 +3,7 @@ import { SequenceRecipe } from '../u.schema.ts';
 import { Sequence } from '../mod.ts';
 
 describe('schema: sequence (raw SequenceRecipe)', () => {
-  const TB = Schema.Value;
+  const T = Schema.Value;
   const S = toSchema(SequenceRecipe);
   const slice = '00:00..00:10' as t.Timecode.SliceString; // branded test literal
 
@@ -16,13 +16,13 @@ describe('schema: sequence (raw SequenceRecipe)', () => {
         timestamps: { '00:00:00.000': { text: { body: 'hello world' } } },
       },
     ];
-    expect(TB.Check(S, value)).to.eql(true);
+    expect(T.Check(S, value)).to.eql(true);
   });
 
   it('invalid sequence fails when required fields are missing', () => {
     // Missing required `video` field.
     const value = [{ script: 'missing video' }];
-    expect(TB.Check(S, value)).to.eql(false);
+    expect(T.Check(S, value)).to.eql(false);
   });
 
   it('normalised timestamp text (null → missing) passes schema', () => {
@@ -34,7 +34,7 @@ describe('schema: sequence (raw SequenceRecipe)', () => {
         timestamps: { '00:00:00.000': { text: { body: 'hello world', headline: undefined } } },
       },
     ];
-    expect(TB.Check(S, value)).to.eql(true);
+    expect(T.Check(S, value)).to.eql(true);
   });
 });
 
