@@ -66,11 +66,13 @@ export async function lintSequenceFilepaths(
         // If globbing fails, we just skip the suggestion.
       }
 
+      let message = `Video file does not exist at resolved path "${path}".`;
+      if (closestMatch) message += ` Closest match: ${closestMatch}`;
       issues.push({
         kind: 'video-path:not-found',
         severity: 'error',
         path,
-        message: `Video file does not exist at resolved path "${path}".`,
+        message,
         doc: { id: docid },
         raw,
         resolvedPath: path,
