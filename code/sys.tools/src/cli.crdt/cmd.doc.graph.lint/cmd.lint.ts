@@ -36,15 +36,18 @@ export async function lintDocumentGraphCommand(
   /**
    * Run linter:
    */
-  const res = await Linter.run(dag, yamlPath, { interactive: true });
-
-  /** Save facet selection */
   const config = await Config.get(cwd);
+  const facets = Config.findDocEntry(config.current, docid)?.lint?.facets;
+  const res = await Linter.run(dag, yamlPath, { interactive: true, facets });
 
-  await config.fs.save();
-
-  // res.
-  // res.
+  /** Save last facet selection */
+  if (Array.isArray(res.facets)) {
+    config.change((d) => {
+      const entry = Config.findDocEntry(d, docid);
+      if (entry) (entry.lint || (entry.lint = {})).facets = res.facets;
+    });
+    await config.fs.save();
+  }
 
   /** Print output: */
   const table = Cli.table();

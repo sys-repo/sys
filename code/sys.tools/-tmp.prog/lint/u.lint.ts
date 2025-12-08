@@ -25,7 +25,7 @@ export const Linter = {
 async function run(
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
-  opts: { facets?: t.DocLintFacet[]; interactive?: boolean } = {},
+  opts: { facets?: string[]; interactive?: boolean } = {},
 ): Promise<t.LintAggregateResult> {
   const { interactive = false } = opts;
   const issues: t.DocLintIssue[] = [];
@@ -34,8 +34,7 @@ async function run(
   /**
    * Determine facets to lint on.
    */
-  let facets = opts.facets ?? Facets;
-  facets = ['sequence:schema']; // TEMP 🐷
+  let facets = (opts.facets ?? Facets) as t.DocLintFacet[];
   facets = facets.filter((facet) => Facets.includes(facet)); // Ensure facet exists in supported set.
 
   if (interactive) {

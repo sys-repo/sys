@@ -60,6 +60,7 @@ export namespace CrdtTool {
     name?: t.StringName;
     createdAt?: t.UnixTimestamp;
     lastUsedAt?: t.UnixTimestamp;
+    lint?: { facets?: string[] };
   };
 
   /**
