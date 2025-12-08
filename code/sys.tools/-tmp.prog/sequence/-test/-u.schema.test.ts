@@ -5,15 +5,16 @@ import { toSchema } from '@sys/schema/recipe';
 import { SequenceRecipe } from '../u.schema.ts';
 
 describe('schema: sequence', () => {
-  it('valid sequence passes core schema check', () => {
-    const TB = Schema.Value;
-    const S = toSchema(SequenceRecipe);
+  const TB = Schema.Value;
+  const S = toSchema(SequenceRecipe);
+  const slice = '00:00..00:10' as t.Timecode.SliceString; // branded test literal
 
+  it('valid sequence passes core schema check', () => {
     const value: t.Sequence = [
       {
         video: '/video.mp4',
         script: 'intro script',
-        slice: '00:00..00:10',
+        slice,
         timestamps: {
           '00:00:00.000': { text: { body: 'hello world' } },
         },
@@ -24,25 +25,25 @@ describe('schema: sequence', () => {
   });
 
   it('invalid sequence fails when required fields are missing', () => {
-    const TB = Schema.Value;
-    const S = toSchema(SequenceRecipe);
-
     // Missing required `video` field.
     const value = [{ script: 'missing video' }];
+
     expect(TB.Check(S, value)).to.eql(false);
   });
 
   it('normalised timestamp text (null → missing) passes schema', () => {
-    const TB = Schema.Value;
-    const S = toSchema(SequenceRecipe);
-
     const value: t.Sequence = [
       {
         video: '/video.mp4',
         script: 'intro script',
-        slice: '00:00..00:10',
+        slice,
         timestamps: {
-          '00:00:00.000': { text: { body: 'hello world', headline: undefined } },
+          '00:00:00.000': {
+            text: {
+              body: 'hello world',
+              headline: undefined,
+            },
+          },
         },
       },
     ];

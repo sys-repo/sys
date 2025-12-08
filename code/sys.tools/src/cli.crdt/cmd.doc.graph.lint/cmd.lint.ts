@@ -53,10 +53,10 @@ export async function lintDocumentGraphCommand(
   const table = Cli.table();
   const kv = (k: string, v: t.Json = '') => table.push([c.gray(k), String(v)]);
   const success = res.ok ? c.green : c.red;
-  kv(success(`Lint ${res.ok ? '✔' : '✘'}`));
-  kv(' Issues:', success(String(res.issues.length)));
-  kv(' Facets:', c.gray(Linter.Facets.join(' | ')));
-  kv(' Path (yaml):', c.gray(`/${yamlPath.join('/')}`));
+  kv(success(`${res.ok ? '✔' : '✘'} Lint`));
+  kv('  Issues:', success(String(res.issues.length)));
+  kv('  Facets:', c.gray(Linter.Facets.join(' | ')));
+  kv('  Yaml Path:', c.gray(`/${yamlPath.join('/')}`));
   console.info(Str.trimEdgeNewlines(String(table)));
   console.info();
 }

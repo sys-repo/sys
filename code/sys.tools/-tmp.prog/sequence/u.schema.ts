@@ -1,7 +1,7 @@
 import { type t, V } from '../common.ts';
 
 /**
- * SequenceTimestampText recipe.
+ * Text block used inside timestamp entries and pause cards.
  */
 const TimestampText = V.object(
   {
@@ -11,19 +11,19 @@ const TimestampText = V.object(
   },
   {
     title: 'SequenceTimestampText',
-    description: 'Optional headline/tagline/body text used at a given timestamp.',
+    description: 'Optional headline/tagline/body text used at a given timestamp or pause.',
   },
 );
 
 /**
- * SequenceTimestampEntry recipe.
+ * Single timestamp entry keyed by a WebVTT timecode.
  *
- * Keys live in a Timecode.Map, so the actual timecode grammar is enforced
- * by the Timecode layer, not by this schema.
+ * Keys live in a Timecode.Map, so the timecode grammar is enforced by the
+ * Timecode layer, not by this schema.
  */
 const TimestampEntry = V.object(
   {
-    pause: V.optional(V.string()), // "2s", "3s"
+    pause: V.optional(V.string()), // e.g. "2s", "3s"
     title: V.optional(V.string()),
     image: V.optional(V.string()),
     text: V.optional(TimestampText),
@@ -35,10 +35,9 @@ const TimestampEntry = V.object(
 );
 
 /**
- * SequenceTimestamps recipe:
- * string-keyed map of timecodes → entries.
+ * String-keyed map of timecodes → timestamp entries.
  *
- * We deliberately do NOT constrain the key pattern here; the Timecode.Map
+ * We deliberately do not constrain the key pattern here; the Timecode.Map
  * type already enforces the WebVTT grammar upstream.
  */
 const Timestamps = V.record(TimestampEntry, {
@@ -47,12 +46,16 @@ const Timestamps = V.record(TimestampEntry, {
 });
 
 /**
- * SequenceVideoItem recipe.
+ * Video item: core building block of the composite sequence.
+ *
+ * Title/script are optional at the YAML layer; later stages can impose
+ * stricter requirements when mapping into the canonical composition spec.
  */
 const VideoItem = V.object(
   {
     video: V.string(),
-    script: V.string(),
+    title: V.optional(V.string()),
+    script: V.optional(V.string()),
     slice: V.optional(
       V.string({
         description:
@@ -63,58 +66,48 @@ const VideoItem = V.object(
   },
   {
     title: 'SequenceVideoItem',
-    description:
-      'Video segment: core building block of the composite sequence (video+script+optional slice/timestamps).',
+    description: 'Video segment: video source plus optional title/script/slice/timestamps.',
   },
 );
 
 /**
- * SequenceSlugItem recipe.
+ * Slug item: injection of another slug into the sequence.
+ *
+ * Display mode defaults to "inline"; "overlay" is available for future
+ * UI treatments.
  */
 const SlugItem = V.object(
   {
     slug: V.string(),
-    display: V.literal('inline'),
+    display: V.optional(V.union([V.literal('inline'), V.literal('overlay')])),
     timestamps: V.optional(Timestamps),
   },
   {
     title: 'SequenceSlugItem',
-    description: 'Inline injection of another slug into the sequence.',
+    description: 'Injection of another slug, optionally with its own timestamps.',
   },
 );
 
 /**
- * SequencePauseTextItem recipe.
- */
-const PauseTextItem = V.object(
-  {
-    pause: V.string(), // "2s" | "3s"
-    title: V.string(),
-    text: V.object({
-      body: V.string(),
-    }),
-  },
-  {
-    title: 'SequencePauseTextItem',
-    description: 'Pause with a title card and body text.',
-  },
-);
-
-/**
- * SequencePauseItem recipe.
+ * Pause item: simple pause, optionally with a title card and text.
+ *
+ * Covers both bare pauses and richer pause-with-text cases so the union
+ * stays small and shape-based.
  */
 const PauseItem = V.object(
   {
-    pause: V.string(),
+    pause: V.string(), // e.g. "2s" | "3s"
+    title: V.optional(V.string()),
+    text: V.optional(TimestampText),
   },
   {
     title: 'SequencePauseItem',
-    description: 'Simple pause item with no text.',
+    description: 'Pause in playback, optionally with a title card and text.',
   },
 );
 
 /**
- * SequenceImageItem recipe.
+ * Image item: image marker with text driven by timestamps.
  */
 const ImageItem = V.object(
   {
@@ -123,16 +116,16 @@ const ImageItem = V.object(
   },
   {
     title: 'SequenceImageItem',
-    description: 'Image marker with text driven by timestamps.',
+    description: 'Image segment whose overlays are driven by timestamp entries.',
   },
 );
 
 /**
  * Union of all sequence item shapes.
  */
-const SequenceItem = V.union([VideoItem, SlugItem, PauseItem, PauseTextItem, ImageItem], {
+const SequenceItem = V.union([VideoItem, SlugItem, PauseItem, ImageItem], {
   title: 'SequenceItem',
-  description: 'Discriminated at the shape level (no explicit "kind" field in current docs).',
+  description: 'Sequence item discriminated by shape (no explicit "kind" field).',
 });
 
 /**

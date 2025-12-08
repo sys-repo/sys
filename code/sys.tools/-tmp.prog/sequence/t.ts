@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
 
 /**
- * Text block used inside timestamp entries.
+ * Text block used inside timestamp entries and pause cards.
  */
 export type SequenceTimestampText = {
   readonly headline?: string;
@@ -31,54 +31,37 @@ export type SequenceTimestamps = t.Timecode.Map<SequenceTimestampEntry>;
 /**
  * Video item: core building block of the composite sequence.
  *
- * NOTE:
- * - All current docs have `timestamps`, so this is conceptually required,
- *   but we keep it optional for authoring flexibility.
- * - `slice` is present on most, but not all, video items.
+ * Title/script/slice are optional at the authoring layer; the later
+ * TimecodeCompositionSpec normalizer can enforce tighter rules.
  */
 export type SequenceVideoItem = {
   readonly video: string;
-  readonly script: string;
-
-  /**
-   * Time slice within the source media: "<from>..<to>".
-   * Semantics: Timecode.SliceString (WebVTT-based).
-   *
-   * You can tighten this later to `t.Timecode.SliceString` once the
-   * extraction pipeline canonicalises / brands slices.
-   */
-  readonly slice?: string; // effectively a Timecode.SliceString
-
+  readonly title?: string;
+  readonly script?: string;
+  readonly slice?: t.Timecode.SliceString;
   readonly timestamps?: SequenceTimestamps;
 };
 
 /**
- * Slug item: inline injection of another slug.
- * In current data, display is always "inline".
+ * Slug item: injection of another slug into the sequence.
+ *
+ * Display defaults to "inline" when omitted; "overlay" is available for
+ * specialised treatments (for example, overlay panels).
  */
 export type SequenceSlugItem = {
   readonly slug: string;
-  readonly display: 'inline';
-  readonly timestamps?: SequenceTimestamps; // used once, but real
+  readonly display?: 'inline' | 'overlay';
+  readonly timestamps?: SequenceTimestamps;
 };
 
 /**
- * Pause item with a title + text.
- * Used for interstitial title cards / framing moments.
- */
-export type SequencePauseTextItem = {
-  readonly pause: string; // "2s" | "3s"
-  readonly title: string;
-  readonly text: {
-    readonly body: string;
-  };
-};
-
-/**
- * Simple pause item with no text.
+ * Pause item with optional title + rich text.
+ * Covers both bare pauses and richer title-card pauses.
  */
 export type SequencePauseItem = {
-  readonly pause: string;
+  readonly pause: string; // e.g. "2s" | "3s"
+  readonly title?: string;
+  readonly text?: SequenceTimestampText;
 };
 
 /**
@@ -90,13 +73,15 @@ export type SequenceImageItem = {
 };
 
 /**
- * Full union of all observed sequence items across the DAG.
+ * Full union of sequence items.
+ *
+ * The canonical TimecodeCompositionSpec normalizer can later project from
+ * this authoring-time union into the pure timecode pieces it needs.
  */
 export type SequenceItem =
   | SequenceVideoItem
   | SequenceSlugItem
   | SequencePauseItem
-  | SequencePauseTextItem
   | SequenceImageItem;
 
 /**
