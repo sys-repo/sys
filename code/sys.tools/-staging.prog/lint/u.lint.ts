@@ -111,7 +111,7 @@ async function run(
 
 /**
  * Centralized formatted output for a linter module.
- * Expects issues that already carry `docId`.
+ * Expects issues that already carry `docid`.
  */
 function printLintSection(issues: t.DocLintIssue[] = []) {
   if (issues.length === 0) return;

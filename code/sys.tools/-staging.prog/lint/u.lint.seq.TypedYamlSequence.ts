@@ -6,16 +6,16 @@ const T = Schema.Value;
 export async function lintTypedYamlSequence(
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
-  docId: t.Crdt.Id,
+  docid: t.Crdt.Id,
   opts: { debug?: boolean } = {},
 ): Promise<t.LintResult> {
   const { debug = false } = opts;
 
   const Parse = makeParser(yamlPath);
-  const node = Parse.findParsedNode(dag, docId);
+  const node = Parse.findParsedNode(dag, docid);
   if (!node) return { issues: [] };
 
-  let sequence = await Sequence.fromDag(dag, yamlPath, docId, { validate: false });
+  let sequence = await Sequence.fromDag(dag, yamlPath, docid, { validate: false });
   if (!sequence) return { issues: [] };
 
   // Fast pass:
@@ -29,7 +29,7 @@ export async function lintTypedYamlSequence(
   if (debug) {
     console.info(`${c.cyan('Lint Errors:')} ${import.meta.filename}`);
     errors.forEach((error) => {
-      console.info(c.cyan(docId));
+      console.info(c.cyan(docid));
       console.info(`${c.cyan('Lint error:')} ${error.schema.title}`);
       console.info('  path:', error.path);
       console.info('  message:', error.message);

@@ -31,13 +31,13 @@ export function lintResults(issues: t.DocLintIssue[]): string {
     const message = issue.message ?? '';
     const severityLabel = formatSeverity(severity);
 
-    const docId = issue.doc.id;
-    const prettyId = `crdt:${docId.slice(0, -5)}${c.white(docId.slice(-5))}`;
+    const docid = issue.doc.id;
+    const prettyId = `crdt:${docid.slice(0, -5)}${c.white(docid.slice(-5))}`;
 
     // First line: severity + kind.
     b.line(`${c.bold(severityLabel)} ${kind}`);
 
-    if (docId) b.line(` ${c.cyan('doc:')} ${g(prettyId)}`);
+    if (docid) b.line(` ${c.cyan('doc:')} ${g(prettyId)}`);
     if (path) b.line(` ${c.cyan('path:')} ${gi(path)}`);
     if (message) b.line(` ${c.cyan('message:')} ${gi(message)}`);
 
