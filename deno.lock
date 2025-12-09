@@ -63,6 +63,7 @@
     "jsr:@sys/ui-react-devharness@^0.0.187": "0.0.187",
     "jsr:@sys/ui-react@^0.0.189": "0.0.189",
     "jsr:@sys/yaml@^0.0.39": "0.0.39",
+    "npm:@ai-sdk/openai@2.0.80": "2.0.80_zod@4.1.12",
     "npm:@automerge/automerge-repo-network-websocket@2.5.1": "2.5.1_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.1": "2.5.1",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.1": "2.5.1",
@@ -89,6 +90,8 @@
     "npm:@types/react@19.2.7": "19.2.7",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.2": "5.1.2_vite@7.2.7__@types+node@24.2.0__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.2",
+    "npm:ai@*": "5.0.108_zod@4.1.12",
+    "npm:ai@5.0.108": "5.0.108_zod@4.1.12",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.1": "6.2.1",
     "npm:csstype@3.2.3": "3.2.3",
@@ -636,6 +639,15 @@
         "zod@4.1.12"
       ]
     },
+    "@ai-sdk/gateway@2.0.18_zod@4.1.12": {
+      "integrity": "sha512-sDQcW+6ck2m0pTIHW6BPHD7S125WD3qNkx/B8sEzJp/hurocmJ5Cni0ybExg6sQMGo+fr/GWOwpHF1cmCdg5rQ==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.18_zod@4.1.12",
+        "@vercel/oidc",
+        "zod@4.1.12"
+      ]
+    },
     "@ai-sdk/google@2.0.40_zod@4.1.12": {
       "integrity": "sha512-E7MTVE6vhWXQJzXQDvojwA9t5xlhWpxttCH3R/kUyiE6y0tT8Ay2dmZLO+bLpFBQ5qrvBMrjKWpDVQMoo6TJZg==",
       "dependencies": [
@@ -665,6 +677,14 @@
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.12",
+        "zod@4.1.12"
+      ]
+    },
+    "@ai-sdk/openai@2.0.80_zod@4.1.12": {
+      "integrity": "sha512-tNHuraF11db+8xJEDBoU9E3vMcpnHFKRhnLQ3DQX2LnEzfPB9DksZ8rE+yVuDN1WRW9cm2OWAhgHFgVKs7ICuw==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.18_zod@4.1.12",
         "zod@4.1.12"
       ]
     },
@@ -715,6 +735,15 @@
     },
     "@ai-sdk/provider-utils@3.0.17_zod@4.1.12": {
       "integrity": "sha512-TR3Gs4I3Tym4Ll+EPdzRdvo/rc8Js6c4nVhFLuvGLX/Y4V9ZcQMa/HTiYsHEgmYrf1zVi6Q145UEZUfleOwOjw==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@standard-schema/spec",
+        "eventsource-parser",
+        "zod@4.1.12"
+      ]
+    },
+    "@ai-sdk/provider-utils@3.0.18_zod@4.1.12": {
+      "integrity": "sha512-ypv1xXMsgGcNKUP+hglKqtdDuMg68nWHucPPAhIENrbFAI+xCHiqPVN8Zllxyv1TNZwGWUghPxJXU+Mqps0YRQ==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@standard-schema/spec",
@@ -2802,6 +2831,16 @@
       ],
       "optionalPeers": [
         "react"
+      ]
+    },
+    "ai@5.0.108_zod@4.1.12": {
+      "integrity": "sha512-Jex3Lb7V41NNpuqJHKgrwoU6BCLHdI1Pg4qb4GJH4jRIDRXUBySJErHjyN4oTCwbiYCeb/8II9EnqSRPq9EifA==",
+      "dependencies": [
+        "@ai-sdk/gateway@2.0.18_zod@4.1.12",
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.18_zod@4.1.12",
+        "@opentelemetry/api",
+        "zod@4.1.12"
       ]
     },
     "ai@5.0.60_zod@4.1.12": {
