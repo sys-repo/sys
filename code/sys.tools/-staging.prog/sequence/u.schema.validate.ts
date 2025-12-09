@@ -1,6 +1,7 @@
 import { type t, Schema } from '../common.ts';
 import { SequenceIs } from './m.Is.ts';
 import { SequenceSchema } from './u.schema.ts';
+import { checkSequenceInvariants } from './u.schema.validate.invariants.ts';
 
 type M = t.SequenceLib['validate'];
 type R = ReturnType<M>;
@@ -31,6 +32,13 @@ export const validateSequence: M = (input: unknown) => {
     return fail('Invalid sequence: value does not conform to Sequence schema.');
   }
 
-  // Schema has accepted it; it is now safe to treat as t.Sequence.
-  return ok(input as t.Sequence);
+  // Third pass: enforced invariants that sit on top of the schema.
+  const sequence = input as t.Sequence;
+  const invariantError = checkSequenceInvariants(sequence);
+  if (invariantError) {
+    return fail(invariantError);
+  }
+
+  // Schema + invariants have accepted it; it is now safe to treat as t.Sequence.
+  return ok(sequence);
 };

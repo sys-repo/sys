@@ -1,4 +1,4 @@
-import { type t, V, toSchema } from '../common.ts';
+import { V, toSchema } from '../common.ts';
 
 /**
  * Text block used inside timestamp entries and pause cards.
@@ -11,7 +11,7 @@ const TimestampText = V.object(
   },
   {
     title: 'SequenceTimestampText',
-    description: 'Optional headline/tagline/body text used at a given timestamp or pause.',
+    description: `Optional headline/tagline/body text used at a given timestamp or pause. If body text is present, a headline is required (enforced by the sequence validator).`,
   },
 );
 
@@ -30,7 +30,7 @@ const TimestampEntry = V.object(
   },
   {
     title: 'SequenceTimestampEntry',
-    description: 'Single timestamp entry keyed by a WebVTT timecode.',
+    description: `Single timestamp entry keyed by a WebVTT timecode. When an image is present, body text is disallowed (enforced by the sequence validator).`,
   },
 );
 
@@ -58,8 +58,7 @@ const VideoItem = V.object(
     script: V.optional(V.string()),
     slice: V.optional(
       V.string({
-        description:
-          'Time slice within the source media, e.g. "00:00:03..00:00:10" (Timecode.SliceString).',
+        description: `Time slice within the source media, e.g. "00:00:03..00:00:10" (Timecode.SliceString).`,
       }),
     ),
     timestamps: V.optional(Timestamps),

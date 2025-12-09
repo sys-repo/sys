@@ -32,7 +32,9 @@ describe('Schema', () => {
           video: '/video.mp4',
           script: 'intro script',
           slice,
-          timestamps: { '00:00:00.000': { text: { body: 'hello world', headline: undefined } } },
+          timestamps: {
+            '00:00:00.000': { text: { body: 'hello world', headline: undefined } },
+          },
         },
       ];
       expect(T.Check(S, value)).to.eql(true);
@@ -71,20 +73,26 @@ describe('Schema', () => {
   describe('Sequence.validate', () => {
     const slice = '00:00..00:10' as t.Timecode.SliceString;
 
-    it('returns ok:true for a valid sequence', () => {
+    it('returns ok:true for a valid sequence (headline + body, no image)', () => {
       const value: t.Sequence = [
         {
           video: '/video.mp4',
           script: 'intro script',
           slice,
-          timestamps: { '00:00:00.000': { text: { body: 'hello world' } } },
+          timestamps: {
+            '00:00:00.000': {
+              text: {
+                headline: 'Intro',
+                body: 'hello world',
+              },
+            },
+          },
         },
       ];
 
       const res = Sequence.validate(value);
       expect(res.ok).to.eql(true);
       if (res.ok) {
-        // result.sequence is t.Sequence
         expect(res.sequence).to.eql(value);
       }
     });
@@ -114,6 +122,98 @@ describe('Schema', () => {
       expect(res.ok).to.eql(false);
       if (!res.ok) {
         expect(res.error.message).to.contain('does not conform to Sequence schema');
+      }
+    });
+
+    it('returns ok:false when body text is present without a headline', () => {
+      const value: t.Sequence = [
+        {
+          video: '/video.mp4',
+          script: 'intro script',
+          slice,
+          timestamps: {
+            '00:00:00.000': {
+              text: {
+                body: '- Cuts Through Noise',
+              },
+            },
+          },
+        },
+      ];
+
+      const res = Sequence.validate(value);
+      expect(res.ok).to.eql(false);
+      if (!res.ok) {
+        expect(res.error.message).to.contain('body text requires a headline');
+      }
+    });
+
+    it('returns ok:false when image and body text appear together in a timestamp entry', () => {
+      const value: t.Sequence = [
+        {
+          video: '/video.mp4',
+          script: 'intro script',
+          slice,
+          timestamps: {
+            '00:00:00.000': {
+              image: '/:images/three-models-diagram.png',
+              text: {
+                headline: 'Integrated System',
+                body: '- Customer Model',
+              },
+            },
+          },
+        },
+      ];
+
+      const res = Sequence.validate(value);
+      expect(res.ok).to.eql(false);
+      if (!res.ok) {
+        expect(res.error.message).to.contain('image and body text cannot appear simultaneously');
+      }
+    });
+
+    it('returns ok:false when body text is present inside an image item timestamp', () => {
+      const value: t.Sequence = [
+        {
+          image: '/:images/three-models-diagram.png',
+          timestamps: {
+            '00:00:00.000': {
+              text: {
+                headline: 'Integrated System',
+                body: '- Customer Model',
+              },
+            },
+          },
+        },
+      ];
+
+      const res = Sequence.validate(value);
+      expect(res.ok).to.eql(false);
+      if (!res.ok) {
+        expect(res.error.message).to.contain('image and body text cannot appear simultaneously');
+      }
+    });
+
+    it('accepts image + headline/tagline (no body) in an image item timestamp', () => {
+      const value: t.Sequence = [
+        {
+          image: '/:images/three-models-diagram.png',
+          timestamps: {
+            '00:00:00.000': {
+              text: {
+                headline: 'Integrated System',
+                tagline: 'Three models working together',
+              },
+            },
+          },
+        },
+      ];
+
+      const res = Sequence.validate(value);
+      expect(res.ok).to.eql(true);
+      if (res.ok) {
+        expect(res.sequence).to.eql(value);
       }
     });
   });
