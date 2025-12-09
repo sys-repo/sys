@@ -1,7 +1,7 @@
 import { type t, describe, it, expect } from '../../-test.ts';
 import { buildSequenceFilepathIssue } from '../u.lint.seq.files.ts';
 
-describe('Lint/sequence: files', () => {
+describe('Lint: slug/sequence: files', () => {
   const docid = 'crdt:test-doc' as t.Crdt.Id;
 
   const makeArgs = (args: Partial<t.SlugMediaWalkArgs> = {}): t.SlugMediaWalkArgs => ({
