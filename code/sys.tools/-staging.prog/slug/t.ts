@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 export type * from './t.lib.ts';
 
 /** Media types emitted in a slug bundle. */
-export type SlugAssetKind = 'video' | 'image';
+export type SlugAssetKind = t.PlaybackMediaKind;
 
 /** A single bundled asset with its hashed filename and resolved href. */
 export type SlugAsset = {

@@ -7,6 +7,7 @@ export type * from './experience/t.ts';
 export type * from './slice/t.ts';
 export type * from './t.lib.ts';
 export type * from './t.namespace.ts';
+export type * from './t.playback.ts';
 
 /**
  * Branded media timecode:
