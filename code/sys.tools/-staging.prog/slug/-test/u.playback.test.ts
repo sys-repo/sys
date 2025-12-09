@@ -1,0 +1,49 @@
+import { describe, expect, expectTypeOf, it, Obj } from '../../-test.ts';
+import { type t } from '../common.ts';
+import { Slug } from '../mod.ts';
+
+describe('slug/Slug.toPlayback', () => {
+  const makeNormalized = (): t.SlugSequenceNormalized => ({
+    timecode: [],
+    beats: [
+      {
+        src: { ref: 'video:1', time: 3000 as t.Msecs },
+        payload: {
+          title: 'Hello',
+          image: '/image.png',
+          text: { headline: 'Head', tagline: 'Tag', body: 'Body' },
+        },
+      },
+    ],
+    meta: {
+      docid: 'doc-1' as t.Crdt.Id,
+      path: { yaml: ['sequence'] },
+    },
+  });
+
+  it('projects normalized → playback spec (structure)', () => {
+    const normalized = makeNormalized();
+    const spec = Slug.toPlayback({ normalized });
+
+    // composition is passed through
+    expect(spec.composition).to.eql(normalized.timecode);
+
+    // beats are passed through
+    expect(spec.beats).to.eql(normalized.beats);
+  });
+
+  it('does not mutate the normalized input', () => {
+    const normalized = makeNormalized();
+    const snapshot = Obj.clone(normalized);
+
+    void Slug.toPlayback({ normalized });
+    expect(normalized).to.eql(snapshot);
+  });
+
+  it('payload type matches SlugSequenceBeatPayload', () => {
+    const normalized = makeNormalized();
+    const spec = Slug.toPlayback({ normalized });
+    const beat = spec.beats[0];
+    expectTypeOf(beat.payload).toEqualTypeOf<t.SlugSequenceBeatPayload>();
+  });
+});

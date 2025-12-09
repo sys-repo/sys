@@ -6,4 +6,5 @@ import type { t } from './common.ts';
 export type SlugLib = {
   readonly Sequence: t.SlugSequenceLib;
   readonly parser: t.MakeParserFn;
+  readonly toPlayback: t.ToSlugPlaybackSpec;
 };
