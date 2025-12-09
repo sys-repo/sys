@@ -68,7 +68,7 @@ export type SequencePauseItem = {
  * Image marker with timed overlays (timestamps drive the text).
  */
 export type SequenceImageItem = {
-  readonly image: string;
+  readonly image: t.StringRef;
   readonly timestamps: SequenceTimestamps;
 };
 
