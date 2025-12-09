@@ -1,4 +1,14 @@
-import { type t, c, Cli, DocLintFacets as Facets, makeParser, Obj } from './common.ts';
+import {
+  type t,
+  Pkg,
+  pkg,
+  Fs,
+  c,
+  Cli,
+  DocLintFacets as Facets,
+  makeParser,
+  Obj,
+} from './common.ts';
 
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
@@ -94,15 +104,36 @@ async function run(
   if (hasFilesBundle) {
     let index = 0;
     const total = dag.nodes.length;
+
+    type R = t.SequenceFilepathBundleResult;
+    const distDirs = new Set<t.StringDir>();
+    const addDir = (res: R) => {
+      distDirs.add(Fs.join(res.dir.base, res.dir.manifests));
+      distDirs.add(Fs.join(res.dir.base, res.dir.video));
+      distDirs.add(Fs.join(res.dir.base, res.dir.image));
+    };
+
+    /** Process DAG nodes */
     for (const node of dag.nodes) {
       index++;
-      let msg = `bundling assets for ${Fmt.prettyUri(node.id)} (${index} of ${total})...`;
+      let msg = `bundling assets for ${Fmt.prettyUri(node.id)} (${c.white(String(index))} of ${total})...`;
       spinner.text = Fmt.spinnerText(msg);
 
       const id = node.id;
-      const baseResult = await bundleSequenceFilepaths(dag, yamlPath, node.id, { facets });
-      const issuesForNode: Issue[] = baseResult.issues.map((issue) => ({ ...issue, doc: { id } }));
+      const result = await bundleSequenceFilepaths(dag, yamlPath, node.id, { facets });
+      const issuesForNode: Issue[] = result.issues.map((issue) => ({ ...issue, doc: { id } }));
       issuesForNode.forEach((issue) => issues.push(issue));
+      addDir(result);
+    }
+
+    /** Generate `dist.json` manifests */
+    spinner.text = Fmt.spinnerText(`generating dist.json manifests`);
+    for (const dir of distDirs) {
+      if (await Fs.exists(dir)) {
+        const name = `prog.bundle.slug/${Fs.basename(dir)}`;
+        const version = '0.0.0';
+        await Pkg.Dist.compute({ dir, pkg: { name, version }, builder: pkg, save: true });
+      }
     }
   }
 
@@ -114,7 +145,6 @@ async function run(
       const id = node.id;
       const baseResult = await lintTypedYamlSequence(dag, yamlPath, node.id);
       const issuesForNode: Issue[] = baseResult.issues.map((issue) => ({ ...issue, doc: { id } }));
-
       issuesForNode.forEach((issue) => issues.push(issue));
     }
   }

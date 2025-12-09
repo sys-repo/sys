@@ -1,12 +1,10 @@
-import { Fs, Hash, Obj, type t } from './common.ts';
+import { type t, Fs, Hash, Obj } from './common.ts';
 import { buildSequenceFilepathIssue } from './u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
 
+type R = t.SequenceFilepathBundleResult;
 type Dag = t.Graph.Dag.Result;
 type Facet = t.DocLintFacet;
-
-const VIDEO_DIR = 'video';
-const IMAGE_DIR = 'image';
 
 /**
  * Bundle all media file paths for a given document:
@@ -19,18 +17,20 @@ export async function bundleSequenceFilepaths(
   dag: Dag,
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
-  opts: {
-    facets?: Facet[];
-    outDir?: string;
-    baseHref?: string;
-  } = {},
-): Promise<t.SequenceFilepathBundleResult> {
+  opts: { facets?: Facet[]; outDir?: string; baseHref?: string } = {},
+): Promise<R> {
   const issues: t.SequenceFilepathLint[] = [];
   const assets: t.SlugAsset[] = [];
 
   const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('sequence:file:'));
-  const outDir = opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
   const baseHref = (opts.baseHref ?? '/').replace(/\/+$/, '');
+
+  const dir: R['dir'] = {
+    base: opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets'),
+    manifests: 'manifests',
+    video: 'video',
+    image: 'image',
+  };
 
   const visit = async (args: t.SlugMediaWalkArgs) => {
     // First, reuse existing lint behaviour.
@@ -49,9 +49,9 @@ export async function bundleSequenceFilepaths(
     const hash = await sha256Hex(resolvedPath);
     const ext = Fs.extname(resolvedPath);
     const filename = `${hash}${ext}`;
-    const kindDir = kind === 'image' ? IMAGE_DIR : VIDEO_DIR;
+    const kindDir = kind === 'image' ? dir.image : dir.video;
 
-    const destDir = Fs.join(outDir, kindDir);
+    const destDir = Fs.join(dir.base, kindDir);
     const destPath = Fs.join(destDir, filename);
 
     await Fs.ensureDir(destDir);
@@ -66,15 +66,19 @@ export async function bundleSequenceFilepaths(
 
   await walkSequenceMediaPaths(dag, yamlPath, docid, facets, visit);
 
-  let manifestPath: string | undefined;
+  /**
+   * Write asset manifest file (json).
+   */
   if (assets.length > 0) {
+    let manifestPath: string | undefined;
     const manifest: t.SlugAssetsManifest = { docid, assets };
-    const manifestFilename = `manifests/slug.${docid}.assets.json`;
-    manifestPath = Fs.join(outDir, manifestFilename);
+    const manifestFilename = `${dir.manifests}/slug.${docid}.assets.json`;
+    manifestPath = Fs.join(dir.base, manifestFilename);
     await Fs.writeJson(manifestPath, manifest);
   }
 
-  return Obj.asGetter({ issues, manifestPath }, ['issues']);
+  // Finish up.
+  return Obj.asGetter({ issues, dir }, ['issues']);
 }
 
 /**

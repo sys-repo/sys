@@ -20,7 +20,12 @@ export type SlugAssetsManifest = {
 
 /** Result of bundling: lint issues plus optional manifest location. */
 export type SequenceFilepathBundleResult = t.SequenceFilepathLintResult & {
-  readonly manifestPath?: t.StringPath;
+  readonly dir: {
+    readonly base: t.StringDir;
+    readonly manifests: t.StringDir;
+    readonly video: t.StringDir;
+    readonly image: t.StringDir;
+  };
 };
 
 /**
