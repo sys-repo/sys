@@ -4,9 +4,10 @@ console.info('🐷-tmp');
 
 const log = true;
 // await clear('./.tmp');
-await Fs.remove('./.tmp/sys', { log });
-await Fs.remove('./.tmp/dev', { log });
-await Fs.remove('./.tmp/monaco/', { log });
+// await Fs.remove('./.tmp/sys', { log });
+// await Fs.remove('./.tmp/dev', { log });
+// await Fs.remove('./.tmp/monaco/', { log });
+await Fs.remove('./.tmp/publish.assets/', { log });
 
 /**
  * Helpers:

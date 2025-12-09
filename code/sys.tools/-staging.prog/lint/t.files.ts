@@ -10,4 +10,5 @@ export type SequenceFilepathLint = t.DocLintIssue<SequenceFilepathLintKind> & {
   readonly closestMatch?: string;
 };
 
+/** The result of a file-path linter run. */
 export type SequenceFilepathLintResult = t.LintResult<SequenceFilepathLintKind>;

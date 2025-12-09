@@ -1,4 +1,4 @@
-export type * from './t.filepath.ts';
+export type * from './t.files.ts';
 
 /**
  * Distinct structural checks the linter can perform.

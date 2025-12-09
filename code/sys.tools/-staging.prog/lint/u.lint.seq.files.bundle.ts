@@ -1,0 +1,86 @@
+import { Fs, Hash, Obj, type t } from './common.ts';
+import { buildSequenceFilepathIssue } from './u.lint.seq.files.ts';
+import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
+
+type Dag = t.Graph.Dag.Result;
+type Facet = t.DocLintFacet;
+
+const VIDEO_DIR = 'video';
+const IMAGE_DIR = 'image';
+
+/**
+ * Bundle all media file paths for a given document:
+ * - Uses the shared media-path walker (video + image).
+ * - Reuses `buildSequenceFilepathIssue` for *all* lint behaviour.
+ * - When there is no issue for a path, hashes + copies the file into a flat
+ *   output dir and records it in `slug.<docid>.assets.json`.
+ */
+export async function bundleSequenceFilepaths(
+  dag: Dag,
+  yamlPath: t.ObjectPath,
+  docid: t.Crdt.Id,
+  opts: {
+    facets?: Facet[];
+    outDir?: string;
+    baseHref?: string;
+  } = {},
+): Promise<t.SequenceFilepathBundleResult> {
+  const issues: t.SequenceFilepathLint[] = [];
+  const assets: t.SlugAsset[] = [];
+
+  const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('sequence:file:'));
+  const outDir = opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
+  const baseHref = (opts.baseHref ?? '/').replace(/\/+$/, '');
+
+  const visit = async (args: t.SlugMediaWalkArgs) => {
+    // First, reuse existing lint behaviour.
+    const issue = await buildSequenceFilepathIssue(docid, args);
+    if (issue) {
+      issues.push(issue);
+      return; // Do not bundle problematic paths.
+    }
+
+    const { kind, raw, resolvedPath, exists } = args;
+
+    // Guardrail: buildSequenceFilepathIssue returns undefined only when we
+    // have a concrete, existing path.
+    if (!exists || !resolvedPath) return;
+
+    const hash = await sha256Hex(resolvedPath);
+    const ext = Fs.extname(resolvedPath);
+    const filename = `${hash}${ext}`;
+    const kindDir = kind === 'image' ? IMAGE_DIR : VIDEO_DIR;
+
+    const destDir = Fs.join(outDir, kindDir);
+    const destPath = Fs.join(destDir, filename);
+
+    await Fs.ensureDir(destDir);
+
+    // Idempotent copy: skip if already present.
+    const destExists = await Fs.exists(destPath);
+    if (!destExists) await Fs.copy(resolvedPath, destPath);
+
+    const href = `${baseHref}/${kindDir}/${filename}`;
+    assets.push({ kind, logicalPath: String(raw), hash, filename, href });
+  };
+
+  await walkSequenceMediaPaths(dag, yamlPath, docid, facets, visit);
+
+  let manifestPath: string | undefined;
+  if (assets.length > 0) {
+    const manifest: t.SlugAssetsManifest = { docid, assets };
+    const manifestFilename = `manifests/slug.${docid}.assets.json`;
+    manifestPath = Fs.join(outDir, manifestFilename);
+    await Fs.writeJson(manifestPath, manifest);
+  }
+
+  return Obj.asGetter({ issues, manifestPath }, ['issues']);
+}
+
+/**
+ * Compute the SHA-256 hash of a file as a hex string.
+ */
+async function sha256Hex(path: string): Promise<t.StringHash> {
+  const data = (await Fs.read(path)).data;
+  return Hash.sha256(data);
+}
