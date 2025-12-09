@@ -36,8 +36,8 @@ export async function startYamlViewerCommand(
 
   // Wait here until (Ctrl-C).
   await Cli.keepAlive({
-    onStart: async (life) => await run(life),
     exitCode: 0,
+    onStart: async (life) => await run(life),
   });
 }
 

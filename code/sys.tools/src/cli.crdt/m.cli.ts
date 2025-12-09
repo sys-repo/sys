@@ -112,6 +112,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
       if (A.startsWith('crdt:')) {
         const options = [
+          opt('  🐷 chat with slug', 'tmp:🐷'),
           opt('  Lint', 'doc:graph:lint'),
           opt('  Tasks', 'doc:graph:tasks'),
           opt('  Snapshot (Backup)', 'snapshot'),
@@ -192,7 +193,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
         if (B === 'tmp:🐷') {
           const m = await Imports.tmp();
-          await m.tmp(cwd, id);
+          await m.tmp(cwd, id, yamlPath);
           return done(0);
         }
 
