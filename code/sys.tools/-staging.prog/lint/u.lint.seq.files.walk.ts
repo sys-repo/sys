@@ -19,7 +19,7 @@ export async function walkSequenceMediaPaths(
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   facets: Facet[],
-  visit: t.SlugMediaWalkVisitor,
+  visit: t.LintMediaWalkVisitor,
 ) {
   const Parse = makeParser(yamlPath);
   const node = Parse.findParsedNode(dag, docid);

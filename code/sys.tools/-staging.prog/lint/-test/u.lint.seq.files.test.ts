@@ -4,7 +4,7 @@ import { buildSequenceFilepathIssue } from '../u.lint.seq.files.ts';
 describe('Lint: slug/sequence: files', () => {
   const docid = 'crdt:test-doc' as t.Crdt.Id;
 
-  const makeArgs = (args: Partial<t.SlugMediaWalkArgs> = {}): t.SlugMediaWalkArgs => ({
+  const makeArgs = (args: Partial<t.LintMediaWalkArgs> = {}): t.LintMediaWalkArgs => ({
     kind: args.kind ?? 'video',
     raw: args.raw ?? '/:core/example.webm',
     resolvedPath: args.resolvedPath ?? '/abs/path/example.webm',

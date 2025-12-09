@@ -5,7 +5,7 @@ import {
   Fs,
   c,
   Cli,
-  DocLintFacets as Facets,
+  LintDocFacets as Facets,
   makeParser,
   Obj,
 } from './common.ts';

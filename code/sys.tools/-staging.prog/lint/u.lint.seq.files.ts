@@ -15,10 +15,10 @@ type Dag = t.Graph.Dag.Result;
  */
 export async function buildSequenceFilepathIssue(
   docid: t.Crdt.Id,
-  args: t.SlugMediaWalkArgs,
-): Promise<t.SequenceFilepathLint | undefined> {
+  args: t.LintMediaWalkArgs,
+): Promise<t.LintSequenceFilepath | undefined> {
   const { kind, raw, resolvedPath, exists, error } = args;
-  type K = t.SequenceFilepathLintKind;
+  type K = t.LintSequenceFilepathKind;
   const lintKind: K = kind === 'image' ? 'image-path:not-found' : 'video-path:not-found';
 
   // Errors during resolution (alias, path, etc).
@@ -79,9 +79,9 @@ export async function lintSequenceFilepaths(
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   opts: { facets?: Facet[] } = {},
-): Promise<t.SequenceFilepathLintResult> {
+): Promise<t.LintSequenceFilepathResult> {
   const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('sequence:file:'));
-  const issues: t.SequenceFilepathLint[] = [];
+  const issues: t.LintSequenceFilepath[] = [];
 
   await walkSequenceMediaPaths(dag, yamlPath, docid, facets, async (args) => {
     const issue = await buildSequenceFilepathIssue(docid, args);

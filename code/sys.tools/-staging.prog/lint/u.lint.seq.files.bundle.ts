@@ -19,7 +19,7 @@ export async function bundleSequenceFilepaths(
   docid: t.Crdt.Id,
   opts: { facets?: Facet[]; outDir?: string; baseHref?: string } = {},
 ): Promise<R> {
-  const issues: t.SequenceFilepathLint[] = [];
+  const issues: t.LintSequenceFilepath[] = [];
   const assets: t.SlugAsset[] = [];
 
   const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('sequence:file:'));
@@ -32,7 +32,7 @@ export async function bundleSequenceFilepaths(
     image: 'image',
   };
 
-  const visit = async (args: t.SlugMediaWalkArgs) => {
+  const visit = async (args: t.LintMediaWalkArgs) => {
     // First, reuse existing lint behaviour.
     const issue = await buildSequenceFilepathIssue(docid, args);
     if (issue) {
