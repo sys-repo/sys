@@ -112,7 +112,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
       if (A.startsWith('crdt:')) {
         const options = [
-          opt('  🐷 chat with slug', 'tmp:🐷'),
           opt('  Lint', 'doc:graph:lint'),
           opt('  Tasks', 'doc:graph:tasks'),
           opt('  Snapshot (Backup)', 'snapshot'),
@@ -120,6 +119,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           opt('  Document Graph → Walk → Stats', 'doc:graph:walk'),
           opt('  View Yaml', 'doc:viewer:yaml'),
           opt('  View Config', 'doc:config:print'),
+          opt('  🐷 chat with slug', 'tmp:🐷'),
         ];
 
         if (!hookTmpl.exists) {

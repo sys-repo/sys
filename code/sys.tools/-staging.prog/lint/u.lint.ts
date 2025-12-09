@@ -43,7 +43,7 @@ async function run(
     });
     const options = Facets.map((value) => opt(value, facets.includes(value)));
     facets = (await Cli.Prompt.Checkbox.prompt({
-      message: 'Select lint on facets',
+      message: 'Select lint facets',
       options,
       check: c.green('●'),
       uncheck: c.gray('○'),
@@ -73,9 +73,9 @@ async function run(
   /**
    * Lint sequence file paths.
    */
-  if (facets.includes('sequence:filepaths')) {
+  if (facets.includes('sequence:file:video') || facets.includes('sequence:file:image')) {
     for (const node of dag.nodes) {
-      const baseResult = await lintSequenceFilepaths(dag, yamlPath, node.id);
+      const baseResult = await lintSequenceFilepaths(dag, yamlPath, node.id, { facets });
       const issuesForNode: t.DocLintIssue[] = baseResult.issues.map((issue) => ({
         ...issue,
         doc: { id: node.id },

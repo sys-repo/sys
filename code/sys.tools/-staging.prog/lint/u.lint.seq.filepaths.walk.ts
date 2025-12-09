@@ -1,0 +1,90 @@
+import { type t, Fs, Is, makeParser, Sequence } from './common.ts';
+
+type O = Record<string, unknown>;
+type Facet = t.DocLintFacet;
+
+type Dag = t.Graph.Dag.Result;
+type AssetKind = 'video' | 'image';
+type WalkVisitor = (args: WalkArgs) => void | Promise<void>;
+type WalkArgs = {
+  readonly kind: AssetKind;
+  readonly raw: string;
+  readonly resolvedPath: string;
+  readonly exists: boolean;
+  readonly error?: unknown;
+};
+
+/**
+ * Walk all media (video/image) file paths in a sequence for a given document:
+ * - Resolves via alias tables.
+ * - Yields the concrete filesystem path (if resolvable) plus existence flag.
+ * - Covers:
+ *    • sequence[].video
+ *    • sequence[].image
+ *    • sequence[].timestamps[*].image
+ */
+export async function walkSequenceMediaPaths(
+  dag: Dag,
+  yamlPath: t.ObjectPath,
+  docid: t.Crdt.Id,
+  facets: Facet[],
+  visit: WalkVisitor,
+) {
+  const Parse = makeParser(yamlPath);
+  const node = Parse.findParsedNode(dag, docid);
+  const Path = Parse.path(dag, docid);
+  const seq = await Sequence.fromDag(dag, yamlPath, docid, { validate: false });
+
+  // If we cannot resolve aliases or sequence for this document, we skip.
+  if (!Path.ok || !node || !seq) return;
+
+  const isSupported = (kind: AssetKind) => {
+    if (kind === 'image') return facets.includes('sequence:file:image');
+    if (kind === 'video') return facets.includes('sequence:file:video');
+    return false;
+  };
+
+  const processMedia = async (kind: AssetKind, rawValue: unknown) => {
+    if (!Is.str(rawValue)) return;
+    if (!isSupported(kind)) return;
+
+    const raw = rawValue;
+
+    try {
+      const resolved = Path.resolve(raw);
+      const path = Fs.Tilde.expand(resolved?.value ?? '');
+      if (!path) return;
+
+      const exists = await Fs.exists(path);
+      await visit({ kind, raw, resolvedPath: path, exists });
+    } catch (error) {
+      await visit({
+        kind,
+        raw,
+        resolvedPath: '',
+        exists: false,
+        error,
+      });
+    }
+  };
+
+  for (const item of seq) {
+    if (!item || typeof item !== 'object') continue;
+
+    const anyItem = item as O;
+
+    // Top-level media on the sequence item.
+    await processMedia('video', anyItem['video']);
+    await processMedia('image', anyItem['image']);
+
+    // Nested images within timestamps.
+    const timestamps = anyItem['timestamps'];
+    if (!timestamps || typeof timestamps !== 'object') continue;
+
+    for (const value of Object.values(timestamps as O)) {
+      if (!value || typeof value !== 'object') continue;
+      const entry = value as O;
+      await processMedia('image', entry['image']);
+    }
+  }
+}

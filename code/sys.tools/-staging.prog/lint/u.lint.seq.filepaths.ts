@@ -1,21 +1,13 @@
-import { Sequence } from '../sequence/mod.ts';
-import { type t, Fs, Is, makeParser, Obj } from './common.ts';
+import { type t, Fs, Is, Obj } from './common.ts';
 import { findClosestFilename } from './u.findClose.ts';
+import { walkSequenceMediaPaths } from './u.lint.seq.filepaths.walk.ts';
 
-export type SequenceFilepathLintKind = 'video-path:not-found';
-
-export type SequenceFilepathLint = t.DocLintIssue<SequenceFilepathLintKind> & {
-  readonly raw: string;
-  readonly resolvedPath: string;
-  readonly closestMatch?: string;
-};
-
-export type SequenceFilepathLintResult = t.LintResult<SequenceFilepathLintKind>;
+type Facet = t.DocLintFacet;
 type Dag = t.Graph.Dag.Result;
 
 /**
- * Lints all `sequence[].video` file paths for a given document:
- * - Resolves via alias tables.
+ * Lints all media file paths for a given document:
+ * - Uses the shared media-path walker (video + image).
  * - Checks that the resolved file exists on disk.
  * - For missing files, records a lint issue with an optional closest match.
  */
@@ -23,71 +15,68 @@ export async function lintSequenceFilepaths(
   dag: Dag,
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
-): Promise<SequenceFilepathLintResult> {
-  const Parse = makeParser(yamlPath);
-  const node = Parse.findParsedNode(dag, docid);
-  const Path = Parse.path(dag, docid);
+  opts: { facets?: Facet[] } = {},
+): Promise<t.SequenceFilepathLintResult> {
+  const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('sequence:file:'));
+  const issues: t.SequenceFilepathLint[] = [];
 
-  const seq = await Sequence.fromDag(dag, yamlPath, docid, { validate: false });
-  const issues: SequenceFilepathLint[] = [];
+  await walkSequenceMediaPaths(
+    dag,
+    yamlPath,
+    docid,
+    facets,
+    async ({ kind, raw, resolvedPath, exists, error }) => {
+      type K = t.SequenceFilepathLintKind;
+      const lintKind: K = kind === 'image' ? 'image-path:not-found' : 'video-path:not-found';
 
-  // If we cannot resolve aliases for this document, we currently skip path linting.
-  if (!Path.ok || !node || !seq) {
-    return { issues };
-  }
-
-  for (const item of seq) {
-    if (!('video' in item)) continue;
-
-    const raw = item.video;
-    if (!Is.str(raw)) continue;
-
-    try {
-      const resolved = Path.resolve(raw);
-      const path = Fs.Tilde.expand(resolved?.value ?? '');
-      if (!path) continue;
-
-      const exists = await Fs.exists(path);
-      if (exists) continue;
-
-      // Suggest a closest filename in the same directory, if possible.
-      let closestMatch: string | undefined;
-      try {
-        const siblings = await Fs.glob(Fs.dirname(path)).find('*');
-        const filenames = siblings.map((f) => Fs.basename(f.path));
-        const filename = Fs.basename(path);
-        const closest = findClosestFilename(filename, filenames);
-        closestMatch = closest?.name;
-      } catch {
-        // If globbing fails, we just skip the suggestion.
+      // Errors during resolution (alias, path, etc).
+      if (error) {
+        const detail = Is.errorLike(error) ? error.message : 'Unknown error resolving media path';
+        issues.push({
+          kind: lintKind,
+          severity: 'error',
+          path: raw,
+          message: `Error resolving ${kind} path "${raw}": ${detail}`,
+          doc: { id: docid },
+          raw,
+          resolvedPath: resolvedPath || '',
+        });
+        return;
       }
 
-      let message = `File does not exist at resolved path "${path}".`;
+      // File exists on disk: nothing to report.
+      if (exists) return;
+
+      // Missing file: attempt a "closest match" suggestion in the same directory.
+      let closestMatch: string | undefined;
+      if (resolvedPath) {
+        try {
+          const siblings = await Fs.glob(Fs.dirname(resolvedPath)).find('*');
+          const filenames = siblings.map((f) => Fs.basename(f.path));
+          const filename = Fs.basename(resolvedPath);
+          const closest = findClosestFilename(filename, filenames);
+          closestMatch = closest?.name;
+        } catch {
+          // If globbing fails, we just skip the suggestion.
+        }
+      }
+
+      const pathForMessage = resolvedPath || raw;
+      let message = `File does not exist at resolved path "${pathForMessage}".`;
       if (closestMatch) message += ` Closest match: ${closestMatch}`;
+
       issues.push({
-        kind: 'video-path:not-found',
+        kind: lintKind,
         severity: 'error',
-        path,
+        path: pathForMessage,
         message,
         doc: { id: docid },
         raw,
-        resolvedPath: path,
+        resolvedPath: resolvedPath || '',
         closestMatch,
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error resolving video path';
-
-      issues.push({
-        kind: 'video-path:not-found',
-        severity: 'error',
-        path: raw ?? '',
-        message: `Error resolving video path "${raw ?? ''}": ${message}`,
-        doc: { id: docid },
-        raw: raw ?? '',
-        resolvedPath: '',
-      });
-    }
-  }
+    },
+  );
 
   return Obj.asGetter({ issues }, ['issues']);
 }
