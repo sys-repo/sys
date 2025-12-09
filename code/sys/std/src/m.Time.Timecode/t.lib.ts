@@ -8,6 +8,7 @@ export type TimecodeLib = {
   readonly Ops: t.TimecodeOpsLib;
   readonly Slice: t.TimecodeSliceLib;
   readonly Composite: t.TimecodeCompositeLib;
+  readonly Experience: t.TimecodeExperienceLib;
 
   readonly VTime: t.VTimeLib;
   readonly VClock: t.VirtualClockLib;
