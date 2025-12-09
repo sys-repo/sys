@@ -1,5 +1,7 @@
 import type { t } from './common.ts';
 
+export type * from './t.lib.ts';
+
 /** Media types emitted in a slug bundle. */
 export type SlugAssetKind = 'video' | 'image';
 

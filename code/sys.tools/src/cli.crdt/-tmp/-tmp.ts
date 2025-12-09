@@ -2,7 +2,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { generateText } from 'ai';
 
 import { Env } from '@sys/fs/env';
-import { Sequence } from '@sys/tools/staging/prog';
+import { Slug } from '@sys/tools/staging/prog';
 import { buildDocumentDAG } from '../cmd.doc.graph/mod.ts';
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 import { type t, c, Cli, Crdt, D, Is, Prompt, Schedule, Str } from '../common.ts';
@@ -75,7 +75,7 @@ export async function tmp(cwd: t.StringDir, docid: t.Crdt.Id, yamlPath: t.Object
       }
 
       /** Lookup the document, and extract script. */
-      const seq = await Sequence.fromDag(dag, yamlPath, subjectId);
+      const seq = await Slug.Sequence.fromDag(dag, yamlPath, subjectId);
       const scripts = (seq ?? [])
         .map((m) => ('script' in m && Is.str(m.script) ? m.script : ''))
         .filter(Boolean);
