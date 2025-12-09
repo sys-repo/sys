@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.77",
+    "@ai-sdk/openai": "npm:@ai-sdk/openai@2.0.80",
     "@automerge/automerge": "npm:@automerge/automerge@3.2.1",
     "@automerge/automerge-repo": "npm:@automerge/automerge-repo@2.5.1",
     "@automerge/automerge-repo-network-websocket": "npm:@automerge/automerge-repo-network-websocket@2.5.1",
@@ -11,7 +11,7 @@
     "@cliffy/prompt": "jsr:@cliffy/prompt@1.0.0-rc.8",
     "@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.8",
     "@farcaster/frame-sdk": "npm:@farcaster/frame-sdk@0.1.12",
-    "@google/genai": "npm:@google/genai@1.31.0",
+    "@google/genai": "npm:@google/genai@1.32.0",
     "@mastra/core": "npm:@mastra/core@0.24.6",
     "@mastra/core/agent": "npm:@mastra/core@0.24.6/agent",
     "@mastra/core/memory": "npm:@mastra/core@0.24.6/memory",
@@ -46,7 +46,7 @@
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
-    "ai": "npm:ai@5.0.106",
+    "ai": "npm:ai@5.0.108",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@6.2.1",
     "chai/": "npm:chai@6.2.1/",

@@ -11,11 +11,11 @@
   },
   "devDependencies": {
     "@deno/vite-plugin": "1.0.5",
-    "@vitejs/plugin-react": "5.1.1",
+    "@vitejs/plugin-react": "5.1.2",
     "prettier": "3.7.4",
     "rollup": "4.53.3",
     "rollup-plugin-visualizer": "6.0.5",
-    "vite": "7.2.6",
+    "vite": "7.2.7",
     "vite-plugin-wasm": "3.5.0"
   }
 }
