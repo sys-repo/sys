@@ -1,4 +1,4 @@
-import { type t, Time, Args, c, Cli, Crdt, D, done, Fs, Is, Prompt } from './common.ts';
+import { Args, c, Cli, Crdt, D, done, Fs, Is, Prompt, type t, Time } from './common.ts';
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
@@ -13,7 +13,7 @@ const Imports = {
   docYamlViewer: () => import('./cmds/cmd.doc.viewer.yaml.ts'),
   daemon: () => import('./cmd.repo.daemon/mod.ts'),
   syncServer: () => import('./cmds/cmd.doc.syncserver.ts'),
-  tmp: () => import('./-tmp.ts'),
+  tmp: () => import('./-tmp/-tmp.ts'),
 } as const;
 
 /**
