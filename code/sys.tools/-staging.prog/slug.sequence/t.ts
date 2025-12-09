@@ -9,22 +9,22 @@ type Dag = t.Graph.Dag.Result;
 /**
  * Slug sequence tools.
  */
-export type SequenceLib = {
-  readonly Is: SequenceIsLib;
-  readonly Normalize: t.SequenceNormalizeLib;
+export type SlugSequenceLib = {
+  readonly Is: SlugSequenceIsLib;
+  readonly Normalize: t.SlugSequenceNormalizeLib;
   validate(input: unknown): t.ValidateResult<t.Sequence>;
   fromDag(
     dag: Dag,
     yamlPath: t.ObjectPath,
     docid: t.Crdt.Id,
-    opts?: SequenceFromDagOptions,
+    opts?: SlugSequenceFromDagOptions,
   ): Promise<t.Sequence | undefined>;
 };
 
 /**
  * Type guards.
  */
-export type SequenceIsLib = {
+export type SlugSequenceIsLib = {
   /**
    * Cheap structural guard that ensures the item
    * looks like one of the known sequence shapes
@@ -34,15 +34,16 @@ export type SequenceIsLib = {
 };
 
 /**
- *
+ * Slug-specific projection from the authoring-time slug sequence
+ * into the generic timecode composition model.
  */
-export type SequenceNormalizeLib = {
+export type SlugSequenceNormalizeLib = {
   /** Normalized result of lowering the YAML DSL to a timecode `Sequence`. */
   toTimecode(
     sequence: t.Sequence,
     opts?: { docid?: t.Crdt.Id; yamlPath?: t.ObjectPath },
-  ): t.SequenceNormalized;
+  ): t.SlugSequenceNormalized;
 };
 
 /** Options for `Sequence.fromDag` method */
-export type SequenceFromDagOptions = { readonly validate?: boolean };
+export type SlugSequenceFromDagOptions = { readonly validate?: boolean };

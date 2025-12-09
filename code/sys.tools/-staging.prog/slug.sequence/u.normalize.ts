@@ -3,6 +3,6 @@ import { toTimecode } from './u.normalize.toTimecode.ts';
 
 export * from './u.normalize.dsl.ts';
 
-export const Normalize: t.SequenceNormalizeLib = {
+export const Normalize: t.SlugSequenceNormalizeLib = {
   toTimecode,
 };

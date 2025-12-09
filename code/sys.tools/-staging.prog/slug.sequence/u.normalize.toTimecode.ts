@@ -1,12 +1,12 @@
 import { type t } from './common.ts';
 
-export const toTimecode: t.SequenceNormalizeLib['toTimecode'] = (
+export const toTimecode: t.SlugSequenceNormalizeLib['toTimecode'] = (
   sequence: t.Sequence,
   opts = {},
 ) => {
   const { docid, yamlPath } = opts;
   const timecode: t.TimecodeCompositionSpec = [];
-  const beats: t.SequenceBeat[] = [];
+  const beats: t.SlugSequenceBeat[] = [];
 
   for (const item of sequence) {
     if (isVideoItem(item)) {
@@ -58,7 +58,7 @@ export const toTimecode: t.SequenceNormalizeLib['toTimecode'] = (
   /**
    * Result:
    */
-  const api: t.SequenceNormalized = {
+  const api: t.SlugSequenceNormalized = {
     timecode,
     beats,
     meta: { docid, path: yamlPath ? { yaml: yamlPath } : undefined },
@@ -69,8 +69,8 @@ export const toTimecode: t.SequenceNormalizeLib['toTimecode'] = (
 /**
  * Video item type guard.
  */
-function isVideoItem(item: t.SequenceItem): item is t.SequenceVideoItem {
-  return (item as t.SequenceVideoItem).video !== undefined;
+function isVideoItem(item: t.SequenceItem): item is t.SlugSequenceVideoItem {
+  return (item as t.SlugSequenceVideoItem).video !== undefined;
 }
 
 /**
@@ -88,7 +88,7 @@ function isSlugItem(item: t.SequenceItem): item is t.SequenceSlugItem {
 function isPauseItem(item: t.SequenceItem): item is t.SequencePauseItem {
   return (
     (item as t.SequencePauseItem).pause !== undefined &&
-    (item as t.SequenceVideoItem).video === undefined &&
+    (item as t.SlugSequenceVideoItem).video === undefined &&
     (item as t.SequenceSlugItem).slug === undefined &&
     (item as t.SequenceImageItem).image === undefined
   );
@@ -110,8 +110,8 @@ function isImageItem(item: t.SequenceItem): item is t.SequenceImageItem {
  */
 function pushBeatsFromTimestamps(args: {
   readonly srcRef: string;
-  readonly timestamps: t.SequenceTimestamps;
-  readonly out: t.SequenceBeat[];
+  readonly timestamps: t.SlugSequenceTimestamps;
+  readonly out: t.SlugSequenceBeat[];
 }): void {
   const { srcRef, timestamps, out } = args;
 
@@ -121,7 +121,7 @@ function pushBeatsFromTimestamps(args: {
 
     const pause = entry.pause ? parsePauseToMs(entry.pause) : undefined;
 
-    const payload: t.SequenceBeatPayload = {
+    const payload: t.SlugSequenceBeatPayload = {
       title: entry.title,
       image: entry.image,
       text: entry.text

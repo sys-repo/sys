@@ -30,12 +30,12 @@ export function checkSequenceInvariants(sequence: t.Sequence): string | undefine
     /**
      * Items with timestamps (video, slug, image) – walk each entry.
      */
-    const timestamps = (item as { timestamps?: t.SequenceTimestamps }).timestamps;
+    const timestamps = (item as { timestamps?: t.SlugSequenceTimestamps }).timestamps;
     if (timestamps && typeof timestamps === 'object') {
       const imageActive = isImageItem;
 
       for (const [timecode, value] of Object.entries(timestamps)) {
-        const entry = value as t.SequenceTimestampEntry;
+        const entry = value as t.SlugSequenceTimestampEntry;
         const error = checkTimestampEntryInvariants({
           entry,
           context: `item[${itemIndex}] at timecode "${timecode}"`,
@@ -53,7 +53,7 @@ export function checkSequenceInvariants(sequence: t.Sequence): string | undefine
  * Invariants on a single timestamp entry (including its nested text).
  */
 export function checkTimestampEntryInvariants(args: {
-  readonly entry: t.SequenceTimestampEntry;
+  readonly entry: t.SlugSequenceTimestampEntry;
   readonly context: string;
   readonly imageActive: boolean;
 }): string | undefined {
@@ -76,7 +76,7 @@ export function checkTimestampEntryInvariants(args: {
  * - If an image is active, body must not be present.
  */
 export function checkTextBlockInvariants(args: {
-  readonly text: t.SequenceTimestampText | undefined;
+  readonly text: t.SlugSequenceTimestampText | undefined;
   readonly context: string;
   readonly imageActive: boolean;
 }): string | undefined {

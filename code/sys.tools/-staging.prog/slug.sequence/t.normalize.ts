@@ -6,10 +6,10 @@ import type { t } from './common.ts';
  * Purely UI/overlay metadata local to the sequence domain.
  * The timecode-experience layer treats this as opaque payload `P`.
  */
-export type SequenceBeatPayload = {
+export type SlugSequenceBeatPayload = {
   readonly title?: string;
   readonly image?: string;
-  readonly text?: t.SequenceTimestampText;
+  readonly text?: t.SlugSequenceTimestampText;
 };
 
 /**
@@ -18,7 +18,7 @@ export type SequenceBeatPayload = {
  * Structural timeline mapping is owned by `TimecodeExperienceBeat<P>`;
  * this layer only fixes the payload shape used by the sequence domain.
  */
-export type SequenceBeat = t.TimecodeExperienceBeat<SequenceBeatPayload>;
+export type SlugSequenceBeat = t.TimecodeExperienceBeat<SlugSequenceBeatPayload>;
 
 /**
  * Normalized result of lowering the YAML DSL to a timecode `Sequence`.
@@ -27,9 +27,9 @@ export type SequenceBeat = t.TimecodeExperienceBeat<SequenceBeatPayload>;
  * - `beats`: UI/overlay events aligned to *source media time*.
  * - `meta`: optional provenance; has no playback semantics.
  */
-export type SequenceNormalized = {
+export type SlugSequenceNormalized = {
   readonly timecode: t.TimecodeCompositionSpec;
-  readonly beats: readonly SequenceBeat[];
+  readonly beats: readonly SlugSequenceBeat[];
   readonly meta?: {
     readonly docid?: t.Crdt.Id;
     readonly path?: { yaml: t.ObjectPath };

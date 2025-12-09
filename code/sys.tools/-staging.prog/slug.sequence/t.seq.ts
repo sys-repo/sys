@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 /**
  * Text block used inside timestamp entries and pause cards.
  */
-export type SequenceTimestampText = {
+export type SlugSequenceTimestampText = {
   readonly headline?: string;
   readonly tagline?: string;
   readonly body?: string;
@@ -15,18 +15,18 @@ export type SequenceTimestampText = {
  * Keys live in a Timecode.Map, so the timecode grammar is enforced by the
  * Timecode layer, not by this shape.
  */
-export type SequenceTimestampEntry = {
+export type SlugSequenceTimestampEntry = {
   readonly pause?: string; // e.g. "2s", "3s"
   readonly title?: string;
   readonly image?: string;
-  readonly text?: SequenceTimestampText;
+  readonly text?: SlugSequenceTimestampText;
 };
 
 /**
  * Map of WebVTT timecodes → timestamp entries.
  * Reuses the canonical Timecode map type.
  */
-export type SequenceTimestamps = t.Timecode.Map<SequenceTimestampEntry>;
+export type SlugSequenceTimestamps = t.Timecode.Map<SlugSequenceTimestampEntry>;
 
 /**
  * Video item: core building block of the composite sequence.
@@ -34,12 +34,12 @@ export type SequenceTimestamps = t.Timecode.Map<SequenceTimestampEntry>;
  * Title/script/slice are optional at the authoring layer; the later
  * TimecodeCompositionSpec normalizer can enforce tighter rules.
  */
-export type SequenceVideoItem = {
+export type SlugSequenceVideoItem = {
   readonly video: string;
   readonly title?: string;
   readonly script?: string;
   readonly slice?: t.Timecode.SliceString;
-  readonly timestamps?: SequenceTimestamps;
+  readonly timestamps?: SlugSequenceTimestamps;
 };
 
 /**
@@ -51,7 +51,7 @@ export type SequenceVideoItem = {
 export type SequenceSlugItem = {
   readonly slug: string;
   readonly display?: 'inline' | 'overlay';
-  readonly timestamps?: SequenceTimestamps;
+  readonly timestamps?: SlugSequenceTimestamps;
 };
 
 /**
@@ -61,7 +61,7 @@ export type SequenceSlugItem = {
 export type SequencePauseItem = {
   readonly pause: string; // e.g. "2s" | "3s"
   readonly title?: string;
-  readonly text?: SequenceTimestampText;
+  readonly text?: SlugSequenceTimestampText;
 };
 
 /**
@@ -69,7 +69,7 @@ export type SequencePauseItem = {
  */
 export type SequenceImageItem = {
   readonly image: t.StringRef;
-  readonly timestamps: SequenceTimestamps;
+  readonly timestamps: SlugSequenceTimestamps;
 };
 
 /**
@@ -79,7 +79,7 @@ export type SequenceImageItem = {
  * this authoring-time union into the pure timecode pieces it needs.
  */
 export type SequenceItem =
-  | SequenceVideoItem
+  | SlugSequenceVideoItem
   | SequenceSlugItem
   | SequencePauseItem
   | SequenceImageItem;
