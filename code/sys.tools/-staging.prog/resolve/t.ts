@@ -50,4 +50,13 @@ export type Parser = {
   readonly Lens: LensLib;
   parseRoot(dag: Dag): ParsedNode;
   findParsedNode(dag: Dag, id: t.Crdt.Id): ParsedNode | undefined;
+  path(
+    dag: Dag,
+    docid: t.Crdt.Id,
+  ): {
+    ok: boolean;
+    root: ParsedNode;
+    node?: ParsedNode;
+    resolve(raw: string): t.Alias.Expand.Chain.Result | undefined;
+  };
 };

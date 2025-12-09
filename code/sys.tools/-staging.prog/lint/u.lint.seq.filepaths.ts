@@ -25,17 +25,14 @@ export async function lintSequenceFilepaths(
   docid: t.Crdt.Id,
 ): Promise<SequenceFilepathLintResult> {
   const Parse = makeParser(yamlPath);
-  const root = Parse.parseRoot(dag);
   const node = Parse.findParsedNode(dag, docid);
+  const Path = Parse.path(dag, docid);
 
-  const indexResolver = root.alias?.resolver;
-  const localResolver = node?.alias?.resolver;
   const seq = await Sequence.fromDag(dag, yamlPath, docid, { validate: false });
-
   const issues: SequenceFilepathLint[] = [];
 
   // If we cannot resolve aliases for this document, we currently skip path linting.
-  if (!indexResolver || !localResolver || !node || !seq) {
+  if (!Path.ok || !node || !seq) {
     return { issues };
   }
 
@@ -46,7 +43,7 @@ export async function lintSequenceFilepaths(
     if (!Is.str(raw)) continue;
 
     try {
-      const resolved = Parse.Resolve.path(raw, localResolver, indexResolver);
+      const resolved = Path.resolve(raw);
       const path = Fs.Tilde.expand(resolved?.value ?? '');
       if (!path) continue;
 
@@ -65,7 +62,7 @@ export async function lintSequenceFilepaths(
         // If globbing fails, we just skip the suggestion.
       }
 
-      let message = `Video file does not exist at resolved path "${path}".`;
+      let message = `File does not exist at resolved path "${path}".`;
       if (closestMatch) message += ` Closest match: ${closestMatch}`;
       issues.push({
         kind: 'video-path:not-found',

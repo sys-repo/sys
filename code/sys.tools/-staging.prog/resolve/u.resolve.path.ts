@@ -1,4 +1,4 @@
-import { type t, AliasResolver, Is } from '../common.ts';
+import { type t, Obj, AliasResolver, Is } from '../common.ts';
 
 /**
  * Resolve an alias-based path using:
@@ -81,11 +81,10 @@ export const resolvePath: t.ResolvePathFn = (raw, local, index) => {
   value = second.value;
   remaining = second.remaining;
 
-  return {
-    value: normalizeResolvedPath(value),
-    steps,
-    remaining,
-  };
+  return Obj.asGetter({ value: normalizeResolvedPath(value), steps, remaining }, [
+    'steps',
+    'remaining',
+  ]);
 };
 
 /**

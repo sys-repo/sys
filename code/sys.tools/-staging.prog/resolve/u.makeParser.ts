@@ -1,4 +1,5 @@
 import { type t, AliasResolver, Obj } from '../common.ts';
+import { resolvePath } from './u.resolve.path.ts';
 import { makeResolvers } from './u.resolve.ts';
 
 type N = t.Graph.Dag.Node;
@@ -34,15 +35,31 @@ export const makeParser: t.MakeParserFn = (yamlPath: t.ObjectPath) => {
   /**
    * Convenience: find and parse a node by CRDT id.
    */
-  function findParsedNode(dag: Dag, id: t.Crdt.Id): t.ParsedNode | undefined {
-    const node = dag.nodes.find((d) => d.id === id);
+  function findParsedNode(dag: Dag, docid: t.Crdt.Id): t.ParsedNode | undefined {
+    const node = dag.nodes.find((d) => d.id === docid);
     return node ? parseNode(node, false) : undefined;
   }
 
-  return {
+  /**
+   * Convenience: curry the root and node resolvers for path resolution.
+   */
+  function path(dag: Dag, docid: t.Crdt.Id) {
+    const root = parseRoot(dag);
+    const node = findParsedNode(dag, docid);
+    const index = root.alias?.resolver;
+    const local = node?.alias?.resolver;
+    const resolve = (raw: string) => resolvePath(raw, local, index);
+    const ok = !!node && !!local && !!index;
+    return { ok, root, node, resolve };
+  }
+
+  /** Finish up. */
+  const api: t.Parser = {
     Resolve,
     Lens,
+    path,
     parseRoot,
     findParsedNode,
   };
+  return api;
 };
