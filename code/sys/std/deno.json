@@ -31,7 +31,7 @@
     "./testing": "./src/-exports/-testing.ts",
     "./testing/server": "./src/-exports/-testing.server.ts",
     "./time": "./src/-exports/-time.ts",
-    "./time/timecode": "./src/-exports/-time.timecode.ts",
+    "./timecode": "./src/-exports/-time.timecode.ts",
     "./url": "./src/-exports/-url.ts",
     "./value": "./src/-exports/-value.ts"
   }

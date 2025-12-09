@@ -21,8 +21,8 @@ describe('Timecode', () => {
     expect(m.Timecode.VTime).to.equal(VTime);
   });
 
-  it('API: @sys/std/time/timecode (core)', async () => {
-    const m = await import('@sys/std/time/timecode');
+  it('API: @sys/std/timecode (core)', async () => {
+    const m = await import('@sys/std/timecode');
     expect(m.Timecode).to.equal(Timecode);
     expect(m.Timecode.Ops).to.equal(Ops);
     expect(m.Timecode.Experience).to.equal(Experience);
