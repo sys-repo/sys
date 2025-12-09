@@ -11,9 +11,9 @@ type O = Record<string, unknown>;
  * canonical `TimecodeCompositionSpec` in `@sys/std/timecode` for
  * `<CompositeVideo>`.
  */
-export function normalizeEditorSequenceForTypedYaml(input: unknown): t.Sequence | undefined {
+export function normalizeEditorSequenceForTypedYaml(input: unknown): t.SlugSequence | undefined {
   if (!Array.isArray(input)) return undefined;
-  return input.map((item) => normalizeSequenceItem(item)) as t.Sequence;
+  return input.map((item) => normalizeSequenceItem(item)) as t.SlugSequence;
 }
 
 /**

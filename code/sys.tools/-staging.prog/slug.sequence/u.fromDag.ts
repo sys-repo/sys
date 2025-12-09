@@ -37,7 +37,7 @@ export const fromDag: t.SlugSequenceLib['fromDag'] = async (
   // Normalize loose editor YAML into the typed-YAML shape.
   const normalized = normalizeEditorSequenceForTypedYaml(seqRaw);
   if (!normalized) return;
-  if (!validate) return normalized as t.Sequence;
+  if (!validate) return normalized as t.SlugSequence;
 
   // Validate against the schema-backed Sequence.validate.
   const result = validateSequence(normalized);

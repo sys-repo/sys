@@ -4,7 +4,7 @@ import { Sequence } from '../mod.ts';
 describe('Sequence.Normalize', () => {
   describe('Normalize.toTimecode', () => {
     it('video items → timecode pieces and beats (with pauses)', () => {
-      const sequence: t.Sequence = [
+      const sequence: t.SlugSequence = [
         {
           video: 'video-1.mp4',
           timestamps: {
@@ -21,7 +21,7 @@ describe('Sequence.Normalize', () => {
       const result = Sequence.Normalize.toTimecode(sequence);
 
       // Type surface.
-      expectTypeOf(result).toEqualTypeOf<t.SequenceNormalized>();
+      expectTypeOf(result).toEqualTypeOf<t.SlugSequenceNormalized>();
 
       // Structural timeline: one piece, no slice.
       expect(result.timecode.length).to.eql(1);
@@ -57,7 +57,7 @@ describe('Sequence.Normalize', () => {
     });
 
     it('ignores slug/pause/image items for timecode and beats (for now)', () => {
-      const sequence: t.Sequence = [
+      const sequence: t.SlugSequence = [
         {
           slug: 'some/slug',
           display: 'inline',
@@ -82,7 +82,7 @@ describe('Sequence.Normalize', () => {
     });
 
     it('drops invalid timestamp keys but keeps beats with invalid pauses', () => {
-      const sequence: t.Sequence = [
+      const sequence: t.SlugSequence = [
         {
           video: 'video-1.mp4',
           timestamps: {
@@ -108,7 +108,7 @@ describe('Sequence.Normalize', () => {
     });
 
     it('attaches meta: docid + yamlPath → meta.docid + meta.path.yaml', () => {
-      const sequence: t.Sequence = [{ video: 'video-1.mp4' }];
+      const sequence: t.SlugSequence = [{ video: 'video-1.mp4' }];
       const docid = 'crdt:1234' as t.Crdt.Id;
       const yamlPath: t.ObjectPath = ['root', 'sequence', 0];
 
@@ -121,7 +121,7 @@ describe('Sequence.Normalize', () => {
     });
 
     it('trims video src and drops empty srcs', () => {
-      const sequence: t.Sequence = [
+      const sequence: t.SlugSequence = [
         {
           video: '   video-1.mp4  ',
           timestamps: { '00:00:01': { title: 'A' } },

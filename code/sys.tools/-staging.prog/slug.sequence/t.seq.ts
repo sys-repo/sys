@@ -48,7 +48,7 @@ export type SlugSequenceVideoItem = {
  * Display defaults to "inline" when omitted; "overlay" is available for
  * specialised treatments (for example, overlay panels).
  */
-export type SequenceSlugItem = {
+export type SlugSequenceEmbedItem = {
   readonly slug: string;
   readonly display?: 'inline' | 'overlay';
   readonly timestamps?: SlugSequenceTimestamps;
@@ -58,7 +58,7 @@ export type SequenceSlugItem = {
  * Pause item with optional title + rich text.
  * Covers both bare pauses and richer title-card pauses.
  */
-export type SequencePauseItem = {
+export type SlugSequencePauseItem = {
   readonly pause: string; // e.g. "2s" | "3s"
   readonly title?: string;
   readonly text?: SlugSequenceTimestampText;
@@ -67,7 +67,7 @@ export type SequencePauseItem = {
 /**
  * Image marker with timed overlays (timestamps drive the text).
  */
-export type SequenceImageItem = {
+export type SlugSequenceImageItem = {
   readonly image: t.StringRef;
   readonly timestamps: SlugSequenceTimestamps;
 };
@@ -78,13 +78,13 @@ export type SequenceImageItem = {
  * The canonical TimecodeCompositionSpec normalizer can later project from
  * this authoring-time union into the pure timecode pieces it needs.
  */
-export type SequenceItem =
+export type SlugSequenceItem =
   | SlugSequenceVideoItem
-  | SequenceSlugItem
-  | SequencePauseItem
-  | SequenceImageItem;
+  | SlugSequenceEmbedItem
+  | SlugSequencePauseItem
+  | SlugSequenceImageItem;
 
 /**
  * The complete sequence for a slug: ordered list of items.
  */
-export type Sequence = readonly SequenceItem[];
+export type SlugSequence = readonly SlugSequenceItem[];

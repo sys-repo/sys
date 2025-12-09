@@ -12,13 +12,13 @@ type Dag = t.Graph.Dag.Result;
 export type SlugSequenceLib = {
   readonly Is: SlugSequenceIsLib;
   readonly Normalize: t.SlugSequenceNormalizeLib;
-  validate(input: unknown): t.ValidateResult<t.Sequence>;
+  validate(input: unknown): t.ValidateResult<t.SlugSequence>;
   fromDag(
     dag: Dag,
     yamlPath: t.ObjectPath,
     docid: t.Crdt.Id,
     opts?: SlugSequenceFromDagOptions,
-  ): Promise<t.Sequence | undefined>;
+  ): Promise<t.SlugSequence | undefined>;
 };
 
 /**
@@ -30,7 +30,7 @@ export type SlugSequenceIsLib = {
    * looks like one of the known sequence shapes
    * (but not actually schema validated).
    */
-  itemLike(value: unknown): value is t.SequenceItem;
+  itemLike(value: unknown): value is t.SlugSequenceItem;
 };
 
 /**
@@ -40,7 +40,7 @@ export type SlugSequenceIsLib = {
 export type SlugSequenceNormalizeLib = {
   /** Normalized result of lowering the YAML DSL to a timecode `Sequence`. */
   toTimecode(
-    sequence: t.Sequence,
+    sequence: t.SlugSequence,
     opts?: { docid?: t.Crdt.Id; yamlPath?: t.ObjectPath },
   ): t.SlugSequenceNormalized;
 };

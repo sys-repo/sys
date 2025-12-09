@@ -7,7 +7,7 @@ describe('SequenceIs', () => {
       const value: unknown = { video: '/video.mp4' };
       if (Sequence.Is.itemLike(value)) {
         // Inside the true branch, the guard promises SequenceItem.
-        expectTypeOf(value).toEqualTypeOf<t.SequenceItem>();
+        expectTypeOf(value).toEqualTypeOf<t.SlugSequenceItem>();
       }
     });
   });

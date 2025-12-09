@@ -11,7 +11,7 @@ type R = ReturnType<M>;
  * and returns a strongly-typed t.Sequence.
  */
 export const validateSequence: M = (input: unknown) => {
-  const ok = (sequence: t.Sequence): R => ({ ok: true, sequence });
+  const ok = (sequence: t.SlugSequence): R => ({ ok: true, sequence });
   const fail = (message: string): R => ({ ok: false, error: new Error(message) });
 
   if (!Array.isArray(input)) {
@@ -33,7 +33,7 @@ export const validateSequence: M = (input: unknown) => {
   }
 
   // Third pass: enforced invariants that sit on top of the schema.
-  const sequence = input as t.Sequence;
+  const sequence = input as t.SlugSequence;
   const invariantError = checkSequenceInvariants(sequence);
   if (invariantError) {
     return fail(invariantError);

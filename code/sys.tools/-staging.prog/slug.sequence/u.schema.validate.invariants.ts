@@ -8,7 +8,7 @@ import { type t } from '../common.ts';
  *
  * These are enforced after the structural/schema validation has succeeded.
  */
-export function checkSequenceInvariants(sequence: t.Sequence): string | undefined {
+export function checkSequenceInvariants(sequence: t.SlugSequence): string | undefined {
   for (let itemIndex = 0; itemIndex < sequence.length; itemIndex += 1) {
     const item = sequence[itemIndex];
 
@@ -18,7 +18,7 @@ export function checkSequenceInvariants(sequence: t.Sequence): string | undefine
      * Pause item: enforce invariants on its text block (if present).
      */
     if (typeof (item as { pause?: unknown }).pause === 'string') {
-      const text = (item as t.SequencePauseItem).text;
+      const text = (item as t.SlugSequencePauseItem).text;
       const error = checkTextBlockInvariants({
         text,
         context: `item[${itemIndex}] (pause)`,

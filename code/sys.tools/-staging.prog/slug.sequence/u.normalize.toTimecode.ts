@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 export const toTimecode: t.SlugSequenceNormalizeLib['toTimecode'] = (
-  sequence: t.Sequence,
+  sequence: t.SlugSequence,
   opts = {},
 ) => {
   const { docid, yamlPath } = opts;
@@ -69,15 +69,15 @@ export const toTimecode: t.SlugSequenceNormalizeLib['toTimecode'] = (
 /**
  * Video item type guard.
  */
-function isVideoItem(item: t.SequenceItem): item is t.SlugSequenceVideoItem {
+function isVideoItem(item: t.SlugSequenceItem): item is t.SlugSequenceVideoItem {
   return (item as t.SlugSequenceVideoItem).video !== undefined;
 }
 
 /**
  * Slug item type guard.
  */
-function isSlugItem(item: t.SequenceItem): item is t.SequenceSlugItem {
-  return (item as t.SequenceSlugItem).slug !== undefined;
+function isSlugItem(item: t.SlugSequenceItem): item is t.SlugSequenceItem {
+  return (item as t.SlugSequenceEmbedItem).slug !== undefined;
 }
 
 /**
@@ -85,20 +85,20 @@ function isSlugItem(item: t.SequenceItem): item is t.SequenceSlugItem {
  *
  * (Distinct from video items, which may also have timestamps with pauses.)
  */
-function isPauseItem(item: t.SequenceItem): item is t.SequencePauseItem {
+function isPauseItem(item: t.SlugSequenceItem): item is t.SlugSequencePauseItem {
   return (
-    (item as t.SequencePauseItem).pause !== undefined &&
+    (item as t.SlugSequencePauseItem).pause !== undefined &&
     (item as t.SlugSequenceVideoItem).video === undefined &&
-    (item as t.SequenceSlugItem).slug === undefined &&
-    (item as t.SequenceImageItem).image === undefined
+    (item as t.SlugSequenceEmbedItem).slug === undefined &&
+    (item as t.SlugSequenceImageItem).image === undefined
   );
 }
 
 /**
  * Image item type guard.
  */
-function isImageItem(item: t.SequenceItem): item is t.SequenceImageItem {
-  return (item as t.SequenceImageItem).image !== undefined;
+function isImageItem(item: t.SlugSequenceItem): item is t.SlugSequenceImageItem {
+  return (item as t.SlugSequenceImageItem).image !== undefined;
 }
 
 /**
