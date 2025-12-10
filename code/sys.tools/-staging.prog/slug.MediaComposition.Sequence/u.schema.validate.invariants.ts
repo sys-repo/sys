@@ -3,7 +3,7 @@ import { type t } from '../common.ts';
 /**
  * Checks invariants that sit on top of the raw JSON schema:
  *
- * 1. Body text requires a headline.
+ * 1. Body text requires a heading (either headline or title).
  * 2. Images and body text must not appear simultaneously.
  *
  * These are enforced after the structural/schema validation has succeeded.
@@ -16,13 +16,18 @@ export function checkSequenceInvariants(sequence: t.SequenceItem[]): string | un
 
     /**
      * Pause item: enforce invariants on its text block (if present).
+     * Here we treat the pause title as a valid "heading" context.
      */
     if (typeof (item as { pause?: unknown }).pause === 'string') {
-      const text = (item as t.SequencePauseItem).text;
+      const pauseItem = item as t.SequencePauseItem;
+      const text = pauseItem.text;
+      const hasTitle = typeof pauseItem.title === 'string' && pauseItem.title.trim() !== '';
+
       const error = checkTextBlockInvariants({
         text,
         context: `item[${itemIndex}] (pause)`,
         imageActive: false,
+        hasTitle,
       });
       if (error) return error;
     }
@@ -36,10 +41,13 @@ export function checkSequenceInvariants(sequence: t.SequenceItem[]): string | un
 
       for (const [timecode, value] of Object.entries(timestamps)) {
         const entry = value as t.SequenceTimestampEntry;
+        const hasTitle = typeof entry.title === 'string' && entry.title.trim() !== '';
+
         const error = checkTimestampEntryInvariants({
           entry,
           context: `item[${itemIndex}] at timecode "${timecode}"`,
           imageActive,
+          hasTitle,
         });
         if (error) return error;
       }
@@ -56,14 +64,16 @@ export function checkTimestampEntryInvariants(args: {
   readonly entry: t.SequenceTimestampEntry;
   readonly context: string;
   readonly imageActive: boolean;
+  readonly hasTitle?: boolean;
 }): string | undefined {
-  const { entry, context, imageActive } = args;
+  const { entry, context, imageActive, hasTitle = false } = args;
   const { text, image } = entry;
 
   const error = checkTextBlockInvariants({
     text,
     context,
     imageActive: imageActive || typeof image === 'string',
+    hasTitle,
   });
 
   return error;
@@ -72,24 +82,30 @@ export function checkTimestampEntryInvariants(args: {
 /**
  * Invariants that apply to any text block:
  *
- * - If body is present, headline must also be present (non-empty).
+ * - If body is present, heading must be present:
+ *     heading := headline || title (hasTitle flag).
  * - If an image is active, body must not be present.
  */
 export function checkTextBlockInvariants(args: {
   readonly text: t.SequenceTimestampText | undefined;
   readonly context: string;
   readonly imageActive: boolean;
+  readonly hasTitle?: boolean;
 }): string | undefined {
-  const { text, context, imageActive } = args;
+  const { text, context, imageActive, hasTitle = false } = args;
   if (!text) return undefined;
 
   const { headline, body } = text;
 
-  if (body != null && (headline == null || headline === '')) {
-    return `Invalid sequence: body text requires a headline (${context}).`;
+  const hasBody = body != null;
+  const hasHeadline = headline != null && headline !== '';
+  const hasHeading = hasHeadline || hasTitle;
+
+  if (hasBody && !hasHeading) {
+    return `Invalid sequence: body text requires a heading (${context}).`;
   }
 
-  if (imageActive && body != null) {
+  if (imageActive && hasBody) {
     return `Invalid sequence: image and body text cannot appear simultaneously (${context}).`;
   }
 

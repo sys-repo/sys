@@ -97,6 +97,31 @@ describe('Schema', () => {
       }
     });
 
+    it('returns ok:true for a navigation title where title + body are present but headline is blank', () => {
+      const value: t.SequenceItem[] = [
+        {
+          video: '/video.mp4',
+          script: 'intro script',
+          slice,
+          timestamps: {
+            '00:00:00.000': {
+              title: 'What You Have Built',
+              text: {
+                headline: '',
+                body: 'What You Have Built',
+              },
+            },
+          },
+        },
+      ];
+
+      const res = Sequence.validate(value);
+      expect(res.ok).to.eql(true);
+      if (res.ok) {
+        expect(res.sequence).to.eql(value);
+      }
+    });
+
     it('returns ok:false for non-array input', () => {
       const res = Sequence.validate({ not: 'an array' });
       expect(res.ok).to.eql(false);
@@ -125,7 +150,7 @@ describe('Schema', () => {
       }
     });
 
-    it('returns ok:false when body text is present without a headline', () => {
+    it('returns ok:false when body text is present without any heading (no headline, no title)', () => {
       const value: t.SequenceItem[] = [
         {
           video: '/video.mp4',
@@ -144,7 +169,7 @@ describe('Schema', () => {
       const res = Sequence.validate(value);
       expect(res.ok).to.eql(false);
       if (!res.ok) {
-        expect(res.error.message).to.contain('body text requires a headline');
+        expect(res.error.message).to.contain('body text requires a heading');
       }
     });
 

@@ -134,7 +134,10 @@ async function run(
   if (facets.includes('sequence:schema')) {
     for (const node of dag.nodes) {
       const id = node.id;
-      const baseResult = await lintTypedYamlSequence(dag, yamlPath, node.id);
+      const baseResult = await lintTypedYamlSequence(dag, yamlPath, node.id, {
+        checkInvariants: true,
+        debug: false,
+      });
       const issuesForNode: Issue[] = baseResult.issues.map((issue) => ({ ...issue, doc: { id } }));
       issuesForNode.forEach((issue) => issues.push(issue));
     }
