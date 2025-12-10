@@ -40,7 +40,7 @@ export async function main() {
       style: { Absolute: 0 },
       hr: (e) => {
         if (e.next?.endsWith(': Bullet')) return true;
-        if (e.prev?.endsWith(': Config.Slider')) return true;
+        if (e.next?.startsWith('sys.ui.css')) return true;
         if (e.next?.endsWith(': Layout.CenterColumn')) return true;
         if (e.next?.endsWith(': Tree.Index')) return true;
         if (e.next?.endsWith(': Player.Video: Element')) return true;
