@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { loadPlaybackFromEndpoint } from './-u.loader.ts';
 
 type P = t.MediaTimecodePlaybackProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -20,13 +21,13 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    bundle: s<t.MediaTimecode.PlaybackBundle>(),
   };
   const p = props;
   const api = {
@@ -92,9 +93,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Button
+        block
+        label={() => `tmp`}
+        onClick={async () => {
+          /**
+           * TODO 🐷
+           */
+          const docid = '2rF4fgGBYRKVg3PzVdtzF8d2Qs51';
+          const res = await loadPlaybackFromEndpoint('http://localhost:4040/publish.assets', docid);
+          console.log('res', res);
+          p.bundle.value = res;
+        }}
+      />
+
+      <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView
+        name={'playback-bundle'}
+        data={Signal.toObject(p.bundle)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };
