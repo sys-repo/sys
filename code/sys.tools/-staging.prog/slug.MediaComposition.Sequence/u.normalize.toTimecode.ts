@@ -1,12 +1,12 @@
 import { type t } from './common.ts';
 
-export const toTimecode: t.SlugSequenceNormalizeLib['toTimecode'] = (
+export const toTimecode: t.SequenceNormalizeLib['toTimecode'] = (
   sequence: t.SlugSequence,
   opts = {},
 ) => {
   const { docid, yamlPath } = opts;
   const timecode: t.TimecodeCompositionSpec = [];
-  const beats: t.SlugSequenceBeat[] = [];
+  const beats: t.SequenceBeat[] = [];
 
   for (const item of sequence) {
     if (isVideoItem(item)) {
@@ -58,7 +58,7 @@ export const toTimecode: t.SlugSequenceNormalizeLib['toTimecode'] = (
   /**
    * Result:
    */
-  const api: t.SlugSequenceNormalized = {
+  const api: t.SequenceNormalized = {
     timecode,
     beats,
     meta: { docid, path: yamlPath ? { yaml: yamlPath } : undefined },
@@ -69,15 +69,15 @@ export const toTimecode: t.SlugSequenceNormalizeLib['toTimecode'] = (
 /**
  * Video item type guard.
  */
-function isVideoItem(item: t.SlugSequenceItem): item is t.SlugSequenceVideoItem {
-  return (item as t.SlugSequenceVideoItem).video !== undefined;
+function isVideoItem(item: t.SequenceItem): item is t.SequenceVideoItem {
+  return (item as t.SequenceVideoItem).video !== undefined;
 }
 
 /**
  * Slug item type guard.
  */
-function isSlugItem(item: t.SlugSequenceItem): item is t.SlugSequenceItem {
-  return (item as t.SlugSequenceEmbedItem).slug !== undefined;
+function isSlugItem(item: t.SequenceItem): item is t.SequenceItem {
+  return (item as t.SequenceEmbedItem).slug !== undefined;
 }
 
 /**
@@ -85,20 +85,20 @@ function isSlugItem(item: t.SlugSequenceItem): item is t.SlugSequenceItem {
  *
  * (Distinct from video items, which may also have timestamps with pauses.)
  */
-function isPauseItem(item: t.SlugSequenceItem): item is t.SlugSequencePauseItem {
+function isPauseItem(item: t.SequenceItem): item is t.SequencePauseItem {
   return (
-    (item as t.SlugSequencePauseItem).pause !== undefined &&
-    (item as t.SlugSequenceVideoItem).video === undefined &&
-    (item as t.SlugSequenceEmbedItem).slug === undefined &&
-    (item as t.SlugSequenceImageItem).image === undefined
+    (item as t.SequencePauseItem).pause !== undefined &&
+    (item as t.SequenceVideoItem).video === undefined &&
+    (item as t.SequenceEmbedItem).slug === undefined &&
+    (item as t.SequenceImageItem).image === undefined
   );
 }
 
 /**
  * Image item type guard.
  */
-function isImageItem(item: t.SlugSequenceItem): item is t.SlugSequenceImageItem {
-  return (item as t.SlugSequenceImageItem).image !== undefined;
+function isImageItem(item: t.SequenceItem): item is t.SequenceImageItem {
+  return (item as t.SequenceImageItem).image !== undefined;
 }
 
 /**
@@ -110,8 +110,8 @@ function isImageItem(item: t.SlugSequenceItem): item is t.SlugSequenceImageItem 
  */
 function pushBeatsFromTimestamps(args: {
   readonly srcRef: string;
-  readonly timestamps: t.SlugSequenceTimestamps;
-  readonly out: t.SlugSequenceBeat[];
+  readonly timestamps: t.SequenceTimestamps;
+  readonly out: t.SequenceBeat[];
 }): void {
   const { srcRef, timestamps, out } = args;
 
@@ -121,7 +121,7 @@ function pushBeatsFromTimestamps(args: {
 
     const pause = entry.pause ? parsePauseToMs(entry.pause) : undefined;
 
-    const payload: t.SlugSequenceBeatPayload = {
+    const payload: t.SequenceBeatPayload = {
       title: entry.title,
       image: entry.image,
       text: entry.text

@@ -22,7 +22,7 @@ export const fromDag: t.PlaybackLib['fromDag'] = async (dag, yamlPath, docid, op
  */
 export function projectNormalizedToPlayback(
   docid: t.Crdt.Id,
-  normalized: t.SlugSequenceNormalized,
+  normalized: t.SequenceNormalized,
 ): t.PlaybackSpec {
   const { timecode, beats, meta } = normalized;
   return {

@@ -21,7 +21,7 @@ describe('Sequence.Normalize', () => {
       const result = Sequence.Normalize.toTimecode(sequence);
 
       // Type surface.
-      expectTypeOf(result).toEqualTypeOf<t.SlugSequenceNormalized>();
+      expectTypeOf(result).toEqualTypeOf<t.SequenceNormalized>();
 
       // Structural timeline: one piece, no slice.
       expect(result.timecode.length).to.eql(1);

@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 /**
  * Text block used inside timestamp entries and pause cards.
  */
-export type SlugSequenceTimestampText = {
+export type SequenceTimestampText = {
   readonly headline?: string;
   readonly tagline?: string;
   readonly body?: string;
@@ -15,18 +15,18 @@ export type SlugSequenceTimestampText = {
  * Keys live in a Timecode.Map, so the timecode grammar is enforced by the
  * Timecode layer, not by this shape.
  */
-export type SlugSequenceTimestampEntry = {
+export type SequenceTimestampEntry = {
   readonly pause?: string; // e.g. "2s", "3s"
   readonly title?: string;
   readonly image?: string;
-  readonly text?: SlugSequenceTimestampText;
+  readonly text?: SequenceTimestampText;
 };
 
 /**
  * Map of WebVTT timecodes → timestamp entries.
  * Reuses the canonical Timecode map type.
  */
-export type SlugSequenceTimestamps = t.Timecode.Map<SlugSequenceTimestampEntry>;
+export type SequenceTimestamps = t.Timecode.Map<SequenceTimestampEntry>;
 
 /**
  * Video item: core building block of the composite sequence.
@@ -34,12 +34,12 @@ export type SlugSequenceTimestamps = t.Timecode.Map<SlugSequenceTimestampEntry>;
  * Title/script/slice are optional at the authoring layer; the later
  * TimecodeCompositionSpec normalizer can enforce tighter rules.
  */
-export type SlugSequenceVideoItem = {
+export type SequenceVideoItem = {
   readonly video: string;
   readonly title?: string;
   readonly script?: string;
   readonly slice?: t.Timecode.Slice.String;
-  readonly timestamps?: SlugSequenceTimestamps;
+  readonly timestamps?: SequenceTimestamps;
 };
 
 /**
@@ -48,28 +48,28 @@ export type SlugSequenceVideoItem = {
  * Display defaults to "inline" when omitted; "overlay" is available for
  * specialised treatments (for example, overlay panels).
  */
-export type SlugSequenceEmbedItem = {
+export type SequenceEmbedItem = {
   readonly slug: string;
   readonly display?: 'inline' | 'overlay';
-  readonly timestamps?: SlugSequenceTimestamps;
+  readonly timestamps?: SequenceTimestamps;
 };
 
 /**
  * Pause item with optional title + rich text.
  * Covers both bare pauses and richer title-card pauses.
  */
-export type SlugSequencePauseItem = {
+export type SequencePauseItem = {
   readonly pause: string; // e.g. "2s" | "3s"
   readonly title?: string;
-  readonly text?: SlugSequenceTimestampText;
+  readonly text?: SequenceTimestampText;
 };
 
 /**
  * Image marker with timed overlays (timestamps drive the text).
  */
-export type SlugSequenceImageItem = {
+export type SequenceImageItem = {
   readonly image: t.StringRef;
-  readonly timestamps: SlugSequenceTimestamps;
+  readonly timestamps: SequenceTimestamps;
 };
 
 /**
@@ -78,13 +78,13 @@ export type SlugSequenceImageItem = {
  * The canonical TimecodeCompositionSpec normalizer can later project from
  * this authoring-time union into the pure timecode pieces it needs.
  */
-export type SlugSequenceItem =
-  | SlugSequenceVideoItem
-  | SlugSequenceEmbedItem
-  | SlugSequencePauseItem
-  | SlugSequenceImageItem;
+export type SequenceItem =
+  | SequenceVideoItem
+  | SequenceEmbedItem
+  | SequencePauseItem
+  | SequenceImageItem;
 
 /**
  * The complete sequence for a slug: ordered list of items.
  */
-export type SlugSequence = readonly SlugSequenceItem[];
+export type SlugSequence = readonly SequenceItem[];

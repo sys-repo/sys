@@ -6,7 +6,7 @@ import type { t } from './common.ts';
  */
 export type PlaybackLib = {
   /** Lift a normalized slug sequence into the generic playback spec. */
-  fromNormalized(docid: t.Crdt.Id, normalized: t.SlugSequenceNormalized): t.PlaybackSpec;
+  fromNormalized(docid: t.Crdt.Id, normalized: t.SequenceNormalized): t.PlaybackSpec;
 
   /**
    * Load + normalize a sequence into a playback-ready spec.
@@ -21,9 +21,9 @@ export type PlaybackLib = {
 };
 
 /** Slug-specific playback spec: generic timecode spec + beat payload. */
-export type PlaybackSpec = t.TimecodePlaybackSpec<t.SlugSequenceBeatPayload> & {
+export type PlaybackSpec = t.TimecodePlaybackSpec<t.SequenceBeatPayload> & {
   readonly docid: t.Crdt.Id;
-  readonly meta?: t.SlugSequenceNormalized['meta'];
+  readonly meta?: t.SequenceNormalized['meta'];
 };
 
 /** Slug-scoped wrapper around the generic media resolver. */

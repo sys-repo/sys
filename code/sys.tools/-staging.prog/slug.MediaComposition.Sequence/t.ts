@@ -4,15 +4,13 @@ import type { t } from '../common.ts';
 export type * from './t.seq.ts';
 export type * from './t.normalize.ts';
 
-type Dag = t.Graph.Dag.Result;
-
 /**
  * Authoring-time pipeline:
  *   YAML → sequence union → validated → normalized.
  */
-export type SlugSequenceLib = {
-  readonly Is: SlugSequenceIsLib;
-  readonly Normalize: t.SlugSequenceNormalizeLib;
+export type SequenceLib = {
+  readonly Is: SequenceIsLib;
+  readonly Normalize: t.SequenceNormalizeLib;
 
   /**
    * Structural validation of an authoring-time sequence.
@@ -24,36 +22,33 @@ export type SlugSequenceLib = {
    * Optionally validates the result.
    */
   fromDag(
-    dag: Dag,
+    dag: t.Graph.Dag.Result,
     yamlPath: t.ObjectPath,
     docid: t.Crdt.Id,
-    opts?: SlugSequenceFromDagOptions,
+    opts?: { validate?: boolean },
   ): Promise<t.SlugSequence | undefined>;
 };
 
 /**
  * Type guards.
  */
-export type SlugSequenceIsLib = {
+export type SequenceIsLib = {
   /**
    * Cheap structural guard that ensures the item
    * looks like one of the known sequence shapes
    * (but not actually schema validated).
    */
-  itemLike(value: unknown): value is t.SlugSequenceItem;
+  itemLike(value: unknown): value is t.SequenceItem;
 };
 
 /**
  * Slug-specific projection from the authoring-time slug sequence
  * into the generic timecode composition model.
  */
-export type SlugSequenceNormalizeLib = {
+export type SequenceNormalizeLib = {
   /** Normalized result of lowering the YAML DSL to a timecode `Sequence`. */
   toTimecode(
     sequence: t.SlugSequence,
     opts?: { docid?: t.Crdt.Id; yamlPath?: t.ObjectPath },
-  ): t.SlugSequenceNormalized;
+  ): t.SequenceNormalized;
 };
-
-/** Options for `Sequence.fromDag` method */
-export type SlugSequenceFromDagOptions = { readonly validate?: boolean };

@@ -18,7 +18,7 @@ export function checkSequenceInvariants(sequence: t.SlugSequence): string | unde
      * Pause item: enforce invariants on its text block (if present).
      */
     if (typeof (item as { pause?: unknown }).pause === 'string') {
-      const text = (item as t.SlugSequencePauseItem).text;
+      const text = (item as t.SequencePauseItem).text;
       const error = checkTextBlockInvariants({
         text,
         context: `item[${itemIndex}] (pause)`,
@@ -30,12 +30,12 @@ export function checkSequenceInvariants(sequence: t.SlugSequence): string | unde
     /**
      * Items with timestamps (video, slug, image) – walk each entry.
      */
-    const timestamps = (item as { timestamps?: t.SlugSequenceTimestamps }).timestamps;
+    const timestamps = (item as { timestamps?: t.SequenceTimestamps }).timestamps;
     if (timestamps && typeof timestamps === 'object') {
       const imageActive = isImageItem;
 
       for (const [timecode, value] of Object.entries(timestamps)) {
-        const entry = value as t.SlugSequenceTimestampEntry;
+        const entry = value as t.SequenceTimestampEntry;
         const error = checkTimestampEntryInvariants({
           entry,
           context: `item[${itemIndex}] at timecode "${timecode}"`,
@@ -53,7 +53,7 @@ export function checkSequenceInvariants(sequence: t.SlugSequence): string | unde
  * Invariants on a single timestamp entry (including its nested text).
  */
 export function checkTimestampEntryInvariants(args: {
-  readonly entry: t.SlugSequenceTimestampEntry;
+  readonly entry: t.SequenceTimestampEntry;
   readonly context: string;
   readonly imageActive: boolean;
 }): string | undefined {
@@ -76,7 +76,7 @@ export function checkTimestampEntryInvariants(args: {
  * - If an image is active, body must not be present.
  */
 export function checkTextBlockInvariants(args: {
-  readonly text: t.SlugSequenceTimestampText | undefined;
+  readonly text: t.SequenceTimestampText | undefined;
   readonly context: string;
   readonly imageActive: boolean;
 }): string | undefined {

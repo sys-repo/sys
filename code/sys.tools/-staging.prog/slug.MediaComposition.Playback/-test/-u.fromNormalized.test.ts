@@ -5,7 +5,7 @@ import { Playback } from '../mod.ts';
 describe('Playback.fromNormalized', () => {
   const docid: t.Crdt.Id = 'sample-docid';
 
-  const makeNormalized = (): t.SlugSequenceNormalized => ({
+  const makeNormalized = (): t.SequenceNormalized => ({
     timecode: [],
     beats: [
       {
@@ -50,6 +50,6 @@ describe('Playback.fromNormalized', () => {
     const normalized = makeNormalized();
     const spec = Playback.fromNormalized(docid, normalized);
     const beat = spec.beats[0];
-    expectTypeOf(beat.payload).toEqualTypeOf<t.SlugSequenceBeatPayload>();
+    expectTypeOf(beat.payload).toEqualTypeOf<t.SequenceBeatPayload>();
   });
 });

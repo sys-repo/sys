@@ -5,7 +5,7 @@ import { validateSequence } from './u.schema.validate.ts';
 type Dag = t.Graph.Dag.Result;
 type O = Record<string, unknown>;
 
-export const fromDag: t.SlugSequenceLib['fromDag'] = async (
+export const fromDag: t.SequenceLib['fromDag'] = async (
   dag: Dag,
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,

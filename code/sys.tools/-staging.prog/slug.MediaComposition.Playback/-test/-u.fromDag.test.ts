@@ -11,7 +11,7 @@ describe('Playback.fromDag', () => {
    */
   describe('projectNormalizedToPlayback', () => {
     it('projects a normalized sequence into a playback spec', () => {
-      const normalized: t.SlugSequenceNormalized = {
+      const normalized: t.SequenceNormalized = {
         timecode: [
           {
             src: 'video-1.mp4',

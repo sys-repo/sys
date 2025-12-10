@@ -4,7 +4,7 @@ import { fromDag } from './u.fromDag.ts';
 import { Normalize } from './u.normalize.ts';
 import { validateSequence as validate } from './u.schema.validate.ts';
 
-export const Sequence: t.SlugSequenceLib = {
+export const Sequence: t.SequenceLib = {
   Is,
   Normalize,
   validate,
