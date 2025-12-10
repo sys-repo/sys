@@ -1,7 +1,6 @@
 import type { t } from '../common.ts';
 
 type O = Record<string, unknown>;
-type N = t.Graph.Dag.Node;
 type NodeAlias = t.Alias.TableAnalysis | undefined;
 
 export type LensLib = {
@@ -19,8 +18,8 @@ export type ResolversLib = {
 
 export type ResolveLib = {
   readonly path: ResolvePathFn;
-  slug(node: N): O | null | undefined;
-  slugParts(node: N): {
+  slug(node: t.Graph.Dag.Node): O | null | undefined;
+  slugParts(node: t.Graph.Dag.Node): {
     readonly alias?: O;
     readonly sequence?: O[];
     readonly traits?: readonly t.SlugTrait[];
@@ -39,7 +38,7 @@ export type ResolvePathFn = (
 ) => t.Alias.Expand.Chain.Result | undefined;
 
 export type ParsedNode = {
-  readonly node: N;
+  readonly node: t.Graph.Dag.Node;
   readonly isRoot: boolean;
   readonly slug?: O | null;
   readonly alias?: NodeAlias;
