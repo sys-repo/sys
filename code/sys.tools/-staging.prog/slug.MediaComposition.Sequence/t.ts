@@ -7,7 +7,8 @@ export type * from './t.normalize.ts';
 type Dag = t.Graph.Dag.Result;
 
 /**
- * Tools for loading, validating, and projecting slug sequences.
+ * Authoring-time pipeline:
+ *   YAML → sequence union → validated → normalized.
  */
 export type SlugSequenceLib = {
   readonly Is: SlugSequenceIsLib;
