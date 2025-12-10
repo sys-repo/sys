@@ -19,10 +19,10 @@ export type TimecodeSliceLib = {
   is(input: unknown): input is TimecodeSliceString;
 
   /** Parse a valid slice string into a normalized structure. */
-  parse(input: TimecodeSliceStringInput): TimecodeSlice;
+  parse(input: TimecodeSliceStringInput): TimecodeSliceNormalized;
 
   /** Resolve a parsed slice into an absolute millisecond window against total duration. */
-  resolve(slice: TimecodeSlice, total: t.Msecs): TimeWindowMs;
+  resolve(slice: TimecodeSliceNormalized, total: t.Msecs): TimeWindowMs;
 
   /**
    * Render a parsed slice back to its canonical string form.
@@ -32,7 +32,7 @@ export type TimecodeSliceLib = {
    *  - relEnd(ms)→ "-" + "HH:MM:SS(.mmm)"
    * Example: {start: open, end: abs(60000)} → "..00:01:00"
    */
-  toString(slice?: string | TimecodeSlice): TimecodeSliceString;
+  toString(slice?: string | TimecodeSliceNormalized): TimecodeSliceString;
 
   /**
    * Build a canonical slice string from a concrete window
@@ -52,13 +52,13 @@ export type TimecodeSliceLib = {
    * Split a slice string (e.g. "00:00:05..00:00:10", "..00:00:10", "00:00:05..")
    * into friendly {start,end} parts without validation.
    */
-  split(input?: string | TimecodeSlice): t.TimecodeSliceParts;
+  split(input?: string | TimecodeSliceNormalized): t.TimecodeSliceParts;
 
   /**
    * Compute duration between slice bounds.
    */
   duration(
-    slice: string | TimecodeSlice,
+    slice: string | TimecodeSliceNormalized,
     opts?: { unit?: t.TimeUnit; round?: number; total?: t.Msecs },
   ): t.TimecodeSliceDuration | undefined;
 
@@ -67,7 +67,7 @@ export type TimecodeSliceLib = {
    * - Returns undefined if slice cannot be resolved.
    */
   positions(
-    slice: string | TimecodeSlice,
+    slice: string | TimecodeSliceNormalized,
     opts?: { round?: number; total?: t.Msecs },
   ): t.TimecodeSlicePositions | undefined;
 
@@ -109,7 +109,7 @@ export type TimecodeSliceBound =
   | { readonly kind: 'relEnd'; readonly ms: t.Msecs };
 
 /** Parsed slice: normalized structure derived from the raw string. */
-export type TimecodeSlice = {
+export type TimecodeSliceNormalized = {
   readonly raw: TimecodeSliceString;
   readonly start: TimecodeSliceBound;
   readonly end: TimecodeSliceBound;

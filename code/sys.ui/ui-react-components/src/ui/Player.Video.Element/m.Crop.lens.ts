@@ -5,7 +5,7 @@ import { type t, Timecode } from './common.ts';
  * Now driven by Timecode.Slice semantics ("<from>..<to>").
  */
 export function lens(
-  input: t.TimecodeSliceStringInput | undefined,
+  input: t.Timecode.Slice.StringInput | undefined,
   fullDuration: t.Secs,
 ): t.VideoCropLens {
   const totalMs = Math.max(0, Math.floor(fullDuration * 1000));

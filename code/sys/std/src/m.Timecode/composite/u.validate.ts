@@ -61,7 +61,7 @@ export function validate(
  */
 function tryParseSlice(
   input?: string | t.TimecodeSliceString,
-): { ok: true; parsed?: t.TimecodeSlice } | { ok: false } {
+): { ok: true; parsed?: t.TimecodeSliceNormalized } | { ok: false } {
   if (!input) return { ok: true };
   const s = String(input);
   if (!Slice.is(s)) return { ok: false };

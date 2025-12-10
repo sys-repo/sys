@@ -9,3 +9,12 @@ export type * from './t.Playback.ts';
 export type MediaTimecodeLib = {
   Playback: t.FC<t.PlayerControlsProps>;
 };
+
+/**
+ * Generic bundle the UI will eventually consume.
+ * Note: P = beat payload (opaque to the generic UI components).
+ */
+export type MediaTimecodePlaybackBundle<P = unknown> = {
+  readonly spec: t.Timecode.Spec.Playback<P>;
+  readonly resolveMedia: t.MediaResolver;
+};

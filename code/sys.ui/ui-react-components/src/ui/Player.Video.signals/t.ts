@@ -41,7 +41,7 @@ export type VideoPlayerSignalProps = Readonly<{
   duration: t.Signal<t.Secs>;
   buffering: t.Signal<boolean>;
   buffered: t.Signal<t.Secs | undefined>;
-  slice: t.Signal<t.TimecodeSliceString | string | undefined>;
+  slice: t.Signal<t.Timecode.Slice.String | string | undefined>;
 
   /**
    * Appearance:
@@ -66,7 +66,7 @@ export type PlayerSignalsFactoryDefaults = {
   loop?: boolean;
   autoPlay?: boolean;
   muted?: boolean;
-  slice?: t.TimecodeSliceString | string;
+  slice?: t.Timecode.Slice.String | string;
 
   // Apperance:
   showControls?: boolean;

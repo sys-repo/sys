@@ -23,7 +23,7 @@ export type VideoElementProps = {
   showControls?: boolean;
   showFullscreenButton?: boolean;
   showVolumeControl?: boolean;
-  slice?: t.TimecodeSliceStringInput;
+  slice?: t.Timecode.Slice.StringInput;
 
   buffering?: boolean;
   buffered?: t.Secs;

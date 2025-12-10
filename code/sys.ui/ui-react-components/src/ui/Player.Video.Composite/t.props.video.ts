@@ -5,16 +5,16 @@ import type { t } from './common.ts';
  */
 export type CompositeVideoProps = {
   /** Ordered pieces to stitch together. */
-  videos?: t.TimecodeCompositionSpec;
+  videos?: t.Timecode.Spec.Composition;
 
   /** Known durations (ms) per src; if omitted, you may probe. */
-  durations?: t.TimecodeDurationMap;
+  durations?: t.Timecode.DurationMap;
 
   /** Optional duration loader; host can override the default probe. */
-  durationsProbe?: (srcs: string[]) => Promise<t.TimecodeDurationMap>;
+  durationsProbe?: (srcs: string[]) => Promise<t.Timecode.DurationMap>;
 
   /** Initial virtual time. Default: 0. */
-  startAt?: t.TimecodeVTime;
+  startAt?: t.Timecode.VTime;
 
   /** Handoff buffer before segment end (ms). Default: 250. */
   handoff?: t.Msecs;
@@ -82,16 +82,16 @@ export type CompositeVideoProps = {
 /** Fired once composition is resolved. */
 export type VideoCompositeReady = {
   readonly total: t.Msecs;
-  readonly timeline: t.TimecodeResolved;
+  readonly timeline: t.Timecode.Resolved;
 };
 /** Handler for `onReady`. */
 export type VideoCompositeReadyHandler = (e: VideoCompositeReady) => void;
 
 /** Virtual timeline update event. */
 export type VideoCompositeTime = {
-  readonly v: t.TimecodeVTime;
+  readonly v: t.Timecode.VTime;
   readonly index: number;
-  readonly seg: t.TimecodeResolvedSegment;
+  readonly seg: t.Timecode.ResolvedSegment;
 };
 /** Handler for `onTimeUpdate`. */
 export type VideoCompositeTimeHandler = (e: VideoCompositeTime) => void;

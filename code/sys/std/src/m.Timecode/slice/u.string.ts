@@ -111,17 +111,22 @@ export const positions: t.TimecodeSliceLib['positions'] = (input, opts = {}) => 
 /**
  * Helpers:
  */
-function ensureParsed(input: string | t.TimecodeSlice): t.TimecodeSlice | undefined {
+function ensureParsed(
+  input: string | t.TimecodeSliceNormalized,
+): t.TimecodeSliceNormalized | undefined {
   if (typeof input !== 'string') return input;
   if (!is(input)) return undefined;
   return parse(input);
 }
 
-function needsTotal(slice: t.TimecodeSlice): boolean {
+function needsTotal(slice: t.TimecodeSliceNormalized): boolean {
   return slice.start.kind !== 'abs' || slice.end.kind !== 'abs';
 }
 
-function resolveWindow(slice: t.TimecodeSlice, total?: t.Msecs): t.TimeWindowMs | undefined {
+function resolveWindow(
+  slice: t.TimecodeSliceNormalized,
+  total?: t.Msecs,
+): t.TimeWindowMs | undefined {
   if (!needsTotal(slice)) {
     // Both absolute: resolve without total.
     const a = Number((slice.start as Extract<t.TimecodeSliceBound, { kind: 'abs' }>).ms);

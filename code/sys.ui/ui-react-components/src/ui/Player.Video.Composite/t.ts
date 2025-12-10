@@ -9,7 +9,7 @@ export type * from './t.props.video.ts';
  */
 export type CompositeVideoLib = {
   /** Pure, programmatic operations for working with composite time-based media structures. */
-  readonly Tools: t.TimecodeCompositeLib;
+  readonly Tools: t.Timecode.Composite.Lib;
 
   /** Renderable UI components. */
   readonly View: {

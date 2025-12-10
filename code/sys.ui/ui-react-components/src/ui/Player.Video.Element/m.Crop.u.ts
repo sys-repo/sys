@@ -3,7 +3,7 @@ import { type t, Timecode } from './common.ts';
 /**
  * Wrangle loose input into a plain arguments object.
  */
-export function toRange(input?: t.TimecodeSliceStringInput): t.MsecSpan | undefined {
+export function toRange(input?: t.Timecode.Slice.StringInput): t.MsecSpan | undefined {
   return Timecode.Slice.toRange(input);
 }
 
