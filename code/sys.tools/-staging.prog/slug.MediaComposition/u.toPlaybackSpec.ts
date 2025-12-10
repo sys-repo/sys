@@ -13,9 +13,7 @@ export const toPlaybackSpec: t.SlugSequenceLib['toPlaybackSpec'] = async (
   opts,
 ) => {
   // 1. Load the authoring-time sequence for this slug.
-  const sequence = await fromDag(dag, yamlPath, docid, {
-    ...opts,
-  });
+  const sequence = await fromDag(dag, yamlPath, docid, { ...opts });
   if (!sequence) return undefined;
 
   // 2. Normalize into the generic timecode model (composition + beats).

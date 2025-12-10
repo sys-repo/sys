@@ -1,4 +1,5 @@
-import { Sequence, SequenceSchema } from '../slug.sequence/mod.ts';
+import { Sequence, SequenceSchema } from '../slug.MediaComposition/mod.ts';
+import { checkSequenceInvariants } from '../slug.MediaComposition/u.schema.validate.invariants.ts';
 import { type t, c, makeParser, Schema } from './common.ts';
 
 const T = Schema.Value;
