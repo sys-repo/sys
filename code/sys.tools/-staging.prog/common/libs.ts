@@ -1,5 +1,5 @@
 /** System */
-export { Arr, Err, Is, Lazy, Log, Num, Obj, Str, Time, Try, slug } from '@sys/std';
+export { Arr, Err, Is, Json, Lazy, Log, Num, Obj, Str, Time, Try, slug } from '@sys/std';
 export { AliasResolver } from '@sys/std/alias';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
