@@ -8,11 +8,14 @@ export function makeLenses(yamlPath: t.ObjectPath): t.LensLib {
   const yaml = Obj.Lens.at<string>(yamlPath);
   const alias = Obj.Lens.at<O>(['alias']);
   const sequence = Obj.Lens.at<O[]>(['data', 'sequence']);
+  const traits = Obj.Lens.at<readonly t.SlugTrait[]>(['traits']);
+
   const tasks = Obj.Lens.at<t.Task[]>(['TASKS']);
   return Obj.asGetter({
     yaml,
     alias,
     sequence,
+    traits,
     tasks,
   });
 }
@@ -29,13 +32,18 @@ export function makeResolvers(yamlPath: t.ObjectPath): t.ResolversLib {
       const slug = Yaml.parse<O>(yaml).data;
       return Is.record(slug) ? slug : undefined;
     },
+
     slugParts(node: N) {
       const slug = Resolve.slug(node);
       const alias = slug ? Lens.alias.get(slug) : undefined;
       const sequence = slug ? Lens.sequence.get(slug) : undefined;
-      return { alias, sequence };
+      const traits = slug ? Lens.traits.get(slug) : undefined;
+      return { alias, sequence, traits };
     },
   } as const;
 
-  return { Lens, Resolve };
+  return {
+    Lens,
+    Resolve,
+  };
 }

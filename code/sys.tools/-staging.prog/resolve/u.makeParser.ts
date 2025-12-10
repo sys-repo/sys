@@ -3,7 +3,6 @@ import { resolvePath } from './u.resolve.path.ts';
 import { makeResolvers } from './u.resolve.ts';
 
 type N = t.Graph.Dag.Node;
-type O = Record<string, unknown>;
 type NodeAlias = t.Alias.TableAnalysis | undefined;
 type Dag = t.Graph.Dag.Result;
 
