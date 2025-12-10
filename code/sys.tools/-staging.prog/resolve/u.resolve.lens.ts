@@ -5,14 +5,17 @@ type O = Record<string, unknown>;
 export function makeLenses(yamlPath: t.ObjectPath): t.LensLib {
   const yaml = Obj.Lens.at<string>(yamlPath);
   const alias = Obj.Lens.at<O>(['alias']);
-  const sequence = Obj.Lens.at<O[]>(['data', 'sequence']);
-  const traits = Obj.Lens.at<readonly t.SlugTrait[]>(['traits']);
+  const data = Obj.Lens.at<O>(['data']);
+  const traits = Obj.Lens.at<t.SlugTrait[]>(['traits']);
   const tasks = Obj.Lens.at<t.Task[]>(['TASKS']);
-  return Obj.asGetter({
+
+  const api: t.LensLib = {
     yaml,
     alias,
-    sequence,
+    data,
     traits,
     tasks,
-  });
+  };
+
+  return Obj.asGetter(api);
 }

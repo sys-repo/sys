@@ -6,8 +6,8 @@ type NodeAlias = t.Alias.TableAnalysis | undefined;
 export type LensLib = {
   readonly yaml: t.ObjLens<string>;
   readonly alias: t.ObjLens<O>;
-  readonly sequence: t.ObjLens<O[]>;
-  readonly traits: t.ObjLens<readonly t.SlugTrait[]>;
+  readonly data: t.ObjLens<O>;
+  readonly traits: t.ObjLens<t.SlugTrait[]>;
   readonly tasks: t.ObjLens<t.Task[]>;
 };
 
@@ -21,7 +21,7 @@ export type ResolveLib = {
   slug(node: t.Graph.Dag.Node): O | null | undefined;
   slugParts(node: t.Graph.Dag.Node): {
     readonly alias?: O;
-    readonly sequence?: O[];
+    readonly data?: O;
     readonly traits?: readonly t.SlugTrait[];
   };
 };

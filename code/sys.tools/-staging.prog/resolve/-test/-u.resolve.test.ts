@@ -3,6 +3,7 @@ import { Slug } from '../../slug/mod.ts';
 
 type Dag = t.Graph.Dag.Result;
 type Node = t.Graph.Dag.Node;
+
 type SlugLike = {
   readonly title?: string;
   readonly description?: string;
@@ -34,7 +35,22 @@ describe('Resolve', () => {
             00:00:00:
               title: Intro
               pause: 3s
-    `;
+  `;
+
+  const SLUG_NO_MEDIA_TRAIT_YAML = `
+    # Slug: Non-media slug
+    title: Other Concept
+    description: No media-composition trait.
+
+    traits:
+      - of: slug-list
+        as: overlay
+
+    data:
+      overlay:
+        - slug: /:core-slugs/other
+          display: inline
+  `;
 
   const docid = 'crdt:test-doc' as t.Crdt.Id;
   const node = { id: docid, doc: { current: SLUG_YAML } } as unknown as Node;
@@ -62,25 +78,25 @@ describe('Resolve', () => {
   });
 
   describe('Slug.parser / Resolve.slugParts', () => {
-    it('exposes alias, sequence, and traits from the slug', () => {
+    it('exposes alias, data, and traits from the slug', () => {
       const yamlPath = [] as unknown as t.ObjectPath;
       const parser = Slug.parser(yamlPath);
 
-      const { alias, sequence, traits } = parser.Resolve.slugParts(node);
+      const { alias, data, traits } = parser.Resolve.slugParts(node);
 
       // alias table
       expect(alias).to.be.ok;
       const aliasMap = alias as Record<string, string> | undefined;
       expect(aliasMap && aliasMap[':core-videos']).to.eql(':index/:assets/core');
 
-      // sequence items
-      expect(sequence).to.be.ok;
-      const seq = sequence as readonly t.SequenceItem[] | undefined;
+      // data shape: carries the raw sequence array as authored
+      expect(data).to.be.ok;
+      const dataObj = data as Record<string, unknown> | undefined;
+      const seq = (dataObj?.sequence ?? []) as unknown[];
       expect(Array.isArray(seq)).to.eql(true);
-      expect(seq && seq.length).to.eql(1);
-
-      const first = seq && (seq[0] as t.SequenceVideoItem);
-      expect(first && first.video).to.eql('/:core-videos/example.webm');
+      expect(seq.length).to.eql(1);
+      const first = seq[0] as { video?: string };
+      expect(first.video).to.eql('/:core-videos/example.webm');
 
       // traits
       expect(traits).to.be.ok;
@@ -94,6 +110,42 @@ describe('Resolve', () => {
       const slugListTrait = traitList!.find((t) => t.of === 'slug-list');
       expect(slugListTrait).to.be.ok;
       expect(slugListTrait!.as).to.eql('solo');
+    });
+
+    it('behaves sanely when there is no media-composition trait', () => {
+      const yamlPath = [] as unknown as t.ObjectPath;
+      const parser = Slug.parser(yamlPath);
+
+      const nodeNoMedia = {
+        id: 'crdt:no-media' as t.Crdt.Id,
+        doc: { current: SLUG_NO_MEDIA_TRAIT_YAML },
+      } as unknown as Node;
+
+      const { alias, data, traits } = parser.Resolve.slugParts(nodeNoMedia);
+
+      // No alias block in this slug.
+      expect(alias).to.be.undefined;
+
+      // Data exists, but is keyed by the non-media trait ("overlay").
+      const dataObj = data as Record<string, unknown> | undefined;
+      expect(dataObj).to.be.ok;
+      if (!dataObj) return;
+
+      const overlay = dataObj.overlay as unknown[];
+      expect(Array.isArray(overlay)).to.eql(true);
+      expect(overlay.length).to.eql(1);
+
+      // Traits present, but none with of === "media-composition".
+      const list = traits;
+      expect(Array.isArray(list)).to.eql(true);
+      if (!list) return;
+
+      const mediaTrait = list.find((t) => t.of === 'media-composition');
+      expect(mediaTrait).to.be.undefined;
+
+      const slugListTrait = list.find((t) => t.of === 'slug-list');
+      expect(slugListTrait).to.be.ok;
+      expect(slugListTrait!.as).to.eql('overlay');
     });
   });
 });
