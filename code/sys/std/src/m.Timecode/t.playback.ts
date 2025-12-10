@@ -21,7 +21,6 @@ export type MediaResolverArgs = {
 
 /**
  * Resolve a logical media ref to a concrete URL / href.
- *
  * Returns `undefined` when the media is not available.
  */
 export type MediaResolver = (args: MediaResolverArgs) => string | undefined;

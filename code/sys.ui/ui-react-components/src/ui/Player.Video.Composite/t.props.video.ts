@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type CompositeVideoProps = {
   /** Ordered pieces to stitch together. */
-  videos?: t.Timecode.Spec.Composition;
+  videos?: t.Timecode.Composite.Spec;
 
   /** Known durations (ms) per src; if omitted, you may probe. */
   durations?: t.Timecode.DurationMap;

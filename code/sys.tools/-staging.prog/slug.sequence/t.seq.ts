@@ -38,7 +38,7 @@ export type SlugSequenceVideoItem = {
   readonly video: string;
   readonly title?: string;
   readonly script?: string;
-  readonly slice?: t.Timecode.SliceString;
+  readonly slice?: t.Timecode.Slice.String;
   readonly timestamps?: SlugSequenceTimestamps;
 };
 

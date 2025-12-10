@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type CompositeVideoSpecInfoProps = {
   /** Ordered pieces to stitch together. */
-  videos?: t.Timecode.Spec.Composition;
+  videos?: t.Timecode.Composite.Spec;
   layout?: t.KeyValueLayout;
   size?: t.KeyValueSize;
   mono?: boolean;

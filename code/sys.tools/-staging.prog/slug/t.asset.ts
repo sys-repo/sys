@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** Media types emitted in a slug bundle. */
-export type SlugAssetKind = t.PlaybackMediaKind;
+export type SlugAssetKind = t.Timecode.Playback.MediaKind;
 
 /** A single bundled asset with its hashed filename and resolved href. */
 export type SlugAsset = {

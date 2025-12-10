@@ -6,7 +6,7 @@ describe('Schema', () => {
   const S = SequenceSchema;
 
   describe('SequenceRecipe (raw)', () => {
-    const slice = '00:00..00:10' as t.Timecode.SliceString; // branded test literal
+    const slice = '00:00..00:10' as t.Timecode.Slice.String; // branded test literal
 
     it('valid sequence passes core schema check', () => {
       const value: t.SlugSequence = [
@@ -71,7 +71,7 @@ describe('Schema', () => {
   });
 
   describe('Sequence.validate', () => {
-    const slice = '00:00..00:10' as t.Timecode.SliceString;
+    const slice = '00:00..00:10' as t.Timecode.Slice.String;
 
     it('returns ok:true for a valid sequence (headline + body, no image)', () => {
       const value: t.SlugSequence = [

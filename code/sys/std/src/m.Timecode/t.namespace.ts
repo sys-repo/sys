@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /**
  * `MM:SS`, `HH:MM:SS`, or `HH:MM:SS.mmm`.
@@ -30,8 +30,10 @@ export namespace Timecode {
     export type Spec = t.TimecodeCompositionSpec;
   }
 
-  export namespace Spec {
-    export type Composition = t.TimecodeCompositionSpec;
-    export type Playback<P> = t.TimecodePlaybackSpec<P>;
+  export namespace Playback {
+    export type Spec<P> = t.TimecodePlaybackSpec<P>;
+    export type MediaKind = t.PlaybackMediaKind;
+    export type ResolverArgs = t.MediaResolverArgs;
+    export type Resolver = t.MediaResolver;
   }
 }
