@@ -7,7 +7,7 @@ type O = Record<string, unknown>;
 type NodeAlias = t.Alias.TableAnalysis | undefined;
 type Dag = t.Graph.Dag.Result;
 
-export const makeParser: t.MakeParserFn = (yamlPath: t.ObjectPath) => {
+export const makeParser: t.MakeParser = (yamlPath: t.ObjectPath) => {
   const { Lens, Resolve } = makeResolvers(yamlPath);
 
   /**

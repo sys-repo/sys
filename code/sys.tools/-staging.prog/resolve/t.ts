@@ -44,7 +44,7 @@ export type ParsedNode = {
 /**
  * Parser helpers.
  */
-export type MakeParserFn = (yamlPath: t.ObjectPath) => Parser;
+export type MakeParser = (yamlPath: t.ObjectPath) => Parser;
 export type Parser = {
   readonly Resolve: ResolveLib;
   readonly Lens: LensLib;

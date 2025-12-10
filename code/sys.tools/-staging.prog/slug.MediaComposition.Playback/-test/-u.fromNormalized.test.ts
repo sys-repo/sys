@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it, Obj } from '../../-test.ts';
 import { type t } from '../common.ts';
-import { Slug } from '../mod.ts';
+import { Playback } from '../mod.ts';
 
-describe('slug/Slug.toPlayback', () => {
+describe('Playback.fromNormalized', () => {
   const docid: t.Crdt.Id = 'sample-docid';
 
   const makeNormalized = (): t.SlugSequenceNormalized => ({
@@ -25,7 +25,7 @@ describe('slug/Slug.toPlayback', () => {
 
   it('projects normalized → playback spec (structure)', () => {
     const normalized = makeNormalized();
-    const spec = Slug.toPlayback(docid, normalized);
+    const spec = Playback.fromNormalized(docid, normalized);
 
     // new surface: docid + meta
     expect(spec.docid).to.equal(docid);
@@ -42,13 +42,13 @@ describe('slug/Slug.toPlayback', () => {
     const normalized = makeNormalized();
     const snapshot = Obj.clone(normalized);
 
-    void Slug.toPlayback(docid, normalized);
+    void Playback.fromNormalized(docid, normalized);
     expect(normalized).to.eql(snapshot);
   });
 
   it('payload type matches SlugSequenceBeatPayload', () => {
     const normalized = makeNormalized();
-    const spec = Slug.toPlayback(docid, normalized);
+    const spec = Playback.fromNormalized(docid, normalized);
     const beat = spec.beats[0];
     expectTypeOf(beat.payload).toEqualTypeOf<t.SlugSequenceBeatPayload>();
   });
