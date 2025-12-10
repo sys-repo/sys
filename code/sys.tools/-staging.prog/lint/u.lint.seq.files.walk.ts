@@ -1,9 +1,7 @@
-import { type t, Fs, Is, makeParser, Sequence } from './common.ts';
+import { type t, Fs, Is, Slug } from './common.ts';
 
 type O = Record<string, unknown>;
 type Facet = t.DocLintFacet;
-
-type Dag = t.Graph.Dag.Result;
 
 /**
  * Walk all media (video/image) file paths in a sequence for a given document:
@@ -15,16 +13,17 @@ type Dag = t.Graph.Dag.Result;
  *    • sequence[].timestamps[*].image
  */
 export async function walkSequenceMediaPaths(
-  dag: Dag,
+  dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   facets: Facet[],
   visit: t.LintMediaWalkVisitor,
 ) {
-  const Parse = makeParser(yamlPath);
+  const Parse = Slug.parser(yamlPath);
   const node = Parse.findParsedNode(dag, docid);
   const Path = Parse.path(dag, docid);
-  const seq = await Sequence.fromDag(dag, yamlPath, docid, { validate: false });
+  const MediaComposition = Slug.Trait.MediaComposition;
+  const seq = await MediaComposition.Sequence.fromDag(dag, yamlPath, docid, { validate: false });
 
   // If we cannot resolve aliases or sequence for this document, we skip.
   if (!Path.ok || !node || !seq) return;

@@ -1,4 +1,4 @@
-import { type t, Fs, Hash, Obj } from './common.ts';
+import { type t, Fs, Hash, Obj, Json, Slug } from './common.ts';
 import { buildSequenceFilepathIssue } from './u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
 

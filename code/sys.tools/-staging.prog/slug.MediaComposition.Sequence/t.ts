@@ -29,18 +29,8 @@ export type SlugSequenceLib = {
     docid: t.Crdt.Id,
     opts?: SlugSequenceFromDagOptions,
   ): Promise<t.SlugSequence | undefined>;
-
-  /**
-   * Load + normalize a sequence into a playback-ready spec.
-   * Used when generating `slug.<docid>.playback.json`.
-   */
-  toPlaybackSpec(
-    dag: Dag,
-    yamlPath: t.ObjectPath,
-    docid: t.Crdt.Id,
-    opts?: SlugSequenceFromDagOptions,
-  ): Promise<t.SlugPlaybackSpec | undefined>;
 };
+
 /**
  * Type guards.
  */

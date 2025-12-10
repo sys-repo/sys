@@ -1,7 +1,14 @@
-import { type t, describe, it, expect, expectTypeOf } from '../../-test.ts';
-import { projectNormalizedToPlayback } from '../u.toPlaybackSpec.ts';
+import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { projectNormalizedToPlayback } from '../u.fromDag.ts';
 
-describe('Sequence.toPlaybackSpec', () => {
+describe('Playback.fromDag', () => {
+  /**
+   * NOTE:  This test targets the pure projection step.
+   *
+   * Why:   It defines the playback wire-format contract and is stable surface area.
+   * What:  We verify the shape and mapping logic without pulling in the full
+   *        load/normalize pipeline, which is tested elsewhere.
+   */
   describe('projectNormalizedToPlayback', () => {
     it('projects a normalized sequence into a playback spec', () => {
       const normalized: t.SlugSequenceNormalized = {

@@ -1,14 +1,4 @@
-import {
-  type t,
-  Pkg,
-  pkg,
-  Fs,
-  c,
-  Cli,
-  LintDocFacets as Facets,
-  makeParser,
-  Obj,
-} from './common.ts';
+import { type t, Pkg, pkg, Fs, c, Cli, LintDocFacets as Facets, Slug, Obj } from './common.ts';
 
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
@@ -37,7 +27,7 @@ async function run(
 ): Promise<t.LintAggregateResult> {
   const { interactive = false } = opts;
   const issues: Issue[] = [];
-  const Parse = makeParser(yamlPath);
+  const Parse = Slug.parser(yamlPath);
 
   // Determine facets to lint on.
   let facets = (opts.facets ?? Facets) as t.DocLintFacet[];
