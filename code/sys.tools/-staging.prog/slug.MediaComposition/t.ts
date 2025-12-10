@@ -1,18 +1,11 @@
 import type { t } from './common.ts';
 
-/**
- * Trait-as: "media-composition"
- */
-export namespace MediaComposition {
-  export namespace Sequence {
-    export type Lib = t.SlugSequenceLib;
-  }
-  export namespace Playback {
-    export type Lib = t.PlaybackLib;
-  }
-}
+/** Type re-exports. */
+export type * from './t.namespace.ts';
 
-/** MediaComposition namespace */
+/**
+ * MediaComposition namespace
+ */
 export type MediaCompositionLib = {
   readonly Sequence: t.MediaComposition.Sequence.Lib;
   readonly Playback: t.MediaComposition.Playback.Lib;

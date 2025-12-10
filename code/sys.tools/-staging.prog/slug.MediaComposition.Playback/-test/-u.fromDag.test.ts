@@ -35,7 +35,7 @@ describe('Playback.fromDag', () => {
       const playback = projectNormalizedToPlayback(docid, normalized);
 
       // Type surface.
-      expectTypeOf(playback).toEqualTypeOf<t.SlugPlaybackSpec>();
+      expectTypeOf(playback).toEqualTypeOf<t.PlaybackSpec>();
 
       // new surface: docid + meta
       expect(playback.docid).to.equal(docid);
