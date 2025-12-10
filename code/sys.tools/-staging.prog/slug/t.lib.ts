@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export type SlugLib = {
   readonly parser: t.MakeParser;
   readonly Trait: {
+    readonly Helpers: t.SlugTraitLib;
     readonly MediaComposition: t.MediaCompositionLib;
   };
 };
