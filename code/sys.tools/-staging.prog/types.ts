@@ -1,11 +1,11 @@
 export type * from './lint/t.ts';
 export type * from './resolve/t.ts';
-export type * from './slug.MediaComposition/t.ts';
+export type * from './slug.MediaComposition.Sequence/t.ts';
 export type * from './slug/t.ts';
 export type * from './tasks/t.ts';
 
 /**
- * Validation result
+ * Validation result.
  */
 export type ValidateResult<T> = ValidateOK<T> | ValidateFail;
 export type ValidateOK<T> = { ok: true; sequence: T };
