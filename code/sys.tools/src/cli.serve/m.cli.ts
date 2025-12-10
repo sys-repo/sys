@@ -103,7 +103,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
       console.info(c.gray(`directory: ${location.dir}`));
     }
 
-    const fmtLocalhost = c.gray(`(${c.cyan(`localhost:${port}`)})`);
+    const fmtLocalhost = c.gray(`(${c.cyan(`port:${port}`)})`);
     const B = (await Prompt.Select.prompt<C>({
       message: `With: ${c.gray(location.name)}`,
       options: [

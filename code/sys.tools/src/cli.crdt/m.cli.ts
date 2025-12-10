@@ -13,7 +13,8 @@ const Imports = {
   docYamlViewer: () => import('./cmds/cmd.doc.viewer.yaml.ts'),
   daemon: () => import('./cmd.repo.daemon/mod.ts'),
   syncServer: () => import('./cmds/cmd.doc.syncserver.ts'),
-  tmp: () => import('./-tmp/-tmp.ts'),
+  // tmp: () => import('./-tmp/-tmp.ts'),
+  tmp: () => import('./-tmp/-tmp.gpt.ts'),
 } as const;
 
 /**
@@ -114,12 +115,12 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         const options = [
           opt('  Lint', 'doc:graph:lint'),
           opt('  Tasks', 'doc:graph:tasks'),
-          opt('  Snapshot (Backup)', 'snapshot'),
+          opt('  Backup (Snapshot)', 'snapshot'),
           opt('  Document Graph → DAG (hook)', 'doc:graph:dag'),
           opt('  Document Graph → Walk → Stats', 'doc:graph:walk'),
           opt('  View Yaml', 'doc:viewer:yaml'),
           opt('  View Config', 'doc:config:print'),
-          opt('  🐷 chat with slug', 'tmp:🐷'),
+          opt(`  🐷 ${c.yellow('chat with slug')}`, 'tmp:🐷'),
         ];
 
         if (!hookTmpl.exists) {
@@ -193,6 +194,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
         if (B === 'tmp:🐷') {
           const m = await Imports.tmp();
+
           await m.tmp(cwd, id, yamlPath);
           return done(0);
         }
