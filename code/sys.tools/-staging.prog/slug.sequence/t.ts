@@ -7,20 +7,39 @@ export type * from './t.normalize.ts';
 type Dag = t.Graph.Dag.Result;
 
 /**
- * Slug sequence tools.
+ * Tools for loading, validating, and projecting slug sequences.
  */
 export type SlugSequenceLib = {
   readonly Is: SlugSequenceIsLib;
   readonly Normalize: t.SlugSequenceNormalizeLib;
+
+  /**
+   * Structural validation of an authoring-time sequence.
+   */
   validate(input: unknown): t.ValidateResult<t.SlugSequence>;
+
+  /**
+   * Extract a sequence from a CRDT DAG at a given YAML path.
+   * Optionally validates the result.
+   */
   fromDag(
     dag: Dag,
     yamlPath: t.ObjectPath,
     docid: t.Crdt.Id,
     opts?: SlugSequenceFromDagOptions,
   ): Promise<t.SlugSequence | undefined>;
-};
 
+  /**
+   * Load + normalize a sequence into a playback-ready spec.
+   * Used when generating `slug.<docid>.playback.json`.
+   */
+  toPlaybackSpec(
+    dag: Dag,
+    yamlPath: t.ObjectPath,
+    docid: t.Crdt.Id,
+    opts?: SlugSequenceFromDagOptions,
+  ): Promise<t.SlugPlaybackSpec | undefined>;
+};
 /**
  * Type guards.
  */

@@ -1,15 +1,18 @@
 import type { t } from './common.ts';
 
 /** Slug-specific playback spec: generic timecode spec + our beat payload. */
-export type SlugPlaybackSpec = t.TimecodePlaybackSpec<t.SlugSequenceBeatPayload>;
+export type SlugPlaybackSpec = t.TimecodePlaybackSpec<t.SlugSequenceBeatPayload> & {
+  readonly docid: t.Crdt.Id;
+  readonly meta?: t.SlugSequenceNormalized['meta'];
+};
 
 /**
  * Lift a normalized slug sequence into the generic playback spec.
- * No IO, no manifests – pure struct reshaping.
  */
-export type ToSlugPlaybackSpec = (args: {
-  readonly normalized: t.SlugSequenceNormalized;
-}) => t.SlugPlaybackSpec;
+export type ToSlugPlaybackSpec = (
+  docid: t.Crdt.Id,
+  normalized: t.SlugSequenceNormalized,
+) => t.SlugPlaybackSpec;
 
 /** Slug-scoped wrapper around the generic media resolver. */
 export type SlugMediaResolver = t.MediaResolver;
