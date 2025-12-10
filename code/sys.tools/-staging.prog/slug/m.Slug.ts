@@ -4,6 +4,6 @@ import { makeParser as parser } from '../resolve/mod.ts';
 import { MediaComposition } from '../slug.MediaComposition/mod.ts';
 
 export const Slug: t.SlugLib = {
-  MediaComposition,
   parser,
+  Trait: { MediaComposition },
 };
