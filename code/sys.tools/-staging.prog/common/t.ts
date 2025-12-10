@@ -12,3 +12,4 @@ export type * from '../types.ts';
 export type * from '../slug.MediaComposition.Playback/t.ts';
 export type * from '../slug.MediaComposition.Sequence/t.ts';
 export type * from '../slug.MediaComposition/t.ts';
+export type * from '../slug.Traits/t.ts';
