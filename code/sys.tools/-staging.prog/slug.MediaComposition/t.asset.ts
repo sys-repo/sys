@@ -15,15 +15,19 @@ export type SlugAsset = {
 /** Manifest describing all bundled assets for one document. */
 export type SlugAssetsManifest = {
   readonly docid: t.Crdt.Id;
-  readonly assets: SlugAsset[];
+  readonly assets: readonly SlugAsset[];
 };
 
-/** Result of bundling: lint issues plus optional manifest location. */
-export type SequenceFilepathBundleResult = t.LintSequenceFilepathResult & {
-  readonly dir: {
-    readonly base: t.StringDir;
-    readonly manifests: t.StringDir;
-    readonly video: t.StringDir;
-    readonly image: t.StringDir;
-  };
+/** Output directories used for slug asset bundles. */
+export type SlugAssetsDirs = {
+  readonly base: t.StringDir;
+  readonly manifests: t.StringDir;
+  readonly video: t.StringDir;
+  readonly image: t.StringDir;
+};
+
+/** Result of writing an assets manifest for a document. */
+export type SlugAssetsBundle = {
+  readonly manifest: SlugAssetsManifest;
+  readonly dir: SlugAssetsDirs;
 };

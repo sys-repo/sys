@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 
 export const toTimecode: t.SequenceNormalizeLib['toTimecode'] = (
-  sequence: t.SlugSequence,
+  sequence: t.SequenceItem[],
   opts = {},
 ) => {
   const { docid, yamlPath } = opts;

@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /**
  * Text block used inside timestamp entries and pause cards.
@@ -83,8 +83,3 @@ export type SequenceItem =
   | SequenceEmbedItem
   | SequencePauseItem
   | SequenceImageItem;
-
-/**
- * The complete sequence for a slug: ordered list of items.
- */
-export type SlugSequence = readonly SequenceItem[];

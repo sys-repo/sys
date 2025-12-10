@@ -95,7 +95,7 @@ async function run(
     let index = 0;
     const total = dag.nodes.length;
 
-    type R = t.SequenceFilepathBundleResult;
+    type R = t.LintAndBundleResult;
     const distDirs = new Set<t.StringDir>();
     const addDir = (res: R) => {
       distDirs.add(Fs.join(res.dir.base, res.dir.manifests));
@@ -111,6 +111,7 @@ async function run(
 
       const id = node.id;
       const result = await bundleSequenceFilepaths(dag, yamlPath, node.id, { facets });
+
       const issuesForNode: Issue[] = result.issues.map((issue) => ({ ...issue, doc: { id } }));
       issuesForNode.forEach((issue) => issues.push(issue));
       addDir(result);

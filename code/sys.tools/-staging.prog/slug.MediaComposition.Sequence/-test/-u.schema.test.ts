@@ -9,7 +9,7 @@ describe('Schema', () => {
     const slice = '00:00..00:10' as t.Timecode.Slice.String; // branded test literal
 
     it('valid sequence passes core schema check', () => {
-      const value: t.SlugSequence = [
+      const value: t.SequenceItem[] = [
         {
           video: '/video.mp4',
           script: 'intro script',
@@ -27,7 +27,7 @@ describe('Schema', () => {
     });
 
     it('normalised timestamp text (null → missing) passes schema', () => {
-      const value: t.SlugSequence = [
+      const value: t.SequenceItem[] = [
         {
           video: '/video.mp4',
           script: 'intro script',
@@ -41,7 +41,7 @@ describe('Schema', () => {
     });
 
     it('slug item passes SequenceItem', () => {
-      const value: t.SlugSequence = [
+      const value: t.SequenceItem[] = [
         { slug: '/:core-slugs/5.2.1-intro-strategy-model', display: 'inline' },
       ];
 
@@ -49,7 +49,7 @@ describe('Schema', () => {
     });
 
     it('pause item passes SequenceItem', () => {
-      const value: t.SlugSequence = [{ pause: '3s' }];
+      const value: t.SequenceItem[] = [{ pause: '3s' }];
       expect(T.Check(S, value)).to.eql(true);
     });
   });
@@ -58,14 +58,14 @@ describe('Schema', () => {
     const T = Schema.Value;
 
     it('accepts a slug item', () => {
-      const value: t.SlugSequence = [
+      const value: t.SequenceItem[] = [
         { slug: '/:core-slugs/5.2.1-intro-strategy-model', display: 'inline' },
       ];
       expect(T.Check(SequenceSchema, value)).to.eql(true);
     });
 
     it('accepts a pause item', () => {
-      const value: t.SlugSequence = [{ pause: '3s' }];
+      const value: t.SequenceItem[] = [{ pause: '3s' }];
       expect(T.Check(SequenceSchema, value)).to.eql(true);
     });
   });
@@ -74,7 +74,7 @@ describe('Schema', () => {
     const slice = '00:00..00:10' as t.Timecode.Slice.String;
 
     it('returns ok:true for a valid sequence (headline + body, no image)', () => {
-      const value: t.SlugSequence = [
+      const value: t.SequenceItem[] = [
         {
           video: '/video.mp4',
           script: 'intro script',
@@ -126,7 +126,7 @@ describe('Schema', () => {
     });
 
     it('returns ok:false when body text is present without a headline', () => {
-      const value: t.SlugSequence = [
+      const value: t.SequenceItem[] = [
         {
           video: '/video.mp4',
           script: 'intro script',
@@ -149,7 +149,7 @@ describe('Schema', () => {
     });
 
     it('returns ok:false when image and body text appear together in a timestamp entry', () => {
-      const value: t.SlugSequence = [
+      const value: t.SequenceItem[] = [
         {
           video: '/video.mp4',
           script: 'intro script',
@@ -174,7 +174,7 @@ describe('Schema', () => {
     });
 
     it('returns ok:false when body text is present inside an image item timestamp', () => {
-      const value: t.SlugSequence = [
+      const value: t.SequenceItem[] = [
         {
           image: '/:images/three-models-diagram.png',
           timestamps: {
@@ -196,7 +196,7 @@ describe('Schema', () => {
     });
 
     it('accepts image + headline/tagline (no body) in an image item timestamp', () => {
-      const value: t.SlugSequence = [
+      const value: t.SequenceItem[] = [
         {
           image: '/:images/three-models-diagram.png',
           timestamps: {

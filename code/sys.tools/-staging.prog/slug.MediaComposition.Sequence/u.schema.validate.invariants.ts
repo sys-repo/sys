@@ -8,7 +8,7 @@ import { type t } from '../common.ts';
  *
  * These are enforced after the structural/schema validation has succeeded.
  */
-export function checkSequenceInvariants(sequence: t.SlugSequence): string | undefined {
+export function checkSequenceInvariants(sequence: t.SequenceItem[]): string | undefined {
   for (let itemIndex = 0; itemIndex < sequence.length; itemIndex += 1) {
     const item = sequence[itemIndex];
 
