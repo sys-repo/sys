@@ -41,7 +41,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    bundle: s<t.MediaTimecode.PlaybackBundle>(),
+    bundle: s<t.MediaTimeline.PlaybackBundle>(),
   };
   const p = props;
   const api = {

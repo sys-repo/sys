@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /** Type exports: */
 export type * from './-dev/t.ts';
 
-export namespace MediaTimecode {
+export namespace MediaTimeline {
   /**
    * UI primitives for working with time-code.
    */

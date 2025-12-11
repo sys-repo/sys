@@ -33,7 +33,7 @@ export type PublishPlaybackManifest = {
 export async function loadPlaybackFromEndpoint(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-): Promise<t.MediaTimecode.PlaybackBundle> {
+): Promise<t.MediaTimeline.PlaybackBundle> {
   const http = Http.fetcher();
 
   // 1. Load dist.json (you might use this later for routing; for now we just hit it).
