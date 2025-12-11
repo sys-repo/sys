@@ -45,7 +45,8 @@ export const SpecsComponents = {
   [`${ns}: Player.YouTube`]: () => import('../ui/Player.YouTube/-spec/-SPEC.tsx'),
 
   [`${ns}.media: Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
-  [`${ns}.media: Timecode`]: () => import('../ui/Media.Timecode/-spec.playback/-SPEC.tsx'),
+  [`${ns}.media: Timecode.Timeline`]: () =>
+    import('../ui/Media.Timecode.Timeline/-spec.playback/-SPEC.tsx'),
   [`${ns}.media: Video (Stream)`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
   [`${ns}.media: Devices`]: () => import('../ui/Media.Devices/-spec/-SPEC.tsx'),
   [`${ns}.media: AudioWaveform`]: () => import('../ui/Media.AudioWaveform/-spec/-SPEC.tsx'),
