@@ -76,7 +76,8 @@ export async function tmp(cwd: t.StringDir, docid: t.Crdt.Id, yamlPath: t.Object
       }
 
       /** Lookup the document, and extract script. */
-      const seq = await Slug.Trait.MediaComposition.Sequence.fromDag(dag, yamlPath, subjectId);
+      const res = await Slug.Trait.MediaComposition.Sequence.fromDag(dag, yamlPath, subjectId);
+      const seq = res.ok ? res.sequence : [];
       const scripts = (seq ?? [])
         .map((m) => ('script' in m && Is.str(m.script) ? m.script : ''))
         .filter(Boolean);
