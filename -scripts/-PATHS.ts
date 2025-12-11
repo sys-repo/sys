@@ -61,7 +61,6 @@ export const Paths = {
     'code/sys.driver/driver-farcaster',
     'code/sys.driver/driver-mastra',
     'code/sys.driver/driver-monaco',
-    'code/sys.driver/driver-peerjs',
     'code/sys.driver/driver-prosemirror',
 
     /**

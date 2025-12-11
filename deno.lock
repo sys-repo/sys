@@ -110,7 +110,6 @@
     "npm:ollama-ai-provider@1.2.0": "1.2.0",
     "npm:ollama@0.6.3": "0.6.3",
     "npm:ora@9.0.0": "9.0.0",
-    "npm:peerjs@1.5.5": "1.5.5",
     "npm:prettier@3.7.4": "3.7.4",
     "npm:pretty-bytes@7.1.0": "7.1.0",
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
@@ -806,7 +805,7 @@
         "@automerge/automerge-repo",
         "cbor-x",
         "debug@4.4.3",
-        "eventemitter3@5.0.1",
+        "eventemitter3",
         "isomorphic-ws@5.0.0_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
         "ws@8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10"
       ]
@@ -831,7 +830,7 @@
         "bs58check",
         "cbor-x",
         "debug@4.4.3",
-        "eventemitter3@5.0.1",
+        "eventemitter3",
         "fast-sha256",
         "uuid@9.0.1",
         "xstate"
@@ -1170,7 +1169,7 @@
         "@farcaster/miniapp-sdk",
         "@farcaster/quick-auth@0.0.8_typescript@5.8.3",
         "comlink",
-        "eventemitter3@5.0.1",
+        "eventemitter3",
         "ox@0.4.4"
       ]
     },
@@ -1188,7 +1187,7 @@
         "@farcaster/miniapp-core",
         "@farcaster/quick-auth@0.0.6_typescript@5.8.3",
         "comlink",
-        "eventemitter3@5.0.1",
+        "eventemitter3",
         "ox@0.4.4"
       ]
     },
@@ -1472,9 +1471,6 @@
         "react",
         "react-dom"
       ]
-    },
-    "@msgpack/msgpack@2.8.0": {
-      "integrity": "sha512-h9u4u/jiIRKbq25PM+zymTyW6bhTzELvOoUd+AvYriWOAKpLGnIamaET3pnHYoI5iYphAHBI4ayx0MehR+VVPQ=="
     },
     "@neon-rs/load@0.0.4": {
       "integrity": "sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw=="
@@ -3331,9 +3327,6 @@
     "etag@1.8.1": {
       "integrity": "sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg=="
     },
-    "eventemitter3@4.0.7": {
-      "integrity": "sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw=="
-    },
     "eventemitter3@5.0.1": {
       "integrity": "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="
     },
@@ -4103,7 +4096,7 @@
         "@scure/bip32",
         "@scure/bip39",
         "abitype",
-        "eventemitter3@5.0.1"
+        "eventemitter3"
       ]
     },
     "ox@0.4.4_zod@3.25.76": {
@@ -4115,7 +4108,7 @@
         "@scure/bip32",
         "@scure/bip39",
         "abitype",
-        "eventemitter3@5.0.1"
+        "eventemitter3"
       ]
     },
     "p-map@7.0.3": {
@@ -4151,18 +4144,6 @@
     },
     "path-to-regexp@0.1.12": {
       "integrity": "sha512-RA1GjUVMnvYFxuqovrEqZoxxW5NUZqbwKtYz/Tt7nXerk0LbLblQmrsgdeOxV5SFHf0UDggjS/bSeOZwt1pmEQ=="
-    },
-    "peerjs-js-binarypack@2.1.0": {
-      "integrity": "sha512-YIwCC+pTzp3Bi8jPI9UFKO0t0SLo6xALnHkiNt/iUFmUUZG0fEEmEyFKvjsDKweiFitzHRyhuh6NvyJZ4nNxMg=="
-    },
-    "peerjs@1.5.5": {
-      "integrity": "sha512-viMUCPDL6CSfOu0ZqVcFqbWRXNHIbv2lPqNbrBIjbFYrflebOjItJ4hPfhjnuUCstqciHVu9vVJ7jFqqKi/EuQ==",
-      "dependencies": [
-        "@msgpack/msgpack",
-        "eventemitter3@4.0.7",
-        "peerjs-js-binarypack",
-        "webrtc-adapter"
-      ]
     },
     "pg-cloudflare@1.2.7": {
       "integrity": "sha512-YgCtzMH0ptvZJslLM1ffsY4EuGaU0cx4XSdXLRFae8bPP4dS5xL1tNB3k2o/N64cHJpwU7dxKli/nZ2lUa5fLg=="
@@ -4651,7 +4632,7 @@
         "@types/uuid",
         "@types/ws@8.18.1",
         "buffer",
-        "eventemitter3@5.0.1",
+        "eventemitter3",
         "uuid@8.3.2",
         "ws@8.18.3_bufferutil@4.0.9_utf-8-validate@5.0.10"
       ],
@@ -4677,9 +4658,6 @@
     },
     "scheduler@0.27.0": {
       "integrity": "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q=="
-    },
-    "sdp@3.2.1": {
-      "integrity": "sha512-lwsAIzOPlH8/7IIjjz3K0zYBk7aBVVcvjMwt3M4fLxpjMYyy7i3I97SLHebgn4YBjirkzfp3RvRDWSKsh/+WFw=="
     },
     "secure-json-parse@2.7.0": {
       "integrity": "sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw=="
@@ -5019,12 +4997,6 @@
     "webidl-conversions@3.0.1": {
       "integrity": "sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ=="
     },
-    "webrtc-adapter@9.0.3": {
-      "integrity": "sha512-5fALBcroIl31OeXAdd1YUntxiZl1eHlZZWzNg3U4Fn+J9/cGL3eT80YlrsWGvj2ojuz1rZr2OXkgCzIxAZ7vRQ==",
-      "dependencies": [
-        "sdp"
-      ]
-    },
     "whatwg-fetch@3.6.20": {
       "integrity": "sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg=="
     },
@@ -5192,7 +5164,6 @@
       "npm:ollama-ai-provider@1.2.0",
       "npm:ollama@0.6.3",
       "npm:ora@9.0.0",
-      "npm:peerjs@1.5.5",
       "npm:pretty-bytes@7.1.0",
       "npm:prosemirror-example-setup@1.2.3",
       "npm:prosemirror-model@1.25.4",

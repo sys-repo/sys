@@ -132,7 +132,6 @@ deno.json:
   - import: npm:ora@9.0.0
   - import: npm:@preact/signals-core@1.12.1
   - import: npm:pretty-bytes@7.1.0
-  - import: npm:peerjs@1.5.5
   - import: npm:ramda@0.32.0
   - import: npm:@types/ramda@0.31.1
   - import: npm:rxjs@7.8.2

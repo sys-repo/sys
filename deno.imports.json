@@ -65,7 +65,6 @@
     "ollama": "npm:ollama@0.6.3",
     "ollama-ai-provider": "npm:ollama-ai-provider@1.2.0",
     "ora": "npm:ora@9.0.0",
-    "peerjs": "npm:peerjs@1.5.5",
     "pretty-bytes": "npm:pretty-bytes@7.1.0",
     "prosemirror-example-setup": "npm:prosemirror-example-setup@1.2.3",
     "prosemirror-example-setup/style/style.css": "npm:prosemirror-example-setup@1.2.3/style/style.css",
