@@ -4,8 +4,24 @@ import { Mime } from '../cmd.serve/mod.ts';
 type F = (path: t.StringPath) => boolean;
 
 export function makeFilter(args: { allowedMimes: t.ServeTool.MimeLookup }): F {
+  const { allowedMimes } = args;
+
   return (path: string) => {
-    const base = Path.basename(path);
+    const normalized = path.replaceAll('\\', '/');
+    const base = Path.basename(normalized);
+
+    /**
+     * Hide any path that contains a dot-prefixed segment (".git", ".vscode", etc).
+     * The top-level label (".tmp/") is added separately by Fs.Fmt and
+     * is not subject to this filter.
+     */
+    const segments = normalized.split('/');
+    for (const segment of segments) {
+      if (segment.startsWith('.') && segment.length > 1) return false;
+    }
+
+    const EXCLUDE = ['.DS_Store'];
+    if (EXCLUDE.includes(base)) return false;
 
     // Keep entries that don't look like files (no dot in basename).
     const dotIndex = base.lastIndexOf('.');
@@ -16,6 +32,6 @@ export function makeFilter(args: { allowedMimes: t.ServeTool.MimeLookup }): F {
     const mime = Mime.extensionMap[ext];
 
     if (!mime) return false;
-    return args.allowedMimes.has(mime);
+    return allowedMimes.has(mime);
   };
 }
