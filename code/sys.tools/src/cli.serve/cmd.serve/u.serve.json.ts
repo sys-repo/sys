@@ -1,4 +1,5 @@
-import { type t, Fs, Hash, Pkg, pkg } from '../common.ts';
+import { type t, pkg, D, Fs, Hash } from '../common.ts';
+import { Fmt } from '../u.fmt.ts';
 import { makeFilter } from './u.serve.filter.ts';
 
 type Args = {
@@ -13,6 +14,7 @@ type Args = {
  */
 export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonViewResult> {
   const { stat, mime, allowedMimes } = args;
+
   if (stat.isFile) {
     /**
      * File:
@@ -29,16 +31,22 @@ export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonViewRes
     /**
      * Folder:
      */
+    const dir = Fs.basename(args.path.fs);
     const filter = makeFilter({ allowedMimes });
-    const res = await Pkg.Dist.compute({
-      dir: args.path.fs,
-      pkg: { ...pkg, name: Fs.join(pkg.name, 'serve') },
-      builder: pkg,
-      filter,
-    });
+
+    type Body = t.ServeTool.JsonViewFolder['body'];
+    const files: Body['files'] = [];
+    const entries = await Fs.glob(args.path.fs).find('*');
+
+    for (const entry of entries) {
+      if (!filter(entry.name)) continue;
+      const name = entry.isDirectory ? `${entry.name}/` : entry.name;
+      files.push(name);
+    }
+
     return {
       kind: 'folder',
-      body: res.dist,
+      body: { dir, files, about: { cmd: 'serve', pkg } },
     };
   }
 }

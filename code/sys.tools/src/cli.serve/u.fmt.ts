@@ -6,7 +6,6 @@ export const Fmt = {
 
   async help(toolname: string = D.toolname, cwd: t.StringDir) {
     const config = await getConfig(cwd);
-
     const str = Str.builder()
       .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))
       .line(await Base.help(toolname))
@@ -22,18 +21,19 @@ export const Fmt = {
     maxDepth?: number;
     filter?: (path: t.StringPath) => boolean;
   }) {
-    const { dir, reqPath, indent = 3, maxDepth = 1, filter } = args;
+    const { dir, reqPath, indent = 6, maxDepth = 1, filter } = args;
     const tree = await Fs.Fmt.treeFromDir(Fs.join(dir, reqPath), { maxDepth, indent, filter });
-
-    const str = Str.builder()
-      .line(Fs.dirname(Fs.join(dir, reqPath)))
-      .line()
-      .line()
+    const str = Str
+      //
+      .builder()
+      .blank(2)
       .line(tree)
-      .line()
-      .line()
-      .line(`${Pkg.toString(pkg)}/serve`);
-
+      .blank(3)
+      .line(Fmt.folderToolname());
     return String(str);
+  },
+
+  folderToolname() {
+    return `${Pkg.toString(pkg)}/serve`;
   },
 } as const;

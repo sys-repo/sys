@@ -90,7 +90,11 @@ export namespace ServeTool {
   };
   export type JsonViewFolder = {
     readonly kind: 'folder';
-    readonly body: t.DistPkg;
+    readonly body: {
+      dir: t.StringName;
+      files: t.StringName[];
+      about: { pkg: t.Pkg; cmd: 'serve' };
+    };
   };
 }
 
