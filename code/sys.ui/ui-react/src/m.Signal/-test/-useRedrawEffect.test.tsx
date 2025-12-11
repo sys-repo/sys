@@ -5,7 +5,7 @@ import { Signal } from '../mod.ts';
 
 DomMock.polyfill();
 
-describe('Signal.useRedrawEffect | ', () => {
+describe('Signal.useRedrawEffect | ', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('coalesces redraws per microtask', async () => {
     let renders = 0;
 

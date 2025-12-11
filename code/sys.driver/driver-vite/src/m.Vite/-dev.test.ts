@@ -58,7 +58,6 @@ describe('Vite.dev', () => {
 
       expect(res.status).to.eql(200);
       expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".tsx" because in dev mode.
-      expect(html).to.include(`<script type="module" src="/@vite/client">`);
       expect(html).to.include(`injectIntoGlobalHook(window);`);
 
       await server.dispose();

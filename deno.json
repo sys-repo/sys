@@ -25,7 +25,7 @@
   "compilerOptions": {
     "strict": true,
     "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "webworker", "deno.ns"],
-    "types": ["vite/client", "@types/react"],
+    "types": ["@types/react"],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
