@@ -14,11 +14,21 @@ export type PublishAssetsManifest = {
 };
 
 /**
+ * Playback manifest: timecode composition + beats emitted by the tools bundle.
+ * Mirrors the JSON produced for the player.
+ */
+export type PublishPlaybackManifest = {
+  readonly docid: string;
+  readonly composition: t.Timecode.Composite.Spec;
+  readonly beats: t.Timecode.Playback.Spec<unknown>['beats'];
+};
+
+/**
  * Load a playback bundle from a running `publish.assets` server.
  *
- * NOTE: For the first iteration this returns an empty TimecodePlaybackSpec –
- * we only wire up the MediaResolver using the manifest.
- * The real timecode composition will get slotted in later.
+ * This now wires both:
+ * - MediaResolver (via the assets manifest)
+ * - TimecodePlaybackSpec (via the playback manifest)
  */
 export async function loadPlaybackFromEndpoint(
   baseUrl: t.StringUrl,
@@ -31,25 +41,36 @@ export async function loadPlaybackFromEndpoint(
   const dist = distRes.data; // keep as unknown for now – no need to type it yet
   void dist; // placeholder to avoid eslint complaints
 
-  // 2. Load a single manifest (for now: hard-code or swap in a debug docid).
+  // 2. Load the assets manifest for this slug/doc.
   const manifestRes = await http.json(`${baseUrl}/manifests/slug.${docid}.assets.json`);
   const manifest = manifestRes.data as PublishAssetsManifest;
 
-  // 3. Build the MediaResolver from the manifest.
+  // 3. Load the playback manifest (timecode spec) for this slug/doc.
+  const playbackRes = await http.json(`${baseUrl}/manifests/slug.${docid}.playback.json`);
+  const playback = playbackRes.data as PublishPlaybackManifest;
+
+  // 4. Build the MediaResolver from the manifest.
   const resolveMedia: t.MediaResolver = ({ kind, logicalPath }) => {
     const asset = manifest.assets.find((a) => a.kind === kind && a.logicalPath === logicalPath);
     if (!asset) return undefined;
 
-    // Ensure we always return an absolute URL rooted at `baseUrl`.
-    const url = new URL(asset.href, `${baseUrl}/`);
+    const base = new URL(baseUrl);
+    const basePath = base.pathname.replace(/\/$/, ''); // "/publish.assets"
+    let href = asset.href;
+
+    // If href is root-relative ("/video/..."), anchor it under the publish.assets prefix.
+    if (href.startsWith('/')) {
+      href = `${basePath}${href}`; // "/publish.assets/video/..."
+    }
+
+    const url = new URL(href, base.origin);
     return url.toString();
   };
 
-  // 4. Stub TimecodePlaybackSpec – composition + beats will be filled from
-  //    real timecode data later.
+  // 5. Use the real timecode playback spec from the manifest.
   const spec: t.Timecode.Playback.Spec<unknown> = {
-    composition: [] as t.Timecode.Composite.Spec,
-    beats: [],
+    composition: playback.composition,
+    beats: playback.beats,
   };
 
   return { spec, resolveMedia };
