@@ -34,6 +34,6 @@ export const Fmt = {
   },
 
   folderToolname() {
-    return `${Pkg.toString(pkg)}/serve`;
+    return `${Pkg.toString(pkg)}:serve`;
   },
 } as const;
