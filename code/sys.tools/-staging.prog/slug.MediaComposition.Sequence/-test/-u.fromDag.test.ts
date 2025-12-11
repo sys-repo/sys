@@ -19,17 +19,19 @@ describe('Sequence.fromDag', () => {
     return { nodes: [indexNode, slugNode] } as unknown as Dag;
   }
 
-  it('returns a sequence when media-composition/sequence trait is present', async () => {
+  it('returns ok:true with a sequence when media-composition/sequence trait is present', async () => {
     const dag = makeDag(SLUG_YAML_WITH_TRAIT);
 
     const result = await fromDag(dag, yamlPath, SLUG_ID);
-    expect(result).to.be.ok;
-    if (!result) return;
 
-    expect(Array.isArray(result)).to.eql(true);
-    expect(result.length).to.eql(1);
+    expect(result.ok).to.eql(true);
+    if (!result.ok) return;
 
-    const first = result[0] as t.SequenceVideoItem;
+    const sequence = result.sequence;
+    expect(Array.isArray(sequence)).to.eql(true);
+    expect(sequence.length).to.eql(1);
+
+    const first = sequence[0] as t.SequenceVideoItem;
     expect(first.video).to.eql('/:core-videos/example.webm');
   });
 
@@ -37,26 +39,42 @@ describe('Sequence.fromDag', () => {
     const dag = makeDag(SLUG_YAML_WITH_ALT_SEQUENCE);
 
     const result = await fromDag(dag, yamlPath, SLUG_ID);
-    expect(result).to.be.ok;
-    if (!result) return;
 
-    expect(Array.isArray(result)).to.eql(true);
-    expect(result.length).to.eql(1);
+    expect(result.ok).to.eql(true);
+    if (!result.ok) return;
 
-    const first = result[0] as t.SequenceVideoItem;
+    const sequence = result.sequence;
+    expect(Array.isArray(sequence)).to.eql(true);
+    expect(sequence.length).to.eql(1);
+
+    const first = sequence[0] as t.SequenceVideoItem;
     expect(first.video).to.eql('/:core-videos/example-alt.webm');
   });
 
-  it('returns <undefined> when the media-composition/sequence trait is missing', async () => {
+  it('returns ok:false when the media-composition/sequence trait is missing', async () => {
     const dag = makeDag(SLUG_YAML_NO_TRAIT);
+
     const result = await fromDag(dag, yamlPath, SLUG_ID);
-    expect(result).to.eql(undefined);
+
+    expect(result.ok).to.eql(false);
+    if (result.ok) return;
+
+    expect(result.error).to.be.instanceOf(Error);
+    expect(result.error.message).to.contain('media-composition');
   });
 
-  it('returns <undefined> when validate:true and the sequence fails schema invariants', async () => {
+  it('returns ok:false when validate:true and the sequence fails schema invariants', async () => {
     const dag = makeDag(SLUG_YAML_INVALID_SEQUENCE);
+
     const result = await fromDag(dag, yamlPath, SLUG_ID, { validate: true });
-    expect(result).to.eql(undefined);
+
+    expect(result.ok).to.eql(false);
+    if (result.ok) return;
+
+    expect(result.error).to.be.instanceOf(Error);
+    // 🌸🌸 ---------- CHANGED: from-dag-invalid-sequence-expectation ----------
+    expect(result.error.message).to.contain('body text requires');
+    // 🌸 ---------- /CHANGED ----------
   });
 });
 
@@ -132,7 +150,8 @@ const SLUG_YAML_NO_TRAIT = `
 
 /**
  * Slug with media-composition/sequence trait but an invalid sequence
- * (body text without a headline), which should fail validation.
+ * (body text without a headline), which should fail validation when
+ * fromDag is called with validate:true.
  */
 const SLUG_YAML_INVALID_SEQUENCE = `
   title: Example Concept

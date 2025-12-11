@@ -26,7 +26,7 @@ export type SequenceLib = {
     yamlPath: t.ObjectPath,
     docid: t.Crdt.Id,
     opts?: { validate?: boolean },
-  ): Promise<t.SequenceItem[] | undefined>;
+  ): Promise<t.ValidateResult<t.SequenceItem[]>>;
 };
 
 /**
