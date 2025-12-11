@@ -128,6 +128,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
           console.log('bundle.resolveMedia', bundle.resolveMedia);
           p.bundle.value = bundle;
 
+          const TMP_URL = `http://localhost:4040/publish.assets/video/sha256-e9d0c5e3e47eb2ce908798c957ca4d385daefd3ecb8d68d35135910284f68685.webm`;
+          debug.video.props.src.value = TMP_URL;
 
           // 1. Resolve composite → segments + total + diagnostics.
           const resolved = Timecode.Composite.toVirtualTimeline(spec.composition);
