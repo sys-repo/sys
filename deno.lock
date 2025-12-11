@@ -90,6 +90,7 @@
     "npm:@types/react@19.2.7": "19.2.7",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.2": "5.1.2_vite@7.2.7__@types+node@24.2.0__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.28.5_@types+node@24.2.0_yaml@2.8.2",
+    "npm:ai@5.0.109": "5.0.109_zod@4.1.12",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.1": "6.2.1",
     "npm:csstype@3.2.3": "3.2.3",
@@ -630,6 +631,15 @@
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.17_zod@4.1.12",
+        "@vercel/oidc",
+        "zod@4.1.12"
+      ]
+    },
+    "@ai-sdk/gateway@2.0.18_zod@4.1.12": {
+      "integrity": "sha512-sDQcW+6ck2m0pTIHW6BPHD7S125WD3qNkx/B8sEzJp/hurocmJ5Cni0ybExg6sQMGo+fr/GWOwpHF1cmCdg5rQ==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.18_zod@4.1.12",
         "@vercel/oidc",
         "zod@4.1.12"
       ]
@@ -2825,6 +2835,16 @@
       ],
       "optionalPeers": [
         "react"
+      ]
+    },
+    "ai@5.0.109_zod@4.1.12": {
+      "integrity": "sha512-tW8K4Z0bcYH9PzP7gMmPilgBwgpylEL25bRtWruUnrTS45S6ryNJ6YSEh6mZajlIEDS6bcur7srdXVGERxjVXQ==",
+      "dependencies": [
+        "@ai-sdk/gateway@2.0.18_zod@4.1.12",
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.18_zod@4.1.12",
+        "@opentelemetry/api",
+        "zod@4.1.12"
       ]
     },
     "ai@5.0.60_zod@4.1.12": {
