@@ -23,10 +23,13 @@ export async function walkSequenceMediaPaths(
   const node = Parse.findParsedNode(dag, docid);
   const Path = Parse.path(dag, docid);
   const MediaComposition = Slug.Trait.MediaComposition;
-  const seq = await MediaComposition.Sequence.fromDag(dag, yamlPath, docid, { validate: false });
+
+  const result = await MediaComposition.Sequence.fromDag(dag, yamlPath, docid, { validate: false });
 
   // If we cannot resolve aliases or sequence for this document, we skip.
-  if (!Path.ok || !node || !seq) return;
+  if (!Path.ok || !node || !result.ok) return;
+
+  const seq = result.sequence;
 
   const isSupported = (kind: t.SlugAssetKind) => {
     if (kind === 'image') return facets.includes('sequence:file:image');

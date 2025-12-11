@@ -29,7 +29,7 @@ export const fromDag: t.SequenceLib['fromDag'] = async (dag, yamlPath, docid, op
    */
   const { ok: pathOk, node } = parser.path(dag, docid);
   if (!pathOk || !node) {
-    const pathStr = yamlPath.join('/');
+    const pathStr = yamlPath.length > 0 ? yamlPath.join('/') : '(root)';
     return fail(`Slug not found for doc "${docid}" at YAML path "${pathStr}".`);
   }
 
@@ -43,7 +43,9 @@ export const fromDag: t.SequenceLib['fromDag'] = async (dag, yamlPath, docid, op
    */
   const trait = traits.find((trait) => trait.of === 'media-composition');
   if (!trait || !Is.str(trait.as)) {
-    const err = `Slug "${docid}" does not advertise a "media-composition" sequence trait (expected {of:"media-composition", as:string}).`;
+    const err =
+      `Slug "${docid}" does not advertise a "media-composition" sequence trait ` +
+      `(expected {of:"media-composition", as:string}).`;
     return fail(err);
   }
 
@@ -70,6 +72,17 @@ export const fromDag: t.SequenceLib['fromDag'] = async (dag, yamlPath, docid, op
 
   /**
    * Optionally run full schema + invariant validation.
+   *
+   * On failure, we prefix the invariant/schema message with the concrete
+   * authoring path `data.<trait.as>` so callers and lints get a useful,
+   * path-anchored error instead of a generic "Invalid sequence".
    */
-  return validate ? validateSequence(normalized) : ok(normalized);
+  if (!validate) return ok(normalized);
+
+  const result = validateSequence(normalized);
+  if (result.ok) return result;
+
+  const base = result.error.message.replace(/^Invalid sequence:\s*/, '');
+  const message = `Invalid sequence at "data/${trait.as}": ${base}`;
+  return { ok: false, error: new Error(message) };
 };

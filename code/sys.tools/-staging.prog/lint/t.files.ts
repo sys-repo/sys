@@ -5,8 +5,14 @@ import type { t } from './common.ts';
  *
  * These describe issues discovered when resolving media paths
  * (video/image) referenced in a sequence.
+ *
+ * Includes a sequence-level playback export failure which is
+ * surfaced via the same lint channel for convenience.
  */
-export type LintSequenceFilepathKind = 'video-path:not-found' | 'image-path:not-found';
+export type LintSequenceFilepathKind =
+  | 'video-path:not-found'
+  | 'image-path:not-found'
+  | 'sequence:playback:not-exported';
 
 /**
  * A single filepath lint issue.
