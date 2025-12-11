@@ -1,4 +1,4 @@
-import { type t, c, Cli, Jsr, pkg, Process, Semver } from './common.ts';
+import { type t, c, Cli, pkg, Process } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { getVersionInfo } from './u.ts';
 
@@ -18,7 +18,7 @@ export async function runUpdate(cwd: t.StringDir): Promise<void> {
     return;
   }
 
-  const msg = `updating ${c.white(pkg.name)} from ${version.local} to ${c.green(version.latest)}...`;
+  const msg = `updating ${c.white(pkg.name)} from ${c.yellow(version.local)} to ${c.green(version.latest)}...`;
   const spinner = Cli.spinner(c.gray(msg)).start();
   const out = await Process.invoke({
     cmd: 'deno',

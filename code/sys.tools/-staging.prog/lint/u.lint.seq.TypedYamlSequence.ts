@@ -31,7 +31,6 @@ export async function lintTypedYamlSequence(
   }
 
   const sequence = result.sequence;
-
   const issues: t.LintIssue[] = [];
 
   /**
