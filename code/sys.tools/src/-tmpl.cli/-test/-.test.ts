@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, slug } from '../../../-test.ts';
+import { beforeAll, describe, expect, it, slug } from '../../-test.ts';
 import { type t, D, Fs } from '../common.ts';
 import { Config, getConfig } from '../u.config.ts';
 

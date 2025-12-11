@@ -1,4 +1,4 @@
-import { type t, done, Args, c, Cli, D, Fs, Is, Prompt, TmplEngine } from './common.ts';
+import { type t, done, Args, c, Cli, D, Fs, Is, Prompt, TmplEngine, opt } from './common.ts';
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 
@@ -44,8 +44,8 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
     const A = (await Prompt.Select.prompt<t.__NAME__Tool.Command>({
       message: 'Tools:\n',
       options: [
-        { name: ` Option A (clone \`-tmpl\` as new ${c.green('<tool>')})`, value: 'option-a' },
-        { name: ' Option B', value: 'option-b' },
+        opt(` Option A (clone \`-tmpl\` as new ${c.green('<tool>')})`, 'option-a'),
+        opt(' Option B', 'option-b'),
       ],
       hideDefault: true,
     })) as t.__NAME__Tool.Command;
