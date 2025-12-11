@@ -1,5 +1,3 @@
-import 'fake-indexeddb/auto';
-
 export {
   DomMock,
   Testing,

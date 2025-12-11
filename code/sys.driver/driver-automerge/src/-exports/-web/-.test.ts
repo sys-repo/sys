@@ -1,3 +1,4 @@
+import 'fake-indexeddb/auto';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
 
 import { type t, describe, expect, it, slug, Testing, Time } from '../../-test.ts';
