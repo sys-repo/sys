@@ -13,6 +13,7 @@ import {
   Player,
 } from '../common.ts';
 import { loadPlaybackFromEndpoint } from './-u.loader.ts';
+import { resolve } from 'node:path';
 
 type P = t.MediaTimecodePlaybackProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -45,12 +46,14 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    video,
     listen,
     reset,
   };
 
   function listen() {
-    Signal.listen(props);
+    Signal.listen(props, true);
+    Signal.listen(video.props);
   }
 
   function reset() {
@@ -119,9 +122,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
           const { spec, resolveMedia } = bundle;
 
+          console.log('docid', `crdt:${docid}`);
           console.log('bundle', bundle);
           console.log('bundle.spec', bundle.spec);
           console.log('bundle.resolveMedia', bundle.resolveMedia);
+          p.bundle.value = bundle;
+
 
           // 1. Resolve composite → segments + total + diagnostics.
           const resolved = Timecode.Composite.toVirtualTimeline(spec.composition);
@@ -162,10 +168,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
+        name={'video.signals'}
+        data={Obj.truncateStrings(Signal.toObject(debug.video.props))}
+        style={{ marginTop: 5 }}
+        expand={1}
+      />
+      <ObjectView
         name={'playback-bundle'}
         data={Signal.toObject(p.bundle)}
+        style={{ marginTop: 5 }}
         expand={0}
-        style={{ marginTop: 10 }}
       />
     </div>
   );

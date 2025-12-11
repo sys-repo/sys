@@ -8,7 +8,7 @@ export namespace MediaTimecode {
    * UI primitives for working with time-code
    */
   export type Lib = {
-    Playback: t.FC<t.PlayerControlsProps>;
+    Playback: t.FC<t.MediaTimecodePlaybackProps>;
   };
 
   /**

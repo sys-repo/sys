@@ -5,6 +5,7 @@ import type { t } from './common.ts';
  */
 export type MediaTimecodePlaybackProps = {
   debug?: boolean;
+  video?: t.VideoPlayerSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
