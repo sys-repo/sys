@@ -5,13 +5,13 @@ export async function printHelp(argv: string[]) {
 
   const text = await Fmt.help(' system:tools', (e, c) => {
     const fmt = (path: string) => c.gray(`${pkg.name}/`) + path;
-    e.row(fmt('copy'), c.gray(`(← alias ${c.white('cp')}, ${c.italic(c.yellow('clipboard'))})`));
+    e.row(fmt('copy'), c.gray(`(← alias ${c.white('cp')})`));
     e.row(fmt('crdt'));
     e.row(fmt('serve'));
     e.row(fmt('deploy'));
     e.row(fmt('fs'));
     e.row(fmt('video'));
-    e.row(fmt(c.green('update')));
+    e.row(fmt(c.green('update')), c.gray(`(← alias ${c.white('up')})`));
   });
 
   console.info(text);
