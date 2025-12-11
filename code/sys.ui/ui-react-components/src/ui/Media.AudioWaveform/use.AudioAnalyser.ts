@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import type { t } from './common.ts';
+
+type Hook = t.MediaAudioWaveformLib['useAudioAnalyser'];
 
 /**
  * Setup and maintain an [AudioStream] analyzer.
@@ -7,7 +10,7 @@ import React, { useState } from 'react';
  *    https://www.twilio.com/blog/audio-visualisation-web-audio-api--react
  *
  */
-export function useAudioAnalyser(args: { stream?: MediaStream }) {
+export const useAudioAnalyser: Hook = (args: { stream?: MediaStream }) => {
   const [stream, setStream] = useState<MediaStream>();
   const [frame, setFrame] = useState<number>();
   const [audioData, setAudioData] = useState<Uint8Array>();
@@ -48,4 +51,4 @@ export function useAudioAnalyser(args: { stream?: MediaStream }) {
    * Public API:
    */
   return { isActive, audioData };
-}
+};

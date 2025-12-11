@@ -7,8 +7,9 @@ export type * from './t.Object.ts';
  * Media stream UI and helpers.
  */
 export namespace Media {
+  /** Concrete component library. */
   export type Lib = {
-    readonly UI: { readonly AudioWaveform: React.FC<t.AudioWaveformProps> };
+    readonly AudioWaveform: t.MediaAudioWaveformLib;
     readonly Video: t.MediaVideoLib;
     readonly Recorder: t.MediaRecorderLib;
     readonly Devices: t.MediaDevicesLib;

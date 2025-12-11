@@ -33,7 +33,7 @@ export const BackBody: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div>{''}</div>
       <div className={styles.bottom.class}>
-        <Media.UI.AudioWaveform theme={theme.name} stream={stream} style={{ top: -2 }} />
+        <Media.AudioWaveform.UI theme={theme.name} stream={stream} style={{ top: -2 }} />
         <ButtonIcon
           theme={theme.name}
           size={18}

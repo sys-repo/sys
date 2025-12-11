@@ -63,7 +63,7 @@ export default Spec.describe('MediaRecorder', (e) => {
               p.selectedCamera.value = e.device;
             }}
           />
-          <Media.UI.AudioWaveform
+          <Media.AudioWaveform.UI
             stream={p.stream.value}
             style={styles.waveform}
             theme={p.theme.value}
