@@ -72,9 +72,7 @@ describe('Sequence.fromDag', () => {
     if (result.ok) return;
 
     expect(result.error).to.be.instanceOf(Error);
-    // 🌸🌸 ---------- CHANGED: from-dag-invalid-sequence-expectation ----------
     expect(result.error.message).to.contain('body text requires');
-    // 🌸 ---------- /CHANGED ----------
   });
 });
 
