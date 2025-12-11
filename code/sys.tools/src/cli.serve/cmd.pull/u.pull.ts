@@ -13,7 +13,7 @@ const Fmt = {
     const { dist, progress } = opts;
     const a: string[] = [];
     if (dist) a.push(Fmt.bundleSize(dist));
-    if (progress) a.push(`${progress.index + 1}/${progress.total} files`);
+    if (progress) a.push(`${c.white(String(progress.index + 1))}/${progress.total} files`);
     const after = a.length === 0 ? '' : `(${a.join(' · ')})`;
     return Fmt.spinnerText(`pulling remote bundle... ${after}`.trim());
   },
