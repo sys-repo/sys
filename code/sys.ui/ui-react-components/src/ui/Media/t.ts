@@ -6,21 +6,23 @@ export type * from './t.Object.ts';
 /**
  * Media stream UI and helpers.
  */
-export type MediaLib = {
-  readonly UI: { readonly AudioWaveform: React.FC<t.AudioWaveformProps> };
-  readonly Video: t.MediaVideoLib;
-  readonly Recorder: t.MediaRecorderLib;
-  readonly Devices: t.MediaDevicesLib;
-  readonly Config: t.MediaConfigLib;
-  readonly AspectRatio: t.MediaAspectRatioLib;
-  readonly Is: t.MediaIsLib;
-  readonly Log: t.MediaLogLib;
-  readonly ToObject: t.MediaToObjectLib;
-  readonly toObject: t.MediaToObjectRoute;
+export namespace Media {
+  export type Lib = {
+    readonly UI: { readonly AudioWaveform: React.FC<t.AudioWaveformProps> };
+    readonly Video: t.MediaVideoLib;
+    readonly Recorder: t.MediaRecorderLib;
+    readonly Devices: t.MediaDevicesLib;
+    readonly Config: t.MediaConfigLib;
+    readonly AspectRatio: t.MediaAspectRatioLib;
+    readonly Is: t.MediaIsLib;
+    readonly Log: t.MediaLogLib;
+    readonly ToObject: t.MediaToObjectLib;
+    readonly toObject: t.MediaToObjectRoute;
 
-  // Helper methods:
-  download(blob?: Blob, filename?: string): void;
-};
+    // Helper methods:
+    download(blob?: Blob, filename?: string): void;
+  };
+}
 
 /**
  * Tools for calculating aspect ratios from media streams.

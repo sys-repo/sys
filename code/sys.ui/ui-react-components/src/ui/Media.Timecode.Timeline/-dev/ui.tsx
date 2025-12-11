@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Player, Color, css, D, KeyValue, Obj, Cropmarks } from './common.ts';
+import { type t, Player, Color, css, D, KeyValue, Obj, Cropmarks } from '../common.ts';
 
 export const Playback: React.FC<t.MediaTimecodePlaybackProps> = (props) => {
   const { debug = false, video } = props;

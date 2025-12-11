@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { Playback } from './ui.Playback.tsx';
+import { Playback } from './-dev/mod.ts';
 
 export const MediaTimecode: t.MediaTimecode.Lib = {
   Playback,

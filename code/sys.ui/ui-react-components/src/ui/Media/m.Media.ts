@@ -1,4 +1,4 @@
-import type { MediaLib } from './t.ts';
+import { type t } from './common.ts';
 
 import { AudioWaveform } from '../Media.AudioWaveform/mod.ts';
 import { Config } from '../Media.Config/mod.ts';
@@ -12,7 +12,7 @@ import { ToObject, toObject } from './u.toObject.ts';
 
 import { download } from './u.download.ts';
 
-export const Media: MediaLib = {
+export const Media: t.Media.Lib = {
   // Components:
   UI: { AudioWaveform },
 
