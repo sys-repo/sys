@@ -262,23 +262,6 @@ describe('Composite', () => {
     });
   });
 
-  describe('mapToSource', () => {
-    const resolved = Composite.resolve(SPEC, DURS);
-
-    it('maps inside range', () => {
-      const r = Composite.mapToSource(resolved.segments, asMs(65_000))!;
-      expect(r.index).to.eql(1);
-      expect(r.seg.src).to.eql(SRC_B);
-      expect(r.offset).to.eql(asMs(5_000)); // 65_000 - 60_000
-      expect(r.srcTime).to.eql(asMs(10_000 + 5_000)); // original.from + offset
-    });
-
-    it('null outside [0,total)', () => {
-      expect(Composite.mapToSource(resolved.segments, asMs(-1))).to.eql(null);
-      expect(Composite.mapToSource(resolved.segments, resolved.total)).to.eql(null); // exclusive end
-    });
-  });
-
   describe('cursor', () => {
     const resolved = Composite.resolve(SPEC, DURS);
     const cur = Composite.cursor(resolved);

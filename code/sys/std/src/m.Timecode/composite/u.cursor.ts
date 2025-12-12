@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { mapToSource } from './u.map.ts';
+import { Map } from './m.Map.ts';
 
 /**
  * Cursor factory over a resolved composition.
@@ -10,7 +10,7 @@ export function cursor(resolved: t.TimecodeCompositionResolved) {
 
   /** Lookup segment at virtual time (or null if out of range). */
   const at = (v: t.TimecodeVTime): t.TimecodeMapToSourceResult | null => {
-    return mapToSource(segments, v);
+    return Map.toSource(segments, v);
   };
 
   /** Next segment index or null. */

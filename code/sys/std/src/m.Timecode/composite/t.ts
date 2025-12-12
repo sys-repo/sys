@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 
 export type * from './t.timeline.ts';
+export type * from './t.map.ts';
 
 /**
  * Canonical library of pure, programmatic operations for working with
@@ -22,10 +23,8 @@ export type TimecodeCompositeLib = {
   /** Build a resolved timeline from authoring spec + known durations. */
   readonly resolve: t.TimecodeResolveComposition;
 
-  /**
-   * Map a virtual time to its backing source segment/time.
-   */
-  readonly mapToSource: t.TimecodeMapToSource;
+  /** Mapping helpers between virtual-time and source-time domains. */
+  readonly Map: t.TimecodeCompositeMapLib;
 
   /** Small time utilities on the virtual timeline. */
   readonly Time: {
@@ -153,6 +152,21 @@ export type TimecodeCompositionResolved = {
 /** Virtual-time alias for clarity. */
 export type TimecodeVTime = t.Msecs;
 
+/** Absolute time (ms) within the *source* media asset. */
+export type TimecodeSrcTime = t.Msecs;
+
+/**
+ * Time (ms) relative to the start of a slice window.
+ * Domain: [0, sliceLength).
+ */
+export type TimecodeSliceTime = t.Msecs;
+
+/**
+ * Concrete resolved slice window within the source asset.
+ * Semantics: inclusive start, exclusive end.
+ */
+export type TimecodeSliceWindow = t.MsecSpan;
+
 /**
  * Map a virtual time position into a concrete source-time within a segment.
  * Returns null if the composition is empty or the time is outside [0,total).
@@ -167,7 +181,7 @@ export type TimecodeMapToSourceResult = {
 };
 
 export type TimecodeMapToSource = (
-  segments: readonly TimecodeResolvedSegment[],
+  segments: readonly t.TimecodeResolvedSegment[],
   vTime: TimecodeVTime,
 ) => TimecodeMapToSourceResult | null;
 

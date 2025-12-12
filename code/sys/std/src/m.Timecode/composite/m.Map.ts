@@ -1,9 +1,16 @@
 import type { t } from './common.ts';
 
 /**
+ * Mapping operations between the virtual timeline and source/slice domains.
+ */
+export const Map: t.TimecodeCompositeMapLib = {
+  toSource,
+};
+
+/**
  * Map a virtual time to its backing source segment/time (or null).
  */
-export function mapToSource(
+function toSource(
   segments: readonly t.TimecodeResolvedSegment[],
   vTime: t.TimecodeVTime,
 ): t.TimecodeMapToSourceResult | null {
@@ -24,10 +31,10 @@ export function mapToSource(
  * Internal:
  */
 function totalOf(segments: readonly t.TimecodeResolvedSegment[]): t.Msecs {
-  return segments.length ? segments[segments.length - 1].virtual.to : (0 as t.Msecs);
+  return segments.length ? segments[segments.length - 1].virtual.to : 0;
 }
 
-export function findSegmentByVTime(
+function findSegmentByVTime(
   segments: readonly t.TimecodeResolvedSegment[],
   vTime: t.TimecodeVTime,
 ): number {
