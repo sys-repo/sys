@@ -58,7 +58,11 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
     beats: timeline.beats.length,
     duration: dur(timeline.duration),
   };
-  const size = `${total.segments} segments → ${total.beats} ${Str.plural(total.beats, 'beat', 'beats')}`;
+  const plural = {
+    segments: Str.plural(total.segments, 'segment', 'segments'),
+    beats: Str.plural(total.beats, 'beat', 'beats'),
+  };
+  const size = `${total.segments} ${plural.segments} → ${total.beats} ${plural.beats}`;
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -69,7 +73,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
           { kind: 'title', v: 'Composite Timeline', y: [0, 10] },
           { k: 'Slug', v: docid ? `crdt:${docid}` : '-', mono: true, userSelect: 'text' },
           { kind: 'hr' },
-          { k: 'Composition Size', v: size },
+          { k: 'Composition Size', v: total.beats === 0 ? '-' : size },
           { k: 'Virtual Duration', v: total.duration },
           { kind: 'hr' },
           { k: 'Current Beat', v: props.index },
