@@ -25,8 +25,6 @@ export async function loadTimelineFromEndpoint(
   const timelineRes = await http.json(`${baseUrl}/manifests/slug.${docid}.playback.json`);
   const manifest = timelineRes.data as t.SpecTimelineManifest<unknown>;
 
-  console.log('manifest', manifest);
-
   // 4. Media resolver from the assets manifest.
   const resolveMedia: t.MediaResolver = ({ kind, logicalPath }) => {
     const asset = assets.assets.find((a) => a.kind === kind && a.logicalPath === logicalPath);
