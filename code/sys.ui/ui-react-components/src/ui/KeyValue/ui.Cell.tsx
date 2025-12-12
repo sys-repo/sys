@@ -8,6 +8,7 @@ export type CellProps = Base & {
   children: React.ReactNode;
   role: 'key' | 'val';
   opacity?: t.Percent; // Final computed opacity for this cell (including any row-level logic).
+  userSelect?: t.CssProps['userSelect'];
 };
 
 /**
@@ -37,6 +38,7 @@ export const Cell: React.FC<CellProps> = (props) => {
       fontSize,
       fontFamily,
       opacity: opacity ?? 1,
+      userSelect: props.userSelect,
       transition: 'opacity 120ms ease',
       ...(truncate && isTextChild ? toEllipsis(true) : {}), // Ellipsis: only for text children when truncate is enabled.
 

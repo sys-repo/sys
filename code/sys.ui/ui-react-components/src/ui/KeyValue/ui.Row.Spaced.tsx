@@ -54,6 +54,7 @@ export const RowSpaced: React.FC<P> = (props) => {
         style={{ textAlign: truncate ? 'right' : 'left' }}
         mono={mono}
         truncate={truncate}
+        userSelect={item.userSelect}
         size={props.size}
         opacity={opacity.v}
         children={item.v}

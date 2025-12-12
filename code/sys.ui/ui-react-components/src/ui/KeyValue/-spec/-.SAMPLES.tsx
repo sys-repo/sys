@@ -29,7 +29,7 @@ function simple(): t.KeyValueItem[] {
 function comprehensive(): t.KeyValueItem[] {
   return [
     { kind: 'title', v: 'Video Stream' },
-    { kind: 'row', k: 'id', v: 'f3e1c4a9-278b-44e9-9b71-23e2e3a16c8b' },
+    { kind: 'row', k: 'id', v: 'crdt:2esGLgD5SoQkeucytmGeadm9cC7y', userSelect: 'text' },
     { kind: 'row', k: 'resolution', v: '1920×1080' },
     { kind: 'row', k: 'fps', v: '60' },
     { kind: 'row', k: 'device', v: 'Logitech BRIO 4K' },

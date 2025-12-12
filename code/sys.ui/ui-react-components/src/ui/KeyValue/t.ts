@@ -34,6 +34,7 @@ export type KeyValueProps = {
   size?: KeyValueSize;
   mono?: boolean;
   truncate?: boolean;
+  selectable?: boolean;
 
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -87,6 +88,11 @@ export type KeyValueRow = {
    * - Object: per-side overrides (k = key, v = value).
    */
   readonly opacity?: KeyValueOpacity;
+
+  /**
+   * Row-level `user-select` overrides
+   */
+  userSelect?: t.CssProps['userSelect'];
 };
 
 /**

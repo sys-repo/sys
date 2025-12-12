@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
-import { toFont, toSpacing, toRowOpacity } from './u.ts';
+import { toFont, toRowOpacity, toSpacing } from './u.ts';
 import { Cell } from './ui.Cell.tsx';
 
 type P = Omit<t.KeyValueItemProps, 'layout' | 'item'> & {
@@ -67,6 +67,7 @@ export const RowTable: React.FC<P> = (props) => {
         mono={mono}
         truncate={truncate}
         size={props.size}
+        userSelect={item.userSelect}
         style={styles.val}
         opacity={opacity.v}
         children={item.v}
