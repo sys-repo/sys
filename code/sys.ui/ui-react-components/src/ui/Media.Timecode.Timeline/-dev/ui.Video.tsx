@@ -44,7 +44,6 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
       color: theme.fg,
       display: 'grid',
     }),
