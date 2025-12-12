@@ -1,12 +1,14 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
-import { TimelineGrid } from './ui.TimelineGrid.tsx';
+import { Grid } from './ui.Grid.tsx';
 import { Video } from './ui.Video.tsx';
 import { InfoPanel } from './ui.InfoPanel.tsx';
 import { useTimelineController } from '../use.TimelineController.ts';
 
 export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
   const { debug = false, bundle, docid, video } = props;
+
+  bundle?.resolveMedia;
 
   /**
    * Hooks:
@@ -52,7 +54,7 @@ export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
 
       <div className={styles.bottom.base.class}>
         <div className={styles.bottom.left.class}>
-          <TimelineGrid
+          <Grid
             bundle={bundle}
             theme={theme.name}
             selectedIndex={controller.activeIndex}
