@@ -35,7 +35,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      fontSize: 11,
+      fontSize: 9,
+      fontFamily: 'monospace',
       color: Color.DARK,
       backgroundColor: Color.alpha(Color.WHITE, 0.5),
       backdropFilter: 'blur(1.5px)',
