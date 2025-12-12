@@ -46,6 +46,7 @@ export async function loadTimelineFromEndpoint(
   };
 
   return {
+    docid,
     spec,
     resolveMedia,
   };

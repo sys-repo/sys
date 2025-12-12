@@ -24,7 +24,7 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const video = Player.Video.signals();
+  const video = Player.Video.signals({ cornerRadius: 4, showControls: false, muted: true });
 
   const props = {
     debug: s(snap.debug),
@@ -47,6 +47,7 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    video.props.src.value = undefined;
   }
 
   Signal.effect(() => {
@@ -90,16 +91,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   };
 
   const load = (docid: t.StringId, msg: string = '') => {
+    const isCurrent = docid === p.docid.value;
     const id = Str.ellipsize(docid, [5, 5], '..');
-    const label = `- load crdt:${id} ${msg}`;
-    return (
-      <Button
-        //
-        block
-        label={() => label}
-        onClick={() => Sample.load(debug, docid)}
-      />
-    );
+    const label = `- load crdt:${id} ${msg} ${isCurrent ? '🌳' : ''}`;
+    return <Button block label={label} onClick={() => Sample.load(debug, docid)} />;
   };
 
   return (

@@ -1,4 +1,4 @@
-import { pkg, Pkg } from '../common.ts';
+import { type t, pkg, Time, Pkg } from '../common.ts';
 
 export * from '../common.ts';
 
@@ -18,3 +18,8 @@ export const D = {
 } as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };
+
+/**
+ * Helpers:
+ */
+export const dur = (ms: t.Msecs = 0) => (ms ? String(Time.Duration.create(ms)) : '-');

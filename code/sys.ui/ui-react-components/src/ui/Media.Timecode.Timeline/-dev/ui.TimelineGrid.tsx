@@ -1,11 +1,13 @@
 import React from 'react';
-import { type t, Bullet, Color, css, ObjectView, Time, Timecode } from '../common.ts';
+import { type t, Bullet, Color, css, dur, ObjectView, Timecode } from '../common.ts';
 
 export type MediaTimelineGridProps = {
   debug?: boolean;
   bundle?: t.SpecTimelineBundle;
+  selectedIndex?: t.Index;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onSelect?: (e: { beat: t.Timecode.Experience.Beat; index: t.Index }) => void;
 };
 
 export const TimelineGrid: React.FC<MediaTimelineGridProps> = (props) => {
@@ -33,7 +35,7 @@ export const TimelineGrid: React.FC<MediaTimelineGridProps> = (props) => {
       padding: '4px 10px',
       fontSize: 10,
       letterSpacing: 0.06,
-      borderBottom: `1px solid ${Color.alpha(theme.fg, 0.18)}`,
+      // borderBottom: `1px solid ${Color.alpha(theme.fg, 0.18)}`,
       color: Color.alpha(theme.fg, 0.75),
       columnGap: 12,
 
@@ -49,9 +51,17 @@ export const TimelineGrid: React.FC<MediaTimelineGridProps> = (props) => {
       display: 'grid',
       gridTemplateColumns: COLS,
       padding: '2px 10px',
+      cursor: 'default',
       columnGap: 12,
-      borderBottom: `1px solid ${Color.alpha(theme.fg, 0.06)}`,
       alignItems: 'start',
+      transition: 'background-color 100ms ease-out',
+    }),
+    rowSelected: css({ backgroundColor: Color.alpha(Color.BLUE, 0.3) }),
+    cellText: css({
+      display: 'flex',
+      alignItems: 'center',
+      paddingTop: 1,
+      paddingBottom: 1,
     }),
     cellPayload: css({}),
     media: css({
@@ -68,13 +78,11 @@ export const TimelineGrid: React.FC<MediaTimelineGridProps> = (props) => {
       alignSelf: 'start',
       display: 'flex',
       alignItems: 'center',
-      paddingTop: 2,
+      paddingTop: 4,
       color: Color.alpha(theme.fg, 0.6),
       columnGap: 8,
     }),
   } as const;
-
-  const dur = (ms: t.Msecs = 0) => String(Time.Duration.create(ms));
 
   const rows = React.useMemo(() => {
     const { spec } = bundle;
@@ -92,6 +100,7 @@ export const TimelineGrid: React.FC<MediaTimelineGridProps> = (props) => {
 
       return {
         index,
+        beat,
         vTime: dur(beat.vTime),
         pause: beat.pause ? dur(beat.pause) : '-',
         logicalPath,
@@ -103,15 +112,30 @@ export const TimelineGrid: React.FC<MediaTimelineGridProps> = (props) => {
   }, [bundle, theme.name]);
 
   const elRows = rows.map((row) => {
-    const mediaClass = css(styles.media, row.isRepeat && styles.mediaRepeat).class;
+    const { beat, index } = row;
+    const isSelected = index === props.selectedIndex;
+
+    const rowClass = css(styles.row, isSelected && styles.rowSelected).class;
+    const mediaClass = css(
+      styles.cellText,
+      styles.media,
+      row.isRepeat && !isSelected && styles.mediaRepeat,
+    ).class;
 
     return (
-      <div key={row.index} data-index={row.index} className={styles.row.class}>
+      <div
+        key={row.index}
+        data-index={row.index}
+        className={rowClass}
+        onPointerDown={() => {
+          props.onSelect?.({ index, beat });
+        }}
+      >
         <div className={styles.cellIndex.class}>
-          <Bullet theme={theme.name} />
+          <Bullet theme={theme.name} selected={isSelected} />
         </div>
-        <div>{row.vTime}</div>
-        <div>{row.pause}</div>
+        <div className={styles.cellText.class}>{row.vTime}</div>
+        <div className={styles.cellText.class}>{row.pause}</div>
         <div className={mediaClass} title={row.logicalPath}>
           {row.mediaLabel}
         </div>
@@ -139,3 +163,4 @@ export const TimelineGrid: React.FC<MediaTimelineGridProps> = (props) => {
     </div>
   );
 };
+// 🌸 ---------- /CHANGED ----------

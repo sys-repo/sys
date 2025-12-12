@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, css, KeyValue, type t, Time, Timecode } from './common.ts';
+import { type t, Color, css, dur, KeyValue } from './common.ts';
 
 import { useTimeline } from '../use.Timeline.ts';
 
@@ -34,15 +34,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
     }),
   };
 
-  const dur = (ms: t.Msecs = 0) => String(Time.Duration.create(ms));
-
   return (
     <div className={css(styles.base, props.style).class}>
       <KeyValue.View
         theme={theme.name}
         items={[
           { kind: 'title', v: 'Virtual Timeline' },
-          { k: 'Document', v: docid ?? '-' },
+          { k: 'Slug', v: docid ? `crdt:${docid}` : '-', mono: true },
           { kind: 'hr' },
           { k: 'Beats', v: timeline.beats.length },
           { k: 'Duration', v: dur(timeline.duration) },

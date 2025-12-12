@@ -1,16 +1,20 @@
 import React from 'react';
-import { type t, Player, Color, css, D, KeyValue, Obj, Cropmarks } from './common.ts';
+import { type t, Color, css } from './common.ts';
 import { TimelineGrid } from './ui.TimelineGrid.tsx';
-import { Video } from './ui.Harness.Video.tsx';
+import { Video } from './ui.Video.tsx';
 import { InfoPanel } from './ui.InfoPanel.tsx';
+import { useTimelineController } from '../use.TimelineController.ts';
+
+type TSelection = { beat: t.Timecode.Experience.Beat; index: t.Index };
 
 export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
-  const { debug = false, video, bundle, docid } = props;
+  const { debug = false, bundle, docid, video } = props;
 
   /**
-   * Behavior/State (hooks):
+   * Hooks:
    */
-  const controller = Player.Video.useSignals(video, { log: debug });
+  const [selected, setSelected] = React.useState<TSelection>();
+  const controller = useTimelineController({ bundle, video });
 
   /**
    * Render:
@@ -37,18 +41,26 @@ export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
         borderLeft: `solid 1px ${Color.alpha(theme.fg, 0.12)}`,
       }),
     },
-  };
+  } as const;
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.top.class}>
-        <Video theme={theme.name} video={video} />
-        <Video theme={theme.name} video={video} />
+        <Video theme={theme.name} video={video} debug={debug} />
+        <Video theme={theme.name} video={video} debug={debug} />
       </div>
 
       <div className={styles.bottom.base.class}>
         <div className={styles.bottom.left.class}>
-          <TimelineGrid bundle={bundle} theme={theme.name} />
+          <TimelineGrid
+            bundle={bundle}
+            theme={theme.name}
+            selectedIndex={selected?.index}
+            onSelect={(e) => {
+              setSelected(e);
+              controller?.play(e.index);
+            }}
+          />
         </div>
         <div className={styles.bottom.right.class}>
           <InfoPanel theme={theme.name} bundle={bundle} docid={docid} />

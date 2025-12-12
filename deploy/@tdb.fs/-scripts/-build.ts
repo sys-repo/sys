@@ -20,7 +20,6 @@ await buildAndCopyAll(
     ['../../code/sys.ui/ui-factory', 'sys/ui.factory', { build }],
     ['../../code/sys.driver/driver-automerge', 'sys/driver.automerge', { build }],
     ['../../code/sys.driver/driver-monaco', 'sys/driver.monaco', { build }],
-    ['../../code/sys.driver/driver-peerjs', 'sys/driver.peerjs', { build }],
     ['../../code/sys.driver/driver-prosemirror', 'sys/driver.prosemirror', { build }],
     ['../../code/sys.dev', 'sys/dev', { build }],
   ],

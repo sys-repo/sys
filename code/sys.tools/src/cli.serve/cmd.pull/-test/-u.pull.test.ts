@@ -36,7 +36,6 @@ describe('cli.serve/cmd.pull → URL + HTML helpers', () => {
               <hr />
               <li><a href="./sys/driver.automerge/">sys:driver.automerge</a></li>
               <li><a href="./sys/driver.monaco/?d">sys:driver.monaco</a></li>
-              <li><a href="./sys/driver.peerjs/?d">sys:driver.peerjs</a></li>
               <li><a href="./sys/driver.prosemirror/?d">sys:driver.prosemirror</a></li>
               <hr />
               <li><a href="./dist.json">dist.json (#a7d17)</a></li>

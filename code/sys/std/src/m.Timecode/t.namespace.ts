@@ -32,6 +32,7 @@ export namespace Timecode {
 
   export namespace Experience {
     export type Timeline<P = unknown> = t.TimecodeTimeline<P>;
+    export type Beat<P = unknown> = t.TimecodeExperienceBeat<P>;
   }
 
   export namespace Playback {
