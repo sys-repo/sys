@@ -92,9 +92,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   const load = (docid: t.StringId, msg: string = '') => {
     const isCurrent = docid === p.docid.value;
-    const id = Str.ellipsize(docid, [5, 5], '..');
-    const label = `- load crdt:${id} ${msg} ${isCurrent ? '🌳' : ''}`;
-    return <Button block label={label} onClick={() => Sample.load(debug, docid)} />;
+    const id = Str.ellipsize(docid, [5, 5], ' .. ');
+    const label = `- load → crdt:${id} ${msg} ${isCurrent ? '🌳' : ''}`;
+    return (
+      <Button
+        block
+        label={label}
+        onClick={() => Sample.load(debug, docid)}
+        tooltip={`crdt:${docid}`}
+      />
+    );
   };
 
   return (
@@ -108,7 +115,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'ƒ loadTimeline()'}</div>
+      <div className={Styles.title.class}>
+        <div>{'ƒ loadTimeline()'}</div>
+        <div>{'(fetch / json)'}</div>
+      </div>
       {load('2esGLgD5SoQkeucytmGeadm9cC7y')}
       {load('2kcH93dUVmRsZq77YVbaTLNGPr8z')}
       {load('hmNovS1do4wchHwisw3gF1EnrKF', '(issues)')}
@@ -119,17 +129,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
+        name={v.docid ? `playback-bundle( ${v.docid?.slice(-5)} )` : 'playback-bundle'}
+        data={Signal.toObject(v.bundle)}
+        style={{ marginTop: 5 }}
+        expand={0}
+      />
+      <ObjectView
         name={'video.signals'}
         data={{
           ...Signal.toObject(debug.video.props),
           src: Str.ellipsize(debug.video.props.src.value || '-', [15, 20]),
         }}
-        style={{ marginTop: 5 }}
-        expand={0}
-      />
-      <ObjectView
-        name={'playback-bundle'}
-        data={Signal.toObject(p.bundle)}
         style={{ marginTop: 5 }}
         expand={0}
       />

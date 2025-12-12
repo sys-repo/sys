@@ -5,16 +5,16 @@ import { Video } from './ui.Video.tsx';
 import { InfoPanel } from './ui.InfoPanel.tsx';
 import { useTimelineController } from '../use.TimelineController.ts';
 
-type TSelection = { beat: t.Timecode.Experience.Beat; index: t.Index };
-
 export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
   const { debug = false, bundle, docid, video } = props;
 
   /**
    * Hooks:
    */
-  const [selected, setSelected] = React.useState<TSelection>();
   const controller = useTimelineController({ bundle, video });
+  const beat = controller.beats[controller.activeIndex ?? -1]?.beat;
+
+  console.log('controller', controller);
 
   /**
    * Render:
@@ -55,15 +55,19 @@ export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
           <TimelineGrid
             bundle={bundle}
             theme={theme.name}
-            selectedIndex={selected?.index}
-            onSelect={(e) => {
-              setSelected(e);
-              controller?.play(e.index);
-            }}
+            selectedIndex={controller.activeIndex}
+            onSelect={(e) => controller?.play(e.index)}
           />
         </div>
         <div className={styles.bottom.right.class}>
-          <InfoPanel theme={theme.name} bundle={bundle} docid={docid} />
+          <InfoPanel
+            docid={docid}
+            bundle={bundle}
+            index={controller.activeIndex}
+            beat={beat}
+            debug={debug}
+            theme={theme.name}
+          />
         </div>
       </div>
     </div>
