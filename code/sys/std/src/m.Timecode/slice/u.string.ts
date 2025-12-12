@@ -1,5 +1,5 @@
 import { type t, Duration } from '../common.ts';
-import type { TimecodeSliceBound, TimeWindowMs } from './t.ts';
+import type { TimecodeSliceBound, TimeWindow } from './t.ts';
 import { is } from './u.is.ts';
 import { parse } from './u.parse.ts';
 import { resolve } from './u.resolve.ts';
@@ -41,7 +41,7 @@ export const toString: t.TimecodeSliceLib['toString'] = (slice = '') => {
  * - Otherwise: emit absolute HH:MM:SS(.mmm) for both ends.
  * - Prefers explicit end when start is open (avoids returning just "..").
  */
-export const from: t.TimecodeSliceLib['from'] = (window: TimeWindowMs, total?: t.Msecs) => {
+export const from: t.TimecodeSliceLib['from'] = (window: TimeWindow, total?: t.Msecs) => {
   const { from, to } = window;
   const hasTotal = typeof total === 'number';
   const openStart = hasTotal && Number(from) === 0;
@@ -126,7 +126,7 @@ function needsTotal(slice: t.TimecodeSliceNormalized): boolean {
 function resolveWindow(
   slice: t.TimecodeSliceNormalized,
   total?: t.Msecs,
-): t.TimeWindowMs | undefined {
+): t.TimeWindow | undefined {
   if (!needsTotal(slice)) {
     // Both absolute: resolve without total.
     const a = Number((slice.start as Extract<t.TimecodeSliceBound, { kind: 'abs' }>).ms);

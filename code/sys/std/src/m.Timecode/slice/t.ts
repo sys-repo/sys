@@ -22,7 +22,7 @@ export type TimecodeSliceLib = {
   parse(input: TimecodeSliceStringInput): TimecodeSliceNormalized;
 
   /** Resolve a parsed slice into an absolute millisecond window against total duration. */
-  resolve(slice: TimecodeSliceNormalized, total: t.Msecs): TimeWindowMs;
+  resolve(slice: TimecodeSliceNormalized, total: t.Msecs): TimeWindow;
 
   /**
    * Render a parsed slice back to its canonical string form.
@@ -46,7 +46,7 @@ export type TimecodeSliceLib = {
    *  - fromWindow({from:0,to:60000}, 60000) → "..00:01:00"
    *  - fromWindow({from:10000,to:20000})    → "00:00:10..00:00:20"
    */
-  from(window: t.TimeWindowMs, total?: t.Msecs): TimecodeSliceString;
+  from(window: t.TimeWindow, total?: t.Msecs): TimecodeSliceString;
 
   /**
    * Split a slice string (e.g. "00:00:05..00:00:10", "..00:00:10", "00:00:05..")
@@ -116,7 +116,7 @@ export type TimecodeSliceNormalized = {
 };
 
 /** Resolved concrete window in milliseconds (inclusive start, exclusive end). */
-export type TimeWindowMs = {
+export type TimeWindow = {
   readonly from: t.Msecs;
   readonly to: t.Msecs;
 };

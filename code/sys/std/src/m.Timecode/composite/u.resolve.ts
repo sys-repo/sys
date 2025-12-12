@@ -29,7 +29,7 @@ export function resolve(
     if (typeof total !== 'number' || !isFinite(total) || total <= 0) continue;
 
     // 2) Resolve source window.
-    let win: t.TimeWindowMs;
+    let win: t.TimeWindow;
     if (p.slice) {
       const s = String(p.slice);
       if (!Slice.is(s)) continue; // guard: invalid slice (validate() would flag)
