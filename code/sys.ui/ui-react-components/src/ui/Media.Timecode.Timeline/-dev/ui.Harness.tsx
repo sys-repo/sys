@@ -2,9 +2,10 @@ import React from 'react';
 import { type t, Player, Color, css, D, KeyValue, Obj, Cropmarks } from './common.ts';
 import { TimelineGrid } from './ui.TimelineGrid.tsx';
 import { Video } from './ui.Harness.Video.tsx';
+import { InfoPanel } from './ui.InfoPanel.tsx';
 
 export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
-  const { debug = false, video, bundle } = props;
+  const { debug = false, video, bundle, docid } = props;
 
   /**
    * Behavior/State (hooks):
@@ -28,13 +29,10 @@ export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
       gridTemplateColumns: `1fr 1fr`,
     }),
     bottom: {
-      base: css({
-        display: 'grid',
-        gridTemplateColumns: `1fr auto`,
-      }),
+      base: css({ display: 'grid', gridTemplateColumns: `1fr auto` }),
       left: css({ position: 'relative', display: 'grid' }),
       right: css({
-        padding: 20,
+        position: 'relative',
         width: 300,
         borderLeft: `solid 1px ${Color.alpha(theme.fg, 0.12)}`,
       }),
@@ -53,13 +51,7 @@ export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
           <TimelineGrid bundle={bundle} theme={theme.name} />
         </div>
         <div className={styles.bottom.right.class}>
-          <KeyValue.View
-            theme={theme.name}
-            items={[
-              { kind: 'title', v: D.displayName },
-              { k: 'message', v: '👋 hello, world!' },
-            ]}
-          />
+          <InfoPanel theme={theme.name} bundle={bundle} docid={docid} />
         </div>
       </div>
     </div>

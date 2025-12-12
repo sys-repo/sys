@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 export type MediaTimelineHarnessProps = {
   debug?: boolean;
   video?: t.VideoPlayerSignals;
+  docid?: t.StringId;
   bundle?: t.SpecTimelineBundle;
   theme?: t.CommonTheme;
   style?: t.CssInput;

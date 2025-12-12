@@ -28,6 +28,7 @@ export default Spec.describe(D.displayName, async (e) => {
           <MediaTimecode.Dev.Harness
             debug={v.debug}
             theme={v.theme}
+            docid={v.docid}
             video={debug.video}
             bundle={v.bundle}
           />

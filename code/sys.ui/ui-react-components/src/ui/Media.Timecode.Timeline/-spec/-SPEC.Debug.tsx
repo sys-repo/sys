@@ -130,7 +130,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           src: Str.ellipsize(debug.video.props.src.value || '-', [15, 20]),
         }}
         style={{ marginTop: 5 }}
-        expand={1}
+        expand={0}
       />
       <ObjectView
         name={'playback-bundle'}
