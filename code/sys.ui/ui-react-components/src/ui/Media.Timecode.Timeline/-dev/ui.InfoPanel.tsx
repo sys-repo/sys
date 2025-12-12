@@ -1,6 +1,8 @@
 import React from 'react';
 import { Color, css, KeyValue, type t, Time, Timecode } from './common.ts';
 
+import { useTimeline } from '../use.Timeline.ts';
+
 export type InfoPanelProps = {
   debug?: boolean;
   docid?: t.StringId;
@@ -15,15 +17,9 @@ export type InfoPanelProps = {
 export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const { debug = false, bundle, docid } = props;
 
-  const timeline = React.useMemo(() => {
-    if (!bundle) return undefined;
-    const { spec } = bundle;
-    const resolved = Timecode.Composite.toVirtualTimeline(spec.composition);
-    return Timecode.Experience.toTimeline(resolved, spec.beats);
-  }, [bundle?.spec]);
-
-  if (!bundle) return null;
+  const { timeline } = useTimeline(bundle?.spec);
   if (!timeline) return null;
+  if (!bundle) return null;
 
   /**
    * Render:

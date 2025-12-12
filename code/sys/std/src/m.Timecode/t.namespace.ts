@@ -30,6 +30,10 @@ export namespace Timecode {
     export type Spec = t.TimecodeCompositionSpec;
   }
 
+  export namespace Experience {
+    export type Timeline<P = unknown> = t.TimecodeTimeline<P>;
+  }
+
   export namespace Playback {
     export type Spec<P> = t.TimecodePlaybackSpec<P>;
     export type MediaKind = t.PlaybackMediaKind;

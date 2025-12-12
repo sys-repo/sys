@@ -22,21 +22,6 @@ async function load(debug: DebugSignals, docid: t.StringId) {
    */
   const url = 'http://localhost:4040/publish.assets';
   const bundle = await loadTimelineFromEndpoint(url, docid);
-  const { spec, resolveMedia } = bundle;
-
-  // 1. Resolve composite → segments + total + diagnostics.
-  const resolved = Timecode.Composite.toVirtualTimeline(spec.composition);
-
-  // 2. Project beats onto the virtual timeline (adds vTime, duration).
-  const timeline = Timecode.Experience.toTimeline(resolved, spec.beats);
-
-  const dur = (ms: t.Msecs = 0) => String(Time.Duration.create(ms));
-  const total = {
-    duration: dur(timeline.duration),
-    beats: timeline.beats.length,
-  };
-  console.info();
-  console.info(` Total Duration ${total.duration} across ${total.beats} beats`);
 
   /** Update state. */
   p.docid.value = docid;
