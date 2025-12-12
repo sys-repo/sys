@@ -5,7 +5,7 @@ export { Motion as M, Motion };
 /**
  * System
  */
-export { Delete, Err, Is, Json, JsrUrl, Log, Pkg, R, slug, Try, Url } from '@sys/std';
+export { Delete, Err, Is, Json, JsrUrl, Log, Path, Pkg, R, slug, Try, Url } from '@sys/std';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Time, Timecode } from '@sys/std/time';
