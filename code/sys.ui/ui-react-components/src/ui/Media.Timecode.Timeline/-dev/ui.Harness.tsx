@@ -1,8 +1,10 @@
 import React from 'react';
-import { type t, Player, Color, css, D, KeyValue, Obj, Cropmarks } from '../common.ts';
+import { type t, Player, Color, css, D, KeyValue, Obj, Cropmarks } from './common.ts';
+import { TimelineGrid } from './ui.TimelineGrid.tsx';
+import { Video } from './ui.Harness.Video.tsx';
 
-export const Playback: React.FC<t.MediaTimecodePlaybackProps> = (props) => {
-  const { debug = false, video } = props;
+export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
+  const { debug = false, video, bundle } = props;
 
   /**
    * Behavior/State (hooks):
@@ -21,20 +23,20 @@ export const Playback: React.FC<t.MediaTimecodePlaybackProps> = (props) => {
       gridTemplateRows: '420px 1fr',
     }),
     top: css({
+      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.12)}`,
       display: 'grid',
-      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.05)}`,
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      gridTemplateColumns: `1fr 1fr`,
     }),
     bottom: {
       base: css({
         display: 'grid',
         gridTemplateColumns: `1fr auto`,
       }),
-      left: css({ padding: 20 }),
+      left: css({ position: 'relative', display: 'grid' }),
       right: css({
         padding: 20,
         width: 300,
-        borderLeft: `solid 1px ${Color.alpha(theme.fg, 0.1)}`,
+        borderLeft: `solid 1px ${Color.alpha(theme.fg, 0.12)}`,
       }),
     },
   };
@@ -42,18 +44,14 @@ export const Playback: React.FC<t.MediaTimecodePlaybackProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.top.class}>
-        <Cropmarks theme={theme.name}>
-          <Player.Video.Element
-            style={{ width: 420 }}
-            debug={debug}
-            theme={props.theme}
-            {...controller.props}
-          />
-        </Cropmarks>
+        <Video theme={theme.name} video={video} />
+        <Video theme={theme.name} video={video} />
       </div>
 
       <div className={styles.bottom.base.class}>
-        <div className={styles.bottom.left.class}>{`Beats List`}</div>
+        <div className={styles.bottom.left.class}>
+          <TimelineGrid bundle={bundle} theme={theme.name} />
+        </div>
         <div className={styles.bottom.right.class}>
           <KeyValue.View
             theme={theme.name}

@@ -24,7 +24,14 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <MediaTimecode.Playback debug={v.debug} theme={v.theme} video={debug.video} />;
+        return (
+          <MediaTimecode.Dev.Harness
+            debug={v.debug}
+            theme={v.theme}
+            video={debug.video}
+            bundle={v.bundle}
+          />
+        );
       });
   });
 

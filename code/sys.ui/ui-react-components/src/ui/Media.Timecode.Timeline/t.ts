@@ -2,21 +2,8 @@ import type { t } from './common.ts';
 
 /** Type exports: */
 export type * from './-dev/t.ts';
+export type * from './-spec/-t.spec.ts';
 
-export namespace MediaTimeline {
-  /**
-   * UI primitives for working with time-code.
-   */
-  export type Lib = {
-    Playback: t.FC<t.MediaTimecodePlaybackProps>;
-  };
-
-  /**
-   * Generic bundle the UI will eventually consume.
-   * Note: P = beat payload (opaque to the generic UI components).
-   */
-  export type PlaybackBundle<P = unknown> = {
-    readonly spec: t.Timecode.Playback.Spec<P>;
-    readonly resolveMedia: t.MediaResolver;
-  };
-}
+export type MediaTimelineLib = {
+  readonly Dev: { readonly Harness: t.FC<t.MediaTimelineHarnessProps> };
+};
