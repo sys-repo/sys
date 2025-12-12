@@ -115,7 +115,13 @@ export type TimecodeSliceNormalized = {
   readonly end: TimecodeSliceBound;
 };
 
-/** Resolved concrete window in milliseconds (inclusive start, exclusive end). */
+/**
+ * Resolved concrete window in milliseconds.
+ *
+ * Semantics: inclusive start, exclusive end: [from, to).
+ * - `from` is included.
+ * - `to` is excluded.
+ */
 export type TimeWindow = {
   readonly from: t.Msecs;
   readonly to: t.Msecs;
