@@ -15,7 +15,9 @@ export const TestServer = {
     let _disposed = false;
     const handlers = new Set<H>();
 
-    const server = Deno.serve({ port: 0 }, (req, info) => {
+    // Bind to loopback so `server.url` is always a client-routable address in CI.
+    // The wildcard listen address ("0.0.0.0") is not a safe fetch() target.
+    const server = Deno.serve({ hostname: '127.0.0.1', port: 0 }, (req, info) => {
       const list = Array.from(handlers).filter((item) => item.method === req.method);
       if (list.length > 0) return list[0].handler(req, info);
       if (defaultHandler) return defaultHandler(req, info);
@@ -31,9 +33,15 @@ export const TestServer = {
       get disposed() {
         return _disposed;
       },
+
       async dispose() {
+        if (_disposed) return;
         _disposed = true;
-        await server.shutdown();
+        try {
+          await server.shutdown();
+        } finally {
+          handlers.clear();
+        }
       },
     };
 
