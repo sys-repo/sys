@@ -28,9 +28,14 @@ export function stream(
    */
   const records: t.HttpPullRecord[] = [];
 
-  // System lifecycle (drives cancellation via dispose$ → controller.abort()).
-  const life = Rx.abortable(options.until);
-  const { signal } = life;
+  /**
+   * IMPORTANT:
+   * We do not rely on Rx.abortable(...) to actually abort fetches.
+   * Cancellation must deterministically trigger AbortController.abort().
+   */
+  const life = Rx.lifecycle(options.until);
+  const controller = new AbortController();
+  const signal = controller.signal;
 
   const q = makeEventQueue<t.HttpPullEvent>();
   const lim = semaphore(concurrency);
@@ -39,9 +44,13 @@ export function stream(
   const subject$ = Rx.subject<t.HttpPullEvent>();
   let cancelled = false;
 
-  // Forward lifecycle cancellation: mark, then complete the subject.
-  life.dispose$.subscribe(() => {
+  // Forward lifecycle cancellation: mark, abort in-flight work, then complete the subject.
+  life.dispose$.subscribe((reason) => {
     cancelled = true;
+
+    // Abort any in-flight fetch/body-read/race in pullOne.
+    // Note: AbortController.abort(reason) is supported; type is unknown.
+    controller.abort(reason);
     subject$.complete();
   });
 
@@ -132,6 +141,9 @@ export function stream(
     } finally {
       // If consumer stops early, ensure lifecycle cleanup.
       life.dispose();
+
+      // Ensure no in-flight fetch survives a consumer break.
+      controller.abort('iterator:closed');
     }
   };
 
