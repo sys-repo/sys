@@ -17,7 +17,7 @@ export const ServeMenu = {
         const dist = (await Pkg.Dist.load(dir)).dist;
         const hx = dist?.hash.digest ?? '';
         const hxshort = c.green(hx.slice(-5));
-        const name = ` ${c.gray(c.dim(`- open:#${hxshort} `))}${dir}`;
+        const name = ` ${c.gray(c.dim(`#${hxshort} `))}/${dir}`;
         const command = 'bundle:open' as C;
         const value = `${command}/${dir}` as C;
         res.push(opt(name, value));
