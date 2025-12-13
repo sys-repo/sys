@@ -26,7 +26,7 @@ export namespace Timecode {
   export namespace Composite {
     export type Lib = t.TimecodeCompositeLib;
     export type Piece = t.TimecodeCompositePiece;
-    export type Resolved = t.TimecodeCompositionResolved;
+    export type Resolved = t.TimecodeResolved;
     export type Spec = t.TimecodeCompositionSpec;
   }
 

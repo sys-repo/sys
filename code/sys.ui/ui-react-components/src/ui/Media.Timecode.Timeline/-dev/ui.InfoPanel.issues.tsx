@@ -1,40 +1,23 @@
-import type { t } from './common.ts';
-
-
-type CompositeIssueSeverity = 'error' | 'warning' | 'info';
-
-type CompositeIssue = {
-  readonly kind: string;
-  readonly severity: CompositeIssueSeverity;
-  readonly src?: string;
-};
-
-type CompositeResolvedWithIssues = {
-  readonly issues?: readonly CompositeIssue[];
-  readonly is?: { readonly valid?: boolean; readonly empty?: boolean };
-};
-
-function isResolvedWithIssues(input: unknown): input is CompositeResolvedWithIssues {
-  if (!input || typeof input !== 'object') return false;
-  const o = input as Record<string, unknown>;
-  return 'issues' in o || 'is' in o;
-}
+import { type t, Color } from './common.ts';
 
 /**
- * Generate issues from
+ * Extract and present composite-resolution issues for UI display.
+ *
+ * This is intentionally a presentation-only adapter:
+ * - Pure function: resolved → KeyValueItem[].
+ * - Payload-agnostic: diagnostics are independent of beat payload `P`.
  */
-export function toIssueItems(resolved?: unknown): readonly t.KeyValueItem[] {
-  if (!isResolvedWithIssues(resolved)) return [];
+export function toIssueItems(resolved?: t.Timecode.Composite.Resolved): readonly t.KeyValueItem[] {
+  if (!resolved) return [];
 
   const issues = resolved.issues ?? [];
   if (issues.length === 0) return [];
 
   const items: t.KeyValueItem[] = [];
-
   const counts = issues.reduce(
-    (acc: { errors: number; warnings: number; info: number }, i: CompositeIssue) => {
+    (acc, i) => {
       if (i.severity === 'error') acc.errors++;
-      else if (i.severity === 'warning') acc.warnings++;
+      else if (i.severity === 'warn') acc.warnings++;
       else acc.info++;
       return acc;
     },
@@ -42,7 +25,11 @@ export function toIssueItems(resolved?: unknown): readonly t.KeyValueItem[] {
   );
 
   const mono = true;
-  items.push({ kind: 'title', v: 'Issues', y: [35, 0] });
+  items.push({
+    kind: 'title',
+    v: <span style={{ color: Color.YELLOW }}>{'Issues'}</span>,
+    y: [35, 0],
+  });
 
   const summary = [
     counts.errors ? `${counts.errors} error` : undefined,
@@ -69,8 +56,6 @@ export function toIssueItems(resolved?: unknown): readonly t.KeyValueItem[] {
     items.push({
       k: `${i + 1}. ${issue.severity}`,
       v: issue.src ? `${issue.kind}: ${issue.src}` : issue.kind,
-      // mono,
-      // userSelect: 'text',
     });
   }
 

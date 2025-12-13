@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTimeline } from '../use.Timeline.ts';
 import { type t, Color, css, dur, KeyValue, ObjectView, Str } from './common.ts';
-import { toIssueItems } from './ui.InfoPanel.issues.ts';
+import { toIssueItems } from './ui.InfoPanel.issues.tsx';
 
 export type InfoPanelProps = {
   docid?: t.StringId;
