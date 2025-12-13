@@ -1,5 +1,6 @@
 /**
  * @module
+ * Framework-agnostic UI state orchestration.
  */
 export { pkg } from './pkg.ts';
 
