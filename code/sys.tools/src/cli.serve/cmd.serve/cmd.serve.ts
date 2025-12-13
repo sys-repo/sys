@@ -1,4 +1,4 @@
-import { type t, c, Cli, D, Http, Net } from '../common.ts';
+import { type t, c, Cli, D, Http, Net, Str } from '../common.ts';
 import { Mime } from './u.mime.ts';
 import { Open } from './u.open.ts';
 import { ServeMenu } from './u.prompt.ts';
@@ -53,16 +53,17 @@ export async function startServing(
       return `${baseUrl}/${path}` as t.StringUrl;
     };
 
-    const redraw = (last?: string) => {
-      console.clear();
-      console.info();
-      console.info(`Listening on ${c.cyan(`${baseUrl}/`)}`);
-      if (last) {
-        const dir = last.split('/').pop()!;
+    const redraw = (lastSelection?: string) => {
+      const str = Str.builder()
+        .blank()
+        .line(`Listening on ${c.cyan(`${baseUrl}/`)}`);
+      if (lastSelection) {
+        const dir = lastSelection.split('/').pop()!;
         const url = `${baseUrl}/${dir}`;
-        console.info(`             ${c.dim(c.gray(url))}`);
+        str.line(`             ${c.dim(c.gray(url))}`);
       }
-      console.info();
+      console.clear();
+      console.info(String(str.blank()));
     };
 
     let lastSelection: string | undefined;
@@ -79,6 +80,7 @@ export async function startServing(
             message: 'Open',
             options,
             default: lastSelection,
+            hideDefault: true,
           });
 
           if (answer === EXIT) break;
