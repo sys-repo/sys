@@ -32,15 +32,15 @@ export const Fmt = {
   },
 
   versionInfoTable(version: t.UpdateVersionInfo) {
-    const formatVersion = (v?: t.StringSemver, upToDate?: boolean) => {
+    const formatVersion = (v?: t.StringSemver, upToDate?: boolean, okSuffix = '') => {
       if (!v) return c.gray('-');
-      return v === version.latest ? c.green(`${v} ${upToDate ? '✔' : ''}`) : c.yellow(v);
+      return v === version.latest ? c.green(`${v} ${upToDate ? okSuffix : ''}`) : c.yellow(v);
     };
     const table = Cli.table([]);
 
     const upToDate = version.is.latest;
-    const local = formatVersion(version.local, upToDate);
     const remote = formatVersion(version.remote, upToDate);
+    const local = formatVersion(version.local, upToDate, '✔');
     const updateReq = upToDate ? '' : c.gray(`← ${c.italic(c.yellow('(update available)'))}`);
 
     table.push([c.gray('Package'), pkg.name]);
