@@ -21,7 +21,7 @@ describe('Url.parse', () => {
       const url = Url.parse(addr);
       expect(url.ok).to.eql(true);
       expect(url.error).to.eql(undefined);
-      expect(url.raw).to.eql(`http://0.0.0.0:${addr.port}/`);
+      expect(url.raw).to.eql(`http://127.0.0.1:${addr.port}/`);
       await server.dispose();
     });
 
