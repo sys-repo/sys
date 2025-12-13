@@ -1,4 +1,4 @@
-import { type t, c, Fs, opt } from '../common.ts';
+import { type t, c, Fs, opt, Pkg } from '../common.ts';
 import { Config } from '../u.config.ts';
 
 type C = t.ServeTool.Command;
@@ -14,7 +14,10 @@ export const ServeMenu = {
       const path = Fs.join(cwd, dir, 'dist.json');
       const exists = await Fs.exists(path);
       if (exists) {
-        const name = ` ${c.gray(c.dim(`- open: `))}${dir}`;
+        const dist = (await Pkg.Dist.load(dir)).dist;
+        const hx = dist?.hash.digest ?? '';
+        const hxshort = c.green(hx.slice(-5));
+        const name = ` ${c.gray(c.dim(`- open:#${hxshort} `))}${dir}`;
         const command = 'bundle:open' as C;
         const value = `${command}/${dir}` as C;
         res.push(opt(name, value));
