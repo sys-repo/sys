@@ -66,8 +66,8 @@ describe('GPT', () => {
         // URLs are present and point at expected files:
         expect(typeof i.esm.contract).to.equal('string');
         expect(typeof i.esm.module).to.equal('string');
-        expect(i.esm.contract.includes('/src/m.Gpt/t.ts')).to.eql(true);
-        expect(i.esm.module.includes('/src/m.Gpt/m.Token.ts')).to.eql(true);
+        expect(i.esm.contract.includes('/src/m.gpt/t.ts')).to.eql(true);
+        expect(i.esm.module.includes('/src/m.gpt/m.Token.ts')).to.eql(true);
       });
     });
   });
