@@ -114,10 +114,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       if (A.startsWith('crdt:')) {
         const options = [
           opt('  Lint', 'doc:graph:lint'),
-          opt('  Tasks', 'doc:graph:tasks'),
           opt('  Backup (Snapshot)', 'snapshot'),
           opt('  Document Graph → DAG (hook)', 'doc:graph:dag'),
           opt('  Document Graph → Walk → Stats', 'doc:graph:walk'),
+          opt('  Tasks', 'doc:graph:tasks'),
           opt('  View Yaml', 'doc:viewer:yaml'),
           opt('  View Config', 'doc:config:print'),
           opt(`  🐷 ${c.yellow('chat with slug')}`, 'tmp:🐷'),
@@ -132,6 +132,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         const B = (await Prompt.Select.prompt<t.CrdtTool.Command>({
           message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
           options,
+          hideDefault: true,
         })) as t.CrdtTool.Command;
 
         if (B === 'snapshot') {
