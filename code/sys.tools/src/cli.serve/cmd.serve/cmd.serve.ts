@@ -56,10 +56,10 @@ export async function startServing(
     const redraw = (lastSelection?: string) => {
       const str = Str.builder()
         .blank()
-        .line(`Listening on ${c.cyan(`${baseUrl}/`)}`);
+        .line(`  Listening on ${c.cyan(`${baseUrl}/`)}`);
       if (lastSelection) {
         const dir = lastSelection.split('/').pop()!;
-        const url = `${baseUrl}/${dir}`;
+        const url = `  ${baseUrl}/${dir}`;
         str.line(`             ${c.dim(c.gray(url))}`);
       }
       console.clear();
