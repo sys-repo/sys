@@ -1,7 +1,12 @@
 import { type t, SPACE } from './common.ts';
 
 export const builder: t.StrLib['builder'] = (options = {}) => {
-  const { eol = '\n', defaultEmpty = SPACE, trimEnd: defaultTrimEnd = true } = options;
+  const {
+    eol = '\n',
+    defaultEmpty = SPACE,
+    defaultBlank = SPACE,
+    trimEnd: defaultTrimEnd = true,
+  } = options;
   const chunks: string[] = [];
 
   const render = (opts?: t.StrBuilderToTextOptions) => {
@@ -11,6 +16,8 @@ export const builder: t.StrLib['builder'] = (options = {}) => {
 
     if (trimEnd) {
       // Strip trailing whitespace/newlines, preserve internal layout.
+      // Intentionally does NOT trim Str.SPACE (ZWSP, '\u200B'):
+      // it encodes "intentional whitespace" for CLI/TTY stability.
       out = out.replace(/[ \t\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000\r\n]+$/u, '');
     }
 
@@ -38,12 +45,25 @@ export const builder: t.StrLib['builder'] = (options = {}) => {
       },
 
       /**
-       * Append `count` blank lines.
+       * Append `count` intentional blank lines (non-collapsible).
+       *
+       * For the root (prefix === ''), this yields `defaultBlank + eol`.
+       * For indented builders, this yields lines with only the prefix + defaultBlank.
+       */
+      blank(count = 1) {
+        for (let i = 0; i < count; i += 1) {
+          chunks.push(prefix, defaultBlank, eol);
+        }
+        return self;
+      },
+
+      /**
+       * Append `count` truly empty lines (EOL only, may collapse/trim).
        *
        * For the root (prefix === ''), this yields just `eol`.
        * For indented builders, this yields lines with only the prefix.
        */
-      blank(count = 1) {
+      empty(count = 1) {
         for (let i = 0; i < count; i += 1) {
           chunks.push(prefix, eol);
         }

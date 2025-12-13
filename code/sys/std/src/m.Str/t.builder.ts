@@ -4,8 +4,19 @@ import { type t } from './common.ts';
 export type StrBuilderOptions = {
   /** End-of-line sequence. Defaults to '\n'. */
   readonly eol?: '\n' | '\r\n';
-  /** Default content used when `line()` is called without an argument. Defaults to Str.SPACE. */
+
+  /**
+   * Default content used when `line()` is called without an argument.
+   * Defaults to Str.SPACE.
+   */
   readonly defaultEmpty?: string;
+
+  /**
+   * Default content used for `blank()` lines.
+   * Defaults to Str.SPACE to prevent CLI/TTY collapse.
+   */
+  readonly defaultBlank?: string;
+
   /**
    * Default trim behavior for `toString()` and `toText()`
    * when not explicitly overridden. Defaults to true.
@@ -17,6 +28,7 @@ export type StrBuilderOptions = {
 export type StrBuilderToTextOptions = {
   /** Trim trailing whitespace/newlines from the final output. */
   readonly trimEnd?: boolean;
+
   /** Ensure the final output ends with exactly one EOL. */
   readonly trailingNewline?: boolean;
 };
@@ -26,17 +38,29 @@ export type StrBuilderToTextOptions = {
  * output control. Methods are chainable and side-effect only on this instance.
  */
 export type StrBuilder = {
-  /** Append a line followed by EOL. If omitted, uses the configured `defaultEmpty`. */
+  /**
+   * Append a line followed by EOL.
+   * If omitted, uses the configured `defaultEmpty`.
+   */
   line(input?: string): StrBuilder;
 
-  /** Append `count` empty lines (no content, only EOL). */
+  /**
+   * Append `count` intentional blank lines.
+   * Uses the configured `defaultBlank` to prevent collapse.
+   */
   blank(count?: number): StrBuilder;
+
+  /**
+   * Append `count` truly empty lines (EOL only).
+   * These lines may be collapsed or trimmed by renderers.
+   */
+  empty(count?: number): StrBuilder;
 
   /** Append text verbatim (no EOL automatically added). */
   raw(text: string): StrBuilder;
 
   /** Append many lines (each item passed to `line`). */
-  lines(items: readonly string[]): StrBuilder;
+  lines(items: t.Ary<string>): StrBuilder;
 
   /**
    * Execute a scoped, indented block. All lines written via the provided
