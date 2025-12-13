@@ -39,7 +39,7 @@ export const builder: t.StrLib['builder'] = (options = {}) => {
        * Append a line followed by EOL.
        * Uses `defaultEmpty` when called without an argument.
        */
-      line(input: string = defaultEmpty) {
+      line(input = defaultEmpty) {
         chunks.push(prefix, String(input), eol);
         return self;
       },
@@ -47,8 +47,8 @@ export const builder: t.StrLib['builder'] = (options = {}) => {
       /**
        * Append `count` intentional blank lines (non-collapsible).
        *
-       * For the root (prefix === ''), this yields `defaultBlank + eol`.
-       * For indented builders, this yields lines with only the prefix + defaultBlank.
+       * Emits: `prefix + defaultBlank + eol`.
+       * (At root, prefix === '' so this is `defaultBlank + eol`.)
        */
       blank(count = 1) {
         for (let i = 0; i < count; i += 1) {
@@ -60,8 +60,8 @@ export const builder: t.StrLib['builder'] = (options = {}) => {
       /**
        * Append `count` truly empty lines (EOL only, may collapse/trim).
        *
-       * For the root (prefix === ''), this yields just `eol`.
-       * For indented builders, this yields lines with only the prefix.
+       * Emits: `prefix + eol`.
+       * (At root, prefix === '' so this is just `eol`.)
        */
       empty(count = 1) {
         for (let i = 0; i < count; i += 1) {
@@ -73,7 +73,7 @@ export const builder: t.StrLib['builder'] = (options = {}) => {
       /**
        * Append text verbatim (no EOL automatically added, no prefix).
        */
-      raw(text: string) {
+      raw(text) {
         chunks.push(text);
         return self;
       },
@@ -81,7 +81,7 @@ export const builder: t.StrLib['builder'] = (options = {}) => {
       /**
        * Append many lines (each item passed through `line`).
        */
-      lines(items: readonly string[]) {
+      lines(items) {
         items.forEach((item) => self.line(item));
         return self;
       },
@@ -93,7 +93,7 @@ export const builder: t.StrLib['builder'] = (options = {}) => {
        * Nested indentation composes prefixes (e.g., indent(2) inside indent(2)
        * results in 4 spaces).
        */
-      indent(spaces: number, fn: (b: t.StrBuilder) => void) {
+      indent(spaces, fn) {
         const width = Number.isFinite(spaces) && spaces > 0 ? spaces : 0;
         if (!width) {
           // No-op indentation: callback receives the current builder.
@@ -118,7 +118,7 @@ export const builder: t.StrLib['builder'] = (options = {}) => {
       /**
        * Render with per-call shaping overrides.
        */
-      toText(opts?: t.StrBuilderToTextOptions) {
+      toText(opts) {
         return render(opts);
       },
     };
