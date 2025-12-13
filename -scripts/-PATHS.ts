@@ -45,6 +45,7 @@ export const Paths = {
     /**
      * sys.ui:
      */
+    'code/sys.ui/ui-state',
     'code/sys.ui/ui-css',
     'code/sys.ui/ui-dom',
     'code/sys.ui/ui-react',
