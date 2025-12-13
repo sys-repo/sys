@@ -1,5 +1,6 @@
-import { type t, c, Cli, pkg, Process } from './common.ts';
+import { type t, c, Cli, pkg } from './common.ts';
 import { Fmt } from './u.fmt.ts';
+import { refreshCache } from './u.refreshCache.ts';
 import { getVersionInfo } from './u.ts';
 
 /**
@@ -32,7 +33,6 @@ export async function runUpdate(
         { name: ` update to ${c.green(version.latest)}`, value: UPDATE },
         { name: c.dim(c.gray(`(exit)`)), value: EXIT },
       ],
-      default: UPDATE,
     });
 
     if (answer === EXIT) {
@@ -42,16 +42,12 @@ export async function runUpdate(
   }
 
   const msg = `updating ${c.white(pkg.name)} from ${c.yellow(version.local)} to ${c.green(version.latest)}...`;
+
+  /** Run process: */
   const spinner = Cli.spinner(c.gray(msg)).start();
-
-  const out = await Process.invoke({
-    cmd: 'deno',
-    args: ['cache', '--reload', 'jsr:@sys/tools'],
-    cwd,
-    silent: false,
-  });
-
+  const out = await refreshCache(cwd);
   spinner.stop();
+
   if (!out.success) throw new Error(out.toString());
 
   console.info(c.gray(`Updated ${c.white(pkg.name)} to latest ${c.green(version.latest + ' ✔')}`));
