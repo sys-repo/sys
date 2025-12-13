@@ -12,9 +12,6 @@ describe('Diff', () => {
     expect(res1[0].kind).to.eql('Unchanged');
     expect(res2[0].kind).to.eql('Unchanged');
 
-    expect(res1[0].index).to.eql(0);
-    expect(res2[0].index).to.eql(0);
-
     expect(res1[0].value).to.eql('hello');
     expect(res2[0].value).to.eql('Hello');
   });
@@ -25,9 +22,6 @@ describe('Diff', () => {
 
     expect(res[0].kind).to.eql('Unchanged');
     expect(res[1].kind).to.eql('Added');
-
-    expect(res[0].index).to.eql(0);
-    expect(res[1].index).to.eql(5);
 
     expect(res[0].value).to.eql('hello');
     expect(res[1].value).to.eql(' world');
@@ -40,9 +34,6 @@ describe('Diff', () => {
 
     expect(res[0].kind).to.eql('Unchanged');
     expect(res[1].kind).to.eql('Deleted');
-
-    expect(res[0].index).to.eql(0);
-    expect(res[1].index).to.eql(5);
 
     expect(res[0].value).to.eql('hello');
     expect(res[1].value).to.eql(' world');

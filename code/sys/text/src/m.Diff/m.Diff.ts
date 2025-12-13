@@ -16,12 +16,10 @@ export const Diff: DiffLib = {
     const changes = diffChars(from, to, { ignoreCase });
     const res: t.TextCharDiff[] = [];
 
-    let index = 0;
     changes.forEach((item: any) => {
       const value = item.value;
       const kind = item.added ? 'Added' : item.removed ? 'Deleted' : 'Unchanged';
-      res.push({ kind, index, value });
-      index += value.length;
+      res.push({ kind, value });
     });
 
     return res;
