@@ -5,8 +5,8 @@
     "@types/react-dom": "19.2.3",
     "hono": "4.10.8",
     "motion": "12.23.26",
-    "react": "19.2.2",
-    "react-dom": "19.2.2",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "react-icons": "5.5.0"
   },
   "devDependencies": {
