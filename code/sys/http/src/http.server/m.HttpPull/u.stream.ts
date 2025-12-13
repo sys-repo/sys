@@ -162,8 +162,13 @@ export function stream(
     /** Observable of progress events (completes on finish/cancel). */
     events(until?: t.UntilInput) {
       const child = Rx.lifecycle([life, until]);
-      const $ = subject$.pipe(Rx.takeUntil(child.dispose$));
-      return Rx.toLifecycle<t.HttpPullStreamEvents>(child, { $ });
+
+      // When the child lifecycle disposes, explicitly complete the stream.
+      child.dispose$.subscribe(() => subject$.complete());
+
+      return Rx.toLifecycle<t.HttpPullStreamEvents>(child, {
+        $: subject$.asObservable(),
+      });
     },
   };
 }
