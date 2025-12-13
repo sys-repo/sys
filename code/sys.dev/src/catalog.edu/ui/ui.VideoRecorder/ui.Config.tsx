@@ -53,7 +53,7 @@ export const Config: React.FC<P> = (props) => {
       />
 
       <div className={styles.waveform.class}>
-        <Media.UI.AudioWaveform
+        <Media.AudioWaveform.UI
           debug={debug}
           theme={theme.name}
           stream={signals?.stream.value}

@@ -8,9 +8,8 @@ export const cli: t.UpdateToolsLib['cli'] = async (cwd, argv) => {
   const args = Args.parse<t.UpdateCliArgs>(argv, { alias: { h: 'help', l: 'latest' } });
 
   const runHelp = async () => console.info(await Fmt.help(toolname));
-
   if (args.help) return void (await runHelp());
-  if (args.latest) return void (await runUpdate(cwd));
 
-  void (await runHelp());
+  if (args.latest) return void (await runUpdate(cwd, { interactive: false }));
+  return void (await runUpdate(cwd, { interactive: true }));
 };
