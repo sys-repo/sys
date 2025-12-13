@@ -1,5 +1,7 @@
-import { type t, D, Http, Net } from '../common.ts';
+import { type t, c, Cli, D, Http, Net } from '../common.ts';
 import { Mime } from './u.mime.ts';
+import { Open } from './u.open.ts';
+import { ServeMenu } from './u.prompt.ts';
 import { route } from './u.serve.route.ts';
 
 type Opts = { port?: number };
@@ -37,13 +39,60 @@ export async function startServing(
   const ac = new AbortController();
   const server = Deno.serve({ ...baseOptions, signal: ac.signal }, app.fetch);
 
-  // Block here until the keyboard helper decides we're done.
-  await Http.Server.keyboard({
-    port,
-    print: true,
-    async dispose() {
-      ac.abort();
-      await server.finished;
-    },
-  });
+  /**
+   * Run Open → Prompt (Loop)
+   */
+  const runOpenPromptLoop = (() => {
+    const baseUrl = `http://localhost:${port}`;
+    const EXIT = '__exit__';
+    const prefix = 'bundle:open/';
+
+    const toUrl = (value: string): t.StringUrl => {
+      const subpath = value.startsWith(prefix) ? value.slice(prefix.length) : value;
+      const path = subpath.replace(/^\/+/, '');
+      return `${baseUrl}/${path}` as t.StringUrl;
+    };
+
+    const redraw = (last?: string) => {
+      console.clear();
+      console.info();
+      console.info(`Listening on ${c.cyan(`${baseUrl}/`)}`);
+      if (last) {
+        const dir = last.split('/').pop()!;
+        const url = `${baseUrl}/${dir}`;
+        console.info(`             ${c.dim(c.gray(url))}`);
+      }
+      console.info();
+    };
+
+    let lastSelection: string | undefined;
+
+    return async (): Promise<void> => {
+      const baseMenu = await ServeMenu.bundlesMenuOptions(cwd, location);
+      const options = [...baseMenu, { name: c.dim(`(exit)`), value: EXIT }];
+
+      try {
+        while (true) {
+          redraw(lastSelection);
+
+          const answer = await Cli.Prompt.Select.prompt({
+            message: 'Open',
+            options,
+            default: lastSelection,
+          });
+
+          if (answer === EXIT) break;
+          lastSelection = answer;
+
+          const url = toUrl(answer);
+          Open.invokeDetached(cwd, url);
+        }
+      } finally {
+        ac.abort();
+        await server.finished;
+      }
+    };
+  })();
+
+  await runOpenPromptLoop();
 }

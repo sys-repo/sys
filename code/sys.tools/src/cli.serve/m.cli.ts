@@ -1,6 +1,6 @@
 import { type t, Args, c, Cli, D, done, Fs, Is, opt, Prompt, Time } from './common.ts';
 
-import { ensureStartedThenOpen, ServeMenu, startServing } from './cmd.serve/mod.ts';
+import { startServing } from './cmd.serve/mod.ts';
 import { Config, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddServeLocation, promptRemoveDocument } from './u.prompt.ts';
@@ -108,9 +108,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
       message: `With: ${c.gray(location.name)}`,
       options: [
         opt(` start server ${fmtLocalhost}`, 'serve:start'),
-        ...(await ServeMenu.bundlesMenuOptions(cwd, location)),
         opt(' manage bundles', 'bundle'),
-        opt(c.dim(c.gray('(forget)')), 'modify:remove'),
       ],
     })) as C;
 
@@ -121,13 +119,6 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
 
     if (B === 'serve:start') {
       await startServing(cwd, location, { port });
-      return done(0);
-    }
-
-    if (B.startsWith('bundle:open' satisfies C)) {
-      const bundleDir = B.slice(B.indexOf('/')) ?? '';
-      await Update.bundleLastUsed(location.dir, bundleDir);
-      await ensureStartedThenOpen(cwd, location, bundleDir, { port });
       return done(0);
     }
 
