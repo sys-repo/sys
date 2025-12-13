@@ -12,6 +12,20 @@ describe('HttpPull.stream', () => {
     return { promise, resolve, reject };
   };
 
+  /**
+   * CI can expose servers as "http://0.0.0.0:<port>/..." which is a listen address,
+   * not a reliable client target. Normalize such URLs to "127.0.0.1".
+   */
+  const toLocalhost = (input: string) => {
+    try {
+      const u = new URL(input);
+      if (u.hostname === '0.0.0.0') u.hostname = '127.0.0.1';
+      return u.toString();
+    } catch {
+      return input.replace('://0.0.0.0:', '://127.0.0.1:');
+    }
+  };
+
   it('emits start + done for each URL; done order reflects completion, not input', async () => {
     // Slow/fast endpoints:
     const server = Testing.Http.server((req) => {
@@ -25,8 +39,8 @@ describe('HttpPull.stream', () => {
     });
 
     try {
-      const slow = server.url.join('path', 'sample', 'slow.txt');
-      const fast = server.url.join('path', 'sample', 'fast.txt');
+      const slow = toLocalhost(server.url.join('path', 'sample', 'slow.txt'));
+      const fast = toLocalhost(server.url.join('path', 'sample', 'fast.txt'));
       const outDir = await mkTmpDir();
 
       const stream = HttpPull.stream([slow, fast], outDir, { concurrency: 2 });
@@ -74,7 +88,7 @@ describe('HttpPull.stream', () => {
 
   it('emits start + error on HTTP 404; no file is written', async () => {
     const server = Testing.Http.server(() => Testing.Http.error(404, 'NF'));
-    const url = server.url.join('path', 'sample', 'missing.txt');
+    const url = toLocalhost(server.url.join('path', 'sample', 'missing.txt'));
     const outDir = await mkTmpDir();
 
     const stream = HttpPull.stream([url], outDir);
@@ -142,8 +156,8 @@ describe('HttpPull.stream', () => {
   it('cancels via `until` (no done/error)', async () => {
     // Server that never responds; requests hang until aborted.
     const server = Testing.Http.server((_req) => new Promise<Response>(() => {}));
-    const a = server.url.join('x', 'a.txt');
-    const b = server.url.join('x', 'b.txt');
+    const a = toLocalhost(server.url.join('x', 'a.txt'));
+    const b = toLocalhost(server.url.join('x', 'b.txt'));
     const outDir = await mkTmpDir();
 
     const until = Rx.disposable();
@@ -179,7 +193,7 @@ describe('HttpPull.stream', () => {
       });
 
       try {
-        const url = server.url.join('p', 'file.txt');
+        const url = toLocalhost(server.url.join('p', 'file.txt'));
         const outDir = await mkTmpDir();
 
         const stream = HttpPull.stream([url], outDir);
@@ -221,7 +235,7 @@ describe('HttpPull.stream', () => {
       const server = Testing.Http.server(() => Testing.Http.error(503, 'TEMP'));
 
       try {
-        const url = server.url.join('p', 'never.txt');
+        const url = toLocalhost(server.url.join('p', 'never.txt'));
         const outDir = await mkTmpDir();
 
         const stream = HttpPull.stream([url], outDir);
@@ -262,8 +276,8 @@ describe('HttpPull.stream', () => {
     it('emits start/done and completes (observable)', async () => {
       // Keep server simple; start events may be missed by late subscription.
       const server = Testing.Http.server((req) => Testing.Http.text(req, 'OK'));
-      const a = server.url.join('p', 'a.txt');
-      const b = server.url.join('p', 'b.txt');
+      const a = toLocalhost(server.url.join('p', 'a.txt'));
+      const b = toLocalhost(server.url.join('p', 'b.txt'));
       const outDir = await mkTmpDir();
 
       const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
@@ -299,8 +313,8 @@ describe('HttpPull.stream', () => {
     it('cancel(reason) → completes observable quietly (no done/error)', async () => {
       // Never-responding server; stream should end quietly on cancel.
       const server = Testing.Http.server((_req) => new Promise<Response>(() => {}));
-      const a = server.url.join('x', 'a.txt');
-      const b = server.url.join('x', 'b.txt');
+      const a = toLocalhost(server.url.join('x', 'a.txt'));
+      const b = toLocalhost(server.url.join('x', 'b.txt'));
       const outDir = await mkTmpDir();
 
       const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
@@ -331,8 +345,8 @@ describe('HttpPull.stream', () => {
 
     it('events(until) has independent lifetime from iterator (observable completes; iterator continues)', async () => {
       const server = Testing.Http.server((req) => Testing.Http.text(req, 'OK'));
-      const a = server.url.join('p', 'a.txt');
-      const b = server.url.join('p', 'b.txt');
+      const a = toLocalhost(server.url.join('p', 'a.txt'));
+      const b = toLocalhost(server.url.join('p', 'b.txt'));
       const outDir = await mkTmpDir();
 
       const stream = HttpPull.stream([a, b], outDir, { concurrency: 2 });
