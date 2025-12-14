@@ -52,7 +52,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   add({ kind: 'title', v: 'Composite Timeline', y: [0, 10] });
   add({ k: 'Slug', v: docid ? `crdt:${docid}` : '-', mono, userSelect: 'text' });
   hr();
-  add({ k: 'Composition Size', v: total.beats === 0 ? '-' : size });
+  add({ k: 'Composition', v: total.beats === 0 ? '-' : size });
   add({ k: 'Virtual Duration', v: total.duration });
   if (props.index !== undefined) {
     add({ k: 'Current Beat', v: props.index });
