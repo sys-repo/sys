@@ -8,6 +8,11 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
 
   const lastTimeRef = useRef<t.Secs | undefined>(undefined);
 
+  const write = <T,>(sig: t.Signal<T>, next: T) => {
+    if (Object.is(sig.value, next)) return;
+    sig.value = next;
+  };
+
   function listen() {
     if (!signals) return;
     const p = signals.props;
@@ -55,20 +60,20 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
 
     const onPlayingChange: P['onPlayingChange'] = (e) => {
       if (log) console.info(`⚡️ onPlayingChange:`, e);
-      p.playing.value = e.playing;
+      write(p.playing, e.playing);
     };
 
     const onMutedChange: P['onMutedChange'] = (e) => {
       if (log) console.info(`⚡️ onMutedChange:`, e);
-      p.muted.value = e.muted;
+      write(p.muted, e.muted);
     };
 
     const onEnded: P['onEnded'] = (e) => {
       if (log) console.info('⚡️ onEnded:', e);
     };
 
-    const onBufferingChange: P['onBufferingChange'] = (e) => (p.buffering.value = e.buffering);
-    const onBufferedChange: P['onBufferedChange'] = (e) => (p.buffered.value = e.buffered);
+    const onBufferingChange: P['onBufferingChange'] = (e) => write(p.buffering, e.buffering);
+    const onBufferedChange: P['onBufferedChange'] = (e) => write(p.buffered, e.buffered);
 
     const onTimeUpdate: P['onTimeUpdate'] = (e) => {
       const next: t.Secs = Number.isFinite(e.secs) ? Math.max(0, e.secs) : 0;
@@ -79,7 +84,7 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
       const delta = prev == null ? Infinity : Math.abs(next - prev);
       if (delta >= 0.05) {
         lastTimeRef.current = next;
-        p.currentTime.value = next;
+        write(p.currentTime, next);
       }
     };
 
@@ -87,8 +92,9 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
       const secs = e.secs;
       const finite = Number.isFinite(secs);
       const next: t.Secs = finite ? Math.max(0, secs) : 0;
-      p.duration.value = next;
-      p.ready.value = !!p.src.value && finite && next > 0;
+      const nextReady = !!p.src.value && finite && next > 0;
+      write(p.duration, next);
+      write(p.ready, nextReady);
     };
 
     return {
