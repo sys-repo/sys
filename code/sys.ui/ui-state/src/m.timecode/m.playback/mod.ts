@@ -1,5 +1,7 @@
 /**
  * @module
  * Timecode playback state machine (pure UI state).
+ *
+ * Defines the framework-agnostic reducer protocol and exports the machine.
  */
-import type { t } from './common.ts';
+export { Playback } from './m.Playback.ts';

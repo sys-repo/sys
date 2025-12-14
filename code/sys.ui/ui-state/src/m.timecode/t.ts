@@ -9,4 +9,6 @@ export type * from './m.playback/t.ts';
  * Defines the public surface for timecode-related
  * state machines and command algebras.
  */
-export type TimecodeStateLib = {};
+export type TimecodeStateLib = {
+  readonly Playback: t.PlaybackStateLib;
+};

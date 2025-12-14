@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import type { t } from './common.ts';
 
 /** Type exports: */
 export type * from './t.protocol.effect.ts';
@@ -8,7 +8,7 @@ export type * from './t.protocol.input.ts';
 /**
  * Playback state machine (pure).
  */
-export type PlaybackLib = {
+export type PlaybackStateLib = {
   /** Create initial playback state and side-effect intents from optional inputs. */
   init(args?: { timeline?: PlaybackTimeline; startBeat?: PlaybackBeatIndex }): PlaybackUpdate;
 

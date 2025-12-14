@@ -1,3 +1,9 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
+import { Playback } from './m.playback/mod.ts';
 
-export const Timecode: t.TimecodeStateLib = {};
+/**
+ * UI state library for timecode orchestration.
+ */
+export const Timecode: t.TimecodeStateLib = {
+  Playback,
+};
