@@ -9,26 +9,31 @@ export function useMediaProgress(
   const { src, slice, onTimeUpdate, onDurationChange } = props;
 
   /**
-   * Hooks:
+   * State:
    */
   const [currentTimeFull, setCurrentTimeFull] = useState(0);
   const [durationFull, setDurationFull] = useState(0);
+
+  /**
+   * Lens (UI-facing; stable projection).
+   */
   const lens = useMemo<t.VideoCropLens>(() => {
     return Crop.lens(slice, durationFull);
   }, [slice, durationFull]);
 
   /**
-   * Effect: Reset when the `src` or `crop` changes.
+   * Effect: reset on source or slice change.
    */
   useEffect(() => {
     setCurrentTimeFull(0);
     setDurationFull(0);
     onTimeUpdate?.({ secs: 0 });
     onDurationChange?.({ secs: 0 });
-  }, [src, slice]);
+  }, [src, slice, onTimeUpdate, onDurationChange]);
 
   /**
-   * Effect: listeners:
+   * Effect: media listeners.
+   * NOTE: Lens is rebuilt per-tick; not a dependency.
    */
   useEffect(() => {
     const el = videoRef.current;
@@ -36,13 +41,13 @@ export function useMediaProgress(
 
     const update = () => {
       const fullDuration = Number.isFinite(el.duration) ? el.duration : 0;
-      const nextLens = Crop.lens(slice, fullDuration); // NB: rebuild with fresh duration; memo/state may still be stale this tick.
+      const lens = Crop.lens(slice, fullDuration);
 
       setDurationFull(fullDuration);
-      onDurationChange?.({ secs: nextLens.duration.cropped });
+      onDurationChange?.({ secs: lens.duration.cropped });
 
       const secsFull = Math.max(0, Math.min(el.currentTime, fullDuration));
-      const secsCropped = nextLens.toCropped(secsFull);
+      const secsCropped = lens.toCropped(secsFull);
 
       setCurrentTimeFull(secsFull);
       onTimeUpdate?.({ secs: secsCropped });
@@ -55,7 +60,7 @@ export function useMediaProgress(
 
     update();
     return dispose;
-  }, [videoRef, src, slice, lens, onTimeUpdate, onDurationChange]);
+  }, [videoRef, src, slice, onTimeUpdate, onDurationChange]);
 
   /**
    * API:
@@ -64,6 +69,9 @@ export function useMediaProgress(
     lens,
     currentTime: lens.toCropped(currentTimeFull),
     duration: lens.duration.cropped,
-    full: { currentTime: currentTimeFull, duration: durationFull },
+    full: {
+      currentTime: currentTimeFull,
+      duration: durationFull,
+    },
   } as const;
 }

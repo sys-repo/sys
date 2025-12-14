@@ -13,10 +13,11 @@ export function useCropBounds(
    */
   const lastKeyRef = useRef<string>(undefined);
   const endedRef = useRef(false);
-  const EPS = 0.01; // ← Float slop.
+  const EPS = 0.01; // Float slop.
 
   /**
    * Effect:
+   * Enforces crop bounds without treating the lens as a reactive dependency.
    */
   useEffect(() => {
     const el = videoRef.current;
@@ -26,7 +27,7 @@ export function useCropBounds(
     if (lastKeyRef.current === key) return;
 
     lastKeyRef.current = key;
-    endedRef.current = false; // NB: reset on new lens.
+    endedRef.current = false;
 
     const { dispose, signal } = Rx.abortable();
     const start = lens.range.start ?? 0;
@@ -49,8 +50,11 @@ export function useCropBounds(
         }
 
         if (el.currentTime < start - EPS) el.currentTime = start;
+
         if (el.currentTime >= end - EPS) {
-          if (Math.abs(el.currentTime - end) > EPS) el.currentTime = end;
+          if (Math.abs(el.currentTime - end) > EPS) {
+            el.currentTime = end;
+          }
 
           if (loop) {
             el.currentTime = start;
@@ -58,14 +62,13 @@ export function useCropBounds(
             endedRef.current = false;
             return;
           }
-          if (!loop && endedRef.current) return; // Safety guard.
 
           if (!el.paused) el.pause();
+
           if (!endedRef.current) {
             endedRef.current = true;
             el.dispatchEvent(new Event('ended'));
           }
-          return;
         }
       });
     };
@@ -73,7 +76,7 @@ export function useCropBounds(
     if (el.readyState >= READY_STATE.HAVE_METADATA) {
       clamp();
     } else {
-      el.addEventListener('loadedmetadata', () => clamp(), { once: true, signal });
+      el.addEventListener('loadedmetadata', clamp, { once: true, signal });
     }
 
     el.addEventListener('play', clamp, { signal });
@@ -81,5 +84,5 @@ export function useCropBounds(
     el.addEventListener('timeupdate', clamp, { signal });
 
     return dispose;
-  }, [videoRef, lens, loop]);
+  }, [videoRef, lens.duration.full, lens.range.start, lens.range.end, loop]);
 }
