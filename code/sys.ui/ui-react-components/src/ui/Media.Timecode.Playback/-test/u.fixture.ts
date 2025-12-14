@@ -1,5 +1,7 @@
 import { type t } from '../common.ts';
 
+export * from './u.fixture.VideoPlayerSignals.ts';
+
 type RuntimeCall =
   | { readonly kind: 'play'; readonly deck: t.TimecodeState.Playback.DeckId }
   | { readonly kind: 'pause'; readonly deck: t.TimecodeState.Playback.DeckId }

@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 
 /** Type exports */
+export type * from './t.deck.ts';
 export type * from './t.runtime.ts';
 
 /**

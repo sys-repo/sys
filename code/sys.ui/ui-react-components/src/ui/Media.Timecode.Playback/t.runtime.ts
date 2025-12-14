@@ -13,13 +13,19 @@ export type PlaybackRunnerInput = t.TimecodeState.Playback.Input;
  *
  * Abstracts over <video>, audio, or any media backend.
  */
-export type PlaybackRuntime = {
-  readonly deck: {
-    play(deck: t.TimecodeState.Playback.DeckId): void;
-    pause(deck: t.TimecodeState.Playback.DeckId): void;
-    seek?(deck: t.TimecodeState.Playback.DeckId, vTime: t.Msecs): void;
-  };
-};
+export type PlaybackRuntime = Readonly<{
+  /**
+   * Minimal imperative controls used by the runner.
+   * (Pure deck contract lives in `t.deck.ts`.)
+   */
+  readonly deck: t.VideoDeckControlRuntime;
+
+  /**
+   * Optional A/B deck signals bundle (used by higher adapters).
+   * The runner itself can remain signal-agnostic.
+   */
+  readonly decks?: t.VideoDeckRuntime;
+}>;
 
 /**
  * Observable playback state exposed to the UI.
