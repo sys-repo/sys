@@ -5,14 +5,10 @@ export type * from './t.elapsed.ts';
 export type * from './t.events.ts';
 export type * from './t.stateful.ts';
 
-/**
- * https://html.spec.whatwg.org/multipage/media.html#ready-states
- */
+/** https://html.spec.whatwg.org/multipage/media.html#ready-states */
 export type NumberMediaReadyState = 0 | 1 | 2 | 3 | 4;
 
-/**
- * Imperative handle exposing safe access to the underlying <video> element.
- */
+/** Imperative handle exposing safe access to the underlying <video> element. */
 export type VideoElementHandle = Readonly<{ get(): HTMLVideoElement | null }>;
 
 /**
