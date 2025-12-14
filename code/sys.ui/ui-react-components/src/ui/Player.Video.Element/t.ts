@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
-export type * from './t.Crop.ts';
-export type * from './t.Elapsed.ts';
+export type * from './t.crop.ts';
+export type * from './t.elapsed.ts';
 export type * from './t.events.ts';
 export type * from './t.stateful.ts';
 
