@@ -11,13 +11,14 @@ export type { MediaResolver, Timecode } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { KeyboardModifierFlags, LocalStorageImmutable } from '@sys/ui-dom/t';
 export type {
-  PointerDragSnapshot,
   PointerDragdropSnapshot,
+  PointerDragSnapshot,
   PointerEventsArg,
   PointerEventsHandler,
   PointerHookFlags,
   ReactChildrenDepsKey,
 } from '@sys/ui-react/t';
+export type { TimecodeState } from '@sys/ui-state/t';
 
 /**
  * @local:

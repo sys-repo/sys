@@ -21,6 +21,7 @@ export type * from './ui/Media.AudioWaveform/t.ts';
 export type * from './ui/Media.Config/t.ts';
 export type * from './ui/Media.Devices/t.ts';
 export type * from './ui/Media.Recorder/t.ts';
+export type * from './ui/Media.Timecode.Playback/t.ts';
 export type * from './ui/Media.Timecode.Timeline/t.ts';
 export type * from './ui/Media.Video/t.ts';
 export type * from './ui/Media/t.ts';
