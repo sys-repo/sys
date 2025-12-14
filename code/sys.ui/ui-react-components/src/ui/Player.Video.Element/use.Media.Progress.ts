@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { type t, Rx } from './common.ts';
+import { useEffect, useMemo, useState } from 'react';
+import { type t } from './common.ts';
 import { Crop } from './m.Crop.ts';
+import { useLatestRef } from './use.LatestRef.ts';
+import { useMediaProgressEvents } from './use.Media.ProgressEvents.ts';
 
 export function useMediaProgress(
   videoRef: React.RefObject<HTMLVideoElement | null>,
@@ -18,16 +20,8 @@ export function useMediaProgress(
    * Callback refs:
    * Avoid effect re-runs caused by changing function identities.
    */
-  const onTimeUpdateRef = useRef<typeof onTimeUpdate>(onTimeUpdate);
-  const onDurationChangeRef = useRef<typeof onDurationChange>(onDurationChange);
-
-  useEffect(() => {
-    onTimeUpdateRef.current = onTimeUpdate;
-  }, [onTimeUpdate]);
-
-  useEffect(() => {
-    onDurationChangeRef.current = onDurationChange;
-  }, [onDurationChange]);
+  const onTimeUpdateRef = useLatestRef(onTimeUpdate);
+  const onDurationChangeRef = useLatestRef(onDurationChange);
 
   /**
    * Lens (UI-facing; stable projection).
@@ -50,32 +44,15 @@ export function useMediaProgress(
    * Effect: media listeners.
    * NOTE: Lens is rebuilt per-tick; not a dependency.
    */
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-
-    const update = () => {
-      const fullDuration = Number.isFinite(el.duration) ? el.duration : 0;
-      const lens = Crop.lens(slice, fullDuration);
-
-      setDurationFull(fullDuration);
-      onDurationChangeRef.current?.({ secs: lens.duration.cropped });
-
-      const secsFull = Math.max(0, Math.min(el.currentTime, fullDuration));
-      const secsCropped = lens.toCropped(secsFull);
-
-      setCurrentTimeFull(secsFull);
-      onTimeUpdateRef.current?.({ secs: secsCropped });
-    };
-
-    const { dispose, signal } = Rx.abortable();
-    el.addEventListener('loadedmetadata', update, { signal });
-    el.addEventListener('durationchange', update, { signal });
-    el.addEventListener('timeupdate', update, { signal });
-
-    update();
-    return dispose;
-  }, [videoRef, src, slice]);
+  useMediaProgressEvents({
+    videoRef,
+    src,
+    slice,
+    onTimeUpdateRef,
+    onDurationChangeRef,
+    setCurrentTimeFull,
+    setDurationFull,
+  });
 
   /**
    * API:
