@@ -1,41 +1,77 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { type t, Color, css } from '../common.ts';
 
-/**
- * Hook Factory: monitor size changes to a DOM element using [ResizeObserver].
- */
-export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
-  onChange?: t.SizeObserverChangeHandler,
-) => {
-  const ref = useCallback((el: T | null) => setElement(el), []);
+type Handler = t.SizeObserverChangeHandler;
 
-  const [element, setElement] = useState<T | null>(null);
-  const [rect, setRect] = useState<DOMRectReadOnly | undefined>();
-  const [count, setCount] = useState(0);
+/**
+ * Hook: monitor size changes to a DOM element using [ResizeObserver].
+ */
+export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(onChange?: Handler) => {
+  /**
+   * Refs:
+   */
+  const elementRef = useRef<T | null>(null);
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const lastRef = useRef<{ readonly w: number; readonly h: number } | null>(null);
 
   /**
-   * Effect: monitor DOM element size.
+   * State:
    */
-  useEffect(() => {
-    if (!element) return;
+  const [count, setCount] = useState(0);
+  const [rect, setRect] = useState<DOMRectReadOnly | undefined>();
+  const toObject = () => wrangle.asObject(rect);
+
+  const ref = useCallback((el: T | null) => {
+    if (elementRef.current === el) return;
+    elementRef.current = el;
+
+    // Tear down any prior observer immediately.
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+    lastRef.current = null;
+
+    if (!el) return;
     if (typeof ResizeObserver !== 'function') return;
 
     const observer = new ResizeObserver((entries) => {
-      entries
-        .filter((entry) => entry.target === element)
-        .forEach((entry) => setRect(entry.contentRect));
+      for (const entry of entries) {
+        if (entry.target !== el) continue;
+
+        // Avoid re-setting same values (cuts feedback + noise).
+        const next = entry.contentRect;
+        const w = next.width;
+        const h = next.height;
+        const prev = lastRef.current;
+        if (prev && prev.w === w && prev.h === h) return;
+        lastRef.current = { w, h };
+
+        setRect(next);
+        return;
+      }
     });
 
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [element]);
+    observer.observe(el);
+    observerRef.current = observer;
+  }, []);
+
+  /**
+   * Effect: Cleanup
+   */
+  useEffect(() => {
+    return () => {
+      observerRef.current?.disconnect();
+      observerRef.current = null;
+      elementRef.current = null;
+      lastRef.current = null;
+    };
+  }, []);
 
   /**
    * Effect: alert listeners on change.
    */
   useEffect(() => {
     if (rect) onChange?.({ rect, toObject });
-  }, [rect]);
+  }, [rect, onChange]);
 
   /**
    * Effect: single number to track changes (deps).
@@ -44,10 +80,6 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
     if (rect) setCount((n) => n + 1);
   }, [rect?.height, rect?.width]);
 
-  /**
-   * API
-   */
-  const toObject = () => wrangle.asObject(rect);
   const api: t.SizeObserverHook<T> = {
     ref,
     get ready() {
@@ -72,11 +104,12 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
       const { opacity = 0.3, fontSize = 11, Absolute } = props;
       const theme = props.theme ? Color.theme(props.theme) : undefined;
       const color = theme?.fg;
-      let display = props.visible === false ? 'none' : props.inline ? 'inline-block' : 'block';
+      const display = props.visible === false ? 'none' : props.inline ? 'inline-block' : 'block';
       const base = css({ Absolute, display, fontSize, opacity, color });
       return <div className={css(base, props.style).class}>{`${api.toString()}`}</div>;
     },
   };
+
   return api;
 };
 
@@ -84,7 +117,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(
  * Helpers
  */
 const wrangle = {
-  asObject(rect?: DOMRect): t.DomRect {
+  asObject(rect?: DOMRectReadOnly): t.DomRect {
     if (!rect) return { x: 0, y: 0, width: 0, height: 0, top: 0, right: 0, bottom: 0, left: 0 };
     const { x, y, width, height, top, right, bottom, left } = rect;
     return { x, y, width, height, top, right, bottom, left };
