@@ -24,6 +24,9 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
     p.buffered.value;
     p.buffering.value;
     p.slice.value;
+    p.currentTime.value;
+    p.duration.value;
+    p.ready.value;
   }
 
   /**
