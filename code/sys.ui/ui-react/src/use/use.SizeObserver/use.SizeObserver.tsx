@@ -17,7 +17,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(onChan
   /**
    * State:
    */
-  const [count, setCount] = useState(0);
+  const [rev, setRev] = useState(0);
   const [rect, setRect] = useState<DOMRectReadOnly | undefined>();
   const toObject = () => wrangle.asObject(rect);
 
@@ -77,9 +77,12 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(onChan
    * Effect: single number to track changes (deps).
    */
   useEffect(() => {
-    if (rect) setCount((n) => n + 1);
+    if (rect) setRev((n) => n + 1);
   }, [rect?.height, rect?.width]);
 
+  /**
+   * API
+   */
   const api: t.SizeObserverHook<T> = {
     ref,
     get ready() {
@@ -91,7 +94,7 @@ export const useSizeObserver: t.UseSizeObserver = <T extends HTMLElement>(onChan
     get height() {
       return rect?.height ?? 0;
     },
-    count,
+    rev,
     rect,
     toObject,
     toString() {

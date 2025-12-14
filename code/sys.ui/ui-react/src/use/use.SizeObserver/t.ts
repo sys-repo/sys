@@ -19,7 +19,7 @@ export type SizeObserverHook<T extends HTMLElement> = {
   readonly ready: boolean;
 
   /** Change count (use for deps tracking). */
-  readonly count: number;
+  readonly rev: number;
 
   /** The latest dimensions of the element (or null if not measured yet). */
   readonly rect?: DOMRectReadOnly;
