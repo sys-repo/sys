@@ -1,5 +1,5 @@
 import { type t, describe, expect, it } from '../../../-test.ts';
-import { reduce } from '../u.reduce.ts';
+import { Playback } from '../mod.ts';
 import { emptyState, timeline } from './u.fixture.ts';
 
 /**
@@ -18,8 +18,8 @@ describe('Playback.reduce — invariants', () => {
       timeline: timeline(),
     };
 
-    const a = reduce(state, input);
-    const b = reduce(state, input);
+    const a = Playback.reduce(state, input);
+    const b = Playback.reduce(state, input);
 
     expect(a.state).to.eql(b.state);
     expect(a.cmds).to.eql(b.cmds);
@@ -28,14 +28,14 @@ describe('Playback.reduce — invariants', () => {
 
   it('does not advance beat without a timeline', () => {
     const state = emptyState();
-    const res = reduce(state, { kind: 'video:time', deck: 'A', vTime: 1000 as t.Msecs });
+    const res = Playback.reduce(state, { kind: 'video:time', deck: 'A', vTime: 1000 as t.Msecs });
 
     expect(res.state.currentBeat).to.eql(undefined);
     expect(res.events.length).to.eql(0);
   });
 
   it('does not change currentBeat except via video:time or explicit navigation', () => {
-    const init = reduce(emptyState(), {
+    const init = Playback.reduce(emptyState(), {
       kind: 'playback:init',
       timeline: timeline(),
     });
@@ -50,24 +50,24 @@ describe('Playback.reduce — invariants', () => {
     ];
 
     for (const input of nonBeatChangingInputs) {
-      const res = reduce(state, input);
+      const res = Playback.reduce(state, input);
       expect(res.state.currentBeat).to.eql(state.currentBeat);
     }
   });
 
   it('video:time advances beat monotonically for increasing time', () => {
-    const init = reduce(emptyState(), {
+    const init = Playback.reduce(emptyState(), {
       kind: 'playback:init',
       timeline: timeline(),
     });
 
-    const t1 = reduce(init.state, {
+    const t1 = Playback.reduce(init.state, {
       kind: 'video:time',
       deck: 'A',
       vTime: 1000 as t.Msecs,
     });
 
-    const t2 = reduce(t1.state, {
+    const t2 = Playback.reduce(t1.state, {
       kind: 'video:time',
       deck: 'A',
       vTime: 2000 as t.Msecs,
@@ -77,12 +77,12 @@ describe('Playback.reduce — invariants', () => {
   });
 
   it('video:time emits beat event iff beat actually changes', () => {
-    const init = reduce(emptyState(), {
+    const init = Playback.reduce(emptyState(), {
       kind: 'playback:init',
       timeline: timeline(),
     });
 
-    const first = reduce(init.state, {
+    const first = Playback.reduce(init.state, {
       kind: 'video:time',
       deck: 'A',
       vTime: 0 as t.Msecs,
@@ -90,7 +90,7 @@ describe('Playback.reduce — invariants', () => {
 
     expect(first.events.length).to.eql(0);
 
-    const second = reduce(init.state, {
+    const second = Playback.reduce(init.state, {
       kind: 'video:time',
       deck: 'A',
       vTime: 1000 as t.Msecs,
@@ -100,7 +100,7 @@ describe('Playback.reduce — invariants', () => {
   });
 
   it('never emits playback:beat with undefined beat', () => {
-    const res = reduce(emptyState(), {
+    const res = Playback.reduce(emptyState(), {
       kind: 'playback:play',
     });
 
