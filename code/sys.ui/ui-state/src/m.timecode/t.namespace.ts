@@ -13,6 +13,8 @@ export namespace TimecodeState {
    * Playback state machine (pure).
    */
   export namespace Playback {
+    export type Lib = t.PlaybackStateLib;
+
     /** Machine state */
     export type State = t.PlaybackState;
 

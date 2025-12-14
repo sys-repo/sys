@@ -13,7 +13,7 @@ export type PlaybackRunnerInput = t.TimecodeState.Playback.Input;
  *
  * Abstracts over <video>, audio, or any media backend.
  */
-export type PlaybackRuntime = Readonly<{
+export type PlaybackRuntime = {
   /**
    * Minimal imperative controls used by the runner.
    * (Pure deck contract lives in `t.deck.ts`.)
@@ -25,7 +25,7 @@ export type PlaybackRuntime = Readonly<{
    * The runner itself can remain signal-agnostic.
    */
   readonly decks?: t.VideoDeckRuntime;
-}>;
+};
 
 /**
  * Observable playback state exposed to the UI.
@@ -56,4 +56,23 @@ export type PlaybackRunner = {
 export type PlaybackRunnerArgs = {
   readonly initial?: t.TimecodeState.Playback.State;
   readonly runtime: t.PlaybackRuntime;
+
+  /**
+   * Optional injection seam (testing / advanced hosting).
+   * Must match the ui-state machine surface used by the runner (init/reduce).
+   * Default: TimecodeState.Playback
+   */
+  readonly machine?: t.TimecodeState.Playback.Lib;
+
+  /**
+   * Optional event observer (debug/testing).
+   * Law: events are delivered before cmds for a single send() flush.
+   */
+  readonly onEvent?: (e: t.TimecodeState.Playback.Event) => void;
+
+  /**
+   * Optional cmd observer (debug/testing).
+   * Observes cmds as they are about to be executed.
+   */
+  readonly onCmd?: (cmd: t.TimecodeState.Playback.Cmd) => void;
 };

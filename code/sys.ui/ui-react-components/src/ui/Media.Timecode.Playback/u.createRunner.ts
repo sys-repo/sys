@@ -6,13 +6,18 @@ import { type t, TimecodeState } from './common.ts';
  * This adapter:
  *  - owns reducer state
  *  - feeds inputs into the reducer
+ *  - publishes reducer events (observational)
  *  - executes reducer-issued commands against the runtime
  *  - exposes a stable observable read-model
+ *
+ * Law (single send flush):
+ *   events → cmds → notify
  */
 export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
-  const { runtime, initial } = args;
+  const { runtime, initial, onEvent, onCmd } = args;
+  const machine: t.TimecodeState.Playback.Lib = args.machine ?? TimecodeState.Playback;
 
-  let state: t.TimecodeState.Playback.State = initial ?? TimecodeState.Playback.init().state;
+  let state: t.TimecodeState.Playback.State = initial ?? machine.init().state;
   const subs = new Set<(s: t.PlaybackRunnerState) => void>();
 
   /**
@@ -20,6 +25,8 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
    */
   function exec(cmds: readonly t.TimecodeState.Playback.Cmd[]): void {
     for (const cmd of cmds) {
+      onCmd?.(cmd);
+
       switch (cmd.kind) {
         case 'cmd:noop':
           break;
@@ -54,32 +61,37 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
   }
 
   /**
+   * Publish reducer events (observational only).
+   */
+  function publish(events: readonly t.TimecodeState.Playback.Event[]): void {
+    if (!onEvent) return;
+    for (const e of events) onEvent(e);
+  }
+
+  /**
    * Publish the current observable read-model.
    */
   function notify(): void {
-    const snapshot: t.PlaybackRunnerState = {
-      state,
-      phase: state.phase,
-      intent: state.intent,
-      currentBeat: state.currentBeat,
-      decks: state.decks,
-    };
-
+    const { phase, intent, currentBeat, decks } = state;
+    const snapshot: t.PlaybackRunnerState = { state, phase, intent, currentBeat, decks };
     subs.forEach((fn) => fn(snapshot));
   }
 
   /**
    * Apply a reducer update.
+   *
+   * Law: events → cmds → notify
    */
   function apply(update: t.TimecodeState.Playback.Update): void {
     state = update.state;
+    publish(update.events);
     exec(update.cmds);
     notify();
   }
 
   return {
     send(input) {
-      const update = TimecodeState.Playback.reduce(state, input);
+      const update = machine.reduce(state, input);
       apply(update);
     },
 

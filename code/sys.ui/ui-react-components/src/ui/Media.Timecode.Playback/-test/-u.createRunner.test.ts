@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import { type t, TimecodeState } from '../common.ts';
 import { Playback } from '../mod.ts';
 import { createRuntime, expectedCallsFromCmds, timeline } from './u.fixture.ts';
+import { createRunner } from '../u.createRunner.ts';
 
 describe('Playback.runner', () => {
   it('exposes the expected API shape', () => {
@@ -28,6 +29,31 @@ describe('Playback.runner', () => {
     unsubscribe();
 
     expect(seen).to.eql(first);
+  });
+
+  it('law: events → cmds → notify (single send flush)', () => {
+    const { runtime } = createRuntime();
+
+    const order: Array<'event' | 'cmd' | 'notify'> = [];
+
+    // Use createRunner directly so we can inject onEvent/onCmd.
+    const runner = createRunner({
+      runtime,
+      onEvent: () => order.push('event'),
+      onCmd: () => order.push('cmd'),
+    });
+
+    const unsubscribe = runner.subscribe(() => order.push('notify'));
+    order.length = 0; // drop the initial subscribe-notify
+
+    runner.send({ kind: 'playback:init', timeline: timeline() });
+
+    expect(order[0]).to.eql('event'); // events first
+    expect(order.includes('cmd')).to.eql(true); // cmds occurred (likely load/ready/etc)
+    expect(order[order.length - 1]).to.eql('notify'); // notify last
+
+    unsubscribe();
+    runner.dispose();
   });
 
   it('executes exactly the reducer-issued runtime-affecting cmds for a given input', () => {
