@@ -445,7 +445,7 @@ export function videoButton(
 ) {
   let label = `src: ${path.slice(0, 10)} .. ${debug.src.slice(-10)}`;
   label = Str.truncate(label, 30);
-  return <Button block label={label} onClick={() => (signal.value = path)} />;
+  return <Button key={path} block label={label} onClick={() => (signal.value = path)} />;
 }
 
 function CurrentTime(props: { video?: t.VideoPlayerSignals; prefix?: string }) {
