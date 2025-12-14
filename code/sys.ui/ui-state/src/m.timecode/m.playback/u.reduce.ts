@@ -2,18 +2,12 @@ import { type t } from './common.ts';
 import { beatIndexFromVTime, clampBeatIndex, setCurrentBeat } from './u.ts';
 
 /**
- * Playback reducer.
+ * Playback.reduce
  *
- * This is the single authoritative law of motion for playback state.
- *
- * Given (prevState, input), it produces:
- *   - next state
- *   - effect intents (cmds)
- *   - observable decisions (events)
- *
- * Time flows runner → machine:
- *   - `video:time` is the ONLY input that may advance the current beat.
- *   - All other inputs cause discrete state transitions.
+ * Single authoritative transition function.
+ * - Only `video:time` may auto-advance `currentBeat`
+ * - All other inputs are discrete state transitions
+ * - No side effects; commands are descriptive only
  */
 export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
   const cmds: t.PlaybackCmd[] = [];
