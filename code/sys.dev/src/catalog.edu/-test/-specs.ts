@@ -13,7 +13,6 @@ const edu = `${ns}: catalog.edu`;
 export const Specs = {
   [`${edu}: -sample-1 ← (yaml editor)`]: () => import('../ui/-sample.editor-1/-spec/-SPEC.tsx'),
   [`${edu}: -sample-2 ← (yaml editor)`]: () => import('../ui/-sample.editor-2/-spec/-SPEC.tsx'),
-  [`${edu}: SlugHarness`]: () => import('../ui/ui.SlugHarness/-spec/-SPEC.tsx'),
   [`${edu}: VideoRecorder`]: () => import('../ui/ui.VideoRecorder/-spec/-SPEC.tsx'),
   [`${ns}: TMP 🐷`]: () => import('../ui/-sample.tmp/-spec/-SPEC.tsx'),
 } as t.SpecImports;
