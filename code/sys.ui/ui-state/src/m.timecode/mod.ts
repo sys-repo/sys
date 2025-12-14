@@ -3,7 +3,9 @@
  *
  * Timecode UI state orchestration.
  *
- * Pure, framework-agnostic state machine and command algebra for
- * timecode-driven playback (beats, segments, deck coordination).
+ * This module exposes the UI-domain state machines for timecode
+ * (playback, beats, segments, deck coordination).
+ *
+ * Pure, framework-agnostic state and command algebra.
  */
 export { Timecode } from './m.Timecode.ts';

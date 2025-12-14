@@ -24,6 +24,9 @@ export type StringUrl = string;
 /** String URL that references a canonical type-definition on the web. */
 export type StringTypeUrl = string;
 
+/** String that represents a MIME media type (e.g. "text/plain", "application/json"). */
+export type StringMimeType = string;
+
 /** String that represents a URL route (eg: '/foo/:bar') */
 export type StringUrlRoute = string;
 

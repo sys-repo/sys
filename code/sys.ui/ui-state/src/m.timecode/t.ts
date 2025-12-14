@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/** Type exports: */
+export type * from './m.playback/t.ts';
+
 /**
  * UI state library for timecode orchestration.
  *
