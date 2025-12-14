@@ -26,6 +26,7 @@ export type * from './ui/Media.Timecode.Timeline/t.ts';
 export type * from './ui/Media.Video/t.ts';
 export type * from './ui/Media/t.ts';
 export type * from './ui/ObjectView/t.ts';
+export type * from './ui/Ownership/t.ts';
 export type * from './ui/PathView/t.ts';
 export type * from './ui/Player.Video.Controls/t.ts';
 export type * from './ui/Player.Video.Element/t.ts';

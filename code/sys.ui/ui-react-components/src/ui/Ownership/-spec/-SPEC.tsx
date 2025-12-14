@@ -1,9 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { MediaTimecode } from '../mod.ts';
+import { Ownership } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-
-import { Ownership } from '../../Ownership/mod.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -22,25 +20,11 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size('fill')
+      .size([360, null])
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return (
-          <MediaTimecode.Dev.Harness
-            debug={v.debug}
-            theme={v.theme}
-            docid={v.docid}
-            video={debug.video}
-            bundle={v.bundle}
-            layout={{
-              infopanel: {
-                bottom: <Ownership.UI theme={v.theme} />,
-                // bottom: <div>Bottom 👋</div>,
-              },
-            }}
-          />
-        );
+        return <Ownership.UI debug={v.debug} theme={v.theme} />;
       });
   });
 

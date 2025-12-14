@@ -3,11 +3,14 @@ import { useTimeline } from '../use.Timeline.ts';
 import { type t, Color, css, dur, KeyValue, ObjectView, Str } from './common.ts';
 import { toIssueItems } from './ui.InfoPanel.issues.tsx';
 
+type L = t.DeepRequired<t.MediaTimelineHarnessProps['layout']>;
+
 export type InfoPanelProps = {
   docid?: t.StringId;
   bundle?: t.SpecTimelineBundle;
   beat?: t.Timecode.Experience.Beat;
   index?: t.Index;
+  layout?: L['infopanel'];
   //
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -18,7 +21,7 @@ export type InfoPanelProps = {
  * Component:
  */
 export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
-  const { debug = false, bundle, docid } = props;
+  const { debug = false, bundle, docid, layout = {} } = props;
 
   const { timeline, resolved } = useTimeline(bundle?.spec);
   if (!timeline) return null;
@@ -58,8 +61,19 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ color: theme.fg, display: 'grid', Padding: [8, 15] }),
+    base: css({
+      color: theme.fg,
+      display: 'grid',
+      gridTemplateRows: layout?.bottom ? `1fr auto` : `1fr`,
+      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+    }),
     kv: css({ marginBottom: 30, userSelect: 'none' }),
+    top: css({
+      Padding: [8, 15],
+    }),
+    bottom: css({
+      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+    }),
   };
 
   const obj = (n: string, d: unknown, marginTop = 5, expand = 1) => {
@@ -75,12 +89,23 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
     );
   };
 
-  return (
-    <div className={css(styles.base, props.style).class}>
+  const elTop = (
+    <div className={styles.top.class}>
       <KeyValue.View style={styles.kv} theme={theme.name} items={items} />
 
       {debug && obj('props.bundle', props.bundle)}
       {debug && props.beat && obj('props.beat', props.beat)}
+    </div>
+  );
+
+  console.log('layout', layout);
+
+  const elBottom = layout.bottom && <div className={styles.bottom.class}>{layout.bottom}</div>;
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      {elTop}
+      {elBottom}
     </div>
   );
 };
