@@ -3,7 +3,7 @@ import React from 'react';
 import { InfoPanel } from '../-dev/mod.ts';
 import { Color, css, Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
-import { D } from '../common.ts';
+import { type t, D } from '../common.ts';
 import { useFileSize, VideoElement } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -35,17 +35,17 @@ export default Spec.describe(D.displayName, (e) => {
         playing={v.playing}
         autoPlay={v.autoPlay}
         //
-        onPlayingChange={(e) => {
+        onPlayingChange={(e: t.VideoOnPlayingChangeArgs) => {
           log(`⚡️ onPlayingChange:`, e);
           p.playing.value = e.playing;
         }}
-        onMutedChange={(e) => {
+        onMutedChange={(e: t.VideoOnMutedChangeArgs) => {
           log(`⚡️ onMutedChange:`, e);
           p.muted.value = e.muted;
         }}
-        onBufferingChange={(e) => log(`⚡️ onBufferingChange:`, e)}
-        onBufferedChange={(e) => log(`⚡️ onBufferedChange:`, e)}
-        onEnded={(e) => log('⚡️ onEnded:', e)}
+        onBufferingChange={(e: t.VideoOnBufferingChangeArgs) => log(`⚡️ onBufferingChange:`, e)}
+        onBufferedChange={(e: t.VideoOnBufferedChangeArgs) => log(`⚡️ onBufferedChange:`, e)}
+        onEnded={(e: t.VideoOnEndedArgs) => log('⚡️ onEnded:', e)}
       />
     );
   }
@@ -80,9 +80,9 @@ export default Spec.describe(D.displayName, (e) => {
           fontFamily: 'monospace',
 
           display: 'grid',
-          gridAutoFlow: 'column', //          ← Lay items out in columns.
-          gridAutoColumns: 'max-content', //  ← Size each implicit column to its content.
-          justifyContent: 'start', //         ← Align the whole grid to the left.
+          gridAutoFlow: 'column',
+          gridAutoColumns: 'max-content',
+          justifyContent: 'start',
           justifyItems: 'start',
           columnGap: 5,
         }),

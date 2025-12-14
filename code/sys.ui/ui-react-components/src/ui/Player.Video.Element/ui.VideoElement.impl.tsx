@@ -17,9 +17,9 @@ import { useMuted } from './use.Muted.ts';
 import { useReadyState } from './use.ReadyState.ts';
 import { useScale } from './use.Scale.ts';
 
-type InternalProps = t.VideoElementProps & { _externalRef?: React.Ref<HTMLVideoElement> };
+type P = t.VideoElementProps & { _externalRef?: React.Ref<t.VideoElementHandle> };
 
-export const VideoElement: React.FC<InternalProps> = (props) => {
+export const VideoElementImpl: React.FC<P> = (props) => {
   const {
     debug = false,
     src,
@@ -46,10 +46,11 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
   /**
    * Refs:
    */
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  useImperativeHandle(props._externalRef, () => ({ get: () => videoRef.current }), []);
+
   const shouldAutoplayRef = useRef(true);
   const autoplayPendingRef = useRef(false);
-  useImperativeHandle(props._externalRef, () => videoRef.current!, []);
 
   useEffect(() => {
     shouldAutoplayRef.current = true;
@@ -57,12 +58,12 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
   }, [src]);
 
   /**
-   * Hooks (State)
+   * Hooks (State):
    */
   const [pointerOver, setOver] = useState(false);
 
   /**
-   * Hooks (Behavior)
+   * Hooks (Behavior):
    */
   const progress = useMediaProgress(videoRef, props);
   const size = useSizeObserver();
@@ -79,6 +80,7 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
    */
   const readyState = useReadyState(videoRef, props);
   const notReady = autoplayPendingRef.current || readyState < READY_STATE.HAVE_CURRENT_DATA;
+
   const isReady = !notReady;
 
   /**
@@ -147,6 +149,7 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
    * Render
    */
   const theme = Color.theme(props.theme);
+
   const styles = {
     base: css({
       position: 'relative',
