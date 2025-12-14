@@ -1,17 +1,30 @@
 import type { t } from './common.ts';
 
-/** Type exports: */
+/** Type exports */
 export type * from './t.runtime.ts';
 
 /**
- * Runtime adapter for Timecode playback.
+ * Timecode playback runtime adapter.
  */
 export type TimecodePlaybackLib = {
   /**
    * Create a runtime-backed playback runner.
    *
-   * This binds the pure Timecode playback state machine
+   * Binds the pure playback state machine
    * to an imperative media runtime.
    */
-  readonly runner: (args: t.PlaybackRunnerArgs) => t.PlaybackRunner;
+  runner(args: t.PlaybackRunnerArgs): t.PlaybackRunner;
+
+  /**
+   * React hook binding a playback runner to component lifecycle.
+   */
+  useRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunnerHook;
+};
+
+/**
+ * React-bound playback runner surface.
+ */
+export type PlaybackRunnerHook = {
+  readonly snapshot: t.PlaybackRunnerState;
+  readonly send: t.PlaybackRunner['send'];
 };
