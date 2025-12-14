@@ -1,4 +1,5 @@
 import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash } from 'react-icons/lu';
+import { LiaCertificateSolid } from 'react-icons/lia';
 import {
   MdArrowBack,
   MdArrowDownward,
@@ -44,4 +45,5 @@ export const Icons = {
     Minus: icon(LuCopyMinus),
   },
   Chevron: { Left: icon(MdChevronLeft), Right: icon(MdChevronRight) },
+  Certificate: icon(LiaCertificateSolid),
 } as const;

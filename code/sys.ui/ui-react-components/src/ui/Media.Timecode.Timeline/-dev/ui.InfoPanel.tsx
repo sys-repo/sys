@@ -50,7 +50,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   add({ k: 'Composition Size', v: total.beats === 0 ? '-' : size });
   add({ k: 'Virtual Duration', v: total.duration });
   if (props.index !== undefined) {
-    add({ kind: 'hr' });
+    // add({ kind: 'hr' });
     add({ k: 'Current Beat', v: props.index });
   }
 
@@ -65,15 +65,10 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
       color: theme.fg,
       display: 'grid',
       gridTemplateRows: layout?.bottom ? `1fr auto` : `1fr`,
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
     }),
     kv: css({ marginBottom: 30, userSelect: 'none' }),
-    top: css({
-      Padding: [8, 15],
-    }),
-    bottom: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-    }),
+    top: css({ Padding: [8, 15] }),
+    bottom: css({}),
   };
 
   const obj = (n: string, d: unknown, marginTop = 5, expand = 1) => {

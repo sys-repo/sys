@@ -20,7 +20,7 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const COLS = `10px 80px 30px 40px 70px 1fr`;
+  const COLS = `10px 80px 30px 30px 70px 1fr`;
   const styles = {
     base: css({
       position: 'relative',
