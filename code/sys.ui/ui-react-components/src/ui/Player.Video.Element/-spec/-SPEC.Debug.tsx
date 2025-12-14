@@ -127,11 +127,9 @@ export function createDebugSignals() {
   }
 
   function listen() {
+    // Only subscribe the debug panel to its own (low-frequency) props.
+    // High-frequency video telemetry (currentTime, etc.) is handled by <CurrentTime>.
     Signal.listen(p, true);
-    const vp = video.props;
-    vp?.currentTime.value;
-    vp?.duration.value;
-    vp?.ready.value;
   }
 
   Signal.effect(() => {
@@ -203,7 +201,8 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  Signal.useRedrawEffect(() => debug.listen());
+
+  Signal.useRedrawEffect(debug.listen);
 
   /**
    * Render:
@@ -275,20 +274,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `slice: ${v ? v : `(undefined)`}`;
         }}
         onClick={() => {
-          Signal.cycle(p.slice, [
-            undefined,
-            '00:00:00..00:00:45',
-            '00:00:10..-00:00:20',
-            // '00:00..00:10',
-            // '00:00:05..00:00:10',
-            // '..00:00:10',
-            // '00:01..',
-            // '00:00:05..-00:00:02',
-            // '-00:00:05..',
-            // '..-00:00:05',
-            // '00:10:00..00:10:00.250',
-            // '00:59..01:00',
-          ]);
+          Signal.cycle(p.slice, [undefined, '00:00:00..00:00:45', '00:00:10..-00:00:20']);
         }}
       />
 
@@ -336,7 +322,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         '/video/540p/1068502644.mp4',
         '/video/540p/1068653222.mp4',
         '/video/v2/core/sha256-3ee12096a189525fcbb0e85d1781fc414e46e8c306b6ee170af17fe8bd2b11c7.webm',
-      ].map((src, i) => videoButton(debug, p.urlPath, src))}
+      ].map((src) => videoButton(debug, p.urlPath, src))}
       <div className={css(styles.url, { Padding: [15, 15, 8, 15] }).class}>{debug.src}</div>
       <Button
         block
@@ -414,7 +400,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.infoPanel)}
       />
       <Button
-        //
         block
         enabled={() => !!p.controlled.value}
         label={() => `Video.useSignals: log: ${p.logSignals.value}`}

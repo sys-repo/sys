@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { type t, Rx } from './common.ts';
 import { Crop } from './m.Crop.ts';
 
@@ -15,6 +15,21 @@ export function useMediaProgress(
   const [durationFull, setDurationFull] = useState(0);
 
   /**
+   * Callback refs:
+   * Avoid effect re-runs caused by changing function identities.
+   */
+  const onTimeUpdateRef = useRef<typeof onTimeUpdate>(onTimeUpdate);
+  const onDurationChangeRef = useRef<typeof onDurationChange>(onDurationChange);
+
+  useEffect(() => {
+    onTimeUpdateRef.current = onTimeUpdate;
+  }, [onTimeUpdate]);
+
+  useEffect(() => {
+    onDurationChangeRef.current = onDurationChange;
+  }, [onDurationChange]);
+
+  /**
    * Lens (UI-facing; stable projection).
    */
   const lens = useMemo<t.VideoCropLens>(() => {
@@ -27,9 +42,9 @@ export function useMediaProgress(
   useEffect(() => {
     setCurrentTimeFull(0);
     setDurationFull(0);
-    onTimeUpdate?.({ secs: 0 });
-    onDurationChange?.({ secs: 0 });
-  }, [src, slice, onTimeUpdate, onDurationChange]);
+    onTimeUpdateRef.current?.({ secs: 0 });
+    onDurationChangeRef.current?.({ secs: 0 });
+  }, [src, slice]);
 
   /**
    * Effect: media listeners.
@@ -44,13 +59,13 @@ export function useMediaProgress(
       const lens = Crop.lens(slice, fullDuration);
 
       setDurationFull(fullDuration);
-      onDurationChange?.({ secs: lens.duration.cropped });
+      onDurationChangeRef.current?.({ secs: lens.duration.cropped });
 
       const secsFull = Math.max(0, Math.min(el.currentTime, fullDuration));
       const secsCropped = lens.toCropped(secsFull);
 
       setCurrentTimeFull(secsFull);
-      onTimeUpdate?.({ secs: secsCropped });
+      onTimeUpdateRef.current?.({ secs: secsCropped });
     };
 
     const { dispose, signal } = Rx.abortable();
@@ -60,7 +75,7 @@ export function useMediaProgress(
 
     update();
     return dispose;
-  }, [videoRef, src, slice, onTimeUpdate, onDurationChange]);
+  }, [videoRef, src, slice]);
 
   /**
    * API:
