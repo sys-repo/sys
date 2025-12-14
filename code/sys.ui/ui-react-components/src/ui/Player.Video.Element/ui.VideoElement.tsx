@@ -37,7 +37,7 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
     playing: playingProp,
     autoPlay = true,
     muted: mutedProp,
-    defaultMuted = props.muted ?? false, // ← back-compat bridge.
+    defaultMuted = props.muted ?? false,
 
     onPlayingChange,
     onMutedChange,
@@ -47,58 +47,60 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
    * Refs:
    */
   const videoRef = useRef<HTMLVideoElement>(null);
-  useImperativeHandle(props._externalRef, () => videoRef.current!, [videoRef.current]);
-
-  const shouldAutoplayRef = React.useRef(true);
+  const shouldAutoplayRef = useRef(true);
   const autoplayPendingRef = useRef(false);
+  useImperativeHandle(props._externalRef, () => videoRef.current!, []);
+
   useEffect(() => {
-    /**
-     * Track whether we are in an autoplay attempt (for spinner UX).
-     * Cleared when element enters playing or we give up.
-     */
     shouldAutoplayRef.current = true;
     autoplayPendingRef.current = false;
   }, [src]);
 
   /**
-   * Hooks (State):
+   * Hooks (State)
    */
   const [pointerOver, setOver] = useState(false);
 
   /**
-   * Hooks (Behavior):
+   * Hooks (Behavior)
    */
   const progress = useMediaProgress(videoRef, props);
   const size = useSizeObserver();
   const scale = useScale(size, props.scale);
   const muted = useMuted(videoRef, props);
+
   useCropBounds(videoRef, progress.lens, props);
   useBuffered(videoRef, props);
   useMediaEvents(videoRef, autoplayPendingRef, props);
   useJumpTo(videoRef, progress.lens, jumpTo);
 
   /**
-   * Hook: ReadyState
+   * Ready state
    */
   const readyState = useReadyState(videoRef, props);
   const notReady = autoplayPendingRef.current || readyState < READY_STATE.HAVE_CURRENT_DATA;
   const isReady = !notReady;
 
-  /** Resolve current element state: */
+  /**
+   * Resolve element state
+   */
   const el = videoRef.current;
   const elPaused = el?.paused ?? true;
   const elMuted = el?.muted ?? mutedProp ?? muted.current;
   const canPlay = readyState >= READY_STATE.HAVE_FUTURE_DATA;
   const playing = !elPaused && canPlay;
+
   const autoplayEnabled = shouldAutoplayRef.current && autoPlay && playingProp !== true;
 
   const controls = usePlaybackControls(videoRef, progress.lens, props);
-  const controlsUp = useControlsVisible({ playing, canPlay, pointerOver });
+  const controlsUp = useControlsVisible({
+    playing,
+    canPlay,
+    pointerOver,
+  });
 
   /**
-   * Hook: Autoplay (only when playback is uncontrolled by `playingProp`):
-   *  - Intent derived from `autoPlay` (initial true by default).
-   *  - Hook will request external state via callbacks.
+   * Autoplay
    */
   useAutoplay({
     enabled: autoplayEnabled,
@@ -126,21 +128,23 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
   });
 
   /**
-   * Handlers (user UI interactions):
+   * Handlers
    */
   const togglePlay = useCallback(() => {
-    const value = !playing;
-    onPlayingChange?.({ playing: value, reason: 'user-toggle-play' });
+    onPlayingChange?.({
+      playing: !playing,
+      reason: 'user-toggle-play',
+    });
   }, [playing, onPlayingChange]);
 
   const toggleMute = useCallback(() => {
     const next = !muted.current;
-    muted.set(next); // Updates state (and hook effect syncs <video>).
+    muted.set(next);
     onMutedChange?.({ muted: next, reason: 'user-toggle-mute' });
   }, [muted, onMutedChange]);
 
   /**
-   * Render:
+   * Render
    */
   const theme = Color.theme(props.theme);
   const styles = {
@@ -164,26 +168,13 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
     }),
   };
 
-  const elDebug = debug && (
-    <Debug
-      //
-      style={styles.debug}
-      src={src}
-      readyState={readyState}
-      seeking={!!controls.seeking}
-      playing={playing}
-    />
-  );
-
-  const elMask = fadeMask && <FadeMask mask={fadeMask} theme={theme.name} />;
-
   return (
     <div
       ref={size.ref}
       className={css(styles.base, props.style).class}
       onMouseEnter={() => setOver(true)}
       onMouseLeave={() => setOver(false)}
-      onPointerDown={() => setOver(true)} // ← touch brings controls up.
+      onPointerDown={() => setOver(true)}
     >
       <video
         ref={videoRef}
@@ -194,7 +185,6 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
         loop={loop}
         playsInline
         disablePictureInPicture
-        // ↓ NB: don't pass `muted` or `autoPlay` here; we manage via effects.
         onClick={togglePlay}
       />
 
@@ -214,7 +204,7 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
           playing={playing}
           muted={elMuted}
           duration={progress.duration}
-          currentTime={controls.seeking?.currentTime ?? progress.currentTime} // ← rebased to {crop} value.
+          currentTime={controls.seeking?.currentTime ?? progress.currentTime}
           buffering={buffering || notReady}
           buffered={buffered}
           padding={props.controls?.padding}
@@ -222,7 +212,6 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
           maskOpacity={props.controls?.maskOpacity}
           maskHeight={props.controls?.maskHeight}
           background={props.controls?.background}
-          //
           onSeeking={controls.onSeeking}
           onClick={(e) => {
             if (e.button === 'Play') togglePlay();
@@ -231,8 +220,17 @@ export const VideoElement: React.FC<InternalProps> = (props) => {
         />
       </M.div>
 
-      {elDebug}
-      {elMask}
+      {debug && (
+        <Debug
+          style={styles.debug}
+          src={src}
+          readyState={readyState}
+          seeking={!!controls.seeking}
+          playing={playing}
+        />
+      )}
+
+      {fadeMask && <FadeMask mask={fadeMask} theme={theme.name} />}
     </div>
   );
 };
