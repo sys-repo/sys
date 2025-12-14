@@ -3,14 +3,14 @@ import { useTimeline } from '../use.Timeline.ts';
 import { type t, Color, css, dur, KeyValue, ObjectView, Str } from './common.ts';
 import { toIssueItems } from './ui.InfoPanel.issues.tsx';
 
-type L = t.DeepRequired<t.MediaTimelineHarnessProps['layout']>;
+type L = NonNullable<t.MediaTimelineHarnessProps['layout']>;
 
 export type InfoPanelProps = {
+  layout?: L['infopanel'];
   docid?: t.StringId;
   bundle?: t.SpecTimelineBundle;
   beat?: t.Timecode.Experience.Beat;
   index?: t.Index;
-  layout?: L['infopanel'];
   //
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -23,6 +23,9 @@ export type InfoPanelProps = {
 export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const { debug = false, bundle, docid, layout = {} } = props;
 
+  /**
+   * Hooks:
+   */
   const { timeline, resolved } = useTimeline(bundle?.spec);
   if (!timeline) return null;
   if (!bundle) return null;
@@ -38,7 +41,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   };
   const size = `${total.segments} ${plural.segments} → ${total.beats} ${plural.beats}`;
 
-  // Build items.
+  /**
+   * Build items:
+   */
   const items: t.KeyValueItem[] = [];
   const add = (item: t.KeyValueItem) => items.push(item);
   const hr = () => add({ kind: 'hr' });
@@ -50,10 +55,8 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   add({ k: 'Composition Size', v: total.beats === 0 ? '-' : size });
   add({ k: 'Virtual Duration', v: total.duration });
   if (props.index !== undefined) {
-    // add({ kind: 'hr' });
     add({ k: 'Current Beat', v: props.index });
   }
-
   items.push(...toIssueItems(resolved));
 
   /**
@@ -87,13 +90,10 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const elTop = (
     <div className={styles.top.class}>
       <KeyValue.View style={styles.kv} theme={theme.name} items={items} />
-
       {debug && obj('props.bundle', props.bundle)}
       {debug && props.beat && obj('props.beat', props.beat)}
     </div>
   );
-
-  console.log('layout', layout);
 
   const elBottom = layout.bottom && <div className={styles.bottom.class}>{layout.bottom}</div>;
 
