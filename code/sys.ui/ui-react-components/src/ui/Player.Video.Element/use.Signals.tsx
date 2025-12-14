@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { type t, Signal } from './common.ts';
+import { type t, Schedule, Signal } from './common.ts';
 
 export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
   type R = t.PlayerSignalsHook;
@@ -9,8 +9,7 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
   const lastTimeRef = useRef<t.Secs | undefined>(undefined);
 
   const write = <T,>(sig: t.Signal<T>, next: T) => {
-    if (Object.is(sig.value, next)) return;
-    sig.value = next;
+    if (!Object.is(sig.value, next)) sig.value = next;
   };
 
   function listen() {
@@ -50,6 +49,28 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
    * Effect: redraw
    */
   Signal.useRedrawEffect(listen);
+
+  /**
+   * Effect: one-shot `jumpTo` command.
+   *
+   * Emits `jumpTo` once, then clears it on the next macrotask so the
+   * video element can observe it during the same commit. Guarded to
+   * avoid clearing a newer command.
+   */
+  Signal.useEffect((e) => {
+    if (!signals) return;
+
+    const cmd = signals.props.jumpTo.value;
+    if (!cmd) return;
+
+    const macro = Schedule.make(e.life, 'macro');
+    macro(() => {
+      if (!signals) return;
+
+      // Only clear if unchanged (avoid racing a newer jumpTo).
+      if (signals.props.jumpTo.value === cmd) write(signals.props.jumpTo, undefined);
+    });
+  });
 
   /**
    * Signals as view component property/handlers:
@@ -116,6 +137,7 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
       showVolumeControl: p.showVolumeControl.value,
       slice: p.slice.value,
 
+      // Command (one-shot; auto-cleared by effect above)
       jumpTo: p.jumpTo.value,
 
       onPlayingChange,
