@@ -57,10 +57,11 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
     const onBufferedChange: P['onBufferedChange'] = (e) => (p.buffered.value = e.buffered);
     const onTimeUpdate: P['onTimeUpdate'] = (e) => (p.currentTime.value = e.secs);
     const onDurationChange: P['onDurationChange'] = (e) => {
-      // NB: `useMediaProgress` already reports cropped duration when `slice` is set.
       const secs = e.secs;
-      p.duration.value = secs;
-      p.ready.value = Number.isFinite(secs) && secs > 0;
+      const finite = Number.isFinite(secs);
+      const next = finite ? secs : 0;
+      p.duration.value = next;
+      p.ready.value = !!p.src.value && finite && secs > 0;
     };
 
     return {
