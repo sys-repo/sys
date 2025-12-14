@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  type t,
-  Color,
-  Cropmarks,
-  css,
-  dur,
-  Is,
-  Player,
-  Signal,
-  useSizeObserver,
-} from './common.ts';
+import { type t, Color, Cropmarks, css, dur, Is, Player, useSizeObserver } from './common.ts';
 
 export type HarnessVideoProps = {
   debug?: boolean;
@@ -24,8 +14,6 @@ export type HarnessVideoProps = {
 export const Video: React.FC<HarnessVideoProps> = (props) => {
   const { debug = false, video } = props;
 
-  console.log('video', video);
-
   /**
    * Hooks:
    */
@@ -35,7 +23,7 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
   if (!video) return null;
 
   const p = video.props;
-  let dms = Is.num(p.duration.value) ? p.duration.value * 1000 : 0;
+  const dms = Is.num(p.duration.value) ? p.duration.value * 1000 : 0;
   const info = `duration: ${dur(dms)}, slice: ${p.slice.value || '-/-'}`;
 
   /**
@@ -86,18 +74,18 @@ const wrangle = {
     if (!width) return 0;
 
     // Narrow: stack / tiny panes
-    if (width < 420) return 220;
+    if (width < 440) return 240; // +20px, +20 threshold
 
     // Small
-    if (width < 560) return 320;
+    if (width < 600) return 360; // +40px, +40 threshold
 
     // Medium (sweet spot)
-    if (width < 740) return 420;
+    if (width < 780) return 460; // +40px, +40 threshold
 
     // Large
-    if (width < 980) return 520;
+    if (width < 1040) return 560; // +40px, +60 threshold
 
-    // XL (don’t go silly)
-    return 620;
+    // XL (still capped, still sane)
+    return 660; // +40px
   },
 } as const;
