@@ -1,15 +1,24 @@
 import type { t } from './common.ts';
 
 /**
- * Pure UI intent → playback inputs.
+ * Imperative UI controller for playback timelines.
  *
- * No side-effects.
- * No runtime access.
- * No scheduling.
+ * Responsibilities:
+ * - Translate UI intent into runner inputs
+ * - Send inputs to the runner
+ *
+ * Non-responsibilities:
+ * - No runtime/media access
+ * - No scheduling
+ * - No state ownership
  */
 export type TimelineController = {
-  play(): t.PlaybackRunnerInput;
-  pause(): t.PlaybackRunnerInput;
-  toggle(): t.PlaybackRunnerInput;
-  seekToBeat(index: t.TimecodeState.Playback.BeatIndex): t.PlaybackRunnerInput;
+  init(
+    timeline: t.TimecodeState.Playback.Timeline,
+    startBeat?: t.TimecodeState.Playback.BeatIndex,
+  ): void;
+  play(): void;
+  pause(): void;
+  toggle(): void;
+  seekToBeat(index: t.TimecodeState.Playback.BeatIndex): void;
 };
