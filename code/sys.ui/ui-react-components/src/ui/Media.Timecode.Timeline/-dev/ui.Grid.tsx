@@ -20,7 +20,7 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
    * Render:
    */
   const theme = Color.theme(props.theme);
-  const COLS = `10px 80px 30px 30px 70px 1fr`;
+  const COLS = `10px 80px 30px 30px 100px 1fr`;
   const styles = {
     base: css({
       position: 'relative',
@@ -141,12 +141,8 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
       base: css({
         borderTop: isNewSegmentRow ? `dashed 1px ${Color.alpha(Color.BLUE, 0.7)}` : undefined,
         backgroundColor: isSelected ? Color.alpha(Color.BLUE, 0.3) : undefined,
-
-        // Repeat rows recede (nice information visual):
-        color: isMediaDimmed ? Color.alpha(theme.fg, 0.18) : undefined,
+        color: isMediaDimmed ? Color.alpha(theme.fg, 0.18) : undefined, // Repeat rows recede (nice information visual):
       }),
-
-      // Media cell no longer needs special dim logic.
       media: css(styles.cell.text, styles.cell.media),
     };
 
@@ -154,7 +150,9 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
       return <A href={url} children={label} target={'_blank'} />;
     };
 
-    const linkLabel = `media${Path.extname(row.url ?? '')}`.replace(/\./, '/');
+    const url = row.url ?? '';
+    // const linkLabel = `media${Path.extname(url)}`.replace(/\./, '/');
+    const linkLabel = mediaLabelFromUrl(row.url);
 
     return (
       <div
@@ -200,3 +198,29 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
     </div>
   );
 };
+
+export function mediaLabelFromUrl(url?: string): string {
+  if (!url) return 'media/-';
+
+  const filename = url.split('/').pop();
+  if (!filename) return 'media/-';
+
+  const m = filename.match(/^(.*?)(\.[a-z0-9]+)$/i);
+  if (!m) return `media/${filename}`;
+
+  const [, stem, ext] = m;
+
+  // Prefer extracting from a "sha256-<hex>" shaped stem.
+  const sha = stem.match(/^sha256-([0-9a-f]+)$/i);
+  if (sha?.[1]) {
+    const hex = sha[1];
+    const tail = hex.slice(-5);
+    return `media/${tail}${ext}`;
+  }
+
+  // Fallback: last 5 hex chars at end of stem.
+  const hexTail = stem.match(/([0-9a-f]{5})$/i)?.[1];
+  if (hexTail) return `media/${hexTail}${ext}`;
+
+  return `media/${stem}${ext}`;
+}

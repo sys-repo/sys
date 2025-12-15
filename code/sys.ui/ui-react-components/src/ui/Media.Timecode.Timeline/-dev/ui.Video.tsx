@@ -1,7 +1,8 @@
 import React from 'react';
-import { type t, Color, Cropmarks, css, dur, Is, Player, useSizeObserver } from './common.ts';
+import { type t, Str, Color, Cropmarks, css, dur, Is, Player, useSizeObserver } from './common.ts';
 
 export type HarnessVideoProps = {
+  deck: 'A' | 'B';
   debug?: boolean;
   video?: t.VideoPlayerSignals;
   theme?: t.CommonTheme;
@@ -12,19 +13,29 @@ export type HarnessVideoProps = {
  * Component:
  */
 export const Video: React.FC<HarnessVideoProps> = (props) => {
-  const { debug = false, video } = props;
+  const { debug = false, video, deck } = props;
 
   /**
    * Hooks:
    */
   const size = useSizeObserver();
-  const controller = Player.Video.useSignals(video, { log: debug });
-  if (!controller.props.src) return null;
   if (!video) return null;
 
+  // This hook is the bridge: it subscribes to signals AND produces element-ready props.
+  const controller = Player.Video.useSignals(video, { log: debug });
+  if (!controller.props.src) return null;
+
   const p = video.props;
+
   const dms = Is.num(p.duration.value) ? p.duration.value * 1000 : 0;
-  const info = `duration: ${dur(dms)}, slice: ${p.slice.value || '-/-'}`;
+  const tms = Is.num(p.currentTime.value) ? p.currentTime.value * 1000 : 0;
+
+  const status = video.is.paused ? 'paused' : video.is.playing ? 'playing' : 'stopped';
+  const src = p.src.value;
+  const srcLabel = src ? Str.ellipsize(src.split('/').slice(-1)[0], [6, 10], '..') : '-';
+  const sliceLabel = p.slice.value || '-/-';
+  const line1 = `[${deck}] ${status}; current-time: ${dur(tms)}; duration: ${dur(dms)}; slice: ${sliceLabel}`;
+  const line2 = `src: ${srcLabel}`;
 
   /**
    * Render:
@@ -39,12 +50,11 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
       opacity: size.ready ? 1 : 0,
       transition: 'opacity 100ms ease',
     }),
-    body: css({ position: 'relative' }),
-    label: css({
-      Absolute: [null, 0, -20, 5],
-      fontFamily: 'monospace',
-      fontSize: 9,
-    }),
+    label: {
+      base: css({ fontFamily: 'monospace', fontSize: 9, lineHeight: 1.5 }),
+      top: css({ Absolute: [-20, null, null, 0] }),
+      bottom: css({ Absolute: [null, 0, -18, 0], opacity: 0.4 }),
+    },
   };
 
   const elBody = (
@@ -53,10 +63,10 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
         style={{ width: wrangle.videoWidth(size.rect?.width) }}
         debug={debug}
         theme={props.theme}
-        muted={true}
         {...controller.props}
       />
-      <div className={styles.label.class}>{info}</div>
+      <div className={css(styles.label.base, styles.label.top).class}>{line1}</div>
+      <div className={css(styles.label.base, styles.label.bottom).class}>{line2}</div>
     </div>
   );
 
@@ -73,19 +83,10 @@ const wrangle = {
   videoWidth(width?: t.Pixels) {
     if (!width) return 0;
 
-    // Narrow: stack / tiny panes
-    if (width < 440) return 240; // +20px, +20 threshold
-
-    // Small
-    if (width < 600) return 360; // +40px, +40 threshold
-
-    // Medium (sweet spot)
-    if (width < 780) return 460; // +40px, +40 threshold
-
-    // Large
-    if (width < 1040) return 560; // +40px, +60 threshold
-
-    // XL (still capped, still sane)
-    return 660; // +40px
+    if (width < 440) return 240;
+    if (width < 600) return 360;
+    if (width < 780) return 460;
+    if (width < 1040) return 560;
+    return 660;
   },
 } as const;
