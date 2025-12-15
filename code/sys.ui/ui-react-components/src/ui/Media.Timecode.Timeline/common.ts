@@ -22,4 +22,6 @@ export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };
 /**
  * Helpers:
  */
-export const dur = (ms: t.Msecs = 0) => (ms ? String(Time.Duration.create(ms)) : '-');
+export function dur(ms: t.Msecs = 0, empty = '-') {
+  return ms ? String(Time.Duration.create(ms)) : empty;
+}

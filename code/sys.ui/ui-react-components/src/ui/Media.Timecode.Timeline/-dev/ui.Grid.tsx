@@ -19,8 +19,8 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
   const COLS = `10px 80px 30px 30px 100px 1fr`;
+  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       position: 'relative',
@@ -77,6 +77,18 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
     },
   } as const;
 
+  const ui = {
+    color: {
+      segBorder: Color.alpha(Color.BLUE, 0.7),
+      selectedBg: Color.alpha(Color.BLUE, 0.65),
+      segHeaderText: Color.alpha(Color.BLUE, 0.6),
+      dimText: Color.alpha(theme.fg, 0.18),
+    },
+    linkNewTab(url: t.StringUrl, label: string = url) {
+      return <A href={url} children={label} target={'_blank'} />;
+    },
+  } as const;
+
   /**
    * Derive row model.
    */
@@ -122,13 +134,20 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
   const selectedSegmentId = selectedRow?.segmentId;
 
   type RowModel = (typeof rows)[number];
+
   const deriveRowView = (row: RowModel) => {
     const isSelected = row.index === selectedIndex;
-    const isNewSegmentRow = !row.is.repeat && row.index > 0; // ← guard first row
     const isInSelectedSegment = selectedSegmentId === row.segmentId;
+
+    const isNewSegmentRow = !row.is.repeat && row.index > 0; // ← guard first row
     const isSecondaryRow = row.is.repeat || (isInSelectedSegment && row.is.segmentStart);
-    const isMediaDimmed = isSecondaryRow && !isSelected;
-    return { isSelected, isNewSegmentRow, isMediaDimmed } as const;
+    const isMediaDimmed = !isSelected && isSecondaryRow;
+
+    // Segment header gets dim-blue text regardless of "active segment" state.
+    // Only selection overrides it.
+    const isSegmentHeaderBlue = row.is.segmentStart && !isSelected;
+
+    return { isSelected, isNewSegmentRow, isMediaDimmed, isSegmentHeaderBlue } as const;
   };
 
   /**
@@ -136,18 +155,22 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
    */
   const elRows = rows.map((row) => {
     const { beat, index } = row;
-    const { isSelected, isNewSegmentRow, isMediaDimmed } = deriveRowView(row);
+    const { isSelected, isNewSegmentRow, isMediaDimmed, isSegmentHeaderBlue } = deriveRowView(row);
+
     const rowStyles = {
       base: css({
-        borderTop: isNewSegmentRow ? `dashed 1px ${Color.alpha(Color.BLUE, 0.7)}` : undefined,
-        backgroundColor: isSelected ? Color.alpha(Color.BLUE, 0.3) : undefined,
-        color: isMediaDimmed ? Color.alpha(theme.fg, 0.18) : undefined, // Repeat rows recede (nice information visual):
+        borderTop: isNewSegmentRow ? `dashed 1px ${ui.color.segBorder}` : undefined,
+        backgroundColor: isSelected ? ui.color.selectedBg : undefined,
+
+        color: isSelected
+          ? theme.fg
+          : isSegmentHeaderBlue
+            ? ui.color.segHeaderText
+            : isMediaDimmed
+              ? ui.color.dimText
+              : undefined,
       }),
       media: css(styles.cell.text, styles.cell.media),
-    };
-
-    const linkNewTab = (url: t.StringUrl, label: string = url) => {
-      return <A href={url} children={label} target={'_blank'} />;
     };
 
     return (
@@ -164,7 +187,7 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
         <div className={styles.cell.text.class}>{row.vTime}</div>
         <div className={styles.cell.text.class}>{row.pause}</div>
         <div className={rowStyles.media.class} title={row.url}>
-          {row.url && linkNewTab(row.url, mediaLabelFromUrl(row.url))}
+          {row.url && ui.linkNewTab(row.url, mediaLabelFromUrl(row.url))}
           {!row.url && '-'}
         </div>
         <div className={rowStyles.media.class} title={row.logicalPath}>
@@ -180,8 +203,8 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
       <div>vTime</div>
       <div></div>
       <div>Pause</div>
-      <div>URL</div>
-      <div>Media</div>
+      <div>Bundled URL</div>
+      <div>Logical Path</div>
     </div>
   );
 

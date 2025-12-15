@@ -34,7 +34,7 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
   const src = p.src.value;
   const srcLabel = src ? Str.ellipsize(src.split('/').slice(-1)[0], [6, 10], '..') : '-';
   const sliceLabel = p.slice.value || '-/-';
-  const line1 = `[${deck}] ${status}; current-time: ${dur(tms)}; duration: ${dur(dms)}; slice: ${sliceLabel}`;
+  const line1 = `[${deck}] ${status}; current: ${dur(tms, '⌀')} • duration: ${dur(dms, '⌀')} • slice: ${sliceLabel}`;
   const line2 = `src: ${srcLabel}`;
 
   /**
