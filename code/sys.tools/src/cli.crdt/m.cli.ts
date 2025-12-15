@@ -63,7 +63,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   } as const;
 
   const listing = Config.orderByRecency(config.current.docs)
-    .map((doc) => ({ doc, name: doc.name ?? '', value: `crdt:${doc.id}` }))
+    .map((doc) => ({ doc, name: doc.name ?? '', value: Crdt.Id.toUri(doc.id) }))
     .map((e, i, total) => {
       const { doc } = e;
       const branch = Fmt.Tree.branch([i, total]);
@@ -81,7 +81,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   {
     console.info();
     const defaultCommand = listing.length > 0 ? listing[0].value : ('doc:add' satisfies C);
-    const A = (await Prompt.Select.prompt<C>({
+    let A = (await Prompt.Select.prompt<C>({
       message: 'Tools:\n',
       options: [
         opt('  add: <document>', 'doc:add'),
@@ -98,17 +98,13 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     if (id) await Update.docLastUsedAt(id);
 
     if (A === 'doc:add') {
-      const res = await promptAddDocument(cwd, {
-        async createDoc() {
-          const cmd = await RepoProcess.tryClient(D.port.repo);
-          if (!cmd) return undefined;
-          const created = await cmd.send('doc:create', {});
-          return created.doc;
-        },
-      });
-      if (!res?.id) return done();
+      const m = await import('./cmds/cmd.doc.add.ts');
+      const res = await m.addOrCreateDocument(cwd);
+      if (!res) return done();
       if (res.created) console.info(c.gray(`created document: ${c.white(Fmt.prettyUri(res.id))}`));
       id = res.id;
+      if (id) await Update.docLastUsedAt(id);
+      A = Crdt.Id.toUri(id) as C;
     }
 
     if (A === 'exit') return done(0);
