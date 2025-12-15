@@ -52,6 +52,9 @@ describe('Playback.reduce — invariants', () => {
     for (const input of nonBeatChangingInputs) {
       const res = Playback.reduce(state, input);
       expect(res.state.currentBeat).to.eql(state.currentBeat);
+      // NOTE:
+      // Cmds may still be emitted (e.g. ensure deck play/pause or load semantics).
+      // The invariant here is strictly about beat authority, not cmd emptiness.
     }
   });
 

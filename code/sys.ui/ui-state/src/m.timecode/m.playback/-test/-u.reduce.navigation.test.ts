@@ -5,16 +5,17 @@ import { emptyState, timeline } from './u.fixture.ts';
 /**
  * Navigation invariants for Playback.reduce
  *
- * These tests lock explicit, discrete beat navigation:
- *  - next/prev/seek change the beat deterministically
- *  - beat indices clamp to valid range
- *  - navigation emits `playback:beat` iff the beat actually changes
- *
- * Note: navigation is explicit (not time-driven). `video:time` is tested elsewhere.
+ * Explicit navigation rules:
+ * - next / prev / seek always resolve a target beat
+ * - explicit navigation may reassert deck load even if beat is unchanged
+ * - beat events emit iff the beat actually changes
  */
 describe('Playback.reduce — navigation', () => {
   function initState() {
-    return Playback.reduce(emptyState(), { kind: 'playback:init', timeline: timeline() }).state;
+    return Playback.reduce(emptyState(), {
+      kind: 'playback:init',
+      timeline: timeline(),
+    }).state;
   }
 
   function beatEvent(events: readonly t.PlaybackEvent[]) {
@@ -23,71 +24,86 @@ describe('Playback.reduce — navigation', () => {
       | undefined;
   }
 
-  it('seek:beat clamps below 0 to 0', () => {
-    // Start from a non-zero beat so the clamp produces an actual change.
-    const state1 = Playback.reduce(initState(), { kind: 'playback:seek:beat', beat: 1 }).state;
+  function hasLoad(cmds: readonly any[]) {
+    return cmds.some((c) => c.kind === 'cmd:deck:load');
+  }
 
-    const res = Playback.reduce(state1, { kind: 'playback:seek:beat', beat: -100 });
+  it('seek:beat clamps below 0 to 0 and loads', () => {
+    const state1 = Playback.reduce(initState(), {
+      kind: 'playback:seek:beat',
+      beat: 1,
+    }).state;
+
+    const res = Playback.reduce(state1, {
+      kind: 'playback:seek:beat',
+      beat: -100,
+    });
+
     expect(res.state.currentBeat).to.eql(0);
+    expect(hasLoad(res.cmds)).to.eql(true);
 
     const evt = beatEvent(res.events);
     expect(evt?.beat).to.eql(0);
   });
 
-  it('seek:beat clamps above max to max', () => {
+  it('seek:beat clamps above max to max and loads', () => {
     const state = initState();
     const max = timeline().beats.length - 1;
 
-    const res = Playback.reduce(state, { kind: 'playback:seek:beat', beat: 999 });
+    const res = Playback.reduce(state, {
+      kind: 'playback:seek:beat',
+      beat: 999,
+    });
 
     expect(res.state.currentBeat).to.eql(max);
+    expect(hasLoad(res.cmds)).to.eql(true);
 
     const evt = beatEvent(res.events);
     expect(evt?.beat).to.eql(max);
   });
 
-  it('next advances by +1 (clamped)', () => {
-    const state0 = Playback.reduce(initState(), { kind: 'playback:seek:beat', beat: 0 }).state;
+  it('next advances by +1 and loads; no-op at end reasserts load without beat event', () => {
+    const state0 = Playback.reduce(initState(), {
+      kind: 'playback:seek:beat',
+      beat: 0,
+    }).state;
 
-    const res1 = Playback.reduce(state0, { kind: 'playback:next' });
-    expect(res1.state.currentBeat).to.eql(1);
+    const r1 = Playback.reduce(state0, { kind: 'playback:next' });
+    expect(r1.state.currentBeat).to.eql(1);
+    expect(hasLoad(r1.cmds)).to.eql(true);
+    expect(beatEvent(r1.events)?.beat).to.eql(1);
 
-    const evt1 = beatEvent(res1.events);
-    expect(evt1?.beat).to.eql(1);
+    const r2 = Playback.reduce(r1.state, { kind: 'playback:next' });
+    expect(r2.state.currentBeat).to.eql(2);
+    expect(hasLoad(r2.cmds)).to.eql(true);
+    expect(beatEvent(r2.events)?.beat).to.eql(2);
 
-    const res2 = Playback.reduce(res1.state, { kind: 'playback:next' });
-    expect(res2.state.currentBeat).to.eql(2);
-
-    const evt2 = beatEvent(res2.events);
-    expect(evt2?.beat).to.eql(2);
-
-    const res3 = Playback.reduce(res2.state, { kind: 'playback:next' });
-    expect(res3.state.currentBeat).to.eql(2); // clamp at end
-
-    const evt3 = beatEvent(res3.events);
-    expect(evt3).to.eql(undefined); // no change => no beat event
+    const r3 = Playback.reduce(r2.state, { kind: 'playback:next' });
+    expect(r3.state.currentBeat).to.eql(2); // clamped
+    expect(hasLoad(r3.cmds)).to.eql(true); // idempotent reassert
+    expect(beatEvent(r3.events)).to.eql(undefined);
   });
 
-  it('prev moves by -1 (clamped)', () => {
-    const state2 = Playback.reduce(initState(), { kind: 'playback:seek:beat', beat: 2 }).state;
+  it('prev moves by -1 and loads; no-op at start reasserts load without beat event', () => {
+    const state2 = Playback.reduce(initState(), {
+      kind: 'playback:seek:beat',
+      beat: 2,
+    }).state;
 
-    const res1 = Playback.reduce(state2, { kind: 'playback:prev' });
-    expect(res1.state.currentBeat).to.eql(1);
+    const r1 = Playback.reduce(state2, { kind: 'playback:prev' });
+    expect(r1.state.currentBeat).to.eql(1);
+    expect(hasLoad(r1.cmds)).to.eql(true);
+    expect(beatEvent(r1.events)?.beat).to.eql(1);
 
-    const evt1 = beatEvent(res1.events);
-    expect(evt1?.beat).to.eql(1);
+    const r2 = Playback.reduce(r1.state, { kind: 'playback:prev' });
+    expect(r2.state.currentBeat).to.eql(0);
+    expect(hasLoad(r2.cmds)).to.eql(true);
+    expect(beatEvent(r2.events)?.beat).to.eql(0);
 
-    const res2 = Playback.reduce(res1.state, { kind: 'playback:prev' });
-    expect(res2.state.currentBeat).to.eql(0);
-
-    const evt2 = beatEvent(res2.events);
-    expect(evt2?.beat).to.eql(0);
-
-    const res3 = Playback.reduce(res2.state, { kind: 'playback:prev' });
-    expect(res3.state.currentBeat).to.eql(0); // clamp at start
-
-    const evt3 = beatEvent(res3.events);
-    expect(evt3).to.eql(undefined); // no change => no beat event
+    const r3 = Playback.reduce(r2.state, { kind: 'playback:prev' });
+    expect(r3.state.currentBeat).to.eql(0); // clamped
+    expect(hasLoad(r3.cmds)).to.eql(true); // idempotent reassert
+    expect(beatEvent(r3.events)).to.eql(undefined);
   });
 
   it('navigation never changes phase', () => {

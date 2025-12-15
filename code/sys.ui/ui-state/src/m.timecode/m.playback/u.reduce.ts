@@ -58,6 +58,49 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
   };
 
   /**
+   * Deck load orchestration (pure intent).
+   *
+   * Policy:
+   * - Active deck always loads the current segment media for the selected beat.
+   * - Standby deck preloads the next segment (by segment boundary, not beat).
+   *
+   * Notes:
+   * - We intentionally do not dedupe commands yet; being explicit is correct.
+   * - The runner/runtime decides how `cmd:deck:load` is realized (src assignment, fetch, etc).
+   */
+  const loadForBeat = (beatIndex: t.PlaybackBeatIndex) => {
+    const timeline = ensureTimeline();
+    if (!timeline) return;
+
+    const beat = timeline.beats[beatIndex];
+    const url = beat?.media?.url;
+    if (!url) return;
+
+    const { active, standby } = state.decks;
+
+    // Load the active deck with the current beat (segment) media.
+    cmds.push({ kind: 'cmd:deck:load', deck: active, beat: beatIndex });
+
+    // Find the segment containing this beat, then preload the *next* segment on standby.
+    const segments = timeline.segments;
+    const segIndex = segments.findIndex((s) => s.beat.from <= beatIndex && beatIndex < s.beat.to);
+
+    const nextSeg = segIndex >= 0 ? segments[segIndex + 1] : undefined;
+    if (!nextSeg) return;
+
+    const preloadIndex = nextSeg.beat.from;
+    const preloadBeat = timeline.beats[preloadIndex];
+    const preloadUrl = preloadBeat?.media?.url;
+    if (!preloadUrl) return;
+
+    cmds.push({
+      kind: 'cmd:deck:load',
+      deck: standby,
+      beat: preloadIndex,
+    });
+  };
+
+  /**
    * Reduce input → next state.
    *
    * The cases below are grouped by semantic role:
@@ -99,6 +142,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
 
       const seeded = setCurrentBeat(state, initialBeat, { cmds, events });
       update(seeded);
+      loadForBeat(initialBeat);
 
       return { state, cmds, events };
     }
@@ -160,6 +204,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       const next = setCurrentBeat(state, nextBeat, { cmds, events });
       emitBeatIfChanged(next);
       update(next);
+      loadForBeat(nextBeat);
 
       return { state, cmds, events };
     }
@@ -173,6 +218,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       const next = setCurrentBeat(state, nextBeat, { cmds, events });
       emitBeatIfChanged(next);
       update(next);
+      loadForBeat(nextBeat);
 
       return { state, cmds, events };
     }
@@ -186,6 +232,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       const next = setCurrentBeat(state, nextBeat, { cmds, events });
       emitBeatIfChanged(next);
       update(next);
+      loadForBeat(nextBeat);
 
       return { state, cmds, events };
     }
@@ -254,12 +301,13 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
 
       const nextBeat = beatIndexFromVTime(timeline, input.vTime);
 
-      // No beat change => no-op.
+      // No beat change → no-op.
       if (nextBeat === state.currentBeat) return { state, cmds, events };
 
       const next = setCurrentBeat(state, nextBeat, { cmds, events });
       emitBeatIfChanged(next);
       update(next);
+      loadForBeat(nextBeat);
 
       return { state, cmds, events };
     }
