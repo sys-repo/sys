@@ -4,27 +4,52 @@ import { Config } from './u.config.ts';
 /**
  * Add a document to the config.
  */
-export async function promptAddDocument(cwd: t.StringDir) {
+export async function promptAddDocument(
+  cwd: t.StringDir,
+  opts: { createDoc?: () => Promise<t.Crdt.Id | undefined> } = {},
+) {
   const config = await Config.get(cwd);
+
   let id = await Prompt.Input.prompt({
-    message: 'Document-id',
-    validate: (value) => Crdt.Is.id(value.trim()),
+    message: 'Document ID',
+    hint: '↑ leave blank to create new',
+    validate(value) {
+      value = value.trim();
+      if (!value) return true;
+      return Crdt.Is.id(value);
+    },
   });
+
   id = id.trim();
+  const create = id === '';
 
   const name = await Prompt.Input.prompt('Display name (optional)');
+  const createdAt = Time.now.timestamp;
+
+  if (create) {
+    if (!opts.createDoc) return;
+
+    const createdId = await opts.createDoc();
+    if (!createdId) return;
+
+    const next = String(createdId).trim();
+    if (!Crdt.Is.id(next)) return;
+
+    id = next;
+  }
+
   const exists = (config.current.docs ?? []).some((d) => d.id === id);
   if (exists) {
     console.info(c.yellow(`\nDocument "${id}" already added`));
     return;
   }
 
-  const createdAt = Time.now.timestamp;
   const entry: t.CrdtTool.ConfigDocumentEntry = Delete.empty({ id, name, createdAt });
   config.change((d) => (d.docs || (d.docs = [])).push(entry));
   await config.fs.save();
 
-  return { id, name } as const;
+  /** Result */
+  return { id, name, created: create } as const;
 }
 
 /**

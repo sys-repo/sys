@@ -2,6 +2,7 @@ import { Args, c, Cli, Crdt, D, done, Fs, Is, Prompt, type t, Time } from './com
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
+import { RepoProcess } from './cmd.repo.daemon/mod.ts';
 
 type C = t.CrdtTool.Command;
 
@@ -97,8 +98,16 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     if (id) await Update.docLastUsedAt(id);
 
     if (A === 'doc:add') {
-      const res = await promptAddDocument(cwd);
+      const res = await promptAddDocument(cwd, {
+        async createDoc() {
+          const cmd = await RepoProcess.tryClient(D.port.repo);
+          if (!cmd) return undefined;
+          const created = await cmd.send('doc:create', {});
+          return created.doc;
+        },
+      });
       if (!res?.id) return done();
+      if (res.created) console.info(c.gray(`created document: ${c.white(Fmt.prettyUri(res.id))}`));
       id = res.id;
     }
 
