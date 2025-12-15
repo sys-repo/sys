@@ -11,9 +11,9 @@ import { Fmt } from './u.fmt.ts';
  * Main entry:
  */
 export const cli: t.FsToolsLib['cli'] = async (cwd, argv) => {
-  const toolname = D.toolname;
+  const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
-  const args = Args.parse<t.FsCliArgs>(argv, { alias: { h: 'help' } });
+  const args = Args.parse<t.FsTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
   console.info(await Fmt.header(toolname, cwd, { fileTree: { maxDepth: 1 } }));

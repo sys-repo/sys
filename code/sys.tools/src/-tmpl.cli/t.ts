@@ -12,6 +12,9 @@ export type __NAME__ToolsLib = {
  * The __NAME__ type namespace.
  */
 export namespace __NAME__Tool {
+  export type Id = '__NAME__';
+  export type Name = '__NAME__';
+
   /** Command names */
   export type Command =
     | 'option-a'

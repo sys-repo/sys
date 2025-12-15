@@ -7,7 +7,7 @@ const w = c.white;
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.toolname) {
+  async help(toolname: string = D.tool.name) {
     const str = Str.builder();
     const version = await getVersionInfo();
     const base = await Base.help(toolname, (e) => e.row(c.gray(`@sys/tools/${c.white('update')}`)));
@@ -31,7 +31,7 @@ export const Fmt = {
     return String(str);
   },
 
-  versionInfoTable(version: t.UpdateVersionInfo) {
+  versionInfoTable(version: t.UpdateTool.VersionInfo) {
     const formatVersion = (v?: t.StringSemver, upToDate?: boolean, okSuffix = '') => {
       if (!v) return c.gray('-');
       return v === version.latest ? c.green(`${v} ${upToDate ? okSuffix : ''}`) : c.yellow(v);
@@ -49,7 +49,7 @@ export const Fmt = {
     return Str.trimEdgeNewlines(String(table));
   },
 
-  localVersionIsMostRecent(version: t.UpdateVersionInfo) {
+  localVersionIsMostRecent(version: t.UpdateTool.VersionInfo) {
     const str = Str.builder();
     str
       .line(`No update required`)

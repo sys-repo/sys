@@ -16,6 +16,13 @@ export type FsToolsLib = {
 };
 
 /**
- * Command line arguments (argv).
+ * The `@sys/tools/fs` namespace.
  */
-export type FsCliArgs = t.ToolsCliArgs;
+export namespace FsTool {
+  export type Id = 'fs';
+  export type Name = 'system/fs:tools';
+
+  /** Command line arguments (argv). */
+  export type CliArgs = t.ToolsCliArgs;
+  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+}

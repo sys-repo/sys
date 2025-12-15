@@ -6,7 +6,7 @@ import { Fmt } from './u.fmt.ts';
  * Main entry:
  */
 export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
-  const toolname = D.toolname;
+  const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.__NAME__Tool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
@@ -16,7 +16,7 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
    */
   const configpath = Fs.join(cwd, D.Config.filename);
   if (!(await Fs.exists(configpath))) {
-    console.info(Fmt.Prereqs.folderNotConfigured(cwd, D.toolname));
+    console.info(Fmt.Prereqs.folderNotConfigured(cwd, toolname));
     const yes = await Cli.Prompt.Confirm.prompt({ message: `Create config file now?` });
     if (!yes) Deno.exit(0);
   }

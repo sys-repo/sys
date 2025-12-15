@@ -1,8 +1,6 @@
 import type { t } from './common.ts';
 
-/**
- * Re-exports:
- */
+/** Type re-exports: */
 export type * from './cmd.doc.graph.lint/t.ts';
 export type * from './cmd.doc.graph/t.ts';
 export type * from './cmd.doc.snapshot/t.ts';
@@ -20,6 +18,9 @@ export type CrdtToolsLib = {
  * The `@sys/tools/crdt` type namespace.
  */
 export namespace CrdtTool {
+  export type Id = 'crdt';
+  export type Name = 'system/crdt:tools';
+
   /** Command names */
   export type Command =
     | 'snapshot'

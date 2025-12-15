@@ -1,5 +1,4 @@
 import { type t } from '../common.ts';
-
 export * from '../common.ts';
 
 /**
@@ -11,8 +10,10 @@ export { Immutable } from '@sys/immutable/rfc6902';
 /**
  * Constants:
  */
+const id = 'crdt' satisfies t.CrdtTool.Id;
+const name = 'system/crdt:tools' satisfies t.CrdtTool.Name;
 export const D = {
-  toolname: `system/crdt:tools`,
+  tool: { id, name },
   port: { repo: 49494, sync: 3030 },
   Sync: { server: 'waiheke.sync.db.team' },
   Path: {

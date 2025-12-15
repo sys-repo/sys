@@ -1,3 +1,4 @@
+import { type t } from './common.ts';
 export * from '../common.ts';
 
 /**
@@ -8,6 +9,8 @@ export { Fs } from '@sys/fs';
 /**
  * Constants:
  */
+const id = 'fs' satisfies t.FsTool.Id;
+const name = 'system/fs:tools' satisfies t.FsTool.Name;
 export const D = {
-  toolname: 'Filesystem Tools',
+  tool: { id, name },
 } as const;

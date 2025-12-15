@@ -5,9 +5,9 @@ import { Ffmpeg } from './u.ffmpeg.ts';
 import { Fmt } from './u.fmt.ts';
 
 export const cli: t.VideoToolsLib['cli'] = async (cwd, argv) => {
-  const toolname = D.toolname;
+  const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
-  const args = Args.parse<t.VideoCliArgs>(argv, { alias: { h: 'help' } });
+  const args = Args.parse<t.VideoTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (!(await Ffmpeg.getVersion()).is.installed) return;
   if (args.help) return void console.info(await Fmt.help(toolname));
 
@@ -24,7 +24,7 @@ export const cli: t.VideoToolsLib['cli'] = async (cwd, argv) => {
  * Helpers:
  */
 async function run(cwd: t.StringDir) {
-  const options: { name: string; value: t.VideoCommand }[] = [
+  const options: { name: string; value: t.VideoTool.Command }[] = [
     { name: 'convert .webm → .mp4', value: 'webm-to-mp4' },
     { name: 'convert .mp4  → .webm', value: 'mp4-to-webm' },
     { name: 'info (probe file)', value: 'probe-file' },
@@ -33,7 +33,7 @@ async function run(cwd: t.StringDir) {
   const command = (await Cli.Prompt.Select.prompt({
     message: 'Video Tools:',
     options,
-  })) as t.VideoCommand;
+  })) as t.VideoTool.Command;
 
   switch (command) {
     case 'webm-to-mp4':

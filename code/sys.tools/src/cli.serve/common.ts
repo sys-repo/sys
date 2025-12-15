@@ -9,14 +9,15 @@ export { Http, serveFileWithEtag } from '@sys/http/server';
 /**
  * Constants:
  */
-const toolname = `system/serve:tools`;
+const id = 'serve' satisfies t.ServeTool.Id;
+const name = 'system/serve:tools' satisfies t.ServeTool.Name;
 export const D = {
-  toolname,
+  tool: { id, name },
   port: 4040,
   Path: {},
   Config: {
     filename: '-serve.config.json',
-    doc: JsonFile.default<t.ServeTool.ConfigDoc>({ name: toolname }),
+    doc: JsonFile.default<t.ServeTool.ConfigDoc>({ name }),
   },
 } as const;
 

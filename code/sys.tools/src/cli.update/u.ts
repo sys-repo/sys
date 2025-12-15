@@ -2,7 +2,7 @@ import { type t, Jsr, pkg, Semver } from './common.ts';
 
 export async function getVersionInfo() {
   const jsr = await Jsr.Fetch.Pkg.info(pkg.name);
-  const version: t.UpdateVersionInfo = {
+  const version: t.UpdateTool.VersionInfo = {
     local: pkg.version,
     remote: jsr.data?.pkg.version ?? '',
     get latest() {

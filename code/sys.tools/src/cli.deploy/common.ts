@@ -5,13 +5,15 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const toolname = `system/deploy:tools`;
+const id = 'deploy' satisfies t.DeployTool.Id;
+const name = 'system/deploy:tools' satisfies t.DeployTool.Name;
+
 export const D = {
-  toolname,
+  tool: { id, name },
   Path: {},
   Config: {
     filename: '-deploy.config.json',
-    doc: JsonFile.default<t.DeployTool.ConfigDoc>({ name: toolname }),
+    doc: JsonFile.default<t.DeployTool.ConfigDoc>({ name }),
   },
 } as const;
 

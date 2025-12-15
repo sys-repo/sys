@@ -4,7 +4,7 @@ import { Config } from './u.config.ts';
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.toolname, cwd: t.StringDir) {
+  async help(toolname: string = D.tool.name, cwd: t.StringDir) {
     const str = Str.builder()
       .line(await Base.help(toolname))
       .line(await Fmt.Table.configuredDocs(cwd))

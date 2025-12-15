@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 
+/** Type exports */
 export type * from './cmd.pull/t.ts';
 
 /**
@@ -14,6 +15,9 @@ export type ServeToolsLib = {
  * The `@sys/tools/serve` type namespace.
  */
 export namespace ServeTool {
+  export type Id = 'serve';
+  export type Name = 'system/serve:tools';
+
   /** Command names */
   export type Command =
     | 'modify:add'

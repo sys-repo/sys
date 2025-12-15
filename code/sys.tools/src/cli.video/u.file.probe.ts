@@ -5,7 +5,7 @@ import { type t, Json, Process } from './common.ts';
  * - Returns numeric fps (parsed from avg_frame_rate) when available.
  * - All bit rates in bits-per-second (bps).
  */
-export async function probeVideo(src: t.StringPath): Promise<t.VideoProbeInfo> {
+export async function probeVideo(src: t.StringPath): Promise<t.VideoTool.ProbeInfo> {
   const res = await Process.run(
     `ffprobe -v quiet -print_format json -show_format -show_streams "${src}"`,
     { silent: true },

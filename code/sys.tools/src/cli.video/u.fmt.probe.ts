@@ -6,7 +6,7 @@ type HashDepthNum = number;
  * Build a clean, uniformly indented probe table.
  */
 export function buildProbeTable(
-  info: t.VideoProbeInfo,
+  info: t.VideoTool.ProbeInfo,
   options: { index?: HashDepthNum; indent?: number } = {},
 ): string {
   const { indent = 0, index } = options;

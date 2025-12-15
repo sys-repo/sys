@@ -1,3 +1,4 @@
+import { type t } from './common.ts';
 export * from '../common.ts';
 
 /**
@@ -9,6 +10,8 @@ export { Semver } from '@sys/std/semver';
 /**
  * Constants:
  */
+const id = 'update' satisfies t.UpdateTool.Id;
+const name = 'system/update:tools' satisfies t.UpdateTool.Name;
 export const D = {
-  toolname: 'Update Tools',
+  tool: { id, name },
 } as const;

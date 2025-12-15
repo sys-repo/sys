@@ -7,7 +7,7 @@ export const Fmt = {
   buildProbeTable,
   ffmpegInstall,
 
-  async help(toolname: string = D.toolname) {
+  async help(toolname: string = D.tool.name) {
     const table = Cli.table([]);
     const ffmpeg = await Ffmpeg.getVersion({ silent: true });
 

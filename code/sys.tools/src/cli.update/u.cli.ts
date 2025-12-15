@@ -3,9 +3,9 @@ import { runUpdate } from './u.cmd.runUpdate.ts';
 import { Fmt } from './u.fmt.ts';
 
 export const cli: t.UpdateToolsLib['cli'] = async (cwd, argv) => {
-  const toolname = D.toolname;
+  const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
-  const args = Args.parse<t.UpdateCliArgs>(argv, { alias: { h: 'help', l: 'latest' } });
+  const args = Args.parse<t.UpdateTool.CliArgs>(argv, { alias: { h: 'help', l: 'latest' } });
 
   const runHelp = async () => console.info(await Fmt.help(toolname));
   if (args.help) return void (await runHelp());

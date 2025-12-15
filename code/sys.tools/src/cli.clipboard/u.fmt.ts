@@ -3,7 +3,7 @@ import { Fmt as Base, Cli, D, Str, c, pkg } from './common.ts';
 export const Fmt = {
   ...Base,
 
-  async help(toolname: string = D.toolname) {
+  async help(toolname: string = D.tool.name) {
     const table = Cli.table([]);
 
     const gr = c.gray;

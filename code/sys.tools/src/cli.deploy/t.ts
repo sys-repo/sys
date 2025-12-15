@@ -12,6 +12,9 @@ export type DeployToolsLib = {
  * The Deploy type namespace.
  */
 export namespace DeployTool {
+  export type Id = 'deploy';
+  export type Name = 'system/deploy:tools';
+
   /** Command names */
   export type Command =
     | 'option-a'

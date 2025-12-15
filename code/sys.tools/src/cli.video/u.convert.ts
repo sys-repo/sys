@@ -9,7 +9,7 @@ import { nextOutPath } from './u.file.name.ts';
  * - Explicit BT.709 TV-range color tags to avoid player gamma drift.
  * - Alpha is not supported in H.264/MP4; yuv420p flattens (no alpha).
  */
-export const webmToMp4: t.WebmToMp4 = async (args) => {
+export const webmToMp4: t.VideoTool.WebmToMp4 = async (args) => {
   const { src } = args;
   const out = args.out ?? (await nextOutPath({ src, toExt: '.mp4' }));
   const crf = args.crf ?? 18;
@@ -40,7 +40,7 @@ export const webmToMp4: t.WebmToMp4 = async (args) => {
  * - Normalize to CFR 30 fps.
  * - Explicit BT.709 TV-range color tags to align with MP4 path.
  */
-export const mp4ToWebm: t.Mp4ToWebm = async (args) => {
+export const mp4ToWebm: t.VideoTool.Mp4ToWebm = async (args) => {
   const { src } = args;
   const out = args.out ?? (await nextOutPath({ src, toExt: '.webm' }));
   const crf = args.crf ?? 32;

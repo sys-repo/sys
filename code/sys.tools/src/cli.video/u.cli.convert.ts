@@ -9,7 +9,10 @@ type TResult = {
   err?: string;
 };
 
-export async function selectAndConvert(args: { dir: t.StringDir; command: t.VideoConversion }) {
+export async function selectAndConvert(args: {
+  dir: t.StringDir;
+  command: t.VideoTool.Conversion;
+}) {
   const { dir, command } = args;
   const sources = await selectSourceFiles({ dir, command });
   if (sources.length === 0) return void console.info(c.yellow('No files selected'));
@@ -55,7 +58,7 @@ export async function selectAndConvert(args: { dir: t.StringDir; command: t.Vide
   );
 }
 
-async function convertOne(args: { command: t.VideoConversion; src: string }) {
+async function convertOne(args: { command: t.VideoTool.Conversion; src: string }) {
   const { command, src } = args;
   switch (command) {
     /**

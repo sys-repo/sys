@@ -9,81 +9,90 @@ export type VideoToolsLib = {
   cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 
   /** Convert a .webm file to .mp4 (H.264/AAC). */
-  readonly webmToMp4: t.WebmToMp4;
+  readonly webmToMp4: t.VideoTool.WebmToMp4;
   /** Convert a .mp4 file to .webm (VP9/Opus). */
-  readonly mp4ToWebm: t.Mp4ToWebm;
+  readonly mp4ToWebm: t.VideoTool.Mp4ToWebm;
   /** Compute the next output file path (using the same lineage rules as CLI). */
   nextOutPath(args: { src: t.StringPath; toExt: '.mp4' | '.webm' }): Promise<t.StringPath>;
 };
 
 /**
- * Command line arguments (argv).
+ * The `@sys/tools/video` type namespace.
  */
-export type VideoCliArgs = t.ToolsCliArgs;
+export namespace VideoTool {
+  export type Id = 'video';
+  export type Name = 'system/video:tools';
 
-/** Supported video conversion directions. */
-export type VideoConversion = 'webm-to-mp4' | 'mp4-to-webm';
-export type VideoCommand = VideoConversion | 'probe-file';
+  /** Command line arguments (argv). */
+  export type CliArgs = t.ToolsCliArgs;
+  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
-/**
- * Convert: from .webm → .mp4
- */
-export type WebmToMp4 = (args: {
-  readonly src: string;
-  readonly out?: string; //       default: <src>.mp4
-  readonly crf?: number; //       default: 18
-  readonly aacKbps?: number; //   default: 160
-}) => Promise<string>;
+  /** Command names */
+  export type Command = Conversion | 'probe-file';
 
-/**
- * Convert: from .mp4 → .webm
- */
-export type Mp4ToWebm = (args: {
-  readonly src: string;
-  readonly out?: string; //       default: <src>.webm
-  readonly crf?: number; //       default: 32  (size-first: raise; quality-first: lower)
-  readonly opusKbps?: number; //  default: 96
-}) => Promise<string>;
+  /** Supported video conversion directions. */
+  export type Conversion = 'webm-to-mp4' | 'mp4-to-webm';
 
-/**
- * Video probe meta-data information.
- */
-export type VideoProbeInfo = {
-  readonly path: string;
+  /**
+   * Convert: from .webm → .mp4
+   */
+  export type WebmToMp4 = (args: {
+    readonly src: string;
+    readonly out?: string; //       default: <src>.mp4
+    readonly crf?: number; //       default: 18
+    readonly aacKbps?: number; //   default: 160
+  }) => Promise<string>;
 
-  // Container/format
-  readonly formatName?: string;
-  readonly formatLongName?: string;
-  readonly durationSec?: number;
-  readonly sizeBytes?: number;
-  readonly bitRate?: number; // container/global bps
+  /**
+   * Convert: from .mp4 → .webm
+   */
+  export type Mp4ToWebm = (args: {
+    readonly src: string;
+    readonly out?: string; //       default: <src>.webm
+    readonly crf?: number; //       default: 32  (size-first: raise; quality-first: lower)
+    readonly opusKbps?: number; //  default: 96
+  }) => Promise<string>;
 
-  // Video stream (v:0)
-  readonly video?: {
-    readonly codec?: string;
-    readonly codecLongName?: string;
-    readonly width?: number;
-    readonly height?: number;
-    readonly pixelFormat?: string;
-    readonly profile?: string;
-    readonly level?: number;
-    readonly bitRate?: number; // bps
-    readonly avgFrameRate?: string; // e.g. "30000/1001"
-    readonly rFrameRate?: string;
-    readonly fps?: number; // parsed numeric fps
-    readonly colorSpace?: string;
-    readonly colorTransfer?: string;
-    readonly colorPrimaries?: string;
-    readonly fieldOrder?: string;
+  /**
+   * Video probe meta-data information.
+   */
+  export type ProbeInfo = {
+    readonly path: string;
+
+    // Container/format
+    readonly formatName?: string;
+    readonly formatLongName?: string;
+    readonly durationSec?: number;
+    readonly sizeBytes?: number;
+    readonly bitRate?: number; // container/global bps
+
+    // Video stream (v:0)
+    readonly video?: {
+      readonly codec?: string;
+      readonly codecLongName?: string;
+      readonly width?: number;
+      readonly height?: number;
+      readonly pixelFormat?: string;
+      readonly profile?: string;
+      readonly level?: number;
+      readonly bitRate?: number; // bps
+      readonly avgFrameRate?: string; // e.g. "30000/1001"
+      readonly rFrameRate?: string;
+      readonly fps?: number; // parsed numeric fps
+      readonly colorSpace?: string;
+      readonly colorTransfer?: string;
+      readonly colorPrimaries?: string;
+      readonly fieldOrder?: string;
+    };
+
+    // Audio stream (a:0)
+    readonly audio?: {
+      readonly codec?: string;
+      readonly codecLongName?: string;
+      readonly channels?: number;
+      readonly channelLayout?: string;
+      readonly sampleRate?: number; // Hz
+      readonly bitRate?: number; // bps
+    };
   };
-
-  // Audio stream (a:0)
-  readonly audio?: {
-    readonly codec?: string;
-    readonly codecLongName?: string;
-    readonly channels?: number;
-    readonly channelLayout?: string;
-    readonly sampleRate?: number; // Hz
-    readonly bitRate?: number; // bps
-  };
-};
+}

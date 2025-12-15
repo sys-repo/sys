@@ -2,7 +2,7 @@ import { type t, c, Cli, Fs } from './common.ts';
 
 type SelectArgs = {
   dir: t.StringDir;
-  command: t.VideoConversion;
+  command: t.VideoTool.Conversion;
 };
 
 /**
@@ -61,7 +61,7 @@ export async function selectSourceFiles(args: SelectArgs): Promise<readonly t.St
 /**
  * Helpers:
  */
-function extsFor(command: t.VideoConversion): ReadonlySet<string> {
+function extsFor(command: t.VideoTool.Conversion): ReadonlySet<string> {
   return command === 'webm-to-mp4' ? new Set(['.webm']) : new Set(['.mp4']);
 }
 

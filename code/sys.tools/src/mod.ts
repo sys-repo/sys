@@ -1,5 +1,6 @@
 /**
  * @module
+ * System tools root entry.
  */
 import { pkg } from './pkg.ts';
 import { printHelp } from './u.help.ts';
