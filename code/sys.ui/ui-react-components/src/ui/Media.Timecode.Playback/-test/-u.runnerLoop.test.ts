@@ -20,13 +20,10 @@ describe('u.runnerLoop', () => {
       {
         machine: TimecodeState.Playback,
         runtime,
-        project: (state) => ({
-          state,
-          phase: state.phase,
-          intent: state.intent,
-          currentBeat: state.currentBeat,
-          decks: state.decks,
-        }),
+        project(state) {
+          const { phase, intent, currentBeat, decks } = state;
+          return { state, phase, intent, currentBeat, decks };
+        },
       },
       { initial: TimecodeState.Playback.init().state },
     );
@@ -43,13 +40,10 @@ describe('u.runnerLoop', () => {
       {
         machine: TimecodeState.Playback,
         runtime,
-        project: (state) => ({
-          state,
-          phase: state.phase,
-          intent: state.intent,
-          currentBeat: state.currentBeat,
-          decks: state.decks,
-        }),
+        project(state) {
+          const { phase, intent, currentBeat, decks } = state;
+          return { state, phase, intent, currentBeat, decks };
+        },
       },
       { initial: TimecodeState.Playback.init().state },
     );
@@ -70,13 +64,10 @@ describe('u.runnerLoop', () => {
       {
         machine: TimecodeState.Playback,
         runtime,
-        project: (state) => ({
-          state,
-          phase: state.phase,
-          intent: state.intent,
-          currentBeat: state.currentBeat,
-          decks: state.decks,
-        }),
+        project(state) {
+          const { phase, intent, currentBeat, decks } = state;
+          return { state, phase, intent, currentBeat, decks };
+        },
       },
       { initial: TimecodeState.Playback.init().state },
     );
@@ -104,13 +95,10 @@ describe('u.runnerLoop', () => {
       {
         machine: TimecodeState.Playback,
         runtime,
-        project: (state) => ({
-          state,
-          phase: state.phase,
-          intent: state.intent,
-          currentBeat: state.currentBeat,
-          decks: state.decks,
-        }),
+        project(state) {
+          const { phase, intent, currentBeat, decks } = state;
+          return { state, phase, intent, currentBeat, decks };
+        },
         onEvent: () => trace.push('e'),
         onCmd: () => trace.push('c'),
       },
@@ -152,13 +140,10 @@ describe('u.runnerLoop', () => {
       {
         machine: TimecodeState.Playback,
         runtime,
-        project: (state) => ({
-          state,
-          phase: state.phase,
-          intent: state.intent,
-          currentBeat: state.currentBeat,
-          decks: state.decks,
-        }),
+        project(state) {
+          const { phase, intent, currentBeat, decks } = state;
+          return { state, phase, intent, currentBeat, decks };
+        },
       },
       { initial: TimecodeState.Playback.init().state },
     );
@@ -182,13 +167,10 @@ describe('u.runnerLoop', () => {
       {
         machine: TimecodeState.Playback,
         runtime,
-        project: (state) => ({
-          state,
-          phase: state.phase,
-          intent: state.intent,
-          currentBeat: state.currentBeat,
-          decks: state.decks,
-        }),
+        project(state) {
+          const { phase, intent, currentBeat, decks } = state;
+          return { state, phase, intent, currentBeat, decks };
+        },
       },
       { initial: TimecodeState.Playback.init().state },
     );
