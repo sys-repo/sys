@@ -1,17 +1,22 @@
 import { type t, Args, c, Fmt, pkg, Str } from './common.ts';
 
 export async function printHelp(argv: string[]) {
-  const args = Args.parse<t.ToolsCliArgs>(argv, { alias: { h: 'help' } });
+  const args = Args.parse<t.Tools.CliArgs>(argv, { alias: { h: 'help' } });
 
   const text = await Fmt.help(' system:tools', (e, c) => {
-    const fmt = (path: string) => c.gray(`${pkg.name}/`) + path;
-    e.row(fmt('copy'), c.gray(`(← alias ${c.white('cp')})`));
-    e.row(fmt('crdt'));
-    e.row(fmt('serve'));
-    e.row(fmt('deploy'));
-    e.row(fmt('fs'));
-    e.row(fmt('video'));
-    e.row(fmt(c.green('update')), c.gray(`(← alias ${c.white('up')})`));
+    const fmt = (tool: t.Tools.Command) => c.gray(`${pkg.name}/`) + tool;
+    const add = (tool: t.Tools.Command, alias?: string) => {
+      const items = [fmt(tool)];
+      if (alias) items.push(c.gray(`(← alias ${c.white(alias)})`));
+      e.row(...items);
+    };
+    add('copy', 'cp');
+    add('crdt');
+    add('serve');
+    add('deploy');
+    add('fs');
+    add('video');
+    add('update', 'up');
   });
 
   console.info(text);

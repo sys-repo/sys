@@ -17,7 +17,7 @@ export namespace UpdateTool {
   export type Name = 'system/update:tools';
 
   /** Command line arguments (argv). */
-  export type CliArgs = t.ToolsCliArgs & { latest?: boolean };
+  export type CliArgs = t.Tools.CliArgs & { latest?: boolean };
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
   /**

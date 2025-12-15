@@ -37,7 +37,7 @@ export namespace ServeTool {
   export type MimeLookup = { has(mime: t.ServeTool.MimeType): boolean };
 
   /** Command line arguments (argv). */
-  export type CliArgs = t.ToolsCliArgs & { port?: number };
+  export type CliArgs = t.Tools.CliArgs & { port?: number };
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
   /** Config File */

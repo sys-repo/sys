@@ -27,12 +27,10 @@ export namespace __NAME__Tool {
   export type MenuOption = { name: string; value: Command };
 
   /** Command line arguments (argv). */
-  export type CliArgs = t.ToolsCliArgs;
+  export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
-  /** Configuration File */
+  /** Configuration file */
   export type Config = t.JsonFile<__NAME__Tool.ConfigDoc>;
-  export type ConfigDoc = t.JsonFileDoc & {
-    name: string;
-  };
+  export type ConfigDoc = t.JsonFileDoc & { name: string };
 }

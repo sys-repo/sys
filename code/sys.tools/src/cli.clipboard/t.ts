@@ -24,6 +24,6 @@ export namespace ClipboardTool {
   export type MenuOption = { name: string; value: Command };
 
   /** Command line arguments (argv). */
-  export type CliArgs = t.ToolsCliArgs;
+  export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 }

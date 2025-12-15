@@ -41,7 +41,7 @@ export namespace CrdtTool {
   /**
    * Command line arguments (argv).
    */
-  export type CliArgs = t.ToolsCliArgs;
+  export type CliArgs = t.Tools.CliArgs;
 
   /**
    * Config File

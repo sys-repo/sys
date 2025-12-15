@@ -24,7 +24,7 @@ export namespace VideoTool {
   export type Name = 'system/video:tools';
 
   /** Command line arguments (argv). */
-  export type CliArgs = t.ToolsCliArgs;
+  export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
   /** Command names */
