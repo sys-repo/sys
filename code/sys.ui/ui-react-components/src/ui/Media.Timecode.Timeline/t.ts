@@ -30,7 +30,7 @@ export type UseMediaTimelineResult<P = unknown> = {
  */
 export type UseMediaTimelineControllerArgs<P = unknown> = {
   readonly bundle?: t.SpecTimelineBundle<P>;
-  readonly video?: t.VideoPlayerSignals;
+  readonly video?: { A: t.VideoPlayerSignals; B: t.VideoPlayerSignals };
 };
 
 export type UseMediaTimelineControllerResult<P = unknown> = {

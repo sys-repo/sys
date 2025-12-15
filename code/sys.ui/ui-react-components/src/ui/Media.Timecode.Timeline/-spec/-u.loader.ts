@@ -38,5 +38,6 @@ function unload(debug: DebugSignals) {
 
   p.docid.value = undefined;
   p.bundle.value = undefined;
-  video.props.src.value = undefined;
+  video.A.props.src.value = undefined;
+  video.B.props.src.value = undefined;
 }

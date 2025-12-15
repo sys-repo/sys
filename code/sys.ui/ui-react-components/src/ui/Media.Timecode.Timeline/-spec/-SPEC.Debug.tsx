@@ -24,7 +24,9 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const video = Player.Video.signals({ cornerRadius: 4, showControls: false, muted: true });
+  const Video = Player.Video;
+  const createVideo = () => Video.signals({ cornerRadius: 4, showControls: false, muted: true });
+  const video = { A: createVideo(), B: createVideo() };
 
   const props = {
     debug: s(snap.debug),
@@ -42,12 +44,13 @@ export async function createDebugSignals() {
 
   function listen() {
     Signal.listen(props, true);
-    Signal.listen(video.props);
+    Signal.listen(video.A.props);
+    Signal.listen(video.B.props);
   }
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
-    video.props.src.value = undefined;
+    Sample.unload(api);
   }
 
   Signal.effect(() => {
@@ -134,15 +137,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 5 }}
         expand={0}
       />
-      <ObjectView
-        name={'video.signals'}
-        data={{
-          ...Signal.toObject(debug.video.props),
-          src: Str.ellipsize(debug.video.props.src.value || '-', [15, 20]),
-        }}
-        style={{ marginTop: 5 }}
-        expand={0}
-      />
+      <VideoObjectView name={'video-A'} video={debug.video.A} />
+      <VideoObjectView name={'video-B'} video={debug.video.B} />
     </div>
   );
 };
+
+function VideoObjectView(props: { name?: string; video: t.VideoPlayerSignals }) {
+  const { name, video } = props;
+  return (
+    <ObjectView
+      name={name}
+      data={{
+        ...Signal.toObject(video.props),
+        src: Str.ellipsize(video.props.src.value || '-', [15, 20]),
+      }}
+      style={{ marginTop: 5 }}
+      expand={0}
+    />
+  );
+}

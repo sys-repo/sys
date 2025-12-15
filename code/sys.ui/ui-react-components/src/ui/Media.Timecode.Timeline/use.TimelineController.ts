@@ -30,22 +30,39 @@ export const useTimelineController = <P = unknown>(
 
   const [activeIndex, setActiveIndex] = React.useState<number | undefined>(undefined);
 
+  type DeckId = 'A' | 'B';
+
+  const getDeck = React.useCallback(
+    (deck: DeckId) => {
+      return deck === 'A' ? video?.A : video?.B;
+    },
+    [video],
+  );
+
+  const setSrcAll = React.useCallback(
+    (src: t.StringUrl | undefined) => {
+      if (!video) return;
+      video.A.props.src.value = src;
+      video.B.props.src.value = src;
+    },
+    [video],
+  );
+
   /**
    * Minimal runtime adapter backed by VideoPlayerSignals.
-   *
-   * Note: we map both decks to the same video for now (single-deck bridge).
-   * This is intentionally minimal and real: it drives the actual player.
+   * Note: we route by deck now.
    */
   const runtime = React.useMemo<t.PlaybackRuntime>(() => {
     const secsFromVTime = (vTime: t.Msecs): t.Secs => (vTime / 1000) as t.Secs;
     return {
       deck: {
-        play: (_deck) => video?.play(),
-        pause: (_deck) => video?.pause(),
-        seek: (_deck, vTime) => video?.jumpTo(secsFromVTime(vTime), { play: false }),
+        play: (deck) => getDeck(deck as DeckId)?.play(),
+        pause: (deck) => getDeck(deck as DeckId)?.pause(),
+        seek: (deck, vTime) =>
+          getDeck(deck as DeckId)?.jumpTo(secsFromVTime(vTime), { play: false }),
       },
     };
-  }, [video]);
+  }, [getDeck]);
 
   const playback = Playback.useRunner({ runtime });
 
@@ -130,12 +147,10 @@ export const useTimelineController = <P = unknown>(
     });
 
     // Keep existing behavior: clear player src on doc change.
-    if (video) {
-      video.props.src.value = undefined;
-    }
+    setSrcAll(undefined);
 
     setActiveIndex(undefined);
-  }, [docid, playbackTimeline, playbackSend, video]);
+  }, [docid, playbackTimeline, playbackSend, setSrcAll]);
 
   const select = React.useCallback(
     (index: t.Index) => {
@@ -143,12 +158,12 @@ export const useTimelineController = <P = unknown>(
       if (!item) return;
 
       setActiveIndex(index);
-      if (item.url && video) video.props.src.value = item.url;
+      if (item.url) setSrcAll(item.url);
 
       playbackSend({ kind: 'playback:seek:beat', beat: index });
       playbackSend({ kind: 'playback:pause' });
     },
-    [beats, video, playbackSend],
+    [beats, playbackSend, setSrcAll],
   );
 
   const play = React.useCallback(
@@ -157,12 +172,12 @@ export const useTimelineController = <P = unknown>(
       if (!item) return;
 
       setActiveIndex(index);
-      if (item.url && video) video.props.src.value = item.url;
+      if (item.url) setSrcAll(item.url);
 
       playbackSend({ kind: 'playback:seek:beat', beat: index });
       playbackSend({ kind: 'playback:play' });
     },
-    [beats, video, playbackSend],
+    [beats, playbackSend, setSrcAll],
   );
 
   /**

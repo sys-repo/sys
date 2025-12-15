@@ -46,8 +46,8 @@ export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.top.class}>
-        <Video deck={'A'} theme={theme.name} video={video} debug={debug} />
-        <Video deck={'B'} theme={theme.name} video={video} debug={debug} />
+        <Video deck={'A'} theme={theme.name} video={video?.A} debug={debug} />
+        <Video deck={'B'} theme={theme.name} video={video?.B} debug={debug} />
       </div>
 
       <div className={styles.bottom.base.class}>
