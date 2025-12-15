@@ -55,7 +55,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   add({ k: 'Composition', v: total.beats === 0 ? '-' : size });
   add({ k: 'Virtual Duration', v: total.duration });
   if (props.index !== undefined) {
-    add({ k: 'Current Beat', v: props.index });
+    add({ k: 'Current Beat', v: props.index + 1 });
   }
   items.push(...toIssueItems(resolved));
 

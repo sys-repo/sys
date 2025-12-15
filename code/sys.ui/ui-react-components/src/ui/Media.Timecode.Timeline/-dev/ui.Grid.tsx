@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Bullet, Color, css, dur, Timecode } from '../common.ts';
+import { type t, Bullet, Color, css, dur, Timecode, Icons } from '../common.ts';
 import { useTimeline } from '../use.Timeline.ts';
 import { A } from './ui.A.tsx';
 
@@ -19,7 +19,7 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
   /**
    * Render:
    */
-  const COLS = `10px 80px 30px 30px 100px 1fr`;
+  const COLS = `10px 80px 30px 30px 120px 1fr`;
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
@@ -84,8 +84,48 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
       segHeaderText: Color.alpha(Color.BLUE, 0.6),
       dimText: Color.alpha(theme.fg, 0.18),
     },
-    linkNewTab(url: t.StringUrl, label: string = url) {
-      return <A href={url} children={label} target={'_blank'} />;
+    styles: {
+      rowMedia: css({
+        position: 'relative',
+
+        // Make the text define height (icon must not).
+        display: 'inline-block',
+        lineHeight: '1em',
+
+        // Reserve horizontal space so the icon doesn't overlap ellipsis.
+        paddingRight: 16,
+        minWidth: 0,
+      }),
+      rowMediaText: css({
+        display: 'inline-block',
+        minWidth: 0,
+      }),
+      iconLink: css({
+        position: 'absolute',
+        right: 0,
+        top: '50%',
+        transform: 'translateY(-50%)',
+
+        // Ensure the icon doesn't affect line-height / layout.
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        lineHeight: 0,
+
+        textDecoration: 'none',
+      }),
+      iconBox: css({
+        width: 12,
+        height: 12,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        lineHeight: 0,
+      }),
+    } as const,
+
+    linkNewTab(url: t.StringUrl, label: t.ReactNode = url) {
+      return <A href={url} children={label} target={'_blank'} style={ui.styles.iconLink} />;
     },
   } as const;
 
@@ -143,8 +183,7 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
     const isSecondaryRow = row.is.repeat || (isInSelectedSegment && row.is.segmentStart);
     const isMediaDimmed = !isSelected && isSecondaryRow;
 
-    // Segment header gets dim-blue text regardless of "active segment" state.
-    // Only selection overrides it.
+    // Segment header gets dim-blue; Only selection overrides it.
     const isSegmentHeaderBlue = row.is.segmentStart && !isSelected;
 
     return { isSelected, isNewSegmentRow, isMediaDimmed, isSegmentHeaderBlue } as const;
@@ -173,6 +212,18 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
       media: css(styles.cell.text, styles.cell.media),
     };
 
+    const elRow = row.url && (
+      <span className={ui.styles.rowMedia.class}>
+        <span className={ui.styles.rowMediaText.class}>{mediaLabelFromUrl(row.url)}</span>
+        {ui.linkNewTab(
+          row.url,
+          <span className={ui.styles.iconBox.class}>
+            <Icons.Link size={12} />
+          </span>,
+        )}
+      </span>
+    );
+
     return (
       <div
         key={row.index}
@@ -187,8 +238,7 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
         <div className={styles.cell.text.class}>{row.vTime}</div>
         <div className={styles.cell.text.class}>{row.pause}</div>
         <div className={rowStyles.media.class} title={row.url}>
-          {row.url && ui.linkNewTab(row.url, mediaLabelFromUrl(row.url))}
-          {!row.url && '-'}
+          {elRow || '-'}
         </div>
         <div className={rowStyles.media.class} title={row.logicalPath}>
           {row.mediaLabel}
