@@ -1,4 +1,5 @@
 import {
+  makeDocCreateHandler,
   makeDocReadHandler,
   makeDocSaveHandler,
   makeDocStatsHandler,
@@ -24,6 +25,7 @@ export const attachHandlers = (args: {
 
   const handlers: t.CrdtCmdHandlers = {
     attach: () => ({ ok: true }), // ← NB: no handshake needed locally
+    'doc:create': makeDocCreateHandler(getRepo),
     'doc:read': makeDocReadHandler(getRepo),
     'doc:write': makeDocWriteHandler(getRepo),
     'doc:stats': makeDocStatsHandler(getRepo),
