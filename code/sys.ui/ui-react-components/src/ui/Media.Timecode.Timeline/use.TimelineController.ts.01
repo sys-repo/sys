@@ -1,0 +1,213 @@
+import React from 'react';
+
+import type { t } from './common.ts';
+import { useTimeline } from './use.Timeline.ts';
+
+// 🌸🌸 ---------- CHANGED: timeline-controller-playback-bridge ----------
+import { Playback } from '../Media.Timecode.Playback/mod.ts';
+// 🌸 ---------- /CHANGED ----------
+
+/**
+ * Media timeline controller:
+ * - Resolves beats → concrete media URLs.
+ * - Tracks active beat.
+ * - Drives the attached video signals.
+ */
+export const useTimelineController = <P = unknown,>(
+  args: t.UseMediaTimelineControllerArgs__OLD<P>,
+): t.UseMediaTimelineControllerResult__OLD<P> => {
+  const { bundle, video } = args;
+  const docid = bundle?.docid;
+
+  const timelineState = useTimeline<P>(bundle?.spec);
+  const timeline = timelineState?.timeline;
+
+  const beats = React.useMemo(() => {
+    if (!bundle || !timeline) return [];
+    return timeline.beats.map((beat, index) => {
+      const logicalPath = beat.src.ref;
+      const url = bundle.resolveMedia({ kind: 'video', logicalPath });
+      return { index, beat, url };
+    });
+  }, [bundle, timeline]);
+
+  const [activeIndex, setActiveIndex] = React.useState<number | undefined>(undefined);
+
+  // 🌸🌸 ---------- ADDED: playback-runner ----------
+  /**
+   * Minimal runtime adapter backed by VideoPlayerSignals.
+   *
+   * Note: we map both decks to the same video for now (single-deck bridge).
+   * This is intentionally minimal and real: it drives the actual player.
+   */
+  const runtime = React.useMemo<t.PlaybackRuntime>(() => {
+    const secsFromVTime = (vTime: t.Msecs): t.Secs => (vTime / 1000) as t.Secs;
+
+    return {
+      deck: {
+        play: (_deck) => video?.play(),
+        pause: (_deck) => video?.pause(),
+        seek: (_deck, vTime) => {
+          if (!video) return;
+          video.jumpTo(secsFromVTime(vTime), { play: false });
+        },
+      },
+    };
+  }, [video]);
+
+  const playback = Playback.useRunner({ runtime });
+
+  // 🌸🌸 ---------- FIXED: stable-playback-send ----------
+  /**
+   * IMPORTANT:
+   * - `Playback.useRunner(...)` returns a new object each render.
+   * - `send` is stable (useCallback([])) and safe to depend on.
+   * - Never put the `{ snapshot, send }` object into effect deps.
+   */
+  const playbackSend = playback.send;
+  // 🌸 ---------- /FIXED ----------
+
+  /**
+   * Build the ui-state Timeline model expected by the playback machine.
+   * This is a projection from @sys/std-derived beats → ui-state view.
+   */
+  const playbackTimeline = React.useMemo<t.TimecodeState.Playback.Timeline | undefined>(() => {
+    if (!timeline) return undefined;
+
+    const rows = beats.map((item) => {
+      const beat = item.beat;
+
+      const logicalPath = beat.src.ref;
+      const mediaLabel = logicalPath.split('/').pop() || logicalPath;
+      const segmentId = mediaLabel;
+
+      const duration = (beat as unknown as { duration?: t.Msecs }).duration ?? (0 as t.Msecs);
+
+      return {
+        index: item.index as t.TimecodeState.Playback.BeatIndex,
+        vTime: beat.vTime,
+        duration,
+        pause: beat.pause,
+        segmentId,
+        media: {
+          url: item.url,
+          label: mediaLabel,
+        },
+      } as const;
+    });
+
+    // Segment ranges [from,to) by contiguous segmentId.
+    const segments: t.TimecodeState.Playback.Segment[] = [];
+    let currId: t.StringId | undefined;
+    let currFrom = 0;
+
+    for (let i = 0; i < rows.length; i++) {
+      const id = rows[i].segmentId;
+      if (currId === undefined) {
+        currId = id;
+        currFrom = i;
+        continue;
+      }
+      if (id !== currId) {
+        segments.push({
+          id: currId,
+          beat: { from: currFrom, to: i },
+        });
+        currId = id;
+        currFrom = i;
+      }
+    }
+
+    if (currId !== undefined) {
+      segments.push({
+        id: currId,
+        beat: { from: currFrom, to: rows.length },
+      });
+    }
+
+    return {
+      beats: rows,
+      segments,
+      virtualDuration: timeline.duration,
+    };
+  }, [beats, timeline]);
+
+  /**
+   * Attach/reset the playback machine when the doc/timeline changes.
+   */
+  // 🌸🌸 ---------- FIXED: effect-deps-playback-send ----------
+  React.useEffect(() => {
+    if (!playbackTimeline) return;
+
+    playbackSend({
+      kind: 'playback:init',
+      timeline: playbackTimeline,
+      startBeat: 0,
+    });
+
+    // Keep existing behavior: clear player src on doc change.
+    if (video) {
+      video.props.src.value = undefined;
+    }
+
+    setActiveIndex(undefined);
+  }, [docid, playbackTimeline, playbackSend, video]);
+  // 🌸 ---------- /FIXED ----------
+
+  /**
+   * Reset controller when the document changes.
+   */
+  React.useEffect(() => {
+    setActiveIndex(undefined);
+    if (video) {
+      video.props.src.value = undefined;
+    }
+  }, [docid, video]);
+
+  // 🌸🌸 ---------- CHANGED: select-play-semantics ----------
+  const select = React.useCallback(
+    (index: number) => {
+      const item = beats[index];
+      if (!item) return;
+
+      setActiveIndex(index);
+
+      const { url } = item;
+      if (url && video) {
+        video.props.src.value = url;
+      }
+
+      playbackSend({ kind: 'playback:seek:beat', beat: index });
+      playbackSend({ kind: 'playback:pause' });
+    },
+    [beats, video, playbackSend],
+  );
+
+  const play = React.useCallback(
+    (index: number) => {
+      const item = beats[index];
+      if (!item) return;
+
+      setActiveIndex(index);
+
+      const { url } = item;
+      if (url && video) {
+        video.props.src.value = url;
+      }
+
+      playbackSend({ kind: 'playback:seek:beat', beat: index });
+      playbackSend({ kind: 'playback:play' });
+    },
+    [beats, video, playbackSend],
+  );
+  // 🌸 ---------- /CHANGED ----------
+
+  /**
+   * Auto-select first beat when a new set of beats arrives.
+   */
+  React.useEffect(() => {
+    if (beats.length > 0 && activeIndex == null) select(0);
+  }, [beats, activeIndex, select]);
+
+  return { timeline, beats, activeIndex, select, play };
+};
