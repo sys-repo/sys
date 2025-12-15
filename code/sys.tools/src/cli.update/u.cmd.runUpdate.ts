@@ -41,7 +41,7 @@ export async function runUpdate(
     }
   }
 
-  const msg = `updating ${c.white(pkg.name)} from ${c.yellow(version.local)} to ${c.green(version.latest)}...`;
+  const msg = `updating ${c.white(pkg.name)} from ${version.local} to ${c.green(version.latest)}...`;
 
   /** Run process: */
   const spinner = Cli.spinner(c.gray(msg)).start();
