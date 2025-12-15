@@ -1,15 +1,19 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, TimecodeState } from '../common.ts';
+import { Playback } from '../mod.ts';
 import { createRunnerLoop } from '../u.runnerLoop.ts';
 import { createRuntime, expectedCallsFromCmds, timeline } from './u.fixture.ts';
 
 describe('u.runnerLoop', () => {
-  function project(state: t.TimecodeState.Playback.State): t.PlaybackRunnerState {
-    const { phase, intent, currentBeat, decks } = state;
-    return { state, phase, intent, currentBeat, decks };
-  }
+  const project = Playback.project.runnerState;
 
-  function create(initial?: t.TimecodeState.Playback.State): {
+  type CreateArgs = {
+    readonly initial?: t.TimecodeState.Playback.State;
+    readonly onEvent?: (e: t.TimecodeState.Playback.Event) => void;
+    readonly onCmd?: (cmd: t.TimecodeState.Playback.Cmd) => void;
+  };
+
+  function create(args: CreateArgs = {}): {
     readonly loop: t.PlaybackRunnerLoop;
     readonly runtime: t.PlaybackRuntime;
     readonly calls: ReturnType<typeof createRuntime>['calls'];
@@ -17,8 +21,14 @@ describe('u.runnerLoop', () => {
     const { runtime, calls } = createRuntime();
 
     const loop = createRunnerLoop(
-      { machine: TimecodeState.Playback, runtime, project },
-      { initial: initial ?? TimecodeState.Playback.init().state },
+      {
+        machine: TimecodeState.Playback,
+        runtime,
+        project,
+        onEvent: args.onEvent,
+        onCmd: args.onCmd,
+      },
+      { initial: args.initial ?? TimecodeState.Playback.init().state },
     );
 
     return { loop, runtime, calls } as const;
@@ -62,19 +72,12 @@ describe('u.runnerLoop', () => {
   });
 
   it('Law: events → cmds → notify (single send() flush)', () => {
-    const { runtime } = createRuntime();
     const trace: Array<'e' | 'c' | 'n'> = [];
 
-    const loop = createRunnerLoop(
-      {
-        machine: TimecodeState.Playback,
-        runtime,
-        project,
-        onEvent: () => trace.push('e'),
-        onCmd: () => trace.push('c'),
-      },
-      { initial: TimecodeState.Playback.init().state },
-    );
+    const { loop } = create({
+      onEvent: () => trace.push('e'),
+      onCmd: () => trace.push('c'),
+    });
 
     // Subscribe once; then clear to observe only a single send flush.
     const unsubscribe = loop.subscribe(() => trace.push('n'));

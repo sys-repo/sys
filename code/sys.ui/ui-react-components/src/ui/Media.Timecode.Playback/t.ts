@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 /** Type exports */
 export type * from './t.deck.ts';
+export type * from './t.read.timeline.ts';
 export type * from './t.runner.loop.ts';
 export type * from './t.runtime.ts';
 
@@ -21,6 +22,14 @@ export type TimecodePlaybackLib = {
    * React hook binding a playback runner to component lifecycle.
    */
   useRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunnerHook;
+
+  /**
+   * Canonical projections (read-models).
+   */
+  readonly project: {
+    readonly runnerState: (state: t.TimecodeState.Playback.State) => t.PlaybackRunnerState;
+    readonly timeline: (state: t.TimecodeState.Playback.State) => t.PlaybackTimelineReadModel;
+  };
 };
 
 /**

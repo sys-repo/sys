@@ -1,4 +1,4 @@
-import React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { type t, TimecodeState } from './common.ts';
 import { Playback } from './mod.ts';
 
@@ -8,7 +8,7 @@ export const useRunner: t.TimecodePlaybackLib['useRunner'] = (args) => {
   /**
    * Refs:
    */
-  const runnerRef = React.useRef<t.PlaybackRunner | undefined>(undefined);
+  const runnerRef = useRef<t.PlaybackRunner | undefined>(undefined);
 
   /**
    * State:
@@ -16,16 +16,10 @@ export const useRunner: t.TimecodePlaybackLib['useRunner'] = (args) => {
    *    then immediately disposing/recreating it on first effect pass.
    *    Seed state from deterministic machine init instead.
    */
-  const [snapshot, setSnapshot] = React.useState<t.PlaybackRunnerState>(() => {
+  const [snapshot, setSnapshot] = useState<t.PlaybackRunnerState>(() => {
     const lib = machine ?? TimecodeState.Playback;
     const state = initial ?? lib.init().state;
-    return {
-      state,
-      phase: state.phase,
-      intent: state.intent,
-      currentBeat: state.currentBeat,
-      decks: state.decks,
-    };
+    return Playback.project.runnerState(state);
   });
 
   /**
@@ -33,7 +27,7 @@ export const useRunner: t.TimecodePlaybackLib['useRunner'] = (args) => {
    *    Runner contract: per send() flush, runner publishes events
    *    before executing cmds before notifying subscribers.
    */
-  React.useEffect(() => {
+  useEffect(() => {
     // Recreate runner when the runtime/initial binding changes; Always dispose the previous runner.
     runnerRef.current?.dispose();
 
@@ -53,7 +47,7 @@ export const useRunner: t.TimecodePlaybackLib['useRunner'] = (args) => {
   /**
    * API
    */
-  const send = React.useCallback<t.PlaybackRunner['send']>((input) => {
+  const send = useCallback<t.PlaybackRunner['send']>((input) => {
     runnerRef.current?.send(input);
   }, []);
 

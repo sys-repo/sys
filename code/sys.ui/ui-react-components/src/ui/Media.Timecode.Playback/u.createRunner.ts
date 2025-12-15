@@ -1,4 +1,5 @@
 import { type t, TimecodeState } from './common.ts';
+import { projectRunnerState } from './u.project.runnerState.ts';
 
 /**
  * Create a runtime-backed playback runner.
@@ -16,9 +17,10 @@ import { type t, TimecodeState } from './common.ts';
 export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
   const { runtime, initial, onEvent, onCmd } = args;
   const machine: t.TimecodeState.Playback.Lib = args.machine ?? TimecodeState.Playback;
+  const project: t.PlaybackProjector = projectRunnerState;
 
-  let state: t.TimecodeState.Playback.State = initial ?? machine.init().state;
   const subs = new Set<(s: t.PlaybackRunnerState) => void>();
+  let state: t.TimecodeState.Playback.State = initial ?? machine.init().state;
 
   /**
    * Execute reducer-issued commands against the runtime.
@@ -72,8 +74,7 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
    * Publish the current observable read-model.
    */
   function notify(): void {
-    const { phase, intent, currentBeat, decks } = state;
-    const snapshot: t.PlaybackRunnerState = { state, phase, intent, currentBeat, decks };
+    const snapshot = project(state);
     subs.forEach((fn) => fn(snapshot));
   }
 
@@ -96,13 +97,7 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
     },
 
     get() {
-      return {
-        state,
-        phase: state.phase,
-        intent: state.intent,
-        currentBeat: state.currentBeat,
-        decks: state.decks,
-      };
+      return project(state);
     },
 
     subscribe(fn) {

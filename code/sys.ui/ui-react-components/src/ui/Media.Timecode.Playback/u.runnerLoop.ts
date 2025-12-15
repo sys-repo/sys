@@ -1,4 +1,5 @@
 import { type t, TimecodeState } from './common.ts';
+import { projectRunnerState } from './u.project.runnerState.ts';
 
 /**
  * Create the internal runner loop (no scheduling policy).
@@ -21,7 +22,8 @@ export function createRunnerLoop(
   deps: t.PlaybackRunnerLoopDeps,
   opts: { readonly initial?: t.TimecodeState.Playback.State } = {},
 ): t.PlaybackRunnerLoop {
-  const { runtime, project, onEvent, onCmd } = deps;
+  const { runtime, onEvent, onCmd } = deps;
+  const project: t.PlaybackProjector = deps.project ?? projectRunnerState;
 
   const subs = new Set<(s: t.PlaybackRunnerState) => void>();
   const machine: t.TimecodeState.Playback.Lib = deps.machine ?? TimecodeState.Playback;

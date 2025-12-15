@@ -31,6 +31,11 @@ export type PlaybackRuntime = {
  * Observable playback state exposed to the UI.
  *
  * Read-model derived from reducer state.
+ *
+ * Canonical projection:
+ *   Playback.project.runnerState(state)
+ *
+ * No fields here should be constructed ad-hoc outside that projector.
  */
 export type PlaybackRunnerState = {
   readonly state: t.TimecodeState.Playback.State;
