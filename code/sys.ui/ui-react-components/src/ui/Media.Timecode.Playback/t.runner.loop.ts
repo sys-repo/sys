@@ -3,14 +3,18 @@ import type { t } from './common.ts';
 /**
  * Runner loop contract (internal).
  *
- * Purpose:
- * - Reduce inputs through the pure machine.
- * - Publish reducer events (observational only).
- * - Execute emitted cmds against the runtime.
- * - Publish derived read-model snapshots.
+ * Law (single send() flush):
+ *   events → cmds → notify
  *
- * No scheduling policy is implied here (raf, timeupdate, setInterval, etc).
- * The loop only accepts inputs; adapters decide when to send them.
+ * Meaning:
+ * - Reducer events are observational only.
+ * - Cmds execute against the runtime.
+ * - Subscribers see the resulting projected state exactly once.
+ *
+ * Invariants:
+ * - No scheduling policy implied (raf, timeupdate, interval, etc).
+ * - Events never feed back into the machine.
+ * - Ordering is stable and must never change.
  */
 
 /**

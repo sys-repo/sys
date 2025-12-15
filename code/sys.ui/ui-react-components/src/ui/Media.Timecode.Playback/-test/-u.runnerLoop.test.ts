@@ -1,52 +1,39 @@
-import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { type t, TimecodeState } from '../common.ts';
 import { createRunnerLoop } from '../u.runnerLoop.ts';
 import { createRuntime, expectedCallsFromCmds, timeline } from './u.fixture.ts';
 
 describe('u.runnerLoop', () => {
-  it('exposes the expected API shape', () => {
-    expectTypeOf(createRunnerLoop).toMatchTypeOf<
-      (
-        deps: t.PlaybackRunnerLoopDeps,
-        opts?: { readonly initial?: t.TimecodeState.Playback.State },
-      ) => t.PlaybackRunnerLoop
-    >();
-  });
+  function project(state: t.TimecodeState.Playback.State): t.PlaybackRunnerState {
+    const { phase, intent, currentBeat, decks } = state;
+    return { state, phase, intent, currentBeat, decks };
+  }
 
-  it('creates a loop with deterministic initial state (no runtime calls)', () => {
+  function create(initial?: t.TimecodeState.Playback.State): {
+    readonly loop: t.PlaybackRunnerLoop;
+    readonly runtime: t.PlaybackRuntime;
+    readonly calls: ReturnType<typeof createRuntime>['calls'];
+  } {
     const { runtime, calls } = createRuntime();
 
     const loop = createRunnerLoop(
-      {
-        machine: TimecodeState.Playback,
-        runtime,
-        project(state) {
-          const { phase, intent, currentBeat, decks } = state;
-          return { state, phase, intent, currentBeat, decks };
-        },
-      },
-      { initial: TimecodeState.Playback.init().state },
+      { machine: TimecodeState.Playback, runtime, project },
+      { initial: initial ?? TimecodeState.Playback.init().state },
     );
 
+    return { loop, runtime, calls } as const;
+  }
+
+  it('creates a loop with deterministic initial state (no runtime calls)', () => {
+    const { loop, calls } = create();
     const s = loop.get();
+
     expect(s).to.have.property('state');
     expect(calls.length).to.eql(0);
   });
 
   it('subscribes immediately with the current snapshot', () => {
-    const { runtime } = createRuntime();
-
-    const loop = createRunnerLoop(
-      {
-        machine: TimecodeState.Playback,
-        runtime,
-        project(state) {
-          const { phase, intent, currentBeat, decks } = state;
-          return { state, phase, intent, currentBeat, decks };
-        },
-      },
-      { initial: TimecodeState.Playback.init().state },
-    );
+    const { loop } = create();
 
     const first = loop.get();
     let seen: t.PlaybackRunnerState | undefined;
@@ -58,19 +45,7 @@ describe('u.runnerLoop', () => {
   });
 
   it('executes exactly the reducer-issued runtime-affecting cmds for a given input', () => {
-    const { runtime, calls } = createRuntime();
-
-    const loop = createRunnerLoop(
-      {
-        machine: TimecodeState.Playback,
-        runtime,
-        project(state) {
-          const { phase, intent, currentBeat, decks } = state;
-          return { state, phase, intent, currentBeat, decks };
-        },
-      },
-      { initial: TimecodeState.Playback.init().state },
-    );
+    const { loop, calls } = create();
 
     // Ensure deterministic machine baseline for the expectation comparison:
     loop.send({ kind: 'playback:init', timeline: timeline() });
@@ -88,17 +63,13 @@ describe('u.runnerLoop', () => {
 
   it('Law: events → cmds → notify (single send() flush)', () => {
     const { runtime } = createRuntime();
-
     const trace: Array<'e' | 'c' | 'n'> = [];
 
     const loop = createRunnerLoop(
       {
         machine: TimecodeState.Playback,
         runtime,
-        project(state) {
-          const { phase, intent, currentBeat, decks } = state;
-          return { state, phase, intent, currentBeat, decks };
-        },
+        project,
         onEvent: () => trace.push('e'),
         onCmd: () => trace.push('c'),
       },
@@ -134,19 +105,7 @@ describe('u.runnerLoop', () => {
   });
 
   it('unsubscribe stops further notifications', () => {
-    const { runtime } = createRuntime();
-
-    const loop = createRunnerLoop(
-      {
-        machine: TimecodeState.Playback,
-        runtime,
-        project(state) {
-          const { phase, intent, currentBeat, decks } = state;
-          return { state, phase, intent, currentBeat, decks };
-        },
-      },
-      { initial: TimecodeState.Playback.init().state },
-    );
+    const { loop } = create();
 
     let count = 0;
     const unsubscribe = loop.subscribe(() => count++);
@@ -161,19 +120,7 @@ describe('u.runnerLoop', () => {
   });
 
   it('dispose clears subscribers', () => {
-    const { runtime } = createRuntime();
-
-    const loop = createRunnerLoop(
-      {
-        machine: TimecodeState.Playback,
-        runtime,
-        project(state) {
-          const { phase, intent, currentBeat, decks } = state;
-          return { state, phase, intent, currentBeat, decks };
-        },
-      },
-      { initial: TimecodeState.Playback.init().state },
-    );
+    const { loop } = create();
 
     let count = 0;
     loop.subscribe(() => count++);
