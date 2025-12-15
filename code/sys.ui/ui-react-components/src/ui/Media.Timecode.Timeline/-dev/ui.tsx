@@ -56,7 +56,7 @@ export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
             bundle={bundle}
             theme={theme.name}
             selectedIndex={controller.activeIndex}
-            onSelect={(e) => controller.play(e.index)}
+            onSelect={(e) => controller.select(e.index)}
           />
         </div>
 

@@ -25,19 +25,21 @@ export type UseMediaTimelineResult<P = unknown> = {
 
 /**
  * Virtual Timeline Controller.
+ *
+ * Drives the Playback runner via VideoPlayerSignals (minimal single-deck bridge for now).
  */
 export type UseMediaTimelineControllerArgs<P = unknown> = {
-  bundle?: t.SpecTimelineBundle<P>;
-  video?: t.VideoPlayerSignals;
+  readonly bundle?: t.SpecTimelineBundle<P>;
+  readonly video?: t.VideoPlayerSignals;
 };
 
 export type UseMediaTimelineControllerResult<P = unknown> = {
-  timeline?: t.Timecode.Experience.Timeline<P>;
-  activeIndex: number | undefined;
-  beats: readonly {
-    index: number;
-    beat: t.Timecode.Experience.Beat<P>;
-    url?: string;
+  readonly timeline?: t.Timecode.Experience.Timeline<P>;
+  readonly activeIndex: number | undefined;
+  readonly beats: readonly {
+    readonly index: number;
+    readonly beat: t.Timecode.Experience.Beat<P>;
+    readonly url?: string;
   }[];
   select(index: number): void;
   play(index: number): void; // alias for now: select+ensure playing
