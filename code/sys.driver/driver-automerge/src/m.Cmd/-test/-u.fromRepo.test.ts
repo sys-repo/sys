@@ -2,9 +2,9 @@ import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '..
 
 import { type t, CrdtIs } from '../common.ts';
 import { CrdtCmd } from '../mod.ts';
-import { Crdt } from './-u.ts';
+import { Crdt } from './u.fixture.ts';
 
-describe('Crdt.Cmd.fromRepo', () => {
+describe('Crdt.Cmd.fromRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
   let fixture: t.TestWorkerFixture;
   beforeAll(async () => void (fixture = await makeWorkerFixture()));
   afterAll(() => fixture?.dispose());

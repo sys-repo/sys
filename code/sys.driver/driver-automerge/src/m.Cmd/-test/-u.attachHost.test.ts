@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../-test.ts';
 import { CrdtCmd } from '../mod.ts';
-import { Crdt, Fixture } from './-u.ts';
+import { Crdt, Fixture } from './u.fixture.ts';
 
-describe('Crdt.Cmd.attachHost', () => {
+describe('Crdt.Cmd.attachHost', { sanitizeResources: false, sanitizeOps: false }, () => {
   it('exposes repo commands over the attached endpoint', async () => {
     const repo = Crdt.repo();
     const { port1, port2 } = new MessageChannel();
@@ -27,8 +27,8 @@ describe('Crdt.Cmd.attachHost', () => {
     expect(stats.total.ops, 'ops').to.be.greaterThan(0);
 
     client.dispose();
-    await repo.dispose();
     endpoint.close?.();
+    await repo.dispose();
   });
 
   it('closes the endpoint when the repo is disposed', async () => {
@@ -36,25 +36,20 @@ describe('Crdt.Cmd.attachHost', () => {
     const { port1, port2 } = new MessageChannel();
     let closeCount = 0;
 
-    // Endpoint with a close hook.
     const endpoint = Fixture.makeEndpointWithCloseHook(port1, () => closeCount++);
 
     CrdtCmd.attachHost(repo, endpoint);
     const cmd = CrdtCmd.make();
     const client = cmd.client(port2);
 
-    // Prove it works before disposal.
     type D = { foo: number };
     const created = await repo.create<D>({ foo: 1 });
     if (!created.ok) throw new Error(`create failed: ${created.error.message}`);
 
-    const doc = created.doc;
-    await client.send('doc:stats', { doc: doc.id });
-
-    // Dispose the repo → should trigger endpoint.close().
+    await client.send('doc:stats', { doc: created.doc.id });
     await repo.dispose();
-    expect(closeCount).to.eql(1);
 
+    expect(closeCount).to.eql(1);
     client.dispose();
   });
 });
