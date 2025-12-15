@@ -5,6 +5,7 @@ export type * from './t.deck.ts';
 export type * from './t.read.timeline.ts';
 export type * from './t.runner.loop.ts';
 export type * from './t.runtime.ts';
+export type * from './t.controller.timeline.ts';
 
 /**
  * Timecode playback runtime adapter.
