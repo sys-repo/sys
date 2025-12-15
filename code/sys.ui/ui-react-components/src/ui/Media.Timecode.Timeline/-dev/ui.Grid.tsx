@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Bullet, Color, css, dur, Path, Timecode } from '../common.ts';
+import { type t, Bullet, Color, css, dur, Timecode } from '../common.ts';
 import { useTimeline } from '../use.Timeline.ts';
 import { A } from './ui.A.tsx';
 
@@ -150,10 +150,6 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
       return <A href={url} children={label} target={'_blank'} />;
     };
 
-    const url = row.url ?? '';
-    // const linkLabel = `media${Path.extname(url)}`.replace(/\./, '/');
-    const linkLabel = mediaLabelFromUrl(row.url);
-
     return (
       <div
         key={row.index}
@@ -168,7 +164,7 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
         <div className={styles.cell.text.class}>{row.vTime}</div>
         <div className={styles.cell.text.class}>{row.pause}</div>
         <div className={rowStyles.media.class} title={row.url}>
-          {row.url && linkNewTab(row.url, linkLabel)}
+          {row.url && linkNewTab(row.url, mediaLabelFromUrl(row.url))}
           {!row.url && '-'}
         </div>
         <div className={rowStyles.media.class} title={row.logicalPath}>
