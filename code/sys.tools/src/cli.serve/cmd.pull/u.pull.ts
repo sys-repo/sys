@@ -1,5 +1,6 @@
 import { type t, c, Cli, Err, Http, Str, Url } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
+import { createMonotonicProgress } from './u.monotonicProgress.ts';
 import { rewriteTags } from './u.pull.rewriteTags.ts';
 
 type Progress = { index: t.Index; total: number };
@@ -9,11 +10,20 @@ const Fmt = {
   bundleSize(dist: t.DistPkg) {
     return Str.bytes(dist.build.size.total);
   },
+
   pullingSpinnerText(opts: { dist?: t.DistPkg; progress?: Progress } = {}) {
     const { dist, progress } = opts;
     const a: string[] = [];
+
     if (dist) a.push(Fmt.bundleSize(dist));
-    if (progress) a.push(`${c.white(String(progress.index + 1))}/${progress.total} files`);
+
+    if (progress) {
+      const curr = progress.index + 1;
+      const done = curr >= progress.total;
+      const indexText = done ? c.green(String(curr)) : c.white(String(curr));
+      a.push(`${indexText}/${progress.total} files`);
+    }
+
     const after = a.length === 0 ? '' : `(${a.join(' · ')})`;
     return Fmt.spinnerText(`pulling remote bundle... ${after}`.trim());
   },
@@ -39,7 +49,14 @@ export async function pullRemoteBundle(
   const updateSpinnerText = (progress?: Progress) => Fmt.pullingSpinnerText({ dist, progress });
   const updateSpinner = (progress?: Progress) => (spinner.text = updateSpinnerText(progress));
   updateSpinner();
-  const onStream = (e: t.HttpPullEvent) => updateSpinner(e);
+
+  const toMonotonic = createMonotonicProgress();
+  const onStream = (e: t.HttpPullEvent) => {
+    // Stream events may regress (retries / mixed event kinds).
+    // Clamp display to a monotonic incrementing view.
+    const next = toMonotonic(e.index, e.total);
+    updateSpinner({ index: next.shownIndex as t.Index, total: next.total });
+  };
 
   // Pull folder from manifest:
   try {
