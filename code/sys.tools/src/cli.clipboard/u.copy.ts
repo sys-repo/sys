@@ -94,11 +94,11 @@ export async function pathsToFileStrings(paths: string[], repoRootAbs: string) {
   const tokenCount = sections.reduce((acc, next) => acc + next.tokens, 0);
 
   const tocHeader = [
-    `# tokens: ${tokenCount}`,
-    `# tokens.urn: ${Token.info.urn}`,
     `# files: ${sections.length}`,
     `# files.bytes: ${bytesTotal} B`,
     `# files.sha256: ${shaBundle}`,
+    `# tokens: ${tokenCount}`,
+    `# tokens.urn: ${Token.info.urn}`,
   ];
 
   const toc = [
