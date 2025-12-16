@@ -14,6 +14,7 @@ import { plural } from './u.plural.ts';
 import { replaceAll } from './u.replace.ts';
 import {
   trimEdgeNewlines,
+  trimHttpScheme,
   trimLeadingSlashes,
   trimSlashes,
   trimTrailingSlashes,
@@ -40,6 +41,7 @@ export const Str: t.StrLib = {
   trimSlashes,
   trimLeadingSlashes,
   trimTrailingSlashes,
+  trimHttpScheme,
   count,
   builder,
 };

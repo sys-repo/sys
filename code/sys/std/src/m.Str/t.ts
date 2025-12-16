@@ -124,6 +124,20 @@ export type StrLib = {
    */
   trimSlashes(str?: string): string;
 
+  /**
+   * Remove an `http://` or `https://` scheme prefix from a string.
+   *
+   *  - Purely lexical (not URL-semantic)
+   *  - Safe for undefined / empty input
+   *  - Only removes the HTTP(S) scheme prefix (no other schemes)
+   *
+   * @example
+   * Str.trimHttpScheme("https://example.com") // → "example.com"
+   * Str.trimHttpScheme("http://localhost:4040") // → "localhost:4040"
+   * Str.trimHttpScheme("example.com") // → "example.com"
+   */
+  trimHttpScheme(str?: string): string;
+
   /** Count non-overlapping occurrences of a substring. */
   count(text: string, sub: string): number;
 

@@ -17,7 +17,7 @@ export const trimEdgeNewlines: t.StrLib['trimEdgeNewlines'] = (str = '') => {
  * Remove all leading and trailing forward slashes (`/`) from a string.
  */
 export const trimSlashes: t.StrLib['trimSlashes'] = (str = '') => {
-  return str.replace(/^\/+/, '').replace(/\/+$/, '');
+  return trimTrailingSlashes(trimLeadingSlashes(str));
 };
 
 /**
@@ -32,4 +32,19 @@ export const trimLeadingSlashes: t.StrLib['trimLeadingSlashes'] = (str = '') => 
  */
 export const trimTrailingSlashes: t.StrLib['trimTrailingSlashes'] = (str = '') => {
   return str.replace(/\/+$/, '');
+};
+
+/**
+ * Remove a leading HTTP or HTTPS scheme (`http://` or `https://`) from a string.
+ *
+ *  - Purely lexical (no URL parsing)
+ *  - Removes the scheme only once
+ *  - Safe for undefined / empty input
+ *
+ * @example
+ * Str.trimHttpScheme("https://example.com") // → "example.com"
+ * Str.trimHttpScheme("http://example.com")  // → "example.com"
+ */
+export const trimHttpScheme: t.StrLib['trimHttpScheme'] = (str = '') => {
+  return str.replace(/^https?:\/\//, '');
 };

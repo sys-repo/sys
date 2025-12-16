@@ -545,6 +545,8 @@ describe('Str (String)', () => {
     });
   });
 
+  describe('Str.trimHttpScheme', () => {});
+
   describe('Str.trimLeadingSlashes', () => {
     it('removes a single leading slash', () => {
       expect(Str.trimLeadingSlashes('/foo')).to.equal('foo');
@@ -576,6 +578,32 @@ describe('Str (String)', () => {
 
     it('handles multiple slashes only', () => {
       expect(Str.trimLeadingSlashes('////')).to.equal('');
+    });
+  });
+
+  describe('Str.trimHttpScheme', () => {
+    it('removes http://', () => {
+      expect(Str.trimHttpScheme('http://example.com')).to.equal('example.com');
+    });
+
+    it('removes https://', () => {
+      expect(Str.trimHttpScheme('https://example.com')).to.equal('example.com');
+    });
+
+    it('removes scheme only once', () => {
+      expect(Str.trimHttpScheme('https://http://example.com')).to.equal('http://example.com');
+    });
+
+    it('leaves strings without http scheme unchanged', () => {
+      expect(Str.trimHttpScheme('example.com')).to.equal('example.com');
+    });
+
+    it('handles empty string', () => {
+      expect(Str.trimHttpScheme('')).to.equal('');
+    });
+
+    it('handles undefined safely', () => {
+      expect(Str.trimHttpScheme(undefined)).to.equal('');
     });
   });
 
