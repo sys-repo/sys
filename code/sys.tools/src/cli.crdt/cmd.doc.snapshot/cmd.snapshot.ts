@@ -7,7 +7,7 @@ import { walk } from './u.walk.ts';
 
 const Tree = Cli.Fmt.Tree;
 
-export async function snapshotCommand(cwd: t.StringDir, id: t.Crdt.Id) {
+export async function snapshotCommand(cwd: t.StringDir, docid: t.Crdt.Id) {
   const port = D.port.repo;
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
@@ -15,7 +15,7 @@ export async function snapshotCommand(cwd: t.StringDir, id: t.Crdt.Id) {
   /**
    * Normalise the incoming id (may be "crdt:<id>" or bare).
    */
-  const root = Crdt.Id.clean(id) ?? (id as t.Crdt.Id);
+  const root = Crdt.Id.clean(docid) ?? (docid as t.Crdt.Id);
 
   /**
    * Process snapshot/backup request.

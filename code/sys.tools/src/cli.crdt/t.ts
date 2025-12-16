@@ -30,6 +30,7 @@ export namespace CrdtTool {
     | 'doc:graph:dag'
     | 'doc:graph:lint'
     | 'doc:graph:tasks'
+    | 'doc:fs:index:dir'
     | 'doc:viewer:yaml'
     | 'doc:config:print'
     | 'doc:tmpl:hookfile'

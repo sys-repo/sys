@@ -1,8 +1,7 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, Prompt, type t, Time } from './common.ts';
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
-import { promptAddDocument, promptRemoveDocument } from './u.prompt.ts';
-import { RepoProcess } from './cmd.repo.daemon/mod.ts';
+import { promptRemoveDocument } from './u.prompt.ts';
 
 type C = t.CrdtTool.Command;
 
@@ -11,6 +10,8 @@ const Imports = {
   docGraph: () => import('./cmd.doc.graph/mod.ts'),
   docGraphLint: () => import('./cmd.doc.graph.lint/mod.ts'),
   docGraphTasks: () => import('./cmds/cmd.doc.graph.tasks.ts'),
+  indexDocument: () => import('./cmd.doc.index/mod.ts'),
+  addOrCreateDocument: () => import('./cmds/cmd.doc.add.ts'),
   docYamlViewer: () => import('./cmds/cmd.doc.viewer.yaml.ts'),
   daemon: () => import('./cmd.repo.daemon/mod.ts'),
   syncServer: () => import('./cmds/cmd.doc.syncserver.ts'),
@@ -94,17 +95,17 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       hideDefault: true,
     })) as C;
 
-    let id = Crdt.Is.uri(A) ? Crdt.Id.fromUri(A) || '' : '';
-    if (id) await Update.docLastUsedAt(id);
+    let docid = Crdt.Is.uri(A) ? Crdt.Id.fromUri(A) || '' : '';
+    if (docid) await Update.docLastUsedAt(docid);
 
     if (A === 'doc:add') {
-      const m = await import('./cmds/cmd.doc.add.ts');
+      const m = await Imports.addOrCreateDocument();
       const res = await m.addOrCreateDocument(cwd);
       if (!res) return done();
       if (res.created) console.info(c.gray(`created document: ${c.white(Fmt.prettyUri(res.id))}`));
-      id = res.id;
-      if (id) await Update.docLastUsedAt(id);
-      A = Crdt.Id.toUri(id) as C;
+      docid = res.id;
+      if (docid) await Update.docLastUsedAt(docid);
+      A = Crdt.Id.toUri(docid) as C;
     }
 
     if (A === 'exit') return done(0);
@@ -117,15 +118,17 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       const hookTmpl = await makeHookTmpl(cwd);
 
       if (A.startsWith('crdt:')) {
+        const lintModule = c.dim(`[ ${c.cyan(`:module:program:${c.yellow('slugs')}`)} ]`);
         const options = [
-          opt('  Lint', 'doc:graph:lint'),
-          opt('  Backup (Snapshot)', 'snapshot'),
-          opt('  Document Graph → DAG (hook)', 'doc:graph:dag'),
-          opt('  Document Graph → Walk → Stats', 'doc:graph:walk'),
-          opt('  Tasks', 'doc:graph:tasks'),
-          opt('  View Yaml', 'doc:viewer:yaml'),
-          opt('  View Config', 'doc:config:print'),
-          opt(`  🐷 ${c.yellow('chat with slug')}`, 'tmp:🐷'),
+          opt(`  doc:index:fs:dir`, 'doc:fs:index:dir'),
+          opt(`  lint ${lintModule}`, `doc:graph:lint`),
+          opt(`  doc:graph:backup (snapshot)`, `snapshot`),
+          opt(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
+          opt(`  doc:graph: walk → stats`, `doc:graph:walk`),
+          opt(`  doc:graph: tasks`, `doc:graph:tasks`),
+          opt(`  view: <yaml>`, `doc:viewer:yaml`),
+          opt(`  view: ${c.gray(D.Config.filename)}`, `doc:config:print`),
+          opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
         ];
 
         if (!hookTmpl.exists) {
@@ -135,14 +138,14 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         options.push(...[opt(c.gray(c.dim(' (forget)')), 'doc:remove')]);
 
         const B = (await Prompt.Select.prompt<t.CrdtTool.Command>({
-          message: `with ${c.gray(`crdt:${id.slice(0, -5)}${c.green(id.slice(-5))}`)}:`,
+          message: `with ${c.gray(`crdt:${docid.slice(0, -5)}${c.green(docid.slice(-5))}`)}:`,
           options,
           hideDefault: true,
         })) as t.CrdtTool.Command;
 
         if (B === 'snapshot') {
           const m = await Imports.snapshot();
-          await m.snapshotCommand(cwd, id);
+          await m.snapshotCommand(cwd, docid);
           return done(0);
         }
 
@@ -155,36 +158,45 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           const m = await Imports.docGraph();
 
           if (B === 'doc:graph:walk') {
-            await m.walkDocumentGraphCommand(cwd, id, yamlPath);
+            await m.walkDocumentGraphCommand(cwd, docid, yamlPath);
             return done(0);
           }
 
           if (B === 'doc:graph:dag') {
-            await m.dagHookCommand(cwd, id, yamlPath);
+            await m.dagHookCommand(cwd, docid, yamlPath);
             return done(0);
           }
         }
 
         if (B === 'doc:viewer:yaml') {
           const m = await Imports.docYamlViewer();
-          await m.startYamlViewerCommand(cwd, id, yamlPath);
+          await m.startYamlViewerCommand(cwd, docid, yamlPath);
           return done(0);
         }
 
         if (B === 'doc:graph:lint') {
           const m = await Imports.docGraphLint();
-          await m.lintDocumentGraphCommand(cwd, id, yamlPath);
+          await m.lintDocumentGraphCommand(cwd, docid, yamlPath);
           return done(0);
         }
 
         if (B === 'doc:graph:tasks') {
           const m = await Imports.docGraphTasks();
-          await m.documentGraphTasksCommand(cwd, id, yamlPath);
+          await m.documentGraphTasksCommand(cwd, docid, yamlPath);
+          return done(0);
+        }
+
+        if (B === 'doc:fs:index:dir') {
+          const m = await Imports.indexDocument();
+          const res = await m.indexDir(cwd, docid);
+
+          console.log('res', res);
+
           return done(0);
         }
 
         if (B === 'doc:config:print') {
-          console.info(Fmt.printDocConfig(config.current, id));
+          console.info(Fmt.printDocConfig(config.current, docid));
           return done(0);
         }
 
@@ -194,14 +206,14 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         }
 
         if (B === 'doc:remove') {
-          await promptRemoveDocument(cwd, id);
+          await promptRemoveDocument(cwd, docid);
           return done(0);
         }
 
         if (B === 'tmp:🐷') {
           const m = await Imports.tmp();
 
-          await m.tmp(cwd, id, yamlPath);
+          await m.tmp(cwd, docid, yamlPath);
           return done(0);
         }
 
