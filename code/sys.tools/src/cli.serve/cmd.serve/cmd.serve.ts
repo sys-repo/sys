@@ -53,7 +53,10 @@ export async function startServing(
       return `${baseUrl}/${path}` as t.StringUrl;
     };
 
-    const redraw = (lastSelection?: string) => {
+    /** Render loop */
+    let lastSelection: string | undefined;
+
+    function renderHeader() {
       const str = Str.builder()
         .blank()
         .line(`  Listening on ${c.cyan(`${baseUrl}/`)}`);
@@ -62,32 +65,31 @@ export async function startServing(
         const url = `  ${baseUrl}/${dir}`;
         str.line(`             ${c.dim(c.gray(url))}`);
       }
-      console.clear();
-      console.info(String(str.blank()));
-    };
-
-    let lastSelection: string | undefined;
+      return String(str.blank());
+    }
 
     return async (): Promise<void> => {
-      const baseMenu = await ServeMenu.bundlesMenuOptions(cwd, location);
-      const options = [...baseMenu, { name: c.dim(`(exit)`), value: EXIT }];
+      const baseMenu = await ServeMenu.bundlesMenuOptions(cwd, location, { includeRoot: true });
+
+      async function promptOnce() {
+        const options = [...baseMenu, { name: c.dim(c.gray(`(exit)`)), value: EXIT }];
+        console.clear();
+        console.info(renderHeader());
+
+        return await Cli.Input.Select.prompt({
+          message: 'Open',
+          options,
+          default: lastSelection,
+          hideDefault: true,
+        });
+      }
 
       try {
         while (true) {
-          redraw(lastSelection);
-
-          const answer = await Cli.Prompt.Select.prompt({
-            message: 'Open',
-            options,
-            default: lastSelection,
-            hideDefault: true,
-          });
-
+          const answer = await promptOnce();
           if (answer === EXIT) break;
           lastSelection = answer;
-
-          const url = toUrl(answer);
-          Open.invokeDetached(cwd, url);
+          Open.invokeDetached(cwd, toUrl(answer));
         }
       } finally {
         ac.abort();

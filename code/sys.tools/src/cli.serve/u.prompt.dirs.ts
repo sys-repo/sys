@@ -1,21 +1,25 @@
-import { type t, c, promptDirsMenu } from './common.ts';
-import { Fmt } from './u.fmt.ts';
+import { type t, promptDirsMenu } from './common.ts';
 
 type C = t.ServeTool.Command;
 
+/**
+ * Serve tool directory menu.
+ *
+ * Returns either a command (`dir:add` / `exit`) or a selected directory.
+ */
 export async function promptServeDirsMenu(args: {
-  readonly dirs: readonly { name: string; dir: t.StringDir }[];
-  readonly onSelectDir?: (dir: t.StringDir) => Promise<void>;
-}): Promise<C> {
+  dirs: t.Ary<{ name: string; dir: t.StringDir }>;
+  onSelectDir?: (dir: t.StringDir) => Promise<void>;
+}): Promise<C | t.StringDir> {
+  const { onSelectDir } = args;
   return await promptDirsMenu<C>({
+    // Note: rely on promptDirsMenu's canonical styling (no per-item decoration here).
     message: 'Tools:\n',
     prefix: 'serve:',
     dirs: args.dirs,
-    cmdAdd: 'modify:add',
+    cmdAdd: 'dir:add',
     cmdExit: 'exit',
     addLabel: '   add: <local>',
-    branch: ({ index, total }) => Fmt.Tree.branch([index, total]),
-    paintName: (s) => c.green(s),
-    onSelectDir: args.onSelectDir,
+    onSelectDir,
   });
 }

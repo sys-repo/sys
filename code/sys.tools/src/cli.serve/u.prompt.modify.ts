@@ -1,44 +1,63 @@
 import { Mime } from './cmd.serve/mod.ts';
-import { type t, c, Fs, Prompt, Time } from './common.ts';
+import { type t, Cli, Fs, Time } from './common.ts';
 import { Config } from './u.config.ts';
 
 /**
  * Add a document to the config.
  */
-export async function promptAddServeLocation(cwd: t.StringDir) {
+export async function promptAddServeLocation(
+  cwd: t.StringDir,
+  args: { readonly selectMimeTypes?: boolean } = {},
+) {
   const config = await Config.get(cwd);
+  const selectMimeTypes = args.selectMimeTypes ?? false;
 
-  let path = await Prompt.Input.prompt({
-    message: 'Directory (or Enter to use current)',
+  const resolveAbs = (raw: string): t.StringDir => {
+    const v = raw.trim();
+    if (!v) return cwd;
+    if (v.startsWith('/')) return v as t.StringDir;
+    const rel = v.replace(/^\.\/+/, '');
+    return Fs.join(cwd, rel) as t.StringDir;
+  };
+
+  const path = await Cli.Input.Text.prompt({
+    message: 'Directory',
+    hint: 'Enter to use current',
     async validate(value) {
-      const path = value.trim() || cwd;
-      const stats = await Fs.stat(path);
+      const abs = resolveAbs(value);
+      const stats = await Fs.stat(abs);
       const current = `${!value ? '(current)' : ''}`;
       if (!stats) return `Path does not exist ${current}`;
       if (!stats?.isDirectory) return 'Path is not a directory';
 
-      const alreadyExists = (config.current.dirs ?? []).find((item) => item.dir === path);
+      // Prevent duplicates by absolute identity (handles rel vs abs).
+      const alreadyExists = (config.current.dirs ?? []).find((item) => {
+        const existingAbs = Config.resolveDir(cwd, item.dir);
+        return existingAbs === abs;
+      });
       if (alreadyExists) return `Path already added ${current}`;
 
       return true;
     },
   });
-  path = path.trim() || cwd;
 
-  const selectedGroups = await Prompt.Checkbox.prompt({
-    message: '\nAllowed MIME-types',
-    options: [
-      { name: 'images (png, jpeg, webp, svg)', value: 'images', checked: true },
-      { name: 'videos (webm, mp4)', value: 'videos', checked: true },
-      { name: 'documents (pdf, json, yaml)', value: 'documents', checked: true },
-      { name: 'code (js, wasm)', value: 'code', checked: true },
-      { name: 'text (txt, html)', value: 'text', checked: true },
-    ],
-    check: c.green('●'),
-    uncheck: c.gray('○'),
-  });
+  const absPath = resolveAbs(path);
+  const storedPath = Config.toStoredDir(cwd, absPath);
 
-  let name = await Prompt.Input.prompt({
+  const selectedGroups: readonly t.ServeTool.MimeGroup[] = selectMimeTypes
+    ? ((await Cli.Input.Checkbox.prompt({
+        message: '\nAllowed MIME-types',
+        options: [
+          { name: 'images (png, jpeg, webp, svg)', value: 'images', checked: true },
+          { name: 'videos (webm, mp4)', value: 'videos', checked: true },
+          { name: 'documents (pdf, json, yaml)', value: 'documents', checked: true },
+          { name: 'code (js, wasm)', value: 'code', checked: true },
+          { name: 'text (txt, html)', value: 'text', checked: true },
+        ],
+      })) as readonly t.ServeTool.MimeGroup[])
+    : (Object.keys(Mime.groups) as readonly t.ServeTool.MimeGroup[]);
+
+  const name = await Cli.Input.Text.prompt({
     message: 'Display name',
     async validate(value) {
       if (!value.trim()) return 'Must have a display name';
@@ -47,13 +66,10 @@ export async function promptAddServeLocation(cwd: t.StringDir) {
   });
 
   function update(location: Partial<t.ServeTool.DirConfig>): t.ServeTool.DirConfig {
-    location.dir = path;
-    const types: t.ServeTool.MimeType[] = [];
-    const groups = selectedGroups as readonly t.ServeTool.MimeGroup[];
+    location.dir = storedPath;
 
-    for (const group of groups) {
-      types.push(...Mime.groups[group]);
-    }
+    const types: t.ServeTool.MimeType[] = [];
+    for (const group of selectedGroups) types.push(...Mime.groups[group]);
 
     location.contentTypes = types;
     location.name = name;
@@ -62,7 +78,7 @@ export async function promptAddServeLocation(cwd: t.StringDir) {
 
   config.change((d) => {
     const now = Time.now.timestamp;
-    const { locations, index } = Config.Mutate.getLocation(d, path);
+    const { locations, index } = Config.Mutate.getLocation(d, cwd, storedPath);
     if (index > -1) {
       locations[index].modifiedAt = now;
       update(locations[index]);
@@ -81,7 +97,10 @@ export async function promptAddServeLocation(cwd: t.StringDir) {
  */
 export async function promptRemoveDocument(dir: t.StringDir, location: t.ServeTool.DirConfig) {
   const config = await Config.get(dir);
-  const ok = await Prompt.Confirm.prompt('Are you sure? Remove this directory from your config?');
+  const ok = await Cli.Input.Confirm.prompt({
+    message: 'Remove from your config?',
+    hint: 'Are you sure?',
+  });
   if (!ok) return;
 
   config.change((d) => {

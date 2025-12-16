@@ -10,7 +10,7 @@ export async function promptDirsMenu<C extends string>(args: {
   cmdAdd: C; //            ← e.g. 'dir:add'
   cmdExit: C; //           ← e.g. 'exit'
   addLabel: string; //     ← e.g. 'add: <local>'
-  dirs: { name: string; dir: t.StringDir }[];
+  dirs: readonly { name: string; dir: t.StringDir }[];
   branch?: (e: { readonly index: number; readonly total: number }) => string;
   paintName?: (name: string) => string;
   onSelectDir?: (dir: t.StringDir) => Promise<void>;
@@ -25,10 +25,7 @@ export async function promptDirsMenu<C extends string>(args: {
     const bNorm = String(b).trim();
     const label = ` ${prefix} ${tree} ${bNorm ? `${bNorm} ` : ''}${c.green(nameText)}`.trimEnd();
 
-    return {
-      name: label,
-      value: item.dir,
-    };
+    return { name: label, value: item.dir };
   });
 
   const options = [
