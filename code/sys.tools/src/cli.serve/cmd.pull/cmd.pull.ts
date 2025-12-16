@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, opt, Url } from '../common.ts';
+import { type t, c, Cli, Fs, opt, Str, Url } from '../common.ts';
 import { Config } from '../u.config.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { pullRemoteBundle } from './u.pull.ts';
@@ -7,12 +7,10 @@ import { toDistUrl, validateDistUrl } from './u.ts';
 type C = t.ServeTool.Command;
 type R = { bundle?: t.ServeTool.DirRemoteBundle };
 
-const stripHttp = (value: string): string => value.replace(/^https?:\/\//, '');
-
 const Fmt = {
   ...BaseFmt,
   distUrl(url: t.StringUrl) {
-    url = stripHttp(url);
+    url = Str.trimHttpScheme(url);
     const i = url.lastIndexOf('/');
     return url.slice(0, i) + c.dim(url.slice(i));
   },
@@ -20,7 +18,10 @@ const Fmt = {
 
 export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.DirConfig): Promise<R> {
   const config = await Config.get(cwd);
-  // const opt = (name: string, value: C) => ({ name, value });
+
+  // Stored key (portable) vs absolute dir (runtime):
+  const locationKey = location.dir;
+  const locationAbsDir = Config.resolveDir(cwd, location.dir);
 
   const done = (bundle?: t.ServeTool.DirRemoteBundle) => ({ bundle });
 
@@ -32,7 +33,7 @@ export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.DirConf
     return { name, value };
   });
 
-  const A = (await Cli.Prompt.Select.prompt<C>({
+  const A = (await Cli.Input.Select.prompt<C>({
     message: 'Action:',
     options: [
       //
@@ -44,7 +45,7 @@ export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.DirConf
   if (A === 'exit') return done();
 
   if (A === 'bundle:add-remote') {
-    const B = await Cli.Prompt.Input.prompt({
+    const B = await Cli.Input.Text.prompt({
       message: `Remote ${c.italic('dist.json')} url`,
       async validate(input) {
         const spinner = Cli.spinner(Fmt.spinnerText('validating url...'));
@@ -57,20 +58,44 @@ export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.DirConf
     const distUrl = Url.toCanonical(toDistUrl(B));
     if (!distUrl.ok) throw new Error(`Should be a valid URL.`); // NB: sanity check - should be a valid URL.
 
-    const localDir = await Cli.Prompt.Input.prompt({
+    const localDir = await Cli.Input.Text.prompt({
       message: 'Local subdirectory',
       async validate(input) {
         const spinner = Cli.spinner(Fmt.spinnerText('validating path...'));
-        const res = await validateSubdir(input, location);
+        const res = await validateSubdir(input, { ...location, dir: locationAbsDir });
         spinner.stop();
         return res;
       },
     });
 
-    // Write to the config file.
+    // Write to the config file (create missing nodes if needed).
     config.change((d) => {
-      const { bundle } = Config.Mutate.getRemoteBundle(d, location.dir, distUrl.href, localDir);
-      if (!bundle) throw new Error(`Expected a bundle entry. ${distUrl.href}`);
+      d.dirs = d.dirs ?? [];
+
+      let loc = Config.findLocation(d, locationKey);
+      if (!loc) {
+        // Create a minimal location entry (should be rare, but keeps the flow robust).
+        loc = {
+          createdAt: Date.now(),
+          dir: locationKey,
+          name: location.name,
+          contentTypes: [...location.contentTypes],
+          remoteBundles: [],
+        };
+        d.dirs.push(loc);
+      }
+
+      loc.remoteBundles = loc.remoteBundles ?? [];
+
+      let bundle = loc.remoteBundles.find(
+        (m) => m.remote.dist === distUrl.href && m.local.dir === localDir,
+      );
+
+      if (!bundle) {
+        bundle = { remote: { dist: distUrl.href }, local: { dir: localDir } };
+        loc.remoteBundles.push(bundle);
+      }
+
       bundle.remote.dist = distUrl.href;
       bundle.local.dir = localDir;
     });
@@ -78,16 +103,16 @@ export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.DirConf
     if (config.fs.pending) await config.fs.save();
 
     // Re-load menu, with fresh copy of the adjusted config.
-    return pullBundle(cwd, Config.findLocation(config.current, location.dir)!);
+    return pullBundle(cwd, Config.findLocation(config.current, locationKey) ?? location);
   }
 
   if (A.startsWith(PULL_PREFIX)) {
     const index = Number(A.slice(PULL_PREFIX.length));
-    const loc = Config.findLocation(config.current, location.dir) ?? location;
+    const loc = Config.findLocation(config.current, locationKey) ?? location;
     const bundles = loc.remoteBundles ?? [];
     const bundle = bundles[index];
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
-    await pullRemoteBundle(location.dir, bundle);
+    await pullRemoteBundle(locationAbsDir, bundle);
     return done(bundle);
   }
 
@@ -119,3 +144,4 @@ export async function validateSubdir(input: string, location: t.ServeTool.DirCon
 
   return true;
 }
+// 🌸 ---------- /FIXED ----------

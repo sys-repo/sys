@@ -20,8 +20,8 @@ export namespace ServeTool {
 
   /** Command names */
   export type Command =
-    | 'modify:add'
-    | 'modify:remove'
+    | 'dir:add'
+    | 'dir:remove'
     | 'serve:start'
     | 'bundle'
     | 'bundle:add-remote'

@@ -1,7 +1,13 @@
 import { type t, Config as Base } from './common.ts';
 import { getConfig as get } from './u.config.get.ts';
 import { MutateConfig as Mutate } from './u.config.mutate.ts';
-import { normalize } from './u.config.normalize.ts';
+import {
+  normalize,
+  resolveDir,
+  toStoredDir,
+  absKey,
+  normalizeLocalDir,
+} from './u.config.normalize.ts';
 
 export * from './u.config.get.ts';
 export { normalize };
@@ -16,18 +22,22 @@ export const Config = {
   normalize,
   get,
 
+  resolveDir,
+  toStoredDir,
+  absKey,
+  normalizeLocalDir,
+
   /**
-   * Lookup a remote bundle mounted under a given serve-location.
+   * Lookup a serve-location by its stored key.
+   * Callers should pass the stored `dir` value ('.' or relative when inside cwd).
    */
   findLocation(config: t.ServeTool.ConfigDoc, dir: t.StringDir) {
     return (config.dirs ?? []).find((m) => m.dir === dir);
   },
 
   /**
-   * Find a bundle within a location.
-   * Identity can be:
-   *   - legacy: by distUrl only (if localDir is omitted)
-   *   - new:    by (distUrl + localDir) when both provided
+   * Find a bundle within a location by local.dir identity.
+   * Requires the stored location key.
    */
   findBundle(
     config: t.ServeTool.ConfigDoc,
@@ -37,7 +47,7 @@ export const Config = {
     if (!localDir) return;
     const loc = Config.findLocation(config, locationDir);
     const bundles = loc?.remoteBundles ?? [];
-    localDir = localDir.replace(/^\/+/, '');
-    return bundles.find((m) => m.local.dir === localDir);
+    const local = normalizeLocalDir(localDir);
+    return bundles.find((m) => normalizeLocalDir(m.local.dir) === local);
   },
 } as const;

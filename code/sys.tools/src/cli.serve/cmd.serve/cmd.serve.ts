@@ -4,6 +4,7 @@ import { Open } from './u.open.ts';
 import { ServeMenu } from './u.prompt.ts';
 import { route } from './u.serve.route.ts';
 
+type C = t.ServeTool.Command;
 type Opts = { port?: number };
 
 /**
@@ -44,44 +45,46 @@ export async function startServing(
    */
   const runOpenPromptLoop = (() => {
     const baseUrl = `http://localhost:${port}`;
-    const EXIT = '__exit__';
-    const prefix = 'bundle:open/';
 
-    const toUrl = (value: string): t.StringUrl => {
-      const subpath = value.startsWith(prefix) ? value.slice(prefix.length) : value;
-      const path = subpath.replace(/^\/+/, '');
-      return `${baseUrl}/${path}` as t.StringUrl;
+    const CMD_OPEN = 'bundle:open' satisfies C;
+    const PREFIX = `${CMD_OPEN}/`;
+    const EXIT = 'exit' satisfies C;
+    let lastSelection: C | undefined;
+
+    const toUrl = (value: C): t.StringUrl => {
+      const raw = String(value);
+      const subpath = raw.startsWith(PREFIX) ? raw.slice(PREFIX.length) : raw;
+      const path = Str.trimLeadingSlashes(subpath);
+      return `${baseUrl}/${path}`;
     };
-
-    /** Render loop */
-    let lastSelection: string | undefined;
 
     function renderHeader() {
       const str = Str.builder()
         .blank()
         .line(`  Listening on ${c.cyan(`${baseUrl}/`)}`);
+
       if (lastSelection) {
-        const dir = lastSelection.split('/').pop()!;
+        const dir = String(lastSelection).split('/').pop()!;
         const url = `  ${baseUrl}/${dir}`;
         str.line(`             ${c.dim(c.gray(url))}`);
       }
+
       return String(str.blank());
     }
 
     return async (): Promise<void> => {
       const baseMenu = await ServeMenu.bundlesMenuOptions(cwd, location, { includeRoot: true });
 
-      async function promptOnce() {
+      async function promptOnce(): Promise<C> {
         const options = [...baseMenu, { name: c.dim(c.gray(`(exit)`)), value: EXIT }];
         console.clear();
         console.info(renderHeader());
-
-        return await Cli.Input.Select.prompt({
+        return (await Cli.Input.Select.prompt({
           message: 'Open',
           options,
           default: lastSelection,
           hideDefault: true,
-        });
+        })) as C;
       }
 
       try {

@@ -1,29 +1,33 @@
-import { type t, Args, c, Cli, D, done, Fs, Is, opt, Prompt, Time } from './common.ts';
-
 import { startServing } from './cmd.serve/mod.ts';
-import { Config, normalize } from './u.config.ts';
+
+import { type t, Args, c, Cli, D, done, Fs, indexedMenu, Is, opt, Time } from './common.ts';
+import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddServeLocation, promptRemoveDocument } from './u.prompt.ts';
-import { promptServeDirsMenu } from './u.prompt.dirs.ts';
 
 type C = t.ServeTool.Command;
 
+const Imports = {
+  pull: () => import('./cmd.pull/mod.ts'),
+} as const;
+
 /**
- * Main entry:
+ * Main entry
  */
 export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
-  const args = Args.parse<t.ServeTool.CliArgs>(argv, { alias: { h: 'help' } });
-  if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
-  /**
-   * Check pre-reqs:
-   */
+  const args = Args.parse<t.ServeTool.CliArgs>(argv, { alias: { h: 'help' } });
+  if (args.help) {
+    console.info(await Fmt.help(toolname, cwd));
+    return;
+  }
+
   const configpath = Fs.join(cwd, D.Config.filename);
   if (!(await Fs.exists(configpath))) {
     console.info(Fmt.Prereqs.folderNotConfigured(cwd, toolname));
-    const yes = await Cli.Prompt.Confirm.prompt({ message: `Create config file now?` });
+    const yes = await Cli.Input.Confirm.prompt({ message: `Create config file now?` });
     if (!yes) Deno.exit(0);
   }
 
@@ -36,81 +40,88 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
 };
 
 /**
- * Execution:
+ * Execution
  */
 async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunReturn> {
   const port = Is.num(args.port) ? args.port : D.port;
   const config = await Config.get(cwd);
-  await normalize(config);
 
-  const Update = {
-    async locationLastUsedAt(locationDir: t.StringDir) {
-      config.change((d) => {
-        const dir = Config.findLocation(d, locationDir);
-        if (dir) dir.lastUsedAt = Time.now.timestamp;
-      });
-      await config.fs.save();
+  const picked = await indexedMenu({
+    scope: 'serve',
+    config,
+
+    adapter: {
+      list: (doc) => doc.dirs ?? [],
+      set: (doc, _scope, next) => (doc.dirs = [...next]),
+      keyOf: (e) => e.dir,
+      lastUsedAtOf: (e) => e.lastUsedAt,
+      withLastUsedAt: (e, ts) => ({ ...e, lastUsedAt: ts }),
+      labelOf(e) {
+        const shown = e.dir.startsWith('/') ? e.dir : e.dir === '.' ? './' : `./${e.dir}`;
+        return `${e.name}  ${c.gray(shown)}`;
+      },
+      async add() {
+        await promptAddServeLocation(cwd);
+      },
     },
-    async bundleLastUsed(locationDir: t.StringDir, localDir?: t.StringRelativeDir) {
-      config.change((d) => {
-        const bundle = Config.findBundle(d, locationDir, localDir);
-        if (bundle) bundle.lastUsedAt = Time.now.timestamp;
-      });
-      await config.fs.save();
+
+    ui: {
+      message: 'Tools:\n',
+      prefix: 'serve:',
+      addLabel: '   add: <dir>',
     },
-  } as const;
+  });
 
-  const dirs = Config.orderByRecency(config.current.dirs).map(({ name, dir }) => ({ name, dir }));
-  const A = await promptServeDirsMenu({ dirs, onSelectDir: Update.locationLastUsedAt });
-  if (A === 'exit') return done();
+  if (picked.kind === 'exit') return done();
 
-  if (A === 'modify:add') {
-    await promptAddServeLocation(cwd);
+  const location = Config.findLocation(config.current, picked.key);
+  if (!location) {
+    console.info(c.yellow(`Could not find a server configuration`));
+    console.info(c.gray(`directory: ${picked.key}`));
     return done();
   }
 
-  /** --------------------------------------------------------
-   * Serve location (folder):
-   */
-  {
-    const location = Config.findLocation(config.current, A)!;
-    if (!location) {
-      console.info();
-      console.info(c.yellow(`Could not find a server configuration`));
-      console.info(c.gray(`directory: ${A}`));
-      console.info();
-      return done();
+  const locationKey = location.dir; // stored (portable) key
+  const locationAbsDir = Config.resolveDir(cwd, location.dir);
+  const runtimeLocation: t.ServeTool.DirConfig = { ...location, dir: locationAbsDir };
+
+  if (Fs.cwd() !== locationAbsDir) {
+    console.info(c.gray(`directory: ${locationAbsDir}`));
+  }
+
+  const fmtLocalhost = c.gray(`(${c.cyan(`port:${port}`)})`);
+
+  const action = (await Cli.Input.Select.prompt<C>({
+    message: `With: ${c.gray(location.name)}`,
+    options: [
+      opt(` start server ${fmtLocalhost}`, 'serve:start'),
+      opt(' manage bundles', 'bundle'),
+      opt(' remove', 'dir:remove'),
+    ],
+  })) as C;
+
+  if (action === 'dir:remove') {
+    await promptRemoveDocument(cwd, location);
+    return done(0);
+  }
+
+  if (action === 'serve:start') {
+    await startServing(cwd, runtimeLocation, { port });
+    return done(0);
+  }
+
+  if (action === 'bundle') {
+    const m = await Imports.pull();
+    const { bundle } = await m.pullBundle(cwd, runtimeLocation);
+    if (bundle?.local) {
+      config.change((d) => {
+        const hit = Config.findBundle(d, locationKey, bundle.local.dir);
+        if (hit) hit.lastUsedAt = Time.now.timestamp;
+      });
+      await config.fs.save();
     }
 
-    if (Fs.cwd() !== location.dir) {
-      console.info(c.gray(`directory: ${location.dir}`));
-    }
-
-    const fmtLocalhost = c.gray(`(${c.cyan(`port:${port}`)})`);
-    const B = (await Prompt.Select.prompt<C>({
-      message: `With: ${c.gray(location.name)}`,
-      options: [
-        opt(` start server ${fmtLocalhost}`, 'serve:start'),
-        opt(' manage bundles', 'bundle'),
-      ],
-    })) as C;
-
-    if (B === 'modify:remove') {
-      await promptRemoveDocument(cwd, location);
-      return done(0);
-    }
-
-    if (B === 'serve:start') {
-      await startServing(cwd, location, { port });
-      return done(0);
-    }
-
-    if (B === 'bundle') {
-      const m = (await import('./cmd.pull/mod.ts')) satisfies typeof import('./cmd.pull/mod.ts');
-      const { bundle } = await m.pullBundle(cwd, location);
-      if (bundle?.local) await Update.bundleLastUsed(location.dir, bundle.local.dir);
-      return done(0);
-    }
+    return done(0);
   }
 
   return done(0);

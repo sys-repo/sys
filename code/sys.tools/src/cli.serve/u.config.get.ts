@@ -1,16 +1,21 @@
 import { type t, Fs, JsonFile } from '../common.ts';
 
+type Doc = t.ServeTool.ConfigDoc;
+
 /**
  * Get or create the `-<name>.config.json` file.
+ * Always normalize the config relative to `dir` on load (portable storage).
  */
 export async function getConfig(dir: t.StringDir): Promise<t.ServeTool.Config> {
-  // Dynamic imports to prevert circular refs.
-  const { D } = (await import('./common.ts')) satisfies typeof import('./common.ts');
+  // Dynamic imports to prevent circular refs.
+  const { D } = await import('./common.ts');
+  const { normalize } = await import('./u.config.normalize.ts');
 
-  /**
-   * Get or create the config-file.
-   */
   const path = Fs.join(dir, D.Config.filename);
-  const doc = JsonFile.Singleton.get<t.ServeTool.ConfigDoc>(path, D.Config.doc, { touch: true });
+  const doc = await JsonFile.Singleton.get<Doc>(path, D.Config.doc, { touch: true });
+
+  // Normalize on load so call-sites can assume canonical storage.
+  await normalize(doc, dir);
+
   return doc;
 }
