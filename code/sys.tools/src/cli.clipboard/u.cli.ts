@@ -26,7 +26,7 @@ export const cli: t.ClipboardToolsLib['cli'] = async (cwd, argv) => {
  */
 async function run(cwd: t.StringDir) {
   const depth0 = c.dim(c.italic('← this folder only'));
-  const mode = (await Cli.Prompt.Select.prompt<C>({
+  const mode = (await Cli.Input.Select.prompt<C>({
     message: 'Select copy mode:\n',
     options: [
       {

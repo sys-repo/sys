@@ -19,7 +19,7 @@ export async function selectSourceFile(args: SelectArgs): Promise<t.StringPath |
     value: abs,
   }));
 
-  const choice = await Cli.Prompt.Select.prompt<t.StringPath>({
+  const choice = await Cli.Input.Select.prompt<t.StringPath>({
     message:
       args.command === 'webm-to-mp4'
         ? 'Choose a .webm file to convert → .mp4'
@@ -45,14 +45,12 @@ export async function selectSourceFiles(args: SelectArgs): Promise<readonly t.St
   }));
 
   const selected =
-    (await Cli.Prompt.Checkbox.prompt<t.StringPath>({
+    (await Cli.Input.Checkbox.prompt<t.StringPath>({
       message:
         args.command === 'webm-to-mp4'
           ? 'Choose .webm files to convert → .mp4'
           : 'Choose .mp4 files to convert → .webm',
       options,
-      check: c.green('●'),
-      uncheck: c.gray('○'),
     })) ?? [];
 
   return selected;

@@ -1,4 +1,4 @@
-import { type t, c, Crdt, Delete, Prompt, Time } from './common.ts';
+import { type t, c, Crdt, Delete, Cli, Time } from './common.ts';
 import { Config } from './u.config.ts';
 
 /**
@@ -10,7 +10,7 @@ export async function promptAddDocument(
 ) {
   const config = await Config.get(cwd);
 
-  let id = await Prompt.Input.prompt({
+  let id = await Cli.Input.Text.prompt({
     message: 'Document ID',
     hint: '↑ blank to create new',
     validate(value) {
@@ -23,7 +23,7 @@ export async function promptAddDocument(
   id = id.trim();
   const create = id === '';
 
-  const name = await Prompt.Input.prompt('Display name (optional)');
+  const name = await Cli.Input.Text.prompt('Display name (optional)');
   const createdAt = Time.now.timestamp;
 
   if (create) {
@@ -57,7 +57,7 @@ export async function promptAddDocument(
  */
 export async function promptRemoveDocument(dir: t.StringDir, id: t.StringId) {
   const config = await Config.get(dir);
-  const ok = await Prompt.Confirm.prompt('Are you sure?');
+  const ok = await Cli.Input.Confirm.prompt('Are you sure?');
   if (!ok) return;
 
   config.change((d) => (d.docs = (d.docs ?? []).filter((item) => item.id !== id)));

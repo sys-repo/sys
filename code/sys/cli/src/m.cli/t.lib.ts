@@ -24,7 +24,8 @@ export type CliLib = {
   readonly Keyboard: t.CliKeyboardLib;
 
   /** Index of input prompts */
-  readonly Prompt: t.CliPromptLib;
+  readonly Input: t.CliInputLib;
+  readonly Prompt: t.CliPromptLib; // ← available where direct access to prompt primitives is needed.
 
   /** Tools for working with a terminal screen. */
   readonly Screen: t.CliScreenLib;
@@ -40,9 +41,6 @@ export type CliLib = {
 
   /** Wait for the specified milliseconds. */
   wait: t.TimeLib['wait'];
-
-  /** Boolean: Yes/No confirmation. */
-  confirm: t.CliPromptLib['Confirm']['prompt'];
 
   /** Listen to keypress events. */
   keypress: t.CliKeyboardLib['keypress'];

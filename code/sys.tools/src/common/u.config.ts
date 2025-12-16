@@ -17,7 +17,7 @@ export const Config = {
 
     if (!(await Fs.exists(path))) {
       console.info(Fmt.Prereqs.folderNotConfigured(cwd, toolname));
-      const yes = await Cli.Prompt.Confirm.prompt({ message: `Create config file now?` });
+      const yes = await Cli.Input.Confirm.prompt({ message: `Create config file now?` });
       if (!yes) Deno.exit(0);
     }
 

@@ -27,7 +27,7 @@ export async function runUpdate(
   const EXIT = '__exit__';
 
   if (interactive) {
-    const answer = await Cli.Prompt.Select.prompt<string>({
+    const answer = await Cli.Input.Select.prompt<string>({
       message: 'Run',
       options: [
         { name: ` - update to ${c.green(version.latest)} now`, value: UPDATE },

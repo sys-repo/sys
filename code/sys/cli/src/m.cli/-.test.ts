@@ -2,6 +2,7 @@ import { describe, expect, it } from '../-test.ts';
 import { Args, Path } from '../common.ts';
 import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from '@sys/cli/cli';
 import { copyToClipboard } from './u.clipboard.ts';
+import { Input } from './m.Input.ts';
 
 describe('Cli', () => {
   it('API', () => {
@@ -10,9 +11,11 @@ describe('Cli', () => {
 
     expect(Cli.Fmt).to.equal(Fmt);
     expect(Cli.Keyboard).to.equal(Keyboard);
-    expect(Cli.Prompt).to.equal(Prompt);
     expect(Cli.Spinner).to.equal(Spinner);
     expect(Cli.Table).to.equal(Table);
+
+    expect(Cli.Prompt).to.equal(Prompt);
+    expect(Cli.Input).to.equal(Input);
 
     expect(Cli.args).to.equal(Args.parse);
     expect(Cli.keypress).to.equal(Keyboard.keypress);

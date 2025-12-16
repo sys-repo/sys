@@ -5,7 +5,7 @@ import { Env } from '@sys/fs/env';
 import { Slug } from '@sys/tools/staging/prog';
 import { buildDocumentDAG } from '../cmd.doc.graph/mod.ts';
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
-import { type t, c, Cli, Crdt, D, Is, Prompt, Schedule, Str } from '../common.ts';
+import { type t, c, Cli, Crdt, D, Is, Schedule, Str } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 
 type O = Record<string, unknown>;
@@ -64,7 +64,7 @@ export async function tmp(cwd: t.StringDir, docid: t.Crdt.Id, yamlPath: t.Object
       console.info(Fmt.headerTable(model.modelId, subjectId, OPENAI_API_KEY));
 
       const message = !subjectId ? 'Enter slug to chat with (crdt:id)' : '';
-      const input = await Prompt.Input.prompt({ message });
+      const input = await Cli.Input.Text.prompt({ message });
 
       if (Crdt.Is.id(input) || Crdt.Is.uri(input)) {
         subjectId = Crdt.Id.clean(input);
@@ -120,7 +120,7 @@ export async function tmp(cwd: t.StringDir, docid: t.Crdt.Id, yamlPath: t.Object
       console.info();
 
       // Wait here until user hits Enter, then start a fresh render.
-      await Prompt.Input.prompt({ message: '' });
+      await Cli.Input.Text.prompt({ message: '' });
       return render();
     }
 

@@ -26,7 +26,7 @@ export const cli: t.FsToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function run(cwd: t.StringDir) {
-  const mode = (await Cli.Prompt.Select.prompt({
+  const mode = (await Cli.Input.Select.prompt({
     message: 'Select file-system operation:\n',
     options: [
       { name: 'Hash: List file hashes', value: 'hash:list' },

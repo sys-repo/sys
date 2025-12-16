@@ -1,4 +1,4 @@
-import { type t, done, Args, c, Cli, D, Fs, Is, Prompt, TmplEngine, opt } from './common.ts';
+import { type t, Args, c, Cli, D, done, Fs, Is, opt } from './common.ts';
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 
@@ -17,7 +17,7 @@ export const cli: t.DeployToolsLib['cli'] = async (cwd, argv) => {
   const configpath = Fs.join(cwd, D.Config.filename);
   if (!(await Fs.exists(configpath))) {
     console.info(Fmt.Prereqs.folderNotConfigured(cwd, toolname));
-    const yes = await Cli.Prompt.Confirm.prompt({ message: `Create config file now?` });
+    const yes = await Cli.Input.Confirm.prompt({ message: `Create config file now?` });
     if (!yes) Deno.exit(0);
   }
 
@@ -41,7 +41,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
    */
   {
     console.info();
-    const A = (await Prompt.Select.prompt<t.DeployTool.Command>({
+    const A = (await Cli.Input.Select.prompt<t.DeployTool.Command>({
       message: 'Tools:\n',
       options: [
         //
@@ -66,7 +66,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
    * Sub-Menu
    */
   {
-    const B = (await Prompt.Select.prompt<t.DeployTool.Command>({
+    const B = (await Cli.Input.Select.prompt<t.DeployTool.Command>({
       message: `With:`,
       options: [
         { name: ` Thing ${c.cyan('Ba')}`, value: 'option-ba' },

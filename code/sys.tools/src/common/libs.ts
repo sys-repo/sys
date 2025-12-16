@@ -8,14 +8,14 @@ export {
   Log,
   Num,
   Obj,
+  slug,
   Str,
   Time,
   Try,
-  slug,
   Url,
 } from '@sys/std';
 
-export { Args, Cli, Prompt, c } from '@sys/cli';
+export { Args, c, Cli } from '@sys/cli';
 export { Hash } from '@sys/crypto/hash';
 export { Cmd } from '@sys/event/cmd';
 export { FileMap, Fs, Path, Pkg } from '@sys/fs';

@@ -5,7 +5,7 @@ import { Env } from '@sys/fs/env';
 import { Slug } from '@sys/tools/staging/prog';
 import { buildDocumentDAG } from '../cmd.doc.graph/mod.ts';
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
-import { type t, Rx, c, Cli, Crdt, D, Is, Prompt, Schedule, Str } from '../common.ts';
+import { type t, Rx, c, Cli, Crdt, D, Is, Schedule, Str } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 
 type O = Record<string, unknown>;

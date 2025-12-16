@@ -30,7 +30,7 @@ async function run(cwd: t.StringDir) {
     { name: 'info (probe file)', value: 'probe-file' },
   ];
 
-  const command = (await Cli.Prompt.Select.prompt({
+  const command = (await Cli.Input.Select.prompt({
     message: 'Video Tools:',
     options,
   })) as t.VideoTool.Command;

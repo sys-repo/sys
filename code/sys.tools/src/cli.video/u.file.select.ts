@@ -28,11 +28,9 @@ export async function selectFiles(
   }));
 
   const selected =
-    (await Cli.Prompt.Checkbox.prompt<t.StringPath>({
+    (await Cli.Input.Checkbox.prompt<t.StringPath>({
       message: 'Choose files',
       options,
-      check: c.green('●'),
-      uncheck: c.gray('○'),
     })) ?? [];
 
   return selected;

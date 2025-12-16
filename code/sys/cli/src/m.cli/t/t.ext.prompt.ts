@@ -40,7 +40,7 @@ export type CliPromptLib = {
   readonly Select: typeof ext.CliffySelect;
 
   /**
-   * Multi-select list input propmt.
+   * Multi-select list input prompt.
    */
   readonly Checkbox: typeof ext.CliffyCheckbox;
 };

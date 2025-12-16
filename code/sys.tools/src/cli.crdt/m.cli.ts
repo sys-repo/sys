@@ -1,4 +1,4 @@
-import { Args, c, Cli, Crdt, D, done, Fs, Is, Prompt, type t, Time } from './common.ts';
+import { Args, c, Cli, Crdt, D, done, Fs, Is, type t, Time } from './common.ts';
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument } from './u.prompt.ts';
@@ -34,7 +34,7 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   const configpath = Fs.join(cwd, D.Config.filename);
   if (!(await Fs.exists(configpath))) {
     console.info(Fmt.Prereqs.folderNotConfigured(cwd, toolname));
-    const yes = await Cli.Prompt.Confirm.prompt({ message: `Create config file now?` });
+    const yes = await Cli.Input.Confirm.prompt({ message: `Create config file now?` });
     if (!yes) Deno.exit(0);
   }
 
@@ -82,7 +82,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   {
     console.info();
     const defaultCommand = listing.length > 0 ? listing[0].value : ('doc:add' satisfies C);
-    let A = (await Prompt.Select.prompt<C>({
+    let A = (await Cli.Input.Select.prompt<C>({
       message: 'Tools:\n',
       options: [
         opt('  add: <document>', 'doc:add'),
@@ -137,7 +137,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
         options.push(...[opt(c.gray(c.dim(' (forget)')), 'doc:remove')]);
 
-        const B = (await Prompt.Select.prompt<t.CrdtTool.Command>({
+        const B = (await Cli.Input.Select.prompt<t.CrdtTool.Command>({
           message: `with ${c.gray(`crdt:${docid.slice(0, -5)}${c.green(docid.slice(-5))}`)}:`,
           options,
           hideDefault: true,
