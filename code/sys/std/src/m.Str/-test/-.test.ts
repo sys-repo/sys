@@ -291,12 +291,12 @@ describe('Str (String)', () => {
     describe('Str.Lorem.words', () => {
       it('should return an empty string when count is negative', () => {
         const result = Str.Lorem.words(-5);
-        expect(result).to.equal('');
+        expect(result).to.eql('');
       });
 
       it('should return an empty string when count is zero', () => {
         const result = Str.Lorem.words(0);
-        expect(result).to.equal('');
+        expect(result).to.eql('');
       });
 
       it('should return the first N words with a trailing period when count > 0', () => {
@@ -306,7 +306,7 @@ describe('Str (String)', () => {
 
         // Remove the final character (period) to check the word count.
         const words = result.split(' ');
-        expect(words.length).to.equal(count);
+        expect(words.length).to.eql(count);
         expect(result.endsWith('.')).to.be.true;
       });
 
@@ -318,7 +318,7 @@ describe('Str (String)', () => {
         const resultWords = result.endsWith('.')
           ? result.slice(0, -1).split(' ')
           : result.split(' ');
-        expect(resultWords.length).to.equal(count);
+        expect(resultWords.length).to.eql(count);
 
         // Get the original words from Lorem.text (removing the trailing period).
         const originalWords = Str.Lorem.text.endsWith('.')
@@ -331,7 +331,7 @@ describe('Str (String)', () => {
         for (let i = 0; i < resultWords.length; i++) {
           const a = resultWords[i];
           const b = originalWords[i % originalWords.length];
-          expect(trimPeriod(a)).to.equal(trimPeriod(b));
+          expect(trimPeriod(a)).to.eql(trimPeriod(b));
         }
 
         // Ensure the result ends with a period.
@@ -388,9 +388,9 @@ describe('Str (String)', () => {
   describe('Str.indent', () => {
     it('returns original string when empty or chars <= 0', () => {
       const input = 'line';
-      expect(Str.indent('', 2)).to.equal('');
-      expect(Str.indent(input, 0)).to.equal(input);
-      expect(Str.indent(input, -2)).to.equal(input);
+      expect(Str.indent('', 2)).to.eql('');
+      expect(Str.indent(input, 0)).to.eql(input);
+      expect(Str.indent(input, -2)).to.eql(input);
     });
 
     it('adds space indentation to all non-blank lines', () => {
@@ -512,80 +512,80 @@ describe('Str (String)', () => {
     const fn = Str.trimEdgeNewlines;
 
     it('returns empty string for undefined or empty input', () => {
-      expect(fn()).to.equal('');
-      expect(fn('')).to.equal('');
+      expect(fn()).to.eql('');
+      expect(fn('')).to.eql('');
     });
 
     it('removes pure leading and trailing newlines', () => {
       const input = '\n\nfoo\nbar\n\n';
-      expect(fn(input)).to.equal('foo\nbar');
+      expect(fn(input)).to.eql('foo\nbar');
     });
 
     it('removes whitespace-only lines at top and bottom', () => {
       const input = '   \n\t \nfoo\nbar\n  \n ';
-      expect(fn(input)).to.equal('foo\nbar');
+      expect(fn(input)).to.eql('foo\nbar');
     });
 
     it('preserves indentation and internal spacing', () => {
       const input = '\n  foo\n  bar\n\n';
-      expect(fn(input)).to.equal('  foo\n  bar');
+      expect(fn(input)).to.eql('  foo\n  bar');
     });
 
     it('handles Windows CRLF newlines', () => {
       const input = '\r\n\r\nfoo\r\nbar\r\n\r\n';
-      expect(fn(input)).to.equal('foo\nbar');
+      expect(fn(input)).to.eql('foo\nbar');
     });
 
     it('does not modify text without edge padding', () => {
       const input = 'foo\nbar';
-      expect(fn(input)).to.equal('foo\nbar');
+      expect(fn(input)).to.eql('foo\nbar');
     });
 
     it('preserves trailing spaces on the final content line', () => {
       const input = '\nfoo  \n\n';
-      expect(fn(input)).to.equal('foo  ');
+      expect(fn(input)).to.eql('foo  ');
     });
 
     it('trims only edge blank lines when surrounded by content', () => {
       const input = '\n\nfoo\n\nbar\n\n';
-      expect(fn(input)).to.equal('foo\n\nbar');
+      expect(fn(input)).to.eql('foo\n\nbar');
     });
   });
 
   describe('Str.trimTrailingSlashes', () => {
     it('removes trailing slashes only', () => {
-      expect(Str.trimTrailingSlashes('foo/')).to.equal('foo');
-      expect(Str.trimTrailingSlashes('foo///')).to.equal('foo');
-      expect(Str.trimTrailingSlashes('foo/bar/')).to.equal('foo/bar');
+      expect(Str.trimTrailingSlashes('foo/')).to.eql('foo');
+      expect(Str.trimTrailingSlashes('foo///')).to.eql('foo');
+      expect(Str.trimTrailingSlashes('foo/bar/')).to.eql('foo/bar');
     });
 
     it('preserves leading and internal slashes', () => {
-      expect(Str.trimTrailingSlashes('/foo/bar/')).to.equal('/foo/bar');
-      expect(Str.trimTrailingSlashes('/foo//bar//')).to.equal('/foo//bar');
+      expect(Str.trimTrailingSlashes('/foo/bar/')).to.eql('/foo/bar');
+      expect(Str.trimTrailingSlashes('/foo//bar//')).to.eql('/foo//bar');
     });
 
     it('is safe for empty or slash-only input', () => {
-      expect(Str.trimTrailingSlashes('')).to.equal('');
-      expect(Str.trimTrailingSlashes('/')).to.equal('');
-      expect(Str.trimTrailingSlashes('///')).to.equal('');
+      expect(Str.trimTrailingSlashes('')).to.eql('');
+      expect(Str.trimTrailingSlashes('/')).to.eql('');
+      expect(Str.trimTrailingSlashes('///')).to.eql('');
     });
   });
 
   describe('Str.trimSlashes', () => {
     it('removes both leading and trailing slashes', () => {
-      expect(Str.trimSlashes('/foo/')).to.equal('foo');
-      expect(Str.trimSlashes('///foo///')).to.equal('foo');
-      expect(Str.trimSlashes('/foo/bar/')).to.equal('foo/bar');
+      expect(Str.trimSlashes('/foo/')).to.eql('foo');
+      expect(Str.trimSlashes('///foo///')).to.eql('foo');
+      expect(Str.trimSlashes('/foo/bar/')).to.eql('foo/bar');
     });
 
     it('preserves internal slashes', () => {
-      expect(Str.trimSlashes('/foo//bar/')).to.equal('foo//bar');
+      expect(Str.trimSlashes('/foo//bar/')).to.eql('foo//bar');
     });
 
     it('is safe for empty or slash-only input', () => {
-      expect(Str.trimSlashes('')).to.equal('');
-      expect(Str.trimSlashes('/')).to.equal('');
-      expect(Str.trimSlashes('///')).to.equal('');
+      expect(Str.trimSlashes('')).to.eql('');
+      expect(Str.trimSlashes('/')).to.eql('');
+      expect(Str.trimSlashes('///')).to.eql('');
     });
   });
 
@@ -593,93 +593,93 @@ describe('Str (String)', () => {
 
   describe('Str.trimLeadingSlashes', () => {
     it('removes a single leading slash', () => {
-      expect(Str.trimLeadingSlashes('/foo')).to.equal('foo');
+      expect(Str.trimLeadingSlashes('/foo')).to.eql('foo');
     });
 
     it('removes multiple leading slashes', () => {
-      expect(Str.trimLeadingSlashes('///foo')).to.equal('foo');
+      expect(Str.trimLeadingSlashes('///foo')).to.eql('foo');
     });
 
     it('does not remove internal slashes', () => {
-      expect(Str.trimLeadingSlashes('/foo/bar')).to.equal('foo/bar');
+      expect(Str.trimLeadingSlashes('/foo/bar')).to.eql('foo/bar');
     });
 
     it('does not remove trailing slashes', () => {
-      expect(Str.trimLeadingSlashes('/foo/')).to.equal('foo/');
+      expect(Str.trimLeadingSlashes('/foo/')).to.eql('foo/');
     });
 
     it('returns the same string if there are no leading slashes', () => {
-      expect(Str.trimLeadingSlashes('foo/bar')).to.equal('foo/bar');
+      expect(Str.trimLeadingSlashes('foo/bar')).to.eql('foo/bar');
     });
 
     it('returns empty string for empty input', () => {
-      expect(Str.trimLeadingSlashes('')).to.equal('');
+      expect(Str.trimLeadingSlashes('')).to.eql('');
     });
 
     it('handles root slash by returning empty string', () => {
-      expect(Str.trimLeadingSlashes('/')).to.equal('');
+      expect(Str.trimLeadingSlashes('/')).to.eql('');
     });
 
     it('handles multiple slashes only', () => {
-      expect(Str.trimLeadingSlashes('////')).to.equal('');
+      expect(Str.trimLeadingSlashes('////')).to.eql('');
     });
   });
 
   describe('Str.trimHttpScheme', () => {
     it('removes http://', () => {
-      expect(Str.trimHttpScheme('http://example.com')).to.equal('example.com');
+      expect(Str.trimHttpScheme('http://example.com')).to.eql('example.com');
     });
 
     it('removes https://', () => {
-      expect(Str.trimHttpScheme('https://example.com')).to.equal('example.com');
+      expect(Str.trimHttpScheme('https://example.com')).to.eql('example.com');
     });
 
     it('removes scheme only once', () => {
-      expect(Str.trimHttpScheme('https://http://example.com')).to.equal('http://example.com');
+      expect(Str.trimHttpScheme('https://http://example.com')).to.eql('http://example.com');
     });
 
     it('leaves strings without http scheme unchanged', () => {
-      expect(Str.trimHttpScheme('example.com')).to.equal('example.com');
+      expect(Str.trimHttpScheme('example.com')).to.eql('example.com');
     });
 
     it('handles empty string', () => {
-      expect(Str.trimHttpScheme('')).to.equal('');
+      expect(Str.trimHttpScheme('')).to.eql('');
     });
 
     it('handles undefined safely', () => {
-      expect(Str.trimHttpScheme(undefined)).to.equal('');
+      expect(Str.trimHttpScheme(undefined)).to.eql('');
     });
   });
 
   describe('Str.trimLeadingDotSlash', () => {
     it('removes a single leading ./', () => {
-      expect(Str.trimLeadingDotSlash('./foo')).to.equal('foo');
+      expect(Str.trimLeadingDotSlash('./foo')).to.eql('foo');
     });
 
     it('removes repeated leading ./ segments', () => {
-      expect(Str.trimLeadingDotSlash('././foo')).to.equal('foo');
-      expect(Str.trimLeadingDotSlash('./././foo')).to.equal('foo');
+      expect(Str.trimLeadingDotSlash('././foo')).to.eql('foo');
+      expect(Str.trimLeadingDotSlash('./././foo')).to.eql('foo');
     });
 
     it('does not affect internal ./ segments', () => {
-      expect(Str.trimLeadingDotSlash('foo/./bar')).to.equal('foo/./bar');
+      expect(Str.trimLeadingDotSlash('foo/./bar')).to.eql('foo/./bar');
     });
 
     it('does not affect trailing ./ segments', () => {
-      expect(Str.trimLeadingDotSlash('foo/.')).to.equal('foo/.');
+      expect(Str.trimLeadingDotSlash('foo/.')).to.eql('foo/.');
     });
 
     it('leaves strings without leading ./ unchanged', () => {
-      expect(Str.trimLeadingDotSlash('foo/bar')).to.equal('foo/bar');
+      expect(Str.trimLeadingDotSlash('foo/bar')).to.eql('foo/bar');
     });
 
     it('handles leading slashes separately (no cross-trimming)', () => {
-      expect(Str.trimLeadingDotSlash('/./foo')).to.equal('/./foo');
+      expect(Str.trimLeadingDotSlash('/./foo')).to.eql('/./foo');
     });
 
     it('handles empty and undefined input safely', () => {
-      expect(Str.trimLeadingDotSlash('')).to.equal('');
-      expect(Str.trimLeadingDotSlash(undefined)).to.equal('');
+      expect(Str.trimLeadingDotSlash('')).to.eql('');
+      expect(Str.trimLeadingDotSlash(undefined)).to.eql('');
     });
   });
 
@@ -749,40 +749,63 @@ describe('Str (String)', () => {
 
   describe('Str.ensureSlashWrapped', () => {
     it('wraps a bare segment', () => {
-      expect(Str.ensureSlashWrapped('foo')).to.equal('/foo/');
+      expect(Str.ensureSlashWrapped('foo')).to.eql('/foo/');
     });
 
     it('normalizes missing leading slash', () => {
-      expect(Str.ensureSlashWrapped('foo/')).to.equal('/foo/');
+      expect(Str.ensureSlashWrapped('foo/')).to.eql('/foo/');
     });
 
     it('normalizes missing trailing slash', () => {
-      expect(Str.ensureSlashWrapped('/foo')).to.equal('/foo/');
+      expect(Str.ensureSlashWrapped('/foo')).to.eql('/foo/');
     });
 
     it('collapses duplicate edge slashes', () => {
-      expect(Str.ensureSlashWrapped('///foo///')).to.equal('/foo/');
+      expect(Str.ensureSlashWrapped('///foo///')).to.eql('/foo/');
     });
 
     it('trims surrounding whitespace', () => {
-      expect(Str.ensureSlashWrapped('  /foo/  ')).to.equal('/foo/');
+      expect(Str.ensureSlashWrapped('  /foo/  ')).to.eql('/foo/');
     });
 
     it('returns "/" for empty input', () => {
-      expect(Str.ensureSlashWrapped('')).to.equal('/');
+      expect(Str.ensureSlashWrapped('')).to.eql('/');
     });
 
     it('returns "/" for whitespace-only input', () => {
-      expect(Str.ensureSlashWrapped('   ')).to.equal('/');
+      expect(Str.ensureSlashWrapped('   ')).to.eql('/');
     });
 
     it('returns "/" for root-only input', () => {
-      expect(Str.ensureSlashWrapped('/')).to.equal('/');
-      expect(Str.ensureSlashWrapped('///')).to.equal('/');
+      expect(Str.ensureSlashWrapped('/')).to.eql('/');
+      expect(Str.ensureSlashWrapped('///')).to.eql('/');
     });
 
     it('does not touch internal slashes', () => {
-      expect(Str.ensureSlashWrapped('/foo/bar')).to.equal('/foo/bar/');
+      expect(Str.ensureSlashWrapped('/foo/bar')).to.eql('/foo/bar/');
+    });
+  });
+
+  describe('Str.stripTrailingPathSegment', () => {
+    it('removes the final path segment', () => {
+      expect(Str.stripTrailingPathSegment('foo/bar')).to.eql('foo');
+    });
+
+    it('preserves leading slash', () => {
+      expect(Str.stripTrailingPathSegment('/foo/bar')).to.eql('/foo');
+    });
+
+    it('returns empty string when no slash is present', () => {
+      expect(Str.stripTrailingPathSegment('foo')).to.eql('');
+    });
+
+    it('returns empty string for root slash', () => {
+      expect(Str.stripTrailingPathSegment('/')).to.eql('');
+    });
+
+    it('is safe for empty or undefined input', () => {
+      expect(Str.stripTrailingPathSegment('')).to.eql('');
+      expect(Str.stripTrailingPathSegment(undefined)).to.eql('');
     });
   });
 });

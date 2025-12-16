@@ -205,6 +205,21 @@ export type StrLib = {
    * Str.ensureSlashWrapped("")           // → "/"
    */
   ensureSlashWrapped(str?: string): string;
+
+  /**
+   * Remove the final path segment from a slash-delimited string.
+   *
+   * - Purely lexical (not filesystem- or URL-semantic)
+   * - Removes everything after the last `/`
+   * - Preserves leading structure
+   * - Safe for undefined / empty input
+   *
+   * @example
+   * Str.stripTrailingPathSegment("/foo/bar")   // → "/foo"
+   * Str.stripTrailingPathSegment("/foo/bar/")  // → "/foo/bar"
+   * Str.stripTrailingPathSegment("foo")        // → ""
+   */
+  stripTrailingPathSegment(str?: string): string;
 };
 
 /**
