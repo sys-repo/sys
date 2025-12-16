@@ -29,11 +29,11 @@ async function run(cwd: t.StringDir) {
   const mode = (await Cli.Prompt.Select.prompt<C>({
     message: 'Select copy mode:\n',
     options: [
-      { name: `Copy Files (select)`, value: `files:select` },
       {
         name: `Copy Files (select, ${c.cyan('depth = 0')}) ${depth0}`,
         value: `files:select:depth=` as C,
       },
+      { name: `Copy Files (select)`, value: `files:select` },
       { name: `Copy Files (all)`, value: `files:all` },
       { name: `Copy Types`, value: `types` },
       { name: `Copy Files: deno.json`, value: `files:deno.json` },
