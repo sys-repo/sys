@@ -1,5 +1,4 @@
-import { type t, c, Cli, EXCLUDE, Is } from '../common.ts';
-import { Fs } from './libs.ts';
+import { type t, c, Cli, EXCLUDE, Fs, Is } from './common.ts';
 
 /**
  * Checkbox prompt selection for files.
@@ -47,11 +46,9 @@ export async function promptFileSelection(
 
   if (sort) options = options.sort((a, b) => a.value.localeCompare(b.value));
 
-  return (await Cli.Prompt.Checkbox.prompt({
+  return (await Cli.Input.Checkbox.prompt({
     message,
     options,
-    check: c.green('●'),
-    uncheck: c.gray('○'),
     maxRows,
   })) as t.StringPath[];
 }

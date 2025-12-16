@@ -74,7 +74,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       return { name, value: e.value };
     });
 
-  const opt = (name: string, value: C) => ({ name, value });
+  const opt = (name: string, value: C) => ({ name, value }) as const;
 
   /** --------------------------------------------------------
    * Root Menu

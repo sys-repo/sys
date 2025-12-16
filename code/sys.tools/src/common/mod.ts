@@ -6,9 +6,6 @@ export * from './u.config.ts';
 export * from './u.done.ts';
 export * from './u.fmt.ts';
 export * from './u.fs.detectRepoRoot.ts';
-export * from './u.prompt.ts';
-
-/**
- * Constants:
- */
-export const EXCLUDE = ['**/node_modules/', '**/.git/', '**/.DS_Store'] as const;
+export * from './u.menu/mod.ts';
+export * from './u.prompt/mod.ts';
+export * from './constants.ts';
