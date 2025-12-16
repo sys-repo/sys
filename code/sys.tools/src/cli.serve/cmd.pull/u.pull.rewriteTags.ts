@@ -1,4 +1,4 @@
-import { type t, Fs } from '../common.ts';
+import { type t, Fs, Str } from '../common.ts';
 
 export type RewritePathsResponse = {
   readonly base: t.StringPath;
@@ -34,7 +34,7 @@ export async function rewriteTags(baseDir: t.StringDir, bundleConfig: t.ServeToo
     const html = { before, after: before };
     return {
       path,
-      base: ensureSlashWrap(Fs.dirname(path).slice(baseDir.length)),
+      base: Str.ensureSlashWrapped(Fs.dirname(path).slice(baseDir.length)),
       get html() {
         return html;
       },
@@ -123,11 +123,6 @@ function mutatePaths(
   }
 
   return html;
-}
-
-function ensureSlashWrap(path: string): string {
-  const inner = path.trim().replace(/^\/+|\/+$/g, '');
-  return inner ? `/${inner}/` : '/';
 }
 
 function insertBaseTag(html: string, path: t.StringPath): string {

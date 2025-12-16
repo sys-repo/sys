@@ -117,7 +117,7 @@ async function pullDir(
    *    '/app/bundles/driver' → '.../app/bundles/driver/dist.json'
    *    '/'                   → '.../dist.json' at host root
    */
-  const bundleRootPath = distUrlObj.pathname.replace(/\/[^/]*$/, '');
+  const bundleRootPath = Str.stripTrailingPathSegment(distUrlObj.pathname);
   const relativeTo = bundleRootPath === '' ? '/' : bundleRootPath;
 
   // Base URL for resolving manifest paths (index.html, pkg/*, sw.js, etc).

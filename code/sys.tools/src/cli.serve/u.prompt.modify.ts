@@ -1,5 +1,5 @@
 import { Mime } from './cmd.serve/mod.ts';
-import { type t, Cli, Fs, Time } from './common.ts';
+import { type t, Cli, Fs, Str, Time } from './common.ts';
 import { Config } from './u.config.ts';
 
 /**
@@ -16,7 +16,7 @@ export async function promptAddServeLocation(
     const v = raw.trim();
     if (!v) return cwd;
     if (v.startsWith('/')) return v as t.StringDir;
-    const rel = v.replace(/^\.\/+/, '');
+    const rel = Str.trimLeadingDotSlash(v);
     return Fs.join(cwd, rel) as t.StringDir;
   };
 

@@ -1,7 +1,7 @@
 import { type t, Fs, Str } from './common.ts';
 
 export function absKey(dir: t.StringDir): t.StringDir {
-  return String(dir).replace(/\/+$/, '') as t.StringDir;
+  return Str.trimTrailingSlashes(dir);
 }
 
 export function resolveDir(cwd: t.StringDir, dir: t.StringDir): t.StringDir {

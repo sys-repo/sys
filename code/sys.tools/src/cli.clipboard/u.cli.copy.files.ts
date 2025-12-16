@@ -1,4 +1,4 @@
-import { type t, detectRepoRoot, Fs } from './common.ts';
+import { type t, detectRepoRoot, Fs, Str } from './common.ts';
 import { selectAndCopy } from './u.copy.ts';
 
 /**
@@ -22,11 +22,8 @@ export async function copyFiles(
       if (depth === undefined) return true; // default = current behavior (no depth limit)
 
       const absOrRel = file.path;
-      const rel = absOrRel.startsWith(cwd)
-        ? absOrRel.slice(cwd.length).replace(/^[\\/]/, '')
-        : absOrRel;
-
-      const segs = rel.split(/[\\/]+/).filter(Boolean);
+      const rel = Str.trimLeadingSlashes(Str.stripPrefixOnce(absOrRel, cwd));
+      const segs = Str.splitPathSegments(rel);
       const dirCount = Math.max(0, segs.length - 1); // dirs below cwd (exclude filename)
       return dirCount <= depth;
     })

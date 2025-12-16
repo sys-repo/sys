@@ -1,4 +1,4 @@
-import { type t, Fs, Obj, Cli, Time, c } from './common.ts';
+import { type t, c, Cli, Fs, Obj, Str, Time } from './common.ts';
 import { indexedMenu } from './u.indexedMenu.ts';
 
 /** Result */
@@ -49,10 +49,10 @@ export async function dirIndexMenu<TDoc extends t.JsonFileDoc, TEntry>(args: {
 }): Promise<DirIndexMenuResult> {
   const { cwd, scopeKey, defaultMount, config, io, ui } = args;
 
-  const parseSubdir = (raw: string): string => {
+  const parseSubdir = (raw: string): t.StringDir => {
     const v = raw.trim();
     if (!v || v === '.') return '.';
-    return v.replace(/^\/+/, '').replace(/\/+$/, '');
+    return Str.trimSlashes(v);
   };
 
   const resolveDir = (subdir: string): t.StringDir => (subdir === '.' ? cwd : Fs.join(cwd, subdir));

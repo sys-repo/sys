@@ -36,8 +36,6 @@ export async function indexedMenu<TDoc extends t.JsonFileDoc, TScope, TEntry>(ar
 }): Promise<IndexedMenuResult> {
   const { scope, config, adapter, ui } = args;
 
-  const now = (): t.UnixTimestamp => Time.now.timestamp;
-
   const orderByRecency = (items: readonly TEntry[]) =>
     [...items].sort((a, b) => (adapter.lastUsedAtOf(b) ?? 0) - (adapter.lastUsedAtOf(a) ?? 0));
 
@@ -66,12 +64,11 @@ export async function indexedMenu<TDoc extends t.JsonFileDoc, TScope, TEntry>(ar
       continue;
     }
 
-    const ts = now();
     config.change((doc) => {
+      const now = Time.now.timestamp;
       const next = adapter
         .list(doc, scope)
-        .map((e) => (adapter.keyOf(e) === picked ? adapter.withLastUsedAt(e, ts) : e));
-
+        .map((e) => (adapter.keyOf(e) === picked ? adapter.withLastUsedAt(e, now) : e));
       adapter.set(doc, scope, next);
     });
 

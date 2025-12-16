@@ -1,4 +1,4 @@
-import { type t, Fs, Path } from './common.ts';
+import { type t, Str, Fs, Path } from './common.ts';
 
 /**
  * Compute the next output path using **chained extension lineage**.
@@ -18,9 +18,8 @@ export const nextOutPath: t.VideoToolsLib['nextOutPath'] = async (args): Promise
 
   const dir = Path.dirname(src);
   const name = Path.basename(src);
-  const srcExt = Path.extname(name).toLowerCase(); // e.g. ".webm" | ".mp4"
-  const to = toExt.toLowerCase().replace(/^\./, ''); // e.g. "mp4" | "webm"
-
+  const srcExt = Path.extname(name).toLowerCase(); //           e.g. ".webm" | ".mp4"
+  const to = Str.trimLeadingDotSlash(toExt).toLowerCase(); //   e.g. "mp4" | "webm"
   const parsed = parseName(name, srcExt);
 
   // Next counter (existing step + 1)
