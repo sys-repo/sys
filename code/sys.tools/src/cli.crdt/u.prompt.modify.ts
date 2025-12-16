@@ -12,7 +12,7 @@ export async function promptAddDocument(
 
   let id = await Prompt.Input.prompt({
     message: 'Document ID',
-    hint: '↑ leave blank to create new',
+    hint: '↑ blank to create new',
     validate(value) {
       value = value.trim();
       if (!value) return true;
