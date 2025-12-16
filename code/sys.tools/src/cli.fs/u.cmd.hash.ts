@@ -1,5 +1,5 @@
 import { WalkEntry } from '../common/t.ts';
-import { type t, c, Cli, EXCLUDE, Fs, Hash, promptForFileSelection, Str } from './common.ts';
+import { type t, c, Cli, EXCLUDE, Fs, Hash, promptFileSelection, Str } from './common.ts';
 
 /**
  * Captures: "sha256-" + 64 hex chars + optional extension.
@@ -47,7 +47,7 @@ export async function selectFilesAndRenameToHash(dir: t.StringDir) {
   const res: T[] = [];
 
   const table = Cli.table([]);
-  const files = await promptForFileSelection(dir, {
+  const files = await promptFileSelection(dir, {
     deep: false,
     filter: (e) => !e.name.includes('→ sha256-'),
   });
@@ -104,7 +104,7 @@ export async function removeRenamedSh256Files(dir: t.StringDir, opts: { dryRun?:
   paths.forEach((e) => console.info(c.gray(` • ${Fs.basename(e.from)}`)));
   console.info();
 
-  const yes = await Cli.Prompt.Confirm.prompt('Are you sure?');
+  const yes = await Cli.Input.Confirm.prompt('Are you sure?');
   if (!yes) return;
 
   for (const path of paths) {
