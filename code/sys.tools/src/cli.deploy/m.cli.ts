@@ -59,7 +59,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
       return done(0);
     }
 
-    if (A === 'quit') return done(0);
+    if (A === 'exit') return done(0);
   }
 
   /** --------------------------------------------------------
@@ -71,7 +71,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
       options: [
         { name: ` Thing ${c.cyan('Ba')}`, value: 'option-ba' },
         { name: ` Thing ${c.cyan('Bb')}`, value: 'option-bb' },
-        { name: c.gray('(quit)'), value: 'quit' },
+        { name: c.gray('(quit)'), value: 'exit' },
       ],
     })) as t.DeployTool.Command;
 
@@ -85,7 +85,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
       return done(0);
     }
 
-    if (B === 'quit') return done(0);
+    if (B === 'exit') return done(0);
   }
 
   /** --------------------------------------------------------

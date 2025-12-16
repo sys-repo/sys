@@ -1,0 +1,92 @@
+import type { t } from './common.ts';
+
+/**
+ * The `@sys/tools/serve` type namespace.
+ */
+export namespace ServeTool {
+  export type Id = 'serve';
+  export type Name = 'system/serve:tools';
+
+  /** Command names */
+  export type Command =
+    | 'dir:add'
+    | 'dir:remove'
+    | 'serve:start'
+    | 'bundle'
+    | 'bundle:add-remote'
+    | 'bundle:pull-latest'
+    | 'bundle:open'
+    | 'exit';
+  export type MenuOption = { name: string; value: Command };
+
+  /** Alternative view formats for rendering a route. */
+  export type RouteView = 'json';
+
+  /** Abstract lookup for supported MIME types. */
+  export type MimeLookup = { has(mime: t.ServeTool.MimeType): boolean };
+
+  /** Command line arguments (argv). */
+  export type CliArgs = t.Tools.CliArgs & { port?: number };
+  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+
+  /** Config File */
+  export type Config = t.JsonFile<ServeTool.ConfigDoc>;
+  export type ConfigDoc = t.JsonFileDoc & {
+    name: string;
+    dirs?: ServeTool.DirConfig[];
+  };
+
+  export type DirConfig = {
+    /** Display name */
+    name: string;
+    /** The path location of the serve directory. */
+    dir: t.StringDir;
+    /** Supported mime-types */
+    contentTypes: MimeType[];
+    /** Timestamps */
+    createdAt: t.UnixTimestamp;
+    modifiedAt?: t.UnixTimestamp;
+    lastUsedAt?: t.UnixTimestamp;
+
+    /** Optional list of remote bundles that can be pulled into this directory. */
+    remoteBundles?: DirRemoteBundle[];
+  };
+
+  /**
+   * Mapping between a remote bundle and its local mount-point.
+   */
+  export type DirRemoteBundle = {
+    /** Remote dist.json endpoint (source of the bundle). */
+    remote: { dist: t.StringUrl };
+    /** Local destination for the bundle, relative to DirConfig.dir. */
+    local: { dir: t.StringRelativeDir };
+    /** Timestamps */
+    lastUsedAt?: t.UnixTimestamp;
+  };
+
+  /** Allowed MIME types for static asset responses. */
+  export type MimeGroup = 'images' | 'videos' | 'documents' | 'code' | 'text';
+  export type MimeType = t.MimeType;
+
+  /**
+   * JSON view outcome for a requestable path.
+   */
+  export type JsonViewResult = JsonViewFile | JsonViewFolder;
+  export type JsonViewFile = {
+    readonly kind: 'file';
+    readonly body: {
+      mime: t.ServeTool.MimeType;
+      path: t.StringPath;
+      hash: t.StringHash;
+      bytes: t.NumberBytes;
+    };
+  };
+  export type JsonViewFolder = {
+    readonly kind: 'folder';
+    readonly body: {
+      dir: t.StringName;
+      files: t.StringName[];
+      about: { pkg: t.Pkg; cmd: 'serve' };
+    };
+  };
+}

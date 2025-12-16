@@ -38,7 +38,7 @@ async function run(cwd: t.StringDir) {
       { name: `Copy Types`, value: `types` },
       { name: `Copy Files: deno.json`, value: `files:deno.json` },
     ],
-  })) as t.ClipboardCopyAction;
+  })) as t.ClipboardTool.Command;
 
   if (mode.startsWith('files:select' satisfies t.ClipboardTool.Command)) {
     const { depth } = wrangle.depth(mode);
