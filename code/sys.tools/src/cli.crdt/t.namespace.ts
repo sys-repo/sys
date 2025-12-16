@@ -44,9 +44,7 @@ export namespace CrdtTool {
     }
   }
 
-  /**
-   * Config File
-   */
+  /** Configuration file. */
   export namespace Config {
     export type File = t.JsonFile<Config.Doc>;
     export type Doc = t.JsonFileDoc & {

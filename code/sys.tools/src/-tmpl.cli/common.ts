@@ -11,7 +11,7 @@ export const D = {
   Path: {},
   Config: {
     filename: '-__NAME__.config.json',
-    doc: JsonFile.default<t.__NAME__Tool.ConfigDoc>({ name }),
+    doc: JsonFile.default<t.__NAME__Tool.Config.Doc>({ name }),
   },
 } as const;
 

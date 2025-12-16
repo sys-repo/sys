@@ -22,7 +22,9 @@ export namespace __NAME__Tool {
   export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
-  /** Configuration file */
-  export type Config = t.JsonFile<__NAME__Tool.ConfigDoc>;
-  export type ConfigDoc = t.JsonFileDoc & { name: string };
+  /** Configuration file. */
+  export namespace Config {
+    export type File = t.JsonFile<Doc>;
+    export type Doc = t.JsonFileDoc & { name: string };
+  }
 }
