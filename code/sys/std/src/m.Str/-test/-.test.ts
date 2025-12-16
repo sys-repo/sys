@@ -746,4 +746,43 @@ describe('Str (String)', () => {
       expect(Str.splitPathSegments(undefined)).to.eql([]);
     });
   });
+
+  describe('Str.ensureSlashWrapped', () => {
+    it('wraps a bare segment', () => {
+      expect(Str.ensureSlashWrapped('foo')).to.equal('/foo/');
+    });
+
+    it('normalizes missing leading slash', () => {
+      expect(Str.ensureSlashWrapped('foo/')).to.equal('/foo/');
+    });
+
+    it('normalizes missing trailing slash', () => {
+      expect(Str.ensureSlashWrapped('/foo')).to.equal('/foo/');
+    });
+
+    it('collapses duplicate edge slashes', () => {
+      expect(Str.ensureSlashWrapped('///foo///')).to.equal('/foo/');
+    });
+
+    it('trims surrounding whitespace', () => {
+      expect(Str.ensureSlashWrapped('  /foo/  ')).to.equal('/foo/');
+    });
+
+    it('returns "/" for empty input', () => {
+      expect(Str.ensureSlashWrapped('')).to.equal('/');
+    });
+
+    it('returns "/" for whitespace-only input', () => {
+      expect(Str.ensureSlashWrapped('   ')).to.equal('/');
+    });
+
+    it('returns "/" for root-only input', () => {
+      expect(Str.ensureSlashWrapped('/')).to.equal('/');
+      expect(Str.ensureSlashWrapped('///')).to.equal('/');
+    });
+
+    it('does not touch internal slashes', () => {
+      expect(Str.ensureSlashWrapped('/foo/bar')).to.equal('/foo/bar/');
+    });
+  });
 });

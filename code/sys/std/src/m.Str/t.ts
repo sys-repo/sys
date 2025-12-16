@@ -187,6 +187,24 @@ export type StrLib = {
    * Str.splitPathSegments("")                 // → []
    */
   splitPathSegments(str?: string): readonly string[];
+
+  /**
+   * Ensure a string is wrapped with exactly one leading and trailing `/`.
+   *
+   * - Purely lexical (not path-semantic)
+   * - Trims surrounding whitespace
+   * - Collapses duplicate edge slashes
+   * - Guarantees a non-empty result (`'/'` is the canonical empty)
+   *
+   * @example
+   * Str.ensureSlashWrapped("foo")        // → "/foo/"
+   * Str.ensureSlashWrapped("/foo")       // → "/foo/"
+   * Str.ensureSlashWrapped("foo/")       // → "/foo/"
+   * Str.ensureSlashWrapped("/foo/")      // → "/foo/"
+   * Str.ensureSlashWrapped("///foo///")  // → "/foo/"
+   * Str.ensureSlashWrapped("")           // → "/"
+   */
+  ensureSlashWrapped(str?: string): string;
 };
 
 /**

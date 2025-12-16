@@ -22,6 +22,7 @@ import {
   trimSlashes,
   trimTrailingSlashes,
 } from './u.trim.ts';
+import { ensureSlashWrapped } from './u.ensure.ts';
 import { truncate } from './u.truncate.ts';
 
 export { bytes, capitalize, diff, plural };
@@ -50,4 +51,5 @@ export const Str: t.StrLib = {
   trimLeadingDotSlash,
   stripPrefixOnce,
   splitPathSegments,
+  ensureSlashWrapped,
 };
