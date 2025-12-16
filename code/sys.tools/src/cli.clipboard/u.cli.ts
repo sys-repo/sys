@@ -31,7 +31,7 @@ async function run(cwd: t.StringDir) {
     options: [
       { name: `Copy Files (select)`, value: `files:select` },
       {
-        name: `Copy Files (select, depth=0) ${depth0}`,
+        name: `Copy Files (select, ${c.cyan('depth = 0')}) ${depth0}`,
         value: `files:select:depth=` as C,
       },
       { name: `Copy Files (all)`, value: `files:all` },
