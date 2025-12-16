@@ -4,6 +4,7 @@ import { startServing } from './cmd.serve/mod.ts';
 import { Config, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddServeLocation, promptRemoveDocument } from './u.prompt.ts';
+import { promptDirsMenu } from './u.prompt.dir.ts';
 
 type C = t.ServeTool.Command;
 
@@ -59,24 +60,16 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
     },
   } as const;
 
-  const listing = Config.orderByRecency(config.current.dirs).map((item, i, total) => {
-    const branch = Fmt.Tree.branch([i, total]);
-    let name = ` ${'serve:'} ${branch} ${c.green(item.name)}`;
-    return { name, value: item.dir };
-  });
-
-  const defaultCommand = listing.length > 0 ? listing[0].value : ('modify:add' satisfies C);
-  const A = (await Prompt.Select.prompt<C>({
+  const dirs = Config.orderByRecency(config.current.dirs).map(({ name, dir }) => ({ name, dir }));
+  const A = await promptDirsMenu({
     message: 'Tools:\n',
-    options: [
-      //
-      opt('   add: <local>', 'modify:add'),
-      ...listing,
-      opt(c.gray('(exit)'), 'exit'),
-    ],
-    default: defaultCommand as C,
-    hideDefault: true,
-  })) as C;
+    prefix: 'serve:',
+    dirs,
+    cmdAdd: 'modify:add',
+    cmdExit: 'exit',
+    addLabel: '   add: <local>',
+    onSelectDir: Update.locationLastUsedAt,
+  });
 
   if (A === 'exit') return done();
 
@@ -97,7 +90,6 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
       console.info();
       return done();
     }
-    await Update.locationLastUsedAt(location.dir);
 
     if (Fs.cwd() !== location.dir) {
       console.info(c.gray(`directory: ${location.dir}`));
