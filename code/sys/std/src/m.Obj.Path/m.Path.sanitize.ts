@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import { type t, Str } from './common.ts';
 
 export const sanitize: t.ObjPathLib['sanitize'] = (text, opts) => {
   const fixes: t.ObjPathFix[] = [];
@@ -16,7 +16,7 @@ export const sanitize: t.ObjPathLib['sanitize'] = (text, opts) => {
   if (codecKind === 'pointer') {
     // 2. Ensure leading slash for non-empty strings:
     if (out !== '' && !out.startsWith('/')) {
-      out = '/' + out.replace(/^\/+/, '');
+      out = '/' + Str.trimLeadingSlashes(out);
       fixes.push('ensured-leading-slash');
     }
 
@@ -30,7 +30,7 @@ export const sanitize: t.ObjPathLib['sanitize'] = (text, opts) => {
 
       // 4. remove trailing slash (but never remove sole root '/'):
       if (out.endsWith('/')) {
-        out = out.slice(0, -1);
+        out = Str.trimTrailingSlashes(out);
         fixes.push('removed-trailing-slash');
       }
     }
@@ -38,7 +38,7 @@ export const sanitize: t.ObjPathLib['sanitize'] = (text, opts) => {
 
   return {
     text: out,
-    fixes: fixes,
+    fixes,
   };
 };
 
