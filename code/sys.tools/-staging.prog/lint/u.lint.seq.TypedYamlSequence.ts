@@ -3,18 +3,33 @@ import { checkSequenceInvariants } from '../slug.MediaComposition.Sequence/u.sch
 import { type t, c, Slug, Schema } from './common.ts';
 
 const T = Schema.Value;
+const FACETS = ['sequence:schema'] as const;
+
+const empty = (): t.CrdtTool.Document.Lint.Result => ({
+  ok: true,
+  facets: [...FACETS],
+  issues: [],
+});
+
+const finalize = (
+  issues: readonly t.CrdtTool.Document.Lint.Issue[],
+): t.CrdtTool.Document.Lint.Result => ({
+  ok: issues.length === 0,
+  facets: [...FACETS],
+  issues,
+});
 
 export async function lintTypedYamlSequence(
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   opts: { debug?: boolean; checkInvariants?: boolean } = {},
-): Promise<t.LintResult> {
+): Promise<t.CrdtTool.Document.Lint.Result> {
   const { debug = false, checkInvariants = false } = opts;
 
   const Parse = Slug.parser(yamlPath);
   const node = Parse.findParsedNode(dag, docid);
-  if (!node) return { issues: [] };
+  if (!node) return empty();
 
   /**
    * We deliberately ask for the *normalized* sequence but opt out of
@@ -27,11 +42,11 @@ export async function lintTypedYamlSequence(
   if (!result.ok) {
     // Authoring-time lints for "cannot even derive a sequence" live elsewhere.
     // Here we only care about typed-YAML/schema-level issues.
-    return { issues: [] };
+    return empty();
   }
 
   const sequence = result.sequence;
-  const issues: t.LintIssue[] = [];
+  const issues: t.CrdtTool.Document.Lint.Issue[] = [];
 
   /**
    * First pass: structural/schema validation via TypeBox.
@@ -58,10 +73,11 @@ export async function lintTypedYamlSequence(
         kind: 'schema:sequence',
         path: `sequence${err.path ?? ''}`,
         message: err.message,
+        doc: { id: docid },
       })),
     );
 
-    return { issues };
+    return finalize(issues);
   }
 
   /**
@@ -76,9 +92,10 @@ export async function lintTypedYamlSequence(
         kind: 'schema:sequence',
         path: 'sequence',
         message,
+        doc: { id: docid },
       });
     }
   }
 
-  return { issues };
+  return finalize(issues);
 }

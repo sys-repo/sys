@@ -44,7 +44,7 @@ export async function promptAddDocument(
     return;
   }
 
-  const entry: t.CrdtTool.ConfigDocumentEntry = Delete.empty({ id, name, createdAt });
+  const entry: t.CrdtTool.Config.DocumentEntry = Delete.empty({ id, name, createdAt });
   config.change((d) => (d.docs || (d.docs = [])).push(entry));
   await config.fs.save();
 

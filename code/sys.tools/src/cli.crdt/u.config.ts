@@ -7,7 +7,7 @@ export const Config = {
   ...Base,
   get: getConfig,
   normalize,
-  findDocEntry(config: t.CrdtTool.ConfigDoc, docid: t.Crdt.Id) {
+  findDocEntry(config: t.CrdtTool.Config.Doc, docid: t.Crdt.Id) {
     const dirs = config.docs || (config.docs = []);
     return dirs.find((m) => m.id === docid);
   },
@@ -16,16 +16,17 @@ export const Config = {
 /**
  * Get or create the `-crdt.config.json` file.
  */
-export async function getConfig(dir: t.StringDir): Promise<t.CrdtTool.Config> {
+export async function getConfig(dir: t.StringDir): Promise<t.CrdtTool.Config.File> {
   const path = Fs.join(dir, D.Config.filename);
-  const doc = JsonFile.Singleton.get<t.CrdtTool.ConfigDoc>(path, D.Config.doc, { touch: true });
+  type Doc = t.CrdtTool.Config.Doc;
+  const doc = JsonFile.Singleton.get<Doc>(path, D.Config.doc, { touch: true });
   return doc;
 }
 
 /**
  * Perform migrations and other maintenance on the config-file data structure.
  */
-export async function normalize(config: t.CrdtTool.Config) {
+export async function normalize(config: t.CrdtTool.Config.File) {
   const current = config.current;
   /**
    * Ensure all items have a `createdAt` timestamp.

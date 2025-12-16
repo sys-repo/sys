@@ -2,15 +2,12 @@
  * @module types
  */
 
-export type * from '@sys/types';
-
-export type * from './-tmpl/t.ts';
-export type * from './-tmpl.cli/t.ts';
-export type * from './cli.clipboard/t.ts';
-export type * from './cli.crdt/t.ts';
-export type * from './cli.deploy/t.ts';
-export type * from './cli.fs/t.ts';
-export type * from './cli.serve/t.ts';
-export type * from './cli.update/t.ts';
-export type * from './cli.video/t.ts';
-export type * from './t.ts';
+/** Public namespaces. */
+export type { Tools } from './t.namespace.ts';
+export type { ClipboardTool } from './cli.clipboard/t.namespace.ts';
+export type { CrdtTool } from './cli.crdt/t.namespace.ts';
+export type { DeployTool } from './cli.deploy/t.namespace.ts';
+export type { FsTool } from './cli.fs/t.namespace.ts';
+export type { ServeTool } from './cli.serve/t.namespace.ts';
+export type { UpdateTool } from './cli.update/t.namespace.ts';
+export type { VideoTool } from './cli.video/t.namespace.ts';

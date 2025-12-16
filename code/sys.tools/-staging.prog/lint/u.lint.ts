@@ -6,7 +6,7 @@ import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
 
-type Issue = t.DocLintIssue;
+type Issue = t.CrdtTool.Document.Lint.Issue;
 
 /**
  * Lint namespace.
@@ -24,7 +24,7 @@ async function run(
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
   opts: { facets?: string[]; interactive?: boolean } = {},
-): Promise<t.LintAggregateResult> {
+): Promise<t.CrdtTool.Document.Lint.Result> {
   const { interactive = false } = opts;
   const issues: Issue[] = [];
   const Parse = Slug.parser(yamlPath);
@@ -53,6 +53,35 @@ async function run(
   const spinner = Cli.spinner();
   spinner.start();
 
+  type WithIssues<I> = { readonly issues: readonly I[] };
+  type WithDoc = { readonly doc: { readonly id: t.StringId } };
+  const extractIssues = <I>(input: unknown): readonly I[] => {
+    if (Array.isArray(input)) return input as readonly I[];
+    const obj = input as Partial<WithIssues<I>> | null;
+    const maybe = obj?.issues;
+    return Array.isArray(maybe) ? maybe : [];
+  };
+
+  const hasDoc = (issue: unknown): issue is WithDoc => {
+    const x = issue as Partial<WithDoc> | null;
+    return !!x?.doc && typeof x.doc.id === 'string';
+  };
+
+  const asObj = (v: unknown): Record<string, unknown> => {
+    return typeof v === 'object' && v !== null ? (v as Record<string, unknown>) : {};
+  };
+
+  const withDoc = (issue: unknown, id: t.StringId): Issue => {
+    return Object.assign({}, asObj(issue), { doc: { id } }) as Issue;
+  };
+
+  const pushIssuesForDoc = (id: t.StringId, input: unknown) => {
+    const src = extractIssues<Issue>(input);
+    for (const issue of src) {
+      issues.push(hasDoc(issue) ? issue : withDoc(issue, id));
+    }
+  };
+
   /**
    * Lint each Alias table in the DAG.
    */
@@ -64,9 +93,8 @@ async function run(
       if (!alias) continue;
 
       const id = node.id;
-      const baseResult = lintAliases(alias.resolver.alias);
-      const issuesForNode: Issue[] = baseResult.issues.map((issue) => ({ ...issue, doc: { id } }));
-      issuesForNode.forEach((issue) => issues.push(issue));
+      const baseResult = lintAliases(id, alias.resolver.alias);
+      pushIssuesForDoc(id, baseResult);
     }
   }
 
@@ -80,8 +108,7 @@ async function run(
     for (const node of dag.nodes) {
       const id = node.id;
       const baseResult = await lintSequenceFilepaths(dag, yamlPath, node.id, { facets });
-      const issuesForNode: Issue[] = baseResult.issues.map((issue) => ({ ...issue, doc: { id } }));
-      issuesForNode.forEach((issue) => issues.push(issue));
+      pushIssuesForDoc(id, baseResult);
     }
   }
 
@@ -104,14 +131,13 @@ async function run(
     /** Process DAG nodes */
     for (const node of dag.nodes) {
       index++;
-      let msg = `bundling assets for ${Fmt.prettyUri(node.id)} (${c.white(String(index))} of ${total})...`;
+      const msg = `bundling assets for ${Fmt.prettyUri(node.id)} (${c.white(String(index))} of ${total})...`;
       spinner.text = Fmt.spinnerText(msg);
 
       const id = node.id;
       const result = await bundleSequenceFilepaths(dag, yamlPath, node.id, { facets });
 
-      const issuesForNode: Issue[] = result.issues.map((issue) => ({ ...issue, doc: { id } }));
-      issuesForNode.forEach((issue) => issues.push(issue));
+      pushIssuesForDoc(id, result);
       addDir(result);
     }
 
@@ -136,8 +162,7 @@ async function run(
         checkInvariants: true,
         debug: false,
       });
-      const issuesForNode: Issue[] = baseResult.issues.map((issue) => ({ ...issue, doc: { id } }));
-      issuesForNode.forEach((issue) => issues.push(issue));
+      pushIssuesForDoc(id, baseResult);
     }
   }
 

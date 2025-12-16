@@ -21,7 +21,7 @@ export type LintSequenceFilepathKind =
  * - `resolvedPath`: fully resolved filesystem path
  * - `closestMatch`: optional suggestion for misspellings / nearby files
  */
-export type LintSequenceFilepath = t.DocLintIssue<LintSequenceFilepathKind> & {
+export type LintSequenceFilepath = t.CrdtTool.Document.Lint.Issue<LintSequenceFilepathKind> & {
   readonly raw: string;
   readonly resolvedPath: string;
   readonly closestMatch?: string;
@@ -32,7 +32,9 @@ export type LintSequenceFilepath = t.DocLintIssue<LintSequenceFilepathKind> & {
  *
  * This is pure lint metadata: no bundling, no slug-specific output dirs.
  */
-export type LintSequenceFilepathResult = t.LintResult<LintSequenceFilepathKind>;
+export type LintSequenceFilepathResult = {
+  readonly issues: readonly LintSequenceFilepath[];
+};
 
 /**
  * Callback invoked for each media reference encountered while walking

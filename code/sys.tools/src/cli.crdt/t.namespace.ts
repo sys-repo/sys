@@ -25,46 +25,62 @@ export namespace CrdtTool {
     | 'exit'
     | 'tmp:🐷';
 
-  /**
-   * Command line arguments (argv).
-   */
+  /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs;
+  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+
+  /** Document related types. */
+  export namespace Document {
+    /** Document-graph types. */
+    export namespace Graph {
+      export type DagHook = t.DocumentGraphDagHook;
+      export type WalkHook = t.DocumentGraphWalkHook;
+    }
+    /** Document linting types. */
+    export namespace Lint {
+      export type Issue<K extends string = string> = t.DocLintIssue<K>;
+      export type Result<K extends string = string> = t.DocLintResult<K>;
+      export type Severity = t.LintSeverity;
+    }
+  }
 
   /**
    * Config File
    */
-  export type Config = t.JsonFile<ConfigDoc>;
-  export type ConfigDoc = t.JsonFileDoc & {
-    version: string;
-    docs?: ConfigDocumentEntry[];
-    repo: ConfigRepo;
-  };
+  export namespace Config {
+    export type File = t.JsonFile<Config.Doc>;
+    export type Doc = t.JsonFileDoc & {
+      version: string;
+      docs?: Config.DocumentEntry[];
+      repo: Config.Repo;
+    };
 
-  /**
-   * Documents:
-   */
-  export type ConfigDocumentEntry = {
-    id: t.StringId;
-    name?: t.StringName;
-    createdAt?: t.UnixTimestamp;
-    lastUsedAt?: t.UnixTimestamp;
-    lint?: { facets?: string[] };
+    /**
+     * Config: Documents.
+     */
+    export type DocumentEntry = {
+      id: t.StringId;
+      name?: t.StringName;
+      createdAt?: t.UnixTimestamp;
+      lastUsedAt?: t.UnixTimestamp;
+      lint?: { facets?: string[] };
 
-    /** Per-document indexes (optional). */
-    indexes?: CrdtTool.Indexes;
-  };
+      /** Per-document indexes (optional). */
+      indexes?: Indexes;
+    };
 
-  /**
-   * Filesystem directory index configuration.
-   */
-  export type Indexes = t.CrdtIndexes;
-  export type DirIndexes = t.CrdtDirIndexes;
-  export type Subdir = t.Subdir;
-  export type DirIndexEntry = t.CrdtDirIndexEntry;
+    /**
+     * Config: Filesystem directory index configuration.
+     */
+    export type Indexes = t.CrdtIndexes;
+    export type DirIndexes = t.CrdtDirIndexes;
+    export type Subdir = t.Subdir;
+    export type DirIndexEntry = t.CrdtDirIndexEntry;
 
-  /**
-   * Repositories:
-   */
-  export type ConfigRepo = { daemon: ConfigRepoDaemon };
-  export type ConfigRepoDaemon = { sync: { websockets: [] } };
+    /**
+     * Config: Repositories.
+     */
+    export type Repo = { daemon: RepoDaemon };
+    export type RepoDaemon = { sync: { websockets: [] } };
+  }
 }

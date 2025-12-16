@@ -1,14 +1,6 @@
 import type { t } from './common.ts';
 
 /**
- * CLI helpers for working with Deploy.
- */
-export type DeployToolsLib = {
-  /** Run the interactive CLI flow (prompts + spinner). */
-  cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
-};
-
-/**
  * The Deploy type namespace.
  */
 export namespace DeployTool {
