@@ -9,7 +9,7 @@ describe('tool: Deploy', () => {
 
   describe('config file', () => {
     it('singleton JsonFile for the terminal/working directory', async () => {
-      type Doc = t.DeployTool.ConfigDoc;
+      type Doc = t.DeployTool.Config.Doc;
 
       const dir = Fs.join(root, slug());
       const path = Fs.join(dir, D.Config.filename);

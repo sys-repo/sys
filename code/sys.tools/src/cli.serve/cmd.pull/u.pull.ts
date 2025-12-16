@@ -35,7 +35,7 @@ const Fmt = {
  */
 export async function pullRemoteBundle(
   baseDir: t.StringDir,
-  bundle: t.ServeTool.DirRemoteBundle,
+  bundle: t.ServeTool.Config.RemoteBundleDir,
 ): Promise<t.PullBundleResult> {
   const spinner = Cli.spinner();
   const targetDir = `${baseDir}/${bundle.local.dir}`;

@@ -12,7 +12,7 @@ type Opts = { port?: number };
  */
 export async function startServing(
   cwd: t.StringDir,
-  location: t.ServeTool.DirConfig,
+  location: t.ServeTool.Config.Dir,
   opts: Opts = {},
 ): Promise<void> {
   const { dir, contentTypes } = location;

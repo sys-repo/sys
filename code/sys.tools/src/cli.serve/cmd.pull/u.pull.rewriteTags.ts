@@ -24,7 +24,10 @@ export type RewriteFile = {
  *   The HTML becomes self-consistent under the chosen local bundle.
  */
 
-export async function rewriteTags(baseDir: t.StringDir, bundleConfig: t.ServeTool.DirRemoteBundle) {
+export async function rewriteTags(
+  baseDir: t.StringDir,
+  bundleConfig: t.ServeTool.Config.RemoteBundleDir,
+) {
   const glob = Fs.glob(Fs.join(baseDir, bundleConfig.local.dir));
   const paths = await glob.find('**/index.html');
 

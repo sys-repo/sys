@@ -12,16 +12,16 @@ export const Config = {
 /**
  * Get or create the `-<name>.config.json` file.
  */
-export async function getConfig(dir: t.StringDir): Promise<t.DeployTool.Config> {
+export async function getConfig(dir: t.StringDir): Promise<t.DeployTool.Config.File> {
   const path = Fs.join(dir, D.Config.filename);
-  const doc = JsonFile.Singleton.get<t.DeployTool.ConfigDoc>(path, D.Config.doc, { touch: true });
+  const doc = JsonFile.Singleton.get<t.DeployTool.Config.Doc>(path, D.Config.doc, { touch: true });
   return doc;
 }
 
 /**
  * Perform migrations and other maintenance on the config-file data structure.
  */
-export async function normalize(config: t.DeployTool.Config) {
+export async function normalize(config: t.DeployTool.Config.File) {
   /** Save if changed */
   if (config.fs.pending) await config.fs.save();
 }

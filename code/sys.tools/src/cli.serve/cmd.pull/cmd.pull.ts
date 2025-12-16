@@ -5,7 +5,7 @@ import { pullRemoteBundle } from './u.pull.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
 type C = t.ServeTool.Command;
-type R = { bundle?: t.ServeTool.DirRemoteBundle };
+type R = { bundle?: t.ServeTool.Config.RemoteBundleDir };
 
 const Fmt = {
   ...BaseFmt,
@@ -16,14 +16,14 @@ const Fmt = {
   },
 } as const;
 
-export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.DirConfig): Promise<R> {
+export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.Config.Dir): Promise<R> {
   const config = await Config.get(cwd);
 
   // Stored key (portable) vs absolute dir (runtime):
   const locationKey = location.dir;
   const locationAbsDir = Config.resolveDir(cwd, location.dir);
 
-  const done = (bundle?: t.ServeTool.DirRemoteBundle) => ({ bundle });
+  const done = (bundle?: t.ServeTool.Config.RemoteBundleDir) => ({ bundle });
 
   const PULL_PREFIX = 'bundle:pull-latest:';
   const optBundles = (location.remoteBundles ?? []).map((m, i, total) => {
@@ -130,7 +130,7 @@ export async function validateUrl(input: string) {
   return true;
 }
 
-export async function validateSubdir(input: string, location: t.ServeTool.DirConfig) {
+export async function validateSubdir(input: string, location: t.ServeTool.Config.Dir) {
   if (!input.trim()) return 'Cannot be empty';
 
   const target = Fs.join(location.dir, input);
@@ -144,4 +144,3 @@ export async function validateSubdir(input: string, location: t.ServeTool.DirCon
 
   return true;
 }
-// 🌸 ---------- /FIXED ----------

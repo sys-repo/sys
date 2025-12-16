@@ -12,7 +12,7 @@ type Args = {
 /**
  * Pure async helper for the JSON "view" of the serve route.
  */
-export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonViewResult> {
+export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonView.Result> {
   const { stat, mime, allowedMimes } = args;
 
   if (stat.isFile) {
@@ -34,7 +34,7 @@ export async function serveJsonView(args: Args): Promise<t.ServeTool.JsonViewRes
     const dir = Fs.basename(args.path.fs);
     const filter = makeFilter({ allowedMimes });
 
-    type Body = t.ServeTool.JsonViewFolder['body'];
+    type Body = t.ServeTool.JsonView.Folder['body'];
     const files: Body['files'] = [];
     const entries = await Fs.glob(args.path.fs).find('*');
 

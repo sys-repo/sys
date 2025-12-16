@@ -31,7 +31,7 @@ export const Config = {
    * Lookup a serve-location by its stored key.
    * Callers should pass the stored `dir` value ('.' or relative when inside cwd).
    */
-  findLocation(config: t.ServeTool.ConfigDoc, dir: t.StringDir) {
+  findLocation(config: t.ServeTool.Config.Doc, dir: t.StringDir) {
     return (config.dirs ?? []).find((m) => m.dir === dir);
   },
 
@@ -40,7 +40,7 @@ export const Config = {
    * Requires the stored location key.
    */
   findBundle(
-    config: t.ServeTool.ConfigDoc,
+    config: t.ServeTool.Config.Doc,
     locationDir: t.StringDir,
     localDir?: t.StringRelativeDir,
   ) {

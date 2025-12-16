@@ -8,7 +8,7 @@ type M = t.ServeTool.MenuOption;
 export const ServeMenu = {
   async bundlesMenuOptions(
     cwd: t.StringDir,
-    location: t.ServeTool.DirConfig,
+    location: t.ServeTool.Config.Dir,
     opts: { includeRoot?: boolean } = {},
   ): Promise<M[]> {
     const { includeRoot = true } = opts;

@@ -13,7 +13,7 @@ export const D = {
   Path: {},
   Config: {
     filename: '-deploy.config.json',
-    doc: JsonFile.default<t.DeployTool.ConfigDoc>({ name }),
+    doc: JsonFile.default<t.DeployTool.Config.Doc>({ name }),
   },
 } as const;
 

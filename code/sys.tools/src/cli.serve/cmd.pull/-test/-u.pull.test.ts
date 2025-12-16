@@ -12,7 +12,7 @@ describe('cli.serve/cmd.pull → URL + HTML helpers', () => {
   describe('rewriteTags', () => {
     it('rewrites root index base from remote host to local mount (/foo/)', async () => {
       const baseDir = (await makeTestDir()) as t.StringDir;
-      const bundle: t.ServeTool.DirRemoteBundle = {
+      const bundle: t.ServeTool.Config.RemoteBundleDir = {
         remote: { dist: 'https://example.com/dist.json' },
         local: { dir: 'foo' },
       };
@@ -64,7 +64,7 @@ describe('cli.serve/cmd.pull → URL + HTML helpers', () => {
 
     it('rewrites bundle index base and asset URLs for /sys/sys/ui.components/', async () => {
       const baseDir = (await makeTestDir()) as t.StringDir;
-      const bundle: t.ServeTool.DirRemoteBundle = {
+      const bundle: t.ServeTool.Config.RemoteBundleDir = {
         remote: { dist: 'https://example.com/dist.json' },
         local: { dir: 'sys' },
       };

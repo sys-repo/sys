@@ -1,20 +1,20 @@
 import { type t } from './common.ts';
 import { absKey, resolveDir, normalizeLocalDir } from './u.config.normalize.ts';
 
-type Draft = t.ServeTool.ConfigDoc;
+type Draft = t.ServeTool.Config.Doc;
 
 type MutateGetLocationResult = {
   readonly exists: boolean;
   readonly index: number;
-  readonly locations: t.ServeTool.DirConfig[];
-  readonly location: t.ServeTool.DirConfig | undefined;
+  readonly locations: t.ServeTool.Config.Dir[];
+  readonly location: t.ServeTool.Config.Dir | undefined;
 };
 
 type MutateGetRemoteBundleResult = {
-  readonly bundle: t.ServeTool.DirRemoteBundle | undefined;
+  readonly bundle: t.ServeTool.Config.RemoteBundleDir | undefined;
   readonly exists: boolean;
   readonly index: number;
-  readonly bundles: t.ServeTool.DirRemoteBundle[] | undefined;
+  readonly bundles: t.ServeTool.Config.RemoteBundleDir[] | undefined;
   readonly location: MutateGetLocationResult;
 };
 
@@ -71,7 +71,7 @@ export const MutateConfig = {
     const index = bundles.findIndex((m) => m.remote.dist === distUrl && m.local.dir === local);
 
     const exists = index > -1;
-    let bundle: t.ServeTool.DirRemoteBundle | undefined;
+    let bundle: t.ServeTool.Config.RemoteBundleDir | undefined;
 
     if (exists) {
       bundle = bundles[index]!;

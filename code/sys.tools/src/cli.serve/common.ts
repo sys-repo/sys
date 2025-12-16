@@ -17,7 +17,7 @@ export const D = {
   Path: {},
   Config: {
     filename: '-serve.config.json',
-    doc: JsonFile.default<t.ServeTool.ConfigDoc>({ name }),
+    doc: JsonFile.default<t.ServeTool.Config.Doc>({ name }),
   },
 } as const;
 

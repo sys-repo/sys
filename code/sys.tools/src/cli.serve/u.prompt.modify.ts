@@ -65,7 +65,7 @@ export async function promptAddServeLocation(
     },
   });
 
-  function update(location: Partial<t.ServeTool.DirConfig>): t.ServeTool.DirConfig {
+  function update(location: Partial<t.ServeTool.Config.Dir>): t.ServeTool.Config.Dir {
     location.dir = storedPath;
 
     const types: t.ServeTool.MimeType[] = [];
@@ -73,7 +73,7 @@ export async function promptAddServeLocation(
 
     location.contentTypes = types;
     location.name = name;
-    return location as t.ServeTool.DirConfig;
+    return location as t.ServeTool.Config.Dir;
   }
 
   config.change((d) => {
@@ -95,7 +95,7 @@ export async function promptAddServeLocation(
 /**
  * Remove a document from the config.
  */
-export async function promptRemoveDocument(dir: t.StringDir, location: t.ServeTool.DirConfig) {
+export async function promptRemoveDocument(dir: t.StringDir, location: t.ServeTool.Config.Dir) {
   const config = await Config.get(dir);
   const ok = await Cli.Input.Confirm.prompt({
     message: 'Remove from your config?',

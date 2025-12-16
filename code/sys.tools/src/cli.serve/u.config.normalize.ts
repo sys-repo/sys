@@ -32,7 +32,7 @@ export function normalizeLocalDir(localDir: t.StringRelativeDir): t.StringRelati
  * - store locations as '.' / relative when inside cwd (portable config)
  * - merge duplicates deterministically
  */
-export async function normalize(config: t.ServeTool.Config, cwd?: t.StringDir) {
+export async function normalize(config: t.ServeTool.Config.File, cwd?: t.StringDir) {
   const current = config.current;
 
   // If no cwd is provided, we cannot safely resolve rel-vs-abs identity.
@@ -41,8 +41,8 @@ export async function normalize(config: t.ServeTool.Config, cwd?: t.StringDir) {
   const input = current.dirs ?? [];
   if (!input.length) return;
 
-  const out: t.ServeTool.DirConfig[] = [];
-  const byAbs = new Map<string, t.ServeTool.DirConfig>();
+  const out: t.ServeTool.Config.Dir[] = [];
+  const byAbs = new Map<string, t.ServeTool.Config.Dir>();
 
   let changed = false;
 
@@ -53,7 +53,7 @@ export async function normalize(config: t.ServeTool.Config, cwd?: t.StringDir) {
 
     const existing = byAbs.get(key);
     if (!existing) {
-      const next: t.ServeTool.DirConfig =
+      const next: t.ServeTool.Config.Dir =
         item.dir === stored ? { ...item } : { ...item, dir: stored };
       if (next.dir !== item.dir) changed = true;
 
@@ -80,7 +80,7 @@ export async function normalize(config: t.ServeTool.Config, cwd?: t.StringDir) {
   if (config.fs.pending) await config.fs.save();
 }
 
-function mergeLocation(dst: t.ServeTool.DirConfig, src: t.ServeTool.DirConfig) {
+function mergeLocation(dst: t.ServeTool.Config.Dir, src: t.ServeTool.Config.Dir) {
   // createdAt: keep oldest if present
   if (src.createdAt && (!dst.createdAt || src.createdAt < dst.createdAt))
     dst.createdAt = src.createdAt;
@@ -110,14 +110,14 @@ function mergeUnique<T extends string>(a: readonly T[], b: readonly T[]): T[] {
 }
 
 function mergeRemoteBundles(
-  a: readonly t.ServeTool.DirRemoteBundle[],
-  b: readonly t.ServeTool.DirRemoteBundle[],
-): t.ServeTool.DirRemoteBundle[] {
-  const out: t.ServeTool.DirRemoteBundle[] = [...a];
+  a: readonly t.ServeTool.Config.RemoteBundleDir[],
+  b: readonly t.ServeTool.Config.RemoteBundleDir[],
+): t.ServeTool.Config.RemoteBundleDir[] {
+  const out: t.ServeTool.Config.RemoteBundleDir[] = [...a];
 
-  const keyOf = (m: t.ServeTool.DirRemoteBundle) =>
+  const keyOf = (m: t.ServeTool.Config.RemoteBundleDir) =>
     `${m.remote.dist}::${normalizeLocalDir(m.local.dir)}`;
-  const index = new Map<string, t.ServeTool.DirRemoteBundle>();
+  const index = new Map<string, t.ServeTool.Config.RemoteBundleDir>();
 
   for (const item of out) index.set(keyOf(item), item);
 
@@ -126,7 +126,7 @@ function mergeRemoteBundles(
     const hit = index.get(k);
 
     if (!hit) {
-      const next: t.ServeTool.DirRemoteBundle = {
+      const next: t.ServeTool.Config.RemoteBundleDir = {
         ...item,
         local: { ...item.local, dir: normalizeLocalDir(item.local.dir) },
       };

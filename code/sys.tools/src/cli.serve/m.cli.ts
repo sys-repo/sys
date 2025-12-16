@@ -83,7 +83,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
 
   const locationKey = location.dir; // stored (portable) key
   const locationAbsDir = Config.resolveDir(cwd, location.dir);
-  const runtimeLocation: t.ServeTool.DirConfig = { ...location, dir: locationAbsDir };
+  const runtimeLocation: t.ServeTool.Config.Dir = { ...location, dir: locationAbsDir };
 
   if (Fs.cwd() !== locationAbsDir) {
     console.info(c.gray(`directory: ${locationAbsDir}`));
