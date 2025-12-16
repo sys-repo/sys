@@ -5,7 +5,7 @@ import { updateTypesFile } from '../tmpl.m.mod/.tmpl.ts';
  * Setup the template (after copy):
  */
 export default async function setup(dir: t.StringAbsoluteDir, options: { name?: string } = {}) {
-  const name = options.name ?? (await Cli.Prompt.Input.prompt({ message: 'Component Name:' }));
+  const name = options.name ?? (await Cli.Input.Text.prompt({ message: 'Component Name:' }));
 
   const denofile = await DenoFile.Path.nearest(dir);
   const pkgDir = denofile ? Fs.dirname(denofile) : undefined;

@@ -1,4 +1,4 @@
-import { type t, Pkg, pkg, Fs, c, Cli, LintDocFacets as Facets, Slug, Obj } from './common.ts';
+import { type t, c, Cli, LintDocFacets as Facets, Fs, Obj, Pkg, pkg, Slug } from './common.ts';
 
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
@@ -40,11 +40,9 @@ async function run(
       checked,
     });
     const options = Facets.map((value) => opt(value, facets.includes(value)));
-    facets = (await Cli.Prompt.Checkbox.prompt({
+    facets = (await Cli.Input.Checkbox.prompt({
       message: 'Select lint on facets',
       options,
-      check: c.green('●'),
-      uncheck: c.gray('○'),
     })) as t.DocLintFacet[];
   }
 

@@ -32,7 +32,7 @@ console.info(table.toString().trim())
 /**
  * Prompting:
  */
-const dirname = await Cli.Prompt.Input.prompt({
+const dirname = await Cli.Input.Text.prompt({
   message: 'Folder Name',
   default: 'foo',
   // Keep folder-name simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces).

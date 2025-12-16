@@ -33,7 +33,7 @@ const print = () => {
 /**
  * Get ID:
  */
-const id = await Cli.Prompt.Input.prompt('document-id:');
+const id = await Cli.Input.Text.prompt('document-id:');
 if (!id) {
   console.info(c.gray(c.italic('no document-id provided')));
   Deno.exit(0);
