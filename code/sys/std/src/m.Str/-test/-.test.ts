@@ -607,6 +607,38 @@ describe('Str (String)', () => {
     });
   });
 
+  describe('Str.trimLeadingDotSlash', () => {
+    it('removes a single leading ./', () => {
+      expect(Str.trimLeadingDotSlash('./foo')).to.equal('foo');
+    });
+
+    it('removes repeated leading ./ segments', () => {
+      expect(Str.trimLeadingDotSlash('././foo')).to.equal('foo');
+      expect(Str.trimLeadingDotSlash('./././foo')).to.equal('foo');
+    });
+
+    it('does not affect internal ./ segments', () => {
+      expect(Str.trimLeadingDotSlash('foo/./bar')).to.equal('foo/./bar');
+    });
+
+    it('does not affect trailing ./ segments', () => {
+      expect(Str.trimLeadingDotSlash('foo/.')).to.equal('foo/.');
+    });
+
+    it('leaves strings without leading ./ unchanged', () => {
+      expect(Str.trimLeadingDotSlash('foo/bar')).to.equal('foo/bar');
+    });
+
+    it('handles leading slashes separately (no cross-trimming)', () => {
+      expect(Str.trimLeadingDotSlash('/./foo')).to.equal('/./foo');
+    });
+
+    it('handles empty and undefined input safely', () => {
+      expect(Str.trimLeadingDotSlash('')).to.equal('');
+      expect(Str.trimLeadingDotSlash(undefined)).to.equal('');
+    });
+  });
+
   describe('Str.count', () => {
     it('returns 0 when substring is not found', () => {
       expect(Str.count('hello world', 'xyz')).eql(0);

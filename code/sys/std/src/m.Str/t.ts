@@ -80,6 +80,9 @@ export type StrLib = {
    */
   dedent(str: string): string;
 
+  /** Count non-overlapping occurrences of a substring. */
+  count(text: string, sub: string): number;
+
   /**
    * Remove leading/trailing newlines only — preserves internal and first-char whitespace.
    */
@@ -138,8 +141,20 @@ export type StrLib = {
    */
   trimHttpScheme(str?: string): string;
 
-  /** Count non-overlapping occurrences of a substring. */
-  count(text: string, sub: string): number;
+  /**
+   * Remove a leading `./` (or repeated `././`) prefix from a string.
+   *
+   * - Purely lexical (not path-semantic)
+   * - Safe for undefined / empty input
+   * - Removes one or more leading `./` segments only
+   * - Does not touch internal or trailing content
+   *
+   * @example
+   * Str.trimLeadingDotSlash("./foo/bar")    // → "foo/bar"
+   * Str.trimLeadingDotSlash("././foo")      // → "foo"
+   * Str.trimLeadingDotSlash("foo/bar")      // → "foo/bar"
+   */
+  trimLeadingDotSlash(str?: string): string;
 
   /** Create a new string builder. */
   builder(options?: t.StrBuilderOptions): t.StrBuilder;

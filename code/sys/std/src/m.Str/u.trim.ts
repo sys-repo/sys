@@ -48,3 +48,20 @@ export const trimTrailingSlashes: t.StrLib['trimTrailingSlashes'] = (str = '') =
 export const trimHttpScheme: t.StrLib['trimHttpScheme'] = (str = '') => {
   return str.replace(/^https?:\/\//, '');
 };
+
+/**
+ * Remove one or more leading `./` segments from a string.
+ *
+ * - Purely lexical (not path-semantic)
+ * - Safe for undefined / empty input
+ * - Removes repeated leading `./` only
+ * - Does not touch internal or trailing content
+ *
+ * @example
+ * Str.trimLeadingDotSlash("./foo/bar") // → "foo/bar"
+ * Str.trimLeadingDotSlash("././foo")   // → "foo"
+ * Str.trimLeadingDotSlash("foo/bar")   // → "foo/bar"
+ */
+export const trimLeadingDotSlash: t.StrLib['trimLeadingDotSlash'] = (str = '') => {
+  return str.replace(/^(?:\.\/)+/, '');
+};
