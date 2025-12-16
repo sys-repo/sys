@@ -12,7 +12,7 @@ await env();
  * Called once for after the complete document DAG has been calculated.
  * Use this to perform operations on the complete document graph via CRDT commands.
  */
-export const onDag: t.CrdtTool.Document.Graph.DagHook = async (e) => {
+export const onDag: t.CrdtTool.Doc.Graph.DagHook = async (e) => {
   const { cmd, dag } = e;
 
   // 🐷
@@ -29,7 +29,7 @@ export const onDag: t.CrdtTool.Document.Graph.DagHook = async (e) => {
  * Called once for every document encountered during a DAG walk.
  * Use this to inspect, validate, or mutate documents via CRDT commands.
  */
-export const onWalk: t.CrdtTool.Document.Graph.WalkHook = async (e) => {
+export const onWalk: t.CrdtTool.Doc.Graph.WalkHook = async (e) => {
   const { cmd } = e;
   const current = e.doc.current;
 

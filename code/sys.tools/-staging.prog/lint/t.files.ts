@@ -21,7 +21,7 @@ export type LintSequenceFilepathKind =
  * - `resolvedPath`: fully resolved filesystem path
  * - `closestMatch`: optional suggestion for misspellings / nearby files
  */
-export type LintSequenceFilepath = t.CrdtTool.Document.Lint.Issue<LintSequenceFilepathKind> & {
+export type LintSequenceFilepath = t.CrdtTool.Doc.Lint.Issue<LintSequenceFilepathKind> & {
   readonly raw: string;
   readonly resolvedPath: string;
   readonly closestMatch?: string;

@@ -30,7 +30,7 @@ export namespace CrdtTool {
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
   /** Document related types. */
-  export namespace Document {
+  export namespace Doc {
     /** Document-graph types. */
     export namespace Graph {
       export type DagHook = t.DocumentGraphDagHook;

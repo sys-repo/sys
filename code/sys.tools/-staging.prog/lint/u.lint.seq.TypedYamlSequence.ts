@@ -5,15 +5,13 @@ import { type t, c, Slug, Schema } from './common.ts';
 const T = Schema.Value;
 const FACETS = ['sequence:schema'] as const;
 
-const empty = (): t.CrdtTool.Document.Lint.Result => ({
+const empty = (): t.CrdtTool.Doc.Lint.Result => ({
   ok: true,
   facets: [...FACETS],
   issues: [],
 });
 
-const finalize = (
-  issues: readonly t.CrdtTool.Document.Lint.Issue[],
-): t.CrdtTool.Document.Lint.Result => ({
+const finalize = (issues: readonly t.CrdtTool.Doc.Lint.Issue[]): t.CrdtTool.Doc.Lint.Result => ({
   ok: issues.length === 0,
   facets: [...FACETS],
   issues,
@@ -24,7 +22,7 @@ export async function lintTypedYamlSequence(
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   opts: { debug?: boolean; checkInvariants?: boolean } = {},
-): Promise<t.CrdtTool.Document.Lint.Result> {
+): Promise<t.CrdtTool.Doc.Lint.Result> {
   const { debug = false, checkInvariants = false } = opts;
 
   const Parse = Slug.parser(yamlPath);
@@ -46,7 +44,7 @@ export async function lintTypedYamlSequence(
   }
 
   const sequence = result.sequence;
-  const issues: t.CrdtTool.Document.Lint.Issue[] = [];
+  const issues: t.CrdtTool.Doc.Lint.Issue[] = [];
 
   /**
    * First pass: structural/schema validation via TypeBox.
