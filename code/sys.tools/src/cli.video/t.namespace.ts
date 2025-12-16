@@ -13,6 +13,7 @@ export namespace VideoTool {
 
   /** Command names */
   export type Command = Conversion | 'probe-file';
+  export type MenuOption = { name: string; value: Command };
 
   /** Supported video conversion directions. */
   export type Conversion = 'webm-to-mp4' | 'mp4-to-webm';

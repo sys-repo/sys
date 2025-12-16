@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * The `@sys/tools/update` namespace
+ * The `@sys/tools/update` namespace.
  */
 export namespace UpdateTool {
   export type Id = 'update';
@@ -11,9 +11,7 @@ export namespace UpdateTool {
   export type CliArgs = t.Tools.CliArgs & { latest?: boolean };
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
-  /**
-   * Table of update versions
-   */
+  /** Table of update versions. */
   export type VersionInfo = {
     readonly local: t.StringSemver;
     readonly remote: t.StringSemver;
