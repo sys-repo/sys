@@ -464,6 +464,50 @@ describe('Str (String)', () => {
     });
   });
 
+  describe('Str.count', () => {
+    it('returns 0 when substring is not found', () => {
+      expect(Str.count('hello world', 'xyz')).eql(0);
+    });
+
+    it('counts non-overlapping occurrences', () => {
+      expect(Str.count('foo bar foo baz foo', 'foo')).eql(3);
+    });
+
+    it('works with single-character substrings', () => {
+      expect(Str.count('banana', 'a')).eql(3);
+    });
+
+    it('returns 0 when substring is empty', () => {
+      // Important: empty substring is undefined behaviour in split().
+      // We define it explicitly as returning 0.
+      expect(Str.count('abc', '')).eql(0);
+    });
+
+    it('handles substring at the start', () => {
+      expect(Str.count('foo123', 'foo')).eql(1);
+    });
+
+    it('handles substring at the end', () => {
+      expect(Str.count('123foo', 'foo')).eql(1);
+    });
+
+    it('handles repeated adjacent substrings', () => {
+      expect(Str.count('foofoofoo', 'foo')).eql(3);
+    });
+
+    it('is literal and does not treat substring as regex', () => {
+      expect(Str.count('a.c a.c a.c', 'a.c')).eql(3);
+    });
+
+    it('handles unicode correctly (non-overlapping)', () => {
+      expect(Str.count('🧠x🧠y🌳', '🧠')).eql(2);
+    });
+
+    it('returns 0 for missing unicode substrings', () => {
+      expect(Str.count('🐚🐚', '💧')).eql(0);
+    });
+  });
+
   describe('Str.trimEdgeNewlines', () => {
     const fn = Str.trimEdgeNewlines;
 
@@ -673,47 +717,33 @@ describe('Str (String)', () => {
     });
   });
 
-  describe('Str.count', () => {
-    it('returns 0 when substring is not found', () => {
-      expect(Str.count('hello world', 'xyz')).eql(0);
+  describe('Str.splitPathSegments', () => {
+    it('splits forward-slash paths into segments', () => {
+      expect(Str.splitPathSegments('foo/bar/baz')).to.eql(['foo', 'bar', 'baz']);
     });
 
-    it('counts non-overlapping occurrences', () => {
-      expect(Str.count('foo bar foo baz foo', 'foo')).eql(3);
+    it('splits backslash paths into segments', () => {
+      expect(Str.splitPathSegments('foo\\bar\\baz')).to.eql(['foo', 'bar', 'baz']);
     });
 
-    it('works with single-character substrings', () => {
-      expect(Str.count('banana', 'a')).eql(3);
+    it('handles mixed slashes', () => {
+      expect(Str.splitPathSegments('foo/bar\\baz')).to.eql(['foo', 'bar', 'baz']);
     });
 
-    it('returns 0 when substring is empty', () => {
-      // Important: empty substring is undefined behaviour in split().
-      // We define it explicitly as returning 0.
-      expect(Str.count('abc', '')).eql(0);
+    it('collapses repeated slashes', () => {
+      expect(Str.splitPathSegments('foo///bar\\\\baz')).to.eql(['foo', 'bar', 'baz']);
     });
 
-    it('handles substring at the start', () => {
-      expect(Str.count('foo123', 'foo')).eql(1);
+    it('trims leading and trailing slashes implicitly', () => {
+      expect(Str.splitPathSegments('/foo/bar/')).to.eql(['foo', 'bar']);
     });
 
-    it('handles substring at the end', () => {
-      expect(Str.count('123foo', 'foo')).eql(1);
+    it('returns an empty array for empty input', () => {
+      expect(Str.splitPathSegments('')).to.eql([]);
     });
 
-    it('handles repeated adjacent substrings', () => {
-      expect(Str.count('foofoofoo', 'foo')).eql(3);
-    });
-
-    it('is literal and does not treat substring as regex', () => {
-      expect(Str.count('a.c a.c a.c', 'a.c')).eql(3);
-    });
-
-    it('handles unicode correctly (non-overlapping)', () => {
-      expect(Str.count('🧠x🧠y🌳', '🧠')).eql(2);
-    });
-
-    it('returns 0 for missing unicode substrings', () => {
-      expect(Str.count('🐚🐚', '💧')).eql(0);
+    it('returns an empty array for undefined input', () => {
+      expect(Str.splitPathSegments(undefined)).to.eql([]);
     });
   });
 });

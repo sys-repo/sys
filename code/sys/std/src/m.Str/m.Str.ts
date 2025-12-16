@@ -12,6 +12,7 @@ import { ellipsize } from './u.ellipsize.ts';
 import { indent } from './u.indent.ts';
 import { plural } from './u.plural.ts';
 import { replaceAll } from './u.replace.ts';
+import { splitPathSegments } from './u.split.ts';
 import { stripPrefixOnce } from './u.strip.ts';
 import {
   trimEdgeNewlines,
@@ -48,4 +49,5 @@ export const Str: t.StrLib = {
   trimHttpScheme,
   trimLeadingDotSlash,
   stripPrefixOnce,
+  splitPathSegments,
 };

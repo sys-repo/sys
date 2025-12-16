@@ -172,6 +172,21 @@ export type StrLib = {
    * Str.stripPrefixOnce("foo/bar", "/foo")  // → "foo/bar"
    */
   stripPrefixOnce(str: string | undefined, prefix: string): string;
+
+  /**
+   * Split a string into path-like segments.
+   *
+   * - Splits on one or more forward or back slashes (`/` or `\`)
+   * - Removes empty segments
+   * - Purely lexical (no path semantics, no `.` / `..` handling)
+   *
+   * @example
+   * Str.splitPathSegments("foo/bar/baz")      // → ["foo", "bar", "baz"]
+   * Str.splitPathSegments("/foo//bar/")       // → ["foo", "bar"]
+   * Str.splitPathSegments("foo\\bar\\baz")    // → ["foo", "bar", "baz"]
+   * Str.splitPathSegments("")                 // → []
+   */
+  splitPathSegments(str?: string): readonly string[];
 };
 
 /**
