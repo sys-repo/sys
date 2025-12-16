@@ -24,6 +24,9 @@ export type StrLib = {
   /** The "lorem ipsum" string. */
   readonly lorem: string;
 
+  /** Create a new string builder. */
+  builder(options?: t.StrBuilderOptions): t.StrBuilder;
+
   /** Calculate a difference between two strings. */
   diff: t.TextDiffCalc;
 
@@ -156,8 +159,19 @@ export type StrLib = {
    */
   trimLeadingDotSlash(str?: string): string;
 
-  /** Create a new string builder. */
-  builder(options?: t.StrBuilderOptions): t.StrBuilder;
+  /**
+   * Remove a leading prefix from a string exactly once, if present.
+   *
+   * - Purely lexical (no path or URL semantics)
+   * - Removes the prefix only if it is an exact leading match
+   * - Never removes more than once
+   * - Safe for undefined / empty input
+   *
+   * @example
+   * Str.stripPrefixOnce("/foo/bar", "/foo") // → "/bar"
+   * Str.stripPrefixOnce("foo/bar", "/foo")  // → "foo/bar"
+   */
+  stripPrefixOnce(str: string | undefined, prefix: string): string;
 };
 
 /**

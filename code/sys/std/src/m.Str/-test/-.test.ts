@@ -639,6 +639,40 @@ describe('Str (String)', () => {
     });
   });
 
+  describe('Str.stripPrefixOnce', () => {
+    it('removes the prefix when it appears at the start', () => {
+      expect(Str.stripPrefixOnce('foo/bar', 'foo/')).to.eql('bar');
+    });
+
+    it('does nothing if the prefix does not match exactly', () => {
+      expect(Str.stripPrefixOnce('foo/bar', 'bar/')).to.eql('foo/bar');
+    });
+
+    it('removes the prefix only once (not repeatedly)', () => {
+      expect(Str.stripPrefixOnce('foo/foo/bar', 'foo/')).to.eql('foo/bar');
+    });
+
+    it('is a no-op when the string equals the prefix', () => {
+      expect(Str.stripPrefixOnce('foo', 'foo')).to.eql('');
+    });
+
+    it('does not remove partial or mid-string matches', () => {
+      expect(Str.stripPrefixOnce('myfoo/bar', 'foo')).to.eql('myfoo/bar');
+    });
+
+    it('handles empty input safely', () => {
+      expect(Str.stripPrefixOnce('', 'foo')).to.eql('');
+    });
+
+    it('handles empty prefix as a no-op', () => {
+      expect(Str.stripPrefixOnce('foo/bar', '')).to.eql('foo/bar');
+    });
+
+    it('is safe for undefined input', () => {
+      expect(Str.stripPrefixOnce(undefined, 'foo')).to.eql('');
+    });
+  });
+
   describe('Str.count', () => {
     it('returns 0 when substring is not found', () => {
       expect(Str.count('hello world', 'xyz')).eql(0);
