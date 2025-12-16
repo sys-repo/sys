@@ -1,4 +1,4 @@
-import { type t, c, Cli, DenoFile, Fs, promptForFileSelection, Str, Token } from './common.ts';
+import { type t, c, Cli, DenoFile, Fs, promptFileSelection, Str, Token } from './common.ts';
 import { makeHeader } from './u.copy.header.ts';
 
 type Section = {
@@ -147,7 +147,7 @@ export async function selectAndCopy(paths: t.StringPath[], opts: SelectAndCopyOp
   console.info(Str.SPACE);
   console.info(c.gray(`Total: ${paths.length.toLocaleString()} ${totalLabel}`));
 
-  const selected = await promptForFileSelection(
+  const selected = await promptFileSelection(
     { paths, base: dir },
     { message, maxRows, sort, filter, defaultChecked },
   );

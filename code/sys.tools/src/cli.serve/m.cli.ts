@@ -4,7 +4,7 @@ import { startServing } from './cmd.serve/mod.ts';
 import { Config, normalize } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptAddServeLocation, promptRemoveDocument } from './u.prompt.ts';
-import { promptDirsMenu } from './u.prompt.dir.ts';
+import { promptServeDirsMenu } from './u.prompt.dirs.ts';
 
 type C = t.ServeTool.Command;
 
@@ -61,16 +61,7 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
   } as const;
 
   const dirs = Config.orderByRecency(config.current.dirs).map(({ name, dir }) => ({ name, dir }));
-  const A = await promptDirsMenu({
-    message: 'Tools:\n',
-    prefix: 'serve:',
-    dirs,
-    cmdAdd: 'modify:add',
-    cmdExit: 'exit',
-    addLabel: '   add: <local>',
-    onSelectDir: Update.locationLastUsedAt,
-  });
-
+  const A = await promptServeDirsMenu({ dirs, onSelectDir: Update.locationLastUsedAt });
   if (A === 'exit') return done();
 
   if (A === 'modify:add') {
