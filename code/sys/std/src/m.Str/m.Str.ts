@@ -9,11 +9,11 @@ import { count } from './u.count.ts';
 import { dedent } from './u.dedent.ts';
 import { diff } from './u.diff.ts';
 import { ellipsize } from './u.ellipsize.ts';
+import { indent } from './u.indent.ts';
 import { plural } from './u.plural.ts';
 import { replaceAll } from './u.replace.ts';
-import { trimEdgeNewlines } from './u.trim.ts';
+import { trimEdgeNewlines, trimLeadingSlashes } from './u.trim.ts';
 import { truncate } from './u.truncate.ts';
-import { indent } from './u.indent.ts';
 
 export { bytes, capitalize, diff, plural };
 
@@ -32,6 +32,7 @@ export const Str: t.StrLib = {
   indent,
   dedent,
   trimEdgeNewlines,
+  trimLeadingSlashes,
   count,
   builder,
-} as const;
+};

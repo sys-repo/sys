@@ -508,6 +508,40 @@ describe('Str (String)', () => {
     });
   });
 
+  describe('Str.trimLeadingSlashes', () => {
+    it('removes a single leading slash', () => {
+      expect(Str.trimLeadingSlashes('/foo')).to.equal('foo');
+    });
+
+    it('removes multiple leading slashes', () => {
+      expect(Str.trimLeadingSlashes('///foo')).to.equal('foo');
+    });
+
+    it('does not remove internal slashes', () => {
+      expect(Str.trimLeadingSlashes('/foo/bar')).to.equal('foo/bar');
+    });
+
+    it('does not remove trailing slashes', () => {
+      expect(Str.trimLeadingSlashes('/foo/')).to.equal('foo/');
+    });
+
+    it('returns the same string if there are no leading slashes', () => {
+      expect(Str.trimLeadingSlashes('foo/bar')).to.equal('foo/bar');
+    });
+
+    it('returns empty string for empty input', () => {
+      expect(Str.trimLeadingSlashes('')).to.equal('');
+    });
+
+    it('handles root slash by returning empty string', () => {
+      expect(Str.trimLeadingSlashes('/')).to.equal('');
+    });
+
+    it('handles multiple slashes only', () => {
+      expect(Str.trimLeadingSlashes('////')).to.equal('');
+    });
+  });
+
   describe('Str.count', () => {
     it('returns 0 when substring is not found', () => {
       expect(Str.count('hello world', 'xyz')).eql(0);

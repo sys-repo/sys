@@ -1,6 +1,7 @@
 import type { Options as FormatOptions } from 'pretty-bytes';
 import type { t } from './common.ts';
 
+/** Type re-exports */
 export type * from './t.builder.ts';
 
 /**
@@ -52,13 +53,6 @@ export type StrLib = {
    * - If `max` is a tuple `[left, right]`, custom lengths are used for start and end.
    * - Handles undefined/empty input safely.
    * - Respects variable-length ellipsis (default '…').
-   *
-   * @example
-   *   Str.ellipsize("https://domain.com/path/to/file", 24)
-   *   // → "https://domai…/to/file"
-   *
-   *   Str.ellipsize("https://domain.com/path/to/file", [12, 8])
-   *   // → "https://domai…/to/file"
    */
   ellipsize(
     text: string | undefined,
@@ -88,13 +82,21 @@ export type StrLib = {
 
   /**
    * Remove leading/trailing newlines only — preserves internal and first-char whitespace.
-   *
-   * @example
-   * ```ts
-   * Str.trimEdgeNewlines("\n\n  hello \n\n") // → "  hello "
-   * ```
    */
   trimEdgeNewlines(str?: string): string;
+
+  /**
+   * Remove all leading forward slashes (`/`) from a string.
+   *
+   * - Purely lexical (not path-semantic)
+   * - Safe for undefined / empty input
+   * - Does not touch internal or trailing slashes
+   *
+   * @example
+   * Str.trimLeadingSlashes("/foo/bar") // → "foo/bar"
+   * Str.trimLeadingSlashes("///foo")   // → "foo"
+   */
+  trimLeadingSlashes(str?: string): string;
 
   /** Count non-overlapping occurrences of a substring. */
   count(text: string, sub: string): number;
