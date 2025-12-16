@@ -6,14 +6,30 @@ import { selectAndCopy } from './u.copy.ts';
  */
 export async function copyFiles(
   cwd: t.StringDir,
-  options: { initial?: 'none' | 'all'; filter?: (file: t.WalkEntry) => boolean } = {},
+  options: {
+    initial?: 'none' | 'all';
+    filter?: (file: t.WalkEntry) => boolean;
+    depth?: number;
+  } = {},
 ) {
-  const { initial = 'all' } = options;
+  const { initial = 'all', depth } = options;
   const repoRootAbs = await detectRepoRoot(cwd); // monorepo root (stable anchor)
 
   const glob = Fs.glob(cwd, { includeDirs: false });
   const paths = (await glob.find('**'))
-    .filter((file) => options.filter?.(file) ?? true)
+    .filter((file) => {
+      if (!(options.filter?.(file) ?? true)) return false;
+      if (depth === undefined) return true; // default = current behavior (no depth limit)
+
+      const absOrRel = file.path;
+      const rel = absOrRel.startsWith(cwd)
+        ? absOrRel.slice(cwd.length).replace(/^[\\/]/, '')
+        : absOrRel;
+
+      const segs = rel.split(/[\\/]+/).filter(Boolean);
+      const dirCount = Math.max(0, segs.length - 1); // dirs below cwd (exclude filename)
+      return dirCount <= depth;
+    })
     .map((file) => file.path);
 
   const defaultChecked = (path: string) => {
