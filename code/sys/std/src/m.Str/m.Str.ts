@@ -12,7 +12,12 @@ import { ellipsize } from './u.ellipsize.ts';
 import { indent } from './u.indent.ts';
 import { plural } from './u.plural.ts';
 import { replaceAll } from './u.replace.ts';
-import { trimEdgeNewlines, trimLeadingSlashes } from './u.trim.ts';
+import {
+  trimEdgeNewlines,
+  trimLeadingSlashes,
+  trimSlashes,
+  trimTrailingSlashes,
+} from './u.trim.ts';
 import { truncate } from './u.truncate.ts';
 
 export { bytes, capitalize, diff, plural };
@@ -32,7 +37,9 @@ export const Str: t.StrLib = {
   indent,
   dedent,
   trimEdgeNewlines,
+  trimSlashes,
   trimLeadingSlashes,
+  trimTrailingSlashes,
   count,
   builder,
 };

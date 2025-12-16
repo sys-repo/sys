@@ -98,6 +98,32 @@ export type StrLib = {
    */
   trimLeadingSlashes(str?: string): string;
 
+  /**
+   * Remove all trailing forward slashes (`/`) from a string.
+   *
+   * - Purely lexical (not path-semantic)
+   * - Safe for undefined / empty input
+   * - Does not touch internal or leading slashes
+   *
+   * @example
+   * Str.trimTrailingSlashes("foo/bar/") // → "foo/bar"
+   * Str.trimTrailingSlashes("foo///")   // → "foo"
+   */
+  trimTrailingSlashes(str?: string): string;
+
+  /**
+   * Remove all leading and trailing forward slashes (`/`) from a string.
+   *
+   * - Purely lexical (not path-semantic)
+   * - Safe for undefined / empty input
+   * - Does not touch internal slashes
+   *
+   * @example
+   * Str.trimSlashes("/foo/bar/") // → "foo/bar"
+   * Str.trimSlashes("///foo///") // → "foo"
+   */
+  trimSlashes(str?: string): string;
+
   /** Count non-overlapping occurrences of a substring. */
   count(text: string, sub: string): number;
 

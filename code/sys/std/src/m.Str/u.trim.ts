@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /**
  * Remove leading/trailing newlines only — preserves internal and first-char whitespace.
@@ -13,17 +13,23 @@ export const trimEdgeNewlines: t.StrLib['trimEdgeNewlines'] = (str = '') => {
   );
 };
 
-// 🌸🌸 ---------- ADDED: trim-leading-slashes ----------
+/**
+ * Remove all leading and trailing forward slashes (`/`) from a string.
+ */
+export const trimSlashes: t.StrLib['trimSlashes'] = (str = '') => {
+  return str.replace(/^\/+/, '').replace(/\/+$/, '');
+};
 
 /**
  * Remove all leading forward slashes (`/`) from a string.
- *
- * - Purely lexical (not path-semantic)
- * - Safe for undefined / empty input
- * - Does not touch internal or trailing slashes
  */
 export const trimLeadingSlashes: t.StrLib['trimLeadingSlashes'] = (str = '') => {
   return str.replace(/^\/+/, '');
 };
 
-// 🌸 ---------- /ADDED ----------
+/**
+ * Remove all trailing forward slashes (`/`) from a string.
+ */
+export const trimTrailingSlashes: t.StrLib['trimTrailingSlashes'] = (str = '') => {
+  return str.replace(/\/+$/, '');
+};

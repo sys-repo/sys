@@ -508,6 +508,43 @@ describe('Str (String)', () => {
     });
   });
 
+  describe('Str.trimTrailingSlashes', () => {
+    it('removes trailing slashes only', () => {
+      expect(Str.trimTrailingSlashes('foo/')).to.equal('foo');
+      expect(Str.trimTrailingSlashes('foo///')).to.equal('foo');
+      expect(Str.trimTrailingSlashes('foo/bar/')).to.equal('foo/bar');
+    });
+
+    it('preserves leading and internal slashes', () => {
+      expect(Str.trimTrailingSlashes('/foo/bar/')).to.equal('/foo/bar');
+      expect(Str.trimTrailingSlashes('/foo//bar//')).to.equal('/foo//bar');
+    });
+
+    it('is safe for empty or slash-only input', () => {
+      expect(Str.trimTrailingSlashes('')).to.equal('');
+      expect(Str.trimTrailingSlashes('/')).to.equal('');
+      expect(Str.trimTrailingSlashes('///')).to.equal('');
+    });
+  });
+
+  describe('Str.trimSlashes', () => {
+    it('removes both leading and trailing slashes', () => {
+      expect(Str.trimSlashes('/foo/')).to.equal('foo');
+      expect(Str.trimSlashes('///foo///')).to.equal('foo');
+      expect(Str.trimSlashes('/foo/bar/')).to.equal('foo/bar');
+    });
+
+    it('preserves internal slashes', () => {
+      expect(Str.trimSlashes('/foo//bar/')).to.equal('foo//bar');
+    });
+
+    it('is safe for empty or slash-only input', () => {
+      expect(Str.trimSlashes('')).to.equal('');
+      expect(Str.trimSlashes('/')).to.equal('');
+      expect(Str.trimSlashes('///')).to.equal('');
+    });
+  });
+
   describe('Str.trimLeadingSlashes', () => {
     it('removes a single leading slash', () => {
       expect(Str.trimLeadingSlashes('/foo')).to.equal('foo');
