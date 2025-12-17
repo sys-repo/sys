@@ -72,7 +72,7 @@ export async function main(options: Options = {}) {
   /**
    * Prompt to continue.
    */
-  const yes = await Cli.confirm('Update files?:');
+  const yes = await Cli.Input.Confirm.prompt('Update files?:');
   if (!yes) return false;
 
   /**
