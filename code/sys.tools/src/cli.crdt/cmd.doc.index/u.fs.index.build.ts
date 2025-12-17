@@ -104,7 +104,7 @@ async function hashFileBestEffort(absPath: string): Promise<string | undefined> 
   }
 }
 
-function toUnixTimestamp(date: Date | undefined): t.UnixTimestamp | undefined {
+function toUnixTimestamp(date?: Date | null): t.UnixTimestamp | undefined {
   return date ? (date.getTime() as t.UnixTimestamp) : undefined;
 }
 
