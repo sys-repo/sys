@@ -72,7 +72,7 @@ export namespace CrdtIndex {
      * - Re-index is a simple reconciliation: delete missing keys, upsert present.
      * - Tree views are derived at read-time (optional), not stored.
      */
-    export type Index = {
+    export type Snapshot = {
       readonly kind: 'fs:index';
       readonly version: 1;
 

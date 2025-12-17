@@ -46,14 +46,13 @@ export namespace CrdtTool {
 
   /**
    * Materialized index payload types (data written into the CRDT).
-   * Kept intentionally small: only the types we will actually consume.
    */
   export namespace Index {
     export namespace Fs {
-      export type Index = t.CrdtIndex.Fs.Index;
-      export type IndexSource = t.CrdtIndex.Fs.IndexSource;
-      export type IndexMeta = t.CrdtIndex.Fs.IndexMeta;
-      export type IndexEntry = t.CrdtIndex.Fs.FsIndexEntry;
+      export type Snapshot = t.CrdtIndex.Fs.Snapshot;
+      export type Source = t.CrdtIndex.Fs.IndexSource;
+      export type Meta = t.CrdtIndex.Fs.IndexMeta;
+      export type Entry = t.CrdtIndex.Fs.FsIndexEntry;
     }
   }
 
