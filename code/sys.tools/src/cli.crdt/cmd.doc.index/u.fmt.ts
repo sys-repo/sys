@@ -12,7 +12,7 @@ export const Fmt = {
         table.push([c.gray(`  ${k}`), String(v)]);
       };
 
-      const counts = snapshot.meta?.counts;
+      const counts = snapshot.meta?.total;
       const filter = snapshot.source.filter;
       const schemaVersion = snapshot['schema:version'];
 

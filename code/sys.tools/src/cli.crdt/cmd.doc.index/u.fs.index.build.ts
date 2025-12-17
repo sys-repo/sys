@@ -77,7 +77,7 @@ export async function buildFsIndexSnapshot(input: {
     meta: {
       createdAt: now,
       updatedAt: now,
-      counts: {
+      total: {
         files: fileCount,
         dirs: dirCount,
         bytes: byteCount,

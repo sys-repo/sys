@@ -121,7 +121,7 @@ export namespace CrdtIndex {
     export type IndexMeta = {
       readonly createdAt?: t.UnixTimestamp;
       readonly updatedAt?: t.UnixTimestamp;
-      readonly counts?: {
+      readonly total?: {
         readonly files?: number;
         readonly dirs?: number;
         readonly bytes?: number;
