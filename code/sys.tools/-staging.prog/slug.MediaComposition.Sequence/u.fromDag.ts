@@ -1,4 +1,4 @@
-import { type t, Is, makeParser, Obj } from './common.ts';
+import { type t, makeParser, Obj, Traits } from './common.ts';
 import { normalizeEditorSequenceForTypedYaml } from './u.normalize.ts';
 import { validateSequence } from './u.schema.validate.ts';
 
@@ -37,27 +37,30 @@ export const fromDag: t.SequenceLib['fromDag'] = async (dag, yamlPath, docid, op
    * Pull out the slug parts we care about (sequence + traits).
    */
   const { data, traits = [] } = parser.Resolve.slugParts(node.node);
+  const defaultTrait: t.SlugTraitGateOptions = { of: 'media-composition' };
+  const traitOpt = opts.trait === undefined ? defaultTrait : opts.trait;
 
-  /**
-   * Require that this slug advertises a media-composition sequence trait.
-   */
-  const trait = traits.find((trait) => trait.of === 'media-composition');
-  if (!trait || !Is.str(trait.as)) {
-    const err =
-      `Slug "${docid}" does not advertise a "media-composition" sequence trait ` +
-      `(expected {of:"media-composition", as:string}).`;
+  const gate = Traits.gateAs({ traits, opt: traitOpt });
+  if (!gate.ok) return fail(gate.error.message);
+
+  if (!gate.enabled) {
+    // opt === null  → explicit opt-out (callers must not expect this op to succeed)
+    // opt undefined → no gating requested (should not happen here due to defaultTrait)
+    const err = `Trait gating disabled for slug "${docid}" (opts.trait === null).`;
     return fail(err);
   }
+
+  const as = gate.as;
 
   /**
    * Raw YAML sequence from the slug node (as authored in the editor).
    * We currently treat `data[trait.as]` as the source array.
    */
-  const lens = Obj.Lens.at<O[]>([trait.as]);
+  const lens = Obj.Lens.at<O[]>([as]);
   const seqRaw = lens.get(data);
 
   if (!Array.isArray(seqRaw)) {
-    const err = `Slug "${docid}" has no array at "data.${trait.as}" (expected an authoring-time sequence array).`;
+    const err = `Slug "${docid}" has no array at "data.${as}" (expected an authoring-time sequence array).`;
     return fail(err);
   }
 
@@ -83,6 +86,9 @@ export const fromDag: t.SequenceLib['fromDag'] = async (dag, yamlPath, docid, op
   if (result.ok) return result;
 
   const base = result.error.message.replace(/^Invalid sequence:\s*/, '');
-  const message = `Invalid sequence at "data/${trait.as}": ${base}`;
-  return { ok: false, error: new Error(message) };
+  const message = `Invalid sequence at "data/${as}": ${base}`;
+  return {
+    ok: false,
+    error: new Error(message),
+  };
 };

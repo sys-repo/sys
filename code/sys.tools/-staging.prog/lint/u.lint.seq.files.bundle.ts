@@ -27,6 +27,18 @@ export async function bundleSequenceFilepaths(
     facets?: Facet[];
     outDir?: string;
     baseHref?: string;
+
+    /**
+     * When true, require this slug to support playback derivation via a
+     * playback-related trait (e.g. `{ of: "media-composition", as: "sequence" }`).
+     *
+     * If playback is not applicable because the required trait(s) are missing
+     * or invalid, emit a lint error instead of silently skipping playback output.
+     *
+     * Default: false — best-effort mode; missing playback trait(s) are treated
+     * as "not applicable" and do not produce lint errors.
+     */
+    requirePlayback?: boolean;
   } = {},
 ): Promise<R> {
   const issues: t.LintSequenceFilepath[] = [];
@@ -93,25 +105,37 @@ export async function bundleSequenceFilepaths(
    * *actual* upstream validation error so the caller gets concrete feedback.
    */
   const Playback = Slug.Trait.MediaComposition.Playback;
-  const playbackResult = await Playback.fromDag(dag, yamlPath, docid, { validate: true });
+  const playbackResult = await Playback.fromDag(dag, yamlPath, docid, {
+    validate: true,
+    trait: { of: 'media-composition' },
+  });
   const playbackFilename = `slug.${docid}.playback.json`;
 
   if (!playbackResult.ok) {
     const reason = playbackResult.error?.message ?? 'Unknown validation error.';
-    const message = `Playback manifest could not be generated from slug sequence. Reason: ${reason}`;
     const path = Is.array(yamlPath) && yamlPath.length > 0 ? yamlPath.join('/') : '';
 
-    const issue: t.LintSequenceFilepath = {
-      kind: 'sequence:playback:not-exported',
-      severity: 'error',
-      path,
-      raw: playbackFilename,
-      resolvedPath: '',
-      doc: { id: docid },
-      message,
-    };
+    // Missing trait → "not applicable" unless explicitly required.
+    const isNotApplicable =
+      reason.includes('does not advertise') &&
+      reason.includes('expected {of:"media-composition", as:string}');
 
-    issues.push(issue);
+    const requirePlayback = opts.requirePlayback ?? false;
+    if (!isNotApplicable || requirePlayback) {
+      const message = `Playback manifest could not be generated from slug sequence. Reason: ${reason}`;
+
+      const issue: t.LintSequenceFilepath = {
+        kind: 'sequence:playback:not-exported',
+        severity: 'error',
+        path,
+        raw: playbackFilename,
+        resolvedPath: '',
+        doc: { id: docid },
+        message,
+      };
+
+      issues.push(issue);
+    }
   } else {
     const path = Fs.join(dir.base, dir.manifests, playbackFilename);
     await Fs.write(path, Json.stringify(playbackResult.sequence));

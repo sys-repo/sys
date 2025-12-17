@@ -9,6 +9,9 @@ export namespace SlugTraits {
   /** Unconstrained trait: matches any `traits:` entry. */
   export type Any = t.SlugTrait;
 
+  /** Trait-based gating options */
+  export type GateOptions = t.SlugTraitGateOptions;
+
   /** Media-composition related traits. */
   export namespace MediaComposition {
     /**

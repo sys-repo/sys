@@ -25,7 +25,7 @@ export type SequenceLib = {
     dag: t.Graph.Dag.Result,
     yamlPath: t.ObjectPath,
     docid: t.Crdt.Id,
-    opts?: { validate?: boolean },
+    opts?: { validate?: boolean; trait?: t.SlugTraitGateOptions | null },
   ): Promise<t.ValidateResult<t.SequenceItem[]>>;
 };
 

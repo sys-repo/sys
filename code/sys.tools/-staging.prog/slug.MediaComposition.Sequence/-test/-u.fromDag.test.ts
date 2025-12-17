@@ -74,6 +74,30 @@ describe('Sequence.fromDag', () => {
     expect(result.error).to.be.instanceOf(Error);
     expect(result.error.message).to.contain('body text requires');
   });
+
+  it('returns ok:false when opts.trait is null (explicit opt-out)', async () => {
+    const dag = makeDag(SLUG_YAML_WITH_TRAIT);
+
+    const result = await fromDag(dag, yamlPath, SLUG_ID, { trait: null });
+
+    expect(result.ok).to.eql(false);
+    if (result.ok) return;
+
+    expect(result.error).to.be.instanceOf(Error);
+    expect(result.error.message).to.contain('Trait gating disabled');
+  });
+
+  it('honors an explicit gate when opts.trait is provided', async () => {
+    const dag = makeDag(SLUG_YAML_WITH_TRAIT);
+
+    const result = await fromDag(dag, yamlPath, SLUG_ID, { trait: { of: 'not-a-real-trait' } });
+
+    expect(result.ok).to.eql(false);
+    if (result.ok) return;
+
+    expect(result.error).to.be.instanceOf(Error);
+    expect(result.error.message).to.contain('not-a-real-trait');
+  });
 });
 
 const INDEX_YAML = `
