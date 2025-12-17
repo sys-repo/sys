@@ -22,19 +22,31 @@ export function getExistingFilter(args: {
 }
 
 /**
- * Normalize extensions:
+ * Normalize a single extension string.
+ * - lower-case
+ * - strip leading '.'
+ * - trim
+ *
+ * Examples:
+ * - ".TS" → "ts"
+ * - "ts"  → "ts"
+ * - ""    → ""
+ */
+export function normalizeExt(input: string): string {
+  const s = input.trim();
+  const raw = s.startsWith('.') ? s.slice(1) : s;
+  return raw.trim().toLowerCase();
+}
+
+/**
+ * Normalize an extension list:
  * - lower-case
  * - strip leading '.'
  * - remove empties
  * - unique + sorted
  */
-export function normalizeExts(input: string[]): string[] {
-  const uniq = new Set(
-    input
-      .map((s) => s.toLowerCase())
-      .map((s) => (s.startsWith('.') ? s.slice(1) : s))
-      .filter((s) => s.length > 0),
-  );
+export function normalizeExts(input: readonly string[]): string[] {
+  const uniq = new Set(input.map(normalizeExt).filter((s) => s.length > 0));
   return Array.from(uniq).sort();
 }
 
@@ -42,7 +54,7 @@ export function normalizeExts(input: string[]): string[] {
  * Convert a list of extensions into a set (normalized).
  * Used for checkbox preselection.
  */
-export function toCheckedSet(input: string[]): Set<string> {
+export function toCheckedSet(input: readonly string[]): Set<string> {
   return new Set(normalizeExts(input));
 }
 
@@ -53,13 +65,14 @@ export function toCheckedSet(input: string[]): Set<string> {
 export async function scanDirExtensions(dir: t.StringDir): Promise<string[]> {
   const glob = Fs.glob(dir, { includeDirs: false });
   const paths = (await glob.find('**')).map((p) => p.path);
+
   const list = new Set(
     paths
       .map((p) => Path.extname(p))
-      .map((e) => (e.startsWith('.') ? e.slice(1) : e))
-      .map((e) => e.toLowerCase())
+      .map(normalizeExt)
       .filter((e) => e.length > 0),
   );
+
   return Array.from(list).sort();
 }
 

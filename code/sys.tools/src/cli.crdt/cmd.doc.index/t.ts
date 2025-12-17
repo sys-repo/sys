@@ -27,6 +27,18 @@ export namespace CrdtIndex {
       dirs?: DirIndexEntry[];
     };
 
+    /**
+     * Entry filter.
+     * Extensions are stored without leading '.' and lowercase.
+     */
+    export type DirIndexFilter = {
+      /** Extension allow-list. If present/non-empty, only these are included. */
+      includeExt?: string[];
+
+      /** Extension deny-list applied after include. */
+      excludeExt?: string[];
+    };
+
     export type DirIndexEntry = {
       /**
        * CWD-relative subdir (portable).
@@ -48,22 +60,22 @@ export namespace CrdtIndex {
       createdAt?: t.UnixTimestamp;
       lastUsedAt?: t.UnixTimestamp;
 
-      /**
-       * Optional filter that shapes what gets indexed for this entry.
-       * Extensions are stored without leading '.' and lowercase.
-       */
-      filter?: {
-        /** Extension allow-list. If present/non-empty, only these are included. */
-        includeExt?: string[];
-
-        /** Extension deny-list applied after include. */
-        excludeExt?: string[];
-      };
+      /** Optional filter that shapes what gets indexed for this entry. */
+      filter?: DirIndexFilter;
     };
   }
 
   /** Filesystem index types. */
   export namespace Fs {
+    /**
+     * Snapshot filter (what shaped the built payload).
+     * Ext filter is shared with config; globs are snapshot-only (for now).
+     */
+    export type Filter = CrdtIndex.Config.DirIndexFilter & {
+      includeGlob?: string[];
+      excludeGlob?: string[];
+    };
+
     /**
      * Filesystem index materialized into the CRDT at a chosen mount path.
      *
@@ -103,12 +115,7 @@ export namespace CrdtIndex {
        * Optional include/exclude patterns that shaped the index.
        * Keep this small and declarative; it is not required for reconciliation.
        */
-      readonly filter?: {
-        readonly includeExt?: readonly string[];
-        readonly excludeExt?: readonly string[];
-        readonly includeGlob?: readonly string[];
-        readonly excludeGlob?: readonly string[];
-      };
+      readonly filter?: Filter;
     };
 
     export type IndexMeta = {
