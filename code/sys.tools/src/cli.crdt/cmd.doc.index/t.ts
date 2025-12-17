@@ -86,7 +86,7 @@ export namespace CrdtIndex {
      */
     export type Snapshot = {
       readonly kind: 'fs:index';
-      readonly version: 1;
+      readonly 'schema:version': 1;
 
       /**
        * Source info used to build this index.
@@ -109,7 +109,7 @@ export namespace CrdtIndex {
        * The configured index root that was scanned.
        * '.' means cwd itself, otherwise a cwd-relative subpath.
        */
-      readonly subdir: Subdir;
+      readonly dir: Subdir;
 
       /**
        * Optional include/exclude patterns that shaped the index.
@@ -137,6 +137,12 @@ export namespace CrdtIndex {
       readonly ext?: string;
       readonly bytes?: number;
       readonly mtime?: t.UnixTimestamp;
+
+      /**
+       * Optional content hash in canonical `@sys/crypto/hash` format
+       * (e.g. "sha256-<hex>").
+       */
+      readonly hash?: t.StringHash;
     };
   }
 }

@@ -14,12 +14,13 @@ export const Fmt = {
 
       const counts = snapshot.meta?.counts;
       const filter = snapshot.source.filter;
+      const schemaVersion = snapshot['schema:version'];
 
-      kv('kind', `${snapshot.kind}@v${snapshot.version}`);
-      kv('source dir', `./${Str.trimLeadingSlashes(snapshot.source.subdir)}`);
-      kv('mount path', mountPath);
+      kv('src:dir', c.gray(`./${c.white(Str.trimLeadingSlashes(snapshot.source.dir))}`));
+      kv('crdt:mount/path', mountPath);
+      kv('schema', c.gray(`${c.gray(snapshot.kind)}${c.white(`@v${schemaVersion}`)}`));
 
-      kv('files', counts?.files);
+      kv('files', (counts?.files ?? 0).toLocaleString());
       kv('bytes', Str.bytes(counts?.bytes ?? 0));
 
       const includeExt = filter?.includeExt?.map((e) => `.${e}`).join(' ');
@@ -32,7 +33,7 @@ export const Fmt = {
 
       const str = Str.builder()
         .blank()
-        .line(c.cyan('Index'))
+        .line(c.cyan('index:snapshot'))
         .line(Str.trimEdgeNewlines(String(table)))
         .blank();
 

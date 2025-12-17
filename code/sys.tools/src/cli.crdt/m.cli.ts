@@ -118,17 +118,17 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       const hookTmpl = await makeHookTmpl(cwd);
 
       if (A.startsWith('crdt:')) {
-        const lintModule = c.dim(`[ ${c.cyan(`:module:program:${c.yellow('slugs')}`)} ]`);
+        const lintModule = c.dim(`[ ${c.cyan(`:plugin:program:${c.yellow('slugs')}`)} ]`);
         const options = [
-          opt(`  doc:index:fs:dir`, 'doc:fs:index:dir'),
           opt(`  lint ${lintModule}`, `doc:graph:lint`),
+          opt(`  doc:index:fs:dir`, 'doc:fs:index:dir'),
           opt(`  doc:graph:backup (snapshot)`, `snapshot`),
           opt(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
           opt(`  doc:graph: walk → stats`, `doc:graph:walk`),
           opt(`  doc:graph: tasks`, `doc:graph:tasks`),
           opt(`  view: <yaml>`, `doc:viewer:yaml`),
           opt(`  view: ${c.gray(D.Config.filename)}`, `doc:config:print`),
-          opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
+          // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
         ];
 
         if (!hookTmpl.exists) {
@@ -188,10 +188,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
         if (B === 'doc:fs:index:dir') {
           const m = await Imports.indexDocument();
-          const res = await m.indexDir(cwd, docid);
-
-          console.log('res', res);
-
+          await m.runDirectoryIndexer(cwd, docid);
           return done(0);
         }
 

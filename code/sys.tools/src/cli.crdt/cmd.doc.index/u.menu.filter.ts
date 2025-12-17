@@ -1,9 +1,11 @@
-import { Cli, Fs, Path, Time, type t } from '../common.ts';
+import { c, Cli, EXCLUDE, Fs, Path, Time, type t } from '../common.ts';
 import { applyDirEntryFilter, dirEntryKey, type DirIndexFilter } from './u.config.ts';
 
 export type MenuFilter = {
   includeExt: string[];
 };
+
+export type ExtCounts = { readonly [ext: string]: number };
 
 /**
  * Read the currently saved filter (for a mount) from a document entry.
@@ -12,7 +14,7 @@ export type MenuFilter = {
 export function getExistingFilter(args: {
   doc: t.CrdtTool.Config.DocumentEntry;
   mountKey: string;
-  defaultMount: string;
+  defaultMount: t.StringPath;
 }): MenuFilter {
   const { doc, mountKey, defaultMount } = args;
   const dirs = doc.indexes?.['fs:dirs']?.dirs ?? [];
@@ -26,11 +28,6 @@ export function getExistingFilter(args: {
  * - lower-case
  * - strip leading '.'
  * - trim
- *
- * Examples:
- * - ".TS" → "ts"
- * - "ts"  → "ts"
- * - ""    → ""
  */
 export function normalizeExt(input: string): string {
   const s = input.trim();
@@ -59,21 +56,30 @@ export function toCheckedSet(input: readonly string[]): Set<string> {
 }
 
 /**
- * Scan a directory and return candidate extensions for filtering.
- * Output is normalized (see `normalizeExts`).
+ * Scan a directory and return extension counts.
+ * Keys are normalized extensions (no '.', lower-case).
  */
-export async function scanDirExtensions(dir: t.StringDir): Promise<string[]> {
-  const glob = Fs.glob(dir, { includeDirs: false });
+export async function scanDirExtensionCounts(dir: t.StringDir): Promise<ExtCounts> {
+  const glob = Fs.glob(dir, { includeDirs: false, exclude: EXCLUDE });
   const paths = (await glob.find('**')).map((p) => p.path);
 
-  const list = new Set(
-    paths
-      .map((p) => Path.extname(p))
-      .map(normalizeExt)
-      .filter((e) => e.length > 0),
-  );
+  const counts: Record<string, number> = {};
+  for (const p of paths) {
+    const ext = normalizeExt(Path.extname(p));
+    if (!ext) continue;
+    counts[ext] = (counts[ext] ?? 0) + 1;
+  }
 
-  return Array.from(list).sort();
+  return counts;
+}
+
+/**
+ * Scan a directory and return candidate extensions for filtering.
+ * Output is normalized (keys from `scanDirExtensionCounts`).
+ */
+export async function scanDirExtensions(dir: t.StringDir): Promise<string[]> {
+  const counts = await scanDirExtensionCounts(dir);
+  return Object.keys(counts).sort();
 }
 
 /**
@@ -81,18 +87,22 @@ export async function scanDirExtensions(dir: t.StringDir): Promise<string[]> {
  * Returns normalized `includeExt`.
  */
 export async function promptExtensionFilter(args: {
-  exts: string[];
+  counts: ExtCounts;
   checked: Set<string>;
 }): Promise<string[]> {
-  const { exts, checked } = args;
+  const { counts, checked } = args;
 
+  const exts = Object.keys(counts).sort();
   const selection = await Cli.Input.Checkbox.prompt({
-    message: 'Filter on:',
-    options: exts.map((value) => ({
-      name: `.${value}`,
-      value,
-      checked: checked.has(value),
-    })),
+    message: 'Include file types (ext):\n',
+    options: exts.map((ext) => {
+      const n = counts[ext] ?? 0;
+      return {
+        name: `.${ext} ${c.dim(`(${n})`)}`,
+        value: ext,
+        checked: checked.has(ext),
+      };
+    }),
   });
 
   return normalizeExts(selection ?? []);
@@ -105,7 +115,7 @@ export async function promptExtensionFilter(args: {
 export function applyMenuFilterToDirs(args: {
   dirs: t.CrdtTool.Config.DirIndexEntry[];
   mountKey: string;
-  defaultMount: string;
+  defaultMount: t.StringPath;
   filter: DirIndexFilter;
   now?: t.UnixTimestamp;
 }): t.CrdtTool.Config.DirIndexEntry[] {

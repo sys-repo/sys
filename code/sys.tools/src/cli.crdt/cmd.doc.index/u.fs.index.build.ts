@@ -1,4 +1,4 @@
-import { type t, Fs, Path, Time } from '../common.ts';
+import { type t, EXCLUDE, Fs, Path, Time, Hash } from '../common.ts';
 import { normalizeExt, normalizeExts } from './u.menu.filter.ts';
 
 /**
@@ -42,7 +42,7 @@ export async function buildFsIndexSnapshot(input: {
       dirCount++;
       map.set(rel, {
         kind: 'dir',
-        mtime: info.mtime ? (info.mtime.getTime() as t.UnixTimestamp) : undefined,
+        mtime: toUnixTimestamp(info.mtime),
       });
       continue;
     }
@@ -60,7 +60,8 @@ export async function buildFsIndexSnapshot(input: {
       kind: 'file',
       ext: ext || undefined,
       bytes,
-      mtime: info.mtime ? (info.mtime.getTime() as t.UnixTimestamp) : undefined,
+      mtime: toUnixTimestamp(info.mtime),
+      hash: await hashFileBestEffort(absPath),
     });
   }
 
@@ -68,9 +69,9 @@ export async function buildFsIndexSnapshot(input: {
 
   return {
     kind: 'fs:index',
-    version: 1,
+    'schema:version': 1,
     source: {
-      subdir: input.subdir,
+      dir: input.subdir,
       filter: filter ?? undefined,
     },
     meta: {
@@ -86,9 +87,30 @@ export async function buildFsIndexSnapshot(input: {
   };
 }
 
+/**
+ * Helpers
+ */
+
+/**
+ * Best-effort SHA-256 file hashing.
+ * Indexing must succeed even if hashing fails (e.g. permissions, races, IO).
+ */
+async function hashFileBestEffort(absPath: string): Promise<string | undefined> {
+  try {
+    const bytes = (await Fs.read(absPath)).data;
+    return Hash.sha256(bytes);
+  } catch {
+    return undefined;
+  }
+}
+
+function toUnixTimestamp(date: Date | undefined): t.UnixTimestamp | undefined {
+  return date ? (date.getTime() as t.UnixTimestamp) : undefined;
+}
+
 /** List all filesystem paths under `root` (files + dirs). */
 async function scanPaths(root: t.StringDir): Promise<string[]> {
-  const glob = Fs.glob(root, { includeDirs: true });
+  const glob = Fs.glob(root, { includeDirs: true, exclude: EXCLUDE });
   const hits = await glob.find('**');
   return hits.map((p) => p.path);
 }
