@@ -3,7 +3,7 @@ import { Fs, Path } from '../common.ts';
 import { VideoTools } from '../mod.ts';
 import { nextOutPath } from '../u.file.name.ts';
 
-describe.skip(`CLI: VideoTools`, () => {
+describe(`CLI: VideoTools`, () => {
   it('API', async () => {
     const m = await import('@sys/tools/video');
     expect(m.VideoTools).to.equal(VideoTools);
