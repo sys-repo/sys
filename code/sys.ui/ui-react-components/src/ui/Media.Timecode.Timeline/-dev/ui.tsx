@@ -8,7 +8,7 @@ import { Video } from './ui.Video.tsx';
 
 export const Harness: React.FC<t.MediaTimelineHarnessProps> = (props) => {
   const { debug = false, bundle, docid, video, layout = {} } = props;
-  const hasBundle = !bundle;
+  const hasBundle = !!bundle;
 
   /**
    * Hooks:
