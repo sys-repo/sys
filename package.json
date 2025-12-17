@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@testing-library/react": "16.3.0",
+    "@testing-library/react": "16.3.1",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "hono": "4.11.1",
@@ -13,9 +13,9 @@
     "@deno/vite-plugin": "1.0.5",
     "@vitejs/plugin-react": "5.1.2",
     "prettier": "3.7.4",
-    "rollup": "4.53.3",
+    "rollup": "4.53.5",
     "rollup-plugin-visualizer": "6.0.5",
-    "vite": "7.2.7",
+    "vite": "7.3.0",
     "vite-plugin-wasm": "3.5.0"
   }
 }

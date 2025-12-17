@@ -58,8 +58,8 @@ groups:
   build/tools/vite:
     - import: npm:@vitejs/plugin-react@5.1.2
     - import: npm:@deno/vite-plugin@1.0.5
-    - import: npm:rollup@4.53.3
-    - import: npm:vite@7.2.7
+    - import: npm:rollup@4.53.5
+    - import: npm:vite@7.3.0
     - import: npm:vite-plugin-wasm@3.5.0
     - import: npm:rollup-plugin-visualizer@6.0.5
 
@@ -71,7 +71,7 @@ groups:
     - import: npm:react-dom@19.2.3
     - import: npm:@types/react@19.2.7
     - import: npm:@types/react-dom@19.2.3
-    - import: npm:@testing-library/react@16.3.0
+    - import: npm:@testing-library/react@16.3.1
 
   ui/monaco:
     # https://microsoft.github.io/monaco-editor
@@ -88,8 +88,8 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.113
-    - import: npm:@ai-sdk/openai@2.0.86
+    - import: npm:ai@5.0.114
+    - import: npm:@ai-sdk/openai@2.0.88
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.8
       subpaths: ['agent', 'memory', 'storage']
@@ -98,7 +98,7 @@ groups:
     - import: npm:@mastra/memory@0.15.13
     - import: npm:ollama@0.6.3
     - import: npm:gpt-tokenizer@3.4.0
-    - import: npm:@google/genai@1.33.0
+    - import: npm:@google/genai@1.34.0
 
   yaml:
     - import: npm:yaml@2.8.2
