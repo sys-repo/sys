@@ -10,9 +10,6 @@ export type * from './-spec/-t.spec.ts';
 export type MediaTimelineLib = {
   readonly Dev: { readonly Harness: t.FC<t.MediaTimelineHarnessProps> };
   useTimeline<P = unknown>(spec?: t.Timecode.Playback.Spec<P>): t.UseMediaTimelineResult<P>;
-  useTimelineController<P = unknown>(
-    args: t.UseMediaTimelineControllerArgs<P>,
-  ): t.UseMediaTimelineControllerResult<P>;
 };
 
 /**

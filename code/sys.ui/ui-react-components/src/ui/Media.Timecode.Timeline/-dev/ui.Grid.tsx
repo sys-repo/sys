@@ -3,16 +3,19 @@ import { type t, Bullet, Color, css, dur, Timecode, Icons } from '../common.ts';
 import { useTimeline } from '../use.Timeline.ts';
 import { A } from './ui.A.tsx';
 
-export type MediaTimelineGridProps = {
+export type GridProps = {
   debug?: boolean;
   bundle?: t.SpecTimelineBundle;
   selectedIndex?: t.Index;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onSelect?: (e: { beat: t.Timecode.Experience.Beat; index: t.Index }) => void;
+  onSelect?: SelectIndexHandler;
 };
 
-export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
+export type SelectIndexHandler = (e: SelectIndex) => void;
+export type SelectIndex = { readonly index: t.TimecodeState.Playback.BeatIndex };
+
+export const Grid: React.FC<GridProps> = (props) => {
   const { bundle, selectedIndex } = props;
   const { timeline } = useTimeline(bundle?.spec);
 
@@ -229,7 +232,7 @@ export const Grid: React.FC<MediaTimelineGridProps> = (props) => {
         key={row.index}
         data-index={row.index}
         className={css(styles.row, rowStyles.base).class}
-        onPointerDown={() => props.onSelect?.({ index, beat })}
+        onPointerDown={() => props.onSelect?.({ index })}
       >
         <div className={styles.cell.bullet.class}>
           <Bullet theme={theme.name} selected={isSelected} />
