@@ -115,18 +115,21 @@ async function scanPaths(root: t.StringDir): Promise<string[]> {
   return hits.map((p) => p.path);
 }
 
-/** Convert absolute path → mount-relative POSIX key. */
+/** Convert absolute path → mount-relative POSIX key (for CRDT map keys). */
 function toRelPosixPath(rootAbs: string, absPath: string): string | undefined {
-  let rel = Path.relative(rootAbs, absPath);
+  const relRaw = Path.relative(rootAbs, absPath);
 
   // Normalize empty / self
-  if (!rel || rel === '.' || rel === './') return undefined;
+  if (!relRaw || relRaw === '.' || relRaw === './') return undefined;
 
-  // Canonicalize to POSIX for CRDT keys
-  rel = rel.replaceAll('\\', '/');
+  // Canonicalize: "\" → "/", strip leading slashes (intentionally does NOT collapse "."/"..").
+  const rel = Path.relativePosix(relRaw);
 
-  // Defensive: no leading slash
-  if (rel.startsWith('/')) rel = rel.slice(1);
+  // Hard invariant: CRDT keys must not escape the mount.
+  if (rel === '..' || rel.startsWith('../')) return undefined;
+
+  // Hard invariant: no dot-segments anywhere in keys.
+  if (rel.split('/').some((p) => p === '.' || p === '..')) return undefined;
 
   return rel.length > 0 ? rel : undefined;
 }
@@ -179,8 +182,8 @@ function passesExtFilter(args: {
 }
 
 /** Stable record emission (sorted keys). */
-function toSortedRecord(map: Map<string, t.CrdtIndex.Fs.FsIndexEntry>): {
-  [relPath: string]: t.CrdtIndex.Fs.FsIndexEntry;
+function toSortedRecord(map: Map<t.StringRelativePath, t.CrdtIndex.Fs.FsIndexEntry>): {
+  [relPath: t.StringRelativePath]: t.CrdtIndex.Fs.FsIndexEntry;
 } {
   const keys = Array.from(map.keys()).sort();
   const out: Record<string, t.CrdtIndex.Fs.FsIndexEntry> = {};
