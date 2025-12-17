@@ -12,7 +12,7 @@ export const Fmt = {
         table.push([c.gray(`  ${k}`), String(v)]);
       };
 
-      const filter = snapshot.source.filter;
+      const filter = snapshot.source.filter ?? {};
       const schemaVersion = snapshot['schema:version'];
       const totals = snapshot.meta?.total ?? {};
       const total = { files: totals.files ?? 0, bytes: totals.bytes ?? 0 };
@@ -23,13 +23,13 @@ export const Fmt = {
       kv('src:dir', c.gray(`./${c.white(Str.trimLeadingSlashes(snapshot.source.dir))}`));
       kv('crdt:mount/path', mountPath);
 
-      const includeExt = filter?.includeExt?.map((e) => `.${e}`).join(' ');
-      const excludeExt = filter?.excludeExt?.map((e) => `.${e}`).join(' ');
+      const includeExt = filter.includeExt?.map((e) => `.${e}`).join(' ');
+      const excludeExt = filter.excludeExt?.map((e) => `.${e}`).join(' ');
       kv('file types', includeExt);
       kv('- excluded', excludeExt);
 
-      kv('glob', filter?.includeGlob?.join(' '));
-      kv('- excluded', filter?.excludeGlob?.join(' '));
+      kv('glob', filter.includeGlob?.join(' '));
+      kv('- excluded', filter.excludeGlob?.join(' '));
 
       const str = Str.builder()
         .blank()
