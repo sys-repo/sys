@@ -44,6 +44,19 @@ export namespace CrdtTool {
     }
   }
 
+  /**
+   * Materialized index payload types (data written into the CRDT).
+   * Kept intentionally small: only the types we will actually consume.
+   */
+  export namespace Index {
+    export namespace Fs {
+      export type Index = t.CrdtIndex.Fs.Index;
+      export type IndexSource = t.CrdtIndex.Fs.IndexSource;
+      export type IndexMeta = t.CrdtIndex.Fs.IndexMeta;
+      export type IndexEntry = t.CrdtIndex.Fs.FsIndexEntry;
+    }
+  }
+
   /** Configuration file. */
   export namespace Config {
     export type File = t.JsonFile<Config.Doc>;
@@ -70,10 +83,10 @@ export namespace CrdtTool {
     /**
      * Config: Filesystem directory index configuration.
      */
-    export type Indexes = t.CrdtIndexes;
-    export type DirIndexes = t.CrdtDirIndexes;
-    export type Subdir = t.Subdir;
-    export type DirIndexEntry = t.CrdtDirIndexEntry;
+    export type Subdir = t.CrdtIndex.Subdir;
+    export type Indexes = t.CrdtIndex.Config.Indexes;
+    export type DirIndexes = t.CrdtIndex.Config.DirIndexes;
+    export type DirIndexEntry = t.CrdtIndex.Config.DirIndexEntry;
 
     /**
      * Config: Repositories.
