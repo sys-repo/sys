@@ -38,6 +38,7 @@
     "jsr:@std/testing@1.0.16": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.0.9": "1.0.9",
+    "npm:@ai-sdk/openai@2.0.88": "2.0.88_zod@4.1.13",
     "npm:@automerge/automerge-repo-network-websocket@2.5.1": "2.5.1_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.1": "2.5.1",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.1": "2.5.1",
@@ -63,6 +64,7 @@
     "npm:@types/react@19.2.7": "19.2.7",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.2": "5.1.2_vite@7.3.0__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.28.5_yaml@2.8.2",
+    "npm:ai@5.0.114": "5.0.114_zod@4.1.13",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.1": "6.2.1",
     "npm:csstype@3.2.3": "3.2.3",
@@ -291,6 +293,15 @@
         "zod@4.1.13"
       ]
     },
+    "@ai-sdk/gateway@2.0.21_zod@4.1.13": {
+      "integrity": "sha512-BwV7DU/lAm3Xn6iyyvZdWgVxgLu3SNXzl5y57gMvkW4nGhAOV5269IrJzQwGt03bb107sa6H6uJwWxc77zXoGA==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.19_zod@4.1.13",
+        "@vercel/oidc",
+        "zod@4.1.13"
+      ]
+    },
     "@ai-sdk/google@2.0.40_zod@4.1.13": {
       "integrity": "sha512-E7MTVE6vhWXQJzXQDvojwA9t5xlhWpxttCH3R/kUyiE6y0tT8Ay2dmZLO+bLpFBQ5qrvBMrjKWpDVQMoo6TJZg==",
       "dependencies": [
@@ -320,6 +331,14 @@
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@ai-sdk/provider-utils@3.0.12_zod@4.1.13",
+        "zod@4.1.13"
+      ]
+    },
+    "@ai-sdk/openai@2.0.88_zod@4.1.13": {
+      "integrity": "sha512-LlOf83haeZIiRUH1Zw1oEmqUfw5y54227CvndFoBpIkMJwQDGAB3VARUeOJ6iwAWDJjXSz06GdnEnhRU67Yatw==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.19_zod@4.1.13",
         "zod@4.1.13"
       ]
     },
@@ -370,6 +389,15 @@
     },
     "@ai-sdk/provider-utils@3.0.17_zod@4.1.13": {
       "integrity": "sha512-TR3Gs4I3Tym4Ll+EPdzRdvo/rc8Js6c4nVhFLuvGLX/Y4V9ZcQMa/HTiYsHEgmYrf1zVi6Q145UEZUfleOwOjw==",
+      "dependencies": [
+        "@ai-sdk/provider@2.0.0",
+        "@standard-schema/spec",
+        "eventsource-parser",
+        "zod@4.1.13"
+      ]
+    },
+    "@ai-sdk/provider-utils@3.0.19_zod@4.1.13": {
+      "integrity": "sha512-W41Wc9/jbUVXVwCN/7bWa4IKe8MtxO3EyA0Hfhx6grnmiYlCvpI8neSYWFE0zScXJkgA/YK3BRybzgyiXuu6JA==",
       "dependencies": [
         "@ai-sdk/provider@2.0.0",
         "@standard-schema/spec",
@@ -2449,6 +2477,16 @@
       ],
       "optionalPeers": [
         "react"
+      ]
+    },
+    "ai@5.0.114_zod@4.1.13": {
+      "integrity": "sha512-q/lxcJA6avYn/TXTaE41VX6p9lN245mDU9bIGuPpfk6WxDMvmMoUKUIS0/aXAPYN3UmkUn/r9rvq/8C98RoCWw==",
+      "dependencies": [
+        "@ai-sdk/gateway@2.0.21_zod@4.1.13",
+        "@ai-sdk/provider@2.0.0",
+        "@ai-sdk/provider-utils@3.0.19_zod@4.1.13",
+        "@opentelemetry/api",
+        "zod@4.1.13"
       ]
     },
     "ai@5.0.60_zod@4.1.13": {
