@@ -1,4 +1,4 @@
-import { type t, Str, Cli, c } from '../common.ts';
+import { type t, Cli, Str, c } from '../common.ts';
 import { Fmt as Base } from '../u.fmt.ts';
 
 export const Fmt = {
@@ -12,20 +12,20 @@ export const Fmt = {
         table.push([c.gray(`  ${k}`), String(v)]);
       };
 
-      const counts = snapshot.meta?.total;
       const filter = snapshot.source.filter;
       const schemaVersion = snapshot['schema:version'];
+      const totals = snapshot.meta?.total ?? {};
+      const total = { files: totals.files ?? 0, bytes: totals.bytes ?? 0 };
+      const size = `${c.white(Str.bytes(total.bytes))} over ${c.white(total.files.toLocaleString())} ${Str.plural(total.files, 'file', 'files')}`;
 
+      kv('schema', c.gray(`${c.gray(snapshot.kind)}${c.white(`@v${schemaVersion}`)}`));
+      kv('size', c.gray(size));
       kv('src:dir', c.gray(`./${c.white(Str.trimLeadingSlashes(snapshot.source.dir))}`));
       kv('crdt:mount/path', mountPath);
-      kv('schema', c.gray(`${c.gray(snapshot.kind)}${c.white(`@v${schemaVersion}`)}`));
-
-      kv('files', (counts?.files ?? 0).toLocaleString());
-      kv('bytes', Str.bytes(counts?.bytes ?? 0));
 
       const includeExt = filter?.includeExt?.map((e) => `.${e}`).join(' ');
       const excludeExt = filter?.excludeExt?.map((e) => `.${e}`).join(' ');
-      kv('extensions', includeExt);
+      kv('file types', includeExt);
       kv('- excluded', excludeExt);
 
       kv('glob', filter?.includeGlob?.join(' '));
@@ -40,4 +40,4 @@ export const Fmt = {
       return String(str);
     },
   },
-};
+} as const;
