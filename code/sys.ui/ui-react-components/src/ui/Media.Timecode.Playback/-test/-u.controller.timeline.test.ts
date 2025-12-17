@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Playback } from '../mod.ts';
-import { createTimelineController } from '../u.timelineController.ts';
+import { createTimelineController } from '../u.controller.timeline.ts';
 import { createRuntime, timeline } from './u.fixture.ts';
 
 describe('u.timelineController', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, TimecodeState } from '../common.ts';
 import { Playback } from '../mod.ts';
-import { createRunnerLoop } from '../u.runnerLoop.ts';
+import { createRunnerLoop } from '../u.runner.loop.ts';
 import { createRuntime, expectedCallsFromCmds, timeline } from './u.fixture.ts';
 
 describe('u.runnerLoop', () => {

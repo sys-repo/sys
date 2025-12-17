@@ -8,14 +8,19 @@ export type * from './t.runtime.ts';
 export type * from './t.controller.timeline.ts';
 
 /**
- * Timecode playback runtime adapter.
+ * Playback integration surface.
+ *
+ * Organizes APIs by purity boundary:
+ * - Pure: project, controller
+ * - Imperative: runtime, runner (executes cmds against runtime)
+ * - React: useRunner
  */
 export type TimecodePlaybackLib = {
   /**
    * Create a runtime-backed playback runner.
    *
-   * Binds the pure playback state machine
-   * to an imperative media runtime.
+   * Binds the pure playback state machine to an imperative media runtime:
+   * inputs → reduce → cmds → runtime effects → projected snapshot.
    */
   runner(args: t.PlaybackRunnerArgs): t.PlaybackRunner;
 
@@ -25,11 +30,26 @@ export type TimecodePlaybackLib = {
   useRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunnerHook;
 
   /**
-   * Canonical projections (read-models).
+   * [Pure] Canonical projections (read-models).
    */
   readonly project: {
     readonly runnerState: (state: t.TimecodeState.Playback.State) => t.PlaybackRunnerState;
     readonly timeline: (state: t.TimecodeState.Playback.State) => t.PlaybackTimelineReadModel;
+  };
+
+  /**
+   * [Pure] UI controllers (thin UI command shims).
+   */
+  readonly controller: {
+    readonly timeline: (runner: t.PlaybackRunner) => t.TimelineController;
+  };
+
+  /**
+   * [Imperative] Runtime adapters (imperative edge).
+   */
+  readonly runtime: {
+    readonly noop: () => t.PlaybackRuntime;
+    readonly fromVideoSignals: (args: t.VideoDeckRuntimeArgs) => t.PlaybackRuntime;
   };
 };
 

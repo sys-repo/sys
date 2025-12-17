@@ -51,5 +51,5 @@ export function createPlaybackRuntimeFromDecks(
     },
   };
 
-  return { deck };
+  return { deck, decks };
 }

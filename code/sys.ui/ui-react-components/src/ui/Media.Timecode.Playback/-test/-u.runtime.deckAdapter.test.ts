@@ -1,6 +1,9 @@
 import { describe, expect, it, type t } from '../../../-test.ts';
 import { Convert } from '../u.convert.ts';
-import { createPlaybackRuntimeFromDecks, createVideoDeckRuntime } from '../u.deckAdapter.ts';
+import {
+  createPlaybackRuntimeFromDecks,
+  createVideoDeckRuntime,
+} from '../u.runtime.deckAdapter.ts';
 import { TestVideoPlayerSignals } from './u.fixture.VideoPlayerSignals.ts';
 
 describe('u.deckAdapter', () => {

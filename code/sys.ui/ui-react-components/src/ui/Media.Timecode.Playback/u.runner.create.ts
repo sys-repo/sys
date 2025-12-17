@@ -45,13 +45,43 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
           runtime.deck.seek?.(cmd.deck, cmd.vTime);
           break;
 
+        case 'cmd:deck:load': {
+          /**
+           * Orchestration cmd: load the media for a beat onto a specific deck.
+           *
+           * This runner stays mostly signal-agnostic, but if a hosting layer
+           * provides `runtime.decks` (VideoPlayerSignals), we can perform a
+           * minimal, real load by mutating `props.src`.
+           */
+          const decks = runtime.decks;
+          const timeline = state.timeline;
+          const beat = timeline?.beats[cmd.beat];
+
+          const url = beat?.media?.url;
+          if (decks && url) {
+            const player = decks.get(cmd.deck);
+            player.props.src.value = url;
+          }
+          break;
+        }
+
+        case 'cmd:swap-decks': {
+          /**
+           * Orchestration cmd: indicates the machine has swapped active/standby
+           * ownership in state. In a "two stacked videos" UI, the host might
+           * need to swap z-index / visibility.
+           *
+           * This runner intentionally performs no action here. The *meaning*
+           * of a visual swap is host-specific (side-by-side debug vs stacked).
+           */
+          break;
+        }
+
         case 'cmd:emit-ready':
-        case 'cmd:deck:load':
-        case 'cmd:swap-decks':
           /**
            * Intentionally no-op here.
-           * These are orchestration signals handled
-           * by higher adapters or future extensions.
+           * Ready is an orchestration signal; adapters may translate it into
+           * runner-level signals (e.g. `runner:ready`) or bus events.
            */
           break;
 
