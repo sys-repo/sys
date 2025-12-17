@@ -51,7 +51,15 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
       transition: 'opacity 100ms ease',
     }),
     label: {
-      base: css({ fontFamily: 'monospace', fontSize: 9, lineHeight: 1.5 }),
+      base: css({
+        fontFamily: 'monospace',
+        fontSize: 9,
+        lineHeight: 1.5,
+        maxWidth: '100%',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      }),
       top: css({ Absolute: [-20, null, null, 0] }),
       bottom: css({ Absolute: [null, 0, -18, 0], opacity: 0.4 }),
     },
