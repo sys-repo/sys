@@ -19,7 +19,8 @@ export const nextOutPath: t.VideoToolsLib['nextOutPath'] = async (args): Promise
   const dir = Path.dirname(src);
   const name = Path.basename(src);
   const srcExt = Path.extname(name).toLowerCase(); //           e.g. ".webm" | ".mp4"
-  const to = Str.trimLeadingDotSlash(toExt).toLowerCase(); //   e.g. "mp4" | "webm"
+  const to = normalizeExtToken(toExt); //                         e.g. "mp4" | "webm"
+
   const parsed = parseName(name, srcExt);
 
   // Next counter (existing step + 1)
@@ -38,8 +39,22 @@ export const nextOutPath: t.VideoToolsLib['nextOutPath'] = async (args): Promise
 };
 
 /**
- * Helpers:
+ * Helpers
  */
+
+function normalizeExtToken(ext: string): string {
+  // Accept: ".webm", "webm", "./webm", "/webm", "./.webm", "/.webm"
+  let s = ext.trim().toLowerCase();
+
+  // Use Str helpers where their semantics are explicit and tested.
+  s = Str.trimLeadingDotSlash(s); // handles "./" prefixes
+  s = Str.trimLeadingSlashes(s); // handles "/" prefixes
+
+  // Strip any remaining leading dots (".webm" → "webm").
+  while (s.startsWith('.')) s = s.slice(1);
+
+  return s;
+}
 
 /**
  * Parse a name into:

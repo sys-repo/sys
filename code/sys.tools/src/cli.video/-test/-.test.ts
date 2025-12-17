@@ -65,7 +65,7 @@ describe(`CLI: VideoTools`, () => {
     });
 
     it('foreign .mp4 → .webm: collision → increments', async () => {
-      const dir = (await Fs.makeTempDir()).toString() as string;
+      const dir = (await Fs.makeTempDir()).toString();
       const src = Path.join(dir, 'session.mp4');
       await touch(src);
       await touch(Path.join(dir, 'session.mp4.01.webm'));
