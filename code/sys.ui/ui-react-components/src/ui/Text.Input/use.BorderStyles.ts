@@ -23,7 +23,9 @@ export function useBorderStyles(props: P, options: { theme?: t.ColorTheme } = {}
 const wrangle = {
   borderRadius(props: P, mode: t.TextInputBorder['mode']) {
     const px = props.borderRadius ?? DEFAULTS.borderRadius;
-    return mode === 'underline' ? `${px}px ${px}px ${0}px ${0}px` : px;
+    if (mode === 'line:bottom') return `${px}px ${px}px ${0}px ${0}px`;
+    if (mode === 'line:top') return `${0}px ${0}px ${px}px ${px}px`;
+    return px;
   },
 
   border(props: P, theme: t.ColorTheme) {
@@ -40,33 +42,38 @@ const wrangle = {
       focusColor = prop.focusColor ?? D.focusColor;
       mode = prop.mode ?? D.mode;
     }
+
     if (prop === false || mode === 'none') {
       mode = 'none';
       focusColor = 0;
       defaultColor = 0;
     }
+
     if (props.readOnly) {
       focusColor = 0;
       defaultColor = 0;
     }
 
-    const incl = (...modes: t.TextInputBorder['mode'][]) => modes.includes(mode);
     const format = (color: C) => theme.format(color).fg;
     const border = (color: C | false) => (color === false ? 'none' : `1px solid ${format(color)}`);
+
+    const isOutline = mode === 'outline';
+    const isTopLine = mode === 'line:top';
+    const isBottomLine = mode === 'line:bottom';
 
     return {
       mode,
       base: {
-        borderLeft: border(incl('outline') ? defaultColor : false),
-        borderRight: border(incl('outline') ? defaultColor : false),
-        borderTop: border(incl('outline') ? defaultColor : false),
-        borderBottom: border(incl('outline', 'underline') ? defaultColor : 0),
+        borderLeft: border(isOutline ? defaultColor : false),
+        borderRight: border(isOutline ? defaultColor : false),
+        borderTop: border(isOutline ? defaultColor : isTopLine ? defaultColor : false),
+        borderBottom: border(isOutline ? defaultColor : isBottomLine ? defaultColor : false),
       },
       focus: {
-        borderLeft: border(incl('outline') ? focusColor : false),
-        borderRight: border(incl('outline') ? focusColor : false),
-        borderTop: border(incl('outline') ? focusColor : false),
-        borderBottom: border(incl('outline', 'underline') ? focusColor : 0),
+        borderLeft: border(isOutline ? focusColor : false),
+        borderRight: border(isOutline ? focusColor : false),
+        borderTop: border(isOutline ? focusColor : isTopLine ? focusColor : false),
+        borderBottom: border(isOutline ? focusColor : isBottomLine ? focusColor : false),
       },
     } as const;
   },

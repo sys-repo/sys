@@ -51,7 +51,7 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
         autoCorrect={false}
         autoComplete={false}
         border={{
-          mode: placement === 'top' ? 'underline:bottom' : 'underline:top',
+          mode: placement === 'top' ? 'line:bottom' : 'line:top',
           defaultColor: Color.alpha(theme.fg, 0.2),
           focusColor: Color.BLUE,
         }}

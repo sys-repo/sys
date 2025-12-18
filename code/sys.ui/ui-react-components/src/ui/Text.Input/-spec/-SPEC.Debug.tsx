@@ -21,7 +21,7 @@ const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   background: -0.05,
-  border: { mode: 'underline' },
+  border: { mode: 'line:bottom' },
   borderRadius: 4,
   autoFocus: true,
   disabled: D.disabled,
@@ -168,7 +168,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
             false,
             D.border,
             { mode: 'none' },
-            { mode: 'underline' },
+            { mode: 'line:bottom' },
+            { mode: 'line:top' },
             { focusColor: 'red', defaultColor: Color.ruby(0.15) },
             undefined,
           ])

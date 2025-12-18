@@ -69,7 +69,7 @@ export type TextInputProps = {
  * Border configuration for a textbox input.
  */
 export type TextInputBorder = {
-  mode: 'underline' | 'outline' | 'none';
+  mode: 'line:top' | 'line:bottom' | 'outline' | 'none';
   defaultColor: Color;
   focusColor: Color;
 };
