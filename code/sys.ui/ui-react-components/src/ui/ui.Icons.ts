@@ -1,5 +1,6 @@
-import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash } from 'react-icons/lu';
+import { FaLink } from 'react-icons/fa6';
 import { LiaCertificateSolid } from 'react-icons/lia';
+import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash, LuDna } from 'react-icons/lu';
 import {
   MdArrowBack,
   MdArrowDownward,
@@ -16,7 +17,6 @@ import {
   MdSettings,
 } from 'react-icons/md';
 import { VscSymbolClass } from 'react-icons/vsc';
-import { FaLink } from 'react-icons/fa6';
 
 import { Icon } from './Icon/mod.ts';
 const icon = Icon.renderer;
@@ -48,4 +48,5 @@ export const Icons = {
   Chevron: { Left: icon(MdChevronLeft), Right: icon(MdChevronRight) },
   Certificate: icon(LiaCertificateSolid),
   Link: icon(FaLink),
+  Dna: icon(LuDna),
 } as const;

@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Dev, Signal, Spec, Icons } from '../../-test.ui.ts';
 import { D, css, Color } from '../common.ts';
 import { MediaTimecode } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
@@ -17,18 +17,21 @@ export default Spec.describe(D.displayName, async (e) => {
       base: css({ position: 'relative', display: 'grid', color: theme.fg }),
       trait: {
         base: css({
-          Absolute: [-26, null, null, -64],
+          Absolute: [null, null, -55, -64], // bottom-left
+          position: 'relative',
           fontFamily: 'monospace',
           fontSize: 13,
           color: Color.alpha(theme.fg, 0.3),
         }),
         A: css({ color: theme.fg }),
         B: css({ color: Color.CYAN }),
+        dna: css({ Absolute: [-33, null, null, 10], opacity: 0.1, color: theme.fg }),
       },
     };
 
     const elTrait = (
       <div className={styles.trait.base.class}>
+        <Icons.Dna style={styles.trait.dna} size={26} />
         <span className={styles.trait.A.class}>trait:</span> {'"'}
         <span className={styles.trait.B.class}>media-composition</span>
         {'"'}
