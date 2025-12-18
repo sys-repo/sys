@@ -1,6 +1,6 @@
 {
   "name": "@sys/text",
-  "version": "0.0.192",
+  "version": "0.0.193",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
@@ -12,6 +12,7 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./diff": "./src/-exports/-diff.ts",
+    "./filter": "./src/-exports/-filter.ts",
     "./gpt": "./src/-exports/-gpt.ts"
   }
 }
