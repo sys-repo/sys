@@ -9,6 +9,9 @@ export namespace Filter {
    * Stable API; implementation may evolve.
    */
   export type Lib = {
+    /** Normalize raw query input into a query structure. */
+    readonly parse: ParseFn;
+
   };
 
   /** Raw user query input. */
