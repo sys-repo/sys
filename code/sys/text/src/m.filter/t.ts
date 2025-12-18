@@ -56,11 +56,8 @@ export namespace Filter {
   export type ParseFn = (query: QueryInput, options?: Options) => Query;
 
   /** Match a query against a single string. */
-  export type MatchFn = (
-    query: QueryInput | Query,
-    text: string,
-    options?: Options,
-  ) => {
+  export type MatchFn = (query: QueryInput | Query, text: string, options?: Options) => MatchResult;
+  export type MatchResult = {
     readonly match: boolean;
     readonly score: number;
     readonly ranges?: readonly Range[];
