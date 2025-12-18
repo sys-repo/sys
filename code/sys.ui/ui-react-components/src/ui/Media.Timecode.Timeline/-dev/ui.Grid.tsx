@@ -236,7 +236,13 @@ export const Grid: React.FC<GridProps> = (props) => {
         onPointerDown={() => props.onSelect?.({ index })}
       >
         <div className={styles.cell.bullet.class}>
-          <Bullet theme={theme.name} selected={isSelected} colorTransition={0} />
+          <Bullet
+            theme={theme.name}
+            selected={isSelected}
+            filled={isSelected || isVttBright}
+            filledColor={Color.alpha(Color.BLUE, 0.5)}
+            colorTransition={0}
+          />
         </div>
         <div className={rowStyles.vtt.class}>{row.vtt}</div>
         <div className={styles.cell.text.class}>{row.vTime}</div>
