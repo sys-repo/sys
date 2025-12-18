@@ -1,17 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, Rx, Obj, Str, Is } from './common.ts';
+import React from 'react';
+import { type t, Color, css, TextInput } from './common.ts';
 
 export type ToolbarProps = {
+  placement?: t.DistBrowserToolbarPlacement;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+
+  /**
+   * Filter textbox value.
+   * - If provided → controlled
+   * - Otherwise → toolbar/controller may manage it
+   */
+  filterText?: string;
+  onFilter?: t.DistBrowserFilterHandler;
 };
 
 /**
  * Component:
  */
 export const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { debug = false } = props;
+  const { debug = false, filterText, placement = 'top' } = props;
+
+  const onChange: t.TextInputChangeHandler = (e) => {
+    props.onFilter?.({ text: e.value });
+  };
 
   /**
    * Render:
@@ -22,11 +35,30 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       display: 'grid',
+      border: 'none',
     }),
-  };
+    input: css({ width: '100%' }),
+  } as const;
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <TextInput
+        theme={theme.name}
+        value={filterText} // ← allow uncontrolled when undefined
+        placeholder={'Filter files'}
+        spellCheck={false}
+        autoCapitalize={false}
+        autoCorrect={false}
+        autoComplete={false}
+        border={{
+          mode: placement === 'top' ? 'underline:bottom' : 'underline:top',
+          defaultColor: Color.alpha(theme.fg, 0.2),
+          focusColor: Color.BLUE,
+        }}
+        padding={[6, 10]}
+        style={styles.input}
+        onChange={onChange}
+      />
     </div>
   );
 };

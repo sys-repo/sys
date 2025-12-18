@@ -9,29 +9,54 @@ import { Toolbar } from './ui.Toolbar.tsx';
 const View: React.FC<t.DistBrowserProps> = (props) => {
   const { debug = false, dist, selectedPath, onSelect } = props;
 
+  const toolbar = props.toolbar;
+  const toolbarPlacement = toolbar?.placement ?? 'top';
+  const hasToolbar = toolbar !== undefined;
+
+  const gridTemplateRows = hasToolbar
+    ? toolbarPlacement === 'bottom'
+      ? '1fr auto'
+      : 'auto 1fr'
+    : '1fr';
+
+  /**
+   * Render:
+   */
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       display: 'grid',
-      gridTemplateRows: 'auto 1fr',
+      gridTemplateRows,
     }),
-    header: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
-    }),
-  };
+  } as const;
+
+  const elToolbar = hasToolbar && (
+    <Toolbar
+      placement={toolbar.placement}
+      theme={theme.name}
+      debug={debug}
+      filterText={toolbar?.filterText}
+      onFilter={toolbar?.onFilter}
+    />
+  );
+
+  const elGrid = (
+    <Grid
+      theme={theme.name}
+      dist={dist}
+      debug={debug}
+      selectedPath={selectedPath}
+      onSelect={onSelect}
+    />
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={styles.header.class}>{`Header`}</div>
-      <Grid
-        theme={theme.name}
-        dist={dist}
-        debug={debug}
-        selectedPath={selectedPath}
-        onSelect={onSelect}
-      />
+      {!hasToolbar && elGrid}
+      {hasToolbar && (toolbarPlacement === 'bottom' ? elGrid : elToolbar)}
+      {hasToolbar && (toolbarPlacement === 'bottom' ? elToolbar : elGrid)}
     </div>
   );
 };
@@ -42,5 +67,4 @@ const View: React.FC<t.DistBrowserProps> = (props) => {
 const API = View as unknown as t.Mutable<t.Dist.Browser.UI>;
 API.Grid = Grid;
 API.Toolbar = Toolbar;
-
 export const Browser = View as t.Dist.Browser.UI;

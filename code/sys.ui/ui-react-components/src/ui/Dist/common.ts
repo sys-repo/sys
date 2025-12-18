@@ -3,6 +3,7 @@ import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
 export { Icons } from '../ui.Icons.ts';
+export { TextInput } from '../Text.Input/mod.ts';
 
 /**
  * Constants:
