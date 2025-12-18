@@ -104,7 +104,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `👋 hello world`}
-        onClick={() => (p.dist.value = SAMPLE.HELLO_WORLD)}
+        onClick={() => (p.dist.value = SAMPLE.HelloWorld)}
       />
       <Button block label={() => `(undefined)`} onClick={() => (p.dist.value = undefined)} />
 
@@ -115,7 +115,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
 
       <hr style={{ margin: '30px 0' }} />
-      <Dist.UI.Browser debug={v.debug} />
+      <Dist.UI.Browser debug={v.debug} style={{ maxHeight: 200 }} />
     </div>
   );
 };

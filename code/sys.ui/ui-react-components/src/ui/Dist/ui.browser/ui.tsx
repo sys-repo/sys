@@ -16,11 +16,15 @@ export const Browser: React.FC<t.DistBrowserProps> = (props) => {
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       display: 'grid',
+      gridTemplateRows: 'auto 1fr auto',
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
+      <div>{`Header`}</div>
+      <div>{`Main`}</div>
+      <div>{`Footer`}</div>
     </div>
   );
 };

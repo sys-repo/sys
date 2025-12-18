@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** Type re-exports */
-export type * from './t.browser.ts';
+export type * from './ui.browser/t.ts';
 
 /**
  * UI components for working with `dist.json` standard structure.

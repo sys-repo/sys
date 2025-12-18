@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import { Dist as BaseUI } from './ui.tsx';
-import { Browser } from './ui.Browser.tsx';
+import { Browser } from './ui.browser/mod.ts';
 
 const UI = BaseUI as unknown as t.Mutable<t.DistUI>;
 UI.Browser = Browser;

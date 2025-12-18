@@ -7,32 +7,36 @@ export const Dist: React.FC<t.DistProps> = (props) => {
   const kv = (dist?: t.DistPkg): t.KeyValueItem[] => {
     if (!dist) return [];
     const items: t.KeyValueItem[] = [];
+    const hr = () => items.push({ kind: 'hr', opacity: 0.15 });
+    const ellipsize = Str.ellipsize;
 
     items.push({ kind: 'title', v: 'DistPkg' });
-
-    items.push({ kind: 'hr', opacity: 0.15 });
+    hr();
 
     // Core:
-    items.push({ k: 'type', v: dist.type });
+    items.push({ k: 'type', v: ellipsize(dist.type, [20, 12], '..') });
     items.push({ k: 'entry', v: dist.entry });
     items.push({ k: 'url.base', v: dist.url?.base });
-
-    items.push({ kind: 'hr', opacity: 0.15 });
+    hr();
 
     // Pkg:
     items.push({ kind: 'title', v: 'pkg' });
     items.push({ k: 'name', v: dist.pkg?.name });
     items.push({ k: 'version', v: dist.pkg?.version });
-
-    items.push({ kind: 'hr', opacity: 0.15 });
+    hr();
 
     // Build:
     items.push({ kind: 'title', v: 'build' });
     items.push({ k: 'time', v: dist.build?.time });
     items.push({ k: 'builder', v: dist.build?.builder });
-    items.push({ k: 'runtime', v: dist.build?.runtime });
+    items.push({ k: 'runtime', v: ellipsize(dist.build?.runtime ?? '', [20, 16], '..') });
     items.push({ k: 'size.total', v: Str.bytes(dist.build?.size?.total) });
     items.push({ k: 'size.pkg', v: Str.bytes(dist.build?.size?.pkg) });
+
+    if (dist.hash.digest) {
+      hr();
+      items.push({ k: 'hash.digest', v: ellipsize(dist.hash.digest, [12, 5], '..') });
+    }
 
     return items;
   };
