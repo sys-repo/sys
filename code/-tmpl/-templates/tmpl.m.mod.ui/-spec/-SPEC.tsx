@@ -24,7 +24,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <MyComponent debug={v.debug} theme={v.theme} />;
+        return <MyComponent.UI debug={v.debug} theme={v.theme} />;
       });
   });
 
