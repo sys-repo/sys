@@ -3,6 +3,7 @@ import { type t, Color, css, TextInput } from './common.ts';
 
 export type ToolbarProps = {
   placement?: t.DistBrowserToolbarPlacement;
+  placeholderText?: string;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -20,7 +21,7 @@ export type ToolbarProps = {
  * Component:
  */
 export const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { debug = false, filterText, placement = 'top' } = props;
+  const { debug = false, filterText, placement = 'top', placeholderText = 'Filter' } = props;
 
   const onChange: t.TextInputChangeHandler = (e) => {
     props.onFilter?.({ text: e.value });
@@ -48,7 +49,7 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
       <TextInput
         theme={theme.name}
         value={filterText} // ← allow uncontrolled when <undefined>
-        placeholder={'Filter files'}
+        placeholder={placeholderText}
         spellCheck={false}
         autoCapitalize={false}
         autoCorrect={false}

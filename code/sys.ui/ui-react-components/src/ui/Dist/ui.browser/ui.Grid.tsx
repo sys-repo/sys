@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Icons, Pkg, Str } from '../common.ts';
+import { type t, Color, css, Filter, Icons, Pkg, Str } from '../common.ts';
 
 export type GridProps = {
   dist?: t.DistPkg;
@@ -11,44 +11,25 @@ export type GridProps = {
   onSelect?: t.DistBrowserSelectHandler;
 };
 
+type Row = {
+  readonly path: string;
+  readonly bytes?: number;
+  readonly hash?: string;
+  readonly hashLabel: string;
+};
+
 /**
  * Component:
  */
 export const Grid: React.FC<GridProps> = (props) => {
-  const { debug = false, dist } = props;
+  const { debug = false, dist, filterText } = props;
 
-  /**
-   * Local stub (move to `@sys/text` later):
-   * - case-insensitive
-   * - trims whitespace
-   */
-  const normalize = (input: string) => input.trim().toLowerCase();
-  const matches = (value: string, query: string) => {
-    const q = normalize(query);
-    if (!q) return true;
-    return normalize(value).includes(q);
-  };
   /**
    * Build row data.
    */
   const rows = React.useMemo(() => {
-    const parts = dist?.hash?.parts ?? {};
-    const all = Object.entries(parts).map(([path, value]) => {
-      const info = Pkg.Dist.Part.parse(value);
-
-      const hash = info?.hash;
-      const bytes = info?.size;
-      const hashHex = hash?.replace(/^sha256-/i, '');
-      const hashLabel = hashHex ? `#${hashHex.slice(-5)}` : '-';
-
-      return { path, bytes, hash, hashLabel };
-    });
-
-    const query = props.filterText ?? '';
-    if (!query.trim()) return all;
-
-    return all.filter((row) => matches(row.path, query));
-  }, [dist, props.filterText]);
+    return buildRows({ dist, filterText });
+  }, [dist, filterText]);
 
   /**
    * Render:
@@ -165,4 +146,50 @@ export const Grid: React.FC<GridProps> = (props) => {
       </div>
     </div>
   );
+};
+
+/** ------------------------------------------------------------
+ * Helpers
+ */
+
+/**
+ * Heuristic to choose filtering mode for file-path queries.
+ * - fuzzy for mnemonic typing (fb → foo/bar)
+ * - contains for literal intent (.ts, /path, foo-bar)
+ */
+const chooseFilterMode = (input: string): t.TextFilter.Options['mode'] => {
+  const q = input.trim();
+  if (!q) return 'contains';
+  if (/[\/._\-@:]/.test(q)) return 'contains';
+  return 'fuzzy';
+};
+
+const buildRows = (args: {
+  readonly dist?: t.DistPkg;
+  readonly filterText?: string;
+}): readonly Row[] => {
+  const { dist, filterText } = args;
+
+  const parts = dist?.hash?.parts ?? {};
+  const all: Row[] = Object.entries(parts).map(([path, value]) => {
+    const info = Pkg.Dist.Part.parse(value);
+
+    const hash = info?.hash;
+    const bytes = info?.size;
+    const hashHex = hash?.replace(/^sha256-/i, '');
+    const hashLabel = hashHex ? `#${hashHex.slice(-5)}` : '-';
+
+    return { path, bytes, hash, hashLabel };
+  });
+
+  const query = filterText ?? '';
+  if (!query.trim()) return all;
+
+  const mode = chooseFilterMode(query);
+  const candidates: readonly t.TextFilter.Candidate<Row>[] = all.map((row) => ({
+    text: row.path,
+    value: row,
+  }));
+  const matches = Filter.apply(query, candidates, { mode, limit: 200 });
+  return matches.map((m) => m.value);
 };

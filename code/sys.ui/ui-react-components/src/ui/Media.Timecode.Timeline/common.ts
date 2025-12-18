@@ -9,6 +9,7 @@ export { ObjectView } from '../ObjectView/mod.ts';
 export { Player } from '../Player/mod.ts';
 export { Icons } from '../ui.Icons.ts';
 export { Playback } from '../Media.Timecode.Playback/mod.ts';
+export { Dist } from '../Dist/mod.ts';
 
 /**
  * Constants:

@@ -2,13 +2,14 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Player, Signal, Str } from '../common.ts';
 import { Sample } from './-u.loader.ts';
-import { Dist } from '../../Dist/mod.ts';
+import { LoadTimelinePanel } from './-ui.LoadTimelinePanel.tsx';
 
 type P = t.MediaTimeline.Dev.Harness.Props;
-type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId };
+type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId; baseUrl?: t.StringUrl };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  baseUrl: 'http://localhost:4040/publish.assets',
 };
 
 /**
@@ -33,6 +34,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     docid: s(snap.docid),
+    baseUrl: s(snap.baseUrl),
     bundle: s<t.SpecTimelineBundle>(),
   };
   const p = props;
@@ -59,6 +61,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.docid = p.docid.value;
+      d.baseUrl = p.baseUrl.value;
     });
   });
 
@@ -94,43 +97,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
     vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
-  const load = (docid: t.StringId, msg: string = '') => {
-    const isCurrent = docid === p.docid.value;
-    const id = Str.ellipsize(docid, [5, 5], ' .. ');
-    const label = `- load → crdt:${id} ${msg} ${isCurrent ? '🌳' : ''}`;
-    return (
-      <Button
-        block
-        label={label}
-        onClick={() => Sample.load(debug, docid)}
-        tooltip={`crdt:${docid}`}
-      />
-    );
-  };
-
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
         <div>{D.name}</div>
       </div>
-
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
       <hr />
       <div className={Styles.title.class}>
         <div>{'ƒ loadTimeline()'}</div>
         <div>{'(fetch / json)'}</div>
       </div>
-      <Dist.UI.Browser style={{ marginTop: 10 }} debug={true} />
 
-      {load('2esGLgD5SoQkeucytmGeadm9cC7y')}
-      {load('2kcH93dUVmRsZq77YVbaTLNGPr8z')}
-      {load('hmNovS1do4wchHwisw3gF1EnrKF', '(issues)')}
       <Button block label={() => `(unload)`} onClick={() => Sample.unload(debug)} />
+      <LoadTimelinePanel
+        theme={theme.name}
+        style={{ marginTop: 10, marginBottom: 20, height: 300 }}
+        baseUrl={v.baseUrl ?? ''}
+        selectedDocid={p.docid.value}
+        onSelect={(e) => Sample.load(debug, e.docid)}
+      />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
