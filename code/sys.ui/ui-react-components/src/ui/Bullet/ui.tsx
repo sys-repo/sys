@@ -4,7 +4,7 @@ import { type t, Color, css, D } from './common.ts';
 type P = t.BulletProps;
 
 export const Bullet: React.FC<P> = (props) => {
-  const {} = props;
+  const { colorTransition = 0 } = props;
   const Size = props.size ?? D.size;
 
   /**
@@ -24,7 +24,7 @@ export const Bullet: React.FC<P> = (props) => {
       borderRadius: '50%',
       border: `solid 1px ${Color.alpha(theme.fg, 0.16)}`,
       backgroundColor,
-      transition: 'background-color 120ms ease',
+      transition: colorTransition ? `background-color ${colorTransition}ms ease` : undefined,
     }),
   };
 

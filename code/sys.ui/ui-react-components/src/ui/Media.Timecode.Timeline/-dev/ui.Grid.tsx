@@ -59,7 +59,6 @@ export const Grid: React.FC<GridProps> = (props) => {
       cursor: 'default',
       columnGap: 16,
       alignItems: 'start',
-      transition: 'background-color 100ms ease-out',
     }),
     cell: {
       text: css({ display: 'flex', alignItems: 'center', paddingTop: 1, paddingBottom: 1 }),
@@ -235,7 +234,7 @@ export const Grid: React.FC<GridProps> = (props) => {
         onPointerDown={() => props.onSelect?.({ index })}
       >
         <div className={styles.cell.bullet.class}>
-          <Bullet theme={theme.name} selected={isSelected} />
+          <Bullet theme={theme.name} selected={isSelected} colorTransition={0} />
         </div>
         <div className={styles.cell.text.class}>{row.vtt}</div>
         <div className={styles.cell.text.class}>{row.vTime}</div>
