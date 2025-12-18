@@ -8,6 +8,11 @@ export type * from './ui.browser/t.ts';
  */
 export type DistLib = {
   readonly UI: DistUI;
+  /**
+   * Uncontrolled adapter for <Dist.UI.Browser>.
+   * Provides local selection state + a stable onSelect handler.
+   */
+  readonly useBrowserController: (init?: DistBrowserControllerArgs) => DistBrowserController;
 };
 
 /**
@@ -25,4 +30,16 @@ export type DistProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+};
+
+/** The `useBrowserController` hook args. */
+export type DistBrowserControllerArgs = {
+  readonly selectedPath?: t.StringPath;
+  readonly onSelect?: t.DistBrowserSelectHandler;
+};
+
+/** A `useBrowserController` instance */
+export type DistBrowserController = {
+  readonly selectedPath?: t.StringPath;
+  readonly onSelect: t.DistBrowserSelectHandler;
 };

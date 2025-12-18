@@ -1,16 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, Rx, Obj, Str, Is } from './common.ts';
+import React from 'react';
+import { type t, Color, css } from './common.ts';
 import { Grid } from './ui.Grid.tsx';
 
 /**
  * Component:
  */
 export const Browser: React.FC<t.DistBrowserProps> = (props) => {
-  const { debug = false, dist } = props;
+  const { debug = false, dist, selectedPath, onSelect } = props;
 
-  /**
-   * Render:
-   */
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
@@ -27,7 +24,13 @@ export const Browser: React.FC<t.DistBrowserProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.header.class}>{`Header`}</div>
-      <Grid theme={theme.name} dist={dist} debug={debug} />
+      <Grid
+        theme={theme.name}
+        dist={dist}
+        debug={debug}
+        selectedPath={selectedPath}
+        onSelect={onSelect}
+      />
     </div>
   );
 };

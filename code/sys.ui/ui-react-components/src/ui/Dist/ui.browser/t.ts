@@ -10,4 +10,10 @@ export type DistBrowserProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
+  selectedPath?: t.StringPath;
+  onSelect?: t.DistBrowserSelectHandler;
 };
+
+/** A selection event  */
+export type DistBrowserSelectHandler = (e: DistBrowserSelect) => void;
+export type DistBrowserSelect = { readonly path: t.StringPath };
