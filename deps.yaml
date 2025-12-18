@@ -57,7 +57,7 @@ groups:
 
   build/tools/vite:
     - import: npm:@vitejs/plugin-react@5.1.2
-    - import: npm:@deno/vite-plugin@1.0.5
+    - import: npm:@deno/vite-plugin@1.0.6
     - import: npm:rollup@4.53.5
     - import: npm:vite@7.3.0
     - import: npm:vite-plugin-wasm@3.5.0
@@ -88,7 +88,7 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@5.0.114
+    - import: npm:ai@5.0.115
     - import: npm:@ai-sdk/openai@2.0.88
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.8
