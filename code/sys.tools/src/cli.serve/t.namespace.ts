@@ -11,7 +11,8 @@ export namespace ServeTool {
   export type Command =
     | 'dir:add'
     | 'dir:remove'
-    | 'serve:start'
+    | 'serve:start/local'
+    | 'serve:start/network'
     | 'bundle'
     | 'bundle:add-remote'
     | 'bundle:pull-latest'

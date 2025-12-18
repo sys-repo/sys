@@ -5,7 +5,7 @@ import { ServeMenu } from './u.prompt.ts';
 import { route } from './u.serve.route.ts';
 
 type C = t.ServeTool.Command;
-type Opts = { port?: number };
+type Opts = { port?: number; host?: 'local' | 'network' };
 
 /**
  * Start a local HTTP server for the given directory.
@@ -38,14 +38,15 @@ export async function startServing(
   const port = Net.port(opts.port ?? D.port);
   const baseOptions = Http.Server.options({ port, dir, silent: false });
   const ac = new AbortController();
-  const server = Deno.serve({ ...baseOptions, signal: ac.signal }, app.fetch);
+  const host = opts.host ?? 'local';
+  const hostname = host === 'network' ? '0.0.0.0' : '127.0.0.1';
+  const server = Deno.serve({ ...baseOptions, hostname, signal: ac.signal }, app.fetch);
 
   /**
    * Run Open → Prompt (Loop)
    */
   const runOpenPromptLoop = (() => {
-    const baseUrl = `http://localhost:${port}`;
-
+    const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `http://localhost:${port}`;
     const CMD_OPEN = 'bundle:open' satisfies C;
     const PREFIX = `${CMD_OPEN}/`;
     const EXIT = 'exit' satisfies C;
@@ -59,9 +60,13 @@ export async function startServing(
     };
 
     function renderHeader() {
-      const str = Str.builder()
-        .blank()
-        .line(`  Listening on ${c.cyan(`${baseUrl}/`)}`);
+      const str = Str.builder().blank();
+
+      if (host === 'network') {
+        str.line(`  Listening on ${c.cyan('http://')}${c.yellow('0.0.0.0')}${c.cyan(`:${port}/`)}`);
+      } else {
+        str.line(`  Listening on ${c.cyan(`${baseUrl}/`)}`);
+      }
 
       if (lastSelection) {
         const dir = String(lastSelection).split('/').pop()!;

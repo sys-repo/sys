@@ -89,12 +89,14 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
     console.info(c.gray(`directory: ${locationAbsDir}`));
   }
 
-  const fmtLocalhost = c.gray(`(${c.cyan(`port:${port}`)})`);
+  const fmtLocalhost = c.gray(`(${c.cyan(`localhost:${port}`)})`);
+  const fmtNetwork = c.gray(`(${c.yellow(`network:${port}`)})`);
 
   const action = (await Cli.Input.Select.prompt<C>({
     message: `With: ${c.gray(location.name)}`,
     options: [
-      opt(` start server ${fmtLocalhost}`, 'serve:start'),
+      opt(` start server ${fmtLocalhost}`, 'serve:start/local'),
+      opt(` start server ${fmtNetwork}`, 'serve:start/network'),
       opt(' manage bundles', 'bundle'),
       opt(' remove', 'dir:remove'),
     ],
@@ -105,8 +107,9 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
     return done(0);
   }
 
-  if (action === 'serve:start') {
-    await startServing(cwd, runtimeLocation, { port });
+  if (action === 'serve:start/local' || action === 'serve:start/network') {
+    const host = action === 'serve:start/network' ? 'network' : 'local';
+    await startServing(cwd, runtimeLocation, { port, host });
     return done(0);
   }
 
