@@ -7,6 +7,7 @@ export type GridProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   selectedPath?: t.StringPath;
+  filterText?: string;
   onSelect?: t.DistBrowserSelectHandler;
 };
 
@@ -17,11 +18,22 @@ export const Grid: React.FC<GridProps> = (props) => {
   const { debug = false, dist } = props;
 
   /**
+   * Local stub (move to `@sys/text` later):
+   * - case-insensitive
+   * - trims whitespace
+   */
+  const normalize = (input: string) => input.trim().toLowerCase();
+  const matches = (value: string, query: string) => {
+    const q = normalize(query);
+    if (!q) return true;
+    return normalize(value).includes(q);
+  };
+  /**
    * Build row data.
    */
   const rows = React.useMemo(() => {
     const parts = dist?.hash?.parts ?? {};
-    return Object.entries(parts).map(([path, value]) => {
+    const all = Object.entries(parts).map(([path, value]) => {
       const info = Pkg.Dist.Part.parse(value);
 
       const hash = info?.hash;
@@ -31,7 +43,12 @@ export const Grid: React.FC<GridProps> = (props) => {
 
       return { path, bytes, hash, hashLabel };
     });
-  }, [dist]);
+
+    const query = props.filterText ?? '';
+    if (!query.trim()) return all;
+
+    return all.filter((row) => matches(row.path, query));
+  }, [dist, props.filterText]);
 
   /**
    * Render:

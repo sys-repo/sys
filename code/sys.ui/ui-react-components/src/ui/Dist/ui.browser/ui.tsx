@@ -20,6 +20,13 @@ const View: React.FC<t.DistBrowserProps> = (props) => {
     : '1fr';
 
   /**
+   * Filter is resolved independent of toolbar visibility.
+   * Toolbar values (when present) take precedence.
+   */
+  const filterText = toolbar?.filterText ?? props.filterText;
+  const onFilter = toolbar?.onFilter ?? props.onFilter;
+
+  /**
    * Render:
    */
   const theme = Color.theme(props.theme);
@@ -37,8 +44,8 @@ const View: React.FC<t.DistBrowserProps> = (props) => {
       placement={toolbar.placement}
       theme={theme.name}
       debug={debug}
-      filterText={toolbar?.filterText}
-      onFilter={toolbar?.onFilter}
+      filterText={filterText}
+      onFilter={onFilter}
     />
   );
 
@@ -49,6 +56,7 @@ const View: React.FC<t.DistBrowserProps> = (props) => {
       debug={debug}
       selectedPath={selectedPath}
       onSelect={onSelect}
+      filterText={filterText}
     />
   );
 

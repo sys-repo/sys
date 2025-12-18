@@ -18,7 +18,6 @@ export default Spec.describe(D.displayName, async (e) => {
       onSelect: (e) => console.info('⚡️ Dist.Browser.onSelect:', e),
       onFilter: (e) => console.info('⚡️ Dist.Browser.onFilter:', e),
     });
-
     return (
       <Dist.UI.Browser
         debug={v.debug}
@@ -26,12 +25,9 @@ export default Spec.describe(D.displayName, async (e) => {
         dist={v.dist}
         selectedPath={browser.selectedPath}
         onSelect={browser.onSelect}
-        toolbar={{
-          // placement: 'top',
-          placement: 'bottom',
-          filterText: browser.filterText,
-          onFilter: browser.onFilter,
-        }}
+        filterText={browser.filterText}
+        onFilter={browser.onFilter}
+        toolbar={{ placement: 'bottom' }}
       />
     );
   }

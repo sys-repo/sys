@@ -15,6 +15,14 @@ export type DistBrowserProps = {
   selectedPath?: t.StringPath;
   onSelect?: t.DistBrowserSelectHandler;
 
+  /**
+   * Filter state is independent of toolbar visibility.
+   * - Use `toolbar` only to *render* an input.
+   * - Filtering still works when `toolbar` is <undefined>.
+   */
+  filterText?: string;
+  onFilter?: DistBrowserFilterHandler;
+
   toolbar?: {
     readonly placement?: t.DistBrowserToolbarPlacement; // default 'top'
     readonly filterText?: string;
