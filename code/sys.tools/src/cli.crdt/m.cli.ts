@@ -121,7 +121,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         const lintModule = c.dim(`[ ${c.cyan(`:plugin:program:${c.yellow('slugs')}`)} ]`);
         const options = [
           opt(`  lint ${lintModule}`, `doc:graph:lint`),
-          opt(`  doc:index:fs:dir`, 'doc:fs:index:dir'),
+          opt(`  doc:indexer:fs`, 'doc:indexer:fs'),
           opt(`  doc:graph:backup (snapshot)`, `snapshot`),
           opt(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
           opt(`  doc:graph: walk → stats`, `doc:graph:walk`),
@@ -186,7 +186,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           return done(0);
         }
 
-        if (B === 'doc:fs:index:dir') {
+        if (B === 'doc:indexer:fs') {
           const m = await Imports.indexDocument();
           await m.runDirectoryIndexer(cwd, docid);
           return done(0);
