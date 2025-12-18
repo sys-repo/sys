@@ -119,4 +119,72 @@ describe('Pkg.Dist', () => {
       expect(b.href).to.eql(server.url.href + pathname);
     });
   });
+
+  describe('Dist.Part', () => {
+    it('API', () => {
+      expect(Pkg.Dist.Part).to.equal(Dist.Part);
+    });
+
+    it('parse: sha256 only', () => {
+      const value = 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18';
+      const res = Pkg.Dist.Part.parse(value);
+      expect(res).to.eql({ hash: value });
+    });
+
+    it('parse: sha256 + size', () => {
+      const hash = 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18';
+      const value = `${hash}:size=530`;
+      const res = Pkg.Dist.Part.parse(value);
+      expect(res).to.eql({ hash, size: 530 });
+    });
+
+    it('parse: tolerates whitespace', () => {
+      const hash = 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18';
+      const value = `  ${hash}:size=530  `;
+      const res = Pkg.Dist.Part.parse(value);
+      expect(res).to.eql({ hash, size: 530 });
+    });
+
+    it('hash', () => {
+      const hash = 'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      expect(Pkg.Dist.Part.hash(hash)).to.eql(hash);
+      expect(Pkg.Dist.Part.hash(`${hash}:size=12`)).to.eql(hash);
+    });
+
+    it('size', () => {
+      const hash = 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+      expect(Pkg.Dist.Part.size(hash)).to.eql(undefined);
+      expect(Pkg.Dist.Part.size(`${hash}:size=12`)).to.eql(12);
+    });
+
+    it('parse: rejects invalid shapes', () => {
+      const BAD: readonly unknown[] = [
+        '',
+        'sha256-',
+        'sha256-xyz',
+        'sha256-1234:size=',
+        'sha256-1234:size=foo',
+        'md5-1234',
+        'sha256-1234:size=-1',
+        'sha256-1234:size=12kb',
+        'sha256-1234:SIZE=12', // (case-sensitive field name by design)
+      ];
+
+      BAD.forEach((value) => {
+        expect(Pkg.Dist.Part.parse(value)).to.eql(undefined);
+        expect(Pkg.Dist.Part.hash(value)).to.eql(undefined);
+        expect(Pkg.Dist.Part.size(value)).to.eql(undefined);
+      });
+    });
+
+    it('parse: ignores non-strings', () => {
+      const NON: readonly unknown[] = [123, true, null, undefined, BigInt(0), Symbol('x'), {}, []];
+
+      NON.forEach((value) => {
+        expect(Pkg.Dist.Part.parse(value)).to.eql(undefined);
+        expect(Pkg.Dist.Part.hash(value)).to.eql(undefined);
+        expect(Pkg.Dist.Part.size(value)).to.eql(undefined);
+      });
+    });
+  });
 });

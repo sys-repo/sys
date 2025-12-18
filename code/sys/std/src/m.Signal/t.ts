@@ -63,7 +63,7 @@ export type SignalValueHelpersLib = {
   toggle(signal: t.Signal<boolean | number | undefined>, forceValue?: boolean): boolean;
 
   /** Cycle a union string signal through a list of possible values. */
-  cycle<T>(signal: t.Signal<T | undefined>, values: T[], forceValue?: T): T;
+  cycle<T>(signal: t.Signal<T | undefined>, values: t.Ary<T>, forceValue?: T): T;
 
   /**
    * Read the current value from a readable signal abstraction.

@@ -1,6 +1,5 @@
-import { type t, describe, expect, it, pkg } from '../../-test.ts';
-import { DEFAULTS } from '../common.ts';
-import { Pkg, Dist } from '../mod.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { Dist, Pkg } from '../mod.ts';
 
 describe('Pkg', () => {
   it('API', async () => {
