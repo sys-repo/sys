@@ -1,13 +1,13 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal, Pkg } from '../common.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { SAMPLE } from './-SAMPLE.dist.json.ts';
+import { type t, Color, css, D, LocalStorage, Obj, Pkg, Signal } from '../common.ts';
 import { Dist } from '../mod.ts';
+import { SAMPLE } from './-SAMPLE.dist.json.ts';
 
 type P = t.DistProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'dist'>;
 const defaults: Storage = {
-  dist: SAMPLE.HELLO_WORLD,
+  dist: SAMPLE.HelloWorld,
   debug: false,
   theme: 'Dark',
 };
