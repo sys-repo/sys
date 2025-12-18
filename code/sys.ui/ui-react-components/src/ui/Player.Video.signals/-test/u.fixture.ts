@@ -41,6 +41,8 @@ function make(): t.VideoPlayerSignals {
     buffered: Signal.create<t.Secs | undefined>(undefined),
     slice: Signal.create<t.Timecode.Slice.String | string | undefined>(undefined),
 
+    endedTick: Signal.create(0),
+
     /**
      * Appearance:
      */

@@ -44,6 +44,12 @@ export type VideoPlayerSignalProps = Readonly<{
   slice: t.Signal<t.Timecode.Slice.String | string | undefined>;
 
   /**
+   * Monotonic end-of-media marker.
+   * Increments once per observed "ended" event from the underlying element.
+   */
+  endedTick: t.Signal<number>;
+
+  /**
    * Appearance:
    */
   showControls: t.Signal<boolean | undefined>;

@@ -33,6 +33,7 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.buffered.value).to.eql(undefined);
       expect(p.slice.value).to.eql(undefined);
 
+      expect(p.endedTick.value).to.eql(0);
       expect(p.jumpTo.value).to.eql(undefined);
 
       p.playing.value = true;
@@ -71,6 +72,7 @@ describe('VideoPlayer: Signals API', () => {
         expect(p.cornerRadius.value).to.eql(0);
         expect(p.scale.value).to.eql(scale);
         expect(p.fadeMask.value).to.eql({ direction: 'Top:Down', size: 123 });
+        expect(p.endedTick.value).to.eql(0);
       });
 
       it('param: src param (string)', () => {

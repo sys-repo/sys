@@ -26,6 +26,12 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
     buffered: s<t.Secs>(),
     slice: s(defaults.slice),
 
+    /**
+     * Monotonic end-of-media marker.
+     * Incremented by Player.Video.Element when it observes an `ended` event.
+     */
+    endedTick: s<number>(0),
+
     // Appearance:
     showControls: s<boolean>(defaults.showControls ?? D.showControls),
     showFullscreenButton: s<boolean>(defaults.showFullscreenButton ?? D.showFullscreenButton),
