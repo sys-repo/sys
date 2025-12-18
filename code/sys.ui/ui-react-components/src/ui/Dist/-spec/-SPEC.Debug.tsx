@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal, Pkg } from '../common.ts';
 import { Button, ObjectView } from '../../u.ts';
 import { SAMPLE } from './-SAMPLE.dist.json.ts';
+import { Dist } from '../mod.ts';
 
 type P = t.DistProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'dist'>;
@@ -112,6 +113,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
+
+      <hr style={{ margin: '30px 0' }} />
+      <Dist.UI.Browser debug={v.debug} />
     </div>
   );
 };

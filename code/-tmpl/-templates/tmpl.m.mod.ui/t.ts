@@ -8,7 +8,7 @@ export type MyComponentLib = {
 };
 
 /**
- * Component:
+ * Component: base view
  */
 export type MyComponentProps = {
   debug?: boolean;
