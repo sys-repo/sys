@@ -197,12 +197,13 @@ export const Grid: React.FC<GridProps> = (props) => {
   const elRows = rows.map((row) => {
     const { beat, index } = row;
     const { isSelected, isNewSegmentRow, isMediaDimmed, isSegmentHeaderBlue } = deriveRowView(row);
+    const isBeforeSelected = selectedIndex !== undefined && row.index < selectedIndex;
+    const isVttBright = isBeforeSelected && !isSelected;
 
     const rowStyles = {
       base: css({
         borderTop: isNewSegmentRow ? `dashed 1px ${ui.color.segBorder}` : undefined,
         backgroundColor: isSelected ? ui.color.selectedBg : undefined,
-
         color: isSelected
           ? theme.fg
           : isSegmentHeaderBlue
@@ -212,6 +213,7 @@ export const Grid: React.FC<GridProps> = (props) => {
               : undefined,
       }),
       media: css(styles.cell.text, styles.cell.media),
+      vtt: css(styles.cell.text, isVttBright ? css({ color: theme.fg }) : undefined),
     };
 
     const elRow = row.url && (
@@ -236,7 +238,7 @@ export const Grid: React.FC<GridProps> = (props) => {
         <div className={styles.cell.bullet.class}>
           <Bullet theme={theme.name} selected={isSelected} colorTransition={0} />
         </div>
-        <div className={styles.cell.text.class}>{row.vtt}</div>
+        <div className={rowStyles.vtt.class}>{row.vtt}</div>
         <div className={styles.cell.text.class}>{row.vTime}</div>
         <div className={styles.cell.text.class}>{row.pause}</div>
         <div className={rowStyles.media.class} title={row.url}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Str, Color, css, D, LocalStorage, Obj, Player, Signal } from '../common.ts';
+import { type t, Color, css, D, LocalStorage, Obj, Player, Signal, Str } from '../common.ts';
 import { Sample } from './-u.loader.ts';
 
 type P = t.MediaTimeline.Dev.Harness.Props;
@@ -109,7 +109,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      <div className={Styles.title.class}>
+        <div>{D.name}</div>
+      </div>
 
       <Button
         block

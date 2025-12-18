@@ -13,7 +13,7 @@ export { Playback } from '../Media.Timecode.Playback/mod.ts';
 /**
  * Constants:
  */
-const name = 'MediaTimecode';
+const name = 'MediaTimecode.Timeline';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
