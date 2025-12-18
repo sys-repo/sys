@@ -83,7 +83,10 @@ export const Grid: React.FC<GridProps> = (props) => {
     color: {
       segBorder: Color.alpha(Color.BLUE, 0.7),
       selectedBg: Color.alpha(Color.BLUE, 0.65),
+
+      // Used ONLY for “new media identity” hinting (URL column only).
       segHeaderText: Color.alpha(Color.BLUE, 0.6),
+
       dimText: Color.alpha(theme.fg, 0.18),
     },
     styles: {
@@ -171,52 +174,54 @@ export const Grid: React.FC<GridProps> = (props) => {
     });
   }, [bundle, timeline]);
 
-  // Selection:
-  const selectedRow = selectedIndex === undefined ? undefined : rows[selectedIndex];
-  const selectedSegmentId = selectedRow?.segmentId;
-
   type RowModel = (typeof rows)[number];
-
-  const deriveRowView = (row: RowModel) => {
-    const isSelected = row.index === selectedIndex;
-    const isInSelectedSegment = selectedSegmentId === row.segmentId;
-
-    const isNewSegmentRow = !row.is.repeat && row.index > 0; // ← guard first row
-    const isSecondaryRow = row.is.repeat || (isInSelectedSegment && row.is.segmentStart);
-    const isMediaDimmed = !isSelected && isSecondaryRow;
-
-    // Segment header gets dim-blue; Only selection overrides it.
-    const isSegmentHeaderBlue = row.is.segmentStart && !isSelected;
-
-    return { isSelected, isNewSegmentRow, isMediaDimmed, isSegmentHeaderBlue } as const;
-  };
 
   /**
    * Build row elements:
    */
   const elRows = rows.map((row) => {
-    const { beat, index } = row;
-    const { isSelected, isNewSegmentRow, isMediaDimmed, isSegmentHeaderBlue } = deriveRowView(row);
+    const { index } = row;
+
+    /**
+     * First-principles style rules:
+     * 1) Selection → row background only.
+     * 2) Time (past vs future) → bullet fill and vTT brightness.
+     * 3) Segment identity ("new file") → URL column only on segment-start rows (blue).
+     * 4) Everything else → dim by default (unless selected, or vTT bright).
+     */
+    const isSelected = row.index === selectedIndex;
     const isBeforeSelected = selectedIndex !== undefined && row.index < selectedIndex;
     const isVttBright = isBeforeSelected && !isSelected;
+
+    const isNewSegmentRow = row.is.segmentStart && row.index > 0; // segment divider only
+
+    const urlColor = isSelected
+      ? theme.fg
+      : row.is.segmentStart
+        ? ui.color.segHeaderText
+        : ui.color.dimText;
+    const dimColor = ui.color.dimText;
 
     const rowStyles = {
       base: css({
         borderTop: isNewSegmentRow ? `dashed 1px ${ui.color.segBorder}` : undefined,
         backgroundColor: isSelected ? ui.color.selectedBg : undefined,
-        color: isSelected
-          ? theme.fg
-          : isSegmentHeaderBlue
-            ? ui.color.segHeaderText
-            : isMediaDimmed
-              ? ui.color.dimText
-              : undefined,
+
+        // Non-selected rows are simply dim (no segment-start tinting).
+        color: isSelected ? theme.fg : dimColor,
       }),
-      media: css(styles.cell.text, styles.cell.media),
+
+      // vTT can brighten as the scan aid for “already passed”.
       vtt: css(styles.cell.text, isVttBright ? css({ color: theme.fg }) : undefined),
+
+      // Only the URL column gets the “new file” blue; otherwise it matches the global dim.
+      url: css(styles.cell.text, styles.cell.media, css({ color: urlColor })),
+
+      // Logical path never gets special coloring; it follows selected vs dim.
+      logical: css(styles.cell.text, styles.cell.media),
     };
 
-    const elRow = row.url && (
+    const elUrl = row.url && (
       <span className={ui.styles.rowMedia.class}>
         <span className={ui.styles.rowMediaText.class}>{mediaLabelFromUrl(row.url)}</span>
         {ui.linkNewTab(
@@ -244,13 +249,18 @@ export const Grid: React.FC<GridProps> = (props) => {
             colorTransition={0}
           />
         </div>
+
         <div className={rowStyles.vtt.class}>{row.vtt}</div>
+
+        {/* These stay neutral/dim (inherit rowStyles.base.color); no segment-start tinting. */}
         <div className={styles.cell.text.class}>{row.vTime}</div>
         <div className={styles.cell.text.class}>{row.pause}</div>
-        <div className={rowStyles.media.class} title={row.url}>
-          {elRow || '-'}
+
+        <div className={rowStyles.url.class} title={row.url}>
+          {elUrl || '-'}
         </div>
-        <div className={rowStyles.media.class} title={row.logicalPath}>
+
+        <div className={rowStyles.logical.class} title={row.logicalPath}>
           {row.mediaLabel}
         </div>
       </div>
