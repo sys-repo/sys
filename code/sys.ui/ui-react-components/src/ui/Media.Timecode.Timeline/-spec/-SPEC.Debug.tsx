@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Player, Signal, Str } from '../common.ts';
 import { Sample } from './-u.loader.ts';
+import { Dist } from '../../Dist/mod.ts';
 
 type P = t.MediaTimeline.Dev.Harness.Props;
 type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId };
@@ -124,6 +125,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'ƒ loadTimeline()'}</div>
         <div>{'(fetch / json)'}</div>
       </div>
+      <Dist.UI.Browser style={{ marginTop: 10 }} debug={true} />
+
       {load('2esGLgD5SoQkeucytmGeadm9cC7y')}
       {load('2kcH93dUVmRsZq77YVbaTLNGPr8z')}
       {load('hmNovS1do4wchHwisw3gF1EnrKF', '(issues)')}
