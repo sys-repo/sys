@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Text query filtering primitives.
  */
-export namespace Filter {
+export namespace TextFilter {
   /**
    * Public library surface.
    * Stable API; implementation may evolve.

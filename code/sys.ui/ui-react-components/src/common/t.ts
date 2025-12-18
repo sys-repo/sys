@@ -19,6 +19,7 @@ export type {
   ReactChildrenDepsKey,
 } from '@sys/ui-react/t';
 export type { TimecodeState } from '@sys/ui-state/t';
+export type { TextFilter } from '@sys/text/t';
 
 /**
  * @local:

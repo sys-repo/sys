@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 import { match } from './u.match.ts';
 import { parse } from './u.parse.ts';
 
-type ApplyResultWithIndex<T> = t.Filter.Result<T> & { readonly __index: t.Index };
+type ApplyResultWithIndex<T> = t.TextFilter.Result<T> & { readonly __index: t.Index };
 
 /**
  * Apply a query across a set of candidates.
@@ -13,10 +13,10 @@ type ApplyResultWithIndex<T> = t.Filter.Result<T> & { readonly __index: t.Index 
  * - Applies `options.limit` if provided.
  */
 export const apply = <T>(
-  query: t.Filter.QueryInput | t.Filter.Query,
-  candidates: readonly t.Filter.Candidate<T>[],
-  options?: t.Filter.Options,
-): readonly t.Filter.Result<T>[] => {
+  query: t.TextFilter.QueryInput | t.TextFilter.Query,
+  candidates: readonly t.TextFilter.Candidate<T>[],
+  options?: t.TextFilter.Options,
+): readonly t.TextFilter.Result<T>[] => {
   const q = typeof query === 'string' ? parse(query, options) : query;
 
   const results = candidates

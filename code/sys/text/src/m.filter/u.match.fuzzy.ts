@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 import { parse } from './u.parse.ts';
 
-export const matchFuzzy: t.Filter.MatchFn = (query, text, options = {}) => {
+export const matchFuzzy: t.TextFilter.MatchFn = (query, text, options = {}) => {
   const q = typeof query === 'string' ? parse(query, options) : query;
   const tokens = q.tokens?.length ? q.tokens : q.text ? [q.text] : [];
 
@@ -14,7 +14,7 @@ export const matchFuzzy: t.Filter.MatchFn = (query, text, options = {}) => {
   let searchFrom = 0;
   let firstStart = -1;
   let lastEnd = -1;
-  const ranges: t.Filter.Range[] = [];
+  const ranges: t.TextFilter.Range[] = [];
 
   for (const tokenRaw of tokens) {
     const token = caseSensitive ? tokenRaw : tokenRaw.toLowerCase();

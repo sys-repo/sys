@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 import { parse } from './u.parse.ts';
 
-export const matchContains: t.Filter.MatchFn = (query, text, options = {}) => {
+export const matchContains: t.TextFilter.MatchFn = (query, text, options = {}) => {
   const q = typeof query === 'string' ? parse(query, options) : query;
   const qText = q.text;
   const qTokens = q.tokens;
@@ -13,7 +13,7 @@ export const matchContains: t.Filter.MatchFn = (query, text, options = {}) => {
   const hay = normalize(text, caseSensitive);
 
   const tokens = qTokens?.length ? qTokens : [qText];
-  const ranges: t.Filter.Range[] = [];
+  const ranges: t.TextFilter.Range[] = [];
 
   for (const tokenRaw of tokens) {
     const token = normalize(tokenRaw, caseSensitive);
@@ -28,7 +28,7 @@ export const matchContains: t.Filter.MatchFn = (query, text, options = {}) => {
 
   // Simple, stable scoring: more tokens + earlier matches score higher.
   const score = scoreContains(hay.length, ranges);
-  const res: t.Filter.MatchResult = {
+  const res: t.TextFilter.MatchResult = {
     match: true,
     score,
     ranges: ranges.length ? ranges : undefined,
@@ -44,7 +44,7 @@ function normalize(input: string, caseSensitive: boolean): string {
   return caseSensitive ? input : input.toLowerCase();
 }
 
-function scoreContains(hayLen: number, ranges: readonly t.Filter.Range[]): number {
+function scoreContains(hayLen: number, ranges: readonly t.TextFilter.Range[]): number {
   if (ranges.length === 0) return 0;
   const denom = Math.max(1, hayLen);
   let s = ranges.length; // token-count baseline

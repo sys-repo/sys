@@ -2,7 +2,7 @@ import { type t } from './common.ts';
 import { matchContains } from './u.match.contains.ts';
 import { matchFuzzy } from './u.match.fuzzy.ts';
 
-export const match: t.Filter.MatchFn = (query, text, options) => {
+export const match: t.TextFilter.MatchFn = (query, text, options) => {
   const mode = options?.mode ?? 'contains';
 
   switch (mode) {

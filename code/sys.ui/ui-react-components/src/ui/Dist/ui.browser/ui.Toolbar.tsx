@@ -48,7 +48,7 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
       <TextInput
         theme={theme.name}
         value={filterText} // ← allow uncontrolled when <undefined>
-        placeholder={'filter files'}
+        placeholder={'Filter files'}
         spellCheck={false}
         autoCapitalize={false}
         autoCorrect={false}

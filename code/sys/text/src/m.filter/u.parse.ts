@@ -5,7 +5,7 @@ import { type t } from './common.ts';
  * - Trims and collapses whitespace.
  * - Splits into space-delimited tokens.
  */
-export const parse: t.Filter.ParseFn = (input, _options) => {
+export const parse: t.TextFilter.ParseFn = (input, _options) => {
   const text = normalizeWhitespace(input);
   const tokens = text ? text.split(' ') : undefined;
   return { text, tokens };
