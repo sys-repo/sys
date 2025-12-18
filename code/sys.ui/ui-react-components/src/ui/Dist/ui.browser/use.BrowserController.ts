@@ -4,23 +4,45 @@ import type { t } from './common.ts';
 export function useBrowserController(
   args: t.Dist.Browser.Controller.Args = {},
 ): t.Dist.Browser.Controller.Instance {
-  const { selectedPath: controlledPath, onSelect: externalOnSelect } = args;
-  const isControlled = controlledPath !== undefined;
+  const {
+    selectedPath: controlledPath,
+    onSelect: externalOnSelect,
+    filterText: controlledFilterText,
+    onFilter: externalOnFilter,
+  } = args;
 
-  type P = t.StringPath;
-  const [uncontrolledPath, setUncontrolledPath] = useState<P | undefined>(() => controlledPath);
-  const selectedPath = isControlled ? controlledPath : uncontrolledPath;
+  const isPathControlled = controlledPath !== undefined;
+  const isFilterControlled = controlledFilterText !== undefined;
+
+  const [path, setPath] = useState<t.StringPath | undefined>(() => controlledPath);
+  const [filter, setFilter] = useState<string | undefined>(() => controlledFilterText);
+
+  const selectedPath = isPathControlled ? controlledPath : path;
+  const filterText = isFilterControlled ? controlledFilterText : filter;
 
   const onSelect = useCallback<t.DistBrowserSelectHandler>(
     (e) => {
-      if (!isControlled) setUncontrolledPath(e.path);
+      if (!isPathControlled) setPath(e.path);
       externalOnSelect?.(e);
     },
-    [isControlled, externalOnSelect],
+    [isPathControlled, externalOnSelect],
   );
 
+  const onFilter = useCallback<t.DistBrowserFilterHandler>(
+    (e) => {
+      if (!isFilterControlled) setFilter(e.text);
+      externalOnFilter?.(e);
+    },
+    [isFilterControlled, externalOnFilter],
+  );
+
+  /**
+   * API
+   */
   return {
     selectedPath,
+    filterText,
+    onFilter,
     onSelect,
   };
 }

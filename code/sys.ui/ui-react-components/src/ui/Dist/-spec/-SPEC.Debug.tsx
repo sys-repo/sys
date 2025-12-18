@@ -1,13 +1,8 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Pkg, Signal } from '../common.ts';
+import { Color, css, D, LocalStorage, Obj, Pkg, Signal, type t } from '../common.ts';
 import { Dist } from '../mod.ts';
-import {
-  HelloWorld,
-  SAMPLE,
-  SAMPLE_FILES_MODES,
-  type SampleFilesMode,
-} from './-SAMPLE.dist.json.ts';
+import { SAMPLE, SAMPLE_FILES_MODES, type SampleFilesMode } from './-SAMPLE.dist.json.ts';
 
 type DebugView = (typeof VIEW_MODES)[number];
 const VIEW_MODES = ['UI', 'UI.Browser'] as const;

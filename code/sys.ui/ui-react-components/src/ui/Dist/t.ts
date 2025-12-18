@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 import type { GridProps } from './ui.browser/ui.Grid.tsx';
 import type { ToolbarProps } from './ui.browser/ui.Toolbar.tsx';
-import type { DistProps } from './ui.tsx';
 
 /** Type re-exports */
 export type * from './ui.browser/t.ts';
@@ -18,14 +17,19 @@ export namespace Dist {
   /**
    * Compound component: <Dist.UI> with attached sub-components.
    */
-  export type UI = t.FC<Props> & {
-    readonly Browser: Browser.UI;
+  export type UI = t.FC<Dist.Props> & {
+    readonly Browser: t.FC<t.DistBrowserProps>;
   };
 
   /**
    * Component: base view.
    */
-  export type Props = DistProps;
+  export type Props = {
+    dist?: t.DistPkg;
+    debug?: boolean;
+    theme?: t.CommonTheme;
+    style?: t.CssInput;
+  };
 
   export namespace Browser {
     export type UI = t.FC<t.DistBrowserProps> & {
@@ -35,19 +39,23 @@ export namespace Dist {
 
     /**
      * Uncontrolled adapter for <Dist.UI.Browser>.
-     * Provides local selection state + a stable onSelect handler.
+     * Provides local selection state + local filter state + stable handlers.
      */
     export namespace Controller {
       /** The `useBrowserController` hook args. */
       export type Args = {
         readonly selectedPath?: t.StringPath;
+        readonly filterText?: string;
         readonly onSelect?: t.DistBrowserSelectHandler;
+        readonly onFilter?: t.DistBrowserFilterHandler;
       };
 
       /** A `useBrowserController` instance */
       export type Instance = {
         readonly selectedPath?: t.StringPath;
+        readonly filterText?: string;
         readonly onSelect: t.DistBrowserSelectHandler;
+        readonly onFilter: t.DistBrowserFilterHandler;
       };
     }
   }

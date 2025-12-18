@@ -37,15 +37,18 @@ export const Toolbar: React.FC<ToolbarProps> = (props) => {
       display: 'grid',
       border: 'none',
     }),
-    input: css({ width: '100%' }),
+    input: css({
+      width: '100%',
+      fontSize: 14,
+    }),
   } as const;
 
   return (
     <div className={css(styles.base, props.style).class}>
       <TextInput
         theme={theme.name}
-        value={filterText} // ← allow uncontrolled when undefined
-        placeholder={'Filter files'}
+        value={filterText} // ← allow uncontrolled when <undefined>
+        placeholder={'filter files'}
         spellCheck={false}
         autoCapitalize={false}
         autoCorrect={false}

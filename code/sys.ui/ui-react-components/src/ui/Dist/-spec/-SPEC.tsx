@@ -14,9 +14,9 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Browser() {
     const v = Signal.toObject(p);
-
     const browser = Dist.useBrowserController({
       onSelect: (e) => console.info('⚡️ Dist.Browser.onSelect:', e),
+      onFilter: (e) => console.info('⚡️ Dist.Browser.onFilter:', e),
     });
 
     return (
@@ -27,8 +27,10 @@ export default Spec.describe(D.displayName, async (e) => {
         selectedPath={browser.selectedPath}
         onSelect={browser.onSelect}
         toolbar={{
+          // placement: 'top',
           placement: 'bottom',
-          onFilter: (e) => console.info(`⚡️ Dist.Browser.Toolbar.onFilter`, e),
+          filterText: browser.filterText,
+          onFilter: browser.onFilter,
         }}
       />
     );
