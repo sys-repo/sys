@@ -15,6 +15,8 @@ export namespace Filter {
     /** Match a query against a single text value. */
     readonly match: MatchFn;
 
+    /** Apply a query across a set of candidates. */
+    readonly apply: ApplyFn;
   };
 
   /** Raw user query input. */
