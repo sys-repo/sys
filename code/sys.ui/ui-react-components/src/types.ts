@@ -7,6 +7,7 @@ export type * from './ui/Buttons.Icons/t.ts';
 export type * from './ui/Buttons.Switch/t.ts';
 export type * from './ui/Buttons/t.ts';
 export type * from './ui/Cropmarks/t.ts';
+export type * from './ui/Dist/t.ts';
 export type * from './ui/ErrorBoundary/t.ts';
 export type * from './ui/FadeElement/t.ts';
 export type * from './ui/Icon.Swatches/t.ts';
