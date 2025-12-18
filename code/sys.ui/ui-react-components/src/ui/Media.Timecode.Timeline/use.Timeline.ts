@@ -10,8 +10,8 @@ import { type t, Timecode } from './common.ts';
  */
 export const useTimeline = <P = unknown>(
   spec?: t.Timecode.Playback.Spec<P>,
-): t.UseMediaTimelineResult<P> => {
-  return React.useMemo<t.UseMediaTimelineResult<P>>(() => {
+): t.MediaTimeline.Timeline.Result<P> => {
+  return React.useMemo<t.MediaTimeline.Timeline.Result<P>>(() => {
     if (!spec) return {};
 
     // 1. Resolve composite → segments + total + diagnostics.

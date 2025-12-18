@@ -4,8 +4,8 @@ import { Grid, type SelectIndexHandler } from './ui.Grid.tsx';
 import { InfoPanel } from './ui.InfoPanel.tsx';
 import { Video } from './ui.Video.tsx';
 
-type Parent = t.MediaTimelineHarnessProps;
-type LayoutProps = Pick<Parent, 'video' | 'bundle' | 'docid' | 'layout'> & {
+type P = t.MediaTimeline.Dev.Harness.Props;
+type LayoutProps = Pick<P, 'video' | 'bundle' | 'docid' | 'layout'> & {
   /** Presence */
   readonly hasBundle: boolean;
 

@@ -3,7 +3,7 @@ import { Button, ObjectView } from '../../u.ts';
 import { type t, Str, Color, css, D, LocalStorage, Obj, Player, Signal } from '../common.ts';
 import { Sample } from './-u.loader.ts';
 
-type P = t.MediaTimelineHarnessProps;
+type P = t.MediaTimeline.Dev.Harness.Props;
 type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId };
 const defaults: Storage = {
   debug: false,

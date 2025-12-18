@@ -3,7 +3,8 @@ import { useTimeline } from '../use.Timeline.ts';
 import { type t, Color, css, dur, KeyValue, ObjectView, Str } from './common.ts';
 import { toIssueItems } from './ui.InfoPanel.issues.tsx';
 
-type L = NonNullable<t.MediaTimelineHarnessProps['layout']>;
+type P = t.MediaTimeline.Dev.Harness.Props;
+type L = NonNullable<P['layout']>;
 
 export type InfoPanelProps = {
   layout?: L['infopanel'];
