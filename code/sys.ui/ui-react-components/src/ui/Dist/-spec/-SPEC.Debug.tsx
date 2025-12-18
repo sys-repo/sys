@@ -2,14 +2,27 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Pkg, Signal } from '../common.ts';
 import { Dist } from '../mod.ts';
-import { SAMPLE } from './-SAMPLE.dist.json.ts';
+import {
+  HelloWorld,
+  SAMPLE,
+  SAMPLE_FILES_MODES,
+  type SampleFilesMode,
+} from './-SAMPLE.dist.json.ts';
 
-type P = t.DistProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'dist'>;
+type DebugView = (typeof VIEW_MODES)[number];
+const VIEW_MODES = ['UI', 'UI.Browser'] as const;
+
+type P = t.Dist.Props;
+type Storage = Pick<P, 'debug' | 'theme' | 'dist'> & {
+  debugView?: DebugView;
+  sampleFilesMode?: SampleFilesMode;
+};
 const defaults: Storage = {
-  dist: SAMPLE.HelloWorld,
   debug: false,
+  debugView: 'UI',
+  sampleFilesMode: 'short',
   theme: 'Dark',
+  dist: SAMPLE.HelloWorld(),
 };
 
 /**
@@ -23,18 +36,21 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
+    debugView: s(snap.debugView),
+    sampleFilesMode: s(snap.sampleFilesMode),
+
     theme: s(snap.theme),
     dist: s(snap.dist),
   };
   const p = props;
   const api = {
     props,
+    updateDist,
     listen,
     reset,
   };
@@ -47,12 +63,23 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
   }
 
+  function updateDist() {}
+
   Signal.effect(() => {
     store.change((d) => {
-      d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.debugView = p.debugView.value;
+      d.sampleFilesMode = p.sampleFilesMode.value;
+      d.theme = p.theme.value;
       d.dist = p.dist.value;
     });
+  });
+
+  Signal.effect(() => {
+    const files = p.sampleFilesMode.value;
+    const debugView = p.debugView.value;
+
+    p.dist.value = SAMPLE.HelloWorld({ files });
   });
 
   return api;
@@ -92,19 +119,34 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
+        label={() => `view: ${p.debugView.value}`}
+        onClick={() => Signal.cycle<DebugView>(p.debugView, VIEW_MODES)}
+      />
+      {v.debugView === 'UI.Browser' && (
+        <Button
+          block
+          label={() => `sample files: ${v.sampleFilesMode}`}
+          onClick={() => Signal.cycle(p.sampleFilesMode, SAMPLE_FILES_MODES)}
+        />
+      )}
+
+      <hr />
+
+      <Button
+        block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
       <div className={Styles.title.class}>
-        <div>{'prop: dist'}</div>
+        <div>{'Samples'}</div>
         <div>{`dist.json`}</div>
       </div>
       <Button
         block
         label={() => `👋 hello world`}
-        onClick={() => (p.dist.value = SAMPLE.HelloWorld)}
+        onClick={() => (p.dist.value = SAMPLE.HelloWorld())}
       />
       <Button block label={() => `(undefined)`} onClick={() => (p.dist.value = undefined)} />
 
@@ -115,7 +157,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
 
       <hr style={{ margin: '30px 0' }} />
-      <Dist.UI.Browser debug={v.debug} style={{ maxHeight: 200 }} />
+      <Dist.UI.Browser debug={v.debug} dist={v.dist} style={{ minHeight: 300 }} />
     </div>
   );
 };

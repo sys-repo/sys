@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 import type { t } from './common.ts';
 
 export function useBrowserController(
-  args: t.DistBrowserControllerArgs = {},
-): t.DistBrowserController {
+  args: t.Dist.Browser.Controller.Args = {},
+): t.Dist.Browser.Controller.Instance {
   const { selectedPath: controlledPath, onSelect: externalOnSelect } = args;
   const isControlled = controlledPath !== undefined;
 

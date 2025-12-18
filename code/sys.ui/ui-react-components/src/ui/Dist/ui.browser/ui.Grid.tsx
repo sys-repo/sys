@@ -6,6 +6,8 @@ export type GridProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  selectedPath?: t.StringPath;
+  onSelect?: t.DistBrowserSelectHandler;
 };
 
 /**
@@ -70,6 +72,12 @@ export const Grid: React.FC<GridProps> = (props) => {
       alignItems: 'center',
       minWidth: 0,
     }),
+
+    rowSelected: css({
+      backgroundColor: Color.alpha(Color.BLUE, 0.18),
+      boxShadow: `inset 2px 0 0 ${Color.alpha(Color.BLUE, 0.7)}`,
+    }),
+
     icon: css({
       width: 12,
       height: 12,
@@ -105,8 +113,16 @@ export const Grid: React.FC<GridProps> = (props) => {
     const path = Str.ellipsize(row.path, 64);
     const size = row.bytes === undefined ? '-' : Str.bytes(row.bytes);
 
+    const isSelected = row.path === props.selectedPath;
+    const elRowClass = css(styles.row, isSelected ? styles.rowSelected : undefined).class;
+
     return (
-      <div key={row.path} className={styles.row.class}>
+      <div
+        key={row.path}
+        className={elRowClass}
+        data-selected={isSelected ? 'true' : undefined}
+        onPointerDown={() => props.onSelect?.({ path: row.path })}
+      >
         <div className={styles.icon.class}>
           <Icons.Object size={12} />
         </div>
