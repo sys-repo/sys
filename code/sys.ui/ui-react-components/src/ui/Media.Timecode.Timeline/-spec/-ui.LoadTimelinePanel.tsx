@@ -31,13 +31,24 @@ export const LoadTimelinePanel: React.FC<LoadTimelinePanelProps> = (props) => {
 
   const [dist, setDist] = React.useState<t.DistPkg | undefined>(undefined);
   const ctrl = Dist.useBrowserController();
+
+  const distFiltered = React.useMemo<t.DistPkg | undefined>(() => {
+    if (!dist) return undefined;
+    const parts = dist.hash?.parts ?? {};
+    const entries = Object.entries(parts).filter(([path]) => isPlaybackManifestPath(path));
+    return {
+      ...dist,
+      hash: { ...dist.hash, parts: Object.fromEntries(entries) },
+    };
+  }, [dist]);
+
   const [selectedPath, setSelectedPath] = React.useState<t.StringPath | undefined>(() => {
     return resolveSelectedPath(undefined, props.selectedDocid);
   });
 
   React.useEffect(() => {
-    setSelectedPath(resolveSelectedPath(dist, props.selectedDocid));
-  }, [dist, props.selectedDocid]);
+    setSelectedPath(resolveSelectedPath(distFiltered, props.selectedDocid));
+  }, [distFiltered, props.selectedDocid]);
 
   React.useEffect(() => {
     let disposed = false;
@@ -70,7 +81,7 @@ export const LoadTimelinePanel: React.FC<LoadTimelinePanelProps> = (props) => {
         debug={debug}
         theme={props.theme}
         style={props.style}
-        dist={dist}
+        dist={distFiltered}
         selectedPath={selectedPath}
         onSelect={onSelect}
         filterText={ctrl.filterText}
@@ -89,21 +100,15 @@ export const LoadTimelinePanel: React.FC<LoadTimelinePanelProps> = (props) => {
  * Helpers
  */
 
-/**
- * Extract docid from dist path entries that represent slug manifests.
- * Eg:
- * - "manifests/slug.<docid>.playback.json"
- * - "manifests/slug.<docid>.assets.json"
- */
 const parseDocidFromDistPath = (path: t.StringPath): t.StringId | undefined => {
   const m = String(path).match(/(?:^|\/)slug\.([^.\/]+)\.(?:playback|assets)\.json$/);
   return (m?.[1] as t.StringId | undefined) ?? undefined;
 };
 
-/**
- * Resolve the exact dist key to highlight for a docid.
- * This avoids mismatch when dist keys include prefixes or leading slashes.
- */
+const isPlaybackManifestPath = (path: string): boolean => {
+  return /(?:^|\/)slug\.[^.\/]+\.playback\.json$/.test(String(path));
+};
+
 const resolveSelectedPath = (dist?: t.DistPkg, docid?: t.StringId): t.StringPath | undefined => {
   if (!docid) return undefined;
 
@@ -113,6 +118,5 @@ const resolveSelectedPath = (dist?: t.DistPkg, docid?: t.StringId): t.StringPath
   const exact = keys.find((p) => p.endsWith(suffix));
   if (exact) return exact;
 
-  // Fallback (best-effort): canonical path.
   return `manifests/${suffix}`;
 };
