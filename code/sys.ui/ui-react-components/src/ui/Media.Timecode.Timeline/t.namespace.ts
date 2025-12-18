@@ -1,4 +1,4 @@
-import type { HarnessProps } from './-dev/ui.tsx';
+import type { HarnessProps } from './-dev.harness/ui.tsx';
 import type { t } from './common.ts';
 
 /**
