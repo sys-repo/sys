@@ -82,11 +82,9 @@ export function useOrchestrator(
     controller.init(playbackTimeline, startBeat);
   }, [controller, playbackTimeline, docid, startBeat]);
 
-  const selectedIndex = snapshot.currentBeat;
-
   return {
     controller,
     snapshot,
-    selectedIndex,
+    selectedIndex: snapshot.currentBeat,
   };
 }

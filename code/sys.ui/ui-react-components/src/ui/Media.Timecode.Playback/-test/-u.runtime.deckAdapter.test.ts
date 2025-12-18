@@ -4,7 +4,7 @@ import {
   createPlaybackRuntimeFromDecks,
   createVideoDeckRuntime,
 } from '../u.runtime.deckAdapter.ts';
-import { TestVideoPlayerSignals } from './u.fixture.VideoPlayerSignals.ts';
+import { TestVideoPlayerSignals } from './u.fixture.ts';
 
 describe('u.deckAdapter', () => {
   it('createVideoDeckRuntime: get + each', () => {

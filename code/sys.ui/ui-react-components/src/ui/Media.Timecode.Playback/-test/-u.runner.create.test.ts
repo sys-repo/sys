@@ -65,7 +65,7 @@ describe('Playback.runner', () => {
 
     // Assert: notify happens exactly once, and after any events/cmds.
     const nIdx = trace.indexOf('n');
-    expect(nIdx).to.not.equal(-1);
+    expect(nIdx).to.not.eql(-1);
 
     const lastEC = Math.max(trace.lastIndexOf('e'), trace.lastIndexOf('c'));
     expect(nIdx).to.be.greaterThan(lastEC);

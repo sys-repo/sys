@@ -1,6 +1,6 @@
 import { type t } from '../common.ts';
 
-export * from './u.fixture.VideoPlayerSignals.ts';
+export { TestVideoPlayerSignals } from '../../Player.Video.signals/-test/u.fixture.ts';
 
 type RuntimeCall =
   | { readonly kind: 'play'; readonly deck: t.TimecodeState.Playback.DeckId }

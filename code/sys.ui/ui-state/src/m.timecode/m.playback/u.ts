@@ -45,6 +45,16 @@ export function setCurrentBeat(
   const prevSeg = prevBeat?.segmentId;
   const nextSeg = beat.segmentId;
 
+  /**
+   * Invariant:
+   * `segmentId` boundaries must align to media identity, not just beat grouping.
+   *
+   * Media identity is `url|slice` (slice may be absent). If two adjacent beats
+   * refer to different `url|slice`, they MUST have different `segmentId`.
+   *
+   * This keeps reducer deck swaps (segment boundaries) consistent with runner
+   * deck-local time bases (also keyed by `url|slice`).
+   */
   let state: t.PlaybackState = { ...prev, currentBeat: nextBeat };
 
   // Segment boundary => swap decks.
