@@ -10,6 +10,7 @@ export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Time, Timecode } from '@sys/std/time';
 export { Arr, Num, Obj, Str } from '@sys/std/value';
+export { Filter } from '@sys/text/filter';
 
 export { Http } from '@sys/http/client';
 export { Color, css, Style } from '@sys/ui-css';

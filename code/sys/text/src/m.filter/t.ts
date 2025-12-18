@@ -12,6 +12,9 @@ export namespace Filter {
     /** Normalize raw query input into a query structure. */
     readonly parse: ParseFn;
 
+    /** Match a query against a single text value. */
+    readonly match: MatchFn;
+
   };
 
   /** Raw user query input. */

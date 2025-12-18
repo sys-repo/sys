@@ -36,7 +36,7 @@ export const matchContains: t.Filter.MatchFn = (query, text, options = {}) => {
   return res;
 };
 
-/**
+/** ------------------------------------------------------------
  * Helpers
  */
 
