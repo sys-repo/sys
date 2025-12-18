@@ -1,7 +1,14 @@
 import React from 'react';
 import { type t, Color, css, KeyValue, Str } from './common.ts';
 
-export const Dist: React.FC<t.Dist.Props> = (props) => {
+export type DistProps = {
+  dist?: t.DistPkg;
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};
+
+export const Dist: React.FC<DistProps> = (props) => {
   const { debug = false, dist } = props;
 
   const kv = (dist?: t.DistPkg): t.KeyValueItem[] => {
