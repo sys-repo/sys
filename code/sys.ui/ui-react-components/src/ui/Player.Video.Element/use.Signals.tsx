@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { type t, Schedule, Signal } from './common.ts';
+import { type t, Schedule, Signal, bumpEndedTick } from './common.ts';
 
 export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
   type R = t.PlayerSignalsHook;
@@ -92,10 +92,7 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
 
     const onEnded: P['onEnded'] = (e) => {
       if (log) console.info('⚡️ onEnded:', e);
-
-      // Monotonic marker for "ended happened" (native ended or crop-ended dispatch).
-      const prev = p.endedTick.value ?? 0;
-      write(p.endedTick, prev + 1);
+      bumpEndedTick(p);
     };
 
     const onBufferingChange: P['onBufferingChange'] = (e) => write(p.buffering, e.buffering);
