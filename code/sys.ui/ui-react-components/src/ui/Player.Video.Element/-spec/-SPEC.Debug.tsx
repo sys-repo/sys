@@ -16,6 +16,7 @@ type Storage = Pick<
   | 'fadeMask'
   | 'slice'
   | 'controls'
+  | 'interaction'
 > & {
   width?: number;
   controlled?: boolean;
@@ -46,6 +47,8 @@ const defaults: Storage = {
   fadeMask: undefined,
   slice: undefined,
   controls: D.controls,
+  interaction: D.interaction,
+
   // Debug:
   logSignals: true,
   endpointLocalhost: false,
@@ -76,9 +79,13 @@ export function createDebugSignals() {
         blur: s((snap.controls?.background ?? {}).blur),
         shadow: s((snap.controls?.background ?? {}).shadow),
       },
+
       maskOpacity: s((snap.controls ?? {}).maskOpacity),
       padding: s((snap.controls ?? {}).padding),
       margin: s((snap.controls ?? {}).margin),
+    },
+    interaction: {
+      clickToPlay: s((snap.interaction ?? {}).clickToPlay),
     },
 
     playing: s(false),
@@ -161,6 +168,9 @@ export function createDebugSignals() {
       d.controls.maskOpacity = p.controls.maskOpacity.value;
       d.controls.padding = p.controls.padding.value;
       d.controls.margin = p.controls.margin.value;
+
+      d.interaction = d.interaction ?? {};
+      d.interaction.clickToPlay = p.interaction.clickToPlay.value;
     });
   });
 
@@ -363,6 +373,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         enabled={() => !!p.controlled.value}
         label={`method: jumpTo( -2, paused )`}
         onClick={() => debug.video?.jumpTo(-2, { play: false })}
+      />
+
+      <hr />
+      <Button
+        block
+        label={() => {
+          const v = p.interaction.clickToPlay.value;
+          const d = D.interaction.clickToPlay;
+          return `interaction.clickToPlay: ${v ?? `(undefined) ← default: ${d}`}`;
+        }}
+        onClick={() => Signal.toggle(p.interaction.clickToPlay)}
       />
 
       <hr />

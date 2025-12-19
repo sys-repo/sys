@@ -11,6 +11,8 @@ export { bumpEndedTick } from '../Player.Video.signals/u.ts';
 
 export * from './const.READY_STATE.ts';
 
+type P = t.VideoElementProps;
+
 /**
  * Constants:
  */
@@ -25,6 +27,9 @@ export const DEFAULTS = {
   showControls: true,
   controls: {
     background: CONTROLS_DEFAULTS.background,
-  } satisfies t.VideoElementProps['controls'],
+  } satisfies NonNullable<t.VideoElementProps['controls']>,
+  interaction: {
+    clickToPlay: true,
+  } satisfies NonNullable<P['interaction']>,
 } as const;
 export const D = DEFAULTS;

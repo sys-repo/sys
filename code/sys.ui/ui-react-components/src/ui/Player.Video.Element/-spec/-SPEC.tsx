@@ -31,6 +31,7 @@ export default Spec.describe(D.displayName, (e) => {
         fadeMask={v.fadeMask}
         slice={v.slice}
         controls={v.controls}
+        interaction={v.interaction}
         //
         playing={v.playing}
         autoPlay={v.autoPlay}

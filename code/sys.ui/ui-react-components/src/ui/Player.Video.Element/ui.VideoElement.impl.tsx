@@ -28,6 +28,7 @@ export const VideoElementImpl: React.FC<P> = (props) => {
     aspectRatio = D.aspectRatio,
     cornerRadius = D.cornerRadius,
     showControls = D.showControls,
+    interaction = D.interaction,
     buffered,
     buffering,
     fadeMask,
@@ -133,11 +134,13 @@ export const VideoElementImpl: React.FC<P> = (props) => {
    * Handlers
    */
   const togglePlay = useCallback(() => {
+    if (!interaction.clickToPlay) return;
+
     onPlayingChange?.({
       playing: !playing,
       reason: 'user-toggle-play',
     });
-  }, [playing, onPlayingChange]);
+  }, [playing, onPlayingChange, interaction.clickToPlay]);
 
   const toggleMute = useCallback(() => {
     const next = !muted.current;

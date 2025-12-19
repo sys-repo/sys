@@ -51,6 +51,14 @@ export type VideoElementProps = {
   autoPlay?: boolean;
 
   /**
+   * User interaction affordances.
+   * These control whether user gestures emit playback intent.
+   */
+  interaction?: {
+    clickToPlay?: boolean;
+  };
+
+  /**
    * Mute control:
    *  - If `muted` defined => controlled.
    *  - Else uses `defaultMuted` (was previously `muted` prop) as initial.
