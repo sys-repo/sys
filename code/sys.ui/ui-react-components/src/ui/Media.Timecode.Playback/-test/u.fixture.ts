@@ -1,15 +1,13 @@
 import { type t } from '../common.ts';
 
-export { TestVideoPlayerSignals } from '../../Player.Video.signals/-test/u.fixture.ts';
+import { TestVideoPlayerSignals } from '../../Player.Video.signals/-test/u.fixture.ts';
+export { TestVideoPlayerSignals };
 
+type DeckId = t.TimecodeState.Playback.DeckId;
 type RuntimeCall =
-  | { readonly kind: 'play'; readonly deck: t.TimecodeState.Playback.DeckId }
-  | { readonly kind: 'pause'; readonly deck: t.TimecodeState.Playback.DeckId }
-  | {
-      readonly kind: 'seek';
-      readonly deck: t.TimecodeState.Playback.DeckId;
-      readonly vTime: t.Msecs;
-    };
+  | { readonly kind: 'play'; readonly deck: DeckId }
+  | { readonly kind: 'pause'; readonly deck: DeckId }
+  | { readonly kind: 'seek'; readonly deck: DeckId; readonly vTime: t.Msecs };
 
 /**
  * Deterministic playback timeline fixture.
@@ -32,20 +30,39 @@ export function timeline(): t.TimecodeState.Playback.Timeline {
 
 /**
  * Runtime stub capturing executed deck calls.
+ * Also supplies A/B signal decks for endedTick wiring tests.
  */
 export function createRuntime(): {
   readonly runtime: t.PlaybackRuntime;
   readonly calls: RuntimeCall[];
+  readonly decks: { readonly A: t.VideoPlayerSignals; readonly B: t.VideoPlayerSignals };
 } {
   const calls: RuntimeCall[] = [];
+
+  const A = TestVideoPlayerSignals.make();
+  const B = TestVideoPlayerSignals.make();
+
+  const decksRuntime = new Map<DeckId, t.VideoPlayerSignals>([
+    ['A', A],
+    ['B', B],
+  ]);
+
   const runtime: t.PlaybackRuntime = {
     deck: {
       play: (deck) => calls.push({ kind: 'play', deck }),
       pause: (deck) => calls.push({ kind: 'pause', deck }),
       seek: (deck, vTime) => calls.push({ kind: 'seek', deck, vTime }),
     },
+
+    // Runner uses only: `.get(deck)` → `player.props.{endedTick,src}`
+    decks: decksRuntime as unknown as t.VideoDeckRuntime,
   };
-  return { runtime, calls } as const;
+
+  return {
+    runtime,
+    calls,
+    decks: { A, B },
+  } as const;
 }
 
 /**

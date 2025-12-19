@@ -123,4 +123,38 @@ describe('Playback.runner', () => {
     runner.send({ kind: 'playback:play' });
     expect(count).to.eql(1);
   });
+
+  it('wires deck.endedTick → video:ended (active deck ends → machine ended)', () => {
+    const { runner, runtime } = create();
+    runner.send({ kind: 'playback:init', timeline: timeline() });
+    expect(runner.get().state.phase).to.eql('active');
+
+    const decks = runtime.decks;
+    expect(!!decks).to.eql(true);
+
+    // Active deck is 'A' after init (by reducer policy).
+    const a = decks?.get('A');
+    expect(!!a).to.eql(true);
+
+    // Bump endedTick → should emit input video:ended(deck:'A') → phase:'ended'.
+    a!.props.endedTick.value += 1;
+
+    expect(runner.get().state.phase).to.eql('ended');
+    runner.dispose();
+  });
+
+  it('dispose stops endedTick wiring (no further video:ended inputs)', () => {
+    const { runner, runtime } = create();
+    runner.send({ kind: 'playback:init', timeline: timeline() });
+    expect(runner.get().state.phase).to.eql('active');
+
+    const a = runtime.decks?.get('A');
+    expect(!!a).to.eql(true);
+
+    runner.dispose();
+
+    // If listeners are disposed, this should NOT advance the machine.
+    a!.props.endedTick.value += 1;
+    expect(runner.get().state.phase).to.eql('active');
+  });
 });

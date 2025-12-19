@@ -1,4 +1,4 @@
-import { type t, TimecodeState } from './common.ts';
+import { type t, Signal, TimecodeState } from './common.ts';
 import { projectRunnerState } from './u.project.runnerState.ts';
 
 type DeckId = t.TimecodeState.Playback.DeckId;
@@ -67,6 +67,44 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
    * Used to decide when to reset deckBaseVTime and mutate `props.src`.
    */
   const deckLastMediaKey = new Map<DeckId, string>();
+
+  function sendInput(input: t.TimecodeState.Playback.Input): void {
+    const update = machine.reduce(state, input);
+    apply(update);
+  }
+
+  const endedTickPrev = new Map<DeckId, number>();
+  const endedTickListeners = Signal.listeners();
+
+  function wireDeckEndedTick(): void {
+    const decks = runtime.decks;
+    if (!decks) return;
+
+    const ids: readonly DeckId[] = ['A', 'B'];
+
+    for (const deck of ids) {
+      const player = decks.get(deck);
+      if (!player) continue;
+
+      endedTickListeners.effect(() => {
+        const tick = player.props.endedTick.value;
+        const prev = endedTickPrev.get(deck);
+
+        // Seed baseline (avoid firing on initial effect run).
+        if (prev === undefined) {
+          endedTickPrev.set(deck, tick);
+          return;
+        }
+
+        if (tick !== prev) {
+          endedTickPrev.set(deck, tick);
+          sendInput({ kind: 'video:ended', deck });
+        }
+      });
+    }
+  }
+
+  wireDeckEndedTick();
 
   function segmentStartBeatIndex(e: {
     readonly timeline: t.TimecodeState.Playback.Timeline;
@@ -152,22 +190,11 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
         }
 
         case 'cmd:deck:load': {
-          /**
-           * Orchestration cmd: load the media for a beat onto a specific deck.
-           *
-           * This runner stays mostly signal-agnostic, but if a hosting layer
-           * provides `runtime.decks` (VideoPlayerSignals), we can perform a
-           * minimal, real load by mutating `props.src`.
-           */
           const decks = runtime.decks;
           const timeline = state.timeline;
           const beat = timeline?.beats[cmd.beat];
           const url = beat?.media?.url;
 
-          /**
-           * Media identity at this layer is the segment id.
-           * Only mutate props.src / reset base when identity changes.
-           */
           const nextKey = beat?.segmentId ?? '';
           const prevKey = deckLastMediaKey.get(cmd.deck);
           const hasMediaChanged = !!nextKey && prevKey !== nextKey;
@@ -177,11 +204,6 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
             player.props.src.value = url;
           }
 
-          /**
-           * Record the virtual vTime corresponding to player time 0 for this deck.
-           *
-           * Only reset base when segment identity changes.
-           */
           if (timeline && url && hasMediaChanged) {
             deckLastMediaKey.set(cmd.deck, nextKey);
 
@@ -192,27 +214,13 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
         }
 
         case 'cmd:swap-decks': {
-          /**
-           * Orchestration cmd: indicates the machine has swapped active/standby
-           * ownership in state. In a "two stacked videos" UI, the host might
-           * need to swap z-index / visibility.
-           *
-           * This runner intentionally performs no action here. The *meaning*
-           * of a visual swap is host-specific (side-by-side debug vs stacked).
-           */
           break;
         }
 
         case 'cmd:emit-ready':
-          /**
-           * Intentionally no-op here.
-           * Ready is an orchestration signal; adapters may translate it into
-           * runner-level signals (e.g. `runner:ready`) or bus events.
-           */
           break;
 
         default:
-          /** Exhaustiveness guard: */
           ((_: never) => _)(cmd);
       }
     }
@@ -248,15 +256,15 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
 
   return {
     get: () => project(state),
-    send(input) {
-      const update = machine.reduce(state, input);
-      apply(update);
-    },
+    send: (input) => sendInput(input),
     subscribe(fn) {
       subs.add(fn);
       fn(project(state));
       return () => subs.delete(fn);
     },
-    dispose: () => subs.clear(),
+    dispose() {
+      endedTickListeners.dispose();
+      subs.clear();
+    },
   };
 }
