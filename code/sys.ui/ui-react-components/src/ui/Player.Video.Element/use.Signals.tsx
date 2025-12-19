@@ -36,6 +36,7 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
     p.buffering.value;
     p.slice.value;
     p.ready.value;
+    p.endedTick.value;
 
     /**
      * NOTE:
@@ -91,6 +92,10 @@ export const usePlayerSignals: t.UsePlayerSignals = (signals, options = {}) => {
 
     const onEnded: P['onEnded'] = (e) => {
       if (log) console.info('⚡️ onEnded:', e);
+
+      // Monotonic marker for "ended happened" (native ended or crop-ended dispatch).
+      const prev = p.endedTick.value ?? 0;
+      write(p.endedTick, prev + 1);
     };
 
     const onBufferingChange: P['onBufferingChange'] = (e) => write(p.buffering, e.buffering);
