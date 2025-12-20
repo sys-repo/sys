@@ -28,4 +28,15 @@ export namespace Tools {
   /** Command line arguments (argv). */
   export type CliArgs = { help: boolean };
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+
+  /**
+   * Usage timestamps for recency-aware behavior.
+   * Example: used by the core `Config.orderByRecency` helper.
+   */
+  export type Recency = {
+    /** Creation time. */
+    createdAt?: t.UnixTimestamp;
+    /** Most recent usage time. */
+    lastUsedAt?: t.UnixTimestamp;
+  };
 }

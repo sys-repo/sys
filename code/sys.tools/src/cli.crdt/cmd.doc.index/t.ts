@@ -39,7 +39,7 @@ export namespace CrdtIndex {
       excludeExt?: string[];
     };
 
-    export type DirIndexEntry = {
+    export type DirIndexEntry = t.Tools.Recency & {
       /**
        * CWD-relative subdir (portable).
        * Use '.' for the cwd itself.
@@ -55,10 +55,6 @@ export namespace CrdtIndex {
        * NOTE: This mount is treated as the unique identity key for selection.
        */
       mount?: t.ObjectPath;
-
-      /** UX metadata. */
-      createdAt?: t.UnixTimestamp;
-      lastUsedAt?: t.UnixTimestamp;
 
       /** Optional filter that shapes what gets indexed for this entry. */
       filter?: DirIndexFilter;

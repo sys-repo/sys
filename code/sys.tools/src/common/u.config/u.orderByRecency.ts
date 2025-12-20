@@ -1,13 +1,12 @@
 import { type t } from './common.ts';
 
-
 /**
  * Returns a new list ordered by:
  *   1. Most recent `lastUsedAt` (descending)
  *   2. For items without `lastUsedAt`: most recent `createdAt` (descending)
  *   Items missing both timestamps are placed last.
  */
-export function orderByRecency<T extends Recency>(items: T[] = []) {
+export function orderByRecency<T extends t.Tools.Recency>(items: T[] = []) {
   return [...items].sort((a, b) => {
     const A = a.lastUsedAt;
     const B = b.lastUsedAt;

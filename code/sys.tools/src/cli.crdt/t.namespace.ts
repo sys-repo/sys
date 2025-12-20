@@ -68,11 +68,9 @@ export namespace CrdtTool {
     /**
      * Config: Documents.
      */
-    export type DocumentEntry = {
+    export type DocumentEntry = t.Tools.Recency & {
       id: t.StringId;
       name?: t.StringName;
-      createdAt?: t.UnixTimestamp;
-      lastUsedAt?: t.UnixTimestamp;
       lint?: { facets?: string[] };
 
       /** Per-document indexes (optional). */

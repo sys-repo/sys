@@ -1,1 +1,1 @@
-export { Config } from './u.config.ts';
+export { Config } from './m.Config.ts';
