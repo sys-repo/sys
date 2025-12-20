@@ -39,7 +39,7 @@ export async function copyFiles(
 
   const eligible = paths.filter((path) => {
     const ext = Fs.extname(path);
-    return ['.ts', '.tsx', '.md', '.yaml', '.json'].includes(ext);
+    return ['.ts', '.tsx', '.md', '.yaml', '.json', '.jsonc'].includes(ext);
   });
 
   await selectAndCopy(eligible, {
