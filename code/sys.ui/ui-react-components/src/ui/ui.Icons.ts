@@ -1,4 +1,4 @@
-import { FaLink } from 'react-icons/fa6';
+import { FaLink, FaRegFileLines } from 'react-icons/fa6';
 import { LiaCertificateSolid } from 'react-icons/lia';
 import { LuCopy, LuCopyCheck, LuCopyMinus, LuCopyPlus, LuCopySlash, LuDna } from 'react-icons/lu';
 import {
@@ -22,7 +22,7 @@ import { Icon } from './Icon/mod.ts';
 const icon = Icon.renderer;
 
 /**
- * Icon collection:
+ * Icon Collection:
  */
 export const Icons = {
   Close: icon(MdClose),
@@ -49,4 +49,5 @@ export const Icons = {
   Certificate: icon(LiaCertificateSolid),
   Link: icon(FaLink),
   Dna: icon(LuDna),
+  File: icon(FaRegFileLines),
 } as const;
