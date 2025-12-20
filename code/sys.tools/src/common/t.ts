@@ -8,10 +8,10 @@ export type { ReactElement, ReactNode } from 'react';
  */
 export type * from '@sys/types';
 
-/** Standard */
+/** @system: Standard */
 export type { Alias, AnsiColors, ParsedArgs, StrBuilder, Timecode } from '@sys/std/t';
 
-/** Common System */
+/** @system: Common */
 export type { CliTable } from '@sys/cli/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { FileMap, JsonFile, JsonFileDoc, WalkEntry } from '@sys/fs/t';
@@ -21,18 +21,17 @@ export type { ProcOutput } from '@sys/process/t';
 export type { SpecImports, TestingDir } from '@sys/testing/t';
 export type { Yaml } from '@sys/yaml/t';
 
-/** UI */
+/** @system: UI */
 export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
 export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
 export type { DevCtx } from '@sys/ui-react-devharness/t';
 
-/** Drivers */
+/** @system: Drivers */
 export type { Crdt, CrdtRepoWireEvent } from '@sys/driver-automerge/t';
 
 /**
  * @local
  */
-
 export type * from '../t.namespace.ts';
 export type * from '../-tmpl/t.ts';
 export type * from '../-tmpl.cli/t.ts';
