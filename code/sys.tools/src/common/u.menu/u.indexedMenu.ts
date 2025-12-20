@@ -8,7 +8,6 @@ type IndexedMenuResult =
 
 /**
  * Stateful indexed menu over a persisted, scoped list.
- *
  * Handles selection, optional creation, and recency updates in config.
  */
 export async function indexedMenu<TDoc extends t.JsonFileDoc, TScope, TEntry>(args: {
