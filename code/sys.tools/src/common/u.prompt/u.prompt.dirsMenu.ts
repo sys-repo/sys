@@ -14,9 +14,17 @@ export async function promptDirsMenu<C extends string>(args: {
   branch?: (e: { readonly index: number; readonly total: number }) => string;
   paintName?: (name: string) => string;
   onSelectDir?: (dir: t.StringDir) => Promise<void>;
+
+  /**
+   * Optional renderer for directory rows.
+   * If provided, this takes ownership of per-row label text and sort order.
+   */
+  render?: (e: { readonly name: string; readonly dir: t.StringDir }) => {
+    readonly label: string;
+    readonly sortKey?: string;
+  };
 }): Promise<C | t.StringDir> {
   const { message, prefix, cmdAdd, cmdExit, addLabel, branch, paintName, onSelectDir } = args;
-
   const visibleLen = (s: string) => Cli.stripAnsi(s).length;
 
   /**
@@ -35,54 +43,52 @@ export async function promptDirsMenu<C extends string>(args: {
     return pad > 0 ? `${s}${' '.repeat(pad)}` : s;
   };
 
-  const maxPathWidth = Math.max(
-    0,
-    ...args.dirs.map((d) => {
-      const text = paintName ? paintName(d.name) : d.name;
-      const { path } = splitKeyPath(text);
-      return visibleLen(path);
-    }),
-  );
+  const defaultSortKey = (nameText: string) => Cli.stripAnsi(nameText).trim().toLowerCase();
+  const renderRow = (item: { name: string; dir: t.StringDir }) => {
+    const nameText = paintName ? paintName(item.name) : item.name;
 
-  const normalizePathForSort = (path: string): string => {
-    const p = Cli.stripAnsi(path).trim();
-    if (p === '.' || p === './' || p === '/.' || p === '/./') return './';
-    return p;
+    if (args.render) {
+      const r = args.render({ name: nameText, dir: item.dir });
+      return {
+        sortKey: (r.sortKey ?? defaultSortKey(nameText)).toLowerCase(),
+        label: r.label,
+      };
+    }
+
+    const { key, path } = splitKeyPath(nameText);
+    return {
+      sortKey: (() => {
+        const p = Cli.stripAnsi(path).trim();
+        const norm = p === '.' || p === './' || p === '/.' || p === '/./' ? './' : p;
+        const isRoot = norm === './';
+        const k = Cli.stripAnsi(key).trim();
+        return `${isRoot ? '0' : '1'}|${norm.toLowerCase()}|${k.toLowerCase()}`;
+      })(),
+      label: nameText,
+    };
   };
 
-  const sortedDirs = [...args.dirs].sort((a, b) => {
-    const aText = paintName ? paintName(a.name) : a.name;
-    const bText = paintName ? paintName(b.name) : b.name;
-
-    const aSplit = splitKeyPath(aText);
-    const bSplit = splitKeyPath(bText);
-
-    const aPath = normalizePathForSort(aSplit.path);
-    const bPath = normalizePathForSort(bSplit.path);
-
-    const aIsRoot = aPath === './';
-    const bIsRoot = bPath === './';
-
-    if (aIsRoot !== bIsRoot) return aIsRoot ? -1 : 1;
-
-    const pathCmp = aPath.localeCompare(bPath);
-    if (pathCmp !== 0) return pathCmp;
-
-    const aKey = Cli.stripAnsi(aSplit.key);
-    const bKey = Cli.stripAnsi(bSplit.key);
-    return aKey.localeCompare(bKey);
+  const rendered = args.dirs.map((d) => {
+    const r = renderRow(d);
+    return { ...d, _sortKey: r.sortKey, _label: r.label };
   });
+
+  const sortedDirs = [...rendered].sort((a, b) => a._sortKey.localeCompare(b._sortKey));
+  const maxPathWidth = args.render
+    ? 0
+    : Math.max(0, ...sortedDirs.map((d) => visibleLen(splitKeyPath(d._label).path)));
 
   const listing = sortedDirs.map((item, index) => {
     const b = branch?.({ index, total: sortedDirs.length }) ?? '';
-    const nameText = paintName ? paintName(item.name) : item.name;
-
     const tree = Cli.Fmt.Tree.branch([index, sortedDirs], 1);
     const bNorm = String(b).trim();
 
-    const { key, path } = splitKeyPath(nameText);
-    const left = padRightVisible(path, maxPathWidth);
-    const cols = c.gray(`${left}  mount:/${c.cyan(key)}`);
+    const cols = (() => {
+      if (args.render) return item._label;
+      const { key, path } = splitKeyPath(item._label);
+      const left = padRightVisible(path, maxPathWidth);
+      return c.gray(`${left}  mount:/${c.cyan(key)}`);
+    })();
 
     const label = ` ${prefix} ${tree} ${bNorm ? `${bNorm} ` : ''}${cols}`.trimEnd();
     return { name: label, value: item.dir };

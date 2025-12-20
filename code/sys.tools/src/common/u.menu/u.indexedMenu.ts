@@ -1,5 +1,5 @@
-import { type t, Time } from './common.ts';
 import { promptDirsMenu } from '../u.prompt/mod.ts';
+import { type t, Time } from './common.ts';
 
 /** Result */
 type IndexedMenuResult =
@@ -31,6 +31,16 @@ export async function indexedMenu<TDoc extends t.JsonFileDoc, TScope, TEntry>(ar
     message: string;
     prefix: string;
     addLabel?: string;
+
+    /**
+     * Optional renderer passed through to `promptDirsMenu`.
+     * Lets call-sites own the visible row label (and optional sortKey)
+     * without encoding structure into adapter labels.
+     */
+    render?: (e: { readonly name: string; readonly dir: t.StringDir }) => {
+      readonly label: string;
+      readonly sortKey?: string;
+    };
   };
 }): Promise<IndexedMenuResult> {
   const { scope, config, adapter, ui } = args;
@@ -40,12 +50,10 @@ export async function indexedMenu<TDoc extends t.JsonFileDoc, TScope, TEntry>(ar
 
   while (true) {
     const current = orderByRecency(adapter.list(config.current, scope));
-
     const dirs = current.map((e) => ({
       name: adapter.labelOf(e),
       dir: adapter.keyOf(e) as t.StringDir,
     }));
-
     const picked = await promptDirsMenu<string>({
       message: ui.message,
       prefix: ui.prefix,
@@ -54,6 +62,7 @@ export async function indexedMenu<TDoc extends t.JsonFileDoc, TScope, TEntry>(ar
       cmdExit: 'exit',
       addLabel: ui.addLabel ?? ' add',
       paintName: (s) => s,
+      render: ui.render,
     });
 
     if (picked === 'exit') return { kind: 'exit' };
