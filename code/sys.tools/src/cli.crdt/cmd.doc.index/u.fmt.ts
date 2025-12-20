@@ -14,8 +14,8 @@ export const Fmt = {
 
       const filter = snapshot.source.filter ?? {};
       const schemaVersion = snapshot['schema:version'];
-      const totals = snapshot.meta?.total ?? {};
-      const total = { files: totals.files ?? 0, bytes: totals.bytes ?? 0 };
+      const stats = snapshot.stats?.total ?? {};
+      const total = { files: stats.files ?? 0, bytes: stats.bytes ?? 0 };
       const size = `${c.white(Str.bytes(total.bytes))} over ${c.white(total.files.toLocaleString())} ${Str.plural(total.files, 'file', 'files')}`;
 
       kv('schema', c.gray(`${c.gray(snapshot.kind)}${c.white(`@v${schemaVersion}`)}`));

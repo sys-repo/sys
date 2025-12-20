@@ -74,7 +74,7 @@ export async function buildFsIndexSnapshot(input: {
       dir: input.subdir,
       filter: filter ?? undefined,
     },
-    meta: {
+    stats: {
       createdAt: now,
       updatedAt: now,
       total: {

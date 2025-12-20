@@ -51,7 +51,7 @@ export namespace CrdtTool {
     export namespace Fs {
       export type Snapshot = t.CrdtIndex.Fs.Snapshot;
       export type Source = t.CrdtIndex.Fs.IndexSource;
-      export type Meta = t.CrdtIndex.Fs.IndexMeta;
+      export type Meta = t.CrdtIndex.Fs.IndexStats;
       export type Entry = t.CrdtIndex.Fs.FsIndexEntry;
     }
   }

@@ -91,7 +91,7 @@ export namespace CrdtIndex {
       readonly source: IndexSource;
 
       /** Run metadata. */
-      readonly meta?: IndexMeta;
+      readonly stats?: IndexStats;
 
       /**
        * Flat map of entries keyed by normalized relative path (POSIX '/').
@@ -114,7 +114,7 @@ export namespace CrdtIndex {
       readonly filter?: Filter;
     };
 
-    export type IndexMeta = {
+    export type IndexStats = {
       readonly createdAt?: t.UnixTimestamp;
       readonly updatedAt?: t.UnixTimestamp;
       readonly total?: {

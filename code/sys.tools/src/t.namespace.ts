@@ -15,7 +15,7 @@ export namespace Tools {
   export type Id = 'tools';
   export type Name = 'system/tools';
 
-  /** Command names */
+  /** Command names. */
   export type Command =
     | t.ServeTool.Id
     | t.ClipboardTool.Id
