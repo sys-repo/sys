@@ -1,6 +1,7 @@
 import { type t, Args, c, Cli, D, done, Fs, Is } from './common.ts';
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
+import { endpointMenu } from './u.menu.endpoint.ts';
 import { endpointsMenu } from './u.menu.endpoints.ts';
 
 /**
@@ -40,18 +41,14 @@ async function run(cwd: t.StringDir, args: t.DeployTool.CliArgs): Promise<t.RunR
   /** --------------------------------------------------------
    * Root Menu
    */
-  {
+  while (true) {
     console.info();
     const picked = await endpointsMenu(config);
     if (picked.kind === 'exit') return done(0);
 
-    // Minimal "next step" placeholder: we have an endpoint key.
-    console.info(c.gray(`picked:`), c.cyan(picked.key));
-    return done(0);
-  }
+    const res = await endpointMenu({ config, key: picked.key });
 
-  /** --------------------------------------------------------
-   * End
-   */
-  return done();
+    if (res.kind === 'back') continue;
+
+  }
 }

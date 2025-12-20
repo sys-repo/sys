@@ -65,7 +65,7 @@ export async function endpointsMenu(config: t.DeployTool.Config.File): Promise<R
     ui: {
       message: 'Endpoints:\n',
       prefix: 'deploy:',
-      addLabel: '   add: <endpoint>',
+      addLabel: '    add: <endpoint>',
 
       render(e) {
         const name = Cli.stripAnsi(e.name).trim();

@@ -6,7 +6,7 @@ import { type t } from './common.ts';
  *   2. For items without `lastUsedAt`: most recent `createdAt` (descending)
  *   Items missing both timestamps are placed last.
  */
-export function orderByRecency<T extends t.Tools.Recency>(items: T[] = []) {
+export function orderByRecency<T extends t.Tools.Recency>(items: t.Ary<T> = []) {
   return [...items].sort((a, b) => {
     const A = a.lastUsedAt;
     const B = b.lastUsedAt;
