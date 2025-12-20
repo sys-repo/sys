@@ -7,7 +7,7 @@ export namespace __NAME__Tool {
   export type Id = '__NAME__';
   export type Name = '__NAME__';
 
-  /** Command names */
+  /** Command names. */
   export type Command =
     | 'option-a'
     | 'option-b'

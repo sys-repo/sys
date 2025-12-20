@@ -14,7 +14,7 @@ export namespace FsTool {
   export type Id = 'fs';
   export type Name = 'system/fs:tools';
 
-  /** Command names */
+  /** Command names. */
   export type Command =
     | 'hash:rename-sha256'
     | 'hash:tidy-sha256-files'

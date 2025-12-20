@@ -7,7 +7,7 @@ export namespace ClipboardTool {
   export type Id = 'copy';
   export type Name = 'system/clipboard:tools';
 
-  /** Command names */
+  /** Command names. */
   export type Command = 'types' | 'files:select' | 'files:all' | 'files:deno.json';
   export type MenuOption = { name: string; value: Command };
 

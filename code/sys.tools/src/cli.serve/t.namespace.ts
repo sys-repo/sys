@@ -7,7 +7,7 @@ export namespace ServeTool {
   export type Id = 'serve';
   export type Name = 'system/serve:tools';
 
-  /** Command names */
+  /** Command names. */
   export type Command =
     | 'dir:add'
     | 'dir:remove'

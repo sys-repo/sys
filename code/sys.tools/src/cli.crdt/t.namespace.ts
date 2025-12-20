@@ -7,7 +7,7 @@ export namespace CrdtTool {
   export type Id = 'crdt';
   export type Name = 'system/crdt:tools';
 
-  /** Command names */
+  /** Command names. */
   export type Command =
     | 'snapshot'
     | 'doc:add'

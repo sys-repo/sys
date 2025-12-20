@@ -11,7 +11,7 @@ export namespace VideoTool {
   export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
-  /** Command names */
+  /** Command names. */
   export type Command = Conversion | 'probe-file';
   export type MenuOption = { name: string; value: Command };
 
