@@ -1,8 +1,9 @@
 import { startServing } from './cmd.serve/mod.ts';
 
-import { type t, Args, c, Cli, D, done, Fs, indexedMenu, Is, opt, Time } from './common.ts';
+import { type t, Args, c, Cli, D, done, Fs, indexedMenu, Is, Time } from './common.ts';
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
+import { serveLocationMenu } from './u.menu.location.ts';
 import { promptAddServeLocation, promptRemoveDocument } from './u.prompt.ts';
 
 type C = t.ServeTool.Command;
@@ -46,86 +47,80 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
   const port = Is.num(args.port) ? args.port : D.port;
   const config = await Config.get(cwd);
 
-  const picked = await indexedMenu({
-    scope: 'serve',
-    config,
-
-    adapter: {
-      list: (doc) => doc.dirs ?? [],
-      set: (doc, _scope, next) => (doc.dirs = [...next]),
-      keyOf: (e) => e.dir,
-      lastUsedAtOf: (e) => e.lastUsedAt,
-      withLastUsedAt: (e, ts) => ({ ...e, lastUsedAt: ts }),
-      labelOf(e) {
-        const shown = e.dir.startsWith('/') ? e.dir : e.dir === '.' ? './' : `./${e.dir}`;
-        return `${e.name}  ${c.gray(shown)}`;
+  while (true) {
+    const picked = await indexedMenu({
+      scope: 'serve',
+      config,
+      adapter: {
+        list: (doc) => doc.dirs ?? [],
+        set: (doc, _scope, next) => (doc.dirs = [...next]),
+        keyOf: (e) => e.dir,
+        lastUsedAtOf: (e) => e.lastUsedAt,
+        withLastUsedAt: (e, ts) => ({ ...e, lastUsedAt: ts }),
+        labelOf(e) {
+          const shown = e.dir.startsWith('/') ? e.dir : e.dir === '.' ? './' : `./${e.dir}`;
+          return `${e.name}  ${c.gray(shown)}`;
+        },
+        async add() {
+          await promptAddServeLocation(cwd);
+        },
       },
-      async add() {
-        await promptAddServeLocation(cwd);
+
+      ui: {
+        message: 'Tools:\n',
+        prefix: 'serve:',
+        addLabel: '   add: <dir>',
       },
-    },
+    });
 
-    ui: {
-      message: 'Tools:\n',
-      prefix: 'serve:',
-      addLabel: '   add: <dir>',
-    },
-  });
+    if (picked.kind === 'exit') return done();
 
-  if (picked.kind === 'exit') return done();
+    const location = Config.findLocation(config.current, picked.key);
+    if (!location) {
+      console.info(c.yellow(`Could not find a server configuration`));
+      console.info(c.gray(`directory: ${picked.key}`));
+      continue;
+    }
 
-  const location = Config.findLocation(config.current, picked.key);
-  if (!location) {
-    console.info(c.yellow(`Could not find a server configuration`));
-    console.info(c.gray(`directory: ${picked.key}`));
-    return done();
-  }
+    const locationKey = location.dir;
+    const locationAbsDir = Config.resolveDir(cwd, location.dir);
+    const runtimeLocation: t.ServeTool.Config.Dir = { ...location, dir: locationAbsDir };
 
-  const locationKey = location.dir; // stored (portable) key
-  const locationAbsDir = Config.resolveDir(cwd, location.dir);
-  const runtimeLocation: t.ServeTool.Config.Dir = { ...location, dir: locationAbsDir };
+    if (Fs.cwd() !== locationAbsDir) {
+      console.info(c.gray(`directory: ${locationAbsDir}`));
+    }
 
-  if (Fs.cwd() !== locationAbsDir) {
-    console.info(c.gray(`directory: ${locationAbsDir}`));
-  }
+    const res = await serveLocationMenu({
+      location: runtimeLocation,
+      port,
+    });
 
-  const fmtLocalhost = c.cyan(`localhost:${port}`);
-  const fmtNetwork = c.yellow(`network:${port}`);
+    if (res.kind === 'back') continue;
 
-  const action = (await Cli.Input.Select.prompt<C>({
-    message: `With: ${c.gray(location.name)}`,
-    options: [
-      opt(` start server → ${fmtLocalhost}`, 'serve:start/local'),
-      opt(` start server → ${fmtNetwork}`, 'serve:start/network'),
-      opt(' manage bundles', 'bundle'),
-      opt(' remove', 'dir:remove'),
-    ],
-  })) as C;
+    if (res.kind === 'remove') {
+      await promptRemoveDocument(cwd, location);
+      return done(0);
+    }
 
-  if (action === 'dir:remove') {
-    await promptRemoveDocument(cwd, location);
-    return done(0);
-  }
+    if (res.kind === 'start') {
+      await startServing(cwd, runtimeLocation, { port, host: res.host });
+      return done(0);
+    }
 
-  if (action === 'serve:start/local' || action === 'serve:start/network') {
-    const host = action === 'serve:start/network' ? 'network' : 'local';
-    await startServing(cwd, runtimeLocation, { port, host });
-    return done(0);
-  }
+    if (res.kind === 'bundles') {
+      const m = await Imports.pull();
+      const { bundle } = await m.pullBundle(cwd, runtimeLocation);
+      if (bundle?.local) {
+        config.change((d) => {
+          const hit = Config.findBundle(d, locationKey, bundle.local.dir);
+          if (hit) hit.lastUsedAt = Time.now.timestamp;
+        });
+        await config.fs.save();
+      }
 
-  if (action === 'bundle') {
-    const m = await Imports.pull();
-    const { bundle } = await m.pullBundle(cwd, runtimeLocation);
-    if (bundle?.local) {
-      config.change((d) => {
-        const hit = Config.findBundle(d, locationKey, bundle.local.dir);
-        if (hit) hit.lastUsedAt = Time.now.timestamp;
-      });
-      await config.fs.save();
+      return done(0);
     }
 
     return done(0);
   }
-
-  return done(0);
 }

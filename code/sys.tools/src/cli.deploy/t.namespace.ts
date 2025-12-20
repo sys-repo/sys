@@ -8,7 +8,7 @@ export namespace DeployTool {
   export type Name = 'system/deploy:tools';
 
   /** Command names. */
-  export type Command = 'exit';
+  export type Command = 'back' | 'exit';
   export type MenuOption = { name: string; value: Command };
 
   /** Command line arguments (argv). */

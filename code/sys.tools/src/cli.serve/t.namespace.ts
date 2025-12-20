@@ -17,6 +17,7 @@ export namespace ServeTool {
     | 'bundle:add-remote'
     | 'bundle:pull-latest'
     | 'bundle:open'
+    | 'back'
     | 'exit';
   export type MenuOption = { name: string; value: Command };
 
