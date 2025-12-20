@@ -4,7 +4,7 @@ export async function printHelp(argv: string[]) {
   const args = Args.parse<t.Tools.CliArgs>(argv, { alias: { h: 'help' } });
 
   const text = await Fmt.help(' system:tools', (e, c) => {
-    const fmt = (tool: t.Tools.Command) => c.gray(`${pkg.name}/`) + tool;
+    const fmt = (tool: t.Tools.Command) => c.gray(c.dim(`${pkg.name}/`)) + tool;
     const add = (tool: t.Tools.Command, alias?: string) => {
       const items = [fmt(tool)];
       if (alias) items.push(c.gray(`(← alias ${c.white(alias)})`));

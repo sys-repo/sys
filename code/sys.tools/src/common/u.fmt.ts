@@ -60,12 +60,12 @@ export const Fmt = {
       },
     };
 
-    e.row(c.gray(pkg.name), c.cyan(pkg.version));
+    e.row(c.bold(c.white(pkg.name)), c.cyan(pkg.version));
     fn?.(e, c);
 
     rows.forEach((col, i, total) => {
       const branch = Fmt.Tree.branch([i, total]);
-      table.push([` ${c.gray(branch)} ${col[0]}`, ...col.slice(1)]);
+      table.push([` ${c.dim(branch)} ${col[0]}`, ...col.slice(1)]);
     });
 
     return Str.builder()
