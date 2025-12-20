@@ -31,34 +31,31 @@ export namespace DeployTool {
     export type SourceMode = 'copy' | 'build+copy';
 
     /**
-     * Maps an input directory into the generated endpoint staging dir.
-     */
-    export type Mapping = {
-      dir: {
-        /** Input directory. May be absolute or relative (resolved by the tool). */
-        source: t.StringDir;
-
-        /** Destination within the endpoint staging dir. Use '.' to mean "staging root". */
-        staging: '.' | t.StringPath;
-      };
-
-      /** Whether this mapping requires a build step before copy. */
-      mode: SourceMode;
-    };
-
-    /**
      * One publishable endpoint unit (single CDN bucket target).
      * The staging dir is derived from `name`.
      */
     export type Endpoint = t.Tools.Recency & {
       /** Stable, unique endpoint name (menu key + staging identity). */
       name: string;
-
       /** Directory mappings assembled into this endpoint. */
-      mappings: readonly Mapping[];
-
+      mappings: Mapping[];
       /** Optional provider adapter config. */
       provider?: t.DeployProvider;
+    };
+
+    /**
+     * Maps an input directory into the generated endpoint staging dir.
+     */
+    export type Mapping = {
+      dir: {
+        /** Input directory. May be absolute or relative (resolved by the tool). */
+        source: t.StringDir;
+        /** Destination within the endpoint staging dir. Use '.' to mean "staging root". */
+        staging: '.' | t.StringPath;
+      };
+
+      /** Whether this mapping requires a build step before copy. */
+      mode: SourceMode;
     };
   }
 }
