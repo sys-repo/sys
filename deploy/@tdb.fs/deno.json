@@ -7,6 +7,7 @@
     "build": "deno run -P=build ./-scripts/-build.ts && deno task help",
     "serve": "deno run -P=serve ./-scripts/-serve.ts",
     "deploy": "deno task build && orbiter deploy && deno task help",
+    "deploy-only": "orbiter deploy && deno task help",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
