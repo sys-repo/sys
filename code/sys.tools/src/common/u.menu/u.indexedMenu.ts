@@ -1,16 +1,18 @@
+import { Config } from '../u.config/mod.ts';
 import { promptDirsMenu } from '../u.prompt/mod.ts';
 import { type t, Time } from './common.ts';
 
-/** Result */
-type IndexedMenuResult =
-  | { readonly kind: 'exit' }
-  | { readonly kind: 'selected'; readonly key: string };
+type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly key: string };
+type RenderRow = (e: { readonly name: string; readonly dir: t.StringDir }) => {
+  readonly label: string;
+  readonly sortKey?: string;
+};
 
-/**
- * Stateful indexed menu over a persisted, scoped list.
- * Handles selection, optional creation, and recency updates in config.
- */
-export async function indexedMenu<TDoc extends t.JsonFileDoc, TScope, TEntry>(args: {
+export async function indexedMenu<
+  TDoc extends t.JsonFileDoc,
+  TScope,
+  TEntry extends t.Tools.Recency,
+>(args: {
   scope: TScope;
   config: t.JsonFile<TDoc>;
 
@@ -31,29 +33,23 @@ export async function indexedMenu<TDoc extends t.JsonFileDoc, TScope, TEntry>(ar
     message: string;
     prefix: string;
     addLabel?: string;
-
     /**
-     * Optional renderer passed through to `promptDirsMenu`.
-     * Lets call-sites own the visible row label (and optional sortKey)
-     * without encoding structure into adapter labels.
+     * Optional renderer for list rows.
+     * When provided, the renderer owns row label text and sort key.
      */
-    render?: (e: { readonly name: string; readonly dir: t.StringDir }) => {
-      readonly label: string;
-      readonly sortKey?: string;
-    };
+    render?: RenderRow;
   };
-}): Promise<IndexedMenuResult> {
+}): Promise<Result> {
   const { scope, config, adapter, ui } = args;
 
-  const orderByRecency = (items: readonly TEntry[]) =>
-    [...items].sort((a, b) => (adapter.lastUsedAtOf(b) ?? 0) - (adapter.lastUsedAtOf(a) ?? 0));
-
   while (true) {
-    const current = orderByRecency(adapter.list(config.current, scope));
+    const current = Config.orderByRecency(adapter.list(config.current, scope));
+
     const dirs = current.map((e) => ({
       name: adapter.labelOf(e),
       dir: adapter.keyOf(e) as t.StringDir,
     }));
+
     const picked = await promptDirsMenu<string>({
       message: ui.message,
       prefix: ui.prefix,
@@ -62,6 +58,9 @@ export async function indexedMenu<TDoc extends t.JsonFileDoc, TScope, TEntry>(ar
       cmdExit: 'exit',
       addLabel: ui.addLabel ?? ' add',
       paintName: (s) => s,
+
+      // preserve canonical ordering
+      order: 'preserve',
       render: ui.render,
     });
 

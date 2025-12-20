@@ -5,26 +5,45 @@ import { type t, c, Cli } from './common.ts';
  * commands and tree-formatted labels.
  */
 export async function promptDirsMenu<C extends string>(args: {
-  message: string; //      ← e.g. 'Tools:\n'
-  prefix: string; //       ← e.g. 'serve:' | 'dir:'
-  cmdAdd: C; //            ← e.g. 'dir:add'
-  cmdExit: C; //           ← e.g. 'exit'
-  addLabel: string; //     ← e.g. 'add: <local>'
+  message: string;
+  prefix: string;
+  cmdAdd: C;
+  cmdExit: C;
+  addLabel: string;
   dirs: readonly { name: string; dir: t.StringDir }[];
   branch?: (e: { readonly index: number; readonly total: number }) => string;
   paintName?: (name: string) => string;
   onSelectDir?: (dir: t.StringDir) => Promise<void>;
 
   /**
+   * Ordering policy for displayed rows.
+   * - "auto": derive a stable sort from the rendered label (default).
+   * - "preserve": keep the input order exactly as provided.
+   */
+  order?: 'auto' | 'preserve';
+
+  /**
    * Optional renderer for directory rows.
-   * If provided, this takes ownership of per-row label text and sort order.
+   * If provided, this takes ownership of per-row label text.
+   * Provide sortKey only when using order "auto" and you want custom sorting.
    */
   render?: (e: { readonly name: string; readonly dir: t.StringDir }) => {
     readonly label: string;
     readonly sortKey?: string;
   };
 }): Promise<C | t.StringDir> {
-  const { message, prefix, cmdAdd, cmdExit, addLabel, branch, paintName, onSelectDir } = args;
+  const {
+    message,
+    prefix,
+    cmdAdd,
+    cmdExit,
+    addLabel,
+    branch,
+    paintName,
+    onSelectDir,
+    order = 'auto',
+  } = args;
+
   const visibleLen = (s: string) => Cli.stripAnsi(s).length;
 
   /**
@@ -43,29 +62,29 @@ export async function promptDirsMenu<C extends string>(args: {
     return pad > 0 ? `${s}${' '.repeat(pad)}` : s;
   };
 
-  const defaultSortKey = (nameText: string) => Cli.stripAnsi(nameText).trim().toLowerCase();
+  const defaultSortKey = (labelText: string) => Cli.stripAnsi(labelText).trim().toLowerCase();
+
   const renderRow = (item: { name: string; dir: t.StringDir }) => {
     const nameText = paintName ? paintName(item.name) : item.name;
 
     if (args.render) {
       const r = args.render({ name: nameText, dir: item.dir });
       return {
-        sortKey: (r.sortKey ?? defaultSortKey(nameText)).toLowerCase(),
         label: r.label,
+        sortKey: (r.sortKey ?? defaultSortKey(r.label)).toLowerCase(),
       };
     }
 
     const { key, path } = splitKeyPath(nameText);
-    return {
-      sortKey: (() => {
-        const p = Cli.stripAnsi(path).trim();
-        const norm = p === '.' || p === './' || p === '/.' || p === '/./' ? './' : p;
-        const isRoot = norm === './';
-        const k = Cli.stripAnsi(key).trim();
-        return `${isRoot ? '0' : '1'}|${norm.toLowerCase()}|${k.toLowerCase()}`;
-      })(),
-      label: nameText,
-    };
+    const sortKey = (() => {
+      const p = Cli.stripAnsi(path).trim();
+      const norm = p === '.' || p === './' || p === '/.' || p === '/./' ? './' : p;
+      const isRoot = norm === './';
+      const k = Cli.stripAnsi(key).trim();
+      return `${isRoot ? '0' : '1'}|${norm.toLowerCase()}|${k.toLowerCase()}`;
+    })();
+
+    return { label: nameText, sortKey };
   };
 
   const rendered = args.dirs.map((d) => {
@@ -73,18 +92,23 @@ export async function promptDirsMenu<C extends string>(args: {
     return { ...d, _sortKey: r.sortKey, _label: r.label };
   });
 
-  const sortedDirs = [...rendered].sort((a, b) => a._sortKey.localeCompare(b._sortKey));
-  const maxPathWidth = args.render
-    ? 0
-    : Math.max(0, ...sortedDirs.map((d) => visibleLen(splitKeyPath(d._label).path)));
+  const rows =
+    order === 'preserve'
+      ? rendered
+      : [...rendered].sort((a, b) => a._sortKey.localeCompare(b._sortKey));
 
-  const listing = sortedDirs.map((item, index) => {
-    const b = branch?.({ index, total: sortedDirs.length }) ?? '';
-    const tree = Cli.Fmt.Tree.branch([index, sortedDirs], 1);
+  const maxPathWidth =
+    args.render || order === 'preserve'
+      ? 0
+      : Math.max(0, ...rows.map((d) => visibleLen(splitKeyPath(d._label).path)));
+
+  const listing = rows.map((item, index) => {
+    const b = branch?.({ index, total: rows.length }) ?? '';
+    const tree = Cli.Fmt.Tree.branch([index, rows], 1);
     const bNorm = String(b).trim();
 
     const cols = (() => {
-      if (args.render) return item._label;
+      if (args.render || order === 'preserve') return item._label;
       const { key, path } = splitKeyPath(item._label);
       const left = padRightVisible(path, maxPathWidth);
       return c.gray(`${left}  mount:/${c.cyan(key)}`);

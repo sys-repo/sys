@@ -18,7 +18,10 @@ type DirIndexMenuResult =
  * Lets the user pick a remembered entry, or add a new directory + mount path.
  * Updates "last used" metadata and persists changes to the config.
  */
-export async function dirIndexMenu<TDoc extends t.JsonFileDoc, TEntry>(args: {
+export async function dirIndexMenu<
+  TDoc extends t.JsonFileDoc,
+  TEntry extends t.Tools.Recency,
+>(args: {
   cwd: t.StringDir;
   scopeKey: string;
   defaultMount: string;
