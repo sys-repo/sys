@@ -108,7 +108,7 @@ export const Grid: React.FC<GridProps> = (props) => {
     <div className={styles.header.class}>
       <div>
         <div className={css(styles.icon, styles.iconHeader).class}>
-          <Icons.Object size={12} style={{ color: Color.WHITE }} />
+          <Icons.Object size={12} style={{ color: theme.fg }} />
         </div>
       </div>
       <div>{'Path'}</div>

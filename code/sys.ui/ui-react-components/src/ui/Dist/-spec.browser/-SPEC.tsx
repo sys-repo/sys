@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { MyComponent } from '../mod.ts';
+import { Dist } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -9,7 +9,22 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <MyComponent.UI debug={v.debug} theme={v.theme} />;
+    const browser = Dist.useBrowserController({
+      onSelect: (e) => console.info('⚡️ Browser.onSelect:', e),
+      onFilter: (e) => console.info('⚡️ Browser.onFilter:', e),
+    });
+    return (
+      <Dist.UI.Browser
+        debug={v.debug}
+        theme={v.theme}
+        dist={v.dist}
+        selectedPath={browser.selectedPath}
+        onSelect={browser.onSelect}
+        filterText={browser.filterText}
+        onFilter={browser.onFilter}
+        toolbar={{ placement: 'bottom' }}
+      />
+    );
   }
 
   e.it('init', (e) => {
@@ -25,7 +40,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size([360, null])
+      .size([360, 300])
       .display('grid')
       .render(() => <Root />);
   });

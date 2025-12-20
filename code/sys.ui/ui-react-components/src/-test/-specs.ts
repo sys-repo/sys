@@ -54,6 +54,7 @@ export const SpecsComponents = {
   [`${ns}.media: Config.Slider`]: () => import('../ui/Media.Config/-spec.slider/-SPEC.tsx'),
 
   [`${ns}: Dist`]: () => import('../ui/Dist/-spec/-SPEC.tsx'),
+  [`${ns}: Dist.Browser`]: () => import('../ui/Dist/-spec.browser/-SPEC.tsx'),
   [`${ns}: Ownership`]: () => import('../ui/Ownership/-spec/-SPEC.tsx'),
 } as t.SpecImports;
 

@@ -1,20 +1,15 @@
 import React from 'react';
+import { SAMPLE, SAMPLE_FILES_MODES, type SampleFilesMode } from '../-spec/-SAMPLE.dist.json.ts';
 import { Button, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Obj, Pkg, Signal, type t } from '../common.ts';
 import { Dist } from '../mod.ts';
-import { SAMPLE, SAMPLE_FILES_MODES, type SampleFilesMode } from './-SAMPLE.dist.json.ts';
-
-type DebugView = (typeof VIEW_MODES)[number];
-const VIEW_MODES = ['UI', 'UI.Browser'] as const;
 
 type P = t.Dist.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'dist'> & {
-  debugView?: DebugView;
   sampleFilesMode?: SampleFilesMode;
 };
 const defaults: Storage = {
   debug: false,
-  debugView: 'UI',
   sampleFilesMode: 'short',
   theme: 'Dark',
   dist: SAMPLE.HelloWorld(),
@@ -36,9 +31,7 @@ export async function createDebugSignals() {
 
   const props = {
     debug: s(snap.debug),
-    debugView: s(snap.debugView),
     sampleFilesMode: s(snap.sampleFilesMode),
-
     theme: s(snap.theme),
     dist: s(snap.dist),
   };
@@ -63,7 +56,6 @@ export async function createDebugSignals() {
   Signal.effect(() => {
     store.change((d) => {
       d.debug = p.debug.value;
-      d.debugView = p.debugView.value;
       d.sampleFilesMode = p.sampleFilesMode.value;
       d.theme = p.theme.value;
       d.dist = p.dist.value;
@@ -72,8 +64,6 @@ export async function createDebugSignals() {
 
   Signal.effect(() => {
     const files = p.sampleFilesMode.value;
-    const debugView = p.debugView.value;
-
     p.dist.value = SAMPLE.HelloWorld({ files });
   });
 
@@ -114,21 +104,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `view: ${p.debugView.value}`}
-        onClick={() => Signal.cycle<DebugView>(p.debugView, VIEW_MODES)}
-      />
-      {v.debugView === 'UI.Browser' && (
-        <Button
-          block
-          label={() => `sample files: ${v.sampleFilesMode}`}
-          onClick={() => Signal.cycle(p.sampleFilesMode, SAMPLE_FILES_MODES)}
-        />
-      )}
-
-      <hr />
-
-      <Button
-        block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
@@ -151,7 +126,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
 
-      <Dist.UI.Browser debug={v.debug} dist={v.dist} style={{ height: 300, marginTop: 40 }} />
+      <Dist.UI debug={v.debug} dist={v.dist} style={{ height: 300, marginTop: 50 }} />
     </div>
   );
 };

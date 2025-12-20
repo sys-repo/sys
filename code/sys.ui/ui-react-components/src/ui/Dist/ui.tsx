@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, KeyValue, Str, Icons } from './common.ts';
+import { type t, Color, css, Icons, KeyValue, Str } from './common.ts';
 
 export type DistProps = {
   dist?: t.DistPkg;
@@ -74,7 +74,7 @@ export const Dist: React.FC<DistProps> = (props) => {
 
   const elPkg = (
     <div className={css(styles.icon).class}>
-      <Icons.Object size={16} style={{ color: Color.WHITE }} />
+      <Icons.Object size={16} />
     </div>
   );
 
