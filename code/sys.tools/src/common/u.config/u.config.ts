@@ -1,6 +1,5 @@
-import * as t from './t.ts';
-import { Fs, Cli } from './libs.ts';
-import { Fmt } from './u.fmt.ts';
+import { Fmt } from '../u.fmt.ts';
+import { type t, Cli, Fs } from './common.ts';
 
 type Recency = { lastUsedAt?: t.UnixTimestamp; createdAt?: t.UnixTimestamp };
 
