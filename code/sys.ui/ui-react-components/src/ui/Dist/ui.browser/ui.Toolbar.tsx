@@ -21,7 +21,13 @@ export type ToolbarProps = {
  * Component:
  */
 export const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { debug = false, filterText, placement = 'top', placeholderText = 'Filter' } = props;
+  const {
+    //
+    debug = false,
+    filterText,
+    placement = 'top',
+    placeholderText = 'filter on path',
+  } = props;
 
   const onChange: t.TextInputChangeHandler = (e) => {
     props.onFilter?.({ text: e.value });

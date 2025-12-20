@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, KeyValue, Str } from './common.ts';
+import { type t, Color, css, KeyValue, Str, Icons } from './common.ts';
 
 export type DistProps = {
   dist?: t.DistPkg;
@@ -17,19 +17,24 @@ export const Dist: React.FC<DistProps> = (props) => {
     const hr = () => items.push({ kind: 'hr', opacity: 0.15 });
     const ellipsize = Str.ellipsize;
 
-    items.push({ kind: 'title', v: 'DistPkg' });
+    const elTitle = (
+      <div className={css({ display: 'flex', columnGap: 8 }).class}>
+        {elPkg} <span>{'DistPkg'} </span>{' '}
+      </div>
+    );
+
+    items.push({ kind: 'title', v: elTitle });
+    hr();
+
+    // Pkg:
+    items.push({ k: 'name', v: dist.pkg?.name });
+    items.push({ k: 'version', v: dist.pkg?.version });
     hr();
 
     // Core:
     items.push({ k: 'type', v: ellipsize(dist.type, [20, 12], '..') });
     items.push({ k: 'entry', v: dist.entry });
     items.push({ k: 'url.base', v: dist.url?.base });
-    hr();
-
-    // Pkg:
-    items.push({ kind: 'title', v: 'pkg' });
-    items.push({ k: 'name', v: dist.pkg?.name });
-    items.push({ k: 'version', v: dist.pkg?.version });
     hr();
 
     // Build:
@@ -58,7 +63,20 @@ export const Dist: React.FC<DistProps> = (props) => {
       color: theme.fg,
       padding: 10,
     }),
+    icon: css({
+      width: 14,
+      height: 14,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }),
   };
+
+  const elPkg = (
+    <div className={css(styles.icon).class}>
+      <Icons.Object size={16} style={{ color: Color.WHITE }} />
+    </div>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>

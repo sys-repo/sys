@@ -55,10 +55,10 @@ export const Grid: React.FC<GridProps> = (props) => {
       position: 'sticky',
       top: 0,
       zIndex: 2,
+      color: Color.alpha(theme.fg, 0.3),
       backgroundColor: Color.alpha(theme.bg, 0.7),
       backdropFilter: 'blur(8px)',
       borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.12)}`,
-      color: Color.alpha(theme.fg, 0.7),
       letterSpacing: 0.06,
       fontSize: 10,
     }),
@@ -82,23 +82,35 @@ export const Grid: React.FC<GridProps> = (props) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      color: Color.alpha(theme.fg, 0.55),
       marginLeft: 5,
+      opacity: 0.2,
     }),
+
+    iconHeader: css({ opacity: 1 }),
+    iconSelected: css({ opacity: 0.9 }),
+
     path: css({
       minWidth: 0,
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
     }),
-    size: css({ color: Color.alpha(theme.fg, 0.5) }),
-    hash: css({ color: Color.alpha(theme.fg, 0.5) }),
+
+    size: css({ color: Color.alpha(theme.fg, 0.3) }),
+    hash: css({ color: Color.alpha(theme.fg, 0.3) }),
+    sizeSelected: css({ color: Color.alpha(theme.fg, 0.9) }),
+    hashSelected: css({ color: Color.alpha(theme.fg, 0.9) }),
+
     empty: css({ opacity: 0.5, padding: 8, display: 'grid', placeItems: 'center' }),
   } as const;
 
   const elHeader = (
     <div className={styles.header.class}>
-      <div />
+      <div>
+        <div className={css(styles.icon, styles.iconHeader).class}>
+          <Icons.Object size={12} style={{ color: Color.WHITE }} />
+        </div>
+      </div>
       <div>{'Path'}</div>
       <div>{'Size'}</div>
       <div>{'Hash'}</div>
@@ -113,6 +125,9 @@ export const Grid: React.FC<GridProps> = (props) => {
 
     const isSelected = row.path === props.selectedPath;
     const elRowClass = css(styles.row, isSelected ? styles.rowSelected : undefined).class;
+    const elIconClass = css(styles.icon, isSelected ? styles.iconSelected : undefined).class;
+    const elSizeClass = css(styles.size, isSelected ? styles.sizeSelected : undefined).class;
+    const elHashClass = css(styles.hash, isSelected ? styles.hashSelected : undefined).class;
 
     return (
       <div
@@ -121,17 +136,17 @@ export const Grid: React.FC<GridProps> = (props) => {
         data-selected={isSelected ? 'true' : undefined}
         onPointerDown={() => props.onSelect?.({ path: row.path })}
       >
-        <div className={styles.icon.class}>
-          <Icons.Object size={12} />
+        <div className={elIconClass}>
+          <Icons.File size={10} />
         </div>
 
         <div className={styles.path.class} title={row.path}>
           {path}
         </div>
 
-        <div className={styles.size.class}>{size}</div>
+        <div className={elSizeClass}>{size}</div>
 
-        <div className={styles.hash.class} title={row.hash ?? ''}>
+        <div className={elHashClass} title={row.hash ?? ''}>
           {row.hashLabel}
         </div>
       </div>
