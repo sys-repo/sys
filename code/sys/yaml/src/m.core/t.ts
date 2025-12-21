@@ -1,12 +1,13 @@
 import type * as Y from 'yaml';
 import type { t } from './common.ts';
 
-export type * from './t.lib.ts';
-export type * from './t.namespace.ts';
-
+/** Type re-exports. */
 export type * from './t.Ast.ts';
 export type * from './t.Diagnostic.ts';
+export type * from './t.Error.ts';
 export type * from './t.Is.ts';
+export type * from './t.lib.ts';
+export type * from './t.namespace.ts';
 export type * from './t.Path.ts';
 export type * from './t.Range.ts';
 export type * from './t.Syncer.ts';

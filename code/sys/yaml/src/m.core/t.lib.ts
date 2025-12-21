@@ -14,11 +14,12 @@ export type * from './t.Value.ts';
 export type YamlLib = {
   /** YAML flag helpers. */
   readonly Is: t.YamlIsLib;
-  /** Helpers for normalizing YAML parser errors into standard diagnostics. */
-  readonly Diagnostic: t.YamlDiagnosticLib;
-
   /** Helpers for working with YAML source ranges in byte/character offsets. */
   readonly Range: t.YamlRangeLib;
+  /** Helpers for constructing YAML parser-style errors. */
+  readonly Error: t.YamlErrorLib;
+  /** Helpers for normalizing YAML parser errors into standard diagnostics. */
+  readonly Diagnostic: t.YamlDiagnosticLib;
 
   /** Parse YAML to a plain JS value (fast). */
   parse<T>(src?: t.StringYaml): YamlParseResult<T>;
