@@ -1,4 +1,4 @@
-import { type t, D, Fs, Is, JsonFile, Config as Base } from './common.ts';
+import { type t, D, Fs, JsonFile, Config as Base } from './common.ts';
 
 /**
  * Config file helpers.

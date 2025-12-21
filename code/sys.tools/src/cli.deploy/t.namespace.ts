@@ -15,47 +15,67 @@ export namespace DeployTool {
   export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
+  /**
+   * Filesystem conventions for endpoint YAML storage.
+   * - Root dir is relative to the CLI cwd.
+   * - Each endpoint is one YAML file named "<name>.yaml".
+   */
+  export namespace EndpointsFs {
+    export type DirName = '-endpoints';
+    export type Ext = '.yaml';
+  }
+
   export namespace Config {
     export type File = t.JsonFile<Doc>;
     export type Doc = t.JsonFileDoc & {
       name: string;
-      /** Remembered endpoints. */
-      endpoints?: readonly Endpoint[];
+      /**
+       * Thin index:
+       * - recency metadata for ordering
+       * - stable endpoint name
+       * - relative YAML file path (authority lives in YAML)
+       */
+      endpoints?: readonly EndpointRef[];
     };
 
     /**
-     * Canonical per-mapping behavior.
-     * - 'build+copy' → build first, then copy output
-     * - 'copy'       → copy as-is
+     * An endpoint reference tracked in config.json for recency + lookup.
+     * The endpoint's actual configuration is authored in YAML.
      */
-    export type SourceMode = 'copy' | 'build+copy';
-
-    /**
-     * One publishable endpoint unit (single CDN bucket target).
-     * The staging dir is derived from `name`.
-     */
-    export type Endpoint = t.Tools.Recency & {
-      /** Stable, unique endpoint name (menu key + staging identity). */
+    export type EndpointRef = t.Tools.Recency & {
+      /** Stable, unique endpoint name (menu key). */
       name: string;
-      /** Directory mappings assembled into this endpoint. */
-      mappings: Mapping[];
-      /** Optional provider adapter config. */
-      provider?: t.DeployProvider;
+      /** Relative path to the YAML file (from the CLI cwd). */
+      file: t.StringPath;
     };
 
     /**
-     * Maps an input directory into the generated endpoint staging dir.
+     * YAML-authored endpoint configuration (authoritative).
+     * (We keep these types here so callers can share the same vocabulary.)
      */
-    export type Mapping = {
-      dir: {
-        /** Input directory. May be absolute or relative (resolved by the tool). */
-        source: t.StringDir;
-        /** Destination within the endpoint staging dir. Use '.' to mean "staging root". */
-        staging: '.' | t.StringPath;
+    export namespace EndpointYaml {
+      /**
+       * Canonical per-mapping behavior.
+       * - 'build+copy' → build first, then copy output
+       * - 'copy'       → copy as-is
+       */
+      export type SourceMode = 'copy' | 'build+copy';
+
+      /**
+       * Maps an input directory into the generated endpoint staging dir.
+       * (Source may be absolute or relative; resolution rules are handled by runtime.)
+       */
+      export type Mapping = {
+        dir: { source: t.StringDir; staging: '.' | t.StringPath };
+        mode: SourceMode;
       };
 
-      /** Whether this mapping requires a build step before copy. */
-      mode: SourceMode;
-    };
+      export type Doc = {
+        /** Optional provider adapter config. */
+        provider?: t.DeployProvider;
+        /** Directory mappings assembled into this endpoint. */
+        mappings?: Mapping[];
+      };
+    }
   }
 }

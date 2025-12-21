@@ -1,17 +1,23 @@
-import { type t, c, Cli, Time } from './common.ts';
+import { type t, c, Cli, Fs, Time } from './common.ts';
 
 type Pick =
   | { readonly kind: 'back' }
-  | { readonly kind: 'mappings'; readonly key: string }
-  | { readonly kind: 'provider'; readonly key: string }
   | { readonly kind: 'renamed'; readonly from: string; readonly to: string }
   | { readonly kind: 'deleted'; readonly key: string };
+
+const ENDPOINTS_DIR = '-endpoints' satisfies t.DeployTool.EndpointsFs.DirName;
+const ENDPOINTS_EXT = '.yaml' satisfies t.DeployTool.EndpointsFs.Ext;
+const endpointFileOf = (name: string): t.StringPath => `${ENDPOINTS_DIR}/${name}${ENDPOINTS_EXT}`;
 
 /**
  * Interactive menu for configuring a single deploy endpoint.
  *
- * This menu owns only endpoint-scoped configuration choices. It does not run
- * deploy operations.
+ * Endpoint configuration is authored in YAML:
+ *   ./-endpoints/<name>.yaml
+ *
+ * This menu owns only:
+ * - rename (file + config index)
+ * - delete (file + config index)
  */
 export async function endpointMenu(args: {
   readonly config: t.DeployTool.Config.File;
@@ -24,17 +30,14 @@ export async function endpointMenu(args: {
   const find = (name: string) => (config.current.endpoints ?? []).find((e) => e.name === name);
 
   while (true) {
-    const endpoint = find(key);
-    if (!endpoint) return { kind: 'back' };
-    const title = `${c.gray('Endpoint:')} ${c.cyan(endpoint.name)}\n`;
+    const ref = find(key);
+    if (!ref) return { kind: 'back' };
 
-    const picked = await Cli.Input.Select.prompt<
-      'mappings' | 'provider' | 'rename' | 'delete' | 'back'
-    >({
+    const title = `${c.gray('Endpoint:')} ${c.cyan(ref.name)}\n${c.gray(ref.file)}\n`;
+
+    const picked = await Cli.Input.Select.prompt<'rename' | 'delete' | 'back'>({
       message: title,
       options: [
-        { name: '  mappings   →', value: 'mappings' },
-        { name: '  provider   →', value: 'provider' },
         { name: '  rename', value: 'rename' },
         { name: dim(' (delete)'), value: 'delete' },
         { name: dim('← back'), value: 'back' },
@@ -43,8 +46,6 @@ export async function endpointMenu(args: {
     });
 
     if (picked === 'back') return { kind: 'back' };
-    if (picked === 'mappings') return { kind: 'mappings', key };
-    if (picked === 'provider') return { kind: 'provider', key };
 
     if (picked === 'rename') {
       const exists = (name: string) =>
@@ -52,23 +53,36 @@ export async function endpointMenu(args: {
 
       const raw = await Cli.Input.Text.prompt({
         message: 'Rename endpoint',
-        default: endpoint.name,
+        default: ref.name,
         validate(value) {
           const next = String(value ?? '').trim();
           if (!next) return 'Name required.';
-          if (next !== endpoint.name && exists(next)) return 'Name already exists.';
+          if (next !== ref.name && exists(next)) return 'Name already exists.';
           return true;
         },
       });
 
       const nextName = raw.trim();
-      if (nextName === endpoint.name) return { kind: 'back' };
+      if (nextName === ref.name) return { kind: 'back' };
+
+      const cwd = Fs.dirname(config.fs.path);
+      const fromRel = ref.file;
+      const toRel = endpointFileOf(nextName);
+
+      const fromAbs = Fs.join(cwd, fromRel);
+      const toAbs = Fs.join(cwd, toRel);
+
+      // Ensure endpoints directory exists (idempotent).
+      await Fs.ensureDir(Fs.join(cwd, ENDPOINTS_DIR));
+
+      // Rename YAML file.
+      await Fs.move(fromAbs, toAbs);
 
       config.change((doc) => {
         const now = Time.now.timestamp;
         const current = doc.endpoints ?? [];
         doc.endpoints = current.map((e) =>
-          e.name === endpoint.name ? { ...e, name: nextName, lastUsedAt: now } : e,
+          e.name === ref.name ? { ...e, name: nextName, file: toRel, lastUsedAt: now } : e,
         );
       });
 
@@ -80,19 +94,25 @@ export async function endpointMenu(args: {
 
     if (picked === 'delete') {
       const yes = await Cli.Input.Confirm.prompt({
-        message: `Delete ${c.cyan(endpoint.name)}?`,
+        message: `Delete ${c.cyan(ref.name)}?`,
         default: false,
       });
 
       if (!yes) continue;
 
+      const cwd = Fs.dirname(config.fs.path);
+      const abs = Fs.join(cwd, ref.file);
+
+      // Best-effort delete; missing file is not fatal.
+      await Fs.remove(abs);
+
       config.change((doc) => {
         const current = doc.endpoints ?? [];
-        doc.endpoints = current.filter((e) => e.name !== endpoint.name);
+        doc.endpoints = current.filter((e) => e.name !== ref.name);
       });
 
       await config.fs.save();
-      return { kind: 'deleted', key };
+      return { kind: 'deleted', key: ref.name };
     }
   }
 }

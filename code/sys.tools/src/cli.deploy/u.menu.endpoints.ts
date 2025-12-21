@@ -13,7 +13,7 @@ type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly 
  * - creation
  * - recency updates
  *
- * All endpoint behavior (mappings, providers, execution)
+ * All endpoint behavior (providers, execution)
  * is intentionally handled elsewhere.
  */
 export async function endpointsMenu(config: t.DeployTool.Config.File): Promise<Result> {
@@ -33,23 +33,29 @@ export async function endpointsMenu(config: t.DeployTool.Config.File): Promise<R
         const exists = (name: string) =>
           (config.current.endpoints ?? []).some((e) => e.name === name);
 
+        const isValidName = (name: string) => /^[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*$/.test(name);
+
         const raw = await Cli.Input.Text.prompt({
-          message: 'Endpoint name',
-          hint: 'e.g. foo.hello-world',
+          message: 'Endpoint display name',
+          hint: 'letters, numbers, "." or "-" (e.g. foo.bar-baz)',
           validate(value) {
             const name = String(value ?? '').trim();
             if (!name) return 'Name required.';
+            if (!isValidName(name)) {
+              return 'Use letters, numbers, "." or "-" only (no spaces, no leading/trailing separators).';
+            }
             if (exists(name)) return 'Name already exists.';
             return true;
           },
         });
 
         const name = raw.trim();
+        const file: t.StringPath = `-endpoints/${name}.yaml`;
 
         config.change((doc) => {
           const now = Time.now.timestamp;
           const current = doc.endpoints ?? [];
-          doc.endpoints = [...current, { name, createdAt: now, lastUsedAt: now, mappings: [] }];
+          doc.endpoints = [...current, { name, file, createdAt: now, lastUsedAt: now }];
         });
 
         await config.fs.save();
