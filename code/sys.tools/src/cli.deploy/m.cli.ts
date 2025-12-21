@@ -3,6 +3,7 @@ import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { endpointMenu } from './u.menu.endpoint.ts';
 import { endpointsMenu } from './u.menu.endpoints.ts';
+import { endpointMappingsMenu } from './u.menu.endpoint.mappings.ts';
 
 /**
  * Main entry:
@@ -34,7 +35,7 @@ export const cli: t.DeployToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(cwd: t.StringDir, args: t.DeployTool.CliArgs): Promise<t.RunReturn> {
+async function run(cwd: t.StringDir, _args: t.DeployTool.CliArgs): Promise<t.RunReturn> {
   const config = await Config.get(cwd);
   await Config.normalize(config);
 
@@ -47,8 +48,14 @@ async function run(cwd: t.StringDir, args: t.DeployTool.CliArgs): Promise<t.RunR
     if (picked.kind === 'exit') return done(0);
 
     const res = await endpointMenu({ config, key: picked.key });
-
     if (res.kind === 'back') continue;
+
+    if (res.kind === 'mappings') {
+      const m = await endpointMappingsMenu({ config, key: res.key });
+      if (m.kind === 'back') continue;
+
+      continue;
+    }
 
   }
 }
