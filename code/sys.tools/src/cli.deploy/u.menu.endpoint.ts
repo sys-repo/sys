@@ -31,8 +31,20 @@ export async function endpointMenu(args: {
     const ref = find(key);
     if (!ref) return { kind: 'back' };
 
+    const cwd = Fs.dirname(config.fs.path);
+    const abs = Fs.join(cwd, ref.file);
+    const check = await EndpointsFs.validateYaml(abs);
+
     const table = Fmt.endpointTable(ref);
-    const str = Str.builder().blank().line(table).blank();
+
+    const str = Str.builder().blank().line(table);
+
+    if (!check.ok) {
+      const validation = Fmt.endpointValidation(check);
+      str.blank().line(validation);
+    }
+
+    str.blank();
     console.info(String(str));
 
     const picked = await Cli.Input.Select.prompt<'rename' | 'delete' | 'back'>({
@@ -72,12 +84,8 @@ export async function endpointMenu(args: {
       const fromAbs = Fs.join(cwd, fromRel);
       const toAbs = Fs.join(cwd, toRel);
 
-      // Ensure endpoints directory exists (idempotent).
       await Fs.ensureDir(Fs.join(cwd, EndpointsFs.dir));
 
-      // If the source YAML is missing (index drift), we still allow rename:
-      // - materialize the destination YAML if needed
-      // - update the config index
       if (await Fs.exists(fromAbs)) {
         await Fs.move(fromAbs, toAbs);
       } else {
@@ -109,7 +117,6 @@ export async function endpointMenu(args: {
       const cwd = Fs.dirname(config.fs.path);
       const abs = Fs.join(cwd, ref.file);
 
-      // Best-effort delete; missing file is not fatal.
       await Fs.remove(abs);
 
       config.change((doc) => {
