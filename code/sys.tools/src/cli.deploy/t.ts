@@ -4,6 +4,7 @@ import type { t } from './common.ts';
 export type * from './t.namespace.ts';
 export type * from './u.fmt/t.ts';
 export type * from './u.providers/t.ts';
+export type * from './u.push/t.ts';
 
 /**
  * CLI helpers for working with Deploy.
