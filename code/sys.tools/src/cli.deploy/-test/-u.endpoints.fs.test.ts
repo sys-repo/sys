@@ -50,7 +50,7 @@ describe('EndpointsFs', () => {
     });
   });
 
-  it('validateYaml: missing file -> ok:false', async () => {
+  it('validateYaml: missing file → ok:false', async () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('missing')}`;
 
@@ -60,7 +60,7 @@ describe('EndpointsFs', () => {
     });
   });
 
-  it('validateYaml: invalid YAML -> ok:false', async () => {
+  it('validateYaml: invalid YAML → ok:false', async () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('bad')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
@@ -74,7 +74,7 @@ describe('EndpointsFs', () => {
     });
   });
 
-  it('validateYaml: schema-invalid YAML -> ok:false', async () => {
+  it('validateYaml: schema-invalid YAML → ok:false', async () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('schema-bad')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
@@ -88,7 +88,7 @@ describe('EndpointsFs', () => {
     });
   });
 
-  it('validateYaml: valid YAML -> ok:true with doc', async () => {
+  it('validateYaml: valid YAML → ok:true with doc', async () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('ok')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
