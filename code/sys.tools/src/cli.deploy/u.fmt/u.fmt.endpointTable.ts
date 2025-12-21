@@ -89,7 +89,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
         groups.map((g) => {
           const mode = g.mode;
           const modePad = ' '.repeat(Math.max(0, maxModeLen - mode.length));
-          const left = ` • ${c.cyan(mode)}${modePad}${extraLeftPad}`;
+          const left = ` ${c.cyan(`• ${mode}`)}${modePad}${extraLeftPad}`;
           return [left, flowFor(g)];
         }),
       );

@@ -110,10 +110,10 @@ export async function endpointMenu(args: {
         const names = [...active.entries()].sort((a, b) => a[0] - b[0]).map(([, name]) => name);
 
         const lines: string[] = [];
-        lines.push(`Staging (${done}/${total})...`);
+        lines.push(`Staging (${c.white(String(done))}/${total})...`);
 
         for (const name of names) {
-          lines.push(`  - ${name}`);
+          lines.push(c.gray(c.dim(`  - ${name}`)));
         }
 
         return lines.join('\n');
