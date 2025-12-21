@@ -3,11 +3,7 @@ import { probeProvider } from '../u.probe.ts';
 
 describe('Provider: probe', () => {
   it('returns a stable availability shape for orbiter', async () => {
-    const res = await probeProvider({
-      kind: 'orbiter',
-      siteId: 'site',
-      domain: 'tmp',
-    });
+    const res = await probeProvider({ kind: 'orbiter', siteId: 'site', domain: 'tmp' });
 
     // Runtime: always discriminated by `ok`.
     expect(typeof res).to.eql('object');
