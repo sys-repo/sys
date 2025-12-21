@@ -1,6 +1,7 @@
 import { type t, c, Cli, Fs, Str, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
+import { executeStaging } from '../u.staging/mod.ts';
 
 type Pick =
   | { readonly kind: 'back' }
@@ -45,9 +46,10 @@ export async function endpointMenu(args: {
     str.blank();
     console.info(String(str));
 
-    const picked = await Cli.Input.Select.prompt<'fix' | 'rename' | 'delete' | 'back'>({
+    const picked = await Cli.Input.Select.prompt<'run' | 'fix' | 'rename' | 'delete' | 'back'>({
       message: `Actions:`,
       options: [
+        ...(check.ok ? [{ name: c.green('  run'), value: 'run' as const }] : []),
         ...(check.ok ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
         { name: '  rename', value: 'rename' },
         { name: dim(' (delete)'), value: 'delete' },
@@ -57,6 +59,38 @@ export async function endpointMenu(args: {
     });
 
     if (picked === 'back') return { kind: 'back' };
+
+    if (picked === 'run') {
+      const file = String(ref.file ?? '');
+      const yamlAbs = Fs.join(cwd, file);
+
+      const res = await Fs.readYaml<{ mappings?: readonly t.DeployTool.Staging.Mapping[] }>(
+        yamlAbs,
+      );
+      const mappings = res.ok ? (res.data?.mappings ?? []) : [];
+
+      if (mappings.length === 0) {
+        console.info(c.gray('No mappings defined.'));
+        await Cli.Input.Text.prompt({ message: dim('Press enter to continue'), default: '' });
+        continue;
+      }
+
+      const spin = Cli.spinner(Fmt.spinnerText(`staging: ${ref.name}`));
+      try {
+        await executeStaging(mappings, { cwd });
+      } finally {
+        spin.stop();
+      }
+
+      config.change((doc) => {
+        const now = Time.now.timestamp;
+        const current = doc.endpoints ?? [];
+        doc.endpoints = current.map((e) => (e.name === ref.name ? { ...e, lastUsedAt: now } : e));
+      });
+
+      await config.fs.save();
+      continue;
+    }
 
     if (picked === 'fix') {
       const rel = ref.file;

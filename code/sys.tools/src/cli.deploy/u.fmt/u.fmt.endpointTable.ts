@@ -12,19 +12,28 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
     }
   };
 
-  const child = (label: string, isLast = false) => {
-    return c.gray(` ${c.dim(Fmt.Tree.branch(isLast))} ${label}`);
-  };
+  const childText = (label: string, isLast = false) => ` ${Fmt.Tree.branch(isLast)} ${label}`;
+  const child = (label: string, isLast = false) =>
+    c.gray(` ${c.dim(Fmt.Tree.branch(isLast))} ${label}`);
 
   // Never feed Ansi helpers undefined.
   const name = String(ref.name ?? '');
   const file = String(ref.file ?? '');
 
+  // Align mapping "second column" under the endpoint value column.
+  const baseLabels = [
+    'Endpoint',
+    childText('file'),
+    childText('created'),
+    childText('last used', true),
+  ];
+  const valuesIndent = baseLabels.reduce((m, s) => Math.max(m, s.length), 0) + 2;
+
   table.body([
-    [c.gray(`Endpoint`), c.cyan(name)],
-    [child(`file`), c.gray(c.dim(file))],
-    [child(`created`), fmtTime(ref.createdAt)],
-    [child(`last used`, true), fmtTime(ref.lastUsedAt)],
+    [c.gray('Endpoint'), c.cyan(name)],
+    [child('file'), c.gray(c.dim(file))],
+    [child('created'), fmtTime(ref.createdAt)],
+    [child('last used', true), fmtTime(ref.lastUsedAt)],
   ]);
 
   let mappingsBlock = '';
@@ -36,22 +45,52 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
 
     if (mappings.length) {
       const mt = Cli.table();
-      const maxModeLen = mappings.reduce((m, x) => {
-        const mode = String(x.mode ?? '');
-        return Math.max(m, mode.length);
-      }, 0);
 
-      const flowFor = (m: t.DeployTool.Staging.Mapping) => {
-        const srcBase = Fs.basename(String(m.dir.source ?? ''));
-        const staging = String(m.dir.staging ?? '');
-        return `${c.white(srcBase)}\n${c.green('↓')}\n${c.white(staging)}`;
+      type Group = {
+        readonly mode: string;
+        readonly srcNames: readonly string[];
+        readonly dsts: readonly string[];
+      };
+
+      const groups: Group[] = [];
+      const byMode = new Map<string, { srcNames: string[]; dsts: string[] }>();
+
+      for (const m of mappings) {
+        const mode = String(m.mode ?? '');
+        const src = Fs.basename(String(m.dir.source ?? ''));
+        const dst = String(m.dir.staging ?? '');
+
+        const hit = byMode.get(mode);
+        if (hit) {
+          hit.srcNames.push(src);
+          hit.dsts.push(dst);
+        } else {
+          const next = { srcNames: [src], dsts: [dst] };
+          byMode.set(mode, next);
+          groups.push({ mode, ...next });
+        }
+      }
+
+      const maxModeLen = groups.reduce((acc, g) => Math.max(acc, g.mode.length), 0);
+
+      // mt prints: <col1><two spaces><col2>
+      // We want col2 to start at `valuesIndent`, while keeping the bullet flush-left.
+      const desiredLeftWidth = Math.max(0, valuesIndent - 2);
+      const baseLeftWidth = 3 + maxModeLen; // " • " + padded mode
+      const extraLeftPad = ' '.repeat(Math.max(0, desiredLeftWidth - baseLeftWidth));
+
+      const flowFor = (g: Group) => {
+        const srcLines = g.srcNames.map((x) => c.white(String(x)));
+        const dstLines = g.dsts.map((x) => c.white(String(x)));
+        return [...srcLines, c.gray(c.dim('↓')), ...dstLines].join('\n');
       };
 
       mt.body(
-        mappings.map((m: t.DeployTool.Staging.Mapping) => {
-          const mode = String(m.mode ?? '');
-          const pad = ' '.repeat(Math.max(0, maxModeLen - mode.length));
-          return [` • ${c.cyan(mode)}${pad}`, flowFor(m)];
+        groups.map((g) => {
+          const mode = g.mode;
+          const modePad = ' '.repeat(Math.max(0, maxModeLen - mode.length));
+          const left = ` • ${c.cyan(mode)}${modePad}${extraLeftPad}`;
+          return [left, flowFor(g)];
         }),
       );
 
@@ -68,5 +107,6 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   const str = Str.builder()
     .line(Str.trimEdgeNewlines(String(table)))
     .line(mappingsBlock);
+
   return String(str);
 }
