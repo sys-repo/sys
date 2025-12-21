@@ -1,4 +1,4 @@
-import { type t, Str, c, Cli, Fs, Time } from './common.ts';
+import { type t, c, Cli, Fs, Str, Time } from './common.ts';
 import { EndpointsFs } from './u.endpoints.fs.ts';
 import { Fmt } from './u.fmt.ts';
 
@@ -34,9 +34,7 @@ export async function endpointMenu(args: {
     const cwd = Fs.dirname(config.fs.path);
     const abs = Fs.join(cwd, ref.file);
     const check = await EndpointsFs.validateYaml(abs);
-
     const table = Fmt.endpointTable(ref);
-
     const str = Str.builder().blank().line(table);
 
     if (!check.ok) {
@@ -47,9 +45,10 @@ export async function endpointMenu(args: {
     str.blank();
     console.info(String(str));
 
-    const picked = await Cli.Input.Select.prompt<'rename' | 'delete' | 'back'>({
+    const picked = await Cli.Input.Select.prompt<'fix' | 'rename' | 'delete' | 'back'>({
       message: `Actions:`,
       options: [
+        ...(check.ok ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
         { name: '  rename', value: 'rename' },
         { name: dim(' (delete)'), value: 'delete' },
         { name: dim('← back'), value: 'back' },
@@ -58,6 +57,19 @@ export async function endpointMenu(args: {
     });
 
     if (picked === 'back') return { kind: 'back' };
+
+    if (picked === 'fix') {
+      const rel = ref.file;
+      const b = Str.builder()
+        .line(c.yellow('Fix errors'))
+        .line(c.gray(`file: ${c.dim(rel)}`))
+        .line()
+        .line(c.gray('Edit the YAML, then re-open this endpoint menu.'));
+
+      console.info(String(b));
+      await Cli.Input.Text.prompt({ message: dim('Press enter to continue'), default: '' });
+      continue;
+    }
 
     if (picked === 'rename') {
       const exists = (name: string) =>
