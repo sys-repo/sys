@@ -1,7 +1,7 @@
 import { type t, c, Cli, Fs, Path, Str, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
-import { executeStaging } from '../u.staging/mod.ts';
+import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 
 type Pick =
   | { readonly kind: 'back' }
@@ -113,7 +113,8 @@ export async function endpointMenu(args: {
       try {
         await executeStaging(resolved, {
           cwd: yamlDir,
-          onProgress: (e) => {
+          concurrency: stagingConcurrencyDefault({ total }),
+          onProgress(e) {
             if (e.kind === 'mapping:done') done += 1;
             if (e.kind === 'mapping:fail') {
               spin.text = Fmt.spinnerText(render('failed', e.source, e.staging));
