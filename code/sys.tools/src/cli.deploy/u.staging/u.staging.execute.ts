@@ -1,4 +1,5 @@
 import { type t } from '../common.ts';
+import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
 
 export async function executeStaging(
@@ -15,7 +16,8 @@ export async function executeStaging(
       }
 
       case 'build+copy': {
-        throw new Error('build+copy not implemented yet');
+        await execBuildCopy(cwd, m.dir);
+        break;
       }
     }
   }
