@@ -1,3 +1,4 @@
+import { PlayerControlKind } from '@sys/ui-react-components/t';
 import type { t } from './common.ts';
 
 /**
@@ -131,6 +132,23 @@ export namespace DeployTool {
     export type ExecuteOptions = {
       /** Working directory for resolving relative paths. */
       readonly cwd?: t.StringDir;
+    };
+
+    /** Build progress. */
+    export type ProgressKind = 'mapping:start' | 'mapping:step' | 'mapping:done' | 'mapping:fail';
+    export type ProgressReport<K extends ProgressKind> = {
+      readonly kind: K;
+      readonly label: string;
+    };
+    export type ProgressEvent = {
+      readonly kind: ProgressKind;
+      readonly index: number;
+      readonly total: number;
+      readonly mode: t.DeployTool.Staging.Mapping['mode'];
+      readonly source: t.StringPath;
+      readonly staging: t.StringPath;
+      readonly label?: string;
+      readonly error?: unknown;
     };
   }
 }

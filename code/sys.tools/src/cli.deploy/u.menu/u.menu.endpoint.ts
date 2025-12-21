@@ -27,6 +27,11 @@ export async function endpointMenu(args: {
 
   const dim = (s: string) => c.gray(c.dim(s));
   const find = (name: string) => (config.current.endpoints ?? []).find((e) => e.name === name);
+  const tail = (p: string) => {
+    const s = String(p ?? '').replaceAll('\\', '/');
+    const parts = s.split('/').filter(Boolean);
+    return parts.length ? parts[parts.length - 1]! : s;
+  };
 
   while (true) {
     const ref = find(key);
@@ -91,14 +96,44 @@ export async function endpointMenu(args: {
         return { ...m, dir: { ...m.dir, source: src, staging: dst } };
       });
 
-      const sp = Cli.spinner();
-      sp.start(Fmt.spinnerText('Running staging...'));
+      const spin = Cli.spinner();
+      spin.start(Fmt.spinnerText('Running staging...'));
+
+      const total = resolved.length;
+      let done = 0;
+
+      const render = (label?: string, source?: string, staging?: string) => {
+        const left = source ? tail(source) : '';
+        const right = staging ? tail(staging) : '';
+        const step = label ? ` · ${label}` : '';
+        const path = left && right ? ` ${left} → ${right}` : '';
+        return `Staging (${done}/${total})${path}${step}`;
+      };
 
       try {
-        await executeStaging(resolved, { cwd: yamlDir });
-        sp.succeed(Fmt.spinnerText('Staging complete'));
+        await executeStaging(resolved, {
+          cwd: yamlDir,
+          onProgress: (e) => {
+            if (e.kind === 'mapping:done') done += 1;
+            if (e.kind === 'mapping:fail') {
+              spin.text = Fmt.spinnerText(render('failed', e.source, e.staging));
+              return;
+            }
+            if (e.kind === 'mapping:step') {
+              spin.text = Fmt.spinnerText(render(e.label, e.source, e.staging));
+              return;
+            }
+            if (e.kind === 'mapping:start') {
+              spin.text = Fmt.spinnerText(render('start', e.source, e.staging));
+              return;
+            }
+            spin.text = Fmt.spinnerText(render(undefined, e.source, e.staging));
+          },
+        });
+
+        spin.succeed(Fmt.spinnerText('Staging complete'));
       } catch (err) {
-        sp.fail(Fmt.spinnerText('Staging failed'));
+        spin.fail(Fmt.spinnerText('Staging failed'));
         throw err;
       }
 
