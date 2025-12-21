@@ -75,10 +75,30 @@ export namespace DeployTool {
 
       export type Doc = {
         /** Optional provider adapter config. */
-        provider?: t.DeployProvider;
+        provider?: Provider.All;
         /** Directory mappings assembled into this endpoint. */
         mappings?: Mapping[];
       };
+    }
+
+    /**
+     * Deployment provider configuration.
+     *
+     * A DeployProvider describes the *remote system* an endpoint is published to.
+     * It is intentionally a tagged union (`kind`) so:
+     * - schemas can discriminate cleanly
+     * - validation errors are precise
+     * - new providers can be added without breaking existing configs
+     *
+     * Provider objects are authored inside endpoint YAML files and validated
+     * strictly at runtime. Unknown providers should fail validation once the
+     * provider surface is tightened.
+     *
+     * At present, only the `orbiter` provider is defined.
+     */
+    export namespace Provider {
+      export type All = Orbiter;
+      export type Orbiter = t.OrbiterProvider;
     }
   }
 }
