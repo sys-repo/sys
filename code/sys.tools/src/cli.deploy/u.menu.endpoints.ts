@@ -1,4 +1,5 @@
-import { type t, Cli, c, indexedMenu, Time } from './common.ts';
+import { type t, Cli, c, indexedMenu, Time, Fs } from './common.ts';
+import { EndpointsFs } from './u.endpointsFs.ts';
 
 type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly key: string };
 
@@ -50,7 +51,16 @@ export async function endpointsMenu(config: t.DeployTool.Config.File): Promise<R
         });
 
         const name = raw.trim();
-        const file: t.StringPath = `-endpoints/${name}.yaml`;
+        const file = EndpointsFs.fileOf(name);
+        const cwd = Fs.dirname(config.fs.path);
+        const endpointsDirAbs = Fs.join(cwd, EndpointsFs.dir);
+        const yamlAbs = Fs.join(cwd, file);
+
+        await Fs.ensureDir(endpointsDirAbs);
+
+        if (!(await Fs.exists(yamlAbs))) {
+          await Fs.write(yamlAbs, EndpointsFs.initialYaml(name), { force: false });
+        }
 
         config.change((doc) => {
           const now = Time.now.timestamp;

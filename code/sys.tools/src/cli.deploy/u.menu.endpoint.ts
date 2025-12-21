@@ -1,13 +1,10 @@
 import { type t, c, Cli, Fs, Time } from './common.ts';
+import { EndpointsFs } from './u.endpointsFs.ts';
 
 type Pick =
   | { readonly kind: 'back' }
   | { readonly kind: 'renamed'; readonly from: string; readonly to: string }
   | { readonly kind: 'deleted'; readonly key: string };
-
-const ENDPOINTS_DIR = '-endpoints' satisfies t.DeployTool.EndpointsFs.DirName;
-const ENDPOINTS_EXT = '.yaml' satisfies t.DeployTool.EndpointsFs.Ext;
-const endpointFileOf = (name: string): t.StringPath => `${ENDPOINTS_DIR}/${name}${ENDPOINTS_EXT}`;
 
 /**
  * Interactive menu for configuring a single deploy endpoint.
@@ -34,7 +31,6 @@ export async function endpointMenu(args: {
     if (!ref) return { kind: 'back' };
 
     const title = `${c.gray('Endpoint:')} ${c.cyan(ref.name)}\n${c.gray(ref.file)}\n`;
-
     const picked = await Cli.Input.Select.prompt<'rename' | 'delete' | 'back'>({
       message: title,
       options: [
@@ -67,13 +63,13 @@ export async function endpointMenu(args: {
 
       const cwd = Fs.dirname(config.fs.path);
       const fromRel = ref.file;
-      const toRel = endpointFileOf(nextName);
+      const toRel = EndpointsFs.fileOf(nextName);
 
       const fromAbs = Fs.join(cwd, fromRel);
       const toAbs = Fs.join(cwd, toRel);
 
       // Ensure endpoints directory exists (idempotent).
-      await Fs.ensureDir(Fs.join(cwd, ENDPOINTS_DIR));
+      await Fs.ensureDir(Fs.join(cwd, EndpointsFs.dir));
 
       // Rename YAML file.
       await Fs.move(fromAbs, toAbs);
