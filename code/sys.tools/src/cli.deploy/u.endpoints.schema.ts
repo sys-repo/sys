@@ -1,4 +1,5 @@
 import { type t, Schema } from './common.ts';
+import { OrbiterProviderSchema } from './u.providers/u.orbiter.schema.ts';
 
 /**
  * Endpoint YAML schema (authoritative config).
@@ -6,12 +7,28 @@ import { type t, Schema } from './common.ts';
  */
 export const EndpointYamlSchema = {
   /**
-   * TypeBox schema.
-   * Keep it additive; avoid cleverness.
+   * Typed initial document.
+   * (YAML can omit optionals; but having explicit defaults is fine.)
+   */
+  initial(): t.DeployTool.Config.EndpointYaml.Doc {
+    return { mappings: [] };
+  },
+
+  /**
+   * Runtime validation (strict, no coercion).
+   */
+  validate(value: unknown) {
+    const ok = Schema.Value.Check(EndpointYamlSchema.schema, value);
+    const errors = ok ? [] : [...Schema.Value.Errors(EndpointYamlSchema.schema, value)];
+    return { ok, errors } as const;
+  },
+
+  /**
+   * JsonSchema.
    */
   schema: Schema.Type.Object(
     {
-      provider: Schema.Type.Optional(Schema.Type.Unknown()), // TODO: tighten once DeployProvider schema exists.
+      provider: Schema.Type.Optional(OrbiterProviderSchema.schema),
       mappings: Schema.Type.Optional(
         Schema.Type.Array(
           Schema.Type.Object(
@@ -36,21 +53,4 @@ export const EndpointYamlSchema = {
     },
     { additionalProperties: false },
   ),
-
-  /**
-   * Typed initial document.
-   * (YAML can omit optionals; but having explicit defaults is fine.)
-   */
-  initial(): t.DeployTool.Config.EndpointYaml.Doc {
-    return { mappings: [] };
-  },
-
-  /**
-   * Runtime validation (strict, no coercion).
-   */
-  validate(value: unknown) {
-    const ok = Schema.Value.Check(EndpointYamlSchema.schema, value);
-    const errors = ok ? [] : [...Schema.Value.Errors(EndpointYamlSchema.schema, value)];
-    return { ok, errors } as const;
-  },
 } as const;

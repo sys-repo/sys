@@ -25,4 +25,47 @@ describe('Endpoints: validateEndpointYamlText', () => {
     expect(res.ok).to.eql(false);
     if (!res.ok) expect(res.errors.length > 0).to.eql(true);
   });
+
+  it('valid YAML with orbiter provider → ok:true', () => {
+    const yaml = [
+      'provider:',
+      '  kind: orbiter',
+      '  siteId: site-123',
+      '  domain: fs',
+      '  buildDir: dist',
+      'mappings: []',
+      '',
+    ].join('\n');
+
+    const res = validateEndpointYamlText(yaml);
+    expect(res.ok).to.eql(true);
+
+    if (res.ok) {
+      expect(res.doc.provider?.kind).to.eql('orbiter');
+      expect(res.doc.mappings ?? []).to.eql([]);
+    }
+  });
+
+  it('schema-invalid orbiter provider → ok:false', () => {
+    const yaml = [
+      'provider:',
+      '  kind: orbiter',
+      '  domain: fs',
+      '  buildDir: dist',
+      'mappings: []',
+      '',
+    ].join('\n');
+
+    const res = validateEndpointYamlText(yaml);
+    expect(res.ok).to.eql(false);
+    if (!res.ok) expect(res.errors.length > 0).to.eql(true);
+  });
+
+  it('unknown provider kind → ok:false', () => {
+    const yaml = ['provider:', '  kind: wat', 'mappings: []', ''].join('\n');
+
+    const res = validateEndpointYamlText(yaml);
+    expect(res.ok).to.eql(false);
+    if (!res.ok) expect(res.errors.length > 0).to.eql(true);
+  });
 });

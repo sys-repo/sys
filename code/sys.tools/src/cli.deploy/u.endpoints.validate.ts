@@ -1,5 +1,5 @@
 import { type t, Schema, Yaml } from './common.ts';
-import { EndpointYamlSchema } from './u.endpoint.schema.ts';
+import { EndpointYamlSchema } from './u.endpoints.schema.ts';
 
 /**
  * Fixed `yaml` ErrorCode required to construct a `YAMLError`.
