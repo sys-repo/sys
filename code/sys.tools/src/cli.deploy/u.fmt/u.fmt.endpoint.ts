@@ -1,6 +1,6 @@
 import { type t, c, Cli, Fmt, Fs, Str, Time } from '../common.ts';
-import { fmtProvider } from './u.fmt.provider.ts';
 import { probeProvider } from '../u.push/u.probe.ts';
+import { fmtProvider } from './u.fmt.provider.ts';
 
 export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.EndpointRef) {
   const table = Cli.table();
