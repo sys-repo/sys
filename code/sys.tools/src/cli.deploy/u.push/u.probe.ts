@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { probeOrbiter } from './u.probe.orbiter.ts';
+import { probeOrbiter } from './provider.orbiter/u.probe.ts';
 
 /**
  * Probe availability for the configured provider.
@@ -26,12 +26,7 @@ export async function probeProvider(
     case 'orbiter': {
       const res = await probeOrbiter();
       if (res.ok) return { ok: true };
-      return {
-        ok: false,
-        reason: res.reason,
-        hint: res.hint,
-        error: res.error,
-      };
+      return { ok: false, reason: res.reason, hint: res.hint, error: res.error };
     }
 
     case 'noop': {

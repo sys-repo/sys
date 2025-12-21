@@ -66,18 +66,15 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
 
   if (providerFmt && providerProbe && !providerProbe.ok) {
     const reason = String(providerProbe.reason ?? 'unavailable');
+    const hint = String(providerProbe.hint ?? '').trim();
 
-    const installCmd = String(providerProbe.install?.cmd ?? '').trim();
-    const hintText = String(providerProbe.hint ?? '').trim();
-    const hint = (installCmd || hintText).trim();
-
-    // Row 1: reason only (yellow)
+    // 1) main row: only the reason (yellow)
     body.push([child('provider probe'), c.yellow(reason)]);
 
-    // Row 2: keep the tree vertical stroke using Fmt.Tree.mid
+    // 2) second line: install hint (dim), drawn as a nested tree line
     if (hint) {
-      const mid = c.gray(` ${c.dim(Fmt.Tree.mid)} `);
-      body.push([mid, c.gray(c.dim(c.italic(hint)))]);
+      const tree = ` ${c.dim(Fmt.Tree.vert)}  `;
+      body.push([c.gray(`${tree}`), c.gray(c.dim(c.italic(hint)))]);
     }
   }
 

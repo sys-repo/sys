@@ -1,4 +1,4 @@
-import { type t, Process } from '../common.ts';
+import { type t, Process } from '../../common.ts';
 
 /**
  * Probe whether `orbiter` is runnable in the current environment.
