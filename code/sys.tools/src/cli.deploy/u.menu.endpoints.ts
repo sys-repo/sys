@@ -1,4 +1,4 @@
-import { type t, c, Cli, indexedMenu, Time } from './common.ts';
+import { type t, Cli, c, indexedMenu, Time } from './common.ts';
 
 type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly key: string };
 
@@ -24,16 +24,10 @@ export async function endpointsMenu(config: t.DeployTool.Config.File): Promise<R
     adapter: {
       list: (doc) => doc.endpoints ?? [],
       set: (doc, _scope, next) => (doc.endpoints = [...next]),
-
       keyOf: (e) => e.name,
       lastUsedAtOf: (e) => e.lastUsedAt,
       withLastUsedAt: (e, ts) => ({ ...e, lastUsedAt: ts }),
-
-      /**
-       * Keep the endpoint label as the name only.
-       * Any additional UI detail (paths, providers, etc.) is rendered elsewhere.
-       */
-      labelOf: (e) => e.name,
+      labelOf: (e) => [c.cyan(e.name)],
 
       async add({ config }) {
         const exists = (name: string) =>
@@ -66,11 +60,6 @@ export async function endpointsMenu(config: t.DeployTool.Config.File): Promise<R
       message: 'Endpoints:\n',
       prefix: 'deploy:',
       addLabel: '    add: <endpoint>',
-
-      render(e) {
-        const name = Cli.stripAnsi(e.name).trim();
-        return { label: c.cyan(name), sortKey: name.toLowerCase() };
-      },
     },
   });
 }

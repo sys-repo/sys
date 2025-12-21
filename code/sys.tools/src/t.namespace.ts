@@ -39,4 +39,16 @@ export namespace Tools {
     /** Most recent usage time. */
     lastUsedAt?: t.UnixTimestamp;
   };
+
+  /**
+   * Common UI prompts:
+   */
+  export namespace Prompt {
+    export namespace Dirs {
+      export type MenuLabel = readonly [key: string, path?: string];
+      export type MenuEntry = { readonly name: MenuLabel; readonly dir: t.StringDir };
+      export type RenderResult = { readonly label: string; readonly sortKey?: string };
+      export type RenderRow = (e: MenuEntry) => RenderResult;
+    }
+  }
 }

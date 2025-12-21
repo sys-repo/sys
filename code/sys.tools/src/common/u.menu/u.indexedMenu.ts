@@ -3,10 +3,6 @@ import { promptDirsMenu } from '../u.prompt/mod.ts';
 import { type t, Time } from './common.ts';
 
 type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly key: string };
-type RenderRow = (e: { readonly name: string; readonly dir: t.StringDir }) => {
-  readonly label: string;
-  readonly sortKey?: string;
-};
 
 export async function indexedMenu<
   TDoc extends t.JsonFileDoc,
@@ -15,17 +11,14 @@ export async function indexedMenu<
 >(args: {
   scope: TScope;
   config: t.JsonFile<TDoc>;
-
   adapter: {
     list(doc: TDoc, scope: TScope): readonly TEntry[];
     set(doc: TDoc, scope: TScope, next: readonly TEntry[]): void;
 
     keyOf(entry: TEntry): string;
-    labelOf(entry: TEntry): string;
-
+    labelOf(entry: TEntry): t.Tools.Prompt.Dirs.MenuLabel;
     lastUsedAtOf(entry: TEntry): t.UnixTimestamp | undefined;
     withLastUsedAt(entry: TEntry, ts: t.UnixTimestamp): TEntry;
-
     add?: (args: { readonly scope: TScope; readonly config: t.JsonFile<TDoc> }) => Promise<void>;
   };
 
@@ -33,11 +26,13 @@ export async function indexedMenu<
     message: string;
     prefix: string;
     addLabel?: string;
+    paintKey?: (key: string) => string;
+
     /**
      * Optional renderer for list rows.
      * When provided, the renderer owns row label text and sort key.
      */
-    render?: RenderRow;
+    render?: t.Tools.Prompt.Dirs.RenderRow;
   };
 }): Promise<Result> {
   const { scope, config, adapter, ui } = args;
@@ -47,7 +42,7 @@ export async function indexedMenu<
 
     const dirs = current.map((e) => ({
       name: adapter.labelOf(e),
-      dir: adapter.keyOf(e) as t.StringDir,
+      dir: adapter.keyOf(e),
     }));
 
     const picked = await promptDirsMenu<string>({
@@ -57,10 +52,8 @@ export async function indexedMenu<
       cmdAdd: adapter.add ? 'add' : 'exit',
       cmdExit: 'exit',
       addLabel: ui.addLabel ?? ' add',
-      paintName: (s) => s,
-
-      // preserve canonical ordering
-      order: 'preserve',
+      order: 'preserve', // Preserve canonical ordering:
+      paintName: ui.paintKey,
       render: ui.render,
     });
 

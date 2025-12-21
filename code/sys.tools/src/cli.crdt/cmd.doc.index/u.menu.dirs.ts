@@ -1,4 +1,4 @@
-import { type t, dirIndexMenu } from '../common.ts';
+import { type t, c, dirIndexMenu } from '../common.ts';
 
 export async function dirsMenu(args: {
   config: t.CrdtTool.Config.File;
@@ -7,12 +7,18 @@ export async function dirsMenu(args: {
   defaultMount?: string;
 }) {
   const { config, cwd, docid, defaultMount = 'fs:index' } = args;
+
   return await dirIndexMenu({
     cwd,
     scopeKey: docid,
     defaultMount,
     config,
-    ui: { message: 'Indexes:\n' },
+
+    ui: {
+      message: 'Indexes:\n',
+      paintKey: c.cyan,
+    },
+
     io: {
       list(doc, scope: t.Crdt.Id) {
         const hit = (doc.docs ?? []).find((d) => d.id === scope);
@@ -28,32 +34,29 @@ export async function dirsMenu(args: {
         fsdirs.dirs = [...next];
       },
 
-      keyOf(e: t.CrdtTool.Config.DirIndexEntry): string {
+      keyOf(e) {
         const m = e.mount ?? [];
         return m.length > 0 ? m.join('/') : defaultMount;
       },
 
-      mountOf(e: t.CrdtTool.Config.DirIndexEntry) {
+      mountOf(e) {
         const m = e.mount ?? [];
         return m.length > 0 ? m : undefined;
       },
 
-      subdirOf(e: t.CrdtTool.Config.DirIndexEntry) {
+      subdirOf(e) {
         return e.subdir ?? '.';
       },
 
-      lastUsedAtOf(e: t.CrdtTool.Config.DirIndexEntry) {
+      lastUsedAtOf(e) {
         return e.lastUsedAt;
       },
 
-      withLastUsedAt(
-        e: t.CrdtTool.Config.DirIndexEntry,
-        ts: t.UnixTimestamp,
-      ): t.CrdtTool.Config.DirIndexEntry {
-        return { ...e, lastUsedAt: ts };
+      withLastUsedAt(e, lastUsedAt) {
+        return { ...e, lastUsedAt };
       },
 
-      create(input): t.CrdtTool.Config.DirIndexEntry {
+      create(input) {
         return {
           subdir: input.subdir,
           mount: input.mount,

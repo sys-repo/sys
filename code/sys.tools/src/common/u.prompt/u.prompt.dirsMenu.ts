@@ -1,5 +1,7 @@
 import { type t, c, Cli } from './common.ts';
 
+type Label = t.Tools.Prompt.Dirs.MenuLabel;
+
 /**
  * Directory selection menu with optional "add" + "exit"
  * commands and tree-formatted labels.
@@ -10,7 +12,13 @@ export async function promptDirsMenu<C extends string>(args: {
   cmdAdd: C;
   cmdExit: C;
   addLabel: string;
-  dirs: readonly { name: string; dir: t.StringDir }[];
+
+  /**
+   * Row label as explicit columns.
+   * - key: required
+   * - path: optional (when absent, second column renders blank)
+   */
+  dirs: t.Ary<t.Tools.Prompt.Dirs.MenuEntry>;
   branch?: (e: { readonly index: number; readonly total: number }) => string;
   paintName?: (name: string) => string;
   onSelectDir?: (dir: t.StringDir) => Promise<void>;
@@ -27,10 +35,7 @@ export async function promptDirsMenu<C extends string>(args: {
    * If provided, this takes ownership of per-row label text.
    * Provide sortKey only when using order "auto" and you want custom sorting.
    */
-  render?: (e: { readonly name: string; readonly dir: t.StringDir }) => {
-    readonly label: string;
-    readonly sortKey?: string;
-  };
+  render?: t.Tools.Prompt.Dirs.RenderRow;
 }): Promise<C | t.StringDir> {
   const {
     message,
@@ -45,16 +50,18 @@ export async function promptDirsMenu<C extends string>(args: {
   } = args;
 
   const visibleLen = (s: string) => Cli.stripAnsi(s).length;
+  const hasAnsi = (s: string) => Cli.stripAnsi(s) !== s;
 
-  /**
-   * Expect "<key>  <path>" (2+ spaces).
-   * If no path is present, normalize display to "./" so left column never collapses.
-   */
-  const splitKeyPath = (text: string): { readonly key: string; readonly path: string } => {
-    const parts = text.split(/\s{2,}/);
-    const key = (parts[0] ?? '').trim();
-    const path = (parts.slice(1).join('  ') ?? '').trim();
-    return { key, path: path || './' };
+  const paintPath = (path?: string) => {
+    const v = String(path ?? '').trim();
+    if (!v) return '';
+    return hasAnsi(v) ? v : c.gray(v);
+  };
+
+  const splitLabel = (label: Label) => {
+    const key = String(label[0] ?? '').trim();
+    const path = String(label[1] ?? '').trim();
+    return { key, path };
   };
 
   const padRightVisible = (s: string, width: number): string => {
@@ -62,45 +69,55 @@ export async function promptDirsMenu<C extends string>(args: {
     return pad > 0 ? `${s}${' '.repeat(pad)}` : s;
   };
 
-  const defaultSortKey = (labelText: string) => Cli.stripAnsi(labelText).trim().toLowerCase();
+  const defaultSortKey = (s: string) => Cli.stripAnsi(s).trim().toLowerCase();
 
-  const renderRow = (item: { name: string; dir: t.StringDir }) => {
-    const nameText = paintName ? paintName(item.name) : item.name;
+  type Row = {
+    readonly name: Label;
+    readonly dir: t.StringDir;
+    readonly _sortKey: string;
+    readonly _label: string | Label;
+  };
+
+  const renderRow = (item: {
+    readonly name: Label;
+    readonly dir: t.StringDir;
+  }): Pick<Row, '_label' | '_sortKey'> => {
+    const nameText: Label = (() => {
+      const k0 = item.name[0] ?? '';
+      const p0 = item.name[1];
+      const k = paintName ? paintName(String(k0)) : String(k0);
+      return [k, p0] as const;
+    })();
 
     if (args.render) {
       const r = args.render({ name: nameText, dir: item.dir });
       return {
-        label: r.label,
-        sortKey: (r.sortKey ?? defaultSortKey(r.label)).toLowerCase(),
+        _label: r.label,
+        _sortKey: r.sortKey ?? defaultSortKey(r.label),
       };
     }
 
-    const { key, path } = splitKeyPath(nameText);
-    const sortKey = (() => {
-      const p = Cli.stripAnsi(path).trim();
-      const norm = p === '.' || p === './' || p === '/.' || p === '/./' ? './' : p;
-      const isRoot = norm === './';
-      const k = Cli.stripAnsi(key).trim();
-      return `${isRoot ? '0' : '1'}|${norm.toLowerCase()}|${k.toLowerCase()}`;
-    })();
+    const { key, path } = splitLabel(nameText);
+    const p = Cli.stripAnsi(path).trim();
+    const norm = p === '.' || p === './' || p === '/.' || p === '/./' ? './' : p;
+    const isRootish = !norm || norm === './';
+    const k = Cli.stripAnsi(key).trim();
 
-    return { label: nameText, sortKey };
+    return {
+      _label: nameText,
+      _sortKey: `${isRootish ? '0' : '1'}|${norm.toLowerCase()}|${k.toLowerCase()}`,
+    };
   };
 
-  const rendered = args.dirs.map((d) => {
-    const r = renderRow(d);
-    return { ...d, _sortKey: r.sortKey, _label: r.label };
-  });
-
-  const rows =
+  const rendered: Row[] = args.dirs.map((d) => ({ ...d, ...renderRow(d) }));
+  const rows: Row[] =
     order === 'preserve'
       ? rendered
       : [...rendered].sort((a, b) => a._sortKey.localeCompare(b._sortKey));
 
-  const maxPathWidth =
-    args.render || order === 'preserve'
-      ? 0
-      : Math.max(0, ...rows.map((d) => visibleLen(splitKeyPath(d._label).path)));
+  const maxKeyWidth = args.render
+    ? 0
+    : Math.max(0, ...rows.map((d) => visibleLen(splitLabel(d._label as Label).key)));
 
   const listing = rows.map((item, index) => {
     const b = branch?.({ index, total: rows.length }) ?? '';
@@ -108,10 +125,12 @@ export async function promptDirsMenu<C extends string>(args: {
     const bNorm = String(b).trim();
 
     const cols = (() => {
-      if (args.render || order === 'preserve') return item._label;
-      const { key, path } = splitKeyPath(item._label);
-      const left = padRightVisible(path, maxPathWidth);
-      return c.gray(`${left}  mount:/${c.cyan(key)}`);
+      if (args.render) return item._label as string;
+
+      const { key, path } = splitLabel(item._label as Label);
+      const left = padRightVisible(key, maxKeyWidth);
+      const right = paintPath(path);
+      return right ? `${left}  ${right}` : `${left}  `;
     })();
 
     const label = ` ${prefix} ${tree} ${bNorm ? `${bNorm} ` : ''}${cols}`.trimEnd();
@@ -125,7 +144,6 @@ export async function promptDirsMenu<C extends string>(args: {
   ];
 
   const defaultValue: C | t.StringDir = listing.length > 0 ? listing[0].value : cmdAdd;
-
   const picked: C | t.StringDir = await Cli.Input.Select.prompt({
     message,
     options,
@@ -133,9 +151,6 @@ export async function promptDirsMenu<C extends string>(args: {
     hideDefault: true,
   });
 
-  if (picked !== cmdAdd && picked !== cmdExit) {
-    await onSelectDir?.(picked);
-  }
-
+  if (picked !== cmdAdd && picked !== cmdExit) await onSelectDir?.(picked);
   return picked;
 }

@@ -1,19 +1,17 @@
 import { type t, promptDirsMenu } from './common.ts';
 
-type C = t.ServeTool.Command;
+type Cmd = t.ServeTool.Command;
 
 /**
  * Serve tool directory menu.
- *
- * Returns either a command (`dir:add` / `exit`) or a selected directory.
+ * Returns either a command (e.g. `dir:add` / `exit`) or a selected directory.
  */
 export async function promptServeDirsMenu(args: {
-  dirs: t.Ary<{ name: string; dir: t.StringDir }>;
+  dirs: t.Ary<t.Tools.Prompt.Dirs.MenuEntry>;
   onSelectDir?: (dir: t.StringDir) => Promise<void>;
-}): Promise<C | t.StringDir> {
+}): Promise<Cmd | t.StringDir> {
   const { onSelectDir } = args;
-  return await promptDirsMenu<C>({
-    // Note: rely on promptDirsMenu's canonical styling (no per-item decoration here).
+  return await promptDirsMenu<Cmd>({
     message: 'Tools:\n',
     prefix: 'serve:',
     dirs: args.dirs,

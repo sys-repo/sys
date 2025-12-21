@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Obj, Str, Time } from './common.ts';
+import { type t, Cli, Fs, Obj, Str, Time } from './common.ts';
 import { indexedMenu } from './u.indexedMenu.ts';
 
 /** Result */
@@ -29,7 +29,6 @@ export async function dirIndexMenu<
   io: {
     list(doc: TDoc, scope: string): readonly TEntry[];
     set(doc: TDoc, scope: string, next: readonly TEntry[]): void;
-
     keyOf(e: TEntry): string;
     mountOf(e: TEntry): t.ObjectPath | undefined;
     subdirOf(e: TEntry): string | undefined;
@@ -48,6 +47,8 @@ export async function dirIndexMenu<
     message?: string;
     prefix?: string;
     addLabel?: string;
+    /** Optional paint hook for the left (key) column. Keeps styling concerns out of the adapter. */
+    paintKey?: (key: string) => string;
   };
 }): Promise<DirIndexMenuResult> {
   const { cwd, scopeKey, defaultMount, config, io, ui } = args;
@@ -67,14 +68,13 @@ export async function dirIndexMenu<
       list: io.list,
       set: io.set,
       keyOf: io.keyOf,
+      lastUsedAtOf: io.lastUsedAtOf,
+      withLastUsedAt: io.withLastUsedAt,
       labelOf(e) {
         const sub = io.subdirOf(e) ?? '.';
         const path = sub === '.' ? './' : `./${sub}`;
-        return `${io.keyOf(e)}  ${c.gray(path)}`;
+        return [io.keyOf(e), path] as const;
       },
-      lastUsedAtOf: io.lastUsedAtOf,
-      withLastUsedAt: io.withLastUsedAt,
-
       async add({ scope, config }) {
         const subdirInput = await Cli.Input.Text.prompt({
           message: 'Directory',
@@ -83,24 +83,17 @@ export async function dirIndexMenu<
 
         const subdir = parseSubdir(subdirInput);
         const abs = resolveDir(subdir);
-
         const stat = await Fs.stat(abs);
         if (!stat || !stat.isDirectory) return;
 
         let mount: t.ObjectPath | undefined;
-
         while (!mount) {
-          const m = await Cli.Input.Text.prompt({
-            message: 'Mount path',
-            default: defaultMount,
-          });
-
+          const m = await Cli.Input.Text.prompt({ message: 'Mount path', default: defaultMount });
           const res = Obj.Path.tryDecode(m.startsWith('/') ? m : `/${m}`, {
             codec: 'pointer',
             safe: true,
             numeric: false,
           });
-
           if (res.path.length > 0) mount = res.path;
         }
 
@@ -108,12 +101,7 @@ export async function dirIndexMenu<
           const now = Time.now.timestamp;
           const next = [
             ...io.list(doc, scope),
-            io.create({
-              mount,
-              subdir,
-              createdAt: now,
-              lastUsedAt: now,
-            }),
+            io.create({ mount, subdir, createdAt: now, lastUsedAt: now }),
           ];
           io.set(doc, scope, next);
         });
@@ -126,6 +114,7 @@ export async function dirIndexMenu<
       message: ui?.message ?? 'Dirs:\n',
       prefix: ui?.prefix ?? 'dir:',
       addLabel: ui?.addLabel ?? ' add: <dir>',
+      paintKey: ui?.paintKey,
     },
   });
 
