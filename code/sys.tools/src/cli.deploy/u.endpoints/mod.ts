@@ -1,3 +1,3 @@
-export * from './u.endpoints.fs.ts';
-export * from './u.endpoints.schema.ts';
-export * from './u.endpoints.validate.ts';
+export * from './u.fs.ts';
+export * from './u.schema.ts';
+export * from './u.validate.ts';

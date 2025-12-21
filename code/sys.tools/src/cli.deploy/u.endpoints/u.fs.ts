@@ -1,5 +1,5 @@
 import { type t, Fs, Path, Schema, Yaml } from '../common.ts';
-import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.endpoints.validate.ts';
+import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
 
 const ENDPOINTS_DIR = '-endpoints' satisfies t.DeployTool.EndpointsFs.DirName;

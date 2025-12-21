@@ -1,6 +1,6 @@
 import { withTmpDir } from '../../-test/-fixtures.ts';
 import { describe, expect, Fs, it } from '../../../-test.ts';
-import { EndpointsFs } from '../u.endpoints.fs.ts';
+import { EndpointsFs } from '../mod.ts';
 
 describe('EndpointsFs', () => {
   it('fileOf: returns "-endpoints/<name>.yaml"', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from '../../../-test.ts';
-import { validateEndpointYamlText } from '../u.endpoints.validate.ts';
+import { validateEndpointYamlText } from '../mod.ts';
 
 describe('Endpoints: validateEndpointYamlText', () => {
   it('invalid YAML → ok:false', () => {

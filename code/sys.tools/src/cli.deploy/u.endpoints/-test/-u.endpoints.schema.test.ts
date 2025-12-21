@@ -1,5 +1,5 @@
 import { describe, it, expect, expectTypeOf } from '../../../-test.ts';
-import { EndpointYamlSchema } from '../u.endpoints.schema.ts';
+import { EndpointYamlSchema } from '../mod.ts';
 
 describe('Schema: endpoint', () => {
   it('initial: is type-correct and validates', () => {
