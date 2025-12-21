@@ -89,7 +89,7 @@ export namespace DeployTool {
        * Tagged union of all supported provider configs.
        * Add new providers here (and in u.providers schemas) as they land.
        */
-      export type All = Orbiter; // | Noop | S3 | ...
+      export type All = Orbiter | t.NoopProvider; // ...S3, etc.
       export type Orbiter = t.OrbiterProvider; // IPFS
       export type Noop = t.NoopProvider;
     }

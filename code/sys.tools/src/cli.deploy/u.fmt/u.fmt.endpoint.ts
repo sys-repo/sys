@@ -1,4 +1,5 @@
 import { type t, c, Cli, Fmt, Fs, Str, Time } from '../common.ts';
+import { fmtProvider } from './u.fmt.provider.ts';
 
 export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.EndpointRef) {
   const table = Cli.table();
@@ -20,21 +21,40 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   const name = String(ref.name ?? '');
   const file = String(ref.file ?? '');
 
+  // Read YAML once (provider + mappings); never throw.
+  let yaml: t.EndpointYamlFile | undefined;
+  try {
+    const abs = Fs.join(cwd, file);
+    const res = await Fs.readYaml<t.EndpointYamlFile>(abs);
+    yaml = res.ok ? res.data : undefined;
+  } catch {
+    yaml = undefined;
+  }
+
+  const providerFmt = fmtProvider(yaml?.provider);
+
   // Align mapping "second column" under the endpoint value column.
   const baseLabels = [
     'Endpoint',
-    childText('file'),
+    childText('config'),
+    ...(providerFmt ? [childText(providerFmt.label)] : []),
     childText('created'),
     childText('last used', true),
   ];
   const valuesIndent = baseLabels.reduce((m, s) => Math.max(m, s.length), 0) + 2;
 
-  table.body([
+  const body: Array<[string, string]> = [
     [c.gray('Endpoint'), c.cyan(name)],
-    [child('file'), c.gray(c.dim(file))],
-    [child('created'), fmtTime(ref.createdAt)],
-    [child('last used', true), fmtTime(ref.lastUsedAt)],
-  ]);
+    [child('config'), c.gray(c.dim(file))],
+  ];
+
+  if (providerFmt) {
+    body.push([child(providerFmt.label), providerFmt.value]);
+  }
+
+  body.push([child('created'), fmtTime(ref.createdAt)]);
+  body.push([child('last used', true), fmtTime(ref.lastUsedAt)]);
+  table.body(body);
 
   let mappingsBlock = '';
 
@@ -43,9 +63,8 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
       const parts = Str.splitPathSegments(String(p ?? ''));
       return parts.length ? parts[parts.length - 1]! : String(p ?? '');
     };
-    const abs = Fs.join(cwd, file);
-    const res = await Fs.readYaml<{ mappings?: readonly t.DeployTool.Staging.Mapping[] }>(abs);
-    const mappings = res.ok ? (res.data?.mappings ?? []) : [];
+
+    const mappings = yaml?.mappings ?? [];
 
     if (mappings.length) {
       const mt = Cli.table();

@@ -21,7 +21,7 @@ export const OrbiterProviderSchema = {
    * (Useful for scaffolding.)
    */
   initial(): t.OrbiterProvider {
-    return { kind: 'orbiter', siteId: '', domain: '', buildDir: 'dist' };
+    return { kind: 'orbiter', siteId: '', domain: '' };
   },
 
   /**
