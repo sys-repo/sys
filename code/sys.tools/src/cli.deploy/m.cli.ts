@@ -1,8 +1,7 @@
 import { type t, Args, c, Cli, D, done, Fs, Is } from './common.ts';
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
-import { endpointMenu } from './u.menu.endpoint.ts';
-import { endpointsMenu } from './u.menu.endpoints.ts';
+import { endpointMenu, endpointsMenu } from './u.menu/mod.ts';
 
 /**
  * Main entry:
