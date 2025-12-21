@@ -1,9 +1,20 @@
 import { withTmpDir } from '../../-test/-fixtures.ts';
 import { describe, expect, Fs, it } from '../../../-test.ts';
+import { Json, Pkg } from '../../common.ts';
 import { executeStaging } from '../u.staging.execute.ts';
-import { Json } from '../../common.ts';
 
 describe('Staging: executeStaging', () => {
+  const assertDistJsonVerified = async (stageDir: string) => {
+    const dist = await Fs.readJson(`${stageDir}/dist.json`);
+    expect(dist.ok).to.eql(true);
+    expect(dist.exists).to.eql(true);
+
+    const verify = await Pkg.Dist.verify(stageDir);
+    expect(verify.exists).to.eql(true);
+    expect(verify.dist !== undefined).to.eql(true);
+    expect(verify.is.valid).to.eql(true);
+  };
+
   it('copy: copies source dir into staging dir (relative to cwd)', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src`);
@@ -14,6 +25,7 @@ describe('Staging: executeStaging', () => {
 
       const text = (await Fs.readText(`${tmp}/stage/a.txt`)).data!;
       expect(text).to.eql('hello');
+      await assertDistJsonVerified(`${tmp}/stage`);
     });
   });
 
@@ -25,11 +37,11 @@ describe('Staging: executeStaging', () => {
       const dir = { source: 'src', staging: 'stage' };
       await executeStaging([{ mode: 'copy', dir }], { cwd: tmp });
 
-      // If the file exists at the staged path, the dir necessarily exists.
       const res = await Fs.readText(`${tmp}/stage/a.txt`);
       expect(res.ok).to.eql(true);
       expect(res.exists).to.eql(true);
       expect(res.data).to.eql('x');
+      await assertDistJsonVerified(`${tmp}/stage`);
     });
   });
 
@@ -38,7 +50,6 @@ describe('Staging: executeStaging', () => {
       const srcRoot = `${tmp}/src`;
       await Fs.ensureDir(srcRoot);
 
-      // Minimal "package" that can satisfy: `deno -q task test && deno -q task build`
       const buildFile = [
         `await Deno.mkdir("dist", { recursive: true });`,
         `await Deno.writeTextFile("dist/a.txt", "built");`,
@@ -64,6 +75,7 @@ describe('Staging: executeStaging', () => {
       expect(res.ok).to.eql(true);
       expect(res.exists).to.eql(true);
       expect(res.data).to.eql('built');
+      await assertDistJsonVerified(`${tmp}/stage`);
     });
   });
 });

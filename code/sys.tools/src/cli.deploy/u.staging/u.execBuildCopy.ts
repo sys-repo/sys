@@ -1,4 +1,4 @@
-import { type t, Fs, Path, Process } from '../common.ts';
+import { type t, Fs, Path, Pkg, Process } from '../common.ts';
 
 /**
  * Build a source directory, then copy its /dist output into the staging area.
@@ -21,4 +21,5 @@ export async function execBuildCopy(
   // Copy build output → staging.
   await Fs.ensureDir(dst);
   await Fs.copy(srcDist, dst, { force: true });
+  await Pkg.Dist.compute({ dir: dst, save: true });
 }
