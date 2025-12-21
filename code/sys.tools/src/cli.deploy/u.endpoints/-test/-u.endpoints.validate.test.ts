@@ -1,4 +1,4 @@
-import { describe, it, expect } from '../../-test.ts';
+import { describe, it, expect } from '../../../-test.ts';
 import { validateEndpointYamlText } from '../u.endpoints.validate.ts';
 
 describe('Endpoints: validateEndpointYamlText', () => {

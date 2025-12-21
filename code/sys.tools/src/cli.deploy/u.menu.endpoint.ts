@@ -1,5 +1,5 @@
 import { type t, c, Cli, Fs, Str, Time } from './common.ts';
-import { EndpointsFs } from './u.endpoints.fs.ts';
+import { EndpointsFs } from './u.endpoints/mod.ts';
 import { Fmt } from './u.fmt.ts';
 
 type Pick =

@@ -1,5 +1,5 @@
 import { type t, c, Cli, Fs, indexedMenu, Time } from './common.ts';
-import { EndpointsFs } from './u.endpoints.fs.ts';
+import { EndpointsFs } from './u.endpoints/mod.ts';
 
 type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly key: string };
 

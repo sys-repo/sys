@@ -1,4 +1,4 @@
-import { type t, Schema, Yaml } from './common.ts';
+import { type t, Schema, Yaml } from '../common.ts';
 import { EndpointYamlSchema } from './u.endpoints.schema.ts';
 
 /**

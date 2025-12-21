@@ -1,4 +1,4 @@
-import { describe, it, expect, Fs } from '../../-test.ts';
+import { describe, it, expect, Fs } from '../../../-test.ts';
 import { EndpointsFs } from '../u.endpoints.fs.ts';
 
 const withTmpDir = async <T>(

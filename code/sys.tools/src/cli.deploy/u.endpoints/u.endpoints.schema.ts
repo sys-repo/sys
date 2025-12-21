@@ -1,6 +1,6 @@
-import { type t, Schema } from './common.ts';
-import { NoopProviderSchema } from './u.providers/u.noop.schema.ts';
-import { OrbiterProviderSchema } from './u.providers/u.orbiter.schema.ts';
+import { type t, Schema } from '../common.ts';
+import { NoopProviderSchema } from '../u.providers/u.noop.schema.ts';
+import { OrbiterProviderSchema } from '../u.providers/u.orbiter.schema.ts';
 
 /**
  * Endpoint YAML schema (authoritative config).

@@ -1,4 +1,4 @@
-import { describe, it, expect, expectTypeOf } from '../../-test.ts';
+import { describe, it, expect, expectTypeOf } from '../../../-test.ts';
 import { EndpointYamlSchema } from '../u.endpoints.schema.ts';
 
 describe('Schema: endpoint', () => {

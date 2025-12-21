@@ -1,4 +1,4 @@
-import { type t, Fs, Schema, Str } from './common.ts';
+import { type t, Fs, Schema, Str } from '../common.ts';
 import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.endpoints.validate.ts';
 
 const ENDPOINTS_DIR = '-endpoints' satisfies t.DeployTool.EndpointsFs.DirName;
