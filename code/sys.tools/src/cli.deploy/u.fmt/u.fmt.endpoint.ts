@@ -39,6 +39,10 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   let mappingsBlock = '';
 
   try {
+    const tail = (p: string) => {
+      const parts = Str.splitPathSegments(String(p ?? ''));
+      return parts.length ? parts[parts.length - 1]! : String(p ?? '');
+    };
     const abs = Fs.join(cwd, file);
     const res = await Fs.readYaml<{ mappings?: readonly t.DeployTool.Staging.Mapping[] }>(abs);
     const mappings = res.ok ? (res.data?.mappings ?? []) : [];
@@ -57,7 +61,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
 
       for (const m of mappings) {
         const mode = String(m.mode ?? '');
-        const src = Fs.basename(String(m.dir.source ?? ''));
+        const src = tail(String(m.dir.source ?? ''));
         const dst = String(m.dir.staging ?? '');
 
         const hit = byMode.get(mode);

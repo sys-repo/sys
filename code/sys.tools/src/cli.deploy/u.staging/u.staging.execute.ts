@@ -1,4 +1,4 @@
-import { type t, Is } from '../common.ts';
+import { type t, Is, Path } from '../common.ts';
 import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
 
@@ -23,6 +23,11 @@ export async function executeStaging(
 
   const emit = (e: StagingProgressEvent) => options.onProgress?.(e);
 
+  const resolveAbs = (base: string, p: string): string => {
+    const s = String(p ?? '');
+    return Path.Is.absolute(s) ? s : Path.resolve(base, s);
+  };
+
   let next = 0;
   let firstErr: unknown;
 
@@ -30,21 +35,22 @@ export async function executeStaging(
     while (true) {
       if (firstErr) return;
 
-      const i = next;
+      const index = next;
       next += 1;
 
-      if (i >= total) return;
+      if (index >= total) return;
 
-      const m = mappings[i]!;
-      const source = String(m.dir.source ?? '');
-      const staging = String(m.dir.staging ?? '');
+      const m = mappings[index]!;
+      const source = resolveAbs(cwd, String(m.dir.source ?? ''));
+      const staging = resolveAbs(cwd, String(m.dir.staging ?? ''));
+      const dir: t.DeployTool.Staging.Dir = { ...m.dir, source, staging };
 
-      emit({ kind: 'mapping:start', index: i, total, mode: m.mode, source, staging });
+      emit({ kind: 'mapping:start', index, total, mode: m.mode, source, staging });
 
       const reportStep = (step: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => {
         emit({
           kind: 'mapping:step',
-          index: i,
+          index,
           total,
           mode: m.mode,
           source,
@@ -56,19 +62,19 @@ export async function executeStaging(
       try {
         switch (m.mode) {
           case 'copy': {
-            await execCopy(cwd, m.dir, reportStep);
+            await execCopy(cwd, dir, reportStep);
             break;
           }
           case 'build+copy': {
-            await execBuildCopy(cwd, m.dir, reportStep);
+            await execBuildCopy(cwd, dir, reportStep);
             break;
           }
         }
 
-        emit({ kind: 'mapping:done', index: i, total, mode: m.mode, source, staging });
-      } catch (err) {
-        firstErr = err;
-        emit({ kind: 'mapping:fail', index: i, total, mode: m.mode, source, staging, error: err });
+        emit({ kind: 'mapping:done', index, total, mode: m.mode, source, staging });
+      } catch (error) {
+        firstErr = error;
+        emit({ kind: 'mapping:fail', index, total, mode: m.mode, source, staging, error });
         return;
       }
     }

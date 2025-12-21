@@ -9,10 +9,11 @@ export async function execBuildCopy(
   report?: (e: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => void,
 ): Promise<void> {
   const srcRoot = Path.resolve(cwd, dir.source);
-  const srcDist = Path.join(srcRoot, 'dist');
-  const dst = Path.resolve(cwd, dir.staging);
+  const srcDist = Fs.join(srcRoot, 'dist');
+  const dst = Path.Is.absolute(dir.staging) ? dir.staging : Path.resolve(cwd, dir.staging);
 
-  report?.({ kind: 'mapping:step', label: 'build' });
+  const reportStep = (label: string) => report?.({ kind: 'mapping:step', label });
+  reportStep('build');
 
   // Build (mirrors the known-good pattern in deploy/@tdb.fs).
   const sh = Process.sh({ path: srcRoot, silent: true });
@@ -21,13 +22,13 @@ export async function execBuildCopy(
     throw new Error(`Failed to build: ${dir.source}\n\n${res.text.stderr}`);
   }
 
-  report?.({ kind: 'mapping:step', label: 'copy dist' });
+  reportStep('copy dist');
 
   // Copy build output → staging.
   await Fs.ensureDir(dst);
   await Fs.copy(srcDist, dst, { force: true });
 
-  report?.({ kind: 'mapping:step', label: 'dist.json' });
+  reportStep('dist.json');
 
   await Pkg.Dist.compute({ dir: dst, save: true });
 }

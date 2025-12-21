@@ -40,12 +40,11 @@ export function validateEndpointYamlText(text: string): t.DeployTool.EndpointsFs
   }
 
   if (js.data === undefined) {
-    const err: t.Yaml.Error = {
-      name: 'YAMLParseError',
+    const err = Yaml.Error.synthetic({
       message: 'YAML conversion produced no value.',
       code: EndpointYamlErrorCode,
       pos: [0, 0],
-    };
+    });
 
     return {
       ok: false,

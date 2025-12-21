@@ -1,4 +1,4 @@
-import { type t, c, Cli, Open, Fs, Path, Str, Time } from '../common.ts';
+import { type t, c, Cli, Fs, Open, Path, Str, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
@@ -27,11 +27,6 @@ export async function endpointMenu(args: {
 
   const dim = (s: string) => c.gray(c.dim(s));
   const find = (name: string) => (config.current.endpoints ?? []).find((e) => e.name === name);
-  const tail = (p: string) => {
-    const s = String(p ?? '').replaceAll('\\', '/');
-    const parts = s.split('/').filter(Boolean);
-    return parts.length ? parts[parts.length - 1]! : s;
-  };
 
   let ranOk = false;
 
@@ -73,8 +68,7 @@ export async function endpointMenu(args: {
     if (picked === 'back') return { kind: 'back' };
 
     if (picked === 'edit') {
-      const url = `file://${Fs.resolve(cwd, String(abs))}`;
-      Open.invokeDetached(cwd, url, { silent: true });
+      Open.invokeDetached(cwd, String(Path.toFileUrl(abs)), { silent: true });
       continue;
     }
 
@@ -138,7 +132,7 @@ export async function endpointMenu(args: {
           concurrency: stagingConcurrencyDefault({ total }),
           onProgress(e) {
             if (e.kind === 'mapping:start') {
-              active.set(e.index, tail(e.source));
+              active.set(e.index, Path.basename(e.source));
               refresh();
               return;
             }

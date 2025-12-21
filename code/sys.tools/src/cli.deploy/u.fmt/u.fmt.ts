@@ -1,6 +1,6 @@
 import { type t, Fmt as Base, c, D, Fs, Str } from '../common.ts';
 import { getConfig } from '../u.config.ts';
-import { endpointTable } from './u.fmt.endpointTable.ts';
+import { endpointTable } from './u.fmt.endpoint.ts';
 import { endpointValidation } from './u.fmt.validation.ts';
 
 export const Fmt = {

@@ -11,6 +11,7 @@ export const stagingConcurrencyDefault = (args: {
   const totalRaw: number = args.total;
   const total: number = Number.isFinite(totalRaw) && totalRaw > 0 ? Math.floor(totalRaw) : 0;
 
+  if (total === 0) return 1;
   if (total <= 1) return Math.max(1, total);
 
   const ceilingRaw: number = args.ceiling ?? 4;
