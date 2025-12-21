@@ -9,32 +9,22 @@ import { type t, Process } from '../common.ts';
  */
 export async function probeOrbiter(
   options: {
-    /** Binary name (defaults to "orbiter"). */
-    readonly cmd?: string;
-    /** Optional working dir for the probe. */
-    readonly cwd?: t.StringDir;
+    readonly cmd?: string; //       Binary name (defaults to "orbiter").
+    readonly cwd?: t.StringDir; //  Optional working dir for the probe.
   } = {},
 ): Promise<t.OrbiterAvailability> {
   const cmd = String(options.cmd ?? 'orbiter');
+  const hint = 'npm i -g orbiter-cli';
 
   try {
     // Cheapest possible capability probe.
-    await Process.invoke({
-      cmd,
-      args: ['--version'],
-      cwd: options.cwd,
-      silent: true,
-    });
+    const out = await Process.invoke({ cmd, args: ['--version'], cwd: options.cwd, silent: true });
+    if (!out.success) {
+      return { ok: false, reason: 'failed', hint, error: out };
+    }
 
     return { ok: true };
   } catch (error) {
-    // Deno will typically throw if the executable cannot be found or launched.
-    // Keep this coarse; callers decide how to message/install-help.
-    return {
-      ok: false,
-      reason: 'not-found',
-      hint: `Missing required binary: ${cmd}`,
-      error,
-    };
+    return { ok: false, reason: 'not-found', hint, error };
   }
 }

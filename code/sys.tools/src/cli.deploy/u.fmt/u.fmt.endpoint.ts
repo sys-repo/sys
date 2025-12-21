@@ -1,5 +1,6 @@
 import { type t, c, Cli, Fmt, Fs, Str, Time } from '../common.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
+import { probeProvider } from '../u.push/u.probe.ts';
 
 export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.EndpointRef) {
   const table = Cli.table();
@@ -33,11 +34,22 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
 
   const providerFmt = fmtProvider(yaml?.provider);
 
+  let providerProbe: t.PushProbe | undefined;
+  try {
+    const provider = yaml?.provider;
+    if (provider) {
+      providerProbe = await probeProvider(provider);
+    }
+  } catch {
+    providerProbe = undefined;
+  }
+
   // Align mapping "second column" under the endpoint value column.
   const baseLabels = [
     'Endpoint',
     childText('config'),
     ...(providerFmt ? [childText(providerFmt.label)] : []),
+    ...(providerFmt && providerProbe && !providerProbe.ok ? [childText('provider probe')] : []),
     childText('created'),
     childText('last used', true),
   ];
@@ -50,6 +62,23 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
 
   if (providerFmt) {
     body.push([child(providerFmt.label), providerFmt.value]);
+  }
+
+  if (providerFmt && providerProbe && !providerProbe.ok) {
+    const reason = String(providerProbe.reason ?? 'unavailable');
+
+    const installCmd = String(providerProbe.install?.cmd ?? '').trim();
+    const hintText = String(providerProbe.hint ?? '').trim();
+    const hint = (installCmd || hintText).trim();
+
+    // Row 1: reason only (yellow)
+    body.push([child('provider probe'), c.yellow(reason)]);
+
+    // Row 2: keep the tree vertical stroke using Fmt.Tree.mid
+    if (hint) {
+      const mid = c.gray(` ${c.dim(Fmt.Tree.mid)} `);
+      body.push([mid, c.gray(c.dim(c.italic(hint)))]);
+    }
   }
 
   body.push([child('created'), fmtTime(ref.createdAt)]);
