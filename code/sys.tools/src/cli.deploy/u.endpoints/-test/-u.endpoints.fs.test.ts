@@ -1,17 +1,6 @@
-import { describe, it, expect, Fs } from '../../../-test.ts';
+import { withTmpDir } from '../../-test/-fixtures.ts';
+import { describe, expect, Fs, it } from '../../../-test.ts';
 import { EndpointsFs } from '../u.endpoints.fs.ts';
-
-const withTmpDir = async <T>(
-  fn: (dir: string) => Promise<T>,
-  options?: { readonly prefix?: string; readonly suffix?: string },
-): Promise<T> => {
-  const dir = await Fs.makeTempDir({ prefix: options?.prefix ?? 'sys.tools.deploy.' });
-  try {
-    return await fn(dir.absolute);
-  } finally {
-    await Fs.remove(dir.absolute);
-  }
-};
 
 describe('EndpointsFs', () => {
   it('fileOf: returns "-endpoints/<name>.yaml"', () => {

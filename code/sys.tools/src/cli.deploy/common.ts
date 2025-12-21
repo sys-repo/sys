@@ -1,7 +1,11 @@
 import { type t, JsonFile } from '../common.ts';
 
+/** @system: exports */
 export { Schema } from '@sys/schema';
 export { Yaml } from '@sys/yaml';
+export { Process } from '@sys/process';
+
+/** @local: exports */
 export * from '../common.ts';
 
 /**

@@ -15,19 +15,6 @@ export namespace DeployTool {
   export type CliArgs = t.Tools.CliArgs;
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
-  /**
-   * Filesystem conventions for endpoint YAML storage.
-   * - Root dir is relative to the CLI cwd.
-   * - Each endpoint is one YAML file named "<name>.yaml".
-   */
-  export namespace EndpointsFs {
-    export type DirName = '-endpoints';
-    export type Ext = '.yaml';
-    export type YamlCheck =
-      | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }
-      | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
-  }
-
   export namespace Config {
     export type File = t.JsonFile<Doc>;
     export type Doc = t.JsonFileDoc & {
@@ -105,5 +92,45 @@ export namespace DeployTool {
       export type Orbiter = t.OrbiterProvider; // IPFS
       export type Noop = t.NoopProvider;
     }
+  }
+
+  /**
+   * Filesystem conventions for endpoint YAML storage.
+   * - Root dir is relative to the CLI cwd.
+   * - Each endpoint is one YAML file named "<name>.yaml".
+   */
+  export namespace EndpointsFs {
+    export type DirName = '-endpoints';
+    export type Ext = '.yaml';
+    export type YamlCheck =
+      | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }
+      | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+  }
+
+  export namespace Staging {
+    /**
+     * Source → staging directory mapping.
+     * - `source` is an absolute or cwd-relative directory
+     * - `staging` is a relative path under the staging root
+     */
+    export type Dir = {
+      readonly source: t.StringDir;
+      readonly staging: t.StringRelativeDir;
+    };
+
+    /**
+     * Staging operation.
+     * - `copy`: copy source directly into staging
+     * - `build+copy`: build source, then copy build output into staging
+     */
+    export type Mapping =
+      | { readonly mode: 'copy'; readonly dir: Dir }
+      | { readonly mode: 'build+copy'; readonly dir: Dir };
+
+    /** Execution options for staging operations. */
+    export type ExecuteOptions = {
+      /** Working directory for resolving relative paths. */
+      readonly cwd?: t.StringDir;
+    };
   }
 }
