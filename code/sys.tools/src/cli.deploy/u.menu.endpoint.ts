@@ -71,8 +71,14 @@ export async function endpointMenu(args: {
       // Ensure endpoints directory exists (idempotent).
       await Fs.ensureDir(Fs.join(cwd, EndpointsFs.dir));
 
-      // Rename YAML file.
-      await Fs.move(fromAbs, toAbs);
+      // If the source YAML is missing (index drift), we still allow rename:
+      // - materialize the destination YAML if needed
+      // - update the config index
+      if (await Fs.exists(fromAbs)) {
+        await Fs.move(fromAbs, toAbs);
+      } else {
+        await EndpointsFs.ensureInitialYaml(toAbs, nextName);
+      }
 
       config.change((doc) => {
         const now = Time.now.timestamp;

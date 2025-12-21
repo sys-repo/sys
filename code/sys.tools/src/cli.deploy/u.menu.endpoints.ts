@@ -53,14 +53,8 @@ export async function endpointsMenu(config: t.DeployTool.Config.File): Promise<R
         const name = raw.trim();
         const file = EndpointsFs.fileOf(name);
         const cwd = Fs.dirname(config.fs.path);
-        const endpointsDirAbs = Fs.join(cwd, EndpointsFs.dir);
         const yamlAbs = Fs.join(cwd, file);
-
-        await Fs.ensureDir(endpointsDirAbs);
-
-        if (!(await Fs.exists(yamlAbs))) {
-          await Fs.write(yamlAbs, EndpointsFs.initialYaml(name), { force: false });
-        }
+        await EndpointsFs.ensureInitialYaml(yamlAbs, name);
 
         config.change((doc) => {
           const now = Time.now.timestamp;

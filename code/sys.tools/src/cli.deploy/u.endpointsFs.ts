@@ -1,4 +1,4 @@
-import { type t, Str } from './common.ts';
+import { type t, Str, Fs } from './common.ts';
 
 const ENDPOINTS_DIR = '-endpoints' satisfies t.DeployTool.EndpointsFs.DirName;
 const ENDPOINTS_EXT = '.yaml' satisfies t.DeployTool.EndpointsFs.Ext;
@@ -23,5 +23,11 @@ export const EndpointsFs = {
       mappings: []
     `,
     ).trimStart();
+  },
+
+  async ensureInitialYaml(path: t.StringPath, filename: string) {
+    await Fs.ensureDir(Fs.dirname(path));
+    if (await Fs.exists(path)) return;
+    await Fs.write(path, EndpointsFs.initialYaml(filename), { force: false });
   },
 } as const;
