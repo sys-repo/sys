@@ -23,6 +23,9 @@ export namespace DeployTool {
   export namespace EndpointsFs {
     export type DirName = '-endpoints';
     export type Ext = '.yaml';
+    export type YamlCheck =
+      | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }
+      | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
   }
 
   export namespace Config {
