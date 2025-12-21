@@ -1,5 +1,4 @@
-import { Schema } from '../common.ts';
-import type { t } from '../common.ts';
+import { type t, Schema } from '../common.ts';
 
 /**
  * Orbiter provider runtime schema.
@@ -9,7 +8,24 @@ import type { t } from '../common.ts';
  */
 export const OrbiterProviderSchema = {
   /**
-   * TypeBox schema.
+   * Runtime validation (strict, no coercion).
+   */
+  validate(value: unknown) {
+    const ok = Schema.Value.Check(OrbiterProviderSchema.schema, value);
+    const errors = ok ? [] : [...Schema.Value.Errors(OrbiterProviderSchema.schema, value)];
+    return { ok, errors } as const;
+  },
+
+  /**
+   * Typed initial value.
+   * (Useful for scaffolding.)
+   */
+  initial(): t.OrbiterProvider {
+    return { kind: 'orbiter', siteId: '', domain: '', buildDir: 'dist' };
+  },
+
+  /**
+   * JsonSchema.
    */
   schema: Schema.Type.Object(
     {
@@ -33,30 +49,6 @@ export const OrbiterProviderSchema = {
        */
       buildCommand: Schema.Type.Optional(Schema.Type.String()),
     },
-    {
-      additionalProperties: false,
-    },
+    { additionalProperties: false },
   ),
-
-  /**
-   * Runtime validation (strict, no coercion).
-   */
-  validate(value: unknown) {
-    const ok = Schema.Value.Check(OrbiterProviderSchema.schema, value);
-    const errors = ok ? [] : [...Schema.Value.Errors(OrbiterProviderSchema.schema, value)];
-    return { ok, errors } as const;
-  },
-
-  /**
-   * Typed initial value.
-   * (Useful for scaffolding.)
-   */
-  initial(): t.OrbiterProvider {
-    return {
-      kind: 'orbiter',
-      siteId: '',
-      domain: '',
-      buildDir: 'dist',
-    };
-  },
 } as const;

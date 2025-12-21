@@ -1,9 +1,10 @@
 import { type t, Schema } from './common.ts';
+import { NoopProviderSchema } from './u.providers/u.noop.schema.ts';
 import { OrbiterProviderSchema } from './u.providers/u.orbiter.schema.ts';
 
 /**
  * Endpoint YAML schema (authoritative config).
- * Runtime validated via TypeBox Value.Check/Errors.
+ * Runtime validated via JsonSchema (typebox) Value.Check/Errors.
  */
 export const EndpointYamlSchema = {
   /**
@@ -28,7 +29,9 @@ export const EndpointYamlSchema = {
    */
   schema: Schema.Type.Object(
     {
-      provider: Schema.Type.Optional(OrbiterProviderSchema.schema),
+      provider: Schema.Type.Optional(
+        Schema.Type.Union([OrbiterProviderSchema.schema, NoopProviderSchema.schema]),
+      ),
       mappings: Schema.Type.Optional(
         Schema.Type.Array(
           Schema.Type.Object(

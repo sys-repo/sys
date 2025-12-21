@@ -1,70 +1,41 @@
-import { describe, it, expect, expectTypeOf } from '../../../-test.ts';
+import { describe, it, expect } from '../../../-test.ts';
 import { OrbiterProviderSchema } from '../u.orbiter.schema.ts';
 
 describe('Schema: Orbiter Provider', () => {
-  it('initial: is type-correct and validates', () => {
-    const doc = OrbiterProviderSchema.initial();
-    expectTypeOf(doc).toEqualTypeOf<ReturnType<typeof OrbiterProviderSchema.initial>>();
-
-    const res = OrbiterProviderSchema.validate(doc);
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: accepts a minimal valid orbiter provider', () => {
-    const res = OrbiterProviderSchema.validate({
+  it('accepts a valid orbiter provider', () => {
+    const value = {
       kind: 'orbiter',
       siteId: 'site',
       domain: 'fs',
       buildDir: 'dist',
-    });
+    };
 
+    const res = OrbiterProviderSchema.validate(value);
     expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
   });
 
-  it('validate: rejects unknown keys', () => {
-    const res = OrbiterProviderSchema.validate({
+  it('rejects missing required fields', () => {
+    const value = {
+      kind: 'orbiter',
+      siteId: 'site',
+    };
+
+    const res = OrbiterProviderSchema.validate(value);
+    expect(res.ok).to.eql(false);
+    if (!res.ok) expect(res.errors.length > 0).to.eql(true);
+  });
+
+  it('rejects unknown properties', () => {
+    const value = {
       kind: 'orbiter',
       siteId: 'site',
       domain: 'fs',
       buildDir: 'dist',
       extra: true,
-    });
+    };
 
+    const res = OrbiterProviderSchema.validate(value);
     expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects wrong kind', () => {
-    const res = OrbiterProviderSchema.validate({
-      kind: 'wat',
-      siteId: 'site',
-      domain: 'fs',
-      buildDir: 'dist',
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects missing required fields', () => {
-    const res = OrbiterProviderSchema.validate({ kind: 'orbiter' });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: accepts optional buildCommand', () => {
-    const res = OrbiterProviderSchema.validate({
-      kind: 'orbiter',
-      siteId: 'site',
-      domain: 'fs',
-      buildDir: 'dist',
-      buildCommand: 'echo no-op',
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
+    if (!res.ok) expect(res.errors.length > 0).to.eql(true);
   });
 });

@@ -97,8 +97,13 @@ export namespace DeployTool {
      * At present, only the `orbiter` provider is defined.
      */
     export namespace Provider {
-      export type All = Orbiter;
-      export type Orbiter = t.OrbiterProvider;
+      /**
+       * Tagged union of all supported provider configs.
+       * Add new providers here (and in u.providers schemas) as they land.
+       */
+      export type All = Orbiter; // | Noop | S3 | ...
+      export type Orbiter = t.OrbiterProvider; // IPFS
+      export type Noop = t.NoopProvider;
     }
   }
 }

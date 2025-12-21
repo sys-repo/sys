@@ -5,19 +5,19 @@ describe('Schema: endpoint', () => {
   it('initial: is type-correct and validates', () => {
     const doc = EndpointYamlSchema.initial();
     const res = EndpointYamlSchema.validate(doc);
-    expect(res.ok).to.equal(true);
+    expect(res.ok).to.eql(true);
     expect(res.errors).to.eql([]);
   });
 
   it('validate: accepts empty object (all optional)', () => {
     const res = EndpointYamlSchema.validate({});
-    expect(res.ok).to.equal(true);
+    expect(res.ok).to.eql(true);
     expect(res.errors).to.eql([]);
   });
 
   it('validate: rejects unknown top-level keys', () => {
     const res = EndpointYamlSchema.validate({ nope: 123 });
-    expect(res.ok).to.equal(false);
+    expect(res.ok).to.eql(false);
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
@@ -33,7 +33,7 @@ describe('Schema: endpoint', () => {
     };
 
     const res = EndpointYamlSchema.validate(value);
-    expect(res.ok).to.equal(true);
+    expect(res.ok).to.eql(true);
     expect(res.errors).to.eql([]);
 
     // type guard sanity: shape should be compatible with endpoint YAML doc surface
@@ -54,7 +54,7 @@ describe('Schema: endpoint', () => {
       },
     });
 
-    expect(res.ok).to.equal(false);
+    expect(res.ok).to.eql(false);
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
@@ -68,7 +68,7 @@ describe('Schema: endpoint', () => {
       },
     });
 
-    expect(res.ok).to.equal(false);
+    expect(res.ok).to.eql(false);
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
@@ -79,7 +79,7 @@ describe('Schema: endpoint', () => {
       },
     });
 
-    expect(res.ok).to.equal(false);
+    expect(res.ok).to.eql(false);
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
@@ -93,7 +93,7 @@ describe('Schema: endpoint', () => {
       ],
     });
 
-    expect(res.ok).to.equal(false);
+    expect(res.ok).to.eql(false);
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
@@ -108,7 +108,7 @@ describe('Schema: endpoint', () => {
       ],
     });
 
-    expect(res.ok).to.equal(false);
+    expect(res.ok).to.eql(false);
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
@@ -122,7 +122,17 @@ describe('Schema: endpoint', () => {
       ],
     });
 
-    expect(res.ok).to.equal(false);
+    expect(res.ok).to.eql(false);
     expect(res.errors.length).to.be.greaterThan(0);
+  });
+
+  it('validate: accepts provider.noop', () => {
+    const res = EndpointYamlSchema.validate({
+      provider: { kind: 'noop' },
+      mappings: [],
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
   });
 });
