@@ -92,7 +92,7 @@ export async function endpointMenu(args: {
       });
 
       const sp = Cli.spinner();
-      sp.start(Fmt.spinnerText('Running staging'));
+      sp.start(Fmt.spinnerText('Running staging...'));
 
       try {
         await executeStaging(resolved, { cwd: yamlDir });
