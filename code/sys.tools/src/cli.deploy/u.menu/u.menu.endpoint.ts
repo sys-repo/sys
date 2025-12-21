@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Path, Str, Time } from '../common.ts';
+import { type t, c, Cli, Open, Fs, Path, Str, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
@@ -53,21 +53,30 @@ export async function endpointMenu(args: {
     str.blank();
     console.info(String(str));
 
-    const picked = await Cli.Input.Select.prompt<'run' | 'fix' | 'rename' | 'delete' | 'back'>({
+    const picked = await Cli.Input.Select.prompt<
+      'run' | 'edit' | 'fix' | 'rename' | 'delete' | 'back'
+    >({
       message: `Actions:`,
       options: [
         ...(check.ok
           ? [{ name: ranOk ? c.gray('  run ✔') : c.green('  run'), value: 'run' as const }]
           : []),
         ...(check.ok ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
+        { name: '  edit yaml', value: 'edit' as const },
         { name: '  rename', value: 'rename' },
-        { name: dim(' (delete)'), value: 'delete' },
-        { name: dim('← back'), value: 'back' },
+        { name: ' (delete)', value: 'delete' },
+        { name: dim(`${c.cyan('←')} back`), value: 'back' },
       ],
       hideDefault: true,
     });
 
     if (picked === 'back') return { kind: 'back' };
+
+    if (picked === 'edit') {
+      const url = `file://${Fs.resolve(cwd, String(abs))}`;
+      Open.invokeDetached(cwd, url, { silent: true });
+      continue;
+    }
 
     if (picked === 'run') {
       const file = String(ref.file ?? '');

@@ -47,6 +47,5 @@ async function run(cwd: t.StringDir, _args: t.DeployTool.CliArgs): Promise<t.Run
 
     const res = await endpointMenu({ config, key: picked.key });
     if (res.kind === 'back') continue;
-
   }
 }

@@ -1,6 +1,5 @@
-import { type t, c, Cli, D, Http, Net, Str } from '../common.ts';
+import { type t, c, Cli, D, Http, Net, Open, Str } from '../common.ts';
 import { Mime } from './u.mime.ts';
-import { Open } from './u.open.ts';
 import { ServeMenu } from './u.prompt.ts';
 import { route } from './u.serve.route.ts';
 
