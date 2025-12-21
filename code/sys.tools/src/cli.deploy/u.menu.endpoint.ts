@@ -1,5 +1,5 @@
 import { type t, c, Cli, Fs, Time } from './common.ts';
-import { EndpointsFs } from './u.endpointsFs.ts';
+import { EndpointsFs } from './u.endpoints.fs.ts';
 
 type Pick =
   | { readonly kind: 'back' }
