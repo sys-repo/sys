@@ -1,5 +1,6 @@
-import { type t, c, Cli, Fs, Time } from './common.ts';
+import { type t, Str, c, Cli, Fs, Time } from './common.ts';
 import { EndpointsFs } from './u.endpoints.fs.ts';
+import { Fmt } from './u.fmt.ts';
 
 type Pick =
   | { readonly kind: 'back' }
@@ -30,9 +31,12 @@ export async function endpointMenu(args: {
     const ref = find(key);
     if (!ref) return { kind: 'back' };
 
-    const title = `${c.gray('Endpoint:')} ${c.cyan(ref.name)}\n${c.gray(ref.file)}\n`;
+    const table = Fmt.endpointTable(ref);
+    const str = Str.builder().blank().line(table).blank();
+    console.info(String(str));
+
     const picked = await Cli.Input.Select.prompt<'rename' | 'delete' | 'back'>({
-      message: title,
+      message: `Actions:`,
       options: [
         { name: '  rename', value: 'rename' },
         { name: dim(' (delete)'), value: 'delete' },
