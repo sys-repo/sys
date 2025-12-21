@@ -9,13 +9,23 @@ export function initialYaml(name: string): string {
     `
       # deploy endpoint: ${name}
       #
-      # Each mapping stages a local directory into the deploy root.
+      # An endpoint is defined by:
+      # - optional provider config (where it is published)
+      # - one or more directory mappings (what is staged)
+      #
+      # Paths:
       # - source  → relative to this YAML file
       # - staging → relative to the deploy config directory
 
+      # provider:
+      #   kind: orbiter
+      #   siteId: 1efe1393-e2b5-4353-8110-6b7wb03329c7
+      #   domain: foo
+
       mappings: []
       # mappings:
-      #   - dir:
+      #   - mode: build+copy
+      #     dir:
       #       source: ./my-pkg
       #       staging: ./staging/my-pkg
     `,
