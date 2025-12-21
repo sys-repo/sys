@@ -71,9 +71,8 @@ export async function endpointMenu(args: {
       const yamlDir = Fs.dirname(yamlAbs); // endpoint YAML folder
       const rootDir = cwd; // deploy root (config folder)
 
-      const res = await Fs.readYaml<{ mappings?: readonly t.DeployTool.Staging.Mapping[] }>(
-        yamlAbs,
-      );
+      type T = { mappings?: readonly t.DeployTool.Staging.Mapping[] };
+      const res = await Fs.readYaml<T>(yamlAbs);
       const mappings = res.ok ? (res.data?.mappings ?? []) : [];
 
       if (mappings.length === 0) {
@@ -99,15 +98,25 @@ export async function endpointMenu(args: {
       const spin = Cli.spinner();
       spin.start(Fmt.spinnerText('Running staging...'));
 
+      const active = new Map<number, string>();
       const total = resolved.length;
       let done = 0;
 
-      const render = (label?: string, source?: string, staging?: string) => {
-        const left = source ? tail(source) : '';
-        const right = staging ? tail(staging) : '';
-        const step = label ? ` · ${label}` : '';
-        const path = left && right ? ` ${left} → ${right}` : '';
-        return `Staging (${done}/${total})${path}${step}`;
+      const render = (): string => {
+        const names = [...active.entries()].sort((a, b) => a[0] - b[0]).map(([, name]) => name);
+
+        const lines: string[] = [];
+        lines.push(`Staging (${done}/${total})...`);
+
+        for (const name of names) {
+          lines.push(`  - ${name}`);
+        }
+
+        return lines.join('\n');
+      };
+
+      const refresh = () => {
+        spin.text = Fmt.spinnerText(render());
       };
 
       try {
@@ -115,20 +124,28 @@ export async function endpointMenu(args: {
           cwd: yamlDir,
           concurrency: stagingConcurrencyDefault({ total }),
           onProgress(e) {
-            if (e.kind === 'mapping:done') done += 1;
-            if (e.kind === 'mapping:fail') {
-              spin.text = Fmt.spinnerText(render('failed', e.source, e.staging));
-              return;
-            }
-            if (e.kind === 'mapping:step') {
-              spin.text = Fmt.spinnerText(render(e.label, e.source, e.staging));
-              return;
-            }
             if (e.kind === 'mapping:start') {
-              spin.text = Fmt.spinnerText(render('start', e.source, e.staging));
+              active.set(e.index, tail(e.source));
+              refresh();
               return;
             }
-            spin.text = Fmt.spinnerText(render(undefined, e.source, e.staging));
+
+            if (e.kind === 'mapping:done') {
+              done += 1;
+              active.delete(e.index);
+              refresh();
+              return;
+            }
+
+            if (e.kind === 'mapping:fail') {
+              active.delete(e.index);
+              refresh();
+              return;
+            }
+
+            // mapping:step (and any future events) → keep the spinner stable (names only),
+            // but still refresh in case ordering/state changes later.
+            refresh();
           },
         });
 
