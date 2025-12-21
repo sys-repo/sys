@@ -1,2 +1,2 @@
-export * from './u.menu.endpoint.ts';
-export * from './u.menu.endpoints.ts';
+export * from './menu.endpoint.ts';
+export * from './menu.endpoints.ts';

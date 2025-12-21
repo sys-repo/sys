@@ -19,7 +19,7 @@ export const EndpointYamlErrorCode: t.Yaml.Error['code'] = 'BAD_ALIAS';
  *
  * No throwing. Always returns a YamlCheck.
  */
-export function validateEndpointYamlText(text: string): t.DeployTool.EndpointsFs.YamlCheck {
+export function validateEndpointYamlText(text: string): t.DeployTool.Endpoint.Fs.YamlCheck {
   const ast = Yaml.parseAst(text);
 
   if (ast.errors?.length) {

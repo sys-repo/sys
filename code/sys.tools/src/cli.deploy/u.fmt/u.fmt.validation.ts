@@ -1,7 +1,7 @@
 import { type t, c, Str } from '../common.ts';
 
 export function endpointValidation(
-  check: t.DeployTool.EndpointsFs.YamlCheck,
+  check: t.DeployTool.Endpoint.Fs.YamlCheck,
   options: {
     width?: number; // Max line width, including indentation (default 78).
     limit?: number; // Max number of errors to show (default 8).

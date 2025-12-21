@@ -2,8 +2,8 @@ import { type t, Fs, Path, Schema, Yaml } from '../common.ts';
 import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
 
-const ENDPOINTS_DIR = '-endpoints' satisfies t.DeployTool.EndpointsFs.DirName;
-const ENDPOINTS_EXT = '.yaml' satisfies t.DeployTool.EndpointsFs.Ext;
+const ENDPOINTS_DIR = '-endpoints' satisfies t.DeployTool.Endpoint.Fs.DirName;
+const ENDPOINTS_EXT = '.yaml' satisfies t.DeployTool.Endpoint.Fs.Ext;
 
 export const EndpointsFs = {
   dir: ENDPOINTS_DIR,
@@ -24,7 +24,7 @@ export const EndpointsFs = {
    *
    * No throwing. Always returns a YamlCheck.
    */
-  async validateYaml(path: t.StringPath): Promise<t.DeployTool.EndpointsFs.YamlCheck> {
+  async validateYaml(path: t.StringPath): Promise<t.DeployTool.Endpoint.Fs.YamlCheck> {
     if (!(await Fs.exists(path))) {
       const err = Yaml.Error.synthetic({
         message: 'Endpoint YAML file does not exist.',

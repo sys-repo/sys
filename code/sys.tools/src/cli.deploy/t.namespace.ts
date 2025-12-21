@@ -1,4 +1,3 @@
-import { PlayerControlKind } from '@sys/ui-react-components/t';
 import type { t } from './common.ts';
 
 /**
@@ -65,7 +64,7 @@ export namespace DeployTool {
         /** Optional provider adapter config. */
         provider?: Provider.All;
         /** Directory mappings assembled into this endpoint. */
-        mappings?: Mapping[];
+        mappings?: readonly Mapping[];
       };
     }
 
@@ -95,17 +94,24 @@ export namespace DeployTool {
     }
   }
 
-  /**
-   * Filesystem conventions for endpoint YAML storage.
-   * - Root dir is relative to the CLI cwd.
-   * - Each endpoint is one YAML file named "<name>.yaml".
-   */
-  export namespace EndpointsFs {
-    export type DirName = '-endpoints';
-    export type Ext = '.yaml';
-    export type YamlCheck =
-      | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }
-      | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+  export namespace Endpoint {
+    /**
+     * Filesystem conventions for endpoint YAML storage.
+     * - Root dir is relative to the CLI cwd.
+     * - Each endpoint is one YAML file named "<name>.yaml".
+     */
+    export namespace Fs {
+      export type DirName = '-endpoints';
+      export type Ext = '.yaml';
+      export type YamlCheck =
+        | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }
+        | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+    }
+
+    export namespace Menu {
+      export type Action = 'run' | 'edit' | 'fix' | 'rename' | 'delete' | 'back';
+      export type Option = { readonly name: string; readonly value: Action };
+    }
   }
 
   export namespace Staging {
