@@ -1,6 +1,6 @@
-import { type t, c, Cli, Fs, Str, Time } from './common.ts';
-import { EndpointsFs } from './u.endpoints/mod.ts';
-import { Fmt } from './u.fmt.ts';
+import { type t, c, Cli, Fs, Str, Time } from '../common.ts';
+import { EndpointsFs } from '../u.endpoints/mod.ts';
+import { Fmt } from '../u.fmt.ts';
 
 type Pick =
   | { readonly kind: 'back' }
@@ -34,7 +34,7 @@ export async function endpointMenu(args: {
     const cwd = Fs.dirname(config.fs.path);
     const abs = Fs.join(cwd, ref.file);
     const check = await EndpointsFs.validateYaml(abs);
-    const table = Fmt.endpointTable(ref);
+    const table = await Fmt.endpointTable(cwd, ref);
     const str = Str.builder().blank().line(table);
 
     if (!check.ok) {
