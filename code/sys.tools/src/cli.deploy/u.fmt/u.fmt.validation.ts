@@ -3,10 +3,8 @@ import { type t, c, Str } from '../common.ts';
 export function endpointValidation(
   check: t.DeployTool.EndpointsFs.YamlCheck,
   options: {
-    /** Max line width, including indentation (default 78). */
-    readonly width?: number;
-    /** Max number of errors to show (default 8). */
-    readonly limit?: number;
+    width?: number; // Max line width, including indentation (default 78).
+    limit?: number; // Max number of errors to show (default 8).
   } = {},
 ): string {
   if (check.ok) return '';
@@ -21,6 +19,9 @@ export function endpointValidation(
     readonly kind?: string;
     readonly message?: string;
     readonly path?: t.ObjectPath;
+
+    // Some upstream errors may include extra fields; we treat them as optional/opaque.
+    readonly code?: string;
   };
 
   const kindOf = (e: unknown): string | undefined => {
@@ -38,6 +39,19 @@ export function endpointValidation(
   const fmtPath = (path?: t.ObjectPath) => {
     if (!path || path.length === 0) return '';
     return ` @ ${path.map((p) => String(p)).join('.')}`;
+  };
+
+  const pathKey = (path?: t.ObjectPath) => (path ?? []).map((p) => String(p)).join('.');
+
+  const isPathPrefix = (a?: t.ObjectPath, b?: t.ObjectPath) => {
+    const aa = a ?? [];
+    const bb = b ?? [];
+    if (aa.length === 0) return false;
+    if (bb.length < aa.length) return false;
+    for (let i = 0; i < aa.length; i++) {
+      if (String(aa[i]) !== String(bb[i])) return false;
+    }
+    return true;
   };
 
   const oneLine = (s: string) =>
@@ -101,6 +115,43 @@ export function endpointValidation(
     return (s: string) => c.yellow(s);
   };
 
+  const looksLikeUnionError = (msg: string) => {
+    const s = (msg ?? '').toLowerCase();
+    return s.includes('expected union value') || (s.includes('union') && s.includes('expected'));
+  };
+
+  const pickUnionDetails = (root: ErrLike, max = 3): readonly ErrLike[] => {
+    const rootMsg = oneLine(root.message ?? '');
+    if (!looksLikeUnionError(rootMsg)) return [];
+
+    const rootPath = root.path ?? [];
+    if (rootPath.length === 0) return [];
+
+    // Prefer errors at the same path (or nested under it) with different messages.
+    const out: ErrLike[] = [];
+    const seen = new Set<string>();
+
+    for (const raw of errors) {
+      const e = raw as ErrLike;
+      if (e === root) continue;
+
+      const msg = oneLine(e.message ?? '');
+      if (!msg) continue;
+      if (looksLikeUnionError(msg)) continue;
+
+      if (!(isPathPrefix(rootPath, e.path) || isPathPrefix(e.path, rootPath))) continue;
+
+      const key = `${pathKey(e.path)}|${msg}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      out.push(e);
+      if (out.length >= max) break;
+    }
+
+    return out;
+  };
+
   const b = Str.builder();
   b.line(titleTone(`Errors (${count})`));
 
@@ -111,11 +162,22 @@ export function endpointValidation(
 
     const msg = oneLine(e?.message ?? '-');
     const at = fmtPath(e?.path);
-    const full = `${msg}${at}`;
+
+    const k = oneLine(e?.kind ?? '');
+    const kindPrefix = k ? c.gray(c.dim(`[${k}] `)) : '';
+    const full = `${kindPrefix}${msg}${at}`;
 
     const lines = wrap(full, bulletTone(sev)('- '), '  ');
     for (const line of lines) b.line(c.gray(line));
-    b.line(); // spacer
+
+    const details = pickUnionDetails(e, 3);
+    for (const d of details) {
+      const dMsg = oneLine(d?.message ?? '');
+      const dAt = fmtPath(d?.path);
+      const dFull = `${dMsg}${dAt}`;
+      const dLines = wrap(dFull, c.gray(c.dim('  - ')), c.gray(c.dim('    ')));
+      for (const line of dLines) b.line(line);
+    }
   }
 
   if (count > limit) {

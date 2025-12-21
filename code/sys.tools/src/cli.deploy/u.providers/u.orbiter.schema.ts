@@ -5,6 +5,11 @@ import { type t, Schema } from '../common.ts';
  *
  * Authoritative validation for `provider:` blocks in endpoint YAML.
  * Keep this strict and boring.
+ *
+ * Note:
+ * - This schema reflects the YAML-authored provider config (what the user writes).
+ * - Any derived/runtime execution fields (eg buildDir/buildCommand) belong to the
+ *   push/runtime layer, not the authored provider config.
  */
 export const OrbiterProviderSchema = {
   /**
@@ -34,20 +39,8 @@ export const OrbiterProviderSchema = {
       /** Stable site identifier used by Orbiter. */
       siteId: Schema.Type.String(),
 
-      /** Logical domain / bucket name (eg "fs"). */
+      /** Logical domain / bucket name. */
       domain: Schema.Type.String(),
-
-      /**
-       * Directory Orbiter serves from.
-       * Relative to the endpoint staging dir.
-       */
-      buildDir: Schema.Type.String(),
-
-      /**
-       * Optional build command.
-       * Commonly "echo no-op" when build is handled upstream.
-       */
-      buildCommand: Schema.Type.Optional(Schema.Type.String()),
     },
     { additionalProperties: false },
   ),

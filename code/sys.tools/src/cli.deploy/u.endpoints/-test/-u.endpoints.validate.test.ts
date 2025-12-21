@@ -32,7 +32,6 @@ describe('Endpoints: validateEndpointYamlText', () => {
       '  kind: orbiter',
       '  siteId: site-123',
       '  domain: fs',
-      '  buildDir: dist',
       'mappings: []',
       '',
     ].join('\n');
@@ -47,14 +46,7 @@ describe('Endpoints: validateEndpointYamlText', () => {
   });
 
   it('schema-invalid orbiter provider → ok:false', () => {
-    const yaml = [
-      'provider:',
-      '  kind: orbiter',
-      '  domain: fs',
-      '  buildDir: dist',
-      'mappings: []',
-      '',
-    ].join('\n');
+    const yaml = ['provider:', '  kind: orbiter', '  domain: fs', 'mappings: []', ''].join('\n');
 
     const res = validateEndpointYamlText(yaml);
     expect(res.ok).to.eql(false);

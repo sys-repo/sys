@@ -27,7 +27,6 @@ describe('Schema: endpoint', () => {
         kind: 'orbiter',
         siteId: 'fs',
         domain: 'fs',
-        buildDir: 'dist',
       },
       mappings: [],
     };
@@ -49,7 +48,6 @@ describe('Schema: endpoint', () => {
         kind: 'orbiter',
         siteId: 'fs',
         domain: 'fs',
-        buildDir: 'dist',
         extra: true,
       },
     });
@@ -63,8 +61,7 @@ describe('Schema: endpoint', () => {
       provider: {
         kind: 'orbiter',
         siteId: 'fs',
-        domain: 'fs',
-        // buildDir missing
+        // domain missing
       },
     });
 
@@ -74,9 +71,7 @@ describe('Schema: endpoint', () => {
 
   it('validate: rejects provider with unknown kind', () => {
     const res = EndpointYamlSchema.validate({
-      provider: {
-        kind: 'wat',
-      },
+      provider: { kind: 'wat' },
     });
 
     expect(res.ok).to.eql(false);

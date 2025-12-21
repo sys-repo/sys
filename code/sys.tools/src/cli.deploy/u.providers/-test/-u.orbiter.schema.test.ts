@@ -7,7 +7,6 @@ describe('Schema: Orbiter Provider', () => {
       kind: 'orbiter',
       siteId: 'site',
       domain: 'fs',
-      buildDir: 'dist',
     };
 
     const res = OrbiterProviderSchema.validate(value);
@@ -30,7 +29,6 @@ describe('Schema: Orbiter Provider', () => {
       kind: 'orbiter',
       siteId: 'site',
       domain: 'fs',
-      buildDir: 'dist',
       extra: true,
     };
 
