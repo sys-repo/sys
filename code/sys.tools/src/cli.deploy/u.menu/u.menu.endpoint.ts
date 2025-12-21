@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Str, Time } from '../common.ts';
+import { type t, c, Cli, Fs, Path, Str, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 import { executeStaging } from '../u.staging/mod.ts';
@@ -63,6 +63,8 @@ export async function endpointMenu(args: {
     if (picked === 'run') {
       const file = String(ref.file ?? '');
       const yamlAbs = Fs.join(cwd, file);
+      const yamlDir = Fs.dirname(yamlAbs); // endpoint YAML folder
+      const rootDir = cwd; // deploy root (config folder)
 
       const res = await Fs.readYaml<{ mappings?: readonly t.DeployTool.Staging.Mapping[] }>(
         yamlAbs,
@@ -75,11 +77,29 @@ export async function endpointMenu(args: {
         continue;
       }
 
-      const spin = Cli.spinner(Fmt.spinnerText(`staging: ${ref.name}`));
+      /**
+       * Resolve mapping paths:
+       * - source is relative to the endpoint YAML file (yamlDir)
+       * - staging is relative to the deploy root (rootDir)
+       *
+       * We pass cwd=yamlDir into executeStaging so any remaining relative
+       * source resolution is correct, while staging is absolute.
+       */
+      const resolved: readonly t.DeployTool.Staging.Mapping[] = mappings.map((m) => {
+        const src = Path.resolve(yamlDir, String(m.dir.source ?? ''));
+        const dst = Path.resolve(rootDir, String(m.dir.staging ?? ''));
+        return { ...m, dir: { ...m.dir, source: src, staging: dst } };
+      });
+
+      const sp = Cli.spinner();
+      sp.start(Fmt.spinnerText('Running staging'));
+
       try {
-        await executeStaging(mappings, { cwd });
-      } finally {
-        spin.stop();
+        await executeStaging(resolved, { cwd: yamlDir });
+        sp.succeed(Fmt.spinnerText('Staging complete'));
+      } catch (err) {
+        sp.fail(Fmt.spinnerText('Staging failed'));
+        throw err;
       }
 
       config.change((doc) => {
