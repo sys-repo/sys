@@ -33,6 +33,8 @@ export async function endpointMenu(args: {
     return parts.length ? parts[parts.length - 1]! : s;
   };
 
+  let ranOk = false;
+
   while (true) {
     const ref = find(key);
     if (!ref) return { kind: 'back' };
@@ -54,7 +56,9 @@ export async function endpointMenu(args: {
     const picked = await Cli.Input.Select.prompt<'run' | 'fix' | 'rename' | 'delete' | 'back'>({
       message: `Actions:`,
       options: [
-        ...(check.ok ? [{ name: c.green('  run'), value: 'run' as const }] : []),
+        ...(check.ok
+          ? [{ name: ranOk ? c.gray('  run ✔') : c.green('  run'), value: 'run' as const }]
+          : []),
         ...(check.ok ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
         { name: '  rename', value: 'rename' },
         { name: dim(' (delete)'), value: 'delete' },
@@ -149,6 +153,7 @@ export async function endpointMenu(args: {
           },
         });
 
+        ranOk = true;
         spin.succeed(Fmt.spinnerText('Staging complete'));
       } catch (err) {
         spin.fail(Fmt.spinnerText('Staging failed'));
@@ -222,6 +227,8 @@ export async function endpointMenu(args: {
       await config.fs.save();
       const from = key;
       key = nextName;
+      ranOk = false;
+
       return { kind: 'renamed', from, to: nextName };
     }
 
