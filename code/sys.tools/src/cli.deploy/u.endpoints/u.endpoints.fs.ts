@@ -64,6 +64,44 @@ export const EndpointsFs = {
       return { ok: false, errors: Schema.Error.fromYaml([err]) };
     }
 
-    return validateEndpointYamlText(read.data ?? '');
+    const checked = validateEndpointYamlText(read.data ?? '');
+    if (!checked.ok) return checked;
+
+    const errors: t.Yaml.Error[] = [];
+    const baseDir = Fs.dirname(path);
+    const mappings = checked.doc.mappings ?? [];
+
+    for (let i = 0; i < mappings.length; i++) {
+      const m = mappings[i];
+      const sourceRaw = String(m?.dir?.source ?? '').trim();
+
+      if (!sourceRaw) {
+        errors.push({
+          name: 'YAMLParseError',
+          message: `mappings[${i}].dir.source is required.`,
+          code: EndpointYamlErrorCode,
+          pos: [0, 0],
+        });
+        continue;
+      }
+
+      const sourceAbs = sourceRaw.startsWith('/') ? sourceRaw : Fs.join(baseDir, sourceRaw);
+
+      if (!(await Fs.exists(sourceAbs))) {
+        errors.push({
+          name: 'YAMLParseError',
+          message:
+            `mappings[${i}].dir.source does not exist: ${sourceRaw}\n` + `resolved: ${sourceAbs}`,
+          code: EndpointYamlErrorCode,
+          pos: [0, 0],
+        });
+      }
+    }
+
+    if (errors.length) {
+      return { ok: false, errors: Schema.Error.fromYaml(errors) };
+    }
+
+    return checked;
   },
 } as const;

@@ -77,6 +77,59 @@ describe('EndpointsFs', () => {
     });
   });
 
+  it('validateYaml: mapping source missing → ok:false (resolved path included)', async () => {
+    await withTmpDir(async (tmp) => {
+      const path = `${tmp}/${EndpointsFs.fileOf('missing-src')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+      await Fs.write(
+        path,
+        [
+          'mappings:',
+          '  - mode: build+copy',
+          '    dir:',
+          '      source: ../../code/sys.ui/ui-components',
+          '      staging: sys/ui.components',
+          '',
+        ].join('\n'),
+      );
+
+      const res = await EndpointsFs.validateYaml(path);
+      expect(res.ok).to.eql(false);
+
+      if (!res.ok) {
+        const rendered = JSON.stringify(res.errors, null, 2);
+        expect(rendered.includes('mappings[0].dir.source does not exist')).to.eql(true);
+        expect(rendered.includes('resolved:')).to.eql(true);
+      }
+    });
+  });
+
+  it('validateYaml: mapping source exists (relative to yaml dir) → ok:true', async () => {
+    await withTmpDir(async (tmp) => {
+      // YAML is in: <tmp>/-endpoints/dev.yaml
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('dev')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      // ../code/... from <tmp>/-endpoints resolves to: <tmp>/code/...
+      const srcAbs = `${tmp}/code/my-modules/ui.foo.bar`;
+      await Fs.ensureDir(srcAbs);
+
+      const yaml = [
+        'mappings:',
+        '  - mode: build+copy',
+        '    dir:',
+        '      source: ../code/my-modules/ui.foo.bar',
+        '      staging: dist/my-output',
+        '',
+      ].join('\n');
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+
+      expect(res.ok).to.eql(true);
+    });
+  });
+
   it('validateYaml: valid YAML → ok:true with doc', async () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('ok')}`;
