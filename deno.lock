@@ -38,6 +38,7 @@
     "jsr:@std/testing@1.0.16": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.0.9": "1.0.9",
+    "jsr:@sys/tools@*": "0.0.161",
     "npm:@ai-sdk/openai@2.0.88": "2.0.88_zod@4.1.13",
     "npm:@automerge/automerge-repo-network-websocket@2.5.1": "2.5.1_ws@8.18.3__bufferutil@4.0.9__utf-8-validate@5.0.10",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.1": "2.5.1",
@@ -251,6 +252,12 @@
       "dependencies": [
         "jsr:@std/bytes",
         "jsr:@std/crypto"
+      ]
+    },
+    "@sys/tools@0.0.161": {
+      "integrity": "7d3a344ec0695348a32b7f44137be540c813d0194cb9c4d4caed7548f98d20e2",
+      "dependencies": [
+        "npm:react"
       ]
     }
   },
