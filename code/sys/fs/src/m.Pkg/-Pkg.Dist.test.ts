@@ -1,7 +1,7 @@
 import { type t, describe, expect, it, pkg } from '../-test.ts';
 import { Dir } from '../mod.ts';
 import { Sample } from './-u.ts';
-import { Fs, Is, Path, R, Time, c } from './common.ts';
+import { Fs, Is, Path, R, Str, Time, c } from './common.ts';
 import { Dist } from './m.Pkg.Dist.ts';
 import { Pkg } from './mod.ts';
 
@@ -175,6 +175,81 @@ describe('Pkg.Dist', () => {
       expect(res.exists).to.eql(true);
       expect(res.error?.message).to.include(dir);
       expect(res.error?.message).to.include('path is not a directory');
+    });
+  });
+
+  describe('Log', () => {
+    it('Log.children(): does not double-count nested content dirs', async () => {
+      const root = Fs.resolve('./.tmp/Pkg.Dist.Log.children/');
+      await Fs.remove(root);
+      await Fs.ensureDir(root);
+
+      // Child dist package at: ./sys/dev/dist.json
+      const childDir = Fs.join(root, 'sys/dev');
+      await Fs.ensureDir(childDir);
+      await Fs.write(Fs.join(childDir, 'hello.txt'), 'child');
+      await Pkg.Dist.compute({
+        dir: childDir,
+        pkg: { name: '@child/dev', version: '0.0.0' },
+        builder: { name: '@child/dev', version: '0.0.0' },
+        save: true,
+      });
+
+      // Content files under nested dirs (the old bug could count these twice).
+      const staticDir = Fs.join(root, 'static/runtime');
+      await Fs.ensureDir(staticDir);
+      await Fs.write(Fs.join(root, 'static/README.md'), 'readme');
+      await Fs.write(Fs.join(staticDir, 'a.bin'), 'a'.repeat(10));
+      await Fs.write(Fs.join(staticDir, 'b.bin'), 'b'.repeat(20));
+
+      // Root dist (must "see" the child dist.json in the hash parts).
+      const computed = await Pkg.Dist.compute({
+        dir: root,
+        pkg: { name: '@root/pkg', version: '0.0.0' },
+        builder: { name: '@root/pkg', version: '0.0.0' },
+      });
+
+      const dist = computed.dist;
+
+      // Be robust to whether DirHash emits "./sys/dev/dist.json" or "sys/dev/dist.json".
+      const childDistPath = Object.keys(dist.hash.parts).find((p) => {
+        return (
+          p === './sys/dev/dist.json' ||
+          p === 'sys/dev/dist.json' ||
+          p.endsWith('sys/dev/dist.json')
+        );
+      });
+      expect(childDistPath).to.not.equal(undefined);
+
+      // Render.
+      const text = await Pkg.Dist.Log.children(root, dist);
+
+      // Extract "static content" files size from the rendered table.
+      const contentLine = text
+        .split('\n')
+        .map((l) => l.trim())
+        .find((l) => l.includes('static content'));
+      expect(contentLine).to.not.equal(undefined);
+
+      // Grab the last "<size>" token on the line (matches how the table prints it).
+      const match = contentLine?.match(/(\d+(?:\.\d+)?\s*(?:B|KB|MB|GB))\s*$/);
+      expect(match?.[1]).to.not.equal(undefined);
+
+      // Expected bytes = sum of files NOT inside the child package root(s).
+      const childRoot = Path.dirname(childDistPath ?? './sys/dev/dist.json');
+      const includedPaths = Object.keys(dist.hash.parts).filter(
+        (p) => !p.startsWith(`${childRoot}/`),
+      );
+
+      let expectedBytes = 0;
+      for (const rel of includedPaths) {
+        const abs = Fs.join(root, rel);
+        const stat = await Fs.stat(abs);
+        expectedBytes += stat?.size ?? 0;
+      }
+
+      const expectedFmt = Str.bytes(expectedBytes);
+      expect(match?.[1]).to.eql(expectedFmt);
     });
   });
 

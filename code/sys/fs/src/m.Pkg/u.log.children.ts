@@ -13,24 +13,25 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
   if (subPackages.length === 0) return '';
 
   function toContent(dist: t.DistPkg, childBundles: t.StringPath[]) {
-    const dirs = Arr.uniq(
-      paths
-        .map((path) => Path.dirname(path))
-        .filter((path) => !childBundles.some((p) => path.startsWith(Path.dirname(p))))
-        .filter((path) => !['.'].includes(path)),
-    );
+    const childRoots = Arr.uniq(childBundles.map((p) => Path.dirname(p)));
+
+    // Compute content files ONCE (unique file paths), excluding any child bundle roots.
+    // This avoids double-counting caused by iterating nested dirs and re-including
+    // descendant files for each ancestor dir.
+    const includedPaths = paths
+      .filter((p) => !childRoots.some((root) => p.startsWith(`${root}/`)))
+      .filter((p) => !['.'].includes(Path.dirname(p)));
 
     const fromUri = CompositeHash.Uri.File.fromUri;
-    const files = dirs
-      .map((path) => {
-        return paths
-          .filter((p) => p.startsWith(`${path}/`))
-          .map((path) => ({ path, uri: dist.hash.parts[path] }))
-          .map((item) => ({ ...item, uri: fromUri(item.uri) }));
-      })
-      .flat();
+    const files = includedPaths
+      .map((path) => ({ path, uri: dist.hash.parts[path] }))
+      .map((item) => ({ ...item, uri: fromUri(item.uri) }));
 
+    const dirs = Arr.uniq(includedPaths.map((p) => Path.dirname(p))).filter(
+      (p) => !['.'].includes(p),
+    );
     const bytes = files.reduce((acc, file) => acc + (file.uri.bytes ?? 0), 0);
+
     return {
       bytes,
       dirs,
@@ -52,7 +53,7 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
   /**
    * Build table:
    */
-  const table = Cli.table([c.gray(' │')]);
+  const table = Cli.table([c.gray(c.dim(` ${Cli.Fmt.Tree.vert}`))]);
   const content = toContent(dist, subPackages);
 
   // Child package list:
@@ -72,16 +73,17 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
       const version = c.gray(`sha256:${hx}`);
       const dir = c.gray(Path.dirname(path));
 
-      table.push([c.gray(` ${branch} ${mod}`), dir, fmtTotalSize, fmtPkgSize, version]);
+      table.push([c.gray(` ${c.dim(branch)} ${mod}`), dir, fmtTotalSize, fmtPkgSize, version]);
     }
   }
 
   // Content files:
   if (content.length > 0) {
     const percent = Num.Percent.toString(totalBytes.percent);
-    const label = `${c.italic('content files')} ← (${percent})`;
+    const label = `${c.italic('static content')} ${c.dim(`← (${percent})`)}`;
     const size = Str.bytes(content.bytes);
-    table.push([c.gray(` ${'└──'} ${label}`), '', size]);
+    const branch = c.dim(Cli.Fmt.Tree.branch(true, 1));
+    table.push([c.gray(` ${branch} ${label}`), '', size]);
   }
 
   // Total sum:
@@ -93,5 +95,5 @@ export const children: t.PkgDistLog['children'] = async (dir, dist) => {
   }
 
   // Finish up.
-  return table.toString().trim();
+  return Str.trimEdgeNewlines(String(table));
 };

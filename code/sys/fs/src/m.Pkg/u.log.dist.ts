@@ -39,7 +39,7 @@ export const dist: t.PkgDistLog['dist'] = (dist, options = {}) => {
   const push = (label: string, value: string) => table.push([c.gray(label), '    ', value]);
 
   push('size:', totalSize);
-  push('size:/pkg/*', c.gray(`${pkgSize} (${percentDiff})`));
+  push('size:/pkg/*', c.gray(`${pkgSize} ${c.dim(`(${percentDiff})`)}`));
   push('dist:', c.gray(`${distPathFmt} ${hx}`));
   push('', c.green(`digest:${c.dim(hash.slice(0, -5))}${hash.slice(-5)}`)); // ← full SHA hash.
   push('timestamp:', c.gray(`${buildTime} | ${timeAgo} ago`));
