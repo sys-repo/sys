@@ -1,6 +1,6 @@
 import { type t } from '../common.ts';
-import { probeProvider } from './u.probe.ts';
 import { pushOrbiter } from './provider.orbiter/u.push.ts';
+import { probeProvider } from './u.probe.ts';
 
 /**
  * Execute a push for the given provider.
