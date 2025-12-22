@@ -25,7 +25,12 @@ export async function resolveMappingsForStaging(args: {
   const raw = res.ok ? (res.data?.mappings ?? []) : [];
 
   const resolved: readonly t.DeployTool.Staging.Mapping[] = raw.map((m) => {
-    const src = Path.resolve(yamlDir, String(m.dir.source ?? ''));
+    const sourceRaw = String(m.dir.source ?? '').trim();
+    const sourceExpanded = Fs.Tilde.expand(sourceRaw);
+    const src = Path.Is.absolute(sourceExpanded)
+      ? sourceExpanded
+      : Path.resolve(yamlDir, sourceExpanded);
+
     const dst = Path.resolve(rootDir, String(m.dir.staging ?? ''));
     return { ...m, dir: { ...m.dir, source: src, staging: dst } };
   });
