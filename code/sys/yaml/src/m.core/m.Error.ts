@@ -8,9 +8,11 @@ export const Error: t.YamlErrorLib = {
     err.name = name ?? 'YAMLParseError';
     err.code = code ?? 'BAD_ALIAS';
 
-    // Ensure required, mutable tuple (not readonly) for the upstream error shape.
-    const tuple: [number, number] = pos ? [pos[0], pos[1]] : [0, 0];
-    err.pos = tuple;
+    // Only attach `pos` when supplied, so callers can distinguish "no position".
+    if (pos) {
+      const tuple: [number, number] = [pos[0], pos[1]];
+      err.pos = tuple;
+    }
 
     return err;
   },
