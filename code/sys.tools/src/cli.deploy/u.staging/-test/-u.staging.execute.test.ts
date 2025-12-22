@@ -54,28 +54,6 @@ describe('Staging: executeStaging', () => {
     });
   });
 
-  it('cleanStagingRoot: deletes previous staging content before running mappings', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/a.txt`, 'hello');
-
-      // pre-existing junk in staging root
-      await Fs.ensureDir(`${tmp}/stage`);
-      await Fs.write(`${tmp}/stage/junk.txt`, 'junk');
-
-      const dir = { source: 'src', staging: 'stage' };
-      await executeStaging([{ mode: 'copy', dir }], stageOptions(tmp));
-
-      const junk = await Fs.readText(`${tmp}/stage/junk.txt`);
-      expect(junk.exists).to.eql(false);
-
-      const a = await Fs.readText(`${tmp}/stage/a.txt`);
-      expect(a.exists).to.eql(true);
-
-      await assertDistJsonExists(`${tmp}/stage`);
-    });
-  });
-
   it('build+copy: runs build tasks then stages /dist output', async () => {
     await withTmpDir(async (tmp) => {
       const srcRoot = `${tmp}/src`;

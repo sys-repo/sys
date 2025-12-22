@@ -11,9 +11,8 @@ export async function promptEndpointAction(args: {
   readonly ranOk: boolean;
   readonly canPush: boolean;
   readonly pushedOk: boolean;
-  readonly canClean: boolean;
 }): Promise<A> {
-  const { checkOk, ranOk, canPush, pushedOk, canClean } = args;
+  const { checkOk, ranOk, canPush, pushedOk } = args;
 
   const dim = (s: string) => c.gray(c.dim(s));
 
@@ -24,7 +23,6 @@ export async function promptEndpointAction(args: {
         ? [{ name: ranOk ? '  staged ✔' : '  stage (build, copy)', value: 'stage' as const }]
         : []),
       ...(canPush ? [{ name: pushedOk ? '  push ✔' : '  push', value: 'push' as const }] : []),
-      ...(canClean ? [{ name: '  clean', value: 'clean' as const }] : []),
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
       { name: '  edit yaml', value: 'edit' as const },
       { name: '  rename', value: 'rename' },

@@ -66,7 +66,6 @@ export async function endpointMenu(args: {
     const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
     const mappingStagingAbs =
       stagingRootAbs && mappingStagingRel ? Path.resolve(stagingRootAbs, mappingStagingRel) : '';
-    const canClean = mappingStagingAbs ? await Fs.exists(mappingStagingAbs) : false;
 
     const table = await Fmt.endpointTable(cwd, ref);
     console.info(renderEndpointScreen({ table: table.text, check }));
@@ -90,7 +89,6 @@ export async function endpointMenu(args: {
       ranOk,
       canPush: showPush,
       pushedOk,
-      canClean,
     });
 
     if (picked === 'back') return { kind: 'back' };
@@ -140,25 +138,6 @@ export async function endpointMenu(args: {
         console.info(String(b));
         continue;
       }
-    }
-
-    if (picked === 'clean') {
-      if (!canClean || !mappingStagingAbs) continue;
-
-      const yes = await Cli.Input.Confirm.prompt({
-        message: `Remove ${c.cyan(mappingStagingRel)}?`,
-        default: false,
-      });
-
-      if (!yes) continue;
-      await Fs.remove(mappingStagingAbs);
-
-      ranOk = false;
-      pushedOk = false;
-
-      const b = Str.builder().line(c.green('clean complete'));
-      console.info(String(b));
-      continue;
     }
 
     if (picked === 'stage') {
