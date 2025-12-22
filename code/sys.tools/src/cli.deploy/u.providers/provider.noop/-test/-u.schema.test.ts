@@ -1,14 +1,14 @@
-import { describe, it, expect } from '../../../-test.ts';
-import { NoopProviderSchema } from '../u.noop.schema.ts';
+import { describe, it, expect } from '../../../../-test.ts';
+import { NoopProvider } from '../mod.ts';
 
-describe('Schema: Noop Provider', () => {
+describe('No-op Provider: Schema', () => {
   it('accepts a valid noop provider', () => {
-    const res = NoopProviderSchema.validate({ kind: 'noop' });
+    const res = NoopProvider.Schema.validate({ kind: 'noop' });
     expect(res.ok).to.eql(true);
   });
 
   it('rejects unknown properties', () => {
-    const res = NoopProviderSchema.validate({
+    const res = NoopProvider.Schema.validate({
       kind: 'noop',
       extra: true,
     });

@@ -1,6 +1,5 @@
 import { type t } from '../common.ts';
-import { pushOrbiter } from './provider.orbiter/u.push.ts';
-import { probeProvider } from './u.probe.ts';
+import { OrbiterProvider, Provider } from '../u.providers/mod.ts';
 
 /**
  * Execute a push for the given provider.
@@ -13,9 +12,9 @@ export async function pushProvider(args: {
   provider?: t.DeployTool.Config.Provider.All;
   stagingDir: t.StringDir;
 }): Promise<t.PushResult> {
-  const { provider } = args;
+  const { provider, stagingDir } = args;
 
-  const preflight = await probeProvider(provider);
+  const preflight = await Provider.probe(provider);
   if (!preflight.ok) {
     return {
       ok: false,
@@ -35,12 +34,8 @@ export async function pushProvider(args: {
 
   switch (provider.kind) {
     case 'orbiter': {
-      return await pushOrbiter({
-        stagingDir: args.stagingDir,
-        provider,
-      });
+      return await OrbiterProvider.push({ stagingDir, provider });
     }
-
     case 'noop': {
       return { ok: true };
     }

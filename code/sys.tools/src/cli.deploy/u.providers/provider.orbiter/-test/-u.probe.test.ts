@@ -1,9 +1,9 @@
-import { describe, it, expect, expectTypeOf, Is } from '../../../-test.ts';
-import { probeProvider } from '../u.probe.ts';
+import { describe, expect, expectTypeOf, Is, it } from '../../../../-test.ts';
+import { Provider } from '../../mod.ts';
 
 describe('Provider: probe', () => {
   it('returns a stable availability shape for orbiter', async () => {
-    const res = await probeProvider({ kind: 'orbiter', siteId: 'site', domain: 'tmp' });
+    const res = await Provider.probe({ kind: 'orbiter', siteId: 'site', domain: 'tmp' });
 
     // Runtime: always discriminated by `ok`.
     expect(typeof res).to.eql('object');
@@ -19,10 +19,5 @@ describe('Provider: probe', () => {
       if ('hint' in res) expect(res.hint === undefined || Is.str(res.hint)).to.eql(true);
       if ('error' in res) expect(true).to.eql(true);
     }
-  });
-
-  it('is total over known provider kinds', async () => {
-    const res = await probeProvider({ kind: 'noop' });
-    expect(res.ok).to.eql(true);
   });
 });

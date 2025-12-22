@@ -1,5 +1,5 @@
-import { Schema } from '../common.ts';
 import type { t } from '../common.ts';
+import { Schema } from '../common.ts';
 
 /**
  * No-op provider runtime schema.

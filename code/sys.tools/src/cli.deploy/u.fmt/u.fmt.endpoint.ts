@@ -1,5 +1,5 @@
 import { type t, c, Cli, Fmt, Fs, Str, Time } from '../common.ts';
-import { probeProvider } from '../u.push/u.probe.ts';
+import { Provider } from '../u.providers/mod.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
 
 export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.EndpointRef) {
@@ -40,7 +40,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   try {
     const provider = yaml?.provider;
     if (provider) {
-      providerProbe = await probeProvider(provider);
+      providerProbe = await Provider.probe(provider);
     }
   } catch {
     providerProbe = undefined;

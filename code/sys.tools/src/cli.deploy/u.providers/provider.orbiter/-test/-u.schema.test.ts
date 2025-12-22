@@ -1,7 +1,7 @@
-import { describe, it, expect } from '../../../-test.ts';
-import { OrbiterProviderSchema } from '../u.orbiter.schema.ts';
+import { describe, it, expect } from '../../../../-test.ts';
+import { OrbiterProvider } from '../mod.ts';
 
-describe('Schema: Orbiter Provider', () => {
+describe('Orbiter Provider: Schema', () => {
   it('accepts a valid orbiter provider', () => {
     const value = {
       kind: 'orbiter',
@@ -9,7 +9,7 @@ describe('Schema: Orbiter Provider', () => {
       domain: 'fs',
     };
 
-    const res = OrbiterProviderSchema.validate(value);
+    const res = OrbiterProvider.Schema.validate(value);
     expect(res.ok).to.eql(true);
   });
 
@@ -19,7 +19,7 @@ describe('Schema: Orbiter Provider', () => {
       siteId: 'site',
     };
 
-    const res = OrbiterProviderSchema.validate(value);
+    const res = OrbiterProvider.Schema.validate(value);
     expect(res.ok).to.eql(false);
     if (!res.ok) expect(res.errors.length > 0).to.eql(true);
   });
@@ -32,7 +32,7 @@ describe('Schema: Orbiter Provider', () => {
       extra: true,
     };
 
-    const res = OrbiterProviderSchema.validate(value);
+    const res = OrbiterProvider.Schema.validate(value);
     expect(res.ok).to.eql(false);
     if (!res.ok) expect(res.errors.length > 0).to.eql(true);
   });

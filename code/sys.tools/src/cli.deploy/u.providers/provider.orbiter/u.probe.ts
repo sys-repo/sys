@@ -7,7 +7,7 @@ import { type t, Process } from '../../common.ts';
  * - Does not parse output.
  * - Never throws.
  */
-export async function probeOrbiter(
+export async function probe(
   options: {
     readonly cmd?: string; //       Binary name (defaults to "orbiter").
     readonly cwd?: t.StringDir; //  Optional working dir for the probe.

@@ -1,5 +1,5 @@
-export type * from './t.noop.ts';
-export type * from './t.orbiter.ts';
+export type * from './provider.noop/t.ts';
+export type * from './provider.orbiter/t.ts';
 
 /**
  * Orbiter availability probe.

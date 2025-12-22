@@ -1,5 +1,5 @@
 import { type t, Fs, Path } from '../common.ts';
-import { probeProvider } from '../u.push/u.probe.ts';
+import { Provider } from '../u.providers/mod.ts';
 
 type Reason =
   | 'yaml-invalid'
@@ -109,7 +109,7 @@ export async function pushCapabilityOf(args: {
   }
 
   // Provider preflight (runtime).
-  const preflight = await probeProvider(provider);
+  const preflight = await Provider.probe(provider);
   if (!preflight.ok) {
     return {
       show: true,

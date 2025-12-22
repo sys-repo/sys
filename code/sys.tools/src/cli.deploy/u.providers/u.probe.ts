@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { probeOrbiter } from './provider.orbiter/u.probe.ts';
+import { probe as probeOrbiter } from './provider.orbiter/u.probe.ts';
 
 /**
  * Probe availability for the configured provider.
@@ -11,9 +11,7 @@ import { probeOrbiter } from './provider.orbiter/u.probe.ts';
  *
  * No throwing. Ever.
  */
-export async function probeProvider(
-  provider?: t.DeployTool.Config.Provider.All,
-): Promise<t.PushProbe> {
+export async function probe(provider?: t.DeployTool.Config.Provider.All): Promise<t.PushProbe> {
   if (!provider) {
     return {
       ok: false,

@@ -1,6 +1,6 @@
 import { type t, Process } from '../../common.ts';
 
-export async function pushOrbiter(args: {
+export async function push(args: {
   readonly stagingDir: t.StringDir;
   readonly provider: t.DeployTool.Config.Provider.Orbiter;
   readonly cmd?: string;

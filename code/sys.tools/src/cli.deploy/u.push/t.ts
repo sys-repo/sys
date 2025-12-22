@@ -1,5 +1,3 @@
-export type * from './provider.orbiter/t.ts';
-
 export type PushProbe =
   | { readonly ok: true }
   | {
@@ -19,9 +17,6 @@ export type PushProbe =
 
 /**
  * Push execution result.
- *
- * Keep it coarse: menus/CLI decide how to render.
- * No throwing from push layer; errors are returned.
  */
 export type PushResult =
   | { readonly ok: true }
