@@ -1,16 +1,13 @@
 import { type t, Process } from '../../common.ts';
 
 export async function push(args: {
-  readonly stagingDir: t.StringDir;
-  readonly provider: t.DeployTool.Config.Provider.Orbiter;
-  readonly cmd?: string;
+  cwd: t.StringDir;
+  stagingDir: t.StringRelativeDir;
+  provider: t.DeployTool.Config.Provider.Orbiter;
 }): Promise<t.PushResult> {
-  const cmd = String(args.cmd ?? 'orbiter');
-
   try {
-    const stagingDir = String(args.stagingDir);
-    const buildDir = '.';
-
+    const { cwd } = args;
+    const buildDir = args.stagingDir;
     const siteId = String(args.provider.siteId ?? '');
     const domain = String(args.provider.domain ?? '');
 
@@ -27,9 +24,9 @@ export async function push(args: {
     ];
 
     const out = await Process.invoke({
-      cmd,
+      cmd: 'orbiter',
       args: argv.flatMap((x) => (Array.isArray(x) ? x : [x])),
-      cwd: stagingDir,
+      cwd,
       silent: true,
     });
 
