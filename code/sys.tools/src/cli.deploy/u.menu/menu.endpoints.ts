@@ -1,5 +1,6 @@
 import { type t, c, Cli, Fs, indexedMenu, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
+import { ValidName } from './is.ts';
 
 type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly key: string };
 
@@ -34,17 +35,13 @@ export async function endpointsMenu(config: t.DeployTool.Config.File): Promise<R
         const exists = (name: string) =>
           (config.current.endpoints ?? []).some((e) => e.name === name);
 
-        const isValidName = (name: string) => /^[a-zA-Z0-9]+([.-][a-zA-Z0-9]+)*$/.test(name);
-
         const raw = await Cli.Input.Text.prompt({
           message: 'Endpoint display name',
           hint: 'letters, numbers, "." or "-" (e.g. foo.bar-baz)',
           validate(value) {
             const name = String(value ?? '').trim();
             if (!name) return 'Name required.';
-            if (!isValidName(name)) {
-              return 'Use letters, numbers, "." or "-" only (no spaces, no leading/trailing separators).';
-            }
+            if (!ValidName.test(name)) return ValidName.hint;
             if (exists(name)) return 'Name already exists.';
             return true;
           },

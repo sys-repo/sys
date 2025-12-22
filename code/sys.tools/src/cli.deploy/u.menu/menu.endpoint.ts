@@ -2,6 +2,7 @@ import { type t, c, Cli, Fs, Open, Path, Str, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
+import { ValidName } from './is.ts';
 import { runPushWithSpinner } from './run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './run.stagingWithSpinner.ts';
 import { promptEndpointAction } from './u.promptEndpointAction.ts';
@@ -9,6 +10,7 @@ import { pushCapabilityOf } from './u.pushCapability.ts';
 import { renderEndpointScreen } from './u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u.resolveMappingsForStaging.ts';
 import { touchEndpointLastUsed } from './u.touchEndpointLastUsed.ts';
+import { renameEndpoint } from './u.renameEndpoint.ts';
 
 type Pick =
   | { readonly kind: 'back' }
@@ -182,6 +184,7 @@ export async function endpointMenu(args: {
         validate(value) {
           const next = String(value ?? '').trim();
           if (!next) return 'Name required.';
+          if (!ValidName.test(next)) return ValidName.hint;
           if (next !== ref.name && exists(next)) return 'Name already exists.';
           return true;
         },
@@ -190,30 +193,15 @@ export async function endpointMenu(args: {
       const nextName = raw.trim();
       if (nextName === ref.name) return { kind: 'back' };
 
-      const fromRel = ref.file;
-      const toRel = EndpointsFs.fileOf(nextName);
-
-      const fromAbs = Fs.join(cwd, fromRel);
-      const toAbs = Fs.join(cwd, toRel);
-
-      await Fs.ensureDir(Fs.join(cwd, EndpointsFs.dir));
-
-      if (await Fs.exists(fromAbs)) {
-        await Fs.move(fromAbs, toAbs);
-      } else {
-        await EndpointsFs.ensureInitialYaml(toAbs, nextName);
+      const res = await renameEndpoint({ config, cwd, ref, nextName });
+      if (!res.ok) {
+        const b = Str.builder()
+          .line(c.red('Rename failed'))
+          .line(c.gray(c.dim(String(res.error))))
+          .blank();
+        console.info(String(b));
+        continue;
       }
-
-      config.change((doc) => {
-        const now = Time.now.timestamp;
-        const current = doc.endpoints ?? [];
-        const lastUsedAt = now;
-        doc.endpoints = current.map((e) => {
-          return e.name === ref.name ? { ...e, name: nextName, file: toRel, lastUsedAt } : e;
-        });
-      });
-
-      await config.fs.save();
 
       const from = key;
       key = nextName;
