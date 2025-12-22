@@ -44,14 +44,18 @@ export async function endpointMenu(args: {
 
     const cwd = Fs.dirname(config.fs.path);
     const abs = Fs.join(cwd, ref.file);
+
+    if (!(await Fs.exists(abs))) {
+      await Fs.ensureDir(Fs.join(cwd, EndpointsFs.dir));
+      await EndpointsFs.ensureInitialYaml(abs, ref.name);
+    }
+
     const check = await EndpointsFs.validateYaml(abs);
-
-    const cap = await pushCapabilityOf({ cwd, yamlAbs: abs, checkOk: check.ok });
-
+    const capability = await pushCapabilityOf({ cwd, yamlAbs: abs, checkOk: check.ok });
     const yaml = check.ok ? check.doc : undefined;
     const provider = yaml?.provider;
 
-    // Boring publish-dir choice: prefer first build+copy mapping; else first mapping.
+    // Prefer first `build+copy` mapping; else first mapping.
     const mapping =
       (yaml?.mappings ?? []).find((m) => m.mode === 'build+copy') ?? (yaml?.mappings ?? [])[0];
 
@@ -62,7 +66,7 @@ export async function endpointMenu(args: {
     const buildDir = String(mapping?.dir?.staging ?? '');
     const buildDirAbs = buildDir ? Path.resolve(stagingDir, buildDir) : '';
     const canClean = buildDirAbs ? await Fs.exists(buildDirAbs) : false;
-    const canPush = cap.show && cap.enabled;
+    const canPush = capability.show && capability.enabled;
 
     const table = await Fmt.endpointTable(cwd, ref);
     console.info(renderEndpointScreen({ table: table.text, check }));
@@ -80,7 +84,7 @@ export async function endpointMenu(args: {
       console.info(String(s));
     }
 
-    const showPush = cap.show;
+    const showPush = capability.show;
     const picked = await promptEndpointAction({
       checkOk: check.ok,
       ranOk,
@@ -100,10 +104,10 @@ export async function endpointMenu(args: {
       if (!showPush) continue;
 
       if (!canPush) {
-        const hint = String(cap.hint ?? '').trim();
+        const hint = String(capability.hint ?? '').trim();
         const b = Str.builder()
           .line(c.yellow('Push unavailable'))
-          .line(c.gray(c.dim(`reason: ${String(cap.reason ?? 'probe-failed')}`)));
+          .line(c.gray(c.dim(`reason: ${String(capability.reason ?? 'probe-failed')}`)));
 
         if (hint) b.line(c.gray(hint));
 
