@@ -67,10 +67,24 @@ export async function pushCapabilityOf(args: {
     return { show: false, reason: 'noop-provider' };
   }
 
-  // Resolve staging dirs (absolute) and only keep those that exist.
+  /**
+   * Staging outputs live under `yaml.staging.dir` (relative to deploy root),
+   * then each mapping stages into a subdir relative to that staging root.
+   *
+   * Before: we incorrectly resolved `m.dir.staging` directly under `cwd`,
+   * which breaks multi-mapping endpoints (e.g. "./staging" + "./ui.components").
+   */
+  const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
+  const stagingRootAbs = Path.resolve(String(cwd), stagingRootRel);
+
   const mappings = yaml?.mappings ?? [];
   const stagingAbs = [
-    ...new Set(mappings.map((m) => Path.resolve(String(cwd), String(m.dir.staging ?? '')))),
+    ...new Set(
+      mappings.map((m) => {
+        const rel = String(m.dir.staging ?? '').trim() || '.';
+        return Path.resolve(stagingRootAbs, rel);
+      }),
+    ),
   ];
 
   const exists = await Promise.all(
