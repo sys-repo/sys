@@ -4,6 +4,17 @@ export type RootIndexHtmlArgs = {
   readonly stagingRoot: string;
 };
 
+/**
+ * Ensure a minimal root index.html exists at the staging root.
+ * - Writes only when missing.
+ * - Idempotent.
+ */
+export async function ensureRootIndexHtml(args: RootIndexHtmlArgs): Promise<void> {
+  const file = Path.join(args.stagingRoot, 'index.html');
+  if (await Fs.exists(file)) return;
+  await Fs.write(file, HTML);
+}
+
 const HTML = Str.dedent(`
   <!doctype html>
   <html lang="en">
@@ -28,14 +39,3 @@ const HTML = Str.dedent(`
     </body>
   </html>
 `);
-
-/**
- * Ensure a minimal root index.html exists at the staging root.
- * - Writes only when missing.
- * - Idempotent.
- */
-export async function ensureRootIndexHtml(args: RootIndexHtmlArgs): Promise<void> {
-  const file = Path.join(args.stagingRoot, 'index.html');
-  if (await Fs.exists(file)) return;
-  await Fs.write(file, HTML, { force: true });
-}
