@@ -12,13 +12,13 @@ export async function probeOrbiter(
     readonly cmd?: string; //       Binary name (defaults to "orbiter").
     readonly cwd?: t.StringDir; //  Optional working dir for the probe.
   } = {},
-): Promise<t.OrbiterAvailability> {
-  const cmd = String(options.cmd ?? 'orbiter');
+): Promise<t.ProviderAvailability> {
+  const { cwd, cmd = 'orbiter' } = options;
   const hint = 'npm i -g orbiter-cli';
 
   try {
     // Cheapest possible capability probe.
-    const out = await Process.invoke({ cmd, args: ['--version'], cwd: options.cwd, silent: true });
+    const out = await Process.invoke({ cmd, args: ['--version'], cwd, silent: true });
     if (!out.success) {
       return { ok: false, reason: 'failed', hint, error: out };
     }
