@@ -1,6 +1,7 @@
 import { type t, pkg, c, Cli, Path, Pkg } from '../common.ts';
 import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
+import { ensureRootIndexHtml } from './u.index.html.ts';
 
 type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly error: unknown };
 
@@ -48,9 +49,10 @@ export async function runStagingWithSpinner(args: {
       writeDistJson: true,
 
       async onWriteDistJson(e) {
-        const { exists } = await Pkg.Dist.load(e.stagingRoot);
-        if (exists) return;
-        await Pkg.Dist.compute({ dir: e.stagingRoot, save: true, pkg, builder: pkg });
+        const stagingRoot = e.stagingRoot;
+        await ensureRootIndexHtml({ stagingRoot });
+        const { exists } = await Pkg.Dist.load(stagingRoot);
+        if (!exists) await Pkg.Dist.compute({ dir: stagingRoot, save: true, pkg, builder: pkg });
       },
 
       onProgress(e) {

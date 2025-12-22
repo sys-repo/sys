@@ -1,8 +1,5 @@
 /**
  * Orbiter provider configuration.
- *
- * This payload is materialized as `orbiter.json`
- * inside the endpoint staging dir before execution.
  */
 export type OrbiterProvider = {
   kind: 'orbiter';
