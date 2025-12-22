@@ -9,42 +9,35 @@ import { OrbiterProvider, Provider } from '../u.providers/mod.ts';
  * - Provider-specific mechanics live behind kind dispatch.
  */
 export async function pushProvider(args: {
+  cwd: t.StringDir;
   provider?: t.DeployTool.Config.Provider.All;
   stagingDir: t.StringDir;
 }): Promise<t.PushResult> {
-  const { provider, stagingDir } = args;
+  const { cwd, provider, stagingDir } = args;
 
   const preflight = await Provider.probe(provider);
   if (!preflight.ok) {
-    return {
-      ok: false,
-      reason: 'probe-failed',
-      hint: preflight.hint,
-      error: preflight.error,
-    };
+    return { ok: false, reason: 'probe-failed', hint: preflight.hint, error: preflight.error };
   }
 
   if (!provider) {
-    return {
-      ok: false,
-      reason: 'probe-failed',
-      hint: 'No provider configured for this endpoint.',
-    };
+    return { ok: false, reason: 'probe-failed', hint: 'No provider configured for this endpoint.' };
   }
 
   switch (provider.kind) {
     case 'orbiter': {
-      return await OrbiterProvider.push({ stagingDir, provider });
+      return await OrbiterProvider.push({ cwd, stagingDir, provider });
     }
     case 'noop': {
       return { ok: true };
     }
 
     default: {
+      const kind = (provider as { kind?: unknown }).kind;
       return {
         ok: false,
         reason: 'unsupported-provider',
-        hint: `Unsupported provider kind: ${(provider as { kind?: unknown }).kind}`,
+        hint: `Unsupported provider kind: ${kind}`,
       };
     }
   }

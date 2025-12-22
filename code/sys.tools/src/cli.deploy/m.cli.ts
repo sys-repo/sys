@@ -45,7 +45,7 @@ async function run(cwd: t.StringDir, _args: t.DeployTool.CliArgs): Promise<t.Run
     const picked = await endpointsMenu(config);
     if (picked.kind === 'exit') return done(0);
 
-    const res = await endpointMenu({ config, key: picked.key });
+    const res = await endpointMenu({ cwd, config, key: picked.key });
     if (res.kind === 'back') continue;
   }
 }

@@ -10,11 +10,11 @@ type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly e
  * Never throws unless you choose to rethrow based on ok:false.
  */
 export async function runStagingWithSpinner(args: {
-  readonly mappings: readonly t.DeployTool.Staging.Mapping[];
-  readonly yamlDir: t.StringDir;
-  readonly stagingRoot: t.StringDir;
+  cwd: t.StringDir;
+  mappings: t.Ary<t.DeployTool.Staging.Mapping>;
+  stagingRoot: t.StringRelativeDir;
 }): Promise<RunStagingResult> {
-  const { mappings, yamlDir } = args;
+  const { cwd, mappings } = args;
 
   const spin = Cli.spinner();
   spin.start(Fmt.spinnerText('Running staging...'));
@@ -25,7 +25,6 @@ export async function runStagingWithSpinner(args: {
 
   const render = (): string => {
     const names = [...active.entries()].sort((a, b) => a[0] - b[0]).map(([, name]) => name);
-
     const lines: string[] = [];
     lines.push(`Staging (${c.white(String(done))}/${total})...`);
 
@@ -41,10 +40,11 @@ export async function runStagingWithSpinner(args: {
   };
 
   try {
-    await executeStaging(mappings, {
-      cwd: yamlDir,
-      concurrency: stagingConcurrencyDefault({ total }),
+    await executeStaging({
+      cwd,
+      mappings,
       stagingRoot: args.stagingRoot,
+      concurrency: stagingConcurrencyDefault({ total }),
       cleanStagingRoot: true,
       writeDistJson: true,
 

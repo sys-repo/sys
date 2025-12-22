@@ -3,19 +3,21 @@ import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
 
 export type StagingProgressEvent = t.DeployTool.Staging.ProgressEvent;
-export type ExecuteStagingOptions = t.DeployTool.Staging.ExecuteOptions & {
-  readonly concurrency?: number;
-  readonly onProgress?: (e: StagingProgressEvent) => void;
+type Args = {
+  cwd: t.StringDir;
+  mappings: t.Ary<t.DeployTool.Staging.Mapping>;
+  concurrency?: number;
+  onProgress?: (e: StagingProgressEvent) => void;
 
   /**
    * Optional single staging root dir for deterministic lifecycle operations.
    * - cleanStagingRoot: delete + recreate before running any mappings.
    * - writeDistJson: callback invoked after successful completion.
    */
-  readonly stagingRoot?: t.StringDir;
-  readonly cleanStagingRoot?: boolean;
-  readonly writeDistJson?: boolean;
-  readonly onWriteDistJson?: (args: { readonly stagingRoot: t.StringDir }) => Promise<void>;
+  stagingRoot?: t.StringRelativeDir;
+  cleanStagingRoot?: boolean;
+  writeDistJson?: boolean;
+  onWriteDistJson?: (e: { stagingRoot: t.StringAbsoluteDir }) => Promise<void>;
 
   /**
    * When true, allow mappings to overwrite existing staging files.
@@ -26,14 +28,12 @@ export type ExecuteStagingOptions = t.DeployTool.Staging.ExecuteOptions & {
    *   - overwrite=false (default): existing files are preserved (skipped).
    *   - overwrite=true: last write wins.
    */
-  readonly overwrite?: boolean;
+  overwrite?: boolean;
 };
 
-export async function executeStaging(
-  mappings: readonly t.DeployTool.Staging.Mapping[],
-  options: ExecuteStagingOptions = {},
-): Promise<void> {
-  const cwd = options.cwd ?? '.';
+export async function executeStaging(options: Args): Promise<void> {
+  const { cwd, mappings } = options;
+
   const total = mappings.length;
 
   const resolveAbs = (base: string, p: string): string => {

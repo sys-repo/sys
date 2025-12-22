@@ -1,18 +1,16 @@
 import { withTmpDir } from '../../-test/-fixtures.ts';
-import { describe, expect, Fs, it } from '../../../-test.ts';
+import { type t, describe, expect, Fs, it } from '../../../-test.ts';
 import { Json, Pkg } from '../../common.ts';
 import { executeStaging } from '../u.staging.execute.ts';
 
 describe('Staging: executeStaging', () => {
-  const stageOptions = (tmp: string) => {
-    const stagingRoot = `${tmp}/stage`;
-
+  const stageOptions = (tmp: t.StringDir) => {
     return {
       cwd: tmp,
-      stagingRoot,
+      stagingRoot: 'stage',
       cleanStagingRoot: true,
       writeDistJson: true,
-      onWriteDistJson: async (args: { readonly stagingRoot: string }) => {
+      onWriteDistJson: async (args: { stagingRoot: string }) => {
         await Pkg.Dist.compute({ dir: args.stagingRoot, save: true });
       },
     } as const;
@@ -30,7 +28,8 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/src/a.txt`, 'hello');
 
       const dir = { source: 'src', staging: 'stage' };
-      await executeStaging([{ mode: 'copy', dir }], stageOptions(tmp));
+
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
 
       const text = (await Fs.readText(`${tmp}/stage/a.txt`)).data!;
       expect(text).to.eql('hello');
@@ -44,7 +43,7 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/src/a.txt`, 'x');
 
       const dir = { source: 'src', staging: 'stage' };
-      await executeStaging([{ mode: 'copy', dir }], stageOptions(tmp));
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
 
       const res = await Fs.readText(`${tmp}/stage/a.txt`);
       expect(res.ok).to.eql(true);
@@ -78,7 +77,7 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${srcRoot}/deno.json`, denoJson);
 
       const dir = { source: 'src', staging: 'stage' };
-      await executeStaging([{ mode: 'build+copy', dir }], stageOptions(tmp));
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'build+copy', dir }] });
 
       const res = await Fs.readText(`${tmp}/stage/a.txt`);
       expect(res.ok).to.eql(true);
@@ -97,9 +96,7 @@ describe('Staging: executeStaging', () => {
       const denoJson = Json.stringify({
         name: 'tmp-staging-fail',
         version: '0.0.0',
-        tasks: {
-          build: `deno eval "Deno.exit(1)"`,
-        },
+        tasks: { build: `deno eval "Deno.exit(1)"` },
       });
 
       await Fs.write(`${srcRoot}/deno.json`, denoJson);
@@ -122,7 +119,7 @@ describe('Staging: executeStaging', () => {
       } as const;
 
       try {
-        await executeStaging(mappings, opts);
+        await executeStaging({ ...opts, mappings });
       } catch {
         threw = true;
       }
@@ -163,7 +160,7 @@ describe('Staging: executeStaging', () => {
         { mode: 'copy' as const, dir: { source: 'src2', staging: 'stage' } },
       ];
 
-      await executeStaging(mappings, stageOptions(tmp));
+      await executeStaging({ mappings, ...stageOptions(tmp) });
 
       const a = await Fs.readText(`${tmp}/stage/a.txt`);
       expect(a.ok).to.eql(true);
@@ -208,7 +205,7 @@ describe('Staging: executeStaging', () => {
         { mode: 'copy' as const, dir: { source: 'src2', staging: 'stage' } },
       ];
 
-      await executeStaging(mappings, { ...stageOptions(tmp), overwrite: true });
+      await executeStaging({ ...stageOptions(tmp), mappings, overwrite: true });
 
       const a = await Fs.readText(`${tmp}/stage/a.txt`);
       expect(a.ok).to.eql(true);

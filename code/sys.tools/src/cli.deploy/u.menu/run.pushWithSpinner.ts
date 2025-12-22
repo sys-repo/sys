@@ -11,11 +11,11 @@ type RunPushResult =
  * Never throws.
  */
 export async function runPushWithSpinner(args: {
-  readonly provider: t.DeployTool.Config.Provider.All;
-  readonly stagingDir: t.StringDir;
+  cwd: t.StringDir;
+  provider: t.DeployTool.Config.Provider.All;
+  stagingDir: t.StringDir;
 }): Promise<RunPushResult> {
   const spin = Cli.spinner();
-
   const dist = (await Pkg.Dist.load(Path.join(args.stagingDir, '.'))).dist;
   const bytes = dist?.build.size.total ?? 0;
 

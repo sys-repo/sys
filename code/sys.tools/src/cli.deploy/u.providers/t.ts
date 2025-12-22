@@ -13,10 +13,7 @@ export type ProviderAvailability =
       readonly ok: false;
       /** Coarse reason (stable for callers). */
       readonly reason: 'not-found' | 'failed';
-      /**
-       * Human hint (optional, safe to show in CLI).
-       * Should be the install command for "not-found".
-       */
+      /** Human hint (optional, safe to show in CLI). Should be the install command for "not-found". */
       readonly hint?: string;
       /** Raw error for diagnostics (do not stringify unless needed). */
       readonly error?: unknown;

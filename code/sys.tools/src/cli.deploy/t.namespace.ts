@@ -147,12 +147,6 @@ export namespace DeployTool {
       | { readonly mode: 'copy'; readonly dir: Dir }
       | { readonly mode: 'build+copy'; readonly dir: Dir };
 
-    /** Execution options for staging operations. */
-    export type ExecuteOptions = {
-      /** Working directory for resolving relative paths. */
-      readonly cwd?: t.StringDir;
-    };
-
     /** Build progress. */
     export type ProgressKind = 'mapping:start' | 'mapping:step' | 'mapping:done' | 'mapping:fail';
     export type ProgressReport<K extends ProgressKind> = {

@@ -35,11 +35,11 @@ type PushCapability =
  * - Never throws.
  */
 export async function pushCapabilityOf(args: {
-  cwd: t.StringDir; //      Deploy root (config folder).
-  yamlAbs: t.StringPath; // Absolute path to the endpoint YAML file.
-  checkOk: boolean; //      YAML schema validation result from EndpointsFs.validateYaml(abs).
+  cwd: t.StringDir;
+  yamlPath: t.StringRelativeDir;
+  checkOk: boolean; // YAML schema validation result from EndpointsFs.validateYaml(abs).
 }): Promise<PushCapability> {
-  const { cwd, yamlAbs, checkOk } = args;
+  const { cwd, yamlPath, checkOk } = args;
 
   if (!checkOk) {
     return { show: false, reason: 'yaml-invalid', hint: 'Fix YAML errors to enable push.' };
@@ -48,7 +48,8 @@ export async function pushCapabilityOf(args: {
   // Read endpoint YAML (provider + mappings). Keep it coarse; never throw.
   let yaml: t.DeployTool.Config.EndpointYaml.Doc | undefined;
   try {
-    const res = await Fs.readYaml<t.DeployTool.Config.EndpointYaml.Doc>(String(yamlAbs));
+    const path = Fs.join(cwd, yamlPath);
+    const res = await Fs.readYaml<t.DeployTool.Config.EndpointYaml.Doc>(path);
     yaml = res.ok ? res.data : undefined;
   } catch {
     yaml = undefined;
@@ -75,7 +76,7 @@ export async function pushCapabilityOf(args: {
    * which breaks multi-mapping endpoints (e.g. "./staging" + "./ui.components").
    */
   const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
-  const stagingRootAbs = Path.resolve(String(cwd), stagingRootRel);
+  const stagingRootAbs = Path.resolve(cwd, stagingRootRel);
 
   const mappings = yaml?.mappings ?? [];
   const stagingAbs = [

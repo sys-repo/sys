@@ -12,10 +12,11 @@ type ResolveMappingsResult =
  * Returns ok:false when YAML read fails (callers can decide how to handle).
  */
 export async function resolveMappingsForStaging(args: {
-  readonly cwd: t.StringDir;
-  readonly yamlAbs: t.StringPath;
+  cwd: t.StringDir;
+  yamlPath: t.StringRelativeDir;
 }): Promise<ResolveMappingsResult> {
-  const { cwd, yamlAbs } = args;
+  const { cwd } = args;
+  const yamlAbs = Path.resolve(cwd, args.yamlPath);
 
   const yamlDir = Fs.dirname(String(yamlAbs)); // endpoint YAML folder
   const rootDir = String(cwd); // deploy root (config folder)

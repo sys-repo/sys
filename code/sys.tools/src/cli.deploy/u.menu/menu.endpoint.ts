@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Open, Path, Str, Time } from '../common.ts';
+import { type t, c, Cli, Fs, Open, Str } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
@@ -7,10 +7,10 @@ import { runPushWithSpinner } from './run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './run.stagingWithSpinner.ts';
 import { promptEndpointAction } from './u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u.pushCapability.ts';
+import { renameEndpoint } from './u.renameEndpoint.ts';
 import { renderEndpointScreen } from './u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u.resolveMappingsForStaging.ts';
 import { touchEndpointLastUsed } from './u.touchEndpointLastUsed.ts';
-import { renameEndpoint } from './u.renameEndpoint.ts';
 
 type Pick =
   | { readonly kind: 'back' }
@@ -28,10 +28,11 @@ type Pick =
  * - delete (file + config index)
  */
 export async function endpointMenu(args: {
-  readonly config: t.DeployTool.Config.File;
-  readonly key: string;
+  cwd: t.StringDir;
+  config: t.DeployTool.Config.File;
+  key: string;
 }): Promise<Pick> {
-  const { config } = args;
+  const { cwd, config } = args;
   let key = args.key;
 
   const dim = (s: string) => c.gray(c.dim(s));
@@ -44,30 +45,34 @@ export async function endpointMenu(args: {
     const ref = find(key);
     if (!ref) return { kind: 'back' };
 
-    const cwd = Fs.dirname(config.fs.path);
-    const abs = Fs.join(cwd, ref.file);
+    const yamlRel = String(ref.file ?? '').trim();
+    const yamlAbs = Fs.join(cwd, yamlRel);
 
-    if (!(await Fs.exists(abs))) {
+    if (!(await Fs.exists(yamlAbs))) {
       await Fs.ensureDir(Fs.join(cwd, EndpointsFs.dir));
-      await EndpointsFs.ensureInitialYaml(abs, ref.name);
+      await EndpointsFs.ensureInitialYaml(yamlAbs, ref.name);
     }
 
-    const check = await EndpointsFs.validateYaml(abs);
-    const capability = await pushCapabilityOf({ cwd, yamlAbs: abs, checkOk: check.ok });
+    const check = await EndpointsFs.validateYaml(yamlAbs);
     const yaml = check.ok ? check.doc : undefined;
+
+    const capability = await pushCapabilityOf({
+      cwd,
+      yamlPath: yamlRel,
+      checkOk: check.ok,
+    });
+
     const provider = yaml?.provider;
 
     // Prefer first `build+copy` mapping; else first mapping.
     const mapping =
       (yaml?.mappings ?? []).find((m) => m.mode === 'build+copy') ?? (yaml?.mappings ?? [])[0];
 
-    const stagingDirRel = String(yaml?.staging?.dir ?? '').trim();
-    const stagingRootAbs = stagingDirRel ? Path.resolve(String(cwd), stagingDirRel) : '';
-    const canPush = capability.show && capability.enabled && !!stagingRootAbs;
-
+    const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
     const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
-    const mappingStagingAbs =
-      stagingRootAbs && mappingStagingRel ? Path.resolve(stagingRootAbs, mappingStagingRel) : '';
+
+    // "can push" is about capability + having *some* staging root configured ('.' counts).
+    const canPush = capability.show && capability.enabled && !!stagingRootRel;
 
     const table = await Fmt.endpointTable(cwd, ref);
     console.info(renderEndpointScreen({ table: table.text, check }));
@@ -96,7 +101,7 @@ export async function endpointMenu(args: {
     if (picked === 'back') return { kind: 'back' };
 
     if (picked === 'edit') {
-      Open.invokeDetached(cwd, String(Path.toFileUrl(abs)), { silent: true });
+      Open.invokeDetached(cwd, yamlRel, { silent: true });
       continue;
     }
 
@@ -108,16 +113,18 @@ export async function endpointMenu(args: {
         const b = Str.builder()
           .line(c.yellow('Push unavailable'))
           .line(c.gray(c.dim(`reason: ${String(capability.reason ?? 'probe-failed')}`)));
-
         if (hint) b.line(c.gray(hint));
-
         console.info(String(b));
         continue;
       }
 
       if (!provider) continue;
 
-      const res = await runPushWithSpinner({ provider, stagingDir: stagingRootAbs });
+      const res = await runPushWithSpinner({
+        cwd,
+        provider,
+        stagingDir: stagingRootRel,
+      });
 
       if (res.ok) {
         pushedOk = true;
@@ -131,7 +138,7 @@ export async function endpointMenu(args: {
         const b = Str.builder()
           .line(c.red('Push failed'))
           .line(c.gray(c.dim(`provider: ${String(provider.kind)}`)))
-          .line(c.gray(c.dim(`staging root: ${stagingDirRel || '.'}`)))
+          .line(c.gray(c.dim(`staging root: ${stagingRootRel || '.'}`)))
           .line(c.gray(c.dim(`mapping.staging: ${mappingStagingRel || '(none)'}`)))
           .blank();
 
@@ -143,20 +150,16 @@ export async function endpointMenu(args: {
     }
 
     if (picked === 'stage') {
-      const file = String(ref.file ?? '');
-      const yamlAbs = Fs.join(cwd, file);
-      const yamlDir = Fs.dirname(yamlAbs); // endpoint YAML folder
-
-      const resolved = await resolveMappingsForStaging({ cwd, yamlAbs });
+      const resolved = await resolveMappingsForStaging({ cwd, yamlPath: yamlRel });
       if (!resolved.ok) continue;
 
       await runStagingWithSpinner({
+        cwd,
         mappings: resolved.mappings,
-        yamlDir,
-        stagingRoot: stagingRootAbs,
+        stagingRoot: stagingRootRel,
       });
-      ranOk = true;
 
+      ranOk = true;
       await touchEndpointLastUsed({ config, endpointName: ref.name });
       continue;
     }
@@ -193,7 +196,7 @@ export async function endpointMenu(args: {
       const nextName = raw.trim();
       if (nextName === ref.name) return { kind: 'back' };
 
-      const res = await renameEndpoint({ config, cwd, ref, nextName });
+      const res = await renameEndpoint({ cwd, config, ref, nextName });
       if (!res.ok) {
         const b = Str.builder()
           .line(c.red('Rename failed'))
@@ -219,8 +222,7 @@ export async function endpointMenu(args: {
 
       if (!yes) continue;
 
-      const abs = Fs.join(cwd, ref.file);
-      await Fs.remove(abs);
+      await Fs.remove(yamlAbs);
 
       config.change((doc) => {
         const current = doc.endpoints ?? [];
