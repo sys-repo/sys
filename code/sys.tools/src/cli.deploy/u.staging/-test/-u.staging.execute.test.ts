@@ -143,4 +143,94 @@ describe('Staging: executeStaging', () => {
       expect(dist.exists).to.eql(false);
     });
   });
+
+  it('copy: overwrite=false preserves existing files (skips); directories merge; merges from prior', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src1/assets`);
+      await Fs.ensureDir(`${tmp}/src2/assets`);
+
+      await Fs.write(`${tmp}/src1/a.txt`, 'first');
+      await Fs.write(`${tmp}/src2/a.txt`, 'second');
+
+      await Fs.write(`${tmp}/src1/assets/one.txt`, 'one');
+      await Fs.write(`${tmp}/src2/assets/two.txt`, 'two');
+
+      await Fs.write(`${tmp}/src1/assets/shared.txt`, 'shared-1');
+      await Fs.write(`${tmp}/src2/assets/shared.txt`, 'shared-2');
+
+      const mappings = [
+        { mode: 'copy' as const, dir: { source: 'src1', staging: 'stage' } },
+        { mode: 'copy' as const, dir: { source: 'src2', staging: 'stage' } },
+      ];
+
+      await executeStaging(mappings, stageOptions(tmp));
+
+      const a = await Fs.readText(`${tmp}/stage/a.txt`);
+      expect(a.ok).to.eql(true);
+      expect(a.exists).to.eql(true);
+      expect(a.data).to.eql('first');
+
+      const one = await Fs.readText(`${tmp}/stage/assets/one.txt`);
+      expect(one.ok).to.eql(true);
+      expect(one.exists).to.eql(true);
+      expect(one.data).to.eql('one');
+
+      const two = await Fs.readText(`${tmp}/stage/assets/two.txt`);
+      expect(two.ok).to.eql(true);
+      expect(two.exists).to.eql(true);
+      expect(two.data).to.eql('two');
+
+      const shared = await Fs.readText(`${tmp}/stage/assets/shared.txt`);
+      expect(shared.ok).to.eql(true);
+      expect(shared.exists).to.eql(true);
+      expect(shared.data).to.eql('shared-1');
+
+      await assertDistJsonExists(`${tmp}/stage`);
+    });
+  });
+
+  it('copy: overwrite=true overwrites existing files (last write wins); directories merge', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src1/assets`);
+      await Fs.ensureDir(`${tmp}/src2/assets`);
+
+      await Fs.write(`${tmp}/src1/a.txt`, 'first');
+      await Fs.write(`${tmp}/src2/a.txt`, 'second');
+
+      await Fs.write(`${tmp}/src1/assets/one.txt`, 'one');
+      await Fs.write(`${tmp}/src2/assets/two.txt`, 'two');
+
+      await Fs.write(`${tmp}/src1/assets/shared.txt`, 'shared-1');
+      await Fs.write(`${tmp}/src2/assets/shared.txt`, 'shared-2');
+
+      const mappings = [
+        { mode: 'copy' as const, dir: { source: 'src1', staging: 'stage' } },
+        { mode: 'copy' as const, dir: { source: 'src2', staging: 'stage' } },
+      ];
+
+      await executeStaging(mappings, { ...stageOptions(tmp), overwrite: true });
+
+      const a = await Fs.readText(`${tmp}/stage/a.txt`);
+      expect(a.ok).to.eql(true);
+      expect(a.exists).to.eql(true);
+      expect(a.data).to.eql('second');
+
+      const one = await Fs.readText(`${tmp}/stage/assets/one.txt`);
+      expect(one.ok).to.eql(true);
+      expect(one.exists).to.eql(true);
+      expect(one.data).to.eql('one');
+
+      const two = await Fs.readText(`${tmp}/stage/assets/two.txt`);
+      expect(two.ok).to.eql(true);
+      expect(two.exists).to.eql(true);
+      expect(two.data).to.eql('two');
+
+      const shared = await Fs.readText(`${tmp}/stage/assets/shared.txt`);
+      expect(shared.ok).to.eql(true);
+      expect(shared.exists).to.eql(true);
+      expect(shared.data).to.eql('shared-2');
+
+      await assertDistJsonExists(`${tmp}/stage`);
+    });
+  });
 });

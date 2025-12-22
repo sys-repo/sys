@@ -16,6 +16,17 @@ export type ExecuteStagingOptions = t.DeployTool.Staging.ExecuteOptions & {
   readonly cleanStagingRoot?: boolean;
   readonly writeDistJson?: boolean;
   readonly onWriteDistJson?: (args: { readonly stagingRoot: t.StringDir }) => Promise<void>;
+
+  /**
+   * When true, allow mappings to overwrite existing staging files.
+   *
+   * Semantics:
+   * - Directories are always merged (never replaced).
+   * - Files:
+   *   - overwrite=false (default): existing files are preserved (skipped).
+   *   - overwrite=true: last write wins.
+   */
+  readonly overwrite?: boolean;
 };
 
 export async function executeStaging(
@@ -53,7 +64,9 @@ export async function executeStaging(
   const concurrency =
     Is.num(concurrencyRaw) && Number.isFinite(concurrencyRaw) && concurrencyRaw > 0
       ? Math.floor(concurrencyRaw)
-      : 4;
+      : 1;
+
+  const overwrite = options.overwrite ?? false;
 
   const emit = (e: StagingProgressEvent) => options.onProgress?.(e);
 
@@ -91,11 +104,11 @@ export async function executeStaging(
       try {
         switch (m.mode) {
           case 'copy': {
-            await execCopy(cwd, dir, reportStep);
+            await execCopy(cwd, dir, reportStep, { overwrite });
             break;
           }
           case 'build+copy': {
-            await execBuildCopy(cwd, dir, reportStep);
+            await execBuildCopy(cwd, dir, reportStep, { overwrite });
             break;
           }
         }
