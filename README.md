@@ -13,7 +13,6 @@
 [ci-url]: https://github.com/sys-repo/sys/actions/workflows/jsr.yaml
 
 
-
 # @sys
 Monorepo comprising the core set of shared  **“system”** modules purposed to flexibly compose into new
 *systems of systems* — extremely-late-bound, strongly typed, decentralised, “cell-like” functional processes.
