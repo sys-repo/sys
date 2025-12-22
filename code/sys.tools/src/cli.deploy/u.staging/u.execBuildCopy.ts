@@ -22,13 +22,9 @@ export async function execBuildCopy(
     throw new Error(`Failed to build: ${dir.source}\n\n${res.text.stderr}`);
   }
 
-  reportStep('copy dist');
+  reportStep('copy to staging');
 
   // Copy build output → staging.
   await Fs.ensureDir(dst);
   await Fs.copy(srcDist, dst, { force: true });
-
-  reportStep('dist.json');
-
-  await Pkg.Dist.compute({ dir: dst, save: true });
 }

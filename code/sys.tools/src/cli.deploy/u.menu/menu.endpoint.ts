@@ -3,11 +3,11 @@ import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
 import { runPushWithSpinner } from './run.pushWithSpinner.ts';
+import { runStagingWithSpinner } from './run.stagingWithSpinner.ts';
 import { promptEndpointAction } from './u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u.pushCapability.ts';
 import { renderEndpointScreen } from './u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u.resolveMappingsForStaging.ts';
-import { runStagingWithSpinner } from './u.runStagingWithSpinner.ts';
 import { touchEndpointLastUsed } from './u.touchEndpointLastUsed.ts';
 
 type Pick =
@@ -173,7 +173,11 @@ export async function endpointMenu(args: {
       const resolved = await resolveMappingsForStaging({ cwd, yamlAbs });
       if (!resolved.ok) continue;
 
-      await runStagingWithSpinner({ mappings: resolved.mappings, yamlDir });
+      await runStagingWithSpinner({
+        mappings: resolved.mappings,
+        yamlDir,
+        stagingRoot: stagingRootAbs,
+      });
       ranOk = true;
 
       await touchEndpointLastUsed({ config, endpointName: ref.name });

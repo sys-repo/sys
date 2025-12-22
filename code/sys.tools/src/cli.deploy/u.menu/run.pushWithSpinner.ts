@@ -1,4 +1,4 @@
-import { type t, Str, c, Cli, Pkg, Path } from '../common.ts';
+import { type t, c, Cli, Path, Pkg, Str } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { pushProvider } from '../u.push/u.push.ts';
 

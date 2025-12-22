@@ -1,4 +1,4 @@
-import { type t, c, Cli, Path, Pkg } from '../common.ts';
+import { type t, pkg, c, Cli, Path, Pkg } from '../common.ts';
 import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
@@ -6,20 +6,17 @@ type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly e
 
 /**
  * Run executeStaging with a stable spinner UI.
- * Owns the full staging lifecycle:
- * - clean staging root
- * - run mappings
- * - write dist.json
+ * Never throws unless you choose to rethrow based on ok:false.
  */
 export async function runStagingWithSpinner(args: {
   readonly mappings: readonly t.DeployTool.Staging.Mapping[];
   readonly yamlDir: t.StringDir;
   readonly stagingRoot: t.StringDir;
 }): Promise<RunStagingResult> {
-  const { mappings, yamlDir, stagingRoot } = args;
+  const { mappings, yamlDir } = args;
 
   const spin = Cli.spinner();
-  spin.start(Fmt.spinnerText('Preparing staging...'));
+  spin.start(Fmt.spinnerText('Running staging...'));
 
   const active = new Map<number, string>();
   const total = mappings.length;
@@ -29,7 +26,7 @@ export async function runStagingWithSpinner(args: {
     const names = [...active.entries()].sort((a, b) => a[0] - b[0]).map(([, name]) => name);
 
     const lines: string[] = [];
-    lines.push(`Staging (${c.white(String(done))}/${total})`);
+    lines.push(`Staging (${c.white(String(done))}/${total})...`);
 
     for (const name of names) {
       lines.push(c.gray(c.dim(`  - ${name}`)));
@@ -45,14 +42,17 @@ export async function runStagingWithSpinner(args: {
   try {
     await executeStaging(mappings, {
       cwd: yamlDir,
-      stagingRoot,
+      concurrency: stagingConcurrencyDefault({ total }),
+      stagingRoot: args.stagingRoot,
       cleanStagingRoot: true,
       writeDistJson: true,
-      onWriteDistJson: async ({ stagingRoot }) => {
-        spin.text = Fmt.spinnerText('Writing dist.json...');
-        await Pkg.Dist.compute({ dir: stagingRoot, save: true });
+
+      async onWriteDistJson(e) {
+        const { exists } = await Pkg.Dist.load(e.stagingRoot);
+        if (exists) return;
+        await Pkg.Dist.compute({ dir: e.stagingRoot, save: true, pkg, builder: pkg });
       },
-      concurrency: stagingConcurrencyDefault({ total }),
+
       onProgress(e) {
         if (e.kind === 'mapping:start') {
           active.set(e.index, Path.basename(e.source));
