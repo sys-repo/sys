@@ -84,6 +84,8 @@ describe('EndpointsFs', () => {
       await Fs.write(
         path,
         [
+          'staging:',
+          '  dir: ./staging',
           'mappings:',
           '  - mode: build+copy',
           '    dir:',
@@ -115,6 +117,8 @@ describe('EndpointsFs', () => {
       await Fs.ensureDir(srcAbs);
 
       const yaml = [
+        'staging:',
+        '  dir: ./staging',
         'mappings:',
         '  - mode: build+copy',
         '    dir:',
@@ -134,7 +138,7 @@ describe('EndpointsFs', () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('ok')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-      await Fs.write(path, 'mappings: []\n');
+      await Fs.write(path, ['staging:', '  dir: ./staging', 'mappings: []', ''].join('\n'));
 
       const res = await EndpointsFs.validateYaml(path);
       expect(res.ok).to.eql(true);
@@ -154,6 +158,8 @@ describe('EndpointsFs', () => {
       await Fs.ensureDir(srcAbs);
 
       const yaml = [
+        'staging:',
+        '  dir: ./staging',
         'mappings:',
         '  - mode: build+copy',
         '    dir:',
@@ -167,8 +173,131 @@ describe('EndpointsFs', () => {
       const res = await EndpointsFs.validateYaml(yamlPath);
       expect(res.ok).to.eql(true);
 
-      // best-effort cleanup (don't fail test if cleanup fails)
-      await Fs.remove(`${homeDir}/.sys-test`, { log: false });
+      await Fs.remove(`${homeDir}/.sys-test`);
+    });
+  });
+
+  it('validateYaml: staging.dir absolute → ok:false', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('staging-abs')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      const yaml = ['staging:', '  dir: /tmp/staging-abs', 'mappings: []', ''].join('\n');
+      await Fs.write(yamlPath, yaml);
+
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(false);
+
+      if (!res.ok) {
+        const rendered = JSON.stringify(res.errors, null, 2);
+        expect(rendered.includes('staging.dir must be relative')).to.eql(true);
+      }
+    });
+  });
+
+  it("validateYaml: staging.dir contains '..' → ok:false", async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('staging-dotdot')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      const yaml = ['staging:', '  dir: ../staging-1', 'mappings: []', ''].join('\n');
+      await Fs.write(yamlPath, yaml);
+
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(false);
+
+      if (!res.ok) {
+        const rendered = JSON.stringify(res.errors, null, 2);
+        expect(rendered.includes("staging.dir must not contain '..'")).to.eql(true);
+      }
+    });
+  });
+
+  it('validateYaml: mapping.dir.staging absolute → ok:false', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('mapping-staging-abs')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      const srcAbs = `${tmp}/code/my-modules/ui.foo.bar`;
+      await Fs.ensureDir(srcAbs);
+
+      const yaml = [
+        'staging:',
+        '  dir: ./staging',
+        'mappings:',
+        '  - mode: copy',
+        '    dir:',
+        '      source: ../code/my-modules/ui.foo.bar',
+        '      staging: /tmp/nope',
+        '',
+      ].join('\n');
+
+      await Fs.write(yamlPath, yaml);
+
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(false);
+
+      if (!res.ok) {
+        const rendered = JSON.stringify(res.errors, null, 2);
+        expect(rendered.includes('mappings[0].dir.staging must be relative')).to.eql(true);
+      }
+    });
+  });
+
+  it("validateYaml: mapping.dir.staging contains '..' → ok:false", async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('mapping-staging-dotdot')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      const srcAbs = `${tmp}/code/my-modules/ui.foo.bar`;
+      await Fs.ensureDir(srcAbs);
+
+      const yaml = [
+        'staging:',
+        '  dir: ./staging',
+        'mappings:',
+        '  - mode: copy',
+        '    dir:',
+        '      source: ../code/my-modules/ui.foo.bar',
+        '      staging: ../nope',
+        '',
+      ].join('\n');
+
+      await Fs.write(yamlPath, yaml);
+
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(false);
+
+      if (!res.ok) {
+        const rendered = JSON.stringify(res.errors, null, 2);
+        expect(rendered.includes("mappings[0].dir.staging must not contain '..'")).to.eql(true);
+      }
+    });
+  });
+
+  it('validateYaml: staging.dir relative → ok:true', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('staging-rel')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      const srcAbs = `${tmp}/code/my-modules/ui.foo.bar`;
+      await Fs.ensureDir(srcAbs);
+
+      const yaml = [
+        'staging:',
+        '  dir: staging-1',
+        'mappings:',
+        '  - mode: copy',
+        '    dir:',
+        '      source: ../code/my-modules/ui.foo.bar',
+        '      staging: ui-react-components',
+        '',
+      ].join('\n');
+
+      await Fs.write(yamlPath, yaml);
+
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(true);
     });
   });
 });

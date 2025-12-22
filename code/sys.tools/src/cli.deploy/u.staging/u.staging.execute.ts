@@ -1,4 +1,4 @@
-import { type t, Is, Path } from '../common.ts';
+import { type t, Fs, Is, Path } from '../common.ts';
 import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
 
@@ -6,6 +6,16 @@ export type StagingProgressEvent = t.DeployTool.Staging.ProgressEvent;
 export type ExecuteStagingOptions = t.DeployTool.Staging.ExecuteOptions & {
   readonly concurrency?: number;
   readonly onProgress?: (e: StagingProgressEvent) => void;
+
+  /**
+   * Optional single staging root dir for deterministic lifecycle operations.
+   * - cleanStagingRoot: delete + recreate before running any mappings.
+   * - writeDistJson: callback invoked after successful completion.
+   */
+  readonly stagingRoot?: t.StringDir;
+  readonly cleanStagingRoot?: boolean;
+  readonly writeDistJson?: boolean;
+  readonly onWriteDistJson?: (args: { readonly stagingRoot: t.StringDir }) => Promise<void>;
 };
 
 export async function executeStaging(
@@ -14,6 +24,14 @@ export async function executeStaging(
 ): Promise<void> {
   const cwd = options.cwd ?? '.';
   const total = mappings.length;
+
+  if (options.cleanStagingRoot) {
+    const root = String(options.stagingRoot ?? '').trim();
+    if (!root) throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
+
+    await Fs.remove(root, { log: false });
+    await Fs.ensureDir(root);
+  }
 
   const concurrencyRaw = options.concurrency;
   const concurrency =
@@ -86,4 +104,13 @@ export async function executeStaging(
   await Promise.all(workers);
 
   if (firstErr) throw firstErr;
+
+  if (options.writeDistJson) {
+    const root = String(options.stagingRoot ?? '').trim();
+    if (!root) throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
+
+    const write = options.onWriteDistJson;
+    if (!write) throw new Error('executeStaging: writeDistJson requires options.onWriteDistJson');
+    await write({ stagingRoot: root });
+  }
 }

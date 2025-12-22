@@ -51,6 +51,32 @@ export const EndpointsFs = {
     const baseDir = Fs.dirname(path);
     const mappings = checked.doc.mappings ?? [];
 
+    {
+      const stagingRaw = String(checked.doc.staging?.dir ?? '').trim();
+      const stagingEffective = stagingRaw || './staging';
+      const stagingExpanded = Fs.Tilde.expand(stagingEffective);
+
+      if (Path.Is.absolute(stagingExpanded)) {
+        errors.push(
+          Yaml.Error.synthetic({
+            message: `staging.dir must be relative (or '.'): ${stagingRaw || stagingEffective}`,
+            code: EndpointYamlErrorCode,
+            pos: [0, 0],
+          }),
+        );
+      }
+
+      if (stagingExpanded.includes('..')) {
+        errors.push(
+          Yaml.Error.synthetic({
+            message: `staging.dir must not contain '..': ${stagingRaw || stagingEffective}`,
+            code: EndpointYamlErrorCode,
+            pos: [0, 0],
+          }),
+        );
+      }
+    }
+
     for (let i = 0; i < mappings.length; i++) {
       const m = mappings[i];
       const sourceRaw = String(m?.dir?.source ?? '').trim();
@@ -79,6 +105,31 @@ export const EndpointsFs = {
             pos: [0, 0],
           }),
         );
+      }
+
+      {
+        const stagingRaw = String(m?.dir?.staging ?? '').trim();
+        const stagingExpanded = Fs.Tilde.expand(stagingRaw);
+
+        if (Path.Is.absolute(stagingExpanded)) {
+          errors.push(
+            Yaml.Error.synthetic({
+              message: `mappings[${i}].dir.staging must be relative (or '.'): ${stagingRaw}`,
+              code: EndpointYamlErrorCode,
+              pos: [0, 0],
+            }),
+          );
+        }
+
+        if (stagingExpanded.includes('..')) {
+          errors.push(
+            Yaml.Error.synthetic({
+              message: `mappings[${i}].dir.staging must not contain '..': ${stagingRaw}`,
+              code: EndpointYamlErrorCode,
+              pos: [0, 0],
+            }),
+          );
+        }
       }
     }
 

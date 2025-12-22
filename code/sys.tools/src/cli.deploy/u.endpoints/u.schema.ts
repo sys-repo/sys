@@ -12,7 +12,7 @@ export const EndpointYamlSchema = {
    * (YAML can omit optionals; but having explicit defaults is fine.)
    */
   initial(): t.DeployTool.Config.EndpointYaml.Doc {
-    return { mappings: [] };
+    return { staging: { dir: './staging' }, mappings: [] };
   },
 
   /**
@@ -31,6 +31,10 @@ export const EndpointYamlSchema = {
     {
       provider: Schema.Type.Optional(
         Schema.Type.Union([OrbiterProviderSchema.schema, NoopProviderSchema.schema]),
+      ),
+      staging: Schema.Type.Object(
+        { dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]) },
+        { additionalProperties: false },
       ),
       mappings: Schema.Type.Optional(
         Schema.Type.Array(

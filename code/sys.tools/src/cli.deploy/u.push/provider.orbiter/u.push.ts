@@ -3,14 +3,14 @@ import { type t, Process } from '../../common.ts';
 export async function pushOrbiter(args: {
   readonly stagingDir: t.StringDir;
   readonly provider: t.DeployTool.Config.Provider.Orbiter;
-  readonly buildDir: t.StringPath;
   readonly cmd?: string;
 }): Promise<t.PushResult> {
   const cmd = String(args.cmd ?? 'orbiter');
 
   try {
     const stagingDir = String(args.stagingDir);
-    const buildDir = String(args.buildDir ?? '');
+    const buildDir = '.';
+
     const siteId = String(args.provider.siteId ?? '');
     const domain = String(args.provider.domain ?? '');
 

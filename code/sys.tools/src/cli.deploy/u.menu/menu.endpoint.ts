@@ -59,14 +59,14 @@ export async function endpointMenu(args: {
     const mapping =
       (yaml?.mappings ?? []).find((m) => m.mode === 'build+copy') ?? (yaml?.mappings ?? [])[0];
 
-    // In this tool, the deploy root (config folder) is the staging root.
-    const stagingDir = String(cwd);
+    const stagingDirRel = String(yaml?.staging?.dir ?? '').trim();
+    const stagingRootAbs = stagingDirRel ? Path.resolve(String(cwd), stagingDirRel) : '';
+    const canPush = capability.show && capability.enabled && !!stagingRootAbs;
 
-    // buildDir is staging-relative directory orbiter should publish.
-    const buildDir = String(mapping?.dir?.staging ?? '');
-    const buildDirAbs = buildDir ? Path.resolve(stagingDir, buildDir) : '';
-    const canClean = buildDirAbs ? await Fs.exists(buildDirAbs) : false;
-    const canPush = capability.show && capability.enabled;
+    const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
+    const mappingStagingAbs =
+      stagingRootAbs && mappingStagingRel ? Path.resolve(stagingRootAbs, mappingStagingRel) : '';
+    const canClean = mappingStagingAbs ? await Fs.exists(mappingStagingAbs) : false;
 
     const table = await Fmt.endpointTable(cwd, ref);
     console.info(renderEndpointScreen({ table: table.text, check }));
@@ -117,9 +117,8 @@ export async function endpointMenu(args: {
       }
 
       if (!provider) continue;
-      if (!buildDir) continue;
 
-      const res = await runPushWithSpinner({ provider, stagingDir, buildDir });
+      const res = await runPushWithSpinner({ provider, stagingDir: stagingRootAbs });
 
       if (res.ok) {
         pushedOk = true;
@@ -134,7 +133,8 @@ export async function endpointMenu(args: {
         const b = Str.builder()
           .line(c.red('Push failed'))
           .line(c.gray(c.dim(`provider: ${String(provider.kind)}`)))
-          .line(c.gray(c.dim(`buildDir: ${buildDir}`)))
+          .line(c.gray(c.dim(`staging root: ${stagingDirRel || '.'}`)))
+          .line(c.gray(c.dim(`mapping.staging: ${mappingStagingRel || '(none)'}`)))
           .blank();
 
         if (hint) b.line(c.gray(hint));
@@ -146,15 +146,15 @@ export async function endpointMenu(args: {
     }
 
     if (picked === 'clean') {
-      if (!canClean || !buildDirAbs) continue;
+      if (!canClean || !mappingStagingAbs) continue;
 
       const yes = await Cli.Input.Confirm.prompt({
-        message: `Remove ${c.cyan(buildDir)}?`,
+        message: `Remove ${c.cyan(mappingStagingRel)}?`,
         default: false,
       });
 
       if (!yes) continue;
-      await Fs.remove(buildDirAbs);
+      await Fs.remove(mappingStagingAbs);
 
       ranOk = false;
       pushedOk = false;

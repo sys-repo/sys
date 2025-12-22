@@ -60,9 +60,22 @@ export namespace DeployTool {
         mode: SourceMode;
       };
 
+      /**
+       * Endpoint staging root.
+       * All mapping `dir.staging` paths are resolved relative to this directory.
+       */
+      export type Staging = {
+        /** Root directory for staging (relative to deploy cwd). */
+        dir: t.StringPath;
+      };
+
       export type Doc = {
         /** Optional provider adapter config. */
         provider?: Provider.All;
+
+        /** Staging root for this endpoint. */
+        staging?: Staging;
+
         /** Directory mappings assembled into this endpoint. */
         mappings?: readonly Mapping[];
       };

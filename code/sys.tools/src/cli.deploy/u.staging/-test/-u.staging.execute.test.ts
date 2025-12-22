@@ -78,4 +78,50 @@ describe('Staging: executeStaging', () => {
       await assertDistJsonVerified(`${tmp}/stage`);
     });
   });
+
+  it('failure: emits mapping:fail and throws first error (no mapping:done)', async () => {
+    await withTmpDir(async (tmp) => {
+      const srcRoot = `${tmp}/src`;
+      await Fs.ensureDir(srcRoot);
+
+      // deterministic failing build task
+      const denoJson = Json.stringify({
+        name: 'tmp-staging-fail',
+        version: '0.0.0',
+        tasks: {
+          build: `deno eval "Deno.exit(1)"`,
+        },
+      });
+
+      await Fs.write(`${srcRoot}/deno.json`, denoJson);
+
+      const events: Array<{ kind: string; index: number }> = [];
+      const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: 'stage' } }];
+      let threw = false;
+
+      try {
+        await executeStaging(mappings, {
+          cwd: tmp,
+          onProgress(e) {
+            events.push({ kind: e.kind, index: e.index });
+          },
+        });
+      } catch {
+        threw = true;
+      }
+
+      expect(threw).to.eql(true);
+
+      const starts = events.filter((e) => e.kind === 'mapping:start');
+      const fails = events.filter((e) => e.kind === 'mapping:fail');
+      const dones = events.filter((e) => e.kind === 'mapping:done');
+
+      expect(starts.length).to.eql(1);
+      expect(fails.length).to.eql(1);
+      expect(dones.length).to.eql(0);
+
+      expect(starts[0]!.index).to.eql(0);
+      expect(fails[0]!.index).to.eql(0);
+    });
+  });
 });

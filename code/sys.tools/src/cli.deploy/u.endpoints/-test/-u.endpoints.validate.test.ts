@@ -15,7 +15,9 @@ describe('Endpoints: validateEndpointYamlText', () => {
   });
 
   it('valid YAML → ok:true with doc', () => {
-    const res = validateEndpointYamlText('mappings: []\n');
+    const res = validateEndpointYamlText(
+      ['staging:', '  dir: ./staging', 'mappings: []', ''].join('\n'),
+    );
     expect(res.ok).to.eql(true);
     if (res.ok) expect(res.doc.mappings ?? []).to.eql([]);
   });
@@ -28,6 +30,8 @@ describe('Endpoints: validateEndpointYamlText', () => {
 
   it('valid YAML with orbiter provider → ok:true', () => {
     const yaml = [
+      'staging:',
+      '  dir: ./staging',
       'provider:',
       '  kind: orbiter',
       '  siteId: site-123',
@@ -46,7 +50,15 @@ describe('Endpoints: validateEndpointYamlText', () => {
   });
 
   it('schema-invalid orbiter provider → ok:false', () => {
-    const yaml = ['provider:', '  kind: orbiter', '  domain: fs', 'mappings: []', ''].join('\n');
+    const yaml = [
+      'staging:',
+      '  dir: ./staging',
+      'provider:',
+      '  kind: orbiter',
+      '  domain: fs',
+      'mappings: []',
+      '',
+    ].join('\n');
 
     const res = validateEndpointYamlText(yaml);
     expect(res.ok).to.eql(false);
@@ -54,7 +66,14 @@ describe('Endpoints: validateEndpointYamlText', () => {
   });
 
   it('unknown provider kind → ok:false', () => {
-    const yaml = ['provider:', '  kind: wat', 'mappings: []', ''].join('\n');
+    const yaml = [
+      'staging:',
+      '  dir: ./staging',
+      'provider:',
+      '  kind: wat',
+      'mappings: []',
+      '',
+    ].join('\n');
 
     const res = validateEndpointYamlText(yaml);
     expect(res.ok).to.eql(false);

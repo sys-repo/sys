@@ -12,7 +12,6 @@ import { probeProvider } from './u.probe.ts';
 export async function pushProvider(args: {
   provider?: t.DeployTool.Config.Provider.All;
   stagingDir: t.StringDir;
-  buildDir: t.StringPath;
 }): Promise<t.PushResult> {
   const { provider } = args;
 
@@ -39,7 +38,6 @@ export async function pushProvider(args: {
       return await pushOrbiter({
         stagingDir: args.stagingDir,
         provider,
-        buildDir: args.buildDir,
       });
     }
 
