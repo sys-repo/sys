@@ -2,7 +2,9 @@ import { type t, c, Cli, Fs, Open, Path, Str, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
+import { runPushWithSpinner } from './run.pushWithSpinner.ts';
 import { promptEndpointAction } from './u.promptEndpointAction.ts';
+import { pushCapabilityOf } from './u.pushCapability.ts';
 import { renderEndpointScreen } from './u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u.resolveMappingsForStaging.ts';
 import { runStagingWithSpinner } from './u.runStagingWithSpinner.ts';
@@ -34,6 +36,7 @@ export async function endpointMenu(args: {
   const find = (name: string) => (config.current.endpoints ?? []).find((e) => e.name === name);
 
   let ranOk = false;
+  let pushedOk = false;
 
   while (true) {
     const ref = find(key);
@@ -43,10 +46,37 @@ export async function endpointMenu(args: {
     const abs = Fs.join(cwd, ref.file);
     const check = await EndpointsFs.validateYaml(abs);
 
+    const cap = await pushCapabilityOf({ cwd, yamlAbs: abs, checkOk: check.ok });
+
+    const yaml = check.ok ? check.doc : undefined;
+    const provider = yaml?.provider;
+
+    // Boring publish-dir choice: prefer first build+copy mapping; else first mapping.
+    const mapping =
+      (yaml?.mappings ?? []).find((m) => m.mode === 'build+copy') ?? (yaml?.mappings ?? [])[0];
+
+    // In this tool, the deploy root (config folder) is the staging root.
+    const stagingDir = String(cwd);
+
+    // buildDir is staging-relative directory orbiter should publish.
+    const buildDir = String(mapping?.dir?.staging ?? '');
+    const buildDirAbs = buildDir ? Path.resolve(stagingDir, buildDir) : '';
+    const canClean = buildDirAbs ? await Fs.exists(buildDirAbs) : false;
+
+    const canPush = cap.show && cap.enabled;
+
     const table = await Fmt.endpointTable(cwd, ref);
     console.info(renderEndpointScreen({ table, check }));
 
-    const picked = await promptEndpointAction({ checkOk: check.ok, ranOk });
+    const showPush = cap.show;
+    const picked = await promptEndpointAction({
+      checkOk: check.ok,
+      ranOk,
+      canPush: showPush,
+      pushedOk,
+      canClean,
+    });
+
     if (picked === 'back') return { kind: 'back' };
 
     if (picked === 'edit') {
@@ -54,7 +84,72 @@ export async function endpointMenu(args: {
       continue;
     }
 
-    if (picked === 'run') {
+    if (picked === 'push') {
+      if (!showPush) continue;
+
+      if (!canPush) {
+        const hint = String(cap.hint ?? '').trim();
+        const b = Str.builder()
+          .line(c.yellow('Push unavailable'))
+          .line(c.gray(c.dim(`reason: ${String(cap.reason ?? 'probe-failed')}`)));
+
+        if (hint) b.line(c.gray(hint));
+
+        console.info(String(b));
+        await Cli.Input.Text.prompt({ message: dim('Press enter to continue'), default: '' });
+        continue;
+      }
+
+      if (!provider) continue;
+      if (!buildDir) continue;
+
+      const res = await runPushWithSpinner({ provider, stagingDir, buildDir });
+
+      if (res.ok) {
+        pushedOk = true;
+
+        await Cli.Input.Text.prompt({ message: dim('Enter to continue'), default: '' });
+        await touchEndpointLastUsed({ config, endpointName: ref.name });
+        continue;
+      }
+
+      {
+        const hint = String(res.hint ?? '').trim();
+        const b = Str.builder()
+          .line(c.red('Push failed'))
+          .line(c.gray(c.dim(`provider: ${String(provider.kind)}`)))
+          .line(c.gray(c.dim(`buildDir: ${buildDir}`)))
+          .blank();
+
+        if (hint) b.line(c.gray(hint));
+
+        console.info(String(b));
+        await Cli.Input.Text.prompt({ message: dim('Enter to continue'), default: '' });
+        continue;
+      }
+    }
+
+    if (picked === 'clean') {
+      if (!canClean || !buildDirAbs) continue;
+
+      const yes = await Cli.Input.Confirm.prompt({
+        message: `Remove ${c.cyan(buildDir)}?`,
+        default: false,
+      });
+
+      if (!yes) continue;
+      await Fs.remove(buildDirAbs);
+
+      ranOk = false;
+      pushedOk = false;
+
+      const b = Str.builder().line(c.green('clean complete'));
+      console.info(String(b));
+      await Cli.Input.Text.prompt({ message: dim('Enter to continue'), default: '' });
+      continue;
+    }
+
+    if (picked === 'stage') {
       const file = String(ref.file ?? '');
       const yamlAbs = Fs.join(cwd, file);
       const yamlDir = Fs.dirname(yamlAbs); // endpoint YAML folder
@@ -127,8 +222,9 @@ export async function endpointMenu(args: {
 
       const from = key;
       key = nextName;
-      ranOk = false;
 
+      ranOk = false;
+      pushedOk = false;
       return { kind: 'renamed', from, to: nextName };
     }
 

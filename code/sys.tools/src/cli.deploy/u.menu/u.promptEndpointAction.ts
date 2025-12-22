@@ -9,8 +9,11 @@ type A = t.DeployTool.Endpoint.Menu.Action;
 export async function promptEndpointAction(args: {
   readonly checkOk: boolean;
   readonly ranOk: boolean;
+  readonly canPush: boolean;
+  readonly pushedOk: boolean;
+  readonly canClean: boolean;
 }): Promise<A> {
-  const { checkOk, ranOk } = args;
+  const { checkOk, ranOk, canPush, pushedOk, canClean } = args;
 
   const dim = (s: string) => c.gray(c.dim(s));
 
@@ -18,8 +21,10 @@ export async function promptEndpointAction(args: {
     message: `Actions:`,
     options: [
       ...(checkOk
-        ? [{ name: ranOk ? c.gray('  run ✔') : c.green('  run'), value: 'run' as const }]
+        ? [{ name: ranOk ? '  stage ✔' : '  stage (prepare)', value: 'stage' as const }]
         : []),
+      ...(canPush ? [{ name: pushedOk ? '  push ✔' : '  push', value: 'push' as const }] : []),
+      ...(canClean ? [{ name: '  clean', value: 'clean' as const }] : []),
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
       { name: '  edit yaml', value: 'edit' as const },
       { name: '  rename', value: 'rename' },

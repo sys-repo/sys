@@ -109,7 +109,15 @@ export namespace DeployTool {
     }
 
     export namespace Menu {
-      export type Action = 'run' | 'edit' | 'fix' | 'rename' | 'delete' | 'back';
+      export type Action =
+        | 'stage'
+        | 'push'
+        | 'clean'
+        | 'edit'
+        | 'fix'
+        | 'rename'
+        | 'delete'
+        | 'back';
       export type Option = { readonly name: string; readonly value: Action };
     }
   }
