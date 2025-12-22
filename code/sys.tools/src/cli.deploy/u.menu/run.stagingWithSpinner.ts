@@ -49,10 +49,22 @@ export async function runStagingWithSpinner(args: {
       writeDistJson: true,
 
       async onWriteDistJson(e) {
-        const stagingRoot = e.stagingRoot;
-        await ensureRootIndexHtml({ stagingRoot });
-        const { exists } = await Pkg.Dist.load(stagingRoot);
-        if (!exists) await Pkg.Dist.compute({ dir: stagingRoot, save: true, pkg, builder: pkg });
+        const dir = e.stagingRoot;
+
+        // Ensure a minimal, non-opinionated root entrypoint
+        await ensureRootIndexHtml({ stagingRoot: dir });
+
+        // Respect any dist.json produced by downstream builders
+        const { exists } = await Pkg.Dist.load(dir);
+        if (exists) return;
+
+        // Otherwise, synthesize a root dist.json for deployment
+        await Pkg.Dist.compute({
+          save: true,
+          dir,
+          pkg,
+          builder: pkg,
+        });
       },
 
       onProgress(e) {
