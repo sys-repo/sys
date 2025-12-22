@@ -112,7 +112,6 @@ export async function endpointMenu(args: {
         if (hint) b.line(c.gray(hint));
 
         console.info(String(b));
-        await Cli.Input.Text.prompt({ message: dim('Press enter to continue'), default: '' });
         continue;
       }
 
@@ -123,7 +122,6 @@ export async function endpointMenu(args: {
       if (res.ok) {
         pushedOk = true;
 
-        await Cli.Input.Text.prompt({ message: dim('Enter to continue'), default: '' });
         await touchEndpointLastUsed({ config, endpointName: ref.name });
         continue;
       }
@@ -140,7 +138,6 @@ export async function endpointMenu(args: {
         if (hint) b.line(c.gray(hint));
 
         console.info(String(b));
-        await Cli.Input.Text.prompt({ message: dim('Enter to continue'), default: '' });
         continue;
       }
     }
@@ -161,7 +158,6 @@ export async function endpointMenu(args: {
 
       const b = Str.builder().line(c.green('clean complete'));
       console.info(String(b));
-      await Cli.Input.Text.prompt({ message: dim('Enter to continue'), default: '' });
       continue;
     }
 
