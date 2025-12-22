@@ -10,8 +10,8 @@ export function initialYaml(name: string): string {
       # deploy endpoint: ${name}
       #
       # An endpoint is defined by:
-      # - optional provider config (where it is published)
-      # - one or more directory mappings (what is staged)
+      # - optional provider config ("where" it is published)
+      # - one or more directory mappings ("what" is staged)
       #
       # Paths:
       # - source  → relative to this YAML file
@@ -19,16 +19,17 @@ export function initialYaml(name: string): string {
 
       # provider:
       #   kind: orbiter
-      #   siteId: 1efe1393-e2b5-4353-8110-6b7wb03329c7
+      #   siteId: 1efe1393-e2b5-1455-6570-6b7wb03329c7
       #   domain: foo
 
       mappings: []
       # mappings:
-      #   - mode: build+copy
+      #   - mode: build+copy # OR copy
       #     dir:
-      #       source: ./my-pkg
-      #       staging: ./staging/my-pkg
-    `,
+      #       source: ./my-package-module
+      #       staging: ./staging/my-output-bundle
+
+      `,
   ).trimStart();
 }
 

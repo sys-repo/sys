@@ -21,7 +21,7 @@ export async function promptEndpointAction(args: {
     message: `Actions:`,
     options: [
       ...(checkOk
-        ? [{ name: ranOk ? '  stage ✔' : '  stage (prepare)', value: 'stage' as const }]
+        ? [{ name: ranOk ? '  stage ✔' : '  stage (build, copy)', value: 'stage' as const }]
         : []),
       ...(canPush ? [{ name: pushedOk ? '  push ✔' : '  push', value: 'push' as const }] : []),
       ...(canClean ? [{ name: '  clean', value: 'clean' as const }] : []),

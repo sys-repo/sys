@@ -32,6 +32,8 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
     yaml = undefined;
   }
 
+  const mappingsCount = yaml?.mappings?.length ?? 0;
+
   const providerFmt = fmtProvider(yaml?.provider);
 
   let providerProbe: t.PushProbe | undefined;
@@ -48,6 +50,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   const baseLabels = [
     'Endpoint',
     childText('config'),
+    childText('mappings'),
     ...(providerFmt ? [childText(providerFmt.label)] : []),
     ...(providerFmt && providerProbe && !providerProbe.ok ? [childText('provider probe')] : []),
     childText('created'),
@@ -58,6 +61,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   const body: Array<[string, string]> = [
     [c.gray('Endpoint'), c.cyan(name)],
     [child('config'), c.gray(c.dim(file))],
+    [child('mappings'), c.gray(String(mappingsCount))],
   ];
 
   if (providerFmt) {
@@ -157,5 +161,12 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
     .line(Str.trimEdgeNewlines(String(table)))
     .line(mappingsBlock);
 
-  return String(str);
+  return {
+    get text() {
+      return String(str);
+    },
+    get yaml() {
+      return yaml;
+    },
+  };
 }

@@ -62,11 +62,23 @@ export async function endpointMenu(args: {
     const buildDir = String(mapping?.dir?.staging ?? '');
     const buildDirAbs = buildDir ? Path.resolve(stagingDir, buildDir) : '';
     const canClean = buildDirAbs ? await Fs.exists(buildDirAbs) : false;
-
     const canPush = cap.show && cap.enabled;
 
     const table = await Fmt.endpointTable(cwd, ref);
-    console.info(renderEndpointScreen({ table, check }));
+    console.info(renderEndpointScreen({ table: table.text, check }));
+
+    const mappings = table.yaml?.mappings ?? [];
+    if (mappings.length === 0) {
+      const s = Str.builder()
+        .indent(4, (s) => {
+          s
+            //
+            .line(c.italic(c.yellow('No configuration mappings setup yet.')))
+            .line(c.gray(`run ${c.green('edit yaml')}`));
+        })
+        .blank();
+      console.info(String(s));
+    }
 
     const showPush = cap.show;
     const picked = await promptEndpointAction({
