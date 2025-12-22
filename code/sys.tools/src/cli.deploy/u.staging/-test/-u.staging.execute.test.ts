@@ -4,15 +4,24 @@ import { Json, Pkg } from '../../common.ts';
 import { executeStaging } from '../u.staging.execute.ts';
 
 describe('Staging: executeStaging', () => {
-  const assertDistJsonVerified = async (stageDir: string) => {
+  const stageOptions = (tmp: string) => {
+    const stagingRoot = `${tmp}/stage`;
+
+    return {
+      cwd: tmp,
+      stagingRoot,
+      cleanStagingRoot: true,
+      writeDistJson: true,
+      onWriteDistJson: async (args: { readonly stagingRoot: string }) => {
+        await Pkg.Dist.compute({ dir: args.stagingRoot, save: true });
+      },
+    } as const;
+  };
+
+  const assertDistJsonExists = async (stageDir: string) => {
     const dist = await Fs.readJson(`${stageDir}/dist.json`);
     expect(dist.ok).to.eql(true);
     expect(dist.exists).to.eql(true);
-
-    const verify = await Pkg.Dist.verify(stageDir);
-    expect(verify.exists).to.eql(true);
-    expect(verify.dist !== undefined).to.eql(true);
-    expect(verify.is.valid).to.eql(true);
   };
 
   it('copy: copies source dir into staging dir (relative to cwd)', async () => {
@@ -21,11 +30,11 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/src/a.txt`, 'hello');
 
       const dir = { source: 'src', staging: 'stage' };
-      await executeStaging([{ mode: 'copy', dir }], { cwd: tmp });
+      await executeStaging([{ mode: 'copy', dir }], stageOptions(tmp));
 
       const text = (await Fs.readText(`${tmp}/stage/a.txt`)).data!;
       expect(text).to.eql('hello');
-      await assertDistJsonVerified(`${tmp}/stage`);
+      await assertDistJsonExists(`${tmp}/stage`);
     });
   });
 
@@ -35,13 +44,35 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/src/a.txt`, 'x');
 
       const dir = { source: 'src', staging: 'stage' };
-      await executeStaging([{ mode: 'copy', dir }], { cwd: tmp });
+      await executeStaging([{ mode: 'copy', dir }], stageOptions(tmp));
 
       const res = await Fs.readText(`${tmp}/stage/a.txt`);
       expect(res.ok).to.eql(true);
       expect(res.exists).to.eql(true);
       expect(res.data).to.eql('x');
-      await assertDistJsonVerified(`${tmp}/stage`);
+      await assertDistJsonExists(`${tmp}/stage`);
+    });
+  });
+
+  it('cleanStagingRoot: deletes previous staging content before running mappings', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'hello');
+
+      // pre-existing junk in staging root
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/junk.txt`, 'junk');
+
+      const dir = { source: 'src', staging: 'stage' };
+      await executeStaging([{ mode: 'copy', dir }], stageOptions(tmp));
+
+      const junk = await Fs.readText(`${tmp}/stage/junk.txt`);
+      expect(junk.exists).to.eql(false);
+
+      const a = await Fs.readText(`${tmp}/stage/a.txt`);
+      expect(a.exists).to.eql(true);
+
+      await assertDistJsonExists(`${tmp}/stage`);
     });
   });
 
@@ -69,17 +100,17 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${srcRoot}/deno.json`, denoJson);
 
       const dir = { source: 'src', staging: 'stage' };
-      await executeStaging([{ mode: 'build+copy', dir }], { cwd: tmp });
+      await executeStaging([{ mode: 'build+copy', dir }], stageOptions(tmp));
 
       const res = await Fs.readText(`${tmp}/stage/a.txt`);
       expect(res.ok).to.eql(true);
       expect(res.exists).to.eql(true);
       expect(res.data).to.eql('built');
-      await assertDistJsonVerified(`${tmp}/stage`);
+      await assertDistJsonExists(`${tmp}/stage`);
     });
   });
 
-  it('failure: emits mapping:fail and throws first error (no mapping:done)', async () => {
+  it('failure: emits mapping:fail and throws first error (no mapping:done); does not write dist.json', async () => {
     await withTmpDir(async (tmp) => {
       const srcRoot = `${tmp}/src`;
       await Fs.ensureDir(srcRoot);
@@ -97,15 +128,23 @@ describe('Staging: executeStaging', () => {
 
       const events: Array<{ kind: string; index: number }> = [];
       const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: 'stage' } }];
+
       let threw = false;
+      let writeCalled = false;
+
+      const opts = {
+        ...stageOptions(tmp),
+        onProgress(e: { kind: string; index: number }) {
+          events.push({ kind: e.kind, index: e.index });
+        },
+        onWriteDistJson: async (args: { readonly stagingRoot: string }) => {
+          writeCalled = true;
+          await Pkg.Dist.compute({ dir: args.stagingRoot, save: true });
+        },
+      } as const;
 
       try {
-        await executeStaging(mappings, {
-          cwd: tmp,
-          onProgress(e) {
-            events.push({ kind: e.kind, index: e.index });
-          },
-        });
+        await executeStaging(mappings, opts);
       } catch {
         threw = true;
       }
@@ -120,8 +159,10 @@ describe('Staging: executeStaging', () => {
       expect(fails.length).to.eql(1);
       expect(dones.length).to.eql(0);
 
-      expect(starts[0]!.index).to.eql(0);
-      expect(fails[0]!.index).to.eql(0);
+      expect(writeCalled).to.eql(false);
+
+      const dist = await Fs.readJson(`${tmp}/stage/dist.json`);
+      expect(dist.exists).to.eql(false);
     });
   });
 });

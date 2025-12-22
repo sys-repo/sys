@@ -25,12 +25,28 @@ export async function executeStaging(
   const cwd = options.cwd ?? '.';
   const total = mappings.length;
 
-  if (options.cleanStagingRoot) {
-    const root = String(options.stagingRoot ?? '').trim();
-    if (!root) throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
+  const resolveAbs = (base: string, p: string): string => {
+    const s = String(p ?? '');
+    return Path.Is.absolute(s) ? s : Path.resolve(base, s);
+  };
 
-    await Fs.remove(root, { log: false });
-    await Fs.ensureDir(root);
+  const resolveStagingRootAbs = (): string => {
+    const raw = String(options.stagingRoot ?? '').trim();
+    if (!raw) return '';
+    return resolveAbs(cwd, raw);
+  };
+
+  if (options.cleanStagingRoot) {
+    const rootAbs = resolveStagingRootAbs();
+    if (!rootAbs) throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
+
+    const cwdAbs = Path.resolve(cwd, '.');
+    if (rootAbs === cwdAbs) {
+      throw new Error("executeStaging: refusing to clean stagingRoot '.' (would delete cwd)");
+    }
+
+    await Fs.remove(rootAbs, { log: false });
+    await Fs.ensureDir(rootAbs);
   }
 
   const concurrencyRaw = options.concurrency;
@@ -40,11 +56,6 @@ export async function executeStaging(
       : 4;
 
   const emit = (e: StagingProgressEvent) => options.onProgress?.(e);
-
-  const resolveAbs = (base: string, p: string): string => {
-    const s = String(p ?? '');
-    return Path.Is.absolute(s) ? s : Path.resolve(base, s);
-  };
 
   let next = 0;
   let firstErr: unknown;
@@ -106,11 +117,11 @@ export async function executeStaging(
   if (firstErr) throw firstErr;
 
   if (options.writeDistJson) {
-    const root = String(options.stagingRoot ?? '').trim();
-    if (!root) throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
+    const rootAbs = resolveStagingRootAbs();
+    if (!rootAbs) throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
 
     const write = options.onWriteDistJson;
     if (!write) throw new Error('executeStaging: writeDistJson requires options.onWriteDistJson');
-    await write({ stagingRoot: root });
+    await write({ stagingRoot: rootAbs });
   }
 }

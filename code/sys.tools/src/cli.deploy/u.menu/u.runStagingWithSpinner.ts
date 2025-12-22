@@ -1,4 +1,4 @@
-import { type t, c, Cli, Path } from '../common.ts';
+import { type t, c, Cli, Path, Pkg } from '../common.ts';
 import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
@@ -6,16 +6,20 @@ type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly e
 
 /**
  * Run executeStaging with a stable spinner UI.
- * Never throws unless you choose to rethrow based on ok:false.
+ * Owns the full staging lifecycle:
+ * - clean staging root
+ * - run mappings
+ * - write dist.json
  */
 export async function runStagingWithSpinner(args: {
   readonly mappings: readonly t.DeployTool.Staging.Mapping[];
   readonly yamlDir: t.StringDir;
+  readonly stagingRoot: t.StringDir;
 }): Promise<RunStagingResult> {
-  const { mappings, yamlDir } = args;
+  const { mappings, yamlDir, stagingRoot } = args;
 
   const spin = Cli.spinner();
-  spin.start(Fmt.spinnerText('Running staging...'));
+  spin.start(Fmt.spinnerText('Preparing staging...'));
 
   const active = new Map<number, string>();
   const total = mappings.length;
@@ -25,7 +29,7 @@ export async function runStagingWithSpinner(args: {
     const names = [...active.entries()].sort((a, b) => a[0] - b[0]).map(([, name]) => name);
 
     const lines: string[] = [];
-    lines.push(`Staging (${c.white(String(done))}/${total})...`);
+    lines.push(`Staging (${c.white(String(done))}/${total})`);
 
     for (const name of names) {
       lines.push(c.gray(c.dim(`  - ${name}`)));
@@ -41,6 +45,13 @@ export async function runStagingWithSpinner(args: {
   try {
     await executeStaging(mappings, {
       cwd: yamlDir,
+      stagingRoot,
+      cleanStagingRoot: true,
+      writeDistJson: true,
+      onWriteDistJson: async ({ stagingRoot }) => {
+        spin.text = Fmt.spinnerText('Writing dist.json...');
+        await Pkg.Dist.compute({ dir: stagingRoot, save: true });
+      },
       concurrency: stagingConcurrencyDefault({ total }),
       onProgress(e) {
         if (e.kind === 'mapping:start') {
