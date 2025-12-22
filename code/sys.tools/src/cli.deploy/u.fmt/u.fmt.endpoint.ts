@@ -135,7 +135,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
       const flowFor = (g: Group) => {
         const srcLines = g.srcNames.map((x) => c.white(String(x)));
         const dstLines = g.dsts.map((x) => c.white(String(x)));
-        return [...srcLines, c.gray(c.dim('↓')), ...dstLines].join('\n');
+        return [...srcLines, c.cyan('↓'), ...dstLines].join('\n');
       };
 
       mt.body(

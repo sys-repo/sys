@@ -141,4 +141,34 @@ describe('EndpointsFs', () => {
       if (res.ok) expect(res.doc.mappings ?? []).to.eql([]);
     });
   });
+
+  it('validateYaml: mapping source exists with "~/" → ok:true', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('tilde-ok')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      const homeDir = Fs.Tilde.expand('~');
+      const srcAbs = Fs.Tilde.expand('~/.sys-test/endpointsfs/tilde-src');
+
+      // ensure the directory exists under home for this test
+      await Fs.ensureDir(srcAbs);
+
+      const yaml = [
+        'mappings:',
+        '  - mode: build+copy',
+        '    dir:',
+        `      source: ${Fs.Tilde.collapse(srcAbs)}`,
+        '      staging: dist/my-output',
+        '',
+      ].join('\n');
+
+      await Fs.write(yamlPath, yaml);
+
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(true);
+
+      // best-effort cleanup (don't fail test if cleanup fails)
+      await Fs.remove(`${homeDir}/.sys-test`, { log: false });
+    });
+  });
 });

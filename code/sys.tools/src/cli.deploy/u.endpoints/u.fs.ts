@@ -35,7 +35,6 @@ export const EndpointsFs = {
     }
 
     const read = await Fs.readText(path);
-
     if (!read.ok) {
       const err = Yaml.Error.synthetic({
         message: 'Unable to read endpoint YAML file.',
@@ -67,7 +66,10 @@ export const EndpointsFs = {
         continue;
       }
 
-      const sourceAbs = Path.Is.absolute(sourceRaw) ? sourceRaw : Path.resolve(baseDir, sourceRaw);
+      const sourceExpanded = Fs.Tilde.expand(sourceRaw);
+      const sourceAbs = Path.Is.absolute(sourceExpanded)
+        ? sourceExpanded
+        : Path.resolve(baseDir, sourceExpanded);
 
       if (!(await Fs.exists(sourceAbs))) {
         errors.push(
