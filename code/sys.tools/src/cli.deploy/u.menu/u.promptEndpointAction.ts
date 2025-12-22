@@ -28,8 +28,8 @@ export async function promptEndpointAction(args: {
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
       { name: '  edit yaml', value: 'edit' as const },
       { name: '  rename', value: 'rename' },
-      { name: ' (delete)', value: 'delete' },
-      { name: dim(`${c.cyan('←')} back`), value: 'back' },
+      { name: c.dim(c.gray(' (delete)')), value: 'delete' },
+      { name: `${c.cyan('←')} back`, value: 'back' },
     ],
     hideDefault: true,
   });
