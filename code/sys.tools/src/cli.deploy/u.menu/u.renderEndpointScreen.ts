@@ -6,11 +6,10 @@ import { Fmt } from '../u.fmt.ts';
  * ready to print via console.info.
  */
 export function renderEndpointScreen(args: {
-  readonly table: string;
-  readonly check: t.DeployTool.Endpoint.Fs.YamlCheck;
+  table: string;
+  check: t.DeployTool.Endpoint.Fs.YamlCheck;
 }): string {
   const { table, check } = args;
-
   const b = Str.builder().blank().line(table);
 
   if (!check.ok) {

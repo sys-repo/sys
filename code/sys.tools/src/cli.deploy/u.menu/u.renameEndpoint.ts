@@ -14,10 +14,10 @@ type RenameEndpointResult =
  * Never throws.
  */
 export async function renameEndpoint(args: {
-  readonly config: t.DeployTool.Config.File;
-  readonly cwd: t.StringDir;
-  readonly ref: { readonly name: string; readonly file: string };
-  readonly nextName: string;
+  config: t.DeployTool.Config.File;
+  cwd: t.StringDir;
+  ref: { name: string; file: string };
+  nextName: string;
 }): Promise<RenameEndpointResult> {
   const { config, cwd, ref, nextName } = args;
 

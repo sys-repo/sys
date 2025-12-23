@@ -29,7 +29,7 @@ export async function resolveMappingsForStaging(args: {
   const stagingDirRel = Fs.Tilde.expand(stagingDirRaw || './staging');
   const stagingRootAbs = Path.resolve(rootDir, stagingDirRel);
 
-  const resolved: readonly t.DeployTool.Staging.Mapping[] = raw.map((m) => {
+  const resolved: t.DeployTool.Staging.Mapping[] = raw.map((m) => {
     const sourceRaw = String(m.dir.source ?? '').trim();
     const sourceExpanded = Fs.Tilde.expand(sourceRaw);
     const src = Path.Is.absolute(sourceExpanded)

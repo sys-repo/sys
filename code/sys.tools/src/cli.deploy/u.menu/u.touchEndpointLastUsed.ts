@@ -4,8 +4,8 @@ import { type t, Time } from '../common.ts';
  * Update lastUsedAt for an endpoint ref and persist config.
  */
 export async function touchEndpointLastUsed(args: {
-  readonly config: t.DeployTool.Config.File;
-  readonly endpointName: string;
+  config: t.DeployTool.Config.File;
+  endpointName: string;
 }): Promise<void> {
   const { config, endpointName } = args;
 

@@ -7,13 +7,12 @@ type A = t.DeployTool.Endpoint.Menu.Action;
  * Keeps the option-list rules centralized.
  */
 export async function promptEndpointAction(args: {
-  readonly checkOk: boolean;
-  readonly ranOk: boolean;
-  readonly canPush: boolean;
-  readonly pushedOk: boolean;
+  checkOk: boolean;
+  ranOk: boolean;
+  canPush: boolean;
+  pushedOk: boolean;
 }): Promise<A> {
   const { checkOk, ranOk, canPush, pushedOk } = args;
-
   const dim = (s: string) => c.gray(c.dim(s));
 
   const answer = await Cli.Input.Select.prompt<A>({
