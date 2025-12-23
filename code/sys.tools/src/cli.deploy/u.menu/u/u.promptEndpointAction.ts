@@ -9,10 +9,10 @@ type A = t.DeployTool.Endpoint.Menu.Action;
 export async function promptEndpointAction(args: {
   checkOk: boolean;
   ranOk: boolean;
-  canPush: boolean;
+  showPush: boolean;
   pushedOk: boolean;
 }): Promise<A> {
-  const { checkOk, ranOk, canPush, pushedOk } = args;
+  const { checkOk, ranOk, showPush, pushedOk } = args;
   const dim = (s: string) => c.gray(c.dim(s));
 
   const answer = await Cli.Input.Select.prompt<A>({
@@ -21,7 +21,7 @@ export async function promptEndpointAction(args: {
       ...(checkOk
         ? [{ name: ranOk ? '  staged ✔' : '  stage (build, copy)', value: 'stage' as const }]
         : []),
-      ...(canPush ? [{ name: pushedOk ? '  push ✔' : '  push', value: 'push' as const }] : []),
+      ...(showPush ? [{ name: pushedOk ? '  push ✔' : '  push', value: 'push' as const }] : []),
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
       { name: '  config: edit', value: 'edit' as const },
       { name: '  config: rename', value: 'rename' },

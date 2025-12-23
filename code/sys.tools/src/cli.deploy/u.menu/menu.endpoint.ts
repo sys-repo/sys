@@ -94,7 +94,7 @@ export async function endpointMenu(args: {
     const picked = await promptEndpointAction({
       checkOk: check.ok,
       ranOk,
-      canPush: showPush,
+      showPush,
       pushedOk,
     });
 
