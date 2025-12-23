@@ -84,7 +84,7 @@ export async function endpointMenu(args: {
           s
             //
             .line(c.italic(c.yellow('No configuration mappings setup yet.')))
-            .line(c.gray(`run ${c.green('edit yaml')}`));
+            .line(c.gray(`run ${c.green('config: edit')}`));
         })
         .blank();
       console.info(String(s));
