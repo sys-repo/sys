@@ -4,7 +4,7 @@ import { type t, Cli, Fs } from './common.ts';
 /**
  * Entry-gate normalization for a configuration file.
  */
-export async function prepare(toolname: string, filename: string, cwd?: t.StringDir) {
+export async function prepare(cwd: t.StringDir, filename: string, toolname: string) {
   cwd = cwd ?? Fs.cwd('terminal');
   const path = Fs.join(cwd, filename);
 
