@@ -5,17 +5,16 @@ import { type t, D, Fs, JsonFile, Config as Base } from './common.ts';
  */
 export const Config = {
   ...Base,
+  get,
   normalize,
-  get: getConfig,
 } as const;
 
 /**
  * Get or create the `-<name>.config.json` file.
  */
-export async function getConfig(dir: t.StringDir): Promise<t.DeployTool.Config.File> {
-  const path = Fs.join(dir, D.Config.filename);
-  const doc = JsonFile.Singleton.get<t.DeployTool.Config.Doc>(path, D.Config.doc, { touch: true });
-  return doc;
+async function get(cwd: t.StringDir): Promise<t.DeployTool.Config.File> {
+  const { filename, doc } = D.Config;
+  return Base.get<t.DeployTool.Config.Doc>(cwd, filename, doc);
 }
 
 /**

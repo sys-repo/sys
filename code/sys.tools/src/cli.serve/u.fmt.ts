@@ -1,11 +1,11 @@
 import { type t, Fmt as Base, c, D, Fs, Pkg, pkg, Str } from './common.ts';
-import { getConfig } from './u.config.ts';
+import { Config } from './u.config.ts';
 
 export const Fmt = {
   ...Base,
 
   async help(toolname: string = D.tool.name, cwd: t.StringDir) {
-    const config = await getConfig(cwd);
+    const config = await Config.get(cwd);
 
     const str = Str.builder()
       .line(c.gray(`working dir: ${Fs.trimCwd(cwd)}`))

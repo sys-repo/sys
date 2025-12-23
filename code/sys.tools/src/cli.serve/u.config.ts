@@ -1,5 +1,5 @@
 import { type t, Config as Base } from './common.ts';
-import { getConfig as get } from './u.config.get.ts';
+import { get } from './u.config.get.ts';
 import { MutateConfig as Mutate } from './u.config.mutate.ts';
 import {
   normalize,

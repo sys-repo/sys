@@ -5,7 +5,7 @@ import { type t, Config as Base, D, Fs, Is, JsonFile, Obj, Time } from './common
  */
 export const Config = {
   ...Base,
-  get: getConfig,
+  get,
   normalize,
   findDocEntry(config: t.CrdtTool.Config.Doc, docid: t.Crdt.Id) {
     const dirs = config.docs || (config.docs = []);
@@ -14,13 +14,11 @@ export const Config = {
 } as const;
 
 /**
- * Get or create the `-crdt.config.json` file.
+ * Get or create the `-<name>.config.json` file.
  */
-export async function getConfig(dir: t.StringDir): Promise<t.CrdtTool.Config.File> {
-  const path = Fs.join(dir, D.Config.filename);
-  type Doc = t.CrdtTool.Config.Doc;
-  const doc = JsonFile.Singleton.get<Doc>(path, D.Config.doc, { touch: true });
-  return doc;
+async function get(cwd: t.StringDir): Promise<t.CrdtTool.Config.File> {
+  const { filename, doc } = D.Config;
+  return Base.get<t.CrdtTool.Config.Doc>(cwd, filename, doc);
 }
 
 /**

@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it, slug } from '../../-test.ts';
 import { type t, D, Fs } from '../common.ts';
-import { Config, getConfig } from '../u.config.ts';
+import { Config } from '../u.config.ts';
 
 describe('tool: Deploy', () => {
   const root = `.tmp/test/${D.Config.filename}`;
@@ -14,8 +14,7 @@ describe('tool: Deploy', () => {
       const dir = Fs.join(root, slug());
       const path = Fs.join(dir, D.Config.filename);
 
-      expect(Config.get).to.equal(getConfig);
-      const a = await getConfig(dir);
+      const a = await Config.get(dir);
       const b = await Config.get(dir);
 
       // JsonFile handle + shape.

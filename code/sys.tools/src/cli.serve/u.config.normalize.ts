@@ -32,7 +32,7 @@ export function normalizeLocalDir(localDir: t.StringRelativeDir): t.StringRelati
  * - store locations as '.' / relative when inside cwd (portable config)
  * - merge duplicates deterministically
  */
-export async function normalize(config: t.ServeTool.Config.File, cwd?: t.StringDir) {
+export async function normalize(cwd: t.StringDir, config: t.ServeTool.Config.File) {
   const current = config.current;
 
   // If no cwd is provided, we cannot safely resolve rel-vs-abs identity.

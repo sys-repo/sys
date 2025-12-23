@@ -1,5 +1,5 @@
 import { type t, c, Cli, D, Err, Fs, Rx, Str, Time } from '../common.ts';
-import { getConfig } from '../u.config.ts';
+import { Config } from '../u.config.ts';
 import { startRepoOnWorker } from '../u.worker/mod.ts';
 import { tryClient } from './u.client.ts';
 import { Fmt } from './u.fmt.ts';
@@ -13,7 +13,7 @@ export async function daemon(
 ) {
   const { allowConsoleClear = true } = opts;
   const life = Rx.lifecycle(opts.until);
-  const config = await getConfig(cwd);
+  const config = await Config.get(cwd);
   const port = D.port.repo;
   const eventlog = new Set<t.CrdtRepoLogEntry>();
   const websockets = config.current.repo?.daemon?.sync?.websockets ?? [];
