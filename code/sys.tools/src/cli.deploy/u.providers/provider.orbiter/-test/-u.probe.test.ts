@@ -1,9 +1,10 @@
-import { describe, expect, expectTypeOf, Is, it } from '../../../../-test.ts';
+import { Fs, describe, expect, expectTypeOf, Is, it } from '../../../../-test.ts';
 import { Provider } from '../../mod.ts';
 
 describe('Provider: probe', () => {
   it('returns a stable availability shape for orbiter', async () => {
-    const res = await Provider.probe({ kind: 'orbiter', siteId: 'site', domain: 'tmp' });
+    const cwd = (await Fs.makeTempDir()).absolute;
+    const res = await Provider.probe(cwd, { kind: 'orbiter', siteId: 'site', domain: 'tmp' });
 
     // Runtime: always discriminated by `ok`.
     expect(typeof res).to.eql('object');

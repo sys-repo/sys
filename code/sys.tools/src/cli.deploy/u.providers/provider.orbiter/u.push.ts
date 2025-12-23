@@ -16,14 +16,15 @@ export async function push(args: {
     if (!buildDir) return { ok: false, reason: 'failed', hint: 'Missing buildDir' };
 
     const argv = [
-      'deploy',
+      'x',
+      ['npm:orbiter-cli', 'deploy'],
       ['--siteId', siteId],
       ['--buildCommand', 'echo no-op'],
       ['--buildDir', buildDir],
     ];
 
     const out = await Process.invoke({
-      cmd: 'orbiter',
+      cmd: 'deno',
       args: argv.flatMap((x) => (Array.isArray(x) ? x : [x])),
       cwd,
       silent: true,

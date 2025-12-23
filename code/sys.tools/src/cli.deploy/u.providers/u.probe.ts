@@ -12,6 +12,7 @@ import { probe as probeOrbiter } from './provider.orbiter/u.probe.ts';
  * No throwing. Ever.
  */
 export async function probe(
+  cwd: t.StringDir,
   provider?: t.DeployTool.Config.Provider.All,
   opts: { spin?: boolean } = {},
 ): Promise<t.PushProbe> {
@@ -33,7 +34,7 @@ export async function probe(
 
   switch (provider.kind) {
     case 'orbiter': {
-      const res = await probeOrbiter();
+      const res = await probeOrbiter(cwd);
       if (res.ok) return done({ ok: true });
       return done({ ok: false, reason: res.reason, hint: res.hint, error: res.error });
     }

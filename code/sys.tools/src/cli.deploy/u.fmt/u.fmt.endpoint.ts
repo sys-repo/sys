@@ -33,15 +33,12 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   }
 
   const mappingsCount = yaml?.mappings?.length ?? 0;
-
   const providerFmt = fmtProvider(yaml?.provider);
 
   let providerProbe: t.PushProbe | undefined;
   try {
     const provider = yaml?.provider;
-    if (provider) {
-      providerProbe = await Provider.probe(provider);
-    }
+    if (provider) providerProbe = await Provider.probe(cwd, provider);
   } catch {
     providerProbe = undefined;
   }

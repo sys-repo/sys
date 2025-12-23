@@ -110,7 +110,7 @@ export async function pushCapabilityOf(args: {
   }
 
   // Provider preflight (runtime).
-  const preflight = await Provider.probe(provider);
+  const preflight = await Provider.probe(cwd, provider);
   if (!preflight.ok) {
     return {
       show: true,
