@@ -5,12 +5,12 @@ import { Fmt } from '../u.fmt.ts';
 import { ValidName } from './is.ts';
 import { runPushWithSpinner } from './run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './run.stagingWithSpinner.ts';
-import { promptEndpointAction } from './u.promptEndpointAction.ts';
-import { pushCapabilityOf } from './u.pushCapability.ts';
-import { renameEndpoint } from './u.renameEndpoint.ts';
-import { renderEndpointScreen } from './u.renderEndpointScreen.ts';
-import { resolveMappingsForStaging } from './u.resolveMappingsForStaging.ts';
-import { touchEndpointLastUsed } from './u.touchEndpointLastUsed.ts';
+import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
+import { pushCapabilityOf } from './u/u.pushCapability.ts';
+import { renameEndpoint } from './u/u.renameEndpoint.ts';
+import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
+import { resolveMappingsForStaging } from './u/u.resolveMappingsForStaging.ts';
+import { touchEndpointLastUsed } from './u/u.touchEndpointLastUsed.ts';
 
 type Pick =
   | { readonly kind: 'back' }

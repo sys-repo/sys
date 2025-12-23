@@ -1,5 +1,5 @@
-import { type t, Str } from '../common.ts';
-import { Fmt } from '../u.fmt.ts';
+import { type t, Str } from './common.ts';
+import { Fmt } from '../../u.fmt.ts';
 
 /**
  * Render the endpoint "screen" (table + optional validation block),

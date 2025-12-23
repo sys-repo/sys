@@ -1,7 +1,7 @@
 import { type t, pkg, c, Cli, Path, Pkg } from '../common.ts';
 import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
-import { ensureRootIndexHtml } from './u.index.html.ts';
+import { ensureRootIndexHtml } from './u/u.index.html.ts';
 
 type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly error: unknown };
 

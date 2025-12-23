@@ -1,5 +1,5 @@
-import { type t, Fs, Time } from '../common.ts';
-import { EndpointsFs } from '../u.endpoints/mod.ts';
+import { type t, Fs, Time } from './common.ts';
+import { EndpointsFs } from '../../u.endpoints/mod.ts';
 
 type RenameEndpointResult =
   | { readonly ok: true; readonly toRel: t.StringPath }

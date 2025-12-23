@@ -1,4 +1,4 @@
-import { type t, Time } from '../common.ts';
+import { type t, Time } from './common.ts';
 
 /**
  * Update lastUsedAt for an endpoint ref and persist config.

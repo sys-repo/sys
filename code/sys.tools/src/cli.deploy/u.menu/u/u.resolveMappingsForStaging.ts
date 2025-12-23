@@ -1,4 +1,4 @@
-import { type t, Fs, Path } from '../common.ts';
+import { type t, Fs, Path } from './common.ts';
 
 type ResolveMappingsResult =
   | { readonly ok: true; readonly mappings: readonly t.DeployTool.Staging.Mapping[] }

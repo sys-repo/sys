@@ -1,5 +1,5 @@
-import { type t, Fs, Path } from '../common.ts';
-import { Provider } from '../u.providers/mod.ts';
+import { type t, Fs, Path } from './common.ts';
+import { Provider } from '../../u.providers/mod.ts';
 
 type Reason =
   | 'yaml-invalid'

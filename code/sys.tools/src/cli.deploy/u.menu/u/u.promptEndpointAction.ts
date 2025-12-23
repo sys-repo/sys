@@ -1,4 +1,4 @@
-import { type t, c, Cli } from '../common.ts';
+import { type t, c, Cli } from './common.ts';
 
 type A = t.DeployTool.Endpoint.Menu.Action;
 

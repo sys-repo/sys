@@ -1,4 +1,4 @@
-import { type t, Fs, Path, Str } from '../common.ts';
+import { type t, Fs, Path, Str } from './common.ts';
 
 /**
  * Ensure a minimal root index.html exists at the staging root.
