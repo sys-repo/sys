@@ -17,6 +17,7 @@ export async function probe(cwd: t.StringDir): Promise<t.ProviderAvailability> {
       cwd,
       silent: true,
     });
+
     if (!out.success) {
       return { ok: false, reason: 'failed', hint, error: out };
     }
