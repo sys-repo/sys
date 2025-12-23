@@ -18,7 +18,6 @@ export async function push(args: {
     const argv = [
       'deploy',
       ['--siteId', siteId],
-      ['--domain', domain],
       ['--buildCommand', 'echo no-op'],
       ['--buildDir', buildDir],
     ];
@@ -30,7 +29,7 @@ export async function push(args: {
       silent: true,
     });
 
-    if (!out.success) {
+    if (!out.success || containsError(out.text.stderr)) {
       const code = String(out.code ?? '');
       const stderr = String(out.text?.stderr ?? '').trim();
       const hint = stderr
@@ -44,4 +43,17 @@ export async function push(args: {
   } catch (error) {
     return { ok: false, reason: 'failed', hint: 'orbiter deploy failed', error };
   }
+}
+
+/**
+ * Helpers:
+ */
+function containsError(stderr = ''): boolean {
+  if (!stderr) return false;
+  return (
+    /Problem updating site:/i.test(stderr) ||
+    /\bServer error\b/i.test(stderr) ||
+    /No site found with ID:/i.test(stderr) ||
+    /\bError:\s*Error:\b/i.test(stderr)
+  );
 }
