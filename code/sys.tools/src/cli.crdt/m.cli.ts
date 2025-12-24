@@ -28,20 +28,15 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   const args = Args.parse<t.CrdtTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
-  /**
-   * Check pre-reqs:
-   */
-  const configpath = Fs.join(cwd, D.Config.filename);
-  if (!(await Fs.exists(configpath))) {
-    console.info(Fmt.Prereqs.folderNotConfigured(cwd, toolname));
-    const yes = await Cli.Input.Confirm.prompt({ message: `Create config file now?` });
-    if (!yes) Deno.exit(0);
-  }
+  /* Pre-reqs */
+  await Config.ensureFile(cwd, D.Config.filename);
 
+  /* Run */
   console.info(await Fmt.header(toolname));
   const res = await run(cwd);
   console.info(Fmt.signoff(toolname));
 
+  /* Exit */
   const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
   if (exit > -1) Deno.exit(exit);
 };
