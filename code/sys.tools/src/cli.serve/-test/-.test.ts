@@ -12,7 +12,7 @@ describe('tool: Serve', () => {
       type Doc = t.ServeTool.Config.Doc;
 
       const dir = Fs.join(root, slug());
-      const path = Fs.join(dir, D.Config.filename);
+      const path = Config.path(dir, D.Config.filename);
 
       const a = await Config.get(dir);
       const b = await Config.get(dir);

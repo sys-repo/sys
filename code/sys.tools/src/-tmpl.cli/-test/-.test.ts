@@ -12,7 +12,7 @@ describe('tool: __NAME__', () => {
       type Doc = t.__NAME__Tool.Config.Doc;
 
       const dir = Fs.join(root, slug());
-      const path = Fs.join(dir, D.Config.filename);
+      const path = Config.path(dir, D.Config.filename);
 
       const a = await Config.get(dir);
       const b = await Config.get(dir);
