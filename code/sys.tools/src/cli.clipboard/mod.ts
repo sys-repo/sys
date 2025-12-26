@@ -15,6 +15,5 @@ export { ClipboardTools } from './m.ClipboardTools.ts';
  * CLI entry-point:
  */
 if (import.meta.main) {
-  const { cli } = await import('./u.cli.ts');
   await cli(Fs.cwd('terminal'), Deno.args);
 }

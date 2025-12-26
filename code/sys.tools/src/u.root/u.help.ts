@@ -25,13 +25,13 @@ export async function printRootHelp(argv: string[]) {
   console.info(s);
 
   if (args.help) {
-    const sys = c.bold(c.green('sys'));
-    const cmd = c.white('deno run jsr:@sys/tools');
+    const sys = c.bold(c.white('sys'));
+    const cmd = c.green('deno run jsr:@sys/tools');
     const str = Str.builder()
       .line(`  Installs ${sys} as a lightweight shell alias over the raw`)
-      .line(`  ${c.bold(cmd)} command. For convenience, you may`)
+      .line(`  ${cmd} command. For convenience, you may`)
       .line(`  want to add it to your ${c.cyan('~/.zshrc')} or an equivalent file`);
-    console.info(c.italic(c.gray(String(str))));
+    console.info(c.gray(String(str)));
     console.info(c.yellow(ShellCommand));
   }
 
