@@ -1,6 +1,29 @@
 import React from 'react';
 import { type t, Playback } from './common.ts';
 
+import { usePlaybackClock } from '../../Media.Timecode.Playback/mod.ts';
+
+/**
+ * Orchestrator hook (staging layer).
+ *
+ * This module is intentionally a "wiring bay" used during convergence:
+ * it binds together:
+ * - std-layer timecode resolution (pure)
+ * - ui-state playback machine (pure)
+ * - runtime adapters (imperative edge)
+ * - React subscription + controller surfaces (UI)
+ *
+ * IMPORTANT:
+ * This is not the final architecture boundary.
+ * Once the end-to-end slice is stable, the wiring done here should be
+ * extracted into dedicated modules at the correct layer (std / ui-state /
+ * ui-react-components), leaving this file minimal or removing it entirely.
+ *
+ * Design intent:
+ * - Keep all glue explicit and localized (so it is easy to delete later).
+ * - Avoid duplicating std semantics: if logic here starts re-implementing
+ *   mapping/clock behavior, that is a refactor trigger.
+ */
 export function useOrchestrator(
   args: t.MediaTimeline.Orchestrator.Args,
 ): t.MediaTimeline.Orchestrator.Result {
@@ -19,6 +42,8 @@ export function useOrchestrator(
    * Owned by this hook.
    */
   const runner = React.useMemo<t.PlaybackRunner>(() => Playback.runner({ runtime }), [runtime]);
+  const getRunner = React.useCallback(() => runner, [runner]);
+  usePlaybackClock({ runtime, runner: undefined, getRunner });
 
   /**
    * Runner lifecycle.

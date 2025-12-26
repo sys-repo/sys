@@ -16,6 +16,7 @@ export type HarnessProps = {
   layout?: { infopanel?: { bottom?: t.ReactNode } };
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  onReady?: (e: { readonly controller: t.TimelineController }) => void;
 };
 
 export const Harness: React.FC<HarnessProps> = (props) => {
@@ -28,6 +29,14 @@ export const Harness: React.FC<HarnessProps> = (props) => {
   const { timeline } = useTimeline(bundle?.spec);
 
   /**
+   * Keep onReady stable (avoid render-feedback loops).
+   */
+  const onReadyRef = React.useRef(props.onReady);
+  React.useEffect(() => {
+    onReadyRef.current = props.onReady;
+  }, [props.onReady]);
+
+  /**
    * Dev-only orchestration glue:
    * runtime → runner → snapshot → controller → init sequencing.
    */
@@ -38,6 +47,17 @@ export const Harness: React.FC<HarnessProps> = (props) => {
     timeline,
     startBeat: 0,
   });
+
+  /**
+   * Fire onReady once per controller instance.
+   */
+  const lastControllerRef = React.useRef<t.TimelineController | undefined>(undefined);
+  React.useEffect(() => {
+    if (!onReadyRef.current) return;
+    if (lastControllerRef.current === controller) return;
+    lastControllerRef.current = controller;
+    onReadyRef.current({ controller });
+  }, [controller]);
 
   const beat = selectedIndex != null && timeline ? timeline.beats[selectedIndex] : undefined;
 

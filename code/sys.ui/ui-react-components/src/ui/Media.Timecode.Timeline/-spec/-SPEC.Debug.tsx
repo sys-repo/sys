@@ -36,6 +36,7 @@ export async function createDebugSignals() {
     docid: s(snap.docid),
     baseUrl: s(snap.baseUrl),
     bundle: s<t.SpecTimelineBundle>(),
+    controller: s<t.TimelineController>(),
   };
   const p = props;
   const api = {
@@ -109,7 +110,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <hr />
       <div className={Styles.title.class}>
-        <div>{'ƒ loadTimeline()'}</div>
+        <div>{'ƒ loadTimeline( dist.json )'}</div>
         <div>{'(fetch / json)'}</div>
       </div>
 
@@ -121,6 +122,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         selectedDocid={p.docid.value}
         onSelect={(e) => Sample.load(debug, e.docid)}
       />
+
+      <hr />
+      <div className={Styles.title.class}>
+        <div>{'ƒ TimelineController.<Cmd>'}</div>
+        <div>{'(Player)'}</div>
+      </div>
+      <Button block label={() => `play`} onClick={() => v.controller?.play()} />
+      <Button block label={() => `pause`} onClick={() => v.controller?.pause()} />
+      <Button block label={() => `toggle`} onClick={() => v.controller?.toggle()} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

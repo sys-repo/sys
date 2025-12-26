@@ -42,16 +42,11 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      color: theme.fg,
-      display: 'grid',
-    }),
-    cropmarks: css({
-      opacity: size.ready ? 1 : 0,
-      transition: 'opacity 100ms ease',
-    }),
+    base: css({ color: theme.fg, display: 'grid' }),
+    cropmarks: css({ opacity: size.ready ? 1 : 0, transition: 'opacity 100ms ease' }),
     label: {
       base: css({
+        userSelect: 'none',
         fontFamily: 'monospace',
         fontSize: 9,
         lineHeight: 1.5,
@@ -63,15 +58,17 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
       top: css({ Absolute: [-20, null, null, 0] }),
       bottom: css({ Absolute: [null, 0, -18, 0], opacity: 0.4 }),
     },
+    video: css({}),
   };
 
   const elBody = (
-    <div>
+    <div className={styles.video.class}>
       <Player.Video.Element
+        {...controller.props}
         style={{ width: wrangle.videoWidth(size.rect?.width) }}
         debug={debug}
         theme={props.theme}
-        {...controller.props}
+        interaction={{ clickToPlay: false }}
       />
       <div className={css(styles.label.base, styles.label.top).class}>{line1}</div>
       <div className={css(styles.label.base, styles.label.bottom).class}>{line2}</div>

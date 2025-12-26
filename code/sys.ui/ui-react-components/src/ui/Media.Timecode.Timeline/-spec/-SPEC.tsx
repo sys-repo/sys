@@ -51,6 +51,10 @@ export default Spec.describe(D.displayName, async (e) => {
               // bottom: <div>Bottom 👋</div>,
             },
           }}
+          onReady={(e) => {
+            console.info(`⚡️ MediaTimecode.Dev.Harness.onReady:`, e);
+            p.controller.value = e.controller;
+          }}
         />
       </div>
     );

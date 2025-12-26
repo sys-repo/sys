@@ -56,11 +56,12 @@ export function toIssueItems(resolved?: t.Timecode.Composite.Resolved): readonly
     items.push({
       k: `${i + 1}. ${issue.severity}`,
       v: issue.src ? `${issue.kind}: ${issue.src}` : issue.kind,
+      mono,
     });
   }
 
   if (issues.length > MAX) {
-    items.push({ k: '…', v: `${issues.length - MAX} more`, mono: true });
+    items.push({ k: '…', v: `${issues.length - MAX} more`, mono });
   }
 
   return items;

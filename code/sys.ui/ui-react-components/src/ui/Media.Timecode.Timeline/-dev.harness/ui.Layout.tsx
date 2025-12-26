@@ -48,7 +48,16 @@ export const Layout: React.FC<LayoutProps> = (props) => {
       display: 'grid',
     }),
     layout: {
-      base: css({ display: 'grid', gridTemplateRows: '340px 1fr' }),
+      base: css({
+        display: 'grid',
+        /**
+         * Responsive in both directions:
+         * - wide → more vertical room (prevents “banging”)
+         * - narrow → less vertical room (keeps gutter/whitespace consistent-ish)
+         * Use a soft linear ramp via calc so we don’t get stuck at a large min on narrow viewports.
+         */
+        gridTemplateRows: `clamp(220px, calc(22vw + 140px), 480px) 1fr`,
+      }),
       top: css({
         borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.12)}`,
         display: 'grid',

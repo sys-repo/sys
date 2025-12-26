@@ -10,8 +10,17 @@ export type GridProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
   onSelect?: SelectIndexHandler;
+
+  /**
+   * Optional: indicates which portion of the *currently selected* beat is active right now.
+   * Used only for ephemeral (while-running) highlighting of the Media/Pause columns.
+   * - 'media' → Media column is bright.
+   * - 'pause' → Pause column is bright (Media not bright).
+   */
+  activePhase?: GridActivePhase | null;
 };
 
+export type GridActivePhase = 'media' | 'pause';
 export type SelectIndexHandler = (e: SelectIndex) => void;
 export type SelectIndex = { readonly index: t.TimecodeState.Playback.BeatIndex };
 
@@ -31,8 +40,18 @@ export const Grid: React.FC<GridProps> = (props) => {
       fontSize: 10,
       fontFamily: 'monospace',
       userSelect: 'none',
+
+      // Ensure this component participates in normal layout (prevents accidental overlay).
+      display: 'grid',
+      gridTemplateRows: 'auto 1fr',
+      minHeight: 0,
     }),
-    body: css({ Absolute: 0, Scroll: true }),
+    body: css({
+      // Can overlay siblings (eg. the video) depending on parent layout.
+      overflowY: 'auto',
+      overflowX: 'hidden',
+      minHeight: 0,
+    }),
     header: css({
       display: 'grid',
       gridTemplateColumns: COLS,
@@ -141,7 +160,6 @@ export const Grid: React.FC<GridProps> = (props) => {
     if (!bundle || !timeline) return [];
 
     let lastMediaLabel: string | undefined;
-    let prevVTime: t.Msecs | undefined;
 
     return timeline.beats.map((beat, index) => {
       const logicalPath = beat.src.ref;
@@ -151,21 +169,28 @@ export const Grid: React.FC<GridProps> = (props) => {
 
       const segmentId = mediaLabel;
       const isSegmentStart = index === 0 || !isRepeat;
-
       const url = bundle.resolveMedia({ kind: 'video', logicalPath });
-      const vtt = Timecode.format(beat.vTime, { withMillis: true, forceHours: true });
+      const vtt = Timecode.format(beat.vTime, { withMillis: false, forceHours: true });
 
-      const deltaMs = prevVTime === undefined ? undefined : beat.vTime - prevVTime;
-      const delta = deltaMs === undefined ? '-' : dur(deltaMs);
-      prevVTime = beat.vTime;
+      /**
+       * Semantics:
+       * - totalSpan = curr.vTime → next.vTime (or → timeline end)
+       * - mediaSpan = totalSpan - pause
+       * - pause = tail-time inside totalSpan
+       */
+      const next = timeline.beats[index + 1];
+      const totalSpanMs = next ? next.vTime - beat.vTime : timeline.duration - beat.vTime;
+      const pauseMs = beat.pause ?? 0;
+      const mediaSpanMs = Math.max(0, totalSpanMs - pauseMs);
 
       return {
         index,
         beat,
         vtt,
-        vTime: delta,
+        media: dur(mediaSpanMs),
+        span: dur(totalSpanMs),
         is: { repeat: isRepeat, segmentStart: isSegmentStart },
-        pause: beat.pause ? dur(beat.pause) : '-',
+        pause: pauseMs ? dur(pauseMs) : '-',
         logicalPath,
         mediaLabel,
         segmentId,
@@ -173,8 +198,6 @@ export const Grid: React.FC<GridProps> = (props) => {
       };
     });
   }, [bundle, timeline]);
-
-  type RowModel = (typeof rows)[number];
 
   /**
    * Build row elements:
@@ -192,7 +215,6 @@ export const Grid: React.FC<GridProps> = (props) => {
     const isSelected = row.index === selectedIndex;
     const isBeforeSelected = selectedIndex !== undefined && row.index < selectedIndex;
     const isVttBright = isBeforeSelected && !isSelected;
-
     const isNewSegmentRow = row.is.segmentStart && row.index > 0; // segment divider only
 
     const urlColor = isSelected
@@ -201,6 +223,14 @@ export const Grid: React.FC<GridProps> = (props) => {
         ? ui.color.segHeaderText
         : ui.color.dimText;
     const dimColor = ui.color.dimText;
+
+    const isActiveRow = isSelected;
+    const activePhase = isActiveRow ? (props.activePhase ?? null) : null;
+    const isMediaActive = activePhase === 'media';
+    const isPauseActive = activePhase === 'pause';
+
+    const mediaColor = isMediaActive ? theme.fg : dimColor;
+    const pauseColor = isPauseActive ? theme.fg : dimColor;
 
     const rowStyles = {
       base: css({
@@ -219,6 +249,9 @@ export const Grid: React.FC<GridProps> = (props) => {
 
       // Logical path never gets special coloring; it follows selected vs dim.
       logical: css(styles.cell.text, styles.cell.media),
+
+      media: css(styles.cell.text, css({ color: mediaColor })),
+      pause: css(styles.cell.text, css({ color: pauseColor })),
     };
 
     const elUrl = row.url && (
@@ -252,9 +285,12 @@ export const Grid: React.FC<GridProps> = (props) => {
 
         <div className={rowStyles.vtt.class}>{row.vtt}</div>
 
-        {/* These stay neutral/dim (inherit rowStyles.base.color); no segment-start tinting. */}
-        <div className={styles.cell.text.class}>{row.vTime}</div>
-        <div className={styles.cell.text.class}>{row.pause}</div>
+        {/* Media = (curr → next) minus pause tail. */}
+        <div className={rowStyles.media.class} title={`span:${row.span} pause:${row.pause}`}>
+          {row.media}
+        </div>
+
+        <div className={rowStyles.pause.class}>{row.pause}</div>
 
         <div className={rowStyles.url.class} title={row.url}>
           {elUrl || '-'}
@@ -271,7 +307,7 @@ export const Grid: React.FC<GridProps> = (props) => {
     <div className={styles.header.class}>
       <div></div>
       <div>vTime</div>
-      <div></div>
+      <div>Media</div>
       <div>Pause</div>
       <div>Bundled URL</div>
       <div>Logical Path</div>

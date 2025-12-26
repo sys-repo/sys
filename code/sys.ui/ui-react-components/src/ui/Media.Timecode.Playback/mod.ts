@@ -14,3 +14,4 @@
  * This layer translates decisions into effects — nothing more.
  */
 export { Playback } from './m.Playback.ts';
+export { usePlaybackClock } from './u.runner.clock.playback.ts';
