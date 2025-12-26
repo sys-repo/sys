@@ -4,8 +4,10 @@ import type { t } from './common.ts';
  * The `@sys/tools/serve` type namespace.
  */
 export namespace ServeTool {
-  export type Id = 'serve';
-  export type Name = 'system/serve:tools';
+  export const ID = 'serve' as const;
+  export const NAME = 'system/serve:tools' as const;
+  export type Id = typeof ID;
+  export type Name = typeof NAME;
 
   /** Command names. */
   export type Command =

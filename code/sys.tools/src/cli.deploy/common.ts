@@ -1,9 +1,10 @@
 import { type t, JsonFile } from '../common.ts';
+import { DeployTool } from './t.namespace.ts';
 
 /** @system: exports */
+export { Process } from '@sys/process';
 export { Schema } from '@sys/schema';
 export { Yaml } from '@sys/yaml';
-export { Process } from '@sys/process';
 
 /** @local: exports */
 export * from '../common.ts';
@@ -11,9 +12,8 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const id = 'deploy' satisfies t.DeployTool.Id;
-const name = 'system/deploy:tools' satisfies t.DeployTool.Name;
-
+const id = DeployTool.ID;
+const name = DeployTool.NAME;
 export const D = {
   tool: { id, name },
   Path: {},

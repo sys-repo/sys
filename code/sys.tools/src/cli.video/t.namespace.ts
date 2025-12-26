@@ -4,8 +4,10 @@ import type { t } from './common.ts';
  * The `@sys/tools/video` type namespace.
  */
 export namespace VideoTool {
-  export type Id = 'video';
-  export type Name = 'system/video:tools';
+  export const ID = 'video' as const;
+  export const NAME = 'system/video:tools' as const;
+  export type Id = typeof ID;
+  export type Name = typeof NAME;
 
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs;

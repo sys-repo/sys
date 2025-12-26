@@ -4,8 +4,10 @@ import type { t } from './common.ts';
  * Tools for deploying files to a publishing endpoint (CDN).
  */
 export namespace DeployTool {
-  export type Id = 'deploy';
-  export type Name = 'system/deploy:tools';
+  export const ID = 'deploy' as const;
+  export const NAME = 'system/deploy:tools' as const;
+  export type Id = typeof ID;
+  export type Name = typeof NAME;
 
   /** Command names. */
   export type Command = 'back' | 'exit';

@@ -26,8 +26,12 @@ export namespace Tools {
     | t.VideoTool.Id;
 
   /** Command line arguments (argv). */
+  /** Common flags. */
   export type CliArgs = { help: boolean };
-  export type CliParsedArgs = t.ParsedArgs<CliArgs>;
+  /** Root-entry-only flags */
+  export type CliRootArgs = CliArgs & {};
+  /** Root parse result (adds typed command from first positional). */
+  export type CliRootParsedArgs = t.ParsedArgs<CliRootArgs> & { readonly command?: Command };
 
   /**
    * Usage timestamps for recency-aware behavior.

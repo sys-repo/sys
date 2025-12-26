@@ -4,8 +4,10 @@ import type { t } from './common.ts';
  * The `@sys/tools/crdt` type namespace.
  */
 export namespace CrdtTool {
-  export type Id = 'crdt';
-  export type Name = 'system/crdt:tools';
+  export const ID = 'crdt' as const;
+  export const NAME = 'system/crdt:tools' as const;
+  export type Id = typeof ID;
+  export type Name = typeof NAME;
 
   /** Command names. */
   export type Command =

@@ -1,11 +1,13 @@
+import { __NAME__Tool } from './t.namespace.ts';
 import { type t, JsonFile } from '../common.ts';
+
 export * from '../common.ts';
 
 /**
  * Constants:
  */
-const id = '__NAME__' satisfies t.__NAME__Tool.Id;
-const name = '__NAME__' satisfies t.__NAME__Tool.Name;
+const id = __NAME__Tool.ID;
+const name = __NAME__Tool.NAME;
 export const D = {
   tool: { id, name },
   Path: {},

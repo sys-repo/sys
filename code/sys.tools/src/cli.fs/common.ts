@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { FsTool } from './t.namespace.ts';
 export * from '../common.ts';
 
 /**
@@ -9,8 +9,8 @@ export { Fs } from '@sys/fs';
 /**
  * Constants:
  */
-const id = 'fs' satisfies t.FsTool.Id;
-const name = 'system/fs:tools' satisfies t.FsTool.Name;
+const id = FsTool.ID;
+const name = FsTool.NAME;
 export const D = {
   tool: { id, name },
 } as const;

@@ -1,4 +1,6 @@
+import { UpdateTool } from './t.namespace.ts';
 import { type t } from './common.ts';
+
 export * from '../common.ts';
 
 /**
@@ -10,8 +12,8 @@ export { Semver } from '@sys/std/semver';
 /**
  * Constants:
  */
-const id = 'update' satisfies t.UpdateTool.Id;
-const name = 'system/update:tools' satisfies t.UpdateTool.Name;
+export const id = UpdateTool.ID;
+export const name = UpdateTool.NAME;
 export const D = {
   tool: { id, name },
 } as const;

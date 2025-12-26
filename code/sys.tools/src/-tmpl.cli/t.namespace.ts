@@ -4,8 +4,10 @@ import type { t } from './common.ts';
  * The __NAME__ type namespace.
  */
 export namespace __NAME__Tool {
-  export type Id = '__NAME__';
-  export type Name = '__NAME__';
+  export const ID = '__NAME__' as const;
+  export const NAME = 'system/__NAME__:tools' as const;
+  export type Id = typeof ID;
+  export type Name = typeof NAME;
 
   /** Command names. */
   export type Command =
@@ -16,7 +18,7 @@ export namespace __NAME__Tool {
     | 'option-ba'
     | 'option-bb'
     | 'exit';
-  export type MenuOption = { name: string; value: Command };
+  export type MenuOption = { readonly name: string; readonly value: Command };
 
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs;

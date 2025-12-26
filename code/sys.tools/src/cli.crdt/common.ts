@@ -1,4 +1,5 @@
 import { type t } from '../common.ts';
+import { CrdtTool } from './t.namespace.ts';
 export * from '../common.ts';
 
 /**
@@ -10,8 +11,8 @@ export { Immutable } from '@sys/immutable/rfc6902';
 /**
  * Constants:
  */
-const id = 'crdt' satisfies t.CrdtTool.Id;
-const name = 'system/crdt:tools' satisfies t.CrdtTool.Name;
+const id = CrdtTool.ID;
+const name = CrdtTool.NAME;
 export const D = {
   tool: { id, name },
   port: { repo: 49494, sync: 3030 },

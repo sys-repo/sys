@@ -4,8 +4,10 @@ import type { t } from './common.ts';
  * The `@sys/tools/copy` (clipboard) namepsace.
  */
 export namespace ClipboardTool {
-  export type Id = 'copy';
-  export type Name = 'system/clipboard:tools';
+  export const ID = 'copy' as const;
+  export const NAME = 'system/copy:tools' as const;
+  export type Id = typeof ID;
+  export type Name = typeof NAME;
 
   /** Command names. */
   export type Command = 'types' | 'files:select' | 'files:all' | 'files:deno.json';

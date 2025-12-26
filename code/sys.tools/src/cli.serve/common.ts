@@ -1,4 +1,5 @@
 import { type t, JsonFile } from '../common.ts';
+import { ServeTool } from './t.namespace.ts';
 
 /**
  * Libs:
@@ -9,8 +10,8 @@ export { Http, serveFileWithEtag } from '@sys/http/server';
 /**
  * Constants:
  */
-const id = 'serve' satisfies t.ServeTool.Id;
-const name = 'system/serve:tools' satisfies t.ServeTool.Name;
+const id = ServeTool.ID;
+const name = ServeTool.NAME;
 export const D = {
   tool: { id, name },
   port: 4040,

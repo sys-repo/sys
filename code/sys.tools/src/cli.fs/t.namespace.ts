@@ -11,8 +11,10 @@ export type FsCommand =
  * The `@sys/tools/fs` namespace.
  */
 export namespace FsTool {
-  export type Id = 'fs';
-  export type Name = 'system/fs:tools';
+  export const ID = 'fs' as const;
+  export const NAME = 'system/fs:tools' as const;
+  export type Id = typeof ID;
+  export type Name = typeof NAME;
 
   /** Command names. */
   export type Command =
