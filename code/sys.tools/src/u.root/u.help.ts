@@ -1,6 +1,6 @@
 import { type t, Args, c, Fmt, pkg, Str } from './common.ts';
 
-export async function printHelp(argv: string[]) {
+export async function printRootHelp(argv: string[]) {
   const args = Args.parse<t.Tools.CliArgs>(argv, { alias: { h: 'help' } });
 
   const text = await Fmt.help(' system:tools', (e, c) => {

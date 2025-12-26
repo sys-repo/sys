@@ -3,7 +3,7 @@
  * System tools root entry.
  */
 import { pkg } from './pkg.ts';
-import { printHelp } from './u.help.ts';
+import { printRootHelp } from './u.root/mod.ts';
 
 export { pkg };
 
@@ -14,5 +14,5 @@ export type * as t from './types.ts';
  * CLI entry-point:
  */
 if (import.meta.main) {
-  printHelp(Deno.args);
+  printRootHelp(Deno.args);
 }
