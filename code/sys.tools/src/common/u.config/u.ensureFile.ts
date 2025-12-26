@@ -15,32 +15,6 @@ export async function ensureFile(
 ): Promise<void> {
   const path = getPath(cwd, filename);
 
-  {
-    // TEMP 🐷
-    const cwdResolved = cwd ?? Fs.cwd('terminal');
-    const canonical = getPath(cwdResolved, filename);
-    const rootLevel = getPath(cwdResolved, filename, { subdir: '' });
-
-    console.info(
-      'cwd arg:',
-      cwd,
-      'cwdResolved:',
-      cwdResolved,
-      'Deno.cwd():',
-      Deno.cwd(),
-      'filename:',
-      filename,
-      'canonical:',
-      canonical,
-      'canonical.exists:',
-      await Fs.exists(canonical),
-      'rootLevel:',
-      rootLevel,
-      'rootLevel.exists:',
-      await Fs.exists(rootLevel),
-    );
-  }
-
   await normalizePath(cwd, filename);
   if (await Fs.exists(path)) return;
 
