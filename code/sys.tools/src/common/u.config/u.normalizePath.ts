@@ -1,4 +1,4 @@
-import { type t, Fs, JsonFile } from './common.ts';
+import { type t, Fs } from './common.ts';
 import { getPath } from './u.path.ts';
 
 /**
@@ -20,6 +20,7 @@ export async function normalizePath(cwd: t.StringDir, filename: string): Promise
   try {
     // Policy: never overwrite canonical
     if (!(await Fs.exists(canonical))) {
+      await Fs.ensureDir(Fs.dirname(canonical));
       await Fs.move(rootLevel, canonical);
     }
   } catch {
