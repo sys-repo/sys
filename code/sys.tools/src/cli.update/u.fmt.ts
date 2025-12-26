@@ -13,8 +13,7 @@ export const Fmt = {
     const base = await Base.help(toolname, (e) => e.row(c.gray(`@sys/tools/${c.white('update')}`)));
     str.line(base).line(Fmt.versionInfoTable(version)).line();
     if (!version.is.latest) str.line(Fmt.shellcommand()).line();
-    if (version.is.latest) str.line(c.italic(Fmt.localVersionIsMostRecent(version))).line();
-
+    if (version.is.latest) str.line(Fmt.localVersionIsMostRecent(version)).line();
     return String(str);
   },
 
@@ -52,8 +51,8 @@ export const Fmt = {
   localVersionIsMostRecent(version: t.UpdateTool.VersionInfo) {
     const str = Str.builder();
     str
-      .line(`No update required`)
-      .line(`Local version ${g(version.local)} of ${w(pkg.name)} is the most recent release`);
+      .line(`Local version ${g(version.local)} of ${w(pkg.name)} is the most recent release`)
+      .line(c.italic(c.dim(`No update required`)));
     return c.gray(String(str));
   },
 } as const;

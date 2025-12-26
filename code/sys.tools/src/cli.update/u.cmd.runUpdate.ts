@@ -18,7 +18,7 @@ export async function runUpdate(
   console.info();
 
   if (version.is.latest) {
-    console.info(c.italic(Fmt.localVersionIsMostRecent(version)));
+    console.info(Fmt.localVersionIsMostRecent(version));
     console.info();
     return;
   }
