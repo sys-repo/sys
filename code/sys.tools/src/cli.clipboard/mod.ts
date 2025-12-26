@@ -3,6 +3,8 @@
  * CLI helpers for copying LLM friendly text-file content to the clipboard.
  */
 import { Fs } from './common.ts';
+import { cli } from './m.cli.ts';
+export { cli };
 
 /**
  * Library:

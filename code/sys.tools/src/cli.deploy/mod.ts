@@ -3,11 +3,12 @@
  * Deploy CLI tools.
  */
 import { Fs } from './common.ts';
+import { cli } from './m.cli.ts';
+export { cli };
 
 /**
  * CLI entry-point:
  */
 if (import.meta.main) {
-  const { cli } = await import('./m.cli.ts');
   await cli(Fs.cwd('terminal'), Deno.args);
 }

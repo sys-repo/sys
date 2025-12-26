@@ -1,10 +1,12 @@
 import { type t, c, Fmt, pkg, Str } from './common.ts';
 import { parseRootArgs } from './u.args.ts';
+import { dispatchRootCommand } from './u.dispatcher.ts';
+import { ShellCommand } from './u.ShellCommand.ts';
 
 export async function printRootHelp(argv: string[]) {
   const args = parseRootArgs(argv);
 
-  const text = await Fmt.help(' system:tools', (e, c) => {
+  const s = await Fmt.help(' system:tools', (e, c) => {
     const fmt = (tool: t.Tools.Command) => c.gray(c.dim(`${pkg.name}/`)) + tool;
     const add = (tool: t.Tools.Command, alias?: string) => {
       const items = [fmt(tool)];
@@ -20,7 +22,7 @@ export async function printRootHelp(argv: string[]) {
     add('update', 'up');
   });
 
-  console.info(text);
+  console.info(s);
 
   if (args.help) {
     const sys = c.bold(c.green('sys'));
@@ -32,21 +34,9 @@ export async function printRootHelp(argv: string[]) {
     console.info(c.italic(c.gray(String(str))));
     console.info(c.yellow(ShellCommand));
   }
-}
 
-const ShellCommand = `
-  # ------------------------------------------------------------------------
-  # @sys: tools
-  # ------------------------------------------------------------------------
-  sys() {
-    # Run the root tool if there are no arguments or if the first argument is a flag
-    if (( $# == 0 )) || [[ "$1" == -* ]]; then
-      deno run -A jsr:@sys/tools "$@"
-      return
-    fi
-
-    # Otherwise, treat the first argument as the subcommand
-    local sub="$1"
-    deno run -A "jsr:@sys/tools/\${sub}" "\${@:2}"
+  // Invoke sub-command if present
+  if (args.command) {
+    await dispatchRootCommand(args.command, argv);
   }
-  `;
+}

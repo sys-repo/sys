@@ -1,5 +1,5 @@
 import { type t } from './common.ts';
-import { cli } from './u.cli.ts';
+import { cli } from './m.cli.ts';
 
 /**
  * Update tools.
