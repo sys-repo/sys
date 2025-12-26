@@ -25,7 +25,7 @@ export const CssScalarSchema: t.TUnion<[t.TString, t.TNumber, t.TBoolean, t.TNul
  * - null or literal false
  */
 export const CssInputSchema: t.TRecursive<
-  t.TUnion<[t.TArray<any>, t.TObject, t.TNull, t.TLiteral<false>]>
+  t.TUnion<[t.TArray<any>, t.TObject<{}>, t.TNull, t.TLiteral<false>]>
 > = Type.Recursive(
   (Css) =>
     Type.Union([
