@@ -1,17 +1,20 @@
 import React from 'react';
 import { Color, css, type t } from './common.ts';
-import { Grid, type SelectIndexHandler } from './ui.Grid.tsx';
+import { Grid, type GridActivePhase, type SelectIndexHandler } from './ui.Grid.tsx';
 import { InfoPanel } from './ui.InfoPanel.tsx';
 import { Video } from './ui.Video.tsx';
 
 type P = t.MediaTimeline.Dev.Harness.Props;
 type LayoutProps = Pick<P, 'video' | 'bundle' | 'docid' | 'layout'> & {
   /** Presence */
-  readonly hasBundle: boolean;
+  hasBundle: boolean;
 
   /** Selected beat */
-  readonly selectedIndex?: t.TimecodeState.Playback.BeatIndex;
-  readonly beat?: t.Timecode.Experience.Beat;
+  selectedIndex?: t.TimecodeState.Playback.BeatIndex;
+  beat?: t.Timecode.Experience.Beat;
+
+  /** Ephemeral highlight for the selected row (Media vs Pause). */
+  activePhase?: GridActivePhase | null;
 
   /** Visuals */
   debug?: boolean;
@@ -33,8 +36,10 @@ export const Layout: React.FC<LayoutProps> = (props) => {
     bundle,
     docid,
     selectedIndex,
+    activePhase,
     beat,
     layout = {},
+    onSelectIndex,
   } = props;
 
   /**
@@ -99,7 +104,8 @@ export const Layout: React.FC<LayoutProps> = (props) => {
             bundle={bundle}
             theme={theme.name}
             selectedIndex={selectedIndex}
-            onSelect={props.onSelectIndex}
+            activePhase={activePhase}
+            onSelect={onSelectIndex}
           />
         </div>
         <div className={styles.layout.bottom.right.class}>

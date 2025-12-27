@@ -47,6 +47,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
     timeline,
     startBeat: 0,
   });
+  const beat = selectedIndex != null && timeline ? timeline.beats[selectedIndex] : undefined;
 
   /**
    * Fire onReady once per controller instance.
@@ -59,7 +60,37 @@ export const Harness: React.FC<HarnessProps> = (props) => {
     onReadyRef.current({ controller });
   }, [controller]);
 
-  const beat = selectedIndex != null && timeline ? timeline.beats[selectedIndex] : undefined;
+  /**
+   * Derive which portion of the selected beat is active based on `vTime`.
+   * - Beats span [beat.vTime → nextBeat.vTime)
+   * - Optional `pause` is a tail segment at the end of that span
+   * - Returns 'pause' iff vTime lies inside the pause tail, else 'media'
+   * - Returns null when timeline, selection, or vTime is unavailable
+   *
+   * UI-only derivation; does not affect playback state.
+   */
+  const activePhase = React.useMemo((): 'media' | 'pause' | null => {
+    if (!timeline) return null;
+    if (selectedIndex == null) return null;
+
+    const vTime = snapshot.state.vTime;
+    if (vTime == null) return null;
+
+    const b = timeline.beats[selectedIndex];
+    if (!b) return null;
+
+    const next = timeline.beats[selectedIndex + 1];
+    const totalSpanMs = next ? next.vTime - b.vTime : timeline.duration - b.vTime;
+
+    const pauseMs = b.pause ?? 0;
+    const mediaSpanMs = Math.max(0, totalSpanMs - pauseMs);
+
+    const pauseFrom = b.vTime + mediaSpanMs;
+    const pauseTo = pauseFrom + pauseMs;
+
+    if (pauseMs > 0 && vTime >= pauseFrom && vTime < pauseTo) return 'pause';
+    return 'media';
+  }, [snapshot.state.vTime, timeline, selectedIndex]);
 
   /**
    * Render:
@@ -76,6 +107,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
       theme={props.theme}
       style={props.style}
       selectedIndex={selectedIndex}
+      activePhase={activePhase}
       onSelectIndex={(e) => controller.seekToBeat(e.index)}
     />
   );
