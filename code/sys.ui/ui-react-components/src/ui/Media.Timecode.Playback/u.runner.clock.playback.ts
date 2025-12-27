@@ -20,27 +20,21 @@ export function usePlaybackClock(args: {
   /**
    * VirtualClock integration.
    *
-   * This hook operates purely in virtual-time space.
-   * It requires:
-   *   - clamped, monotonic vTime advancement
-   *   - pause / play control
-   *
-   * It does NOT require segment-level source mapping.
-   * A total-duration clock is therefore sufficient and intentional.
+   * This hook requires monotonic/clamped virtual-time progression plus play/pause control.
+   * Segment-level source mapping is not required; a total-duration clock is sufficient.
    */
-  const clockRef = useRef<ReturnType<typeof Timecode.VClock.makeForTotal> | undefined>(undefined);
-  const lastClockKeyRef = useRef<{ total?: t.Msecs } | undefined>(undefined);
+  const clockRef = useRef<t.Timecode.VirtualClock.Instance | undefined>(undefined);
+  const lastTotalRef = useRef<t.Msecs | undefined>(undefined);
   const clockIsPlayingRef = useRef(false);
   const lastNowRef = useRef<number | undefined>(undefined);
   const modeRef = useRef<'media' | 'pause'>('media');
   const lastSeedRef = useRef<{ timeline?: unknown; beat?: number } | undefined>(undefined);
 
   function ensureClock(total: t.Msecs): t.Timecode.VirtualClock.Instance {
-    const key = { total };
-    const prev = lastClockKeyRef.current;
-    if (clockRef.current && prev?.total === key.total) return clockRef.current;
+    const prevTotal = lastTotalRef.current;
+    if (clockRef.current && prevTotal === total) return clockRef.current;
 
-    lastClockKeyRef.current = key;
+    lastTotalRef.current = total;
     const clock = Timecode.VClock.makeForTotal(total);
 
     // New clock instance → re-gate play transitions.
@@ -57,7 +51,6 @@ export function usePlaybackClock(args: {
 
     const seedKey = { timeline, beat: beatIndex };
     const prev = lastSeedRef.current;
-
     if (prev?.timeline === seedKey.timeline && prev?.beat === seedKey.beat) return false;
     lastSeedRef.current = seedKey;
 
@@ -69,10 +62,8 @@ export function usePlaybackClock(args: {
     lastNowRef.current = undefined;
 
     /**
-     * Important:
      * We may be coming out of a materialized pause that paused the media element.
-     * Ensure we re-enter "media" mode on beat change; the caller will decide
-     * whether to issue an actual deck.play().
+     * Re-enter "media" mode on beat change; runner decides whether to play.
      */
     modeRef.current = 'media';
 
@@ -110,7 +101,7 @@ export function usePlaybackClock(args: {
 
       /**
        * If we just seeded (beat changed), we may have left the media element paused.
-       * Force the active deck into play, once, on the transition.
+       * Force the active deck into play once on the transition.
        */
       if (seeded) {
         args.runtime.deck.play(s.decks.active);
@@ -130,6 +121,7 @@ export function usePlaybackClock(args: {
 
       const dtMsNum = prevNow === undefined ? 0 : Math.max(0, now - prevNow);
       const dtMs = dtMsNum as t.Msecs;
+
       const state = clock.advance(dtMs);
       const nextVTime = Timecode.VTime.toMsecs(state.vtime);
 

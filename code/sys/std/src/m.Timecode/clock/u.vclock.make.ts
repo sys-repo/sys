@@ -15,7 +15,7 @@ type MappedSouceInner = {
  * - mapToSource() will always return null
  *
  * This helper formalizes the "total-only" clock contract and avoids
- * ad-hoc or implicit timeline shaping at call sites.
+ * ad-hoc or implicit timeline shaping at hosts.
  */
 export const makeForTotal: t.VirtualClockLib['makeForTotal'] = (total, opts) => {
   return make({ total, segments: [] }, opts);
