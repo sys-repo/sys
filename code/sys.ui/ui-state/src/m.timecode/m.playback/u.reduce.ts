@@ -301,12 +301,18 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
 
       const nextBeat = beatIndexFromVTime(timeline, input.vTime);
 
-      // No beat change → no-op.
-      if (nextBeat === state.currentBeat) return { state, cmds, events };
+      // Always track vTime (even within the same beat) so UI can derive media vs pause phase.
+      if (nextBeat === state.currentBeat) {
+        update({ ...state, vTime: input.vTime });
+        return { state, cmds, events };
+      }
 
       const next = setCurrentBeat(state, nextBeat, { cmds, events });
       emitBeatIfChanged(next);
-      update(next);
+
+      // Preserve exact runner vTime (not just beat boundary vTime).
+      update({ ...next, vTime: input.vTime });
+
       loadForBeat(nextBeat);
 
       return { state, cmds, events };

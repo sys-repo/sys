@@ -53,7 +53,7 @@ export function setCurrentBeat(
    * This keeps reducer deck swaps (segment boundaries) consistent with runner
    * deck-local time bases (also keyed by `url|slice`).
    */
-  let state: t.PlaybackState = { ...prev, currentBeat: nextBeat };
+  let state: t.PlaybackState = { ...prev, currentBeat: nextBeat, vTime: beat.vTime };
 
   // Segment boundary => swap decks.
   if (prevSeg !== undefined && prevSeg !== nextSeg) {

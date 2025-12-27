@@ -29,7 +29,9 @@ export const init: t.PlaybackStateLib['init'] = (args = {}) => {
   // If timeline is present, seed beat + load the active deck.
   if (timeline) {
     const initialBeat = clampBeatIndex(timeline, startBeat ?? 0);
-    const nextState = setCurrentBeat(state, initialBeat, { cmds, events });
+    const seeded: t.PlaybackState = { ...state, vTime: timeline.beats[initialBeat]?.vTime };
+
+    const nextState = setCurrentBeat(seeded, initialBeat, { cmds, events });
     return { state: nextState, cmds, events };
   }
 

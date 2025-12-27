@@ -100,9 +100,14 @@ export type PlaybackState = {
    * Desired intent: what the controller is trying to do right now.
    */
   readonly intent: PlaybackIntent;
-
   readonly timeline?: PlaybackTimeline;
   readonly currentBeat?: PlaybackBeatIndex;
+
+  /**
+   * Runner-provided current virtual time (authoritative while running).
+   * Used for within-beat derivations (e.g. media vs pause highlighting).
+   */
+  readonly vTime?: t.Msecs;
 
   /**
    * Deck ownership (kept abstract: runner maps this to actual players).

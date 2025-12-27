@@ -19,9 +19,7 @@ describe('Playback.reduce — navigation', () => {
   }
 
   function beatEvent(events: readonly t.PlaybackEvent[]) {
-    return events.find((e) => e.kind === 'playback:beat') as
-      | { readonly kind: 'playback:beat'; readonly beat: t.PlaybackBeatIndex }
-      | undefined;
+    return events.find((e) => e.kind === 'playback:beat');
   }
 
   function hasLoad(cmds: readonly any[]) {
@@ -104,6 +102,22 @@ describe('Playback.reduce — navigation', () => {
     expect(r3.state.currentBeat).to.eql(0); // clamped
     expect(hasLoad(r3.cmds)).to.eql(true); // idempotent reassert
     expect(beatEvent(r3.events)).to.eql(undefined);
+  });
+
+  it('video:time within the same beat updates vTime (no cmds/events; no beat event)', () => {
+    const state = Playback.reduce(initState(), { kind: 'playback:seek:beat', beat: 1 }).state;
+    const res = Playback.reduce(state, {
+      kind: 'video:time',
+      deck: state.decks.active,
+      vTime: 1500,
+    });
+
+    expect(res.state.currentBeat).to.eql(1);
+    expect(res.state.vTime).to.eql(1500);
+
+    expect(res.cmds.length).to.eql(0);
+    expect(res.events.length).to.eql(0);
+    expect(beatEvent(res.events)).to.eql(undefined);
   });
 
   it('navigation never changes phase', () => {
