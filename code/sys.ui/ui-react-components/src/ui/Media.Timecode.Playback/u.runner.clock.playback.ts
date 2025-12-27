@@ -1,28 +1,56 @@
 import { useEffect, useRef } from 'react';
-import { type t, Schedule } from './common.ts';
+import { type t, Schedule, Timecode } from './common.ts';
 
 /**
- * Baseline behavior (provisional, verified in harness):
- * - RAF-driven time progression using performance.now() + local refs.
- * - Seeds vTime on beat change from runner.timeline.beats[currentBeat].vTime.
- * - Emits runner.send({ kind:'video:time', deck: active, vTime }) each frame while intent=play.
- * - Materializes beat.pause as a "tail pause" window within beat.duration by toggling deck.pause/play.
+ * Drive virtual-time progression for playback using a VirtualClock.
  *
- * NOTE:
- * This file intentionally duplicates virtual-time advancement logic for now.
- * Refactor plan: replace vTimeRef/lastNowRef with @sys/std/timecode/clock (VClock/VTime) as the
- * single source of truth for vTime advancement; keep pause-window materialization as UI policy.
+ * - Advances virtual time via RAF while intent === 'play'.
+ * - Seeds the clock on beat changes.
+ * - Emits 'video:time' inputs to the runner.
+ * - Materializes beat.pause windows by issuing deck pause/play commands.
+ *
+ * Responsibility boundary:
+ * - This hook owns virtual-time progression and scheduling only.
+ * - Timeline resolution, state transitions, and media-time mapping remain in the runner.
  */
 export function usePlaybackClock(args: {
-  readonly runtime: t.PlaybackRuntime;
-  readonly runner: t.PlaybackRunnerState['state'] | undefined; // not used, kept for API symmetry
-  readonly getRunner: () => t.PlaybackRunner | undefined;
+  runtime: t.PlaybackRuntime;
+  getRunner: () => t.PlaybackRunner | undefined;
 }): void {
-  const vTimeRef = useRef<t.Msecs>(0 as t.Msecs);
+  /**
+   * VirtualClock integration.
+   *
+   */
+  const clockRef = useRef<ReturnType<typeof Timecode.VClock.make> | undefined>(undefined);
+  const lastClockKeyRef = useRef<{ timeline?: unknown } | undefined>(undefined);
+  const clockIsPlayingRef = useRef(false);
   const lastNowRef = useRef<number | undefined>(undefined);
   const modeRef = useRef<'media' | 'pause'>('media');
-
   const lastSeedRef = useRef<{ timeline?: unknown; beat?: number } | undefined>(undefined);
+
+  function ensureClock(
+    timeline: t.TimecodeState.Playback.Timeline,
+  ): ReturnType<typeof Timecode.VClock.make> {
+    const key = { timeline };
+    const prev = lastClockKeyRef.current;
+    if (clockRef.current && prev?.timeline === key.timeline) return clockRef.current;
+
+    lastClockKeyRef.current = key;
+
+    type VClockTimeline = Parameters<typeof Timecode.VClock.make>[0];
+    const vclockTimeline = {
+      total: timeline.virtualDuration,
+      segments: [],
+    } as unknown as VClockTimeline;
+
+    const clock = Timecode.VClock.make(vclockTimeline);
+
+    // New clock instance → re-gate play transitions.
+    clockIsPlayingRef.current = false;
+
+    clockRef.current = clock;
+    return clock;
+  }
 
   function seedFromRunnerState(runner: t.PlaybackRunner): boolean {
     const s = runner.get().state;
@@ -40,7 +68,9 @@ export function usePlaybackClock(args: {
     const beat = timeline.beats[beatIndex];
     if (!beat) return false;
 
-    vTimeRef.current = beat.vTime;
+    const clock = ensureClock(timeline);
+    clock.seek(Timecode.VTime.fromMsecs(beat.vTime));
+
     lastNowRef.current = undefined;
 
     /**
@@ -67,7 +97,6 @@ export function usePlaybackClock(args: {
       }
 
       const seeded = seedFromRunnerState(runner);
-
       const snap = runner.get();
       const s = snap.state;
       const timeline = s.timeline;
@@ -76,9 +105,16 @@ export function usePlaybackClock(args: {
       if (s.phase !== 'active' || s.intent !== 'play' || !timeline || s.currentBeat === undefined) {
         lastNowRef.current = undefined;
         modeRef.current = 'media';
+
+        const clock = clockRef.current;
+        if (clock) clock.pause();
+        clockIsPlayingRef.current = false;
+
         Schedule.raf(step);
         return;
       }
+
+      const clock = ensureClock(timeline);
 
       /**
        * If we just seeded (beat changed), we may have left the media element paused.
@@ -88,13 +124,23 @@ export function usePlaybackClock(args: {
         args.runtime.deck.play(s.decks.active);
       }
 
+      /**
+       * Gate clock.play() to the transition into playable state (avoid per-frame mutation).
+       */
+      if (!clockIsPlayingRef.current) {
+        clock.play();
+        clockIsPlayingRef.current = true;
+      }
+
       const now = performance.now();
       const prevNow = lastNowRef.current;
       lastNowRef.current = now;
 
-      const dtMs = prevNow === undefined ? 0 : Math.max(0, now - prevNow);
-      const nextVTime = (vTimeRef.current + dtMs) as t.Msecs;
-      vTimeRef.current = nextVTime;
+      const dtMsNum = prevNow === undefined ? 0 : Math.max(0, now - prevNow);
+      const dtMs = dtMsNum as t.Msecs;
+
+      const state = clock.advance(dtMs);
+      const nextVTime = Timecode.VTime.toMsecs(state.vtime);
 
       runner.send({
         kind: 'video:time',
@@ -134,8 +180,6 @@ export function usePlaybackClock(args: {
     };
 
     Schedule.raf(step);
-    return () => {
-      disposed = true;
-    };
+    return () => void (disposed = true);
   }, [args.runtime, args.getRunner]);
 }

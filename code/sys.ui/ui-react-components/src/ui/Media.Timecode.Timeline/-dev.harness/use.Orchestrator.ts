@@ -43,7 +43,7 @@ export function useOrchestrator(
    */
   const runner = React.useMemo<t.PlaybackRunner>(() => Playback.runner({ runtime }), [runtime]);
   const getRunner = React.useCallback(() => runner, [runner]);
-  usePlaybackClock({ runtime, runner: undefined, getRunner });
+  usePlaybackClock({ runtime, getRunner });
 
   /**
    * Runner lifecycle.
