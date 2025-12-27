@@ -104,6 +104,37 @@ describe('Playback.reduce — navigation', () => {
     expect(beatEvent(r3.events)).to.eql(undefined);
   });
 
+  it('vTime tracks beat boundary for init/navigation, and runner vTime for video:time', () => {
+    const tl = timeline();
+
+    // init seeds vTime to the selected beat boundary.
+    const state0 = initState();
+    expect(state0.currentBeat).to.eql(0);
+    expect(state0.vTime).to.eql(tl.beats[0]!.vTime);
+
+    // explicit navigation keeps vTime consistent with the target beat boundary.
+    const a = Playback.reduce(state0, { kind: 'playback:seek:beat', beat: 1 });
+    expect(a.state.currentBeat).to.eql(1);
+    expect(a.state.vTime).to.eql(tl.beats[1]!.vTime);
+
+    const b = Playback.reduce(a.state, { kind: 'playback:next' });
+    expect(b.state.currentBeat).to.eql(2);
+    expect(b.state.vTime).to.eql(tl.beats[2]!.vTime);
+
+    const c = Playback.reduce(b.state, { kind: 'playback:prev' });
+    expect(c.state.currentBeat).to.eql(1);
+    expect(c.state.vTime).to.eql(tl.beats[1]!.vTime);
+
+    // runner time is authoritative and can be within-beat.
+    const d = Playback.reduce(c.state, {
+      kind: 'video:time',
+      deck: c.state.decks.active,
+      vTime: 1500,
+    });
+    expect(d.state.currentBeat).to.eql(1);
+    expect(d.state.vTime).to.eql(1500);
+  });
+
   it('video:time within the same beat updates vTime (no cmds/events; no beat event)', () => {
     const state = Playback.reduce(initState(), { kind: 'playback:seek:beat', beat: 1 }).state;
     const res = Playback.reduce(state, {
