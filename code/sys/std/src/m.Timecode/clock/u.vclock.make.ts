@@ -9,6 +9,19 @@ type MappedSouceInner = {
 };
 
 /**
+ * Construct a VirtualClock when only a total duration is known.
+ *
+ * - No segments are provided
+ * - mapToSource() will always return null
+ *
+ * This helper formalizes the "total-only" clock contract and avoids
+ * ad-hoc or implicit timeline shaping at call sites.
+ */
+export const makeForTotal: t.VirtualClockLib['makeForTotal'] = (total, opts) => {
+  return make({ total, segments: [] }, opts);
+};
+
+/**
  * Virtual clock: pure, framework-free implementation.
  * - Exclusive end semantics: [0,total)
  * - Caller drives progression via `advance(deltaMsecs)` — the elapsed real time in milliseconds
