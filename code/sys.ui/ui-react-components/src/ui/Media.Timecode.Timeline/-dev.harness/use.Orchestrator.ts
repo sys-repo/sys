@@ -1,28 +1,24 @@
 import React from 'react';
 import { type t, Playback } from './common.ts';
 
-import { usePlaybackClock } from '../../Media.Timecode.Playback/mod.ts';
-
 /**
  * Orchestrator hook (staging layer).
  *
- * This module is intentionally a "wiring bay" used during convergence:
- * it binds together:
- * - std-layer timecode resolution (pure)
+ * This file is a dev-harness wiring bay that composes:
+ * - std timeline resolution (pure)
  * - ui-state playback machine (pure)
  * - runtime adapters (imperative edge)
  * - React subscription + controller surfaces (UI)
  *
- * IMPORTANT:
- * This is not the final architecture boundary.
- * Once the end-to-end slice is stable, the wiring done here should be
- * extracted into dedicated modules at the correct layer (std / ui-state /
- * ui-react-components), leaving this file minimal or removing it entirely.
+ * It is intentionally glue-y and explicitly local so it can be deleted
+ * once the end-to-end slice is stable.
  *
- * Design intent:
- * - Keep all glue explicit and localized (so it is easy to delete later).
- * - Avoid duplicating std semantics: if logic here starts re-implementing
- *   mapping/clock behavior, that is a refactor trigger.
+ * Note:
+ * `usePlaybackClock` is owned by the Playback UI module. This harness imports it
+ * directly to drive vTime progression in the staging environment; once the public
+ * Timeline harness surface stabilizes, this import should be replaced by the
+ * canonical orchestration boundary (likely a Playback re-export or a relocated
+ * orchestrator at the correct layer).
  */
 export function useOrchestrator(
   args: t.MediaTimeline.Orchestrator.Args,
@@ -43,14 +39,16 @@ export function useOrchestrator(
    */
   const runner = React.useMemo<t.PlaybackRunner>(() => Playback.runner({ runtime }), [runtime]);
   const getRunner = React.useCallback(() => runner, [runner]);
-  usePlaybackClock({ runtime, getRunner });
+
+  /**
+   * Virtual-time progression (RAF + pause-window materialization).
+   */
+  Playback.useClock({ runtime, getRunner });
 
   /**
    * Runner lifecycle.
    */
-  React.useEffect(() => {
-    return () => runner.dispose();
-  }, [runner]);
+  React.useEffect(() => () => void runner.dispose(), [runner]);
 
   /**
    * Snapshot subscription (React adapter).
@@ -71,7 +69,7 @@ export function useOrchestrator(
   }, [runner]);
 
   /**
-   * Build Playback timeline model (temporary adapter).
+   * Build the ui-state Playback.Timeline model from harness inputs.
    */
   const playbackTimeline = React.useMemo<t.TimecodeState.Playback.Timeline | undefined>(() => {
     if (!timeline || !bundle) return undefined;
@@ -80,7 +78,10 @@ export function useOrchestrator(
       const next = timeline.beats[index + 1];
       const duration = next ? next.vTime - beat.vTime : timeline.duration - beat.vTime;
 
-      const url = bundle.resolveMedia({ kind: 'video', logicalPath: beat.src.ref });
+      const url = bundle.resolveMedia({
+        kind: 'video',
+        logicalPath: beat.src.ref,
+      });
 
       return {
         index: index as t.TimecodeState.Playback.BeatIndex,
@@ -89,7 +90,7 @@ export function useOrchestrator(
         pause: beat.pause,
         segmentId: beat.src.ref,
         media: { url, label: beat.src.ref.split('/').pop() ?? beat.src.ref },
-      } as const;
+      };
     });
 
     return {
@@ -101,6 +102,9 @@ export function useOrchestrator(
 
   /**
    * Init playback when the derived playback timeline changes.
+   *
+   * `docid` is included so switching documents re-initializes even if the
+   * resolved timeline object happens to be referentially stable.
    */
   React.useEffect(() => {
     if (!playbackTimeline) return;

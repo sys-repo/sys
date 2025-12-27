@@ -13,10 +13,7 @@ import { type t, Schedule, Timecode } from './common.ts';
  * - This hook owns virtual-time progression and scheduling only.
  * - Timeline resolution, state transitions, and media-time mapping remain in the runner.
  */
-export function usePlaybackClock(args: {
-  runtime: t.PlaybackRuntime;
-  getRunner: () => t.PlaybackRunner | undefined;
-}): void {
+export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
   /**
    * VirtualClock integration.
    *
@@ -165,4 +162,4 @@ export function usePlaybackClock(args: {
     Schedule.raf(step);
     return () => void (disposed = true);
   }, [args.runtime, args.getRunner]);
-}
+};

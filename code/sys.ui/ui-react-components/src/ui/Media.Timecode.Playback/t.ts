@@ -30,6 +30,15 @@ export type TimecodePlaybackLib = {
   useRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunnerHook;
 
   /**
+   * React hook: drives vTime progression (RAF) and pause-window materialization.
+   * This is an integration helper; it does not own runner state transitions.
+   */
+  useClock(args: {
+    runtime: t.PlaybackRuntime;
+    getRunner: () => t.PlaybackRunner | undefined;
+  }): void;
+
+  /**
    * [Pure] Canonical projections (read-models).
    */
   readonly project: {
