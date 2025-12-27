@@ -100,4 +100,36 @@ describe('Playback.reduce — scenarios', () => {
     expect(state.timeline).to.not.eql(undefined);
     expect(state.currentBeat).to.eql(1);
   });
+
+  it('end → seek → play rearms playback (ended is not sticky across navigation)', () => {
+    const tl = timeline();
+    const lastBeat = tl.beats.length - 1;
+
+    let state = emptyState();
+
+    // init and start playing
+    state = Playback.reduce(state, { kind: 'playback:init', timeline: tl }).state;
+    state = Playback.reduce(state, { kind: 'playback:play' }).state;
+    expect(state.intent).to.eql('play');
+
+    // arrive at end (runtime signal)
+    state = Playback.reduce(state, { kind: 'video:ended', deck: state.decks.active }).state;
+
+    // navigate back to a beat and re-play → should not remain in "ended" behavior
+    state = Playback.reduce(state, { kind: 'playback:seek:beat', beat: 0 }).state;
+    expect(state.currentBeat).to.eql(0);
+    expect(state.vTime).to.eql(tl.beats[0]!.vTime);
+
+    state = Playback.reduce(state, { kind: 'playback:play' }).state;
+    expect(state.intent).to.eql('play');
+
+    // sanity: time updates should still be accepted and move beat forward
+    state = Playback.reduce(state, {
+      kind: 'video:time',
+      deck: state.decks.active,
+      vTime: tl.beats[lastBeat]!.vTime,
+    }).state;
+    expect(state.currentBeat).to.eql(lastBeat);
+    expect(state.vTime).to.eql(tl.beats[lastBeat]!.vTime);
+  });
 });

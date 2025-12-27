@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Bullet, Color, css, dur, Timecode, Icons } from '../common.ts';
+import { type t, Bullet, Color, css, dur, Icons, Timecode } from '../common.ts';
 import { useTimeline } from '../use.Timeline.ts';
 import { A } from './ui.A.tsx';
 
@@ -12,10 +12,9 @@ export type GridProps = {
   onSelect?: SelectIndexHandler;
 
   /**
-   * Optional: indicates which portion of the *currently selected* beat is active right now.
-   * Used only for ephemeral (while-running) highlighting of the Media/Pause columns.
-   * - 'media' → Media column is bright.
-   * - 'pause' → Pause column is bright (Media not bright).
+   * Ephemeral highlight for the selected row:
+   * - 'media' → brighten Media
+   * - 'pause' → brighten Pause
    */
   activePhase?: GridActivePhase | null;
 };
@@ -102,11 +101,10 @@ export const Grid: React.FC<GridProps> = (props) => {
     color: {
       segBorder: Color.alpha(Color.BLUE, 0.7),
       selectedBg: Color.alpha(Color.BLUE, 0.65),
-
-      // Used ONLY for “new media identity” hinting (URL column only).
-      segHeaderText: Color.alpha(Color.BLUE, 0.6),
-
       dimText: Color.alpha(theme.fg, 0.18),
+
+      // Used ONLY for "new media identity" hinting (URL column only).
+      segHeaderText: Color.alpha(Color.BLUE, 0.6),
     },
     styles: {
       rowMedia: css({

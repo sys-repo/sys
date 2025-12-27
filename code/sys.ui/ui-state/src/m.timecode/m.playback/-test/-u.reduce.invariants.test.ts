@@ -111,4 +111,27 @@ describe('Playback.reduce — invariants', () => {
       res.events.some((e) => e.kind === 'playback:beat' && (e as any).beat === undefined),
     ).to.eql(false);
   });
+
+  it('navigation rearms time authority after video:ended (ended is not sticky)', () => {
+    const tl = timeline();
+
+    // Arrange: init and simulate an "ended" runtime signal.
+    let state = Playback.reduce(emptyState(), { kind: 'playback:init', timeline: tl }).state;
+    state = Playback.reduce(state, { kind: 'video:ended', deck: state.decks.active }).state;
+
+    // Act: explicit navigation should reassert vTime = beat boundary.
+    state = Playback.reduce(state, { kind: 'playback:seek:beat', beat: 0 }).state;
+    expect(state.currentBeat).to.eql(0);
+    expect(state.vTime).to.eql(tl.beats[0]!.vTime);
+
+    // And runner time remains authoritative after rearm.
+    const res = Playback.reduce(state, {
+      kind: 'video:time',
+      deck: state.decks.active,
+      vTime: 1500 as t.Msecs,
+    });
+
+    expect(res.state.currentBeat).to.eql(1);
+    expect(res.state.vTime).to.eql(1500);
+  });
 });

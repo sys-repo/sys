@@ -32,9 +32,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
    * Keep onReady stable (avoid render-feedback loops).
    */
   const onReadyRef = React.useRef(props.onReady);
-  React.useEffect(() => {
-    onReadyRef.current = props.onReady;
-  }, [props.onReady]);
+  React.useEffect(() => void (onReadyRef.current = props.onReady), [props.onReady]);
 
   /**
    * Dev-only orchestration glue:
@@ -47,27 +45,17 @@ export const Harness: React.FC<HarnessProps> = (props) => {
     timeline,
     startBeat: 0,
   });
+
+  /**
+   * UI-only derived values.
+   */
   const beat = selectedIndex != null && timeline ? timeline.beats[selectedIndex] : undefined;
 
   /**
-   * Fire onReady once per controller instance.
-   */
-  const lastControllerRef = React.useRef<t.TimelineController | undefined>(undefined);
-  React.useEffect(() => {
-    if (!onReadyRef.current) return;
-    if (lastControllerRef.current === controller) return;
-    lastControllerRef.current = controller;
-    onReadyRef.current({ controller });
-  }, [controller]);
-
-  /**
-   * Derive which portion of the selected beat is active based on `vTime`.
-   * - Beats span [beat.vTime → nextBeat.vTime)
-   * - Optional `pause` is a tail segment at the end of that span
-   * - Returns 'pause' iff vTime lies inside the pause tail, else 'media'
-   * - Returns null when timeline, selection, or vTime is unavailable
-   *
-   * UI-only derivation; does not affect playback state.
+   * Active phase of the selected beat derived from authoritative vTime.
+   * - 'pause' iff vTime lies inside the pause tail
+   * - else 'media'
+   * - null when inputs are missing
    */
   const activePhase = React.useMemo((): 'media' | 'pause' | null => {
     if (!timeline) return null;
@@ -93,7 +81,18 @@ export const Harness: React.FC<HarnessProps> = (props) => {
   }, [snapshot.state.vTime, timeline, selectedIndex]);
 
   /**
-   * Render:
+   * Fire onReady once per controller instance.
+   */
+  const lastControllerRef = React.useRef<t.TimelineController | undefined>(undefined);
+  React.useEffect(() => {
+    if (!onReadyRef.current) return;
+    if (lastControllerRef.current === controller) return;
+    lastControllerRef.current = controller;
+    onReadyRef.current({ controller });
+  }, [controller]);
+
+  /**
+   * Render
    */
   return (
     <Layout

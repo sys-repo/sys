@@ -58,6 +58,19 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
   };
 
   /**
+   * Re-arm the machine from a terminal "ended" state.
+   *
+   * When the user explicitly navigates or presses play after end,
+   * we must allow the clock/runner to resume by returning to phase:'active'.
+   */
+  const rearmIfEnded = () => {
+    if (state.phase !== 'ended') return;
+    const next: t.PlaybackState = { ...state, phase: 'active' };
+    emitPhaseIfChanged(next);
+    update(next);
+  };
+
+  /**
    * Deck load orchestration (pure intent).
    *
    * Policy:
@@ -67,29 +80,23 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
    * Notes:
    * - We intentionally do not dedupe commands yet; being explicit is correct.
    * - The runner/runtime decides how `cmd:deck:load` is realized (src assignment, fetch, etc).
-   *
-   * Hardening:
-   * - Accept an explicit state snapshot (`s`) so this cannot accidentally read a stale/shifted
-   *   closure `state` due to future reordering.
    */
-  const loadForBeat = (s: t.PlaybackState, beatIndex: t.PlaybackBeatIndex) => {
-    const timeline = s.timeline;
+  const loadForBeat = (beatIndex: t.PlaybackBeatIndex) => {
+    const timeline = ensureTimeline();
     if (!timeline) return;
 
     const beat = timeline.beats[beatIndex];
     const url = beat?.media?.url;
     if (!url) return;
 
-    const { active, standby } = s.decks;
+    const { active, standby } = state.decks;
 
     // Load the active deck with the current beat (segment) media.
     cmds.push({ kind: 'cmd:deck:load', deck: active, beat: beatIndex });
 
     // Find the segment containing this beat, then preload the *next* segment on standby.
     const segments = timeline.segments;
-    const segIndex = segments.findIndex(
-      (seg) => seg.beat.from <= beatIndex && beatIndex < seg.beat.to,
-    );
+    const segIndex = segments.findIndex((s) => s.beat.from <= beatIndex && beatIndex < s.beat.to);
 
     const nextSeg = segIndex >= 0 ? segments[segIndex + 1] : undefined;
     if (!nextSeg) return;
@@ -99,7 +106,11 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     const preloadUrl = preloadBeat?.media?.url;
     if (!preloadUrl) return;
 
-    cmds.push({ kind: 'cmd:deck:load', deck: standby, beat: preloadIndex });
+    cmds.push({
+      kind: 'cmd:deck:load',
+      deck: standby,
+      beat: preloadIndex,
+    });
   };
 
   /**
@@ -146,10 +157,9 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
 
       // Ensure vTime is immediately consistent after init (no runner tick required).
       const seededBeat = timeline.beats[initialBeat];
-      const final: t.PlaybackState = { ...seeded, vTime: seededBeat?.vTime };
-      update(final);
+      update({ ...seeded, vTime: seededBeat?.vTime });
 
-      loadForBeat(final, initialBeat);
+      loadForBeat(initialBeat);
 
       return { state, cmds, events };
     }
@@ -177,6 +187,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
      */
     case 'playback:play': {
       if (!ensureTimeline()) return { state, cmds, events };
+      rearmIfEnded();
       setIntent('play');
       cmds.push({ kind: 'cmd:deck:play', deck: state.decks.active });
       return { state, cmds, events };
@@ -206,6 +217,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     case 'playback:seek:beat': {
       const timeline = ensureTimeline();
       if (!timeline) return { state, cmds, events };
+      rearmIfEnded();
 
       const nextBeat = clampBeatIndex(timeline, input.beat);
       const next = setCurrentBeat(state, nextBeat, { cmds, events });
@@ -213,10 +225,8 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
 
       // Discrete navigation sets vTime to the beat boundary for immediate UI consistency.
       const beat = timeline.beats[nextBeat];
-      const final: t.PlaybackState = { ...next, vTime: beat?.vTime };
-      update(final);
-
-      loadForBeat(final, nextBeat);
+      update({ ...next, vTime: beat?.vTime });
+      loadForBeat(nextBeat);
 
       return { state, cmds, events };
     }
@@ -224,6 +234,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     case 'playback:next': {
       const timeline = ensureTimeline();
       if (!timeline) return { state, cmds, events };
+      rearmIfEnded();
 
       const curr = state.currentBeat ?? 0;
       const nextBeat = clampBeatIndex(timeline, curr + 1);
@@ -231,10 +242,8 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       emitBeatIfChanged(next);
 
       const beat = timeline.beats[nextBeat];
-      const final: t.PlaybackState = { ...next, vTime: beat?.vTime };
-      update(final);
-
-      loadForBeat(final, nextBeat);
+      update({ ...next, vTime: beat?.vTime });
+      loadForBeat(nextBeat);
 
       return { state, cmds, events };
     }
@@ -242,6 +251,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     case 'playback:prev': {
       const timeline = ensureTimeline();
       if (!timeline) return { state, cmds, events };
+      rearmIfEnded();
 
       const curr = state.currentBeat ?? 0;
       const nextBeat = clampBeatIndex(timeline, curr - 1);
@@ -249,10 +259,8 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       emitBeatIfChanged(next);
 
       const beat = timeline.beats[nextBeat];
-      const final: t.PlaybackState = { ...next, vTime: beat?.vTime };
-      update(final);
-
-      loadForBeat(final, nextBeat);
+      update({ ...next, vTime: beat?.vTime });
+      loadForBeat(nextBeat);
 
       return { state, cmds, events };
     }
@@ -323,8 +331,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
 
       // Always track vTime (even within the same beat) so UI can derive media vs pause phase.
       if (nextBeat === state.currentBeat) {
-        const final: t.PlaybackState = { ...state, vTime: input.vTime };
-        update(final);
+        update({ ...state, vTime: input.vTime });
         return { state, cmds, events };
       }
 
@@ -332,9 +339,8 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       emitBeatIfChanged(next);
 
       // Preserve exact runner vTime (not just beat boundary vTime).
-      const final: t.PlaybackState = { ...next, vTime: input.vTime };
-      update(final);
-      loadForBeat(final, nextBeat);
+      update({ ...next, vTime: input.vTime });
+      loadForBeat(nextBeat);
 
       return { state, cmds, events };
     }

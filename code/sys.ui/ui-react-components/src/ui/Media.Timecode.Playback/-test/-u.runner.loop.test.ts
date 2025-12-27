@@ -136,4 +136,21 @@ describe('u.runnerLoop', () => {
 
     expect(count).to.eql(1);
   });
+
+  it('Law: ended → navigation re-arms phase to active (so clock + pause materialization can resume)', () => {
+    const { loop } = create();
+
+    loop.send({ kind: 'playback:init', timeline: timeline() });
+    loop.send({ kind: 'playback:play' });
+
+    // Force ended for active deck.
+    loop.send({ kind: 'video:ended', deck: 'A' });
+    expect(loop.get().state.phase).to.eql('ended');
+
+    // Navigation must make the machine runnable again.
+    loop.send({ kind: 'playback:seek:beat', beat: 0 });
+
+    expect(loop.get().state.currentBeat).to.eql(0);
+    expect(loop.get().state.phase).to.eql('active');
+  });
 });

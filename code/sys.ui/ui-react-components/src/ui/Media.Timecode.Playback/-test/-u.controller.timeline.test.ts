@@ -65,4 +65,39 @@ describe('u.timelineController', () => {
     expect(last.vTime).to.eql(2000);
     expect(['A', 'B']).to.include(last.deck);
   });
+
+  it('Law: after ended, seekToBeat() re-arms the machine (phase resets to active)', () => {
+    const { runtime, calls } = createRuntime();
+    const runner = Playback.runner({ runtime });
+    const ctrl = createTimelineController(runner);
+
+    ctrl.init(timeline());
+    ctrl.play();
+
+    // Arrange: force runtime reality into ended for the active deck.
+    runner.send({ kind: 'video:ended', deck: 'A' });
+    expect(runner.get().state.phase).to.eql('ended');
+
+    // Act: user explicitly selects a new beat (restart / re-arm).
+    calls.length = 0;
+    ctrl.seekToBeat(0);
+
+    // Invariant: navigation must make the machine runnable again.
+    expect(runner.get().state.currentBeat).to.eql(0);
+    expect(runner.get().state.phase).to.eql('active');
+
+    // And it must have performed a runtime seek (so media layer is aligned).
+    const seekCalls = calls.filter((e) => e.kind === 'seek');
+    expect(seekCalls.length).to.be.greaterThan(0);
+
+    const lastSeek = seekCalls[seekCalls.length - 1];
+    expect(lastSeek.vTime).to.eql(0);
+
+    // Bonus: play must be meaningful again (clock gate depends on phase === 'active').
+    calls.length = 0;
+    ctrl.play();
+
+    const playCalls = calls.filter((e) => e.kind === 'play');
+    expect(playCalls.length).to.be.greaterThan(0);
+  });
 });

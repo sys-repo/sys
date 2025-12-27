@@ -151,7 +151,8 @@ describe('Playback.reduce — navigation', () => {
     expect(beatEvent(res.events)).to.eql(undefined);
   });
 
-  it('navigation never changes phase', () => {
+  it('navigation preserves phase (except re-arms ended → active)', () => {
+    // Non-ended phases are preserved.
     const state = initState();
     const phase = state.phase;
 
@@ -163,5 +164,17 @@ describe('Playback.reduce — navigation', () => {
 
     const c = Playback.reduce(b.state, { kind: 'playback:prev' });
     expect(c.state.phase).to.eql(phase);
+
+    // Ended is special: explicit navigation must re-arm to allow clock/runner to resume.
+    const ended: typeof state = { ...state, phase: 'ended' };
+
+    const s1 = Playback.reduce(ended, { kind: 'playback:seek:beat', beat: 1 });
+    expect(s1.state.phase).to.eql('active');
+
+    const s2 = Playback.reduce(ended, { kind: 'playback:next' });
+    expect(s2.state.phase).to.eql('active');
+
+    const s3 = Playback.reduce(ended, { kind: 'playback:prev' });
+    expect(s3.state.phase).to.eql('active');
   });
 });
