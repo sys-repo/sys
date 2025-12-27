@@ -20,34 +20,31 @@ export function usePlaybackClock(args: {
   /**
    * VirtualClock integration.
    *
+   * This hook operates purely in virtual-time space.
+   * It requires:
+   *   - clamped, monotonic vTime advancement
+   *   - pause / play control
+   *
+   * It does NOT require segment-level source mapping.
+   * A total-duration clock is therefore sufficient and intentional.
    */
-  const clockRef = useRef<ReturnType<typeof Timecode.VClock.make> | undefined>(undefined);
-  const lastClockKeyRef = useRef<{ timeline?: unknown } | undefined>(undefined);
+  const clockRef = useRef<ReturnType<typeof Timecode.VClock.makeForTotal> | undefined>(undefined);
+  const lastClockKeyRef = useRef<{ total?: t.Msecs } | undefined>(undefined);
   const clockIsPlayingRef = useRef(false);
   const lastNowRef = useRef<number | undefined>(undefined);
   const modeRef = useRef<'media' | 'pause'>('media');
   const lastSeedRef = useRef<{ timeline?: unknown; beat?: number } | undefined>(undefined);
 
-  function ensureClock(
-    timeline: t.TimecodeState.Playback.Timeline,
-  ): ReturnType<typeof Timecode.VClock.make> {
-    const key = { timeline };
+  function ensureClock(total: t.Msecs): t.Timecode.VirtualClock.Instance {
+    const key = { total };
     const prev = lastClockKeyRef.current;
-    if (clockRef.current && prev?.timeline === key.timeline) return clockRef.current;
+    if (clockRef.current && prev?.total === key.total) return clockRef.current;
 
     lastClockKeyRef.current = key;
-
-    type VClockTimeline = Parameters<typeof Timecode.VClock.make>[0];
-    const vclockTimeline = {
-      total: timeline.virtualDuration,
-      segments: [],
-    } as unknown as VClockTimeline;
-
-    const clock = Timecode.VClock.make(vclockTimeline);
+    const clock = Timecode.VClock.makeForTotal(total);
 
     // New clock instance → re-gate play transitions.
     clockIsPlayingRef.current = false;
-
     clockRef.current = clock;
     return clock;
   }
@@ -56,7 +53,6 @@ export function usePlaybackClock(args: {
     const s = runner.get().state;
     const timeline = s.timeline;
     const beatIndex = s.currentBeat;
-
     if (!timeline || beatIndex === undefined) return false;
 
     const seedKey = { timeline, beat: beatIndex };
@@ -68,9 +64,8 @@ export function usePlaybackClock(args: {
     const beat = timeline.beats[beatIndex];
     if (!beat) return false;
 
-    const clock = ensureClock(timeline);
+    const clock = ensureClock(timeline.virtualDuration);
     clock.seek(Timecode.VTime.fromMsecs(beat.vTime));
-
     lastNowRef.current = undefined;
 
     /**
@@ -91,10 +86,7 @@ export function usePlaybackClock(args: {
       if (disposed) return;
 
       const runner = args.getRunner();
-      if (!runner) {
-        Schedule.raf(step);
-        return;
-      }
+      if (!runner) return void Schedule.raf(step);
 
       const seeded = seedFromRunnerState(runner);
       const snap = runner.get();
@@ -114,7 +106,7 @@ export function usePlaybackClock(args: {
         return;
       }
 
-      const clock = ensureClock(timeline);
+      const clock = ensureClock(timeline.virtualDuration);
 
       /**
        * If we just seeded (beat changed), we may have left the media element paused.
@@ -138,7 +130,6 @@ export function usePlaybackClock(args: {
 
       const dtMsNum = prevNow === undefined ? 0 : Math.max(0, now - prevNow);
       const dtMs = dtMsNum as t.Msecs;
-
       const state = clock.advance(dtMs);
       const nextVTime = Timecode.VTime.toMsecs(state.vtime);
 
