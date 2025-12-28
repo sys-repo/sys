@@ -59,7 +59,9 @@ describe('u.deckAdapter', () => {
 
     const calls = TestVideoPlayerSignals.state(A).jumpTo;
     expect(calls.length).to.eql(1);
-    expect(calls[0]).to.eql({ second: 1.5, play: false });
+
+    // Seek should NOT force pause/play; machine controls intent separately.
+    expect(calls[0]).to.eql({ second: 1.5, play: undefined });
   });
 
   it('createPlaybackRuntimeFromDecks: seek uses custom mapper', () => {
@@ -79,6 +81,8 @@ describe('u.deckAdapter', () => {
 
     const calls = TestVideoPlayerSignals.state(B).jumpTo;
     expect(calls.length).to.eql(1);
-    expect(calls[0]).to.eql({ second: 12, play: false });
+
+    // Seek should NOT force pause/play; machine controls intent separately.
+    expect(calls[0]).to.eql({ second: 12, play: undefined });
   });
 });
