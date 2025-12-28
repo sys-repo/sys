@@ -132,4 +132,23 @@ describe('Playback.reduce — scenarios', () => {
     expect(state.currentBeat).to.eql(lastBeat);
     expect(state.vTime).to.eql(tl.beats[lastBeat]!.vTime);
   });
+
+  it('play → ended makes intent stop; seek re-arms phase but does not auto-resume', () => {
+    let state = emptyState();
+
+    state = Playback.reduce(state, { kind: 'playback:init', timeline: timeline() }).state;
+    state = Playback.reduce(state, { kind: 'playback:play' }).state;
+    expect(state.intent).to.eql('play');
+
+    // Active deck ends.
+    state = Playback.reduce(state, { kind: 'video:ended', deck: state.decks.active }).state;
+    expect(state.phase).to.eql('ended');
+    expect(state.intent).to.eql('stop');
+
+    // User navigates after end: phase re-arms, but does not resume.
+    state = Playback.reduce(state, { kind: 'playback:seek:beat', beat: 1 }).state;
+    expect(state.phase).to.eql('active');
+    expect(state.intent).to.eql('stop');
+    expect(state.currentBeat).to.eql(1);
+  });
 });

@@ -137,20 +137,37 @@ describe('u.runnerLoop', () => {
     expect(count).to.eql(1);
   });
 
-  it('Law: ended → navigation re-arms phase to active (so clock + pause materialization can resume)', () => {
-    const { loop } = create();
+  it('after end-ish runtime signals, seek:beat reasserts seek and snaps vTime to the beat boundary', () => {
+    const { loop, calls } = create();
 
+    // Arrange: init + play.
     loop.send({ kind: 'playback:init', timeline: timeline() });
     loop.send({ kind: 'playback:play' });
 
-    // Force ended for active deck.
-    loop.send({ kind: 'video:ended', deck: 'A' });
-    expect(loop.get().state.phase).to.eql('ended');
+    // Simulate runner drift to "late" time and an "ended" signal on the active deck.
+    // (This mirrors: run to last beat, then ended.)
+    const activeDeck = loop.get().state.decks.active;
 
-    // Navigation must make the machine runnable again.
+    loop.send({ kind: 'video:time', deck: activeDeck, vTime: 2900 });
+    loop.send({ kind: 'video:ended', deck: activeDeck });
+
+    // Clear calls to observe only the reset action.
+    calls.length = 0;
+
+    // Act: user explicitly seeks back to beat 0 (this must reset the runtime).
     loop.send({ kind: 'playback:seek:beat', beat: 0 });
 
-    expect(loop.get().state.currentBeat).to.eql(0);
-    expect(loop.get().state.phase).to.eql('active');
+    // Assert: state snaps to beat 0 boundary.
+    const s = loop.get().state;
+    expect(s.currentBeat).to.eql(0);
+    expect(s.vTime).to.eql(0);
+
+    // Assert: runtime gets a seek to vTime=0 (deck may be A or B depending on policy).
+    const seekCalls = calls.filter((e) => e.kind === 'seek');
+    expect(seekCalls.length).to.be.greaterThan(0);
+
+    const last = seekCalls[seekCalls.length - 1];
+    expect(last.vTime).to.eql(0);
+    expect(['A', 'B']).to.include(last.deck);
   });
 });

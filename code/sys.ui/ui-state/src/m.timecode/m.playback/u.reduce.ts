@@ -311,6 +311,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
 
       // If the active deck ended, the machine is ended (for now).
       if (input.deck === state.decks.active) {
+        setIntent('stop');
         setPhase('ended');
       }
 

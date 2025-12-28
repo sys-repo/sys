@@ -2,6 +2,8 @@ import { type t, describe, expect, it } from '../../../-test.ts';
 import { Playback } from '../mod.ts';
 import { emptyState, timeline } from './u.fixture.ts';
 
+type SeekCmd = Extract<t.PlaybackCmd, { readonly kind: 'cmd:deck:seek' }>;
+
 /**
  * Navigation invariants for Playback.reduce
  *
@@ -12,18 +14,24 @@ import { emptyState, timeline } from './u.fixture.ts';
  */
 describe('Playback.reduce — navigation', () => {
   function initState() {
-    return Playback.reduce(emptyState(), {
-      kind: 'playback:init',
-      timeline: timeline(),
-    }).state;
+    const prev = emptyState();
+    return Playback.reduce(prev, { kind: 'playback:init', timeline: timeline() }).state;
   }
 
   function beatEvent(events: readonly t.PlaybackEvent[]) {
     return events.find((e) => e.kind === 'playback:beat');
   }
 
-  function hasLoad(cmds: readonly any[]) {
+  function hasLoad(cmds: readonly t.PlaybackCmd[]) {
     return cmds.some((c) => c.kind === 'cmd:deck:load');
+  }
+
+  function hasSeek(cmds: readonly t.PlaybackCmd[]) {
+    return cmds.some((c) => c.kind === 'cmd:deck:seek');
+  }
+
+  function seekCmd(cmds: readonly t.PlaybackCmd[]): SeekCmd | undefined {
+    return cmds.find((c): c is SeekCmd => c.kind === 'cmd:deck:seek');
   }
 
   it('seek:beat clamps below 0 to 0 and loads', () => {
@@ -176,5 +184,30 @@ describe('Playback.reduce — navigation', () => {
 
     const s3 = Playback.reduce(ended, { kind: 'playback:prev' });
     expect(s3.state.phase).to.eql('active');
+  });
+
+  it('explicit navigation emits cmd:deck:seek for active deck to beat boundary vTime', () => {
+    const tl = timeline();
+    const state0 = initState();
+    const res = Playback.reduce(state0, { kind: 'playback:seek:beat', beat: 1 });
+
+    expect(hasSeek(res.cmds)).to.eql(true);
+
+    const cmd = seekCmd(res.cmds);
+    expect(cmd?.deck).to.eql(res.state.decks.active);
+    expect(cmd?.vTime).to.eql(tl.beats[1]!.vTime);
+  });
+
+  it('next/prev emit cmd:deck:seek to the target beat boundary', () => {
+    const tl = timeline();
+    const state0 = Playback.reduce(initState(), { kind: 'playback:seek:beat', beat: 1 }).state;
+
+    const a = Playback.reduce(state0, { kind: 'playback:next' });
+    expect(seekCmd(a.cmds)?.deck).to.eql(a.state.decks.active);
+    expect(seekCmd(a.cmds)?.vTime).to.eql(tl.beats[2]!.vTime);
+
+    const b = Playback.reduce(a.state, { kind: 'playback:prev' });
+    expect(seekCmd(b.cmds)?.deck).to.eql(b.state.decks.active);
+    expect(seekCmd(b.cmds)?.vTime).to.eql(tl.beats[1]!.vTime);
   });
 });

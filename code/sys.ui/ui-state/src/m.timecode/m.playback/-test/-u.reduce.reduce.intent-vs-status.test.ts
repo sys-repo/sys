@@ -95,7 +95,12 @@ describe('Playback.reduce — intent vs status', () => {
     const s5 = Playback.reduce(s4, { kind: 'video:time', deck: 'A', vTime: 1000 }).state;
     expect(s5.intent).to.eql('play');
 
-    const s6 = Playback.reduce(s5, { kind: 'video:ended', deck: 'A' }).state;
+    // Standby-ended is status-only (does not force stop).
+    const s6 = Playback.reduce(s5, { kind: 'video:ended', deck: s5.decks.standby }).state;
     expect(s6.intent).to.eql('play');
+
+    // Active-ended is terminal: forces stop.
+    const s7 = Playback.reduce(s6, { kind: 'video:ended', deck: s6.decks.active }).state;
+    expect(s7.intent).to.eql('stop');
   });
 });
