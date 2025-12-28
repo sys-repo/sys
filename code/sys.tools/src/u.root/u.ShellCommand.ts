@@ -1,17 +1,16 @@
 export const ShellCommand = `
-  # ----------------------------------------------------------------------
+  # ------------------------------------------------------------------------
   # @sys: tools
-  # ----------------------------------------------------------------------
+  # ------------------------------------------------------------------------
   sys() {
-    emulate -L zsh
-
-    local cmd="\${1-}"
-    if [[ -z "$cmd" || "$cmd" == -* || "$cmd" != [A-Za-z0-9._-]## ]]; then
-      echo "usage: sys <tool> [args...]" 1>&2
-      return 1
+    # Run the root tool if there are no arguments or if the first argument is a flag
+    if (( \$# == 0 )) || [[ "\$1" == -* ]]; then
+      deno run -A jsr:@sys/tools "\$@"
+      return
     fi
-    shift
 
-    deno run -A "jsr:@sys/tools/\${cmd}" "\$@"
+    # Otherwise, treat the first argument as the subcommand
+    local sub="\$1"
+    deno run -A "jsr:@sys/tools/\${sub}" "\${@:2}"
   }
 `;
