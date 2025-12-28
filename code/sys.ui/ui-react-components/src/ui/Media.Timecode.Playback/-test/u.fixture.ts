@@ -1,6 +1,6 @@
 import { type t, Schedule } from '../common.ts';
 
-import { TestVideoPlayerSignals } from '../../Player.Video.signals/-test/u.fixture.ts';
+import { TestVideoPlayerSignals } from '../../Player.Video.Signals/-test/u.fixture.ts';
 export { TestVideoPlayerSignals };
 
 type DeckId = t.TimecodeState.Playback.DeckId;

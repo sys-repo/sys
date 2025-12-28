@@ -7,7 +7,7 @@ export { Button } from '../Button/mod.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
 export { BarSpinner } from '../Spinners.Bar/mod.ts';
 export { Icons } from '../ui.Icons.ts';
-export { bumpEndedTick } from '../Player.Video.signals/u.ts';
+export { bumpEndedTick } from '../Player.Video.Signals/u.ts';
 
 export * from './const.READY_STATE.ts';
 

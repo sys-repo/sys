@@ -31,7 +31,7 @@ export type * from './ui/Ownership/t.ts';
 export type * from './ui/PathView/t.ts';
 export type * from './ui/Player.Video.Controls/t.ts';
 export type * from './ui/Player.Video.Element/t.ts';
-export type * from './ui/Player.Video.signals/t.ts';
+export type * from './ui/Player.Video.Signals/t.ts';
 export type * from './ui/Player.YouTube/t.ts';
 export type * from './ui/Player/t.ts';
 export type * from './ui/Preload/t.ts';
