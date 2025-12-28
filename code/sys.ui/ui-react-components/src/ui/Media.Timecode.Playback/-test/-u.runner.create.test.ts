@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, TimecodeState } from '../common.ts';
 import { createRunner } from '../u.runner.create.ts';
-import { createRuntime, expectedCallsFromCmds, timeline } from './u.fixture.ts';
+import { createRuntime, expectedCallsFromCmds, flushSignals, timeline } from './u.fixture.ts';
 
 describe('Playback.runner', () => {
   type CreateArgs = {
@@ -124,7 +124,7 @@ describe('Playback.runner', () => {
     expect(count).to.eql(1);
   });
 
-  it('wires deck.endedTick → video:ended (active deck ends → machine ended)', () => {
+  it('wires deck.endedTick → video:ended (active deck ends → machine ended)', async () => {
     const { runner, runtime } = create();
     runner.send({ kind: 'playback:init', timeline: timeline() });
     expect(runner.get().state.phase).to.eql('active');
@@ -139,11 +139,13 @@ describe('Playback.runner', () => {
     // Bump endedTick → should emit input video:ended(deck:'A') → phase:'ended'.
     a!.props.endedTick.value += 1;
 
+    await flushSignals();
+
     expect(runner.get().state.phase).to.eql('ended');
     runner.dispose();
   });
 
-  it('dispose stops endedTick wiring (no further video:ended inputs)', () => {
+  it('dispose stops endedTick wiring (no further video:ended inputs)', async () => {
     const { runner, runtime } = create();
     runner.send({ kind: 'playback:init', timeline: timeline() });
     expect(runner.get().state.phase).to.eql('active');
@@ -155,6 +157,9 @@ describe('Playback.runner', () => {
 
     // If listeners are disposed, this should NOT advance the machine.
     a!.props.endedTick.value += 1;
+
+    await flushSignals();
+
     expect(runner.get().state.phase).to.eql('active');
   });
 });

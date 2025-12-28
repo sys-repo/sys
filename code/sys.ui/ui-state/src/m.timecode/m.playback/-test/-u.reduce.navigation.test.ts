@@ -3,6 +3,7 @@ import { Playback } from '../mod.ts';
 import { emptyState, timeline } from './u.fixture.ts';
 
 type SeekCmd = Extract<t.PlaybackCmd, { readonly kind: 'cmd:deck:seek' }>;
+type PlayCmd = Extract<t.PlaybackCmd, { readonly kind: 'cmd:deck:play' }>;
 
 /**
  * Navigation invariants for Playback.reduce
@@ -32,6 +33,14 @@ describe('Playback.reduce — navigation', () => {
 
   function seekCmd(cmds: readonly t.PlaybackCmd[]): SeekCmd | undefined {
     return cmds.find((c): c is SeekCmd => c.kind === 'cmd:deck:seek');
+  }
+
+  function hasPlay(cmds: readonly t.PlaybackCmd[]) {
+    return cmds.some((c) => c.kind === 'cmd:deck:play');
+  }
+
+  function playCmd(cmds: readonly t.PlaybackCmd[]): PlayCmd | undefined {
+    return cmds.find((c): c is PlayCmd => c.kind === 'cmd:deck:play');
   }
 
   it('seek:beat clamps below 0 to 0 and loads', () => {
@@ -209,5 +218,44 @@ describe('Playback.reduce — navigation', () => {
     const b = Playback.reduce(a.state, { kind: 'playback:prev' });
     expect(seekCmd(b.cmds)?.deck).to.eql(b.state.decks.active);
     expect(seekCmd(b.cmds)?.vTime).to.eql(tl.beats[1]!.vTime);
+  });
+
+  it('navigation does not force play when intent is stop/pause (no cmd:deck:play)', () => {
+    // Baseline: init sets intent:'stop'
+    const s0 = initState();
+    expect(s0.intent).to.eql('stop');
+
+    const a = Playback.reduce(s0, { kind: 'playback:seek:beat', beat: 1 });
+    expect(hasPlay(a.cmds)).to.eql(false);
+
+    const b = Playback.reduce(a.state, { kind: 'playback:next' });
+    expect(hasPlay(b.cmds)).to.eql(false);
+
+    const c = Playback.reduce(b.state, { kind: 'playback:prev' });
+    expect(hasPlay(c.cmds)).to.eql(false);
+
+    // Now set pause intent explicitly and confirm navigation still doesn’t force play.
+    const paused = Playback.reduce(c.state, { kind: 'playback:pause' }).state;
+    expect(paused.intent).to.eql('pause');
+
+    const d = Playback.reduce(paused, { kind: 'playback:seek:beat', beat: 2 });
+    expect(hasPlay(d.cmds)).to.eql(false);
+  });
+
+  it('navigation reasserts play when intent is play (emits cmd:deck:play for active deck)', () => {
+    const s0 = initState();
+
+    // Establish intent:'play' in state.
+    const s1 = Playback.reduce(s0, { kind: 'playback:play' }).state;
+    expect(s1.intent).to.eql('play');
+
+    const a = Playback.reduce(s1, { kind: 'playback:seek:beat', beat: 1 });
+    expect(playCmd(a.cmds)?.deck).to.eql(a.state.decks.active);
+
+    const b = Playback.reduce(a.state, { kind: 'playback:next' });
+    expect(playCmd(b.cmds)?.deck).to.eql(b.state.decks.active);
+
+    const c = Playback.reduce(b.state, { kind: 'playback:prev' });
+    expect(playCmd(c.cmds)?.deck).to.eql(c.state.decks.active);
   });
 });

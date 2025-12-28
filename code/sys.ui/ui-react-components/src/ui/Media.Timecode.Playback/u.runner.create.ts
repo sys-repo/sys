@@ -73,6 +73,13 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
     apply(update);
   }
 
+  /**
+   * endedTick bridge.
+   *
+   * Signals effects may run on a later microtask; therefore we MUST seed the
+   * baseline synchronously during wiring, otherwise a bump can happen before the
+   * first effect run and be “absorbed” as the baseline (missing the edge).
+   */
   const endedTickPrev = new Map<DeckId, number>();
   const endedTickListeners = Signal.listeners();
 
@@ -86,15 +93,12 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
       const player = decks.get(deck);
       if (!player) continue;
 
+      // Seed baseline immediately (no race with first effect run).
+      endedTickPrev.set(deck, player.props.endedTick.value);
+
       endedTickListeners.effect(() => {
         const tick = player.props.endedTick.value;
-        const prev = endedTickPrev.get(deck);
-
-        // Seed baseline (avoid firing on initial effect run).
-        if (prev === undefined) {
-          endedTickPrev.set(deck, tick);
-          return;
-        }
+        const prev = endedTickPrev.get(deck) ?? tick;
 
         if (tick !== prev) {
           endedTickPrev.set(deck, tick);

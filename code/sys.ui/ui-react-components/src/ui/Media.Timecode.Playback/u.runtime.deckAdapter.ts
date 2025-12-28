@@ -51,12 +51,38 @@ export function createPlaybackRuntimeFromDecks(
       const s = decks.get(deckId);
       const rawSecond = mapper.toPlayerSecs({ deck: deckId, vTime });
 
-      // Clamp to known duration when available to avoid "black near end" seeks.
+      /**
+       * Clamp only when we are plausibly near the end.
+       *
+       * Rationale:
+       * duration signals can be stale or in a different coordinate space
+       * than `rawSecond` during rapid seeks/loads. A hard clamp can turn a
+       * legitimate seek (e.g. 03:03) into “seek near end”, causing the last beat
+       * to play only a tiny remainder.
+       *
+       * Policy:
+       * - Always clamp negative.
+       * - Only clamp to (dur - eps) when the seek is within a small overshoot
+       *   window of the reported duration.
+       */
       const dur = s.props.duration.value;
       const hasDur = Number.isFinite(dur) && dur > 0;
+
       const END_EPS_SECS = 0.25;
-      const max = hasDur ? Math.max(0, dur - END_EPS_SECS) : Infinity;
-      const second = Math.min(Math.max(0, rawSecond), max);
+      const OVERSHOOT_WINDOW_SECS = 2;
+
+      let second = Math.max(0, rawSecond);
+
+      if (hasDur) {
+        const max = Math.max(0, dur - END_EPS_SECS);
+        const overshoot = second - dur;
+
+        const nearEnd = second >= max;
+        const smallOvershoot = overshoot <= OVERSHOOT_WINDOW_SECS;
+        if (nearEnd && smallOvershoot) {
+          second = Math.min(second, max);
+        }
+      }
 
       /** Seek without forcing play; machine controls intent separately. */
       s.jumpTo(second, { play: false });

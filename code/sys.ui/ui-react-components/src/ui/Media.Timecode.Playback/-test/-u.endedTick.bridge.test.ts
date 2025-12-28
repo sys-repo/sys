@@ -5,10 +5,10 @@ import {
   createPlaybackRuntimeFromDecks,
   createVideoDeckRuntime,
 } from '../u.runtime.deckAdapter.ts';
-import { TestVideoPlayerSignals, timeline } from './u.fixture.ts';
+import { flushSignals, TestVideoPlayerSignals, timeline } from './u.fixture.ts';
 
 describe('Playback.endedTick bridge', () => {
-  it('endedTick bump → video:ended input → machine ends (active deck)', () => {
+  it('endedTick bump → video:ended input → machine ends (active deck)', async () => {
     const A = TestVideoPlayerSignals.make();
     const B = TestVideoPlayerSignals.make();
 
@@ -23,11 +23,14 @@ describe('Playback.endedTick bridge', () => {
     bumpEndedTick(A.props);
     expect(A.props.endedTick.value).to.eql(before + 1);
 
+    // Allow endedTick bridge effect to run.
+    await flushSignals();
+
     expect(runner.get().state.phase).to.eql('ended');
     runner.dispose();
   });
 
-  it('dispose stops bridge propagation (endedTick no longer advances machine)', () => {
+  it('dispose stops bridge propagation (endedTick no longer advances machine)', async () => {
     const A = TestVideoPlayerSignals.make();
     const B = TestVideoPlayerSignals.make();
 
@@ -41,6 +44,10 @@ describe('Playback.endedTick bridge', () => {
     runner.dispose();
 
     bumpEndedTick(A.props);
+
+    // Give microtask a chance; must still not advance.
+    await flushSignals();
+
     expect(runner.get().state.phase).to.eql('active');
   });
 });

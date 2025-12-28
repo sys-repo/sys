@@ -1,4 +1,4 @@
-import { type t } from '../common.ts';
+import { type t, Schedule } from '../common.ts';
 
 import { TestVideoPlayerSignals } from '../../Player.Video.signals/-test/u.fixture.ts';
 export { TestVideoPlayerSignals };
@@ -8,6 +8,13 @@ type RuntimeCall =
   | { readonly kind: 'play'; readonly deck: DeckId }
   | { readonly kind: 'pause'; readonly deck: DeckId }
   | { readonly kind: 'seek'; readonly deck: DeckId; readonly vTime: t.Msecs };
+
+/**
+ * Flush reactive updates queued on the microtask queue.
+ */
+export async function flushSignals(): Promise<void> {
+  await Schedule.micro();
+}
 
 /**
  * Deterministic playback timeline fixture.

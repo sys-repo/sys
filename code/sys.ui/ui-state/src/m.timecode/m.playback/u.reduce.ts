@@ -5,9 +5,11 @@ import { beatIndexFromVTime, clampBeatIndex, setCurrentBeat } from './u.ts';
  * Playback.reduce
  *
  * Single authoritative transition function.
- * - Only `video:time` may auto-advance `currentBeat`
- * - All other inputs are discrete state transitions
- * - No side effects; commands are descriptive only
+ *
+ * Laws:
+ * - Only `video:time` may auto-advance `currentBeat`.
+ * - All other beat changes are discrete (explicit navigation or init).
+ * - No side effects; commands are descriptive only.
  */
 export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
   const cmds: t.PlaybackCmd[] = [];
@@ -15,11 +17,10 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
   let state = prev;
 
   /**
-   * Internal mutation helpers.
+   * Local mutation helpers.
    *
-   * These helpers are intentionally local:
-   * they preserve invariants while keeping the full
-   * decision surface visible in one file.
+   * Intentional: keep the full decision surface in one file, while
+   * concentrating invariant-preserving edits in small, local helpers.
    */
   const update = (next: t.PlaybackState) => (state = next);
   const setIntent = (intent: t.PlaybackIntent) => update({ ...state, intent });
@@ -61,7 +62,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
    * Re-arm the machine from a terminal "ended" state.
    *
    * When the user explicitly navigates or presses play after end,
-   * we must allow the clock/runner to resume by returning to phase:'active'.
+   * we must return to phase:'active' so the runner/clock can resume.
    */
   const rearmIfEnded = () => {
     if (state.phase !== 'ended') return;
@@ -74,12 +75,10 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
    * Deck load orchestration (pure intent).
    *
    * Policy:
-   * - Active deck always loads the current segment media for the selected beat.
+   * - Active deck loads the selected beat's media (segment media).
    * - Standby deck preloads the next segment (by segment boundary, not beat).
    *
-   * Notes:
-   * - We intentionally do not dedupe commands yet; being explicit is correct.
-   * - The runner/runtime decides how `cmd:deck:load` is realized (src assignment, fetch, etc).
+   * Note: we intentionally do not dedupe commands yet.
    */
   const loadForBeat = (beatIndex: t.PlaybackBeatIndex) => {
     const timeline = ensureTimeline();
@@ -91,13 +90,12 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
 
     const { active, standby } = state.decks;
 
-    // Load the active deck with the current beat (segment) media.
+    // Active deck: current beat media.
     cmds.push({ kind: 'cmd:deck:load', deck: active, beat: beatIndex });
 
-    // Find the segment containing this beat, then preload the *next* segment on standby.
+    // Standby deck: next segment boundary preload.
     const segments = timeline.segments;
     const segIndex = segments.findIndex((s) => s.beat.from <= beatIndex && beatIndex < s.beat.to);
-
     const nextSeg = segIndex >= 0 ? segments[segIndex + 1] : undefined;
     if (!nextSeg) return;
 
@@ -106,29 +104,31 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     const preloadUrl = preloadBeat?.media?.url;
     if (!preloadUrl) return;
 
-    cmds.push({
-      kind: 'cmd:deck:load',
-      deck: standby,
-      beat: preloadIndex,
-    });
+    cmds.push({ kind: 'cmd:deck:load', deck: standby, beat: preloadIndex });
+  };
+
+  /**
+   * If the user is in intent:'play', discrete navigation (seek/next/prev)
+   * should keep playback running. Runtime seek does not force play.
+   */
+  const resumeIfPlaying = (next: t.PlaybackState) => {
+    if (next.intent !== 'play') return;
+    cmds.push({ kind: 'cmd:deck:play', deck: next.decks.active });
   };
 
   /**
    * Reduce input → next state.
    *
-   * The cases below are grouped by semantic role:
-   *   - Initialization and readiness
-   *   - Intent-driven actions
-   *   - Timeline navigation
-   *   - Runtime media signals
-   *
-   * Ordering is intentional. Read top to bottom.
+   * The cases are grouped by semantic role:
+   * - Initialization & readiness
+   * - Intent-driven actions (desire)
+   * - Timeline navigation (explicit beat selection)
+   * - Runtime media signals (observed reality)
+   * - Time progression (the ONLY implicit beat advance)
    */
   switch (input.kind) {
     /**
-     * ─────────────────────────────────────────────────────────────
-     * Initialization & readiness composition
-     * ─────────────────────────────────────────────────────────────
+     * Initialization & readiness
      */
     case 'playback:init': {
       const timeline = input.timeline;
@@ -155,12 +155,11 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
 
       const seeded = setCurrentBeat(state, initialBeat, { cmds, events });
 
-      // Ensure vTime is immediately consistent after init (no runner tick required).
+      // Immediate UI consistency: seed vTime to the selected beat boundary.
       const seededBeat = timeline.beats[initialBeat];
       update({ ...seeded, vTime: seededBeat?.vTime });
 
       loadForBeat(initialBeat);
-
       return { state, cmds, events };
     }
 
@@ -178,12 +177,10 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     }
 
     /**
-     * ─────────────────────────────────────────────────────────────
      * Intent-driven actions (desire mutations)
      *
-     * These express what the controller is trying to do.
-     * Reality may temporarily diverge (e.g. buffering).
-     * ─────────────────────────────────────────────────────────────
+     * These express what the controller wants to be true.
+     * Reality may temporarily diverge (buffering, stalls, etc).
      */
     case 'playback:play': {
       if (!ensureTimeline()) return { state, cmds, events };
@@ -208,11 +205,10 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     }
 
     /**
-     * ─────────────────────────────────────────────────────────────
      * Timeline navigation (explicit beat selection)
      *
      * These are discrete jumps, never time-driven.
-     * ─────────────────────────────────────────────────────────────
+     * Policy: navigation sets vTime to the target beat boundary for immediate UI consistency.
      */
     case 'playback:seek:beat': {
       const timeline = ensureTimeline();
@@ -223,10 +219,12 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       const next = setCurrentBeat(state, nextBeat, { cmds, events });
       emitBeatIfChanged(next);
 
-      // Discrete navigation sets vTime to the beat boundary for immediate UI consistency.
       const beat = timeline.beats[nextBeat];
-      update({ ...next, vTime: beat?.vTime });
+      const nextState = { ...next, vTime: beat?.vTime };
+      update(nextState);
+
       loadForBeat(nextBeat);
+      resumeIfPlaying(nextState);
 
       return { state, cmds, events };
     }
@@ -242,8 +240,11 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       emitBeatIfChanged(next);
 
       const beat = timeline.beats[nextBeat];
-      update({ ...next, vTime: beat?.vTime });
+      const nextState = { ...next, vTime: beat?.vTime };
+      update(nextState);
+
       loadForBeat(nextBeat);
+      resumeIfPlaying(nextState);
 
       return { state, cmds, events };
     }
@@ -259,19 +260,20 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       emitBeatIfChanged(next);
 
       const beat = timeline.beats[nextBeat];
-      update({ ...next, vTime: beat?.vTime });
+      const nextState = { ...next, vTime: beat?.vTime };
+      update(nextState);
+
       loadForBeat(nextBeat);
+      resumeIfPlaying(nextState);
 
       return { state, cmds, events };
     }
 
     /**
-     * ─────────────────────────────────────────────────────────────
      * Runtime media signals (observed reality)
      *
      * These reflect what the media layer reports,
      * not what the controller intends.
-     * ─────────────────────────────────────────────────────────────
      */
     case 'runner:error': {
       setError(input.message);
@@ -319,10 +321,10 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     }
 
     /**
-     * Time progression.
+     * Time progression
      *
-     * This is the ONLY input allowed to advance the current beat
-     * automatically. All other beat changes are explicit.
+     * This is the ONLY input allowed to advance the current beat automatically.
+     * All other beat changes are explicit navigation.
      */
     case 'video:time': {
       const timeline = ensureTimeline();
