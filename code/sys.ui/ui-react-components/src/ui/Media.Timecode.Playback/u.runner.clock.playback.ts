@@ -27,6 +27,17 @@ export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
   const modeRef = useRef<'media' | 'pause'>('media');
   const lastSeedRef = useRef<{ timeline?: unknown; beat?: number } | undefined>(undefined);
 
+  const lastEmittedVTimeRef = useRef<t.Msecs | undefined>(undefined);
+  const endedSentRef = useRef(false);
+
+  /**
+   * End-detect arming guard.
+   * We only allow end-detect once we have observed forward progress past the seeded vTime.
+   * This prevents "seek-to-end" from immediately being interpreted as ended due to clamp/rounding.
+   */
+  const endDetectArmedRef = useRef(false);
+  const seedVTimeRef = useRef<t.Msecs | undefined>(undefined);
+
   function ensureClock(total: t.Msecs): t.Timecode.VirtualClock.Instance {
     const prevTotal = lastTotalRef.current;
     if (clockRef.current && prevTotal === total) return clockRef.current;
@@ -64,6 +75,20 @@ export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
      */
     modeRef.current = 'media';
 
+    /**
+     * Treat explicit beat changes as a discontinuity boundary.
+     * Reset clock play-gate + terminal guards so "seek back from end" cannot inherit
+     * an old terminal clamp state.
+     */
+    clock.pause();
+    clockIsPlayingRef.current = false;
+    lastEmittedVTimeRef.current = undefined;
+    endedSentRef.current = false;
+
+    // End detect must be re-armed by observed forward progress after the seed.
+    endDetectArmedRef.current = false;
+    seedVTimeRef.current = beat.vTime;
+
     return true;
   }
 
@@ -86,6 +111,11 @@ export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
         lastNowRef.current = undefined;
         modeRef.current = 'media';
 
+        lastEmittedVTimeRef.current = undefined;
+        endedSentRef.current = false;
+        endDetectArmedRef.current = false;
+        seedVTimeRef.current = undefined;
+
         const clock = clockRef.current;
         if (clock) clock.pause();
         clockIsPlayingRef.current = false;
@@ -94,19 +124,30 @@ export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
         return;
       }
 
-      const clock = ensureClock(timeline.virtualDuration);
+      ensureClock(timeline.virtualDuration);
 
       /**
-       * If we just seeded (beat changed), we may have left the media element paused.
-       * Force the active deck into play once on the transition.
+       * On a seed frame:
+       * - do NOT mutate runtime play state (runner owns cmd ordering)
+       * - do NOT advance virtual time
+       * - do NOT emit video:time
+       *
+       * We simply schedule the next RAF to let runtime land load/seek.
        */
       if (seeded) {
-        args.runtime.deck.play(s.decks.active);
+        Schedule.raf(step);
+        return;
       }
 
       /**
        * Gate clock.play() to the transition into playable state (avoid per-frame mutation).
        */
+      const clock = clockRef.current;
+      if (!clock) {
+        Schedule.raf(step);
+        return;
+      }
+
       if (!clockIsPlayingRef.current) {
         clock.play();
         clockIsPlayingRef.current = true;
@@ -121,6 +162,60 @@ export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
 
       const state = clock.advance(dtMs);
       const nextVTime = Timecode.VTime.toMsecs(state.vtime);
+
+      /**
+       * Only arm end-detect once we see forward progress beyond the seeded vTime.
+       * This prevents a seek near end from immediately tripping end-detect due to
+       * clamp/rounding and repeated vTime.
+       */
+      const seedVTime = seedVTimeRef.current;
+      if (!endDetectArmedRef.current) {
+        if (seedVTime === undefined || nextVTime > seedVTime) {
+          endDetectArmedRef.current = true;
+        }
+      }
+
+      /**
+       * VirtualClock may clamp at the end of the timeline, causing vTime to flatline.
+       *
+       * Invariant:
+       * - If vTime is terminal AND repeating, stop driving immediately (no spam),
+       *   regardless of how quickly the runner flips intent/phase.
+       * - Emit one terminal signal (video:ended) at most once per play-run.
+       *
+       * Guard:
+       * - Never end-detect until we've observed forward progress after a seed.
+       */
+      if (endDetectArmedRef.current) {
+        const prevEmit = lastEmittedVTimeRef.current;
+        const isRepeat = prevEmit !== undefined && nextVTime === prevEmit;
+
+        // Timelines are discrete msecs and VirtualClock may never equal virtualDuration exactly.
+        const END_EPS_MS: t.Msecs = 1;
+        const endVTime = Math.max(0, (timeline.virtualDuration - END_EPS_MS) as t.Msecs);
+        const isAtOrBeyondEnd = nextVTime >= endVTime;
+
+        if (isAtOrBeyondEnd && isRepeat) {
+          const active = s.decks.active;
+
+          if (!endedSentRef.current) {
+            endedSentRef.current = true;
+            runner.send({ kind: 'video:ended', deck: active });
+          }
+
+          // Hard stop local driving immediately (best-effort).
+          clock.pause();
+          clockIsPlayingRef.current = false;
+          lastNowRef.current = undefined;
+          modeRef.current = 'media';
+          lastEmittedVTimeRef.current = undefined;
+
+          Schedule.raf(step);
+          return;
+        }
+      }
+
+      lastEmittedVTimeRef.current = nextVTime;
 
       runner.send({
         kind: 'video:time',
