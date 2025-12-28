@@ -85,7 +85,7 @@ export function createPlaybackRuntimeFromDecks(
       }
 
       /** Seek without forcing play; machine controls intent separately. */
-      s.jumpTo(second, { play: false });
+      s.jumpTo(second);
     },
   };
 

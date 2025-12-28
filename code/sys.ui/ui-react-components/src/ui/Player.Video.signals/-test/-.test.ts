@@ -36,6 +36,7 @@ describe('VideoPlayer: Signals API', () => {
       expect(p.endedTick.value).to.eql(0);
       expect(p.jumpTo.value).to.eql(undefined);
 
+      // Signals are writable.
       p.playing.value = true;
       expect(p.playing.value).to.eql(true);
     });
@@ -80,7 +81,7 @@ describe('VideoPlayer: Signals API', () => {
         expect(s.props.src.value).to.eql('vimeo/foobar');
       });
 
-      it('param: fadeMask ← number - expands to { Top:Down, <number>: pixels} ', () => {
+      it('param: fadeMask ← number expands to { Top:Down, <number>: pixels }', () => {
         const a = Player.Video.signals({});
         const b = Player.Video.signals({ fadeMask: 123 });
         const c = Player.Video.signals({ fadeMask: { direction: 'Bottom:Up' } });
@@ -89,8 +90,8 @@ describe('VideoPlayer: Signals API', () => {
         const maskB = b.props.fadeMask.value!;
         const maskC = c.props.fadeMask.value!;
 
-        type T = t.VideoPlayerFadeMask;
-        const assert = (value: T, expected: T) => expect(value).to.eql(expected);
+        type TMask = t.VideoPlayerFadeMask;
+        const assert = (value: TMask, expected: TMask) => expect(value).to.eql(expected);
 
         expect(maskA).to.be.undefined;
         assert(maskB, { direction: 'Top:Down', size: 123 });
@@ -100,57 +101,58 @@ describe('VideoPlayer: Signals API', () => {
   });
 
   describe('methods', () => {
-    it('play', () => {
+    it('play / pause / toggle affect only playing', () => {
       const s = playerSignalsFactory();
-      const assertPlaying = (value: boolean) => expect(s.props.playing.value).to.eql(value);
-      assertPlaying(false);
-
-      const res = s.play();
-      expect(res).to.eql(s);
-      assertPlaying(true);
-    });
-
-    it('pause', () => {
-      const s = playerSignalsFactory();
-      const assertPlaying = (value: boolean) => expect(s.props.playing.value).to.eql(value);
-      assertPlaying(false);
+      expect(s.props.playing.value).to.eql(false);
 
       s.play();
-      assertPlaying(true);
+      expect(s.props.playing.value).to.eql(true);
 
-      const res = s.play().pause();
-      expect(res).to.eql(s);
-      assertPlaying(false);
-    });
-
-    it('toggle', () => {
-      const s = playerSignalsFactory();
-      const assertPlaying = (value: boolean) => expect(s.props.playing.value).to.eql(value);
-      assertPlaying(false);
-
-      const res = s.toggle();
-      expect(res).to.eql(s);
-      assertPlaying(true);
+      s.pause();
+      expect(s.props.playing.value).to.eql(false);
 
       s.toggle();
-      assertPlaying(false);
+      expect(s.props.playing.value).to.eql(true);
+
       s.toggle(false);
-      assertPlaying(false);
+      expect(s.props.playing.value).to.eql(false);
+
       s.toggle(true);
-      assertPlaying(true);
+      expect(s.props.playing.value).to.eql(true);
     });
 
-    describe('jumpTo() → props.jumpTo', () => {
-      it('positive value', () => {
+    describe('jumpTo() → intent only (no side effects)', () => {
+      it('jumpTo emits intent without changing play state', () => {
         const s = playerSignalsFactory();
-        expect(s.props.jumpTo.value).to.eql(undefined);
 
-        const res = s.jumpTo(10);
-        expect(res).to.eql(s);
-        expect(s.props.jumpTo.value).to.eql({ second: 10, play: true });
+        s.play();
+        expect(s.props.playing.value).to.eql(true);
+
+        s.jumpTo(10);
+        expect(s.props.jumpTo.value).to.eql({ second: 10, play: undefined });
+        expect(s.props.playing.value).to.eql(true);
+      });
+
+      it('jumpTo with play=false emits pause intent only', () => {
+        const s = playerSignalsFactory();
+
+        s.play();
+        expect(s.props.playing.value).to.eql(true);
 
         s.jumpTo(15, { play: false });
         expect(s.props.jumpTo.value).to.eql({ second: 15, play: false });
+        expect(s.props.playing.value).to.eql(true); // unchanged
+      });
+
+      it('jumpTo with play=true emits play intent only', () => {
+        const s = playerSignalsFactory();
+
+        s.pause();
+        expect(s.props.playing.value).to.eql(false);
+
+        s.jumpTo(20, { play: true });
+        expect(s.props.jumpTo.value).to.eql({ second: 20, play: true });
+        expect(s.props.playing.value).to.eql(false); // unchanged
       });
     });
   });

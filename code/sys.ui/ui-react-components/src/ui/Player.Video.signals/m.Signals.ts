@@ -71,7 +71,7 @@ export const playerSignalsFactory: t.PlayerSignalsFactory = (input = {}) => {
       return api;
     },
     jumpTo(second, options = {}) {
-      const { play = true } = options;
+      const play = options.play; // <undefined> → preserve current state
       props.jumpTo.value = { second, play };
       return api;
     },

@@ -88,7 +88,12 @@ export type PlayerSignalsFactoryDefaults = {
 export type VideoPlayerSeek = {
   /** Positive = absolute seconds, negative = from the end (-5 → 5s before end). */
   second: t.Secs;
-  /** Play after seeking?  (default = leave play/pause state unchanged). */
+  /**
+   * Play after seeking?
+   * - true  → force play
+   * - false → force pause
+   * - undefined → preserve current play/pause state
+   */
   play?: boolean;
 };
 
