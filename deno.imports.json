@@ -74,7 +74,7 @@
     "prosemirror-view": "npm:prosemirror-view@1.41.4",
     "prosemirror-view/style/prosemirror.css": "npm:prosemirror-view@1.41.4/style/prosemirror.css",
     "ramda": "npm:ramda@0.32.0",
-    "react-error-boundary": "npm:react-error-boundary@6.0.0",
+    "react-error-boundary": "npm:react-error-boundary@6.0.1",
     "react-inspector": "npm:react-inspector@9.0.0",
     "react-spinners": "npm:react-spinners@0.17.0",
     "rxjs": "npm:rxjs@7.8.2",

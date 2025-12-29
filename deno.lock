@@ -95,7 +95,6 @@
     "npm:prosemirror-view@1.41.4": "1.41.4",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.3": "19.2.3_react@19.2.3",
-    "npm:react-error-boundary@6.0.0": "6.0.0_react@19.2.3",
     "npm:react-icons@5.5.0": "5.5.0_react@19.2.3",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.2.3",
     "npm:react-spinners@0.17.0": "0.17.0_react@19.2.3_react-dom@19.2.3__react@19.2.3",
@@ -4222,13 +4221,6 @@
         "scheduler"
       ]
     },
-    "react-error-boundary@6.0.0_react@19.2.3": {
-      "integrity": "sha512-gdlJjD7NWr0IfkPlaREN2d9uUZUlksrfOx7SX62VRerwXbMY6ftGCIZua1VG1aXFNOimhISsTq+Owp725b9SiA==",
-      "dependencies": [
-        "@babel/runtime",
-        "react"
-      ]
-    },
     "react-icons@5.5.0_react@19.2.3": {
       "integrity": "sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==",
       "dependencies": [
@@ -4909,7 +4901,7 @@
       "npm:prosemirror-state@1.4.4",
       "npm:prosemirror-view@1.41.4",
       "npm:ramda@0.32.0",
-      "npm:react-error-boundary@6.0.0",
+      "npm:react-error-boundary@6.0.1",
       "npm:react-inspector@9.0.0",
       "npm:react-spinners@0.17.0",
       "npm:rxjs@7.8.2",
