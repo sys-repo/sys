@@ -17,7 +17,7 @@
 Monorepo comprising the core set of shared  **“system”** modules purposed to flexibly compose into new
 *systems of systems* — extremely-late-bound, strongly typed, decentralised, “cell-like” functional processes.
 
-- **Build toolchain** → output targets are [W3C](https://www.w3.org/), [ECMA/TC39 (ESM)](https://ecma-international.org/technical-committees/tc39/), [WinterTG](https://wintercg.org/) standards.
+- **Build toolchain** → output targets are [W3C](https://www.w3.org/), [ECMA/TC39 (ESM)](https://ecma-international.org/technical-committees/tc39/), [WinterTC](https://wintertc.org/) standards.
 - **Namespaces:**
   - [sys](/code/sys/) — foundational system libraries (types, schema, utilities).
   - [sys.ui](/code/sys.ui/) — declarative UI composition and factories.
