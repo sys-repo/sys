@@ -24,4 +24,4 @@
  * policy out of the runtime edge, and allows the driver to be replaced or
  * reimplemented without disturbing the state machine.
  */
-import type { t } from './common.ts';
+export { PlaybackDriver } from './m.Driver.ts';
