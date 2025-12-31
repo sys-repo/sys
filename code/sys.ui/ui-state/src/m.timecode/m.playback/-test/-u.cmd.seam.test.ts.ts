@@ -1,9 +1,9 @@
-import { Cmd } from '@sys/event/cmd';
-import { describe, expect, it } from '../../../-test.ts';
+import { type t, Cmd, describe, expect, it } from '../../../-test.ts';
 
-import type { t } from '../common.ts';
 import { Playback } from '../mod.ts';
 import { emptyState, timeline } from './u.fixture.ts';
+
+type M = t.PlaybackCmd;
 
 describe('Cmd seam — Playback over MessagePort', () => {
   it('hello world: send input, get back next state', async () => {

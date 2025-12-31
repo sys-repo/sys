@@ -193,6 +193,11 @@ describe('Playback.reduce — navigation', () => {
 
     const s3 = Playback.reduce(ended, { kind: 'playback:prev' });
     expect(s3.state.phase).to.eql('active');
+
+    const s4 = Playback.reduce(ended, { kind: 'playback:play' });
+    expect(s4.state.phase).to.eql('active');
+    expect(s4.state.intent).to.eql('play');
+    expect(playCmd(s4.cmds)?.deck).to.eql(s4.state.decks.active);
   });
 
   it('explicit navigation emits cmd:deck:seek for active deck to beat boundary vTime', () => {

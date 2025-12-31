@@ -112,6 +112,49 @@ describe('Playback.reduce — invariants', () => {
     ).to.eql(false);
   });
 
+  it('after terminal ended, video:time is suppressed until explicit rearm', () => {
+    const tl: t.PlaybackTimeline = {
+      beats: [{ index: 0, vTime: 0 as t.Msecs, duration: 1000 as t.Msecs, segmentId: 'seg:0' }],
+      segments: [{ id: 'seg:0', beat: { from: 0, to: 1 } }],
+      virtualDuration: 1000 as t.Msecs,
+    };
+
+    // Enter terminal ended (no next segment exists).
+    const init = Playback.reduce(emptyState(), { kind: 'playback:init', timeline: tl });
+    const ended = Playback.reduce(init.state, {
+      kind: 'video:ended',
+      deck: init.state.decks.active,
+    });
+
+    expect(ended.state.phase).to.eql('ended');
+
+    // Stale time ticks must not mutate state or emit intents/events.
+    const tick = Playback.reduce(ended.state, {
+      kind: 'video:time',
+      deck: ended.state.decks.active,
+      vTime: 500 as t.Msecs,
+    });
+
+    expect(tick.state).to.equal(ended.state);
+    expect(tick.cmds).to.eql([]);
+    expect(tick.events).to.eql([]);
+
+    // Explicit navigation rearms and reasserts beat boundary vTime.
+    const rearmed = Playback.reduce(ended.state, { kind: 'playback:seek:beat', beat: 0 });
+    expect(rearmed.state.phase).to.eql('active');
+    expect(rearmed.state.currentBeat).to.eql(0);
+    expect(rearmed.state.vTime).to.eql(tl.beats[0]!.vTime);
+
+    // After rearm, runner time is authoritative again.
+    const time = Playback.reduce(rearmed.state, {
+      kind: 'video:time',
+      deck: rearmed.state.decks.active,
+      vTime: 750 as t.Msecs,
+    });
+
+    expect(time.state.vTime).to.eql(750);
+  });
+
   it('navigation rearms time authority after video:ended (ended is not sticky)', () => {
     const tl = timeline();
 

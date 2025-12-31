@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { type t, describe, expect, it } from '../../../-test.ts';
 import { Playback } from '../mod.ts';
 import { emptyState, timeline } from './u.fixture.ts';
 
@@ -150,5 +150,56 @@ describe('Playback.reduce — scenarios', () => {
     expect(state.phase).to.eql('active');
     expect(state.intent).to.eql('stop');
     expect(state.currentBeat).to.eql(1);
+  });
+
+  it('terminal end wins; stale video:time is ignored until user re-arms', () => {
+    const tl: t.PlaybackTimeline = {
+      beats: [
+        {
+          index: 0 as t.PlaybackBeatIndex,
+          vTime: 0 as t.Msecs,
+          duration: 1000 as t.Msecs,
+          segmentId: 'seg:0',
+        },
+      ],
+      segments: [{ id: 'seg:0', beat: { from: 0, to: 1 } }],
+      virtualDuration: 1000 as t.Msecs,
+    };
+
+    let state = emptyState();
+
+    // init and play
+    state = Playback.reduce(state, { kind: 'playback:init', timeline: tl }).state;
+    state = Playback.reduce(state, { kind: 'playback:play' }).state;
+    expect(state.intent).to.eql('play');
+
+    // terminal ended (no next segment exists)
+    state = Playback.reduce(state, { kind: 'video:ended', deck: state.decks.active }).state;
+    expect(state.phase).to.eql('ended');
+    expect(state.intent).to.eql('stop');
+
+    const endedState = state;
+
+    // stale time tick arrives late → must be ignored
+    state = Playback.reduce(state, {
+      kind: 'video:time',
+      deck: state.decks.active,
+      vTime: 500 as t.Msecs,
+    }).state;
+
+    expect(state).to.equal(endedState);
+
+    // user rearms explicitly
+    state = Playback.reduce(state, { kind: 'playback:seek:beat', beat: 0 }).state;
+    expect(state.phase).to.eql('active');
+    expect(state.currentBeat).to.eql(0);
+
+    // now time is accepted again
+    state = Playback.reduce(state, {
+      kind: 'video:time',
+      deck: state.decks.active,
+      vTime: 750 as t.Msecs,
+    }).state;
+    expect(state.vTime).to.eql(750);
   });
 });

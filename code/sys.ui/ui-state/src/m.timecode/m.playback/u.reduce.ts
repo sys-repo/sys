@@ -72,6 +72,33 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
   };
 
   /**
+   * Resolve the segment index for a given beat index.
+   *
+   * Primary truth: beat.segmentId + segments[].id.
+   * Fallback: legacy beat-range matching.
+   *
+   * Rationale:
+   * - Runtime bugs show segment range matching can be incompatible with real timelines.
+   * - `segmentId` is carried on beats and is the reducer’s authoritative grouping label.
+   */
+  const segmentIndexForBeat = (
+    timeline: t.PlaybackTimeline,
+    beatIndex: t.PlaybackBeatIndex,
+  ): number => {
+    const beat = timeline.beats[beatIndex];
+    const segId = beat?.segmentId;
+    const segments = timeline.segments;
+
+    if (segId) {
+      const byId = segments.findIndex((s) => s.id === segId);
+      if (byId >= 0) return byId;
+    }
+
+    // Legacy fallback: [from, to) beat-range.
+    return segments.findIndex((s) => s.beat.from <= beatIndex && beatIndex < s.beat.to);
+  };
+
+  /**
    * Deck load orchestration (pure intent).
    *
    * Policy:
@@ -94,9 +121,8 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     cmds.push({ kind: 'cmd:deck:load', deck: active, beat: beatIndex });
 
     // Standby deck: next segment boundary preload.
-    const segments = timeline.segments;
-    const segIndex = segments.findIndex((s) => s.beat.from <= beatIndex && beatIndex < s.beat.to);
-    const nextSeg = segIndex >= 0 ? segments[segIndex + 1] : undefined;
+    const segIndex = segmentIndexForBeat(timeline, beatIndex);
+    const nextSeg = segIndex >= 0 ? timeline.segments[segIndex + 1] : undefined;
     if (!nextSeg) return;
 
     const preloadIndex = nextSeg.beat.from;
@@ -309,12 +335,49 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
     }
 
     case 'video:ended': {
+      const timeline = ensureTimeline();
+      if (!timeline) return { state, cmds, events };
+
       setDeckStatus(input.deck, 'ended');
 
-      // If the active deck ended, the machine is ended (for now).
-      if (input.deck === state.decks.active) {
+      // Standby ended is non-fatal: keep status only.
+      if (input.deck !== state.decks.active) {
+        return { state, cmds, events };
+      }
+
+      const prevIntent = state.intent;
+      const currBeat = state.currentBeat ?? 0;
+
+      const segIndex = segmentIndexForBeat(timeline, currBeat);
+      if (segIndex < 0) {
+        setError(`video:ended but current beat ${currBeat} has no resolvable segment`);
+        return { state, cmds, events };
+      }
+
+      const nextSeg = timeline.segments[segIndex + 1];
+
+      // Terminal end: no next segment.
+      if (!nextSeg) {
         setIntent('stop');
         setPhase('ended');
+        return { state, cmds, events };
+      }
+
+      const nextBeat = clampBeatIndex(timeline, nextSeg.beat.from);
+
+      // Discrete jump: set current beat (may swap decks by segmentId), then ensure loads.
+      const next = setCurrentBeat(state, nextBeat, { cmds, events });
+      emitBeatIfChanged(next);
+
+      const beat = timeline.beats[nextBeat];
+      const nextState = { ...next, vTime: beat?.vTime };
+      update(nextState);
+
+      loadForBeat(nextBeat);
+
+      // Preserve the user's play intent across the boundary.
+      if (prevIntent === 'play') {
+        cmds.push({ kind: 'cmd:deck:play', deck: nextState.decks.active });
       }
 
       return { state, cmds, events };
@@ -330,6 +393,17 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       const timeline = ensureTimeline();
       if (!timeline) return { state, cmds, events };
 
+      /**
+       * Hardening:
+       * After terminal `video:ended(active)` we enter phase:'ended'.
+       * Any subsequent `video:time` is stale (from a finished media element or clock)
+       * and must not advance beats or smear vTime until the user explicitly rearms
+       * the machine (play/seek/next/prev), which calls `rearmIfEnded()`.
+       */
+      if (state.phase === 'ended') {
+        return { state, cmds, events };
+      }
+
       const nextBeat = beatIndexFromVTime(timeline, input.vTime);
 
       // Always track vTime (even within the same beat) so UI can derive media vs pause phase.
@@ -342,8 +416,14 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       emitBeatIfChanged(next);
 
       // Preserve exact runner vTime (not just beat boundary vTime).
-      update({ ...next, vTime: input.vTime });
+      const nextState = { ...next, vTime: input.vTime };
+      update(nextState);
+
       loadForBeat(nextBeat);
+
+      // Critical: if we're in intent:'play', auto-advance must re-assert deck play,
+      // because runtime seek does not force play and pause windows may have paused media.
+      resumeIfPlaying(nextState);
 
       return { state, cmds, events };
     }
