@@ -95,6 +95,7 @@
     "npm:prosemirror-view@1.41.4": "1.41.4",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.3": "19.2.3_react@19.2.3",
+    "npm:react-error-boundary@6.0.1": "6.0.1_react@19.2.3_react-dom@19.2.3__react@19.2.3",
     "npm:react-icons@5.5.0": "5.5.0_react@19.2.3",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.2.3",
     "npm:react-spinners@0.17.0": "0.17.0_react@19.2.3_react-dom@19.2.3__react@19.2.3",
@@ -4219,6 +4220,13 @@
       "dependencies": [
         "react",
         "scheduler"
+      ]
+    },
+    "react-error-boundary@6.0.1_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
+      "integrity": "sha512-zArgQpjJUN1ZLMEKWtifxQweW3yfvwL5j2nh3Pesze1qG6r5oCDMy/TA97bUF01wy4xCeeL4/pd8GHmvEsP3Bg==",
+      "dependencies": [
+        "react",
+        "react-dom"
       ]
     },
     "react-icons@5.5.0_react@19.2.3": {
