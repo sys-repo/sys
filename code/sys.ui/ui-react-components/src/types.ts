@@ -45,3 +45,4 @@ export type * from './ui/Tree.Index.Item/t.ts';
 export type * from './ui/Tree.Index/t.ts';
 export type * from './ui/Tree/t.ts';
 export type * from './ui/VimeoBackground/t.ts';
+export type * from './ui/Media.Timecode.Driver/t.ts';
