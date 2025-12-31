@@ -20,6 +20,7 @@ VirutalClock
 - **Gating: exactly one authoritative time source; after `video:ended(active)`, suppress all `video:time` until rebase (post `load/seek/swap`), then resume from the new active source.**
 - B must be cmd-complete: B’s imperative runtime surface must be able to execute every cmd emitted by A’s Playback.reduce (the cmd union defined under m.playback/t.protocol.effect.ts → t.ts).
 - B never computes beats/segments; it only forwards observations and executes A’s cmds (cmd-complete), with a single time-authority latch and post-ended suppression until cmd-based rebase.
+- Missing media is an author-failure: if resolveBeatMedia(activeBeat) returns undefined when executing cmd:deck:load, emit runner:error and suppress all video:time until rebase; missing standby preload is skipped (logged) and becomes fatal only when that segment is activated.
 
 ### Quality Discipline / Implemetation Constraint-rules:
 - Bridge-only.
