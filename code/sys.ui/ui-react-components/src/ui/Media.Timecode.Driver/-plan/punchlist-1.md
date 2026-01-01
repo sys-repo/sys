@@ -1,4 +1,4 @@
-Yes. That punch list is a solid “working impl plan” to hold me to.
+That punch list is a solid “working impl plan” to hold me to.
 
 If you want it in a copy/paste form that’s maximally enforceable (and still small), use this:
 	•	B1. Public surface (frozen):

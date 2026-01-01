@@ -1,17 +1,59 @@
 import { type t, Num, Signal } from './common.ts';
 
-type TimeSource = 'video' | 'suppressed-ended';
+/** Added pause-latch suppression for virtual pause windows. */
+type TimeSource = 'video' | 'suppressed-ended' | 'suppressed-pause';
+type BeatIndex = t.TimecodeState.Playback.BeatIndex;
+type State = t.TimecodeState.Playback.State;
+type Timeline = t.TimecodeState.Playback.Timeline;
+type PauseWindow = {
+  readonly from: t.Msecs;
+  readonly to: t.Msecs;
+  readonly beat: BeatIndex;
+};
 
 export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.PlaybackDriver {
   const { decks, resolveBeatMedia } = args;
 
   let disposed = false;
-  let lastState: t.TimecodeState.Playback.State | undefined;
+  let lastState: State | undefined;
   let timeSource: TimeSource = 'video';
   const disposers = new Set<() => void>();
 
-  const rebaseTime = () => (timeSource = 'video');
-  const suppressTimeAfterEnded = () => (timeSource = 'suppressed-ended');
+  const setTimeSource = (next: TimeSource) => void (timeSource = next);
+  const rebaseTime = () => setTimeSource('video');
+  const suppressTimeAfterEnded = () => setTimeSource('suppressed-ended');
+  const suppressTimeAfterPause = () => setTimeSource('suppressed-pause');
+
+  const getPauseWindow = (state: State): PauseWindow | undefined => {
+    const timeline = state.timeline;
+    if (!timeline) return;
+
+    const beatIndex = state.currentBeat;
+    if (beatIndex == null) return;
+
+    const beat = timeline.beats[beatIndex];
+    if (!beat) return;
+
+    const pause = Number(beat.pause ?? 0);
+    if (pause <= 0) return;
+
+    // Authoritative pause span uses nextBeat.vTime delta (not beat.duration).
+    const nextBeat = timeline.beats[Number(beatIndex) + 1];
+    const beatStart = Number(beat.vTime);
+    const nextStart = Number(nextBeat?.vTime ?? timeline.virtualDuration);
+
+    const totalSpan = Math.max(0, nextStart - beatStart);
+    const mediaSpan = Math.max(0, totalSpan - pause);
+
+    const from = (beatStart + mediaSpan) as t.Msecs;
+    const to = (Number(from) + pause) as t.Msecs;
+
+    return {
+      from,
+      to,
+      beat: beatIndex,
+    };
+  };
 
   const warn = (...a: unknown[]) => {
     if (args.log) console.warn(...a);
@@ -64,9 +106,27 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
         if (!state) return;
         if (state.decks.active !== deck) return;
         if (!state.timeline) return;
-        if (timeSource === 'suppressed-ended') return;
+        if (timeSource !== 'video') return;
 
         const vTime = mapDeckSecondToVTime(state, secs);
+
+        // Prevent media-driven time from skipping over a virtual pause.
+        // Clamp to pause start and latch-suppress further currentTime ticks until cmd rebase.
+        if (state.intent === 'play' && state.vTime != null) {
+          const pause = getPauseWindow(state);
+          if (pause) {
+            const prev = Number(state.vTime);
+            const pauseTo = Number(pause.to);
+
+            // Media mapping never lands inside [pause.from, pause.to); it jumps to >= pause.to.
+            if (prev < pauseTo && Number(vTime) >= pauseTo) {
+              args.dispatch({ kind: 'video:time', deck, vTime: pause.from });
+              suppressTimeAfterPause();
+              return;
+            }
+          }
+        }
+
         args.dispatch({ kind: 'video:time', deck, vTime });
       }),
     );
@@ -75,7 +135,7 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
   observeDeck('A');
   observeDeck('B');
 
-  const exec = (cmd: t.TimecodeState.Playback.Cmd, state: t.TimecodeState.Playback.State) => {
+  const exec = (cmd: t.TimecodeState.Playback.Cmd, state: State) => {
     if (disposed) return;
 
     switch (cmd.kind) {
@@ -89,7 +149,7 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
       }
 
       case 'cmd:swap-decks': {
-        // Rebase time authority after swap (unlatch time suppression).
+        // Rebase time authority after discrete deck routing changes.
         rebaseTime();
         return;
       }
@@ -102,7 +162,6 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
         if (!media) {
           const isActive = state.decks.active === cmd.deck;
           const message = `Media.Timecode.Driver: missing media for beat=${cmd.beat} deck=${cmd.deck}`;
-
           if (isActive) {
             args.dispatch({ kind: 'runner:error', message });
           } else {
@@ -119,19 +178,22 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
       }
 
       case 'cmd:deck:play': {
+        // Cmd-level play is a discrete rebase point: resume currentTime authority.
+        rebaseTime();
+
         decks[cmd.deck].play();
         return;
       }
 
       case 'cmd:deck:pause': {
+        // Stop any internal suppression when explicitly paused.
+        rebaseTime();
         decks[cmd.deck].pause();
         return;
       }
 
       case 'cmd:deck:seek': {
-        // 🌸🌸 ---------- ADDED: rebase-after-seek ----------
         rebaseTime();
-        // 🌸 ---------- /ADDED ----------
 
         const signals = decks[cmd.deck];
         const second = mapVTimeToDeckSecond(state, cmd.vTime);
@@ -169,7 +231,7 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
  * Key rule: pauses exist in vTime but NOT in media time.
  * So we subtract pauses implicitly by accumulating only beat.duration (not beat.pause).
  */
-function mapVTimeToDeckSecond(state: t.TimecodeState.Playback.State, vTime: t.Msecs): t.Secs {
+function mapVTimeToDeckSecond(state: State, vTime: t.Msecs): t.Secs {
   const timeline = state.timeline;
   if (!timeline) return 0 as t.Secs;
   if (timeline.beats.length === 0) return 0 as t.Secs;
@@ -198,11 +260,11 @@ function mapVTimeToDeckSecond(state: t.TimecodeState.Playback.State, vTime: t.Ms
  * Map deck-local media seconds → GLOBAL virtual time (vTime).
  *
  * Assumption (by design):
- * - During pause windows, the driver will keep media paused, so deck seconds do not
- *   advance through virtual pauses. Therefore: seconds map only into beat.duration
- *   spans, while beat.pause is represented only in vTime space.
+ * - During pause windows, higher-layer orchestration keeps media paused, so deck seconds do not
+ *   advance through virtual pauses. Therefore: seconds map only into beat.duration spans, while
+ *   beat.pause is represented only in vTime space.
  */
-function mapDeckSecondToVTime(state: t.TimecodeState.Playback.State, second: t.Secs): t.Msecs {
+function mapDeckSecondToVTime(state: State, second: t.Secs): t.Msecs {
   const timeline = state.timeline;
   if (!timeline) return 0;
   if (timeline.beats.length === 0) return 0;
@@ -234,9 +296,9 @@ function mapDeckSecondToVTime(state: t.TimecodeState.Playback.State, second: t.S
 }
 
 function segmentFromBeatIndex(
-  timeline: t.TimecodeState.Playback.Timeline,
-  beatIndex: t.TimecodeState.Playback.BeatIndex,
-): t.TimecodeState.Playback.Timeline['segments'][number] | undefined {
+  timeline: Timeline,
+  beatIndex: BeatIndex,
+): Timeline['segments'][number] | undefined {
   const beat = timeline.beats[beatIndex];
   const segId = beat?.segmentId;
 
@@ -252,12 +314,9 @@ function segmentFromBeatIndex(
  * Local copy of ui-state's beatIndexFromVTime logic (range includes pause).
  * Kept tiny and intentionally mirror-shaped to avoid inventing semantics.
  */
-function beatIndexFromVTime(
-  timeline: t.TimecodeState.Playback.Timeline,
-  vTime: t.Msecs,
-): t.TimecodeState.Playback.BeatIndex {
+function beatIndexFromVTime(timeline: Timeline, vTime: t.Msecs): BeatIndex {
   const beats = timeline.beats;
-  if (beats.length === 0) return 0 as t.TimecodeState.Playback.BeatIndex;
+  if (beats.length === 0) return 0 as BeatIndex;
 
   for (let i = beats.length - 1; i >= 0; i--) {
     const beat = beats[i];
@@ -278,10 +337,7 @@ function beatIndexFromVTime(
  * Primary: beat.segmentId → segments[].id
  * Fallback: segment beat-range match.
  */
-function segmentStartBeatIndex(
-  timeline: t.TimecodeState.Playback.Timeline,
-  beatIndex: t.TimecodeState.Playback.BeatIndex,
-): t.TimecodeState.Playback.BeatIndex {
+function segmentStartBeatIndex(timeline: Timeline, beatIndex: BeatIndex): BeatIndex {
   const beat = timeline.beats[beatIndex];
   const segId = beat?.segmentId;
   const segments = timeline.segments;

@@ -3,6 +3,7 @@ import { playerSignalsFactory } from '../../Player.Video.Signals/m.Signals.ts';
 
 import { type t } from '../common.ts';
 import { PlaybackDriver } from '../mod.ts';
+import { pauseClampFixture } from './u.fixture.pauseWindowClamp.ts';
 
 describe(`Timecode.Driver`, () => {
   it(`cmd:deck:seek maps vTime → seconds excluding pauses and does not force play`, async () => {
@@ -103,7 +104,9 @@ describe(`Timecode.Driver`, () => {
 
     const state: t.TimecodeState.Playback.State = {
       phase: 'active',
-      intent: 'play',
+      // This unit is only asserting the deck-signal → input bridge (not pause-window behavior).
+      // Use a non-play intent so virtual-pause logic cannot clamp/override the mapped vTime.
+      intent: 'pause',
       timeline,
       currentBeat: ix(0),
       vTime: ms(0),
@@ -323,6 +326,104 @@ describe(`Timecode.Driver`, () => {
       { kind: 'video:ended', deck: 'A' },
       { kind: 'video:time', deck: 'A', vTime: ms(800) },
     ]);
+
+    driver.dispose();
+  });
+
+  it(`clamps into virtual pause window and suppresses further currentTime-driven video:time while paused`, () => {
+    const ms = (n: number): t.Msecs => n;
+    const ix = (n: number): t.TimecodeState.Playback.BeatIndex => n;
+
+    const timeline: t.TimecodeState.Playback.Timeline = {
+      beats: [
+        {
+          index: ix(0),
+          vTime: ms(0),
+          duration: ms(1000),
+          pause: ms(500),
+          segmentId: 'seg:1',
+          media: { url: 'u:0' },
+        },
+        {
+          index: ix(1),
+          vTime: ms(1500),
+          duration: ms(1000),
+          segmentId: 'seg:1',
+          media: { url: 'u:0' },
+        },
+      ],
+      segments: [{ id: 'seg:1', beat: { from: ix(0), to: ix(2) } }],
+      virtualDuration: ms(2500),
+    };
+
+    const state: t.TimecodeState.Playback.State = {
+      phase: 'active',
+      intent: 'play',
+      timeline,
+      currentBeat: ix(0),
+      vTime: ms(0),
+      decks: { active: 'A', standby: 'B', status: { A: 'ready', B: 'ready' } },
+      ready: { machine: true, runner: true, deck: { A: true, B: true } },
+    };
+
+    const A = playerSignalsFactory();
+    const B = playerSignalsFactory();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({ state, cmds: [], events: [] });
+
+    // A large media-time jump would map beyond the pause window, but the driver must
+    // clamp into the pause start (vTime = beat.vTime + duration).
+    A.props.currentTime.value = 1.1 as t.Secs;
+    expect(seen).to.eql([{ kind: 'video:time', deck: 'A', vTime: ms(1000) }]);
+
+    // While in pause-window authority, further currentTime changes must not emit.
+    A.props.currentTime.value = 1.2 as t.Secs;
+    expect(seen).to.eql([{ kind: 'video:time', deck: 'A', vTime: ms(1000) }]);
+
+    driver.dispose();
+  });
+
+  it(`clamps at pauseFrom and suppresses further currentTime-driven video:time until cmd rebase`, () => {
+    const ms = (n: number): t.Msecs => n;
+
+    const fx = pauseClampFixture();
+
+    const state: t.TimecodeState.Playback.State = {
+      phase: 'active',
+      intent: 'play',
+      timeline: fx.timeline,
+      currentBeat: fx.timeline.beats[0]!.index,
+      vTime: ms(0),
+      decks: { active: 'A', standby: 'B', status: { A: 'ready', B: 'ready' } },
+      ready: { machine: true, runner: true, deck: { A: true, B: true } },
+    };
+
+    const A = playerSignalsFactory();
+    const B = playerSignalsFactory();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({ state, cmds: [], events: [] });
+
+    // Force a media-time overshoot past pauseFrom; driver must clamp to pauseFrom.
+    A.props.currentTime.value = (Number(fx.mediaSecsAtPauseFrom) + 0.1) as t.Secs;
+    expect(seen).to.eql([{ kind: 'video:time', deck: 'A', vTime: fx.pauseFrom }]);
+
+    // Further currentTime changes suppressed until cmd rebase.
+    A.props.currentTime.value = (Number(fx.mediaSecsAtPauseFrom) + 0.2) as t.Secs;
+    expect(seen).to.eql([{ kind: 'video:time', deck: 'A', vTime: fx.pauseFrom }]);
 
     driver.dispose();
   });
