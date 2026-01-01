@@ -1,28 +1,116 @@
 import { type t, Num, Signal } from './common.ts';
 
-/** Added pause-latch suppression for virtual pause windows. */
-type TimeSource = 'video' | 'suppressed-ended' | 'suppressed-pause';
+/** Driver time authority: video time, ended suppression, and pause-window monotonic timer authority. */
+type TimeSource = 'video' | 'suppressed-ended' | 'pause-timer';
+
 type BeatIndex = t.TimecodeState.Playback.BeatIndex;
 type State = t.TimecodeState.Playback.State;
 type Timeline = t.TimecodeState.Playback.Timeline;
+
 type PauseWindow = {
   readonly from: t.Msecs;
   readonly to: t.Msecs;
   readonly beat: BeatIndex;
 };
 
+type PauseTimer = {
+  readonly deck: t.TimecodeState.Playback.DeckId;
+  readonly from: t.Msecs;
+  readonly to: t.Msecs;
+  readonly wallStartMs: number;
+  readonly intervalId: unknown;
+};
+
+/**
+ * Imperative bridge between the playback state machine and the two video decks.
+ *
+ * Executes playback cmds against deck signals, and observes deck signals to dispatch
+ * playback inputs (video:time / video:ended), including pause-window + ended suppression.
+ */
 export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.PlaybackDriver {
   const { decks, resolveBeatMedia } = args;
 
+  const schedule = args.schedule ?? {
+    now: () => Date.now(),
+    setInterval: (fn: () => void, ms: number) => setInterval(fn, ms),
+    clearInterval: (id: unknown) => clearInterval(id as never),
+  };
+
+  const disposers = new Set<() => void>();
   let disposed = false;
   let lastState: State | undefined;
   let timeSource: TimeSource = 'video';
-  const disposers = new Set<() => void>();
+  let pauseTimer: PauseTimer | undefined;
+
+  const stopPauseTimer = () => {
+    const curr = pauseTimer;
+    if (!curr) return;
+    schedule.clearInterval(curr.intervalId);
+    pauseTimer = undefined;
+  };
 
   const setTimeSource = (next: TimeSource) => void (timeSource = next);
-  const rebaseTime = () => setTimeSource('video');
-  const suppressTimeAfterEnded = () => setTimeSource('suppressed-ended');
-  const suppressTimeAfterPause = () => setTimeSource('suppressed-pause');
+
+  const rebaseTime = () => {
+    stopPauseTimer();
+    setTimeSource('video');
+  };
+
+  const suppressTimeAfterEnded = () => {
+    stopPauseTimer();
+    setTimeSource('suppressed-ended');
+  };
+
+  const startPauseTimer = (deck: t.TimecodeState.Playback.DeckId, pause: PauseWindow) => {
+    stopPauseTimer();
+    setTimeSource('pause-timer');
+
+    const wallStartMs = Number(schedule.now());
+    const fromN = Number(pause.from);
+    const toN = Number(pause.to);
+
+    const intervalId = schedule.setInterval(() => {
+      if (disposed) return;
+
+      const state = lastState;
+      if (!state) return;
+
+      // If higher layers switched intent, stop owning time.
+      if (state.intent !== 'play') {
+        stopPauseTimer();
+        setTimeSource('video');
+        return;
+      }
+
+      const elapsed = Number(schedule.now()) - wallStartMs;
+      const next = (fromN + Math.max(0, elapsed)) as t.Msecs;
+      const nextN = Number(next);
+
+      if (nextN >= toN) {
+        // Emit terminal boundary, then rebase to video authority.
+        args.dispatch({ kind: 'video:time', deck, vTime: pause.to });
+        stopPauseTimer();
+        setTimeSource('video');
+
+        // Resume media only if still active + intent is play.
+        if (state.decks.active === deck && state.intent === 'play') {
+          decks[deck].play();
+        }
+
+        return;
+      }
+
+      args.dispatch({ kind: 'video:time', deck, vTime: next });
+    }, 50);
+
+    pauseTimer = {
+      deck,
+      from: pause.from,
+      to: pause.to,
+      wallStartMs,
+      intervalId,
+    };
+  };
 
   const getPauseWindow = (state: State): PauseWindow | undefined => {
     const timeline = state.timeline;
@@ -110,18 +198,21 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
 
         const vTime = mapDeckSecondToVTime(state, secs);
 
-        // Prevent media-driven time from skipping over a virtual pause.
-        // Clamp to pause start and latch-suppress further currentTime ticks until cmd rebase.
+        /**
+         * Prevent media-driven time from skipping over a virtual pause.
+         * When we detect the jump that crosses pauseFrom, clamp to pauseFrom, pause media,
+         * and take time authority via a monotonic timer from pauseFrom→pauseTo.
+         */
         if (state.intent === 'play' && state.vTime != null) {
           const pause = getPauseWindow(state);
           if (pause) {
             const prev = Number(state.vTime);
-            const pauseTo = Number(pause.to);
+            const pauseFrom = Number(pause.from);
 
-            // Media mapping never lands inside [pause.from, pause.to); it jumps to >= pause.to.
-            if (prev < pauseTo && Number(vTime) >= pauseTo) {
+            if (prev < pauseFrom && Number(vTime) >= pauseFrom) {
+              decks[deck].pause();
               args.dispatch({ kind: 'video:time', deck, vTime: pause.from });
-              suppressTimeAfterPause();
+              startPauseTimer(deck, pause);
               return;
             }
           }
@@ -186,7 +277,7 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
       }
 
       case 'cmd:deck:pause': {
-        // Stop any internal suppression when explicitly paused.
+        // Stop any internal time ownership when explicitly paused.
         rebaseTime();
         decks[cmd.deck].pause();
         return;
@@ -216,6 +307,7 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
       disposed = true;
       lastState = undefined;
       timeSource = 'video';
+      stopPauseTimer();
 
       for (const d of disposers) d();
       disposers.clear();
@@ -260,9 +352,8 @@ function mapVTimeToDeckSecond(state: State, vTime: t.Msecs): t.Secs {
  * Map deck-local media seconds → GLOBAL virtual time (vTime).
  *
  * Assumption (by design):
- * - During pause windows, higher-layer orchestration keeps media paused, so deck seconds do not
- *   advance through virtual pauses. Therefore: seconds map only into beat.duration spans, while
- *   beat.pause is represented only in vTime space.
+ * - Pauses exist in vTime but NOT in media time.
+ * - During pause windows, the driver pauses media and owns vTime via a monotonic timer.
  */
 function mapDeckSecondToVTime(state: State, second: t.Secs): t.Msecs {
   const timeline = state.timeline;
