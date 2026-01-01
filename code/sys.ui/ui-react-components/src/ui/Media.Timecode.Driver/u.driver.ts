@@ -1,4 +1,4 @@
-import { type t, Num, Signal } from './common.ts';
+import { type t, Num, Signal, D } from './common.ts';
 
 /** Driver time authority: video time, ended suppression, and pause-window monotonic timer authority. */
 type TimeSource = 'video' | 'suppressed-ended' | 'pause-timer';
@@ -252,7 +252,7 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
 
         if (!media) {
           const isActive = state.decks.active === cmd.deck;
-          const message = `Media.Timecode.Driver: missing media for beat=${cmd.beat} deck=${cmd.deck}`;
+          const message = `${D.name}: missing media for beat=${cmd.beat} deck=${cmd.deck}`;
           if (isActive) {
             args.dispatch({ kind: 'runner:error', message });
           } else {
