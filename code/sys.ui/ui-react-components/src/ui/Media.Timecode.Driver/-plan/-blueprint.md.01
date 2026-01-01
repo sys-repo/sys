@@ -1,0 +1,82 @@
+VirutalClock
+
+“You are in conformance review mode: treat the plan as closed, do not add ideas, bullets, invariants, or scope; only check for internal inconsistency, incompleteness that blocks implementation, or contradictions with already-locked upstream contracts — and report nothing unless one of those strictly applies.”
+
+## A — State machine surface (reducer + cmds/events contract)
+
+- Only `video:time(vTime)` may auto-advance `currentBeat`; everything else is a discrete jump (`init/seek/next/prev/ended`).
+- On discrete jumps, reducer sets `currentBeat` + `vTime` and emits descriptive cmds: `deck:load`, `deck:seek`, and (if intent is play) `deck:play`.
+- Segment boundaries are keyed by `beat.segmentId`; crossing boundary swaps decks and re-bases active media.
+- `video:ended` on the active deck is treated as authoritative: jump to next segment’s `beat.from`, or enter terminal `phase:'ended'`.
+- Hardening: treat “definition too short / media ends early” as a first-class case → `video:ended` must win, and the machine must rearm cleanly on next user action.
+
+===========
+
+## B — Clock driver (what consumes A and produces inputs)
+
+### Blueprint
+
+- When intent is play and not in a pause window: drive `vTime` from the active deck’s `<video>` observed time (signals) → emit `video:time`.
+- When in a pause window: keep `<video>` paused and drive `vTime` with an internal monotonic timer → emit `video:time`.
+- Obey reducer cmds (cmd-complete) and keep mapping consistent across deck swaps and discrete jumps.
+- Never invent progression past real media end: if `<video>` emits `ended` early, forward `video:ended` and let reducer decide next/terminal.
+- **Gating: exactly one authoritative time source; after `video:ended(active)`, suppress all `video:time` until rebase (post `load/seek/swap`), then resume from the new active source.**
+- B must be cmd-complete: B’s imperative runtime surface must be able to execute every cmd emitted by A’s Playback.reduce (the cmd union defined under m.playback/t.protocol.effect.ts → t.ts).
+- B never computes beats/segments; it only forwards observations and executes A’s cmds (cmd-complete), with a single time-authority latch and post-ended suppression until cmd-based rebase.
+- Missing media is an author-failure: if resolveBeatMedia(activeBeat) returns undefined when executing cmd:deck:load, emit runner:error and suppress all video:time until rebase; missing standby preload is skipped (logged) and becomes fatal only when that segment is activated.
+
+====
+
+- ## C — Driver pause-window handling (Clamp + Latch, no timer)
+  - C1. Pause window definition (authoritative)
+    - Compute pause using beat.vTime → nextBeat.vTime delta (NOT beat.duration):
+      - totalSpan = nextBeat.vTime - beat.vTime (fallback: virtualDuration)
+      - mediaSpan = totalSpan - beat.pause
+      - pauseFrom = beat.vTime + mediaSpan
+      - pauseTo = pauseFrom + beat.pause
+  - C2. Clamp rule (prevent “skip over pause”)
+    - On active deck currentTime tick:
+      - map secs → vTime
+      - if intent==='play' and prevState.vTime < pauseTo and mappedVTime >= pauseTo:
+        - emit video:time(deck, pauseFrom)
+  - C3. Latch suppression (hold stable while paused)
+    - After clamp: suppress further currentTime→video:time until explicit rebase
+    - endedTick→video:ended still allowed while suppressed
+  - C4. Rebase points (resume video authority)
+    - Any of these cmds clears suppression:
+      - cmd:deck:load, cmd:deck:seek, cmd:swap-decks, cmd:deck:play, cmd:deck:pause
+  - C5. Tests (exactly these)
+    - clamp: big currentTime jump emits vTime=pauseFrom
+    - suppress: further currentTime changes emit nothing until cmd rebase
+    - guard: inactive deck never emits; endedTick only from active
+
+### Quality Discipline / Implemetation Constraint-rules:
+
+- Bridge-only.
+- Explicit tiny driver state.
+- One invariant → one test → one change.
+
+Expanded:
+
+1. Single responsibility: B is only a bridge between (a) reducer surface A and (b) runtime video/timer signals + imperative deck ops. No extra policy, no hidden state-machine.
+2. Small algebra + explicit state: B is implemented as a tiny, typed set of explicit driver states and transitions. No emergent behavior, no “smart” inference, no cross-file distributed logic.
+3. Prove-by-invariants: each new behavior is introduced as one atomic invariant + one focused test. No batch features. No patch layering. If it can’t be tested crisply, it doesn’t ship.
+4. WE DO NOT drift from this plan wihtout first clarigying and updating the plan. GOAL ONE above all else is that we avoid drift.
+
+- ## Drift Lock / Scope Integrity Gate (Use this before proposing ANY “next step”)
+  - You MUST treat the current plan as closed.
+  - You MUST NOT:
+    - add a “later”, “defer”, “future option”, “we can revisit”, “adjacent layer”, or “orchestrator” unless the plan already contains it
+    - reinterpret a plan clause into a different implementation shape (“timer” → “clamp+latch”) without explicitly labeling it as a PLAN CHANGE
+    - recommend documentation updates as a substitute for completing the plan’s stated behavior
+  - When you notice the implementation differs from the plan, you MUST do exactly ONE of these two moves:
+    - (A) Conformance path: state “No plan change required” AND show how the current behavior satisfies the exact plan bullets (quote the exact bullets and map them 1:1).
+    - (B) Plan-change path: state “PLAN CHANGE REQUIRED” AND provide a minimal diff:
+      - “Remove:” (exact bullet(s) to delete)
+      - “Add:” (exact bullet(s) to add)
+      - “Reason:” (one sentence, no extra ideas)
+  - You MUST NOT claim we are “adhering to the plan” if you are taking path (B).
+  - Output format constraint:
+    - Maximum 12 lines.
+    - Only tick marks (no paragraphs).
+    - Use explicit labels: CONFORMANCE or PLAN CHANGE REQUIRED.
