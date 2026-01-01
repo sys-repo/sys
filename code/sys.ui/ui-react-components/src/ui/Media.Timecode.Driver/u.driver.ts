@@ -1,12 +1,79 @@
-import { type t, Num } from './common.ts';
+import { type t, Num, Signal } from './common.ts';
+
+type TimeSource = 'video' | 'suppressed-ended';
 
 export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.PlaybackDriver {
   const { decks, resolveBeatMedia } = args;
+
   let disposed = false;
+  let lastState: t.TimecodeState.Playback.State | undefined;
+  let timeSource: TimeSource = 'video';
+  const disposers = new Set<() => void>();
+
+  const rebaseTime = () => (timeSource = 'video');
+  const suppressTimeAfterEnded = () => (timeSource = 'suppressed-ended');
 
   const warn = (...a: unknown[]) => {
     if (args.log) console.warn(...a);
   };
+
+  const observeDeck = (deck: t.TimecodeState.Playback.DeckId) => {
+    // endedTick → video:ended (monotonic marker)
+    let lastEndedTick: number | undefined;
+
+    disposers.add(
+      Signal.effect(() => {
+        const tick = decks[deck].props.endedTick.value;
+
+        // First run: establish baseline, do not emit.
+        if (lastEndedTick === undefined) {
+          lastEndedTick = tick;
+          return;
+        }
+
+        if (tick === lastEndedTick) return;
+        lastEndedTick = tick;
+
+        const state = lastState;
+        if (!state) return;
+        if (state.decks.active !== deck) return;
+
+        args.dispatch({ kind: 'video:ended', deck });
+        suppressTimeAfterEnded();
+      }),
+    );
+
+    // currentTime → video:time (runner emits vTime, not source time)
+    let lastSecs: number | undefined;
+
+    disposers.add(
+      Signal.effect(() => {
+        const raw = Number(decks[deck].props.currentTime.value);
+        const secs = Number.isFinite(raw) ? (Math.max(0, raw) as t.Secs) : (0 as t.Secs);
+
+        // First run: establish baseline, do not emit.
+        if (lastSecs === undefined) {
+          lastSecs = Number(secs);
+          return;
+        }
+
+        if (Object.is(lastSecs, Number(secs))) return;
+        lastSecs = Number(secs);
+
+        const state = lastState;
+        if (!state) return;
+        if (state.decks.active !== deck) return;
+        if (!state.timeline) return;
+        if (timeSource === 'suppressed-ended') return;
+
+        const vTime = mapDeckSecondToVTime(state, secs);
+        args.dispatch({ kind: 'video:time', deck, vTime });
+      }),
+    );
+  };
+
+  observeDeck('A');
+  observeDeck('B');
 
   const exec = (cmd: t.TimecodeState.Playback.Cmd, state: t.TimecodeState.Playback.State) => {
     if (disposed) return;
@@ -22,11 +89,13 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
       }
 
       case 'cmd:swap-decks': {
-        // Descriptive marker only; this driver does not maintain deck-routing state.
+        // Rebase time authority after swap (unlatch time suppression).
+        rebaseTime();
         return;
       }
 
       case 'cmd:deck:load': {
+        rebaseTime();
         const signals = decks[cmd.deck];
         const media = resolveBeatMedia(cmd.beat);
 
@@ -60,6 +129,10 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
       }
 
       case 'cmd:deck:seek': {
+        // 🌸🌸 ---------- ADDED: rebase-after-seek ----------
+        rebaseTime();
+        // 🌸 ---------- /ADDED ----------
+
         const signals = decks[cmd.deck];
         const second = mapVTimeToDeckSecond(state, cmd.vTime);
 
@@ -73,14 +146,17 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
   const api: t.PlaybackDriver = {
     apply(update) {
       if (disposed) return;
-
-      for (const cmd of update.cmds) {
-        exec(cmd, update.state);
-      }
+      lastState = update.state;
+      for (const cmd of update.cmds) exec(cmd, update.state);
     },
 
     dispose(_reason) {
       disposed = true;
+      lastState = undefined;
+      timeSource = 'video';
+
+      for (const d of disposers) d();
+      disposers.clear();
     },
   };
 
@@ -116,6 +192,60 @@ function mapVTimeToDeckSecond(state: t.TimecodeState.Playback.State, vTime: t.Ms
   ms += within;
 
   return (ms / 1000) as t.Secs;
+}
+
+/**
+ * Map deck-local media seconds → GLOBAL virtual time (vTime).
+ *
+ * Assumption (by design):
+ * - During pause windows, the driver will keep media paused, so deck seconds do not
+ *   advance through virtual pauses. Therefore: seconds map only into beat.duration
+ *   spans, while beat.pause is represented only in vTime space.
+ */
+function mapDeckSecondToVTime(state: t.TimecodeState.Playback.State, second: t.Secs): t.Msecs {
+  const timeline = state.timeline;
+  if (!timeline) return 0;
+  if (timeline.beats.length === 0) return 0;
+
+  const beatIndex = state.currentBeat;
+  if (beatIndex == null) return 0;
+
+  const seg = segmentFromBeatIndex(timeline, beatIndex);
+  const from = seg?.beat.from ?? 0;
+  const to = seg?.beat.to ?? timeline.beats.length;
+
+  let ms = Number(second) * 1000;
+
+  for (let i = from; i < to; i++) {
+    const beat = timeline.beats[i];
+    if (!beat) break;
+
+    const dur = Number(beat.duration);
+    if (ms < dur) return Number(beat.vTime) + ms;
+    ms -= dur;
+  }
+
+  const lastIx = Math.max(0, Number(to) - 1);
+  const last = timeline.beats[lastIx];
+  if (!last) return 0;
+
+  const end = Number(last.vTime) + Number(last.duration) + Number(last.pause ?? 0);
+  return Math.max(Number(last.vTime), end - 1);
+}
+
+function segmentFromBeatIndex(
+  timeline: t.TimecodeState.Playback.Timeline,
+  beatIndex: t.TimecodeState.Playback.BeatIndex,
+): t.TimecodeState.Playback.Timeline['segments'][number] | undefined {
+  const beat = timeline.beats[beatIndex];
+  const segId = beat?.segmentId;
+
+  if (segId) {
+    const byId = timeline.segments.find((s) => s.id === segId);
+    if (byId) return byId;
+  }
+
+  return timeline.segments.find((s) => s.beat.from <= beatIndex && beatIndex < s.beat.to);
 }
 
 /**
@@ -164,5 +294,5 @@ function segmentStartBeatIndex(
   const byRange = segments.findIndex((s) => s.beat.from <= beatIndex && beatIndex < s.beat.to);
   if (byRange >= 0) return segments[byRange]!.beat.from;
 
-  return 0 as t.TimecodeState.Playback.BeatIndex;
+  return 0;
 }
