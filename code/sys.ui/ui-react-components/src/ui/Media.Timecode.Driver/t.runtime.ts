@@ -22,6 +22,10 @@ export type ResolveBeatMedia = (
   beat: t.TimecodeState.Playback.BeatIndex,
 ) => { readonly src: string; readonly slice?: t.Timecode.Slice.String | string } | undefined;
 
+/**
+ * Bridge driver: executes reducer commands and emits reducer inputs.
+ */
+export type PlaybackDriver = t.DisposableLike & {
   /** Apply a reducer update (state + cmds/events). */
   apply(update: t.TimecodeState.Playback.Update): void;
 };
