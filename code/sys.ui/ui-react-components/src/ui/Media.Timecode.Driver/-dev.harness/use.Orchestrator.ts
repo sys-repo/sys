@@ -1,6 +1,20 @@
 import React from 'react';
 import type { t } from './common.ts';
 
+type Args = {
+  readonly bundle?: t.SpecTimelineBundle;
+  readonly video?: t.VideoDeckRuntimeArgs;
+  readonly docid?: string;
+  readonly timeline?: t.Timecode.Experience.Timeline;
+  readonly startBeat?: t.TimecodeState.Playback.BeatIndex;
+};
+
+type Result = {
+  readonly controller: t.TimelineController;
+  readonly snapshot: t.PlaybackRunnerState;
+  readonly selectedIndex?: t.TimecodeState.Playback.BeatIndex;
+};
+
 /**
  * Driver Harness Orchestrator (stub).
  *
@@ -13,9 +27,7 @@ import type { t } from './common.ts';
  * - usePlaybackDriver(...)
  * and then become glue-only, per the plan.
  */
-export function useOrchestrator(
-  _args: t.MediaTimeline.Orchestrator.Args,
-): t.MediaTimeline.Orchestrator.Result {
+export function useOrchestrator(_args: Args): Result {
   const controller = React.useMemo<t.TimelineController>(() => {
     return {
       init: () => {},

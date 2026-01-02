@@ -6,7 +6,7 @@ import type { t } from '../common.ts';
  * This is produced by loaders and consumed by the Timeline domain layer.
  */
 export type SpecTimelineBundle<P = unknown> = {
-  readonly docid: t.StringId;
+  readonly id: t.StringId;
   readonly spec: t.Timecode.Playback.Spec<P>;
   readonly resolveMedia: t.MediaResolver;
 };

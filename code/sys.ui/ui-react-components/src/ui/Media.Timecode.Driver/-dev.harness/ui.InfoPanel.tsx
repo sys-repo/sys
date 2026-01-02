@@ -1,10 +1,11 @@
+import type { HarnessProps } from './t.ts';
+
 import React from 'react';
-import { useTimeline } from './use.Timeline.ts';
 import { type t, Color, css, dur, KeyValue, ObjectView, Str } from './common.ts';
 import { toIssueItems } from './ui.InfoPanel.issues.tsx';
+import { useTimeline } from './use.Timeline.ts';
 
-type P = t.MediaTimeline.Dev.Harness.Props;
-type L = NonNullable<P['layout']>;
+type L = NonNullable<HarnessProps['layout']>;
 
 export type InfoPanelProps = {
   layout?: L['infopanel'];

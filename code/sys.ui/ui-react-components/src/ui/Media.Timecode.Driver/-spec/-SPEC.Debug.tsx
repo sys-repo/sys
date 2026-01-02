@@ -1,3 +1,5 @@
+import type { HarnessProps } from '../-dev.harness/t.ts';
+
 import React from 'react';
 import {
   type t,
@@ -15,7 +17,7 @@ import {
 import { Sample } from './u.loader.ts';
 import { LoadTimelinePanel } from './ui.LoadTimelinePanel.tsx';
 
-type P = t.MediaTimeline.Dev.Harness.Props;
+type P = HarnessProps;
 type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId; baseUrl?: t.StringUrl };
 const defaults: Storage = {
   debug: false,
@@ -46,7 +48,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     docid: s(snap.docid),
     baseUrl: s(snap.baseUrl),
-    bundle: s<t.LegacySpecTimelineBundle>(),
+    bundle: s<t.SpecTimelineBundle>(),
     controller: s<t.TimelineController>(),
   };
   const p = props;

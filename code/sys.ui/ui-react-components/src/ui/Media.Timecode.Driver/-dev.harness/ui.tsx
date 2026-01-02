@@ -1,23 +1,10 @@
-import React from 'react';
+import type { HarnessProps } from './t.ts';
 
+import React from 'react';
 import { type t } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
 import { useOrchestrator } from './use.Orchestrator.ts';
 import { useTimeline } from './use.Timeline.ts';
-
-/**
- * Component:
- */
-export type HarnessProps = {
-  debug?: boolean;
-  video?: { A: t.VideoPlayerSignals; B: t.VideoPlayerSignals };
-  bundle?: t.SpecTimelineBundle;
-  docid?: t.StringId;
-  layout?: { infopanel?: { bottom?: t.ReactNode } };
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-  onReady?: (e: { readonly controller: t.TimelineController }) => void;
-};
 
 export const Harness: React.FC<HarnessProps> = (props) => {
   const { debug = false, bundle, docid, video } = props;

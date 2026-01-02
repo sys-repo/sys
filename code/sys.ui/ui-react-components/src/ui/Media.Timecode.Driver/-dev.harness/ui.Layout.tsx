@@ -1,11 +1,12 @@
+import type { HarnessProps } from './t.ts';
+
 import React from 'react';
 import { Color, css, type t } from './common.ts';
 import { Grid, type GridActivePhase, type SelectIndexHandler } from './ui.Grid.tsx';
 import { InfoPanel } from './ui.InfoPanel.tsx';
 import { Video } from './ui.Video.tsx';
 
-type P = t.MediaTimeline.Dev.Harness.Props;
-type LayoutProps = Pick<P, 'video' | 'bundle' | 'docid' | 'layout'> & {
+type LayoutProps = Pick<HarnessProps, 'video' | 'bundle' | 'docid' | 'layout'> & {
   /** Presence */
   hasBundle: boolean;
 
