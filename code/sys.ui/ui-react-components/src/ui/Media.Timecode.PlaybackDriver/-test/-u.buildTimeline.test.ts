@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import type { t } from '../common.ts';
-import { buildPlaybackTimeline } from '../u.playback.buildTimeline.ts';
+import { buildPlaybackTimeline } from '../u.buildTimeline.ts';
 
 describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
   type Payload = { readonly k: string };

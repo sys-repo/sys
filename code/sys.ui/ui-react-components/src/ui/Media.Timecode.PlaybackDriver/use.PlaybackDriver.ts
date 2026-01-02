@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useReducer } from 'react';
 
 import { type t } from './common.ts';
-import { createController } from './u.playback.controller.ts';
-import { createDriver } from './u.playback.driver.ts';
+import { createController } from './u.controller.ts';
+import { createDriver } from './u.driver.ts';
 
 type Machine = t.TimecodeState.Playback.Lib;
 type Input = t.TimecodeState.Playback.Input;
