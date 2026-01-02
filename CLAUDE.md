@@ -78,7 +78,7 @@ No invented convenience layers. No divergence from runtime truth.
 @sys/event            → event algebra, stream semantics (incl. bus)
 @sys/event/cmd        → command algebra, unary + streaming commands
 @sys/immutable        → immutable state primitives + traits
-@sys/schema           → JSONSchema, strongy typed runtime schema validation (Standard Schema)
+@sys/schema           → JSONSchema, strongly typed runtime schema validation (Standard Schema)
 @sys/tools/*          → CLI tools (local-first, interactive when needed)
 @sys/ui-*             → System UI namespace
 @sys/ui-state/*       → pure UI state machines and reducers
@@ -139,6 +139,31 @@ Prefer shallow folders. Organize by semantic domain, not deployment target.
 - `mod.ts` is stable and boring — never a scratchpad
 - Excess `m.*` files indicate unclear concepts
 - Excess `u.*` files indicate naming avoidance
+
+---
+
+## Types plane (cycle-safe) convention
+We treat TypeScript types as a separate "contract plane" to avoid fragile ESM runtime import cycles and to keep public surfaces explicit.
+
+### Rules
+- All public types live in `t.ts` and `t.*.ts` (module-local type files).
+- `src/types.ts` (exported as `./t` in `deno.json`) re-exports all public types for the package.
+- All runtime modules import types via the package type pool (typically through `common.ts`), e.g. `import type { t } from "../common.ts"`.
+- Do not import types by reaching into runtime modules.
+- Submodules may add their own local `common.ts` convenience aggregator when needed.
+
+### Containment rule
+- If an internal-only area needs to stay out of the shared type pool, keep its extra types/exports out of:
+  - `src/types.ts` (package-wide `./t`)
+  - the root `common.ts` pool
+- In that case, use a local `common.ts` within the internal area and import its types from there.
+
+### Hard invariant
+- No runtime in the type plane.
+  - `t.ts` / `t.*.ts` must not export values or import runtime modules (no side effects, no convenience re-exports).
+
+### Deno exports
+- Each package exports `./t` (and `./types`) → `./src/types.ts` so the contract plane is a stable import target.
 
 ---
 
