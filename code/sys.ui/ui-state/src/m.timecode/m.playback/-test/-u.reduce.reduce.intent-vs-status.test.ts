@@ -103,4 +103,28 @@ describe('Playback.reduce — intent vs status', () => {
     const s7 = Playback.reduce(s6, { kind: 'video:ended', deck: s6.decks.active }).state;
     expect(s7.intent).to.eql('stop');
   });
+
+  it('toggle flips intent (stop/pause → play; play → pause) and does not imply deck status', () => {
+    const init = Playback.reduce(emptyState(), { kind: 'playback:init', timeline: timeline() });
+    const s0 = init.state;
+    const baseStatus = s0.decks.status[s0.decks.active];
+
+    // stop → play
+    const a = Playback.reduce(s0, { kind: 'playback:toggle' });
+    expect(a.state.intent).to.eql('play');
+    expect(a.state.decks.status[a.state.decks.active]).to.eql(baseStatus);
+    expect(a.cmds.some((c) => c.kind === 'cmd:deck:play')).to.eql(true);
+
+    // play → pause
+    const b = Playback.reduce(a.state, { kind: 'playback:toggle' });
+    expect(b.state.intent).to.eql('pause');
+    expect(b.state.decks.status[b.state.decks.active]).to.eql(baseStatus);
+    expect(b.cmds.some((c) => c.kind === 'cmd:deck:pause')).to.eql(true);
+
+    // pause → play
+    const c = Playback.reduce(b.state, { kind: 'playback:toggle' });
+    expect(c.state.intent).to.eql('play');
+    expect(c.state.decks.status[c.state.decks.active]).to.eql(baseStatus);
+    expect(c.cmds.some((c2) => c2.kind === 'cmd:deck:play')).to.eql(true);
+  });
 });

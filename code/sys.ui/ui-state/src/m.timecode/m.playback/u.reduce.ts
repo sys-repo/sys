@@ -223,6 +223,21 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       return { state, cmds, events };
     }
 
+    case 'playback:toggle': {
+      if (!ensureTimeline()) return { state, cmds, events };
+
+      if (state.intent === 'play') {
+        setIntent('pause');
+        cmds.push({ kind: 'cmd:deck:pause', deck: state.decks.active });
+        return { state, cmds, events };
+      }
+
+      rearmIfEnded();
+      setIntent('play');
+      cmds.push({ kind: 'cmd:deck:play', deck: state.decks.active });
+      return { state, cmds, events };
+    }
+
     case 'playback:stop': {
       if (!ensureTimeline()) return { state, cmds, events };
       setIntent('stop');

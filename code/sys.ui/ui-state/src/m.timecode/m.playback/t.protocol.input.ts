@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+type Index = t.PlaybackBeatIndex;
+type Timeline = t.PlaybackTimeline;
+
 /**
  * Playback inputs.
  *
@@ -18,15 +21,12 @@ export type PlaybackInput = PlaybackAction | PlaybackSignal;
  * Intentional inputs originating from UI or higher-level controllers.
  */
 export type PlaybackAction =
-  | {
-      readonly kind: 'playback:init';
-      readonly timeline: t.PlaybackTimeline;
-      readonly startBeat?: t.PlaybackBeatIndex;
-    }
+  | { readonly kind: 'playback:init'; readonly timeline: Timeline; readonly startBeat?: Index }
   | { readonly kind: 'playback:play' }
   | { readonly kind: 'playback:pause' }
+  | { readonly kind: 'playback:toggle' }
   | { readonly kind: 'playback:stop' }
-  | { readonly kind: 'playback:seek:beat'; readonly beat: t.PlaybackBeatIndex }
+  | { readonly kind: 'playback:seek:beat'; readonly beat: Index }
   | { readonly kind: 'playback:next' }
   | { readonly kind: 'playback:prev' };
 
