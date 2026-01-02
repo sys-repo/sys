@@ -43,7 +43,8 @@ export const SpecsComponents = {
   [`${ns}: Player.YouTube`]: () => import('../ui/Player.YouTube/-spec/-SPEC.tsx'),
 
   [`${ns}.media: Recorder`]: () => import('../ui/Media.Recorder/-spec/-SPEC.tsx'),
-  [`${ns}.media: Timecode.Driver`]: () => import('../ui/Media.Timecode.Driver/-spec/-SPEC.tsx'),
+  [`${ns}.media: Timecode.Driver.Playback`]: () =>
+    import('../ui/Media.Timecode.Driver.Playback/-spec/-SPEC.tsx'),
   [`${ns}.media: Timecode.Timeline 🐷`]: () =>
     import('../ui/Media.Timecode.Timeline/-spec/-SPEC.tsx'),
   [`${ns}.media: Timecode.Playback.Runtime → Timeline 🐷`]: () =>
