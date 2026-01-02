@@ -5,7 +5,7 @@ type Args = {
   readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   readonly video?: t.VideoDeckRuntimeArgs;
   readonly docid?: t.StringId;
-  readonly timeline?: t.Timecode.Experience.Timeline;
+  readonly playback?: t.TimecodeState.Playback.Timeline;
   readonly startBeat?: t.TimecodeState.Playback.BeatIndex;
 };
 
@@ -16,16 +16,17 @@ type Result = {
 };
 
 /**
- * Driver Harness Orchestrator (stub).
+ * Driver Harness Orchestrator.
  *
- * 🌸
- * This file is intentionally a "dead shell" used to stand up the harness UI
- * awaiting completion of the driver parts.
+ * Glue layer between the PlaybackDriver and the harness UI.
  *
- * It will be brought to life by:
- * - buildPlaybackTimeline(...)
- * - usePlaybackDriver(...)
- * and then become glue-only, per the plan.
+ * Responsibilities:
+ * - Accepts pure playback timeline + bundle/runtime inputs
+ * - Wires the driver lifecycle to React
+ * - Exposes controller, snapshot, and selected index for UI consumption
+ *
+ * This layer contains no playback logic; it only binds stateful driver
+ * behavior to declarative UI surfaces.
  */
 export function useOrchestrator(_args: Args): Result {
   const controller = React.useMemo<t.TimecodePlaybackDriver.TimelineController>(() => {

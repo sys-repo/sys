@@ -1,7 +1,8 @@
 import { type t, Time } from '../../common.ts';
 
-/** Libs: */
+/** Lib: */
 export * from '../../common.ts';
+export { usePlaybackTimeline } from '../../use.PlaybackTimeline.ts';
 
 /** Components: */
 export { Bullet } from '../../../Bullet/mod.ts';

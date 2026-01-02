@@ -13,4 +13,9 @@ export type TimecodePlaybackDriverLib = {
 
   /** React integration hook (owns reducer + driver lifecycle). */
   useDriver(args: H.UsePlaybackDriverArgs): H.UsePlaybackDriverResult;
+
+  /** Pure projection hook from playback spec to timeline representations. */
+  usePlaybackTimeline<P = unknown>(
+    args: H.UsePlaybackTimelineArgs<P>,
+  ): H.UsePlaybackTimelineResult<P>;
 };

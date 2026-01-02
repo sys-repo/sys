@@ -1,21 +1,21 @@
+import React from 'react';
 import type { HarnessProps } from './t.ts';
 
-import React from 'react';
-import { type t } from './common.ts';
+import { type t, usePlaybackTimeline } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
 import { useOrchestrator } from './use.Orchestrator.ts';
-import { useTimeline } from './use.Timeline.ts';
 
 type TimelineController = t.TimecodePlaybackDriver.TimelineController;
 
 export const Harness: React.FC<HarnessProps> = (props) => {
   const { debug = false, bundle, docid, video } = props;
+  const spec = bundle?.spec;
   const hasBundle = !!bundle;
 
   /**
    * Timeline data (pure).
    */
-  const { timeline } = useTimeline(bundle?.spec);
+  const { playback, experience } = usePlaybackTimeline({ spec });
 
   /**
    * Keep onReady stable (avoid render-feedback loops).
@@ -31,14 +31,14 @@ export const Harness: React.FC<HarnessProps> = (props) => {
     bundle,
     video,
     docid,
-    timeline,
+    playback,
     startBeat: 0,
   });
 
   /**
    * UI-only derived values.
    */
-  const beat = selectedIndex != null && timeline ? timeline.beats[selectedIndex] : undefined;
+  const beat = selectedIndex != null && experience ? experience.beats[selectedIndex] : undefined;
 
   /**
    * Active phase of the selected beat derived from authoritative vTime.
@@ -47,17 +47,17 @@ export const Harness: React.FC<HarnessProps> = (props) => {
    * - null when inputs are missing
    */
   const activePhase = React.useMemo((): 'media' | 'pause' | null => {
-    if (!timeline || !snapshot) return null;
+    if (!playback || !snapshot) return null;
     if (selectedIndex == null) return null;
 
     const vTime = snapshot.state.vTime;
     if (vTime == null) return null;
 
-    const b = timeline.beats[selectedIndex];
+    const b = playback.beats[selectedIndex];
     if (!b) return null;
 
-    const next = timeline.beats[selectedIndex + 1];
-    const totalSpanMs = next ? next.vTime - b.vTime : timeline.duration - b.vTime;
+    const next = playback.beats[selectedIndex + 1];
+    const totalSpanMs = next ? next.vTime - b.vTime : playback.virtualDuration - b.vTime;
 
     const pauseMs = b.pause ?? 0;
     const mediaSpanMs = Math.max(0, totalSpanMs - pauseMs);
@@ -67,7 +67,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
 
     if (pauseMs > 0 && vTime >= pauseFrom && vTime < pauseTo) return 'pause';
     return 'media';
-  }, [snapshot?.state.vTime, timeline, selectedIndex]);
+  }, [snapshot?.state.vTime, playback, selectedIndex]);
 
   /**
    * Fire onReady once per controller instance.

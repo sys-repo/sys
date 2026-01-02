@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Bullet, Color, css, dur, Icons, Timecode } from './common.ts';
-import { useTimeline } from './use.Timeline.ts';
+import { type t, Bullet, Color, css, dur, Icons, Timecode, usePlaybackTimeline } from './common.ts';
 import { A } from './ui.A.tsx';
 
 export type GridProps = {
@@ -25,7 +24,8 @@ export type SelectIndex = { readonly index: t.TimecodeState.Playback.BeatIndex }
 
 export const Grid: React.FC<GridProps> = (props) => {
   const { bundle, selectedIndex } = props;
-  const { timeline } = useTimeline(bundle?.spec);
+  const spec = bundle?.spec;
+  const { experience } = usePlaybackTimeline({ spec });
 
   /**
    * Render:
@@ -155,11 +155,10 @@ export const Grid: React.FC<GridProps> = (props) => {
    * Derive row model.
    */
   const rows = React.useMemo(() => {
-    if (!bundle || !timeline) return [];
-
+    if (!bundle || !experience) return [];
     let lastMediaLabel: string | undefined;
 
-    return timeline.beats.map((beat, index) => {
+    return experience.beats.map((beat, index) => {
       const logicalPath = beat.src.ref;
       const mediaLabel = logicalPath.split('/').pop() || logicalPath;
       const isRepeat = mediaLabel === lastMediaLabel;
@@ -176,8 +175,8 @@ export const Grid: React.FC<GridProps> = (props) => {
        * - mediaSpan = totalSpan - pause
        * - pause = tail-time inside totalSpan
        */
-      const next = timeline.beats[index + 1];
-      const totalSpanMs = next ? next.vTime - beat.vTime : timeline.duration - beat.vTime;
+      const next = experience.beats[index + 1];
+      const totalSpanMs = next ? next.vTime - beat.vTime : experience.duration - beat.vTime;
       const pauseMs = beat.pause ?? 0;
       const mediaSpanMs = Math.max(0, totalSpanMs - pauseMs);
 
@@ -195,7 +194,7 @@ export const Grid: React.FC<GridProps> = (props) => {
         url,
       };
     });
-  }, [bundle, timeline]);
+  }, [bundle, experience]);
 
   /**
    * Build row elements:

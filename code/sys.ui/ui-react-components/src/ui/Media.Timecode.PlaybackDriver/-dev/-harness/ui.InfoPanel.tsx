@@ -1,9 +1,17 @@
 import type { HarnessProps } from './t.ts';
 
 import React from 'react';
-import { type t, Color, css, dur, KeyValue, ObjectView, Str } from './common.ts';
+import {
+  type t,
+  Color,
+  css,
+  dur,
+  KeyValue,
+  ObjectView,
+  Str,
+  usePlaybackTimeline,
+} from './common.ts';
 import { toIssueItems } from './ui.InfoPanel.issues.tsx';
-import { useTimeline } from './use.Timeline.ts';
 
 type L = NonNullable<HarnessProps['layout']>;
 
@@ -24,23 +32,24 @@ export type InfoPanelProps = {
  */
 export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const { debug = false, bundle, docid, layout = {} } = props;
+  const spec = bundle?.spec;
 
   /**
    * Hooks:
    */
-  const { timeline, resolved } = useTimeline(bundle?.spec);
-  if (!timeline) return null;
+  const { experience, resolved } = usePlaybackTimeline({ spec });
+  if (!experience) return null;
   if (!bundle) return null;
 
   const total = {
     segments: bundle.spec.composition.length,
-    beats: timeline.beats.length,
-    duration: dur(timeline.duration),
-  };
+    beats: experience.beats.length,
+    duration: dur(experience.duration),
+  } as const;
   const plural = {
     segments: Str.plural(total.segments, 'segment', 'segments'),
     beats: Str.plural(total.beats, 'beat', 'beats'),
-  };
+  } as const;
   const size = `${total.segments} ${plural.segments} → ${total.beats} ${plural.beats}`;
 
   /**
@@ -56,9 +65,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   hr();
   add({ k: 'Composition', v: total.beats === 0 ? '-' : size });
   add({ k: 'Virtual Duration', v: total.duration });
-  if (props.index !== undefined) {
-    add({ k: 'Current Beat', v: props.index + 1 });
-  }
+  if (props.index !== undefined) add({ k: 'Current Beat', v: props.index + 1 });
   items.push(...toIssueItems(resolved));
 
   /**
