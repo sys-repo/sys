@@ -5,13 +5,13 @@ import type * as R from './t.runtime.ts';
  * Timecode Driver
  */
 export type TimecodeDriverLib = {
-  readonly Playback: t.TimecodeDriverPlaybackLib;
+  readonly Playback: t.TimecodePlaybackDriverLib;
 };
 
 /**
  * Playback boundary: connects the playback state machine to real video playback.
  */
-export type TimecodeDriverPlaybackLib = {
+export type TimecodePlaybackDriverLib = {
   /** Runtime bridge between reducer cmds/signals and the video decks. */
   driver(args: R.CreatePlaybackDriverArgs): R.PlaybackDriver;
 

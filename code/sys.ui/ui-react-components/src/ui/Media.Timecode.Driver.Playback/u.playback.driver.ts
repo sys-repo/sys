@@ -25,7 +25,7 @@ type PauseTimer = {
  * Executes playback cmds against deck signals, and observes deck signals to dispatch
  * playback inputs (video:time / video:ended), including pause-window + ended suppression.
  */
-export const createDriver: t.TimecodeDriverPlaybackLib['driver'] = (args) => {
+export const createDriver: t.TimecodePlaybackDriverLib['driver'] = (args) => {
   const { decks, resolveBeatMedia } = args;
 
   const schedule = args.schedule ?? {

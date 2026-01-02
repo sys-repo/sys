@@ -8,7 +8,7 @@ type Machine = t.TimecodeState.Playback.Lib;
 type Input = t.TimecodeState.Playback.Input;
 type Update = t.TimecodeState.Playback.Update;
 type State = t.TimecodeState.Playback.State;
-type CreateDriverArgs = Omit<Parameters<t.TimecodeDriverPlaybackLib['driver']>[0], 'dispatch'>;
+type CreateDriverArgs = Omit<Parameters<t.TimecodePlaybackDriverLib['driver']>[0], 'dispatch'>;
 
 export type UsePlaybackDriverArgs = CreateDriverArgs & {
   /**
@@ -24,7 +24,7 @@ export type UsePlaybackDriverArgs = CreateDriverArgs & {
 export type UsePlaybackDriverResult = {
   readonly state: State;
   readonly dispatch: (input: Input) => void;
-  readonly controller: ReturnType<t.TimecodeDriverPlaybackLib['controller']>;
+  readonly controller: ReturnType<t.TimecodePlaybackDriverLib['controller']>;
 };
 
 /**
