@@ -10,7 +10,7 @@
     - `beats[]`
     - real `segments[]` (no placeholder `[]`)
 
-- [ ] Add: `createTimelineController(dispatch)` (pure)
+- [x] Add: `createTimelineController(dispatch)` (pure)
   - Input: `(input: TimecodeState.Playback.Input) => void`
   - Output: `TimelineController` (init/play/pause/toggle/seekToBeat)
 
