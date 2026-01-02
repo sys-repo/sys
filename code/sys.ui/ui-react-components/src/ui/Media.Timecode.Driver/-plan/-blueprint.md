@@ -14,7 +14,7 @@
   - Input: `(input: TimecodeState.Playback.Input) => void`
   - Output: `TimelineController` (init/play/pause/toggle/seekToBeat)
 
-- [ ] Add: `usePlaybackDriver(...)` (React integration)
+- [x] Add: `usePlaybackDriver(...)` (React integration)
   - Owns: `state` via `useReducer(machine.reduce, machine.init)`
   - Owns: Driver lifecycle
   - Wires:
