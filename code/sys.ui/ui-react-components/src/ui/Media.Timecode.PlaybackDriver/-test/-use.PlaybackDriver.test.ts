@@ -2,7 +2,7 @@ import { describe, expect, it, act, renderHook, DomMock } from '../../../-test.t
 import { playerSignalsFactory } from '../../Player.Video.Signals/m.Signals.ts';
 
 import { type t } from '../common.ts';
-import { usePlaybackDriver } from '../use.PlaybackDriver.ts';
+import { PlaybackDriver } from '../mod.ts';
 import { makeDeterministicSchedule } from './u.fixture.u.deterministicSchedule.ts';
 
 describe('Media.Timecode.Driver: usePlaybackDriver', () => {
@@ -114,7 +114,7 @@ describe('Media.Timecode.Driver: usePlaybackDriver', () => {
     const timeline = makeTimeline();
 
     const { result, unmount } = renderHook(() =>
-      usePlaybackDriver({
+      PlaybackDriver.useDriver({
         machine,
         decks: { A, B },
         schedule,
@@ -156,7 +156,7 @@ describe('Media.Timecode.Driver: usePlaybackDriver', () => {
     const timeline = makeTimeline();
 
     const { result, unmount } = renderHook(() =>
-      usePlaybackDriver({
+      PlaybackDriver.useDriver({
         machine,
         decks: { A, B },
         schedule,
@@ -196,7 +196,7 @@ describe('Media.Timecode.Driver: usePlaybackDriver', () => {
 
     try {
       const { result, unmount } = renderHook(() =>
-        usePlaybackDriver({
+        PlaybackDriver.useDriver({
           machine,
           decks: { A, B },
           schedule,

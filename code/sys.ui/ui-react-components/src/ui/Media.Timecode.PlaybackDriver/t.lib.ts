@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type * as H from './t.hooks.ts';
 import type * as R from './t.runtime.ts';
 
 /**
@@ -9,5 +9,8 @@ export type TimecodePlaybackDriverLib = {
   create(args: R.CreatePlaybackDriverArgs): R.PlaybackDriver;
 
   /** UI control surface that emits playback actions. */
-  controller(dispatch: (input: t.TimecodeState.Playback.Input) => void): R.TimelineController;
+  controller(dispatch: R.TimelineControllerDispatch): R.TimelineController;
+
+  /** React integration hook (owns reducer + driver lifecycle). */
+  useDriver(args: H.UsePlaybackDriverArgs): H.UsePlaybackDriverResult;
 };

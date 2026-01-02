@@ -70,3 +70,4 @@ export type TimelineController = {
   readonly toggle: () => void;
   readonly seekToBeat: (beat: BeatIndex) => void;
 };
+export type TimelineControllerDispatch = (input: t.TimecodeState.Playback.Input) => void;

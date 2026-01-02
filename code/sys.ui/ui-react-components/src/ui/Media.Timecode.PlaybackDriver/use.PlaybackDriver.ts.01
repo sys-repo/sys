@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { type t } from './common.ts';
 import type { UsePlaybackDriverArgs, UsePlaybackDriverResult } from './t.hooks.ts';
 import { createController } from './u.controller.ts';
@@ -15,20 +14,21 @@ export const usePlaybackDriver = (args: UsePlaybackDriverArgs): UsePlaybackDrive
     (prev: Update, input: Input): Update => machine.reduce(prev.state, input),
     [machine],
   );
+  const [update, send] = React.useReducer(reducer, init, (args) => machine.init(args));
+  const dispatch = React.useCallback((input: Input) => send(input), [send]);
 
-  const [update, dispatch0] = React.useReducer(reducer, init, (initArg) => machine.init(initArg));
-
-  const dispatch = React.useCallback((input: Input) => dispatch0(input), [dispatch0]);
-
+  const controller = React.useMemo(() => createController(dispatch), [dispatch]);
   const driver = React.useMemo(
-    () => createDriver({ decks, resolveBeatMedia, schedule, log, dispatch }),
-    [decks, resolveBeatMedia, schedule, log, dispatch],
+    () => createDriver({ dispatch, decks, schedule, log, resolveBeatMedia }),
+    [dispatch, decks, schedule, log, resolveBeatMedia],
   );
 
   React.useEffect(() => void driver.apply(update), [driver, update]);
   React.useEffect(() => () => driver.dispose(), [driver]);
 
-  const controller = React.useMemo(() => createController(dispatch), [dispatch]);
-
-  return { state: update.state, dispatch, controller };
+  return {
+    state: update.state,
+    controller,
+    dispatch,
+  };
 };
