@@ -9,7 +9,7 @@ type L = NonNullable<P['layout']>;
 export type InfoPanelProps = {
   layout?: L['infopanel'];
   docid?: t.StringId;
-  bundle?: t.SpecTimelineBundle;
+  bundle?: t.LegacySpecTimelineBundle;
   beat?: t.Timecode.Experience.Beat;
   index?: t.Index;
   //

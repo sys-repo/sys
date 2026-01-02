@@ -5,7 +5,7 @@ import { A } from './ui.A.tsx';
 
 export type GridProps = {
   debug?: boolean;
-  bundle?: t.SpecTimelineBundle;
+  bundle?: t.LegacySpecTimelineBundle;
   selectedIndex?: t.Index;
   theme?: t.CommonTheme;
   style?: t.CssInput;

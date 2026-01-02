@@ -11,7 +11,7 @@ import { useOrchestrator } from './use.Orchestrator.ts';
 export type HarnessProps = {
   debug?: boolean;
   video?: { A: t.VideoPlayerSignals; B: t.VideoPlayerSignals };
-  bundle?: t.SpecTimelineBundle;
+  bundle?: t.LegacySpecTimelineBundle;
   docid?: t.StringId;
   layout?: { infopanel?: { bottom?: t.ReactNode } };
   theme?: t.CommonTheme;

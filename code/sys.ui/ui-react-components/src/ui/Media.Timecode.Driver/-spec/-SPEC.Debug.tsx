@@ -11,9 +11,9 @@ import {
   Player,
   Signal,
   Str,
-} from './-common.ts';
-import { Sample } from './-u.loader.ts';
-import { LoadTimelinePanel } from './-ui.LoadTimelinePanel.tsx';
+} from './common.ts';
+import { Sample } from './u.loader.ts';
+import { LoadTimelinePanel } from './ui.LoadTimelinePanel.tsx';
 
 type P = t.MediaTimeline.Dev.Harness.Props;
 type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId; baseUrl?: t.StringUrl };
@@ -46,7 +46,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     docid: s(snap.docid),
     baseUrl: s(snap.baseUrl),
-    bundle: s<t.SpecTimelineBundle>(),
+    bundle: s<t.LegacySpecTimelineBundle>(),
     controller: s<t.TimelineController>(),
   };
   const p = props;

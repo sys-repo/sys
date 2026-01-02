@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Dist, Http } from './-common.ts';
+import { type t, Dist, Http } from './common.ts';
 
 export type LoadTimelinePanelSelectHandler = (e: LoadTimelinePanelSelect) => void;
 export type LoadTimelinePanelSelect = {

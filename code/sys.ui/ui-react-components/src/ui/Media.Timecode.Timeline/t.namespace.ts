@@ -37,7 +37,7 @@ export namespace MediaTimeline {
    */
   export namespace Orchestrator {
     export type Args = {
-      readonly bundle?: t.SpecTimelineBundle;
+      readonly bundle?: t.LegacySpecTimelineBundle;
       readonly video?: t.VideoDeckRuntimeArgs;
       readonly docid?: string;
       readonly timeline?: t.Timecode.Experience.Timeline;

@@ -35,7 +35,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     docid: s(snap.docid),
     baseUrl: s(snap.baseUrl),
-    bundle: s<t.SpecTimelineBundle>(),
+    bundle: s<t.LegacySpecTimelineBundle>(),
     controller: s<t.TimelineController>(),
   };
   const p = props;

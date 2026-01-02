@@ -1,6 +1,6 @@
-import { type t, D } from './-common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
-import { loadTimelineFromEndpoint } from './-u.loadTimelineFromEndpoint.ts';
+import { type t, D } from './common.ts';
+import { loadTimelineFromEndpoint } from './u.loadTimelineFromEndpoint.ts';
 
 /**
  * Sample data.
