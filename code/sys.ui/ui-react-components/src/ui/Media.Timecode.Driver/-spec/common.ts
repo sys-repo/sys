@@ -1,10 +1,6 @@
-import type * as t from '../-spec.t/t.ts';
 import { DEFAULTS } from '../common.ts';
 
-export { t };
-
 /** Libs: */
-export { DriverDev } from '../-dev.harness/mod.ts';
 export { Button, ObjectView } from '../../u.ts';
 export * from '../common.ts';
 

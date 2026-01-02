@@ -1,7 +1,4 @@
-import type * as t from '../-spec.t/t.ts';
-import { Time } from '../common.ts';
-
-export { t };
+import { type t, Time } from '../common.ts';
 
 /** Libs: */
 export * from '../common.ts';

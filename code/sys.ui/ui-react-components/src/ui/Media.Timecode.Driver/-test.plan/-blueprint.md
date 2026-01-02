@@ -1,10 +1,10 @@
 ## PLAN LOCK — BINDING CONTRACT
 --------------------------------------------------------------------------------------
 
-- [ ] Delete/ignore all legacy `.Playback` integration surfaces for the harness path
+- [x] Snip-refs/ignore all legacy `.Playback` integration surfaces for the harness path
       (runner/runtime/useClock/controller impls).
 
-- [ ] Add: `buildPlaybackTimeline(...)` (pure)
+- [x] Add: `buildPlaybackTimeline(...)` (pure)
   - Input: `{ timeline: Timecode.Experience.Timeline, bundle: SpecTimelineBundle }`
   - Output: `TimecodeState.Playback.Timeline`
     - `beats[]`

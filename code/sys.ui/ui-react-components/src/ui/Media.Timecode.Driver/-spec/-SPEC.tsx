@@ -1,5 +1,6 @@
+import { DriverDev } from '../-dev.harness/mod.ts';
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Color, D, DriverDev, css } from './common.ts';
+import { Color, D, css } from './common.ts';
 
 import { Ownership } from '../../Ownership/mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';

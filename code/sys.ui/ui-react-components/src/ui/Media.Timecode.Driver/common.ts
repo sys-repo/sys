@@ -3,7 +3,7 @@ import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
- * Contants
+ * Constants:
  */
 const name = 'Media.Timecode.Driver';
 export const D = {
