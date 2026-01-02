@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Minimal scheduler interface for pause-time materialization and polling.
  */
-export type DriverSchedule = {
+export type Schedule = {
   /** Monotonic `now` in milliseconds. */
   now(): number;
 
@@ -20,7 +20,11 @@ export type DriverSchedule = {
  */
 export type ResolveBeatMedia = (
   beat: t.TimecodeState.Playback.BeatIndex,
-) => { readonly src: string; readonly slice?: t.Timecode.Slice.String | string } | undefined;
+) => ResolveBeatMediaResult | undefined;
+export type ResolveBeatMediaResult = {
+  readonly src: string;
+  readonly slice?: t.Timecode.Slice.String | string;
+};
 
 /**
  * Bridge driver: executes reducer commands and emits reducer inputs.
@@ -47,7 +51,7 @@ export type CreatePlaybackDriverArgs = {
    * Scheduling host for timers/monotonic time.
    * If omitted, the driver uses the platform defaults.
    */
-  readonly schedule?: DriverSchedule;
+  readonly schedule?: Schedule;
 
   /** Enable driver diagnostics. */
   readonly log?: boolean;

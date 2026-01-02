@@ -1,4 +1,4 @@
-import { type t, Num, Signal, D } from './common.ts';
+import { type t, D, Num, Signal } from './common.ts';
 
 /** Driver time authority: video time, ended suppression, and pause-window monotonic timer authority. */
 type TimeSource = 'video' | 'suppressed-ended' | 'pause-timer';
@@ -27,7 +27,7 @@ type PauseTimer = {
  * Executes playback cmds against deck signals, and observes deck signals to dispatch
  * playback inputs (video:time / video:ended), including pause-window + ended suppression.
  */
-export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.PlaybackDriver {
+export const createPlaybackDriver: t.TimecodeDriver.Lib['create'] = (args) => {
   const { decks, resolveBeatMedia } = args;
 
   const schedule = args.schedule ?? {
@@ -296,7 +296,7 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
     }
   };
 
-  const api: t.PlaybackDriver = {
+  const api: t.TimecodeDriver.PlaybackDriver = {
     apply(update) {
       if (disposed) return;
       lastState = update.state;
@@ -315,7 +315,7 @@ export function createPlaybackDriver(args: t.CreatePlaybackDriverArgs): t.Playba
   };
 
   return api;
-}
+};
 
 /**
  * Map GLOBAL virtual time (vTime) → deck-local media seconds (cropped domain).

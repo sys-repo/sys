@@ -11,7 +11,7 @@ import { type t, D } from './common.ts';
  */
 export function buildPlaybackTimeline<P>(args: {
   timeline: t.Timecode.Experience.Timeline<P>;
-  bundle: t.SpecTimelineBundle<P>;
+  bundle: t.TimecodeDriver.Wire.Bundle<P>;
 }): t.TimecodeState.Playback.Timeline {
   const { timeline } = args;
   const beatsIn = timeline.beats;

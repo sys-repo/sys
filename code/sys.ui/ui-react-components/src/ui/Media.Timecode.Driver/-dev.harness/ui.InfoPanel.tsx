@@ -10,7 +10,7 @@ type L = NonNullable<HarnessProps['layout']>;
 export type InfoPanelProps = {
   layout?: L['infopanel'];
   docid?: t.StringId;
-  bundle?: t.SpecTimelineBundle;
+  bundle?: t.TimecodeDriver.Wire.Bundle;
   beat?: t.Timecode.Experience.Beat;
   index?: t.Index;
   //

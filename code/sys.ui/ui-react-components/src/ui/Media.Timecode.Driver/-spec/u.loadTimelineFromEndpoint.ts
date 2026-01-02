@@ -1,7 +1,7 @@
 import { type t, Http } from './common.ts';
 
 /**
- * Load a SpecTimelineBundle from a running `publish.assets` server.
+ * Load a t.TimecodeDriver.Wire.Bundle from a running `publish.assets` server.
  *
  * Wires:
  * - MediaResolver (via the assets manifest)
@@ -10,7 +10,7 @@ import { type t, Http } from './common.ts';
 export async function loadTimelineFromEndpoint(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-): Promise<t.SpecTimelineBundle<unknown>> {
+): Promise<t.TimecodeDriver.Wire.Bundle<unknown>> {
   const http = Http.fetcher();
 
   // 1. Touch dist.json (kept for potential routing/metadata; unused for now).
@@ -19,11 +19,11 @@ export async function loadTimelineFromEndpoint(
 
   // 2. Assets manifest for this slug/doc.
   const assetsRes = await http.json(`${baseUrl}/manifests/slug.${docid}.assets.json`);
-  const assets = assetsRes.data as t.SpecTimelineAssetsManifest;
+  const assets = assetsRes.data as t.TimecodeDriver.Wire.AssetsManifest;
 
   // 3. Timeline manifest (timecode spec) for this slug/doc.
   const timelineRes = await http.json(`${baseUrl}/manifests/slug.${docid}.playback.json`);
-  const manifest = timelineRes.data as t.SpecTimelineManifest<unknown>;
+  const manifest = timelineRes.data as t.TimecodeDriver.Wire.Manifest<unknown>;
 
   // 4. Media resolver from the assets manifest.
   const resolveMedia: t.MediaResolver = ({ kind, logicalPath }) => {

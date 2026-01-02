@@ -4,7 +4,7 @@ import { type t } from '../common.ts';
  * Deterministic schedule so pause-window time authority can be unit-tested.
  */
 export function makeDeterministicSchedule() {
-  type DriverSchedule = NonNullable<t.CreatePlaybackDriverArgs['schedule']>;
+  type DriverSchedule = NonNullable<t.TimecodeDriver.Schedule>;
   type Timer = {
     readonly fn: () => void;
     readonly id: number;
