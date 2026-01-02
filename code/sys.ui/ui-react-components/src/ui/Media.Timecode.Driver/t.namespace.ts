@@ -1,3 +1,4 @@
+import type { t } from './common.ts';
 import type * as R from './t.runtime.ts';
 import type * as W from './t.wire.ts';
 
@@ -5,14 +6,12 @@ import type * as W from './t.wire.ts';
  * Clock driver for the Timecode playback system.
  */
 export namespace TimecodeDriver {
-  export type Lib = {
-    /** Create a new instance of the driver. */
-    create(args: R.CreatePlaybackDriverArgs): R.PlaybackDriver;
-  };
+  export type Lib = t.TimecodeDriverLib;
 
   export type Schedule = R.Schedule;
   export type ResolveBeatMedia = R.ResolveBeatMedia;
   export type PlaybackDriver = R.PlaybackDriver;
+  export type TimelineController = R.TimelineController;
 
   /**
    * Wire-format interop shapes (tooling/loader manifests + bundles).

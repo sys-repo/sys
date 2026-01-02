@@ -1,9 +1,6 @@
 import type { t } from './common.ts';
-import { createPlaybackDriver as create } from './u.driver.ts';
+import { Playback } from './m.Driver.Playback.ts';
 
-/**
- * Clock driver for the Timecode playback system.
- */
-export const PlaybackDriver: t.TimecodeDriver.Lib = {
-  create,
+export const TimecodeDriver: t.TimecodeDriver.Lib = {
+  Playback,
 };

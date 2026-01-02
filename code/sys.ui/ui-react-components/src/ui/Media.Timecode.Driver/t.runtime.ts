@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+type BeatIndex = t.TimecodeState.Playback.BeatIndex;
+type Timeline = t.TimecodeState.Playback.Timeline;
+
 /**
  * Minimal scheduler interface for pause-time materialization and polling.
  */
@@ -55,4 +58,15 @@ export type CreatePlaybackDriverArgs = {
 
   /** Enable driver diagnostics. */
   readonly log?: boolean;
+};
+
+/**
+ * Create a pure TimelineController.
+ */
+export type TimelineController = {
+  readonly init: (args: { readonly timeline: Timeline; readonly startBeat?: BeatIndex }) => void;
+  readonly play: () => void;
+  readonly pause: () => void;
+  readonly toggle: () => void;
+  readonly seekToBeat: (beat: BeatIndex) => void;
 };

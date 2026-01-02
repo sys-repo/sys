@@ -6,13 +6,11 @@ type TimeSource = 'video' | 'suppressed-ended' | 'pause-timer';
 type BeatIndex = t.TimecodeState.Playback.BeatIndex;
 type State = t.TimecodeState.Playback.State;
 type Timeline = t.TimecodeState.Playback.Timeline;
-
 type PauseWindow = {
   readonly from: t.Msecs;
   readonly to: t.Msecs;
   readonly beat: BeatIndex;
 };
-
 type PauseTimer = {
   readonly deck: t.TimecodeState.Playback.DeckId;
   readonly from: t.Msecs;
@@ -27,7 +25,7 @@ type PauseTimer = {
  * Executes playback cmds against deck signals, and observes deck signals to dispatch
  * playback inputs (video:time / video:ended), including pause-window + ended suppression.
  */
-export const createPlaybackDriver: t.TimecodeDriver.Lib['create'] = (args) => {
+export const driver: t.TimecodeDriverPlaybackLib['driver'] = (args) => {
   const { decks, resolveBeatMedia } = args;
 
   const schedule = args.schedule ?? {
