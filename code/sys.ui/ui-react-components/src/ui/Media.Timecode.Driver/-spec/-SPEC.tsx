@@ -1,4 +1,4 @@
-import { DriverDev } from '../-dev.harness/mod.ts';
+import { DriverDev } from '../-dev/-harness/mod.ts';
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Color, D, css } from './common.ts';
 

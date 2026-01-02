@@ -1,4 +1,4 @@
-import type { HarnessProps } from '../-dev.harness/t.ts';
+import type { HarnessProps } from '../-dev/-harness/t.ts';
 
 import React from 'react';
 import {
