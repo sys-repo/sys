@@ -6,7 +6,7 @@ import type * as R from './t.runtime.ts';
  */
 export type TimecodePlaybackDriverLib = {
   /** Runtime bridge between reducer cmds/signals and the video decks. */
-  driver(args: R.CreatePlaybackDriverArgs): R.PlaybackDriver;
+  create(args: R.CreatePlaybackDriverArgs): R.PlaybackDriver;
 
   /** UI control surface that emits playback actions. */
   controller(dispatch: (input: t.TimecodeState.Playback.Input) => void): R.TimelineController;
