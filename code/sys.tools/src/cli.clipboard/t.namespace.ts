@@ -10,7 +10,12 @@ export namespace ClipboardTool {
   export type Name = typeof NAME;
 
   /** Command names. */
-  export type Command = 'types' | 'files:select' | 'files:all' | 'files:deno.json';
+  export type Command =
+    | 'types:select'
+    | 'types:all'
+    | 'files:select'
+    | 'files:all'
+    | 'files:deno.json';
   export type MenuOption = { name: string; value: Command };
 
   /** Command line arguments (argv). */

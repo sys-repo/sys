@@ -33,16 +33,16 @@ async function run(cwd: t.StringDir) {
         name: `Copy Files (select, ${c.cyan('depth = 0')}) ${depth0}`,
         value: `files:select:depth=` as C,
       },
-      { name: `Copy Files (select)`, value: `files:select` },
+      { name: `Copy Files`, value: `files:select` },
       { name: `Copy Files (all)`, value: `files:all` },
-      { name: `Copy Types`, value: `types` },
-      { name: `Copy Files: deno.json`, value: `files:deno.json` },
+      { name: `Copy Types`, value: `types:select` },
+      { name: `Copy Types (all)`, value: `types:all` },
+      { name: `Copy deno.json`, value: `files:deno.json` },
     ],
   })) as t.ClipboardTool.Command;
 
   if (mode.startsWith('files:select' satisfies t.ClipboardTool.Command)) {
     const { depth } = wrangle.depth(mode);
-    console.log('depth', depth);
     await copyFiles(cwd, { initial: 'none', depth });
     return done();
   }
@@ -51,7 +51,11 @@ async function run(cwd: t.StringDir) {
     await copyFiles(cwd, { initial: 'all', depth });
     return done();
   }
-  if (mode === 'types') {
+  if (mode === 'types:select') {
+    await copyTypes(cwd, { initial: 'none' });
+    return done();
+  }
+  if (mode === 'types:all') {
     await copyTypes(cwd, { initial: 'all' });
     return done();
   }
