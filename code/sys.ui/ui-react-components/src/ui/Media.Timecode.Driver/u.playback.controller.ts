@@ -1,4 +1,4 @@
-import { type t, D } from './common.ts';
+import { type t } from './common.ts';
 
 type Input = t.TimecodeState.Playback.Input;
 
@@ -10,7 +10,7 @@ type Input = t.TimecodeState.Playback.Input;
  * - it performs no effects
  * - it only emits PlaybackAction-kind inputs (a subset of Playback.Input) via dispatch(...)
  */
-export const controller: t.TimecodeDriverPlaybackLib['controller'] = (dispatch) => {
+export const createController: t.TimecodeDriverPlaybackLib['controller'] = (dispatch) => {
   const send = (input: Input) => dispatch(input);
   return {
     init(args) {
