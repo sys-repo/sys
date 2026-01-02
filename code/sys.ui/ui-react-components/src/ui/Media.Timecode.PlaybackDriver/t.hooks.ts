@@ -1,9 +1,11 @@
 import type { t } from './common.ts';
+import type * as R from './t.runtime.ts';
 
 type Machine = t.TimecodeState.Playback.Lib;
 type Input = t.TimecodeState.Playback.Input;
 type State = t.TimecodeState.Playback.State;
-type CreateDriverArgs = Omit<Parameters<t.TimecodePlaybackDriverLib['create']>[0], 'dispatch'>;
+type Update = t.TimecodeState.Playback.Update;
+type CreateDriverArgs = Omit<R.CreatePlaybackDriverArgs, 'dispatch'>;
 
 export type UsePlaybackDriverArgs = CreateDriverArgs & {
   /**
@@ -17,7 +19,8 @@ export type UsePlaybackDriverArgs = CreateDriverArgs & {
 };
 
 export type UsePlaybackDriverResult = {
+  readonly controller: R.TimelineController;
   readonly state: State;
+  readonly update: Update;
   readonly dispatch: (input: Input) => void;
-  readonly controller: ReturnType<t.TimecodePlaybackDriverLib['controller']>;
 };

@@ -4,14 +4,14 @@ import type { t } from './common.ts';
 type Args = {
   readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   readonly video?: t.VideoDeckRuntimeArgs;
-  readonly docid?: string;
+  readonly docid?: t.StringId;
   readonly timeline?: t.Timecode.Experience.Timeline;
   readonly startBeat?: t.TimecodeState.Playback.BeatIndex;
 };
 
 type Result = {
-  readonly controller: t.TimelineController;
-  readonly snapshot: t.PlaybackRunnerState;
+  readonly controller: t.TimecodePlaybackDriver.TimelineController;
+  readonly snapshot?: t.TimecodeState.Playback.Update;
   readonly selectedIndex?: t.TimecodeState.Playback.BeatIndex;
 };
 
@@ -28,9 +28,9 @@ type Result = {
  * and then become glue-only, per the plan.
  */
 export function useOrchestrator(_args: Args): Result {
-  const controller = React.useMemo<t.TimelineController>(() => {
+  const controller = React.useMemo<t.TimecodePlaybackDriver.TimelineController>(() => {
     return {
-      init: () => {},
+      init: (_args) => {},
       play: () => {},
       pause: () => {},
       toggle: () => {},
@@ -39,14 +39,13 @@ export function useOrchestrator(_args: Args): Result {
   }, []);
 
   // NOTE: This is a temporary inert placeholder so the harness UI can compile/render.
-  // It will be replaced with the reducer-derived snapshot once usePlaybackDriver exists.
-  const snapshot = React.useMemo(() => {
-    return undefined as unknown as t.PlaybackRunnerState;
-  }, []);
+  // It will be replaced with the reducer-derived snapshot once usePlaybackDriver is employed.
+  const snapshot = undefined as t.TimecodeState.Playback.Update | undefined;
+  const selectedIndex = snapshot?.state?.currentBeat;
 
   return {
     controller,
     snapshot,
-    selectedIndex: 0 as t.TimecodeState.Playback.BeatIndex,
+    selectedIndex,
   };
 }

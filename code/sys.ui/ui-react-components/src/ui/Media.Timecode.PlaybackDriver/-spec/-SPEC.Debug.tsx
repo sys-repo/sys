@@ -49,7 +49,7 @@ export async function createDebugSignals() {
     docid: s(snap.docid),
     baseUrl: s(snap.baseUrl),
     bundle: s<t.TimecodePlaybackDriver.Wire.Bundle>(),
-    controller: s<t.TimelineController>(),
+    controller: s<t.TimecodePlaybackDriver.TimelineController>(),
   };
   const p = props;
   const api = {

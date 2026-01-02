@@ -16,19 +16,23 @@ export const usePlaybackDriver = (args: UsePlaybackDriverArgs): UsePlaybackDrive
     [machine],
   );
 
-  const [update, dispatch0] = React.useReducer(reducer, init, (initArg) => machine.init(initArg));
-
-  const dispatch = React.useCallback((input: Input) => dispatch0(input), [dispatch0]);
+  const [update, send] = React.useReducer(reducer, init, (args) => machine.init(args));
+  const dispatch = React.useCallback((input: Input) => send(input), [send]);
 
   const driver = React.useMemo(
     () => createDriver({ decks, resolveBeatMedia, schedule, log, dispatch }),
     [decks, resolveBeatMedia, schedule, log, dispatch],
   );
 
+  const controller = React.useMemo(() => createController(dispatch), [dispatch]);
+
   React.useEffect(() => void driver.apply(update), [driver, update]);
   React.useEffect(() => () => driver.dispose(), [driver]);
 
-  const controller = React.useMemo(() => createController(dispatch), [dispatch]);
-
-  return { state: update.state, dispatch, controller };
+  return {
+    update,
+    state: update.state,
+    dispatch,
+    controller,
+  };
 };

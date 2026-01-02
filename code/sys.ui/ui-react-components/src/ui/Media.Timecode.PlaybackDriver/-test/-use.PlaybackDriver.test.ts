@@ -50,7 +50,6 @@ describe('Media.Timecode.Driver: usePlaybackDriver', () => {
     const reduce: t.TimecodeState.Playback.Lib['reduce'] = (prev, input) => {
       const cmds: t.TimecodeState.Playback.Cmd[] = [];
       const events: t.TimecodeState.Playback.Event[] = [];
-
       let state: t.TimecodeState.Playback.State = prev;
 
       switch (input.kind) {

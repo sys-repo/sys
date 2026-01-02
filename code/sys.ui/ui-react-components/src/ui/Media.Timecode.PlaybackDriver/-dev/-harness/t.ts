@@ -11,5 +11,5 @@ export type HarnessProps = {
   layout?: { infopanel?: { bottom?: t.ReactNode } };
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onReady?: (e: { readonly controller: t.TimelineController }) => void;
+  onReady?: (e: { readonly controller: t.TimecodePlaybackDriver.TimelineController }) => void;
 };

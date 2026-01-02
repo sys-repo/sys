@@ -6,6 +6,8 @@ import { Layout } from './ui.Layout.tsx';
 import { useOrchestrator } from './use.Orchestrator.ts';
 import { useTimeline } from './use.Timeline.ts';
 
+type TimelineController = t.TimecodePlaybackDriver.TimelineController;
+
 export const Harness: React.FC<HarnessProps> = (props) => {
   const { debug = false, bundle, docid, video } = props;
   const hasBundle = !!bundle;
@@ -70,7 +72,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
   /**
    * Fire onReady once per controller instance.
    */
-  const lastControllerRef = React.useRef<t.TimelineController | undefined>(undefined);
+  const lastControllerRef = React.useRef<TimelineController | undefined>(undefined);
   React.useEffect(() => {
     if (!onReadyRef.current) return;
     if (lastControllerRef.current === controller) return;

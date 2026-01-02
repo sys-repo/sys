@@ -25,11 +25,12 @@
     - Machine outputs (`cmds`) → Driver applies runtime effects
   - Returns: `{ state, dispatch, controller }`
 
-- [ ] Rewrite `use.Orchestrator.ts` into glue only
-  - Build timeline via `buildPlaybackTimeline`
-  - Call `usePlaybackDriver({ decks, timeline, startBeat, resolveBeatMedia })`
+- [ ] Rewrite `use.Orchestrator.ts` into glue-only wiring
+  - Build `timeline` via `buildPlaybackTimeline(...)`
+  - Call `usePlaybackDriver({ machine, decks, resolveBeatMedia, schedule, log, init: { timeline, startBeat } })`
   - Return `{ controller, snapshot, selectedIndex }`
-    - snapshot derives from reducer state (not a runner)
+    - `snapshot` = last reducer `Update` (`playback.update`)
+    - `selectedIndex` = `snapshot.state.currentBeat`
 
 - [ ] Lock: runtime side-effects + runtime observation live only in the Driver
   - Only Driver calls `runtime.deck.*`
