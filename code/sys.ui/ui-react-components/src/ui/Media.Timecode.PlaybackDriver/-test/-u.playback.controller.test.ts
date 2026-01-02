@@ -1,24 +1,24 @@
 import { describe, expect, it } from '../../../-test.ts';
 
 import type { t } from '../common.ts';
-import { TimecodeDriver } from '../mod.ts';
+import { PlaybackDriver } from '../mod.ts';
 
 type Input = t.TimecodeState.Playback.Input;
 type BeatIndex = t.TimecodeState.Playback.BeatIndex;
 type Timeline = t.TimecodeState.Playback.Timeline;
 
-describe('TimecodeDriver.Playback.controller', () => {
+describe('PlaybackDriver.controller', () => {
   it('does not dispatch on construction', () => {
     const calls: Input[] = [];
     const dispatch = (input: Input) => calls.push(input);
-    TimecodeDriver.Playback.controller(dispatch);
+    PlaybackDriver.controller(dispatch);
     expect(calls.length).to.eql(0);
   });
 
   it('init dispatches playback:init with timeline and optional startBeat', () => {
     const calls: Input[] = [];
     const dispatch = (input: Input) => calls.push(input);
-    const controller = TimecodeDriver.Playback.controller(dispatch);
+    const controller = PlaybackDriver.controller(dispatch);
 
     // Test boundary: controller is pass-through; timeline shape is owned elsewhere.
     const timeline = {} as Timeline;
@@ -36,7 +36,7 @@ describe('TimecodeDriver.Playback.controller', () => {
     const calls: Input[] = [];
     const dispatch = (input: Input) => calls.push(input);
 
-    const controller = TimecodeDriver.Playback.controller(dispatch);
+    const controller = PlaybackDriver.controller(dispatch);
 
     const timeline = {} as unknown as Timeline;
 
@@ -52,7 +52,7 @@ describe('TimecodeDriver.Playback.controller', () => {
     const calls: Input[] = [];
     const dispatch = (input: Input) => calls.push(input);
 
-    const controller = TimecodeDriver.Playback.controller(dispatch);
+    const controller = PlaybackDriver.controller(dispatch);
     controller.play();
 
     expect(calls).to.eql([{ kind: 'playback:play' }]);
@@ -62,7 +62,7 @@ describe('TimecodeDriver.Playback.controller', () => {
     const calls: Input[] = [];
     const dispatch = (input: Input) => calls.push(input);
 
-    const controller = TimecodeDriver.Playback.controller(dispatch);
+    const controller = PlaybackDriver.controller(dispatch);
     controller.pause();
 
     expect(calls).to.eql([{ kind: 'playback:pause' }]);
@@ -72,7 +72,7 @@ describe('TimecodeDriver.Playback.controller', () => {
     const calls: Input[] = [];
     const dispatch = (input: Input) => calls.push(input);
 
-    const controller = TimecodeDriver.Playback.controller(dispatch);
+    const controller = PlaybackDriver.controller(dispatch);
     controller.toggle();
     expect(calls).to.eql([{ kind: 'playback:toggle' }]);
   });
@@ -81,7 +81,7 @@ describe('TimecodeDriver.Playback.controller', () => {
     const calls: Input[] = [];
     const dispatch = (input: Input) => calls.push(input);
 
-    const controller = TimecodeDriver.Playback.controller(dispatch);
+    const controller = PlaybackDriver.controller(dispatch);
 
     const beat = 3 as BeatIndex;
     controller.seekToBeat(beat);

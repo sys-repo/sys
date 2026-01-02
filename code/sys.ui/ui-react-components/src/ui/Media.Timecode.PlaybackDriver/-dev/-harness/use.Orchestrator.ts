@@ -2,7 +2,7 @@ import React from 'react';
 import type { t } from './common.ts';
 
 type Args = {
-  readonly bundle?: t.TimecodeDriver.Wire.Bundle;
+  readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   readonly video?: t.VideoDeckRuntimeArgs;
   readonly docid?: string;
   readonly timeline?: t.Timecode.Experience.Timeline;

@@ -2,14 +2,7 @@ import type { t } from './common.ts';
 import type * as R from './t.runtime.ts';
 
 /**
- * Timecode Driver
- */
-export type TimecodeDriverLib = {
-  readonly Playback: t.TimecodePlaybackDriverLib;
-};
-
-/**
- * Playback boundary: connects the playback state machine to real video playback.
+ * Playback Driver: connects the playback state machine to real video playback.
  */
 export type TimecodePlaybackDriverLib = {
   /** Runtime bridge between reducer cmds/signals and the video decks. */

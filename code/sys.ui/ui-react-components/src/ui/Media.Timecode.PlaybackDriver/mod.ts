@@ -1,10 +1,17 @@
 /**
- * Media.Timecode.Driver
+ * Media.Timecode.PlaybackDriver
  *
- * Runtime boundary:
- * - inputs  ← authoritative time (video OR synthetic pause clock)
- * - effects → imperative runtime (from reducer cmds)
+ * Runtime boundary.
  *
- * No timeline/policy; only selects/gates the time source.
+ * Responsibilities:
+ * - inputs  ← authoritative time source (video OR synthetic pause clock)
+ * - effects → imperative runtime I/O derived from reducer cmds
+ *
+ * Non-responsibilities:
+ * - no timeline construction
+ * - no playback policy
+ * - no state mutation (machine-owned)
+ *
+ * Selects and gates the active time authority only.
  */
-export { TimecodeDriver } from './m.Driver.ts';
+export { PlaybackDriver } from './m.PlaybackDriver.ts';

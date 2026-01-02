@@ -303,7 +303,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['driver'] = (args) => {
     }
   };
 
-  const api: t.TimecodeDriver.PlaybackDriver = {
+  const api: t.TimecodePlaybackDriver.Driver = {
     apply(update) {
       if (disposed) return;
       lastState = update.state;

@@ -15,7 +15,7 @@ describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
     };
 
     // Bundle is currently unused by buildPlaybackTimeline, but required by signature.
-    const bundle: t.TimecodeDriver.Wire.Bundle<Payload> = {
+    const bundle: t.TimecodePlaybackDriver.Wire.Bundle<Payload> = {
       docid: id('doc'),
       spec: { composition: [], beats: [] },
       resolveMedia: (_args: t.Timecode.Playback.ResolverArgs) => undefined,
@@ -40,7 +40,7 @@ describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
       duration: ms(1000),
     };
 
-    const bundle: t.TimecodeDriver.Wire.Bundle<Payload> = {
+    const bundle: t.TimecodePlaybackDriver.Wire.Bundle<Payload> = {
       docid: id('doc'),
       spec: { composition: [], beats: [] },
       resolveMedia: (_args: t.Timecode.Playback.ResolverArgs) => undefined,
@@ -74,7 +74,7 @@ describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
       duration: ms(4000),
     };
 
-    const bundle: t.TimecodeDriver.Wire.Bundle<Payload> = {
+    const bundle: t.TimecodePlaybackDriver.Wire.Bundle<Payload> = {
       docid: id('doc'),
       spec: { composition: [], beats: [] },
       resolveMedia: (_args: t.Timecode.Playback.ResolverArgs) => undefined,

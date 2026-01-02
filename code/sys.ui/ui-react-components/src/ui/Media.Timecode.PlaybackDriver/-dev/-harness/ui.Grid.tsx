@@ -5,7 +5,7 @@ import { A } from './ui.A.tsx';
 
 export type GridProps = {
   debug?: boolean;
-  bundle?: t.TimecodeDriver.Wire.Bundle;
+  bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   selectedIndex?: t.Index;
   theme?: t.CommonTheme;
   style?: t.CssInput;

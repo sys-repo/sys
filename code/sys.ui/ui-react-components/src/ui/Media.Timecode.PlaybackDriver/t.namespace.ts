@@ -5,12 +5,12 @@ import type * as W from './t.wire.ts';
 /**
  * Clock driver for the Timecode playback system.
  */
-export namespace TimecodeDriver {
-  export type Lib = t.TimecodeDriverLib;
+export namespace TimecodePlaybackDriver {
+  export type Lib = t.TimecodePlaybackDriverLib;
 
   export type Schedule = R.Schedule;
   export type ResolveBeatMedia = R.ResolveBeatMedia;
-  export type PlaybackDriver = R.PlaybackDriver;
+  export type Driver = R.PlaybackDriver;
   export type TimelineController = R.TimelineController;
 
   /**

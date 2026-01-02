@@ -5,9 +5,9 @@ import { pauseClampFixture } from './u.fixture.pauseWindowClamp.ts';
 import { makeDeterministicSchedule } from './u.fixture.u.deterministicSchedule.ts';
 
 import { type t } from '../common.ts';
-import { TimecodeDriver } from '../mod.ts';
+import { PlaybackDriver } from '../mod.ts';
 
-describe(`TimecodeDriver.Playback.driver`, () => {
+describe(`PlaybackDriver.driver`, () => {
   const ms = (n: number): t.Msecs => n;
   const ix = (n: number): t.TimecodeState.Playback.BeatIndex => n;
 
@@ -54,7 +54,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
     const inputs: readonly t.TimecodeState.Playback.Input[] = [];
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -117,7 +117,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
     const B = playerSignalsFactory();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -168,7 +168,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
     const B = playerSignalsFactory();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -220,7 +220,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
 
     const { schedule } = makeDeterministicSchedule();
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -280,7 +280,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
 
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
       dispatch: (input) => seen.push(input),
@@ -378,7 +378,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
 
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -456,7 +456,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
 
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -520,7 +520,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
     const seen: t.TimecodeState.Playback.Input[] = [];
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -595,7 +595,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
     const seen: t.TimecodeState.Playback.Input[] = [];
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -659,7 +659,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
 
     const { schedule, advance } = makeDeterministicSchedule();
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       schedule,
       resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
@@ -726,7 +726,7 @@ describe(`TimecodeDriver.Playback.driver`, () => {
     const B = playerSignalsFactory();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
-    const driver = TimecodeDriver.Playback.driver({
+    const driver = PlaybackDriver.driver({
       decks: { A, B },
       resolveBeatMedia: (beat) => ({
         src: `src:${beat}`,
