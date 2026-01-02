@@ -687,4 +687,67 @@ describe(`TimecodeDriver.Playback.driver`, () => {
 
     driver.dispose();
   });
+
+  it(`cmd:deck:load sets src on first load; subsequent loads within the same segment do not rewrite src; slice always applies`, () => {
+    const timeline: t.TimecodeState.Playback.Timeline = {
+      beats: [
+        {
+          index: ix(0),
+          vTime: ms(0),
+          duration: ms(1000),
+          pause: ms(0),
+          segmentId: 'seg:1',
+          media: { url: 'u:0' },
+        },
+        {
+          index: ix(1),
+          vTime: ms(1000),
+          duration: ms(1000),
+          pause: ms(0),
+          segmentId: 'seg:1', // same segment identity → src must remain stable
+          media: { url: 'u:1' },
+        },
+      ],
+      segments: [{ id: 'seg:1', beat: { from: ix(0), to: ix(2) } }],
+      virtualDuration: ms(2000),
+    };
+
+    const state: t.TimecodeState.Playback.State = {
+      phase: 'active',
+      intent: 'play',
+      timeline,
+      currentBeat: ix(0),
+      vTime: ms(0),
+      decks: { active: 'A', standby: 'B', status: { A: 'ready', B: 'ready' } },
+      ready: { machine: true, runner: true, deck: { A: true, B: true } },
+    };
+
+    const A = playerSignalsFactory();
+    const B = playerSignalsFactory();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = TimecodeDriver.Playback.driver({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({
+        src: `src:${beat}`,
+        slice: `slice:${beat}`, // string is valid by contract
+      }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    // First load sets src + slice.
+    driver.apply({ state, cmds: [{ kind: 'cmd:deck:load', deck: 'A', beat: ix(0) }], events: [] });
+    expect(A.props.src.value).to.equal('src:0');
+    expect(A.props.slice.value).to.equal('slice:0');
+
+    // Second load in same segment:
+    // - src must remain stable (idempotence)
+    // - slice must update (always applied)
+    driver.apply({ state, cmds: [{ kind: 'cmd:deck:load', deck: 'A', beat: ix(1) }], events: [] });
+    expect(A.props.src.value).to.equal('src:0'); // stable by contract
+    expect(A.props.slice.value).to.equal('slice:1'); // always applied
+
+    expect(seen).to.eql([]);
+    driver.dispose();
+  });
 });

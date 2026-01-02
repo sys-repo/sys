@@ -40,6 +40,13 @@ export const driver: t.TimecodeDriverPlaybackLib['driver'] = (args) => {
   let timeSource: TimeSource = 'video';
   let pauseTimer: PauseTimer | undefined;
 
+  /**
+   * Runtime-edge idempotence:
+   * Only mutate `src` when media identity changes, to avoid unnecessary reload churn.
+   * (Slice may legitimately vary per beat, so it is always applied.)
+   */
+  const deckLastMediaKey = new Map<t.TimecodeState.Playback.DeckId, string>();
+
   const stopPauseTimer = () => {
     const curr = pauseTimer;
     if (!curr) return;
@@ -147,17 +154,12 @@ export const driver: t.TimecodeDriverPlaybackLib['driver'] = (args) => {
 
   const observeDeck = (deck: t.TimecodeState.Playback.DeckId) => {
     // endedTick → video:ended (monotonic marker)
-    let lastEndedTick: number | undefined;
+    // Seed baseline synchronously to avoid missing a bump before the first effect run.
+    let lastEndedTick: number = Number(decks[deck].props.endedTick.value);
 
     disposers.add(
       Signal.effect(() => {
-        const tick = decks[deck].props.endedTick.value;
-
-        // First run: establish baseline, do not emit.
-        if (lastEndedTick === undefined) {
-          lastEndedTick = tick;
-          return;
-        }
+        const tick = Number(decks[deck].props.endedTick.value);
 
         if (tick === lastEndedTick) return;
         lastEndedTick = tick;
@@ -260,8 +262,15 @@ export const driver: t.TimecodeDriverPlaybackLib['driver'] = (args) => {
           return;
         }
 
-        // Apply media identity to the target deck (video element binding consumes these signals).
-        signals.props.src.value = media.src;
+        const beatSegId = state.timeline?.beats[cmd.beat]?.segmentId;
+        const nextKey = String(beatSegId ?? media.src ?? '');
+        const prevKey = deckLastMediaKey.get(cmd.deck);
+
+        // Only update src when identity changes; slice may vary per beat and is always applied.
+        if (prevKey !== nextKey) {
+          signals.props.src.value = media.src;
+          deckLastMediaKey.set(cmd.deck, nextKey);
+        }
         signals.props.slice.value = media.slice;
         return;
       }
