@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 import type * as R from './t.runtime.ts';
 
-type Machine = t.TimecodeState.Playback.Lib;
 type Input = t.TimecodeState.Playback.Input;
 type State = t.TimecodeState.Playback.State;
 type Update = t.TimecodeState.Playback.Update;
@@ -9,14 +8,8 @@ type CreateDriverArgs = Omit<R.CreatePlaybackDriverArgs, 'dispatch'>;
 
 /** Arguments for the React playback driver hook. */
 export type UsePlaybackDriverArgs = CreateDriverArgs & {
-  /**
-   * Explicit machine value injection.
-   * We intentionally do not assume a concrete import path for the machine object.
-   */
-  machine: Machine;
-
-  /** Optional init args forwarded to machine.init(...) */
-  init?: Parameters<Machine['init']>[0];
+  /** Optional init args forwarded to UI state machine.init(...) */
+  init?: Parameters<t.TimecodeState.Playback.Lib['init']>[0];
 };
 
 /**

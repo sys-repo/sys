@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t } from './common.ts';
+import { type t, TimecodeState } from './common.ts';
 import type { UsePlaybackDriverArgs, UsePlaybackDriverResult } from './t.hooks.ts';
 import { createController } from './u.controller.ts';
 import { createDriver } from './u.driver.ts';
@@ -9,7 +9,8 @@ type Input = t.TimecodeState.Playback.Input;
 type Update = t.TimecodeState.Playback.Update;
 
 export const usePlaybackDriver = (args: UsePlaybackDriverArgs): UsePlaybackDriverResult => {
-  const { machine, init, decks, resolveBeatMedia, schedule, log } = args;
+  const { init, decks, resolveBeatMedia, schedule, log } = args;
+  const machine = TimecodeState.Playback;
 
   const reducer = React.useCallback(
     (prev: Update, input: Input): Update => machine.reduce(prev.state, input),
