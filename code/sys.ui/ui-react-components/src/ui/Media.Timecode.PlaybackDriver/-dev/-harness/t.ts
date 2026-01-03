@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Component:
  */
 export type HarnessProps = {
-  video?: { A: t.VideoPlayerSignals; B: t.VideoPlayerSignals };
+  video?: t.TimecodePlaybackDriver.VideoDecks;
   bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   docid?: t.StringId;
 

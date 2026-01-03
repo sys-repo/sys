@@ -1,7 +1,7 @@
 import React from 'react';
 import type { HarnessProps } from './t.ts';
 
-import { type t, usePlaybackTimeline } from './common.ts';
+import { type t, PlaybackDriver } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
 import { useOrchestrator } from './use.Orchestrator.ts';
 
@@ -15,7 +15,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
   /**
    * Timeline data (pure).
    */
-  const { playback, experience } = usePlaybackTimeline({ spec });
+  const { playback, experience } = PlaybackDriver.usePlaybackTimeline({ spec });
 
   /**
    * Keep onReady stable (avoid render-feedback loops).
@@ -31,7 +31,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
     bundle,
     video,
     docid,
-    playback,
+    experience,
     startBeat: 0,
   });
 

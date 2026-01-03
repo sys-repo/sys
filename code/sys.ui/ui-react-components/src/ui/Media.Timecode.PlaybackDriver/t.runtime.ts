@@ -46,8 +46,18 @@ export type PlaybackDriver = t.DisposableLike & {
 };
 
 /**
- * Construction args for the playback driver.
+ * Create a pure TimelineController.
  */
+export type TimelineController = {
+  readonly init: (args: { readonly timeline: Timeline; readonly startBeat?: BeatIndex }) => void;
+  readonly play: () => void;
+  readonly pause: () => void;
+  readonly toggle: () => void;
+  readonly seekToBeat: (beat: BeatIndex) => void;
+};
+export type TimelineControllerDispatch = (input: t.TimecodeState.Playback.Input) => void;
+
+/** Construction args for the playback driver. */
 export type CreatePlaybackDriverArgs = {
   /** Deck runtimes keyed by reducer deck id. */
   readonly decks: VideoDecks;
@@ -67,15 +77,3 @@ export type CreatePlaybackDriverArgs = {
   /** Enable driver diagnostics. */
   readonly log?: boolean;
 };
-
-/**
- * Create a pure TimelineController.
- */
-export type TimelineController = {
-  readonly init: (args: { readonly timeline: Timeline; readonly startBeat?: BeatIndex }) => void;
-  readonly play: () => void;
-  readonly pause: () => void;
-  readonly toggle: () => void;
-  readonly seekToBeat: (beat: BeatIndex) => void;
-};
-export type TimelineControllerDispatch = (input: t.TimecodeState.Playback.Input) => void;

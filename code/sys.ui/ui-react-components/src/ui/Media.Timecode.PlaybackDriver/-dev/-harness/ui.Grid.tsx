@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Bullet, Color, css, dur, Icons, Timecode, usePlaybackTimeline } from './common.ts';
+import { type t, Bullet, Color, css, dur, Icons, PlaybackDriver, Timecode } from './common.ts';
 import { A } from './ui.A.tsx';
 
 export type GridProps = {
@@ -25,7 +25,7 @@ export type SelectIndex = { readonly index: t.TimecodeState.Playback.BeatIndex }
 export const Grid: React.FC<GridProps> = (props) => {
   const { bundle, selectedIndex } = props;
   const spec = bundle?.spec;
-  const { experience } = usePlaybackTimeline({ spec });
+  const { experience } = PlaybackDriver.usePlaybackTimeline({ spec });
 
   /**
    * Render:

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import type { t } from '../common.ts';
-import { buildPlaybackTimeline } from '../u.buildTimeline.ts';
+import { PlaybackDriver } from '../mod.ts';
 
 describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
   type Payload = { readonly k: string };
@@ -21,8 +21,7 @@ describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
       resolveMedia: (_args: t.Timecode.Playback.ResolverArgs) => undefined,
     };
 
-    const out = buildPlaybackTimeline({ timeline, bundle });
-
+    const out = PlaybackDriver.buildPlaybackTimeline({ timeline, bundle });
     expect(out.beats.length).eql(0);
     expect(out.segments.length).eql(0);
     expect(out.virtualDuration).eql(0);
@@ -46,7 +45,9 @@ describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
       resolveMedia: (_args: t.Timecode.Playback.ResolverArgs) => undefined,
     };
 
-    expect(() => buildPlaybackTimeline({ timeline, bundle })).to.throw(/src\.ref is required/);
+    expect(() => PlaybackDriver.buildPlaybackTimeline({ timeline, bundle })).to.throw(
+      /src\.ref is required/,
+    );
   });
 
   it('computes media duration as (next vTime delta) - pause, and derives segments by src.ref runs', () => {
@@ -80,7 +81,7 @@ describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
       resolveMedia: (_args: t.Timecode.Playback.ResolverArgs) => undefined,
     };
 
-    const out = buildPlaybackTimeline({ timeline, bundle });
+    const out = PlaybackDriver.buildPlaybackTimeline({ timeline, bundle });
 
     // virtualDuration passthrough
     expect(Number(out.virtualDuration)).eql(4000);

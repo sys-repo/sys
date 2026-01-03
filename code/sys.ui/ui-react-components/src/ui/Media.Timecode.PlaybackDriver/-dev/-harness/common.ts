@@ -2,7 +2,7 @@ import { type t, Time } from '../../common.ts';
 
 /** Lib: */
 export * from '../../common.ts';
-export { usePlaybackTimeline } from '../../use.PlaybackTimeline.ts';
+export { PlaybackDriver } from '../../mod.ts';
 
 /** Components: */
 export { Bullet } from '../../../Bullet/mod.ts';

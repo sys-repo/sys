@@ -1,16 +1,7 @@
 import type { HarnessProps } from './t.ts';
 
 import React from 'react';
-import {
-  type t,
-  Color,
-  css,
-  dur,
-  KeyValue,
-  ObjectView,
-  Str,
-  usePlaybackTimeline,
-} from './common.ts';
+import { type t, Color, css, dur, KeyValue, ObjectView, PlaybackDriver, Str } from './common.ts';
 import { toIssueItems } from './ui.InfoPanel.issues.tsx';
 
 type L = NonNullable<HarnessProps['layout']>;
@@ -37,7 +28,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   /**
    * Hooks:
    */
-  const { experience, resolved } = usePlaybackTimeline({ spec });
+  const { experience, resolved } = PlaybackDriver.usePlaybackTimeline({ spec });
   if (!experience) return null;
   if (!bundle) return null;
 
