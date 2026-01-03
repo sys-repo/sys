@@ -10,11 +10,14 @@ export type * from './t.protocol.input.ts';
  */
 export type PlaybackStateLib = {
   /** Create initial playback state and side-effect intents from optional inputs. */
-  init(args?: { timeline?: PlaybackTimeline; startBeat?: PlaybackBeatIndex }): PlaybackUpdate;
+  init(args?: PlaybackInitArgs): PlaybackSnapshot;
 
   /** Advance playback state by reducing an action or signal into next state and effects. */
-  reduce(prev: PlaybackState, input: t.PlaybackInput): PlaybackUpdate;
+  reduce(prev: PlaybackState, input: t.PlaybackInput): PlaybackSnapshot;
 };
+
+/** Arguments for the `Playback.init` method. */
+export type PlaybackInitArgs = { timeline?: PlaybackTimeline; startBeat?: PlaybackBeatIndex };
 
 /**
  * Machine phase (orchestration, not media conditions).
@@ -144,9 +147,9 @@ export type PlaybackState = {
 };
 
 /**
- * Pure reducer output.
+ * Pure reducer snapshot (state + effects).
  */
-export type PlaybackUpdate = {
+export type PlaybackSnapshot = {
   readonly state: PlaybackState;
   readonly cmds: readonly t.PlaybackCmd[];
   readonly events: readonly t.PlaybackEvent[];

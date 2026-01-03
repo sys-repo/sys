@@ -42,7 +42,7 @@ export type ResolveBeatMediaResult = {
  */
 export type PlaybackDriver = t.DisposableLike & {
   /** Apply a reducer update (state + cmds/events). */
-  apply(update: t.TimecodeState.Playback.Update): void;
+  apply(snapshot: t.TimecodeState.Playback.Snapshot): void;
 };
 
 /**
@@ -55,6 +55,7 @@ export type TimelineController = {
   readonly toggle: () => void;
   readonly seekToBeat: (beat: BeatIndex) => void;
 };
+/** Low-level dispatch into the playback state machine. */
 export type TimelineControllerDispatch = (input: t.TimecodeState.Playback.Input) => void;
 
 /** Construction args for the playback driver. */

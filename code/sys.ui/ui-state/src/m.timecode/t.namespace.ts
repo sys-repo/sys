@@ -14,12 +14,11 @@ export namespace TimecodeState {
    */
   export namespace Playback {
     export type Lib = t.PlaybackStateLib;
+    export type InitArgs = t.PlaybackInitArgs;
 
     /** Machine state */
     export type State = t.PlaybackState;
-
-    /** Reducer result */
-    export type Update = t.PlaybackUpdate;
+    export type Snapshot = t.PlaybackSnapshot;
 
     /** All reducer inputs */
     export type Input = t.PlaybackInput;

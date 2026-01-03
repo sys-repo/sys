@@ -1,15 +1,14 @@
 import type { t } from './common.ts';
 import type * as R from './t.runtime.ts';
 
-type Input = t.TimecodeState.Playback.Input;
-type State = t.TimecodeState.Playback.State;
-type Update = t.TimecodeState.Playback.Update;
-type CreateDriverArgs = Omit<R.CreatePlaybackDriverArgs, 'dispatch'>;
+type CreateDriverArgs = Omit<R.CreatePlaybackDriverArgs, 'dispatch' | 'decks'> & {
+  decks?: R.VideoDecks;
+};
 
 /** Arguments for the React playback driver hook. */
 export type UsePlaybackDriverArgs = CreateDriverArgs & {
-  /** Optional init args forwarded to ui-state machine.init(...) */
-  init?: Parameters<t.TimecodeState.Playback.Lib['init']>[0];
+  /** Forwarded verbatim to ui-state Playback.init(...) */
+  init?: t.TimecodeState.Playback.InitArgs;
 };
 
 /**
@@ -19,14 +18,11 @@ export type UsePlaybackDriverResult = {
   /** Imperative control surface bound to the active driver instance. */
   readonly controller: R.TimelineController;
 
-  /** Current reducer state of the playback machine. */
-  readonly state: State;
-
   /** Last reducer update (state + causal metadata). */
-  readonly update: Update;
+  readonly snapshot: t.TimecodeState.Playback.Snapshot;
 
   /** Low-level dispatch into the playback state machine. */
-  readonly dispatch: (input: Input) => void;
+  readonly dispatch: R.TimelineControllerDispatch;
 };
 
 /** Arguments for the pure playback timeline projection hook. */
