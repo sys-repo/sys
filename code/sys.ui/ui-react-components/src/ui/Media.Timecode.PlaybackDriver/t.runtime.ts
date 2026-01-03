@@ -18,6 +18,14 @@ export type Schedule = {
 };
 
 /**
+ * Dual video deck signals.
+ */
+export type VideoDecks = {
+  readonly A: t.VideoPlayerSignals;
+  readonly B: t.VideoPlayerSignals;
+};
+
+/**
  * Resolve the media identity for a beat.
  * Returns undefined when the authoring context is missing required media.
  */
@@ -42,7 +50,7 @@ export type PlaybackDriver = t.DisposableLike & {
  */
 export type CreatePlaybackDriverArgs = {
   /** Deck runtimes keyed by reducer deck id. */
-  readonly decks: { readonly [K in t.TimecodeState.Playback.DeckId]: t.VideoPlayerSignals };
+  readonly decks: VideoDecks;
 
   /** Beat → media resolver used by cmd:deck:load. */
   readonly resolveBeatMedia: ResolveBeatMedia;

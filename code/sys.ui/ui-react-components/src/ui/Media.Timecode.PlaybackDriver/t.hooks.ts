@@ -8,7 +8,7 @@ type CreateDriverArgs = Omit<R.CreatePlaybackDriverArgs, 'dispatch'>;
 
 /** Arguments for the React playback driver hook. */
 export type UsePlaybackDriverArgs = CreateDriverArgs & {
-  /** Optional init args forwarded to UI state machine.init(...) */
+  /** Optional init args forwarded to ui-state machine.init(...) */
   init?: Parameters<t.TimecodeState.Playback.Lib['init']>[0];
 };
 
