@@ -6,7 +6,7 @@ import { Grid, type GridActivePhase, type SelectIndexHandler } from './ui.Grid.t
 import { InfoPanel } from './ui.InfoPanel.tsx';
 import { Video } from './ui.Video.tsx';
 
-type LayoutProps = Pick<HarnessProps, 'video' | 'bundle' | 'docid' | 'layout'> & {
+type LayoutProps = Pick<HarnessProps, 'decks' | 'bundle' | 'docid' | 'layout'> & {
   /** Presence */
   hasBundle: boolean;
 
@@ -33,7 +33,7 @@ export const Layout: React.FC<LayoutProps> = (props) => {
   const {
     debug = false,
     hasBundle,
-    video,
+    decks,
     bundle,
     docid,
     selectedIndex,
@@ -96,8 +96,8 @@ export const Layout: React.FC<LayoutProps> = (props) => {
   const elLayout = hasBundle && (
     <div className={styles.layout.base.class}>
       <div className={styles.layout.top.class}>
-        <Video deck="A" theme={theme.name} video={video?.A} debug={debug} />
-        <Video deck="B" theme={theme.name} video={video?.B} debug={debug} />
+        <Video deck={'A'} theme={theme.name} video={decks?.A} debug={debug} />
+        <Video deck={'B'} theme={theme.name} video={decks?.B} debug={debug} />
       </div>
       <div className={styles.layout.bottom.base.class}>
         <div className={styles.layout.bottom.left.class}>

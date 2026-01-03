@@ -8,7 +8,7 @@ import { useOrchestrator } from './use.Orchestrator.ts';
 type TimelineController = t.TimecodePlaybackDriver.TimelineController;
 
 export const Harness: React.FC<HarnessProps> = (props) => {
-  const { debug = false, bundle, docid, video } = props;
+  const { debug = false, bundle, docid, decks } = props;
   const spec = bundle?.spec;
   const hasBundle = !!bundle;
 
@@ -29,7 +29,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
    */
   const orchestrator = useOrchestrator({
     bundle,
-    video,
+    decks,
     docid,
     experience: timeline.experience,
     startBeat: 0,
@@ -95,7 +95,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
       debug={debug}
       beat={beat}
       docid={docid}
-      video={video}
+      decks={decks}
       bundle={bundle}
       layout={props.layout}
       theme={props.theme}

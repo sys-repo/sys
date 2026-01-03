@@ -28,11 +28,11 @@ async function load(debug: DebugSignals, docid: t.StringId) {
  * Unload sample.
  */
 function unload(debug: DebugSignals) {
-  const video = debug.video;
+  const decks = debug.decks;
   const p = debug.props;
 
   p.docid.value = undefined;
   p.bundle.value = undefined;
-  video.A.props.src.value = undefined;
-  video.B.props.src.value = undefined;
+  decks.A.props.src.value = undefined;
+  decks.B.props.src.value = undefined;
 }

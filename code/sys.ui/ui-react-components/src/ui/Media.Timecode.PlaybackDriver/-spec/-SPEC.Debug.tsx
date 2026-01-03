@@ -41,7 +41,7 @@ export async function createDebugSignals() {
 
   const Video = Player.Video;
   const createVideo = () => Video.signals({ cornerRadius: 4, showControls: false, muted: true });
-  const video = { A: createVideo(), B: createVideo() };
+  const decks: t.TimecodePlaybackDriver.VideoDecks = { A: createVideo(), B: createVideo() };
 
   const props = {
     debug: s(snap.debug),
@@ -54,15 +54,15 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
-    video,
+    decks,
     listen,
     reset,
   };
 
   function listen() {
     Signal.listen(props, true);
-    Signal.listen(video.A.props);
-    Signal.listen(video.B.props);
+    Signal.listen(decks.A.props);
+    Signal.listen(decks.B.props);
   }
 
   function reset() {
@@ -155,8 +155,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 5 }}
         expand={0}
       />
-      <VideoObjectView name={'video-A'} video={debug.video.A} />
-      <VideoObjectView name={'video-B'} video={debug.video.B} />
+      <VideoObjectView name={'video-A'} video={debug.decks.A} />
+      <VideoObjectView name={'video-B'} video={debug.decks.B} />
     </div>
   );
 };
