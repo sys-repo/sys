@@ -1,17 +1,18 @@
 import React from 'react';
-import type { t } from './common.ts';
+import { type t, PlaybackDriver } from './common.ts';
 
 type Args = {
-  readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
-  readonly video?: t.TimecodePlaybackDriver.VideoDecks;
-  readonly docid?: t.StringId;
-  readonly playback?: t.TimecodeState.Playback.Timeline;
-  readonly startBeat?: t.TimecodeState.Playback.BeatIndex;
+  bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
+  decks?: t.TimecodePlaybackDriver.VideoDecks;
+  docid?: t.StringId;
+  experience?: t.Timecode.Experience.Timeline;
+  startBeat?: t.TimecodeState.Playback.BeatIndex;
+  log?: boolean;
 };
 
 type Result = {
   readonly controller: t.TimecodePlaybackDriver.TimelineController;
-  readonly snapshot?: t.TimecodeState.Playback.Update;
+  readonly snapshot?: t.TimecodeState.Playback.Snapshot;
   readonly selectedIndex?: t.TimecodeState.Playback.BeatIndex;
 };
 
@@ -33,23 +34,31 @@ type Result = {
  * This file exists purely to adapt imperative driver behavior
  * to declarative UI surfaces.
  */
-export function useOrchestrator(_args: Args): Result {
-  const controller = React.useMemo<t.TimecodePlaybackDriver.TimelineController>(() => {
-    return {
-      init: (_args) => {},
-      play: () => {},
-      pause: () => {},
-      toggle: () => {},
-      seekToBeat: () => {},
-    };
-  }, []);
+export function useOrchestrator(args: Args): Result {
+  const { bundle, decks, experience, startBeat, log = false } = args;
 
-  const snapshot = undefined as t.TimecodeState.Playback.Update | undefined;
-  const selectedIndex = snapshot?.state?.currentBeat;
+  const init = React.useMemo<t.TimecodeState.Playback.InitArgs | undefined>(() => {
+    if (!bundle) return undefined;
+    if (!experience) return undefined;
+    const timeline = PlaybackDriver.buildPlaybackTimeline({ timeline: experience, bundle });
+    return { timeline, startBeat };
+  }, [bundle, experience, startBeat]);
+
+  const resolveBeatMedia = React.useMemo<t.TimecodePlaybackDriver.ResolveBeatMedia>(() => {
+    if (!bundle) return () => undefined;
+    return PlaybackDriver.resolveBeatMedia(bundle);
+  }, [bundle]);
+
+  const { controller, snapshot } = PlaybackDriver.useDriver({
+    init,
+    decks,
+    log,
+    resolveBeatMedia,
+  });
 
   return {
     controller,
     snapshot,
-    selectedIndex,
+    selectedIndex: snapshot?.state?.currentBeat,
   };
 }
