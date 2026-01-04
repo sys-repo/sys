@@ -16,6 +16,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
    * Timeline data (pure).
    */
   const timeline = PlaybackDriver.usePlaybackTimeline({ spec });
+  const { experience } = timeline;
 
   /**
    * Keep onReady stable (avoid render-feedback loops).
@@ -27,20 +28,14 @@ export const Harness: React.FC<HarnessProps> = (props) => {
    * Dev-only orchestration glue:
    * runtime → runner → snapshot → controller → init sequencing.
    */
-  const orchestrator = useOrchestrator({
-    bundle,
-    decks,
-    docid,
-    experience: timeline.experience,
-    startBeat: 0,
-  });
+  const orchestrator = useOrchestrator({ bundle, decks, docid, experience, startBeat: 0 });
 
   /**
    * UI-only derived values.
    */
   const beat =
-    orchestrator.selectedIndex != null && timeline.experience
-      ? timeline.experience.beats[orchestrator.selectedIndex]
+    orchestrator.selectedIndex != null && experience
+      ? experience.beats[orchestrator.selectedIndex]
       : undefined;
 
   /**
