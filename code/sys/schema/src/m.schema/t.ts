@@ -49,5 +49,7 @@ export type SchemaLib = {
   asStandardSchema(schema: unknown, vendor?: string): t.StandardSchemaV1;
 };
 
-/** Response returned from the `Schema.try` method. */
-export type SchemaTryResult<T> = { ok: true; value: T } | { ok: false; errors: t.ValueError[] };
+/** Result of a schema validation or parse operation. */
+export type SchemaResult<T> = { ok: true; value: T } | { ok: false; errors: t.ValueError[] };
+/** Result returned from `Schema.try`. */
+export type SchemaTryResult<T> = SchemaResult<T>;
