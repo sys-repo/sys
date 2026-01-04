@@ -4,11 +4,18 @@ import { type t } from './common.ts';
  * Lift a normalized slug sequence into the generic playback spec.
  */
 export const fromNormalized: t.PlaybackLib['fromNormalized'] = (docid, normalized) => {
-  const { timecode: composition, beats, meta } = normalized;
-  return {
-    docid,
-    composition,
-    beats,
-    meta,
-  };
+  const { meta } = normalized;
+
+  type B = t.TimecodePlaybackBeat<t.SequenceBeatPayload>;
+  const beats: readonly B[] = normalized.beats.map((beat) => {
+    const { pause, payload } = beat;
+    return {
+      pause,
+      payload,
+      src: { kind: 'video', logicalPath: beat.src.ref, time: beat.src.time },
+    };
+  });
+
+  const composition = normalized.timecode;
+  return { docid, composition, beats, meta };
 };

@@ -1,4 +1,5 @@
 import { type t, Sequence } from './common.ts';
+import { fromNormalized } from './u.fromNormalized.ts';
 
 /**
  * Convenience: read + normalize into a playback spec ready
@@ -18,27 +19,10 @@ export const fromDag: t.PlaybackLib['fromDag'] = async (dag, yamlPath, docid, op
   const normalized = Sequence.Normalize.toTimecode(result.sequence, { docid, yamlPath });
 
   // 3. Project into the wire-format playback spec.
-  const playback = projectNormalizedToPlayback(docid, normalized);
+  const sequence = fromNormalized(docid, normalized);
 
   return {
     ok: true,
-    sequence: playback,
+    sequence,
   };
 };
-
-/**
- * Internal helper: project a normalized SlugSequence into the
- * playback spec wire format used by bundler/UI.
- */
-export function projectNormalizedToPlayback(
-  docid: t.Crdt.Id,
-  normalized: t.SequenceNormalized,
-): t.PlaybackSpec {
-  const { timecode, beats, meta } = normalized;
-  return {
-    docid,
-    composition: timecode,
-    beats,
-    meta,
-  };
-}

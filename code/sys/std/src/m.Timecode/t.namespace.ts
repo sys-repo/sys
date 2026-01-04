@@ -37,6 +37,8 @@ export namespace Timecode {
 
   export namespace Playback {
     export type Spec<P> = t.TimecodePlaybackSpec<P>;
+    export type Beat<P = unknown> = t.TimecodePlaybackBeat<P>;
+    export type BeatSrc = t.TimecodePlaybackBeatSrc;
     export type MediaKind = t.PlaybackMediaKind;
     export type ResolverArgs = t.MediaResolverArgs;
     export type Resolver = t.MediaResolver;

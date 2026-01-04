@@ -4,7 +4,6 @@ import { Playback } from '../mod.ts';
 
 describe('Playback.fromNormalized', () => {
   const docid: t.Crdt.Id = 'sample-docid';
-
   const makeNormalized = (): t.SequenceNormalized => ({
     timecode: [],
     beats: [
@@ -28,14 +27,20 @@ describe('Playback.fromNormalized', () => {
     const spec = Playback.fromNormalized(docid, normalized);
 
     // new surface: docid + meta
-    expect(spec.docid).to.equal(docid);
+    expect(spec.docid).to.eql(docid);
     expect(spec.meta).to.eql(normalized.meta);
 
     // composition is passed through
     expect(spec.composition).to.eql(normalized.timecode);
 
-    // beats are passed through
-    expect(spec.beats).to.eql(normalized.beats);
+    // beats are projected (not passed through)
+    expect(spec.beats).to.eql([
+      {
+        pause: undefined,
+        payload: normalized.beats[0].payload,
+        src: { kind: 'video', logicalPath: 'video:1', time: 3000 },
+      },
+    ]);
   });
 
   it('does not mutate the normalized input', () => {

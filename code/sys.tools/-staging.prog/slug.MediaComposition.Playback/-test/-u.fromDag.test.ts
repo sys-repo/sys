@@ -1,49 +1,104 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
-import { projectNormalizedToPlayback } from '../u.fromDag.ts';
+import { type t, describe, expect, it } from '../../-test.ts';
+import { Sequence } from '../common.ts';
+import { fromDag } from '../u.fromDag.ts';
+import { fromNormalized } from '../u.fromNormalized.ts';
 
 describe('Playback.fromDag', () => {
-  /**
-   * NOTE:  This test targets the pure projection step.
-   *
-   * Why:   It defines the playback wire-format contract and is stable surface area.
-   * What:  We verify the shape and mapping logic without pulling in the full
-   *        load/normalize pipeline, which is tested elsewhere.
-   */
-  describe('projectNormalizedToPlayback', () => {
-    it('projects a normalized sequence into a playback spec', () => {
-      const normalized: t.SequenceNormalized = {
-        timecode: [
-          {
-            src: 'video-1.mp4',
-            slice: '00:00..00:10' as t.Timecode.Slice.String,
-          },
-        ],
-        beats: [
-          {
-            src: { ref: 'video-1.mp4', time: 2000 },
-            pause: 2000,
-            payload: { title: 'Hello' },
-          },
-        ],
-        meta: {
-          docid: '1234' as t.Crdt.Id,
-          path: { yaml: ['sequence'] as t.ObjectPath },
-        },
+  it('passes through Sequence.fromDag errors (no normalize)', async () => {
+    const prevFromDag = Sequence.fromDag;
+    const prevToTimecode = Sequence.Normalize.toTimecode;
+
+    try {
+      let calledNormalize = false;
+
+      // stub
+      Sequence.fromDag = async () => {
+        return {
+          ok: false,
+          error: { message: 'boom' },
+        } as t.ValidateResult<t.SequenceItem[]>;
       };
 
-      const docid: t.Crdt.Id = 'xxxx';
-      const playback = projectNormalizedToPlayback(docid, normalized);
+      Sequence.Normalize.toTimecode = (() => {
+        calledNormalize = true;
+        return {} as t.SequenceNormalized;
+      }) as typeof Sequence.Normalize.toTimecode;
 
-      // Type surface.
-      expectTypeOf(playback).toEqualTypeOf<t.PlaybackSpec>();
+      const dag = {} as t.Graph.Dag.Result;
+      const yamlPath = ['sequence'] as t.ObjectPath;
+      const docid = 'doc-1' as t.Crdt.Id;
 
-      // new surface: docid + meta
-      expect(playback.docid).to.equal(docid);
-      expect(playback.meta).to.eql(normalized.meta);
+      const res = await fromDag(dag, yamlPath, docid, { validate: true });
 
-      // Structural projection.
-      expect(playback.composition).to.eql(normalized.timecode);
-      expect(playback.beats).to.eql(normalized.beats);
-    });
+      expect(res.ok).to.eql(false);
+      expect(calledNormalize).to.eql(false);
+
+      // assert propagated error
+      if (!res.ok) {
+        expect(res.error?.message).to.eql('boom');
+      }
+    } finally {
+      Sequence.fromDag = prevFromDag;
+      Sequence.Normalize.toTimecode = prevToTimecode;
+    }
+  });
+
+  it('wires load → normalize → project and returns { ok:true, sequence }', async () => {
+    const prevFromDag = Sequence.fromDag;
+    const prevToTimecode = Sequence.Normalize.toTimecode;
+
+    try {
+      const calls = { fromDag: 0, toTimecode: 0 };
+      const dag = {} as t.Graph.Dag.Result;
+      const yamlPath = ['sequence'] as t.ObjectPath;
+      const docid = 'doc-1' as t.Crdt.Id;
+      const opts = { validate: true } as const;
+
+      const seqItems = [] as t.SequenceItem[];
+
+      const normalized: t.SequenceNormalized = {
+        timecode: [{ src: 'video-1.mp4' }],
+        beats: [{ src: { ref: 'video-1.mp4', time: 2000 }, payload: { title: 'Hi' } }],
+        meta: { docid, path: { yaml: yamlPath } },
+      };
+
+      // stubs + spies
+      Sequence.fromDag = (async (...args: Parameters<typeof Sequence.fromDag>) => {
+        const [d, yp, id, o] = args;
+
+        calls.fromDag++;
+        expect(d).to.eql(dag);
+        expect(yp).to.eql(yamlPath);
+        expect(id).to.eql(docid);
+        expect(o).to.eql(opts);
+
+        return { ok: true, sequence: seqItems } as t.ValidateResult<t.SequenceItem[]>;
+      }) as typeof Sequence.fromDag;
+
+      Sequence.Normalize.toTimecode = ((
+        ...args: Parameters<typeof Sequence.Normalize.toTimecode>
+      ) => {
+        const [sequence, normArgs] = args;
+        calls.toTimecode++;
+        expect(sequence).to.eql(seqItems);
+        expect(normArgs).to.eql({ docid, yamlPath });
+
+        return normalized;
+      }) as typeof Sequence.Normalize.toTimecode;
+
+      const res = await fromDag(dag, yamlPath, docid, opts);
+
+      expect(res.ok).to.eql(true);
+      expect(calls.fromDag).to.eql(1);
+      expect(calls.toTimecode).to.eql(1);
+
+      // Don’t re-test projection logic here; just verify it uses the canonical function.
+      if (res.ok) {
+        expect(res.sequence).to.eql(fromNormalized(docid, normalized));
+      }
+    } finally {
+      Sequence.fromDag = prevFromDag;
+      Sequence.Normalize.toTimecode = prevToTimecode;
+    }
   });
 });
