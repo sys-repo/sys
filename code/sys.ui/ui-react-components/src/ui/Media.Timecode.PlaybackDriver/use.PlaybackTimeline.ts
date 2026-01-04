@@ -23,8 +23,16 @@ export function usePlaybackTimeline<P = unknown>(
     // 1) Resolve composite → segments + total + diagnostics.
     const resolved = Timecode.Composite.toVirtualTimeline(spec.composition);
 
-    // 2) Project beats onto virtual time axis (std Experience timeline).
-    const experience = Timecode.Experience.toTimeline<P>(resolved, spec.beats);
+    // 2) Adapt runtime playback beats → experience beats for timeline mapping.
+    //    (Experience mapping requires `src.ref` to match composition pieces.)
+    const expBeats: readonly t.Timecode.Experience.Beat<P>[] = spec.beats.map((b) => ({
+      pause: b.pause,
+      payload: b.payload,
+      src: { ref: b.src.logicalPath, time: b.src.time },
+    }));
+
+    // 3) Project beats onto virtual time axis (std Experience timeline).
+    const experience = Timecode.Experience.toTimeline<P>(resolved, expBeats);
 
     // 3) Map std timeline → ui-state PlaybackTimeline (beats + segments).
     const beats: t.TimecodeState.Playback.Beat[] = experience.beats.map((b, i) => {

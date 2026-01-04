@@ -8,17 +8,26 @@ describe('Media.Timecode.Driver: usePlaybackTimeline', () => {
   const ms = (n: number): t.Msecs => n;
   const makeEmptySpec = (): t.Timecode.Playback.Spec<unknown> => ({ composition: [], beats: [] });
   const makeTwoSegmentSpec = (): t.Timecode.Playback.Spec<unknown> => {
-    const srcA: t.StringRef = 'src:A';
-    const srcB: t.StringRef = 'src:B';
+    const srcARef: t.StringRef = 'src:A';
+    const srcBRef: t.StringRef = 'src:B';
+    const srcALogical: t.StringPath = 'src:A';
+    const srcBLogical: t.StringPath = 'src:B';
+
     const composition: t.Timecode.Composite.Spec = [
-      { src: srcA, duration: ms(10_000) },
-      { src: srcB, duration: ms(5_000) },
+      { src: srcARef, duration: ms(10_000) },
+      { src: srcBRef, duration: ms(5_000) },
     ];
-    const beats: readonly t.Timecode.Experience.Beat<unknown>[] = [
-      { src: { ref: srcA, time: ms(0) }, payload: {} },
-      { src: { ref: srcA, time: ms(2_000) }, payload: {}, pause: ms(1_000) },
-      { src: { ref: srcB, time: ms(0) }, payload: {} },
+
+    const beats: readonly t.Timecode.Playback.Beat<unknown>[] = [
+      { src: { kind: 'video', logicalPath: srcALogical, time: ms(0) }, payload: {} },
+      {
+        src: { kind: 'video', logicalPath: srcALogical, time: ms(2_000) },
+        payload: {},
+        pause: ms(1_000),
+      },
+      { src: { kind: 'video', logicalPath: srcBLogical, time: ms(0) }, payload: {} },
     ];
+
     return { composition, beats };
   };
 

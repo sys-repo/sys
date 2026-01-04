@@ -27,11 +27,9 @@ export type VideoDecks = {
 
 /**
  * Resolve the media identity for a beat.
- * Returns undefined when the authoring context is missing required media.
+ * Returns <undefined> when the authoring context is missing required media.
  */
-export type ResolveBeatMedia = (
-  beat: t.TimecodeState.Playback.BeatIndex,
-) => ResolveBeatMediaResult | undefined;
+export type ResolveBeatMedia = (beat: BeatIndex) => ResolveBeatMediaResult | undefined;
 export type ResolveBeatMediaResult = {
   readonly src: string;
   readonly slice?: t.Timecode.Slice.String | string;
@@ -49,7 +47,7 @@ export type PlaybackDriver = t.DisposableLike & {
  * Create a pure TimelineController.
  */
 export type TimelineController = {
-  readonly init: (args: { readonly timeline: Timeline; readonly startBeat?: BeatIndex }) => void;
+  readonly init: (args: { timeline: Timeline; startBeat?: BeatIndex }) => void;
   readonly play: () => void;
   readonly pause: () => void;
   readonly toggle: () => void;

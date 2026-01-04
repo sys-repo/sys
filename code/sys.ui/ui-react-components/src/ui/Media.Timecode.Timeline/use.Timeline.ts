@@ -18,7 +18,13 @@ export const useTimeline = <P = unknown>(
     const resolved = Timecode.Composite.toVirtualTimeline(spec.composition);
 
     // 2. Project beats onto the virtual timeline (adds vTime, duration).
-    const timeline = Timecode.Experience.toTimeline<P>(resolved, spec.beats);
+    const beatsForTimeline: readonly t.Timecode.Experience.Beat<P>[] = spec.beats.map((beat) => ({
+      src: { ref: beat.src.logicalPath, time: beat.src.time },
+      pause: beat.pause,
+      payload: beat.payload,
+    }));
+
+    const timeline = Timecode.Experience.toTimeline<P>(resolved, beatsForTimeline);
 
     return { resolved, timeline };
   }, [spec]);
