@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 import type * as H from './t.hooks.ts';
 import type * as R from './t.runtime.ts';
 import type * as B from './t.build.ts';
+import type * as W from './t.wire.ts';
 
 type U = unknown;
 type Timeline = t.TimecodeState.Playback.Timeline;
@@ -24,4 +25,16 @@ export type TimecodePlaybackDriverLib = {
 
   /** Pure builder: experience timeline + wire bundle → ui-state timeline. */
   buildPlaybackTimeline<P = U>(args: B.BuildPlaybackTimelineArgs<P>): Timeline;
+
+  /**
+   * Resolve runtime media identity for a playback beat.
+   *
+   * Given a bundled playback spec and resolver, returns a function that maps
+   * a beat index → concrete media URL (+ optional slice), or <undefined> when
+   * the media is unavailable.
+   *
+   * This is the sole boundary where authoring-time media refs are translated
+   * into runtime playback media.
+   */
+  resolveBeatMedia(bundle: W.SpecTimelineBundle): R.ResolveBeatMedia;
 };
