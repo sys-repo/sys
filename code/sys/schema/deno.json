@@ -14,7 +14,7 @@
     "./t": "./src/types.ts",
     "./t/primitives": "./src/t.typebox.primitives.ts",
     "./types": "./src/types.ts",
-    "./recipe": "./src/-exports/-recipe.ts",
+    "./recipe": "./src/-exports/-core.recipe.ts",
     "./testing": "./src/-exports/-testing.ts",
     "./timecode/playback": "./src/-exports/-timecode.playback.ts"
   }

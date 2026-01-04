@@ -15,10 +15,6 @@
  * introspection, and composition within the @sys ecosystem.
  */
 export { pkg } from './pkg.ts';
-/** Type library (barrel file). */
-export type * as t from './types.ts';
 
-/**
- * Library:
- */
-export { Schema, Type, Value } from './m.schema/mod.ts';
+export type * as t from './types.ts';
+export * from './-exports/-core.ts';

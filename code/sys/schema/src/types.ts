@@ -9,8 +9,8 @@ export type Infer<S extends t.TSchema> = t.Static<S>;
 /**
  * Library:
  */
-export type * from './m.recipe/t.ts';
-export type * from './m.schema/t.ts';
+export type * from './m.core.recipe/t.ts';
+export type * from './m.core.schema/t.ts';
 export type * from './m.testing/t.ts';
 export type * from './m.timecode.playback/t.ts';
 export type * from './t.namespace.ts';

@@ -1,6 +1,6 @@
 import { V } from '../mod.ts';
 import { describe, expect, it } from '../../-test.ts';
-import { Value as TB } from '../../m.schema/mod.ts';
+import { Value as TB } from '../../m.core.schema/mod.ts';
 import { toSchema } from '../u.toSchema.ts';
 
 describe('toSchema (compile)', () => {
