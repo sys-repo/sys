@@ -13,18 +13,13 @@ export const usePlaybackDriver = (args: UsePlaybackDriverArgs): UsePlaybackDrive
   const machine = TimecodeState.Playback;
 
   const reducer = React.useCallback(
-    (prev: Snapshot, input: Input): Snapshot => machine.reduce(prev.state, input),
+    (prev: Snapshot, input: Input) => machine.reduce(prev.state, input),
     [machine],
   );
-
   const [snapshot, send] = React.useReducer(reducer, init, (args) => machine.init(args));
   const dispatch = React.useCallback((input: Input) => send(input), [send]);
-
   const noopDriver = React.useMemo<t.TimecodePlaybackDriver.Driver>(() => {
-    return {
-      apply: () => {},
-      dispose: () => {},
-    };
+    return { apply: () => {}, dispose: () => {} };
   }, []);
 
   const driver = React.useMemo(() => {
@@ -37,8 +32,8 @@ export const usePlaybackDriver = (args: UsePlaybackDriverArgs): UsePlaybackDrive
   React.useEffect(() => () => driver.dispose(), [driver]);
 
   return {
+    controller,
     snapshot,
     dispatch,
-    controller,
   };
 };
