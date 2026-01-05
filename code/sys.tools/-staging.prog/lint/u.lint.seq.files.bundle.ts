@@ -1,4 +1,4 @@
-import { type t, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
+import { type t, Fs, Hash, Is, Json, Obj, Slug, PlaybackSchema } from './common.ts';
 import { buildSequenceFilepathIssue } from './u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
 
@@ -16,8 +16,8 @@ type Facet = t.DocLintFacet;
  * Additionally:
  * - Always attempts to emit `slug.<docid>.playback.json` (normalized
  *   composition + beats) derived from the slug sequence.
- * - If playback cannot be generated, records a dedicated lint issue so the
- *   caller sees the precise reason alongside file-path problems.
+ * - If playback cannot be generated or fails schema validation, records a
+ *   dedicated lint issue with the precise reason.
  */
 export async function bundleSequenceFilepaths(
   dag: Dag,
@@ -32,11 +32,7 @@ export async function bundleSequenceFilepaths(
      * When true, require this slug to support playback derivation via a
      * playback-related trait (e.g. `{ of: "media-composition", as: "sequence" }`).
      *
-     * If playback is not applicable because the required trait(s) are missing
-     * or invalid, emit a lint error instead of silently skipping playback output.
-     *
-     * Default: false — best-effort mode; missing playback trait(s) are treated
-     * as "not applicable" and do not produce lint errors.
+     * Default: false — best-effort mode.
      */
     requirePlayback?: boolean;
   } = {},
@@ -55,17 +51,13 @@ export async function bundleSequenceFilepaths(
   };
 
   const visit = async (args: t.LintMediaWalkArgs) => {
-    // First, reuse existing lint behaviour.
     const issue = await buildSequenceFilepathIssue(docid, args);
     if (issue) {
       issues.push(issue);
-      return; // Do not bundle problematic paths.
+      return;
     }
 
     const { kind, raw, resolvedPath, exists } = args;
-
-    // Guardrail: buildSequenceFilepathIssue returns undefined only when we
-    // have a concrete, existing path.
     if (!exists || !resolvedPath) return;
 
     const hash = Hash.sha256((await Fs.read(resolvedPath)).data);
@@ -77,10 +69,9 @@ export async function bundleSequenceFilepaths(
     const destPath = Fs.join(destDir, filename);
 
     await Fs.ensureDir(destDir);
-
-    // Idempotent copy: skip if already present.
-    const destExists = await Fs.exists(destPath);
-    if (!destExists) await Fs.copy(resolvedPath, destPath);
+    if (!(await Fs.exists(destPath))) {
+      await Fs.copy(resolvedPath, destPath);
+    }
 
     const href = `${baseHref}/${kindDir}/${filename}`;
     assets.push({ kind, logicalPath: String(raw), hash, filename, href });
@@ -89,7 +80,7 @@ export async function bundleSequenceFilepaths(
   await walkSequenceMediaPaths(dag, yamlPath, docid, facets, visit);
 
   /**
-   * Write asset manifest file (json).
+   * Write asset manifest.
    */
   if (assets.length > 0) {
     const manifest: t.SlugAssetsManifest = { docid, assets };
@@ -98,49 +89,63 @@ export async function bundleSequenceFilepaths(
   }
 
   /**
-   * Always attempt to write playback manifest (composition + beats) as
-   * `slug.<docid>.playback.json`, derived from the slug sequence.
-   *
-   * If playback cannot be generated, record this as a lint issue with the
-   * *actual* upstream validation error so the caller gets concrete feedback.
+   * Attempt to derive and validate playback manifest.
    */
   const Playback = Slug.Trait.MediaComposition.Playback;
   const playbackResult = await Playback.fromDag(dag, yamlPath, docid, {
     validate: true,
     trait: { of: 'media-composition' },
   });
+
   const playbackFilename = `slug.${docid}.playback.json`;
+
+  const pushNotExportedError = (path: string, message: string) => {
+    const issue: t.LintSequenceFilepath = {
+      kind: 'sequence:playback:not-exported',
+      severity: 'error',
+      path,
+      raw: playbackFilename,
+      resolvedPath: '',
+      doc: { id: docid },
+      message,
+    };
+    issues.push(issue);
+  };
+
+  const yamlPathStr = Is.array(yamlPath) && yamlPath.length > 0 ? yamlPath.join('/') : '';
 
   if (!playbackResult.ok) {
     const reason = playbackResult.error?.message ?? 'Unknown validation error.';
-    const path = Is.array(yamlPath) && yamlPath.length > 0 ? yamlPath.join('/') : '';
 
-    // Missing trait → "not applicable" unless explicitly required.
     const isNotApplicable =
       reason.includes('does not advertise') &&
       reason.includes('expected {of:"media-composition", as:string}');
 
     const requirePlayback = opts.requirePlayback ?? false;
     if (!isNotApplicable || requirePlayback) {
-      const message = `Playback manifest could not be generated from slug sequence. Reason: ${reason}`;
-
-      const issue: t.LintSequenceFilepath = {
-        kind: 'sequence:playback:not-exported',
-        severity: 'error',
-        path,
-        raw: playbackFilename,
-        resolvedPath: '',
-        doc: { id: docid },
-        message,
-      };
-
-      issues.push(issue);
+      pushNotExportedError(
+        yamlPathStr,
+        `Playback manifest could not be generated from slug sequence. Reason: ${reason}`,
+      );
     }
   } else {
-    const path = Fs.join(dir.base, dir.manifests, playbackFilename);
-    await Fs.write(path, Json.stringify(playbackResult.sequence));
+    const payload: undefined = undefined;
+    const parsed = PlaybackSchema.Manifest.parse(playbackResult.sequence, { payload });
+
+    if (!parsed.ok) {
+      const reason = parsed.errors
+        .map((e) => `${e.path.length > 0 ? e.path : '<root>'}: ${e.message}`)
+        .join('; ');
+
+      pushNotExportedError(
+        yamlPathStr,
+        `Playback manifest failed @sys/schema validation. Reason: ${reason}`,
+      );
+    } else {
+      const outPath = Fs.join(dir.base, dir.manifests, playbackFilename);
+      await Fs.write(outPath, Json.stringify(parsed.value));
+    }
   }
 
-  // Finish up.
   return Obj.asGetter({ dir, issues }, ['issues']);
 }
