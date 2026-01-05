@@ -1,4 +1,4 @@
-import { type t, Http } from './common.ts';
+import { type t, Http, PlaybackSchema } from './common.ts';
 
 /**
  * Load a t.TimecodePlaybackDriver.Wire.Bundle from a running `publish.assets` server.
@@ -23,7 +23,21 @@ export async function loadTimelineFromEndpoint(
 
   // 3. Timeline manifest (timecode spec) for this slug/doc.
   const timelineRes = await http.json(`${baseUrl}/manifests/slug.${docid}.playback.json`);
-  const manifest = timelineRes.data as t.TimecodePlaybackDriver.Wire.Manifest<unknown>;
+
+  // Payload is intentionally unconstrained at this layer.
+  const payload = undefined;
+  const parsed = PlaybackSchema.Manifest.parse(timelineRes.data, payload);
+  if (!parsed.ok) {
+    const reason = parsed.errors.map((e) => `${e.path}: ${e.message}`).join('; ');
+    throw new Error(`Playback manifest failed @sys/schema validation. Reason: ${reason}`);
+  }
+  if (parsed.value.docid !== docid) {
+    // Optional sanity check: requested docid matches wire docid.
+    const err = `Playback manifest docid mismatch. Expected: ${docid}. Got: ${parsed.value.docid}`;
+    throw new Error(err);
+  }
+
+  const manifest = parsed.value;
 
   // 4. Media resolver from the assets manifest.
   const resolveMedia: t.MediaResolver = ({ kind, logicalPath }) => {

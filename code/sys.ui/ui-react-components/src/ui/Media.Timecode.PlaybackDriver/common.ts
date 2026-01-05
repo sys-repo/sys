@@ -1,5 +1,6 @@
 import { pkg, Pkg } from '../common.ts';
 
+export { PlaybackSchema } from '@sys/schema/timecode/playback';
 export { Timecode } from '@sys/std/timecode';
 export { Timecode as TimecodeState } from '@sys/ui-state/timecode';
 export * from '../common.ts';
