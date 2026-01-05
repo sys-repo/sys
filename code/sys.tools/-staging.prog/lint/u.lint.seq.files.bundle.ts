@@ -129,8 +129,13 @@ export async function bundleSequenceFilepaths(
       );
     }
   } else {
-    const payload: undefined = undefined;
-    const parsed = PlaybackSchema.Manifest.parse(playbackResult.sequence, { payload });
+    const raw = playbackResult.sequence as Record<string, unknown>;
+    const candidate = {
+      docid: raw['docid'],
+      composition: raw['composition'],
+      beats: raw['beats'],
+    };
+    const parsed = PlaybackSchema.Manifest.parse(candidate);
 
     if (!parsed.ok) {
       const reason = parsed.errors
