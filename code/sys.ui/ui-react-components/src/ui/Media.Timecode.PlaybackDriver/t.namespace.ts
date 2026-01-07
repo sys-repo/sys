@@ -9,10 +9,10 @@ export namespace TimecodePlaybackDriver {
   export type Lib = t.TimecodePlaybackDriverLib;
 
   export type Schedule = R.Schedule;
-  export type ResolveBeatMedia = R.ResolveBeatMedia;
   export type Driver = R.PlaybackDriver;
-  export type TimelineController = R.TimelineController;
   export type VideoDecks = R.VideoDecks;
+  export type TimelineController = R.TimelineController;
+  export type ResolveBeatMedia = R.ResolveBeatMedia;
 
   /**
    * Wire-format interop shapes (tooling/loader manifests + bundles).

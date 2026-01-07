@@ -11,6 +11,7 @@ export { Dist } from '../../../Dist/mod.ts';
 export { KeyValue } from '../../../KeyValue/mod.ts';
 export { ObjectView } from '../../../ObjectView/mod.ts';
 export { Player } from '../../../Player/mod.ts';
+export { Spinners } from '../../../Spinners/mod.ts';
 export { Icons } from '../../../ui.Icons.ts';
 
 /**

@@ -71,7 +71,7 @@ export const Layout: React.FC<LayoutProps> = (props) => {
       }),
       bottom: {
         base: css({ display: 'grid', gridTemplateColumns: `1fr auto` }),
-        left: css({ position: 'relative', display: 'grid' }),
+        left: css({ position: 'relative', display: 'grid', minHeight: 0 }),
         right: css({
           position: 'relative',
           width: 300,
