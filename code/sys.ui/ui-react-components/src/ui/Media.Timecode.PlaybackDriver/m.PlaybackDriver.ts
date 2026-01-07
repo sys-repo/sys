@@ -1,6 +1,5 @@
 import type { t } from './common.ts';
 
-import { buildPlaybackTimeline } from './u.buildPlaybackTimeline.ts';
 import { createController as controller } from './u.controller.ts';
 import { createDriver as create } from './u.driver.ts';
 import { resolveBeatMedia } from './u.resolveBeatMedia.ts';
@@ -12,6 +11,5 @@ export const PlaybackDriver: t.TimecodePlaybackDriverLib = {
   controller,
   useDriver,
   usePlaybackTimeline,
-  buildPlaybackTimeline,
   resolveBeatMedia,
 };

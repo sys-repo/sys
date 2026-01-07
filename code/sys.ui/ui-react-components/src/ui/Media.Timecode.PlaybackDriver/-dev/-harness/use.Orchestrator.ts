@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, PlaybackDriver } from './common.ts';
+import { type t, PlaybackDriver, TimecodeState } from './common.ts';
 
 type Args = {
   bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
@@ -40,7 +40,7 @@ export function useOrchestrator(args: Args): Result {
   /**  */
   const init = React.useMemo<t.TimecodeState.Playback.InitArgs | undefined>(() => {
     if (!bundle || !timeline) return undefined;
-    const playbackTimeline = PlaybackDriver.buildPlaybackTimeline(timeline);
+    const playbackTimeline = TimecodeState.Playback.buildTimeline(timeline);
     return { timeline: playbackTimeline, startBeat };
   }, [bundle, timeline, startBeat]);
 

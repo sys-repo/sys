@@ -9,6 +9,11 @@ export type PlaybackStateLib = {
 
   /** Advance playback state by reducing an action or signal into next state and effects. */
   reduce(prev: t.PlaybackState, input: t.PlaybackInput): t.PlaybackSnapshot;
+
+  /** Pure builder: experience timeline (algebra) → ui-state timeline. */
+  buildTimeline<P = unknown>(
+    experience: t.Timecode.Experience.Timeline<P>,
+  ): t.TimecodeState.Playback.Timeline;
 };
 
 /** Arguments for the `Playback.init` method. */

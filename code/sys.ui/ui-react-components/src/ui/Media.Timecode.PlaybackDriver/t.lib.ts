@@ -1,4 +1,3 @@
-import type { t } from './common.ts';
 import type * as H from './t.hooks.ts';
 import type * as R from './t.runtime.ts';
 import type * as W from './t.wire.ts';
@@ -20,11 +19,6 @@ export type TimecodePlaybackDriverLib = {
 
   /** Pure projection hook from playback spec to timeline representations. */
   usePlaybackTimeline<P = U>(args: H.UsePlaybackTimelineArgs<P>): H.UsePlaybackTimelineResult<P>;
-
-  /** Pure builder: experience timeline + wire bundle → ui-state timeline. */
-  buildPlaybackTimeline<P = U>(
-    experience: t.Timecode.Experience.Timeline<P>,
-  ): t.TimecodeState.Playback.Timeline;
 
   /**
    * Resolve runtime media identity for a playback beat.

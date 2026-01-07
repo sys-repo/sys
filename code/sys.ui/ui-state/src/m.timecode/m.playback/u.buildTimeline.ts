@@ -1,14 +1,14 @@
 import { type t, D } from './common.ts';
 
 /**
- * Pure: build the ui-state `Playback.Timeline` from a resolved experience timeline plus the wire-format bundle.
+ * Pure: build the ui-state `Playback.Timeline` from a resolved experience timeline.
  *
  * Notes:
  * - beat.duration is MEDIA time (pause excluded)
  * - beat.pause is the semantic pause after the beat
  * - segments are derived by grouping consecutive beats by src.ref
  */
-export function buildPlaybackTimeline<P = unknown>(
+export function buildTimeline<P = unknown>(
   experience: t.Timecode.Experience.Timeline<P>,
 ): t.TimecodeState.Playback.Timeline {
   const beatsIn = experience.beats;
