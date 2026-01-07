@@ -5,7 +5,7 @@ type Args = {
   bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   decks?: t.TimecodePlaybackDriver.VideoDecks;
   docid?: t.StringId;
-  experience?: t.Timecode.Experience.Timeline;
+  timeline?: t.Timecode.Experience.Timeline;
   startBeat?: t.TimecodeState.Playback.BeatIndex;
   log?: boolean;
 };
@@ -35,14 +35,14 @@ type Result = {
  * to declarative UI surfaces.
  */
 export function useOrchestrator(args: Args): Result {
-  const { bundle, decks, experience, startBeat, log = false } = args;
+  const { bundle, decks, timeline, startBeat, log = false } = args;
 
+  /**  */
   const init = React.useMemo<t.TimecodeState.Playback.InitArgs | undefined>(() => {
-    if (!bundle) return undefined;
-    if (!experience) return undefined;
-    const timeline = PlaybackDriver.buildPlaybackTimeline({ timeline: experience, bundle });
-    return { timeline, startBeat };
-  }, [bundle, experience, startBeat]);
+    if (!bundle || !timeline) return undefined;
+    const playbackTimeline = PlaybackDriver.buildPlaybackTimeline(timeline);
+    return { timeline: playbackTimeline, startBeat };
+  }, [bundle, timeline, startBeat]);
 
   const resolveBeatMedia = React.useMemo<t.TimecodePlaybackDriver.ResolveBeatMedia>(() => {
     if (!bundle) return () => undefined;

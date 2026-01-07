@@ -14,14 +14,7 @@ describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
       duration: ms(0),
     };
 
-    // Bundle is currently unused by buildPlaybackTimeline, but required by signature.
-    const bundle: t.TimecodePlaybackDriver.Wire.Bundle<Payload> = {
-      docid: id('doc'),
-      spec: { composition: [], beats: [] },
-      resolveMedia: (_args: t.Timecode.Playback.ResolverArgs) => undefined,
-    };
-
-    const out = PlaybackDriver.buildPlaybackTimeline({ timeline, bundle });
+    const out = PlaybackDriver.buildPlaybackTimeline(timeline);
     expect(out.beats.length).eql(0);
     expect(out.segments.length).eql(0);
     expect(out.virtualDuration).eql(0);
@@ -39,15 +32,7 @@ describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
       duration: ms(1000),
     };
 
-    const bundle: t.TimecodePlaybackDriver.Wire.Bundle<Payload> = {
-      docid: id('doc'),
-      spec: { composition: [], beats: [] },
-      resolveMedia: (_args: t.Timecode.Playback.ResolverArgs) => undefined,
-    };
-
-    expect(() => PlaybackDriver.buildPlaybackTimeline({ timeline, bundle })).to.throw(
-      /src\.ref is required/,
-    );
+    expect(() => PlaybackDriver.buildPlaybackTimeline(timeline)).to.throw(/src\.ref is required/);
   });
 
   it('computes media duration as (next vTime delta) - pause, and derives segments by src.ref runs', () => {
@@ -75,13 +60,7 @@ describe('Media.Timecode.Driver: buildPlaybackTimeline', () => {
       duration: ms(4000),
     };
 
-    const bundle: t.TimecodePlaybackDriver.Wire.Bundle<Payload> = {
-      docid: id('doc'),
-      spec: { composition: [], beats: [] },
-      resolveMedia: (_args: t.Timecode.Playback.ResolverArgs) => undefined,
-    };
-
-    const out = PlaybackDriver.buildPlaybackTimeline({ timeline, bundle });
+    const out = PlaybackDriver.buildPlaybackTimeline(timeline);
 
     // virtualDuration passthrough
     expect(Number(out.virtualDuration)).eql(4000);

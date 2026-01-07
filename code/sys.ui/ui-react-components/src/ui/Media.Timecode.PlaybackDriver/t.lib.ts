@@ -1,11 +1,9 @@
 import type { t } from './common.ts';
 import type * as H from './t.hooks.ts';
 import type * as R from './t.runtime.ts';
-import type * as B from './t.build.ts';
 import type * as W from './t.wire.ts';
 
 type U = unknown;
-type Timeline = t.TimecodeState.Playback.Timeline;
 
 /**
  * Playback Driver: connects the playback state machine to real video playback.
@@ -24,7 +22,9 @@ export type TimecodePlaybackDriverLib = {
   usePlaybackTimeline<P = U>(args: H.UsePlaybackTimelineArgs<P>): H.UsePlaybackTimelineResult<P>;
 
   /** Pure builder: experience timeline + wire bundle → ui-state timeline. */
-  buildPlaybackTimeline<P = U>(args: B.BuildPlaybackTimelineArgs<P>): Timeline;
+  buildPlaybackTimeline<P = U>(
+    experience: t.Timecode.Experience.Timeline<P>,
+  ): t.TimecodeState.Playback.Timeline;
 
   /**
    * Resolve runtime media identity for a playback beat.
