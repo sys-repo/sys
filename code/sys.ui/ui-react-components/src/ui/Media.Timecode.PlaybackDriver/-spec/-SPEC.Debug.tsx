@@ -167,6 +167,7 @@ function VideoObjectView(props: { name?: string; video: t.VideoPlayerSignals }) 
     <ObjectView
       name={name}
       data={{
+        instance: video.instance,
         ...Signal.toObject(video.props),
         src: Str.ellipsize(video.props.src.value || '-', [15, 20]),
       }}
