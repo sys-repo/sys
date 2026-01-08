@@ -45,20 +45,17 @@ export const Orchestrated: React.FC<OrchestratedProps> = (props) => {
     onReady({ controller });
   }, [orchestrator.controller]);
 
-  const beat =
-    orchestrator.selectedIndex != null ? experience.beats[orchestrator.selectedIndex] : undefined;
-
   const activePhase = React.useMemo((): 'media' | 'pause' | null => {
     if (!timeline.playback || !orchestrator.snapshot) return null;
-    if (orchestrator.selectedIndex == null) return null;
+    if (orchestrator.selected?.index == null) return null;
 
     const vTime = orchestrator.snapshot.state.vTime;
     if (vTime == null) return null;
 
-    const b = timeline.playback.beats[orchestrator.selectedIndex];
+    const b = timeline.playback.beats[orchestrator.selected?.index];
     if (!b) return null;
 
-    const next = timeline.playback.beats[orchestrator.selectedIndex + 1];
+    const next = timeline.playback.beats[orchestrator.selected?.index + 1];
     const totalSpanMs = next ? next.vTime - b.vTime : timeline.playback.virtualDuration - b.vTime;
 
     const pauseMs = b.pause ?? 0;
@@ -69,20 +66,19 @@ export const Orchestrated: React.FC<OrchestratedProps> = (props) => {
 
     if (pauseMs > 0 && vTime >= pauseFrom && vTime < pauseTo) return 'pause';
     return 'media';
-  }, [orchestrator.snapshot?.state.vTime, timeline.playback, orchestrator.selectedIndex]);
+  }, [orchestrator.snapshot?.state.vTime, timeline.playback, orchestrator.selected?.index]);
 
   return (
     <Layout
       hasBundle={!!bundle}
       debug={debug}
-      beat={beat}
       docid={docid}
       decks={decks}
       bundle={bundle}
       layout={props.layout}
       theme={props.theme}
       style={props.style}
-      selectedIndex={orchestrator.selectedIndex}
+      selected={orchestrator.selected}
       activePhase={activePhase}
       onSelectIndex={(e) => orchestrator.controller.seekToBeat(e.index)}
     />

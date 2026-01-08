@@ -13,12 +13,14 @@ type Args = {
 type Result = {
   readonly controller: t.TimecodePlaybackDriver.TimelineController;
   readonly snapshot?: t.TimecodeState.Playback.Snapshot;
-  readonly selectedIndex?: t.TimecodeState.Playback.BeatIndex;
+  readonly selected?: {
+    readonly index: t.TimecodeState.Playback.BeatIndex;
+    readonly beat: t.Timecode.Experience.Beat;
+  };
 };
 
 /**
- * Driver Harness Orchestrator.
- *
+ * Harness Driver Orchestrator.
  * Glue layer between the PlaybackDriver and the harness UI.
  *
  * Responsibilities:
@@ -37,7 +39,7 @@ type Result = {
 export function useOrchestrator(args: Args): Result {
   const { bundle, decks, timeline, startBeat, log = false } = args;
 
-  /**  */
+  /** Derive initial ui-state from experience timeline. */
   const init = React.useMemo<t.TimecodeState.Playback.InitArgs | undefined>(() => {
     if (!bundle || !timeline) return undefined;
     const playbackTimeline = TimecodeState.Playback.buildTimeline(timeline);
@@ -56,9 +58,11 @@ export function useOrchestrator(args: Args): Result {
     resolveBeatMedia,
   });
 
+  const index = snapshot?.state?.currentBeat;
+  const beat = timeline?.beats[index ?? -1];
   return {
     controller,
     snapshot,
-    selectedIndex: snapshot?.state?.currentBeat,
+    selected: index != null && beat ? { index, beat } : undefined,
   };
 }

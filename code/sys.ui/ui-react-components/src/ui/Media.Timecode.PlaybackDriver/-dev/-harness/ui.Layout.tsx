@@ -11,8 +11,10 @@ type LayoutProps = Pick<HarnessProps, 'decks' | 'bundle' | 'docid' | 'layout'> &
   hasBundle: boolean;
 
   /** Selected beat */
-  selectedIndex?: t.TimecodeState.Playback.BeatIndex;
-  beat?: t.Timecode.Experience.Beat;
+  selected?: {
+    index: t.TimecodeState.Playback.BeatIndex;
+    beat: t.Timecode.Experience.Beat;
+  };
 
   /** Ephemeral highlight for the selected row (Media vs Pause). */
   activePhase?: GridActivePhase | null;
@@ -36,9 +38,8 @@ export const Layout: React.FC<LayoutProps> = (props) => {
     decks,
     bundle,
     docid,
-    selectedIndex,
+    selected,
     activePhase,
-    beat,
     layout = {},
     onSelectIndex,
   } = props;
@@ -104,7 +105,7 @@ export const Layout: React.FC<LayoutProps> = (props) => {
           <Grid
             bundle={bundle}
             theme={theme.name}
-            selectedIndex={selectedIndex}
+            selectedIndex={selected?.index}
             activePhase={activePhase}
             onSelect={onSelectIndex}
           />
@@ -113,9 +114,9 @@ export const Layout: React.FC<LayoutProps> = (props) => {
           <InfoPanel
             docid={docid}
             bundle={bundle}
-            index={selectedIndex}
+            index={selected?.index}
+            beat={selected?.beat}
             layout={layout.infopanel}
-            beat={beat}
             debug={debug}
             theme={theme.name}
           />
