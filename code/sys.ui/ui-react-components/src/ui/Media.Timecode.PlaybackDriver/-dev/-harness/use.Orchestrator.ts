@@ -5,7 +5,7 @@ type Args = {
   bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   decks?: t.TimecodePlaybackDriver.VideoDecks;
   docid?: t.StringId;
-  timeline?: t.Timecode.Experience.Timeline;
+  experience?: t.Timecode.Experience.Timeline;
   startBeat?: t.TimecodeState.Playback.BeatIndex;
   log?: boolean;
 };
@@ -37,14 +37,14 @@ type Result = {
  * to declarative UI surfaces.
  */
 export function useOrchestrator(args: Args): Result {
-  const { bundle, decks, timeline, startBeat, log = false } = args;
+  const { bundle, decks, experience, startBeat, log = false } = args;
 
   /** Derive initial ui-state from experience timeline. */
   const init = React.useMemo<t.TimecodeState.Playback.InitArgs | undefined>(() => {
-    if (!bundle || !timeline) return undefined;
-    const playbackTimeline = TimecodeState.Playback.buildTimeline(timeline);
-    return { timeline: playbackTimeline, startBeat };
-  }, [bundle, timeline, startBeat]);
+    if (!bundle || !experience) return undefined;
+    const timeline = TimecodeState.Playback.buildTimeline(experience);
+    return { timeline, startBeat };
+  }, [bundle, experience, startBeat]);
 
   const resolveBeatMedia = React.useMemo<t.TimecodePlaybackDriver.ResolveBeatMedia>(() => {
     if (!bundle) return () => undefined;
@@ -59,7 +59,7 @@ export function useOrchestrator(args: Args): Result {
   });
 
   const index = snapshot?.state?.currentBeat;
-  const beat = timeline?.beats[index ?? -1];
+  const beat = experience?.beats[index ?? -1];
   return {
     controller,
     snapshot,

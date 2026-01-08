@@ -1,11 +1,11 @@
 import { describe, expect, it } from '../../../-test.ts';
 
-import type { t } from '../common.ts';
+import { type t, Is } from '../common.ts';
 import { PlaybackDriver } from '../mod.ts';
 
-type Input = t.TimecodeState.Playback.Input;
-type BeatIndex = t.TimecodeState.Playback.BeatIndex;
 type Timeline = t.TimecodeState.Playback.Timeline;
+type BeatIndex = t.TimecodeState.Playback.BeatIndex;
+type Input = t.TimecodeState.Playback.Input;
 
 describe('PlaybackDriver.controller', () => {
   it('does not dispatch on construction', () => {
@@ -13,6 +13,15 @@ describe('PlaybackDriver.controller', () => {
     const dispatch = (input: Input) => calls.push(input);
     PlaybackDriver.controller(dispatch);
     expect(calls.length).to.eql(0);
+  });
+
+  it('exposes a controller id with `kind` and `instance`', () => {
+    const dispatch = (_input: Input) => {};
+    const controller = PlaybackDriver.controller(dispatch);
+
+    expect(controller.id.kind).to.eql('Media.Timecode.PlaybackDriver.Controller');
+    expect(Is.str(controller.id.instance)).to.eql(true);
+    expect(controller.id.instance.length > 3).to.eql(true);
   });
 
   it('init dispatches playback:init with timeline and optional startBeat', () => {
@@ -23,7 +32,6 @@ describe('PlaybackDriver.controller', () => {
     // Test boundary: controller is pass-through; timeline shape is owned elsewhere.
     const timeline = {} as Timeline;
     const startBeat = 7 as BeatIndex;
-
     controller.init({ timeline, startBeat });
 
     expect(calls.length).to.eql(1);

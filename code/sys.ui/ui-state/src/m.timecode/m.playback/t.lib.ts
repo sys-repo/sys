@@ -14,6 +14,13 @@ export type PlaybackStateLib = {
   buildTimeline<P = unknown>(
     experience: t.Timecode.Experience.Timeline<P>,
   ): t.TimecodeState.Playback.Timeline;
+
+  /** Derive active phase (media vs pause) for a beat at vTime. */
+  activePhase(
+    timeline: t.PlaybackTimeline,
+    beat: t.PlaybackBeatIndex,
+    vTime: t.Msecs,
+  ): 'media' | 'pause' | undefined;
 };
 
 /** Arguments for the `Playback.init` method. */
