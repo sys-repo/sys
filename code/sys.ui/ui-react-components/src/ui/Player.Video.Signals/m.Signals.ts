@@ -1,7 +1,6 @@
-import { type t, DEFAULTS, Signal, slug } from './common.ts';
+import { type t, D, Signal, slug } from './common.ts';
 
 type T = t.VideoPlayerSignals;
-const D = DEFAULTS;
 
 /**
  * Factory: create a new instance of signals
