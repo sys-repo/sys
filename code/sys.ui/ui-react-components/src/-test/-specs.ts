@@ -46,7 +46,7 @@ export const SpecsComponents = {
   [`${ns}.media: Timecode.PlaybackDriver`]: () =>
     import('../ui/Media.Timecode.PlaybackDriver/-spec/-SPEC.tsx'),
   [`${ns}.media: Timecode.Timeline 🐷`]: () =>
-    import('../ui/Media.Timecode.Timeline/-spec/-SPEC.tsx'),
+    import('../ui/Media.Timecode.Timeline_LEGACY/-spec/-SPEC.tsx'),
   [`${ns}.media: Timecode.Playback.Runtime → Timeline 🐷`]: () =>
     import('../ui/Media.Timecode.Timeline/-spec/-SPEC.tsx'),
   [`${ns}.media: Video (Stream)`]: () => import('../ui/Media.Video/-spec/-SPEC.tsx'),
