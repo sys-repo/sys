@@ -52,14 +52,14 @@ groups:
 
   schema:
     - import: npm:@sinclair/typebox-codegen@0.11.1
-    - import: npm:@sinclair/typebox@0.34.45
+    - import: npm:@sinclair/typebox@0.34.47
       subpaths: ['value', 'errors']
 
   build/tools/vite:
     - import: npm:@vitejs/plugin-react@5.1.2
     - import: npm:@deno/vite-plugin@1.0.6
-    - import: npm:rollup@4.54.0
-    - import: npm:vite@7.3.0
+    - import: npm:rollup@4.55.1
+    - import: npm:vite@7.3.1
     - import: npm:vite-plugin-wasm@3.5.0
     - import: npm:rollup-plugin-visualizer@6.0.5
 
@@ -88,8 +88,8 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@6.0.3
-    - import: npm:@ai-sdk/openai@3.0.1
+    - import: npm:ai@6.0.23
+    - import: npm:@ai-sdk/openai@3.0.7
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.9
       subpaths: ['agent', 'memory', 'storage']
@@ -98,7 +98,7 @@ groups:
     - import: npm:@mastra/memory@0.15.13
     - import: npm:ollama@0.6.3
     - import: npm:gpt-tokenizer@3.4.0
-    - import: npm:@google/genai@1.34.0
+    - import: npm:@google/genai@1.35.0
 
   yaml:
     - import: npm:yaml@2.8.2
@@ -126,7 +126,7 @@ deno.json:
   - import: npm:diff@8.0.2
   - import: npm:@farcaster/frame-sdk@0.1.12
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@20.0.11
+  - import: npm:happy-dom@20.1.0
   - import: npm:hash-it@7.0.2
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.0.0
@@ -141,7 +141,7 @@ deno.json:
   - import: npm:ts-essentials@10.1.1
 
   # Websockets:
-  - import: npm:ws@8.18.3
+  - import: npm:ws@8.19.0
   - import: npm:@types/ws@8.18.1
 
   # Browser:
@@ -150,7 +150,7 @@ deno.json:
 
   # UI:
   - import: npm:@svgdotjs/svg.js@3.2.5
-  - import: npm:react-error-boundary@6.0.1
+  - import: npm:react-error-boundary@6.0.2
   - import: npm:react-inspector@9.0.0
   - import: npm:react-spinners@0.17.0
   - import: npm:@preact/signals-react@3.6.1
@@ -164,5 +164,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.23.26
+  - import: npm:motion@12.24.12
   - import: npm:hono@4.11.3
