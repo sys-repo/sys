@@ -445,6 +445,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <ObjectView
           name={'signals'}
           data={{
+            instance: debug.video?.instance,
             ...Signal.toObject(debug.video?.props),
             src: Str.truncate(debug.video?.props.src.value, 35),
           }}
