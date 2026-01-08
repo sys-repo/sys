@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t, slug } from './common.ts';
 
 type Input = t.TimecodeState.Playback.Input;
 
@@ -13,12 +13,10 @@ type Input = t.TimecodeState.Playback.Input;
 export const createController: t.TimecodePlaybackDriverLib['controller'] = (dispatch) => {
   const send = (input: Input) => dispatch(input);
   return {
+    id: { kind: 'Media.Timecode.PlaybackDriver.Controller', instance: slug() },
     init(args) {
-      send({
-        kind: 'playback:init',
-        timeline: args.timeline,
-        startBeat: args.startBeat,
-      });
+      const { timeline, startBeat } = args;
+      send({ kind: 'playback:init', timeline, startBeat });
     },
     play: () => send({ kind: 'playback:play' }),
     pause: () => send({ kind: 'playback:pause' }),

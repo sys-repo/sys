@@ -47,6 +47,7 @@ export type PlaybackDriver = t.DisposableLike & {
  * Create a pure TimelineController.
  */
 export type TimelineController = {
+  readonly id: { kind: 'Media.Timecode.PlaybackDriver.Controller'; instance: t.StringId };
   readonly init: (args: { timeline: Timeline; startBeat?: BeatIndex }) => void;
   readonly play: () => void;
   readonly pause: () => void;
