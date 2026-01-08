@@ -9,10 +9,6 @@ type OrchestratedProps = HarnessProps & {
   timeline: ReturnType<typeof PlaybackDriver.usePlaybackTimeline>;
   experience: NonNullable<ReturnType<typeof PlaybackDriver.usePlaybackTimeline>['experience']>;
 };
-type ReadyRef = {
-  controller?: t.TimecodePlaybackDriver.TimelineController;
-  onReady?: HarnessProps['onReady'];
-};
 
 /**
  * Mounts the driver/orchestrator hooks after inputs are ready.
@@ -27,20 +23,27 @@ export const Orchestrated: React.FC<OrchestratedProps> = (props) => {
     startBeat: 0,
   });
 
-  // Fire `onReady` when controller instance or callback changes.
-  const lastReadyRef = React.useRef<ReadyRef | undefined>(undefined);
+  /**
+   * Refs:
+   */
+  const onReadyRef = React.useRef<HarnessProps['onReady']>(undefined);
+  const lastReadyRef = React.useRef<t.StringId>(undefined);
+
+  /**
+   * Effect: fire `onReady` only when the controller instance changes.
+   */
+  React.useEffect(() => void (onReadyRef.current = props.onReady), [props.onReady]);
   React.useEffect(() => {
-    const onReady = props.onReady;
+    const onReady = onReadyRef.current;
     if (!onReady) return;
 
-    const curr = orchestrator.controller;
-    const last = lastReadyRef.current;
+    const controller = orchestrator.controller;
+    const instance = controller.id?.instance;
+    if (instance && lastReadyRef.current === instance) return;
 
-    if (last?.controller === curr && last?.onReady === onReady) return;
-
-    lastReadyRef.current = { controller: curr, onReady };
-    onReady({ controller: curr });
-  }, [props.onReady, orchestrator.controller]);
+    lastReadyRef.current = instance;
+    onReady({ controller });
+  }, [orchestrator.controller]);
 
   const beat =
     orchestrator.selectedIndex != null ? experience.beats[orchestrator.selectedIndex] : undefined;
