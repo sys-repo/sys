@@ -162,4 +162,19 @@ describe('Playback.runner', () => {
 
     expect(runner.get().state.phase).to.eql('active');
   });
+
+  it('video:time beat advance while intent:play re-asserts cmd:deck:play (prevents “grid advances but media paused”)', () => {
+    const { runner, calls } = create();
+
+    runner.send({ kind: 'playback:init', timeline: timeline() });
+    runner.send({ kind: 'playback:play' });
+
+    calls.length = 0;
+
+    // vTime crosses from beat 0 → beat 1 (timeline fixture is 0/1000/2000/3000)
+    runner.send({ kind: 'video:time', deck: 'A', vTime: 1500 as t.Msecs });
+
+    const played = calls.some((c) => c.kind === 'play' && c.deck === 'A');
+    expect(played).to.eql(true);
+  });
 });

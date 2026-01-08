@@ -1,42 +1,100 @@
 import { useEffect, useRef } from 'react';
 import { type t, Schedule, Timecode } from './common.ts';
+import { Convert } from './u.convert.ts';
 
 /**
- * Drive virtual-time progression for playback using a VirtualClock.
+ * Drive virtual-time progression for playback.
  *
- * - Advances virtual time via RAF while intent === 'play'.
- * - Seeds the clock on beat changes.
- * - Emits 'video:time' inputs to the runner.
- * - Materializes beat.pause windows by issuing deck pause/play commands.
+ * Contract:
+ * - Emits runner input: { kind:'video:time', deck, vTime }.
+ * - Materializes beat.pause windows by pausing/playing the active deck.
  *
- * Responsibility boundary:
- * - This hook owns virtual-time progression and scheduling only.
- * - Timeline resolution, state transitions, and media-time mapping remain in the runner.
+ * Critical invariants:
+ * 1) Never advance vTime virtually (clock.advance) unless we are explicitly inside a pause window.
+ *    → Outside pause windows, if media is stalled/non-authoritative we FREEZE vTime.
+ * 2) Keep the VirtualClock aligned to the last emitted vTime at all times.
+ *    → Switching authority can’t “jump” due to a drifting clock.
+ * 3) Pause/play commands are issued on transitions only (no repeated spam).
  */
+
+type DebugGlobals = {
+  readonly __SYS__?: {
+    readonly timecodePlaybackDebug?: boolean;
+  };
+};
+
+const readDebugFlag = (): boolean => {
+  const g = globalThis as unknown as DebugGlobals;
+  return g.__SYS__?.timecodePlaybackDebug === true;
+};
+
+type DiagReason =
+  | 'boot'
+  | 'seed'
+  | 'endedTick'
+  | 'pause:enter'
+  | 'pause:exit'
+  | 'authority:freeze'
+  | 'authority:resume'
+  | 'post-change';
+
+type DiagPacket = {
+  readonly reason: DiagReason;
+  readonly now: number;
+  readonly deck?: t.TimecodeState.Playback.DeckId;
+  readonly beat?: number;
+  readonly vTime?: number;
+  readonly mediaMs?: number;
+  readonly stalledForMs?: number;
+};
+
+const diag = (
+  packet: DiagPacket,
+  state: { readonly lastAt: Record<string, number> },
+  options?: { readonly throttleMs?: number },
+) => {
+  if (!readDebugFlag()) return;
+
+  const throttleMs = options?.throttleMs ?? 250;
+  const key = packet.reason;
+
+  const last = state.lastAt[key];
+  if (last !== undefined && packet.now - last < throttleMs) return;
+  state.lastAt[key] = packet.now;
+
+  // eslint-disable-next-line no-console
+  console.debug('[Timecode.Playback] ' + packet.reason, packet);
+};
+
 export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
-  /**
-   * VirtualClock integration.
-   *
-   * This hook requires monotonic/clamped virtual-time progression plus play/pause control.
-   * Segment-level source mapping is not required; a total-duration clock is sufficient.
-   */
   const clockRef = useRef<t.Timecode.VirtualClock.Instance | undefined>(undefined);
   const lastTotalRef = useRef<t.Msecs | undefined>(undefined);
-  const clockIsPlayingRef = useRef(false);
+
   const lastNowRef = useRef<number | undefined>(undefined);
-  const modeRef = useRef<'media' | 'pause'>('media');
   const lastSeedRef = useRef<{ timeline?: unknown; beat?: number } | undefined>(undefined);
 
   const lastEmittedVTimeRef = useRef<t.Msecs | undefined>(undefined);
-  const endedSentRef = useRef(false);
 
-  /**
-   * End-detect arming guard.
-   * We only allow end-detect once we have observed forward progress past the seeded vTime.
-   * This prevents "seek-to-end" from immediately being interpreted as ended due to clamp/rounding.
-   */
-  const endDetectArmedRef = useRef(false);
-  const seedVTimeRef = useRef<t.Msecs | undefined>(undefined);
+  // Media authority: vTime = mediaMs + mediaOffset while authoritative.
+  const mediaOffsetRef = useRef<t.Msecs | undefined>(undefined);
+
+  // Stall tracking.
+  const lastMediaMsRef = useRef<t.Msecs | undefined>(undefined);
+  const lastMediaProgressNowRef = useRef<number | undefined>(undefined);
+
+  // Ended-tick tracking (per deck).
+  const lastEndedTickRef = useRef<Record<t.TimecodeState.Playback.DeckId, number>>({ A: 0, B: 0 });
+
+  // Pause materialization transition tracking.
+  const lastInPauseRef = useRef<boolean>(false);
+
+  // When we detect a discontinuity (ended/deck swap/beat change), freeze vTime until media progresses again.
+  const awaitingMediaResumeRef = useRef<boolean>(false);
+
+  // Local diagnostic throttle state.
+  const diagStateRef = useRef<{ lastAt: Record<string, number> }>({ lastAt: {} });
+
+  const msecs = (n: number): t.Msecs => n as t.Msecs;
 
   function ensureClock(total: t.Msecs): t.Timecode.VirtualClock.Instance {
     const prevTotal = lastTotalRef.current;
@@ -45,10 +103,14 @@ export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
     lastTotalRef.current = total;
     const clock = Timecode.VClock.makeForTotal(total);
 
-    // New clock instance → re-gate play transitions.
-    clockIsPlayingRef.current = false;
     clockRef.current = clock;
     return clock;
+  }
+
+  function alignClockTo(vTime: t.Msecs): void {
+    const clock = clockRef.current;
+    if (!clock) return;
+    clock.seek(Timecode.VTime.fromMsecs(vTime));
   }
 
   function seedFromRunnerState(runner: t.PlaybackRunner): boolean {
@@ -65,35 +127,47 @@ export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
     const beat = timeline.beats[beatIndex];
     if (!beat) return false;
 
-    const clock = ensureClock(timeline.virtualDuration);
-    clock.seek(Timecode.VTime.fromMsecs(beat.vTime));
+    ensureClock(timeline.virtualDuration);
+
+    const vTime = msecs(Number(beat.vTime));
+    lastEmittedVTimeRef.current = vTime;
+    alignClockTo(vTime);
+
     lastNowRef.current = undefined;
 
-    /**
-     * We may be coming out of a materialized pause that paused the media element.
-     * Re-enter "media" mode on beat change; runner decides whether to play.
-     */
-    modeRef.current = 'media';
+    // Reset authority + stall state on discontinuities.
+    mediaOffsetRef.current = undefined;
+    lastMediaMsRef.current = undefined;
+    lastMediaProgressNowRef.current = undefined;
 
-    /**
-     * Treat explicit beat changes as a discontinuity boundary.
-     * Reset clock play-gate + terminal guards so "seek back from end" cannot inherit
-     * an old terminal clamp state.
-     */
-    clock.pause();
-    clockIsPlayingRef.current = false;
-    lastEmittedVTimeRef.current = undefined;
-    endedSentRef.current = false;
+    lastInPauseRef.current = false;
+    awaitingMediaResumeRef.current = true;
 
-    // End detect must be re-armed by observed forward progress after the seed.
-    endDetectArmedRef.current = false;
-    seedVTimeRef.current = beat.vTime;
+    diag(
+      {
+        reason: 'seed',
+        now: performance.now(),
+        beat: beatIndex,
+        vTime: Number(vTime),
+      },
+      diagStateRef.current,
+      { throttleMs: 0 },
+    );
 
     return true;
   }
 
   useEffect(() => {
     let disposed = false;
+
+    diag(
+      {
+        reason: 'boot',
+        now: performance.now(),
+      },
+      diagStateRef.current,
+      { throttleMs: 0 },
+    );
 
     const step = () => {
       if (disposed) return;
@@ -102,23 +176,21 @@ export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
       if (!runner) return void Schedule.raf(step);
 
       const seeded = seedFromRunnerState(runner);
+      if (seeded) return void Schedule.raf(step);
+
       const snap = runner.get();
       const s = snap.state;
       const timeline = s.timeline;
 
-      // Only advance time while playing (intent-level).
       if (s.phase !== 'active' || s.intent !== 'play' || !timeline || s.currentBeat === undefined) {
         lastNowRef.current = undefined;
-        modeRef.current = 'media';
 
-        lastEmittedVTimeRef.current = undefined;
-        endedSentRef.current = false;
-        endDetectArmedRef.current = false;
-        seedVTimeRef.current = undefined;
+        mediaOffsetRef.current = undefined;
+        lastMediaMsRef.current = undefined;
+        lastMediaProgressNowRef.current = undefined;
 
-        const clock = clockRef.current;
-        if (clock) clock.pause();
-        clockIsPlayingRef.current = false;
+        lastInPauseRef.current = false;
+        awaitingMediaResumeRef.current = false;
 
         Schedule.raf(step);
         return;
@@ -126,129 +198,273 @@ export const useClock: t.TimecodePlaybackLib['useClock'] = (args): void => {
 
       ensureClock(timeline.virtualDuration);
 
-      /**
-       * On a seed frame:
-       * - do NOT mutate runtime play state (runner owns cmd ordering)
-       * - do NOT advance virtual time
-       * - do NOT emit video:time
-       *
-       * We simply schedule the next RAF to let runtime land load/seek.
-       */
-      if (seeded) {
-        Schedule.raf(step);
-        return;
-      }
-
-      /**
-       * Gate clock.play() to the transition into playable state (avoid per-frame mutation).
-       */
-      const clock = clockRef.current;
-      if (!clock) {
-        Schedule.raf(step);
-        return;
-      }
-
-      if (!clockIsPlayingRef.current) {
-        clock.play();
-        clockIsPlayingRef.current = true;
-      }
-
       const now = performance.now();
       const prevNow = lastNowRef.current;
       lastNowRef.current = now;
 
       const dtMsNum = prevNow === undefined ? 0 : Math.max(0, now - prevNow);
-      const dtMs = dtMsNum as t.Msecs;
+      const dtMs = msecs(dtMsNum);
 
-      const state = clock.advance(dtMs);
-      const nextVTime = Timecode.VTime.toMsecs(state.vtime);
+      const activeDeckId = s.decks.active;
+      const activeSignals = args.runtime.decks?.get(activeDeckId);
 
-      /**
-       * Only arm end-detect once we see forward progress beyond the seeded vTime.
-       * This prevents a seek near end from immediately tripping end-detect due to
-       * clamp/rounding and repeated vTime.
-       */
-      const seedVTime = seedVTimeRef.current;
-      if (!endDetectArmedRef.current) {
-        if (seedVTime === undefined || nextVTime > seedVTime) {
-          endDetectArmedRef.current = true;
+      const hasDeck = activeSignals !== undefined;
+      const mediaSecs = activeSignals?.props.currentTime.value ?? 0;
+      const mediaMs = Convert.toMsecs(mediaSecs);
+
+      // Stall tracking: treat progress as “> +0.5ms” to ignore float jitter.
+      const prevMediaMs = lastMediaMsRef.current;
+      const progressed =
+        hasDeck && (prevMediaMs === undefined ? true : Number(mediaMs) > Number(prevMediaMs) + 0.5);
+
+      if (hasDeck) {
+        lastMediaMsRef.current = mediaMs;
+
+        if (progressed) {
+          lastMediaProgressNowRef.current = now;
+          awaitingMediaResumeRef.current = false;
+        } else if (lastMediaProgressNowRef.current === undefined) {
+          lastMediaProgressNowRef.current = now;
         }
       }
 
-      /**
-       * VirtualClock may clamp at the end of the timeline, causing vTime to flatline.
-       *
-       * Invariant:
-       * - If vTime is terminal AND repeating, stop driving immediately (no spam),
-       *   regardless of how quickly the runner flips intent/phase.
-       * - Emit one terminal signal (video:ended) at most once per play-run.
-       *
-       * Guard:
-       * - Never end-detect until we've observed forward progress after a seed.
-       */
-      if (endDetectArmedRef.current) {
-        const prevEmit = lastEmittedVTimeRef.current;
-        const isRepeat = prevEmit !== undefined && nextVTime === prevEmit;
+      const stalledForMs =
+        hasDeck && !progressed && lastMediaProgressNowRef.current !== undefined
+          ? now - lastMediaProgressNowRef.current
+          : 0;
 
-        // Timelines are discrete msecs and VirtualClock may never equal virtualDuration exactly.
-        const END_EPS_MS: t.Msecs = 1;
-        const endVTime = Math.max(0, (timeline.virtualDuration - END_EPS_MS) as t.Msecs);
-        const isAtOrBeyondEnd = nextVTime >= endVTime;
+      // Ended-tick observation (active deck only).
+      const activeEndedTick = activeSignals?.props.endedTick.value ?? 0;
+      const lastActiveTick = lastEndedTickRef.current[activeDeckId] ?? 0;
 
-        if (isAtOrBeyondEnd && isRepeat) {
-          const active = s.decks.active;
+      if (activeEndedTick !== lastActiveTick) {
+        lastEndedTickRef.current[activeDeckId] = activeEndedTick;
 
-          if (!endedSentRef.current) {
-            endedSentRef.current = true;
-            runner.send({ kind: 'video:ended', deck: active });
-          }
+        // Discontinuity: freeze until media progresses again.
+        awaitingMediaResumeRef.current = true;
+        mediaOffsetRef.current = undefined;
 
-          // Hard stop local driving immediately (best-effort).
-          clock.pause();
-          clockIsPlayingRef.current = false;
-          lastNowRef.current = undefined;
-          modeRef.current = 'media';
-          lastEmittedVTimeRef.current = undefined;
+        diag(
+          {
+            reason: 'endedTick',
+            now,
+            deck: activeDeckId,
+            beat: s.currentBeat,
+            vTime: Number(lastEmittedVTimeRef.current ?? 0),
+          },
+          diagStateRef.current,
+          { throttleMs: 0 },
+        );
 
-          Schedule.raf(step);
-          return;
+        runner.send({ kind: 'video:ended', deck: activeDeckId });
+
+        // After signaling ended, runner may swap decks/beats; treat as discontinuity.
+        const postEnded = runner.get().state;
+        if (
+          postEnded.currentBeat !== s.currentBeat ||
+          postEnded.decks.active !== s.decks.active ||
+          postEnded.phase !== s.phase
+        ) {
+          mediaOffsetRef.current = undefined;
+          lastMediaMsRef.current = undefined;
+          lastMediaProgressNowRef.current = undefined;
+
+          awaitingMediaResumeRef.current = true;
+          lastInPauseRef.current = false;
+
+          diag(
+            {
+              reason: 'post-change',
+              now,
+              deck: postEnded.decks.active,
+              beat: postEnded.currentBeat,
+            },
+            diagStateRef.current,
+            { throttleMs: 0 },
+          );
         }
+
+        Schedule.raf(step);
+        return;
+      }
+
+      // Compute pause window for the current beat.
+      const beat = timeline.beats[s.currentBeat];
+      const pause = msecs(Number(beat?.pause ?? 0));
+
+      const nextBeat = timeline.beats[s.currentBeat + 1];
+      const nextStart = msecs(Number(nextBeat?.vTime ?? timeline.virtualDuration));
+
+      const beatStart = msecs(Number(beat?.vTime ?? 0));
+      const totalSpan = msecs(Math.max(0, Number(nextStart) - Number(beatStart)));
+      const mediaSpan = msecs(Math.max(0, Number(totalSpan) - Number(pause)));
+
+      const pauseFrom = msecs(Number(beatStart) + Number(mediaSpan));
+      const pauseTo = msecs(Number(pauseFrom) + Number(pause));
+
+      const currVTime = lastEmittedVTimeRef.current ?? msecs(0);
+
+      const isInPause =
+        Number(pause) > 0 &&
+        Number(currVTime) >= Number(pauseFrom) &&
+        Number(currVTime) < Number(pauseTo);
+
+      // Pause materialization transitions.
+      if (isInPause && !lastInPauseRef.current) {
+        lastInPauseRef.current = true;
+
+        // Enter pause: pause active deck, allow virtual advance.
+        args.runtime.deck.pause(activeDeckId);
+
+        awaitingMediaResumeRef.current = false;
+
+        diag(
+          {
+            reason: 'pause:enter',
+            now,
+            deck: activeDeckId,
+            beat: s.currentBeat,
+            vTime: Number(currVTime),
+          },
+          diagStateRef.current,
+          { throttleMs: 0 },
+        );
+      }
+
+      if (!isInPause && lastInPauseRef.current) {
+        lastInPauseRef.current = false;
+
+        // Exit pause: resume media, freeze until we see actual media progression (seek/buffer may occur).
+        args.runtime.deck.play(activeDeckId);
+
+        mediaOffsetRef.current = undefined;
+        lastMediaMsRef.current = undefined;
+        lastMediaProgressNowRef.current = undefined;
+
+        awaitingMediaResumeRef.current = true;
+
+        diag(
+          {
+            reason: 'pause:exit',
+            now,
+            deck: activeDeckId,
+            beat: s.currentBeat,
+            vTime: Number(currVTime),
+          },
+          diagStateRef.current,
+          { throttleMs: 0 },
+        );
+      }
+
+      // Decide authority + compute nextVTime.
+      //
+      // Rule: only advance virtual time inside explicit pause windows.
+      // Otherwise: prefer media when progressing; else freeze.
+      let nextVTime = currVTime;
+
+      if (isInPause) {
+        // Virtual advance allowed only for pause windows.
+        const clock = clockRef.current;
+        if (clock) {
+          alignClockTo(currVTime);
+          const st = clock.advance(dtMs);
+          const advanced = msecs(Number(Timecode.VTime.toMsecs(st.vtime)));
+
+          // Clamp at pause end to avoid overshoot that can create awkward boundary behavior.
+          nextVTime = msecs(Math.min(Number(advanced), Number(pauseTo)));
+        }
+      } else {
+        const STALL_THRESHOLD_MS = 750;
+
+        const canUseMedia =
+          hasDeck &&
+          !awaitingMediaResumeRef.current &&
+          (progressed || stalledForMs < STALL_THRESHOLD_MS);
+
+        if (canUseMedia) {
+          // (Re)build offset whenever we resume media authority.
+          const offset = mediaOffsetRef.current ?? msecs(Number(currVTime) - Number(mediaMs));
+
+          mediaOffsetRef.current = offset;
+
+          nextVTime = msecs(Number(mediaMs) + Number(offset));
+
+          alignClockTo(nextVTime);
+
+          diag(
+            {
+              reason: 'authority:resume',
+              now,
+              deck: activeDeckId,
+              beat: s.currentBeat,
+              vTime: Number(nextVTime),
+              mediaMs: Number(mediaMs),
+              stalledForMs,
+            },
+            diagStateRef.current,
+            { throttleMs: 500 },
+          );
+        } else {
+          // Freeze vTime outside pause windows if media isn’t authoritative.
+          nextVTime = currVTime;
+          alignClockTo(nextVTime);
+
+          if (hasDeck && (awaitingMediaResumeRef.current || stalledForMs >= STALL_THRESHOLD_MS)) {
+            diag(
+              {
+                reason: 'authority:freeze',
+                now,
+                deck: activeDeckId,
+                beat: s.currentBeat,
+                vTime: Number(nextVTime),
+                mediaMs: Number(mediaMs),
+                stalledForMs,
+              },
+              diagStateRef.current,
+              { throttleMs: 500 },
+            );
+          }
+        }
+      }
+
+      // Monotonic vTime (never go backwards).
+      const prevEmit = lastEmittedVTimeRef.current;
+      if (prevEmit !== undefined && Number(nextVTime) < Number(prevEmit)) {
+        nextVTime = prevEmit;
       }
 
       lastEmittedVTimeRef.current = nextVTime;
 
       runner.send({
         kind: 'video:time',
-        deck: s.decks.active,
+        deck: activeDeckId,
         vTime: nextVTime,
       });
 
-      // Materialize pause windows (pause after beat.duration for beat.pause).
-      const beat = timeline.beats[s.currentBeat];
-      if (beat) {
-        const pause = beat.pause ?? 0;
+      // Observe runner changes after time emission.
+      const post = runner.get().state;
+      if (post.currentBeat !== s.currentBeat || post.decks.active !== s.decks.active) {
+        mediaOffsetRef.current = undefined;
+        lastMediaMsRef.current = undefined;
+        lastMediaProgressNowRef.current = undefined;
 
-        /**
-         * Semantics:
-         * - beat.duration is the total virtual span until the next beat starts.
-         * - beat.pause is the tail of that span that should be "pause time".
-         */
-        const totalSpan = beat.duration;
-        const mediaSpan = Math.max(0, totalSpan - pause);
+        awaitingMediaResumeRef.current = true;
+        lastInPauseRef.current = false;
 
-        const pauseFrom = (beat.vTime + mediaSpan) as t.Msecs;
-        const pauseTo = (pauseFrom + pause) as t.Msecs;
+        diag(
+          {
+            reason: 'post-change',
+            now,
+            deck: post.decks.active,
+            beat: post.currentBeat,
+            vTime: Number(lastEmittedVTimeRef.current ?? 0),
+          },
+          diagStateRef.current,
+          { throttleMs: 0 },
+        );
 
-        const isInPause = pause > 0 && nextVTime >= pauseFrom && nextVTime < pauseTo;
-        const active = s.decks.active;
-
-        if (isInPause && modeRef.current !== 'pause') {
-          modeRef.current = 'pause';
-          args.runtime.deck.pause(active);
-        } else if (!isInPause && modeRef.current !== 'media') {
-          modeRef.current = 'media';
-          args.runtime.deck.play(active);
-        }
+        Schedule.raf(step);
+        return;
       }
 
       Schedule.raf(step);

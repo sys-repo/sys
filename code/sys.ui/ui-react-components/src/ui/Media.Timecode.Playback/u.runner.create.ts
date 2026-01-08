@@ -149,6 +149,28 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
   }
 
   /**
+   * Derive the beat index for a virtual timeline vTime.
+   *
+   * Important:
+   * - This is used ONLY for vTime → mediaTime translation at the imperative edge.
+   * - It must depend on `cmd.vTime`, never on incidental runner state (e.g. currentBeat),
+   *   because state may already have advanced at boundaries before cmds execute.
+   */
+  function beatIndexAtVTime(timeline: t.TimecodeState.Playback.Timeline, vTime: t.Msecs): number {
+    const beats = timeline.beats;
+    if (beats.length === 0) return 0;
+
+    // Choose the last beat whose start is <= vTime (clamped).
+    for (let i = beats.length - 1; i >= 0; i--) {
+      const b = beats[i];
+      if (!b) continue;
+      if (vTime >= b.vTime) return i;
+    }
+
+    return 0;
+  }
+
+  /**
    * Execute reducer-issued commands against the runtime.
    */
   function exec(cmds: readonly t.TimecodeState.Playback.Cmd[]): void {
@@ -174,17 +196,17 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
           const localVirtual = Math.max(0, cmd.vTime - base);
 
           const timeline = state.timeline;
-          const beatIndex = state.currentBeat;
 
-          let pauseBefore = 0;
-          let startIndex = 0;
+          let pauseBefore: t.Msecs = 0;
 
-          if (timeline && beatIndex !== undefined) {
-            startIndex = segmentStartBeatIndex({ timeline, beatIndex });
+          if (timeline) {
+            const targetBeatIndex = beatIndexAtVTime(timeline, cmd.vTime);
+            const startIndex = segmentStartBeatIndex({ timeline, beatIndex: targetBeatIndex });
+
             pauseBefore = pauseBeforeBeatWithinSegment({
               timeline,
               startIndex,
-              beatIndex,
+              beatIndex: targetBeatIndex,
             });
           }
 
@@ -211,8 +233,8 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
           if (timeline && url && hasMediaChanged) {
             deckLastMediaKey.set(cmd.deck, nextKey);
 
-            const base = segmentStartVTime({ timeline, beatIndex: cmd.beat });
-            deckBaseVTime.set(cmd.deck, base);
+            const baseVTime = segmentStartVTime({ timeline, beatIndex: cmd.beat });
+            deckBaseVTime.set(cmd.deck, baseVTime);
           }
           break;
         }
@@ -248,13 +270,12 @@ export function createRunner(args: t.PlaybackRunnerArgs): t.PlaybackRunner {
 
   /**
    * Apply a reducer update.
-   *
    * Law: events → cmds → notify
    */
-  function apply(update: t.TimecodeState.Playback.Update): void {
-    state = update.state;
-    publish(update.events);
-    exec(update.cmds);
+  function apply(snapshot: t.TimecodeState.Playback.Snapshot): void {
+    state = snapshot.state;
+    publish(snapshot.events);
+    exec(snapshot.cmds);
     notify();
   }
 

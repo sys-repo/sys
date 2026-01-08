@@ -71,7 +71,7 @@ export function createRunnerLoop(
     subs.forEach((fn) => fn(snapshot));
   }
 
-  function apply(update: t.TimecodeState.Playback.Update): void {
+  function apply(update: t.TimecodeState.Playback.Snapshot): void {
     state = update.state;
     publish(update.events);
     exec(update.cmds);
