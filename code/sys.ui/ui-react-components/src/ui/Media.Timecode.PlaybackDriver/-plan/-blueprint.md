@@ -27,10 +27,8 @@
 
 - [ ] Rewrite `use.Orchestrator.ts` into glue-only wiring
   - Build `timeline` via `buildPlaybackTimeline(...)`
-  - Call `usePlaybackDriver({ machine, decks, resolveBeatMedia, schedule, log, init: { timeline, startBeat } })`
-  - Return `{ controller, snapshot, selectedIndex }`
-    - `snapshot` = last reducer `Update` (`playback.update`)
-    - `selectedIndex` = `snapshot.state.currentBeat`
+  - Call `usePlaybackDriver`
+  - Satisy requirements for working with -dev/-harness/ UI harness - within SPEC.tsx
 
 - [ ] Lock: runtime side-effects + runtime observation live only in the Driver
   - Only Driver calls `runtime.deck.*`
