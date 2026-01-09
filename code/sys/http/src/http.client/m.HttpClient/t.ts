@@ -21,6 +21,11 @@ export type HttpClientLib = {
   /** Generator function for a new URL. */
   readonly url: t.UrlLib['parse'];
 
+  /**
+   * Preloader for warming HTTP cache/network only.
+   */
+  readonly Preload: t.HttpPreloadLib;
+
   /** Convert `Headers` into a simple headers object */
   toHeaders(input?: Headers | HeadersInit): t.HttpHeaders;
 
