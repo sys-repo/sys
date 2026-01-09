@@ -10,6 +10,9 @@ type LayoutProps = Pick<HarnessProps, 'decks' | 'bundle' | 'docid' | 'layout'> &
   /** Presence */
   hasBundle: boolean;
 
+  /** Reducer snapshot (debug) */
+  snapshot?: t.TimecodeState.Playback.Snapshot;
+
   /** Selected beat */
   selected?: {
     index: t.TimecodeState.Playback.BeatIndex;
@@ -38,6 +41,7 @@ export const Layout: React.FC<LayoutProps> = (props) => {
     decks,
     bundle,
     docid,
+    snapshot,
     selected,
     activePhase,
     layout = {},
@@ -116,6 +120,7 @@ export const Layout: React.FC<LayoutProps> = (props) => {
             bundle={bundle}
             index={selected?.index}
             beat={selected?.beat}
+            snapshot={snapshot}
             layout={layout.infopanel}
             debug={debug}
             theme={theme.name}

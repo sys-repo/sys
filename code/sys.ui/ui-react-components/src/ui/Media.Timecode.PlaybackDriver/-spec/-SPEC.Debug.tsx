@@ -3,6 +3,7 @@ import type { HarnessProps } from '../-dev/-harness/t.ts';
 import React from 'react';
 import {
   type t,
+  Json,
   Button,
   Color,
   css,
@@ -146,6 +147,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `toggle`} onClick={() => v.controller?.toggle()} />
 
       <hr />
+      <div className={Styles.title.class}>
+        <div>{'ƒ VideoDeck.<Cmd>'}</div>
+        <div>{'(Signals)'}</div>
+      </div>
+      <Button block label={() => `deck A: play`} onClick={() => debug.decks.A.play()} />
+      <Button block label={() => `deck A: pause`} onClick={() => debug.decks.A.pause()} />
+      <Button block label={() => `deck B: play`} onClick={() => debug.decks.B.play()} />
+      <Button block label={() => `deck B: pause`} onClick={() => debug.decks.B.pause()} />
+
+      <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
@@ -157,22 +168,41 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <VideoObjectView name={'video-A'} video={debug.decks.A} />
       <VideoObjectView name={'video-B'} video={debug.decks.B} />
+      <Button
+        style={{ marginTop: 8 }}
+        block
+        label={() => 'copy'}
+        onClick={() => {
+          const data = {
+            'video-A': videoObjectData(debug.decks.A),
+            'video-B': videoObjectData(debug.decks.B),
+          };
+          navigator.clipboard.writeText(Json.stringify(data));
+        }}
+      />
     </div>
   );
 };
 
+/**
+ * Helpers:
+ */
+
 function VideoObjectView(props: { name?: string; video: t.VideoPlayerSignals }) {
-  const { name, video } = props;
   return (
     <ObjectView
-      name={name}
-      data={{
-        instance: video.instance,
-        ...Signal.toObject(video.props),
-        src: Str.ellipsize(video.props.src.value || '-', [15, 20]),
-      }}
+      name={props.name}
+      data={videoObjectData(props.video)}
       style={{ marginTop: 5 }}
       expand={0}
     />
   );
+}
+
+export function videoObjectData(video: t.VideoPlayerSignals) {
+  return {
+    instance: video.instance,
+    ...Signal.toObject(video.props),
+    src: Str.ellipsize(video.props.src.value || '-', [15, 20]),
+  };
 }

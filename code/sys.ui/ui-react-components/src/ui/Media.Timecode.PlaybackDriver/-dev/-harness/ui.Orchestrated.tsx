@@ -63,6 +63,7 @@ export const Orchestrated: React.FC<OrchestratedProps> = (props) => {
       docid={docid}
       decks={decks}
       bundle={bundle}
+      snapshot={snapshot}
       layout={props.layout}
       theme={props.theme}
       style={props.style}

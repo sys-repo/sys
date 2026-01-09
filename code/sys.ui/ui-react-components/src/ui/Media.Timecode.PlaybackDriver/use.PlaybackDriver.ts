@@ -1,7 +1,7 @@
 import React from 'react';
+import type { UsePlaybackDriverArgs, UsePlaybackDriverResult } from './t.hooks.ts';
 
 import { type t, TimecodeState } from './common.ts';
-import type { UsePlaybackDriverArgs, UsePlaybackDriverResult } from './t.hooks.ts';
 import { createController } from './u.controller.ts';
 import { createDriver } from './u.driver.ts';
 
@@ -11,7 +11,9 @@ type Snapshot = t.TimecodeState.Playback.Snapshot;
 export const usePlaybackDriver = (args: UsePlaybackDriverArgs): UsePlaybackDriverResult => {
   const { init, decks, resolveBeatMedia, schedule, log } = args;
   const machine = TimecodeState.Playback;
+  const [driverTick, setDriverTick] = React.useState(0);
 
+  // Reducer wiring (pure state machine).
   const reducer = React.useCallback(
     (prev: Snapshot, input: Input) => machine.reduce(prev.state, input),
     [machine],
@@ -22,14 +24,23 @@ export const usePlaybackDriver = (args: UsePlaybackDriverArgs): UsePlaybackDrive
     return { apply: () => {}, dispose: () => {} };
   }, []);
 
-  const driver = React.useMemo(() => {
-    if (!decks) return noopDriver;
-    return createDriver({ decks, resolveBeatMedia, schedule, log, dispatch });
+  // UI controller surface (pure intent → reducer input).
+  const controller = React.useMemo(() => createController(dispatch), [dispatch]);
+
+  // Driver lifecycle (imperative runtime bridge).
+  const driverRef = React.useRef<t.TimecodePlaybackDriver.Driver>(noopDriver);
+  React.useEffect(() => {
+    if (!decks) return void (driverRef.current = noopDriver);
+
+    const driver = createDriver({ decks, schedule, log, dispatch, resolveBeatMedia });
+    driverRef.current = driver;
+    setDriverTick((n) => n + 1);
+
+    return () => driver.dispose();
   }, [decks, resolveBeatMedia, schedule, log, dispatch, noopDriver]);
 
-  const controller = React.useMemo(() => createController(dispatch), [dispatch]);
-  React.useEffect(() => void driver.apply(snapshot), [driver, snapshot]);
-  React.useEffect(() => () => driver.dispose(), [driver]);
+  // Apply reducer snapshots to the runtime driver.
+  React.useEffect(() => void driverRef.current.apply(snapshot), [snapshot, driverTick]);
 
   return {
     controller,

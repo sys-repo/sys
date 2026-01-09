@@ -1,8 +1,9 @@
 import type { HarnessProps } from './t.ts';
 
 import React from 'react';
-import { type t, Color, css, dur, KeyValue, ObjectView, PlaybackDriver, Str } from './common.ts';
-import { toIssueItems } from './ui.InfoPanel.issues.tsx';
+import { type t, Color, css, PlaybackDriver } from './common.ts';
+import { Debug } from './ui.InfoPanel.Debug.tsx';
+import { KV } from './ui.InfoPanel.KV.tsx';
 
 type L = NonNullable<HarnessProps['layout']>;
 
@@ -12,7 +13,7 @@ export type InfoPanelProps = {
   bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   beat?: t.Timecode.Experience.Beat;
   index?: t.Index;
-  //
+  snapshot?: t.TimecodeState.Playback.Snapshot;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -22,7 +23,7 @@ export type InfoPanelProps = {
  * Component:
  */
 export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
-  const { debug = false, bundle, docid, layout = {} } = props;
+  const { debug = false, bundle, layout = {} } = props;
   const spec = bundle?.spec;
 
   /**
@@ -31,33 +32,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const { experience, resolved } = PlaybackDriver.usePlaybackTimeline({ spec });
   if (!experience) return null;
   if (!bundle) return null;
-
-  const total = {
-    segments: bundle.spec.composition.length,
-    beats: experience.beats.length,
-    duration: dur(experience.duration),
-  } as const;
-  const plural = {
-    segments: Str.plural(total.segments, 'segment', 'segments'),
-    beats: Str.plural(total.beats, 'beat', 'beats'),
-  } as const;
-  const size = `${total.segments} ${plural.segments} → ${total.beats} ${plural.beats}`;
-
-  /**
-   * Build items:
-   */
-  const items: t.KeyValueItem[] = [];
-  const add = (item: t.KeyValueItem) => items.push(item);
-  const hr = () => add({ kind: 'hr' });
-
-  const mono = true;
-  add({ kind: 'title', v: 'Composite Timeline', y: [0, 10] });
-  add({ k: 'Slug', v: docid ? `crdt:${docid}` : '-', mono, userSelect: 'text' });
-  hr();
-  add({ k: 'Composition', v: total.beats === 0 ? '-' : size });
-  add({ k: 'Virtual Duration', v: total.duration });
-  if (props.index !== undefined) add({ k: 'Current Beat', v: props.index + 1 });
-  items.push(...toIssueItems(resolved));
 
   /**
    * Render:
@@ -69,29 +43,15 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
       display: 'grid',
       gridTemplateRows: layout?.bottom ? `1fr auto` : `1fr`,
     }),
-    kv: css({ marginBottom: 30, userSelect: 'none' }),
-    top: css({ Padding: [8, 15] }),
+    kv: css({ marginBottom: 30 }),
+    top: css({ Padding: [8, 15], fontSize: 12 }),
     bottom: css({}),
-  };
-
-  const obj = (n: string, d: unknown, marginTop = 5, expand = 1) => {
-    return (
-      <ObjectView
-        name={n}
-        data={d}
-        fontSize={10}
-        theme={theme.name}
-        style={{ marginTop }}
-        expand={expand}
-      />
-    );
   };
 
   const elTop = (
     <div className={styles.top.class}>
-      <KeyValue.View style={styles.kv} theme={theme.name} items={items} />
-      {debug && obj('props.bundle', props.bundle)}
-      {debug && props.beat && obj('props.beat', props.beat)}
+      <KV {...props} experience={experience} resolved={resolved} style={styles.kv} />
+      {debug && <Debug {...props} />}
     </div>
   );
 
