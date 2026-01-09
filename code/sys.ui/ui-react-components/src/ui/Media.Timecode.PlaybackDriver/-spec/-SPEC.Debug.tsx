@@ -171,7 +171,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         style={{ marginTop: 8 }}
         block
-        label={() => 'copy'}
+        label={() => 'copy debug'}
         onClick={() => {
           const data = {
             'video-A': videoObjectData(debug.decks.A),
