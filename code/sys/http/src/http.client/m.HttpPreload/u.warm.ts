@@ -1,7 +1,7 @@
 import { type t, Fetch, Is } from './common.ts';
 import { semaphore } from './u.ts';
 
-export async function preload(
+export async function warm(
   input: t.HttpPreloadInput,
   options: t.HttpPreloadOptions = {},
 ): Promise<t.HttpPreloadResult> {

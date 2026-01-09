@@ -1,4 +1,4 @@
-import { Testing, describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { Preload } from '../mod.ts';
 
 describe('Http.Preload', () => {

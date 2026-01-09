@@ -1,19 +1,16 @@
 import { Testing, describe, expect, it } from '../../../-test.ts';
 import { Preload } from '../mod.ts';
 
-describe('Http.Preload.preload', () => {
+describe('Http.Preload.warm', () => {
   it('HEAD: warms via metadata (content-length)', async () => {
     let method = '';
     const server = Testing.Http.server((req) => {
       method = req.method;
-      return new Response(null, {
-        status: 200,
-        headers: { 'content-length': '1234' },
-      });
+      return new Response(null, { status: 200, headers: { 'content-length': '1234' } });
     });
 
     const url = server.url.toString();
-    const res = await Preload.preload([url]);
+    const res = await Preload.warm([url]);
 
     expect(method).to.eql('HEAD');
     expect(res.ok).to.eql(true);
@@ -36,7 +33,7 @@ describe('Http.Preload.preload', () => {
     });
 
     const url = server.url.toString();
-    const res = await Preload.preload([{ url, range: { start: 0, end: 0 } }]);
+    const res = await Preload.warm([{ url, range: { start: 0, end: 0 } }]);
 
     expect(method).to.eql('GET');
     expect(range).to.eql('bytes=0-0');
@@ -52,7 +49,7 @@ describe('Http.Preload.preload', () => {
     const server = Testing.Http.server(() => new Response(null, { status: 404 }));
     const url = server.url.toString();
 
-    const res = await Preload.preload([url]);
+    const res = await Preload.warm([url]);
     const [op] = res.ops;
 
     expect(res.ok).to.eql(false);

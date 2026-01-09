@@ -4,8 +4,8 @@ import type { t } from './common.ts';
  * Small, pure preloader for warming HTTP cache/network only.
  */
 export type HttpPreloadLib = {
-  /** Preload a set of HTTP resources to warm cache ahead of use. */
-  preload(input: HttpPreloadInput, options?: HttpPreloadOptions): Promise<HttpPreloadResult>;
+  /** Warm a set of HTTP resources to prime cache ahead of use. */
+  warm(input: HttpPreloadInput, options?: HttpPreloadOptions): Promise<HttpPreloadResult>;
 };
 
 /**
@@ -39,12 +39,12 @@ export type HttpPreloadOptions = {
   readonly client?: t.HttpFetch;
   /** Concurrency limiter (default implementation-defined). */
   readonly concurrency?: number;
-  /** Cancel preload operation. */
+  /** Cancel warm operation. */
   readonly until?: t.UntilInput;
 };
 
 /**
- * Result from `preload` method.
+ * Result from `warm` method.
  */
 export type HttpPreloadResult = {
   readonly ok: boolean;
