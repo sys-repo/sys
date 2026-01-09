@@ -39,6 +39,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
   let lastState: State | undefined;
   let timeSource: TimeSource = 'video';
   let pauseTimer: PauseTimer | undefined;
+  let pendingEndedDeck: t.TimecodeState.Playback.DeckId | undefined;
 
   /**
    * Runtime-edge idempotence:
@@ -59,11 +60,13 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
   const rebaseTime = () => {
     stopPauseTimer();
     setTimeSource('video');
+    pendingEndedDeck = undefined;
   };
 
   const suppressTimeAfterEnded = () => {
     stopPauseTimer();
     setTimeSource('suppressed-ended');
+    pendingEndedDeck = undefined;
   };
 
   const startPauseTimer = (deck: t.TimecodeState.Playback.DeckId, pause: PauseWindow) => {
@@ -92,10 +95,19 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
       const nextN = Number(next);
 
       if (nextN >= toN) {
-        // Emit terminal boundary, then rebase to video authority.
-        args.dispatch({ kind: 'video:time', deck, vTime: pause.to });
         stopPauseTimer();
         setTimeSource('video');
+
+        // Emit ended only after pause completes (if it was suppressed).
+        if (pendingEndedDeck === deck) {
+          pendingEndedDeck = undefined;
+          args.dispatch({ kind: 'video:ended', deck });
+          suppressTimeAfterEnded();
+          return;
+        }
+
+        // Emit terminal boundary, then rebase to video authority.
+        args.dispatch({ kind: 'video:time', deck, vTime: pause.to });
 
         // Resume media only if still active + intent is play.
         if (state.decks.active === deck && state.intent === 'play') {
@@ -167,6 +179,19 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         const state = lastState;
         if (!state) return;
         if (state.decks.active !== deck) return;
+
+        // If we ended before a virtual pause window, clamp to pauseFrom and run the pause timer.
+        if (state.intent === 'play') {
+          const pause = getPauseWindow(state);
+          const vTime = state.vTime;
+          if (pause && vTime != null && Number(vTime) < Number(pause.from)) {
+            pendingEndedDeck = deck;
+            decks[deck].pause();
+            args.dispatch({ kind: 'video:time', deck, vTime: pause.from });
+            startPauseTimer(deck, pause);
+            return;
+          }
+        }
 
         args.dispatch({ kind: 'video:ended', deck });
         suppressTimeAfterEnded();
@@ -313,9 +338,9 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
     dispose(_reason) {
       disposed = true;
       lastState = undefined;
+      pendingEndedDeck = undefined;
       timeSource = 'video';
       stopPauseTimer();
-
       for (const d of disposers) d();
       disposers.clear();
     },

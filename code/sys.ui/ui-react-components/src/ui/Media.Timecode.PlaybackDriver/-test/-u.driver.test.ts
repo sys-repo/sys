@@ -85,20 +85,20 @@ describe(`PlaybackDriver.driver`, () => {
           index: ix(0),
           vTime: ms(0),
           duration: ms(1000),
-          pause: ms(500),
+          pause: ms(0),
           segmentId: 'seg:1',
           media: { url: 'u:0' },
         },
         {
           index: ix(1),
-          vTime: ms(1500),
+          vTime: ms(1000),
           duration: ms(1000),
           segmentId: 'seg:1',
           media: { url: 'u:0' },
         },
       ],
       segments: [{ id: 'seg:1', beat: { from: ix(0), to: ix(2) } }],
-      virtualDuration: ms(2500),
+      virtualDuration: ms(2000),
     };
 
     const state: t.TimecodeState.Playback.State = {
@@ -127,9 +127,9 @@ describe(`PlaybackDriver.driver`, () => {
     driver.apply({ state, cmds: [], events: [] });
 
     // Active deck time change should emit video:time (pause excluded in mapping).
-    A.props.currentTime.value = 1.1 as t.Secs; // 1100ms into media → beat0(1000) + 100ms → vTime=1500+100=1600ms
+    A.props.currentTime.value = 1.1 as t.Secs; // 1100ms into media → vTime=1000+100=1100ms
     expect(seen.length).to.equal(1);
-    expect(seen[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: ms(1600) });
+    expect(seen[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: ms(1100) });
 
     // Inactive deck time change should not emit.
     B.props.currentTime.value = 0.2 as t.Secs;
@@ -184,6 +184,54 @@ describe(`PlaybackDriver.driver`, () => {
     // Inactive deck bump should not emit.
     B.props.endedTick.value = B.props.endedTick.value + 1;
     expect(seen.length).to.equal(1);
+
+    driver.dispose();
+  });
+
+  it(`video:ended defers to pause window when media ends before pauseFrom`, () => {
+    const fx = pauseClampFixture();
+    const state: t.TimecodeState.Playback.State = {
+      phase: 'active',
+      intent: 'play',
+      timeline: fx.timeline,
+      currentBeat: fx.timeline.beats[0]!.index,
+      vTime: ms(0),
+      decks: { active: 'A', standby: 'B', status: { A: 'ready', B: 'ready' } },
+      ready: { machine: true, runner: true, deck: { A: true, B: true } },
+    };
+
+    const A = playerSignalsFactory();
+    const B = playerSignalsFactory();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    let pauses = 0;
+    const pause0 = A.pause;
+    A.pause = () => {
+      pauses++;
+      return pause0();
+    };
+
+    const { schedule, advance } = makeDeterministicSchedule();
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      schedule,
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({ state, cmds: [], events: [] });
+
+    // Ended before pauseFrom should clamp to pauseFrom and start pause timer (no ended yet).
+    A.props.endedTick.value = 1;
+    expect(seen[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: fx.pauseFrom });
+    expect(seen.some((e) => e.kind === 'video:ended')).to.equal(false);
+    expect(pauses).to.equal(1);
+
+    // Complete the pause window → then emit video:ended.
+    advance(Number(fx.pauseTo) - Number(fx.pauseFrom));
+    const last = seen[seen.length - 1];
+    expect(last).to.eql({ kind: 'video:ended', deck: 'A' });
 
     driver.dispose();
   });
@@ -245,20 +293,20 @@ describe(`PlaybackDriver.driver`, () => {
           index: ix(0),
           vTime: ms(0),
           duration: ms(1000),
-          pause: ms(500),
+          pause: ms(0),
           segmentId: 'seg:1',
           media: { url: 'u:0' },
         },
         {
           index: ix(1),
-          vTime: ms(1500),
+          vTime: ms(1000),
           duration: ms(1000),
           segmentId: 'seg:1',
           media: { url: 'u:0' },
         },
       ],
       segments: [{ id: 'seg:1', beat: { from: ix(0), to: ix(2) } }],
-      virtualDuration: ms(2500),
+      virtualDuration: ms(2000),
     };
 
     const state: t.TimecodeState.Playback.State = {
