@@ -61,13 +61,13 @@
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@sinclair/typebox@0.34.47": "0.34.47",
     "npm:@svgdotjs/svg.js@3.2.5": "3.2.5",
-    "npm:@testing-library/react@16.3.1": "16.3.1_@testing-library+dom@10.4.1_@types+react@19.2.7_@types+react-dom@19.2.3__@types+react@19.2.7_react@19.2.3_react-dom@19.2.3__react@19.2.3",
+    "npm:@testing-library/react@16.3.1": "16.3.1_@testing-library+dom@10.4.1_@types+react@19.2.8_@types+react-dom@19.2.3__@types+react@19.2.8_react@19.2.3_react-dom@19.2.3__react@19.2.3",
     "npm:@types/ramda@0.31.1": "0.31.1",
-    "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.7",
-    "npm:@types/react@19.2.7": "19.2.7",
+    "npm:@types/react-dom@19.2.3": "19.2.3_@types+react@19.2.8",
+    "npm:@types/react@19.2.8": "19.2.8",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.2": "5.1.2_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.28.5_yaml@2.8.2",
-    "npm:ai@6.0.23": "6.0.23_zod@4.1.13",
+    "npm:ai@6.0.27": "6.0.27_zod@4.1.13",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -81,7 +81,7 @@
     "npm:hono@4.11.3": "4.11.3",
     "npm:ignore@7.0.5": "7.0.5",
     "npm:monaco-editor@0.55.1": "0.55.1",
-    "npm:motion@12.24.12": "12.24.12_react@19.2.3_react-dom@19.2.3__react@19.2.3",
+    "npm:motion@12.25.0": "12.25.0_react@19.2.3_react-dom@19.2.3__react@19.2.3",
     "npm:ollama-ai-provider@1.2.0": "1.2.0",
     "npm:ollama@0.6.3": "0.6.3",
     "npm:ora@9.0.0": "9.0.0",
@@ -95,7 +95,7 @@
     "npm:prosemirror-view@1.41.4": "1.41.4",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.3": "19.2.3_react@19.2.3",
-    "npm:react-error-boundary@6.0.2": "6.0.2_react@19.2.3_react-dom@19.2.3__react@19.2.3",
+    "npm:react-error-boundary@6.0.3": "6.0.3_react@19.2.3",
     "npm:react-icons@5.5.0": "5.5.0_react@19.2.3",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.2.3",
     "npm:react-spinners@0.17.0": "0.17.0_react@19.2.3_react-dom@19.2.3__react@19.2.3",
@@ -304,8 +304,8 @@
         "zod@4.1.13"
       ]
     },
-    "@ai-sdk/gateway@3.0.10_zod@4.1.13": {
-      "integrity": "sha512-sRlPMKd38+fdp2y11USW44c0o8tsIsT6T/pgyY04VXC3URjIRnkxugxd9AkU2ogfpPDMz50cBAGPnMxj+6663Q==",
+    "@ai-sdk/gateway@3.0.11_zod@4.1.13": {
+      "integrity": "sha512-gLrgNXA95wdo/zAlA0miX/SJEYKSYCHg+e0Y/uQeABLScZAMjPw3jWaeANta/Db1T4xfi8cBvY3nnV8Pa27z+w==",
       "dependencies": [
         "@ai-sdk/provider@3.0.2",
         "@ai-sdk/provider-utils@4.0.4_zod@4.1.13",
@@ -2231,7 +2231,7 @@
         "pretty-format"
       ]
     },
-    "@testing-library/react@16.3.1_@testing-library+dom@10.4.1_@types+react@19.2.7_@types+react-dom@19.2.3__@types+react@19.2.7_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
+    "@testing-library/react@16.3.1_@testing-library+dom@10.4.1_@types+react@19.2.8_@types+react-dom@19.2.3__@types+react@19.2.8_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
       "integrity": "sha512-gr4KtAWqIOQoucWYD/f6ki+j5chXfcPc74Col/6poTyqTmn7zRmodWahWRCp8tYd+GMqBonw6hstNzqjbs6gjw==",
       "dependencies": [
         "@babel/runtime",
@@ -2392,14 +2392,14 @@
     "@types/range-parser@1.2.7": {
       "integrity": "sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ=="
     },
-    "@types/react-dom@19.2.3_@types+react@19.2.7": {
+    "@types/react-dom@19.2.3_@types+react@19.2.8": {
       "integrity": "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==",
       "dependencies": [
         "@types/react"
       ]
     },
-    "@types/react@19.2.7": {
-      "integrity": "sha512-MWtvHrGZLFttgeEj28VXHxpmwYbor/ATPYbBfSFZEIRK0ecCFLl2Qo55z52Hss+UV9CRN7trSeq1zbgx7YDWWg==",
+    "@types/react@19.2.8": {
+      "integrity": "sha512-3MbSL37jEchWZz2p2mjntRZtPt837ij10ApxKfgmXCTuHWagYg7iA5bqPw6C8BMPfwidlvfPI/fxOc42HLhcyg==",
       "dependencies": [
         "csstype"
       ]
@@ -2541,10 +2541,10 @@
         "zod@4.1.13"
       ]
     },
-    "ai@6.0.23_zod@4.1.13": {
-      "integrity": "sha512-IV8hqp6sQvZ0XVlu8bCnFlwG7+2d40ff26RZ1k4yw/zVuk2F6SXlONURtTo9vwPOPYeF7auXvyPA+dMDoepWxg==",
+    "ai@6.0.27_zod@4.1.13": {
+      "integrity": "sha512-a4ToMt5+4xOzHuYdoTy2GQXuNa2/Tpuhxfs5QESHtEV/Vf2HAzSwmTwikrIs8CDKPuMWV1I9YqAvaN5xexMCiQ==",
       "dependencies": [
-        "@ai-sdk/gateway@3.0.10_zod@4.1.13",
+        "@ai-sdk/gateway@3.0.11_zod@4.1.13",
         "@ai-sdk/provider@3.0.2",
         "@ai-sdk/provider-utils@4.0.4_zod@4.1.13",
         "@opentelemetry/api",
@@ -3140,8 +3140,8 @@
     "forwarded@0.2.0": {
       "integrity": "sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow=="
     },
-    "framer-motion@12.24.12_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
-      "integrity": "sha512-W+tBOI1SDGNMH4D4mADY95qYd16Drke2Tj9zlGlwTGSCi6yy8wbMmPY1mvirfcTK8HBeuuCd2PflHdN/zbL4ew==",
+    "framer-motion@12.25.0_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
+      "integrity": "sha512-mlWqd0rApIjeyhTCSNCqPYsUAEhkcUukZxH3ke6KbstBRPcxhEpuIjmiUQvB+1E9xkEm5SpNHBgHCapH/QHTWg==",
       "dependencies": [
         "motion-dom",
         "motion-utils",
@@ -3666,8 +3666,8 @@
     "motion-utils@12.24.10": {
       "integrity": "sha512-x5TFgkCIP4pPsRLpKoI86jv/q8t8FQOiM/0E8QKBzfMozWHfkKap2gA1hOki+B5g3IsBNpxbUnfOum1+dgvYww=="
     },
-    "motion@12.24.12_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
-      "integrity": "sha512-usaP62NpHmM8++QrEnNoCco6qrtK1AtzkeHfgW+4qICE0k7ykK+dPJGaRjEzo7sF1GcrYskrGBB/r5RtqnminQ==",
+    "motion@12.25.0_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
+      "integrity": "sha512-jBFohEYklpZ+TL64zv03sHdqr1Tsc8/yDy7u68hVzi7hTJYtv53AduchqCiY3aWi4vY1hweS8DWtgCuckusYdQ==",
       "dependencies": [
         "framer-motion",
         "react",
@@ -4240,11 +4240,10 @@
         "scheduler"
       ]
     },
-    "react-error-boundary@6.0.2_react@19.2.3_react-dom@19.2.3__react@19.2.3": {
-      "integrity": "sha512-yvWErn55ag/ywZEFqYpXYX9rxIDPIabXIX25F184KY3F5Szk2x/cVieOflw5R47ltN3KzWOw82Lmlb4vNjyn9A==",
+    "react-error-boundary@6.0.3_react@19.2.3": {
+      "integrity": "sha512-5guqn2UYpCFjE8UDMA8J7Kke+YSGBFrKQRJb3XdcaGZXYINZfQXgBt3ifY6MvjkN7QROc5A8zclyoSCwrcRUKw==",
       "dependencies": [
-        "react",
-        "react-dom"
+        "react"
       ]
     },
     "react-icons@5.5.0_react@19.2.3": {
@@ -4907,7 +4906,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@6.0.23",
+      "npm:ai@6.0.27",
       "npm:approx-string-match@2",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
@@ -4930,7 +4929,7 @@
       "npm:prosemirror-state@1.4.4",
       "npm:prosemirror-view@1.41.4",
       "npm:ramda@0.32.0",
-      "npm:react-error-boundary@6.0.2",
+      "npm:react-error-boundary@6.0.3",
       "npm:react-inspector@9.0.0",
       "npm:react-spinners@0.17.0",
       "npm:rxjs@7.8.2",
@@ -4946,10 +4945,10 @@
         "npm:@deno/vite-plugin@1.0.6",
         "npm:@testing-library/react@16.3.1",
         "npm:@types/react-dom@19.2.3",
-        "npm:@types/react@19.2.7",
+        "npm:@types/react@19.2.8",
         "npm:@vitejs/plugin-react@5.1.2",
         "npm:hono@4.11.3",
-        "npm:motion@12.24.12",
+        "npm:motion@12.25.0",
         "npm:prettier@3.7.4",
         "npm:react-dom@19.2.3",
         "npm:react-icons@5.5.0",

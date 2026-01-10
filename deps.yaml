@@ -69,7 +69,7 @@ groups:
   ui/react:
     - import: npm:react@19.2.3
     - import: npm:react-dom@19.2.3
-    - import: npm:@types/react@19.2.7
+    - import: npm:@types/react@19.2.8
     - import: npm:@types/react-dom@19.2.3
     - import: npm:@testing-library/react@16.3.1
 
@@ -88,7 +88,7 @@ groups:
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@6.0.23
+    - import: npm:ai@6.0.27
     - import: npm:@ai-sdk/openai@3.0.7
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.9
@@ -150,7 +150,7 @@ deno.json:
 
   # UI:
   - import: npm:@svgdotjs/svg.js@3.2.5
-  - import: npm:react-error-boundary@6.0.2
+  - import: npm:react-error-boundary@6.0.3
   - import: npm:react-inspector@9.0.0
   - import: npm:react-spinners@0.17.0
   - import: npm:@preact/signals-react@3.6.1
@@ -164,5 +164,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.24.12
+  - import: npm:motion@12.25.0
   - import: npm:hono@4.11.3
