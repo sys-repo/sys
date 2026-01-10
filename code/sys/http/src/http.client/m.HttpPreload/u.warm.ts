@@ -1,5 +1,4 @@
-import { type t, Fetch, Is } from './common.ts';
-import { semaphore } from './u.ts';
+import { type t, Fetch, Is, Await } from './common.ts';
 
 export async function warm(
   input: t.HttpPreloadInput,
@@ -7,7 +6,7 @@ export async function warm(
 ): Promise<t.HttpPreloadResult> {
   const targets = wrangle.targets(input);
   const concurrency = Math.max(1, options.concurrency ?? 8);
-  const lim = semaphore(concurrency);
+  const lim = Await.semaphore(concurrency);
 
   const ownsClient = !options.client;
   const client = options.client ?? Fetch.make(options.until);

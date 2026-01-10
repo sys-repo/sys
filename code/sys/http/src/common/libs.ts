@@ -1,18 +1,5 @@
 export { Net } from '@sys/net';
-export { Rx } from '@sys/std/rx';
 
-export {
-  Args,
-  Dispose,
-  Err,
-  Is,
-  Path,
-  Pkg,
-  R,
-  Str,
-  Time,
-  Try,
-  Url,
-  isObject,
-  isRecord,
-} from '@sys/std';
+export { Args, Dispose, Err, Is, isObject, isRecord, Path, Pkg, R, Str, Try, Url } from '@sys/std';
+export { Rx } from '@sys/std/rx';
+export { Time } from '@sys/std/time';

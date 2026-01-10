@@ -1,6 +1,6 @@
-import { type t, HttpClient, Rx } from './common.ts';
+import { type t, Await, HttpClient, Rx } from './common.ts';
 import { pullOne } from './u.pullOne.ts';
-import { isAbortError, makeEventQueue, resolveTarget, semaphore } from './u.ts';
+import { isAbortError, makeEventQueue, resolveTarget } from './u.ts';
 
 /**
  * Same as `toDir`, but yields progress events.
@@ -38,7 +38,7 @@ export function stream(
   const signal = controller.signal;
 
   const q = makeEventQueue<t.HttpPullEvent>();
-  const lim = semaphore(concurrency);
+  const lim = Await.semaphore(concurrency);
 
   // Hot subject mirroring progress events to observable subscribers.
   const subject$ = Rx.subject<t.HttpPullEvent>();
