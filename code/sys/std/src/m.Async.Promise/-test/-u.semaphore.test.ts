@@ -51,6 +51,12 @@ describe('Promise.semaphore', () => {
     expect(maxActive).to.eql(1);
   });
 
+  it('infers task result type', async () => {
+    const sem = semaphore(1);
+    const promise: Promise<number> = sem(async () => 123);
+    expect(await promise).to.eql(123);
+  });
+
   it('limits concurrent execution', async () => {
     const limit = 2;
     const sem = semaphore(limit);

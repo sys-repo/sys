@@ -10,8 +10,8 @@ export type PromiseLib = {
   /** Wait for the promise to complete if the value is a promise; otherwise resolve immediately. */
   maybeWait<T>(value: T | Promise<T>): Promise<T>;
 
-  /** Return a limiter that runs at most `max` promise tasks concurrently (excess tasks are queued). */
-  semaphore: Semaphore;
+  /** Semaphore (concurrency limiter): cap concurrent promise tasks at `max` (extra tasks wait). */
+  semaphore: t.Semaphore;
 };
 
 /**
@@ -21,7 +21,6 @@ export type PromiseLib = {
 export type MaybeWait = <T>(value: T | Promise<T>) => Promise<T>;
 
 /**
- * Return a limiter that runs at most `max` promise tasks concurrently
- * (excess tasks are queued).
+ * Semaphore (concurrency limiter): cap concurrent promise tasks at `max` (extra tasks wait).
  */
-export type Semaphore = <T>(max: number) => (fn: () => Promise<T>) => Promise<T>;
+export type Semaphore = (max: number) => <T>(fn: () => Promise<T>) => Promise<T>;
