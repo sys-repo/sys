@@ -96,4 +96,57 @@ describe('HttpServer: serve static', () => {
     fetch.dispose();
     await listener.shutdown();
   });
+
+  it('304: ETag short-circuit', async () => {
+    const fs = await Testing.dir('HttpServer').create();
+    const filename = 'etag.json';
+    await Fs.writeJson(Fs.join(fs.dir, filename), { ok: true });
+
+    const app = HttpServer.create({ static: ['/*', fs.dir] });
+    const href = `http://local/${filename}`;
+
+    /**
+     * Note: `If-None-Match` is a forbidden header in Fetch, so test via app.fetch.
+     */
+    const res1 = await app.fetch(new Request(href));
+    const etag = res1.headers.get('etag');
+    expect(res1.status).to.eql(200);
+    expect(etag).to.be.ok;
+    if (res1.body) await res1.arrayBuffer(); // drain to close file handle
+
+    const res2 = await app.fetch(new Request(href, { headers: { 'if-none-match': String(etag) } }));
+    expect(res2.status).to.eql(304);
+    if (res2.body) await res2.arrayBuffer();
+  });
+
+  it('ETag changes after file rewrite', async () => {
+    type T = { ok: boolean };
+    const fs = await Testing.dir('HttpServer').create();
+    const filename = 'etag-change.json';
+    const path = Fs.join(fs.dir, filename);
+    await Fs.writeJson(path, { ok: true });
+
+    const app = HttpServer.create({ static: ['/*', fs.dir] });
+    const listener = Deno.serve({ port: 0 }, app.fetch);
+    const url = Http.url(listener.addr);
+    const href = url.join(filename);
+
+    const fetch = Http.fetcher();
+    const res1 = await fetch.json<T>(href);
+    const etag1 = res1.headers.get('etag');
+    expect(res1.status).to.eql(200);
+    expect(etag1).to.be.ok;
+
+    await new Promise<void>((resolve) => setTimeout(resolve, 1100));
+    await Fs.writeJson(path, { ok: false });
+
+    const res2 = await fetch.json<T>(href);
+    const etag2 = res2.headers.get('etag');
+    expect(res2.status).to.eql(200);
+    expect(etag2).to.be.ok;
+    expect(etag2).not.to.eql(etag1);
+
+    fetch.dispose();
+    await listener.shutdown();
+  });
 });
