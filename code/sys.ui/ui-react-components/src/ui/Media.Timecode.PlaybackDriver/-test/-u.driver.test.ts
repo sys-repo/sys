@@ -69,6 +69,8 @@ describe(`PlaybackDriver.driver`, () => {
       events: [],
     });
 
+    A.props.ready.value = true;
+
     // beat1 boundary should be 1.0s into media (pause excluded).
     expect(A.props.jumpTo.value?.second).to.equal(1);
     expect(A.props.jumpTo.value?.play).to.equal(undefined);
@@ -354,17 +356,19 @@ describe(`PlaybackDriver.driver`, () => {
       { kind: 'video:ended', deck: 'A' },
     ]);
 
-    // Cmd-based rebase resumes time emission.
+    // Cmd-based rebase resumes time emission once the seek settles.
     driver.apply({
       state,
       cmds: [{ kind: 'cmd:deck:seek', deck: 'A', vTime: ms(0) }],
       events: [],
     });
 
+    A.props.currentTime.value = 0 as t.Secs; // settle pending seek at target
     A.props.currentTime.value = 0.8 as t.Secs;
     expect(seen).to.eql([
       { kind: 'video:time', deck: 'A', vTime: ms(500) },
       { kind: 'video:ended', deck: 'A' },
+      { kind: 'video:time', deck: 'A', vTime: ms(0) },
       { kind: 'video:time', deck: 'A', vTime: ms(800) },
     ]);
 

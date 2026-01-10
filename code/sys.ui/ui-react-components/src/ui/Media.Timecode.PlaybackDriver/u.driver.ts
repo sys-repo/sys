@@ -40,6 +40,8 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
   let timeSource: TimeSource = 'video';
   let pauseTimer: PauseTimer | undefined;
   let pendingEndedDeck: t.TimecodeState.Playback.DeckId | undefined;
+  let pendingSeek: { deck: t.TimecodeState.Playback.DeckId; second: t.Secs } | undefined;
+  const pendingLoadDecks = new Set<t.TimecodeState.Playback.DeckId>();
 
   /**
    * Runtime-edge idempotence:
@@ -57,16 +59,18 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
 
   const setTimeSource = (next: TimeSource) => void (timeSource = next);
 
-  const rebaseTime = () => {
+  const rebaseTime = (options: { preservePendingSeek?: boolean } = {}) => {
     stopPauseTimer();
     setTimeSource('video');
     pendingEndedDeck = undefined;
+    if (!options.preservePendingSeek) pendingSeek = undefined;
   };
 
   const suppressTimeAfterEnded = () => {
     stopPauseTimer();
     setTimeSource('suppressed-ended');
     pendingEndedDeck = undefined;
+    pendingSeek = undefined;
   };
 
   const startPauseTimer = (deck: t.TimecodeState.Playback.DeckId, pause: PauseWindow) => {
@@ -168,6 +172,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
     // endedTick → video:ended (monotonic marker)
     // Seed baseline synchronously to avoid missing a bump before the first effect run.
     let lastEndedTick: number = Number(decks[deck].props.endedTick.value);
+    let lastReady = Boolean(decks[deck].props.ready.value);
 
     disposers.add(
       Signal.effect(() => {
@@ -198,6 +203,18 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
       }),
     );
 
+    disposers.add(
+      Signal.effect(() => {
+        const ready = Boolean(decks[deck].props.ready.value);
+        if (ready === lastReady) return;
+        lastReady = ready;
+        if (!ready) return;
+
+        pendingLoadDecks.delete(deck);
+        if (pendingSeek && pendingSeek.deck === deck) decks[deck].jumpTo(pendingSeek.second);
+      }),
+    );
+
     // currentTime → video:time (runner emits vTime, not source time)
     let lastSecs: number | undefined;
 
@@ -220,8 +237,15 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         if (state.decks.active !== deck) return;
         if (!state.timeline) return;
         if (timeSource !== 'video') return;
+        if (pendingLoadDecks.has(deck)) return;
 
         const vTime = mapDeckSecondToVTime(state, secs);
+
+        if (pendingSeek && pendingSeek.deck === deck) {
+          const delta = Math.abs(Number(secs) - Number(pendingSeek.second));
+          if (delta > 0.05) return;
+          pendingSeek = undefined;
+        }
 
         /**
          * Prevent media-driven time from skipping over a virtual pause.
@@ -267,6 +291,10 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
       case 'cmd:swap-decks': {
         // Rebase time authority after discrete deck routing changes.
         rebaseTime();
+        // 🌸🌸 ---------- ADDED: pause-standby ----------
+        // Pause the deck that just became standby to prevent dual playback.
+        decks[state.decks.standby].pause();
+        // 🌸 ---------- /ADDED ----------
         return;
       }
 
@@ -295,6 +323,8 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         if (prevKey !== nextKey) {
           signals.props.src.value = media.src;
           deckLastMediaKey.set(cmd.deck, nextKey);
+          pendingLoadDecks.add(cmd.deck);
+          signals.props.ready.value = false;
         }
         signals.props.slice.value = media.slice;
         return;
@@ -302,7 +332,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
 
       case 'cmd:deck:play': {
         // Cmd-level play is a discrete rebase point: resume currentTime authority.
-        rebaseTime();
+        rebaseTime({ preservePendingSeek: !!pendingSeek });
 
         decks[cmd.deck].play();
         return;
@@ -321,8 +351,12 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         const signals = decks[cmd.deck];
         const second = mapVTimeToDeckSecond(state, cmd.vTime);
 
+        pendingSeek = { deck: cmd.deck, second };
+
         // Preserve play/pause state (do not force play).
-        signals.jumpTo(second); // play: undefined
+        if (signals.props.ready.value && !pendingLoadDecks.has(cmd.deck)) {
+          signals.jumpTo(second); // play: undefined
+        }
         return;
       }
     }
@@ -339,6 +373,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
       disposed = true;
       lastState = undefined;
       pendingEndedDeck = undefined;
+      pendingLoadDecks.clear();
       timeSource = 'video';
       stopPauseTimer();
       for (const d of disposers) d();

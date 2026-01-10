@@ -46,12 +46,13 @@ import { type t } from '../common.ts';
  * - Early-ended: after endedTick, state moves forward (beat/segment/phase) and does not freeze.
  * - Pause: emitted vTime sequence is monotonic and ends exactly at pauseTo, then resumes video-driven time.
  */
-// 🌸
 describe.skip(`Timecode.Driver closed-loop integration (Gate D)`, () => {
+  // 🌸
   it(`TODO: early-ended robustness closed-loop`, () => {
     expect(true).to.equal(false);
   });
 
+  // 🌸
   it(`TODO: pause-window progression closed-loop`, () => {
     expect(true).to.equal(false);
   });
