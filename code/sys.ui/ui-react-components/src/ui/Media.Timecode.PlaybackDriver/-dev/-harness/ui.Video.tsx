@@ -52,16 +52,12 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
   const srcLabel = src ? Str.ellipsize(src.split('/').slice(-1)[0], [6, 10], '..') : '-';
   const sliceLabel = p.slice.value || '-/-';
   const readyLabel = p.ready.value ? 'ready' : 'not-ready';
-  const jumpTo = p.jumpTo.value;
-  const jumpLabel = jumpTo ? `${jumpTo.second}s` : '-';
-  const lastJumpLabel = lastJumpTo ? `${lastJumpTo.second}s` : '-';
-  const jumpPlay = jumpTo?.play === true ? 'play' : jumpTo?.play === false ? 'pause' : 'keep';
-  const line1 = `[${deck}] ${status}; ${readyLabel} • current: ${dur(tms, '⌀')} • duration: ${dur(
-    dms,
-    '⌀',
-  )} • slice: ${sliceLabel}`;
-  const line2 = `jumpTo: ${jumpLabel} (${jumpPlay}) • last: ${lastJumpLabel}`;
-  const line3 = `src: ${srcLabel}`;
+
+  let line1 = `[${deck}] ${status} •  ${readyLabel}`;
+  line1 += ` • current: ${dur(tms, '⌀')}`;
+  line1 += ` • duration: ${dur(dms, '⌀')}`;
+  line1 += ` • slice: ${sliceLabel}`;
+  const line2 = `src: ${srcLabel}`;
   const debugPayload = {
     deck,
     status,
@@ -118,7 +114,7 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
         onClick={handleCopy}
         label={line1}
       />
-      <div className={css(styles.label.base, styles.label.bottom).class}>{line3}</div>
+      <div className={css(styles.label.base, styles.label.bottom).class}>{line2}</div>
     </div>
   );
 
