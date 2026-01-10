@@ -38,7 +38,7 @@ export function stream(
   const signal = controller.signal;
 
   const q = makeEventQueue<t.HttpPullEvent>();
-  const lim = Await.semaphore(concurrency);
+  const limit = Await.semaphore(concurrency);
 
   // Hot subject mirroring progress events to observable subscribers.
   const subject$ = Rx.subject<t.HttpPullEvent>();
@@ -56,7 +56,7 @@ export function stream(
 
   let index = 0;
   const tasks = urls.map((source) =>
-    lim(async () => {
+    limit(async () => {
       if (signal.aborted) return; // Bail fast.
       const i = index++ as t.Index;
 

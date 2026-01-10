@@ -6,13 +6,12 @@ export async function warm(
 ): Promise<t.HttpPreloadResult> {
   const targets = wrangle.targets(input);
   const concurrency = Math.max(1, options.concurrency ?? 8);
-  const lim = Await.semaphore(concurrency);
-
+  const limit = Await.semaphore(concurrency);
   const ownsClient = !options.client;
   const client = options.client ?? Fetch.make(options.until);
 
   try {
-    const tasks = targets.map((target) => lim(() => warmOne(target, client)));
+    const tasks = targets.map((target) => limit(() => warmOne(target, client)));
     const ops = await Promise.all(tasks);
     const ok = ops.every((r) => r.ok);
     return { ok, ops };
