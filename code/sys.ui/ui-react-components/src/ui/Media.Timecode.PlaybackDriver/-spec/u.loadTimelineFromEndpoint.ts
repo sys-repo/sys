@@ -11,18 +11,20 @@ export async function loadTimelineFromEndpoint(
   baseUrl: t.StringUrl,
   docid: t.StringId,
 ): Promise<t.TimecodePlaybackDriver.Wire.Bundle<unknown>> {
-  const http = Http.fetcher();
+  const fetch = Http.fetcher();
 
   // 1. Touch dist.json (kept for potential routing/metadata; unused for now).
-  const distRes = await http.json(`${baseUrl}/manifests/dist.json`);
+  const distRes = await fetch.json(`${baseUrl}/manifests/dist.json`);
   void distRes;
 
   // 2. Assets manifest for this slug/doc.
-  const assetsRes = await http.json(`${baseUrl}/manifests/slug.${docid}.assets.json`);
+  const assetsUrl = `${baseUrl}/manifests/slug.${docid}.assets.json`;
+  const assetsRes = await fetch.json(assetsUrl);
   const assets = assetsRes.data as t.TimecodePlaybackDriver.Wire.AssetsManifest;
 
   // 3. Timeline manifest (timecode spec) for this slug/doc.
-  const timelineRes = await http.json(`${baseUrl}/manifests/slug.${docid}.playback.json`);
+  const timelineUrl = `${baseUrl}/manifests/slug.${docid}.playback.json`;
+  const timelineRes = await fetch.json(timelineUrl);
 
   // Payload is intentionally unconstrained at this layer.
   const payload = undefined;
