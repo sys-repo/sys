@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Promise, maybeWait } from '../mod.ts';
+import { Await, maybeWait } from '../mod.ts';
 
-describe('Promise.maybeWait', () => {
+describe('Await.maybeWait', () => {
   type T = { count: number };
   const fn1 = (): T => ({ count: 1 });
   const fn2 = async (): Promise<T> => ({ count: 2 });
@@ -17,14 +17,14 @@ describe('Promise.maybeWait', () => {
   });
 
   it('exposed from Promise', () => {
-    expect(Promise.maybeWait).to.equal(maybeWait);
+    expect(Await.maybeWait).to.equal(maybeWait);
   });
 });
 
 // deno-lint-ignore require-await
 it('isPromise', async () => {
   const test = (input: any, expected: boolean) => {
-    expect(Promise.isPromise(input)).to.eql(expected);
+    expect(Await.isPromise(input)).to.eql(expected);
   };
 
   // deno-lint-ignore require-await

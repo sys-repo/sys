@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Tools for working with promises.
  */
-export type PromiseLib = {
+export type AwaitLib = {
   /** Determine if the value is a Promise. */
   isPromise: t.StdIsLib['promise'];
 

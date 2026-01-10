@@ -5,7 +5,7 @@ import { semaphore } from './u.semaphore.ts';
 /**
  * Tools for working with promises.
  */
-export const Promise: t.PromiseLib = {
+export const Await: t.AwaitLib = {
   isPromise: Is.promise,
   maybeWait,
   semaphore,
