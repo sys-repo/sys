@@ -1,8 +1,8 @@
 /**
+ * @module
  * Tools for working with spawned child processes on modern POSIX-based systems
  * (macOS, Linux, and similar “unix-like” environments) using Deno
  * (aka. [WinterTC](https://wintertc.org/) compatible) runtimes.
- * @module
  *
  * @example
  * Running a short lived shell command (synchronous):
@@ -44,3 +44,4 @@ export { pkg } from './pkg.ts';
  * Library
  */
 export { Process } from './m.process/mod.ts';
+export { Open } from './m.open/mod.ts';

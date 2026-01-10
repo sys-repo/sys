@@ -23,7 +23,7 @@ export { JsonFile } from '@sys/fs/file';
 export { Graph } from '@sys/immutable/graph';
 export { Jsr } from '@sys/jsr';
 export { Net } from '@sys/net';
-export { Process } from '@sys/process';
+export { Open, Process } from '@sys/process';
 export { AliasResolver } from '@sys/std/alias';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';

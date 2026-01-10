@@ -2,7 +2,6 @@ import { type t, JsonFile } from '../common.ts';
 import { DeployTool } from './t.namespace.ts';
 
 /** @system: exports */
-export { Process } from '@sys/process';
 export { Schema } from '@sys/schema';
 export { Yaml } from '@sys/yaml';
 
