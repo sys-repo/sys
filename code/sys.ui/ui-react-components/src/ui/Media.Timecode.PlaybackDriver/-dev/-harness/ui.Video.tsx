@@ -1,5 +1,17 @@
 import React from 'react';
-import { type t, Str, Color, Cropmarks, css, dur, Is, Player, useSizeObserver } from './common.ts';
+import {
+  type t,
+  Str,
+  Color,
+  Cropmarks,
+  css,
+  dur,
+  Is,
+  Player,
+  useSizeObserver,
+  Button,
+  Try,
+} from './common.ts';
 
 export type HarnessVideoProps = {
   deck: 'A' | 'B';
@@ -14,18 +26,23 @@ export type HarnessVideoProps = {
  */
 export const Video: React.FC<HarnessVideoProps> = (props) => {
   const { debug = false, video, deck } = props;
+  const [lastJumpTo, setLastJumpTo] = React.useState<t.VideoPlayerSeek | undefined>(undefined);
 
   /**
    * Hooks:
    */
   const size = useSizeObserver();
-  if (!video) return null;
 
   // This hook is the bridge: it subscribes to signals AND produces element-ready props.
   const controller = Player.Video.useSignals(video, { log: debug });
-  if (!controller.props.src) return null;
+  const p = video?.props;
 
-  const p = video.props;
+  React.useEffect(() => {
+    if (!p?.jumpTo.value) return;
+    setLastJumpTo(p.jumpTo.value);
+  }, [p?.jumpTo.value]);
+
+  if (!p || !video || !controller.props.src) return null;
 
   const dms = Is.num(p.duration.value) ? p.duration.value * 1000 : 0;
   const tms = Is.num(p.currentTime.value) ? p.currentTime.value * 1000 : 0;
@@ -34,8 +51,28 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
   const src = p.src.value;
   const srcLabel = src ? Str.ellipsize(src.split('/').slice(-1)[0], [6, 10], '..') : '-';
   const sliceLabel = p.slice.value || '-/-';
-  const line1 = `[${deck}] ${status}; current: ${dur(tms, '⌀')} • duration: ${dur(dms, '⌀')} • slice: ${sliceLabel}`;
-  const line2 = `src: ${srcLabel}`;
+  const readyLabel = p.ready.value ? 'ready' : 'not-ready';
+  const jumpTo = p.jumpTo.value;
+  const jumpLabel = jumpTo ? `${jumpTo.second}s` : '-';
+  const lastJumpLabel = lastJumpTo ? `${lastJumpTo.second}s` : '-';
+  const jumpPlay = jumpTo?.play === true ? 'play' : jumpTo?.play === false ? 'pause' : 'keep';
+  const line1 = `[${deck}] ${status}; ${readyLabel} • current: ${dur(tms, '⌀')} • duration: ${dur(
+    dms,
+    '⌀',
+  )} • slice: ${sliceLabel}`;
+  const line2 = `jumpTo: ${jumpLabel} (${jumpPlay}) • last: ${lastJumpLabel}`;
+  const line3 = `src: ${srcLabel}`;
+  const debugPayload = {
+    deck,
+    status,
+    ready: p.ready.value,
+    currentTime: p.currentTime.value,
+    duration: p.duration.value,
+    jumpTo: p.jumpTo.value,
+    lastJumpTo,
+    src: p.src.value,
+    slice: p.slice.value,
+  };
 
   /**
    * Render:
@@ -61,6 +98,11 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
     video: css({}),
   };
 
+  const handleCopy = () => {
+    // Best-effort clipboard write.
+    Try.run(() => navigator.clipboard.writeText(JSON.stringify(debugPayload)));
+  };
+
   const elBody = (
     <div className={styles.video.class}>
       <Player.Video.Element
@@ -70,8 +112,13 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
         theme={props.theme}
         interaction={{ clickToPlay: false }}
       />
-      <div className={css(styles.label.base, styles.label.top).class}>{line1}</div>
-      <div className={css(styles.label.base, styles.label.bottom).class}>{line2}</div>
+      <Button
+        theme={theme.name}
+        style={css(styles.label.base, styles.label.top)}
+        onClick={handleCopy}
+        label={line1}
+      />
+      <div className={css(styles.label.base, styles.label.bottom).class}>{line3}</div>
     </div>
   );
 
