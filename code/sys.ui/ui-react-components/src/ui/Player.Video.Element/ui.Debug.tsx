@@ -16,18 +16,19 @@ export type DebugProps = {
  * Component:
  */
 export const Debug: React.FC<DebugProps> = (props) => {
-  const { readyState, playing, seeking } = props;
+  const { readyState, playing, seeking, src = '' } = props;
   const [isOver, setOver] = React.useState(false);
 
-  let src = props.src ?? '';
-  src = src ? src?.slice(-10) : '';
-  src = `“...${src}”`;
+  const srcSuffix = src ? src.slice(-10) : '';
+  const srcLabel = `“...${srcSuffix}”`;
 
   let text = '';
   text += `ready-state=${readyState}, `;
   text += `playing=${playing}, `;
   text += `seeking=${seeking}, `;
-  text += `src=${src} `;
+  text += `src=${srcLabel} `;
+
+  const debugData = { readyState, playing, seeking, src };
 
   /**
    * Render:
@@ -59,8 +60,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   const handleClick = async () => {
     try {
-      text = props.src ?? '';
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(JSON.stringify(debugData));
       return true;
     } catch (error) {
       console.error('Clipboard write failed:', error);
