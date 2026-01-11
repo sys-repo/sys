@@ -14,4 +14,5 @@ export type HarnessProps = {
   style?: t.CssInput;
 
   onReady?: (e: { readonly controller: t.TimecodePlaybackDriver.TimelineController }) => void;
+  onSnapshot?: (e: { readonly snapshot?: t.TimecodeState.Playback.Snapshot }) => void;
 };

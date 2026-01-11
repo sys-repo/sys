@@ -55,6 +55,9 @@ export default Spec.describe(D.displayName, async (e) => {
             console.info(`⚡️ MediaTimecode.Dev.Harness.onReady:`, e);
             p.controller.value = e.controller;
           }}
+          onSnapshot={(e) => {
+            p.snapshot.value = e.snapshot;
+          }}
         />
       </div>
     );

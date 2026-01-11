@@ -17,6 +17,7 @@ import {
 } from './common.ts';
 import { Sample } from './u.loader.ts';
 import { LoadTimelinePanel } from './ui.LoadTimelinePanel.tsx';
+import { Controls } from './ui.Controls.tsx';
 
 type P = HarnessProps;
 type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId; baseUrl?: t.StringUrl };
@@ -51,6 +52,7 @@ export async function createDebugSignals() {
     baseUrl: s(snap.baseUrl),
     bundle: s<t.TimecodePlaybackDriver.Wire.Bundle>(),
     controller: s<t.TimecodePlaybackDriver.TimelineController>(),
+    snapshot: s<t.TimecodeState.Playback.Snapshot>(),
   };
   const p = props;
   const api = {
@@ -145,6 +147,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `play`} onClick={() => v.controller?.play()} />
       <Button block label={() => `pause`} onClick={() => v.controller?.pause()} />
       <Button block label={() => `toggle`} onClick={() => v.controller?.toggle()} />
+      <Controls debug={debug} />
 
       <hr />
       <div className={Styles.title.class}>

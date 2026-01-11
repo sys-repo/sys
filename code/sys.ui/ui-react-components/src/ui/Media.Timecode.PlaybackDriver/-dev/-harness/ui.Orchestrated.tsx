@@ -57,6 +57,10 @@ export const Orchestrated: React.FC<OrchestratedProps> = (props) => {
     onReady({ controller });
   }, [controller]);
 
+  React.useEffect(() => {
+    props.onSnapshot?.({ snapshot });
+  }, [props.onSnapshot, snapshot]);
+
   return (
     <Layout
       hasBundle={!!bundle}
