@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { playerSignalsFactory } from '../../Player.Video.Signals/m.Signals.ts';
 
-import { pauseClampFixture } from './u.fixture.pauseWindowClamp.ts';
+import { pauseClampWithBadDurationFixture } from './u.fixture.pauseWindowClamp.ts';
 import { makeDeterministicSchedule } from './u.fixture.u.deterministicSchedule.ts';
 
 import { type t } from '../common.ts';
@@ -191,7 +191,7 @@ describe(`PlaybackDriver.driver`, () => {
   });
 
   it(`video:ended defers to pause window when media ends before pauseFrom`, () => {
-    const fx = pauseClampFixture();
+    const fx = pauseClampWithBadDurationFixture();
     const state: t.TimecodeState.Playback.State = {
       phase: 'active',
       intent: 'play',
@@ -475,7 +475,7 @@ describe(`PlaybackDriver.driver`, () => {
   });
 
   it(`pause window clamp uses nextBeat.vTime delta (not beat.duration) and completes via pause-timer authority`, () => {
-    const fx = pauseClampFixture();
+    const fx = pauseClampWithBadDurationFixture();
     const state: t.TimecodeState.Playback.State = {
       phase: 'active',
       intent: 'play',
