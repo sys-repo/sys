@@ -14,4 +14,5 @@
  *
  * Selects and gates the active time authority only.
  */
+export { Dev } from './-dev/mod.ts';
 export { PlaybackDriver } from './m.PlaybackDriver.ts';

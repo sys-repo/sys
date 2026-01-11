@@ -1,19 +1,18 @@
 import type { HarnessProps } from './t.ts';
 
 import React from 'react';
-import { type t, Color, css, PlaybackDriver } from './common.ts';
+import { type t, Color, css, Dev, PlaybackDriver } from './common.ts';
 import { Debug } from './ui.InfoPanel.Debug.tsx';
-import { KV } from './ui.InfoPanel.KV.tsx';
 
 type L = NonNullable<HarnessProps['layout']>;
 
 export type InfoPanelProps = {
   layout?: L['infopanel'];
+  index?: t.Index;
   docid?: t.StringId;
   bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
-  beat?: t.Timecode.Experience.Beat;
-  index?: t.Index;
   snapshot?: t.TimecodeState.Playback.Snapshot;
+  beat?: t.Timecode.Experience.Beat;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -50,7 +49,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
 
   const elTop = (
     <div className={styles.top.class}>
-      <KV {...props} experience={experience} resolved={resolved} style={styles.kv} />
+      <Dev.InfoPanel.UI {...props} experience={experience} resolved={resolved} style={styles.kv} />
       {debug && <Debug {...props} />}
     </div>
   );
