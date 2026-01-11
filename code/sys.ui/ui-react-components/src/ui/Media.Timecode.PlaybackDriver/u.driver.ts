@@ -25,7 +25,7 @@ type PauseTimer = {
  * playback inputs (video:time / video:ended), including pause-window + ended suppression.
  */
 export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
-  const { decks, resolveBeatMedia } = args;
+  const { decks, resolveBeatMedia, log = false } = args;
 
   const schedule = args.schedule ?? {
     now: () => Date.now(),
@@ -164,7 +164,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
   };
 
   const warn = (...a: unknown[]) => {
-    if (args.log) console.warn(...a);
+    if (log) console.warn(...a);
   };
 
   const observeDeck = (deck: t.TimecodeState.Playback.DeckId) => {
@@ -239,6 +239,11 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         const raw = Number(decks[deck].props.currentTime.value);
         const secs = Number.isFinite(raw) ? (Math.max(0, raw) as t.Secs) : (0 as t.Secs);
 
+        if (pendingSeek && pendingSeek.deck === deck) {
+          const delta = Math.abs(secs - pendingSeek.second);
+          if (delta <= 0.05 || secs > pendingSeek.second) pendingSeek = undefined;
+        }
+
         // First run: establish baseline, do not emit.
         if (lastSecs === undefined) {
           lastSecs = Number(secs);
@@ -259,7 +264,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
 
         if (pendingSeek && pendingSeek.deck === deck) {
           const delta = Math.abs(Number(secs) - Number(pendingSeek.second));
-          if (delta > 0.05) return;
+          if (delta > 0.05 && Number(secs) < Number(pendingSeek.second)) return;
           pendingSeek = undefined;
         }
 

@@ -141,6 +141,60 @@ describe(`PlaybackDriver.driver`, () => {
     driver.dispose();
   });
 
+  it(`video:time emits even if pendingSeek misses the exact landing tick`, () => {
+    const timeline: t.TimecodeState.Playback.Timeline = {
+      beats: [
+        {
+          index: ix(0),
+          vTime: ms(0),
+          duration: ms(2000),
+          pause: ms(0),
+          segmentId: 'seg:1',
+          media: { url: 'u:0' },
+        },
+      ],
+      segments: [{ id: 'seg:1', beat: { from: ix(0), to: ix(1) } }],
+      virtualDuration: ms(2000),
+    };
+
+    const state: t.TimecodeState.Playback.State = {
+      phase: 'active',
+      intent: 'play',
+      timeline,
+      currentBeat: ix(0),
+      vTime: ms(0),
+      decks: { active: 'A', standby: 'B', status: { A: 'ready', B: 'ready' } },
+      ready: { machine: true, runner: true, deck: { A: true, B: true } },
+    };
+
+    const A = playerSignalsFactory();
+    const B = playerSignalsFactory();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({
+      state,
+      cmds: [{ kind: 'cmd:deck:seek', deck: 'A', vTime: ms(0) }],
+      events: [],
+    });
+
+    // Miss the exact landing tick: first update already past the target.
+    A.props.currentTime.value = 0.2 as t.Secs;
+    A.props.currentTime.value = 0.4 as t.Secs;
+
+    const timeInputs = seen.filter((input) => input.kind === 'video:time');
+    expect(timeInputs.length).to.equal(2);
+    expect(timeInputs[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: ms(200) });
+    expect(timeInputs[1]).to.eql({ kind: 'video:time', deck: 'A', vTime: ms(400) });
+
+    driver.dispose();
+  });
+
   it(`video:ready emits when a deck becomes ready`, () => {
     const { state } = readySignalFixture();
 
