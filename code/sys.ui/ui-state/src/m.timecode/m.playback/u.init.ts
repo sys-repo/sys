@@ -32,6 +32,7 @@ export const init: t.PlaybackStateLib['init'] = (args = {}) => {
     const seeded: t.PlaybackState = { ...state, vTime: timeline.beats[initialBeat]?.vTime };
 
     const nextState = setCurrentBeat(seeded, initialBeat, { cmds, events });
+    preloadStandby(nextState, cmds);
     return { state: nextState, cmds, events };
   }
 
@@ -43,3 +44,24 @@ export const init: t.PlaybackStateLib['init'] = (args = {}) => {
 
   return { state, cmds, events };
 };
+
+function preloadStandby(state: t.PlaybackState, cmds: t.PlaybackCmd[]) {
+  const timeline = state.timeline;
+  if (!timeline) return;
+
+  const beatIndex = state.currentBeat;
+  if (beatIndex == null) return;
+
+  const beat = timeline.beats[beatIndex];
+  const segId = beat?.segmentId;
+  if (!segId) return;
+
+  const segIndex = timeline.segments.findIndex((s) => s.id === segId);
+  if (segIndex < 0) return;
+
+  const nextSeg = timeline.segments[segIndex + 1];
+  if (!nextSeg) return;
+
+  const preloadIndex = nextSeg.beat.from;
+  cmds.push({ kind: 'cmd:deck:load', deck: state.decks.standby, beat: preloadIndex });
+}

@@ -69,4 +69,44 @@ describe('Playback.init - invariants', () => {
       false,
     );
   });
+
+  it('preloads standby deck when a next segment exists', () => {
+    const tline = {
+      beats: [
+        { index: 0, vTime: 0, duration: 1000, segmentId: 'seg:1', media: { url: 'u:0' } },
+        { index: 1, vTime: 1000, duration: 1000, segmentId: 'seg:2', media: { url: 'u:1' } },
+      ],
+      segments: [
+        { id: 'seg:1', beat: { from: 0, to: 1 } },
+        { id: 'seg:2', beat: { from: 1, to: 2 } },
+      ],
+      virtualDuration: 2000,
+    } as const;
+
+    const res = Playback.init({ timeline: tline });
+    const hasStandbyLoad = res.cmds.some(
+      (c) => c.kind === 'cmd:deck:load' && c.deck === 'B',
+    );
+    expect(hasStandbyLoad).to.eql(true);
+  });
+
+  it('preloads standby even when media url is missing', () => {
+    const tline = {
+      beats: [
+        { index: 0, vTime: 0, duration: 1000, segmentId: 'seg:1' },
+        { index: 1, vTime: 1000, duration: 1000, segmentId: 'seg:2' },
+      ],
+      segments: [
+        { id: 'seg:1', beat: { from: 0, to: 1 } },
+        { id: 'seg:2', beat: { from: 1, to: 2 } },
+      ],
+      virtualDuration: 2000,
+    } as const;
+
+    const res = Playback.init({ timeline: tline });
+    const hasStandbyLoad = res.cmds.some(
+      (c) => c.kind === 'cmd:deck:load' && c.deck === 'B',
+    );
+    expect(hasStandbyLoad).to.eql(true);
+  });
 });
