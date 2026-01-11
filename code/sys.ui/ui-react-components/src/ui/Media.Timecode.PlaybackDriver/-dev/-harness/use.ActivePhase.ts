@@ -14,6 +14,6 @@ export function useActivePhase(args: Args): 'media' | 'pause' | undefined {
     if (!playback) return undefined;
     if (selectedIndex == null || vTime == null) return undefined;
 
-    return TimecodeState.Playback.activePhase(playback, selectedIndex, vTime);
+    return TimecodeState.Playback.Util.activePhase(playback, selectedIndex, vTime);
   }, [playback, selectedIndex, vTime]);
 }

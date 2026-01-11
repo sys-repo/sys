@@ -46,7 +46,7 @@ export function useOrchestrator(args: Args): Result {
   /** Derive initial ui-state from experience timeline. */
   const init = React.useMemo<t.TimecodeState.Playback.InitArgs | undefined>(() => {
     if (!bundle || !experience) return undefined;
-    const timeline = TimecodeState.Playback.buildTimeline(experience);
+    const timeline = TimecodeState.Playback.Util.buildTimeline(experience);
     return { timeline, startBeat };
   }, [bundle, experience, startBeat]);
 
