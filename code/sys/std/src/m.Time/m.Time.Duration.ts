@@ -34,8 +34,7 @@ export const Duration: TimeDurationLib = {
       hour: To.hour(msecs, round),
       day: To.day(msecs, round),
 
-      toString(unit?: t.TimeUnit | { unit?: t.TimeUnit; round?: number }): string {
-        const msecs = this.msec;
+      format(unit) {
         const format = Duration.format;
         const options = typeof unit === 'object' ? unit : { unit };
         const round = typeof options.round === 'number' ? options.round : 0;
@@ -47,6 +46,10 @@ export const Duration: TimeDurationLib = {
         if (msecs < DAY) return format(msecs, 'h', round);
 
         return format(msecs, 'd', round);
+      },
+
+      toString() {
+        return api.format();
       },
     };
     return api;

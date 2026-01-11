@@ -86,7 +86,7 @@ export const duration: t.TimecodeSliceLib['duration'] = (input, opts = {}) => {
 
   const ms = Math.max(0, Number(win.to) - Number(win.from)) as t.Msecs;
   const text =
-    unit != null ? Duration.format(ms, unit, round ?? 0) : Duration.create(ms).toString({ round });
+    unit != null ? Duration.format(ms, unit, round ?? 0) : Duration.create(ms).format({ round });
 
   return { ms, text };
 };
@@ -103,8 +103,8 @@ export const positions: t.TimecodeSliceLib['positions'] = (input, opts = {}) => 
   const win = resolveWindow(parsed, total);
   if (!win) return undefined;
 
-  const start = Duration.create(win.from, { round }).toString({ round });
-  const end = Duration.create(win.to, { round }).toString({ round });
+  const start = Duration.create(win.from, { round }).format({ round });
+  const end = Duration.create(win.to, { round }).format({ round });
   return { start, end };
 };
 

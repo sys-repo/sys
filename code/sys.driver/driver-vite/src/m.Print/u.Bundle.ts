@@ -13,7 +13,7 @@ export const Bundle: t.ViteLogLib['Bundle'] = {
 
     const input = Path.trimCwd(dirs.in) || './';
     const outDir = Path.trimCwd(dirs.out);
-    const elapsed = args.elapsed ? Time.duration(args.elapsed).toString({ round: 1 }) : '-';
+    const elapsed = args.elapsed ? Time.duration(args.elapsed).format({ round: 1 }) : '-';
     const tx = digest(hash);
 
     let strPkg = ``;

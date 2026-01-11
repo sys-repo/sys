@@ -18,15 +18,15 @@ describe('Duration', () => {
       const res = Time.duration(1025);
       expect(res.msec).to.eql(1025);
       expect(res.toString()).to.eql('1s');
-      expect(res.toString('ms')).to.eql('1025ms');
+      expect(res.format('ms')).to.eql('1025ms');
     });
 
-    it('toString (round)', () => {
-      const res1 = Time.duration(1258).toString();
-      const res2 = Time.duration(1258).toString({ round: 1 });
-      const res3 = Time.duration(1258).toString({ round: 3 });
-      const res4 = Time.duration(300.234).toString('ms');
-      const res5 = Time.duration(300.234).toString({ unit: 'ms', round: 1 });
+    it('format (round)', () => {
+      const res1 = Time.duration(1258).format();
+      const res2 = Time.duration(1258).format({ round: 1 });
+      const res3 = Time.duration(1258).format({ round: 3 });
+      const res4 = Time.duration(300.234).format('ms');
+      const res5 = Time.duration(300.234).format({ unit: 'ms', round: 1 });
 
       expect(res1).to.eql('1s');
       expect(res2).to.eql('1.3s');

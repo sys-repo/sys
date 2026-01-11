@@ -55,7 +55,8 @@ export type TimeDuration = {
   readonly min: Mins;
   readonly hour: Hours;
   readonly day: Days;
-  toString(unit?: TimeUnit | { unit?: TimeUnit; round?: number }): string;
+  toString(): string;
+  format(unit?: TimeUnit | { unit?: TimeUnit; round?: number }): string;
 };
 
 /**

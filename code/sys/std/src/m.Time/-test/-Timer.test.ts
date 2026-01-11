@@ -36,8 +36,8 @@ describe('timer', () => {
     expect(Time.timer(start, { round: 0 }).elapsed.sec).to.eql(90);
 
     const timer = Time.timer(start);
-    expect(timer.elapsed.toString('s')).to.eql('90s');
-    expect(timer.elapsed.toString('sec')).to.eql('90s');
+    expect(timer.elapsed.format('s')).to.eql('90s');
+    expect(timer.elapsed.format('sec')).to.eql('90s');
   });
 
   it('reports elapsed minutes', () => {
@@ -48,8 +48,8 @@ describe('timer', () => {
     expect(Time.timer(start).elapsed.min).to.eql(5.4);
 
     const timer = Time.timer(start);
-    expect(timer.elapsed.toString('m')).to.eql('5m');
-    expect(timer.elapsed.toString('min')).to.eql('5m');
+    expect(timer.elapsed.format('m')).to.eql('5m');
+    expect(timer.elapsed.format('min')).to.eql('5m');
   });
 
   it('reports elapsed hours', () => {
@@ -61,8 +61,8 @@ describe('timer', () => {
     expect(Time.timer(start, { round: 2 }).elapsed.hour).to.eql(2.63);
 
     const timer = Time.timer(start);
-    expect(timer.elapsed.toString('h')).to.eql('3h');
-    expect(timer.elapsed.toString('hour')).to.eql('3h');
+    expect(timer.elapsed.format('h')).to.eql('3h');
+    expect(timer.elapsed.format('hour')).to.eql('3h');
   });
 
   it('reports elapsed days', () => {
@@ -83,8 +83,8 @@ describe('timer', () => {
     test(0, 5);
 
     const timer = Time.timer(start);
-    expect(timer.elapsed.toString('d')).to.eql('5d');
-    expect(timer.elapsed.toString('day')).to.eql('5d');
+    expect(timer.elapsed.format('d')).to.eql('5d');
+    expect(timer.elapsed.format('day')).to.eql('5d');
   });
 
   it('toString()', () => {

@@ -19,5 +19,5 @@ export { Button } from '../../../Button/mod.ts';
  * Helpers:
  */
 export function dur(ms: t.Msecs = 0, empty = '-') {
-  return ms ? String(Time.Duration.create(ms)) : empty;
+  return ms ? Time.Duration.create(ms).format({ round: 0 }) : empty;
 }
