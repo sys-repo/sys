@@ -67,5 +67,9 @@ export const KeyValue: React.FC<t.KeyValueProps> = (props) => {
     if (kind === 'spacer') return spanAll(i, <Spacer {...args} />);
   });
 
-  return <div className={css(styles.base, props.style).class}>{elRows}</div>;
+  return (
+    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
+      {elRows}
+    </div>
+  );
 };

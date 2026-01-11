@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css } from './common.ts';
+import { type t, Color, css, D } from './common.ts';
 import { Grid } from './ui.Grid.tsx';
 import { Toolbar } from './ui.Toolbar.tsx';
 
@@ -61,7 +61,7 @@ const View: React.FC<t.DistBrowserProps> = (props) => {
   );
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
       {!hasToolbar && elGrid}
       {hasToolbar && (toolbarPlacement === 'bottom' ? elGrid : elToolbar)}
       {hasToolbar && (toolbarPlacement === 'bottom' ? elToolbar : elGrid)}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Icons, KeyValue, Str } from './common.ts';
+import { type t, Color, css, D, Icons, KeyValue, Str } from './common.ts';
 
 export type DistProps = {
   dist?: t.DistPkg;
@@ -79,7 +79,7 @@ export const Dist: React.FC<DistProps> = (props) => {
   );
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
       <KeyValue.View theme={theme.name} items={kv(dist)} mono={true} />
     </div>
   );
