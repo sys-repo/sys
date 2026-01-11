@@ -27,6 +27,25 @@ export const SeekSlider: React.FC<SeekSliderProps> = (props) => {
    * Hooks:
    */
   const size = useSizeObserver();
+  const [dragPercent, setDragPercent] = React.useState<t.Percent>();
+  const displayPercent = dragPercent ?? percent;
+
+  /**
+   * Effects:
+   */
+  React.useEffect(() => setDragPercent(undefined), [duration, enabled]);
+
+  /**
+   * Handlers:
+   */
+  function handleChange(e: t.SliderChangeHandlerArgs) {
+    const { percent, complete } = e;
+    if (!complete) return void setDragPercent(percent);
+
+    setDragPercent(undefined);
+    const currentTime = Range.fromPercent(percent, range);
+    props.onSeeking?.({ currentTime, duration, percent, complete });
+  }
 
   /**
    * Render:
@@ -69,15 +88,11 @@ export const SeekSlider: React.FC<SeekSliderProps> = (props) => {
         background={0.4}
         enabled={enabled}
         //
-        percent={percent}
+        percent={displayPercent}
         thumb={{ size: 13, color: Color.WHITE, border: 0 }}
         track={wrangle.track(bufferedPercent)}
         //
-        onChange={(e) => {
-          const { percent, complete } = e;
-          const currentTime = Range.fromPercent(percent, range);
-          props.onSeeking?.({ currentTime, duration, percent, complete });
-        }}
+        onChange={handleChange}
       />
     </div>
   );
