@@ -32,6 +32,7 @@ export const Orchestrated: React.FC<OrchestratedProps> = (props) => {
     docid,
     experience,
     startBeat: 0,
+    log: debug,
   });
 
   const { controller, selected, snapshot } = orchestrator;
