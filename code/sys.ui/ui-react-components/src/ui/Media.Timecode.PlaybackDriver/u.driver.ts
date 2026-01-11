@@ -2,7 +2,6 @@ import { type t, D, Num, Signal } from './common.ts';
 
 /** Driver time authority: video time, ended suppression, and pause-window monotonic timer authority. */
 type TimeSource = 'video' | 'suppressed-ended' | 'pause-timer';
-
 type BeatIndex = t.TimecodeState.Playback.BeatIndex;
 type State = t.TimecodeState.Playback.State;
 type Timeline = t.TimecodeState.Playback.Timeline;
@@ -106,7 +105,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         if (pendingEndedDeck === deck) {
           pendingEndedDeck = undefined;
           args.dispatch({ kind: 'video:ended', deck });
-          suppressTimeAfterEnded();
+          if (isTerminalEnd(state)) suppressTimeAfterEnded();
           return;
         }
 
@@ -177,7 +176,6 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
     disposers.add(
       Signal.effect(() => {
         const tick = Number(decks[deck].props.endedTick.value);
-
         if (tick === lastEndedTick) return;
         lastEndedTick = tick;
 
@@ -206,7 +204,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         }
 
         args.dispatch({ kind: 'video:ended', deck });
-        suppressTimeAfterEnded();
+        if (isTerminalEnd(state)) suppressTimeAfterEnded();
       }),
     );
 
@@ -516,4 +514,20 @@ function segmentStartBeatIndex(timeline: Timeline, beatIndex: BeatIndex): BeatIn
   if (byRange >= 0) return segments[byRange]!.beat.from;
 
   return 0;
+}
+
+/**
+ * Helpers:
+ */
+function isTerminalEnd(state: State) {
+  const timeline = state.timeline;
+  const beatIndex = state.currentBeat;
+  if (!timeline || beatIndex == null) return true;
+
+  const i = timeline.segments
+    .map((s) => s.beat)
+    .findIndex((b) => b.from <= beatIndex && beatIndex < b.to);
+
+  if (i < 0) return true;
+  return !timeline.segments[i + 1];
 }

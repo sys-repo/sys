@@ -190,6 +190,66 @@ describe(`PlaybackDriver.driver`, () => {
     driver.dispose();
   });
 
+  it(`video:time continues after non-terminal video:ended (segment rollover)`, () => {
+    const timeline: t.TimecodeState.Playback.Timeline = {
+      beats: [
+        {
+          index: ix(0),
+          vTime: ms(0),
+          duration: ms(1000),
+          pause: ms(0),
+          segmentId: 'seg:1',
+          media: { url: 'u:0' },
+        },
+        {
+          index: ix(1),
+          vTime: ms(1000),
+          duration: ms(1000),
+          pause: ms(0),
+          segmentId: 'seg:2',
+          media: { url: 'u:1' },
+        },
+      ],
+      segments: [
+        { id: 'seg:1', beat: { from: ix(0), to: ix(1) } },
+        { id: 'seg:2', beat: { from: ix(1), to: ix(2) } },
+      ],
+      virtualDuration: ms(2000),
+    };
+
+    const state: t.TimecodeState.Playback.State = {
+      phase: 'active',
+      intent: 'play',
+      timeline,
+      currentBeat: ix(0),
+      vTime: ms(0),
+      decks: { active: 'A', standby: 'B', status: { A: 'ready', B: 'ready' } },
+      ready: { machine: true, runner: true, deck: { A: true, B: true } },
+    };
+
+    const A = playerSignalsFactory();
+    const B = playerSignalsFactory();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({ state, cmds: [], events: [] });
+
+    // Non-terminal ended should not suppress subsequent time updates.
+    A.props.endedTick.value = A.props.endedTick.value + 1;
+    A.props.currentTime.value = 0.8 as t.Secs;
+
+    const timeInputs = seen.filter((input) => input.kind === 'video:time');
+    expect(timeInputs.length).to.equal(1);
+    expect(timeInputs[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: ms(800) });
+
+    driver.dispose();
+  });
+
   it(`video:ended defers to pause window when media ends before pauseFrom`, () => {
     const fx = pauseClampWithBadDurationFixture();
     const state: t.TimecodeState.Playback.State = {
