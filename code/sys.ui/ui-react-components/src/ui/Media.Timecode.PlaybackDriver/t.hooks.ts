@@ -57,3 +57,16 @@ export type UsePlaybackTimelineResult<P = unknown> = {
    */
   readonly playback?: t.TimecodeState.Playback.Timeline;
 };
+
+/**
+ * Aruments for the `useControlsProps` hook.
+ */
+export type UseControlsPropsArgs = {
+  controller?: t.TimecodePlaybackDriver.TimelineController;
+  snapshot?: Snapshot;
+  decks?: t.TimecodePlaybackDriver.VideoDecks;
+};
+export type UseControlsPropsResult = Omit<
+  t.PlayerControlsProps,
+  'theme' | 'style' | 'background' | 'padding' | 'margin' | 'maskHeight' | 'maskOpacity'
+>;
