@@ -32,8 +32,32 @@ export const ControlButton: React.FC<ControlButtonProps> = (props) => {
       color: theme.fg,
       borderRadius: 4,
       display: 'grid',
+
+      /**
+       * Hardening: prevent layout drift from parent typography.
+       * (eg. inherited line-height affecting inline children)
+       */
+      placeItems: 'center',
+      lineHeight: 0,
     }),
-    body: css({ display: 'grid', placeItems: 'center' }),
+    body: css({
+      display: 'grid',
+      placeItems: 'center',
+
+      /**
+       * Hardening: fully reset the underlying <button> box.
+       * Ensures a deterministic 32x32 clickable square regardless
+       * of global button/typography defaults.
+       */
+      width: '100%',
+      height: '100%',
+      minWidth: 0,
+      minHeight: 0,
+      padding: 0,
+      margin: 0,
+      lineHeight: 0,
+      boxSizing: 'border-box',
+    }),
   };
 
   return (
@@ -62,7 +86,7 @@ export const PlayButton: React.FC<PlayButtonProps> = (props) => {
   const Icon = playing ? Icons.Pause : Icons.Play;
   return (
     <ControlButton {...props}>
-      <Icon color={Color.WHITE} size={16} style={{ marginRight, marginBottom }} />
+      <Icon color={Color.WHITE} size={16} style={{ marginRight, marginBottom, display: 'block' }} />
     </ControlButton>
   );
 };
@@ -78,7 +102,7 @@ export const MuteButton: React.FC<MuteButtonProps> = (props) => {
   const Icon = muted ? Icons.Mute.On : Icons.Mute.Off;
   return (
     <ControlButton {...props}>
-      <Icon color={Color.WHITE} size={20} style={{ marginLeft, marginBottom }} />
+      <Icon color={Color.WHITE} size={20} style={{ marginLeft, marginBottom, display: 'block' }} />
     </ControlButton>
   );
 };
