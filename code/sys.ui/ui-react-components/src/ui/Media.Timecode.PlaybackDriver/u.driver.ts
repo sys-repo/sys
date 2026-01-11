@@ -172,6 +172,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
     // Seed baseline synchronously to avoid missing a bump before the first effect run.
     let lastEndedTick: number = Number(decks[deck].props.endedTick.value);
     let lastReady = Boolean(decks[deck].props.ready.value);
+    let lastBuffering = Boolean(decks[deck].props.buffering.value);
 
     disposers.add(
       Signal.effect(() => {
@@ -216,7 +217,17 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         if (!ready) return;
 
         pendingLoadDecks.delete(deck);
+        args.dispatch({ kind: 'video:ready', deck });
         if (pendingSeek && pendingSeek.deck === deck) decks[deck].jumpTo(pendingSeek.second);
+      }),
+    );
+
+    disposers.add(
+      Signal.effect(() => {
+        const buffering = Boolean(decks[deck].props.buffering.value);
+        if (buffering === lastBuffering) return;
+        lastBuffering = buffering;
+        args.dispatch({ kind: 'video:buffering', deck, is: buffering });
       }),
     );
 
@@ -289,7 +300,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
       }
 
       case 'cmd:emit-ready': {
-        // Descriptive marker only; this driver does not emit readiness signals.
+        // No-op; readiness is emitted from deck signal transitions.
         return;
       }
 

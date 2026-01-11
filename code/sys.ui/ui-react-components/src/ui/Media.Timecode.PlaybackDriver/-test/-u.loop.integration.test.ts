@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { playerSignalsFactory } from '../../Player.Video.Signals/m.Signals.ts';
 
+import { makeDeterministicSchedule } from './u.fixture.deterministicSchedule.ts';
 import { pauseWindowLoopFixture } from './u.fixture.pauseWindowClamp.ts';
-import { makeDeterministicSchedule } from './u.fixture.u.deterministicSchedule.ts';
 
 import { type t, TimecodeState } from '../common.ts';
 import { PlaybackDriver } from '../mod.ts';

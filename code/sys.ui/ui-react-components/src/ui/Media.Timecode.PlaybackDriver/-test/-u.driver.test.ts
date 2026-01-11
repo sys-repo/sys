@@ -2,7 +2,8 @@ import { describe, expect, it } from '../../../-test.ts';
 import { playerSignalsFactory } from '../../Player.Video.Signals/m.Signals.ts';
 
 import { pauseClampWithBadDurationFixture } from './u.fixture.pauseWindowClamp.ts';
-import { makeDeterministicSchedule } from './u.fixture.u.deterministicSchedule.ts';
+import { makeDeterministicSchedule } from './u.fixture.deterministicSchedule.ts';
+import { readySignalFixture } from './u.fixture.readySignalFixture.ts';
 
 import { type t } from '../common.ts';
 import { PlaybackDriver } from '../mod.ts';
@@ -72,11 +73,11 @@ describe(`PlaybackDriver.driver`, () => {
     A.props.ready.value = true;
 
     // beat1 boundary should be 1.0s into media (pause excluded).
-    expect(A.props.jumpTo.value?.second).to.equal(1);
-    expect(A.props.jumpTo.value?.play).to.equal(undefined);
+    expect(A.props.jumpTo.value?.second).to.eql(1);
+    expect(A.props.jumpTo.value?.play).to.eql(undefined);
 
-    // Sanity: no reducer-input spam introduced by this unit.
-    expect(seen).to.eql(inputs);
+    // Sanity: only readiness input is emitted by this unit.
+    expect(seen).to.eql([{ kind: 'video:ready', deck: 'A' }]);
     driver.dispose();
   });
 
@@ -130,12 +131,59 @@ describe(`PlaybackDriver.driver`, () => {
 
     // Active deck time change should emit video:time (pause excluded in mapping).
     A.props.currentTime.value = 1.1 as t.Secs; // 1100ms into media → vTime=1000+100=1100ms
-    expect(seen.length).to.equal(1);
+    expect(seen.length).to.eql(1);
     expect(seen[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: ms(1100) });
 
     // Inactive deck time change should not emit.
     B.props.currentTime.value = 0.2 as t.Secs;
-    expect(seen.length).to.equal(1);
+    expect(seen.length).to.eql(1);
+
+    driver.dispose();
+  });
+
+  it(`video:ready emits when a deck becomes ready`, () => {
+    const { state } = readySignalFixture();
+
+    const A = playerSignalsFactory();
+    const B = playerSignalsFactory();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({ state, cmds: [], events: [] });
+
+    A.props.ready.value = true;
+    expect(seen).to.eql([{ kind: 'video:ready', deck: 'A' }]);
+
+    driver.dispose();
+  });
+
+  it(`video:buffering emits when buffering toggles`, () => {
+    const { state } = readySignalFixture();
+
+    const A = playerSignalsFactory();
+    const B = playerSignalsFactory();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({ state, cmds: [], events: [] });
+
+    A.props.buffering.value = true;
+    A.props.buffering.value = false;
+
+    expect(seen).to.eql([
+      { kind: 'video:buffering', deck: 'A', is: true },
+      { kind: 'video:buffering', deck: 'A', is: false },
+    ]);
 
     driver.dispose();
   });
@@ -180,12 +228,12 @@ describe(`PlaybackDriver.driver`, () => {
 
     // Active deck bump should emit.
     A.props.endedTick.value = A.props.endedTick.value + 1;
-    expect(seen.length).to.equal(1);
+    expect(seen.length).to.eql(1);
     expect(seen[0]).to.eql({ kind: 'video:ended', deck: 'A' });
 
     // Inactive deck bump should not emit.
     B.props.endedTick.value = B.props.endedTick.value + 1;
-    expect(seen.length).to.equal(1);
+    expect(seen.length).to.eql(1);
 
     driver.dispose();
   });
@@ -244,7 +292,7 @@ describe(`PlaybackDriver.driver`, () => {
     A.props.currentTime.value = 0.8 as t.Secs;
 
     const timeInputs = seen.filter((input) => input.kind === 'video:time');
-    expect(timeInputs.length).to.equal(1);
+    expect(timeInputs.length).to.eql(1);
     expect(timeInputs[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: ms(800) });
 
     driver.dispose();
@@ -287,8 +335,8 @@ describe(`PlaybackDriver.driver`, () => {
     // Ended before pauseFrom should clamp to pauseFrom and start pause timer (no ended yet).
     A.props.endedTick.value = 1;
     expect(seen[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: fx.pauseFrom });
-    expect(seen.some((e) => e.kind === 'video:ended')).to.equal(false);
-    expect(pauses).to.equal(1);
+    expect(seen.some((e) => e.kind === 'video:ended')).to.eql(false);
+    expect(pauses).to.eql(1);
 
     // Complete the pause window → then emit video:ended.
     advance(Number(fx.pauseTo) - Number(fx.pauseFrom));
@@ -502,11 +550,11 @@ describe(`PlaybackDriver.driver`, () => {
     // Overshoot past pauseFrom should clamp to pauseFrom and start timer authority.
     A.props.currentTime.value = 1.1 as t.Secs;
     expect(seen[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: ms(1000) });
-    expect(pauses).to.equal(1);
+    expect(pauses).to.eql(1);
 
     // While timer is active, currentTime changes must not emit (timer is the authority).
     A.props.currentTime.value = 1.2 as t.Secs;
-    expect(seen.filter((x) => x.kind === 'video:time').length).to.equal(1);
+    expect(seen.filter((x) => x.kind === 'video:time').length).to.eql(1);
 
     // Timer ticks forward.
     advance(50);
@@ -518,7 +566,7 @@ describe(`PlaybackDriver.driver`, () => {
       .filter((x) => x.kind === 'video:time')
       .map((x) => (x as Extract<t.TimecodeState.Playback.Input, { kind: 'video:time' }>).vTime);
 
-    expect(times[0]).to.equal(ms(1000));
+    expect(times[0]).to.eql(ms(1000));
     expect(times[times.length - 1]).to.be.greaterThan(ms(1000));
 
     // Finish the window (500ms total).
@@ -528,8 +576,8 @@ describe(`PlaybackDriver.driver`, () => {
       .filter((x) => x.kind === 'video:time')
       .map((x) => (x as Extract<t.TimecodeState.Playback.Input, { kind: 'video:time' }>).vTime);
 
-    expect(times2[times2.length - 1]).to.equal(ms(1500));
-    expect(plays).to.equal(1);
+    expect(times2[times2.length - 1]).to.eql(ms(1500));
+    expect(plays).to.eql(1);
 
     driver.dispose();
   });
@@ -580,7 +628,7 @@ describe(`PlaybackDriver.driver`, () => {
     // Force a media-time overshoot past pauseFrom; driver must clamp to pauseFrom and pause media.
     A.props.currentTime.value = (Number(fx.mediaSecsAtPauseFrom) + 0.1) as t.Secs;
     expect(seen[0]).to.eql({ kind: 'video:time', deck: 'A', vTime: fx.pauseFrom });
-    expect(pauses).to.equal(1);
+    expect(pauses).to.eql(1);
 
     // Drive to pauseTo via monotonic timer.
     advance(Number(fx.pauseTo) - Number(fx.pauseFrom));
@@ -589,7 +637,7 @@ describe(`PlaybackDriver.driver`, () => {
     expect(last).to.eql({ kind: 'video:time', deck: 'A', vTime: fx.pauseTo });
 
     // Window complete → resume (if still intent:'play').
-    expect(plays).to.equal(1);
+    expect(plays).to.eql(1);
 
     driver.dispose();
   });
@@ -664,7 +712,7 @@ describe(`PlaybackDriver.driver`, () => {
     // Further schedule advances should NOT emit timer-driven video:time.
     const countAtRebase = seen.filter((x) => x.kind === 'video:time').length;
     advance(500);
-    expect(seen.filter((x) => x.kind === 'video:time').length).to.equal(countAtRebase);
+    expect(seen.filter((x) => x.kind === 'video:time').length).to.eql(countAtRebase);
 
     driver.dispose();
   });
@@ -729,7 +777,7 @@ describe(`PlaybackDriver.driver`, () => {
     // Schedule advances after dispose must emit nothing.
     const countAtDispose = seen.length;
     advance(500);
-    expect(seen.length).to.equal(countAtDispose);
+    expect(seen.length).to.eql(countAtDispose);
   });
 
   it(`pause window timer stops on cmd:swap-decks`, () => {
@@ -783,7 +831,7 @@ describe(`PlaybackDriver.driver`, () => {
     // Enter pause window → timer authority begins.
     A.props.currentTime.value = 1.1 as t.Secs;
     const times0 = seen.filter((x) => x.kind === 'video:time').length;
-    expect(times0).to.equal(1);
+    expect(times0).to.eql(1);
 
     // Prove timer is active.
     advance(50);
@@ -795,7 +843,7 @@ describe(`PlaybackDriver.driver`, () => {
 
     const countAtSwap = seen.filter((x) => x.kind === 'video:time').length;
     advance(500);
-    expect(seen.filter((x) => x.kind === 'video:time').length).to.equal(countAtSwap);
+    expect(seen.filter((x) => x.kind === 'video:time').length).to.eql(countAtSwap);
 
     driver.dispose();
   });
@@ -849,15 +897,15 @@ describe(`PlaybackDriver.driver`, () => {
 
     // First load sets src + slice.
     driver.apply({ state, cmds: [{ kind: 'cmd:deck:load', deck: 'A', beat: ix(0) }], events: [] });
-    expect(A.props.src.value).to.equal('src:0');
-    expect(A.props.slice.value).to.equal('slice:0');
+    expect(A.props.src.value).to.eql('src:0');
+    expect(A.props.slice.value).to.eql('slice:0');
 
     // Second load in same segment:
     // - src must remain stable (idempotence)
     // - slice must update (always applied)
     driver.apply({ state, cmds: [{ kind: 'cmd:deck:load', deck: 'A', beat: ix(1) }], events: [] });
-    expect(A.props.src.value).to.equal('src:0'); // stable by contract
-    expect(A.props.slice.value).to.equal('slice:1'); // always applied
+    expect(A.props.src.value).to.eql('src:0'); // stable by contract
+    expect(A.props.slice.value).to.eql('slice:1'); // always applied
 
     expect(seen).to.eql([]);
     driver.dispose();
