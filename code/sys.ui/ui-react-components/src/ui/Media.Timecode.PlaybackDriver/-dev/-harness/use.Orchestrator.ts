@@ -1,18 +1,22 @@
 import React from 'react';
 import { type t, PlaybackDriver, TimecodeState } from './common.ts';
 
+type Snapshot = t.TimecodeState.Playback.Snapshot;
+type Controller = t.TimecodePlaybackDriver.TimelineController;
+
 type Args = {
+  docid?: t.StringId;
   bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   decks?: t.TimecodePlaybackDriver.VideoDecks;
-  docid?: t.StringId;
   experience?: t.Timecode.Experience.Timeline;
   startBeat?: t.TimecodeState.Playback.BeatIndex;
   log?: boolean;
+  onSnapshot?: (e: { readonly snapshot?: Snapshot }) => void;
 };
 
 type Result = {
-  readonly controller: t.TimecodePlaybackDriver.TimelineController;
-  readonly snapshot?: t.TimecodeState.Playback.Snapshot;
+  readonly controller: Controller;
+  readonly snapshot?: Snapshot;
   readonly selected?: {
     readonly index: t.TimecodeState.Playback.BeatIndex;
     readonly beat: t.Timecode.Experience.Beat;
@@ -37,7 +41,7 @@ type Result = {
  * to declarative UI surfaces.
  */
 export function useOrchestrator(args: Args): Result {
-  const { bundle, decks, experience, startBeat, log = false } = args;
+  const { bundle, decks, experience, startBeat, onSnapshot, log = false } = args;
 
   /** Derive initial ui-state from experience timeline. */
   const init = React.useMemo<t.TimecodeState.Playback.InitArgs | undefined>(() => {
@@ -56,6 +60,7 @@ export function useOrchestrator(args: Args): Result {
     decks,
     log,
     resolveBeatMedia,
+    onSnapshot,
   });
 
   const index = snapshot?.state?.currentBeat;

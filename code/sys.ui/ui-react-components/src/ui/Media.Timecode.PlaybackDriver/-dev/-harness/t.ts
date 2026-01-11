@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+type Snapshot = t.TimecodeState.Playback.Snapshot;
+type Controller = t.TimecodePlaybackDriver.TimelineController;
+
 /**
  * Component:
  */
@@ -13,6 +16,6 @@ export type HarnessProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
-  onReady?: (e: { readonly controller: t.TimecodePlaybackDriver.TimelineController }) => void;
-  onSnapshot?: (e: { readonly snapshot?: t.TimecodeState.Playback.Snapshot }) => void;
+  onReady?: (e: { readonly controller: Controller }) => void;
+  onSnapshot?: (e: { readonly snapshot?: Snapshot }) => void;
 };

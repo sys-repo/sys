@@ -1,14 +1,20 @@
 import type { t } from './common.ts';
 import type * as R from './t.runtime.ts';
 
+type Snapshot = t.TimecodeState.Playback.Snapshot;
 type CreateDriverArgs = Omit<R.CreatePlaybackDriverArgs, 'dispatch' | 'decks'> & {
   decks?: R.VideoDecks;
 };
 
-/** Arguments for the React playback driver hook. */
+/**
+ * Arguments for the React playback driver hook.
+ */
 export type UsePlaybackDriverArgs = CreateDriverArgs & {
   /** Forwarded verbatim to ui-state Playback.init(...) */
   init?: t.TimecodeState.Playback.InitArgs;
+
+  /** Emits on every snapshot update (caller-owned side effects). */
+  onSnapshot?: (e: { readonly snapshot?: Snapshot }) => void;
 };
 
 /**

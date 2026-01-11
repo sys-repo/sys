@@ -15,7 +15,7 @@ type OrchestratedProps = HarnessProps & {
  * Mounts the driver/orchestrator hooks after inputs are ready.
  */
 export const Orchestrated: React.FC<OrchestratedProps> = (props) => {
-  const { debug = false, bundle, docid, decks, timeline, experience } = props;
+  const { debug = false, bundle, docid, decks, timeline, experience, onSnapshot } = props;
 
   /**
    * Refs:
@@ -32,6 +32,7 @@ export const Orchestrated: React.FC<OrchestratedProps> = (props) => {
     docid,
     experience,
     startBeat: 0,
+    onSnapshot,
     log: debug,
   });
 
@@ -56,10 +57,6 @@ export const Orchestrated: React.FC<OrchestratedProps> = (props) => {
     lastReadyRef.current = instance;
     onReady({ controller });
   }, [controller]);
-
-  React.useEffect(() => {
-    props.onSnapshot?.({ snapshot });
-  }, [props.onSnapshot, snapshot]);
 
   return (
     <Layout
