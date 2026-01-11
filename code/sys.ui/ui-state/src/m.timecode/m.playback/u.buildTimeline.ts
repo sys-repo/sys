@@ -8,9 +8,9 @@ import { type t, D } from './common.ts';
  * - beat.pause is the semantic pause after the beat
  * - segments are derived by grouping consecutive beats by src.ref
  */
-export function buildTimeline<P = unknown>(
+export const buildTimeline: t.PlaybackStateUtilLib['buildTimeline'] = <P = unknown>(
   experience: t.Timecode.Experience.Timeline<P>,
-): t.TimecodeState.Playback.Timeline {
+) => {
   const beatsIn = experience.beats;
   const beats: t.TimecodeState.Playback.Beat[] = [];
   const segments: t.TimecodeState.Playback.Segment[] = [];
@@ -68,7 +68,7 @@ export function buildTimeline<P = unknown>(
     segments,
     virtualDuration,
   };
-}
+};
 
 /**
  * Helpers:

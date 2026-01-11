@@ -8,6 +8,5 @@ import { reduce } from './u.reduce.ts';
 export const Playback: t.PlaybackStateLib = {
   init,
   reduce,
-  buildTimeline,
-  activePhase,
+  Util: { buildTimeline, activePhase },
 };

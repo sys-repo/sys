@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Derive active phase (media vs pause) for a beat at vTime.
  */
-export const activePhase: t.PlaybackStateLib['activePhase'] = (timeline, beatIndex, vTime) => {
+export const activePhase: t.PlaybackStateUtilLib['activePhase'] = (timeline, beatIndex, vTime) => {
   const beat = timeline.beats[beatIndex];
   if (!beat) return undefined;
 

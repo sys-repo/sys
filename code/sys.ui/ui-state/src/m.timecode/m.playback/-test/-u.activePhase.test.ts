@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import type { t } from '../common.ts';
 import { Playback } from '../mod.ts';
 
-describe('Playback.activePhase', () => {
+describe('Playback.Util.activePhase', () => {
   const ms = (n: number): t.Msecs => n;
   const ix = (n: number): t.TimecodeState.Playback.BeatIndex => n;
 
@@ -27,8 +27,8 @@ describe('Playback.activePhase', () => {
       virtualDuration: ms(2000),
     };
 
-    expect(Playback.activePhase(timeline, ix(0), ms(700))).eql('media');
-    expect(Playback.activePhase(timeline, ix(0), ms(900))).eql('pause');
+    expect(Playback.Util.activePhase(timeline, ix(0), ms(700))).eql('media');
+    expect(Playback.Util.activePhase(timeline, ix(0), ms(900))).eql('pause');
   });
 
   it('returns undefined when beat index is missing', () => {
@@ -37,6 +37,6 @@ describe('Playback.activePhase', () => {
       segments: [],
       virtualDuration: ms(0),
     };
-    expect(Playback.activePhase(timeline, ix(0), ms(0))).eql(undefined);
+    expect(Playback.Util.activePhase(timeline, ix(0), ms(0))).eql(undefined);
   });
 });

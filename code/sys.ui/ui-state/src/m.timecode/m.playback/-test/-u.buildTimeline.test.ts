@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import type { t } from '../common.ts';
 import { Playback } from '../mod.ts';
 
-describe('Playback.buildTimeline', () => {
+describe('Playback.Util.buildTimeline', () => {
   type Payload = { readonly k: string };
   const ms = (n: number): t.Msecs => n;
   const id = (s: string): t.StringId => s;
@@ -14,7 +14,7 @@ describe('Playback.buildTimeline', () => {
       duration: ms(0),
     };
 
-    const out = Playback.buildTimeline(timeline);
+    const out = Playback.Util.buildTimeline(timeline);
     expect(out.beats.length).eql(0);
     expect(out.segments.length).eql(0);
     expect(out.virtualDuration).eql(0);
@@ -32,7 +32,7 @@ describe('Playback.buildTimeline', () => {
       duration: ms(1000),
     };
 
-    expect(() => Playback.buildTimeline(timeline)).to.throw(/src\.ref is required/);
+    expect(() => Playback.Util.buildTimeline(timeline)).to.throw(/src\.ref is required/);
   });
 
   it('computes media duration as (next vTime delta) - pause, and derives segments by src.ref runs', () => {
@@ -60,7 +60,7 @@ describe('Playback.buildTimeline', () => {
       duration: ms(4000),
     };
 
-    const out = Playback.buildTimeline(timeline);
+    const out = Playback.Util.buildTimeline(timeline);
 
     // virtualDuration passthrough
     expect(Number(out.virtualDuration)).eql(4000);
