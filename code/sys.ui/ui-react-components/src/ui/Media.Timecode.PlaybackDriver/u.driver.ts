@@ -185,6 +185,13 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         if (!state) return;
         if (state.decks.active !== deck) return;
 
+        // Suppress duplicate ended ticks while pause-timer owns vTime.
+        if (pendingEndedDeck === deck && timeSource === 'pause-timer') {
+          return;
+        }
+
+        const pause = getPauseWindow(state);
+
         // If we ended before a virtual pause window, clamp to pauseFrom and run the pause timer.
         if (state.intent === 'play') {
           const pause = getPauseWindow(state);
