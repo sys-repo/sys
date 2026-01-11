@@ -36,8 +36,12 @@ export function useMediaProgressEvents(args: MediaProgressEventsArgs) {
       setDurationFull(fullDuration);
       onDurationChangeRef.current?.({ secs: lens.duration.cropped });
 
-      const secsFull = Math.max(0, Math.min(el.currentTime, fullDuration));
-      const secsCropped = lens.toCropped(secsFull);
+      const rawTime = Number.isFinite(el.currentTime) ? el.currentTime : 0;
+      const hasDuration = fullDuration > 0;
+      const secsFull = hasDuration
+        ? Math.max(0, Math.min(rawTime, fullDuration))
+        : Math.max(0, rawTime);
+      const secsCropped = hasDuration ? lens.toCropped(secsFull) : Math.max(0, rawTime);
 
       setCurrentTimeFull(secsFull);
       onTimeUpdateRef.current?.({ secs: secsCropped });
