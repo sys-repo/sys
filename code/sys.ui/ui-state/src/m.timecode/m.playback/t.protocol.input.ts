@@ -48,5 +48,10 @@ export type PlaybackSignal =
    * The runner should emit this when the player enters/leaves buffering.
    */
   | { readonly kind: 'video:buffering'; readonly deck: t.PlaybackDeckId; readonly is: boolean }
+  /**
+   * Runtime playback state for a deck.
+   * The runner should emit this when the player starts/stops playback.
+   */
+  | { readonly kind: 'video:playing'; readonly deck: t.PlaybackDeckId; readonly is: boolean }
   | { readonly kind: 'runner:ready' }
   | { readonly kind: 'runner:error'; readonly message: string };

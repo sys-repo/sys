@@ -173,6 +173,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
     let lastEndedTick: number = Number(decks[deck].props.endedTick.value);
     let lastReady = Boolean(decks[deck].props.ready.value);
     let lastBuffering = Boolean(decks[deck].props.buffering.value);
+    let lastPlaying = Boolean(decks[deck].props.playing.value);
 
     disposers.add(
       Signal.effect(() => {
@@ -228,6 +229,15 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         if (buffering === lastBuffering) return;
         lastBuffering = buffering;
         args.dispatch({ kind: 'video:buffering', deck, is: buffering });
+      }),
+    );
+
+    disposers.add(
+      Signal.effect(() => {
+        const playing = Boolean(decks[deck].props.playing.value);
+        if (playing === lastPlaying) return;
+        lastPlaying = playing;
+        args.dispatch({ kind: 'video:playing', deck, is: playing });
       }),
     );
 

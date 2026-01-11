@@ -242,6 +242,32 @@ describe(`PlaybackDriver.driver`, () => {
     driver.dispose();
   });
 
+  it(`video:playing emits when playback toggles`, () => {
+    const { state } = readySignalFixture();
+
+    const A = playerSignalsFactory();
+    const B = playerSignalsFactory();
+    const seen: t.TimecodeState.Playback.Input[] = [];
+
+    const driver = PlaybackDriver.create({
+      decks: { A, B },
+      resolveBeatMedia: (beat) => ({ src: `src:${beat}` }),
+      dispatch: (input) => seen.push(input),
+    });
+
+    driver.apply({ state, cmds: [], events: [] });
+
+    A.props.playing.value = true;
+    A.props.playing.value = false;
+
+    expect(seen).to.eql([
+      { kind: 'video:playing', deck: 'A', is: true },
+      { kind: 'video:playing', deck: 'A', is: false },
+    ]);
+
+    driver.dispose();
+  });
+
   it(`video:ended emits from active deck endedTick only`, () => {
     const timeline: t.TimecodeState.Playback.Timeline = {
       beats: [

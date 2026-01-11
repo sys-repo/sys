@@ -349,6 +349,26 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
       return { state, cmds, events };
     }
 
+    case 'video:playing': {
+      if (input.is) {
+        setDeckStatus(input.deck, 'playing');
+        return { state, cmds, events };
+      }
+
+      if (state.decks.status[input.deck] === 'ended') {
+        return { state, cmds, events };
+      }
+
+      if (!state.ready.deck?.[input.deck]) {
+        return { state, cmds, events };
+      }
+
+      const status =
+        state.intent === 'play' || state.intent === 'pause' ? 'paused' : 'ready';
+      setDeckStatus(input.deck, status);
+      return { state, cmds, events };
+    }
+
     case 'video:ended': {
       const timeline = ensureTimeline();
       if (!timeline) return { state, cmds, events };

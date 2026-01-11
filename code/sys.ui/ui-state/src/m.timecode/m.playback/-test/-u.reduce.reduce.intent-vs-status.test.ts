@@ -75,6 +75,21 @@ describe('Playback.reduce — intent vs status', () => {
     expect(ready.state.decks.status.A).to.eql('ready');
   });
 
+  it('playing updates deck status without changing intent', () => {
+    const init = Playback.reduce(emptyState(), { kind: 'playback:init', timeline: timeline() });
+
+    const s1 = Playback.reduce(init.state, { kind: 'video:ready', deck: 'A' }).state;
+    const s2 = Playback.reduce(s1, { kind: 'playback:play' }).state;
+
+    const playing = Playback.reduce(s2, { kind: 'video:playing', deck: 'A', is: true });
+    expect(playing.state.intent).to.eql('play');
+    expect(playing.state.decks.status.A).to.eql('playing');
+
+    const paused = Playback.reduce(playing.state, { kind: 'video:playing', deck: 'A', is: false });
+    expect(paused.state.intent).to.eql('play');
+    expect(paused.state.decks.status.A).to.eql('paused');
+  });
+
   it('intent survives runtime signals (no accidental intent drift)', () => {
     const init = Playback.reduce(emptyState(), { kind: 'playback:init', timeline: timeline() });
 
