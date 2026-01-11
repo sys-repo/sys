@@ -31,4 +31,7 @@ export type PlaybackStateUtilLib = {
     beat: t.PlaybackBeatIndex,
     vTime: t.Msecs,
   ): 'media' | 'pause' | undefined;
+
+  /** Resolve the beat index that owns vTime (media + pause span). */
+  beatIndexAtVTime(timeline: t.PlaybackTimeline, vTime: t.Msecs): t.PlaybackBeatIndex;
 };

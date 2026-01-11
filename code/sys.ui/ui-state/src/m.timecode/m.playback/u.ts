@@ -1,4 +1,4 @@
-import { type t, Arr, Num } from './common.ts';
+import { type t, Num } from './common.ts';
 
 /**
  * Helpers:
@@ -6,26 +6,6 @@ import { type t, Arr, Num } from './common.ts';
 export function clampBeatIndex(timeline: t.PlaybackTimeline, index: number): t.PlaybackBeatIndex {
   const max = Math.max(0, timeline.beats.length - 1);
   return Num.clamp(0, max, index) as t.PlaybackBeatIndex;
-}
-
-export function beatIndexFromVTime(
-  timeline: t.PlaybackTimeline,
-  vTime: t.Msecs,
-): t.PlaybackBeatIndex {
-  const beats = timeline.beats;
-  if (beats.length === 0) return 0 as t.PlaybackBeatIndex;
-
-  // Find beat where vTime is within [beat.vTime, beat.vTime + duration + pause).
-  for (let i = beats.length - 1; i >= 0; i--) {
-    const beat = beats[i];
-    const from = beat.vTime;
-    const pause = beat.pause ?? 0;
-    const to = (beat.vTime + beat.duration + pause) as t.Msecs;
-    if (vTime >= from && vTime < to) return beat.index;
-  }
-
-  if (vTime < beats[0].vTime) return beats[0].index;
-  return beats[beats.length - 1].index;
 }
 
 export function setCurrentBeat(

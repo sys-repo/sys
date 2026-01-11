@@ -1,5 +1,6 @@
 import { type t } from './common.ts';
-import { beatIndexFromVTime, clampBeatIndex, setCurrentBeat } from './u.ts';
+import { clampBeatIndex, setCurrentBeat } from './u.ts';
+import { beatIndexAtVTime } from './u.beatIndexAtVTime.ts';
 
 /**
  * Playback.reduce
@@ -363,8 +364,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
         return { state, cmds, events };
       }
 
-      const status =
-        state.intent === 'play' || state.intent === 'pause' ? 'paused' : 'ready';
+      const status = state.intent === 'play' || state.intent === 'pause' ? 'paused' : 'ready';
       setDeckStatus(input.deck, status);
       return { state, cmds, events };
     }
@@ -439,7 +439,7 @@ export const reduce: t.PlaybackStateLib['reduce'] = (prev, input) => {
         return { state, cmds, events };
       }
 
-      const nextBeat = beatIndexFromVTime(timeline, input.vTime);
+      const nextBeat = beatIndexAtVTime(timeline, input.vTime);
 
       // Always track vTime (even within the same beat) so UI can derive media vs pause phase.
       if (nextBeat === state.currentBeat) {
