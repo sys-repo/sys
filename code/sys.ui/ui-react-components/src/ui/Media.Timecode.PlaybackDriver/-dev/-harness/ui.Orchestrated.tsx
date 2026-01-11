@@ -1,7 +1,7 @@
 import React from 'react';
 import type { HarnessProps } from './t.ts';
 
-import { type t, PlaybackDriver } from './common.ts';
+import { PlaybackDriver, type t } from './common.ts';
 import { Layout } from './ui.Layout.tsx';
 import { useActivePhase } from './use.ActivePhase.ts';
 import { useOrchestrator } from './use.Orchestrator.ts';

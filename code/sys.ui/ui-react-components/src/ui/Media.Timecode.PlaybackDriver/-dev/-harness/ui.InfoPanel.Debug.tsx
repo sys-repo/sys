@@ -1,4 +1,4 @@
-import type { InfoPanelProps } from './ui.InfoPanel.tsx';
+import type { InfoPanelProps as P } from './ui.InfoPanel.tsx';
 
 import React from 'react';
 import { Button, Color, css, Json, ObjectView } from './common.ts';
@@ -6,14 +6,8 @@ import { Button, Color, css, Json, ObjectView } from './common.ts';
 /**
  * Component:
  */
-export const Debug: React.FC<InfoPanelProps> = (props) => {
-  const { snapshot, beat, bundle } = props;
-
-  const snapshotData = snapshot && {
-    hasTimeline: !!snapshot.state.timeline,
-    ready: snapshot.state.ready,
-    cmds: snapshot.cmds,
-  };
+export const Debug: React.FC<P> = (props) => {
+  const { snapshot, beat } = props;
 
   /**
    * Handlers:
@@ -30,8 +24,8 @@ export const Debug: React.FC<InfoPanelProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = { base: css({}) };
 
-  const obj = (n: string, d: unknown, marginTop = 8, expand = 1) => {
-    data.set(n, d);
+  const obj = (n: string, d: unknown, marginTop = 8, expand = 1, debug = true) => {
+    if (debug) data.set(n, d);
     return (
       <ObjectView
         name={n}
@@ -46,15 +40,29 @@ export const Debug: React.FC<InfoPanelProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {obj('props.bundle', bundle)}
       {beat && obj('props.beat', beat)}
-      {snapshot && obj('playback.snapshot', snapshotData)}
-      <Button
-        label={'copy debug'}
-        theme={theme.name}
-        style={{ marginTop: 10 }}
-        onClick={handleCopy}
-      />
+      {snapshot && obj('playback.snapshot', wrangle.snapshotData(props))}
+      <Button theme={theme.name} style={{ marginTop: 10 }} label={'copy'} onClick={handleCopy} />
     </div>
   );
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  snapshotData(props: P) {
+    const { snapshot } = props;
+    if (!snapshot) return;
+
+    const { state, cmds } = snapshot;
+    return {
+      hasTimeline: !!state.timeline,
+      currentBeat: state.currentBeat,
+      activeDeck: state.decks.active,
+      intent: state.intent,
+      ready: state.ready,
+      cmds,
+    };
+  },
+} as const;

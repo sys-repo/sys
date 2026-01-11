@@ -6,7 +6,7 @@ import { Grid, type GridActivePhase, type SelectIndexHandler } from './ui.Grid.t
 import { InfoPanel } from './ui.InfoPanel.tsx';
 import { Video } from './ui.Video.tsx';
 
-type LayoutProps = Pick<HarnessProps, 'decks' | 'bundle' | 'docid' | 'layout'> & {
+export type LayoutProps = Pick<HarnessProps, 'decks' | 'bundle' | 'docid' | 'layout'> & {
   /** Presence */
   hasBundle: boolean;
 
@@ -94,6 +94,19 @@ export const Layout: React.FC<LayoutProps> = (props) => {
     }),
   } as const;
 
+  const elInfoPanel = (
+    <InfoPanel
+      docid={docid}
+      bundle={bundle}
+      index={selected?.index}
+      beat={selected?.beat}
+      snapshot={snapshot}
+      layout={layout.infopanel}
+      debug={debug}
+      theme={theme.name}
+    />
+  );
+
   const elPlaceholder = !hasBundle && (
     <div className={styles.placeholder.class}>Timeline bundle not loaded</div>
   );
@@ -114,18 +127,7 @@ export const Layout: React.FC<LayoutProps> = (props) => {
             onSelect={onSelectIndex}
           />
         </div>
-        <div className={styles.layout.bottom.right.class}>
-          <InfoPanel
-            docid={docid}
-            bundle={bundle}
-            index={selected?.index}
-            beat={selected?.beat}
-            snapshot={snapshot}
-            layout={layout.infopanel}
-            debug={debug}
-            theme={theme.name}
-          />
-        </div>
+        <div className={styles.layout.bottom.right.class}>{elInfoPanel}</div>
       </div>
     </div>
   );
