@@ -1,4 +1,4 @@
-import { type t, D, Num, Signal } from './common.ts';
+import { D, Num, Signal, type t, TimecodeState } from './common.ts';
 
 /** Driver time authority: video time, ended suppression, and pause-window monotonic timer authority. */
 type TimeSource = 'video' | 'suppressed-ended' | 'pause-timer';
@@ -426,7 +426,7 @@ function mapVTimeToDeckSecond(state: State, vTime: t.Msecs): t.Secs {
   if (!timeline) return 0 as t.Secs;
   if (timeline.beats.length === 0) return 0 as t.Secs;
 
-  const beatIndex = beatIndexFromVTime(timeline, vTime);
+  const beatIndex = TimecodeState.Playback.Util.beatIndexAtVTime(timeline, vTime);
   const beat = timeline.beats[beatIndex];
   if (!beat) return 0 as t.Secs;
 
@@ -497,27 +497,6 @@ function segmentFromBeatIndex(
   }
 
   return timeline.segments.find((s) => s.beat.from <= beatIndex && beatIndex < s.beat.to);
-}
-
-/**
- * Local copy of ui-state's beatIndexFromVTime logic (range includes pause).
- * Kept tiny and intentionally mirror-shaped to avoid inventing semantics.
- */
-function beatIndexFromVTime(timeline: Timeline, vTime: t.Msecs): BeatIndex {
-  const beats = timeline.beats;
-  if (beats.length === 0) return 0 as BeatIndex;
-
-  for (let i = beats.length - 1; i >= 0; i--) {
-    const beat = beats[i];
-    const from = Number(beat.vTime);
-    const pause = Number(beat.pause ?? 0);
-    const to = from + Number(beat.duration) + pause;
-    const t = Number(vTime);
-    if (t >= from && t < to) return beat.index;
-  }
-
-  if (Number(vTime) < Number(beats[0].vTime)) return beats[0].index;
-  return beats[beats.length - 1].index;
 }
 
 /**
