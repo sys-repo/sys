@@ -112,7 +112,7 @@ export const Duration: TimeDurationLib = {
     switch (unit) {
       case 'ms':
       case 'msec':
-        return `${msec}ms`;
+        return `${Num.round(msec, round)}ms`;
 
       case 's':
       case 'sec':

@@ -22,14 +22,17 @@ describe('Duration', () => {
     });
 
     it('toString (round)', () => {
-      const duration = Time.duration(1258);
-      const res1 = duration.toString();
-      const res2 = duration.toString({ round: 1 });
-      const res3 = duration.toString({ round: 3 });
+      const res1 = Time.duration(1258).toString();
+      const res2 = Time.duration(1258).toString({ round: 1 });
+      const res3 = Time.duration(1258).toString({ round: 3 });
+      const res4 = Time.duration(300.234).toString('ms');
+      const res5 = Time.duration(300.234).toString({ unit: 'ms', round: 1 });
 
-      expect(res1).to.eql('1s'); // NB: using toString().
+      expect(res1).to.eql('1s');
       expect(res2).to.eql('1.3s');
       expect(res3).to.eql('1.258s');
+      expect(res4).to.eql('300ms');
+      expect(res5).to.eql('300.2ms');
     });
 
     it('ok: true', () => {
