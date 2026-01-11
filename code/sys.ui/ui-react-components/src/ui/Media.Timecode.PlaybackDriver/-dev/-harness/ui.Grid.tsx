@@ -39,36 +39,33 @@ export const Grid: React.FC<GridProps> = (props) => {
       fontSize: 10,
       fontFamily: 'monospace',
       userSelect: 'none',
-
-      // Ensure this component participates in normal layout (prevents accidental overlay).
+      minHeight: 0,
       display: 'grid',
       gridTemplateRows: 'auto 1fr',
-      minHeight: 0,
     }),
     body: css({
-      // Can overlay siblings (eg. the video) depending on parent layout.
-      overflowY: 'auto',
-      overflowX: 'hidden',
+      Absolute: 0,
+      Scroll: true,
       minHeight: 0,
     }),
     header: css({
-      display: 'grid',
-      gridTemplateColumns: COLS,
+      position: 'sticky',
+      top: 0,
+      zIndex: 2,
       padding: '4px 10px',
       fontSize: 10,
       letterSpacing: 0.06,
       color: Color.alpha(theme.fg, 0.75),
       columnGap: 16,
 
-      position: 'sticky',
-      top: 0,
-      zIndex: 2,
-
       // Glassy overlay:
       backgroundColor: Color.alpha(theme.bg, 0.65),
       backdropFilter: 'blur(8px)',
       borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.16)}`,
       boxShadow: `0 1px 0 ${Color.alpha(theme.bg, 0.7)}`,
+
+      display: 'grid',
+      gridTemplateColumns: COLS,
     }),
     row: css({
       display: 'grid',
@@ -118,10 +115,7 @@ export const Grid: React.FC<GridProps> = (props) => {
         paddingRight: 16,
         minWidth: 0,
       }),
-      rowMediaText: css({
-        display: 'inline-block',
-        minWidth: 0,
-      }),
+      rowMediaText: css({ display: 'inline-block', minWidth: 0 }),
       iconLink: css({
         position: 'absolute',
         right: 0,
