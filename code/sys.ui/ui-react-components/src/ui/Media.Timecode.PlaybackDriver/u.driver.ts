@@ -1,4 +1,4 @@
-import { D, Num, Signal, type t, TimecodeState } from './common.ts';
+import { type t, D, Num, Signal, TimecodeState } from './common.ts';
 
 /** Driver time authority: video time, ended suppression, and pause-window monotonic timer authority. */
 type TimeSource = 'video' | 'suppressed-ended' | 'pause-timer';
@@ -105,7 +105,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         if (pendingEndedDeck === deck) {
           pendingEndedDeck = undefined;
           args.dispatch({ kind: 'video:ended', deck });
-          if (isTerminalEnd(state)) suppressTimeAfterEnded();
+          if (TimecodeState.Playback.Is.terminalEnd(state)) suppressTimeAfterEnded();
           return;
         }
 
@@ -206,7 +206,7 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
         }
 
         args.dispatch({ kind: 'video:ended', deck });
-        if (isTerminalEnd(state)) suppressTimeAfterEnded();
+        if (TimecodeState.Playback.Is.terminalEnd(state)) suppressTimeAfterEnded();
       }),
     );
 
@@ -416,6 +416,10 @@ export const createDriver: t.TimecodePlaybackDriverLib['create'] = (args) => {
 };
 
 /**
+ * Helpers:
+ */
+
+/**
  * Map GLOBAL virtual time (vTime) → deck-local media seconds (cropped domain).
  *
  * Key rule: pauses exist in vTime but NOT in media time.
@@ -519,20 +523,4 @@ function segmentStartBeatIndex(timeline: Timeline, beatIndex: BeatIndex): BeatIn
   if (byRange >= 0) return segments[byRange]!.beat.from;
 
   return 0;
-}
-
-/**
- * Helpers:
- */
-function isTerminalEnd(state: State) {
-  const timeline = state.timeline;
-  const beatIndex = state.currentBeat;
-  if (!timeline || beatIndex == null) return true;
-
-  const i = timeline.segments
-    .map((s) => s.beat)
-    .findIndex((b) => b.from <= beatIndex && beatIndex < b.to);
-
-  if (i < 0) return true;
-  return !timeline.segments[i + 1];
 }

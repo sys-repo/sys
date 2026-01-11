@@ -4,6 +4,7 @@ import type { t } from './common.ts';
  * Playback state machine (pure).
  */
 export type PlaybackStateLib = {
+  readonly Is: t.PlaybackStateIsLib;
   readonly Util: t.PlaybackStateUtilLib;
 
   /** Create initial playback state and side-effect intents from optional inputs. */
@@ -17,7 +18,7 @@ export type PlaybackStateLib = {
 export type PlaybackInitArgs = { timeline?: t.PlaybackTimeline; startBeat?: t.PlaybackBeatIndex };
 
 /**
- * Utility helpers:
+ * Utility helpers.
  */
 export type PlaybackStateUtilLib = {
   /** Pure builder: experience timeline (algebra) → ui-state timeline. */
@@ -34,4 +35,12 @@ export type PlaybackStateUtilLib = {
 
   /** Resolve the beat index that owns vTime (media + pause span). */
   beatIndexAtVTime(timeline: t.PlaybackTimeline, vTime: t.Msecs): t.PlaybackBeatIndex;
+};
+
+/**
+ * Type guards.
+ */
+export type PlaybackStateIsLib = {
+  /** Policy: treat playback as terminal (no further auto-advance) when there is no next segment. */
+  terminalEnd(state: t.PlaybackState): boolean;
 };
