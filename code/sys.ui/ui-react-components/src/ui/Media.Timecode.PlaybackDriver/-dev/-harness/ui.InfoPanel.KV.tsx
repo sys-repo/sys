@@ -65,8 +65,8 @@ export const KV: React.FC<P> = (props) => {
     const deckSummary = (deck: t.TimecodeState.Playback.DeckId) => {
       const role = deck === active ? 'active' : deck === standby ? 'standby' : '-';
       const status = state.decks.status[deck] ?? '-';
-      const ready = state.ready.deck?.[deck] ? 'ready' : 'not-ready';
-      return `${role} • ${ready} • ${status}`;
+      const ready = state.ready.deck?.[deck] ? undefined : 'not-ready';
+      return [role, ready, status].filter(Boolean).join(' | ');
     };
     const beat = state.currentBeat != null ? `beat-${state.currentBeat + 1}` : '-';
     hr();
