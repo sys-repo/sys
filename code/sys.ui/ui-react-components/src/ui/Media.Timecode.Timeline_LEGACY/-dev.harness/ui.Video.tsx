@@ -63,7 +63,7 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
 
   const elBody = (
     <div className={styles.video.class}>
-      <Player.Video.Element
+      <Player.Video.UI
         {...controller.props}
         style={{ width: wrangle.videoWidth(size.rect?.width) }}
         debug={debug}

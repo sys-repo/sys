@@ -45,7 +45,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
   };
 
   const elPlayer = (
-    <Player.Video.Element
+    <Player.Video.UI
       {...player.props}
       debug={debug}
       onEnded={(e) => {
@@ -65,7 +65,7 @@ export const Column: React.FC<ColumnProps> = (props) => {
       <div ref={clickOutside.ref} className={styles.base.class}>
         <div className={styles.body.class}>{props.body}</div>
         <div className={styles.video.class}>{elPlayer}</div>
-        <Player.Timestamp.Elapsed.View video={video} abs={true} show={debug} />
+        <Player.Timestamp.Elapsed.UI video={video} abs={true} show={debug} />
       </div>
     </Sheet>
   );

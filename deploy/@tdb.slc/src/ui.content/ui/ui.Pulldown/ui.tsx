@@ -48,7 +48,7 @@ export const Pulldown: React.FC<PullDownProps> = (props) => {
       orientation={'Top:Down'}
     >
       {elBody}
-      <Player.Timestamp.Elapsed.View video={video} show={showElapsed} abs={[null, 15, 10, null]} />
+      <Player.Timestamp.Elapsed.UI video={video} show={showElapsed} abs={[null, 15, 10, null]} />
     </Sheet>
   );
 };

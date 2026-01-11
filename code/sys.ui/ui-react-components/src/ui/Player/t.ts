@@ -6,11 +6,12 @@ import type { t } from '../common.ts';
  */
 export type PlayerLib = {
   Video: {
-    Element: React.FC<t.VideoElementProps>;
+    UI: t.FC<t.VideoElementProps>;
+    Controls: { UI: t.FC<t.PlayerControlsProps> };
     signals: t.PlayerSignalsFactory;
     useSignals: t.UsePlayerSignals;
   };
   Timestamp: {
-    Elapsed: { View: React.FC<t.ElapsedTimeProps> };
+    Elapsed: { UI: React.FC<t.ElapsedTimeProps> };
   };
 };

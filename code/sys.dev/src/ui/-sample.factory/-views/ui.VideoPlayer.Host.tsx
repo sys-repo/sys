@@ -55,9 +55,7 @@ export const VideoPlayerHost: React.FC<VideoHostProps> = (props) => {
     empty: css({ userSelect: 'none' }),
   };
 
-  const elVideo = showVideo && (
-    <Player.Video.Element style={{ width }} {...videoController.props} />
-  );
+  const elVideo = showVideo && <Player.Video.UI style={{ width }} {...videoController.props} />;
   const elEmpty = <div className={styles.empty.class}>{'Nothing to display.'}</div>;
 
   return (

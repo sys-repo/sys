@@ -40,7 +40,7 @@ export const Trailer: React.FC<TrailerProps> = (props) => {
         <div className={styles.content.class}>{timestamp.column}</div>
         {elPlayer}
       </div>
-      <Player.Timestamp.Elapsed.View video={player.signals} abs={true} show={showElapsed} />
+      <Player.Timestamp.Elapsed.UI video={player.signals} abs={true} show={showElapsed} />
     </Sheet>
   );
 };

@@ -101,7 +101,7 @@ export const Landing: React.FC<P> = (props) => {
       }}
       video={{
         element: (
-          <Player.Video.Element
+          <Player.Video.UI
             {...controller.props}
             onEnded={(e) => console.info(`⚡️ Player.Video:onEnded:`, e)}
           />
