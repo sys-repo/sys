@@ -18,8 +18,10 @@ export const Controls: React.FC<ControlsProps> = (props) => {
   const snapshot = debug?.props.snapshot.value;
   const state = snapshot?.state;
   const timeline = state?.timeline;
+  const decks = debug?.decks;
 
   const activeDeck = state?.decks.active;
+  const activeSignals = activeDeck ? decks?.[activeDeck] : decks?.A;
   const status = activeDeck ? state?.decks.status[activeDeck] : undefined;
   const ready = activeDeck ? state?.ready.deck?.[activeDeck] : undefined;
 
@@ -27,10 +29,15 @@ export const Controls: React.FC<ControlsProps> = (props) => {
   const buffering = status === 'buffering' || ready === false;
   const currentTime = state?.vTime != null ? Number(state.vTime) / 1000 : undefined;
   const duration = timeline ? Number(timeline.virtualDuration) / 1000 : undefined;
+  const muted = activeSignals?.props.muted.value;
 
   const onClick: t.PlayerControlsButtonHandler = (e) => {
-    if (!controller) return;
-    if (e.button === 'Play') controller.toggle();
+    if (e.button === 'Play') return void controller?.toggle();
+    if (e.button !== 'Mute') return;
+
+    const next = !(activeSignals?.props.muted.value ?? false);
+    if (decks?.A) decks.A.props.muted.value = next;
+    if (decks?.B) decks.B.props.muted.value = next;
   };
 
   const onSeeking: t.PlayerControlSeekChangeHandler = (e) => {
@@ -45,6 +52,7 @@ export const Controls: React.FC<ControlsProps> = (props) => {
       theme={props.theme}
       enabled={!!controller && !!timeline}
       playing={playing}
+      muted={muted}
       buffering={buffering}
       currentTime={currentTime}
       duration={duration}
