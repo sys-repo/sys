@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
 
 export const format: t.TimecodeLib['format'] = (ms: number, opts = {}): t.VttTimecode => {
-  const { withMillis = false, forceHours = false } = opts;
+  const { withMsecs = false, forceHours = false } = opts;
 
   if (!Number.isFinite(ms) || ms < 0) {
     throw new Error('format: ms must be a non-negative finite number');
@@ -16,7 +16,7 @@ export const format: t.TimecodeLib['format'] = (ms: number, opts = {}): t.VttTim
   const hh = (totalSeconds - mm) / 60;
 
   const base = hh > 0 || forceHours ? `${two(hh)}:${two(mm)}:${two(ss)}` : `${two(mm)}:${two(ss)}`;
-  const out = withMillis ? `${base}.${ms3(msec)}` : base;
+  const out = withMsecs ? `${base}.${ms3(msec)}` : base;
 
   // Constructed string is guaranteed to match PATTERN.
   return out as t.VttTimecode;

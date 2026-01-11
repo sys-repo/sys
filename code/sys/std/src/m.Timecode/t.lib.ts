@@ -40,11 +40,11 @@ export type TimecodeLib = {
 
   /**
    * Format milliseconds into a minimal legal timecode.
-   * - withMillis: include .mmm
+   * - withMsecs: include .mmm
    * - forceHours: emit HH:MM:SS even when HH === 0
    */
   readonly format: (
     ms: t.Msecs,
-    opts?: { withMillis?: boolean; forceHours?: boolean },
+    opts?: { withMsecs?: boolean; forceHours?: boolean },
   ) => t.VttTimecode;
 };

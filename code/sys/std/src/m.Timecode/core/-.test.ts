@@ -94,28 +94,26 @@ describe('Timecode (core)', () => {
   });
 
   describe('format', () => {
-    it('format(): minimal vs forceHours/millis', () => {
+    it('format(): minimal vs forceHours/withMsecs', () => {
       // minimal (no hours, no millis)
       expect(Timecode.format(0)).to.eql('00:00');
       expect(Timecode.format(65_000)).to.eql('01:05');
 
       // with millis
-      expect(Timecode.format(500, { withMillis: true })).to.eql('00:00.500');
-      expect(Timecode.format(65_123, { withMillis: true })).to.eql('01:05.123');
+      expect(Timecode.format(500, { withMsecs: true })).to.eql('00:00.500');
+      expect(Timecode.format(65_123, { withMsecs: true })).to.eql('01:05.123');
 
       // force hours
-      expect(Timecode.format(65_000, { withMillis: false, forceHours: true })).to.eql('00:01:05');
-      expect(Timecode.format(3_600_000, { withMillis: false, forceHours: true })).to.eql(
-        '01:00:00',
-      );
+      expect(Timecode.format(65_000, { withMsecs: false, forceHours: true })).to.eql('00:01:05');
+      expect(Timecode.format(3_600_000, { withMsecs: false, forceHours: true })).to.eql('01:00:00');
 
       // hours + millis
-      expect(Timecode.format(3_600_004, { withMillis: true, forceHours: true })).to.eql(
+      expect(Timecode.format(3_600_004, { withMsecs: true, forceHours: true })).to.eql(
         '01:00:00.004',
       );
 
       // round-trip sanity (format → is)
-      const out = Timecode.format(3723_456, { withMillis: true }); // 01:02:03.456
+      const out = Timecode.format(3723_456, { withMsecs: true }); // 01:02:03.456
       expect(Timecode.is(out)).to.eql(true);
     });
   });

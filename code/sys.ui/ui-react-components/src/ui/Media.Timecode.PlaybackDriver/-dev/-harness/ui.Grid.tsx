@@ -167,7 +167,7 @@ export const Grid: React.FC<GridProps> = (props) => {
       const segmentId = mediaLabel;
       const isSegmentStart = index === 0 || !isRepeat;
       const url = bundle.resolveMedia({ kind: 'video', logicalPath });
-      const vtt = Timecode.format(beat.vTime, { withMillis: false, forceHours: true });
+      const vtt = Timecode.format(beat.vTime, { withMsecs: false, forceHours: true });
 
       /**
        * Semantics:
