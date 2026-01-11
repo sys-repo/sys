@@ -59,6 +59,8 @@ const wrangle = {
     return {
       hasTimeline: !!state.timeline,
       currentBeat: state.currentBeat,
+      vTime: state.vTime,
+      phase: state.phase,
       activeDeck: state.decks.active,
       intent: state.intent,
       ready: state.ready,
