@@ -14,8 +14,12 @@ export type UsePlaybackDriverArgs = CreateDriverArgs & {
   init?: t.TimecodeState.Playback.InitArgs;
 
   /** Emits on every snapshot update (caller-owned side effects). */
-  onSnapshot?: (e: { readonly snapshot?: Snapshot }) => void;
+  onSnapshot?: UsePlaybackOnSnapshotHandler;
 };
+
+/** Called for every reducer/driver update with the latest snapshot. */
+export type UsePlaybackOnSnapshotHandler = (e: UsePlaybackOnSnapshot) => void;
+export type UsePlaybackOnSnapshot = { readonly snapshot?: Snapshot; rev: t.NumberMonotonic };
 
 /**
  * Result surface returned by the playback driver hook.

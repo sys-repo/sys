@@ -1,11 +1,13 @@
-import type { InfoPanelProps as P } from './ui.InfoPanel.tsx';
+import type { InfoPanelProps } from './ui.InfoPanel.tsx';
 
 import React from 'react';
-import { Button, Color, css, Json, ObjectView } from './common.ts';
+import { type t, Button, Color, css, Json, ObjectView } from './common.ts';
 
 /**
  * Component:
  */
+type P = InfoPanelProps & { beat?: t.Timecode.Experience.Beat };
+
 export const Debug: React.FC<P> = (props) => {
   const { snapshot, beat } = props;
 

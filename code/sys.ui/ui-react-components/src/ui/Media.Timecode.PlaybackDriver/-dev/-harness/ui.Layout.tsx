@@ -95,16 +95,15 @@ export const Layout: React.FC<LayoutProps> = (props) => {
   } as const;
 
   const elInfoPanel = (
-    <InfoPanel
-      docid={docid}
-      bundle={bundle}
-      index={selected?.index}
-      beat={selected?.beat}
-      snapshot={snapshot}
-      layout={layout.infopanel}
-      debug={debug}
-      theme={theme.name}
-    />
+      <InfoPanel
+        docid={docid}
+        bundle={bundle}
+        index={selected?.index}
+        snapshot={snapshot}
+        layout={layout.infopanel}
+        debug={debug}
+        theme={theme.name}
+      />
   );
 
   const elPlaceholder = !hasBundle && (
