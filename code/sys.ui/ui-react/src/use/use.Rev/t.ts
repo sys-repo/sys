@@ -15,4 +15,4 @@ import type { t } from '../common.ts';
  * useEffect(bump, [someSignal]);
  * ```
  */
-export type UseRev = (mode?: t.AsyncSchedule) => readonly [number, () => void];
+export type UseRev = (mode?: t.AsyncSchedule) => readonly [t.NumberMonotonic, () => void];
