@@ -7,11 +7,6 @@ export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
 
-  function Root() {
-    const v = Signal.toObject(p);
-    return <ScrollBoxSample.UI debug={v.debug} theme={v.theme} />;
-  }
-
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
@@ -27,7 +22,10 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.subject
       .size('fill-y')
       .display('grid')
-      .render(() => <Root />);
+      .render(() => {
+        const v = Signal.toObject(p);
+        return <ScrollBoxSample.UI debug={v.debug} theme={v.theme} />;
+      });
   });
 
   e.it('ui:debug', (e) => {
