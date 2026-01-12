@@ -17,6 +17,7 @@ export type HarnessVideoProps = {
   deck: 'A' | 'B';
   debug?: boolean;
   video?: t.VideoPlayerSignals;
+  isCurrent?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -25,7 +26,7 @@ export type HarnessVideoProps = {
  * Component:
  */
 export const Video: React.FC<HarnessVideoProps> = (props) => {
-  const { debug = false, video, deck } = props;
+  const { debug = false, video, deck, isCurrent = false } = props;
   const [lastJumpTo, setLastJumpTo] = React.useState<t.VideoPlayerSeek | undefined>(undefined);
 
   /**
@@ -57,6 +58,7 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
   line1 += ` • current: ${dur(tms, '⌀')}`;
   line1 += ` • duration: ${dur(dms, '⌀')}`;
   line1 += ` • slice: ${sliceLabel}`;
+  if (props.isCurrent) line1 += ' • active deck';
   const line2 = `src: ${srcLabel}`;
   const debugPayload = {
     deck,
@@ -91,7 +93,7 @@ export const Video: React.FC<HarnessVideoProps> = (props) => {
       top: css({ Absolute: [-20, null, null, 0] }),
       bottom: css({ Absolute: [null, 0, -18, 0], opacity: 0.4 }),
     },
-    video: css({}),
+    video: css({ opacity: isCurrent ? 1 : 0.3, transition: 'opacity 120ms ease' }),
   };
 
   const handleCopy = () => {

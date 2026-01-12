@@ -95,15 +95,15 @@ export const Layout: React.FC<LayoutProps> = (props) => {
   } as const;
 
   const elInfoPanel = (
-      <InfoPanel
-        docid={docid}
-        bundle={bundle}
-        index={selected?.index}
-        snapshot={snapshot}
-        layout={layout.infopanel}
-        debug={debug}
-        theme={theme.name}
-      />
+    <InfoPanel
+      docid={docid}
+      bundle={bundle}
+      index={selected?.index}
+      snapshot={snapshot}
+      layout={layout.infopanel}
+      debug={debug}
+      theme={theme.name}
+    />
   );
 
   const elPlaceholder = !hasBundle && (
@@ -113,8 +113,20 @@ export const Layout: React.FC<LayoutProps> = (props) => {
   const elLayout = hasBundle && (
     <div className={styles.layout.base.class}>
       <div className={styles.layout.top.class}>
-        <Video deck={'A'} theme={theme.name} video={decks?.A} debug={debug} />
-        <Video deck={'B'} theme={theme.name} video={decks?.B} debug={debug} />
+        <Video
+          deck={'A'}
+          theme={theme.name}
+          video={decks?.A}
+          debug={debug}
+          isCurrent={snapshot?.state?.decks.active === 'A'}
+        />
+        <Video
+          deck={'B'}
+          theme={theme.name}
+          video={decks?.B}
+          debug={debug}
+          isCurrent={snapshot?.state?.decks.active === 'B'}
+        />
       </div>
       <div className={styles.layout.bottom.base.class}>
         <div className={styles.layout.bottom.left.class}>
