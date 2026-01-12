@@ -1,4 +1,4 @@
-import { type t, c, Cli, HashFmt } from './common.ts';
+import { type t, c, Cli, Fs, HashFmt } from './common.ts';
 
 /**
  * Outputs a formatted console log within
@@ -7,7 +7,8 @@ import { type t, c, Cli, HashFmt } from './common.ts';
 export const print: t.HttpServerLib['print'] = (options) => {
   const { addr, pkg, hash, requestedPort } = options;
   const port = c.bold(c.brightCyan(String(addr.port)));
-  const dir = (options.dir ?? '').replace(/^\/+/, '').replace(/\/+$/, '');
+
+  const formattedDir = wrangle.formattedDir(options.dir);
   const host = c.cyan(`http://localhost:${port}/`);
 
   if (pkg) {
@@ -22,8 +23,8 @@ export const print: t.HttpServerLib['print'] = (options) => {
     const table = Cli.table([]);
     table.push([c.gray('Module:'), `${mod} ${version}`]);
 
-    if (dir) {
-      table.push(['', c.gray(`${dir}/`)]);
+    if (formattedDir) {
+      table.push(['', c.gray(`${formattedDir}/`)]);
     }
     if (hx) table.push(['', integrity, c.gray(`${c.dim('←')} dist/dist.json`)]);
     if (requestedPort && requestedPort !== addr.port) {
@@ -38,3 +39,29 @@ export const print: t.HttpServerLib['print'] = (options) => {
   }
   console.info('');
 };
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  formattedDir(dir?: string) {
+    const normalizedDir = dir ? Fs.Path.normalize(dir) : '';
+    if (!normalizedDir) return '';
+
+    const terminalDir = Fs.Path.normalize(Fs.cwd('terminal'));
+    const processDir = Fs.Path.normalize(Fs.cwd('process'));
+    const relative =
+      wrangle.relativeSegment(terminalDir, normalizedDir) ||
+      wrangle.relativeSegment(processDir, normalizedDir);
+
+    if (relative) return `./${relative}`;
+    return normalizedDir.replace(/^\/+|\/+$/g, '');
+  },
+
+  relativeSegment(base: string, target: string) {
+    if (!target || target === base) return '';
+    const candidate = Fs.Path.relative(base, target);
+    if (!candidate || candidate.startsWith('..')) return '';
+    return candidate.replace(/^\/+|\/+$/g, '');
+  },
+} as const;

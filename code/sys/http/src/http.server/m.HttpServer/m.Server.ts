@@ -3,8 +3,9 @@ import type { HttpServerLib } from './t.ts';
 import { Hono, cors } from './common.ts';
 import { create } from './m.Server.create.ts';
 import { keyboard } from './u.keyboard.ts';
+import { options } from './u.options.ts';
+import { print } from './u.print.ts';
 import { serveStatic } from './u.serveStatic.ts';
-import { options, print } from './u.ts';
 
 /**
  * HTTP Server.
