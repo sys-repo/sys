@@ -9,6 +9,7 @@ export type * from '@sys/ui-css/t';
 export type { ColorTheme } from '@sys/color/t';
 export type { MediaResolver, Timecode } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
+export type { TextFilter } from '@sys/text/t';
 export type { KeyboardModifierFlags, LocalStorageImmutable } from '@sys/ui-dom/t';
 export type {
   PointerDragdropSnapshot,
@@ -19,9 +20,9 @@ export type {
   ReactChildrenDepsKey,
 } from '@sys/ui-react/t';
 export type { TimecodeState } from '@sys/ui-state/t';
-export type { TextFilter } from '@sys/text/t';
 
 /**
  * @local:
  */
+export type * from '../-sample/t.ts';
 export type * from '../types.ts';
