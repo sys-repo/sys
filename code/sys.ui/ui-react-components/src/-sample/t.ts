@@ -1,1 +1,4 @@
-export type * from './-css-ScrollBox/t.ts';
+/**
+ * @types Samples:
+ */
+export type * from './-css-Scroll/t.ts';

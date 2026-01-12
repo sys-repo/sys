@@ -62,7 +62,7 @@ export const SpecsComponents = {
  */
 export const SpecsExternal = {
   'sys.ui.css: @container': () => import('../-sample/-css-container/-SPEC.tsx'),
-  'sys.ui.css: ScrollBox': () => import('../-sample/-css-ScrollBox/-spec/-SPEC.tsx'),
+  'sys.ui.css: Scroll': () => import('../-sample/-css-Scroll/-spec/-SPEC.tsx'),
   'sys.ui.react: usePointer': () => import('../-sample/-dom-usePointer/-SPEC.tsx'),
   'sys.ui.react: useWebFont': () => import('../-sample/-css-useWebFont/-SPEC.tsx'),
   'sys.ui.react: useSizeObserver': () => import('../-sample/-dom-useSizeObserver/-SPEC.tsx'),

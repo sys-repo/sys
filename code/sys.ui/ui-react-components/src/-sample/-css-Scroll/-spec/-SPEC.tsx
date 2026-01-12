@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { ScrollBoxSample } from '../mod.ts';
+import { ScrollSample } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -24,7 +24,7 @@ export default Spec.describe(D.displayName, async (e) => {
       .display('grid')
       .render(() => {
         const v = Signal.toObject(p);
-        return <ScrollBoxSample.UI debug={v.debug} theme={v.theme} />;
+        return <ScrollSample debug={v.debug} theme={v.theme} Scroll={v.Scroll} />;
       });
   });
 

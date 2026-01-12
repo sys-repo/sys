@@ -1,11 +1,12 @@
 import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
-type P = t.ScrollBoxSampleProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type P = t.ScrollSampleProps;
+type Storage = Pick<P, 'debug' | 'theme' | 'Scroll'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  Scroll: true,
 };
 
 /**
@@ -26,6 +27,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    Scroll: s(snap.Scroll),
   };
   const p = props;
   const api = {
@@ -46,6 +48,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.Scroll = p.Scroll.value;
     });
   });
 
@@ -88,6 +91,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+      <Button
+        block
+        label={() => `Scroll: ${p.Scroll.value}`}
+        onClick={() => Signal.toggle(p.Scroll)}
       />
 
       <hr />
