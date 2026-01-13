@@ -4,7 +4,6 @@ import { Config } from '../u.config.ts';
 
 describe('tool: __NAME__', () => {
   const root = `.tmp/test/${D.Config.filename}`;
-
   beforeAll(async () => void (await Fs.remove(root)));
 
   describe('config file', () => {

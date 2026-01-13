@@ -5,15 +5,14 @@ export const ALIAS = {
   update: ['up'],
 } as const satisfies t.ArgsAliasMap<t.Tools.Command>;
 
-const ALIAS_LOOKUP = Args.toAliasLookup(ALIAS);
-const TOOL_SET: ReadonlySet<string> = new Set(D.TOOLS);
+const TOOLSET: ReadonlySet<string> = new Set(D.TOOLS);
 
 /**
  * Parse root argv and extract a typed command from the first positional.
  * Flags do not suppress command detection.
  */
 export function parseArgs(argv: string[]): t.Tools.CliRootParsedArgs {
-  const normalized = Args.normalizeCommand(argv, ALIAS_LOOKUP);
+  const normalized = Args.normalizeCommand(argv, Args.toAliasLookup(ALIAS));
   const args = Args.parse<t.Tools.CliRootArgs>(normalized, {
     alias: { h: 'help' },
     boolean: ['help'],
@@ -29,5 +28,5 @@ export function parseArgs(argv: string[]): t.Tools.CliRootParsedArgs {
  * Helpers
  */
 function isRootCommand(x?: string): x is t.Tools.Command {
-  return x !== undefined && TOOL_SET.has(x);
+  return x !== undefined && TOOLSET.has(x);
 }

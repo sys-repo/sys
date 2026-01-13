@@ -1,4 +1,5 @@
-import { type t, done, Args, c, Cli, D, Fs, Is, TmplEngine, opt } from './common.ts';
+import { type t, c, Cli, D, done, Fs, Is, opt, TmplEngine } from './common.ts';
+import { parseArgs } from './u.args.ts';
 import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 
@@ -6,9 +7,12 @@ import { Fmt } from './u.fmt.ts';
  * Main entry:
  */
 export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
+  const args = parseArgs(argv);
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
-  const args = Args.parse<t.__NAME__Tool.CliArgs>(argv, { alias: { h: 'help' } });
+
+  console.info('🐷 args', args);
+
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
   /* Pre-reqs */
@@ -36,7 +40,7 @@ async function run(cwd: t.StringDir, args: t.__NAME__Tool.CliArgs): Promise<t.Ru
    */
   while (true) {
     console.info();
-    const A = (await Cli.Input.Select.prompt<t.__NAME__Tool.Command>({
+    const A = (await Cli.Input.Select.prompt<t.__NAME__Tool.MenuCmd>({
       message: 'Tools:\n',
       options: [
         opt(` Option A (clone \`-tmpl\` as new ${c.green('<tool>')})`, 'option-a'),
@@ -44,7 +48,7 @@ async function run(cwd: t.StringDir, args: t.__NAME__Tool.CliArgs): Promise<t.Ru
         opt(c.gray('(quit)'), 'exit'),
       ],
       hideDefault: true,
-    })) as t.__NAME__Tool.Command;
+    })) as t.__NAME__Tool.MenuCmd;
 
     /** --------------------------------------------------------
      * Sub-Menu: A
@@ -71,12 +75,12 @@ async function run(cwd: t.StringDir, args: t.__NAME__Tool.CliArgs): Promise<t.Ru
      * Sub-Menu: B
      */
     if (A === 'option-b') {
-      type WithCommand = Extract<t.__NAME__Tool.Command, 'option-ba' | 'option-bb'>;
+      type WithCommand = Extract<t.__NAME__Tool.MenuCmd, 'option-ba' | 'option-bb'>;
       let lastSelection: WithCommand | undefined;
 
       while (true) {
         console.info();
-        const B = (await Cli.Input.Select.prompt<t.__NAME__Tool.Command>({
+        const B = (await Cli.Input.Select.prompt<t.__NAME__Tool.MenuCmd>({
           message: `With:`,
           options: [
             { name: `  Thing ${c.cyan('Ba')}`, value: 'option-ba' },
@@ -85,7 +89,7 @@ async function run(cwd: t.StringDir, args: t.__NAME__Tool.CliArgs): Promise<t.Ru
           ],
           default: lastSelection,
           hideDefault: true,
-        })) as t.__NAME__Tool.Command;
+        })) as t.__NAME__Tool.MenuCmd;
 
         if (B === 'option-ba') {
           lastSelection = B;

@@ -20,5 +20,5 @@ export const D = {
 /**
  * Create a CLI prompt menu-item.
  */
-type C = t.__NAME__Tool.Command;
+type C = t.__NAME__Tool.MenuCmd;
 export const opt = (name: string, value: C): t.__NAME__Tool.MenuOption => ({ name, value });

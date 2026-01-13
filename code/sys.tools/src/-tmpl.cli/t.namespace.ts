@@ -9,8 +9,12 @@ export namespace __NAME__Tool {
   export type Id = typeof ID;
   export type Name = typeof NAME;
 
+  /** CLI sub-commands (first positional token). */
+  export type SubCmd = 'foo' | 'bar';
   /** Command names. */
-  export type Command =
+  export type MenuCmd =
+    | 'init'
+    | 'help'
     | 'option-a'
     | 'option-b'
     | 'option-aa'
@@ -19,7 +23,7 @@ export namespace __NAME__Tool {
     | 'option-bb'
     | 'back'
     | 'exit';
-  export type MenuOption = { readonly name: string; readonly value: Command };
+  export type MenuOption = { readonly name: string; readonly value: MenuCmd };
 
   /** Command line arguments (argv). */
   export type CliArgs = t.Tools.CliArgs;
