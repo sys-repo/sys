@@ -38,48 +38,52 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
  */
 async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunReturn> {
   const port = Is.num(args.port) ? args.port : D.port;
-  const config = await Config.get(cwd);
 
-  const picked = await serveLocationsMenu({ cwd, config });
-  if (picked.kind === 'exit') return done();
+  while (true) {
+    const config = await Config.get(cwd);
+    const picked = await serveLocationsMenu({ cwd, config });
+    if (picked.kind === 'exit') return done();
 
-  const location = Config.findLocation(config.current, picked.key);
-  if (!location) {
-    console.info(c.yellow(`Could not find a server configuration`));
-    console.info(c.gray(`directory: ${picked.key}`));
-    return done();
-  }
-
-  const locationKey = location.dir;
-  const locationAbsDir = Config.resolveDir(cwd, location.dir);
-  const runtimeLocation: t.ServeTool.Config.Dir = { ...location, dir: locationAbsDir };
-
-  if (Fs.cwd() !== locationAbsDir) {
-    console.info(c.gray(`directory: ${locationAbsDir}`));
-  }
-
-  const res = await serveLocationMenu({ location: runtimeLocation, port });
-  if (res.kind === 'back') return done();
-  if (res.kind === 'remove') {
-    await promptRemoveDocument(cwd, location);
-    return done(0);
-  }
-  if (res.kind === 'start') {
-    await startServing(cwd, runtimeLocation, { port, host: res.host });
-    return done(0);
-  }
-  if (res.kind === 'bundles') {
-    const m = await Imports.pull();
-    const { bundle } = await m.pullBundle(cwd, runtimeLocation);
-    if (bundle?.local) {
-      config.change((d) => {
-        const hit = Config.findBundle(d, locationKey, bundle.local.dir);
-        if (hit) hit.lastUsedAt = Time.now.timestamp;
-      });
-      await config.fs.save();
+    const location = Config.findLocation(config.current, picked.key);
+    if (!location) {
+      console.info(c.yellow(`Could not find a server configuration`));
+      console.info(c.gray(`directory: ${picked.key}`));
+      continue;
     }
-    return done(0);
-  }
 
-  return done(0);
+    const locationKey = location.dir;
+    const locationAbsDir = Config.resolveDir(cwd, location.dir);
+    const runtimeLocation: t.ServeTool.Config.Dir = { ...location, dir: locationAbsDir };
+
+    if (Fs.cwd() !== locationAbsDir) {
+      console.info(c.gray(`directory: ${locationAbsDir}`));
+    }
+
+    while (true) {
+      const res = await serveLocationMenu({ location: runtimeLocation, port });
+      if (res.kind === 'back') break;
+      if (res.kind === 'remove') {
+        await promptRemoveDocument(cwd, location);
+        return done(0);
+      }
+      if (res.kind === 'start') {
+        await startServing(cwd, runtimeLocation, { port, host: res.host });
+        return done(0);
+      }
+      if (res.kind === 'bundles') {
+        const m = await Imports.pull();
+        const result = await m.pullBundle(cwd, runtimeLocation);
+        if (result.kind === 'back') continue;
+        const bundle = result.bundle;
+        if (bundle?.local) {
+          config.change((d) => {
+            const hit = Config.findBundle(d, locationKey, bundle.local.dir);
+            if (hit) hit.lastUsedAt = Time.now.timestamp;
+          });
+          await config.fs.save();
+        }
+        return done(0);
+      }
+    }
+  }
 }

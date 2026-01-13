@@ -5,7 +5,9 @@ import { pullRemoteBundle } from './u.pull.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
 type C = t.ServeTool.Command;
-type R = { bundle?: t.ServeTool.Config.RemoteBundleDir };
+type PullResult =
+  | { readonly kind: 'back' }
+  | { readonly kind: 'bundle'; readonly bundle?: t.ServeTool.Config.RemoteBundleDir };
 
 const Fmt = {
   ...BaseFmt,
@@ -16,32 +18,38 @@ const Fmt = {
   },
 } as const;
 
-export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.Config.Dir): Promise<R> {
+export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.Config.Dir): Promise<PullResult> {
   const config = await Config.get(cwd);
 
   // Stored key (portable) vs absolute dir (runtime):
   const locationKey = location.dir;
   const locationAbsDir = Config.resolveDir(cwd, location.dir);
 
-  const done = (bundle?: t.ServeTool.Config.RemoteBundleDir) => ({ bundle });
+  const done = (bundle?: t.ServeTool.Config.RemoteBundleDir): PullResult => ({
+    kind: 'bundle',
+    bundle,
+  });
 
   const PULL_PREFIX = 'bundle:pull-latest:';
   const optBundles = (location.remoteBundles ?? []).map((m, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
-    const name = `${' pull:'} ${branch} ${m.local.dir} ← ${Fmt.distUrl(m.remote.dist)}`;
+    const name = `${'  pull:'} ${branch} ${m.local.dir} ← ${Fmt.distUrl(m.remote.dist)}`;
     const value = `${PULL_PREFIX}${i}`;
     return { name, value };
   });
 
+  const dim = (s: string) => c.gray(c.dim(s));
   const A = (await Cli.Input.Select.prompt<C>({
     message: 'Action:',
     options: [
       //
       ...optBundles,
-      opt('  add: <remote>', 'bundle:add-remote'),
+      opt('   add: <remote>', 'bundle:add-remote'),
+      opt(dim('← back'), 'back'),
     ],
   })) as C;
 
+  if (A === 'back') return { kind: 'back' };
   if (A === 'exit') return done();
 
   if (A === 'bundle:add-remote') {
