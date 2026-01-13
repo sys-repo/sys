@@ -1,13 +1,14 @@
 import React from 'react';
-import { type t, Button, css, dur, Json, KeyValue, Str, Timecode } from '../common.ts';
+import { type t, Time, Button, css, dur, Json, KeyValue, Str, Timecode } from '../common.ts';
 import { toIssueItems } from './ui.InfoPanel.u.tsx';
 
 type O = Record<string, unknown>;
+type Bundle = t.TimecodePlaybackDriver.Wire.Bundle;
 
 export type InfoPanelProps = {
   index?: t.Index;
   docid?: t.StringId;
-  bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
+  bundle?: Bundle;
   snapshot?: t.TimecodeState.Playback.Snapshot;
   experience?: t.Timecode.Experience.Timeline;
   resolved?: t.Timecode.Resolved;
@@ -24,12 +25,22 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const { docid, bundle, experience, resolved, snapshot } = props;
   if (!bundle || !experience || !resolved) return null;
 
+  /**
+   * Hooks:
+   */
+  const [copied, setCopied] = React.useState(false);
+
+  /**
+   * Handlers:
+   */
   const handleCopy = () => {
     const data = rows.reduce<O>((acc, next) => {
       acc[String(next.k)] = next.v;
       return acc;
     }, {});
     navigator.clipboard.writeText(Json.stringify(data));
+    setCopied(true);
+    Time.delay(1500, () => setCopied(false));
   };
 
   const total = {
@@ -46,6 +57,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   /**
    * Build items:
    */
+  const mono = true;
   const rows: t.KeyValueRow[] = [];
   const items: t.KeyValueItem[] = [];
   const add = (item: t.KeyValueItem) => {
@@ -56,15 +68,15 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const vTime = snapshot?.state?.vTime;
   const currentTime = formatTime(vTime);
 
-  const mono = true;
   add({ kind: 'title', v: 'Composite Timeline', y: [0, 10] });
   add({ k: 'Slug', v: docid ? `crdt:${docid}` : '-', mono, userSelect: 'text' });
   hr();
-  add({ k: 'Composition', v: total.beats === 0 ? '-' : size });
+  add({ k: 'Composition', v: total.beats === 0 ? '-' : size, mono });
   add({ k: 'Virtual Duration', v: total.duration, mono });
   if (props.index !== undefined) add({ k: 'Time', v: currentTime, mono });
   if (snapshot?.state) {
     const state = snapshot.state;
+
     const active = state.decks.active;
     const standby = state.decks.standby;
     const deckSummary = (deck: t.TimecodeState.Playback.DeckId) => {
@@ -73,18 +85,19 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
       const ready = state.ready.deck?.[deck] ? undefined : 'not-ready';
       return [role, ready, status].filter(Boolean).join(' | ');
     };
-    const beat = state.currentBeat != null ? `beat-${state.currentBeat + 1}` : '-';
     hr();
-    add({ k: 'Current Beat', v: beat, mono });
-    add({ k: 'Phase', v: state.phase ?? '-', mono });
+    add({ kind: 'title', v: 'Current' });
+    add({ k: 'Position', v: formatPosition(state), mono });
+    // add({ k: 'Phase', v: state.phase ?? '-', mono });
     add({ k: 'Intent', v: state.intent ?? '-', mono });
     add({ k: 'Deck-A', v: deckSummary('A'), mono });
     add({ k: 'Deck-B', v: deckSummary('B'), mono });
+
   }
   hr();
   items.push({
     k: 'Clipboard',
-    v: <Button label={'Copy'} theme={props.theme} onClick={handleCopy} />,
+    v: <Button label={copied ? '(copied) ✔' : 'Copy'} theme={props.theme} onClick={handleCopy} />,
   });
   items.push(...toIssueItems(resolved));
 
@@ -103,4 +116,17 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
  */
 function formatTime(ms?: t.Msecs) {
   return ms == null ? '-' : Timecode.format(ms, { forceHours: true });
+}
+
+function formatPosition(state: t.TimecodeState.Playback.State) {
+  const beatIndex = state.currentBeat;
+  const timeline = state.timeline;
+  if (beatIndex == null || !timeline) return undefined;
+
+  const segIndex = timeline.segments
+    .map((s) => s.beat)
+    .findIndex((b) => b.from <= beatIndex && beatIndex < b.to);
+
+  if (segIndex < 0) return undefined;
+  return `segment-${segIndex + 1}:beat-${beatIndex + 1}`;
 }
