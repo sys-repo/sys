@@ -1,6 +1,6 @@
 {
   "name": "@sys/tools",
-  "version": "0.0.186",
+  "version": "0.0.187",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=testset",
@@ -25,7 +25,6 @@
     "./deploy": "./src/cli.deploy/mod.ts",
     "./up": "./src/cli.update/mod.ts",
     "./update": "./src/cli.update/mod.ts",
-    "./env": "./src/-exports/-env.ts",
-    "./staging/prog": "./-staging.prog/mod.ts"
+    "./env": "./src/-exports/-env.ts"
   }
 }

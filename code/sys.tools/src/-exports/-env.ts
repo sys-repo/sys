@@ -1,7 +1,7 @@
 /**
- * @module Environment setup and initializers.
+ * @module
+ * Runtime environment setup and initializers.
  */
-
 export type EnvOptions = {
   vscode?: boolean;
   silent?: boolean;
@@ -12,11 +12,16 @@ export type EnvOptions = {
  * - If enabled, initializes Deno/FS environment for VSCode terminals.
  */
 export async function env(options: EnvOptions = {}): Promise<void> {
-  const vscode = options.vscode ?? true;
-  const silent = options.silent ?? true;
-
+  const { vscode = true, silent = true } = options;
   if (!vscode) return;
 
   const { Env } = await import('@sys/fs/env');
   await Env.init({ silent });
+}
+
+/**
+ * CLI entry-point:
+ */
+if (import.meta.main) {
+  await env({ silent: false });
 }
