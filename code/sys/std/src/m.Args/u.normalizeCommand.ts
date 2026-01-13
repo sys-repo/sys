@@ -1,5 +1,5 @@
 /**
- * Normalize argv by rewriting the first positional token via an alias lookup.
+ * Normalize `argv` by rewriting the first positional token via an alias lookup.
  *
  * If `argv[0]` matches a key in `lookup`, it is replaced with its canonical command.
  * Otherwise argv is returned unchanged (as a new array).
