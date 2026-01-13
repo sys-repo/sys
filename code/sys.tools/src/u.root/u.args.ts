@@ -1,14 +1,10 @@
 import { type t, Args, D } from './common.ts';
 
-type CommandAliasMap = Partial<Record<t.Tools.Command, string[]>>;
+type AliasMap = Partial<Record<t.Tools.Command, string[]>>;
 
-export const ALIAS: CommandAliasMap = {
-  copy: ['cp'],
-  update: ['up'],
-} as const;
-
+export const ALIAS: AliasMap = { copy: ['cp'], update: ['up'] } as const;
+const ALIAS_LOOKUP = toAliasLookup(ALIAS);
 const TOOL_SET: ReadonlySet<string> = new Set(D.TOOLS);
-const ALIAS_LOOKUP = createAliasLookup(ALIAS);
 
 /**
  * Parse root argv and extract a typed command from the first positional.
@@ -43,7 +39,7 @@ function normalizeCommand(argv: string[]): string[] {
   return [canonical, ...rest];
 }
 
-function createAliasLookup(map: CommandAliasMap) {
+function toAliasLookup(map: AliasMap) {
   type T = [t.Tools.Command, string[]][];
   const lookup: Record<string, t.Tools.Command> = {};
   for (const [command, aliases] of Object.entries(map) as T) {
