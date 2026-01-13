@@ -7,7 +7,7 @@ const log = true;
 // await Fs.remove('./.tmp/sys', { log });
 // await Fs.remove('./.tmp/dev', { log });
 // await Fs.remove('./.tmp/monaco/', { log });
-await Fs.remove('./.tmp/publish.assets/', { log });
+// await Fs.remove('./.tmp/publish.assets/', { log });
 
 /**
  * Helpers:
