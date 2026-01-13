@@ -1,7 +1,7 @@
 import React from 'react';
 import type { HarnessProps } from './t.ts';
 
-import { css, PlaybackDriver, Spinners } from './common.ts';
+import { css, PlaybackDriver } from './common.ts';
 import { Orchestrated } from './ui.Orchestrated.tsx';
 
 /**
@@ -28,7 +28,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
   if (!isReady) {
     return (
       <div className={styles.spinner.class}>
-        <Spinners.Bar theme={props.theme} />
+        {`Please ensure timeline json can be loaded (HTTP)`}
       </div>
     );
   }
