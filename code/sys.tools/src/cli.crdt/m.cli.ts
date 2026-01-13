@@ -88,6 +88,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       ],
       default: defaultCommand as C,
       hideDefault: true,
+      maxRows: 25,
     })) as C;
 
     let docid = Crdt.Is.uri(A) ? Crdt.Id.fromUri(A) || '' : '';
