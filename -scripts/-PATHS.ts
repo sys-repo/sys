@@ -80,7 +80,6 @@ export const Paths = {
     /**
      * Instance (conceptually: "an app"):
      */
-    'deploy/@tdb.fs',
     'deploy/@tdb.slc',
     'deploy/@tdb.slc.fs',
   ],
