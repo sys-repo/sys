@@ -8,14 +8,18 @@
  * const argv = Args.parse(Deno.args);
  * ```
  */
-import type { ArgsLib } from './t.ts';
-import { parseArgs } from './u.parseArgs.ts';
+import type { t } from './common.ts';
+import { normalizeCommand } from './u.normalizeCommand.ts';
+import { parseArgs } from './u.parse.ts';
+import { toAliasLookup } from './u.toAliasLookup.ts';
 
 export { parseArgs };
 
 /**
  * Command-line argument parsing.
  */
-export const Args: ArgsLib = {
+export const Args: t.ArgsLib = {
   parse: parseArgs,
+  normalizeCommand,
+  toAliasLookup,
 };

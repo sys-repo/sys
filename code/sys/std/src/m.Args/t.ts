@@ -126,6 +126,23 @@ export type ArgsLib = {
    * @returns       A merged object of parsed flags plus `._` for positionals.
    */
   parse<T extends O = O>(argv?: string[], options?: t.ParseArgsOptions): ParsedArgs<T>;
+
+  /**
+   * Convert a command → aliases map into an alias → command lookup.
+   * Useful for normalizing argv where the first positional may be an alias.
+   */
+  toAliasLookup<T extends Record<string, t.ArgsAliasList>>(map: T): Record<string, keyof T>;
+
+  /**
+   * Normalize argv by rewriting the first positional token via an alias lookup.
+   *
+   * If `argv[0]` matches a key in `lookup`, it is replaced with its canonical command.
+   * Otherwise argv is returned unchanged (as a new array).
+   */
+  normalizeCommand<TCmd extends string>(
+    argv: readonly string[],
+    lookup: Partial<Record<string, TCmd>>,
+  ): string[];
 };
 
 /**
@@ -178,3 +195,7 @@ export type ParseArgsOptions = {
    */
   unknown?: (arg: string) => boolean;
 };
+
+/** Alias registry for CLI commands. */
+export type ArgsAliasMap<T extends string> = Partial<Record<T, ArgsAliasList>>;
+export type ArgsAliasList = readonly [string, ...string[]];

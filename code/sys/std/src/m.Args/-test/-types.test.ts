@@ -1,40 +1,43 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Args, parseArgs } from '../mod.ts';
 
+type O = Record<string, unknown>;
+
 /**
  * Assertions verifying that the examples documented in `./t.ts`
  * behave exactly as described.
+ *
+ * These tests operate at the *user-contract* level.
  */
 describe('Args: (docs)', () => {
   it('Basic usage', () => {
     const argv = ['-v', '--port', '3000', 'serve', 'site'];
-
     const a = Args.parse(argv);
     const b = parseArgs(argv);
 
-    // Shape checks
-    expect(a.v).to.equal(true);
-    expect(a.port).to.equal(3000);
+    expect(a.v).to.eql(true);
+    expect(a.port).to.eql(3000);
     expect(a._).to.eql(['serve', 'site']);
-
-    // `Args.parse` and `parseArgs` parity
     expect(b).to.eql(a);
   });
 
-  it('Aliases (bi-directional)', () => {
+  it('Aliases (bi-directional, write-time accumulation)', () => {
     const argv = ['-h', '--name=Phil', '-n', 'PJ'];
     const options = { alias: { h: 'help', n: ['name', 'nick'] } };
 
     const res = Args.parse(argv, options);
 
-    // h/help
-    expect(res.h).to.equal(true);
-    expect(res.help).to.equal(true);
+    expect(res.h).to.eql(true);
+    expect(res.help).to.eql(true);
 
-    // n/name/nick resolve to the last provided value
-    expect(res.n).to.equal('PJ');
-    expect(res.name).to.equal('PJ');
-    expect(res.nick).to.equal('PJ');
+    // name written twice → accumulates
+    expect(res.name).to.eql(['Phil', 'PJ']);
+
+    // n mirrors name writes → accumulates
+    expect(res.n).to.eql(['Phil', 'PJ']);
+
+    // nick written once → scalar
+    expect(res.nick).to.eql('PJ');
   });
 
   it('Booleans, strings, and numeric coercion', () => {
@@ -44,41 +47,42 @@ describe('Args: (docs)', () => {
       string: ['id'] as const,
     });
 
-    expect(res['dry-run']).to.equal(true);
-    expect(res.port).to.equal(3000); // numeric
-    expect(res.id).to.equal('007'); // preserved as string
+    expect(res['dry-run']).to.eql(true);
+    expect(res.port).to.eql(3000);
+    expect(res.id).to.eql('007');
   });
 
-  it('Short clusters and numeric tails: -abc', () => {
+  it('Short clusters: -abc', () => {
     const res = Args.parse(['-abc']);
-    expect(res.a).to.equal(true);
-    expect(res.b).to.equal(true);
-    expect(res.c).to.equal(true);
+    expect(res.a).to.eql(true);
+    expect(res.b).to.eql(true);
+    expect(res.c).to.eql(true);
     expect(res._).to.eql([]);
   });
 
-  it('Short clusters and numeric tails: -n5 (inline)', () => {
+  it('Numeric tails: -n5 (inline)', () => {
     const res = Args.parse(['-n5']);
-    expect(res.n).to.equal(5);
+    expect(res.n).to.eql(5);
     expect(res._).to.eql([]);
   });
 
-  it('Short clusters and numeric tails: -n 5 (next token)', () => {
+  it('Numeric tails: -n 5 (next token)', () => {
     const res = Args.parse(['-n', '5']);
-    expect(res.n).to.equal(5);
+    expect(res.n).to.eql(5);
     expect(res._).to.eql([]);
   });
 
   it('“--” terminator', () => {
     const res = Args.parse(['--name', 'x', '--', '--kept', '-z']);
-    expect(res.name).to.equal('x');
+    expect(res.name).to.eql('x');
     expect(res._).to.eql(['--kept', '-z']);
   });
 
-  it('stopEarly: after first positional, treat all as positional', () => {
+  it('stopEarly: first positional binds value and stops parse', () => {
     const res = Args.parse(['--flag', 'pos1', '--also', 'x', 'pos2'], { stopEarly: true });
-    expect(res.flag).to.equal(true);
-    expect(res._).to.eql(['pos1', '--also', 'x', 'pos2']);
+
+    expect(res.flag).to.eql('pos1');
+    expect(res._).to.eql(['pos2']);
   });
 
   it('Defaults and repeated flags (accumulation, mirrored to aliases)', () => {
@@ -87,23 +91,17 @@ describe('Args: (docs)', () => {
       alias: { t: 'tag' },
     });
 
-    // Repeated flags accumulate
     expect(res.tag).to.eql(['a', 'b']);
-
-    // Mirrored onto alias; do deep equality (not identity)
     expect(res.t).to.eql(['a', 'b']);
-
-    // Default applied when not present
-    expect(res.retries).to.equal(3);
+    expect(res.retries).to.eql(3);
   });
 
   it('Rejecting unknown flags via `unknown` hook', () => {
     const res = Args.parse(['--good', '1', '--bad', 'x'], {
       unknown: (raw) => raw === '--good' || raw === '-g',
     });
-
-    expect(res.good).to.equal(1);
-    expect((res as Record<string, unknown>).bad).to.equal(undefined);
+    expect(res.good).to.eql(1);
+    expect((res as O).bad).to.eql(undefined);
     expect(res._).to.eql([]);
   });
 });
