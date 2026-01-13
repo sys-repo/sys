@@ -58,9 +58,14 @@ export type ObjLib = {
   keys<T extends object>(obj?: T): Array<keyof T>;
 
   /**
-   * Retrieve a typed JS-entries collection for the given object.
+   * Typed variant of native `Object.entries` that preserves key/value relationships.
+   *
+   * NOTE:
+   * This is a *type assertion* (the platform typing loses key/value correlation).
+   * Use for static/known-shape objects (e.g. `as const` registries, config maps),
+   * not for untrusted or mutation-heavy dictionaries.
    */
-  entries<T extends object>(obj: T): [keyof T, T[keyof T]][];
+  entries<T extends object>(obj: T): readonly (readonly [keyof T, T[keyof T]])[];
 
   /**
    * Convert one or more properties on the given object into accessor
