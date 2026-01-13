@@ -8,7 +8,7 @@
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "prep": " deno run -RWE ./src/-tmpl/bundle/mod.ts",
-    "tmpl": "deno run -P=ci ./src/-tmpl/-tmpl.cli/mod.ts",
+    "tmpl": "deno run -P=ci ./src/-tmpl.cli/mod.ts",
     "help": "deno run -P=dev   ./-scripts/-vite.ts --cmd=help",
     "tmp": "deno run -P=ci ./-scripts/-tmp.ts"
   },
