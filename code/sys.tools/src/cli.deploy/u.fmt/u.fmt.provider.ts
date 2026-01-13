@@ -27,9 +27,9 @@ function fmtProviderOrbiter(p: t.DeployTool.Config.Provider.Orbiter): t.Provider
 
   const shortId = siteId ? Str.ellipsize(siteId, [3, 4], '..') : '-';
   const parts: string[] = [];
-  if (domain) parts.push(`domain=${c.white(domain)}`);
+  if (domain) parts.push(`https://${c.white(domain)}`);
 
-  const rhs = parts.length ? c.gray(`(${parts.join(', ')})`) : '';
+  const rhs = parts.length ? c.gray(`| ${parts.join(', ')}`) : '';
   const value = `${c.cyan('orbiter')} siteId:${c.gray(shortId)} ${rhs}`.trimEnd();
 
   return { label: 'provider', value };
