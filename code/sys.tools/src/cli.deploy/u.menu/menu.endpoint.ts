@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Open, Str } from '../common.ts';
+import { type t, Process, c, Cli, Fs, Open, Str } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
@@ -101,7 +101,8 @@ export async function endpointMenu(args: {
     if (picked === 'back') return { kind: 'back' };
 
     if (picked === 'edit') {
-      Open.invokeDetached(cwd, yamlRel, { silent: true });
+      const openTarget = `./${Str.trimLeadingDotSlash(yamlRel)}`;
+      Open.invokeDetached(cwd, openTarget, { silent: true });
       continue;
     }
 

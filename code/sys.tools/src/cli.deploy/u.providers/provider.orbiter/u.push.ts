@@ -1,4 +1,4 @@
-import { type t, Process } from '../../common.ts';
+import { type t, Cli, Process } from '../../common.ts';
 
 export async function push(args: {
   cwd: t.StringDir;
@@ -19,7 +19,7 @@ export async function push(args: {
       'x',
       ['npm:orbiter-cli', 'deploy'],
       ['--siteId', siteId],
-      ['--buildCommand', 'echo no-op'],
+      ['--buildCommand', 'echo "no-op"'],
       ['--buildDir', buildDir],
     ];
 
@@ -50,11 +50,15 @@ export async function push(args: {
  * Helpers:
  */
 function containsError(stderr = ''): boolean {
-  if (!stderr) return false;
+  const log = Cli.stripAnsi(stderr);
+  if (!log) return false;
+
   return (
-    /Problem updating site:/i.test(stderr) ||
-    /\bServer error\b/i.test(stderr) ||
-    /No site found with ID:/i.test(stderr) ||
-    /\bError:\s*Error:\b/i.test(stderr)
+    /Problem updating site:/i.test(log) ||
+    /\bServer error\b/i.test(log) ||
+    /No site found with ID:/i.test(log) ||
+    /Deployment failed/i.test(log) ||
+    /Command failed/i.test(log) ||
+    /Error:/i.test(log)
   );
 }
