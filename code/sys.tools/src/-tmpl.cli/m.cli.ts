@@ -32,22 +32,23 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
   await Config.normalize(config);
 
   /** --------------------------------------------------------
-   * Root Menu
+   * Root Menu (Loop)
    */
-  {
+  while (true) {
     console.info();
     const A = (await Cli.Input.Select.prompt<t.__NAME__Tool.Command>({
       message: 'Tools:\n',
       options: [
         opt(` Option A (clone \`-tmpl\` as new ${c.green('<tool>')})`, 'option-a'),
         opt(' Option B', 'option-b'),
+        opt(c.gray('(quit)'), 'exit'),
       ],
       hideDefault: true,
     })) as t.__NAME__Tool.Command;
 
-    //
-    // 🐷 TODO: Replace here ↓
-    //
+    /** --------------------------------------------------------
+     * Sub-Menu: A
+     */
     if (A === 'option-a') {
       const dirname = await Cli.Input.Text.prompt('Clone to directory (name):');
       const dirs = {
@@ -66,33 +67,37 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
       return done();
     }
 
+    /** --------------------------------------------------------
+     * Sub-Menu: B
+     */
+    if (A === 'option-b') {
+      while (true) {
+        console.info();
+        const B = (await Cli.Input.Select.prompt<t.__NAME__Tool.Command>({
+          message: `With:`,
+          options: [
+            { name: `  Thing ${c.cyan('Ba')}`, value: 'option-ba' },
+            { name: `  Thing ${c.cyan('Bb')}`, value: 'option-bb' },
+            { name: `${c.cyan('←')} back`, value: 'back' },
+          ],
+          hideDefault: true,
+        })) as t.__NAME__Tool.Command;
+
+        if (B === 'option-ba') {
+          console.log('🐷 B:', B);
+        }
+
+        if (B === 'option-bb') {
+          console.log('🐷 B:', B);
+        }
+
+        if (B === 'back') break;
+      }
+
+      continue;
+    }
+
     if (A === 'exit') return done(0);
-  }
-
-  /** --------------------------------------------------------
-   * Sub-Menu
-   */
-  {
-    const B = (await Cli.Input.Select.prompt<t.__NAME__Tool.Command>({
-      message: `With:`,
-      options: [
-        { name: ` Thing ${c.cyan('Ba')}`, value: 'option-ba' },
-        { name: ` Thing ${c.cyan('Bb')}`, value: 'option-bb' },
-        { name: c.gray('(quit)'), value: 'exit' },
-      ],
-    })) as t.__NAME__Tool.Command;
-
-    if (B === 'option-ba') {
-      console.log('🐷 B:', B);
-      return done(0);
-    }
-
-    if (B === 'option-bb') {
-      console.log('🐷 B:', B);
-      return done(0);
-    }
-
-    if (B === 'exit') return done(0);
   }
 
   /** --------------------------------------------------------

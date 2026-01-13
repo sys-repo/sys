@@ -17,6 +17,7 @@ export namespace __NAME__Tool {
     | 'option-ab'
     | 'option-ba'
     | 'option-bb'
+    | 'back'
     | 'exit';
   export type MenuOption = { readonly name: string; readonly value: Command };
 
