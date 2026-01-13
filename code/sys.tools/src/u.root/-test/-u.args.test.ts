@@ -1,16 +1,16 @@
 import { type t, describe, it, expect, expectTypeOf } from '../../-test.ts';
-import { parseRootArgs } from '../u.args.ts';
+import { parseArgs } from '../u.args.ts';
 
 describe('Root Args', () => {
   it('parses -h alias as help=true (no command)', () => {
-    const res = parseRootArgs(['-h']);
+    const res = parseArgs(['-h']);
     expect(res.help).eql(true);
     expect(res.command).eql(undefined);
     expect(res._).eql([]);
   });
 
   it('extracts command from first positional when valid', () => {
-    const res = parseRootArgs(['serve', 'x', 'y']);
+    const res = parseArgs(['serve', 'x', 'y']);
     expect(res.command).eql('serve');
     expect(res._).eql(['serve', 'x', 'y']);
 
@@ -20,20 +20,20 @@ describe('Root Args', () => {
   });
 
   it('leaves command undefined when first positional is not a tool', () => {
-    const res = parseRootArgs(['nope', 'x']);
+    const res = parseArgs(['nope', 'x']);
     expect(res.command).eql(undefined);
     expect(res._).eql(['nope', 'x']);
   });
 
   it('does not treat flags themselves as commands', () => {
-    const res = parseRootArgs(['--help', 'serve']);
+    const res = parseArgs(['--help', 'serve']);
     expect(res.help).eql(true);
     expect(res.command).eql('serve');
     expect(res._).eql(['serve']);
   });
 
   it('binds command when help is present after command', () => {
-    const res = parseRootArgs(['serve', '-h']);
+    const res = parseArgs(['serve', '-h']);
     expect(res.help).eql(true);
     expect(res.command).eql('serve');
     expect(res._).eql(['serve']);

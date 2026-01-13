@@ -1,18 +1,19 @@
 import { type t, Args, D } from './common.ts';
 
-type AliasMap = Partial<Record<t.Tools.Command, string[]>>;
+export const ALIAS = {
+  copy: ['cp'],
+  update: ['up'],
+} as const satisfies t.ArgsAliasMap<t.Tools.Command>;
 
-export const ALIAS: AliasMap = { copy: ['cp'], update: ['up'] } as const;
-const ALIAS_LOOKUP = toAliasLookup(ALIAS);
+const ALIAS_LOOKUP = Args.toAliasLookup(ALIAS);
 const TOOL_SET: ReadonlySet<string> = new Set(D.TOOLS);
 
 /**
  * Parse root argv and extract a typed command from the first positional.
  * Flags do not suppress command detection.
  */
-export const parseRootArgs = (argv: string[]): t.Tools.CliRootParsedArgs => {
-  const normalized = normalizeCommand(argv);
-
+export function parseArgs(argv: string[]): t.Tools.CliRootParsedArgs {
+  const normalized = Args.normalizeCommand(argv, ALIAS_LOOKUP);
   const args = Args.parse<t.Tools.CliRootArgs>(normalized, {
     alias: { h: 'help' },
     boolean: ['help'],
@@ -22,28 +23,11 @@ export const parseRootArgs = (argv: string[]): t.Tools.CliRootParsedArgs => {
   const command = isRootCommand(head) ? head : undefined;
 
   return { ...args, command };
-};
+}
 
 /**
  * Helpers
  */
 function isRootCommand(x?: string): x is t.Tools.Command {
   return x !== undefined && TOOL_SET.has(x);
-}
-
-function normalizeCommand(argv: string[]): string[] {
-  if (!argv.length) return [...argv];
-  const [head, ...rest] = argv;
-  const canonical = ALIAS_LOOKUP[head];
-  if (!canonical) return [...argv];
-  return [canonical, ...rest];
-}
-
-function toAliasLookup(map: AliasMap) {
-  type T = [t.Tools.Command, string[]][];
-  const lookup: Record<string, t.Tools.Command> = {};
-  for (const [command, aliases] of Object.entries(map) as T) {
-    for (const alias of aliases ?? []) lookup[alias] = command;
-  }
-  return lookup;
 }

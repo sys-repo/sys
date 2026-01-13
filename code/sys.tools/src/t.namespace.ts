@@ -1,14 +1,6 @@
 import type { t } from './common.ts';
 
 /**
- * Common result response from tool runs.
- */
-export type RunReturn = {
-  /** Process exit code to invoke. True = exit(0); */
-  exit: number | boolean;
-};
-
-/**
  * Root `@sys/tools` type namespace.
  */
 export namespace Tools {

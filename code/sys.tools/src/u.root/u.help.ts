@@ -4,7 +4,7 @@ import { ALIAS } from './u.args.ts';
 export async function printRootHelp(args: t.Tools.CliRootParsedArgs) {
   const s = await Fmt.help(' system:tools', (e, c) => {
     const fmt = (tool: t.Tools.Command) => c.gray(c.dim(`${pkg.name}/`)) + tool;
-    const add = (tool: t.Tools.Command, alias?: string[]) => {
+    const add = (tool: t.Tools.Command, alias?: readonly string[]) => {
       const items = [fmt(tool)];
       if (alias) items.push(c.gray(`(← alias ${c.white(alias.join(' '))})`));
       e.row(...items);
