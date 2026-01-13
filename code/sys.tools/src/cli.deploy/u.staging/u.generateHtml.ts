@@ -50,9 +50,8 @@ function renderHtml(dirs: TDir[]): string {
       const href = `./${trimmed}/`;
       let label = trimmed;
       if (dir.dist) {
-        const hx = dir.dist.hash.digest.slice(-5);
-        const hash = `<span class="version">#${hx}</span>`;
-        label = `${hash} ${label}`;
+        const hash = dir.dist.hash.digest;
+        label = `<span class="version" title="${hash}">#${hash.slice(-5)}</span> ${label}`;
       }
       return `${indent}<li><a href="${href}">${label}</a></li>`;
     })
