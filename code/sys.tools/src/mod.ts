@@ -2,8 +2,9 @@
  * @module
  * System tools root entry.
  */
+import { Fs } from './common.ts';
 import { pkg } from './pkg.ts';
-import { printRootHelp } from './u.root/mod.ts';
+import { cli } from './u.root/mod.ts';
 
 export { pkg };
 
@@ -14,5 +15,5 @@ export type * as t from './types.ts';
  * CLI entry-point:
  */
 if (import.meta.main) {
-  printRootHelp(Deno.args);
+  await cli(Fs.cwd('terminal'), Deno.args);
 }
