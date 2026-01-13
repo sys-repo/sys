@@ -24,5 +24,4 @@ export type { TimecodeState } from '@sys/ui-state/t';
 /**
  * @local:
  */
-export type * from '../-sample/t.ts';
 export type * from '../types.ts';

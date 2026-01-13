@@ -1,7 +1,17 @@
 import React from 'react';
 import { type t, Color, css, Str } from './common.ts';
 
-export const ScrollSample: React.FC<t.ScrollSampleProps> = (props) => {
+/**
+ * Component
+ */
+export type ScrollSampleProps = {
+  debug?: boolean;
+  Scroll?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};
+
+export const ScrollSample: React.FC<ScrollSampleProps> = (props) => {
   const { debug = false, Scroll = true } = props;
   const text = Str.Lorem.words(1000);
 
