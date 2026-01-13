@@ -1,4 +1,4 @@
-import type { ObjLib } from './t.ts';
+import type { t } from './common.ts';
 
 import { Lens } from '../m.Obj.Lens/mod.ts';
 import { Path } from '../m.Obj.Path/mod.ts';
@@ -13,7 +13,7 @@ import { keys, pick, sortKeys, toArray } from './u.ts';
 import { walk } from './u.walk.ts';
 import { entries } from './u.entries.ts';
 
-export const Obj: ObjLib = {
+export const Obj: t.ObjLib = {
   Path,
   Lens,
 

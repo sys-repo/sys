@@ -65,7 +65,7 @@ export type ObjLib = {
    * Use for static/known-shape objects (e.g. `as const` registries, config maps),
    * not for untrusted or mutation-heavy dictionaries.
    */
-  entries<T extends object>(obj: T): readonly (readonly [keyof T, T[keyof T]])[];
+  entries<T extends Record<string, unknown>>(obj: T): readonly (readonly [keyof T, T[keyof T]])[];
 
   /**
    * Convert one or more properties on the given object into accessor
