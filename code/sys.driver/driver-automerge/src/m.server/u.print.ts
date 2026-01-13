@@ -46,6 +46,9 @@ export const Log = {
   server(args: { port: t.PortNumber; host?: string; dir?: t.StringDir }) {
     const { port, dir, host = 'localhost' } = args;
 
+    const cwd = Fs.cwd();
+    const displayDir = (dir?.startsWith(cwd) ? `.${dir.slice(cwd.length)}` : dir) ?? '';
+
     const table = Cli.table([]);
     const module = c.gray(`${c.bold(c.white(pkg.name))}/${c.green('ws')} ${pkg.version}`);
     const url1 = c.cyan(`http://${host}:${c.bold(String(port))}`);
@@ -53,7 +56,7 @@ export const Log = {
 
     table.push([c.gray('  Module:'), module]);
     table.push([c.gray('  Transport:'), c.green('websocket')]);
-    table.push([c.gray('  Storage:'), c.gray((dir ?? '').trim() || '<no storage>')]);
+    table.push([c.gray('  Storage:'), c.gray(displayDir || '<no storage>')]);
     table.push([c.gray('  Endpoint:'), url1]);
     table.push(['', url2]);
 
