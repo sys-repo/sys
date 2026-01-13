@@ -27,7 +27,7 @@ export const cli: t.__NAME__ToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunReturn> {
+async function run(cwd: t.StringDir, args: t.__NAME__Tool.CliArgs): Promise<t.RunReturn> {
   const config = await Config.get(cwd);
   await Config.normalize(config);
 
@@ -64,13 +64,16 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
 
       // Write to disk.
       await tmpl.write(dirs.target);
-      return done();
+      return done(0);
     }
 
     /** --------------------------------------------------------
      * Sub-Menu: B
      */
     if (A === 'option-b') {
+      type WithCommand = Extract<t.__NAME__Tool.Command, 'option-ba' | 'option-bb'>;
+      let lastSelection: WithCommand | undefined;
+
       while (true) {
         console.info();
         const B = (await Cli.Input.Select.prompt<t.__NAME__Tool.Command>({
@@ -80,15 +83,18 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
             { name: `  Thing ${c.cyan('Bb')}`, value: 'option-bb' },
             { name: `${c.cyan('←')} back`, value: 'back' },
           ],
+          default: lastSelection,
           hideDefault: true,
         })) as t.__NAME__Tool.Command;
 
         if (B === 'option-ba') {
-          console.log('🐷 B:', B);
+          lastSelection = B;
+          console.info('🐷 B:', B);
         }
 
         if (B === 'option-bb') {
-          console.log('🐷 B:', B);
+          lastSelection = B;
+          console.info('🐷 B:', B);
         }
 
         if (B === 'back') break;
@@ -103,5 +109,5 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
   /** --------------------------------------------------------
    * End
    */
-  return done();
+  return done(0);
 }
