@@ -22,6 +22,4 @@ export async function env(options: EnvOptions = {}): Promise<void> {
 /**
  * CLI entry-point:
  */
-if (import.meta.main) {
-  await env({ silent: false });
-}
+if (import.meta.main) await env({ silent: false });
