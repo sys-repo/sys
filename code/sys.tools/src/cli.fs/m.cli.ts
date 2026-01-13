@@ -16,8 +16,9 @@ export const cli: t.FsToolsLib['cli'] = async (cwd, argv) => {
   const args = Args.parse<t.FsTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname));
 
-  console.info(await Fmt.header(toolname, cwd, { fileTree: { maxDepth: 1 } }));
+  console.info(await Fmt.header(toolname, cwd));
   await run(cwd);
+
   console.info();
   console.info(Fmt.signoff(toolname));
 };

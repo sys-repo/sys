@@ -1,5 +1,5 @@
 import { pkg } from '../pkg.ts';
-import { c, Cli, Fs, Pkg, Str } from './libs.ts';
+import { c, Cli, Pkg, Str } from './libs.ts';
 import * as t from './t.ts';
 
 export type HelpCallback = (e: HelpCallbackArgs, c: t.AnsiColors) => void;
@@ -13,27 +13,11 @@ export const Fmt = {
   /**
    * Common intro header.
    */
-  async header(
-    toolname: string,
-    dir?: t.StringDir,
-    opts: {
-      fileTree?: { maxDepth?: number; indent?: number };
-      exitHint?: boolean;
-    } = {},
-  ) {
-    const { fileTree = {}, exitHint = true } = opts;
-    const { maxDepth, indent } = fileTree;
-
+  async header(toolname: string, dir?: t.StringDir, opts: { exitHint?: boolean } = {}) {
+    const { exitHint = true } = opts;
     let identity = c.gray(`${c.green(toolname)} v${pkg.version}`);
     if (exitHint) identity += c.gray(c.dim(` (Ctrl-C to exit)`));
-
-    const b = Str.builder();
-    if (dir) {
-      b.line(c.gray(await Fs.Fmt.treeFromDir(dir, { indent, maxDepth })));
-      b.line();
-    }
-    b.line(identity);
-    return b.toString();
+    return identity;
   },
 
   /**
