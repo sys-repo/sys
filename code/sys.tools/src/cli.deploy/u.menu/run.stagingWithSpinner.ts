@@ -1,7 +1,6 @@
 import { type t, pkg, c, Cli, Path, Pkg } from '../common.ts';
 import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
-import { ensureRootIndexHtml } from './u/u.index.html.ts';
 
 type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly error: unknown };
 
@@ -50,19 +49,12 @@ export async function runStagingWithSpinner(args: {
 
       async onWriteDistJson(e) {
         const dir = e.stagingRoot;
-        await ensureRootIndexHtml(cwd, dir);
-
         // Respect any dist.json produced by downstream builders
         const { exists } = await Pkg.Dist.load(dir);
         if (exists) return;
 
         // Otherwise, synthesize a root dist.json for deployment
-        await Pkg.Dist.compute({
-          save: true,
-          dir,
-          pkg,
-          builder: pkg,
-        });
+        await Pkg.Dist.compute({ save: true, dir, pkg, builder: pkg });
       },
 
       onProgress(e) {

@@ -16,6 +16,7 @@ export {
 } from '@sys/std';
 
 export { Args, c, Cli } from '@sys/cli';
+export { Color } from '@sys/color';
 export { Hash } from '@sys/crypto/hash';
 export { Cmd } from '@sys/event/cmd';
 export { FileMap, Fs, Path, Pkg } from '@sys/fs';

@@ -1,6 +1,7 @@
 import { type t, Fs, Is, Path } from '../common.ts';
 import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
+import { ensureIndexHtml } from './u.generateHtml.ts';
 
 export type StagingProgressEvent = t.DeployTool.Staging.ProgressEvent;
 type Args = {
@@ -32,8 +33,7 @@ type Args = {
 };
 
 export async function executeStaging(options: Args): Promise<void> {
-  const { cwd, mappings } = options;
-
+  const { cwd, mappings, overwrite = false } = options;
   const total = mappings.length;
 
   const resolveAbs = (base: string, p: string): string => {
@@ -66,10 +66,7 @@ export async function executeStaging(options: Args): Promise<void> {
       ? Math.floor(concurrencyRaw)
       : 1;
 
-  const overwrite = options.overwrite ?? false;
-
   const emit = (e: StagingProgressEvent) => options.onProgress?.(e);
-
   let next = 0;
   let firstErr: unknown;
 
@@ -129,8 +126,10 @@ export async function executeStaging(options: Args): Promise<void> {
 
   if (firstErr) throw firstErr;
 
+  const rootAbs = resolveStagingRootAbs();
+  await ensureIndexHtml(rootAbs);
+
   if (options.writeDistJson) {
-    const rootAbs = resolveStagingRootAbs();
     if (!rootAbs) throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
 
     const write = options.onWriteDistJson;

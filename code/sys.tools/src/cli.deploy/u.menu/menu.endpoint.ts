@@ -1,4 +1,4 @@
-import { type t, Process, c, Cli, Fs, Open, Str } from '../common.ts';
+import { type t, c, Cli, Fs, Open, Str } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
