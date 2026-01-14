@@ -1,4 +1,4 @@
-import { type t, Fs, Hash, Is, Json, Obj, PlaybackSchema, Slug } from './common.ts';
+import { type t, Fs, Hash, Is, Json, Obj, PlaybackSchema, Slug, Ffmpeg } from './common.ts';
 import { buildSequenceFilepathIssue } from './u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
 
@@ -75,13 +75,19 @@ export async function bundleSequenceFilepaths(
     const bytes = Is.number(stat?.size) ? stat.size : undefined;
     const href = `${baseHref}/${kindDir}/${filename}`;
 
+    let duration: t.Msecs | undefined;
+    if (kind === 'video') {
+      const result = await Ffmpeg.duration(resolvedPath);
+      if (result.ok) duration = result.msecs;
+    }
+
     assets.push({
       kind,
       logicalPath: String(raw),
       hash,
       filename,
       href,
-      stats: { bytes },
+      stats: { bytes, duration },
     });
   };
 
