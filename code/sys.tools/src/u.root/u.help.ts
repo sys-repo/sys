@@ -13,7 +13,6 @@ export async function printRootHelp(args: t.Tools.CliRootParsedArgs) {
     add('crdt');
     add('serve');
     add('deploy');
-    add('fs');
     add('video');
     add('update', ALIAS.update);
   });

@@ -13,7 +13,6 @@ export namespace Tools {
     | t.ClipboardTool.Id
     | t.CrdtTool.Id
     | t.DeployTool.Id
-    | t.FsTool.Id
     | t.UpdateTool.Id
     | t.VideoTool.Id;
 
