@@ -1,5 +1,5 @@
 import { type t, c, Args, Cli, D, Fs, done } from './common.ts';
-import { copyDenoFiles, copyFiles, copyTypes } from './u.cli.copy.ts';
+import { copyDenoFiles, copyFiles, copyGitChanged, copyTypes } from './u.cli.copy.ts';
 import { Fmt } from './u.fmt.ts';
 
 type C = t.ClipboardTool.Command;
@@ -38,6 +38,7 @@ async function run(cwd: t.StringDir) {
       { name: `Copy Types`, value: `types:select` },
       { name: `Copy Types (all)`, value: `types:all` },
       { name: `Copy deno.json`, value: `files:deno.json` },
+      { name: `Copy Git changed files`, value: `git:changed` },
     ],
   })) as t.ClipboardTool.Command;
 
@@ -61,6 +62,10 @@ async function run(cwd: t.StringDir) {
   }
   if (mode === 'files:deno.json') {
     await copyDenoFiles(cwd, {});
+    return done();
+  }
+  if (mode === 'git:changed') {
+    await copyGitChanged(cwd);
     return done();
   }
 

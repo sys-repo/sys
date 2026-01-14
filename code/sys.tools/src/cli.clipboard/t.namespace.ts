@@ -15,7 +15,8 @@ export namespace ClipboardTool {
     | 'types:all'
     | 'files:select'
     | 'files:all'
-    | 'files:deno.json';
+    | 'files:deno.json'
+    | 'git:changed';
   export type MenuOption = { name: string; value: Command };
 
   /** Command line arguments (argv). */

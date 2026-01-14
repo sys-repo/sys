@@ -3,6 +3,7 @@ import { copyFiles } from './u.cli.copy.files.ts';
 
 export * from './u.cli.copy.files.ts';
 export * from './u.cli.copy.types.ts';
+export * from './u.cli.copy.git.ts';
 
 /**
  * Sub-command: Copy deno.json files

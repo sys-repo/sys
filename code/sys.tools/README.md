@@ -28,7 +28,6 @@ System Tools
  ├─ @sys/tools          <version>
  ├─ @sys/tools/copy     (← alias cp, clipboard)
  ├─ @sys/tools/crdt
- ├─ @sys/tools/fs
  ├─ @sys/tools/video
  ├─ @sys/tools/serve
  └─ @sys/tools/update
