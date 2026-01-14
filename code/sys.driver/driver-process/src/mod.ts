@@ -1,15 +1,9 @@
 /**
- * @module @sys/driver-ffmpeg
- * Thin system driver for FFmpeg tooling.
- *
- * Exposes typed, low-level capabilities (e.g. `ffprobe` inspection)
- * via `@sys/process`. No policy, no UI, no schema coupling.
- *
- * Designed for bundlers and tooling, not playback.
+ * @module
+ * A collection of thin, typed process drivers that adapt external CLI tools
+ * into stable, policy-free TypeScript APIs.
  */
 export { pkg } from './pkg.ts';
 
 /** Type library (barrel file). */
 export type * as t from './types.ts';
-
-export { Ffmpeg } from './m.ffmpeg/mod.ts';

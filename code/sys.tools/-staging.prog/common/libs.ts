@@ -14,4 +14,4 @@ export { Yaml } from '@sys/yaml';
 
 /** Drivers */
 export { Crdt } from '@sys/driver-automerge/fs';
-export { Ffmpeg } from '@sys/driver-ffmpeg';
+export { Ffmpeg } from '@sys/driver-process/ffmpeg';

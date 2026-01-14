@@ -52,9 +52,9 @@ jobs:
           echo "publish failed after 3 attempts"
           exit 1
 
-      - name: publish module → "@sys/driver-ffmpeg"
+      - name: publish module → "@sys/driver-process"
         run: |
-          cd code/sys.driver/driver-ffmpeg
+          cd code/sys.driver/driver-process
           deno task test --parallel
           for i in 1 2 3; do
               if deno publish --allow-dirty; then
