@@ -1,6 +1,5 @@
 /**
  * @module @sys/driver-ffmpeg
- *
  * Thin system driver for FFmpeg tooling.
  *
  * Exposes typed, low-level capabilities (e.g. `ffprobe` inspection)
@@ -12,3 +11,5 @@ export { pkg } from './pkg.ts';
 
 /** Type library (barrel file). */
 export type * as t from './types.ts';
+
+export { Ffmpeg } from './m.ffmpeg/mod.ts';
