@@ -1,5 +1,3 @@
-import type { t } from './common.ts';
-
 /** Status command helper signature. */
 export type GitStatusFn = (opts?: GitStatusOptions) => Promise<GitStatusResult>;
 

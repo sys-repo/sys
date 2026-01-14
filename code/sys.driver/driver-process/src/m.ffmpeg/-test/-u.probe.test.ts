@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { probe } from '../u.probe.ts';
-import { failOutput, okOutput, withInvokeStub } from '../../u.probe/-test/mod.ts';
+import { failOutput, okOutput, withInvokeStub } from '../../u.probe/-test/fixture.ts';
 
 describe('Ffmpeg.probe', () => {
   it('reports missing ffprobe when the executable is not found', async () => {
