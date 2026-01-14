@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { Git } from '../mod.ts';
 
 describe(`Process: Git`, () => {

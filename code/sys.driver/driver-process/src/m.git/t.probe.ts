@@ -6,9 +6,7 @@ export type GitProbeFn = (opts?: GitProbeOptions) => Promise<GitProbeResult>;
 /** Configures what Git binary to look for. */
 export type GitProbeOptions = {
   /** Optional override for the git binary (default: "git"). */
-  readonly bin?: {
-    readonly git?: string;
-  };
+  readonly bin?: { readonly git?: string };
 };
 
 /** Result returned by the Git probe routine. */

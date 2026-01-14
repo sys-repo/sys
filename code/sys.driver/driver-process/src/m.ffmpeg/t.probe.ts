@@ -13,10 +13,7 @@ export type FfmpegProbeOptions = {
   readonly requireFfmpeg?: boolean;
 
   /** Override executable names/paths (default: "ffprobe"/"ffmpeg"). */
-  readonly bin?: {
-    readonly ffprobe?: string;
-    readonly ffmpeg?: string;
-  };
+  readonly bin?: { readonly ffprobe?: string; readonly ffmpeg?: string };
 };
 
 /** Result from `Ffmpeg.probe` method */

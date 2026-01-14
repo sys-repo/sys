@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
-import { probe } from '../u.probe.ts';
 import { failOutput, okOutput, withInvokeStub } from '../../u.probe/-test/fixture.ts';
+import { probe } from '../u.probe.ts';
 
 describe('Git.probe', () => {
   it('reports missing git when the executable is not found', async () => {
