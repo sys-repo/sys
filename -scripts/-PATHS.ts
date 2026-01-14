@@ -60,6 +60,7 @@ export const Paths = {
     'code/sys.driver/driver-vite',
     'code/sys.driver/driver-automerge',
     'code/sys.driver/driver-farcaster',
+    'code/sys.driver/driver-ffmpeg',
     'code/sys.driver/driver-mastra',
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-prosemirror',
