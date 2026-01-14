@@ -47,6 +47,7 @@ export const Fs: FsLib = {
   stat,
   cwd,
   trimCwd: Path.trimCwd,
+  realPath: Deno.realPath,
 
   join,
   resolve,

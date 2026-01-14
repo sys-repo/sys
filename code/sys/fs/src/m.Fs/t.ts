@@ -9,7 +9,7 @@ export type * from './t.File.ts';
 export type * from './t.Fmt.ts';
 export type { WalkEntry };
 
-type Methods = StdMethods & NamespaceMembers & GlobMethods;
+type Methods = StdMethods & DenoMethods & NamespaceMembers & GlobMethods;
 
 /**
  * Tools for working with the file-system.
@@ -134,6 +134,14 @@ type StdMethods = {
 
   /** Asynchronously moves a file or directory (along with its contents). */
   readonly move: typeof StdFs.move;
+};
+
+/**
+ * Deno file-system methods.
+ */
+type DenoMethods = {
+  /** Resolves to the absolute normalized path, with symbolic links resolved. */
+  readonly realPath: typeof Deno.realPath;
 };
 
 /**
