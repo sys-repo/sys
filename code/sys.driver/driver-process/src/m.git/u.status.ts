@@ -18,6 +18,7 @@ export const status: t.GitStatusFn = async (opts = {}) => {
     res = await Process.invoke({
       cmd: git,
       args,
+      cwd: opts.cwd,
       silent: true,
     });
   } catch (error) {

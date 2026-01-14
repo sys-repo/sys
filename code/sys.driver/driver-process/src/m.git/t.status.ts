@@ -7,6 +7,8 @@ export type GitStatusOptions = {
   readonly bin?: { readonly git?: string };
   /** Include untracked files (default: false). */
   readonly untracked?: boolean;
+  /** Working directory to execute git commands in. */
+  readonly cwd?: string;
 };
 
 /** Result returned by the git status command. */
