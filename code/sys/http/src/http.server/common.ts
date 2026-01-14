@@ -4,6 +4,7 @@ export { Http } from '../http.client/mod.ts';
 /**
  * Server
  */
-export { Fmt, Cli, c } from '@sys/cli';
+export { c, Cli, Fmt } from '@sys/cli';
 export { HashFmt } from '@sys/crypto/fmt';
+export { Hash } from '@sys/crypto/hash';
 export { Fs, Pkg } from '@sys/fs';

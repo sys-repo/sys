@@ -51,6 +51,16 @@ export const serveStatic: t.HttpServeStatic = (input: Input) => {
       const targetInfo = info.isDirectory ? await Fs.stat(target) : info;
       if (!targetInfo || !targetInfo.isFile) return await notFound();
 
+      /**
+       * NOTE:
+       * Static serving is routed through serveFileWithEtag to guarantee:
+       *
+       *  - Correct cache invalidation for rewritten JSON manifests
+       *  - Stable ETag semantics for browsers and CDNs
+       *  - Preservation of Range / 206 behavior for large binaries
+       *
+       * Do not replace this with hono's serveStatic helper.
+       */
       return await serveFileWithEtag({
         req: c.req.raw,
         path: target,

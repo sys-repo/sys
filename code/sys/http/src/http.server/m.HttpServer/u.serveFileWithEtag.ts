@@ -1,12 +1,19 @@
 import { serveFile } from '@std/http/file-server';
+
 import { Fs } from './common.ts';
+import { computeEtag } from './u.computeEtag.ts';
 
 /**
  * Serve a single file via `serveFile`, adding ETag / If-None-Match handling.
  *
- * - Preserves `Range` / `206 Partial Content` behaviour from `serveFile`.
- * - Uses a stable ETag derived from `{mtime, size}` so we don’t need to
- *   buffer the entire body (keeps streaming semantics intact).
+ * Goals:
+ * - Preserve `Range` / `206 Partial Content` behaviour from `serveFile`.
+ * - Avoid buffering large bodies (keep streaming semantics).
+ * - Be cache-correct for small JSON manifests that are frequently rewritten.
+ *
+ * Strategy:
+ * - For small *.json files (default <= 256 KB), use a strong ETag derived from content hash.
+ * - Otherwise, use a stable ETag derived from `{mtime, size}`.
  */
 export async function serveFileWithEtag(args: {
   req: Request;
@@ -19,12 +26,10 @@ export async function serveFileWithEtag(args: {
     return new Response('Not Found', { status: 404 });
   }
 
-  // Simple, stable ETag based on mtime + size (no full-file hashing).
-  const mtime = stat.mtime?.getTime() ?? 0;
-  const etag = `"${mtime.toString(36)}-${stat.size.toString(36)}"`;
-
+  const etag = await computeEtag({ path, stat });
   const ifNoneMatch = req.headers.get('if-none-match');
-  if (ifNoneMatch && ifNoneMatch === etag) {
+
+  if (ifNoneMatch && ifNoneMatchMatches(ifNoneMatch, etag)) {
     return new Response(null, {
       status: 304,
       headers: { etag },
@@ -42,4 +47,19 @@ export async function serveFileWithEtag(args: {
     statusText: res.statusText,
     headers,
   });
+}
+
+/**
+ * Helpers
+ */
+function ifNoneMatchMatches(ifNoneMatch: string, etag: string): boolean {
+  // Spec allows a list: If-None-Match: "a", "b", W/"c"
+  // We do a conservative exact match against any trimmed token, including weak prefix.
+  const target = etag.trim();
+  const tokens = ifNoneMatch.split(',').map((s) => s.trim());
+  return tokens.some((t) => t === target || stripWeak(t) === target);
+}
+
+function stripWeak(etag: string): string {
+  return etag.startsWith('W/') ? etag.slice(2).trim() : etag;
 }

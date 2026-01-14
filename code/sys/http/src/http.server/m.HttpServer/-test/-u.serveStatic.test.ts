@@ -1,7 +1,11 @@
-import { describe, expect, it, pkg, Testing } from '../../../-test.ts';
-import { Fs, Http, Pkg } from '../common.ts';
+import { describe, expect, it, Testing } from '../../../-test.ts';
+import { Fs, Http } from '../common.ts';
 import { HttpServer } from '../mod.ts';
 
+/**
+ * Invariant:
+ * Static JSON assets must never be stale under browser caching.
+ */
 describe('HttpServer: serve static', () => {
   const sampleBinary = (length = 500) => Uint8Array.from({ length }, (_, i) => i % 256);
 
@@ -144,6 +148,50 @@ describe('HttpServer: serve static', () => {
     const etag2 = res2.headers.get('etag');
     expect(res2.status).to.eql(200);
     expect(etag2).to.be.ok;
+    expect(etag2).not.to.eql(etag1);
+
+    fetch.dispose();
+    await listener.shutdown();
+  });
+
+  /**
+   * This test exists because mtime resolution is insufficient
+   * to detect fast, same-size JSON rewrites.
+   *
+   * Without a content-based ETag, browsers can legally cache
+   * stale manifests forever.
+   *
+   * If this test fails, caching correctness has regressed.
+   */
+  it('ETag changes after JSON rewrite without waiting', async () => {
+    type T = { ok: boolean };
+
+    const fs = await Testing.dir('HttpServer').create();
+    const filename = 'etag-change-fast.json';
+    const path = Fs.join(fs.dir, filename);
+    await Fs.writeJson(path, { ok: true });
+
+    const app = HttpServer.create({ static: ['/*', fs.dir] });
+    const listener = Deno.serve({ port: 0 }, app.fetch);
+    const url = Http.url(listener.addr);
+    const href = url.join(filename);
+
+    const fetch = Http.fetcher();
+
+    const res1 = await fetch.json<T>(href);
+    const etag1 = res1.headers.get('etag');
+    expect(res1.status).to.eql(200);
+    expect(etag1).to.be.ok;
+
+    // Rewrite immediately (no sleep).
+    await Fs.writeJson(path, { ok: false });
+
+    const res2 = await fetch.json<T>(href);
+    const etag2 = res2.headers.get('etag');
+    expect(res2.status).to.eql(200);
+    expect(etag2).to.be.ok;
+
+    // This is the whole point: content-hash ETag should change even within same mtime tick.
     expect(etag2).not.to.eql(etag1);
 
     fetch.dispose();
