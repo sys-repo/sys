@@ -18,7 +18,7 @@ export function resolveBeatMedia(
    * Returns <undefined> when the authoring context is missing required media.
    */
   return (beatIndex) => {
-    const { spec, resolveMedia } = bundle;
+    const { spec } = bundle;
     const beat = spec.beats[beatIndex];
     if (!beat) return undefined;
 
@@ -31,8 +31,9 @@ export function resolveBeatMedia(
     const logicalPath = src.logicalPath;
     if (!kind || !logicalPath) return undefined;
 
-    const url = resolveMedia({ kind, logicalPath });
-    if (!url) return undefined;
+    const asset = bundle.resolveAsset({ kind, logicalPath });
+    if (!asset) return undefined;
+    const url = asset.href;
 
     return {
       src: url,

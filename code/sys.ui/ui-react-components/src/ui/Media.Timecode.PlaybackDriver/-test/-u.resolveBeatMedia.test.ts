@@ -5,16 +5,11 @@ import { PlaybackDriver } from '../mod.ts';
 describe('PlaybackDriver.Util.resolveBeatMedia', () => {
   function makeBundle(args: {
     beats: readonly unknown[];
-    resolveMedia?: (args: { kind: string; logicalPath: string }) => string | undefined;
-    resolveAsset?: (
-      args: t.Timecode.Playback.ResolverArgs,
-    ) => t.TimecodePlaybackDriver.Wire.Asset | undefined;
+    resolveAsset?: (args: t.Timecode.Playback.ResolverArgs) => t.TimecodePlaybackDriver.Wire.Asset | undefined;
   }): t.TimecodePlaybackDriver.Wire.Bundle {
-    const resolveMedia: t.MediaResolver = args.resolveMedia ?? (() => undefined);
     const resolveAsset = args.resolveAsset ?? (() => undefined);
     return {
       spec: { beats: args.beats } as t.Timecode.Playback.Spec<unknown>,
-      resolveMedia,
       resolveAsset,
     } as t.TimecodePlaybackDriver.Wire.Bundle;
   }
@@ -43,17 +38,22 @@ describe('PlaybackDriver.Util.resolveBeatMedia', () => {
     expect(PlaybackDriver.Util.resolveBeatMedia(bundleB)(0)).to.eql(undefined);
   });
 
-  it('returns <undefined> when resolver returns <undefined>', () => {
+  it('returns <undefined> when resolveAsset returns <undefined>', () => {
     const bundle = makeBundle({
       beats: [{ payload: {}, src: { kind: 'video', logicalPath: 'p', time: 0 } }],
-      resolveMedia: () => undefined,
+      resolveAsset: () => undefined,
     });
     const resolve = PlaybackDriver.Util.resolveBeatMedia(bundle);
     expect(resolve(0 as t.Index)).to.eql(undefined);
   });
 
-  it('calls resolveMedia({kind, logicalPath}) and returns { src:url, slice }', () => {
-    const calls: Array<{ kind: string; logicalPath: string }> = [];
+  it('calls resolveAsset and returns { src:url, slice }', () => {
+    const asset = {
+      kind: 'video' as t.Timecode.Playback.MediaKind,
+      logicalPath: 'video:1',
+      href: 'https://cdn.example/video.mp4',
+    };
+
     const bundle = makeBundle({
       beats: [
         {
@@ -61,39 +61,15 @@ describe('PlaybackDriver.Util.resolveBeatMedia', () => {
           src: { kind: 'video', logicalPath: 'video:1', time: 123, slice: '00:00..00:10' },
         },
       ],
-      resolveMedia(args) {
-        calls.push(args);
-        return 'https://cdn.example/video.mp4';
-      },
+      resolveAsset: () => asset,
     });
 
     const resolve = PlaybackDriver.Util.resolveBeatMedia(bundle);
     const res = resolve(0 as t.Index);
 
-    expect(calls.length).to.eql(1);
-    expect(calls[0]).to.eql({ kind: 'video', logicalPath: 'video:1' });
     expect(res).to.eql({
       src: 'https://cdn.example/video.mp4',
       slice: '00:00..00:10',
     });
-  });
-
-  it('exposes resolveAsset and resolveMedia separately', () => {
-    const href = 'https://cdn.example/video.webm';
-    const asset = {
-      kind: 'video' as t.Timecode.Playback.MediaKind,
-      logicalPath: 'video:stats',
-      href,
-      stats: { bytes: 123 },
-    };
-
-    const bundle = makeBundle({
-      beats: [],
-      resolveMedia: () => href,
-      resolveAsset: () => asset,
-    });
-
-    expect(bundle.resolveMedia({ kind: 'video', logicalPath: 'video:stats' })).to.eql(href);
-    expect(bundle.resolveAsset({ kind: 'video', logicalPath: 'video:stats' })).to.equal(asset);
   });
 });

@@ -8,7 +8,6 @@ import type { t } from '../common.ts';
 export type SpecTimelineBundle<P = unknown> = {
   readonly docid: t.StringId;
   readonly spec: t.Timecode.Playback.Spec<P>;
-  readonly resolveMedia: t.MediaResolver;
   readonly resolveAsset: (args: t.Timecode.Playback.ResolverArgs) => SpecTimelineAsset | undefined;
 };
 

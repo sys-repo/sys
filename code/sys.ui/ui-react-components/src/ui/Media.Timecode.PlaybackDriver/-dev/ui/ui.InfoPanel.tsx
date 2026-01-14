@@ -1,16 +1,18 @@
 import React from 'react';
-import { type t, Time, Button, css, dur, Json, KeyValue, Str, Timecode } from '../common.ts';
+import { type t, Is, Time, Button, css, dur, Json, KeyValue, Str, Timecode } from '../common.ts';
 import { toIssueItems } from './ui.InfoPanel.u.tsx';
 
 type O = Record<string, unknown>;
 type Bundle = t.TimecodePlaybackDriver.Wire.Bundle;
+type State = t.TimecodeState.Playback.State;
+type Timeline = t.Timecode.Experience.Timeline;
 
 export type InfoPanelProps = {
   index?: t.Index;
   docid?: t.StringId;
   bundle?: Bundle;
   snapshot?: t.TimecodeState.Playback.Snapshot;
-  experience?: t.Timecode.Experience.Timeline;
+  experience?: Timeline;
   resolved?: t.Timecode.Resolved;
 
   debug?: boolean;
@@ -79,12 +81,20 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
 
     const active = state.decks.active;
     const standby = state.decks.standby;
+    const currentBeat = state.currentBeat;
+    const beat = currentBeat != null ? experience.beats[currentBeat] : undefined;
+    const logicalPath = beat?.src?.ref;
+    const asset = logicalPath ? bundle.resolveAsset({ kind: 'video', logicalPath }) : undefined;
+    const bytes = asset?.stats?.bytes;
+    const duration = asset?.stats?.duration;
+
     const deckSummary = (deck: t.TimecodeState.Playback.DeckId) => {
       const role = deck === active ? 'active' : deck === standby ? 'standby' : '-';
       const status = state.decks.status[deck] ?? '-';
       const ready = state.ready.deck?.[deck] ? undefined : 'not-ready';
       return [role, ready, status].filter(Boolean).join(' | ');
     };
+
     hr();
     add({ kind: 'title', v: 'Current' });
     add({ k: 'Position', v: formatPosition(state), mono });
@@ -93,6 +103,10 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
     add({ k: 'Deck-A', v: deckSummary('A'), mono });
     add({ k: 'Deck-B', v: deckSummary('B'), mono });
 
+    hr();
+    add({ kind: 'title', v: 'Media' });
+    if (Is.number(bytes)) add({ k: 'Byte Size', v: Str.bytes(bytes), mono });
+    if (duration != null) add({ k: 'Total Duration', v: formatTime(duration), mono });
   }
   hr();
   items.push({
@@ -118,15 +132,15 @@ function formatTime(ms?: t.Msecs) {
   return ms == null ? '-' : Timecode.format(ms, { forceHours: true });
 }
 
-function formatPosition(state: t.TimecodeState.Playback.State) {
-  const beatIndex = state.currentBeat;
+function formatPosition(state: State) {
+  const index = state.currentBeat;
   const timeline = state.timeline;
-  if (beatIndex == null || !timeline) return undefined;
+  if (index == null || !timeline) return undefined;
 
   const segIndex = timeline.segments
     .map((s) => s.beat)
-    .findIndex((b) => b.from <= beatIndex && beatIndex < b.to);
+    .findIndex((beat) => beat.from <= index && index < beat.to);
 
   if (segIndex < 0) return undefined;
-  return `segment-${segIndex + 1}:beat-${beatIndex + 1}`;
+  return `segment-${segIndex + 1}:beat-${index + 1}`;
 }
