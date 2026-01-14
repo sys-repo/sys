@@ -1,8 +1,9 @@
 import { type t } from '../../-test.ts';
 import { Process } from '../common.ts';
 
-export const okOutput = () => makeOutput(true);
-export const failOutput = (stderr: string) => makeOutput(false, stderr);
+export const okOutput = (stdout = '') => makeOutput(true, '', stdout);
+export const failOutput = (stderr = '', stdout = '') => makeOutput(false, stderr, stdout);
+
 export function makeOutput(success: boolean, stderr = '', stdout = ''): t.ProcOutput {
   return {
     success,

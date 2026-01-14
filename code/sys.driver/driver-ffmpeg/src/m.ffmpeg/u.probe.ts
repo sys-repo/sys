@@ -1,14 +1,9 @@
-import { type t, Process } from './common.ts';
+import { type t, DEFAULT, Process } from './common.ts';
 
-const defaultBins = {
-  ffprobe: 'ffprobe',
-  ffmpeg: 'ffmpeg',
-} as const;
-
-export const probe: t.FfmpegLib['probe'] = async (opts = {}) => {
+export const probe: t.FfmpegProbeFn = async (opts = {}) => {
   const bin = {
-    ffprobe: opts.bin?.ffprobe ?? defaultBins.ffprobe,
-    ffmpeg: opts.bin?.ffmpeg ?? defaultBins.ffmpeg,
+    ffprobe: opts.bin?.ffprobe ?? DEFAULT.bin.ffprobe,
+    ffmpeg: opts.bin?.ffmpeg ?? DEFAULT.bin.ffmpeg,
   };
 
   const ffprobe = await check(bin.ffprobe);

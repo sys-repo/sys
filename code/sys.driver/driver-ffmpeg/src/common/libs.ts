@@ -1,2 +1,2 @@
-export { Arr, Err, Is, Log, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';
 export { Process } from '@sys/process';
+export { Arr, Err, Is, Json, Log, Num, Obj, Pkg, Str, Time, Try } from '@sys/std';

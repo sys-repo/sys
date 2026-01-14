@@ -1,5 +1,12 @@
 import type { t } from './common.ts';
 
+/**
+ * Runtime preflight (no throwing):
+ * - checks `ffprobe` (required for duration)
+ * - checks `ffmpeg` (optional, future transcode)
+ */
+export type FfmpegProbeFn = (opts?: t.FfmpegProbeOptions) => Promise<FfmpegProbeResult>;
+
 export type FfmpegProbeOptions = {
   /** When true, require `ffmpeg` too (default false). */
   readonly requireFfmpeg?: boolean;
@@ -20,6 +27,7 @@ export type FfmpegProbeResult =
       readonly hint: string;
       readonly error?: unknown;
     };
+
 export type FfmpegProbeReason =
   | 'missing-ffprobe'
   | 'missing-ffmpeg'
