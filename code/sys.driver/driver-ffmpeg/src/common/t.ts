@@ -3,6 +3,8 @@
  */
 export type * from '@sys/types';
 
+export type { ProcOutput } from '@sys/process/t';
+
 /**
  * @local
  */
