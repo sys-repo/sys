@@ -6,4 +6,6 @@ import type { t } from './common.ts';
 export type GitLib = {
   /** Runtime preflight for Git. */
   readonly probe: t.GitProbeFn;
+  /** Inspect repository status via git status. */
+  readonly status: t.GitStatusFn;
 };
