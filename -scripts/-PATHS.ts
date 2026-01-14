@@ -14,6 +14,7 @@ export const Paths = {
   single: [
     //
     'code/sys.tools',
+    'code/sys.driver/driver-process',
   ],
   all: [
     // types:
@@ -60,7 +61,7 @@ export const Paths = {
     'code/sys.driver/driver-vite',
     'code/sys.driver/driver-automerge',
     'code/sys.driver/driver-farcaster',
-    'code/sys.driver/driver-ffmpeg',
+    'code/sys.driver/driver-process',
     'code/sys.driver/driver-mastra',
     'code/sys.driver/driver-monaco',
     'code/sys.driver/driver-prosemirror',
