@@ -58,7 +58,11 @@ function isMissingBinaryError(err: unknown) {
 
 async function check(cmd: string): Promise<{ ok: true } | { ok: false; error: unknown }> {
   try {
-    const res = await Process.invoke({ cmd, args: ['-version'], silent: true });
+    const res = await Process.invoke({
+      cmd,
+      args: ['-version'],
+      silent: true,
+    });
     if (res.success) return { ok: true };
     return { ok: false, error: res.text.stderr || res.text.stdout || res.toString() };
   } catch (error) {
