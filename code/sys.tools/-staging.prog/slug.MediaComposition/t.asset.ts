@@ -10,6 +10,14 @@ export type SlugAsset = {
   readonly hash: t.StringHash;
   readonly filename: t.StringName;
   readonly href: string;
+
+  /** Filesystem / media statistics (when known). */
+  readonly stats: {
+    /** File size in bytes. */
+    readonly bytes?: number;
+    /** Media duration (typically video or audio only). */
+    readonly duration?: t.Msecs;
+  };
 };
 
 /** Manifest describing all bundled assets for one document. */

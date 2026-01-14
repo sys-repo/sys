@@ -1,4 +1,4 @@
-import { type t, Fs, Hash, Is, Json, Obj, Slug, PlaybackSchema } from './common.ts';
+import { type t, Fs, Hash, Is, Json, Obj, PlaybackSchema, Slug } from './common.ts';
 import { buildSequenceFilepathIssue } from './u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
 
@@ -69,12 +69,20 @@ export async function bundleSequenceFilepaths(
     const destPath = Fs.join(destDir, filename);
 
     await Fs.ensureDir(destDir);
-    if (!(await Fs.exists(destPath))) {
-      await Fs.copy(resolvedPath, destPath);
-    }
+    if (!(await Fs.exists(destPath))) await Fs.copy(resolvedPath, destPath);
 
+    const stat = await Fs.stat(resolvedPath);
+    const bytes = Is.number(stat?.size) ? stat.size : undefined;
     const href = `${baseHref}/${kindDir}/${filename}`;
-    assets.push({ kind, logicalPath: String(raw), hash, filename, href });
+
+    assets.push({
+      kind,
+      logicalPath: String(raw),
+      hash,
+      filename,
+      href,
+      stats: { bytes },
+    });
   };
 
   await walkSequenceMediaPaths(dag, yamlPath, docid, facets, visit);
