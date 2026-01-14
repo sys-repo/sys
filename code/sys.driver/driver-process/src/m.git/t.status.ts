@@ -1,3 +1,5 @@
+import type { t } from './common.ts';
+
 /** Status command helper signature. */
 export type GitStatusFn = (opts?: GitStatusOptions) => Promise<GitStatusResult>;
 
@@ -28,4 +30,4 @@ export type GitStatusEntry = {
 export type GitStatusCode = ' ' | 'M' | 'A' | 'D' | 'R' | 'C' | 'U' | '?';
 
 /** Failure reasons for git status checking. */
-export type GitStatusFailReason = 'missing-git' | 'not-a-repo' | 'spawn-failed' | 'parse-failed';
+export type GitStatusFailReason = t.GitFailReason | 'parse-failed';
