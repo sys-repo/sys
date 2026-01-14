@@ -19,7 +19,7 @@ describe('Git.root', () => {
   it('detects not-a-repo via stderr', async () => {
     await withInvokeStub(
       async (args) => {
-        if (args.args.includes('-version')) return okOutput();
+        if (args.args.includes('--version')) return okOutput();
         return failOutput('fatal: not a git repository (or any of the parent directories): .git');
       },
       async () => {
@@ -33,7 +33,7 @@ describe('Git.root', () => {
   it('detects not-a-repo via stdout', async () => {
     await withInvokeStub(
       async (args) => {
-        if (args.args.includes('-version')) return okOutput();
+        if (args.args.includes('--version')) return okOutput();
         return failOutput('', 'fatal: not a git repository (or any of the parent directories): .git');
       },
       async () => {
@@ -47,7 +47,7 @@ describe('Git.root', () => {
   it('maps non-repo failures to spawn-failed', async () => {
     await withInvokeStub(
       async (args) => {
-        if (args.args.includes('-version')) return okOutput();
+        if (args.args.includes('--version')) return okOutput();
         return failOutput('permission denied');
       },
       async () => {
@@ -61,7 +61,7 @@ describe('Git.root', () => {
   it('uses git rev-parse --show-toplevel and trims output', async () => {
     await withInvokeStub(
       async (args) => {
-        if (args.args.includes('-version')) return okOutput();
+        if (args.args.includes('--version')) return okOutput();
         expect(args.cmd).to.eql('git');
         expect(args.args).to.eql(['rev-parse', '--show-toplevel']);
         return okOutput('/abs/repo\n');
@@ -80,7 +80,7 @@ describe('Git.root', () => {
   it('passes cwd when provided', async () => {
     await withInvokeStub(
       async (args) => {
-        if (args.args.includes('-version')) return okOutput();
+        if (args.args.includes('--version')) return okOutput();
         expect(args.cwd).to.eql('/x/y');
         return okOutput('/x\n');
       },
@@ -95,7 +95,7 @@ describe('Git.root', () => {
   it('returns parse-failed for empty output', async () => {
     await withInvokeStub(
       async (args) => {
-        if (args.args.includes('-version')) return okOutput();
+        if (args.args.includes('--version')) return okOutput();
         return okOutput('');
       },
       async () => {

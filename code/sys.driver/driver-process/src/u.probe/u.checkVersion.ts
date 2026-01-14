@@ -2,7 +2,7 @@ import { type t, Process } from './common.ts';
 
 export async function checkVersion(
   cmd: string,
-  args: readonly string[] = ['-version'],
+  args: readonly string[] = ['--version'],
 ): Promise<t.ProbeCheckResult> {
   try {
     const res = await Process.invoke({
