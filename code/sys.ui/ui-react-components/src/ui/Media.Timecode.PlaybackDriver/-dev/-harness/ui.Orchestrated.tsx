@@ -7,8 +7,8 @@ import { useActivePhase } from './use.ActivePhase.ts';
 import { useOrchestrator } from './use.Orchestrator.ts';
 
 type OrchestratedProps = HarnessProps & {
-  timeline: ReturnType<typeof PlaybackDriver.usePlaybackTimeline>;
-  experience: NonNullable<ReturnType<typeof PlaybackDriver.usePlaybackTimeline>['experience']>;
+  timeline: ReturnType<typeof PlaybackDriver.Util.usePlaybackTimeline>;
+  experience: NonNullable<ReturnType<typeof PlaybackDriver.Util.usePlaybackTimeline>['experience']>;
 };
 
 /**

@@ -52,7 +52,7 @@ export function useOrchestrator(args: Args): Result {
 
   const resolveBeatMedia = React.useMemo<t.TimecodePlaybackDriver.ResolveBeatMedia>(() => {
     if (!bundle) return () => undefined;
-    return PlaybackDriver.resolveBeatMedia(bundle);
+    return PlaybackDriver.Util.resolveBeatMedia(bundle);
   }, [bundle]);
 
   const { controller, snapshot } = PlaybackDriver.useDriver({

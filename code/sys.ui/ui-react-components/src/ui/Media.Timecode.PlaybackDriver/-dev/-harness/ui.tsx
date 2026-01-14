@@ -14,7 +14,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
   /**
    * Timeline data (pure + cheap).
    */
-  const timeline = PlaybackDriver.usePlaybackTimeline({ spec });
+  const timeline = PlaybackDriver.Util.usePlaybackTimeline({ spec });
   const isReady = !!bundle && !!timeline.experience && !!decks;
 
   const styles = {

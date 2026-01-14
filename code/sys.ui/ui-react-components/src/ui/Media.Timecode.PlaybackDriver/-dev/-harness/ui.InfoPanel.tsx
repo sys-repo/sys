@@ -27,7 +27,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   /**
    * Hooks:
    */
-  const { experience, resolved } = PlaybackDriver.usePlaybackTimeline({ spec });
+  const { experience, resolved } = PlaybackDriver.Util.usePlaybackTimeline({ spec });
   const beat = index != null && experience?.beats[index] ? experience.beats[index] : undefined;
   const payload = beat?.payload;
 

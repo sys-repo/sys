@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { type t } from '../common.ts';
 import { PlaybackDriver } from '../mod.ts';
 
-describe('PlaybackDriver.resolveBeatMedia', () => {
+describe('PlaybackDriver.Util.resolveBeatMedia', () => {
   function makeBundle(args: {
     beats: readonly unknown[];
     resolveMedia?: (args: { kind: string; logicalPath: string }) => string | undefined;
@@ -16,13 +16,13 @@ describe('PlaybackDriver.resolveBeatMedia', () => {
 
   it('returns <undefined> when beat index is out of range', () => {
     const bundle = makeBundle({ beats: [] });
-    const resolve = PlaybackDriver.resolveBeatMedia(bundle);
+    const resolve = PlaybackDriver.Util.resolveBeatMedia(bundle);
     expect(resolve(0 as t.Index)).to.eql(undefined);
   });
 
   it('returns <undefined> when beat has no src', () => {
     const bundle = makeBundle({ beats: [{ pause: 0, payload: {}, src: undefined }] });
-    const resolve = PlaybackDriver.resolveBeatMedia(bundle);
+    const resolve = PlaybackDriver.Util.resolveBeatMedia(bundle);
     expect(resolve(0 as t.Index)).to.eql(undefined);
   });
 
@@ -30,12 +30,12 @@ describe('PlaybackDriver.resolveBeatMedia', () => {
     const bundleA = makeBundle({
       beats: [{ payload: {}, src: { kind: undefined, logicalPath: 'x', time: 0 } }],
     });
-    expect(PlaybackDriver.resolveBeatMedia(bundleA)(0)).to.eql(undefined);
+    expect(PlaybackDriver.Util.resolveBeatMedia(bundleA)(0)).to.eql(undefined);
 
     const bundleB = makeBundle({
       beats: [{ payload: {}, src: { kind: 'video', logicalPath: undefined, time: 0 } }],
     });
-    expect(PlaybackDriver.resolveBeatMedia(bundleB)(0)).to.eql(undefined);
+    expect(PlaybackDriver.Util.resolveBeatMedia(bundleB)(0)).to.eql(undefined);
   });
 
   it('returns <undefined> when resolver returns <undefined>', () => {
@@ -43,7 +43,7 @@ describe('PlaybackDriver.resolveBeatMedia', () => {
       beats: [{ payload: {}, src: { kind: 'video', logicalPath: 'p', time: 0 } }],
       resolveMedia: () => undefined,
     });
-    const resolve = PlaybackDriver.resolveBeatMedia(bundle);
+    const resolve = PlaybackDriver.Util.resolveBeatMedia(bundle);
     expect(resolve(0 as t.Index)).to.eql(undefined);
   });
 
@@ -62,7 +62,7 @@ describe('PlaybackDriver.resolveBeatMedia', () => {
       },
     });
 
-    const resolve = PlaybackDriver.resolveBeatMedia(bundle);
+    const resolve = PlaybackDriver.Util.resolveBeatMedia(bundle);
     const res = resolve(0 as t.Index);
 
     expect(calls.length).to.eql(1);

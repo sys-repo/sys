@@ -8,8 +8,10 @@ import { usePlaybackTimeline } from './use.PlaybackTimeline.ts';
 
 export const PlaybackDriver: t.TimecodePlaybackDriverLib = {
   create,
-  controller,
   useDriver,
-  usePlaybackTimeline,
-  resolveBeatMedia,
+  Util: {
+    controller,
+    resolveBeatMedia,
+    usePlaybackTimeline,
+  },
 };

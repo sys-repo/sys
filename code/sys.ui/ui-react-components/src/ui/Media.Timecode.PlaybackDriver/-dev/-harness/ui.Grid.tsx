@@ -25,7 +25,7 @@ export type SelectIndex = { readonly index: t.TimecodeState.Playback.BeatIndex }
 export const Grid: React.FC<GridProps> = (props) => {
   const { bundle, selectedIndex } = props;
   const spec = bundle?.spec;
-  const { experience } = PlaybackDriver.usePlaybackTimeline({ spec });
+  const { experience } = PlaybackDriver.Util.usePlaybackTimeline({ spec });
 
   /**
    * Render:

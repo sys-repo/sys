@@ -33,7 +33,7 @@ describe('Media.Timecode.Driver: usePlaybackTimeline', () => {
 
   it('returns empty projection when spec is <undefined>', () => {
     const { result, unmount } = renderHook(() =>
-      PlaybackDriver.usePlaybackTimeline({ spec: undefined }),
+      PlaybackDriver.Util.usePlaybackTimeline({ spec: undefined }),
     );
 
     expect(result.current.resolved).to.eql(undefined);
@@ -45,7 +45,7 @@ describe('Media.Timecode.Driver: usePlaybackTimeline', () => {
 
   it('projects spec → { resolved, experience, playback } (empty spec)', () => {
     const spec = makeEmptySpec();
-    const { result, unmount } = renderHook(() => PlaybackDriver.usePlaybackTimeline({ spec }));
+    const { result, unmount } = renderHook(() => PlaybackDriver.Util.usePlaybackTimeline({ spec }));
     const { resolved, experience, playback } = result.current;
 
     expect(resolved).to.not.eql(undefined);
@@ -64,7 +64,7 @@ describe('Media.Timecode.Driver: usePlaybackTimeline', () => {
 
   it('projects beats onto resolved segments (2 segments, 3 beats)', () => {
     const spec = makeTwoSegmentSpec();
-    const { result, unmount } = renderHook(() => PlaybackDriver.usePlaybackTimeline({ spec }));
+    const { result, unmount } = renderHook(() => PlaybackDriver.Util.usePlaybackTimeline({ spec }));
     const { resolved, experience, playback } = result.current;
 
     expect(resolved).to.not.eql(undefined);

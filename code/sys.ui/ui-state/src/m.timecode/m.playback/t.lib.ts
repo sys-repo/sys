@@ -18,7 +18,7 @@ export type PlaybackStateLib = {
 export type PlaybackInitArgs = { timeline?: t.PlaybackTimeline; startBeat?: t.PlaybackBeatIndex };
 
 /**
- * Utility helpers.
+ * Utility Helpers
  */
 export type PlaybackStateUtilLib = {
   /** Pure builder: experience timeline (algebra) → ui-state timeline. */
