@@ -18,8 +18,7 @@ describe('PlaybackDriver.Util.controller', () => {
   it('exposes a controller id with `kind` and `instance`', () => {
     const dispatch = (_input: Input) => {};
     const controller = PlaybackDriver.Util.controller(dispatch);
-
-    expect(controller.id.kind).to.eql('Media.Timecode.PlaybackDriver.Util.Controller');
+    expect(controller.id.kind).to.eql('Media.Timecode.PlaybackDriver.Controller');
     expect(Is.str(controller.id.instance)).to.eql(true);
     expect(controller.id.instance.length > 3).to.eql(true);
   });

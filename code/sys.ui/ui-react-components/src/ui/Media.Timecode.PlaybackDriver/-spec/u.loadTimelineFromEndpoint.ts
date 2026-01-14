@@ -42,15 +42,27 @@ export async function loadTimelineFromEndpoint(
   const manifest = parsed.value;
 
   // 4. Media resolver from the assets manifest.
-  const resolveMedia: t.MediaResolver = ({ kind, logicalPath }) => {
-    const asset = assets.assets.find((a) => a.kind === kind && a.logicalPath === logicalPath);
+  const assetMap = new Map<string, t.TimecodePlaybackDriver.Wire.Asset>();
+  for (const asset of assets.assets) {
+    const key = `${asset.kind}:${asset.logicalPath}`;
+    assetMap.set(key, asset);
+  }
+
+  const base = new URL(baseUrl);
+  const basePath = base.pathname.replace(/\/$/, ''); // eg. "/publish.assets"
+
+  const resolveAsset = (
+    args: t.Timecode.Playback.ResolverArgs,
+  ): t.TimecodePlaybackDriver.Wire.Asset | undefined => {
+    const asset = assetMap.get(`${args.kind}:${args.logicalPath}`);
     if (!asset) return undefined;
 
-    const base = new URL(baseUrl);
-    const basePath = base.pathname.replace(/\/$/, ''); // eg. "/publish.assets"
     const href = asset.href.startsWith('/') ? `${basePath}${asset.href}` : asset.href;
+    return { ...asset, href: new URL(href, base.origin).toString() };
+  };
 
-    return new URL(href, base.origin).toString();
+  const resolveMedia: t.MediaResolver = ({ kind, logicalPath }) => {
+    return resolveAsset({ kind, logicalPath })?.href;
   };
 
   // 5. Timecode spec wired directly from the manifest.
@@ -63,5 +75,6 @@ export async function loadTimelineFromEndpoint(
     docid,
     spec,
     resolveMedia,
+    resolveAsset,
   };
 }

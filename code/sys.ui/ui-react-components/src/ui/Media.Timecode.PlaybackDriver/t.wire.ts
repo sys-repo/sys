@@ -9,6 +9,7 @@ export type SpecTimelineBundle<P = unknown> = {
   readonly docid: t.StringId;
   readonly spec: t.Timecode.Playback.Spec<P>;
   readonly resolveMedia: t.MediaResolver;
+  readonly resolveAsset: (args: t.Timecode.Playback.ResolverArgs) => SpecTimelineAsset | undefined;
 };
 
 /**
@@ -20,10 +21,15 @@ export type SpecTimelineAssetsManifest = {
   readonly assets: SpecTimelineAsset[];
 };
 
+/** Resolved runtime asset for a timeline media reference. */
 export type SpecTimelineAsset = {
   readonly kind: t.Timecode.Playback.MediaKind;
   readonly logicalPath: string;
   readonly href: string;
+  readonly stats?: {
+    readonly bytes?: t.NumberBytes;
+    readonly duration?: t.Msecs;
+  };
 };
 
 /**
