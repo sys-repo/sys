@@ -23,7 +23,24 @@ const duration = await Ffmpeg.Ffprobe.duration('/path/video.webm');
 ## Git
 **Git** source control process driver.
 
+Exposes a thin, typed wrapper over core Git CLI capabilities.
+
+Uses Git’s **porcelain** output format for machine-stable parsing (designed by Git specifically for tooling, unlike human-oriented output which may change).
+
 ```ts
 import { Git } from 'jsr:@sys/driver-process/git';
-```
 
+// Runtime capability check
+const probe = await Git.probe();
+if (!probe.ok) {
+  // git not available
+}
+
+// Get working tree status via `git status --porcelain`
+const status = await Git.status();
+
+if (status.ok) {
+  for (const e of status.entries) {
+    console.log(e.index, e.worktree, e.path);
+  }
+}
