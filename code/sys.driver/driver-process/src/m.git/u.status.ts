@@ -1,8 +1,4 @@
-import { Process } from './common.ts';
-import type { t } from './common.ts';
-import { isMissingBinaryError } from '../u.probe/mod.ts';
-
-type ProcInvokeResult = Awaited<ReturnType<typeof Process.invoke>>;
+import { type t, Process, isMissingBinaryError } from './common.ts';
 
 const VALID_CODES = new Set<t.GitStatusCode>([' ', 'M', 'A', 'D', 'R', 'C', 'U', '?']);
 
@@ -13,7 +9,7 @@ export const status: t.GitStatusFn = async (opts = {}) => {
     args.push('--untracked-files=no');
   }
 
-  let res: ProcInvokeResult;
+  let res: t.ProcOutput;
   try {
     res = await Process.invoke({
       cmd: git,
@@ -31,7 +27,10 @@ export const status: t.GitStatusFn = async (opts = {}) => {
   if (!res.success) {
     const failure = res.text.stderr || res.text.stdout || res.toString();
     const message = failure.toLowerCase();
-    if (message.includes('not a git repository') || message.includes('fatal: not a git repository')) {
+    if (
+      message.includes('not a git repository') ||
+      message.includes('fatal: not a git repository')
+    ) {
       return { ok: false, reason: 'not-a-repo', error: failure };
     }
     return { ok: false, reason: 'spawn-failed', error: failure };

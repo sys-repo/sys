@@ -8,4 +8,6 @@ export type GitLib = {
   readonly probe: t.GitProbeFn;
   /** Inspect repository status via git status. */
   readonly status: t.GitStatusFn;
+  /** Discover the repository root. */
+  readonly root: t.GitRootFn;
 };
