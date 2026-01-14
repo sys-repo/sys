@@ -19,7 +19,9 @@ export type MediaDurationFn = (
 
 export type MediaDurationOptions = {
   /** Optional override for ffprobe binary (default: "ffprobe"). */
-  readonly ffprobe?: string;
+  readonly bin?: {
+    readonly ffprobe?: string;
+  };
 };
 
 export type MediaDurationResult =

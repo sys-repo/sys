@@ -51,8 +51,7 @@ function isMissingBinaryError(err: unknown) {
     msg.includes('not found') ||
     msg.includes('enoent') ||
     msg.includes('no such file') ||
-    msg.includes('cannot find') ||
-    msg.includes('spawn')
+    msg.includes('cannot find')
   );
 }
 

@@ -31,5 +31,4 @@ export type FfmpegProbeResult =
 export type FfmpegProbeReason =
   | 'missing-ffprobe'
   | 'missing-ffmpeg'
-  | 'not-executable'
   | 'spawn-failed';

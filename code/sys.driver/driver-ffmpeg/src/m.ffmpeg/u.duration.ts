@@ -1,7 +1,7 @@
-import { type t, DEFAULT, Process, Json, Is } from './common.ts';
+import { type t, DEFAULT, Process, Json, Is, Msecs } from './common.ts';
 
 export const duration: t.MediaDurationFn = async (path, opts = {}) => {
-  const ffprobe = opts.ffprobe ?? DEFAULT.bin.ffprobe;
+  const ffprobe = opts.bin?.ffprobe ?? DEFAULT.bin.ffprobe;
 
   try {
     const res = await Process.invoke({
@@ -32,7 +32,7 @@ export const duration: t.MediaDurationFn = async (path, opts = {}) => {
       return { ok: false, reason: 'parse-failed', error: text };
     }
 
-    const msecs = Math.round(secs * 1000) as unknown as t.Msecs;
+    const msecs = Msecs.fromNumber(Math.round(secs * 1000));
     return { ok: true, msecs };
   } catch (error) {
     const missing = isMissingBinaryError(error);
