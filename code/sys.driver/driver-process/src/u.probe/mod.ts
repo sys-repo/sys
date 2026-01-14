@@ -1,4 +1,6 @@
 /**
  * @module
+ * Common capability probe helpers.
  */
-import type { t } from './common.ts';
+export { checkVersion } from './u.checkVersion.ts';
+export * from './u.error.ts';

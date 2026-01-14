@@ -1,5 +1,4 @@
 export {
-  DomMock,
   Testing,
   afterAll,
   afterEach,

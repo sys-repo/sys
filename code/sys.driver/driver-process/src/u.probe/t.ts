@@ -1,1 +1,3 @@
-import type { t } from './common.ts';
+export type ProbeCheckResult =
+  | { readonly ok: true }
+  | { readonly ok: false; readonly error: unknown };

@@ -1,4 +1,5 @@
-import { type t, DEFAULT, Process } from './common.ts';
+import { type t, DEFAULT } from './common.ts';
+import { checkVersion, isMissingBinaryError } from '../u.probe/mod.ts';
 
 export const probe: t.FfmpegProbeFn = async (opts = {}) => {
   const bin = {
@@ -6,7 +7,7 @@ export const probe: t.FfmpegProbeFn = async (opts = {}) => {
     ffmpeg: opts.bin?.ffmpeg ?? DEFAULT.bin.ffmpeg,
   };
 
-  const ffprobe = await check(bin.ffprobe);
+  const ffprobe = await checkVersion(bin.ffprobe);
   if (!ffprobe.ok) {
     const missing = isMissingBinaryError(ffprobe.error);
     return {
@@ -19,7 +20,7 @@ export const probe: t.FfmpegProbeFn = async (opts = {}) => {
 
   const requireFfmpeg = opts.requireFfmpeg ?? false;
   if (requireFfmpeg) {
-    const ffmpeg = await check(bin.ffmpeg);
+    const ffmpeg = await checkVersion(bin.ffmpeg);
     if (!ffmpeg.ok) {
       const missing = isMissingBinaryError(ffmpeg.error);
       return {
@@ -43,28 +44,4 @@ function hintInstall(name: 'ffprobe' | 'ffmpeg') {
   return name === 'ffprobe'
     ? 'ffprobe not found. Install FFmpeg (ffprobe ships with it) and ensure it is on PATH.'
     : 'ffmpeg not found. Install FFmpeg and ensure it is on PATH.';
-}
-
-function isMissingBinaryError(err: unknown) {
-  const msg = (err instanceof Error ? err.message : String(err ?? '')).toLowerCase();
-  return (
-    msg.includes('not found') ||
-    msg.includes('enoent') ||
-    msg.includes('no such file') ||
-    msg.includes('cannot find')
-  );
-}
-
-async function check(cmd: string): Promise<{ ok: true } | { ok: false; error: unknown }> {
-  try {
-    const res = await Process.invoke({
-      cmd,
-      args: ['-version'],
-      silent: true,
-    });
-    if (res.success) return { ok: true };
-    return { ok: false, error: res.text.stderr || res.text.stdout || res.toString() };
-  } catch (error) {
-    return { ok: false, error };
-  }
 }

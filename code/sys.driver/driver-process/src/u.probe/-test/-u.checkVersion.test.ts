@@ -1,8 +1,8 @@
 import { describe, expect, it } from '../../-test.ts';
-import { checkVersion, isMissingBinaryError } from '../mod.ts';
+import { checkVersion } from '../mod.ts';
 import { failOutput, okOutput, withInvokeStub } from './fixture.ts';
 
-describe(`u.probe`, () => {
+describe(`u.checkVersion`, () => {
   it('returns ok when the probe succeeds', async () => {
     await withInvokeStub(
       async () => okOutput(),
@@ -58,12 +58,5 @@ describe(`u.probe`, () => {
         await checkVersion('tool', ['--version']);
       },
     );
-  });
-
-  it('classifies missing-binary errors accurately', () => {
-    expect(isMissingBinaryError(new Error('ENOENT: no such file or directory'))).to.eql(true);
-    expect(isMissingBinaryError('not found')).to.eql(true);
-    expect(isMissingBinaryError('cannot find')).to.eql(true);
-    expect(isMissingBinaryError('permission denied')).to.eql(false);
   });
 });

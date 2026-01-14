@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { probe } from '../u.probe.ts';
-import { failOutput, okOutput, withInvokeStub } from './fixture.ts';
+import { failOutput, okOutput, withInvokeStub } from '../../u.probe/-test/mod.ts';
 
 describe('Ffmpeg.probe', () => {
   it('reports missing ffprobe when the executable is not found', async () => {
@@ -10,7 +10,6 @@ describe('Ffmpeg.probe', () => {
       },
       async () => {
         const result = await probe();
-
         expect(result.ok).to.eql(false);
         if (!result.ok) {
           expect(result.reason).to.eql('missing-ffprobe');
