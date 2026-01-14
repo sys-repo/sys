@@ -13,6 +13,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./ffmpeg": "./src/-exports/-ffmpeg.ts"
+    "./ffmpeg": "./src/-exports/-ffmpeg.ts",
+    "./git": "./src/-exports/-git.ts"
   }
 }
