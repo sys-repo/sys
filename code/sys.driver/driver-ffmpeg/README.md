@@ -1,5 +1,4 @@
 # @sys/driver-ffmpeg
-
 Thin, typed system driver for FFmpeg tooling (`ffprobe`, `ffmpeg`).
 
 ## Purpose
