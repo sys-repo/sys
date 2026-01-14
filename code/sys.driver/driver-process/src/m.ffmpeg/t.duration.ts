@@ -17,6 +17,7 @@ export type MediaDurationFn = (
   opts?: MediaDurationOptions,
 ) => Promise<t.MediaDurationResult>;
 
+/** Options for media duration probes. */
 export type MediaDurationOptions = {
   /** Optional override for ffprobe binary (default: "ffprobe"). */
   readonly bin?: {
@@ -24,10 +25,12 @@ export type MediaDurationOptions = {
   };
 };
 
+/** Result of a duration probe that either returns milliseconds or a failure reason. */
 export type MediaDurationResult =
   | { readonly ok: true; readonly msecs: t.Msecs }
   | { readonly ok: false; readonly reason: MediaDurationFailReason; readonly error?: unknown };
 
+/** Enumerates why the duration probe could not complete successfully. */
 export type MediaDurationFailReason =
   | 'missing-ffprobe'
   | 'unsupported-format'

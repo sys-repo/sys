@@ -1,15 +1,12 @@
 # @sys/driver-process
 A collection of thin, typed process drivers that adapt external CLI tools into stable, policy-free TypeScript APIs.
 
-### Ffmpeg
+## Ffmpeg
 FFmpeg process driver exposing media inspection and transformation capabilities
 via `ffprobe` and `ffmpeg`.
 
 #### Purpose
-Expose **capabilities**, not policy:
-- Media inspection (duration, streams)
-- Future: transcode, thumbnail, probe metadata
-
+Exposes **capabilities**, not policy.
 All I/O happens via `@sys/process`. No schema, no UI, no assumptions.
 
 

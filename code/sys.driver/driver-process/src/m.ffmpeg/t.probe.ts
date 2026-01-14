@@ -7,6 +7,7 @@ import type { t } from './common.ts';
  */
 export type FfmpegProbeFn = (opts?: t.FfmpegProbeOptions) => Promise<FfmpegProbeResult>;
 
+/** Configures what binaries to check and whether ffmpeg is required. */
 export type FfmpegProbeOptions = {
   /** When true, require `ffmpeg` too (default false). */
   readonly requireFfmpeg?: boolean;
@@ -28,7 +29,5 @@ export type FfmpegProbeResult =
       readonly error?: unknown;
     };
 
-export type FfmpegProbeReason =
-  | 'missing-ffprobe'
-  | 'missing-ffmpeg'
-  | 'spawn-failed';
+/** Lists the failure reasons the probe layer can return. */
+export type FfmpegProbeReason = 'missing-ffprobe' | 'missing-ffmpeg' | 'spawn-failed';
