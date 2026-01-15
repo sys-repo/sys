@@ -17,11 +17,11 @@ export function initialYaml(name: string): string {
       # Paths are resolved relative to the CLI cwd and rebased via source.dir / staging.dir.
       # source.dir and staging.dir default to '.' (the base itself).
 
-      staging:
-        dir: ./staging
-
       # source:
       #   dir: .
+
+      staging:
+        dir: ./staging
 
       # provider:
       #   kind: orbiter
