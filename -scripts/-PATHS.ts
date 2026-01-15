@@ -8,13 +8,13 @@ export const Paths = {
    * System Module Graph (ESM):
    */
   get modules() {
-    return Paths.all;
-    // return Paths.single; // 🐷 NARROW
+    // return Paths.all;
+    return Paths.single; // 🐷 NARROW
   },
   single: [
     //
     'code/sys.tools',
-    'code/sys.driver/driver-process',
+    // 'code/sys.driver/driver-process',
   ],
   all: [
     // types:
