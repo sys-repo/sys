@@ -24,10 +24,10 @@ export async function documentGraphTasksCommand(
    * Encapsulates the configured set of doc-lint facets; can be swapped for a
    * plugin implementation in future.
    */
-  const { Tasks } = await import('../../../-staging.prog/mod.ts');
+  const { Tasks } = await import('@tdb/edu-slug/compiler');
   const res = await Tasks.find(dag, yamlPath);
 
-  console.log(`-------------------------------------------`);
-  console.log('tasks 🐷', res);
+  console.info(`-------------------------------------------`);
+  console.info('tasks 🐷', res);
   console.info(String(res));
 }

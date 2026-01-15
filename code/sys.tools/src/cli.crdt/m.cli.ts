@@ -16,7 +16,7 @@ const Imports = {
   daemon: () => import('./cmd.repo.daemon/mod.ts'),
   syncServer: () => import('./cmds/cmd.doc.syncserver.ts'),
   // tmp: () => import('./-tmp/-tmp.ts'),
-  tmp: () => import('./-tmp/-tmp.gpt.ts'),
+  // tmp: () => import('./-tmp/-tmp.gpt.ts'),
 } as const;
 
 /**
@@ -200,13 +200,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
         if (B === 'doc:remove') {
           await promptRemoveDocument(cwd, docid);
-          return done(0);
-        }
-
-        if (B === 'tmp:🐷') {
-          const m = await Imports.tmp();
-
-          await m.tmp(cwd, docid, yamlPath);
           return done(0);
         }
 

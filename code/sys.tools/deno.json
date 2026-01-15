@@ -24,7 +24,6 @@
     "./deploy": "./src/cli.deploy/mod.ts",
     "./up": "./src/cli.update/mod.ts",
     "./update": "./src/cli.update/mod.ts",
-    "./env": "./src/-exports/-env.ts",
-    "./staging/prog": "./-staging.prog/mod.ts"
+    "./env": "./src/-exports/-env.ts"
   }
 }

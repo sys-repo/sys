@@ -18,3 +18,4 @@ export type { DevCtx } from '@sys/ui-react-devharness/t';
  * @local
  */
 export type * from '../types.ts';
+export type * from '../m.compiler/common/t.ts';
