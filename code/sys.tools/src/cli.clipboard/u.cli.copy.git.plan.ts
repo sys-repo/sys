@@ -1,5 +1,4 @@
-import { Git } from 'jsr:@sys/driver-process/git';
-import { type t } from './common.ts';
+import { type t, Git } from './common.ts';
 import type { CopyPlanRunResult } from './t.copyPlan.ts';
 
 type Path = t.StringPath;
