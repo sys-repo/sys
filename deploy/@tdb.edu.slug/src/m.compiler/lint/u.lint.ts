@@ -6,7 +6,7 @@ import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
 
-type Issue = t.CrdtTool.Doc.Lint.Issue;
+type Issue = t.DocLintIssue;
 
 /**
  * Lint namespace.
@@ -24,7 +24,7 @@ async function run(
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
   opts: { facets?: string[]; interactive?: boolean } = {},
-): Promise<t.CrdtTool.Doc.Lint.Result> {
+): Promise<t.DocLintResult> {
   const { interactive = false } = opts;
   const issues: Issue[] = [];
   const Parse = Slug.parser(yamlPath);

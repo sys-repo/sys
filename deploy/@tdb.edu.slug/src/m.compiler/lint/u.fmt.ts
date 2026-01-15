@@ -19,7 +19,7 @@ export const Fmt = {
  *     path: ...
  *     message: ...
  */
-export function lintResults(issues: t.CrdtTool.Doc.Lint.Issue[]): string {
+export function lintResults(issues: t.DocLintIssue[]): string {
   if (issues.length === 0) return '';
 
   const b = Str.builder();
@@ -47,7 +47,7 @@ export function lintResults(issues: t.CrdtTool.Doc.Lint.Issue[]): string {
   return b.toString();
 }
 
-function formatSeverity(sev: t.CrdtTool.Doc.Lint.Severity | undefined): string {
+function formatSeverity(sev: t.LintSeverity | undefined): string {
   const value = sev ?? 'error';
   const label = `[${value.toUpperCase()}]`;
   switch (value) {
