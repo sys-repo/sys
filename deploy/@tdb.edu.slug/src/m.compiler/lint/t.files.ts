@@ -12,7 +12,8 @@ import type { t } from './common.ts';
 export type LintSequenceFilepathKind =
   | 'video-path:not-found'
   | 'image-path:not-found'
-  | 'sequence:playback:not-exported';
+  | 'sequence:playback:not-exported'
+  | 'sequence:slug-tree:not-exported';
 
 /**
  * A single filepath lint issue.

@@ -9,4 +9,5 @@ export type SlugLib = {
     readonly Helpers: t.SlugTraitLib;
     readonly MediaComposition: t.MediaCompositionLib;
   };
+  readonly Tree: t.SlugTreeLib;
 };

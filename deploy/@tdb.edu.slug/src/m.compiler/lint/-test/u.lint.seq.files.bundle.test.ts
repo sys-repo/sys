@@ -147,4 +147,92 @@ describe('Lint: bundle/sequence files', () => {
       await Fs.remove(tmpDir);
     }
   });
+
+  it('emits slug-tree manifest when slug-tree trait is present', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const slugTreeYaml = `
+        title: Slug Tree Test
+        traits:
+          - of: slug-tree
+            as: tree
+
+        data:
+          tree:
+            - slug: Section A
+              slugs:
+                - slug: Intro
+                  ref: crdt:intro
+            - slug: Section B
+              traits:
+                - of: slug-tree
+                  as: nested
+              data:
+                nested:
+                  - slug: Child
+      `;
+
+      const docid = 'crdt:slug-tree' as t.Crdt.Id;
+      const node = { id: docid, doc: { current: slugTreeYaml } } as unknown as t.Graph.Dag.Node;
+      const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
+
+      const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
+        outDir: tmpDir,
+      });
+
+      expect(result.issues).to.eql([]);
+
+      const slugTreePath = Fs.join(tmpDir, 'manifests', `slug-tree.${docid}.json`);
+      expect(await Fs.exists(slugTreePath)).to.eql(true);
+
+      const raw = await Deno.readTextFile(slugTreePath);
+      const payload = Json.parse(raw);
+      expect(payload).to.eql([
+        {
+          slug: 'Section A',
+          slugs: [{ slug: 'Intro', ref: 'crdt:intro' }],
+        },
+        {
+          slug: 'Section B',
+          traits: [{ of: 'slug-tree', as: 'nested' }],
+          data: {
+            nested: [{ slug: 'Child' }],
+          },
+        },
+      ]);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('skips slug-tree manifest when trait is missing', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const slugYaml = `
+        title: Slug Tree Skip
+        traits:
+          - of: media-composition
+            as: sequence
+
+        data:
+          sequence:
+            - video: /noop
+      `;
+
+      const docid = 'crdt:slug-tree-missing' as t.Crdt.Id;
+      const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
+      const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
+
+      const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
+        outDir: tmpDir,
+      });
+
+      expect(result.issues).to.eql([]);
+
+      const slugTreePath = Fs.join(tmpDir, 'manifests', `slug-tree.${docid}.json`);
+      expect(await Fs.exists(slugTreePath)).to.eql(false);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
 });
