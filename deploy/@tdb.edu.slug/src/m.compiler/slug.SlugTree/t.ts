@@ -3,6 +3,7 @@ import type { t } from './common.ts';
 export type SlugTreeItemRefOnly = {
   readonly slug: string;
   readonly ref: string;
+  readonly slugs?: readonly SlugTreeItem[];
 };
 
 export type SlugTreeItemInline = {
@@ -41,7 +42,10 @@ export type SlugTreeLib = {
     readonly Item: t.TSchema;
     readonly Props: t.TSchema;
   };
-  readonly validate: (input: unknown, opts?: SlugTreeValidateOpts) => t.ValidateResult<SlugTreeProps>;
+  readonly validate: (
+    input: unknown,
+    opts?: SlugTreeValidateOpts,
+  ) => t.ValidateResult<SlugTreeProps>;
   readonly fromDag: (
     dag: t.Graph.Dag.Result,
     yamlPath: t.ObjectPath,

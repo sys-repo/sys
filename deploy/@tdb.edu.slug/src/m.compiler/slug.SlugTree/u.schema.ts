@@ -1,9 +1,17 @@
-import { Type } from '../common.ts';
 import type { t } from '../common.ts';
+import { Type } from '../common.ts';
 
-const SlugId = Type.String({ minLength: 1, description: 'Stable slug-tree identifier.' });
-const Description = Type.String({ description: 'Optional human-readable summary.' });
-const Ref = Type.String({ minLength: 1, description: 'Reference target (URN/CRDT).' });
+const SlugId = Type.String({
+  minLength: 1,
+  description: 'Stable slug-tree identifier.',
+});
+const Description = Type.String({
+  description: 'Optional human-readable summary.',
+});
+const Ref = Type.String({
+  minLength: 1,
+  description: 'Reference target (URN/CRDT).',
+});
 const TraitBinding = Type.Object(
   {
     of: Type.String({ description: 'Trait id to bind.' }),
@@ -22,11 +30,16 @@ const SlugTreeItemSchemaInternal = Type.Recursive((Self) =>
         {
           slug: SlugId,
           ref: Ref,
+          slugs: Type.Optional(
+            Type.Array(Self, {
+              description: 'Nested slug-tree children for this branch.',
+            }),
+          ),
         },
         {
           additionalProperties: false,
-          description: 'Ref-only slug-tree node (slug + ref).',
-          title: 'Slug Tree Item (Ref Only)',
+          description: 'Ref slug-tree node (slug + ref) that may have nested children.',
+          title: 'Slug Tree Item (Ref Node)',
         },
       ),
       Type.Object(
@@ -35,9 +48,11 @@ const SlugTreeItemSchemaInternal = Type.Recursive((Self) =>
           description: Type.Optional(Description),
           traits: Type.Optional(Type.Array(TraitBinding)),
           data: Type.Optional(InlineData),
-          slugs: Type.Optional(Type.Array(Self, {
-            description: 'Nested slug-tree children for this branch.',
-          })),
+          slugs: Type.Optional(
+            Type.Array(Self, {
+              description: 'Nested slug-tree children for this branch.',
+            }),
+          ),
         },
         {
           additionalProperties: false,

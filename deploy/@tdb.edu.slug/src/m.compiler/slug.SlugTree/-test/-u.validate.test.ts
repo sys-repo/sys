@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { validateSlugTree } from '../u.validate.ts';
 
 const VALID_TREE: t.SlugTreeProps = [
@@ -14,6 +14,11 @@ const VALID_TREE: t.SlugTreeProps = [
         },
       },
     ],
+  },
+  {
+    slug: 'RefBranch',
+    ref: 'crdt:branch',
+    slugs: [{ slug: 'Leaf', ref: 'crdt:leaf' }],
   },
 ];
 
@@ -93,5 +98,29 @@ describe('SlugTree.validate', () => {
     if (result.ok) return;
 
     expect(result.error.message).to.contain('Invalid slug-tree item at index 0');
+  });
+
+  it('accepts ref nodes with nested slugs', () => {
+    const tree: t.SlugTreeProps = [
+      {
+        slug: 'Branch',
+        ref: 'crdt:branch',
+        slugs: [{ slug: 'Child', ref: 'crdt:child' }],
+      },
+    ];
+    const result = validateSlugTree(tree);
+    expect(result.ok).to.eql(true);
+  });
+
+  it('rejects ref nodes with unknown additional keys', () => {
+    const tree: t.SlugTreeProps = [
+      // @ts-expect-error: extra key
+      { slug: 'Bad', ref: 'crdt:bad', foo: 'bar' },
+    ];
+    const result = validateSlugTree(tree);
+    expect(result.ok).to.eql(false);
+    if (result.ok) return;
+
+    expect(result.error.message).to.contain('does not conform to slug-tree schema');
   });
 });

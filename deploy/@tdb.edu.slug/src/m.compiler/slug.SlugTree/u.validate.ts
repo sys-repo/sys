@@ -1,14 +1,18 @@
-import { type t, Is, Schema } from '../common.ts';
+import { Is, Schema, type t } from '../common.ts';
+import { SlugTraitRegistry, SlugTraitRegistryEntry, SlugTreeItemInline } from './t.ts';
 import { SlugTreePropsSchema } from './u.schema.ts';
-import { SlugTraitRegistryEntry, SlugTraitRegistry, SlugTreeItemInline } from './t.ts';
 
-const SLUG_TREE_REGISTRY = makeRegistry([
-  { id: 'slug-tree', propsSchema: SlugTreePropsSchema },
-]);
+const SLUG_TREE_REGISTRY = makeRegistry([{ id: 'slug-tree', propsSchema: SlugTreePropsSchema }]);
 
 export const validateSlugTree: t.SlugTreeLib['validate'] = (input, opts = {}) => {
-  const ok = (tree: t.SlugTreeProps): t.ValidateOK<t.SlugTreeProps> => ({ ok: true, sequence: tree });
-  const fail = (message: string): t.ValidateFail => ({ ok: false, error: new Error(message) });
+  const ok = (tree: t.SlugTreeProps): t.ValidateOK<t.SlugTreeProps> => ({
+    ok: true,
+    sequence: tree,
+  });
+  const fail = (message: string): t.ValidateFail => ({
+    ok: false,
+    error: new Error(message),
+  });
 
   if (!Array.isArray(input)) {
     return fail('Invalid slug-tree: expected an array of items.');
@@ -48,11 +52,11 @@ function validateSemantic(args: { tree: t.SlugTreeProps; registry: SlugTraitRegi
   function traverse(node: t.SlugTreeItem) {
     if (isInline(node)) {
       errors.push(...validateInline(node, registry));
-      const children = node.slugs;
-      if (Array.isArray(children)) {
-        for (const child of children) {
-          traverse(child);
-        }
+    }
+    const children = (node as { slugs?: readonly t.SlugTreeItem[] }).slugs;
+    if (Array.isArray(children)) {
+      for (const child of children) {
+        traverse(child);
       }
     }
   }
@@ -82,7 +86,10 @@ function validateTraitExistence(traits: readonly t.SlugTrait[], registry: SlugTr
   return errors;
 }
 
-function validateAliasRules(byAlias: Map<string, number[]>, data: Record<string, unknown> | undefined) {
+function validateAliasRules(
+  byAlias: Map<string, number[]>,
+  data: Record<string, unknown> | undefined,
+) {
   const errors: string[] = [];
 
   for (const [alias, idxs] of byAlias) {
@@ -166,7 +173,9 @@ function isSlugTreeItemLike(value: unknown): value is t.SlugTreeItem {
 function makeRegistry(entries: readonly SlugTraitRegistryEntry[]): SlugTraitRegistry {
   const map = new Map<string, SlugTraitRegistryEntry>();
   for (const entry of entries) {
-    if (map.has(entry.id)) throw new Error(`SlugTreeRegistry: duplicate id "${entry.id}"`);
+    if (map.has(entry.id)) {
+      throw new Error(`SlugTreeRegistry: duplicate id "${entry.id}"`);
+    }
     map.set(entry.id, entry);
   }
   return {
