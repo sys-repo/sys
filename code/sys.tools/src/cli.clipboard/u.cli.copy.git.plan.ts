@@ -1,72 +1,29 @@
-import { Process, type t } from './common.ts';
+import { Git } from 'jsr:@sys/driver-process/git';
+import { type t } from './common.ts';
+import type { CopyPlanRunResult } from './t.copyPlan.ts';
 
 type Path = t.StringPath;
 
-export type CopyPlan = {
-  /** New files (untracked OR added in index). */
-  readonly add: readonly Path[];
-
-  /** Modified tracked files (staged and/or unstaged). */
-  readonly modify: readonly Path[];
-
-  /** Removed files (deleted in index and/or working tree). */
-  readonly remove: readonly Path[];
-
-  /** Renames are first-class for clarity. */
-  readonly rename: readonly { readonly from: Path; readonly to: Path }[];
-
-  /** Conflicts / unmerged paths: visible and flagged. */
-  readonly conflict: readonly Path[];
-
-  /** Submodules: visible and flagged (if detected). */
-  readonly submodule: readonly Path[];
-};
-
-export type CopyPlanRunResult =
-  | { readonly ok: true; readonly plan: CopyPlan }
-  | { readonly ok: false; readonly reason: string; readonly error?: unknown };
-
-const GIT_STATUS_ARGS = [
-  'status',
-  '--porcelain=v2',
-  '-z',
-  '--untracked-files=all',
-  '--find-renames',
-];
-
 export async function deriveCopyPlan(repoRootAbs: t.StringDir): Promise<CopyPlanRunResult> {
-  let output: string;
+  const statusResult = await Git.statusPorcelainV2Z({
+    cwd: repoRootAbs,
+    untracked: true,
+    findRenames: true,
+  });
 
-  try {
-    const res = await Process.invoke({
-      cmd: 'git',
-      args: GIT_STATUS_ARGS,
-      cwd: repoRootAbs,
-      silent: true,
-    });
-
-    if (!res.success) {
-      const failure = res.text.stderr || res.text.stdout || res.toString();
-      const normalized = typeof failure === 'string' ? failure.toLowerCase() : '';
-      if (normalized.includes('not a git repository')) {
-        return { ok: false, reason: 'not-a-repo', error: failure };
-      }
-      return { ok: false, reason: 'spawn-failed', error: failure };
-    }
-
-    output = res.text.stdout || res.text.stderr || '';
-  } catch (error) {
-    return { ok: false, reason: 'spawn-failed', error };
+  if (!statusResult.ok) {
+    const reason = statusResult.reason === 'not-a-repo' ? 'not-a-repo' : 'spawn-failed';
+    return { ok: false, reason, error: statusResult.error };
   }
 
-  return { ok: true, plan: parseStatus(output) };
+  return { ok: true, plan: parseStatus(statusResult.stdout) };
 }
 
-function parseStatus(output: string): CopyPlan {
-  const builder = new PlanBuilder();
+function parseStatus(output: string): t.CopyPlan {
+  const acc = PlanAcc.init();
   const entries = output.split('\0');
-  for (let index = 0; index < entries.length; index += 1) {
-    const entry = entries[index];
+  for (let cursor = 0; cursor < entries.length; cursor += 1) {
+    const entry = entries[cursor];
     if (!entry) continue;
 
     const marker = entry[0];
@@ -74,18 +31,18 @@ function parseStatus(output: string): CopyPlan {
       case '#':
         continue; // header metadata
       case '1':
-        parseOrdinary(entry, builder);
+        parseOrdinary(entry, acc);
         break;
       case '2': {
-        const origin = entries[++index];
-        parseRename(entry, origin, builder);
+        const origin = entries[++cursor];
+        parseRename(entry, origin, acc);
         break;
       }
       case 'u':
-        parseConflict(entry, builder);
+        parseConflict(entry, acc);
         break;
       case '?':
-        parseUntracked(entry, builder);
+        parseUntracked(entry, acc);
         break;
       case '!':
         continue; // ignored
@@ -94,32 +51,32 @@ function parseStatus(output: string): CopyPlan {
     }
   }
 
-  return builder.build();
+  return PlanAcc.build(acc);
 }
 
-function parseOrdinary(entry: string, builder: PlanBuilder) {
+function parseOrdinary(entry: string, acc: PlanAcc) {
   const tokens = entry.split(' ');
   if (tokens.length < 9) return;
 
   const path = tokens.slice(8).join(' ').trim();
   if (!path) return;
 
-  builder.track(path, tokens[1]);
-  builder.maybeMarkSubmodule(path, tokens[2], tokens.slice(3, 6));
+  PlanAcc.track(acc, path, tokens[1]);
+  PlanAcc.maybeMarkSubmodule(acc, path, tokens[2], tokens.slice(3, 6));
 }
 
-function parseConflict(entry: string, builder: PlanBuilder) {
+function parseConflict(entry: string, acc: PlanAcc) {
   const tokens = entry.split(' ');
   if (tokens.length < 9) return;
 
   const path = tokens.slice(8).join(' ').trim();
   if (!path) return;
 
-  builder.markConflict(path);
-  builder.maybeMarkSubmodule(path, tokens[2], tokens.slice(3, 6));
+  PlanAcc.markConflict(acc, path);
+  PlanAcc.maybeMarkSubmodule(acc, path, tokens[2], tokens.slice(3, 6));
 }
 
-function parseRename(entry: string, originEntry: string | undefined, builder: PlanBuilder) {
+function parseRename(entry: string, originEntry: string | undefined, acc: PlanAcc) {
   if (!originEntry) return;
   const tokens = entry.split(' ');
   if (tokens.length < 10) return;
@@ -128,137 +85,143 @@ function parseRename(entry: string, originEntry: string | undefined, builder: Pl
   const origin = originEntry.trim();
   if (!target || !origin) return;
 
-  builder.maybeMarkSubmodule(target, tokens[2], tokens.slice(3, 6));
+  PlanAcc.maybeMarkSubmodule(acc, target, tokens[2], tokens.slice(3, 6));
 
   const scoreToken = tokens[8] ?? '';
   if (scoreToken.startsWith('C')) {
-    builder.markAdd(target);
+    PlanAcc.markAdd(acc, target);
     return;
   }
 
-  builder.recordRename(origin, target);
+  PlanAcc.recordRename(acc, origin, target);
 }
 
-function parseUntracked(entry: string, builder: PlanBuilder) {
+function parseUntracked(entry: string, acc: PlanAcc) {
   const path = entry.slice(2).trim();
   if (!path) return;
-  builder.markAdd(path);
+  PlanAcc.markAdd(acc, path);
 }
 
-class PlanBuilder {
-  private readonly add = new Set<Path>();
-  private readonly modify = new Set<Path>();
-  private readonly remove = new Set<Path>();
-  private readonly renameTargets = new Set<Path>();
-  private readonly renameSources = new Set<Path>();
-  private readonly conflict = new Set<Path>();
-  private readonly submodule = new Set<Path>();
-  private readonly renameEntries: { readonly from: Path; readonly to: Path }[] = [];
+type RenameEntry = { readonly from: Path; readonly to: Path };
 
-  markAdd(path: Path) {
-    if (this.isLocked(path)) return;
-    this.remove.delete(path);
-    this.modify.delete(path);
-    this.add.add(path);
-  }
+type PlanAcc = {
+  readonly add: Set<Path>;
+  readonly modify: Set<Path>;
+  readonly remove: Set<Path>;
+  readonly renameTargets: Set<Path>;
+  readonly renameSources: Set<Path>;
+  readonly conflict: Set<Path>;
+  readonly submodule: Set<Path>;
+  readonly renameEntries: RenameEntry[];
+};
 
-  markModify(path: Path) {
-    if (this.isLocked(path)) return;
-    if (this.add.has(path)) return;
-    this.remove.delete(path);
-    this.modify.add(path);
-  }
-
-  markRemove(path: Path) {
-    if (this.submodule.has(path)) return;
-    if (this.renameSources.has(path)) return;
-    this.add.delete(path);
-    this.modify.delete(path);
-    this.remove.add(path);
-  }
-
-  markConflict(path: Path) {
-    this.cleanup(path);
-    this.conflict.add(path);
-  }
-
-  markSubmodule(path: Path) {
-    this.cleanup(path);
-    this.submodule.add(path);
-  }
-
-  recordRename(from: Path, to: Path) {
+const PlanAcc = {
+  init(): PlanAcc {
+    return {
+      add: new Set(),
+      modify: new Set(),
+      remove: new Set(),
+      renameTargets: new Set(),
+      renameSources: new Set(),
+      conflict: new Set(),
+      submodule: new Set(),
+      renameEntries: [],
+    };
+  },
+  cleanup(acc: PlanAcc, path: Path) {
+    acc.add.delete(path);
+    acc.modify.delete(path);
+    acc.remove.delete(path);
+    acc.conflict.delete(path);
+  },
+  isLocked(acc: PlanAcc, path: Path) {
+    return acc.submodule.has(path) || acc.conflict.has(path) || acc.renameTargets.has(path);
+  },
+  markAdd(acc: PlanAcc, path: Path) {
+    if (this.isLocked(acc, path)) return;
+    acc.remove.delete(path);
+    acc.modify.delete(path);
+    acc.add.add(path);
+  },
+  markModify(acc: PlanAcc, path: Path) {
+    if (this.isLocked(acc, path)) return;
+    if (acc.add.has(path)) return;
+    acc.remove.delete(path);
+    acc.modify.add(path);
+  },
+  markRemove(acc: PlanAcc, path: Path) {
+    if (acc.submodule.has(path)) return;
+    if (acc.renameSources.has(path)) return;
+    acc.add.delete(path);
+    acc.modify.delete(path);
+    acc.remove.add(path);
+  },
+  markConflict(acc: PlanAcc, path: Path) {
+    this.cleanup(acc, path);
+    acc.conflict.add(path);
+  },
+  markSubmodule(acc: PlanAcc, path: Path) {
+    this.cleanup(acc, path);
+    acc.submodule.add(path);
+  },
+  recordRename(acc: PlanAcc, from: Path, to: Path) {
     if (!from || !to) return;
-    this.cleanup(to);
-    this.remove.delete(from);
-    this.renameTargets.add(to);
-    this.renameSources.add(from);
-    this.renameEntries.push({ from, to });
-  }
-
-  maybeMarkSubmodule(path: Path, sub: string, modes: readonly string[]) {
-    if (this.submodule.has(path)) return;
+    this.cleanup(acc, to);
+    acc.remove.delete(from);
+    acc.renameTargets.add(to);
+    acc.renameSources.add(from);
+    acc.renameEntries.push({ from, to });
+  },
+  maybeMarkSubmodule(acc: PlanAcc, path: Path, sub: string, modes: readonly string[]) {
+    if (acc.submodule.has(path)) return;
     if (sub?.startsWith('S')) {
-      this.markSubmodule(path);
+      this.markSubmodule(acc, path);
       return;
     }
     if (modes.some((mode) => mode === '160000')) {
-      this.markSubmodule(path);
+      this.markSubmodule(acc, path);
     }
-  }
-
-  track(path: Path, xy: string) {
+  },
+  track(acc: PlanAcc, path: Path, xy: string) {
     const [x = '.', y = '.'] = xy.split('');
 
     if (x === 'A') {
-      this.markAdd(path);
+      this.markAdd(acc, path);
     } else if (x === 'D') {
-      this.markRemove(path);
+      this.markRemove(acc, path);
     } else if (x !== '.' && x !== ' ') {
-      this.markModify(path);
+      this.markModify(acc, path);
     }
 
     if (y === 'D') {
-      this.markRemove(path);
+      this.markRemove(acc, path);
     } else if (y !== '.' && y !== ' ') {
-      this.markModify(path);
+      this.markModify(acc, path);
     }
-  }
-
-  build(): CopyPlan {
-    for (const target of this.renameTargets) {
-      this.add.delete(target);
-      this.modify.delete(target);
+  },
+  build(acc: PlanAcc): t.CopyPlan {
+    for (const target of acc.renameTargets) {
+      acc.add.delete(target);
+      acc.modify.delete(target);
     }
-    for (const source of this.renameSources) {
-      this.remove.delete(source);
+    for (const source of acc.renameSources) {
+      acc.remove.delete(source);
     }
 
     return {
-      add: sort([...this.add]),
-      modify: sort([...this.modify]),
-      remove: sort([...this.remove]),
-      rename: sortRenames(this.renameEntries),
-      conflict: sort([...this.conflict]),
-      submodule: sort([...this.submodule]),
+      add: sort([...acc.add]),
+      modify: sort([...acc.modify]),
+      remove: sort([...acc.remove]),
+      rename: sortRenames(acc.renameEntries),
+      conflict: sort([...acc.conflict]),
+      submodule: sort([...acc.submodule]),
     };
-  }
-
-  private cleanup(path: Path) {
-    this.add.delete(path);
-    this.modify.delete(path);
-    this.remove.delete(path);
-    this.conflict.delete(path);
-  }
-
-  private isLocked(path: Path) {
-    return this.submodule.has(path) || this.conflict.has(path) || this.renameTargets.has(path);
-  }
-}
+  },
+};
 
 const sort = (items: Path[]) => items.sort((a, b) => a.localeCompare(b));
 
-const sortRenames = (entries: { readonly from: Path; readonly to: Path }[]) =>
+const sortRenames = (entries: RenameEntry[]) =>
   entries.slice().sort((a, b) => {
     const cmp = a.from.localeCompare(b.from);
     return cmp === 0 ? a.to.localeCompare(b.to) : cmp;

@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 /** Type re-exports. */
 export type * from './t.namespace.ts';
+export type * from './t.copyPlan.ts';
 
 /**
  * CLI helpers for copying LLM friendly

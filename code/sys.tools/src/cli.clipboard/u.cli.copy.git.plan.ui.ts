@@ -1,6 +1,5 @@
 import { c, Cli, Fs, Str, type t } from './common.ts';
 import { logClipboardSummary, pathsToFileStrings } from './u.copy.ts';
-import { type CopyPlan } from './u.cli.copy.git.plan.ts';
 
 type SectionName = 'Added' | 'Modified' | 'Renamed' | 'Conflicts' | 'Removed' | 'Submodules';
 
@@ -14,7 +13,7 @@ type ChecklistRow = {
   readonly disabled?: boolean;
 };
 
-export async function selectAndCopyPlan(repoRootAbs: t.StringDir, plan: CopyPlan) {
+export async function selectAndCopyPlan(repoRootAbs: t.StringDir, plan: t.CopyPlan) {
   const totalEntries = sum(
     plan.add.length,
     plan.modify.length,
@@ -24,12 +23,12 @@ export async function selectAndCopyPlan(repoRootAbs: t.StringDir, plan: CopyPlan
     plan.submodule.length,
   );
 
-  renderSummary(totalEntries, plan);
-
   if (totalEntries === 0) {
     console.info(c.gray('No changes detected.'));
     return;
   }
+
+  renderSummary(totalEntries, plan);
 
   const rows = buildRows(plan);
   const selectableRows = rows.filter((row) => !row.disabled);
@@ -84,7 +83,11 @@ export async function selectAndCopyPlan(repoRootAbs: t.StringDir, plan: CopyPlan
 
   const confirmation = `Copied ${bundle.fileCount.toLocaleString()}/${copyTargets.length.toLocaleString()} copy targets`;
   console.info(c.green(confirmation));
-  if (selectableRows.length > 0 && selectedSelectableCount !== selectableRows.length) {
+  const selectableAvailable = selectableRows.length;
+  const allSelectableSelected =
+    selectableAvailable > 0 && selectedSelectableCount === selectableAvailable;
+
+  if (selectableAvailable > 0 && !allSelectableSelected) {
     console.info(
       c.gray(
         `(${selectedSelectableCount.toLocaleString()} selected; ${selectableRows.length.toLocaleString()} available)`,
@@ -93,7 +96,7 @@ export async function selectAndCopyPlan(repoRootAbs: t.StringDir, plan: CopyPlan
   }
 }
 
-function buildRows(plan: CopyPlan): ChecklistRow[] {
+function buildRows(plan: t.CopyPlan): ChecklistRow[] {
   const rows: ChecklistRow[] = [];
 
   plan.add.forEach((path) => {
@@ -157,7 +160,7 @@ function buildRows(plan: CopyPlan): ChecklistRow[] {
   return rows;
 }
 
-function renderSummary(total: number, plan: CopyPlan) {
+function renderSummary(total: number, plan: t.CopyPlan) {
   const summaryParts = [
     `${plan.add.length.toLocaleString()} added`,
     `${plan.modify.length.toLocaleString()} modified`,
