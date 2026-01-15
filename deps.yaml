@@ -39,7 +39,7 @@ groups:
 
   automerge:
     # https://automerge.org
-    - import: npm:@automerge/automerge@3.2.1
+    - import: npm:@automerge/automerge@3.2.2
     - import: npm:@automerge/automerge-repo@2.5.1
     - import: npm:@automerge/automerge-repo-network-websocket@2.5.1
     - import: npm:@automerge/automerge-repo-storage-indexeddb@2.5.1
@@ -64,7 +64,7 @@ groups:
     - import: npm:rollup-plugin-visualizer@6.0.5
 
   dev/tools:
-    - import: npm:prettier@3.7.4
+    - import: npm:prettier@3.8.0
 
   ui/react:
     - import: npm:react@19.2.3
@@ -81,15 +81,15 @@ groups:
   ui/prosemirror:
     - import: npm:prosemirror-model@1.25.4
     - import: npm:prosemirror-state@1.4.4
-    - import: npm:prosemirror-view@1.41.4
+    - import: npm:prosemirror-view@1.41.5
       subpaths: [style/prosemirror.css]
     - import: npm:prosemirror-example-setup@1.2.3
       subpaths: [style/style.css]
     - import: npm:prosemirror-schema-basic@1.2.4
 
   ai:
-    - import: npm:ai@6.0.27
-    - import: npm:@ai-sdk/openai@3.0.7
+    - import: npm:ai@6.0.37
+    - import: npm:@ai-sdk/openai@3.0.11
     - import: npm:ollama-ai-provider@1.2.0
     - import: npm:@mastra/core@0.24.9
       subpaths: ['agent', 'memory', 'storage']
@@ -98,7 +98,7 @@ groups:
     - import: npm:@mastra/memory@0.15.13
     - import: npm:ollama@0.6.3
     - import: npm:gpt-tokenizer@3.4.0
-    - import: npm:@google/genai@1.35.0
+    - import: npm:@google/genai@1.36.0
 
   yaml:
     - import: npm:yaml@2.8.2
@@ -123,10 +123,10 @@ deno.json:
   # Sundry NPM:
   - import: npm:approx-string-match@2
   - import: npm:date-fns@4
-  - import: npm:diff@8.0.2
+  - import: npm:diff@8.0.3
   - import: npm:@farcaster/frame-sdk@0.1.12
   - import: npm:fast-json-patch@3.1.1
-  - import: npm:happy-dom@20.1.0
+  - import: npm:happy-dom@20.3.0
   - import: npm:hash-it@7.0.2
   - import: npm:ignore@7.0.5
   - import: npm:ora@9.0.0
@@ -146,7 +146,7 @@ deno.json:
 
   # Browser:
   - import: npm:csstype@3.2.3
-  - import: npm:ua-parser-js@2.0.7
+  - import: npm:ua-parser-js@2.0.8
 
   # UI:
   - import: npm:@svgdotjs/svg.js@3.2.5
@@ -164,5 +164,5 @@ package.json:
   # UI:
   - group: ui/react
   - import: npm:react-icons@5.5.0
-  - import: npm:motion@12.25.0
-  - import: npm:hono@4.11.3
+  - import: npm:motion@12.26.2
+  - import: npm:hono@4.11.4
