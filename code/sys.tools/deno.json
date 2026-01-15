@@ -19,7 +19,6 @@
     "./cp": "./src/cli.clipboard/mod.ts",
     "./copy": "./src/cli.clipboard/mod.ts",
     "./crdt": "./src/cli.crdt/mod.ts",
-    "./fs": "./src/cli.fs/mod.ts",
     "./video": "./src/cli.video/mod.ts",
     "./serve": "./src/cli.serve/mod.ts",
     "./deploy": "./src/cli.deploy/mod.ts",
