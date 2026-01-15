@@ -1,7 +1,7 @@
 {
   "name": "@tdb/edu-slug",
-  "version": "0.0.1",
-  "license": "MIT",
+  "version": "0.0.2",
+  "license": "UNLICENSED",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/-vite.ts --cmd=dev --in=./src/-test/index.html",
     "test": "deno test -P=testset",
