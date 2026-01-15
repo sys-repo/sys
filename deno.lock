@@ -80,6 +80,7 @@
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.1": "2.5.1",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.1": "2.5.1",
     "npm:@automerge/automerge-repo@2.5.1": "2.5.1",
+    "npm:@automerge/automerge@3.2.2": "3.2.2",
     "npm:@automerge/prosemirror@0.1.0": "0.1.0",
     "npm:@deno/vite-plugin@1.0.6": "1.0.6_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_yaml@2.8.2",
     "npm:@farcaster/frame-sdk@0.1.12": "0.1.12",
@@ -130,6 +131,7 @@
     "npm:prosemirror-model@1.25.4": "1.25.4",
     "npm:prosemirror-schema-basic@1.2.4": "1.2.4",
     "npm:prosemirror-state@1.4.4": "1.4.4",
+    "npm:prosemirror-view@1.41.5": "1.41.5",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.2.3": "19.2.3_react@19.2.3",
     "npm:react-error-boundary@6.0.0": "6.0.0_react@19.2.3",
@@ -905,7 +907,7 @@
     "@automerge/automerge-repo@2.5.1": {
       "integrity": "sha512-w242TXb2TaGHFux7dDtJIUVJMqSSq1iYvNia8FVYgVTUDvbm8chaGMe1kVdKMEINFiB/BNYPtsoJIPjJhQArLg==",
       "dependencies": [
-        "@automerge/automerge",
+        "@automerge/automerge@3.2.2",
         "bs58check",
         "cbor-x",
         "debug@4.4.3",
@@ -918,10 +920,13 @@
     "@automerge/automerge@3.1.1": {
       "integrity": "sha512-x7tZiMBLk4/SKYimVEVl1/wPntT9buGvLOWCey9ZcH8JUsB0dgm49C0S7Ojzgvflcs2hc/YjiXRPcFeFkinIgw=="
     },
+    "@automerge/automerge@3.2.2": {
+      "integrity": "sha512-A6E2MDnX+IWmFV2GydrkJEf4ClO2hucROJkGmX3bWYoZfgvmCz3QFqew126/uXQAJxWq8WMFf34PuKa7c/cJfg=="
+    },
     "@automerge/prosemirror@0.1.0": {
       "integrity": "sha512-1VDuVzey6/UksmenUv3pbUH+kaEhboVDpqgo3RC1bd6Tztk3ZjxJ2hBSuKaVRfl+4q4v+VysI4oHGgNhrBv5Xg==",
       "dependencies": [
-        "@automerge/automerge",
+        "@automerge/automerge@3.1.1",
         "ordered-map",
         "prosemirror-changeset",
         "prosemirror-history",
@@ -4515,8 +4520,8 @@
         "prosemirror-model"
       ]
     },
-    "prosemirror-view@1.41.4": {
-      "integrity": "sha512-WkKgnyjNncri03Gjaz3IFWvCAE94XoiEgvtr0/r2Xw7R8/IjK3sKLSiDoCHWcsXSAinVaKlGRZDvMCsF1kbzjA==",
+    "prosemirror-view@1.41.5": {
+      "integrity": "sha512-UDQbIPnDrjE8tqUBbPmCOZgtd75htE6W3r0JCmY9bL6W1iemDM37MZEKC49d+tdQ0v/CKx4gjxLoLsfkD2NiZA==",
       "dependencies": [
         "prosemirror-model",
         "prosemirror-state",
