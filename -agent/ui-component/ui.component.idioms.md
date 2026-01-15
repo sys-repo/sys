@@ -170,160 +170,114 @@ This is a reusable “UI stack” idiom:
 
 
 
-## Tree (and Tree.Index) — idioms
+## Tree / Tree.Index / Tree.Index.data — idioms
+
+This cluster is the canonical “tree index” substrate used by the Tree UI family:
+- A normalized `TreeNodeList` with stable keys (RFC6901 pointer encoding).
+- A YAML authoring dialect that produces deterministic ordering + deep-link stability.
+- Minimal traversal helpers (`Data.at`, `Data.find`) that respect `meta.id` overrides.
 
 ### Tree is a thin namespace over Tree.Index
-- `ui/Tree` is intentionally minimal: `Tree: { Index }`
-- The “real” tree UI is `Tree.Index` (aka `IndexTree`) and its item renderer `Tree.Index.Item`.
-- API expectation is validated by the top-level test:
-  - `Tree.Index === IndexTree` (re-export contract).
+- `ui/Tree` is intentionally minimal: `Tree: { Index }`.
+- The “real” tree UI is `Tree.Index` (aka `IndexTree`) and its row renderer `Tree.Index.Item`.
+- Public surface is explicit + thin (re-export contract is tested).
 
-### Public surface is explicit + thin
-- `Tree` module:
-  - `common.ts` is a pure re-export (`export * from '../common.ts'`).
-  - `t.ts` defines only `TreeLib = { Index: t.IndexTreeLib }`.
-  - `m.Tree.ts` binds `IndexTree` into the `TreeLib` shape.
-- This matches “no logic in mod/t.ts” shape rules.
+### Tree.Index (IndexTree) — view idioms (pure projection)
+Data model:
+- Inputs: `root?: TreeNode | TreeNodeList`, `path?: ObjectPath`.
+- Normalization:
+  - `rootList = Data.toList(root)`
+  - `path = (props.path ?? []) as ObjectPath`
+  - `view = Data.at(rootList, path)`
+- Parent owns `path` as state; Tree.Index renders `root × path`.
 
----
+Animation identity:
+- `animKey = Obj.Path.encode(path)` drives panel identity (path change = new panel).
 
-## Tree.Index (IndexTree) — core UI idioms
+Depth-delta → transition direction:
+- compare `path.length` vs previous → push/pop/flat motion.
 
-### Data model: “root → list → view-at-path”
-- The component accepts:
-  - `root?: t.TreeNode | t.TreeNodeList`
-  - `path?: t.ObjectPath`
-- Canonical normalization pattern:
-  - `rootList = Data.toList(root)` (memoized on `root`)
-  - `path = (props.path ?? []) as t.ObjectPath`
-  - `view = Data.at(rootList, path)` (memoized on `[rootList, path]`)
-- This is the key “nav” idiom:
-  - parent holds `path` as state; Tree is a pure projection of `root × path`.
+Row event elevation:
+- Pointer handlers carry `{ node, hasChildren }` alongside base pointer info.
+- Navigation signal is `hasChildren` plus `node.path`.
 
-### Path encoding is a stable animation key
-- `animKey = Obj.Path.encode(path)`
-- Used as `SlideDeck keyId` to drive “panel switch” transitions.
-- Net effect: path change == new panel identity.
+### Tree.Index.data — normalized node contract (render substrate)
 
-### Depth-delta drives transition direction
-- Direction is computed by comparing `path.length` to `prevPathRef.current.length`:
-  - `dir = +1` when drilling deeper
-  - `dir = -1` when going back up
-  - `dir = 0` for lateral/no-depth change
-- This gives a consistent “push/pop” motion model without external routing state.
+#### TreeNode shape
+- `path: ObjectPath` is the **source of truth** (raw segments).
+- `key: string` is the **stable identifier** derived from `path` via RFC6901 pointer encoding.
+- `label: string | JSX.Element` is the render label.
+- `value?: unknown` is leaf payload OR node “data payload” (for wrappers).
+- `children?: readonly TreeNode[]` presence marks a branch.
+- `meta?: readonly Record<string, unknown>` is passthrough from YAML `"."`.
 
-### SlideDeck is the transition primitive (Tree.Index-local)
-- `SlideDeck` renders:
-  - entering panel (keyed by `keyId`) sliding in
-  - leaving panel captured for one frame and sliding out
-- Uses `M.div` + `initial/animate/transition` and clears leaving on `onAnimationComplete`.
-- Tree.Index treats this as an internal primitive, but conceptually:
-  - “panel stack feel without a real stack”.
+Ordering:
+- Sibling order is render order.
+- For YAML, order is either explicit via sequence roots, or parser insertion order for mapping roots.
 
-### Tree.Index is a list of IndexTreeItem rows (node-per-row)
-- Render loop:
-  - `{view.map((node) => <IndexTreeItem ... />)}`
-- Row “enabled”:
-  - `enabled = Boolean(node.meta?.enabled ?? true)`
-- Row “chevron” (hasChildren):
-  - `chevron = Data.hasChildren(node)`
-- No selection model here (selection is a higher layer concern).
+#### Stable deep-link keys via meta.id
+- `meta.id` overrides the path segment used for `path` and thus `key`.
+- Links remain stable across label rename.
 
-### Pointer event elevation: base pointer + semantic node info
-- Public handlers:
-  - `onPointer`, `onPressDown`, `onPressUp`
-- Each receives `IndexTreePointer`:
-  - `t.PointerEventsArg & { readonly node: t.TreeNode; readonly hasChildren: boolean }`
-- Conversion idiom:
-  - `toPointerEvent(node, e)` merges raw pointer arg with node semantics.
-- The “meaning” signal for navigation is `hasChildren` plus `node.path`.
+Resolution:
+- Traversal matches either literal segment OR `meta.id` (when string).
 
-### Theming is shape-level
-- `theme = Color.theme(props.theme)`
-- Component uses resolved theme, not `'Light'|'Dark'` branches:
-  - `base: { color: theme.fg }`
+#### YAML dialect → normalized TreeNodeList
+Three node kinds:
 
----
+A) Leaf (default)
+- Scalars → leaf
+- Arrays → leaf unless “node-list” shape (below)
+- Plain objects → leaf unless wrapper keys appear
+- Optional heuristic: `inferPlainObjectsAsBranches`
 
-## Tree.Index.Item (IndexTreeItem) — row interaction idioms
+B) Wrapper (explicit meta/children)
+- Any object with `"."` or `"children"`
+- `meta = v["."]`
+- `label = meta.label ?? keyName`
+- `path seg = meta.id ?? keyName`
+- `value` is object of all non-reserved keys (everything except `"."` and `"children"`)
+- `children` may be:
+  - array of single-entry maps (ordered)
+  - record (insertion order)
 
-### Defaults pattern + “active gating”
-- Defaults are in `D` (`label`, `padding`, `chevron`, `enabled`, `active`, `selected`).
-- Derived gating:
-  - `isActive = active && enabled`
-- This is the canonical “non-interactive when disabled/inactive” rule:
-  - cursor changes
-  - press handlers suppressed
+C) Implicit children (node-list array)
+- If value is an array where every item is a single-entry map (or empty), it becomes:
+  - `children = flattened node list`
+  - `value = undefined`
+- Arrays of scalars remain leaves.
+- Arrays with odd shapes remain leaves.
 
-### Pointer handling via `usePointer` with “wasDown” memory
-- Hook yields pointer `e.is` flags (down/up/etc).
-- Idiom:
-  - capture `wasDown = pointerIs?.down` before update
-  - on `down`: fire `onPressDown` if `isActive`
-  - on `up`: fire `onPressUp` only if `isActive && wasDown`
-- This prevents spurious “up” when pointer didn’t originate in the row.
+#### Root forms
+- Mapping root `{ Key: Node }` (parser insertion order)
+- Sequence root `- Key: Node` (explicit order preserved)
 
-### Press affordance is purely visual + local
-- Label “press shift”:
-  - `transform: translateY(1px)` when active and `pointerIs.down`
-- No global pressed state; row is self-contained.
+#### Key codec (RFC6901 pointer)
+- `/` → `~1`
+- `~` → `~0`
+- `path` holds raw segments; `key` is escaped form (safe for `/` and `~` in labels/ids).
 
-### Selection styling is a simple boolean
-- `selected` drives a background color change on base container.
-- This is intentionally primitive:
-  - selection state belongs outside; row just reflects it.
+#### Data helpers (minimal, stable)
+- `Data.toList(root?)`
+  - `undefined → []`
+  - `TreeNodeList → same list`
+  - `TreeNode with children → children`
+  - `TreeNode without children → [root]`
 
-### Chevron API: boolean | custom element
-- `chevron?: boolean | t.JSXElement`
-- Rendering idiom:
-  - if `React.isValidElement(chevron)` render it
-  - else render default icon
-- Visibility is controlled even when “no chevron”:
-  - `visibility: chevron ? 'visible' : 'hidden'`
-  - → keeps column alignment stable.
+- `Data.at(root, path)`
+  - walks by raw `ObjectPath`
+  - matches literal segment OR `meta.id`
+  - returns `[]` on miss / leaf stop
 
-### Structural layout idioms
-- Base container:
-  - border-bottom rule with `:last-child` removal
-  - padding normalized via `Style.toPadding(...)`
-- Body grid:
-  - `gridTemplateColumns: '1fr auto'`
-  - align label left, chevron right
-- Debug highlight:
-  - `Color.ruby(debug)` as optional debugging background.
+- `Data.find(root, keyOrPredicate)`
+  - find by exact `key` or predicate with `{ node, parents }`
+  - depth-first, first hit wins
 
----
+#### Testing affordance: JSX label coercion
+- Tests coerce JSX labels to stable strings (e.g. `<span>`) for equality.
+- Runtime preserves original JSX labels.
 
-## DevHarness patterns observed in Tree.Index specs
 
-### Debug signals persist via `LocalStorage.immutable`
-- The debug UI stores a small subset:
-  - `theme`, `debug`, `yaml`, `path`
-- Snapshot drives initial signals.
-- `Signal.effect` writes back to storage on change.
-
-### Root construction is a “debug-only adapter”
-- `debug.root` is derived from YAML:
-  - `IndexTree.Data.Yaml.parse(text)`
-- This is important: IndexTree itself stays data-agnostic; parsing is outside.
-
-### Nav interaction pattern (spec)
-- `onPressDown` is used as “select/drill”:
-  - if `hasChildren` then `p.path.value = e.node.path`
-- Back button pops path:
-  - `path = path.slice(0, -1)`
-- This is the canonical parent-controller pattern for IndexTree.
-
----
-
-## Missing piece: Tree.Index.data (needed)
-Tree.Index is fundamentally “Data-driven”. To fully lock the idioms, we should ingest `Tree.Index.data` next, specifically to capture:
-- `t.TreeNode` / `t.TreeNodeList` shapes (and what `node.path` is)
-- `Data.toList`, `Data.at`, `Data.hasChildren`
-- YAML format conventions (`children`, meta `.` block, id overrides, label rules)
-
-Request: please paste **Tree.Index.data** (that folder list you provided).
-Without it, we can describe the UI contracts, but not the canonical node/path semantics.
 
 
 
