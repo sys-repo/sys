@@ -76,6 +76,7 @@
     "code/sys.tools",
     "code/sys.dev",
 
+    "deploy/@tdb.edu.slug",
     "deploy/@tdb.slc",
     "deploy/@tdb.slc.fs",
     "deploy/api.db.team",
