@@ -14,12 +14,14 @@ export function initialYaml(name: string): string {
       # - optional provider config ("where" it is published)
       # - one or more directory mappings ("what" is staged)
       #
-      # Paths:
-      # - source  → relative to this YAML file
-      # - staging → relative to staging.dir
+      # Paths are resolved relative to the CLI cwd and rebased via source.dir / staging.dir.
+      # source.dir and staging.dir default to '.' (the base itself).
 
       staging:
         dir: ./staging
+
+      # source:
+      #   dir: .
 
       # provider:
       #   kind: orbiter

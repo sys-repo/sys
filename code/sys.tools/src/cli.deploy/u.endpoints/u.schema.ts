@@ -31,6 +31,12 @@ export const EndpointYamlSchema = {
       provider: Schema.Type.Optional(
         Schema.Type.Union([OrbiterProvider.Schema.schema, NoopProvider.Schema.schema]),
       ),
+      source: Schema.Type.Optional(
+        Schema.Type.Object(
+          { dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]) },
+          { additionalProperties: false },
+        ),
+      ),
       staging: Schema.Type.Object(
         { dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]) },
         { additionalProperties: false },

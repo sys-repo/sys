@@ -150,6 +150,28 @@ describe('Schema: endpoint', () => {
     expect(res.errors).to.eql([]);
   });
 
+  it('validate: accepts optional source', () => {
+    const res = EndpointYamlSchema.validate({
+      source: { dir: './src' },
+      staging: { dir: './staging' },
+      mappings: [],
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
+  });
+
+  it('validate: accepts source.dir "."', () => {
+    const res = EndpointYamlSchema.validate({
+      source: { dir: '.' },
+      staging: { dir: './staging' },
+      mappings: [],
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
+  });
+
   it('validate: rejects unknown keys inside staging', () => {
     const res = EndpointYamlSchema.validate({
       staging: { dir: 'staging-1', extra: true },

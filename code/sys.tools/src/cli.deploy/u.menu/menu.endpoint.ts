@@ -151,12 +151,16 @@ export async function endpointMenu(args: {
     }
 
     if (picked === 'stage') {
-      const resolved = await resolveMappingsForStaging({ cwd, yamlPath: yamlRel });
+      if (!yaml) continue;
+      const resolved = await resolveMappingsForStaging({ cwd, yamlPath: yamlRel, yaml });
       if (!resolved.ok) continue;
+
+      const sourceRootRel = String(yaml.source?.dir ?? '').trim() || '.';
 
       await runStagingWithSpinner({
         cwd,
         mappings: resolved.mappings,
+        sourceRoot: sourceRootRel,
         stagingRoot: stagingRootRel,
       });
 

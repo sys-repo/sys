@@ -11,6 +11,8 @@ import type { t } from '../common.ts';
  */
 export type EndpointYamlFile = {
   readonly provider?: t.DeployTool.Config.Provider.All;
+  readonly source?: { readonly dir: string };
+  readonly staging?: { readonly dir: string };
   readonly mappings?: readonly t.DeployTool.Staging.Mapping[];
 };
 

@@ -1,6 +1,6 @@
 import { withTmpDir } from '../../-test/-fixtures.ts';
 import { type t, describe, expect, Fs, it } from '../../../-test.ts';
-import { Json, Pkg } from '../../common.ts';
+import { Json, Pkg, Path } from '../../common.ts';
 import { executeStaging } from '../u.staging.execute.ts';
 
 describe('Staging: executeStaging', () => {
@@ -27,7 +27,7 @@ describe('Staging: executeStaging', () => {
       await Fs.ensureDir(`${tmp}/src`);
       await Fs.write(`${tmp}/src/a.txt`, 'hello');
 
-      const dir = { source: 'src', staging: 'stage' };
+      const dir = { source: 'src', staging: '.' };
 
       await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
 
@@ -42,7 +42,7 @@ describe('Staging: executeStaging', () => {
       await Fs.ensureDir(`${tmp}/src`);
       await Fs.write(`${tmp}/src/a.txt`, 'x');
 
-      const dir = { source: 'src', staging: 'stage' };
+      const dir = { source: 'src', staging: '.' };
       await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
 
       const res = await Fs.readText(`${tmp}/stage/a.txt`);
@@ -76,7 +76,7 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${srcRoot}/-build.ts`, buildFile);
       await Fs.write(`${srcRoot}/deno.json`, denoJson);
 
-      const dir = { source: 'src', staging: 'stage' };
+      const dir = { source: 'src', staging: '.' };
       await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'build+copy', dir }] });
 
       const res = await Fs.readText(`${tmp}/stage/a.txt`);
@@ -102,7 +102,7 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${srcRoot}/deno.json`, denoJson);
 
       const events: Array<{ kind: string; index: number }> = [];
-      const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: 'stage' } }];
+      const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: '.' } }];
 
       let threw = false;
       let writeCalled = false;
@@ -156,8 +156,8 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/src2/assets/shared.txt`, 'shared-2');
 
       const mappings = [
-        { mode: 'copy' as const, dir: { source: 'src1', staging: 'stage' } },
-        { mode: 'copy' as const, dir: { source: 'src2', staging: 'stage' } },
+        { mode: 'copy' as const, dir: { source: 'src1', staging: '.' } },
+        { mode: 'copy' as const, dir: { source: 'src2', staging: '.' } },
       ];
 
       await executeStaging({ mappings, ...stageOptions(tmp) });
@@ -201,8 +201,8 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/src2/assets/shared.txt`, 'shared-2');
 
       const mappings = [
-        { mode: 'copy' as const, dir: { source: 'src1', staging: 'stage' } },
-        { mode: 'copy' as const, dir: { source: 'src2', staging: 'stage' } },
+        { mode: 'copy' as const, dir: { source: 'src1', staging: '.' } },
+        { mode: 'copy' as const, dir: { source: 'src2', staging: '.' } },
       ];
 
       await executeStaging({ ...stageOptions(tmp), mappings, overwrite: true });
@@ -228,6 +228,94 @@ describe('Staging: executeStaging', () => {
       expect(shared.data).to.eql('shared-2');
 
       await assertDistJsonExists(`${tmp}/stage`);
+    });
+  });
+
+  it('sourceRoot/stagingRoot "." resolves to their bases', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src-base`);
+      await Fs.write(`${tmp}/src-base/a.txt`, 'base');
+
+      const events: t.DeployTool.Staging.ProgressEvent[] = [];
+
+      await executeStaging({
+        ...stageOptions(tmp),
+        sourceRoot: 'src-base',
+        mappings: [{ mode: 'copy', dir: { source: '.', staging: '.' } }],
+        onProgress(e) {
+          if (e.kind === 'mapping:start') events.push(e);
+        },
+      });
+
+      expect(events.length).to.eql(1);
+      expect(events[0].source).to.eql(Path.resolve(tmp, 'src-base'));
+      expect(events[0].staging).to.eql(Path.resolve(tmp, 'stage'));
+      expect((await Fs.readText(`${tmp}/stage/a.txt`)).data).to.eql('base');
+    });
+  });
+
+  it('absolute mapping paths bypass sourceRoot base', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src-base`);
+
+      const absoluteSource = (`${tmp}/absolute-source`) as t.StringDir;
+      await Fs.ensureDir(absoluteSource);
+      await Fs.write(`${absoluteSource}/abs.txt`, 'absolute');
+
+      const events: t.DeployTool.Staging.ProgressEvent[] = [];
+
+      await executeStaging({
+        ...stageOptions(tmp),
+        sourceRoot: 'src-base',
+        mappings: [{ mode: 'copy', dir: { source: absoluteSource, staging: '.' } }],
+        onProgress(e) {
+          if (e.kind === 'mapping:start') events.push(e);
+        },
+      });
+
+      expect(events.length).to.eql(1);
+      expect(events[0].source).to.eql(absoluteSource);
+      expect(events[0].staging).to.eql(Path.resolve(tmp, 'stage'));
+      expect((await Fs.readText(`${tmp}/stage/abs.txt`)).data).to.eql('absolute');
+
+    });
+  });
+
+  it('tilde base paths expand before rebasing', async () => {
+    await withTmpDir(async (tmp) => {
+      const home = tmp;
+      const tildeDir = (`${tmp}/tilde-root`) as t.StringDir;
+      await Fs.ensureDir(tildeDir);
+      const relative = Path.relative(home, tildeDir);
+      await Fs.write(`${tildeDir}/tilde.txt`, 'home');
+
+      const oldHome = Deno.env.get('HOME');
+      Deno.env.set('HOME', home);
+
+      const events: t.DeployTool.Staging.ProgressEvent[] = [];
+
+      try {
+        await executeStaging({
+          ...stageOptions(tmp),
+          sourceRoot: `~/${relative}`,
+          mappings: [{ mode: 'copy', dir: { source: '.', staging: '.' } }],
+          onProgress(e) {
+            if (e.kind === 'mapping:start') events.push(e);
+          },
+        });
+      } finally {
+        if (oldHome === undefined) {
+          Deno.env.delete('HOME');
+        } else {
+          Deno.env.set('HOME', oldHome);
+        }
+      }
+
+      expect(events.length).to.eql(1);
+      expect(events[0].source).to.eql(tildeDir);
+      expect((await Fs.readText(`${tmp}/stage/tilde.txt`)).data).to.eql('home');
+
+      await Fs.remove(tildeDir);
     });
   });
 });

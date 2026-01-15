@@ -106,7 +106,7 @@ describe('EndpointsFs', () => {
     });
   });
 
-  it('validateYaml: mapping source exists (relative to yaml dir) → ok:true', async () => {
+  it('validateYaml: mapping source exists relative to tool cwd → ok:true', async () => {
     await withTmpDir(async (tmp) => {
       // YAML is in: <tmp>/-endpoints/dev.yaml
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('dev')}`;
@@ -122,8 +122,62 @@ describe('EndpointsFs', () => {
         'mappings:',
         '  - mode: build+copy',
         '    dir:',
-        '      source: ../code/my-modules/ui.foo.bar',
+        '      source: ./code/my-modules/ui.foo.bar',
         '      staging: dist/my-output',
+        '',
+      ].join('\n');
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+
+      expect(res.ok).to.eql(true);
+    });
+  });
+
+  it('validateYaml: mapping source respects source.dir base → ok:true', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('source-base')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      await Fs.ensureDir(`${tmp}/code/my-modules/ui.foo.bar`);
+
+      const yaml = [
+        'source:',
+        '  dir: ./code',
+        'staging:',
+        '  dir: ./staging',
+        'mappings:',
+        '  - mode: build+copy',
+        '    dir:',
+        '      source: ./my-modules/ui.foo.bar',
+        '      staging: dist/my-output',
+        '',
+      ].join('\n');
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+
+      expect(res.ok).to.eql(true);
+    });
+  });
+
+  it('validateYaml: refactor-style source.dir resolves mapping → ok:true', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('refactor')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      await Fs.ensureDir(`${tmp}/repo-root/sys.ui/ui-react-components`);
+
+      const yaml = [
+        'source:',
+        '  dir: ./repo-root',
+        'staging:',
+        '  dir: ./staging',
+        'mappings:',
+        '  - mode: build+copy',
+        '    dir:',
+        '      source: ./sys.ui/ui-react-components',
+        '      staging: dist/ui-react-components',
         '',
       ].join('\n');
 
@@ -151,27 +205,38 @@ describe('EndpointsFs', () => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('tilde-ok')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
 
-      const homeDir = Fs.Tilde.expand('~');
-      const srcAbs = Fs.Tilde.expand('~/.sys-test/endpointsfs/tilde-src');
+      const homeDir = tmp;
+      const oldHome = Deno.env.get('HOME');
+      Deno.env.set('HOME', homeDir);
 
-      // ensure the directory exists under home for this test
-      await Fs.ensureDir(srcAbs);
+      try {
+        const srcAbs = Fs.Tilde.expand('~/.sys-test/endpointsfs/tilde-src');
 
-      const yaml = [
-        'staging:',
-        '  dir: ./staging',
-        'mappings:',
-        '  - mode: build+copy',
-        '    dir:',
-        `      source: ${Fs.Tilde.collapse(srcAbs)}`,
-        '      staging: dist/my-output',
-        '',
-      ].join('\n');
+        // ensure the directory exists under home for this test
+        await Fs.ensureDir(srcAbs);
 
-      await Fs.write(yamlPath, yaml);
+        const yaml = [
+          'staging:',
+          '  dir: ./staging',
+          'mappings:',
+          '  - mode: build+copy',
+          '    dir:',
+          `      source: ${Fs.Tilde.collapse(srcAbs)}`,
+          '      staging: dist/my-output',
+          '',
+        ].join('\n');
 
-      const res = await EndpointsFs.validateYaml(yamlPath);
-      expect(res.ok).to.eql(true);
+        await Fs.write(yamlPath, yaml);
+
+        const res = await EndpointsFs.validateYaml(yamlPath);
+        expect(res.ok).to.eql(true);
+      } finally {
+        if (oldHome === undefined) {
+          Deno.env.delete('HOME');
+        } else {
+          Deno.env.set('HOME', oldHome);
+        }
+      }
 
       await Fs.remove(`${homeDir}/.sys-test`);
     });
@@ -289,7 +354,7 @@ describe('EndpointsFs', () => {
         'mappings:',
         '  - mode: copy',
         '    dir:',
-        '      source: ../code/my-modules/ui.foo.bar',
+        '      source: ./code/my-modules/ui.foo.bar',
         '      staging: ui-react-components',
         '',
       ].join('\n');

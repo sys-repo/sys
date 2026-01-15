@@ -12,6 +12,7 @@ export async function runStagingWithSpinner(args: {
   cwd: t.StringDir;
   mappings: t.Ary<t.DeployTool.Staging.Mapping>;
   stagingRoot: t.StringRelativeDir;
+  sourceRoot?: string;
 }): Promise<RunStagingResult> {
   const { cwd, mappings } = args;
 
@@ -43,6 +44,7 @@ export async function runStagingWithSpinner(args: {
       cwd,
       mappings,
       stagingRoot: args.stagingRoot,
+      sourceRoot: args.sourceRoot,
       concurrency: stagingConcurrencyDefault({ total }),
       cleanStagingRoot: true,
       writeDistJson: true,

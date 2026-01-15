@@ -71,9 +71,21 @@ export namespace DeployTool {
         dir: t.StringPath;
       };
 
+      /**
+       * Endpoint source root.
+       * Mapping `dir.source` values are resolved relative to this directory.
+       */
+      export type Source = {
+        /** Root directory for sources (relative to deploy cwd). */
+        dir: t.StringPath;
+      };
+
       export type Doc = {
         /** Optional provider adapter config. */
         provider?: Provider.All;
+
+        /** Source root for this endpoint. */
+        source?: Source;
 
         /** Staging root for this endpoint. */
         staging?: Staging;

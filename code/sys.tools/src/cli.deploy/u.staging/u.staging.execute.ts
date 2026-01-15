@@ -2,6 +2,7 @@ import { type t, Fs, Is, Path } from '../common.ts';
 import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
 import { ensureIndexHtml } from './u.generateHtml.ts';
+import { resolvePath } from '../u.endpoints/u.resolve.ts';
 
 export type StagingProgressEvent = t.DeployTool.Staging.ProgressEvent;
 type Args = {
@@ -9,6 +10,7 @@ type Args = {
   mappings: t.Ary<t.DeployTool.Staging.Mapping>;
   concurrency?: number;
   onProgress?: (e: StagingProgressEvent) => void;
+  sourceRoot?: string;
 
   /**
    * Optional single staging root dir for deterministic lifecycle operations.
@@ -36,20 +38,12 @@ export async function executeStaging(options: Args): Promise<void> {
   const { cwd, mappings, overwrite = false } = options;
   const total = mappings.length;
 
-  const resolveAbs = (base: string, p: string): string => {
-    const s = String(p ?? '');
-    return Path.Is.absolute(s) ? s : Path.resolve(base, s);
-  };
-
-  const resolveStagingRootAbs = (): string => {
-    const raw = String(options.stagingRoot ?? '').trim();
-    if (!raw) return '';
-    return resolveAbs(cwd, raw);
-  };
+  const sourceBaseAbs = resolvePath(cwd, options.sourceRoot ?? '.');
+  const stagingBaseAbs = resolvePath(cwd, options.stagingRoot ?? '.');
 
   if (options.cleanStagingRoot) {
-    const rootAbs = resolveStagingRootAbs();
-    if (!rootAbs) throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
+    if (!options.stagingRoot) throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
+    const rootAbs = stagingBaseAbs;
 
     const cwdAbs = Path.resolve(cwd, '.');
     if (rootAbs === cwdAbs) {
@@ -80,8 +74,8 @@ export async function executeStaging(options: Args): Promise<void> {
       if (index >= total) return;
 
       const m = mappings[index]!;
-      const source = resolveAbs(cwd, String(m.dir.source ?? ''));
-      const staging = resolveAbs(cwd, String(m.dir.staging ?? ''));
+      const source = resolvePath(sourceBaseAbs, m.dir.source);
+      const staging = resolvePath(stagingBaseAbs, m.dir.staging);
       const dir: t.DeployTool.Staging.Dir = { ...m.dir, source, staging };
 
       emit({ kind: 'mapping:start', index, total, mode: m.mode, source, staging });
@@ -126,11 +120,11 @@ export async function executeStaging(options: Args): Promise<void> {
 
   if (firstErr) throw firstErr;
 
-  const rootAbs = resolveStagingRootAbs();
+  const rootAbs = stagingBaseAbs;
   await ensureIndexHtml(rootAbs);
 
   if (options.writeDistJson) {
-    if (!rootAbs) throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
+    if (!options.stagingRoot) throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
 
     const write = options.onWriteDistJson;
     if (!write) throw new Error('executeStaging: writeDistJson requires options.onWriteDistJson');
