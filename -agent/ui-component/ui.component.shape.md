@@ -254,3 +254,15 @@ State is always an explicit input; UI components do not own domain state.
 - Lifecycle helpers expose a lazy `Abortable` (`e.life`); React wrappers mirror that shape so cleanup order stays deterministic.
 - Controllers (or command layers) advance Signals; UI components only observe and render. No hidden subscriptions—the dependency must appear on the component surface.
 - Signals may come from different origins (ImmutableRef, CRDT, loaders, etc.), but the UI boundary stays `source → Signals → props → render`.
+
+
+=============================================================================
+
+
+<!-- ACTION: "ADDED" -->
+## DevHarness boundary / State boundary
+- No `LocalStorage.*` in runtime component files.
+- Persistent knobs live in `-spec/-SPEC.Debug.tsx`.
+- Runtime views may accept `theme?: t.CommonTheme`, `style?: t.CssInput`, `debug?: boolean` only.
+- If state is complex, expose an optional `Signals` helper adjacent to the component; do not bake it into the view.
+<!-- END ACTION -->

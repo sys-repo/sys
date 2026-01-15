@@ -1,213 +1,145 @@
+<!-- ACTION: "CHANGED" -->
 # ui.component.primitives.md
-
 Reusable building blocks and contracts observed across `@sys/ui-react-components`.
 
 Goal:
-- Capture only **repeated** primitives (worth copying).
-- Keep these **stable and host-agnostic**.
-- Avoid component-specific helpers (those stay in idioms).
+- Capture only repeated primitives (worth copying).
+- Keep these stable and host-agnostic.
+- Keep persistence in -spec only.
 
 =============================================================================
 
 
-## Theme resolution (library-wide)
+## Theming
 
-### Contract
-- Components accept: `theme?: t.CommonTheme`
-- Resolve once per render:
-  - `const theme = Color.theme(props.theme)`
-- Consume resolved values only:
-  - `theme.fg` (foreground/text)
-  - `theme.bg` (surface/background)
-  - `theme.name` (display/debug)
-- Do not branch on `'Light' | 'Dark'` inside components.
-
-### Why it matters
-- Keeps UI logic independent of theme enumeration.
-- Enables theme expansion without component changes.
-
+### Theme resolution (Color.theme)
+- What it is: Resolve theme once per render and use only derived values for styling and downstream props.
+- Where used: `code/sys.ui/ui-react-components/src/ui/Button/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Slider/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Media.Video/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Layout.SplitPane/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Player.Video.Controls/ui.tsx`
+- Snippet:
+```ts
+const theme = Color.theme(props.theme);
+const styles = {
+  base: css({ color: theme.fg, backgroundColor: theme.bg }),
+};
+return <div className={css(styles.base, props.style).class} />;
+```
+- Notes/constraints: Resolve once per render; pass `theme.name` to nested components when needed.
 
 =============================================================================
 
 
-## CSS composition via `css(...)`
+## CSS composition
 
-### Contract
-- Define a `styles` object inside render.
-- Compose base + overrides (including caller style):
-  - `className={css(styles.base, props.style).class}`
-
-### Why it matters
-- Keeps styling local, explicit, and consistent.
-- Supports host overrides without exposing internals.
-
-
-=============================================================================
-
-
-## Motion wrapper + presence transitions (`M.div`, `AnimatePresence`)
-
-### Contract
-- Use `M.div` (framer-motion wrapper re-exported from `./common.ts`) for animated surfaces.
-- For mount/unmount transitions, wrap conditional render with `AnimatePresence`.
-- Prefer explicit `initial / animate / exit / transition` objects.
-
-### Why it matters
-- Standardizes animation vocabulary.
-- Makes “panel/sheet” UI deterministic and easy to reason about.
-
+### Render-local styles + css merge
+- What it is: Define a `styles` object inside render and compose base + overrides in one place.
+- Where used: `code/sys.ui/ui-react-components/src/ui/Button/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/PathView/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/KeyValue/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Media.Video/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Layout.RectGrid/ui.tsx`
+- Snippet:
+```tsx
+const styles = { base: css({ position: "relative" }) };
+return <div className={css(styles.base, props.style).class} />;
+```
+- Notes/constraints: Keep the `styles` object inside render; compose caller overrides with `css(styles.base, props.style)`.
 
 =============================================================================
 
 
-## Signals as explicit state surface (`Signal`)
+## Spacing normalization
 
-### Contract
-- Mutable state is represented as Signals, owned externally.
-- UI components remain pure render functions over props.
-- For non-trivial state, use a two-tier pattern:
-  1) Pure UI (`Component(props)`)
-  2) Signals layer (`createSignals()` + adapter subscribing via `Signal.useRedrawEffect` / `Signal.useEffect`)
-
-### Observed utilities (common usage)
-- `Signal.useRedrawEffect(listen)`
-- `Signal.effect(...)`
-- `Signal.toObject(...)` (debug/inspection)
-- `Signal.toggle(...)`, `Signal.cycle(...)` (DevHarness controls)
-
-### Why it matters
-- Prevents implicit coupling and “hidden subscriptions”.
-- Keeps controllers/test harnesses aligned with production wiring.
-
+### Style.toPadding / Style.toMargins
+- What it is: Normalize padding and margin inputs into concrete CSS edges before render.
+- Where used: `code/sys.ui/ui-react-components/src/ui/Button/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Player.Video.Controls/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Text.Input/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Tree.Index.Item/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/ObjectView/ui.tsx`
+- Snippet:
+```ts
+const styles = {
+  base: css({
+    ...Style.toPadding(props.padding ?? D.padding),
+    ...Style.toMargins(props.margin),
+  }),
+};
+```
+- Notes/constraints: Use module defaults (D.*) when inputs are undefined.
 
 =============================================================================
 
 
-## Debug state persistence (`LocalStorage.immutable`)
+## Pointer/interaction helpers
 
-### Contract
-- DevHarness debug state persists via:
-  - `LocalStorage.immutable<Storage>(\`dev:${D.displayName}\`, defaults)`
-- Snapshot seeds initial signals.
-- A signal effect writes back on change.
-
-### Why it matters
-- Makes debug surfaces stable across reloads.
-- Keeps debug state minimal and explicit.
-
-
-=============================================================================
-
-
-## Host clipping contract (overflow discipline)
-
-### Contract
-- Some animated/physics surfaces require an overflow-clipped host:
-  - host container must provide `{ overflow: 'hidden' }`
-- The component must state this requirement clearly (comment or prop docs).
-
-### Why it matters
-- Prevents animation artifacts leaking outside host bounds.
-- Makes host responsibilities explicit (no “mystery CSS”).
-
+### usePointer handlers + state
+- What it is: Use `usePointer` to unify mouse/touch behavior and attach handlers to a root element.
+- Where used: `code/sys.ui/ui-react-components/src/ui/Slider/use.EventMonitor.ts`, `code/sys.ui/ui-react-components/src/ui/Layout.SplitPane/use.SplitDrag.tsx`, `code/sys.ui/ui-react-components/src/ui/Tree.Index.Item/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Icon.Swatches/ui.Swatch.tsx`
+- Snippet:
+```ts
+const pointer = usePointer({
+  onDown: (e) => onDown?.(e.client),
+  onDrag: (e) => onDrag?.(e.client),
+  onUp: (e) => onUp?.(e.client),
+});
+return <div {...pointer.handlers} />;
+```
+- Notes/constraints: Keep pointer math in helpers (Wrangle) and only wire handlers here.
 
 =============================================================================
 
 
-## Layout engine: CSS grid as primary structure primitive
+## Signals (runtime vs harness usage)
 
-### Contract
-- Use CSS grid for:
-  - track-based splitting (SplitPane)
-  - stable multi-cell framing (Cropmarks)
-  - spacer/body/spacer alignment (Sheet)
-- Prefer “stable structure” strategies:
-  - keep DOM stable; hide with `visibility` and disable with `pointerEvents` when collapsing, rather than removing nodes.
+### Runtime signal subscription (Signal.useRedrawEffect)
+- What it is: Subscribe view redraw to signal reads without owning state inside the component.
+- Where used: `code/sys.ui/ui-react-components/src/ui/Button/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Player.Video.Element/use.Signals.tsx`, `code/sys.ui/ui-react-components/src/ui/Player.Video.Element/ui.Elapsed.tsx`
+- Snippet:
+```ts
+const listen = () => {
+  signals?.props.playing.value;
+  signals?.props.muted.value;
+};
+Signal.useRedrawEffect(listen);
+```
+- Notes/constraints: Runtime only; no LocalStorage in runtime components.
 
-### Why it matters
-- Predictable sizing, fewer reflow surprises.
-- Structural stability simplifies interaction layers.
+### Spec harness redraw loop (Signal.effect + ctx.redraw)
+- What it is: In `-spec/-SPEC.tsx`, wire debug signals into the harness redraw loop.
+- Where used: `code/sys.ui/ui-react-components/src/ui/Button/-spec/-SPEC.tsx`, `code/sys.ui/ui-react-components/src/ui/Slider/-spec/-SPEC.tsx`, `code/sys.ui/ui-react-components/src/ui/Layout.SplitPane/-spec/-SPEC.tsx`, `code/sys.ui/ui-react-components/src/ui/Text.Input/-spec/-SPEC.tsx`, `code/sys.ui/ui-react-components/src/ui/Player.Video.Controls/-spec/-SPEC.tsx`
+- Snippet:
+```ts
+Signal.effect(() => {
+  debug.listen();
+  ctx.redraw();
+});
+```
+- Notes/constraints: Spec only; keep this wiring out of runtime component files.
 
-
-=============================================================================
-
-
-## Interaction event elevation (raw pointer → semantic arg)
-
-### Contract
-- Expose handlers that receive a semantic event shape, not raw DOM events.
-- Pattern:
-  - accept base pointer arg
-  - attach domain/UI semantics (e.g. `node`, `hasChildren`)
-  - pass the merged event upward
-
-### Why it matters
-- Keeps components generic but meaningful.
-- Avoids duplicating “event decoding” across callers.
-
-
-=============================================================================
-
-
-## “Active gating” for interactivity
-
-### Contract
-- Derive a single gate boolean (canonical form):
-  - `isActive = active && enabled`
-- Suppress handlers and adjust cursor/affordances based on that gate.
-- For press semantics:
-  - only fire “up” if there was a “down” that originated inside the component.
-
-### Why it matters
-- Eliminates edge-case input bugs.
-- Makes disabled/inert states trustworthy.
-
+### Debug signal factory (createDebugSignals)
+- What it is: Return a typed `props` signal bag and a `listen()` helper for harness redraw.
+- Where used: `code/sys.ui/ui-react-components/src/ui/Button/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Slider/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Layout.SplitPane/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Text.Input/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Player.Video.Controls/-spec/-SPEC.Debug.tsx`
+- Snippet:
+```ts
+export function createDebugSignals() {
+  const s = Signal.create;
+  const props = { theme: s<P["theme"]>("Dark") };
+  return { props, listen: () => Signal.listen(props) };
+}
+```
+- Notes/constraints: Spec only; optionally add `reset()` when persistence is used.
 
 =============================================================================
 
 
-## Clipboard as a diagnostic primitive
+## DevHarness persistence (spec-only)
 
-### Contract
-- Provide a “Copy” affordance for diagnostic payloads when relevant (e.g. error surfaces).
-- Clipboard formatting should be:
-  - stable
-  - readable
-  - safe against getters/cycles
+### LocalStorage.immutable for debug knobs
+- What it is: Persist debug controls via `LocalStorage.immutable` and sync signals in an effect.
+- Where used: `code/sys.ui/ui-react-components/src/ui/Button/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Media.Video/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Layout.SplitPane/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Text.Input/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Player.YouTube/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Media.Config/-spec.zoom/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Dist/-spec/-SPEC.Debug.tsx`, `code/sys.ui/ui-react-components/src/ui/Media.Devices/-spec/-SPEC.Debug.tsx`
+- Snippet:
+```ts
+const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+const snap = store.current;
+const props = { theme: Signal.create(snap.theme) };
 
-### Why it matters
-- Improves bug reporting without tooling.
-- Keeps diagnostic UX consistent across components.
-
-
-=============================================================================
-
-
-## Scroll-container defaults for panes
-
-### Contract
-- Pane-like containers that live inside grids should typically set:
-  - `minWidth: 0`
-  - `minHeight: 0`
-  - `overflow: 'auto'`
-
-### Why it matters
-- Prevents grid/flex overflow traps.
-- Makes nested layouts behave predictably.
-
-
-=============================================================================
-
-
-## Component identity constants (`D`)
-
-### Contract
-- Each module defines:
-  - `D.name`
-  - `D.displayName` (via `Pkg.toString(pkg, name, false)`)
-- DevHarness keys and storage keys should derive from identity:
-  - `dev:${D.displayName}`
-
-### Why it matters
-- Stable naming for diagnostics, testing, and storage.
-- Avoids hard-coded, drifting identifiers.
+Signal.effect(() => {
+  store.change((d) => {
+    d.theme = props.theme.value;
+  });
+});
+```
+- Notes/constraints: Spec only; never call LocalStorage in runtime component files.
+<!-- END ACTION -->
