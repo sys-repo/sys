@@ -26,7 +26,10 @@ async function sha256(text: string): Promise<string> {
  * Build a single concatenated string from a list of file paths.
  * Emits a TOC with totals + per-file lineStart offsets, and wraps each file with FILE BEGIN/END sentinels.
  */
-export async function pathsToFileStrings(paths: string[], repoRootAbs: string) {
+export async function pathsToFileStrings(
+  paths: string[],
+  repoRootAbs: string,
+): Promise<{ text: string; fileCount: number }> {
   const sections: Section[] = [];
 
   // First pass: build each section block and capture sizes.
@@ -117,7 +120,8 @@ export async function pathsToFileStrings(paths: string[], repoRootAbs: string) {
   ].join('\n');
 
   // Assemble final:
-  return `${toc}\n\n${blocksJoined}${stats}\n`;
+  const bundle = `${toc}\n\n${blocksJoined}${stats}\n`;
+  return { text: bundle, fileCount: sections.length };
 }
 
 type SelectAndCopyOptions = {
@@ -153,31 +157,34 @@ export async function selectAndCopy(paths: t.StringPath[], opts: SelectAndCopyOp
   );
 
   if (selected.length > 0) {
-    const text = await pathsToFileStrings(selected, repoRootAbs);
+    const bundle = await pathsToFileStrings(selected, repoRootAbs);
 
-    const lines = text
-      .split('\n')
-      .map((l) => l.trim())
-      .filter(Boolean);
-
-    Cli.copyToClipboard(text);
-
-    const tokens = Token.count(text);
-    const total = selected.length;
-    const filesLabel = Str.plural(total, 'file', 'files');
-    const linesLabel = Str.plural(lines.length, 'line', 'lines');
-    const tokensLabel = Str.plural(tokens, 'token', 'tokens');
-
-    let stats = `${lines.length.toLocaleString()} ${linesLabel}`;
-    stats += `, ${tokens.toLocaleString()} ${tokensLabel}`;
-
-    let msg = '\n';
-    msg += `${total.toLocaleString()} ${filesLabel}`;
-    msg += ` (${c.white(c.bold(`${stats}`))})`;
-    msg += ` copied to clipboard\n`;
-
-    console.info(c.gray(msg));
+    Cli.copyToClipboard(bundle.text);
+    logClipboardSummary(bundle);
   } else {
     console.info(c.gray('\nNo files selected.\n'));
   }
+}
+
+export function logClipboardSummary(bundle: { text: string; fileCount: number }) {
+  const lines = bundle.text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const tokens = Token.count(bundle.text);
+  const total = bundle.fileCount;
+  const filesLabel = Str.plural(total, 'file', 'files');
+  const linesLabel = Str.plural(lines.length, 'line', 'lines');
+  const tokensLabel = Str.plural(tokens, 'token', 'tokens');
+
+  let stats = `${lines.length.toLocaleString()} ${linesLabel}`;
+  stats += `, ${tokens.toLocaleString()} ${tokensLabel}`;
+
+  let msg = '\n';
+  msg += `${total.toLocaleString()} ${filesLabel}`;
+  msg += ` (${c.white(c.bold(`${stats}`))})`;
+  msg += ` copied to clipboard\n`;
+
+  console.info(c.gray(msg));
 }

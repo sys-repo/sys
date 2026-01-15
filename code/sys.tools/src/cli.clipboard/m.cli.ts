@@ -38,7 +38,7 @@ async function run(cwd: t.StringDir) {
       { name: `Copy Types`, value: `types:select` },
       { name: `Copy Types (all)`, value: `types:all` },
       { name: `Copy deno.json`, value: `files:deno.json` },
-      { name: `Copy Git changed files`, value: `git:changed` },
+      { name: `Copy Git working tree`, value: `git:changed` },
     ],
   })) as t.ClipboardTool.Command;
 
