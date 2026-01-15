@@ -38,6 +38,20 @@ jobs:
         run: deno task help
 
 
+      - name: publish module → "@tdb/edu-slug"
+        run: |
+          cd deploy/@tdb.edu.slug
+          deno task test --parallel
+          for i in 1 2 3; do
+              if deno publish --allow-dirty; then
+                exit 0
+              fi
+              echo "publish failed (attempt $i), retrying in 5s..."
+              sleep 5
+          done
+          echo "publish failed after 3 attempts"
+          exit 1
+
       - name: publish module → "@sys/tools"
         run: |
           cd code/sys.tools
