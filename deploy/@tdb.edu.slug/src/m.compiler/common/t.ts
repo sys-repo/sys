@@ -4,6 +4,7 @@ export type * from '@sys/types';
 
 export type { Crdt } from '@sys/driver-automerge/t';
 export type { Graph } from '@sys/immutable/t';
+export type { TSchema } from '@sys/schema/t';
 
 /** Public module types */
 export type * from '../types.ts';

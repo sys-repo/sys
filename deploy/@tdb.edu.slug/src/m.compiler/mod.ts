@@ -15,3 +15,4 @@
 export { Linter } from './lint/mod.ts';
 export { Tasks } from './tasks/mod.ts';
 export { Slug } from './slug/mod.ts';
+export { SlugTree } from './slug.SlugTree/mod.ts';

@@ -8,7 +8,7 @@ export { c, Cli } from '@sys/cli';
 export { Fs, Pkg } from '@sys/fs';
 
 export { Hash } from '@sys/crypto/hash';
-export { Schema } from '@sys/schema';
+export { Schema, Type, Value } from '@sys/schema';
 export { toSchema, V } from '@sys/schema/recipe';
 export { Yaml } from '@sys/yaml';
 
