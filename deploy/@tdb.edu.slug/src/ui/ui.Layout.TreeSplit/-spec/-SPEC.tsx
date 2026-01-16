@@ -15,6 +15,8 @@ export default Spec.describe(D.displayName, async (e) => {
         theme={v.theme}
         split={v.split}
         root={v.root}
+        path={v.path}
+        onPathChange={({ path }) => (p.path.value = path)}
         onSplitChange={(e) => (p.split.value = e.split)}
       />
     );

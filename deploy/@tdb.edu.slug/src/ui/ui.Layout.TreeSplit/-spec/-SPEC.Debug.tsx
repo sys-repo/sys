@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   type t,
-  SlugClient,
   Button,
   Color,
   css,
@@ -10,18 +9,23 @@ import {
   Obj,
   ObjectView,
   Signal,
+  SlugClient,
+  Str,
 } from '../common.ts';
 import { Data } from '../m.Data.ts';
 
 import sample from './-sample/slug-tree.21JvXzARPYFXDVMag3x4UhLgHcQi.json' with { type: 'json' };
 
 type P = t.LayoutTreeSplitProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'split'> & { load?: 'import' | 'http' };
+type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'path'> & {
+  load?: 'import' | 'http';
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   split: D.split,
   load: 'import',
+  path: undefined,
 };
 
 /**
@@ -45,6 +49,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     split: s(snap.split),
     load: s(snap.load),
+    path: s(snap.path),
   };
   const p = props;
   const api = {
@@ -67,6 +72,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.split = p.split.value;
       d.load = p.load.value;
+      d.path = p.path.value;
     });
   });
 
@@ -146,6 +152,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => (p.load.value = 'http')}
       />
       <Button block label={() => `(unload)`} onClick={() => (p.load.value = undefined)} />
+
+      <hr />
+      <Button
+        block
+        label={() => {
+          const path = v.path ? Str.ellipsize(Obj.Path.encode(v.path), 30) : '(none)';
+          return `clear path: ${path}`;
+        }}
+        onClick={() => (p.path.value = undefined)}
+      />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

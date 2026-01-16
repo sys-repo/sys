@@ -25,7 +25,19 @@ export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
   };
 
   // NOTE: Tree.Index public surface not available here; using View temporarily (Phase-1).
-  const elTreePane = <Tree.Index.View theme={theme.name} root={root} minWidth={0} />;
+  const elTreePane = (
+    <Tree.Index.View
+      theme={theme.name}
+      root={root}
+      minWidth={0}
+      path={props.path}
+      onPressDown={(e) => {
+        if (!props.onPathChange) return;
+        if (!e.hasChildren) return;
+        props.onPathChange({ path: e.node.path });
+      }}
+    />
+  );
   const elEmpty = !children && <div className={styles.empty.class}>{'No content to display.'}</div>;
   const elContentPane = !elEmpty && <div className={styles.content.class}>{children}</div>;
 
