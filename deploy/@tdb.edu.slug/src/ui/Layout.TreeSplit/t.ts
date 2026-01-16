@@ -12,4 +12,5 @@ export type LayoutTreeSplitProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
+  children?: t.ReactNode;
 };
