@@ -8,7 +8,7 @@ export const loadTreeFromEndpoint: t.SlugClientLib['loadTreeFromEndpoint'] = asy
 ) => {
   const fetch = Http.fetcher();
   const base = Url.parse(baseUrl);
-  const manifestUrl = base.join('manifests', `slug-tree.${docid}.json`);
+  const manifestUrl = base.join('manifests', `slug-tree.${cleanDocid(docid)}.json`);
   const res = await fetch.json<unknown>(manifestUrl, { cache: 'no-cache', ...init });
   if (!res.ok) {
     return {
@@ -39,3 +39,12 @@ export const loadTreeFromEndpoint: t.SlugClientLib['loadTreeFromEndpoint'] = asy
     value: parsed.sequence,
   };
 };
+
+/**
+ * Helpers:
+ */
+function cleanDocid(docid: string) {
+  return String(docid)
+    .trim()
+    .replace(/^crdt\:/, '');
+}
