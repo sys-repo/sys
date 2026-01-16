@@ -3,7 +3,7 @@
  * DevHarness visual specs.
  */
 import type { t } from './common.ts';
-export const ns = 'sys.🐷';
+export const ns = 'tdb.edu.slug';
 
 /**
  * Specs:
