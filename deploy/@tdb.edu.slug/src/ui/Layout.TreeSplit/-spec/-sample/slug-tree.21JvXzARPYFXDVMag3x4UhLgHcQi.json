@@ -217,7 +217,8 @@
         "slug": "6.0-additional-content",
         "slugs": [
           {
-            "slug": "6.1-venture-example-library"
+            "slug": "6.1-venture-example-library",
+            "description": "Inline sample content with a short summary"
           },
           {
             "slug": "6.2-venture-stage-model"

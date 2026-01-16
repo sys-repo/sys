@@ -205,6 +205,53 @@ describe('Lint: bundle/sequence files', () => {
     }
   });
 
+  it('preserves slug-tree inline description through bundle', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const slugTreeYaml = `
+        title: Slug Tree Description
+        traits:
+          - of: slug-tree
+            as: tree
+
+        data:
+          tree:
+            - slug: Root
+              slugs:
+                - slug: Child
+                  description: Inline description
+      `;
+
+      const docid = 'crdt:slug-tree-description' as t.Crdt.Id;
+      const node = { id: docid, doc: { current: slugTreeYaml } } as unknown as t.Graph.Dag.Node;
+      const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
+
+      const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
+        outDir: tmpDir,
+      });
+
+      expect(result.issues).to.eql([]);
+
+      const slugTreePath = Fs.join(tmpDir, 'manifests', `slug-tree.${docid}.json`);
+      expect(await Fs.exists(slugTreePath)).to.eql(true);
+
+      const raw = await Deno.readTextFile(slugTreePath);
+      const payload = Json.parse(raw) as readonly [
+        {
+          readonly slug: string;
+          readonly slugs?: readonly {
+            readonly slug: string;
+            readonly description?: string;
+          }[];
+        },
+      ];
+
+      expect(payload[0]?.slugs?.[0]?.description).to.eql('Inline description');
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
   it('skips slug-tree manifest when trait is missing', async () => {
     const tmpDir = (await Fs.makeTempDir()).absolute;
     try {
