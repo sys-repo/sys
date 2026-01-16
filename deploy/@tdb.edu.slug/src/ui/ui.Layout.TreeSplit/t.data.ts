@@ -17,6 +17,8 @@ import type { t } from './common.ts';
  * between domain trees and the Tree UI.
  */
 export type LayoutTreeSplitDataLib = {
+  readonly Client: t.SlugClientLib;
+
   /**
    * Convert a slug-tree into a Tree.Index root.
    *

@@ -1,8 +1,10 @@
-import { type t, Arr, Is, Obj } from './common.ts';
+import { type t, Arr, Is, Obj, SlugClient } from './common.ts';
 
 type LabelMode = Exclude<t.LayoutTreeSplitFromSlugTreeOpts['label'], undefined>;
 
 export const Data: t.LayoutTreeSplitDataLib = {
+  Client: SlugClient,
+
   fromSlugTree(tree, opts) {
     const mode: LabelMode = opts?.label ?? 'slug';
     return tree.map((item) => toNode(item, [], mode));
