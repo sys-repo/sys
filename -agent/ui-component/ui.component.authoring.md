@@ -17,7 +17,7 @@ in small, controlled increments.
 
 The goal is to preserve long-term system integrity while moving quickly.
 
-----------------------------------------------------------------------------------------------------
+====================================================================================================
 
 ## The canonical loop
 
@@ -49,10 +49,9 @@ Repeat.
 
 This loop is intentionally friction-light so it can be used even under fatigue.
 
-----------------------------------------------------------------------------------------------------
+====================================================================================================
 
 ## Phase guardrails are executable
-
 Each phase spec **must include guardrails** (explicit do / do-not rules).
 
 Examples:
@@ -64,10 +63,9 @@ Review rule:
 - Any guardrail violation is a **hard stop**, even if the UI renders correctly.
 - Guardrails are treated as executable constraints, not suggestions.
 
-----------------------------------------------------------------------------------------------------
+====================================================================================================
 
 ## Public surface only (no internal reach-through)
-
 Always target the **public library surface**.
 
 Rules:
@@ -79,10 +77,9 @@ Heuristic:
 - If a symbol looks like `.View`, `.Impl`, `.Internal`, or similar,
   it is almost never Phase-1 safe.
 
-----------------------------------------------------------------------------------------------------
+====================================================================================================
 
 ## No prop guessing (types first, always)
-
 When a spec says “do not guess props”:
 
 - Do not rely on autocomplete.
@@ -96,10 +93,9 @@ Instead:
 
 A 10-line type check now avoids hours of cleanup later.
 
-----------------------------------------------------------------------------------------------------
+====================================================================================================
 
 ## Placeholder vs real content (children discipline)
-
 Any component that accepts `children` must obey this rule:
 
 - `children == null`
@@ -115,10 +111,9 @@ Never:
 
 This prevents future layout corruption.
 
-----------------------------------------------------------------------------------------------------
+====================================================================================================
 
 ## Assumption surfaces (UI review checklist)
-
 Before accepting a Codex diff, do a fast scan for:
 
 - Props not mentioned in the phase spec.
@@ -132,10 +127,78 @@ If found:
 - Tidy immediately.
 - Commit the tidy as its own change.
 
-----------------------------------------------------------------------------------------------------
+
+
+====================================================================================================
+
+
+
+## DevHarness debug state (canonical persistence rule)
+In `-spec/-SPEC.Debug.tsx`, debug state is **persistent by default**.
+
+The DevHarness exists to make UI behavior inspectable, repeatable, and fatigue-resistant.
+Therefore, debug Signals are normally backed by LocalStorage so that:
+
+- UI state survives refresh
+- experiments are resumable
+- Codex output matches established sys patterns
+
+Ephemeral (in-memory) debug state is allowed **only when explicitly stated in the plan**.
+
+---
+
+### Canonical persistent pattern (default)
+When a `-SPEC.Debug.tsx` uses Signals, it MUST follow the template pattern:
+
+In `createDebugSignals()`:
+
+- Create a persistent store:
+  - `const store = LocalStorage.immutable<Storage>(\`dev:${D.displayName}\`, defaults);`
+  - `const snap = store.current;`
+
+- Seed Signals from `snap` (never from `defaults`):
+  - `debug: s(snap.debug)`
+  - `theme: s(snap.theme)`
+  - `...`
+
+- Implement reset via defaults path-walk:
+  - `Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));`
+
+- Persist changes using a single `Signal.effect`:
+  - `Signal.effect(() => store.change((d) => { ... }))`
+
+This pattern is not optional.
+If debug state is meant to behave like other sys UI specs (e.g. SplitPane),
+this pattern applies automatically.
+
+---
+
+### Ephemeral debug state (exception)
+Ephemeral debug state may be used only when the plan explicitly declares:
+
+- "Ephemeral debug state (no LocalStorage)"
+- Signals are seeded directly from `defaults`
+- Refresh resets state by design
+
+If this declaration is missing, persistence is assumed.
+
+---
+
+### Planning guardrail (for Codex)
+Every plan that edits `-SPEC.Debug.tsx` MUST include one of:
+
+- **Default (implicit):** follow canonical persistent pattern
+- **Explicit override:** "Ephemeral debug state (no LocalStorage)"
+
+If neither appears, Codex output is considered incorrect.
+
+
+
+====================================================================================================
+
+
 
 ## Commit discipline
-
 - One phase → one commit.
 - Commit as soon as the phase is proven.
 - Commit messages should reference the phase intent.
@@ -145,10 +208,9 @@ Example:
 
 This keeps the history readable and Codex-friendly.
 
-----------------------------------------------------------------------------------------------------
+====================================================================================================
 
 ## Fatigue-aware operation
-
 This protocol is designed to work under load.
 
 When tired:
@@ -158,7 +220,7 @@ When tired:
 
 Clean stopping points preserve the next session’s leverage.
 
-----------------------------------------------------------------------------------------------------
+====================================================================================================
 
 ## Summary
 
