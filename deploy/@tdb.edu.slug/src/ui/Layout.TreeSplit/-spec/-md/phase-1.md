@@ -1,3 +1,4 @@
+Module: deploy/@tdb.edu.slug/
 Target: src/ui/Layout.TreeSplit
 
 Phase 1 (layout only):
