@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, D, SplitPane, Tree } from './common.ts';
 
 export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
-  const { debug = false, children, split = D.split, root = [] } = props;
+  const { debug = false, children, split = D.split, root } = props;
 
   const theme = Color.theme(props.theme);
   const styles = {
@@ -13,7 +13,7 @@ export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
       color: theme.fg,
       backgroundColor: debug ? Color.ruby(0.04) : undefined,
     }),
-    content: css({ display: 'grid', minWidth: 0, minHeight: 0 }),
+    body: css({ display: 'grid', minWidth: 0, minHeight: 0 }),
     empty: css({
       minHeight: 120,
       display: 'grid',
@@ -24,22 +24,24 @@ export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
     }),
   };
 
-  // NOTE: Tree.Index public surface not available here; using View temporarily (Phase-1).
-  const elTreePane = (
+  const empty = (msg: string) => <div className={styles.empty.class}>{msg}</div>;
+  const elTreeEmpty = !root && empty('No tree loaded');
+  const elBodyEmpty = !children && empty('No content to display');
+
+  const elTreePane = !elTreeEmpty && (
     <Tree.Index.View
       theme={theme.name}
       root={root}
       minWidth={0}
       path={props.path}
       onPressDown={(e) => {
-        if (!props.onPathChange) return;
         if (!e.hasChildren) return;
-        props.onPathChange({ path: e.node.path });
+        props.onPathChange?.({ path: e.node.path });
       }}
     />
   );
-  const elEmpty = !children && <div className={styles.empty.class}>{'No content to display.'}</div>;
-  const elContentPane = !elEmpty && <div className={styles.content.class}>{children}</div>;
+
+  const elBody = !elBodyEmpty && <div className={styles.body.class}>{children}</div>;
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
@@ -50,8 +52,8 @@ export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
         value={split}
         onChange={(e) => props.onSplitChange?.({ split: e.ratios })}
       >
-        {elTreePane}
-        {elEmpty || elContentPane}
+        {elTreeEmpty || elTreePane}
+        {elBodyEmpty || elBody}
       </SplitPane>
     </div>
   );
