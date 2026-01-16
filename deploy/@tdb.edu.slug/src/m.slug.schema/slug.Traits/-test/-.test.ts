@@ -1,14 +1,10 @@
-import { type t, describe, it, expect } from '../../-test.ts';
+import { type t, describe, it, expect } from '../../../-test.ts';
 import { Traits } from '../mod.ts';
 
 describe('Traits', () => {
   describe('Traits.gateAs', () => {
     it('returns disabled when opt is null (explicit opt-out)', () => {
-      const result = Traits.gateAs({
-        traits: [],
-        opt: null,
-      });
-
+      const result = Traits.gateAs({ traits: [], opt: null });
       expect(result.ok).to.eql(true);
       if (!result.ok) throw result.error;
 

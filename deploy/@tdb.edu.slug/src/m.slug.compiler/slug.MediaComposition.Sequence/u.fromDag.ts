@@ -1,5 +1,5 @@
 import { type t, makeParser, Obj, Traits } from './common.ts';
-import { normalizeEditorSequenceForTypedYaml } from './u.normalize.ts';
+import { normalizeEditorSequenceForTypedYaml } from './u.normalize.dsl.ts';
 import { validateSequence } from '../../m.slug.schema/slug.MediaComposition.Sequence/u.schema.validate.ts';
 
 type O = Record<string, unknown>;

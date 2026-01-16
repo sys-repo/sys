@@ -21,13 +21,13 @@ export type PlaybackLib = {
 };
 
 /** Slug-specific playback spec: generic timecode spec + beat payload. */
-export type PlaybackSpec = t.TimecodePlaybackSpec<t.SequenceBeatPayload> & {
+export type PlaybackSpec = t.Timecode.Playback.Spec<t.SequenceBeatPayload> & {
   readonly docid: t.Crdt.Id;
   readonly meta?: t.SequenceNormalized['meta'];
 };
 
 /** Slug-scoped wrapper around the generic media resolver. */
-export type PlaybackMediaResolver = t.MediaResolver;
+export type PlaybackMediaResolver = t.Timecode.Playback.Resolver;
 
 /** Bundle of "what to play" + "how to resolve its media". */
 export type PlaybackBundle = {

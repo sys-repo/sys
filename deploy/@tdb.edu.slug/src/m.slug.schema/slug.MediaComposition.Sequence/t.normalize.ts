@@ -18,7 +18,7 @@ export type SequenceBeatPayload = {
  * Structural timeline mapping is owned by `TimecodeExperienceBeat<P>`;
  * this layer only fixes the payload shape used by the sequence domain.
  */
-export type SequenceBeat = t.TimecodeExperienceBeat<SequenceBeatPayload>;
+export type SequenceBeat = t.Timecode.Experience.Beat<SequenceBeatPayload>;
 
 /**
  * Normalized result of lowering the YAML DSL to a timecode `Sequence`.
@@ -28,7 +28,7 @@ export type SequenceBeat = t.TimecodeExperienceBeat<SequenceBeatPayload>;
  * - `meta`: optional provenance; has no playback semantics.
  */
 export type SequenceNormalized = {
-  readonly timecode: t.TimecodeCompositionSpec;
+  readonly timecode: t.Timecode.Composite.Spec;
   readonly beats: readonly SequenceBeat[];
   readonly meta?: {
     readonly docid?: t.Crdt.Id;

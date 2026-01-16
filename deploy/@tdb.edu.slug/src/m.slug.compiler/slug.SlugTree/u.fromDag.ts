@@ -1,5 +1,4 @@
-import { type t, makeParser, Obj, Traits } from './common.ts';
-import { validateSlugTree } from './u.validate.ts';
+import { type t, makeParser, Obj, Traits, validateSlugTree } from './common.ts';
 
 type O = Record<string, unknown>;
 

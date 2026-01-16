@@ -1,2 +1,1 @@
-export * from './t.ts';
-export * from './u.gateAs.ts';
+export { Traits } from './m.Traits.ts';

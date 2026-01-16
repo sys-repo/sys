@@ -1,11 +1,11 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 export const toTimecode: t.SequenceNormalizeLib['toTimecode'] = (
   sequence: t.SequenceItem[],
   opts = {},
 ) => {
   const { docid, yamlPath } = opts;
-  const timecode: t.TimecodeCompositionSpec = [];
+  const timecode: t.Timecode.Composite.Spec = [];
   const beats: t.SequenceBeat[] = [];
 
   for (const item of sequence) {
@@ -33,7 +33,7 @@ export const toTimecode: t.SequenceNormalizeLib['toTimecode'] = (
     }
 
     if (isSlugItem(item)) {
-      // For now we do not project slug items into TimecodeCompositionSpec.
+      // For now we do not project slug items into t.Timecode.Composite.Spec.
       // Their timestamps are also skipped at this layer until we have a
       // clear story for slug-resolution into concrete media.
       continue;

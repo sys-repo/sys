@@ -8,7 +8,7 @@ type O = Record<string, unknown>;
  * This is a light-weight cleanup pass that prepares loose editor YAML for the
  * Typed-Yaml schema (the first validation layer). It stabilizes shape while
  * preserving semantics. A later stage maps this typed YAML shape into the
- * canonical `TimecodeCompositionSpec` in `@sys/std/timecode` for
+ * canonical `t.Timecode.Composite.Spec` in `@sys/std/timecode` for
  * `<CompositeVideo>`.
  */
 export function normalizeEditorSequenceForTypedYaml(input: unknown): t.SequenceItem[] | undefined {

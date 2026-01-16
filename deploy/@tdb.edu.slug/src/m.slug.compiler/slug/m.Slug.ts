@@ -1,14 +1,13 @@
-import type { t } from './common.ts';
+import { type t, Traits } from './common.ts';
 
 import { makeParser as parser } from '../resolve/mod.ts';
 import { MediaComposition } from '../slug.MediaComposition/mod.ts';
-import { Traits as Helpers } from '../slug.Traits/mod.ts';
 import { SlugTree } from '../slug.SlugTree/mod.ts';
 
 export const Slug: t.SlugLib = {
   parser,
   Trait: {
-    Helpers,
+    Helpers: Traits,
     MediaComposition,
   },
   Tree: SlugTree,

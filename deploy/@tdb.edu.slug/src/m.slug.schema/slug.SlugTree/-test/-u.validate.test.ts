@@ -1,4 +1,4 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../../-test.ts';
 import { validateSlugTree } from '../u.validate.ts';
 
 const VALID_TREE: t.SlugTreeProps = [

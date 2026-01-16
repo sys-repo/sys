@@ -6,7 +6,7 @@ import { type t } from './common.ts';
 export const fromNormalized: t.PlaybackLib['fromNormalized'] = (docid, normalized) => {
   const { meta } = normalized;
 
-  type B = t.TimecodePlaybackBeat<t.SequenceBeatPayload>;
+  type B = t.Timecode.Playback.Beat<t.SequenceBeatPayload>;
   const beats: readonly B[] = normalized.beats.map((beat) => {
     const { pause, payload } = beat;
     return {

@@ -7,9 +7,11 @@ export type { FC, ReactElement, ReactNode } from 'react';
  * @system
  */
 export type * from '@sys/types';
+
 export type { Crdt } from '@sys/driver-automerge/t';
 export type { Graph } from '@sys/immutable/t';
 export type { TSchema } from '@sys/schema/t';
+export type { Alias, ObjLens, StrBuilder, Timecode } from '@sys/std/t';
 
 /** User interface */
 export type { ColorTheme } from '@sys/color/t';
@@ -24,5 +26,4 @@ export type { DevCtx } from '@sys/ui-react-devharness/t';
 /**
  * @local
  */
-export type * from '../m.slug.compiler/common/t.ts';
 export type * from '../types.ts';
