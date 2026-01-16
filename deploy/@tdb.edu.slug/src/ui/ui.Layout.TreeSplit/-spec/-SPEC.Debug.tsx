@@ -21,13 +21,14 @@ const SAMPLE = {
 } as const;
 
 type P = t.LayoutTreeSplitProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'path'> & { load?: 'import' | 'http' };
+type LoadAction = 'import' | 'http';
+type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'path'> & { load?: LoadAction };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
   split: D.split,
-  load: 'import',
   path: undefined,
+  load: 'import',
 };
 
 /**
@@ -41,7 +42,6 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
@@ -58,6 +58,7 @@ export async function createDebugSignals() {
     props,
     listen,
     reset,
+    load,
   };
 
   function listen() {
@@ -66,6 +67,7 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(props, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    load(p.load.value);
   }
 
   Signal.effect(() => {
@@ -79,16 +81,14 @@ export async function createDebugSignals() {
   });
 
   let httpRequestNonce = 0;
-  Signal.effect(() => {
-    const load = p.load.value;
-
-    if (!load) return void (p.root.value = undefined);
-    if (load === 'import') {
+  Signal.effect(() => void load(p.load.value));
+  async function load(action?: LoadAction) {
+    if (!action) return void (p.root.value = undefined);
+    if (action === 'import') {
       p.root.value = Data.fromSlugTree(sample as t.SlugTreeProps);
       return;
     }
-
-    if (load === 'http') {
+    if (action === 'http') {
       const thisRequest = ++httpRequestNonce; // ← move here
       const baseUrl = SAMPLE.baseUrl;
       const docId = SAMPLE.tree.docId;
@@ -98,7 +98,7 @@ export async function createDebugSignals() {
         if (!res.ok) console.info('[SlugClient] failed to load slug-tree via HTTP', res.error);
       });
     }
-  });
+  }
 
   return api;
 }
