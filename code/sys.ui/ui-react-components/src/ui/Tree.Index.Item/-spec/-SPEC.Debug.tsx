@@ -60,7 +60,8 @@ export function createDebugSignals() {
       d.enabled = p.enabled.value;
       d.label = Is.string(p.label.value) ? p.label.value : undefined;
       d.description = Is.string(p.description.value) ? p.description.value : undefined;
-      d.chevron = Is.string(p.chevron.value) ? p.chevron.value : D.chevron;
+      const v = p.chevron.value;
+      d.chevron = typeof v === 'boolean' ? v : undefined;
     });
   });
 
@@ -98,7 +99,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <Button
@@ -106,7 +107,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => {
           const v = p.label.value;
           const label = React.isValidElement(v) ? 'custom <Component>' : v;
-          return `label: ${label ?? `<undefined>`}`;
+          return `label: ${label ?? `(undefined)`}`;
         }}
         onClick={() => {
           const style = css({ backgroundColor: Color.ruby() });
@@ -119,7 +120,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => {
           const v = p.description.value;
           const description = React.isValidElement(v) ? 'custom <Component>' : v;
-          return `description: ${description ?? `<undefined>`}`;
+          return `description: ${description ?? `(undefined)`}`;
         }}
         onClick={() => {
           const style = css({ backgroundColor: Color.ruby() });
@@ -132,7 +133,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => {
           const v = p.chevron.value;
           const label = React.isValidElement(v) ? 'custom <Icon>' : v;
-          return `chevron: ${label ?? `<undefined>`}`;
+          return `chevron: ${label ?? `(undefined)`}`;
         }}
         onClick={() => {
           const style = css({ backgroundColor: Color.ruby() });
@@ -144,17 +145,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button
         block
-        label={() => `enabled: ${p.enabled.value ?? `<undefined> (default: ${D.enabled})`}`}
+        label={() => `enabled: ${p.enabled.value ?? `(undefined) (default: ${D.enabled})`}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
       <Button
         block
-        label={() => `active: ${p.active.value ?? `<undefined> (default: ${D.active})`}`}
+        label={() => `active: ${p.active.value ?? `(undefined) (default: ${D.active})`}`}
         onClick={() => Signal.toggle(p.active)}
       />
       <Button
         block
-        label={() => `selected: ${p.selected.value ?? `<undefined> (default: ${D.selected})`}`}
+        label={() => `selected: ${p.selected.value ?? `(undefined) (default: ${D.selected})`}`}
         onClick={() => Signal.toggle(p.selected)}
       />
 

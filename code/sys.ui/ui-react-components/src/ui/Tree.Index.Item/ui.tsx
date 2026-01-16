@@ -63,6 +63,7 @@ export const IndexTreeItem: React.FC<t.IndexTreeItemProps> = (props) => {
       minWidth: 0,
       display: 'grid',
       gap: hasDescription ? 2 : 0,
+      alignSelf: 'center',
     }),
 
     label: css({
