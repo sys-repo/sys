@@ -15,14 +15,16 @@ import {
 import { Data } from '../m.Data.ts';
 
 import sample from './-sample/slug-tree.21JvXzARPYFXDVMag3x4UhLgHcQi.json' with { type: 'json' };
+const SAMPLE = {
+  baseUrl: 'http://localhost:4040/publish.assets',
+  tree: { docId: '21JvXzARPYFXDVMag3x4UhLgHcQi' },
+} as const;
 
 type P = t.LayoutTreeSplitProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'path'> & {
-  load?: 'import' | 'http';
-};
+type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'path'> & { load?: 'import' | 'http' };
 const defaults: Storage = {
   debug: false,
-  theme: 'Dark',
+  theme: 'Light',
   split: D.split,
   load: 'import',
   path: undefined,
@@ -88,8 +90,8 @@ export async function createDebugSignals() {
 
     if (load === 'http') {
       const thisRequest = ++httpRequestNonce; // ← move here
-      const baseUrl = 'http://localhost:4040/publish.assets';
-      const docId = '21JvXzARPYFXDVMag3x4UhLgHcQi';
+      const baseUrl = SAMPLE.baseUrl;
+      const docId = SAMPLE.tree.docId;
       SlugClient.loadTreeFromEndpoint(baseUrl, docId).then((res) => {
         if (thisRequest !== httpRequestNonce) return; // ← ignore stale
         p.root.value = res.ok ? Data.fromSlugTree(res.value) : undefined;

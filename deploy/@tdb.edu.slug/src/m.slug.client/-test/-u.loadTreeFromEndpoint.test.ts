@@ -70,17 +70,10 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
 
     // Expected semantics: baseUrl is treated as a "base path" root.
     // → manifest should live under that path.
-    const manifestUrl = new URL(`manifests/slug-tree.${docid}.json`, `${baseUrl}/`).toString();
+    const url = new URL(`manifests/slug-tree.${docid}.json`, `${baseUrl}/`).toString();
+    const fetchResponse = { ok: true, status: 200, statusText: 'OK', url, data: tree };
 
-    const fetchResponse = {
-      ok: true,
-      status: 200,
-      statusText: 'OK',
-      url: manifestUrl,
-      data: tree,
-    };
-
-    await withStubFetcher({ expectedUrl: manifestUrl, response: fetchResponse }, async () => {
+    await withStubFetcher({ expectedUrl: url, response: fetchResponse }, async () => {
       const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
       expect(res.ok).to.eql(true);
       if (!res.ok) return;
@@ -90,20 +83,13 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
 
   it('supports baseUrl with a pathname (with trailing slash)', async () => {
     const tree: t.SlugTreeProps = [{ slug: 'Root' }];
-    const docid = 'crdt:slug-tree-path-slash' as t.Crdt.Id;
+    const docid = 'crdt:0000000' as t.Crdt.Id;
 
     const baseUrl = 'http://localhost:4040/publish.assets/';
-    const manifestUrl = new URL(`manifests/slug-tree.${docid}.json`, baseUrl).toString();
+    const url = new URL(`manifests/slug-tree.${docid}.json`, baseUrl).toString();
+    const fetchResponse = { ok: true, status: 200, statusText: 'OK', url, data: tree };
 
-    const fetchResponse = {
-      ok: true,
-      status: 200,
-      statusText: 'OK',
-      url: manifestUrl,
-      data: tree,
-    };
-
-    await withStubFetcher({ expectedUrl: manifestUrl, response: fetchResponse }, async () => {
+    await withStubFetcher({ expectedUrl: url, response: fetchResponse }, async () => {
       const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
       expect(res.ok).to.eql(true);
       if (!res.ok) return;
@@ -112,19 +98,13 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
   });
 
   it('throws when manifest fails schema validation', async () => {
-    const docid = 'crdt:slug-tree-schema' as t.Crdt.Id;
+    const docid = 'crdt:0000000' as t.Crdt.Id;
     const baseUrl = 'http://127.0.0.1/';
-    const manifestUrl = new URL(`manifests/slug-tree.${docid}.json`, baseUrl).toString();
+    const url = new URL(`manifests/slug-tree.${docid}.json`, baseUrl).toString();
+    const data = [{ description: 'no slug' }];
+    const fetchResponse = { ok: true, status: 200, statusText: 'OK', url, data };
 
-    const fetchResponse = {
-      ok: true,
-      status: 200,
-      statusText: 'OK',
-      url: manifestUrl,
-      data: [{ description: 'no slug' }],
-    };
-
-    await withStubFetcher({ expectedUrl: manifestUrl, response: fetchResponse }, async () => {
+    await withStubFetcher({ expectedUrl: url, response: fetchResponse }, async () => {
       const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
       expect(res.ok).to.eql(false);
       if (res.ok) return;
@@ -137,16 +117,10 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
   it('throws when manifest fetch fails (404)', async () => {
     const docid = 'crdt:missing-doc' as t.Crdt.Id;
     const baseUrl = 'http://127.0.0.1/';
-    const manifestUrl = new URL(`manifests/slug-tree.${docid}.json`, baseUrl).toString();
+    const url = new URL(`manifests/slug-tree.${docid}.json`, baseUrl).toString();
+    const fetchResponse = { ok: false, status: 404, statusText: 'Not Found', url };
 
-    const fetchResponse = {
-      ok: false,
-      status: 404,
-      statusText: 'Not Found',
-      url: manifestUrl,
-    };
-
-    await withStubFetcher({ expectedUrl: manifestUrl, response: fetchResponse }, async () => {
+    await withStubFetcher({ expectedUrl: url, response: fetchResponse }, async () => {
       const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
       expect(res.ok).to.eql(false);
       if (res.ok) return;
