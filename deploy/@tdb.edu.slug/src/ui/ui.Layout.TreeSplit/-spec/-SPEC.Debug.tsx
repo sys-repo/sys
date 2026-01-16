@@ -1,16 +1,27 @@
 import React from 'react';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  SlugClient,
+  Button,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+} from '../common.ts';
 import { Data } from '../m.Data.ts';
 
 import sample from './-sample/slug-tree.21JvXzARPYFXDVMag3x4UhLgHcQi.json' with { type: 'json' };
 
 type P = t.LayoutTreeSplitProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'split'> & { loaded: boolean };
+type Storage = Pick<P, 'debug' | 'theme' | 'split'> & { load?: 'import' | 'http' };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   split: D.split,
-  loaded: true,
+  load: 'import',
 };
 
 /**
@@ -29,11 +40,11 @@ export async function createDebugSignals() {
   const snap = store.current;
 
   const props = {
-    root: s<t.TreeNodeList>([]),
+    root: s<P['root']>(undefined),
     debug: s(snap.debug),
     theme: s(snap.theme),
     split: s(snap.split),
-    loaded: s(snap.loaded),
+    load: s(snap.load),
   };
   const p = props;
   const api = {
@@ -55,13 +66,30 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.split = p.split.value;
-      d.loaded = p.loaded.value;
+      d.load = p.load.value;
     });
   });
 
+  let httpRequestNonce = 0;
   Signal.effect(() => {
-    const loaded = p.loaded.value;
-    p.root.value = loaded ? Data.fromSlugTree(sample as t.SlugTreeProps) : [];
+    const load = p.load.value;
+
+    if (!load) return void (p.root.value = undefined);
+    if (load === 'import') {
+      p.root.value = Data.fromSlugTree(sample as t.SlugTreeProps);
+      return;
+    }
+
+    if (load === 'http') {
+      const thisRequest = ++httpRequestNonce; // ← move here
+      const baseUrl = 'http://localhost:4040/publish.assets';
+      const docId = '21JvXzARPYFXDVMag3x4UhLgHcQi';
+      SlugClient.loadTreeFromEndpoint(baseUrl, docId).then((res) => {
+        if (thisRequest !== httpRequestNonce) return; // ← ignore stale
+        p.root.value = res.ok ? Data.fromSlugTree(res.value) : undefined;
+        if (!res.ok) console.info('[SlugClient] failed to load slug-tree via HTTP', res.error);
+      });
+    }
   });
 
   return api;
@@ -107,8 +135,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Sample:'}</div>
-      <Button block label={() => `load`} onClick={() => (p.loaded.value = true)} />
-      <Button block label={() => `unload`} onClick={() => (p.loaded.value = false)} />
+      <Button
+        block
+        label={() => `load: sample import ${p.load.value === 'import' ? '🌳' : ''}`}
+        onClick={() => (p.load.value = 'import')}
+      />
+      <Button
+        block
+        label={() => `load: via HTTP ${p.load.value === 'http' ? '🌳' : ''}`}
+        onClick={() => (p.load.value = 'http')}
+      />
+      <Button block label={() => `(unload)`} onClick={() => (p.load.value = undefined)} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

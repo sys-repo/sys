@@ -1,16 +1,15 @@
-import { validateSlugTree } from '../m.slug.schema/slug.SlugTree/u.validate.ts';
-import { type t, Http } from './common.ts';
+import { validateSlugTree } from '../m.slug.schema/mod.ts';
+import { type t, Http, Url } from './common.ts';
 
 export const loadTreeFromEndpoint: t.SlugClientLib['loadTreeFromEndpoint'] = async (
   baseUrl,
   docid,
   init = {},
 ) => {
-  const manifestInit: RequestInit = { cache: 'no-cache', ...init };
   const fetch = Http.fetcher();
-  const manifestUrl = new URL(`manifests/slug-tree.${docid}.json`, new URL(baseUrl)).toString();
-
-  const res = await fetch.json<unknown>(manifestUrl, manifestInit);
+  const base = Url.parse(baseUrl);
+  const manifestUrl = base.join('manifests', `slug-tree.${docid}.json`);
+  const res = await fetch.json<unknown>(manifestUrl, { cache: 'no-cache', ...init });
   if (!res.ok) {
     return {
       ok: false,
@@ -35,5 +34,8 @@ export const loadTreeFromEndpoint: t.SlugClientLib['loadTreeFromEndpoint'] = asy
     };
   }
 
-  return { ok: true, value: parsed.sequence };
+  return {
+    ok: true,
+    value: parsed.sequence,
+  };
 };
