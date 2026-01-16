@@ -10,5 +10,5 @@ export { icon };
 export const Icons = {
   Face: icon(MdFace),
   Error: icon(MdErrorOutline),
-  Arrow: { Back: icon(MdArrowBack) },
+  Arrow: { Left: icon(MdArrowBack) },
 } as const;
