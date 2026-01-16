@@ -4,7 +4,7 @@ import { type t, Color, css, D, Data, IndexTreeItem, Is, Obj } from './common.ts
 import { SlideDeck } from './u.SlideDeck.tsx';
 
 export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
-  const { debug = false, minWidth = D.minWidth, root } = props;
+  const { debug = false, minWidth, root } = props;
 
   // Normalize root → list; then drill to `path`.
   const rootList = React.useMemo(() => Data.toList(root), [root]);
@@ -24,7 +24,7 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg }),
-    body: css({ minWidth }),
+    body: css({ minWidth: minWidth ?? D.minWidth }),
   };
 
   const animKey = Obj.Path.encode(path);

@@ -93,7 +93,7 @@ export const gridTracks = (
   // Build CSS grid tracks: fr, px, fr, px, ...
   const tracks: string[] = [];
   ratios.forEach((r, i) => {
-    tracks.push(`${r}fr`);
+    tracks.push(`minmax(0, ${r}fr)`);
     if (i < ratios.length - 1) tracks.push(`${gutterPx}px`);
   });
   return orientation === 'horizontal'
