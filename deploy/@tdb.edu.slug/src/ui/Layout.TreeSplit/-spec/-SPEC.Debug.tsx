@@ -7,7 +7,7 @@ type Storage = Pick<P, 'debug' | 'theme' | 'split'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  split: [0.35, 0.65] as t.Percent[],
+  split: D.split,
 };
 
 /**

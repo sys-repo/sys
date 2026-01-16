@@ -1,8 +1,8 @@
 import React from 'react';
-import { type t, Color, css, SplitPane, Tree } from './common.ts';
+import { type t, Color, css, D, SplitPane, Tree } from './common.ts';
 
 export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
-  const { debug = false, children } = props;
+  const { debug = false, children, split = D.split } = props;
 
   const theme = Color.theme(props.theme);
   const styles = {
@@ -42,7 +42,7 @@ export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
         debug={debug}
         theme={theme.name}
         orientation={'horizontal'}
-        value={props.split}
+        value={split}
         onChange={(e) => props.onSplitChange?.({ split: e.ratios })}
       >
         {treePane}
