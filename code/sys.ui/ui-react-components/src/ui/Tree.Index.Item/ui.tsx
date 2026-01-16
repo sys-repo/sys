@@ -10,6 +10,7 @@ export const IndexTreeItem: React.FC<t.IndexTreeItemProps> = (props) => {
     chevron = D.chevron,
     selected = D.selected,
   } = props;
+
   const isActive = active && enabled;
 
   /**
@@ -42,6 +43,7 @@ export const IndexTreeItem: React.FC<t.IndexTreeItemProps> = (props) => {
 
       display: 'grid',
     }),
+
     body: css({
       backgroundColor: Color.ruby(debug),
       userSelect: 'none',
@@ -49,12 +51,26 @@ export const IndexTreeItem: React.FC<t.IndexTreeItemProps> = (props) => {
       transition: 'opacity 120ms ease',
 
       display: 'grid',
-      gridTemplateColumns: '1fr auto',
       alignItems: 'center',
+
+      // Critical for ellipsis in CSS Grid:
+      minWidth: 0,
+      gridTemplateColumns: 'minmax(0, 1fr) auto',
     }),
 
-    label: css({ transform: `translateY(${isActive && pointerIs?.down ? 1 : 0}px)` }),
-    chevron: css({ visibility: chevron ? 'visible' : 'hidden' }),
+    label: css({
+      transform: `translateY(${isActive && pointerIs?.down ? 1 : 0}px)`,
+
+      // Ellipsis:
+      minWidth: 0,
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+    }),
+
+    chevron: css({
+      visibility: chevron ? 'visible' : 'hidden',
+    }),
   };
 
   const elChevron = (
