@@ -197,6 +197,47 @@ If neither appears, Codex output is considered incorrect.
 ====================================================================================================
 
 
+## Canonical defaults pattern (D / DEFAULTS)
+When a UI component has meaningful default values for its props, those defaults MUST be defined once on `D` (aka `DEFAULTS`) and reused everywhere.
+
+### Rules
+
+- Define defaults on `D` with a strongly typed mapping back to the public props:
+  ```ts
+  export const D = {
+    split: [0.35, 0.65] satisfies P['split'],
+  } as const;
+  ```
+
+- Use `D` as the single source of truth for:
+  - Component prop destructuring defaults
+    ```ts
+    const { split = D.split } = props;
+    ```
+  - `-SPEC.Debug.tsx` defaults / storage seeding
+  - Any dev or test harness defaults
+
+- Never re-encode literal defaults in multiple places.
+  - If a default exists, it lives on `D`.
+  - If no default exists, the prop must remain `undefined` unless explicitly supplied.
+
+### Rationale
+
+- Guarantees consistency between runtime behavior, debug specs, and harnesses.
+- Makes defaults discoverable and reviewable in one place.
+- Prevents Codex drift caused by duplicated literals.
+- Keeps defaults aligned with the actual public prop surface via `satisfies`.
+
+### Plan-level guardrail (for Codex)
+
+Plans that introduce or rely on defaults MUST explicitly include:
+- “Add defaults to `D` using `satisfies P['prop']`”
+- “Reuse `D.*` for component destructuring and debug defaults”
+
+
+====================================================================================================
+
+
 
 ## Commit discipline
 - One phase → one commit.
@@ -208,7 +249,9 @@ Example:
 
 This keeps the history readable and Codex-friendly.
 
+
 ====================================================================================================
+
 
 ## Fatigue-aware operation
 This protocol is designed to work under load.
