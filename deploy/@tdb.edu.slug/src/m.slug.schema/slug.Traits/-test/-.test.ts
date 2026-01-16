@@ -21,8 +21,8 @@ describe('Traits', () => {
       if (!result.ok) throw result.error;
 
       expect(result.enabled).to.eql(false);
-
       expect('requested' in result).to.eql(true);
+
       if (!('requested' in result)) throw new Error('expected requested flag');
       expect(result.requested).to.eql(false);
     });
