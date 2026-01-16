@@ -29,6 +29,7 @@ async function run(cwd: t.StringDir) {
   const mode = (await Cli.Input.Select.prompt<C>({
     message: 'Select copy mode:\n',
     options: [
+      { name: `Copy Git working tree`, value: `git:changed` },
       {
         name: `Copy Files (select, ${c.cyan('depth = 0')}) ${depth0}`,
         value: `files:select:depth=` as C,
@@ -38,7 +39,6 @@ async function run(cwd: t.StringDir) {
       { name: `Copy Types`, value: `types:select` },
       { name: `Copy Types (all)`, value: `types:all` },
       { name: `Copy deno.json`, value: `files:deno.json` },
-      { name: `Copy Git working tree`, value: `git:changed` },
     ],
   })) as t.ClipboardTool.Command;
 
