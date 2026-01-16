@@ -1,12 +1,13 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { type t, Color, css, D, Signal, Obj, LocalStorage } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
 
 type P = t.LayoutTreeSplitProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'split'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  split: [0.35, 0.65] as t.Percent[],
 };
 
 /**
@@ -27,6 +28,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    split: s(snap.split),
   };
   const p = props;
   const api = {
@@ -47,6 +49,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.split = p.split.value;
     });
   });
 

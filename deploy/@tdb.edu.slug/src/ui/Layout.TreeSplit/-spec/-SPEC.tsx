@@ -9,7 +9,14 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <LayoutTreeSplit.UI debug={v.debug} theme={v.theme} />;
+    return (
+      <LayoutTreeSplit.UI
+        debug={v.debug}
+        theme={v.theme}
+        split={v.split}
+        onSplitChange={(e) => (p.split.value = e.split)}
+      />
+    );
   }
 
   e.it('init', (e) => {
