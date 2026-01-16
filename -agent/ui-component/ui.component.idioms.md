@@ -7,7 +7,6 @@ Purpose:
 ---
 
 ## Surface + module shape
-
 Exports:
 - `Sheet.View` → React component (`ui.tsx`)
 - `Sheet.Signals` → state helpers (`m.Signals.ts` → `m.Signals.Stack.ts`)
@@ -169,9 +168,49 @@ This is a reusable “UI stack” idiom:
 =========================================================================
 
 
+## Layout primitives: "simple grid fill" (house idiom)
+This repo frequently needs a “fill the host” container that:
+- reliably consumes available space,
+- does not depend on fragile `height: 100%` propagation chains,
+- composes cleanly with SplitPane, Cropmarks, Sheets, and nested scroll regions.
+
+Preferred default:
+- Use a minimal grid container as the fill scaffold.
+
+### Pattern
+- Use `display: 'grid'` as the fill primitive.
+- Keep templates simple:
+  - `1fr` only, or
+  - small fixed patterns like header/body/footer.
+- Avoid complex grid configs (“CSS grid as a programming language”).
+
+### Container invariants
+For a host-fill container, prefer:
+- `display: 'grid'`
+- `minWidth: 0`
+- `minHeight: 0`
+
+Optionally add:
+- `width: '100%'`, `height: '100%'` when the parent sizing contract is explicit and stable.
+
+Rationale:
+- `minWidth/minHeight: 0` prevents overflow surprises inside flex/grid parents.
+- `display: grid` provides a stable fill substrate and makes later extension (header/footer) low-churn.
+
+### Children discipline (when relevant)
+When rendering `children`:
+- Placeholder styling must be conditional:
+  - `children == null` → placeholder container + message
+  - `children != null` → neutral container + children
+- Never let empty-state styling leak into real content.
+
+
+
+=========================================================================
+
+
 
 ## Tree / Tree.Index / Tree.Index.data — idioms
-
 This cluster is the canonical “tree index” substrate used by the Tree UI family:
 - A normalized `TreeNodeList` with stable keys (RFC6901 pointer encoding).
 - A YAML authoring dialect that produces deterministic ordering + deep-link stability.
