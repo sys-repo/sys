@@ -12,16 +12,29 @@ export const SlugClient: t.SlugClientLib = {
 
     const res = await fetch.json<unknown>(manifestUrl, manifestInit);
     if (!res.ok) {
-      const err = `Slug-tree manifest fetch failed. ${res.status} ${res.statusText} @ ${manifestUrl}`;
-      throw new Error(err);
+      return {
+        ok: false,
+        error: {
+          kind: 'http',
+          message: `Slug-tree manifest fetch failed. ${res.status} ${res.statusText} @ ${manifestUrl}`,
+          status: res.status,
+          statusText: res.statusText,
+          url: manifestUrl,
+        },
+      };
     }
 
     const parsed = validateSlugTree(res.data);
     if (!parsed.ok) {
-      const err = `Slug-tree validation failed. ${parsed.error.message}`;
-      throw new Error(err);
+      return {
+        ok: false,
+        error: {
+          kind: 'schema',
+          message: `Slug-tree validation failed. ${parsed.error.message}`,
+        },
+      };
     }
 
-    return parsed.sequence;
+    return { ok: true, value: parsed.sequence };
   },
 };

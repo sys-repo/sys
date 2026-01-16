@@ -32,8 +32,10 @@ describe('SlugClient: loadSlugTreeFromEndpoint', () => {
     try {
       const baseUrl = baseUrlFrom(server);
       const res = await SlugClient.loadSlugTreeFromEndpoint(baseUrl, docid);
-      expect(res).to.eql(tree);
-      const child = res[0]?.slugs?.[0];
+      expect(res.ok).to.eql(true);
+      if (!res.ok) return;
+      expect(res.value).to.eql(tree);
+      const child = res.value[0]?.slugs?.[0];
       expect(child && 'description' in child ? child.description : undefined).to.eql(
         'Inline description',
       );
@@ -58,14 +60,11 @@ describe('SlugClient: loadSlugTreeFromEndpoint', () => {
     const server = Deno.serve({ port: 0 }, handler);
     try {
       const baseUrl = baseUrlFrom(server);
-      let err: unknown;
-      try {
-        await SlugClient.loadSlugTreeFromEndpoint(baseUrl, docid);
-      } catch (e) {
-        err = e;
-      }
-      expect(err).to.be.instanceOf(Error);
-      expect(String(err)).to.include('Slug-tree validation failed');
+      const res = await SlugClient.loadSlugTreeFromEndpoint(baseUrl, docid);
+      expect(res.ok).to.eql(false);
+      if (res.ok) return;
+      expect(res.error.kind).to.eql('schema');
+      expect(res.error.message).to.include('Slug-tree validation failed');
     } finally {
       await server.shutdown();
     }
@@ -77,14 +76,12 @@ describe('SlugClient: loadSlugTreeFromEndpoint', () => {
 
     try {
       const baseUrl = baseUrlFrom(server);
-      let err: unknown;
-      try {
-        await SlugClient.loadSlugTreeFromEndpoint(baseUrl, docid);
-      } catch (e) {
-        err = e;
-      }
-      expect(err).to.be.instanceOf(Error);
-      expect(String(err)).to.include('404');
+      const res = await SlugClient.loadSlugTreeFromEndpoint(baseUrl, docid);
+      expect(res.ok).to.eql(false);
+      if (res.ok) return;
+      expect(res.error.kind).to.eql('http');
+      expect(res.error.status).to.eql(404);
+      expect(res.error.url).to.include(`/manifests/slug-tree.${docid}.json`);
     } finally {
       await server.shutdown();
     }
