@@ -9,7 +9,8 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
   // Normalize root → list; then drill to `path`.
   const rootList = React.useMemo(() => Data.toList(root), [root]);
   const path = (props.path ?? []) as t.ObjectPath;
-  const view = React.useMemo(() => Data.at(rootList, path), [rootList, path]);
+  const pathKey = Obj.Path.encode(path);
+  const view = React.useMemo(() => Data.at(rootList, path), [rootList, pathKey]);
 
   // Determine slide direction from path depth delta.
   const prevPathRef = React.useRef<t.ObjectPath>(path);

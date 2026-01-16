@@ -25,12 +25,12 @@ export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
   };
 
   // NOTE: Tree.Index public surface not available here; using View temporarily (Phase-1).
-  const elTreePane = <Tree.Index.View theme={theme.name} root={root} />;
-  const elEmpty = !children && <div className={styles.empty.class}>{'No content selected.'}</div>;
+  const elTreePane = <Tree.Index.View theme={theme.name} root={root} minWidth={0} />;
+  const elEmpty = !children && <div className={styles.empty.class}>{'No content to display.'}</div>;
   const elContentPane = !elEmpty && <div className={styles.content.class}>{children}</div>;
 
   return (
-    <div className={css(styles.base, props.style).class} data-component={'LayoutTreeSplit'}>
+    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
       <SplitPane
         debug={debug}
         theme={theme.name}
@@ -39,7 +39,7 @@ export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
         onChange={(e) => props.onSplitChange?.({ split: e.ratios })}
       >
         {elTreePane}
-        {elContentPane}
+        {elEmpty || elContentPane}
       </SplitPane>
     </div>
   );
