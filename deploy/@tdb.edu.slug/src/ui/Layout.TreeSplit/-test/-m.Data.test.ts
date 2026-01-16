@@ -58,6 +58,12 @@ describe('Data.fromSlugTree', () => {
     expect(refValue.ref).to.eql(REF_NODE.ref);
   });
 
+  it('propagates inline descriptions to node metadata', () => {
+    const tree: t.SlugTreeProps = [{ slug: 'desc', description: 'inline description' }];
+    const node = Data.fromSlugTree(tree)[0];
+    expect(node.meta?.description).to.eql('inline description');
+  });
+
   it('omits data when payload is not a record', () => {
     const weird = { slug: 'weird', data: 123 } as unknown as t.SlugTreeItem;
     const res = Data.fromSlugTree([weird]);

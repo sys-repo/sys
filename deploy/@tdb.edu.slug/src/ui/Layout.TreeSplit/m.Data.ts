@@ -51,5 +51,11 @@ function toNode(item: t.SlugTreeItem, parentPath: t.ObjectPath, labelMode: Label
       : undefined;
 
   if (children?.length) node.children = children;
+  if ('description' in item && Is.str(item.description)) {
+    node.meta = {
+      ...(node.meta ?? {}),
+      description: item.description,
+    };
+  }
   return node;
 }

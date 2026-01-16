@@ -8,6 +8,7 @@ const VALID_TREE: t.SlugTreeProps = [
       { slug: 'Intro', ref: 'crdt:intro' },
       {
         slug: 'Nested',
+        description: 'Nested inline node description',
         traits: [{ of: 'slug-tree', as: 'child-tree' }],
         data: {
           'child-tree': [{ slug: 'Child' }],
@@ -62,6 +63,14 @@ const TREE_WITHOUT_SLUG = [
   },
 ];
 
+const TREE_REF_WITH_DESCRIPTION: t.SlugTreeProps = [
+  {
+    slug: 'BadRef',
+    ref: 'crdt:bad',
+    description: 'illegal',
+  },
+];
+
 describe('SlugTree.validate', () => {
   it('accepts a valid slug-tree payload', () => {
     const result = validateSlugTree(VALID_TREE);
@@ -98,6 +107,14 @@ describe('SlugTree.validate', () => {
     if (result.ok) return;
 
     expect(result.error.message).to.contain('Invalid slug-tree item at index 0');
+  });
+
+  it('rejects ref nodes that carry inline-only fields', () => {
+    const result = validateSlugTree(TREE_REF_WITH_DESCRIPTION);
+    expect(result.ok).to.eql(false);
+    if (result.ok) return;
+
+    expect(result.error.message).to.contain('does not conform to slug-tree schema');
   });
 
   it('accepts ref nodes with nested slugs', () => {
