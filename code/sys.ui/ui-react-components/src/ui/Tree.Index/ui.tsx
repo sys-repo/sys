@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type t, Color, css, D, Data, IndexTreeItem, Obj } from './common.ts';
+import { type t, Color, css, D, Data, IndexTreeItem, Is, Obj } from './common.ts';
 import { SlideDeck } from './u.SlideDeck.tsx';
 
 export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
@@ -51,6 +51,7 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
               onPointer={(e) => props.onPointer?.(toPointerEvent(node, e))}
               onPressDown={(e) => props.onPressDown?.(toPointerEvent(node, e))}
               onPressUp={(e) => props.onPressUp?.(toPointerEvent(node, e))}
+              description={Is.str(node.meta?.description) ? node.meta.description : undefined}
             />
           );
         })}
