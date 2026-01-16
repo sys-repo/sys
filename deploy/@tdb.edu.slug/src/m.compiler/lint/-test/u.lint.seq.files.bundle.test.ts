@@ -50,7 +50,7 @@ describe('Lint: bundle/sequence files', () => {
       expect(result.issues).to.eql([]);
 
       const manifestPath = Fs.join(tmpDir, 'manifests', `slug.${docid}.assets.json`);
-      const manifestJson = await Deno.readTextFile(manifestPath);
+      const manifestJson = (await Fs.readText(manifestPath)).data;
       const manifest = Json.parse(manifestJson) as {
         readonly docid: t.Crdt.Id;
         readonly assets: readonly {
@@ -123,7 +123,7 @@ describe('Lint: bundle/sequence files', () => {
       expect(result.issues).to.eql([]);
 
       const manifestPath = Fs.join(tmpDir, 'manifests', `slug.${docid}.assets.json`);
-      const manifestJson = await Deno.readTextFile(manifestPath);
+      const manifestJson = (await Fs.readText(manifestPath)).data;
       const manifest = Json.parse(manifestJson) as {
         readonly docid: t.Crdt.Id;
         readonly assets: readonly {
@@ -185,7 +185,7 @@ describe('Lint: bundle/sequence files', () => {
       const slugTreePath = Fs.join(tmpDir, 'manifests', `slug-tree.${docid}.json`);
       expect(await Fs.exists(slugTreePath)).to.eql(true);
 
-      const raw = await Deno.readTextFile(slugTreePath);
+      const raw = (await Fs.readText(slugTreePath)).data;
       const payload = Json.parse(raw);
       expect(payload).to.eql([
         {
@@ -235,16 +235,10 @@ describe('Lint: bundle/sequence files', () => {
       const slugTreePath = Fs.join(tmpDir, 'manifests', `slug-tree.${docid}.json`);
       expect(await Fs.exists(slugTreePath)).to.eql(true);
 
-      const raw = await Deno.readTextFile(slugTreePath);
-      const payload = Json.parse(raw) as readonly [
-        {
-          readonly slug: string;
-          readonly slugs?: readonly {
-            readonly slug: string;
-            readonly description?: string;
-          }[];
-        },
-      ];
+      const raw = (await Fs.readText(slugTreePath)).data;
+      const payload = Json.parse(raw) as {
+        slugs?: { description?: string }[];
+      }[];
 
       expect(payload[0]?.slugs?.[0]?.description).to.eql('Inline description');
     } finally {
