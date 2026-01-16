@@ -1,5 +1,5 @@
 import { Icon } from '@sys/ui-react-components';
-import { MdErrorOutline, MdFace } from 'react-icons/md';
+import { MdArrowBack, MdErrorOutline, MdFace } from 'react-icons/md';
 
 const icon = Icon.renderer;
 export { icon };
@@ -10,4 +10,5 @@ export { icon };
 export const Icons = {
   Face: icon(MdFace),
   Error: icon(MdErrorOutline),
+  Arrow: { Back: icon(MdArrowBack) },
 } as const;
