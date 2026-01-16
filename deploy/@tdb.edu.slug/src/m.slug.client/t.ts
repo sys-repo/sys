@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
 
 export type SlugClientLib = {
+  readonly Url: SlugClientUrlLib;
+
   /**
    * Load the slug-tree manifest for a given docid from an HTTP endpoint.
    *
@@ -14,6 +16,11 @@ export type SlugClientLib = {
     docid: t.Crdt.Id,
     init?: RequestInit,
   ) => Promise<t.SlugClientResult<t.SlugTreeProps>>;
+};
+
+/** Slug URL helpers */
+export type SlugClientUrlLib = {
+  clean(docid: string | t.Crdt.Id): string;
 };
 
 export type SlugClientResult<T> =
