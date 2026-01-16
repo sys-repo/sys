@@ -1,276 +1,275 @@
 # UI Component Generation Protocol
 
-This document defines the canonical process for generating new `@sys/*` UI component modules
-using Codex, with zero stylistic drift, no state leakage, and strict phase discipline.
+This document defines the **non-negotiable contract** for authoring new `@sys/*` UI components
+using Codex, with **zero stylistic drift**, **zero state leakage**, and **strict phase discipline**.
 
-It describes **how you and I work together** to plan, prompt, execute, verify, and commit UI components
-in small, controlled increments.
-
-====================================================================================================
-
-## Core stance
-
-- Components are built **phase by phase**.
-- Each phase is intentionally boring.
-- “Works” is not sufficient; **guardrail compliance** is the bar.
-- Codex is treated as a fast pair-implementer, not a designer.
-
-The goal is to preserve long-term system integrity while moving quickly.
+This is not guidance.
+This is the system law.
 
 ====================================================================================================
 
-## The canonical loop
+## Core stance (non-negotiable)
 
-Every UI component is developed using the same tight loop:
+- Components are built **phase by phase**
+- Each phase is intentionally boring
+- “It works” is meaningless without invariant compliance
+- Codex is an implementer, never a designer
+
+Long-term system integrity outranks local velocity.
+
+====================================================================================================
+
+## The canonical loop (always the same)
+
+Every UI component is built using this exact loop:
 
 1. **Plan**
-   Write a short, explicit plan (1–5 steps).
-   - What files are touched.
-   - What is allowed.
-   - What is explicitly forbidden.
-   - What “done” means.
+   - Files touched
+   - Allowed actions
+   - Explicit prohibitions
+   - Phase exit criteria
 
 2. **Patch (Codex execution)**
-   Use the plan as the Codex prompt.
-   - No extra features.
-   - No helpful guesses.
-   - Minimal diff only.
+   - The plan *is* the prompt
+   - Minimal diff only
+   - No inference, no embellishment
 
 3. **Prove**
-   Validate via the dev harness or spec.
-   - Confirm layout, semantics, and constraints.
-   - Look specifically for guardrail violations.
+   - Harness / spec validation
+   - Explicit invariant scan
 
 4. **Commit immediately**
-   - Small, phase-scoped commit.
-   - No bundling of “while I’m here” changes.
+   - One phase → one commit
+   - No opportunistic changes
 
 Repeat.
 
-This loop is intentionally friction-light so it can be used even under fatigue.
+This loop is designed to work even under fatigue.
 
 ====================================================================================================
 
 ## Phase guardrails are executable
-Each phase spec **must include guardrails** (explicit do / do-not rules).
 
-Examples:
-- “Do NOT introduce Signals or state.”
-- “Do NOT guess component props.”
-- “Use Color.theme(props.theme) exactly once.”
+Every phase spec MUST declare guardrails.
 
-Review rule:
-- Any guardrail violation is a **hard stop**, even if the UI renders correctly.
-- Guardrails are treated as executable constraints, not suggestions.
+- Guardrails are **constraints**, not suggestions
+- Violations are a **hard stop**, even if the UI renders correctly
+- “Almost right” is wrong
+
+If a guardrail is violated:
+- Stop
+- Tidy
+- Commit the tidy
+- Only then proceed
 
 ====================================================================================================
 
-## Public surface only (no internal reach-through)
-Always target the **public library surface**.
+## Public surface only (runtime rule)
+
+Runtime code targets **only the public surface** of dependencies.
 
 Rules:
-- Prefer `Tree.Index` over `Tree.Index.View`.
-- Prefer exported lib members over internal-looking subcomponents.
-- If unsure, **stop and read the type surface** (`t.ts`) before proceeding.
+- Read `t.ts` before writing JSX
+- Never reach through `.View`, `.Impl`, `.Internal`, or similar
+- If unsure, stop and inspect types
 
 Heuristic:
-- If a symbol looks like `.View`, `.Impl`, `.Internal`, or similar,
-  it is almost never Phase-1 safe.
+> If it *looks* internal, it is Phase-1 illegal.
 
 ====================================================================================================
 
 ## No prop guessing (types first, always)
-When a spec says “do not guess props”:
 
-- Do not rely on autocomplete.
-- Do not infer from other usages.
-- Do not “add what seems obvious”.
+When a phase says “do not guess props”:
 
-Instead:
-- Open the component’s `t.ts`.
-- Identify the minimal legal surface.
-- Pass **only** what is explicitly required.
+- No autocomplete
+- No inference from other usage
+- No “obvious” additions
 
-A 10-line type check now avoids hours of cleanup later.
+Only pass what the public type surface *requires*.
+
+Anything else is a violation.
+
+====================================================================================================
+
+## Theme resolution invariant
+
+A component MAY resolve theme **exactly once per render**:
+
+```ts
+const theme = Color.theme(props.theme);
+```
+
+After this line:
+- All styling derives from `theme`
+- `props.theme` MUST NOT be read again
+- Child components receive `theme.name`, not raw props
+
+This is the canonical pattern.
+
+====================================================================================================
+
+## Component identity invariant (HARD)
+
+Component identity strings MUST NEVER be hard-coded.
+
+Rules:
+- All identity comes from `D`
+- Literal names are forbidden outside `D`
+- `data-component` MUST be:
+
+```tsx
+data-component={D.displayName}
+```
+
+Never:
+```tsx
+data-component={'LayoutTreeSplit'} // illegal
+```
+
+This rule is absolute.
+Violations require immediate correction.
+
+====================================================================================================
+
+## Canonical defaults pattern (D / DEFAULTS) — HARD INVARIANT
+
+When a UI component has **meaningful default values** for its props, those defaults MUST be:
+
+- Defined **once** on `D` (aka `DEFAULTS`)
+- Strongly typed against the public props
+- Reused everywhere
+
+### Rules
+
+- Define defaults on `D` using `satisfies`:
+
+```ts
+export const D = {
+  split: [0.35, 0.65] satisfies P['split'],
+} as const;
+```
+
+- `D` is the **single source of truth** for:
+  - Runtime prop destructuring defaults
+    ```ts
+    const { split = D.split } = props;
+    ```
+  - `-SPEC.Debug.tsx` defaults / persistence seeding
+  - Any dev or test harness defaults
+
+- Literal duplication of defaults is forbidden
+- If a default exists, it lives on `D`
+- If no default exists, the prop remains `undefined` unless explicitly supplied
+
+This invariant prevents Codex drift and silent divergence.
 
 ====================================================================================================
 
 ## Placeholder vs real content (children discipline)
-Any component that accepts `children` must obey this rule:
+
+If a component accepts `children`:
 
 - `children == null`
-  → render placeholder container + message.
+  → render placeholder container + message
 
 - `children != null`
-  → render children in a **neutral container** (min constraints only).
+  → render children in a **neutral container** (layout only)
 
 Never:
-- Apply placeholder typography, opacity, centering, or sizing
-  to real content.
-- Let empty-state styling leak into populated states.
-
-This prevents future layout corruption.
+- Apply placeholder styling to real content
+- Let empty-state semantics leak into populated states
 
 ====================================================================================================
 
-## Assumption surfaces (UI review checklist)
-Before accepting a Codex diff, do a fast scan for:
+## DevHarness debug state (default = persistent)
 
-- Props not mentioned in the phase spec.
-- Reliance on internal exports or subcomponents.
-- Styling that changes semantics for future children.
-- Unnecessary keys, wrappers, or defaults.
-- Behavior that “feels helpful” but wasn’t asked for.
-
-If found:
-- Stop.
-- Tidy immediately.
-- Commit the tidy as its own change.
-
-
-
-====================================================================================================
-
-
-
-## DevHarness debug state (canonical persistence rule)
 In `-spec/-SPEC.Debug.tsx`, debug state is **persistent by default**.
 
-The DevHarness exists to make UI behavior inspectable, repeatable, and fatigue-resistant.
-Therefore, debug Signals are normally backed by LocalStorage so that:
-
-- UI state survives refresh
-- experiments are resumable
-- Codex output matches established sys patterns
-
-Ephemeral (in-memory) debug state is allowed **only when explicitly stated in the plan**.
-
----
-
 ### Canonical persistent pattern (default)
-When a `-SPEC.Debug.tsx` uses Signals, it MUST follow the template pattern:
 
-In `createDebugSignals()`:
+When a `-SPEC.Debug.tsx` uses Signals, it MUST:
 
 - Create a persistent store:
-  - `const store = LocalStorage.immutable<Storage>(\`dev:${D.displayName}\`, defaults);`
-  - `const snap = store.current;`
+  ```ts
+  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const snap = store.current;
+  ```
 
 - Seed Signals from `snap` (never from `defaults`):
-  - `debug: s(snap.debug)`
-  - `theme: s(snap.theme)`
-  - `...`
+  ```ts
+  debug: s(snap.debug)
+  theme: s(snap.theme)
+  ```
 
 - Implement reset via defaults path-walk:
-  - `Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));`
+  ```ts
+  Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  ```
 
-- Persist changes using a single `Signal.effect`:
-  - `Signal.effect(() => store.change((d) => { ... }))`
+- Persist changes via **one** `Signal.effect`:
+  ```ts
+  Signal.effect(() => store.change((d) => { ... }))
+  ```
 
 This pattern is not optional.
-If debug state is meant to behave like other sys UI specs (e.g. SplitPane),
-this pattern applies automatically.
-
----
 
 ### Ephemeral debug state (exception)
-Ephemeral debug state may be used only when the plan explicitly declares:
 
-- "Ephemeral debug state (no LocalStorage)"
-- Signals are seeded directly from `defaults`
-- Refresh resets state by design
+Ephemeral debug state is allowed **only if the plan explicitly declares**:
+
+> “Ephemeral debug state (no LocalStorage)”
 
 If this declaration is missing, persistence is assumed.
 
----
-
-### Planning guardrail (for Codex)
-Every plan that edits `-SPEC.Debug.tsx` MUST include one of:
-
-- **Default (implicit):** follow canonical persistent pattern
-- **Explicit override:** "Ephemeral debug state (no LocalStorage)"
-
-If neither appears, Codex output is considered incorrect.
-
-
-
 ====================================================================================================
 
+## Assumption scan (mandatory review)
 
-## Canonical defaults pattern (D / DEFAULTS)
-When a UI component has meaningful default values for its props, those defaults MUST be defined once on `D` (aka `DEFAULTS`) and reused everywhere.
+Before accepting a Codex diff, scan explicitly for:
 
-### Rules
+- Props not listed in the plan
+- Internal or private imports
+- Styling that constrains future content
+- “Helpful” behavior not requested
 
-- Define defaults on `D` with a strongly typed mapping back to the public props:
-  ```ts
-  export const D = {
-    split: [0.35, 0.65] satisfies P['split'],
-  } as const;
-  ```
-
-- Use `D` as the single source of truth for:
-  - Component prop destructuring defaults
-    ```ts
-    const { split = D.split } = props;
-    ```
-  - `-SPEC.Debug.tsx` defaults / storage seeding
-  - Any dev or test harness defaults
-
-- Never re-encode literal defaults in multiple places.
-  - If a default exists, it lives on `D`.
-  - If no default exists, the prop must remain `undefined` unless explicitly supplied.
-
-### Rationale
-
-- Guarantees consistency between runtime behavior, debug specs, and harnesses.
-- Makes defaults discoverable and reviewable in one place.
-- Prevents Codex drift caused by duplicated literals.
-- Keeps defaults aligned with the actual public prop surface via `satisfies`.
-
-### Plan-level guardrail (for Codex)
-
-Plans that introduce or rely on defaults MUST explicitly include:
-- “Add defaults to `D` using `satisfies P['prop']`”
-- “Reuse `D.*` for component destructuring and debug defaults”
-
+If found:
+- Stop
+- Tidy immediately
+- Commit the tidy separately
 
 ====================================================================================================
-
-
 
 ## Commit discipline
-- One phase → one commit.
-- Commit as soon as the phase is proven.
-- Commit messages should reference the phase intent.
+
+- One phase → one commit
+- Commit immediately after proof
+- Commit message references the phase intent
 
 Example:
-- `Layout.TreeSplit: phase-1 guardrail tidy`
-
-This keeps the history readable and Codex-friendly.
-
+```
+Layout.TreeSplit: phase-1 layout skeleton
+```
 
 ====================================================================================================
 
-
-## Fatigue-aware operation
-This protocol is designed to work under load.
+## Fatigue rule (protect the system)
 
 When tired:
-- Shrink plans, do not skip them.
-- Enforce guardrails more strictly, not less.
-- Prefer “stop + tidy + commit” over pushing forward.
+- Shrink phases
+- Tighten invariants
+- Prefer stop + tidy + commit
 
-Clean stopping points preserve the next session’s leverage.
+Never push forward while violating invariants.
 
 ====================================================================================================
 
-## Summary
+## Summary (operational truth)
 
-- Plan small.
-- Obey guardrails.
-- Trust public surfaces.
-- Separate placeholder from real content.
-- Commit early and often.
+- Plan small
+- Enforce invariants
+- Trust public types
+- Centralize identity and defaults
+- Commit relentlessly
 
 This is how we move fast **without** eroding the system.
