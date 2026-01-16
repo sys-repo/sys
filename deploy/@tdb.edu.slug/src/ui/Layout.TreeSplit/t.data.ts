@@ -25,10 +25,14 @@ export type LayoutTreeSplitDataLib = {
    * - Deterministic `path` and `key`.
    * - Always returns a `TreeNodeList`.
    */
+  readonly fromSlugTree: (
+    tree: t.SlugTreeProps,
+    opts?: t.LayoutTreeSplitFromSlugTreeOpts,
+  ) => t.TreeNodeList;
 };
 
 /** Minimal, structural options only. */
 export type LayoutTreeSplitFromSlugTreeOpts = {
   /** Label strategy for Tree nodes. Default: `'slug'`. */
-  readonly label?: 'slug' | 'slug+ref' | 'slug+description';
+  readonly label?: 'slug' | 'slug+description';
 };
