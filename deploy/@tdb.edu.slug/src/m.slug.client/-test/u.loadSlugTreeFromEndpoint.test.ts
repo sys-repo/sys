@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import type { t } from '../common.ts';
 import { SlugClient } from '../mod.ts';
 
-describe('SlugClient: loadSlugTreeFromEndpoint', () => {
+describe('SlugClient: loadTreeFromEndpoint', () => {
   it('preserves inline descriptions through validation', async () => {
     const tree: t.SlugTreeProps = [
       {
@@ -31,7 +31,7 @@ describe('SlugClient: loadSlugTreeFromEndpoint', () => {
     const server = Deno.serve({ port: 0 }, handler);
     try {
       const baseUrl = baseUrlFrom(server);
-      const res = await SlugClient.loadSlugTreeFromEndpoint(baseUrl, docid);
+      const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
       expect(res.ok).to.eql(true);
       if (!res.ok) return;
       expect(res.value).to.eql(tree);
@@ -60,7 +60,7 @@ describe('SlugClient: loadSlugTreeFromEndpoint', () => {
     const server = Deno.serve({ port: 0 }, handler);
     try {
       const baseUrl = baseUrlFrom(server);
-      const res = await SlugClient.loadSlugTreeFromEndpoint(baseUrl, docid);
+      const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
       expect(res.ok).to.eql(false);
       if (res.ok) return;
       expect(res.error.kind).to.eql('schema');
@@ -76,7 +76,7 @@ describe('SlugClient: loadSlugTreeFromEndpoint', () => {
 
     try {
       const baseUrl = baseUrlFrom(server);
-      const res = await SlugClient.loadSlugTreeFromEndpoint(baseUrl, docid);
+      const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
       expect(res.ok).to.eql(false);
       if (res.ok) return;
       expect(res.error.kind).to.eql('http');

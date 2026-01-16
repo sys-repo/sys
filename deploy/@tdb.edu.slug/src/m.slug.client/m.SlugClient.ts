@@ -1,9 +1,9 @@
 import { type t } from './common.ts';
-import { loadSlugTreeFromEndpoint } from './u.loadSlugTreeFromEndpoint.ts';
+import { loadTreeFromEndpoint } from './u.loadTreeFromEndpoint.ts';
 
 /**
  * Slug client ingress (HTTP + schema validation).
  */
 export const SlugClient: t.SlugClientLib = {
-  loadSlugTreeFromEndpoint,
+  loadTreeFromEndpoint,
 };
