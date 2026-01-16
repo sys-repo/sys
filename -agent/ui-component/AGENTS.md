@@ -1,34 +1,126 @@
-# Context
+# AGENTS.md — System UI Component Canon (Scoped)
 
-## Two-Phase Collaboration Loop
-- Phase 1: **Epistemic / Design / Meaning-locking** — the human owns this grounding so
-  the problem and intent are frozen before any task is executed.
-- Phase 2: **Procedural / Execution / Patch-only** — Codex is authoritative only once Phase 1
-  is complete.
-- Codex MUST NOT initiate Phase 2 unless Phase 1 is explicitly declared complete.
-- The handoff is intentional; freezing meaning before execution is what enables speed without erosion.
-- This disciplined loop keeps the UI canon aligned with accuracy + quality + speed simultaneously.
-- Always suggest a commit message at the end of a sequence. Either the explicit one given in the
-  plan, or if not given, generate an appropriate, single-line summary commit message.
-- Never attempt to create or amend git commits.
+This file defines **executable rules** for authoring, refactoring, and reviewing
+**@sys UI components** as a category.
 
-## Goals
-- Establish a tight, reusable reference set for authoring `@sys/ui` components
-  **without reinvention or stylistic drift**.
-- Capture and maintain one canonical **shape**:
-  - module/file layout,
-  - public type surface,
-  - theming contract and render conventions.
-- Maintain a growing **idioms ledger**:
-  - component-specific “power moves” (e.g. Sheet, Cropmarks, ErrorBoundary),
-  - patterns that are *worth copying* rather than rediscovering.
-- Index shared **primitives**:
-  - the reusable building blocks across `ui-*` packages
-  - (Color, css, Signal, DevHarness patterns, sizing helpers, etc.).
-- Define a lightweight **conformance checklist**:
-  - so both Codex and humans can generate new UI modules that “snap” into house style.
-- Treat this as both **authoring and usage guidance**:
-  - how components are *built*,
-  - how they are *composed and referenced* in other modules.
-- Use `@sys/ui-react-components` as the **canonical pure UI corpus**:
-  - these components are intentionally system-level, host-agnostic, and pattern-dense.
+It is written for **Codex and other automated executors**.
+Humans should read `ctx.md` for intent, framing, and collaboration context.
+
+====================================================================================================
+
+## Scope
+- Applies to **system-level UI components** under the `@sys/ui-*` family.
+- Covers reusable, host-agnostic, pattern-dense UI modules.
+- This file **does not override** root `AGENTS.md` or `-config/-canon/*`.
+
+### Conflict resolution
+If instructions conflict:
+1. Root canon (`-config/-canon/*`, root `AGENTS.md`) wins.
+2. Explicit non-overridable clauses always win.
+3. This file overrides local, non-canon instructions.
+
+====================================================================================================
+
+## Orientation (non-executable)
+- Read `./ctx.md` before acting.
+- `ctx.md` provides **meaning, goals, and collaboration stance**.
+- `ctx.md` is **not executable instruction**.
+
+====================================================================================================
+
+## Mandatory reading (executable)
+Before any action, you MUST read and apply:
+
+- `./ui.component.authoring.md`
+- `./ui.component.shape.md`
+- `./ui.component.idioms.md`
+- `./ui.component.primitives.md`
+
+These documents define the **actual rules, invariants, and idioms**.
+AGENTS.md does not restate them.
+
+====================================================================================================
+
+## Plan precedence (HARD RULE)
+- The **plan provided by the human** is the sole authority on:
+  - scope,
+  - files touched,
+  - steps to perform,
+  - acceptance criteria.
+- Canon documents:
+  - constrain *how* execution occurs,
+  - prevent drift,
+  - provide copyable patterns,
+  - but **MUST NOT** be used to infer missing steps, add features, or expand scope.
+- If the plan is incomplete or ambiguous → **STOP and ask**.
+
+====================================================================================================
+
+## Two-Phase Collaboration Loop (HARD RULE)
+
+All work follows this loop:
+
+### Phase 1 — Meaning Lock (Human-owned)
+- Intent, scope, files, and prohibitions are frozen.
+- No execution occurs.
+- Codex MUST NOT infer, invent, or extend.
+- If Phase 1 is not explicitly declared complete → **STOP**.
+
+### Phase 2 — Execution (Codex-owned)
+- Patch-only execution.
+- Minimal diff.
+- No stylistic drift.
+- No opportunistic changes.
+
+Phase boundaries are explicit.
+Violations are a hard stop.
+
+====================================================================================================
+
+## Execution constraints (delegated)
+
+All execution rules, invariants, and idioms are defined in the mandatory
+canon documents listed above.
+
+AGENTS.md **does not duplicate those rules**.
+It enforces that they are applied.
+
+If a rule is violated:
+- execution must stop,
+- the violation must be reported,
+- no compensating or “fix-forward” changes may be made.
+
+====================================================================================================
+
+## Git discipline (CRITICAL)
+- You MUST **never** create, amend, or finalize git commits.
+- You MAY:
+  - inspect history,
+  - diff changes,
+  - stage files,
+  - suggest commit messages.
+- You MUST:
+  - suggest a single-line commit message at the end of a completed sequence.
+- The human performs all commits.
+
+This preserves the review and control boundary.
+
+====================================================================================================
+
+## Failure & uncertainty rule
+If at any point:
+- intent is unclear,
+- a rule conflicts,
+- a public type surface is ambiguous,
+
+→ **STOP immediately and ask**.
+Do not guess.
+Do not proceed.
+
+====================================================================================================
+
+## Prime directive
+Accuracy, quality, and speed are achieved **together**
+by obeying structure, not by improvisation.
+
+This file is law.
