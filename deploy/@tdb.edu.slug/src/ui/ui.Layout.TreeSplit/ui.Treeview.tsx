@@ -16,17 +16,10 @@ export const Treeview: React.FC<P> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
+      position: 'relative',
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       display: 'grid',
-    }),
-    empty: css({
-      minHeight: 120,
-      display: 'grid',
-      placeItems: 'center',
-      color: theme.fg,
-      opacity: 0.65,
-      fontSize: 13,
     }),
   };
 
