@@ -140,15 +140,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'Sample:'}</div>
+      <div className={Styles.title.class}>{'sample:'}</div>
       <Button
         block
-        label={() => `load: sample import ${p.load.value === 'import' ? '🌳' : ''}`}
+        label={() => `load: slug-tree ← sample import ${p.load.value === 'import' ? '🌳' : ''}`}
         onClick={() => (p.load.value = 'import')}
       />
       <Button
         block
-        label={() => `load: via HTTP ${p.load.value === 'http' ? '🌳' : ''}`}
+        label={() => `load: slug-tree ← via HTTP ${p.load.value === 'http' ? '🌳' : ''}`}
         onClick={() => (p.load.value = 'http')}
       />
       <Button block label={() => `(unload)`} onClick={() => (p.load.value = undefined)} />
