@@ -1,7 +1,6 @@
 import { type t, pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
-export { Tree, SplitPane } from '@sys/ui-react-components';
 
 type P = t.LayoutTreeSplitProps;
 
