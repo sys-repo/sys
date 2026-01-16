@@ -4,4 +4,4 @@
  * Pure client-side domain loader.
  * No UI, no FS, no compilation concerns.
  */
-import type { t } from './common.ts';
+export { SlugClient } from './m.SlugClient.ts';
