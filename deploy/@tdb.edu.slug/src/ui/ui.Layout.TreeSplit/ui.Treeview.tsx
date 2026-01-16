@@ -33,7 +33,7 @@ export const Treeview: React.FC<P> = (props) => {
       theme={theme.name}
       root={root}
       minWidth={0}
-      path={props.path}
+      path={props.selectedPath}
       onPressDown={(e) => {
         if (!e.hasChildren) return;
         props.onPathChange?.({ path: e.node.path });

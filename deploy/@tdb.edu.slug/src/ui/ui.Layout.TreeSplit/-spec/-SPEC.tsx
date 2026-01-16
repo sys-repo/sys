@@ -9,14 +9,14 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    const hasPath = (v.path?.length ?? 0) > 0;
+    const hasPath = (v.selectedPath?.length ?? 0) > 0;
     const elBackButton = (
       <Button
         theme={v.theme}
         enabled={hasPath}
         disabledOpacity={0.12}
         style={{ Absolute: [-35, null, null, -35] }}
-        onMouseDown={() => (p.path.value = (p.path.value ?? []).slice(0, -1))}
+        onMouseDown={() => (p.selectedPath.value = (p.selectedPath.value ?? []).slice(0, -1))}
       >
         <Icons.Arrow.Left />
       </Button>
@@ -32,8 +32,8 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           split={v.split}
           root={v.root}
-          path={v.path}
-          onPathChange={({ path }) => (p.path.value = path)}
+          selectedPath={v.selectedPath}
+          onPathChange={({ path }) => (p.selectedPath.value = path)}
           onSplitChange={(e) => (p.split.value = e.split)}
         />
       </div>

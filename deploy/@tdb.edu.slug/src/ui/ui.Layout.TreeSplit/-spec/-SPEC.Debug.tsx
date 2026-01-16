@@ -22,12 +22,12 @@ const SAMPLE = {
 
 type P = t.LayoutTreeSplitProps;
 type LoadAction = 'import' | 'http';
-type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'path'> & { load?: LoadAction };
+type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'selectedPath'> & { load?: LoadAction };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
   split: D.split,
-  path: undefined,
+  selectedPath: undefined,
   load: 'import',
 };
 
@@ -51,7 +51,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     split: s(snap.split),
     load: s(snap.load),
-    path: s(snap.path),
+    selectedPath: s(snap.selectedPath),
   };
   const p = props;
   const api = {
@@ -76,7 +76,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.split = p.split.value;
       d.load = p.load.value;
-      d.path = p.path.value;
+      d.selectedPath = p.selectedPath.value;
     });
   });
 
@@ -106,7 +106,7 @@ export async function createDebugSignals() {
 const Styles = {
   title: css({
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 4,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -129,6 +129,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const styles = {
     base: css({ color: theme.fg }),
     vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
+    mono: css({
+      fontFamily: 'monospace',
+      fontSize: 11,
+      fontWeight: 600,
+    }),
   };
 
   return (
@@ -156,14 +161,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `(unload)`} onClick={() => (p.load.value = undefined)} />
 
       <hr />
-      <Button
-        block
-        label={() => {
-          const path = v.path ? Str.ellipsize(Obj.Path.encode(v.path), 30) : '(none)';
-          return `clear path: ${path}`;
-        }}
-        onClick={() => (p.path.value = undefined)}
-      />
+      <div className={Styles.title.class}>
+        <div>{'selected'}</div>
+        <div>{'[ path ]'}</div>
+      </div>
+      <div>
+        <span className={styles.mono.class}>
+          {v.selectedPath ? Str.ellipsize(Obj.Path.encode(v.selectedPath), 50) : '(no path)'}
+        </span>
+      </div>
+      <Button block label={() => 'clear'} onClick={() => (p.selectedPath.value = undefined)} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
