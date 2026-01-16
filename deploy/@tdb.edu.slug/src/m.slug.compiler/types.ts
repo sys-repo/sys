@@ -1,7 +1,8 @@
 export type * from './slug.MediaComposition/t.namespace.ts';
-export type * from './slug.Traits/t.namespace.ts';
+export type * from '../m.slug.schema/slug.MediaComposition.Sequence/t.ts';
+export type * from '../m.slug.schema/slug.Traits/t.namespace.ts';
 export type * from './slug/t.ts';
-export type * from './slug.SlugTree/t.ts';
+export type * from '../m.slug.schema/slug.SlugTree/t.ts';
 
 export type * from './lint/t.ts';
 export type * from './resolve/t.ts';

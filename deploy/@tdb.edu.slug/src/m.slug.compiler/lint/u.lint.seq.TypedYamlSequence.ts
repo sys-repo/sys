@@ -1,5 +1,5 @@
 import { Sequence, SequenceSchema } from '../slug.MediaComposition.Sequence/mod.ts';
-import { checkSequenceInvariants } from '../slug.MediaComposition.Sequence/u.schema.validate.invariants.ts';
+import { checkSequenceInvariants } from '../../m.slug.schema/slug.MediaComposition.Sequence/u.schema.validate.invariants.ts';
 import { type t, c, Slug, Schema } from './common.ts';
 
 const T = Schema.Value;

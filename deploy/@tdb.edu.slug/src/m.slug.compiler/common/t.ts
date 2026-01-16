@@ -10,6 +10,7 @@ export type * from '../types.ts';
 
 /** Internal types */
 export type * from '../slug.MediaComposition.Playback/t.ts';
-export type * from '../slug.MediaComposition.Sequence/t.ts';
+export type * from '../../m.slug.schema/slug.MediaComposition.Sequence/t.ts';
 export type * from '../slug.MediaComposition/t.ts';
-export type * from '../slug.Traits/t.ts';
+export type * from '../../m.slug.schema/slug.Traits/t.ts';
+export type * from '../../m.slug.schema/slug.SlugTree/t.ts';

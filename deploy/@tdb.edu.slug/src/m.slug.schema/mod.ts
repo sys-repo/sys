@@ -1,8 +1,3 @@
-/**
- * @module
- * Canonical, runtime-validated schemas and types for slug domain data.
- *
- * This module defines the authoritative structural contracts for slug data,
- * independent of IO, compilation, or persistence concerns.
- */
-import type { t } from './common.ts';
+export * as SlugTree from './slug.SlugTree/mod.ts';
+export * as Traits from './slug.Traits/mod.ts';
+export * as MediaCompositionSequence from './slug.MediaComposition.Sequence/mod.ts';

@@ -1,4 +1,4 @@
-import { validateSlugTree } from '../m.slug.compiler/slug.SlugTree/u.validate.ts';
+import { validateSlugTree } from '../m.slug.schema/slug.SlugTree/u.validate.ts';
 import { type t, Http } from './common.ts';
 
 export const loadTreeFromEndpoint: t.SlugClientLib['loadTreeFromEndpoint'] = async (

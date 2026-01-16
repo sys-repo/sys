@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 
 /**
  * Payload attached to each beat extracted from the YAML `timestamps` map.
