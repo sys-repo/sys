@@ -9,5 +9,5 @@ export const ns = 'tdb.edu.slug';
  * Specs:
  */
 export const Specs = {
-  // [`${ns}: name`]: () => import('../ui/component/-spec/-SPEC.tsx'),
+  [`${ns}: Layout.TreeSplit`]: () => import('../ui/Layout.TreeSplit/-spec/-SPEC.tsx'),
 } as t.SpecImports;
