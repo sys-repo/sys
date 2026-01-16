@@ -14,6 +14,7 @@ export default Spec.describe(D.displayName, async (e) => {
         debug={v.debug}
         theme={v.theme}
         split={v.split}
+        root={v.root}
         onSplitChange={(e) => (p.split.value = e.split)}
       />
     );

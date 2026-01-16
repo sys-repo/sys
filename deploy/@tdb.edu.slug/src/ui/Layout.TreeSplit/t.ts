@@ -16,9 +16,11 @@ export type LayoutTreeSplitLib = {
  */
 export type LayoutTreeSplitProps = {
   children?: t.ReactNode;
+  root?: t.TreeNodeList;
+  split?: t.Percent[];
+
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  split?: t.Percent[];
   onSplitChange?: (args: { split: t.Percent[] }) => void;
 };

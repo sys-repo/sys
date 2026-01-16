@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, D, SplitPane, Tree } from './common.ts';
 
 export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
-  const { debug = false, children, split = D.split } = props;
+  const { debug = false, children, split = D.split, root = [] } = props;
 
   const theme = Color.theme(props.theme);
   const styles = {
@@ -25,7 +25,7 @@ export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
   };
 
   // NOTE: Tree.Index public surface not available here; using View temporarily (Phase-1).
-  const elTreePane = <Tree.Index.View root={[]} />;
+  const elTreePane = <Tree.Index.View theme={theme.name} root={root} />;
   const elEmpty = !children && <div className={styles.empty.class}>{'No content selected.'}</div>;
   const elContentPane = !elEmpty && <div className={styles.content.class}>{children}</div>;
 

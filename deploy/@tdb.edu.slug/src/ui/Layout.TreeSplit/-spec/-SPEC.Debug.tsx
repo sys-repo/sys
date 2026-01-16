@@ -1,13 +1,16 @@
 import React from 'react';
-import { type t, Color, css, D, Signal, Obj, LocalStorage } from '../common.ts';
-import { Button, ObjectView } from '../common.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { Data } from '../m.Data.ts';
+
+import sample from './-sample/slug-tree.21JvXzARPYFXDVMag3x4UhLgHcQi.json' with { type: 'json' };
 
 type P = t.LayoutTreeSplitProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'split'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'split'> & { loaded: boolean };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   split: D.split,
+  loaded: true,
 };
 
 /**
@@ -26,9 +29,11 @@ export async function createDebugSignals() {
   const snap = store.current;
 
   const props = {
+    root: s<t.TreeNodeList>([]),
     debug: s(snap.debug),
     theme: s(snap.theme),
     split: s(snap.split),
+    loaded: s(snap.loaded),
   };
   const p = props;
   const api = {
@@ -42,7 +47,7 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(props, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
   }
 
   Signal.effect(() => {
@@ -50,7 +55,13 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.split = p.split.value;
+      d.loaded = p.loaded.value;
     });
+  });
+
+  Signal.effect(() => {
+    const loaded = p.loaded.value;
+    p.root.value = loaded ? Data.fromSlugTree(sample as t.SlugTreeProps) : [];
   });
 
   return api;
@@ -93,6 +104,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      <div className={Styles.title.class}>{'Sample:'}</div>
+      <Button block label={() => `load`} onClick={() => (p.loaded.value = true)} />
+      <Button block label={() => `unload`} onClick={() => (p.loaded.value = false)} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
