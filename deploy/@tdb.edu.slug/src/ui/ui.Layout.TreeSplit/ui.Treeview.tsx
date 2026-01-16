@@ -21,6 +21,10 @@ export const Treeview: React.FC<P> = (props) => {
       color: theme.fg,
       display: 'grid',
     }),
+    body: css({
+      Absolute: 0,
+      Scroll: true,
+    }),
   };
 
   const elEmpty = !root && <Empty theme={theme.name} children={'No tree to display'} />;
@@ -37,5 +41,9 @@ export const Treeview: React.FC<P> = (props) => {
     />
   );
 
-  return <div className={css(styles.base, props.style).class}>{elEmpty || elTree}</div>;
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <div className={styles.body.class}>{elEmpty || elTree}</div>
+    </div>
+  );
 };

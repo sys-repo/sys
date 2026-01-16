@@ -27,6 +27,7 @@ export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
       <SplitPane
         debug={debug}
         theme={theme.name}
+        active={false}
         orientation={'horizontal'}
         value={split}
         onChange={(e) => props.onSplitChange?.({ split: e.ratios })}
