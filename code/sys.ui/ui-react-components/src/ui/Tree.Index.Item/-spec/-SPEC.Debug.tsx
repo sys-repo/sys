@@ -1,16 +1,18 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, Icons, Is, LocalStorage, Obj, Signal } from '../common.ts';
+import { type t, Color, css, D, Icons, Is, LocalStorage, Obj, Signal, Str } from '../common.ts';
 
 type P = t.IndexTreeItemProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled' | 'selected'> & {
   label?: string;
+  description?: string;
   chevron?: boolean;
 };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   label: undefined,
+  description: undefined,
   enabled: D.enabled,
   active: D.active,
   chevron: D.chevron,
@@ -36,6 +38,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     label: s(snap.label),
+    description: s(snap.description),
     chevron: s(snap.chevron),
     active: s(snap.active),
     enabled: s(snap.enabled),
@@ -56,6 +59,7 @@ export function createDebugSignals() {
       d.active = p.active.value;
       d.enabled = p.enabled.value;
       d.label = Is.string(p.label.value) ? p.label.value : undefined;
+      d.description = Is.string(p.description.value) ? p.description.value : undefined;
       d.chevron = Is.string(p.chevron.value) ? p.chevron.value : D.chevron;
     });
   });
@@ -107,7 +111,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => {
           const style = css({ backgroundColor: Color.ruby() });
           const el = <div className={style.class}>Hello Div</div>;
-          Signal.cycle(p.label, ['My-Label 👋', el, undefined]);
+          Signal.cycle(p.label, ['My-Label 👋', el, Str.Lorem.words(15), undefined]);
+        }}
+      />
+      <Button
+        block
+        label={() => {
+          const v = p.description.value;
+          const description = React.isValidElement(v) ? 'custom <Component>' : v;
+          return `description: ${description ?? `<undefined>`}`;
+        }}
+        onClick={() => {
+          const style = css({ backgroundColor: Color.ruby() });
+          const el = <div className={style.class}>Hello Div</div>;
+          Signal.cycle(p.description, ['My-Description 👋', el, Str.Lorem.words(15), undefined]);
         }}
       />
       <Button

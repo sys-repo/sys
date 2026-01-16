@@ -5,6 +5,8 @@ import type { t } from './common.ts';
  */
 export type IndexTreeItemProps = {
   label?: t.ReactNode;
+  description?: t.ReactNode;
+
   enabled?: boolean;
   active?: boolean;
   selected?: boolean;

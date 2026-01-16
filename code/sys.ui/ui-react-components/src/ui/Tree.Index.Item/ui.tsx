@@ -5,13 +5,14 @@ export const IndexTreeItem: React.FC<t.IndexTreeItemProps> = (props) => {
   const {
     debug = false,
     label = D.label,
+    description,
     enabled = D.enabled,
     active = D.active,
     chevron = D.chevron,
     selected = D.selected,
   } = props;
-
   const isActive = active && enabled;
+  const hasDescription = description !== undefined && description !== null && description !== false;
 
   /**
    * Hooks:
@@ -51,26 +52,38 @@ export const IndexTreeItem: React.FC<t.IndexTreeItemProps> = (props) => {
       transition: 'opacity 120ms ease',
 
       display: 'grid',
-      alignItems: 'center',
 
-      // Critical for ellipsis in CSS Grid:
+      // Ellipsis + shrink rules:
       minWidth: 0,
       gridTemplateColumns: 'minmax(0, 1fr) auto',
+      alignItems: 'center',
+    }),
+
+    text: css({
+      minWidth: 0,
+      display: 'grid',
+      gap: hasDescription ? 2 : 0,
     }),
 
     label: css({
       transform: `translateY(${isActive && pointerIs?.down ? 1 : 0}px)`,
-
-      // Ellipsis:
       minWidth: 0,
       overflow: 'hidden',
-      whiteSpace: 'nowrap',
       textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
     }),
 
-    chevron: css({
-      visibility: chevron ? 'visible' : 'hidden',
+    description: css({
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      opacity: 0.7,
+      fontSize: 12,
+      lineHeight: '14px',
     }),
+
+    chevron: css({ visibility: chevron ? 'visible' : 'hidden' }),
   };
 
   const elChevron = (
@@ -82,7 +95,10 @@ export const IndexTreeItem: React.FC<t.IndexTreeItemProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class} {...pointer.handlers}>
       <div className={styles.body.class}>
-        <div className={styles.label.class}>{label}</div>
+        <div className={styles.text.class}>
+          <div className={styles.label.class}>{label}</div>
+          {hasDescription && <div className={styles.description.class}>{description}</div>}
+        </div>
         {elChevron}
       </div>
     </div>

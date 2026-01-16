@@ -28,6 +28,7 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             style={{ width }}
             label={v.label}
+            description={v.description}
             active={v.active}
             enabled={v.enabled}
             selected={v.selected}
