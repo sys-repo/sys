@@ -3,6 +3,7 @@ import { type t, Signal } from '../common.ts';
 export const createController: t.SlugSheetStackControllerLib['create'] = (initial) => {
   const stack = Signal.create<t.SlugSheetStackSheet[]>(initial ? [initial] : []);
   let disposed = false;
+
   const controller: t.SlugSheetStackController = {
     stack,
     push(model) {

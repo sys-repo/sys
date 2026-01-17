@@ -1,31 +1,8 @@
 import React from 'react';
-import { type t, Color, css, Signal } from '../common.ts';
+import { type t, Signal } from '../common.ts';
 import { TreeHost } from '../ui.TreeHost/mod.ts';
 import { D as TreeHostD } from '../ui.TreeHost/common.ts';
 import { SlugClient } from '../../m.slug.client/mod.ts';
-
-const Styles = {
-  treeMain: css({
-    display: 'grid',
-    placeItems: 'center',
-    padding: 12,
-    fontSize: 14,
-  }),
-  treeAux: css({
-    display: 'grid',
-    placeItems: 'center',
-    padding: 8,
-    fontSize: 12,
-    color: Color.alpha(Color.BLACK, 0.5),
-  }),
-  sheetMain: css({
-    display: 'grid',
-    placeItems: 'center',
-    minHeight: 120,
-    fontSize: 16,
-    color: Color.alpha(Color.BLACK, 0.6),
-  }),
-};
 
 export const createController: t.SlugSheetControllerLib['create'] = (args) => {
   let disposed = false;
@@ -44,50 +21,53 @@ export const createController: t.SlugSheetControllerLib['create'] = (args) => {
     treeRoot.value = TreeHost.Data.fromSlugTree(res.value);
   }
 
-  const treeHostSlots: t.TreeHostSlots = {
-    main: <div className={Styles.treeMain.class}>Hello world</div>,
-    aux: <div className={Styles.treeAux.class}>Auxiliary slot</div>,
-  };
+  const treeHostSlots = args.treeHostSlots;
 
-  const buildTreeHostProps = (): t.TreeHostProps => ({
-    debug: args.debug,
-    theme: args.theme,
-    root: treeRoot.value,
-    split: split.value,
-    selectedPath: selectedPath.value,
-    onPathChange: ({ path }) => {
-      selectedPath.value = path;
-    },
-    onSplitChange: (e) => {
-      split.value = e.split;
-    },
-    slots: treeHostSlots,
-  });
+  const buildTreeHostProps = (): t.TreeHostProps => {
+    const base: t.TreeHostProps = {
+      debug: args.debug,
+      theme: args.theme,
+      root: treeRoot.value,
+      split: split.value,
+      selectedPath: selectedPath.value,
+      onPathChange: ({ path }) => {
+        selectedPath.value = path;
+      },
+      onSplitChange: (e) => {
+        split.value = e.split;
+      },
+    };
+    return treeHostSlots ? { ...base, slots: treeHostSlots } : base;
+  };
 
   const controller: t.SlugSheetController = {
     selectedPath,
     split,
     treeRoot,
     props() {
+      const sheetSlots: t.SlugSheetSlots = {
+        tree: <TreeHost.UI {...buildTreeHostProps()} />,
+        main: treeHostSlots?.main,
+        aux: treeHostSlots?.aux,
+      };
       return {
         debug: args.debug,
         theme: args.theme,
-        slots: {
-          tree: <TreeHost.UI {...buildTreeHostProps()} />,
-          main: treeHostSlots.main,
-          aux: treeHostSlots.aux,
-        },
+        slots: sheetSlots,
       };
     },
     model() {
       return {
         treeHostProps: buildTreeHostProps(),
-        slots: { main: treeHostSlots.main, aux: treeHostSlots.aux },
+        slots: {
+          main: treeHostSlots?.main,
+          aux: treeHostSlots?.aux,
+        },
         debug: args.debug,
         theme: args.theme,
       };
     },
-    dispose(_reason) {
+    dispose() {
       disposed = true;
     },
   };

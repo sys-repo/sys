@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
-import { createFixture } from './u.fixture.ts';
+import { createFixture } from './u.fixture.tsx';
 
 type P = t.SlugSheetStackProps;
 type Storage = Pick<P, 'debug' | 'theme'>;

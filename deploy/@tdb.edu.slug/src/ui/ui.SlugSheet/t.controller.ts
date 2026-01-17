@@ -15,6 +15,7 @@ export type SlugSheetControllerProps = {
   readonly split?: t.Percent[];
   readonly docId?: string;
   readonly baseUrl?: t.StringUrl;
+  readonly treeHostSlots?: t.TreeHostSlots;
 };
 
 export type SlugSheetViewModel = {
