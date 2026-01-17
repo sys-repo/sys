@@ -6,7 +6,7 @@ type P = t.SlugSheetProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
 const defaults: Storage = {
   debug: false,
-  theme: 'Dark',
+  theme: 'Light',
 };
 
 /**
