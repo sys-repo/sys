@@ -1,18 +1,19 @@
 /**
  * @module
  * SlugSheet
+ *
  * Atomic sheet render primitive.
  *
- * A SlugSheet is a pure UI surface for a single sheet render context.
- * It renders named slots, but owns no state, selection, playback, or navigation.
+ * SlugSheet is a pure UI surface for a single render context.
+ * It renders named slots and owns no state, selection, playback,
+ * navigation, or recursion semantics.
  *
- * Sheet-local behavior (tree selection, content driving) is handled by
- * SlugSheetController.
- *
- * Recursive behavior (sheet stack push/pop, focus, lifecycle) is handled by
- * SlugSheetStackController.
+ * Sheet-local behavior is handled by SlugSheetController.
+ * Recursive stack behavior is handled by SlugSheetStackController.
  */
 import type { t } from './common.ts';
 import { SlugSheet as UI } from './ui.tsx';
 
-export const SlugSheet: t.SlugSheetLib = { UI };
+export const SlugSheet: t.SlugSheetLib = {
+  UI,
+};
