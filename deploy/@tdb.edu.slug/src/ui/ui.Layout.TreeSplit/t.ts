@@ -15,7 +15,7 @@ export type LayoutTreeSplitLib = {
  * Component:
  */
 export type LayoutTreeSplitProps = {
-  children?: t.ReactNode;
+  slots?: t.LayoutTreeSplitSlots;
   root?: t.TreeNodeList;
   split?: t.Percent[];
   selectedPath?: t.ObjectPath;
@@ -25,4 +25,12 @@ export type LayoutTreeSplitProps = {
   style?: t.CssInput;
   onPathChange?: (args: { path: t.ObjectPath | undefined }) => void;
   onSplitChange?: (args: { split: t.Percent[] }) => void;
+};
+
+export type LayoutTreeSplitSlot = keyof LayoutTreeSplitSlots;
+export type LayoutTreeSplitSlots = {
+  tree?: t.ReactNode;
+  main?: t.ReactNode;
+  aux?: t.ReactNode;
+  empty?: (slot: LayoutTreeSplitSlot) => t.ReactNode;
 };

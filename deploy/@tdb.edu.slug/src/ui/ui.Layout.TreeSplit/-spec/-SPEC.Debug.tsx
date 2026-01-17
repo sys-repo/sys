@@ -13,6 +13,7 @@ import {
   Str,
 } from '../common.ts';
 import { Data } from '../m.Data.ts';
+import { Foo } from './-ui.Foo.tsx';
 
 import sample from './-sample/slug-tree.21JvXzARPYFXDVMag3x4UhLgHcQi.json' with { type: 'json' };
 const SAMPLE = {
@@ -22,13 +23,17 @@ const SAMPLE = {
 
 type P = t.LayoutTreeSplitProps;
 type LoadAction = 'import' | 'http';
-type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'selectedPath'> & { load?: LoadAction };
+type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'selectedPath'> & {
+  load?: LoadAction;
+  customEmpty?: boolean;
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
   split: D.split,
   selectedPath: undefined,
   load: 'import',
+  customEmpty: false,
 };
 
 /**
@@ -45,13 +50,22 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  type S = t.LayoutTreeSplitSlots;
+  const slots = {
+    tree: s<S['tree']>(),
+    main: s<S['main']>(),
+    aux: s<S['aux']>(),
+  };
+
   const props = {
     root: s<P['root']>(undefined),
     debug: s(snap.debug),
     theme: s(snap.theme),
     split: s(snap.split),
-    load: s(snap.load),
     selectedPath: s(snap.selectedPath),
+    slots,
+    load: s(snap.load),
+    customEmpty: s(snap.customEmpty),
   };
   const p = props;
   const api = {
@@ -62,11 +76,11 @@ export async function createDebugSignals() {
   };
 
   function listen() {
-    Signal.listen(props);
+    Signal.listen(props, true);
   }
 
   function reset() {
-    Signal.walk(props, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(props, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
     load(p.load.value);
   }
 
@@ -75,8 +89,9 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.split = p.split.value;
-      d.load = p.load.value;
       d.selectedPath = p.selectedPath.value;
+      d.load = p.load.value;
+      d.customEmpty = p.customEmpty.value;
     });
   });
 
@@ -136,6 +151,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
     }),
   };
 
+  function slotButton(slot: keyof typeof p.slots) {
+    const current = () => p.slots[slot].value;
+    return (
+      <Button
+        block
+        label={() => `slot: ${slot} ${current() ? '🐚' : ''}`}
+        onClick={() => {
+          const el = <Foo theme={p.theme.value} label={`slot:${slot}`} />;
+          p.slots[slot].value = !!current() ? undefined : el;
+        }}
+      />
+    );
+  }
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
@@ -171,6 +200,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
         </span>
       </div>
       <Button block label={() => 'clear'} onClick={() => (p.selectedPath.value = undefined)} />
+
+      <hr />
+      {slotButton('tree')}
+      {slotButton('main')}
+      {slotButton('aux')}
+      <Button
+        block
+        label={() => `slot: empty ${p.customEmpty.value ? '🐚' : ''}`}
+        onClick={() => Signal.toggle(p.customEmpty)}
+      />
+      <Button
+        block
+        label={() => `(reset)`}
+        onClick={() => {
+          Signal.walk(p.slots, (e) => e.mutate(undefined));
+          p.customEmpty.value = undefined;
+        }}
+      />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

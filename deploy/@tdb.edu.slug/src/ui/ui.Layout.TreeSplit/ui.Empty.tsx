@@ -20,14 +20,17 @@ export const Empty: React.FC<EmptyProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      opacity: 0.3,
+      color: Color.alpha(theme.fg, 0.3),
       fontSize: 13,
       display: 'grid',
       placeItems: 'center',
     }),
+    body: css({ padding: 30 }),
   };
 
-  return <div className={css(styles.base, props.style).class}>{props.children}</div>;
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <div className={styles.body.class}>{props.children}</div>
+    </div>
+  );
 };

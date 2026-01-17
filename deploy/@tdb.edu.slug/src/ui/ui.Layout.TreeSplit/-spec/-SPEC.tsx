@@ -10,19 +10,29 @@ export default Spec.describe(D.displayName, async (e) => {
   function Root() {
     const v = Signal.toObject(p);
     const hasPath = (v.selectedPath?.length ?? 0) > 0;
+
+    const handleBack = () => {
+      p.selectedPath.value = (p.selectedPath.value ?? []).slice(0, -1);
+    };
+
     const elBackButton = (
       <Button
         theme={v.theme}
         enabled={hasPath}
         disabledOpacity={0.12}
         style={{ Absolute: [-35, null, null, -35] }}
-        onMouseDown={() => (p.selectedPath.value = (p.selectedPath.value ?? []).slice(0, -1))}
+        onMouseDown={handleBack}
       >
         <Icons.Arrow.Left />
       </Button>
     );
 
-    const styles = { base: css({ position: 'relative', display: 'grid' }) };
+    const styles = {
+      base: css({
+        position: 'relative',
+        display: 'grid',
+      }),
+    };
 
     return (
       <div className={styles.base.class}>
@@ -30,6 +40,10 @@ export default Spec.describe(D.displayName, async (e) => {
         <LayoutTreeSplit.UI
           debug={v.debug}
           theme={v.theme}
+          slots={{
+            ...v.slots,
+            empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined,
+          }}
           split={v.split}
           root={v.root}
           selectedPath={v.selectedPath}

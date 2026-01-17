@@ -94,7 +94,7 @@ export const SplitPane: React.FC<t.SplitPaneProps> = (props) => {
   const styles = {
     base: css({
       position: 'relative',
-      backgroundColor: Color.ruby(debug),
+      backgroundColor: Color.ruby(debug ? 0.05 : 0),
       color: theme.fg,
       width: '100%',
       height: '100%',

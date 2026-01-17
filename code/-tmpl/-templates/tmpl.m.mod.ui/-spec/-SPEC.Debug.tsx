@@ -36,7 +36,7 @@ export async function createDebugSignals() {
   };
 
   function listen() {
-    Signal.listen(props);
+    Signal.listen(props, true);
   }
 
   function reset() {
