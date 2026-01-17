@@ -15,7 +15,8 @@ import {
 import { Data } from '../m.Data.ts';
 import { Foo } from './-ui.Foo.tsx';
 
-import sample from './-sample/slug-tree.21JvXzARPYFXDVMag3x4UhLgHcQi.json' with { type: 'json' };
+import { SAMPLES } from './-sample/mod.ts';
+
 const SAMPLE = {
   baseUrl: 'http://localhost:4040/publish.assets',
   tree: { docId: '21JvXzARPYFXDVMag3x4UhLgHcQi' },
@@ -100,7 +101,7 @@ export async function createDebugSignals() {
   async function load(action?: LoadAction) {
     if (!action) return void (p.root.value = undefined);
     if (action === 'import') {
-      p.root.value = Data.fromSlugTree(sample as t.SlugTreeProps);
+      p.root.value = Data.fromSlugTree(SAMPLES.SlugTree.gHcQi);
       return;
     }
     if (action === 'http') {
