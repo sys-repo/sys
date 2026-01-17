@@ -21,7 +21,7 @@ export const Main: React.FC<P> = (props) => {
     }),
   };
 
-  const elEmpty = (
+  const elEmpty = !slots.main && (
     <Empty theme={theme.name} children={slots?.empty?.('main') ?? 'No content to display'} />
   );
 
