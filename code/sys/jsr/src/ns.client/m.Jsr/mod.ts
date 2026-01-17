@@ -6,6 +6,7 @@
 import { Fetch } from './common.ts';
 import type { JsrClientLib } from './t.ts';
 
+/** Client-side registry helper. */
 export const Jsr: JsrClientLib = {
   Fetch,
   Url: Fetch.Url,

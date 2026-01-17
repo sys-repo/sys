@@ -1,6 +1,7 @@
 import { type t, Err, Fetch } from './common.ts';
 import { create } from './u.create.ts';
 
+/** Fetch a manifest from JSR and wrap it. */
 export const fetch: t.JsrManifestLib['fetch'] = async (name, version, options = {}) => {
   const origin = Fetch.Url.origin;
   const errors = Err.errors();

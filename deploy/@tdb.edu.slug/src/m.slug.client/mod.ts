@@ -1,4 +1,5 @@
 /**
+ * @module
  * Slug client ingress (HTTP + schema validation).
  *
  * Pure client-side domain loader.

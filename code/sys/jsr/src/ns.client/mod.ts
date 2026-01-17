@@ -3,13 +3,14 @@
  * https://jsr.io/docs
  * @module
  */
+/** JSR package metadata. */
 export { pkg } from '../pkg.ts';
 
-/** Module types. */
+/** Module type aliases. */
 export type * as t from '../types.ts';
 
-/**
- * Library.
- */
+/** Helpers for fetching registry data. */
 export { Fetch } from './m.Fetch/mod.ts';
+
+/** Client registry helpers. */
 export { Jsr } from './m.Jsr/mod.ts';
