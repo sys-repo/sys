@@ -6,6 +6,7 @@ This document defines **form**, not behavior. It exists to:
 - prevent stylistic drift,
 - avoid reinvention of component structure.
 
+
 =============================================================================
 
 
@@ -24,6 +25,7 @@ A UI component module is typically:
   DevHarness spec - host setup for dev-harness
 - `-spec/-SPEC.Debug.tsx`
   Debug UI + LocalStorage-backed debug signals for the DevHarness.
+
 
 =============================================================================
 
@@ -56,6 +58,7 @@ Rules:
 - Props are shallow and optional.
 - No imports beyond types.
 
+
 =============================================================================
 
 
@@ -76,6 +79,7 @@ export const MyComponent: t.MyComponentLib = { UI };
 Rules:
 - Keep exports thin and explicit.
 - Do not re-export internals.
+
 
 =============================================================================
 
@@ -234,7 +238,6 @@ It applies uniformly across `@sys/ui-react-components`.
 
 
 ## Host / Stage contract (library-wide)
-
 Some components require a bounded host for correct visuals and interaction:
 - Real, stable layout bounds (width/height).
 - Sometimes `overflow: hidden` to clip spring/motion overflow (e.g. Sheet-like overlays).
@@ -259,10 +262,75 @@ State is always an explicit input; UI components do not own domain state.
 =============================================================================
 
 
-<!-- ACTION: "ADDED" -->
+## Auxiliary runtimes (Controller pattern)
+A UI component module **may include auxiliary runtime structures** that exist
+to *prepare, adapt, or orchestrate state* for the pure UI surface.
+
+These runtimes are **not part of the UI component itself**, but are allowed
+to live adjacent to it when they serve the same conceptual unit.
+
+Examples include:
+- Controllers
+- Signal factories
+- Data adapters
+- Command surfaces
+- Loader / resolver glue
+
+The name *Controller* is conventional, not required.
+
+### Structural rules
+- The UI component (`ui.tsx`) remains **pure**:
+  - props in → render out
+  - no domain ownership
+  - no hidden subscriptions
+- Auxiliary runtimes:
+  - may own Signals
+  - may manage lifecycle
+  - may perform IO or resolution
+  - may expose `props()` or `model()` adapters
+- The dependency direction is **strict**:
+  - Controller → UI
+  - never UI → Controller
+
+### Placement
+Auxiliary runtimes typically live alongside the UI primitive:
+
+```
+ui.MyComponent/
+├── ui.tsx
+├── t.ts
+├── mod.ts
+├── m.Controller.ts
+├── u.createController.ts
+```
+
+The exact filenames are flexible; the **directional dependency rule is not**.
+
+### Boundary clarity
+Auxiliary runtimes:
+- do **not** expand the public UI surface implicitly
+- are exposed only if intentionally exported via `t.ts` + `mod.ts`
+- must remain optional from the perspective of the UI primitive
+
+A component must remain renderable without its auxiliary runtime.
+
+### Rationale
+This pattern:
+- preserves UI purity
+- allows complex behavior without React entanglement
+- supports testability and DevHarness integration
+- aligns with functional and Lisp-style system decomposition:
+  - pure function + explicit state driver
+
+This is a **shape-level allowance**, not an idiom or requirement.
+
+
+=============================================================================
+
+
 ## DevHarness boundary / State boundary
 - No `LocalStorage.*` in runtime component files.
 - Persistent knobs live in `-spec/-SPEC.Debug.tsx`.
 - Runtime views may accept `theme?: t.CommonTheme`, `style?: t.CssInput`, `debug?: boolean` only.
 - If state is complex, expose an optional `Signals` helper adjacent to the component; do not bake it into the view.
-<!-- END ACTION -->
+
