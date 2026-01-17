@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Button, D, Icons, css } from '../common.ts';
-import { LayoutTreeSplit } from '../mod.ts';
+import { TreeHost } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -37,7 +37,7 @@ export default Spec.describe(D.displayName, async (e) => {
     return (
       <div className={styles.base.class}>
         {elBackButton}
-        <LayoutTreeSplit.UI
+        <TreeHost.UI
           debug={v.debug}
           theme={v.theme}
           slots={{

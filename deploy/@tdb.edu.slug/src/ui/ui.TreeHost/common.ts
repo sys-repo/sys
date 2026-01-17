@@ -2,12 +2,12 @@ import { type t, pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
 
-type P = t.LayoutTreeSplitProps;
+type P = t.TreeHostProps;
 
 /**
  * Constants:
  */
-const name = 'LayoutTreeSplit';
+const name = 'TreeHost';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),

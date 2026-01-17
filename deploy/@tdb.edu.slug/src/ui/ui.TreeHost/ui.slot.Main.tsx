@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css } from './common.ts';
 import { Empty } from './ui.Empty.tsx';
 
-type P = t.LayoutTreeSplitProps;
+type P = t.TreeHostProps;
 
 /**
  * Component:

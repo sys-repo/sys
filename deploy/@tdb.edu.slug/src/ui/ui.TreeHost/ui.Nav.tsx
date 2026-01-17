@@ -3,7 +3,7 @@ import { type t, Color, css } from './common.ts';
 import { Tree } from './ui.slot.Tree.tsx';
 import { Aux } from './ui.slot.Aux.tsx';
 
-type P = t.LayoutTreeSplitProps;
+type P = t.TreeHostProps;
 
 /**
  * Component:

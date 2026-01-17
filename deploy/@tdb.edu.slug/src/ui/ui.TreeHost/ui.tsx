@@ -3,7 +3,7 @@ import { type t, Color, css, D, SplitPane } from './common.ts';
 import { Nav } from './ui.Nav.tsx';
 import { Main } from './ui.slot.Main.tsx';
 
-export const LayoutTreeSplit: React.FC<t.LayoutTreeSplitProps> = (props) => {
+export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
   const { debug = false, split = D.split, slots = {} } = props;
 
   const theme = Color.theme(props.theme);

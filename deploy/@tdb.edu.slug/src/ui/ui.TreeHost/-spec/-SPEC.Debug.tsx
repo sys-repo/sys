@@ -21,7 +21,7 @@ const SAMPLE = {
   tree: { docId: '21JvXzARPYFXDVMag3x4UhLgHcQi' },
 } as const;
 
-type P = t.LayoutTreeSplitProps;
+type P = t.TreeHostProps;
 type LoadAction = 'import' | 'http';
 type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'selectedPath'> & {
   load?: LoadAction;
@@ -50,7 +50,7 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  type S = t.LayoutTreeSplitSlots;
+  type S = t.TreeHostSlots;
   const slots = {
     tree: s<S['tree']>(),
     main: s<S['main']>(),

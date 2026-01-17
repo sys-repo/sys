@@ -6,16 +6,16 @@ export type * from './t.data.ts';
 /**
  * Split layout with main tree navigation.
  */
-export type LayoutTreeSplitLib = {
-  readonly UI: t.FC<LayoutTreeSplitProps>;
-  readonly Data: t.LayoutTreeSplitDataLib;
+export type TreeHostLib = {
+  readonly UI: t.FC<TreeHostProps>;
+  readonly Data: t.TreeHostDataLib;
 };
 
 /**
  * Component:
  */
-export type LayoutTreeSplitProps = {
-  slots?: t.LayoutTreeSplitSlots;
+export type TreeHostProps = {
+  slots?: t.TreeHostSlots;
   root?: t.TreeNodeList;
   split?: t.Percent[];
   selectedPath?: t.ObjectPath;
@@ -27,10 +27,10 @@ export type LayoutTreeSplitProps = {
   onSplitChange?: (args: { split: t.Percent[] }) => void;
 };
 
-export type LayoutTreeSplitSlot = keyof LayoutTreeSplitSlots;
-export type LayoutTreeSplitSlots = {
+export type TreeHostSlot = keyof TreeHostSlots;
+export type TreeHostSlots = {
   tree?: t.ReactNode;
   main?: t.ReactNode;
   aux?: t.ReactNode;
-  empty?: (slot: LayoutTreeSplitSlot) => t.ReactNode;
+  empty?: (slot: TreeHostSlot) => t.ReactNode;
 };

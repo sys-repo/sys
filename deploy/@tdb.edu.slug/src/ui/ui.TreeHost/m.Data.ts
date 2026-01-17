@@ -1,8 +1,8 @@
 import { type t, Arr, Is, Obj, SlugClient } from './common.ts';
 
-type LabelMode = Exclude<t.LayoutTreeSplitFromSlugTreeOpts['label'], undefined>;
+type LabelMode = Exclude<t.TreeHostFromSlugTreeOpts['label'], undefined>;
 
-export const Data: t.LayoutTreeSplitDataLib = {
+export const Data: t.TreeHostDataLib = {
   Client: SlugClient,
 
   fromSlugTree(tree, opts) {

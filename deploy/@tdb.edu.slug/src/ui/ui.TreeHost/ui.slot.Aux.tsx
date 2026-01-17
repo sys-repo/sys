@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css } from './common.ts';
 
-type P = t.LayoutTreeSplitProps;
+type P = t.TreeHostProps;
 
 /**
  * Component:

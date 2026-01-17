@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Pure data adapters for `Layout.TreeSplit`.
+ * Pure data adapters for `TreeHost`.
  *
  * Responsibility:
  * - Transform domain tree data into `Tree.Index` data.
@@ -16,7 +16,7 @@ import type { t } from './common.ts';
  * This namespace defines the *only* supported data boundary
  * between domain trees and the Tree UI.
  */
-export type LayoutTreeSplitDataLib = {
+export type TreeHostDataLib = {
   readonly Client: t.SlugClientLib;
 
   /**
@@ -29,12 +29,12 @@ export type LayoutTreeSplitDataLib = {
    */
   readonly fromSlugTree: (
     tree: t.SlugTreeProps,
-    opts?: t.LayoutTreeSplitFromSlugTreeOpts,
+    opts?: t.TreeHostFromSlugTreeOpts,
   ) => t.TreeNodeList;
 };
 
 /** Minimal, structural options only. */
-export type LayoutTreeSplitFromSlugTreeOpts = {
+export type TreeHostFromSlugTreeOpts = {
   /** Label strategy for Tree nodes. Default: `'slug'`. */
   readonly label?: 'slug' | 'slug+description';
 };
