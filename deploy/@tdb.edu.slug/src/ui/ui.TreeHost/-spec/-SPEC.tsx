@@ -1,5 +1,5 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, Icons, css, Button } from '../common.ts';
+import { Button, D, Icons, css } from '../common.ts';
 import { LayoutTreeSplit } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 

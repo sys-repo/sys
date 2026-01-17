@@ -1,7 +1,6 @@
 import React from 'react';
-import { type t, Color, css, D, SplitPane } from './common.ts';
+import { type t, Color, css } from './common.ts';
 import { Empty } from './ui.Empty.tsx';
-import { Nav } from './ui.Nav.tsx';
 
 type P = t.LayoutTreeSplitProps;
 
