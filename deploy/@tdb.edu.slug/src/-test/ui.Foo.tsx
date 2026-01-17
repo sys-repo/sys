@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css } from '../common.ts';
+import { type t, Color, css } from './common.ts';
 
 export type FooProps = {
   label?: string;

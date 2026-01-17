@@ -1,5 +1,5 @@
 import React from 'react';
-import { SAMPLES } from '../../-test.ui.ts';
+import { Foo, SAMPLES } from '../../-test.ui.ts';
 import {
   type t,
   Button,
@@ -14,7 +14,6 @@ import {
   Str,
 } from '../common.ts';
 import { Data } from '../m.Data.ts';
-import { Foo } from './-ui.Foo.tsx';
 
 const SAMPLE = {
   baseUrl: 'http://localhost:4040/publish.assets',
