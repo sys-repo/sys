@@ -12,9 +12,11 @@
  * Recursive stack behavior is handled by SlugSheetStackController.
  */
 import type { t } from './common.ts';
+import { Controller } from './m.Controller.ts';
 import { SlugSheet as UI } from './ui.tsx';
 
 /** Runtime SlugSheet entry. */
 export const SlugSheet: t.SlugSheetLib = {
   UI,
+  Controller,
 };

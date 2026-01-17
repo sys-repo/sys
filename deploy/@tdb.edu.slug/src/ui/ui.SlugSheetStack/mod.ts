@@ -17,9 +17,11 @@
  * in the order provided.
  */
 import type { t } from './common.ts';
+import { Controller } from './m.Controller.ts';
 import { SlugSheetStack as UI } from './ui.tsx';
 
 /** Runtime SlugSheetStack entry. */
 export const SlugSheetStack: t.SlugSheetStackLib = {
   UI,
+  Controller,
 };
