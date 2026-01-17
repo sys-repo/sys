@@ -9,13 +9,13 @@ export type SlugSheetControllerLib = {
 
 /** Controller inputs: theme/debug + tree config. */
 export type SlugSheetControllerProps = {
-  readonly debug?: boolean;
-  readonly theme?: t.CommonTheme;
-  readonly root?: t.TreeNodeList;
-  readonly split?: t.Percent[];
-  readonly docId?: string;
-  readonly baseUrl?: t.StringUrl;
-  readonly treeHostSlots?: t.TreeHostSlots;
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  root?: t.TreeNodeList;
+  split?: t.Percent[];
+  docid?: string;
+  baseUrl?: t.StringUrl;
+  treeHostSlots?: t.TreeHostSlots;
 };
 
 export type SlugSheetViewModel = {

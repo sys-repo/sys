@@ -11,8 +11,8 @@ export const createController: t.SlugSheetControllerLib['create'] = (args) => {
   const split = Signal.create<t.Percent[]>(args.split ?? TreeHostD.split);
   const treeRoot = Signal.create<t.TreeNodeList | undefined>(args.root);
 
-  if (!treeRoot.value && args.baseUrl && args.docId) {
-    loadTree(args.baseUrl, args.docId);
+  if (!treeRoot.value && args.baseUrl && args.docid) {
+    loadTree(args.baseUrl, args.docid);
   }
 
   async function loadTree(baseUrl: t.StringUrl, docId: string) {
