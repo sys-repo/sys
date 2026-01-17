@@ -1,10 +1,12 @@
-import { type t, describe, it, expect, expectTypeOf, Is, Obj, Str } from '../../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 
-import { TreeHost } from '../mod.ts';
 import { SlugClient } from '../common.ts';
+import { TreeHost } from '../mod.ts';
 
 describe('TreeSplit', () => {
-  it('API', () => {
+  it('API', async () => {
+    const m = await import('@tdb/edu-slug/ui');
+    expect(m.TreeHost).to.equal(TreeHost);
     expect(TreeHost.Data.Client).to.equal(SlugClient);
   });
 });
