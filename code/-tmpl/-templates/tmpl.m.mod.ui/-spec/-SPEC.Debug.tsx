@@ -56,7 +56,7 @@ export async function createDebugSignals() {
 const Styles = {
   title: css({
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 4,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',

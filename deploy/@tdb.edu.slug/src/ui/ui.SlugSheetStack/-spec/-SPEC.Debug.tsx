@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-import { Button, ObjectView } from '../common.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { createFixture } from './u.fixture.ts';
 
 type P = t.SlugSheetStackProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -20,9 +20,9 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const fixture = createFixture();
 
   const props = {
     debug: s(snap.debug),
@@ -31,6 +31,7 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    fixture,
     listen,
     reset,
   };
@@ -56,7 +57,7 @@ export async function createDebugSignals() {
 const Styles = {
   title: css({
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 4,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -90,6 +91,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      <div className={Styles.title.class}>{'Controller'}</div>
+      <Button block label={() => 'stack.push → sheet'} onClick={() => debug.fixture.push()} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
