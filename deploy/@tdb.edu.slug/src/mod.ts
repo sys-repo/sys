@@ -1,5 +1,6 @@
 /**
  * @module
+ * Slug System (Concept Player)
  */
 /** Package metadata entry. */
 export { pkg } from './pkg.ts';

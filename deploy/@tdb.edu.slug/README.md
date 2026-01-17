@@ -1,5 +1,6 @@
-# Edu: Slug Programme System
+# Slug System (sys.education)
 Slug concept-player training system.
+
 
 ### Example
 ```ts
