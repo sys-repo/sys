@@ -4,16 +4,6 @@ Before any action:
 - Apply those instructions verbatim
 - This file adds local constraints only; all other behavior is governed by `../AGENTS.md`.
 
-===================================================================================================
-
-## Agent Configuration
-Local agent configs in `./-agent/*` for session-specific behavior.
-
-### Available Agents:
-- OpenCode
-  - `./opencode/` - OpenCode design sessions and configuration.
-  - OpenCode agent MUST read upon startup automatically.
-
 
 ====================================================================================================
 
