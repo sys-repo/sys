@@ -12,4 +12,6 @@ export {
   expectTypeOf,
   it,
 } from '@sys/testing/server';
+
 export * from '../common.ts';
+export { SAMPLES } from './-sample/mod.ts';

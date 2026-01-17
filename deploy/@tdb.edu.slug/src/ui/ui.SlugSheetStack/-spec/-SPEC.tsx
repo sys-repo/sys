@@ -1,6 +1,6 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Dev, SAMPLES, Signal, Spec } from '../../-test.ui.ts';
 import { SlugSheet } from '../../ui.SlugSheet/mod.ts';
-import { SAMPLES, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
+import { TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
 
 import { css, D } from '../common.ts';
 import { SlugSheetStack } from '../mod.ts';

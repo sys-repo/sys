@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { SAMPLES, describe, expect, it } from '../../../-test.ts';
 import { SlugSheet } from '../../ui.SlugSheet/mod.ts';
-import { SAMPLES, TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
+import { TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
 import { SlugSheetStack } from '../mod.ts';
 
 describe('SlugSheetStack.Controller', () => {
