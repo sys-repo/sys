@@ -27,7 +27,9 @@ export type TreeHostProps = {
   onSplitChange?: (args: { split: t.Percent[] }) => void;
 };
 
+/** Slot registry keys for TreeHost. */
 export type TreeHostSlot = keyof TreeHostSlots;
+/** Slot registry definitions for TreeHost. */
 export type TreeHostSlots = {
   tree?: t.ReactNode;
   main?: t.ReactNode;

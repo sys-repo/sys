@@ -1,6 +1,7 @@
 /**
  * @module
  */
+/** Package metadata entry. */
 export { pkg } from './pkg.ts';
 
 /** Type library (barrel file). */

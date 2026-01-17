@@ -5,6 +5,7 @@ const i = c.italic;
 const g = c.gray;
 const gi = (s: string) => g(i(s));
 
+/** Lint-format utilities. */
 export const Fmt = {
   ...Base,
   lintResults,
