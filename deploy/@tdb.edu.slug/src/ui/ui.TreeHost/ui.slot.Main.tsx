@@ -25,5 +25,5 @@ export const Main: React.FC<P> = (props) => {
     <Empty theme={theme.name} children={slots?.empty?.('main') ?? 'No content to display'} />
   );
 
-  return <div className={css(styles.base, props.style).class}>{slots.main ?? elEmpty}</div>;
+  return <main className={css(styles.base, props.style).class}>{slots.main ?? elEmpty}</main>;
 };
