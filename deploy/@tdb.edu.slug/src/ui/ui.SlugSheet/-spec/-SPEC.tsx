@@ -12,26 +12,14 @@ export default Spec.describe(D.displayName, async (e) => {
   function Root() {
     const v = Signal.toObject(p);
     const slots = createSlots(v.slots, v.theme || 'Light');
-
-    const styles = {
-      base: css({
-        Absolute: [-20, -20, 0, -20],
-        Padding: [19, 19, 0, 19],
-        display: 'grid',
-        overflow: 'hidden',
-      }),
-    };
-
     return (
-      <div className={styles.base.class}>
-        <SlugSheet.UI
-          debug={v.debug}
-          theme={v.theme}
-          visible={v.visible}
-          slots={slots}
-          index={v.index}
-        />
-      </div>
+      <SlugSheet.UI
+        debug={v.debug}
+        theme={v.theme}
+        visible={v.visible}
+        slots={slots}
+        index={v.index}
+      />
     );
   }
 

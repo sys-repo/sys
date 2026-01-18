@@ -13,8 +13,8 @@ const defaults: Storage = {
   visible: D.visible,
   index: D.index,
   // Debug:
+  controlled: true,
   slots: 'Foo',
-  controlled: false,
 };
 
 /**
@@ -97,13 +97,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
     vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
+  function indexButton(inc: number) {
+    return (
+      <Button
+        block
+        label={() => `index = ${p.index.value} ${inc > 0 ? '+' : '-'} ${Math.abs(inc)}`}
+        onClick={() => {
+          const current = p.index.value ?? 0;
+          p.index.value = current + inc;
+        }}
+      />
+    );
+  }
+
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
       <Button
         block
-        label={() => `controlled: ${p.controlled.value}`}
-        onClick={() => Signal.cycle(p.controlled, [D.controlled, 'value', undefined])}
+        label={() => (p.controlled.value ? 'controlled' : 'uncontrolled')}
+        onClick={() => Signal.toggle(p.controlled)}
       />
 
       <hr />
@@ -114,14 +127,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `index: ${p.index.value}`}
-        onClick={() => Signal.cycle(p.index, [D.index, 1])}
-      />
-      <Button
-        block
         label={() => `visible: ${p.visible.value ?? `(undefined)`}`}
         onClick={() => Signal.toggle(p.visible)}
       />
+
+      <hr />
+      {indexButton(1)}
+      {indexButton(-1)}
+      <Button block label={() => `reset (index = 0)`} onClick={() => (p.index.value = 0)} />
 
       <hr />
       <Button
