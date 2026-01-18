@@ -5,13 +5,16 @@ type P = t.SlugSheetProps;
 
 export type Storage = Pick<P, 'debug' | 'theme' | 'visible' | 'index'> & {
   slots?: 'Foo' | 'TreeHost';
+  controlled?: boolean;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
   visible: D.visible,
   index: D.index,
+  // Debug:
   slots: 'Foo',
+  controlled: false,
 };
 
 /**
@@ -31,9 +34,11 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    slots: s(snap.slots),
     visible: s(snap.visible),
     index: s(snap.index),
+    //
+    slots: s(snap.slots),
+    controlled: s(snap.controlled),
   };
   const p = props;
   const api = {
@@ -54,9 +59,10 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.slots = p.slots.value;
-      d.visible = p.visible.value;
       d.index = p.index.value;
+      d.visible = p.visible.value;
+      d.slots = p.slots.value;
+      d.controlled = p.controlled.value;
     });
   });
 
@@ -94,7 +100,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
+      <Button
+        block
+        label={() => `controlled: ${p.controlled.value}`}
+        onClick={() => Signal.cycle(p.controlled, [D.controlled, 'value', undefined])}
+      />
 
+      <hr />
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
