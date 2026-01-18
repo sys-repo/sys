@@ -1,6 +1,5 @@
-import { describe, expect, it, Signal } from '../../-test.ts';
-// import { VIDEO } from '../App.Content/mod.ts';
-import { Sheet } from './mod.ts';
+import { describe, expect, it, Signal } from '../../../-test.ts';
+import { Sheet } from '../mod.ts';
 
 type T = { id: string };
 

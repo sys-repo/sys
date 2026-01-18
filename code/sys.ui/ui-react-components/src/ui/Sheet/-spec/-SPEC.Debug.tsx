@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Button, css, Signal } from '../u.ts';
-import { D } from './common.ts';
+import { type t, Button, css, Signal } from '../../u.ts';
+import { D } from '../common.ts';
 
 type P = t.SheetProps;
 

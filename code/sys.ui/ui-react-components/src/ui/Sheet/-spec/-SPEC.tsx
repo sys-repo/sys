@@ -1,7 +1,7 @@
-import { Dev, Signal, Spec } from '../-test.ui.ts';
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { AnimatePresence, Color, css } from '../common.ts';
+import { Sheet } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { AnimatePresence, Color, css } from './common.ts';
-import { Sheet } from './mod.ts';
 
 export default Spec.describe('Sheet', (e) => {
   const debug = createDebugSignals();
