@@ -26,6 +26,107 @@ describe('TreeHost.Controller', () => {
     controller.dispose();
   });
 
+  it('handles full TreeHost slot surface (tree, aux, main)', () => {
+    const slots = {
+      tree: 'tree-content',
+      aux: 'aux-content',
+      main: 'main-content',
+    };
+    const controller = TreeHost.Controller.create({ props: () => ({ slots }) });
+
+    expect(controller.props().slots).to.eql(slots);
+
+    controller.dispose();
+  });
+
+  it('handles empty slot callback function', () => {
+    const emptyFn = (slot: string) => `empty-${slot}`;
+    const slots = { empty: emptyFn };
+    const controller = TreeHost.Controller.create({ props: () => ({ slots }) });
+
+    const props = controller.props();
+    expect(props.slots?.empty).to.equal(emptyFn);
+    expect(props.slots?.empty?.('tree')).to.equal('empty-tree');
+    expect(props.slots?.empty?.('aux')).to.equal('empty-aux');
+    expect(props.slots?.empty?.('main')).to.equal('empty-main');
+
+    controller.dispose();
+  });
+
+  it('handles partial slot combinations', () => {
+    const controller = TreeHost.Controller.create({ props: () => ({ slots: { tree: 'nav' } }) });
+    expect(controller.props().slots).to.eql({ tree: 'nav' });
+
+    // Update to include aux
+    const controller2 = TreeHost.Controller.create({
+      props: () => ({ slots: { tree: 'nav', aux: 'sidebar' } }),
+    });
+    expect(controller2.props().slots).to.eql({ tree: 'nav', aux: 'sidebar' });
+
+    // Update to include main
+    const controller3 = TreeHost.Controller.create({
+      props: () => ({ slots: { main: 'content' } }),
+    });
+    expect(controller3.props().slots).to.eql({ main: 'content' });
+
+    controller.dispose();
+    controller2.dispose();
+    controller3.dispose();
+  });
+
+  it('handles independent slot updates', () => {
+    let slots = { tree: 'initial-tree', aux: 'initial-aux', main: 'initial-main' };
+    const controller = TreeHost.Controller.create({ props: () => ({ slots }) });
+
+    expect(controller.props().slots).to.eql(slots);
+
+    // Update tree only
+    slots = { ...slots, tree: 'updated-tree' };
+    expect(controller.props().slots).to.eql({
+      tree: 'updated-tree',
+      aux: 'initial-aux',
+      main: 'initial-main',
+    });
+
+    // Update aux only
+    slots = { ...slots, aux: 'updated-aux' };
+    expect(controller.props().slots).to.eql({
+      tree: 'updated-tree',
+      aux: 'updated-aux',
+      main: 'initial-main',
+    });
+
+    // Update main only
+    slots = { ...slots, main: 'updated-main' };
+    expect(controller.props().slots).to.eql({
+      tree: 'updated-tree',
+      aux: 'updated-aux',
+      main: 'updated-main',
+    });
+
+    controller.dispose();
+  });
+
+  it('handles all slots with empty function', () => {
+    const emptyFn = (slot: string) => `placeholder-${slot}`;
+    const slots = {
+      tree: 'actual-tree',
+      aux: 'actual-aux',
+      main: 'actual-main',
+      empty: emptyFn,
+    };
+    const controller = TreeHost.Controller.create({ props: () => ({ slots }) });
+
+    const props = controller.props();
+    expect(props.slots).to.eql(slots);
+    expect(props.slots?.tree).to.equal('actual-tree');
+    expect(props.slots?.aux).to.equal('actual-aux');
+    expect(props.slots?.main).to.equal('actual-main');
+    expect(props.slots?.empty).to.equal(emptyFn);
+
+    controller.dispose();
+  });
+
   it('maintains clean boundary - only controller domain', () => {
     const controller = TreeHost.Controller.create({ props: () => ({ slots: { main: 'test' } }) });
     const props = controller.props();
