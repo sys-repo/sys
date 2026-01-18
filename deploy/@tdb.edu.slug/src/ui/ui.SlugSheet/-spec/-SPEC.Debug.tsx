@@ -3,10 +3,11 @@ import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
 
 type P = t.SlugSheetProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme'> & { slots?: 'Foo' | 'TreeHost' };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
+  slots: 'Foo',
 };
 
 /**
@@ -20,13 +21,13 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    slots: s(snap.slots),
   };
   const p = props;
   const api = {
@@ -47,6 +48,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.slots = p.slots.value;
     });
   });
 
@@ -56,10 +58,10 @@ export async function createDebugSignals() {
 const Styles = {
   title: css({
     fontWeight: 'bold',
-    marginBottom: 10,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 4,
   }),
 };
 
@@ -90,6 +92,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <Button
+        block
+        label={() => `slots: ${p.slots.value ?? '(undefined)'}`}
+        onClick={() => Signal.cycle<Storage['slots']>(p.slots, ['Foo', 'TreeHost', undefined])}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>{'Slots'}</div>
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

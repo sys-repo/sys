@@ -1,5 +1,5 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
+import { Dev, Foo, Signal, Spec } from '../../-test.ui.ts';
+import { type t, D } from '../common.ts';
 import { SlugSheet } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -9,7 +9,11 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <SlugSheet.UI debug={v.debug} theme={v.theme} />;
+
+    let main: t.ReactNode | undefined;
+    if (v.slots === 'Foo') main = <Foo theme={v.theme} label={'slot:main'} />;
+    const slots = main ? ({ main } satisfies t.SlugSheetSlots) : undefined;
+    return <SlugSheet.UI debug={v.debug} theme={v.theme} slots={slots} />;
   }
 
   e.it('init', (e) => {

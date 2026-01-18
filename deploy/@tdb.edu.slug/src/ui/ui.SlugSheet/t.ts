@@ -24,7 +24,5 @@ export type SlugSheetProps = {
 
 /** Slot registry for SlugSheet. */
 export type SlugSheetSlots = {
-  tree?: t.ReactNode;
   main?: t.ReactNode;
-  aux?: t.ReactNode;
 };
