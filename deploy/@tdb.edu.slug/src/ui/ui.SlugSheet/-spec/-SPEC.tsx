@@ -1,8 +1,8 @@
-import { Dev, Foo, Signal, Spec, SAMPLES } from '../../-test.ui.ts';
-import { type t, D } from '../common.ts';
+import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { D } from '../common.ts';
 import { SlugSheet } from '../mod.ts';
-import { TreeHost } from '../../ui.TreeHost/mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createSlots } from './u.fixture.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -10,20 +10,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-
-    let main: t.ReactNode | undefined;
-    if (v.slots === 'Foo') {
-      main = <Foo theme={v.theme} label={'slot:main'} />;
-    }
-    if (v.slots === 'TreeHost') {
-      const treeSlots = {
-        main: <Foo theme={v.theme} label={'TreeHost:main'} />,
-        aux: <Foo theme={v.theme} label={'TreeHost:aux'} />,
-      };
-      const root = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree.gHcQi);
-      main = <TreeHost.UI root={root} slots={treeSlots} />;
-    }
-    const slots = main ? ({ main } satisfies t.SlugSheetSlots) : undefined;
+    const slots = createSlots(v.slots, v.theme || 'Light');
     return <SlugSheet.UI debug={v.debug} theme={v.theme} slots={slots} />;
   }
 

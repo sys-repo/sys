@@ -3,7 +3,8 @@ import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
 
 type P = t.SlugSheetProps;
-type Storage = Pick<P, 'debug' | 'theme'> & { slots?: 'Foo' | 'TreeHost' };
+
+export type Storage = Pick<P, 'debug' | 'theme'> & { slots?: 'Foo' | 'TreeHost' };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
