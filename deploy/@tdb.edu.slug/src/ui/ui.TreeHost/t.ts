@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 
 /** Type re-exports. */
+export type * from './t.controller.ts';
 export type * from './t.data.ts';
 
 /**
@@ -9,6 +10,7 @@ export type * from './t.data.ts';
 export type TreeHostLib = {
   readonly UI: t.FC<TreeHostProps>;
   readonly Data: t.TreeHostDataLib;
+  readonly Controller: t.TreeHostControllerLib;
 };
 
 /**
