@@ -1,7 +1,7 @@
-import { type t, Signal } from '../common.ts';
+import { type t, Signal, Num } from '../common.ts';
 
 export const createController: t.SlugSheetStackControllerLib['create'] = (initial) => {
-  const stack = Signal.create<t.SlugSheetStackSheet[]>(initial ? [initial] : []);
+  const stack = Signal.create<t.SlugSheetStackLayer[]>(initial ? [initial] : []);
   let disposed = false;
 
   const controller: t.SlugSheetStackController = {
@@ -16,9 +16,10 @@ export const createController: t.SlugSheetStackControllerLib['create'] = (initia
     pop(count = 1) {
       if (disposed) return;
       const current = stack.value;
-      if (current.length <= 1) return;
+      if (current.length <= 1) return; // No-op, no signal
 
-      const clampCount = Math.max(0, Math.min(count, current.length - 1));
+      // const clampCount = Math.max(0, Math.min(count, current.length - 1));
+      const clampCount = Num.clamp(0, current.length - 1, count);
       const remove = clampCount;
       const remaining = current.slice(0, current.length - remove);
       const dropped = current.slice(current.length - remove);
@@ -33,7 +34,7 @@ export const createController: t.SlugSheetStackControllerLib['create'] = (initia
     },
     props() {
       const items: readonly t.SlugSheetStackItem[] = stack.value.map((item) => ({
-        id: item.id,
+        id: item.sheet.id,
         props: item.sheet.props(),
       }));
       return {

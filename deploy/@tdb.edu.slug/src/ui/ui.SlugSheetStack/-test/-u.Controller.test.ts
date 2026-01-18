@@ -6,11 +6,11 @@ import { Signal } from '../common.ts';
 describe('SlugSheetStack.Controller', () => {
   it('push/pop lifecycle maintains stack and disposes children', () => {
     const sheet = SlugSheet.Controller.create({});
-    const controller = SlugSheetStack.Controller.create({ id: 'root', sheet });
+    const controller = SlugSheetStack.Controller.create({ sheet });
     expect(controller.length).to.eql(1);
 
     const overlay1 = SlugSheet.Controller.create({});
-    controller.push({ id: 'overlay-1', sheet: overlay1 });
+    controller.push({ sheet: overlay1 });
     expect(controller.length).to.eql(2);
 
     controller.pop();
@@ -18,8 +18,8 @@ describe('SlugSheetStack.Controller', () => {
 
     const overlay2 = SlugSheet.Controller.create({});
     const overlay3 = SlugSheet.Controller.create({});
-    controller.push({ id: 'overlay-2', sheet: overlay2 });
-    controller.push({ id: 'overlay-3', sheet: overlay3 });
+    controller.push({ sheet: overlay2 });
+    controller.push({ sheet: overlay3 });
     expect(controller.length).to.eql(3);
 
     controller.pop(2);
@@ -42,11 +42,24 @@ describe('SlugSheetStack.Controller', () => {
     });
     expect(changes).to.eql(1);
 
-    controller.push({ id: 'test-sheet', sheet: SlugSheet.Controller.create({}) });
+    const push = () => controller.push({ sheet: SlugSheet.Controller.create({}) });
+    push();
     expect(changes).to.eql(2);
 
-    controller.pop();
+    push();
+    push();
     expect(changes).to.eql(4);
+
+    controller.pop();
+    expect(changes).to.eql(5);
+
+    controller.pop(100);
+    expect(changes).to.eql(6);
+    expect(controller.length).to.eql(1);
+
+    controller.pop();
+    expect(controller.length).to.eql(1);
+    expect(changes).to.eql(6); // NB: no signal
 
     dispose();
   });

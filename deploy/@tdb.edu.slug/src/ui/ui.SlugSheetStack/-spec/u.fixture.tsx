@@ -1,8 +1,6 @@
-import { Foo, SAMPLES, slug } from '../../-test.ui.ts';
+import { Foo } from '../../-test.ui.ts';
 import type { t } from '../../ui.SlugSheet/common.ts';
 import { SlugSheet } from '../../ui.SlugSheet/mod.ts';
-import { TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
-
 import { SlugSheetStack } from '../mod.ts';
 
 /**
@@ -10,33 +8,28 @@ import { SlugSheetStack } from '../mod.ts';
  * Provides a stable sample tree, a root sheet, and helpers to push overlays.
  */
 export function createFixture() {
-  const treeRoot = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree.gHcQi);
-  const rootSlots = createSlots('root');
-  const rootSheet = SlugSheet.Controller.create({
-    slots: { main: <TreeHost.UI root={treeRoot} slots={rootSlots} /> },
-  });
-  const stackController = SlugSheetStack.Controller.create();
-  stackController.push({ id: 'root', sheet: rootSheet });
+  const push = (label: string = `level-${controller.length}`) => {
+    const slots = createSlots(label);
+    const sheet = SlugSheet.Controller.create({ slots });
 
-  const push = () => {
-    const slots = createSlots(`overlay-${slug()}`);
-    const sheet = SlugSheet.Controller.create({
-      slots: { main: <TreeHost.UI root={treeRoot} slots={slots} /> },
-    });
-    stackController.push({ id: `overlay-${slug()}`, sheet });
+    controller.push({ sheet });
+
+    return sheet;
   };
 
+  const controller = SlugSheetStack.Controller.create();
+  const rootSheet = push('root');
+
   return {
-    treeRoot,
     rootSheet,
-    stackController,
+    controller,
     push,
+    pop: controller.pop,
   } as const;
 }
 
-function createSlots(label: string): t.TreeHostSlots {
+function createSlots(label: string): t.SlugSheetSlots {
   return {
-    main: <Foo label={`tree:${label}:main`} />,
-    aux: <Foo label={`tree:${label}:aux`} />,
+    main: <Foo label={`sheet:${label}`} />,
   };
 }

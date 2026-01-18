@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Controller surface.
  */
 export type SlugSheetStackControllerLib = {
-  create(initial?: t.SlugSheetStackSheet): t.SlugSheetStackController;
+  create(initial?: t.SlugSheetStackLayer): t.SlugSheetStackController;
 };
 
 export type SlugSheetStackItem = {
@@ -12,16 +12,13 @@ export type SlugSheetStackItem = {
   readonly props: t.SlugSheetProps;
 };
 
-export type SlugSheetStackSheet = {
-  readonly id: t.StringId;
-  readonly sheet: t.SlugSheetController;
-};
+export type SlugSheetStackLayer = { readonly sheet: t.SlugSheetController };
 
 /** Controller API for managing sheet stacks. */
 export type SlugSheetStackController = t.DisposableLike & {
   readonly length: number;
-  readonly stack: t.Signal<readonly SlugSheetStackSheet[]>;
+  readonly stack: t.Signal<readonly SlugSheetStackLayer[]>;
   props(): t.SlugSheetStackProps;
-  push(model: SlugSheetStackSheet): void;
+  push(model: t.SlugSheetStackLayer): void;
   pop(count?: number): void;
 };

@@ -14,5 +14,6 @@ export type SlugSheetControllerProps = {
 
 /** SlugSheet runtime controller surface. */
 export type SlugSheetController = t.DisposableLike & {
+  readonly id: t.StringId;
   props(): t.SlugSheetProps;
 };
