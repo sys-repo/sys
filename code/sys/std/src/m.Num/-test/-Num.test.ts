@@ -176,4 +176,24 @@ describe('Value.Num', () => {
       expect(res).to.equal(1);
     });
   });
+
+  describe('Num constants', () => {
+    it('MAX_INT equals Number.MAX_SAFE_INTEGER', () => {
+      expect(Num.MAX_INT).to.equal(Number.MAX_SAFE_INTEGER);
+    });
+
+    it('MIN_INT equals negative Number.MAX_SAFE_INTEGER', () => {
+      expect(Num.MIN_INT).to.equal(-Number.MAX_SAFE_INTEGER);
+    });
+
+    it('INFINITY equals Number.POSITIVE_INFINITY', () => {
+      expect(Num.INFINITY).to.equal(Number.POSITIVE_INFINITY);
+    });
+
+    it('constants are readonly numbers', () => {
+      expect(typeof Num.MAX_INT).to.equal('number');
+      expect(typeof Num.MIN_INT).to.equal('number');
+      expect(typeof Num.INFINITY).to.equal('number');
+    });
+  });
 });

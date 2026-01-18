@@ -12,6 +12,24 @@ export type NumberLib = {
   /** Tools for working with ratios. */
   readonly Ratio: t.RatioLib;
 
+  /**
+   * Maximum integer representable exactly in the Num domain.
+   * Alias of Number.MAX_SAFE_INTEGER (IEEE-754 safe integer limit).
+   */
+  readonly MAX_INT: number;
+
+  /**
+   * Minimum integer representable exactly in the Num domain.
+   * Equivalent to -Number.MAX_SAFE_INTEGER.
+   */
+  readonly MIN_INT: number;
+
+  /**
+   * Positive infinity.
+   * Alias of Number.POSITIVE_INFINITY.
+   */
+  readonly INFINITY: number;
+
   /** Rounds a number to the specified number of decimal places. */
   round(value: number, precision?: number): number;
 

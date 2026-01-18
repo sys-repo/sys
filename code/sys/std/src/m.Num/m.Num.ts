@@ -11,6 +11,10 @@ export const Num: t.NumberLib = {
   Percent,
   Ratio,
 
+  MAX_INT: Number.MAX_SAFE_INTEGER,
+  MIN_INT: -Number.MAX_SAFE_INTEGER,
+  INFINITY: Number.POSITIVE_INFINITY,
+
   sum,
   round,
   clamp,
