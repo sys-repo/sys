@@ -71,6 +71,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
+  const fixture = debug.fixture;
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -94,13 +95,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Controller'}</div>
-      <Button block label={() => 'stack.push( sheet )'} onClick={() => debug.fixture.push()} />
-      <Button block label={() => 'stack.pop( )'} onClick={() => debug.fixture.pop()} />
+      <Button block label={() => 'stack.push( sheet )'} onClick={() => fixture.push()} />
+      <Button block label={() => 'stack.pop( )'} onClick={() => fixture.pop()} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView
+        name={'controller.stack'}
+        data={Signal.toObject(fixture.controller.stack)}
+        expand={1}
+        style={{ marginTop: 6 }}
+      />
     </div>
   );
 };

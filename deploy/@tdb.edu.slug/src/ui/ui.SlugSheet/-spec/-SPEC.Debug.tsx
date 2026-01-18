@@ -5,16 +5,17 @@ import { createSlots } from './u.fixture.tsx';
 
 type P = t.SlugSheetProps;
 
-export type Storage = Pick<P, 'debug' | 'theme' | 'visible' | 'index'> & {
+export type Storage = Pick<P, 'debug' | 'theme' | 'index'> & {
   slots?: 'Foo' | 'TreeHost';
+  visible?: boolean;
   controlled?: boolean;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
-  visible: D.visible,
   index: D.index,
   //
+  visible: true,
   controlled: true,
   slots: 'Foo',
 };
@@ -128,17 +129,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => (p.controlled.value ? 'controlled' : 'uncontrolled')}
         onClick={() => Signal.toggle(p.controlled)}
       />
+      <Button
+        block
+        label={() => `visible: ${p.visible.value ?? `(undefined)`}`}
+        onClick={() => Signal.toggle(p.visible)}
+      />
 
       <hr />
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
-      />
-      <Button
-        block
-        label={() => `visible: ${p.visible.value ?? `(undefined)`}`}
-        onClick={() => Signal.toggle(p.visible)}
       />
 
       <hr />

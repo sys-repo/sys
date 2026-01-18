@@ -16,10 +16,14 @@ export type SlugSheetLib = {
  * Component:
  */
 export type SlugSheetProps = {
-  visible?: boolean;
   slots?: t.SlugSheetSlots;
   index?: t.Index;
   debug?: boolean;
+
+  shadowOpacity?: t.SheetProps['shadowOpacity'];
+  shadowBlurRadius?: t.SheetProps['shadowBlurRadius'];
+  shadowSpreadRadius?: t.SheetProps['shadowSpreadRadius'];
+
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

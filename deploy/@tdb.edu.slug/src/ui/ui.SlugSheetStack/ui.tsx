@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Color, css, D, ObjectView } from './common.ts';
+import { type t, AnimatePresence, Color, css, D, SlugSheet } from './common.ts';
+
 
 /**
  * Minimal stack manager - pure data structure only
@@ -13,23 +14,28 @@ export const SlugSheetStack: React.FC<t.SlugSheetStackProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      position: 'relative',
       color: theme.fg,
       padding: 30,
     }),
+    sheet: css({ Absolute: 0 }),
   };
 
-  const elItems = items.map((item) => {
+  const elItems = items.map((item, i) => {
+    const top = i * 6;
+    const slots: t.SlugSheetSlots = {
+      main: <Foo theme={theme.name} label={'slot:main'} style={{ padding: 15 }} />,
+    };
     return (
-      <div key={item.id}>
-        <ObjectView name={item.id} data={item} />
+      <div key={item.id} className={styles.sheet.class}>
+        <SlugSheet.UI key={item.id} index={i} slots={slots} style={css(styles.sheet, { top })} />
       </div>
     );
   });
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      {elItems}
+      <AnimatePresence>{elItems}</AnimatePresence>
     </div>
   );
 };

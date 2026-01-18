@@ -11,7 +11,6 @@ const name = 'SlugSheet';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
-  visible: true,
   index: 0,
 } as const;
 export const DEFAULTS = D;

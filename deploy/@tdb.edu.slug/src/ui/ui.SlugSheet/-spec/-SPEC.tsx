@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 
-import { type t, D } from '../common.ts';
+import { type t, AnimatePresence, D } from '../common.ts';
 import { SlugSheet } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { createSlots } from './u.fixture.tsx';
@@ -15,15 +15,11 @@ export default Spec.describe(D.displayName, async (e) => {
       ? debug.controller.props()
       : { slots: createSlots(v.slots, v.theme) };
 
-    return (
-      <SlugSheet.UI
-        {...props}
-        debug={v.debug}
-        theme={v.theme}
-        visible={v.visible}
-        index={v.index}
-      />
+    const elSheet = v.visible && (
+      <SlugSheet.UI {...props} debug={v.debug} theme={v.theme} index={v.index} />
     );
+
+    return <AnimatePresence>{elSheet}</AnimatePresence>;
   }
 
   e.it('init', (e) => {

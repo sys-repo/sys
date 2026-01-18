@@ -1,10 +1,10 @@
 import React from 'react';
-import { type t, AnimatePresence, Color, css, D, Num, Sheet } from './common.ts';
+import { type t, Color, css, D, Num, Sheet } from './common.ts';
 
 type P = t.SlugSheetProps;
 
 export const SlugSheet: React.FC<P> = (props) => {
-  const { slots = {}, debug = false, visible = D.visible } = props;
+  const { slots = {}, debug = false } = props;
   const index = wrangle.index(props);
   const isRoot = index === 0;
 
@@ -39,7 +39,7 @@ export const SlugSheet: React.FC<P> = (props) => {
 
   const elRoot = isRoot && <div className={styles.main.class}>{slots.main}</div>;
 
-  const elSheet = !isRoot && visible && (
+  const elSheet = !isRoot && (
     <Sheet.UI
       theme={theme.name}
       orientation={'Bottom:Up'}
@@ -54,7 +54,7 @@ export const SlugSheet: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      <AnimatePresence>{elRoot || elSheet}</AnimatePresence>
+      {elRoot || elSheet}
     </div>
   );
 };
@@ -79,6 +79,6 @@ const wrangle = {
 
   shadowOpacity(props: P, theme = Color.theme(props.theme)) {
     if (wrangle.isRoot(props)) return 0;
-    return theme.is.dark ? -0.32 : -0.06;
+    return props.shadowOpacity ?? (theme.is.dark ? -0.32 : -0.06);
   },
 } as const;
