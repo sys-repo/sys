@@ -1,18 +1,14 @@
-import { type t, slug } from '../common.ts';
+import { type t, slug, Rx } from '../common.ts';
 
 export const createController: t.SlugSheetControllerLib['create'] = (args) => {
-  let disposed = false;
   const id = `sheet-${slug()}`;
 
-  const controller: t.SlugSheetController = {
+  const controller = Rx.toLifecycle<t.SlugSheetController>({
     id,
     props() {
-      return { slots: args.slots };
+      return args.props?.() ?? {};
     },
-    dispose() {
-      disposed = true;
-    },
-  };
+  });
 
   return controller;
 };

@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Controller surface.
  */
 export type SlugSheetControllerLib = {
-  create(args: t.SlugSheetControllerProps): t.SlugSheetController;
+  create(args?: { props?: () => t.SlugSheetControllerProps }): t.SlugSheetController;
 };
 
 /** Controller inputs: slots. */
@@ -13,7 +13,7 @@ export type SlugSheetControllerProps = {
 };
 
 /** SlugSheet runtime controller surface. */
-export type SlugSheetController = t.DisposableLike & {
+export type SlugSheetController = t.Lifecycle & {
   readonly id: t.StringId;
-  props(): t.SlugSheetProps;
+  props(): t.SlugSheetControllerProps;
 };

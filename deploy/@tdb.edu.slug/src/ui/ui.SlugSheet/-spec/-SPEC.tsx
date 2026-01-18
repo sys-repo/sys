@@ -9,6 +9,8 @@ export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
 
+  const controller = SlugSheet.Controller.create({});
+
   function Root() {
     const v = Signal.toObject(p);
     const slots = createSlots(v.slots, v.theme || 'Light');
