@@ -20,7 +20,7 @@ export type SlugSheetStackSheet = {
 /** Controller API for managing sheet stacks. */
 export type SlugSheetStackController = t.DisposableLike & {
   readonly stack: t.Signal<readonly SlugSheetStackSheet[]>;
+  props(): t.SlugSheetStackProps;
   push(model: SlugSheetStackSheet): void;
   pop(count?: number): void;
-  props(): t.SlugSheetStackProps;
 };

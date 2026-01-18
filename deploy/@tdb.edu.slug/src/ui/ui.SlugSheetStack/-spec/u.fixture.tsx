@@ -12,13 +12,17 @@ import { SlugSheetStack } from '../mod.ts';
 export function createFixture() {
   const treeRoot = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree.gHcQi);
   const rootSlots = createSlots('root');
-  const rootSheet = SlugSheet.Controller.create({ root: treeRoot, treeHostSlots: rootSlots });
+  const rootSheet = SlugSheet.Controller.create({
+    slots: { main: <TreeHost.UI root={treeRoot} slots={rootSlots} /> },
+  });
   const stackController = SlugSheetStack.Controller.create();
   stackController.push({ id: 'root', sheet: rootSheet });
 
   const push = () => {
     const slots = createSlots(`overlay-${slug()}`);
-    const sheet = SlugSheet.Controller.create({ root: treeRoot, treeHostSlots: slots });
+    const sheet = SlugSheet.Controller.create({
+      slots: { main: <TreeHost.UI root={treeRoot} slots={slots} /> },
+    });
     stackController.push({ id: `overlay-${slug()}`, sheet });
   };
 

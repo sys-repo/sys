@@ -1,23 +1,29 @@
-import { describe, expect, it, SAMPLES } from '../../../-test.ts';
-import { TreeHost } from '../../ui.TreeHost/-spec/mod.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { SlugSheet } from '../mod.ts';
 
 describe('SlugSheet.Controller', () => {
-  it('exposes stable props and reflects selection changes', () => {
-    const root = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree.gHcQi);
-    const controller = SlugSheet.Controller.create({ root });
+  it('exposes stable props', () => {
+    const controller = SlugSheet.Controller.create({});
 
-    const first = controller.props();
-    expect(first.slots?.tree).to.exist;
-
-    controller.selectedPath.value = ['a'];
-    expect(controller.selectedPath.value).to.eql(['a']);
+    const props = controller.props();
+    expect(props.debug).to.be.undefined;
+    expect(props.theme).to.be.undefined;
+    expect(props.slots).to.be.undefined;
 
     const next = controller.props();
-    expect(next.slots?.tree).to.exist;
+    expect(next.debug).to.be.undefined;
+    expect(next.theme).to.be.undefined;
+    expect(next.slots).to.be.undefined;
 
-    const viewModel = controller.model();
-    expect(viewModel.treeHostProps.slots?.main).to.exist;
+    controller.dispose();
+  });
+
+  it('reflects provided slots', () => {
+    const slots = { main: 'test' };
+    const controller = SlugSheet.Controller.create({ slots });
+    const props = controller.props();
+    expect(props.slots).to.equal(slots);
+    expect(props.slots).to.eql(slots);
 
     controller.dispose();
   });
