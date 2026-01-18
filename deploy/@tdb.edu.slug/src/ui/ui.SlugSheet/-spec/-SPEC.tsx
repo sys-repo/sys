@@ -1,5 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D } from '../common.ts';
+
+import { css, D } from '../common.ts';
 import { SlugSheet } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 import { createSlots } from './u.fixture.tsx';
@@ -11,7 +12,27 @@ export default Spec.describe(D.displayName, async (e) => {
   function Root() {
     const v = Signal.toObject(p);
     const slots = createSlots(v.slots, v.theme || 'Light');
-    return <SlugSheet.UI debug={v.debug} theme={v.theme} slots={slots} />;
+
+    const styles = {
+      base: css({
+        Absolute: [-20, -20, 0, -20],
+        Padding: [19, 19, 0, 19],
+        display: 'grid',
+        overflow: 'hidden',
+      }),
+    };
+
+    return (
+      <div className={styles.base.class}>
+        <SlugSheet.UI
+          debug={v.debug}
+          theme={v.theme}
+          visible={v.visible}
+          slots={slots}
+          index={v.index}
+        />
+      </div>
+    );
   }
 
   e.it('init', (e) => {
@@ -24,8 +45,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
-
+    ctx.host.tracelineColor(-0.04);
     ctx.subject
       .size('fill', 80)
       .display('grid')

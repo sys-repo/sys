@@ -16,7 +16,9 @@ export type SlugSheetLib = {
  * Component:
  */
 export type SlugSheetProps = {
+  visible?: boolean;
   slots?: t.SlugSheetSlots;
+  index?: t.Index;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

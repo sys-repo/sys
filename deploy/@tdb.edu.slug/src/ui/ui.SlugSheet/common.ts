@@ -8,6 +8,11 @@ type P = t.SlugSheetProps;
  * Constants:
  */
 const name = 'SlugSheet';
-export const D = { name, displayName: Pkg.toString(pkg, name, false) } as const;
+export const D = {
+  name,
+  displayName: Pkg.toString(pkg, name, false),
+  visible: true,
+  index: 0,
+} as const;
 export const DEFAULTS = D;
 export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

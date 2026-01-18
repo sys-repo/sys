@@ -1,13 +1,16 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-import { Button, ObjectView } from '../common.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.SlugSheetProps;
 
-export type Storage = Pick<P, 'debug' | 'theme'> & { slots?: 'Foo' | 'TreeHost' };
+export type Storage = Pick<P, 'debug' | 'theme' | 'visible' | 'index'> & {
+  slots?: 'Foo' | 'TreeHost';
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
+  visible: D.visible,
+  index: D.index,
   slots: 'Foo',
 };
 
@@ -29,6 +32,8 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     slots: s(snap.slots),
+    visible: s(snap.visible),
+    index: s(snap.index),
   };
   const p = props;
   const api = {
@@ -42,7 +47,7 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
   Signal.effect(() => {
@@ -50,6 +55,8 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.slots = p.slots.value;
+      d.visible = p.visible.value;
+      d.index = p.index.value;
     });
   });
 
@@ -93,15 +100,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Button
+        block
+        label={() => `index: ${p.index.value}`}
+        onClick={() => Signal.cycle(p.index, [D.index, 1])}
+      />
+      <Button
+        block
+        label={() => `visible: ${p.visible.value ?? `(undefined)`}`}
+        onClick={() => Signal.toggle(p.visible)}
+      />
 
+      <hr />
       <Button
         block
         label={() => `slots: ${p.slots.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<Storage['slots']>(p.slots, ['Foo', 'TreeHost', undefined])}
       />
-
-      <hr />
-      <div className={Styles.title.class}>{'Slots'}</div>
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

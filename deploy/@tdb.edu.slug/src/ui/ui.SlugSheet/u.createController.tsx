@@ -7,9 +7,7 @@ export const createController: t.SlugSheetControllerLib['create'] = (args) => {
   const controller: t.SlugSheetController = {
     id,
     props() {
-      return {
-        slots: args.slots,
-      };
+      return { slots: args.slots };
     },
     dispose() {
       disposed = true;

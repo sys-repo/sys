@@ -12,7 +12,7 @@ export function createSlots(
   theme: t.CommonTheme,
 ): t.SlugSheetSlots | undefined {
   if (type === 'Foo') {
-    return { main: <Foo theme={theme} label={'slot:main'} /> };
+    return { main: <Foo theme={theme} label={'slot:main'} style={{ padding: 15 }} /> };
   }
 
   if (type === 'TreeHost') {
