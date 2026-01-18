@@ -94,7 +94,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Controller'}</div>
-      <Button block label={() => 'stack.push → sheet'} onClick={() => debug.fixture.push()} />
+      <Button block label={() => 'stack.push( sheet )'} onClick={() => debug.fixture.push()} />
+      <Button block label={() => 'stack.pop( )'} onClick={() => debug.fixture.pop()} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

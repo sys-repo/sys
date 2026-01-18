@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 
-import { css, D } from '../common.ts';
+import { D } from '../common.ts';
 import { SlugSheetStack } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -14,21 +14,8 @@ export default Spec.describe(D.displayName, async (e) => {
    */
   function Root() {
     const v = Signal.toObject(debug.props);
-    const stackProps = fixture.stackController.props();
-
-    const styles = {
-      base: css({
-        display: 'grid',
-        position: 'relative',
-        minHeight: 520,
-      }),
-    };
-
-    return (
-      <div className={styles.base.class}>
-        <SlugSheetStack.UI {...stackProps} debug={v.debug} theme={v.theme} />
-      </div>
-    );
+    const props = fixture.controller.props();
+    return <SlugSheetStack.UI {...props} debug={v.debug} theme={v.theme} />;
   }
 
   e.it('init', (e) => {
