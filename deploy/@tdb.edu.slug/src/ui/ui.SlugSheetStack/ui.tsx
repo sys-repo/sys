@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, AnimatePresence, Color, css, D, SlugSheet } from './common.ts';
+import { type t, AnimatePresence, Color, css, D } from './common.ts';
+import { SlugSheet } from '../ui.SlugSheet/mod.ts';
 
 import { Foo } from '../-test.ui.ts'; // TEMP 🐷
 
@@ -24,9 +25,11 @@ export const SlugSheetStack: React.FC<t.SlugSheetStackProps> = (props) => {
 
   const elItems = items.map((item, i) => {
     const top = i * 6;
+    const label = `slot:main-${i}`;
     const slots: t.SlugSheetSlots = {
-      main: <Foo theme={theme.name} label={'slot:main'} style={{ padding: 15 }} />,
+      main: <Foo theme={theme.name} label={label} style={{ padding: 15 }} />,
     };
+
     return (
       <div key={item.id} className={styles.sheet.class}>
         <SlugSheet.UI key={item.id} index={i} slots={slots} style={css(styles.sheet, { top })} />
