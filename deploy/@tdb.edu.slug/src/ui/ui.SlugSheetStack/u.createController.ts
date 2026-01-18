@@ -6,6 +6,9 @@ export const createController: t.SlugSheetStackControllerLib['create'] = (initia
 
   const controller: t.SlugSheetStackController = {
     stack,
+    get length() {
+      return stack.value.length;
+    },
     push(model) {
       if (disposed) return;
       stack.value = [...stack.value, model];
