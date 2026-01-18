@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, AnimatePresence, Color, css, D, SlugSheet } from './common.ts';
 
+import { Foo } from '../-test.ui.ts'; // TEMP 🐷
 
 /**
  * Minimal stack manager - pure data structure only
