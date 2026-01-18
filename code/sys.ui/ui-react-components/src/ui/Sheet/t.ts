@@ -9,7 +9,7 @@ type M = React.MouseEventHandler<HTMLDivElement>;
  */
 export type SheetLib = {
   /** The UI component of the sheet. */
-  readonly View: React.FC<SheetProps>;
+  readonly UI: React.FC<SheetProps>;
 
   /** Library: Sheet Signals (State) */
   readonly Signals: t.SheetSignalsLib;

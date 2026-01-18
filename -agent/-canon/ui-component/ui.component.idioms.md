@@ -8,7 +8,7 @@ Purpose:
 
 ## Surface + module shape
 Exports:
-- `Sheet.View` → React component (`ui.tsx`)
+- `Sheet.UI` → React component (`ui.tsx`)
 - `Sheet.Signals` → state helpers (`m.Signals.ts` → `m.Signals.Stack.ts`)
 
 Pattern:
@@ -20,7 +20,7 @@ Pattern:
 
 ## View: host contract (critical)
 
-`Sheet.View` internally renders a `mask` element and explicitly warns:
+`Sheet.UI` internally renders a `mask` element and explicitly warns:
 
 - "Ensure this component is within a container with `{ overflow: 'hidden' }`."
 
