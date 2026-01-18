@@ -1,6 +1,6 @@
 import { type t, slug, Rx } from '../common.ts';
 
-export const createController: t.SlugSheetControllerLib['create'] = (args) => {
+export const createController: t.SlugSheetControllerLib['create'] = (args = {}) => {
   const id = `sheet-${slug()}`;
 
   const controller = Rx.toLifecycle<t.SlugSheetController>({

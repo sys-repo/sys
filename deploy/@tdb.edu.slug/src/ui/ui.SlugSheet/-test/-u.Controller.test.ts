@@ -25,4 +25,67 @@ describe('SlugSheet.Controller', () => {
 
     controller.dispose();
   });
+
+  it('maintains clean boundary - only controller domain', () => {
+    const controller = SlugSheet.Controller.create({ props: () => ({ slots: { main: 'test' } }) });
+    const props = controller.props();
+
+    // Reset to only controller domain properties
+    const expectedKeys = Object.keys({ slots: undefined });
+    const actualKeys = Object.keys(props);
+
+    expect(actualKeys).to.eql(expectedKeys);
+    expect(props.slots).to.eql({ main: 'test' });
+
+    controller.dispose();
+  });
+
+  it('handles undefined props function with defaults', () => {
+    const controller = SlugSheet.Controller.create({});
+    const props = controller.props();
+
+    expect(props).to.eql({}); // Should return empty object, not undefined
+    expect('slots' in props).to.be.false; // Property should not exist
+
+    controller.dispose();
+  });
+
+  it('handles props function that throws', () => {
+    const controller = SlugSheet.Controller.create({
+      props: () => {
+        throw new Error('Test error');
+      },
+    });
+
+    expect(() => controller.props()).to.throw('Test error');
+
+    controller.dispose();
+  });
+
+  it('handles multiple controllers independently', () => {
+    const controller1 = SlugSheet.Controller.create({
+      props: () => ({ slots: { main: 'controller-1' } }),
+    });
+    const controller2 = SlugSheet.Controller.create({
+      props: () => ({ slots: { main: 'controller-2' } }),
+    });
+
+    expect(controller1.props()).to.not.equal(controller2.props());
+    expect(controller1.props().slots?.main).to.equal('controller-1');
+    expect(controller2.props().slots?.main).to.equal('controller-2');
+
+    controller1.dispose();
+    controller2.dispose();
+  });
+
+  it('maintains identity across dispose', () => {
+    const controller = SlugSheet.Controller.create({});
+    const id = controller.id;
+
+    controller.dispose();
+
+    expect(controller.id).to.equal(id); // ID should remain stable
+    expect(() => controller.props()).to.not.throw(); // Should not throw post-dispose
+    expect(controller.props()).to.eql({}); // Should return empty object post-dispose
+  });
 });
