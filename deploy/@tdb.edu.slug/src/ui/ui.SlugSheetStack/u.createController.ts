@@ -1,4 +1,4 @@
-import { type t, Signal, Num } from '../common.ts';
+import { type t, Num, Signal } from '../common.ts';
 
 export const createController: t.SlugSheetStackControllerLib['create'] = (initial) => {
   const stack = Signal.create<t.SlugSheetStackLayer[]>(initial ? [initial] : []);
@@ -18,7 +18,6 @@ export const createController: t.SlugSheetStackControllerLib['create'] = (initia
       const current = stack.value;
       if (current.length <= 1) return; // No-op, no signal
 
-      // const clampCount = Math.max(0, Math.min(count, current.length - 1));
       const clampCount = Num.clamp(0, current.length - 1, count);
       const remove = clampCount;
       const remaining = current.slice(0, current.length - remove);

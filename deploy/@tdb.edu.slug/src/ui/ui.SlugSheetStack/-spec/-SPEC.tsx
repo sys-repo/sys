@@ -1,6 +1,6 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Dev, Spec } from '../../-test.ui.ts';
 
-import { D } from '../common.ts';
+import { D, Signal } from '../common.ts';
 import { SlugSheetStack } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -15,6 +15,7 @@ export default Spec.describe(D.displayName, async (e) => {
   function Root() {
     const v = Signal.toObject(debug.props);
     const props = fixture.controller.props();
+    Signal.useRedrawEffect(() => void debug.fixture.controller.stack.value);
     return <SlugSheetStack.UI {...props} debug={v.debug} theme={v.theme} />;
   }
 
