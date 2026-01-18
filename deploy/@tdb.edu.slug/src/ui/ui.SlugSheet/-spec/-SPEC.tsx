@@ -1,6 +1,7 @@
-import { Dev, Foo, Signal, Spec } from '../../-test.ui.ts';
+import { Dev, Foo, Signal, Spec, SAMPLES } from '../../-test.ui.ts';
 import { type t, D } from '../common.ts';
 import { SlugSheet } from '../mod.ts';
+import { TreeHost } from '../../ui.TreeHost/mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -11,7 +12,17 @@ export default Spec.describe(D.displayName, async (e) => {
     const v = Signal.toObject(p);
 
     let main: t.ReactNode | undefined;
-    if (v.slots === 'Foo') main = <Foo theme={v.theme} label={'slot:main'} />;
+    if (v.slots === 'Foo') {
+      main = <Foo theme={v.theme} label={'slot:main'} />;
+    }
+    if (v.slots === 'TreeHost') {
+      const treeSlots = {
+        main: <Foo theme={v.theme} label={'TreeHost:main'} />,
+        aux: <Foo theme={v.theme} label={'TreeHost:aux'} />,
+      };
+      const root = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree.gHcQi);
+      main = <TreeHost.UI root={root} slots={treeSlots} />;
+    }
     const slots = main ? ({ main } satisfies t.SlugSheetSlots) : undefined;
     return <SlugSheet.UI debug={v.debug} theme={v.theme} slots={slots} />;
   }
