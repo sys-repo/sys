@@ -10,7 +10,7 @@ import { SlugSheetStack } from '../mod.ts';
 export function createFixture() {
   const push = (label: string = `level-${controller.length}`) => {
     const slots = createSlots(label);
-    const sheet = SlugSheet.Controller.create({ slots });
+    const sheet = SlugSheet.Controller.create({ props: () => ({ slots }) });
 
     controller.push({ sheet });
 

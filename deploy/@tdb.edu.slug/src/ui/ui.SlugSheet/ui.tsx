@@ -44,7 +44,7 @@ export const SlugSheet: React.FC<P> = (props) => {
       theme={theme.name}
       orientation={'Bottom:Up'}
       radius={radius}
-      shadowOpacity={isRoot ? 0 : -0.06}
+      shadowOpacity={wrangle.shadowOpacity(props, theme)}
       edgeMargin={isRoot ? undefined : [10, '1fr', 10]}
     >
       <div className={styles.main.class}>{slots.main}</div>
@@ -67,9 +67,18 @@ const wrangle = {
     return Num.clamp(0, Num.MAX_INT, props.index ?? D.index);
   },
 
+  isRoot(props: P) {
+    return wrangle.index(props) === 0;
+  },
+
   borderColor(props: P, theme = Color.theme(props.theme)) {
-    const index = wrangle.index(props);
-    if (index === 0) return Color.TRANSPARENT;
-    return theme.is.dark ? Color.alpha(Color.BLACK, 0.3) : Color.alpha(theme.fg, 0.2);
+    const isRoot = wrangle.isRoot(props);
+    if (isRoot) return Color.TRANSPARENT;
+    return Color.alpha(theme.fg, theme.is.dark ? 0.1 : 0.2);
+  },
+
+  shadowOpacity(props: P, theme = Color.theme(props.theme)) {
+    if (wrangle.isRoot(props)) return 0;
+    return theme.is.dark ? -0.32 : -0.06;
   },
 } as const;

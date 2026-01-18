@@ -9,7 +9,7 @@ import { TreeHost } from '../../ui.TreeHost/mod.ts';
  */
 export function createSlots(
   type: Storage['slots'],
-  theme: t.CommonTheme,
+  theme?: t.CommonTheme,
 ): t.SlugSheetSlots | undefined {
   if (type === 'Foo') {
     return { main: <Foo theme={theme} label={'slot:main'} style={{ padding: 15 }} /> };

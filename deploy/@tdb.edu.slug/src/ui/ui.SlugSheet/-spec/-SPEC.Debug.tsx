@@ -1,5 +1,7 @@
 import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { SlugSheet } from '../mod.ts';
+import { createSlots } from './u.fixture.tsx';
 
 type P = t.SlugSheetProps;
 
@@ -12,7 +14,7 @@ const defaults: Storage = {
   theme: 'Light',
   visible: D.visible,
   index: D.index,
-  // Debug:
+  //
   controlled: true,
   slots: 'Foo',
 };
@@ -31,6 +33,13 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  const controller = SlugSheet.Controller.create({
+    props() {
+      const slots = createSlots(p.slots.value, p.theme.value);
+      return { slots };
+    },
+  });
+
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -43,6 +52,7 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    controller,
     listen,
     reset,
   };
