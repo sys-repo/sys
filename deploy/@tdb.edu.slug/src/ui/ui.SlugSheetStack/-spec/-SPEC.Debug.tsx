@@ -1,5 +1,16 @@
 import React from 'react';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Num,
+  Button,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+} from '../common.ts';
 import { createFixture } from './u.fixture.tsx';
 
 type P = t.SlugSheetStackProps;
@@ -97,6 +108,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{'Controller'}</div>
       <Button block label={() => 'stack.push( sheet )'} onClick={() => fixture.push()} />
       <Button block label={() => 'stack.pop( )'} onClick={() => fixture.pop()} />
+      <Button block label={() => 'clear'} onClick={() => fixture.pop(Num.MAX_INT)} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
