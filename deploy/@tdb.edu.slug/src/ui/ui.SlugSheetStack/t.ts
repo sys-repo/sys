@@ -10,12 +10,11 @@ export type SlugSheetStackLib = {
 };
 
 /**
- * Component:
+ * Minimal stack manager props
  */
 export type SlugSheetStackProps = {
   items: t.Ary<t.SlugSheetStackItem>;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onPop(): void;
 };
