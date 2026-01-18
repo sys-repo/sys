@@ -1,8 +1,9 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, css } from '../common.ts';
-import { TreeHost } from '../mod.ts';
+import { css, D } from '../common.ts';
+import { SlugPlaybackDriver } from '../mod.ts';
+import { TreeHost } from '../../ui.TreeHost/mod.ts';
+import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-import { BackButton } from './-ui.BackButton.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -21,19 +22,10 @@ export default Spec.describe(D.displayName, async (e) => {
         <BackButton
           style={styles.back}
           theme={v.theme}
-          selectedPath={v.selectedPath}
-          onBack={(e) => (p.selectedPath.value = e.next)}
+          // selectedPath={v.selectedPath}
+          // onBack={(e) => (p.selectedPath.value = e.next)}
         />
-        <TreeHost.UI
-          debug={v.debug}
-          theme={v.theme}
-          slots={{ ...v.slots, empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined }}
-          split={v.split}
-          root={v.root}
-          selectedPath={v.selectedPath}
-          onPathChange={({ path }) => (p.selectedPath.value = path)}
-          onSplitChange={(e) => (p.split.value = e.split)}
-        />
+        <TreeHost.UI debug={v.debug} theme={v.theme} />
       </div>
     );
   }

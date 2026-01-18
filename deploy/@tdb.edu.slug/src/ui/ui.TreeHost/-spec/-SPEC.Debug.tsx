@@ -134,6 +134,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
+  const selectedPath = v.selectedPath ?? [];
+
   Signal.useRedrawEffect(debug.listen);
 
   /**
@@ -147,6 +149,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       fontFamily: 'monospace',
       fontSize: 11,
       fontWeight: 600,
+      lineHeight: 1.2,
     }),
   };
 
@@ -194,11 +197,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'[ path ]'}</div>
       </div>
       <div>
-        <span className={styles.mono.class}>
-          {v.selectedPath ? Str.ellipsize(Obj.Path.encode(v.selectedPath), 50) : '(no path)'}
+        <span className={styles.mono.class} style={{ opacity: selectedPath.length > 0 ? 1 : 0.3 }}>
+          {selectedPath.length > 0
+            ? Str.ellipsize(Obj.Path.encode(selectedPath), 50)
+            : 'path-empty'}
         </span>
       </div>
-      <Button block label={() => 'clear'} onClick={() => (p.selectedPath.value = undefined)} />
+      <Button block label={() => '(clear)'} onClick={() => (p.selectedPath.value = undefined)} />
 
       <hr />
       {slotButton('tree')}
