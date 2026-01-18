@@ -8,12 +8,12 @@ import { clamp, round, sum } from './u.ts';
  * Tools for working with numbers.
  */
 export const Num: t.NumberLib = {
+  MAX_INT: Number.MAX_SAFE_INTEGER,
+  MIN_INT: Number.MIN_SAFE_INTEGER,
+  INFINITY: Number.POSITIVE_INFINITY,
+
   Percent,
   Ratio,
-
-  MAX_INT: Number.MAX_SAFE_INTEGER,
-  MIN_INT: -Number.MAX_SAFE_INTEGER,
-  INFINITY: Number.POSITIVE_INFINITY,
 
   sum,
   round,
