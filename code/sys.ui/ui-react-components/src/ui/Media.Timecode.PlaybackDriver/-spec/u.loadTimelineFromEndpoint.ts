@@ -1,4 +1,4 @@
-import { type t, Http, PlaybackSchema } from './common.ts';
+import { type t, AssetsSchema, Http, PlaybackSchema } from './common.ts';
 
 /**
  * Load a t.TimecodePlaybackDriver.Wire.Bundle from a running `publish.assets` server.
@@ -34,11 +34,23 @@ export async function loadTimelineFromEndpoint(
 
   // 2. Assets manifest for this slug/doc.
   const assetsUrl = `${baseUrl}/manifests/slug.${docid}.assets.json`;
-  const assets = await fetchJsonManifest<t.TimecodePlaybackDriver.Wire.AssetsManifest>(assetsUrl);
+  const assetsJson = await fetchJsonManifest<unknown>(assetsUrl);
 
   // 3. Timeline manifest (timecode spec) for this slug/doc.
   const timelineUrl = `${baseUrl}/manifests/slug.${docid}.playback.json`;
   const timelineJson = await fetchJsonManifest<unknown>(timelineUrl);
+
+  const assetsParsed = AssetsSchema.Manifest.parse(assetsJson);
+  if (!assetsParsed.ok) {
+    const reason = assetsParsed.errors.map((e) => `${e.path}: ${e.message}`).join('; ');
+    throw new Error(`Assets manifest failed @sys/schema validation. Reason: ${reason}`);
+  }
+  if (assetsParsed.value.docid !== docid) {
+    const err = `Assets manifest docid mismatch. Expected: ${docid}. Got: ${assetsParsed.value.docid}`;
+    throw new Error(err);
+  }
+
+  const assets = assetsParsed.value;
 
   // Payload is intentionally unconstrained at this layer.
   const payload = undefined;
