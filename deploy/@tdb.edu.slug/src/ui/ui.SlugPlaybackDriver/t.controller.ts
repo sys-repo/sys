@@ -1,13 +1,10 @@
 import type { t } from './common.ts';
 
-/** Type re-exports. */
-export type * from './t.controller.ts';
-
 /**
  * Controller surface.
  */
 export type SlugPlaybackControllerLib = {
-  // create(args?: { props?: () => SlugPlaybackControllerProps }): SlugPlaybackController;
+  create(args?: { props?: () => SlugPlaybackControllerProps }): SlugPlaybackController;
 };
 
 /** Controller inputs: slots. */

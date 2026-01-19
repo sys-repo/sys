@@ -7,7 +7,7 @@ export type * from './t.controller.ts';
  * SlugPlaybackDriver
  *
  * Slug-aware media playback driver that connects TreeHost selection
- * to audiovisual content rendering within the aux slot.
+ * to audiovisual content rendering within aux slot.
  */
 export type SlugPlaybackDriverLib = {
   readonly Controller: t.SlugPlaybackControllerLib;

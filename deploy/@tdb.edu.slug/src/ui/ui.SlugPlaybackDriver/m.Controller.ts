@@ -1,3 +1,6 @@
-import { type t } from './common.ts';
+import type { SlugPlaybackControllerLib } from './t.controller.ts';
+import { createController as create } from './u.createController.tsx';
 
-export const Controller: t.SlugPlaybackControllerLib = {};
+export const Controller: SlugPlaybackControllerLib = {
+  create,
+};

@@ -1,7 +1,7 @@
 /**
  * @module
  * Slug-aware media playback driver that connects TreeHost selection
- * to audiovisual content rendering within the aux slot. *
+ * to audiovisual content rendering within aux slot.
  */
 import type { t } from './common.ts';
 import { Controller } from './m.Controller.ts';
