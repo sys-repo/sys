@@ -12,7 +12,7 @@ export type SlugAsset = {
   readonly href: string;
 
   /** Filesystem / media statistics (when known). */
-  readonly stats: {
+  readonly stats?: {
     /** File size in bytes. */
     readonly bytes?: t.NumberBytes;
     /** Media duration (typically video or audio only). */

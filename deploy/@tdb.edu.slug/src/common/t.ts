@@ -6,12 +6,16 @@ export type { FC, ReactElement, ReactNode } from 'react';
 /**
  * @system
  */
+import type { AssetsManifest, PlaybackManifest } from '@sys/schema/t';
 export type * from '@sys/types';
 
 export type { Crdt } from '@sys/driver-automerge/t';
 export type { Graph } from '@sys/immutable/t';
 export type { TSchema } from '@sys/schema/t';
 export type { Alias, ObjLens, StrBuilder, Timecode } from '@sys/std/t';
+
+export type SlugAssetsManifest = AssetsManifest;
+export type SlugPlaybackManifest = PlaybackManifest;
 
 /** User interface */
 export type { ColorTheme } from '@sys/color/t';

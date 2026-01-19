@@ -16,6 +16,7 @@
     "./types": "./src/types.ts",
     "./recipe": "./src/-exports/-core.recipe.ts",
     "./testing": "./src/-exports/-testing.ts",
+    "./slug/assets": "./src/-exports/-slug.assets.ts",
     "./timecode/playback": "./src/-exports/-timecode.playback.ts"
   }
 }
