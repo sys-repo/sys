@@ -7,11 +7,11 @@ export const SlugUrl: t.SlugClientUrlLib = {
       .replace(/^crdt\:/, '');
   },
 
-  assetsFilename(cleanDocid) {
-    return `slug.${cleanDocid}.assets.json`;
+  assetsFilename(docid) {
+    return `slug.${SlugUrl.clean(docid)}.assets.json`;
   },
 
-  playbackFilename(cleanDocid) {
-    return `slug.${cleanDocid}.playback.json`;
+  playbackFilename(docid) {
+    return `slug.${SlugUrl.clean(docid)}.playback.json`;
   },
 };

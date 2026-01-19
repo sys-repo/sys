@@ -15,7 +15,8 @@ export async function loadPlaybackFromEndpoint<P = unknown>(
   const fetch = Http.client();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.playbackFilename(cleanedDocid));
-  const req: RequestInit = { ...(init ?? {}), ...CACHE_INIT };
+  const req: RequestInit = { ...CACHE_INIT, ...(init ?? {}) };
+  req.cache = CACHE_INIT.cache;
 
   const res = await fetch.json<unknown>(url, req);
   if (!res.ok) {

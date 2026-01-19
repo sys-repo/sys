@@ -6,4 +6,6 @@
  * - No implicit FS
  * - Schema-truthful wire ingestion
  */
-export { pkg } from './common.ts';
+export { SlugClient, SlugUrl } from './m.client/mod.ts';
+export { pkg } from './pkg.ts';
+export type * from './m.client/t.ts';

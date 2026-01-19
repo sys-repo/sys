@@ -111,6 +111,72 @@ describe('SlugClient.loadBundleFromEndpoint', () => {
     }
   });
 
+  it('resolves hrefs against the provided baseHref', async () => {
+    const docid = 'crdt:bundle-basehref' as t.StringId;
+    const cleaned = SlugUrl.clean(docid);
+
+    const assets: SpecTimelineAssetsManifest = {
+      docid: cleaned,
+      assets: [
+        {
+          kind: 'video',
+          logicalPath: '/video/main',
+          hash: 'hash-video',
+          filename: 'main.mp4',
+          href: '/video/main.mp4',
+        },
+        {
+          kind: 'image',
+          logicalPath: 'image/rel',
+          hash: 'hash-image',
+          filename: 'pic.png',
+          href: 'relative/pic.png',
+        },
+      ],
+    };
+
+    const playback: SpecTimelineManifest = {
+      docid: cleaned,
+      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      beats: [
+        {
+          src: {
+            kind: 'video',
+            logicalPath: '/video/main',
+            time: 0 as t.Msecs,
+          },
+          payload: null,
+        },
+      ],
+    };
+
+    const cleanup = stubFetch((url) => {
+      if (url.includes(SlugUrl.assetsFilename(cleaned))) return jsonResponse(assets);
+      if (url.includes(SlugUrl.playbackFilename(cleaned))) return jsonResponse(playback);
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+
+    const baseHref = 'https://cdn.example.com/prefix/';
+    const baseHrefUrl = new URL(baseHref);
+    const baseHrefPath = baseHrefUrl.pathname.replace(/\/$/, '');
+
+    try {
+      const result = await SlugClient.loadBundleFromEndpoint('http://example.com/', docid, { baseHref });
+      if (!result.ok) throw new Error('expected bundle result');
+      const bundle = result.value;
+
+      const assetA = bundle.resolveAsset({ kind: 'video', logicalPath: '/video/main' });
+      expect(assetA?.href).to.eql(
+        new URL(`${baseHrefPath}/video/main.mp4`, baseHrefUrl.origin).toString(),
+      );
+
+      const assetB = bundle.resolveAsset({ kind: 'image', logicalPath: 'image/rel' });
+      expect(assetB?.href).to.eql(new URL('relative/pic.png', baseHref).toString());
+    } finally {
+      cleanup();
+    }
+  });
+
   it('returns http metadata when manifest fetch fails', async () => {
     const docid = 'crdt:bundle-http' as t.StringId;
     const cleaned = SlugUrl.clean(docid);

@@ -1,5 +1,5 @@
-import { describe, expect, it } from '../-test.ts';
-import { formatSchemaReason } from '../m.client/u.schema.ts';
+import { describe, expect, it } from '../../-test.ts';
+import { formatSchemaReason } from '../u.schema.ts';
 
 describe('formatSchemaReason', () => {
   it('includes non-empty path followed by message', () => {

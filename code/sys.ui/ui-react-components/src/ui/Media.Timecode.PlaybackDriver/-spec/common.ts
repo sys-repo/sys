@@ -1,7 +1,6 @@
 import { DEFAULTS } from '../common.ts';
 
 /** Libs: */
-export { AssetsSchema } from '@sys/schema/wire/slug/assets';
 export { Button, ObjectView } from '../../u.ts';
 export * from '../common.ts';
 
