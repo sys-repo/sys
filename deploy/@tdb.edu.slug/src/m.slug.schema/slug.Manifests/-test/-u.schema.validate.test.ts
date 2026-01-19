@@ -1,8 +1,5 @@
 import { type t, describe, expect, it } from '../../../-test.ts';
-import {
-  validateAssetsManifest,
-  validatePlaybackManifest,
-} from '../u.schema.validate.ts';
+import { validateAssetsManifest, validatePlaybackManifest } from '../mod.ts';
 
 const validAssets: t.SlugAssetsManifest = {
   docid: 'slug-doc-1',
