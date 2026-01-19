@@ -1,5 +1,5 @@
 import React from 'react';
-import { Foo, SAMPLES } from '../../-test.ui.ts';
+import { Foo } from '../../-test.ui.ts';
 import {
   type t,
   Button,
@@ -10,28 +10,21 @@ import {
   Obj,
   ObjectView,
   Signal,
-  SlugClient,
   Str,
 } from '../common.ts';
-import { Data } from '../m.Data.ts';
-
-const SAMPLE = {
-  baseUrl: 'http://localhost:4040/publish.assets',
-  tree: { docId: '21JvXzARPYFXDVMag3x4UhLgHcQi' },
-} as const;
+import { LoadSample } from './-ui.LoadSample.ts';
 
 type P = t.TreeHostProps;
-type LoadAction = 'import' | 'http';
 type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'selectedPath'> & {
-  load?: LoadAction;
+  load?: t.SampleLoadAction;
   customEmpty?: boolean;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
   split: D.split,
-  selectedPath: undefined,
-  load: 'import',
+  //
+  load: 'esm:import',
   customEmpty: false,
 };
 
@@ -57,12 +50,13 @@ export async function createDebugSignals() {
   };
 
   const props = {
-    root: s<P['root']>(undefined),
     debug: s(snap.debug),
     theme: s(snap.theme),
+    tree: s<P['tree']>(undefined),
     split: s(snap.split),
     selectedPath: s(snap.selectedPath),
     slots,
+    //
     load: s(snap.load),
     customEmpty: s(snap.customEmpty),
   };
@@ -71,7 +65,6 @@ export async function createDebugSignals() {
     props,
     listen,
     reset,
-    load,
   };
 
   function listen() {
@@ -80,7 +73,7 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(props, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
-    load(p.load.value);
+    load();
   }
 
   Signal.effect(() => {
@@ -89,30 +82,14 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.split = p.split.value;
       d.selectedPath = p.selectedPath.value;
+      //
       d.load = p.load.value;
       d.customEmpty = p.customEmpty.value;
     });
   });
 
-  let httpRequestNonce = 0;
-  Signal.effect(() => void load(p.load.value));
-  async function load(action?: LoadAction) {
-    if (!action) return void (p.root.value = undefined);
-    if (action === 'import') {
-      p.root.value = Data.fromSlugTree(SAMPLES.SlugTree.gHcQi);
-      return;
-    }
-    if (action === 'http') {
-      const thisRequest = ++httpRequestNonce; // ← move here
-      const baseUrl = SAMPLE.baseUrl;
-      const docId = SAMPLE.tree.docId;
-      SlugClient.loadTreeFromEndpoint(baseUrl, docId).then((res) => {
-        if (thisRequest !== httpRequestNonce) return; // ← ignore stale
-        p.root.value = res.ok ? Data.fromSlugTree(res.value) : undefined;
-        if (!res.ok) console.info('[SlugClient] failed to load slug-tree via HTTP', res.error);
-      });
-    }
-  }
+  const load = () => void LoadSample.load(p.tree, p.load.value);
+  Signal.effect(load);
 
   return api;
 }
@@ -179,17 +156,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'sample:'}</div>
-      <Button
-        block
-        label={() => `load: slug-tree ← sample import ${p.load.value === 'import' ? '🌳' : ''}`}
-        onClick={() => (p.load.value = 'import')}
-      />
-      <Button
-        block
-        label={() => `load: slug-tree ← via HTTP ${p.load.value === 'http' ? '🌳' : ''}`}
-        onClick={() => (p.load.value = 'http')}
-      />
-      <Button block label={() => `(unload)`} onClick={() => (p.load.value = undefined)} />
+      <LoadSample.Buttons signal={p.load} />
 
       <hr />
       <div className={Styles.title.class}>

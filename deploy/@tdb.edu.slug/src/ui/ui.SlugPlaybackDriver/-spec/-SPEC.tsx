@@ -22,10 +22,19 @@ export default Spec.describe(D.displayName, async (e) => {
         <BackButton
           style={styles.back}
           theme={v.theme}
-          // selectedPath={v.selectedPath}
-          // onBack={(e) => (p.selectedPath.value = e.next)}
+          selectedPath={v.selectedPath}
+          onBack={(e) => (p.selectedPath.value = e.next)}
         />
-        <TreeHost.UI debug={v.debug} theme={v.theme} />
+        <TreeHost.UI
+          debug={v.debug}
+          theme={v.theme}
+          tree={v.tree}
+          selectedPath={v.selectedPath}
+          onPathChange={(e) => {
+            console.log('⚡️ onPathChange: ', e);
+            p.selectedPath.value = e.path;
+          }}
+        />
       </div>
     );
   }

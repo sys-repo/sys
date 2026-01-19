@@ -29,9 +29,9 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           slots={{ ...v.slots, empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined }}
           split={v.split}
-          root={v.root}
+          tree={v.tree}
           selectedPath={v.selectedPath}
-          onPathChange={({ path }) => (p.selectedPath.value = path)}
+          onPathChange={(e) => (p.selectedPath.value = e.path)}
           onSplitChange={(e) => (p.split.value = e.split)}
         />
       </div>

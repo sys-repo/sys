@@ -1,12 +1,15 @@
 import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
+import { LoadSample } from '../../ui.TreeHost/-spec/mod.ts';
 
 type P = t.TreeHostProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & { load?: t.SampleLoadAction };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
+  //
+  load: 'esm:import',
 };
 
 /**
@@ -20,13 +23,16 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    tree: s<t.TreeNodeList | undefined>(),
+    selectedPath: s(snap.selectedPath),
+    //
+    load: s(snap.load),
   };
   const p = props;
   const api = {
@@ -47,8 +53,14 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.selectedPath = p.selectedPath.value;
+      //
+      d.load = p.load.value;
     });
   });
+
+  const load = () => void LoadSample.load(p.tree, p.load.value);
+  Signal.effect(load);
 
   return api;
 }
@@ -90,6 +102,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+
+      <hr />
+      <div className={Styles.title.class}>{'sample:'}</div>
+      <LoadSample.Buttons signal={p.load} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

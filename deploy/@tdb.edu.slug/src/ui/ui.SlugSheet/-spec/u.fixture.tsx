@@ -21,7 +21,7 @@ export function createSlots(
       aux: <Foo theme={theme} label={'TreeHost:aux'} style={{ minHeight: 150 }} />,
     };
     const root = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree.gHcQi);
-    return { main: <TreeHost.UI root={root} slots={treeSlots} /> };
+    return { main: <TreeHost.UI tree={root} slots={treeSlots} /> };
   }
 
   return undefined;

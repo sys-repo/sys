@@ -27,3 +27,6 @@ export type { DevCtx } from '@sys/ui-react-devharness/t';
  * @local
  */
 export type * from '../types.ts';
+
+/** Dev types (harness) */
+export type * from '../ui/ui.TreeHost/-spec/-t.ts';

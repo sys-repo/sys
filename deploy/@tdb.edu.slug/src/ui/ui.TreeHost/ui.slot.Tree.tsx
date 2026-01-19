@@ -8,7 +8,7 @@ type P = t.TreeHostProps;
  * Component:
  */
 export const Tree: React.FC<P> = (props) => {
-  const { debug = false, root, slots = {} } = props;
+  const { debug = false, tree, slots = {} } = props;
 
   /**
    * Render:
@@ -19,14 +19,14 @@ export const Tree: React.FC<P> = (props) => {
     body: css({ Absolute: 0, Scroll: true }),
   };
 
-  const elEmpty = !root && (
+  const elEmpty = !tree && (
     <Empty theme={theme.name} children={slots.empty?.('tree') ?? 'No tree to display'} />
   );
 
   const elTree = !elEmpty && (
     <BaseTree.Index.View
       theme={theme.name}
-      root={root}
+      root={tree}
       minWidth={0}
       path={props.selectedPath}
       onPressDown={(e) => {
