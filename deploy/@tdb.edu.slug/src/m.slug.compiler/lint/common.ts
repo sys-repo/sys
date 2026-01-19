@@ -1,5 +1,8 @@
 export * from '../common.ts';
 
-export { PlaybackSchema } from '@sys/schema/wire/timecode/playback';
+export {
+  validateAssetsManifest,
+  validatePlaybackManifest,
+} from '../../m.slug.schema/slug.Manifests/mod.ts';
 export { Slug } from '../slug/mod.ts';
 export { LintDocFacets } from './t.ts';

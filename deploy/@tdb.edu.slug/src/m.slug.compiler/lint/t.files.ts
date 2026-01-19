@@ -13,6 +13,7 @@ export type LintSequenceFilepathKind =
   | 'video-path:not-found'
   | 'image-path:not-found'
   | 'sequence:playback:not-exported'
+  | 'sequence:assets:not-exported'
   | 'sequence:slug-tree:not-exported';
 
 /**

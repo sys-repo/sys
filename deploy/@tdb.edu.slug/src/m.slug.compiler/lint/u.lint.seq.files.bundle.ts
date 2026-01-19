@@ -5,12 +5,13 @@ import {
   Is,
   Json,
   Obj,
-  PlaybackSchema,
   Slug,
   type t,
-} from "./common.ts";
-import { buildSequenceFilepathIssue } from "./u.lint.seq.files.ts";
-import { walkSequenceMediaPaths } from "./u.lint.seq.files.walk.ts";
+  validateAssetsManifest,
+  validatePlaybackManifest,
+} from './common.ts';
+import { buildSequenceFilepathIssue } from './u.lint.seq.files.ts';
+import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
 
 type R = t.LintAndBundleResult;
 type Dag = t.Graph.Dag.Result;
@@ -50,16 +51,29 @@ export async function bundleSequenceFilepaths(
   const issues: t.LintSequenceFilepath[] = [];
   const assets: t.SlugAsset[] = [];
 
-  const facets: Facet[] = (opts.facets ?? []).filter((v) =>
-    v.startsWith("sequence:file:")
-  );
-  const baseHref = (opts.baseHref ?? "/").replace(/\/+$/, "");
+  const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('sequence:file:'));
+  const baseHref = (opts.baseHref ?? '/').replace(/\/+$/, '');
 
-  const dir: R["dir"] = {
-    base: opts.outDir ?? Fs.join(Fs.cwd("terminal"), "publish.assets"),
-    manifests: "manifests",
-    video: "video",
-    image: "image",
+  const yamlPathStr = Is.array(yamlPath) && yamlPath.length > 0 ? yamlPath.join('/') : '';
+
+  const dir: R['dir'] = {
+    base: opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets'),
+    manifests: 'manifests',
+    video: 'video',
+    image: 'image',
+  };
+
+  const pushAssetsManifestError = (path: string, message: string) => {
+    const issue: t.LintSequenceFilepath = {
+      kind: 'sequence:assets:not-exported',
+      severity: 'error',
+      path,
+      raw: `${dir.manifests}/slug.${docid}.assets.json`,
+      resolvedPath: '',
+      doc: { id: docid },
+      message,
+    };
+    issues.push(issue);
   };
 
   const visit = async (args: t.LintMediaWalkArgs) => {
@@ -75,7 +89,7 @@ export async function bundleSequenceFilepaths(
     const hash = Hash.sha256((await Fs.read(resolvedPath)).data);
     const ext = Fs.extname(resolvedPath);
     const filename = `${hash}${ext}`;
-    const kindDir = kind === "image" ? dir.image : dir.video;
+    const kindDir = kind === 'image' ? dir.image : dir.video;
 
     const destDir = Fs.join(dir.base, kindDir);
     const destPath = Fs.join(destDir, filename);
@@ -88,7 +102,7 @@ export async function bundleSequenceFilepaths(
     const href = `${baseHref}/${kindDir}/${filename}`;
 
     let duration: t.Msecs | undefined;
-    if (kind === "video") {
+    if (kind === 'video') {
       const result = await Ffmpeg.duration(resolvedPath);
       if (result.ok) duration = result.msecs;
     }
@@ -108,10 +122,20 @@ export async function bundleSequenceFilepaths(
   /**
    * Write asset manifest.
    */
+  // Emit an assets manifest only when bundling recorded entries; an empty list
+  // indicates nothing produced, so no manifest is written.
   if (assets.length > 0) {
     const manifest: t.SlugAssetsManifest = { docid, assets };
     const filename = `${dir.manifests}/slug.${docid}.assets.json`;
-    await Fs.write(Fs.join(dir.base, filename), Json.stringify(manifest));
+    const res = validateAssetsManifest(manifest);
+    if (!res.ok) {
+      pushAssetsManifestError(
+        yamlPathStr,
+        `Assets manifest failed @sys/schema validation. Reason: ${res.error.message}`,
+      );
+    } else {
+      await Fs.write(Fs.join(dir.base, filename), Json.stringify(res.sequence));
+    }
   }
 
   /**
@@ -120,7 +144,7 @@ export async function bundleSequenceFilepaths(
   const Playback = Slug.Trait.MediaComposition.Playback;
   const playbackResult = await Playback.fromDag(dag, yamlPath, docid, {
     validate: true,
-    trait: { of: "media-composition" },
+    trait: { of: 'media-composition' },
   });
 
   const playbackFilename = `slug.${docid}.playback.json`;
@@ -130,25 +154,22 @@ export async function bundleSequenceFilepaths(
 
   const pushNotExportedError = (path: string, message: string) => {
     const issue: t.LintSequenceFilepath = {
-      kind: "sequence:playback:not-exported",
-      severity: "error",
+      kind: 'sequence:playback:not-exported',
+      severity: 'error',
       path,
       raw: playbackFilename,
-      resolvedPath: "",
+      resolvedPath: '',
       doc: { id: docid },
       message,
     };
     issues.push(issue);
   };
 
-  const yamlPathStr = Is.array(yamlPath) && yamlPath.length > 0
-    ? yamlPath.join("/")
-    : "";
-
   if (!playbackResult.ok) {
-    const reason = playbackResult.error?.message ?? "Unknown validation error.";
+    const reason = playbackResult.error?.message ?? 'Unknown validation error.';
 
-    const isNotApplicable = reason.includes("does not advertise") &&
+    const isNotApplicable =
+      reason.includes('does not advertise') &&
       reason.includes('expected {of:"media-composition", as:string}');
 
     const requirePlayback = opts.requirePlayback ?? false;
@@ -161,35 +182,31 @@ export async function bundleSequenceFilepaths(
   } else {
     const raw = playbackResult.sequence as Record<string, unknown>;
     const candidate = {
-      docid: raw["docid"],
-      composition: raw["composition"],
-      beats: raw["beats"],
+      docid: raw['docid'],
+      composition: raw['composition'],
+      beats: raw['beats'],
     };
-    const parsed = PlaybackSchema.Manifest.parse(candidate);
+    const res = validatePlaybackManifest(candidate);
 
-    if (!parsed.ok) {
-      const reason = parsed.errors
-        .map((e) => `${e.path.length > 0 ? e.path : "<root>"}: ${e.message}`)
-        .join("; ");
-
+    if (!res.ok) {
       pushNotExportedError(
         yamlPathStr,
-        `Playback manifest failed @sys/schema validation. Reason: ${reason}`,
+        `Playback manifest failed @sys/schema validation. Reason: ${res.error.message}`,
       );
     } else {
       const outPath = Fs.join(manifestDir, playbackFilename);
-      await Fs.write(outPath, Json.stringify(parsed.value));
+      await Fs.write(outPath, Json.stringify(res.sequence));
     }
   }
 
   const slugTreeFilename = `slug-tree.${docid}.json`;
   const pushSlugTreeError = (message: string) => {
     const issue: t.LintSequenceFilepath = {
-      kind: "sequence:slug-tree:not-exported",
-      severity: "error",
+      kind: 'sequence:slug-tree:not-exported',
+      severity: 'error',
       path: yamlPathStr,
       raw: slugTreeFilename,
-      resolvedPath: "",
+      resolvedPath: '',
       doc: { id: docid },
       message,
     };
@@ -198,24 +215,21 @@ export async function bundleSequenceFilepaths(
 
   const slugTreeResult = await Slug.Tree.fromDag(dag, yamlPath, docid, {
     validate: true,
-    trait: { of: "slug-tree" },
+    trait: { of: 'slug-tree' },
   });
 
   if (!slugTreeResult.ok) {
-    const reason = slugTreeResult.error?.message ?? "Unknown validation error.";
+    const reason = slugTreeResult.error?.message ?? 'Unknown validation error.';
     const isNotApplicable =
-      reason.includes("does not advertise required trait") &&
-      reason.includes('of:"slug-tree"');
+      reason.includes('does not advertise required trait') && reason.includes('of:"slug-tree"');
 
     if (!isNotApplicable) {
-      pushSlugTreeError(
-        `Slug-tree manifest could not be generated. Reason: ${reason}`,
-      );
+      pushSlugTreeError(`Slug-tree manifest could not be generated. Reason: ${reason}`);
     }
   } else {
     const slugTreePath = Fs.join(manifestDir, slugTreeFilename);
     await Fs.write(slugTreePath, Json.stringify(slugTreeResult.sequence));
   }
 
-  return Obj.asGetter({ dir, issues }, ["issues"]);
+  return Obj.asGetter({ dir, issues }, ['issues']);
 }

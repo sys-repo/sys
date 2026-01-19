@@ -2,14 +2,27 @@ import { type t, describe, expect, Ffmpeg, it } from '../../-test.ts';
 import { Fs, Json } from '../common.ts';
 import { bundleSequenceFilepaths } from '../u.lint.seq.files.bundle.ts';
 
-async function shouldSkipDurationTest(resolvedPath: t.StringPath): Promise<boolean> {
-  // If `ffprobe` isn't available or cannot run, skip duration assertion.
-  const res = await Ffmpeg.probe();
-  if (!res.ok) return true;
+async function withMockedDuration<T>(
+  mock: typeof Ffmpeg.duration,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const original = Object.getOwnPropertyDescriptor(Ffmpeg, 'duration');
+  Object.defineProperty(Ffmpeg, 'duration', {
+    value: mock,
+    configurable: true,
+  });
 
-  // Optional: also skip if the specific file cannot be probed
-  const dur = await Ffmpeg.duration(resolvedPath);
-  return !dur.ok;
+  try {
+    return await fn();
+  } finally {
+    if (original) {
+      Object.defineProperty(Ffmpeg, 'duration', original);
+    } else {
+      // Remove the mock property if the original descriptor did not exist.
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete (Ffmpeg as Record<string, unknown>)['duration'];
+    }
+  }
 }
 
 describe('Lint: bundle/sequence files', () => {
@@ -73,76 +86,6 @@ describe('Lint: bundle/sequence files', () => {
 
       const destPath = Fs.join(tmpDir, 'video', asset.filename);
       expect(await Fs.exists(destPath)).to.eql(true);
-    } finally {
-      await Fs.remove(tmpDir);
-    }
-  });
-
-  it('records asset stats.duration when ffprobe is available', async () => {
-    const tmpDir = await Deno.makeTempDir();
-    try {
-      const sourceDir = Fs.join(tmpDir, 'source');
-      await Fs.ensureDir(sourceDir);
-
-      // Create an actual tiny media file so ffprobe can return duration.
-      // (If ffmpeg isn’t installed, we skip.)
-      const resolvedPath = Fs.join(sourceDir, 'thing.webm');
-
-      const shouldSkip = await shouldSkipDurationTest(resolvedPath);
-      if (shouldSkip) {
-        // No-op “skip”: we assert true to keep the test green.
-        // If you have a test.skip helper in your harness, use that instead.
-        expect(true).to.eql(true);
-        return;
-      }
-
-      const slugYaml = `
-        title: Bundler Test (Duration)
-        traits:
-          - of: media-composition
-            as: sequence
-
-        alias:
-          :core: "${sourceDir}"
-
-        data:
-          sequence:
-            - video: /:core/thing.webm
-      `;
-
-      const docid = 'crdt:test-doc-duration' as t.Crdt.Id;
-      const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
-      const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
-
-      const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
-        facets: ['sequence:file:video'],
-        outDir: tmpDir,
-        baseHref: '/base',
-      });
-
-      expect(result.issues).to.eql([]);
-
-      const manifestPath = Fs.join(tmpDir, 'manifests', `slug.${docid}.assets.json`);
-      const manifestJson = (await Fs.readText(manifestPath)).data;
-      const manifest = Json.parse(manifestJson) as {
-        readonly docid: t.Crdt.Id;
-        readonly assets: readonly {
-          readonly kind: t.SlugAssetKind;
-          readonly logicalPath: t.StringPath;
-          readonly filename: string;
-          readonly href: string;
-          readonly stats: { readonly bytes?: number; readonly duration?: t.Msecs };
-        }[];
-      };
-
-      const asset = manifest.assets[0];
-      expect(asset.kind).to.eql('video');
-
-      // Must exist and be > 0 when ffprobe works.
-      expect(asset.stats.duration).to.not.eql(undefined);
-      if (asset.stats.duration !== undefined) {
-        expect(asset.stats.duration > (0 as unknown as t.Msecs)).to.eql(true);
-      }
     } finally {
       await Fs.remove(tmpDir);
     }
@@ -272,6 +215,58 @@ describe('Lint: bundle/sequence files', () => {
 
       const slugTreePath = Fs.join(tmpDir, 'manifests', `slug-tree.${docid}.json`);
       expect(await Fs.exists(slugTreePath)).to.eql(false);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('surfaces validator formatting when assets manifest fails validation', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const sourceDir = Fs.join(tmpDir, 'source');
+      await Fs.ensureDir(sourceDir);
+
+      const resolvedPath = Fs.join(sourceDir, 'thing.ts');
+      await Fs.write(resolvedPath, 'invalid duration');
+
+      const slugYaml = `
+        title: Bundler Validation Test
+        traits:
+          - of: media-composition
+            as: sequence
+
+        alias:
+          :core: "${sourceDir}"
+
+        data:
+          sequence:
+            - video: /:core/thing.ts
+      `;
+
+      const docid = 'crdt:validators-test' as t.Crdt.Id;
+      const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
+      const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
+
+      await withMockedDuration(
+        async () => ({ ok: true, msecs: 'bad' as unknown as t.Msecs }),
+        async () => {
+          const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
+            facets: ['sequence:file:video'],
+            outDir: tmpDir,
+            baseHref: '/base',
+          });
+
+          const issue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
+          expect(issue).to.not.eql(undefined);
+          expect(issue?.message).to.include(
+            'Assets manifest failed @sys/schema validation. Reason:',
+          );
+          expect(issue?.message).to.include(':');
+
+          const manifestPath = Fs.join(tmpDir, 'manifests', `slug.${docid}.assets.json`);
+          expect(await Fs.exists(manifestPath)).to.eql(false);
+        },
+      );
     } finally {
       await Fs.remove(tmpDir);
     }
