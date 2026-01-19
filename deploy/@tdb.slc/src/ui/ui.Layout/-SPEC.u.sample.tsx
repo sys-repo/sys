@@ -51,12 +51,12 @@ export const Sample = {
         const styles = { base: css({ padding: 10 }) };
 
         return (
-          <SheetBase.View edgeMargin={edge} onClick={onClick}>
+          <SheetBase.UI edgeMargin={edge} onClick={onClick}>
             <div className={styles.base.class}>
               <div>{`👋 Hello: "${id}" [${props.index}]`}</div>
               <div>{'props.children 🐷'}</div>
             </div>
-          </SheetBase.View>
+          </SheetBase.UI>
         );
       },
     };
@@ -73,12 +73,12 @@ export const Sample = {
         const styles = { base: css({ padding: 10 }) };
 
         return (
-          <SheetBase.View orientation={orientation} edgeMargin={edge}>
+          <SheetBase.UI orientation={orientation} edgeMargin={edge}>
             <div className={styles.base.class}>
               <div>{`👋 Hello: "${props.content.id}" [${props.index}]`}</div>
               <div>{'props.children 🐷'}</div>
             </div>
-          </SheetBase.View>
+          </SheetBase.UI>
         );
       },
     };
