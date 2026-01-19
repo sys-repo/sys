@@ -2,7 +2,7 @@
  * @system
  */
 export type * from '@sys/types';
-export type * from '@sys/schema/t';
+export type { Timecode } from '@sys/std/t';
 
 /**
  * @local

@@ -1,0 +1,57 @@
+import { PlaybackSchema, Http, Url } from './common.ts';
+
+import type { t } from './common.ts';
+import type { Result, SpecTimelineManifest } from './t.ts';
+import { SlugUrl } from './m.Url.ts';
+import { formatSchemaReason } from './u.schema.ts';
+
+const CACHE_INIT: RequestInit = { cache: 'no-cache' };
+
+export async function loadPlaybackFromEndpoint<P = unknown>(
+  baseUrl: t.StringUrl,
+  docid: t.StringId,
+  init?: RequestInit,
+): Promise<Result<SpecTimelineManifest<P>>> {
+  const fetch = Http.client();
+  const cleanedDocid = SlugUrl.clean(docid);
+  const url = Url.parse(baseUrl).join('manifests', SlugUrl.playbackFilename(cleanedDocid));
+  const req: RequestInit = { ...(init ?? {}), ...CACHE_INIT };
+
+  const res = await fetch.json<unknown>(url, req);
+  if (!res.ok) {
+    return {
+      ok: false,
+      error: {
+        kind: 'http',
+        status: res.status,
+        statusText: res.statusText,
+        url: res.url,
+      },
+    };
+  }
+
+  const parsed = PlaybackSchema.Manifest.parse<P>(res.data);
+  if (!parsed.ok) {
+    const reason = formatSchemaReason(parsed.errors);
+    return {
+      ok: false,
+      error: {
+        kind: 'schema',
+        message: `Playback manifest failed @sys/schema validation. Reason: ${reason}`,
+      },
+    };
+  }
+
+  const manifest = parsed.value;
+  if (manifest.docid !== cleanedDocid) {
+    return {
+      ok: false,
+      error: {
+        kind: 'schema',
+        message: `Playback manifest docid mismatch. Expected: ${cleanedDocid}. Got: ${manifest.docid}`,
+      },
+    };
+  }
+
+  return { ok: true, value: manifest };
+}

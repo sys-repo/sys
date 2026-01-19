@@ -6,7 +6,4 @@
  * - No implicit FS
  * - Schema-truthful wire ingestion
  */
-export { pkg } from './pkg.ts';
-
-/** Type library (barrel file). */
-export type * as t from './types.ts';
+export { SlugClient, SlugUrl } from './m.client/mod.ts';
