@@ -58,7 +58,7 @@ export const Info: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <KeyValue.View theme={theme.name} mono={true} items={items} />
+      <KeyValue.UI theme={theme.name} mono={true} items={items} />
     </div>
   );
 };

@@ -18,7 +18,7 @@ export const Tmp: React.FC<t.TmpProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <KeyValue.View
+      <KeyValue.UI
         theme={theme.name}
         items={[
           { kind: 'title', v: D.displayName },

@@ -33,7 +33,7 @@ export const InfoPanel: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <KeyValue.View theme={theme.name} layout={{ kind: 'table', columnGap: 20 }} items={items} />
+      <KeyValue.UI theme={theme.name} layout={{ kind: 'table', columnGap: 20 }} items={items} />
     </div>
   );
 };

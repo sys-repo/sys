@@ -30,7 +30,7 @@ export const RecorderInfo: React.FC<RecorderInfoProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <KeyValue.View theme={props.theme} items={items} />
+      <KeyValue.UI theme={props.theme} items={items} />
     </div>
   );
 };

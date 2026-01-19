@@ -34,7 +34,7 @@ export const Ownership: React.FC<t.OwnershipProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <Icons.Certificate size={24} />
-      <KeyValue.View
+      <KeyValue.UI
         theme={theme.name}
         items={[
           // { kind: 'title', v: D.displayName, y: [0, 12] },

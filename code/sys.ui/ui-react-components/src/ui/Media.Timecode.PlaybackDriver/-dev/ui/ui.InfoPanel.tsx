@@ -122,7 +122,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
     base: css({ userSelect: 'none' }),
   };
 
-  return <KeyValue.View style={css(styles.base, props.style)} theme={props.theme} items={items} />;
+  return <KeyValue.UI style={css(styles.base, props.style)} theme={props.theme} items={items} />;
 };
 
 /**

@@ -39,7 +39,7 @@ export const Document: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <KeyValue.View mono={true} items={items} theme={theme.name} />
+      <KeyValue.UI mono={true} items={items} theme={theme.name} />
       {elSpinner}
     </div>
   );

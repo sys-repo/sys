@@ -42,7 +42,7 @@ export const Info: React.FC<InfoProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <KeyValue.View
+      <KeyValue.UI
         items={[{ kind: 'title', v: D.name }, ...kvItems]}
         size={'xs'}
         mono

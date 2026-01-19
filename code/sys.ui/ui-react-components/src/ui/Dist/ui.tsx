@@ -80,7 +80,7 @@ export const Dist: React.FC<DistProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
-      <KeyValue.View theme={theme.name} items={kv(dist)} mono={true} />
+      <KeyValue.UI theme={theme.name} items={kv(dist)} mono={true} />
     </div>
   );
 };

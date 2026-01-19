@@ -20,7 +20,7 @@ export type KeyValueOpacity = t.Percent | { readonly k?: t.Percent; readonly v?:
  * A minimal table for rendering key/value data with optional titles and dividers.
  */
 export type KeyValueLib = {
-  readonly View: React.FC<t.KeyValueProps>;
+  readonly UI: React.FC<t.KeyValueProps>;
   fromObject: KeyValueFromObject;
 };
 
