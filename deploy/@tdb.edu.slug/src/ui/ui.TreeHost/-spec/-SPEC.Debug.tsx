@@ -13,6 +13,7 @@ import {
   Str,
 } from '../common.ts';
 import { LoadSample } from './-ui.LoadSample.ts';
+import { SelectedPath } from './-ui.SelectedPath.tsx';
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'selectedPath'> & {
@@ -155,22 +156,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'sample:'}</div>
-      <LoadSample.Buttons signal={p.load} />
+      <LoadSample.Buttons theme={theme.name} signal={p.load} style={{ MarginX: 15, MarginY: 15 }} />
 
       <hr />
-      <div className={Styles.title.class}>
-        <div>{'selected'}</div>
-        <div>{'[ path ]'}</div>
-      </div>
-      <div>
-        <span className={styles.mono.class} style={{ opacity: selectedPath.length > 0 ? 1 : 0.3 }}>
-          {selectedPath.length > 0
-            ? Str.ellipsize(Obj.Path.encode(selectedPath), 50)
-            : 'path-empty'}
-        </span>
-      </div>
-      <Button block label={() => '(clear)'} onClick={() => (p.selectedPath.value = undefined)} />
+      <SelectedPath
+        theme={theme.name}
+        signal={p.selectedPath}
+        style={{ MarginX: 15, MarginY: 15 }}
+      />
 
       <hr />
       {slotButton('tree')}

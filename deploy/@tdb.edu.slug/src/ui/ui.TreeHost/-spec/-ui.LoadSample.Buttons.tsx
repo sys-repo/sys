@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from '../common.ts';
+import { type t, Button, Color, css, Signal, KeyValue } from '../common.ts';
 
 let httpRequestNonce = 0;
 
@@ -26,26 +26,32 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
     }),
   };
 
+  const mono = true;
+  const items: t.KeyValueItem[] = [{ kind: 'title', v: 'Sample Data' }];
+
+  function add(key: string, label: string, value: t.SampleLoadAction) {
+    const selected = value === signal.value;
+    const btn = (
+      <Button
+        label={label}
+        style={{ fontWeight: selected ? 'bold' : undefined }}
+        onClick={() => (signal.value = value)}
+      />
+    );
+
+    items.push({ k: 'load', v: btn, mono });
+  }
+
+  add('tree', `via import`, 'esm:import');
+  add('tree', `via HTTP`, 'http');
+
+  items.push({
+    k: <Button label={'(unload)'} onClick={() => (signal.value = undefined)} />,
+  });
+
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
-        theme={theme.name}
-        block
-        label={() => `load: slug-tree ← sample import ${signal.value === 'esm:import' ? '🌳' : ''}`}
-        onClick={() => (signal.value = 'esm:import')}
-      />
-      <Button
-        theme={theme.name}
-        block
-        label={() => `load: slug-tree ← via HTTP ${signal.value === 'http' ? '🌳' : ''}`}
-        onClick={() => (signal.value = 'http')}
-      />
-      <Button
-        theme={theme.name}
-        block
-        label={() => `(unload)`}
-        onClick={() => (signal.value = undefined)}
-      />
+      <KeyValue.UI layout={{ kind: 'table' }} items={items} theme={theme.name} />
     </div>
   );
 };
