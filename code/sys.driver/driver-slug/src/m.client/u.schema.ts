@@ -1,13 +1,16 @@
-type SchemaError = {
-  readonly path: string | readonly string[];
-  readonly message: string;
-};
+import { type t } from './common.ts';
 
-export function formatSchemaReason(errors: readonly SchemaError[]): string {
+export function formatSchemaReason(errors: readonly t.SchemaValueError[]): string {
   return errors
     .map((error) => {
-      const path = Array.isArray(error.path) ? error.path.join('/') : error.path;
+      const path = pathToString(error.path);
       return path ? `${path}: ${error.message}` : error.message;
     })
     .join('; ');
 }
+
+const pathToString = (path: string | readonly string[]): string => {
+  if (Array.isArray(path)) return path.join('/');
+  if (typeof path === 'string') return path;
+  return '';
+};

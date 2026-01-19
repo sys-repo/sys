@@ -13,7 +13,7 @@ validating against `@sys/schema`, and assembling **wire bundles** suitable for
 
 ### Example
 ```ts
-import { SlugClient } from 'jsr:@sys/driver-slug';
+import { SlugClient } from 'jsr:@sys/driver-slug/client';
 
 // Load a playback-ready bundle (assets + timecode playback)
 const bundle = await SlugClient.loadBundleFromEndpoint(
