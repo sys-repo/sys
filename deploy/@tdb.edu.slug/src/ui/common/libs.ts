@@ -8,6 +8,7 @@ export {
   Cropmarks,
   KeyValue,
   ObjectView,
+  Player,
   Sheet,
   SplitPane,
   Tree,
