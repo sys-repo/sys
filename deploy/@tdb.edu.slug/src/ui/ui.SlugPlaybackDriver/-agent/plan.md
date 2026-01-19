@@ -1,102 +1,112 @@
-# SlugPlaybackDriver Integration Plan
+# SlugPlaybackDriver Integration Plan - Rev 01
 
-## ✅ DONE - Complete Foundation
+## 🎯 ARCHITECTURE CLARITY ACHIEVED
 
-### Phase 1: Pure Controller Implementation ✅
-- ✅ Created `t.controller.ts` - Controller interfaces matching TreeHost pattern
-- ✅ Created `u.createController.tsx` - Controller factory with Rx.toLifecycle
-- ✅ Created `m.Controller.ts` - Module exports
-- ✅ Created `mod.ts` - Public library interface
-- ✅ Created `-test/-m.Controller.test.ts` - 5 unit tests, all passing
-- ✅ Updated type barrels in `t.ts` - Clean type re-exports
+### ✅ REVISED UNDERSTANDING: TWO SEPARATE CONCERNS
 
-**Result:** Minimal pure controller foundation ready for signal wiring
+#### CONCERN 1: Slug Selection Navigation (Pure)
+**What it does:** Browse/structure/slug data → Find specific slug
+**Where it lives:** TreeHost (pure navigation primitive) + SlugTree (local schema)
+**Controller job:** `selectedPath` → find slug → display info in aux slot
+**Architecture:** Simple, pure, testable, follows TreeHost pattern
 
----
-
-## 🎯 CURRENT PHASE - Understanding Data Flow
-
-### Data Flow Analysis Complete
-From upstream PlaybackDriver analysis:
-- ✅ `loadTimelineFromEndpoint()` - Loads timeline bundle from HTTP manifests
-- ✅ `Timecode.Playback.Util.buildTimeline()` - Builds timeline from experience data  
-- ✅ `PlaybackDriver.Util.resolveBeatMedia()` - Resolves beats to media URLs
-- ✅ `PlaybackDriver.useDriver()` - React integration for UI components
-
-From slug client analysis:
-- ✅ `loadTreeFromEndpoint()` - Loads slug-tree from HTTP endpoints
-- ❌ **MISSING:** slug-tree → timeline bundle conversion
-
-### Key Gap Identified
-**Missing bridge:** `slug-tree → timeline bundle` conversion function
-
-**Missing types:** Timeline bundle and experience data structures in slug client
+#### CONCERN 2: Media Playback Driver (Complex)
+**What it does:** Audio/video timeline playback with complex state management
+**Where it lives:** Separate, orchestrated layer when needed
+**Controller job:** Eventually receives resolved slug data for playback
+**Architecture:** Specialized, upstream-driven, lifecycle-aware
 
 ---
 
-## 🚀 PHASE 2 - Signal Wiring & Integration
+## 🚀 REVISED IMPLEMENTATION PATH
 
-### Step 2.1: Add Timeline Bundle Loader
-**File:** `m.slug.client/loadTimelineBundle.ts` (NEW)
-**Purpose:** Convert loaded slug-tree → PlaybackDriver timeline bundle
-**Interface:**
+### PHASE 1: Clean Foundation (CURRENT) ✅
+- ✅ Simple SlugPlaybackController: Navigation + simple aux display
+- ✅ Use local SlugTree schema (navigation concern only)
+- ✅ Clean separation from PlaybackDriver complexity
+- ✅ Media resolution TO BE ADDED in Step 2
+
+### PHASE 2: Media Resolution Bridge (NEXT) ⏭
+- ✅ Add missing functions: `resolveSlugForPlayback()` 
+- ✅ Convert slug path → full slug data → PlaybackDriver timeline bundle
+- ✅ Use upstream PlaybackDriver patterns exactly
+
+### PHASE 3: Complete Integration (LATER) ⏭
+- ✅ External orchestrator connecting all pieces
+- ✅ End-to-end testing and validation
+
+---
+
+## 🔧 CLEAN SEPARATION MAINTAINED
+
+### Navigation Layer (Pure)
 ```typescript
-export const loadTimelineBundle = async (
-  baseUrl: t.StringUrl,
-  docid: t.Crdt.Id
-): Promise<t.TimecodePlaybackDriver.Wire.Bundle<unknown>>
+SlugPlaybackController {
+  selectedPath → SlugClient.loadTree() → find slug → Simple aux component
+}
 ```
 
-### Step 2.2: Enhance SlugPlaybackController  
-**File:** `u.createController.tsx` (UPDATE)
-**Purpose:** Add signal inputs (selectedPath, slots) and PlaybackDriver integration
-**Interface:**
+### Media Resolution Layer (Bridge)
 ```typescript
-type SlugPlaybackControllerArgs = {
-  selectedPath: t.Signal<t.ObjectPath | undefined>;
-  slots: t.Signal<t.TreeHostSlots>;
-  resolveMedia?: (path: t.ObjectPath) => t.TimecodePlaybackDriver.Wire.Bundle;
-};
+resolveSlugForPlayback() {
+  // Convert navigation path → PlaybackDriver timeline bundle
+  // Maintain clean interface boundary
+}
 ```
 
-### Step 2.3: Integration Tests
-**File:** `-spec.integration/TreeHostPlayer.integration.test.ts` (NEW)
-**Purpose:** Test TreeHostController + SlugPlaybackController working together
-**Coverage:** End-to-end signal flow and aux slot injection
+### Playback Layer (Upstream)
+```typescript
+// Receives timeline bundle → Creates PlaybackDriver
+// Maintains all complexity internally
+```
 
 ---
 
-## 🎯 PHASE 3 - External Orchestration
+## 📋 IMPLEMENTATION STATUS
 
-### Step 3.1: Complete Integration
-**Purpose:** Connect TreeHost selection → SlugPlaybackController → PlaybackDriver in aux slot
-**Files:** Integration tests and example orchestrator
+### ✅ COMPLETED
+- Pure controller interfaces and factory
+- Unit tests (5/5 passing)
+- Module exports and type barrels
 
----
-
-## 🔧 ARCHITECTURE PRINCIPLES
-
-### Pure Controllers
-- TreeHostController: Manages tree navigation and slots
-- SlugPlaybackController: Manages media playback and aux injection
-- Both: Pure logic, React-agnostic, testable independently
-
-### External Orchestrator  
-- Bridges TreeHost ↔ SlugPlaybackController
-- Provides data loading and media resolution
-- Manages lifecycle between controllers
-- Handles React component rendering
-
-### Clean Separation
-- **Logic:** Pure controller layer (signals, state management)
-- **Data:** Client loading and transformation utilities  
-- **UI:** PlaybackDriver React components
-- **Integration:** Orchestrator wiring everything together
+### 🎯 IN PROGRESS  
+- Timeline bundle loader implementation needed
+- Complete SlugPlaybackController integration pending loader
 
 ---
 
-## ✅ READY TO PROCEED
+## 🚀 NEXT STEPS
 
-**Foundation solid**, **data flow understood**, **integration path clear**.
+### Step 2.1: Implement Media Resolution Functions
+**Priority:** HIGH - Enables complete pipeline
+**Files to create:**
+- `m.slug.client/resolveSlugForPlayback.ts`
+- Update `u.createController.tsx` to use resolution
+- Add integration tests for resolution functions
 
-**Next action:** Implement Step 2.1 - Timeline bundle loader in m.slug.client.
+### Step 2.2: Complete Controller Integration
+**Priority:** HIGH - Finishes core functionality
+**Files to update:**
+- `u.createController.tsx` - Add signal wiring and simple aux display
+- `t.controller.ts` - Add resolution function interface
+- Integration tests for complete flow
+
+### Step 3: External Orchestration (Future)
+**Priority:** MEDIUM - Connects all pieces
+**Files to create:**
+- `-spec.integration/` - End-to-end testing
+- Example orchestrator demonstrating clean separation
+
+---
+
+## 🎯 ARCHITECTURE BENEFITS
+
+- ✅ **Single Responsibility Principle** - Each layer has clear purpose
+- ✅ **Upstream Compatibility** - Uses PlaybackDriver exactly as designed
+- ✅ **Testability** - Each piece testable independently  
+- ✅ **Future Optimization Path** - Clean foundation for caching, performance
+- ✅ **No Over-Engineering** - Build only what's needed right now
+
+---
+
+**📝 CONCLUSION: Clean foundation established, ready for media resolution bridge implementation.**
