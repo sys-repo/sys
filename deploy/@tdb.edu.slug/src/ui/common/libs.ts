@@ -13,3 +13,4 @@ export {
   SplitPane,
   Tree,
 } from '@sys/ui-react-components';
+export { PlaybackDriver } from '@sys/ui-react-components/media/timecode/playback-driver';
