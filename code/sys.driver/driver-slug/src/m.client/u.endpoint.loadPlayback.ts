@@ -11,7 +11,7 @@ export async function loadPlayback<P = unknown>(
   docid: t.StringId,
   init?: RequestInit,
 ): Promise<t.Result<t.SpecTimelineManifest<P>>> {
-  const fetch = Http.client();
+  const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.playbackFilename(cleanedDocid));
   const req: RequestInit = { ...CACHE_INIT, ...(init ?? {}) };

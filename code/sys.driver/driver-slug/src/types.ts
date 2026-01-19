@@ -3,7 +3,7 @@
  */
 export type * from './m.client/t.ts';
 
-export type SchemaValueError = {
+export type WireSchemaValueError = {
   readonly path: string | readonly string[];
   readonly message: string;
 };

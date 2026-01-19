@@ -1,4 +1,4 @@
-export { Http } from '@sys/http';
+export { Http } from '@sys/http/client';
 export { AssetsSchema } from '@sys/schema/wire/slug/assets';
 export { PlaybackSchema } from '@sys/schema/wire/timecode/playback';
 

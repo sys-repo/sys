@@ -10,7 +10,7 @@ export async function loadAssets(
   docid: t.StringId,
   init?: RequestInit,
 ): Promise<t.Result<t.SpecTimelineAssetsManifest>> {
-  const fetch = Http.client();
+  const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.assetsFilename(cleanedDocid));
   const req: RequestInit = { ...CACHE_INIT, ...(init ?? {}) };
