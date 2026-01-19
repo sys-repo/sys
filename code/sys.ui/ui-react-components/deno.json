@@ -18,7 +18,8 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./specs": "./src/-test/-specs.ts",
-    "./media/recorder/dev": "./src/ui/Media.Recorder/-dev/mod.ts"
+    "./media/recorder/dev": "./src/ui/Media.Recorder/-dev/mod.ts",
+    "./media/timecode/playback-driver": "./src/ui/Media.Timecode.PlaybackDriver/mod.ts"
   },
   "license": "MIT"
 }
