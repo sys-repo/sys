@@ -65,6 +65,7 @@ export const Paths = {
     'code/sys.driver/driver-process',
     'code/sys.driver/driver-mastra',
     'code/sys.driver/driver-monaco',
+    'code/sys.driver/driver-slug',
     'code/sys.driver/driver-prosemirror',
 
     /**
