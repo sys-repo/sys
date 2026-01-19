@@ -1,5 +1,5 @@
-import { AssetsSchema } from '@sys/schema/slug/assets';
-import { PlaybackSchema } from '@sys/schema/timecode/playback';
+import { AssetsSchema } from '@sys/schema/wire/slug/assets';
+import { PlaybackSchema } from '@sys/schema/wire/timecode/playback';
 
 import type { t } from '../common.ts';
 
