@@ -7,6 +7,7 @@ export type SlugClientUrlLib = {
 };
 
 export type SlugClientLib = {
+  readonly Error: t.SlugClientErrorLib;
   readonly Url: t.SlugClientUrlLib;
   readonly FromEndpoint: t.SlugFromEndpointLib;
 };
@@ -27,8 +28,13 @@ export type SlugFromEndpointLib = {
   loadBundle<P = unknown>(
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    args?: LoadBundleArgs,
+    options?: t.SlugLoadBundleOptions,
   ): Promise<t.Result<t.SpecTimelineBundle<P>>>;
 };
 
-export type LoadBundleArgs = { init?: RequestInit; baseHref?: t.StringUrl };
+export type SlugLoadBundleOptions = { init?: RequestInit; baseHref?: t.StringUrl };
+
+export type SlugClientErrorLib = {
+  unwrap<T>(res: t.Result<T>): T;
+  throw(err: t.SlugClientError): never;
+};

@@ -9,7 +9,7 @@ const isAbsolute = (href: string) => href.startsWith('http://') || href.startsWi
 export async function loadBundle<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  args?: t.LoadBundleArgs,
+  args?: t.SlugLoadBundleOptions,
 ): Promise<t.Result<t.SpecTimelineBundle<P>>> {
   const assetsResult = await loadAssets(baseUrl, docid, args?.init);
   if (!assetsResult.ok) return { ok: false, error: assetsResult.error };
