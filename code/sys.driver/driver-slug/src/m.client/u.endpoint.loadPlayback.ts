@@ -1,17 +1,16 @@
-import { PlaybackSchema, Http, Url } from './common.ts';
+import { Http, PlaybackSchema, Url } from './common.ts';
 
 import type { t } from './common.ts';
-import type { Result, SpecTimelineManifest } from './t.ts';
 import { SlugUrl } from './m.Url.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
 const CACHE_INIT: RequestInit = { cache: 'no-cache' };
 
-export async function loadPlaybackFromEndpoint<P = unknown>(
+export async function loadPlayback<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   init?: RequestInit,
-): Promise<Result<SpecTimelineManifest<P>>> {
+): Promise<t.Result<t.SpecTimelineManifest<P>>> {
   const fetch = Http.client();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.playbackFilename(cleanedDocid));

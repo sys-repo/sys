@@ -8,20 +8,23 @@ export type SlugClientUrlLib = {
 
 export type SlugClientLib = {
   readonly Url: t.SlugClientUrlLib;
+  readonly FromEndpoint: t.SlugFromEndpointLib;
+};
 
-  loadAssetsFromEndpoint(
+export type SlugFromEndpointLib = {
+  loadAssets(
     baseUrl: t.StringUrl,
     docid: t.StringId,
     init?: RequestInit,
   ): Promise<t.Result<t.SpecTimelineAssetsManifest>>;
 
-  loadPlaybackFromEndpoint<P = unknown>(
+  loadPlayback<P = unknown>(
     baseUrl: t.StringUrl,
     docid: t.StringId,
     init?: RequestInit,
   ): Promise<t.Result<t.SpecTimelineManifest<P>>>;
 
-  loadBundleFromEndpoint<P = unknown>(
+  loadBundle<P = unknown>(
     baseUrl: t.StringUrl,
     docid: t.StringId,
     args?: LoadBundleArgs,

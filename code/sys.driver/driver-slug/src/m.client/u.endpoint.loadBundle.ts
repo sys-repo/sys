@@ -1,21 +1,20 @@
-import { loadAssetsFromEndpoint } from './u.loadAssetsFromEndpoint.ts';
-import { loadPlaybackFromEndpoint } from './u.loadPlaybackFromEndpoint.ts';
+import { loadAssets } from './u.endpoint.loadAssets.ts';
+import { loadPlayback } from './u.endpoint.loadPlayback.ts';
 
 import type { t } from './common.ts';
-import type { LoadBundleArgs, Result, SpecTimelineAsset, SpecTimelineBundle } from './t.ts';
 import { SlugUrl } from './m.Url.ts';
 
 const isAbsolute = (href: string) => href.startsWith('http://') || href.startsWith('https://');
 
-export async function loadBundleFromEndpoint<P = unknown>(
+export async function loadBundle<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  args?: LoadBundleArgs,
-): Promise<Result<SpecTimelineBundle<P>>> {
-  const assetsResult = await loadAssetsFromEndpoint(baseUrl, docid, args?.init);
+  args?: t.LoadBundleArgs,
+): Promise<t.Result<t.SpecTimelineBundle<P>>> {
+  const assetsResult = await loadAssets(baseUrl, docid, args?.init);
   if (!assetsResult.ok) return { ok: false, error: assetsResult.error };
 
-  const playbackResult = await loadPlaybackFromEndpoint<P>(baseUrl, docid, args?.init);
+  const playbackResult = await loadPlayback<P>(baseUrl, docid, args?.init);
   if (!playbackResult.ok) return { ok: false, error: playbackResult.error };
 
   const cleanedDocid = SlugUrl.clean(docid);
@@ -28,9 +27,9 @@ export async function loadBundleFromEndpoint<P = unknown>(
     return new URL(href, hrefBase.href).toString();
   };
 
-  const assetMap = new Map<string, SpecTimelineAsset>();
+  const assetMap = new Map<string, t.SpecTimelineAsset>();
   for (const asset of assetsResult.value.assets) {
-    const normalized: SpecTimelineAsset = {
+    const normalized: t.SpecTimelineAsset = {
       ...asset,
       href: normalizeHref(asset.href),
     };
@@ -40,7 +39,7 @@ export async function loadBundleFromEndpoint<P = unknown>(
   const resolveAsset = (args: t.Timecode.Playback.ResolverArgs) =>
     assetMap.get(`${args.kind}:${args.logicalPath}`);
 
-  const bundle: SpecTimelineBundle<P> = {
+  const bundle: t.SpecTimelineBundle<P> = {
     docid: cleanedDocid,
     spec: {
       composition: playbackResult.value.composition,

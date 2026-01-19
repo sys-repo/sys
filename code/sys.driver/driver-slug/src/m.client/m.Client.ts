@@ -1,13 +1,15 @@
-import type { SlugClientLib } from './t.ts';
+import type { t } from './common.ts';
 
 import { SlugUrl } from './m.Url.ts';
-import { loadAssetsFromEndpoint } from './u.loadAssetsFromEndpoint.ts';
-import { loadBundleFromEndpoint } from './u.loadBundleFromEndpoint.ts';
-import { loadPlaybackFromEndpoint } from './u.loadPlaybackFromEndpoint.ts';
+import { loadAssets } from './u.endpoint.loadAssets.ts';
+import { loadBundle } from './u.endpoint.loadBundle.ts';
+import { loadPlayback } from './u.endpoint.loadPlayback.ts';
 
-export const SlugClient: SlugClientLib = {
+export const SlugClient: t.SlugClientLib = {
   Url: SlugUrl,
-  loadAssetsFromEndpoint,
-  loadPlaybackFromEndpoint,
-  loadBundleFromEndpoint,
+  FromEndpoint: {
+    loadAssets,
+    loadPlayback,
+    loadBundle,
+  },
 };

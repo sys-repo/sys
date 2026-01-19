@@ -5,7 +5,7 @@ import { formatSchemaReason } from './u.schema.ts';
 
 const CACHE_INIT: RequestInit = { cache: 'no-cache' };
 
-export async function loadAssetsFromEndpoint(
+export async function loadAssets(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   init?: RequestInit,
