@@ -13,8 +13,9 @@ export const Paths = {
   },
   single: [
     //
+    'code/sys.driver/driver-slug',
     'deploy/@tdb.edu.slug',
-    'code/sys.tools',
+    // 'code/sys.tools',
     // 'code/sys.driver/driver-process',
   ],
   all: [
