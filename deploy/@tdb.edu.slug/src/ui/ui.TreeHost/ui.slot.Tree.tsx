@@ -24,13 +24,12 @@ export const Tree: React.FC<P> = (props) => {
   );
 
   const elTree = tree && (
-    <TreeView.Index.View
+    <TreeView.Index.UI
       theme={theme.name}
       root={tree}
       minWidth={0}
       path={props.selectedPath}
       onPressDown={(e) => {
-        if (!e.hasChildren) return;
         if (!tree) return;
         props.onPathChange?.({ tree, path: e.node.path ?? [] });
       }}

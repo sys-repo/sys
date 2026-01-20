@@ -24,7 +24,7 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
         const width = 350;
         const elSubject = (
-          <IndexTreeView.View
+          <IndexTreeView.UI
             //
             debug={v.debug}
             theme={v.theme}

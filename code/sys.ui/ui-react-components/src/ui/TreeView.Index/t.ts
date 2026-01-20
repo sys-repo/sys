@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 export type IndexTreeViewLib = {
   /** `<IndexTreeView>` component view. */
-  View: React.FC<t.IndexTreeViewProps>;
+  UI: React.FC<t.IndexTreeViewProps>;
   /** Individual item/node tools. */
   Item: { View: React.FC<t.IndexTreeViewItemProps> };
   /** Data utilities. */

@@ -88,7 +88,7 @@ export const IndexTree: React.FC<IndexTreeProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       {elBackButton}
-      <TreeView.Index.View
+      <TreeView.Index.UI
         theme={theme.name}
         root={root}
         path={path}
