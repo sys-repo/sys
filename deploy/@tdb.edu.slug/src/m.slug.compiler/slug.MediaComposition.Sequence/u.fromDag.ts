@@ -17,7 +17,7 @@ type R = t.ValidateResult<t.SequenceItem[]>;
  *   - Alias resolvers are deliberately *not* used here; they are for hrefs,
  *     not for discovering the sequence items themselves.
  */
-export const fromDag: t.SequenceLib['fromDag'] = async (dag, yamlPath, docid, opts = {}) => {
+export const fromDag: t.SlugSequenceLib['fromDag'] = async (dag, yamlPath, docid, opts = {}) => {
   const { validate = false } = opts;
 
   const ok = (sequence: t.SequenceItem[]): R => ({ ok: true, sequence });

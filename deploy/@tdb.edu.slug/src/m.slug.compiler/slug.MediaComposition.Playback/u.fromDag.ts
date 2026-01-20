@@ -5,7 +5,7 @@ import { fromNormalized } from './u.fromNormalized.ts';
  * Convenience: read + normalize into a playback spec ready
  * to be written as `slug.<docid>.playback.json`.
  */
-export const fromDag: t.PlaybackLib['fromDag'] = async (dag, yamlPath, docid, opts) => {
+export const fromDag: t.SlugPlaybackLib['fromDag'] = async (dag, yamlPath, docid, opts) => {
   // 1. Load the authoring-time sequence for this slug (with structured result).
   const result = await Sequence.fromDag(dag, yamlPath, docid, { ...opts });
   if (!result.ok) {

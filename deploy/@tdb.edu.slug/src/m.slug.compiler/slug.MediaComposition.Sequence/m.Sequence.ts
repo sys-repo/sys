@@ -4,7 +4,7 @@ import { fromDag } from './u.fromDag.ts';
 import { Normalize } from './u.normalize.ts';
 import { validateSequence as validate } from '../../m.slug.schema/slug.MediaComposition.Sequence/u.schema.validate.ts';
 
-export const Sequence: t.SequenceLib = {
+export const Sequence: t.SlugSequenceLib = {
   Is,
   Normalize,
   validate,

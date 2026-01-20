@@ -7,19 +7,17 @@ export type * from './t.normalize.ts';
 /**
  * Schema-focused helpers for authoring-time slug sequences.
  */
-export type SequenceSchemaLib = {
-  readonly Is: SequenceIsLib;
+export type SlugSequenceSchemaLib = {
+  readonly Is: SlugSequenceIsLib;
 
-  /**
-   * Structural validation of an authoring-time sequence.
-   */
+  /** Structural validation of an authoring-time sequence. */
   validate(input: unknown): t.ValidateResult<t.SequenceItem[]>;
 };
 
 /**
  * Type guards.
  */
-export type SequenceIsLib = {
+export type SlugSequenceIsLib = {
   /**
    * Cheap structural guard that ensures the item
    * looks like one of the known sequence shapes

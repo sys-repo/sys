@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export const toTimecode: t.SequenceNormalizeLib['toTimecode'] = (
+export const toTimecode: t.SlugSequenceNormalizeLib['toTimecode'] = (
   sequence: t.SequenceItem[],
   opts = {},
 ) => {

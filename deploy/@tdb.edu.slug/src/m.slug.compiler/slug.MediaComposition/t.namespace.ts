@@ -8,7 +8,7 @@ export namespace MediaComposition {
    * Sequence authoring and normalization types.
    */
   export namespace Sequence {
-    export type Lib = t.SequenceLib;
+    export type Lib = t.SlugSequenceLib;
     export type Item = t.SequenceItem;
 
     export type VideoItem = t.SequenceVideoItem;
@@ -30,10 +30,10 @@ export namespace MediaComposition {
    * Playback-time resolution and execution types.
    */
   export namespace Playback {
-    export type Lib = t.PlaybackLib;
-    export type Spec = t.PlaybackSpec;
-    export type Bundle = t.PlaybackBundle;
-    export type MediaResolver = t.PlaybackMediaResolver;
+    export type Lib = t.SlugPlaybackLib;
+    export type Spec = t.SlugPlaybackSpec;
+    export type Bundle = t.SlugPlaybackBundle;
+    export type MediaResolver = t.SlugPlaybackMediaResolver;
   }
 
   /**

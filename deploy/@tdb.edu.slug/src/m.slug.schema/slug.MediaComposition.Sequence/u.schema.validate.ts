@@ -3,7 +3,7 @@ import { SequenceIs } from './m.Is.ts';
 import { SequenceSchema } from './u.schema.ts';
 import { checkSequenceInvariants } from './u.schema.validate.invariants.ts';
 
-type M = t.SequenceSchemaLib['validate'];
+type M = t.SlugSequenceSchemaLib['validate'];
 type R = ReturnType<M>;
 
 /**

@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Lift a normalized slug sequence into the generic playback spec.
  */
-export const fromNormalized: t.PlaybackLib['fromNormalized'] = (docid, normalized) => {
+export const fromNormalized: t.SlugPlaybackLib['fromNormalized'] = (docid, normalized) => {
   const { meta } = normalized;
 
   type B = t.Timecode.Playback.Beat<t.SequenceBeatPayload>;

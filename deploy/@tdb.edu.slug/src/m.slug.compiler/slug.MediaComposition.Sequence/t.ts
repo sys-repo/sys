@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 /**
  * Normalization helpers for compiler-side sequence processing.
  */
-export type SequenceNormalizeLib = {
+export type SlugSequenceNormalizeLib = {
   /** Normalized result of lowering the YAML DSL to a timecode `Sequence`. */
   toTimecode(
     sequence: t.SequenceItem[],
@@ -14,9 +14,9 @@ export type SequenceNormalizeLib = {
 /**
  * Compiler-facing sequence utilities.
  */
-export type SequenceLib = {
-  readonly Is: t.SequenceIsLib;
-  readonly Normalize: SequenceNormalizeLib;
+export type SlugSequenceLib = {
+  readonly Is: t.SlugSequenceIsLib;
+  readonly Normalize: SlugSequenceNormalizeLib;
 
   /**
    * Structural validation of an authoring-time sequence.

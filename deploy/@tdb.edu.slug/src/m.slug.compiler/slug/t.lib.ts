@@ -8,7 +8,7 @@ export type SlugLib = {
   readonly Schema: t.SlugSchemaLib;
   readonly Tree: t.SlugTreeLib;
   readonly Trait: {
-    readonly MediaComposition: t.MediaCompositionLib;
+    readonly MediaComposition: t.SlugMediaCompositionLib;
     readonly Helpers: t.SlugTraitsSchemaLib;
   };
 };
