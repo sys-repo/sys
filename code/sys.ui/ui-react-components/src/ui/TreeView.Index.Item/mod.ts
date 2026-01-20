@@ -1,4 +1,4 @@
 /**
  * @module
  */
-export { IndexTreeItem } from './ui.tsx';
+export { IndexTreeViewItem } from './ui.tsx';

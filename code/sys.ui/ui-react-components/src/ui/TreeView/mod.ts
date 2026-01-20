@@ -1,5 +1,5 @@
 /**
- * Library for visual Tree components.
+ * Library for visual TreeView components.
  * @module
  */
-export { Tree } from './m.Tree.ts';
+export { TreeView } from './m.TreeView.ts';

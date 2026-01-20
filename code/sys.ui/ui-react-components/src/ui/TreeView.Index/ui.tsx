@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { type t, Color, css, D, Data, IndexTreeItem, Is, Obj } from './common.ts';
+import { type t, Color, css, D, Data, IndexTreeViewItem, Is, Obj } from './common.ts';
 import { SlideDeck } from './u.SlideDeck.tsx';
 
-export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
+export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
   const { debug = false, minWidth, root } = props;
 
   // Normalize root → list; then drill to `path`.
@@ -42,7 +42,7 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
         {view.map((node) => {
           const enabled = Boolean(node.meta?.enabled ?? true);
           return (
-            <IndexTreeItem
+            <IndexTreeViewItem
               key={node.key}
               debug={debug}
               theme={theme.name}
@@ -64,7 +64,7 @@ export const IndexTree: React.FC<t.IndexTreeProps> = (props) => {
 /**
  * Helpers:
  */
-function toPointerEvent(node: t.TreeNode, e: t.PointerEventsArg): t.IndexTreePointer {
+function toPointerEvent(node: t.TreeNode, e: t.PointerEventsArg): t.IndexTreeViewPointer {
   const hasChildren = Data.hasChildren(node);
   return { ...e, node, hasChildren };
 }

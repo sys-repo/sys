@@ -4,7 +4,7 @@ import { Is } from './m.Is.ts';
 import { Yaml } from './m.Yaml.ts';
 import { lastSeg, toPathParts } from './u.ts';
 
-type D = t.IndexTreeDataLib;
+type D = t.IndexTreeViewDataLib;
 
 /**
  * Coerce a `root` into a `TreeNodeList`.
@@ -65,7 +65,7 @@ export const find: D['find'] = (root, keyOr) => {
 /**
  * API:
  */
-export const Data: t.IndexTreeDataLib = {
+export const Data: t.IndexTreeViewDataLib = {
   Is,
   Yaml,
   at,

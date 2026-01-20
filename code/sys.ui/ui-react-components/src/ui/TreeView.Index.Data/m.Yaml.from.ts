@@ -4,7 +4,7 @@ import { isWrapper } from './u.ts';
 /**
  * Normalize a YAML-dialect object/sequence into a stable, ordered `TreeNodeList`.
  */
-export const from: t.IndexTreeYamlLib['from'] = (source, options) => {
+export const from: t.IndexTreeViewYamlLib['from'] = (source, options) => {
   const infer = !!options?.inferPlainObjectsAsBranches;
 
   // Root may be a mapping or a sequence of single-entry maps.

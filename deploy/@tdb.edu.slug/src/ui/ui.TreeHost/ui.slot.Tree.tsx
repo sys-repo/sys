@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Tree as BaseTree, Color, css } from './common.ts';
+import { type t, Color, css, TreeView } from './common.ts';
 import { Empty } from './ui.Empty.tsx';
 
 type P = t.TreeHostProps;
@@ -24,7 +24,7 @@ export const Tree: React.FC<P> = (props) => {
   );
 
   const elTree = tree && (
-    <BaseTree.Index.View
+    <TreeView.Index.View
       theme={theme.name}
       root={tree}
       minWidth={0}

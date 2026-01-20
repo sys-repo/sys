@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export const Is: t.IndexTreeIsLib = {
+export const Is: t.IndexTreeViewIsLib = {
   list(x: t.TreeNode | t.TreeNodeList): x is t.TreeNodeList {
     return Array.isArray(x);
   },

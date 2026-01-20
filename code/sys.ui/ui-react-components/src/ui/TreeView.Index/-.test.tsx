@@ -1,14 +1,14 @@
 import { describe, expect, it } from '../../-test.ts';
-import { IndexTreeItem } from '../TreeView.Index.Item/mod.ts';
+import { IndexTreeViewItem } from '../TreeView.Index.Item/mod.ts';
 
-import { IndexTree } from './mod.ts';
-import { IndexTree as View } from './ui.tsx';
+import { IndexTreeView } from './mod.ts';
+import { IndexTreeView as View } from './ui.tsx';
 
-describe('Tree.Index', () => {
+describe('TreeView.Index', () => {
   it('API', async () => {
     const m = await import('@sys/ui-react-components');
-    expect(m.IndexTree).to.equal(IndexTree);
-    expect(IndexTree.View).to.equal(View);
-    expect(IndexTree.Item.View).to.equal(IndexTreeItem);
+    expect(m.IndexTreeView).to.equal(IndexTreeView);
+    expect(IndexTreeView.View).to.equal(View);
+    expect(IndexTreeView.Item.View).to.equal(IndexTreeViewItem);
   });
 });

@@ -3,12 +3,12 @@ export * from '../common.ts';
 
 export { Icons } from '../ui.Icons.ts';
 
-type P = t.IndexTreeItemProps;
+type P = t.IndexTreeViewItemProps;
 
 /**
  * Constants:
  */
-const name = 'Tree.Index.Item';
+const name = 'TreeView.Index.Item';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),

@@ -1,21 +1,15 @@
 import type { t } from './common.ts';
 
-/**
- * Index Tree library API:
- */
-export type IndexTreeLib = {
-  /** <IndexTree> component view: */
-  View: React.FC<t.IndexTreeProps>;
-  /** Individual item/node tools: */
-  Item: { View: React.FC<t.IndexTreeItemProps> };
-  /** Data utilities: */
-  Data: t.IndexTreeDataLib;
+export type IndexTreeViewLib = {
+  /** `<IndexTreeView>` component view. */
+  View: React.FC<t.IndexTreeViewProps>;
+  /** Individual item/node tools. */
+  Item: { View: React.FC<t.IndexTreeViewItemProps> };
+  /** Data utilities. */
+  Data: t.IndexTreeViewDataLib;
 };
 
-/**
- * Component:
- */
-export type IndexTreeProps = {
+export type IndexTreeViewProps = {
   root?: t.TreeNode | t.TreeNodeList;
   path?: t.ObjectPath;
 
@@ -31,16 +25,13 @@ export type IndexTreeProps = {
   style?: t.CssInput;
 
   // Handlers:
-  onPointer?: t.IndexTreePointerHandler;
-  onPressDown?: t.IndexTreePointerHandler;
-  onPressUp?: t.IndexTreePointerHandler;
+  onPointer?: t.IndexTreeViewPointerHandler;
+  onPressDown?: t.IndexTreeViewPointerHandler;
+  onPressUp?: t.IndexTreeViewPointerHandler;
 };
 
-/**
- * Event: Pointer event with tree/node extended properties.
- */
-export type IndexTreePointerHandler = (e: IndexTreePointer) => void;
-export type IndexTreePointer = t.PointerEventsArg &
+export type IndexTreeViewPointerHandler = (e: IndexTreeViewPointer) => void;
+export type IndexTreeViewPointer = t.PointerEventsArg &
   Readonly<{
     node: t.TreeNode;
     hasChildren: boolean;

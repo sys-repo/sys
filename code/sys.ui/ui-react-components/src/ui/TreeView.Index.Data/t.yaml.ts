@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Namespace of YAML adapter tools.
  */
-export type IndexTreeYamlLib = Readonly<{
+export type IndexTreeViewYamlLib = Readonly<{
   /**
    * Normalize a YAML-dialect object into a stable, ordered `TreeList`.
    * Plain objects are leaves by default; set `inferPlainObjectsAsBranches` to treat
@@ -20,7 +20,7 @@ export type IndexTreeYamlLib = Readonly<{
   ): t.TreeNodeList;
 
   /**
-   * Parse YAML text in the IndexTree authoring dialect and normalize it to a `TreeList`.
+   * Parse YAML text in the IndexTreeView authoring dialect and normalize it to a `TreeList`.
    *
    * Accepts either:
    * - a root mapping: `{ Key: Node, ... }`
@@ -40,7 +40,7 @@ export type IndexTreeYamlLib = Readonly<{
    * - Additionally, if a node’s value is a sequence of single-entry maps, that sequence
    *   is interpreted as this node’s `children` implicitly (no wrapper required).
    *
-   * @param text YAML string in the IndexTree dialect.
+   * @param text YAML string in the IndexTreeView dialect.
    * @returns Normalized `TreeList` for rendering.
    *
    * @example
@@ -51,7 +51,7 @@ export type IndexTreeYamlLib = Readonly<{
    *   children:
    *     A: ref:a
    * `;
-   * const tree = IndexTree.Yaml.parse(yaml);
+   * const tree = IndexTreeView.Yaml.parse(yaml);
    *
    * @example
    * // sequence root (explicit top-level order)
@@ -62,13 +62,13 @@ export type IndexTreeYamlLib = Readonly<{
    *     children:
    *       - Baz: ref:baz
    * `;
-   * const tree = IndexTree.Yaml.parse(yaml);
+   * const tree = IndexTreeView.Yaml.parse(yaml);
    */
   parse(text: string): t.TreeNodeList;
 }>;
 
 /**
- * IndexTree YAML source dialect.
+ * IndexTreeView YAML source dialect.
  */
 export type YamlTreeSourceList = _SourceList;
 export type YamlTreeSourceWrapper = _SourceWrapper;

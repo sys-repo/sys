@@ -2,10 +2,10 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 
 import { type t, css, D, LocalStorage, Obj, Signal, Str } from '../common.ts';
-import { IndexTree } from '../mod.ts';
+import { IndexTreeView } from '../mod.ts';
 import { SAMPLE_YAML } from './-yaml.ts';
 
-type P = t.IndexTreeProps;
+type P = t.IndexTreeViewProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { yaml?: string };
 const defaults: Storage = {
   theme: 'Dark',
@@ -40,7 +40,7 @@ export function createDebugSignals() {
     props,
     get root() {
       const text = p.yaml.value;
-      return text ? IndexTree.Data.Yaml.parse(text) : undefined;
+      return text ? IndexTreeView.Data.Yaml.parse(text) : undefined;
     },
     listen() {
       Signal.listen(props);

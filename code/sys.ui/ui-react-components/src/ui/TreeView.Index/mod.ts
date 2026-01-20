@@ -1,5 +1,5 @@
 /**
- * A simple index tree.
+ * A simple index tree view.
  * @module
  */
-export { IndexTree } from './m.IndexTree.ts';
+export { IndexTreeView } from './m.IndexTreeView.ts';

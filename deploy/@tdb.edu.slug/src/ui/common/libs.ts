@@ -11,6 +11,6 @@ export {
   Player,
   Sheet,
   SplitPane,
-  Tree,
+  TreeView,
 } from '@sys/ui-react-components';
 export { PlaybackDriver } from '@sys/ui-react-components/media/timecode/playback-driver';

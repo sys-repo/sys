@@ -33,8 +33,8 @@ export { Sheet } from './ui/Sheet/mod.ts';
 export { Slider } from './ui/Slider/mod.ts';
 export { Spinners } from './ui/Spinners/mod.ts';
 export { TextInput } from './ui/Text.Input/mod.ts';
-export { IndexTree } from './ui/TreeView.Index/mod.ts';
-export { Tree } from './ui/TreeView/mod.ts';
+export { IndexTreeView } from './ui/TreeView.Index/mod.ts';
+export { TreeView } from './ui/TreeView/mod.ts';
 
 // Media:
 export { Media } from './ui/Media/mod.ts';

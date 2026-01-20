@@ -1,9 +1,7 @@
 import type { t } from './common.ts';
 
-/**
- * Component:
- */
-export type IndexTreeItemProps = {
+/** Component: */
+export type IndexTreeViewItemProps = {
   label?: t.ReactNode;
   description?: t.ReactNode;
 

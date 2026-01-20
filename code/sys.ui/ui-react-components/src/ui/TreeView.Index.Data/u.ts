@@ -12,7 +12,13 @@ export function isWrapper(v: unknown): v is t.YamlTreeSourceWrapper {
   );
 }
 
-export function toPathParts(path: t.ObjectPath): string[] {
+export function toPathParts(path: t.ObjectPath | string): string[] {
+  if (typeof path === 'string') {
+    if (path.length === 0) return [];
+    const segments = path.split('/');
+    if (segments.length === 1 && segments[0] === '') return [];
+    return segments;
+  }
   return path.map((p) => String(p));
 }
 

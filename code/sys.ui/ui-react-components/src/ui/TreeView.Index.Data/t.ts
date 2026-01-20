@@ -1,28 +1,24 @@
 import type { t } from './common.ts';
 export type * from './t.yaml.ts';
 
-/**
- * Flag evaluators:
- */
-export type IndexTreeIsLib = {
+/** Flag evaluators. */
+export type IndexTreeViewIsLib = {
   list(x: t.TreeNode | t.TreeNodeList): x is t.TreeNodeList;
   node(x: t.TreeNode | t.TreeNodeList): x is t.TreeNode;
 };
 
-/**
- * Namespace of data utilities.
- */
-export type IndexTreeDataLib = {
+/** Namespace of data utilities. */
+export type IndexTreeViewDataLib = {
   /** Flag evaluators */
-  Is: t.IndexTreeIsLib;
-  /** YAML dialect tools: */
-  Yaml: t.IndexTreeYamlLib;
+  Is: t.IndexTreeViewIsLib;
+  /** YAML dialect tools */
+  Yaml: t.IndexTreeViewYamlLib;
 
   /**
-   * Get children at a path ('', 'a/b/c', or ['a','b','c']).
+   * Get children at a path ('' | 'a/b/c' | ['a','b','c']).
    * Path segments match either the literal segment or an `id` override from `meta.id`.
    */
-  at(root: t.TreeNodeList, path: t.ObjectPath): t.TreeNodeList;
+  at(root: t.TreeNodeList, path: t.ObjectPath | string): t.TreeNodeList;
 
   /**
    * Find a node by exact `key` (full path) or by predicate.
@@ -31,7 +27,6 @@ export type IndexTreeDataLib = {
     root: t.TreeNodeList,
     keyOr: string | ((n: { node: any; parents: ReadonlyArray<any> }) => boolean),
   ): t.TreeNode | undefined;
-
   /**
    * Coerce a `root` into a `TreeNodeList`.
    *
@@ -51,7 +46,7 @@ export type IndexTreeDataLib = {
 };
 
 /**
- * Node for an <IndexTree> view.
+ * Node for an <IndexTreeView> view.
  * NB: The normalized shape of the YAML tree dialect.
  *
  * Ordering: siblings render in the order they appear in the normalized array.

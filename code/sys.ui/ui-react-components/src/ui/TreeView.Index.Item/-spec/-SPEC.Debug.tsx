@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, Icons, Is, LocalStorage, Obj, Signal, Str } from '../common.ts';
 
-type P = t.IndexTreeItemProps;
+type P = t.IndexTreeViewItemProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled' | 'selected'> & {
   label?: string;
   description?: string;

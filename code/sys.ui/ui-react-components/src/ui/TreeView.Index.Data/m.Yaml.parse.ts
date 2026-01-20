@@ -3,7 +3,7 @@ import { Yaml } from '@sys/yaml';
 import { type t } from './common.ts';
 import { from } from './m.Yaml.from.ts';
 
-export const parse: t.IndexTreeYamlLib['parse'] = (text) => {
+export const parse: t.IndexTreeViewYamlLib['parse'] = (text) => {
   const js = Yaml.parse(text).data;
 
   if (Array.isArray(js)) {

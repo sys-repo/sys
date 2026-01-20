@@ -5,11 +5,11 @@ import { Is } from './m.Is.ts';
 import { Yaml } from './m.Yaml.ts';
 import { toSeq } from './u.ts';
 
-describe('Tree.Index', () => {
+describe('TreeView.Index', () => {
   it('API', async () => {
     const m = await import('@sys/ui-react-components');
-    expect(m.IndexTree.Data.Yaml).to.equal(Yaml);
-    expect(m.IndexTree.Data).to.equal(Data);
+    expect(m.IndexTreeView.Data.Yaml).to.equal(Yaml);
+    expect(m.IndexTreeView.Data).to.equal(Data);
     expect(Data.Is).to.equal(Is);
     expect(Data.Yaml).to.equal(Yaml);
   });
@@ -39,7 +39,7 @@ describe('Tree.Index', () => {
     ArrLeaf: [1, 2, 3], // ← array leaf (must remain a leaf, not confused with list).
   } as const;
 
-  describe('TreeIndex.Yaml', () => {
+  describe('TreeView.Index.Yaml', () => {
     describe('YAML dialect → normalized Tree', () => {
       it('normalizes leaves and branches (baseline semantics)', () => {
         const list = Yaml.from(SOURCE_BASE);
@@ -185,8 +185,6 @@ describe('Tree.Index', () => {
           // spot-check path navigation
           const kids = Data.at(list, toObjectPath('Foo'));
           expect(kids.map((n) => labelToString(n.label))).to.eql(['a', 'b']);
-
-          console.log('list', list);
         });
 
         it('arrays of scalars remain leaves (non node-list shape)', () => {
@@ -390,7 +388,7 @@ ArrLeaf:
     });
   });
 
-  describe('TreeIndex.Data', () => {
+  describe('TreeView.Index.Data', () => {
     describe('Data.at', () => {
       it('`at` supports string and [ObjectPath] forms, plus "id" overrides', () => {
         const list = Yaml.from(SOURCE_BASE);
@@ -506,7 +504,7 @@ ArrLeaf:
     });
   });
 
-  describe('TreeIndex.Is', () => {
+  describe('TreeView.Index.Is', () => {
     it('identifies a TreeNodeList', () => {
       const nodeList: t.TreeNodeList = [
         { key: '1', label: 'One', path: ['1'] as t.ObjectPath },
@@ -523,7 +521,7 @@ ArrLeaf:
     });
   });
 
-  describe('TreeIndex: path codec (encode / decode)', () => {
+  describe('TreeView.Index: path codec (encode / decode)', () => {
     it('encodes "/" and "~" per RFC6901 (~1, ~0) and roundtrips', () => {
       const path = asObjectPath('seg/with/slash', 'tilde~here', 'mixed~/slash');
       const key = Obj.Path.Codec.pointer.encode(path);

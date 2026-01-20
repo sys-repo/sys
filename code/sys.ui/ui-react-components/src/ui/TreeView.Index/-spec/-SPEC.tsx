@@ -1,7 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { Button } from '../../Button/mod.ts';
 import { D, Icons } from '../common.ts';
-import { IndexTree } from '../mod.ts';
+import { IndexTreeView } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -24,7 +24,7 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
         const width = 350;
         const elSubject = (
-          <IndexTree.View
+          <IndexTreeView.View
             //
             debug={v.debug}
             theme={v.theme}

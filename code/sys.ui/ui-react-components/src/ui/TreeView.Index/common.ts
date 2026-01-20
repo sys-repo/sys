@@ -2,13 +2,13 @@ import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
 export { Data } from '../TreeView.Index.Data/mod.ts';
-export { IndexTreeItem } from '../TreeView.Index.Item/mod.ts';
+export { IndexTreeViewItem } from '../TreeView.Index.Item/mod.ts';
 export { Icons } from '../ui.Icons.ts';
 
 /**
  * Constants:
  */
-const name = 'Tree.Index';
+const name = 'TreeView.Index';
 export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),

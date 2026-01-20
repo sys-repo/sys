@@ -1,10 +1,10 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Tree } from './mod.ts';
+import { TreeView } from './mod.ts';
 
-describe('Tree', () => {
+describe('TreeView', () => {
   it('API', async () => {
     const m = await import('@sys/ui-react-components');
-    expect(m.Tree).to.equal(Tree);
-    expect(Tree.Index).to.equal(m.IndexTree);
+    expect(m.TreeView).to.equal(TreeView);
+    expect(TreeView.Index).to.equal(m.IndexTreeView);
   });
 });
