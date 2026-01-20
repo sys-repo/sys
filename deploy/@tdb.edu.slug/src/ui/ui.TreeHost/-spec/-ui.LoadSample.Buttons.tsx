@@ -33,12 +33,11 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
     const selected = value === signal.value;
     const btn = (
       <Button
-        label={label}
+        label={`${label} ${selected ? '🌳' : ''}`}
         style={{ fontWeight: selected ? 'bold' : undefined }}
         onClick={() => (signal.value = value)}
       />
     );
-
     items.push({ k: 'load', v: btn, mono });
   }
 
