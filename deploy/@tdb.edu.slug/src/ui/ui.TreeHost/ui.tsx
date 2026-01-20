@@ -1,10 +1,23 @@
-import React from 'react';
-import { type t, Color, css, D, SplitPane } from './common.ts';
+import React, { useEffect, useRef } from 'react';
+import { type t, Color, css, D, Obj, SplitPane } from './common.ts';
 import { Nav } from './ui.Nav.tsx';
 import { Main } from './ui.slot.Main.tsx';
 
 export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
   const { debug = false, split = D.split, slots = {} } = props;
+  const prevPath = useRef<t.ObjectPath | undefined>(undefined);
+
+  useEffect(() => {
+    const tree = props.tree;
+    if (!tree) return;
+
+    const next = props.selectedPath ?? [];
+    const prev = prevPath.current ?? [];
+    if (Obj.Path.eql(prev, next)) return;
+
+    prevPath.current = next;
+    props.onPathChange?.({ tree, path: next });
+  }, [props.tree, props.selectedPath]);
 
   const theme = Color.theme(props.theme);
   const styles = {

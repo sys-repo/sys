@@ -31,11 +31,17 @@ export default Spec.describe(D.displayName, async (e) => {
           tree={v.tree}
           selectedPath={v.selectedPath}
           onSplitChange={(e) => (p.split.value = e.split)}
+          onPathRequest={(e) => {
+            console.info('⚡️ onPathRequest: ', e);
+            p.selectedPath.value = e.path;
+          }}
           onPathChange={(e) => {
             const node = TreeHost.Data.findViewNode(e.tree, e.path);
-            p.selectedPath.value = e.path;
             console.info('⚡️ onPathChange: ', e);
-            console.info('- findViewNode:', node);
+            console.info(' - findViewNode(tree, path):', node);
+          }}
+          onLeafSelect={(e) => {
+            console.info('⚡️ onLeafSelect: ', e);
           }}
         />
       </div>

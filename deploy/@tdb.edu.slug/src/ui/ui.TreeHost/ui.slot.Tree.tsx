@@ -8,7 +8,7 @@ type P = t.TreeHostProps;
  * Component:
  */
 export const Tree: React.FC<P> = (props) => {
-  const { debug = false, tree, slots = {} } = props;
+  const { tree, slots = {} } = props;
 
   /**
    * Render:
@@ -31,7 +31,16 @@ export const Tree: React.FC<P> = (props) => {
       path={props.selectedPath}
       onPressDown={(e) => {
         if (!tree) return;
-        props.onPathChange?.({ tree, path: e.node.path ?? [] });
+        const path = e.node.path ?? [];
+
+        if (e.hasChildren) {
+          // intent: navigate
+          props.onPathRequest?.({ tree, path });
+          return;
+        }
+
+        // intent: terminal selection
+        props.onLeafSelect?.({ tree, path, node: e.node });
       }}
     />
   );
