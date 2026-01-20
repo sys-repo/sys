@@ -1,8 +1,7 @@
 import React from 'react';
 import { Foo } from '../../-test.ui.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
-import { LoadSample } from './u.LoadSample.ts';
-import { SelectedPath } from './-ui.SelectedPath.tsx';
+import { LoadSample, SelectedPath } from './mod.ts';
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'selectedPath'> & {

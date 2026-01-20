@@ -1,8 +1,7 @@
-import { SAMPLES } from '../../-test.ui.ts';
-import { type t } from '../common.ts';
+import { type t, SAMPLES } from './common.ts';
 import { TreeHost } from '../mod.ts';
-import { LoadSampleButtons as Buttons } from './u.LoadSample.UI.tsx';
-import { baseUrl, loadHttp, SlugTree } from './u.LoadSample.http.ts';
+import { LoadSampleButtons as Buttons } from './ui.tsx';
+import { baseUrl, loadHttp, SlugTree } from './u.http.ts';
 
 /**
  * Library:

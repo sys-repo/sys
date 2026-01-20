@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal, KeyValue } from '../common.ts';
-import { baseUrl } from './u.LoadSample.http.ts';
+import { type t, Button, Color, css, KeyValue, Signal } from './common.ts';
+import { baseUrl } from './u.http.ts';
 
 export type LoadSampleButtonsProps = {
   signal?: t.Signal<t.SampleLoadAction | undefined>;
@@ -14,7 +14,6 @@ export type LoadSampleButtonsProps = {
 export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
   const { signal = Signal.create<t.SampleLoadAction>() } = props;
   const current = signal.value;
-  const isHttp = current === 'http';
 
   /**
    * Render:
@@ -29,11 +28,11 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
   const items: t.KeyValueItem[] = [{ kind: 'title', v: 'Slug Data' }];
 
   function add(label: string, value: t.SampleLoadAction) {
-    const selected = value === current;
+    const isSelected = value === current;
     const btn = (
       <Button
-        label={`${label} ${selected ? '🌳' : ''}`}
-        style={{ fontWeight: selected ? 'bold' : undefined }}
+        label={`${label} ${isSelected ? '🌳' : ''}`}
+        style={{ fontWeight: isSelected ? 'bold' : undefined }}
         onClick={() => (signal.value = value)}
       />
     );
