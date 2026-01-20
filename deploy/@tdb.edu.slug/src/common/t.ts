@@ -20,8 +20,8 @@ export type {
   KeyValueItem,
   SheetProps,
   TimecodePlaybackDriver,
-  TreeNode,
-  TreeNodeList,
+  TreeViewNode,
+  TreeViewNodeList,
 } from '@sys/ui-react-components/t';
 
 /** User interface: Testing */

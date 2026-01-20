@@ -444,8 +444,8 @@ ArrLeaf:
         expect(out).to.eql([]);
       });
 
-      it('passes through a TreeNodeList unchanged (including order)', () => {
-        const list: t.TreeNodeList = [
+      it('passes through a TreeViewNodeList unchanged (including order)', () => {
+        const list: t.TreeViewNodeList = [
           { key: 'a', label: 'A', path: ['a'] as t.ObjectPath },
           { key: 'b', label: 'B', path: ['b'] as t.ObjectPath },
         ];
@@ -454,8 +454,8 @@ ArrLeaf:
         expect(out.map((n) => n.key)).to.eql(['a', 'b']);
       });
 
-      it('TreeNode with children → that children list', () => {
-        const node: t.TreeNode = {
+      it('TreeViewNode with children → that children list', () => {
+        const node: t.TreeViewNode = {
           key: 'root',
           label: 'Root',
           path: ['root'] as t.ObjectPath,
@@ -468,45 +468,45 @@ ArrLeaf:
         expect(out.map((n) => n.key)).to.eql(['root/one', 'root/two']);
       });
 
-      it('TreeNode without children → singleton list [node]', () => {
-        const node: t.TreeNode = { key: 'leaf', label: 'Leaf', path: ['leaf'] as t.ObjectPath };
+      it('TreeViewNode without children → singleton list [node]', () => {
+        const node: t.TreeViewNode = { key: 'leaf', label: 'Leaf', path: ['leaf'] as t.ObjectPath };
         const out = Data.toList(node);
         expect(out.length).to.eql(1);
         expect(out[0].key).to.eql('leaf');
       });
 
-      it('empty TreeNodeList stays empty', () => {
-        const out = Data.toList([] as t.TreeNodeList);
+      it('empty TreeViewNodeList stays empty', () => {
+        const out = Data.toList([] as t.TreeViewNodeList);
         expect(out).to.eql([]);
       });
     });
 
     describe('Data.hasChildren', () => {
       it('returns true when node has a non-empty children array', () => {
-        const node = { children: [{}] } as unknown as t.TreeNode;
+        const node = { children: [{}] } as unknown as t.TreeViewNode;
         expect(Data.hasChildren(node)).to.eql(true);
       });
 
       it('returns false when node has an empty children array', () => {
-        const node = { children: [] } as unknown as t.TreeNode;
+        const node = { children: [] } as unknown as t.TreeViewNode;
         expect(Data.hasChildren(node)).to.eql(false);
       });
 
       it('returns false when node.children is undefined', () => {
-        const node = {} as unknown as t.TreeNode;
+        const node = {} as unknown as t.TreeViewNode;
         expect(Data.hasChildren(node)).to.eql(false);
       });
 
       it('returns false when node.children is null', () => {
-        const node = { children: null } as unknown as t.TreeNode;
+        const node = { children: null } as unknown as t.TreeViewNode;
         expect(Data.hasChildren(node)).to.eql(false);
       });
     });
   });
 
   describe('TreeView.Index.Is', () => {
-    it('identifies a TreeNodeList', () => {
-      const nodeList: t.TreeNodeList = [
+    it('identifies a TreeViewNodeList', () => {
+      const nodeList: t.TreeViewNodeList = [
         { key: '1', label: 'One', path: ['1'] as t.ObjectPath },
         { key: '2', label: 'Two', path: ['2'] as t.ObjectPath },
       ];
@@ -514,8 +514,8 @@ ArrLeaf:
       expect(Is.node(nodeList)).to.eql(false);
     });
 
-    it('identifies a single TreeNode', () => {
-      const node: t.TreeNode = { key: '1', label: 'One', path: ['1'] as t.ObjectPath };
+    it('identifies a single TreeViewNode', () => {
+      const node: t.TreeViewNode = { key: '1', label: 'One', path: ['1'] as t.ObjectPath };
       expect(Is.node(node)).to.eql(true);
       expect(Is.list(node)).to.eql(false);
     });

@@ -7,12 +7,12 @@ import { lastSeg, toPathParts } from './u.ts';
 type D = t.IndexTreeViewDataLib;
 
 /**
- * Coerce a `root` into a `TreeNodeList`.
+ * Coerce a `root` into a `TreeViewNodeList`.
  */
 const toList: D['toList'] = (root) => {
   if (!root) return [];
-  if (Is.list(root)) return root; // ← narrowed to TreeNodeList.
-  return root.children ?? [root]; // ← narrowed to TreeNode.
+  if (Is.list(root)) return root; // ← narrowed to TreeViewNodeList.
+  return root.children ?? [root]; // ← narrowed to TreeViewNode.
 };
 
 /**
@@ -28,7 +28,7 @@ const at: D['at'] = (root, path) => {
   const parts = toPathParts(path);
   if (parts.length === 0) return root;
 
-  let list: t.TreeNodeList = root;
+  let list: t.TreeViewNodeList = root;
   for (const seg of parts) {
     const next = list.find((n) => {
       const tail = lastSeg(n.key);
@@ -46,9 +46,12 @@ const at: D['at'] = (root, path) => {
  */
 export const find: D['find'] = (root, keyOr) => {
   const pred =
-    typeof keyOr === 'string' ? ({ node }: { node: t.TreeNode }) => node.key === keyOr : keyOr;
+    typeof keyOr === 'string' ? ({ node }: { node: t.TreeViewNode }) => node.key === keyOr : keyOr;
 
-  const visit = (list: t.TreeNodeList, parents: readonly t.TreeNode[]): t.TreeNode | undefined => {
+  const visit = (
+    list: t.TreeViewNodeList,
+    parents: readonly t.TreeViewNode[],
+  ): t.TreeViewNode | undefined => {
     for (const node of list) {
       if (pred({ node, parents })) return node;
       if (node.children) {

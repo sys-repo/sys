@@ -17,7 +17,7 @@ export type IndexTreeViewYamlLib = Readonly<{
       | Record<string, t.YamlTreeSourceNode>
       | ReadonlyArray<Record<string, t.YamlTreeSourceNode>>,
     options?: { inferPlainObjectsAsBranches?: boolean },
-  ): t.TreeNodeList;
+  ): t.TreeViewNodeList;
 
   /**
    * Parse YAML text in the IndexTreeView authoring dialect and normalize it to a `TreeList`.
@@ -64,7 +64,7 @@ export type IndexTreeViewYamlLib = Readonly<{
    * `;
    * const tree = IndexTreeView.Yaml.parse(yaml);
    */
-  parse(text: string): t.TreeNodeList;
+  parse(text: string): t.TreeViewNodeList;
 }>;
 
 /**

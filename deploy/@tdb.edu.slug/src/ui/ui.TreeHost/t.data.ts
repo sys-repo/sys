@@ -30,7 +30,7 @@ export type TreeHostDataLib = {
   readonly fromSlugTree: (
     tree: t.SlugTreeItems,
     opts?: t.TreeHostFromSlugTreeOpts,
-  ) => t.TreeNodeList;
+  ) => t.TreeViewNodeList;
 
   /**
    * TreeView slug-path lookup (pure); returns the matching SlugTreeItem.

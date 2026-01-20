@@ -10,7 +10,7 @@ export type IndexTreeViewLib = {
 };
 
 export type IndexTreeViewProps = {
-  root?: t.TreeNode | t.TreeNodeList;
+  root?: t.TreeViewNode | t.TreeViewNodeList;
   path?: t.ObjectPath;
 
   /** Slide/fade animation duration in milliseconds. */
@@ -31,8 +31,7 @@ export type IndexTreeViewProps = {
 };
 
 export type IndexTreeViewPointerHandler = (e: IndexTreeViewPointer) => void;
-export type IndexTreeViewPointer = t.PointerEventsArg &
-  Readonly<{
-    node: t.TreeNode;
-    hasChildren: boolean;
-  }>;
+export type IndexTreeViewPointer = t.PointerEventsArg & {
+  readonly node: t.TreeViewNode;
+  readonly hasChildren: boolean;
+};

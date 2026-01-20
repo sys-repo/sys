@@ -2,7 +2,7 @@ import { type t, Is, Obj } from './common.ts';
 import { isWrapper } from './u.ts';
 
 /**
- * Normalize a YAML-dialect object/sequence into a stable, ordered `TreeNodeList`.
+ * Normalize a YAML-dialect object/sequence into a stable, ordered `TreeViewNodeList`.
  */
 export const from: t.IndexTreeViewYamlLib['from'] = (source, options) => {
   const infer = !!options?.inferPlainObjectsAsBranches;
@@ -22,7 +22,7 @@ export const from: t.IndexTreeViewYamlLib['from'] = (source, options) => {
     k: string,
     v: t.YamlTreeSourceNode,
     parentPath: t.ObjectPath,
-  ): readonly t.TreeNode[] {
+  ): readonly t.TreeViewNode[] {
     // Wrapper path (explicit `.` or `children`):
     if (isWrapper(v)) {
       const meta = v['.'];
@@ -37,7 +37,7 @@ export const from: t.IndexTreeViewYamlLib['from'] = (source, options) => {
         meta && Object.prototype.hasOwnProperty.call(meta, 'label')
           ? (meta as any).label
           : undefined;
-      const label = (rawLabel !== undefined ? (rawLabel as any) : k) as t.TreeNode['label'];
+      const label = (rawLabel !== undefined ? (rawLabel as any) : k) as t.TreeViewNode['label'];
 
       // Data payload = all non-reserved keys:
       const data: Record<string, unknown> = {};
@@ -49,7 +49,7 @@ export const from: t.IndexTreeViewYamlLib['from'] = (source, options) => {
       // Children:
       const childSpec = v.children;
       const childPath = path; // children inherit this node's path
-      const children: t.TreeNodeList | undefined = (() => {
+      const children: t.TreeViewNodeList | undefined = (() => {
         if (!childSpec) return undefined;
         if (Array.isArray(childSpec)) {
           // ordered: array of single-entry maps.

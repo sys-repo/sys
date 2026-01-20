@@ -18,7 +18,7 @@ export type TreeHostLib = {
  */
 export type TreeHostProps = {
   slots?: t.TreeHostSlots;
-  tree?: t.TreeNodeList;
+  tree?: t.TreeViewNodeList;
   split?: t.Percent[];
   selectedPath?: t.ObjectPath;
 

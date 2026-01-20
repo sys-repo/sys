@@ -64,7 +64,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
 /**
  * Helpers:
  */
-function toPointerEvent(node: t.TreeNode, e: t.PointerEventsArg): t.IndexTreeViewPointer {
+function toPointerEvent(node: t.TreeViewNode, e: t.PointerEventsArg): t.IndexTreeViewPointer {
   const hasChildren = Data.hasChildren(node);
   return { ...e, node, hasChildren };
 }

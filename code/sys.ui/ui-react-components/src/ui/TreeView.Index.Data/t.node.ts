@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/** A list of tree-nodes. */
+export type TreeViewNodeList = readonly TreeViewNode[];
+
 /**
  * Node for an <IndexTreeView> view.
  * NB: The normalized shape of the YAML tree dialect.
@@ -8,7 +11,7 @@ import type { t } from './common.ts';
  * (When authoring in YAML, use a sequence to force order, or rely on parser insertion order.)
  *
  */
-export type TreeNode = {
+export type TreeViewNode = {
   /** Canonical path as array of segments (source of truth). */
   path: t.ObjectPath;
 
@@ -22,11 +25,8 @@ export type TreeNode = {
   value?: unknown;
 
   /** Presence → branch. */
-  children?: ReadonlyArray<TreeNode>;
 
+  children?: ReadonlyArray<TreeViewNode>;
   /** Pass-through of `.` from the YAML dialect. */
   meta?: Readonly<Record<string, unknown>>;
 };
-
-/** A list of tree-nodes. */
-export type TreeNodeList = readonly TreeNode[];

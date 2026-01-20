@@ -34,9 +34,13 @@ function toValue(item: t.SlugTreeItem) {
   return payload;
 }
 
-function toNode(item: t.SlugTreeItem, parentPath: t.ObjectPath, labelMode: LabelMode): t.TreeNode {
+function toNode(
+  item: t.SlugTreeItem,
+  parentPath: t.ObjectPath,
+  labelMode: LabelMode,
+): t.TreeViewNode {
   const path = [...parentPath, item.slug] as t.ObjectPath;
-  const node: t.TreeNode = {
+  const node: t.TreeViewNode = {
     path,
     key: Obj.Path.encode(path),
     label: toLabel(item, labelMode),
