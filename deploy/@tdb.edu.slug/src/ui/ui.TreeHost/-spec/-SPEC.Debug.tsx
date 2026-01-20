@@ -156,14 +156,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <LoadSample.Buttons theme={theme.name} signal={p.load} style={{ MarginX: 15, MarginY: 15 }} />
-
+      <LoadSample.Buttons theme={theme.name} signal={p.load} style={{ MarginY: 15 }} />
       <hr />
-      <SelectedPath
-        theme={theme.name}
-        signal={p.selectedPath}
-        style={{ MarginX: 15, MarginY: 15 }}
-      />
+      <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 
       <hr />
       {slotButton('tree')}

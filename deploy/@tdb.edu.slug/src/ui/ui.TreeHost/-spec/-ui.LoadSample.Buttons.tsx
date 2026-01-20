@@ -29,7 +29,7 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
   const mono = true;
   const items: t.KeyValueItem[] = [{ kind: 'title', v: 'Sample Data' }];
 
-  function add(key: string, label: string, value: t.SampleLoadAction) {
+  function add(label: string, value: t.SampleLoadAction) {
     const selected = value === signal.value;
     const btn = (
       <Button
@@ -38,11 +38,11 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
         onClick={() => (signal.value = value)}
       />
     );
-    items.push({ k: 'load', v: btn, mono });
+    items.push({ k: 'slug-tree:', v: btn, mono });
   }
 
-  add('tree', `via import`, 'esm:import');
-  add('tree', `via HTTP`, 'http');
+  add(`load via HTTP`, 'http');
+  add(`load via import (embedded sample)`, 'esm:import');
 
   items.push({
     k: <Button label={'(unload)'} onClick={() => (signal.value = undefined)} />,

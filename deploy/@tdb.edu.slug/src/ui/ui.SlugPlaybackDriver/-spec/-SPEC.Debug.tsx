@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoadSample } from '../../ui.TreeHost/-spec/mod.ts';
+import { LoadSample, SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 
 type P = t.TreeHostProps;
@@ -103,8 +103,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'sample:'}</div>
-      <LoadSample.Buttons signal={p.load} />
+      <LoadSample.Buttons signal={p.load} style={{ MarginY: 15 }} />
+      <hr />
+      <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
