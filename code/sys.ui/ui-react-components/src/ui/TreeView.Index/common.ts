@@ -1,8 +1,8 @@
 import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
-export { Data } from '../Tree.Index.Data/mod.ts';
-export { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
+export { Data } from '../TreeView.Index.Data/mod.ts';
+export { IndexTreeItem } from '../TreeView.Index.Item/mod.ts';
 export { Icons } from '../ui.Icons.ts';
 
 /**

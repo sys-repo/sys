@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 
-import { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
-
+import { IndexTreeItem } from '../TreeView.Index.Item/mod.ts';
 import { Data } from './common.ts';
 import { IndexTree as View } from './ui.tsx';
 

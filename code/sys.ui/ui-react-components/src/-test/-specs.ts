@@ -34,8 +34,8 @@ export const SpecsComponents = {
   [`${ns}: Layout.RectGrid`]: () => import('../ui/Layout.RectGrid/-spec/-SPEC.tsx'),
   [`${ns}: Layout.SplitPane`]: () => import('../ui/Layout.SplitPane/-spec/-SPEC.tsx'),
 
-  [`${ns}: Tree.Index`]: () => import('../ui/Tree.Index/-spec/-SPEC.tsx'),
-  [`${ns}: Tree.Index.Item`]: () => import('../ui/Tree.Index.Item/-spec/-SPEC.tsx'),
+  [`${ns}: TreeView.Index`]: () => import('../ui/TreeView.Index/-spec/-SPEC.tsx'),
+  [`${ns}: TreeView.Index.Item`]: () => import('../ui/TreeView.Index.Item/-spec/-SPEC.tsx'),
 
   [`${ns}: Player.Video: Element`]: () => import('../ui/Player.Video.Element/-spec/-SPEC.tsx'),
   [`${ns}: Player.Video: Controls`]: () => import('../ui/Player.Video.Controls/-spec/-SPEC.tsx'),

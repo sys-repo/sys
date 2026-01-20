@@ -47,7 +47,7 @@ return <div className={css(styles.base, props.style).class} />;
 
 ### Style.toPadding / Style.toMargins
 - What it is: Normalize padding and margin inputs into concrete CSS edges before render.
-- Where used: `code/sys.ui/ui-react-components/src/ui/Button/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Player.Video.Controls/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Text.Input/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Tree.Index.Item/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/ObjectView/ui.tsx`
+- Where used (examples): `code/sys.ui/ui-react-components/src/ui/Button/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Player.Video.Controls/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Text.Input/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/TreeView.Index.Item/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/ObjectView/ui.tsx`
 - Snippet:
 ```ts
 const styles = {
@@ -66,7 +66,7 @@ const styles = {
 
 ### usePointer handlers + state
 - What it is: Use `usePointer` to unify mouse/touch behavior and attach handlers to a root element.
-- Where used: `code/sys.ui/ui-react-components/src/ui/Slider/use.EventMonitor.ts`, `code/sys.ui/ui-react-components/src/ui/Layout.SplitPane/use.SplitDrag.tsx`, `code/sys.ui/ui-react-components/src/ui/Tree.Index.Item/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Icon.Swatches/ui.Swatch.tsx`
+- Where used: `code/sys.ui/ui-react-components/src/ui/Slider/use.EventMonitor.ts`, `code/sys.ui/ui-react-components/src/ui/Layout.SplitPane/use.SplitDrag.tsx`, `code/sys.ui/ui-react-components/src/ui/TreeView.Index.Item/ui.tsx`, `code/sys.ui/ui-react-components/src/ui/Icon.Swatches/ui.Swatch.tsx`
 - Snippet:
 ```ts
 const pointer = usePointer({

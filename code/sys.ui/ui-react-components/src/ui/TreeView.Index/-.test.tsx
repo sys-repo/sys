@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { IndexTreeItem } from '../Tree.Index.Item/mod.ts';
+import { IndexTreeItem } from '../TreeView.Index.Item/mod.ts';
 
 import { IndexTree } from './mod.ts';
 import { IndexTree as View } from './ui.tsx';

@@ -24,8 +24,8 @@ export { IFrame } from './ui/IFrame/mod.ts';
 export { Svg } from './ui/Image.Svg/mod.ts';
 export { KeyValue } from './ui/KeyValue/mod.ts';
 export { CenterColumn } from './ui/Layout.CenterColumn/mod.ts';
-export { SplitPane } from './ui/Layout.SplitPane/mod.ts';
 export { RectGrid } from './ui/Layout.RectGrid/mod.ts';
+export { SplitPane } from './ui/Layout.SplitPane/mod.ts';
 export { ObjectView } from './ui/ObjectView/mod.ts';
 export { PathView } from './ui/PathView/mod.ts';
 export { Preload } from './ui/Preload/mod.ts';
@@ -33,8 +33,8 @@ export { Sheet } from './ui/Sheet/mod.ts';
 export { Slider } from './ui/Slider/mod.ts';
 export { Spinners } from './ui/Spinners/mod.ts';
 export { TextInput } from './ui/Text.Input/mod.ts';
-export { IndexTree } from './ui/Tree.Index/mod.ts';
-export { Tree } from './ui/Tree/mod.ts';
+export { IndexTree } from './ui/TreeView.Index/mod.ts';
+export { Tree } from './ui/TreeView/mod.ts';
 
 // Media:
 export { Media } from './ui/Media/mod.ts';
