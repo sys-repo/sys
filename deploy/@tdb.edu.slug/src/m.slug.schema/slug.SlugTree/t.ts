@@ -15,7 +15,7 @@ export type SlugTreeItemInline = {
 };
 
 export type SlugTreeItem = SlugTreeItemRefOnly | SlugTreeItemInline;
-export type SlugTreeProps = readonly SlugTreeItem[];
+export type SlugTreeItems = readonly SlugTreeItem[];
 
 export type SlugTraitRegistryEntry = {
   readonly id: string;
@@ -45,11 +45,11 @@ export type SlugTreeLib = {
   readonly validate: (
     input: unknown,
     opts?: SlugTreeValidateOpts,
-  ) => t.ValidateResult<SlugTreeProps>;
+  ) => t.ValidateResult<t.SlugTreeItems>;
   readonly fromDag: (
     dag: t.Graph.Dag.Result,
     yamlPath: t.ObjectPath,
     docid: t.Crdt.Id,
     opts?: SlugTreeFromDagOpts,
-  ) => Promise<t.ValidateResult<SlugTreeProps>>;
+  ) => Promise<t.ValidateResult<t.SlugTreeItems>>;
 };

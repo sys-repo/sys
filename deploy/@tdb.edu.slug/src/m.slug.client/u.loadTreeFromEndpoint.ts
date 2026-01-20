@@ -11,6 +11,7 @@ export const loadTreeFromEndpoint: t.SlugClientLib['loadTreeFromEndpoint'] = asy
   const base = Url.parse(baseUrl);
   const manifestUrl = base.join('manifests', `slug-tree.${SlugUrl.clean(docid)}.json`);
   const res = await fetch.json<unknown>(manifestUrl, { cache: 'no-cache', ...init });
+
   if (!res.ok) {
     return {
       ok: false,

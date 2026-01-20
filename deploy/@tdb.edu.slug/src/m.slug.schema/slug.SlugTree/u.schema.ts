@@ -31,9 +31,7 @@ const SlugTreeItemSchemaInternal = Type.Recursive((Self) =>
           slug: SlugId,
           ref: Ref,
           slugs: Type.Optional(
-            Type.Array(Self, {
-              description: 'Nested slug-tree children for this branch.',
-            }),
+            Type.Array(Self, { description: 'Nested slug-tree children for this branch.' }),
           ),
         },
         {

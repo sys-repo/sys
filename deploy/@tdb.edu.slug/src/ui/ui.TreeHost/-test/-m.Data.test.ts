@@ -16,13 +16,13 @@ describe('Data.fromSlugTree', () => {
   });
 
   it('preserves sibling order', () => {
-    const tree: t.SlugTreeProps = [{ slug: 'first' }, { slug: 'second' }];
+    const tree: t.SlugTreeItems = [{ slug: 'first' }, { slug: 'second' }];
     const res = Data.fromSlugTree(tree);
     expect(res.map((node) => node.path)).to.eql([['first'], ['second']]);
   });
 
   it('produces deterministic path and key', () => {
-    const tree: t.SlugTreeProps = [{ slug: 'one', slugs: [{ slug: 'two' }] }];
+    const tree: t.SlugTreeItems = [{ slug: 'one', slugs: [{ slug: 'two' }] }];
     const resA = Data.fromSlugTree(tree);
     const resB = Data.fromSlugTree(tree);
     expect(resA[0].path).to.eql(['one']);
@@ -32,7 +32,7 @@ describe('Data.fromSlugTree', () => {
   });
 
   it('honors label modes', () => {
-    const tree: t.SlugTreeProps = [{ slug: 'plain' }, { slug: 'described', description: 'cool' }];
+    const tree: t.SlugTreeItems = [{ slug: 'plain' }, { slug: 'described', description: 'cool' }];
     const plain = Data.fromSlugTree(tree)[0];
     expect(plain.label).to.eql('plain');
     const described = Data.fromSlugTree(tree, { label: 'slug+description' })[1];
@@ -42,7 +42,7 @@ describe('Data.fromSlugTree', () => {
   });
 
   it('value carries domain payload', () => {
-    const tree: t.SlugTreeProps = [INLINE_NODE, REF_NODE];
+    const tree: t.SlugTreeItems = [INLINE_NODE, REF_NODE];
     const [inline, ref] = Data.fromSlugTree(tree);
     const inlineValue = inline.value as {
       slug: string;
@@ -59,7 +59,7 @@ describe('Data.fromSlugTree', () => {
   });
 
   it('propagates inline descriptions to node metadata', () => {
-    const tree: t.SlugTreeProps = [{ slug: 'desc', description: 'inline description' }];
+    const tree: t.SlugTreeItems = [{ slug: 'desc', description: 'inline description' }];
     const node = Data.fromSlugTree(tree)[0];
     expect(node.meta?.description).to.eql('inline description');
   });
@@ -71,7 +71,7 @@ describe('Data.fromSlugTree', () => {
   });
 
   it('maps children when slugs present and removes when absent', () => {
-    const tree: t.SlugTreeProps = [
+    const tree: t.SlugTreeItems = [
       { slug: 'parent', slugs: [{ slug: 'child' }] },
       { slug: 'solo' },
     ];

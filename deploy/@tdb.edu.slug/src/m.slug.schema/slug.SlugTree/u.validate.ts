@@ -5,7 +5,7 @@ import { SlugTreePropsSchema } from './u.schema.ts';
 const SLUG_TREE_REGISTRY = makeRegistry([{ id: 'slug-tree', propsSchema: SlugTreePropsSchema }]);
 
 export const validateSlugTree: t.SlugTreeLib['validate'] = (input, opts = {}) => {
-  const ok = (tree: t.SlugTreeProps): t.ValidateOK<t.SlugTreeProps> => ({
+  const ok = (tree: t.SlugTreeItems): t.ValidateOK<t.SlugTreeItems> => ({
     ok: true,
     sequence: tree,
   });
@@ -29,7 +29,7 @@ export const validateSlugTree: t.SlugTreeLib['validate'] = (input, opts = {}) =>
     return fail('Invalid slug-tree: value does not conform to slug-tree schema.');
   }
 
-  const tree = input as unknown as t.SlugTreeProps;
+  const tree = input as unknown as t.SlugTreeItems;
   const registry = opts.registry ?? SLUG_TREE_REGISTRY;
   const semanticErrors = validateSemantic({ tree, registry });
   if (semanticErrors.length) {
@@ -39,7 +39,7 @@ export const validateSlugTree: t.SlugTreeLib['validate'] = (input, opts = {}) =>
   return ok(tree);
 };
 
-function validateSemantic(args: { tree: t.SlugTreeProps; registry: SlugTraitRegistry }) {
+function validateSemantic(args: { tree: t.SlugTreeItems; registry: SlugTraitRegistry }) {
   const errors: string[] = [];
   const { tree, registry } = args;
 

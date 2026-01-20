@@ -6,7 +6,7 @@ import slug_playback_9cC7y from './slug.2esGLgD5SoQkeucytmGeadm9cC7y.playback.js
 
 export const SAMPLES = {
   SlugTree: {
-    'slug-tree.gHcQi:': slug_tree_gHcQi as t.SlugTreeProps,
+    'slug-tree.gHcQi:': slug_tree_gHcQi as t.SlugTreeItems,
   },
   Slug: {
     'slug.9cC7y.assets': slug_assets_9cC7y,

@@ -28,7 +28,7 @@ export type TreeHostDataLib = {
    * - Always returns a `TreeNodeList`.
    */
   readonly fromSlugTree: (
-    tree: t.SlugTreeProps,
+    tree: t.SlugTreeItems,
     opts?: t.TreeHostFromSlugTreeOpts,
   ) => t.TreeNodeList;
 };

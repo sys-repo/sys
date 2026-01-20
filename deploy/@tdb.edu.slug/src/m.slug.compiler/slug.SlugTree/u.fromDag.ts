@@ -2,12 +2,12 @@ import { type t, makeParser, Obj, Traits, validateSlugTree } from './common.ts';
 
 type O = Record<string, unknown>;
 
-type R = t.ValidateResult<t.SlugTreeProps>;
+type R = t.ValidateResult<t.SlugTreeItems>;
 
 export const fromDag: t.SlugTreeLib['fromDag'] = async (dag, yamlPath, docid, opts = {}) => {
   const { validate = false } = opts;
   const parser = makeParser(yamlPath);
-  const ok = (tree: t.SlugTreeProps): R => ({ ok: true, sequence: tree });
+  const ok = (tree: t.SlugTreeItems): R => ({ ok: true, sequence: tree });
   const fail = (message: string): R => ({ ok: false, error: new Error(message) });
 
   const { ok: pathOk, node } = parser.path(dag, docid);
@@ -35,7 +35,7 @@ export const fromDag: t.SlugTreeLib['fromDag'] = async (dag, yamlPath, docid, op
     return fail(err);
   }
 
-  const tree = payload as unknown as t.SlugTreeProps;
+  const tree = payload as unknown as t.SlugTreeItems;
   if (!validate) return ok(tree);
 
   const result = validateSlugTree(tree, { registry: opts.registry });
