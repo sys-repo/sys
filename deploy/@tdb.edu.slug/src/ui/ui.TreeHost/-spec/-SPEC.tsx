@@ -30,8 +30,13 @@ export default Spec.describe(D.displayName, async (e) => {
           split={v.split}
           tree={v.tree}
           selectedPath={v.selectedPath}
-          onPathChange={(e) => (p.selectedPath.value = e.path)}
           onSplitChange={(e) => (p.split.value = e.split)}
+          onPathChange={(e) => {
+            const node = TreeHost.Data.findViewNode(e.tree, e.path);
+            p.selectedPath.value = e.path;
+            console.info('⚡️ onPathChange: ', e);
+            console.info('- findViewNode:', node);
+          }}
         />
       </div>
     );

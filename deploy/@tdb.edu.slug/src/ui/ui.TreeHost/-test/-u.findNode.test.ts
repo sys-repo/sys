@@ -2,15 +2,15 @@ import { type t, describe, expect, it } from '../../../-test.ts';
 import { TreeHost } from '../mod.ts';
 import { findNode } from '../u.data.findNode.ts';
 
-const TREE: t.SlugTreeItems = [
-  {
-    slug: 'a',
-    slugs: [{ slug: 'b', slugs: [{ slug: 'c' }] }, { slug: 'x' }],
-  },
-  { slug: 'd' },
-];
+describe('Data.findNode', () => {
+  const TREE: t.SlugTreeItems = [
+    {
+      slug: 'a',
+      slugs: [{ slug: 'b', slugs: [{ slug: 'c' }] }, { slug: 'x' }],
+    },
+    { slug: 'd' },
+  ];
 
-describe('findNode', () => {
   it('API', () => {
     expect(TreeHost.Data.findNode).to.equal(findNode);
   });
