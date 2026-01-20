@@ -1,18 +1,7 @@
 import React from 'react';
 import { Foo } from '../../-test.ui.ts';
-import {
-  type t,
-  Button,
-  Color,
-  css,
-  D,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Signal,
-  Str,
-} from '../common.ts';
-import { LoadSample } from './-ui.LoadSample.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { LoadSample } from './u.LoadSample.ts';
 import { SelectedPath } from './-ui.SelectedPath.tsx';
 
 type P = t.TreeHostProps;

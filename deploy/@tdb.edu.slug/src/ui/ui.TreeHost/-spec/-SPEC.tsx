@@ -10,7 +10,6 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-
     const styles = {
       base: css({ position: 'relative', display: 'grid' }),
       back: css({ Absolute: [-35, null, null, -35] }),
