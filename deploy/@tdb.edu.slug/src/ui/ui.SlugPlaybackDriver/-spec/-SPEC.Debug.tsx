@@ -1,6 +1,7 @@
 import React from 'react';
 import { LoadSample, SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { SlugPlaybackDriver } from '../mod.ts';
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & { load?: t.SampleLoadAction };
@@ -94,18 +95,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{D.name}</div>
+      {/* <div className={Styles.title.class}>{D.name}</div> */}
 
-      <Button
-        block
-        label={() => `theme: ${v.theme ?? '(undefined)'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
-      />
+      <SlugPlaybackDriver.Dev.DriverInfo />
 
       <hr />
       <LoadSample.Buttons signal={p.load} style={{ MarginY: 15 }} />
       <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
+
+      <hr />
+      <Button
+        block
+        label={() => `theme: ${v.theme ?? '(undefined)'}`}
+        onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
