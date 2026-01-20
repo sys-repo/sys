@@ -3,6 +3,9 @@ import type { t } from './common.ts';
 /** Type re-export */
 export type * from './t.lib.ts';
 
+export type SlugTreeItems = readonly SlugTreeItem[];
+export type SlugTreeItem = SlugTreeItemRefOnly | SlugTreeItemInline;
+
 export type SlugTreeItemRefOnly = {
   readonly slug: string;
   readonly ref: string;
@@ -16,9 +19,6 @@ export type SlugTreeItemInline = {
   readonly data?: { readonly [key: string]: unknown };
   readonly slugs?: readonly SlugTreeItem[];
 };
-
-export type SlugTreeItem = SlugTreeItemRefOnly | SlugTreeItemInline;
-export type SlugTreeItems = readonly SlugTreeItem[];
 
 export type SlugTraitRegistry = {
   readonly all: readonly SlugTraitRegistryEntry[];
