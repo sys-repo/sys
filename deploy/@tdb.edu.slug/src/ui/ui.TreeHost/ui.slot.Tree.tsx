@@ -31,7 +31,8 @@ export const Tree: React.FC<P> = (props) => {
       path={props.selectedPath}
       onPressDown={(e) => {
         if (!e.hasChildren) return;
-        props.onPathChange?.({ path: e.node.path ?? [] });
+        if (!tree) return;
+        props.onPathChange?.({ tree, path: e.node.path ?? [] });
       }}
     />
   );

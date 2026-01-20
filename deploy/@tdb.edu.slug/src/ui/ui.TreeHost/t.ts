@@ -44,5 +44,6 @@ export type TreeHostSlot = keyof TreeHostSlots;
  */
 export type TreeHostPathChangeHandler = (e: TreeHostPathChange) => void;
 export type TreeHostPathChange = {
+  readonly tree: t.TreeViewNodeList;
   readonly path: t.ObjectPath;
 };
