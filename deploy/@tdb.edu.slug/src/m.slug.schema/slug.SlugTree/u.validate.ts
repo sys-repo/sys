@@ -4,7 +4,7 @@ import { SlugTreePropsSchema } from './u.schema.ts';
 
 const SLUG_TREE_REGISTRY = makeRegistry([{ id: 'slug-tree', propsSchema: SlugTreePropsSchema }]);
 
-export const validateSlugTree: t.SlugTreeLib['validate'] = (input, opts = {}) => {
+export const validateSlugTree: t.SlugTreeSchemaLib['validate'] = (input, opts = {}) => {
   const ok = (tree: t.SlugTreeItems): t.ValidateOK<t.SlugTreeItems> => ({
     ok: true,
     sequence: tree,

@@ -1,4 +1,7 @@
-/** Tree renderer for slug data. */
-export { SlugTree } from './m.SlugTree.ts';
-/** Helper to build slug trees from DAGs. */
-export { fromDag } from './u.fromDag.ts';
+import { type t, SlugTreeSchema as Schema } from './common.ts';
+import { fromDag } from './u.fromDag.ts';
+
+export const SlugTree: t.SlugTreeLib = {
+  Schema,
+  fromDag,
+};

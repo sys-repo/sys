@@ -1,21 +1,22 @@
 import type { t } from './common.ts';
 
 export type SlugClientLib = {
-  readonly Url: SlugClientUrlLib;
+  readonly Url: t.SlugClientUrlLib;
+  readonly Tree: t.SlugClientTreeLib;
+};
 
+export type SlugClientTreeLib = {
   /**
    * Load the slug-tree manifest for a given docid from an HTTP endpoint.
-   *
    * Contract:
    * - Fetch `${baseUrl}/manifests/slug-tree.${docid}.json`.
    * - Validate against the canonical slug-tree schema.
-   * - Return typed domain data (`t.SlugTreeProps`) or signal failure.
    */
-  readonly loadTreeFromEndpoint: (
+  load(
     baseUrl: t.StringUrl,
     docid: t.Crdt.Id,
     init?: RequestInit,
-  ) => Promise<t.SlugClientResult<t.SlugTreeItems>>;
+  ): Promise<t.SlugClientResult<t.SlugTreeItems>>;
 };
 
 /** Slug URL helpers */

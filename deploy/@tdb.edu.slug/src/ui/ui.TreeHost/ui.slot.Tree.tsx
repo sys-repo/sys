@@ -23,7 +23,7 @@ export const Tree: React.FC<P> = (props) => {
     <Empty theme={theme.name} children={slots.empty?.('tree') ?? 'No tree to display'} />
   );
 
-  const elTree = !elEmpty && (
+  const elTree = tree && (
     <BaseTree.Index.View
       theme={theme.name}
       root={tree}
@@ -31,7 +31,7 @@ export const Tree: React.FC<P> = (props) => {
       path={props.selectedPath}
       onPressDown={(e) => {
         if (!e.hasChildren) return;
-        props.onPathChange?.({ path: e.node.path });
+        props.onPathChange?.({ path: e.node.path ?? [] });
       }}
     />
   );

@@ -1,4 +1,4 @@
-import { type t, makeParser, Obj, Traits, validateSlugTree } from './common.ts';
+import { type t, makeParser, Obj, SlugSchema, Traits } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -38,7 +38,7 @@ export const fromDag: t.SlugTreeLib['fromDag'] = async (dag, yamlPath, docid, op
   const tree = payload as unknown as t.SlugTreeItems;
   if (!validate) return ok(tree);
 
-  const result = validateSlugTree(tree, { registry: opts.registry });
+  const result = SlugSchema.Tree.validate(tree, { registry: opts.registry });
   if (result.ok) return result;
 
   const base = result.error.message.replace(/^Invalid slug-tree:\s*/, '');

@@ -25,8 +25,8 @@ export type TreeHostProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onPathChange?: (args: { path: t.ObjectPath | undefined }) => void;
-  onSplitChange?: (args: { split: t.Percent[] }) => void;
+  onSplitChange?: (args: { readonly split: t.Percent[] }) => void;
+  onPathChange?: TreeHostPathChangeHandler;
 };
 
 /** Slot registry definitions for TreeHost. */
@@ -38,3 +38,11 @@ export type TreeHostSlots = {
 };
 /** Slot registry keys for TreeHost. */
 export type TreeHostSlot = keyof TreeHostSlots;
+
+/**
+ * Event handlers:
+ */
+export type TreeHostPathChangeHandler = (e: TreeHostPathChange) => void;
+export type TreeHostPathChange = {
+  readonly path: t.ObjectPath;
+};

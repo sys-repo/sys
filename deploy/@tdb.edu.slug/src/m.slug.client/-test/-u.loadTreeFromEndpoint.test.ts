@@ -1,31 +1,7 @@
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import type { t } from '../common.ts';
-import { Http } from '../common.ts';
 import { SlugClient } from '../mod.ts';
-
-const withStubFetcher = async (
-  args: {
-    readonly expectedUrl: string;
-    readonly response: unknown;
-  },
-  fn: () => Promise<void>,
-) => {
-  const originalFetcher = Http.fetcher;
-
-  const stubFetcher = {
-    json: async (url: string) => {
-      expect(url).to.eql(args.expectedUrl);
-      return args.response;
-    },
-  };
-
-  (Http as any).fetcher = () => stubFetcher as never;
-  try {
-    await fn();
-  } finally {
-    (Http as any).fetcher = originalFetcher;
-  }
-};
+import { withStubFetcher } from './u.fixture.ts';
 
 describe('SlugClient: loadTreeFromEndpoint', () => {
   it('preserves inline descriptions through validation', async () => {
@@ -35,8 +11,8 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
         slugs: [{ slug: 'Child', description: 'Inline description' }],
       },
     ];
-    const docid = '00000000' as t.Crdt.Id;
-    const expectedDocid = '00000000';
+    const docid = 'abc' as t.Crdt.Id;
+    const expectedDocid = 'abc';
 
     const baseUrl = 'http://127.0.0.1/';
     const manifestUrl = new URL(`manifests/slug-tree.${expectedDocid}.json`, baseUrl).toString();
@@ -50,7 +26,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
     };
 
     await withStubFetcher({ expectedUrl: manifestUrl, response: fetchResponse }, async () => {
-      const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
+      const res = await SlugClient.Tree.load(baseUrl, docid);
       expectTypeOf(res).toMatchTypeOf<t.SlugClientResult<t.SlugTreeItems>>();
       expect(res.ok).to.eql(true);
       if (!res.ok) return;
@@ -78,7 +54,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
     };
 
     await withStubFetcher({ expectedUrl: manifestUrl, response: fetchResponse }, async () => {
-      const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
+      const res = await SlugClient.Tree.load(baseUrl, docid);
       expect(res.ok).to.eql(true);
       if (!res.ok) return;
       expect(res.value).to.eql(tree);
@@ -99,7 +75,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
     const fetchResponse = { ok: true, status: 200, statusText: 'OK', url, data: tree };
 
     await withStubFetcher({ expectedUrl: url, response: fetchResponse }, async () => {
-      const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
+      const res = await SlugClient.Tree.load(baseUrl, docid);
       expect(res.ok).to.eql(true);
       if (!res.ok) return;
       expect(res.value).to.eql(tree);
@@ -116,7 +92,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
     const fetchResponse = { ok: true, status: 200, statusText: 'OK', url, data: tree };
 
     await withStubFetcher({ expectedUrl: url, response: fetchResponse }, async () => {
-      const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
+      const res = await SlugClient.Tree.load(baseUrl, docid);
       expect(res.ok).to.eql(true);
       if (!res.ok) return;
       expect(res.value).to.eql(tree);
@@ -132,7 +108,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
     const fetchResponse = { ok: true, status: 200, statusText: 'OK', url, data };
 
     await withStubFetcher({ expectedUrl: url, response: fetchResponse }, async () => {
-      const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
+      const res = await SlugClient.Tree.load(baseUrl, docid);
       expect(res.ok).to.eql(false);
       if (res.ok) return;
       expect(res.error.kind).to.eql('schema');
@@ -149,7 +125,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
     const fetchResponse = { ok: false, status: 404, statusText: 'Not Found', url };
 
     await withStubFetcher({ expectedUrl: url, response: fetchResponse }, async () => {
-      const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
+      const res = await SlugClient.Tree.load(baseUrl, docid);
       expect(res.ok).to.eql(false);
       if (res.ok) return;
       expect(res.error.kind).to.eql('http');

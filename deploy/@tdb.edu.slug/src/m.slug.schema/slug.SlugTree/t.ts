@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/** Type re-export */
+export type * from './t.lib.ts';
+
 export type SlugTreeItemRefOnly = {
   readonly slug: string;
   readonly ref: string;
@@ -17,39 +20,11 @@ export type SlugTreeItemInline = {
 export type SlugTreeItem = SlugTreeItemRefOnly | SlugTreeItemInline;
 export type SlugTreeItems = readonly SlugTreeItem[];
 
-export type SlugTraitRegistryEntry = {
-  readonly id: string;
-  readonly propsSchema: t.TSchema;
-};
-
 export type SlugTraitRegistry = {
   readonly all: readonly SlugTraitRegistryEntry[];
   get(id: string): SlugTraitRegistryEntry | undefined;
 };
-
-export type SlugTreeValidateOpts = {
-  readonly registry?: SlugTraitRegistry;
-};
-
-export type SlugTreeFromDagOpts = {
-  readonly validate?: boolean;
-  readonly trait?: t.SlugTraitGateOptions | null;
-  readonly registry?: SlugTraitRegistry;
-};
-
-export type SlugTreeLib = {
-  readonly Schema: {
-    readonly Item: t.TSchema;
-    readonly Props: t.TSchema;
-  };
-  readonly validate: (
-    input: unknown,
-    opts?: SlugTreeValidateOpts,
-  ) => t.ValidateResult<t.SlugTreeItems>;
-  readonly fromDag: (
-    dag: t.Graph.Dag.Result,
-    yamlPath: t.ObjectPath,
-    docid: t.Crdt.Id,
-    opts?: SlugTreeFromDagOpts,
-  ) => Promise<t.ValidateResult<t.SlugTreeItems>>;
+export type SlugTraitRegistryEntry = {
+  readonly id: t.StringId;
+  readonly propsSchema: t.TSchema;
 };
