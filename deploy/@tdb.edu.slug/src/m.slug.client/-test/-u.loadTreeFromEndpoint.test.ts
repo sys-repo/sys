@@ -29,7 +29,7 @@ const withStubFetcher = async (
 
 describe('SlugClient: loadTreeFromEndpoint', () => {
   it('preserves inline descriptions through validation', async () => {
-    const tree: t.SlugTreeProps = [
+    const tree: t.SlugTreeItems = [
       {
         slug: 'Root',
         slugs: [{ slug: 'Child', description: 'Inline description' }],
@@ -51,7 +51,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
 
     await withStubFetcher({ expectedUrl: manifestUrl, response: fetchResponse }, async () => {
       const res = await SlugClient.loadTreeFromEndpoint(baseUrl, docid);
-      expectTypeOf(res).toMatchTypeOf<t.SlugClientResult<t.SlugTreeProps>>();
+      expectTypeOf(res).toMatchTypeOf<t.SlugClientResult<t.SlugTreeItems>>();
       expect(res.ok).to.eql(true);
       if (!res.ok) return;
       expect(res.value).to.eql(tree);
@@ -63,7 +63,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
   });
 
   it('cleans uri-like docids before fetching', async () => {
-    const tree: t.SlugTreeProps = [{ slug: 'Root' }];
+    const tree: t.SlugTreeItems = [{ slug: 'Root' }];
     const docid = '  crdt:docid-cleaned  ' as t.Crdt.Id;
     const expectedDocid = 'docid-cleaned';
     const baseUrl = 'http://127.0.0.1/';
@@ -86,7 +86,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
   });
 
   it('supports baseUrl with a pathname (no trailing slash)', async () => {
-    const tree: t.SlugTreeProps = [{ slug: 'Root' }];
+    const tree: t.SlugTreeItems = [{ slug: 'Root' }];
     const docid = 'crdt:0000000' as t.Crdt.Id;
     const expectedDocid = '0000000';
 
@@ -107,7 +107,7 @@ describe('SlugClient: loadTreeFromEndpoint', () => {
   });
 
   it('supports baseUrl with a pathname (with trailing slash)', async () => {
-    const tree: t.SlugTreeProps = [{ slug: 'Root' }];
+    const tree: t.SlugTreeItems = [{ slug: 'Root' }];
     const docid = 'crdt:0000000' as t.Crdt.Id;
     const expectedDocid = '0000000';
 
