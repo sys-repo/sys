@@ -98,7 +98,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <SlugPlaybackDriver.Dev.DriverInfo />
 
       <hr />
-      <LoadSample.Buttons signal={p.load} style={{ MarginY: 15 }} />
+      <LoadSample.UI signal={p.load} style={{ MarginY: 15 }} />
       <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 

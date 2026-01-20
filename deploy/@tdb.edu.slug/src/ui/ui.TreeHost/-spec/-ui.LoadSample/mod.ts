@@ -1,13 +1,13 @@
 import { type t, SAMPLES } from './common.ts';
 import { TreeHost } from '../mod.ts';
-import { LoadSampleButtons as Buttons } from './ui.tsx';
+import { LoadSampleButtons as UI } from './ui.tsx';
 import { baseUrl, loadHttp, SlugTree } from './u.http.ts';
 
 /**
  * Library:
  */
 export const LoadSample = {
-  Buttons,
+  UI,
   SlugTree,
   baseUrl,
 
