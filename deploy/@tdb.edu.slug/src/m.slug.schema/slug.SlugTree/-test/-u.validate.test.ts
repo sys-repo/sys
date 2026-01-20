@@ -1,7 +1,7 @@
 import { describe, expect, it, type t } from '../../../-test.ts';
 import { validateSlugTree } from '../u.validate.ts';
 
-const VALID_TREE: t.SlugTreeProps = [
+const VALID_TREE: t.SlugTreeItems = [
   {
     slug: 'Root',
     slugs: [
@@ -23,7 +23,7 @@ const VALID_TREE: t.SlugTreeProps = [
   },
 ];
 
-const TREE_WITH_UNKNOWN_TRAIT: t.SlugTreeProps = [
+const TREE_WITH_UNKNOWN_TRAIT: t.SlugTreeItems = [
   {
     slug: 'Root',
     traits: [{ of: 'not-a-thing', as: 'foo' }],
@@ -33,7 +33,7 @@ const TREE_WITH_UNKNOWN_TRAIT: t.SlugTreeProps = [
   },
 ];
 
-const TREE_WITH_DUPLICATE_ALIAS: t.SlugTreeProps = [
+const TREE_WITH_DUPLICATE_ALIAS: t.SlugTreeItems = [
   {
     slug: 'Root',
     traits: [
@@ -46,7 +46,7 @@ const TREE_WITH_DUPLICATE_ALIAS: t.SlugTreeProps = [
   },
 ];
 
-const TREE_WITH_ORPHAN_DATA: t.SlugTreeProps = [
+const TREE_WITH_ORPHAN_DATA: t.SlugTreeItems = [
   {
     slug: 'Root',
     traits: [{ of: 'slug-tree', as: 'child' }],
@@ -63,7 +63,7 @@ const TREE_WITHOUT_SLUG = [
   },
 ];
 
-const TREE_REF_WITH_DESCRIPTION: t.SlugTreeProps = [
+const TREE_REF_WITH_DESCRIPTION: t.SlugTreeItems = [
   {
     slug: 'BadRef',
     ref: 'crdt:bad',
@@ -118,7 +118,7 @@ describe('SlugTree.validate', () => {
   });
 
   it('accepts ref nodes with nested slugs', () => {
-    const tree: t.SlugTreeProps = [
+    const tree: t.SlugTreeItems = [
       {
         slug: 'Branch',
         ref: 'crdt:branch',
@@ -130,7 +130,7 @@ describe('SlugTree.validate', () => {
   });
 
   it('rejects ref nodes with unknown additional keys', () => {
-    const tree: t.SlugTreeProps = [
+    const tree: t.SlugTreeItems = [
       // @ts-expect-error: extra key
       { slug: 'Bad', ref: 'crdt:bad', foo: 'bar' },
     ];
