@@ -20,12 +20,6 @@ export type SlugAsset = {
   };
 };
 
-/** Manifest describing all bundled assets for one document. */
-export type SlugAssetsManifest = {
-  readonly docid: t.Crdt.Id;
-  readonly assets: readonly SlugAsset[];
-};
-
 /** Output directories used for slug asset bundles. */
 export type SlugAssetsDirs = {
   readonly base: t.StringDir;
@@ -36,6 +30,6 @@ export type SlugAssetsDirs = {
 
 /** Result of writing an assets manifest for a document. */
 export type SlugAssetsBundle = {
-  readonly manifest: SlugAssetsManifest;
+  readonly manifest: t.SlugAssetsManifest;
   readonly dir: SlugAssetsDirs;
 };

@@ -3,9 +3,9 @@ import type { t } from './common.ts';
 /**
  * Helpers for interpreting slug traits and trait-gated options.
  */
-export type SlugTraitLib = {
+export type SlugTraitsSchemaLib = {
   /**
-   * Resolve a trait-gated `as` key from a slug’s traits and gate options.
+   * Resolve a trait-gated `as` key from a slug's traits and gate options.
    */
   readonly gateAs: (args: {
     readonly traits: readonly t.SlugTrait[];

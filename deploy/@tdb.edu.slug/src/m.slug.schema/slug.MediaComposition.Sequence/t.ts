@@ -5,6 +5,10 @@ export type * from './t.seq.ts';
 export type * from './t.normalize.ts';
 
 /**
+ * TODO 🐷 naming position
+ */
+
+/**
  * Authoring-time pipeline:
  *   YAML → sequence union → validated → normalized.
  */

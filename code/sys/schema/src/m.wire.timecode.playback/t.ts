@@ -19,14 +19,10 @@ export type TimecodePlaybackManifestSchemaLib = {
    */
   schema(args?: { payload?: t.TSchema }): t.TSchema;
 
-  /**
-   * Standard Schema adapter for the manifest schema.
-   */
+  /** Standard Schema adapter for the manifest schema. */
   standard(args?: { payload?: t.TSchema }): t.StandardSchemaV1<unknown, PlaybackManifest>;
 
-  /**
-   * Parse + validate an unknown input into a typed manifest result.
-   */
+  /** Parse + validate an unknown input into a typed manifest result. */
   parse<P = unknown>(
     input: unknown,
     args?: { payload?: t.TSchema },

@@ -1,6 +1,6 @@
 import { type t, Is } from './common.ts';
 
-export const gateAs: t.SlugTraitLib['gateAs'] = ({ traits, opt }) => {
+export const gateAs: t.SlugTraitsSchemaLib['gateAs'] = ({ traits, opt }) => {
   /**
    * Explicit opt-out: trait gating disabled.
    */
@@ -17,7 +17,6 @@ export const gateAs: t.SlugTraitLib['gateAs'] = ({ traits, opt }) => {
   }
 
   const { of, mode = 'require', forcedAs } = opt;
-
   const trait = traits.find((t) => t.of === of);
   const as = Is.str(trait?.as) ? trait.as : mode === 'force' ? forcedAs : undefined;
 

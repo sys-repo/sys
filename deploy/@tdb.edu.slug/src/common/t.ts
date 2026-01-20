@@ -7,15 +7,9 @@ export type { FC, ReactElement, ReactNode } from 'react';
 /**
  * @system
  */
-import type { AssetsManifest, PlaybackManifest } from '@sys/schema/t';
-
-export type { ValueError } from '@sys/schema/t';
-export type SlugAssetsManifest = AssetsManifest;
-export type SlugPlaybackManifest = PlaybackManifest;
-
 export type { Crdt } from '@sys/driver-automerge/t';
 export type { Graph } from '@sys/immutable/t';
-export type { TSchema } from '@sys/schema/t';
+export type { TSchema, ValueError } from '@sys/schema/t';
 export type { Alias, ObjLens, StrBuilder, Timecode } from '@sys/std/t';
 
 /** User interface */

@@ -4,8 +4,6 @@ import type { t } from './common.ts';
  * Trait family for slugs.
  */
 export namespace SlugTraits {
-  export type Lib = t.SlugTraitLib;
-
   /** Unconstrained trait: matches any `traits:` entry. */
   export type Any = t.SlugTrait;
 
@@ -26,7 +24,4 @@ export namespace SlugTraits {
       readonly path?: string;
     };
   }
-
-  // Future:
-  // export namespace SlugList { ... }
 }

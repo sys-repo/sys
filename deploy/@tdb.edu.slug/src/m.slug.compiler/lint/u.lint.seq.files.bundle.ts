@@ -1,15 +1,4 @@
-import {
-  Ffmpeg,
-  Fs,
-  Hash,
-  Is,
-  Json,
-  Obj,
-  Slug,
-  type t,
-  validateAssetsManifest,
-  validatePlaybackManifest,
-} from './common.ts';
+import { type t, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
 import { buildSequenceFilepathIssue } from './u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
 
@@ -50,7 +39,6 @@ export async function bundleSequenceFilepaths(
 ): Promise<R> {
   const issues: t.LintSequenceFilepath[] = [];
   const assets: t.SlugAsset[] = [];
-
   const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('sequence:file:'));
   const baseHref = (opts.baseHref ?? '/').replace(/\/+$/, '');
 
@@ -127,12 +115,10 @@ export async function bundleSequenceFilepaths(
   if (assets.length > 0) {
     const manifest: t.SlugAssetsManifest = { docid, assets };
     const filename = `${dir.manifests}/slug.${docid}.assets.json`;
-    const res = validateAssetsManifest(manifest);
+    const res = Slug.Schema.Manifest.Validate.assets(manifest);
     if (!res.ok) {
-      pushAssetsManifestError(
-        yamlPathStr,
-        `Assets manifest failed @sys/schema validation. Reason: ${res.error.message}`,
-      );
+      const err = `Assets manifest failed @sys/schema validation. Reason: ${res.error.message}`;
+      pushAssetsManifestError(yamlPathStr, err);
     } else {
       await Fs.write(Fs.join(dir.base, filename), Json.stringify(res.sequence));
     }
@@ -186,7 +172,7 @@ export async function bundleSequenceFilepaths(
       composition: raw['composition'],
       beats: raw['beats'],
     };
-    const res = validatePlaybackManifest(candidate);
+    const res = Slug.Schema.Manifest.Validate.playback(candidate);
 
     if (!res.ok) {
       pushNotExportedError(
