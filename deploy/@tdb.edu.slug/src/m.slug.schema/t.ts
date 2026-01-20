@@ -1,8 +1,7 @@
 import type { t } from './common.ts';
 
-
 /** Type re-exports. */
-export type * from './slug.Manifests/t.ts';
+export type * from './slug.Manifest/t.ts';
 export type * from './slug.MediaComposition.Sequence/t.ts';
 export type * from './slug.SlugTree/t.ts';
 export type * from './slug.Traits/t.ts';
