@@ -40,7 +40,7 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
     items.push({ k: 'slug-tree:', v: btn, mono });
   }
 
-  items.push({ k: 'baseUrl', v: <span className={styles.url.class}>{baseUrl}</span>, mono });
+  items.push({ k: 'base-url', v: <span className={styles.url.class}>{baseUrl}</span>, mono });
   add(`load via HTTP`, 'http');
   add(`load via import (embedded)`, 'esm:import');
 
