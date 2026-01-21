@@ -47,7 +47,6 @@
     "jsr:@std/testing@1.0.16": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "jsr:@std/uuid@1.1.0": "1.1.0",
-    "jsr:@std/yaml@*": "1.0.11",
     "jsr:@sys/cli@^0.0.185": "0.0.185",
     "jsr:@sys/color@^0.0.157": "0.0.157",
     "jsr:@sys/crdt-t@^0.0.64": "0.0.64",
@@ -331,9 +330,6 @@
         "jsr:@std/bytes",
         "jsr:@std/crypto"
       ]
-    },
-    "@std/yaml@1.0.11": {
-      "integrity": "bd139ce77f2d06cbed3713c8b26d301d2a2e12ecc7986130a268107e212143ee"
     },
     "@sys/cli@0.0.185": {
       "integrity": "dfcb64d6eb6680ff30f4e19e91952a4a5d84a68e46d032d60a5ed806f3d2f5a7",

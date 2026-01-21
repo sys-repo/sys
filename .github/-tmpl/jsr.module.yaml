@@ -1,6 +1,4 @@
 - name: publish module → "NAME"
-  if: ${{ github.event_name == 'push' }}
-  ENV_BLOCK
   run: |
     cd PATH
     deno task test --parallel
