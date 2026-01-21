@@ -69,6 +69,6 @@ export type TreeHostPathChange = {
 export type TreeHostNodeSelect = {
   readonly tree: t.TreeHostViewNodeList;
   readonly path: t.ObjectPath;
-  readonly node: TreeHostViewNode;
+  readonly node: t.TreeHostViewNode;
   readonly is: { readonly leaf: boolean };
 };
