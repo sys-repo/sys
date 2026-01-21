@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { type t, Color, css, D, Obj, SplitPane } from './common.ts';
+import { findViewNode } from './u.data.findViewNode.ts';
 import { Nav } from './ui.Nav.tsx';
 import { Main } from './ui.slot.Main.tsx';
 
@@ -16,8 +17,11 @@ export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
     if (Obj.Path.eql(prev, next)) return;
 
     prevPath.current = next;
-    props.onPathChange?.({ tree, path: next });
-  }, [props.tree, props.selectedPath]);
+
+    const node = findViewNode(tree, next);
+    const is = { leaf: node ? !(Array.isArray(node.children) && node.children.length > 0) : false };
+    props.onSelectionChange?.({ tree, path: next, node, is });
+  }, [props.tree, props.selectedPath, props.onSelectionChange]);
 
   const theme = Color.theme(props.theme);
   const styles = {

@@ -39,8 +39,6 @@ export const Tree: React.FC<P> = (props) => {
           return;
         }
 
-        // intent: terminal selection
-        props.onLeafSelect?.({ tree, path, node: e.node });
       }}
     />
   );

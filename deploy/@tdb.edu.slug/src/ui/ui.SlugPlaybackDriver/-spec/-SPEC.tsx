@@ -30,9 +30,11 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           tree={v.tree}
           selectedPath={v.selectedPath}
-          onPathChange={(e) => {
-            console.log('⚡️ onPathChange: ', e);
-            p.selectedPath.value = e.path;
+          onPathRequest={(e) => (p.selectedPath.value = e.path)}
+          onSelectionChange={(e) => {
+            console.info('⚡️ onSelectionChange: ', e);
+            const node = e.node ?? TreeHost.Data.findViewNode(e.tree, e.path);
+            console.log(' - selected node', node);
           }}
         />
       </div>
