@@ -3,13 +3,13 @@ import { DenoFile, Fs, c } from './common.ts';
 
 const publishEnvBlock = {
   first: [
-    '  env: &publish-secrets',
-    '    DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}',
-    '    DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}',
-    '    PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}',
-    '    PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}',
+    'env: &publish-secrets',
+    '  DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}',
+    '  DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}',
+    '  PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}',
+    '  PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}',
   ].join('\n'),
-  later: ['  env:', '    <<: *publish-secrets'].join('\n'),
+  later: ['env:', '  <<: *publish-secrets'].join('\n'),
 };
 
 export async function main() {
@@ -38,7 +38,7 @@ export async function main() {
     let module = tmpl.module.replace(/NAME/, name).replace(/PATH/, path);
     const envBlock = firstModule ? publishEnvBlock.first : publishEnvBlock.later;
     firstModule = false;
-    module = module.replace('  ENV_BLOCK', envBlock);
+    module = module.replace('ENV_BLOCK', envBlock);
     module = indent(module, 6);
     yaml += `\n\n${module}`;
   }
