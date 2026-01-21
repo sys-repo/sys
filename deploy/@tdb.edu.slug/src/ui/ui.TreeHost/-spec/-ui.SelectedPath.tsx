@@ -44,7 +44,7 @@ export const SelectedPath: React.FC<SelectedPathProps> = (props) => {
   items.push({
     k: (
       <Button
-        label={hasPath ? 'root' : '(empty)'}
+        label={hasPath ? '(root)' : '(empty)'}
         enabled={hasPath}
         onClick={() => (signal.value = undefined)}
       />

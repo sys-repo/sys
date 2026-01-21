@@ -14,6 +14,7 @@ export type LoadSampleButtonsProps = {
 export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
   const { signal = Signal.create<t.SampleLoadAction>() } = props;
   const current = signal.value;
+  const isLoaded = !!current;
 
   /**
    * Render:
@@ -38,13 +39,19 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
     items.push({ k: 'slug-tree:', v: btn, mono });
   }
 
-  items.push({ k: 'base-url', v: <span className={styles.url.class}>{baseUrl}</span>, mono });
-  add(`load via HTTP`, 'http');
-  add(`load via import (embedded)`, 'esm:import');
-
   items.push({
-    k: <Button label={'(unload)'} onClick={() => (signal.value = undefined)} />,
+    k: (
+      <Button
+        label={isLoaded ? '(unload)' : '(unloaded)'}
+        enabled={isLoaded}
+        onClick={() => (signal.value = undefined)}
+      />
+    ),
   });
+
+  add(`load via import (embedded)`, 'esm:import');
+  add(`load via HTTP`, 'http');
+  items.push({ k: '- base-url', v: <span className={styles.url.class}>{baseUrl}</span>, mono });
 
   return (
     <div className={css(styles.base, props.style).class}>
