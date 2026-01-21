@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - phil-work
+  pull_request:
+    branches:
+      - main
+      - phil-work
 
 jobs:
   deno:
@@ -19,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Guard: no bidi/hidden Unicode chars
+      - name: 'Guard: no bidi/hidden Unicode chars'
         run: .github/-scripts/Task.-prep.check-no-bidi.sh
 
       - name: 'Install ESM Runtime: Deno 2.x'
