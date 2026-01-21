@@ -41,8 +41,19 @@ export const SelectedPath: React.FC<SelectedPathProps> = (props) => {
   const mono = true;
   const items: t.KeyValueItem[] = [{ kind: 'title', v: title }];
 
+  items.push({
+    k: (
+      <Button
+        label={hasPath ? 'root' : '(empty)'}
+        enabled={hasPath}
+        onClick={() => (signal.value = undefined)}
+      />
+    ),
+  });
+
   path.forEach((seg, i) => {
     const isLast = i === path.length - 1;
+    const k = `level-${i + 1}`;
     const v = (
       <Button
         label={seg}
@@ -50,17 +61,7 @@ export const SelectedPath: React.FC<SelectedPathProps> = (props) => {
         style={{ fontWeight: isLast ? 'bold' : undefined }}
       />
     );
-    items.push({ k: i, v, mono });
-  });
-
-  items.push({
-    k: (
-      <Button
-        label={hasPath ? '(clear)' : 'empty'}
-        enabled={hasPath}
-        onClick={() => (signal.value = undefined)}
-      />
-    ),
+    items.push({ k, v, mono });
   });
 
   return (
