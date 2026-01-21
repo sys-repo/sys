@@ -3,6 +3,7 @@ import type { t } from './common.ts';
 /** Type re-exports. */
 export type * from './t.controller.ts';
 export type * from './t.data.ts';
+export type * from './t.node.ts';
 
 /**
  * Split layout with main tree navigation.
@@ -18,7 +19,7 @@ export type TreeHostLib = {
  */
 export type TreeHostProps = {
   slots?: t.TreeHostSlots;
-  tree?: t.TreeViewNodeList;
+  tree?: t.TreeHostViewNodeList;
   split?: t.Percent[];
   selectedPath?: t.ObjectPath;
 
@@ -61,13 +62,13 @@ export type TreeHostNodeSelectHandler = (e: TreeHostNodeSelect) => void;
  * Event payloads:
  */
 export type TreeHostPathChange = {
-  readonly tree: t.TreeViewNodeList;
+  readonly tree: t.TreeHostViewNodeList;
   readonly path: t.ObjectPath;
 };
 
 export type TreeHostNodeSelect = {
-  readonly tree: t.TreeViewNodeList;
+  readonly tree: t.TreeHostViewNodeList;
   readonly path: t.ObjectPath;
-  readonly node: t.TreeViewNode;
+  readonly node: TreeHostViewNode;
   readonly is: { readonly leaf: boolean };
 };

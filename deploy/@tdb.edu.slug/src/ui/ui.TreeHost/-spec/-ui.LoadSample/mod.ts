@@ -11,7 +11,7 @@ export const LoadSample = {
   SlugTree,
   baseUrl,
 
-  async load(tree: t.Signal<t.TreeViewNodeList | undefined>, action?: t.SampleLoadAction) {
+  async load(tree: t.Signal<t.TreeHostViewNodeList | undefined>, action?: t.SampleLoadAction) {
     if (!action) return void (tree.value = undefined);
     if (action === 'esm:import') {
       tree.value = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree['slug-tree.gHcQi:']);

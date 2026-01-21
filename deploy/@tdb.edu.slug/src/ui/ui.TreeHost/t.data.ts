@@ -30,7 +30,7 @@ export type TreeHostDataLib = {
   readonly fromSlugTree: (
     tree: t.SlugTreeItems,
     opts?: t.TreeHostFromSlugTreeOpts,
-  ) => t.TreeViewNodeList;
+  ) => t.TreeHostViewNodeList;
 
   /**
    * TreeView slug-path lookup (pure); returns the matching SlugTreeItem.
@@ -42,13 +42,13 @@ export type TreeHostDataLib = {
 
   /**
    * TreeView path lookup (pure); returns the matching TreeViewNode.
-   * Use when you only have the UI tree structure (TreeViewNodeList)
+   * Use when you only have the UI tree structure (TreeHostViewNodeList)
    * and want to resolve selection state (`path`) back to the node payload.
    */
   readonly findViewNode: (
-    tree: t.TreeViewNodeList | undefined,
+    tree: t.TreeHostViewNodeList | undefined,
     path: t.ObjectPath | undefined,
-  ) => t.TreeViewNode | undefined;
+  ) => t.TreeHostViewNode | undefined;
 };
 
 /** Minimal, structural options only. */

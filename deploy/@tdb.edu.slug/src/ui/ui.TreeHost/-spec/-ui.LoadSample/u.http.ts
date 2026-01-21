@@ -5,7 +5,7 @@ let nonce = 0;
 export const baseUrl = 'http://localhost:4040/publish.assets';
 export const SlugTree = { docId: '21JvXzARPYFXDVMag3x4UhLgHcQi' };
 
-export async function loadHttp(signal: t.Signal<t.TreeViewNodeList | undefined>) {
+export async function loadHttp(signal: t.Signal<t.TreeHostViewNodeList | undefined>) {
   const thisRequest = ++nonce;
   const docId = SlugTree.docId;
   SlugClient.Tree.load(baseUrl, docId).then((res) => {

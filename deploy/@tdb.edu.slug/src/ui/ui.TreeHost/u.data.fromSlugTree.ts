@@ -16,7 +16,7 @@ function toLabel(item: t.SlugTreeItem, mode: LabelMode): string {
   return item.slug;
 }
 
-function toValue(item: t.SlugTreeItem) {
+function toValue(item: t.SlugTreeItem): t.SlugTreeItem {
   const payload: {
     slug: string;
     ref?: string;
@@ -38,21 +38,21 @@ function toNode(
   item: t.SlugTreeItem,
   parentPath: t.ObjectPath,
   labelMode: LabelMode,
-): t.TreeViewNode {
+): t.TreeHostViewNode {
   const path = [...parentPath, item.slug] as t.ObjectPath;
-  const node: t.TreeViewNode = {
-    path,
-    key: Obj.Path.encode(path),
-    label: toLabel(item, labelMode),
-    value: toValue(item),
-  };
-
   const children =
     Arr.isArray(item.slugs) && item.slugs.length > 0
       ? item.slugs.map((child) => toNode(child, path, labelMode))
       : undefined;
 
-  if (children?.length) node.children = children;
+  const node: t.TreeHostViewNode = {
+    path,
+    key: Obj.Path.encode(path),
+    label: toLabel(item, labelMode),
+    value: toValue(item),
+    ...(children ? { children } : {}),
+  };
+
   if ('description' in item && Is.str(item.description)) {
     node.meta = { ...(node.meta ?? {}), description: item.description };
   }

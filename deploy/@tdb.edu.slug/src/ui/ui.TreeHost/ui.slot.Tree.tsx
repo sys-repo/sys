@@ -1,5 +1,6 @@
 import React from 'react';
 import { type t, Color, css, TreeView } from './common.ts';
+import { Data } from './m.Data.ts';
 import { Empty } from './ui.Empty.tsx';
 
 type P = t.TreeHostProps;
@@ -32,7 +33,9 @@ export const Tree: React.FC<P> = (props) => {
       onNodeSelect={(e) => {
         if (!tree) return;
         const path = e.path ?? [];
-        props.onNodeSelect?.({ tree, path, node: e.node, is: e.is });
+        const node = Data.findViewNode(tree, path);
+        if (!node) return;
+        props.onNodeSelect?.({ tree, path, node, is: e.is });
       }}
       onPressDown={(e) => {
         if (!tree) return;

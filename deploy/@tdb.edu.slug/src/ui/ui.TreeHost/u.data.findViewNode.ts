@@ -2,7 +2,7 @@ import { type t, Arr, Is, Obj } from './common.ts';
 
 /**
  * TreeView path lookup (pure); returns the matching TreeViewNode.
- * - `tree` is the UI tree shape (TreeViewNodeList).
+ * - `tree` is the UI tree shape (TreeHostViewNodeList).
  * - `path` is the canonical selection path (array of segments).
  */
 export const findViewNode: t.TreeHostDataLib['findViewNode'] = (tree, path) => {
@@ -10,7 +10,7 @@ export const findViewNode: t.TreeHostDataLib['findViewNode'] = (tree, path) => {
   if (!Arr.isArray(path) || path.length === 0) return undefined;
   if (!path.every((seg) => Is.str(seg) && seg.length > 0)) return undefined;
 
-  const stack: t.TreeViewNode[] = [...tree];
+  const stack: t.TreeHostViewNode[] = [...tree];
 
   while (stack.length > 0) {
     const node = stack.pop();

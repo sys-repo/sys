@@ -29,7 +29,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    tree: s<t.TreeViewNodeList | undefined>(),
+    tree: s<t.TreeHostViewNodeList | undefined>(),
     selectedPath: s(snap.selectedPath),
     //
     load: s(snap.load),
