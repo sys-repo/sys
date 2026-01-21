@@ -1,4 +1,5 @@
 - name: publish module → "NAME"
+  ENV_BLOCK
   run: |
     cd PATH
     deno task test --parallel

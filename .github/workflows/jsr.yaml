@@ -15,13 +15,12 @@ jobs:
     environment: dev
     env:
       TEST_SAMPLE: ${{ vars.TEST_SAMPLE }}
-      DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
-      DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
-      PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}
-      PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Guard: no bidi/hidden Unicode chars
+        run: .github/-scripts/Task.-prep.check-no-bidi.sh
 
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v1
@@ -39,6 +38,11 @@ jobs:
 
 
       - name: publish module → "@sys/types"
+        env: &publish-secrets
+          DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
+          DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
+          PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}
+          PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
         run: |
           cd code/sys/types
           deno task test --parallel
@@ -53,6 +57,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/std"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/std
           deno task test --parallel
@@ -67,6 +73,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/crdt-t"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/crdt.t
           deno task test --parallel
@@ -81,6 +89,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/color"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/color
           deno task test --parallel
@@ -95,6 +105,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/cli"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/cli
           deno task test --parallel
@@ -109,6 +121,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/crypto"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/crypto
           deno task test --parallel
@@ -123,6 +137,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/immutable"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/immutable
           deno task test --parallel
@@ -137,6 +153,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/fs"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/fs
           deno task test --parallel
@@ -151,6 +169,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/testing"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/testing
           deno task test --parallel
@@ -165,6 +185,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/process"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/process
           deno task test --parallel
@@ -179,6 +201,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/net"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/net
           deno task test --parallel
@@ -193,6 +217,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/event"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/event
           deno task test --parallel
@@ -207,6 +233,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/http"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/http
           deno task test --parallel
@@ -221,6 +249,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/yaml"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/yaml
           deno task test --parallel
@@ -235,6 +265,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/schema"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/schema
           deno task test --parallel
@@ -249,6 +281,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/jsr"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/jsr
           deno task test --parallel
@@ -263,6 +297,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/text"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/text
           deno task test --parallel
@@ -277,6 +313,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/tmpl-engine"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/tmpl-engine
           deno task test --parallel
@@ -291,6 +329,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-state"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.ui/ui-state
           deno task test --parallel
@@ -305,6 +345,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-css"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.ui/ui-css
           deno task test --parallel
@@ -319,6 +361,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-dom"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.ui/ui-dom
           deno task test --parallel
@@ -333,6 +377,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-react"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.ui/ui-react
           deno task test --parallel
@@ -347,6 +393,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-react-devharness"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.ui/ui-react-devharness
           deno task test --parallel
@@ -361,6 +409,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-react-components"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.ui/ui-react-components
           deno task test --parallel
@@ -375,6 +425,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-factory"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.ui/ui-factory
           deno task test --parallel
@@ -389,6 +441,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-deno"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.driver/driver-deno
           deno task test --parallel
@@ -403,6 +457,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-vite"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.driver/driver-vite
           deno task test --parallel
@@ -417,6 +473,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-automerge"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.driver/driver-automerge
           deno task test --parallel
@@ -431,6 +489,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-farcaster"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.driver/driver-farcaster
           deno task test --parallel
@@ -445,6 +505,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-process"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.driver/driver-process
           deno task test --parallel
@@ -459,6 +521,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-mastra"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.driver/driver-mastra
           deno task test --parallel
@@ -473,6 +537,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-monaco"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.driver/driver-monaco
           deno task test --parallel
@@ -487,6 +553,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-slug"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.driver/driver-slug
           deno task test --parallel
@@ -501,6 +569,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-prosemirror"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.driver/driver-prosemirror
           deno task test --parallel
@@ -515,6 +585,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/crdt"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys/crdt
           deno task test --parallel
@@ -529,6 +601,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/tmpl"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/-tmpl
           deno task test --parallel
@@ -543,6 +617,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/tools"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.tools
           deno task test --parallel
@@ -557,6 +633,8 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/dev"
+        env:
+          <<: *publish-secrets
         run: |
           cd code/sys.dev
           deno task test --parallel
@@ -571,6 +649,8 @@ jobs:
           exit 1
 
       - name: publish module → "@tdb/edu-slug"
+        env:
+          <<: *publish-secrets
         run: |
           cd deploy/@tdb.edu.slug
           deno task test --parallel

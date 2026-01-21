@@ -15,13 +15,12 @@ jobs:
     environment: dev
     env:
       TEST_SAMPLE: ${{ vars.TEST_SAMPLE }}
-      DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
-      DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
-      PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}
-      PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Guard: no bidi/hidden Unicode chars
+        run: .github/-scripts/Task.-prep.check-no-bidi.sh
 
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v1
