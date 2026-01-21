@@ -1,10 +1,6 @@
 name: ci
 
-on:
-  push:
-    branches:
-      - main
-      - phil-*
+on: [push, pull_request]
 
 jobs:
   deno:
@@ -38,7 +34,7 @@ jobs:
 
 
       - name: publish module → "@sys/types"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env: &publish-secrets
           DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}
           DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}
@@ -58,7 +54,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/std"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -75,7 +71,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/crdt-t"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -92,7 +88,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/color"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -109,7 +105,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/cli"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -126,7 +122,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/crypto"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -143,7 +139,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/immutable"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -160,7 +156,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/fs"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -177,7 +173,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/testing"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -194,7 +190,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/process"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -211,7 +207,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/net"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -228,7 +224,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/event"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -245,7 +241,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/http"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -262,7 +258,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/yaml"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -279,7 +275,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/schema"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -296,7 +292,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/jsr"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -313,7 +309,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/text"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -330,7 +326,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/tmpl-engine"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -347,7 +343,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-state"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -364,7 +360,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-css"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -381,7 +377,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-dom"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -398,7 +394,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-react"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -415,7 +411,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-react-devharness"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -432,7 +428,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-react-components"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -449,7 +445,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/ui-factory"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -466,7 +462,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-deno"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -483,7 +479,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-vite"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -500,7 +496,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-automerge"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -517,7 +513,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-farcaster"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -534,7 +530,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-process"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -551,7 +547,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-mastra"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -568,7 +564,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-monaco"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -585,7 +581,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-slug"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -602,7 +598,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/driver-prosemirror"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -619,7 +615,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/crdt"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -636,7 +632,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/tmpl"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -653,7 +649,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/tools"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -670,7 +666,7 @@ jobs:
           exit 1
 
       - name: publish module → "@sys/dev"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
@@ -687,7 +683,7 @@ jobs:
           exit 1
 
       - name: publish module → "@tdb/edu-slug"
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
         env:
           <<: *publish-secrets
         run: |
