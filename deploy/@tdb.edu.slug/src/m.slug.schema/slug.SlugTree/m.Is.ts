@@ -1,14 +1,14 @@
 import { Arr, Is as StdIs, type t } from './common.ts';
 
 type Ref = { ref: string };
-type Base = { readonly slug: string; readonly slugs?: readonly t.SlugTreeItem[] };
+type Base = { slug: string; slugs?: t.SlugTreeItem[] };
 
 export const Is: t.SlugTreeSchemaIsLib = {
   items(value): value is t.SlugTreeItems {
-    return Arr.isArray(value) && value.every((entry) => isSlugTreeItem(entry));
+    return Arr.isArray(value) && value.every((entry) => isItem(entry));
   },
   item(value): value is t.SlugTreeItem {
-    return isSlugTreeItem(value);
+    return isItem(value);
   },
   refOnly(value): value is t.SlugTreeItemRefOnly {
     return hasValidBase(value) && hasRef(value);
@@ -16,17 +16,18 @@ export const Is: t.SlugTreeSchemaIsLib = {
   inline(value): value is t.SlugTreeItemInline {
     return hasValidBase(value) && lacksRef(value);
   },
-} as const;
+};
 
 /**
  * Helpers
  */
-function isSlugTreeItem(value: unknown): value is t.SlugTreeItem {
+
+function isItem(value: unknown): value is t.SlugTreeItem {
   return hasValidBase(value) && (hasRef(value) || lacksRef(value));
 }
 
 function hasValidChildren(value: unknown): value is t.SlugTreeItem[] {
-  return Arr.isArray(value) && value.every((entry) => isSlugTreeItem(entry));
+  return Arr.isArray(value) && value.every((entry) => isItem(entry));
 }
 
 function hasValidBase(value: unknown): value is Base {
