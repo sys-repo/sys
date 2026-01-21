@@ -1,119 +1,107 @@
-# Codex Plan: Type TreeHost tree/value (keep TreeView.Index generic).
-This change makes `TreeHost.Data.findViewNode(tree, path)` return a node whose `.value` is typed as `t.SlugTreeItem`, without changing `@sys/ui-react-components` TreeView types.
+# RUN THIS EXACTLY — Repo Walk Probe (read-only)
 
-## Goal
-TreeView.Index remains a generic tree UI with `t.TreeViewNode.value: unknown`.
-TreeHost becomes the typed domain boundary:
-- TreeHost tree nodes: `value?: t.SlugTreeItem`
-- TreeHost events: `node.value` is strongly typed.
+You are executing a READ-ONLY audit.
+Do NOT modify code.
+Follow the procedure exactly.
+Write the specified markdown artifacts to disk.
 
-## Constraints
-- No behavior changes.
-- No new runtime logic.
-- Keep TreeView.Index API as-is.
-- Minimal edits, compilation green.
+## Inputs
+- Root: <ROOT>
+- Mode: read-only
+- Model under test: gpt-5.1-codex-mini
+- Output base: <ROOT>/-agent/out/repo-probe/
 
-## Files to edit (in @tdb/edu-slug)
-- src/ui/ui.TreeHost/t.ts
-- src/ui/ui.TreeHost/t.data.ts
-- src/ui/ui.TreeHost/u.data.findViewNode.ts
-- src/ui/ui.TreeHost/ui.slot.Tree.tsx
-- (optional if referenced) any TreeHost spec files that import types indirectly
+## Non-negotiables
+- No file edits. No formatting runs that write. No installs.
+- Every claim MUST be backed by evidence: exact file path + symbol + snippet or line range.
+- Evidence MUST include `path:line` whenever the source came from `rg -n`.
+- No prescriptions (no “refactor”, “should”, “next steps”).
+- Mark uncertainty explicitly as “Unknown:”.
+- Prefer repo truth (deno.json, exports) over convention.
+- Assume TypeScript + Deno + ESM.
 
-## Step 1: Add TreeHost-typed view node aliases
-Edit: src/ui/ui.TreeHost/t.ts
-- Introduce TreeHost-specific aliases that re-use the upstream TreeView shape but specialize `.value`.
+## Excludes (mandatory for all rg scans)
+- -agent/**
+- node_modules/**
+- dist/**
+- vendor/**
 
-Add near the top (after exports is fine):
+## Outputs (exact paths; create dirs as needed)
+- <ROOT>/-agent/out/repo-probe/00-index.md
+- <ROOT>/-agent/out/repo-probe/01-repo-manifest.md
+- <ROOT>/-agent/out/repo-probe/02-system-map.md
+- <ROOT>/-agent/out/repo-probe/03-public-surfaces.md
+- <ROOT>/-agent/out/repo-probe/04-deps-sketch.md
+- <ROOT>/-agent/out/repo-probe/05-quality-ledger.md
+- <ROOT>/-agent/out/repo-probe/06-change-readiness.md
+- <ROOT>/-agent/out/repo-probe/07-open-questions.md
+- <ROOT>/-agent/out/repo-probe/08-model-notes.md
 
-- `export type TreeHostViewNode = Omit<t.TreeViewNode, 'value' | 'children'> & { readonly value?: t.SlugTreeItem; readonly children?: TreeHostViewNodeList };`
-- `export type TreeHostViewNodeList = readonly TreeHostViewNode[];`
+## Procedure
+All commands run from <ROOT>.
 
-Notes:
-- Use `Omit` to keep all existing fields of `t.TreeViewNode` intact.
-- Re-define `children` so recursion also uses the typed node.
+### Step 0: Timing + state capture
+- mkdir -p "<ROOT>/-agent/out/repo-probe"
+- date -u +"%Y-%m-%dT%H:%M:%SZ"
+- date +%s
+- git rev-parse HEAD
+- git status --porcelain=v1
 
-## Step 2: Switch TreeHostProps.tree to the typed list
-Edit: src/ui/ui.TreeHost/t.ts
-- Change:
-  - `tree?: t.TreeViewNodeList;`
-  - → `tree?: t.TreeHostViewNodeList;`
+Write all to:
+- 00-index.md
 
-## Step 3: Switch TreeHost event payloads to typed nodes
-Edit: src/ui/ui.TreeHost/t.ts
-- Change in payloads:
-  - `TreeHostPathChange.tree: t.TreeViewNodeList`
-  - → `TreeHostPathChange.tree: t.TreeHostViewNodeList`
-  - `TreeHostNodeSelect.tree: t.TreeViewNodeList`
-  - → `TreeHostNodeSelect.tree: t.TreeHostViewNodeList`
-  - `TreeHostNodeSelect.node: t.TreeViewNode`
-  - → `TreeHostNodeSelect.node: t.TreeHostViewNode`
+### Step 1: Repo manifest
+- git ls-files > "<ROOT>/-agent/out/repo-probe/.tmp.ls-files.txt"
 
-Keep:
-- `path: t.ObjectPath`
-- `is: { readonly leaf: boolean }` unchanged.
+Summarize tracked files (counts by extension, top-level dirs, representative paths) in:
+- 01-repo-manifest.md
 
-## Step 4: Update TreeHostDataLib signatures
-Edit: src/ui/ui.TreeHost/t.data.ts
-- Change return/arg types to the typed list/node:
-  - `fromSlugTree(...) => t.TreeViewNodeList`
-  - → `fromSlugTree(...) => t.TreeHostViewNodeList`
-  - `findViewNode(tree: t.TreeViewNodeList | undefined, ...) => t.TreeViewNode | undefined`
-  - → `findViewNode(tree: t.TreeHostViewNodeList | undefined, ...) => t.TreeHostViewNode | undefined`
+### Step 2: Public surfaces
+- ls -1 deno.json deno.jsonc 2>/dev/null || true
+- sed -n '1,200p' deno.json 2>/dev/null || true
+- sed -n '1,200p' deno.jsonc 2>/dev/null || true
+- git ls-files | rg -n '(^|/)(mod|main|index)\.ts(x)?$' > "<ROOT>/-agent/out/repo-probe/.tmp.entrypoints.txt"
+- git ls-files | rg -n '/deno\.jsonc?$' > "<ROOT>/-agent/out/repo-probe/.tmp.deno-configs.txt"
 
-Keep `findNode` untouched (it returns `t.SlugTreeItem` from `t.SlugTreeItems` already).
+Write:
+- 03-public-surfaces.md
 
-## Step 5: Update findViewNode implementation to return typed node
-Edit: src/ui/ui.TreeHost/u.data.findViewNode.ts
-- Update parameter/stack types:
-  - `tree` arg type becomes `t.TreeHostViewNodeList | undefined` via the lib signature.
-  - `const stack: t.TreeViewNode[] = [...tree];`
-    → `const stack: t.TreeHostViewNode[] = [...tree];`
-  - `while` loop `node` type becomes `t.TreeHostViewNode`.
+### Step 3: System map
+- git ls-files | rg -n "from ['\"](@sys/|jsr:|npm:|https?://)" > "<ROOT>/-agent/out/repo-probe/.tmp.imports.txt"
 
-No logic changes.
+Write:
+- 02-system-map.md
 
-## Step 6: Update Tree slot component typing (no runtime change)
-Edit: src/ui/ui.TreeHost/ui.slot.Tree.tsx
-- Ensure `tree` is treated as `t.TreeHostViewNodeList` (it will be via props).
-- Leave the `<TreeView.Index.UI ... />` call alone.
-- In `onNodeSelect`, keep piping through but make node typed:
+### Step 4: Dependency sketch
+Write:
+- 04-deps-sketch.md
 
-Current shape (already close):
-- `props.onNodeSelect?.({ tree, path, node: e.node, is: e.is });`
+### Step 5: Quality ledger
+Run rg scans WITH excludes and record observations only:
+- rg -n "TODO|FIXME|HACK|XXX" <ROOT> --glob '!**/-agent/**' --glob '!**/node_modules/**' --glob '!**/dist/**' --glob '!**/vendor/**' > "<ROOT>/-agent/out/repo-probe/.tmp.todos.txt"
+- rg -n "console\.(log|warn|error)" <ROOT> --glob '!**/-agent/**' --glob '!**/node_modules/**' --glob '!**/dist/**' --glob '!**/vendor/**' > "<ROOT>/-agent/out/repo-probe/.tmp.console.txt"
+- rg -n "as unknown as| as any\b" <ROOT> --glob '!**/-agent/**' --glob '!**/node_modules/**' --glob '!**/dist/**' --glob '!**/vendor/**' > "<ROOT>/-agent/out/repo-probe/.tmp.assertions.txt"
+- rg -n "interface\s+[A-Za-z0-9_]+" <ROOT> --glob '!**/-agent/**' --glob '!**/node_modules/**' --glob '!**/dist/**' --glob '!**/vendor/**' > "<ROOT>/-agent/out/repo-probe/.tmp.interfaces.txt"
 
-Change only the `node` assignment to use TreeHost’s typed node resolved by path (so it is guaranteed typed, not `t.TreeViewNode`):
+Write:
+- 05-quality-ledger.md (max 20 entries, evidence-backed)
 
-- `const viewNode = TreeHost.Data.findViewNode(tree, path);`
-- If `viewNode` exists, pass it as `node`.
+### Step 6: Change-readiness
+Write:
+- 06-change-readiness.md
 
-Concrete rule:
-- Do not cast with `as`.
-- Use the existing pure helper to “upgrade” the node to typed:
+### Step 7: Open questions
+Write:
+- 07-open-questions.md
 
-Pseudo:
-- `const path = e.path ?? [];`
-- `const node = TreeHost.Data.findViewNode(tree, path);`
-- `if (node) props.onNodeSelect?.({ tree, path, node, is: e.is });`
+### Step 8: Model self-critique
+Write:
+- 08-model-notes.md (DEEP PASS + TRIPLE ADVERSARY)
 
-This keeps behavior identical but ensures event payload is typed.
+## End condition
+- date -u +"%Y-%m-%dT%H:%M:%SZ"
+- date +%s
+- git status --porcelain=v1
 
-## Step 7: Fix any compile fallout in specs/usages
-- Search for `TreeHostProps['tree']` usage or direct `t.TreeViewNodeList` annotations in TreeHost specs.
-- Adjust any explicit annotations to `t.TreeHostViewNodeList` if needed.
-- Do not change runtime logic.
-
-## Step 8: Validate
-Run in relevant packages:
-- deno task check
-- deno task test
-
-## Success criteria
-- `TreeHost.Data.findViewNode(tree, path)?.value` is typed:
-  - `t.SlugTreeItem | undefined`
-- In dev harness, after selection:
-  - `const node = TreeHost.Data.findViewNode(tree, path);`
-  - `node?.value.ref` is available only after narrowing to `SlugTreeItemRefOnly`.
-
-## Suggested commit message
-refactor(TreeHost): type TreeHost view nodes to SlugTreeItem value
+Append to:
+- 00-index.md
