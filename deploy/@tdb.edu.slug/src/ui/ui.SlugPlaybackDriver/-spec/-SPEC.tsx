@@ -1,7 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { css, D } from '../common.ts';
-import { SlugPlaybackDriver } from '../mod.ts';
-import { TreeHost } from '../../ui.TreeHost/mod.ts';
+import { SlugPlaybackDriver, TreeHost } from './mod.ts';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -31,10 +30,8 @@ export default Spec.describe(D.displayName, async (e) => {
           tree={v.tree}
           selectedPath={v.selectedPath}
           onPathRequest={(e) => (p.selectedPath.value = e.path)}
-          onSelectionChange={(e) => {
-            console.info('⚡️ onSelectionChange: ', e);
-            const node = e.node ?? TreeHost.Data.findViewNode(e.tree, e.path);
-            console.log(' - selected node', node);
+          onNodeSelect={(e) => {
+            console.info('⚡️ onNodeSelect: ', e);
           }}
         />
       </div>

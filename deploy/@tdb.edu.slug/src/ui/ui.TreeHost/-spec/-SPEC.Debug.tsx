@@ -1,7 +1,7 @@
 import React from 'react';
 import { Foo } from '../../-test.ui.ts';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
-import { LoadSample, SelectedPath } from './mod.ts';
+import { LoadSample, SelectedPath, TreeHost } from './mod.ts';
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'selectedPath'> & {
@@ -79,6 +79,18 @@ export async function createDebugSignals() {
 
   const load = () => void LoadSample.load(p.tree, p.load.value);
   Signal.effect(load);
+
+  /** Listen to relevant changes */
+  Signal.effect(() => {
+    const path = p.selectedPath.value;
+    const tree = p.tree.value;
+
+    console.group(`👁️`);
+    console.info('selectedPath:', path);
+    const node = TreeHost.Data.findViewNode(tree, path);
+    console.info('findViewNode(tree, path):', tree ? node : '(no tree)');
+    console.groupEnd();
+  });
 
   return api;
 }

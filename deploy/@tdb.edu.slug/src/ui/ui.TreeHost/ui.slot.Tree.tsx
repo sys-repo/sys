@@ -24,23 +24,29 @@ export const Tree: React.FC<P> = (props) => {
   );
 
   const elTree = tree && (
-    <TreeView.Index.UI
-      theme={theme.name}
-      root={tree}
-      minWidth={0}
-      path={props.selectedPath}
-      onPressDown={(e) => {
-        if (!tree) return;
-        const path = e.node.path ?? [];
+      <TreeView.Index.UI
+        theme={theme.name}
+        root={tree}
+        minWidth={0}
+        path={props.selectedPath}
+        onPressDown={(e) => {
+          if (!tree) return;
+          const path = e.node.path ?? [];
+          const isLeaf = !e.hasChildren;
 
-        if (e.hasChildren) {
-          // intent: navigate
-          props.onPathRequest?.({ tree, path });
-          return;
-        }
+          props.onNodeSelect?.({
+            tree,
+            path,
+            node: e.node,
+            is: { leaf: isLeaf },
+          });
 
-      }}
-    />
+          if (e.hasChildren) {
+            // intent: navigate
+            props.onPathRequest?.({ tree, path });
+          }
+        }}
+      />
   );
 
   return (

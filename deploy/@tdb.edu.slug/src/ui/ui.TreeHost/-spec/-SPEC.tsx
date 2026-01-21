@@ -35,10 +35,8 @@ export default Spec.describe(D.displayName, async (e) => {
             console.info('⚡️ onPathRequest: ', e);
             p.selectedPath.value = e.path;
           }}
-          onSelectionChange={(e) => {
-            const node = e.node ?? TreeHost.Data.findViewNode(e.tree, e.path);
-            console.info('⚡️ onSelectionChange: ', e);
-            console.info(' - resolved node:', node);
+          onNodeSelect={(e) => {
+            console.info('⚡️ onNodeSelect: ', e);
           }}
         />
       </div>

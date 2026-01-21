@@ -34,11 +34,10 @@ export type TreeHostProps = {
   onPathRequest?: TreeHostPathChangeHandler;
 
   /**
-   * Observation: fires when `selectedPath` changes (any source),
-   * de-duped (only when actually changed). Provides the resolved
-   * node + leaf indicator derived purely from `selectedPath`.
+   * Fires whenever the user presses a node (branch or leaf).
+   * Provides the node and a leaf indicator.
    */
-  onSelectionChange?: TreeHostSelectionChangeHandler;
+  onNodeSelect?: TreeHostNodeSelectHandler;
 };
 
 /** Slot registry definitions for TreeHost. */
@@ -56,7 +55,7 @@ export type TreeHostSlot = keyof TreeHostSlots;
  * Event handlers:
  */
 export type TreeHostPathChangeHandler = (e: TreeHostPathChange) => void;
-export type TreeHostSelectionChangeHandler = (e: TreeHostSelection) => void;
+export type TreeHostNodeSelectHandler = (e: TreeHostNodeSelect) => void;
 
 /**
  * Event payloads:
@@ -66,9 +65,9 @@ export type TreeHostPathChange = {
   readonly path: t.ObjectPath;
 };
 
-export type TreeHostSelection = {
+export type TreeHostNodeSelect = {
   readonly tree: t.TreeViewNodeList;
   readonly path: t.ObjectPath;
-  readonly node?: t.TreeViewNode;
+  readonly node: t.TreeViewNode;
   readonly is: { readonly leaf: boolean };
 };

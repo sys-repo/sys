@@ -35,7 +35,10 @@ export type TreeHostDataLib = {
   /**
    * TreeView slug-path lookup (pure); returns the matching SlugTreeItem.
    */
-  readonly findNode: (tree: t.SlugTreeItems, path: t.ObjectPath) => t.SlugTreeItem | undefined;
+  readonly findNode: (
+    tree: t.SlugTreeItems | undefined,
+    path: t.ObjectPath | undefined,
+  ) => t.SlugTreeItem | undefined;
 
   /**
    * TreeView path lookup (pure); returns the matching TreeViewNode.
@@ -43,8 +46,8 @@ export type TreeHostDataLib = {
    * and want to resolve selection state (`path`) back to the node payload.
    */
   readonly findViewNode: (
-    tree: t.TreeViewNodeList,
-    path: t.ObjectPath,
+    tree: t.TreeViewNodeList | undefined,
+    path: t.ObjectPath | undefined,
   ) => t.TreeViewNode | undefined;
 };
 

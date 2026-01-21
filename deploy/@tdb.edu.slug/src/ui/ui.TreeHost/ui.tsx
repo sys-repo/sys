@@ -1,27 +1,10 @@
-import React, { useEffect, useRef } from 'react';
-import { type t, Color, css, D, Obj, SplitPane } from './common.ts';
-import { findViewNode } from './u.data.findViewNode.ts';
+import React from 'react';
+import { type t, Color, css, D, SplitPane } from './common.ts';
 import { Nav } from './ui.Nav.tsx';
 import { Main } from './ui.slot.Main.tsx';
 
 export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
   const { debug = false, split = D.split, slots = {} } = props;
-  const prevPath = useRef<t.ObjectPath | undefined>(undefined);
-
-  useEffect(() => {
-    const tree = props.tree;
-    if (!tree) return;
-
-    const next = props.selectedPath ?? [];
-    const prev = prevPath.current ?? [];
-    if (Obj.Path.eql(prev, next)) return;
-
-    prevPath.current = next;
-
-    const node = findViewNode(tree, next);
-    const is = { leaf: node ? !(Array.isArray(node.children) && node.children.length > 0) : false };
-    props.onSelectionChange?.({ tree, path: next, node, is });
-  }, [props.tree, props.selectedPath, props.onSelectionChange]);
 
   const theme = Color.theme(props.theme);
   const styles = {
