@@ -4,12 +4,12 @@ import { DenoFile, Fs, c } from './common.ts';
 const publishEnvBlock = {
   first: [
     'env: &publish-secrets',
-    '  DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}',
-    '  DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}',
-    '  PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}',
-    '  PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}',
+    '    DENO_SUBHOSTING_ACCESS_TOKEN: ${{ secrets.DENO_SUBHOSTING_ACCESS_TOKEN }}',
+    '    DENO_SUBHOSTING_DEPLOY_ORG_ID: ${{ vars.DENO_SUBHOSTING_DEPLOY_ORG_ID }}',
+    '    PRIVY_APP_ID: ${{ vars.PRIVY_APP_ID }}',
+    '    PRIVY_APP_SECRET: ${{ secrets.PRIVY_APP_SECRET }}',
   ].join('\n'),
-  later: ['env:', '  <<: *publish-secrets'].join('\n'),
+  later: ['env:', '    <<: *publish-secrets'].join('\n'),
 };
 
 export async function main() {
@@ -47,6 +47,7 @@ export async function main() {
   const target = '.github/workflows/jsr.yaml';
   await Fs.write(target, yaml);
   console.info(`${c.green('Updated file:')} ${c.gray(target)}\n`);
+
 }
 
 /**
