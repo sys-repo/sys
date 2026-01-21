@@ -56,6 +56,12 @@ export function createDebugSignals() {
     });
   });
 
+  /** Observe to relevant changes */
+  Signal.effect(() => {
+    const path = p.path.value;
+    console.info('👁️ path:', path);
+  });
+
   return api;
 }
 

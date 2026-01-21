@@ -50,7 +50,15 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
               chevron={Data.hasChildren(node)}
               enabled={enabled}
               onPointer={(e) => props.onPointer?.(toPointerEvent(node, e))}
-              onPressDown={(e) => props.onPressDown?.(toPointerEvent(node, e))}
+              onPressDown={(e) => {
+                const pointerEvent = toPointerEvent(node, e);
+                props.onNodeSelect?.({
+                  is: { leaf: !pointerEvent.hasChildren },
+                  path: node.path ?? [],
+                  node,
+                });
+                props.onPressDown?.(pointerEvent);
+              }}
               onPressUp={(e) => props.onPressUp?.(toPointerEvent(node, e))}
               description={Is.str(node.meta?.description) ? node.meta.description : undefined}
             />

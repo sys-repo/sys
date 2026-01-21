@@ -28,10 +28,18 @@ export type IndexTreeViewProps = {
   onPointer?: t.IndexTreeViewPointerHandler;
   onPressDown?: t.IndexTreeViewPointerHandler;
   onPressUp?: t.IndexTreeViewPointerHandler;
+  onNodeSelect?: t.IndexTreeViewNodeSelectHandler;
 };
 
 export type IndexTreeViewPointerHandler = (e: IndexTreeViewPointer) => void;
 export type IndexTreeViewPointer = t.PointerEventsArg & {
   readonly node: t.TreeViewNode;
   readonly hasChildren: boolean;
+};
+
+export type IndexTreeViewNodeSelectHandler = (e: IndexTreeViewNodeSelect) => void;
+export type IndexTreeViewNodeSelect = {
+  readonly path: t.ObjectPath;
+  readonly node: t.TreeViewNode;
+  readonly is: { readonly leaf: boolean };
 };

@@ -62,7 +62,7 @@ export async function createDebugSignals() {
   const load = () => void LoadSample.load(p.tree, p.load.value);
   Signal.effect(load);
 
-  /** Listen to relevant changes */
+  /** Observe to relevant changes */
   Signal.effect(() => {
     const path = p.selectedPath.value;
     const tree = p.tree.value;
