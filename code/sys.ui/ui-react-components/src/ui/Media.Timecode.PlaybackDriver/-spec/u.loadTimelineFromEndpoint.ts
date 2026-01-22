@@ -6,7 +6,7 @@ export async function loadTimelineFromEndpoint(
   docid: t.StringId,
 ): Promise<t.TimecodePlaybackDriver.Wire.Bundle<unknown>> {
   const init: RequestInit = { cache: 'no-cache' };
-  const res = await SlugClient.FromEndpoint.loadBundle(baseUrl, docid, { init });
+  const res = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid, { init });
   if (!res.ok) SlugClient.Error.throw(res.error);
   return res.value;
 }
