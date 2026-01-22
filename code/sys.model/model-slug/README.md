@@ -18,6 +18,6 @@ import { SlugClient } from 'jsr:@sys/model-slug/client';
 // Load a playback-ready bundle (assets + timecode playback)
 const bundle = await SlugClient.FromEndpoint.Bundle.load(
   'https://example.com/publish.assets',
-  'crdt:my-doc',
+  'crdt:my-docid',
 );
 ```
