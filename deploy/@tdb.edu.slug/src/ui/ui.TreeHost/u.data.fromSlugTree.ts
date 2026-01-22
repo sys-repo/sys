@@ -40,9 +40,13 @@ function toNode(
   labelMode: LabelMode,
 ): t.TreeHostViewNode {
   const path = [...parentPath, item.slug] as t.ObjectPath;
+  const hasRef = 'ref' in item && Is.str(item.ref) && item.ref.length > 0;
+  const hasChildren = Arr.isArray(item.slugs) && item.slugs.length > 0;
   const children =
-    Arr.isArray(item.slugs) && item.slugs.length > 0
+    hasChildren
       ? item.slugs.map((child) => toNode(child, path, labelMode))
+      : hasRef
+      ? []
       : undefined;
 
   const node: t.TreeHostViewNode = {
@@ -50,7 +54,7 @@ function toNode(
     key: Obj.Path.encode(path),
     label: toLabel(item, labelMode),
     value: toValue(item),
-    ...(children ? { children } : {}),
+    ...(children !== undefined ? { children } : {}),
   };
 
   if ('description' in item && Is.str(item.description)) {

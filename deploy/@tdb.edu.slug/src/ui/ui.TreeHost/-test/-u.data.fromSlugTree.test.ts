@@ -79,4 +79,16 @@ describe('Data.fromSlugTree', () => {
     expect(res[0].children).to.have.length(1);
     expect(res[1].children).to.be.undefined;
   });
+
+  it('emits stub children for ref-only leaf nodes', () => {
+    const tree: t.SlugTreeItems = [{ slug: 'ref-leaf', ref: 'slug://ref-leaf' }];
+    const res = Data.fromSlugTree(tree);
+    expect(res[0].children).to.eql([]);
+  });
+
+  it('does not emit stub children for inline leaf nodes', () => {
+    const tree: t.SlugTreeItems = [{ slug: 'inline-leaf' }];
+    const res = Data.fromSlugTree(tree);
+    expect(res[0].children).to.be.undefined;
+  });
 });
