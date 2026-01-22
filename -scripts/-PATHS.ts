@@ -47,6 +47,12 @@ export const Paths = {
     'code/sys/tmpl-engine',
 
     /**
+     * sys.model:
+     */
+    'code/sys.model/model',
+    'code/sys.model/model-slug',
+
+    /**
      * sys.ui:
      */
     'code/sys.ui/ui-state',
@@ -56,12 +62,6 @@ export const Paths = {
     'code/sys.ui/ui-react-devharness',
     'code/sys.ui/ui-react-components',
     'code/sys.ui/ui-factory',
-
-    /**
-     * sys.model:
-     */
-    'code/sys.model/model',
-    'code/sys.model/model-slug',
 
     /**
      * sys.driver:
