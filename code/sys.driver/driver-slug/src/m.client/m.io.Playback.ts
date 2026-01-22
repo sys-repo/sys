@@ -25,6 +25,7 @@ async function load<P = unknown>(
       ok: false,
       error: {
         kind: 'http',
+        message: `Playback manifest fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
         status: res.status,
         statusText: res.statusText,
         url: res.url,

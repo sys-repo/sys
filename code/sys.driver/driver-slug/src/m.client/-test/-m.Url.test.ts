@@ -28,4 +28,10 @@ describe('SlugUrl.isAbsoluteHref', () => {
     expect(SlugUrl.isAbsoluteHref('')).to.eql(false);
     expect(SlugUrl.isAbsoluteHref(undefined as unknown as string)).to.eql(false);
   });
+
+  it('computes slug-tree filenames', () => {
+    const docid = 'crdt:tree-test';
+    const expected = `slug-tree.${SlugUrl.clean(docid)}.json`;
+    expect(SlugUrl.treeFilename(docid)).to.eql(expected);
+  });
 });

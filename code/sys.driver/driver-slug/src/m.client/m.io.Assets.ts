@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { AssetsSchema, D, Http, Url } from './common.ts';
+import { SlugSchema, D, Http, Url } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
@@ -24,6 +24,7 @@ async function load(
       ok: false,
       error: {
         kind: 'http',
+        message: `Assets manifest fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
         status: res.status,
         statusText: res.statusText,
         url: res.url,
@@ -31,7 +32,7 @@ async function load(
     };
   }
 
-  const parsed = AssetsSchema.Manifest.parse(res.data);
+  const parsed = SlugSchema.Manifest.Assets.Manifest.parse(res.data);
   if (!parsed.ok) {
     const reason = formatSchemaReason(parsed.errors);
     return {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { SlugClient, SlugUrl } from '../mod.ts';
+import { SlugClient } from '../mod.ts';
 import { Assets } from '../m.io.Assets.ts';
 
 import type { t } from '../common.ts';
@@ -13,7 +13,7 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
 
   it('loads assets manifest (happy path)', async () => {
     const docid = 'crdt:assets-happy' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
     const manifest: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
       assets: [
@@ -30,7 +30,7 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
     const seenUrls: string[] = [];
     const cleanup = stubFetch((url) => {
       seenUrls.push(url);
-      if (url.includes(SlugUrl.assetsFilename(cleaned))) return jsonResponse(manifest);
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(manifest);
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -40,7 +40,7 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
       expect(result.ok).to.eql(true);
       expect(result.value).to.eql(manifest);
       expect(seenUrls[0]).to.include('/manifests/');
-      expect(seenUrls[0]).to.include(SlugUrl.assetsFilename(cleaned));
+      expect(seenUrls[0]).to.include(SlugClient.Url.assetsFilename(cleaned));
     } finally {
       cleanup();
     }
@@ -48,14 +48,14 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
 
   it('passes RequestInit extras but enforces cache policy', async () => {
     const docid = 'crdt:assets-init' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
     const manifest: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
       assets: [],
     };
     let seenInit: RequestInit | undefined;
     const cleanup = stubFetch((url, init) => {
-      if (url.includes(SlugUrl.assetsFilename(cleaned))) {
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) {
         seenInit = init;
         return jsonResponse(manifest);
       }
@@ -75,8 +75,8 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
         headers instanceof Headers
           ? headers.get('x-test')
           : headers && typeof headers === 'object' && !Array.isArray(headers)
-          ? (headers as Record<string, string>)['x-test']
-          : undefined;
+            ? (headers as Record<string, string>)['x-test']
+            : undefined;
       expect(seenInit?.method).to.equal('POST');
       expect(headerValue).to.eql('1');
       expect(seenInit?.cache).to.eql(D.CACHE_INIT.cache);
@@ -87,10 +87,13 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
 
   it('returns http metadata when fetch fails', async () => {
     const docid = 'crdt:assets-http' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugUrl.assetsFilename(cleaned)))
-        return textResponse('Service Unavailable', { status: 503, statusText: 'Service Unavailable' });
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
+        return textResponse('Service Unavailable', {
+          status: 503,
+          statusText: 'Service Unavailable',
+        });
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -101,7 +104,7 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
       expect(result.error.kind).to.equal('http');
       if (result.error.kind !== 'http') throw new Error('expected http failure');
       expect(result.error.status).to.equal(503);
-      expect(result.error.url).to.include(SlugUrl.assetsFilename(cleaned));
+      expect(result.error.url).to.include(SlugClient.Url.assetsFilename(cleaned));
     } finally {
       cleanup();
     }
@@ -109,9 +112,10 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
 
   it('returns schema info when manifest is invalid', async () => {
     const docid = 'crdt:assets-schema' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugUrl.assetsFilename(cleaned))) return jsonResponse({ docid: cleaned });
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
+        return jsonResponse({ docid: cleaned });
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -129,9 +133,9 @@ describe('SlugClient.FromEndpoint.Assets.load', () => {
 
   it('reports schema errors when docids do not match', async () => {
     const docid = 'crdt:assets-mismatch' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugUrl.assetsFilename(cleaned)))
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
         return jsonResponse({
           docid: 'other-doc',
           assets: [],

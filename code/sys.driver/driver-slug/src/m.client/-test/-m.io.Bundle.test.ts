@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { SlugClient, SlugUrl } from '../mod.ts';
+import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
 import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
@@ -7,7 +7,7 @@ import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
 describe('SlugClient.FromEndpoint.Bundle.load', () => {
   it('loads assets + playback and resolves normalized hrefs', async () => {
     const docid = 'crdt:bundle-happy' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
@@ -52,8 +52,8 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     };
 
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugUrl.assetsFilename(cleaned))) return jsonResponse(assets);
-      if (url.includes(SlugUrl.playbackFilename(cleaned))) return jsonResponse(playback);
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(assets);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) return jsonResponse(playback);
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -87,7 +87,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
 
   it('resolves hrefs against the provided baseHref', async () => {
     const docid = 'crdt:bundle-basehref' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
@@ -121,8 +121,8 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     };
 
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugUrl.assetsFilename(cleaned))) return jsonResponse(assets);
-      if (url.includes(SlugUrl.playbackFilename(cleaned))) return jsonResponse(playback);
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(assets);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) return jsonResponse(playback);
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -151,15 +151,15 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
 
   it('returns http metadata when manifest fetch fails', async () => {
     const docid = 'crdt:bundle-http' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
 
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugUrl.assetsFilename(cleaned)))
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
         return textResponse('Service Unavailable', {
           status: 503,
           statusText: 'Service Unavailable',
         });
-      if (url.includes(SlugUrl.playbackFilename(cleaned)))
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
         return jsonResponse({
           docid: cleaned,
           composition: [],
@@ -175,7 +175,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
       expect(result.error.kind).to.eql('http');
       if (result.error.kind !== 'http') throw new Error('expected http failure');
       expect(result.error.status).to.eql(503);
-      expect(result.error.url).to.include(SlugUrl.assetsFilename(cleaned));
+      expect(result.error.url).to.include(SlugClient.Url.assetsFilename(cleaned));
     } finally {
       cleanup();
     }
@@ -183,7 +183,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
 
   it('returns schema info when playback manifest is invalid', async () => {
     const docid = 'crdt:bundle-schema' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
@@ -199,8 +199,8 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     };
 
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugUrl.assetsFilename(cleaned))) return jsonResponse(assets);
-      if (url.includes(SlugUrl.playbackFilename(cleaned)))
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(assets);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
         return jsonResponse({
           docid: cleaned,
           composition: assets.assets,
@@ -222,7 +222,7 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
 
   it('reports schema errors when docids do not match', async () => {
     const docid = 'crdt:bundle-docid' as t.StringId;
-    const cleaned = SlugUrl.clean(docid);
+    const cleaned = SlugClient.Url.clean(docid);
 
     const mismatchedAssets: t.SpecTimelineAssetsManifest = {
       docid: 'other-doc',
@@ -238,8 +238,9 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     };
 
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugUrl.assetsFilename(cleaned))) return jsonResponse(mismatchedAssets);
-      if (url.includes(SlugUrl.playbackFilename(cleaned)))
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
+        return jsonResponse(mismatchedAssets);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
         return jsonResponse({
           docid: cleaned,
           composition: [],

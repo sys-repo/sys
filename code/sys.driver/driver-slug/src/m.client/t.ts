@@ -11,5 +11,6 @@ export type SlugClientError =
       readonly status: number;
       readonly statusText: string;
       readonly url: string;
+      readonly message: string;
     }
-  | { readonly kind: 'schema'; readonly message: string };
+    | { readonly kind: 'schema'; readonly message: string };

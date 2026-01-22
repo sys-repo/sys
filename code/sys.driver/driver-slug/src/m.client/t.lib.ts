@@ -10,6 +10,7 @@ export type SlugClientUrlLib = {
   readonly clean: (docid: t.StringId) => t.StringId;
   readonly assetsFilename: (docid: t.StringId) => string;
   readonly playbackFilename: (docid: t.StringId) => string;
+  readonly treeFilename: (docid: t.StringId) => string;
   readonly isAbsoluteHref: (href: string) => boolean;
 };
 
@@ -29,13 +30,19 @@ export type SlugFromEndpointLib = {
   readonly Bundle: t.SlugClientBundleLib;
 };
 
-export type SlugClientTreeLib = {};
+export type SlugClientTreeLib = {
+  readonly load: (
+    baseUrl: t.StringUrl,
+    docid: t.StringId,
+    options?: t.SlugLoadOptions,
+  ) => Promise<t.Result<t.SlugTreeItems>>;
+};
 
 export type SlugClientAssetsLib = {
   readonly load: (
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    init?: t.SlugLoadOptions,
+    options?: t.SlugLoadOptions,
   ) => Promise<t.Result<t.SpecTimelineAssetsManifest>>;
 };
 
@@ -43,7 +50,7 @@ export type SlugClientPlaybackLib = {
   readonly load: <P = unknown>(
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    init?: t.SlugLoadOptions,
+    options?: t.SlugLoadOptions,
   ) => Promise<t.Result<t.SpecTimelineManifest<P>>>;
 };
 
