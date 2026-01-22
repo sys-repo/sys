@@ -56,6 +56,7 @@ export const Paths = {
     /**
      * sys.model:
      */
+    'code/sys.model/model',
     'code/sys.model/model-slug',
 
     /**

@@ -57,6 +57,9 @@
     "code/sys/schema",
     "code/sys/yaml",
 
+    "code/sys.model/model",
+    "code/sys.model/model-slug",
+
     "code/sys.ui/ui-css",
     "code/sys.ui/ui-dom",
     "code/sys.ui/ui-factory",
@@ -64,8 +67,6 @@
     "code/sys.ui/ui-react-devharness",
     "code/sys.ui/ui-react-components",
     "code/sys.ui/ui-state",
-
-    "code/sys.model/model-slug",
 
     "code/sys.driver/driver-automerge",
     "code/sys.driver/driver-deno",
