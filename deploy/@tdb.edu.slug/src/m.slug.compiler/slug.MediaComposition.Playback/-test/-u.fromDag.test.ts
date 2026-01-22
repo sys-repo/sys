@@ -16,7 +16,7 @@ describe('Playback.fromDag', () => {
         return {
           ok: false,
           error: { message: 'boom' },
-        } as t.ValidateResult<t.SequenceItem[]>;
+        } as t.SlugValidateResult<t.SequenceItem[]>;
       };
 
       Sequence.Normalize.toTimecode = (() => {
@@ -72,7 +72,7 @@ describe('Playback.fromDag', () => {
         expect(id).to.eql(docid);
         expect(o).to.eql(opts);
 
-        return { ok: true, sequence: seqItems } as t.ValidateResult<t.SequenceItem[]>;
+        return { ok: true, sequence: seqItems } as t.SlugValidateResult<t.SequenceItem[]>;
       }) as typeof Sequence.fromDag;
 
       Sequence.Normalize.toTimecode = ((

@@ -1,3 +1,4 @@
+/** System */
 export { Hash } from '@sys/crypto/hash';
 export { Http } from '@sys/http/client';
 export { Schema, Type, Value } from '@sys/schema';
@@ -8,3 +9,6 @@ export { AliasResolver } from '@sys/std/alias';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Yaml } from '@sys/yaml';
+
+/** System.Driver */
+export { SlugClient } from '@sys/driver-slug/client';

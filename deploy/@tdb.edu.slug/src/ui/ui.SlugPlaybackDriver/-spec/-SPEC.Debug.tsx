@@ -1,6 +1,18 @@
 import React from 'react';
 import { LoadSample, SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import {
+  type t,
+  Button,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+  SlugSchema,
+  SlugClient,
+} from '../common.ts';
 import { SlugPlaybackDriver, TreeHost } from './mod.ts';
 
 type P = t.TreeHostProps;
@@ -107,7 +119,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <SlugPlaybackDriver.Dev.DriverInfo />
+      <SlugPlaybackDriver.Dev.DriverInfo style={{ marginBottom: 15 }} />
 
       <hr />
       <LoadSample.UI signal={p.load} style={{ MarginY: 15 }} />

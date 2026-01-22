@@ -8,7 +8,7 @@ export const SlugTree = { docId: '21JvXzARPYFXDVMag3x4UhLgHcQi' };
 export async function loadHttp(signal: t.Signal<t.TreeHostViewNodeList | undefined>) {
   const thisRequest = ++nonce;
   const docId = SlugTree.docId;
-  SlugClient.Tree.load(baseUrl, docId).then((res) => {
+  SlugClient.FromEndpoint.Tree.load(baseUrl, docId).then((res) => {
     if (thisRequest !== nonce) return; // ← ignore stale
     if (res.ok) {
       signal.value = TreeHost.Data.fromSlugTree(res.value);
