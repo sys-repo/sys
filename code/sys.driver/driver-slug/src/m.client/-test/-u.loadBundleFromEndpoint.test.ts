@@ -1,37 +1,15 @@
 import { describe, expect, it } from '../../-test.ts';
 import { SlugClient, SlugUrl } from '../mod.ts';
+
 import type { t } from '../common.ts';
-import type { SpecTimelineAssetsManifest, SpecTimelineManifest, SpecTimelineAsset } from '../t.ts';
+import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
 
-const jsonResponse = (body: unknown, options: { status?: number; statusText?: string } = {}) =>
-  new Response(JSON.stringify(body), {
-    status: options.status ?? 200,
-    statusText: options.statusText ?? 'OK',
-    headers: { 'content-type': 'application/json' },
-  });
-
-const textResponse = (text: string, options: { status?: number; statusText?: string } = {}) =>
-  new Response(text, {
-    status: options.status ?? 200,
-    statusText: options.statusText ?? 'OK',
-  });
-
-const stubFetch = (handler: (url: string) => Response) => {
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    return handler(url);
-  };
-  return () => {
-    globalThis.fetch = originalFetch;
-  };
-};
 describe('SlugClient.FromEndpoint.loadBundle', () => {
   it('loads assets + playback and resolves normalized hrefs', async () => {
     const docid = 'crdt:bundle-happy' as t.StringId;
     const cleaned = SlugUrl.clean(docid);
 
-    const assets: SpecTimelineAssetsManifest = {
+    const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
       assets: [
         {
@@ -62,16 +40,12 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
 
     const beats: readonly t.Timecode.Playback.Beat<unknown>[] = [
       {
-        src: {
-          kind: 'video',
-          logicalPath: '/video/main',
-          time: 0 as t.Msecs,
-        },
+        src: { kind: 'video', logicalPath: '/video/main', time: 0 as t.Msecs },
         payload: null,
       },
     ];
 
-    const playback: SpecTimelineManifest = {
+    const playback: t.SpecTimelineManifest = {
       docid: cleaned,
       composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
       beats,
@@ -115,7 +89,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
     const docid = 'crdt:bundle-basehref' as t.StringId;
     const cleaned = SlugUrl.clean(docid);
 
-    const assets: SpecTimelineAssetsManifest = {
+    const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
       assets: [
         {
@@ -135,16 +109,12 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
       ],
     };
 
-    const playback: SpecTimelineManifest = {
+    const playback: t.SpecTimelineManifest = {
       docid: cleaned,
       composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
       beats: [
         {
-          src: {
-            kind: 'video',
-            logicalPath: '/video/main',
-            time: 0 as t.Msecs,
-          },
+          src: { kind: 'video', logicalPath: '/video/main', time: 0 as t.Msecs },
           payload: null,
         },
       ],
@@ -194,7 +164,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
           docid: cleaned,
           composition: [],
           beats: [],
-        } as SpecTimelineManifest);
+        } as t.SpecTimelineManifest);
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -215,7 +185,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
     const docid = 'crdt:bundle-schema' as t.StringId;
     const cleaned = SlugUrl.clean(docid);
 
-    const assets: SpecTimelineAssetsManifest = {
+    const assets: t.SpecTimelineAssetsManifest = {
       docid: cleaned,
       assets: [
         {
@@ -224,7 +194,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
           hash: 'hash-asset',
           filename: 'asset.mp4',
           href: '/asset',
-        } as SpecTimelineAsset,
+        } as t.SpecTimelineAsset,
       ],
     };
 
@@ -234,7 +204,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
         return jsonResponse({
           docid: cleaned,
           composition: assets.assets,
-        } as unknown as SpecTimelineManifest);
+        } as unknown as t.SpecTimelineManifest);
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -254,7 +224,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
     const docid = 'crdt:bundle-docid' as t.StringId;
     const cleaned = SlugUrl.clean(docid);
 
-    const mismatchedAssets: SpecTimelineAssetsManifest = {
+    const mismatchedAssets: t.SpecTimelineAssetsManifest = {
       docid: 'other-doc',
       assets: [
         {
@@ -263,7 +233,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
           hash: 'hash-asset',
           filename: 'asset.mp4',
           href: '/asset',
-        } as SpecTimelineAsset,
+        } as t.SpecTimelineAsset,
       ],
     };
 
@@ -274,7 +244,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
           docid: cleaned,
           composition: [],
           beats: [],
-        } as SpecTimelineManifest);
+        } as t.SpecTimelineManifest);
       throw new Error(`Unexpected fetch: ${url}`);
     });
 

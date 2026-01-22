@@ -14,4 +14,8 @@ export const SlugUrl: t.SlugClientUrlLib = {
   playbackFilename(docid) {
     return `slug.${SlugUrl.clean(docid)}.playback.json`;
   },
+
+  isAbsoluteHref(href = '') {
+    return href.startsWith('http://') || href.startsWith('https://');
+  },
 };

@@ -1,4 +1,4 @@
-import { type t, describe, it, expect, expectTypeOf, Is, Obj, Str } from '../../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { SlugClient, SlugUrl } from '../mod.ts';
 
 describe('SlugClient', () => {
