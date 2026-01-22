@@ -18,11 +18,11 @@ export function textResponse(text: string, options: HttpFixtureResponse = {}) {
   });
 }
 
-export function stubFetch(handler: (url: string) => Response) {
+export function stubFetch(handler: (url: string, init?: RequestInit) => Response) {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    return handler(url);
+    return handler(url, init);
   };
   return () => {
     globalThis.fetch = originalFetch;
