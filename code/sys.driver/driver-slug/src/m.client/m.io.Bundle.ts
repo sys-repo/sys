@@ -11,7 +11,7 @@ async function load<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   opts?: t.SlugLoadOptions,
-): Promise<t.Result<t.SpecTimelineBundle<P>>> {
+): Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>> {
   const assetsResult = await Assets.load(baseUrl, docid, opts);
   if (!assetsResult.ok) return { ok: false, error: assetsResult.error };
 

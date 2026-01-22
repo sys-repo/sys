@@ -10,7 +10,7 @@ async function load(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   options?: t.SlugLoadOptions,
-): Promise<t.Result<t.SlugTreeItems>> {
+): Promise<t.SlugClientResult<t.SlugTreeItems>> {
   docid = SlugUrl.clean(docid);
   const fetch = Http.fetcher();
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.treeFilename(docid));

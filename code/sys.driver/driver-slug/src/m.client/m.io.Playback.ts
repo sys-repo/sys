@@ -12,7 +12,7 @@ async function load<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   options?: t.SlugLoadOptions,
-): Promise<t.Result<t.SpecTimelineManifest<P>>> {
+): Promise<t.SlugClientResult<t.SpecTimelineManifest<P>>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.playbackFilename(cleanedDocid));
@@ -23,13 +23,13 @@ async function load<P = unknown>(
   if (!res.ok) {
     return {
       ok: false,
-    error: {
-      kind: 'http',
-      message: `Playback manifest fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
-      status: res.status,
-      statusText: res.statusText,
-      url: res.url ?? url,
-    },
+      error: {
+        kind: 'http',
+        message: `Playback manifest fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
+        status: res.status,
+        statusText: res.statusText,
+        url: res.url ?? url,
+      },
     };
   }
 

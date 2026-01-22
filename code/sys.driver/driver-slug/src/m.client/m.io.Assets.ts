@@ -11,7 +11,7 @@ async function load(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   options?: t.SlugLoadOptions,
-): Promise<t.Result<t.SpecTimelineAssetsManifest>> {
+): Promise<t.SlugClientResult<t.SpecTimelineAssetsManifest>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.assetsFilename(cleanedDocid));
@@ -22,13 +22,13 @@ async function load(
   if (!res.ok) {
     return {
       ok: false,
-    error: {
-      kind: 'http',
-      message: `Assets manifest fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
-      status: res.status,
-      statusText: res.statusText,
-      url: res.url ?? url,
-    },
+      error: {
+        kind: 'http',
+        message: `Assets manifest fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
+        status: res.status,
+        statusText: res.statusText,
+        url: res.url ?? url,
+      },
     };
   }
 

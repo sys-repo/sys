@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 export const SlugError: t.SlugClientErrorLib = {
-  unwrap<T>(res: t.Result<T>): T {
+  unwrap<T>(res: t.SlugClientResult<T>): T {
     if (res.ok) return res.value;
     return SlugError.throw(res.error);
   },
