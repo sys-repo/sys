@@ -17,7 +17,6 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./client": "./src/m.slug.client/mod.ts",
     "./compiler": "./src/m.slug.compiler/mod.ts",
     "./ui": "./src/ui/mod.ts"
   }
