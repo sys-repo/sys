@@ -7,9 +7,6 @@ export const SlugError: t.SlugClientErrorLib = {
   },
 
   throw(err): never {
-    if (err.kind === 'http') {
-      throw new Error(`Manifest fetch failed. ${err.status} ${err.statusText} @ ${err.url}`);
-    }
     throw new Error(err.message);
   },
 };

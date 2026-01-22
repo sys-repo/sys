@@ -22,13 +22,13 @@ async function load(
   if (!res.ok) {
     return {
       ok: false,
-      error: {
-        kind: 'http',
-        message: `Assets manifest fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
-        status: res.status,
-        statusText: res.statusText,
-        url: res.url,
-      },
+    error: {
+      kind: 'http',
+      message: `Assets manifest fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
+      status: res.status,
+      statusText: res.statusText,
+      url: res.url ?? url,
+    },
     };
   }
 

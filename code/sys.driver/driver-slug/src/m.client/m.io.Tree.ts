@@ -11,6 +11,7 @@ async function load(
   docid: t.StringId,
   options?: t.SlugLoadOptions,
 ): Promise<t.Result<t.SlugTreeItems>> {
+  docid = SlugUrl.clean(docid);
   const fetch = Http.fetcher();
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.treeFilename(docid));
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
