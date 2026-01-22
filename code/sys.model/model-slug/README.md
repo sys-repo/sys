@@ -2,7 +2,7 @@
 Slug ingest + wiring driver.
 
 Pure edge/orchestration layer for loading **slug manifests** (tree, assets, playback),
-validating against `@sys/schema`, and assembling **wire bundles** suitable for
+validating against `@sys/model`, and assembling **wire bundles** suitable for
 `TimecodePlaybackDriver` and other consumers.
 
 - No UI

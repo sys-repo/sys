@@ -8,12 +8,15 @@ export const Paths = {
    * System Module Graph (ESM):
    */
   get modules() {
-    return Paths.all;
-    // return Paths.single; // 🐷 NARROW
+    // return Paths.all;
+    return Paths.single; // 🐷 NARROW
   },
   single: [
     //
-    'code/sys.tools',
+    'code/sys.model/model',
+    'code/sys.model/model-slug',
+
+    // 'code/sys.tools',
   ],
   all: [
     // types:
