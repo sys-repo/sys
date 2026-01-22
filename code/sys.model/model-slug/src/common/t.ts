@@ -3,7 +3,15 @@
  */
 export type * from '@sys/types';
 
-export type { SchemaError } from '@sys/schema/t';
+export type {
+  ArrSpec,
+  SchemaError,
+  SchemaResult,
+  StandardSchemaV1,
+  TimecodePlaybackSchemaLib,
+  TSchema,
+  ValueError,
+} from '@sys/schema/t';
 export type { Timecode } from '@sys/std/t';
 
 /**

@@ -1,4 +1,4 @@
-import { SlugClient } from '@sys/model-slug/client';
+import { SlugClient } from '@sys/model-slug';
 import { type t } from './common.ts';
 
 export async function loadTimelineFromEndpoint(

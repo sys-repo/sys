@@ -11,4 +11,4 @@ export { Rx } from '@sys/std/rx';
 export { Yaml } from '@sys/yaml';
 
 /** System.Model */
-export { SlugClient } from '@sys/model-slug/client';
+export { SlugClient } from '@sys/model-slug';

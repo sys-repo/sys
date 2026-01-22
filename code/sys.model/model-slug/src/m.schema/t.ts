@@ -34,3 +34,11 @@ export type SlugSchemaLib = {
 export type SlugValidateResult<T> = SlugValidateOK<T> | SlugValidateFail;
 export type SlugValidateOK<T> = { ok: true; sequence: T };
 export type SlugValidateFail = { ok: false; error: Error };
+
+/**
+ * Errors.
+ */
+export type SchemaValueError = {
+  readonly path: string | readonly string[];
+  readonly message: string;
+};

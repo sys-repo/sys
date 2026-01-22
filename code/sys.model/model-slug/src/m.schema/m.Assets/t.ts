@@ -10,6 +10,9 @@ export type SlugAssetsManifestSchemaLib = {
   readonly parse: (input: unknown, args?: never) => t.SchemaResult<AssetsManifest>;
 };
 
+/**
+ * TODO 🐷 prefix Slug
+ */
 export type AssetKind = 'video' | 'image';
 
 export type AssetsManifest = {

@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export function formatSchemaReason(errors: readonly t.WireSchemaValueError[]): string {
+export function formatSchemaReason(errors: readonly t.SchemaValueError[]): string {
   return errors
     .map((error) => {
       const path = pathToString(error.path);

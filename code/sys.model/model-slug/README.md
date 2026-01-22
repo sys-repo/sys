@@ -13,7 +13,7 @@ Loads slug manifests (tree, assets, playback), validates them against
 
 ### Example
 ```ts
-import { SlugClient } from 'jsr:@sys/model-slug/client';
+import { SlugClient, SlugSchema } from 'jsr:@sys/model-slug';
 
 // Load a playback-ready bundle (assets + timecode playback)
 const bundle = await SlugClient.FromEndpoint.Bundle.load(

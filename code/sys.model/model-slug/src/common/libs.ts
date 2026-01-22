@@ -1,5 +1,7 @@
 export { Http } from '@sys/http/client';
-export { SlugSchema } from '@sys/schema/model/slug';
+export { Schema, Type } from '@sys/schema';
+export { toSchema, V } from '@sys/schema/recipe';
+
 export { PlaybackSchema } from '@sys/schema/model/timecode/playback';
 
 export { Arr, Err, Is, Num, Obj, Pkg, Str } from '@sys/std';
