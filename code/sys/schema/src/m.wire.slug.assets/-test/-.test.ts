@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../-test.ts';
 import { AssetsSchema } from '../mod.ts';
 
-describe(`schema/wire/slug/assets`, () => {
+describe(`schema/slug/assets`, () => {
   it('API', async () => {
-    const m = await import('@sys/schema/wire/slug/assets');
+    const m = await import('@sys/schema/slug/assets');
     expect(m.AssetsSchema).to.equal(AssetsSchema);
   });
 });
