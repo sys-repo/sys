@@ -1,7 +1,7 @@
-import { type t, SlugTreeSchema as Schema } from './common.ts';
+import { type t, SlugSchema } from './common.ts';
 import { fromDag } from './u.fromDag.ts';
 
 export const SlugTree: t.SlugTreeLib = {
-  Schema,
+  Schema: SlugSchema.Tree,
   fromDag,
 };

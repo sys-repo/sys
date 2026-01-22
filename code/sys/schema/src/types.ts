@@ -12,7 +12,8 @@ export type Infer<S extends t.TSchema> = t.Static<S>;
 export type * from './m.core.recipe/t.ts';
 export type * from './m.core.schema/t.ts';
 export type * from './m.testing/t.ts';
-export type * from './m.model.slug/slug.assets/t.ts';
-export type * from './m.model.timecode.playback/t.ts';
 export type * from './t.namespace.ts';
 export type * from './t.typebox.ts';
+
+export type * from './m.model.slug/t.ts';
+export type * from './m.model.timecode.playback/t.ts';

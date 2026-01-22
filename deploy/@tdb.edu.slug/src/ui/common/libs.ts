@@ -14,5 +14,3 @@ export {
   TreeView,
 } from '@sys/ui-react-components';
 export { PlaybackDriver } from '@sys/ui-react-components/media/timecode/playback-driver';
-
-export { SlugSchema } from '../../m.slug.schema/mod.ts';

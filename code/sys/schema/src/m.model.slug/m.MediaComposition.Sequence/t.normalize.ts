@@ -31,7 +31,7 @@ export type SequenceNormalized = {
   readonly timecode: t.Timecode.Composite.Spec;
   readonly beats: readonly SequenceBeat[];
   readonly meta?: {
-    readonly docid?: t.Crdt.Id;
+    readonly docid?: t.StringId;
     readonly path?: { yaml: t.ObjectPath };
   };
 };

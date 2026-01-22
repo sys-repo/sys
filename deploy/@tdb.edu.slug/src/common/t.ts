@@ -1,12 +1,15 @@
 /**
  * @external
  */
-export type * from '@sys/types';
 export type { FC, ReactElement, ReactNode } from 'react';
 
 /**
  * @system
  */
+export type * from '@sys/schema/model/slug/t';
+export type * from '@sys/schema/model/timecode/playback/t';
+export type * from '@sys/types';
+
 export type { Crdt } from '@sys/driver-automerge/t';
 export type { Graph } from '@sys/immutable/t';
 export type { TSchema, ValueError } from '@sys/schema/t';

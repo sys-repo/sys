@@ -1,4 +1,4 @@
-import { V, toSchema } from '../common.ts';
+import { V } from '../common.ts';
 
 /**
  * Text block used inside timestamp entries and pause cards.
@@ -109,10 +109,7 @@ const PauseItem = V.object(
  * Image item: image marker with text driven by timestamps.
  */
 const ImageItem = V.object(
-  {
-    image: V.string(),
-    timestamps: Timestamps,
-  },
+  { image: V.string(), timestamps: Timestamps },
   {
     title: 'SequenceImageItem',
     description: 'Image segment whose overlays are driven by timestamp entries.',
@@ -131,12 +128,7 @@ const SequenceItem = V.union([VideoItem, SlugItem, PauseItem, ImageItem], {
  * Top-level Sequence recipe:
  * ordered list of items.
  */
-export const SequenceRecipe = V.array(SequenceItem, {
+export const SequenceList = V.array(SequenceItem, {
   title: 'Sequence',
   description: 'Complete ordered sequence of composite items for a slug.',
 });
-
-/**
- * Precomputed runtime schema for the sequence.
- */
-export const SequenceSchema = toSchema(SequenceRecipe);

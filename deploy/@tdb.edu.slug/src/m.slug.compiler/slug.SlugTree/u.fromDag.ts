@@ -1,4 +1,4 @@
-import { type t, makeParser, Obj, SlugSchema, Traits } from './common.ts';
+import { type t, makeParser, Obj, SlugSchema } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -20,7 +20,7 @@ export const fromDag: t.SlugTreeLib['fromDag'] = async (dag, yamlPath, docid, op
   const defaultTrait: t.SlugTraitGateOptions = { of: 'slug-tree' };
   const traitOpt = opts.trait === undefined ? defaultTrait : opts.trait;
 
-  const gate = Traits.gateAs({ traits, opt: traitOpt });
+  const gate = SlugSchema.Traits.gateAs({ traits, opt: traitOpt });
   if (!gate.ok) return fail(gate.error.message);
   if (!gate.enabled) {
     return fail(`Trait gating disabled for slug "${docid}" (opts.trait === null).`);

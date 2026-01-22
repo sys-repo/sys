@@ -4,6 +4,6 @@ import { gateAs } from './u.gateAs.ts';
 /**
  * Trait helpers.
  */
-export const Traits: t.SlugTraitsSchemaLib = {
+export const TraitsSchema: t.SlugTraitsSchemaLib = {
   gateAs,
 };

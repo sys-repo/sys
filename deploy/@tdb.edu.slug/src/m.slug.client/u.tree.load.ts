@@ -1,5 +1,4 @@
-import { SlugTreeSchema } from '../m.slug.schema/mod.ts';
-import { type t, Http, Url } from './common.ts';
+import { type t, SlugSchema, Http, Url } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
 
 export const loadTree: t.SlugClientTreeLib['load'] = async (baseUrl, docid, init = {}) => {
@@ -21,7 +20,7 @@ export const loadTree: t.SlugClientTreeLib['load'] = async (baseUrl, docid, init
     };
   }
 
-  const parsed = SlugTreeSchema.validate(res.data);
+  const parsed = SlugSchema.Tree.validate(res.data);
   if (!parsed.ok) {
     return {
       ok: false,

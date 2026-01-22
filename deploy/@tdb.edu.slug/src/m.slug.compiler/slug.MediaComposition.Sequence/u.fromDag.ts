@@ -1,6 +1,5 @@
-import { type t, makeParser, Obj, Traits } from './common.ts';
+import { type t, makeParser, Obj, SlugSchema } from './common.ts';
 import { normalizeEditorSequenceForTypedYaml } from './u.normalize.dsl.ts';
-import { validateSequence } from '../../m.slug.schema/slug.MediaComposition.Sequence/u.schema.validate.ts';
 
 type O = Record<string, unknown>;
 type R = t.ValidateResult<t.SequenceItem[]>;
@@ -40,7 +39,7 @@ export const fromDag: t.SlugSequenceLib['fromDag'] = async (dag, yamlPath, docid
   const defaultTrait: t.SlugTraitGateOptions = { of: 'media-composition' };
   const traitOpt = opts.trait === undefined ? defaultTrait : opts.trait;
 
-  const gate = Traits.gateAs({ traits, opt: traitOpt });
+  const gate = SlugSchema.Traits.gateAs({ traits, opt: traitOpt });
   if (!gate.ok) return fail(gate.error.message);
 
   if (!gate.enabled) {
@@ -50,12 +49,11 @@ export const fromDag: t.SlugSequenceLib['fromDag'] = async (dag, yamlPath, docid
     return fail(err);
   }
 
-  const as = gate.as;
-
   /**
    * Raw YAML sequence from the slug node (as authored in the editor).
    * We currently treat `data[trait.as]` as the source array.
    */
+  const as = gate.as;
   const lens = Obj.Lens.at<O[]>([as]);
   const seqRaw = lens.get(data);
 
@@ -82,7 +80,7 @@ export const fromDag: t.SlugSequenceLib['fromDag'] = async (dag, yamlPath, docid
    */
   if (!validate) return ok(normalized);
 
-  const result = validateSequence(normalized);
+  const result = SlugSchema.MediaComposition.Sequence.validate(normalized);
   if (result.ok) return result;
 
   const base = result.error.message.replace(/^Invalid sequence:\s*/, '');

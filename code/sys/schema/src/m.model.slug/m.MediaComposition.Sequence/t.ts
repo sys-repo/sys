@@ -9,9 +9,13 @@ export type * from './t.normalize.ts';
  */
 export type SlugSequenceSchemaLib = {
   readonly Is: SlugSequenceIsLib;
+  readonly List: t.ArrSpec;
 
   /** Structural validation of an authoring-time sequence. */
   validate(input: unknown): t.ValidateResult<t.SequenceItem[]>;
+
+  /** Checks invariants that sit on top of the raw JSON schema */
+  checkInvariants(sequence: t.SequenceItem[]): string | undefined;
 };
 
 /**

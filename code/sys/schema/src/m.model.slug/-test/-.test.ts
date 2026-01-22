@@ -1,9 +1,18 @@
 import { describe, expect, it } from '../../-test.ts';
-import { AssetsSchema } from '../mod.ts';
+import { AssetsSchema } from '../m.Assets/mod.ts';
+import { ManifestSchema } from '../m.Manifest/mod.ts';
+import { MediaCompositionSchema } from '../m.MediaComposition/mod.ts';
+import { TraitsSchema } from '../m.Traits/mod.ts';
+import { SlugTreeSchema } from '../m.SlugTree/mod.ts';
+import { SlugSchema } from '../mod.ts';
 
 describe(`schema/model/slug`, () => {
   it('API', async () => {
     const m = await import('@sys/schema/model/slug');
-    expect(m.AssetsSchema).to.equal(AssetsSchema);
+    expect(m.SlugSchema).to.equal(SlugSchema);
+    expect(SlugSchema.Tree).to.equal(SlugTreeSchema);
+    expect(SlugSchema.Manifest).to.equal(ManifestSchema);
+    expect(SlugSchema.MediaComposition).to.equal(MediaCompositionSchema);
+    expect(SlugSchema.Traits).to.equal(TraitsSchema);
   });
 });

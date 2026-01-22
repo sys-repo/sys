@@ -1,10 +1,10 @@
-import { type t, describe, it, expect } from '../../../-test.ts';
-import { Traits } from '../mod.ts';
+import { type t, describe, expect, it } from '../../../-test.ts';
+import { TraitsSchema } from '../mod.ts';
 
-describe('Traits', () => {
-  describe('Traits.gateAs', () => {
+describe('TraitsSchema', () => {
+  describe('TraitsSchema.gateAs', () => {
     it('returns disabled when opt is null (explicit opt-out)', () => {
-      const result = Traits.gateAs({ traits: [], opt: null });
+      const result = TraitsSchema.gateAs({ traits: [], opt: null });
       expect(result.ok).to.eql(true);
       if (!result.ok) throw result.error;
 
@@ -12,7 +12,7 @@ describe('Traits', () => {
     });
 
     it('returns not-requested when opt is undefined', () => {
-      const result = Traits.gateAs({
+      const result = TraitsSchema.gateAs({
         traits: [],
         opt: undefined,
       });
@@ -28,7 +28,7 @@ describe('Traits', () => {
     });
 
     it('fails when gating is requested but trait is missing', () => {
-      const result = Traits.gateAs({
+      const result = TraitsSchema.gateAs({
         traits: [],
         opt: { of: 'media-composition' },
       });
@@ -42,7 +42,7 @@ describe('Traits', () => {
 
     it('fails when trait exists but has no valid `as`', () => {
       const traits: readonly t.SlugTrait[] = [{ of: 'media-composition' }];
-      const result = Traits.gateAs({
+      const result = TraitsSchema.gateAs({
         traits,
         opt: { of: 'media-composition' },
       });
@@ -55,7 +55,7 @@ describe('Traits', () => {
 
     it('resolves `as` when matching trait with valid `as` exists', () => {
       const traits: readonly t.SlugTrait[] = [{ of: 'media-composition', as: 'sequence' }];
-      const result = Traits.gateAs({
+      const result = TraitsSchema.gateAs({
         traits,
         opt: { of: 'media-composition' },
       });
@@ -70,7 +70,7 @@ describe('Traits', () => {
 
     it('uses forcedAs when mode is force and trait.as is missing', () => {
       const traits: readonly t.SlugTrait[] = [{ of: 'media-composition' }];
-      const result = Traits.gateAs({
+      const result = TraitsSchema.gateAs({
         traits,
         opt: { of: 'media-composition', mode: 'force', forcedAs: 'sequence' },
       });
@@ -85,7 +85,7 @@ describe('Traits', () => {
 
     it('fails when mode is force but forcedAs is not provided', () => {
       const traits: readonly t.SlugTrait[] = [{ of: 'media-composition' }];
-      const result = Traits.gateAs({
+      const result = TraitsSchema.gateAs({
         traits,
         opt: { of: 'media-composition', mode: 'force' },
       });

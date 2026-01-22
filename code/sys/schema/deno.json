@@ -17,7 +17,8 @@
     "./recipe": "./src/-exports/-core.recipe.ts",
     "./testing": "./src/-exports/-testing.ts",
     "./model/slug": "./src/m.model.slug/mod.ts",
-    "./model/slug/assets": "./src/m.model.slug/slug.assets/mod.ts",
-    "./model/timecode/playback": "./src/m.model.timecode.playback/mod.ts"
+    "./model/slug/t": "./src/m.model.slug/t.ts",
+    "./model/timecode/playback": "./src/m.model.timecode.playback/mod.ts",
+    "./model/timecode/playback/t": "./src/m.model.timecode.playback/t.ts"
   }
 }

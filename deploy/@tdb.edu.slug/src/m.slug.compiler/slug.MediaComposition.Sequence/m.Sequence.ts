@@ -1,12 +1,12 @@
-import type { t } from '../common.ts';
-import { SequenceIs as Is } from '../../m.slug.schema/slug.MediaComposition.Sequence/m.Is.ts';
+import { type t, SlugSchema } from '../common.ts';
 import { fromDag } from './u.fromDag.ts';
 import { Normalize } from './u.normalize.ts';
-import { validateSequence as validate } from '../../m.slug.schema/slug.MediaComposition.Sequence/u.schema.validate.ts';
+
+const { Is, validate } = SlugSchema.MediaComposition.Sequence;
 
 export const Sequence: t.SlugSequenceLib = {
   Is,
   Normalize,
-  validate,
   fromDag,
+  validate,
 };

@@ -1,9 +1,10 @@
-import { Sequence, SequenceSchema } from '../slug.MediaComposition.Sequence/mod.ts';
-import { checkSequenceInvariants } from '../../m.slug.schema/slug.MediaComposition.Sequence/u.schema.validate.invariants.ts';
-import { type t, c, Slug, Schema } from './common.ts';
+import { toSchema } from '../common.ts';
+import { Sequence } from '../slug.MediaComposition.Sequence/mod.ts';
+import { type t, c, Schema, Slug, SlugSchema } from './common.ts';
 
 const T = Schema.Value;
 const FACETS = ['sequence:schema'] as const;
+const SequenceSchema = toSchema(SlugSchema.MediaComposition.Sequence.List);
 
 const empty = (): t.DocLintResult => ({
   ok: true,
@@ -51,7 +52,6 @@ export async function lintTypedYamlSequence(
    * If this fails, we return detailed per-path schema issues.
    */
   const schemaOk = T.Check(SequenceSchema, sequence);
-
   if (!schemaOk) {
     const errors = Array.from(T.Errors(SequenceSchema, sequence));
 
@@ -84,14 +84,9 @@ export async function lintTypedYamlSequence(
    * and therefore by Sequence.toPlaybackSpec.
    */
   if (checkInvariants) {
-    const message = checkSequenceInvariants(sequence);
+    const message = SlugSchema.MediaComposition.Sequence.checkInvariants(sequence);
     if (message) {
-      issues.push({
-        kind: 'schema:sequence',
-        path: 'sequence',
-        message,
-        doc: { id: docid },
-      });
+      issues.push({ kind: 'schema:sequence', path: 'sequence', message, doc: { id: docid } });
     }
   }
 

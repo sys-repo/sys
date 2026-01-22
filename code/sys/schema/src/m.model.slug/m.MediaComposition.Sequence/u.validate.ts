@@ -1,10 +1,11 @@
-import { type t, Schema } from '../common.ts';
+import { type t, Schema, toSchema } from '../common.ts';
 import { SequenceIs } from './m.Is.ts';
-import { SequenceSchema } from './u.schema.ts';
-import { checkSequenceInvariants } from './u.schema.validate.invariants.ts';
+import { SequenceList } from './u.schema.ts';
+import { checkSequenceInvariants } from './u.validate.invariants.ts';
 
-type M = t.SlugSequenceSchemaLib['validate'];
 type R = ReturnType<M>;
+type M = t.SlugSequenceSchemaLib['validate'];
+const SequenceSchema = toSchema(SequenceList);
 
 /**
  * Validates a raw YAML sequence against the SequenceRecipe schema
