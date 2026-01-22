@@ -1,18 +1,21 @@
-import { loadAssets } from './u.endpoint.loadAssets.ts';
-import { loadPlayback } from './u.endpoint.loadPlayback.ts';
-
-import type { t } from './common.ts';
+import { type t } from './common.ts';
+import { Assets } from './m.io.Assets.ts';
+import { Playback } from './m.io.Playback.ts';
 import { SlugUrl } from './m.Url.ts';
 
-export async function loadBundle<P = unknown>(
+export const Bundle: t.SlugClientBundleLib = {
+  load,
+};
+
+async function load<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   opts?: t.SlugLoadOptions,
 ): Promise<t.Result<t.SpecTimelineBundle<P>>> {
-  const assetsResult = await loadAssets(baseUrl, docid, opts);
+  const assetsResult = await Assets.load(baseUrl, docid, opts);
   if (!assetsResult.ok) return { ok: false, error: assetsResult.error };
 
-  const playbackResult = await loadPlayback<P>(baseUrl, docid, opts);
+  const playbackResult = await Playback.load<P>(baseUrl, docid, opts);
   if (!playbackResult.ok) return { ok: false, error: playbackResult.error };
 
   const cleanedDocid = SlugUrl.clean(docid);
@@ -27,22 +30,17 @@ export async function loadBundle<P = unknown>(
 
   const assetMap = new Map<string, t.SpecTimelineAsset>();
   for (const asset of assetsResult.value.assets) {
-    const normalized: t.SpecTimelineAsset = {
-      ...asset,
-      href: normalizeHref(asset.href),
-    };
+    const normalized: t.SpecTimelineAsset = { ...asset, href: normalizeHref(asset.href) };
     assetMap.set(`${asset.kind}:${asset.logicalPath}`, normalized);
   }
 
-  const resolveAsset = (opts: t.Timecode.Playback.ResolverArgs) =>
-    assetMap.get(`${opts.kind}:${opts.logicalPath}`);
+  const resolveAsset = (opts: t.Timecode.Playback.ResolverArgs) => {
+    return assetMap.get(`${opts.kind}:${opts.logicalPath}`);
+  };
 
   const bundle: t.SpecTimelineBundle<P> = {
     docid: cleanedDocid,
-    spec: {
-      composition: playbackResult.value.composition,
-      beats: playbackResult.value.beats,
-    },
+    spec: { composition: playbackResult.value.composition, beats: playbackResult.value.beats },
     resolveAsset,
   };
 

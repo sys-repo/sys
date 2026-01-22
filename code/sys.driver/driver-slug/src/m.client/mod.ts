@@ -6,18 +6,20 @@ export * from './m.Url.ts';
 
 import type { t } from './common.ts';
 
-import { SlugUrl as Url } from './m.Url.ts';
-import { loadAssets } from './u.endpoint.loadAssets.ts';
-import { loadBundle } from './u.endpoint.loadBundle.ts';
-import { loadPlayback } from './u.endpoint.loadPlayback.ts';
 import { SlugError as Error } from './m.Error.ts';
+import { SlugUrl as Url } from './m.Url.ts';
+import { Assets } from './m.io.Assets.ts';
+import { Bundle } from './m.io.Bundle.ts';
+import { Playback } from './m.io.Playback.ts';
+import { Tree } from './m.io.Tree.ts';
 
 export const SlugClient: t.SlugClientLib = {
   Url,
   Error,
   FromEndpoint: {
-    loadAssets,
-    loadPlayback,
-    loadBundle,
+    Tree,
+    Assets,
+    Bundle,
+    Playback,
   },
 };

@@ -4,7 +4,7 @@ import { SlugClient, SlugUrl } from '../mod.ts';
 import type { t } from '../common.ts';
 import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
 
-describe('SlugClient.FromEndpoint.loadBundle', () => {
+describe('SlugClient.FromEndpoint.Bundle.load', () => {
   it('loads assets + playback and resolves normalized hrefs', async () => {
     const docid = 'crdt:bundle-happy' as t.StringId;
     const cleaned = SlugUrl.clean(docid);
@@ -62,7 +62,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
     const basePath = base.pathname.replace(/\/$/, '');
 
     try {
-      const result = await SlugClient.FromEndpoint.loadBundle('http://example.com/', docid);
+      const result = await SlugClient.FromEndpoint.Bundle.load('http://example.com/', docid);
       if (!result.ok) throw new Error('expected bundle result');
       expect(result.ok).to.eql(true);
 
@@ -131,7 +131,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
     const baseHrefPath = baseHrefUrl.pathname.replace(/\/$/, '');
 
     try {
-      const result = await SlugClient.FromEndpoint.loadBundle('http://example.com/', docid, {
+      const result = await SlugClient.FromEndpoint.Bundle.load('http://example.com/', docid, {
         baseHref,
       });
       if (!result.ok) throw new Error('expected bundle result');
@@ -169,7 +169,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
     });
 
     try {
-      const result = await SlugClient.FromEndpoint.loadBundle('http://example.com/', docid);
+      const result = await SlugClient.FromEndpoint.Bundle.load('http://example.com/', docid);
       expect(result.ok).to.eql(false);
       if (result.ok) throw new Error('expected http error');
       expect(result.error.kind).to.eql('http');
@@ -209,7 +209,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
     });
 
     try {
-      const result = await SlugClient.FromEndpoint.loadBundle('http://example.com/', docid);
+      const result = await SlugClient.FromEndpoint.Bundle.load('http://example.com/', docid);
       expect(result.ok).to.eql(false);
       if (result.ok) throw new Error('expected schema error');
       expect(result.error.kind).to.eql('schema');
@@ -249,7 +249,7 @@ describe('SlugClient.FromEndpoint.loadBundle', () => {
     });
 
     try {
-      const result = await SlugClient.FromEndpoint.loadBundle('http://example.com/', docid);
+      const result = await SlugClient.FromEndpoint.Bundle.load('http://example.com/', docid);
       expect(result.ok).to.eql(false);
       if (result.ok) throw new Error('expected schema mismatch');
       expect(result.error.kind).to.eql('schema');

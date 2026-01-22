@@ -1,12 +1,14 @@
 import { Http, PlaybackSchema, Url } from './common.ts';
 
-import type { t } from './common.ts';
+import { type t, D } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
-const CACHE_INIT: RequestInit = { cache: 'no-cache' };
+export const Playback: t.SlugClientPlaybackLib = {
+  load,
+};
 
-export async function loadPlayback<P = unknown>(
+async function load<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   options?: t.SlugLoadOptions,
@@ -14,8 +16,8 @@ export async function loadPlayback<P = unknown>(
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.playbackFilename(cleanedDocid));
-  const req: RequestInit = { ...CACHE_INIT, ...(options?.init ?? {}) };
-  req.cache = CACHE_INIT.cache;
+  const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
+  req.cache = D.CACHE_INIT.cache;
 
   const res = await fetch.json<unknown>(url, req);
   if (!res.ok) {

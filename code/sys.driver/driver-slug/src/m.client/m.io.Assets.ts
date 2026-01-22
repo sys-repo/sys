@@ -1,11 +1,13 @@
 import type { t } from './common.ts';
-import { AssetsSchema, Http, Url } from './common.ts';
+import { AssetsSchema, D, Http, Url } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
-const CACHE_INIT: RequestInit = { cache: 'no-cache' };
+export const Assets: t.SlugClientAssetsLib = {
+  load,
+};
 
-export async function loadAssets(
+async function load(
   baseUrl: t.StringUrl,
   docid: t.StringId,
   options?: t.SlugLoadOptions,
@@ -13,8 +15,8 @@ export async function loadAssets(
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.assetsFilename(cleanedDocid));
-  const req: RequestInit = { ...CACHE_INIT, ...(options?.init ?? {}) };
-  req.cache = CACHE_INIT.cache;
+  const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
+  req.cache = D.CACHE_INIT.cache;
 
   const res = await fetch.json<unknown>(url, req);
   if (!res.ok) {
