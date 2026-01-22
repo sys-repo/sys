@@ -22,6 +22,7 @@ Monorepo comprising the core set of shared  **“system”** modules purposed to
   - [sys](/code/sys/) — foundational system libraries (types, schema, utilities).
   - [sys.ui](/code/sys.ui/) — declarative UI composition and factories.
   - [sys.driver](/code/sys.driver/) — thin bindings to external engines.
+  - [sys.model](/code/sys.model/) — pure types, schemas, and deterministic normalizers for shared concepts.
   - [sys.dev](/code/sys.dev/) — *programming system* layer, higher-order developer harnesses and orchestration tools.
 
 <p>&nbsp;</p>
