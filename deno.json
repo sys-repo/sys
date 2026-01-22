@@ -33,6 +33,7 @@
 
   "importMap": "deno.imports.json",
   "workspace": [
+    "code/sys.model/model-slug",
     "code/sys.ui/ui-state",
     "code/sys/types",
     "code/sys/std",
@@ -64,6 +65,8 @@
     "code/sys.ui/ui-react-components",
     "code/sys.ui/ui-state",
 
+    "code/sys.model/model-slug",
+
     "code/sys.driver/driver-automerge",
     "code/sys.driver/driver-deno",
     "code/sys.driver/driver-farcaster",
@@ -71,7 +74,6 @@
     "code/sys.driver/driver-monaco",
     "code/sys.driver/driver-process",
     "code/sys.driver/driver-prosemirror",
-    "code/sys.driver/driver-slug",
     "code/sys.driver/driver-vite",
 
     "code/sys.tools",

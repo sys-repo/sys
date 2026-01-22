@@ -13,10 +13,7 @@ export const Paths = {
   },
   single: [
     //
-    'code/sys.driver/driver-slug',
-    'deploy/@tdb.edu.slug',
-    // 'code/sys.tools',
-    // 'code/sys.driver/driver-process',
+    'code/sys.tools',
   ],
   all: [
     // types:
@@ -57,6 +54,11 @@ export const Paths = {
     'code/sys.ui/ui-factory',
 
     /**
+     * sys.model:
+     */
+    'code/sys.model/model-slug',
+
+    /**
      * sys.driver:
      */
     'code/sys.driver/driver-deno',
@@ -66,7 +68,6 @@ export const Paths = {
     'code/sys.driver/driver-process',
     'code/sys.driver/driver-mastra',
     'code/sys.driver/driver-monaco',
-    'code/sys.driver/driver-slug',
     'code/sys.driver/driver-prosemirror',
 
     /**

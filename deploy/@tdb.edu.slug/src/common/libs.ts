@@ -10,5 +10,5 @@ export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Yaml } from '@sys/yaml';
 
-/** System.Driver */
-export { SlugClient } from '@sys/driver-slug/client';
+/** System.Model */
+export { SlugClient } from '@sys/model-slug/client';

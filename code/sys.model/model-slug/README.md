@@ -1,4 +1,4 @@
-# @sys/driver-slug
+# @sys/model-slug
 Slug ingest + wiring driver.
 
 Pure edge/orchestration layer for loading **slug manifests** (tree, assets, playback),
@@ -13,7 +13,7 @@ validating against `@sys/schema`, and assembling **wire bundles** suitable for
 
 ### Example
 ```ts
-import { SlugClient } from 'jsr:@sys/driver-slug/client';
+import { SlugClient } from 'jsr:@sys/model-slug/client';
 
 // Load a playback-ready bundle (assets + timecode playback)
 const bundle = await SlugClient.loadBundleFromEndpoint(

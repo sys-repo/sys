@@ -486,20 +486,6 @@ jobs:
           echo "publish failed after 3 attempts"
           exit 1
 
-      - name: publish module → "@sys/driver-slug"
-        run: |
-          cd code/sys.driver/driver-slug
-          deno task test --parallel
-          for i in 1 2 3; do
-              if deno publish --allow-dirty; then
-                exit 0
-              fi
-              echo "publish failed (attempt $i), retrying in 5s..."
-              sleep 5
-          done
-          echo "publish failed after 3 attempts"
-          exit 1
-
       - name: publish module → "@sys/driver-prosemirror"
         run: |
           cd code/sys.driver/driver-prosemirror
