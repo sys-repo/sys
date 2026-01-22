@@ -1,11 +1,9 @@
-import { describe, expect, it } from '../../-test.ts';
-import { SlugClient, SlugUrl } from '../mod.ts';
-import type { t } from '../common.ts';
-import type { SpecTimelineAssetsManifest, SpecTimelineManifest, SpecTimelineAsset } from '../t.ts';
+export type HttpFixtureResponse = {
+  readonly status?: number;
+  readonly statusText?: string;
+};
 
-type HttpFixtureResponse = { status?: number; statusText?: string };
-
-export function jsonResponse(body: unknown, options: HttpFixtureResponse = {}) {
+export function jsonResponse(body: unknown, options: HttpFixtureResponse = {}): Response {
   return new Response(JSON.stringify(body), {
     status: options.status ?? 200,
     statusText: options.statusText ?? 'OK',
