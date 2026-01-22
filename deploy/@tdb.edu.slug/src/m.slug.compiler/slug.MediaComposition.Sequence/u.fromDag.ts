@@ -2,7 +2,7 @@ import { type t, makeParser, Obj, SlugSchema } from './common.ts';
 import { normalizeEditorSequenceForTypedYaml } from './u.normalize.dsl.ts';
 
 type O = Record<string, unknown>;
-type R = t.ValidateResult<t.SequenceItem[]>;
+type R = t.SlugValidateResult<t.SequenceItem[]>;
 
 /**
  * Derive a Sequence array from a Slug node within a DAG.

@@ -18,6 +18,8 @@ export type SlugManifestSchemaLib = {
   };
 };
 
-export type SlugValidateAssetsManifest = (input: unknown) => t.ValidateResult<t.SlugAssetsManifest>;
+export type SlugValidateAssetsManifest = (
+  input: unknown,
+) => t.SlugValidateResult<t.SlugAssetsManifest>;
 export type SlugValidatePlaybackManifest = (input: unknown) => SlugValidatePlaybackManifestResult;
-export type SlugValidatePlaybackManifestResult = t.ValidateResult<t.SlugPlaybackManifest>;
+export type SlugValidatePlaybackManifestResult = t.SlugValidateResult<t.SlugPlaybackManifest>;

@@ -21,7 +21,7 @@ export type SlugSequenceLib = {
   /**
    * Structural validation of an authoring-time sequence.
    */
-  validate(input: unknown): t.ValidateResult<t.SequenceItem[]>;
+  validate(input: unknown): t.SlugValidateResult<t.SequenceItem[]>;
 
   /**
    * Extract a sequence from a CRDT DAG at a given YAML path.
@@ -32,5 +32,5 @@ export type SlugSequenceLib = {
     yamlPath: t.ObjectPath,
     docid: t.Crdt.Id,
     opts?: { validate?: boolean; trait?: t.SlugTraitGateOptions | null },
-  ): Promise<t.ValidateResult<t.SequenceItem[]>>;
+  ): Promise<t.SlugValidateResult<t.SequenceItem[]>>;
 };

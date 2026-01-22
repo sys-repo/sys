@@ -2,7 +2,7 @@ import { type t, makeParser, Obj, SlugSchema } from './common.ts';
 
 type O = Record<string, unknown>;
 
-type R = t.ValidateResult<t.SlugTreeItems>;
+type R = t.SlugValidateResult<t.SlugTreeItems>;
 
 export const fromDag: t.SlugTreeLib['fromDag'] = async (dag, yamlPath, docid, opts = {}) => {
   const { validate = false } = opts;

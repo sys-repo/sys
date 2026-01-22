@@ -10,7 +10,7 @@ export type SlugTreeSchemaLib = {
 export type SlugTreeValidate = (
   input: unknown,
   opts?: t.SlugTreeValidateOpts,
-) => t.ValidateResult<t.SlugTreeItems>;
+) => t.SlugValidateResult<t.SlugTreeItems>;
 export type SlugTreeValidateOpts = { readonly registry?: t.SlugTraitRegistry };
 
 export type SlugTreeSchemaIsLib = {

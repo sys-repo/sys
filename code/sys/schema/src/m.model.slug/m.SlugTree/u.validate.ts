@@ -5,11 +5,11 @@ import { SlugTreePropsSchema } from './u.schema.ts';
 const SLUG_TREE_REGISTRY = makeRegistry([{ id: 'slug-tree', propsSchema: SlugTreePropsSchema }]);
 
 export const validate: t.SlugTreeSchemaLib['validate'] = (input, opts = {}) => {
-  const ok = (tree: t.SlugTreeItems): t.ValidateOK<t.SlugTreeItems> => ({
+  const ok = (tree: t.SlugTreeItems): t.SlugValidateOK<t.SlugTreeItems> => ({
     ok: true,
     sequence: tree,
   });
-  const fail = (message: string): t.ValidateFail => ({
+  const fail = (message: string): t.SlugValidateFail => ({
     ok: false,
     error: new Error(message),
   });

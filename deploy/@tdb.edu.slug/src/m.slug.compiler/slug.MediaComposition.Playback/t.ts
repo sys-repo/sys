@@ -17,7 +17,7 @@ export type SlugPlaybackLib = {
     yamlPath: t.ObjectPath,
     docid: t.Crdt.Id,
     opts?: { validate?: boolean; trait?: t.SlugTraitGateOptions | null },
-  ): Promise<t.ValidateResult<t.SlugPlaybackSpec>>;
+  ): Promise<t.SlugValidateResult<t.SlugPlaybackSpec>>;
 };
 
 /** Slug-specific playback spec: generic timecode spec + beat payload. */

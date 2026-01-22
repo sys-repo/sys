@@ -12,7 +12,7 @@ export type SlugSequenceSchemaLib = {
   readonly List: t.ArrSpec;
 
   /** Structural validation of an authoring-time sequence. */
-  validate(input: unknown): t.ValidateResult<t.SequenceItem[]>;
+  validate(input: unknown): t.SlugValidateResult<t.SequenceItem[]>;
 
   /** Checks invariants that sit on top of the raw JSON schema */
   checkInvariants(sequence: t.SequenceItem[]): string | undefined;

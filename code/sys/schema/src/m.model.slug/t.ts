@@ -31,6 +31,6 @@ export type SlugSchemaLib = {
 /**
  * Validation result.
  */
-export type ValidateResult<T> = ValidateOK<T> | ValidateFail;
-export type ValidateOK<T> = { ok: true; sequence: T };
-export type ValidateFail = { ok: false; error: Error };
+export type SlugValidateResult<T> = SlugValidateOK<T> | SlugValidateFail;
+export type SlugValidateOK<T> = { ok: true; sequence: T };
+export type SlugValidateFail = { ok: false; error: Error };

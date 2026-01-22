@@ -10,7 +10,7 @@ export type SlugTreeFromDag = (
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   opts?: t.SlugTreeFromDagOpts,
-) => Promise<t.ValidateResult<t.SlugTreeItems>>;
+) => Promise<t.SlugValidateResult<t.SlugTreeItems>>;
 export type SlugTreeFromDagOpts = {
   readonly validate?: boolean;
   readonly trait?: t.SlugTraitGateOptions | null;
