@@ -8,12 +8,12 @@ const CACHE_INIT: RequestInit = { cache: 'no-cache' };
 export async function loadAssets(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  init?: RequestInit,
+  options?: t.SlugLoadOptions,
 ): Promise<t.Result<t.SpecTimelineAssetsManifest>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.assetsFilename(cleanedDocid));
-  const req: RequestInit = { ...CACHE_INIT, ...(init ?? {}) };
+  const req: RequestInit = { ...CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = CACHE_INIT.cache;
 
   const res = await fetch.json<unknown>(url, req);

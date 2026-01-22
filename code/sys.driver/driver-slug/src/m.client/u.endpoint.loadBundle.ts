@@ -9,10 +9,10 @@ export async function loadBundle<P = unknown>(
   docid: t.StringId,
   opts?: t.SlugLoadOptions,
 ): Promise<t.Result<t.SpecTimelineBundle<P>>> {
-  const assetsResult = await loadAssets(baseUrl, docid, opts?.init);
+  const assetsResult = await loadAssets(baseUrl, docid, opts);
   if (!assetsResult.ok) return { ok: false, error: assetsResult.error };
 
-  const playbackResult = await loadPlayback<P>(baseUrl, docid, opts?.init);
+  const playbackResult = await loadPlayback<P>(baseUrl, docid, opts);
   if (!playbackResult.ok) return { ok: false, error: playbackResult.error };
 
   const cleanedDocid = SlugUrl.clean(docid);

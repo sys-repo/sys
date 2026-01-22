@@ -27,18 +27,18 @@ export type SlugFromEndpointLib = {
   loadAssets(
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    init?: RequestInit,
+    options?: t.SlugLoadOptions,
   ): Promise<t.Result<t.SpecTimelineAssetsManifest>>;
 
   loadPlayback<P = unknown>(
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    init?: RequestInit,
+    options?: t.SlugLoadOptions,
   ): Promise<t.Result<t.SpecTimelineManifest<P>>>;
 
   loadBundle<P = unknown>(
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    options?: t.SlugLoadBundleOptions,
+    options?: t.SlugLoadOptions,
   ): Promise<t.Result<t.SpecTimelineBundle<P>>>;
 };

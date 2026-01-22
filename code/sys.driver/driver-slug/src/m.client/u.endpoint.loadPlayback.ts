@@ -9,12 +9,12 @@ const CACHE_INIT: RequestInit = { cache: 'no-cache' };
 export async function loadPlayback<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  init?: RequestInit,
+  options?: t.SlugLoadOptions,
 ): Promise<t.Result<t.SpecTimelineManifest<P>>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
   const url = Url.parse(baseUrl).join('manifests', SlugUrl.playbackFilename(cleanedDocid));
-  const req: RequestInit = { ...CACHE_INIT, ...(init ?? {}) };
+  const req: RequestInit = { ...CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = CACHE_INIT.cache;
 
   const res = await fetch.json<unknown>(url, req);
