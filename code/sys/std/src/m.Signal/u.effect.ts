@@ -25,6 +25,16 @@ export const effect: t.SignalEffectListener = (fn, opts = {}) => {
         }
         return life;
       },
+
+      await(fn) {
+        const run = e.life;
+        void Try.run(fn).then((r) =>
+          r.catch((err) => {
+            if (run.signal.aborted) return;
+            throw err;
+          }),
+        );
+      },
     };
 
     const cleanup = fn(e);

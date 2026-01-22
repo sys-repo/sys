@@ -7,7 +7,7 @@ describe('Signal.effect', () => {
     expect(Signal.effect).to.equal(effect);
   });
 
-  it('basic reactivity', () => {
+  it('Signal.effect: basic reactivity', () => {
     const s = Signal.create<number>(0);
 
     let count = 0;
@@ -22,7 +22,7 @@ describe('Signal.effect', () => {
     expect(count).to.eql(2);
   });
 
-  describe('effect( lifecycle )', () => {
+  describe('Signal.effect({ lifecycle })', () => {
     it('lazy instance → stable return ', () => {
       const s = Signal.create<number>(0);
 
