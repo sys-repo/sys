@@ -24,7 +24,7 @@ export type SignalEffectFnArgs = {
    * Contract:
    * - The task is started immediately and is tied to this run via closure over `life`.
    * - Implementations should suppress errors after `life` aborts.
-   * - Callers must guard post-`await` commits via `if (life.aborted) return`.
+   * - Callers must guard post-`await` commits via `if (life.signal.aborted) return`.
    */
   await(fn: () => Promise<void>): void;
 };

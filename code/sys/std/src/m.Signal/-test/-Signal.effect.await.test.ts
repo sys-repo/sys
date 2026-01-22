@@ -2,7 +2,7 @@ import { type t, describe, expect, it } from '../../-test.ts';
 import { Signal } from '../mod.ts';
 import { effect } from '../u.effect.ts';
 
-describe('Signal.effect: async/await', () => {
+describe('Signal.effect: e.await', () => {
   const tick = () => new Promise<void>((r) => setTimeout(r, 0));
 
   const trapUnhandled = () => {
