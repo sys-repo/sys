@@ -12,6 +12,7 @@ export async function main() {
     'code/sys/',
     'code/sys.ui/',
     'code/sys.driver/',
+    'code/sys.model/',
     'code/sys.dev',
     'code/sys.tools',
     'code/-tmpl',
