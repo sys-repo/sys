@@ -1,3 +1,3 @@
 export * from '../common.ts';
-export { AssetsSchema } from '@sys/schema/slug/assets';
-export { PlaybackSchema } from '@sys/schema/timecode/playback';
+export { AssetsSchema } from '@sys/schema/model/slug/assets';
+export { PlaybackSchema } from '@sys/schema/model/timecode/playback';
