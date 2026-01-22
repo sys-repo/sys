@@ -16,7 +16,8 @@
     "./types": "./src/types.ts",
     "./recipe": "./src/-exports/-core.recipe.ts",
     "./testing": "./src/-exports/-testing.ts",
-    "./model/slug/assets": "./src/m.model.slug.assets/mod.ts",
+    "./model/slug": "./src/m.model.slug/mod.ts",
+    "./model/slug/assets": "./src/m.model.slug/slug.assets/mod.ts",
     "./model/timecode/playback": "./src/m.model.timecode.playback/mod.ts"
   }
 }

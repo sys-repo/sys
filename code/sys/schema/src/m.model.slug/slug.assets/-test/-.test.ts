@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { AssetsSchema } from '../mod.ts';
 
 describe(`schema/model/slug/assets`, () => {

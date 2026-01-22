@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from '../../../-test.ts';
 import { Schema } from '../common.ts';
 import { AssetsSchema } from '../mod.ts';
 import { schema } from '../u.manifest.schema.ts';
