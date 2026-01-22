@@ -15,15 +15,22 @@ export type SlugAssetsManifest = {
   readonly assets: readonly SlugAsset[];
 };
 
-export type SlugAssetKind = 'video' | 'image';
+/** Media types emitted in a slug bundle. */
+export type SlugAssetKind = t.Timecode.Playback.MediaKind;
+
+/** A single bundled asset with its hashed filename and resolved href. */
 export type SlugAsset = {
-  readonly kind: SlugAssetKind;
+  readonly kind: t.SlugAssetKind;
   readonly logicalPath: t.StringPath;
-  readonly hash: string;
-  readonly filename: string;
+  readonly hash: t.StringHash;
+  readonly filename: t.StringName;
   readonly href: string;
+
+  /** Filesystem / media statistics (when known). */
   readonly stats?: {
+    /** File size in bytes. */
     readonly bytes?: t.NumberBytes;
+    /** Media duration (typically video or audio only). */
     readonly duration?: t.Msecs;
   };
 };

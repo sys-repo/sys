@@ -8,7 +8,7 @@ export type { FC, ReactElement, ReactNode } from 'react';
  */
 export type * from '@sys/types';
 
-export type * from '@sys/schema/model/timecode/playback/t';
+export type * from '@sys/model/timecode/playback/t';
 export type * from '@sys/model-slug/t';
 
 export type { Crdt } from '@sys/driver-automerge/t';

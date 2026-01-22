@@ -1,8 +1,8 @@
 /** System */
 export { Hash } from '@sys/crypto/hash';
 export { Http } from '@sys/http/client';
+export { SlugSchema } from '@sys/model-slug';
 export { Schema, Type, Value } from '@sys/schema';
-export { SlugSchema } from '@sys/schema/model/slug';
 export { toSchema, V } from '@sys/schema/recipe';
 export { Arr, Err, Is, Json, Lazy, Log, Num, Obj, Pkg, slug, Str, Time, Try, Url } from '@sys/std';
 export { AliasResolver } from '@sys/std/alias';
