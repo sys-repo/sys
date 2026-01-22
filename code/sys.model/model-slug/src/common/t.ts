@@ -8,11 +8,11 @@ export type {
   SchemaError,
   SchemaResult,
   StandardSchemaV1,
-  TimecodePlaybackSchemaLib,
   TSchema,
   ValueError,
 } from '@sys/schema/t';
 export type { Timecode } from '@sys/std/t';
+export type { TimecodePlaybackSchemaLib } from '@sys/model/t';
 
 /**
  * @local

@@ -1,8 +1,5 @@
 import type { t } from './common.ts';
-import type {
-  PlaybackManifest,
-  TimecodePlaybackSchemaLib,
-} from '@sys/schema/t';
+import type { PlaybackManifest, TimecodePlaybackSchemaLib } from '@sys/model/t';
 
 
 export type SlugManifestSchemaLib = {

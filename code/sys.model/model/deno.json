@@ -12,6 +12,8 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./types": "./src/types.ts",
+    "./timecode/playback": "./src/m.timecode.playback/mod.ts",
+    "./timecode/playback/t": "./src/m.timecode.playback/t.ts"
   }
 }

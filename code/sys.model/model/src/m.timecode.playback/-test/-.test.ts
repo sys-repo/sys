@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../-test.ts';
 import { PlaybackSchema } from '../mod.ts';
 
-describe(`schema/model/timecode/playback`, () => {
+describe(`timecode.playback`, () => {
   it('API', async () => {
-    const m = await import('@sys/schema/model/timecode/playback');
+    const m = await import('@sys/model/timecode/playback');
     expect(m.PlaybackSchema).to.equal(PlaybackSchema);
   });
 });

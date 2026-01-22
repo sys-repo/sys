@@ -14,5 +14,3 @@ export type * from './m.core.schema/t.ts';
 export type * from './m.testing/t.ts';
 export type * from './t.namespace.ts';
 export type * from './t.typebox.ts';
-
-export type * from './m.model.timecode.playback/t.ts';
