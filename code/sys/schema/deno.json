@@ -12,8 +12,8 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./t/primitives": "./src/t.typebox.primitives.ts",
     "./types": "./src/types.ts",
+    "./primitives/t": "./src/t.typebox.primitives.ts",
     "./recipe": "./src/-exports/-core.recipe.ts",
     "./testing": "./src/-exports/-testing.ts",
     "./model/slug": "./src/m.model.slug/mod.ts",
