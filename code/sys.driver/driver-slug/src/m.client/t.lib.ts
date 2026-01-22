@@ -1,16 +1,27 @@
 import type { t } from './common.ts';
 
-export type SlugClientUrlLib = {
-  readonly clean: (docid: t.StringId) => t.StringId;
-  readonly assetsFilename: (docid: t.StringId) => string;
-  readonly playbackFilename: (docid: t.StringId) => string;
-};
-
 export type SlugClientLib = {
   readonly Error: t.SlugClientErrorLib;
   readonly Url: t.SlugClientUrlLib;
   readonly FromEndpoint: t.SlugFromEndpointLib;
 };
+
+export type SlugClientUrlLib = {
+  readonly clean: (docid: t.StringId) => t.StringId;
+  readonly assetsFilename: (docid: t.StringId) => string;
+  readonly playbackFilename: (docid: t.StringId) => string;
+  readonly isAbsoluteHref: (href: string) => boolean;
+};
+
+export type SlugClientErrorLib = {
+  unwrap<T>(res: t.Result<T>): T;
+  throw(err: t.SlugClientError): never;
+};
+
+/**
+ * Endpoint loaders:
+ */
+export type SlugLoadOptions = { init?: RequestInit; baseHref?: t.StringUrl };
 
 export type SlugFromEndpointLib = {
   loadAssets(
@@ -30,11 +41,4 @@ export type SlugFromEndpointLib = {
     docid: t.StringId,
     options?: t.SlugLoadBundleOptions,
   ): Promise<t.Result<t.SpecTimelineBundle<P>>>;
-};
-
-export type SlugLoadBundleOptions = { init?: RequestInit; baseHref?: t.StringUrl };
-
-export type SlugClientErrorLib = {
-  unwrap<T>(res: t.Result<T>): T;
-  throw(err: t.SlugClientError): never;
 };
