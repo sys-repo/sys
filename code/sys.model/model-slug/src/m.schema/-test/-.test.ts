@@ -8,7 +8,9 @@ import { SlugSchema } from '../mod.ts';
 describe(`schema/model/slug`, () => {
   it('API', async () => {
     const m = await import('@sys/model-slug');
+    const mm = await import('@sys/model-slug/schema');
     expect(m.SlugSchema).to.equal(SlugSchema);
+    expect(mm.SlugSchema).to.equal(SlugSchema);
     expect(SlugSchema.Tree).to.equal(SlugTreeSchema);
     expect(SlugSchema.Manifest).to.equal(ManifestSchema);
     expect(SlugSchema.MediaComposition).to.equal(MediaCompositionSchema);
