@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 import type { PlaybackManifest, TimecodePlaybackSchemaLib } from '@sys/model/t';
 
+export type SlugPlaybackManifest = PlaybackManifest;
 
 export type SlugManifestSchemaLib = {
   readonly Assets: t.SlugAssetsSchemaLib;

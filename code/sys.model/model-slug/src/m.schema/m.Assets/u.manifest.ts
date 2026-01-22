@@ -9,7 +9,7 @@ export const standard: t.SlugAssetsManifestSchemaLib['standard'] = () => {
 export const parse: t.SlugAssetsManifestSchemaLib['parse'] = (input, args) => {
   const sch = schema();
   if (Schema.Value.Check(sch, input)) {
-    return { ok: true as const, value: input as t.AssetsManifest };
+    return { ok: true, value: input as t.SlugAssetsManifest };
   }
 
   const errors = Array.from(Schema.Value.Errors(sch, input));

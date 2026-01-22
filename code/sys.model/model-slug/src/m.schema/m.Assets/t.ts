@@ -6,28 +6,24 @@ export type SlugAssetsSchemaLib = {
 
 export type SlugAssetsManifestSchemaLib = {
   readonly schema: (args?: never) => t.TSchema;
-  readonly standard: (args?: never) => t.StandardSchemaV1<unknown, AssetsManifest>;
-  readonly parse: (input: unknown, args?: never) => t.SchemaResult<AssetsManifest>;
+  readonly standard: (args?: never) => t.StandardSchemaV1<unknown, t.SlugAssetsManifest>;
+  readonly parse: (input: unknown, args?: never) => t.SchemaResult<t.SlugAssetsManifest>;
 };
 
-/**
- * TODO 🐷 prefix Slug
- */
-export type AssetKind = 'video' | 'image';
-
-export type AssetsManifest = {
+export type SlugAssetsManifest = {
   readonly docid: t.StringId;
-  readonly assets: readonly Asset[];
+  readonly assets: readonly SlugAsset[];
 };
 
-export type Asset = {
-  readonly kind: AssetKind;
+export type SlugAssetKind = 'video' | 'image';
+export type SlugAsset = {
+  readonly kind: SlugAssetKind;
   readonly logicalPath: t.StringPath;
   readonly hash: string;
   readonly filename: string;
   readonly href: string;
   readonly stats?: {
-    readonly bytes?: number;
+    readonly bytes?: t.NumberBytes;
     readonly duration?: t.Msecs;
   };
 };
