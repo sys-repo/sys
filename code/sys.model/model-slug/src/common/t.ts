@@ -1,7 +1,6 @@
 /**
  * @system
  */
-export type * from '@sys/schema/model/slug/t';
 export type * from '@sys/types';
 
 export type { SchemaError } from '@sys/schema/t';
