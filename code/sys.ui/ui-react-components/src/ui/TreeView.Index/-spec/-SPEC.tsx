@@ -29,9 +29,11 @@ export default Spec.describe(D.displayName, (e) => {
             debug={v.debug}
             theme={v.theme}
             style={{ width }}
+            showChevron={v.showChevron}
             //
             root={debug.root}
             path={v.path}
+            //
             // onPointer={(e) => console.info(`⚡️ onPointer:`, e)}
             onPressDown={(e) => {
               console.info(`⚡️ onPressDown:`, e);

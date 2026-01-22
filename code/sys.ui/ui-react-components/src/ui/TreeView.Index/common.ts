@@ -1,3 +1,4 @@
+import type { t } from '../common.ts';
 import { pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
@@ -15,5 +16,6 @@ export const DEFAULTS = {
   minWidth: 280,
   slideDuration: 200,
   slideOffset: 50,
+  showChevron: 'auto' satisfies t.IndexTreeViewChevronMode,
 } as const;
 export const D = DEFAULTS;

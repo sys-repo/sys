@@ -2,9 +2,10 @@ import React from 'react';
 
 import { type t, Color, css, D, Data, IndexTreeViewItem, Is, Obj } from './common.ts';
 import { SlideDeck } from './u.SlideDeck.tsx';
+import { resolveShowChevron } from './u.chevron.ts';
 
 export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
-  const { debug = false, minWidth, root } = props;
+  const { debug = false, minWidth, root, mode = D.showChevron } = props;
 
   // Normalize root → list; then drill to `path`.
   const rootList = React.useMemo(() => Data.toList(root), [root]);
@@ -40,18 +41,20 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
         offset={props.slideOffset}
       >
         {view.map((node) => {
+          const showChevron = resolveShowChevron(node, mode);
           const enabled = Boolean(node.meta?.enabled ?? true);
+
           return (
             <IndexTreeViewItem
               key={node.key}
               debug={debug}
               theme={theme.name}
               label={node.label}
-              chevron={Data.hasChildren(node)}
+              chevron={showChevron}
               enabled={enabled}
-              onPointer={(e) => props.onPointer?.(toPointerEvent(node, e))}
+              onPointer={(e) => props.onPointer?.(toPointerEvent(node, e, showChevron))}
               onPressDown={(e) => {
-                const pointerEvent = toPointerEvent(node, e);
+                const pointerEvent = toPointerEvent(node, e, showChevron);
                 props.onNodeSelect?.({
                   is: { leaf: !pointerEvent.hasChildren },
                   path: node.path ?? [],
@@ -59,7 +62,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
                 });
                 props.onPressDown?.(pointerEvent);
               }}
-              onPressUp={(e) => props.onPressUp?.(toPointerEvent(node, e))}
+              onPressUp={(e) => props.onPressUp?.(toPointerEvent(node, e, showChevron))}
               description={Is.str(node.meta?.description) ? node.meta.description : undefined}
             />
           );
@@ -72,7 +75,10 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
 /**
  * Helpers:
  */
-function toPointerEvent(node: t.TreeViewNode, e: t.PointerEventsArg): t.IndexTreeViewPointer {
-  const hasChildren = Data.hasChildren(node);
+function toPointerEvent(
+  node: t.TreeViewNode,
+  e: t.PointerEventsArg,
+  hasChildren: boolean,
+): t.IndexTreeViewPointer {
   return { ...e, node, hasChildren };
 }

@@ -1,5 +1,8 @@
 import type { t } from './common.ts';
 
+/** Chevron visibility override for lazy child placeholders. */
+export type IndexTreeViewChevronMode = 'auto' | 'always' | 'never';
+
 export type IndexTreeViewLib = {
   /** `<IndexTreeView>` component view. */
   UI: React.FC<t.IndexTreeViewProps>;
@@ -17,6 +20,8 @@ export type IndexTreeViewProps = {
   slideDuration?: t.Msecs;
   /** Horizontal slide offset in pixels applied during the fade. */
   slideOffset?: t.Pixels;
+  /** Chevron visibility override for lazy child placeholders. */
+  showChevron?: t.IndexTreeViewChevronMode;
 
   // Appearance:
   minWidth?: t.Pixels;

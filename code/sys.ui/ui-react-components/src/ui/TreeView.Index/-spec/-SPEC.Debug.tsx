@@ -6,10 +6,13 @@ import { IndexTreeView } from '../mod.ts';
 import { SAMPLE_YAML } from './-yaml.ts';
 
 type P = t.IndexTreeViewProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path'> & { yaml?: string };
+type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'showChevron'> & {
+  yaml?: string;
+};
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
+  showChevron: D.showChevron,
   yaml: SAMPLE_YAML,
   path: undefined,
 };
@@ -34,6 +37,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     yaml: s(snap.yaml),
     path: s(snap.path),
+    showChevron: s(snap.showChevron),
   };
   const p = props;
   const api = {
@@ -53,6 +57,7 @@ export function createDebugSignals() {
       d.debug = p.debug.value;
       d.yaml = p.yaml.value;
       d.path = p.path.value;
+      d.showChevron = p.showChevron.value;
     });
   });
 
@@ -107,6 +112,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
           return `yaml: ${v ? `"${Str.truncate(v, 35)}"` : `<undefined>`}`;
         }}
         onClick={() => Signal.cycle(p.yaml, [SAMPLE_YAML, undefined])}
+      />
+
+      <Button
+        block
+        label={() => `showChevron: ${p.showChevron.value}`}
+        onClick={() => {
+          type T = t.IndexTreeViewChevronMode;
+          Signal.cycle<T>(p.showChevron, [D.showChevron, 'always', 'never']);
+        }}
       />
 
       <Button
