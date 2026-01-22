@@ -1,8 +1,12 @@
 /**
  * @module
- * Assets manifest wire-format schema for slug-digit doc assets.
+ * Slug content model schemas.
  *
- * Runtime validation for slug assets manifests shared between producers and
- * consumers. Only the wire shape is enforced (no semantic validation).
+ * Canonical runtime schemas for Slug domain content.
+ * These schemas define the stable model shape used across authoring,
+ * storage, transport, and execution boundaries.
+ *
+ * Validation enforces structural and semantic correctness of the model,
+ * independent of how or where the data is transported.
  */
 export * from './slug.assets/mod.ts';
