@@ -1,12 +1,12 @@
 # @sys/model-slug
-Slug ingest + wiring driver.
+Slug ingest and orchestration layer.
 
-Pure edge/orchestration layer for loading **slug manifests** (tree, assets, playback),
-validating against `@sys/model`, and assembling **wire bundles** suitable for
-`TimecodePlaybackDriver` and other consumers.
+Loads slug manifests (tree, assets, playback), validates them against
+`@sys/model`, and assembles wire-ready bundles for
+`TimecodePlaybackDriver` and related consumers.
 
 - No UI
-- No FS assumptions beyond explicit loaders
+- No implicit filesystem assumptions (loaders are explicit)
 - Schema-truthful, minimal glue
 
 
@@ -16,7 +16,7 @@ validating against `@sys/model`, and assembling **wire bundles** suitable for
 import { SlugClient } from 'jsr:@sys/model-slug/client';
 
 // Load a playback-ready bundle (assets + timecode playback)
-const bundle = await SlugClient.loadBundleFromEndpoint(
+const bundle = await SlugClient.FromEndpoint.Bundle.load(
   'https://example.com/publish.assets',
   'crdt:my-doc',
 );
