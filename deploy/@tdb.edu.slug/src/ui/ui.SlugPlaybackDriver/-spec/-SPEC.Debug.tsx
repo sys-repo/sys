@@ -78,7 +78,7 @@ export async function createDebugSignals() {
     const tree = p.tree.value;
   });
 
-  /** Observe to relevant changes */
+  /** Sample: Observe to relevant changes */
   Signal.effect((e) => {
     const path = p.selectedPath.value;
     const tree = p.tree.value;
