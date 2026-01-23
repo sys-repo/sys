@@ -48,6 +48,21 @@ describe('Immutable Events', () => {
       expect(fired[0].patches[0]).to.eql(patches[0]);
     });
 
+    it('does not fire events on no-op change (empty patches)', () => {
+      const obj = Immutable.cloner<D>({ count: 0, list: [] });
+      const events = Immutable.Events.viaOverride(obj);
+
+      const fired: t.ImmutableChange<D, P>[] = [];
+      events.$.subscribe((e) => fired.push(e));
+
+      const before = obj.current;
+      obj.change(() => {});
+      expect(fired.length).to.eql(0);
+      expect(obj.current).to.equal(before);
+
+      events.dispose();
+    });
+
     describe('path() ← filter', () => {
       type PathEvents = t.ImmutablePathEvents<
         D,

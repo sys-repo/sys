@@ -28,8 +28,12 @@ export function cloner<T>(
       const prev = _current;
       const next = clone(_current);
       fn(next);
+
+      const patches = Wrangle.patches(prev, next);
+      if (patches.length === 0) return;
+
       _current = next;
-      Wrangle.options(options).patches?.(Wrangle.patches(prev, next));
+      Wrangle.options(options).patches?.(patches);
     },
   };
 }

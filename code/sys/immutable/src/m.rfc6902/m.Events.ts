@@ -63,6 +63,8 @@ export function curryChangeFunction<T, P = DefaultPatch>(
       },
     });
     const after = current();
+    if (patches.length === 0) return;
+
     $.next({ before, after, patches });
   };
 }

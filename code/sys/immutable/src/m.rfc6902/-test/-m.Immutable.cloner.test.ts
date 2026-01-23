@@ -137,5 +137,26 @@ describe('Immutable', () => {
       expect(fired1).to.eql(1);
       expect(fired2).to.eql(2);
     });
+
+    it('no-op change does not emit events or churn references', () => {
+      const obj = Immutable.clonerRef<D>({ count: 0 });
+      const before = obj.current;
+      const events = obj.events();
+
+      let fired = 0;
+      events.$.subscribe(() => fired++);
+
+      obj.change(() => {});
+      expect(obj.current).to.equal(before);
+      expect(fired).to.eql(0);
+
+      let patchCalls = 0;
+      obj.change(() => {}, { patches: () => patchCalls++ });
+      expect(obj.current).to.equal(before);
+      expect(patchCalls).to.eql(0);
+      expect(fired).to.eql(0);
+
+      events.dispose();
+    });
   });
 });
