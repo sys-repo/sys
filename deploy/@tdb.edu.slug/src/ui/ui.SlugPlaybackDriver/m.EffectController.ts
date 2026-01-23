@@ -62,14 +62,13 @@ function createKernel(): Controller {
     },
 
     onChange(fn) {
+      if (life.disposed) return () => {};
       listeners.add(fn);
       return () => listeners.delete(fn);
     },
   });
 
-  life.dispose$.subscribe(() => {
-    listeners.clear();
-  });
+  life.dispose$.subscribe(() => listeners.clear());
 
   return controller;
 }

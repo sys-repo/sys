@@ -130,5 +130,22 @@ describe('SlugPlaybackDriver.Controller', () => {
 
       ctrl.dispose();
     });
+
+    it('onChange after dispose is noop and safe', () => {
+      const ctrl = create();
+      const fired: unknown[] = [];
+
+      ctrl.dispose();
+
+      const unsub = ctrl.onChange(() => fired.push(1));
+      expect(typeof unsub).to.eql('function');
+
+      unsub();
+      unsub();
+
+      ctrl.next({ selectedPath: ['a'] });
+      expect(ctrl.rev).to.eql(0);
+      expect(fired.length).to.eql(0);
+    });
   });
 });

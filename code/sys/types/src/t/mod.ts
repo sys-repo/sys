@@ -6,6 +6,7 @@ export type * from './t.Boolean.ts';
 export type * from './t.Coord.ts';
 export type * from './t.Dispose.ts';
 export type * from './t.Dom.ts';
+export type * from './t.EffectController.ts';
 export type * from './t.Error.ts';
 export type * from './t.Font.ts';
 export type * from './t.Hash.ts';
