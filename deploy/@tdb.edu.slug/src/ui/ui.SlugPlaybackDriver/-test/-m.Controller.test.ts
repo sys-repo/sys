@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t, Is, Str } from '../common.ts';
+import { type t, Is } from '../common.ts';
 import { SlugPlaybackDriver } from '../mod.ts';
 import { TreeHost } from '../../ui.TreeHost/mod.ts';
 
@@ -72,21 +72,33 @@ describe('SlugPlaybackDriver.Controller', () => {
   describe('controller.next', () => {
     const fromSlugTree = TreeHost.Data.fromSlugTree;
 
-    it('increments rev (counter)', () => {
+    it('increments rev (counter) only when state changes', () => {
       const controller = SlugPlaybackDriver.Controller.create({});
       expect(controller.rev).to.eql(0);
+      expect(controller.state()).to.eql({});
 
       controller.next({});
       expect(controller.rev).to.eql(0);
+      expect(controller.state()).to.eql({});
 
-      controller.next({ selectedPath: ['one', 'two'] });
+      const path = ['one', 'two'] as t.ObjectPath;
+      controller.next({ selectedPath: path });
       expect(controller.rev).to.eql(1);
+      expect(controller.state()).to.eql({ selectedPath: path });
 
-      controller.next({ tree: fromSlugTree([{ slug: 'a' }]) });
+      controller.next({ selectedPath: path });
+      expect(controller.rev).to.eql(1);
+      expect(controller.state()).to.eql({ selectedPath: path });
+
+      const treeA = fromSlugTree([{ slug: 'a' }]);
+      controller.next({ tree: treeA });
       expect(controller.rev).to.eql(2);
+      expect(controller.state()).to.eql({ selectedPath: path, tree: treeA });
 
-      controller.next({ tree: fromSlugTree([{ slug: 'a' }, { slug: 'b' }]), selectedPath: ['a'] });
+      const treeB = fromSlugTree([{ slug: 'a' }, { slug: 'b' }]);
+      controller.next({ tree: treeB, selectedPath: ['a'] });
       expect(controller.rev).to.eql(3);
+      expect(controller.state()).to.eql({ selectedPath: ['a'], tree: treeB });
     });
   });
 });
