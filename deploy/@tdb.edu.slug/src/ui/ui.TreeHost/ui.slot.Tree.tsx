@@ -35,8 +35,7 @@ export const Tree: React.FC<P> = (props) => {
         if (!tree) return;
         const path = e.path ?? [];
         const node = Data.findViewNode(tree, path);
-        if (!node) return;
-        props.onNodeSelect?.({ tree, path, node, is: e.is });
+        if (node) props.onNodeSelect?.({ tree, path, node, is: e.is });
       }}
       onPressDown={(e) => {
         if (!tree) return;
