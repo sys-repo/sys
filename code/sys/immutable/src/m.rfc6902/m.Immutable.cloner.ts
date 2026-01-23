@@ -1,4 +1,4 @@
-import { type t, markProxy, Obj, Rx, slug, StdIs, Symbols, Try } from './common.ts';
+import { type t, markProxy, Obj, Rx, slug } from './common.ts';
 import { curryChangeFunction, viaObservable } from './m.Events.ts';
 import { Wrangle } from './u.ts';
 
