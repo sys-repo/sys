@@ -10,6 +10,7 @@ export type * from './m.Async.Schedule/t.ts';
 export type * from './m.Async/t.ts';
 export type * from './m.Delete/t.ts';
 export type * from './m.Dispose/t.ts';
+export type * from './m.EffectController/t.ts';
 export type * from './m.Err/t.ts';
 export type * from './m.Esm/t.ts';
 export type * from './m.Fn/t.ts';
