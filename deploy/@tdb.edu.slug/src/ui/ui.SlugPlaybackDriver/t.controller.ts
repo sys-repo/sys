@@ -1,34 +1,29 @@
 import type { t } from './common.ts';
 
 /**
- * Controller surface.
+ * Factory surface.
  */
 export type SlugPlaybackControllerLib = {
-  create(args?: {
-    baseUrl?: t.StringUrl;
-    props?: () => SlugPlaybackControllerProps;
-  }): SlugPlaybackController;
-};
-
-/** Controller inputs: slots. */
-export type SlugPlaybackControllerProps = {
-  slots?: t.TreeHostSlots;
+  create(args: { baseUrl: t.StringUrl }): SlugPlaybackController;
 };
 
 /**
- * SlugPlayback runtime controller surface.
+ * SlugPlaybackController state.
  */
-export type SlugPlaybackControllerState = {
+export type SlugPlaybackState = {
   readonly tree?: t.TreeHostViewNodeList;
   readonly selectedPath?: t.ObjectPath;
+  readonly isLoading?: boolean;
+  readonly error?: { readonly message: string };
+  readonly slug?: unknown; // Loaded bundle / manifest.
 };
 
-export type SlugPlaybackControllerPatch = Partial<SlugPlaybackControllerState>;
+/**
+ * Patch expresses intent.
+ */
+export type SlugPlaybackPatch = Partial<SlugPlaybackState>;
 
-export type SlugPlaybackController = t.Lifecycle & {
-  readonly id: t.StringId;
-  readonly rev: t.NumberMonotonic; // Monotonic change incrementer.
-  props(): SlugPlaybackControllerProps;
-  state(): SlugPlaybackControllerState;
-  next(args?: SlugPlaybackControllerPatch): void;
-};
+/**
+ * SlugPlaybackController — an EffectController for slug playback orchestration.
+ */
+export type SlugPlaybackController = t.EffectController<SlugPlaybackState, SlugPlaybackPatch>;

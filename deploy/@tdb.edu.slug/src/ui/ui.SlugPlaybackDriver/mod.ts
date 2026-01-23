@@ -5,7 +5,7 @@
  */
 import { Dev } from './-dev/mod.ts';
 import type { t } from './common.ts';
-import { Controller } from './m.Controller.ts';
+import { EffectController as Controller } from './m.EffectController.ts';
 
 export const SlugPlaybackDriver: t.SlugPlaybackDriverLib = {
   Dev,
