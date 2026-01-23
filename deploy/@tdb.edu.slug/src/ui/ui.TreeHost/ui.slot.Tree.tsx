@@ -30,6 +30,7 @@ export const Tree: React.FC<P> = (props) => {
       root={tree}
       minWidth={0}
       path={props.selectedPath}
+      showChevron={'always'}
       onNodeSelect={(e) => {
         if (!tree) return;
         const path = e.path ?? [];
@@ -40,7 +41,7 @@ export const Tree: React.FC<P> = (props) => {
       onPressDown={(e) => {
         if (!tree) return;
         if (e.hasChildren) {
-          // intent: navigate
+          // Intent: navigate.
           const path = e.node.path ?? [];
           props.onPathRequest?.({ tree, path });
         }

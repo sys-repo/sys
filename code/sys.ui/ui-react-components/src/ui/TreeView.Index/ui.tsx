@@ -5,7 +5,7 @@ import { SlideDeck } from './u.SlideDeck.tsx';
 import { resolveShowChevron } from './u.chevron.ts';
 
 export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
-  const { debug = false, minWidth, root, mode = D.showChevron } = props;
+  const { debug = false, minWidth, root } = props;
 
   // Normalize root → list; then drill to `path`.
   const rootList = React.useMemo(() => Data.toList(root), [root]);
@@ -41,9 +41,8 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
         offset={props.slideOffset}
       >
         {view.map((node) => {
-          const showChevron = resolveShowChevron(node, mode);
+          const showChevron = resolveShowChevron(node, props.showChevron ?? D.showChevron);
           const enabled = Boolean(node.meta?.enabled ?? true);
-
           return (
             <IndexTreeViewItem
               key={node.key}
