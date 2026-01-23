@@ -66,7 +66,6 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.selectedPath = p.selectedPath.value;
-      //
       d.load = p.load.value;
     });
   });
@@ -74,16 +73,33 @@ export async function createDebugSignals() {
   const load = () => void LoadSample.load(p.tree, p.load.value);
   Signal.effect(load);
 
-  /** Observe to relevant changes */
   Signal.effect(() => {
     const path = p.selectedPath.value;
     const tree = p.tree.value;
+  });
+
+  /** Observe to relevant changes */
+  Signal.effect((e) => {
+    const path = p.selectedPath.value;
+    const tree = p.tree.value;
+    const node = TreeHost.Data.findViewNode(tree, path);
 
     console.group(`👁️`);
     console.info('selectedPath:', path);
-    const node = TreeHost.Data.findViewNode(tree, path);
     console.info('findViewNode(tree, path):', tree ? node : '(no tree)');
     console.groupEnd();
+
+    const value = node?.value;
+    if (SlugSchema.Tree.Is.refOnly(value)) {
+      const ref = value.ref;
+      if (ref) {
+        const baseUrl = 'http://localhost:4040/publish.assets';
+        e.await(async () => {
+          const res = await SlugClient.FromEndpoint.Bundle.load(baseUrl, ref);
+          console.log('res', res);
+        });
+      }
+    }
   });
 
   return api;
