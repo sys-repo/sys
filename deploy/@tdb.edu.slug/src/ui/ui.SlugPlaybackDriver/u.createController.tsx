@@ -1,4 +1,4 @@
-import { type t, Player, Rx, slug } from '../common.ts';
+import { type t, Player, Rx, slug, Immutable } from '../common.ts';
 
 /**
  * SlugPlaybackController factory that creates elegant bridge between TreeHost selection
@@ -6,25 +6,25 @@ import { type t, Player, Rx, slug } from '../common.ts';
  */
 export const createController: t.SlugPlaybackControllerLib['create'] = (args = {}) => {
   const id = `slugplayback-${slug()}`;
+  let rev = 0;
 
-  let currentDriver: t.DisposableLike | undefined;
-
+  const state = Immutable.clonerRef<t.SlugPlaybackControllerNext>({});
   const controller = Rx.toLifecycle<t.SlugPlaybackController>({
     id,
+    get rev() {
+      return rev;
+    },
     props() {
       return args.props?.() ?? {};
     },
+    next(e = {}) {
+      state.change((d) => {
+        if (e.selectedPath != null) d.selectedPath = e.selectedPath;
+        if (e.tree != null) d.tree = e.tree;
+      });
+    },
   });
 
+  state.events(controller.dispose$).$.subscribe(() => (rev += 1));
   return controller;
 };
-
-/**
- * Create minimal video decks for PlaybackDriver.
- */
-function createDecks() {
-  return { A: createVideo(), B: createVideo() };
-}
-function createVideo() {
-  Player.Video.signals({ cornerRadius: 4, showControls: false, muted: true });
-}

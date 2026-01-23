@@ -1,6 +1,7 @@
 /** System */
 export { Hash } from '@sys/crypto/hash';
 export { Http } from '@sys/http/client';
+export { Immutable } from '@sys/immutable/rfc6902';
 export { SlugSchema } from '@sys/model-slug';
 export { Schema, Type, Value } from '@sys/schema';
 export { toSchema, V } from '@sys/schema/recipe';

@@ -20,8 +20,8 @@ export type TreeHostLib = {
 export type TreeHostProps = {
   slots?: t.TreeHostSlots;
   tree?: t.TreeHostViewNodeList;
-  split?: t.Percent[];
   selectedPath?: t.ObjectPath;
+  split?: t.Percent[];
 
   debug?: boolean;
   theme?: t.CommonTheme;
