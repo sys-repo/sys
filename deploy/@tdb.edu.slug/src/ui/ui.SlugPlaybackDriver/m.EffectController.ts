@@ -1,12 +1,10 @@
-import { type t, Rx, slug } from '../common.ts';
+import { type t, Immutable, Rx, slug } from '../common.ts';
 import { attachSlugLoaderEffect } from './u.attachSlugLoaderEffect.ts';
 
 type State = t.SlugPlaybackState;
 type Patch = t.SlugPlaybackPatch;
 type Controller = t.SlugPlaybackController;
 type ChangeHandler = t.EffectControllerChangeHandler<State>;
-
-// type CreateArgs = { baseUrl: t.StringUrl };
 
 type M = t.SlugPlaybackControllerLib;
 
@@ -30,15 +28,17 @@ const create: M['create'] = (args) => {
 function createKernel(): Controller {
   const id = `slug-playback-${slug()}`;
   const life = Rx.lifecycle();
+  const state = Immutable.clonerRef<State>({});
+  const events = state.events(life.dispose$);
   const listeners = new Set<ChangeHandler>();
 
   let _rev = 0;
-  let _state: State = {};
 
-  const notify = () => {
-    const state = _state;
-    listeners.forEach((fn) => fn(state));
-  };
+  // Notify listeners on state change.
+  events.$.subscribe(({ after }) => {
+    _rev += 1;
+    listeners.forEach((fn) => fn(after));
+  });
 
   const controller = Rx.toLifecycle<Controller>(life, {
     id,
@@ -47,18 +47,12 @@ function createKernel(): Controller {
     },
 
     current() {
-      return _state;
+      return state.current;
     },
 
     next(patch: Patch = {}) {
       if (life.disposed) return;
-
-      const next = { ..._state, ...patch };
-      if (shallowEqual(_state, next)) return;
-
-      _state = next;
-      _rev += 1;
-      notify();
+      state.change((d) => Object.assign(d, patch));
     },
 
     onChange(fn) {
@@ -71,19 +65,6 @@ function createKernel(): Controller {
   life.dispose$.subscribe(() => listeners.clear());
 
   return controller;
-}
-
-/**
- * Shallow compare top-level keys by reference (Object.is).
- */
-function shallowEqual<T extends Record<string, unknown>>(a: T, b: T): boolean {
-  const keysA = Object.keys(a) as (keyof T)[];
-  const keysB = Object.keys(b) as (keyof T)[];
-  if (keysA.length !== keysB.length) return false;
-  for (const k of keysA) {
-    if (!Object.is(a[k], b[k])) return false;
-  }
-  return true;
 }
 
 /**
