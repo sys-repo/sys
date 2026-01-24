@@ -2,6 +2,7 @@ import { type t, pkg, Pkg } from '../common.ts';
 import { D as VIDEO_DEFAULTS } from '../Player.Video.Element/common.ts';
 
 export * from '../common.ts';
+export { VideoSignals } from '../Player.Video.Signals/mod.ts';
 
 type P = t.VideoDecksProps;
 

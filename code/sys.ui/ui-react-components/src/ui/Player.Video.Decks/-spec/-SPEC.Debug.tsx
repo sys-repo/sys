@@ -1,11 +1,12 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import {
-  SampleVideoButtons,
-  SAMPLE_PATHS,
   SAMPLE_BASEURLS,
+  SAMPLE_PATHS,
+  SampleVideoButtons,
 } from '../../Player.Video.Element/-spec/mod.ts';
+import { Button, ObjectView } from '../../u.ts';
+import { Color, css, D, LocalStorage, Obj, Signal, type t, Url } from '../common.ts';
+import { VideoDecks } from '../mod.ts';
 
 type P = t.VideoDecksProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'aspectRatio' | 'muted' | 'active'> & {
@@ -21,7 +22,7 @@ const defaults: Storage = {
   muted: D.muted,
   //
   width: 320,
-  baseUrl: 'https://fs.socialleancanvas.com',
+  baseUrl: SAMPLE_BASEURLS[0],
   urlPath: SAMPLE_PATHS[0],
 };
 
@@ -36,9 +37,9 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const decks = VideoDecks.create();
 
   const props = {
     debug: s(snap.debug),
@@ -54,6 +55,8 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    decks,
+    url: () => Url.parse(p.baseUrl.value).join(p.urlPath.value ?? ''),
     listen,
     reset,
   };
@@ -147,14 +150,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <SampleVideoButtons baseUrl={p.baseUrl.value} signal={p.urlPath} />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button
         block
         label={() => `baseUrl: ${p.baseUrl.value}`}
         onClick={() => Signal.cycle(p.baseUrl, SAMPLE_BASEURLS)}
       />
+      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView
+        name={'decks'}
+        data={Signal.toObject(debug.decks)}
+        style={{ marginTop: 6 }}
+        expand={1}
+      />
     </div>
   );
 };

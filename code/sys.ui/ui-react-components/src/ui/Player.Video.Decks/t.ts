@@ -3,7 +3,10 @@ import type { t } from './common.ts';
 /**
  * Renders A/B video decks.
  */
-export type VideoDecksLib = { readonly UI: t.FC<VideoDecksProps> };
+export type VideoDecksLib = {
+  readonly UI: t.FC<VideoDecksProps>;
+  readonly create: (opts?: { cornerRadius?: t.Pixels }) => t.VideoDecks;
+};
 
 /**
  * Component:

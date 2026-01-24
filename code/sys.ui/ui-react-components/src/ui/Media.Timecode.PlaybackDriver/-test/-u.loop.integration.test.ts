@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { playerSignalsFactory } from '../../Player.Video.Signals/m.Signals.ts';
+import { VideoSignals } from '../../Player.Video.Signals/mod.ts';
 
 import { makeDeterministicSchedule } from './u.fixture.deterministicSchedule.ts';
 import { pauseWindowLoopFixture } from './u.fixture.pauseWindowClamp.ts';
@@ -21,8 +21,8 @@ describe(`Timecode.Driver closed-loop integration`, () => {
   const makeLoop = (timeline: t.TimecodeState.Playback.Timeline) => {
     const machine = TimecodeState.Playback;
     const { schedule, advance } = makeDeterministicSchedule();
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const inputs: t.TimecodeState.Playback.Input[] = [];
 
     const resolveBeatMedia: t.TimecodePlaybackDriver.ResolveBeatMedia = (beat) => {

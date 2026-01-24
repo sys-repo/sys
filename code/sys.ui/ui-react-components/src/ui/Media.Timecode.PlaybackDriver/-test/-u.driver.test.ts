@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { playerSignalsFactory } from '../../Player.Video.Signals/m.Signals.ts';
+import { VideoSignals } from '../../Player.Video.Signals/mod.ts';
 
 import { pauseClampWithBadDurationFixture } from './u.fixture.pauseWindowClamp.ts';
 import { makeDeterministicSchedule } from './u.fixture.deterministicSchedule.ts';
@@ -49,8 +49,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
 
     const inputs: readonly t.TimecodeState.Playback.Input[] = [];
     const seen: t.TimecodeState.Playback.Input[] = [];
@@ -116,8 +116,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const driver = PlaybackDriver.create({
@@ -167,8 +167,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const driver = PlaybackDriver.create({
@@ -198,8 +198,8 @@ describe(`PlaybackDriver.driver`, () => {
   it(`video:ready emits when a deck becomes ready`, () => {
     const { state } = readySignalFixture();
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const driver = PlaybackDriver.create({
@@ -219,8 +219,8 @@ describe(`PlaybackDriver.driver`, () => {
   it(`video:buffering emits when buffering toggles`, () => {
     const { state } = readySignalFixture();
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const driver = PlaybackDriver.create({
@@ -245,8 +245,8 @@ describe(`PlaybackDriver.driver`, () => {
   it(`video:playing emits when playback toggles`, () => {
     const { state } = readySignalFixture();
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const driver = PlaybackDriver.create({
@@ -294,8 +294,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const driver = PlaybackDriver.create({
@@ -355,8 +355,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const driver = PlaybackDriver.create({
@@ -390,8 +390,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     let pauses = 0;
@@ -452,8 +452,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const { schedule } = makeDeterministicSchedule();
@@ -513,8 +513,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
 
     const seen: t.TimecodeState.Playback.Input[] = [];
 
@@ -596,8 +596,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     let pauses = 0;
@@ -674,8 +674,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     let pauses = 0;
@@ -755,8 +755,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
     const { schedule, advance } = makeDeterministicSchedule();
 
@@ -830,8 +830,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
     const { schedule, advance } = makeDeterministicSchedule();
 
@@ -893,8 +893,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const { schedule, advance } = makeDeterministicSchedule();
@@ -962,8 +962,8 @@ describe(`PlaybackDriver.driver`, () => {
       ready: { machine: true, runner: true, deck: { A: true, B: true } },
     };
 
-    const A = playerSignalsFactory();
-    const B = playerSignalsFactory();
+    const A = VideoSignals.create();
+    const B = VideoSignals.create();
     const seen: t.TimecodeState.Playback.Input[] = [];
 
     const driver = PlaybackDriver.create({

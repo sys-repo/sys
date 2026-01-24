@@ -43,7 +43,11 @@ export async function createDebugSignals() {
 
   const Video = Player.Video;
   const createVideo = () => Video.signals({ cornerRadius: 4, showControls: false, muted: true });
-  const decks: t.TimecodePlaybackDriver.VideoDecks = { A: createVideo(), B: createVideo() };
+  const createDecks = (): t.VideoDecks => ({
+    A: createVideo(),
+    B: createVideo(),
+  });
+  const decks = createDecks();
 
   const props = {
     debug: s(snap.debug),
@@ -69,7 +73,7 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
     Sample.unload(api);
   }
 
