@@ -31,9 +31,9 @@ export function createTestController() {
  * Ensures lifecycle cleanup (dispose$, effects, timers) completes
  * before the test finishes, preventing CI-only leak failures.
  */
-export async function disposeTestController(ctrl: { dispose: () => void }): Promise<void> {
+export async function disposeTestController(ctrl: t.DisposableLike): Promise<void> {
   ctrl.dispose();
-  await Schedule.micro();
+  await Schedule.macro();
 }
 
 /**
