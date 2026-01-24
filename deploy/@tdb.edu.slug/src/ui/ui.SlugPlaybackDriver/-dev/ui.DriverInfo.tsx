@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  type t,
-  Schedule,
-  Color,
-  css,
-  D,
-  EffectController,
-  KeyValue,
-  ObjectView,
-} from './common.ts';
+import { type t, Color, css, D, EffectController, KeyValue, ObjectView } from './common.ts';
 
 export type DriverInfoProps = {
   title?: string;
@@ -19,7 +10,7 @@ export type DriverInfoProps = {
 };
 
 /**
- * Component:
+ * Component: Diagnostic panel showing SlugPlaybackController state.
  */
 export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
   const { debug = false, title = D.name, controller } = props;
@@ -27,8 +18,7 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
   /**
    * Hooks:
    */
-  const state = EffectController.useEffectController(controller, (state) => {
-  });
+  const state = EffectController.useEffectController(controller);
 
   /**
    * Render:
@@ -42,15 +32,18 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
   const items: t.KeyValueItem[] = [{ kind: 'title', v: title }];
   const add = (k: string, v: t.ReactNode) => items.push({ k, v, mono });
 
-  add('base-url', controller?.props.baseUrl ?? '-');
+  add('base url', controller?.props.baseUrl ?? '-');
+  add('selected path', state?.selectedPath?.join('/') ?? '-');
+  items.push({ kind: 'hr' });
+  add('loading', String(state?.isLoading ?? false));
+  add('bundle.docid', state?.bundle?.docid ?? '-');
+  add('error', state?.error?.message ?? '-');
 
   return (
     <div className={css(styles.base, props.style).class}>
       <KeyValue.UI items={items} theme={theme.name} />
 
-      {debug && (
-        <ObjectView name={'controller'} data={controller} style={{ marginTop: 6 }} expand={1} />
-      )}
+      {debug && <ObjectView name={'state'} data={state} style={{ marginTop: 6 }} expand={1} />}
     </div>
   );
 };
