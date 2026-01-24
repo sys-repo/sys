@@ -10,7 +10,7 @@ import { VideoDecks } from '../mod.ts';
 import { DeckControls } from './-ui.DeckControls.tsx';
 
 type P = t.VideoDecksProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'aspectRatio' | 'muted' | 'active'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'show' | 'aspectRatio' | 'muted' | 'active'> & {
   width?: t.Pixels;
   baseUrl?: t.StringUrl;
   urlPathA?: t.StringPath;
@@ -19,6 +19,7 @@ type Storage = Pick<P, 'debug' | 'theme' | 'aspectRatio' | 'muted' | 'active'> &
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  show: D.show,
   active: D.active,
   aspectRatio: D.aspectRatio,
   muted: D.muted,
@@ -47,6 +48,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    show: s(snap.show),
     active: s(snap.active),
     aspectRatio: s(snap.aspectRatio),
     muted: s(snap.muted),
@@ -80,6 +82,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.show = p.show.value;
       d.active = p.active.value;
       d.aspectRatio = p.aspectRatio.value;
       d.muted = p.muted.value;
@@ -141,6 +144,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
+      />
+
+      <Button
+        block
+        label={() => `show: ${p.show.value ?? `(undefined) ← default: ${D.show}`}`}
+        onClick={() => Signal.cycle(p.show, ['both', 'single', undefined])}
       />
 
       <Button

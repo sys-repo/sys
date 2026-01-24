@@ -13,6 +13,7 @@ export type VideoDecksLib = {
  */
 export type VideoDecksProps = {
   decks?: t.TimecodePlaybackDriver.VideoDecks;
+  show?: 'both' | 'single';
   active?: 'A' | 'B';
   aspectRatio?: t.VideoElementProps['aspectRatio'];
   muted?: t.VideoElementProps['muted'];
