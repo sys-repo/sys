@@ -34,7 +34,7 @@ export function create<State, Patch = Partial<State>>(
     next(patch?: Patch) {
       if (life.disposed) return;
       if (isNoop(ref.current, patch)) return;
-      const p = patch as Patch;
+      const p = patch ?? ({} as Patch);
       ref.change((d) => applyPatch(d, p));
     },
 
