@@ -42,6 +42,7 @@
     "@std/semver": "jsr:@std/semver@1.0.7",
     "@std/testing": "jsr:@std/testing@1.0.16",
     "@std/testing/bdd": "jsr:@std/testing@1.0.16/bdd",
+    "@std/testing/time": "jsr:@std/testing@1.0.16/time",
     "@std/uuid": "jsr:@std/uuid@1.1.0",
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",

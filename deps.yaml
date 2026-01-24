@@ -31,7 +31,7 @@ groups:
 
   std/testing:
     - import: jsr:@std/testing@1.0.16
-      subpaths: [bdd]
+      subpaths: [bdd, time]
     - import: npm:chai@6.2.2
       subpaths: ['/', 'chai.js']
     - import: npm:fake-indexeddb@6.2.5
