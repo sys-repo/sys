@@ -2,7 +2,7 @@ import React from 'react';
 import { Player } from '../../Player/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, css, D, LocalStorage, Obj, Signal, Str, Url } from '../common.ts';
-import { SampleVideoButtons, SAMPLE_PATHS, SAMPLE_BASEURLS } from './mod.ts';
+import { SAMPLE_PATHS, SampleVideoButtons } from './mod.ts';
 
 type P = t.VideoElementProps;
 type Storage = Pick<
