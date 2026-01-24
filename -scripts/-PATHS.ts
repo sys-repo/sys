@@ -82,17 +82,17 @@ export const Paths = {
     'code/sys/crdt',
 
     /**
-     * sys.dev: (programming system)
-     */
-    'code/-tmpl',
-    'code/sys.tools',
-    'code/sys.dev',
-
-    /**
      * Instance (conceptually: "an app"):
      */
     'deploy/@tdb.edu.slug',
     'deploy/@tdb.slc',
     'deploy/@tdb.slc.fs',
+
+    /**
+     * sys.dev: (programming system)
+     */
+    'code/-tmpl',
+    'code/sys.tools',
+    'code/sys.dev',
   ],
 } as const;
