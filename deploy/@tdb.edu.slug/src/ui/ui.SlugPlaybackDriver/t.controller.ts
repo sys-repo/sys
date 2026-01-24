@@ -4,8 +4,10 @@ import type { t } from './common.ts';
  * Factory surface.
  */
 export type SlugPlaybackControllerLib = {
-  create(args: { baseUrl: t.StringUrl }): SlugPlaybackController;
+  create(props: SlugPlaybackControllerProps): SlugPlaybackController;
 };
+
+export type SlugPlaybackControllerProps = { baseUrl: t.StringUrl };
 
 /**
  * SlugPlaybackController state.
@@ -28,4 +30,8 @@ export type SlugPlaybackPatch = Partial<SlugPlaybackState>;
 /**
  * SlugPlaybackController — an EffectController for slug playback orchestration.
  */
-export type SlugPlaybackController = t.EffectController<SlugPlaybackState, SlugPlaybackPatch>;
+export type SlugPlaybackController = t.EffectController<
+  SlugPlaybackState,
+  SlugPlaybackPatch,
+  SlugPlaybackControllerProps
+>;

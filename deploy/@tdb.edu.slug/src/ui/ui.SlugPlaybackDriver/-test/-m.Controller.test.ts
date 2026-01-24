@@ -33,6 +33,7 @@ describe('SlugPlaybackDriver.Controller', () => {
       const ctrl = create();
       expect(ctrl.current()).to.eql({});
       expect(ctrl.rev).to.eql(0);
+      expect(ctrl.props.baseUrl).to.eql(baseUrl);
 
       ctrl.dispose();
     });

@@ -1,8 +1,8 @@
 import { type t, SlugClient, SlugSchema } from '../common.ts';
 import { TreeHost } from '../ui.TreeHost/mod.ts';
 
-type Controller = t.SlugPlaybackController;
 type State = t.SlugPlaybackState;
+type Controller = t.SlugPlaybackController;
 type LoadBundle = (baseUrl: t.StringUrl, ref: string) => Promise<unknown>;
 
 type Deps = {
@@ -26,9 +26,7 @@ export function attachSlugLoaderEffect(controller: Controller, deps: Deps): void
     const value = node?.value;
 
     if (!SlugSchema.Tree.Is.refOnly(value)) {
-      if (loadingRef || loadedRef) {
-        controller.next({ loadingRef: undefined, loadedRef: undefined });
-      }
+      if (loadingRef || loadedRef) controller.next({ loadingRef: undefined, loadedRef: undefined });
       return;
     }
     const ref = value.ref;
@@ -37,15 +35,16 @@ export function attachSlugLoaderEffect(controller: Controller, deps: Deps): void
 
     // Start load.
     const gen = ++loadGen;
+    const isStale = () => controller.disposed || gen !== loadGen;
     controller.next({ isLoading: true, error: undefined, loadingRef: ref });
 
     loadBundle(baseUrl, ref)
       .then((slug) => {
-        if (controller.disposed || gen !== loadGen) return; // Stale.
+        if (isStale()) return;
         controller.next({ isLoading: false, slug, loadingRef: undefined, loadedRef: ref });
       })
       .catch((e) => {
-        if (controller.disposed || gen !== loadGen) return; // Stale.
+        if (isStale()) return;
         const message = e instanceof Error ? e.message : String(e);
         controller.next({ isLoading: false, error: { message }, loadingRef: undefined });
       });

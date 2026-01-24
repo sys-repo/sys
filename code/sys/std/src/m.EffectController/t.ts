@@ -22,9 +22,9 @@ export type EffectRef<State> = {
 /**
  * Arguments for creating an EffectController.
  */
-export type EffectControllerCreateArgs<State, Patch, Props = undefined> = {
+export type EffectControllerCreateArgs<State, Patch = Partial<State>, Props = undefined> = {
   readonly id?: t.StringId;
   readonly ref: EffectRef<State>;
   readonly applyPatch?: (draft: State, patch: Patch) => void;
   readonly isNoop?: (curr: State, patch: Patch | undefined) => boolean;
-} & (Props extends undefined ? {} : { readonly props: Props });
+} & (Props extends undefined ? { readonly props?: never } : { readonly props: Props });

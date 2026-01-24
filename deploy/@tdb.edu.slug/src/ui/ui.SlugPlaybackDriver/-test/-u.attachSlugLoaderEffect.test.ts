@@ -4,12 +4,16 @@ import { attachSlugLoaderEffect } from '../u.attachSlugLoaderEffect.ts';
 
 type State = t.SlugPlaybackState;
 type Patch = t.SlugPlaybackPatch;
+type Props = t.SlugPlaybackControllerProps;
 
 describe('attachSlugLoaderEffect', () => {
+  const baseUrl: t.StringUrl = 'http://test';
+
   const createController = () => {
     const id = `slug-playback-${slug()}`;
     const ref = Immutable.clonerRef<State>({});
-    return EffectController.create<State, Patch>({ id, ref });
+    const props: Props = { baseUrl };
+    return EffectController.create<State, Patch, Props>({ id, ref, props });
   };
 
   const tree: t.TreeHostViewNodeList = [
@@ -43,7 +47,6 @@ describe('attachSlugLoaderEffect', () => {
   it('only loads once per ref selection even if state keeps changing', async () => {
     const ctrl = createController();
     const calls: string[] = [];
-    const baseUrl: t.StringUrl = 'http://test';
     const loadBundle = async (_baseUrl: t.StringUrl, ref: string) => {
       calls.push(ref);
       return { slug: `loaded-${ref}` };
