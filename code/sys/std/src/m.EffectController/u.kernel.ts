@@ -34,7 +34,11 @@ export function create<State, Patch = Partial<State>>(
     next(patch?: Patch) {
       if (life.disposed) return;
       if (isNoop(ref.current, patch)) return;
+
+      // Normalize so applyPatch always receives a Patch value,
+      // even if custom isNoop considers undefined/null "meaningful".
       const p = patch ?? ({} as Patch);
+
       ref.change((d) => applyPatch(d, p));
     },
 
