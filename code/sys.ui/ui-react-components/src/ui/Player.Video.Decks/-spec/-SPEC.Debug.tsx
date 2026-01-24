@@ -97,13 +97,8 @@ export async function createDebugSignals() {
     const hrefA = api.url('A');
     const hrefB = api.url('B');
 
-    // src
     decks.A.props.src.value = hrefA;
     decks.B.props.src.value = hrefB;
-
-    // muted (keep deck signals aligned with UI toggle)
-    // decks.A.props.muted.mutate(p.muted.value ?? D.muted);
-    // decks.B.props.muted.mutate(p.muted.value ?? D.muted);
   });
 
   return api;
