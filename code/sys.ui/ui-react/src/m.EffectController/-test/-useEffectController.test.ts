@@ -9,6 +9,37 @@ import { withFakeTime } from './u.fixture.ts';
 type State = { readonly count?: number };
 type Patch = Partial<State>;
 
+type HappyDOM = {
+  whenAsyncComplete?: () => Promise<void>;
+  cancelAsync?: () => void;
+
+  // Some setups expose this older/wrapped name.
+  waitUntilComplete?: () => Promise<void>;
+};
+
+function happyDom(): HappyDOM | undefined {
+  const g = globalThis as unknown as { happyDOM?: HappyDOM; window?: { happyDOM?: HappyDOM } };
+  return g.happyDOM ?? g.window?.happyDOM;
+}
+
+/**
+ * Drain + cancel happy-dom async work so Deno leak detection stays deterministic in CI.
+ *
+ * happy-dom schedules internal Node timers (AsyncTaskManager.resolveWhenComplete). If a timer
+ * completes during the test that was started “outside” the test boundary, Deno reports a leak.
+ */
+async function cleanupHappyDomAsync(): Promise<void> {
+  const hd = happyDom();
+  if (!hd) return;
+
+  // Prefer current happy-dom API names.
+  if (hd.whenAsyncComplete) await hd.whenAsyncComplete();
+  else if (hd.waitUntilComplete) await hd.waitUntilComplete();
+
+  // Cancel any remaining tasks so they don't spill into the next test boundary.
+  if (hd.cancelAsync) hd.cancelAsync();
+}
+
 describe('useEffectController', () => {
   DomMock.polyfill();
 
@@ -20,9 +51,12 @@ describe('useEffectController', () => {
   const flush = async () => {
     // Flush React effects + state updates.
     await act(async () => await Promise.resolve());
+
+    // Flush/cancel happy-dom async task manager (prevents CI-only timer leak failures).
+    await cleanupHappyDomAsync();
   };
 
-  it('returns undefined when controller is undefined', async () => {
+  it('returns undefined when controller is undefined', async () =>
     await withFakeTime(async () => {
       const { result, unmount } = renderHook(() => useEffectController(undefined));
 
@@ -32,11 +66,11 @@ describe('useEffectController', () => {
       } finally {
         unmount();
         await flush();
+        await cleanupHappyDomAsync();
       }
-    });
-  });
+    }));
 
-  it('returns current snapshot and updates on change', async () => {
+  it('returns current snapshot and updates on change', async () =>
     await withFakeTime(async () => {
       const ctrl = create({ count: 0 });
       const { result, unmount } = renderHook(() => useEffectController(ctrl));
@@ -54,11 +88,11 @@ describe('useEffectController', () => {
         unmount();
         await flush();
         ctrl.dispose();
+        await cleanupHappyDomAsync();
       }
-    });
-  });
+    }));
 
-  it('accepts shorthand callback as options', async () => {
+  it('accepts shorthand callback as options', async () =>
     await withFakeTime(async () => {
       const ctrl = create({ count: 0 });
       const calls: number[] = [];
@@ -83,11 +117,11 @@ describe('useEffectController', () => {
         unmount();
         await flush();
         ctrl.dispose();
+        await cleanupHappyDomAsync();
       }
-    });
-  });
+    }));
 
-  it('does not call onChange on init by default', async () => {
+  it('does not call onChange on init by default', async () =>
     await withFakeTime(async () => {
       const ctrl = create({ count: 0 });
       const calls: number[] = [];
@@ -111,11 +145,11 @@ describe('useEffectController', () => {
         unmount();
         await flush();
         ctrl.dispose();
+        await cleanupHappyDomAsync();
       }
-    });
-  });
+    }));
 
-  it('fireOnInit calls once on mount and then on subsequent changes', async () => {
+  it('fireOnInit calls once on mount and then on subsequent changes', async () =>
     await withFakeTime(async () => {
       const ctrl = create({ count: 0 });
       const calls: number[] = [];
@@ -140,11 +174,11 @@ describe('useEffectController', () => {
         unmount();
         await flush();
         ctrl.dispose();
+        await cleanupHappyDomAsync();
       }
-    });
-  });
+    }));
 
-  it('switching controller identity resets init gate', async () => {
+  it('switching controller identity resets init gate', async () =>
     await withFakeTime(async () => {
       const a = create({ count: 1 });
       const b = create({ count: 10 });
@@ -177,11 +211,11 @@ describe('useEffectController', () => {
         await flush();
         a.dispose();
         b.dispose();
+        await cleanupHappyDomAsync();
       }
-    });
-  });
+    }));
 
-  it('unmount unsubscribes (no further callbacks)', async () => {
+  it('unmount unsubscribes (no further callbacks)', async () =>
     await withFakeTime(async () => {
       const ctrl = create({ count: 0 });
       const calls: number[] = [];
@@ -210,7 +244,7 @@ describe('useEffectController', () => {
         unmount();
         await flush();
         ctrl.dispose();
+        await cleanupHappyDomAsync();
       }
-    });
-  });
+    }));
 });
