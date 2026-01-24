@@ -17,6 +17,7 @@ export type VideoDecksProps = {
   active?: 'A' | 'B';
   aspectRatio?: t.VideoElementProps['aspectRatio'];
   muted?: t.VideoElementProps['muted'];
+  gap?: t.Pixels;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;

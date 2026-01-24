@@ -15,8 +15,9 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   aspectRatio: VIDEO_DEFAULTS.aspectRatio,
-  show: 'both' satisfies t.VideoDecksProps['show'],
   active: 'A' satisfies t.VideoDecksProps['active'],
+  show: 'both' satisfies t.VideoDecksProps['show'],
+  gap: 6,
   muted: false,
 } as const;
 export const DEFAULTS = D;

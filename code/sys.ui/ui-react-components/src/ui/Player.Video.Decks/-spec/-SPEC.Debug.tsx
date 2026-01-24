@@ -148,14 +148,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `show: ${p.show.value ?? `(undefined) ← default: ${D.show}`}`}
-        onClick={() => Signal.cycle(p.show, ['both', 'single', undefined])}
+        label={() => `active: ${p.active.value}`}
+        onClick={() => Signal.cycle(p.active, ['A', 'B'])}
       />
-
       <Button
         block
-        label={() => `active: ${p.active.value ?? `(undefined) ← default: ${D.active}`}`}
-        onClick={() => Signal.cycle(p.active, ['A', 'B', undefined])}
+        label={() => `show: ${p.show.value}`}
+        onClick={() => Signal.cycle(p.show, ['both', 'single'])}
       />
 
       <Button

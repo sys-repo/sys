@@ -8,38 +8,61 @@ export const VideoDecks: React.FC<t.VideoDecksProps> = (props) => {
     active = D.active,
     aspectRatio = D.aspectRatio,
     muted = D.muted,
+    show = D.show,
+    gap = D.gap,
   } = props;
 
   const theme = Color.theme(props.theme);
+
+  // Hooks MUST be called unconditionally and in stable order.
+  const ctrlA = usePlayerSignals(decks?.A, { log: debug });
+  const ctrlB = usePlayerSignals(decks?.B, { log: debug });
 
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
+      position: show === 'single' ? 'relative' : undefined,
       display: 'grid',
+      width: '100%',
+      height: '100%',
+      minWidth: 0,
+      minHeight: 0,
     }),
-    row: css({
-      display: 'grid',
+
+    both: css({
       gridTemplateColumns: '1fr 1fr',
-      alignItems: 'start',
+      gap,
+      alignItems: 'stretch',
     }),
-    deck: css({
+
+    layer: css({
+      position: 'absolute',
+      inset: 0,
       display: 'grid',
       minWidth: 0,
+      minHeight: 0,
     }),
+
+    deck: css({
+      display: 'grid',
+      width: '100%',
+      height: '100%',
+      minWidth: 0,
+      minHeight: 0,
+    }),
+
     inactive: css({
       opacity: 0.25,
       pointerEvents: 'none',
     }),
   } as const;
 
-  const renderDeck = (deck: 'A' | 'B', video?: t.VideoPlayerSignals) => {
-    const controller = usePlayerSignals(video, { log: debug });
-    if (!video) return null;
-    if (!controller.props.src) return null;
-
+  function renderVideo(deck: 'A' | 'B', controller: ReturnType<typeof usePlayerSignals>) {
     const isActive = active === deck;
-    const deckMuted = muted === false ? false : !isActive; // global mute policy → only active audible
+    if (!controller?.props?.src) return null;
+
+    const deckMuted = muted === false ? false : !isActive;
 
     return (
       <div className={css(styles.deck, !isActive && styles.inactive).class}>
@@ -53,14 +76,29 @@ export const VideoDecks: React.FC<t.VideoDecksProps> = (props) => {
         />
       </div>
     );
-  };
+  }
 
-  return (
-    <div className={css(styles.base, props.style).class}>
-      <div className={styles.row.class}>
-        {renderDeck('A', decks?.A)}
-        {renderDeck('B', decks?.B)}
+  const elA = renderVideo('A', ctrlA);
+  const elB = renderVideo('B', ctrlB);
+
+  if (show === 'single') {
+    // Active fills, inactive behind.
+    const front = active === 'A' ? elA : elB;
+    const back = active === 'A' ? elB : elA;
+
+    return (
+      <div className={css(styles.base, props.style).class}>
+        <div className={styles.layer.class}>{back}</div>
+        <div className={styles.layer.class}>{front}</div>
       </div>
+    );
+  }
+
+  // show === 'both'
+  return (
+    <div className={css(styles.base, styles.both, props.style).class}>
+      {elA}
+      {elB}
     </div>
   );
 };
