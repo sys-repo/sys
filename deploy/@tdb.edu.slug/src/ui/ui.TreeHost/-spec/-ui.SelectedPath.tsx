@@ -23,7 +23,7 @@ export const SelectedPath: React.FC<SelectedPathProps> = (props) => {
    * Handlers:
    */
   function segmentHandler(index: number) {
-    return () => (signal!.value = path.slice(0, index));
+    return () => (signal!.value = path.slice(0, index + 1));
   }
 
   /**
