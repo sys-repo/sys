@@ -7,7 +7,7 @@ import {
 import { Button, ObjectView } from '../../u.ts';
 import { Color, css, D, LocalStorage, Obj, Signal, type t, Url } from '../common.ts';
 import { VideoDecks } from '../mod.ts';
-import { Player } from '../../Player/mod.ts';
+import { DeckControls } from './-ui.DeckControls.tsx';
 
 type P = t.VideoDecksProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'aspectRatio' | 'muted' | 'active'> & {
@@ -173,13 +173,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 20 }}
       />
 
-      <Player.Video.Controls.UI
-        theme={v.theme}
-        maskOpacity={0}
-        background={{ rounded: 6, opacity: 0.4, shadow: false }}
-        padding={15}
-        margin={[20, 0, 15, 0]}
-      />
+      <DeckControls debug={debug} theme={v.theme} padding={15} margin={[20, 0, 15, 0]} />
 
       <hr />
       <Button
