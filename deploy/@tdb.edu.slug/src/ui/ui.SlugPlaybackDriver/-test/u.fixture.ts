@@ -26,17 +26,6 @@ export function createTestController() {
 }
 
 /**
- * Dispose a test controller and flush pending microtasks.
- *
- * Ensures lifecycle cleanup (dispose$, effects, timers) completes
- * before the test finishes, preventing CI-only leak failures.
- */
-export async function disposeTestController(ctrl: t.DisposableLike): Promise<void> {
-  ctrl.dispose();
-  await Schedule.macro();
-}
-
-/**
  * Minimal playback bundle fixture.
  *
  * Satisfies the PlaybackDriver wire contract without providing

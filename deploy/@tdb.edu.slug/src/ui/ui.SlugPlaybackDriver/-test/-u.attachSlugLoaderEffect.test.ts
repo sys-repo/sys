@@ -1,12 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, Schedule } from '../common.ts';
 import { attachSlugLoaderEffect } from '../u.attachSlugLoaderEffect.ts';
-import {
-  baseUrl,
-  createTestController,
-  disposeTestController,
-  makeTestPlaybackBundle,
-} from './u.fixture.ts';
+import { baseUrl, createTestController, makeTestPlaybackBundle } from './u.fixture.ts';
 
 describe('attachSlugLoaderEffect', () => {
   const tree: t.TreeHostViewNodeList = [
@@ -72,6 +67,6 @@ describe('attachSlugLoaderEffect', () => {
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a', 'slug:ref-b', 'slug:ref-a']);
 
-    await disposeTestController(ctrl);
+    ctrl.dispose();
   });
 });
