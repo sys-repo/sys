@@ -4,11 +4,13 @@ import { StdEffectController } from '../common.ts';
 // NOTE: monorepo-only test fixture import (not exported/published).
 import { createFakeRef } from '../../../../../sys/std/src/m.EffectController/-test/u.fixture.ts';
 import { useEffectController } from '../u.useEffectController.ts';
-import { withFakeTime } from './u.fixture.ts';
 
 type State = { readonly count?: number };
 type Patch = Partial<State>;
 
+/**
+ * TODO 🐷 move to DomMock
+ */
 type HappyDOM = {
   whenAsyncComplete?: () => Promise<void>;
   cancelAsync?: () => void;
@@ -56,195 +58,187 @@ describe('useEffectController', () => {
     await cleanupHappyDomAsync();
   };
 
-  it('returns undefined when controller is undefined', async () =>
-    await withFakeTime(async () => {
-      const { result, unmount } = renderHook(() => useEffectController(undefined));
+  it('returns undefined when controller is undefined', async () => {
+    const { result, unmount } = renderHook(() => useEffectController(undefined));
 
-      try {
-        await flush();
-        expect(result.current).to.eql(undefined);
-      } finally {
-        unmount();
-        await flush();
-        await cleanupHappyDomAsync();
-      }
-    }));
+    try {
+      await flush();
+      expect(result.current).to.eql(undefined);
+    } finally {
+      unmount();
+      await flush();
+    }
+  });
 
-  it('returns current snapshot and updates on change', async () =>
-    await withFakeTime(async () => {
-      const ctrl = create({ count: 0 });
-      const { result, unmount } = renderHook(() => useEffectController(ctrl));
+  it('returns current snapshot and updates on change', async () => {
+    const ctrl = create({ count: 0 });
+    const { result, unmount } = renderHook(() => useEffectController(ctrl));
 
-      try {
-        await flush(); // ensure subscription mounted
+    try {
+      await flush(); // ensure subscription mounted
 
-        expect(result.current).to.eql({ count: 0 });
+      expect(result.current).to.eql({ count: 0 });
 
-        await act(async () => ctrl.next({ count: 1 }));
-        await flush();
+      await act(async () => ctrl.next({ count: 1 }));
+      await flush();
 
-        expect(result.current).to.eql({ count: 1 });
-      } finally {
-        unmount();
-        await flush();
-        ctrl.dispose();
-        await cleanupHappyDomAsync();
-      }
-    }));
+      expect(result.current).to.eql({ count: 1 });
+    } finally {
+      unmount();
+      await flush();
+      ctrl.dispose();
+      await cleanupHappyDomAsync();
+    }
+  });
 
-  it('accepts shorthand callback as options', async () =>
-    await withFakeTime(async () => {
-      const ctrl = create({ count: 0 });
-      const calls: number[] = [];
+  it('accepts shorthand callback as options', async () => {
+    const ctrl = create({ count: 0 });
+    const calls: number[] = [];
 
-      const { unmount } = renderHook(() =>
-        useEffectController(ctrl, (e) => {
-          calls.push(e.state.count ?? -1);
-        }),
-      );
+    const { unmount } = renderHook(() =>
+      useEffectController(ctrl, (e) => {
+        calls.push(e.state.count ?? -1);
+      }),
+    );
 
-      try {
-        await flush(); // ensure subscription mounted
+    try {
+      await flush(); // ensure subscription mounted
 
-        await act(async () => ctrl.next({ count: 1 }));
-        await flush();
+      await act(async () => ctrl.next({ count: 1 }));
+      await flush();
 
-        await act(async () => ctrl.next({ count: 2 }));
-        await flush();
+      await act(async () => ctrl.next({ count: 2 }));
+      await flush();
 
-        expect(calls).to.eql([1, 2]);
-      } finally {
-        unmount();
-        await flush();
-        ctrl.dispose();
-        await cleanupHappyDomAsync();
-      }
-    }));
+      expect(calls).to.eql([1, 2]);
+    } finally {
+      unmount();
+      await flush();
+      ctrl.dispose();
+      await cleanupHappyDomAsync();
+    }
+  });
 
-  it('does not call onChange on init by default', async () =>
-    await withFakeTime(async () => {
-      const ctrl = create({ count: 0 });
-      const calls: number[] = [];
+  it('does not call onChange on init by default', async () => {
+    const ctrl = create({ count: 0 });
+    const calls: number[] = [];
 
-      const { unmount } = renderHook(() =>
-        useEffectController(ctrl, {
-          onChange: (e) => calls.push(e.state.count ?? -1),
-        }),
-      );
+    const { unmount } = renderHook(() =>
+      useEffectController(ctrl, {
+        onChange: (e) => calls.push(e.state.count ?? -1),
+      }),
+    );
 
-      try {
-        await flush(); // mount effects
+    try {
+      await flush(); // mount effects
 
-        expect(calls).to.eql([]);
+      expect(calls).to.eql([]);
 
-        await act(async () => ctrl.next({ count: 1 }));
-        await flush();
+      await act(async () => ctrl.next({ count: 1 }));
+      await flush();
 
-        expect(calls).to.eql([1]);
-      } finally {
-        unmount();
-        await flush();
-        ctrl.dispose();
-        await cleanupHappyDomAsync();
-      }
-    }));
+      expect(calls).to.eql([1]);
+    } finally {
+      unmount();
+      await flush();
+      ctrl.dispose();
+      await cleanupHappyDomAsync();
+    }
+  });
 
-  it('fireOnInit calls once on mount and then on subsequent changes', async () =>
-    await withFakeTime(async () => {
-      const ctrl = create({ count: 0 });
-      const calls: number[] = [];
+  it('fireOnInit calls once on mount and then on subsequent changes', async () => {
+    const ctrl = create({ count: 0 });
+    const calls: number[] = [];
 
-      const { unmount } = renderHook(() =>
+    const { unmount } = renderHook(() =>
+      useEffectController(ctrl, {
+        fireOnInit: true,
+        onChange: (e) => calls.push(e.state.count ?? -1),
+      }),
+    );
+
+    try {
+      await flush(); // mount effects → should fire init
+
+      expect(calls).to.eql([0]);
+
+      await act(async () => ctrl.next({ count: 1 }));
+      await flush();
+
+      expect(calls).to.eql([0, 1]);
+    } finally {
+      unmount();
+      await flush();
+      ctrl.dispose();
+      await cleanupHappyDomAsync();
+    }
+  });
+
+  it('switching controller identity resets init gate', async () => {
+    const a = create({ count: 1 });
+    const b = create({ count: 10 });
+    const calls: number[] = [];
+
+    const { rerender, unmount } = renderHook(
+      ({ ctrl }) =>
         useEffectController(ctrl, {
           fireOnInit: true,
           onChange: (e) => calls.push(e.state.count ?? -1),
         }),
-      );
+      { initialProps: { ctrl: a } },
+    );
 
-      try {
-        await flush(); // mount effects → should fire init
+    try {
+      await flush();
+      expect(calls).to.eql([1]);
 
-        expect(calls).to.eql([0]);
+      rerender({ ctrl: b });
+      await flush();
 
-        await act(async () => ctrl.next({ count: 1 }));
-        await flush();
+      expect(calls).to.eql([1, 10]);
 
-        expect(calls).to.eql([0, 1]);
-      } finally {
-        unmount();
-        await flush();
-        ctrl.dispose();
-        await cleanupHappyDomAsync();
-      }
-    }));
+      await act(async () => b.next({ count: 11 }));
+      await flush();
 
-  it('switching controller identity resets init gate', async () =>
-    await withFakeTime(async () => {
-      const a = create({ count: 1 });
-      const b = create({ count: 10 });
-      const calls: number[] = [];
+      expect(calls).to.eql([1, 10, 11]);
+    } finally {
+      unmount();
+      await flush();
+      a.dispose();
+      b.dispose();
+      await cleanupHappyDomAsync();
+    }
+  });
 
-      const { rerender, unmount } = renderHook(
-        ({ ctrl }) =>
-          useEffectController(ctrl, {
-            fireOnInit: true,
-            onChange: (e) => calls.push(e.state.count ?? -1),
-          }),
-        { initialProps: { ctrl: a } },
-      );
+  it('unmount unsubscribes (no further callbacks)', async () => {
+    const ctrl = create({ count: 0 });
+    const calls: number[] = [];
 
-      try {
-        await flush();
-        expect(calls).to.eql([1]);
+    const { unmount } = renderHook(() =>
+      useEffectController(ctrl, (e) => calls.push(e.state.count ?? -1)),
+    );
 
-        rerender({ ctrl: b });
-        await flush();
+    try {
+      await flush(); // subscription mounted
 
-        expect(calls).to.eql([1, 10]);
+      await act(async () => ctrl.next({ count: 1 }));
+      await flush();
 
-        await act(async () => b.next({ count: 11 }));
-        await flush();
+      expect(calls).to.eql([1]);
 
-        expect(calls).to.eql([1, 10, 11]);
-      } finally {
-        unmount();
-        await flush();
-        a.dispose();
-        b.dispose();
-        await cleanupHappyDomAsync();
-      }
-    }));
+      unmount();
+      await flush();
 
-  it('unmount unsubscribes (no further callbacks)', async () =>
-    await withFakeTime(async () => {
-      const ctrl = create({ count: 0 });
-      const calls: number[] = [];
+      await act(async () => ctrl.next({ count: 2 }));
+      await flush();
 
-      const { unmount } = renderHook(() =>
-        useEffectController(ctrl, (e) => calls.push(e.state.count ?? -1)),
-      );
-
-      try {
-        await flush(); // subscription mounted
-
-        await act(async () => ctrl.next({ count: 1 }));
-        await flush();
-
-        expect(calls).to.eql([1]);
-
-        unmount();
-        await flush();
-
-        await act(async () => ctrl.next({ count: 2 }));
-        await flush();
-
-        expect(calls).to.eql([1]);
-      } finally {
-        // idempotent: safe even if already unmounted above
-        unmount();
-        await flush();
-        ctrl.dispose();
-        await cleanupHappyDomAsync();
-      }
-    }));
+      expect(calls).to.eql([1]);
+    } finally {
+      // idempotent: safe even if already unmounted above
+      unmount();
+      await flush();
+      ctrl.dispose();
+      await cleanupHappyDomAsync();
+    }
+  });
 });
