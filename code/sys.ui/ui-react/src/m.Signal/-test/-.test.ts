@@ -4,6 +4,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { Signal } from '../mod.ts';
 import { useSignalEffect } from '../u.useEffect.ts';
 import { useSignalRedrawEffect } from '../u.useRedrawEffect.ts';
+import { Obj, StdSignal } from '../common.ts';
 
 /**
  * See [@sys/std/signal] unit tests for basic API
@@ -15,7 +16,7 @@ import { useSignalRedrawEffect } from '../u.useRedrawEffect.ts';
  *    • batch      ← (multiple changes, single fire of effect listeners)
  *
  */
-describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
+describe('Signals', () => {
   it('API', async () => {
     const m = await import('@sys/ui-react');
     const mm = await import('@sys/ui-react/signal');
@@ -27,5 +28,9 @@ describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
     expect(Signal.useSignal).to.equal(Preact.useSignal);
     expect(Signal.useEffect).to.equal(useSignalEffect);
     expect(Signal.useRedrawEffect).to.equal(useSignalRedrawEffect);
+
+    for (const [key, fn] of Obj.entries(StdSignal)) {
+      expect(Signal[key]).to.equal(fn);
+    }
   });
 });
