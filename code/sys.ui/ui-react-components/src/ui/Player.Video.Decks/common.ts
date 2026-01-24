@@ -3,6 +3,7 @@ import { D as VIDEO_DEFAULTS } from '../Player.Video.Element/common.ts';
 
 export * from '../common.ts';
 export { VideoSignals } from '../Player.Video.Signals/mod.ts';
+export { VideoElement, usePlayerSignals } from '../Player.Video.Element/mod.ts';
 
 type P = t.VideoDecksProps;
 

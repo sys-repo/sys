@@ -12,7 +12,8 @@ type P = t.VideoDecksProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'aspectRatio' | 'muted' | 'active'> & {
   width?: t.Pixels;
   baseUrl?: t.StringUrl;
-  urlPath?: t.StringPath;
+  urlPathA?: t.StringPath;
+  urlPathB?: t.StringPath;
 };
 const defaults: Storage = {
   debug: false,
@@ -23,7 +24,8 @@ const defaults: Storage = {
   //
   width: 320,
   baseUrl: SAMPLE_BASEURLS[0],
-  urlPath: SAMPLE_PATHS[0],
+  urlPathA: SAMPLE_PATHS[0],
+  urlPathB: SAMPLE_PATHS[2],
 };
 
 /**
@@ -50,15 +52,19 @@ export async function createDebugSignals() {
     //
     width: s(snap.width),
     baseUrl: s(snap.baseUrl),
-    urlPath: s(snap.urlPath),
+    urlPathA: s(snap.urlPathA),
+    urlPathB: s(snap.urlPathB),
   };
   const p = props;
   const api = {
     props,
     decks,
-    url: () => Url.parse(p.baseUrl.value).join(p.urlPath.value ?? ''),
     listen,
     reset,
+    url(deck: t.VideoDecksProps['active'] = 'A') {
+      const signal = deck === 'A' ? p.urlPathA : p.urlPathB;
+      return Url.parse(p.baseUrl.value).join(signal.value ?? '');
+    },
   };
 
   function listen() {
@@ -79,8 +85,25 @@ export async function createDebugSignals() {
       //
       d.width = p.width.value;
       d.baseUrl = p.baseUrl.value;
-      d.urlPath = p.urlPath.value;
+      d.urlPathA = p.urlPathA.value;
+      d.urlPathB = p.urlPathB.value;
     });
+  });
+
+  /**
+   *
+   */
+  Signal.effect(() => {
+    const hrefA = api.url('A');
+    const hrefB = api.url('B');
+
+    // src
+    decks.A.props.src.value = hrefA;
+    decks.B.props.src.value = hrefB;
+
+    // muted (keep deck signals aligned with UI toggle)
+    // decks.A.props.muted.mutate(p.muted.value ?? D.muted);
+    // decks.B.props.muted.mutate(p.muted.value ?? D.muted);
   });
 
   return api;
@@ -146,8 +169,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'Video:'}</div>
-      <SampleVideoButtons baseUrl={p.baseUrl.value} signal={p.urlPath} />
+      <SampleVideoButtons baseUrl={p.baseUrl.value} signal={p.urlPathA} title={'Video: A'} />
+      <SampleVideoButtons
+        baseUrl={p.baseUrl.value}
+        signal={p.urlPathB}
+        title={'Video: B'}
+        style={{ marginTop: 20 }}
+      />
 
       <hr />
       <Button

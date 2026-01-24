@@ -14,6 +14,8 @@ export default Spec.describe(D.displayName, async (e) => {
         debug={v.debug}
         theme={v.theme}
         style={{ width: v.width }}
+        decks={debug.decks}
+        active={v.active}
         aspectRatio={v.aspectRatio}
         muted={v.muted}
       />
