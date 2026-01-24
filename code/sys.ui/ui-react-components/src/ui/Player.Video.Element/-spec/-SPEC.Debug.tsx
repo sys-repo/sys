@@ -1,8 +1,8 @@
 import React from 'react';
 import { Player } from '../../Player/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, Url, css, D, LocalStorage, Obj, Signal, Str, Time } from '../common.ts';
-import { SampleVideoButtons } from './mod.ts';
+import { type t, css, D, LocalStorage, Obj, Signal, Str, Url } from '../common.ts';
+import { SampleVideoButtons, SAMPLE_PATHS, SAMPLE_BASEURLS } from './mod.ts';
 
 type P = t.VideoElementProps;
 type Storage = Pick<
@@ -43,7 +43,7 @@ const defaults: Storage = {
   loop: false,
   aspectRatio: '16/9',
   cornerRadius: 15,
-  urlPath: '/video/540p/1068502644.mp4',
+  urlPath: SAMPLE_PATHS[0],
   controlled: false,
   fadeMask: undefined,
   slice: undefined,
@@ -113,7 +113,7 @@ export function createDebugSignals() {
     },
     get baseUrl() {
       return p.endpointLocalhost.value
-        ? 'http://localhost:8080'
+        ? 'http://localhost:4040'
         : 'https://fs.socialleancanvas.com';
     },
     get src() {

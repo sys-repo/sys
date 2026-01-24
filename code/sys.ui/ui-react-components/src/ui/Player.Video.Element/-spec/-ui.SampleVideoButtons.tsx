@@ -2,7 +2,8 @@ import React from 'react';
 import { Button } from '../../u.ts';
 import { type t, Color, css, Str, Time, Url } from '../common.ts';
 
-const PATHS = [
+export const SAMPLE_BASEURLS = ['https://fs.socialleancanvas.com', 'http://localhost:4040'];
+export const SAMPLE_PATHS = [
   '/video/540p/1068502644.mp4',
   '/video/540p/1068653222.mp4',
   '/video/v2/core/sha256-3ee12096a189525fcbb0e85d1781fc414e46e8c306b6ee170af17fe8bd2b11c7.webm',
@@ -39,7 +40,7 @@ export const SampleVideoButtons: React.FC<SampleVideoButtonsProps> = (props) => 
     }),
   };
 
-  const elButtons = PATHS.map((path) => videoButton(baseUrl, path, signal));
+  const elButtons = SAMPLE_PATHS.map((path) => videoButton(baseUrl, path, signal));
 
   return (
     <div className={css(styles.base, props.style).class}>

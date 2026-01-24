@@ -1,18 +1,28 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import {
+  SampleVideoButtons,
+  SAMPLE_PATHS,
+  SAMPLE_BASEURLS,
+} from '../../Player.Video.Element/-spec/mod.ts';
 
 type P = t.VideoDecksProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'aspectRatio' | 'muted' | 'active'> & {
   width?: t.Pixels;
+  baseUrl?: t.StringUrl;
+  urlPath?: t.StringPath;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  width: 320,
   active: D.active,
   aspectRatio: D.aspectRatio,
   muted: D.muted,
+  //
+  width: 320,
+  baseUrl: 'https://fs.socialleancanvas.com',
+  urlPath: SAMPLE_PATHS[0],
 };
 
 /**
@@ -34,9 +44,12 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     active: s(snap.active),
-    width: s(snap.width),
     aspectRatio: s(snap.aspectRatio),
     muted: s(snap.muted),
+    //
+    width: s(snap.width),
+    baseUrl: s(snap.baseUrl),
+    urlPath: s(snap.urlPath),
   };
   const p = props;
   const api = {
@@ -58,9 +71,12 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.active = p.active.value;
-      d.width = p.width.value;
       d.aspectRatio = p.aspectRatio.value;
       d.muted = p.muted.value;
+      //
+      d.width = p.width.value;
+      d.baseUrl = p.baseUrl.value;
+      d.urlPath = p.urlPath.value;
     });
   });
 
@@ -127,7 +143,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>{'Video:'}</div>
+      <SampleVideoButtons baseUrl={p.baseUrl.value} signal={p.urlPath} />
+
+      <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Button
+        block
+        label={() => `baseUrl: ${p.baseUrl.value}`}
+        onClick={() => Signal.cycle(p.baseUrl, SAMPLE_BASEURLS)}
+      />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
