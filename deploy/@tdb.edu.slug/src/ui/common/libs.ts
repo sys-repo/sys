@@ -14,3 +14,4 @@ export {
   TreeView,
 } from '@sys/ui-react-components';
 export { PlaybackDriver } from '@sys/ui-react-components/media/timecode/playback-driver';
+export { EffectController, useEffectController } from '@sys/ui-react/effect';

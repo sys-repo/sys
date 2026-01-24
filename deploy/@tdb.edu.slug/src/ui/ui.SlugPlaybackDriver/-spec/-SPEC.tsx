@@ -31,7 +31,7 @@ export default Spec.describe(D.displayName, async (e) => {
           selectedPath={v.selectedPath}
           onPathRequest={(e) => (p.selectedPath.value = e.path)}
           onNodeSelect={(e) => {
-            console.info('⚡️ onNodeSelect: ', e);
+            // console.info('⚡️ onNodeSelect: ', e);
           }}
         />
       </div>

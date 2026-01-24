@@ -1,15 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import {
   type t,
+  Schedule,
   Color,
   css,
-  Signal,
   D,
-  Rx,
-  Obj,
-  Str,
-  Is,
-  Button,
+  EffectController,
   KeyValue,
   ObjectView,
 } from './common.ts';
@@ -27,6 +23,12 @@ export type DriverInfoProps = {
  */
 export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
   const { debug = false, title = D.name, controller } = props;
+
+  /**
+   * Hooks:
+   */
+  const state = EffectController.useEffectController(controller, (state) => {
+  });
 
   /**
    * Render:
