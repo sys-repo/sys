@@ -27,10 +27,8 @@ export default Spec.describe(D.displayName, async (e) => {
           debug={v.debug}
           theme={v.theme}
           slots={{ ...v.slots, empty: v.customEmpty ? (e) => 'Hello Empty 👋' : undefined }}
-          split={v.split}
           tree={v.tree}
           selectedPath={v.selectedPath}
-          onSplitChange={(e) => (p.split.value = e.split)}
           onPathRequest={(e) => {
             console.info('⚡️ onPathRequest: ', e);
             p.selectedPath.value = e.path;
