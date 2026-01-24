@@ -14,7 +14,7 @@ export const VideoDecks: React.FC<t.VideoDecksProps> = (props) => {
 
   const theme = Color.theme(props.theme);
 
-  // Hooks MUST be called unconditionally and in stable order.
+  // Hooks: stable order, always called.
   const ctrlA = usePlayerSignals(decks?.A, { log: debug });
   const ctrlB = usePlayerSignals(decks?.B, { log: debug });
 
@@ -22,52 +22,71 @@ export const VideoDecks: React.FC<t.VideoDecksProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      position: show === 'single' ? 'relative' : undefined,
+
       display: 'grid',
       width: '100%',
       height: '100%',
+
+      // Critical inside other grids/flex:
       minWidth: 0,
       minHeight: 0,
+      placeSelf: 'stretch',
+
+      // Ensure children can stretch:
+      alignItems: 'stretch',
+      justifyItems: 'stretch',
+      alignContent: 'stretch',
+      justifyContent: 'stretch',
     }),
 
     both: css({
       gridTemplateColumns: '1fr 1fr',
+      gridTemplateRows: '1fr',
       gap,
-      alignItems: 'stretch',
     }),
 
-    layer: css({
-      position: 'absolute',
-      inset: 0,
-      display: 'grid',
-      minWidth: 0,
-      minHeight: 0,
+    single: css({
+      gridTemplateColumns: '1fr',
+      gridTemplateRows: '1fr',
     }),
 
-    deck: css({
-      display: 'grid',
+    // Both decks sit in the same cell when show='single'.
+    cell: css({
+      gridColumn: '1',
+      gridRow: '1',
       width: '100%',
       height: '100%',
       minWidth: 0,
       minHeight: 0,
+      display: 'grid',
+      alignItems: 'stretch',
+      justifyItems: 'stretch',
     }),
 
+    // Visual policy only (doesn't affect layout).
     inactive: css({
       opacity: 0.25,
       pointerEvents: 'none',
     }),
   } as const;
 
-  function renderVideo(deck: 'A' | 'B', controller: ReturnType<typeof usePlayerSignals>) {
-    const isActive = active === deck;
-    if (!controller?.props?.src) return null;
+  function renderDeck(deck: 'A' | 'B', ctrl: typeof ctrlA, isStacked: boolean) {
+    if (!ctrl?.props?.src) return null;
 
+    const isActive = active === deck;
     const deckMuted = muted === false ? false : !isActive;
 
+    const wrapClass = css(
+      styles.cell,
+      !isActive && styles.inactive,
+      isStacked && isActive ? css({ zIndex: 2 }) : undefined,
+      isStacked && !isActive ? css({ zIndex: 1 }) : undefined,
+    ).class;
+
     return (
-      <div className={css(styles.deck, !isActive && styles.inactive).class}>
+      <div className={wrapClass}>
         <VideoElement
-          {...controller.props}
+          {...ctrl.props}
           debug={debug}
           theme={props.theme}
           interaction={{ clickToPlay: false }}
@@ -78,27 +97,22 @@ export const VideoDecks: React.FC<t.VideoDecksProps> = (props) => {
     );
   }
 
-  const elA = renderVideo('A', ctrlA);
-  const elB = renderVideo('B', ctrlB);
+  const isStacked = show === 'single';
+  const layout = isStacked ? styles.single : styles.both;
 
-  if (show === 'single') {
-    // Active fills, inactive behind.
-    const front = active === 'A' ? elA : elB;
-    const back = active === 'A' ? elB : elA;
-
-    return (
-      <div className={css(styles.base, props.style).class}>
-        <div className={styles.layer.class}>{back}</div>
-        <div className={styles.layer.class}>{front}</div>
-      </div>
-    );
-  }
-
-  // show === 'both'
   return (
-    <div className={css(styles.base, styles.both, props.style).class}>
-      {elA}
-      {elB}
+    <div className={css(styles.base, layout, props.style).class}>
+      {isStacked ? (
+        <>
+          {renderDeck('A', ctrlA, true)}
+          {renderDeck('B', ctrlB, true)}
+        </>
+      ) : (
+        <>
+          <div className={styles.cell.class}>{renderDeck('A', ctrlA, false)}</div>
+          <div className={styles.cell.class}>{renderDeck('B', ctrlB, false)}</div>
+        </>
+      )}
     </div>
   );
 };
