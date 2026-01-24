@@ -76,6 +76,14 @@ export async function createDebugSignals() {
   const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl });
   Signal.effect(load);
 
+  /**
+   * Bridge (dev harness): Signals → EffectController
+   * Feeds reactive harness inputs into the controller under test.
+   *
+   * Contract:
+   * - Controller remains the single source of truth for derived/async state.
+   * - Signals are harness-local inputs only (selection, toggles, etc).
+   */
   Signal.effect(() => {
     controller.next({
       tree: p.tree.value,
