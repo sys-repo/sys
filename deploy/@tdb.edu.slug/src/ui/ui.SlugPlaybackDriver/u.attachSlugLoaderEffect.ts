@@ -4,14 +4,12 @@ import { TreeHost } from '../ui.TreeHost/mod.ts';
 type State = t.SlugPlaybackState;
 type Controller = t.SlugPlaybackController;
 
-type LoadBundle = (
-  baseUrl: t.StringUrl,
-  ref: string,
-) => Promise<t.SlugClientResult<t.TimecodePlaybackDriver.Wire.Bundle>>;
+type LoadBundleResult = t.SlugClientResult<t.TimecodePlaybackDriver.Wire.Bundle>;
+type LoadBundle = (baseUrl: t.StringUrl, ref: t.StringId) => Promise<LoadBundleResult>;
 
 type Deps = {
-  readonly baseUrl: t.StringUrl;
-  readonly loadBundle?: LoadBundle;
+  baseUrl: t.StringUrl;
+  loadBundle?: LoadBundle;
 };
 
 /**
