@@ -4,14 +4,13 @@ import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } 
 import { LoadSample, SelectedPath, TreeHost } from './mod.ts';
 
 type P = t.TreeHostProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'split' | 'selectedPath'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & {
   load?: t.SampleLoadAction;
   customEmpty?: boolean;
 };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
-  split: D.split,
   //
   load: 'esm:import',
   customEmpty: false,
@@ -42,7 +41,6 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     tree: s<P['tree']>(undefined),
-    split: s(snap.split),
     selectedPath: s(snap.selectedPath),
     slots,
     //
@@ -69,7 +67,6 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.split = p.split.value;
       d.selectedPath = p.selectedPath.value;
       //
       d.load = p.load.value;

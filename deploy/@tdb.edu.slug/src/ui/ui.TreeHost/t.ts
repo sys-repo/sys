@@ -21,12 +21,10 @@ export type TreeHostProps = {
   slots?: t.TreeHostSlots;
   tree?: t.TreeHostViewNodeList;
   selectedPath?: t.ObjectPath;
-  split?: t.Percent[];
 
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onSplitChange?: (args: { readonly split: t.Percent[] }) => void;
 
   /**
    * User intent: request a new selection path (e.g. clicked a branch node).

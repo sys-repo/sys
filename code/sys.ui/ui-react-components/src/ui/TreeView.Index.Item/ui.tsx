@@ -39,7 +39,7 @@ export const IndexTreeViewItem: React.FC<t.IndexTreeViewItemProps> = (props) => 
 
       ...Style.toPadding(props.padding ?? D.padding),
 
-      borderBottom: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
+      borderBottom: `solid 0.5px ${Color.alpha(theme.fg, 0.15)}`,
       ':last-child': { borderBottom: 'none' },
 
       display: 'grid',
