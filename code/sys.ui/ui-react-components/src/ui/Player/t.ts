@@ -7,7 +7,10 @@ import type { t } from '../common.ts';
 export type PlayerLib = {
   readonly Video: {
     readonly UI: t.FC<t.VideoElementProps>;
-    readonly Controls: { readonly UI: t.FC<t.PlayerControlsProps> };
+    readonly Controls: {
+      readonly UI: t.FC<t.PlayerControlsProps>;
+      readonly usePendingSeek: t.UsePendingSeek;
+    };
     readonly Signals: t.VideoPlayerSignalsLib;
     readonly signals: t.PlayerSignalsFactory;
     readonly useSignals: t.UsePlayerSignals;
