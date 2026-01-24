@@ -13,6 +13,7 @@
     "./types": "./src/types.ts",
     "./fc": "./src/m.FC/mod.ts",
     "./async": "./src/m.Async/mod.ts",
+    "./signal": "./src/m.Signal/mod.ts",
     "./testing/server": "./src/m.Testing.Server/mod.ts",
     "./use": "./src/use/mod.ts"
   }

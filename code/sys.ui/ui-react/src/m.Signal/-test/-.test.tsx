@@ -16,7 +16,13 @@ import { useSignalRedrawEffect } from '../u.useRedrawEffect.ts';
  *
  */
 describe('Signals', { sanitizeOps: false, sanitizeResources: false }, () => {
-  it('API', () => {
+  it('API', async () => {
+    const m = await import('@sys/ui-react');
+    const mm = await import('@sys/ui-react/signal');
+
+    expect(m.Signal).to.equal(Signal);
+    expect(mm.Signal).to.equal(Signal);
+
     expect(Signal.create).to.equal(Preact.signal);
     expect(Signal.useSignal).to.equal(Preact.useSignal);
     expect(Signal.useEffect).to.equal(useSignalEffect);
