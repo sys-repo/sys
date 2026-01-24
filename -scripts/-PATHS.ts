@@ -13,10 +13,9 @@ export const Paths = {
   },
   single: [
     //
-    'code/sys/schema',
-    'code/sys.model/model',
-    'code/sys.model/model-slug',
-
+    // 'code/sys/schema',
+    // 'code/sys.model/model',
+    // 'code/sys.model/model-slug',
     // 'code/sys.tools',
   ],
   all: [
