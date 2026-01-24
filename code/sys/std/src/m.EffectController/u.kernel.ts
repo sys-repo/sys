@@ -44,8 +44,10 @@ export function create<State, Patch = Partial<State>, Props = undefined>(
   };
 
   type C = t.EffectController<State, Patch, Props>;
-  const surface = 'props' in args ? { ...baseController, props: args.props } : baseController;
-  const controller = Rx.toLifecycle<C>(life, surface as t.OmitLifecycle<C>);
+  const base = baseController as t.OmitLifecycle<C>;
+  const surface =
+    'props' in args ? Object.assign(base, { props: args.props }) : base;
+  const controller = Rx.toLifecycle<C>(life, surface);
 
   life.dispose$.subscribe(() => listeners.clear());
 
