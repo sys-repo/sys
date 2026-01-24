@@ -13,6 +13,7 @@ export const Paths = {
   },
   single: [
     //
+    'code/sys.ui/ui-react',
     // 'code/sys/schema',
     // 'code/sys.model/model',
     // 'code/sys.model/model-slug',
