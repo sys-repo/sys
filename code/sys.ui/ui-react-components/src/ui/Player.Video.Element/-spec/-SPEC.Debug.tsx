@@ -1,7 +1,8 @@
 import React from 'react';
 import { Player } from '../../Player/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal, Str, Time } from '../common.ts';
+import { type t, Url, css, D, LocalStorage, Obj, Signal, Str, Time } from '../common.ts';
+import { SampleVideoButtons } from './mod.ts';
 
 type P = t.VideoElementProps;
 type Storage = Pick<
@@ -110,15 +111,13 @@ export function createDebugSignals() {
     get video() {
       return video;
     },
-    get domain() {
+    get baseUrl() {
       return p.endpointLocalhost.value
         ? 'http://localhost:8080'
         : 'https://fs.socialleancanvas.com';
     },
     get src() {
-      const path = (p.urlPath.value || '').replace(/^\/+/, '');
-      const url = `${api.domain}/${path}`;
-      return url;
+      return Url.parse(api.baseUrl).join(p.urlPath.value ?? '');
     },
   };
 
@@ -198,7 +197,7 @@ export function createDebugSignals() {
 const Styles = {
   title: css({
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 4,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -328,22 +327,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Video:'}</div>
-      {[
-        '/video/540p/1068502644.mp4',
-        '/video/540p/1068653222.mp4',
-        '/video/v2/core/sha256-3ee12096a189525fcbb0e85d1781fc414e46e8c306b6ee170af17fe8bd2b11c7.webm',
-      ].map((src) => videoButton(debug, p.urlPath, src))}
-      <div className={css(styles.url, { Padding: [15, 15, 8, 15] }).class}>{debug.src}</div>
-      <Button
-        block
-        label={() => (p.urlCopied.value ? 'copied' : `copy url`)}
-        onClick={() => {
-          navigator.clipboard.writeText(debug.src);
-          p.urlCopied.value = true;
-          Time.delay(1500, () => (p.urlCopied.value = false));
-        }}
-      />
+      <SampleVideoButtons baseUrl={debug.baseUrl} signal={p.urlPath} />
+
       <hr />
+      <div className={Styles.title.class}>{'Methods:'}</div>
+
       <Button
         block
         enabled={() => !!p.controlled.value}
@@ -460,16 +448,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 /**
  * Helpers:
  */
-export function videoButton(
-  debug: DebugSignals,
-  signal: t.Signal<string | undefined>,
-  path: string,
-) {
-  let label = `src: ${path.slice(0, 10)} .. ${debug.src.slice(-10)}`;
-  label = Str.truncate(label, 30);
-  return <Button key={path} block label={label} onClick={() => (signal.value = path)} />;
-}
-
 function CurrentTime(props: { video?: t.VideoPlayerSignals; prefix?: string }) {
   const { video, prefix = '' } = props;
   const p = video?.props;
