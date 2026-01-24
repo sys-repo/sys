@@ -14,22 +14,25 @@ import type { t } from './common.ts';
  * This is a system-level coordination primitive,
  * not a React pattern or framework specific construct.
  */
-export type EffectController<State, Patch = Partial<State>> = t.Lifecycle & {
-  /** Unique identifier for this controller instance. */
-  readonly id: t.StringId;
+export type EffectController<State, Patch = Partial<State>, Props = undefined> =
+  t.Lifecycle &
+  {
+    /** Unique identifier for this controller instance. */
+    readonly id: t.StringId;
 
-  /** Monotonic revision; increments only on real state change. */
-  readonly rev: t.NumberMonotonic;
+    /** Monotonic revision; increments only on real state change. */
+    readonly rev: t.NumberMonotonic;
 
-  /** Read the current state snapshot. */
-  current(): State;
+    /** Read the current state snapshot. */
+    current(): State;
 
-  /** Apply a partial update (intent); notifies subscribers and attached effects. */
-  next(patch?: Patch): void;
+    /** Apply a partial update (intent); notifies subscribers and attached effects. */
+    next(patch?: Patch): void;
 
-  /** Subscribe to state changes. Returns unsubscribe function. */
-  onChange(fn: EffectControllerChangeHandler<State>): () => void;
-};
+    /** Subscribe to state changes. Returns unsubscribe function. */
+    onChange(fn: EffectControllerChangeHandler<State>): () => void;
+  } &
+  (Props extends undefined ? {} : { readonly props: Props });
 
 /**
  * Callback invoked when controller state changes.

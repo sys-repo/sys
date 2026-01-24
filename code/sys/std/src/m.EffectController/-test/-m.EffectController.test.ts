@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { EffectController } from '../mod.ts';
 import { createFakeRef } from './u.fixture.ts';
 
@@ -37,6 +37,26 @@ describe('EffectController', () => {
 
       a.dispose();
       b.dispose();
+    });
+
+    it('does not expose props when not configured', () => {
+      const ctrl = EffectController.create<State>({ ref: createFakeRef<State>({}) });
+      expect('props' in ctrl).to.eql(false);
+      ctrl.dispose();
+    });
+
+    it('exposes props when provided', () => {
+      const props = { baseUrl: 'http://test' as t.StringUrl } as const;
+      const ctrl = EffectController.create<State, Partial<State>, typeof props>({
+        ref: createFakeRef<State>({}),
+        props,
+      });
+
+      expect('props' in ctrl).to.eql(true);
+      expect(ctrl.props).to.equal(props);
+      expect(ctrl.props.baseUrl).to.eql(props.baseUrl);
+
+      ctrl.dispose();
     });
   });
 

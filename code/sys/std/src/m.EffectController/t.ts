@@ -4,9 +4,9 @@ import { type t } from './common.ts';
  * EffectController — minimal orchestration primitive.
  */
 export type EffectControllerLib = {
-  create<State, Patch = Partial<State>>(
-    args: t.EffectControllerCreateArgs<State, Patch>,
-  ): t.EffectController<State, Patch>;
+  create<State, Patch = Partial<State>, Props = undefined>(
+    args: t.EffectControllerCreateArgs<State, Patch, Props>,
+  ): t.EffectController<State, Patch, Props>;
 };
 
 /**
@@ -22,9 +22,9 @@ export type EffectRef<State> = {
 /**
  * Arguments for creating an EffectController.
  */
-export type EffectControllerCreateArgs<State, Patch> = {
+export type EffectControllerCreateArgs<State, Patch, Props = undefined> = {
   readonly id?: t.StringId;
   readonly ref: EffectRef<State>;
   readonly applyPatch?: (draft: State, patch: Patch) => void;
   readonly isNoop?: (curr: State, patch: Patch | undefined) => boolean;
-};
+} & (Props extends undefined ? {} : { readonly props: Props });

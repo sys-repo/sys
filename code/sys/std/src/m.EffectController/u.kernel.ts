@@ -4,9 +4,9 @@ import { defaultIsNoop } from './u.noop.ts';
 /**
  * Create an EffectController kernel.
  */
-export function create<State, Patch = Partial<State>>(
-  args: t.EffectControllerCreateArgs<State, Patch>,
-): t.EffectController<State, Patch> {
+export function create<State, Patch = Partial<State>, Props = undefined>(
+  args: t.EffectControllerCreateArgs<State, Patch, Props>,
+): t.EffectController<State, Patch, Props> {
   const { ref, applyPatch = defaultApplyPatch, isNoop = defaultIsNoop } = args;
   const id = args.id ?? `EffectController-${slug()}`;
   const life = Rx.lifecycle();
@@ -20,8 +20,7 @@ export function create<State, Patch = Partial<State>>(
     _rev += 1;
     listeners.forEach((fn) => fn(after));
   });
-
-  const controller = Rx.toLifecycle<t.EffectController<State, Patch>>(life, {
+  const baseController = {
     id,
     get rev() {
       return _rev;
@@ -34,20 +33,19 @@ export function create<State, Patch = Partial<State>>(
     next(patch?: Patch) {
       if (life.disposed) return;
       if (isNoop(ref.current, patch)) return;
-
-      // Normalize so applyPatch always receives a Patch value,
-      // even if custom isNoop considers undefined/null "meaningful".
-      const p = patch ?? ({} as Patch);
-
-      ref.change((d) => applyPatch(d, p));
+      ref.change((d) => applyPatch(d, patch ?? ({} as Patch)));
     },
 
-    onChange(fn) {
+    onChange(fn: t.EffectControllerChangeHandler<State>) {
       if (life.disposed) return () => {};
       listeners.add(fn);
       return () => listeners.delete(fn);
     },
-  });
+  };
+
+  type C = t.EffectController<State, Patch, Props>;
+  const surface = 'props' in args ? { ...baseController, props: args.props } : baseController;
+  const controller = Rx.toLifecycle<C>(life, surface as t.OmitLifecycle<C>);
 
   life.dispose$.subscribe(() => listeners.clear());
 
