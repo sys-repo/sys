@@ -1,21 +1,9 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t, EffectController, Immutable, Schedule, slug } from '../common.ts';
+import { type t, Schedule } from '../common.ts';
 import { attachSlugLoaderEffect } from '../u.attachSlugLoaderEffect.ts';
-
-type State = t.SlugPlaybackState;
-type Patch = t.SlugPlaybackPatch;
-type Props = t.SlugPlaybackControllerProps;
+import { baseUrl, createTestSlugPlaybackController, makeTestPlaybackBundle } from './u.fixture.ts';
 
 describe('attachSlugLoaderEffect', () => {
-  const baseUrl: t.StringUrl = 'http://test';
-
-  const createController = () => {
-    const id = `slug-playback-${slug()}`;
-    const ref = Immutable.clonerRef<State>({});
-    const props: Props = { baseUrl };
-    return EffectController.create<State, Patch, Props>({ id, ref, props });
-  };
-
   const tree: t.TreeHostViewNodeList = [
     {
       path: ['root'],
@@ -45,11 +33,12 @@ describe('attachSlugLoaderEffect', () => {
   ];
 
   it('only loads once per ref selection even if state keeps changing', async () => {
-    const ctrl = createController();
+    const ctrl = createTestSlugPlaybackController();
     const calls: string[] = [];
+
     const loadBundle = async (_baseUrl: t.StringUrl, ref: string) => {
       calls.push(ref);
-      return { slug: `loaded-${ref}` };
+      return { ok: true, value: makeTestPlaybackBundle(ref) } as const;
     };
 
     attachSlugLoaderEffect(ctrl, { baseUrl, loadBundle });
@@ -59,7 +48,8 @@ describe('attachSlugLoaderEffect', () => {
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a']);
 
-    ctrl.next({ slug: { slug: 'dummy' } });
+    // mutate controller state (should not trigger a reload for same ref)
+    ctrl.next({ bundle: makeTestPlaybackBundle('dummy') });
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a']);
 

@@ -3,7 +3,11 @@ import { TreeHost } from '../ui.TreeHost/mod.ts';
 
 type State = t.SlugPlaybackState;
 type Controller = t.SlugPlaybackController;
-type LoadBundle = (baseUrl: t.StringUrl, ref: string) => Promise<unknown>;
+
+type LoadBundle = (
+  baseUrl: t.StringUrl,
+  ref: string,
+) => Promise<t.SlugClientResult<t.TimecodePlaybackDriver.Wire.Bundle>>;
 
 type Deps = {
   readonly baseUrl: t.StringUrl;
@@ -21,14 +25,23 @@ export function attachSlugLoaderEffect(controller: Controller, deps: Deps): void
   let loadGen = 0; // Staleness tracking.
 
   const run = (state: State) => {
-    const { tree, selectedPath, loadingRef, loadedRef } = state;
+    const { tree, selectedPath, loadingRef, loadedRef, bundle } = state;
     const node = TreeHost.Data.findViewNode(tree, selectedPath);
     const value = node?.value;
 
     if (!SlugSchema.Tree.Is.refOnly(value)) {
-      if (loadingRef || loadedRef) controller.next({ loadingRef: undefined, loadedRef: undefined });
+      if (loadingRef || loadedRef || bundle) {
+        controller.next({
+          isLoading: false,
+          error: undefined,
+          bundle: undefined,
+          loadingRef: undefined,
+          loadedRef: undefined,
+        });
+      }
       return;
     }
+
     const ref = value.ref;
     if (!ref) return;
     if (loadingRef === ref || loadedRef === ref) return;
@@ -36,17 +49,45 @@ export function attachSlugLoaderEffect(controller: Controller, deps: Deps): void
     // Start load.
     const gen = ++loadGen;
     const isStale = () => controller.disposed || gen !== loadGen;
-    controller.next({ isLoading: true, error: undefined, loadingRef: ref });
+
+    controller.next({
+      isLoading: true,
+      error: undefined,
+      bundle: undefined,
+      loadingRef: ref,
+      loadedRef: undefined,
+    });
 
     loadBundle(baseUrl, ref)
-      .then((slug) => {
+      .then((res) => {
         if (isStale()) return;
-        controller.next({ isLoading: false, slug, loadingRef: undefined, loadedRef: ref });
+
+        if (!res.ok) {
+          controller.next({
+            isLoading: false,
+            error: { message: res.error.message },
+            bundle: undefined,
+            loadingRef: undefined,
+          });
+          return;
+        }
+
+        controller.next({
+          isLoading: false,
+          bundle: res.value,
+          loadingRef: undefined,
+          loadedRef: ref,
+        });
       })
       .catch((e) => {
         if (isStale()) return;
         const message = e instanceof Error ? e.message : String(e);
-        controller.next({ isLoading: false, error: { message }, loadingRef: undefined });
+        controller.next({
+          isLoading: false,
+          bundle: undefined,
+          loadingRef: undefined,
+          error: { message },
+        });
       });
   };
 
