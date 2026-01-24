@@ -53,8 +53,3 @@ export function create<State, Patch = Partial<State>>(
 function defaultApplyPatch<State, Patch>(draft: State, patch: Patch): void {
   Object.assign(draft as object, patch as object);
 }
-
-/**
- * EffectController factory.
- */
-export const EffectController = { create } as const;

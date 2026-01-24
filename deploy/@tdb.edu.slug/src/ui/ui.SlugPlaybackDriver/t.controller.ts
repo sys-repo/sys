@@ -16,6 +16,8 @@ export type SlugPlaybackState = {
   readonly isLoading?: boolean;
   readonly error?: { readonly message: string };
   readonly slug?: unknown; // Loaded bundle / manifest.
+  readonly loadingRef?: string;
+  readonly loadedRef?: string;
 };
 
 /**

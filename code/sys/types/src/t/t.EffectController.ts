@@ -12,7 +12,7 @@ import type { t } from './common.ts';
  * - owns lifecycle (disposal, effect teardown)
  *
  * This is a system-level coordination primitive,
- * not a React pattern or framework construct.
+ * not a React pattern or framework specific construct.
  */
 export type EffectController<State, Patch = Partial<State>> = t.Lifecycle & {
   /** Unique identifier for this controller instance. */

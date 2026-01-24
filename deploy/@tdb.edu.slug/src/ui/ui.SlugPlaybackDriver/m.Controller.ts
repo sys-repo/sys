@@ -1,5 +1,4 @@
-import { EffectController as StdEffectController } from '@sys/std/effect';
-import { type t, Immutable, slug } from '../common.ts';
+import { type t, EffectController, Immutable, slug } from '../common.ts';
 import { attachSlugLoaderEffect } from './u.attachSlugLoaderEffect.ts';
 
 type State = t.SlugPlaybackState;
@@ -13,7 +12,7 @@ export const Controller: t.SlugPlaybackControllerLib = {
     const { baseUrl } = args;
     const id = `slug-playback-${slug()}`;
     const ref = Immutable.clonerRef<State>({});
-    const controller = StdEffectController.create<State, Patch>({ id, ref });
+    const controller = EffectController.create<State, Patch>({ id, ref });
 
     // Wire effects.
     attachSlugLoaderEffect(controller, { baseUrl });

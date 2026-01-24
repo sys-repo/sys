@@ -31,7 +31,6 @@ describe('SlugPlaybackDriver.Controller', () => {
   describe('current / next / rev', () => {
     it('starts with empty state and rev 0', () => {
       const ctrl = create();
-
       expect(ctrl.current()).to.eql({});
       expect(ctrl.rev).to.eql(0);
 
