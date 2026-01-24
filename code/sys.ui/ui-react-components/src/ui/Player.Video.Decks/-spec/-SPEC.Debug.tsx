@@ -165,11 +165,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <SampleVideoButtons baseUrl={p.baseUrl.value} signal={p.urlPathA} title={'Video: A'} />
+      <SampleVideoButtons
+        baseUrl={p.baseUrl.value}
+        signal={p.urlPathA}
+        title={'Deck: A'}
+        style={{}}
+      />
       <SampleVideoButtons
         baseUrl={p.baseUrl.value}
         signal={p.urlPathB}
-        title={'Video: B'}
+        title={'Deck: B'}
         style={{ marginTop: 20 }}
       />
 
