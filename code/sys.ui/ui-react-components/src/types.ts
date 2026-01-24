@@ -29,6 +29,7 @@ export type * from './ui/ObjectView/t.ts';
 export type * from './ui/Ownership/t.ts';
 export type * from './ui/PathView/t.ts';
 export type * from './ui/Player.Video.Controls/t.ts';
+export type * from './ui/Player.Video.Decks/t.ts';
 export type * from './ui/Player.Video.Element/t.ts';
 export type * from './ui/Player.Video.Signals/t.ts';
 export type * from './ui/Player.YouTube/t.ts';

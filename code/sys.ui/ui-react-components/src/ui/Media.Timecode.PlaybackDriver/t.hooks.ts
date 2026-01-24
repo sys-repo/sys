@@ -3,7 +3,7 @@ import type * as R from './t.runtime.ts';
 
 type Snapshot = t.TimecodeState.Playback.Snapshot;
 type CreateDriverArgs = Omit<R.CreatePlaybackDriverArgs, 'dispatch' | 'decks'> & {
-  decks?: R.VideoDecks;
+  decks?: t.VideoDecks;
 };
 
 /**

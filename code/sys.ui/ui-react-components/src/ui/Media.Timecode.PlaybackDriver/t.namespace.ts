@@ -10,7 +10,7 @@ export namespace TimecodePlaybackDriver {
 
   export type Schedule = R.Schedule;
   export type Driver = R.PlaybackDriver;
-  export type VideoDecks = R.VideoDecks;
+  export type VideoDecks = t.VideoDecks;
   export type TimelineController = R.TimelineController;
   export type ResolveBeatMedia = R.ResolveBeatMedia;
 
