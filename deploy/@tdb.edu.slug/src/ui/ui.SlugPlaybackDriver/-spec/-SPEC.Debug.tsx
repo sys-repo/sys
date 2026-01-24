@@ -131,7 +131,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         controller={controller}
       />
 
-      <hr />
+      <hr style={{ borderTopWidth: 4, opacity: 0.5 }} />
       <LoadSample.UI signal={p.load} style={{ MarginY: 15 }} baseUrl={controller.props.baseUrl} />
       <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
