@@ -1,8 +1,12 @@
 import React from 'react';
 import { Button } from '../../u.ts';
 import { type t, Color, css, Str, Time, Url } from '../common.ts';
+import { KeyValue } from '../../KeyValue/mod.ts';
 
-export const SAMPLE_BASEURLS = ['https://fs.socialleancanvas.com', 'http://localhost:4040'];
+export const SAMPLE_BASEURLS = [
+  'https://fs.socialleancanvas.com',
+  'http://localhost:4040',
+] as const;
 export const SAMPLE_PATHS = [
   '/video/540p/1068502644.mp4',
   '/video/540p/1068653222.mp4',
@@ -12,7 +16,7 @@ export const SAMPLE_PATHS = [
 export type SampleVideoButtonsProps = {
   baseUrl?: t.StringUrl;
   signal?: t.Signal<t.StringPath | undefined>;
-
+  title?: string;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -22,59 +26,43 @@ export type SampleVideoButtonsProps = {
  * Component:
  */
 export const SampleVideoButtons: React.FC<SampleVideoButtonsProps> = (props) => {
-  const { debug = false, baseUrl, signal } = props;
+  const { debug = false, baseUrl, signal, title = 'Sample Videos' } = props;
   const [copied, setCopied] = React.useState(false);
 
-  if (!baseUrl) return null;
-  if (!signal) return null;
+  if (!baseUrl || !signal) return null;
 
-  /**
-   * Render:
-   */
-  const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug),
-      color: theme.fg,
-      display: 'grid',
-    }),
+  const handleCopy = () => {
+    const url = Url.parse(baseUrl).join(signal.value ?? '');
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    Time.delay(1500, () => setCopied(false));
   };
 
-  const elButtons = SAMPLE_PATHS.map((path) => videoButton(baseUrl, path, signal));
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({ backgroundColor: Color.ruby(debug), color: theme.fg, display: 'grid' }),
+    faded: css({ opacity: 0.5 }),
+  };
+
+  const items: t.KeyValueItem[] = [
+    { kind: 'title', v: title },
+    { k: 'base url', v: <span className={styles.faded.class}>{baseUrl}</span>, mono: true },
+    ...SAMPLE_PATHS.map((path, i) => ({
+      mono: true,
+      k: `path ${i + 1}`,
+      v: (
+        <Button
+          label={`${Str.truncate(path, 40)} ${path === signal.value ? '🌳' : ''}`}
+          onClick={() => (signal.value = path)}
+        />
+      ),
+    })),
+    { k: <Button label={copied ? 'copied' : '(copy url)'} onClick={handleCopy} /> },
+  ];
 
   return (
     <div className={css(styles.base, props.style).class}>
-      {elButtons}
-      <Button
-        block
-        label={() => (copied ? 'copied' : `(copy url)`)}
-        onClick={() => {
-          const url = toUrl(baseUrl, signal.value ?? '');
-          navigator.clipboard.writeText(url);
-          setCopied(true);
-          Time.delay(1500, () => setCopied(false));
-        }}
-      />
+      <KeyValue.UI layout={{ kind: 'table' }} items={items} theme={theme.name} />
     </div>
   );
 };
-
-/**
- * Helpers
- */
-export function videoButton(
-  baseUrl: t.StringUrl,
-  path: t.StringPath,
-  signal: t.Signal<t.StringPath | undefined>,
-) {
-  const url = toUrl(baseUrl, path);
-  const isCurrent = path == signal.value;
-  let label = `src: ${path.slice(0, 10)} .. ${url.slice(-10)}`;
-  label = Str.truncate(label, 30);
-  if (isCurrent) label += ' 🌳';
-  return <Button key={path} block label={label} onClick={() => (signal.value = path)} />;
-}
-
-function toUrl(baseUrl: t.StringUrl, path: t.StringPath) {
-  return Url.parse(baseUrl).join(path ?? '');
-}
