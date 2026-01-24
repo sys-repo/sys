@@ -36,6 +36,7 @@ export type * as t from './types.ts';
 /**
  * Library:
  */
+export { EffectController } from './m.EffectController/mod.ts';
 export { FC } from './m.FC/mod.ts';
 export { Signal } from './m.Signal/mod.ts';
 export { ReactChildren, ReactEvent, ReactString } from './u/mod.ts';
