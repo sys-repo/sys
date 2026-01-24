@@ -29,6 +29,9 @@ export type SlugPlaybackState = {
   /** Loaded playback bundle (timeline spec + resolver). */
   readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
 
+  /** Video signal decks for rendering (A/B). */
+  readonly decks?: t.TimecodePlaybackDriver.VideoDecks;
+
   /** Ref currently being fetched (staleness guard). */
   readonly loadingRef?: string;
   /** Ref last successfully loaded. */

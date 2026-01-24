@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, Schedule } from '../common.ts';
 import { attachSlugLoaderEffect } from '../u.attachSlugLoaderEffect.ts';
-import { baseUrl, createTestController, makeTestPlaybackBundle } from './u.fixture.ts';
+import { createTestController, makeTestPlaybackBundle } from './u.fixture.ts';
 
-describe('attachSlugLoaderEffect', () => {
+describe('controller: attachSlugLoaderEffect', () => {
   const tree: t.TreeHostViewNodeList = [
     {
       path: ['root'],
@@ -41,7 +41,7 @@ describe('attachSlugLoaderEffect', () => {
       return { ok: true, value: makeTestPlaybackBundle(ref) } as const;
     };
 
-    attachSlugLoaderEffect(ctrl, { baseUrl, loadBundle });
+    attachSlugLoaderEffect(ctrl, { loadBundle });
 
     const pathA: t.ObjectPath = ['root', 'ref-a'];
     ctrl.next({ tree, selectedPath: pathA });

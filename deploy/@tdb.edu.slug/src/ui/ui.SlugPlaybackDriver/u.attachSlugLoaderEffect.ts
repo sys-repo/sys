@@ -2,24 +2,19 @@ import { type t, SlugClient, SlugSchema } from '../common.ts';
 import { TreeHost } from '../ui.TreeHost/mod.ts';
 
 type State = t.SlugPlaybackState;
-type Controller = t.SlugPlaybackController;
-
 type LoadBundleResult = t.SlugClientResult<t.TimecodePlaybackDriver.Wire.Bundle>;
 type LoadBundle = (baseUrl: t.StringUrl, ref: t.StringId) => Promise<LoadBundleResult>;
-
-type Deps = {
-  baseUrl: t.StringUrl;
-  loadBundle?: LoadBundle;
-};
+type Props = { loadBundle?: LoadBundle };
 
 /**
  * Attach the slug loader effect.
  *
  * Watches for selection changes. When the selected node
- * is a `refOnly` with a ref, loads the bundle from the endpoint.
+ * is a `refOnly` slug with a ref ID, loads the bundle from the endpoint.
  */
-export function attachSlugLoaderEffect(controller: Controller, deps: Deps): void {
-  const { baseUrl, loadBundle = SlugClient.FromEndpoint.Bundle.load } = deps;
+export function attachSlugLoaderEffect(controller: t.SlugPlaybackController, props: Props): void {
+  const { loadBundle = SlugClient.FromEndpoint.Bundle.load } = props;
+  const baseUrl = controller.props.baseUrl;
   let loadGen = 0; // Staleness tracking.
 
   const run = (state: State) => {
