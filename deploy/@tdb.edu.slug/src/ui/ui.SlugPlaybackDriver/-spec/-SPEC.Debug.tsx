@@ -20,7 +20,6 @@ type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & { load?: t.SampleLo
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
-  //
   load: 'esm:import',
 };
 
@@ -38,6 +37,9 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  const baseUrl = 'http://localhost:4040/publish.assets';
+  const controller = SlugPlaybackDriver.Controller.create({ baseUrl });
+
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -49,6 +51,7 @@ export async function createDebugSignals() {
   const p = props;
   const api = {
     props,
+    controller,
     listen,
     reset,
   };
@@ -70,13 +73,8 @@ export async function createDebugSignals() {
     });
   });
 
-  const load = () => void LoadSample.load(p.tree, p.load.value);
+  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl });
   Signal.effect(load);
-
-  Signal.effect(() => {
-    const path = p.selectedPath.value;
-    const tree = p.tree.value;
-  });
 
   /** Sample: Observe to relevant changes */
   Signal.effect((e) => {
@@ -120,6 +118,7 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
+  const controller = debug.controller;
   const p = debug.props;
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
@@ -135,10 +134,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <SlugPlaybackDriver.Dev.DriverInfo style={{ marginBottom: 15 }} />
+      <SlugPlaybackDriver.Dev.DriverInfo
+        style={{ marginBottom: 15 }}
+        debug={v.debug}
+        controller={controller}
+      />
 
       <hr />
-      <LoadSample.UI signal={p.load} style={{ MarginY: 15 }} />
+      <LoadSample.UI signal={p.load} style={{ MarginY: 15 }} baseUrl={controller.props.baseUrl} />
       <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 

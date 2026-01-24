@@ -4,6 +4,7 @@ import { baseUrl } from './u.http.ts';
 
 export type LoadSampleButtonsProps = {
   signal?: t.Signal<t.SampleLoadAction | undefined>;
+  baseUrl?: t.StringUrl;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -51,7 +52,9 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
 
   add(`load via import (embedded)`, 'esm:import');
   add(`load via HTTP`, 'http');
-  items.push({ k: '- base-url', v: <span className={styles.url.class}>{baseUrl}</span>, mono });
+
+  const elUrl = <span className={styles.url.class}>{props.baseUrl ?? baseUrl}</span>;
+  items.push({ k: 'base-url', v: elUrl, mono });
 
   return (
     <div className={css(styles.base, props.style).class}>

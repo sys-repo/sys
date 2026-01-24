@@ -77,7 +77,8 @@ export async function createDebugSignals() {
     });
   });
 
-  const load = () => void LoadSample.load(p.tree, p.load.value);
+  const baseUrl = LoadSample.baseUrl;
+  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl });
   Signal.effect(load);
 
   /** Observe to relevant changes */
