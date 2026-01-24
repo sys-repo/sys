@@ -244,7 +244,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.toggle(p.controlled)}
       />
+
       <hr />
+      <SampleVideoButtons baseUrl={debug.baseUrl} signal={p.urlPath} />
+
+      <hr />
+      <div className={Styles.title.class}>{'Props:'}</div>
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
@@ -274,7 +279,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `cornerRadius: ${p.cornerRadius.value}`}
         onClick={() => Signal.cycle(p.cornerRadius, [0, 6, 15])}
       />
-      <hr />
       <Button
         block
         enabled={() => !p.controlled.value}
@@ -286,8 +290,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.slice, [undefined, '00:00:00..00:00:45', '00:00:10..-00:00:20']);
         }}
       />
-
-      <hr />
       <Button
         block
         enabled={() => !p.controlled.value}
@@ -324,10 +326,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.scale, [1.5, D.scale, fn]);
         }}
       />
-
-      <hr />
-      <div className={Styles.title.class}>{'Video:'}</div>
-      <SampleVideoButtons baseUrl={debug.baseUrl} signal={p.urlPath} />
 
       <hr />
       <div className={Styles.title.class}>{'Methods:'}</div>
@@ -375,7 +373,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'Samples:'}</div>
+      <div className={Styles.title.class}>{'Example States:'}</div>
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <Button
         block
