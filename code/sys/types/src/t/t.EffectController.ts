@@ -25,7 +25,7 @@ export type EffectController<State, Patch = Partial<State>> = t.Lifecycle & {
   current(): State;
 
   /** Apply a partial update (intent); notifies subscribers and attached effects. */
-  next(patch: Patch): void;
+  next(patch?: Patch): void;
 
   /** Subscribe to state changes. Returns unsubscribe function. */
   onChange(fn: EffectControllerChangeHandler<State>): () => void;

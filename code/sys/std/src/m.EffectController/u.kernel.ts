@@ -1,4 +1,5 @@
 import { type t, Rx, slug } from './common.ts';
+import { defaultIsNoop } from './u.noop.ts';
 
 /**
  * Create an EffectController kernel.
@@ -6,7 +7,7 @@ import { type t, Rx, slug } from './common.ts';
 export function create<State, Patch = Partial<State>>(
   args: t.EffectControllerCreateArgs<State, Patch>,
 ): t.EffectController<State, Patch> {
-  const { ref, applyPatch = defaultApplyPatch } = args;
+  const { ref, applyPatch = defaultApplyPatch, isNoop = defaultIsNoop } = args;
   const id = args.id ?? `EffectController-${slug()}`;
   const life = Rx.lifecycle();
   const listeners = new Set<t.EffectControllerChangeHandler<State>>();
@@ -30,9 +31,11 @@ export function create<State, Patch = Partial<State>>(
       return ref.current;
     },
 
-    next(patch: Patch) {
+    next(patch?: Patch) {
       if (life.disposed) return;
-      ref.change((d) => applyPatch(d, patch));
+      if (isNoop(ref.current, patch)) return;
+      const p = patch as Patch;
+      ref.change((d) => applyPatch(d, p));
     },
 
     onChange(fn) {
@@ -48,7 +51,7 @@ export function create<State, Patch = Partial<State>>(
 }
 
 /**
- * Default patch application: Object.assign for Partial<State>.
+ * Default patch application for Partial<State> object patches.
  */
 function defaultApplyPatch<State, Patch>(draft: State, patch: Patch): void {
   Object.assign(draft as object, patch as object);

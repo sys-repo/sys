@@ -26,4 +26,5 @@ export type EffectControllerCreateArgs<State, Patch> = {
   readonly id?: t.StringId;
   readonly ref: EffectRef<State>;
   readonly applyPatch?: (draft: State, patch: Patch) => void;
+  readonly isNoop?: (curr: State, patch: Patch | undefined) => boolean;
 };
