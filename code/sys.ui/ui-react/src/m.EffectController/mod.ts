@@ -8,3 +8,4 @@
  * The underlying controller logic remains framework-agnostic.
  */
 export { EffectController } from './m.EffectController.ts';
+export { useEffectController } from './u.useEffectController.ts';

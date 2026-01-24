@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Obj, StdEffectController } from '../common.ts';
-import { EffectController } from '../mod.ts';
+import { EffectController, useEffectController } from '../mod.ts';
 
 describe(`EffectController`, () => {
   it('API', async () => {
@@ -9,6 +9,7 @@ describe(`EffectController`, () => {
 
     expect(m.EffectController).to.equal(EffectController);
     expect(mm.EffectController).to.equal(EffectController);
+    expect(EffectController.useEffectController).to.equal(useEffectController);
 
     for (const [key, fn] of Obj.entries(StdEffectController)) {
       expect(EffectController[key]).to.equal(fn);
