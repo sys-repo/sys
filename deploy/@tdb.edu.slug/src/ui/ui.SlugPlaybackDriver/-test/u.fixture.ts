@@ -1,4 +1,4 @@
-import { type t, EffectController, Immutable, slug } from '../common.ts';
+import { type t, EffectController, Immutable, slug, Schedule } from '../common.ts';
 
 /**
  * Test-only base URL used by SlugPlaybackDriver fixtures.
@@ -14,7 +14,7 @@ export const baseUrl: t.StringUrl = 'http://test';
  * - No runtime side-effects
  * - Caller owns disposal
  */
-export function createTestSlugPlaybackController() {
+export function createTestController() {
   type State = t.SlugPlaybackState;
   type Patch = t.SlugPlaybackPatch;
   type Props = t.SlugPlaybackControllerProps;
@@ -23,6 +23,17 @@ export function createTestSlugPlaybackController() {
   const ref = Immutable.clonerRef<State>({});
   const props: Props = { baseUrl };
   return EffectController.create<State, Patch, Props>({ id, ref, props });
+}
+
+/**
+ * Dispose a test controller and flush pending microtasks.
+ *
+ * Ensures lifecycle cleanup (dispose$, effects, timers) completes
+ * before the test finishes, preventing CI-only leak failures.
+ */
+export async function disposeTestController(ctrl: { dispose: () => void }): Promise<void> {
+  ctrl.dispose();
+  await Schedule.micro();
 }
 
 /**

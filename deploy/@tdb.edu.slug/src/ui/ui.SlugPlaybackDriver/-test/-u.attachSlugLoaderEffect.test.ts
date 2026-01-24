@@ -1,7 +1,12 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, Schedule } from '../common.ts';
 import { attachSlugLoaderEffect } from '../u.attachSlugLoaderEffect.ts';
-import { baseUrl, createTestSlugPlaybackController, makeTestPlaybackBundle } from './u.fixture.ts';
+import {
+  baseUrl,
+  createTestController,
+  disposeTestController,
+  makeTestPlaybackBundle,
+} from './u.fixture.ts';
 
 describe('attachSlugLoaderEffect', () => {
   const tree: t.TreeHostViewNodeList = [
@@ -33,7 +38,7 @@ describe('attachSlugLoaderEffect', () => {
   ];
 
   it('only loads once per ref selection even if state keeps changing', async () => {
-    const ctrl = createTestSlugPlaybackController();
+    const ctrl = createTestController();
     const calls: string[] = [];
 
     const loadBundle = async (_baseUrl: t.StringUrl, ref: string) => {
@@ -67,6 +72,6 @@ describe('attachSlugLoaderEffect', () => {
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a', 'slug:ref-b', 'slug:ref-a']);
 
-    ctrl.dispose();
+    await disposeTestController(ctrl);
   });
 });
