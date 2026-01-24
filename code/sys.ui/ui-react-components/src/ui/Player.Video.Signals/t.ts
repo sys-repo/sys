@@ -1,5 +1,12 @@
 import type { t } from './common.ts';
 
+/**
+ * VideoSignals library.
+ */
+export type VideoPlayerSignalsLib = {
+  readonly create: PlayerSignalsFactory;
+};
+
 /** The address of a video (eg. "vimeo/499921561"). */
 export type StringVideoAddress = string;
 

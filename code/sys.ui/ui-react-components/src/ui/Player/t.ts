@@ -5,13 +5,14 @@ import type { t } from '../common.ts';
  * Library: Players
  */
 export type PlayerLib = {
-  Video: {
-    UI: t.FC<t.VideoElementProps>;
-    Controls: { UI: t.FC<t.PlayerControlsProps> };
-    signals: t.PlayerSignalsFactory;
-    useSignals: t.UsePlayerSignals;
+  readonly Video: {
+    readonly UI: t.FC<t.VideoElementProps>;
+    readonly Controls: { readonly UI: t.FC<t.PlayerControlsProps> };
+    readonly Signals: t.VideoPlayerSignalsLib;
+    readonly signals: t.PlayerSignalsFactory;
+    readonly useSignals: t.UsePlayerSignals;
   };
-  Timestamp: {
-    Elapsed: { UI: React.FC<t.ElapsedTimeProps> };
+  readonly Timestamp: {
+    readonly Elapsed: { readonly UI: React.FC<t.ElapsedTimeProps> };
   };
 };

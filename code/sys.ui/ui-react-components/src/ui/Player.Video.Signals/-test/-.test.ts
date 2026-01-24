@@ -1,12 +1,12 @@
 import { type t, describe, expect, it } from '../../../-test.ts';
 import { Player } from '../../Player/mod.ts';
 import { D } from '../common.ts';
-import { playerSignalsFactory } from '../mod.ts';
+import { VideoSignals } from '../mod.ts';
 
 describe('VideoPlayer: Signals API', () => {
   describe('props', () => {
     it('initial values (defaults)', () => {
-      const s = playerSignalsFactory();
+      const s = VideoSignals.create();
       const p = s.props;
 
       expect(s.instance.length).to.be.greaterThan(4);
@@ -102,7 +102,7 @@ describe('VideoPlayer: Signals API', () => {
 
   describe('methods', () => {
     it('play / pause / toggle affect only playing', () => {
-      const s = playerSignalsFactory();
+      const s = VideoSignals.create();
       expect(s.props.playing.value).to.eql(false);
 
       s.play();
@@ -123,7 +123,7 @@ describe('VideoPlayer: Signals API', () => {
 
     describe('jumpTo() → intent only (no side effects)', () => {
       it('jumpTo emits intent without changing play state', () => {
-        const s = playerSignalsFactory();
+        const s = VideoSignals.create();
 
         s.play();
         expect(s.props.playing.value).to.eql(true);
@@ -134,7 +134,7 @@ describe('VideoPlayer: Signals API', () => {
       });
 
       it('jumpTo with play=false emits pause intent only', () => {
-        const s = playerSignalsFactory();
+        const s = VideoSignals.create();
 
         s.play();
         expect(s.props.playing.value).to.eql(true);
@@ -145,7 +145,7 @@ describe('VideoPlayer: Signals API', () => {
       });
 
       it('jumpTo with play=true emits play intent only', () => {
-        const s = playerSignalsFactory();
+        const s = VideoSignals.create();
 
         s.pause();
         expect(s.props.playing.value).to.eql(false);
