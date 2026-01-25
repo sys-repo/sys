@@ -315,6 +315,22 @@ describe('Staging: executeStaging', () => {
     });
   });
 
+  it('cleanStagingRoot: regenerates root index.html when targets are cleaned', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/new.txt`, 'new');
+
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/index.html`, 'sentinel');
+
+      const dir = { source: 'src', staging: 'dist/my-output' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+
+      const index = await Fs.readText(`${tmp}/stage/index.html`);
+      expect(index.data).to.not.eql('sentinel');
+    });
+  });
+
   it('sourceRoot/stagingRoot "." resolves to their bases', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src-base`);

@@ -140,7 +140,7 @@ export async function executeStaging(options: Args): Promise<void> {
   if (firstErr) throw firstErr;
 
   const rootAbs = stagingBaseAbs;
-  await ensureIndexHtml(rootAbs);
+  await ensureIndexHtml(rootAbs, { force: options.cleanStagingRoot === true });
 
   if (options.writeDistJson) {
     if (!options.stagingRoot) throw new Error('executeStaging: writeDistJson requires options.stagingRoot');

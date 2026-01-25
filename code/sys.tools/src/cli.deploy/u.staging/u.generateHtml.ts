@@ -10,13 +10,16 @@ type TDir = {
 /**
  * Ensure an `index.html` exists inside a staging root.
  */
-export async function ensureIndexHtml(cwd: t.StringDir): Promise<void> {
+export async function ensureIndexHtml(
+  cwd: t.StringDir,
+  options: { readonly force?: boolean } = {},
+): Promise<void> {
   const raw = String(cwd ?? '').trim();
   if (!raw) return;
 
   const root = Fs.Path.resolve(raw);
   const target = Fs.join(root, 'index.html');
-  if (await Fs.exists(target)) return;
+  if (!options.force && (await Fs.exists(target))) return;
 
   const dirs = await directories(root);
   const html = renderHtml(dirs);

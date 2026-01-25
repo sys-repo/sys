@@ -51,11 +51,7 @@ export async function runStagingWithSpinner(args: {
 
       async onWriteDistJson(e) {
         const dir = e.stagingRoot;
-        // Respect any dist.json produced by downstream builders
-        const { exists } = await Pkg.Dist.load(dir);
-        if (exists) return;
-
-        // Otherwise, synthesize a root dist.json for deployment
+        // Regenerate the root dist.json for deployment
         await Pkg.Dist.compute({ save: true, dir, pkg, builder: pkg });
       },
 
