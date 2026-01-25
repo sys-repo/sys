@@ -33,7 +33,7 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const video = Player.Video.signals();
+  const video = Player.Video.Signals.create();
   const v = video.props;
 
   const s = Signal.create;

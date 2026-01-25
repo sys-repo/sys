@@ -42,7 +42,9 @@ export async function createDebugSignals() {
   const snap = store.current;
 
   const Video = Player.Video;
-  const createVideo = () => Video.signals({ cornerRadius: 4, showControls: false, muted: true });
+
+  const createSignals = Video.Signals.create;
+  const createVideo = () => createSignals({ cornerRadius: 4, showControls: false, muted: true });
   const createDecks = (): t.VideoDecks => ({
     A: createVideo(),
     B: createVideo(),

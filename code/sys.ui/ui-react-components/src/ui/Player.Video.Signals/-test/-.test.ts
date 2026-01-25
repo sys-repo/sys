@@ -44,7 +44,7 @@ describe('VideoPlayer: Signals API', () => {
     describe('custom params', () => {
       it('defaults', () => {
         const scale: t.VideoPlayerScale = (e) => e.enlargeBy(1);
-        const s = Player.Video.signals({
+        const s = Player.Video.Signals.create({
           src: 'vimeo/foobar',
           loop: true,
           showControls: false,
@@ -77,14 +77,14 @@ describe('VideoPlayer: Signals API', () => {
       });
 
       it('param: src param (string)', () => {
-        const s = Player.Video.signals('vimeo/foobar');
+        const s = Player.Video.Signals.create('vimeo/foobar');
         expect(s.props.src.value).to.eql('vimeo/foobar');
       });
 
       it('param: fadeMask ← number expands to { Top:Down, <number>: pixels }', () => {
-        const a = Player.Video.signals({});
-        const b = Player.Video.signals({ fadeMask: 123 });
-        const c = Player.Video.signals({ fadeMask: { direction: 'Bottom:Up' } });
+        const a = Player.Video.Signals.create({});
+        const b = Player.Video.Signals.create({ fadeMask: 123 });
+        const c = Player.Video.Signals.create({ fadeMask: { direction: 'Bottom:Up' } });
 
         const maskA = a.props.fadeMask.value;
         const maskB = b.props.fadeMask.value!;

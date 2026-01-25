@@ -121,7 +121,7 @@ export function createDebugSignals() {
     },
   };
 
-  const video = Player.Video.signals({
+  const video = Player.Video.Signals.create({
     src: api.src,
     autoPlay: snap.autoPlay,
     muted: snap.muted,

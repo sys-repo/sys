@@ -7,7 +7,7 @@ import { usePendingSeek } from './use.PendingSeek.ts';
 
 export { usePendingSeek };
 
-export const PlayerControls: t.PlayerControlsLib = {
+export const PlayerControls: t.VideoPlayerControlsLib = {
   UI,
   usePendingSeek,
 };
