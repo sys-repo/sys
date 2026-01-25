@@ -53,6 +53,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
               chevron={showChevron}
               enabled={enabled}
               depth={depth}
+              indentSize={props.indentSize ?? D.indentSize}
               onPointer={(e) => props.onPointer?.(toPointerEvent(node, e, showChevron))}
               onPressDown={(e) => {
                 const pointerEvent = toPointerEvent(node, e, showChevron);

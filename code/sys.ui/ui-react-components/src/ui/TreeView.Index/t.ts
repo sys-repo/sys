@@ -22,6 +22,8 @@ export type IndexTreeViewProps = {
   slideOffset?: t.Pixels;
   /** Chevron visibility override for lazy child placeholders. */
   showChevron?: t.IndexTreeViewChevronMode;
+  /** Pixels per indent level when rendering inline children. */
+  indentSize?: t.Pixels;
 
   // Appearance:
   minWidth?: t.Pixels;

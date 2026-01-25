@@ -30,6 +30,7 @@ export default Spec.describe(D.displayName, (e) => {
             theme={v.theme}
             style={{ width }}
             showChevron={v.showChevron}
+            indentSize={v.indentSize}
             //
             root={debug.root}
             path={v.path}

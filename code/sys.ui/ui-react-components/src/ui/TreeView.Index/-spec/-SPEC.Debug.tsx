@@ -6,13 +6,14 @@ import { IndexTreeView } from '../mod.ts';
 import { SAMPLE_YAML } from './-yaml.ts';
 
 type P = t.IndexTreeViewProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'showChevron'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'showChevron' | 'indentSize'> & {
   yaml?: string;
 };
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
   showChevron: D.showChevron,
+  indentSize: D.indentSize,
   yaml: SAMPLE_YAML,
   path: undefined,
 };
@@ -38,6 +39,7 @@ export function createDebugSignals() {
     yaml: s(snap.yaml),
     path: s(snap.path),
     showChevron: s(snap.showChevron),
+    indentSize: s(snap.indentSize),
   };
   const p = props;
   const api = {
@@ -58,6 +60,7 @@ export function createDebugSignals() {
       d.yaml = p.yaml.value;
       d.path = p.path.value;
       d.showChevron = p.showChevron.value;
+      d.indentSize = p.indentSize.value;
     });
   });
 
@@ -101,7 +104,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
+        label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
@@ -109,7 +112,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const v = p.yaml.value;
-          return `yaml: ${v ? `"${Str.truncate(v, 35)}"` : `<undefined>`}`;
+          return `yaml: ${v ? `"${Str.truncate(v, 35)}"` : `(undefined)`}`;
         }}
         onClick={() => Signal.cycle(p.yaml, [SAMPLE_YAML, undefined])}
       />
@@ -121,6 +124,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
           type T = t.IndexTreeViewChevronMode;
           Signal.cycle<T>(p.showChevron, [D.showChevron, 'always', 'never']);
         }}
+      />
+
+      <Button
+        block
+        label={() => `indentSize: ${p.indentSize.value ?? '(undefined)'}`}
+        onClick={() => Signal.cycle(p.indentSize, [10, D.indentSize, 32])}
       />
 
       <Button

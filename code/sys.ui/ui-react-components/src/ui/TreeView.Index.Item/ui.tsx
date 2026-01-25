@@ -11,8 +11,9 @@ export const IndexTreeViewItem: React.FC<t.IndexTreeViewItemProps> = (props) => 
     chevron = D.chevron,
     selected = D.selected,
     depth = 0,
+    indentSize = D.indentSize,
   } = props;
-  const indent = depth * D.indentSize;
+  const indent = depth * indentSize;
   const isActive = active && enabled;
   const hasDescription = description !== undefined && description !== null && description !== false;
 

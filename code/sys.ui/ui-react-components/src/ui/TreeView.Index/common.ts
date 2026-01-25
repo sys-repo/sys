@@ -17,5 +17,6 @@ export const DEFAULTS = {
   slideDuration: 200,
   slideOffset: 50,
   showChevron: 'auto' satisfies t.IndexTreeViewChevronMode,
+  indentSize: 20,
 } as const;
 export const D = DEFAULTS;
