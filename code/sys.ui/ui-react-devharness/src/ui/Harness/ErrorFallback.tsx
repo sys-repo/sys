@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FallbackProps } from 'react-error-boundary';
+import { type FallbackProps, getErrorMessage } from 'react-error-boundary';
 import { COLORS, css, type t } from '../common.ts';
 
 export type ErrorFallbackProps = FallbackProps & {
@@ -27,10 +27,12 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = (props) => {
     pre: css({ fontSize: 12 }),
   };
 
+  const message = getErrorMessage(error);
+  const stack = error instanceof Error ? error.stack : undefined;
   const elError = (
     <pre className={styles.pre.class}>
-      <div>{error?.message}</div>
-      <div>{error?.stack}</div>
+      <div>{message}</div>
+      <div>{stack}</div>
     </pre>
   );
 
