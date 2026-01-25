@@ -150,7 +150,7 @@ deno.json:
 
   # UI:
   - import: npm:@svgdotjs/svg.js@3.2.5
-  - import: npm:react-error-boundary@6.1.0
+  - import: npm:react-error-boundary@6.0.3
   - import: npm:react-inspector@9.0.0
   - import: npm:react-spinners@0.17.0
   - import: npm:@preact/signals-react@3.7.0
