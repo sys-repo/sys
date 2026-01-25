@@ -1,8 +1,8 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { css, D } from '../common.ts';
-import { SlugPlaybackDriver, TreeHost } from './mod.ts';
 import { BackButton } from '../../ui.TreeHost/-spec/mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { css, D, EffectController, Player } from '../common.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { TreeHost } from './mod.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -10,11 +10,23 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+    const state = EffectController.useEffectController(debug.controller);
+    const decks = state?.decks;
+    const activeDeck = state?.snapshot?.state.decks.active;
 
     const styles = {
       base: css({ position: 'relative', display: 'grid' }),
       back: css({ Absolute: [-35, null, null, -35] }),
     };
+
+    const aux = decks && (
+      <Player.Video.Decks.UI
+        decks={decks}
+        active={activeDeck}
+        show={'single'}
+        aspectRatio={'4/3'}
+      />
+    );
 
     return (
       <div className={styles.base.class}>
@@ -29,6 +41,7 @@ export default Spec.describe(D.displayName, async (e) => {
           theme={v.theme}
           tree={v.tree}
           selectedPath={v.selectedPath}
+          slots={{ aux }}
           onPathRequest={(e) => (p.selectedPath.value = e.path)}
           onNodeSelect={(e) => {
             // console.info('⚡️ onNodeSelect: ', e);
