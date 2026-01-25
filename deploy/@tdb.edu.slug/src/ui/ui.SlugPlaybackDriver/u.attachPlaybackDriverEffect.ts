@@ -22,6 +22,7 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
   const isStale = (g: number) => controller.disposed || g !== gen;
 
   let currDriver: t.TimecodePlaybackDriver.Driver | undefined;
+  let currDecks: Decks | undefined;
   let lastObserved: { bundle?: Bundle; decks?: Decks } = {};
   let snapshot: Snapshot | undefined;
 
@@ -38,9 +39,18 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
     }
   };
 
+  const resetDecks = (decks?: Decks) => {
+    if (!decks) return;
+    decks.A.props.src.value = undefined;
+    decks.B.props.src.value = undefined;
+  };
+
   const teardown = (reason: 'slug-playback:teardown' | 'slug-playback:controller-dispose') => {
+    resetDecks(currDecks);
+
     currDriver?.dispose(reason);
     currDriver = undefined;
+    currDecks = undefined;
     snapshot = undefined;
 
     const patch: RuntimePatch = { timeline: undefined, snapshot: undefined };
@@ -97,23 +107,40 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
     teardown('slug-playback:teardown');
     if (isStale(g)) return;
 
+    currDecks = decks;
+
     const timeline = buildTimeline(bundle.spec);
     const nextSnapshot = machine.init({ timeline });
     snapshot = nextSnapshot;
+
+    // Gen-gated dispatch: prevents late signals from old drivers stomping state.
+    const dispatchG = (input: t.TimecodeState.Playback.Input) => {
+      if (isStale(g)) return;
+      dispatch(input);
+    };
 
     /**
      * Playback driver wiring (media)
      */
     const resolveBeatMedia = PlaybackDriver.Util.resolveBeatMedia(bundle);
-    currDriver = PlaybackDriver.create({ decks, resolveBeatMedia, dispatch, log: false });
+    currDriver = PlaybackDriver.create({
+      decks,
+      resolveBeatMedia,
+      dispatch: dispatchG,
+      log: false,
+    });
     currDriver.apply(nextSnapshot);
 
     /**
      * Controller surface (UI/nav)
      */
-    const timelineController = PlaybackDriver.Util.controller(dispatch);
+    const timelineController = PlaybackDriver.Util.controller(dispatchG);
     const runtimePatch: RuntimePatch = { snapshot: nextSnapshot, timeline: timelineController };
     next(runtimePatch);
+
+    // Deterministic “land at t=0” for every new bundle.
+    const beat0 = TimecodeState.Playback.Util.beatIndexAtVTime(timeline, 0);
+    timelineController.seekToBeat(beat0);
   };
 
   const run = (state: State) => {
