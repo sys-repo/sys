@@ -16,6 +16,11 @@ export function usePlayControlsProps(
   const [overrideTime, setOverrideTime] = React.useState<t.Secs | undefined>(undefined);
 
   React.useEffect(() => {
+    desiredSeekRef.current = undefined;
+    setOverrideTime(undefined);
+  }, [timeline, props.enabled]);
+
+  React.useEffect(() => {
     const desired = desiredSeekRef.current;
     if (desired == null) return;
 
