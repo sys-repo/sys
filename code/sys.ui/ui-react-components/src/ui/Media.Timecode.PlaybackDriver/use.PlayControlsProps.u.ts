@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export function deriveState(args: t.UseControlsPropsArgs) {
+export function deriveState(args: t.UsePlayControlsPropsArgs) {
   const { controller, snapshot, decks } = args;
   const state = snapshot?.state;
   const timeline = state?.timeline;
@@ -15,20 +15,14 @@ export function deriveState(args: t.UseControlsPropsArgs) {
   const currentTime = asSecs(state?.vTime);
   const duration = asSecs(timeline?.virtualDuration);
   const muted = activeSignals?.props.muted.value;
+  const enabled = !!controller && !!timeline;
 
   return {
     controller,
     timeline,
     decks,
     activeSignals,
-    props: {
-      enabled: !!controller && !!timeline,
-      playing,
-      muted,
-      buffering,
-      currentTime,
-      duration,
-    },
+    props: { enabled, playing, muted, buffering, currentTime, duration },
   } as const;
 }
 

@@ -1,8 +1,10 @@
 import React from 'react';
 import { type t, TimecodeState } from './common.ts';
-import { deriveState } from './use.ControlsProps.u.ts';
+import { deriveState } from './use.PlayControlsProps.u.ts';
 
-export function useControlsProps(args: t.UseControlsPropsArgs): t.UseControlsPropsResult {
+export function usePlayControlsProps(
+  args: t.UsePlayControlsPropsArgs,
+): t.UsePlayControlsPropsResult {
   const { controller, timeline, decks, activeSignals, props } = deriveState(args);
 
   const onClick = React.useCallback<t.PlayerControlsButtonHandler>(
@@ -27,5 +29,9 @@ export function useControlsProps(args: t.UseControlsPropsArgs): t.UseControlsPro
     [controller, timeline],
   );
 
-  return { ...props, onClick, onSeeking };
+  return {
+    ...props,
+    onClick,
+    onSeeking,
+  };
 }

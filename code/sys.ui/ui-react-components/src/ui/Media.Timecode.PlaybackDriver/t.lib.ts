@@ -13,10 +13,10 @@ export type TimecodePlaybackDriverLib = {
   readonly Util: t.TimecodePlaybackDriverUtilLib;
 
   /** Runtime bridge between reducer cmds/signals and the video decks. */
-  create(args: R.CreatePlaybackDriverArgs): R.PlaybackDriver;
+  readonly create: (args: R.CreatePlaybackDriverArgs) => R.PlaybackDriver;
 
   /** React integration hook (owns reducer + driver lifecycle). */
-  useDriver(args: H.UsePlaybackDriverArgs): H.UsePlaybackDriverResult;
+  readonly useDriver: (args: H.UsePlaybackDriverArgs) => H.UsePlaybackDriverResult;
 };
 
 /**
@@ -24,10 +24,15 @@ export type TimecodePlaybackDriverLib = {
  */
 export type TimecodePlaybackDriverUtilLib = {
   /** UI control surface that emits playback actions. */
-  controller(dispatch: R.TimelineControllerDispatch): R.TimelineController;
+  readonly controller: (dispatch: R.TimelineControllerDispatch) => R.TimelineController;
 
   /** Pure projection hook from playback spec to timeline representations. */
-  usePlaybackTimeline<P = U>(args: H.UsePlaybackTimelineArgs<P>): H.UsePlaybackTimelineResult<P>;
+  readonly usePlaybackTimeline: <P = U>(
+    args: H.UsePlaybackTimelineArgs<P>,
+  ) => H.UsePlaybackTimelineResult<P>;
+
+  /** Handles generated props/handlers for a controller to bind to PlayerControls. */
+  readonly usePlayControlsProps: (args: t.UsePlayControlsPropsArgs) => t.UsePlayControlsPropsResult;
 
   /**
    * Resolve runtime media identity for a playback beat.
@@ -39,5 +44,5 @@ export type TimecodePlaybackDriverUtilLib = {
    * This is the sole boundary where authoring-time media refs are translated
    * into runtime playback media.
    */
-  resolveBeatMedia(bundle: W.SpecTimelineBundle): R.ResolveBeatMedia;
+  readonly resolveBeatMedia: (bundle: W.SpecTimelineBundle) => R.ResolveBeatMedia;
 };

@@ -1,10 +1,10 @@
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 import React from 'react';
-import { useControlsProps } from '../use.ControlsProps.ts';
+import { usePlayControlsProps } from '../use.PlayControlsProps.ts';
 import { type t, Player } from './common.ts';
 
-type ControlsProps = {
+type PlayControlsProps = {
   debug?: DebugSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -13,7 +13,7 @@ type ControlsProps = {
 /**
  * Component:
  */
-export const Controls: React.FC<ControlsProps> = (props) => {
+export const PlayControls: React.FC<PlayControlsProps> = (props) => {
   const { debug } = props;
   const p = debug?.props;
 
@@ -21,7 +21,7 @@ export const Controls: React.FC<ControlsProps> = (props) => {
   const snapshot = p?.snapshot.value;
   const decks = debug?.decks;
 
-  const controls = useControlsProps({ controller, snapshot, decks });
+  const controls = usePlayControlsProps({ controller, snapshot, decks });
   return (
     <Player.Video.Controls.UI
       {...controls}

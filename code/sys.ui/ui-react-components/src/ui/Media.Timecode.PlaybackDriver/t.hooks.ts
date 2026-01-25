@@ -65,12 +65,12 @@ export type UsePlaybackTimelineResult<P = unknown> = {
 /**
  * Aruments for the `useControlsProps` hook.
  */
-export type UseControlsPropsArgs = {
+export type UsePlayControlsPropsArgs = {
   controller?: t.TimecodePlaybackDriver.TimelineController;
   snapshot?: Snapshot;
   decks?: t.TimecodePlaybackDriver.VideoDecks;
 };
-export type UseControlsPropsResult = Omit<
+export type UsePlayControlsPropsResult = Omit<
   t.PlayerControlsProps,
   'theme' | 'style' | 'background' | 'padding' | 'margin' | 'maskHeight' | 'maskOpacity'
 >;

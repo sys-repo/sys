@@ -17,7 +17,7 @@ import {
 } from './common.ts';
 import { Sample } from './u.loader.ts';
 import { LoadTimelinePanel } from './ui.LoadTimelinePanel.tsx';
-import { Controls } from './ui.Controls.tsx';
+import { PlayControls } from './ui.PlayControls.tsx';
 
 type P = HarnessProps;
 type Storage = Pick<P, 'debug' | 'theme'> & { docid?: t.StringId; baseUrl?: t.StringUrl };
@@ -156,7 +156,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `play`} onClick={() => v.controller?.play()} />
       <Button block label={() => `pause`} onClick={() => v.controller?.pause()} />
       <Button block label={() => `toggle`} onClick={() => v.controller?.toggle()} />
-      <Controls debug={debug} />
+      <PlayControls debug={debug} />
       <Player.Video.Decks.UI
         decks={debug.decks}
         active={debug.activeDeck}
