@@ -162,6 +162,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         active={debug.activeDeck}
         muted={true}
         gap={20}
+        show={'both'}
         style={{ Margin: [10, 40, 15, 40] }}
       />
 
