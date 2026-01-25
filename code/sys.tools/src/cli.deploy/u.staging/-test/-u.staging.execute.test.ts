@@ -231,6 +231,90 @@ describe('Staging: executeStaging', () => {
     });
   });
 
+  it('cleanStagingRoot: deletes only the staging target (preserves siblings)', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/new.txt`, 'new');
+
+      await Fs.ensureDir(`${tmp}/stage/dist/my-output`);
+      await Fs.ensureDir(`${tmp}/stage/dist/keep`);
+      await Fs.ensureDir(`${tmp}/stage/other`);
+
+      await Fs.write(`${tmp}/stage/dist/my-output/old.txt`, 'old');
+      await Fs.write(`${tmp}/stage/dist/keep/keep.txt`, 'keep');
+      await Fs.write(`${tmp}/stage/other/other.txt`, 'other');
+
+      const dir = { source: 'src', staging: 'dist/my-output' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+
+      const old = await Fs.readText(`${tmp}/stage/dist/my-output/old.txt`);
+      expect(old.exists).to.eql(false);
+
+      const fresh = await Fs.readText(`${tmp}/stage/dist/my-output/new.txt`);
+      expect(fresh.data).to.eql('new');
+
+      const keep = await Fs.readText(`${tmp}/stage/dist/keep/keep.txt`);
+      expect(keep.data).to.eql('keep');
+
+      const other = await Fs.readText(`${tmp}/stage/other/other.txt`);
+      expect(other.data).to.eql('other');
+    });
+  });
+
+  it('cleanStagingRoot: staging "." cleans root without touching outside files', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/new.txt`, 'new');
+
+      await Fs.ensureDir(`${tmp}/stage/sub`);
+      await Fs.write(`${tmp}/stage/keep.txt`, 'keep');
+      await Fs.write(`${tmp}/stage/sub/keep.txt`, 'keep-sub');
+      await Fs.write(`${tmp}/outside.txt`, 'outside');
+
+      const dir = { source: 'src', staging: '.' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+
+      const keep = await Fs.readText(`${tmp}/stage/keep.txt`);
+      expect(keep.exists).to.eql(false);
+
+      const keepSub = await Fs.readText(`${tmp}/stage/sub/keep.txt`);
+      expect(keepSub.exists).to.eql(false);
+
+      const fresh = await Fs.readText(`${tmp}/stage/new.txt`);
+      expect(fresh.data).to.eql('new');
+
+      const outside = await Fs.readText(`${tmp}/outside.txt`);
+      expect(outside.data).to.eql('outside');
+    });
+  });
+
+  it('cleanStagingRoot: shared target cleans once (keeps first mapping output)', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src1`);
+      await Fs.ensureDir(`${tmp}/src2`);
+
+      await Fs.write(`${tmp}/src1/a.txt`, 'first');
+      await Fs.write(`${tmp}/src2/a.txt`, 'second');
+      await Fs.write(`${tmp}/src2/b.txt`, 'second-b');
+
+      await Fs.ensureDir(`${tmp}/stage/dist/my-output`);
+      await Fs.write(`${tmp}/stage/dist/my-output/old.txt`, 'old');
+
+      const mappings = [
+        { mode: 'copy' as const, dir: { source: 'src1', staging: 'dist/my-output' } },
+        { mode: 'copy' as const, dir: { source: 'src2', staging: 'dist/my-output' } },
+      ];
+
+      await executeStaging({ ...stageOptions(tmp), mappings });
+
+      const a = await Fs.readText(`${tmp}/stage/dist/my-output/a.txt`);
+      expect(a.data).to.eql('first');
+
+      const b = await Fs.readText(`${tmp}/stage/dist/my-output/b.txt`);
+      expect(b.data).to.eql('second-b');
+    });
+  });
+
   it('sourceRoot/stagingRoot "." resolves to their bases', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src-base`);

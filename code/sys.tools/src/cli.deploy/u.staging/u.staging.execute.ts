@@ -5,6 +5,15 @@ import { ensureIndexHtml } from './u.generateHtml.ts';
 import { resolvePath } from '../u.endpoints/u.resolve.ts';
 
 export type StagingProgressEvent = t.DeployTool.Staging.ProgressEvent;
+
+const isWithinRoot = (rootAbs: string, targetAbs: string): boolean => {
+  const rel = Path.relative(rootAbs, targetAbs);
+  if (rel === '') return true;
+  if (Path.Is.absolute(rel)) return false;
+  if (rel === '..') return false;
+  if (rel.startsWith('../') || rel.startsWith('..\\')) return false;
+  return true;
+};
 type Args = {
   cwd: t.StringDir;
   mappings: t.Ary<t.DeployTool.Staging.Mapping>;
@@ -14,7 +23,7 @@ type Args = {
 
   /**
    * Optional single staging root dir for deterministic lifecycle operations.
-   * - cleanStagingRoot: delete + recreate before running any mappings.
+   * - cleanStagingRoot: delete + recreate each mapping's staging target before running any mappings.
    * - writeDistJson: callback invoked after successful completion.
    */
   stagingRoot?: t.StringRelativeDir;
@@ -44,14 +53,24 @@ export async function executeStaging(options: Args): Promise<void> {
   if (options.cleanStagingRoot) {
     if (!options.stagingRoot) throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
     const rootAbs = stagingBaseAbs;
-
     const cwdAbs = Path.resolve(cwd, '.');
-    if (rootAbs === cwdAbs) {
-      throw new Error("executeStaging: refusing to clean stagingRoot '.' (would delete cwd)");
+
+    const targets = new Set<string>();
+    for (const m of mappings) {
+      const targetAbs = resolvePath(stagingBaseAbs, m.dir.staging);
+      if (!isWithinRoot(rootAbs, targetAbs)) {
+        throw new Error(`executeStaging: staging target escapes stagingRoot: ${targetAbs}`);
+      }
+      if (targetAbs === cwdAbs) {
+        throw new Error("executeStaging: refusing to clean staging target '.' (would delete cwd)");
+      }
+      targets.add(targetAbs);
     }
 
-    await Fs.remove(rootAbs, { log: false });
-    await Fs.ensureDir(rootAbs);
+    for (const targetAbs of targets) {
+      await Fs.remove(targetAbs, { log: false });
+      await Fs.ensureDir(targetAbs);
+    }
   }
 
   const concurrencyRaw = options.concurrency;
