@@ -10,6 +10,7 @@ export { AliasResolver } from '@sys/std/alias';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Yaml } from '@sys/yaml';
+export { Timecode } from '@sys/std/timecode';
 
 /** System.Model */
 export { SlugClient } from '@sys/model-slug';

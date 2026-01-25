@@ -15,3 +15,4 @@ export {
 } from '@sys/ui-react-components';
 export { PlaybackDriver } from '@sys/ui-react-components/media/timecode/playback-driver';
 export { EffectController, useEffectController } from '@sys/ui-react/effect';
+export { Timecode as TimecodeState } from '@sys/ui-state/timecode';
