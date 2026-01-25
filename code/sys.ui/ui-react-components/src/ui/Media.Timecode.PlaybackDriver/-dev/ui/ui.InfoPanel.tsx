@@ -9,7 +9,6 @@ type Timeline = t.Timecode.Experience.Timeline;
 
 export type InfoPanelProps = {
   index?: t.Index;
-  docid?: t.StringId;
   bundle?: Bundle;
   snapshot?: t.TimecodeState.Playback.Snapshot;
   experience?: Timeline;
@@ -24,7 +23,7 @@ export type InfoPanelProps = {
  * Component:
  */
 export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
-  const { docid, bundle, experience, resolved, snapshot } = props;
+  const { bundle, experience, resolved, snapshot } = props;
   if (!bundle || !experience || !resolved) return null;
 
   /**
@@ -69,6 +68,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   const hr = () => items.push({ kind: 'hr' });
   const vTime = snapshot?.state?.vTime;
   const currentTime = formatTime(vTime);
+  const docid = bundle.docid;
 
   add({ kind: 'title', v: 'Composite Timeline', y: [0, 10] });
   add({ k: 'Slug', v: docid ? `crdt:${docid}` : '-', mono, userSelect: 'text' });

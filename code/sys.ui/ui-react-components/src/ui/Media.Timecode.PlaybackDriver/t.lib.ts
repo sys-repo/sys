@@ -10,6 +10,7 @@ type U = unknown;
  * Playback Driver: connects the playback state machine to real video playback.
  */
 export type TimecodePlaybackDriverLib = {
+  readonly Dev: t.TimecodePlaybackDriverDevLib;
   readonly Util: t.TimecodePlaybackDriverUtilLib;
 
   /** Runtime bridge between reducer cmds/signals and the video decks. */

@@ -6,6 +6,7 @@ import { resolveBeatMedia } from './u.resolveBeatMedia.ts';
 import { usePlaybackDriver as useDriver } from './use.PlaybackDriver.ts';
 import { usePlaybackTimeline } from './use.PlaybackTimeline.ts';
 import { usePlayControlsProps } from './use.PlayControlsProps.ts';
+import { Dev } from './-dev/m.Dev.ts';
 
 export const PlaybackDriver: t.TimecodePlaybackDriverLib = {
   create,
@@ -15,5 +16,8 @@ export const PlaybackDriver: t.TimecodePlaybackDriverLib = {
     resolveBeatMedia,
     usePlaybackTimeline,
     usePlayControlsProps,
+  },
+  get Dev() {
+    return Dev;
   },
 };
