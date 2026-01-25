@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D } from './common.ts';
-import { Deck } from './ui.Deck.tsx';
+import { DeckVideo } from './ui.DeckVideo.tsx';
 
 export const VideoDecks: React.FC<t.VideoDecksProps> = (props) => {
   const { debug = false, show = D.show, gap = D.gap } = props;
@@ -38,8 +38,8 @@ export const VideoDecks: React.FC<t.VideoDecksProps> = (props) => {
 
   return (
     <div className={css(styles.base, layout, props.style).class}>
-      <Deck deck={'A'} parent={props} />
-      <Deck deck={'B'} parent={props} />
+      <DeckVideo deck={'A'} parent={props} />
+      <DeckVideo deck={'B'} parent={props} />
     </div>
   );
 };

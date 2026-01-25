@@ -66,6 +66,9 @@ export async function createDebugSignals() {
     decks,
     listen,
     reset,
+    get activeDeck() {
+      return p.snapshot.value?.state.decks.active;
+    },
   };
 
   function listen() {
@@ -154,6 +157,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `pause`} onClick={() => v.controller?.pause()} />
       <Button block label={() => `toggle`} onClick={() => v.controller?.toggle()} />
       <Controls debug={debug} />
+      <Player.Video.Decks.UI
+        decks={debug.decks}
+        active={debug.activeDeck}
+        muted={true}
+        gap={20}
+        style={{ Margin: [10, 40, 15, 40] }}
+      />
 
       <hr />
       <div className={Styles.title.class}>

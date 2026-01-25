@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D, usePlayerSignals, VideoElement } from './common.ts';
 
-export type DeckProps = {
+export type DeckVideoProps = {
   deck: t.VideoDecksActive;
   parent: t.VideoDecksProps;
   style?: t.CssInput;
@@ -10,23 +10,22 @@ export type DeckProps = {
 /**
  * Component:
  */
-export const Deck: React.FC<DeckProps> = (props) => {
+export const DeckVideo: React.FC<DeckVideoProps> = (props) => {
   const { parent } = props;
   const {
     debug = false,
     decks,
     active = D.active,
     aspectRatio = D.aspectRatio,
-    muted = D.muted,
+    muted,
     show = D.show,
-    gap = D.gap,
   } = parent;
 
   const video = props.deck === 'A' ? decks?.A : decks?.B;
   const isActive = active === props.deck;
-  const deckMuted = muted === false ? false : !isActive;
-
   const ctl = usePlayerSignals(video, { log: debug });
+  const deckMuted = muted === undefined ? ctl.props.muted : muted;
+
   if (!video) return null;
   if (!ctl.props.src) return null;
 
