@@ -22,4 +22,30 @@ describe('Staging: runStagingWithSpinner', () => {
       expect(dist.exists).to.eql(true);
     });
   });
+
+  it('trustChildDist: root dist.json reuses child hashes', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+
+      const childDir = `${tmp}/stage/child`;
+      await Fs.ensureDir(childDir);
+      await Fs.write(`${childDir}/a.txt`, 'v1');
+      await Pkg.Dist.compute({
+        dir: childDir,
+        pkg: { name: '@child/pkg', version: '0.0.0' },
+        builder: { name: '@child/pkg', version: '0.0.0' },
+        save: true,
+      });
+      await Fs.remove(`${childDir}/a.txt`);
+
+      const mappings = [{ mode: 'copy' as const, dir: { source: 'src', staging: 'other' } }];
+      const res = await runStagingWithSpinner({ cwd: tmp, mappings, stagingRoot: 'stage' });
+      expect(res.ok).to.eql(true);
+
+      const root = await Pkg.Dist.load(`${tmp}/stage`);
+      expect(root.exists).to.eql(true);
+      expect(root.dist?.hash.parts['child/a.txt']).to.not.eql(undefined);
+    });
+  });
 });

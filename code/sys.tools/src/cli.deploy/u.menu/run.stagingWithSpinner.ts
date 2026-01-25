@@ -52,7 +52,7 @@ export async function runStagingWithSpinner(args: {
       async onWriteDistJson(e) {
         const dir = e.stagingRoot;
         // Regenerate the root dist.json for deployment
-        await Pkg.Dist.compute({ save: true, dir, pkg, builder: pkg });
+        await Pkg.Dist.compute({ save: true, dir, pkg, builder: pkg, trustChildDist: true });
       },
 
       onProgress(e) {
