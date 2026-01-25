@@ -48,7 +48,7 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
   add('base url', controller?.props.baseUrl ?? '-');
   add('selected path', Str.ellipsize(path, 45, '..'));
   add('slug', state?.bundle?.docid ?? '-');
-  add('content', wrangle.bundle(state));
+  add('timeline', wrangle.bundle(state));
   hr();
   add('loading', String(state?.isLoading ?? false));
   add('error', state?.error?.message ?? '-');

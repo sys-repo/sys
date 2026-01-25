@@ -12,8 +12,9 @@ import {
   ObjectView,
   Player,
   Signal,
+  PlaybackDriver,
 } from '../common.ts';
-import { PlayControls, SlugPlaybackDriver } from './mod.ts';
+import { PlayControls, SlugPlaybackDriver, Payload } from './mod.ts';
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & { load?: t.SampleLoadAction };
@@ -163,6 +164,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+
+      <hr />
+      <Payload controller={controller} />
     </div>
   );
 };

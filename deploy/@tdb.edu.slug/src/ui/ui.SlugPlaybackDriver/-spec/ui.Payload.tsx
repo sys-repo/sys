@@ -1,0 +1,58 @@
+import React from 'react';
+import { type t, Color, css, EffectController, ObjectView, PlaybackDriver } from '../common.ts';
+
+export type PayloadProps = {
+  controller?: t.SlugPlaybackController;
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};
+
+/**
+ * Component:
+ */
+export const Payload: React.FC<PayloadProps> = (props) => {
+  const { controller, debug = false } = props;
+  const state = EffectController.useEffectController(controller);
+
+  const bundle = state?.bundle;
+  const snapshot = state?.snapshot;
+  const spec = bundle?.spec;
+  const currentBeat = snapshot?.state.currentBeat;
+
+  const { experience, resolved } = PlaybackDriver.Util.usePlaybackTimeline({ spec });
+  const beats = experience?.beats ?? [];
+  const beat = currentBeat != null ? beats[currentBeat] : undefined;
+  const payload = beat?.payload;
+
+  const theme = Color.theme(props.theme);
+  const styles = {
+    base: css({
+      backgroundColor: Color.ruby(debug),
+      color: theme.fg,
+      display: 'grid',
+      gap: 8,
+      padding: 10,
+    }),
+  };
+
+  return (
+    <div className={css(styles.base, props.style).class}>
+      <ObjectView
+        theme={theme.name}
+        name={'payload'}
+        data={payload}
+        expand={1}
+        style={{ marginBottom: 20 }}
+      />
+
+      <PlaybackDriver.Dev.InfoPanel.UI
+        theme={theme.name}
+        experience={experience}
+        bundle={bundle}
+        snapshot={snapshot}
+        resolved={resolved}
+      />
+    </div>
+  );
+};

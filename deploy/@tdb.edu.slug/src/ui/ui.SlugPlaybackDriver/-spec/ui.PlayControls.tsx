@@ -30,7 +30,7 @@ export const PlayControls: React.FC<PlayControlsProps> = (props) => {
       style={props.style}
       maskOpacity={0}
       background={{ rounded: 6, opacity: 0.4, shadow: false }}
-      padding={15}
+      padding={[8, 15]}
       margin={[10, 0, 20, 0]}
     />
   );
