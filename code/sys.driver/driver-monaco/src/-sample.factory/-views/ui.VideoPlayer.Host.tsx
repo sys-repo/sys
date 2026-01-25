@@ -20,7 +20,7 @@ export const VideoPlayerHost: React.FC<VideoHostProps> = (props) => {
   /**
    * Refs:
    */
-  const videoSignalsRef = React.useRef(Player.Video.signals());
+  const videoSignalsRef = React.useRef(Player.Video.Signals.create());
   const videoSignals = videoSignalsRef.current;
   const videoController = Player.Video.useSignals(videoSignals, { log: true });
 
