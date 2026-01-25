@@ -9,11 +9,10 @@ import {
   LocalStorage,
   Obj,
   ObjectView,
+  Player,
   Signal,
-  SlugSchema,
-  SlugClient,
 } from '../common.ts';
-import { SlugPlaybackDriver, TreeHost } from './mod.ts';
+import { PlayControls, SlugPlaybackDriver } from './mod.ts';
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & { load?: t.SampleLoadAction };
@@ -131,6 +130,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         controller={controller}
       />
 
+      <PlayControls controller={controller} />
       <hr style={{ borderTopWidth: 4, opacity: 0.5 }} />
       <LoadSample.UI signal={p.load} style={{ MarginY: 15 }} baseUrl={controller.props.baseUrl} />
       <hr />
