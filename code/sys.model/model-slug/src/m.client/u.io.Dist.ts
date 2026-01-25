@@ -1,8 +1,8 @@
-import { D, Http, Pkg, type t, Url } from './common.ts';
+import { type t, D, Http, Pkg, Url } from './common.ts';
 
 type CacheKey = string;
-
 const cache = new Map<CacheKey, Promise<t.SlugClientResult<t.DistPkg>>>();
+const invalidate = (baseUrl: t.StringUrl) => cache.delete(baseUrl);
 
 export const Dist = {
   load,
@@ -56,24 +56,9 @@ async function load(
   return promise;
 }
 
+/**
+ * Helpers:
+ */
 function hasPart(dist: t.DistPkg, key: string): boolean {
-  const parts = dist.hash.parts;
-
-  // Exact match (current behavior).
-  if (Object.prototype.hasOwnProperty.call(parts, key)) return true;
-
-  // Accept dist.json that records parts without the "manifests/" prefix.
-  const prefix = 'manifests/';
-  if (key.startsWith(prefix)) {
-    const alt = key.slice(prefix.length);
-    return Object.prototype.hasOwnProperty.call(parts, alt);
-  }
-
-  // Also accept the inverse (defensive): dist stores "manifests/..." but caller passed bare key.
-  const alt = `${prefix}${key}`;
-  return Object.prototype.hasOwnProperty.call(parts, alt);
-}
-
-function invalidate(baseUrl: t.StringUrl) {
-  cache.delete(baseUrl);
+  return Object.prototype.hasOwnProperty.call(dist.hash.parts, key);
 }

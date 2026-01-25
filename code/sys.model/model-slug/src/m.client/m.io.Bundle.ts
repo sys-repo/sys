@@ -1,8 +1,8 @@
 import { type t } from './common.ts';
 import { Assets } from './m.io.Assets.ts';
-import { Dist } from './u.io.Dist.ts';
 import { Playback } from './m.io.Playback.ts';
 import { SlugUrl } from './m.Url.ts';
+import { Dist } from './u.io.Dist.ts';
 
 export const Bundle: t.SlugClientBundleLib = {
   load,
@@ -18,8 +18,8 @@ async function load<P = unknown>(
   const dist = distResult.value;
 
   const cleanedDocid = SlugUrl.clean(docid);
-  const playbackKey = `manifests/${SlugUrl.playbackFilename(cleanedDocid)}`;
-  const assetsKey = `manifests/${SlugUrl.assetsFilename(cleanedDocid)}`;
+  const playbackKey = SlugUrl.playbackFilename(cleanedDocid);
+  const assetsKey = SlugUrl.assetsFilename(cleanedDocid);
 
   if (!Dist.hasPart(dist, playbackKey)) {
     return {

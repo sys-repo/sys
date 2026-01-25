@@ -76,9 +76,10 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     };
 
     const dist = makeDist([
-      `manifests/${SlugClient.Url.assetsFilename(cleaned)}`,
-      `manifests/${SlugClient.Url.playbackFilename(cleaned)}`,
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
     ]);
+
     const cleanup = stubFetch((url) => {
       if (url.includes('manifests/dist.json')) return jsonResponse(dist);
       if (url.includes(SlugClient.Url.assetsFilename(cleaned))) {
@@ -168,8 +169,8 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     };
 
     const dist = makeDist([
-      `manifests/${SlugClient.Url.assetsFilename(cleaned)}`,
-      `manifests/${SlugClient.Url.playbackFilename(cleaned)}`,
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
     ]);
     const cleanup = stubFetch((url) => {
       if (url.includes('manifests/dist.json')) return jsonResponse(dist);
@@ -217,8 +218,8 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     const cleaned = SlugClient.Url.clean(docid);
 
     const dist = makeDist([
-      `manifests/${SlugClient.Url.assetsFilename(cleaned)}`,
-      `manifests/${SlugClient.Url.playbackFilename(cleaned)}`,
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
     ]);
     const cleanup = stubFetch((url) => {
       if (url.includes('manifests/dist.json')) return jsonResponse(dist);
@@ -272,8 +273,8 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     };
 
     const dist = makeDist([
-      `manifests/${SlugClient.Url.assetsFilename(cleaned)}`,
-      `manifests/${SlugClient.Url.playbackFilename(cleaned)}`,
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
     ]);
     const cleanup = stubFetch((url) => {
       if (url.includes('manifests/dist.json')) return jsonResponse(dist);
@@ -322,8 +323,8 @@ describe('SlugClient.FromEndpoint.Bundle.load', () => {
     };
 
     const dist = makeDist([
-      `manifests/${SlugClient.Url.assetsFilename(cleaned)}`,
-      `manifests/${SlugClient.Url.playbackFilename(cleaned)}`,
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
     ]);
     const cleanup = stubFetch((url) => {
       if (url.includes('manifests/dist.json')) return jsonResponse(dist);

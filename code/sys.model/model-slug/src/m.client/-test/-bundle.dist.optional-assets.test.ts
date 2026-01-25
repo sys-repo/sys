@@ -47,7 +47,7 @@ describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
       ],
     };
 
-    const dist = makeDist([`manifests/${SlugClient.Url.playbackFilename(cleaned)}`]);
+    const dist = makeDist([SlugClient.Url.playbackFilename(cleaned)]);
     Dist.invalidate(baseUrl);
     const cleanup = stubFetch((url) => {
       if (url.includes('manifests/dist.json')) return jsonResponse(dist);
@@ -100,8 +100,8 @@ describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
     };
 
     const dist = makeDist([
-      `manifests/${SlugClient.Url.assetsFilename(cleaned)}`,
-      `manifests/${SlugClient.Url.playbackFilename(cleaned)}`,
+      SlugClient.Url.assetsFilename(cleaned),
+      SlugClient.Url.playbackFilename(cleaned),
     ]);
     let assetsRequested = false;
 
@@ -130,7 +130,7 @@ describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
   it('fails fast when dist omits playback entry', async () => {
     const docid = 'crdt:dist-missing-playback' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
-    const dist = makeDist([`manifests/${SlugClient.Url.assetsFilename(cleaned)}`]);
+    const dist = makeDist([SlugClient.Url.assetsFilename(cleaned)]);
 
     Dist.invalidate(baseUrl);
     const cleanup = stubFetch((url) => {
@@ -155,7 +155,7 @@ describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
     }
   });
 
-  it('accepts dist parts without manifests/ prefix (server format)', async () => {
+  it('fails when dist parts use manifests/ prefix (invalid key-space)', async () => {
     const docid = 'crdt:dist-bare-keys' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
 
@@ -170,19 +170,23 @@ describe('SlugClient.FromEndpoint.Bundle.load (dist gating)', () => {
       ],
     };
 
-    // NOTE: bare key, no "manifests/" prefix.
-    const dist = makeDist([SlugClient.Url.playbackFilename(cleaned)]);
-
+    const dist = makeDist([`manifests/${SlugClient.Url.playbackFilename(cleaned)}`]);
     Dist.invalidate(baseUrl);
+
     const cleanup = stubFetch((url) => {
       if (url.includes('manifests/dist.json')) return jsonResponse(dist);
-      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) return jsonResponse(playback);
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) {
+        throw new Error('playback manifest must not be fetched');
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
     try {
       const result = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid);
-      expect(result.ok).to.eql(true);
+      expect(result.ok).to.eql(false);
+      if (result.ok) throw new Error('expected schema failure');
+      expect(result.error.kind).to.eql('schema');
+      expect(result.error.message).to.include('Playback manifest not present in dist.json');
     } finally {
       cleanup();
     }
