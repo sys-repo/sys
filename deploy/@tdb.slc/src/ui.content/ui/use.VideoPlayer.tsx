@@ -13,7 +13,7 @@ export function useVideoPlayer(
   /**
    * Refs:
    */
-  const signalsRef = React.useRef(Player.Video.signals());
+  const signalsRef = React.useRef(Player.Video.Signals.create());
   const signals = signalsRef.current;
 
   /**

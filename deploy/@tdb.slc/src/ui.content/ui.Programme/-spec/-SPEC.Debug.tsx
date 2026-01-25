@@ -18,7 +18,7 @@ export function createDebugSignals() {
   const s = Signal.create;
   const content = Programme.factory();
   const state = Programme.Signals.init({ content });
-  const video = Player.Video.signals({ fadeMask: 15, scale: (e) => e.enlargeBy(2) });
+  const video = Player.Video.Signals.create({ fadeMask: 15, scale: (e) => e.enlargeBy(2) });
 
   /**
    * Properties:

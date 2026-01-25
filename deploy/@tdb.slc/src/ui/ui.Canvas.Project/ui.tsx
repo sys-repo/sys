@@ -30,7 +30,7 @@ export const CanvasProject: React.FC<t.CanvasProjectProps> = (props) => {
   React.useEffect(() => {
     setVideo(() => {
       const src = props.video?.src;
-      return src ? Player.Video.signals({ src }) : undefined;
+      return src ? Player.Video.Signals.create({ src }) : undefined;
     });
   }, [Obj.hash(props.video)]);
 

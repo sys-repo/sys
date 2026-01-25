@@ -12,7 +12,7 @@ type P = t.Landing1Props;
 const D = DEFAULTS;
 
 const signalsFactory = () =>
-  Player.Video.signals({
+  Player.Video.Signals.create({
     // src: 'vimeo/727951677', // Rowan: "group scale",
     src: 'vimeo/1068502644', // Trailer
   });
