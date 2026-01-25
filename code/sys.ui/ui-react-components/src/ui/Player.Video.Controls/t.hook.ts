@@ -10,6 +10,6 @@ export type UsePendingSeek = (
 
 /** Result returned by usePendingSeek hook. */
 export type UsePendingSeekResult = {
-  displayTime: t.Secs;
+  currentTime: t.Secs;
   setPendingSeek: (time: t.Secs | undefined) => void;
 };

@@ -4,6 +4,7 @@ import { D as VIDEO_DEFAULTS } from '../Player.Video.Element/common.ts';
 export * from '../common.ts';
 export { usePlayerSignals, VideoElement } from '../Player.Video.Element/mod.ts';
 export { VideoSignals } from '../Player.Video.Signals/mod.ts';
+export { PlayerControls } from '../Player.Video.Controls/mod.ts';
 
 /**
  * Constants:
@@ -13,10 +14,10 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   aspectRatio: VIDEO_DEFAULTS.aspectRatio,
-  active: 'A' satisfies t.VideoDecksProps['active'],
-  muted: false,
+  active: 'A' satisfies t.VideoDecksActive,
   show: 'both' satisfies t.VideoDecksProps['show'],
-  gap: 6 satisfies NonNullable<t.VideoDecksProps['gap']>,
+  muted: false,
+  gap: 6,
 } as const;
 
 export const DEFAULTS = D;

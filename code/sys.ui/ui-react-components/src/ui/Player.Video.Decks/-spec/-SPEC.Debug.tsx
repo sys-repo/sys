@@ -5,9 +5,9 @@ import {
   SampleVideoButtons,
 } from '../../Player.Video.Element/-spec/mod.ts';
 import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Obj, Signal, type t, Url } from '../common.ts';
+import { type t, Color, css, D, LocalStorage, Obj, Signal, Url } from '../common.ts';
 import { VideoDecks } from '../mod.ts';
-import { DeckControls } from './-ui.DeckControls.tsx';
+import { DeckControls } from './mod.ts';
 
 type P = t.VideoDecksProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'show' | 'aspectRatio' | 'muted' | 'active'> & {
@@ -186,7 +186,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 20 }}
       />
 
-      <DeckControls debug={debug} theme={v.theme} padding={15} margin={[20, 0, 15, 0]} />
+      <DeckControls
+        decks={debug.decks}
+        active={p.active.value}
+        theme={v.theme}
+        padding={15}
+        margin={[20, 0, 15, 0]}
+      />
 
       <hr />
       <Button

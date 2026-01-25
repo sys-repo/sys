@@ -204,7 +204,7 @@ export const VideoElementImpl: React.FC<P> = (props) => {
         }
         transition={{ duration: 0.25 }}
       >
-        <PlayerControls
+        <PlayerControls.UI
           theme={theme.name}
           enabled={isReady}
           playing={playing}

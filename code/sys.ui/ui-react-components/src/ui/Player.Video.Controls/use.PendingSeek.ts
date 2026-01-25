@@ -29,7 +29,7 @@ export function usePendingSeek(
   React.useEffect(() => setPendingSeek(undefined), resetDeps);
 
   return {
-    displayTime: pendingSeek ?? actualTime,
+    currentTime: pendingSeek ?? actualTime,
     setPendingSeek,
   };
 }

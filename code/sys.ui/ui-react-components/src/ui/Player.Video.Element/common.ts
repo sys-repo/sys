@@ -1,7 +1,7 @@
 import { type t, pkg, Pkg } from '../common.ts';
 export * from '../common.ts';
 
-import { DEFAULTS as CONTROLS_DEFAULTS } from '../Player.Video.Controls/mod.ts';
+import { DEFAULTS as CONTROLS_DEFAULTS } from '../Player.Video.Controls/common.ts';
 
 export { Button } from '../Button/mod.ts';
 export { KeyValue } from '../KeyValue/mod.ts';

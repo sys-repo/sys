@@ -1,6 +1,13 @@
 /**
  * @module Video Player Controls
  */
-export { DEFAULTS } from './common.ts';
-export { PlayerControls } from './ui.tsx';
-export { usePendingSeek } from './use.PendingSeek.ts';
+import type { t } from './common.ts';
+import { PlayerControls as UI } from './ui.tsx';
+import { usePendingSeek } from './use.PendingSeek.ts';
+
+export { usePendingSeek };
+
+export const PlayerControls: t.PlayerControlsLib = {
+  UI,
+  usePendingSeek,
+};
