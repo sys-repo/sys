@@ -1,4 +1,4 @@
-import { Fs } from '../common.ts';
+import { Fs, Path } from '../common.ts';
 
 /**
  * Copy `src` into `dst` (destination) using staging merge semantics.
@@ -23,6 +23,7 @@ export async function copyInto(args: {
   const { src, dst, overwrite } = args;
 
   const copyFile = async (from: string, to: string): Promise<void> => {
+    if (shouldExclude(Path.basename(from))) return;
     if (!overwrite && (await Fs.exists(to))) return;
 
     const res = await Fs.copyFile(from, to, { force: overwrite, throw: true });
@@ -33,6 +34,7 @@ export async function copyInto(args: {
     await Fs.ensureDir(toDir);
 
     for await (const entry of Deno.readDir(fromDir)) {
+      if (shouldExclude(entry.name)) continue;
       const from = Fs.join(fromDir, entry.name);
       const to = Fs.join(toDir, entry.name);
 
@@ -57,4 +59,12 @@ export async function copyInto(args: {
   }
 
   await copyFile(src, dst);
+}
+
+/**
+ * Helpers
+ */
+const EXCLUDE: readonly string[] = ['.DS_Store'];
+function shouldExclude(name: string): boolean {
+  return EXCLUDE.includes(name);
 }

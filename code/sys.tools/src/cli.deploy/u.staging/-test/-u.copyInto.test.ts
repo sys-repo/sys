@@ -153,4 +153,22 @@ describe('Staging: copyInto', () => {
       expect(replaced.data).to.eql('incoming');
     });
   });
+
+  it('skips .DS_Store files', async () => {
+    await withTmpDir(async (tmp) => {
+      const src = `${tmp}/src`;
+      const dst = `${tmp}/dst`;
+      await Fs.ensureDir(src);
+      await Fs.write(`${src}/.DS_Store`, 'ignored');
+      await Fs.write(`${src}/keep.txt`, 'keep');
+
+      await copyInto({ src, dst, overwrite: false });
+
+      const ds = await Fs.readText(`${dst}/.DS_Store`);
+      expect(ds.exists).to.eql(false);
+
+      const kept = await Fs.readText(`${dst}/keep.txt`);
+      expect(kept.data).to.eql('keep');
+    });
+  });
 });
