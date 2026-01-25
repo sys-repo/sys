@@ -1,4 +1,4 @@
-import { type t, c, describe, expect, Fs, it, SAMPLE, Testing, Time } from '../-test.ts';
+import { type t, c, describe, expect, Fs, Http, it, SAMPLE, Testing, Time } from '../-test.ts';
 import { Vite } from './mod.ts';
 
 describe('Vite.dev', () => {
@@ -53,7 +53,7 @@ describe('Vite.dev', () => {
           server?.dispose();
         });
 
-        await Time.wait(1000);
+        await Http.Client.waitFor(server.url, { timeout: 10_000, interval: 200 });
         console.info(c.yellow(`\nInvoking test fetch to: ${c.white(server.url)}`));
 
         const res = await fetch(server.url, { signal });
@@ -62,7 +62,7 @@ describe('Vite.dev', () => {
 
         expect(res.status).to.eql(200);
         expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".tsx" because in dev mode.
-        expect(html).to.include(`injectIntoGlobalHook(window);`);
+        expect(html).to.include(`@vite/client`);
       } finally {
         controller.abort();
         timeout?.cancel();

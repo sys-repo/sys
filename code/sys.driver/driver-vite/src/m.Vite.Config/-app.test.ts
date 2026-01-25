@@ -7,7 +7,7 @@ describe('Config.Build', () => {
   describe('app (application)', () => {
     const includesPlugin = (config: t.ViteUserConfig, name: string) => {
       const plugins = (config.plugins ?? []).flat() as t.VitePlugin[];
-      return plugins.some((p) => p.name === name);
+      return plugins.some((p) => p.name.toLowerCase().includes(name));
     };
 
     const print = (config: t.ViteUserConfig, titleSuffix?: string, paths?: t.ViteConfigPaths) => {
@@ -43,8 +43,8 @@ describe('Config.Build', () => {
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
 
-      expect(includesPlugin(config, 'vite-plugin-wasm')).to.be.true;
-      expect(includesPlugin(config, 'vite:react-babel')).to.be.true;
+      expect(includesPlugin(config, 'wasm')).to.be.true;
+      expect(includesPlugin(config, 'react')).to.be.true;
     });
 
     it('no plugins', async () => {

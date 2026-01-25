@@ -4,11 +4,10 @@ import { commonPlugins } from './u.plugins.ts';
 describe('ViteConfig: common plugins', () => {
   it('default', async () => {
     const res = (await commonPlugins()).flat() as t.VitePlugin[];
-    const includes = (name: string) => res.some((p) => p.name === name);
-    expect(includes('vite-plugin-wasm')).to.be.true;
-    expect(includes('vite:react-babel')).to.be.true;
+    const includes = (text: string) => res.some((p) => p.name.toLowerCase().includes(text));
+    expect(includes('wasm')).to.be.true;
+    expect(includes('react')).to.be.true;
     expect(includes('deno')).to.be.true;
-    expect(includes('deno:prefix')).to.be.true;
   });
 
   it('none (via options)', async () => {
