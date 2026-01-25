@@ -13,13 +13,11 @@ export async function promptEndpointAction(args: {
   pushedOk: boolean;
 }): Promise<A> {
   const { checkOk, ranOk, showPush, pushedOk } = args;
-  const dim = (s: string) => c.gray(c.dim(s));
-
   const answer = await Cli.Input.Select.prompt<A>({
     message: `Actions:`,
     options: [
       ...(checkOk
-        ? [{ name: ranOk ? '  staged ✔' : '  stage (build, copy)', value: 'stage' as const }]
+        ? [{ name: ranOk ? '  staged ✔' : '  stage (prepare bundle)', value: 'stage' as const }]
         : []),
       ...(showPush ? [{ name: pushedOk ? '  push ✔' : '  push', value: 'push' as const }] : []),
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
