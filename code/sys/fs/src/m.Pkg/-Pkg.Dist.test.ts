@@ -176,6 +176,49 @@ describe('Pkg.Dist', () => {
       expect(res.error?.message).to.include(dir);
       expect(res.error?.message).to.include('path is not a directory');
     });
+
+    it('trustChildDist: reuses child dist.json hashes', async () => {
+      const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist/');
+      await Fs.remove(root);
+      await Fs.ensureDir(root);
+
+      try {
+        const childDir = Fs.join(root, 'child');
+        await Fs.ensureDir(childDir);
+        await Fs.write(Fs.join(childDir, 'a.txt'), 'v1');
+
+        const childRes = await Pkg.Dist.compute({
+          dir: childDir,
+          pkg: { name: '@child/pkg', version: '0.0.0' },
+          builder: { name: '@child/pkg', version: '0.0.0' },
+          save: true,
+        });
+
+        const rootRes = await Pkg.Dist.compute({
+          dir: root,
+          pkg: { name: '@root/pkg', version: '0.0.0' },
+          builder: { name: '@root/pkg', version: '0.0.0' },
+          trustChildDist: true,
+          save: true,
+        });
+
+        const childParts = childRes.dist.hash.parts;
+        const childKey = Object.keys(childParts).find((p) => p.endsWith('a.txt'));
+        expect(childKey).to.not.eql(undefined);
+
+        const childRel = Str.trimLeadingDotSlash(String(childKey));
+        const rootKey = Path.join('child', childRel);
+        expect(rootRes.dist.hash.parts[rootKey]).to.eql(childParts[childKey!]);
+
+        const distKey = Path.join('child', 'dist.json');
+        expect(rootRes.dist.hash.parts[distKey]).to.not.eql(undefined);
+
+        const verify = await Pkg.Dist.verify(root, rootRes.dist.hash);
+        expect(verify.is.valid).to.eql(true);
+      } finally {
+        await Fs.remove(root);
+      }
+    });
   });
 
   describe('Log', () => {

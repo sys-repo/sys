@@ -61,6 +61,8 @@ export type PkgDistComputeArgs = {
   url?: t.DistPkg['url'];
   save?: boolean;
   filter?(path: t.StringPath): boolean;
+  /** Trust child dist.json hashes to avoid re-hashing nested bundles. */
+  trustChildDist?: boolean;
 };
 
 /**

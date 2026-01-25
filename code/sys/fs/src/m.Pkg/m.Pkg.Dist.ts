@@ -4,7 +4,7 @@ import { Pkg } from '@sys/std/pkg';
 import { pkg as typesPkg } from '@sys/types';
 import { DirHash } from '../m.Dir.Hash/mod.ts';
 
-import { type t, CompositeHash, Delete, Err, Fs, JsrUrl, Path, Time } from './common.ts';
+import { type t, Arr, CompositeHash, Delete, Err, Fs, JsrUrl, Path, Str, Time } from './common.ts';
 import { Log } from './m.Log.ts';
 
 /**
@@ -19,7 +19,7 @@ export const Dist: PkgDistFsLib = {
    * Prepare and save a "distribution package" meta-data file `pkg.json`.
    */
   async compute(args) {
-    const { entry = '', save = false, filter } = args;
+    const { entry = '', save = false, filter, trustChildDist = false } = args;
     const dir = Fs.resolve(args.dir);
     let error: t.StdError | undefined;
 
@@ -39,7 +39,9 @@ export const Dist: PkgDistFsLib = {
     /**
      * Prepare the "distribution-package" json.
      */
-    const hash = exists ? await wrangle.hashes(dir, filter) : { digest: '', parts: {} };
+    const hash = exists
+      ? await wrangle.hashes(dir, { filter, trustChildDist })
+      : { digest: '', parts: {} };
     const size: t.DistPkg['build']['size'] = {
       total: await wrangle.bytes(dir, Object.keys(hash.parts)),
       pkg: CompositeHash.size(hash.parts, (m) => Pkg.Dist.Is.codePath(m.path)) ?? 0,
@@ -146,7 +148,51 @@ export const Dist: PkgDistFsLib = {
  * Helpers
  */
 const wrangle = {
-  async hashes(path: t.StringDir, filter?: (path: t.StringPath) => boolean) {
+  async hashes(
+    path: t.StringDir,
+    options: { filter?: (path: t.StringPath) => boolean; trustChildDist?: boolean } = {},
+  ) {
+    const { filter, trustChildDist = false } = options;
+    if (!trustChildDist) return await wrangle.hashesBase(path, filter);
+
+    const children = await wrangle.childDists(path);
+    if (children.length === 0) return await wrangle.hashesBase(path, filter);
+
+    const childAbs = children.map((child) => Path.join(path, child.rootRel));
+    const mergedFilter = (value: string) => {
+      const isChild = childAbs.some(
+        (root) => value === root || value.startsWith(Path.join(root, '')),
+      );
+      if (isChild) return false;
+      return filter ? filter(value) : true;
+    };
+
+    const res = await DirHash.compute(path, { filter: mergedFilter });
+    const parts: t.DeepMutable<t.CompositeHashParts> = { ...res.hash.parts };
+
+    for (const child of children) {
+      const { rootRel, dist } = child;
+      for (const [childPath, uri] of Object.entries(dist.hash.parts)) {
+        const rel = Str.trimLeadingDotSlash(childPath);
+        const full = Path.join(rootRel, rel);
+        parts[full] = uri;
+      }
+
+      const distRel = Path.join(rootRel, 'dist.json');
+      const file = await Fs.read(Path.join(path, distRel));
+      if (file.exists) {
+        const builder = CompositeHash.builder();
+        builder.add(distRel, file.data);
+        const part = builder.parts[distRel];
+        if (part) parts[distRel] = part;
+      }
+    }
+
+    const outParts: t.CompositeHashParts = { ...parts };
+    return { digest: CompositeHash.digest(outParts), parts: outParts };
+  },
+
+  async hashesBase(path: t.StringDir, filter?: (path: t.StringPath) => boolean) {
     const excludeDistJson = (value: string) => value !== './dist.json';
     const mergedFilter = (value: string) => {
       if (!excludeDistJson(value)) return false;
@@ -154,6 +200,32 @@ const wrangle = {
     };
     const res = await DirHash.compute(path, { filter: mergedFilter });
     return res.hash;
+  },
+
+  async childDists(path: t.StringDir) {
+    const glob = Fs.glob(path, { includeDirs: false });
+    const entries = await glob.find('**/dist.json');
+    const roots = entries
+      .map((entry) => Path.relative(path, entry.path))
+      .map((rel) => Str.trimLeadingDotSlash(rel))
+      .map((rel) => Path.dirname(rel))
+      .map((rel) => Str.trimSlashes(rel))
+      .filter((rel) => rel !== '.' && rel !== '');
+
+    const unique = Arr.uniq(roots).sort((a, b) => a.length - b.length);
+    const top: string[] = [];
+    for (const root of unique) {
+      if (!top.some((parent) => root === parent || root.startsWith(`${parent}/`))) {
+        top.push(root);
+      }
+    }
+
+    const children: Array<{ rootRel: string; dist: t.DistPkg }> = [];
+    for (const rootRel of top) {
+      const loaded = await Dist.load(Path.join(path, rootRel));
+      if (loaded.dist) children.push({ rootRel, dist: loaded.dist });
+    }
+    return children;
   },
 
   async bytes(dir: t.StringDir, files: t.StringFile[]) {

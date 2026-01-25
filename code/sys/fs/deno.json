@@ -5,6 +5,7 @@
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
     "test": "deno test -P=testset",
+    "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
     "tmp": "deno run -P=clean ./-scripts/-tmp.ts"
   },
