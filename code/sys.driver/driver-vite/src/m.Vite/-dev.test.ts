@@ -32,36 +32,42 @@ describe('Vite.dev', () => {
 
       const cwd = fs.dir;
       const port = Testing.randomPort();
-      const promise = Vite.dev({ cwd, port, silent: false });
-      const server = await promise; // NB: readySignal looks for Vite startup message in [stdout].
-
-      server.proc.onStdErr(async (e) => {
-        console.error(`Failed running Vite server within child process`, e.toString());
-        await server.dispose();
-      });
-
-      console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
-
+      let server: t.ViteProcess | undefined;
+      let timeout: t.TimeDelayPromise | undefined;
       const controller = new AbortController();
-      const { signal } = controller;
-      const timeout = Time.delay(5000, () => {
+
+      try {
+        const promise = Vite.dev({ cwd, port, silent: false });
+        server = await promise; // NB: readySignal looks for Vite startup message in [stdout].
+
+        server.proc.onStdErr(async (e) => {
+          console.error(`Failed running Vite server within child process`, e.toString());
+          await server?.dispose();
+        });
+
+        console.info(); // NB: pad the output in the test-runner terminal. The "classic" Vite startup output.
+
+        const { signal } = controller;
+        timeout = Time.delay(5000, () => {
+          controller.abort();
+          server?.dispose();
+        });
+
+        await Time.wait(1000);
+        console.info(c.yellow(`\nInvoking test fetch to: ${c.white(server.url)}`));
+
+        const res = await fetch(server.url, { signal });
+        const html = await res.text();
+        printHtml(html, 'Fetched HTML', cwd);
+
+        expect(res.status).to.eql(200);
+        expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".tsx" because in dev mode.
+        expect(html).to.include(`injectIntoGlobalHook(window);`);
+      } finally {
         controller.abort();
-        server?.dispose();
-      });
-
-      await Time.wait(1000);
-      console.info(c.yellow(`\nInvoking test fetch to: ${c.white(server.url)}`));
-
-      const res = await fetch(server.url, { signal });
-      const html = await res.text();
-      printHtml(html, 'Fetched HTML', cwd);
-
-      expect(res.status).to.eql(200);
-      expect(html).to.include(`<script type="module" src="./main.tsx">`); // NB: ".tsx" because in dev mode.
-      expect(html).to.include(`injectIntoGlobalHook(window);`);
-
-      await server.dispose();
-      timeout.cancel();
+        timeout?.cancel();
+        await server?.dispose();
+      }
     });
   });
 });

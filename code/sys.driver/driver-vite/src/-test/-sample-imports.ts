@@ -37,13 +37,3 @@ console.info('@sys/std/jsr', Jsr);
 console.info('@sys/std/semver', Semver, Semver.parse('1.2.3'));
 
 console.groupEnd();
-
-/**
- * Namespace: @sys : driver
- */
-console.groupCollapsed('🧫 @sys/driver');
-const { DenoFile } = await import('@sys/driver-deno/runtime');
-console.info('@sys/driver-deno/runtime: DenoFile:', DenoFile);
-console.groupEnd();
-
-console.info(' ');

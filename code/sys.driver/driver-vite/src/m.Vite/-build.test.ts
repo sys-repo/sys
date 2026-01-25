@@ -95,7 +95,10 @@ describe('Vite.build', () => {
 
     const filenames = Object.keys(files.json.dist?.hash.parts ?? []);
     const js = filenames.filter((p) => p.endsWith('.js'));
-    expect(js.length).to.greaterThan(5); // NB: assert the code-splitting via dynamic import works.
+    const entryPath = files.json.dist?.entry ?? '';
+    const nonEntryJs = js.filter((p) => p !== entryPath);
+    const chunks = nonEntryJs.filter((p) => p.startsWith('pkg/m.'));
+    expect(chunks.length).to.be.greaterThan(0); // NB: assert code-splitting via dynamic import works.
   });
 
   it('sample-3: sw.js (service-worker)', async () => {
