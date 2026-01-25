@@ -24,9 +24,15 @@ export type TreeViewNode = {
   /** Leaf payload OR node data payload. */
   value?: unknown;
 
-  /** Presence → branch. */
-
+  /** Child nodes (presence → branch). */
   children?: ReadonlyArray<TreeViewNode>;
+
+  /** Structural hints about this node's presentation. */
+  self?: {
+    /** Render children indented in-place rather than as a drilldown panel. */
+    inline?: boolean;
+  };
+
   /** Pass-through of `.` from the YAML dialect. */
   meta?: Readonly<Record<string, unknown>>;
 };

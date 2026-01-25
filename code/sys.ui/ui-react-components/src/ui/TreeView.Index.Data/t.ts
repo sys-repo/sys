@@ -4,6 +4,9 @@ import type { t } from './common.ts';
 export type * from './t.node.ts';
 export type * from './t.yaml.ts';
 
+/** A node paired with its indentation depth for inline rendering. */
+export type TreeViewNodeView = { node: t.TreeViewNode; depth: number };
+
 /** Flag evaluators. */
 export type IndexTreeViewIsLib = {
   list(x: t.TreeViewNode | t.TreeViewNodeList): x is t.TreeViewNodeList;
@@ -22,6 +25,13 @@ export type IndexTreeViewDataLib = {
    * Path segments match either the literal segment or an `id` override from `meta.id`.
    */
   at(root: t.TreeViewNodeList, path: t.ObjectPath | string): t.TreeViewNodeList;
+
+  /**
+   * Get a flat list of nodes to render at the given path, with depth info.
+   * Nodes with `self.inline: true` have their children expanded in-place
+   * with incremented depth for indentation.
+   */
+  viewAt(root: t.TreeViewNodeList, path: t.ObjectPath | string): t.TreeViewNodeView[];
 
   /**
    * Find a node by exact `key` (full path) or by predicate.

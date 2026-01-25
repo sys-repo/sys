@@ -18,5 +18,6 @@ export const DEFAULTS = {
   enabled: true,
   active: true,
   selected: false,
+  indentSize: 20,
 } as const;
 export const D = DEFAULTS;

@@ -155,6 +155,47 @@ describe('TreeView.Index', () => {
         expect(v2[0].label).to.eql('Node v2');
       });
 
+      it('`self` property is parsed and preserved on the node', () => {
+        const src = {
+          Parent: {
+            self: { inline: true },
+            children: [{ A: 1 }, { B: 2 }],
+          },
+        } as const;
+
+        const list = Yaml.from(src);
+        const parent = list[0];
+
+        expect(parent.self).to.eql({ inline: true });
+        expect(parent.children?.length).to.eql(2);
+      });
+
+      it('`self` alone triggers wrapper detection (no "." or "children" required)', () => {
+        const src = {
+          Node: {
+            self: { inline: true },
+          },
+        } as const;
+
+        const list = Yaml.from(src);
+        expect(list[0].self).to.eql({ inline: true });
+        expect(list[0].value).to.be.undefined; // no extra keys → no value
+      });
+
+      it('`self` is excluded from the value payload', () => {
+        const src = {
+          Node: {
+            self: { inline: true },
+            data: 'payload',
+            children: [{ Child: 1 }],
+          },
+        } as const;
+
+        const list = Yaml.from(src);
+        expect(list[0].self).to.eql({ inline: true });
+        expect(list[0].value).to.eql({ data: 'payload' }); // self not in value
+      });
+
       describe('implicit array → children (single-entry map list)', () => {
         it('value is a sequence of single-entry maps → becomes a branch with children (no wrapper required)', () => {
           const yaml = `
@@ -500,6 +541,102 @@ ArrLeaf:
       it('returns false when node.children is null', () => {
         const node = { children: null } as unknown as t.TreeViewNode;
         expect(Data.hasChildren(node)).to.eql(false);
+      });
+    });
+
+    describe('Data.viewAt', () => {
+      it('returns nodes with depth=0 when no inline nodes', () => {
+        const src = {
+          A: 'leaf',
+          B: { children: [{ C: 1 }] },
+        } as const;
+        const list = Yaml.from(src);
+        const view = Data.viewAt(list, []);
+
+        expect(view.length).to.eql(2);
+        expect(view.every((v) => v.depth === 0)).to.eql(true);
+        expect(view.map((v) => labelToString(v.node.label))).to.eql(['A', 'B']);
+      });
+
+      it('expands inline children with incremented depth', () => {
+        const src = {
+          Parent: {
+            self: { inline: true },
+            children: [{ A: 1 }, { B: 2 }],
+          },
+          Sibling: 'leaf',
+        } as const;
+        const list = Yaml.from(src);
+        const view = Data.viewAt(list, []);
+
+        expect(view.length).to.eql(4); // Parent + A + B + Sibling
+        expect(view.map((v) => ({ label: labelToString(v.node.label), depth: v.depth }))).to.eql([
+          { label: 'Parent', depth: 0 },
+          { label: 'A', depth: 1 },
+          { label: 'B', depth: 1 },
+          { label: 'Sibling', depth: 0 },
+        ]);
+      });
+
+      it('recursively expands nested inline nodes', () => {
+        const src = {
+          Root: {
+            self: { inline: true },
+            children: [
+              {
+                Nested: {
+                  self: { inline: true },
+                  children: [{ Deep: 1 }],
+                },
+              },
+            ],
+          },
+        } as const;
+        const list = Yaml.from(src);
+        const view = Data.viewAt(list, []);
+
+        expect(view.map((v) => ({ label: labelToString(v.node.label), depth: v.depth }))).to.eql([
+          { label: 'Root', depth: 0 },
+          { label: 'Nested', depth: 1 },
+          { label: 'Deep', depth: 2 },
+        ]);
+      });
+
+      it('works with path navigation', () => {
+        const src = {
+          Section: {
+            children: [
+              {
+                Group: {
+                  self: { inline: true },
+                  children: [{ A: 1 }, { B: 2 }],
+                },
+              },
+            ],
+          },
+        } as const;
+        const list = Yaml.from(src);
+        const view = Data.viewAt(list, toObjectPath('Section'));
+
+        expect(view.map((v) => ({ label: labelToString(v.node.label), depth: v.depth }))).to.eql([
+          { label: 'Group', depth: 0 },
+          { label: 'A', depth: 1 },
+          { label: 'B', depth: 1 },
+        ]);
+      });
+
+      it('does not expand children without self.inline', () => {
+        const src = {
+          Normal: {
+            children: [{ A: 1 }, { B: 2 }],
+          },
+        } as const;
+        const list = Yaml.from(src);
+        const view = Data.viewAt(list, []);
+
+        expect(view.length).to.eql(1); // Only Normal, not its children
+        expect(view[0].node.label).to.eql('Normal');
+        expect(view[0].depth).to.eql(0);
       });
     });
   });

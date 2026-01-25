@@ -10,7 +10,9 @@ export const IndexTreeViewItem: React.FC<t.IndexTreeViewItemProps> = (props) => 
     active = D.active,
     chevron = D.chevron,
     selected = D.selected,
+    depth = 0,
   } = props;
+  const indent = depth * D.indentSize;
   const isActive = active && enabled;
   const hasDescription = description !== undefined && description !== null && description !== false;
 
@@ -52,6 +54,7 @@ export const IndexTreeViewItem: React.FC<t.IndexTreeViewItemProps> = (props) => 
       transition: 'opacity 120ms ease',
 
       display: 'grid',
+      paddingLeft: indent,
 
       // Ellipsis + shrink rules:
       minWidth: 0,

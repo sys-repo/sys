@@ -23,9 +23,10 @@ export const from: t.IndexTreeViewYamlLib['from'] = (source, options) => {
     v: t.YamlTreeSourceNode,
     parentPath: t.ObjectPath,
   ): readonly t.TreeViewNode[] {
-    // Wrapper path (explicit `.` or `children`):
+    // Wrapper path (explicit `.`, `children`, or `self`):
     if (isWrapper(v)) {
       const meta = v['.'];
+      const self = v.self;
 
       const id = typeof meta?.id === 'string' ? (meta.id as string) : undefined;
       const seg = id ?? k;
@@ -42,7 +43,7 @@ export const from: t.IndexTreeViewYamlLib['from'] = (source, options) => {
       // Data payload = all non-reserved keys:
       const data: Record<string, unknown> = {};
       for (const [dk, dv] of Object.entries(v)) {
-        if (dk !== '.' && dk !== 'children') data[dk] = dv;
+        if (dk !== '.' && dk !== 'children' && dk !== 'self') data[dk] = dv;
       }
       const value = Object.keys(data).length > 0 ? data : undefined;
 
@@ -70,6 +71,7 @@ export const from: t.IndexTreeViewYamlLib['from'] = (source, options) => {
           label,
           ...(value !== undefined ? { value } : {}),
           ...(children ? { children } : {}),
+          ...(self ? { self } : {}),
           ...(meta ? { meta } : {}),
         },
       ] as const;

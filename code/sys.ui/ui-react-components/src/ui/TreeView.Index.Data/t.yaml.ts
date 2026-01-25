@@ -83,6 +83,9 @@ interface _SourceWrapper extends Readonly<Record<string, _SourceNode>> {
   /** Children as record (unordered) or ordered list. */
   readonly children?: Readonly<Record<string, _SourceNode>> | _SourceList;
 
+  /** Structural hints about this node's presentation. */
+  readonly self?: { inline?: boolean };
+
   // Optional typo guards (declare each only once):
   readonly ['. ']?: never; // trailing space
   readonly [' .']?: never; // leading space

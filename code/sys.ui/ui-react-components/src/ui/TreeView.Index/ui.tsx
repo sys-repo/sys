@@ -11,7 +11,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
   const rootList = React.useMemo(() => Data.toList(root), [root]);
   const path = (props.path ?? []) as t.ObjectPath;
   const pathKey = Obj.Path.encode(path);
-  const view = React.useMemo(() => Data.at(rootList, path), [rootList, pathKey]);
+  const view = React.useMemo(() => Data.viewAt(rootList, path), [rootList, pathKey]);
 
   // Determine slide direction from path depth delta.
   const prevPathRef = React.useRef<t.ObjectPath>(path);
@@ -40,8 +40,9 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
         duration={props.slideDuration}
         offset={props.slideOffset}
       >
-        {view.map((node) => {
-          const showChevron = resolveShowChevron(node, props.showChevron ?? D.showChevron);
+        {view.map(({ node, depth }) => {
+          const isInline = !!node.self?.inline;
+          const showChevron = isInline ? false : resolveShowChevron(node, props.showChevron ?? D.showChevron);
           const enabled = Boolean(node.meta?.enabled ?? true);
           return (
             <IndexTreeViewItem
@@ -51,6 +52,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
               label={node.label}
               chevron={showChevron}
               enabled={enabled}
+              depth={depth}
               onPointer={(e) => props.onPointer?.(toPointerEvent(node, e, showChevron))}
               onPressDown={(e) => {
                 const pointerEvent = toPointerEvent(node, e, showChevron);

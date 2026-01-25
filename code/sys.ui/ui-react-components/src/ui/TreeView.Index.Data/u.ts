@@ -8,7 +8,9 @@ export function isWrapper(v: unknown): v is t.YamlTreeSourceWrapper {
   return (
     Is.record(v) &&
     //
-    (hasOwnProperty.call(v, '.') || hasOwnProperty.call(v, 'children'))
+    (hasOwnProperty.call(v, '.') ||
+      hasOwnProperty.call(v, 'children') ||
+      hasOwnProperty.call(v, 'self'))
   );
 }
 

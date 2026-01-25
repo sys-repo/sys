@@ -42,6 +42,27 @@ const at: D['at'] = (root, path) => {
 };
 
 /**
+ * Get a flat list of nodes to render at the given path, with depth info.
+ * Nodes with `self.inline: true` have their children expanded in-place.
+ */
+const viewAt: D['viewAt'] = (root, path) => {
+  const list = at(root, path);
+  const result: t.TreeViewNodeView[] = [];
+
+  const expand = (nodes: t.TreeViewNodeList, depth: number): void => {
+    for (const node of nodes) {
+      result.push({ node, depth });
+      if (node.self?.inline && node.children) {
+        expand(node.children, depth + 1);
+      }
+    }
+  };
+
+  expand(list, 0);
+  return result;
+};
+
+/**
  * Find a node by exact `key` (full path) or by predicate.
  */
 export const find: D['find'] = (root, keyOr) => {
@@ -72,6 +93,7 @@ export const Data: t.IndexTreeViewDataLib = {
   Is,
   Yaml,
   at,
+  viewAt,
   find,
   toList,
   hasChildren,

@@ -16,9 +16,10 @@ export const SAMPLE_YAML = `
 
 - Examples:
     .: { note: 'group', id: 'examples' }
+    self: { inline: true }
     info: 'group details'        # becomes part of node.value
     children:
-      - SubTree:
+      - Sub-Tree (indented):
           .: { note: 'nested group', id: 'sub' }
           children:
             - Alpha: ref:alpha

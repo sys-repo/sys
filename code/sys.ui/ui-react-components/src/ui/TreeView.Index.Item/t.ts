@@ -12,6 +12,7 @@ export type IndexTreeViewItemProps = {
   // Appearance
   padding?: t.CssPaddingInput;
   chevron?: boolean | t.JSXElement;
+  depth?: number;
 
   // Standard:
   debug?: boolean;
