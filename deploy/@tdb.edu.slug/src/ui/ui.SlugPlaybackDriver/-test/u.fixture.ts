@@ -1,10 +1,17 @@
-import { type t, EffectController, Immutable, slug, Schedule } from '../common.ts';
+import { type t, EffectController, Immutable, Player, slug } from '../common.ts';
 
 /**
  * Test-only base URL used by SlugPlaybackDriver fixtures.
  * Not exported by runtime modules.
  */
 export const baseUrl: t.StringUrl = 'http://test';
+
+/**
+ * Create test VideoDecks signals.
+ */
+export function createTestDecks(): t.VideoDecks {
+  return Player.Video.Decks.create();
+}
 
 /**
  * Create a SlugPlaybackController wired with real EffectController

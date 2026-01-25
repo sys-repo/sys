@@ -49,6 +49,9 @@ export type SlugPlaybackLoading = {
 export type SlugPlaybackRuntime = {
   /** Loaded playback bundle (timeline spec + resolver). */
   readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
+
+  /** Timeline controller surface (inner playback controller) */
+  readonly timeline?: t.TimecodePlaybackDriver.TimelineController;
   /** Video signal decks for rendering (A/B). */
   readonly decks?: t.TimecodePlaybackDriver.VideoDecks;
   /** Latest playback reducer snapshot (debug + UI wiring). */

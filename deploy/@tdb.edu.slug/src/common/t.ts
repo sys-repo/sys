@@ -26,6 +26,7 @@ export type {
   TimecodePlaybackDriver,
   TreeViewNode,
   TreeViewNodeList,
+  VideoDecks,
 } from '@sys/ui-react-components/t';
 export type { TimecodeState } from '@sys/ui-state/t';
 
