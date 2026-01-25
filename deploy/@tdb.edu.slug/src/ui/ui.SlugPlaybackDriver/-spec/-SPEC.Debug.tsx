@@ -6,6 +6,7 @@ import {
   Color,
   css,
   D,
+  EffectController,
   LocalStorage,
   Obj,
   ObjectView,
@@ -38,6 +39,9 @@ export async function createDebugSignals() {
 
   const baseUrl = 'http://localhost:4040/publish.assets';
   const controller = SlugPlaybackDriver.Controller.create({ baseUrl });
+
+  const decks = Player.Video.Decks.create();
+  controller.next({ decks });
 
   const props = {
     debug: s(snap.debug),
@@ -113,6 +117,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
 
+  const state = EffectController.useEffectController(controller);
+
   /**
    * Render:
    */
@@ -131,6 +137,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <PlayControls controller={controller} />
+      <Player.Video.Decks.UI
+        decks={state?.decks}
+        active={state?.snapshot?.state.decks.active}
+        muted={true}
+        show={'both'}
+        aspectRatio={'4/3'}
+        gap={20}
+        style={{ Margin: [10, 50, 15, 50] }}
+      />
+
       <hr style={{ borderTopWidth: 4, opacity: 0.5 }} />
       <LoadSample.UI signal={p.load} style={{ MarginY: 15 }} baseUrl={controller.props.baseUrl} />
       <hr />
