@@ -17,11 +17,10 @@ export const Payload: React.FC<PayloadProps> = (props) => {
 
   const bundle = state?.bundle;
   const snapshot = state?.snapshot;
-  const spec = bundle?.spec;
-  const currentBeat = snapshot?.state.currentBeat;
-
-  const { experience, resolved } = PlaybackDriver.Util.usePlaybackTimeline({ spec });
+  const experience = state?.experience;
+  const resolved = state?.resolved;
   const beats = experience?.beats ?? [];
+  const currentBeat = snapshot?.state.currentBeat;
   const beat = currentBeat != null ? beats[currentBeat] : undefined;
   const payload = beat?.payload;
 

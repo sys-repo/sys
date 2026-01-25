@@ -56,4 +56,8 @@ export type SlugPlaybackRuntime = {
   readonly decks?: t.TimecodePlaybackDriver.VideoDecks;
   /** Latest playback reducer snapshot (debug + UI wiring). */
   readonly snapshot?: t.TimecodeState.Playback.Snapshot;
+  /** Composite-resolved timeline (segments, diagnostics, validity). */
+  readonly resolved?: t.Timecode.Composite.Resolved;
+  /** Experience timeline (beats projected onto virtual time). */
+  readonly experience?: t.Timecode.Experience.Timeline;
 };

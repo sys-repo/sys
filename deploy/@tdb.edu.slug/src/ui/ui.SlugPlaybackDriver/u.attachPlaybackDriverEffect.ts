@@ -1,5 +1,13 @@
 import { type t, PlaybackDriver, Timecode, TimecodeState } from './common.ts';
 
+type State = t.SlugPlaybackState;
+type Snapshot = t.TimecodeState.Playback.Snapshot;
+type Timeline = t.TimecodeState.Playback.Timeline;
+type Bundle = t.TimecodePlaybackDriver.Wire.Bundle;
+type Decks = t.TimecodePlaybackDriver.VideoDecks;
+type RuntimeKeys = 'timeline' | 'snapshot' | 'resolved' | 'experience';
+type RuntimePatch = Partial<Pick<t.SlugPlaybackRuntime, RuntimeKeys>>;
+
 /**
  * Attach the playback driver effect.
  *
@@ -9,13 +17,6 @@ import { type t, PlaybackDriver, Timecode, TimecodeState } from './common.ts';
  * - Snapshot forwarding for UI consumption (aux/debug)
  */
 export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController): void {
-  type State = t.SlugPlaybackState;
-  type Snapshot = t.TimecodeState.Playback.Snapshot;
-  type Timeline = t.TimecodeState.Playback.Timeline;
-  type Bundle = t.TimecodePlaybackDriver.Wire.Bundle;
-  type Decks = t.TimecodePlaybackDriver.VideoDecks;
-  type RuntimePatch = Partial<Pick<t.SlugPlaybackRuntime, 'timeline' | 'snapshot'>>;
-
   const machine = TimecodeState.Playback;
 
   let gen = 0;
@@ -53,7 +54,12 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
     currDecks = undefined;
     snapshot = undefined;
 
-    const patch: RuntimePatch = { timeline: undefined, snapshot: undefined };
+    const patch: RuntimePatch = {
+      timeline: undefined,
+      snapshot: undefined,
+      resolved: undefined,
+      experience: undefined,
+    };
     next(patch);
   };
 
@@ -70,7 +76,13 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
   /**
    * Timeline construction (pure)
    */
-  const buildTimeline = (spec: t.Timecode.Playback.Spec<unknown>): Timeline => {
+  const buildTimeline = (
+    spec: t.Timecode.Playback.Spec<unknown>,
+  ): {
+    readonly timeline: Timeline;
+    readonly resolved: t.Timecode.Composite.Resolved;
+    readonly experience: t.Timecode.Experience.Timeline;
+  } => {
     const resolved = Timecode.Composite.toVirtualTimeline(spec.composition);
     const expBeats: readonly t.Timecode.Experience.Beat<unknown>[] = spec.beats.map((b) => ({
       pause: b.pause,
@@ -78,7 +90,8 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
       src: { ref: b.src.logicalPath, time: b.src.time },
     }));
     const experience = Timecode.Experience.toTimeline(resolved, expBeats);
-    return TimecodeState.Playback.Util.buildTimeline(experience);
+    const timeline = TimecodeState.Playback.Util.buildTimeline(experience);
+    return { timeline, resolved, experience };
   };
 
   /**
@@ -109,7 +122,7 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
 
     currDecks = decks;
 
-    const timeline = buildTimeline(bundle.spec);
+    const { timeline, resolved, experience } = buildTimeline(bundle.spec);
     const nextSnapshot = machine.init({ timeline });
     snapshot = nextSnapshot;
 
@@ -135,7 +148,12 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
      * Controller surface (UI/nav)
      */
     const timelineController = PlaybackDriver.Util.controller(dispatchG);
-    const runtimePatch: RuntimePatch = { snapshot: nextSnapshot, timeline: timelineController };
+    const runtimePatch: RuntimePatch = {
+      snapshot: nextSnapshot,
+      timeline: timelineController,
+      resolved,
+      experience,
+    };
     next(runtimePatch);
 
     // Deterministic “land at t=0” for every new bundle.
