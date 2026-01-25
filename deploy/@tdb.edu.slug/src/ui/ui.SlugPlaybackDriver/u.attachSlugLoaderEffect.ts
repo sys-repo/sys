@@ -37,6 +37,9 @@ export function attachSlugLoaderEffect(controller: t.SlugPlaybackController, pro
 
     const ref = value.ref;
     if (!ref) return;
+
+    // Guard: do not retry the same ref while in-flight or once attempted.
+    // Note: `loadedRef` is "last attempted ref" (success or failure) to prevent retry loops.
     if (loadingRef === ref || loadedRef === ref) return;
 
     // Start load.
@@ -61,6 +64,7 @@ export function attachSlugLoaderEffect(controller: t.SlugPlaybackController, pro
             error: { message: res.error.message },
             bundle: undefined,
             loadingRef: undefined,
+            loadedRef: ref,
           });
           return;
         }
@@ -80,6 +84,7 @@ export function attachSlugLoaderEffect(controller: t.SlugPlaybackController, pro
           bundle: undefined,
           loadingRef: undefined,
           error: { message },
+          loadedRef: ref,
         });
       });
   };

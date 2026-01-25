@@ -69,4 +69,41 @@ describe('controller: attachSlugLoaderEffect', () => {
 
     ctrl.dispose();
   });
+
+  it('does not re-request the same ref on 404 failure (prevents request loop)', async () => {
+    const ctrl = createTestController();
+    const calls: string[] = [];
+
+    const loadBundle = async (_baseUrl: t.StringUrl, ref: string) => {
+      calls.push(ref);
+      return {
+        ok: false,
+        error: {
+          kind: 'http',
+          status: 404,
+          statusText: 'Not Found',
+          url: `http://example.invalid/${ref}`,
+          message: '404',
+        },
+      } as const satisfies t.SlugClientResult<t.TimecodePlaybackDriver.Wire.Bundle>;
+    };
+
+    attachSlugLoaderEffect(ctrl, { loadBundle });
+
+    const pathA: t.ObjectPath = ['root', 'ref-a'];
+    ctrl.next({ tree, selectedPath: pathA });
+    await Schedule.micro();
+    expect(calls).to.eql(['slug:ref-a']);
+
+    // Churn state without changing selection/ref (this used to provoke loops).
+    for (let i = 0; i < 20; i++) {
+      ctrl.next({ bundle: makeTestPlaybackBundle(`churn-${i}`) });
+      await Schedule.micro();
+    }
+
+    // Must still be only one call for the same selection.
+    expect(calls).to.eql(['slug:ref-a']);
+
+    ctrl.dispose();
+  });
 });
