@@ -91,14 +91,8 @@ groups:
     - import: npm:ai@6.0.49
     - import: npm:@ai-sdk/openai@3.0.18
     - import: npm:ollama-ai-provider@1.2.0
-    - import: npm:@mastra/core@1.0.4
-      subpaths: ['agent', 'memory', 'storage']
-    - import: npm:@mastra/libsql@1.0.0
-    - import: npm:@mastra/loggers@1.0.0
-    - import: npm:@mastra/memory@1.0.0
     - import: npm:ollama@0.6.3
     - import: npm:gpt-tokenizer@3.4.0
-    - import: npm:@google/genai@1.38.0
 
   yaml:
     - import: npm:yaml@2.8.2
