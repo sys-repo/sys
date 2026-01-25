@@ -78,7 +78,7 @@ export function createDebugSignals() {
     Signal.listen(props, true);
   }
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
     p.items.value = SAMPLE.items('comprehensive');
   }
 

@@ -55,7 +55,7 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
   function updateDist() {}

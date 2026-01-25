@@ -204,7 +204,7 @@ When a `-SPEC.Debug.tsx` uses Signals, it MUST:
 
 - Implement reset via defaults path-walk:
   ```ts
-  Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)));
+  Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   ```
 
 - Persist changes via **one** `Signal.effect`:
