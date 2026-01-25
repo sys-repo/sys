@@ -1,4 +1,5 @@
 import React from 'react';
+import { getErrorMessage } from 'react-error-boundary';
 import { type t, Button, Color, css, Icons, ObjectView, Time } from './common.ts';
 import { copyToClipboard } from './u.clipboard.ts';
 
@@ -64,10 +65,9 @@ export const ErrorBoundaryFallback: React.FC<P> = (props) => {
     }),
   };
 
-  const data = {
-    message: error?.message,
-    stack: error?.stack?.split('\n'),
-  };
+  const message = getErrorMessage(error);
+  const stack = error instanceof Error ? error.stack?.split('\n') : undefined;
+  const data = { message, stack };
 
   return (
     <div className={styles.base.class}>
