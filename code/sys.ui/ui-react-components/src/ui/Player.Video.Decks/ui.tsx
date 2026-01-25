@@ -14,79 +14,71 @@ export const VideoDecks: React.FC<t.VideoDecksProps> = (props) => {
 
   const theme = Color.theme(props.theme);
 
-  // Hooks: stable order, always called.
-  const ctrlA = usePlayerSignals(decks?.A, { log: debug });
-  const ctrlB = usePlayerSignals(decks?.B, { log: debug });
+  const ctlA = usePlayerSignals(decks?.A, { log: debug });
+  const ctlB = usePlayerSignals(decks?.B, { log: debug });
 
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-
       display: 'grid',
-      width: '100%',
-      height: '100%',
-
-      // Critical inside other grids/flex:
       minWidth: 0,
       minHeight: 0,
-      placeSelf: 'stretch',
-
-      // Ensure children can stretch:
-      alignItems: 'stretch',
-      justifyItems: 'stretch',
-      alignContent: 'stretch',
-      justifyContent: 'stretch',
     }),
 
-    both: css({
+    layoutBoth: css({
       gridTemplateColumns: '1fr 1fr',
       gridTemplateRows: '1fr',
       gap,
-    }),
-
-    single: css({
-      gridTemplateColumns: '1fr',
-      gridTemplateRows: '1fr',
-    }),
-
-    // Both decks sit in the same cell when show='single'.
-    cell: css({
-      gridColumn: '1',
-      gridRow: '1',
-      width: '100%',
-      height: '100%',
-      minWidth: 0,
-      minHeight: 0,
-      display: 'grid',
       alignItems: 'stretch',
       justifyItems: 'stretch',
     }),
 
-    // Visual policy only (doesn't affect layout).
-    inactive: css({
-      opacity: 0.25,
-      pointerEvents: 'none',
+    layoutSingle: css({
+      gridTemplateColumns: '1fr',
+      gridTemplateRows: '1fr',
+      alignItems: 'stretch',
+      justifyItems: 'stretch',
+    }),
+
+    deck: css({
+      display: 'grid',
+      minWidth: 0,
+      minHeight: 0,
+    }),
+
+    overlayCell: css({
+      gridColumn: '1 / 2',
+      gridRow: '1 / 2',
     }),
   } as const;
 
-  function renderDeck(deck: 'A' | 'B', ctrl: typeof ctrlA, isStacked: boolean) {
-    if (!ctrl?.props?.src) return null;
+  function renderDeck(deckId: 'A' | 'B', ctl: ReturnType<typeof usePlayerSignals>) {
+    const video = deckId === 'A' ? decks?.A : decks?.B;
+    if (!video) return null;
+    if (!ctl.props.src) return null;
 
-    const isActive = active === deck;
+    const isActive = active === deckId;
     const deckMuted = muted === false ? false : !isActive;
 
-    const wrapClass = css(
-      styles.cell,
-      !isActive && styles.inactive,
-      isStacked && isActive ? css({ zIndex: 2 }) : undefined,
-      isStacked && !isActive ? css({ zIndex: 1 }) : undefined,
-    ).class;
+    const overlay: t.CssProps =
+      show === 'single'
+        ? {
+            zIndex: isActive ? 2 : 1,
+            opacity: isActive ? 1 : 0,
+            pointerEvents: isActive ? 'auto' : 'none',
+          }
+        : {
+            opacity: isActive ? 1 : 0.25,
+            pointerEvents: isActive ? 'auto' : 'none',
+          };
+
+    const wrap = show === 'single' ? css(styles.deck, styles.overlayCell) : styles.deck;
 
     return (
-      <div className={wrapClass}>
+      <div className={wrap.class} style={overlay}>
         <VideoElement
-          {...ctrl.props}
+          {...ctl.props}
           debug={debug}
           theme={props.theme}
           interaction={{ clickToPlay: false }}
@@ -97,22 +89,15 @@ export const VideoDecks: React.FC<t.VideoDecksProps> = (props) => {
     );
   }
 
-  const isStacked = show === 'single';
-  const layout = isStacked ? styles.single : styles.both;
+  const layoutClass =
+    show === 'single'
+      ? css(styles.base, styles.layoutSingle, props.style).class
+      : css(styles.base, styles.layoutBoth, props.style).class;
 
   return (
-    <div className={css(styles.base, layout, props.style).class}>
-      {isStacked ? (
-        <>
-          {renderDeck('A', ctrlA, true)}
-          {renderDeck('B', ctrlB, true)}
-        </>
-      ) : (
-        <>
-          <div className={styles.cell.class}>{renderDeck('A', ctrlA, false)}</div>
-          <div className={styles.cell.class}>{renderDeck('B', ctrlB, false)}</div>
-        </>
-      )}
+    <div className={layoutClass}>
+      {renderDeck('A', ctlA)}
+      {renderDeck('B', ctlB)}
     </div>
   );
 };
