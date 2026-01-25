@@ -1,4 +1,5 @@
 import { type t, pkg, c, Cli, Path, Pkg } from '../common.ts';
+import { shouldExclude } from '../u.exclude.ts';
 import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
@@ -52,7 +53,14 @@ export async function runStagingWithSpinner(args: {
       async onWriteDistJson(e) {
         const dir = e.stagingRoot;
         // Regenerate the root dist.json for deployment
-        await Pkg.Dist.compute({ save: true, dir, pkg, builder: pkg, trustChildDist: true });
+        await Pkg.Dist.compute({
+          save: true,
+          dir,
+          pkg,
+          builder: pkg,
+          trustChildDist: true,
+          filter: (path) => !shouldExclude(Path.basename(path)),
+        });
       },
 
       onProgress(e) {

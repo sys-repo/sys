@@ -1,4 +1,5 @@
 import { Fs, Path } from '../common.ts';
+import { shouldExclude } from '../u.exclude.ts';
 
 /**
  * Copy `src` into `dst` (destination) using staging merge semantics.
@@ -59,12 +60,4 @@ export async function copyInto(args: {
   }
 
   await copyFile(src, dst);
-}
-
-/**
- * Helpers
- */
-const EXCLUDE: readonly string[] = ['.DS_Store'];
-function shouldExclude(name: string): boolean {
-  return EXCLUDE.includes(name);
 }

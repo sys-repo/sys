@@ -46,6 +46,7 @@ describe('Staging: runStagingWithSpinner', () => {
       const root = await Pkg.Dist.load(`${tmp}/stage`);
       expect(root.exists).to.eql(true);
       expect(root.dist?.hash.parts['child/a.txt']).to.not.eql(undefined);
+      expect(root.dist?.hash.parts['child/.DS_Store']).to.eql(undefined);
     });
   });
 });
