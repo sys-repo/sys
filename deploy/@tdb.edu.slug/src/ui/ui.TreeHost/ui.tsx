@@ -11,16 +11,17 @@ export const TreeHost: React.FC<t.TreeHostProps> = (props) => {
       minHeight: 0,
       color: theme.fg,
       display: 'grid',
-      gridTemplateColumns: '320px 1fr',
+      gridTemplateColumns: '320px 1px 1fr',
     }),
-    nav: css({
-      borderRight: `solid 0.5px ${Color.alpha(theme.fg, 0.1)}`,
-    }),
+    nav: css({}),
+    border: css({ backgroundColor: Color.alpha(theme.fg, 0.1) }),
+    maing: css({}),
   };
 
   return (
     <div className={css(styles.base, props.style).class} data-component={D.displayName}>
       <Nav {...props} style={styles.nav} />
+      <div className={styles.border.class} />
       <Main {...props} />
     </div>
   );
