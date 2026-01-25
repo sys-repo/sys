@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { SlugSchema, D, Http, Url } from './common.ts';
+import { D, Http, SlugSchema, Url } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
@@ -20,11 +20,22 @@ async function load(
 
   const res = await fetch.json<unknown>(url, req);
   if (!res.ok) {
+    const msg = (msg: string) => `${msg} ${res.status} ${res.statusText} @ ${res.url ?? url}`;
+
+    if (res.status === 404) {
+      return {
+        ok: false,
+        error: {
+          kind: 'schema',
+          message: msg('Assets manifest missing despite dist.json entry.'),
+        },
+      };
+    }
     return {
       ok: false,
       error: {
         kind: 'http',
-        message: `Assets manifest fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
+        message: msg('Assets manifest fetch failed.'),
         status: res.status,
         statusText: res.statusText,
         url: res.url ?? url,

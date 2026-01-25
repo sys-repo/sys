@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
-import { SlugClient } from '../mod.ts';
 import { Assets } from '../m.io.Assets.ts';
+import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
 import { D } from '../common.ts';
