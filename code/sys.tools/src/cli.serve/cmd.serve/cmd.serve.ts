@@ -80,7 +80,7 @@ export async function startServing(
       const baseMenu = await ServeMenu.bundlesMenuOptions(cwd, location, { includeRoot: true });
 
       async function promptOnce(): Promise<C> {
-        const options = [...baseMenu, { name: c.dim(c.gray(`(exit)`)), value: EXIT }];
+        const options = [...baseMenu, { name: c.dim(c.gray('  ← back')), value: EXIT }];
         console.clear();
         console.info(renderHeader());
         return (await Cli.Input.Select.prompt({
