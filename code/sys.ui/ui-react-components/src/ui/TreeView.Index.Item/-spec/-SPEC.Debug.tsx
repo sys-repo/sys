@@ -7,7 +7,17 @@ type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled' | 'selected'> & 
   label?: string;
   description?: string;
   chevron?: boolean;
+  paddingPreset?: PaddingPreset;
 };
+
+export const PADDING = {
+  spacious: [20, 12, 20, 20] satisfies t.CssPaddingInput,
+  default: D.padding,
+  compact: [10, 6, 8, 10] satisfies t.CssPaddingInput,
+  tight: [5, 5, 5, 10] satisfies t.CssPaddingInput,
+} as const;
+type PaddingPreset = keyof typeof PADDING;
+
 const defaults: Storage = {
   theme: 'Dark',
   debug: false,
@@ -17,6 +27,7 @@ const defaults: Storage = {
   active: D.active,
   chevron: D.chevron,
   selected: D.selected,
+  paddingPreset: 'default',
 };
 
 /**
@@ -43,14 +54,21 @@ export function createDebugSignals() {
     active: s(snap.active),
     enabled: s(snap.enabled),
     selected: s(snap.selected),
+    paddingPreset: s(snap.paddingPreset),
   };
   const p = props;
   const api = {
     props,
-    listen() {
-      Signal.listen(props);
+    listen,
+    get padding() {
+      const v = p.paddingPreset.value;
+      return v ? PADDING[v] : undefined;
     },
   };
+
+  function listen() {
+    Signal.listen(props, true);
+  }
 
   Signal.effect(() => {
     store.change((d) => {
@@ -60,8 +78,8 @@ export function createDebugSignals() {
       d.enabled = p.enabled.value;
       d.label = Is.string(p.label.value) ? p.label.value : undefined;
       d.description = Is.string(p.description.value) ? p.description.value : undefined;
-      const v = p.chevron.value;
-      d.chevron = typeof v === 'boolean' ? v : undefined;
+      d.paddingPreset = p.paddingPreset.value;
+      d.chevron = Is.bool(p.chevron.value) ? p.chevron.value : undefined;
     });
   });
 
@@ -140,6 +158,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
           const el = <Icons.Face style={style} />;
           Signal.cycle(p.chevron, [false, true, el, undefined]);
         }}
+      />
+      <Button
+        block
+        label={() => {
+          const preset = (p.paddingPreset.value ?? 'default') as PaddingPreset;
+          const values = PADDING[preset];
+          return `padding: ${preset} [${values.join(', ')}]`;
+        }}
+        onClick={() => Signal.cycle(p.paddingPreset, Object.keys(PADDING))}
       />
 
       <hr />
