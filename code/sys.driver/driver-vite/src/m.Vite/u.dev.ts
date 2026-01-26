@@ -55,10 +55,15 @@ export const dev: D = async (input) => {
     await keyboard();
   };
 
-  await Promise.race([
-    proc.whenReady().catch(() => new Promise<never>(() => {})), //   NB: never resolve on failure
-    Http.Client.waitFor(url, { timeout: 30_000, interval: 150 }),
-  ]);
+  const readyAbort = new AbortController();
+  try {
+    await Promise.race([
+      proc.whenReady().catch(() => new Promise<never>(() => {})), // NB: never resolve on failure
+      Http.Client.waitFor(url, { timeout: 30_000, interval: 150, signal: readyAbort.signal }),
+    ]);
+  } finally {
+    readyAbort.abort();
+  }
 
   /**
    * API:
