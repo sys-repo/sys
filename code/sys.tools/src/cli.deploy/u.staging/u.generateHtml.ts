@@ -19,7 +19,11 @@ export async function ensureIndexHtml(
 
   const root = Fs.Path.resolve(raw);
   const target = Fs.join(root, 'index.html');
-  if (!options.force && (await Fs.exists(target))) return;
+  const exists = await Fs.exists(target);
+  if (exists && !(await shouldOverwrite(target, options.force === true))) return;
+  if (!exists && !options.force) {
+    // no-op: only create when missing unless force is requested
+  }
 
   const dirs = await directories(root);
   const html = renderHtml(dirs);
@@ -63,3 +67,13 @@ function renderHtml(dirs: TDir[]): string {
   const list = items ? `${items}\n${indent}<hr />` : `${indent}<hr />`;
   return TEMPLATE.replace('__LIST__', list);
 }
+
+const MARKER = '@sys/tools staging index';
+const MARKER_TOKEN = `<!-- ${MARKER} -->`;
+
+const shouldOverwrite = async (target: string, force: boolean): Promise<boolean> => {
+  if (!force) return false;
+  const res = await Fs.readText(target);
+  if (!res.exists || !res.data) return true;
+  return res.data.includes(MARKER_TOKEN);
+};

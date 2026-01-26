@@ -321,13 +321,29 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/src/new.txt`, 'new');
 
       await Fs.ensureDir(`${tmp}/stage`);
-      await Fs.write(`${tmp}/stage/index.html`, 'sentinel');
+      await Fs.write(`${tmp}/stage/index.html`, '<!-- @sys/tools staging index -->\n');
 
       const dir = { source: 'src', staging: 'dist/my-output' };
       await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
 
       const index = await Fs.readText(`${tmp}/stage/index.html`);
-      expect(index.data).to.not.eql('sentinel');
+      expect(index.data).to.not.eql('<!-- @sys/tools staging index -->\n');
+    });
+  });
+
+  it('cleanStagingRoot: does not overwrite non-template index.html', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/new.txt`, 'new');
+
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/index.html`, '<!doctype html><title>real</title>');
+
+      const dir = { source: 'src', staging: 'dist/my-output' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+
+      const index = await Fs.readText(`${tmp}/stage/index.html`);
+      expect(index.data).to.eql('<!doctype html><title>real</title>');
     });
   });
 
