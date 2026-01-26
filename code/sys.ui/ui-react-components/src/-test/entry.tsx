@@ -9,12 +9,8 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register(new URL('sw.js', import.meta.url), { type: 'module' })
-      .then((reg) =>
-        console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`),
-      )
-      .catch((err) =>
-        console.error(`💥 [main] ServiceWorker registration failed:`, err),
-      );
+      .then((reg) => console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`))
+      .catch((err) => console.error(`💥 [main] ServiceWorker registration failed:`, err));
   });
 }
 
@@ -43,7 +39,7 @@ export async function main() {
         if (e.next?.endsWith(': Bullet')) return true;
         if (e.next?.startsWith('sys.ui.css: @container')) return true;
         if (e.next?.endsWith(': Layout.CenterColumn')) return true;
-        if (e.next?.endsWith(': Tree.Index')) return true;
+        if (e.next?.endsWith(': TreeView.Index')) return true;
         if (e.next?.endsWith(': Player.Video: Element')) return true;
         if (e.next?.endsWith(': Recorder')) return true;
         if (e.next?.endsWith(': Dist')) return true;
