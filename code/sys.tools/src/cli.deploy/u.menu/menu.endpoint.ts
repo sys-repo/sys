@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Open, Str } from '../common.ts';
+import { type t, c, Cli, Fs, Open, Pkg, Str } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
@@ -11,6 +11,7 @@ import { renameEndpoint } from './u/u.renameEndpoint.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u/u.resolveMappingsForStaging.ts';
 import { resolveStagingTarget } from './u/u.resolveStagingTarget.ts';
+import { formatHashPrefix } from './u/u.formatHashPrefix.ts';
 import { touchEndpointLastUsed } from './u/u.touchEndpointLastUsed.ts';
 
 type Pick =
@@ -71,6 +72,15 @@ export async function endpointMenu(args: {
 
     const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
     const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
+    const stagingTarget = resolveStagingTarget({
+      cwd,
+      stagingRootRel,
+      mappingStagingRel,
+    });
+    const dist = (await Pkg.Dist.load(stagingTarget)).dist;
+    const digest = dist?.hash?.digest;
+    const hashSuffix = digest ? String(digest).slice(-5) : undefined;
+    const hashPrefix = formatHashPrefix(hashSuffix);
 
     // "can push" is about capability + having *some* staging root configured ('.' counts).
     const canPush = capability.show && capability.enabled && !!stagingRootRel;
@@ -97,6 +107,7 @@ export async function endpointMenu(args: {
       ranOk,
       showPush,
       pushedOk,
+      hashPrefix,
     });
 
     if (picked === 'back') return { kind: 'back' };
@@ -122,16 +133,10 @@ export async function endpointMenu(args: {
 
       if (!provider) continue;
 
-      const stagingDir = resolveStagingTarget({
-        cwd,
-        stagingRootRel,
-        mappingStagingRel,
-      });
-
       const res = await runPushWithSpinner({
         cwd,
         provider,
-        stagingDir,
+        stagingDir: stagingTarget,
       });
 
       if (res.ok) {

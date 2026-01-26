@@ -11,15 +11,18 @@ export async function promptEndpointAction(args: {
   ranOk: boolean;
   showPush: boolean;
   pushedOk: boolean;
+  hashPrefix: string;
 }): Promise<A> {
-  const { checkOk, ranOk, showPush, pushedOk } = args;
+  const { checkOk, ranOk, showPush, pushedOk, hashPrefix } = args;
+  const stageName = ranOk
+    ? `  ${hashPrefix}  staged ✔`
+    : `  ${hashPrefix}  stage (prepare bundle)`;
+  const pushName = pushedOk ? `  ${hashPrefix}  push ✔` : `  ${hashPrefix}  push`;
   const answer = await Cli.Input.Select.prompt<A>({
     message: `Actions:`,
     options: [
-      ...(checkOk
-        ? [{ name: ranOk ? '  staged ✔' : '  stage (prepare bundle)', value: 'stage' as const }]
-        : []),
-      ...(showPush ? [{ name: pushedOk ? '  push ✔' : '  push', value: 'push' as const }] : []),
+      ...(checkOk ? [{ name: stageName, value: 'stage' as const }] : []),
+      ...(showPush ? [{ name: pushName, value: 'push' as const }] : []),
       ...(checkOk ? [] : [{ name: c.yellow('  fix errors'), value: 'fix' as const }]),
       { name: '  config: edit', value: 'edit' as const },
       { name: '  config: rename', value: 'rename' },
