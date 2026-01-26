@@ -5,6 +5,7 @@ import { route } from './u.serve.route.ts';
 
 type C = t.ServeTool.Command;
 type Opts = { port?: number; host?: 'local' | 'network' };
+type ServeResult = { readonly kind: 'back' } | { readonly kind: 'closed' };
 
 /**
  * Start a local HTTP server for the given directory.
@@ -13,7 +14,7 @@ export async function startServing(
   cwd: t.StringDir,
   location: t.ServeTool.Config.Dir,
   opts: Opts = {},
-): Promise<void> {
+): Promise<ServeResult> {
   const { dir, contentTypes } = location;
 
   /**
@@ -49,6 +50,7 @@ export async function startServing(
     const CMD_OPEN = 'bundle:open' satisfies C;
     const PREFIX = `${CMD_OPEN}/`;
     const BACK = 'back' satisfies C;
+    let didBack = false;
     let lastSelection: C | undefined;
 
     const toUrl = (value: C): t.StringUrl => {
@@ -76,7 +78,7 @@ export async function startServing(
       return String(str.blank());
     }
 
-    return async (): Promise<void> => {
+    return async (): Promise<ServeResult> => {
       const baseMenu = await ServeMenu.bundlesMenuOptions(cwd, location, { includeRoot: true });
 
       async function promptOnce(): Promise<C> {
@@ -94,7 +96,10 @@ export async function startServing(
       try {
         while (true) {
           const answer = await promptOnce();
-          if (answer === BACK) break;
+          if (answer === BACK) {
+            didBack = true;
+            break;
+          }
           lastSelection = answer;
           Open.invokeDetached(cwd, toUrl(answer));
         }
@@ -102,8 +107,9 @@ export async function startServing(
         ac.abort();
         await server.finished;
       }
+      return didBack ? { kind: 'back' } : { kind: 'closed' };
     };
   })();
 
-  await runOpenPromptLoop();
+  return await runOpenPromptLoop();
 }

@@ -67,7 +67,8 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
         return done(0);
       }
       if (res.kind === 'start') {
-        await startServing(cwd, runtimeLocation, { port, host: res.host });
+        const result = await startServing(cwd, runtimeLocation, { port, host: res.host });
+        if (result.kind === 'back') continue;
         return done(0);
       }
       if (res.kind === 'bundles') {
