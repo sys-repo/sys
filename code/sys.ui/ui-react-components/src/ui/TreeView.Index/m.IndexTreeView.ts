@@ -6,6 +6,6 @@ import { IndexTreeView as UI } from './ui.tsx';
 
 export const IndexTreeView: t.IndexTreeViewLib = {
   UI,
-  Item: { View: IndexTreeViewItem },
+  Item: IndexTreeViewItem,
   Data,
 };

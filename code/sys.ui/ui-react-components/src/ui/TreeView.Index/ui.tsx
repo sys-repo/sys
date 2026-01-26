@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { type t, Color, css, D, Data, IndexTreeViewItem, Is, Obj } from './common.ts';
+import { type t, Color, css, D, Data, Is, Obj, IndexTreeViewItem } from './common.ts';
+const Item = IndexTreeViewItem;
 import { SlideDeck } from './u.SlideDeck.tsx';
 import { resolveShowChevron } from './u.chevron.ts';
 
@@ -45,7 +46,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
           const showChevron = isInline ? false : resolveShowChevron(node, props.showChevron ?? D.showChevron);
           const enabled = Boolean(node.meta?.enabled ?? true);
           return (
-            <IndexTreeViewItem
+            <Item.UI
               key={node.key}
               debug={debug}
               theme={theme.name}

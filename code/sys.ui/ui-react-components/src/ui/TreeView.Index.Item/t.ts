@@ -1,6 +1,13 @@
 import type { t } from './common.ts';
 
-/** Component: */
+/**
+ * Library.
+ */
+export type IndexTreeViewItemLib = { readonly UI: t.FC<IndexTreeViewItemProps> };
+
+/**
+ * Component:
+ */
 export type IndexTreeViewItemProps = {
   label?: t.ReactNode;
   description?: t.ReactNode;

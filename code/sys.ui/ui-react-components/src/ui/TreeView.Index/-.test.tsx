@@ -9,6 +9,6 @@ describe('TreeView.Index', () => {
     const m = await import('@sys/ui-react-components');
     expect(m.IndexTreeView).to.equal(IndexTreeView);
     expect(IndexTreeView.UI).to.equal(UI);
-    expect(IndexTreeView.Item.View).to.equal(IndexTreeViewItem);
+    expect(IndexTreeView.Item).to.equal(IndexTreeViewItem);
   });
 });

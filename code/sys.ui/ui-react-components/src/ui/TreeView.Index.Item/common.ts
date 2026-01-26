@@ -9,7 +9,7 @@ type P = t.IndexTreeViewItemProps;
  * Constants:
  */
 const name = 'TreeView.Index.Item';
-export const DEFAULTS = {
+export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   label: 'Unnamed',
@@ -20,4 +20,5 @@ export const DEFAULTS = {
   selected: false,
   indentSize: 20,
 } as const;
-export const D = DEFAULTS;
+export const DEFAULTS = D;
+export const STORAGE_KEY = { DEV: `dev:${D.displayName}` };

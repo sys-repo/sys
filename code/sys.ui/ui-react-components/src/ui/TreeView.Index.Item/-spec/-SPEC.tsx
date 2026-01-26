@@ -3,6 +3,8 @@ import { D } from '../common.ts';
 import { IndexTreeViewItem } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
+const Item = IndexTreeViewItem;
+
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
@@ -23,7 +25,7 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
         const width = 350;
         return (
-          <IndexTreeViewItem
+          <Item.UI
             debug={v.debug}
             theme={v.theme}
             style={{ width }}

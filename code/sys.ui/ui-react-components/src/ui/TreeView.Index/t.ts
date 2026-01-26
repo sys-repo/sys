@@ -5,11 +5,11 @@ export type IndexTreeViewChevronMode = 'auto' | 'always' | 'never';
 
 export type IndexTreeViewLib = {
   /** `<IndexTreeView>` component view. */
-  UI: React.FC<t.IndexTreeViewProps>;
+  readonly UI: React.FC<t.IndexTreeViewProps>;
   /** Individual item/node tools. */
-  Item: { View: React.FC<t.IndexTreeViewItemProps> };
+  readonly Item: t.IndexTreeViewItemLib;
   /** Data utilities. */
-  Data: t.IndexTreeViewDataLib;
+  readonly Data: t.IndexTreeViewDataLib;
 };
 
 export type IndexTreeViewProps = {
