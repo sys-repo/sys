@@ -43,10 +43,10 @@ export async function lintDocumentGraphCommand(
   if (Array.isArray(res.facets)) {
     config.change((d) => {
       const entry = Config.findDocEntry(d, docid);
-  if (entry) {
-    const lint = entry.lint || (entry.lint = {});
-    lint.facets = [...res.facets];
-  }
+      if (entry) {
+        const lint = entry.lint || (entry.lint = {});
+        lint.facets = [...res.facets];
+      }
     });
     await config.fs.save();
   }
