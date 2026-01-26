@@ -48,7 +48,7 @@ export async function startServing(
     const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `http://localhost:${port}`;
     const CMD_OPEN = 'bundle:open' satisfies C;
     const PREFIX = `${CMD_OPEN}/`;
-    const EXIT = 'exit' satisfies C;
+    const BACK = 'back' satisfies C;
     let lastSelection: C | undefined;
 
     const toUrl = (value: C): t.StringUrl => {
@@ -80,7 +80,7 @@ export async function startServing(
       const baseMenu = await ServeMenu.bundlesMenuOptions(cwd, location, { includeRoot: true });
 
       async function promptOnce(): Promise<C> {
-        const options = [...baseMenu, { name: c.dim(c.gray('  ← back')), value: EXIT }];
+        const options = [...baseMenu, { name: c.dim(c.gray('  ← back')), value: BACK }];
         console.clear();
         console.info(renderHeader());
         return (await Cli.Input.Select.prompt({
@@ -94,7 +94,7 @@ export async function startServing(
       try {
         while (true) {
           const answer = await promptOnce();
-          if (answer === EXIT) break;
+          if (answer === BACK) break;
           lastSelection = answer;
           Open.invokeDetached(cwd, toUrl(answer));
         }
