@@ -2,11 +2,10 @@ import { type t, Cli, Process } from '../../common.ts';
 
 export async function push(args: {
   cwd: t.StringDir;
-  stagingDir: t.StringRelativeDir;
+  stagingDir: t.StringDir;
   provider: t.DeployTool.Config.Provider.Orbiter;
 }): Promise<t.PushResult> {
   try {
-    const { cwd } = args;
     const buildDir = args.stagingDir;
     const siteId = String(args.provider.siteId ?? '');
     const domain = String(args.provider.domain ?? '');
@@ -20,13 +19,13 @@ export async function push(args: {
       ['npm:orbiter-cli', 'deploy'],
       ['--siteId', siteId],
       ['--buildCommand', 'echo "no-op"'],
-      ['--buildDir', buildDir],
+      ['--buildDir', '.'],
     ];
 
     const out = await Process.invoke({
       cmd: 'deno',
       args: argv.flatMap((x) => (Array.isArray(x) ? x : [x])),
-      cwd,
+      cwd: buildDir,
       silent: true,
     });
 

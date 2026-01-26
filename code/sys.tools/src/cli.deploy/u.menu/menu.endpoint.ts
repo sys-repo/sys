@@ -10,6 +10,7 @@ import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { renameEndpoint } from './u/u.renameEndpoint.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u/u.resolveMappingsForStaging.ts';
+import { resolveStagingTarget } from './u/u.resolveStagingTarget.ts';
 import { touchEndpointLastUsed } from './u/u.touchEndpointLastUsed.ts';
 
 type Pick =
@@ -121,10 +122,16 @@ export async function endpointMenu(args: {
 
       if (!provider) continue;
 
+      const stagingDir = resolveStagingTarget({
+        cwd,
+        stagingRootRel,
+        mappingStagingRel,
+      });
+
       const res = await runPushWithSpinner({
         cwd,
         provider,
-        stagingDir: stagingRootRel,
+        stagingDir,
       });
 
       if (res.ok) {
