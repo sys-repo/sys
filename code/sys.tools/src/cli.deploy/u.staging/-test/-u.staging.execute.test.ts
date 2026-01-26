@@ -53,6 +53,21 @@ describe('Staging: executeStaging', () => {
     });
   });
 
+  it('copy: generates index.html inside mapping target when missing', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'x');
+
+      const dir = { source: 'src', staging: 'dist/site' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
+      expect(index.ok).to.eql(true);
+      expect(index.exists).to.eql(true);
+      expect(String(index.data ?? '')).to.include('<!-- @sys/tools staging index -->');
+    });
+  });
+
   it('build+copy: runs build tasks then stages /dist output', async () => {
     await withTmpDir(async (tmp) => {
       const srcRoot = `${tmp}/src`;

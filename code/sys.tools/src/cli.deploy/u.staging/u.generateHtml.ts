@@ -20,7 +20,10 @@ export async function ensureIndexHtml(
   const root = Fs.Path.resolve(raw);
   const target = Fs.join(root, 'index.html');
   const exists = await Fs.exists(target);
-  if (exists && !(await shouldOverwrite(target, options.force === true))) return;
+  if (exists) {
+    const ok = await shouldOverwrite(target, options.force === true);
+    if (!ok) return;
+  }
   if (!exists && !options.force) {
     // no-op: only create when missing unless force is requested
   }

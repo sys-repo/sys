@@ -1,5 +1,6 @@
 import { type t, Pkg, Path } from '../common.ts';
 import { copyInto } from './u.copyInto.ts';
+import { ensureIndexHtml } from './u.generateHtml.ts';
 
 /**
  * Copy a source directory into the staging area.
@@ -20,6 +21,8 @@ export async function execCopy(
 
   report?.({ kind: 'mapping:step', label: 'copy' });
   await copyInto({ src, dst, overwrite });
+
+  await ensureIndexHtml(dst);
 
   report?.({ kind: 'mapping:step', label: 'dist.json' });
   await Pkg.Dist.compute({ dir: dst, save: true });
