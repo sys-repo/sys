@@ -5,6 +5,8 @@ type TDir = {
   readonly abs: t.StringDir;
   readonly rel: t.StringDir;
   readonly dist?: t.DistPkg;
+  readonly hasIndex: boolean;
+  readonly hasDistJson: boolean;
 };
 
 /**
@@ -45,7 +47,9 @@ async function directories(root: t.StringDir) {
     const abs = entry.path;
     const rel = Str.trimSlashes(abs.startsWith(root) ? abs.slice(root.length) : abs);
     const dist = (await Pkg.Dist.load(abs)).dist;
-    res.push({ abs, rel, dist });
+    const hasIndex = await Fs.exists(Fs.join(abs, 'index.html'));
+    const hasDistJson = await Fs.exists(Fs.join(abs, 'dist.json'));
+    res.push({ abs, rel, dist, hasIndex, hasDistJson });
   }
 
   return res;
@@ -57,7 +61,11 @@ function renderHtml(dirs: TDir[]): string {
   const items = dirs
     .map((dir) => {
       const trimmed = Str.trimLeadingDotSlash(dir.rel);
-      const href = `./${trimmed}/`;
+      const href = dir.hasIndex
+        ? `./${trimmed}/`
+        : dir.hasDistJson
+          ? `./${trimmed}/dist.json`
+          : `./${trimmed}/`;
       let label = trimmed;
       if (dir.dist) {
         const hash = dir.dist.hash.digest;
