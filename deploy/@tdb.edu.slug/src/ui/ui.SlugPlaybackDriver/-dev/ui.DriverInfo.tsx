@@ -46,7 +46,7 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
   const hr = () => items.push({ kind: 'hr' });
 
   add('base url', controller?.props.baseUrl ?? '-');
-  add('selected path', Str.ellipsize(path, 45, '..'));
+  add('selected path', Str.ellipsize(path, 40, '..'));
   add('slug', state?.bundle?.docid ?? '-');
   add('timeline', wrangle.bundle(state));
   hr();
