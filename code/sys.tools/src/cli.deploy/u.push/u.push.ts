@@ -15,7 +15,7 @@ export async function pushProvider(args: {
 }): Promise<t.PushResult> {
   const { cwd, provider, stagingDir } = args;
 
-  const preflight = await Provider.probe(cwd, provider);
+  const preflight = await Provider.probe(cwd, provider, { spin: false });
   if (!preflight.ok) {
     return { ok: false, reason: 'probe-failed', hint: preflight.hint, error: preflight.error };
   }
