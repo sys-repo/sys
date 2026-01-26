@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, Time } from '../../../-test.ts';
 import { Http } from '../mod.ts';
 
 describe('Http: wait/readiness helpers', () => {
@@ -90,6 +90,28 @@ describe('Http: wait/readiness helpers', () => {
       }
       expect(err).to.be.instanceOf(Error);
       expect(String(err)).to.include('Timed out waiting for');
+    });
+
+    it('aborts when signal is cancelled', async () => {
+      const listener = Deno.serve({ port: 0 }, () => new Response('ok'));
+      const url = `${baseUrlFrom(listener)}/never`;
+      await listener.shutdown();
+
+      const ctrl = new AbortController();
+      const abortDelay = Time.delay(30, () => ctrl.abort());
+
+      let err: unknown;
+      try {
+        const signal = ctrl.signal;
+        await Http.waitFor(url, { timeout: 5_000, interval: 50, requestTimeout: 100, signal });
+      } catch (e) {
+        err = e;
+      } finally {
+        abortDelay.cancel();
+      }
+
+      expect(err).to.be.instanceOf(Error);
+      expect(String(err)).to.include('aborted');
     });
   });
 

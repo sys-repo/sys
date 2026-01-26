@@ -59,6 +59,8 @@ export type HttpWaitOptions = {
   readonly interval?: t.Msecs;
   /** Per-request timeout; if omitted, uses Math.max(2000, (interval ?? 150) * 2). */
   readonly requestTimeout?: t.Msecs;
+  /** Optional abort signal to stop waiting early. */
+  readonly signal?: AbortSignal;
   /** HTTP method for the probe (default: 'HEAD', falls back to 'GET' if HEAD fails). */
   readonly method?: 'HEAD' | 'GET';
   /** Extra headers to send with the probe. */
