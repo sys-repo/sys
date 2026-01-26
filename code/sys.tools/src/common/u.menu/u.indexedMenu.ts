@@ -27,6 +27,7 @@ export async function indexedMenu<
     prefix: string;
     addLabel?: string;
     paintKey?: (key: string) => string;
+    exitLabel?: string;
 
     /**
      * Optional renderer for list rows.
@@ -52,6 +53,7 @@ export async function indexedMenu<
       cmdAdd: adapter.add ? 'add' : 'exit',
       cmdExit: 'exit',
       addLabel: ui.addLabel ?? ' add',
+      exitLabel: ui.exitLabel,
       order: 'preserve', // Preserve canonical ordering:
       paintName: ui.paintKey,
       render: ui.render,

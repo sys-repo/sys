@@ -74,7 +74,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   /** --------------------------------------------------------
    * Root Menu
    */
-  {
+  while (true) {
     console.info();
     const defaultCommand = listing.length > 0 ? listing[0].value : ('doc:add' satisfies C);
     let A = (await Cli.Input.Select.prompt<C>({
@@ -114,36 +114,41 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       const hookTmpl = await makeHookTmpl(cwd);
 
       if (A.startsWith('crdt:')) {
-        const lintModule = c.dim(`[ ${c.cyan(`:plugin:program:${c.yellow('slugs')}`)} ]`);
-        const options = [
-          opt(`  lint ${lintModule}`, `doc:graph:lint`),
-          opt(`  doc:indexer:fs`, 'doc:indexer:fs'),
-          opt(`  doc:graph:backup (snapshot)`, `snapshot`),
-          opt(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
-          opt(`  doc:graph: walk → stats`, `doc:graph:walk`),
-          opt(`  doc:graph: tasks`, `doc:graph:tasks`),
-          opt(`  view: <yaml>`, `doc:viewer:yaml`),
-          opt(`  view: ${c.gray(D.Config.filename)}`, `doc:config:print`),
-          // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
-        ];
+        while (true) {
+          const lintModule = c.dim(`[ ${c.cyan(`:plugin:program:${c.yellow('slugs')}`)} ]`);
+          const options = [
+            opt(`  lint ${lintModule}`, `doc:graph:lint`),
+            opt(`  doc:indexer:fs`, 'doc:indexer:fs'),
+            opt(`  doc:graph:backup (snapshot)`, `snapshot`),
+            opt(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
+            opt(`  doc:graph: walk → stats`, `doc:graph:walk`),
+            opt(`  doc:graph: tasks`, `doc:graph:tasks`),
+            opt(`  view: <yaml>`, `doc:viewer:yaml`),
+            opt(`  view: ${c.gray(D.Config.filename)}`, `doc:config:print`),
+            // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
+          ];
 
-        if (!hookTmpl.exists) {
-          options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
-        }
+          if (!hookTmpl.exists) {
+            options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
+          }
 
-        options.push(...[opt(c.gray(c.dim(' (forget)')), 'doc:remove')]);
+          options.push(...[opt(c.gray(c.dim(' (forget)')), 'doc:remove')]);
+          options.push(opt(c.gray(c.dim('← back')), 'back'));
 
-        const B = (await Cli.Input.Select.prompt<t.CrdtTool.Command>({
-          message: `with ${c.gray(`crdt:${docid.slice(0, -5)}${c.green(docid.slice(-5))}`)}:`,
-          options,
-          hideDefault: true,
-        })) as t.CrdtTool.Command;
+          const B = (await Cli.Input.Select.prompt<t.CrdtTool.Command>({
+            message: `with ${c.gray(`crdt:${docid.slice(0, -5)}${c.green(docid.slice(-5))}`)}:`,
+            options,
+            hideDefault: true,
+            maxRows: 25,
+          })) as t.CrdtTool.Command;
 
-        if (B === 'snapshot') {
-          const m = await Imports.snapshot();
-          await m.snapshotCommand(cwd, docid);
-          return done(0);
-        }
+          if (B === 'back') break;
+
+          if (B === 'snapshot') {
+            const m = await Imports.snapshot();
+            await m.snapshotCommand(cwd, docid);
+            return done(0);
+          }
 
         /**
          * TODO 🐷 - make path configurable (via prompt)
@@ -176,17 +181,17 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           return done(0);
         }
 
-        if (B === 'doc:graph:tasks') {
-          const m = await Imports.docGraphTasks();
-          await m.documentGraphTasksCommand(cwd, docid, yamlPath);
-          return done(0);
-        }
+          if (B === 'doc:graph:tasks') {
+            const m = await Imports.docGraphTasks();
+            await m.documentGraphTasksCommand(cwd, docid, yamlPath);
+            return done(0);
+          }
 
-        if (B === 'doc:indexer:fs') {
-          const m = await Imports.indexDocument();
-          await m.runDirectoryIndexer(cwd, docid);
-          return done(0);
-        }
+          if (B === 'doc:indexer:fs') {
+            const m = await Imports.indexDocument();
+            await m.runDirectoryIndexer(cwd, docid);
+            continue;
+          }
 
         if (B === 'doc:config:print') {
           console.info(Fmt.printDocConfig(config.current, docid));
@@ -203,7 +208,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           return done(0);
         }
 
-        if (B === 'exit') return done(0);
+          if (B === 'exit') return done(0);
+        }
       }
     }
 

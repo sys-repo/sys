@@ -24,6 +24,7 @@ export namespace CrdtTool {
     | 'doc:tmpl:hookfile'
     | 'repo:daemon:start'
     | 'repo:syncserver:start'
+    | 'back'
     | 'exit'
     | 'tmp:🐷';
 

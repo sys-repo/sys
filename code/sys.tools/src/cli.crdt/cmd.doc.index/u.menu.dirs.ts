@@ -17,6 +17,7 @@ export async function dirsMenu(args: {
     ui: {
       message: 'Indexes:\n',
       paintKey: c.cyan,
+      exitLabel: c.gray(c.dim('← back')),
     },
 
     io: {

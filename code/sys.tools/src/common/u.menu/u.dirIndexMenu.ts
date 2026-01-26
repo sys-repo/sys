@@ -49,6 +49,7 @@ export async function dirIndexMenu<
     addLabel?: string;
     /** Optional paint hook for the left (key) column. Keeps styling concerns out of the adapter. */
     paintKey?: (key: string) => string;
+    exitLabel?: string;
   };
 }): Promise<DirIndexMenuResult> {
   const { cwd, scopeKey, defaultMount, config, io, ui } = args;
@@ -115,6 +116,7 @@ export async function dirIndexMenu<
       prefix: ui?.prefix ?? 'dir:',
       addLabel: ui?.addLabel ?? ' add: <dir>',
       paintKey: ui?.paintKey,
+      exitLabel: ui?.exitLabel,
     },
   });
 

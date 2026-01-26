@@ -12,6 +12,7 @@ export async function promptDirsMenu<C extends string>(args: {
   cmdAdd: C;
   cmdExit: C;
   addLabel: string;
+  exitLabel?: string;
 
   /**
    * Row label as explicit columns.
@@ -137,10 +138,11 @@ export async function promptDirsMenu<C extends string>(args: {
     return { name: label, value: item.dir };
   });
 
+  const exitLabel = args.exitLabel ?? c.gray('(exit)');
   const options = [
     { name: addLabel, value: cmdAdd },
     ...listing,
-    { name: c.gray('(exit)'), value: cmdExit },
+    { name: exitLabel, value: cmdExit },
   ];
 
   const defaultValue: C | t.StringDir = listing.length > 0 ? listing[0].value : cmdAdd;

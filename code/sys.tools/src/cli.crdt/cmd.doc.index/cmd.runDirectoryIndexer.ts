@@ -38,7 +38,7 @@ export async function runDirectoryIndexer(cwd: t.StringDir, docid: t.Crdt.Id) {
   const existing = getExistingFilter({ doc, mountKey, defaultMount });
   let checked = toCheckedSet(existing.includeExt);
 
-  type Action = 'write:crdt' | 'index:rerun' | 'exit';
+  type Action = 'write:crdt' | 'index:rerun' | 'back';
 
   while (true) {
     /**
@@ -120,13 +120,13 @@ export async function runDirectoryIndexer(cwd: t.StringDir, docid: t.Crdt.Id) {
       options: [
         { name: `Write to → crdt:${crdtTarget}`, value: 'write:crdt' },
         { name: 'Change file types & re-scan', value: 'index:rerun' },
-        { name: c.gray('(exit)'), value: 'exit' },
+        { name: c.gray(c.dim('← back')), value: 'back' },
       ],
       default: 'write:crdt',
       hideDefault: true,
     });
 
-    if (action === 'exit') return;
+    if (action === 'back') return;
 
     if (action === 'index:rerun') {
       continue;
