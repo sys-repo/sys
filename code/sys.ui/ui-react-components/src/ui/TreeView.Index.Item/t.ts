@@ -1,9 +1,13 @@
 import type { t } from './common.ts';
+import type { Presets } from './u.presets.ts';
 
 /**
  * Library.
  */
-export type IndexTreeViewItemLib = { readonly UI: t.FC<IndexTreeViewItemProps> };
+export type IndexTreeViewItemLib = {
+  readonly UI: t.FC<IndexTreeViewItemProps>;
+  readonly Presets: typeof Presets;
+};
 
 /**
  * Component:

@@ -1,9 +1,7 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { IndexTreeViewItem } from '../mod.ts';
+import { Item } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
-
-const Item = IndexTreeViewItem;
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();

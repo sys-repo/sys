@@ -1,6 +1,10 @@
 import React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 import { type t, Color, css, D, Icons, Is, LocalStorage, Obj, Signal, Str } from '../common.ts';
+import { Item } from '../mod.ts';
+
+type Padding = t.IndexTreeViewItemLib['Presets']['Padding'];
+type PaddingPreset = keyof Padding;
 
 type P = t.IndexTreeViewItemProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled' | 'selected'> & {
@@ -9,14 +13,6 @@ type Storage = Pick<P, 'theme' | 'debug' | 'active' | 'enabled' | 'selected'> & 
   chevron?: boolean;
   paddingPreset?: PaddingPreset;
 };
-
-export const PADDING = {
-  spacious: [20, 12, 20, 20] satisfies t.CssPaddingInput,
-  default: D.padding,
-  compact: [10, 6, 8, 10] satisfies t.CssPaddingInput,
-  tight: [5, 5, 5, 10] satisfies t.CssPaddingInput,
-} as const;
-type PaddingPreset = keyof typeof PADDING;
 
 const defaults: Storage = {
   theme: 'Dark',
@@ -62,7 +58,7 @@ export function createDebugSignals() {
     listen,
     get padding() {
       const v = p.paddingPreset.value;
-      return v ? PADDING[v] : undefined;
+      return v ? Item.Presets.Padding[v] : undefined;
     },
   };
 
@@ -163,10 +159,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => {
           const preset = (p.paddingPreset.value ?? 'default') as PaddingPreset;
-          const values = PADDING[preset];
+          const values = Item.Presets.Padding[preset];
           return `padding: ${preset} [${values.join(', ')}]`;
         }}
-        onClick={() => Signal.cycle(p.paddingPreset, Object.keys(PADDING))}
+        onClick={() => Signal.cycle(p.paddingPreset, Object.keys(Item.Presets.Padding))}
       />
 
       <hr />
