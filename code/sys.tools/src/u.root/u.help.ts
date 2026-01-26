@@ -1,20 +1,9 @@
-import { type t, c, Fmt, pkg, Str } from './common.ts';
-import { ALIAS } from './u.args.ts';
+import { type t, c, Fmt, Str } from './common.ts';
+import { rootRows } from './u.rows.ts';
 
 export async function printRootHelp(args: t.Tools.CliRootParsedArgs) {
-  const s = await Fmt.help(' system:tools', (e, c) => {
-    const fmt = (tool: t.Tools.Command) => c.gray(c.dim(`${pkg.name}/`)) + tool;
-    const add = (tool: t.Tools.Command, alias?: readonly string[]) => {
-      const items = [fmt(tool)];
-      if (alias) items.push(c.gray(`(← alias ${c.white(alias.join(' '))})`));
-      e.row(...items);
-    };
-    add('copy', ALIAS.copy);
-    add('crdt');
-    add('serve');
-    add('deploy');
-    add('video');
-    add('update', ALIAS.update);
+  const s = await Fmt.help(' system:tools', (e) => {
+    rootRows().forEach((row) => e.row(...row.columns));
   });
 
   console.info(s);
