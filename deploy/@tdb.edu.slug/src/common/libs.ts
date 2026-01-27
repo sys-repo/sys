@@ -11,6 +11,7 @@ export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Yaml } from '@sys/yaml';
 export { Timecode } from '@sys/std/timecode';
+export { Open } from '@sys/process';
 
 /** System.Model */
 export { SlugClient } from '@sys/model-slug';

@@ -5,7 +5,11 @@ import { lintAliases } from './u.lint.aliases.ts';
 import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
-import { selectSlugLintProfile } from './u.slug.profiles.ts';
+import {
+  type SlugLintProfilePick,
+  selectSlugLintProfile,
+  selectSlugLintProfileAction,
+} from './u.lint.menu.ts';
 
 type Issue = t.DocLintIssue;
 
@@ -30,28 +34,64 @@ async function run(
   const issues: Issue[] = [];
   const Parse = Slug.parser(yamlPath);
 
-  if (opts.cwd) {
-    const profile = await selectSlugLintProfile(opts.cwd, { interactive });
-    if (interactive && !profile) {
-      return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
-    }
-  }
-
   // Determine facets to lint on.
   let facets = (opts.facets ?? Facets) as t.DocLintFacet[];
   facets = facets.filter((facet) => Facets.includes(facet)); // Ensure facet exists in supported set.
 
-  if (interactive) {
-    const opt = (value: t.DocLintFacet, checked?: boolean) => ({
-      name: `${value}`,
-      value,
-      checked,
+  if (opts.cwd && interactive) {
+    let lastProfile: t.StringFile | undefined;
+    profileLoop: while (true) {
+      let actionPick: SlugLintProfilePick = await selectSlugLintProfile(opts.cwd, {
+        interactive,
+        defaultProfile: lastProfile,
+      });
+
+      if (actionPick.kind === 'exit') {
+        return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
+      }
+      if ('profile' in actionPick && actionPick.profile) {
+        lastProfile = actionPick.profile;
+      }
+
+      while (actionPick.kind === 'facets') {
+        const opt = (value: t.DocLintFacet, checked?: boolean) => ({
+          name: `${value}`,
+          value,
+          checked,
+        });
+        const options = Facets.map((value) => opt(value, facets.includes(value)));
+        facets = (await Cli.Input.Checkbox.prompt({
+          message: 'Select lint on facets',
+          options,
+        })) as t.DocLintFacet[];
+        actionPick = await selectSlugLintProfileAction(opts.cwd, actionPick.profile, {
+          defaultAction: 'facets',
+        });
+        if ('profile' in actionPick && actionPick.profile) {
+          lastProfile = actionPick.profile;
+        }
+      }
+
+      if (actionPick.kind === 'run') {
+        break;
+      }
+      if (actionPick.kind === 'exit') {
+        return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
+      }
+      if (actionPick.kind === 'back') {
+        if ('profile' in actionPick && actionPick.profile) {
+          lastProfile = actionPick.profile;
+        }
+        continue profileLoop;
+      }
+    }
+  } else if (opts.cwd) {
+    const profilePick: SlugLintProfilePick = await selectSlugLintProfile(opts.cwd, {
+      interactive,
     });
-    const options = Facets.map((value) => opt(value, facets.includes(value)));
-    facets = (await Cli.Input.Checkbox.prompt({
-      message: 'Select lint on facets',
-      options,
-    })) as t.DocLintFacet[];
+    if (profilePick.kind === 'exit') {
+      return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
+    }
   }
 
   const hasFileVideo = facets.includes('sequence:file:video');
