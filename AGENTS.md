@@ -1,6 +1,7 @@
 # AGENTS.md (system repo root)
 Before any action:
-- Read `../AGENTS.md` every 10th interaction (to prevent drift)
+- Before any action that modifies code, structure, or public API, ensure `AGENTS.md`
+  constraints are in scope.
 - Apply those instructions verbatim
 - This file adds local constraints only; all other behavior is governed by `../AGENTS.md`.
 
