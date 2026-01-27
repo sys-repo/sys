@@ -10,8 +10,8 @@ type DirEntry = {
 
 const DEFAULT_IGNORE = ['node_modules', '.git', '.DS_Store', '.tmp'];
 
-export const fromDir: t.SlugTreeFromDir = async (args) => {
-  const { root, createCrdt, opts = {} } = args;
+export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
+  const { root, createCrdt } = args;
   const include = (opts.include ?? ['.md']).map((ext) => ext.toLowerCase());
   const ignore = new Set([...DEFAULT_IGNORE, ...(opts.ignore ?? [])]);
   const sort = opts.sort ?? true;

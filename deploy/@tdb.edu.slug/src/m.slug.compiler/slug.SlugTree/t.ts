@@ -24,16 +24,15 @@ export type SlugTreeFromDagOpts = {
 };
 
 /** Build a slug-tree from a directory, ensuring CRDT refs in front-matter. */
-export type SlugTreeFromDir = (args: {
-  root: t.StringDir;
-  createCrdt: () => Promise<t.StringRef>;
-  opts?: SlugTreeFromDirOpts;
-}) => Promise<t.SlugTreeItems>;
+export type SlugTreeFromDir = (
+  args: { root: t.StringDir; createCrdt: () => Promise<t.StringRef> },
+  opts?: SlugTreeFromDirOpts,
+) => Promise<t.SlugTreeItems>;
 
 /** Options for directory-based slug-tree creation. */
 export type SlugTreeFromDirOpts = {
-  include?: readonly string[];
-  ignore?: readonly string[];
+  include?: string[];
+  ignore?: string[];
   sort?: boolean;
   readmeAsIndex?: boolean;
 };
