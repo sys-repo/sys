@@ -48,7 +48,13 @@ export type SlugTreeFromDir = (args: {
 - Extend `t.ts` with `SlugTreeFromDir` and `SlugTreeToYaml` types
 - Extend `mod.ts` to export these on `SlugTree`
 
-## Open Decisions
-1) Slug normalization: preserve filename as-is, or normalize (lowercase + hyphen)?
-2) Sort order: case-sensitive vs case-insensitive?
-3) Ignore list: any default ignores (dotfiles, `_drafts`, `node_modules`)?
+## Locked Decisions
+- Slug normalization: preserve filename as-is (no normalization in phase-1)
+- Sort order: case-insensitive lexicographic (for determinism)
+- Ignore defaults: dotfiles + `node_modules`, `.git`, `.DS_Store`, `.tmp`
+- README convention: `README.md` maps to directory slug (index)
+- Include: `.md` only (no `.mdx`)
+- `ref`: CRDT ref from front-matter; insert `ref` when missing using `createCrdt`
+
+## Status
+- Baseline implemented: `fromDir`, `toYaml`, front-matter ref insertion, and tests

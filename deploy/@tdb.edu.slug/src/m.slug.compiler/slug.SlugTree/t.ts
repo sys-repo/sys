@@ -1,18 +1,41 @@
 import type { t } from './common.ts';
 
+/** Slug-tree helpers. */
 export type SlugTreeLib = {
   Schema: t.SlugTreeSchemaLib;
   fromDag: t.SlugTreeFromDag;
+  fromDir: t.SlugTreeFromDir;
+  toYaml: t.SlugTreeToYaml;
 };
 
+/** Build a slug-tree from a DAG document. */
 export type SlugTreeFromDag = (
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   opts?: t.SlugTreeFromDagOpts,
 ) => Promise<t.SlugValidateResult<t.SlugTreeItems>>;
+/** Options for DAG-based slug-tree extraction. */
 export type SlugTreeFromDagOpts = {
-  readonly validate?: boolean;
-  readonly trait?: t.SlugTraitGateOptions | null;
-  readonly registry?: t.SlugTraitRegistry;
+  validate?: boolean;
+  trait?: t.SlugTraitGateOptions | null;
+  registry?: t.SlugTraitRegistry;
 };
+
+/** Build a slug-tree from a directory, ensuring CRDT refs in front-matter. */
+export type SlugTreeFromDir = (args: {
+  root: t.StringDir;
+  createCrdt: () => Promise<t.StringRef>;
+  opts?: SlugTreeFromDirOpts;
+}) => Promise<t.SlugTreeItems>;
+
+/** Options for directory-based slug-tree creation. */
+export type SlugTreeFromDirOpts = {
+  include?: readonly string[];
+  ignore?: readonly string[];
+  sort?: boolean;
+  readmeAsIndex?: boolean;
+};
+
+/** Serialize a slug-tree to YAML. */
+export type SlugTreeToYaml = (tree: t.SlugTreeItems) => string;
