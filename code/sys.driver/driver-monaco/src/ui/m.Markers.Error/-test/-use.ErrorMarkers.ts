@@ -1,6 +1,8 @@
 import {
   type t,
   act,
+  beforeEach,
+  afterAll,
   describe,
   DomMock,
   expect,
@@ -14,7 +16,7 @@ import {
 import { useErrorMarkers } from '../mod.ts';
 
 describe('useErrorMarkers', () => {
-  DomMock.polyfill();
+  DomMock.init(beforeEach, afterAll);
 
   it('type: matches UseYamlErrorMarkers', () => {
     expectTypeOf(useErrorMarkers).toEqualTypeOf<t.UseErrorMarkers>();
