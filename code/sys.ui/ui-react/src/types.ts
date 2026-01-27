@@ -14,7 +14,7 @@ export type RenderInput = RenderOutput | string | number;
  * Library:
  */
 export type * from './m.async/t.ts';
-export type * from './m.EffectController/t.ts';
+export type * from './m.effect/t.ts';
 export type * from './m.fc/t.ts';
 export type * from './m.signal/t.ts';
 export type * from './m.Testing.Server/t.ts';

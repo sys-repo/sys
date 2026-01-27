@@ -1,8 +1,8 @@
-import { act, describe, DomMock, expect, it, renderHook } from '../../-test.ts';
+import { act, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
 import { StdEffectController } from '../common.ts';
 
 // NOTE: monorepo-only test fixture import (not exported/published).
-import { createFakeRef } from '../../../../../sys/std/src/m.EffectController/-test/u.fixture.ts';
+import { createFakeRef } from '../../../../../../sys/std/src/m.EffectController/-test/u.fixture.ts';
 import { useEffectController } from '../u.useEffectController.ts';
 
 type State = { readonly count?: number };
