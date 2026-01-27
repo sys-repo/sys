@@ -15,7 +15,7 @@
     "./async": "./src/m.async/mod.ts",
     "./effect": "./src/m.effect/mod.ts",
     "./signal": "./src/m.signal/mod.ts",
-    "./testing/server": "./src/m.Testing.Server/mod.ts",
+    "./testing/server": "./src/m.testing.server/mod.ts",
     "./use": "./src/use/mod.ts"
   }
 }

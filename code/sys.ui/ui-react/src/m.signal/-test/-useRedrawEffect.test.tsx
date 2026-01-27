@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DomMock, Testing, act, describe, expect, it } from '../../-test.ts';
-import { TestReact } from '../../m.Testing.Server/mod.ts';
+import { TestReact } from '../../m.testing.server/mod.ts';
 import { Signal } from '../mod.ts';
 
 DomMock.polyfill();
