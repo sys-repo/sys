@@ -1,9 +1,10 @@
-import { beforeEach, describe, DomMock, expect, it } from '../-test.ts';
+import { afterAll, beforeEach, describe, DomMock, expect, it } from '../-test.ts';
+
 import { type t, D } from './common.ts';
 import { WebFont } from './mod.ts';
 
-describe(`useWebFont`, () => {
-  DomMock.polyfill();
+describe(`useWebFont`, { sanitizeResources: false, sanitizeOps: false }, () => {
+  DomMock.init(beforeEach, afterAll);
 
   it('API', async () => {
     const m = await import('@sys/ui-css');
@@ -13,6 +14,7 @@ describe(`useWebFont`, () => {
   describe('WebFont.inject', () => {
     describe('environment', () => {
       it('SSR-safe: no DOM → injected:false', async () => {
+        DomMock.unpolyfill();
         const doc = (globalThis as any).document;
         (globalThis as any).document = undefined;
 
@@ -26,6 +28,7 @@ describe(`useWebFont`, () => {
         DomMock.polyfill();
         expect(typeof document).to.eql('object');
         expect(document.head).to.not.eql(undefined);
+        DomMock.unpolyfill();
       });
     });
 

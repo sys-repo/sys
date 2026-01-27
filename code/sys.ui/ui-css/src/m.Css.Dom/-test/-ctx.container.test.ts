@@ -1,10 +1,21 @@
-import { describe, DomMock, expect, FindCss, it, slug, squash, TestPrint } from '../../-test.ts';
+import {
+  afterAll,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  FindCss,
+  it,
+  slug,
+  squash,
+  TestPrint,
+} from '../../-test.ts';
 import { CssDom } from '../mod.ts';
 
 const toString = CssDom.toString;
 
 describe('Stylesheet.container(): scoped @container context', () => {
-  DomMock.polyfill();
+  DomMock.init(beforeEach, afterAll);
 
   let _count = 0;
   const setup = () => {
