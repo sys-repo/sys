@@ -1,7 +1,5 @@
-import { type t, c, Cli, Fmt, Fs, Open } from './common.ts';
+import { type t, DEFAULT, c, Cli, Fmt, Fs, Open } from './common.ts';
 import {
-  DEFAULT_EXT,
-  DEFAULT_NAME,
   ensureConfigDir,
   ensureDefaultConfig,
   fileLabel,
@@ -22,12 +20,12 @@ const ADD_VALUE = '__add__';
 export async function menu<T, A extends string = string>(
   args: YamlConfigMenuArgs<T, A>,
 ): Promise<YamlConfigMenuResult<A>> {
-  const ext = args.ext ?? DEFAULT_EXT;
+  const ext = args.ext ?? DEFAULT.EXT;
   const dir = await ensureConfigDir(args.cwd, args.dir);
 
   let files = await listConfigs(dir, ext);
   if (files.length === 0) {
-    await ensureDefaultConfig(dir, args.schema, DEFAULT_NAME, ext);
+    await ensureDefaultConfig(dir, args.schema, DEFAULT.NAME, ext);
     files = await listConfigs(dir, ext);
   }
 
@@ -42,8 +40,7 @@ export async function menu<T, A extends string = string>(
       { name: c.gray(c.dim(args.exitLabel ?? '(exit)')), value: 'exit' },
     ];
 
-    const defaultValue =
-      lastSelected && files.includes(lastSelected) ? lastSelected : files[0];
+    const defaultValue = lastSelected && files.includes(lastSelected) ? lastSelected : files[0];
 
     const picked = await Cli.Input.Select.prompt<string>({
       message: `${args.label}:\n`,
@@ -60,7 +57,7 @@ export async function menu<T, A extends string = string>(
       if (res.kind === 'back') {
         files = await listConfigs(dir, ext);
         if (files.length === 0) {
-          await ensureDefaultConfig(dir, args.schema, DEFAULT_NAME, ext);
+          await ensureDefaultConfig(dir, args.schema, DEFAULT.NAME, ext);
           files = await listConfigs(dir, ext);
         }
         continue;
@@ -92,7 +89,7 @@ export async function menu<T, A extends string = string>(
 async function actionMenu<T, A extends string = string>(args: {
   cwd: t.StringDir;
   path: t.StringFile;
-  ext: t.StringPath;
+  ext: string;
   schema: YamlConfigMenuArgs<T, A>['schema'];
   invalid?: YamlConfigMenuArgs<T, A>['invalid'];
   actions?: YamlConfigMenuArgs<T, A>['actions'];
@@ -141,7 +138,10 @@ async function actionMenu<T, A extends string = string>(args: {
   }
 }
 
-async function renameConfig(path: t.StringFile, ext: t.StringPath): Promise<t.StringFile | undefined> {
+async function renameConfig(
+  path: t.StringFile,
+  ext: t.StringPath,
+): Promise<t.StringFile | undefined> {
   const dir = Fs.dirname(path);
   const name = fileLabel(path, ext);
   const raw = await Cli.Input.Text.prompt({
@@ -183,10 +183,7 @@ async function promptAction<A extends string = string>(args: {
     { name: `${c.cyan('←')} back`, value: 'back' },
   ];
 
-  const all = [
-    ...extras.map((item) => ({ name: `  ${item.name}`, value: item.value })),
-    ...base,
-  ];
+  const all = [...extras.map((item) => ({ name: `  ${item.name}`, value: item.value })), ...base];
 
   const allowed = args.valid
     ? all
@@ -197,9 +194,7 @@ async function promptAction<A extends string = string>(args: {
       );
 
   const answer = await Cli.Input.Select.prompt<YamlConfigMenuActionBase | A>({
-    message: args.valid
-      ? 'Actions:'
-      : `Actions: ${c.yellow(args.invalidLabel ?? 'invalid yaml')}`,
+    message: args.valid ? 'Actions:' : `Actions: ${c.yellow(args.invalidLabel ?? 'invalid yaml')}`,
     options: allowed,
     default: args.defaultValue,
     hideDefault: true,
