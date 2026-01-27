@@ -1,8 +1,18 @@
-import { type t, describe, DomMock, expect, expectTypeOf, it } from '../../../-test.ts';
+import {
+  type t,
+  beforeEach,
+  afterEach,
+  describe,
+  DomMock,
+  expect,
+  expectTypeOf,
+  it,
+} from '../../../-test.ts';
 import { DevUrl } from './mod.ts';
 
-describe('dev: url (DevUrlConfig DSL)', () => {
-  DomMock.polyfill();
+describe('dev: url (DevUrlConfig DSL)', { sanitizeResources: false, sanitizeOps: false }, () => {
+  beforeEach(DomMock.polyfill);
+  afterEach(DomMock.unpolyfill);
 
   it('constructs from a URL and exposes a DevUrlConfig view', () => {
     const ref = DevUrl.ref('https://example.com/app');
