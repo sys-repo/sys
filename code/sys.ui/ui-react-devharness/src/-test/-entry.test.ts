@@ -1,5 +1,4 @@
-import { DomMock } from '@sys/testing/server';
-import { describe, expect, it } from '../-test.ts';
+import { DomMock, afterAll, beforeEach, describe, expect, it } from '../-test.ts';
 import { Dev } from '../mod.ts';
 import { Specs } from './entry.Specs.ts';
 
@@ -12,7 +11,8 @@ import { Specs } from './entry.Specs.ts';
  *    within the CI pipeline.
  */
 describe('visual specs', { sanitizeOps: false, sanitizeResources: false }, () => {
-  DomMock.polyfill();
+  DomMock.init(beforeEach, afterAll);
+
   it('run', async () => {
     const res = await Dev.headless(Specs);
     expect(res.ok).to.eql(true);
