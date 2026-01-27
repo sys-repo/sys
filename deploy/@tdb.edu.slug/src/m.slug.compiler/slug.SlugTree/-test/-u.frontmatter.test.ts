@@ -6,7 +6,7 @@ describe('SlugTree.frontmatter', () => {
     let count = 0;
     const createCrdt = async () => {
       count += 1;
-      return `crdt:new-${count}`;
+      return `new-${count}`;
     };
 
     const res = await ensureFrontmatterRef({

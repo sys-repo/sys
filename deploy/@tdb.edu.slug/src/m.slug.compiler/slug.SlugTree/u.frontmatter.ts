@@ -1,4 +1,5 @@
 import { type t, Is, Yaml } from './common.ts';
+import { normalizeCrdtRef } from './u.ref.ts';
 
 type FrontmatterParse = {
   readonly has: boolean;
@@ -22,7 +23,7 @@ export async function ensureFrontmatterRef(args: {
   const existing = parsed.has ? readRef(parsed.frontmatter) : undefined;
   if (existing) return { ref: existing, updated: false, text: args.text };
 
-  const ref = await args.createCrdt();
+  const ref = normalizeCrdtRef(await args.createCrdt());
   if (parsed.has) {
     const updated = writeFrontmatter(parsed, ref);
     return { ref, updated: true, text: updated };
