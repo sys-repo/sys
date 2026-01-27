@@ -10,9 +10,14 @@ export type YamlConfigSchema<T> = {
   stringifyYaml?: (doc: T) => string;
 };
 
+/** Menu item label. */
+export type YamlConfigMenuItemName = string | YamlConfigMenuItemNameFn;
+export type YamlConfigMenuItemNameFn = (args: YamlConfigMenuItemArgs) => string;
+export type YamlConfigMenuItemArgs = { readonly name: string };
+
 /** Extra actions injected by the caller. */
 export type YamlConfigMenuExtra<A extends string = string> = {
-  name: string;
+  name: YamlConfigMenuItemName;
   value: A;
 };
 

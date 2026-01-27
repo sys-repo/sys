@@ -1,5 +1,5 @@
-import { c, Cli } from './common.ts';
-import type { YamlConfigMenuActionBase } from './t.menu.ts';
+import { c, Cli, Is } from './common.ts';
+import type { YamlConfigMenuActionBase, YamlConfigMenuItemName } from './t.menu.ts';
 
 type PromptActionArgs<A extends string> = {
   name: string;
@@ -7,7 +7,7 @@ type PromptActionArgs<A extends string> = {
   invalidLabel?: string;
   allow?: YamlConfigMenuActionBase[];
   defaultValue?: YamlConfigMenuActionBase | A;
-  extra?: { name: string; value: A }[];
+  extra?: { name: YamlConfigMenuItemName; value: A }[];
 };
 
 export async function promptAction<A extends string = string>(
@@ -22,7 +22,13 @@ export async function promptAction<A extends string = string>(
     { name: `${c.cyan('←')} back`, value: 'back' },
   ];
 
-  const all = [...extras.map((item) => ({ name: `  ${item.name}`, value: item.value })), ...base];
+  const all = [
+    ...extras.map((item) => ({
+      name: `  ${resolveName(item.name, { name: args.name })}`,
+      value: item.value,
+    })),
+    ...base,
+  ];
 
   const allowed = args.valid
     ? all
@@ -39,4 +45,8 @@ export async function promptAction<A extends string = string>(
     hideDefault: true,
   });
   return answer as YamlConfigMenuActionBase | A;
+}
+
+function resolveName(name: YamlConfigMenuItemName, args: { name: string }) {
+  return Is.func(name) ? name(args) : name;
 }
