@@ -5,6 +5,7 @@ import { lintAliases } from './u.lint.aliases.ts';
 import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
+import { LintProfileSchema } from './u.lint.schema.ts';
 import {
   type SlugLintProfilePick,
   selectSlugLintProfile,
@@ -51,6 +52,8 @@ async function run(
       }
       if ('profile' in actionPick && actionPick.profile) {
         lastProfile = actionPick.profile;
+        const doc = await readLintProfile(actionPick.profile);
+        facets = resolveFacets({ current: facets, doc });
       }
 
       while (actionPick.kind === 'facets') {
@@ -64,11 +67,17 @@ async function run(
           message: 'Select lint on facets',
           options,
         })) as t.DocLintFacet[];
+        if (actionPick.profile) {
+          const doc = await readLintProfile(actionPick.profile);
+          await writeLintProfile(actionPick.profile, { ...doc, facets });
+        }
         actionPick = await selectSlugLintProfileAction(opts.cwd, actionPick.profile, {
           defaultAction: 'facets',
         });
         if ('profile' in actionPick && actionPick.profile) {
           lastProfile = actionPick.profile;
+          const doc = await readLintProfile(actionPick.profile);
+          facets = resolveFacets({ current: facets, doc });
         }
       }
 
@@ -223,6 +232,25 @@ async function run(
 
   const ok = issues.length === 0;
   return Obj.asGetter({ ok, facets, issues }, ['issues']);
+}
+
+async function readLintProfile(path: t.StringFile): Promise<t.LintProfileDoc> {
+  const res = await Fs.readYaml<t.LintProfileDoc>(path);
+  if (!res.ok || !res.exists) return LintProfileSchema.initial();
+  const doc = res.data ?? {};
+  return LintProfileSchema.validate(doc).ok ? doc : LintProfileSchema.initial();
+}
+
+async function writeLintProfile(path: t.StringFile, doc: t.LintProfileDoc) {
+  await Fs.write(path, LintProfileSchema.stringify(doc));
+}
+
+function resolveFacets(args: {
+  current: readonly t.DocLintFacet[];
+  doc: t.LintProfileDoc;
+}): t.DocLintFacet[] {
+  const src = args.doc.facets ?? args.current;
+  return src.filter((facet) => Facets.includes(facet));
 }
 
 /**

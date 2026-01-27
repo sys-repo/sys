@@ -1,9 +1,10 @@
 import { type t, Fs } from './common.ts';
+import { LintProfileSchema } from './u.lint.schema.ts';
 
 export const LINT_PROFILE_DIR = '-slug.lint';
 export const LINT_PROFILE_EXT = '.yaml';
 export const LINT_PROFILE_DEFAULT_NAME = 'default.yaml';
-export const LINT_PROFILE_DEFAULT_YAML = '# slug lint profile\n';
+export const LINT_PROFILE_DEFAULT_YAML = LintProfileSchema.initialYaml();
 
 export async function ensureProfileDir(cwd: t.StringDir): Promise<t.StringDir> {
   const dir = Fs.join(cwd, LINT_PROFILE_DIR);

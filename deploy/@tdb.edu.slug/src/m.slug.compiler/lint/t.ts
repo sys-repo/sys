@@ -1,4 +1,4 @@
-import type { StringId } from '@sys/types';
+import type { t } from './common.ts';
 
 export type * from './t.files.ts';
 
@@ -12,6 +12,7 @@ export const LintDocFacets = [
   'sequence:file:video',
   'sequence:file:image',
   'sequence:files:bundle',
+  'fs:slug-tree',
 ] as const;
 
 export type DocLintFacet = (typeof LintDocFacets)[number];
@@ -32,11 +33,33 @@ export type LintAggregateResult<I extends LintIssue = LintIssue> = {
 };
 
 export type DocLintIssue<K extends string = string> = LintIssue<K> & {
-  readonly doc: { readonly id: StringId };
+  readonly doc: { readonly id: t.StringId };
 };
 
 export type DocLintResult<K extends string = string> = {
   readonly ok: boolean;
   readonly issues: readonly DocLintIssue<K>[];
   readonly facets: readonly DocLintFacet[];
+};
+
+/** YAML-authored lint profile document. */
+export type LintProfileDoc = {
+  /** Lint facets to run. */
+  readonly facets?: readonly DocLintFacet[];
+  /** Slug-tree filesystem lint configuration. */
+  readonly 'fs:slug-tree'?: LintProfileSlugTree;
+};
+
+/** Slug-tree filesystem lint settings. */
+export type LintProfileSlugTree = {
+  /** Root directory to scan. */
+  readonly root?: t.StringPath;
+  /** File extensions to include (e.g. ".md"). */
+  readonly include?: readonly string[];
+  /** Directory entries to ignore. */
+  readonly ignore?: readonly string[];
+  /** Sort directory entries by name. */
+  readonly sort?: boolean;
+  /** Treat README.md as the directory slug. */
+  readonly readmeAsIndex?: boolean;
 };

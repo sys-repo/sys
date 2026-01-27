@@ -1,4 +1,5 @@
 import { type t, c, Cli, Fs, Open } from './common.ts';
+import { LintProfileSchema } from './u.lint.schema.ts';
 import {
   ensureDefaultProfile,
   ensureProfileDir,
@@ -90,7 +91,7 @@ export async function selectSlugLintProfile(
 
     const filename = profileFileOf(name.trim());
     const path = Fs.join(dir, filename);
-    await Fs.write(path, '# slug lint profile\n');
+    await Fs.write(path, LintProfileSchema.initialYaml());
     files = await listProfiles(dir);
     lastSelected = path;
   }

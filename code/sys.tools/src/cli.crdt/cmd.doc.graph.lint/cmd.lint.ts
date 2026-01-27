@@ -2,7 +2,6 @@ import { buildDocumentDAG } from '../cmd.doc.graph/mod.ts';
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 import { type t, c, Cli, D, Str } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
-import { Config } from '../u.config.ts';
 
 type O = Record<string, unknown>;
 
@@ -35,21 +34,7 @@ export async function lintDocumentGraphCommand(
   /**
    * Run linter:
    */
-  const config = await Config.get(cwd);
-  const facets = Config.findDocEntry(config.current, docid)?.lint?.facets;
-  const res = await Linter.run(dag, yamlPath, { interactive: true, facets, cwd });
-
-  /** Save last facet selection */
-  if (Array.isArray(res.facets)) {
-    config.change((d) => {
-      const entry = Config.findDocEntry(d, docid);
-      if (entry) {
-        const lint = entry.lint || (entry.lint = {});
-        lint.facets = [...res.facets];
-      }
-    });
-    await config.fs.save();
-  }
+  const res = await Linter.run(dag, yamlPath, { interactive: true, cwd });
 
   /** Print output: */
   const table = Cli.table();
