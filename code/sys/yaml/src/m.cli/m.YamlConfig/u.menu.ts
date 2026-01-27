@@ -25,13 +25,19 @@ export async function menu<T, A extends string = string>(
 
   let lastSelected: t.StringFile | undefined = args.defaultPath;
   while (true) {
+    const itemLabel = args.itemLabel ?? 'config';
+    const baseIndent = ' ';
+    const addValue = normalizeAddLabel(args.addLabel);
+    const labelWidth = Math.max(itemLabel.length, 'add'.length);
+    const addLabel = `${baseIndent}${padLabel('add', labelWidth)}: ${addValue}`;
+
     const tree = withTree(files, ext).map((item) => ({
-      name: ` ${args.itemLabel ?? 'config'}: ${item.tree} ${c.cyan(item.label)}`,
+      name: `${baseIndent}${padLabel(itemLabel, labelWidth)}: ${item.tree} ${c.cyan(item.label)}`,
       value: item.path,
     }));
 
     const options = [
-      { name: args.addLabel ?? '  add: <config>', value: ADD_VALUE },
+      { name: addLabel, value: ADD_VALUE },
       ...tree,
       { name: c.gray(c.dim(args.exitLabel ?? '(exit)')), value: 'exit' },
     ];
@@ -80,4 +86,18 @@ export async function menu<T, A extends string = string>(
     files = await listConfigs(dir, ext);
     lastSelected = path;
   }
+}
+
+function normalizeAddLabel(label?: string): string {
+  const raw = String(label ?? '<config>').trim();
+  if (raw.includes(':')) {
+    const parts = raw.split(':');
+    return parts.slice(1).join(':').trim() || '<config>';
+  }
+  return raw;
+}
+
+function padLabel(label: string, width: number): string {
+  const pad = Math.max(0, width - label.length);
+  return `${' '.repeat(pad)}${label}`;
 }

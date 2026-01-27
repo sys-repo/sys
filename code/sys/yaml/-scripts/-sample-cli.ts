@@ -23,8 +23,8 @@ async function sample(cwd: t.StringDir) {
     cwd,
     dir: '-sample.configs',
     label: 'Sample configs',
-    itemLabel: 'config',
-    addLabel: '  add: <config>',
+    itemLabel: 'my-thing',
+    addLabel: '<config>',
     schema,
     actions: {
       extra: [
