@@ -3,12 +3,24 @@
  * Mocking helpers for working with the DOM in unit-tests on the server.
  *
  * @example
+ * For granular controler before/after each.
  * ```ts
  * import { DomMock, beforeEach, afterEach } from '@sys/std/testing/server';
  *
  * beforeEach(DomMock.polyfill);
  * afterEach(DomMock.unpolyfill);
  * ```
+ *
+ * Or more commonly before/after all tests in the suite:
+ * ```ts
+ * import { DomMock, beforeEach, beforeAll, afterAll } from '@sys/std/testing/server';
+ *
+ * DomMock.init(beforeEach, afterAll);
+ * // or:
+ * DomMock.init(beforeAll, afterAll); // suite
+ * ```
+ *
+ *
  */
 import type { t } from './common.ts';
 
