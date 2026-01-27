@@ -18,6 +18,4 @@ export type TestReactRenderOptions = {
 /**
  * A server-rendered react component.
  */
-export type TestReactRendered = t.Lifecycle & {
-  readonly container: HTMLDivElement;
-};
+export type TestReactRendered = t.Lifecycle & { readonly container: HTMLDivElement };

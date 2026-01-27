@@ -17,7 +17,7 @@ export type * from './m.async/t.ts';
 export type * from './m.effect/t.ts';
 export type * from './m.fc/t.ts';
 export type * from './m.signal/t.ts';
-export type * from './m.Testing.Server/t.ts';
+export type * from './m.testing.server/t.ts';
 export type * from './u/t.ts';
 export type * from './use/t.ts';
 export type * from './use/use.WebFont/t.ts';
