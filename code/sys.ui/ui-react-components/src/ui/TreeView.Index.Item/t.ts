@@ -6,7 +6,16 @@ import type { Presets } from './u.presets.ts';
  */
 export type IndexTreeViewItemLib = {
   readonly UI: t.FC<IndexTreeViewItemProps>;
-  readonly Presets: typeof Presets;
+  readonly Presets: IndexTreeViewPreset;
+};
+
+export type IndexTreeViewPreset = {
+  readonly Padding: {
+    readonly spacious: t.CssEdgesQuad;
+    readonly default: t.CssEdgesQuad;
+    readonly compact: t.CssEdgesQuad;
+    readonly tight: t.CssEdgesQuad;
+  };
 };
 
 /**

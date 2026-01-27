@@ -10,4 +10,4 @@ export const IndexTreeViewItem: t.IndexTreeViewItemLib = {
   Presets,
 };
 
-export const Item = IndexTreeViewItem;
+export const Item: t.IndexTreeViewItemLib = IndexTreeViewItem;
