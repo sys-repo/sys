@@ -1,5 +1,4 @@
 import { type t, Args, c, Cli, D, done, Fs, Is } from './common.ts';
-import { Config } from './u.config.ts';
 import { Fmt } from './u.fmt.ts';
 import { endpointMenu, endpointsMenu } from './u.menu/mod.ts';
 
@@ -11,9 +10,6 @@ export const cli: t.DeployToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.DeployTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
-
-  /* Pre-reqs */
-  await Config.ensureFile(cwd, D.Config.filename);
 
   /* Run */
   console.info(await Fmt.header(toolname));
@@ -29,18 +25,15 @@ export const cli: t.DeployToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function run(cwd: t.StringDir, _args: t.DeployTool.CliArgs): Promise<t.RunReturn> {
-  const config = await Config.get(cwd);
-  await Config.normalize(config);
-
   /** --------------------------------------------------------
    * Root Menu
    */
   while (true) {
     console.info();
-    const picked = await endpointsMenu(config);
+    const picked = await endpointsMenu(cwd);
     if (picked.kind === 'exit') return done(0);
 
-    const res = await endpointMenu({ cwd, config, key: picked.key });
+    const res = await endpointMenu({ cwd, key: picked.key });
     if (res.kind === 'back') continue;
   }
 }

@@ -122,13 +122,13 @@ export namespace DeployTool {
   }
 
   export namespace Endpoint {
-    /**
-     * Filesystem conventions for endpoint YAML storage.
-     * - Root dir is relative to the CLI cwd.
-     * - Each endpoint is one YAML file named "<name>.yaml".
-     */
+      /**
+       * Filesystem conventions for endpoint YAML storage.
+       * - Root dir is relative to the CLI cwd.
+       * - Each endpoint is one YAML file named "<name>.yaml".
+       */
     export namespace Fs {
-      export type DirName = '-endpoints';
+      export type DirName = '-config/deploy';
       export type Ext = '.yaml';
       export type YamlCheck =
         | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }

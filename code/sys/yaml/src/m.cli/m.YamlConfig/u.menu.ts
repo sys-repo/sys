@@ -18,8 +18,9 @@ export async function menu<T, A extends string = string>(
   }
 
   let files = await listConfigs(dir, ext);
-  if (files.length === 0) {
-    await ensureDefaultConfig(dir, args.schema, DEFAULT.NAME, ext);
+  if (files.length === 0 && args.ensureDefault !== false) {
+    const name = args.defaultName ?? DEFAULT.NAME;
+    await ensureDefaultConfig(dir, args.schema, name, ext);
     files = await listConfigs(dir, ext);
   }
 
@@ -55,11 +56,19 @@ export async function menu<T, A extends string = string>(
     if (picked !== ADD_VALUE) {
       const selected = picked as t.StringFile;
       lastSelected = selected;
+      if (mode === 'select') {
+        return {
+          kind: 'action',
+          action: (args.selectAction ?? ('select' as A)) as A,
+          path: selected,
+        };
+      }
       const res = await actionMenu({ ...args, path: selected, ext, defaultAction });
       if (res.kind === 'back') {
         files = await listConfigs(dir, ext);
-        if (files.length === 0) {
-          await ensureDefaultConfig(dir, args.schema, DEFAULT.NAME, ext);
+        if (files.length === 0 && args.ensureDefault !== false) {
+          const name = args.defaultName ?? DEFAULT.NAME;
+          await ensureDefaultConfig(dir, args.schema, name, ext);
           files = await listConfigs(dir, ext);
         }
         continue;
@@ -68,12 +77,17 @@ export async function menu<T, A extends string = string>(
     }
 
     const name = await Cli.Input.Text.prompt({
-      message: 'Config name',
-      hint: 'letters, numbers, ".", "_" or "-" (e.g. example)',
-      validate(value) {
+      message: args.add?.message ?? 'Config name',
+      hint: args.add?.hint ?? 'letters, numbers, ".", "_" or "-" (e.g. example)',
+      validate: async (value) => {
         const trimmed = String(value ?? '').trim();
         if (!trimmed) return 'Name required.';
-        if (!NAME_REGEX.test(trimmed)) return 'Invalid name.';
+        if (args.add?.validate) {
+          const res = await args.add.validate(trimmed);
+          if (res !== true) return res;
+        } else if (!NAME_REGEX.test(trimmed)) {
+          return 'Invalid name.';
+        }
         const filename = fileOf(trimmed, ext);
         if (files.some((p) => Fs.basename(p) === filename)) return 'Name already exists.';
         return true;
@@ -82,7 +96,12 @@ export async function menu<T, A extends string = string>(
 
     const filename = fileOf(name.trim(), ext);
     const path = Fs.join(dir, filename);
-    await writeYaml(path, args.schema.init(), args.schema);
+    const doc = args.schema.init();
+    if (args.add?.initYaml) {
+      await Fs.write(path, args.add.initYaml({ name: name.trim(), doc }));
+    } else {
+      await writeYaml(path, doc, args.schema);
+    }
     files = await listConfigs(dir, ext);
     lastSelected = path;
   }

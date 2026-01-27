@@ -1,72 +1,58 @@
-import { type t, c, Cli, Fs, indexedMenu, Time } from '../common.ts';
-import { EndpointsFs } from '../u.endpoints/mod.ts';
+import { type t, Fs } from '../common.ts';
+import { YamlConfig } from '@sys/yaml/cli';
+import { EndpointsFs, EndpointYamlSchema } from '../u.endpoints/mod.ts';
 import { ValidName } from './is.ts';
 
 type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly key: string };
+type Action = 'select';
 
 /**
  * Presents an interactive menu for selecting or creating deploy endpoints.
  *
  * Endpoints are persisted units of deployment intent:
- * a stable name, recency metadata, and an evolving configuration.
+ * a stable name and an evolving configuration.
  *
  * This function owns only:
  * - selection
  * - creation
- * - recency updates
  *
  * All endpoint behavior (providers, execution)
  * is intentionally handled elsewhere.
  */
-export async function endpointsMenu(config: t.DeployTool.Config.File): Promise<Result> {
-  return await indexedMenu({
-    scope: 'deploy:endpoints',
-    config,
+export async function endpointsMenu(cwd: t.StringDir): Promise<Result> {
+  const schema = {
+    init: () => EndpointYamlSchema.initial(),
+    validate: (value: unknown) => EndpointYamlSchema.validate(value),
+  } as const;
 
-    adapter: {
-      list: (doc) => doc.endpoints ?? [],
-      set: (doc, _scope, next) => (doc.endpoints = [...next]),
-      keyOf: (e) => e.name,
-      lastUsedAtOf: (e) => e.lastUsedAt,
-      withLastUsedAt: (e, ts) => ({ ...e, lastUsedAt: ts }),
-      labelOf: (e) => [c.cyan(e.name)],
-
-      async add({ config }) {
-        const exists = (name: string) =>
-          (config.current.endpoints ?? []).some((e) => e.name === name);
-
-        const raw = await Cli.Input.Text.prompt({
-          message: 'Endpoint display name',
-          hint: 'letters, numbers, "." or "-" (e.g. foo.bar-baz)',
-          validate(value) {
-            const name = String(value ?? '').trim();
-            if (!name) return 'Name required.';
-            if (!ValidName.test(name)) return ValidName.hint;
-            if (exists(name)) return 'Name already exists.';
-            return true;
-          },
-        });
-
-        const name = raw.trim();
-        const file = EndpointsFs.fileOf(name);
-        const cwd = Fs.dirname(config.fs.path);
-        const yamlAbs = Fs.join(cwd, file);
-        await EndpointsFs.ensureInitialYaml(yamlAbs, name);
-
-        config.change((doc) => {
-          const now = Time.now.timestamp;
-          const current = doc.endpoints ?? [];
-          doc.endpoints = [...current, { name, file, createdAt: now, lastUsedAt: now }];
-        });
-
-        await config.fs.save();
+  const res = await YamlConfig.menu<t.DeployTool.Config.EndpointYaml.Doc, Action>({
+    cwd,
+    dir: EndpointsFs.dir,
+    label: 'Endpoints',
+    itemLabel: 'deploy',
+    addLabel: '    add: <endpoint>',
+    ensureDefault: false,
+    schema,
+    mode: 'select',
+    selectAction: 'select',
+    add: {
+      message: 'Endpoint display name',
+      hint: ValidName.hint,
+      validate(value) {
+        if (!ValidName.test(value)) return ValidName.hint;
+        return true;
       },
-    },
-
-    ui: {
-      message: 'Endpoints:\n',
-      prefix: 'deploy:',
-      addLabel: '    add: <endpoint>',
+      initYaml: ({ name }) => EndpointsFs.initialYaml(name),
     },
   });
+
+  if (res.kind === 'exit') return { kind: 'exit' };
+  if (res.kind !== 'action' || res.action !== 'select') return { kind: 'exit' };
+
+  return { kind: 'selected', key: labelFromPath(res.path) };
+}
+
+function labelFromPath(path: t.StringPath): string {
+  const base = Fs.basename(path);
+  return base.endsWith(EndpointsFs.ext) ? base.slice(0, -EndpointsFs.ext.length) : base;
 }

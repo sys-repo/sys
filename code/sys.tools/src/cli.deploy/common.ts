@@ -1,4 +1,4 @@
-import { type t, JsonFile } from '../common.ts';
+import { type t } from '../common.ts';
 import { DeployTool } from './t.namespace.ts';
 
 /** @system: exports */
@@ -16,10 +16,6 @@ const name = DeployTool.NAME;
 export const D = {
   tool: { id, name },
   Path: {},
-  Config: {
-    filename: '-deploy.config.json',
-    doc: JsonFile.default<t.DeployTool.Config.Doc>({ name }),
-  },
 } as const;
 
 /**

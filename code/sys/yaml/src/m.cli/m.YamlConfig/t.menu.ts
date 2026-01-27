@@ -35,7 +35,7 @@ export type YamlConfigMenuHandler<A extends string = string> = (args: {
 }) => Promise<YamlConfigMenuResult<A>>;
 
 /** Menu mode. */
-export type YamlConfigMenuMode = 'menu' | 'action';
+export type YamlConfigMenuMode = 'menu' | 'action' | 'select';
 
 /** YAML config menu args. */
 export type YamlConfigMenuArgs<T, A extends string = string> = {
@@ -47,12 +47,21 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   path?: t.StringFile;
   defaultPath?: t.StringFile;
   defaultAction?: YamlConfigMenuActionBase | A;
+  selectAction?: A;
+  ensureDefault?: boolean;
+  defaultName?: string;
   itemLabel?: string;
   addLabel?: string;
   exitLabel?: string;
   schema: YamlConfigSchema<T>;
   invalid?: { label?: string; allow?: YamlConfigMenuActionBase[] };
   actions?: { extra?: YamlConfigMenuExtra<A>[]; onAction?: YamlConfigMenuHandler<A> };
+  add?: {
+    message?: string;
+    hint?: string;
+    validate?: (value: string) => boolean | string | Promise<boolean | string>;
+    initYaml?: (args: { name: string; doc: T }) => string;
+  };
 };
 
 /** Menu prompt for YAML config files. */
