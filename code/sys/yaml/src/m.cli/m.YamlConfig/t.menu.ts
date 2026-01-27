@@ -34,12 +34,19 @@ export type YamlConfigMenuHandler<A extends string = string> = (args: {
   path: t.StringFile;
 }) => Promise<YamlConfigMenuResult<A>>;
 
+/** Menu mode. */
+export type YamlConfigMenuMode = 'menu' | 'action';
+
 /** YAML config menu args. */
 export type YamlConfigMenuArgs<T, A extends string = string> = {
   cwd: t.StringDir;
   label: string;
   dir: t.StringPath;
   ext?: t.StringPath;
+  mode?: YamlConfigMenuMode;
+  path?: t.StringFile;
+  defaultPath?: t.StringFile;
+  defaultAction?: YamlConfigMenuActionBase | A;
   itemLabel?: string;
   addLabel?: string;
   exitLabel?: string;

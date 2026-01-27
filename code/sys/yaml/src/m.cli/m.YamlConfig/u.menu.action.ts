@@ -1,17 +1,18 @@
 import { type t, c, Cli, Fs, Open } from './common.ts';
-import { fileLabel, validateYaml } from './u.fs.ts';
-import { promptAction } from './u.menu.prompt.ts';
-import { renameConfig } from './u.menu.rename.ts';
 import type {
   YamlConfigMenuActionBase,
   YamlConfigMenuArgs,
   YamlConfigMenuResult,
 } from './t.menu.ts';
+import { fileLabel, validateYaml } from './u.fs.ts';
+import { promptAction } from './u.menu.prompt.ts';
+import { renameConfig } from './u.menu.rename.ts';
 
 type ActionMenuArgs<T, A extends string> = {
   cwd: t.StringDir;
   path: t.StringFile;
   ext: string;
+  defaultAction?: YamlConfigMenuActionBase | A;
   schema: YamlConfigMenuArgs<T, A>['schema'];
   invalid?: YamlConfigMenuArgs<T, A>['invalid'];
   actions?: YamlConfigMenuArgs<T, A>['actions'];
@@ -21,7 +22,7 @@ export async function actionMenu<T, A extends string = string>(
   args: ActionMenuArgs<T, A>,
 ): Promise<YamlConfigMenuResult<A>> {
   let current = args.path;
-  let lastAction: YamlConfigMenuActionBase | A | undefined;
+  let lastAction: YamlConfigMenuActionBase | A | undefined = args.defaultAction;
   while (true) {
     const check = await validateYaml(current, args.schema);
     const action = await promptAction({
