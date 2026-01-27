@@ -1,12 +1,12 @@
 import {
   act,
+  afterAll,
+  beforeEach,
   describe,
   DomMock,
   expect,
   expectTypeOf,
   it,
-  beforeEach,
-  afterEach,
   renderHook,
   Str,
 } from '../../../-test.ts';
@@ -17,8 +17,7 @@ import { __test as TD } from '../use.Slug.Diagnostics.ts';
 import { makeEditorYamlFromText } from './-u.ts';
 
 describe('useSlugDiagnostics', { sanitizeResources: false, sanitizeOps: false }, () => {
-  beforeEach(DomMock.polyfill);
-  afterEach(DomMock.unpolyfill);
+  DomMock.init(beforeEach, afterAll);
 
   /**
    * Minimal Slug registry stub.
