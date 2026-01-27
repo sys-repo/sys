@@ -11,10 +11,10 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./fc": "./src/m.FC/mod.ts",
-    "./async": "./src/m.Async/mod.ts",
+    "./fc": "./src/m.fc/mod.ts",
+    "./async": "./src/m.async/mod.ts",
     "./effect": "./src/m.EffectController/mod.ts",
-    "./signal": "./src/m.Signal/mod.ts",
+    "./signal": "./src/m.signal/mod.ts",
     "./testing/server": "./src/m.Testing.Server/mod.ts",
     "./use": "./src/use/mod.ts"
   }

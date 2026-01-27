@@ -13,10 +13,10 @@ export type RenderInput = RenderOutput | string | number;
 /**
  * Library:
  */
-export type * from './m.Async/t.ts';
+export type * from './m.async/t.ts';
 export type * from './m.EffectController/t.ts';
-export type * from './m.FC/t.ts';
-export type * from './m.Signal/t.ts';
+export type * from './m.fc/t.ts';
+export type * from './m.signal/t.ts';
 export type * from './m.Testing.Server/t.ts';
 export type * from './u/t.ts';
 export type * from './use/t.ts';
