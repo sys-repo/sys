@@ -7,6 +7,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/-clean.ts",
+    "sample-cli": "deno run -P=testset ./-scripts/-sample-cli.ts",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {

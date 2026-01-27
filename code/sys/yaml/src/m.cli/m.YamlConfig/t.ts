@@ -1,4 +1,5 @@
 import type { t } from './common.ts';
+export type * from './t.menu.ts';
 
 /** Type re-exports. */
 export type * from './t.menu.ts';

@@ -34,6 +34,9 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   label: string;
   dir: t.StringPath;
   ext?: t.StringPath;
+  itemLabel?: string;
+  addLabel?: string;
+  exitLabel?: string;
   schema: YamlConfigSchema<T>;
   invalid?: { label?: string; allow?: YamlConfigMenuActionBase[] };
   actions?: { extra?: YamlConfigMenuExtra<A>[]; onAction?: YamlConfigMenuHandler<A> };
