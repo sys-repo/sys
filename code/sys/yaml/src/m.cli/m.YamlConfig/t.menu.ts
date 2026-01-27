@@ -25,6 +25,7 @@ export type YamlConfigMenuExtra<A extends string = string> = {
 export type YamlConfigMenuResult<A extends string = string> =
   | { kind: 'exit' }
   | { kind: 'back' }
+  | { kind: 'stay' }
   | { kind: 'action'; action: A | YamlConfigMenuActionBase; path: t.StringFile };
 
 /** Menu action handler callback. */

@@ -58,7 +58,9 @@ export async function actionMenu<T, A extends string = string>(
     }
 
     if (args.actions?.onAction) {
-      return await args.actions.onAction({ action, path: current });
+      const res = await args.actions.onAction({ action, path: current });
+      if (res.kind === 'stay') continue;
+      return res;
     }
     return { kind: 'action', action, path: current };
   }
