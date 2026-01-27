@@ -5,7 +5,7 @@ import { lintAliases } from './u.lint.aliases.ts';
 import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
-import { selectSlugLintProfile } from './u.lint.slugTreeFs.ts';
+import { selectSlugLintProfile } from './u.slug.profiles.ts';
 
 type Issue = t.DocLintIssue;
 
