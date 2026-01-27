@@ -34,7 +34,8 @@ export async function lintDocumentGraphCommand(
   /**
    * Run linter:
    */
-  const res = await Linter.run(dag, yamlPath, { interactive: true, cwd });
+  const createCrdt = async () => (await cmd.send('doc:create', {})).doc;
+  const res = await Linter.run(dag, yamlPath, { cwd, interactive: true, createCrdt });
 
   /** Print output: */
   const table = Cli.table();

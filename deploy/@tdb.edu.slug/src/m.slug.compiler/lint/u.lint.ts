@@ -29,7 +29,12 @@ export const Linter = {
 async function run(
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
-  opts: { facets?: string[]; interactive?: boolean; cwd?: t.StringDir } = {},
+  opts: {
+    facets?: string[];
+    interactive?: boolean;
+    cwd?: t.StringDir;
+    createCrdt?: () => Promise<t.StringRef>;
+  } = {},
 ): Promise<t.DocLintResult> {
   const { interactive = false } = opts;
   const issues: Issue[] = [];
@@ -106,6 +111,13 @@ async function run(
   const hasFileVideo = facets.includes('sequence:file:video');
   const hasFileImage = facets.includes('sequence:file:image');
   const hasFilesBundle = facets.includes('sequence:files:bundle');
+  const hasSlugTree = facets.includes('fs:slug-tree');
+
+  if (hasSlugTree && !opts.createCrdt) {
+    const msg = 'warning: fs:slug-tree skipped (createCrdt not provided in Linter.run options)';
+    console.info(c.yellow(msg));
+    facets = facets.filter((facet) => facet !== 'fs:slug-tree');
+  }
 
   const spinner = Cli.spinner();
   spinner.start();
