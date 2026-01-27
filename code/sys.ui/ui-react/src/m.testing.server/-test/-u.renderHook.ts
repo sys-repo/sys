@@ -16,7 +16,7 @@ describe(
       // Critical: do NOT pre-polyfill here. The wrapper must handle it.
       expect((globalThis as any).window).to.equal(undefined);
 
-      const res = await renderHook(() => {
+      const res = renderHook(() => {
         expect((globalThis as any).window).to.be.ok;
 
         // Local state via closure → no React imports needed.
