@@ -4,6 +4,8 @@ import type { t } from './common.ts';
 export type * from './t.fake.ts';
 export type * from './t.keyboard.ts';
 
+export type TestHook = <T>(fn: (this: T) => void | Promise<void>) => void;
+
 /**
  * Represents the overall DOM Mock Library.
  */
@@ -22,4 +24,16 @@ export type DomMockLib = {
 
   /** Returns the `globalThis` to it's original state. */
   unpolyfill(): void;
+
+  /**
+   * Registers DomMock lifecycle with the test runner.
+   *
+   * Usage:
+   *   DomMock.init(beforeAll, afterAll);
+   *
+   * Notes:
+   * - Keeps setup/teardown explicit at the call site.
+   * - Supports async hooks (Promise-returning) and runner-provided `this` context.
+   */
+  init(beforeEach: TestHook, afterEach: TestHook): void;
 };
