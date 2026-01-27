@@ -52,8 +52,10 @@ export type LintProfileDoc = {
 
 /** Slug-tree filesystem lint settings. */
 export type LintProfileSlugTree = {
-  /** Root directory to scan. */
-  readonly root?: t.StringPath;
+  /** Source directory to scan. */
+  readonly source?: t.StringPath;
+  /** Target directory for generated artifacts. */
+  readonly target?: t.StringPath | readonly t.StringPath[];
   /** File extensions to include (e.g. ".md"). */
   readonly include?: readonly string[];
   /** Directory entries to ignore. */

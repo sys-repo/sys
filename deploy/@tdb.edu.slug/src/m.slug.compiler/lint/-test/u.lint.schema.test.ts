@@ -35,7 +35,10 @@ describe('LintProfileSchema', () => {
     expect(parsed).to.eql(LintProfileSchema.initial());
     const text = String(yaml);
     expect(text).to.contain('fs:slug-tree:');
-    expect(text).to.contain('root: .');
+    expect(text).to.contain('source: .');
+    expect(text).to.contain('target:');
+    expect(text).to.contain('- ./manifest/slug-tree.json');
+    expect(text).to.contain('- ./manifest/slug-tree.yaml');
     expect(text).to.contain('- .md');
     expect(text).to.not.contain('readmeAsIndex');
     expect(text).to.not.contain('sort:');

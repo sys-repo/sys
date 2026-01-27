@@ -14,7 +14,8 @@ export const LintProfileSchema = {
     return {
       facets: [...LintDocFacets],
       'fs:slug-tree': {
-        root: '.',
+        source: '.',
+        target: ['./manifest/slug-tree.json', './manifest/slug-tree.yaml'],
         include: ['.md'],
       },
     };
@@ -58,7 +59,13 @@ export const LintProfileSchema = {
       'fs:slug-tree': Schema.Type.Optional(
         Schema.Type.Object(
           {
-            root: Schema.Type.Optional(Schema.Type.String()),
+            source: Schema.Type.Optional(Schema.Type.String()),
+            target: Schema.Type.Optional(
+              Schema.Type.Union([
+                Schema.Type.String(),
+                Schema.Type.Array(Schema.Type.String(), { minItems: 0 }),
+              ]),
+            ),
             include: Schema.Type.Optional(Schema.Type.Array(Schema.Type.String(), { minItems: 0 })),
             ignore: Schema.Type.Optional(Schema.Type.Array(Schema.Type.String(), { minItems: 0 })),
             sort: Schema.Type.Optional(Schema.Type.Boolean()),
