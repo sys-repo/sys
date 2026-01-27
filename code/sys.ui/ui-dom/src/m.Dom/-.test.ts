@@ -1,4 +1,4 @@
-import { type t, describe, DomMock, expect, it } from '../-test.ts';
+import { type t, beforeEach, afterAll, describe, DomMock, expect, it } from '../-test.ts';
 import { UserHas } from '../m.Events/mod.ts';
 import { Event } from './m.Dom.Event.ts';
 import { Dom } from './mod.ts';
@@ -10,7 +10,7 @@ describe(
     sanitizeResources: false,
   },
   () => {
-    it('(polyfill)', () => DomMock.polyfill());
+    DomMock.init(beforeEach, afterAll);
 
     it('API', () => {
       expect(Dom.Event).to.equal(Event);
@@ -18,7 +18,7 @@ describe(
     });
 
     describe('Dom.Event', () => {
-      const toEvent = (target?: Element | null) => ({ target } as unknown as Event);
+      const toEvent = (target?: Element | null) => ({ target }) as unknown as Event;
 
       it('returns true when the target element has the matching data-component attribute', () => {
         const el = document.createElement('div');

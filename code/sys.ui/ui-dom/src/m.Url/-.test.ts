@@ -1,11 +1,20 @@
-import { Url as UrlBaseBase } from '@sys/std/url';
 import { Url as UrlBase } from '@sys/immutable/url';
+import { Url as UrlBaseBase } from '@sys/std/url';
 
-import { type t, DomMock, describe, expect, expectTypeOf, it } from '../-test.ts';
+import {
+  type t,
+  afterAll,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  expectTypeOf,
+  it,
+} from '../-test.ts';
 import { Url } from './mod.ts';
 
 describe('Url', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.polyfill();
+  DomMock.init(beforeEach, afterAll);
 
   it('API', async () => {
     const m = await import('@sys/ui-dom/url');
