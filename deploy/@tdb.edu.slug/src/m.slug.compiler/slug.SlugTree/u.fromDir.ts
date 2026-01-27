@@ -74,7 +74,10 @@ export const fromDir: t.SlugTreeFromDir = async (args) => {
     return node;
   }
 
-  async function buildFile(path: string, filename: string): Promise<t.SlugTreeItemRefOnly | undefined> {
+  async function buildFile(
+    path: string,
+    filename: string,
+  ): Promise<t.SlugTreeItemRefOnly | undefined> {
     const slug = stripExt(filename);
     if (!slug) return;
     const ref = await ensureRef(path, createCrdt);

@@ -5,6 +5,7 @@ export type SlugTreeLib = {
   Schema: t.SlugTreeSchemaLib;
   fromDag: t.SlugTreeFromDag;
   fromDir: t.SlugTreeFromDir;
+  reindex: t.SlugTreeReindex;
   toYaml: t.SlugTreeToYaml;
 };
 
@@ -35,6 +36,21 @@ export type SlugTreeFromDirOpts = {
   ignore?: readonly string[];
   sort?: boolean;
   readmeAsIndex?: boolean;
+};
+
+/** Reindex a slug-tree using an ordering model from a prior tree. */
+export type SlugTreeReindex = (args: {
+  prev: t.SlugTreeItems;
+  next: t.SlugTreeItems;
+  opts?: SlugTreeReindexOpts;
+}) => t.SlugTreeItems;
+
+/** Reindex key strategy. */
+export type SlugTreeReindexKey = 'auto' | 'ref' | 'slug';
+
+/** Options for slug-tree reindexing. */
+export type SlugTreeReindexOpts = {
+  key?: SlugTreeReindexKey;
 };
 
 /** Serialize a slug-tree to YAML. */
