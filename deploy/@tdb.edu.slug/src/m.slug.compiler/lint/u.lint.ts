@@ -5,6 +5,7 @@ import { lintAliases } from './u.lint.aliases.ts';
 import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
+import { selectSlugLintProfile } from './u.lint.slugTreeFs.ts';
 
 type Issue = t.DocLintIssue;
 
@@ -23,11 +24,18 @@ export const Linter = {
 async function run(
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
-  opts: { facets?: string[]; interactive?: boolean } = {},
+  opts: { facets?: string[]; interactive?: boolean; cwd?: t.StringDir } = {},
 ): Promise<t.DocLintResult> {
   const { interactive = false } = opts;
   const issues: Issue[] = [];
   const Parse = Slug.parser(yamlPath);
+
+  if (opts.cwd) {
+    const profile = await selectSlugLintProfile(opts.cwd, { interactive });
+    if (interactive && !profile) {
+      return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
+    }
+  }
 
   // Determine facets to lint on.
   let facets = (opts.facets ?? Facets) as t.DocLintFacet[];

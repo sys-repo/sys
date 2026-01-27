@@ -37,7 +37,7 @@ export async function lintDocumentGraphCommand(
    */
   const config = await Config.get(cwd);
   const facets = Config.findDocEntry(config.current, docid)?.lint?.facets;
-  const res = await Linter.run(dag, yamlPath, { interactive: true, facets });
+  const res = await Linter.run(dag, yamlPath, { interactive: true, facets, cwd });
 
   /** Save last facet selection */
   if (Array.isArray(res.facets)) {
