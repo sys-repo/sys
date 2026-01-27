@@ -1,9 +1,11 @@
-import { type t, JsonFile } from '../common.ts';
+import type { t } from '../common.ts';
 import { ServeTool } from './t.namespace.ts';
 
 /**
  * Libs:
  */
+export { Schema } from '@sys/schema';
+export { Yaml } from '@sys/yaml';
 export * from '../common.ts';
 export { Http, serveFileWithEtag } from '@sys/http/server';
 
@@ -16,10 +18,6 @@ export const D = {
   tool: { id, name },
   port: 4040,
   Path: {},
-  Config: {
-    filename: '-serve.config.json',
-    doc: JsonFile.default<t.ServeTool.Config.Doc>({ name }),
-  },
 } as const;
 
 /**

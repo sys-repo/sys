@@ -12,10 +12,13 @@ type ServeResult = { readonly kind: 'back' } | { readonly kind: 'closed' };
  */
 export async function startServing(
   cwd: t.StringDir,
-  location: t.ServeTool.Config.Dir,
+  location: t.ServeTool.LocationYaml.Location,
   opts: Opts = {},
 ): Promise<ServeResult> {
-  const { dir, contentTypes } = location;
+  const { dir } = location;
+
+  // If contentTypes is undefined, allow all MIME types.
+  const contentTypes = location.contentTypes ?? (Object.values(Mime.extensionMap) as t.MimeType[]);
 
   /**
    * Map extensions → MIME types (subset of ServeType).

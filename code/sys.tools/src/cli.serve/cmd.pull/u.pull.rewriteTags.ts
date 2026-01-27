@@ -26,7 +26,7 @@ export type RewriteFile = {
 
 export async function rewriteTags(
   baseDir: t.StringDir,
-  bundleConfig: t.ServeTool.Config.RemoteBundleDir,
+  bundleConfig: t.ServeTool.LocationYaml.RemoteBundle,
 ) {
   const glob = Fs.glob(Fs.join(baseDir, bundleConfig.local.dir));
   const paths = await glob.find('**/index.html');

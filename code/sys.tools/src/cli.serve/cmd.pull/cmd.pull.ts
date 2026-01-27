@@ -1,13 +1,13 @@
-import { type t, c, Cli, Fs, opt, Str, Url } from '../common.ts';
-import { Config } from '../u.config.ts';
+import { type t, c, Cli, Fs, opt, Str, Time, Url, Yaml } from '../common.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
+import { ServeFs } from '../u.yaml/mod.ts';
 import { pullRemoteBundle } from './u.pull.ts';
 import { toDistUrl, validateDistUrl } from './u.ts';
 
 type C = t.ServeTool.Command;
 type PullResult =
   | { readonly kind: 'back' }
-  | { readonly kind: 'bundle'; readonly bundle?: t.ServeTool.Config.RemoteBundleDir };
+  | { readonly kind: 'bundle'; readonly bundle?: t.ServeTool.LocationYaml.RemoteBundle };
 
 const Fmt = {
   ...BaseFmt,
@@ -18,20 +18,19 @@ const Fmt = {
   },
 } as const;
 
-export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.Config.Dir): Promise<PullResult> {
-  const config = await Config.get(cwd);
-
-  // Stored key (portable) vs absolute dir (runtime):
-  const locationKey = location.dir;
-  const locationAbsDir = Config.resolveDir(cwd, location.dir);
-
-  const done = (bundle?: t.ServeTool.Config.RemoteBundleDir): PullResult => ({
+export async function pullBundle(
+  cwd: t.StringDir,
+  yamlPath: t.StringPath,
+  location: t.ServeTool.LocationYaml.Location,
+): Promise<PullResult> {
+  const done = (bundle?: t.ServeTool.LocationYaml.RemoteBundle): PullResult => ({
     kind: 'bundle',
     bundle,
   });
 
   const PULL_PREFIX = 'bundle:pull-latest:';
-  const optBundles = (location.remoteBundles ?? []).map((m, i, total) => {
+  const bundles = location.remoteBundles ?? [];
+  const optBundles = bundles.map((m, i, total) => {
     const branch = Fmt.Tree.branch([i, total]);
     const name = `${'  pull:'} ${branch} ${m.local.dir} ← ${Fmt.distUrl(m.remote.dist)}`;
     const value = `${PULL_PREFIX}${i}`;
@@ -42,7 +41,6 @@ export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.Config.
   const A = (await Cli.Input.Select.prompt<C>({
     message: 'Action:',
     options: [
-      //
       ...optBundles,
       opt('   add: <remote>', 'bundle:add-remote'),
       opt(dim('← back'), 'back'),
@@ -64,67 +62,78 @@ export async function pullBundle(cwd: t.StringDir, location: t.ServeTool.Config.
     });
 
     const distUrl = Url.toCanonical(toDistUrl(B));
-    if (!distUrl.ok) throw new Error(`Should be a valid URL.`); // NB: sanity check - should be a valid URL.
+    if (!distUrl.ok) throw new Error(`Should be a valid URL.`);
 
     const localDir = await Cli.Input.Text.prompt({
       message: 'Local subdirectory',
       async validate(input) {
         const spinner = Cli.spinner(Fmt.spinnerText('validating path...'));
-        const res = await validateSubdir(input, { ...location, dir: locationAbsDir });
+        const res = await validateSubdir(input, location);
         spinner.stop();
         return res;
       },
     });
 
-    // Write to the config file (create missing nodes if needed).
-    config.change((d) => {
-      d.dirs = d.dirs ?? [];
+    // Add the new bundle to the YAML file.
+    const newBundle: t.ServeTool.LocationYaml.RemoteBundle = {
+      remote: { dist: distUrl.href },
+      local: { dir: localDir as t.StringRelativeDir },
+    };
 
-      let loc = Config.findLocation(d, locationKey);
-      if (!loc) {
-        // Create a minimal location entry (should be rare, but keeps the flow robust).
-        loc = {
-          createdAt: Date.now(),
-          dir: locationKey,
-          name: location.name,
-          contentTypes: [...location.contentTypes],
-          remoteBundles: [],
-        };
-        d.dirs.push(loc);
-      }
-
-      loc.remoteBundles = loc.remoteBundles ?? [];
-
-      let bundle = loc.remoteBundles.find(
+    await updateYamlBundles(yamlPath, (bundles) => {
+      const existing = bundles.find(
         (m) => m.remote.dist === distUrl.href && m.local.dir === localDir,
       );
-
-      if (!bundle) {
-        bundle = { remote: { dist: distUrl.href }, local: { dir: localDir } };
-        loc.remoteBundles.push(bundle);
-      }
-
-      bundle.remote.dist = distUrl.href;
-      bundle.local.dir = localDir;
+      if (!existing) bundles.push(newBundle);
     });
 
-    if (config.fs.pending) await config.fs.save();
-
-    // Re-load menu, with fresh copy of the adjusted config.
-    return pullBundle(cwd, Config.findLocation(config.current, locationKey) ?? location);
+    // Re-load location and recurse.
+    const loaded = await ServeFs.loadLocation(yamlPath);
+    if (!loaded.ok) return done();
+    return pullBundle(cwd, yamlPath, loaded.location);
   }
 
   if (A.startsWith(PULL_PREFIX)) {
     const index = Number(A.slice(PULL_PREFIX.length));
-    const loc = Config.findLocation(config.current, locationKey) ?? location;
-    const bundles = loc.remoteBundles ?? [];
     const bundle = bundles[index];
     if (!bundle) throw new Error(`Expected a bundle entry. index: ${index}`);
-    await pullRemoteBundle(locationAbsDir, bundle);
+
+    await pullRemoteBundle(location.dir, bundle);
+
+    // Update lastUsedAt in the YAML file.
+    await updateYamlBundles(yamlPath, (list) => {
+      const hit = list.find(
+        (m) => m.remote.dist === bundle.remote.dist && m.local.dir === bundle.local.dir,
+      );
+      if (hit) hit.lastUsedAt = Time.now.timestamp;
+    });
+
     return done(bundle);
   }
 
   return done();
+}
+
+/**
+ * Read YAML, update bundles, write back.
+ */
+async function updateYamlBundles(
+  yamlPath: t.StringPath,
+  mutate: (bundles: t.ServeTool.LocationYaml.RemoteBundle[]) => void,
+) {
+  const read = await Fs.readText(yamlPath);
+  if (!read.ok || !read.data) return;
+
+  const parsed = Yaml.parse<t.ServeTool.LocationYaml.Doc>(read.data);
+  if (parsed.error || !parsed.data) return;
+
+  const doc = parsed.data;
+  doc.remoteBundles = doc.remoteBundles ?? [];
+  mutate(doc.remoteBundles);
+
+  const yaml = Yaml.stringify(doc);
+  if (yaml.error || !yaml.data) return;
+  await Fs.write(yamlPath, yaml.data);
 }
 
 /**
@@ -138,7 +147,10 @@ export async function validateUrl(input: string) {
   return true;
 }
 
-export async function validateSubdir(input: string, location: t.ServeTool.Config.Dir) {
+export async function validateSubdir(
+  input: string,
+  location: t.ServeTool.LocationYaml.Location,
+) {
   if (!input.trim()) return 'Cannot be empty';
 
   const target = Fs.join(location.dir, input);

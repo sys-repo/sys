@@ -7,8 +7,9 @@ export type ServeLocationMenuPick =
   | { readonly kind: 'remove' };
 
 export async function serveLocationMenu(args: {
-  readonly location: t.ServeTool.Config.Dir;
+  readonly location: t.ServeTool.LocationYaml.Location;
   readonly port: number;
+  readonly yamlPath: t.StringPath;
 }): Promise<ServeLocationMenuPick> {
   const { location, port } = args;
 

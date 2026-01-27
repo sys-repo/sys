@@ -1,5 +1,4 @@
 import { type t, c, Fs, opt, Pkg } from '../common.ts';
-import { Config } from '../u.config.ts';
 import { Fmt } from '../u.fmt.ts';
 
 type C = t.ServeTool.Command;
@@ -8,7 +7,7 @@ type M = t.ServeTool.MenuOption;
 export const ServeMenu = {
   async bundlesMenuOptions(
     cwd: t.StringDir,
-    location: t.ServeTool.Config.Dir,
+    location: t.ServeTool.LocationYaml.Location,
     opts: { includeRoot?: boolean } = {},
   ): Promise<M[]> {
     const { includeRoot = true } = opts;
@@ -22,7 +21,7 @@ export const ServeMenu = {
       });
     };
 
-    const bundles = Config.orderByRecency(location.remoteBundles);
+    const bundles = location.remoteBundles ?? [];
     const command = 'bundle:open' as C;
     const appendDir = (command: C, dir: string) => `${command}/${dir}` as C;
 

@@ -33,46 +33,66 @@ export namespace ServeTool {
   export type CliArgs = t.Tools.CliArgs & { port?: number };
   export type CliParsedArgs = t.ParsedArgs<CliArgs>;
 
-  /** Configuration file. */
-  export namespace Config {
-    export type File = t.JsonFile<Doc>;
-    export type Doc = t.JsonFileDoc & {
-      name: string;
-      dirs?: Dir[];
-    };
-
-    export type Dir = {
-      /** Display name */
-      name: string;
-      /** The path location of the serve directory. */
-      dir: t.StringDir;
-      /** Supported mime-types */
-      contentTypes: MimeType[];
-      /** Timestamps */
-      createdAt: t.UnixTimestamp;
-      modifiedAt?: t.UnixTimestamp;
-      lastUsedAt?: t.UnixTimestamp;
-
-      /** Optional list of remote bundles that can be pulled into this directory. */
-      remoteBundles?: RemoteBundleDir[];
-    };
-
-    /**
-     * Mapping between a remote bundle and its local mount-point.
-     */
-    export type RemoteBundleDir = {
-      /** Remote dist.json endpoint (source of the bundle). */
-      remote: { dist: t.StringUrl };
-      /** Local destination for the bundle, relative to DirConfig.dir. */
-      local: { dir: t.StringRelativeDir };
-      /** Timestamps */
-      lastUsedAt?: t.UnixTimestamp;
-    };
-  }
-
   /** Allowed MIME types for static asset responses. */
   export type MimeType = t.MimeType;
   export type MimeGroup = t.MimeGroup;
+
+  /**
+   * YAML-authored serve location configuration (authoritative).
+   */
+  export namespace LocationYaml {
+    /**
+     * Mapping between a remote bundle and its local mount-point.
+     */
+    export type RemoteBundle = {
+      /** Remote dist.json endpoint (source of the bundle). */
+      remote: { dist: t.StringUrl };
+      /** Local destination for the bundle, relative to location dir. */
+      local: { dir: t.StringRelativeDir };
+      /** Timestamp of last use. */
+      lastUsedAt?: t.UnixTimestamp;
+    };
+
+    /**
+     * YAML document structure for a serve location.
+     */
+    export type Doc = {
+      /** Display name. */
+      name: string;
+      /** Directory to serve (relative to CLI cwd, or absolute). */
+      dir: t.StringDir;
+      /** Optional MIME type filter. Omit to serve all types. */
+      contentTypes?: MimeType[];
+      /** Optional list of remote bundles that can be pulled. */
+      remoteBundles?: RemoteBundle[];
+    };
+
+    /**
+     * Filesystem conventions for serve location YAML storage.
+     */
+    export type DirName = '-config/serve';
+    export type Ext = '.yaml';
+    export type YamlCheck =
+      | { readonly ok: true; readonly doc: Doc }
+      | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+    export type LoadResult =
+      | { readonly ok: true; readonly cwd: t.StringDir; readonly location: Location }
+      | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+
+    /**
+     * Runtime location with resolved paths.
+     */
+    export type Location = {
+      /** Display name. */
+      readonly name: string;
+      /** Resolved absolute directory to serve. */
+      readonly dir: t.StringDir;
+      /** Optional MIME type filter. Undefined means all types. */
+      readonly contentTypes?: MimeType[];
+      /** Optional remote bundles. */
+      readonly remoteBundles?: RemoteBundle[];
+    };
+  }
 
   /**
    * JSON view outcome for a requestable path.

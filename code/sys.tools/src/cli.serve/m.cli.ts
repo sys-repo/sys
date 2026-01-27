@@ -1,11 +1,10 @@
 import { startServing } from './cmd.serve/mod.ts';
 
-import { type t, Args, c, Cli, D, done, Fs, Is, Time } from './common.ts';
-import { Config } from './u.config.ts';
+import { type t, Args, c, D, done, Fs, Is } from './common.ts';
 import { Fmt } from './u.fmt.ts';
 import { serveLocationMenu } from './u.menu.location.ts';
 import { serveLocationsMenu } from './u.menu.locations.ts';
-import { promptRemoveDocument } from './u.prompt.ts';
+import { ServeFs, ServeMigrate } from './u.yaml/mod.ts';
 
 const Imports = {
   pull: () => import('./cmd.pull/mod.ts'),
@@ -20,8 +19,8 @@ export const cli: t.ServeToolsLib['cli'] = async (cwd, argv) => {
   const args = Args.parse<t.ServeTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
-  /* Pre-reqs */
-  await Config.ensureFile(cwd, D.Config.filename);
+  /* Migrate legacy configs (idempotent). */
+  await ServeMigrate.run(cwd);
 
   /* Run */
   console.info(await Fmt.header(toolname));
@@ -40,51 +39,54 @@ async function run(cwd: t.StringDir, args: t.ServeTool.CliArgs): Promise<t.RunRe
   const port = Is.num(args.port) ? args.port : D.port;
 
   while (true) {
-    const config = await Config.get(cwd);
-    const picked = await serveLocationsMenu({ cwd, config });
+    const picked = await serveLocationsMenu(cwd);
     if (picked.kind === 'exit') return done();
 
-    const location = Config.findLocation(config.current, picked.key);
-    if (!location) {
-      console.info(c.yellow(`Could not find a server configuration`));
-      console.info(c.gray(`directory: ${picked.key}`));
+    const yamlPath = Fs.join(cwd, ServeFs.fileOf(picked.key));
+    const loaded = await ServeFs.loadLocation(yamlPath);
+
+    if (!loaded.ok) {
+      console.info(c.yellow(`Could not load server configuration`));
+      console.info(c.gray(`location: ${picked.key}`));
       continue;
     }
 
-    const locationKey = location.dir;
-    const locationAbsDir = Config.resolveDir(cwd, location.dir);
-    const runtimeLocation: t.ServeTool.Config.Dir = { ...location, dir: locationAbsDir };
-
-    if (Fs.cwd() !== locationAbsDir) {
-      console.info(c.gray(`directory: ${locationAbsDir}`));
+    const location = loaded.location;
+    if (Fs.cwd() !== location.dir) {
+      console.info(c.gray(`directory: ${location.dir}`));
     }
 
     while (true) {
-      const res = await serveLocationMenu({ location: runtimeLocation, port });
+      const res = await serveLocationMenu({ location, port, yamlPath });
       if (res.kind === 'back') break;
       if (res.kind === 'remove') {
-        await promptRemoveDocument(cwd, location);
+        await promptRemoveLocation(yamlPath);
         return done(0);
       }
       if (res.kind === 'start') {
-        const result = await startServing(cwd, runtimeLocation, { port, host: res.host });
+        const result = await startServing(cwd, location, { port, host: res.host });
         if (result.kind === 'back') continue;
         return done(0);
       }
       if (res.kind === 'bundles') {
         const m = await Imports.pull();
-        const result = await m.pullBundle(cwd, runtimeLocation);
+        const result = await m.pullBundle(cwd, yamlPath, location);
         if (result.kind === 'back') continue;
-        const bundle = result.bundle;
-        if (bundle?.local) {
-          config.change((d) => {
-            const hit = Config.findBundle(d, locationKey, bundle.local.dir);
-            if (hit) hit.lastUsedAt = Time.now.timestamp;
-          });
-          await config.fs.save();
-        }
         return done(0);
       }
     }
   }
+}
+
+/**
+ * Prompt to remove a serve location (deletes the YAML file).
+ */
+async function promptRemoveLocation(yamlPath: t.StringPath) {
+  const { Cli } = await import('./common.ts');
+  const ok = await Cli.Input.Confirm.prompt({
+    message: 'Remove this serve location?',
+    hint: 'Are you sure? (deletes the YAML file)',
+  });
+  if (!ok) return;
+  await Fs.remove(yamlPath);
 }
