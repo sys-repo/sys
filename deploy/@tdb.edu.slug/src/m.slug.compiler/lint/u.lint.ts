@@ -1,4 +1,15 @@
-import { type t, c, Cli, LintDocFacets as Facets, Fs, Obj, Pkg, pkg, Slug } from './common.ts';
+import {
+  type t,
+  c,
+  Cli,
+  Json,
+  LintDocFacets as Facets,
+  Fs,
+  Obj,
+  Pkg,
+  pkg,
+  Slug,
+} from './common.ts';
 
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
@@ -6,6 +17,7 @@ import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
 import { LintProfileSchema } from './u.lint.schema.ts';
+import { SlugTree } from '../slug.SlugTree/mod.ts';
 import {
   type SlugLintProfilePick,
   selectSlugLintProfile,
@@ -44,6 +56,8 @@ async function run(
   let facets = (opts.facets ?? Facets) as t.DocLintFacet[];
   facets = facets.filter((facet) => Facets.includes(facet)); // Ensure facet exists in supported set.
 
+  let profilePath: t.StringFile | undefined;
+
   if (opts.cwd && interactive) {
     let lastProfile: t.StringFile | undefined;
     profileLoop: while (true) {
@@ -57,6 +71,7 @@ async function run(
       }
       if ('profile' in actionPick && actionPick.profile) {
         lastProfile = actionPick.profile;
+        profilePath = actionPick.profile;
         const doc = await readLintProfile(actionPick.profile);
         facets = resolveFacets({ current: facets, doc });
       }
@@ -81,6 +96,7 @@ async function run(
         });
         if ('profile' in actionPick && actionPick.profile) {
           lastProfile = actionPick.profile;
+          profilePath = actionPick.profile;
           const doc = await readLintProfile(actionPick.profile);
           facets = resolveFacets({ current: facets, doc });
         }
@@ -95,6 +111,7 @@ async function run(
       if (actionPick.kind === 'back') {
         if ('profile' in actionPick && actionPick.profile) {
           lastProfile = actionPick.profile;
+          profilePath = actionPick.profile;
         }
         continue profileLoop;
       }
@@ -106,6 +123,11 @@ async function run(
     if (profilePick.kind === 'exit') {
       return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
     }
+    if ('profile' in profilePick && profilePick.profile) {
+      profilePath = profilePick.profile;
+      const doc = await readLintProfile(profilePick.profile);
+      facets = resolveFacets({ current: facets, doc });
+    }
   }
 
   const hasFileVideo = facets.includes('sequence:file:video');
@@ -116,6 +138,10 @@ async function run(
   if (hasSlugTree && !opts.createCrdt) {
     const msg = 'warning: fs:slug-tree skipped (createCrdt not provided in Linter.run options)';
     console.info(c.yellow(msg));
+    facets = facets.filter((facet) => facet !== 'fs:slug-tree');
+  }
+  if (hasSlugTree && !profilePath) {
+    console.info(c.yellow('warning: fs:slug-tree skipped (no lint profile selected)'));
     facets = facets.filter((facet) => facet !== 'fs:slug-tree');
   }
 
@@ -165,6 +191,17 @@ async function run(
       const baseResult = lintAliases(id, alias.resolver.alias);
       pushIssuesForDoc(id, baseResult);
     }
+  }
+
+  /**
+   * Generate slug-tree artifacts from the filesystem.
+   */
+  if (facets.includes('fs:slug-tree') && profilePath && opts.cwd && opts.createCrdt) {
+    await runSlugTreeFs({
+      cwd: opts.cwd,
+      profilePath,
+      createCrdt: opts.createCrdt,
+    });
   }
 
   /**
@@ -263,6 +300,64 @@ function resolveFacets(args: {
 }): t.DocLintFacet[] {
   const src = args.doc.facets ?? args.current;
   return src.filter((facet) => Facets.includes(facet));
+}
+
+async function runSlugTreeFs(args: {
+  cwd: t.StringDir;
+  profilePath: t.StringFile;
+  createCrdt: () => Promise<t.StringRef>;
+}) {
+  const { cwd, profilePath, createCrdt } = args;
+  const doc = await readLintProfile(profilePath);
+  const config = doc['fs:slug-tree'];
+  if (!config) {
+    console.info(c.yellow('warning: fs:slug-tree skipped (missing config)'));
+    return;
+  }
+
+  const source = Fs.Tilde.expand(String(config.source ?? '.'));
+  const root = Fs.Path.resolve(cwd, source || '.');
+
+  const targets = normalizeTargets(config.target).map((target) => ({
+    raw: target,
+    path: Fs.Path.resolve(cwd, Fs.Tilde.expand(String(target))),
+  }));
+
+  if (targets.length === 0) {
+    console.info(c.yellow('warning: fs:slug-tree skipped (no target configured)'));
+    return;
+  }
+
+  const tree = await SlugTree.fromDir(
+    { root, createCrdt },
+    {
+      include: config.include ? [...config.include] : undefined,
+      ignore: config.ignore ? [...config.ignore] : undefined,
+      sort: config.sort,
+      readmeAsIndex: config.readmeAsIndex,
+    },
+  );
+
+  for (const target of targets) {
+    const ext = Fs.extname(target.path).toLowerCase();
+    const dir = Fs.dirname(target.path);
+    await Fs.ensureDir(dir);
+    if (ext === '.json') {
+      await Fs.write(target.path, Json.stringify(tree));
+      continue;
+    }
+    if (ext === '.yaml' || ext === '.yml') {
+      await Fs.write(target.path, SlugTree.toYaml(tree));
+      continue;
+    }
+    console.info(c.yellow(`warning: fs:slug-tree skipped unsupported target: ${target.raw}`));
+  }
+}
+
+function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.StringPath[] {
+  if (!input) return [];
+  const list = Array.isArray(input) ? input : [input];
+  return list.map((value) => String(value).trim()).filter(Boolean) as t.StringPath[];
 }
 
 /**
