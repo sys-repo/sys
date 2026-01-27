@@ -1,10 +1,20 @@
-import { act, describe, DomMock, expect, it, renderHook, Testing } from '../../-test.ts';
+import {
+  act,
+  afterAll,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  it,
+  renderHook,
+  Testing,
+} from '../../-test.ts';
 import { Signal } from '../mod.ts';
 import { useSignalEffect } from '../u.useEffect.ts';
 
-DomMock.polyfill();
-
 describe('Signal.useEffect | useSignalEffect (React)', () => {
+  DomMock.init(beforeEach, afterAll);
+
   /**
    * Dead-simple, first-principles test: use `renderHook` with one signal.
    * The effect reads the signal (establishing a dependency) and we capture

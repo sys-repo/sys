@@ -1,4 +1,13 @@
-import { act, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
+import {
+  act,
+  afterAll,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  it,
+  renderHook,
+} from '../../../-test.ts';
 import { StdEffectController } from '../common.ts';
 
 // NOTE: monorepo-only test fixture import (not exported/published).
@@ -43,7 +52,7 @@ async function cleanupHappyDomAsync(): Promise<void> {
 }
 
 describe('useEffectController', () => {
-  DomMock.polyfill();
+  DomMock.init(beforeEach, afterAll);
 
   const create = (initial: State = {}) => {
     const ref = createFakeRef<State>(initial);

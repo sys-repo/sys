@@ -1,8 +1,19 @@
-import { act, describe, DomMock, expect, expectTypeOf, it, renderHook, Rx } from '../../-test.ts';
+import {
+  act,
+  afterAll,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  expectTypeOf,
+  it,
+  renderHook,
+  Rx,
+} from '../../-test.ts';
 import { useObservableRev } from './mod.ts';
 
 describe('useObservableRev', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.polyfill();
+  DomMock.init(beforeEach, afterAll);
 
   it('returns a function', () => {
     const { result } = renderHook(() => useObservableRev(undefined));

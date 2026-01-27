@@ -3,6 +3,7 @@ import {
   act,
   afterAll,
   beforeAll,
+  beforeEach,
   describe,
   DomMock,
   expect,
@@ -15,8 +16,8 @@ import { makeResolved } from './-u.ts';
 
 let ORIG_TO_VT: (spec?: t.TimecodeCompositionSpec) => t.TimecodeResolved;
 
-describe('useVirtualTimeline', () => {
-  DomMock.polyfill();
+describe('useVirtualTimeline', { sanitizeResources: false, sanitizeOps: false }, () => {
+  DomMock.init(beforeEach, afterAll);
 
   beforeAll(() => {
     // Save original

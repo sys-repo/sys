@@ -5,6 +5,7 @@ import { EffectController, useEffectController } from '../mod.ts';
 describe(`EffectController`, () => {
   it('API', async () => {
     const m = await import('@sys/ui-react/effect');
+    expect(m.useEffectController).to.equal(useEffectController);
     expect(m.EffectController).to.equal(EffectController);
     expect(EffectController.useEffectController).to.equal(useEffectController);
 

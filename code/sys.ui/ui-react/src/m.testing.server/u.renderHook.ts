@@ -10,13 +10,20 @@ import { DomMock } from './common.ts';
  * Shape:
  * - Export the same sync surface as @testing-library/react (renderHook + act).
  */
-
 if (!DomMock.isPolyfilled) DomMock.polyfill();
 
-// Top-level await keeps the exported API sync (no Promise-returning renderHook).
-const TL = await import('@testing-library/react');
+/**
+ * JSR slow-types:
+ * - All public API symbols must have explicit types.
+ * - This includes the top-level `TL` binding created via top-level await.
+ */
+type TLModule = typeof import('@testing-library/react');
 
-export const renderHook = TL.renderHook;
-export const act = TL.act;
-export type RenderHook = typeof TL.renderHook;
-export type Act = typeof TL.act;
+// Top-level await keeps the exported API sync (no Promise-returning renderHook).
+const TL: TLModule = await import('@testing-library/react');
+
+export const renderHook: TLModule['renderHook'] = TL.renderHook;
+export const act: TLModule['act'] = TL.act;
+
+export type RenderHook = TLModule['renderHook'];
+export type Act = TLModule['act'];
