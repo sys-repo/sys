@@ -12,6 +12,7 @@
  */
 import type { t } from './common.ts';
 
+import { Fake } from './m.Fake.ts';
 import { Keyboard } from './m.Keyboard.ts';
 import { polyfill, unpolyfill } from './u.polyfill.ts';
 
@@ -19,6 +20,7 @@ import { polyfill, unpolyfill } from './u.polyfill.ts';
  * Helpers for testing DOM related action in unit-tests.
  */
 export const DomMock: t.DomMockLib = {
+  Fake,
   Keyboard,
   polyfill,
   unpolyfill,

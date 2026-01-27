@@ -19,39 +19,39 @@ describe(
       afterEach(DomMock.unpolyfill);
 
       it('polyfill', () => {
-        expect(globalThis.window).to.eql(undefined);
-        expect(globalThis.document).to.eql(undefined);
+        expect((globalThis as any).window).to.eql(undefined);
+        expect((globalThis as any).document).to.eql(undefined);
 
         DomMock.polyfill();
 
-        expect(window).to.be.instanceof(Window);
-        expect(document).to.be.instanceof(Document);
-        expect(globalThis.window).to.equal(window);
-        expect(window.location.host).to.eql('localhost:1234');
+        expect((globalThis as any).window).to.be.instanceof(Window);
+        expect((globalThis as any).document).to.be.instanceof(Document);
+        expect((globalThis as any).window).to.equal((globalThis as any).window);
+        expect((globalThis as any).window.location.host).to.eql('localhost:1234');
 
-        const before = window;
+        const before = (globalThis as any).window;
         DomMock.polyfill();
         DomMock.polyfill();
-        expect(window).to.equal(before); // NB: instance re-used.
+        expect((globalThis as any).window).to.equal(before); // NB: instance re-used.
       });
 
       it('polyfill: custom URL', () => {
         const url = 'https://foo.com/bar?a=123';
         DomMock.polyfill({ url });
-        expect(window.location.href).to.eql(url);
+        expect((globalThis as any).window.location.href).to.eql(url);
       });
 
       it('unpolyfill', () => {
         DomMock.polyfill();
-        const before = globalThis.window;
+        const before = (globalThis as any).window;
         expect(before).to.be.instanceof(Window);
 
         DomMock.unpolyfill();
-        expect(window).to.eql(undefined);
-        expect(document).to.eql(undefined);
+        expect((globalThis as any).window).to.eql(undefined);
+        expect((globalThis as any).document).to.eql(undefined);
 
         DomMock.polyfill();
-        expect(window).to.not.equal(before); // NB: instance reset.
+        expect((globalThis as any).window).to.not.equal(before); // NB: instance reset.
       });
 
       it('env flags (is)', () => {
@@ -72,8 +72,10 @@ describe(
         DomMock.polyfill();
 
         const fired: KeyboardEvent[] = [];
-        document.addEventListener('keydown', (e) => fired.push(e));
-        document.addEventListener('keydown', (e) => {
+        (globalThis as any).document.addEventListener('keydown', (e: KeyboardEvent) =>
+          fired.push(e),
+        );
+        (globalThis as any).document.addEventListener('keydown', (_e: KeyboardEvent) => {
           /* handle keyboard event */
         });
 
