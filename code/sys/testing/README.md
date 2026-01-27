@@ -1,5 +1,5 @@
 # Testing
-Tools for testing.  
+Tools for testing.
 Standard testing helpers (surfaced from [@sys/std](https://jsr.io/@sys/std/testing)).
 
 
@@ -39,10 +39,10 @@ describe('My Suite', () => {
 The DOM can be simulated on the server using `DomMock`:
 
 ```ts
-import { DomMock } from '@sys/testing/server';
+import { DomMock, beforeEach, afterAll } from '@sys/testing/server';
 
 // Setup the environment with a browser `window` object (`globalThis`).
-DomMock.polyfill();
+DomMock.init(beforeEach, afterAll);
 
 // Sample interaction with keyboard:
 document.addEventListener('keydown', (e) => {
@@ -52,6 +52,7 @@ document.addEventListener('keydown', (e) => {
 const event = DomMock.Keyboard.keydownEvent('z');
 DomMock.Keyboard.fire(event);
 
-// Restore the server `globalThis` environment.
+// Restore the server `globalThis` environment at any time.
+// NB: not required because `Dom.init` above cleans up `afterAll`.
 DomMock.unpolyfill();
 ```
