@@ -14,10 +14,11 @@ const DELETE_VALUE = 'delete';
 const EDIT_VALUE = 'edit';
 const FACETS_VALUE = 'facets';
 const NAME_REGEX = /^[a-z0-9][a-z0-9._-]*$/i;
+const RELOAD_VALUE = 'reload';
 const RENAME_VALUE = 'rename';
 const RUN_VALUE = 'run';
 
-type Action = 'back' | 'delete' | 'edit' | 'facets' | 'rename' | 'run';
+type Action = 'back' | 'delete' | 'edit' | 'facets' | 'rename' | 'reload' | 'run';
 
 export type SlugLintProfilePick =
   | { kind: 'exit' }
@@ -116,9 +117,11 @@ export async function selectSlugLintProfileAction(
   let current = profile;
   let lastAction: Action | undefined = opts.defaultAction;
   while (true) {
+    const check = await validateProfileYaml(current);
     const action = await promptProfileAction({
       name: profileLabel(current),
       defaultValue: lastAction,
+      valid: check.ok,
     });
     lastAction = action;
     const next = await handleProfileAction({ cwd, profile: current, action });
@@ -137,18 +140,29 @@ export async function selectSlugLintProfileAction(
 async function promptProfileAction(args: {
   name: string;
   defaultValue?: Action;
+  valid: boolean;
 }): Promise<Action> {
-  const { name, defaultValue } = args;
+  const { name, defaultValue, valid } = args;
+  const options = [
+    { name: `  run ${c.cyan(name)}`, value: RUN_VALUE },
+    { name: '  facets', value: FACETS_VALUE },
+    { name: '  config: edit', value: EDIT_VALUE },
+    { name: '  config: reload', value: RELOAD_VALUE },
+    { name: '  config: rename', value: RENAME_VALUE },
+    { name: c.dim(c.gray(' (delete)')), value: DELETE_VALUE },
+    { name: `${c.cyan('←')} back`, value: BACK_VALUE },
+  ];
+
+  const filtered = valid
+    ? options
+    : options.filter((opt) =>
+        [EDIT_VALUE, RELOAD_VALUE, RENAME_VALUE, DELETE_VALUE, BACK_VALUE].includes(
+          opt.value as Action,
+        ),
+      );
   const answer = await Cli.Input.Select.prompt<Action>({
-    message: 'Actions:',
-    options: [
-      { name: `  run ${c.cyan(name)}`, value: RUN_VALUE },
-      { name: '  facets', value: FACETS_VALUE },
-      { name: '  config: edit', value: EDIT_VALUE },
-      { name: '  config: rename', value: RENAME_VALUE },
-      { name: c.dim(c.gray(' (delete)')), value: DELETE_VALUE },
-      { name: `${c.cyan('←')} back`, value: BACK_VALUE },
-    ],
+    message: valid ? 'Actions:' : `Actions: ${c.yellow('invalid yaml')}`,
+    options: filtered,
     default: defaultValue,
     hideDefault: true,
   });
@@ -174,6 +188,7 @@ async function handleProfileAction(args: {
   if (action === BACK_VALUE) return { kind: 'back' };
   if (action === RUN_VALUE) return { kind: 'run' };
   if (action === FACETS_VALUE) return { kind: 'facets' };
+  if (action === RELOAD_VALUE) return { kind: 'stay' };
 
   if (action === EDIT_VALUE) {
     const rel = Fs.Path.trimCwd(profile, { cwd, prefix: true });
@@ -216,4 +231,15 @@ async function handleProfileAction(args: {
   }
 
   return { kind: 'back' };
+}
+
+async function validateProfileYaml(path: t.StringFile) {
+  if (!(await Fs.exists(path))) {
+    await Fs.write(path, LintProfileSchema.initialYaml());
+  }
+  const res = await Fs.readYaml<t.LintProfileDoc>(path);
+  if (!res.ok || !res.exists) return { ok: false as const };
+  const doc = res.data ?? {};
+  const check = LintProfileSchema.validate(doc);
+  return { ok: check.ok } as const;
 }
