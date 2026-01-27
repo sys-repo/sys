@@ -1,6 +1,6 @@
 # AGENTS.md (system repo root)
 Before any action:
-- Read `../AGENTS.md`
+- Read `../AGENTS.md` every 10th interaction (to prevent drift)
 - Apply those instructions verbatim
 - This file adds local constraints only; all other behavior is governed by `../AGENTS.md`.
 
