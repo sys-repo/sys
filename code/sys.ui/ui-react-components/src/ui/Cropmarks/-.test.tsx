@@ -1,9 +1,10 @@
 import { createRoot } from 'react-dom/client';
-import { DomMock, act, describe, expect, it } from '../../-test.ts';
+import { DomMock, act, afterEach, beforeEach, describe, expect, it } from '../../-test.ts';
 import { Cropmarks } from './mod.ts';
 
 describe('<Cropmarks> percent mode', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.polyfill();
+  beforeEach(DomMock.polyfill);
+  afterEach(DomMock.unpolyfill);
 
   it('emits host vars and subject uses cqi/cqb sizing', async () => {
     const mount = document.createElement('div');

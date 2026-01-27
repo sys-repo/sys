@@ -1,4 +1,15 @@
-import { type t, describe, DomMock, expect, it, renderHook, Signal, Time } from '../../../-test.ts';
+import {
+  type t,
+  afterEach,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  it,
+  renderHook,
+  Signal,
+  Time,
+} from '../../../-test.ts';
 import { useDeviceSelectionLifecycle } from '../use.DeviceSelection.Lifecycle.ts';
 
 /**
@@ -6,7 +17,8 @@ import { useDeviceSelectionLifecycle } from '../use.DeviceSelection.Lifecycle.ts
  * Focus: restore, fallback, persist, clear, and reorder stability.
  */
 describe('hook: useDeviceSelectionLifecycle', () => {
-  DomMock.polyfill();
+  beforeEach(DomMock.polyfill);
+  afterEach(DomMock.unpolyfill);
 
   const video = { deviceId: 'v1', kind: 'videoinput', label: 'Cam 1' } as MediaDeviceInfo;
   const mic = { deviceId: 'a1', kind: 'audioinput', label: 'Mic 1' } as MediaDeviceInfo;
