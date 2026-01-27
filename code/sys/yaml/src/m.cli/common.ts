@@ -1,5 +1,4 @@
-export { c, Cli } from '@sys/cli';
-export { Fmt } from '@sys/cli';
+export { c, Cli, Fmt } from '@sys/cli';
 export { Fs } from '@sys/fs';
 export { Open } from '@sys/process';
 

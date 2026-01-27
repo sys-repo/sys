@@ -1,21 +1,18 @@
-import { type t, DEFAULT, c, Cli, Fmt, Fs, Open } from './common.ts';
+import { type t, DEFAULT, c, Cli, Fs } from './common.ts';
 import {
   ensureConfigDir,
   ensureDefaultConfig,
-  fileLabel,
   fileOf,
   listConfigs,
-  validateYaml,
   writeYaml,
 } from './u.fs.ts';
+import { actionMenu } from './u.menu.action.ts';
+import { ADD_VALUE, NAME_REGEX } from './u.menu.constants.ts';
+import { withTree } from './u.menu.tree.ts';
 import type {
-  YamlConfigMenuActionBase,
   YamlConfigMenuArgs,
   YamlConfigMenuResult,
 } from './t.menu.ts';
-
-const NAME_REGEX = /^[a-z0-9][a-z0-9._-]*$/i;
-const ADD_VALUE = '__add__';
 
 export async function menu<T, A extends string = string>(
   args: YamlConfigMenuArgs<T, A>,
@@ -84,127 +81,4 @@ export async function menu<T, A extends string = string>(
     files = await listConfigs(dir, ext);
     lastSelected = path;
   }
-}
-
-async function actionMenu<T, A extends string = string>(args: {
-  cwd: t.StringDir;
-  path: t.StringFile;
-  ext: string;
-  schema: YamlConfigMenuArgs<T, A>['schema'];
-  invalid?: YamlConfigMenuArgs<T, A>['invalid'];
-  actions?: YamlConfigMenuArgs<T, A>['actions'];
-}): Promise<YamlConfigMenuResult<A>> {
-  let current = args.path;
-  let lastAction: YamlConfigMenuActionBase | A | undefined;
-  while (true) {
-    const check = await validateYaml(current, args.schema);
-    const action = await promptAction({
-      name: fileLabel(current, args.ext),
-      valid: check.ok,
-      invalidLabel: args.invalid?.label,
-      allow: args.invalid?.allow,
-      defaultValue: lastAction,
-      extra: args.actions?.extra,
-    });
-    lastAction = action;
-
-    if (action === 'back') return { kind: 'back' };
-    if (action === 'exit') return { kind: 'exit' };
-    if (action === 'edit') {
-      const openTarget = Fs.Path.trimCwd(current, { cwd: args.cwd, prefix: true });
-      Open.invokeDetached(args.cwd, openTarget.length > 0 ? openTarget : current, { silent: true });
-      continue;
-    }
-    if (action === 'reload') continue;
-    if (action === 'rename') {
-      const next = await renameConfig(current, args.ext);
-      if (next) current = next;
-      continue;
-    }
-    if (action === 'delete') {
-      const yes = await Cli.Input.Confirm.prompt({
-        message: `Delete ${c.cyan(fileLabel(current, args.ext))}?`,
-        default: false,
-      });
-      if (!yes) continue;
-      await Fs.remove(current);
-      return { kind: 'back' };
-    }
-
-    if (args.actions?.onAction) {
-      return await args.actions.onAction({ action, path: current });
-    }
-    return { kind: 'action', action, path: current };
-  }
-}
-
-async function renameConfig(
-  path: t.StringFile,
-  ext: t.StringPath,
-): Promise<t.StringFile | undefined> {
-  const dir = Fs.dirname(path);
-  const name = fileLabel(path, ext);
-  const raw = await Cli.Input.Text.prompt({
-    message: 'Config name',
-    default: name,
-    validate(value) {
-      const trimmed = String(value ?? '').trim();
-      if (!trimmed) return 'Name required.';
-      if (!NAME_REGEX.test(trimmed)) return 'Invalid name.';
-      const filename = fileOf(trimmed, ext);
-      return Fs.exists(Fs.join(dir, filename)).then((exists) =>
-        exists && trimmed !== name ? 'Name already exists.' : true,
-      );
-    },
-  });
-
-  const nextName = raw.trim();
-  if (nextName === name) return;
-
-  const nextFile = Fs.join(dir, fileOf(nextName, ext));
-  await Fs.move(path, nextFile);
-  return nextFile;
-}
-
-async function promptAction<A extends string = string>(args: {
-  name: string;
-  valid: boolean;
-  invalidLabel?: string;
-  allow?: YamlConfigMenuActionBase[];
-  defaultValue?: YamlConfigMenuActionBase | A;
-  extra?: { name: string; value: A }[];
-}): Promise<YamlConfigMenuActionBase | A> {
-  const extras = args.extra ?? [];
-  const base = [
-    { name: '  config: edit', value: 'edit' },
-    { name: '  config: reload', value: 'reload' },
-    { name: '  config: rename', value: 'rename' },
-    { name: c.dim(c.gray(' (delete)')), value: 'delete' },
-    { name: `${c.cyan('←')} back`, value: 'back' },
-  ];
-
-  const all = [...extras.map((item) => ({ name: `  ${item.name}`, value: item.value })), ...base];
-
-  const allowed = args.valid
-    ? all
-    : all.filter((opt) =>
-        (args.allow ?? ['edit', 'reload', 'rename', 'delete', 'back']).includes(
-          opt.value as YamlConfigMenuActionBase,
-        ),
-      );
-
-  const answer = await Cli.Input.Select.prompt<YamlConfigMenuActionBase | A>({
-    message: args.valid ? 'Actions:' : `Actions: ${c.yellow(args.invalidLabel ?? 'invalid yaml')}`,
-    options: allowed,
-    default: args.defaultValue,
-    hideDefault: true,
-  });
-  return answer as YamlConfigMenuActionBase | A;
-}
-
-function withTree(paths: readonly string[], ext: string) {
-  return paths.map((path, i) => {
-    const last = i === paths.length - 1;
-    return { path, label: fileLabel(path, ext), tree: c.gray(Fmt.Tree.branch(last)) };
-  });
 }
