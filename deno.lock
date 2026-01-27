@@ -59,7 +59,7 @@
     "npm:@types/react@19.2.10": "19.2.10",
     "npm:@types/ws@8.18.1": "8.18.1",
     "npm:@vitejs/plugin-react@5.1.2": "5.1.2_vite@7.3.1__yaml@2.8.2__picomatch@4.0.3_@babel+core@7.28.5_yaml@2.8.2",
-    "npm:ai@6.0.56": "6.0.56_zod@3.25.76",
+    "npm:ai@6.0.57": "6.0.57_zod@3.25.76",
     "npm:approx-string-match@2": "2.0.0",
     "npm:chai@6.2.2": "6.2.2",
     "npm:csstype@3.2.3": "3.2.3",
@@ -1158,8 +1158,8 @@
         "humanize-ms"
       ]
     },
-    "ai@6.0.56_zod@3.25.76": {
-      "integrity": "sha512-v1pTRSC0xR1FPCY9AUzSjrWd+YLYAS/JAftTAzo1V0tR7EXUrTj0c/eOVJDBDPqnHyvJhQ4qaXBJ6mIkO83emw==",
+    "ai@6.0.57_zod@3.25.76": {
+      "integrity": "sha512-5wYcMQmOaNU71wGv4XX1db3zvn4uLjLbTKIo6cQZPWOJElA0882XI7Eawx6TCd5jbjOvKMIP+KLWbpVomAFT2g==",
       "dependencies": [
         "@ai-sdk/gateway",
         "@ai-sdk/provider@3.0.5",
@@ -2489,7 +2489,7 @@
       "npm:@svgdotjs/svg.js@3.2.5",
       "npm:@types/ramda@0.31.1",
       "npm:@types/ws@8.18.1",
-      "npm:ai@6.0.56",
+      "npm:ai@6.0.57",
       "npm:approx-string-match@2",
       "npm:chai@6.2.2",
       "npm:csstype@3.2.3",
