@@ -18,6 +18,7 @@ export const Paths = {
     // 'code/sys.model/model',
     // 'code/sys.model/model-slug',
     // 'code/sys/fs',
+    'deploy/@tdb.edu.slug',
     'code/sys.tools',
   ],
   all: [
