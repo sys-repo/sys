@@ -191,7 +191,7 @@ export const createRepo: t.CrdtWorkerClientLib['repo'] = (port: MessagePort, opt
         urls: (sync?.urls ?? []) as t.StringUrl[],
         enabled: sync?.enabled ?? null,
         enable(enabled?: boolean) {
-          void rpc('sync.enable', enabled);
+          void rpc('sync.enable', enabled).catch(() => {});
         },
       };
     },

@@ -382,6 +382,9 @@ describe('CrdtWorker.Client.repo (shim)', { sanitizeResources: false, sanitizeOp
           undefined, // implicit case: enabled? argument omitted
         ]);
 
+        // Wait for all pending RPC handlers to complete before disposal
+        await Schedule.tick();
+
         await client.dispose();
         await real.dispose();
       });
