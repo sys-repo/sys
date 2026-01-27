@@ -28,12 +28,20 @@ export const effect: t.SignalEffectListener = (fn, opts = {}) => {
 
       await(fn) {
         const run = e.life;
-        void Try.run(fn).then((r) =>
-          r.catch((err) => {
-            if (run.signal.aborted) return;
-            throw err;
-          }),
-        );
+
+        void (async () => {
+          try {
+            await fn();
+          } catch (err) {
+            // Suppress any errors after run disposal/abort.
+            if (run.disposed || run.signal.aborted) return;
+
+            // Surface asynchronously (global), but outside this promise chain.
+            queueMicrotask(() => {
+              throw err;
+            });
+          }
+        })();
       },
     };
 
@@ -59,6 +67,6 @@ export const effect: t.SignalEffectListener = (fn, opts = {}) => {
     // Cleanup (only if a `lifecycle` was ever created for the current run):
     const last = current;
     current = undefined;
-    if (last && !last.signal.aborted) last.dispose();
+    if (last && !last.disposed) last.dispose();
   };
 };

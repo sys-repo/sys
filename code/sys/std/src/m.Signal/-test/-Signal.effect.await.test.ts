@@ -1,26 +1,37 @@
 import { type t, describe, expect, it } from '../../-test.ts';
+import { Schedule } from '../../m.Async.Schedule/mod.ts';
 import { Signal } from '../mod.ts';
 import { effect } from '../u.effect.ts';
 
 describe('Signal.effect: e.await', () => {
-  const tick = () => new Promise<void>((r) => setTimeout(r, 0));
+  const tick = () => Schedule.tick();
 
   const trapUnhandled = () => {
     const errors: Error[] = [];
 
-    const onUnhandled = (ev: PromiseRejectionEvent) => {
-      ev.preventDefault();
-
-      const reason = ev.reason;
+    const push = (reason: unknown) => {
       const err = reason instanceof Error ? reason : new Error(String(reason));
       errors.push(err);
     };
 
+    const onUnhandled = (ev: PromiseRejectionEvent) => {
+      ev.preventDefault();
+      push(ev.reason);
+    };
+
+    const onError = (ev: ErrorEvent) => {
+      ev.preventDefault();
+      push(ev.error ?? ev.message);
+    };
+
     addEventListener('unhandledrejection', onUnhandled);
+    addEventListener('error', onError);
+
     return {
       errors,
       dispose() {
         removeEventListener('unhandledrejection', onUnhandled);
+        removeEventListener('error', onError);
       },
     };
   };
