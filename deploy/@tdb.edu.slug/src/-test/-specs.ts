@@ -11,6 +11,7 @@ export const ns = 'tdb.edu.slug';
 export const Specs = {
   [`${ns}: ui.SlugSheet`]: () => import('../ui/ui.SlugSheet/-spec/-SPEC.tsx'),
   [`${ns}: ui.SlugSheetStack`]: () => import('../ui/ui.SlugSheetStack/-spec/-SPEC.tsx'),
+  [`${ns}: ui.SlugKbDriver`]: () => import('../ui/ui.SlugKbDriver/-spec/-SPEC.tsx'),
   [`${ns}: ui.SlugPlaybackDriver`]: () => import('../ui/ui.SlugPlaybackDriver/-spec/-SPEC.tsx'),
   [`${ns}: ui.TreeHost`]: () => import('../ui/ui.TreeHost/-spec/-SPEC.tsx'),
 } as t.SpecImports;
