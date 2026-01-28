@@ -1,4 +1,4 @@
-import { DomMock } from './common.ts';
+import { DomMock, Schedule } from './common.ts';
 
 /**
  * Hook testing helpers.
@@ -10,7 +10,18 @@ import { DomMock } from './common.ts';
  * Shape:
  * - Export the same sync surface as @testing-library/react (renderHook + act).
  */
-if (!DomMock.isPolyfilled) DomMock.polyfill();
+if (!DomMock.isPolyfilled) {
+  DomMock.polyfill();
+
+  /**
+   * IMPORTANT:
+   * HappyDOM's AsyncTaskManager schedules internal timers during polyfill/import-time.
+   * Deno will fail a test if a timer started "before the test" completes "during the test".
+   *
+   * Drain one macrotask here so HappyDOM's initial timers complete before any test runs.
+   */
+  await Schedule.macro();
+}
 
 /**
  * JSR slow-types:
