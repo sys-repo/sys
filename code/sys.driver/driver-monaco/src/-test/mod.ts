@@ -12,8 +12,7 @@ export {
   it,
   Testing,
 } from '@sys/testing/server';
-export { act, renderHook } from '@testing-library/react';
-
+export { act, renderHook } from '@sys/ui-react/testing/server';
 export { MonacoFake } from '../-fake/mod.ts';
 
 export * from '../common.ts';

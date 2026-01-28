@@ -12,6 +12,6 @@ export {
   it,
   Testing,
 } from '@sys/testing/server';
-export { act, renderHook } from '@testing-library/react';
+export { act, renderHook } from '@sys/ui-react/testing/server';
 
 export * from './common.ts';
