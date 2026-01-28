@@ -126,7 +126,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           });
           const options = [
             opt(`  lint ${lintModule}`, `doc:graph:lint`),
-            opt(`  doc:indexer:fs`, 'doc:indexer:fs'),
             opt(`  doc:graph:backup (snapshot)`, `snapshot`),
             opt(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
             opt(`  doc:graph: walk → stats`, `doc:graph:walk`),
@@ -210,12 +209,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             const m = await Imports.docGraphTasks();
             await m.documentGraphTasksCommand(cwd, docid, yamlPath);
             return done(0);
-          }
-
-          if (B === 'doc:indexer:fs') {
-            const m = await Imports.indexDocument();
-            await m.runDirectoryIndexer(cwd, docid);
-            continue;
           }
 
         if (B === 'doc:config:print') {

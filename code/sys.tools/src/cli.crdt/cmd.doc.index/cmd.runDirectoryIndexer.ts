@@ -13,6 +13,12 @@ import {
 } from './u.menu.filter.ts';
 import { Fmt } from './u.fmt.ts';
 
+/**
+ * NOTE:
+ * This flow is a full interactive indexing workflow (menus, filters, scans, CRDT writes).
+ * It is intentionally decoupled from the core document menu and should be surfaced
+ * as a plugin-driven action when needed rather than a default menu item.
+ */
 export async function runDirectoryIndexer(cwd: t.StringDir, docid: t.Crdt.Id) {
   const port = D.port.repo;
   const cmd = await RepoProcess.tryClient(port);
