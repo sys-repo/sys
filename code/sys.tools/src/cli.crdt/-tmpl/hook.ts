@@ -45,11 +45,11 @@ export const onWalk: t.CrdtTool.Doc.Graph.WalkHook = async (e) => {
 export const plugins: t.CrdtTool.Doc.Graph.Plugin[] = [
   {
     id: 'plugin:sample',
-    title: `sample ${c.gray('(stub)')}`,
+    title: `sample ${c.gray('(plugin)')}`,
     async run(args) {
       const { docpath } = args;
       console.info();
-      console.info(c.cyan('plugin:sample'), c.gray(`docpath: ${docpath.join('/') || '/'}`));
+      console.info(c.cyan('plugin:sample'), c.gray(`| docpath: ${docpath.join('/') || '/'}`));
       console.info();
     },
   },

@@ -23,6 +23,7 @@ const Imports = {
  * Main entry:
  */
 export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
+  type MenuAction = t.CrdtTool.Command | `plugin:${string}`;
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.CrdtTool.CliArgs>(argv, { alias: { h: 'help' } });
@@ -116,6 +117,13 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       if (A.startsWith('crdt:')) {
         while (true) {
           const lintModule = c.dim(`[ ${c.cyan(`:plugin:program:${c.yellow('slugs')}`)} ]`);
+          const { loadDocumentHook } = await Imports.docGraph();
+          const hookModule = await loadDocumentHook(cwd);
+          const plugins = hookModule?.plugins ?? [];
+          const pluginOptions = plugins.map((plugin) => {
+            const label = plugin.title ?? plugin.id;
+            return opt(`  ${label}`, `plugin:${plugin.id}`);
+          });
           const options = [
             opt(`  lint ${lintModule}`, `doc:graph:lint`),
             opt(`  doc:indexer:fs`, 'doc:indexer:fs'),
@@ -125,6 +133,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             opt(`  doc:graph: tasks`, `doc:graph:tasks`),
             opt(`  view: <yaml>`, `doc:viewer:yaml`),
             opt(`  view: ${c.gray(D.Config.filename)}`, `doc:config:print`),
+            ...pluginOptions,
             // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
           ];
 
@@ -135,12 +144,12 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           options.push(...[opt(c.gray(c.dim(' (forget)')), 'doc:remove')]);
           options.push(opt(c.gray(c.dim('← back')), 'back'));
 
-          const B = (await Cli.Input.Select.prompt<t.CrdtTool.Command>({
+          const B = (await Cli.Input.Select.prompt<MenuAction>({
             message: `with ${c.gray(`crdt:${docid.slice(0, -5)}${c.green(docid.slice(-5))}`)}:`,
             options,
             hideDefault: true,
             maxRows: 25,
-          })) as t.CrdtTool.Command;
+          })) as MenuAction;
 
           if (B === 'back') break;
 
@@ -167,6 +176,22 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             await m.dagHookCommand(cwd, docid, yamlPath);
             return done(0);
           }
+        }
+
+        if (B.startsWith('plugin:')) {
+          const id = B.slice('plugin:'.length);
+          const plugin = plugins.find((entry) => entry.id === id);
+          if (!plugin) return done(0);
+
+          const { buildDocumentDAG } = await Imports.docGraph();
+          const { RepoProcess } = await Imports.daemon();
+          const port = D.port.repo;
+          const cmd = await RepoProcess.tryClient(port);
+          if (!cmd) return done(0);
+
+          const dag = await buildDocumentDAG(cmd, docid, yamlPath);
+          await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
+          return done(0);
         }
 
         if (B === 'doc:viewer:yaml') {
