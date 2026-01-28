@@ -19,7 +19,6 @@ export function withinTimeThreshold<T>(
     const $$ = new Subject<R>();
     const { dispose, dispose$ } = Dispose.disposable(options.dispose$);
 
-    // ----------- added (ensure timer cancellation + single settle) -----------
     let settled = false;
     let timer: t.TimeDelayPromise | undefined;
 
@@ -30,21 +29,18 @@ export function withinTimeThreshold<T>(
       $$.complete();
       dispose();
     };
-    // ----------- /added -----------
 
     $.pipe(takeUntil(dispose$), take(1)).subscribe((e) => {
       const elapsed = Date.now() - startedAt;
       if (elapsed < timeout) done(true, e);
     });
 
-    // ----------- changed (track + cancel pending timeout) -----------
     timer = Time.delay(timeout, () => {
       done(false);
       timeout$.next();
     });
 
     dispose$.subscribe(() => timer?.cancel());
-    // ----------- /changed -----------
 
     return $$;
   };
