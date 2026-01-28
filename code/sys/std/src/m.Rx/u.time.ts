@@ -55,7 +55,6 @@ export function withinTimeThreshold<T>(
   const timeout$ = new Subject<void>();
   const $$ = new Subject<T>();
 
-  // ----------- changed (dispose outer subscription) -----------
   $.pipe(takeUntil(life.dispose$)).subscribe((e) => {
     const listen$ = listen(timeout).pipe(
       takeUntil(life.dispose$),
@@ -63,7 +62,6 @@ export function withinTimeThreshold<T>(
     );
     listen$.subscribe((e) => $$.next(e.value!));
   });
-  // ----------- /changed -----------
 
   /**
    * API:

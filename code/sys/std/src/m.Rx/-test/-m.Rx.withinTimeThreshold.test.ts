@@ -72,9 +72,7 @@ describe('Rx.withinTimeThreshold (eg. "double-click")', () => {
       expect(fired).to.eql(0);
       expect(timedout).to.eql(1);
 
-      // ----------- added (hygiene: always dispose) -----------
       threshold.dispose();
-      // ----------- /added -----------
     });
   });
 
