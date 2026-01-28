@@ -35,5 +35,5 @@ export type DomMockLib = {
    * - Keeps setup/teardown explicit at the call site.
    * - Supports async hooks (Promise-returning) and runner-provided `this` context.
    */
-  init(beforeEach: TestHook, afterEach: TestHook): void;
+  init(before: TestHook, after: TestHook): void;
 };
