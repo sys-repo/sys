@@ -11,13 +11,17 @@ export type YamlConfigSchema<T> = {
 };
 
 /** Menu item label. */
-export type YamlConfigMenuItemName = string | YamlConfigMenuItemNameFn;
-export type YamlConfigMenuItemNameFn = (args: YamlConfigMenuItemArgs) => string;
-export type YamlConfigMenuItemArgs = { readonly name: string };
+export type YamlConfigMenuItemName<T = unknown> = string | YamlConfigMenuItemNameFn<T>;
+export type YamlConfigMenuItemNameFn<T = unknown> = (args: YamlConfigMenuItemArgs<T>) => string;
+export type YamlConfigMenuItemArgs<T = unknown> = {
+  readonly name: string;
+  readonly path: t.StringFile;
+  readonly doc?: T;
+};
 
 /** Extra actions injected by the caller. */
-export type YamlConfigMenuExtra<A extends string = string> = {
-  name: YamlConfigMenuItemName;
+export type YamlConfigMenuExtra<A extends string = string, T = unknown> = {
+  name: YamlConfigMenuItemName<T>;
   value: A;
 };
 
@@ -55,7 +59,7 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   exitLabel?: string;
   schema: YamlConfigSchema<T>;
   invalid?: { label?: string; allow?: YamlConfigMenuActionBase[] };
-  actions?: { extra?: YamlConfigMenuExtra<A>[]; onAction?: YamlConfigMenuHandler<A> };
+  actions?: { extra?: YamlConfigMenuExtra<A, T>[]; onAction?: YamlConfigMenuHandler<A> };
   add?: {
     message?: string;
     hint?: string;

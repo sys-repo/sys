@@ -1,4 +1,4 @@
-import { type t, c, Fs } from './common.ts';
+import { type t, c, Fs, Str } from './common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
 import type { YamlConfigMenuExtra, YamlConfigMenuItemArgs } from '@sys/yaml/t';
 import { LintProfileSchema } from './u.lint.schema.ts';
@@ -65,9 +65,17 @@ const schema = {
   stringifyYaml: (doc: t.LintProfileDoc) => LintProfileSchema.stringify(doc),
 } as const;
 
-function extraActions(): YamlConfigMenuExtra<Action>[] {
+function extraActions(): YamlConfigMenuExtra<Action, t.LintProfileDoc>[] {
   return [
-    { name: ({ name }: YamlConfigMenuItemArgs) => `run ${c.cyan(name)}`, value: 'run' },
+    {
+      name: ({ name, doc }: YamlConfigMenuItemArgs<t.LintProfileDoc>) => {
+        const facets = doc?.facets ?? LintProfileSchema.initial().facets ?? [];
+        const count = facets.length;
+        const suffix = c.gray(c.dim(` → (${count} ${Str.plural(count, 'facet')})`));
+        return `run ${c.cyan(name)}${suffix}`;
+      },
+      value: 'run',
+    },
     { name: 'facets', value: 'facets' },
   ];
 }

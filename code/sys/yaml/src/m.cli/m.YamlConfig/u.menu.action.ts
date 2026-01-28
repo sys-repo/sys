@@ -4,7 +4,7 @@ import type {
   YamlConfigMenuArgs,
   YamlConfigMenuResult,
 } from './t.menu.ts';
-import { fileLabel, validateYaml } from './u.fs.ts';
+import { fileLabel, readYaml } from './u.fs.ts';
 import { promptAction } from './u.menu.prompt.ts';
 import { renameConfig } from './u.menu.rename.ts';
 
@@ -24,9 +24,12 @@ export async function actionMenu<T, A extends string = string>(
   let current = args.path;
   let lastAction: YamlConfigMenuActionBase | A | undefined = args.defaultAction;
   while (true) {
-    const check = await validateYaml(current, args.schema);
-    const action = await promptAction({
+    const doc = await readYaml<T>(current);
+    const check = doc ? args.schema.validate(doc) : { ok: false, errors: [] };
+    const action = await promptAction<A, T>({
       name: fileLabel(current, args.ext),
+      path: current,
+      doc: check.ok ? doc : undefined,
       valid: check.ok,
       invalidLabel: args.invalid?.label,
       allow: args.invalid?.allow,

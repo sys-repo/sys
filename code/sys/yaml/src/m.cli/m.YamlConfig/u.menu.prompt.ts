@@ -1,17 +1,23 @@
 import { c, Cli, Is } from './common.ts';
-import type { YamlConfigMenuActionBase, YamlConfigMenuItemName } from './t.menu.ts';
+import type {
+  YamlConfigMenuActionBase,
+  YamlConfigMenuItemName,
+  YamlConfigMenuItemArgs,
+} from './t.menu.ts';
 
-type PromptActionArgs<A extends string> = {
+type PromptActionArgs<A extends string, T> = {
   name: string;
+  path: string;
+  doc?: T;
   valid: boolean;
   invalidLabel?: string;
   allow?: YamlConfigMenuActionBase[];
   defaultValue?: YamlConfigMenuActionBase | A;
-  extra?: { name: YamlConfigMenuItemName; value: A }[];
+  extra?: { name: YamlConfigMenuItemName<T>; value: A }[];
 };
 
-export async function promptAction<A extends string = string>(
-  args: PromptActionArgs<A>,
+export async function promptAction<A extends string = string, T = unknown>(
+  args: PromptActionArgs<A, T>,
 ): Promise<YamlConfigMenuActionBase | A> {
   const extras = args.extra ?? [];
   const base = [
@@ -24,7 +30,7 @@ export async function promptAction<A extends string = string>(
 
   const all = [
     ...extras.map((item) => ({
-      name: `  ${resolveName(item.name, { name: args.name })}`,
+      name: `  ${resolveName(item.name, { name: args.name, path: args.path, doc: args.doc })}`,
       value: item.value,
     })),
     ...base,
@@ -47,6 +53,6 @@ export async function promptAction<A extends string = string>(
   return answer as YamlConfigMenuActionBase | A;
 }
 
-function resolveName(name: YamlConfigMenuItemName, args: { name: string }) {
+function resolveName<T>(name: YamlConfigMenuItemName<T>, args: YamlConfigMenuItemArgs<T>) {
   return Is.func(name) ? name(args) : name;
 }

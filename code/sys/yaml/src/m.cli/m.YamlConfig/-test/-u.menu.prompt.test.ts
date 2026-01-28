@@ -17,6 +17,7 @@ describe('YamlConfig.menu.prompt', () => {
     try {
       await promptAction({
         name: 'alpha',
+        path: '/tmp/alpha.yaml',
         valid: true,
         extra: [{ name: ({ name }) => `run ${name}`, value: 'run' }],
       });
