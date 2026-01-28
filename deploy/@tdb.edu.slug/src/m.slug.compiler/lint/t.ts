@@ -54,8 +54,8 @@ export type LintProfileDoc = {
 export type LintProfileSlugTree = {
   /** Source directory to scan. */
   readonly source?: t.StringPath;
-  /** Target directory for generated artifacts. */
-  readonly target?: t.StringPath | readonly t.StringPath[];
+  /** Targets for generated artifacts. */
+  readonly target?: LintProfileSlugTreeTarget;
   /** File extensions to include (e.g. ".md"). */
   readonly include?: readonly string[];
   /** Directory entries to ignore. */
@@ -64,4 +64,14 @@ export type LintProfileSlugTree = {
   readonly sort?: boolean;
   /** Treat README.md as the directory slug. */
   readonly readmeAsIndex?: boolean;
+};
+
+export type LintProfileSlugTreeTarget = {
+  /** Directory targets for generated artifacts. */
+  readonly dir?: t.StringPath | readonly t.StringPath[];
+  /** Optional CRDT write target. */
+  readonly crdt?: {
+    readonly ref?: t.StringRef;
+    readonly path?: t.StringPath;
+  };
 };

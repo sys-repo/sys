@@ -14,9 +14,9 @@ export const LintProfileSchema = {
     return {
       facets: [...LintDocFacets],
       'fs:slug-tree': {
-        source: '.',
-        target: ['./manifest/slug-tree.json', './manifest/slug-tree.yaml'],
         include: ['.md'],
+        source: '.',
+        target: { dir: ['./manifest/slug-tree.json', './manifest/slug-tree.yaml'] },
       },
     };
   },
@@ -35,7 +35,7 @@ export const LintProfileSchema = {
    */
   stringify(doc: t.LintProfileDoc): string {
     const raw = Yaml.stringify(doc).data ?? '';
-    return formatRootSpacing(raw);
+    return formatInlineInclude(formatRootSpacing(raw));
   },
 
   /**
@@ -61,10 +61,26 @@ export const LintProfileSchema = {
           {
             source: Schema.Type.Optional(Schema.Type.String()),
             target: Schema.Type.Optional(
-              Schema.Type.Union([
-                Schema.Type.String(),
-                Schema.Type.Array(Schema.Type.String(), { minItems: 0 }),
-              ]),
+              Schema.Type.Object(
+                {
+                  dir: Schema.Type.Optional(
+                    Schema.Type.Union([
+                      Schema.Type.String(),
+                      Schema.Type.Array(Schema.Type.String(), { minItems: 0 }),
+                    ]),
+                  ),
+                  crdt: Schema.Type.Optional(
+                    Schema.Type.Object(
+                      {
+                        ref: Schema.Type.Optional(Schema.Type.String()),
+                        path: Schema.Type.Optional(Schema.Type.String()),
+                      },
+                      { additionalProperties: false },
+                    ),
+                  ),
+                },
+                { additionalProperties: false },
+              ),
             ),
             include: Schema.Type.Optional(Schema.Type.Array(Schema.Type.String(), { minItems: 0 })),
             ignore: Schema.Type.Optional(Schema.Type.Array(Schema.Type.String(), { minItems: 0 })),
@@ -95,6 +111,29 @@ function formatRootSpacing(input: string): string {
       sawRoot = true;
     }
     out.push(line);
+  }
+  return out.join('\n');
+}
+
+function formatInlineInclude(input: string): string {
+  const lines = input.split('\n');
+  const out: string[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() !== 'include:' || i + 1 >= lines.length) {
+      out.push(line);
+      continue;
+    }
+    const next = lines[i + 1];
+    const match = next.match(/^\s*-\s*(.+)\s*$/);
+    if (!match) {
+      out.push(line);
+      continue;
+    }
+    const value = match[1];
+    const indent = line.match(/^\s*/)?.[0] ?? '';
+    out.push(`${indent}include: [${value}]`);
+    i += 1;
   }
   return out.join('\n');
 }
