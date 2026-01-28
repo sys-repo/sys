@@ -18,7 +18,7 @@ import { getStylesheetId } from '../u.ts';
 
 const toString = CssDom.toString;
 
-describe('Style: CSS ClassName', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('Style: CSS ClassName', () => {
   DomMock.init({ beforeAll, afterAll });
 
   let _count = 0;

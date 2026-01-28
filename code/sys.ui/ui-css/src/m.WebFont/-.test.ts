@@ -1,10 +1,10 @@
-import { afterAll, beforeAll, describe, DomMock, expect, it } from '../-test.ts';
+import { afterEach, beforeEach, describe, DomMock, expect, it } from '../-test.ts';
 
 import { type t, D } from './common.ts';
 import { WebFont } from './mod.ts';
 
-describe(`useWebFont`, { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeAll, afterAll });
+describe(`useWebFont`, () => {
+  DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {
     const m = await import('@sys/ui-css');

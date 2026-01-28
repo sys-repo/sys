@@ -14,7 +14,7 @@ import {
 } from '../../-test.ts';
 import { Style, css } from '../mod.ts';
 
-describe('Style.css → transform', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('Style.css → transform', () => {
   DomMock.init({ beforeAll, afterAll });
 
   const setup = () => {
