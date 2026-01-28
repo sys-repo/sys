@@ -1,9 +1,9 @@
 import { act } from 'react';
-import { DomMock, afterEach, beforeEach, describe, expect, it, renderHook } from '../../-test.ts';
+import { DomMock, beforeAll, afterAll, describe, expect, it, renderHook } from '../../-test.ts';
 import { Lease } from '../mod.ts';
 
 describe('Async: Lease', () => {
-  DomMock.init({ beforeEach, afterEach });
+  DomMock.init({ beforeAll, afterAll });
 
   describe('makeUseLease (hook)', () => {
     it('releases old key and claims new key on key change', () => {

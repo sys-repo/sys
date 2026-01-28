@@ -1,7 +1,7 @@
 import { act } from 'react';
 import {
-  afterEach,
-  beforeEach,
+  beforeAll,
+  afterAll,
   describe,
   DomMock,
   expect,
@@ -11,8 +11,8 @@ import {
 } from '../../-test.ts';
 import { useFunction } from './mod.ts';
 
-describe('useFunction', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('useFunction', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('returns a stable function identity across renders', () => {
     const fnA = (n: number) => n + 1;

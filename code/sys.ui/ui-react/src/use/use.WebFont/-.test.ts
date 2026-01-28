@@ -1,6 +1,7 @@
 import {
   act,
-  afterEach,
+  beforeAll,
+  afterAll,
   beforeEach,
   describe,
   DomMock,
@@ -11,8 +12,8 @@ import {
 import { WebFont as Base } from './common.ts';
 import { useWebFont, WebFont } from './mod.ts';
 
-describe(`useWebFont`, { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe(`useWebFont`, () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('API', async () => {
     const m = await import('@sys/ui-react/use');

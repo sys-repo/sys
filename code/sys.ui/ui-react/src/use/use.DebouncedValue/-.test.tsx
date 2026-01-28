@@ -1,7 +1,7 @@
 import { act } from 'react';
 import {
-  afterEach,
-  beforeEach,
+  afterAll,
+  beforeAll,
   describe,
   DomMock,
   expect,
@@ -16,8 +16,8 @@ import { useDebouncedValue } from './mod.ts';
 
 const sleep = (ms: number) => act(() => Schedule.sleep(ms, 'micro')); // time + micro hop.
 
-describe('useDebouncedValue', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('useDebouncedValue', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('type: matches t.UseDebouncedValue', () => {
     expectTypeOf(useDebouncedValue).toEqualTypeOf<t.UseDebouncedValue>();

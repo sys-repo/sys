@@ -1,7 +1,7 @@
 import {
   act,
-  afterEach,
-  beforeEach,
+  beforeAll,
+  afterAll,
   describe,
   DomMock,
   expect,
@@ -12,8 +12,8 @@ import {
 } from '../../-test.ts';
 import { useObservableRev } from './mod.ts';
 
-describe('useObservableRev', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('useObservableRev', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('returns a function', () => {
     const { result, unmount } = renderHook(() => useObservableRev(undefined));

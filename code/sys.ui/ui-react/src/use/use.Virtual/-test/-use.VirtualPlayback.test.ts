@@ -1,8 +1,8 @@
 import {
   type t,
   act,
-  afterEach,
-  beforeEach,
+  beforeAll,
+  afterAll,
   describe,
   DomMock,
   expect,
@@ -14,8 +14,8 @@ import {
 import { useVirtualPlayback } from '../mod.ts';
 import { resolved, seg } from './-u.ts';
 
-describe('useVirtualPlayback', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('useVirtualPlayback', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('initializes and responds to play/pause/seek deterministically', async () => {
     const life = Rx.lifecycle();

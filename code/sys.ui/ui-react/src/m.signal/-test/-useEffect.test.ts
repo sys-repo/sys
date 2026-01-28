@@ -1,7 +1,7 @@
 import {
   act,
-  afterEach,
-  beforeEach,
+  afterAll,
+  beforeAll,
   describe,
   DomMock,
   expect,
@@ -13,7 +13,7 @@ import { Signal } from '../mod.ts';
 import { useSignalEffect } from '../u.useEffect.ts';
 
 describe('Signal.useEffect | useSignalEffect (React)', () => {
-  DomMock.init({ beforeEach, afterEach });
+  DomMock.init({ beforeAll, afterAll });
 
   /**
    * Dead-simple, first-principles test: use `renderHook` with one signal.

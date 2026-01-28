@@ -1,7 +1,7 @@
 import {
   act,
-  afterEach,
-  beforeEach,
+  afterAll,
+  beforeAll,
   describe,
   DomMock,
   expect,
@@ -17,8 +17,8 @@ import { useEffectController } from '../u.useEffectController.ts';
 type State = { readonly count?: number };
 type Patch = Partial<State>;
 
-describe('useEffectController', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('useEffectController', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   const create = (initial: State = {}) => {
     const ref = createFakeRef<State>(initial);
