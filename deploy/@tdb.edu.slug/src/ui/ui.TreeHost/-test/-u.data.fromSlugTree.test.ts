@@ -91,4 +91,27 @@ describe('Data.fromSlugTree', () => {
     const res = Data.fromSlugTree(tree);
     expect(res[0].children).to.be.undefined;
   });
+
+  it('can emit stub children for all leaf nodes', () => {
+    const tree: t.SlugTreeItems = [{ slug: 'inline-leaf' }, { slug: 'ref-leaf', ref: 'slug://x' }];
+    const res = Data.fromSlugTree(tree, { leafChildren: true });
+    expect(res[0].children).to.eql([]);
+    expect(res[1].children).to.eql([]);
+  });
+
+  it('can omit stub children for all leaf nodes', () => {
+    const tree: t.SlugTreeItems = [{ slug: 'inline-leaf' }, { slug: 'ref-leaf', ref: 'slug://x' }];
+    const res = Data.fromSlugTree(tree, { leafChildren: false });
+    expect(res[0].children).to.be.undefined;
+    expect(res[1].children).to.be.undefined;
+  });
+
+  it('can decide leaf children per node', () => {
+    const tree: t.SlugTreeItems = [{ slug: 'keep' }, { slug: 'drop' }];
+    const res = Data.fromSlugTree(tree, {
+      leafChildren: (item) => item.slug === 'keep',
+    });
+    expect(res[0].children).to.eql([]);
+    expect(res[1].children).to.be.undefined;
+  });
 });

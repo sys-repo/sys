@@ -55,4 +55,10 @@ export type TreeHostDataLib = {
 export type TreeHostFromSlugTreeOpts = {
   /** Label strategy for Tree nodes. Default: `'slug'`. */
   readonly label?: 'slug' | 'slug+description';
+
+  /**
+   * Emit empty children arrays for leaf nodes.
+   * Default: ref-only leaf nodes.
+   */
+  readonly leafChildren?: boolean | ((item: t.SlugTreeItem) => boolean);
 };

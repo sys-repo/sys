@@ -4,7 +4,8 @@ type LabelMode = Exclude<t.TreeHostFromSlugTreeOpts['label'], undefined>;
 
 export const fromSlugTree: t.TreeHostDataLib['fromSlugTree'] = (tree, opts) => {
   const mode: LabelMode = opts?.label ?? 'slug';
-  return tree.map((item) => toNode(item, [], mode));
+  const leafChildren = toLeafChildren(opts?.leafChildren);
+  return tree.map((item) => toNode(item, [], mode, leafChildren));
 };
 
 /**
@@ -38,14 +39,13 @@ function toNode(
   item: t.SlugTreeItem,
   parentPath: t.ObjectPath,
   labelMode: LabelMode,
+  leafChildren: (item: t.SlugTreeItem) => boolean,
 ): t.TreeHostViewNode {
   const path = [...parentPath, item.slug] as t.ObjectPath;
-  const hasRef = 'ref' in item && Is.str(item.ref) && item.ref.length > 0;
   const hasChildren = Arr.isArray(item.slugs) && item.slugs.length > 0;
-  const children =
-    hasChildren
-      ? item.slugs.map((child) => toNode(child, path, labelMode))
-      : hasRef
+  const children = hasChildren
+    ? item.slugs.map((child) => toNode(child, path, labelMode, leafChildren))
+    : leafChildren(item)
       ? []
       : undefined;
 
@@ -61,4 +61,12 @@ function toNode(
     node.meta = { ...(node.meta ?? {}), description: item.description };
   }
   return node;
+}
+
+function toLeafChildren(
+  input: t.TreeHostFromSlugTreeOpts['leafChildren'],
+): (item: t.SlugTreeItem) => boolean {
+  if (Is.func(input)) return input;
+  if (Is.bool(input)) return () => input;
+  return (item) => 'ref' in item && Is.str(item.ref) && item.ref.length > 0;
 }
