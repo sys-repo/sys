@@ -27,7 +27,7 @@ export async function selectSlugLintProfile(
     dir: PROFILE_DIR,
     label: 'Lint profiles',
     itemLabel: 'lint',
-    addLabel: '  add: <profile>',
+    addLabel: 'add: <profile>',
     schema: schema,
     invalid: { label: 'invalid yaml' },
     actions: { extra: extraActions() },
