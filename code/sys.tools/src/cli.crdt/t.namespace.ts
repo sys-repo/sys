@@ -17,8 +17,6 @@ export namespace CrdtTool {
     | 'doc:graph:walk'
     | 'doc:graph:dag'
     | 'doc:graph:lint'
-    | 'doc:graph:tasks'
-    | 'doc:indexer:fs'
     | 'doc:viewer:yaml'
     | 'doc:config:print'
     | 'doc:tmpl:hookfile'

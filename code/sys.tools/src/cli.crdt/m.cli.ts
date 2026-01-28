@@ -4,13 +4,12 @@ import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument } from './u.prompt.ts';
 
 type C = t.CrdtTool.Command;
+type MenuAction = t.CrdtTool.Command | `plugin:${string}`;
 
 const Imports = {
   snapshot: () => import('./cmd.doc.snapshot/mod.ts'),
   docGraph: () => import('./cmd.doc.graph/mod.ts'),
   docGraphLint: () => import('./cmd.doc.graph.lint/mod.ts'),
-  docGraphTasks: () => import('./cmds/cmd.doc.graph.tasks.ts'),
-  indexDocument: () => import('./cmd.doc.index/mod.ts'),
   addOrCreateDocument: () => import('./cmds/cmd.doc.add.ts'),
   docYamlViewer: () => import('./cmds/cmd.doc.viewer.yaml.ts'),
   daemon: () => import('./cmd.repo.daemon/mod.ts'),
@@ -23,7 +22,6 @@ const Imports = {
  * Main entry:
  */
 export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
-  type MenuAction = t.CrdtTool.Command | `plugin:${string}`;
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.CrdtTool.CliArgs>(argv, { alias: { h: 'help' } });
@@ -71,6 +69,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     });
 
   const opt = (name: string, value: C) => ({ name, value }) as const;
+  const optMenu = (name: string, value: MenuAction) => ({ name, value }) as const;
 
   /** --------------------------------------------------------
    * Root Menu
@@ -122,16 +121,15 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           const plugins = hookModule?.plugins ?? [];
           const pluginOptions = plugins.map((plugin) => {
             const label = plugin.title ?? plugin.id;
-            return opt(`  ${label}`, `plugin:${plugin.id}`);
+            return optMenu(`  ${label}`, `plugin:${plugin.id}`);
           });
           const options = [
-            opt(`  lint ${lintModule}`, `doc:graph:lint`),
-            opt(`  doc:graph:backup (snapshot)`, `snapshot`),
-            opt(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
-            opt(`  doc:graph: walk → stats`, `doc:graph:walk`),
-            opt(`  doc:graph: tasks`, `doc:graph:tasks`),
-            opt(`  view: <yaml>`, `doc:viewer:yaml`),
-            opt(`  view: ${c.gray(D.Config.filename)}`, `doc:config:print`),
+            optMenu(`  lint ${lintModule}`, `doc:graph:lint`),
+            optMenu(`  doc:graph:backup (snapshot)`, `snapshot`),
+            optMenu(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
+            optMenu(`  doc:graph: walk → stats`, `doc:graph:walk`),
+            optMenu(`  view: <yaml>`, `doc:viewer:yaml`),
+            optMenu(`  view: ${c.gray(D.Config.filename)}`, `doc:config:print`),
             ...pluginOptions,
             // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
           ];
@@ -140,8 +138,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
           }
 
-          options.push(...[opt(c.gray(c.dim(' (forget)')), 'doc:remove')]);
-          options.push(opt(c.gray(c.dim('← back')), 'back'));
+          options.push(...[optMenu(c.gray(c.dim(' (forget)')), 'doc:remove')]);
+          options.push(optMenu(c.gray(c.dim('← back')), 'back'));
 
           const B = (await Cli.Input.Select.prompt<MenuAction>({
             message: `with ${c.gray(`crdt:${docid.slice(0, -5)}${c.green(docid.slice(-5))}`)}:`,
@@ -204,12 +202,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           await m.lintDocumentGraphCommand(cwd, docid, yamlPath);
           return done(0);
         }
-
-          if (B === 'doc:graph:tasks') {
-            const m = await Imports.docGraphTasks();
-            await m.documentGraphTasksCommand(cwd, docid, yamlPath);
-            return done(0);
-          }
 
         if (B === 'doc:config:print') {
           console.info(Fmt.printDocConfig(config.current, docid));
