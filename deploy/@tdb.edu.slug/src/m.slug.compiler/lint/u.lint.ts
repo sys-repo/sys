@@ -9,7 +9,6 @@ import {
   Pkg,
   pkg,
   Slug,
-  Str,
 } from './common.ts';
 
 import { SlugTree } from '../slug.SlugTree/mod.ts';

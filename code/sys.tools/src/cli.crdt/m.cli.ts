@@ -153,7 +153,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           if (B === 'snapshot') {
             const m = await Imports.snapshot();
             await m.snapshotCommand(cwd, docid);
-            return done(0);
+            continue;
           }
 
           /**
@@ -166,12 +166,12 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
             if (B === 'doc:graph:walk') {
               await m.walkDocumentGraphCommand(cwd, docid, yamlPath);
-              return done(0);
+              continue;
             }
 
             if (B === 'doc:graph:dag') {
               await m.dagHookCommand(cwd, docid, yamlPath);
-              return done(0);
+              continue;
             }
           }
 
@@ -197,7 +197,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           if (B === 'doc:viewer:yaml') {
             const m = await Imports.docYamlViewer();
             await m.startYamlViewerCommand(cwd, docid, yamlPath);
-            return done(0);
+            continue;
           }
 
           if (B === 'doc:tmpl:hookfile') {
