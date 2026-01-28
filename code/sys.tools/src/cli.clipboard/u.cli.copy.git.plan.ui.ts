@@ -13,7 +13,11 @@ type ChecklistRow = {
   readonly disabled?: boolean;
 };
 
-export async function selectAndCopyPlan(repoRootAbs: t.StringDir, plan: t.CopyPlan) {
+export async function selectAndCopyPlan(
+  repoRootAbs: t.StringDir,
+  plan: t.CopyPlan,
+  cwd: t.StringDir,
+) {
   const totalEntries = sum(
     plan.add.length,
     plan.modify.length,
@@ -30,7 +34,7 @@ export async function selectAndCopyPlan(repoRootAbs: t.StringDir, plan: t.CopyPl
 
   renderSummary(totalEntries, plan);
 
-  const rows = buildRows(plan);
+  const rows = buildRows(plan, { repoRootAbs, cwd });
   const selectableRows = rows.filter((row) => !row.disabled);
   const options = rows.map((row) => ({
     name: `${renderSection(row.section)}: ${renderLabel(row)}`,
@@ -96,13 +100,13 @@ export async function selectAndCopyPlan(repoRootAbs: t.StringDir, plan: t.CopyPl
   }
 }
 
-function buildRows(plan: t.CopyPlan): ChecklistRow[] {
+function buildRows(plan: t.CopyPlan, ctx: { repoRootAbs: t.StringDir; cwd: t.StringDir }) {
   const rows: ChecklistRow[] = [];
 
   plan.add.forEach((path) => {
     rows.push({
       section: 'Added',
-      label: path,
+      label: formatPath(path, ctx),
       value: `add:${path}`,
       copyPath: path,
     });
@@ -111,7 +115,7 @@ function buildRows(plan: t.CopyPlan): ChecklistRow[] {
   plan.modify.forEach((path) => {
     rows.push({
       section: 'Modified',
-      label: path,
+      label: formatPath(path, ctx),
       value: `modify:${path}`,
       copyPath: path,
     });
@@ -120,7 +124,7 @@ function buildRows(plan: t.CopyPlan): ChecklistRow[] {
   plan.rename.forEach((entry) => {
     rows.push({
       section: 'Renamed',
-      label: `${entry.from} → ${entry.to}`,
+      label: `${formatPath(entry.from, ctx)} → ${formatPath(entry.to, ctx)}`,
       value: `rename:${entry.from}:${entry.to}`,
       copyPath: entry.to,
     });
@@ -129,7 +133,7 @@ function buildRows(plan: t.CopyPlan): ChecklistRow[] {
   plan.conflict.forEach((path) => {
     rows.push({
       section: 'Conflicts',
-      label: path,
+      label: formatPath(path, ctx),
       value: `conflict:${path}`,
       copyPath: path,
       isWarning: true,
@@ -139,7 +143,7 @@ function buildRows(plan: t.CopyPlan): ChecklistRow[] {
   plan.remove.forEach((path) => {
     rows.push({
       section: 'Removed',
-      label: path,
+      label: formatPath(path, ctx),
       value: `remove:${path}`,
       suffix: '(not copied)',
       disabled: true,
@@ -149,7 +153,7 @@ function buildRows(plan: t.CopyPlan): ChecklistRow[] {
   plan.submodule.forEach((path) => {
     rows.push({
       section: 'Submodules',
-      label: path,
+      label: formatPath(path, ctx),
       value: `submodule:${path}`,
       suffix: '(submodule; not copied)',
       isWarning: true,
@@ -190,6 +194,12 @@ function renderSection(section: SectionName) {
   if (section === 'Modified') return c.yellow(section);
   if (section === 'Removed') return c.red(section);
   return section;
+}
+
+function formatPath(path: string, ctx: { repoRootAbs: t.StringDir; cwd: t.StringDir }) {
+  const abs = Fs.join(ctx.repoRootAbs, path);
+  const trimmed = Fs.Path.trimCwd(abs, { cwd: ctx.cwd, prefix: true });
+  return trimmed === abs ? path : trimmed;
 }
 
 function sum(...values: number[]) {

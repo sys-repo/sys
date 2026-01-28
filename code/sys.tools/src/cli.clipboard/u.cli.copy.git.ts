@@ -11,5 +11,5 @@ export async function copyGitChanged(cwd: t.StringDir) {
     return;
   }
 
-  await selectAndCopyPlan(repoRootAbs, planResult.plan);
+  await selectAndCopyPlan(repoRootAbs, planResult.plan, cwd);
 }
