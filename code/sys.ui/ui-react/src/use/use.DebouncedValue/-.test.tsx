@@ -24,16 +24,17 @@ describe('useDebouncedValue', { sanitizeResources: false, sanitizeOps: false }, 
   });
 
   it('publishes the initial value immediately', () => {
-    const { result } = renderHook(
+    const { result, unmount } = renderHook(
       ({ value, ms = 25 }: { value: unknown; ms?: t.Msecs }) => useDebouncedValue(value, ms),
       { initialProps: { value: 'A', ms: 25 } },
     );
     expect(result.current).to.eql('A');
+    unmount();
   });
 
   it('delays updates until the debounce window elapses', async () => {
     const ms: t.Msecs = 25;
-    const { result, rerender } = renderHook(
+    const { result, rerender, unmount } = renderHook(
       ({ value, ms }: { value: unknown; ms: t.Msecs }) => useDebouncedValue(value, ms),
       { initialProps: { value: 'A', ms } },
     );
@@ -50,38 +51,43 @@ describe('useDebouncedValue', { sanitizeResources: false, sanitizeOps: false }, 
       await sleep(ms + 5);
     });
     expect(result.current).to.eql('B');
+    unmount();
   });
 
   it('resets the timer on rapid successive changes (latest wins)', async () => {
     await Testing.retry(10, async () => {
       const ms: t.Msecs = 30;
-      const { result, rerender } = renderHook(
+      const { result, rerender, unmount } = renderHook(
         ({ value, ms }: { value: unknown; ms: t.Msecs }) => useDebouncedValue(value, ms),
         { initialProps: { value: 'A', ms } },
       );
-      expect(result.current).to.eql('A');
+      try {
+        expect(result.current).to.eql('A');
 
-      await act(async () => {
-        rerender({ value: 'B', ms });
-      });
+        await act(async () => {
+          rerender({ value: 'B', ms });
+        });
 
-      // Allow some time to pass, but don't over-specify the exact value here.
-      // Different schedulers may publish 'B' slightly earlier; the key semantic
-      // we care about is that the *final* value matches the latest input ('C'),
-      // not whether intermediates are exactly 'A'.
-      await act(async () => {
-        await sleep(ms / 2); // halfway-ish
-      });
-      expect(result.current).to.not.eql('C');
+        // Allow some time to pass, but don't over-specify the exact value here.
+        // Different schedulers may publish 'B' slightly earlier; the key semantic
+        // we care about is that the *final* value matches the latest input ('C'),
+        // not whether intermediates are exactly 'A'.
+        await act(async () => {
+          await sleep(ms / 2); // halfway-ish
+        });
+        expect(result.current).to.not.eql('C');
 
-      await act(async () => {
-        rerender({ value: 'C', ms }); // reset timer to latest value
-      });
+        await act(async () => {
+          rerender({ value: 'C', ms }); // reset timer to latest value
+        });
 
-      // Wait long enough that any reasonable debounce implementation will
-      // have published the final value.
-      await act(async () => await sleep(ms + 10));
-      expect(result.current).to.eql('C');
+        // Wait long enough that any reasonable debounce implementation will
+        // have published the final value.
+        await act(async () => await sleep(ms + 10));
+        expect(result.current).to.eql('C');
+      } finally {
+        unmount();
+      }
     });
   });
 

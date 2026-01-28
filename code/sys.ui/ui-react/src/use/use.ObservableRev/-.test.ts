@@ -16,14 +16,16 @@ describe('useObservableRev', { sanitizeResources: false, sanitizeOps: false }, (
   DomMock.init(beforeEach, afterAll);
 
   it('returns a function', () => {
-    const { result } = renderHook(() => useObservableRev(undefined));
+    const { result, unmount } = renderHook(() => useObservableRev(undefined));
     expectTypeOf(result.current).toEqualTypeOf<() => void>();
     expect(result.current).to.be.a('function');
+    unmount();
   });
 
   it('does not throw when invoked (no stream)', () => {
-    const { result } = renderHook(() => useObservableRev());
+    const { result, unmount } = renderHook(() => useObservableRev());
     expect(() => result.current()).to.not.throw();
+    unmount();
   });
 
   it('subscribes to the provided subject and unsubscribes on unmount', async () => {
@@ -55,16 +57,17 @@ describe('useObservableRev', { sanitizeResources: false, sanitizeOps: false }, (
 
   it('keeps a stable function identity across re-renders', () => {
     const subject = Rx.subject<void>();
-    const { result, rerender } = renderHook(() => useObservableRev(subject));
+    const { result, rerender, unmount } = renderHook(() => useObservableRev(subject));
     const first = result.current;
     rerender();
     const second = result.current;
     expect(second).to.equal(first);
+    unmount();
   });
 
   it('handles rapid subject.next() calls without error (coalesced internally)', async () => {
     const subject = Rx.subject<void>();
-    const { result } = renderHook(() => useObservableRev(subject));
+    const { result, unmount } = renderHook(() => useObservableRev(subject));
 
     await act(async () => {
       subject.next();
@@ -74,12 +77,14 @@ describe('useObservableRev', { sanitizeResources: false, sanitizeOps: false }, (
     });
 
     expect(result.current).to.be.a('function');
+    unmount();
   });
 
   it('completes safely when subject completes', () => {
     const subject = Rx.subject<void>();
-    const { result } = renderHook(() => useObservableRev(subject));
+    const { result, unmount } = renderHook(() => useObservableRev(subject));
     expect(() => subject.complete()).to.not.throw();
     expect(result.current).to.be.a('function');
+    unmount();
   });
 });

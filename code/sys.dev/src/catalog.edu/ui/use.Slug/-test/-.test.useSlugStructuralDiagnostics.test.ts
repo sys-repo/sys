@@ -113,12 +113,13 @@ describe('useSlugDiagnostics', { sanitizeResources: false, sanitizeOps: false },
         args: [registry, undefined, makeEditorYamlFromText(validYamlText, 1)],
       };
 
-      const { result } = renderHook((p: Props) => useSlugDiagnostics(...p.args), {
+      const { result, unmount } = renderHook((p: Props) => useSlugDiagnostics(...p.args), {
         initialProps: initial,
       });
 
       expectTypeOf(result.current).toEqualTypeOf<t.UseSlugDiagnosticsResult>();
       expectTypeOf(result.current.diagnostics).toEqualTypeOf<readonly t.Yaml.Diagnostic[]>();
+      unmount();
     });
 
     it('rev stable when diagnostics unchanged; bumps when diagnostics change', () => {
@@ -126,7 +127,7 @@ describe('useSlugDiagnostics', { sanitizeResources: false, sanitizeOps: false },
         args: [registry, undefined, makeEditorYamlFromText(validYamlText, 1)],
       };
 
-      const { result, rerender } = renderHook((p: Props) => useSlugDiagnostics(...p.args), {
+      const { result, rerender, unmount } = renderHook((p: Props) => useSlugDiagnostics(...p.args), {
         initialProps: initial,
       });
 
@@ -173,6 +174,7 @@ describe('useSlugDiagnostics', { sanitizeResources: false, sanitizeOps: false },
       expect(rev3).to.be.greaterThan(rev2);
       expect(key3).to.eql(key0); // back to baseline content signature
       expect(diag3.length).to.eql(diag0.length); // counts match baseline (may be > 0)
+      unmount();
     });
   });
 });

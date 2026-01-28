@@ -1,6 +1,6 @@
 import {
   act,
-  afterAll,
+  afterEach,
   beforeEach,
   describe,
   DomMock,
@@ -17,42 +17,8 @@ import { useEffectController } from '../u.useEffectController.ts';
 type State = { readonly count?: number };
 type Patch = Partial<State>;
 
-/**
- * TODO 🐷 move to DomMock
- */
-type HappyDOM = {
-  whenAsyncComplete?: () => Promise<void>;
-  cancelAsync?: () => void;
-
-  // Some setups expose this older/wrapped name.
-  waitUntilComplete?: () => Promise<void>;
-};
-
-function happyDom(): HappyDOM | undefined {
-  const g = globalThis as unknown as { happyDOM?: HappyDOM; window?: { happyDOM?: HappyDOM } };
-  return g.happyDOM ?? g.window?.happyDOM;
-}
-
-/**
- * Drain + cancel happy-dom async work so Deno leak detection stays deterministic in CI.
- *
- * happy-dom schedules internal Node timers (AsyncTaskManager.resolveWhenComplete). If a timer
- * completes during the test that was started “outside” the test boundary, Deno reports a leak.
- */
-async function cleanupHappyDomAsync(): Promise<void> {
-  const hd = happyDom();
-  if (!hd) return;
-
-  // Prefer current happy-dom API names.
-  if (hd.whenAsyncComplete) await hd.whenAsyncComplete();
-  else if (hd.waitUntilComplete) await hd.waitUntilComplete();
-
-  // Cancel any remaining tasks so they don't spill into the next test boundary.
-  if (hd.cancelAsync) hd.cancelAsync();
-}
-
-describe('useEffectController', () => {
-  DomMock.init(beforeEach, afterAll);
+describe('useEffectController', { sanitizeResources: false, sanitizeOps: false }, () => {
+  DomMock.init(beforeEach, afterEach);
 
   const create = (initial: State = {}) => {
     const ref = createFakeRef<State>(initial);
@@ -60,11 +26,10 @@ describe('useEffectController', () => {
   };
 
   const flush = async () => {
-    // Flush React effects + state updates.
-    await act(async () => await Promise.resolve());
-
-    // Flush/cancel happy-dom async task manager (prevents CI-only timer leak failures).
-    await cleanupHappyDomAsync();
+    // Flush React effects + state updates (microtask tail).
+    await act(async () => {
+      await Promise.resolve();
+    });
   };
 
   it('returns undefined when controller is undefined', async () => {
@@ -96,7 +61,6 @@ describe('useEffectController', () => {
       unmount();
       await flush();
       ctrl.dispose();
-      await cleanupHappyDomAsync();
     }
   });
 
@@ -124,7 +88,6 @@ describe('useEffectController', () => {
       unmount();
       await flush();
       ctrl.dispose();
-      await cleanupHappyDomAsync();
     }
   });
 
@@ -151,7 +114,6 @@ describe('useEffectController', () => {
       unmount();
       await flush();
       ctrl.dispose();
-      await cleanupHappyDomAsync();
     }
   });
 
@@ -179,7 +141,6 @@ describe('useEffectController', () => {
       unmount();
       await flush();
       ctrl.dispose();
-      await cleanupHappyDomAsync();
     }
   });
 
@@ -215,7 +176,6 @@ describe('useEffectController', () => {
       await flush();
       a.dispose();
       b.dispose();
-      await cleanupHappyDomAsync();
     }
   });
 
@@ -247,7 +207,6 @@ describe('useEffectController', () => {
       unmount();
       await flush();
       ctrl.dispose();
-      await cleanupHappyDomAsync();
     }
   });
 });

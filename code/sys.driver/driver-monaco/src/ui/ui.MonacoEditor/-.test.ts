@@ -14,9 +14,14 @@ describe('MonacoEditor', () => {
       delete (globalThis as any).document;
       expect(Is.browser()).to.eql(false); // Sanity check.
 
+      let unmount: (() => void) | undefined;
       try {
-        const fn = () => renderHook(() => useMonacoEditorModule());
+        const fn = () => {
+          const h = renderHook(() => useMonacoEditorModule());
+          unmount = h.unmount;
+        };
         expect(fn).to.throw();
+        if (unmount) unmount();
       } finally {
         // Restore for other tests:
         (globalThis as any).window = origWindow;
