@@ -3,8 +3,8 @@ import { Url as UrlBaseBase } from '@sys/std/url';
 
 import {
   type t,
-  afterEach,
-  beforeEach,
+  beforeAll,
+  afterAll,
   describe,
   DomMock,
   expect,
@@ -13,8 +13,8 @@ import {
 } from '../-test.ts';
 import { Url } from './mod.ts';
 
-describe('Url', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('Url', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('API', async () => {
     const m = await import('@sys/ui-dom/url');
