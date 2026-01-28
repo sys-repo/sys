@@ -1,7 +1,7 @@
 import { type t, Schedule } from './common.ts';
 import { polyfill, unpolyfill } from './u.polyfill.ts';
 
-import { afterEach } from '../m.Testing/m.Bdd.ts';
+import { afterEach, beforeEach } from '../m.Testing/m.Bdd.ts';
 
 export const init: t.DomMockLib['init'] = (before, after) => {
   before(async () => {
@@ -10,6 +10,7 @@ export const init: t.DomMockLib['init'] = (before, after) => {
   });
 
   // TEMP 🐷
+  beforeEach(async () => await drain());
   afterEach(async () => await drain());
 
   after(async () => {
