@@ -1,9 +1,6 @@
 import React from 'react';
 import { SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
 import {
-  type t,
-  Url,
-  SlugClient,
   Button,
   Color,
   css,
@@ -13,8 +10,11 @@ import {
   Obj,
   ObjectView,
   Signal,
-  TreeHost,
+  SlugClient,
   SlugKbDriver,
+  type t,
+  TreeHost,
+  Url,
 } from './mod.ts';
 
 type P = t.TreeHostProps;
@@ -106,6 +106,33 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({ color: theme.fg }),
   };
 
+  const button = (label: string, name: string) => {
+    return (
+      <Button
+        block
+        label={() => label}
+        onClick={async () => {
+          const baseUrl = controller.props.baseUrl;
+          const filename = SlugClient.Url.treeFilename(name);
+          const url = Url.parse(baseUrl).join('manifests', filename);
+          console.log('url', url);
+
+          const res = await SlugClient.FromEndpoint.Tree.load(baseUrl, name);
+          console.log('res', res);
+          if (res.ok) {
+            p.selectedPath.value = undefined;
+            p.tree.value = TreeHost.Data.fromSlugTree(res.value);
+            controller.next({ error: undefined });
+          } else {
+            p.selectedPath.value = undefined;
+            p.tree.value = undefined;
+            controller.next({ error: { message: res.error.message } });
+          }
+        }}
+      />
+    );
+  };
+
   return (
     <div className={css(styles.base, props.style).class}>
       <SlugKbDriver.Dev.DriverInfo style={{ marginBottom: 15 }} controller={controller} />
@@ -120,27 +147,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
-        block
-        label={() => `load 🐷`}
-        onClick={async () => {
-          const baseUrl = controller.props.baseUrl;
-          const kb = 'kb';
-          const filename = SlugClient.Url.treeFilename(kb);
-          const url = Url.parse(baseUrl).join('manifests', filename);
-          console.log('url', url);
-
-          const res = await SlugClient.FromEndpoint.Tree.load(baseUrl, kb);
-          console.log('res', res);
-          if (res.ok) {
-            p.tree.value = TreeHost.Data.fromSlugTree(res.value);
-            controller.next({ error: undefined });
-          } else {
-            p.tree.value = undefined;
-            controller.next({ error: { message: res.error.message } });
-          }
-        }}
-      />
+      {button('load: kb', 'kb')}
+      {button('load: canvas-sections', 'kb-canvas-sections')}
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
