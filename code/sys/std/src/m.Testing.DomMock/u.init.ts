@@ -10,6 +10,7 @@ export const init: t.DomMockLib['init'] = (args) => {
   const after = async () => {
     await drain();
     unpolyfill();
+    await drain();
   };
 
   if (args.beforeEach) {
@@ -29,6 +30,7 @@ export const init: t.DomMockLib['init'] = (args) => {
  *
  * - after polyfill:    ensures setup-started timers complete before tests run
  * - before unpolyfill: ensures queued timers complete while the DOM is still present
+ * - after unpolyfill:  allows trailing HappyDOM/React scheduler timers to settle
  *
  * Intentionally one macro hop (not micro) to catch scheduler/HappyDOM timers
  * without masking real leaks (intervals, long timers still fail).
