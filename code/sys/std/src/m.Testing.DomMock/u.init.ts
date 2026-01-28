@@ -8,9 +8,9 @@ export const init: t.DomMockLib['init'] = (args) => {
   };
 
   const after = async () => {
-    await drain();
+    await terminalDrain();
     unpolyfill();
-    await drain();
+    await terminalDrain();
   };
 
   if (args.beforeEach) {
@@ -24,15 +24,33 @@ export const init: t.DomMockLib['init'] = (args) => {
 };
 
 /**
- * Drain one macrotask tick to flush queued timers/immediates.
+ * Single macrotask drain.
  *
- * Used to enforce a clean async boundary around DomMock setup/teardown:
- *
- * - after polyfill:    ensures setup-started timers complete before tests run
- * - before unpolyfill: ensures queued timers complete while the DOM is still present
- * - after unpolyfill:  allows trailing HappyDOM/React scheduler timers to settle
- *
- * Intentionally one macro hop (not micro) to catch scheduler/HappyDOM timers
- * without masking real leaks (intervals, long timers still fail).
+ * Used for lightweight boundaries (per-test).
  */
 const drain = () => Schedule.macro();
+
+/**
+ * Terminal async drain.
+ *
+ * Used only at suite teardown (afterAll) to guarantee:
+ * - no pending microtasks
+ * - no pending macrotasks
+ * - no raf-scheduled followups
+ *
+ * This does NOT mask real leaks (intervals, long timers still fail),
+ * but eliminates scheduler/HappyDOM tail noise.
+ */
+async function terminalDrain() {
+  // Microtasks
+  await Schedule.micro();
+
+  // Macrotasks
+  await Schedule.macro();
+
+  // Frame callbacks (may schedule timers)
+  await Schedule.raf();
+
+  // Final macrotask to catch raf fallout
+  await Schedule.macro();
+}
