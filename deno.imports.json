@@ -51,7 +51,7 @@
     "fake-indexeddb/auto": "npm:fake-indexeddb@6.2.5/auto",
     "fast-json-patch": "npm:fast-json-patch@3.1.1",
     "gpt-tokenizer": "npm:gpt-tokenizer@3.4.0",
-    "happy-dom": "npm:happy-dom@20.3.9",
+    "happy-dom": "npm:happy-dom@20.4.0",
     "hash-it": "npm:hash-it@7.0.2",
     "ignore": "npm:ignore@7.0.5",
     "monaco-editor": "npm:monaco-editor@0.55.1",
