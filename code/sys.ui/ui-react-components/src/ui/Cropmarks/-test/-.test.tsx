@@ -1,29 +1,19 @@
-import { createRoot } from 'react-dom/client';
-import { DomMock, act, afterEach, beforeEach, describe, expect, it } from '../../-test.ts';
-import { Cropmarks } from './mod.ts';
+import { afterAll, beforeEach, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
+import { Cropmarks } from '../mod.ts';
 
 describe('<Cropmarks> percent mode', { sanitizeResources: false, sanitizeOps: false }, () => {
-  beforeEach(DomMock.polyfill);
-  afterEach(DomMock.unpolyfill);
+  DomMock.init(beforeEach, afterAll);
 
   it('emits host vars and subject uses cqi/cqb sizing', async () => {
-    const mount = document.createElement('div');
-    mount.style.width = '1000px';
-    mount.style.height = '600px';
-    document.body.appendChild(mount);
-
-    const root = createRoot(mount);
-    await act(async () => {
-      root.render(
-        <Cropmarks size={{ mode: 'percent', width: 80, height: 60 }}>
-          <div />
-        </Cropmarks>,
-      );
-      await Promise.resolve();
-    });
+    const rendered = await TestReact.render(
+      <Cropmarks size={{ mode: 'percent', width: 80, height: 60 }}>
+        <div />
+      </Cropmarks>,
+    );
 
     // Subject is the middle cell (index 4) in the 3×3 grid:
-    const host = mount.firstElementChild as HTMLElement;
+    const container = rendered.container as HTMLElement;
+    const host = container.firstElementChild as HTMLElement;
     const subject = host.children.item(4) as HTMLElement;
     expect(subject).to.exist;
 
@@ -39,7 +29,10 @@ describe('<Cropmarks> percent mode', { sanitizeResources: false, sanitizeOps: fa
     expect(norm(subjCS.getPropertyValue('inline-size'))).to.equal('calc(min(80,100)*1cqi)');
     expect(norm(subjCS.getPropertyValue('block-size'))).to.equal('calc(min(60,100)*1cqb)');
 
-    root.unmount();
-    mount.remove();
+    rendered.dispose();
+    rendered.disposed;
+
+    // Ensure any queued scheduler Immediate runs while window still exists.
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
   });
 });
