@@ -2,27 +2,29 @@ import {
   type t,
   c,
   Cli,
-  Json,
   LintDocFacets as Facets,
   Fs,
+  Json,
   Obj,
   Pkg,
   pkg,
   Slug,
+  Str,
 } from './common.ts';
 
+import { SlugTree } from '../slug.SlugTree/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
-import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
-import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
-import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
-import { LintProfileSchema } from './u.lint.schema.ts';
-import { SlugTree } from '../slug.SlugTree/mod.ts';
+import { runLintCommand } from './u.lint.cmd.ts';
 import {
   type SlugLintProfilePick,
   selectSlugLintProfile,
   selectSlugLintProfileAction,
 } from './u.lint.menu.ts';
+import { LintProfileSchema } from './u.lint.schema.ts';
+import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
+import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
+import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
 
 type Issue = t.DocLintIssue;
 
@@ -31,6 +33,7 @@ type Issue = t.DocLintIssue;
  */
 export const Linter = {
   run,
+  cmd: runLintCommand,
   Facets,
   Facet: { lintAliases, lintSequenceFilepaths, lintTypedYamlSequence },
 } as const;

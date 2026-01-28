@@ -9,7 +9,6 @@ type MenuAction = t.CrdtTool.Command | `plugin:${string}`;
 const Imports = {
   snapshot: () => import('./cmd.doc.snapshot/mod.ts'),
   docGraph: () => import('./cmd.doc.graph/mod.ts'),
-  docGraphLint: () => import('./cmd.doc.graph.lint/mod.ts'),
   addOrCreateDocument: () => import('./cmds/cmd.doc.add.ts'),
   docYamlViewer: () => import('./cmds/cmd.doc.viewer.yaml.ts'),
   daemon: () => import('./cmd.repo.daemon/mod.ts'),
@@ -116,7 +115,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       if (A.startsWith('crdt:')) {
         const arrow = c.gray('→');
         while (true) {
-          const lintModule = c.dim(`[ ${c.cyan(`:plugin:program:${c.yellow('slugs')}`)} ]`);
           const { loadDocumentHook } = await Imports.docGraph();
           const hookModule = await loadDocumentHook(cwd);
           const plugins = hookModule?.plugins ?? [];
@@ -125,7 +123,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             return optMenu(`  ${label}`, `plugin:${plugin.id}`);
           });
           const options = [
-            optMenu(`  lint ${lintModule}`, `doc:graph:lint`),
             optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
             optMenu(`  doc:graph:walk   ${arrow} stats`, `doc:graph:walk`),
             optMenu(`  doc:graph:backup ${arrow} snapshot`, `snapshot`),
@@ -197,12 +194,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           if (B === 'doc:viewer:yaml') {
             const m = await Imports.docYamlViewer();
             await m.startYamlViewerCommand(cwd, docid, yamlPath);
-            return done(0);
-          }
-
-          if (B === 'doc:graph:lint') {
-            const m = await Imports.docGraphLint();
-            await m.lintDocumentGraphCommand(cwd, docid, yamlPath);
             return done(0);
           }
 

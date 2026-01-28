@@ -16,7 +16,6 @@ export namespace CrdtTool {
     | 'doc:remove'
     | 'doc:graph:walk'
     | 'doc:graph:dag'
-    | 'doc:graph:lint'
     | 'doc:viewer:yaml'
     | 'doc:tmpl:hookfile'
     | 'repo:daemon:start'
