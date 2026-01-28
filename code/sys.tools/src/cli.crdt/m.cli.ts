@@ -114,6 +114,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       const hookTmpl = await makeHookTmpl(cwd);
 
       if (A.startsWith('crdt:')) {
+        const arrow = c.gray('→');
         while (true) {
           const lintModule = c.dim(`[ ${c.cyan(`:plugin:program:${c.yellow('slugs')}`)} ]`);
           const { loadDocumentHook } = await Imports.docGraph();
@@ -125,9 +126,9 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           });
           const options = [
             optMenu(`  lint ${lintModule}`, `doc:graph:lint`),
-            optMenu(`  doc:graph:backup (snapshot)`, `snapshot`),
-            optMenu(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
-            optMenu(`  doc:graph: walk → stats`, `doc:graph:walk`),
+            optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
+            optMenu(`  doc:graph:walk   ${arrow} stats`, `doc:graph:walk`),
+            optMenu(`  doc:graph:backup ${arrow} snapshot`, `snapshot`),
             optMenu(`  view: <yaml>`, `doc:viewer:yaml`),
             ...pluginOptions,
             // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
@@ -155,62 +156,62 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             return done(0);
           }
 
-        /**
-         * TODO 🐷 - make path configurable (via prompt)
-         */
-        const yamlPath = ['slug'];
+          /**
+           * TODO 🐷 - make path configurable (via prompt)
+           */
+          const yamlPath = ['slug'];
 
-        if (B.startsWith('doc:graph')) {
-          const m = await Imports.docGraph();
+          if (B.startsWith('doc:graph')) {
+            const m = await Imports.docGraph();
 
-          if (B === 'doc:graph:walk') {
-            await m.walkDocumentGraphCommand(cwd, docid, yamlPath);
+            if (B === 'doc:graph:walk') {
+              await m.walkDocumentGraphCommand(cwd, docid, yamlPath);
+              return done(0);
+            }
+
+            if (B === 'doc:graph:dag') {
+              await m.dagHookCommand(cwd, docid, yamlPath);
+              return done(0);
+            }
+          }
+
+          if (B.startsWith('plugin:')) {
+            const id = B.slice('plugin:'.length);
+            const plugin = plugins.find((entry) => entry.id === id);
+            if (!plugin) return done(0);
+
+            const { buildDocumentDAG } = await Imports.docGraph();
+            const { RepoProcess } = await Imports.daemon();
+            const port = D.port.repo;
+            const cmd = await RepoProcess.tryClient(port);
+            if (!cmd) return done(0);
+
+            const dag = await buildDocumentDAG(cmd, docid, yamlPath);
+            await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
             return done(0);
           }
 
-          if (B === 'doc:graph:dag') {
-            await m.dagHookCommand(cwd, docid, yamlPath);
+          if (B === 'doc:viewer:yaml') {
+            const m = await Imports.docYamlViewer();
+            await m.startYamlViewerCommand(cwd, docid, yamlPath);
             return done(0);
           }
-        }
 
-        if (B.startsWith('plugin:')) {
-          const id = B.slice('plugin:'.length);
-          const plugin = plugins.find((entry) => entry.id === id);
-          if (!plugin) return done(0);
+          if (B === 'doc:graph:lint') {
+            const m = await Imports.docGraphLint();
+            await m.lintDocumentGraphCommand(cwd, docid, yamlPath);
+            return done(0);
+          }
 
-          const { buildDocumentDAG } = await Imports.docGraph();
-          const { RepoProcess } = await Imports.daemon();
-          const port = D.port.repo;
-          const cmd = await RepoProcess.tryClient(port);
-          if (!cmd) return done(0);
+          if (B === 'doc:tmpl:hookfile') {
+            await hookTmpl.write();
+            return done(0);
+          }
 
-          const dag = await buildDocumentDAG(cmd, docid, yamlPath);
-          await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
-          return done(0);
-        }
-
-        if (B === 'doc:viewer:yaml') {
-          const m = await Imports.docYamlViewer();
-          await m.startYamlViewerCommand(cwd, docid, yamlPath);
-          return done(0);
-        }
-
-        if (B === 'doc:graph:lint') {
-          const m = await Imports.docGraphLint();
-          await m.lintDocumentGraphCommand(cwd, docid, yamlPath);
-          return done(0);
-        }
-
-        if (B === 'doc:tmpl:hookfile') {
-          await hookTmpl.write();
-          return done(0);
-        }
-
-        if (B === 'doc:remove') {
-          await promptRemoveDocument(cwd, docid);
-          return done(0);
-        }
+          if (B === 'doc:remove') {
+            await promptRemoveDocument(cwd, docid);
+            return done(0);
+          }
 
           if (B === 'exit') return done(0);
         }
