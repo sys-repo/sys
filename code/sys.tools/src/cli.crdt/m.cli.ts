@@ -129,7 +129,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             optMenu(`  doc:graph: walk → ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
             optMenu(`  doc:graph: walk → stats`, `doc:graph:walk`),
             optMenu(`  view: <yaml>`, `doc:viewer:yaml`),
-            optMenu(`  view: ${c.gray(D.Config.filename)}`, `doc:config:print`),
             ...pluginOptions,
             // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
           ];
@@ -200,11 +199,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         if (B === 'doc:graph:lint') {
           const m = await Imports.docGraphLint();
           await m.lintDocumentGraphCommand(cwd, docid, yamlPath);
-          return done(0);
-        }
-
-        if (B === 'doc:config:print') {
-          console.info(Fmt.printDocConfig(config.current, docid));
           return done(0);
         }
 

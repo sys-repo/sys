@@ -18,7 +18,6 @@ export namespace CrdtTool {
     | 'doc:graph:dag'
     | 'doc:graph:lint'
     | 'doc:viewer:yaml'
-    | 'doc:config:print'
     | 'doc:tmpl:hookfile'
     | 'repo:daemon:start'
     | 'repo:syncserver:start'
