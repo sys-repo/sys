@@ -1,0 +1,3 @@
+- [ ] Refactor CRDT/worker-repo over `Cmd` system.
+- [ ] Secure running of `hook.ts` execution: @sys/tools
+- [ ] Write YAML of slug-tree to CRDT
