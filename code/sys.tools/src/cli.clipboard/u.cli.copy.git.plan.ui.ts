@@ -33,7 +33,7 @@ export async function selectAndCopyPlan(repoRootAbs: t.StringDir, plan: t.CopyPl
   const rows = buildRows(plan);
   const selectableRows = rows.filter((row) => !row.disabled);
   const options = rows.map((row) => ({
-    name: `${row.section}: ${renderLabel(row)}`,
+    name: `${renderSection(row.section)}: ${renderLabel(row)}`,
     value: row.value,
     checked: true,
     disabled: row.disabled,
@@ -183,6 +183,13 @@ function renderLabel(row: ChecklistRow) {
     return c.gray(base);
   }
   return base;
+}
+
+function renderSection(section: SectionName) {
+  if (section === 'Added') return c.green(section);
+  if (section === 'Modified') return c.yellow(section);
+  if (section === 'Removed') return c.red(section);
+  return section;
 }
 
 function sum(...values: number[]) {
