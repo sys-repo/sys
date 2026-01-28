@@ -36,12 +36,6 @@ export namespace CrdtTool {
       export type WalkHook = t.DocumentGraphWalkHook;
       export type Plugin = t.DocumentGraphPlugin;
     }
-    /** Document linting types. */
-    export namespace Lint {
-      export type Issue<K extends string = string> = t.DocLintIssue<K>;
-      export type Result<K extends string = string> = t.DocLintResult<K>;
-      export type Severity = t.LintSeverity;
-    }
   }
 
   /**

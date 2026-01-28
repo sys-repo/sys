@@ -114,6 +114,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
       if (A.startsWith('crdt:')) {
         const arrow = c.gray('→');
+        let lastMenuAction: MenuAction | undefined;
         while (true) {
           const { loadDocumentHook } = await Imports.docGraph();
           const hookModule = await loadDocumentHook(cwd);
@@ -141,9 +142,11 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           const B = (await Cli.Input.Select.prompt<MenuAction>({
             message: `with ${c.gray(`crdt:${docid.slice(0, -5)}${c.green(docid.slice(-5))}`)}:`,
             options,
+            default: lastMenuAction,
             hideDefault: true,
             maxRows: 25,
           })) as MenuAction;
+          lastMenuAction = B;
 
           if (B === 'back') break;
 
