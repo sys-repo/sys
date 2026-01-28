@@ -16,4 +16,4 @@ export type * as t from './types.ts';
 /**
  * Library
  */
-export * from './m.cli/mod.ts';
+export * from './m.core/mod.ts';
