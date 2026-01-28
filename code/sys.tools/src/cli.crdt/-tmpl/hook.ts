@@ -38,3 +38,19 @@ export const onWalk: t.CrdtTool.Doc.Graph.WalkHook = async (e) => {
     e.log(`hook: from root document 👋 | ${c.green(e.id)}`);
   }
 };
+
+/**
+ * Plugin extensions (eg. lint tasks).
+ */
+export const plugins: t.CrdtTool.Doc.Graph.Plugin[] = [
+  {
+    id: 'plugin:sample',
+    title: `sample ${c.gray('(stub)')}`,
+    async run(args) {
+      const { docpath } = args;
+      console.info();
+      console.info(c.cyan('plugin:sample'), c.gray(`docpath: ${docpath.join('/') || '/'}`));
+      console.info();
+    },
+  },
+];

@@ -1,5 +1,5 @@
-import { type t, Fs, TmplEngine, D, FileMap, c } from '../common.ts';
 import { json } from '../../-tmpl/bundle/-bundle.ts';
+import { type t, D, Fs, TmplEngine, c } from '../common.ts';
 
 export async function makeHookTmpl(cwd: t.StringDir) {
   const path = {

@@ -18,4 +18,28 @@ export type DocumentGraphHookModule = {
    * Called once for after the complete document DAG has been calculated.
    */
   readonly onDag?: t.DocumentGraphDagHook;
+
+  /**
+   * Optional plugin extensions (eg. lint tasks).
+   */
+  readonly plugins?: readonly DocumentGraphPlugin[];
+};
+
+/**
+ * Document-graph plugin interface.
+ */
+export type DocumentGraphPlugin = {
+  /** Stable identifier (default menu label). */
+  readonly id: string;
+
+  /** Optional menu label override. */
+  readonly title?: string;
+
+  /** Execute plugin action. */
+  readonly run: (args: {
+    cwd: t.StringDir;
+    dag: t.Graph.Dag.Result;
+    cmd: t.Crdt.Cmd.Client;
+    docpath: t.ObjectPath;
+  }) => Promise<void>;
 };

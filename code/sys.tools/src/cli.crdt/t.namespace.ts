@@ -38,6 +38,7 @@ export namespace CrdtTool {
     export namespace Graph {
       export type DagHook = t.DocumentGraphDagHook;
       export type WalkHook = t.DocumentGraphWalkHook;
+      export type Plugin = t.DocumentGraphPlugin;
     }
     /** Document linting types. */
     export namespace Lint {
