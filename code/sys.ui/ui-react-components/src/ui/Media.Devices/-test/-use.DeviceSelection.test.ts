@@ -1,16 +1,8 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  DomMock,
-  expect,
-  it,
-  renderHook,
-} from '../../../-test.ts';
+import { beforeAll, afterAll, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
 import { useDeviceSelection } from '../use.DeviceSelection.ts';
 
-describe('hook: useDeviceSelection', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('hook: useDeviceSelection', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   const video = { deviceId: 'v1', kind: 'videoinput', label: 'Cam 1' } as MediaDeviceInfo;
   const mic = { deviceId: 'a1', kind: 'audioinput', label: 'Mic 1' } as MediaDeviceInfo;
