@@ -41,5 +41,22 @@ export type DocumentGraphPlugin = {
     dag: t.Graph.Dag.Result;
     cmd: t.Crdt.Cmd.Client;
     docpath: t.ObjectPath;
-  }) => Promise<void>;
+  }) => DocumentGraphPluginResult | Promise<DocumentGraphPluginResult>;
 };
+
+/**
+ * Plugin action result.
+ */
+export const DocumentGraphPluginResultKind = {
+  Exit: 'exit',
+  Back: 'back',
+  Stay: 'stay',
+} as const;
+
+export type DocumentGraphPluginResultKind =
+  typeof DocumentGraphPluginResultKind[keyof typeof DocumentGraphPluginResultKind];
+
+export type DocumentGraphPluginResult =
+  | { kind: DocumentGraphPluginResultKind }
+  | DocumentGraphPluginResultKind
+  | undefined;

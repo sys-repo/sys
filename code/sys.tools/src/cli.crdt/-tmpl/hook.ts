@@ -51,6 +51,7 @@ export const plugins: t.CrdtTool.Doc.Graph.Plugin[] = [
       console.info();
       console.info(c.cyan('plugin:sample'), c.gray(`| docpath: ${docpath.join('/') || '/'}`));
       console.info();
+      return { kind: 'stay' };
     },
   },
 ];

@@ -175,21 +175,24 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             }
           }
 
-          if (B.startsWith('plugin:')) {
-            const id = B.slice('plugin:'.length);
-            const plugin = plugins.find((entry) => entry.id === id);
-            if (!plugin) return done(0);
+        if (B.startsWith('plugin:')) {
+          const id = B.slice('plugin:'.length);
+          const plugin = plugins.find((entry) => entry.id === id);
+          if (!plugin) return done(0);
 
-            const { buildDocumentDAG } = await Imports.docGraph();
-            const { RepoProcess } = await Imports.daemon();
-            const port = D.port.repo;
-            const cmd = await RepoProcess.tryClient(port);
-            if (!cmd) return done(0);
+          const { buildDocumentDAG } = await Imports.docGraph();
+          const { RepoProcess } = await Imports.daemon();
+          const port = D.port.repo;
+          const cmd = await RepoProcess.tryClient(port);
+          if (!cmd) return done(0);
 
-            const dag = await buildDocumentDAG(cmd, docid, yamlPath);
-            await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
-            return done(0);
-          }
+          const dag = await buildDocumentDAG(cmd, docid, yamlPath);
+          const result = await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
+          const kind = wrangle.pluginResult(result);
+          if (kind === 'exit') return done(0);
+          if (kind === 'back') break;
+          continue;
+        }
 
           if (B === 'doc:viewer:yaml') {
             const m = await Imports.docYamlViewer();
@@ -237,3 +240,11 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   // End.
   return done(0);
 }
+
+const wrangle = {
+  pluginResult(result: t.DocumentGraphPluginResult): t.DocumentGraphPluginResultKind {
+    if (Is.str(result)) return result;
+    if (result && Is.str(result.kind)) return result.kind;
+    return 'stay';
+  },
+} as const;
