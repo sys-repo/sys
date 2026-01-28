@@ -1,9 +1,11 @@
-import { Is, describe, expect, it, renderHook } from '../../-test.ts';
+import { Is, describe, expect, it, renderHook, DomMock } from '../../-test.ts';
 import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
 
 describe('MonacoEditor', () => {
   describe('hook: useMonacoEditorModule', () => {
     it('throws on non-browser environment', () => {
+      DomMock.unpolyfill();
+
       const origWindow = (globalThis as any).window;
       const origDocument = (globalThis as any).document;
 
