@@ -18,21 +18,33 @@ export function withinTimeThreshold<T>(
     const startedAt = Date.now();
     const $$ = new Subject<R>();
     const { dispose, dispose$ } = Dispose.disposable(options.dispose$);
+
+    // ----------- added (ensure timer cancellation + single settle) -----------
+    let settled = false;
+    let timer: t.TimeDelayPromise | undefined;
+
     const done = (result: boolean, value?: T) => {
+      if (settled) return;
+      settled = true;
       $$.next({ result, value });
       $$.complete();
       dispose();
     };
+    // ----------- /added -----------
 
     $.pipe(takeUntil(dispose$), take(1)).subscribe((e) => {
       const elapsed = Date.now() - startedAt;
       if (elapsed < timeout) done(true, e);
     });
 
-    Time.delay(timeout, () => {
+    // ----------- changed (track + cancel pending timeout) -----------
+    timer = Time.delay(timeout, () => {
       done(false);
       timeout$.next();
     });
+
+    dispose$.subscribe(() => timer?.cancel());
+    // ----------- /changed -----------
 
     return $$;
   };
@@ -42,13 +54,16 @@ export function withinTimeThreshold<T>(
    */
   const timeout$ = new Subject<void>();
   const $$ = new Subject<T>();
-  $.subscribe((e) => {
+
+  // ----------- changed (dispose outer subscription) -----------
+  $.pipe(takeUntil(life.dispose$)).subscribe((e) => {
     const listen$ = listen(timeout).pipe(
       takeUntil(life.dispose$),
       filter((e) => !!e.result),
     );
     listen$.subscribe((e) => $$.next(e.value!));
   });
+  // ----------- /changed -----------
 
   /**
    * API:
