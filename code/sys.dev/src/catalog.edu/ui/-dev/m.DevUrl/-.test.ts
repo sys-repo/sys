@@ -11,7 +11,7 @@ import {
 import { DevUrl } from './mod.ts';
 
 describe('dev: url (DevUrlConfig DSL)', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('constructs from a URL and exposes a DevUrlConfig view', () => {
     const ref = DevUrl.ref('https://example.com/app');

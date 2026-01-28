@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, it } from '../../-test.ts';
+import { afterEach, beforeEach, describe, expect, it } from '../../-test.ts';
 import { DomMock } from '../mod.ts';
 
 describe(
@@ -7,7 +7,7 @@ describe(
   /** NOTE: leaked timers left around by the "happy-dom" module. */
   { sanitizeOps: false, sanitizeResources: false },
   () => {
-    DomMock.init(beforeEach, afterAll);
+    DomMock.init({ beforeEach, afterEach });
 
     it('fires event', () => {
       const fired: KeyboardEvent[] = [];

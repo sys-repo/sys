@@ -17,7 +17,7 @@ import { __test as TD } from '../use.Slug.Diagnostics.ts';
 import { makeEditorYamlFromText } from './-u.ts';
 
 describe('useSlugDiagnostics', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   /**
    * Minimal Slug registry stub.
@@ -127,9 +127,12 @@ describe('useSlugDiagnostics', { sanitizeResources: false, sanitizeOps: false },
         args: [registry, undefined, makeEditorYamlFromText(validYamlText, 1)],
       };
 
-      const { result, rerender, unmount } = renderHook((p: Props) => useSlugDiagnostics(...p.args), {
-        initialProps: initial,
-      });
+      const { result, rerender, unmount } = renderHook(
+        (p: Props) => useSlugDiagnostics(...p.args),
+        {
+          initialProps: initial,
+        },
+      );
 
       const rev0 = result.current.rev;
       const diag0 = result.current.diagnostics;

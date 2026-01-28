@@ -20,7 +20,7 @@ describe(
   'hook: useDeviceSelectionLifecycle',
   { sanitizeResources: false, sanitizeOps: false },
   () => {
-    DomMock.init(beforeEach, afterEach);
+    DomMock.init({ beforeEach, afterEach });
 
     const video = { deviceId: 'v1', kind: 'videoinput', label: 'Cam 1' } as MediaDeviceInfo;
     const mic = { deviceId: 'a1', kind: 'audioinput', label: 'Mic 1' } as MediaDeviceInfo;

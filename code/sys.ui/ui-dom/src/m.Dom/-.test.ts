@@ -10,7 +10,7 @@ describe(
     sanitizeResources: false,
   },
   () => {
-    DomMock.init(beforeEach, afterAll);
+    DomMock.init({ beforeEach, afterEach });
 
     it('API', () => {
       expect(Dom.Event).to.equal(Event);

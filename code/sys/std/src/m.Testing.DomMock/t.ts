@@ -29,7 +29,7 @@ export type DomMockLib = {
    * Registers DomMock lifecycle with the test runner.
    *
    * Usage:
-   *   DomMock.init({ beforeEach, afterAll });
+   *   DomMock.init({ beforeEach, afterEach });
    *
    * Notes:
    * - Keeps setup/teardown explicit at the call site.

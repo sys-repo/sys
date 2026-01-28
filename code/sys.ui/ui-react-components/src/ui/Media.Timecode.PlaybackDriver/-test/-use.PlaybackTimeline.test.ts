@@ -1,9 +1,17 @@
-import { afterAll, beforeEach, describe, DomMock, expect, it, renderHook } from '../../../-test.ts';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  it,
+  renderHook,
+} from '../../../-test.ts';
 import { type t } from '../common.ts';
 import { PlaybackDriver } from '../mod.ts';
 
 describe('Media.Timecode.Driver: usePlaybackTimeline', () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   const ms = (n: number): t.Msecs => n;
   const makeEmptySpec = (): t.Timecode.Playback.Spec<unknown> => ({ composition: [], beats: [] });

@@ -1,6 +1,6 @@
 import {
   act,
-  afterAll,
+  afterEach,
   beforeEach,
   describe,
   DomMock,
@@ -17,7 +17,7 @@ import { useYaml } from '../use.Yaml.ts';
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
 
 describe('Monaco.Yaml', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {
     const m = await import('@sys/driver-monaco');

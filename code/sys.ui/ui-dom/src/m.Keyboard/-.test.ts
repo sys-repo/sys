@@ -7,7 +7,7 @@ describe(
   'Keyboard',
   { sanitizeOps: false, sanitizeResources: false }, // NB: leaked timers left around by the "happy-dom" module.
   () => {
-    DomMock.init(beforeEach, afterAll);
+    DomMock.init({ beforeEach, afterEach });
 
     it('API', async () => {
       const m = await import('@sys/ui-dom/keyboard');

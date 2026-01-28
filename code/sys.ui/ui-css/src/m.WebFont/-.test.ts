@@ -4,7 +4,7 @@ import { type t, D } from './common.ts';
 import { WebFont } from './mod.ts';
 
 describe(`useWebFont`, { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {
     const m = await import('@sys/ui-css');

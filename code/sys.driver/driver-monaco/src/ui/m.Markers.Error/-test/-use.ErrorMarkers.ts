@@ -2,7 +2,7 @@ import {
   type t,
   act,
   beforeEach,
-  afterAll,
+  afterEach,
   describe,
   DomMock,
   expect,
@@ -16,7 +16,7 @@ import {
 import { useErrorMarkers } from '../mod.ts';
 
 describe('useErrorMarkers', () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('type: matches UseYamlErrorMarkers', () => {
     expectTypeOf(useErrorMarkers).toEqualTypeOf<t.UseErrorMarkers>();

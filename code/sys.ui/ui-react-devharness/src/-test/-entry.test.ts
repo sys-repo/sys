@@ -11,7 +11,7 @@ import { Specs } from './entry.Specs.ts';
  *    within the CI pipeline.
  */
 describe('visual specs', { sanitizeOps: false, sanitizeResources: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('run', async () => {
     const res = await Dev.headless(Specs);

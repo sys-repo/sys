@@ -15,7 +15,7 @@
  * ```ts
  * import { DomMock, beforeEach, beforeAll, afterAll } from '@sys/std/testing/server';
  *
- * DomMock.init(beforeEach, afterAll);
+ * DomMock.init({ beforeEach, afterEach });
  * // or:
  * DomMock.init(beforeAll, afterAll); // suite
  * ```

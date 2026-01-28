@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import {
   act,
-  afterAll,
+  afterEach,
   beforeEach,
   describe,
   DomMock,
@@ -13,7 +13,7 @@ import {
 import { Signal } from '../mod.ts';
 
 describe('Signal.useRedrawEffect', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('coalesces redraws per microtask', async () => {
     const h = await renderHook(() => {

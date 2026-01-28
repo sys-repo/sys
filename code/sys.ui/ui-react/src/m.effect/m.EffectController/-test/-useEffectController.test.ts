@@ -18,7 +18,7 @@ type State = { readonly count?: number };
 type Patch = Partial<State>;
 
 describe('useEffectController', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterEach);
+  DomMock.init({ beforeEach, afterEach });
 
   const create = (initial: State = {}) => {
     const ref = createFakeRef<State>(initial);

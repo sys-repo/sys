@@ -14,7 +14,7 @@ import {
 import { Url } from './mod.ts';
 
 describe('Url', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {
     const m = await import('@sys/ui-dom/url');

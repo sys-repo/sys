@@ -15,7 +15,7 @@ import {
 import { Style, css } from '../mod.ts';
 
 describe('Style.css → transform', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   const setup = () => {
     const sheet = Style.Dom.stylesheet(slug());

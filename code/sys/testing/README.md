@@ -42,7 +42,7 @@ The DOM can be simulated on the server using `DomMock`:
 import { DomMock, beforeEach, afterAll } from '@sys/testing/server';
 
 // Setup the environment with a browser `window` object (`globalThis`).
-DomMock.init(beforeEach, afterAll);
+DomMock.init({ beforeEach, afterEach });
 
 // Sample interaction with keyboard:
 document.addEventListener('keydown', (e) => {

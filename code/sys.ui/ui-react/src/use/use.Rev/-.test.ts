@@ -1,6 +1,6 @@
 import {
   act,
-  afterAll,
+  afterEach,
   beforeEach,
   describe,
   DomMock,
@@ -12,7 +12,7 @@ import {
 import { useRev } from './mod.ts';
 
 describe('useRev', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('returns a tuple [rev, bump]', () => {
     const { result, unmount } = renderHook(() => useRev());

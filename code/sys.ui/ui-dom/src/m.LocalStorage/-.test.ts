@@ -2,7 +2,7 @@ import { afterAll, beforeEach, c, describe, DomMock, expect, it, slug } from '..
 import { LocalStorage } from './mod.ts';
 
 describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {
     const m = await import('@sys/ui-dom/local-storage');

@@ -1,8 +1,8 @@
-import { afterAll, beforeEach, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
+import { afterEach, beforeEach, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
 import { Cropmarks } from '../mod.ts';
 
 describe('<Cropmarks> percent mode', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init(beforeEach, afterAll);
+  DomMock.init({ beforeEach, afterEach });
 
   it('emits host vars and subject uses cqi/cqb sizing', async () => {
     const rendered = await TestReact.render(
