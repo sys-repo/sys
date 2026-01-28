@@ -21,7 +21,7 @@ describe('Signal.useEffect | useSignalEffect (React)', () => {
    * the observed sequence in `fired`.
    */
   it('basic reactivity (legacy shape preserved)', async () => {
-    const { result } = renderHook(() => {
+    const { result, unmount } = renderHook(() => {
       const s = Signal.useSignal(0);
       const fired: number[] = [];
 
@@ -64,6 +64,9 @@ describe('Signal.useEffect | useSignalEffect (React)', () => {
     expect(result.current.fired.length).to.be.gte(3);
     const tail = result.current.fired.slice(-3);
     expect(tail).to.eql([1, 2, 3]);
+
+    await Testing.wait();
+    unmount();
   });
 
   it('lazy lifecycle: no Abortable until e.life is accessed', async () => {
