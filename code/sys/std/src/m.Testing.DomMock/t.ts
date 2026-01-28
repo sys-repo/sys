@@ -29,11 +29,25 @@ export type DomMockLib = {
    * Registers DomMock lifecycle with the test runner.
    *
    * Usage:
-   *   DomMock.init(beforeAll, afterAll);
+   *   DomMock.init({ beforeEach, afterAll });
    *
    * Notes:
    * - Keeps setup/teardown explicit at the call site.
    * - Supports async hooks (Promise-returning) and runner-provided `this` context.
    */
-  init(before: TestHook, after: TestHook): void;
+  init(args: DomMockInitArgs): void;
 };
+
+export type DomMockInitArgs =
+  | {
+      readonly beforeEach: TestHook;
+      readonly afterEach: TestHook;
+      readonly beforeAll?: undefined;
+      readonly afterAll?: undefined;
+    }
+  | {
+      readonly beforeAll: TestHook;
+      readonly afterAll: TestHook;
+      readonly beforeEach?: undefined;
+      readonly afterEach?: undefined;
+    };

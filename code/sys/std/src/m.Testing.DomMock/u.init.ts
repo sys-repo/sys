@@ -1,32 +1,25 @@
 import { type t, Schedule } from './common.ts';
 import { polyfill, unpolyfill } from './u.polyfill.ts';
 
-import { afterEach, beforeEach } from '../m.Testing/m.Bdd.ts';
-
-export const init: t.DomMockLib['init'] = (before, after) => {
-  // before(async () => {
-  //   polyfill();
-  //   await drain();
-  // });
-
-  beforeEach(async () => {
+export const init: t.DomMockLib['init'] = (args) => {
+  const before = async () => {
     polyfill();
     await drain();
-  });
+  };
 
-  // TEMP 🐷
-  // beforeEach(async () => await drain());
-  // afterEach(async () => await drain());
-
-  afterEach(async () => {
+  const after = async () => {
     await drain();
     unpolyfill();
-  });
+  };
 
-  // after(async () => {
-  //   await drain();
-  //   unpolyfill();
-  // });
+  if (args.beforeEach) {
+    args.beforeEach(before);
+    args.afterEach(after);
+    return;
+  }
+
+  args.beforeAll(before);
+  args.afterAll(after);
 };
 
 /**
