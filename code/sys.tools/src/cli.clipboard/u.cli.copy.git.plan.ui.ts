@@ -13,11 +13,12 @@ type ChecklistRow = {
   readonly disabled?: boolean;
 };
 
-export async function selectAndCopyPlan(
-  repoRootAbs: t.StringDir,
-  plan: t.CopyPlan,
-  cwd: t.StringDir,
-) {
+export async function selectAndCopyPlan(args: {
+  repoRoot: t.StringAbsolutePath;
+  plan: t.CopyPlan;
+  cwd: t.StringDir;
+}) {
+  const { repoRoot, plan, cwd } = args;
   const totalEntries = sum(
     plan.add.length,
     plan.modify.length,
@@ -34,7 +35,7 @@ export async function selectAndCopyPlan(
 
   renderSummary(totalEntries, plan);
 
-  const rows = buildRows(plan, { repoRootAbs, cwd });
+  const rows = buildRows(plan, { repoRoot, cwd });
   const selectableRows = rows.filter((row) => !row.disabled);
   const options = rows.map((row) => ({
     name: `${renderSection(row.section)}: ${renderLabel(row)}`,
@@ -74,8 +75,8 @@ export async function selectAndCopyPlan(
     return;
   }
 
-  const absPaths = copyTargets.map((path) => Fs.join(repoRootAbs, path));
-  const bundle = await pathsToFileStrings(absPaths, repoRootAbs);
+  const absPaths = copyTargets.map((path) => Fs.join(repoRoot, path));
+  const bundle = await pathsToFileStrings(absPaths, repoRoot);
   Cli.copyToClipboard(bundle.text);
   logClipboardSummary(bundle);
 
@@ -100,7 +101,7 @@ export async function selectAndCopyPlan(
   }
 }
 
-function buildRows(plan: t.CopyPlan, ctx: { repoRootAbs: t.StringDir; cwd: t.StringDir }) {
+function buildRows(plan: t.CopyPlan, ctx: { repoRoot: t.StringAbsolutePath; cwd: t.StringDir }) {
   const rows: ChecklistRow[] = [];
 
   plan.add.forEach((path) => {
@@ -196,8 +197,8 @@ function renderSection(section: SectionName) {
   return section;
 }
 
-function formatPath(path: string, ctx: { repoRootAbs: t.StringDir; cwd: t.StringDir }) {
-  const abs = Fs.join(ctx.repoRootAbs, path);
+function formatPath(path: string, ctx: { repoRoot: t.StringAbsolutePath; cwd: t.StringDir }) {
+  const abs = Fs.join(ctx.repoRoot, path);
   const trimmed = Fs.Path.trimCwd(abs, { cwd: ctx.cwd, prefix: true });
   return trimmed === abs ? path : trimmed;
 }
