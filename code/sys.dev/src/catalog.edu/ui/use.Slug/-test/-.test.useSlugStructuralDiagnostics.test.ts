@@ -1,5 +1,7 @@
 import {
   act,
+  beforeAll,
+  afterAll,
   afterEach,
   beforeEach,
   describe,
@@ -16,8 +18,8 @@ import { useSlugDiagnostics } from '../mod.ts';
 import { __test as TD } from '../use.Slug.Diagnostics.ts';
 import { makeEditorYamlFromText } from './-u.ts';
 
-describe('useSlugDiagnostics', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('useSlugDiagnostics', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   /**
    * Minimal Slug registry stub.

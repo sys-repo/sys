@@ -1,7 +1,7 @@
 import {
   type t,
-  afterEach,
-  beforeEach,
+  afterAll,
+  beforeAll,
   describe,
   DomMock,
   expect,
@@ -12,8 +12,8 @@ import {
 } from '../../../-test.ts';
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
 
-describe('useYamlErrorMarkers', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('useYamlErrorMarkers', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('normalizes linePos → correct marker range', () => {
     const monaco = MonacoFake.monaco({ cast: true });

@@ -1,11 +1,13 @@
-import { describe, DomMock, expect, it, afterEach } from '../-test.ts';
+import { afterEach, beforeEach, describe, DomMock, expect, it } from '../-test.ts';
 import { Is } from '../mod.ts';
 
-describe('Is (browser environment)', { sanitizeResources: false, sanitizeOps: false }, () => {
-  afterEach(DomMock.unpolyfill);
+describe('Is (browser environment)', () => {
+  // NB: before/after-each intentional.
+  DomMock.init({ beforeEach, afterEach });
 
   describe('Is.browser', () => {
     it('Is.browser: false', () => {
+      DomMock.unpolyfill();
       expect(Is.browser()).to.eql(false);
     });
 

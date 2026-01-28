@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, DomMock, expect, it } from '../-test.ts';
-
 import { type t, D } from './common.ts';
 import { WebFont } from './mod.ts';
 
 describe(`useWebFont`, () => {
+  // NB: before/after-each intentional.
   DomMock.init({ beforeEach, afterEach });
 
   it('API', async () => {

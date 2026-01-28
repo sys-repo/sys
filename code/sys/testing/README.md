@@ -39,10 +39,10 @@ describe('My Suite', () => {
 The DOM can be simulated on the server using `DomMock`:
 
 ```ts
-import { DomMock, beforeEach, afterAll } from '@sys/testing/server';
+import { DomMock, beforeAll, afterAll } from '@sys/testing/server';
 
 // Setup the environment with a browser `window` object (`globalThis`).
-DomMock.init({ beforeEach, afterEach });
+DomMock.init({ beforeAll, afterAll });
 
 // Sample interaction with keyboard:
 document.addEventListener('keydown', (e) => {

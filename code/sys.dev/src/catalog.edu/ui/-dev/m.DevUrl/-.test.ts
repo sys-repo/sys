@@ -1,7 +1,7 @@
 import {
   type t,
-  afterEach,
-  beforeEach,
+  afterAll,
+  beforeAll,
   describe,
   DomMock,
   expect,
@@ -10,8 +10,8 @@ import {
 } from '../../../-test.ts';
 import { DevUrl } from './mod.ts';
 
-describe('dev: url (DevUrlConfig DSL)', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('dev: url (DevUrlConfig DSL)', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('constructs from a URL and exposes a DevUrlConfig view', () => {
     const ref = DevUrl.ref('https://example.com/app');

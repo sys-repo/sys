@@ -1,4 +1,4 @@
-import { DomMock, afterEach, beforeEach, describe, expect, it } from '../-test.ts';
+import { DomMock, afterAll, beforeAll, describe, expect, it } from '../-test.ts';
 import { Dev } from '../mod.ts';
 import { Specs } from './entry.Specs.ts';
 
@@ -10,8 +10,8 @@ import { Specs } from './entry.Specs.ts';
  *    assertions within the visual specs, to be included and monitored
  *    within the CI pipeline.
  */
-describe('visual specs', { sanitizeOps: false, sanitizeResources: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+describe('visual specs', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('run', async () => {
     const res = await Dev.headless(Specs);
