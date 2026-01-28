@@ -1,5 +1,12 @@
+/**
+ * @module
+ * Command-line formatting tools (e.g. color, trees, table).
+ */
 import { Format as PathFormat } from '@sys/std/path';
 import { type t, c } from './common.ts';
+import { Table } from './m.Table.ts';
+
+export { c, Color, stripAnsi } from '../common.ts';
 
 export const Tree: t.CliFormatLib['Tree'] = {
   vert: '│',
@@ -24,6 +31,7 @@ export const Path: t.CliFormatLib['Path'] = {
 };
 
 export const Fmt: t.CliFormatLib = {
+  Table,
   Tree,
   Path,
   path: PathFormat.string,

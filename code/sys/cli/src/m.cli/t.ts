@@ -1,9 +1,7 @@
-/**
- * Exports:
- */
+/** Type re-exports. */
 export type * from './t.lib.ts';
 export type * from './t/t.ext.prompt.ts';
-export type * from './t/t.format.ts';
+export type * from './t/t.fmt.ts';
 export type * from './t/t.input.ts';
 export type * from './t/t.keepAlive.ts';
 export type * from './t/t.keyboard.ts';

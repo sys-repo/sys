@@ -35,7 +35,7 @@
  */
 import { Cli } from './m.Cli.ts';
 
-export { c, stripAnsi } from './common.ts';
+export { Args, c, Color, stripAnsi } from './common.ts';
 export { Fmt } from './m.Fmt.ts';
 export { Keyboard } from './m.Keyboard.ts';
 export { Prompt } from './m.Prompt.ts';

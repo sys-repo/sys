@@ -11,7 +11,7 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./cli": "./src/-exports/-cli.ts",
-    "./fmt": "./src/-exports/-fmt.ts"
+    "./core": "./src/m.cli/mod.ts",
+    "./fmt": "./src/m.cli/m.Fmt.ts"
   }
 }

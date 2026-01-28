@@ -1,11 +1,14 @@
 import { describe, expect, it } from '../-test.ts';
 import { Args, Path } from '../common.ts';
-import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from '@sys/cli/cli';
+import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from '../mod.ts';
 import { copyToClipboard } from './u.clipboard.ts';
 import { Input } from './m.Input.ts';
 
-describe('Cli', () => {
-  it('API', () => {
+describe('CLI: core', () => {
+  it('API', async () => {
+    const m = await import('@sys/cli/core');
+    expect(m.Cli).to.equal(Cli);
+
     expect(Cli.Path).to.equal(Path);
     expect(Cli.Args).to.equal(Args);
 
@@ -20,6 +23,12 @@ describe('Cli', () => {
     expect(Cli.args).to.equal(Args.parse);
     expect(Cli.keypress).to.equal(Keyboard.keypress);
     expect(Cli.copyToClipboard).to.equal(copyToClipboard);
+  });
+
+  it('API: Fmt (Format)', async () => {
+    const m = await import('@sys/cli/fmt');
+    expect(m.Fmt).to.equal(Fmt);
+    expect(m.Fmt).to.equal(Cli.Fmt);
   });
 
   it('Cli.stripAnsi', () => {
