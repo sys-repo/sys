@@ -18,16 +18,17 @@ export const SlugSheetStack: React.FC<t.SlugSheetStackProps> = (props) => {
     base: css({
       position: 'relative',
       color: theme.fg,
-      padding: 30,
+      isolation: 'isolate',
     }),
     sheet: css({ Absolute: 0 }),
   };
 
   const elItems = items.map((item, i) => {
+    const main = item.props.slots?.main;
     const top = i * 6;
     const label = `slot:main-${i}`;
     const slots: t.SlugSheetSlots = {
-      main: <Foo theme={theme.name} label={label} style={{ padding: 15 }} />,
+      main: main ?? <Foo theme={theme.name} label={label} style={{ padding: 15 }} />,
     };
 
     return (

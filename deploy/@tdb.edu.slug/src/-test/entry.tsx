@@ -9,12 +9,8 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register(new URL('sw.js', import.meta.url), { type: 'module' })
-      .then((reg) =>
-        console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`),
-      )
-      .catch((err) =>
-        console.error(`💥 [main] ServiceWorker registration failed:`, err),
-      );
+      .then((reg) => console.info(`🌳 [main] ServiceWorker registered with scope: ${reg.scope}`))
+      .catch((err) => console.error(`💥 [main] ServiceWorker registration failed:`, err));
   });
 }
 
@@ -41,7 +37,9 @@ export async function main() {
     const { Specs } = await import('./-specs.ts');
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
-      hr: (e) => {},
+      hr(e) {
+        if (e.next?.endsWith('.SlugPlayback')) return true;
+      },
     });
 
     function App() {

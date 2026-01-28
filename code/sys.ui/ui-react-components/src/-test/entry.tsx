@@ -35,7 +35,7 @@ export async function main() {
 
     const el = await render(pkg, Specs, {
       style: { Absolute: 0 },
-      hr: (e) => {
+      hr(e) {
         if (e.next?.endsWith(': Bullet')) return true;
         if (e.next?.startsWith('sys.ui.css: @container')) return true;
         if (e.next?.endsWith(': Layout.CenterColumn')) return true;

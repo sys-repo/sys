@@ -33,7 +33,7 @@ export async function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
-  const fixture = createFixture();
+  const fixture = createFixture('slug root');
 
   const props = {
     debug: s(snap.debug),
@@ -106,7 +106,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Controller'}</div>
-      <Button block label={() => 'stack.push( sheet )'} onClick={() => fixture.push()} />
+      <Button
+        block
+        label={() => 'stack.push( sheet )'}
+        onClick={() => {
+          const total = fixture.controller.length;
+          const label = `foo-${total}`;
+          fixture.push(label);
+        }}
+      />
       <Button block label={() => 'stack.pop( )'} onClick={() => fixture.pop()} />
       <Button block label={() => 'clear'} onClick={() => fixture.pop(Num.MAX_INT)} />
 
