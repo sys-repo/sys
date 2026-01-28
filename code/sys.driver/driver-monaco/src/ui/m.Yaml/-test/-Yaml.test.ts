@@ -1,7 +1,7 @@
 import {
   act,
-  afterEach,
-  beforeEach,
+  afterAll,
+  beforeAll,
   describe,
   DomMock,
   expect,
@@ -16,8 +16,13 @@ import { EditorYaml } from '../mod.ts';
 import { useYaml } from '../use.Yaml.ts';
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
 
-describe('Monaco.Yaml', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+const settle = async (ms = 0) => {
+  await Time.wait(ms);
+  await Time.wait(0); // extra tick (micro/macro alignment)
+};
+
+describe('Monaco.Yaml', () => {
+  DomMock.init({ beforeAll, afterAll });
 
   it('API', async () => {
     const m = await import('@sys/driver-monaco');
@@ -62,9 +67,12 @@ describe('Monaco.Yaml', { sanitizeResources: false, sanitizeOps: false }, () => 
       expect(pong.states).to.eql(['yaml']);
       expect(pong.at).to.be.a('number');
 
-      await repo.dispose();
       life.dispose();
       unmount();
+
+      await settle(); //      let hook cleanup run
+      await repo.dispose();
+      await settle(100); //   let AM throttle timer clear
     });
   });
 });
