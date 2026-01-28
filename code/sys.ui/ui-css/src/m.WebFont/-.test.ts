@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, DomMock, expect, it } from '../-test.ts';
+import { afterEach, beforeEach, describe, DomMock, expect, it } from '../-test.ts';
 
 import { type t, D } from './common.ts';
 import { WebFont } from './mod.ts';
