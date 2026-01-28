@@ -1,6 +1,6 @@
 import {
-  afterEach,
-  beforeEach,
+  afterAll,
+  beforeAll,
   describe,
   DomMock,
   expect,
@@ -15,7 +15,7 @@ import { CssDom } from '../mod.ts';
 const toString = CssDom.toString;
 
 describe('Stylesheet.container(): scoped @container context', () => {
-  DomMock.init({ beforeEach, afterEach });
+  DomMock.init({ beforeAll, afterAll });
 
   let _count = 0;
   const setup = () => {
