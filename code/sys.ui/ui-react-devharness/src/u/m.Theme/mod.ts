@@ -32,9 +32,10 @@ export const Theme: DevThemeLib = {
    * Hook into a theme Signal and keep the DevHarness sycned with it.
    */
   signalEffect(ctx, theme, subjectLight, subjectDark) {
-    Signal.effect(() => {
+    const unsubscribe = Signal.effect(() => {
       Theme.background(ctx, theme.value, subjectLight, subjectDark);
       ctx.redraw();
     });
+    ctx.dispose$.subscribe(() => unsubscribe());
   },
 };
