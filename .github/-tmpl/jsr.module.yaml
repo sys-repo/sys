@@ -1,7 +1,7 @@
 - name: publish module → "NAME"
   run: |
     cd PATH
-    deno task test --parallel --trace-leaks
+    deno task test --trace-leaks
     for i in 1 2 3; do
         if deno publish --allow-dirty; then
           exit 0
