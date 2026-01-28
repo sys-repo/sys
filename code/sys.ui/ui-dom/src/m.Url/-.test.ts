@@ -3,7 +3,7 @@ import { Url as UrlBaseBase } from '@sys/std/url';
 
 import {
   type t,
-  afterAll,
+  afterEach,
   beforeEach,
   describe,
   DomMock,

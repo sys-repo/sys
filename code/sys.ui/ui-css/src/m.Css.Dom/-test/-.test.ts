@@ -1,7 +1,7 @@
 import {
   type t,
   afterAll,
-  beforeEach,
+  beforeAll,
   describe,
   DomMock,
   expect,
@@ -19,7 +19,7 @@ import { getStylesheetId } from '../u.ts';
 const toString = CssDom.toString;
 
 describe('Style: CSS ClassName', { sanitizeResources: false, sanitizeOps: false }, () => {
-  DomMock.init({ beforeEach, afterEach });
+  DomMock.init({ beforeAll, afterAll });
 
   let _count = 0;
   const setup = () => {

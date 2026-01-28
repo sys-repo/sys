@@ -1,4 +1,4 @@
-import { type t, afterAll, beforeEach, describe, DomMock, expect, it, Rx, Time } from '../-test.ts';
+import { type t, afterAll, beforeAll, describe, DomMock, expect, it, Rx, Time } from '../-test.ts';
 import { UserAgent } from './common.ts';
 import { KeyListener } from './m.KeyListener.ts';
 import { Kbd, Keyboard } from './mod.ts';
@@ -7,7 +7,7 @@ describe(
   'Keyboard',
   { sanitizeOps: false, sanitizeResources: false }, // NB: leaked timers left around by the "happy-dom" module.
   () => {
-    DomMock.init({ beforeEach, afterEach });
+    DomMock.init({ beforeAll, afterAll });
 
     it('API', async () => {
       const m = await import('@sys/ui-dom/keyboard');

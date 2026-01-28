@@ -1,4 +1,4 @@
-import { type t, beforeEach, afterAll, describe, DomMock, expect, it } from '../-test.ts';
+import { type t, afterEach, beforeEach, describe, DomMock, expect, it } from '../-test.ts';
 import { UserHas } from '../m.Events/mod.ts';
 import { Event } from './m.Dom.Event.ts';
 import { Dom } from './mod.ts';

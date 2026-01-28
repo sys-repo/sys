@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, c, describe, DomMock, expect, it, slug } from '../-test.ts';
+import { afterEach, beforeEach, c, describe, DomMock, expect, it, slug } from '../-test.ts';
 import { LocalStorage } from './mod.ts';
 
 describe('LocalStorage', { sanitizeOps: false, sanitizeResources: false }, () => {

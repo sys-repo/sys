@@ -4,7 +4,7 @@ import {
   FindCss,
   Obj,
   TestPrint,
-  afterAll,
+  afterEach,
   beforeEach,
   c,
   describe,

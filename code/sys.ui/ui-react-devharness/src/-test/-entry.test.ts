@@ -1,4 +1,4 @@
-import { DomMock, afterAll, beforeEach, describe, expect, it } from '../-test.ts';
+import { DomMock, afterEach, beforeEach, describe, expect, it } from '../-test.ts';
 import { Dev } from '../mod.ts';
 import { Specs } from './entry.Specs.ts';
 

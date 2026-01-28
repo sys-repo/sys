@@ -1,5 +1,5 @@
 import {
-  afterAll,
+  afterEach,
   beforeEach,
   describe,
   DomMock,

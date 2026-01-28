@@ -1,6 +1,6 @@
 import {
   type t,
-  afterAll,
+  afterEach,
   beforeEach,
   describe,
   DomMock,
