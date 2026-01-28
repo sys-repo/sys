@@ -1,4 +1,4 @@
-import { describe, DomMock, expect, it, afterEach } from '../../../-test.ts';
+import { afterAll, beforeEach, describe, DomMock, expect, it } from '../../../-test.ts';
 import { Is } from '../mod.ts';
 
 describe('Media.Is', () => {
@@ -136,10 +136,9 @@ describe('Media.Is', () => {
 });
 
 describe('Media.Is (HappyDOM instanceof)', { sanitizeOps: false, sanitizeResources: false }, () => {
-  afterEach(DomMock.unpolyfill);
+  DomMock.init(beforeEach, afterAll);
 
   it('true (HappyDOM instanceof MediaStream)', () => {
-    DomMock.polyfill();
     const stream = new (globalThis as any).MediaStream();
     expect(Is.mediaStream(stream)).to.be.true;
   });
