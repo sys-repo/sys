@@ -4,14 +4,12 @@ import {
   Cli,
   LintDocFacets as Facets,
   Fs,
-  Json,
   Obj,
   Pkg,
   pkg,
   Slug,
 } from './common.ts';
 
-import { SlugTree } from '../slug.SlugTree/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
 import { runLintCommand } from './u.lint.cmd.ts';
@@ -20,10 +18,11 @@ import {
   selectSlugLintProfile,
   selectSlugLintProfileAction,
 } from './u.lint.menu.ts';
-import { LintProfileSchema } from './u.lint.schema.ts';
 import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
+import { runSlugTreeFs } from './u.lint.slug-tree.ts';
+import { readLintProfile, writeLintProfile } from './u.lint.util.ts';
 
 type Issue = t.DocLintIssue;
 
@@ -285,81 +284,12 @@ async function run(
   return Obj.asGetter({ ok, facets, issues }, ['issues']);
 }
 
-async function readLintProfile(path: t.StringFile): Promise<t.LintProfileDoc> {
-  const res = await Fs.readYaml<t.LintProfileDoc>(path);
-  if (!res.ok || !res.exists) return LintProfileSchema.initial();
-  const doc = res.data ?? {};
-  return LintProfileSchema.validate(doc).ok ? doc : LintProfileSchema.initial();
-}
-
-async function writeLintProfile(path: t.StringFile, doc: t.LintProfileDoc) {
-  await Fs.write(path, LintProfileSchema.stringify(doc));
-}
-
 function resolveFacets(args: {
   current: readonly t.DocLintFacet[];
   doc: t.LintProfileDoc;
 }): t.DocLintFacet[] {
   const src = args.doc.facets ?? args.current;
   return src.filter((facet) => Facets.includes(facet));
-}
-
-async function runSlugTreeFs(args: {
-  cwd: t.StringDir;
-  profilePath: t.StringFile;
-  createCrdt: () => Promise<t.StringRef>;
-}) {
-  const { cwd, profilePath, createCrdt } = args;
-  const doc = await readLintProfile(profilePath);
-  const config = doc['fs:slug-tree'];
-  if (!config) {
-    console.info(c.yellow('warning: fs:slug-tree skipped (missing config)'));
-    return;
-  }
-
-  const source = Fs.Tilde.expand(String(config.source ?? '.'));
-  const root = Fs.Path.resolve(cwd, source || '.');
-
-  const targets = normalizeTargets(config.target).map((target) => ({
-    raw: target,
-    path: Fs.Path.resolve(cwd, Fs.Tilde.expand(String(target))),
-  }));
-
-  if (targets.length === 0) {
-    console.info(c.yellow('warning: fs:slug-tree skipped (no target configured)'));
-    return;
-  }
-
-  const tree = await SlugTree.fromDir(
-    { root, createCrdt },
-    {
-      include: config.include ? [...config.include] : undefined,
-      ignore: config.ignore ? [...config.ignore] : undefined,
-      sort: config.sort,
-      readmeAsIndex: config.readmeAsIndex,
-    },
-  );
-
-  for (const target of targets) {
-    const ext = Fs.extname(target.path).toLowerCase();
-    const dir = Fs.dirname(target.path);
-    await Fs.ensureDir(dir);
-    if (ext === '.json') {
-      await Fs.write(target.path, Json.stringify(tree));
-      continue;
-    }
-    if (ext === '.yaml' || ext === '.yml') {
-      await Fs.write(target.path, SlugTree.toYaml(tree));
-      continue;
-    }
-    console.info(c.yellow(`warning: fs:slug-tree skipped unsupported target: ${target.raw}`));
-  }
-}
-
-function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.StringPath[] {
-  if (!input) return [];
-  const list = Array.isArray(input) ? input : [input];
-  return list.map((value) => String(value).trim()).filter(Boolean) as t.StringPath[];
 }
 
 /**
