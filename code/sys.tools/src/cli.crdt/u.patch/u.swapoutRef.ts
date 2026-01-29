@@ -1,7 +1,5 @@
-import { type t, Crdt, Obj, Yaml } from '../common.ts';
+import { type t, Crdt, Yaml } from '../common.ts';
 import { patch } from './m.patch.ts';
-
-type O = Record<string, unknown>;
 
 export async function swapoutRef(args: {
   cmd: t.Crdt.Cmd.Client;

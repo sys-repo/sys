@@ -1,4 +1,4 @@
-import { type t, c, Obj, Yaml, Try } from '../common.ts';
+import { type t, c, Obj, Try, Yaml } from '../common.ts';
 
 type O = Record<string, unknown>;
 

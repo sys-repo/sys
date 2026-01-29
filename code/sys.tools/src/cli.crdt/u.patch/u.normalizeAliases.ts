@@ -1,8 +1,6 @@
 import { type t, Yaml } from '../common.ts';
 import { patch } from './m.patch.ts';
 
-type O = Record<string, unknown>;
-
 export async function normalizeAliases(args: {
   cmd: t.Crdt.Cmd.Client;
   doc: t.Crdt.Id;
