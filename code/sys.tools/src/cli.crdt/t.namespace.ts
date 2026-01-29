@@ -14,6 +14,7 @@ export namespace CrdtTool {
     | 'snapshot'
     | 'doc:add'
     | 'doc:remove'
+    | 'doc:rename'
     | 'doc:graph:walk'
     | 'doc:graph:dag'
     | 'doc:viewer:yaml'

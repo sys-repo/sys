@@ -2,7 +2,7 @@ import { Args, c, Cli, Crdt, D, done, Fs, Is, type t, Time } from './common.ts';
 import { Config } from './u.config.ts';
 import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.docs/mod.ts';
 import { Fmt } from './u.fmt.ts';
-import { promptRemoveDocument } from './u.prompt.ts';
+import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
 
 type C = t.CrdtTool.Command;
 type MenuAction = t.CrdtTool.Command | `plugin:${string}` | 'docs';
@@ -110,11 +110,12 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             return optMenu(`  ${label}`, `plugin:${plugin.id}`);
           });
           const options = [
+            ...pluginOptions,
             optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
             optMenu(`  doc:graph:walk   ${arrow} stats`, `doc:graph:walk`),
             optMenu(`  doc:graph:backup ${arrow} snapshot`, `snapshot`),
             optMenu(`  view: <yaml>`, `doc:viewer:yaml`),
-            ...pluginOptions,
+            optMenu(`  rename`, `doc:rename`),
             // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
           ];
 
@@ -122,7 +123,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
           }
 
-          options.push(...[optMenu(c.gray(c.dim(' (forget)')), 'doc:remove')]);
+          options.push(...[optMenu(c.gray(c.dim('  forget')), 'doc:remove')]);
           options.push(optMenu(c.gray(c.dim('← back')), 'back'));
 
           const B = (await Cli.Input.Select.prompt<MenuAction>({
@@ -179,16 +180,21 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             const result = await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
             const kind = wrangle.pluginResult(result);
             if (kind === 'exit') return done(0);
-          if (kind === 'back') {
-            reopenDocsMenu = true;
-            continue rootLoop;
-          }
+            if (kind === 'back') {
+              reopenDocsMenu = true;
+              continue rootLoop;
+            }
             continue;
           }
 
           if (B === 'doc:viewer:yaml') {
             const m = await Imports.docYamlViewer();
             await m.startYamlViewerCommand(cwd, docid, yamlPath);
+            continue;
+          }
+
+          if (B === 'doc:rename') {
+            await promptRenameDocument(cwd, docid);
             continue;
           }
 

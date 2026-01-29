@@ -63,6 +63,34 @@ export async function promptRemoveDocument(dir: t.StringDir, id: t.StringId) {
   await removeDocConfigEntry(dir, id);
 }
 
+/**
+ * Rename a document display name.
+ */
+export async function promptRenameDocument(cwd: t.StringDir, id: t.StringId) {
+  const path = Fs.join(cwd, CrdtDocsFs.fileOf(id));
+  const checked = await CrdtDocsFs.readYaml(path);
+  if (!checked.ok) {
+    console.info(c.yellow('Document config is invalid. Use edit to fix.'));
+    return;
+  }
+
+  const current = checked.doc;
+  const name = await Cli.Input.Text.prompt({
+    message: 'Display name',
+    default: current.name ?? '',
+  });
+  const trimmed = String(name ?? '').trim();
+  const next = {
+    ...current,
+    name: trimmed.length > 0 ? trimmed : undefined,
+  } as t.CrdtTool.DocumentYaml.Doc;
+
+  if ((current.name ?? '') === (next.name ?? '')) return;
+
+  await CrdtDocsFs.writeDoc(path, next);
+  await updateDocConfigEntry(cwd, next);
+}
+
 async function ensureDocConfigEntry(
   cwd: t.StringDir,
   doc: t.CrdtTool.Config.DocumentEntry,
@@ -77,5 +105,19 @@ async function ensureDocConfigEntry(
 async function removeDocConfigEntry(cwd: t.StringDir, id: t.StringId) {
   const config = await Config.get(cwd);
   config.change((d) => (d.docs = (d.docs ?? []).filter((item) => item.id !== id)));
+  await config.fs.save();
+}
+
+async function updateDocConfigEntry(cwd: t.StringDir, doc: t.CrdtTool.DocumentYaml.Doc) {
+  const config = await Config.get(cwd);
+  config.change((d) => {
+    const docs = d.docs ?? (d.docs = []);
+    const entry = docs.find((item) => item.id === doc.id);
+    if (entry) {
+      entry.name = doc.name;
+      return;
+    }
+    docs.push({ id: doc.id, name: doc.name, createdAt: Time.now.timestamp });
+  });
   await config.fs.save();
 }
