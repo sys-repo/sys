@@ -65,7 +65,6 @@ export namespace CrdtTool {
     export type DocumentEntry = t.Tools.Recency & {
       id: t.StringId;
       name?: t.StringName;
-      lint?: { facets?: string[] };
 
       /** Per-document indexes (optional). */
       indexes?: Indexes;

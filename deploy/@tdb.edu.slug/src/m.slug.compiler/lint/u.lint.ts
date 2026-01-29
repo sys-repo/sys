@@ -35,9 +35,9 @@ async function run(
   opts: {
     facets?: string[];
     interactive?: boolean;
-    cwd?: t.StringDir;
+    cwd: t.StringDir;
     createCrdt?: () => Promise<t.StringRef>;
-  } = {},
+  },
 ): Promise<t.DocLintResult> {
   const { interactive = false } = opts;
   let facets = normalizeFacets(opts.facets);
@@ -63,7 +63,7 @@ async function lintOnce(args: {
   opts: {
     facets?: string[];
     interactive?: boolean;
-    cwd?: t.StringDir;
+    cwd: t.StringDir;
     createCrdt?: () => Promise<t.StringRef>;
   };
 }): Promise<t.DocLintResult> {
@@ -250,11 +250,12 @@ async function runInteractiveLint(args: {
   opts: {
     facets?: string[];
     interactive?: boolean;
-    cwd?: t.StringDir;
+    cwd: t.StringDir;
     createCrdt?: () => Promise<t.StringRef>;
   };
 }): Promise<t.DocLintResult> {
   const { dag, yamlPath, opts } = args;
+  const cwd = opts.cwd;
   let { facets } = args;
   let profilePath: t.StringFile | undefined;
   let lastResult: t.DocLintResult | undefined;

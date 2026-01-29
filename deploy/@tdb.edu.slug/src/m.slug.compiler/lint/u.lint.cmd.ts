@@ -5,7 +5,7 @@ type Args = {
   cmd: t.Crdt.Cmd.Client;
   dag: t.Graph.Dag.Result;
   docpath: t.ObjectPath;
-  cwd?: t.StringDir;
+  cwd: t.StringDir;
   interactive?: boolean;
   facets?: t.DocLintFacet[];
   print?: boolean;
