@@ -14,7 +14,6 @@ const id = CrdtTool.ID;
 const name = CrdtTool.NAME;
 export const D = {
   tool: { id, name },
-  port: { repo: 49494, sync: 3030 },
   Path: {
     Repo: {
       daemon: './.repo/daemon.crdt',

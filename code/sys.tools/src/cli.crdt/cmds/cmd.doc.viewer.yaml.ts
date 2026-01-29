@@ -1,4 +1,5 @@
-import { type t, Is, c, Str, Cli, D, Time, Yaml, Obj } from '../common.ts';
+import { type t, Is, c, Str, Cli, Time, Yaml, Obj } from '../common.ts';
+import { CrdtReposFs } from '../u.repos/u.fs.ts';
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
@@ -9,7 +10,8 @@ export async function startYamlViewerCommand(
   doc: t.Crdt.Id,
   path?: t.ObjectPath,
 ) {
-  const port = D.port.repo;
+  const ports = await CrdtReposFs.loadPorts(cwd);
+  const port = ports.repo;
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 

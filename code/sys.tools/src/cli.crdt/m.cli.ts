@@ -1,6 +1,6 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, type t } from './common.ts';
 import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.docs/mod.ts';
-import { CrdtReposMigrate, promptRepoSyncMenu } from './u.repos/mod.ts';
+import { CrdtReposFs, CrdtReposMigrate, promptRepoSyncMenu } from './u.repos/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
 import { loadLegacyConfig, removeLegacyConfig } from './u.migrate.legacy.ts';
@@ -182,7 +182,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
             const { buildDocumentDAG } = await Imports.docGraph();
             const { RepoProcess } = await Imports.daemon();
-            const port = D.port.repo;
+            const ports = await CrdtReposFs.loadPorts(cwd);
+            const port = ports.repo;
             const cmd = await RepoProcess.tryClient(port);
             if (!cmd) return done(0);
 

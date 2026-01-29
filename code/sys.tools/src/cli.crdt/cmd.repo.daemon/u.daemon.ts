@@ -1,4 +1,4 @@
-import { type t, c, Cli, D, Err, Fs, Rx, Str, Time } from '../common.ts';
+import { type t, c, Cli, Err, Fs, Rx, Str, Time } from '../common.ts';
 import { CrdtReposFs } from '../u.repos/u.fs.ts';
 import { startRepoOnWorker } from '../u.worker/mod.ts';
 import { tryClient } from './u.client.ts';
@@ -13,7 +13,8 @@ export async function daemon(
 ) {
   const { allowConsoleClear = true } = opts;
   const life = Rx.lifecycle(opts.until);
-  const port = D.port.repo;
+  const ports = await CrdtReposFs.loadPorts(cwd);
+  const port = ports.repo;
   const eventlog = new Set<t.CrdtRepoLogEntry>();
   const websockets = await CrdtReposFs.loadSync(cwd);
 

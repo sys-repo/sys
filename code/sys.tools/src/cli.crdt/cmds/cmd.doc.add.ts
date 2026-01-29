@@ -1,5 +1,6 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
-import { type t, D } from '../common.ts';
+import { type t } from '../common.ts';
+import { CrdtReposFs } from '../u.repos/u.fs.ts';
 import { promptAddDocument } from '../u.prompt.modify.ts';
 
 type Result = {
@@ -16,8 +17,12 @@ type Result = {
  */
 export async function addOrCreateDocument(
   cwd: t.StringDir,
-  port: number = D.port.repo,
+  port?: number,
 ): Promise<Result | undefined> {
+  if (port == null) {
+    const ports = await CrdtReposFs.loadPorts(cwd);
+    port = ports.repo;
+  }
   return await promptAddDocument(cwd, {
     async createDoc() {
       const cmd = await RepoProcess.tryClient(port);

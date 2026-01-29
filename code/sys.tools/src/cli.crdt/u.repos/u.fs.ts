@@ -1,5 +1,5 @@
-import { type t, Fs, pkg, Yaml } from '../common.ts';
-import { CrdtRepoSchema } from './u.schema.ts';
+import { type t, Fs, Is, pkg, Yaml } from '../common.ts';
+import { CrdtRepoSchema, DEFAULT_PORTS } from './u.schema.ts';
 import { CrdtRepoYamlErrorCode, validateRepoYamlText } from './u.validate.ts';
 import { Schema } from '@sys/schema';
 
@@ -31,6 +31,15 @@ export const CrdtReposFs = {
   async loadSync(cwd: t.StringDir): Promise<string[]> {
     const doc = await CrdtReposFs.load(cwd);
     return doc?.sync ?? [];
+  },
+
+  async loadPorts(cwd: t.StringDir): Promise<{ repo: number; sync: number }> {
+    const doc = await CrdtReposFs.load(cwd);
+    const ports = doc?.ports ?? {};
+    return {
+      repo: Is.num(ports.repo) ? ports.repo : DEFAULT_PORTS.repo,
+      sync: Is.num(ports.sync) ? ports.sync : DEFAULT_PORTS.sync,
+    };
   },
 
   async readYaml(path: t.StringPath): Promise<t.CrdtTool.RepoYaml.YamlCheck> {

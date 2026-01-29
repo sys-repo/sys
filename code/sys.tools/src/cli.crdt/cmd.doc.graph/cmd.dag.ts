@@ -1,11 +1,13 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
-import { type t, c, Cli, D, Is, Str, Time } from '../common.ts';
+import { type t, c, Cli, Is, Str, Time } from '../common.ts';
+import { CrdtReposFs } from '../u.repos/u.fs.ts';
 import { buildDocumentDAG } from './mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { loadDocumentHook } from './u.hook.ts';
 
 export async function dagHookCommand(cwd: t.StringDir, root: t.Crdt.Id, yamlPath: t.ObjectPath) {
-  const port = D.port.repo;
+  const ports = await CrdtReposFs.loadPorts(cwd);
+  const port = ports.repo;
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 

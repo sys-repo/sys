@@ -86,16 +86,17 @@ function buildSyncMenuOptions(
 
   const options = [{ name: addLabel, value: 'add' }, ...syncRows];
 
-  if (Is.func(actions.onStartSyncServer)) {
-    options.push({
-      name: `${baseIndent}${padLabel('start', labelWidth)}: sync server`,
-      value: 'start:syncserver',
-    });
-  }
   if (Is.func(actions.onStartDaemon)) {
     options.push({
       name: `${baseIndent}${padLabel('start', labelWidth)}: daemon`,
       value: 'start:daemon',
+    });
+  }
+
+  if (Is.func(actions.onStartSyncServer)) {
+    options.push({
+      name: `${baseIndent}${padLabel('start', labelWidth)}: sync server`,
+      value: 'start:syncserver',
     });
   }
 

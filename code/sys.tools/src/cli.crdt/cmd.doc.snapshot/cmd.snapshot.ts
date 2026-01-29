@@ -1,6 +1,7 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 
-import { type t, c, Cli, Crdt, D, Fs, Str, Time } from '../common.ts';
+import { type t, c, Cli, Crdt, Fs, Str, Time } from '../common.ts';
+import { CrdtReposFs } from '../u.repos/u.fs.ts';
 import { Fmt } from '../u.fmt.ts';
 import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
 import { walk } from './u.walk.ts';
@@ -8,7 +9,8 @@ import { walk } from './u.walk.ts';
 const Tree = Cli.Fmt.Tree;
 
 export async function snapshotCommand(cwd: t.StringDir, docid: t.Crdt.Id) {
-  const port = D.port.repo;
+  const ports = await CrdtReposFs.loadPorts(cwd);
+  const port = ports.repo;
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 

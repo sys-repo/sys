@@ -73,6 +73,11 @@ export namespace CrdtTool {
     export type Doc = {
       /** Sync websocket endpoints. */
       sync: string[];
+      /** Port configuration. */
+      ports?: {
+        repo?: number;
+        sync?: number;
+      };
     };
 
     /**

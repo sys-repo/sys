@@ -1,6 +1,7 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 
-import { type t, Cli, Crdt, D, Str, Time } from '../common.ts';
+import { type t, Cli, Crdt, Str, Time } from '../common.ts';
+import { CrdtReposFs } from '../u.repos/u.fs.ts';
 import { makeDiscoverRefs } from './u.discoverRefs.ts';
 import { Fmt } from './u.fmt.ts';
 import { loadDocumentHook } from './u.hook.ts';
@@ -15,7 +16,8 @@ export async function walkDocumentGraphCommand(
   path: t.ObjectPath,
   onWalk?: t.DocumentGraphWalkHook,
 ) {
-  const port = D.port.repo;
+  const ports = await CrdtReposFs.loadPorts(cwd);
+  const port = ports.repo;
   const cmd = await RepoProcess.tryClient(port);
   if (!cmd) return;
 
