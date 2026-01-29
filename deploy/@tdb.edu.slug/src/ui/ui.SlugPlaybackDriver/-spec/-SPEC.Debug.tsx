@@ -42,7 +42,7 @@ export async function createDebugSignals() {
   const controller = SlugPlaybackDriver.Controller.create({ baseUrl });
 
   const decks = Player.Video.Decks.create();
-  controller.next({ decks });
+  controller.next({ playback: { decks } });
 
   const props = {
     debug: s(snap.debug),
@@ -89,9 +89,13 @@ export async function createDebugSignals() {
    * - Signals are harness-local inputs only (selection, toggles, etc).
    */
   Signal.effect(() => {
+    const slug = controller.current().slug ?? {};
     controller.next({
-      tree: p.tree.value,
-      selectedPath: p.selectedPath.value,
+      slug: {
+        ...slug,
+        tree: p.tree.value,
+        selectedPath: p.selectedPath.value,
+      },
     });
   });
 
@@ -139,8 +143,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <PlayControls controller={controller} />
       <Player.Video.Decks.UI
-        decks={state?.decks}
-        active={state?.snapshot?.state.decks.active}
+        decks={state?.playback?.decks}
+        active={state?.playback?.snapshot?.state.decks.active}
         muted={true}
         show={'both'}
         aspectRatio={'4/3'}

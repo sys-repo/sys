@@ -18,9 +18,9 @@ export const PlayControls: React.FC<PlayControlsProps> = (props) => {
    */
   const state = EffectController.useEffectController(controller);
   const controls = PlaybackDriver.Util.usePlayControlsProps({
-    controller: state?.timeline,
-    snapshot: state?.snapshot,
-    decks: state?.decks,
+    controller: state?.playback?.timeline,
+    snapshot: state?.playback?.snapshot,
+    decks: state?.playback?.decks,
   });
 
   return (

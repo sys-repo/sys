@@ -29,7 +29,7 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
    * Hooks:
    */
   const state = EffectController.useEffectController(controller);
-  const selectedPath = state?.selectedPath;
+  const selectedPath = state?.slug?.selectedPath;
   const path = selectedPath ? `/${Str.trimLeadingSlashes(selectedPath?.join('/'))}` : '-';
 
   /**
@@ -47,11 +47,11 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
 
   add('base url', controller?.props.baseUrl ?? '-');
   add('selected path', Str.ellipsize(path, 40, '..'));
-  add('slug', state?.bundle?.docid ?? '-');
+  add('slug', state?.playback?.bundle?.docid ?? '-');
   add('timeline', wrangle.bundle(state));
   hr();
-  add('loading', String(state?.isLoading ?? false));
-  add('error', state?.error?.message ?? '-');
+  add('loading', String(state?.slug?.loading?.isLoading ?? false));
+  add('error', state?.slug?.error?.message ?? '-');
 
   return (
     <div className={css(styles.base, props.style).class}>
@@ -67,7 +67,7 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
  */
 const wrangle = {
   bundle(state?: t.SlugPlaybackState) {
-    const spec = state?.bundle?.spec;
+    const spec = state?.playback?.bundle?.spec;
     if (!spec) return '-';
 
     const total = { segs: spec.composition.length, beats: spec.beats.length };

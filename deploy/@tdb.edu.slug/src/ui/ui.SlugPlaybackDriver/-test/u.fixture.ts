@@ -23,13 +23,12 @@ export function createTestDecks(): t.VideoDecks {
  */
 export function createTestController() {
   type State = t.SlugPlaybackState;
-  type Patch = t.SlugPlaybackPatch;
   type Props = t.SlugPlaybackControllerProps;
 
   const id = `slug-playback-${slug()}`;
   const ref = Immutable.clonerRef<State>({});
   const props: Props = { baseUrl };
-  return EffectController.create<State, Patch, Props>({ id, ref, props });
+  return EffectController.create<State, Props>({ id, ref, props });
 }
 
 /**

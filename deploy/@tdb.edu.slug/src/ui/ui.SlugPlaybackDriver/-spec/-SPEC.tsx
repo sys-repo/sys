@@ -11,8 +11,8 @@ export default Spec.describe(D.displayName, async (e) => {
   function Root() {
     const v = Signal.toObject(p);
     const state = EffectController.useEffectController(debug.controller);
-    const decks = state?.decks;
-    const activeDeck = state?.snapshot?.state.decks.active;
+    const decks = state?.playback?.decks;
+    const activeDeck = state?.playback?.snapshot?.state.decks.active;
 
     const styles = {
       base: css({ position: 'relative', display: 'grid' }),

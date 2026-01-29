@@ -44,26 +44,26 @@ describe('controller: attachSlugLoaderEffect', () => {
     attachSlugLoaderEffect(ctrl, { loadBundle });
 
     const pathA: t.ObjectPath = ['root', 'ref-a'];
-    ctrl.next({ tree, selectedPath: pathA });
+    ctrl.next({ slug: { ...(ctrl.current().slug ?? {}), tree, selectedPath: pathA } });
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a']);
 
     // mutate controller state (should not trigger a reload for same ref)
-    ctrl.next({ bundle: makeTestPlaybackBundle('dummy') });
+    ctrl.next({ playback: { bundle: makeTestPlaybackBundle('dummy') } });
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a']);
 
     const pathInline: t.ObjectPath = ['root', 'inline'];
-    ctrl.next({ selectedPath: pathInline });
+    ctrl.next({ slug: { tree, selectedPath: pathInline } });
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a']);
 
     const pathB: t.ObjectPath = ['root', 'ref-b'];
-    ctrl.next({ selectedPath: pathB });
+    ctrl.next({ slug: { tree, selectedPath: pathB } });
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a', 'slug:ref-b']);
 
-    ctrl.next({ selectedPath: pathA });
+    ctrl.next({ slug: { ...(ctrl.current().slug ?? {}), tree, selectedPath: pathA } });
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a', 'slug:ref-b', 'slug:ref-a']);
 
@@ -91,13 +91,13 @@ describe('controller: attachSlugLoaderEffect', () => {
     attachSlugLoaderEffect(ctrl, { loadBundle });
 
     const pathA: t.ObjectPath = ['root', 'ref-a'];
-    ctrl.next({ tree, selectedPath: pathA });
+    ctrl.next({ slug: { ...(ctrl.current().slug ?? {}), tree, selectedPath: pathA } });
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a']);
 
     // Churn state without changing selection/ref (this used to provoke loops).
     for (let i = 0; i < 20; i++) {
-      ctrl.next({ bundle: makeTestPlaybackBundle(`churn-${i}`) });
+      ctrl.next({ playback: { bundle: makeTestPlaybackBundle(`churn-${i}`) } });
       await Schedule.micro();
     }
 
@@ -117,23 +117,23 @@ describe('controller: attachSlugLoaderEffect', () => {
     attachSlugLoaderEffect(ctrl, { loadBundle });
 
     const pathA: t.ObjectPath = ['root', 'ref-a'];
-    ctrl.next({ tree, selectedPath: pathA });
+    ctrl.next({ slug: { ...(ctrl.current().slug ?? {}), tree, selectedPath: pathA } });
 
     let state = ctrl.current();
-    expect(state.isLoading).to.eql(true);
-    expect(state.loadingRef).to.eql('slug:ref-a');
-    expect(state.loadedRef).to.eql(undefined);
-    expect(state.error).to.eql(undefined);
-    expect(state.bundle).to.eql(undefined);
+    expect(state.slug?.loading?.isLoading).to.eql(true);
+    expect(state.slug?.loading?.loadingRef).to.eql('slug:ref-a');
+    expect(state.slug?.loading?.loadedRef).to.eql(undefined);
+    expect(state.slug?.error).to.eql(undefined);
+    expect(state.playback?.bundle).to.eql(undefined);
 
     await Schedule.micro();
 
     state = ctrl.current();
-    expect(state.isLoading).to.eql(false);
-    expect(state.loadingRef).to.eql(undefined);
-    expect(state.loadedRef).to.eql('slug:ref-a');
-    expect(state.error).to.eql(undefined);
-    expect(state.bundle?.docid).to.eql('slug:ref-a');
+    expect(state.slug?.loading?.isLoading).to.eql(false);
+    expect(state.slug?.loading?.loadingRef).to.eql(undefined);
+    expect(state.slug?.loading?.loadedRef).to.eql('slug:ref-a');
+    expect(state.slug?.error).to.eql(undefined);
+    expect(state.playback?.bundle?.docid).to.eql('slug:ref-a');
 
     ctrl.dispose();
   });
@@ -159,22 +159,22 @@ describe('controller: attachSlugLoaderEffect', () => {
     attachSlugLoaderEffect(ctrl, { loadBundle });
 
     const pathA: t.ObjectPath = ['root', 'ref-a'];
-    ctrl.next({ tree, selectedPath: pathA });
+    ctrl.next({ slug: { tree, selectedPath: pathA } });
 
     let state = ctrl.current();
-    expect(state.isLoading).to.eql(true);
-    expect(state.loadingRef).to.eql('slug:ref-a');
+    expect(state.slug?.loading?.isLoading).to.eql(true);
+    expect(state.slug?.loading?.loadingRef).to.eql('slug:ref-a');
 
     await Schedule.micro();
 
     state = ctrl.current();
-    expect(state.isLoading).to.eql(false);
-    expect(state.loadingRef).to.eql(undefined);
-    expect(state.loadedRef).to.eql('slug:ref-a');
-    expect(state.error?.message).to.eql('boom');
-    expect(state.bundle).to.eql(undefined);
+    expect(state.slug?.loading?.isLoading).to.eql(false);
+    expect(state.slug?.loading?.loadingRef).to.eql(undefined);
+    expect(state.slug?.loading?.loadedRef).to.eql('slug:ref-a');
+    expect(state.slug?.error?.message).to.eql('boom');
+    expect(state.playback?.bundle).to.eql(undefined);
 
-    ctrl.next({ selectedPath: pathA });
+    ctrl.next({ slug: { ...(ctrl.current().slug ?? {}), tree, selectedPath: pathA } });
     await Schedule.micro();
     expect(calls).to.eql(['slug:ref-a']);
 
@@ -191,19 +191,17 @@ describe('controller: attachSlugLoaderEffect', () => {
     attachSlugLoaderEffect(ctrl, { loadBundle });
 
     const pathA: t.ObjectPath = ['root', 'ref-a'];
-    ctrl.next({ tree, selectedPath: pathA });
+    ctrl.next({ slug: { tree, selectedPath: pathA } });
     await Schedule.micro();
 
     const pathInline: t.ObjectPath = ['root', 'inline'];
-    ctrl.next({ selectedPath: pathInline });
+    ctrl.next({ slug: { tree, selectedPath: pathInline } });
     await Schedule.micro();
 
     const state = ctrl.current();
-    expect(state.isLoading).to.eql(false);
-    expect(state.loadingRef).to.eql(undefined);
-    expect(state.loadedRef).to.eql(undefined);
-    expect(state.error).to.eql(undefined);
-    expect(state.bundle).to.eql(undefined);
+    expect(state.slug?.loading).to.eql(undefined);
+    expect(state.slug?.error).to.eql(undefined);
+    expect(state.playback?.bundle).to.eql(undefined);
 
     ctrl.dispose();
   });
@@ -230,16 +228,16 @@ describe('controller: attachSlugLoaderEffect', () => {
 
     const pathA: t.ObjectPath = ['root', 'ref-a'];
     const pathB: t.ObjectPath = ['root', 'ref-b'];
-    ctrl.next({ tree, selectedPath: pathA });
-    ctrl.next({ selectedPath: pathB });
+    ctrl.next({ slug: { tree, selectedPath: pathA } });
+    ctrl.next({ slug: { tree, selectedPath: pathB } });
 
     resolveA?.({ ok: true, value: makeTestPlaybackBundle('slug:ref-a') });
     await Schedule.micro();
-    expect(ctrl.current().bundle?.docid).to.not.eql('slug:ref-a');
+    expect(ctrl.current().playback?.bundle?.docid).to.not.eql('slug:ref-a');
 
     resolveB?.({ ok: true, value: makeTestPlaybackBundle('slug:ref-b') });
     await Schedule.micro();
-    expect(ctrl.current().bundle?.docid).to.eql('slug:ref-b');
+    expect(ctrl.current().playback?.bundle?.docid).to.eql('slug:ref-b');
 
     ctrl.dispose();
   });

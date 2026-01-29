@@ -16,20 +16,21 @@ export function attachSlugLoaderEffect(controller: t.SlugPlaybackController, pro
   const { loadBundle = SlugClient.FromEndpoint.Bundle.load } = props;
   const baseUrl = controller.props.baseUrl;
   let loadGen = 0; // Staleness tracking.
+  const getSlug = () => controller.current().slug ?? {};
+  const getPlayback = () => controller.current().playback ?? {};
 
   const run = (state: State) => {
-    const { tree, selectedPath, loadingRef, loadedRef, bundle } = state;
-    const node = TreeHost.Data.findViewNode(tree, selectedPath);
+    const slugState = state.slug;
+    const playback = state.playback;
+    const loading = slugState?.loading;
+    const node = TreeHost.Data.findViewNode(slugState?.tree, slugState?.selectedPath);
     const value = node?.value;
 
     if (!SlugSchema.Tree.Is.refOnly(value)) {
-      if (loadingRef || loadedRef || bundle) {
+      if (loading?.loadingRef || loading?.loadedRef || playback?.bundle) {
         controller.next({
-          isLoading: false,
-          error: undefined,
-          bundle: undefined,
-          loadingRef: undefined,
-          loadedRef: undefined,
+          slug: { ...getSlug(), loading: undefined, error: undefined },
+          playback: { ...getPlayback(), bundle: undefined },
         });
       }
       return;
@@ -40,18 +41,19 @@ export function attachSlugLoaderEffect(controller: t.SlugPlaybackController, pro
 
     // Guard: do not retry the same ref while in-flight or once attempted.
     // Note: `loadedRef` is "last attempted ref" (success or failure) to prevent retry loops.
-    if (loadingRef === ref || loadedRef === ref) return;
+    if (loading?.loadingRef === ref || loading?.loadedRef === ref) return;
 
     // Start load.
     const gen = ++loadGen;
     const isStale = () => controller.disposed || gen !== loadGen;
 
     controller.next({
-      isLoading: true,
-      error: undefined,
-      bundle: undefined,
-      loadingRef: ref,
-      loadedRef: undefined,
+      slug: {
+        ...getSlug(),
+        loading: { isLoading: true, loadingRef: ref, loadedRef: undefined },
+        error: undefined,
+      },
+      playback: { ...getPlayback(), bundle: undefined },
     });
 
     loadBundle(baseUrl, ref)
@@ -60,31 +62,35 @@ export function attachSlugLoaderEffect(controller: t.SlugPlaybackController, pro
 
         if (!res.ok) {
           controller.next({
-            isLoading: false,
-            error: { message: res.error.message },
-            bundle: undefined,
-            loadingRef: undefined,
-            loadedRef: ref,
+            slug: {
+              ...getSlug(),
+              loading: { isLoading: false, loadingRef: undefined, loadedRef: ref },
+              error: { message: res.error.message },
+            },
+            playback: { ...getPlayback(), bundle: undefined },
           });
           return;
         }
 
         controller.next({
-          isLoading: false,
-          bundle: res.value,
-          loadingRef: undefined,
-          loadedRef: ref,
+          slug: {
+            ...getSlug(),
+            loading: { isLoading: false, loadingRef: undefined, loadedRef: ref },
+            error: undefined,
+          },
+          playback: { ...getPlayback(), bundle: res.value },
         });
       })
       .catch((e) => {
         if (isStale()) return;
         const message = e instanceof Error ? e.message : String(e);
         controller.next({
-          isLoading: false,
-          bundle: undefined,
-          loadingRef: undefined,
-          error: { message },
-          loadedRef: ref,
+          slug: {
+            ...getSlug(),
+            loading: { isLoading: false, loadingRef: undefined, loadedRef: ref },
+            error: { message },
+          },
+          playback: { ...getPlayback(), bundle: undefined },
         });
       });
   };

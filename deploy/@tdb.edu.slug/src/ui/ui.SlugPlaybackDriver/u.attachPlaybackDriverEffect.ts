@@ -31,10 +31,11 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
   // including the patches emitted by this effect. If state cloning breaks
   // identity stability of {bundle,decks}, we can loop. Guard internal emissions.
   let isEmitting = false;
+  const getPlayback = () => controller.current().playback ?? {};
   const next = (patch: RuntimePatch) => {
     isEmitting = true;
     try {
-      controller.next(patch);
+      controller.next({ playback: { ...getPlayback(), ...patch } });
     } finally {
       isEmitting = false;
     }
@@ -105,7 +106,7 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
    * - navigation / routing
    */
   const rebuild = (state: State) => {
-    const { bundle, decks } = state;
+    const { bundle, decks } = state.playback ?? {};
 
     if (!bundle || !decks) {
       lastObserved = {};

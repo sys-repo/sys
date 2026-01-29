@@ -15,10 +15,10 @@ export const Payload: React.FC<PayloadProps> = (props) => {
   const { controller, debug = false } = props;
   const state = EffectController.useEffectController(controller);
 
-  const bundle = state?.bundle;
-  const snapshot = state?.snapshot;
-  const experience = state?.experience;
-  const resolved = state?.resolved;
+  const bundle = state?.playback?.bundle;
+  const snapshot = state?.playback?.snapshot;
+  const experience = state?.playback?.experience;
+  const resolved = state?.playback?.resolved;
   const beats = experience?.beats ?? [];
   const currentBeat = snapshot?.state.currentBeat;
   const beat = currentBeat != null ? beats[currentBeat] : undefined;

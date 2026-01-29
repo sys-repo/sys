@@ -24,40 +24,9 @@ export type SlugPlaybackPatch = Partial<SlugPlaybackState>;
  * SlugPlaybackController state.
  */
 export type SlugPlaybackState = {
-  /** TreeHost view of available slugs. */
-  readonly tree?: t.TreeHostViewNodeList;
+  /** Slug selection and loading state. */
+  readonly slug?: t.SlugPlaybackSlugState;
 
-  /** Currently selected TreeHost path. */
-  readonly selectedPath?: t.ObjectPath;
-
-  /** Terminal load error, if any. */
-  readonly error?: { readonly message: string };
-} & StateParts;
-
-/** State property partitions. */
-type StateParts = SlugPlaybackLoading & SlugPlaybackRuntime;
-
-export type SlugPlaybackLoading = {
-  /** Indicates an in-flight slug load. */
-  readonly isLoading?: boolean;
-  /** Ref currently being fetched (staleness guard). */
-  readonly loadingRef?: string;
-  /** Ref last successfully loaded. */
-  readonly loadedRef?: string;
-};
-
-export type SlugPlaybackRuntime = {
-  /** Loaded playback bundle (timeline spec + resolver). */
-  readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
-
-  /** Timeline controller surface (inner playback controller) */
-  readonly timeline?: t.TimecodePlaybackDriver.TimelineController;
-  /** Video signal decks for rendering (A/B). */
-  readonly decks?: t.TimecodePlaybackDriver.VideoDecks;
-  /** Latest playback reducer snapshot (debug + UI wiring). */
-  readonly snapshot?: t.TimecodeState.Playback.Snapshot;
-  /** Composite-resolved timeline (segments, diagnostics, validity). */
-  readonly resolved?: t.Timecode.Composite.Resolved;
-  /** Experience timeline (beats projected onto virtual time). */
-  readonly experience?: t.Timecode.Experience.Timeline;
+  /** Playback runtime state. */
+  readonly playback?: t.SlugPlaybackRuntime;
 };

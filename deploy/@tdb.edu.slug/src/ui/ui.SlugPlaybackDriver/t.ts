@@ -1,8 +1,10 @@
-import type { t } from './common.ts';
 import type { DriverInfoProps } from './-dev/ui.DriverInfo.tsx';
+import type { t } from './common.ts';
 
 /** Type re-exports. */
 export type * from './t.controller.ts';
+export type * from './t.state.playback.ts';
+export type * from './t.state.slug.ts';
 
 /**
  * SlugPlaybackDriver
