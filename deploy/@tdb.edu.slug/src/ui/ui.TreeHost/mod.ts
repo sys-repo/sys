@@ -24,8 +24,7 @@
  * primitives (e.g. SlugSheet + controllers), where meaning, navigation,
  * and recursion are defined.
  */
-import type { t } from './common.ts';
-import { Data } from './m.Data.ts';
+import { type t, TreeData as Data } from './common.ts';
 import { Controller } from './m.Controller.ts';
 import { TreeHost as UI } from './ui.tsx';
 

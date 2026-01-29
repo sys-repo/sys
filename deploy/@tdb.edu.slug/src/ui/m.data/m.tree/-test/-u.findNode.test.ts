@@ -1,6 +1,6 @@
-import { type t, describe, expect, it } from '../../../-test.ts';
-import { TreeHost } from '../mod.ts';
-import { findNode } from '../u.data.findNode.ts';
+import { type t, describe, expect, it } from '../../../../-test.ts';
+import { TreeData } from '../mod.ts';
+import { findNode } from '../u.findNode.ts';
 
 describe('Data.findNode', () => {
   const TREE: t.SlugTreeItems = [
@@ -12,7 +12,7 @@ describe('Data.findNode', () => {
   ];
 
   it('API', () => {
-    expect(TreeHost.Data.findNode).to.equal(findNode);
+    expect(TreeData.findNode).to.equal(findNode);
   });
 
   it('resolves root items by slug path', () => {

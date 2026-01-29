@@ -1,4 +1,5 @@
 /**
  * @module
+ * Pure data transformation helpers.
  */
-import type { t } from './common.ts';
+export { TreeData } from './m.tree/mod.ts';

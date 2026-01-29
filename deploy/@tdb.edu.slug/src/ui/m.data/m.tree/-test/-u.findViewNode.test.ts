@@ -1,10 +1,10 @@
-import { type t, describe, expect, it } from '../../../-test.ts';
-import { TreeHost } from '../mod.ts';
-import { findViewNode } from '../u.data.findViewNode.ts';
+import { type t, describe, expect, it } from '../../../../-test.ts';
+import { TreeData } from '../mod.ts';
+import { findViewNode } from '../u.findViewNode.ts';
 
 describe('Data.findViewNode', () => {
   it('API', () => {
-    expect(TreeHost.Data.findViewNode).to.equal(findViewNode);
+    expect(TreeData.findViewNode).to.equal(findViewNode);
   });
 
   it('returns undefined for empty tree', () => {

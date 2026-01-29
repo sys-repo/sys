@@ -3,6 +3,8 @@ export * from '../common.ts';
 
 type P = t.TreeHostProps;
 
+export { TreeData } from '../m.data/mod.ts';
+
 /**
  * Constants:
  */

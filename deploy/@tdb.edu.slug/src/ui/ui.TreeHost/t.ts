@@ -2,7 +2,6 @@ import type { t } from './common.ts';
 
 /** Type re-exports. */
 export type * from './t.controller.ts';
-export type * from './t.data.ts';
 export type * from './t.node.ts';
 
 /**
