@@ -4,6 +4,9 @@ Before any action:
   constraints are in scope.
 - Apply those instructions verbatim
 - This file adds local constraints only; all other behavior is governed by `../AGENTS.md`.
+- When a clear question is posed to you, respond in **plan mode only**
+  (analysis / proposal / steps), **read-only**:
+  do not modify code, structure, public API, or invoke tools.
 
 
 ====================================================================================================
