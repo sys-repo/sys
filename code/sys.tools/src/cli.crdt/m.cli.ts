@@ -1,15 +1,15 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, type t, Time } from './common.ts';
 import { Config } from './u.config.ts';
+import { CrdtDocsMigrate, selectDocumentMenu } from './u.docs/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument } from './u.prompt.ts';
 
 type C = t.CrdtTool.Command;
-type MenuAction = t.CrdtTool.Command | `plugin:${string}`;
+type MenuAction = t.CrdtTool.Command | `plugin:${string}` | 'docs';
 
 const Imports = {
   snapshot: () => import('./cmd.doc.snapshot/mod.ts'),
   docGraph: () => import('./cmd.doc.graph/mod.ts'),
-  addOrCreateDocument: () => import('./cmds/cmd.doc.add.ts'),
   docYamlViewer: () => import('./cmds/cmd.doc.viewer.yaml.ts'),
   daemon: () => import('./cmd.repo.daemon/mod.ts'),
   syncServer: () => import('./cmds/cmd.doc.syncserver.ts'),
@@ -45,27 +45,7 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
 async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   const config = await Config.get(cwd);
   await Config.normalize(config);
-
-  const Update = {
-    async docLastUsedAt(id: t.Crdt.Id) {
-      config.change((d) => {
-        const entry = Config.findDocEntry(d, id);
-        if (entry) entry.lastUsedAt = Time.now.timestamp;
-      });
-      await config.fs.save();
-    },
-  } as const;
-
-  const listing = Config.orderByRecency(config.current.docs)
-    .map((doc) => ({ doc, name: doc.name ?? '', value: Crdt.Id.toUri(doc.id) }))
-    .map((e, i, total) => {
-      const { doc } = e;
-      const branch = Fmt.Tree.branch([i, total]);
-      const id = `crdt:${doc.id.slice(0, 5)}..${c.green(doc.id.slice(-5))}`;
-      let name = `${' with:'} ${branch} ${id}`;
-      if (doc.name) name += `  •  ${doc.name}`;
-      return { name, value: e.value };
-    });
+  await CrdtDocsMigrate.run(cwd);
 
   const opt = (name: string, value: C) => ({ name, value }) as const;
   const optMenu = (name: string, value: MenuAction) => ({ name, value }) as const;
@@ -73,37 +53,28 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   /** --------------------------------------------------------
    * Root Menu
    */
-  while (true) {
+  rootLoop: while (true) {
     console.info();
-    const defaultCommand = listing.length > 0 ? listing[0].value : ('doc:add' satisfies C);
-    let A = (await Cli.Input.Select.prompt<C>({
+    let A = (await Cli.Input.Select.prompt<MenuAction>({
       message: 'Tools:\n',
       options: [
-        opt('  add: <document>', 'doc:add'),
-        ...listing,
-        opt(' start: sync server (websockets)', 'repo:syncserver:start'),
-        opt(' start: repository daemon', 'repo:daemon:start'),
+        optMenu('  docs', 'docs'),
+        opt('  start: sync server (websockets)', 'repo:syncserver:start'),
+        opt('  start: repository daemon', 'repo:daemon:start'),
         opt(c.gray('(exit)'), 'exit'),
       ],
-      default: defaultCommand as C,
       hideDefault: true,
       maxRows: 25,
-    })) as C;
-
-    let docid = Crdt.Is.uri(A) ? Crdt.Id.fromUri(A) || '' : '';
-    if (docid) await Update.docLastUsedAt(docid);
-
-    if (A === 'doc:add') {
-      const m = await Imports.addOrCreateDocument();
-      const res = await m.addOrCreateDocument(cwd);
-      if (!res) return done();
-      if (res.created) console.info(c.gray(`created document: ${c.white(Fmt.prettyUri(res.id))}`));
-      docid = res.id;
-      if (docid) await Update.docLastUsedAt(docid);
-      A = Crdt.Id.toUri(docid) as C;
-    }
+    })) as MenuAction;
 
     if (A === 'exit') return done(0);
+
+    if (A === 'docs') {
+      const picked = await selectDocumentMenu(cwd);
+      if (picked.kind === 'exit') continue;
+      await ensureDocConfigEntry(cwd, picked.doc);
+      A = Crdt.Id.toUri(picked.doc.id) as MenuAction;
+    }
 
     /** --------------------------------------------------------
      * Document Menu
@@ -113,6 +84,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       const hookTmpl = await makeHookTmpl(cwd);
 
       if (A.startsWith('crdt:')) {
+        const docid = Crdt.Id.fromUri(A);
+        if (!docid) continue;
         const arrow = c.gray('→');
         let lastMenuAction: MenuAction | undefined;
         while (true) {
@@ -140,7 +113,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           options.push(optMenu(c.gray(c.dim('← back')), 'back'));
 
           const B = (await Cli.Input.Select.prompt<MenuAction>({
-            message: `with ${c.gray(`crdt:${docid.slice(0, -5)}${c.green(docid.slice(-5))}`)}:`,
+            message: `with ${c.gray(docid)}:`,
             options,
             default: lastMenuAction,
             hideDefault: true,
@@ -148,7 +121,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           })) as MenuAction;
           lastMenuAction = B;
 
-          if (B === 'back') break;
+          if (B === 'back') {
+            A = 'docs';
+            continue rootLoop;
+          }
 
           if (B === 'snapshot') {
             const m = await Imports.snapshot();
@@ -172,8 +148,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             if (B === 'doc:graph:dag') {
               await m.dagHookCommand(cwd, docid, yamlPath);
               continue;
-            }
-          }
+  }
+}
 
         if (B.startsWith('plugin:')) {
           const id = B.slice('plugin:'.length);
@@ -190,7 +166,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           const result = await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
           const kind = wrangle.pluginResult(result);
           if (kind === 'exit') return done(0);
-          if (kind === 'back') break;
+          if (kind === 'back') {
+            A = 'docs';
+            continue rootLoop;
+          }
           continue;
         }
 
@@ -207,7 +186,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
           if (B === 'doc:remove') {
             await promptRemoveDocument(cwd, docid);
-            return done(0);
+            A = 'docs';
+            continue rootLoop;
           }
 
           if (B === 'exit') return done(0);
@@ -242,3 +222,13 @@ const wrangle = {
     return 'stay';
   },
 } as const;
+
+async function ensureDocConfigEntry(cwd: t.StringDir, doc: t.CrdtTool.DocumentYaml.Doc) {
+  const config = await Config.get(cwd);
+  const exists = (config.current.docs ?? []).some((d) => d.id === doc.id);
+  if (exists) return;
+  const createdAt = Time.now.timestamp;
+  const entry: t.CrdtTool.Config.DocumentEntry = { id: doc.id, name: doc.name, createdAt };
+  config.change((d) => (d.docs || (d.docs = [])).push(entry));
+  await config.fs.save();
+}

@@ -1,5 +1,5 @@
-import { type t, Fmt as Base, c, Cli, Crdt, D, Str, Time } from './common.ts';
-import { Config } from './u.config.ts';
+import { type t, Fmt as Base, c, Cli, Crdt, D, Str } from './common.ts';
+import { CrdtDocsFs } from './u.docs/u.fs.ts';
 
 export const Fmt = {
   ...Base,
@@ -22,20 +22,24 @@ export const Fmt = {
   Table: {
     async configuredDocs(dir: t.StringDir) {
       const table = Cli.table([]);
-      const config = await Config.get(dir);
-      const docs = config.current.docs ?? [];
+      const files = await CrdtDocsFs.list(dir);
+      const entries: Array<{ id: t.StringId; name?: t.StringName }> = [];
 
-      const now = Time.now.timestamp;
-      docs.forEach((item, i, total) => {
+      for (const path of files) {
+        const checked = await CrdtDocsFs.readYaml(path);
+        if (!checked.ok) continue;
+        entries.push({ id: checked.doc.id, name: checked.doc.name });
+      }
+
+      entries.forEach((item, i, total) => {
         const branch = Fmt.Tree.branch([i, total]);
         const document = c.gray(` ${branch} ${c.white(item.name ?? '')}`);
         const id = c.gray(`crdt:${item.id.slice(0, -5)}${c.green(item.id.slice(-5))}`);
-        const elapsed = item.createdAt ? Time.elapsed(item.createdAt, now) : undefined;
-        const age = c.gray(elapsed?.toString() || '-');
+        const age = c.gray('-');
         table.push([document, id, age]);
       });
 
-      const empty = docs.length > 0 ? '' : c.italic(c.dim('  (no documents added)'));
+      const empty = entries.length > 0 ? '' : c.italic(c.dim('  (no documents added)'));
       const str = Str.builder()
         .line(c.gray('Tracking:'))
         .line(empty || Str.trimEdgeNewlines(String(table)));

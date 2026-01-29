@@ -50,6 +50,30 @@ export namespace CrdtTool {
     }
   }
 
+  /**
+   * YAML-authored document configuration (authoritative).
+   */
+  export namespace DocumentYaml {
+    /**
+     * YAML document structure for a tracked CRDT document.
+     */
+    export type Doc = {
+      /** Document identifier. */
+      id: t.StringId;
+      /** Optional display name. */
+      name?: t.StringName;
+    };
+
+    /**
+     * Filesystem conventions for document YAML storage.
+     */
+    export type DirName = `-config/${string}/crdt/docs`;
+    export type Ext = '.yaml';
+    export type YamlCheck =
+      | { readonly ok: true; readonly doc: Doc }
+      | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+  }
+
   /** Configuration file. */
   export namespace Config {
     export type File = t.JsonFile<Config.Doc>;
