@@ -1,7 +1,6 @@
-import { env } from 'jsr:@sys/tools/env';
-import { c, Cli } from 'jsr:@sys/cli';
-import { Obj, Arr, Str, Num, Is } from 'jsr:@sys/std';
+import { c } from 'jsr:@sys/cli';
 import type { t } from 'jsr:@sys/tools';
+import { env } from 'jsr:@sys/tools/env';
 
 /** Ensure VSCode environment setup (need only run once). */
 await env();
@@ -14,13 +13,10 @@ await env();
  */
 export const onDag: t.CrdtTool.Doc.Graph.DagHook = async (e) => {
   const { cmd, dag } = e;
-
   // 🐷
-  console.info();
-  console.info(c.cyan(`⚡️onDag:`), c.gray(`${e.root.slice(0, -5)}${c.green(e.root.slice(-5))}`));
-  console.info();
-  console.info(dag);
-  console.info();
+  const root = `${e.root.slice(0, -5)}${c.green(e.root.slice(-5))}`;
+  console.info('\n', c.cyan(`⚡️onDag:`), c.gray(root));
+  console.info(dag, '\n');
 };
 
 /**
@@ -32,11 +28,8 @@ export const onDag: t.CrdtTool.Doc.Graph.DagHook = async (e) => {
 export const onWalk: t.CrdtTool.Doc.Graph.WalkHook = async (e) => {
   const { cmd } = e;
   const current = e.doc.current;
-
-  // 🐷 ↓ perform actions on each document in the graph here.
-  if (e.is.root) {
-    e.log(`hook: from root document 👋 | ${c.green(e.id)}`);
-  }
+  // 🐷
+  if (e.is.root) e.log(`hook: from root document 👋 | ${c.green(e.id)}`);
 };
 
 /**
@@ -46,11 +39,10 @@ export const plugins: t.CrdtTool.Doc.Graph.Plugin[] = [
   {
     id: 'sample',
     title: `sample ${c.gray('(plugin)')}`,
-    async run(args) {
-      const { docpath } = args;
-      console.info();
-      console.info(c.cyan('👋 plugin:sample'), c.gray(`| docpath: ${docpath.join('/') || '/'}`));
-      console.info();
+    async run(e) {
+      // 🐷
+      const docpath = e.docpath.join('/') || '/';
+      console.info('\n', c.cyan('👋 plugin:sample'), c.gray(`| docpath: ${docpath}`), '\n');
       return { kind: 'stay' };
     },
   },
