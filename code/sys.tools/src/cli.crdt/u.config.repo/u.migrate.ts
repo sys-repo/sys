@@ -35,10 +35,15 @@ export const CrdtReposMigrate = {
     const missingPorts = !Is.num(ports.repo) || !Is.num(ports.sync);
     const syncItems = res.doc.sync ?? [];
     const missingEnabled = syncItems.some((item) => item.enabled === undefined);
-    const changed = missingPorts || missingEnabled;
+    const hasLegacy = endpoints.length > 0 && syncItems.length === 0;
+    const changed = missingPorts || missingEnabled || hasLegacy;
     if (!changed) return { migrated: 0, skipped: 1 };
 
-    await CrdtReposFs.writeDoc(path, updated);
+    const merged = hasLegacy
+      ? { ...updated, sync: endpoints.map((endpoint) => ({ endpoint, enabled: true })) }
+      : updated;
+
+    await CrdtReposFs.writeDoc(path, merged);
     return { migrated: 1, skipped: 0 };
   },
 } as const;
