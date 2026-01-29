@@ -53,27 +53,38 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   /** --------------------------------------------------------
    * Root Menu
    */
+  let reopenDocsMenu = false;
   rootLoop: while (true) {
     console.info();
-    let A = (await Cli.Input.Select.prompt<MenuAction>({
-      message: 'Tools:\n',
-      options: [
-        optMenu('  docs', 'docs'),
-        opt('  start: sync server (websockets)', 'repo:syncserver:start'),
-        opt('  start: repository daemon', 'repo:daemon:start'),
-        opt(c.gray('(exit)'), 'exit'),
-      ],
-      hideDefault: true,
-      maxRows: 25,
-    })) as MenuAction;
+    let A: MenuAction | undefined;
 
-    if (A === 'exit') return done(0);
-
-    if (A === 'docs') {
+    if (reopenDocsMenu) {
       const picked = await selectDocumentMenu(cwd);
-      if (picked.kind === 'exit') continue;
+      if (picked.kind === 'exit') {
+        reopenDocsMenu = false;
+        continue;
+      }
       await ensureDocConfigEntry(cwd, picked.doc);
       A = Crdt.Id.toUri(picked.doc.id) as MenuAction;
+      reopenDocsMenu = false;
+    } else {
+      A = (await Cli.Input.Select.prompt<MenuAction>({
+        message: 'Tools:\n',
+        options: [
+          optMenu('  docs', 'docs'),
+          opt('  start: sync server (websockets)', 'repo:syncserver:start'),
+          opt('  start: repository daemon', 'repo:daemon:start'),
+          opt(c.gray('(exit)'), 'exit'),
+        ],
+        hideDefault: true,
+        maxRows: 25,
+      })) as MenuAction;
+
+      if (A === 'exit') return done(0);
+      if (A === 'docs') {
+        reopenDocsMenu = true;
+        continue;
+      }
     }
 
     /** --------------------------------------------------------
@@ -122,7 +133,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           lastMenuAction = B;
 
           if (B === 'back') {
-            A = 'docs';
+            reopenDocsMenu = true;
             continue rootLoop;
           }
 
@@ -148,30 +159,30 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             if (B === 'doc:graph:dag') {
               await m.dagHookCommand(cwd, docid, yamlPath);
               continue;
-  }
-}
+            }
+          }
 
-        if (B.startsWith('plugin:')) {
-          const id = B.slice('plugin:'.length);
-          const plugin = plugins.find((entry) => entry.id === id);
-          if (!plugin) return done(0);
+          if (B.startsWith('plugin:')) {
+            const id = B.slice('plugin:'.length);
+            const plugin = plugins.find((entry) => entry.id === id);
+            if (!plugin) return done(0);
 
-          const { buildDocumentDAG } = await Imports.docGraph();
-          const { RepoProcess } = await Imports.daemon();
-          const port = D.port.repo;
-          const cmd = await RepoProcess.tryClient(port);
-          if (!cmd) return done(0);
+            const { buildDocumentDAG } = await Imports.docGraph();
+            const { RepoProcess } = await Imports.daemon();
+            const port = D.port.repo;
+            const cmd = await RepoProcess.tryClient(port);
+            if (!cmd) return done(0);
 
-          const dag = await buildDocumentDAG(cmd, docid, yamlPath);
-          const result = await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
-          const kind = wrangle.pluginResult(result);
-          if (kind === 'exit') return done(0);
+            const dag = await buildDocumentDAG(cmd, docid, yamlPath);
+            const result = await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
+            const kind = wrangle.pluginResult(result);
+            if (kind === 'exit') return done(0);
           if (kind === 'back') {
-            A = 'docs';
+            reopenDocsMenu = true;
             continue rootLoop;
           }
-          continue;
-        }
+            continue;
+          }
 
           if (B === 'doc:viewer:yaml') {
             const m = await Imports.docYamlViewer();
@@ -186,7 +197,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
 
           if (B === 'doc:remove') {
             await promptRemoveDocument(cwd, docid);
-            A = 'docs';
+            reopenDocsMenu = true;
             continue rootLoop;
           }
 
