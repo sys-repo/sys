@@ -1,5 +1,4 @@
-import { type t, c, Crdt, Cli, Fs, Time } from './common.ts';
-import { Config } from './u.config.ts';
+import { type t, c, Crdt, Cli, Fs } from './common.ts';
 import { CrdtDocsFs } from './u.docs/u.fs.ts';
 
 /**
@@ -23,8 +22,6 @@ export async function promptAddDocument(
   const create = id === '';
 
   const name = await Cli.Input.Text.prompt('Display name (optional)');
-  const createdAt = Time.now.timestamp;
-
   if (create) {
     if (!opts.createDoc) return;
 
@@ -45,7 +42,6 @@ export async function promptAddDocument(
   }
 
   await CrdtDocsFs.writeDoc(path, { id, name });
-  await ensureDocConfigEntry(cwd, { id, name, createdAt });
 
   /** Result */
   return { id, name, created: create } as const;
@@ -60,7 +56,6 @@ export async function promptRemoveDocument(dir: t.StringDir, id: t.StringId) {
 
   const path = Fs.join(dir, CrdtDocsFs.fileOf(id));
   await Fs.remove(path);
-  await removeDocConfigEntry(dir, id);
 }
 
 /**
@@ -88,36 +83,4 @@ export async function promptRenameDocument(cwd: t.StringDir, id: t.StringId) {
   if ((current.name ?? '') === (next.name ?? '')) return;
 
   await CrdtDocsFs.writeDoc(path, next);
-  await updateDocConfigEntry(cwd, next);
-}
-
-async function ensureDocConfigEntry(
-  cwd: t.StringDir,
-  doc: t.CrdtTool.Config.DocumentEntry,
-) {
-  const config = await Config.get(cwd);
-  const exists = (config.current.docs ?? []).some((d) => d.id === doc.id);
-  if (exists) return;
-  config.change((d) => (d.docs || (d.docs = [])).push(doc));
-  await config.fs.save();
-}
-
-async function removeDocConfigEntry(cwd: t.StringDir, id: t.StringId) {
-  const config = await Config.get(cwd);
-  config.change((d) => (d.docs = (d.docs ?? []).filter((item) => item.id !== id)));
-  await config.fs.save();
-}
-
-async function updateDocConfigEntry(cwd: t.StringDir, doc: t.CrdtTool.DocumentYaml.Doc) {
-  const config = await Config.get(cwd);
-  config.change((d) => {
-    const docs = d.docs ?? (d.docs = []);
-    const entry = docs.find((item) => item.id === doc.id);
-    if (entry) {
-      entry.name = doc.name;
-      return;
-    }
-    docs.push({ id: doc.id, name: doc.name, createdAt: Time.now.timestamp });
-  });
-  await config.fs.save();
 }

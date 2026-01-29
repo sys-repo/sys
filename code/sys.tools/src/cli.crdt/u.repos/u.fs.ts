@@ -20,6 +20,19 @@ export const CrdtReposFs = {
     await Fs.ensureDir(Fs.join(cwd, REPO_DIR));
   },
 
+  async load(cwd: t.StringDir): Promise<t.CrdtTool.RepoYaml.Doc | undefined> {
+    const path = Fs.join(cwd, CrdtReposFs.file());
+    if (!(await Fs.exists(path))) return;
+    const res = await CrdtReposFs.readYaml(path);
+    if (!res.ok) return;
+    return res.doc;
+  },
+
+  async loadSync(cwd: t.StringDir): Promise<string[]> {
+    const doc = await CrdtReposFs.load(cwd);
+    return doc?.sync ?? [];
+  },
+
   async readYaml(path: t.StringPath): Promise<t.CrdtTool.RepoYaml.YamlCheck> {
     if (!(await Fs.exists(path))) {
       const err = Yaml.Error.synthetic({

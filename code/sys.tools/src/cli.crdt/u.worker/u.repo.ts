@@ -1,4 +1,5 @@
 import { type t, Arr, Crdt, D, Fs, Is, Rx } from '../common.ts';
+import { CrdtReposFs } from '../u.repos/u.fs.ts';
 
 export async function startRepoOnWorker(
   cwd: t.StringDir,
@@ -6,8 +7,9 @@ export async function startRepoOnWorker(
 ) {
   const { silent = true, port } = opts;
   const url = new URL('./u.repo.worker.ts', import.meta.url);
+  const repoSync = await CrdtReposFs.loadSync(cwd);
   const network = Arr.uniq([
-    ...D.Config.doc.repo.daemon.sync.websockets,
+    ...repoSync,
     ...(opts.websockets ?? []),
   ]).map((ws) => ({ ws }));
 

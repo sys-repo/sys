@@ -1,6 +1,6 @@
 import { type t, Fs } from '../common.ts';
-import { Config } from '../u.config.ts';
 import { CrdtDocsFs } from './u.fs.ts';
+import type { LegacyConfigDoc } from '../u.migrate.legacy.ts';
 
 export type MigrateResult = {
   readonly migrated: number;
@@ -11,9 +11,8 @@ export type MigrateResult = {
  * Migration helpers for converting legacy JSON docs to YAML files.
  */
 export const CrdtDocsMigrate = {
-  async run(cwd: t.StringDir): Promise<MigrateResult> {
-    const config = await Config.get(cwd);
-    const docs = config.current.docs ?? [];
+  async run(cwd: t.StringDir, legacy?: LegacyConfigDoc): Promise<MigrateResult> {
+    const docs = legacy?.docs ?? [];
     if (docs.length === 0) return { migrated: 0, skipped: 0 };
 
     await CrdtDocsFs.ensureDir(cwd);

@@ -1,5 +1,5 @@
 import { type t, c, Cli, D, Err, Fs, Rx, Str, Time } from '../common.ts';
-import { Config } from '../u.config.ts';
+import { CrdtReposFs } from '../u.repos/u.fs.ts';
 import { startRepoOnWorker } from '../u.worker/mod.ts';
 import { tryClient } from './u.client.ts';
 import { Fmt } from './u.fmt.ts';
@@ -13,10 +13,9 @@ export async function daemon(
 ) {
   const { allowConsoleClear = true } = opts;
   const life = Rx.lifecycle(opts.until);
-  const config = await Config.get(cwd);
   const port = D.port.repo;
   const eventlog = new Set<t.CrdtRepoLogEntry>();
-  const websockets = config.current.repo?.daemon?.sync?.websockets ?? [];
+  const websockets = await CrdtReposFs.loadSync(cwd);
 
   const clear = () => {
     if (allowConsoleClear) console.clear();
@@ -27,7 +26,11 @@ export async function daemon(
     str
       .line()
       .line(c.yellow(`  Please make sure at least one network endpoint is configured (websockets)`))
-      .line(c.gray(`  ${c.italic('Look in the config file:')} ${Fs.trimCwd(config.fs.path)}`))
+      .line(
+        c.gray(
+          `  ${c.italic('Look in the config file:')} ${Fs.trimCwd(Fs.join(cwd, CrdtReposFs.file()))}`,
+        ),
+      )
       .line();
     console.info(String(str));
     return;

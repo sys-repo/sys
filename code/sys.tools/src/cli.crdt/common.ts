@@ -1,4 +1,3 @@
-import { type t } from '../common.ts';
 import { CrdtTool } from './t.namespace.ts';
 export * from '../common.ts';
 
@@ -22,14 +21,6 @@ export const D = {
       daemon: './.repo/daemon.crdt',
       syncserver: './.repo/syncserver.crdt',
     },
-  },
-  Config: {
-    filename: '-crdt.config.json',
-    doc: {
-      '.meta': { createdAt: 0 },
-      version: '1.0.0',
-      repo: { daemon: { sync: { websockets: [] } } },
-    } satisfies t.CrdtTool.Config.Doc,
   },
   Hook: { filename: 'hook.ts' },
 } as const;

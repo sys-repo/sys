@@ -1,9 +1,9 @@
-import { Args, c, Cli, Crdt, D, done, Fs, Is, type t, Time } from './common.ts';
-import { Config } from './u.config.ts';
+import { Args, c, Cli, Crdt, D, done, Fs, Is, type t } from './common.ts';
 import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.docs/mod.ts';
 import { CrdtReposMigrate, promptRepoSyncMenu } from './u.repos/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
+import { loadLegacyConfig, removeLegacyConfig } from './u.migrate.legacy.ts';
 
 type C = t.CrdtTool.Command;
 type MenuAction = t.CrdtTool.Command | `plugin:${string}` | 'docs' | 'repo';
@@ -27,9 +27,6 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   const args = Args.parse<t.CrdtTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
 
-  /* Pre-reqs */
-  await Config.ensureFile(cwd, D.Config.filename);
-
   /* Run */
   console.info(await Fmt.header(toolname));
   const res = await run(cwd);
@@ -44,10 +41,10 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function run(cwd: t.StringDir): Promise<t.RunReturn> {
-  const config = await Config.get(cwd);
-  await Config.normalize(config);
-  await CrdtDocsMigrate.run(cwd);
-  await CrdtReposMigrate.run(cwd);
+  const legacy = await loadLegacyConfig(cwd);
+  await CrdtDocsMigrate.run(cwd, legacy?.doc);
+  await CrdtReposMigrate.run(cwd, legacy?.doc);
+  if (legacy) await removeLegacyConfig(legacy.path);
 
   const opt = (name: string, value: C) => ({ name, value }) as const;
   const optMenu = (name: string, value: MenuAction) => ({ name, value }) as const;
@@ -67,7 +64,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         reopenDocsMenu = false;
         continue;
       }
-      await ensureDocConfigEntry(cwd, picked.doc);
       A = Crdt.Id.toUri(picked.doc.id) as MenuAction;
       reopenDocsMenu = false;
     } else {
@@ -255,13 +251,3 @@ const wrangle = {
     return 'stay';
   },
 } as const;
-
-async function ensureDocConfigEntry(cwd: t.StringDir, doc: t.CrdtTool.DocumentYaml.Doc) {
-  const config = await Config.get(cwd);
-  const exists = (config.current.docs ?? []).some((d) => d.id === doc.id);
-  if (exists) return;
-  const createdAt = Time.now.timestamp;
-  const entry: t.CrdtTool.Config.DocumentEntry = { id: doc.id, name: doc.name, createdAt };
-  config.change((d) => (d.docs || (d.docs = [])).push(entry));
-  await config.fs.save();
-}
