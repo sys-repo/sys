@@ -88,14 +88,14 @@ function buildSyncMenuOptions(
 
   if (Is.func(actions.onStartDaemon)) {
     options.push({
-      name: `${baseIndent}${padLabel('start', labelWidth)}: daemon`,
+      name: repoStartLabel('daemon', { indent: baseIndent, labelWidth }),
       value: 'start:daemon',
     });
   }
 
   if (Is.func(actions.onStartSyncServer)) {
     options.push({
-      name: `${baseIndent}${padLabel('start', labelWidth)}: sync server`,
+      name: repoStartLabel('sync', { indent: baseIndent, labelWidth }),
       value: 'start:syncserver',
     });
   }
@@ -110,7 +110,9 @@ function padLabel(label: string, width: number): string {
 }
 
 async function saveSyncEndpoints(path: t.StringPath, endpoints: string[]) {
-  const doc: t.CrdtTool.RepoYaml.Doc = { sync: [...endpoints] };
+  const res = await CrdtReposFs.readYaml(path);
+  const base = res.ok ? CrdtRepoSchema.withDefaultPorts(res.doc) : CrdtRepoSchema.initial();
+  const doc: t.CrdtTool.RepoYaml.Doc = { ...base, sync: [...endpoints] };
   await CrdtReposFs.writeDoc(path, doc);
 }
 
@@ -158,4 +160,15 @@ async function promptEndpointAction(args: {
     await saveSyncEndpoints(path, updated);
     return undefined;
   }
+}
+
+export function repoStartLabel(
+  kind: 'sync' | 'daemon',
+  opts: { indent?: string; labelWidth?: number } = {},
+): string {
+  const indent = opts.indent ?? '';
+  const labelWidth = opts.labelWidth ?? 'start'.length;
+  const prefix = `${indent}${c.yellow(padLabel('start', labelWidth))}:`;
+  const text = kind === 'sync' ? 'sync server' : 'daemon';
+  return `${prefix} ${text}`;
 }

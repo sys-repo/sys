@@ -1,6 +1,6 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, type t } from './common.ts';
 import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.docs/mod.ts';
-import { CrdtReposFs, CrdtReposMigrate, promptRepoSyncMenu } from './u.repos/mod.ts';
+import { CrdtReposFs, CrdtReposMigrate, promptRepoSyncMenu, repoStartLabel } from './u.repos/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
 import { loadLegacyConfig, removeLegacyConfig } from './u.migrate.legacy.ts';
@@ -119,22 +119,36 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             const label = plugin.title ?? plugin.id;
             return optMenu(`  ${label}`, `plugin:${plugin.id}`);
           });
-          const options = [
-            ...pluginOptions,
-            optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
-            optMenu(`  doc:graph:walk   ${arrow} stats`, `doc:graph:walk`),
-            optMenu(`  doc:graph:backup ${arrow} snapshot`, `snapshot`),
-            optMenu(`  view: <yaml>`, `doc:viewer:yaml`),
-            optMenu(`  rename`, `doc:rename`),
-            // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
-          ];
+          const { RepoProcess } = await Imports.daemon();
+          const ports = await CrdtReposFs.loadPorts(cwd);
+          const cmd = await RepoProcess.tryClient(ports.repo);
 
-          if (!hookTmpl.exists) {
-            options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
+          const options: Array<{ name: string; value: MenuAction }> = [];
+
+          if (!cmd) {
+            options.push(optMenu(`  ${repoStartLabel('daemon')}`, 'repo:daemon:start'));
+            options.push(optMenu(c.gray(c.dim('← back')), 'back'));
+          } else {
+            options.push(
+              ...[
+                optMenu(`  ${repoStartLabel('daemon')}`, 'repo:daemon:start'),
+                ...pluginOptions,
+                optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
+                optMenu(`  doc:graph:walk   ${arrow} stats`, `doc:graph:walk`),
+                optMenu(`  doc:graph:backup ${arrow} snapshot`, `snapshot`),
+                optMenu(`  view: <yaml>`, `doc:viewer:yaml`),
+                optMenu(`  rename`, `doc:rename`),
+                // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
+              ],
+            );
+
+            if (!hookTmpl.exists) {
+              options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
+            }
+
+            options.push(...[optMenu(c.gray(c.dim('  forget')), 'doc:remove')]);
+            options.push(optMenu(c.gray(c.dim('← back')), 'back'));
           }
-
-          options.push(...[optMenu(c.gray(c.dim('  forget')), 'doc:remove')]);
-          options.push(optMenu(c.gray(c.dim('← back')), 'back'));
 
           const B = (await Cli.Input.Select.prompt<MenuAction>({
             message: `with ${c.gray(docid)}:`,
@@ -181,12 +195,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             if (!plugin) return done(0);
 
             const { buildDocumentDAG } = await Imports.docGraph();
-            const { RepoProcess } = await Imports.daemon();
-            const ports = await CrdtReposFs.loadPorts(cwd);
-            const port = ports.repo;
-            const cmd = await RepoProcess.tryClient(port);
-            if (!cmd) return done(0);
-
             const dag = await buildDocumentDAG(cmd, docid, yamlPath);
             const result = await plugin.run({ dag, cwd, cmd, docpath: yamlPath });
             const kind = wrangle.pluginResult(result);
@@ -201,6 +209,12 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           if (B === 'doc:viewer:yaml') {
             const m = await Imports.docYamlViewer();
             await m.startYamlViewerCommand(cwd, docid, yamlPath);
+            continue;
+          }
+
+          if (B === 'repo:daemon:start') {
+            const m = await Imports.daemon();
+            await m.RepoProcess.daemon(cwd);
             continue;
           }
 
