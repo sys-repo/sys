@@ -57,7 +57,6 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
    */
   let reopenDocsMenu = false;
   rootLoop: while (true) {
-    console.info();
     const totalDocs = (await CrdtDocsFs.list(cwd)).length;
     const docsSuffix = totalDocs > 0 ? ` ${c.gray(`(${totalDocs})`)}` : '';
     let A: MenuAction | undefined;
@@ -73,7 +72,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       reopenDocsMenu = false;
     } else {
       A = (await Cli.Input.Select.prompt<MenuAction>({
-        message: 'crdt:',
+        message: '',
         options: [
           optMenu(` documents${docsSuffix}`, 'docs'),
           optMenu(' repo', 'repo'),
