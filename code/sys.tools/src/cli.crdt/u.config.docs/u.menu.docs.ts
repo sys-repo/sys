@@ -94,15 +94,29 @@ async function debugDocs(cwd: t.StringDir, log: t.Logger) {
   log(c.gray(`files: ${files.length}`));
   for (const path of files) {
     const checked = await CrdtDocsFs.readYaml(path);
+    const raw = await Fs.readYaml<t.CrdtTool.DocumentYaml.Doc>(path);
     if (!checked.ok) {
       log(c.gray(`invalid doc yaml: ${path}`));
       for (const err of checked.errors) {
         log(c.gray(`        - ${err.message}`));
       }
+      if (!raw.ok) {
+        log(c.gray(`        - raw yaml read failed: ${raw.errorReason ?? 'Unknown'}`));
+        if (raw.error) log(c.gray(`        - ${raw.error.message}`));
+      }
+      continue;
+    }
+    if (!raw.ok) {
+      log(c.gray(`raw yaml read failed: ${path}`));
+      log(c.gray(`        - ${raw.errorReason ?? 'Unknown'}`));
+      if (raw.error) log(c.gray(`        - ${raw.error.message}`));
       continue;
     }
     if (!checked.doc.name) {
       log(c.gray(`missing name: ${path}`));
+    }
+    if (!raw.data?.name) {
+      log(c.gray(`raw missing name: ${path}`));
     }
   }
 }
