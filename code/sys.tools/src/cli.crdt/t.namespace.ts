@@ -67,12 +67,18 @@ export namespace CrdtTool {
    * YAML-authored repo configuration (authoritative).
    */
   export namespace RepoYaml {
+    /** Sync endpoint entry. */
+    export type SyncItem = {
+      endpoint: string;
+      enabled?: boolean;
+    };
+
     /**
      * YAML document structure for repo configuration.
      */
     export type Doc = {
       /** Sync websocket endpoints. */
-      sync: string[];
+      sync: SyncItem[];
       /** Port configuration. */
       ports?: {
         repo?: number;

@@ -193,6 +193,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             const id = B.slice('plugin:'.length);
             const plugin = plugins.find((entry) => entry.id === id);
             if (!plugin) return done(0);
+            if (!cmd) continue;
 
             const { buildDocumentDAG } = await Imports.docGraph();
             const dag = await buildDocumentDAG(cmd, docid, yamlPath);

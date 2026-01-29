@@ -25,12 +25,13 @@ export const CrdtReposFs = {
     if (!(await Fs.exists(path))) return;
     const res = await CrdtReposFs.readYaml(path);
     if (!res.ok) return;
-    return res.doc;
+    return CrdtRepoSchema.normalize(res.doc);
   },
 
   async loadSync(cwd: t.StringDir): Promise<string[]> {
     const doc = await CrdtReposFs.load(cwd);
-    return doc?.sync ?? [];
+    if (!doc) return [];
+    return doc.sync.filter((item) => item.enabled !== false).map((item) => item.endpoint);
   },
 
   async loadPorts(cwd: t.StringDir): Promise<{ repo: number; sync: number }> {

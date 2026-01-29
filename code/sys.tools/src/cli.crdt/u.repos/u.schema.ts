@@ -50,11 +50,37 @@ export const CrdtRepoSchema = {
   },
 
   /**
+   * Ensure sync endpoints are normalized with enabled defaults.
+   */
+  withDefaultSyncEnabled(doc: t.CrdtTool.RepoYaml.Doc): t.CrdtTool.RepoYaml.Doc {
+    const sync = (doc.sync ?? []).map((item) => {
+      const enabled = item.enabled !== false;
+      return { ...item, enabled };
+    });
+    return { ...doc, sync };
+  },
+
+  /**
+   * Normalize sync + ports with defaults.
+   */
+  normalize(doc: t.CrdtTool.RepoYaml.Doc): t.CrdtTool.RepoYaml.Doc {
+    return CrdtRepoSchema.withDefaultPorts(CrdtRepoSchema.withDefaultSyncEnabled(doc));
+  },
+
+  /**
    * JsonSchema.
    */
   schema: Schema.Type.Object(
     {
-      sync: Schema.Type.Array(Schema.Type.String()),
+      sync: Schema.Type.Array(
+        Schema.Type.Object(
+          {
+            endpoint: Schema.Type.String(),
+            enabled: Schema.Type.Optional(Schema.Type.Boolean()),
+          },
+          { additionalProperties: false },
+        ),
+      ),
       ports: Schema.Type.Optional(
         Schema.Type.Object(
           {

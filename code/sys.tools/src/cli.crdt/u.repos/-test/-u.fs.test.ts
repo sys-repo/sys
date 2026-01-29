@@ -7,17 +7,29 @@ describe('CrdtReposFs', () => {
     await withTmpDir(async (cwd) => {
       const path = Fs.join(cwd, CrdtReposFs.file());
       await CrdtReposFs.writeDoc(path, {
-        sync: ['waiheke.sync.db.team'],
+        sync: [{ endpoint: 'sync.example.com', enabled: true }],
         ports: { repo: 49494, sync: 3030 },
       });
       const res = await CrdtReposFs.readYaml(path);
       expect(res.ok).to.eql(true);
       if (res.ok) {
         expect(res.doc).to.eql({
-          sync: ['waiheke.sync.db.team'],
+          sync: [{ endpoint: 'sync.example.com', enabled: true }],
           ports: { repo: 49494, sync: 3030 },
         });
       }
+    });
+  });
+
+  it('loadSync returns enabled endpoints', async () => {
+    await withTmpDir(async (cwd) => {
+      const path = Fs.join(cwd, CrdtReposFs.file());
+      await CrdtReposFs.writeDoc(path, {
+        sync: [{ endpoint: 'localhost:3030', enabled: false }, { endpoint: 'sync.example.com' }],
+        ports: { repo: 49494, sync: 3030 },
+      });
+      const sync = await CrdtReposFs.loadSync(cwd);
+      expect(sync).to.eql(['sync.example.com']);
     });
   });
 

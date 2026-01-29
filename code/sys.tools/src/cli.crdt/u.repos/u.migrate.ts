@@ -20,16 +20,22 @@ export const CrdtReposMigrate = {
     if (!(await Fs.exists(path))) {
       if (endpoints.length === 0) return { migrated: 0, skipped: 0 };
       const initial = CrdtRepoSchema.initial();
-      await CrdtReposFs.writeDoc(path, { sync: [...endpoints], ports: { ...initial.ports } });
+      await CrdtReposFs.writeDoc(path, {
+        sync: endpoints.map((endpoint) => ({ endpoint, enabled: true })),
+        ports: { ...initial.ports },
+      });
       return { migrated: 1, skipped: 0 };
     }
 
     const res = await CrdtReposFs.readYaml(path);
     if (!res.ok) return { migrated: 0, skipped: 0 };
 
-    const updated = CrdtRepoSchema.withDefaultPorts(res.doc);
+    const updated = CrdtRepoSchema.normalize(res.doc);
     const ports = res.doc.ports ?? {};
-    const changed = !Is.num(ports.repo) || !Is.num(ports.sync);
+    const missingPorts = !Is.num(ports.repo) || !Is.num(ports.sync);
+    const syncItems = res.doc.sync ?? [];
+    const missingEnabled = syncItems.some((item) => item.enabled === undefined);
+    const changed = missingPorts || missingEnabled;
     if (!changed) return { migrated: 0, skipped: 1 };
 
     await CrdtReposFs.writeDoc(path, updated);
