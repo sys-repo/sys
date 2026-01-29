@@ -1,11 +1,8 @@
 import { c } from './common.ts';
 
 export function formatHashPrefix(hash?: string): string {
-  const PLACEHOLDER = '-tbd-';
-  const suffix = String(hash ?? '').trim() || PLACEHOLDER;
-  const isPlaceholder = suffix === PLACEHOLDER;
-  if (isPlaceholder) {
-    return c.dim(`${c.gray('#')}${c.gray(suffix)}`);
-  }
+  const suffix = String(hash ?? '').trim();
+  const isPlaceholder = !suffix;
+  if (isPlaceholder) return `🌳${' '.repeat(4)}`;
   return `${c.gray(c.dim('#'))}${c.green(suffix)}`;
 }
