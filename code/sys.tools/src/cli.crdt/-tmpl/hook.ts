@@ -1,6 +1,8 @@
-import { c } from 'jsr:@sys/cli';
 import type { t } from 'jsr:@sys/tools';
+
+import { c } from 'jsr:@sys/cli';
 import { env } from 'jsr:@sys/tools/env';
+import { Str, Obj } from 'jsr:@sys/std';
 
 /** Ensure VSCode environment setup (need only run once). */
 await env();
@@ -41,7 +43,7 @@ export const plugins: t.CrdtTool.Doc.Graph.Plugin[] = [
     title: `sample ${c.gray('(plugin)')}`,
     async run(e) {
       // 🐷
-      const docpath = e.docpath.join('/') || '/';
+      const docpath = `/${Str.trimSlashes(e.docpath.join('/'))}`;
       console.info('\n', c.cyan('👋 plugin:sample'), c.gray(`| docpath: ${docpath}`), '\n');
       return { kind: 'stay' };
     },
