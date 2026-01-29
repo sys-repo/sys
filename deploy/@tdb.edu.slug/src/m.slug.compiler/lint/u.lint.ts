@@ -1,14 +1,4 @@
-import {
-  type t,
-  c,
-  Cli,
-  LintDocFacets as Facets,
-  Fs,
-  Obj,
-  Pkg,
-  pkg,
-  Slug,
-} from './common.ts';
+import { type t, c, Cli, LintDocFacets as Facets, Fs, Obj, Pkg, pkg, Slug } from './common.ts';
 
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
@@ -50,118 +40,19 @@ async function run(
   } = {},
 ): Promise<t.DocLintResult> {
   const { interactive = false } = opts;
-  const isFacet = (value: string): value is t.DocLintFacet => Facets.includes(value as t.DocLintFacet);
-  let facets = (opts.facets ?? Facets).filter(isFacet) as t.DocLintFacet[];
-
-  let profilePath: t.StringFile | undefined;
-  let lastResult: t.DocLintResult | undefined;
+  let facets = normalizeFacets(opts.facets);
 
   if (opts.cwd && interactive) {
-    let lastProfile: t.StringFile | undefined;
-    let lastAction: 'facets' | 'run' | undefined;
-    profileLoop: while (true) {
-      let actionPick: SlugLintProfilePick = await selectSlugLintProfile(opts.cwd, {
-        interactive,
-        defaultProfile: lastProfile,
-      });
-
-      if (actionPick.kind === 'exit') {
-        return lastResult ?? Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
-      }
-      if ('profile' in actionPick && actionPick.profile) {
-        lastProfile = actionPick.profile;
-        profilePath = actionPick.profile;
-        const doc = await readLintProfile(actionPick.profile);
-        facets = resolveFacets({ current: facets, doc });
-      }
-
-      while (true) {
-        if (actionPick.kind === 'facets') {
-          const opt = (value: t.DocLintFacet, checked?: boolean) => ({
-            name: `${value}`,
-            value,
-            checked,
-          });
-          const options = Facets.map((value) => opt(value, facets.includes(value)));
-          facets = (await Cli.Input.Checkbox.prompt({
-            message: 'Select lint on facets',
-            options,
-          })) as t.DocLintFacet[];
-          if (actionPick.profile) {
-            const doc = await readLintProfile(actionPick.profile);
-            await writeLintProfile(actionPick.profile, { ...doc, facets });
-          }
-          lastAction = 'facets';
-          actionPick = await selectSlugLintProfileAction(opts.cwd, actionPick.profile, {
-            defaultAction: lastAction,
-          });
-          if ('profile' in actionPick && actionPick.profile) {
-            lastProfile = actionPick.profile;
-            profilePath = actionPick.profile;
-            const doc = await readLintProfile(actionPick.profile);
-            facets = resolveFacets({ current: facets, doc });
-          }
-          continue;
-        }
-
-        if (actionPick.kind === 'run') {
-          lastAction = 'run';
-          lastResult = await lintOnce({
-            dag,
-            yamlPath,
-            facets,
-            profilePath,
-            opts,
-          });
-          actionPick = await selectSlugLintProfileAction(opts.cwd, actionPick.profile, {
-            defaultAction: lastAction,
-          });
-          if ('profile' in actionPick && actionPick.profile) {
-            lastProfile = actionPick.profile;
-            profilePath = actionPick.profile;
-            const doc = await readLintProfile(actionPick.profile);
-            facets = resolveFacets({ current: facets, doc });
-          }
-          continue;
-        }
-
-        if (actionPick.kind === 'exit') {
-          return lastResult ?? Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
-        }
-        if (actionPick.kind === 'back') {
-          if ('profile' in actionPick && actionPick.profile) {
-            lastProfile = actionPick.profile;
-            profilePath = actionPick.profile;
-          }
-          if (lastAction) {
-            lastAction = undefined;
-          }
-          continue profileLoop;
-        }
-        break;
-      }
-    }
-  } else if (opts.cwd) {
-    const profilePick: SlugLintProfilePick = await selectSlugLintProfile(opts.cwd, {
-      interactive,
-    });
-    if (profilePick.kind === 'exit') {
-      return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
-    }
-    if ('profile' in profilePick && profilePick.profile) {
-      profilePath = profilePick.profile;
-      const doc = await readLintProfile(profilePick.profile);
-      facets = resolveFacets({ current: facets, doc });
-    }
+    return await runInteractiveLint({ dag, yamlPath, facets, opts });
   }
 
-  return await lintOnce({
-    dag,
-    yamlPath,
-    facets,
-    profilePath,
-    opts,
-  });
+  let profilePath: t.StringFile | undefined;
+  if (opts.cwd) {
+    const res = await selectProfileOnce(opts.cwd, facets, interactive);
+    profilePath = res.profilePath;
+    facets = res.facets;
+  }
+  return await lintOnce({ dag, yamlPath, facets, profilePath, opts });
 }
 
 async function lintOnce(args: {
@@ -181,6 +72,8 @@ async function lintOnce(args: {
   let facets = [...args.facets];
   const profilePath = args.profilePath;
   const { dag, yamlPath, opts } = args;
+  const cwd = opts.cwd;
+  if (!cwd) return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
 
   const hasFileVideo = facets.includes('sequence:file:video');
   const hasFileImage = facets.includes('sequence:file:image');
@@ -333,6 +226,130 @@ async function lintOnce(args: {
 
   const ok = issues.length === 0;
   return Obj.asGetter({ ok, facets, issues }, ['issues']);
+}
+
+async function selectProfileOnce(
+  cwd: t.StringDir,
+  facets: readonly t.DocLintFacet[],
+  interactive: boolean,
+): Promise<{ profilePath?: t.StringFile; facets: t.DocLintFacet[] }> {
+  const profilePick: SlugLintProfilePick = await selectSlugLintProfile(cwd, { interactive });
+  if (profilePick.kind === 'exit') return { facets: [...facets] };
+  if ('profile' in profilePick && profilePick.profile) {
+    const doc = await readLintProfile(profilePick.profile);
+    const resolved = resolveFacets({ current: facets, doc });
+    return { profilePath: profilePick.profile, facets: resolved };
+  }
+  return { facets: [...facets] };
+}
+
+async function runInteractiveLint(args: {
+  dag: t.Graph.Dag.Result;
+  yamlPath: t.ObjectPath;
+  facets: t.DocLintFacet[];
+  opts: {
+    facets?: string[];
+    interactive?: boolean;
+    cwd?: t.StringDir;
+    createCrdt?: () => Promise<t.StringRef>;
+  };
+}): Promise<t.DocLintResult> {
+  const { dag, yamlPath, opts } = args;
+  let { facets } = args;
+  let profilePath: t.StringFile | undefined;
+  let lastResult: t.DocLintResult | undefined;
+  let lastProfile: t.StringFile | undefined;
+  let lastAction: 'facets' | 'run' | undefined;
+
+  profileLoop: while (true) {
+    let actionPick: SlugLintProfilePick = await selectSlugLintProfile(cwd, {
+      interactive: true,
+      defaultProfile: lastProfile,
+    });
+
+    if (actionPick.kind === 'exit') {
+      return lastResult ?? Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
+    }
+    if ('profile' in actionPick && actionPick.profile) {
+      lastProfile = actionPick.profile;
+      profilePath = actionPick.profile;
+      const doc = await readLintProfile(actionPick.profile);
+      facets = resolveFacets({ current: facets, doc });
+    }
+
+    while (true) {
+      if (actionPick.kind === 'facets') {
+        facets = await promptForFacets(facets);
+        if (actionPick.profile) {
+          const doc = await readLintProfile(actionPick.profile);
+          await writeLintProfile(actionPick.profile, { ...doc, facets });
+        }
+        lastAction = 'facets';
+        actionPick = await selectSlugLintProfileAction(cwd, actionPick.profile, {
+          defaultAction: lastAction,
+        });
+        if ('profile' in actionPick && actionPick.profile) {
+          lastProfile = actionPick.profile;
+          profilePath = actionPick.profile;
+          const doc = await readLintProfile(actionPick.profile);
+          facets = resolveFacets({ current: facets, doc });
+        }
+        continue;
+      }
+
+      if (actionPick.kind === 'run') {
+        lastAction = 'run';
+        lastResult = await lintOnce({
+          dag,
+          yamlPath,
+          facets,
+          profilePath,
+          opts,
+        });
+        actionPick = await selectSlugLintProfileAction(cwd, actionPick.profile, {
+          defaultAction: lastAction,
+        });
+        if ('profile' in actionPick && actionPick.profile) {
+          lastProfile = actionPick.profile;
+          profilePath = actionPick.profile;
+          const doc = await readLintProfile(actionPick.profile);
+          facets = resolveFacets({ current: facets, doc });
+        }
+        continue;
+      }
+
+      if (actionPick.kind === 'exit') {
+        return lastResult ?? Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
+      }
+      if (actionPick.kind === 'back') {
+        if ('profile' in actionPick && actionPick.profile) {
+          lastProfile = actionPick.profile;
+          profilePath = actionPick.profile;
+        }
+        lastAction = undefined;
+        continue profileLoop;
+      }
+      break;
+    }
+  }
+}
+
+async function promptForFacets(current: readonly t.DocLintFacet[]): Promise<t.DocLintFacet[]> {
+  const opt = (value: t.DocLintFacet, checked?: boolean) => ({ name: `${value}`, value, checked });
+  const options = Facets.map((value) => opt(value, current.includes(value)));
+  return (await Cli.Input.Checkbox.prompt({
+    message: 'Select lint on facets',
+    options,
+  })) as t.DocLintFacet[];
+}
+
+/**
+ * Helpers
+ */
+function normalizeFacets(input?: readonly string[]): t.DocLintFacet[] {
+  const isFacet = (value: string): value is t.DocLintFacet =>
+    Facets.includes(value as t.DocLintFacet);
+  return (input ?? Facets).filter(isFacet) as t.DocLintFacet[];
 }
 
 function resolveFacets(args: {
