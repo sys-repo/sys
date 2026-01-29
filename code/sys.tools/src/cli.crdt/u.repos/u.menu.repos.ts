@@ -73,7 +73,8 @@ function buildSyncMenuOptions(
     onStartDaemon?: () => Promise<void>;
   },
 ) {
-  const labelWidth = Math.max('add'.length, 'sync'.length);
+  const labels = ['add', 'sync', 'start'];
+  const labelWidth = Math.max(...labels.map((label) => label.length));
   const baseIndent = '  ';
   const addLabel = `${baseIndent}${padLabel('add', labelWidth)}: <endpoint>`;
 
@@ -87,13 +88,13 @@ function buildSyncMenuOptions(
 
   if (Is.func(actions.onStartSyncServer)) {
     options.push({
-      name: `${baseIndent}start: sync server`,
+      name: `${baseIndent}${padLabel('start', labelWidth)}: sync server`,
       value: 'start:syncserver',
     });
   }
   if (Is.func(actions.onStartDaemon)) {
     options.push({
-      name: `${baseIndent}start: daemon`,
+      name: `${baseIndent}${padLabel('start', labelWidth)}: daemon`,
       value: 'start:daemon',
     });
   }
