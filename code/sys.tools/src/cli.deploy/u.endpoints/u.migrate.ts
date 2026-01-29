@@ -1,7 +1,7 @@
 import { type t, Fs } from '../common.ts';
 import { EndpointsFs } from './u.fs.ts';
 
-const LEGACY_DIRS = ['-config/deploy'] as const;
+const LEGACY_DIRS = ['-endpoints', '-config/deploy'] as const;
 
 export type MigrateResult = {
   readonly migrated: number;
