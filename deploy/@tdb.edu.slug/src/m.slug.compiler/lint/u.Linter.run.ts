@@ -2,7 +2,6 @@ import { type t, c, Cli, LintDocFacets as Facets, Fs, Obj, Pkg, pkg, Slug } from
 
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
-import { runLintCommand } from './u.lint.cmd.ts';
 import {
   type SlugLintProfilePick,
   selectSlugLintProfile,
@@ -11,25 +10,16 @@ import {
 import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
+import { printLintSummary } from './u.lint.print.ts';
 import { runSlugTreeFs } from './u.lint.slug-tree.ts';
 import { readLintProfile, writeLintProfile } from './u.lint.util.ts';
 
 type Issue = t.DocLintIssue;
 
 /**
- * Lint namespace.
- */
-export const Linter = {
-  run,
-  cmd: runLintCommand,
-  Facets,
-  Facet: { lintAliases, lintSequenceFilepaths, lintTypedYamlSequence },
-} as const;
-
-/**
  * Lint across the given DAG.
  */
-async function run(
+export async function run(
   dag: t.Graph.Dag.Result,
   yamlPath: t.ObjectPath,
   opts: {
@@ -37,6 +27,7 @@ async function run(
     interactive?: boolean;
     cwd: t.StringDir;
     createCrdt?: () => Promise<t.StringRef>;
+    print?: boolean;
   },
 ): Promise<t.DocLintResult> {
   const { interactive = false } = opts;
@@ -52,9 +43,14 @@ async function run(
     profilePath = res.profilePath;
     facets = res.facets;
   }
+
   return await lintOnce({ dag, yamlPath, facets, profilePath, opts });
 }
 
+/**
+ * Single-pass lint execution for a given DAG and facet set.
+ * Used by both interactive and non-interactive flows to keep behavior consistent.
+ */
 async function lintOnce(args: {
   dag: t.Graph.Dag.Result;
   yamlPath: t.ObjectPath;
@@ -228,6 +224,10 @@ async function lintOnce(args: {
   return Obj.asGetter({ ok, facets, issues }, ['issues']);
 }
 
+/**
+ * Resolve the profile once for non-interactive runs.
+ * Keeps profile selection separate from the lint execution pass.
+ */
 async function selectProfileOnce(
   cwd: t.StringDir,
   facets: readonly t.DocLintFacet[],
@@ -243,6 +243,10 @@ async function selectProfileOnce(
   return { facets: [...facets] };
 }
 
+/**
+ * Interactive profile + facet menu loop.
+ * Runs lint on demand and keeps the menu state in sync.
+ */
 async function runInteractiveLint(args: {
   dag: t.Graph.Dag.Result;
   yamlPath: t.ObjectPath;
@@ -252,6 +256,7 @@ async function runInteractiveLint(args: {
     interactive?: boolean;
     cwd: t.StringDir;
     createCrdt?: () => Promise<t.StringRef>;
+    print?: boolean;
   };
 }): Promise<t.DocLintResult> {
   const { dag, yamlPath, opts } = args;
@@ -307,6 +312,9 @@ async function runInteractiveLint(args: {
           profilePath,
           opts,
         });
+        if (lastResult && opts.print !== false) {
+          printLintSummary({ res: lastResult, docpath: yamlPath });
+        }
         actionPick = await selectSlugLintProfileAction(cwd, actionPick.profile, {
           defaultAction: lastAction,
         });
@@ -335,6 +343,10 @@ async function runInteractiveLint(args: {
   }
 }
 
+/**
+ * Helpers:
+ */
+
 async function promptForFacets(current: readonly t.DocLintFacet[]): Promise<t.DocLintFacet[]> {
   const opt = (value: t.DocLintFacet, checked?: boolean) => ({ name: `${value}`, value, checked });
   const options = Facets.map((value) => opt(value, current.includes(value)));
@@ -344,9 +356,6 @@ async function promptForFacets(current: readonly t.DocLintFacet[]): Promise<t.Do
   })) as t.DocLintFacet[];
 }
 
-/**
- * Helpers
- */
 function normalizeFacets(input?: readonly string[]): t.DocLintFacet[] {
   const isFacet = (value: string): value is t.DocLintFacet =>
     Facets.includes(value as t.DocLintFacet);
