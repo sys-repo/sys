@@ -91,15 +91,16 @@ function buildSyncMenuOptions(
   });
 
   const options = [{ name: addLabel, value: 'add' }, ...syncRows];
+  const hasEndpoints = endpoints.length > 0;
 
-  if (Is.func(actions.onStartDaemon)) {
+  if (hasEndpoints && Is.func(actions.onStartDaemon)) {
     options.push({
       name: repoStartLabel('daemon', { indent: baseIndent, labelWidth }),
       value: 'start:daemon',
     });
   }
 
-  if (Is.func(actions.onStartSyncServer)) {
+  if (hasEndpoints && Is.func(actions.onStartSyncServer)) {
     options.push({
       name: repoStartLabel('sync', { indent: baseIndent, labelWidth }),
       value: 'start:syncserver',

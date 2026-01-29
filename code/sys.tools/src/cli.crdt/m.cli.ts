@@ -123,32 +123,37 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           const ports = await CrdtReposFs.loadPorts(cwd);
           const cmd = await RepoProcess.tryClient(ports.repo);
 
-          const options: Array<{ name: string; value: MenuAction }> = [];
-
           if (!cmd) {
-            options.push(optMenu(`  ${repoStartLabel('daemon')}`, 'repo:daemon:start'));
-            options.push(optMenu(c.gray(c.dim('← back')), 'back'));
-          } else {
-            options.push(
-              ...[
-                optMenu(`  ${repoStartLabel('daemon')}`, 'repo:daemon:start'),
-                ...pluginOptions,
-                optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
-                optMenu(`  doc:graph:walk   ${arrow} stats`, `doc:graph:walk`),
-                optMenu(`  doc:graph:backup ${arrow} snapshot`, `snapshot`),
-                optMenu(`  view: <yaml>`, `doc:viewer:yaml`),
-                optMenu(`  rename`, `doc:rename`),
-                // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
-              ],
-            );
-
-            if (!hookTmpl.exists) {
-              options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
-            }
-
-            options.push(...[optMenu(c.gray(c.dim('  forget')), 'doc:remove')]);
-            options.push(optMenu(c.gray(c.dim('← back')), 'back'));
+            await promptRepoSyncMenu({
+              cwd,
+              onStartSyncServer: async () => {
+                const { startSyncServerCommand } = await Imports.syncServer();
+                await startSyncServerCommand(cwd);
+              },
+              onStartDaemon: async () => {
+                const m = await Imports.daemon();
+                await m.RepoProcess.daemon(cwd);
+              },
+            });
+            continue;
           }
+
+          const options: Array<{ name: string; value: MenuAction }> = [
+            ...pluginOptions,
+            optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
+            optMenu(`  doc:graph:walk   ${arrow} stats`, `doc:graph:walk`),
+            optMenu(`  doc:graph:backup ${arrow} snapshot`, `snapshot`),
+            optMenu(`  view: <yaml>`, `doc:viewer:yaml`),
+            optMenu(`  rename`, `doc:rename`),
+            // opt(`  🐷 ${c.yellow(c.italic('chat with slug'))}`, 'tmp:🐷'),
+          ];
+
+          if (!hookTmpl.exists) {
+            options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
+          }
+
+          options.push(...[optMenu(c.gray(c.dim('  forget')), 'doc:remove')]);
+          options.push(optMenu(c.gray(c.dim('← back')), 'back'));
 
           const B = (await Cli.Input.Select.prompt<MenuAction>({
             message: `with ${c.gray(docid)}:`,
