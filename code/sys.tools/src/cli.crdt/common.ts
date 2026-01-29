@@ -15,7 +15,6 @@ const name = CrdtTool.NAME;
 export const D = {
   tool: { id, name },
   port: { repo: 49494, sync: 3030 },
-  Sync: { server: 'waiheke.sync.db.team' },
   Path: {
     Repo: {
       daemon: './.repo/daemon.crdt',
