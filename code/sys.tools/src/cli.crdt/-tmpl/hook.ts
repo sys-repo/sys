@@ -44,7 +44,7 @@ export const onWalk: t.CrdtTool.Doc.Graph.WalkHook = async (e) => {
  */
 export const plugins: t.CrdtTool.Doc.Graph.Plugin[] = [
   {
-    id: 'plugin:sample',
+    id: 'sample',
     title: `sample ${c.gray('(plugin)')}`,
     async run(args) {
       const { docpath } = args;
