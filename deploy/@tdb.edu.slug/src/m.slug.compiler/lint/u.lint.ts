@@ -50,17 +50,15 @@ async function run(
   } = {},
 ): Promise<t.DocLintResult> {
   const { interactive = false } = opts;
-  const issues: Issue[] = [];
-  const Parse = Slug.parser(yamlPath);
-
-  // Determine facets to lint on.
-  let facets = (opts.facets ?? Facets) as t.DocLintFacet[];
-  facets = facets.filter((facet) => Facets.includes(facet)); // Ensure facet exists in supported set.
+  const isFacet = (value: string): value is t.DocLintFacet => Facets.includes(value as t.DocLintFacet);
+  let facets = (opts.facets ?? Facets).filter(isFacet) as t.DocLintFacet[];
 
   let profilePath: t.StringFile | undefined;
+  let lastResult: t.DocLintResult | undefined;
 
   if (opts.cwd && interactive) {
     let lastProfile: t.StringFile | undefined;
+    let lastAction: 'facets' | 'run' | undefined;
     profileLoop: while (true) {
       let actionPick: SlugLintProfilePick = await selectSlugLintProfile(opts.cwd, {
         interactive,
@@ -68,7 +66,7 @@ async function run(
       });
 
       if (actionPick.kind === 'exit') {
-        return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
+        return lastResult ?? Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
       }
       if ('profile' in actionPick && actionPick.profile) {
         lastProfile = actionPick.profile;
@@ -77,44 +75,70 @@ async function run(
         facets = resolveFacets({ current: facets, doc });
       }
 
-      while (actionPick.kind === 'facets') {
-        const opt = (value: t.DocLintFacet, checked?: boolean) => ({
-          name: `${value}`,
-          value,
-          checked,
-        });
-        const options = Facets.map((value) => opt(value, facets.includes(value)));
-        facets = (await Cli.Input.Checkbox.prompt({
-          message: 'Select lint on facets',
-          options,
-        })) as t.DocLintFacet[];
-        if (actionPick.profile) {
-          const doc = await readLintProfile(actionPick.profile);
-          await writeLintProfile(actionPick.profile, { ...doc, facets });
+      while (true) {
+        if (actionPick.kind === 'facets') {
+          const opt = (value: t.DocLintFacet, checked?: boolean) => ({
+            name: `${value}`,
+            value,
+            checked,
+          });
+          const options = Facets.map((value) => opt(value, facets.includes(value)));
+          facets = (await Cli.Input.Checkbox.prompt({
+            message: 'Select lint on facets',
+            options,
+          })) as t.DocLintFacet[];
+          if (actionPick.profile) {
+            const doc = await readLintProfile(actionPick.profile);
+            await writeLintProfile(actionPick.profile, { ...doc, facets });
+          }
+          lastAction = 'facets';
+          actionPick = await selectSlugLintProfileAction(opts.cwd, actionPick.profile, {
+            defaultAction: lastAction,
+          });
+          if ('profile' in actionPick && actionPick.profile) {
+            lastProfile = actionPick.profile;
+            profilePath = actionPick.profile;
+            const doc = await readLintProfile(actionPick.profile);
+            facets = resolveFacets({ current: facets, doc });
+          }
+          continue;
         }
-        actionPick = await selectSlugLintProfileAction(opts.cwd, actionPick.profile, {
-          defaultAction: 'facets',
-        });
-        if ('profile' in actionPick && actionPick.profile) {
-          lastProfile = actionPick.profile;
-          profilePath = actionPick.profile;
-          const doc = await readLintProfile(actionPick.profile);
-          facets = resolveFacets({ current: facets, doc });
-        }
-      }
 
-      if (actionPick.kind === 'run') {
-        break;
-      }
-      if (actionPick.kind === 'exit') {
-        return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
-      }
-      if (actionPick.kind === 'back') {
-        if ('profile' in actionPick && actionPick.profile) {
-          lastProfile = actionPick.profile;
-          profilePath = actionPick.profile;
+        if (actionPick.kind === 'run') {
+          lastAction = 'run';
+          lastResult = await lintOnce({
+            dag,
+            yamlPath,
+            facets,
+            profilePath,
+            opts,
+          });
+          actionPick = await selectSlugLintProfileAction(opts.cwd, actionPick.profile, {
+            defaultAction: lastAction,
+          });
+          if ('profile' in actionPick && actionPick.profile) {
+            lastProfile = actionPick.profile;
+            profilePath = actionPick.profile;
+            const doc = await readLintProfile(actionPick.profile);
+            facets = resolveFacets({ current: facets, doc });
+          }
+          continue;
         }
-        continue profileLoop;
+
+        if (actionPick.kind === 'exit') {
+          return lastResult ?? Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
+        }
+        if (actionPick.kind === 'back') {
+          if ('profile' in actionPick && actionPick.profile) {
+            lastProfile = actionPick.profile;
+            profilePath = actionPick.profile;
+          }
+          if (lastAction) {
+            lastAction = undefined;
+          }
+          continue profileLoop;
+        }
+        break;
       }
     }
   } else if (opts.cwd) {
@@ -130,6 +154,33 @@ async function run(
       facets = resolveFacets({ current: facets, doc });
     }
   }
+
+  return await lintOnce({
+    dag,
+    yamlPath,
+    facets,
+    profilePath,
+    opts,
+  });
+}
+
+async function lintOnce(args: {
+  dag: t.Graph.Dag.Result;
+  yamlPath: t.ObjectPath;
+  facets: readonly t.DocLintFacet[];
+  profilePath?: t.StringFile;
+  opts: {
+    facets?: string[];
+    interactive?: boolean;
+    cwd?: t.StringDir;
+    createCrdt?: () => Promise<t.StringRef>;
+  };
+}): Promise<t.DocLintResult> {
+  const issues: Issue[] = [];
+  const Parse = Slug.parser(args.yamlPath);
+  let facets = [...args.facets];
+  const profilePath = args.profilePath;
+  const { dag, yamlPath, opts } = args;
 
   const hasFileVideo = facets.includes('sequence:file:video');
   const hasFileImage = facets.includes('sequence:file:image');
