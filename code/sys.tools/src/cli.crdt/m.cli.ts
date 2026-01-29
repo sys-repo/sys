@@ -124,7 +124,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           const cmd = await RepoProcess.tryClient(ports.repo);
 
           if (!cmd) {
-            await promptRepoSyncMenu({
+            const repoAction = await promptRepoSyncMenu({
               cwd,
               onStartSyncServer: async () => {
                 const { startSyncServerCommand } = await Imports.syncServer();
@@ -135,6 +135,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
                 await m.RepoProcess.daemon(cwd);
               },
             });
+            if (repoAction === 'back') {
+              reopenDocsMenu = true;
+              continue rootLoop;
+            }
             continue;
           }
 
