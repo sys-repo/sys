@@ -1,7 +1,7 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 import { type t } from '../common.ts';
 import { CrdtReposFs } from '../u.repos/u.fs.ts';
-import { promptAddDocument } from '../u.prompt.modify.ts';
+import { promptAddDocument } from '../u.prompt.ts';
 
 type Result = {
   readonly id: t.Crdt.Id;
