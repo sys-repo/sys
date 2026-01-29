@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 /**
  * Merge helpers for nested SlugPlayback state slices.

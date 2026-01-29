@@ -1,7 +1,10 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, Schedule } from '../common.ts';
-import { attachSlugLoaderEffect } from '../u.attachSlugLoaderEffect.ts';
-import { createTestController, makeTestPlaybackBundle } from './u.fixture.ts';
+import { attachSlugLoaderEffect } from './mod.ts';
+import {
+  createTestController,
+  makeTestPlaybackBundle,
+} from '../../ui.SlugPlaybackDriver/-test/u.fixture.ts';
 
 describe('controller: attachSlugLoaderEffect', () => {
   const tree: t.TreeHostViewNodeList = [

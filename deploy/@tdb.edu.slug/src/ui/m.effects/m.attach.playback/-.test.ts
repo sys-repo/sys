@@ -1,6 +1,10 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { attachPlaybackDriverEffect } from '../u.attachPlaybackDriverEffect.ts';
-import { createTestController, createTestDecks, makeTestPlaybackBundle } from './u.fixture.ts';
+import { attachPlaybackDriverEffect } from './mod.ts';
+import {
+  createTestController,
+  createTestDecks,
+  makeTestPlaybackBundle,
+} from '../../ui.SlugPlaybackDriver/-test/u.fixture.ts';
 
 describe('controller: attachPlaybackDriverEffect', () => {
   it('attaches without throwing', () => {

@@ -1,5 +1,5 @@
+import { TreeHost } from '../../ui.TreeHost/mod.ts';
 import { type t, SlugClient, SlugSchema } from '../common.ts';
-import { TreeHost } from '../ui.TreeHost/mod.ts';
 
 type State = t.SlugPlaybackState;
 type LoadBundleResult = t.SlugClientResult<t.TimecodePlaybackDriver.Wire.Bundle>;

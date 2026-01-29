@@ -1,4 +1,4 @@
-import { type t, PlaybackDriver, Timecode, TimecodeState } from './common.ts';
+import { type t, PlaybackDriver, Timecode, TimecodeState } from '../common.ts';
 
 type State = t.SlugPlaybackState;
 type Snapshot = t.TimecodeState.Playback.Snapshot;

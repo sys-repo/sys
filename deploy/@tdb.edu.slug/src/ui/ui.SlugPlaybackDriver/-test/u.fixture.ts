@@ -28,7 +28,7 @@ export function createTestController() {
   const id = `slug-playback-${slug()}`;
   const ref = Immutable.clonerRef<State>({});
   const props: Props = { baseUrl };
-  return EffectController.create<State, Props>({ id, ref, props });
+  return EffectController.create({ id, ref, props });
 }
 
 /**
