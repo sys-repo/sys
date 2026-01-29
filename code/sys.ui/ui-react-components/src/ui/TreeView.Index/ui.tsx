@@ -4,6 +4,7 @@ import { type t, Color, css, D, Data, Is, Obj, IndexTreeViewItem } from './commo
 const Item = IndexTreeViewItem;
 import { SlideDeck } from './u.SlideDeck.tsx';
 import { resolveShowChevron } from './u.chevron.ts';
+import { renderItems } from './ui.items.tsx';
 
 export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
   const { debug = false, minWidth, root } = props;
@@ -41,47 +42,8 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
         duration={props.slideDuration}
         offset={props.slideOffset}
       >
-        {view.map(({ node, depth }) => {
-          const isInline = !!node.self?.inline;
-          const showChevron = isInline ? false : resolveShowChevron(node, props.showChevron ?? D.showChevron);
-          const enabled = Boolean(node.meta?.enabled ?? true);
-          return (
-            <Item.UI
-              key={node.key}
-              debug={debug}
-              theme={theme.name}
-              label={node.label}
-              chevron={showChevron}
-              enabled={enabled}
-              depth={depth}
-              indentSize={props.indentSize ?? D.indentSize}
-              onPointer={(e) => props.onPointer?.(toPointerEvent(node, e, showChevron))}
-              onPressDown={(e) => {
-                const pointerEvent = toPointerEvent(node, e, showChevron);
-                props.onNodeSelect?.({
-                  is: { leaf: !pointerEvent.hasChildren },
-                  path: node.path ?? [],
-                  node,
-                });
-                props.onPressDown?.(pointerEvent);
-              }}
-              onPressUp={(e) => props.onPressUp?.(toPointerEvent(node, e, showChevron))}
-              description={Is.str(node.meta?.description) ? node.meta.description : undefined}
-            />
-          );
-        })}
+        {renderItems(props, view)}
       </SlideDeck>
     </div>
   );
 };
-
-/**
- * Helpers:
- */
-function toPointerEvent(
-  node: t.TreeViewNode,
-  e: t.PointerEventsArg,
-  hasChildren: boolean,
-): t.IndexTreeViewPointer {
-  return { ...e, node, hasChildren };
-}
