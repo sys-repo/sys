@@ -9,7 +9,15 @@ export type { ReactElement, ReactNode } from 'react';
 export type * from '@sys/types';
 
 /** @system: Standard */
-export type { Alias, AnsiColors, ArgsAliasMap, ParsedArgs, StrBuilder, Timecode } from '@sys/std/t';
+export type {
+  Alias,
+  AnsiColors,
+  ArgsAliasMap,
+  Logger,
+  ParsedArgs,
+  StrBuilder,
+  Timecode,
+} from '@sys/std/t';
 
 /** @system: Common */
 export type { CliTable } from '@sys/cli/t';

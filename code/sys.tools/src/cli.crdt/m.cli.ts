@@ -1,9 +1,10 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, type t } from './common.ts';
 import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.config.docs/mod.ts';
-import { CrdtReposFs, CrdtReposMigrate, promptRepoSyncMenu, repoStartLabel } from './u.config.repo/mod.ts';
+import { CrdtReposFs, CrdtReposMigrate, promptRepoSyncMenu } from './u.config.repo/mod.ts';
 import { Fmt } from './u.fmt.ts';
-import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
+import { createCrdtLog } from './u.log.ts';
 import { loadLegacyConfig, removeLegacyConfig } from './u.migrate.legacy.ts';
+import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
 
 type C = t.CrdtTool.Command;
 type MenuAction = t.CrdtTool.Command | `plugin:${string}` | 'docs' | 'repo';
@@ -26,10 +27,12 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
   cwd = cwd ?? Fs.cwd('terminal');
   const args = Args.parse<t.CrdtTool.CliArgs>(argv, { alias: { h: 'help' } });
   if (args.help) return void console.info(await Fmt.help(toolname, cwd));
+  const debug = args.debug === true;
+  const log = createCrdtLog({ debug });
 
   /* Run */
   console.info(await Fmt.header(toolname));
-  const res = await run(cwd);
+  const res = await run(cwd, { log });
   console.info(Fmt.signoff(toolname));
 
   /* Exit */
@@ -40,7 +43,7 @@ export const cli: t.CrdtToolsLib['cli'] = async (cwd, argv) => {
 /**
  * Execution:
  */
-async function run(cwd: t.StringDir): Promise<t.RunReturn> {
+async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.RunReturn> {
   const legacy = await loadLegacyConfig(cwd);
   await CrdtDocsMigrate.run(cwd, legacy?.doc);
   await CrdtReposMigrate.run(cwd, legacy?.doc);
@@ -59,7 +62,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
     let A: MenuAction | undefined;
 
     if (reopenDocsMenu) {
-      const picked = await selectDocumentMenu(cwd);
+      const log = options.log?.sub('docs');
+      const picked = await selectDocumentMenu(cwd, { log });
       if (picked.kind === 'exit') {
         reopenDocsMenu = false;
         continue;
@@ -84,8 +88,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         continue;
       }
       if (A === 'repo') {
+        const log = options.log?.sub('repo');
         await promptRepoSyncMenu({
           cwd,
+          log,
           onStartSyncServer: async () => {
             const { startSyncServerCommand } = await Imports.syncServer();
             await startSyncServerCommand(cwd);
@@ -126,6 +132,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           if (!cmd) {
             const repoAction = await promptRepoSyncMenu({
               cwd,
+              log: options.log?.sub('repo'),
               onStartSyncServer: async () => {
                 const { startSyncServerCommand } = await Imports.syncServer();
                 await startSyncServerCommand(cwd);
@@ -142,7 +149,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
             continue;
           }
 
-          const options: Array<{ name: string; value: MenuAction }> = [
+          const menuOptions: Array<{ name: string; value: MenuAction }> = [
             ...pluginOptions,
             optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
             optMenu(`  doc:graph:walk   ${arrow} stats`, `doc:graph:walk`),
@@ -153,15 +160,17 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
           ];
 
           if (!hookTmpl.exists) {
-            options.push(opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'));
+            menuOptions.push(
+              opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'),
+            );
           }
 
-          options.push(...[optMenu(c.gray(c.dim('  forget')), 'doc:remove')]);
-          options.push(optMenu(c.gray(c.dim('← back')), 'back'));
+          menuOptions.push(...[optMenu(c.gray(c.dim('  forget')), 'doc:remove')]);
+          menuOptions.push(optMenu(c.gray(c.dim('← back')), 'back'));
 
           const B = (await Cli.Input.Select.prompt<MenuAction>({
             message: `with ${c.gray(docid)}:`,
-            options,
+            options: menuOptions,
             default: lastMenuAction,
             hideDefault: true,
             maxRows: 25,

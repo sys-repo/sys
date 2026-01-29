@@ -18,7 +18,7 @@ export namespace Tools {
 
   /** Command line arguments (argv). */
   /** Common flags. */
-  export type CliArgs = { help: boolean };
+  export type CliArgs = { help: boolean; debug?: boolean };
   /** Root-entry-only flags */
   export type CliRootArgs = CliArgs & {};
   /** Root parse result (adds typed command from first positional). */

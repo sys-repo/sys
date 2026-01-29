@@ -95,5 +95,4 @@ export namespace CrdtTool {
       | { readonly ok: true; readonly doc: Doc }
       | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
   }
-
 }

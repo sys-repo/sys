@@ -4,10 +4,11 @@ import { CrdtReposFs } from './u.fs.ts';
 
 export async function promptRepoSyncMenu(args: {
   cwd: t.StringDir;
+  log?: t.Logger;
   onStartSyncServer?: () => Promise<void>;
   onStartDaemon?: () => Promise<void>;
 }): Promise<'back' | 'exit'> {
-  const { cwd, onStartSyncServer, onStartDaemon } = args;
+  const { cwd, log, onStartSyncServer, onStartDaemon } = args;
   await CrdtReposFs.ensureDir(cwd);
   const path = Fs.join(cwd, CrdtReposFs.file());
 
@@ -20,6 +21,12 @@ export async function promptRepoSyncMenu(args: {
     const checked = await CrdtReposFs.readYaml(path);
     if (!checked.ok) {
       const display = Fs.trimCwd(path, { prefix: true });
+      if (log) {
+        log(c.gray(`[debug] repo config invalid: ${path}`));
+        for (const err of checked.errors) {
+          log(c.gray(`        - ${err.message}`));
+        }
+      }
       console.info(`\n${c.yellow('Repo config is invalid.')} ${c.gray(display)}`);
       return 'back';
     }
