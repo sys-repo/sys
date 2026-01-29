@@ -1,6 +1,13 @@
 import { type t, c, Cli, DEFAULT, Fs } from './common.ts';
 import type { YamlConfigMenuArgs, YamlConfigMenuResult } from './t.menu.ts';
-import { ensureConfigDir, ensureDefaultConfig, fileOf, listConfigs, writeYaml } from './u.fs.ts';
+import {
+  ensureConfigDir,
+  ensureDefaultConfig,
+  fileOf,
+  listConfigs,
+  readYaml,
+  writeYaml,
+} from './u.fs.ts';
 import { actionMenu } from './u.menu.action.ts';
 import { ADD_VALUE, NAME_REGEX } from './u.menu.constants.ts';
 import { withTree } from './u.menu.tree.ts';
@@ -32,10 +39,19 @@ export async function menu<T, A extends string = string>(
     const labelWidth = Math.max(itemLabel.length, 'add'.length);
     const addLabel = `${baseIndent}${padLabel('add', labelWidth)}: ${addValue}`;
 
-    const tree = withTree(files, ext).map((item) => ({
-      name: `${baseIndent}${padLabel(itemLabel, labelWidth)}: ${item.tree} ${c.cyan(item.label)}`,
-      value: item.path,
-    }));
+    const tree: Array<{ name: string; value: t.StringFile }> = [];
+    for (const item of withTree(files, ext)) {
+      const doc = args.itemValue ? await readYaml<T>(item.path) : undefined;
+      const label = resolveItemValue(args.itemValue, {
+        name: item.label,
+        path: item.path,
+        doc,
+      });
+      tree.push({
+        name: `${baseIndent}${padLabel(itemLabel, labelWidth)}: ${item.tree} ${c.cyan(label)}`,
+        value: item.path,
+      });
+    }
 
     const options = [
       { name: addLabel, value: ADD_VALUE },
@@ -119,4 +135,13 @@ function normalizeAddLabel(label?: string): string {
 function padLabel(label: string, width: number): string {
   const pad = Math.max(0, width - label.length);
   return `${' '.repeat(pad)}${label}`;
+}
+
+function resolveItemValue<T>(
+  itemValue: YamlConfigMenuArgs<T>['itemValue'],
+  args: { name: string; path: t.StringFile; doc?: T },
+): string {
+  if (!itemValue) return args.name;
+  if (typeof itemValue === 'function') return itemValue(args);
+  return String(itemValue);
 }
