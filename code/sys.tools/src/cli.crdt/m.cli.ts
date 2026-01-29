@@ -75,9 +75,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         message: '',
         options: [
           optMenu(` documents${docsSuffix}`, 'docs'),
-          optMenu(' repo', 'repo'),
-          opt(' start: sync server (websockets)', 'repo:syncserver:start'),
-          opt(' start: repository daemon', 'repo:daemon:start'),
+          optMenu(' repository', 'repo'),
           opt(c.gray('(exit)'), 'exit'),
         ],
         hideDefault: true,
@@ -90,7 +88,17 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
         continue;
       }
       if (A === 'repo') {
-        await promptRepoSyncMenu(cwd);
+        await promptRepoSyncMenu({
+          cwd,
+          onStartSyncServer: async () => {
+            const { startSyncServerCommand } = await Imports.syncServer();
+            await startSyncServerCommand(cwd);
+          },
+          onStartDaemon: async () => {
+            const m = await Imports.daemon();
+            await m.RepoProcess.daemon(cwd);
+          },
+        });
         continue;
       }
     }

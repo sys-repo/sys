@@ -2,7 +2,12 @@ import { type t, c, Cli, Fs, Is } from '../common.ts';
 import { CrdtRepoSchema } from './u.schema.ts';
 import { CrdtReposFs } from './u.fs.ts';
 
-export async function promptRepoSyncMenu(cwd: t.StringDir): Promise<'back' | 'exit'> {
+export async function promptRepoSyncMenu(args: {
+  cwd: t.StringDir;
+  onStartSyncServer?: () => Promise<void>;
+  onStartDaemon?: () => Promise<void>;
+}): Promise<'back' | 'exit'> {
+  const { cwd, onStartSyncServer, onStartDaemon } = args;
   await CrdtReposFs.ensureDir(cwd);
   const path = Fs.join(cwd, CrdtReposFs.file());
 
@@ -10,6 +15,7 @@ export async function promptRepoSyncMenu(cwd: t.StringDir): Promise<'back' | 'ex
     await CrdtReposFs.writeDoc(path, CrdtRepoSchema.initial());
   }
 
+  let lastSelected: string | undefined;
   while (true) {
     const checked = await CrdtReposFs.readYaml(path);
     if (!checked.ok) {
@@ -18,16 +24,26 @@ export async function promptRepoSyncMenu(cwd: t.StringDir): Promise<'back' | 'ex
     }
 
     const endpoints = checked.doc.sync ?? [];
-    const options = buildSyncMenuOptions(endpoints);
+    const options = buildSyncMenuOptions(endpoints, { onStartSyncServer, onStartDaemon });
 
+    const values = options.map((item) => item.value);
     const picked = await Cli.Input.Select.prompt<string>({
-      message: 'Repo:',
+      message: 'Repository:\n',
       options,
+      default: values.includes(lastSelected ?? '') ? lastSelected : undefined,
       hideDefault: true,
       maxRows: 25,
     });
 
     if (picked === 'back') return 'back';
+    if (picked === 'start:syncserver') {
+      if (Is.func(onStartSyncServer)) await onStartSyncServer();
+      continue;
+    }
+    if (picked === 'start:daemon') {
+      if (Is.func(onStartDaemon)) await onStartDaemon();
+      continue;
+    }
     if (picked === 'add') {
       const next = await Cli.Input.Text.prompt({
         message: 'Sync endpoint',
@@ -41,14 +57,22 @@ export async function promptRepoSyncMenu(cwd: t.StringDir): Promise<'back' | 'ex
       }
       const updated = [...endpoints, trimmed];
       await saveSyncEndpoints(path, updated);
+      lastSelected = trimmed;
       continue;
     }
 
-    await promptEndpointAction({ path, endpoints, endpoint: picked });
+    const nextSelected = await promptEndpointAction({ path, endpoints, endpoint: picked });
+    if (nextSelected) lastSelected = nextSelected;
   }
 }
 
-function buildSyncMenuOptions(endpoints: string[]) {
+function buildSyncMenuOptions(
+  endpoints: string[],
+  actions: {
+    onStartSyncServer?: () => Promise<void>;
+    onStartDaemon?: () => Promise<void>;
+  },
+) {
   const labelWidth = Math.max('add'.length, 'sync'.length);
   const baseIndent = '  ';
   const addLabel = `${baseIndent}${padLabel('add', labelWidth)}: <endpoint>`;
@@ -59,11 +83,23 @@ function buildSyncMenuOptions(endpoints: string[]) {
     return { name: label, value: endpoint } as const;
   });
 
-  return [
-    { name: addLabel, value: 'add' },
-    ...syncRows,
-    { name: c.gray(c.dim('← back')), value: 'back' },
-  ];
+  const options = [{ name: addLabel, value: 'add' }, ...syncRows];
+
+  if (Is.func(actions.onStartSyncServer)) {
+    options.push({
+      name: `${baseIndent}start: sync server`,
+      value: 'start:syncserver',
+    });
+  }
+  if (Is.func(actions.onStartDaemon)) {
+    options.push({
+      name: `${baseIndent}start: daemon`,
+      value: 'start:daemon',
+    });
+  }
+
+  options.push({ name: c.gray(c.dim('← back')), value: 'back' });
+  return options;
 }
 
 function padLabel(label: string, width: number): string {
@@ -80,19 +116,21 @@ async function promptEndpointAction(args: {
   path: t.StringPath;
   endpoints: string[];
   endpoint: string;
-}): Promise<void> {
+}): Promise<string | undefined> {
   const { path, endpoints, endpoint } = args;
+  const actions = ['edit', 'delete'] as const;
+  const items = actions.map((item, index) => {
+    const tree = Cli.Fmt.Tree.branch([index, actions], 1);
+    return { name: `  ${tree} ${item}`, value: item } as const;
+  });
+
   const action = await Cli.Input.Select.prompt<'edit' | 'delete' | 'back'>({
     message: `sync ${c.gray(endpoint)}:`,
-    options: [
-      { name: `  ${Cli.Fmt.Tree.branch([0, [0, 1]], 1)} edit`, value: 'edit' },
-      { name: `  ${Cli.Fmt.Tree.branch([1, [0, 1]], 1)} delete`, value: 'delete' },
-      { name: `  ${c.gray(c.dim('← back'))}`, value: 'back' },
-    ],
+    options: [...items, { name: `  ${c.gray(c.dim('← back'))}`, value: 'back' }],
     hideDefault: true,
   });
 
-  if (action === 'back') return;
+  if (action === 'back') return args.endpoint;
 
   if (action === 'edit') {
     const next = await Cli.Input.Text.prompt({
@@ -103,16 +141,19 @@ async function promptEndpointAction(args: {
     if (!trimmed) return;
     if (trimmed !== endpoint && endpoints.includes(trimmed)) {
       console.info(c.yellow('Endpoint already exists.'));
-      return;
+      return args.endpoint;
     }
     const updated = endpoints.map((item) => (item === endpoint ? trimmed : item));
     await saveSyncEndpoints(path, updated);
-    return;
+    return trimmed;
   }
 
   if (action === 'delete') {
+    const ok = await Cli.Input.Confirm.prompt(`Remove "${endpoint}"?`);
+    if (!ok) return args.endpoint;
     const updated = endpoints.filter((item) => item !== endpoint);
-    if (updated.length === endpoints.length) return;
+    if (updated.length === endpoints.length) return args.endpoint;
     await saveSyncEndpoints(path, updated);
+    return undefined;
   }
 }
