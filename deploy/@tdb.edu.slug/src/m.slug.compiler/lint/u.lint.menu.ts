@@ -1,9 +1,9 @@
-import { type t, c, Fs, Str } from './common.ts';
+import { type t, c, Fs, pkg, Str } from './common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
 import type { YamlConfigMenuExtra, YamlConfigMenuItemArgs } from '@sys/yaml/t';
 import { LintProfileSchema } from './u.lint.schema.ts';
 
-const PROFILE_DIR = '-slug.lint';
+const PROFILE_DIR = Fs.join('-config', pkg.name, 'lint');
 const PROFILE_EXT = '.yaml';
 const DEFAULT_PROFILE = 'default';
 
