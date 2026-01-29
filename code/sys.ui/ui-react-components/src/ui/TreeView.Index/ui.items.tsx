@@ -1,7 +1,6 @@
 import { JSX } from '../../common/t.ts';
 import { type t, D, IndexTreeViewItem, Is } from './common.ts';
 import { resolveShowChevron } from './u.chevron.ts';
-const Item = IndexTreeViewItem;
 
 export function renderItems(
   props: t.IndexTreeViewProps,
@@ -16,7 +15,7 @@ export function renderItems(
       : resolveShowChevron(node, props.showChevron ?? D.showChevron);
     const enabled = Boolean(node.meta?.enabled ?? true);
     return (
-      <Item.UI
+      <IndexTreeViewItem.UI
         key={node.key}
         debug={debug}
         theme={props.theme}

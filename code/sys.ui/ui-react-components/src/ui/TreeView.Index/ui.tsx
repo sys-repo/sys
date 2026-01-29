@@ -1,9 +1,7 @@
 import React from 'react';
 
-import { type t, Color, css, D, Data, Is, Obj, IndexTreeViewItem } from './common.ts';
-const Item = IndexTreeViewItem;
+import { type t, Color, css, D, Data, IndexTreeViewItem, Obj } from './common.ts';
 import { SlideDeck } from './u.SlideDeck.tsx';
-import { resolveShowChevron } from './u.chevron.ts';
 import { renderItems } from './ui.items.tsx';
 
 export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
