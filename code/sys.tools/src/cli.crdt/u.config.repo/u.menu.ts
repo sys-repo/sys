@@ -82,9 +82,10 @@ function buildSyncMenuOptions(
 
   const syncRows = endpoints.map((entry, index) => {
     const tree = Cli.Fmt.Tree.branch([index, endpoints], 1);
-    const endpointLabel = entry.enabled === false
-      ? c.dim(c.gray(`${entry.endpoint} (disabled)`))
-      : c.cyan(entry.endpoint);
+    const endpointLabel =
+      entry.enabled === false
+        ? c.dim(c.gray(`${entry.endpoint} (disabled)`))
+        : c.cyan(entry.endpoint);
     const label = `${baseIndent}${padLabel('sync', labelWidth)}: ${tree} ${endpointLabel}`;
     return { name: label, value: entry.endpoint } as const;
   });
@@ -187,7 +188,7 @@ export function repoStartLabel(
 ): string {
   const indent = opts.indent ?? '';
   const labelWidth = opts.labelWidth ?? 'start'.length;
-  const prefix = `${indent}${c.yellow(padLabel('start', labelWidth))}:`;
+  const prefix = `${indent}${padLabel('start', labelWidth)}:`;
   const text = kind === 'sync' ? 'sync server' : 'daemon';
   return `${prefix} ${text}`;
 }

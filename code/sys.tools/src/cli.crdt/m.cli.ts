@@ -1,6 +1,6 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, type t } from './common.ts';
-import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.docs/mod.ts';
-import { CrdtReposFs, CrdtReposMigrate, promptRepoSyncMenu, repoStartLabel } from './u.repos/mod.ts';
+import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.config.docs/mod.ts';
+import { CrdtReposFs, CrdtReposMigrate, promptRepoSyncMenu, repoStartLabel } from './u.config.repo/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
 import { loadLegacyConfig, removeLegacyConfig } from './u.migrate.legacy.ts';

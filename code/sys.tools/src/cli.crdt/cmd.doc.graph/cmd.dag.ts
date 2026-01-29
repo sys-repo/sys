@@ -1,6 +1,6 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 import { type t, c, Cli, Is, Str, Time } from '../common.ts';
-import { CrdtReposFs } from '../u.repos/u.fs.ts';
+import { CrdtReposFs } from '../u.config.repo/u.fs.ts';
 import { buildDocumentDAG } from './mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { loadDocumentHook } from './u.hook.ts';

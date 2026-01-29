@@ -1,7 +1,7 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 
 import { type t, c, Cli, Crdt, Fs, Str, Time } from '../common.ts';
-import { CrdtReposFs } from '../u.repos/u.fs.ts';
+import { CrdtReposFs } from '../u.config.repo/u.fs.ts';
 import { Fmt } from '../u.fmt.ts';
 import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
 import { walk } from './u.walk.ts';

@@ -1,5 +1,5 @@
 import { type t, Arr, Crdt, D, Fs, Is, Rx } from '../common.ts';
-import { CrdtReposFs } from '../u.repos/u.fs.ts';
+import { CrdtReposFs } from '../u.config.repo/u.fs.ts';
 
 export async function startRepoOnWorker(
   cwd: t.StringDir,

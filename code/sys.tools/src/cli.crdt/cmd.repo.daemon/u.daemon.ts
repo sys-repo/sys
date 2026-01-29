@@ -1,5 +1,5 @@
 import { type t, c, Cli, Err, Fs, Rx, Str, Time } from '../common.ts';
-import { CrdtReposFs } from '../u.repos/u.fs.ts';
+import { CrdtReposFs } from '../u.config.repo/u.fs.ts';
 import { startRepoOnWorker } from '../u.worker/mod.ts';
 import { tryClient } from './u.client.ts';
 import { Fmt } from './u.fmt.ts';

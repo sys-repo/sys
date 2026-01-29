@@ -1,6 +1,6 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 import { type t } from '../common.ts';
-import { CrdtReposFs } from '../u.repos/u.fs.ts';
+import { CrdtReposFs } from '../u.config.repo/u.fs.ts';
 import { promptAddDocument } from '../u.prompt.ts';
 
 type Result = {

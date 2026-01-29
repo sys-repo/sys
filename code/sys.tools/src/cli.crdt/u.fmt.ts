@@ -1,5 +1,5 @@
 import { type t, Fmt as Base, c, Cli, Crdt, D, Str } from './common.ts';
-import { CrdtDocsFs } from './u.docs/u.fs.ts';
+import { CrdtDocsFs } from './u.config.docs/u.fs.ts';
 
 export const Fmt = {
   ...Base,

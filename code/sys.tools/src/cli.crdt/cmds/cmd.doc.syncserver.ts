@@ -1,6 +1,6 @@
 import { Server } from '@sys/driver-automerge/ws';
 import { type t, Cli, D, Path } from '../common.ts';
-import { CrdtReposFs } from '../u.repos/u.fs.ts';
+import { CrdtReposFs } from '../u.config.repo/u.fs.ts';
 import { Fmt } from '../u.fmt.ts';
 
 export async function startSyncServerCommand(cwd: t.StringDir, port?: number) {

@@ -1,5 +1,5 @@
 import { type t, Is, c, Str, Cli, Time, Yaml, Obj } from '../common.ts';
-import { CrdtReposFs } from '../u.repos/u.fs.ts';
+import { CrdtReposFs } from '../u.config.repo/u.fs.ts';
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
