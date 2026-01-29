@@ -21,6 +21,8 @@ describe('controller: attachPlaybackDriverEffect', () => {
     const state = ctrl.current();
     expect(state.timeline).to.exist;
     expect(state.snapshot).to.exist;
+    expect(state.resolved).to.exist;
+    expect(state.experience).to.exist;
 
     ctrl.dispose();
   });
@@ -58,6 +60,28 @@ describe('controller: attachPlaybackDriverEffect', () => {
     ctrl.next({ bundle: undefined });
     expect(ctrl.current().timeline).to.equal(undefined);
     expect(ctrl.current().snapshot).to.equal(undefined);
+    expect(ctrl.current().resolved).to.equal(undefined);
+    expect(ctrl.current().experience).to.equal(undefined);
+
+    ctrl.dispose();
+  });
+
+  it('rebuilds snapshot when bundle changes', () => {
+    const ctrl = createTestController();
+    attachPlaybackDriverEffect(ctrl);
+
+    const decks = createTestDecks();
+    const bundleA = makeTestPlaybackBundle('doc:1' as any);
+    const bundleB = makeTestPlaybackBundle('doc:2' as any);
+
+    ctrl.next({ bundle: bundleA, decks });
+    const first = ctrl.current().snapshot;
+    expect(first).to.exist;
+
+    ctrl.next({ bundle: bundleB, decks });
+    const second = ctrl.current().snapshot;
+    expect(second).to.exist;
+    expect(second).to.not.equal(first);
 
     ctrl.dispose();
   });
