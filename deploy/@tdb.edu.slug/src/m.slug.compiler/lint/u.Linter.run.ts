@@ -10,7 +10,7 @@ import {
 import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
-import { printLintSummary } from './u.lint.print.ts';
+import { printSummary } from './u.lint.print.ts';
 import { runSlugTreeFs } from './u.lint.slug-tree.ts';
 import { readLintProfile, writeLintProfile } from './u.lint.util.ts';
 
@@ -313,7 +313,7 @@ async function runInteractiveLint(args: {
           opts,
         });
         if (lastResult && opts.print !== false) {
-          printLintSummary({ res: lastResult, docpath: yamlPath });
+          printSummary({ res: lastResult, docpath: yamlPath });
         }
         actionPick = await selectSlugLintProfileAction(cwd, actionPick.profile, {
           defaultAction: lastAction,

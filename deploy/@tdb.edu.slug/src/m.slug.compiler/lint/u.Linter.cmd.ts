@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 import { run } from './u.Linter.run.ts';
-import { printLintSummary } from './u.lint.print.ts';
+import { printSummary } from './u.lint.print.ts';
 
 type Args = {
   cmd: t.Crdt.Cmd.Client;
@@ -22,6 +22,6 @@ export async function cmd(args: Args): Promise<t.DocLintResult> {
 
   const res = await run(dag, docpath, { cwd, interactive, facets, createCrdt, print });
 
-  if (print) printLintSummary({ res, docpath });
+  if (print) printSummary({ res, docpath });
   return res;
 }
