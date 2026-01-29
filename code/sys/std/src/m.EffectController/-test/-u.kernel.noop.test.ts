@@ -87,7 +87,7 @@ describe('EffectController.noop guard', () => {
 
   it('honors a custom isNoop even when the patch looks substantive', () => {
     const { ref, getCalls } = createPublishingRef({} as State);
-    const ctrl = EffectController.create<State, State>({
+    const ctrl = EffectController.create<State>({
       ref,
       isNoop: () => true,
     });

@@ -47,7 +47,7 @@ describe('EffectController', () => {
 
     it('exposes props when provided', () => {
       const props = { baseUrl: 'http://test' as t.StringUrl } as const;
-      const ctrl = EffectController.create<State, Partial<State>, typeof props>({
+      const ctrl = EffectController.create<State, typeof props>({
         ref: createFakeRef<State>({}),
         props,
       });
