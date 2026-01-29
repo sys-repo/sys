@@ -1,6 +1,6 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, type t, Time } from './common.ts';
 import { Config } from './u.config.ts';
-import { CrdtDocsMigrate, selectDocumentMenu } from './u.docs/mod.ts';
+import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.docs/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument } from './u.prompt.ts';
 
@@ -56,6 +56,8 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   let reopenDocsMenu = false;
   rootLoop: while (true) {
     console.info();
+    const totalDocs = (await CrdtDocsFs.list(cwd)).length;
+    const docsSuffix = totalDocs > 0 ? ` ${c.gray(`(${totalDocs})`)}` : '';
     let A: MenuAction | undefined;
 
     if (reopenDocsMenu) {
@@ -71,9 +73,9 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       A = (await Cli.Input.Select.prompt<MenuAction>({
         message: 'Tools:\n',
         options: [
-          optMenu('  docs', 'docs'),
-          opt('  start: sync server (websockets)', 'repo:syncserver:start'),
-          opt('  start: repository daemon', 'repo:daemon:start'),
+          optMenu(` documents${docsSuffix}`, 'docs'),
+          opt(' start: sync server (websockets)', 'repo:syncserver:start'),
+          opt(' start: repository daemon', 'repo:daemon:start'),
           opt(c.gray('(exit)'), 'exit'),
         ],
         hideDefault: true,
