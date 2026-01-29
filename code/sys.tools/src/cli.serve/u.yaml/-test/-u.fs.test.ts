@@ -1,11 +1,15 @@
 import { withTmpDir } from './-fixtures.ts';
-import { describe, expect, Fs, it } from '../../../-test.ts';
+import { describe, expect, Fs, it, pkg } from '../../../-test.ts';
 import { ServeFs } from '../mod.ts';
 
 describe('ServeFs', () => {
-  it('fileOf: returns "-config/serve/<name>.yaml"', () => {
-    expect(ServeFs.fileOf('alpha')).to.eql('-config/serve/alpha.yaml');
-    expect(ServeFs.fileOf('my-server')).to.eql('-config/serve/my-server.yaml');
+  it('fileOf: uses pkg.name dir', () => {
+    expect(ServeFs.dir).to.eql(`-config/${pkg.name}/serve`);
+  });
+
+  it('fileOf: returns "<dir>/<name>.yaml"', () => {
+    expect(ServeFs.fileOf('alpha')).to.eql(`${ServeFs.dir}/alpha.yaml`);
+    expect(ServeFs.fileOf('my-server')).to.eql(`${ServeFs.dir}/my-server.yaml`);
   });
 
   it('initialYaml: contains name and dir', () => {

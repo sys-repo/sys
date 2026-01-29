@@ -1,5 +1,6 @@
 import { type t, Args, c, Cli, D, done, Fs, Is } from './common.ts';
 import { Fmt } from './u.fmt.ts';
+import { EndpointsMigrate } from './u.endpoints/mod.ts';
 import { endpointMenu, endpointsMenu } from './u.menu/mod.ts';
 
 /**
@@ -25,6 +26,8 @@ export const cli: t.DeployToolsLib['cli'] = async (cwd, argv) => {
  * Execution:
  */
 async function run(cwd: t.StringDir, _args: t.DeployTool.CliArgs): Promise<t.RunReturn> {
+  await EndpointsMigrate.run(cwd);
+
   /** --------------------------------------------------------
    * Root Menu
    */

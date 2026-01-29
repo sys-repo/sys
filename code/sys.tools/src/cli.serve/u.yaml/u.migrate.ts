@@ -3,6 +3,7 @@ import { ServeFs } from './u.fs.ts';
 import { ServeYamlSchema } from './u.schema.ts';
 
 const LEGACY_FILENAMES = ['-serve.config.json', '-config/-serve.config.json'];
+const LEGACY_DIRS = ['-config/serve'];
 
 export type MigrateResult = {
   readonly migrated: number;
@@ -42,23 +43,25 @@ export const ServeMigrate = {
    * Idempotent: skips if no legacy config found.
    */
   async run(cwd: t.StringDir): Promise<MigrateResult> {
+    const dirResult = await migrateLegacyDir(cwd);
+
     // Find legacy config file.
     const legacyPath = await findLegacyConfig(cwd);
     if (!legacyPath) {
-      return { migrated: 0, skipped: 0 };
+      return { migrated: dirResult.migrated, skipped: dirResult.skipped };
     }
 
     // Read and parse legacy JSON.
     const json = await Fs.readJson<LegacyConfig>(legacyPath);
     if (!json.ok || !json.data) {
-      return { migrated: 0, skipped: 0 };
+      return { migrated: dirResult.migrated, skipped: dirResult.skipped };
     }
 
     const dirs = json.data.dirs ?? [];
     if (dirs.length === 0) {
       // No locations to migrate - just delete the legacy file.
       await Fs.remove(legacyPath);
-      return { migrated: 0, skipped: 0 };
+      return { migrated: dirResult.migrated, skipped: dirResult.skipped };
     }
 
     let migrated = 0;
@@ -81,7 +84,7 @@ export const ServeMigrate = {
       await Fs.remove(legacyPath);
     }
 
-    return { migrated, skipped };
+    return { migrated: migrated + dirResult.migrated, skipped: skipped + dirResult.skipped };
   },
 } as const;
 
@@ -98,6 +101,40 @@ async function findLegacyConfig(cwd: t.StringDir): Promise<t.StringPath | undefi
   return undefined;
 }
 
+async function migrateLegacyDir(
+  cwd: t.StringDir,
+): Promise<{ migrated: number; skipped: number }> {
+  const targetDir = Fs.join(cwd, ServeFs.dir);
+  let migrated = 0;
+  let skipped = 0;
+
+  for (const legacyDir of LEGACY_DIRS) {
+    const sourceDir = Fs.join(cwd, legacyDir);
+    if (!(await Fs.exists(sourceDir))) continue;
+
+    await Fs.ensureDir(targetDir);
+
+    for await (const entry of Deno.readDir(sourceDir)) {
+      if (!entry.isFile) continue;
+      if (!entry.name.endsWith(ServeFs.ext)) continue;
+      const from = Fs.join(sourceDir, entry.name);
+      const to = Fs.join(targetDir, entry.name);
+      if (await Fs.exists(to)) {
+        skipped++;
+        continue;
+      }
+      await Fs.move(from, to);
+      migrated++;
+    }
+
+    const remaining = await countDirEntries(sourceDir);
+    if (remaining === 0) {
+      await Fs.remove(sourceDir);
+    }
+  }
+
+  return { migrated, skipped };
+}
 /**
  * Migrate a single location from legacy JSON to YAML.
  */
@@ -156,6 +193,13 @@ async function migrateLocation(
   return { migrated: true };
 }
 
+async function countDirEntries(dir: t.StringDir): Promise<number> {
+  let count = 0;
+  for await (const entry of Deno.readDir(dir)) {
+    if (entry) count++;
+  }
+  return count;
+}
 /**
  * Sanitize name for use as filename.
  */

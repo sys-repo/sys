@@ -20,7 +20,7 @@ type Pick =
  * Interactive menu for configuring a single deploy endpoint.
  *
  * Endpoint configuration is authored in YAML:
- *   ./-config/deploy/<name>.yaml
+ *   ./-config/<pkg.name>/deploy/<name>.yaml
  *
  * This menu owns only:
  * - rename (file)

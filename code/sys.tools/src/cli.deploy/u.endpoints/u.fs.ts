@@ -1,9 +1,9 @@
-import { type t, Fs, Path, Schema, Yaml } from '../common.ts';
+import { type t, Fs, Path, pkg, Schema, Yaml } from '../common.ts';
 import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
 import { resolveBases, resolvePath } from './u.resolve.ts';
 
-const ENDPOINTS_DIR = '-config/deploy' satisfies t.DeployTool.Endpoint.Fs.DirName;
+const ENDPOINTS_DIR = `-config/${pkg.name}/deploy` satisfies t.DeployTool.Endpoint.Fs.DirName;
 const ENDPOINTS_EXT = '.yaml' satisfies t.DeployTool.Endpoint.Fs.Ext;
 
 export const EndpointsFs = {
@@ -48,7 +48,7 @@ export const EndpointsFs = {
     const checked = validateEndpointYamlText(read.data ?? '');
     if (!checked.ok) return checked;
 
-    const cwd = Path.resolve(Fs.dirname(path), '..', '..') as t.StringDir;
+    const cwd = resolveCwdFromYamlPath(path);
     const bases = resolveBases(cwd, checked.doc);
 
     const errors: t.Yaml.Error[] = [];
@@ -140,3 +140,9 @@ export const EndpointsFs = {
     return checked;
   },
 } as const;
+
+function resolveCwdFromYamlPath(path: t.StringPath): t.StringDir {
+  const depth = EndpointsFs.dir.split('/').filter(Boolean).length;
+  const parts = Array.from({ length: depth }, () => '..');
+  return Path.resolve(Fs.dirname(path), ...parts) as t.StringDir;
+}

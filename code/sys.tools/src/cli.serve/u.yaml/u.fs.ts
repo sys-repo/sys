@@ -1,7 +1,7 @@
-import { type t, Fs, Path, Schema, Str, Yaml } from '../common.ts';
+import { type t, Fs, Path, pkg, Schema, Str, Yaml } from '../common.ts';
 import { ServeYamlErrorCode, validateServeYamlText } from './u.validate.ts';
 
-const SERVE_DIR = '-config/serve' satisfies t.ServeTool.LocationYaml.DirName;
+const SERVE_DIR = `-config/${pkg.name}/serve` satisfies t.ServeTool.LocationYaml.DirName;
 const SERVE_EXT = '.yaml' satisfies t.ServeTool.LocationYaml.Ext;
 
 export const ServeFs = {
@@ -94,15 +94,13 @@ export const ServeFs = {
    * Load a serve location from its YAML file.
    *
    * Resolves `dir` relative to the project root (cwd).
-   * The cwd is derived as 2 levels up from the YAML file location.
+   * The cwd is derived by walking up from the YAML file location.
    */
-  async loadLocation(
-    yamlPath: t.StringPath,
-  ): Promise<t.ServeTool.LocationYaml.LoadResult> {
+  async loadLocation(yamlPath: t.StringPath): Promise<t.ServeTool.LocationYaml.LoadResult> {
     const checked = await ServeFs.validateYaml(yamlPath);
     if (!checked.ok) return { ok: false, errors: checked.errors };
 
-    const cwd = Path.resolve(Fs.dirname(yamlPath), '..', '..') as t.StringDir;
+    const cwd = resolveCwdFromYamlPath(yamlPath);
     const doc = checked.doc;
 
     // Resolve dir relative to cwd (project root), not the YAML file location.
@@ -120,6 +118,12 @@ export const ServeFs = {
     };
   },
 } as const;
+
+function resolveCwdFromYamlPath(yamlPath: t.StringPath): t.StringDir {
+  const depth = ServeFs.dir.split('/').filter(Boolean).length;
+  const parts = Array.from({ length: depth }, () => '..');
+  return Path.resolve(Fs.dirname(yamlPath), ...parts) as t.StringDir;
+}
 
 /**
  * Resolve a directory path relative to cwd.

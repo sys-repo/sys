@@ -1,10 +1,14 @@
 import { withTmpDir } from '../../-test/-fixtures.ts';
-import { describe, expect, Fs, it } from '../../../-test.ts';
+import { describe, expect, Fs, it, pkg } from '../../../-test.ts';
 import { EndpointsFs } from '../mod.ts';
 
 describe('EndpointsFs', () => {
-  it('fileOf: returns "-config/deploy/<name>.yaml"', () => {
-    expect(EndpointsFs.fileOf('alpha')).to.eql('-config/deploy/alpha.yaml');
+  it('fileOf: uses pkg.name dir', () => {
+    expect(EndpointsFs.dir).to.eql(`-config/${pkg.name}/deploy`);
+  });
+
+  it('fileOf: returns "<dir>/<name>.yaml"', () => {
+    expect(EndpointsFs.fileOf('alpha')).to.eql(`${EndpointsFs.dir}/alpha.yaml`);
   });
 
   it('initialYaml: contains mappings: []', () => {
@@ -108,11 +112,11 @@ describe('EndpointsFs', () => {
 
   it('validateYaml: mapping source exists relative to tool cwd → ok:true', async () => {
     await withTmpDir(async (tmp) => {
-      // YAML is in: <tmp>/-config/deploy/dev.yaml
+      // YAML is in: <tmp>/<dir>/dev.yaml
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('dev')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
 
-      // ../code/... from <tmp>/-config/deploy resolves to: <tmp>/code/...
+      // ../code/... from <tmp>/<dir> resolves to: <tmp>/code/...
       const srcAbs = `${tmp}/code/my-modules/ui.foo.bar`;
       await Fs.ensureDir(srcAbs);
 

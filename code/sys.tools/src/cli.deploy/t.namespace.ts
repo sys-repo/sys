@@ -128,7 +128,7 @@ export namespace DeployTool {
        * - Each endpoint is one YAML file named "<name>.yaml".
        */
     export namespace Fs {
-      export type DirName = '-config/deploy';
+      export type DirName = `-config/${string}/deploy`;
       export type Ext = '.yaml';
       export type YamlCheck =
         | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }
