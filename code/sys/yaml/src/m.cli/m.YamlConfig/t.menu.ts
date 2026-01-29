@@ -51,6 +51,8 @@ export type YamlConfigMenuArgs<T, A extends string = string> = {
   dir: t.StringPath;
   /** File extension (default: ".yaml"). */
   ext?: t.StringPath;
+  /** Leading indent for add/item rows (default: " "). */
+  indent?: string;
   /** Menu mode (menu/action/select). */
   mode?: YamlConfigMenuMode;
   /** File path used for action mode. */

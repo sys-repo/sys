@@ -34,7 +34,7 @@ export async function menu<T, A extends string = string>(
   let lastSelected: t.StringFile | undefined = args.defaultPath;
   while (true) {
     const itemLabel = args.itemLabel ?? 'config';
-    const baseIndent = ' ';
+    const baseIndent = args.indent ?? ' ';
     const addValue = normalizeAddLabel(args.addLabel);
     const labelWidth = Math.max(itemLabel.length, 'add'.length);
     const addLabel = `${baseIndent}${padLabel('add', labelWidth)}: ${addValue}`;

@@ -25,6 +25,8 @@ export async function selectDocumentMenu(cwd: t.StringDir): Promise<CrdtDocMenuP
     label: 'Documents',
     itemLabel: 'with',
     addLabel: 'add: <document>',
+    indent: '  ',
+    exitLabel: '← back',
     itemValue: ({ name, doc }) => {
       const id = String(doc?.id ?? name);
       const pad = ' '.repeat(Math.max(0, maxIdLen - id.length));
