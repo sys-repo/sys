@@ -75,6 +75,28 @@ export namespace CrdtTool {
       | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
   }
 
+  /**
+   * YAML-authored repo configuration (authoritative).
+   */
+  export namespace RepoYaml {
+    /**
+     * YAML document structure for repo configuration.
+     */
+    export type Doc = {
+      /** Sync websocket endpoints. */
+      sync: string[];
+    };
+
+    /**
+     * Filesystem conventions for repo YAML storage.
+     */
+    export type DirName = `-config/${string}/crdt`;
+    export type Ext = '.yaml';
+    export type YamlCheck =
+      | { readonly ok: true; readonly doc: Doc }
+      | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+  }
+
   /** Configuration file. */
   export namespace Config {
     export type File = t.JsonFile<Config.Doc>;

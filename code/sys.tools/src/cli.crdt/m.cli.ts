@@ -1,11 +1,12 @@
 import { Args, c, Cli, Crdt, D, done, Fs, Is, type t, Time } from './common.ts';
 import { Config } from './u.config.ts';
 import { CrdtDocsFs, CrdtDocsMigrate, selectDocumentMenu } from './u.docs/mod.ts';
+import { CrdtReposMigrate, promptRepoSyncMenu } from './u.repos/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
 
 type C = t.CrdtTool.Command;
-type MenuAction = t.CrdtTool.Command | `plugin:${string}` | 'docs';
+type MenuAction = t.CrdtTool.Command | `plugin:${string}` | 'docs' | 'repo';
 
 const Imports = {
   snapshot: () => import('./cmd.doc.snapshot/mod.ts'),
@@ -46,6 +47,7 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
   const config = await Config.get(cwd);
   await Config.normalize(config);
   await CrdtDocsMigrate.run(cwd);
+  await CrdtReposMigrate.run(cwd);
 
   const opt = (name: string, value: C) => ({ name, value }) as const;
   const optMenu = (name: string, value: MenuAction) => ({ name, value }) as const;
@@ -71,9 +73,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       reopenDocsMenu = false;
     } else {
       A = (await Cli.Input.Select.prompt<MenuAction>({
-        message: 'Tools:\n',
+        message: 'crdt:',
         options: [
           optMenu(` documents${docsSuffix}`, 'docs'),
+          optMenu(' repo', 'repo'),
           opt(' start: sync server (websockets)', 'repo:syncserver:start'),
           opt(' start: repository daemon', 'repo:daemon:start'),
           opt(c.gray('(exit)'), 'exit'),
@@ -85,6 +88,10 @@ async function run(cwd: t.StringDir): Promise<t.RunReturn> {
       if (A === 'exit') return done(0);
       if (A === 'docs') {
         reopenDocsMenu = true;
+        continue;
+      }
+      if (A === 'repo') {
+        await promptRepoSyncMenu(cwd);
         continue;
       }
     }
