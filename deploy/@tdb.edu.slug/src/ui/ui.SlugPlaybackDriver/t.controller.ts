@@ -28,5 +28,5 @@ export type SlugPlaybackState = {
   readonly slug?: t.SlugPlaybackSlugState;
 
   /** Playback runtime state. */
-  readonly playback?: t.SlugPlaybackRuntime;
+  readonly playback?: t.SlugPlaybackRuntimeState;
 };

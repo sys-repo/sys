@@ -6,7 +6,7 @@ type Timeline = t.TimecodeState.Playback.Timeline;
 type Bundle = t.TimecodePlaybackDriver.Wire.Bundle;
 type Decks = t.TimecodePlaybackDriver.VideoDecks;
 type RuntimeKeys = 'timeline' | 'snapshot' | 'resolved' | 'experience';
-type RuntimePatch = Partial<Pick<t.SlugPlaybackRuntime, RuntimeKeys>>;
+type RuntimePatch = Partial<Pick<t.SlugPlaybackRuntimeState, RuntimeKeys>>;
 
 /**
  * Attach the playback driver effect.

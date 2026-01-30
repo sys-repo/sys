@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export type SlugPlaybackRuntime = {
+export type SlugPlaybackRuntimeState = {
   /** Loaded playback bundle (timeline spec + resolver). */
   readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
 

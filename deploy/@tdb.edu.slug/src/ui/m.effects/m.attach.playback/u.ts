@@ -5,7 +5,7 @@ import { type t } from '../common.ts';
  */
 export function mergePlayback(
   state: t.SlugPlaybackState | undefined,
-  patch: t.SlugPlaybackRuntime,
+  patch: t.SlugPlaybackRuntimeState,
 ): t.SlugPlaybackPatch {
   return {
     playback: { ...(state?.playback ?? {}), ...patch },
