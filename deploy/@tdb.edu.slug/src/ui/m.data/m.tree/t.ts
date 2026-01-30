@@ -17,7 +17,7 @@ import type { t } from '../common.ts';
  * This namespace defines the *only* supported data boundary
  * between domain trees and the Tree UI.
  */
-export type TreeHostDataLib = {
+export type TreeDataLib = {
   readonly Client: t.SlugClientLib;
 
   /**

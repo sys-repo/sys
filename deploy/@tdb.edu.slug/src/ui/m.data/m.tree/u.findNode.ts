@@ -1,6 +1,6 @@
 import { type t, Arr, Is } from '../common.ts';
 
-export const findNode: t.TreeHostDataLib['findNode'] = (tree, path): t.SlugTreeItem | undefined => {
+export const findNode: t.TreeDataLib['findNode'] = (tree, path): t.SlugTreeItem | undefined => {
   if (!Arr.isArray(path) || path.length === 0) return undefined;
 
   let candidates: t.SlugTreeItems | undefined = tree;

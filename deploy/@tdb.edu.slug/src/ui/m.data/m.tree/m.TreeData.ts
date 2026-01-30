@@ -3,7 +3,7 @@ import { findNode } from './u.findNode.ts';
 import { findViewNode } from './u.findViewNode.ts';
 import { fromSlugTree } from './u.fromSlugTree.ts';
 
-export const TreeData: t.TreeHostDataLib = {
+export const TreeData: t.TreeDataLib = {
   Client,
   findNode,
   findViewNode,

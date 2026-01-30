@@ -5,7 +5,7 @@ import { type t, Arr, Is, Obj } from '../common.ts';
  * - `tree` is the UI tree shape (TreeHostViewNodeList).
  * - `path` is the canonical selection path (array of segments).
  */
-export const findViewNode: t.TreeHostDataLib['findViewNode'] = (tree, path) => {
+export const findViewNode: t.TreeDataLib['findViewNode'] = (tree, path) => {
   if (!Arr.isArray(tree) || tree.length === 0) return undefined;
   if (!Arr.isArray(path) || path.length === 0) return undefined;
   if (!path.every((seg) => Is.str(seg) && seg.length > 0)) return undefined;

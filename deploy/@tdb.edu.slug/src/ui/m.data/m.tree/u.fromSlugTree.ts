@@ -2,7 +2,7 @@ import { type t, Arr, Is, Obj } from '../common.ts';
 
 type LabelMode = Exclude<t.TreeHostFromSlugTreeOpts['label'], undefined>;
 
-export const fromSlugTree: t.TreeHostDataLib['fromSlugTree'] = (tree, opts) => {
+export const fromSlugTree: t.TreeDataLib['fromSlugTree'] = (tree, opts) => {
   const mode: LabelMode = opts?.label ?? 'slug';
   const leafChildren = toLeafChildren(opts?.leafChildren);
   return tree.map((item) => toNode(item, [], mode, leafChildren));
