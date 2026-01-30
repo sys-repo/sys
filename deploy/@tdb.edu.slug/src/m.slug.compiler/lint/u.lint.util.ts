@@ -1,5 +1,5 @@
 import { type t, Fs } from './common.ts';
-import { LintProfileSchema } from './u.lint.schema.ts';
+import { LintProfileSchema } from './u.schema.ts';
 
 export async function readLintProfile(path: t.StringFile): Promise<t.LintProfileDoc> {
   const res = await Fs.readYaml<t.LintProfileDoc>(path);

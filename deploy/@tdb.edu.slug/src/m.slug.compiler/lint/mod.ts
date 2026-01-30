@@ -3,4 +3,4 @@ export { LintDocFacets } from './common.ts';
 
 export * from './m.Linter.ts';
 export * from './u.fmt.ts';
-export * from './u.lint.schema.ts';
+export * from './u.schema.ts';

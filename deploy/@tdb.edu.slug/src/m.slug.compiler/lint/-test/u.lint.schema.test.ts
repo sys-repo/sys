@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { LintProfileSchema } from '../u.lint.schema.ts';
+import { LintProfileSchema } from '../u.schema.ts';
 import { Yaml } from '../common.ts';
 
 describe('LintProfileSchema', () => {
