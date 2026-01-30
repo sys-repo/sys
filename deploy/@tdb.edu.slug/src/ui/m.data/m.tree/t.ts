@@ -29,7 +29,7 @@ export type TreeDataLib = {
    */
   readonly fromSlugTree: (
     tree: t.SlugTreeItems,
-    opts?: t.TreeHostFromSlugTreeOpts,
+    opts?: t.TreeDataFromSlugTreeOpts,
   ) => t.TreeHostViewNodeList;
 
   /**
@@ -52,7 +52,7 @@ export type TreeDataLib = {
 };
 
 /** Minimal, structural options only. */
-export type TreeHostFromSlugTreeOpts = {
+export type TreeDataFromSlugTreeOpts = {
   /** Label strategy for Tree nodes. Default: `'slug'`. */
   readonly label?: 'slug' | 'slug+description';
 

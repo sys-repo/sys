@@ -1,6 +1,6 @@
 import { type t, Arr, Is, Obj } from '../common.ts';
 
-type LabelMode = Exclude<t.TreeHostFromSlugTreeOpts['label'], undefined>;
+type LabelMode = Exclude<t.TreeDataFromSlugTreeOpts['label'], undefined>;
 
 export const fromSlugTree: t.TreeDataLib['fromSlugTree'] = (tree, opts) => {
   const mode: LabelMode = opts?.label ?? 'slug';
@@ -64,7 +64,7 @@ function toNode(
 }
 
 function toLeafChildren(
-  input: t.TreeHostFromSlugTreeOpts['leafChildren'],
+  input: t.TreeDataFromSlugTreeOpts['leafChildren'],
 ): (item: t.SlugTreeItem) => boolean {
   if (Is.func(input)) return input;
   if (Is.bool(input)) return () => input;
