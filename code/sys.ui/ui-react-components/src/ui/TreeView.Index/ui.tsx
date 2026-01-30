@@ -31,6 +31,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
     body: css({
       minWidth: minWidth ?? D.minWidth,
       pointerEvents: spinning ? 'none' : 'auto',
+      filter: `blur(${spinning ? 0.8 : 0}px)`,
       opacity: spinning ? 0.06 : 1,
       transition: 'opacity 120ms ease',
     }),
