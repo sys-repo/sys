@@ -22,6 +22,7 @@ export async function serveFileWithEtag(args: {
 }): Promise<Response> {
   const { req, path } = args;
   const stat = args.stat ?? (await Fs.stat(path));
+
   if (!stat || !stat.isFile) {
     return new Response('Not Found', { status: 404 });
   }
