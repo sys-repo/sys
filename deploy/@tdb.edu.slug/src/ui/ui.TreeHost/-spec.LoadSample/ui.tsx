@@ -40,7 +40,8 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
   }
 
   items.push({
-    k: (
+    k: 'load-state',
+    v: (
       <Button
         label={isLoaded ? '(unload)' : '(unloaded)'}
         enabled={isLoaded}
