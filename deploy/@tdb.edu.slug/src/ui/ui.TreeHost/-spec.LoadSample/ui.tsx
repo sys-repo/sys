@@ -25,6 +25,14 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
     url: css({ opacity: current === 'http' ? 1 : 0.3 }),
   };
 
+  const btnUnload = (
+    <Button
+      label={isLoaded ? '(unload)' : '(unloaded)'}
+      enabled={isLoaded}
+      onClick={() => (signal.value = undefined)}
+    />
+  );
+
   const mono = true;
   const items: t.KeyValueItem[] = [{ kind: 'title', v: 'Slug Data' }];
   function add(label: string, value: t.SampleLoadAction) {
@@ -39,23 +47,13 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
     items.push({ k: 'slug-tree:', v: btn, mono });
   }
 
-  items.push({
-    k: 'load-state',
-    v: (
-      <Button
-        label={isLoaded ? '(unload)' : '(unloaded)'}
-        enabled={isLoaded}
-        onClick={() => (signal.value = undefined)}
-      />
-    ),
-  });
-
   add(`load via import (embedded)`, 'esm:import');
   add(`load via HTTP`, 'http');
 
   const elUrl = <span className={styles.url.class}>{url.base}</span>;
   items.push({ k: 'base-url', v: elUrl, mono });
   items.push({ k: 'doc-id', v: url.docid, mono });
+  items.push({ k: isLoaded ? 'loaded' : 'unloaded', v: btnUnload });
 
   return (
     <div className={css(styles.base, props.style).class}>
