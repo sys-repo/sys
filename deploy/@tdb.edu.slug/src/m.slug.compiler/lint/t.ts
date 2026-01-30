@@ -69,6 +69,8 @@ export type LintProfileSlugTree = {
 export type LintProfileSlugTreeTarget = {
   /** Manifest targets for generated artifacts. */
   readonly manifest?: t.StringPath | readonly t.StringPath[];
+  /** Optional directory to copy source content into. */
+  readonly dir?: t.StringPath;
   /** Optional CRDT write target. */
   readonly crdt?: {
     readonly ref?: t.StringRef;

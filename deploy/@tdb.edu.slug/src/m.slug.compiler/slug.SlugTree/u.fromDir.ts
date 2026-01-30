@@ -1,4 +1,4 @@
-import { type t, Arr, Fs } from './common.ts';
+import { type t, Arr, Fs, DEFAULT_IGNORE } from './common.ts';
 import { ensureFrontmatterRef } from './u.frontmatter.ts';
 
 type DirEntry = {
@@ -7,8 +7,6 @@ type DirEntry = {
   readonly isDirectory: boolean;
   readonly isFile: boolean;
 };
-
-const DEFAULT_IGNORE = ['node_modules', '.git', '.DS_Store', '.tmp'];
 
 export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
   const { root, createCrdt } = args;

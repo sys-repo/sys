@@ -69,6 +69,7 @@ export const LintProfileSchema = {
                       Schema.Type.Array(Schema.Type.String(), { minItems: 0 }),
                     ]),
                   ),
+                  dir: Schema.Type.Optional(Schema.Type.String()),
                   crdt: Schema.Type.Optional(
                     Schema.Type.Object(
                       {
