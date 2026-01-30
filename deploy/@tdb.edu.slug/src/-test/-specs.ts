@@ -13,5 +13,5 @@ export const Specs = {
   [`${ns}: ui.SlugSheetStack`]: () => import('../ui/ui.SlugSheetStack/-spec/-SPEC.tsx'),
   [`${ns}: ui.TreeHost`]: () => import('../ui/ui.TreeHost/-spec/-SPEC.tsx'),
   [`${ns}: ui.driver.SlugPlayback`]: () => import('../ui/ui.SlugPlaybackDriver/-spec/-SPEC.tsx'),
-  [`${ns}: ui.driver.SlugKb`]: () => import('../ui/ui.SlugKbDriver/-spec/-SPEC.tsx'),
+  [`${ns}: ui.driver.SlugKnowledgeBase`]: () => import('../ui/ui.SlugKbDriver/-spec/-SPEC.tsx'),
 } as t.SpecImports;
