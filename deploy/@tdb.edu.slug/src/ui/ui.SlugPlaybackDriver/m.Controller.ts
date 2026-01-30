@@ -21,7 +21,7 @@ export const Controller: t.SlugPlaybackControllerLib = {
       controller.next({ playback });
     };
 
-    // Wire effects.
+    /** Wire effects. */
     const slugAdapter = makeSlugAdapter(controller);
     const playbackAdapter = makePlaybackAdapter(controller);
     attachPlaybackDriverEffect(playbackAdapter);
