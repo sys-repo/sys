@@ -19,6 +19,7 @@ export const findViewNode: t.TreeDataLib['findViewNode'] = (tree, path) => {
 
     const children = node.children;
     if (Arr.isArray(children) && children.length > 0) {
+      // Reverse push to preserve left-to-right traversal when using a stack.
       for (let i = children.length - 1; i >= 0; i--) stack.push(children[i]!);
     }
   }

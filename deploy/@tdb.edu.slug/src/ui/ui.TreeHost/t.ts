@@ -9,9 +9,11 @@ export type * from './t.node.ts';
  */
 export type TreeHostLib = {
   readonly UI: t.FC<TreeHostProps>;
-  readonly Data: t.TreeDataLib;
+  readonly Data: TreeHostDataLib;
   readonly Controller: t.TreeHostControllerLib;
 };
+
+export type TreeHostDataLib = t.TreeDataLib & { readonly Client: t.SlugClientLib };
 
 /**
  * Component:
