@@ -98,21 +98,23 @@ describe('Lint: bundle/sequence files', () => {
         title: Slug Tree Test
         traits:
           - of: slug-tree
-            as: tree
+            as: foo
 
         data:
-          tree:
-            - slug: Section A
-              slugs:
-                - slug: Intro
-                  ref: crdt:intro
-            - slug: Section B
-              traits:
-                - of: slug-tree
-                  as: nested
-              data:
-                nested:
-                  - slug: Child
+          foo:
+            tree:
+              - slug: Section A
+                slugs:
+                  - slug: Intro
+                    ref: crdt:intro
+              - slug: Section B
+                traits:
+                  - of: slug-tree
+                    as: nested
+                data:
+                  nested:
+                    tree:
+                      - slug: Child
       `;
 
       const docid = 'crdt:slug-tree' as t.Crdt.Id;
@@ -130,19 +132,23 @@ describe('Lint: bundle/sequence files', () => {
 
       const raw = (await Fs.readText(slugTreePath)).data;
       const payload = Json.parse(raw);
-      expect(payload).to.eql([
-        {
-          slug: 'Section A',
-          slugs: [{ slug: 'Intro', ref: 'crdt:intro' }],
-        },
-        {
-          slug: 'Section B',
-          traits: [{ of: 'slug-tree', as: 'nested' }],
-          data: {
-            nested: [{ slug: 'Child' }],
+      expect(payload).to.eql({
+        tree: [
+          {
+            slug: 'Section A',
+            slugs: [{ slug: 'Intro', ref: 'crdt:intro' }],
           },
-        },
-      ]);
+          {
+            slug: 'Section B',
+            traits: [{ of: 'slug-tree', as: 'nested' }],
+            data: {
+              nested: {
+                tree: [{ slug: 'Child' }],
+              },
+            },
+          },
+        ],
+      });
     } finally {
       await Fs.remove(tmpDir);
     }
@@ -159,10 +165,11 @@ describe('Lint: bundle/sequence files', () => {
 
         data:
           tree:
-            - slug: Root
-              slugs:
-                - slug: Child
-                  description: Inline description
+            tree:
+              - slug: Root
+                slugs:
+                  - slug: Child
+                    description: Inline description
       `;
 
       const docid = 'crdt:slug-tree-description' as t.Crdt.Id;
@@ -180,10 +187,10 @@ describe('Lint: bundle/sequence files', () => {
 
       const raw = (await Fs.readText(slugTreePath)).data;
       const payload = Json.parse(raw) as {
-        slugs?: { description?: string }[];
-      }[];
+        tree?: { slugs?: { description?: string }[] }[];
+      };
 
-      expect(payload[0]?.slugs?.[0]?.description).to.eql('Inline description');
+      expect(payload.tree?.[0]?.slugs?.[0]?.description).to.eql('Inline description');
     } finally {
       await Fs.remove(tmpDir);
     }

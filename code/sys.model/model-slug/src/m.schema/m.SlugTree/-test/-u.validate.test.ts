@@ -13,7 +13,7 @@ describe('SlugTree.validate', () => {
             slug: 'Nested',
             description: 'Nested inline node description',
             traits: [{ of: 'slug-tree', as: 'child-tree' }],
-            data: { 'child-tree': [{ slug: 'Child' }] },
+            data: { 'child-tree': { tree: [{ slug: 'Child' }] } },
           },
         ],
       },
@@ -30,7 +30,7 @@ describe('SlugTree.validate', () => {
       {
         slug: 'Root',
         traits: [{ of: 'not-a-thing', as: 'foo' }],
-        data: { foo: [{ slug: 'Child' }] },
+        data: { foo: { tree: [{ slug: 'Child' }] } },
       },
     ],
   };
@@ -43,7 +43,7 @@ describe('SlugTree.validate', () => {
           { of: 'slug-tree', as: 'child' },
           { of: 'slug-tree', as: 'child' },
         ],
-        data: { child: [{ slug: 'Child' }] },
+        data: { child: { tree: [{ slug: 'Child' }] } },
       },
     ],
   };
@@ -53,18 +53,16 @@ describe('SlugTree.validate', () => {
       {
         slug: 'Root',
         traits: [{ of: 'slug-tree', as: 'child' }],
-        data: { child: [{ slug: 'Child' }], orphan: { slug: 'Ghost', traits: [] } },
+        data: {
+          child: { tree: [{ slug: 'Child' }] },
+          orphan: { tree: [{ slug: 'Ghost' }] },
+        },
       },
     ],
   };
 
-  const TREE_WITHOUT_SLUG: t.SlugTreeDoc = {
-    tree: [
-      {
-        slug: 'MissingSlug',
-        ref: 'crdt:missing',
-      },
-    ],
+  const TREE_WITHOUT_SLUG = {
+    tree: [{ ref: 'crdt:missing' }],
   };
 
   const TREE_REF_WITH_DESCRIPTION: t.SlugTreeDoc = {
