@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badges, COLORS, pkg, Spec, type t } from '../../-test.ts';
+import { Badges, COLORS, pkg, Spec, type t } from '../common.ts';
 import { ModuleList } from './mod.ts';
 
 export default Spec.describe('ModuleList', (e) => {
@@ -16,7 +16,7 @@ export default Spec.describe('ModuleList', (e) => {
       .size('fill', 100)
       .backgroundColor(isDark ? COLORS.DARK : 1)
       .render(async () => {
-        const { SampleSpecs, ModuleSpecs } = await import('../../-test/entry.Specs.ts');
+        const { SampleSpecs, ModuleSpecs } = await import('../../-test/-specs.ts');
 
         const fn = () => import('../../-test/sample.specs/-SPEC.MySample.tsx');
         const specs = {

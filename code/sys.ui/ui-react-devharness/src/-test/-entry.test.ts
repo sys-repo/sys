@@ -1,6 +1,6 @@
 import { DomMock, afterAll, beforeAll, describe, expect, it } from '../-test.ts';
 import { Dev } from '../mod.ts';
-import { Specs } from './entry.Specs.ts';
+import { Specs } from './-specs.ts';
 
 /**
  * Sample of testing the visual UI specs headlessly on the server.
