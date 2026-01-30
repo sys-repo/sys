@@ -55,7 +55,14 @@ export const Title: React.FC<TitleProps> = (props) => {
     link: css({
       color: Color.BLUE,
       textDecoration: 'none',
-      ':hover': { textDecoration: 'underline' },
+      ':hover': { textDecoration: 'underline', color: Color.BLUE },
+    }),
+    linkMono: css({
+      fontFamily: 'monospace',
+      fontWeight: 600,
+      fontSize: 11,
+      letterSpacing: -0.2,
+      color: Color.alpha(theme.fg, 0.3),
     }),
   };
 
@@ -67,7 +74,11 @@ export const Title: React.FC<TitleProps> = (props) => {
   );
 
   const elDist = dist && (
-    <a className={css(styles.dist, styles.link).class} href={'./dist.json'} {...linkProps}>
+    <a
+      className={css(styles.dist, styles.link, styles.linkMono).class}
+      href={'./dist.json'}
+      {...linkProps}
+    >
       {wrangle.dist(dist)}
     </a>
   );
