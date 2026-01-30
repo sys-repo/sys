@@ -16,7 +16,7 @@ export const LintProfileSchema = {
       'fs:slug-tree': {
         include: ['.md'],
         source: '.',
-        target: { dir: ['./manifest/slug-tree.json', './manifest/slug-tree.yaml'] },
+        target: { manifest: ['./manifest/slug-tree.json', './manifest/slug-tree.yaml'] },
       },
     };
   },
@@ -63,7 +63,7 @@ export const LintProfileSchema = {
             target: Schema.Type.Optional(
               Schema.Type.Object(
                 {
-                  dir: Schema.Type.Optional(
+                  manifest: Schema.Type.Optional(
                     Schema.Type.Union([
                       Schema.Type.String(),
                       Schema.Type.Array(Schema.Type.String(), { minItems: 0 }),

@@ -54,7 +54,7 @@ describe('LintProfileSchema', () => {
     expect(text).to.contain('include: [.md]');
     expect(text).to.contain('source: .');
     expect(text).to.contain('target:');
-    expect(text).to.contain('dir:');
+    expect(text).to.contain('manifest:');
     expect(text).to.contain('- ./manifest/slug-tree.json');
     expect(text).to.contain('- ./manifest/slug-tree.yaml');
     expect(text).to.not.contain('readmeAsIndex');

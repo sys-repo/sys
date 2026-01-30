@@ -18,7 +18,7 @@ export async function runSlugTreeFs(args: {
   const source = Fs.Tilde.expand(String(config.source ?? '.'));
   const root = Fs.Path.resolve(cwd, source || '.');
 
-  const targets = normalizeTargets(config.target?.dir).map((target) => ({
+  const targets = normalizeTargets(config.target?.manifest).map((target) => ({
     raw: target,
     path: Fs.Path.resolve(cwd, Fs.Tilde.expand(String(target))),
   }));
