@@ -1,5 +1,5 @@
 import React from 'react';
-import { SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
+import { SelectedPath, LoadSample } from '../../ui.TreeHost/-spec/mod.ts';
 import {
   Button,
   Color,
@@ -18,19 +18,20 @@ import {
 } from './mod.ts';
 
 type P = t.TreeHostProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & { load?: t.SampleLoadAction };
 const defaults: Storage = {
   debug: false,
   theme: 'Light',
+  load: 'esm:import',
 };
-
-const baseUrl = 'http://localhost:4040/publish.assets';
 
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+
+const docid = 'kb';
 
 /**
  * Signals:
@@ -40,6 +41,7 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
+  const baseUrl = LoadSample.SAMPLES.baseUrl;
   const controller = SlugKbDriver.Controller.create({ baseUrl });
 
   const props = {
@@ -47,6 +49,8 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     tree: s<P['tree']>(undefined),
     selectedPath: s(snap.selectedPath),
+    //
+    load: s(snap.load),
   };
   const p = props;
   const api = {
@@ -69,8 +73,12 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.selectedPath = p.selectedPath.value;
+      d.load = p.load.value;
     });
   });
+
+  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl, docid });
+  Signal.effect(load);
 
   /**
    * Bridge (dev harness): Signals → EffectController
@@ -137,9 +145,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <SlugKbDriver.Dev.DriverInfo style={{ marginBottom: 15 }} controller={controller} />
 
+      <hr style={{ borderTopWidth: 4, opacity: 0.5 }} />
+      <LoadSample.UI
+        signal={p.load}
+        style={{ MarginY: 15 }}
+        url={{ base: controller.props.baseUrl, docid }}
+      />
+      <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 
-      <hr />
+      <hr style={{ borderTopWidth: 4, opacity: 0.5 }} />
+
       <Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
