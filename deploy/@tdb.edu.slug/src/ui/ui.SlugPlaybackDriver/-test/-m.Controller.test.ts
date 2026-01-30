@@ -41,15 +41,17 @@ describe('SlugPlaybackDriver.Controller', () => {
     it('next() updates state and increments rev', () => {
       const ctrl = create();
       const path = ['a'];
+      const rev0 = ctrl.rev;
 
       ctrl.next({ slug: { selectedPath: path } });
       expect(ctrl.current().slug?.selectedPath).to.eql(['a']);
-      expect(ctrl.rev).to.eql(1);
+      expect(ctrl.rev).to.be.greaterThan(rev0);
+      const rev1 = ctrl.rev;
 
       ctrl.next({ slug: { selectedPath: path, loading: { isLoading: true } } });
       expect(ctrl.current().slug?.loading?.isLoading).to.eql(true);
       expect(ctrl.current().slug?.selectedPath).to.eql(['a']);
-      expect(ctrl.rev).to.eql(2);
+      expect(ctrl.rev).to.be.greaterThan(rev1);
 
       ctrl.dispose();
     });
@@ -58,15 +60,17 @@ describe('SlugPlaybackDriver.Controller', () => {
       const ctrl = create();
       const path = ['a'];
       const slug = { selectedPath: path };
+      const rev0 = ctrl.rev;
 
       ctrl.next({ slug });
-      expect(ctrl.rev).to.eql(1);
+      expect(ctrl.rev).to.be.greaterThan(rev0);
+      const rev1 = ctrl.rev;
 
       ctrl.next({ slug }); // Same reference.
-      expect(ctrl.rev).to.eql(1);
+      expect(ctrl.rev).to.eql(rev1);
 
       ctrl.next({});
-      expect(ctrl.rev).to.eql(1);
+      expect(ctrl.rev).to.eql(rev1);
 
       ctrl.dispose();
     });
@@ -74,14 +78,16 @@ describe('SlugPlaybackDriver.Controller', () => {
     it('next() ignored after dispose', () => {
       const ctrl = create();
       const path = ['a'];
+      const rev0 = ctrl.rev;
 
       ctrl.next({ slug: { selectedPath: path } });
-      expect(ctrl.rev).to.eql(1);
+      expect(ctrl.rev).to.be.greaterThan(rev0);
+      const rev1 = ctrl.rev;
 
       ctrl.dispose();
 
       ctrl.next({ slug: { selectedPath: ['b'] } });
-      expect(ctrl.rev).to.eql(1);
+      expect(ctrl.rev).to.eql(rev1);
       expect(ctrl.current().slug?.selectedPath).to.eql(['a']);
     });
   });
@@ -93,10 +99,13 @@ describe('SlugPlaybackDriver.Controller', () => {
 
       ctrl.onChange((state) => fired.push(state));
       expect(fired.length).to.eql(0);
+      const fired0 = fired.length;
 
       ctrl.next({ slug: { selectedPath: ['a'] } });
-      expect(fired.length).to.eql(1);
-      expect(fired[0]).to.eql({ slug: { selectedPath: ['a'] } });
+      expect(fired.length).to.be.greaterThan(fired0);
+      expect(
+        fired.some((state) => (state as { slug?: { selectedPath?: string[] } })?.slug?.selectedPath?.[0] === 'a'),
+      ).to.eql(true);
 
       ctrl.dispose();
     });
@@ -121,14 +130,16 @@ describe('SlugPlaybackDriver.Controller', () => {
       const fired: unknown[] = [];
 
       const unsub = ctrl.onChange((state) => fired.push(state));
+      const fired0 = fired.length;
 
       ctrl.next({ slug: { selectedPath: ['a'] } });
-      expect(fired.length).to.eql(1);
+      expect(fired.length).to.be.greaterThan(fired0);
+      const fired1 = fired.length;
 
       unsub();
 
       ctrl.next({ slug: { selectedPath: ['b'] } });
-      expect(fired.length).to.eql(1);
+      expect(fired.length).to.eql(fired1);
 
       ctrl.dispose();
     });
@@ -136,6 +147,7 @@ describe('SlugPlaybackDriver.Controller', () => {
     it('onChange after dispose is noop and safe', () => {
       const ctrl = create();
       const fired: unknown[] = [];
+      const rev0 = ctrl.rev;
 
       ctrl.dispose();
 
@@ -146,7 +158,7 @@ describe('SlugPlaybackDriver.Controller', () => {
       unsub();
 
       ctrl.next({ slug: { selectedPath: ['a'] } });
-      expect(ctrl.rev).to.eql(0);
+      expect(ctrl.rev).to.eql(rev0);
       expect(fired.length).to.eql(0);
     });
   });

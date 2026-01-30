@@ -1,10 +1,14 @@
 import { TreeHost } from '../../ui.TreeHost/mod.ts';
 import { type t, SlugClient, SlugSchema } from '../common.ts';
+import type { SlugEffectAdapter, SlugPlaybackSlugState } from './t.ts';
 
-type State = t.SlugPlaybackState;
 type LoadBundleResult = t.SlugClientResult<t.TimecodePlaybackDriver.Wire.Bundle>;
 type LoadBundle = (baseUrl: t.StringUrl, ref: t.StringId) => Promise<LoadBundleResult>;
-type Props = { loadBundle?: LoadBundle };
+type Props = {
+  readonly baseUrl: t.StringUrl;
+  readonly loadBundle?: LoadBundle;
+  readonly setBundle?: (bundle: t.TimecodePlaybackDriver.Wire.Bundle | undefined) => void;
+};
 
 /**
  * Attach the slug loader effect.
@@ -12,27 +16,22 @@ type Props = { loadBundle?: LoadBundle };
  * Watches for selection changes. When the selected node
  * is a `refOnly` slug with a ref ID, loads the bundle from the endpoint.
  */
-export function attachSlugLoaderEffect(controller: t.SlugPlaybackController, props: Props): void {
-  const { loadBundle = SlugClient.FromEndpoint.Bundle.load } = props;
-  const baseUrl = controller.props.baseUrl;
+export function attachSlugLoaderEffect(adapter: SlugEffectAdapter, props: Props): void {
+  const { baseUrl, loadBundle = SlugClient.FromEndpoint.Bundle.load, setBundle } = props;
+  const onBundle = setBundle ?? (() => {});
   let loadGen = 0; // Staleness tracking.
-  const getSlug = () => controller.current().slug ?? {};
-  const getPlayback = () => controller.current().playback ?? {};
+  const getSlug = () => adapter.current() ?? {};
 
-  const run = (state: State) => {
-    const slugState = state.slug;
-    const playback = state.playback;
+  const run = (slugState?: SlugPlaybackSlugState) => {
     const loading = slugState?.loading;
     const node = TreeHost.Data.findViewNode(slugState?.tree, slugState?.selectedPath);
     const value = node?.value;
 
     if (!SlugSchema.Tree.Is.refOnly(value)) {
-      if (loading?.loadingRef || loading?.loadedRef || playback?.bundle) {
-        controller.next({
-          slug: { ...getSlug(), loading: undefined, error: undefined },
-          playback: { ...getPlayback(), bundle: undefined },
-        });
+      if (loading?.loadingRef || loading?.loadedRef) {
+        adapter.next({ ...getSlug(), loading: undefined, error: undefined });
       }
+      onBundle(undefined);
       return;
     }
 
@@ -45,57 +44,49 @@ export function attachSlugLoaderEffect(controller: t.SlugPlaybackController, pro
 
     // Start load.
     const gen = ++loadGen;
-    const isStale = () => controller.disposed || gen !== loadGen;
+    const isStale = () => adapter.disposed || gen !== loadGen;
 
-    controller.next({
-      slug: {
-        ...getSlug(),
-        loading: { isLoading: true, loadingRef: ref, loadedRef: undefined },
-        error: undefined,
-      },
-      playback: { ...getPlayback(), bundle: undefined },
+    adapter.next({
+      ...getSlug(),
+      loading: { isLoading: true, loadingRef: ref, loadedRef: undefined },
+      error: undefined,
     });
+    onBundle(undefined);
 
     loadBundle(baseUrl, ref)
       .then((res) => {
         if (isStale()) return;
 
         if (!res.ok) {
-          controller.next({
-            slug: {
-              ...getSlug(),
-              loading: { isLoading: false, loadingRef: undefined, loadedRef: ref },
-              error: { message: res.error.message },
-            },
-            playback: { ...getPlayback(), bundle: undefined },
+          adapter.next({
+            ...getSlug(),
+            loading: { isLoading: false, loadingRef: undefined, loadedRef: ref },
+            error: { message: res.error.message },
           });
+          onBundle(undefined);
           return;
         }
 
-        controller.next({
-          slug: {
-            ...getSlug(),
-            loading: { isLoading: false, loadingRef: undefined, loadedRef: ref },
-            error: undefined,
-          },
-          playback: { ...getPlayback(), bundle: res.value },
+        adapter.next({
+          ...getSlug(),
+          loading: { isLoading: false, loadingRef: undefined, loadedRef: ref },
+          error: undefined,
         });
+        onBundle(res.value);
       })
       .catch((e) => {
         if (isStale()) return;
         const message = e instanceof Error ? e.message : String(e);
-        controller.next({
-          slug: {
-            ...getSlug(),
-            loading: { isLoading: false, loadingRef: undefined, loadedRef: ref },
-            error: { message },
-          },
-          playback: { ...getPlayback(), bundle: undefined },
+        adapter.next({
+          ...getSlug(),
+          loading: { isLoading: false, loadingRef: undefined, loadedRef: ref },
+          error: { message },
         });
+        onBundle(undefined);
       });
   };
 
   // Subscribe and cleanup via lifecycle.
-  const unsub = controller.onChange(run);
-  controller.dispose$.subscribe(unsub);
+  const unsub = adapter.onChange(run);
+  adapter.dispose$.subscribe(unsub);
 }

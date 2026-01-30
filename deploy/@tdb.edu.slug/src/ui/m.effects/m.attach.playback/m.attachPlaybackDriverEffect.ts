@@ -1,12 +1,12 @@
 import { type t, PlaybackDriver, Timecode, TimecodeState } from '../common.ts';
+import type { PlaybackEffectAdapter, SlugPlaybackRuntimeState } from './t.ts';
 
-type State = t.SlugPlaybackState;
 type Snapshot = t.TimecodeState.Playback.Snapshot;
 type Timeline = t.TimecodeState.Playback.Timeline;
 type Bundle = t.TimecodePlaybackDriver.Wire.Bundle;
 type Decks = t.TimecodePlaybackDriver.VideoDecks;
 type RuntimeKeys = 'timeline' | 'snapshot' | 'resolved' | 'experience';
-type RuntimePatch = Partial<Pick<t.SlugPlaybackRuntimeState, RuntimeKeys>>;
+type RuntimePatch = Partial<Pick<SlugPlaybackRuntimeState, RuntimeKeys>>;
 
 /**
  * Attach the playback driver effect.
@@ -16,11 +16,11 @@ type RuntimePatch = Partial<Pick<t.SlugPlaybackRuntimeState, RuntimeKeys>>;
  * - Video deck ownership
  * - Snapshot forwarding for UI consumption (aux/debug)
  */
-export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController): void {
+export function attachPlaybackDriverEffect(adapter: PlaybackEffectAdapter): void {
   const machine = TimecodeState.Playback;
 
   let gen = 0;
-  const isStale = (g: number) => controller.disposed || g !== gen;
+  const isStale = (g: number) => adapter.disposed || g !== gen;
 
   let currDriver: t.TimecodePlaybackDriver.Driver | undefined;
   let currDecks: Decks | undefined;
@@ -31,11 +31,10 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
   // including the patches emitted by this effect. If state cloning breaks
   // identity stability of {bundle,decks}, we can loop. Guard internal emissions.
   let isEmitting = false;
-  const getPlayback = () => controller.current().playback ?? {};
   const next = (patch: RuntimePatch) => {
     isEmitting = true;
     try {
-      controller.next({ playback: { ...getPlayback(), ...patch } });
+      adapter.next(patch);
     } finally {
       isEmitting = false;
     }
@@ -105,8 +104,8 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
    * - slug selection / TreeHost resolution
    * - navigation / routing
    */
-  const rebuild = (state: State) => {
-    const { bundle, decks } = state.playback ?? {};
+  const rebuild = (state?: SlugPlaybackRuntimeState) => {
+    const { bundle, decks } = state ?? {};
 
     if (!bundle || !decks) {
       lastObserved = {};
@@ -162,16 +161,16 @@ export function attachPlaybackDriverEffect(controller: t.SlugPlaybackController)
     timelineController.seekToBeat(beat0);
   };
 
-  const run = (state: State) => {
+  const run = (state?: SlugPlaybackRuntimeState) => {
     if (isEmitting) return;
     rebuild(state);
   };
 
-  const unsub = controller.onChange(run);
-  controller.dispose$.subscribe(() => {
+  const unsub = adapter.onChange(run);
+  adapter.dispose$.subscribe(() => {
     teardown('slug-playback:controller-dispose');
     unsub();
   });
 
-  run(controller.current());
+  run(adapter.current());
 }
