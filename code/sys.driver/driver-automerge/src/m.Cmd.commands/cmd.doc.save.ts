@@ -12,10 +12,12 @@ export function makeDocSaveHandler(getRepo: t.CrdtGetRepoInput): H['doc:save'] {
     if (Is.browser()) throw new Error('Cannot save to file-system on browser');
 
     /**
-     * NOTE: dynamic import so as NOT to have the file-system
-     *       tools bleed into browser bundles.
+     * Runtime-only import.
+     * Prevent Vite/Rollup build-time scanning from pulling server-only modules into
+     * browser bundles. Do NOT simplify this string.
      */
-    const { Fs } = await import('@sys/fs');
+    const SYS_FS_SPEC = '@sys/' + 'fs';
+    const { Fs } = await import(/* @vite-ignore */ SYS_FS_SPEC);
 
     // Retrieve document
     const { ok, doc } = await repo.get(params.doc);
