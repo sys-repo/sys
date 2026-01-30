@@ -123,7 +123,7 @@ async function prepareTargetDir(targetDir: t.StringDir): Promise<boolean> {
 }
 
 async function clearTargetDir(targetDir: t.StringDir): Promise<void> {
-  const preserve = new Set(DEFAULT_IGNORE);
+  const preserve = new Set<string>(DEFAULT_IGNORE as readonly string[]);
   for await (const entry of Deno.readDir(targetDir)) {
     if (preserve.has(entry.name)) continue;
     const target = Fs.join(targetDir, entry.name);
