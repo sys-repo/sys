@@ -9,13 +9,14 @@ export type RxLib = RxjsLib & {
   readonly noop$: rxjs.Subject<any>;
 
   // Lifecycle:
+  done: t.DisposeLib['done'];
   abortable: t.DisposeLib['abortable'];
   disposable: t.DisposeLib['disposable'];
   disposableAsync: t.DisposeLib['disposableAsync'];
   lifecycle: t.DisposeLib['lifecycle'];
   lifecycleAsync: t.DisposeLib['lifecycleAsync'];
   toLifecycle: t.DisposeLib['toLifecycle'];
-  done: t.DisposeLib['done'];
+  toLifecycleView: t.DisposeLib['toLifecycleView'];
 
   // Helpers:
   subject<T = void>(): rxjs.Subject<T>;

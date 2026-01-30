@@ -13,6 +13,7 @@ const {
   lifecycleAsync,
   done,
   toLifecycle,
+  toLifecycleView,
 } = Dispose;
 
 /**
@@ -31,6 +32,7 @@ export const Rx: t.RxLib = {
   lifecycle,
   lifecycleAsync,
   toLifecycle,
+  toLifecycleView,
 
   subject<T>() {
     return new lib.Subject<T>();

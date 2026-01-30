@@ -8,6 +8,7 @@ describe('Rx (API)', () => {
     expect(m.Rx).to.equal(Rx);
 
     expect(Rx.toLifecycle).to.equal(Dispose.toLifecycle);
+    expect(Rx.toLifecycleView).to.equal(Dispose.toLifecycleView);
     expect(Rx.lifecycle).to.equal(Dispose.lifecycle);
     expect(Rx.lifecycleAsync).to.equal(Dispose.lifecycleAsync);
     expect(Rx.disposable).to.equal(Dispose.disposable);

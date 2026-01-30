@@ -451,6 +451,25 @@ describe('Disposable', () => {
     });
   });
 
+  describe('Dispose.toLifecycleView', () => {
+    it('projects lifecycle without dispose', () => {
+      type T = t.LifecycleView & { count: number };
+      const life = Dispose.lifecycle();
+      const api = Dispose.toLifecycleView<T>(life, { count: 123 });
+
+      let fired = 0;
+      api.dispose$.subscribe(() => fired++);
+
+      expect(api.count).to.eql(123);
+      expect(api.disposed).to.eql(false);
+      expect('dispose' in api).to.eql(false);
+
+      life.dispose();
+      expect(fired).to.eql(1);
+      expect(api.disposed).to.eql(true);
+    });
+  });
+
   describe('Dispose.omitDispose', () => {
     type T = t.Lifecycle & { count: number };
 
