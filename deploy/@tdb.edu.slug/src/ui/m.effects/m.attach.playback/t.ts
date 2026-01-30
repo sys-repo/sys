@@ -1,5 +1,7 @@
 import type { t } from '../common.ts';
 
+export type PlaybackEffectAdapter = t.EffectAdapter<SlugPlaybackRuntimeState | undefined>;
+
 export type SlugPlaybackRuntimeState = {
   /** Loaded playback bundle (timeline spec + resolver). */
   readonly bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
@@ -15,5 +17,3 @@ export type SlugPlaybackRuntimeState = {
   /** Experience timeline (beats projected onto virtual time). */
   readonly experience?: t.Timecode.Experience.Timeline;
 };
-
-export type PlaybackEffectAdapter = t.EffectAdapter<SlugPlaybackRuntimeState | undefined>;

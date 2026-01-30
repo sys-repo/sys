@@ -1,5 +1,7 @@
 import type { t } from '../common.ts';
 
+export type SlugEffectAdapter = t.EffectAdapter<SlugPlaybackSlugState | undefined>;
+
 export type SlugPlaybackSlugState = {
   /** TreeHost view of available slugs. */
   readonly tree?: t.TreeHostViewNodeList;
@@ -22,5 +24,3 @@ export type SlugPlaybackLoading = {
   /** Ref last attempted (success or failure). */
   readonly loadedRef?: string;
 };
-
-export type SlugEffectAdapter = t.EffectAdapter<SlugPlaybackSlugState | undefined>;
