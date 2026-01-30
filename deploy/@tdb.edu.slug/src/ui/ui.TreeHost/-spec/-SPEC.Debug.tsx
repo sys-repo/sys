@@ -74,8 +74,9 @@ export async function createDebugSignals() {
     });
   });
 
-  const baseUrl = LoadSample.baseUrl;
-  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl });
+  const baseUrl = LoadSample.SAMPLES.baseUrl;
+  const docid = LoadSample.SAMPLES.SlugTree['slug-tree.gHcQi:'].docid;
+  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl, docid });
   Signal.effect(load);
 
   /** Observe to relevant changes */
@@ -154,7 +155,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <LoadSample.UI theme={theme.name} signal={p.load} style={{ MarginY: 15 }} />
+      <LoadSample.UI
+        theme={theme.name}
+        signal={p.load}
+        style={{ MarginY: 15 }}
+        url={{
+          base: LoadSample.SAMPLES.baseUrl,
+          docid: LoadSample.SAMPLES.SlugTree['slug-tree.gHcQi:'].docid,
+        }}
+      />
       <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 

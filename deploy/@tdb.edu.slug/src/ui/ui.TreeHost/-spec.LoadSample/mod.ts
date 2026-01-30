@@ -1,6 +1,6 @@
 import { TreeHost } from '../mod.ts';
 import { type t, SAMPLES } from './common.ts';
-import { baseUrl, loadHttp, SlugTree } from './u.http.ts';
+import { loadHttp } from './u.http.ts';
 import { LoadSampleButtons as UI } from './ui.tsx';
 
 /**
@@ -8,21 +8,20 @@ import { LoadSampleButtons as UI } from './ui.tsx';
  */
 export const LoadSample = {
   UI,
-  SlugTree,
-  baseUrl,
+  SAMPLES,
 
   async load(
     tree: t.Signal<t.TreeHostViewNodeList | undefined>,
     action: t.SampleLoadAction | undefined,
-    opts: { baseUrl?: t.StringUrl } = {},
+    opts: { baseUrl: t.StringUrl; docid: t.StringId },
   ) {
     if (!action) return void (tree.value = undefined);
     if (action === 'esm:import') {
-      tree.value = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree['slug-tree.gHcQi:']);
+      tree.value = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree['slug-tree.gHcQi:'].embedded);
       return;
     }
     if (action === 'http') {
-      await loadHttp(tree, { baseUrl: opts.baseUrl ?? baseUrl });
+      await loadHttp(tree, { baseUrl: opts.baseUrl, docid: opts.docid });
       return;
     }
   },

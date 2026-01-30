@@ -1,10 +1,9 @@
 import React from 'react';
 import { type t, Button, Color, css, KeyValue, Signal } from './common.ts';
-import { baseUrl } from './u.http.ts';
 
 export type LoadSampleButtonsProps = {
   signal?: t.Signal<t.SampleLoadAction | undefined>;
-  baseUrl?: t.StringUrl;
+  url: { base: t.StringUrl; docid: t.StringId };
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
@@ -13,7 +12,7 @@ export type LoadSampleButtonsProps = {
  * Component:
  */
 export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
-  const { signal = Signal.create<t.SampleLoadAction>() } = props;
+  const { url, signal = Signal.create<t.SampleLoadAction>() } = props;
   const current = signal.value;
   const isLoaded = !!current;
 
@@ -53,8 +52,9 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
   add(`load via import (embedded)`, 'esm:import');
   add(`load via HTTP`, 'http');
 
-  const elUrl = <span className={styles.url.class}>{props.baseUrl ?? baseUrl}</span>;
+  const elUrl = <span className={styles.url.class}>{url.base}</span>;
   items.push({ k: 'base-url', v: elUrl, mono });
+  items.push({ k: 'doc-id', v: url.docid, mono });
 
   return (
     <div className={css(styles.base, props.style).class}>

@@ -37,7 +37,8 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  const baseUrl = 'http://localhost:4040/publish.assets';
+  const baseUrl = LoadSample.SAMPLES.baseUrl;
+  const docid = LoadSample.SAMPLES.SlugTree['slug-tree.gHcQi:'].docid;
   const controller = SlugPlaybackDriver.Controller.create({ baseUrl });
 
   const decks = Player.Video.Decks.create();
@@ -76,7 +77,7 @@ export async function createDebugSignals() {
     });
   });
 
-  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl });
+  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl, docid });
   Signal.effect(load);
 
   /**
@@ -119,8 +120,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const controller = debug.controller;
   const p = debug.props;
   const v = Signal.toObject(p);
-  Signal.useRedrawEffect(debug.listen);
 
+  Signal.useRedrawEffect(debug.listen);
   const state = EffectController.useEffectController(controller);
 
   /**
@@ -152,7 +153,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ borderTopWidth: 4, opacity: 0.5 }} />
-      <LoadSample.UI signal={p.load} style={{ MarginY: 15 }} baseUrl={controller.props.baseUrl} />
+      <LoadSample.UI
+        signal={p.load}
+        style={{ MarginY: 15 }}
+        url={{
+          base: controller.props.baseUrl,
+          docid: LoadSample.SAMPLES.SlugTree['slug-tree.gHcQi:'].docid,
+        }}
+      />
       <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 

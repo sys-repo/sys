@@ -1,8 +1,8 @@
 import type { Storage } from './-SPEC.Debug.tsx';
 
 import { Foo, SAMPLES } from '../../-test.ui.ts';
-import { type t } from '../common.ts';
 import { TreeHost } from '../../ui.TreeHost/mod.ts';
+import { type t } from '../common.ts';
 
 /**
  * Create slot content for SlugSheet samples.
@@ -20,7 +20,7 @@ export function createSlots(
       main: <Foo theme={theme} label={'TreeHost:main'} />,
       aux: <Foo theme={theme} label={'TreeHost:aux'} style={{ minHeight: 150 }} />,
     };
-    const root = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree['slug-tree.gHcQi:']);
+    const root = TreeHost.Data.fromSlugTree(SAMPLES.SlugTree['slug-tree.gHcQi:'].embedded);
     return { main: <TreeHost.UI tree={root} slots={treeSlots} /> };
   }
 

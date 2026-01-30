@@ -5,8 +5,13 @@ import slug_assets_9cC7y from './slug.2esGLgD5SoQkeucytmGeadm9cC7y.assets.json' 
 import slug_playback_9cC7y from './slug.2esGLgD5SoQkeucytmGeadm9cC7y.playback.json' with { type: 'json' };
 
 export const SAMPLES = {
+  baseUrl: 'http://localhost:4040/publish.assets',
+
   SlugTree: {
-    'slug-tree.gHcQi:': slug_tree_gHcQi as t.SlugTreeItems,
+    'slug-tree.gHcQi:': {
+      docid: '21JvXzARPYFXDVMag3x4UhLgHcQi',
+      embedded: slug_tree_gHcQi as t.SlugTreeItems,
+    },
   },
   Slug: {
     'slug.9cC7y.assets': slug_assets_9cC7y,
