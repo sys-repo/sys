@@ -140,7 +140,8 @@ export async function executeStaging(options: Args): Promise<void> {
   if (firstErr) throw firstErr;
 
   const rootAbs = stagingBaseAbs;
-  await ensureIndexHtml(rootAbs, { force: options.cleanStagingRoot === true });
+  // Always refresh the root index after successful staging (safe: only overwrites if marker present).
+  await ensureIndexHtml(rootAbs, { force: true });
 
   if (options.writeDistJson) {
     if (!options.stagingRoot) throw new Error('executeStaging: writeDistJson requires options.stagingRoot');

@@ -102,6 +102,43 @@ describe('Staging: executeStaging', () => {
     });
   });
 
+  it('build+copy: generates index.html + dist.json inside mapping target', async () => {
+    await withTmpDir(async (tmp) => {
+      const srcRoot = `${tmp}/src`;
+      await Fs.ensureDir(srcRoot);
+
+      const buildFile = [
+        `await Deno.mkdir("dist", { recursive: true });`,
+        `await Deno.writeTextFile("dist/a.txt", "built");`,
+        ``,
+      ].join('\n');
+
+      const denoJson = Json.stringify({
+        name: 'tmp-staging-build',
+        version: '0.0.0',
+        tasks: {
+          test: `deno eval "Deno.exit(0)"`,
+          build: `deno run -A ./-build.ts`,
+        },
+      });
+
+      await Fs.write(`${srcRoot}/-build.ts`, buildFile);
+      await Fs.write(`${srcRoot}/deno.json`, denoJson);
+
+      const dir = { source: 'src', staging: 'dist/site' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'build+copy', dir }] });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
+      expect(index.ok).to.eql(true);
+      expect(index.exists).to.eql(true);
+      expect(String(index.data ?? '')).to.include('<!-- @sys/tools staging index -->');
+
+      const dist = await Fs.readJson(`${tmp}/stage/dist/site/dist.json`);
+      expect(dist.ok).to.eql(true);
+      expect(dist.exists).to.eql(true);
+    });
+  });
+
   it('failure: emits mapping:fail and throws first error (no mapping:done); does not write dist.json', async () => {
     await withTmpDir(async (tmp) => {
       const srcRoot = `${tmp}/src`;
@@ -343,6 +380,28 @@ describe('Staging: executeStaging', () => {
 
       const index = await Fs.readText(`${tmp}/stage/index.html`);
       expect(index.data).to.not.eql('<!-- @sys/tools staging index -->\n');
+    });
+  });
+
+  it('root index: refreshes staging index even without cleanStagingRoot', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/new.txt`, 'new');
+
+      await Fs.ensureDir(`${tmp}/stage`);
+      const before = '<!-- @sys/tools staging index -->\n<!-- stale -->\n';
+      await Fs.write(`${tmp}/stage/index.html`, before);
+
+      const dir = { source: 'src', staging: 'dist/my-output' };
+      await executeStaging({
+        ...stageOptions(tmp),
+        cleanStagingRoot: false,
+        mappings: [{ mode: 'copy', dir }],
+      });
+
+      const index = await Fs.readText(`${tmp}/stage/index.html`);
+      expect(index.data).to.not.eql(before);
+      await assertDistJsonExists(`${tmp}/stage`);
     });
   });
 

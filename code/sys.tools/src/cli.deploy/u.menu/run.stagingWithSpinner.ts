@@ -1,4 +1,4 @@
-import { type t, pkg, c, Cli, Path, Pkg } from '../common.ts';
+import { type t, pkg, c, Cli, Err, Path, Pkg, Str } from '../common.ts';
 import { shouldExclude } from '../u.exclude.ts';
 import { executeStaging, stagingConcurrencyDefault } from '../u.staging/mod.ts';
 import { Fmt } from '../u.fmt.ts';
@@ -23,6 +23,7 @@ export async function runStagingWithSpinner(args: {
   const active = new Map<number, string>();
   const total = mappings.length;
   let done = 0;
+  let lastFail: t.DeployTool.Staging.ProgressEvent | undefined;
 
   const render = (): string => {
     const names = [...active.entries()].sort((a, b) => a[0] - b[0]).map(([, name]) => name);
@@ -78,6 +79,7 @@ export async function runStagingWithSpinner(args: {
         }
 
         if (e.kind === 'mapping:fail') {
+          lastFail = e;
           active.delete(e.index);
           refresh();
           return;
@@ -91,6 +93,18 @@ export async function runStagingWithSpinner(args: {
     return { ok: true };
   } catch (error) {
     spin.fail(Fmt.spinnerText('Staging failed'));
+    const detail = Err.summary(error, { cause: true, stack: false });
+    const b = Str.builder()
+      .line(c.red('Staging error details'))
+      .line(c.gray(c.dim(`error: ${detail}`)));
+
+    if (lastFail) {
+      b.line(c.gray(c.dim(`mode: ${String(lastFail.mode)}`)));
+      b.line(c.gray(c.dim(`source: ${String(lastFail.source)}`)));
+      b.line(c.gray(c.dim(`staging: ${String(lastFail.staging)}`)));
+    }
+
+    console.info(String(b));
     return { ok: false, error };
   }
 }

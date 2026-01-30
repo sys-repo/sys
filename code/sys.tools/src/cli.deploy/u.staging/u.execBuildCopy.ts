@@ -1,5 +1,6 @@
-import { type t, Fs, Path, Process } from '../common.ts';
+import { type t, Fs, Path, Pkg, Process } from '../common.ts';
 import { copyInto } from './u.copyInto.ts';
+import { ensureIndexHtml } from './u.generateHtml.ts';
 
 /**
  * Build a source directory, then copy its /dist output into the staging area.
@@ -30,4 +31,10 @@ export async function execBuildCopy(
 
   reportStep('merge into staging');
   await copyInto({ src: srcDist, dst, overwrite });
+
+  reportStep('index.html');
+  await ensureIndexHtml(dst);
+
+  reportStep('dist.json');
+  await Pkg.Dist.compute({ dir: dst, save: true });
 }

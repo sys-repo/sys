@@ -159,14 +159,14 @@ export async function endpointMenu(args: {
 
       const sourceRootRel = String(yaml.source?.dir ?? '').trim() || '.';
 
-      await runStagingWithSpinner({
+      const res = await runStagingWithSpinner({
         cwd,
         mappings: resolved.mappings,
         sourceRoot: sourceRootRel,
         stagingRoot: stagingRootRel,
       });
 
-      ranOk = true;
+      ranOk = res.ok;
       continue;
     }
 
