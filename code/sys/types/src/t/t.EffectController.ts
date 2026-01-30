@@ -1,6 +1,23 @@
 import type { t } from './common.ts';
 
 /**
+ * EffectAdapter — minimal surface for attaching effects.
+ */
+export type EffectAdapter<State, Patch = Partial<State>> = t.LifecycleView & {
+  /** Read the current state snapshot (stable and side-effect free). */
+  current(): State;
+
+  /** Apply an intent patch to the state. */
+  next(patch?: Patch): void;
+
+  /**
+   * Subscribe to state changes.
+   * Returns an unsubscribe function (safe to call multiple times).
+   */
+  onChange(fn: EffectControllerChangeHandler<State>): () => void;
+};
+
+/**
  * EffectController — minimal orchestration primitive.
  *
  * Owns a state snapshot and provides a single, explicit update verb (`next`).
@@ -17,37 +34,22 @@ import type { t } from './common.ts';
  * Note: "effects" are not embedded magic; they are external subscriptions
  * bound to this controller’s lifecycle.
  */
-export type EffectController<State, Patch = Partial<State>, Props = undefined> = t.Lifecycle & {
-  /** Unique identifier for this controller instance. */
-  readonly id: t.StringId;
+export type EffectController<State, Patch = Partial<State>, Props = undefined> = EffectAdapter<
+  State,
+  Patch
+> &
+  t.Lifecycle & {
+    /** Unique identifier for this controller instance. */
+    readonly id: t.StringId;
 
-  /**
-   * Monotonic revision counter.
-   * Increments only when the underlying state actually changes.
-   */
-  readonly rev: t.NumberMonotonic;
+    /**
+     * Monotonic revision counter.
+     * Increments only when the underlying state actually changes.
+     */
+    readonly rev: t.NumberMonotonic;
 
-  /**
-   * Read the current state snapshot (stable and side-effect free).
-   */
-  current(): State;
-
-  /**
-   * Apply an intent patch to the state.
-   *
-   * If the patch is a no-op (per controller semantics), this call does nothing:
-   * no state change, no `rev` increment, and no `onChange` notification.
-   */
-  next(patch?: Patch): void;
-
-  /**
-   * Subscribe to state changes.
-   * Returns an unsubscribe function (safe to call multiple times).
-   */
-  onChange(fn: EffectControllerChangeHandler<State>): () => void;
-
-  //
-} & (Props extends undefined ? {} : { readonly props: Props });
+    //
+  } & (Props extends undefined ? {} : { readonly props: Props });
 
 /**
  * Callback invoked after a successful state change.

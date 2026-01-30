@@ -23,3 +23,4 @@ export type SlugPlaybackLoading = {
   readonly loadedRef?: string;
 };
 
+export type SlugEffectAdapter = t.EffectAdapter<SlugPlaybackSlugState | undefined>;

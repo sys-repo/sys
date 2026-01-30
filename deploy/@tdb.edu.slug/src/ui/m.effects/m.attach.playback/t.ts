@@ -16,3 +16,4 @@ export type SlugPlaybackRuntimeState = {
   readonly experience?: t.Timecode.Experience.Timeline;
 };
 
+export type PlaybackEffectAdapter = t.EffectAdapter<SlugPlaybackRuntimeState | undefined>;
