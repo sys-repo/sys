@@ -10,36 +10,37 @@ describe('Data.findNode', () => {
     },
     { slug: 'd' },
   ];
+  const DOC: t.SlugTreeDoc = { tree: TREE };
 
   it('API', () => {
     expect(TreeData.findNode).to.equal(findNode);
   });
 
   it('resolves root items by slug path', () => {
-    const result = findNode(TREE, ['a']);
+    const result = findNode(DOC, ['a']);
     expect(result).to.eql(TREE[0]);
   });
 
   it('resolves deeply nested children', () => {
-    const result = findNode(TREE, ['a', 'b', 'c']);
+    const result = findNode(DOC, ['a', 'b', 'c']);
     expect(result?.slug).to.eql('c');
   });
 
   it('returns undefined for an empty path', () => {
-    const result = findNode(TREE, [] as t.ObjectPath);
+    const result = findNode(DOC, [] as t.ObjectPath);
     expect(result).to.be.undefined;
   });
 
   it('returns undefined when segments are not strings', () => {
-    expect(findNode(TREE, [0] as t.ObjectPath)).to.be.undefined;
-    expect(findNode(TREE, ['a', 1] as t.ObjectPath)).to.be.undefined;
+    expect(findNode(DOC, [0] as t.ObjectPath)).to.be.undefined;
+    expect(findNode(DOC, ['a', 1] as t.ObjectPath)).to.be.undefined;
   });
 
   it('returns undefined when a slug segment cannot be found', () => {
-    expect(findNode(TREE, ['missing'])).to.be.undefined;
+    expect(findNode(DOC, ['missing'])).to.be.undefined;
   });
 
   it('returns undefined when path continues past a leaf without children', () => {
-    expect(findNode(TREE, ['d', 'child'])).to.be.undefined;
+    expect(findNode(DOC, ['d', 'child'])).to.be.undefined;
   });
 });

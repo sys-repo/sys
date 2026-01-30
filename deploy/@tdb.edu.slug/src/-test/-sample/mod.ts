@@ -10,7 +10,7 @@ export const SAMPLES = {
   SlugTree: {
     'slug-tree.gHcQi:': {
       docid: '21JvXzARPYFXDVMag3x4UhLgHcQi',
-      embedded: slug_tree_gHcQi as t.SlugTreeItems,
+      embedded: slug_tree_gHcQi as t.SlugTreeDoc,
     },
   },
   Slug: {

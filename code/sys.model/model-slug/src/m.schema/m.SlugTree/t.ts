@@ -3,6 +3,10 @@ import type { t } from './common.ts';
 /** Type re-export */
 export type * from './t.lib.ts';
 
+export type SlugTreeDoc = {
+  readonly tree: SlugTreeItems;
+};
+
 export type SlugTreeItems = readonly SlugTreeItem[];
 export type SlugTreeItem = SlugTreeItemRefOnly | SlugTreeItemInline;
 

@@ -3,62 +3,73 @@ import { SlugTreeSchema } from '../mod.ts';
 import { validate } from '../u.validate.ts';
 
 describe('SlugTree.validate', () => {
-  const VALID_TREE: t.SlugTreeItems = [
-    {
-      slug: 'Root',
-      slugs: [
-        { slug: 'Intro', ref: 'crdt:intro' },
-        {
-          slug: 'Nested',
-          description: 'Nested inline node description',
-          traits: [{ of: 'slug-tree', as: 'child-tree' }],
-          data: { 'child-tree': [{ slug: 'Child' }] },
-        },
-      ],
-    },
-    {
-      slug: 'RefBranch',
-      ref: 'crdt:branch',
-      slugs: [{ slug: 'Leaf', ref: 'crdt:leaf' }],
-    },
-  ];
+  const VALID_TREE: t.SlugTreeDoc = {
+    tree: [
+      {
+        slug: 'Root',
+        slugs: [
+          { slug: 'Intro', ref: 'crdt:intro' },
+          {
+            slug: 'Nested',
+            description: 'Nested inline node description',
+            traits: [{ of: 'slug-tree', as: 'child-tree' }],
+            data: { 'child-tree': [{ slug: 'Child' }] },
+          },
+        ],
+      },
+      {
+        slug: 'RefBranch',
+        ref: 'crdt:branch',
+        slugs: [{ slug: 'Leaf', ref: 'crdt:leaf' }],
+      },
+    ],
+  };
 
-  const TREE_WITH_UNKNOWN_TRAIT: t.SlugTreeItems = [
-    {
-      slug: 'Root',
-      traits: [{ of: 'not-a-thing', as: 'foo' }],
-      data: { foo: [{ slug: 'Child' }] },
-    },
-  ];
+  const TREE_WITH_UNKNOWN_TRAIT: t.SlugTreeDoc = {
+    tree: [
+      {
+        slug: 'Root',
+        traits: [{ of: 'not-a-thing', as: 'foo' }],
+        data: { foo: [{ slug: 'Child' }] },
+      },
+    ],
+  };
 
-  const TREE_WITH_DUPLICATE_ALIAS: t.SlugTreeItems = [
-    {
-      slug: 'Root',
-      traits: [
-        { of: 'slug-tree', as: 'child' },
-        { of: 'slug-tree', as: 'child' },
-      ],
-      data: { child: [{ slug: 'Child' }] },
-    },
-  ];
+  const TREE_WITH_DUPLICATE_ALIAS: t.SlugTreeDoc = {
+    tree: [
+      {
+        slug: 'Root',
+        traits: [
+          { of: 'slug-tree', as: 'child' },
+          { of: 'slug-tree', as: 'child' },
+        ],
+        data: { child: [{ slug: 'Child' }] },
+      },
+    ],
+  };
 
-  const TREE_WITH_ORPHAN_DATA: t.SlugTreeItems = [
-    {
-      slug: 'Root',
-      traits: [{ of: 'slug-tree', as: 'child' }],
-      data: { child: [{ slug: 'Child' }], orphan: { slug: 'Ghost', traits: [] } },
-    },
-  ];
+  const TREE_WITH_ORPHAN_DATA: t.SlugTreeDoc = {
+    tree: [
+      {
+        slug: 'Root',
+        traits: [{ of: 'slug-tree', as: 'child' }],
+        data: { child: [{ slug: 'Child' }], orphan: { slug: 'Ghost', traits: [] } },
+      },
+    ],
+  };
 
-  const TREE_WITHOUT_SLUG = [
-    {
-      ref: 'crdt:missing',
-    },
-  ];
+  const TREE_WITHOUT_SLUG: t.SlugTreeDoc = {
+    tree: [
+      {
+        slug: 'MissingSlug',
+        ref: 'crdt:missing',
+      },
+    ],
+  };
 
-  const TREE_REF_WITH_DESCRIPTION: t.SlugTreeItems = [
-    { slug: 'BadRef', ref: 'crdt:bad', description: 'illegal' },
-  ];
+  const TREE_REF_WITH_DESCRIPTION: t.SlugTreeDoc = {
+    tree: [{ slug: 'BadRef', ref: 'crdt:bad', description: 'illegal' }],
+  };
 
   it('API', () => {
     expect(SlugTreeSchema.validate).to.equal(validate);
@@ -110,23 +121,27 @@ describe('SlugTree.validate', () => {
   });
 
   it('accepts ref nodes with nested slugs', () => {
-    const tree: t.SlugTreeItems = [
-      {
-        slug: 'Branch',
-        ref: 'crdt:branch',
-        slugs: [{ slug: 'Child', ref: 'crdt:child' }],
-      },
-    ];
-    const result = validate(tree);
+    const doc: t.SlugTreeDoc = {
+      tree: [
+        {
+          slug: 'Branch',
+          ref: 'crdt:branch',
+          slugs: [{ slug: 'Child', ref: 'crdt:child' }],
+        },
+      ],
+    };
+    const result = validate(doc);
     expect(result.ok).to.eql(true);
   });
 
   it('rejects ref nodes with unknown additional keys', () => {
-    const tree: t.SlugTreeItems = [
-      // @ts-expect-error: extra key
-      { slug: 'Bad', ref: 'crdt:bad', foo: 'bar' },
-    ];
-    const result = validate(tree);
+    const doc: t.SlugTreeDoc = {
+      tree: [
+        // @ts-expect-error: extra key
+        { slug: 'Bad', ref: 'crdt:bad', foo: 'bar' },
+      ],
+    };
+    const result = validate(doc);
     expect(result.ok).to.eql(false);
     if (result.ok) return;
 

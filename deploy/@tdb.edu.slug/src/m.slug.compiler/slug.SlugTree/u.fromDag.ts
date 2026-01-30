@@ -1,13 +1,11 @@
-import { type t, makeParser, Obj, SlugSchema } from './common.ts';
+import { type t, Is, makeParser, Obj, SlugSchema } from './common.ts';
 
-type O = Record<string, unknown>;
-
-type R = t.SlugValidateResult<t.SlugTreeItems>;
+type R = t.SlugValidateResult<t.SlugTreeDoc>;
 
 export const fromDag: t.SlugTreeLib['fromDag'] = async (dag, yamlPath, docid, opts = {}) => {
   const { validate = false } = opts;
   const parser = makeParser(yamlPath);
-  const ok = (tree: t.SlugTreeItems): R => ({ ok: true, sequence: tree });
+  const ok = (doc: t.SlugTreeDoc): R => ({ ok: true, sequence: doc });
   const fail = (message: string): R => ({ ok: false, error: new Error(message) });
 
   const { ok: pathOk, node } = parser.path(dag, docid);
@@ -27,18 +25,24 @@ export const fromDag: t.SlugTreeLib['fromDag'] = async (dag, yamlPath, docid, op
   }
 
   const as = gate.as;
-  const lens = Obj.Lens.at<O[]>([as]);
+  const lens = Obj.Lens.at<unknown>([as]);
   const payload = lens.get(data);
 
-  if (!Array.isArray(payload)) {
-    const err = `Slug "${docid}" has no array at "data.${as}" (expected a slug-tree array).`;
+  if (!Is.record(payload)) {
+    const err = `Slug "${docid}" has no object at "data.${as}" (expected slug-tree document).`;
     return fail(err);
   }
 
-  const tree = payload as unknown as t.SlugTreeItems;
-  if (!validate) return ok(tree);
+  const tree = (payload as { tree?: unknown }).tree;
+  if (!Array.isArray(tree)) {
+    const err = `Slug "${docid}" has no array at "data.${as}.tree" (expected slug-tree array).`;
+    return fail(err);
+  }
 
-  const result = SlugSchema.Tree.validate(tree, { registry: opts.registry });
+  const doc = payload as t.SlugTreeDoc;
+  if (!validate) return ok(doc);
+
+  const result = SlugSchema.Tree.validate(doc, { registry: opts.registry });
   if (result.ok) return result;
 
   const base = result.error.message.replace(/^Invalid slug-tree:\s*/, '');

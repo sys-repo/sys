@@ -2,10 +2,10 @@ import { type t, Arr, Is, Obj } from '../common.ts';
 
 type LabelMode = Exclude<t.TreeDataFromSlugTreeOpts['label'], undefined>;
 
-export const fromSlugTree: t.TreeDataLib['fromSlugTree'] = (tree, opts) => {
+export const fromSlugTree: t.TreeDataLib['fromSlugTree'] = (doc, opts) => {
   const mode: LabelMode = opts?.label ?? 'slug';
   const leafChildren = toLeafChildren(opts?.leafChildren);
-  return tree.map((item) => toNode(item, [], mode, leafChildren));
+  return doc.tree.map((item) => toNode(item, [], mode, leafChildren));
 };
 
 /**

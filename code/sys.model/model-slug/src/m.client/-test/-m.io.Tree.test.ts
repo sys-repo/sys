@@ -15,10 +15,12 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
   it('loads tree manifest (happy path)', async () => {
     const docid = 'crdt:tree-happy' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
-    const payload: t.SlugTreeItems = [
-      { slug: 'intro', ref: 'slug:intro' },
-      { slug: 'chapter', ref: 'slug:chapter' },
-    ];
+    const payload: t.SlugTreeDoc = {
+      tree: [
+        { slug: 'intro', ref: 'slug:intro' },
+        { slug: 'chapter', ref: 'slug:chapter' },
+      ],
+    };
     const seenUrls: string[] = [];
     const cleanup = stubFetch((url) => {
       seenUrls.push(url);
@@ -40,7 +42,7 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
   it('passes RequestInit extras but enforces cache policy', async () => {
     const docid = 'crdt:tree-init' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
-    const payload: t.SlugTreeItems = [{ slug: 'one', ref: 'slug:one' }];
+    const payload: t.SlugTreeDoc = { tree: [{ slug: 'one', ref: 'slug:one' }] };
     let seenInit: RequestInit | undefined;
     const cleanup = stubFetch((url, init) => {
       if (url.includes(SlugClient.Url.treeFilename(cleaned))) {
@@ -105,7 +107,9 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
     const docid = 'crdt:tree-schema' as t.StringId;
     const cleaned = SlugClient.Url.clean(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.treeFilename(cleaned))) return jsonResponse({ slug: 'bad' });
+      if (url.includes(SlugClient.Url.treeFilename(cleaned))) {
+        return jsonResponse({ tree: [{ slug: 123 }] });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 

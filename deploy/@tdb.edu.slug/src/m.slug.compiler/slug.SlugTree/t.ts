@@ -15,7 +15,7 @@ export type SlugTreeFromDag = (
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   opts?: t.SlugTreeFromDagOpts,
-) => Promise<t.SlugValidateResult<t.SlugTreeItems>>;
+) => Promise<t.SlugValidateResult<t.SlugTreeDoc>>;
 /** Options for DAG-based slug-tree extraction. */
 export type SlugTreeFromDagOpts = {
   validate?: boolean;
@@ -27,7 +27,7 @@ export type SlugTreeFromDagOpts = {
 export type SlugTreeFromDir = (
   args: { root: t.StringDir; createCrdt: () => Promise<t.StringRef> },
   opts?: SlugTreeFromDirOpts,
-) => Promise<t.SlugTreeItems>;
+) => Promise<t.SlugTreeDoc>;
 
 /** Options for directory-based slug-tree creation. */
 export type SlugTreeFromDirOpts = {
@@ -48,9 +48,7 @@ export type SlugTreeReindex = (args: {
 export type SlugTreeReindexKey = 'auto' | 'ref' | 'slug';
 
 /** Options for slug-tree reindexing. */
-export type SlugTreeReindexOpts = {
-  key?: SlugTreeReindexKey;
-};
+export type SlugTreeReindexOpts = { key?: SlugTreeReindexKey };
 
 /** Serialize a slug-tree to YAML. */
-export type SlugTreeToYaml = (tree: t.SlugTreeItems) => string;
+export type SlugTreeToYaml = (doc: t.SlugTreeDoc) => string;

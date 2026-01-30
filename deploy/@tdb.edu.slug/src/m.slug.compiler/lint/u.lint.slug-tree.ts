@@ -9,8 +9,8 @@ export async function runSlugTreeFs(args: {
   createCrdt: () => Promise<t.StringRef>;
 }) {
   const { cwd, profilePath, createCrdt } = args;
-  const doc = await readLintProfile(profilePath);
-  const config = doc['fs:slug-tree'];
+  const profileDoc = await readLintProfile(profilePath);
+  const config = profileDoc['fs:slug-tree'];
   if (!config) {
     console.info(c.yellow('warning: fs:slug-tree skipped (missing config)'));
     return;
@@ -35,7 +35,7 @@ export async function runSlugTreeFs(args: {
   const include = config.include ? [...config.include] : undefined;
   const ignore = config.ignore ? [...config.ignore] : undefined;
 
-  const tree = await SlugTree.fromDir(
+  const treeDoc = await SlugTree.fromDir(
     { root, createCrdt },
     {
       include,
@@ -54,11 +54,11 @@ export async function runSlugTreeFs(args: {
     const dir = Fs.dirname(target.path);
     await Fs.ensureDir(dir);
     if (ext === '.json') {
-      await Fs.write(target.path, Json.stringify(tree));
+      await Fs.write(target.path, Json.stringify(treeDoc));
       continue;
     }
     if (ext === '.yaml' || ext === '.yml') {
-      await Fs.write(target.path, SlugTree.toYaml(tree));
+      await Fs.write(target.path, SlugTree.toYaml(treeDoc));
       continue;
     }
     console.info(c.yellow(`warning: fs:slug-tree skipped unsupported target: ${target.raw}`));

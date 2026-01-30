@@ -26,7 +26,7 @@ export type TreeDataLib = {
    * - Always returns a `TreeNodeList`.
    */
   readonly fromSlugTree: (
-    tree: t.SlugTreeItems,
+    tree: t.SlugTreeDoc,
     opts?: t.TreeDataFromSlugTreeOpts,
   ) => t.TreeHostViewNodeList;
 
@@ -34,7 +34,7 @@ export type TreeDataLib = {
    * TreeView slug-path lookup (pure); returns the matching SlugTreeItem.
    */
   readonly findNode: (
-    tree: t.SlugTreeItems | undefined,
+    tree: t.SlugTreeDoc | undefined,
     path: t.ObjectPath | undefined,
   ) => t.SlugTreeItem | undefined;
 

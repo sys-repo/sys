@@ -30,7 +30,7 @@ export const fromDir: t.SlugTreeFromDir = async (args, opts = {}) => {
     }
   }
 
-  return items;
+  return { tree: items };
 
   async function buildDir(dir: string, slugName: string): Promise<t.SlugTreeItem | undefined> {
     const entries = await readDir(dir, ignore, sort);

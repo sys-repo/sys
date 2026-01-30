@@ -5,15 +5,17 @@ import { Fs, Yaml } from '../common.ts';
 
 describe('SlugTree.toYaml', () => {
   it('serializes a slug-tree that round-trips through YAML', () => {
-    const tree: t.SlugTreeItems = [
-      { slug: 'alpha', ref: 'crdt:alpha' },
-      { slug: 'beta', slugs: [{ slug: 'child', ref: 'crdt:child' }] },
-    ];
+    const doc: t.SlugTreeDoc = {
+      tree: [
+        { slug: 'alpha', ref: 'crdt:alpha' },
+        { slug: 'beta', slugs: [{ slug: 'child', ref: 'crdt:child' }] },
+      ],
+    };
 
-    const yaml = toYaml(tree);
-    const parsed = Yaml.parse<t.SlugTreeItems>(yaml).data;
+    const yaml = toYaml(doc);
+    const parsed = Yaml.parse<t.SlugTreeDoc>(yaml).data;
 
-    expect(parsed).to.eql(tree);
+    expect(parsed).to.eql(doc);
   });
 
   it('serializes a slug-tree built from a directory', async () => {
@@ -24,11 +26,11 @@ describe('SlugTree.toYaml', () => {
       await Fs.write(Fs.join(root, 'alpha.md'), '# Alpha\n');
 
       const createCrdt = async () => 'crdt:alpha-1' as t.StringRef;
-      const tree = await fromDir({ root, createCrdt });
-      const yaml = toYaml(tree);
-      const parsed = Yaml.parse<t.SlugTreeItems>(yaml).data;
+      const doc = await fromDir({ root, createCrdt });
+      const yaml = toYaml(doc);
+      const parsed = Yaml.parse<t.SlugTreeDoc>(yaml).data;
 
-      expect(parsed).to.eql(tree);
+      expect(parsed).to.eql(doc);
     } finally {
       await Fs.remove(dir.absolute);
     }

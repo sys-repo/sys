@@ -16,7 +16,7 @@ export type SlugClientTreeLib = {
     baseUrl: t.StringUrl,
     docid: t.StringId,
     options?: t.SlugLoadOptions,
-  ) => Promise<t.SlugClientResult<t.SlugTreeItems>>;
+  ) => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
 };
 
 export type SlugClientAssetsLib = {

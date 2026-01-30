@@ -18,7 +18,8 @@ describe('SlugTree.fromDir', () => {
         return `crdt:alpha-${count}` as t.StringRef;
       };
 
-      const tree = await fromDir({ root, createCrdt });
+      const doc = await fromDir({ root, createCrdt });
+      const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
       expect(tree[0].slug).to.eql('alpha');
@@ -57,7 +58,8 @@ describe('SlugTree.fromDir', () => {
       );
 
       const createCrdt = async () => 'crdt:beta-1' as t.StringRef;
-      const tree = await fromDir({ root, createCrdt });
+      const doc = await fromDir({ root, createCrdt });
+      const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
       expect(tree[0].slug).to.eql('beta');
@@ -103,7 +105,8 @@ describe('SlugTree.fromDir', () => {
         return `crdt:lib-${count}` as t.StringRef;
       };
 
-      const tree = await fromDir({ root, createCrdt });
+      const doc = await fromDir({ root, createCrdt });
+      const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
       const lib = tree[0];
@@ -134,7 +137,8 @@ describe('SlugTree.fromDir', () => {
       await Fs.write(Fs.join(root, 'visible.md'), '# Visible\n');
 
       const createCrdt = async () => 'crdt:visible-1' as t.StringRef;
-      const tree = await fromDir({ root, createCrdt });
+      const doc = await fromDir({ root, createCrdt });
+      const tree = doc.tree;
 
       expect(tree.length).to.eql(1);
       expect(tree[0].slug).to.eql('visible');
@@ -158,8 +162,8 @@ describe('SlugTree.fromDir', () => {
         return `crdt:${count}` as t.StringRef;
       };
 
-      const tree = await fromDir({ root, createCrdt });
-      const slugs = tree.map((item) => item.slug);
+      const doc = await fromDir({ root, createCrdt });
+      const slugs = doc.tree.map((item) => item.slug);
 
       expect(slugs).to.eql(['A', 'b']);
     } finally {

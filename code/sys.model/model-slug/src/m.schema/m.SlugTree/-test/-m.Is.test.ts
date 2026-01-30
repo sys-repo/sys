@@ -35,6 +35,15 @@ describe('SlugTree.Is', () => {
     expect(Is.items([{ slug: 'Inline' }, { foo: 'bar' }])).to.eql(false);
   });
 
+  it('doc matches slug-tree documents', () => {
+    const doc: t.SlugTreeDoc = {
+      tree: [{ slug: 'Inline' }, { slug: 'Ref', ref: 'crdt:ref' }],
+    };
+    expect(Is.doc(doc)).to.eql(true);
+    expect(Is.doc({ tree: [{ slug: 'Bad', ref: '' }] })).to.eql(false);
+    expect(Is.doc({ tree: [{ slug: 'Inline' }, { foo: 'bar' }] })).to.eql(false);
+  });
+
   it('items validates nested slugs recursively', () => {
     const nested: t.SlugTreeItemInline = { slug: 'Parent', slugs: [{ slug: 'Child' }] };
     expect(Is.items([nested])).to.eql(true);

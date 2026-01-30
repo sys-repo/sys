@@ -1,4 +1,5 @@
-[
+{
+  "tree": [
   {
     "slug": "2.0-intro",
     "ref": "crdt:4VxV2qemEge2SLvANvD9SxZJGJGq",
@@ -227,4 +228,5 @@
       }
     ]
   }
-]
+  ]
+}

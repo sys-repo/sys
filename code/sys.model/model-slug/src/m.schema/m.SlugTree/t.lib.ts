@@ -10,10 +10,11 @@ export type SlugTreeSchemaLib = {
 export type SlugTreeValidate = (
   input: unknown,
   opts?: t.SlugTreeValidateOpts,
-) => t.SlugValidateResult<t.SlugTreeItems>;
+) => t.SlugValidateResult<t.SlugTreeDoc>;
 export type SlugTreeValidateOpts = { readonly registry?: t.SlugTraitRegistry };
 
 export type SlugTreeSchemaIsLib = {
+  readonly doc: (value: unknown) => value is t.SlugTreeDoc;
   readonly items: (value: unknown) => value is t.SlugTreeItems;
   readonly item: (value: unknown) => value is t.SlugTreeItem;
   readonly refOnly: (value: unknown) => value is t.SlugTreeItemRefOnly;

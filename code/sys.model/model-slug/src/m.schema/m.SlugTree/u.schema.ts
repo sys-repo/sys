@@ -65,10 +65,18 @@ const SlugTreeItemSchemaInternal = Type.Recursive((Self) =>
   ),
 );
 
-const SlugTreePropsSchemaInternal = Type.Array(SlugTreeItemSchemaInternal, {
-  description: 'Top-level slug-tree array used by the slug-tree trait.',
-  title: 'Slug Tree',
-});
+const SlugTreePropsSchemaInternal = Type.Object(
+  {
+    tree: Type.Array(SlugTreeItemSchemaInternal, {
+      description: 'Top-level slug-tree array.',
+    }),
+  },
+  {
+    additionalProperties: false,
+    description: 'Slug-tree document root.',
+    title: 'Slug Tree',
+  },
+);
 
 export const SlugTreeItemSchema: t.TSchema = SlugTreeItemSchemaInternal;
 export const SlugTreePropsSchema: t.TSchema = SlugTreePropsSchemaInternal;

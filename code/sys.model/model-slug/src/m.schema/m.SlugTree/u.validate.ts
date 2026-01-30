@@ -5,21 +5,26 @@ import { SlugTreePropsSchema } from './u.schema.ts';
 const SLUG_TREE_REGISTRY = makeRegistry([{ id: 'slug-tree', propsSchema: SlugTreePropsSchema }]);
 
 export const validate: t.SlugTreeSchemaLib['validate'] = (input, opts = {}) => {
-  const ok = (tree: t.SlugTreeItems): t.SlugValidateOK<t.SlugTreeItems> => ({
+  const ok = (doc: t.SlugTreeDoc): t.SlugValidateOK<t.SlugTreeDoc> => ({
     ok: true,
-    sequence: tree,
+    sequence: doc,
   });
   const fail = (message: string): t.SlugValidateFail => ({
     ok: false,
     error: new Error(message),
   });
 
-  if (!Array.isArray(input)) {
-    return fail('Invalid slug-tree: expected an array of items.');
+  if (!Is.record(input)) {
+    return fail('Invalid slug-tree: expected an object with "tree".');
   }
 
-  for (let i = 0; i < input.length; i += 1) {
-    if (!isSlugTreeItemLike(input[i])) {
+  const tree = (input as { tree?: unknown }).tree;
+  if (!Array.isArray(tree)) {
+    return fail('Invalid slug-tree: expected "tree" to be an array of items.');
+  }
+
+  for (let i = 0; i < tree.length; i += 1) {
+    if (!isSlugTreeItemLike(tree[i])) {
       return fail(`Invalid slug-tree item at index ${i}: expected a slug-tree node.`);
     }
   }
@@ -29,14 +34,14 @@ export const validate: t.SlugTreeSchemaLib['validate'] = (input, opts = {}) => {
     return fail('Invalid slug-tree: value does not conform to slug-tree schema.');
   }
 
-  const tree = input as unknown as t.SlugTreeItems;
+  const doc = input as unknown as t.SlugTreeDoc;
   const registry = opts.registry ?? SLUG_TREE_REGISTRY;
-  const semanticErrors = validateSemantic({ tree, registry });
+  const semanticErrors = validateSemantic({ tree: doc.tree, registry });
   if (semanticErrors.length) {
     return fail(`Invalid slug-tree: ${semanticErrors.join('; ')}`);
   }
 
-  return ok(tree);
+  return ok(doc);
 };
 
 function validateSemantic(args: { tree: t.SlugTreeItems; registry: SlugTraitRegistry }) {

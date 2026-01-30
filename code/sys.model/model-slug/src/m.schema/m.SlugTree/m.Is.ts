@@ -4,6 +4,11 @@ type Ref = { ref: string };
 type Base = { slug: string; slugs?: t.SlugTreeItem[] };
 
 export const Is: t.SlugTreeSchemaIsLib = {
+  doc(value): value is t.SlugTreeDoc {
+    if (!StdIs.record(value)) return false;
+    const tree = (value as { tree?: unknown }).tree;
+    return hasValidChildren(tree);
+  },
   items(value): value is t.SlugTreeItems {
     return Arr.isArray(value) && value.every((entry) => isItem(entry));
   },
