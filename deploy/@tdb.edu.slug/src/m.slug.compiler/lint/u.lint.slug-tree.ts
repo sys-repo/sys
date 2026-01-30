@@ -46,7 +46,11 @@ export async function runSlugTreeFs(args: {
   );
 
   if (targetDir) {
-    await copySlugTreeSource({ root, targetDir, include, ignore });
+    const ok = await prepareTargetDir(targetDir);
+    if (ok) {
+      await clearTargetDir(targetDir);
+      await copySlugTreeSource({ root, targetDir, include, ignore });
+    }
   }
 
   for (const target of targets) {
@@ -96,6 +100,34 @@ async function copySlugTreeSource(args: {
       if (!entry.isFile || !isIncluded(entry.name, include)) continue;
       await Fs.copyFile(source, target, { force: true });
     }
+  }
+}
+
+async function prepareTargetDir(targetDir: t.StringDir): Promise<boolean> {
+  const exists = await Fs.exists(targetDir);
+  if (!exists) {
+    await Fs.ensureDir(targetDir);
+    return true;
+  }
+
+  const info = await Deno.stat(targetDir);
+  if (info.isDirectory) return true;
+
+  if (info.isFile) {
+    console.info(c.yellow(`warning: fs:slug-tree target.dir is a file: ${targetDir}`));
+    return false;
+  }
+
+  console.info(c.yellow(`warning: fs:slug-tree target.dir is not a directory: ${targetDir}`));
+  return false;
+}
+
+async function clearTargetDir(targetDir: t.StringDir): Promise<void> {
+  const preserve = new Set(DEFAULT_IGNORE);
+  for await (const entry of Deno.readDir(targetDir)) {
+    if (preserve.has(entry.name)) continue;
+    const target = Fs.join(targetDir, entry.name);
+    await Fs.remove(target, { log: false });
   }
 }
 
