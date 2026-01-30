@@ -1,20 +1,18 @@
-import { type t, c, Cli, Fs, Open, Pkg, Str } from '../common.ts';
+import { type t, c, Cli, Fs, Open, Path, Pkg, Str } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
 import { ValidName } from './is.ts';
 import { runPushWithSpinner } from './run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './run.stagingWithSpinner.ts';
+import { formatHashPrefix } from './u/u.formatHashPrefix.ts';
 import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u/u.resolveMappingsForStaging.ts';
-import { resolveStagingTarget } from './u/u.resolveStagingTarget.ts';
-import { formatHashPrefix } from './u/u.formatHashPrefix.ts';
+import { resolvePushStagingDir } from './u/u.resolvePushStagingDir.ts';
 
-type Pick =
-  | { readonly kind: 'back' }
-  | { readonly kind: 'deleted'; readonly key: string };
+type Pick = { readonly kind: 'back' } | { readonly kind: 'deleted'; readonly key: string };
 
 /**
  * Interactive menu for configuring a single deploy endpoint.
@@ -26,10 +24,7 @@ type Pick =
  * - rename (file)
  * - delete (file)
  */
-export async function endpointMenu(args: {
-  cwd: t.StringDir;
-  key: string;
-}): Promise<Pick> {
+export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Promise<Pick> {
   const { cwd } = args;
   let key = args.key;
 
@@ -63,13 +58,9 @@ export async function endpointMenu(args: {
       (yaml?.mappings ?? []).find((m) => m.mode === 'build+copy') ?? (yaml?.mappings ?? [])[0];
 
     const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
+    const stagingRootAbs = resolvePushStagingDir({ cwd, stagingRootRel });
     const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
-    const stagingTarget = resolveStagingTarget({
-      cwd,
-      stagingRootRel,
-      mappingStagingRel,
-    });
-    const dist = (await Pkg.Dist.load(stagingTarget)).dist;
+    const dist = (await Pkg.Dist.load(stagingRootAbs)).dist;
     const digest = dist?.hash?.digest;
     const hashSuffix = digest ? String(digest).slice(-5) : undefined;
     const hashPrefix = formatHashPrefix(hashSuffix);
@@ -128,7 +119,7 @@ export async function endpointMenu(args: {
       const res = await runPushWithSpinner({
         cwd,
         provider,
-        stagingDir: stagingTarget,
+        stagingDir: stagingRootAbs,
       });
 
       if (res.ok) {
