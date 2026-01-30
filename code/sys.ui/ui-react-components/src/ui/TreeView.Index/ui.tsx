@@ -3,9 +3,10 @@ import React from 'react';
 import { type t, Color, css, D, Data, IndexTreeViewItem, Obj } from './common.ts';
 import { SlideDeck } from './u.SlideDeck.tsx';
 import { renderItems } from './ui.items.tsx';
+import { Spinning } from './ui.Spinning.tsx';
 
 export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
-  const { debug = false, minWidth, root } = props;
+  const { debug = false, minWidth, root, spinning = false } = props;
 
   // Normalize root → list; then drill to `path`.
   const rootList = React.useMemo(() => Data.toList(root), [root]);
@@ -26,7 +27,13 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg }),
-    body: css({ minWidth: minWidth ?? D.minWidth }),
+    spinning: css({ Absolute: 0 }),
+    body: css({
+      minWidth: minWidth ?? D.minWidth,
+      pointerEvents: spinning ? 'none' : 'auto',
+      opacity: spinning ? 0.06 : 1,
+      transition: 'opacity 120ms ease',
+    }),
   };
 
   const animKey = Obj.Path.encode(path);
@@ -42,6 +49,7 @@ export const IndexTreeView: React.FC<t.IndexTreeViewProps> = (props) => {
       >
         {renderItems(props, view)}
       </SlideDeck>
+      {spinning && <Spinning theme={theme.name} style={styles.spinning} />}
     </div>
   );
 };

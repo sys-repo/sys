@@ -3,6 +3,9 @@ import type { t } from './common.ts';
 /** Chevron visibility override for lazy child placeholders. */
 export type IndexTreeViewChevronMode = 'auto' | 'always' | 'never';
 
+/**
+ * Namespace:
+ */
 export type IndexTreeViewLib = {
   /** `<IndexTreeView>` component view. */
   readonly UI: React.FC<t.IndexTreeViewProps>;
@@ -12,6 +15,9 @@ export type IndexTreeViewLib = {
   readonly Data: t.IndexTreeViewDataLib;
 };
 
+/**
+ * Component:
+ */
 export type IndexTreeViewProps = {
   root?: t.TreeViewNode | t.TreeViewNodeList;
   path?: t.ObjectPath;
@@ -26,6 +32,7 @@ export type IndexTreeViewProps = {
   indentSize?: t.Pixels;
 
   // Appearance:
+  spinning?: boolean;
   minWidth?: t.Pixels;
   debug?: boolean;
   theme?: t.CommonTheme;

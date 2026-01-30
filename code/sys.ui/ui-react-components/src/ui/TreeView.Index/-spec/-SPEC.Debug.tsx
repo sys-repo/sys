@@ -6,7 +6,7 @@ import { IndexTreeView } from '../mod.ts';
 import { SAMPLE_YAML } from './-yaml.ts';
 
 type P = t.IndexTreeViewProps;
-type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'showChevron' | 'indentSize'> & {
+type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'showChevron' | 'indentSize' | 'spinning'> & {
   yaml?: string;
 };
 const defaults: Storage = {
@@ -14,6 +14,7 @@ const defaults: Storage = {
   debug: false,
   showChevron: D.showChevron,
   indentSize: D.indentSize,
+  spinning: false,
   yaml: SAMPLE_YAML,
   path: undefined,
 };
@@ -40,6 +41,7 @@ export function createDebugSignals() {
     path: s(snap.path),
     showChevron: s(snap.showChevron),
     indentSize: s(snap.indentSize),
+    spinning: s(snap.spinning),
   };
   const p = props;
   const api = {
@@ -61,13 +63,13 @@ export function createDebugSignals() {
       d.path = p.path.value;
       d.showChevron = p.showChevron.value;
       d.indentSize = p.indentSize.value;
+      d.spinning = p.spinning.value;
     });
   });
 
   /** Observe to relevant changes */
   Signal.effect(() => {
-    const path = p.path.value;
-    console.info('👁️ path:', path);
+    console.info('👁️ path:', p.path.value);
   });
 
   return api;
@@ -107,7 +109,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
       <Button
         block
         label={() => {
@@ -116,7 +117,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.cycle(p.yaml, [SAMPLE_YAML, undefined])}
       />
-
       <Button
         block
         label={() => `showChevron: ${p.showChevron.value}`}
@@ -125,13 +125,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle<T>(p.showChevron, [D.showChevron, 'always', 'never']);
         }}
       />
-
       <Button
         block
         label={() => `indentSize: ${p.indentSize.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle(p.indentSize, [10, D.indentSize, 32])}
       />
+      <Button
+        block
+        label={() => `spinning: ${p.spinning.value}`}
+        onClick={() => Signal.toggle(p.spinning)}
+      />
 
+      <hr />
       <Button
         //
         block

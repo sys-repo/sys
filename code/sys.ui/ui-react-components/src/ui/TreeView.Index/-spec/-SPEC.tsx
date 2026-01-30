@@ -31,6 +31,7 @@ export default Spec.describe(D.displayName, (e) => {
             style={{ width }}
             showChevron={v.showChevron}
             indentSize={v.indentSize}
+            spinning={v.spinning}
             //
             root={debug.root}
             path={v.path}
