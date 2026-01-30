@@ -16,7 +16,7 @@ export const LintProfileSchema = {
   initial(): t.LintProfileDoc {
     return {
       facets: [...LintDocFacets],
-      'fs:slug-tree': {
+      'slug-tree:fs': {
         include: ['.md'],
         source: '.',
         target: { manifest: ['./manifest/slug-tree.json', './manifest/slug-tree.yaml'] },
@@ -54,7 +54,7 @@ export const LintProfileSchema = {
   schema: Schema.Type.Object(
     {
       facets: SchemaFacets,
-      'fs:slug-tree': SchemaSlugTreeFs,
+      'slug-tree:fs': SchemaSlugTreeFs,
     },
     { additionalProperties: false },
   ),

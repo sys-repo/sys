@@ -74,16 +74,16 @@ async function lintOnce(args: {
   const hasFileVideo = facets.includes('sequence:file:video');
   const hasFileImage = facets.includes('sequence:file:image');
   const hasFilesBundle = facets.includes('sequence:files:bundle');
-  const hasSlugTree = facets.includes('fs:slug-tree');
+  const hasSlugTree = facets.includes('slug-tree:fs');
 
   if (hasSlugTree && !opts.createCrdt) {
-    const msg = 'warning: fs:slug-tree skipped (createCrdt not provided in Linter.run options)';
+    const msg = 'warning: slug-tree:fs skipped (createCrdt not provided in Linter.run options)';
     console.info(c.yellow(msg));
-    facets = facets.filter((facet) => facet !== 'fs:slug-tree');
+    facets = facets.filter((facet) => facet !== 'slug-tree:fs');
   }
   if (hasSlugTree && !profilePath) {
-    console.info(c.yellow('warning: fs:slug-tree skipped (no lint profile selected)'));
-    facets = facets.filter((facet) => facet !== 'fs:slug-tree');
+    console.info(c.yellow('warning: slug-tree:fs skipped (no lint profile selected)'));
+    facets = facets.filter((facet) => facet !== 'slug-tree:fs');
   }
 
   const spinner = Cli.spinner();
@@ -137,7 +137,7 @@ async function lintOnce(args: {
   /**
    * Generate slug-tree artifacts from the filesystem.
    */
-  if (facets.includes('fs:slug-tree') && profilePath && opts.cwd && opts.createCrdt) {
+  if (facets.includes('slug-tree:fs') && profilePath && opts.cwd && opts.createCrdt) {
     await runSlugTreeFs({
       cwd: opts.cwd,
       profilePath,

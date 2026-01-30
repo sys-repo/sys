@@ -10,9 +10,9 @@ export async function runSlugTreeFs(args: {
 }) {
   const { cwd, profilePath, createCrdt } = args;
   const profileDoc = await readLintProfile(profilePath);
-  const config = profileDoc['fs:slug-tree'];
+  const config = profileDoc['slug-tree:fs'];
   if (!config) {
-    console.info(c.yellow('warning: fs:slug-tree skipped (missing config)'));
+    console.info(c.yellow('warning: slug-tree:fs skipped (missing config)'));
     return;
   }
 
@@ -28,7 +28,7 @@ export async function runSlugTreeFs(args: {
     : undefined;
 
   if (targets.length === 0 && !targetDir) {
-    console.info(c.yellow('warning: fs:slug-tree skipped (no target configured)'));
+    console.info(c.yellow('warning: slug-tree:fs skipped (no target configured)'));
     return;
   }
 
@@ -65,7 +65,7 @@ export async function runSlugTreeFs(args: {
       await Fs.write(target.path, SlugTree.toYaml(treeDoc));
       continue;
     }
-    console.info(c.yellow(`warning: fs:slug-tree skipped unsupported target: ${target.raw}`));
+    console.info(c.yellow(`warning: slug-tree:fs skipped unsupported target: ${target.raw}`));
   }
 }
 
@@ -114,11 +114,11 @@ async function prepareTargetDir(targetDir: t.StringDir): Promise<boolean> {
   if (info.isDirectory) return true;
 
   if (info.isFile) {
-    console.info(c.yellow(`warning: fs:slug-tree target.dir is a file: ${targetDir}`));
+    console.info(c.yellow(`warning: slug-tree:fs target.dir is a file: ${targetDir}`));
     return false;
   }
 
-  console.info(c.yellow(`warning: fs:slug-tree target.dir is not a directory: ${targetDir}`));
+  console.info(c.yellow(`warning: slug-tree:fs target.dir is not a directory: ${targetDir}`));
   return false;
 }
 

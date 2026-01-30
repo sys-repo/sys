@@ -31,7 +31,7 @@ describe('LintProfileSchema', () => {
 
   it('accepts crdt target shape', () => {
     const doc = {
-      'fs:slug-tree': {
+      'slug-tree:fs': {
         target: {
           crdt: {
             ref: 'crdt:abc123',
@@ -50,7 +50,7 @@ describe('LintProfileSchema', () => {
     const parsed = Yaml.parse(yaml).data;
     expect(parsed).to.eql(LintProfileSchema.initial());
     const text = String(yaml);
-    expect(text).to.contain('fs:slug-tree:');
+    expect(text).to.contain('slug-tree:fs:');
     expect(text).to.contain('include: [.md]');
     expect(text).to.contain('source: .');
     expect(text).to.contain('target:');
