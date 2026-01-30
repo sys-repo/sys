@@ -12,9 +12,8 @@ import {
   ObjectView,
   Player,
   Signal,
-  PlaybackDriver,
 } from '../common.ts';
-import { PlayControls, SlugPlaybackDriver, Payload } from './mod.ts';
+import { Payload, PlayControls, SlugPlaybackDriver } from './mod.ts';
 
 type P = t.TreeHostProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'selectedPath'> & { load?: t.SampleLoadAction };
