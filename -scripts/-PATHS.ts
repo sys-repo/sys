@@ -12,14 +12,14 @@ export const Paths = {
     return Paths.all;
   },
   single: [
-    //
-    // 'code/sys.ui/ui-react',
-    // 'code/sys/schema',
-    // 'code/sys.model/model',
-    // 'code/sys.model/model-slug',
-    // 'code/sys/fs',
     'deploy/@tdb.edu.slug',
     'code/sys.tools',
+    //
+    // 'code/sys.tools',
+    // 'code/sys.ui/ui-dom',
+    // 'code/sys.ui/ui-css',
+    // 'code/sys.ui/ui-react-components',
+    // 'code/sys.ui/ui-react',
   ],
   all: [
     // types:
