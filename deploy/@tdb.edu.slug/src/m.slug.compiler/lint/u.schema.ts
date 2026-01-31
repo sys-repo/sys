@@ -1,5 +1,5 @@
 import { Schema, Yaml } from './common.ts';
-import { LintDocFacets, type t } from './common.ts';
+import { DocLintFacets, type t } from './common.ts';
 import { SchemaFacets } from './u.schema.facets.ts';
 import { SchemaSlugTreeFs } from './u.schema.slug-tree.fs.ts';
 import { formatInlineInclude, formatRootSpacing } from './u.schema.u.ts';
@@ -13,9 +13,9 @@ export const LintProfileSchema = {
    * Typed initial document.
    * (YAML can omit optionals; but having explicit defaults is fine.)
    */
-  initial(): t.LintProfileDoc {
+  initial(): t.DocLintProfile {
     return {
-      facets: [...LintDocFacets],
+      facets: [...DocLintFacets],
       'slug-tree:fs': {
         include: ['.md'],
         source: '.',
@@ -36,7 +36,7 @@ export const LintProfileSchema = {
   /**
    * Serialize a lint profile document to YAML.
    */
-  stringify(doc: t.LintProfileDoc): string {
+  stringify(doc: t.DocLintProfile): string {
     const raw = Yaml.stringify(doc).data ?? '';
     return formatInlineInclude(formatRootSpacing(raw));
   },

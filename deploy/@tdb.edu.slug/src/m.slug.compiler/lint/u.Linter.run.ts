@@ -1,4 +1,4 @@
-import { type t, c, Cli, LintDocFacets as Facets, Fs, Obj, Pkg, pkg, Slug } from './common.ts';
+import { type t, c, Cli, DocLintFacets as Facets, Fs, Obj, Pkg, pkg, Slug } from './common.ts';
 
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
@@ -364,7 +364,7 @@ function normalizeFacets(input?: readonly string[]): t.DocLintFacet[] {
 
 function resolveFacets(args: {
   current: readonly t.DocLintFacet[];
-  doc: t.LintProfileDoc;
+  doc: t.DocLintProfile;
 }): t.DocLintFacet[] {
   const src = args.doc.facets ?? args.current;
   return src.filter((facet) => Facets.includes(facet));

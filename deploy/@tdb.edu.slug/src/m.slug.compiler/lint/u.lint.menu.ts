@@ -22,7 +22,7 @@ export async function selectSlugLintProfile(
   const profiles = await ensureProfiles(cwd);
   if (!opts.interactive) return { kind: 'run', profile: profiles[0] };
 
-  const res = await YamlConfig.menu<t.LintProfileDoc, Action>({
+  const res = await YamlConfig.menu<t.DocLintProfile, Action>({
     cwd,
     dir: PROFILE_DIR,
     label: 'Lint profiles',
@@ -42,7 +42,7 @@ export async function selectSlugLintProfileAction(
   profile: t.StringFile,
   opts: { defaultAction?: Action } = {},
 ): Promise<SlugLintProfilePick> {
-  const res = await YamlConfig.menu<t.LintProfileDoc, Action>({
+  const res = await YamlConfig.menu<t.DocLintProfile, Action>({
     cwd,
     dir: PROFILE_DIR,
     label: 'Lint profiles',
@@ -62,13 +62,13 @@ export async function selectSlugLintProfileAction(
 const schema = {
   init: () => LintProfileSchema.initial(),
   validate: (value: unknown) => LintProfileSchema.validate(value),
-  stringifyYaml: (doc: t.LintProfileDoc) => LintProfileSchema.stringify(doc),
+  stringifyYaml: (doc: t.DocLintProfile) => LintProfileSchema.stringify(doc),
 } as const;
 
-function extraActions(): YamlConfigMenuExtra<Action, t.LintProfileDoc>[] {
+function extraActions(): YamlConfigMenuExtra<Action, t.DocLintProfile>[] {
   return [
     {
-      name: ({ name, doc }: YamlConfigMenuItemArgs<t.LintProfileDoc>) => {
+      name: ({ name, doc }: YamlConfigMenuItemArgs<t.DocLintProfile>) => {
         const facets = doc?.facets ?? LintProfileSchema.initial().facets ?? [];
         const count = facets.length;
         const suffix = c.gray(c.dim(` → (${count} ${Str.plural(count, 'facet')})`));

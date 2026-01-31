@@ -14,8 +14,7 @@ export const LintDocFacets = [
   'sequence:files:bundle',
   'slug-tree:fs',
 ] as const;
-
-export type DocLintFacet = (typeof LintDocFacets)[number];
+export type DocLintFacet = (typeof DocLintFacets)[number];
 
 export type LintSeverity = 'error' | 'warning' | 'info';
 
@@ -43,7 +42,7 @@ export type DocLintResult<K extends string = string> = {
 };
 
 /** YAML-authored lint profile document. */
-export type LintProfileDoc = {
+export type DocLintProfile = {
   /** Lint facets to run. */
   readonly facets?: readonly DocLintFacet[];
   /** Slug-tree filesystem lint configuration. */
