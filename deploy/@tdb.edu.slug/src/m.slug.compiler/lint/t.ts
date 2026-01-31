@@ -1,6 +1,7 @@
 import type { t } from './common.ts';
 
 export type * from './t.files.ts';
+export type * from './t.tree.ts';
 
 /**
  * Distinct structural checks the linter can perform.
