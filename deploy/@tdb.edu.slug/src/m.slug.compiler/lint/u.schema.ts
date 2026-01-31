@@ -1,7 +1,7 @@
 import { Schema, Yaml } from './common.ts';
 import { SlugLintFacets, type t } from './common.ts';
 import { SchemaFacets } from './u.schema.facets.ts';
-import { SchemaSlugTreeFs } from './u.schema.slug-tree.fs.ts';
+import { SchemaSlugTreeFs } from './u.schema.slug-tree.ts';
 import { formatInlineInclude, formatRootSpacing } from './u.schema.u.ts';
 
 /**
