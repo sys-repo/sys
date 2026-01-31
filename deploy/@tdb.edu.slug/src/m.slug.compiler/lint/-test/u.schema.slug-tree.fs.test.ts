@@ -128,6 +128,20 @@ describe('LintProfileSchema', () => {
     expect(res.errors.length).to.eql(0);
   });
 
+  it('rejects slug-tree assets index without crdt.ref', () => {
+    const doc = {
+      'slug-tree:fs': {
+        target: {
+          manifest: ['./out/slug-tree.json'],
+          dir: [{ kind: 'sha256', path: './out/sha256' }],
+        },
+      },
+    };
+    const res = LintProfileSchema.validate(doc);
+    expect(res.ok).to.eql(false);
+    expect(res.errors.length).to.be.greaterThan(0);
+  });
+
   it('round-trips initial YAML', () => {
     const yaml = LintProfileSchema.initialYaml();
     const parsed = Yaml.parse(yaml).data;
