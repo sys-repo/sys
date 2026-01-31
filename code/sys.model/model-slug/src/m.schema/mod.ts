@@ -18,9 +18,9 @@ import { SlugTreeSchema as Tree } from './m.SlugTree/mod.ts';
 import { TraitsSchema as Traits } from './m.Traits/mod.ts';
 
 export const SlugSchema: t.SlugSchemaLib = {
+  Traits,
   Tree,
   FileContent,
   Manifest,
   MediaComposition,
-  Traits,
 };
