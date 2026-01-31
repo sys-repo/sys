@@ -1,4 +1,4 @@
-import { type t, DEFAULT_IGNORE, Fs, Hash, Json, SlugSchema } from './common.ts';
+import { type t, DEFAULT_IGNORE, Fs, Hash, Is, Json, SlugSchema, Yaml } from './common.ts';
 
 type Entry = t.SlugFileContentDoc;
 
@@ -35,9 +35,10 @@ export async function writeSlugTreeSha256Dir(args: {
       const hash = Hash.sha256(source);
       const rel = Fs.Path.relative(args.root, abs);
       const contentType = toContentType(entry.name);
+      const frontmatter = readFrontmatter(source, abs);
       const payload: Entry = args.includePath
-        ? { source, path: rel, hash, contentType }
-        : { source, hash, contentType };
+        ? { source, path: rel, hash, contentType, frontmatter }
+        : { source, hash, contentType, frontmatter };
       const validation = SlugSchema.FileContent.validate(payload);
       if (!validation.ok) {
         throw new Error(`Invalid slug-file-content payload for: ${rel}`);
@@ -62,4 +63,39 @@ function toContentType(name: string): string {
   const ext = Fs.extname(name).toLowerCase();
   if (ext === '.md') return 'text/markdown';
   return 'application/octet-stream';
+}
+
+function readFrontmatter(source: string, path: string): t.SlugFileContentFrontmatter {
+  const frontmatter = parseFrontmatter(source);
+  if (!frontmatter) {
+    throw new Error(`Missing frontmatter in slug-tree source: ${path}`);
+  }
+  const ref = frontmatter.ref;
+  if (!Is.str(ref) || ref.length === 0) {
+    throw new Error(`Missing frontmatter ref in slug-tree source: ${path}`);
+  }
+  const title = frontmatter.title;
+  if (title !== undefined && !Is.str(title)) {
+    throw new Error(`Invalid frontmatter title in slug-tree source: ${path}`);
+  }
+  return title ? { ref: ref as t.StringRef, title } : { ref: ref as t.StringRef };
+}
+
+function parseFrontmatter(source: string): Record<string, unknown> | undefined {
+  const lines = source.split(/\r?\n/);
+  if (lines[0] !== '---') return;
+  let end = -1;
+  for (let i = 1; i < lines.length; i += 1) {
+    if (lines[i] === '---') {
+      end = i;
+      break;
+    }
+  }
+  if (end === -1) {
+    throw new Error('Front-matter start found without closing delimiter.');
+  }
+  const raw = lines.slice(1, end).join('\n');
+  if (!raw.trim()) return {};
+  const parsed = Yaml.parse<Record<string, unknown>>(raw).data;
+  return Is.record(parsed) ? (parsed as Record<string, unknown>) : {};
 }

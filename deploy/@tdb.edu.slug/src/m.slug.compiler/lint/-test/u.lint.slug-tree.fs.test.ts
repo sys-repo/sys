@@ -44,7 +44,13 @@ describe('Lint: slug-tree:fs', () => {
       const outDir = Fs.join(tmpDir, 'out/sha256');
       const outputs: Array<{
         name: string;
-        data: { source: string; path?: string; hash: string; contentType: string };
+        data: {
+          source: string;
+          path?: string;
+          hash: string;
+          contentType: string;
+          frontmatter: { ref: string; title?: string };
+        };
       }> = [];
       for await (const entry of Deno.readDir(outDir)) {
         if (!entry.isFile || !entry.name.endsWith('.json')) continue;
@@ -54,6 +60,7 @@ describe('Lint: slug-tree:fs', () => {
           path?: string;
           hash: string;
           contentType: string;
+          frontmatter: { ref: string; title?: string };
         };
         const validation = SlugSchema.FileContent.validate(data);
         expect(validation.ok).to.eql(true);
@@ -70,7 +77,13 @@ describe('Lint: slug-tree:fs', () => {
 
       const byPath = new Map<
         string,
-        { source: string; hash: string; name: string; contentType: string }
+        {
+          source: string;
+          hash: string;
+          name: string;
+          contentType: string;
+          frontmatter: { ref: string; title?: string };
+        }
       >();
       for (const { name, data } of outputs) {
         byPath.set(normalize(String(data.path ?? '')), {
@@ -78,6 +91,7 @@ describe('Lint: slug-tree:fs', () => {
           hash: data.hash,
           name,
           contentType: data.contentType,
+          frontmatter: data.frontmatter,
         });
       }
 
@@ -87,10 +101,14 @@ describe('Lint: slug-tree:fs', () => {
       expect(a?.hash).to.eql(Hash.sha256(String(a?.source ?? '')));
       expect(a?.name).to.eql(`${a?.hash}.json`);
       expect(a?.contentType).to.eql('text/markdown');
+      expect(a?.frontmatter.ref).to.eql('crdt:test');
+      expect(a?.frontmatter.title).to.eql(undefined);
       expect(String(c?.source ?? '')).to.contain('world');
       expect(c?.hash).to.eql(Hash.sha256(String(c?.source ?? '')));
       expect(c?.name).to.eql(`${c?.hash}.json`);
       expect(c?.contentType).to.eql('text/markdown');
+      expect(c?.frontmatter.ref).to.eql('crdt:test');
+      expect(c?.frontmatter.title).to.eql(undefined);
     } finally {
       await Fs.remove(tmpDir);
     }

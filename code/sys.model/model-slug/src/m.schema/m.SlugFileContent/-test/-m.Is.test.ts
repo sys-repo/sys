@@ -12,10 +12,14 @@ describe('SlugFileContent.Is', () => {
       source: 'hello',
       hash: 'abc',
       contentType: 'text/markdown',
+      frontmatter: { ref: 'crdt:test' },
     };
     expect(Is.doc(doc)).to.eql(true);
-    expect(Is.doc({ source: 'hello', contentType: 'text/markdown' })).to.eql(false);
+    expect(
+      Is.doc({ source: 'hello', contentType: 'text/markdown', frontmatter: { ref: 'crdt:test' } }),
+    ).to.eql(false);
     expect(Is.doc({ source: 'hello', hash: '', contentType: 'text/markdown' })).to.eql(false);
+    expect(Is.doc({ source: 'hello', hash: 'abc', contentType: 'text/markdown' })).to.eql(false);
   });
 
   it('doc accepts optional path', () => {
@@ -23,8 +27,28 @@ describe('SlugFileContent.Is', () => {
       source: 'hello',
       hash: 'abc',
       contentType: 'text/markdown',
+      frontmatter: { ref: 'crdt:test', title: 'Hello' },
       path: 'docs/a.md',
     };
     expect(Is.doc(doc)).to.eql(true);
+  });
+
+  it('doc rejects frontmatter without ref', () => {
+    expect(
+      Is.doc({
+        source: 'hello',
+        hash: 'abc',
+        contentType: 'text/markdown',
+        frontmatter: {},
+      }),
+    ).to.eql(false);
+    expect(
+      Is.doc({
+        source: 'hello',
+        hash: 'abc',
+        contentType: 'text/markdown',
+        frontmatter: { title: 'Nope' },
+      }),
+    ).to.eql(false);
   });
 });

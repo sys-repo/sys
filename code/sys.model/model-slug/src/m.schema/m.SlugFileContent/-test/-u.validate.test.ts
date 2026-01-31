@@ -7,6 +7,7 @@ describe('SlugFileContent.validate', () => {
     source: 'hello',
     hash: 'abc',
     contentType: 'text/markdown',
+    frontmatter: { ref: 'crdt:test' },
   };
 
   it('API', () => {
