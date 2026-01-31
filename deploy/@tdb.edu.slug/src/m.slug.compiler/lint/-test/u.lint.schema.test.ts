@@ -45,6 +45,48 @@ describe('LintProfileSchema', () => {
     expect(res.errors.length).to.eql(0);
   });
 
+  it('accepts slug-tree target.dir array', () => {
+    const doc = {
+      'slug-tree:fs': {
+        target: {
+          dir: [
+            { kind: 'source', path: './out/source' },
+            { kind: 'sha256', path: './out/sha256' },
+          ],
+        },
+      },
+    };
+    const res = LintProfileSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+    expect(res.errors.length).to.eql(0);
+  });
+
+  it('accepts slug-tree target.dir object', () => {
+    const doc = {
+      'slug-tree:fs': {
+        target: {
+          dir: { kind: 'source', path: './out/source' },
+        },
+      },
+    };
+    const res = LintProfileSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+    expect(res.errors.length).to.eql(0);
+  });
+
+  it('accepts slug-tree target.dir string', () => {
+    const doc = {
+      'slug-tree:fs': {
+        target: {
+          dir: './out/source',
+        },
+      },
+    };
+    const res = LintProfileSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+    expect(res.errors.length).to.eql(0);
+  });
+
   it('round-trips initial YAML', () => {
     const yaml = LintProfileSchema.initialYaml();
     const parsed = Yaml.parse(yaml).data;

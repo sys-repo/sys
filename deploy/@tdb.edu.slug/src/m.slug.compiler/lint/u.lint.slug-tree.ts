@@ -2,6 +2,7 @@ import { SlugTree } from '../slug.SlugTree/mod.ts';
 
 import { type t, c, DEFAULT_IGNORE, Fs, Json } from './common.ts';
 import { readLintProfile } from './u.lint.util.ts';
+import { writeSlugTreeSha256 } from './u.lint.slug-tree.file.ts';
 
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
@@ -23,11 +24,12 @@ export async function runSlugTreeFs(args: {
     raw: target,
     path: Fs.Path.resolve(cwd, Fs.Tilde.expand(String(target))),
   }));
-  const targetDir = config.target?.dir
-    ? Fs.Path.resolve(cwd, Fs.Tilde.expand(String(config.target.dir)))
-    : undefined;
+  const targetDirs = normalizeTargetDirs(config.target?.dir).map((item) => ({
+    kind: item.kind,
+    path: Fs.Path.resolve(cwd, Fs.Tilde.expand(String(item.path))),
+  }));
 
-  if (targets.length === 0 && !targetDir) {
+  if (targets.length === 0 && targetDirs.length === 0) {
     console.info(c.yellow('warning: slug-tree:fs skipped (no target configured)'));
     return;
   }
@@ -45,12 +47,21 @@ export async function runSlugTreeFs(args: {
     },
   );
 
-  if (targetDir) {
-    const ok = await prepareTargetDir(targetDir);
-    if (ok) {
-      await clearTargetDir(targetDir);
-      await copySlugTreeSource({ root, targetDir, include, ignore });
+  for (const targetDir of targetDirs) {
+    const ok = await prepareTargetDir(targetDir.path);
+    if (!ok) continue;
+    await clearTargetDir(targetDir.path);
+    if (targetDir.kind === 'source') {
+      await copySlugTreeSource({ root, targetDir: targetDir.path, include, ignore });
+      continue;
     }
+    if (targetDir.kind === 'sha256') {
+      await writeSlugTreeSha256({ root, targetDir: targetDir.path, include, ignore });
+      continue;
+    }
+    console.info(
+      c.yellow(`warning: slug-tree:fs skipped unsupported target.dir kind: ${targetDir.kind}`),
+    );
   }
 
   for (const target of targets) {
@@ -73,6 +84,15 @@ function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.Str
   if (!input) return [];
   const list = Array.isArray(input) ? input : [input];
   return list.map((value) => String(value).trim()).filter(Boolean) as t.StringPath[];
+}
+
+function normalizeTargetDirs(
+  input?: t.StringPath | t.LintProfileSlugTreeTargetDir | readonly t.LintProfileSlugTreeTargetDir[],
+): t.LintProfileSlugTreeTargetDir[] {
+  if (!input) return [];
+  if (typeof input === 'string') return [{ kind: 'source', path: input }];
+  if (Array.isArray(input)) return input.filter(Boolean) as t.LintProfileSlugTreeTargetDir[];
+  return [input as t.LintProfileSlugTreeTargetDir];
 }
 
 async function copySlugTreeSource(args: {
