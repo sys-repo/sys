@@ -1,4 +1,4 @@
-import { describe, expect, it, type t } from '../../../-test.ts';
+import { describe, expect, it, Schema, type t } from '../../../-test.ts';
 import { SlugFileContentSchema } from '../mod.ts';
 import { validate } from '../u.validate.ts';
 
@@ -31,5 +31,17 @@ describe('SlugFileContent.validate', () => {
     expect(result.ok).to.eql(false);
     if (result.ok) return;
     expect(result.error.message).to.contain('does not conform to schema');
+  });
+
+  it('index schema accepts entry list', () => {
+    const index: t.SlugFileContentIndex = {
+      entries: [
+        { hash: 'a', contentType: 'text/markdown', frontmatter: { ref: 'crdt:a' } },
+        { hash: 'b', contentType: 'text/markdown', frontmatter: { ref: 'crdt:b' } },
+      ],
+    };
+    const ok = Schema.Value.Check(SlugFileContentSchema.Index, index);
+    expect(ok).to.eql(true);
+    expect(SlugFileContentSchema.Is.index(index)).to.eql(true);
   });
 });

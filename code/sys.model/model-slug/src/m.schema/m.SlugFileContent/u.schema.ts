@@ -1,37 +1,10 @@
 import type { t } from '../common.ts';
 import { Type } from '../common.ts';
+import { SlugFileContentEntrySchema } from './u.schema.Entry.ts';
+import { SlugFileContentIndexSchema } from './u.schema.Index.ts';
+import { ContentType, Frontmatter, Hash, Path } from './u.schema.parts.ts';
 
-const Source = Type.String({
-  description: 'Content source payload (eg. markdown).',
-});
-const Hash = Type.String({ minLength: 1, description: 'SHA256 hash of the source payload.' });
-const ContentType = Type.String({
-  minLength: 1,
-  description: 'MIME content type for the source payload.',
-});
-const Path = Type.String({
-  description: 'Optional relative source path.',
-});
-const Ref = Type.Unsafe<t.StringRef>(
-  Type.String({
-    minLength: 1,
-    description: 'CRDT reference for the source content.',
-  }),
-);
-const Title = Type.String({
-  minLength: 1,
-  description: 'Optional title extracted from frontmatter.',
-});
-const Frontmatter = Type.Object(
-  {
-    ref: Ref,
-    title: Type.Optional(Title),
-  },
-  {
-    additionalProperties: true,
-    description: 'Frontmatter metadata (ref required; other keys allowed).',
-  },
-);
+const Source = Type.String({ description: 'Content source payload (eg. markdown).' });
 
 const SlugFileContentSchemaInternal = Type.Object(
   {
@@ -49,3 +22,4 @@ const SlugFileContentSchemaInternal = Type.Object(
 );
 
 export const SlugFileContentSchema: t.TSchema = SlugFileContentSchemaInternal;
+export { SlugFileContentEntrySchema, SlugFileContentIndexSchema };

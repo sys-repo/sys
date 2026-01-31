@@ -51,4 +51,32 @@ describe('SlugFileContent.Is', () => {
       }),
     ).to.eql(false);
   });
+
+  it('entry rejects missing source but accepts the entry shape', () => {
+    const entry: t.SlugFileContentEntry = {
+      hash: 'abc',
+      contentType: 'text/markdown',
+      frontmatter: { ref: 'crdt:test' },
+    };
+    expect(Is.entry(entry)).to.eql(true);
+    expect(
+      Is.entry({
+        source: 'hello',
+        hash: 'abc',
+        contentType: 'text/markdown',
+        frontmatter: { ref: 'crdt:test' },
+      }),
+    ).to.eql(true);
+    expect(Is.doc(entry)).to.eql(false);
+  });
+
+  it('index accepts list of entries', () => {
+    const index: t.SlugFileContentIndex = {
+      entries: [
+        { hash: 'a', contentType: 'text/markdown', frontmatter: { ref: 'crdt:a' } },
+        { hash: 'b', contentType: 'text/markdown', frontmatter: { ref: 'crdt:b' } },
+      ],
+    };
+    expect(Is.index(index)).to.eql(true);
+  });
 });
