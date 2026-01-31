@@ -72,6 +72,7 @@ describe('SlugFileContent.Is', () => {
 
   it('index accepts list of entries', () => {
     const index: t.SlugFileContentIndex = {
+      docid: 'slug:test',
       entries: [
         { hash: 'a', contentType: 'text/markdown', frontmatter: { ref: 'crdt:a' } },
         { hash: 'b', contentType: 'text/markdown', frontmatter: { ref: 'crdt:b' } },

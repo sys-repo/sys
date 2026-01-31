@@ -22,6 +22,13 @@ export const Ref = Type.Unsafe<t.StringRef>(
   }),
 );
 
+export const DocId = Type.Unsafe<t.StringId>(
+  Type.String({
+    minLength: 1,
+    description: 'Slug document identifier.',
+  }),
+);
+
 export const Title = Type.String({
   minLength: 1,
   description: 'Optional title extracted from frontmatter.',

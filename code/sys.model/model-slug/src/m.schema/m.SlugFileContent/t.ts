@@ -21,6 +21,7 @@ export type SlugFileContentDoc = SlugFileContentEntry & {
 };
 
 export type SlugFileContentIndex = {
+  readonly docid: t.StringId;
   readonly entries: readonly SlugFileContentEntry[];
 };
 

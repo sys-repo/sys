@@ -20,10 +20,15 @@ describe('Lint: slug-tree:fs', () => {
         'slug-tree:fs': {
           source: 'src',
           target: {
+            manifest: 'out/slug-tree.kb.json',
             dir: [
               { kind: 'source', path: 'out/src' },
               { kind: 'sha256', path: 'out/sha256' },
             ],
+            crdt: {
+              ref: 'slug:test',
+              path: 'data/example',
+            },
           },
         },
       };
@@ -42,6 +47,16 @@ describe('Lint: slug-tree:fs', () => {
       expect((await Fs.readText(sourceC)).data ?? '').to.contain('world');
 
       const outDir = Fs.join(tmpDir, 'out/sha256');
+      const assetsPath = Fs.join(tmpDir, 'out/slug-tree.kb.assets.json');
+      const assetsRaw = (await Fs.readText(assetsPath)).data ?? '';
+      const assets = Json.parse(assetsRaw) as {
+        docid: string;
+        entries: Array<Record<string, unknown>>;
+      };
+      const isAssetsValid = SlugSchema.FileContent.Is.index(assets);
+      expect(isAssetsValid).to.eql(true);
+      expect(assets.docid).to.eql('slug:test');
+
       const outputs: Array<{
         name: string;
         data: {
@@ -109,6 +124,13 @@ describe('Lint: slug-tree:fs', () => {
       expect(c?.contentType).to.eql('text/markdown');
       expect(c?.frontmatter.ref).to.eql('crdt:test');
       expect(c?.frontmatter.title).to.eql(undefined);
+
+      expect((assets?.entries ?? []).length).to.eql(2);
+      const assetHashes = new Set(
+        (assets.entries ?? []).map((entry) => String((entry as { hash?: unknown }).hash ?? '')),
+      );
+      expect(assetHashes.has(String(a?.hash ?? ''))).to.eql(true);
+      expect(assetHashes.has(String(c?.hash ?? ''))).to.eql(true);
     } finally {
       await Fs.remove(tmpDir);
     }

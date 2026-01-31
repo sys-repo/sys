@@ -1,4 +1,4 @@
-import { type t, DEFAULT_IGNORE, Fs, Hash, Is, Json, SlugSchema, Yaml } from './common.ts';
+import { type t, DEFAULT_IGNORE, Fs, Hash, Is, Json, Schema, SlugSchema, Yaml } from './common.ts';
 
 type Entry = t.SlugFileContentDoc;
 
@@ -12,11 +12,13 @@ export async function writeSlugTreeSha256Dir(args: {
   include?: readonly string[];
   ignore?: readonly string[];
   includePath?: boolean;
-}): Promise<void> {
+}): Promise<t.SlugFileContentEntry[]> {
   const include = (args.include ?? ['.md']).map((ext) => ext.toLowerCase());
   const ignore = new Set([...DEFAULT_IGNORE, ...(args.ignore ?? [])]);
+  const entries: t.SlugFileContentEntry[] = [];
 
   await walkDir(args.root);
+  return entries;
 
   async function walkDir(dir: string): Promise<void> {
     for await (const entry of Deno.readDir(dir)) {
@@ -43,6 +45,7 @@ export async function writeSlugTreeSha256Dir(args: {
       if (!validation.ok) {
         throw new Error(`Invalid slug-file-content payload for: ${rel}`);
       }
+      entries.push(toEntry(payload));
       const outPath = Fs.join(args.targetDir, toSha256Filename(hash));
       await Fs.write(outPath, Json.stringify(payload));
     }
@@ -78,7 +81,12 @@ function readFrontmatter(source: string, path: string): t.SlugFileContentFrontma
   if (title !== undefined && !Is.str(title)) {
     throw new Error(`Invalid frontmatter title in slug-tree source: ${path}`);
   }
-  return title ? { ref: ref as t.StringRef, title } : { ref: ref as t.StringRef };
+  const normalized = {
+    ...(frontmatter as Record<string, unknown>),
+    ref: ref as t.StringRef,
+  };
+  if (title !== undefined) return { ...normalized, title } as t.SlugFileContentFrontmatter;
+  return normalized as t.SlugFileContentFrontmatter;
 }
 
 function parseFrontmatter(source: string): Record<string, unknown> | undefined {
@@ -98,4 +106,23 @@ function parseFrontmatter(source: string): Record<string, unknown> | undefined {
   if (!raw.trim()) return {};
   const parsed = Yaml.parse<Record<string, unknown>>(raw).data;
   return Is.record(parsed) ? (parsed as Record<string, unknown>) : {};
+}
+
+function toEntry(doc: t.SlugFileContentDoc): t.SlugFileContentEntry {
+  const { source: _source, ...rest } = doc;
+  return rest;
+}
+
+export async function writeSlugFileContentIndex(args: {
+  targetPath: t.StringFile;
+  docid: t.StringId;
+  entries: readonly t.SlugFileContentEntry[];
+}): Promise<void> {
+  const index: t.SlugFileContentIndex = { docid: args.docid, entries: [...args.entries] };
+  const ok = Schema.Value.Check(SlugSchema.FileContent.Index, index);
+  if (!ok) {
+    throw new Error(`Invalid slug-file-content index: ${args.targetPath}`);
+  }
+  await Fs.ensureDir(Fs.dirname(args.targetPath));
+  await Fs.write(args.targetPath, Json.stringify(index));
 }

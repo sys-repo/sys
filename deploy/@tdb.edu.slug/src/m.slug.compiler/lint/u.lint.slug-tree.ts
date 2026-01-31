@@ -1,8 +1,8 @@
 import { SlugTree } from '../slug.SlugTree/mod.ts';
 
-import { type t, c, DEFAULT_IGNORE, Fs, Json } from './common.ts';
+import { type t, c, DEFAULT_IGNORE, Fs, Json, Schema } from './common.ts';
 import { readLintProfile } from './u.lint.util.ts';
-import { writeSlugTreeSha256Dir } from './u.lint.slug-tree.file.ts';
+import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.lint.slug-tree.file.ts';
 
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
@@ -46,8 +46,14 @@ export async function runSlugTreeFs(args: {
       readmeAsIndex: config.readmeAsIndex,
     },
   );
+  const treeOk = Schema.Value.Check(SlugTree.Schema.Props, treeDoc);
+  if (!treeOk) {
+    throw new Error('Slug-tree manifest failed schema validation.');
+  }
 
   const includePath = targetDirs.some((item) => item.kind === 'source');
+  const docid = config.target?.crdt?.ref;
+  let fileEntries: t.SlugFileContentEntry[] = [];
   for (const targetDir of targetDirs) {
     const ok = await prepareTargetDir(targetDir.path);
     if (!ok) continue;
@@ -57,7 +63,7 @@ export async function runSlugTreeFs(args: {
       continue;
     }
     if (targetDir.kind === 'sha256') {
-      await writeSlugTreeSha256Dir({
+      fileEntries = await writeSlugTreeSha256Dir({
         root,
         targetDir: targetDir.path,
         include,
@@ -77,6 +83,18 @@ export async function runSlugTreeFs(args: {
     await Fs.ensureDir(dir);
     if (ext === '.json') {
       await Fs.write(target.path, Json.stringify(treeDoc));
+      const assetsPath = deriveAssetsPath(target.path);
+      if (assetsPath && fileEntries.length > 0) {
+        if (!docid) {
+          console.info(c.yellow('warning: slug-tree:fs assets index skipped (target.crdt.ref missing)'));
+          continue;
+        }
+        await writeSlugFileContentIndex({
+          targetPath: assetsPath,
+          docid: docid as t.StringId,
+          entries: fileEntries,
+        });
+      }
       continue;
     }
     if (ext === '.yaml' || ext === '.yml') {
@@ -100,6 +118,14 @@ function normalizeTargetDirs(
   if (typeof input === 'string') return [{ kind: 'source', path: input }];
   if (Array.isArray(input)) return input.filter(Boolean) as t.LintSlugTreeTargetDir[];
   return [input as t.LintSlugTreeTargetDir];
+}
+
+function deriveAssetsPath(path: t.StringFile): t.StringFile | undefined {
+  const ext = Fs.extname(path).toLowerCase();
+  if (ext !== '.json') return;
+  const dir = Fs.dirname(path);
+  const base = Fs.basename(path, ext);
+  return Fs.join(dir, `${base}.assets${ext}`) as t.StringFile;
 }
 
 async function writeSlugTreeSourceDir(args: {

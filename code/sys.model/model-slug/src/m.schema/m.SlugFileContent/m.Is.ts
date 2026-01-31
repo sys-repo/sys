@@ -20,6 +20,8 @@ export const Is: t.SlugFileContentSchemaIsLib = {
   },
   index(value): value is t.SlugFileContentIndex {
     if (!StdIs.record(value)) return false;
+    const docid = (value as { docid?: unknown }).docid;
+    if (!StdIs.str(docid) || docid.length === 0) return false;
     const entries = (value as { entries?: unknown }).entries;
     if (!Arr.isArray(entries)) return false;
     return (entries as unknown[]).every((entry: unknown) => isEntry(entry));
