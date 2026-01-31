@@ -44,5 +44,5 @@ export type SlugLintProfile = {
   /** Lint facets to run. */
   readonly facets?: readonly SlugLintFacet[];
   /** Slug-tree filesystem lint configuration. */
-  readonly 'slug-tree:fs'?: t.LintProfileSlugTree;
+  readonly 'slug-tree:fs'?: t.LintSlugTree;
 };

@@ -94,12 +94,12 @@ function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.Str
 }
 
 function normalizeTargetDirs(
-  input?: t.StringPath | t.LintProfileSlugTreeTargetDir | readonly t.LintProfileSlugTreeTargetDir[],
-): t.LintProfileSlugTreeTargetDir[] {
+  input?: t.StringPath | t.LintSlugTreeTargetDir | readonly t.LintSlugTreeTargetDir[],
+): t.LintSlugTreeTargetDir[] {
   if (!input) return [];
   if (typeof input === 'string') return [{ kind: 'source', path: input }];
-  if (Array.isArray(input)) return input.filter(Boolean) as t.LintProfileSlugTreeTargetDir[];
-  return [input as t.LintProfileSlugTreeTargetDir];
+  if (Array.isArray(input)) return input.filter(Boolean) as t.LintSlugTreeTargetDir[];
+  return [input as t.LintSlugTreeTargetDir];
 }
 
 async function writeSlugTreeSourceDir(args: {
