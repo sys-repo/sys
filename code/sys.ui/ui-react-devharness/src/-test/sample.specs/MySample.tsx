@@ -1,6 +1,6 @@
 import React from 'react';
 import { useKeyboard } from '../../ui.use/mod.ts';
-import { type t, Color, css } from '../common.ts';
+import { type t, Color, css, pkg } from '../common.ts';
 
 export type MySampleProps = {
   text?: string;
@@ -32,11 +32,12 @@ export const MySample: React.FC<MySampleProps> = (props) => {
     }),
     body: css({
       position: 'relative',
-      border: `solid 1px ${Color.format(-0.03)}`,
+      border: `dashed 1px ${Color.format(-0.4)}`,
       boxSizing: 'border-box',
-      padding: 8,
-      minWidth: 300,
+      padding: 15,
+      minWidth: 320,
       minHeight: 200,
+      borderRadius: 8,
     }),
     render: css({ Absolute: [4, 5, null, null], fontSize: 11, opacity: 0.6 }),
     link: css({ Absolute: [null, 10, 10, null] }),
@@ -49,7 +50,7 @@ export const MySample: React.FC<MySampleProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class} onClick={props.onClick}>
       <div className={styles.body.class}>
-        <div>🐷 {props.text ?? 'MySample'}</div>
+        <div>🐷 {props.text ?? pkg.name}</div>
         <div className={styles.data.class}>
           <pre>state: {props.data ? JSON.stringify(props.data, null, '  ') : 'undefined'} </pre>
         </div>
