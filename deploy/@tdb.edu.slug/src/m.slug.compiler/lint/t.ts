@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 
+/** Type re-exports. */
 export type * from './t.files.ts';
 export type * from './t.tree.ts';
 
@@ -7,7 +8,7 @@ export type * from './t.tree.ts';
  * Distinct structural checks the linter can perform.
  * Runtime tuple is the source of truth; `LintFacet` derives from it.
  */
-export const LintDocFacets = [
+export const SlugLintFacets = [
   'aliases',
   'sequence:schema',
   'sequence:file:video',
@@ -15,8 +16,11 @@ export const LintDocFacets = [
   'sequence:files:bundle',
   'slug-tree:fs',
 ] as const;
-export type DocLintFacet = (typeof DocLintFacets)[number];
+export type SlugLintFacet = (typeof SlugLintFacets)[number];
 
+/**
+ * Linter configuration.
+ */
 export type LintSeverity = 'error' | 'warning' | 'info';
 
 export type LintIssue<K extends string = string> = {
@@ -32,48 +36,20 @@ export type LintAggregateResult<I extends LintIssue = LintIssue> = {
   readonly facets: readonly string[];
 };
 
-export type DocLintIssue<K extends string = string> = LintIssue<K> & {
+export type SlugLintIssue<K extends string = string> = LintIssue<K> & {
   readonly doc: { readonly id: t.StringId };
 };
 
-export type DocLintResult<K extends string = string> = {
+export type SlugLintResult<K extends string = string> = {
   readonly ok: boolean;
-  readonly issues: readonly DocLintIssue<K>[];
-  readonly facets: readonly DocLintFacet[];
+  readonly issues: readonly SlugLintIssue<K>[];
+  readonly facets: readonly SlugLintFacet[];
 };
 
 /** YAML-authored lint profile document. */
-export type DocLintProfile = {
+export type SlugLintProfile = {
   /** Lint facets to run. */
-  readonly facets?: readonly DocLintFacet[];
+  readonly facets?: readonly SlugLintFacet[];
   /** Slug-tree filesystem lint configuration. */
-  readonly 'slug-tree:fs'?: LintProfileSlugTree;
-};
-
-/** Slug-tree filesystem lint settings. */
-export type LintProfileSlugTree = {
-  /** Source directory to scan. */
-  readonly source?: t.StringPath;
-  /** Targets for generated artifacts. */
-  readonly target?: LintProfileSlugTreeTarget;
-  /** File extensions to include (e.g. ".md"). */
-  readonly include?: readonly string[];
-  /** Directory entries to ignore. */
-  readonly ignore?: readonly string[];
-  /** Sort directory entries by name. */
-  readonly sort?: boolean;
-  /** Treat README.md as the directory slug. */
-  readonly readmeAsIndex?: boolean;
-};
-
-export type LintProfileSlugTreeTarget = {
-  /** Manifest targets for generated artifacts. */
-  readonly manifest?: t.StringPath | readonly t.StringPath[];
-  /** Optional directory to copy source content into. */
-  readonly dir?: t.StringPath;
-  /** Optional CRDT write target. */
-  readonly crdt?: {
-    readonly ref?: t.StringRef;
-    readonly path?: t.StringPath;
-  };
+  readonly 'slug-tree:fs'?: t.LintProfileSlugTree;
 };

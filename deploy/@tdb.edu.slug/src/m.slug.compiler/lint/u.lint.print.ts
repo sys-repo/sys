@@ -1,7 +1,7 @@
 import { type t, c, Cli, Str, Time } from './common.ts';
 
 type Args = {
-  res: t.DocLintResult;
+  res: t.SlugLintResult;
   docpath: t.ObjectPath;
 };
 

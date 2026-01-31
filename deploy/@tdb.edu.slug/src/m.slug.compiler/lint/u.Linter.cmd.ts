@@ -8,14 +8,14 @@ type Args = {
   docpath: t.ObjectPath;
   cwd: t.StringDir;
   interactive?: boolean;
-  facets?: t.DocLintFacet[];
+  facets?: t.SlugLintFacet[];
   print?: boolean;
 };
 
 /**
  * CLI-friendly lint execution helper.
  */
-export async function cmd(args: Args): Promise<t.DocLintResult> {
+export async function cmd(args: Args): Promise<t.SlugLintResult> {
   const { cmd, dag, docpath, cwd, interactive, print = true } = args;
   const facets = args.facets ? [...args.facets] : undefined;
   const createCrdt = async () => (await cmd.send('doc:create', {})).doc;

@@ -20,7 +20,7 @@ export const Fmt = {
  *     path: ...
  *     message: ...
  */
-export function lintResults(issues: t.DocLintIssue[]): string {
+export function lintResults(issues: t.SlugLintIssue[]): string {
   if (issues.length === 0) return '';
 
   const b = Str.builder();

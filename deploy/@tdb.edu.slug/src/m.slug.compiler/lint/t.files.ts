@@ -23,7 +23,7 @@ export type LintSequenceFilepathKind =
  * - `resolvedPath`: fully resolved filesystem path
  * - `closestMatch`: optional suggestion for misspellings / nearby files
  */
-export type LintSequenceFilepath = t.DocLintIssue<LintSequenceFilepathKind> & {
+export type LintSequenceFilepath = t.SlugLintIssue<LintSequenceFilepathKind> & {
   readonly raw: string;
   readonly resolvedPath: string;
   readonly closestMatch?: string;

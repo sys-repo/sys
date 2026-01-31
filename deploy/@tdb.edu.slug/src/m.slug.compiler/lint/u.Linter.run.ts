@@ -1,4 +1,4 @@
-import { type t, c, Cli, DocLintFacets as Facets, Fs, Obj, Pkg, pkg, Slug } from './common.ts';
+import { type t, c, Cli, SlugLintFacets as Facets, Fs, Obj, Pkg, pkg, Slug } from './common.ts';
 
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
@@ -14,7 +14,7 @@ import { printSummary } from './u.lint.print.ts';
 import { runSlugTreeFs } from './u.lint.slug-tree.ts';
 import { readLintProfile, writeLintProfile } from './u.lint.util.ts';
 
-type Issue = t.DocLintIssue;
+type Issue = t.SlugLintIssue;
 
 /**
  * Lint across the given DAG.
@@ -29,7 +29,7 @@ export async function run(
     createCrdt?: () => Promise<t.StringRef>;
     print?: boolean;
   },
-): Promise<t.DocLintResult> {
+): Promise<t.SlugLintResult> {
   const { interactive = false } = opts;
   let facets = normalizeFacets(opts.facets);
 
@@ -54,7 +54,7 @@ export async function run(
 async function lintOnce(args: {
   dag: t.Graph.Dag.Result;
   yamlPath: t.ObjectPath;
-  facets: readonly t.DocLintFacet[];
+  facets: readonly t.SlugLintFacet[];
   profilePath?: t.StringFile;
   opts: {
     facets?: string[];
@@ -62,7 +62,7 @@ async function lintOnce(args: {
     cwd: t.StringDir;
     createCrdt?: () => Promise<t.StringRef>;
   };
-}): Promise<t.DocLintResult> {
+}): Promise<t.SlugLintResult> {
   const issues: Issue[] = [];
   const Parse = Slug.parser(args.yamlPath);
   let facets = [...args.facets];
@@ -230,9 +230,9 @@ async function lintOnce(args: {
  */
 async function selectProfileOnce(
   cwd: t.StringDir,
-  facets: readonly t.DocLintFacet[],
+  facets: readonly t.SlugLintFacet[],
   interactive: boolean,
-): Promise<{ profilePath?: t.StringFile; facets: t.DocLintFacet[] }> {
+): Promise<{ profilePath?: t.StringFile; facets: t.SlugLintFacet[] }> {
   const profilePick: SlugLintProfilePick = await selectSlugLintProfile(cwd, { interactive });
   if (profilePick.kind === 'exit') return { facets: [...facets] };
   if ('profile' in profilePick && profilePick.profile) {
@@ -250,7 +250,7 @@ async function selectProfileOnce(
 async function runInteractiveLint(args: {
   dag: t.Graph.Dag.Result;
   yamlPath: t.ObjectPath;
-  facets: t.DocLintFacet[];
+  facets: t.SlugLintFacet[];
   opts: {
     facets?: string[];
     interactive?: boolean;
@@ -258,12 +258,12 @@ async function runInteractiveLint(args: {
     createCrdt?: () => Promise<t.StringRef>;
     print?: boolean;
   };
-}): Promise<t.DocLintResult> {
+}): Promise<t.SlugLintResult> {
   const { dag, yamlPath, opts } = args;
   const cwd = opts.cwd;
   let { facets } = args;
   let profilePath: t.StringFile | undefined;
-  let lastResult: t.DocLintResult | undefined;
+  let lastResult: t.SlugLintResult | undefined;
   let lastProfile: t.StringFile | undefined;
   let lastAction: 'facets' | 'run' | undefined;
 
@@ -347,25 +347,25 @@ async function runInteractiveLint(args: {
  * Helpers:
  */
 
-async function promptForFacets(current: readonly t.DocLintFacet[]): Promise<t.DocLintFacet[]> {
-  const opt = (value: t.DocLintFacet, checked?: boolean) => ({ name: `${value}`, value, checked });
+async function promptForFacets(current: readonly t.SlugLintFacet[]): Promise<t.SlugLintFacet[]> {
+  const opt = (value: t.SlugLintFacet, checked?: boolean) => ({ name: `${value}`, value, checked });
   const options = Facets.map((value) => opt(value, current.includes(value)));
   return (await Cli.Input.Checkbox.prompt({
     message: 'Select lint on facets',
     options,
-  })) as t.DocLintFacet[];
+  })) as t.SlugLintFacet[];
 }
 
-function normalizeFacets(input?: readonly string[]): t.DocLintFacet[] {
-  const isFacet = (value: string): value is t.DocLintFacet =>
-    Facets.includes(value as t.DocLintFacet);
-  return (input ?? Facets).filter(isFacet) as t.DocLintFacet[];
+function normalizeFacets(input?: readonly string[]): t.SlugLintFacet[] {
+  const isFacet = (value: string): value is t.SlugLintFacet =>
+    Facets.includes(value as t.SlugLintFacet);
+  return (input ?? Facets).filter(isFacet) as t.SlugLintFacet[];
 }
 
 function resolveFacets(args: {
-  current: readonly t.DocLintFacet[];
-  doc: t.DocLintProfile;
-}): t.DocLintFacet[] {
+  current: readonly t.SlugLintFacet[];
+  doc: t.SlugLintProfile;
+}): t.SlugLintFacet[] {
   const src = args.doc.facets ?? args.current;
   return src.filter((facet) => Facets.includes(facet));
 }

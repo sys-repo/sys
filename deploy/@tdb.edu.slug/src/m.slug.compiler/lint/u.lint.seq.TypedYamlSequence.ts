@@ -6,13 +6,13 @@ const T = Schema.Value;
 const FACETS = ['sequence:schema'] as const;
 const SequenceSchema = toSchema(SlugSchema.MediaComposition.Sequence.List);
 
-const empty = (): t.DocLintResult => ({
+const empty = (): t.SlugLintResult => ({
   ok: true,
   facets: [...FACETS],
   issues: [],
 });
 
-const finalize = (issues: readonly t.DocLintIssue[]): t.DocLintResult => ({
+const finalize = (issues: readonly t.SlugLintIssue[]): t.SlugLintResult => ({
   ok: issues.length === 0,
   facets: [...FACETS],
   issues,
@@ -23,7 +23,7 @@ export async function lintTypedYamlSequence(
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   opts: { debug?: boolean; checkInvariants?: boolean } = {},
-): Promise<t.DocLintResult> {
+): Promise<t.SlugLintResult> {
   const { debug = false, checkInvariants = false } = opts;
 
   const Parse = Slug.parser(yamlPath);
@@ -45,7 +45,7 @@ export async function lintTypedYamlSequence(
   }
 
   const sequence = result.sequence;
-  const issues: t.DocLintIssue[] = [];
+  const issues: t.SlugLintIssue[] = [];
 
   /**
    * First pass: structural/schema validation via TypeBox.

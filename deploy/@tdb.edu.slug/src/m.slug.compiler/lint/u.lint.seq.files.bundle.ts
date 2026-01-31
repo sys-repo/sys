@@ -4,7 +4,7 @@ import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
 
 type R = t.LintAndBundleResult;
 type Dag = t.Graph.Dag.Result;
-type Facet = t.DocLintFacet;
+type Facet = t.SlugLintFacet;
 
 /**
  * Bundle all media file paths for a given document:

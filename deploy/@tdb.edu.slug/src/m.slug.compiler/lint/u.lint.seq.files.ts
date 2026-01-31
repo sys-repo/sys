@@ -2,7 +2,7 @@ import { Fs, Is, Obj, type t } from './common.ts';
 import { findClosestFilename } from './u.findClose.ts';
 import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
 
-type Facet = t.DocLintFacet;
+type Facet = t.SlugLintFacet;
 type Dag = t.Graph.Dag.Result;
 
 /**

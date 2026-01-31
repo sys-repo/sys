@@ -10,7 +10,7 @@ export type AliasLintKind =
  * Alias-specific lint issue:
  * extends the shared `LintIssue` with key/value context.
  */
-export type AliasLint = t.DocLintIssue<AliasLintKind> & {
+export type AliasLint = t.SlugLintIssue<AliasLintKind> & {
   readonly key: t.Alias.Key;
   readonly value: string;
 };
@@ -18,7 +18,7 @@ export type AliasLint = t.DocLintIssue<AliasLintKind> & {
 /**
  * Concrete result type for this linter.
  */
-export type AliasLintResult = t.DocLintResult<AliasLintKind> & {
+export type AliasLintResult = t.SlugLintResult<AliasLintKind> & {
   readonly issues: readonly AliasLint[];
 };
 

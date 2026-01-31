@@ -1,7 +1,7 @@
 import { type t, Fs, Is, Slug } from './common.ts';
 
 type O = Record<string, unknown>;
-type Facet = t.DocLintFacet;
+type Facet = t.SlugLintFacet;
 
 /**
  * Walk all media (video/image) file paths in a sequence for a given document:
