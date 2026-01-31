@@ -114,33 +114,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({ color: theme.fg }),
   };
 
-  const button = (label: string, name: string) => {
-    return (
-      <Button
-        block
-        label={() => label}
-        onClick={async () => {
-          const baseUrl = controller.props.baseUrl;
-          const filename = SlugClient.Url.treeFilename(name);
-          const url = Url.parse(baseUrl).join('manifests', filename);
-          console.log('url', url);
-
-          const res = await SlugClient.FromEndpoint.Tree.load(baseUrl, name);
-          console.log('res', res);
-          if (res.ok) {
-            p.selectedPath.value = undefined;
-            p.tree.value = TreeHost.Data.fromSlugTree(res.value);
-            controller.next({ error: undefined });
-          } else {
-            p.selectedPath.value = undefined;
-            p.tree.value = undefined;
-            controller.next({ error: { message: res.error.message } });
-          }
-        }}
-      />
-    );
-  };
-
   return (
     <div className={css(styles.base, props.style).class}>
       <SlugKbDriver.Dev.DriverInfo style={{ marginBottom: 15 }} controller={controller} />
@@ -161,10 +134,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-
-      <hr />
-      {button('load: kb', 'kb')}
-      {button('load: canvas-sections', 'kb-canvas-sections')}
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
