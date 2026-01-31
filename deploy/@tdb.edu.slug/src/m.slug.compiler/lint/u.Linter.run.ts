@@ -73,7 +73,7 @@ async function lintOnce(args: {
 
   const hasFileVideo = facets.includes('sequence:file:video');
   const hasFileImage = facets.includes('sequence:file:image');
-  const hasFilesBundle = facets.includes('slug-tree:seq:bundle');
+  const hasFilesBundle = facets.includes('slug-tree:media:seq:bundle');
   const hasSlugTree = facets.includes('slug-tree:fs:bundle');
 
   if (hasSlugTree && !opts.createCrdt) {
@@ -147,7 +147,7 @@ async function lintOnce(args: {
 
   /**
    * Lint sequence file paths (only when not bundling).
-   * When `slug-tree:seq:bundle` is selected, the bundler performs the same
+   * When `slug-tree:media:seq:bundle` is selected, the bundler performs the same
    * lint behaviour to avoid duplicate issues.
    */
   if (!hasFilesBundle && (hasFileVideo || hasFileImage)) {
