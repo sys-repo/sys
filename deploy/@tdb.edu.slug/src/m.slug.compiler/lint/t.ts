@@ -11,9 +11,9 @@ export type * from './t.tree.ts';
  */
 export const SlugLintFacets = [
   'aliases',
-  'sequence:schema',
-  'sequence:file:video',
-  'sequence:file:image',
+  'media:seq:schema',
+  'media:seq:file:video',
+  'media:seq:file:image',
   'slug-tree:media:seq:bundle',
   'slug-tree:fs:bundle',
 ] as const;

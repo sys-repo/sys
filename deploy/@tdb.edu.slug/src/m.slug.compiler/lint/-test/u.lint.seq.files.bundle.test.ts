@@ -55,7 +55,7 @@ describe('Lint: bundle/sequence files', () => {
       const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
 
       const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
-        facets: ['sequence:file:video'],
+        facets: ['media:seq:file:video'],
         outDir: tmpDir,
         baseHref: '/base',
       });
@@ -258,7 +258,7 @@ describe('Lint: bundle/sequence files', () => {
         async () => ({ ok: true, msecs: 'bad' as unknown as t.Msecs }),
         async () => {
           const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
-            facets: ['sequence:file:video'],
+            facets: ['media:seq:file:video'],
             outDir: tmpDir,
             baseHref: '/base',
           });

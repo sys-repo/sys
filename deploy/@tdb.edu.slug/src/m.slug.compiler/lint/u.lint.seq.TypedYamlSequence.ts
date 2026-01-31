@@ -3,7 +3,7 @@ import { Sequence } from '../slug.MediaComposition.Sequence/mod.ts';
 import { type t, c, Schema, Slug, SlugSchema } from './common.ts';
 
 const T = Schema.Value;
-const FACETS = ['sequence:schema'] as const;
+const FACETS = ['media:seq:schema'] as const;
 const SequenceSchema = toSchema(SlugSchema.MediaComposition.Sequence.List);
 
 const empty = (): t.SlugLintResult => ({

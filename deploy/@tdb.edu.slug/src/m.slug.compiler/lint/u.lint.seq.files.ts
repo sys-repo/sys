@@ -80,7 +80,7 @@ export async function lintSequenceFilepaths(
   docid: t.Crdt.Id,
   opts: { facets?: Facet[] } = {},
 ): Promise<t.LintSequenceFilepathResult> {
-  const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('sequence:file:'));
+  const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('media:seq:file:'));
   const issues: t.LintSequenceFilepath[] = [];
 
   await walkSequenceMediaPaths(dag, yamlPath, docid, facets, async (args) => {

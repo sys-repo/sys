@@ -71,8 +71,8 @@ async function lintOnce(args: {
   const cwd = opts.cwd;
   if (!cwd) return Obj.asGetter({ ok: true, facets: [], issues: [] }, ['issues']);
 
-  const hasFileVideo = facets.includes('sequence:file:video');
-  const hasFileImage = facets.includes('sequence:file:image');
+  const hasFileVideo = facets.includes('media:seq:file:video');
+  const hasFileImage = facets.includes('media:seq:file:image');
   const hasFilesBundle = facets.includes('slug-tree:media:seq:bundle');
   const hasSlugTree = facets.includes('slug-tree:fs:bundle');
 
@@ -202,7 +202,7 @@ async function lintOnce(args: {
   /**
    * Lint sequence data-structure shape.
    */
-  if (facets.includes('sequence:schema')) {
+  if (facets.includes('media:seq:schema')) {
     for (const node of dag.nodes) {
       const id = node.id;
       const baseResult = await lintTypedYamlSequence(dag, yamlPath, node.id, {

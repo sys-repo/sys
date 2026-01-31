@@ -32,8 +32,8 @@ export async function walkSequenceMediaPaths(
   const seq = result.sequence;
 
   const isSupported = (kind: t.SlugAssetKind) => {
-    if (kind === 'image') return facets.includes('sequence:file:image');
-    if (kind === 'video') return facets.includes('sequence:file:video');
+    if (kind === 'image') return facets.includes('media:seq:file:image');
+    if (kind === 'video') return facets.includes('media:seq:file:video');
     return false;
   };
 

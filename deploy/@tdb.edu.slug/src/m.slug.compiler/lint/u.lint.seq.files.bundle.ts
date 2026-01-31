@@ -39,7 +39,7 @@ export async function bundleSequenceFilepaths(
 ): Promise<R> {
   const issues: t.LintSequenceFilepath[] = [];
   const assets: t.SlugAsset[] = [];
-  const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('sequence:file:'));
+  const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('media:seq:file:'));
   const baseHref = (opts.baseHref ?? '/').replace(/\/+$/, '');
 
   const yamlPathStr = Is.array(yamlPath) && yamlPath.length > 0 ? yamlPath.join('/') : '';
