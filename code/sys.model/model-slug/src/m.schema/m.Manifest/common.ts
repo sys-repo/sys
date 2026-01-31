@@ -1,2 +1,2 @@
-export { AssetsSchema } from '../m.Assets/mod.ts';
+export { AssetsSchema } from '../m.Manifest.Assets/mod.ts';
 export * from '../common.ts';
