@@ -45,6 +45,32 @@ describe('LintProfileSchema', () => {
     expect(res.errors.length).to.eql(0);
   });
 
+  it('accepts slug-tree target.manifest string', () => {
+    const doc = {
+      'slug-tree:fs': {
+        target: {
+          manifest: './out/slug-tree.json',
+        },
+      },
+    };
+    const res = LintProfileSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+    expect(res.errors.length).to.eql(0);
+  });
+
+  it('accepts slug-tree target.manifest array', () => {
+    const doc = {
+      'slug-tree:fs': {
+        target: {
+          manifest: ['./out/slug-tree.json', './out/slug-tree.yaml'],
+        },
+      },
+    };
+    const res = LintProfileSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+    expect(res.errors.length).to.eql(0);
+  });
+
   it('accepts slug-tree target.dir array', () => {
     const doc = {
       'slug-tree:fs': {
@@ -54,6 +80,21 @@ describe('LintProfileSchema', () => {
             { kind: 'sha256', path: './out/sha256' },
           ],
         },
+      },
+    };
+    const res = LintProfileSchema.validate(doc);
+    expect(res.ok).to.eql(true);
+    expect(res.errors.length).to.eql(0);
+  });
+
+  it('accepts slug-tree shape with source + include + ignore + sort + readmeAsIndex', () => {
+    const doc = {
+      'slug-tree:fs': {
+        source: './docs',
+        include: ['.md'],
+        ignore: ['node_modules'],
+        sort: true,
+        readmeAsIndex: false,
       },
     };
     const res = LintProfileSchema.validate(doc);
