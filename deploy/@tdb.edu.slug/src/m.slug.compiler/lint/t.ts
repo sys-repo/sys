@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 /** Type re-exports. */
 export type * from './t.files.ts';
+export type * from './t.lint.ts';
 export type * from './t.tree.ts';
 
 /**
@@ -21,22 +22,14 @@ export type SlugLintFacet = (typeof SlugLintFacets)[number];
 /**
  * Linter configuration.
  */
-export type LintSeverity = 'error' | 'warning' | 'info';
 
-export type LintIssue<K extends string = string> = {
-  readonly kind: K;
-  readonly message: string;
-  readonly severity?: LintSeverity;
-  readonly path?: string;
-};
-
-export type LintAggregateResult<I extends LintIssue = LintIssue> = {
+export type LintAggregateResult<I extends t.LintIssue = t.LintIssue> = {
   readonly ok: boolean;
   readonly issues: readonly I[];
   readonly facets: readonly string[];
 };
 
-export type SlugLintIssue<K extends string = string> = LintIssue<K> & {
+export type SlugLintIssue<K extends string = string> = t.LintIssue<K> & {
   readonly doc: { readonly id: t.StringId };
 };
 
