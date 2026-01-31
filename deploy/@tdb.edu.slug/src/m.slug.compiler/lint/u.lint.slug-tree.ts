@@ -2,7 +2,7 @@ import { SlugTree } from '../slug.SlugTree/mod.ts';
 
 import { type t, c, DEFAULT_IGNORE, Fs, Json } from './common.ts';
 import { readLintProfile } from './u.lint.util.ts';
-import { writeSlugTreeSha256 } from './u.lint.slug-tree.file.ts';
+import { writeSlugTreeSha256Dir } from './u.lint.slug-tree.file.ts';
 
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
@@ -47,16 +47,23 @@ export async function runSlugTreeFs(args: {
     },
   );
 
+  const includePath = targetDirs.some((item) => item.kind === 'source');
   for (const targetDir of targetDirs) {
     const ok = await prepareTargetDir(targetDir.path);
     if (!ok) continue;
     await clearTargetDir(targetDir.path);
     if (targetDir.kind === 'source') {
-      await copySlugTreeSource({ root, targetDir: targetDir.path, include, ignore });
+      await writeSlugTreeSourceDir({ root, targetDir: targetDir.path, include, ignore });
       continue;
     }
     if (targetDir.kind === 'sha256') {
-      await writeSlugTreeSha256({ root, targetDir: targetDir.path, include, ignore });
+      await writeSlugTreeSha256Dir({
+        root,
+        targetDir: targetDir.path,
+        include,
+        ignore,
+        includePath,
+      });
       continue;
     }
     console.info(
@@ -95,7 +102,7 @@ function normalizeTargetDirs(
   return [input as t.LintProfileSlugTreeTargetDir];
 }
 
-async function copySlugTreeSource(args: {
+async function writeSlugTreeSourceDir(args: {
   root: t.StringDir;
   targetDir: t.StringDir;
   include?: readonly string[];
