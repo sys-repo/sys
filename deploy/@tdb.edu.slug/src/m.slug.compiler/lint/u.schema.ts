@@ -16,7 +16,7 @@ export const LintProfileSchema = {
   initial(): t.SlugLintProfile {
     return {
       facets: [...SlugLintFacets],
-      'slug-tree:fs': {
+      'slug-tree:fs:bundle': {
         include: ['.md'],
         source: '.',
         target: { manifest: ['./manifest/slug-tree.json', './manifest/slug-tree.yaml'] },
@@ -57,7 +57,7 @@ export const LintProfileSchema = {
   schema: Schema.Type.Object(
     {
       facets: SchemaFacets,
-      'slug-tree:fs': SchemaSlugTreeFs,
+      'slug-tree:fs:bundle': SchemaSlugTreeFs,
     },
     { additionalProperties: false },
   ),
@@ -66,7 +66,7 @@ export const LintProfileSchema = {
 function validateSlugTreeFsConfig(value: unknown): t.ValueError[] {
   const errors: t.ValueError[] = [];
   const doc = value as Partial<t.SlugLintProfile> | null;
-  const slugTree = doc?.['slug-tree:fs'];
+  const slugTree = doc?.['slug-tree:fs:bundle'];
   if (!slugTree || !slugTree.target) return errors;
 
   const target = slugTree.target;
@@ -76,8 +76,8 @@ function validateSlugTreeFsConfig(value: unknown): t.ValueError[] {
 
   if (hasSha256 && hasJsonManifest && !hasRef) {
     errors.push({
-      path: 'slug-tree:fs.target.crdt.ref',
-      message: 'Required when slug-tree:fs emits a JSON manifest with sha256 outputs.',
+      path: 'slug-tree:fs:bundle.target.crdt.ref',
+      message: 'Required when slug-tree:fs:bundle emits a JSON manifest with sha256 outputs.',
     } as t.ValueError);
   }
 

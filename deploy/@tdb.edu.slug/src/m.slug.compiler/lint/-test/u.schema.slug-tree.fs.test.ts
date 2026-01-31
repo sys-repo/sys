@@ -31,7 +31,7 @@ describe('LintProfileSchema', () => {
 
   it('accepts crdt target shape', () => {
     const doc = {
-      'slug-tree:fs': {
+      'slug-tree:fs:bundle': {
         target: {
           crdt: {
             ref: 'crdt:abc123',
@@ -47,7 +47,7 @@ describe('LintProfileSchema', () => {
 
   it('accepts slug-tree target.manifest string', () => {
     const doc = {
-      'slug-tree:fs': {
+      'slug-tree:fs:bundle': {
         target: {
           manifest: './out/slug-tree.json',
         },
@@ -60,7 +60,7 @@ describe('LintProfileSchema', () => {
 
   it('accepts slug-tree target.manifest array', () => {
     const doc = {
-      'slug-tree:fs': {
+      'slug-tree:fs:bundle': {
         target: {
           manifest: ['./out/slug-tree.json', './out/slug-tree.yaml'],
         },
@@ -73,7 +73,7 @@ describe('LintProfileSchema', () => {
 
   it('accepts slug-tree target.dir array', () => {
     const doc = {
-      'slug-tree:fs': {
+      'slug-tree:fs:bundle': {
         target: {
           dir: [
             { kind: 'source', path: './out/source' },
@@ -89,7 +89,7 @@ describe('LintProfileSchema', () => {
 
   it('accepts slug-tree shape with source + include + ignore + sort + readmeAsIndex', () => {
     const doc = {
-      'slug-tree:fs': {
+      'slug-tree:fs:bundle': {
         source: './docs',
         include: ['.md'],
         ignore: ['node_modules'],
@@ -104,7 +104,7 @@ describe('LintProfileSchema', () => {
 
   it('accepts slug-tree target.dir object', () => {
     const doc = {
-      'slug-tree:fs': {
+      'slug-tree:fs:bundle': {
         target: {
           dir: { kind: 'source', path: './out/source' },
         },
@@ -117,7 +117,7 @@ describe('LintProfileSchema', () => {
 
   it('accepts slug-tree target.dir string', () => {
     const doc = {
-      'slug-tree:fs': {
+      'slug-tree:fs:bundle': {
         target: {
           dir: './out/source',
         },
@@ -130,7 +130,7 @@ describe('LintProfileSchema', () => {
 
   it('rejects slug-tree assets index without crdt.ref', () => {
     const doc = {
-      'slug-tree:fs': {
+      'slug-tree:fs:bundle': {
         target: {
           manifest: ['./out/slug-tree.json'],
           dir: [{ kind: 'sha256', path: './out/sha256' }],

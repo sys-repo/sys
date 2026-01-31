@@ -15,7 +15,7 @@ export const SlugLintFacets = [
   'sequence:file:video',
   'sequence:file:image',
   'sequence:files:bundle',
-  'slug-tree:fs',
+  'slug-tree:fs:bundle',
 ] as const;
 export type SlugLintFacet = (typeof SlugLintFacets)[number];
 
@@ -44,5 +44,5 @@ export type SlugLintProfile = {
   /** Lint facets to run. */
   readonly facets?: readonly SlugLintFacet[];
   /** Slug-tree filesystem lint configuration. */
-  readonly 'slug-tree:fs'?: t.LintSlugTree;
+  readonly 'slug-tree:fs:bundle'?: t.LintSlugTree;
 };

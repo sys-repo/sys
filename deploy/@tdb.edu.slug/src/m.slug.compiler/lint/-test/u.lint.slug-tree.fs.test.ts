@@ -16,8 +16,8 @@ describe('Lint: slug-tree:fs', () => {
 
       const profilePath = Fs.join(tmpDir, 'lint.yaml');
       const doc: t.SlugLintProfile = {
-        facets: ['slug-tree:fs'],
-        'slug-tree:fs': {
+        facets: ['slug-tree:fs:bundle'],
+        'slug-tree:fs:bundle': {
           source: 'src',
           target: {
             manifest: 'out/slug-tree.kb.json',
