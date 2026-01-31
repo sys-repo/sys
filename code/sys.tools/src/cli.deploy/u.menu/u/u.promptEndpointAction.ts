@@ -12,12 +12,26 @@ export async function promptEndpointAction(args: {
   showPush: boolean;
   pushedOk: boolean;
   hashPrefix: string;
+  stageAge?: string;
+  stageSize?: string;
+  pushUrl?: string;
+  hasStageMeta: boolean;
 }): Promise<A> {
-  const { checkOk, ranOk, showPush, pushedOk, hashPrefix } = args;
-  const stageName = ranOk
-    ? `  ${hashPrefix}  staged ✔`
-    : `  ${hashPrefix}  stage (prepare bundle)`;
-  const pushName = pushedOk ? `  ${hashPrefix}  push ✔` : `  ${hashPrefix}  push`;
+  const { checkOk, ranOk, showPush, pushedOk, hashPrefix, stageAge, stageSize, pushUrl, hasStageMeta } =
+    args;
+  const stageAgeText = stageAge ? ` ${c.gray(c.dim(`- ${stageAge} ago`))}` : '';
+  const stageSizeText = stageSize ? ` ${c.gray(c.dim(`| ${stageSize}`))}` : '';
+  const stageMeta = `${stageAgeText}${stageSizeText}`;
+  const stageLabel = pushedOk
+    ? 'staged ✔'
+    : hasStageMeta
+      ? 'staged (rebuild)'
+      : 'stage (build)';
+  const stageName = `  ${hashPrefix}  ${stageLabel}${stageMeta}`;
+  const pushMeta =
+    pushedOk && pushUrl ? ` ${c.gray(c.dim('-'))} ${c.cyan(pushUrl)}` : '';
+  const pushPrefix = pushedOk && pushMeta ? `  ${hashPrefix}  push ✔  ` : `  ${hashPrefix}  push ✔`;
+  const pushName = pushedOk ? `${pushPrefix}${pushMeta}` : `  ${hashPrefix}  push`;
   const answer = await Cli.Input.Select.prompt<A>({
     message: `Actions:`,
     options: [

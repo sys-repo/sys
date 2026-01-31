@@ -3,6 +3,6 @@ import { c } from './common.ts';
 export function formatHashPrefix(hash?: string): string {
   const suffix = String(hash ?? '').trim();
   const isPlaceholder = !suffix;
-  if (isPlaceholder) return `🌳${' '.repeat(4)}`;
+  if (isPlaceholder) return `${c.gray(c.dim('#'))}${' '.repeat(5)}`;
   return `${c.gray(c.dim('#'))}${c.green(suffix)}`;
 }

@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Open, Path, Pkg, Str } from '../common.ts';
+import { type t, c, Cli, Fs, Is, Open, Path, Pkg, Str, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { Fmt } from '../u.fmt.ts';
 
@@ -60,10 +60,30 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
     const stagingRootAbs = resolvePushStagingDir({ cwd, stagingRootRel });
     const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
-    const dist = (await Pkg.Dist.load(stagingRootAbs)).dist;
+    const mappingStagingAbs = mappingStagingRel
+      ? Path.resolve(stagingRootAbs, mappingStagingRel)
+      : undefined;
+    const rootDist = (await Pkg.Dist.load(stagingRootAbs)).dist;
+    const mappingDist = mappingStagingAbs ? (await Pkg.Dist.load(mappingStagingAbs)).dist : undefined;
+    const dist = rootDist?.hash?.digest
+      ? rootDist
+      : mappingDist?.hash?.digest
+        ? mappingDist
+        : rootDist ?? mappingDist;
     const digest = dist?.hash?.digest;
     const hashSuffix = digest ? String(digest).slice(-5) : undefined;
     const hashPrefix = formatHashPrefix(hashSuffix);
+    const buildTime = dist?.build?.time;
+    const stageAge = Is.num(buildTime) && digest ? Time.elapsed(buildTime).toString() : undefined;
+    const stageSizeTotal = dist?.build?.size?.total;
+    const stageSize = Is.num(stageSizeTotal) && digest ? Str.bytes(stageSizeTotal) : undefined;
+    const hasStageMeta = !!(stageAge || stageSize);
+    const pushUrl =
+      provider?.kind === 'orbiter'
+        ? String(provider.domain ?? '').trim()
+          ? `https://${String(provider.domain ?? '').trim()}`
+          : undefined
+        : undefined;
 
     // "can push" is about capability + having *some* staging root configured ('.' counts).
     const canPush = capability.show && capability.enabled && !!stagingRootRel;
@@ -91,6 +111,10 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       showPush,
       pushedOk,
       hashPrefix,
+      stageAge,
+      stageSize,
+      pushUrl,
+      hasStageMeta,
     });
 
     if (picked === 'back') return { kind: 'back' };
