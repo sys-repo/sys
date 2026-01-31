@@ -5,6 +5,7 @@ export type * from './m.Assets/t.ts';
 export type * from './m.Manifest/t.ts';
 export type * from './m.MediaComposition.Sequence/t.ts';
 export type * from './m.MediaComposition/t.ts';
+export type * from './m.SlugFileContent/t.ts';
 export type * from './m.SlugTree/t.ts';
 export type * from './m.Traits/t.ts';
 
@@ -23,6 +24,7 @@ export type * from './m.Traits/t.ts';
  */
 export type SlugSchemaLib = {
   readonly Tree: t.SlugTreeSchemaLib;
+  readonly FileContent: t.SlugFileContentSchemaLib;
   readonly Manifest: t.SlugManifestSchemaLib;
   readonly MediaComposition: t.SlugMediaCompositionSchemaLib;
   readonly Traits: t.SlugTraitsSchemaLib;
