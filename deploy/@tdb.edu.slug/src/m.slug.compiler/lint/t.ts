@@ -14,7 +14,7 @@ export const SlugLintFacets = [
   'sequence:schema',
   'sequence:file:video',
   'sequence:file:image',
-  'sequence:files:bundle',
+  'slug-tree:seq:bundle',
   'slug-tree:fs:bundle',
 ] as const;
 export type SlugLintFacet = (typeof SlugLintFacets)[number];
