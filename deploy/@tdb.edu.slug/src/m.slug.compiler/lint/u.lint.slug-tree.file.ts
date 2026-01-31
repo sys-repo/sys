@@ -1,11 +1,6 @@
-import { type t, DEFAULT_IGNORE, Fs, Hash, Json } from './common.ts';
+import { type t, DEFAULT_IGNORE, Fs, Hash, Json, SlugSchema } from './common.ts';
 
-type Entry = {
-  readonly source: string;
-  readonly hash: string;
-  readonly contentType: string;
-  readonly path?: string;
-};
+type Entry = t.SlugFileContentDoc;
 
 function toSha256Filename(hash: string): string {
   return `${hash}.json`;
@@ -39,9 +34,14 @@ export async function writeSlugTreeSha256Dir(args: {
       const source = String(res.data ?? '');
       const hash = Hash.sha256(source);
       const rel = Fs.Path.relative(args.root, abs);
+      const contentType = toContentType(entry.name);
       const payload: Entry = args.includePath
-        ? { source, path: rel, hash, contentType: toContentType(entry.name) }
-        : { source, hash, contentType: toContentType(entry.name) };
+        ? { source, path: rel, hash, contentType }
+        : { source, hash, contentType };
+      const validation = SlugSchema.FileContent.validate(payload);
+      if (!validation.ok) {
+        throw new Error(`Invalid slug-file-content payload for: ${rel}`);
+      }
       const outPath = Fs.join(args.targetDir, toSha256Filename(hash));
       await Fs.write(outPath, Json.stringify(payload));
     }

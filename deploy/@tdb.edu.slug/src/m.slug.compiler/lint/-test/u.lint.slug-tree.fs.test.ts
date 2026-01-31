@@ -1,5 +1,5 @@
 import { type t, describe, expect, Fs, Hash, it } from '../../-test.ts';
-import { Json } from '../common.ts';
+import { Json, SlugSchema } from '../common.ts';
 import { runSlugTreeFs } from '../u.lint.slug-tree.ts';
 import { LintProfileSchema } from '../u.schema.ts';
 
@@ -55,6 +55,8 @@ describe('Lint: slug-tree:fs', () => {
           hash: string;
           contentType: string;
         };
+        const validation = SlugSchema.FileContent.validate(data);
+        expect(validation.ok).to.eql(true);
         outputs.push({ name: entry.name, data });
       }
 
