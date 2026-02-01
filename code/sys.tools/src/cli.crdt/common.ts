@@ -21,6 +21,7 @@ export const D = {
     },
   },
   Hook: {
+    filename: 'hook.ts',
     Doc: { filename: 'hook.doc.ts' },
   },
 } as const;

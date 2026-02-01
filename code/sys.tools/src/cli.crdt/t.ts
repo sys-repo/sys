@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 
 /** Type re-exports. */
 export type * from './cmd.doc.graph/t.ts';
+export type * from './cmd.hook/t.ts';
 export type * from './cmd.doc.snapshot/t.ts';
 export type * from './cmd.repo.daemon/t.ts';
 export type * from './t.namespace.ts';

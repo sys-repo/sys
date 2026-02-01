@@ -1,13 +1,13 @@
 import { json } from '../../-tmpl/bundle/-bundle.ts';
 import { type t, D, Fs, TmplEngine, c } from '../common.ts';
 
-export async function makeHookTmpl(cwd: t.StringDir) {
+export async function makeRootHookTmpl(cwd: t.StringDir) {
   const path = {
     source: Fs.join(cwd),
     target: Fs.join(cwd),
   } as const;
 
-  const filepath = Fs.join(path.target, D.Hook.Doc.filename);
+  const filepath = Fs.join(path.target, D.Hook.filename);
   const exists = await Fs.exists(filepath);
 
   const write = async (opts: { force?: boolean } = {}) => {
@@ -16,7 +16,7 @@ export async function makeHookTmpl(cwd: t.StringDir) {
       return;
     }
 
-    const key = `cli.crdt/-tmpl/${D.Hook.Doc.filename}`;
+    const key = `cli.crdt/-tmpl/${D.Hook.filename}`;
     const filemap = Object.fromEntries(
       Object.entries(json)
         .filter(([k]) => k === key)

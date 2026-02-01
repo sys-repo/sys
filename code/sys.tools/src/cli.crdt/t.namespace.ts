@@ -19,6 +19,7 @@ export namespace CrdtTool {
     | 'doc:graph:dag'
     | 'doc:viewer:yaml'
     | 'doc:tmpl:hookfile'
+    | 'root:tmpl:hookfile'
     | 'repo:daemon:start'
     | 'repo:syncserver:start'
     | 'back'
@@ -37,6 +38,14 @@ export namespace CrdtTool {
       export type WalkHook = t.DocumentGraphWalkHook;
       export type Plugin = t.DocumentGraphPlugin;
     }
+  }
+
+  /** Root-level hook types. */
+  export namespace Hook {
+    export type Module = t.RootHookModule;
+    export type Plugin = t.RootHookPlugin;
+    export type PluginResult = t.RootHookPluginResult;
+    export type PluginResultKind = t.RootHookPluginResultKind;
   }
 
   /**

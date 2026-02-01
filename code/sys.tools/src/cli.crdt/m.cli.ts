@@ -7,11 +7,17 @@ import { loadLegacyConfig, removeLegacyConfig } from './u.migrate.legacy.ts';
 import { promptRemoveDocument, promptRenameDocument } from './u.prompt.ts';
 
 type C = t.CrdtTool.Command;
-type MenuAction = t.CrdtTool.Command | `plugin:${string}` | 'docs' | 'repo';
+type MenuAction =
+  | t.CrdtTool.Command
+  | `plugin:${string}`
+  | `root:plugin:${string}`
+  | 'docs'
+  | 'repo';
 
 const Imports = {
   snapshot: () => import('./cmd.doc.snapshot/mod.ts'),
   docGraph: () => import('./cmd.doc.graph/mod.ts'),
+  rootHook: () => import('./cmd.hook/mod.ts'),
   docYamlViewer: () => import('./cmds/cmd.doc.viewer.yaml.ts'),
   daemon: () => import('./cmd.repo.daemon/mod.ts'),
   syncServer: () => import('./cmds/cmd.doc.syncserver.ts'),
@@ -71,17 +77,34 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
       A = Crdt.Id.toUri(picked.doc.id) as MenuAction;
       reopenDocsMenu = false;
     } else {
+      const { loadRootHook, makeRootHookTmpl } = await Imports.rootHook();
+      const rootHookModule = await loadRootHook(cwd);
+      const rootHookTmpl = await makeRootHookTmpl(cwd);
+      const rootPlugins = rootHookModule?.plugins ?? [];
+      const rootPluginOptions = rootPlugins.map((plugin) => {
+        const label = plugin.title ?? plugin.id;
+        return optMenu(` - ${label}`, `root:plugin:${plugin.id}`);
+      });
+
       A = (await Cli.Input.Select.prompt<MenuAction>({
         message: '',
         options: [
+          ...rootPluginOptions,
           optMenu(` documents${docsSuffix}`, 'docs'),
           optMenu(' repository', 'repo'),
+          ...(!rootHookTmpl.exists
+            ? [opt(` generate ${c.cyan(D.Hook.filename)} file`, 'root:tmpl:hookfile')]
+            : []),
           opt(c.gray('(exit)'), 'exit'),
         ],
         hideDefault: true,
         maxRows: 25,
       })) as MenuAction;
 
+      if (A === 'root:tmpl:hookfile') {
+        await rootHookTmpl.write();
+        return done(0);
+      }
       if (A === 'exit') return done(0);
       if (A === 'docs') {
         reopenDocsMenu = true;
@@ -101,6 +124,41 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
             await m.RepoProcess.daemon(cwd);
           },
         });
+        continue;
+      }
+
+      if (A.startsWith('root:plugin:')) {
+        const id = A.slice('root:plugin:'.length);
+        const { loadRootHook } = await Imports.rootHook();
+        const hookModule = await loadRootHook(cwd);
+        const plugins = hookModule?.plugins ?? [];
+        const plugin = plugins.find((entry) => entry.id === id);
+        if (!plugin) continue;
+
+        const { RepoProcess } = await Imports.daemon();
+        const ports = await CrdtReposFs.loadPorts(cwd);
+        const cmd = await RepoProcess.tryClient(ports.repo);
+
+        if (!cmd) {
+          const repoAction = await promptRepoSyncMenu({
+            cwd,
+            log: options.log?.sub('repo'),
+            onStartSyncServer: async () => {
+              const { startSyncServerCommand } = await Imports.syncServer();
+              await startSyncServerCommand(cwd);
+            },
+            onStartDaemon: async () => {
+              const m = await Imports.daemon();
+              await m.RepoProcess.daemon(cwd);
+            },
+          });
+          if (repoAction === 'back') continue;
+          continue;
+        }
+
+        const result = await plugin.run({ cwd, cmd });
+        const kind = wrangle.rootPluginResult(result);
+        if (kind === 'exit') return done(0);
         continue;
       }
     }
@@ -123,7 +181,7 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
           const plugins = hookModule?.plugins ?? [];
           const pluginOptions = plugins.map((plugin) => {
             const label = plugin.title ?? plugin.id;
-            return optMenu(`  ${label}`, `plugin:${plugin.id}`);
+            return optMenu(`  - ${label}`, `plugin:${plugin.id}`);
           });
           const { RepoProcess } = await Imports.daemon();
           const ports = await CrdtReposFs.loadPorts(cwd);
@@ -280,6 +338,11 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
 
 const wrangle = {
   pluginResult(result: t.DocumentGraphPluginResult): t.DocumentGraphPluginResultKind {
+    if (Is.str(result)) return result;
+    if (result && Is.str(result.kind)) return result.kind;
+    return 'stay';
+  },
+  rootPluginResult(result: t.RootHookPluginResult): t.RootHookPluginResultKind {
     if (Is.str(result)) return result;
     if (result && Is.str(result.kind)) return result.kind;
     return 'stay';
