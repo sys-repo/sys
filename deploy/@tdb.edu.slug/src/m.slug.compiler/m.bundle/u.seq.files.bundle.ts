@@ -1,6 +1,6 @@
 import { buildSequenceFilepathIssue } from '../m.lint/u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from '../m.lint/u.lint.seq.files.walk.ts';
-import { type t, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
+import { type t, Str, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
 
 /**
  * Bundle all media file paths for a given document:
@@ -42,7 +42,7 @@ export async function bundleSequenceFilepaths(
     v.startsWith('media:seq:file:'),
   );
 
-  const baseHref = (opts.target?.hrefBase ?? opts.baseHref ?? '/').replace(/\/+$/, '');
+  const baseHref = Str.trimTrailingSlashes(opts.target?.hrefBase ?? opts.baseHref ?? '/');
   const yamlPathStr = Is.array(yamlPath) && yamlPath.length > 0 ? yamlPath.join('/') : '';
 
   const baseDir = opts.target?.base ?? opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
