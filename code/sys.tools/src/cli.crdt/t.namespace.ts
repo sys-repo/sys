@@ -43,9 +43,7 @@ export namespace CrdtTool {
    * YAML-authored document configuration (authoritative).
    */
   export namespace DocumentYaml {
-    /**
-     * YAML document structure for a tracked CRDT document.
-     */
+    /** YAML document structure for a tracked CRDT document. */
     export type Doc = {
       /** Document identifier. */
       id: t.StringId;
@@ -53,9 +51,7 @@ export namespace CrdtTool {
       name?: t.StringName;
     };
 
-    /**
-     * Filesystem conventions for document YAML storage.
-     */
+    /** Filesystem conventions for document YAML storage. */
     export type DirName = `-config/${string}/crdt/docs`;
     export type Ext = '.yaml';
     export type YamlCheck =
@@ -63,9 +59,7 @@ export namespace CrdtTool {
       | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
   }
 
-  /**
-   * YAML-authored repo configuration (authoritative).
-   */
+  /** YAML-authored repo configuration (authoritative). */
   export namespace RepoYaml {
     /** Sync endpoint entry. */
     export type SyncItem = {
@@ -73,9 +67,7 @@ export namespace CrdtTool {
       enabled?: boolean;
     };
 
-    /**
-     * YAML document structure for repo configuration.
-     */
+    /** YAML document structure for repo configuration. */
     export type Doc = {
       /** Sync websocket endpoints. */
       sync: SyncItem[];
@@ -86,9 +78,7 @@ export namespace CrdtTool {
       };
     };
 
-    /**
-     * Filesystem conventions for repo YAML storage.
-     */
+    /** Filesystem conventions for repo YAML storage. */
     export type DirName = `-config/${string}/crdt`;
     export type Ext = '.yaml';
     export type YamlCheck =
