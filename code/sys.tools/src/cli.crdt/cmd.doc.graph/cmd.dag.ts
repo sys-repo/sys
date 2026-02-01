@@ -1,5 +1,5 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
-import { type t, c, Cli, Is, Str, Time } from '../common.ts';
+import { type t, c, Cli, D, Is, Str, Time } from '../common.ts';
 import { CrdtReposFs } from '../u.config.repo/u.fs.ts';
 import { buildDocumentDAG } from './mod.ts';
 import { Fmt } from './u.fmt.ts';
@@ -34,7 +34,7 @@ export async function dagHookCommand(cwd: t.StringDir, root: t.Crdt.Id, yamlPath
       const str = Str.builder()
         .line()
         .line(yi(`  No hook ƒunction available`))
-        .line(gi(`  Create a ${c.white('hook.ts')} file exporting a DAG hook:`))
+        .line(gi(`  Create a ${c.white(D.Hook.Doc.filename)} file exporting a DAG hook:`))
         .line()
         .line(yid(`    import type { t } from 'jsr:@sys/tools';`))
         .line(yid(`    export const onDag: t.DocumentGraphDagHook = async (e) => { ... }`))

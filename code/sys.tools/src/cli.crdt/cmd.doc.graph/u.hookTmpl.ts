@@ -7,7 +7,7 @@ export async function makeHookTmpl(cwd: t.StringDir) {
     target: Fs.join(cwd),
   } as const;
 
-  const filepath = Fs.join(path.target, D.Hook.filename);
+  const filepath = Fs.join(path.target, D.Hook.Doc.filename);
   const exists = await Fs.exists(filepath);
 
   const write = async (opts: { force?: boolean } = {}) => {

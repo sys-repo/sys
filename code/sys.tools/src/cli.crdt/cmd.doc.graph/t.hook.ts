@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
 
 /**
- * Exports from an imported `hook.ts` file.
+ * Exports from an imported `hook.doc.ts` file.
  */
 export type DocumentGraphHookModule = {
   /**

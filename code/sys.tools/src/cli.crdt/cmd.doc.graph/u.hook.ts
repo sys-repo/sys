@@ -1,11 +1,11 @@
-import { type t } from '../common.ts';
+import { D, type t } from '../common.ts';
 
 /**
  * Load the document-graph hook module from the given directory, if present.
  */
 export async function loadDocumentHook(
   cwd: t.StringDir,
-  filename = 'hook.ts',
+  filename = D.Hook.Doc.filename,
 ): Promise<t.DocumentGraphHookModule | undefined> {
   const path = `${cwd}/${filename}`;
 

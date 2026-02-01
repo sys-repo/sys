@@ -20,5 +20,7 @@ export const D = {
       syncserver: './.repo/syncserver.crdt',
     },
   },
-  Hook: { filename: 'hook.ts' },
+  Hook: {
+    Doc: { filename: 'hook.doc.ts' },
+  },
 } as const;

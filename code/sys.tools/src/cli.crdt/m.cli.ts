@@ -151,7 +151,7 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
 
           const menuOptions: Array<{ name: string; value: MenuAction }> = [
             ...pluginOptions,
-            optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.filename)}`, `doc:graph:dag`),
+            optMenu(`  doc:graph:walk   ${arrow} ${c.cyan(D.Hook.Doc.filename)}`, `doc:graph:dag`),
             optMenu(`  doc:graph:walk   ${arrow} stats`, `doc:graph:walk`),
             optMenu(`  doc:graph:backup ${arrow} snapshot`, `snapshot`),
             optMenu(`  view: <yaml>`, `doc:viewer:yaml`),
@@ -161,7 +161,7 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
 
           if (!hookTmpl.exists) {
             menuOptions.push(
-              opt(`  Generate ${c.cyan(D.Hook.filename)} file`, 'doc:tmpl:hookfile'),
+              opt(`  Generate ${c.cyan(D.Hook.Doc.filename)} file`, 'doc:tmpl:hookfile'),
             );
           }
 
