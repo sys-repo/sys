@@ -4,11 +4,20 @@ import { type t, c, DEFAULT_IGNORE, Fs, Json, Schema } from './common.ts';
 import { readBundleProfile } from './u.profile.ts';
 import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.slug-tree.file.ts';
 
+export type SlugTreeFsStats = {
+  readonly files: number;
+  readonly sourceFiles: number;
+  readonly sha256Files: number;
+  readonly manifests: number;
+  readonly elapsedMs: number;
+};
+
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
   profilePath: t.StringFile;
   createCrdt: () => Promise<t.StringRef>;
-}) {
+}): Promise<SlugTreeFsStats | undefined> {
+  const startedAt = Date.now();
   const { cwd, profilePath, createCrdt } = args;
   const profileDoc = await readBundleProfile(profilePath);
   const config = profileDoc['bundle:slug-tree:fs'];
@@ -54,12 +63,20 @@ export async function runSlugTreeFs(args: {
   const includePath = targetDirs.some((item) => item.kind === 'source');
   const docid = config.crdt.docid;
   let fileEntries: t.SlugFileContentEntry[] = [];
+  let sourceFiles = 0;
+  let sha256Files = 0;
+  let manifests = 0;
   for (const targetDir of targetDirs) {
     const ok = await prepareTargetDir(targetDir.path);
     if (!ok) continue;
     await clearTargetDir(targetDir.path);
     if (targetDir.kind === 'source') {
-      await writeSlugTreeSourceDir({ root, targetDir: targetDir.path, include, ignore });
+      sourceFiles += await writeSlugTreeSourceDir({
+        root,
+        targetDir: targetDir.path,
+        include,
+        ignore,
+      });
       continue;
     }
     if (targetDir.kind === 'sha256') {
@@ -70,6 +87,7 @@ export async function runSlugTreeFs(args: {
         ignore,
         includePath,
       });
+      sha256Files += fileEntries.length;
       continue;
     }
     console.info(
@@ -85,6 +103,7 @@ export async function runSlugTreeFs(args: {
     await Fs.ensureDir(dir);
     if (ext === '.json') {
       await Fs.write(target.path, Json.stringify(treeDoc));
+      manifests += 1;
       const assetsPath = deriveAssetsPath(target.path);
       if (assetsPath && fileEntries.length > 0) {
         await writeSlugFileContentIndex({
@@ -92,17 +111,21 @@ export async function runSlugTreeFs(args: {
           docid: docid as t.StringId,
           entries: fileEntries,
         });
+        manifests += 1;
       }
       continue;
     }
     if (ext === '.yaml' || ext === '.yml') {
       await Fs.write(target.path, SlugTree.toYaml(treeDoc));
+      manifests += 1;
       continue;
     }
-    console.info(
-      c.yellow(`warning: bundle:slug-tree:fs skipped unsupported target: ${target.raw}`),
-    );
+    console.info(c.yellow(`warning: bundle:slug-tree:fs skipped unsupported target: ${target.raw}`));
   }
+
+  const elapsedMs = Date.now() - startedAt;
+  const files = sourceFiles > 0 ? sourceFiles : sha256Files;
+  return { files, sourceFiles, sha256Files, manifests, elapsedMs };
 }
 
 function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.StringPath[] {
@@ -133,11 +156,13 @@ async function writeSlugTreeSourceDir(args: {
   targetDir: t.StringDir;
   include?: readonly string[];
   ignore?: readonly string[];
-}) {
+}): Promise<number> {
   const include = (args.include ?? ['.md']).map((ext) => ext.toLowerCase());
   const ignore = new Set([...DEFAULT_IGNORE, ...(args.ignore ?? [])]);
+  let count = 0;
 
   await copyDir(args.root, args.targetDir);
+  return count;
 
   async function copyDir(sourceDir: string, targetDir: string): Promise<void> {
     for await (const entry of Deno.readDir(sourceDir)) {
@@ -152,6 +177,7 @@ async function writeSlugTreeSourceDir(args: {
 
       if (!entry.isFile || !isIncluded(entry.name, include)) continue;
       await Fs.copyFile(source, target, { force: true });
+      count += 1;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { type t, c, Fs, Slug } from './common.ts';
+import { type t, Fs, Slug } from './common.ts';
 import { buildDocumentDag } from './u.dag.ts';
 import { bundleSequenceFilepaths } from './u.seq.files.bundle.ts';
 import { runSlugTreeFs } from './u.slug-tree.ts';
@@ -8,6 +8,35 @@ import { BundleProfileSchema } from './schema/mod.ts';
 export type BundleProfile = {
   readonly 'bundle:slug-tree:fs'?: t.LintSlugTree;
   readonly 'bundle:slug-tree:media:seq'?: t.LintMediaSeqBundle;
+};
+
+export type BundleRunProgress =
+  | { stage: 'media:seq'; current: number; total: number; docid: t.Crdt.Id }
+  | { stage: 'slug-tree:fs' };
+
+export type BundleRunDocSummary = {
+  readonly docid: t.Crdt.Id;
+  readonly issues: {
+    readonly total: number;
+    readonly byKind: ReadonlyMap<string, number>;
+  };
+};
+
+export type BundleRunSummary = {
+  readonly warnings: readonly string[];
+  readonly mediaSeq?: {
+    readonly total: number;
+    readonly bundled: number;
+    readonly docs: readonly BundleRunDocSummary[];
+  };
+  readonly slugTreeFs?: {
+    readonly ran: boolean;
+    readonly files: number;
+    readonly sourceFiles: number;
+    readonly sha256Files: number;
+    readonly manifests: number;
+    readonly elapsedMs: number;
+  };
 };
 
 export async function readBundleProfile(path: t.StringFile): Promise<BundleProfile> {
@@ -21,14 +50,15 @@ export async function runProfile(args: {
   cwd: t.StringDir;
   cmd: t.Crdt.Cmd.Client;
   profilePath: t.StringFile;
-}): Promise<void> {
+  onProgress?: (info: BundleRunProgress) => void;
+}): Promise<BundleRunSummary> {
   const { cwd, cmd, profilePath } = args;
+  const warnings: string[] = [];
+  const summary: BundleRunSummary = { warnings };
   const validation = await validate({ path: profilePath });
   if (!validation.ok) {
-    console.info(
-      c.yellow(`bundle profile invalid:\n  ${formatValidationErrors(validation.errors)}`),
-    );
-    return;
+    warnings.push(`bundle profile invalid:\n  ${formatValidationErrors(validation.errors)}`);
+    return summary;
   }
 
   const profile = await readBundleProfile(profilePath);
@@ -36,8 +66,8 @@ export async function runProfile(args: {
   if (mediaSeq) {
     const rawDocid = String(mediaSeq.crdt.docid ?? '').trim();
     if (!rawDocid || rawDocid === '<tbd>') {
-      console.info(
-        c.yellow('warning: bundle:slug-tree:media:seq skipped (crdt.docid missing or placeholder)'),
+      warnings.push(
+        'warning: bundle:slug-tree:media:seq skipped (crdt.docid missing or placeholder)',
       );
     } else {
       const yamlPath = parseYamlPath(mediaSeq.crdt.path);
@@ -46,12 +76,24 @@ export async function runProfile(args: {
         : (`crdt:${rawDocid}` as t.Crdt.Id);
       const dag = await buildDocumentDag(cmd, rootId, yamlPath);
       const Sequence = Slug.Trait.MediaComposition.Sequence;
-      let bundled = 0;
+      const targets: t.Crdt.Id[] = [];
 
       for (const node of dag.nodes) {
         const nodeId = node.id as t.Crdt.Id;
         const seqResult = await Sequence.fromDag(dag, yamlPath, nodeId, { validate: false });
         if (!seqResult.ok) continue;
+        targets.push(nodeId);
+      }
+
+      const docSummaries: BundleRunDocSummary[] = [];
+      let bundled = 0;
+      for (const [index, nodeId] of targets.entries()) {
+        args.onProgress?.({
+          stage: 'media:seq',
+          current: index + 1,
+          total: targets.length,
+          docid: nodeId,
+        });
         bundled += 1;
         const result = await bundleSequenceFilepaths(dag, yamlPath, nodeId, {
           target: mediaSeq.target,
@@ -63,34 +105,57 @@ export async function runProfile(args: {
             const next = (counts.get(issue.kind) ?? 0) + 1;
             counts.set(issue.kind, next);
           }
-          const summary = [...counts.entries()]
+          docSummaries.push({
+            docid: nodeId,
+            issues: {
+              total: result.issues.length,
+              byKind: counts,
+            },
+          });
+          const summaryText = [...counts.entries()]
             .map(([kind, count]) => `${kind}=${count}`)
             .join(', ');
-          console.info(
-            c.yellow(
-              `warning: bundle:slug-tree:media:seq issues (doc:${nodeId}, ${result.issues.length}): ${summary}`,
-            ),
+          warnings.push(
+            `warning: bundle:slug-tree:media:seq issues (doc:${nodeId}, ${result.issues.length}): ${summaryText}`,
           );
         }
       }
 
       if (bundled === 0) {
-        console.info(
-          c.yellow(
-            `warning: bundle:slug-tree:media:seq skipped (no media sequences found in DAG for ${rootId})`,
-          ),
+        warnings.push(
+          `warning: bundle:slug-tree:media:seq skipped (no media sequences found in DAG for ${rootId})`,
         );
       }
+      summary.mediaSeq = {
+        total: targets.length,
+        bundled,
+        docs: docSummaries,
+      };
     }
   }
 
   if (profile['bundle:slug-tree:fs']) {
-    await runSlugTreeFs({
+    args.onProgress?.({ stage: 'slug-tree:fs' });
+    const stats = await runSlugTreeFs({
       cwd,
       profilePath,
       createCrdt: async () => 'crdt:create' as t.StringRef,
     });
+    if (stats) {
+      summary.slugTreeFs = { ran: true, ...stats };
+    } else {
+      summary.slugTreeFs = {
+        ran: true,
+        files: 0,
+        sourceFiles: 0,
+        sha256Files: 0,
+        manifests: 0,
+        elapsedMs: 0,
+      };
+    }
   }
+
+  return summary;
 }
 
 function formatValidationErrors(errors: readonly t.ValueError[]): string {
