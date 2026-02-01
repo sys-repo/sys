@@ -2,11 +2,16 @@ import { type t } from '../common.ts';
 import { bundleSequenceFilepaths } from './u.seq.files.bundle.ts';
 import { runSlugTreeFs } from './u.slug-tree.ts';
 import { readBundleProfile } from './u.profile.ts';
+import { selectBundleProfile } from './u.bundle.menu.ts';
 import { validateBundleConfig } from './u.validate.ts';
 
 export const Bundler = {
   async validate(args: { path: t.StringFile }) {
     return await validateBundleConfig(args.path);
+  },
+
+  async selectProfile(args: { cwd: t.StringDir; interactive?: boolean }) {
+    return await selectBundleProfile(args.cwd, { interactive: args.interactive });
   },
 
   async slugTreeFs(args: {
