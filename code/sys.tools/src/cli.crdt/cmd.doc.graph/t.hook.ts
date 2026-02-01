@@ -41,22 +41,5 @@ export type DocumentGraphPlugin = {
     dag: t.Graph.Dag.Result;
     cmd: t.Crdt.Cmd.Client;
     docpath: t.ObjectPath;
-  }) => DocumentGraphPluginResult | Promise<DocumentGraphPluginResult>;
+  }) => t.MenuResult | Promise<t.MenuResult>;
 };
-
-/**
- * Plugin action result.
- */
-export const DocumentGraphPluginResultKind = {
-  Exit: 'exit',
-  Back: 'back',
-  Stay: 'stay',
-} as const;
-
-export type DocumentGraphPluginResultKind =
-  typeof DocumentGraphPluginResultKind[keyof typeof DocumentGraphPluginResultKind];
-
-export type DocumentGraphPluginResult =
-  | { kind: DocumentGraphPluginResultKind }
-  | DocumentGraphPluginResultKind
-  | undefined;

@@ -337,7 +337,7 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
 }
 
 const wrangle = {
-  pluginResult(result: t.DocumentGraphPluginResult): t.DocumentGraphPluginResultKind {
+  pluginResult(result: t.MenuResult): t.MenuResultKind {
     if (Is.str(result)) return result;
     if (result && Is.str(result.kind)) return result.kind;
     return 'stay';

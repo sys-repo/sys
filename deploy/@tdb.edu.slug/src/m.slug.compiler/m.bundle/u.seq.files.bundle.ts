@@ -32,8 +32,7 @@ export async function bundleSequenceFilepaths(
     /**
      * When true, require this slug to support playback derivation via a
      * playback-related trait (e.g. `{ of: "media-composition", as: "sequence" }`).
-     *
-     * Default: false — best-effort mode.
+     * Default: false - best-effort mode.
      */
     requirePlayback?: boolean;
   } = {},

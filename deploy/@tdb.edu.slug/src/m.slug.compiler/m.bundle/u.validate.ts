@@ -1,12 +1,8 @@
 import { type t, Fs, Schema } from './common.ts';
 import { SchemaBundleConfig } from './schema/mod.ts';
 
-export type BundleConfigValidation = {
-  ok: boolean;
-  errors: readonly t.ValueError[];
-};
-
-export async function validateBundleConfig(path: t.StringFile): Promise<BundleConfigValidation> {
+export const validate: t.SlugBundleLib['validate'] = async (args) => {
+  const { path } = args;
   const res = await Fs.readYaml<Record<string, unknown>>(path);
   if (!res.ok || !res.exists) {
     return {
@@ -17,7 +13,7 @@ export async function validateBundleConfig(path: t.StringFile): Promise<BundleCo
           message: `Bundle config not found: ${path}`,
         } as t.ValueError,
       ],
-    };
+    } as const;
   }
 
   const doc = res.data ?? {};
@@ -29,4 +25,4 @@ export async function validateBundleConfig(path: t.StringFile): Promise<BundleCo
   const ok = Schema.Value.Check(SchemaBundleConfig, bundleDoc);
   const errors = ok ? [] : [...Schema.Value.Errors(SchemaBundleConfig, bundleDoc)];
   return { ok, errors } as const;
-}
+};

@@ -2,10 +2,6 @@ import { type t, DEFAULT_IGNORE, Fs, Hash, Is, Json, Schema, SlugSchema, Yaml } 
 
 type Entry = t.SlugFileContentDoc;
 
-function toSha256Filename(hash: string): string {
-  return `${hash}.json`;
-}
-
 export async function writeSlugTreeSha256Dir(args: {
   root: t.StringDir;
   targetDir: t.StringDir;
@@ -50,6 +46,27 @@ export async function writeSlugTreeSha256Dir(args: {
       await Fs.write(outPath, Json.stringify(payload));
     }
   }
+}
+
+export async function writeSlugFileContentIndex(args: {
+  targetPath: t.StringFile;
+  docid: t.StringId;
+  entries: readonly t.SlugFileContentEntry[];
+}): Promise<void> {
+  const index: t.SlugFileContentIndex = { docid: args.docid, entries: [...args.entries] };
+  const ok = Schema.Value.Check(SlugSchema.FileContent.Index, index);
+  if (!ok) {
+    throw new Error(`Invalid slug-file-content index: ${args.targetPath}`);
+  }
+  await Fs.ensureDir(Fs.dirname(args.targetPath));
+  await Fs.write(args.targetPath, Json.stringify(index));
+}
+
+/**
+ * Helpers:
+ */
+function toSha256Filename(hash: string): string {
+  return `${hash}.json`;
 }
 
 function isIgnored(name: string, ignore: Set<string>): boolean {
@@ -111,18 +128,4 @@ function parseFrontmatter(source: string): Record<string, unknown> | undefined {
 function toEntry(doc: t.SlugFileContentDoc): t.SlugFileContentEntry {
   const { source: _source, ...rest } = doc;
   return rest;
-}
-
-export async function writeSlugFileContentIndex(args: {
-  targetPath: t.StringFile;
-  docid: t.StringId;
-  entries: readonly t.SlugFileContentEntry[];
-}): Promise<void> {
-  const index: t.SlugFileContentIndex = { docid: args.docid, entries: [...args.entries] };
-  const ok = Schema.Value.Check(SlugSchema.FileContent.Index, index);
-  if (!ok) {
-    throw new Error(`Invalid slug-file-content index: ${args.targetPath}`);
-  }
-  await Fs.ensureDir(Fs.dirname(args.targetPath));
-  await Fs.write(args.targetPath, Json.stringify(index));
 }
