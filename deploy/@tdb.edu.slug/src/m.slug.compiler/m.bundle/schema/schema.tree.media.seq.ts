@@ -6,11 +6,11 @@ export const SchemaSlugTreeMediaSeqBundleFields = {
   target: Schema.Type.Optional(
     Schema.Type.Object(
       {
-        base: Schema.Type.Optional(Schema.Type.String()),
-        hrefBase: Schema.Type.Optional(Schema.Type.String()),
         manifests: Schema.Type.Optional(
           Schema.Type.Object(
             {
+              base: Schema.Type.Optional(Schema.Type.String()),
+              hrefBase: Schema.Type.Optional(Schema.Type.String()),
               dir: Schema.Type.Optional(Schema.Type.String()),
               assets: Schema.Type.Optional(Schema.Type.String()),
               playback: Schema.Type.Optional(Schema.Type.String()),
@@ -22,8 +22,26 @@ export const SchemaSlugTreeMediaSeqBundleFields = {
         media: Schema.Type.Optional(
           Schema.Type.Object(
             {
-              video: Schema.Type.Optional(Schema.Type.String()),
-              image: Schema.Type.Optional(Schema.Type.String()),
+              video: Schema.Type.Optional(
+                Schema.Type.Object(
+                  {
+                    base: Schema.Type.Optional(Schema.Type.String()),
+                    hrefBase: Schema.Type.Optional(Schema.Type.String()),
+                    dir: Schema.Type.Optional(Schema.Type.String()),
+                  },
+                  { additionalProperties: false },
+                ),
+              ),
+              image: Schema.Type.Optional(
+                Schema.Type.Object(
+                  {
+                    base: Schema.Type.Optional(Schema.Type.String()),
+                    hrefBase: Schema.Type.Optional(Schema.Type.String()),
+                    dir: Schema.Type.Optional(Schema.Type.String()),
+                  },
+                  { additionalProperties: false },
+                ),
+              ),
             },
             { additionalProperties: false },
           ),

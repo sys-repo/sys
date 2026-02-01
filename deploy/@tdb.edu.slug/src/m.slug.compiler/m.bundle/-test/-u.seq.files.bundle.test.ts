@@ -57,7 +57,7 @@ describe('Lint: bundle/sequence files', () => {
       const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
         outDir: tmpDir,
         baseHref: '/base',
-        target: { media: { video: 'video' } },
+        target: { media: { video: { dir: 'video' } } },
       });
 
       expect(result.issues).to.eql([]);
@@ -274,7 +274,7 @@ describe('Lint: bundle/sequence files', () => {
           const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
             outDir: tmpDir,
             baseHref: '/base',
-            target: { media: { video: 'video' } },
+            target: { media: { video: { dir: 'video' } } },
           });
 
           const issue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');

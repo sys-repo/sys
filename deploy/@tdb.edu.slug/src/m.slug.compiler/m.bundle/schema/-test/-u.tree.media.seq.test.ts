@@ -7,15 +7,18 @@ describe('SchemaSlugTreeMediaSeqBundle', () => {
     const doc = {
       crdt: { docid: 'slug:test', path: '/slug' },
       target: {
-        base: './out',
-        hrefBase: '/assets',
         manifests: {
+          base: './out',
+          hrefBase: '/assets',
           dir: 'manifests',
           assets: 'slug.<docid>.assets.json',
           playback: 'slug.<docid>.playback.json',
           tree: 'slug-tree.<docid>.json',
         },
-        media: { video: 'video', image: 'image' },
+        media: {
+          video: { base: './out', hrefBase: '/assets', dir: 'video' },
+          image: { base: './out', hrefBase: '/assets', dir: 'image' },
+        },
       },
       requirePlayback: true,
     };

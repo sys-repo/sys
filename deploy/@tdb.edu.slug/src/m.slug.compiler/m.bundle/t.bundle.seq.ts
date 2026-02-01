@@ -23,17 +23,25 @@ export type SlugBundleMediaSeq = {
     readonly path: t.StringPath;
   };
   readonly target?: {
-    readonly base?: t.StringDir;
-    readonly hrefBase?: t.StringUrl;
     readonly manifests?: {
+      readonly base?: t.StringDir;
+      readonly hrefBase?: t.StringUrl;
       readonly dir?: t.StringDir;
       readonly assets?: t.StringPath;
       readonly playback?: t.StringPath;
       readonly tree?: t.StringPath;
     };
     readonly media?: {
-      readonly video?: t.StringPath;
-      readonly image?: t.StringPath;
+      readonly video?: {
+        readonly base?: t.StringDir;
+        readonly hrefBase?: t.StringUrl;
+        readonly dir?: t.StringDir;
+      };
+      readonly image?: {
+        readonly base?: t.StringDir;
+        readonly hrefBase?: t.StringUrl;
+        readonly dir?: t.StringDir;
+      };
     };
   };
   readonly requirePlayback?: boolean;

@@ -108,17 +108,20 @@ export async function runProfile(args: {
       }
 
       if (targets.length > 0) {
-        const baseDir = bundle.target?.base ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
+        const manifestsBase =
+          bundle.target?.manifests?.base ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
         const manifestsDir = bundle.target?.manifests?.dir ?? 'manifests';
-        const videoDir = bundle.target?.media?.video ?? 'video';
-        const imageDir = bundle.target?.media?.image ?? 'image';
+        const videoBase = bundle.target?.media?.video?.base ?? manifestsBase;
+        const imageBase = bundle.target?.media?.image?.base ?? manifestsBase;
+        const videoDir = bundle.target?.media?.video?.dir ?? 'video';
+        const imageDir = bundle.target?.media?.image?.dir ?? 'image';
         const distDirs: t.StringDir[] = [
-          baseDir,
-          resolveDir(baseDir, manifestsDir),
-          resolveDir(baseDir, videoDir),
+          manifestsBase,
+          resolveDir(manifestsBase, manifestsDir),
+          resolveDir(videoBase, videoDir),
         ];
         if (bundle.target?.media?.image !== undefined) {
-          distDirs.push(resolveDir(baseDir, imageDir));
+          distDirs.push(resolveDir(imageBase, imageDir));
         }
         await writeDistFiles(distDirs);
       }
@@ -211,8 +214,29 @@ function buildMediaSeqDescriptor(args: {
   const playbackPath = resolvePath(baseDir, manifestsDir, playbackFilename);
   const treePath = resolvePath(baseDir, manifestsDir, treeFilename);
 
-  const includeVideo = args.bundle.target?.media ? args.bundle.target?.media?.video !== undefined : true;
-  const includeImage = args.bundle.target?.media ? args.bundle.target?.media?.image !== undefined : true;
+  const includeVideo = args.bundle.target?.media
+    ? args.bundle.target?.media?.video !== undefined
+    : true;
+  const includeImage = args.bundle.target?.media
+    ? args.bundle.target?.media?.image !== undefined
+    : true;
+
+  const videoBase = args.bundle.target?.media?.video?.base ?? baseDir;
+  const imageBase = args.bundle.target?.media?.image?.base ?? baseDir;
+  const shareVideoBase = videoBase === baseDir;
+  const shareImageBase = imageBase === baseDir;
+
+  const mediaDirs =
+    (includeVideo && shareVideoBase) || (includeImage && shareImageBase)
+      ? {
+          ...(includeVideo && shareVideoBase
+            ? { video: toRelativeDir(baseDir, args.dir.video) }
+            : {}),
+          ...(includeImage && shareImageBase
+            ? { image: toRelativeDir(baseDir, args.dir.image) }
+            : {}),
+        }
+      : undefined;
 
   const bundle: t.BundleDescriptor = {
     kind: 'slug-tree:media:seq',
@@ -220,10 +244,7 @@ function buildMediaSeqDescriptor(args: {
     docid,
     layout: {
       manifestsDir: toRelativeDir(baseDir, manifestsDir),
-      mediaDirs: {
-        ...(includeVideo ? { video: toRelativeDir(baseDir, args.dir.video) } : {}),
-        ...(includeImage ? { image: toRelativeDir(baseDir, args.dir.image) } : {}),
-      },
+      ...(mediaDirs ? { mediaDirs } : {}),
     },
     files: {
       assets: toRelativePath(baseDir, assetsPath),

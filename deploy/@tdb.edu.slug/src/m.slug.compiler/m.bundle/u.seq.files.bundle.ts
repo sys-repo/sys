@@ -42,20 +42,28 @@ export async function bundleSequenceFilepaths(
     v.startsWith('media:seq:file:'),
   );
 
-  const baseHref = Str.trimTrailingSlashes(opts.target?.hrefBase ?? opts.baseHref ?? '/');
   const yamlPathStr = Is.array(yamlPath) && yamlPath.length > 0 ? yamlPath.join('/') : '';
 
-  const baseDir = opts.target?.base ?? opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
+  const manifestsBase =
+    opts.target?.manifests?.base ?? opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
   const manifestsDir = opts.target?.manifests?.dir ?? 'manifests';
-  const videoDir = opts.target?.media?.video ?? 'video';
-  const imageDir = opts.target?.media?.image ?? 'image';
+  const videoBase = opts.target?.media?.video?.base ?? manifestsBase;
+  const imageBase = opts.target?.media?.image?.base ?? manifestsBase;
+  const videoDir = opts.target?.media?.video?.dir ?? 'video';
+  const imageDir = opts.target?.media?.image?.dir ?? 'image';
+  const videoHrefBase = Str.trimTrailingSlashes(
+    opts.target?.media?.video?.hrefBase ?? opts.target?.manifests?.hrefBase ?? opts.baseHref ?? '/',
+  );
+  const imageHrefBase = Str.trimTrailingSlashes(
+    opts.target?.media?.image?.hrefBase ?? opts.target?.manifests?.hrefBase ?? opts.baseHref ?? '/',
+  );
 
   const assetsTemplate = opts.target?.manifests?.assets ?? 'slug.<docid>.assets.json';
   const playbackTemplate = opts.target?.manifests?.playback ?? 'slug.<docid>.playback.json';
   const treeTemplate = opts.target?.manifests?.tree ?? 'slug-tree.<docid>.json';
 
   const dir: t.BundleSequenceResult['dir'] = {
-    base: baseDir,
+    base: manifestsBase,
     manifests: manifestsDir,
     video: videoDir,
     image: imageDir,
@@ -65,13 +73,13 @@ export async function bundleSequenceFilepaths(
   const playbackFilename = resolveTemplate(playbackTemplate, docid);
   const slugTreeFilename = resolveTemplate(treeTemplate, docid);
 
-  const assetsPath = resolvePath(baseDir, manifestsDir, assetsFilename);
-  const playbackPath = resolvePath(baseDir, manifestsDir, playbackFilename);
-  const slugTreePath = resolvePath(baseDir, manifestsDir, slugTreeFilename);
+  const assetsPath = resolvePath(manifestsBase, manifestsDir, assetsFilename);
+  const playbackPath = resolvePath(manifestsBase, manifestsDir, playbackFilename);
+  const slugTreePath = resolvePath(manifestsBase, manifestsDir, slugTreeFilename);
 
-  const assetsRaw = toRawPath(baseDir, assetsPath);
-  const playbackRaw = toRawPath(baseDir, playbackPath);
-  const slugTreeRaw = toRawPath(baseDir, slugTreePath);
+  const assetsRaw = toRawPath(manifestsBase, assetsPath);
+  const playbackRaw = toRawPath(manifestsBase, playbackPath);
+  const slugTreeRaw = toRawPath(manifestsBase, slugTreePath);
 
   const pushAssetsManifestError = (path: string, message: string) => {
     const issue: t.LintSequenceFilepath = {
@@ -102,9 +110,12 @@ export async function bundleSequenceFilepaths(
     const hash = Hash.sha256((await Fs.read(resolvedPath)).data);
     const ext = Fs.extname(resolvedPath);
     const filename = `${hash}${ext}`;
-    const kindDir = kind === 'image' ? dir.image : dir.video;
+    const isImage = kind === 'image';
+    const kindDir = isImage ? dir.image : dir.video;
+    const destBase = isImage ? imageBase : videoBase;
+    const hrefBase = isImage ? imageHrefBase : videoHrefBase;
 
-    const destDir = resolvePath(baseDir, kindDir);
+    const destDir = resolvePath(destBase, kindDir);
     const destPath = Fs.join(destDir, filename);
 
     await Fs.ensureDir(destDir);
@@ -112,7 +123,7 @@ export async function bundleSequenceFilepaths(
 
     const stat = await Fs.stat(resolvedPath);
     const bytes = Is.number(stat?.size) ? stat.size : undefined;
-    const href = `${baseHref}/${kindDir}/${filename}`;
+    const href = `${hrefBase}/${kindDir}/${filename}`;
 
     let duration: t.Msecs | undefined;
     if (kind === 'video') {
