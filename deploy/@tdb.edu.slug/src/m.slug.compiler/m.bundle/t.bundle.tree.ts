@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Configuration
  */
-export type SlugBundleSlugTreeFs = {
+export type SlugBundleFileTree = {
   /** Source directory to scan. */
   readonly source?: t.StringPath;
   /** CRDT configuration for DAG-based lookup. */
@@ -12,7 +12,7 @@ export type SlugBundleSlugTreeFs = {
     readonly path: t.StringPath;
   };
   /** Targets for generated artifacts. */
-  readonly target?: SlugBundleSlugTreeTarget;
+  readonly target?: SlugBundleFileTreeTarget;
   /** File extensions to include (e.g. ".md"). */
   readonly include?: readonly string[];
   /** Directory entries to ignore. */
@@ -23,22 +23,22 @@ export type SlugBundleSlugTreeFs = {
   readonly readmeAsIndex?: boolean;
 };
 
-export type SlugBundleSlugTreeTarget = {
+export type SlugBundleFileTreeTarget = {
   /** Manifest targets for generated artifacts. */
   readonly manifest?: t.StringPath | readonly t.StringPath[];
   /** Optional directory to copy source content into. */
   readonly dir?:
     | t.StringPath
-    | SlugBundleSlugTreeTargetDir
-    | readonly SlugBundleSlugTreeTargetDir[];
+    | SlugBundleFileTreeTargetDir
+    | readonly SlugBundleFileTreeTargetDir[];
 };
 
-export type SlugBundleSlugTreeTargetDir = {
+export type SlugBundleFileTreeTargetDir = {
   readonly kind: 'source' | 'sha256';
   readonly path: t.StringPath;
 };
 
-export type SlugTreeFsStats = {
+export type SlugBundleFileTreeStats = {
   readonly files: number;
   readonly sourceFiles: number;
   readonly sha256Files: number;

@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import type { SlugTreeFsStats } from './t.bundle.tree.ts';
+import type { SlugBundleFileTreeStats } from './t.bundle.tree.ts';
 
 export type BundleRunProgress =
   | { stage: 'media:seq'; current: number; total: number; docid: t.Crdt.Id }
@@ -20,5 +20,5 @@ export type BundleRunSummary = {
     readonly bundled: number;
     readonly docs: readonly BundleRunDocSummary[];
   };
-  readonly slugTreeFs?: { readonly ran: boolean } & SlugTreeFsStats;
+  readonly slugTreeFs?: { readonly ran: boolean } & SlugBundleFileTreeStats;
 };

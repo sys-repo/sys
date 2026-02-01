@@ -13,7 +13,7 @@ describe('Lint: slug-tree:fs', () => {
       await Fs.write(Fs.join(srcDir, 'b.txt'), 'skip');
       await Fs.write(Fs.join(srcDir, 'sub', 'c.md'), 'world');
 
-      const config: t.SlugBundleSlugTreeFs = {
+      const config: t.SlugBundleFileTree = {
         source: 'src',
         crdt: { docid: 'slug:test', path: '/slug' },
         target: {

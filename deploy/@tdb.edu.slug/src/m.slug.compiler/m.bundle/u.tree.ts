@@ -6,9 +6,9 @@ import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.tree.file
 
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
-  config: t.SlugBundleSlugTreeFs;
+  config: t.SlugBundleFileTree;
   createCrdt: () => Promise<t.StringRef>;
-}): Promise<t.SlugTreeFsStats | undefined> {
+}): Promise<t.SlugBundleFileTreeStats | undefined> {
   const startedAt = Date.now();
   const { cwd, createCrdt, config } = args;
 
@@ -127,12 +127,12 @@ function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.Str
 }
 
 function normalizeTargetDirs(
-  input?: t.StringPath | t.SlugBundleSlugTreeTargetDir | readonly t.SlugBundleSlugTreeTargetDir[],
-): t.SlugBundleSlugTreeTargetDir[] {
+  input?: t.StringPath | t.SlugBundleFileTreeTargetDir | readonly t.SlugBundleFileTreeTargetDir[],
+): t.SlugBundleFileTreeTargetDir[] {
   if (!input) return [];
   if (typeof input === 'string') return [{ kind: 'source', path: input }];
-  if (Array.isArray(input)) return input.filter(Boolean) as t.SlugBundleSlugTreeTargetDir[];
-  return [input as t.SlugBundleSlugTreeTargetDir];
+  if (Array.isArray(input)) return input.filter(Boolean) as t.SlugBundleFileTreeTargetDir[];
+  return [input as t.SlugBundleFileTreeTargetDir];
 }
 
 function deriveAssetsPath(path: t.StringFile): t.StringFile | undefined {

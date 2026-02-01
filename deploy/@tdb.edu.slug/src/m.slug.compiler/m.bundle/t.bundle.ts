@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import type { SlugBundleMediaSeq } from './t.bundle.seq.ts';
-import type { SlugBundleSlugTreeFs } from './t.bundle.tree.ts';
+import type { SlugBundleFileTree } from './t.bundle.tree.ts';
 
 /**
  * CRDT document graph (DAG).
@@ -16,7 +16,7 @@ export type BundleBase = {
 };
 
 export type BundleConfig =
-  | (BundleBase & SlugBundleSlugTreeFs & { readonly kind: 'slug-tree:fs' })
+  | (BundleBase & SlugBundleFileTree & { readonly kind: 'slug-tree:fs' })
   | (BundleBase & SlugBundleMediaSeq & { readonly kind: 'slug-tree:media:seq' });
 
 export type BundleKind = BundleConfig['kind'];
