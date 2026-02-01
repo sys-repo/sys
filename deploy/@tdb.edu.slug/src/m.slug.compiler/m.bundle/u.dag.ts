@@ -32,9 +32,8 @@ function makeLoad(cmd: CmdClient): t.Crdt.Graph.LoadDoc<O> {
 function makeDiscoverRefs(path: t.ObjectPath): t.Crdt.Graph.DiscoverRefs {
   return async (e) => {
     const yaml = Obj.Path.get<string>(e.doc.current, path) ?? '';
-    return extractCrdtRefs(yaml)
+    return Crdt.Str.extractRefs(yaml)
       .map((id) => Crdt.Id.fromUri(id))
       .filter((id) => Crdt.Is.id(id));
   };
 }
-
