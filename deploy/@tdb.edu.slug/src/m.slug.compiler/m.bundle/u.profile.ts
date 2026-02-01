@@ -1,5 +1,6 @@
-import { type t, Fs, Slug } from './common.ts';
+import { type t, Crdt, Fs, Slug } from './common.ts';
 import { buildDocumentDag } from './u.dag.ts';
+import { writeDistClientFiles } from './u.dist.client.ts';
 import { bundleSequenceFilepaths } from './u.seq.files.bundle.ts';
 import { writeDistFiles } from './u.dist.ts';
 import { runSlugTreeFs } from './u.tree.ts';
@@ -34,6 +35,7 @@ export async function runProfile(args: {
   const bundles = profile.bundles ?? [];
   let mediaSeqTotals: t.BundleRunSummary['mediaSeq'] | undefined;
   let slugTreeFsTotals: t.BundleRunSummary['slugTreeFs'] | undefined;
+  const descriptorEntries: Array<{ dir: t.StringDir; bundle: t.BundleDescriptor }> = [];
 
   for (const [i, bundle] of bundles.entries()) {
     if (bundle.enabled === false) continue;
@@ -75,6 +77,12 @@ export async function runProfile(args: {
           target: bundle.target,
           requirePlayback: bundle.requirePlayback,
         });
+        const descriptor = buildMediaSeqDescriptor({
+          bundle,
+          docid: nodeId,
+          dir: result.dir,
+        });
+        if (descriptor) descriptorEntries.push(descriptor);
         if (result.issues.length > 0) {
           const counts = new Map<string, number>();
           for (const issue of result.issues) {
@@ -133,6 +141,8 @@ export async function runProfile(args: {
         config: bundle,
         createCrdt: async () => 'crdt:create' as t.StringRef,
       });
+      const fsDescriptors = await buildSlugTreeFsDescriptors({ cwd, bundle });
+      descriptorEntries.push(...fsDescriptors);
       const merged = {
         files: (slugTreeFsTotals?.files ?? 0) + (stats?.files ?? 0),
         sourceFiles: (slugTreeFsTotals?.sourceFiles ?? 0) + (stats?.sourceFiles ?? 0),
@@ -147,6 +157,10 @@ export async function runProfile(args: {
 
   if (mediaSeqTotals) summary = { ...summary, mediaSeq: mediaSeqTotals };
   if (slugTreeFsTotals) summary = { ...summary, slugTreeFs: slugTreeFsTotals };
+
+  if (descriptorEntries.length > 0) {
+    await writeDistClientFiles(descriptorEntries);
+  }
 
   return summary;
 }
@@ -170,4 +184,160 @@ function parseYamlPath(input: t.StringPath): t.ObjectPath {
 function resolveDir(baseDir: t.StringDir, subPath: t.StringDir): t.StringDir {
   if (Fs.Path.Is.absolute(subPath)) return subPath;
   return Fs.join(baseDir, subPath);
+}
+
+const DESCRIPTOR_VERSION = 1;
+
+function buildMediaSeqDescriptor(args: {
+  bundle: t.SlugBundleMediaSeq;
+  docid: t.Crdt.Id;
+  dir: t.BundleSequenceResult['dir'];
+}): { dir: t.StringDir; bundle: t.BundleDescriptor } | undefined {
+  const baseDir = args.dir.base;
+  const manifestsDir = args.dir.manifests;
+  const descriptorDir = resolveDir(baseDir, manifestsDir);
+  const docid = String(args.docid) as t.StringId;
+
+  const cleaned = Crdt.Id.clean(docid) ?? docid;
+  const assetsTemplate = args.bundle.target?.manifests?.assets ?? 'slug.<docid>.assets.json';
+  const playbackTemplate = args.bundle.target?.manifests?.playback ?? 'slug.<docid>.playback.json';
+  const treeTemplate = args.bundle.target?.manifests?.tree ?? 'slug-tree.<docid>.json';
+
+  const assetsFilename = resolveTemplate(assetsTemplate, cleaned);
+  const playbackFilename = resolveTemplate(playbackTemplate, cleaned);
+  const treeFilename = resolveTemplate(treeTemplate, cleaned);
+
+  const assetsPath = resolvePath(baseDir, manifestsDir, assetsFilename);
+  const playbackPath = resolvePath(baseDir, manifestsDir, playbackFilename);
+  const treePath = resolvePath(baseDir, manifestsDir, treeFilename);
+
+  const includeVideo = args.bundle.target?.media ? args.bundle.target?.media?.video !== undefined : true;
+  const includeImage = args.bundle.target?.media ? args.bundle.target?.media?.image !== undefined : true;
+
+  const bundle: t.BundleDescriptor = {
+    kind: 'slug-tree:media:seq',
+    version: DESCRIPTOR_VERSION,
+    docid,
+    layout: {
+      manifestsDir: toRelativeDir(baseDir, manifestsDir),
+      mediaDirs: {
+        ...(includeVideo ? { video: toRelativeDir(baseDir, args.dir.video) } : {}),
+        ...(includeImage ? { image: toRelativeDir(baseDir, args.dir.image) } : {}),
+      },
+    },
+    files: {
+      assets: toRelativePath(baseDir, assetsPath),
+      playback: toRelativePath(baseDir, playbackPath),
+      tree: toRelativePath(baseDir, treePath),
+    },
+  };
+
+  return { dir: descriptorDir, bundle };
+}
+
+async function buildSlugTreeFsDescriptors(args: {
+  cwd: t.StringDir;
+  bundle: t.SlugBundleFileTree;
+}): Promise<Array<{ dir: t.StringDir; bundle: t.BundleDescriptor }>> {
+  const targets = normalizeTargets(args.bundle.target?.manifest);
+  if (targets.length === 0) return [];
+
+  const docid = String(args.bundle.crdt.docid ?? '').trim();
+  if (!docid) return [];
+
+  const sha256Dir = resolveSha256Dir(args.cwd, args.bundle.target?.dir);
+  const results: Array<{ dir: t.StringDir; bundle: t.BundleDescriptor }> = [];
+
+  for (const target of targets) {
+    const absPath = Fs.Path.resolve(args.cwd, Fs.Tilde.expand(String(target)));
+    const ext = Fs.extname(absPath).toLowerCase();
+    if (ext !== '.json') continue;
+
+    const baseDir = Fs.dirname(absPath);
+    const treePath = toRelativePath(baseDir, absPath);
+    const assetsPath = deriveAssetsPath(absPath);
+    const assetsExists = assetsPath ? await Fs.exists(assetsPath) : false;
+
+    const layout = {
+      manifestsDir: '.',
+      ...(sha256Dir ? { contentDir: toRelativeDir(baseDir, sha256Dir) } : {}),
+    };
+
+    const bundle: t.BundleDescriptor = {
+      kind: 'slug-tree:fs',
+      version: DESCRIPTOR_VERSION,
+      docid: docid as t.StringId,
+      layout,
+      files: {
+        tree: treePath,
+        ...(assetsExists && assetsPath
+          ? { index: toRelativePath(baseDir, assetsPath) }
+          : {}),
+      },
+    };
+
+    results.push({ dir: baseDir, bundle });
+  }
+
+  return results;
+}
+
+function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.StringPath[] {
+  if (!input) return [];
+  const list = Array.isArray(input) ? input : [input];
+  return list.map((value) => String(value).trim()).filter(Boolean) as t.StringPath[];
+}
+
+function resolveSha256Dir(
+  cwd: t.StringDir,
+  input?:
+    | t.StringPath
+    | t.SlugBundleFileTreeTargetDir
+    | readonly t.SlugBundleFileTreeTargetDir[],
+): t.StringDir | undefined {
+  if (!input) return;
+  const list = Array.isArray(input) ? input : [input];
+  for (const item of list) {
+    if (!item) continue;
+    if (typeof item === 'string') continue;
+    if (item.kind !== 'sha256') continue;
+    const path = Fs.Path.resolve(cwd, Fs.Tilde.expand(String(item.path ?? '')));
+    if (!path) continue;
+    return path as t.StringDir;
+  }
+}
+
+function resolveTemplate(value: string, docid: t.StringId): string {
+  if (!value.includes('<docid>')) return value;
+  return value.replaceAll('<docid>', docid);
+}
+
+function resolvePath(baseDir: string, subPath: string, filename?: string): string {
+  if (filename && Fs.Path.Is.absolute(filename)) return filename;
+  if (Fs.Path.Is.absolute(subPath)) {
+    return filename ? Fs.join(subPath, filename) : subPath;
+  }
+  return filename ? Fs.join(baseDir, subPath, filename) : Fs.join(baseDir, subPath);
+}
+
+function toRelativeDir(baseDir: t.StringDir, dir: t.StringDir): t.StringDir {
+  if (!dir) return dir;
+  if (!Fs.Path.Is.absolute(dir)) return dir;
+  const rel = Fs.Path.relative(baseDir, dir) || '.';
+  return rel as t.StringDir;
+}
+
+function toRelativePath(baseDir: t.StringDir, path: string): t.StringPath {
+  if (!path) return path as t.StringPath;
+  if (!Fs.Path.Is.absolute(path)) return path as t.StringPath;
+  const rel = Fs.Path.relative(baseDir, path) || Fs.basename(path);
+  return rel as t.StringPath;
+}
+
+function deriveAssetsPath(path: t.StringFile): t.StringFile | undefined {
+  const ext = Fs.extname(path).toLowerCase();
+  if (ext !== '.json') return;
+  const dir = Fs.dirname(path);
+  const base = Fs.basename(path, ext);
+  return Fs.join(dir, `${base}.assets${ext}`) as t.StringFile;
 }
