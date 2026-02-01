@@ -1,10 +1,15 @@
-import { describe, it, expect } from './-test.ts';
-import { pkg } from './pkg.ts';
+import { describe, expect, it } from './-test.ts';
 import { Pkg } from './common.ts';
+import { pkg } from './pkg.ts';
+
+import { SlugClient } from './m.client/mod.ts';
+import { SlugSchema } from './m.schema/mod.ts';
 
 describe(`module: ${Pkg.toString(pkg)}`, () => {
-  it('exists', () => {
-    console.info(`💦 Module`, pkg);
-    expect(typeof pkg.name === 'string').to.be.true;
+  it('API', async () => {
+    const schema = await import('@sys/model-slug/schema');
+    const client = await import('@sys/model-slug/client');
+    expect(client.SlugClient).to.equal(SlugClient);
+    expect(schema.SlugSchema).to.equal(SlugSchema);
   });
 });
