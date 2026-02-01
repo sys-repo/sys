@@ -20,3 +20,5 @@ export { Tasks } from './m.tasks/mod.ts';
 export { Slug } from './m.slug/mod.ts';
 /** Tree-builder helpers derived from slug structures. */
 export { SlugTree } from './m.slug.SlugTree/mod.ts';
+/** Bundling helpers for slug artifacts. */
+export { Bundler } from './m.bundle/mod.ts';
