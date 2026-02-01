@@ -103,7 +103,7 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
 
       if (A === 'root:tmpl:hookfile') {
         await rootHookTmpl.write();
-        return done(0);
+        continue;
       }
       if (A === 'exit') return done(0);
       if (A === 'docs') {
@@ -302,7 +302,7 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
 
           if (B === 'doc:tmpl:hookfile') {
             await hookTmpl.write();
-            return done(0);
+            continue;
           }
 
           if (B === 'doc:remove') {
