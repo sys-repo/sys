@@ -114,10 +114,10 @@ export async function runSlugTreeFs(args: {
     );
   }
 
-  const elapsedMs = Date.now() - startedAt;
+  const elapsed = Date.now() - startedAt;
   const files = sourceFiles > 0 ? sourceFiles : sha256Files;
   await writeDistFiles(distDirs);
-  return { files, sourceFiles, sha256Files, manifests, elapsedMs };
+  return { files, sourceFiles, sha256Files, manifests, elapsed };
 }
 
 function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.StringPath[] {

@@ -68,7 +68,7 @@ async function runOnce(args: {
     onProgress: (info: t.BundleRunProgress) => {
       if (info.stage === 'media:seq') {
         const current = String(info.current);
-        spinner.text = Fmt.spinnerText(`bundling media:seq ${c.white(current)}/${info.total}`);
+        spinner.text = Fmt.spinnerText(`bundling media:seq (${c.white(current)}/${info.total})`);
         return;
       }
       if (info.stage === 'slug-tree:fs') {
@@ -93,12 +93,23 @@ function printSummary(summary: t.BundleRunSummary) {
   if (summary.mediaSeq) {
     const issuesTotal = summary.mediaSeq.docs.reduce((acc, doc) => acc + doc.issues.total, 0);
     const docsWithIssues = summary.mediaSeq.docs.length;
-    kv('media:seq bundled', `${summary.mediaSeq.bundled}/${summary.mediaSeq.total}`);
-    kv('media:seq issues', `${issuesTotal} (${docsWithIssues} docs)`);
+    const mediaCounts = summarizeMediaIssues(summary.mediaSeq.docs);
+    const parts: string[] = [];
+    if (mediaCounts.image > 0) parts.push(`image=${mediaCounts.image}`);
+    if (mediaCounts.video > 0) parts.push(`video=${mediaCounts.video}`);
+    if (mediaCounts.other > 0) parts.push(`other=${mediaCounts.other}`);
+    const kindSummary = parts.length > 0 ? `; ${parts.join(', ')}` : '';
+    const mediaElapsed = summary.mediaSeq.elapsed ?? 0;
+    const mediaElapsedText = mediaElapsed > 0 ? `${(mediaElapsed / 1000).toFixed(2)}s` : '0s';
+    const total = summary.mediaSeq.total;
+    const bundled = summary.mediaSeq.bundled;
+    const countText = bundled === total ? `${bundled}` : `${bundled}/${total}`;
+    kv('media:seq bundled', `${countText} docs, time=${mediaElapsedText}`);
+    kv('media:seq issues', `${issuesTotal}${kindSummary} (${docsWithIssues} docs)`);
   }
 
   if (summary.slugTreeFs) {
-    const elapsed = summary.slugTreeFs.elapsedMs;
+    const elapsed = summary.slugTreeFs.elapsed;
     const elapsedText = elapsed > 0 ? `${(elapsed / 1000).toFixed(2)}s` : '0s';
     kv(
       'slug-tree:fs',
@@ -108,4 +119,24 @@ function printSummary(summary: t.BundleRunSummary) {
 
   const text = String(table);
   if (text.trim().length > 0) console.info(text, '\n');
+}
+
+function summarizeMediaIssues(docs: readonly t.BundleRunDocSummary[]) {
+  let image = 0;
+  let video = 0;
+  let other = 0;
+  for (const doc of docs) {
+    for (const [kind, count] of doc.issues.byKind.entries()) {
+      if (kind.includes('image')) {
+        image += count;
+        continue;
+      }
+      if (kind.includes('video')) {
+        video += count;
+        continue;
+      }
+      other += count;
+    }
+  }
+  return { image, video, other };
 }

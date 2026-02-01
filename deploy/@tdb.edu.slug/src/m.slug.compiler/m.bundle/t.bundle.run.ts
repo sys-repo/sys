@@ -19,6 +19,7 @@ export type BundleRunSummary = {
     readonly total: number;
     readonly bundled: number;
     readonly docs: readonly BundleRunDocSummary[];
+    readonly elapsed: t.Msecs;
   };
   readonly slugTreeFs?: { readonly ran: boolean } & SlugBundleFileTreeStats;
 };

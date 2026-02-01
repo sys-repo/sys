@@ -38,6 +38,7 @@ export async function runProfile(args: {
   for (const [i, bundle] of bundles.entries()) {
     if (bundle.enabled === false) continue;
     if (bundle.kind === 'slug-tree:media:seq') {
+      const mediaStart = Date.now();
       const rawDocid = String(bundle.crdt.docid ?? '').trim();
       if (!rawDocid || rawDocid === '<tbd>') {
         const msg = `warning: bundle:slug-tree:media:seq skipped (bundle#${i + 1}, crdt.docid missing or placeholder)`;
@@ -115,10 +116,12 @@ export async function runProfile(args: {
       }
 
       const prevDocs = mediaSeqTotals?.docs ?? [];
+      const elapsed = Date.now() - mediaStart;
       mediaSeqTotals = {
         total: (mediaSeqTotals?.total ?? 0) + targets.length,
         bundled: (mediaSeqTotals?.bundled ?? 0) + bundled,
         docs: [...prevDocs, ...docSummaries],
+        elapsed: (mediaSeqTotals?.elapsed ?? 0) + elapsed,
       };
       continue;
     }
@@ -135,7 +138,7 @@ export async function runProfile(args: {
         sourceFiles: (slugTreeFsTotals?.sourceFiles ?? 0) + (stats?.sourceFiles ?? 0),
         sha256Files: (slugTreeFsTotals?.sha256Files ?? 0) + (stats?.sha256Files ?? 0),
         manifests: (slugTreeFsTotals?.manifests ?? 0) + (stats?.manifests ?? 0),
-        elapsedMs: (slugTreeFsTotals?.elapsedMs ?? 0) + (stats?.elapsedMs ?? 0),
+        elapsed: (slugTreeFsTotals?.elapsed ?? 0) + (stats?.elapsed ?? 0),
       };
       slugTreeFsTotals = { ran: true, ...merged };
       continue;

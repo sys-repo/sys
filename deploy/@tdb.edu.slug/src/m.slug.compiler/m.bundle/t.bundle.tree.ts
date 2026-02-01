@@ -43,5 +43,5 @@ export type SlugBundleFileTreeStats = {
   readonly sourceFiles: number;
   readonly sha256Files: number;
   readonly manifests: number;
-  readonly elapsedMs: number;
+  readonly elapsed: t.Msecs;
 };
