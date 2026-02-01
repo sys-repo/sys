@@ -1,6 +1,6 @@
 import { buildSequenceFilepathIssue } from '../m.lint/u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from '../m.lint/u.lint.seq.files.walk.ts';
-import { type t, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug, Crdt } from './common.ts';
+import { type t, c, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
 
 type R = t.LintAndBundleResult;
 type Dag = t.Graph.Dag.Result;
@@ -39,9 +39,14 @@ export async function bundleSequenceFilepaths(
 ): Promise<R> {
   const issues: t.LintSequenceFilepath[] = [];
   const assets: t.SlugAsset[] = [];
-  const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('media:seq:file:'));
-  const baseHref = (opts.target?.hrefBase ?? opts.baseHref ?? '/').replace(/\/+$/, '');
+  let visited = 0;
+  let resolved = 0;
+  let existsCount = 0;
+  const facets: Facet[] = (opts.facets ?? DEFAULT_MEDIA_FACETS).filter((v) =>
+    v.startsWith('media:seq:file:'),
+  );
 
+  const baseHref = (opts.target?.hrefBase ?? opts.baseHref ?? '/').replace(/\/+$/, '');
   const yamlPathStr = Is.array(yamlPath) && yamlPath.length > 0 ? yamlPath.join('/') : '';
 
   const baseDir = opts.target?.base ?? opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
@@ -86,6 +91,7 @@ export async function bundleSequenceFilepaths(
   };
 
   const visit = async (args: t.LintMediaWalkArgs) => {
+    visited += 1;
     const issue = await buildSequenceFilepathIssue(docid, args);
     if (issue) {
       issues.push(issue);
@@ -93,6 +99,8 @@ export async function bundleSequenceFilepaths(
     }
 
     const { kind, raw, resolvedPath, exists } = args;
+    if (resolvedPath) resolved += 1;
+    if (exists) existsCount += 1;
     if (!exists || !resolvedPath) return;
 
     const hash = Hash.sha256((await Fs.read(resolvedPath)).data);

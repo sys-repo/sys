@@ -22,7 +22,7 @@ export const run: t.SlugBundleLib['run'] = async (args) => {
       defaultProfile: lastProfile,
     });
 
-    if (actionPick.kind === 'exit') return { kind: 'stay' } as const;
+    if (actionPick.kind === 'exit') return { kind: 'stay' };
     if ('profile' in actionPick && actionPick.profile) {
       lastProfile = actionPick.profile;
     }

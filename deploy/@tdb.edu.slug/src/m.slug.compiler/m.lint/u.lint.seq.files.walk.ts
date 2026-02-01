@@ -1,4 +1,4 @@
-import { type t, Fs, Is, Slug } from './common.ts';
+import { type t, Fs, Is, Slug, c } from './common.ts';
 
 type O = Record<string, unknown>;
 type Facet = t.SlugLintFacet;
