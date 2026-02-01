@@ -1,4 +1,9 @@
-export type * from './t.lib.io.ts';
+/** Type re-exports. */
+export type * from './t.io.descriptor.ts';
+export type * from './t.io.file-content.ts';
+export type * from './t.io.timeline.assets.ts';
+export type * from './t.io.timeline.playback.ts';
+export type * from './t.io.ts';
 export type * from './t.lib.ts';
 export type * from './t.spec.ts';
 

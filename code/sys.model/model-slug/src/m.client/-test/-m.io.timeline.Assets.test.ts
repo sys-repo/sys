@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Assets } from '../m.io.Assets.ts';
+import { Assets } from '../m.io.timeline.Assets.ts';
 import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';

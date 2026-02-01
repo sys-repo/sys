@@ -4,6 +4,8 @@ export type SlugClientLib = {
   readonly Error: t.SlugClientErrorLib;
   readonly Url: t.SlugClientUrlLib;
   readonly FromEndpoint: t.SlugFromEndpointLib;
+  readonly FromDescriptor: t.SlugClientFromDescriptorLib;
+  readonly fromDescriptor: t.SlugClientFromDescriptorLib['make'];
 };
 
 export type SlugClientUrlLib = {
@@ -19,4 +21,12 @@ export type SlugClientUrlLib = {
 export type SlugClientErrorLib = {
   readonly unwrap: <T>(res: t.SlugClientResult<T>) => T;
   readonly throw: (err: t.SlugClientError) => never;
+};
+
+export type SlugFromEndpointLib = {
+  readonly Tree: t.SlugClientTreeLib;
+  readonly Playback: t.SlugClientPlaybackLib;
+  readonly Assets: t.SlugClientAssetsLib;
+  readonly Bundle: t.SlugClientTimelineBundleLib;
+  readonly FileContent: t.SlugClientFileContentLib;
 };

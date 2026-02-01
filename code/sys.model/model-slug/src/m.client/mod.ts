@@ -5,16 +5,19 @@
 import type { t } from './common.ts';
 
 import { SlugError as Error } from './m.Error.ts';
-import { SlugUrl as Url } from './m.Url.ts';
-import { Assets } from './m.io.Assets.ts';
+import { FromDescriptor } from './m.FromDescriptor.ts';
 import { Bundle } from './m.io.Bundle.ts';
 import { FileContent } from './m.io.FileContent.ts';
-import { Playback } from './m.io.Playback.ts';
+import { Assets } from './m.io.timeline.Assets.ts';
+import { Playback } from './m.io.timeline.Playback.ts';
 import { Tree } from './m.io.Tree.ts';
+import { SlugUrl as Url } from './m.Url.ts';
 
 export const SlugClient: t.SlugClientLib = {
   Url,
   Error,
+  FromDescriptor,
+  fromDescriptor: FromDescriptor.make,
   FromEndpoint: {
     Tree,
     Assets,

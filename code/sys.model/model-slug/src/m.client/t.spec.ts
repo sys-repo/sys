@@ -6,10 +6,7 @@ export type SpecTimelineAsset = {
   readonly hash?: string;
   readonly filename?: string;
   readonly href: string;
-  readonly stats?: {
-    readonly bytes?: number;
-    readonly duration?: t.Msecs;
-  };
+  readonly stats?: { readonly bytes?: number; readonly duration?: t.Msecs };
 };
 
 export type SpecTimelineAssetsManifest = {

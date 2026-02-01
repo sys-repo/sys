@@ -1,10 +1,10 @@
 import { type t } from './common.ts';
-import { Assets } from './m.io.Assets.ts';
-import { Playback } from './m.io.Playback.ts';
+import { Assets } from './m.io.timeline.Assets.ts';
+import { Playback } from './m.io.timeline.Playback.ts';
 import { SlugUrl } from './m.Url.ts';
 import { Dist } from './u.io.Dist.ts';
 
-export const Bundle: t.SlugClientBundleLib = {
+export const Bundle: t.SlugClientTimelineBundleLib = {
   load,
 };
 
