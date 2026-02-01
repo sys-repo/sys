@@ -14,6 +14,10 @@ Before any action:
     - Treat it as an execution command.
     - Proceed normally (not read-only).
 
+- After completing any change (code, config, docs, or structure),
+  always provide a Git commit message summarizing the change, using
+  the Conventional Commits format.
+
 
 ====================================================================================================
 
