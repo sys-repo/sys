@@ -1,6 +1,5 @@
 import { Schema, SlugLintFacets, Yaml, type t } from './common.ts';
 import { SchemaFacets } from './u.schema.facets.ts';
-import { SchemaSlugTreeFs, SchemaSlugTreeMediaSeqBundle } from './u.schema.slug-tree.ts';
 import { formatInlineInclude, formatRootSpacing } from './u.schema.u.ts';
 
 /**
@@ -15,12 +14,6 @@ export const LintProfileSchema = {
   initial(): t.SlugLintProfile {
     return {
       facets: [...SlugLintFacets],
-      'bundle:slug-tree:fs': {
-        include: ['.md'],
-        source: '.',
-        crdt: { docid: '<docid>', path: '/slug' },
-        target: { manifest: ['./manifest/slug-tree.json', './manifest/slug-tree.yaml'] },
-      },
     };
   },
 
@@ -54,9 +47,7 @@ export const LintProfileSchema = {
   schema: Schema.Type.Object(
     {
       facets: SchemaFacets,
-      'bundle:slug-tree:fs': SchemaSlugTreeFs,
-      'bundle:slug-tree:media:seq': SchemaSlugTreeMediaSeqBundle,
     },
-    { additionalProperties: false },
+    { additionalProperties: true },
   ),
 } as const;

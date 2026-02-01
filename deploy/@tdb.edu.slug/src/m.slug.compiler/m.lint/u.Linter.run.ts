@@ -1,4 +1,4 @@
-import { type t, c, Cli, SlugLintFacets as Facets, Fs, Obj, Pkg, pkg, Slug } from './common.ts';
+import { type t, c, Cli, SlugLintFacets as Facets, Obj, Slug } from './common.ts';
 
 import { Fmt } from './u.fmt.ts';
 import { lintAliases } from './u.lint.aliases.ts';
@@ -7,11 +7,9 @@ import {
   selectSlugLintProfile,
   selectSlugLintProfileAction,
 } from './u.lint.menu.ts';
-import { bundleSequenceFilepaths } from './u.lint.seq.files.bundle.ts';
 import { lintSequenceFilepaths } from './u.lint.seq.files.ts';
 import { lintTypedYamlSequence } from './u.lint.seq.TypedYamlSequence.ts';
 import { printSummary } from './u.lint.print.ts';
-import { runSlugTreeFs } from './u.lint.slug-tree.ts';
 import { readLintProfile, writeLintProfile } from './u.lint.util.ts';
 
 type Issue = t.SlugLintIssue;
@@ -73,35 +71,11 @@ async function lintOnce(args: {
 
   const hasFileVideo = facets.includes('media:seq:file:video');
   const hasFileImage = facets.includes('media:seq:file:image');
-  const hasFilesBundle = facets.includes('bundle:slug-tree:media:seq');
-  const hasSlugTree = facets.includes('bundle:slug-tree:fs');
-
-  if (hasSlugTree && !opts.createCrdt) {
-    const msg = `warning: bundle:slug-tree:fs skipped (createCrdt not provided in Linter.run options)`;
-    console.info(c.yellow(msg));
-    facets = facets.filter((facet) => facet !== 'bundle:slug-tree:fs');
-  }
-  if (hasSlugTree && !profilePath) {
-    console.info(c.yellow('warning: bundle:slug-tree:fs skipped (no lint profile selected)'));
-    facets = facets.filter((facet) => facet !== 'bundle:slug-tree:fs');
-  }
 
   const spinner = Cli.spinner();
   spinner.start();
 
-  let mediaSeqConfig: t.LintMediaSeqBundle | undefined;
-  let mediaSeqYamlPath: t.ObjectPath | undefined;
-  const wantsMediaSeqConfig =
-    hasFilesBundle || hasFileVideo || hasFileImage || facets.includes('media:seq:schema');
-  if (wantsMediaSeqConfig && profilePath) {
-    const profileDoc = await readLintProfile(profilePath);
-    mediaSeqConfig = profileDoc['bundle:slug-tree:media:seq'];
-    mediaSeqYamlPath = parseYamlPath(mediaSeqConfig?.crdt?.path);
-  }
-  if (wantsMediaSeqConfig && !mediaSeqYamlPath) {
-    throw new Error('Missing bundle:slug-tree:media:seq.crdt.path configuration.');
-  }
-  const mediaSeqPath = mediaSeqYamlPath as t.ObjectPath;
+  let mediaSeqYamlPath: t.ObjectPath | undefined = yamlPath;
 
   type WithIssues<I> = { readonly issues: readonly I[] };
   type WithDoc = { readonly doc: { readonly id: t.StringId } };
@@ -149,71 +123,14 @@ async function lintOnce(args: {
   }
 
   /**
-   * Generate slug-tree artifacts from the filesystem.
-   */
-  if (facets.includes('bundle:slug-tree:fs') && profilePath && opts.cwd && opts.createCrdt) {
-    await runSlugTreeFs({
-      cwd: opts.cwd,
-      profilePath,
-      createCrdt: opts.createCrdt,
-    });
-  }
-
-  /**
    * Lint sequence file paths (only when not bundling).
-   * When `bundle:slug-tree:media:seq` is selected, the bundler performs the same
-   * lint behaviour to avoid duplicate issues.
    */
-  if (!hasFilesBundle && (hasFileVideo || hasFileImage)) {
+  if (hasFileVideo || hasFileImage) {
     spinner.text = Fmt.spinnerText('asset files...');
     for (const node of dag.nodes) {
       const id = node.id;
-      const baseResult = await lintSequenceFilepaths(dag, mediaSeqPath, node.id, { facets });
+      const baseResult = await lintSequenceFilepaths(dag, mediaSeqYamlPath, node.id, { facets });
       pushIssuesForDoc(id, baseResult);
-    }
-  }
-
-  /**
-   * Bundle sequence file paths to hashed assets + manifest.
-   * This reuses the same lint semantics as `lintSequenceFilepaths`.
-   */
-  if (hasFilesBundle) {
-    let index = 0;
-    const total = dag.nodes.length;
-
-    type R = t.LintAndBundleResult;
-    const distDirs = new Set<t.StringDir>();
-    const addDir = (res: R) => {
-      distDirs.add(Fs.join(res.dir.base, res.dir.manifests));
-      distDirs.add(Fs.join(res.dir.base, res.dir.video));
-      distDirs.add(Fs.join(res.dir.base, res.dir.image));
-    };
-
-    /** Process DAG nodes */
-    for (const node of dag.nodes) {
-      index++;
-      const msg = `bundling assets for ${Fmt.prettyUri(node.id)} (${c.white(String(index))} of ${total})...`;
-      spinner.text = Fmt.spinnerText(msg);
-
-      const id = node.id;
-      const result = await bundleSequenceFilepaths(dag, mediaSeqPath, node.id, {
-        facets,
-        target: mediaSeqConfig?.target,
-        requirePlayback: mediaSeqConfig?.requirePlayback,
-      });
-
-      pushIssuesForDoc(id, result);
-      addDir(result);
-    }
-
-    /** Generate `dist.json` manifests */
-    spinner.text = Fmt.spinnerText(`generating dist.json manifests`);
-    for (const dir of distDirs) {
-      if (await Fs.exists(dir)) {
-        const name = `prog.bundle.slug/${Fs.basename(dir)}`;
-        const version = '0.0.0';
-        await Pkg.Dist.compute({ dir, pkg: { name, version }, builder: pkg, save: true });
-      }
     }
   }
 
@@ -223,7 +140,7 @@ async function lintOnce(args: {
   if (facets.includes('media:seq:schema')) {
     for (const node of dag.nodes) {
       const id = node.id;
-      const baseResult = await lintTypedYamlSequence(dag, mediaSeqPath, node.id, {
+      const baseResult = await lintTypedYamlSequence(dag, mediaSeqYamlPath, node.id, {
         checkInvariants: true,
         debug: false,
       });
@@ -396,12 +313,4 @@ function printLintSection(issues: Issue[] = []) {
   if (issues.length === 0) return;
   const table = Fmt.lintResults(issues);
   if (table) console.info(table + '\n');
-}
-
-function parseYamlPath(input?: t.StringPath): t.ObjectPath | undefined {
-  if (!input) return;
-  const raw = String(input).trim();
-  if (!raw) return;
-  const parts = raw.split('/').filter((p) => p.length > 0);
-  return parts as t.ObjectPath;
 }

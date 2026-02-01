@@ -1,7 +1,7 @@
 import { type t, describe, expect, Fs, Hash, it } from '../../-test.ts';
-import { Json, SlugSchema } from '../common.ts';
-import { runSlugTreeFs } from '../u.lint.slug-tree.ts';
-import { LintProfileSchema } from '../u.schema.ts';
+import { Json, SlugSchema, Yaml } from '../common.ts';
+import { runSlugTreeFs } from '../u.slug-tree.ts';
+import type { BundleProfile } from '../u.profile.ts';
 
 describe('Lint: slug-tree:fs', () => {
   it('writes sha256 per-file export with source + path + hash', async () => {
@@ -15,8 +15,7 @@ describe('Lint: slug-tree:fs', () => {
       await Fs.write(Fs.join(srcDir, 'sub', 'c.md'), 'world');
 
       const profilePath = Fs.join(tmpDir, 'lint.yaml');
-      const doc: t.SlugLintProfile = {
-        facets: ['bundle:slug-tree:fs'],
+      const doc: BundleProfile = {
         'bundle:slug-tree:fs': {
           source: 'src',
           crdt: { docid: 'slug:test', path: '/slug' },
@@ -30,7 +29,7 @@ describe('Lint: slug-tree:fs', () => {
         },
       };
 
-      await Fs.write(profilePath, LintProfileSchema.stringify(doc));
+      await Fs.write(profilePath, Yaml.stringify(doc).data ?? '');
 
       await runSlugTreeFs({
         cwd: tmpDir,

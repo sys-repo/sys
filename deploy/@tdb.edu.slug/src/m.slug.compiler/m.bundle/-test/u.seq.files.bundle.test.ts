@@ -1,6 +1,6 @@
 import { type t, describe, expect, Ffmpeg, it } from '../../-test.ts';
 import { Fs, Json } from '../common.ts';
-import { bundleSequenceFilepaths } from '../u.lint.seq.files.bundle.ts';
+import { bundleSequenceFilepaths } from '../u.seq.files.bundle.ts';
 
 async function withMockedDuration<T>(
   mock: typeof Ffmpeg.duration,

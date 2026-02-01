@@ -1,6 +1,6 @@
 import { type t, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
-import { buildSequenceFilepathIssue } from './u.lint.seq.files.ts';
-import { walkSequenceMediaPaths } from './u.lint.seq.files.walk.ts';
+import { buildSequenceFilepathIssue } from '../m.lint/u.lint.seq.files.ts';
+import { walkSequenceMediaPaths } from '../m.lint/u.lint.seq.files.walk.ts';
 
 type R = t.LintAndBundleResult;
 type Dag = t.Graph.Dag.Result;

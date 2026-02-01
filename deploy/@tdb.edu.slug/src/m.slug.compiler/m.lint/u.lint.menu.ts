@@ -61,7 +61,16 @@ export async function selectSlugLintProfileAction(
 
 const schema = {
   init: () => LintProfileSchema.initial(),
-  validate: (value: unknown) => LintProfileSchema.validate(value),
+  validate: (value: unknown) => {
+    const res = LintProfileSchema.validate(value);
+    if (!res.ok) {
+      const errors = res.errors
+        .map((err) => `${String(err.path ?? '').trim() || '<root>'}: ${err.message}`)
+        .join('\n  ');
+      console.info(c.yellow(`lint profile invalid:\n  ${errors}`));
+    }
+    return res;
+  },
   stringifyYaml: (doc: t.SlugLintProfile) => LintProfileSchema.stringify(doc),
 } as const;
 

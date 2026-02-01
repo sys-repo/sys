@@ -1,7 +1,7 @@
 import { type t } from '../common.ts';
-import { bundleSequenceFilepaths } from '../m.lint/u.lint.seq.files.bundle.ts';
-import { runSlugTreeFs } from '../m.lint/u.lint.slug-tree.ts';
-import { readLintProfile } from '../m.lint/u.lint.util.ts';
+import { bundleSequenceFilepaths } from './u.seq.files.bundle.ts';
+import { runSlugTreeFs } from './u.slug-tree.ts';
+import { readBundleProfile } from './u.profile.ts';
 
 export const Bundler = {
   async slugTreeFs(args: {
@@ -18,13 +18,12 @@ export const Bundler = {
     docid: t.Crdt.Id;
   }): Promise<void> {
     const { dag, profilePath, docid } = args;
-    const profile = await readLintProfile(profilePath);
+    const profile = await readBundleProfile(profilePath);
     const mediaSeq = profile['bundle:slug-tree:media:seq'];
     if (!mediaSeq) return;
 
     const yamlPath = parseYamlPath(mediaSeq.crdt.path);
     await bundleSequenceFilepaths(dag, yamlPath, docid, {
-      facets: ['bundle:slug-tree:media:seq'],
       target: mediaSeq.target,
       requirePlayback: mediaSeq.requirePlayback,
     });

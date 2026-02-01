@@ -1,8 +1,8 @@
 import { SlugTree } from '../m.slug.SlugTree/mod.ts';
 
 import { type t, c, DEFAULT_IGNORE, Fs, Json, Schema } from './common.ts';
-import { readLintProfile } from './u.lint.util.ts';
-import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.lint.slug-tree.file.ts';
+import { readBundleProfile } from './u.profile.ts';
+import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.slug-tree.file.ts';
 
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
@@ -10,7 +10,7 @@ export async function runSlugTreeFs(args: {
   createCrdt: () => Promise<t.StringRef>;
 }) {
   const { cwd, profilePath, createCrdt } = args;
-  const profileDoc = await readLintProfile(profilePath);
+  const profileDoc = await readBundleProfile(profilePath);
   const config = profileDoc['bundle:slug-tree:fs'];
   if (!config) {
     console.info(c.yellow('warning: bundle:slug-tree:fs skipped (missing config)'));
