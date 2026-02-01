@@ -5,7 +5,6 @@ import { type t, c, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common
 type R = t.LintAndBundleResult;
 type Dag = t.Graph.Dag.Result;
 type Facet = t.SlugLintFacet;
-
 /**
  * Bundle all media file paths for a given document:
  * - Uses the shared media-path walker (video + image).
@@ -42,7 +41,7 @@ export async function bundleSequenceFilepaths(
   let visited = 0;
   let resolved = 0;
   let existsCount = 0;
-  const facets: Facet[] = (opts.facets ?? DEFAULT_MEDIA_FACETS).filter((v) =>
+  const facets: Facet[] = (opts.facets ?? resolveFacets(opts.target)).filter((v) =>
     v.startsWith('media:seq:file:'),
   );
 
@@ -241,6 +240,14 @@ export async function bundleSequenceFilepaths(
   }
 
   return Obj.asGetter({ dir, issues }, ['issues']);
+}
+
+function resolveFacets(target?: t.LintMediaSeqBundle['target']): Facet[] {
+  if (!target?.media) return ['media:seq:file:video', 'media:seq:file:image'];
+  const facets: Facet[] = [];
+  if (target.media.video) facets.push('media:seq:file:video');
+  if (target.media.image) facets.push('media:seq:file:image');
+  return facets;
 }
 
 function resolveTemplate(value: string, docid: t.StringId): string {

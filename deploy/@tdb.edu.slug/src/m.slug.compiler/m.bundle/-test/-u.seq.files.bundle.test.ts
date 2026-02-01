@@ -55,9 +55,9 @@ describe('Lint: bundle/sequence files', () => {
       const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
 
       const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
-        facets: ['media:seq:file:video'],
         outDir: tmpDir,
         baseHref: '/base',
+        target: { media: { video: 'video' } },
       });
 
       expect(result.issues).to.eql([]);
@@ -258,9 +258,9 @@ describe('Lint: bundle/sequence files', () => {
         async () => ({ ok: true, msecs: 'bad' as unknown as t.Msecs }),
         async () => {
           const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
-            facets: ['media:seq:file:video'],
             outDir: tmpDir,
             baseHref: '/base',
+            target: { media: { video: 'video' } },
           });
 
           const issue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
