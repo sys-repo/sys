@@ -1,5 +1,5 @@
 import type { t } from './common.ts';
-import { D, Http, SlugSchema, Url } from './common.ts';
+import { D, Http, Schema, SlugSchema, Url } from './common.ts';
 import { SlugUrl } from './m.Url.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
@@ -15,7 +15,8 @@ async function index(
 ): Promise<t.SlugClientResult<t.SlugFileContentIndex>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
-  const url = Url.parse(baseUrl).join('manifests', SlugUrl.treeAssetsFilename(cleanedDocid));
+  const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
+  const url = Url.parse(baseUrl).join(manifestsDir, SlugUrl.treeAssetsFilename(cleanedDocid));
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 
@@ -33,9 +34,10 @@ async function index(
     };
   }
 
-  const parsed = SlugSchema.FileContent.Index.parse(res.data);
-  if (!parsed.ok) {
-    const reason = formatSchemaReason(parsed.errors);
+  const ok = Schema.Value.Check(SlugSchema.FileContent.Index, res.data);
+  if (!ok) {
+    const errors = [...Schema.Value.Errors(SlugSchema.FileContent.Index, res.data)];
+    const reason = formatSchemaReason(errors);
     return {
       ok: false,
       error: {
@@ -45,7 +47,7 @@ async function index(
     };
   }
 
-  const manifest = parsed.value;
+  const manifest = res.data as t.SlugFileContentIndex;
   if (manifest.docid !== cleanedDocid) {
     return {
       ok: false,
@@ -65,8 +67,8 @@ async function get(
   options?: t.SlugFileContentLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugFileContentDoc>> {
   const fetch = Http.fetcher();
-  const dir = options?.dir ?? 'json';
-  const url = Url.parse(baseUrl).join(dir, SlugUrl.fileContentFilename(hash));
+  const contentDir = options?.layout?.contentDir ?? 'json';
+  const url = Url.parse(baseUrl).join(contentDir, SlugUrl.fileContentFilename(hash));
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 
@@ -84,9 +86,10 @@ async function get(
     };
   }
 
-  const parsed = SlugSchema.FileContent.Props.parse(res.data);
-  if (!parsed.ok) {
-    const reason = formatSchemaReason(parsed.errors);
+  const ok = Schema.Value.Check(SlugSchema.FileContent.Props, res.data);
+  if (!ok) {
+    const errors = [...Schema.Value.Errors(SlugSchema.FileContent.Props, res.data)];
+    const reason = formatSchemaReason(errors);
     return {
       ok: false,
       error: {
@@ -96,5 +99,5 @@ async function get(
     };
   }
 
-  return { ok: true, value: parsed.value };
+  return { ok: true, value: res.data as t.SlugFileContentDoc };
 }

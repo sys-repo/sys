@@ -3,7 +3,18 @@ import type { t } from './common.ts';
 /**
  * Endpoint loaders:
  */
-export type SlugLoadOptions = { init?: RequestInit; baseHref?: t.StringUrl };
+export type SlugClientLayout = {
+  /** Directory where manifests are stored relative to the base URL. */
+  readonly manifestsDir?: t.StringDir;
+  /** Directory where hashed content payloads are stored relative to the base URL. */
+  readonly contentDir?: t.StringDir;
+};
+
+export type SlugLoadOptions = {
+  init?: RequestInit;
+  baseHref?: t.StringUrl;
+  layout?: SlugClientLayout;
+};
 export type SlugFromEndpointLib = {
   readonly Tree: t.SlugClientTreeLib;
   readonly Playback: t.SlugClientPlaybackLib;
@@ -44,10 +55,7 @@ export type SlugClientBundleLib = {
   ) => Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>>;
 };
 
-export type SlugFileContentLoadOptions = t.SlugLoadOptions & {
-  /** Directory for hashed content payloads relative to the base URL. */
-  readonly dir?: t.StringDir;
-};
+export type SlugFileContentLoadOptions = t.SlugLoadOptions;
 
 export type SlugClientFileContentLib = {
   readonly index: (

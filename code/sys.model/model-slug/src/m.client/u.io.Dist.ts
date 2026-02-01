@@ -19,7 +19,8 @@ async function load(
   if (!promise) {
     promise = (async () => {
       const fetch = Http.fetcher();
-      const url = Url.parse(baseUrl).join('manifests', 'dist.json');
+      const manifestsDir = opts?.layout?.manifestsDir ?? 'manifests';
+      const url = Url.parse(baseUrl).join(manifestsDir, 'dist.json');
 
       const req: RequestInit = { ...D.CACHE_INIT, ...(opts?.init ?? {}) };
       req.cache = D.CACHE_INIT.cache;

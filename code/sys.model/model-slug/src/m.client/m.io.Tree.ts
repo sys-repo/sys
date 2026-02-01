@@ -13,7 +13,8 @@ async function load(
 ): Promise<t.SlugClientResult<t.SlugTreeDoc>> {
   docid = SlugUrl.clean(docid);
   const fetch = Http.fetcher();
-  const url = Url.parse(baseUrl).join('manifests', SlugUrl.treeFilename(docid));
+  const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
+  const url = Url.parse(baseUrl).join(manifestsDir, SlugUrl.treeFilename(docid));
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 

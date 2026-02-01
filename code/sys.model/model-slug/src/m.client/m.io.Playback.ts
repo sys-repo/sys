@@ -15,7 +15,8 @@ async function load<P = unknown>(
 ): Promise<t.SlugClientResult<t.SpecTimelineManifest<P>>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
-  const url = Url.parse(baseUrl).join('manifests', SlugUrl.playbackFilename(cleanedDocid));
+  const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
+  const url = Url.parse(baseUrl).join(manifestsDir, SlugUrl.playbackFilename(cleanedDocid));
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 
