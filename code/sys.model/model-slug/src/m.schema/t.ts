@@ -29,6 +29,7 @@ export type SlugSchemaLib = {
   readonly Manifest: t.SlugManifestSchemaLib;
   readonly MediaComposition: t.SlugMediaCompositionSchemaLib;
   readonly Traits: t.SlugTraitsSchemaLib;
+  readonly BundleDescriptor: t.BundleDescriptorSchemaLib;
 };
 
 /**

@@ -1,5 +1,6 @@
 import { describe, expect, it, Schema } from '../../../-test.ts';
-import { BundleDescriptorDocSchema, BundleDescriptorSchema } from '../u.schema.ts';
+import { SlugSchema } from '../../mod.ts';
+import { BundleDescriptorRootSchema, BundleDescriptorItemSchema } from '../u.schema.ts';
 
 const fsBundle = {
   kind: 'slug-tree:fs',
@@ -35,14 +36,22 @@ const mediaBundle = {
 } as const;
 
 describe('BundleDescriptorSchema', () => {
+  const BundleDescriptor = SlugSchema.BundleDescriptor;
+
+  it('API', () => {
+    expect(BundleDescriptor).to.equal(SlugSchema.BundleDescriptor);
+    expect(BundleDescriptor.Schema).to.equal(BundleDescriptorRootSchema);
+    expect(BundleDescriptor.ItemSchema).to.equal(BundleDescriptorItemSchema);
+  });
+
   it('accepts valid bundle descriptors', () => {
-    expect(Schema.Value.Check(BundleDescriptorSchema, fsBundle)).to.eql(true);
-    expect(Schema.Value.Check(BundleDescriptorSchema, mediaBundle)).to.eql(true);
+    expect(Schema.Value.Check(SlugSchema.BundleDescriptor.ItemSchema, fsBundle)).to.eql(true);
+    expect(Schema.Value.Check(SlugSchema.BundleDescriptor.ItemSchema, mediaBundle)).to.eql(true);
   });
 
   it('rejects unknown kinds', () => {
     expect(
-      Schema.Value.Check(BundleDescriptorSchema, {
+      Schema.Value.Check(SlugSchema.BundleDescriptor.ItemSchema, {
         ...fsBundle,
         kind: 'slug-tree:unknown',
       }),
@@ -50,19 +59,19 @@ describe('BundleDescriptorSchema', () => {
   });
 });
 
-describe('BundleDescriptorDocSchema', () => {
+describe('BundleDescriptor.Schema (Root Schema)', () => {
   it('accepts a bundles list', () => {
     const doc = { bundles: [fsBundle, mediaBundle] };
-    expect(Schema.Value.Check(BundleDescriptorDocSchema, doc)).to.eql(true);
+    expect(Schema.Value.Check(BundleDescriptorRootSchema, doc)).to.eql(true);
   });
 
   it('rejects missing bundles', () => {
-    expect(Schema.Value.Check(BundleDescriptorDocSchema, {})).to.eql(false);
+    expect(Schema.Value.Check(SlugSchema.BundleDescriptor.Schema, {})).to.eql(false);
   });
 
   it('rejects additional properties', () => {
     expect(
-      Schema.Value.Check(BundleDescriptorDocSchema, {
+      Schema.Value.Check(SlugSchema.BundleDescriptor.Schema, {
         bundles: [fsBundle],
         extra: true,
       }),

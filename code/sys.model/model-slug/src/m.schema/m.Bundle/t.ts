@@ -5,6 +5,11 @@ export type * from './t.core.ts';
 export type * from './kind.tree.fs/t.ts';
 export type * from './kind.tree.media.seq/t.ts';
 
+export type BundleDescriptorSchemaLib = {
+  readonly Schema: t.TSchema;
+  readonly ItemSchema: t.TSchema;
+};
+
 export type BundleDescriptor = t.BundleDescriptorSlugTreeFs | t.BundleDescriptorSlugTreeMediaSeq;
 export type BundleDescriptorDoc = {
   readonly bundles: readonly BundleDescriptor[];

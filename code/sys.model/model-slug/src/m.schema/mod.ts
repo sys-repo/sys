@@ -11,6 +11,7 @@
  */
 import type { t } from './common.ts';
 
+import { BundleDescriptorSchema as BundleDescriptor } from './m.Bundle/mod.ts';
 import { SlugFileContentSchema as FileContent } from './m.SlugFileContent/mod.ts';
 import { ManifestSchema as Manifest } from './m.Manifest/mod.ts';
 import { MediaCompositionSchema as MediaComposition } from './m.MediaComposition/mod.ts';
@@ -23,4 +24,5 @@ export const SlugSchema: t.SlugSchemaLib = {
   FileContent,
   Manifest,
   MediaComposition,
+  BundleDescriptor,
 };
