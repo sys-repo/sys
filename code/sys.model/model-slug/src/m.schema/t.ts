@@ -3,6 +3,7 @@ import type { t } from './common.ts';
 /** Type re-exports. */
 export type * from './m.Manifest.Assets/t.ts';
 export type * from './m.Manifest/t.ts';
+export type * from './m.Bundle/t.ts';
 export type * from './m.MediaComposition.Sequence/t.ts';
 export type * from './m.MediaComposition/t.ts';
 export type * from './m.SlugFileContent/t.ts';

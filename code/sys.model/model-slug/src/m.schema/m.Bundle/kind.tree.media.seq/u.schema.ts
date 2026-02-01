@@ -1,0 +1,43 @@
+import type { t } from './common.ts';
+import { Type } from './common.ts';
+import { BundleDescriptorBaseFields } from '../u.schema.core.ts';
+
+const Dir = Type.String({ description: 'Directory name relative to base path.' });
+const Path = Type.String({ description: 'Relative file path.' });
+
+const LayoutMedia = Type.Object(
+  {
+    manifestsDir: Type.Optional(Dir),
+    mediaDirs: Type.Optional(
+      Type.Object(
+        {
+          video: Type.Optional(Dir),
+          image: Type.Optional(Dir),
+        },
+        { additionalProperties: false },
+      ),
+    ),
+  },
+  { additionalProperties: false },
+);
+
+const MediaFiles = Type.Object(
+  {
+    assets: Type.Optional(Path),
+    playback: Type.Optional(Path),
+    tree: Type.Optional(Path),
+  },
+  { additionalProperties: false },
+);
+
+export const BundleDescriptorSlugTreeMediaSeqSchema: t.TSchema = Type.Object(
+  {
+    ...BundleDescriptorBaseFields,
+    kind: Type.Literal('slug-tree:media:seq'),
+    layout: Type.Optional(LayoutMedia),
+    files: Type.Optional(MediaFiles),
+  },
+  { additionalProperties: false },
+);
+
+export { LayoutMedia, MediaFiles };
