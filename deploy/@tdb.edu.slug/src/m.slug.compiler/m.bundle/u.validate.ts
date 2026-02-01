@@ -1,5 +1,5 @@
 import { type t, Fs, Schema } from './common.ts';
-import { SchemaBundleConfig } from './u.schema.bundle.ts';
+import { SchemaBundleConfig } from './schema/mod.ts';
 
 export type BundleConfigValidation = {
   ok: boolean;

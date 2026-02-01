@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Schema } from '../common.ts';
-import { SchemaSlugTreeMediaSeqBundle } from '../u.schema.slug-tree.media.seq.ts';
+import { SchemaSlugTreeMediaSeqBundle } from '../schema/mod.ts';
 
 describe('SchemaSlugTreeMediaSeqBundle', () => {
   it('accepts slug-tree media sequence bundle config', () => {

@@ -1,4 +1,4 @@
-import { Schema } from './common.ts';
+import { Schema } from '../common.ts';
 
 export const SchemaCrdtConfig = Schema.Type.Object(
   {

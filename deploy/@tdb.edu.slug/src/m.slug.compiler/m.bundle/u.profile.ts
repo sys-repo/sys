@@ -1,5 +1,5 @@
 import { type t, Fs } from './common.ts';
-import { BundleProfileSchema } from './u.schema.profile.ts';
+import { BundleProfileSchema } from './schema/mod.ts';
 
 export type BundleProfile = {
   readonly 'bundle:slug-tree:fs'?: t.LintSlugTree;

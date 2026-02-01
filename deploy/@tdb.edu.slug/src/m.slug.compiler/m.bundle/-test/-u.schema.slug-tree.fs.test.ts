@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Schema } from '../common.ts';
-import { SchemaSlugTreeFs } from '../u.schema.slug-tree.fs.ts';
+import { SchemaSlugTreeFs } from '../schema/mod.ts';
 
 describe('SchemaSlugTreeFs', () => {
   it('accepts minimal crdt config', () => {
