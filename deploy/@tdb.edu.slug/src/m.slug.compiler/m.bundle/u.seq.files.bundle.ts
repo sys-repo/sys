@@ -1,6 +1,6 @@
-import { type t, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
 import { buildSequenceFilepathIssue } from '../m.lint/u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from '../m.lint/u.lint.seq.files.walk.ts';
+import { type t, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug, Crdt } from './common.ts';
 
 type R = t.LintAndBundleResult;
 type Dag = t.Graph.Dag.Result;
@@ -236,7 +236,9 @@ export async function bundleSequenceFilepaths(
 }
 
 function resolveTemplate(value: string, docid: t.StringId): string {
-  return value.includes('<docid>') ? value.replaceAll('<docid>', String(docid)) : value;
+  if (!value.includes('<docid>')) return value;
+  const normalized = Crdt.Id.clean(String(docid)) ?? '';
+  return value.replaceAll('<docid>', normalized);
 }
 
 function resolvePath(baseDir: string, subPath: string, filename?: string): string {
