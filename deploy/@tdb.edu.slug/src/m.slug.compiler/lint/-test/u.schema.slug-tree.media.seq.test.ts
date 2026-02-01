@@ -4,7 +4,7 @@ import { LintProfileSchema } from '../u.schema.ts';
 describe('LintProfileSchema (slug-tree media seq)', () => {
   it('accepts slug-tree media sequence bundle config', () => {
     const doc = {
-      'slug-tree:media:seq:bundle': {
+      'bundle:slug-tree:media:seq': {
         target: {
           base: './out',
           hrefBase: '/assets',

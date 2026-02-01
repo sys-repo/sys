@@ -73,17 +73,17 @@ async function lintOnce(args: {
 
   const hasFileVideo = facets.includes('media:seq:file:video');
   const hasFileImage = facets.includes('media:seq:file:image');
-  const hasFilesBundle = facets.includes('slug-tree:media:seq:bundle');
-  const hasSlugTree = facets.includes('slug-tree:fs:bundle');
+  const hasFilesBundle = facets.includes('bundle:slug-tree:media:seq');
+  const hasSlugTree = facets.includes('bundle:slug-tree:fs');
 
   if (hasSlugTree && !opts.createCrdt) {
-    const msg = `warning: slug-tree:fs:bundle skipped (createCrdt not provided in Linter.run options)`;
+    const msg = `warning: bundle:slug-tree:fs skipped (createCrdt not provided in Linter.run options)`;
     console.info(c.yellow(msg));
-    facets = facets.filter((facet) => facet !== 'slug-tree:fs:bundle');
+    facets = facets.filter((facet) => facet !== 'bundle:slug-tree:fs');
   }
   if (hasSlugTree && !profilePath) {
-    console.info(c.yellow('warning: slug-tree:fs:bundle skipped (no lint profile selected)'));
-    facets = facets.filter((facet) => facet !== 'slug-tree:fs:bundle');
+    console.info(c.yellow('warning: bundle:slug-tree:fs skipped (no lint profile selected)'));
+    facets = facets.filter((facet) => facet !== 'bundle:slug-tree:fs');
   }
 
   const spinner = Cli.spinner();
@@ -92,7 +92,7 @@ async function lintOnce(args: {
   let mediaSeqConfig: t.LintMediaSeqBundle | undefined;
   if (hasFilesBundle && profilePath) {
     const profileDoc = await readLintProfile(profilePath);
-    mediaSeqConfig = profileDoc['slug-tree:media:seq:bundle'];
+    mediaSeqConfig = profileDoc['bundle:slug-tree:media:seq'];
   }
 
   type WithIssues<I> = { readonly issues: readonly I[] };
@@ -143,7 +143,7 @@ async function lintOnce(args: {
   /**
    * Generate slug-tree artifacts from the filesystem.
    */
-  if (facets.includes('slug-tree:fs:bundle') && profilePath && opts.cwd && opts.createCrdt) {
+  if (facets.includes('bundle:slug-tree:fs') && profilePath && opts.cwd && opts.createCrdt) {
     await runSlugTreeFs({
       cwd: opts.cwd,
       profilePath,
@@ -153,7 +153,7 @@ async function lintOnce(args: {
 
   /**
    * Lint sequence file paths (only when not bundling).
-   * When `slug-tree:media:seq:bundle` is selected, the bundler performs the same
+   * When `bundle:slug-tree:media:seq` is selected, the bundler performs the same
    * lint behaviour to avoid duplicate issues.
    */
   if (!hasFilesBundle && (hasFileVideo || hasFileImage)) {

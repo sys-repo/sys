@@ -11,9 +11,9 @@ export async function runSlugTreeFs(args: {
 }) {
   const { cwd, profilePath, createCrdt } = args;
   const profileDoc = await readLintProfile(profilePath);
-  const config = profileDoc['slug-tree:fs:bundle'];
+  const config = profileDoc['bundle:slug-tree:fs'];
   if (!config) {
-    console.info(c.yellow('warning: slug-tree:fs:bundle skipped (missing config)'));
+    console.info(c.yellow('warning: bundle:slug-tree:fs skipped (missing config)'));
     return;
   }
 
@@ -30,7 +30,7 @@ export async function runSlugTreeFs(args: {
   }));
 
   if (targets.length === 0 && targetDirs.length === 0) {
-    console.info(c.yellow('warning: slug-tree:fs:bundle skipped (no target configured)'));
+    console.info(c.yellow('warning: bundle:slug-tree:fs skipped (no target configured)'));
     return;
   }
 
@@ -74,7 +74,7 @@ export async function runSlugTreeFs(args: {
     }
     console.info(
       c.yellow(
-        `warning: slug-tree:fs:bundle skipped unsupported target.dir kind: ${targetDir.kind}`,
+        `warning: bundle:slug-tree:fs skipped unsupported target.dir kind: ${targetDir.kind}`,
       ),
     );
   }
@@ -89,7 +89,7 @@ export async function runSlugTreeFs(args: {
       if (assetsPath && fileEntries.length > 0) {
         if (!docid) {
           console.info(
-            c.yellow('warning: slug-tree:fs:bundle assets index skipped (target.crdt.ref missing)'),
+            c.yellow('warning: bundle:slug-tree:fs assets index skipped (target.crdt.ref missing)'),
           );
           continue;
         }
@@ -106,7 +106,7 @@ export async function runSlugTreeFs(args: {
       continue;
     }
     console.info(
-      c.yellow(`warning: slug-tree:fs:bundle skipped unsupported target: ${target.raw}`),
+      c.yellow(`warning: bundle:slug-tree:fs skipped unsupported target: ${target.raw}`),
     );
   }
 }
@@ -173,12 +173,12 @@ async function prepareTargetDir(targetDir: t.StringDir): Promise<boolean> {
   if (info.isDirectory) return true;
 
   if (info.isFile) {
-    console.info(c.yellow(`warning: slug-tree:fs:bundle target.dir is a file: ${targetDir}`));
+    console.info(c.yellow(`warning: bundle:slug-tree:fs target.dir is a file: ${targetDir}`));
     return false;
   }
 
   console.info(
-    c.yellow(`warning: slug-tree:fs:bundle target.dir is not a directory: ${targetDir}`),
+    c.yellow(`warning: bundle:slug-tree:fs target.dir is not a directory: ${targetDir}`),
   );
   return false;
 }

@@ -11,7 +11,7 @@ type Dag = t.Graph.Dag.Result;
  *
  * This function is shared between:
  *   • plain lint (lintSequenceFilepaths)
- *   • bundler (slug-tree:media:seq:bundle)
+ *   • bundler (bundle:slug-tree:media:seq)
  */
 export async function buildSequenceFilepathIssue(
   docid: t.Crdt.Id,

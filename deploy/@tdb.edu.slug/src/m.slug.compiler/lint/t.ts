@@ -15,8 +15,8 @@ export const SlugLintFacets = [
   'media:seq:schema',
   'media:seq:file:video',
   'media:seq:file:image',
-  'slug-tree:media:seq:bundle',
-  'slug-tree:fs:bundle',
+  'bundle:slug-tree:media:seq',
+  'bundle:slug-tree:fs',
 ] as const;
 export type SlugLintFacet = (typeof SlugLintFacets)[number];
 
@@ -45,7 +45,7 @@ export type SlugLintProfile = {
   /** Lint facets to run. */
   readonly facets?: readonly SlugLintFacet[];
   /** Slug-tree filesystem lint configuration. */
-  readonly 'slug-tree:fs:bundle'?: t.LintSlugTree;
+  readonly 'bundle:slug-tree:fs'?: t.LintSlugTree;
   /** Slug-tree media sequence bundle configuration. */
-  readonly 'slug-tree:media:seq:bundle'?: t.LintMediaSeqBundle;
+  readonly 'bundle:slug-tree:media:seq'?: t.LintMediaSeqBundle;
 };
