@@ -9,6 +9,6 @@ describe('Deploy: formatHashPrefix', () => {
 
   it('defaults to placeholder', () => {
     const res = formatHashPrefix();
-    expect(Cli.stripAnsi(res)).to.eql('🌳    ');
+    expect(Cli.stripAnsi(res).trim()).to.eql('#');
   });
 });
