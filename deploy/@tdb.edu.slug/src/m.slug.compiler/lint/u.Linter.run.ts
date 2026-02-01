@@ -89,6 +89,12 @@ async function lintOnce(args: {
   const spinner = Cli.spinner();
   spinner.start();
 
+  let mediaSeqConfig: t.LintMediaSeqBundle | undefined;
+  if (hasFilesBundle && profilePath) {
+    const profileDoc = await readLintProfile(profilePath);
+    mediaSeqConfig = profileDoc['slug-tree:media:seq:bundle'];
+  }
+
   type WithIssues<I> = { readonly issues: readonly I[] };
   type WithDoc = { readonly doc: { readonly id: t.StringId } };
   const extractIssues = <I>(input: unknown): readonly I[] => {
@@ -182,7 +188,11 @@ async function lintOnce(args: {
       spinner.text = Fmt.spinnerText(msg);
 
       const id = node.id;
-      const result = await bundleSequenceFilepaths(dag, yamlPath, node.id, { facets });
+      const result = await bundleSequenceFilepaths(dag, yamlPath, node.id, {
+        facets,
+        target: mediaSeqConfig?.target,
+        requirePlayback: mediaSeqConfig?.requirePlayback,
+      });
 
       pushIssuesForDoc(id, result);
       addDir(result);

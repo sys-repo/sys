@@ -1,7 +1,6 @@
-import { Schema, Yaml } from './common.ts';
-import { SlugLintFacets, type t } from './common.ts';
+import { Schema, SlugLintFacets, Yaml, type t } from './common.ts';
 import { SchemaFacets } from './u.schema.facets.ts';
-import { SchemaSlugTreeFs } from './u.schema.slug-tree.ts';
+import { SchemaSlugTreeFs, SchemaSlugTreeMediaSeqBundle } from './u.schema.slug-tree.ts';
 import { formatInlineInclude, formatRootSpacing } from './u.schema.u.ts';
 
 /**
@@ -58,6 +57,7 @@ export const LintProfileSchema = {
     {
       facets: SchemaFacets,
       'slug-tree:fs:bundle': SchemaSlugTreeFs,
+      'slug-tree:media:seq:bundle': SchemaSlugTreeMediaSeqBundle,
     },
     { additionalProperties: false },
   ),

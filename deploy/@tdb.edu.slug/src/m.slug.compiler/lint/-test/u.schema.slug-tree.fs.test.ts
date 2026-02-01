@@ -147,7 +147,7 @@ describe('LintProfileSchema', () => {
     const parsed = Yaml.parse(yaml).data;
     expect(parsed).to.eql(LintProfileSchema.initial());
     const text = String(yaml);
-    expect(text).to.contain('slug-tree:fs:');
+    expect(text).to.contain('slug-tree:fs:bundle:');
     expect(text).to.contain('include: [.md]');
     expect(text).to.contain('source: .');
     expect(text).to.contain('target:');

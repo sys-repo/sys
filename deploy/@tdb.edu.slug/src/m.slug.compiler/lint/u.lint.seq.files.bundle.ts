@@ -27,6 +27,7 @@ export async function bundleSequenceFilepaths(
     facets?: Facet[];
     outDir?: string;
     baseHref?: string;
+    target?: t.LintMediaSeqBundle['target'];
 
     /**
      * When true, require this slug to support playback derivation via a
@@ -40,23 +41,44 @@ export async function bundleSequenceFilepaths(
   const issues: t.LintSequenceFilepath[] = [];
   const assets: t.SlugAsset[] = [];
   const facets: Facet[] = (opts.facets ?? []).filter((v) => v.startsWith('media:seq:file:'));
-  const baseHref = (opts.baseHref ?? '/').replace(/\/+$/, '');
+  const baseHref = (opts.target?.hrefBase ?? opts.baseHref ?? '/').replace(/\/+$/, '');
 
   const yamlPathStr = Is.array(yamlPath) && yamlPath.length > 0 ? yamlPath.join('/') : '';
 
+  const baseDir = opts.target?.base ?? opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
+  const manifestsDir = opts.target?.manifests?.dir ?? 'manifests';
+  const videoDir = opts.target?.media?.video ?? 'video';
+  const imageDir = opts.target?.media?.image ?? 'image';
+
+  const assetsTemplate = opts.target?.manifests?.assets ?? 'slug.<docid>.assets.json';
+  const playbackTemplate = opts.target?.manifests?.playback ?? 'slug.<docid>.playback.json';
+  const treeTemplate = opts.target?.manifests?.tree ?? 'slug-tree.<docid>.json';
+
   const dir: R['dir'] = {
-    base: opts.outDir ?? Fs.join(Fs.cwd('terminal'), 'publish.assets'),
-    manifests: 'manifests',
-    video: 'video',
-    image: 'image',
+    base: baseDir,
+    manifests: manifestsDir,
+    video: videoDir,
+    image: imageDir,
   };
+
+  const assetsFilename = resolveTemplate(assetsTemplate, docid);
+  const playbackFilename = resolveTemplate(playbackTemplate, docid);
+  const slugTreeFilename = resolveTemplate(treeTemplate, docid);
+
+  const assetsPath = resolvePath(baseDir, manifestsDir, assetsFilename);
+  const playbackPath = resolvePath(baseDir, manifestsDir, playbackFilename);
+  const slugTreePath = resolvePath(baseDir, manifestsDir, slugTreeFilename);
+
+  const assetsRaw = toRawPath(baseDir, assetsPath);
+  const playbackRaw = toRawPath(baseDir, playbackPath);
+  const slugTreeRaw = toRawPath(baseDir, slugTreePath);
 
   const pushAssetsManifestError = (path: string, message: string) => {
     const issue: t.LintSequenceFilepath = {
       kind: 'sequence:assets:not-exported',
       severity: 'error',
       path,
-      raw: `${dir.manifests}/slug.${docid}.assets.json`,
+      raw: assetsRaw,
       resolvedPath: '',
       doc: { id: docid },
       message,
@@ -79,7 +101,7 @@ export async function bundleSequenceFilepaths(
     const filename = `${hash}${ext}`;
     const kindDir = kind === 'image' ? dir.image : dir.video;
 
-    const destDir = Fs.join(dir.base, kindDir);
+    const destDir = resolvePath(baseDir, kindDir);
     const destPath = Fs.join(destDir, filename);
 
     await Fs.ensureDir(destDir);
@@ -114,13 +136,12 @@ export async function bundleSequenceFilepaths(
   // indicates nothing produced, so no manifest is written.
   if (assets.length > 0) {
     const manifest: t.SlugAssetsManifest = { docid, assets };
-    const filename = `${dir.manifests}/slug.${docid}.assets.json`;
     const res = Slug.Schema.Manifest.Validate.assets(manifest);
     if (!res.ok) {
       const err = `Assets manifest failed @sys/schema validation. Reason: ${res.error.message}`;
       pushAssetsManifestError(yamlPathStr, err);
     } else {
-      await Fs.write(Fs.join(dir.base, filename), Json.stringify(res.sequence));
+      await Fs.write(assetsPath, Json.stringify(res.sequence));
     }
   }
 
@@ -133,9 +154,7 @@ export async function bundleSequenceFilepaths(
     trait: { of: 'media-composition' },
   });
 
-  const playbackFilename = `slug.${docid}.playback.json`;
-  const manifestDir = Fs.join(dir.base, dir.manifests);
-
+  const manifestDir = Fs.dirname(playbackPath);
   await Fs.ensureDir(manifestDir);
 
   const pushNotExportedError = (path: string, message: string) => {
@@ -143,7 +162,7 @@ export async function bundleSequenceFilepaths(
       kind: 'sequence:playback:not-exported',
       severity: 'error',
       path,
-      raw: playbackFilename,
+      raw: playbackRaw,
       resolvedPath: '',
       doc: { id: docid },
       message,
@@ -180,18 +199,16 @@ export async function bundleSequenceFilepaths(
         `Playback manifest failed @sys/schema validation. Reason: ${res.error.message}`,
       );
     } else {
-      const outPath = Fs.join(manifestDir, playbackFilename);
-      await Fs.write(outPath, Json.stringify(res.sequence));
+      await Fs.write(playbackPath, Json.stringify(res.sequence));
     }
   }
 
-  const slugTreeFilename = `slug-tree.${docid}.json`;
   const pushSlugTreeError = (message: string) => {
     const issue: t.LintSequenceFilepath = {
       kind: 'sequence:slug-tree:not-exported',
       severity: 'error',
       path: yamlPathStr,
-      raw: slugTreeFilename,
+      raw: slugTreeRaw,
       resolvedPath: '',
       doc: { id: docid },
       message,
@@ -213,9 +230,25 @@ export async function bundleSequenceFilepaths(
       pushSlugTreeError(`Slug-tree manifest could not be generated. Reason: ${reason}`);
     }
   } else {
-    const slugTreePath = Fs.join(manifestDir, slugTreeFilename);
     await Fs.write(slugTreePath, Json.stringify(slugTreeResult.sequence));
   }
 
   return Obj.asGetter({ dir, issues }, ['issues']);
+}
+
+function resolveTemplate(value: string, docid: t.StringId): string {
+  return value.includes('<docid>') ? value.replaceAll('<docid>', String(docid)) : value;
+}
+
+function resolvePath(baseDir: string, subPath: string, filename?: string): string {
+  if (filename && Fs.Path.Is.absolute(filename)) return filename;
+  if (Fs.Path.Is.absolute(subPath)) {
+    return filename ? Fs.join(subPath, filename) : subPath;
+  }
+  return filename ? Fs.join(baseDir, subPath, filename) : Fs.join(baseDir, subPath);
+}
+
+function toRawPath(baseDir: string, path: string): string {
+  const rel = Fs.Path.relative(baseDir, path);
+  return rel || Fs.basename(path);
 }

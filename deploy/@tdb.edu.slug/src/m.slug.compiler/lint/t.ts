@@ -3,6 +3,7 @@ import type { t } from './common.ts';
 /** Type re-exports. */
 export type * from './t.files.ts';
 export type * from './t.lint.ts';
+export type * from './t.media.seq.ts';
 export type * from './t.tree.ts';
 
 /**
@@ -45,4 +46,6 @@ export type SlugLintProfile = {
   readonly facets?: readonly SlugLintFacet[];
   /** Slug-tree filesystem lint configuration. */
   readonly 'slug-tree:fs:bundle'?: t.LintSlugTree;
+  /** Slug-tree media sequence bundle configuration. */
+  readonly 'slug-tree:media:seq:bundle'?: t.LintMediaSeqBundle;
 };
