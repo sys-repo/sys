@@ -1,15 +1,10 @@
 import { Schema } from './common.ts';
+import { SchemaCrdtConfig } from './u.schema.crdt.ts';
 
 export const SchemaSlugTreeMediaSeqBundle = Schema.Type.Optional(
   Schema.Type.Object(
     {
-      crdt: Schema.Type.Object(
-        {
-          docid: Schema.Type.String(),
-          path: Schema.Type.String(),
-        },
-        { additionalProperties: false },
-      ),
+      crdt: SchemaCrdtConfig,
       target: Schema.Type.Optional(
         Schema.Type.Object(
           {
