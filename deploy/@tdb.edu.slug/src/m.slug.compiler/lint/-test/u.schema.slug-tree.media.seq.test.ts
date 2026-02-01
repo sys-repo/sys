@@ -5,6 +5,7 @@ describe('LintProfileSchema (slug-tree media seq)', () => {
   it('accepts slug-tree media sequence bundle config', () => {
     const doc = {
       'bundle:slug-tree:media:seq': {
+        crdt: { docid: 'slug:test', path: '/slug' },
         target: {
           base: './out',
           hrefBase: '/assets',

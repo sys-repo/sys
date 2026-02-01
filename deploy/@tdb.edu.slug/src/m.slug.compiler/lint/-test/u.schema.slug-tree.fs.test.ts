@@ -29,14 +29,12 @@ describe('LintProfileSchema', () => {
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
-  it('accepts crdt target shape', () => {
+  it('accepts crdt config shape', () => {
     const doc = {
       'bundle:slug-tree:fs': {
-        target: {
-          crdt: {
-            ref: 'crdt:abc123',
-            path: 'data/venture.library.examples',
-          },
+        crdt: {
+          docid: 'slug:test',
+          path: '/slug',
         },
       },
     };
@@ -48,6 +46,7 @@ describe('LintProfileSchema', () => {
   it('accepts slug-tree target.manifest string', () => {
     const doc = {
       'bundle:slug-tree:fs': {
+        crdt: { docid: 'slug:test', path: '/slug' },
         target: {
           manifest: './out/slug-tree.json',
         },
@@ -61,6 +60,7 @@ describe('LintProfileSchema', () => {
   it('accepts slug-tree target.manifest array', () => {
     const doc = {
       'bundle:slug-tree:fs': {
+        crdt: { docid: 'slug:test', path: '/slug' },
         target: {
           manifest: ['./out/slug-tree.json', './out/slug-tree.yaml'],
         },
@@ -74,6 +74,7 @@ describe('LintProfileSchema', () => {
   it('accepts slug-tree target.dir array', () => {
     const doc = {
       'bundle:slug-tree:fs': {
+        crdt: { docid: 'slug:test', path: '/slug' },
         target: {
           dir: [
             { kind: 'source', path: './out/source' },
@@ -95,6 +96,7 @@ describe('LintProfileSchema', () => {
         ignore: ['node_modules'],
         sort: true,
         readmeAsIndex: false,
+        crdt: { docid: 'slug:test', path: '/slug' },
       },
     };
     const res = LintProfileSchema.validate(doc);
@@ -105,6 +107,7 @@ describe('LintProfileSchema', () => {
   it('accepts slug-tree target.dir object', () => {
     const doc = {
       'bundle:slug-tree:fs': {
+        crdt: { docid: 'slug:test', path: '/slug' },
         target: {
           dir: { kind: 'source', path: './out/source' },
         },
@@ -118,6 +121,7 @@ describe('LintProfileSchema', () => {
   it('accepts slug-tree target.dir string', () => {
     const doc = {
       'bundle:slug-tree:fs': {
+        crdt: { docid: 'slug:test', path: '/slug' },
         target: {
           dir: './out/source',
         },
@@ -128,13 +132,10 @@ describe('LintProfileSchema', () => {
     expect(res.errors.length).to.eql(0);
   });
 
-  it('rejects slug-tree assets index without crdt.ref', () => {
+  it('rejects slug-tree config without crdt.docid', () => {
     const doc = {
       'bundle:slug-tree:fs': {
-        target: {
-          manifest: ['./out/slug-tree.json'],
-          dir: [{ kind: 'sha256', path: './out/sha256' }],
-        },
+        crdt: { path: '/slug' },
       },
     };
     const res = LintProfileSchema.validate(doc);
@@ -149,6 +150,9 @@ describe('LintProfileSchema', () => {
     const text = String(yaml);
     expect(text).to.contain('bundle:slug-tree:fs:');
     expect(text).to.contain('include: [.md]');
+    expect(text).to.contain('crdt:');
+    expect(text).to.contain('docid: <docid>');
+    expect(text).to.contain('path: /slug');
     expect(text).to.contain('source: .');
     expect(text).to.contain('target:');
     expect(text).to.contain('manifest:');

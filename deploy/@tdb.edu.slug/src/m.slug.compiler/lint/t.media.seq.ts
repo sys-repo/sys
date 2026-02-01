@@ -1,6 +1,10 @@
 import type { t } from './common.ts';
 
 export type LintMediaSeqBundle = {
+  readonly crdt: {
+    readonly docid: t.StringId;
+    readonly path: t.StringPath;
+  };
   readonly target?: {
     readonly base?: t.StringDir;
     readonly hrefBase?: t.StringUrl;

@@ -4,6 +4,13 @@ export const SchemaSlugTreeFs = Schema.Type.Optional(
   Schema.Type.Object(
     {
       source: Schema.Type.Optional(Schema.Type.String()),
+      crdt: Schema.Type.Object(
+        {
+          docid: Schema.Type.String(),
+          path: Schema.Type.String(),
+        },
+        { additionalProperties: false },
+      ),
       target: Schema.Type.Optional(
         Schema.Type.Object(
           {
@@ -40,15 +47,6 @@ export const SchemaSlugTreeFs = Schema.Type.Optional(
                   { minItems: 0 },
                 ),
               ]),
-            ),
-            crdt: Schema.Type.Optional(
-              Schema.Type.Object(
-                {
-                  ref: Schema.Type.Optional(Schema.Type.String()),
-                  path: Schema.Type.Optional(Schema.Type.String()),
-                },
-                { additionalProperties: false },
-              ),
             ),
           },
           { additionalProperties: false },

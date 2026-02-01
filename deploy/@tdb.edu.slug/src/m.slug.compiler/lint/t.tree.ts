@@ -4,6 +4,11 @@ import type { t } from './common.ts';
 export type LintSlugTree = {
   /** Source directory to scan. */
   readonly source?: t.StringPath;
+  /** CRDT configuration for DAG-based lookup. */
+  readonly crdt: {
+    readonly docid: t.StringId;
+    readonly path: t.StringPath;
+  };
   /** Targets for generated artifacts. */
   readonly target?: LintSlugTreeTarget;
   /** File extensions to include (e.g. ".md"). */
@@ -21,11 +26,6 @@ export type LintSlugTreeTarget = {
   readonly manifest?: t.StringPath | readonly t.StringPath[];
   /** Optional directory to copy source content into. */
   readonly dir?: t.StringPath | LintSlugTreeTargetDir | readonly LintSlugTreeTargetDir[];
-  /** Optional CRDT write target. */
-  readonly crdt?: {
-    readonly ref?: t.StringRef;
-    readonly path?: t.StringPath;
-  };
 };
 
 export type LintSlugTreeTargetDir = {

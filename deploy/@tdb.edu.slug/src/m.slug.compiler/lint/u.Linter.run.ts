@@ -90,10 +90,18 @@ async function lintOnce(args: {
   spinner.start();
 
   let mediaSeqConfig: t.LintMediaSeqBundle | undefined;
-  if (hasFilesBundle && profilePath) {
+  let mediaSeqYamlPath: t.ObjectPath | undefined;
+  const wantsMediaSeqConfig =
+    hasFilesBundle || hasFileVideo || hasFileImage || facets.includes('media:seq:schema');
+  if (wantsMediaSeqConfig && profilePath) {
     const profileDoc = await readLintProfile(profilePath);
     mediaSeqConfig = profileDoc['bundle:slug-tree:media:seq'];
+    mediaSeqYamlPath = parseYamlPath(mediaSeqConfig?.crdt?.path);
   }
+  if (wantsMediaSeqConfig && !mediaSeqYamlPath) {
+    throw new Error('Missing bundle:slug-tree:media:seq.crdt.path configuration.');
+  }
+  const mediaSeqPath = mediaSeqYamlPath as t.ObjectPath;
 
   type WithIssues<I> = { readonly issues: readonly I[] };
   type WithDoc = { readonly doc: { readonly id: t.StringId } };
@@ -160,7 +168,7 @@ async function lintOnce(args: {
     spinner.text = Fmt.spinnerText('asset files...');
     for (const node of dag.nodes) {
       const id = node.id;
-      const baseResult = await lintSequenceFilepaths(dag, yamlPath, node.id, { facets });
+      const baseResult = await lintSequenceFilepaths(dag, mediaSeqPath, node.id, { facets });
       pushIssuesForDoc(id, baseResult);
     }
   }
@@ -188,7 +196,7 @@ async function lintOnce(args: {
       spinner.text = Fmt.spinnerText(msg);
 
       const id = node.id;
-      const result = await bundleSequenceFilepaths(dag, yamlPath, node.id, {
+      const result = await bundleSequenceFilepaths(dag, mediaSeqPath, node.id, {
         facets,
         target: mediaSeqConfig?.target,
         requirePlayback: mediaSeqConfig?.requirePlayback,
@@ -215,7 +223,7 @@ async function lintOnce(args: {
   if (facets.includes('media:seq:schema')) {
     for (const node of dag.nodes) {
       const id = node.id;
-      const baseResult = await lintTypedYamlSequence(dag, yamlPath, node.id, {
+      const baseResult = await lintTypedYamlSequence(dag, mediaSeqPath, node.id, {
         checkInvariants: true,
         debug: false,
       });
@@ -388,4 +396,12 @@ function printLintSection(issues: Issue[] = []) {
   if (issues.length === 0) return;
   const table = Fmt.lintResults(issues);
   if (table) console.info(table + '\n');
+}
+
+function parseYamlPath(input?: t.StringPath): t.ObjectPath | undefined {
+  if (!input) return;
+  const raw = String(input).trim();
+  if (!raw) return;
+  const parts = raw.split('/').filter((p) => p.length > 0);
+  return parts as t.ObjectPath;
 }

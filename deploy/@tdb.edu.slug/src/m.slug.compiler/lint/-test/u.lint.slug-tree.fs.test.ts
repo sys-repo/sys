@@ -19,16 +19,13 @@ describe('Lint: slug-tree:fs', () => {
         facets: ['bundle:slug-tree:fs'],
         'bundle:slug-tree:fs': {
           source: 'src',
+          crdt: { docid: 'slug:test', path: '/slug' },
           target: {
             manifest: 'out/slug-tree.kb.json',
             dir: [
               { kind: 'source', path: 'out/src' },
               { kind: 'sha256', path: 'out/sha256' },
             ],
-            crdt: {
-              ref: 'slug:test',
-              path: 'data/example',
-            },
           },
         },
       };

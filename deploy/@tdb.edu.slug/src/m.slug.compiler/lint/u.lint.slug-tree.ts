@@ -52,7 +52,7 @@ export async function runSlugTreeFs(args: {
   }
 
   const includePath = targetDirs.some((item) => item.kind === 'source');
-  const docid = config.target?.crdt?.ref;
+  const docid = config.crdt.docid;
   let fileEntries: t.SlugFileContentEntry[] = [];
   for (const targetDir of targetDirs) {
     const ok = await prepareTargetDir(targetDir.path);
@@ -87,12 +87,6 @@ export async function runSlugTreeFs(args: {
       await Fs.write(target.path, Json.stringify(treeDoc));
       const assetsPath = deriveAssetsPath(target.path);
       if (assetsPath && fileEntries.length > 0) {
-        if (!docid) {
-          console.info(
-            c.yellow('warning: bundle:slug-tree:fs assets index skipped (target.crdt.ref missing)'),
-          );
-          continue;
-        }
         await writeSlugFileContentIndex({
           targetPath: assetsPath,
           docid: docid as t.StringId,
