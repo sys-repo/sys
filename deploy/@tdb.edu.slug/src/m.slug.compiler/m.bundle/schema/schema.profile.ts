@@ -1,5 +1,5 @@
 import { Schema, Yaml, type t } from '../common.ts';
-import { SchemaBundleConfig } from './u.bundle.ts';
+import { SchemaBundleConfig } from './schema.bundle.ts';
 
 export const BundleProfileSchema = {
   initial(): t.BundleProfile {

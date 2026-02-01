@@ -1,5 +1,5 @@
 import { Schema } from '../common.ts';
-import { SchemaCrdtConfig } from './u.crdt.ts';
+import { SchemaCrdtConfig } from './schema.crdt.ts';
 
 export const SchemaSlugTreeFsFields = {
   source: Schema.Type.Optional(Schema.Type.String()),
@@ -18,7 +18,10 @@ export const SchemaSlugTreeFsFields = {
             Schema.Type.String(),
             Schema.Type.Object(
               {
-                kind: Schema.Type.Union([Schema.Type.Literal('source'), Schema.Type.Literal('sha256')]),
+                kind: Schema.Type.Union([
+                  Schema.Type.Literal('source'),
+                  Schema.Type.Literal('sha256'),
+                ]),
                 path: Schema.Type.String(),
               },
               { additionalProperties: false },
