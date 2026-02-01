@@ -4,6 +4,7 @@ export {
   CrdtGraph,
   CrdtId,
   CrdtIs,
+  CrdtStr,
   CrdtUrl,
   CrdtWorker,
   createPeerId,

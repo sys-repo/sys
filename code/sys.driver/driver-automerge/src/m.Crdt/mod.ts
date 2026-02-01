@@ -9,6 +9,7 @@ export { CrdtWorker } from '../m.worker/mod.ts';
 export { CrdtId } from './m.Id.ts';
 export { CrdtIs } from './m.Is.ts';
 export { CrdtUrl } from './m.Url.ts';
+export { CrdtStr } from './m.Str.ts';
 
 export { toAutomergeHandle, toRef } from '../m.Crdt.Ref/mod.ts';
 export { toAutomergeRepo, toRepo } from '../m.Crdt.Repo/mod.ts';

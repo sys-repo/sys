@@ -19,6 +19,7 @@ import {
   toObject,
   toRepo,
   whenReady,
+  CrdtStr,
 } from './common.ts';
 
 type Args = t.CrdtFsRepoArgs;
@@ -50,6 +51,7 @@ export const Crdt: t.CrdtFilesystemLib = {
   Id: CrdtId,
   Is: CrdtIs,
   Url: CrdtUrl,
+  Str: CrdtStr,
   Cmd: CrdtCmd,
   Worker: CrdtWorker,
   Graph: CrdtGraph,
