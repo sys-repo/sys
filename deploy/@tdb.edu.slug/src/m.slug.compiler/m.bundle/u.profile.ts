@@ -32,9 +32,8 @@ export async function runProfile(args: {
   if (mediaSeq) {
     const rawDocid = String(mediaSeq.crdt.docid ?? '').trim();
     if (!rawDocid || rawDocid === '<tbd>') {
-      warnings.push(
-        'warning: bundle:slug-tree:media:seq skipped (crdt.docid missing or placeholder)',
-      );
+      const msg = 'warning: bundle:slug-tree:media:seq skipped (crdt.docid missing or placeholder)';
+      warnings.push(msg);
     } else {
       const yamlPath = parseYamlPath(mediaSeq.crdt.path);
       const rootId = rawDocid.startsWith('crdt:')
@@ -73,24 +72,20 @@ export async function runProfile(args: {
           }
           docSummaries.push({
             docid: nodeId,
-            issues: {
-              total: result.issues.length,
-              byKind: counts,
-            },
+            issues: { total: result.issues.length, byKind: counts },
           });
           const summaryText = [...counts.entries()]
             .map(([kind, count]) => `${kind}=${count}`)
             .join(', ');
-          warnings.push(
-            `warning: bundle:slug-tree:media:seq issues (doc:${nodeId}, ${result.issues.length}): ${summaryText}`,
-          );
+
+          const msg = `warning: bundle:slug-tree:media:seq issues (doc:${nodeId}, ${result.issues.length}): ${summaryText}`;
+          warnings.push(msg);
         }
       }
 
       if (bundled === 0) {
-        warnings.push(
-          `warning: bundle:slug-tree:media:seq skipped (no media sequences found in DAG for ${rootId})`,
-        );
+        const msg = `warning: bundle:slug-tree:media:seq skipped (no media sequences found in DAG for ${rootId})`;
+        warnings.push(msg);
       }
       summary = {
         ...summary,
@@ -128,6 +123,9 @@ export async function runProfile(args: {
   return summary;
 }
 
+/**
+ * Helpers:
+ */
 function formatValidationErrors(errors: readonly t.ValueError[]): string {
   return errors
     .map((err) => `${String(err.path ?? '').trim() || '<root>'}: ${err.message}`)
