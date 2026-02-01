@@ -17,12 +17,7 @@ export const validate: t.SlugBundleLib['validate'] = async (args) => {
   }
 
   const doc = res.data ?? {};
-  const bundleDoc = {
-    'bundle:slug-tree:fs': doc['bundle:slug-tree:fs'],
-    'bundle:slug-tree:media:seq': doc['bundle:slug-tree:media:seq'],
-  };
-
-  const ok = Schema.Value.Check(SchemaBundleConfig, bundleDoc);
-  const errors = ok ? [] : [...Schema.Value.Errors(SchemaBundleConfig, bundleDoc)];
+  const ok = Schema.Value.Check(SchemaBundleConfig, doc);
+  const errors = ok ? [] : [...Schema.Value.Errors(SchemaBundleConfig, doc)];
   return { ok, errors } as const;
 };

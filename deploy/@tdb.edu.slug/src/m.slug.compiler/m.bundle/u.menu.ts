@@ -61,8 +61,7 @@ function extraActions(): YamlConfigMenuExtra<t.BundleProfileAction, t.BundleProf
   return [
     {
       name: ({ name, doc }: YamlConfigMenuItemArgs<t.BundleProfile>) => {
-        const keys = Object.keys(doc ?? {});
-        const count = keys.length;
+        const count = doc?.bundles?.length ?? 0;
         const suffix = c.gray(c.dim(` → (${count} ${Str.plural(count, 'config')})`));
         return `run ${c.cyan(name)}${suffix}`;
       },

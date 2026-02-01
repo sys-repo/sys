@@ -3,7 +3,7 @@ import { SchemaBundleConfig } from './u.bundle.ts';
 
 export const BundleProfileSchema = {
   initial(): t.BundleProfile {
-    return {};
+    return { bundles: [] };
   },
 
   validate(value: unknown) {

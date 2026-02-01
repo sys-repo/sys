@@ -1,22 +1,15 @@
 import { SlugTree } from '../m.slug.SlugTree/mod.ts';
 
 import { type t, c, DEFAULT_IGNORE, Fs, Json, Schema } from './common.ts';
-import { readBundleProfile } from './u.profile.ts';
 import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.tree.file.ts';
 
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
-  profilePath: t.StringFile;
+  config: t.SlugBundleSlugTreeFs;
   createCrdt: () => Promise<t.StringRef>;
 }): Promise<t.SlugTreeFsStats | undefined> {
   const startedAt = Date.now();
-  const { cwd, profilePath, createCrdt } = args;
-  const profileDoc = await readBundleProfile(profilePath);
-  const config = profileDoc['bundle:slug-tree:fs'];
-  if (!config) {
-    console.info(c.yellow('warning: bundle:slug-tree:fs skipped (missing config)'));
-    return;
-  }
+  const { cwd, createCrdt, config } = args;
 
   const source = Fs.Tilde.expand(String(config.source ?? '.'));
   const root = Fs.Path.resolve(cwd, source || '.');

@@ -1,5 +1,5 @@
 import { type t, describe, expect, Fs, Hash, it } from '../../-test.ts';
-import { Json, SlugSchema, Yaml } from '../common.ts';
+import { Json, SlugSchema } from '../common.ts';
 import { runSlugTreeFs } from '../u.tree.ts';
 
 describe('Lint: slug-tree:fs', () => {
@@ -13,26 +13,24 @@ describe('Lint: slug-tree:fs', () => {
       await Fs.write(Fs.join(srcDir, 'b.txt'), 'skip');
       await Fs.write(Fs.join(srcDir, 'sub', 'c.md'), 'world');
 
-      const profilePath = Fs.join(tmpDir, 'lint.yaml');
-      const doc: t.BundleProfile = {
-        'bundle:slug-tree:fs': {
-          source: 'src',
-          crdt: { docid: 'slug:test', path: '/slug' },
-          target: {
-            manifest: 'out/slug-tree.kb.json',
-            dir: [
-              { kind: 'source', path: 'out/src' },
-              { kind: 'sha256', path: 'out/sha256' },
-            ],
-          },
+      const config: t.SlugBundleSlugTreeFs = {
+        source: 'src',
+        crdt: { docid: 'slug:test', path: '/slug' },
+        target: {
+          manifest: 'out/slug-tree.kb.json',
+          dir: [
+            { kind: 'source', path: 'out/src' },
+            { kind: 'sha256', path: 'out/sha256' },
+          ],
         },
       };
-
-      await Fs.write(profilePath, Yaml.stringify(doc).data ?? '');
+      const doc: t.BundleProfile = {
+        bundles: [{ kind: 'slug-tree:fs', ...config }],
+      };
 
       await runSlugTreeFs({
         cwd: tmpDir,
-        profilePath,
+        config,
         createCrdt: async () => 'crdt:test' as t.StringRef,
       });
 

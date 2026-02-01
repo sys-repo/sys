@@ -9,7 +9,9 @@ export async function readBundleProfile(path: t.StringFile): Promise<t.BundlePro
   const res = await Fs.readYaml<t.BundleProfile>(path);
   if (!res.ok || !res.exists) return BundleProfileSchema.initial();
   const doc = res.data ?? {};
-  return BundleProfileSchema.validate(doc).ok ? doc : BundleProfileSchema.initial();
+  return BundleProfileSchema.validate(doc).ok
+    ? (doc as t.BundleProfile)
+    : BundleProfileSchema.initial();
 }
 
 export async function runProfile(args: {
@@ -28,14 +30,20 @@ export async function runProfile(args: {
   }
 
   const profile = await readBundleProfile(profilePath);
-  const mediaSeq = profile['bundle:slug-tree:media:seq'];
-  if (mediaSeq) {
-    const rawDocid = String(mediaSeq.crdt.docid ?? '').trim();
-    if (!rawDocid || rawDocid === '<tbd>') {
-      const msg = 'warning: bundle:slug-tree:media:seq skipped (crdt.docid missing or placeholder)';
-      warnings.push(msg);
-    } else {
-      const yamlPath = parseYamlPath(mediaSeq.crdt.path);
+  const bundles = profile.bundles ?? [];
+  let mediaSeqTotals: t.BundleRunSummary['mediaSeq'] | undefined;
+  let slugTreeFsTotals: t.BundleRunSummary['slugTreeFs'] | undefined;
+
+  for (const [i, bundle] of bundles.entries()) {
+    if (bundle.kind === 'slug-tree:media:seq') {
+      const rawDocid = String(bundle.crdt.docid ?? '').trim();
+      if (!rawDocid || rawDocid === '<tbd>') {
+        const msg = `warning: bundle:slug-tree:media:seq skipped (bundle#${i + 1}, crdt.docid missing or placeholder)`;
+        warnings.push(msg);
+        continue;
+      }
+
+      const yamlPath = parseYamlPath(bundle.crdt.path);
       const rootId = rawDocid.startsWith('crdt:')
         ? (rawDocid as t.Crdt.Id)
         : (`crdt:${rawDocid}` as t.Crdt.Id);
@@ -61,8 +69,8 @@ export async function runProfile(args: {
         });
         bundled += 1;
         const result = await bundleSequenceFilepaths(dag, yamlPath, nodeId, {
-          target: mediaSeq.target,
-          requirePlayback: mediaSeq.requirePlayback,
+          target: bundle.target,
+          requirePlayback: bundle.requirePlayback,
         });
         if (result.issues.length > 0) {
           const counts = new Map<string, number>();
@@ -78,47 +86,46 @@ export async function runProfile(args: {
             .map(([kind, count]) => `${kind}=${count}`)
             .join(', ');
 
-          const msg = `warning: bundle:slug-tree:media:seq issues (doc:${nodeId}, ${result.issues.length}): ${summaryText}`;
+          const msg = `warning: bundle:slug-tree:media:seq issues (bundle#${i + 1}, doc:${nodeId}, ${result.issues.length}): ${summaryText}`;
           warnings.push(msg);
         }
       }
 
       if (bundled === 0) {
-        const msg = `warning: bundle:slug-tree:media:seq skipped (no media sequences found in DAG for ${rootId})`;
+        const msg = `warning: bundle:slug-tree:media:seq skipped (bundle#${i + 1}, no media sequences found in DAG for ${rootId})`;
         warnings.push(msg);
       }
-      summary = {
-        ...summary,
-        mediaSeq: {
-          total: targets.length,
-          bundled,
-          docs: docSummaries,
-        },
+
+      const prevDocs = mediaSeqTotals?.docs ?? [];
+      mediaSeqTotals = {
+        total: (mediaSeqTotals?.total ?? 0) + targets.length,
+        bundled: (mediaSeqTotals?.bundled ?? 0) + bundled,
+        docs: [...prevDocs, ...docSummaries],
       };
+      continue;
+    }
+
+    if (bundle.kind === 'slug-tree:fs') {
+      args.onProgress?.({ stage: 'slug-tree:fs' });
+      const stats = await runSlugTreeFs({
+        cwd,
+        config: bundle,
+        createCrdt: async () => 'crdt:create' as t.StringRef,
+      });
+      const merged = {
+        files: (slugTreeFsTotals?.files ?? 0) + (stats?.files ?? 0),
+        sourceFiles: (slugTreeFsTotals?.sourceFiles ?? 0) + (stats?.sourceFiles ?? 0),
+        sha256Files: (slugTreeFsTotals?.sha256Files ?? 0) + (stats?.sha256Files ?? 0),
+        manifests: (slugTreeFsTotals?.manifests ?? 0) + (stats?.manifests ?? 0),
+        elapsedMs: (slugTreeFsTotals?.elapsedMs ?? 0) + (stats?.elapsedMs ?? 0),
+      };
+      slugTreeFsTotals = { ran: true, ...merged };
+      continue;
     }
   }
 
-  if (profile['bundle:slug-tree:fs']) {
-    args.onProgress?.({ stage: 'slug-tree:fs' });
-    const stats = await runSlugTreeFs({
-      cwd,
-      profilePath,
-      createCrdt: async () => 'crdt:create' as t.StringRef,
-    });
-    summary = {
-      ...summary,
-      slugTreeFs: {
-        ran: true,
-        ...(stats ?? {
-          files: 0,
-          sourceFiles: 0,
-          sha256Files: 0,
-          manifests: 0,
-          elapsedMs: 0,
-        }),
-      },
-    };
-  }
+  if (mediaSeqTotals) summary = { ...summary, mediaSeq: mediaSeqTotals };
+  if (slugTreeFsTotals) summary = { ...summary, slugTreeFs: slugTreeFsTotals };
 
   return summary;
 }

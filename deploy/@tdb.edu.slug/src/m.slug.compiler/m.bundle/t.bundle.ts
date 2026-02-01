@@ -11,7 +11,12 @@ export type BundleCmdClient = t.Crdt.Cmd.Client;
 /**
  * Configuration Profile
  */
+export type BundleKind = BundleConfig['kind'];
+
+export type BundleConfig =
+  | (SlugBundleSlugTreeFs & { readonly kind: 'slug-tree:fs' })
+  | (SlugBundleMediaSeq & { readonly kind: 'slug-tree:media:seq' });
+
 export type BundleProfile = {
-  readonly 'bundle:slug-tree:fs'?: SlugBundleSlugTreeFs;
-  readonly 'bundle:slug-tree:media:seq'?: SlugBundleMediaSeq;
+  readonly bundles: readonly BundleConfig[];
 };
