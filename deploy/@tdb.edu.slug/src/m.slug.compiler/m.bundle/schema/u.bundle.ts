@@ -1,6 +1,6 @@
 import { Schema } from '../common.ts';
-import { SchemaSlugTreeFs } from './u.slug-tree.fs.ts';
-import { SchemaSlugTreeMediaSeqBundle } from './u.slug-tree.media.seq.ts';
+import { SchemaSlugTreeFs } from './u.tree.fs.ts';
+import { SchemaSlugTreeMediaSeqBundle } from './u.tree.media.seq.ts';
 
 export const SchemaBundleConfig = Schema.Type.Object(
   {
