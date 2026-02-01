@@ -1,4 +1,4 @@
-import { type t, AliasResolver, Obj } from '../common.ts';
+import { type t, AliasResolver, Is, Obj, Yaml } from '../common.ts';
 import { resolvePath } from './u.resolve.path.ts';
 import { makeResolvers } from './u.resolve.ts';
 
@@ -45,7 +45,7 @@ export const makeParser: t.MakeParser = (yamlPath: t.ObjectPath) => {
   function path(dag: Dag, docid: t.Crdt.Id) {
     const root = parseRoot(dag);
     const node = findParsedNode(dag, docid);
-    const index = root.alias?.resolver;
+    const index = resolveIndexResolver(dag, root, node);
     const local = node?.alias?.resolver;
     const resolve = (raw: string) => resolvePath(raw, local, index);
     const ok = !!node && !!local && !!index;
@@ -61,4 +61,34 @@ export const makeParser: t.MakeParser = (yamlPath: t.ObjectPath) => {
     findParsedNode,
   };
   return api;
+  function resolveIndexResolver(
+    dag: Dag,
+    root: t.ParsedNode,
+    node?: t.ParsedNode,
+  ): t.Alias.Resolver | undefined {
+    const fallback = root.alias?.resolver;
+    const local = node?.alias?.resolver;
+    const rawIndex = local?.alias?.[':index'];
+    if (!Is.str(rawIndex) || rawIndex.length === 0) return fallback;
+
+    const ref = normalizeIndexRef(rawIndex);
+    const match = dag.nodes.find((d) => d.id === ref);
+    if (!match) return fallback;
+
+    const rawYaml = match.doc?.current;
+    if (!Is.str(rawYaml)) return fallback;
+
+    const parsedYaml = Yaml.parse<Record<string, unknown>>(rawYaml).data;
+    if (!Is.record(parsedYaml)) return fallback;
+
+    const parsed = AliasResolver.analyze(parsedYaml, { alias: ['alias'] });
+    return parsed.resolver ?? fallback;
+  }
 };
+
+function normalizeIndexRef(value: string): t.Crdt.Id {
+  const raw = String(value ?? '').trim();
+  if (raw.startsWith('urn:crdt:')) return `crdt:${raw.slice('urn:crdt:'.length)}` as t.Crdt.Id;
+  if (raw.startsWith('crdt:')) return raw as t.Crdt.Id;
+  return `crdt:${raw}` as t.Crdt.Id;
+}
