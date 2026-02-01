@@ -1,8 +1,6 @@
 import { type t } from '../common.ts';
 import { bundleSequenceFilepaths } from './u.seq.files.bundle.ts';
 import { runSlugTreeFs } from './u.slug-tree.ts';
-import { readBundleProfile } from './u.profile.ts';
-import { selectBundleProfile } from './u.bundle.menu.ts';
 import { validateBundleConfig } from './u.validate.ts';
 
 export const Bundler = {
