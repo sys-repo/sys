@@ -48,6 +48,6 @@ export const LintProfileSchema = {
     {
       facets: SchemaFacets,
     },
-    { additionalProperties: true },
+    { additionalProperties: false },
   ),
 } as const;

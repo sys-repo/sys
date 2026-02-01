@@ -2,8 +2,13 @@ import { type t } from '../common.ts';
 import { bundleSequenceFilepaths } from './u.seq.files.bundle.ts';
 import { runSlugTreeFs } from './u.slug-tree.ts';
 import { readBundleProfile } from './u.profile.ts';
+import { validateBundleConfig } from './u.validate.ts';
 
 export const Bundler = {
+  async validate(args: { path: t.StringFile }) {
+    return await validateBundleConfig(args.path);
+  },
+
   async slugTreeFs(args: {
     cwd: t.StringDir;
     profilePath: t.StringFile;
