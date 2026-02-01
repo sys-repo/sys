@@ -3,8 +3,6 @@ import type { t } from './common.ts';
 /** Type re-exports. */
 export type * from './t.files.ts';
 export type * from './t.lint.ts';
-export type * from '../m.bundle/t.media.seq.ts';
-export type * from '../m.bundle/t.tree.ts';
 
 /**
  * Distinct structural checks the linter can perform.

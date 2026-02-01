@@ -1,10 +1,7 @@
 import { buildSequenceFilepathIssue } from '../m.lint/u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from '../m.lint/u.lint.seq.files.walk.ts';
-import { type t, c, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
+import { type t, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
 
-type R = t.LintAndBundleResult;
-type Dag = t.Graph.Dag.Result;
-type Facet = t.SlugLintFacet;
 /**
  * Bundle all media file paths for a given document:
  * - Uses the shared media-path walker (video + image).
@@ -19,14 +16,14 @@ type Facet = t.SlugLintFacet;
  *   dedicated lint issue with the precise reason.
  */
 export async function bundleSequenceFilepaths(
-  dag: Dag,
+  dag: t.BundleSequenceDag,
   yamlPath: t.ObjectPath,
   docid: t.Crdt.Id,
   opts: {
-    facets?: Facet[];
+    facets?: t.BundleSequenceFacet[];
     outDir?: string;
     baseHref?: string;
-    target?: t.LintMediaSeqBundle['target'];
+    target?: t.SlugBundleMediaSeq['target'];
 
     /**
      * When true, require this slug to support playback derivation via a
@@ -35,13 +32,13 @@ export async function bundleSequenceFilepaths(
      */
     requirePlayback?: boolean;
   } = {},
-): Promise<R> {
+): Promise<t.BundleSequenceResult> {
   const issues: t.LintSequenceFilepath[] = [];
   const assets: t.SlugAsset[] = [];
   let visited = 0;
   let resolved = 0;
   let existsCount = 0;
-  const facets: Facet[] = (opts.facets ?? resolveFacets(opts.target)).filter((v) =>
+  const facets: t.BundleSequenceFacet[] = (opts.facets ?? resolveFacets(opts.target)).filter((v) =>
     v.startsWith('media:seq:file:'),
   );
 
@@ -57,7 +54,7 @@ export async function bundleSequenceFilepaths(
   const playbackTemplate = opts.target?.manifests?.playback ?? 'slug.<docid>.playback.json';
   const treeTemplate = opts.target?.manifests?.tree ?? 'slug-tree.<docid>.json';
 
-  const dir: R['dir'] = {
+  const dir: t.BundleSequenceResult['dir'] = {
     base: baseDir,
     manifests: manifestsDir,
     video: videoDir,
@@ -242,9 +239,9 @@ export async function bundleSequenceFilepaths(
   return Obj.asGetter({ dir, issues }, ['issues']);
 }
 
-function resolveFacets(target?: t.LintMediaSeqBundle['target']): Facet[] {
+function resolveFacets(target?: t.SlugBundleMediaSeq['target']): t.BundleSequenceFacet[] {
   if (!target?.media) return ['media:seq:file:video', 'media:seq:file:image'];
-  const facets: Facet[] = [];
+  const facets: t.BundleSequenceFacet[] = [];
   if (target.media.video) facets.push('media:seq:file:video');
   if (target.media.image) facets.push('media:seq:file:image');
   return facets;

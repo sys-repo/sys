@@ -1,15 +1,16 @@
 import { type t, Crdt, Obj } from './common.ts';
 
-type O = Record<string, unknown>;
-type CmdClient = t.Crdt.Cmd.Client;
-
 /**
  * Build a CRDT document DAG from a root id and YAML path.
  */
-export async function buildDocumentDag(cmd: CmdClient, id: t.Crdt.Id, path: t.ObjectPath) {
+export async function buildDocumentDag(
+  cmd: t.BundleCmdClient,
+  id: t.Crdt.Id,
+  path: t.ObjectPath,
+) {
   const load = makeLoad(cmd);
   const discoverRefs = makeDiscoverRefs(path);
-  return await Crdt.Graph.Dag.build<O>({
+  return await Crdt.Graph.Dag.build<t.BundleDagObject>({
     id,
     load,
     discoverRefs,
@@ -19,10 +20,10 @@ export async function buildDocumentDag(cmd: CmdClient, id: t.Crdt.Id, path: t.Ob
 /**
  * Factory for a command-backed CRDT document loader.
  */
-function makeLoad(cmd: CmdClient): t.Crdt.Graph.LoadDoc<O> {
+function makeLoad(cmd: t.BundleCmdClient): t.Crdt.Graph.LoadDoc<t.BundleDagObject> {
   return async (id) => {
     const result = await cmd.send('doc:read', { doc: id });
-    const current = result.value as O | undefined;
+    const current = result.value as t.BundleDagObject | undefined;
     return current ? { current } : undefined;
   };
 }

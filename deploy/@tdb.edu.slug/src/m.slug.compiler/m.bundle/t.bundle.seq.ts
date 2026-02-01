@@ -1,6 +1,23 @@
 import type { t } from './common.ts';
 
-export type LintMediaSeqBundle = {
+/**
+ * Media Sequence
+ */
+export type BundleSequenceDag = t.Graph.Dag.Result;
+export type BundleSequenceFacet = t.SlugLintFacet;
+export type BundleSequenceResult = t.LintSequenceFilepathResult & {
+  readonly dir: {
+    readonly base: t.StringDir;
+    readonly manifests: t.StringDir;
+    readonly video: t.StringDir;
+    readonly image: t.StringDir;
+  };
+};
+
+/**
+ * Configuration
+ */
+export type SlugBundleMediaSeq = {
   readonly crdt: {
     readonly docid: t.StringId;
     readonly path: t.StringPath;

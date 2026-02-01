@@ -1,7 +1,5 @@
 import { type t, DEFAULT_IGNORE, Fs, Hash, Is, Json, Schema, SlugSchema, Yaml } from './common.ts';
 
-type Entry = t.SlugFileContentDoc;
-
 export async function writeSlugTreeSha256Dir(args: {
   root: t.StringDir;
   targetDir: t.StringDir;
@@ -34,7 +32,7 @@ export async function writeSlugTreeSha256Dir(args: {
       const rel = Fs.Path.relative(args.root, abs);
       const contentType = toContentType(entry.name);
       const frontmatter = readFrontmatter(source, abs);
-      const payload: Entry = args.includePath
+      const payload: t.SlugFileContentDoc = args.includePath
         ? { source, path: rel, hash, contentType, frontmatter }
         : { source, hash, contentType, frontmatter };
       const validation = SlugSchema.FileContent.validate(payload);

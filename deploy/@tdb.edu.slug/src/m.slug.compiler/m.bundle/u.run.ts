@@ -1,7 +1,7 @@
 import { type t, c, Cli } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { selectBundleProfile, selectBundleProfileAction } from './u.menu.ts';
-import { runProfile, type BundleRunProgress, type BundleRunSummary } from './u.profile.ts';
+import { runProfile } from './u.profile.ts';
 
 /**
  * Run the bundler using the given CRDT commands
@@ -65,7 +65,7 @@ async function runOnce(args: {
 
   const summary = await runProfile({
     ...args,
-    onProgress: (info: BundleRunProgress) => {
+    onProgress: (info: t.BundleRunProgress) => {
       if (info.stage === 'media:seq') {
         spinner.text = Fmt.spinnerText(`media:seq ${info.current}/${info.total}`);
         return;
@@ -80,7 +80,7 @@ async function runOnce(args: {
   printSummary(summary);
 }
 
-function printSummary(summary: BundleRunSummary) {
+function printSummary(summary: t.BundleRunSummary) {
   const warnings = summary.warnings ?? [];
   for (const warning of warnings) {
     console.info(c.yellow(warning));

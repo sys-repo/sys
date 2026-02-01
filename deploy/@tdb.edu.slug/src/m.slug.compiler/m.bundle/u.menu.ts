@@ -7,21 +7,14 @@ const PROFILE_DIR = Fs.join('-config', pkg.name, 'bundle');
 const PROFILE_EXT = '.yaml';
 const DEFAULT_PROFILE = 'default';
 
-type Action = 'run';
-
-export type BundleProfilePick =
-  | { kind: 'exit' }
-  | { kind: 'back'; profile?: t.StringFile }
-  | { kind: 'run'; profile: t.StringFile };
-
 export async function selectBundleProfile(
   cwd: t.StringDir,
   opts: { interactive?: boolean; defaultProfile?: t.StringFile } = {},
-): Promise<BundleProfilePick> {
+): Promise<t.BundleProfilePick> {
   const profiles = await ensureProfiles(cwd);
   if (!opts.interactive) return { kind: 'run', profile: profiles[0] };
 
-  const res = await YamlConfig.menu<t.BundleProfile, Action>({
+  const res = await YamlConfig.menu<t.BundleProfile, t.BundleProfileAction>({
     cwd,
     dir: PROFILE_DIR,
     label: 'Bundle profiles',
@@ -39,9 +32,9 @@ export async function selectBundleProfile(
 export async function selectBundleProfileAction(
   cwd: t.StringDir,
   profile: t.StringFile,
-  opts: { defaultAction?: Action } = {},
-): Promise<BundleProfilePick> {
-  const res = await YamlConfig.menu<t.BundleProfile, Action>({
+  opts: { defaultAction?: t.BundleProfileAction } = {},
+): Promise<t.BundleProfilePick> {
+  const res = await YamlConfig.menu<t.BundleProfile, t.BundleProfileAction>({
     cwd,
     dir: PROFILE_DIR,
     label: 'Bundle profiles',
@@ -64,7 +57,7 @@ const schema = {
   stringifyYaml: (doc: t.BundleProfile) => BundleProfileSchema.stringify(doc),
 } as const;
 
-function extraActions(): YamlConfigMenuExtra<Action, t.BundleProfile>[] {
+function extraActions(): YamlConfigMenuExtra<t.BundleProfileAction, t.BundleProfile>[] {
   return [
     {
       name: ({ name, doc }: YamlConfigMenuItemArgs<t.BundleProfile>) => {
@@ -81,7 +74,7 @@ function extraActions(): YamlConfigMenuExtra<Action, t.BundleProfile>[] {
 function toProfilePick(
   res: Awaited<ReturnType<typeof YamlConfig.menu>>,
   fallback?: t.StringFile,
-): BundleProfilePick {
+): t.BundleProfilePick {
   if (res.kind === 'exit') return { kind: 'exit' };
   if (res.kind === 'back') return { kind: 'back', profile: fallback };
   if (res.kind === 'action') {

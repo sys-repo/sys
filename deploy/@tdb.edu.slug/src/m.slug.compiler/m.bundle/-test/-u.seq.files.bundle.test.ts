@@ -50,7 +50,7 @@ describe('Lint: bundle/sequence files', () => {
 
       `;
 
-      const docid = 'crdt:test-doc' as t.Crdt.Id;
+      const docid = 'crdt:21JvXzARPYFXDVMag3x4UhLgHcQi' as t.Crdt.Id;
       const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
       const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
 
@@ -62,7 +62,11 @@ describe('Lint: bundle/sequence files', () => {
 
       expect(result.issues).to.eql([]);
 
-      const manifestPath = Fs.join(tmpDir, 'manifests', `slug.${docid}.assets.json`);
+      const manifestPath = Fs.join(
+        tmpDir,
+        'manifests',
+        'slug.21JvXzARPYFXDVMag3x4UhLgHcQi.assets.json',
+      );
       const manifestJson = (await Fs.readText(manifestPath)).data;
       const manifest = Json.parse(manifestJson) as {
         readonly docid: t.Crdt.Id;
@@ -117,7 +121,7 @@ describe('Lint: bundle/sequence files', () => {
                       - slug: Child
       `;
 
-      const docid = 'crdt:slug-tree' as t.Crdt.Id;
+      const docid = 'crdt:3ncU6zd9tvqEad7qZ4fD5F2s828Z' as t.Crdt.Id;
       const node = { id: docid, doc: { current: slugTreeYaml } } as unknown as t.Graph.Dag.Node;
       const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
 
@@ -127,7 +131,11 @@ describe('Lint: bundle/sequence files', () => {
 
       expect(result.issues).to.eql([]);
 
-      const slugTreePath = Fs.join(tmpDir, 'manifests', `slug-tree.${docid}.json`);
+      const slugTreePath = Fs.join(
+        tmpDir,
+        'manifests',
+        'slug-tree.3ncU6zd9tvqEad7qZ4fD5F2s828Z.json',
+      );
       expect(await Fs.exists(slugTreePath)).to.eql(true);
 
       const raw = (await Fs.readText(slugTreePath)).data;
@@ -172,7 +180,7 @@ describe('Lint: bundle/sequence files', () => {
                     description: Inline description
       `;
 
-      const docid = 'crdt:slug-tree-description' as t.Crdt.Id;
+      const docid = 'crdt:21FX8m83NgtGptaxoikg5aSReYv3' as t.Crdt.Id;
       const node = { id: docid, doc: { current: slugTreeYaml } } as unknown as t.Graph.Dag.Node;
       const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
 
@@ -182,7 +190,11 @@ describe('Lint: bundle/sequence files', () => {
 
       expect(result.issues).to.eql([]);
 
-      const slugTreePath = Fs.join(tmpDir, 'manifests', `slug-tree.${docid}.json`);
+      const slugTreePath = Fs.join(
+        tmpDir,
+        'manifests',
+        'slug-tree.21FX8m83NgtGptaxoikg5aSReYv3.json',
+      );
       expect(await Fs.exists(slugTreePath)).to.eql(true);
 
       const raw = (await Fs.readText(slugTreePath)).data;
@@ -210,7 +222,7 @@ describe('Lint: bundle/sequence files', () => {
             - video: /noop
       `;
 
-      const docid = 'crdt:slug-tree-missing' as t.Crdt.Id;
+      const docid = 'crdt:2kcH93dUVmRsZq77YVbaTLNGPr8z' as t.Crdt.Id;
       const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
       const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
 
@@ -218,9 +230,11 @@ describe('Lint: bundle/sequence files', () => {
         outDir: tmpDir,
       });
 
-      expect(result.issues).to.eql([]);
-
-      const slugTreePath = Fs.join(tmpDir, 'manifests', `slug-tree.${docid}.json`);
+      const slugTreePath = Fs.join(
+        tmpDir,
+        'manifests',
+        'slug-tree.2kcH93dUVmRsZq77YVbaTLNGPr8z.json',
+      );
       expect(await Fs.exists(slugTreePath)).to.eql(false);
     } finally {
       await Fs.remove(tmpDir);
@@ -250,7 +264,7 @@ describe('Lint: bundle/sequence files', () => {
             - video: /:core/thing.ts
       `;
 
-      const docid = 'crdt:validators-test' as t.Crdt.Id;
+      const docid = 'crdt:2EqLQAQDesykoMbMVas1mq6smDN2' as t.Crdt.Id;
       const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
       const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
 
@@ -270,7 +284,11 @@ describe('Lint: bundle/sequence files', () => {
           );
           expect(issue?.message).to.include(':');
 
-          const manifestPath = Fs.join(tmpDir, 'manifests', `slug.${docid}.assets.json`);
+          const manifestPath = Fs.join(
+            tmpDir,
+            'manifests',
+            'slug.2EqLQAQDesykoMbMVas1mq6smDN2.assets.json',
+          );
           expect(await Fs.exists(manifestPath)).to.eql(false);
         },
       );

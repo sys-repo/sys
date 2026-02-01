@@ -1,7 +1,9 @@
 import type { t } from './common.ts';
 
-/** Slug-tree filesystem lint settings. */
-export type LintSlugTree = {
+/**
+ * Configuration
+ */
+export type SlugBundleSlugTreeFs = {
   /** Source directory to scan. */
   readonly source?: t.StringPath;
   /** CRDT configuration for DAG-based lookup. */
@@ -10,7 +12,7 @@ export type LintSlugTree = {
     readonly path: t.StringPath;
   };
   /** Targets for generated artifacts. */
-  readonly target?: LintSlugTreeTarget;
+  readonly target?: SlugBundleSlugTreeTarget;
   /** File extensions to include (e.g. ".md"). */
   readonly include?: readonly string[];
   /** Directory entries to ignore. */
@@ -21,14 +23,25 @@ export type LintSlugTree = {
   readonly readmeAsIndex?: boolean;
 };
 
-export type LintSlugTreeTarget = {
+export type SlugBundleSlugTreeTarget = {
   /** Manifest targets for generated artifacts. */
   readonly manifest?: t.StringPath | readonly t.StringPath[];
   /** Optional directory to copy source content into. */
-  readonly dir?: t.StringPath | LintSlugTreeTargetDir | readonly LintSlugTreeTargetDir[];
+  readonly dir?:
+    | t.StringPath
+    | SlugBundleSlugTreeTargetDir
+    | readonly SlugBundleSlugTreeTargetDir[];
 };
 
-export type LintSlugTreeTargetDir = {
+export type SlugBundleSlugTreeTargetDir = {
   readonly kind: 'source' | 'sha256';
   readonly path: t.StringPath;
+};
+
+export type SlugTreeFsStats = {
+  readonly files: number;
+  readonly sourceFiles: number;
+  readonly sha256Files: number;
+  readonly manifests: number;
+  readonly elapsedMs: number;
 };

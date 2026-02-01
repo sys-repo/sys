@@ -2,21 +2,13 @@ import { SlugTree } from '../m.slug.SlugTree/mod.ts';
 
 import { type t, c, DEFAULT_IGNORE, Fs, Json, Schema } from './common.ts';
 import { readBundleProfile } from './u.profile.ts';
-import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.slug-tree.file.ts';
-
-export type SlugTreeFsStats = {
-  readonly files: number;
-  readonly sourceFiles: number;
-  readonly sha256Files: number;
-  readonly manifests: number;
-  readonly elapsedMs: number;
-};
+import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.tree.file.ts';
 
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
   profilePath: t.StringFile;
   createCrdt: () => Promise<t.StringRef>;
-}): Promise<SlugTreeFsStats | undefined> {
+}): Promise<t.SlugTreeFsStats | undefined> {
   const startedAt = Date.now();
   const { cwd, profilePath, createCrdt } = args;
   const profileDoc = await readBundleProfile(profilePath);
@@ -120,7 +112,9 @@ export async function runSlugTreeFs(args: {
       manifests += 1;
       continue;
     }
-    console.info(c.yellow(`warning: bundle:slug-tree:fs skipped unsupported target: ${target.raw}`));
+    console.info(
+      c.yellow(`warning: bundle:slug-tree:fs skipped unsupported target: ${target.raw}`),
+    );
   }
 
   const elapsedMs = Date.now() - startedAt;
@@ -135,12 +129,12 @@ function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.Str
 }
 
 function normalizeTargetDirs(
-  input?: t.StringPath | t.LintSlugTreeTargetDir | readonly t.LintSlugTreeTargetDir[],
-): t.LintSlugTreeTargetDir[] {
+  input?: t.StringPath | t.SlugBundleSlugTreeTargetDir | readonly t.SlugBundleSlugTreeTargetDir[],
+): t.SlugBundleSlugTreeTargetDir[] {
   if (!input) return [];
   if (typeof input === 'string') return [{ kind: 'source', path: input }];
-  if (Array.isArray(input)) return input.filter(Boolean) as t.LintSlugTreeTargetDir[];
-  return [input as t.LintSlugTreeTargetDir];
+  if (Array.isArray(input)) return input.filter(Boolean) as t.SlugBundleSlugTreeTargetDir[];
+  return [input as t.SlugBundleSlugTreeTargetDir];
 }
 
 function deriveAssetsPath(path: t.StringFile): t.StringFile | undefined {

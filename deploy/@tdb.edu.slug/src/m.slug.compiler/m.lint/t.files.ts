@@ -62,18 +62,3 @@ export type LintMediaWalkArgs = {
   readonly exists: boolean;
   readonly error?: unknown;
 };
-
-/**
- * Combined result for "lint + bundle" when emitting assets.
- *
- * Keeps the same shape as a lint result, with an added `dir` block
- * describing where bundle artefacts were written.
- */
-export type LintAndBundleResult = LintSequenceFilepathResult & {
-  readonly dir: {
-    readonly base: t.StringDir;
-    readonly manifests: t.StringDir;
-    readonly video: t.StringDir;
-    readonly image: t.StringDir;
-  };
-};
