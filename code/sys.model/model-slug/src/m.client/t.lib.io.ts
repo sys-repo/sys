@@ -9,6 +9,7 @@ export type SlugFromEndpointLib = {
   readonly Playback: t.SlugClientPlaybackLib;
   readonly Assets: t.SlugClientAssetsLib;
   readonly Bundle: t.SlugClientBundleLib;
+  readonly FileContent: t.SlugClientFileContentLib;
 };
 
 export type SlugClientTreeLib = {
@@ -41,4 +42,22 @@ export type SlugClientBundleLib = {
     docid: t.StringId,
     options?: t.SlugLoadOptions,
   ) => Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>>;
+};
+
+export type SlugFileContentLoadOptions = t.SlugLoadOptions & {
+  /** Directory for hashed content payloads relative to the base URL. */
+  readonly dir?: t.StringDir;
+};
+
+export type SlugClientFileContentLib = {
+  readonly index: (
+    baseUrl: t.StringUrl,
+    docid: t.StringId,
+    options?: t.SlugLoadOptions,
+  ) => Promise<t.SlugClientResult<t.SlugFileContentIndex>>;
+  readonly get: (
+    baseUrl: t.StringUrl,
+    hash: string,
+    options?: t.SlugFileContentLoadOptions,
+  ) => Promise<t.SlugClientResult<t.SlugFileContentDoc>>;
 };
