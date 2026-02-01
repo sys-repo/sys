@@ -35,6 +35,7 @@ export async function runProfile(args: {
   let slugTreeFsTotals: t.BundleRunSummary['slugTreeFs'] | undefined;
 
   for (const [i, bundle] of bundles.entries()) {
+    if (bundle.enabled === false) continue;
     if (bundle.kind === 'slug-tree:media:seq') {
       const rawDocid = String(bundle.crdt.docid ?? '').trim();
       if (!rawDocid || rawDocid === '<tbd>') {

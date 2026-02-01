@@ -8,6 +8,7 @@ describe('SchemaBundleConfig', () => {
       bundles: [
         {
           kind: 'slug-tree:fs',
+          enabled: false,
           crdt: { docid: 'slug:test', path: '/slug' },
         },
         {
