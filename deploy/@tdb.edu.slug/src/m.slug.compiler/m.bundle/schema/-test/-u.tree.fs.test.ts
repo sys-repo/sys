@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, Pkg } from '../../../-test.ts';
 import { Schema } from '../../common.ts';
 import { SchemaSlugTreeFs } from '../mod.ts';
 

@@ -1,6 +1,7 @@
 import { type t, Fs, Slug } from './common.ts';
 import { buildDocumentDag } from './u.dag.ts';
 import { bundleSequenceFilepaths } from './u.seq.files.bundle.ts';
+import { writeDistFiles } from './u.dist.ts';
 import { runSlugTreeFs } from './u.tree.ts';
 import { validate } from './u.validate.ts';
 import { BundleProfileSchema } from './schema/mod.ts';
@@ -97,6 +98,22 @@ export async function runProfile(args: {
         warnings.push(msg);
       }
 
+      if (targets.length > 0) {
+        const baseDir = bundle.target?.base ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
+        const manifestsDir = bundle.target?.manifests?.dir ?? 'manifests';
+        const videoDir = bundle.target?.media?.video ?? 'video';
+        const imageDir = bundle.target?.media?.image ?? 'image';
+        const distDirs: t.StringDir[] = [
+          baseDir,
+          resolveDir(baseDir, manifestsDir),
+          resolveDir(baseDir, videoDir),
+        ];
+        if (bundle.target?.media?.image !== undefined) {
+          distDirs.push(resolveDir(baseDir, imageDir));
+        }
+        await writeDistFiles(distDirs);
+      }
+
       const prevDocs = mediaSeqTotals?.docs ?? [];
       mediaSeqTotals = {
         total: (mediaSeqTotals?.total ?? 0) + targets.length,
@@ -145,4 +162,9 @@ function parseYamlPath(input: t.StringPath): t.ObjectPath {
   if (!raw) return [] as t.ObjectPath;
   const parts = raw.split('/').filter((p) => p.length > 0);
   return parts as t.ObjectPath;
+}
+
+function resolveDir(baseDir: t.StringDir, subPath: t.StringDir): t.StringDir {
+  if (Fs.Path.Is.absolute(subPath)) return subPath;
+  return Fs.join(baseDir, subPath);
 }

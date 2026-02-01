@@ -67,11 +67,12 @@ async function runOnce(args: {
     ...args,
     onProgress: (info: t.BundleRunProgress) => {
       if (info.stage === 'media:seq') {
-        spinner.text = Fmt.spinnerText(`media:seq ${info.current}/${info.total}`);
+        const current = String(info.current);
+        spinner.text = Fmt.spinnerText(`bundling media:seq ${c.white(current)}/${info.total}`);
         return;
       }
       if (info.stage === 'slug-tree:fs') {
-        spinner.text = Fmt.spinnerText('slug-tree:fs');
+        spinner.text = Fmt.spinnerText('bundling slug-tree:fs');
       }
     },
   });

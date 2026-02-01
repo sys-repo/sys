@@ -1,6 +1,7 @@
 import { SlugTree } from '../m.slug.SlugTree/mod.ts';
 
 import { type t, c, DEFAULT_IGNORE, Fs, Json, Schema } from './common.ts';
+import { writeDistFiles } from './u.dist.ts';
 import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.tree.file.ts';
 
 export async function runSlugTreeFs(args: {
@@ -51,10 +52,12 @@ export async function runSlugTreeFs(args: {
   let sourceFiles = 0;
   let sha256Files = 0;
   let manifests = 0;
+  const distDirs = new Set<string>();
   for (const targetDir of targetDirs) {
     const ok = await prepareTargetDir(targetDir.path);
     if (!ok) continue;
     await clearTargetDir(targetDir.path);
+    distDirs.add(targetDir.path);
     if (targetDir.kind === 'source') {
       sourceFiles += await writeSlugTreeSourceDir({
         root,
@@ -86,6 +89,7 @@ export async function runSlugTreeFs(args: {
     const ext = Fs.extname(target.path).toLowerCase();
     const dir = Fs.dirname(target.path);
     await Fs.ensureDir(dir);
+    distDirs.add(dir);
     if (ext === '.json') {
       await Fs.write(target.path, Json.stringify(treeDoc));
       manifests += 1;
@@ -112,6 +116,7 @@ export async function runSlugTreeFs(args: {
 
   const elapsedMs = Date.now() - startedAt;
   const files = sourceFiles > 0 ? sourceFiles : sha256Files;
+  await writeDistFiles(distDirs);
   return { files, sourceFiles, sha256Files, manifests, elapsedMs };
 }
 

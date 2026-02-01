@@ -38,6 +38,9 @@ describe('Lint: slug-tree:fs', () => {
       const sourceC = Fs.join(tmpDir, 'out/src/sub/c.md');
       expect((await Fs.readText(sourceA)).data ?? '').to.contain('hello');
       expect((await Fs.readText(sourceC)).data ?? '').to.contain('world');
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/src/dist.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/sha256/dist.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/dist.json'))).to.eql(true);
 
       const outDir = Fs.join(tmpDir, 'out/sha256');
       const assetsPath = Fs.join(tmpDir, 'out/slug-tree.kb.assets.json');
@@ -62,6 +65,7 @@ describe('Lint: slug-tree:fs', () => {
       }> = [];
       for await (const entry of Deno.readDir(outDir)) {
         if (!entry.isFile || !entry.name.endsWith('.json')) continue;
+        if (entry.name === 'dist.json') continue;
         const raw = (await Fs.readText(Fs.join(outDir, entry.name))).data ?? '';
         const data = Json.parse(raw) as {
           source: string;
