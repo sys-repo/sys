@@ -1,5 +1,5 @@
 import { toSchema } from '../common.ts';
-import { Sequence } from '../slug.MediaComposition.Sequence/mod.ts';
+import { Sequence } from '../m.slug.MediaComposition.Sequence/mod.ts';
 import { type t, c, Schema, Slug, SlugSchema } from './common.ts';
 
 const T = Schema.Value;

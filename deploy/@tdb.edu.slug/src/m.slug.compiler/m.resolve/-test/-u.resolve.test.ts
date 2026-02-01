@@ -1,5 +1,5 @@
 import { type t, describe, it, expect } from '../../-test.ts';
-import { Slug } from '../../slug/mod.ts';
+import { Slug } from '../../m.slug/mod.ts';
 
 type Dag = t.Graph.Dag.Result;
 type Node = t.Graph.Dag.Node;

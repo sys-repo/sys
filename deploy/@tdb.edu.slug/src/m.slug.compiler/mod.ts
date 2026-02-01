@@ -13,10 +13,10 @@
  * UI-agnostic. Deployment-agnostic.
  */
 /** Lint helpers for slug documents. */
-export { Linter } from './lint/mod.ts';
+export { Linter } from './m.lint/mod.ts';
 /** Task orchestration utilities for slug builds. */
-export { Tasks } from './tasks/mod.ts';
+export { Tasks } from './m.tasks/mod.ts';
 /** Slug language utilities. */
-export { Slug } from './slug/mod.ts';
+export { Slug } from './m.slug/mod.ts';
 /** Tree-builder helpers derived from slug structures. */
-export { SlugTree } from './slug.SlugTree/mod.ts';
+export { SlugTree } from './m.slug.SlugTree/mod.ts';

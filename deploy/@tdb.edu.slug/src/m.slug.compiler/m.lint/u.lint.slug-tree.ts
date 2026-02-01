@@ -1,4 +1,4 @@
-import { SlugTree } from '../slug.SlugTree/mod.ts';
+import { SlugTree } from '../m.slug.SlugTree/mod.ts';
 
 import { type t, c, DEFAULT_IGNORE, Fs, Json, Schema } from './common.ts';
 import { readLintProfile } from './u.lint.util.ts';
