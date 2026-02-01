@@ -1,6 +1,6 @@
 import { type t, c } from '../common.ts';
 import { buildDocumentDag } from './u.dag.ts';
-import { selectBundleProfile } from './u.menu.ts';
+import { selectBundleProfile, selectBundleProfileAction } from './u.menu.ts';
 import { readBundleProfile } from './u.profile.ts';
 import { bundleSequenceFilepaths } from './u.seq.files.bundle.ts';
 import { runSlugTreeFs } from './u.slug-tree.ts';
@@ -8,48 +8,50 @@ import { validateBundleConfig } from './u.validate.ts';
 
 export const Bundler = {
   async run(args: { cwd: t.StringDir; cmd: t.Crdt.Cmd.Client; interactive?: boolean }) {
-    const pick = await selectBundleProfile(args.cwd, { interactive: args.interactive });
-    if (pick.kind !== 'run') return { kind: pick.kind } as const;
-
-    const validation = await validateBundleConfig(pick.profile);
-    if (!validation.ok) {
-      const errors = validation.errors
-        .map((err) => `${String(err.path ?? '').trim() || '<root>'}: ${err.message}`)
-        .join('\n  ');
-      console.info(c.yellow(`bundle profile invalid:\n  ${errors}`));
+    if (!args.interactive) {
+      const pick = await selectBundleProfile(args.cwd, { interactive: false });
+      if (pick.kind !== 'run') return { kind: 'stay' } as const;
+      await runProfile({ cwd: args.cwd, cmd: args.cmd, profilePath: pick.profile });
       return { kind: 'stay' } as const;
     }
 
-    const profile = await readBundleProfile(pick.profile);
-    const mediaSeq = profile['bundle:slug-tree:media:seq'];
-    if (mediaSeq) {
-      const rawDocid = String(mediaSeq.crdt.docid ?? '').trim();
-      if (!rawDocid || rawDocid === '<tbd>') {
-        console.info(
-          c.yellow(
-            'warning: bundle:slug-tree:media:seq skipped (crdt.docid missing or placeholder)',
-          ),
-        );
-        return { kind: 'stay' } as const;
+    let lastProfile: t.StringFile | undefined;
+    let lastAction: 'run' | undefined;
+
+    profileLoop: while (true) {
+      let actionPick = await selectBundleProfile(args.cwd, {
+        interactive: true,
+        defaultProfile: lastProfile,
+      });
+
+      if (actionPick.kind === 'exit') return { kind: 'stay' } as const;
+      if ('profile' in actionPick && actionPick.profile) {
+        lastProfile = actionPick.profile;
       }
-      const docid = rawDocid.startsWith('crdt:') ? (rawDocid as t.Crdt.Id) : (`crdt:${rawDocid}` as t.Crdt.Id);
-      const yamlPath = parseYamlPath(mediaSeq.crdt.path);
-      const dag = await buildDocumentDag(args.cmd, docid, yamlPath);
-      await bundleSequenceFilepaths(dag, yamlPath, docid, {
-        target: mediaSeq.target,
-        requirePlayback: mediaSeq.requirePlayback,
-      });
-    }
 
-    if (profile['bundle:slug-tree:fs']) {
-      await runSlugTreeFs({
-        cwd: args.cwd,
-        profilePath: pick.profile,
-        createCrdt: async () => 'crdt:create' as t.StringRef,
-      });
-    }
+      while (true) {
+        if (actionPick.kind === 'run') {
+          lastAction = 'run';
+          if (actionPick.profile) {
+            await runProfile({ cwd: args.cwd, cmd: args.cmd, profilePath: actionPick.profile });
+          }
+          actionPick = await selectBundleProfileAction(args.cwd, actionPick.profile, {
+            defaultAction: lastAction,
+          });
+          if ('profile' in actionPick && actionPick.profile) {
+            lastProfile = actionPick.profile;
+          }
+          continue;
+        }
 
-    return { kind: 'stay' } as const;
+        if (actionPick.kind === 'exit') return { kind: 'stay' } as const;
+        if (actionPick.kind === 'back') {
+          lastAction = undefined;
+          continue profileLoop;
+        }
+        break;
+      }
+    }
   },
 
   async validate(args: { path: t.StringFile }) {
@@ -82,6 +84,56 @@ export const Bundler = {
     });
   },
 } as const;
+
+async function runProfile(args: {
+  cwd: t.StringDir;
+  cmd: t.Crdt.Cmd.Client;
+  profilePath: t.StringFile;
+}): Promise<void> {
+  const { cwd, cmd, profilePath } = args;
+  const validation = await validateBundleConfig(profilePath);
+  if (!validation.ok) {
+    console.info(c.yellow(`bundle profile invalid:\n  ${formatValidationErrors(validation.errors)}`));
+    return;
+  }
+
+  const profile = await readBundleProfile(profilePath);
+  const mediaSeq = profile['bundle:slug-tree:media:seq'];
+  if (mediaSeq) {
+    const rawDocid = String(mediaSeq.crdt.docid ?? '').trim();
+    if (!rawDocid || rawDocid === '<tbd>') {
+      console.info(
+        c.yellow(
+          'warning: bundle:slug-tree:media:seq skipped (crdt.docid missing or placeholder)',
+        ),
+      );
+    } else {
+      const docid = rawDocid.startsWith('crdt:')
+        ? (rawDocid as t.Crdt.Id)
+        : (`crdt:${rawDocid}` as t.Crdt.Id);
+      const yamlPath = parseYamlPath(mediaSeq.crdt.path);
+      const dag = await buildDocumentDag(cmd, docid, yamlPath);
+      await bundleSequenceFilepaths(dag, yamlPath, docid, {
+        target: mediaSeq.target,
+        requirePlayback: mediaSeq.requirePlayback,
+      });
+    }
+  }
+
+  if (profile['bundle:slug-tree:fs']) {
+    await runSlugTreeFs({
+      cwd,
+      profilePath,
+      createCrdt: async () => 'crdt:create' as t.StringRef,
+    });
+  }
+}
+
+function formatValidationErrors(errors: readonly t.ValueError[]): string {
+  return errors
+    .map((err) => `${String(err.path ?? '').trim() || '<root>'}: ${err.message}`)
+    .join('\n  ');
+}
 
 function parseYamlPath(input: t.StringPath): t.ObjectPath {
   const raw = String(input ?? '').trim();
