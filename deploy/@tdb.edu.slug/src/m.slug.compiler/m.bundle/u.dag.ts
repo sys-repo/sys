@@ -1,6 +1,4 @@
-import { Obj } from '@sys/std';
-
-import { type t, Crdt } from './common.ts';
+import { type t, Crdt, Obj } from './common.ts';
 
 type O = Record<string, unknown>;
 type CmdClient = t.Crdt.Cmd.Client;
