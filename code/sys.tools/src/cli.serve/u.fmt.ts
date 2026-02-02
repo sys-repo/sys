@@ -1,4 +1,4 @@
-import { type t, Fmt as Base, c, D, Fs, Pkg, pkg, Str } from './common.ts';
+import { type t, Fmt as Base, c, D, Fs, Str } from './common.ts';
 
 export const Fmt = {
   ...Base,
@@ -26,12 +26,7 @@ export const Fmt = {
       .builder()
       .blank(2)
       .line(tree)
-      .blank(3)
-      .line(Fmt.folderToolname());
+      .blank(2);
     return String(str);
-  },
-
-  folderToolname() {
-    return `${Pkg.toString(pkg)}:serve`;
   },
 } as const;
