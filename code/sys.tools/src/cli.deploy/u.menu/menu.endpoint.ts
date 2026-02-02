@@ -168,11 +168,15 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     }
 
     if (picked === 'stage') {
-      if (!yaml) continue;
-      const resolved = await resolveMappingsForStaging({ cwd, yamlPath: yamlRel, yaml });
+      // Re-read YAML at the moment of staging to capture edits made while menu is open.
+      const freshCheck = await EndpointsFs.validateYaml(yamlAbs);
+      const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
+      if (!freshYaml) continue;
+      const resolved = await resolveMappingsForStaging({ cwd, yamlPath: yamlRel });
       if (!resolved.ok) continue;
 
-      const sourceRootRel = String(yaml.source?.dir ?? '').trim() || '.';
+      const sourceRootRel = String(freshYaml.source?.dir ?? '').trim() || '.';
+      const stagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
 
       const res = await runStagingWithSpinner({
         cwd,
