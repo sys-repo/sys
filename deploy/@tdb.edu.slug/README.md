@@ -35,15 +35,15 @@ export const plugins: t.CrdtTool.Hook.Plugin[] = [
 Bundle folder layout:
 
 ```
-slc
-└── cdn
-    ├── default (images, manifests, json, wasm, etc.)
-    └── video (large streaming media)
+  staging.cdn
+  └── slc
+      ├── default   (images, manifests, json, etc.)
+      └── video     (large streaming media)
 ```
 
 DNS layout:
 ```
-          slc.db.team
-      cdn.slc.db.team
-video.cdn.slc.db.team
+            slc.db.team
+        cdn.slc.db.team
+  video.cdn.slc.db.team
 ```
