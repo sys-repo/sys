@@ -20,13 +20,14 @@ export const Harness: React.FC<HarnessProps> = (props) => {
   const styles = {
     empty: {
       base: css({
+        overflow: 'hidden',
         height: '100%',
         PaddingX: '10%',
         display: 'grid',
         placeItems: 'center',
         gap: 6,
         fontSize: 22,
-        lineHeight: 1.9,
+        lineHeight: 2,
       }),
       msg: css({
         lineHeight: 1.2,
@@ -38,6 +39,7 @@ export const Harness: React.FC<HarnessProps> = (props) => {
         fontFamily: 'monospace',
         userSelect: 'auto',
       }),
+      sub: css({ display: 'block', opacity: 0.9 }),
     },
   };
 
@@ -45,9 +47,10 @@ export const Harness: React.FC<HarnessProps> = (props) => {
     return (
       <div className={styles.empty.base.class}>
         <div>
-          <div
-            className={styles.empty.msg.class}
-          >{`Please ensure timeline json can be loaded (from endpoint):`}</div>
+          <div className={styles.empty.msg.class}>
+            <span>{`Please ensure timeline json can be loaded`}</span>{' '}
+            <span className={styles.empty.sub.class}>(from endpoint):</span>
+          </div>
           {url && <div className={styles.empty.url.class}>{url}</div>}
         </div>
       </div>
