@@ -1,6 +1,7 @@
 /**
  * @module types
  */
+export type * from './m.client/t.ts';
 export type * from './m.slug.compiler/t.ts';
 
 export type * from './ui/m.data/t.ts';
