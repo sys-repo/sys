@@ -1,6 +1,7 @@
 import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
+import { ClientLoader } from '../mod.ts';
 
 type P = t.ClientLoaderProps;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -95,6 +96,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+
+      <hr style={{ margin: '15px 0 10px 0' }} />
+      <ClientLoader.UI debug={v.debug} />
     </div>
   );
 };
