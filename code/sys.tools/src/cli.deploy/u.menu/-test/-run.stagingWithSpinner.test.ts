@@ -12,7 +12,12 @@ describe('Staging: runStagingWithSpinner', () => {
       await Fs.write(`${tmp}/stage/dist.json`, 'sentinel');
 
       const mappings = [{ mode: 'copy' as const, dir: { source: 'src', staging: '.' } }];
-      const res = await runStagingWithSpinner({ cwd: tmp, mappings, stagingRoot: 'stage' });
+      const res = await runStagingWithSpinner({
+        cwd: tmp,
+        mappings,
+        stagingRoot: 'stage',
+        clear: true,
+      });
       expect(res.ok).to.eql(true);
 
       const text = (await Fs.readText(`${tmp}/stage/dist.json`)).data!;

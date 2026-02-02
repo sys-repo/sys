@@ -8,7 +8,6 @@ describe('Staging: executeStaging', () => {
     return {
       cwd: tmp,
       stagingRoot: 'stage',
-      cleanStagingRoot: true,
       writeDistJson: true,
       onWriteDistJson: async (args: { stagingRoot: string }) => {
         await Pkg.Dist.compute({ dir: args.stagingRoot, save: true });
@@ -283,7 +282,7 @@ describe('Staging: executeStaging', () => {
     });
   });
 
-  it('cleanStagingRoot: deletes only the staging target (preserves siblings)', async () => {
+  it('cleanStagingRoot: clears staging root before mapping', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src`);
       await Fs.write(`${tmp}/src/new.txt`, 'new');
@@ -297,7 +296,11 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/stage/other/other.txt`, 'other');
 
       const dir = { source: 'src', staging: 'dist/my-output' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+      await executeStaging({
+        ...stageOptions(tmp),
+        cleanStagingRoot: true,
+        mappings: [{ mode: 'copy', dir }],
+      });
 
       const old = await Fs.readText(`${tmp}/stage/dist/my-output/old.txt`);
       expect(old.exists).to.eql(false);
@@ -306,10 +309,10 @@ describe('Staging: executeStaging', () => {
       expect(fresh.data).to.eql('new');
 
       const keep = await Fs.readText(`${tmp}/stage/dist/keep/keep.txt`);
-      expect(keep.data).to.eql('keep');
+      expect(keep.exists).to.eql(false);
 
       const other = await Fs.readText(`${tmp}/stage/other/other.txt`);
-      expect(other.data).to.eql('other');
+      expect(other.exists).to.eql(false);
     });
   });
 
@@ -324,7 +327,11 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/outside.txt`, 'outside');
 
       const dir = { source: 'src', staging: '.' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+      await executeStaging({
+        ...stageOptions(tmp),
+        cleanStagingRoot: true,
+        mappings: [{ mode: 'copy', dir }],
+      });
 
       const keep = await Fs.readText(`${tmp}/stage/keep.txt`);
       expect(keep.exists).to.eql(false);
@@ -340,7 +347,7 @@ describe('Staging: executeStaging', () => {
     });
   });
 
-  it('cleanStagingRoot: shared target cleans once (keeps first mapping output)', async () => {
+  it('shared target: overwrite=false preserves first mapping on collisions', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src1`);
       await Fs.ensureDir(`${tmp}/src2`);
@@ -364,6 +371,9 @@ describe('Staging: executeStaging', () => {
 
       const b = await Fs.readText(`${tmp}/stage/dist/my-output/b.txt`);
       expect(b.data).to.eql('second-b');
+
+      const old = await Fs.readText(`${tmp}/stage/dist/my-output/old.txt`);
+      expect(old.data).to.eql('old');
     });
   });
 
@@ -376,10 +386,35 @@ describe('Staging: executeStaging', () => {
       await Fs.write(`${tmp}/stage/index.html`, '<!-- @sys/tools staging index -->\n');
 
       const dir = { source: 'src', staging: 'dist/my-output' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+      await executeStaging({
+        ...stageOptions(tmp),
+        cleanStagingRoot: true,
+        mappings: [{ mode: 'copy', dir }],
+      });
 
       const index = await Fs.readText(`${tmp}/stage/index.html`);
       expect(index.data).to.not.eql('<!-- @sys/tools staging index -->\n');
+    });
+  });
+
+  it('cleanStagingRoot: false preserves existing staging root by default', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/new.txt`, 'new');
+
+      await Fs.ensureDir(`${tmp}/stage/dist/my-output`);
+      await Fs.ensureDir(`${tmp}/stage/keep`);
+      await Fs.write(`${tmp}/stage/keep/keep.txt`, 'keep');
+      await Fs.write(`${tmp}/stage/dist/my-output/old.txt`, 'old');
+
+      const dir = { source: 'src', staging: 'dist/my-output' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+
+      const keep = await Fs.readText(`${tmp}/stage/keep/keep.txt`);
+      expect(keep.data).to.eql('keep');
+
+      const old = await Fs.readText(`${tmp}/stage/dist/my-output/old.txt`);
+      expect(old.data).to.eql('old');
     });
   });
 
@@ -405,7 +440,7 @@ describe('Staging: executeStaging', () => {
     });
   });
 
-  it('cleanStagingRoot: does not overwrite non-template index.html', async () => {
+  it('index.html: does not overwrite non-template index.html', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src`);
       await Fs.write(`${tmp}/src/new.txt`, 'new');

@@ -38,7 +38,10 @@ export const EndpointYamlSchema = {
         ),
       ),
       staging: Schema.Type.Object(
-        { dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]) },
+        {
+          dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
+          clear: Schema.Type.Optional(Schema.Type.Boolean()),
+        },
         { additionalProperties: false },
       ),
       mappings: Schema.Type.Optional(

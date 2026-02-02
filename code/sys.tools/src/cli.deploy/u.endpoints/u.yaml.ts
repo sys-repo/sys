@@ -22,6 +22,7 @@ export function initialYaml(name: string): string {
 
       staging:
         dir: ./staging
+        # clear: false
 
       # provider:
       #   kind: orbiter

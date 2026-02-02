@@ -177,12 +177,14 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
       const sourceRootRel = String(freshYaml.source?.dir ?? '').trim() || '.';
       const stagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
+      const clearStaging = freshYaml.staging?.clear === true;
 
       const res = await runStagingWithSpinner({
         cwd,
         mappings: resolved.mappings,
         sourceRoot: sourceRootRel,
         stagingRoot: stagingRootRel,
+        clear: clearStaging,
       });
 
       ranOk = res.ok;

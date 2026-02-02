@@ -69,6 +69,8 @@ export namespace DeployTool {
       export type Staging = {
         /** Root directory for staging (relative to deploy cwd). */
         dir: t.StringPath;
+        /** When true, clears staging targets before running mappings. */
+        clear?: boolean;
       };
 
       /**
