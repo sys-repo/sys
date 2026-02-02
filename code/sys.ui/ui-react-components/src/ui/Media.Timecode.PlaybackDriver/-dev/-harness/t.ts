@@ -10,6 +10,7 @@ export type HarnessProps = {
   decks?: t.TimecodePlaybackDriver.VideoDecks;
   bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   docid?: t.StringId;
+  url?: t.StringUrl;
 
   debug?: boolean;
   layout?: { infopanel?: { bottom?: t.ReactNode } };

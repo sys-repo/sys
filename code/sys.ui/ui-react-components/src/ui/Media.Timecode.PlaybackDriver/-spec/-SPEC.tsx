@@ -43,6 +43,7 @@ export default Spec.describe(D.displayName, async (e) => {
           debug={v.debug}
           theme={v.theme}
           docid={v.docid}
+          url={debug.url}
           decks={debug.decks}
           bundle={v.bundle}
           layout={{

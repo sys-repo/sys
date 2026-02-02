@@ -69,6 +69,10 @@ export async function createDebugSignals() {
     get activeDeck() {
       return p.snapshot.value?.state.decks.active;
     },
+    get url() {
+      const url = p.baseUrl.value || D.DEV.baseUrl;
+      return url;
+    },
   };
 
   function listen() {
@@ -91,7 +95,9 @@ export async function createDebugSignals() {
     });
   });
 
-  if (p.docid.value) Sample.load(api, p.docid.value);
+  if (p.docid.value) {
+    Sample.load(api, p.docid.value);
+  }
   return api;
 }
 
@@ -145,7 +151,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 10, marginBottom: 20, height: 300 }}
         baseUrl={v.baseUrl ?? ''}
         selectedDocid={p.docid.value}
-        onSelect={(e) => Sample.load(debug, e.docid)}
+        onSelect={(e) => {
+          console.info('⚡️ onSelect: LoadTimelinePanel.onSelect', e.docid);
+          Sample.load(debug, e.docid);
+        }}
       />
 
       <hr />
