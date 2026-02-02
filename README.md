@@ -175,6 +175,15 @@ events.dispose();
 
 >> Software entities ( ƒn:🧫 ) should be open for extension but closed for modification.
 
+<p>&nbsp;</p>
+
+["Tools amplify capability, they don't replace it."](https://farcaster.xyz/pjc/0x565fee30)
+
+- Working in small batches, solving one problem at a time
+- Iterating rapidly, with continuous testing, code review, refactoring and integration
+- Architecting highly modular designs that localise the “blast radius” of changes
+- Organising around end-to-end outcomes instead of around role or technology specialisms
+- Working with high autonomy, making timely decisions on the ground instead of sending them up the chain of command
 
 <p>&nbsp;</p>
 
