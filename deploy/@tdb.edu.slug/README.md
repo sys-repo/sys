@@ -44,19 +44,20 @@ system/crdt:tools v0.0.224 (Ctrl-C to exit)
 
 ## Deployment
 Bundle folder layout:
-
 ```
-  staging.cdn
-  └── slc
-      ├── default   (images, manifests, json, etc.)
-      └── video     (large streaming media)
+    staging.cdn
+    └── slc
+        ├── default   (manifests, json, images, etc.)
+        └── video     (large streaming media)
 ```
 
-DNS layout:
+<p>&nbsp;</p>
+
+Hostname layout:
 ```
             slc.db.team
-        cdn.slc.db.team
-  video.cdn.slc.db.team
+        cdn.slc.db.team            ← staging.cdn/slc/default/*
+  video.cdn.slc.db.team            ← staging.cdn/slc/video/*
 
 
             socialleancanvas.com
