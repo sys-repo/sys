@@ -20,7 +20,7 @@ export type SlugClientFileContentLib = {
 
 export type SlugClientFileContentFromDescriptorLib = {
   readonly index: (
-    options?: t.SlugLoadOptions,
+    options?: t.SlugFileContentLoadOptions,
   ) => Promise<t.SlugClientResult<t.SlugFileContentIndex>>;
   readonly get: (
     hash: string,
