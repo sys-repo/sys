@@ -12,6 +12,12 @@ export type UrlLib = {
    * Removes query string and hash fragment.
    */
   toCanonical(input?: string | URL | t.HttpUrl): t.HttpUrl;
+
+  /**
+   * Normalize a URL string for stable comparisons.
+   * Trims whitespace, removes query/hash, and trims trailing slashes.
+   */
+  normalize(input?: string | URL | t.HttpUrl): t.StringUrl;
 };
 
 /**
