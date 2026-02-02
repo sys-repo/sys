@@ -4,7 +4,7 @@ import { ALIAS } from './u.args.ts';
 export type RootRow = { readonly command: t.Tools.Command; readonly columns: string[] };
 
 export function rootRows(): RootRow[] {
-  const fmt = (tool: t.Tools.Command) => c.gray(c.dim(`${pkg.name}/`)) + tool;
+  const fmt = (tool: t.Tools.Command) => c.gray(c.dim(`${pkg.name} `)) + tool;
   const rows: RootRow[] = [];
 
   const add = (tool: t.Tools.Command, alias?: readonly string[]) => {
