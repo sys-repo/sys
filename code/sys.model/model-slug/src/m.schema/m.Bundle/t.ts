@@ -18,3 +18,12 @@ export type BundleDescriptorDoc = {
 export type BundleDescriptorKind =
   | t.BundleDescriptorSlugTreeFs['kind']
   | t.BundleDescriptorSlugTreeMediaSeq['kind'];
+
+export type BundleDescriptorAssetKind =
+  | t.BundleDescriptorSlugTreeFsAssetKind
+  | t.BundleDescriptorSlugTreeMediaSeqAssetKind;
+
+export type BundleDescriptorAssetKindMap = {
+  'slug-tree:fs': t.BundleDescriptorSlugTreeFsAssetKind;
+  'slug-tree:media:seq': t.BundleDescriptorSlugTreeMediaSeqAssetKind;
+};

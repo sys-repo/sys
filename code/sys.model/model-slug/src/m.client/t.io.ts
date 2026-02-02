@@ -16,14 +16,24 @@ export type SlugLoadOptions = {
   layout?: SlugClientLayout;
 };
 
+export type SlugBundleHrefResolver<K extends string = string> = (args: {
+  readonly href: string;
+  readonly kind?: K;
+  readonly logicalPath?: string;
+}) => string;
+
 export type SlugClientTreeLib = {
   readonly load: (
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    options?: t.SlugLoadOptions,
+    options?: t.SlugTreeLoadOptions,
   ) => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
 };
 
 export type SlugClientTreeFromDescriptorLib = {
-  readonly load: (options?: t.SlugLoadOptions) => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
+  readonly load: (options?: t.SlugTreeLoadOptions) => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
+};
+
+export type SlugTreeLoadOptions = t.SlugLoadOptions & {
+  manifestsBaseUrl?: t.StringUrl;
 };

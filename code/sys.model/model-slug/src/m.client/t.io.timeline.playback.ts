@@ -32,8 +32,5 @@ export type SlugTimelineBundleLoadOptions = t.SlugLoadOptions & {
   hrefResolver?: SlugTimelineBundleHrefResolver;
 };
 
-export type SlugTimelineBundleHrefResolver = (args: {
-  readonly href: string;
-  readonly kind?: t.Timecode.Playback.MediaKind;
-  readonly logicalPath?: string;
-}) => string;
+export type SlugTimelineBundleHrefResolver =
+  t.SlugBundleHrefResolver<t.BundleDescriptorSlugTreeMediaSeqAssetKind>;

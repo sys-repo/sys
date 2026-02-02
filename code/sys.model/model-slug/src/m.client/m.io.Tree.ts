@@ -9,12 +9,13 @@ export const Tree: t.SlugClientTreeLib = {
 async function load(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  options?: t.SlugLoadOptions,
+  options?: t.SlugTreeLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugTreeDoc>> {
   docid = SlugUrl.clean(docid);
   const fetch = Http.fetcher();
+  const manifestsBaseUrl = options?.manifestsBaseUrl ?? baseUrl;
   const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
-  const url = Url.parse(baseUrl).join(manifestsDir, SlugUrl.treeFilename(docid));
+  const url = Url.parse(manifestsBaseUrl).join(manifestsDir, SlugUrl.treeFilename(docid));
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 

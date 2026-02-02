@@ -1,12 +1,15 @@
 import type { t } from './common.ts';
 
-export type SlugFileContentLoadOptions = t.SlugLoadOptions;
+export type SlugFileContentLoadOptions = t.SlugLoadOptions & {
+  manifestsBaseUrl?: t.StringUrl;
+  contentBaseUrl?: t.StringUrl;
+};
 
 export type SlugClientFileContentLib = {
   readonly index: (
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    options?: t.SlugLoadOptions,
+    options?: t.SlugFileContentLoadOptions,
   ) => Promise<t.SlugClientResult<t.SlugFileContentIndex>>;
   readonly get: (
     baseUrl: t.StringUrl,

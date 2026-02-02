@@ -1,6 +1,8 @@
 import type { t } from './common.ts';
 import type { BundleDescriptorBase } from '../t.core.ts';
 
+export type BundleDescriptorSlugTreeMediaSeqAssetKind = 'video' | 'image';
+
 export type BundleDescriptorSlugTreeMediaSeq = BundleDescriptorBase & {
   readonly kind: 'slug-tree:media:seq';
   readonly layout?: {

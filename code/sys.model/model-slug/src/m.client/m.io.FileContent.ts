@@ -11,12 +11,16 @@ export const FileContent: t.SlugClientFileContentLib = {
 async function index(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  options?: t.SlugLoadOptions,
+  options?: t.SlugFileContentLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugFileContentIndex>> {
   const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.clean(docid);
+  const manifestsBaseUrl = options?.manifestsBaseUrl ?? baseUrl;
   const manifestsDir = options?.layout?.manifestsDir ?? 'manifests';
-  const url = Url.parse(baseUrl).join(manifestsDir, SlugUrl.treeAssetsFilename(cleanedDocid));
+  const url = Url.parse(manifestsBaseUrl).join(
+    manifestsDir,
+    SlugUrl.treeAssetsFilename(cleanedDocid),
+  );
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 
@@ -67,8 +71,9 @@ async function get(
   options?: t.SlugFileContentLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugFileContentDoc>> {
   const fetch = Http.fetcher();
+  const contentBaseUrl = options?.contentBaseUrl ?? baseUrl;
   const contentDir = options?.layout?.contentDir ?? 'json';
-  const url = Url.parse(baseUrl).join(contentDir, SlugUrl.fileContentFilename(hash));
+  const url = Url.parse(contentBaseUrl).join(contentDir, SlugUrl.fileContentFilename(hash));
   const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 
