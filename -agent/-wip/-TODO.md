@@ -1,5 +1,7 @@
 - [ ] file: source: "ref:/file-path"
 - [ ] have the video/program (trait: media-sequence) expored same way as fs-slug-tree
+- [ ] @sys/std/shard - SHA256 bucket sharding for orbiter deployment
+- [ ] _redirects implementation for static hosting - @sys/http/server
 
 
 - [ ] Refactor CRDT/worker-repo over `Cmd` system.
