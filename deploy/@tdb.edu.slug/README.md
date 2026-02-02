@@ -57,4 +57,9 @@ DNS layout:
             slc.db.team
         cdn.slc.db.team
   video.cdn.slc.db.team
+
+
+            socialleancanvas.com
+        cdn.socialleancanvas.com
+  video.cdn.socialleancanvas.com
 ```
