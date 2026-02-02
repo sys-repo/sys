@@ -11,6 +11,7 @@ export async function promptEndpointAction(args: {
   ranOk: boolean;
   showPush: boolean;
   pushedOk: boolean;
+  pushElapsed?: string;
   hashPrefix: string;
   stageAge?: string;
   stageSize?: string;
@@ -28,9 +29,12 @@ export async function promptEndpointAction(args: {
       ? 'staged (rebuild)'
       : 'stage (build)';
   const stageName = `  ${hashPrefix}  ${stageLabel}${stageMeta}`;
-  const pushMeta =
-    pushedOk && pushUrl ? ` ${c.gray(c.dim('-'))} ${c.cyan(pushUrl)}` : '';
-  const pushPrefix = pushedOk && pushMeta ? `  ${hashPrefix}  push ✔  ` : `  ${hashPrefix}  push ✔`;
+  const pushElapsed = args.pushElapsed;
+  const pushUrlMeta = pushedOk && pushUrl ? ` ${c.gray(c.dim('-'))} ${c.cyan(pushUrl)}` : '';
+  const pushElapsedMeta =
+    pushedOk && pushElapsed ? ` ${c.gray(c.dim(`(in ${pushElapsed})`))}` : '';
+  const pushMeta = `${pushUrlMeta}${pushElapsedMeta}`;
+  const pushPrefix = `  ${hashPrefix}  pushed ✔`;
   const pushName = pushedOk ? `${pushPrefix}${pushMeta}` : `  ${hashPrefix}  push`;
   const answer = await Cli.Input.Select.prompt<A>({
     message: `Actions:`,

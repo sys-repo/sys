@@ -1,9 +1,9 @@
-import { type t, c, Cli, Path, Pkg, Str } from '../common.ts';
+import { type t, c, Cli, Path, Pkg, Str, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { pushProvider } from '../u.push/u.push.ts';
 
 type RunPushResult =
-  | { readonly ok: true }
+  | { readonly ok: true; readonly elapsed?: string }
   | { readonly ok: false; readonly error?: unknown; readonly hint?: string };
 
 /**
@@ -22,14 +22,16 @@ export async function runPushWithSpinner(args: {
   let pushing = `Pushing to ${c.white(args.provider.kind)}`;
   if (bytes) pushing += ` (${Str.bytes(bytes)})`;
 
+  const started = Time.now.timestamp;
   spin.start(Fmt.spinnerText(pushing));
 
   try {
     const res = await pushProvider(args);
 
     if (res.ok) {
-      spin.succeed(Fmt.spinnerText(c.green('push complete')));
-      return { ok: true };
+      const elapsed = Time.elapsed(started).toString();
+      spin.succeed(Fmt.spinnerText(c.green(`push complete (elapsed ${elapsed})`)));
+      return { ok: true, elapsed };
     }
 
     spin.fail(Fmt.spinnerText('push failed'));

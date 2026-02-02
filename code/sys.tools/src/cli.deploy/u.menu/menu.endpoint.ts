@@ -32,6 +32,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
   let ranOk = false;
   let pushedOk = false;
+  let pushElapsed: string | undefined;
 
   while (true) {
     const yamlRel = `${EndpointsFs.dir}/${key}${EndpointsFs.ext}`;
@@ -64,12 +65,14 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       ? Path.resolve(stagingRootAbs, mappingStagingRel)
       : undefined;
     const rootDist = (await Pkg.Dist.load(stagingRootAbs)).dist;
-    const mappingDist = mappingStagingAbs ? (await Pkg.Dist.load(mappingStagingAbs)).dist : undefined;
+    const mappingDist = mappingStagingAbs
+      ? (await Pkg.Dist.load(mappingStagingAbs)).dist
+      : undefined;
     const dist = rootDist?.hash?.digest
       ? rootDist
       : mappingDist?.hash?.digest
         ? mappingDist
-        : rootDist ?? mappingDist;
+        : (rootDist ?? mappingDist);
     const digest = dist?.hash?.digest;
     const hashSuffix = digest ? String(digest).slice(-5) : undefined;
     const hashPrefix = formatHashPrefix(hashSuffix);
@@ -110,6 +113,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       ranOk,
       showPush,
       pushedOk,
+      pushElapsed,
       hashPrefix,
       stageAge,
       stageSize,
@@ -148,6 +152,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
       if (res.ok) {
         pushedOk = true;
+        pushElapsed = res.elapsed;
         continue;
       }
 
@@ -228,6 +233,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       key = nextName;
       ranOk = false;
       pushedOk = false;
+      pushElapsed = undefined;
       continue;
     }
 
