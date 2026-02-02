@@ -18,12 +18,22 @@ export type SlugClientTimelineBundleLib = {
   readonly load: <P = unknown>(
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    options?: t.SlugLoadOptions,
+    options?: t.SlugTimelineBundleLoadOptions,
   ) => Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>>;
 };
 
 export type SlugClientTimelineBundleFromDescriptorLib = {
   readonly load: <P = unknown>(
-    options?: t.SlugLoadOptions,
+    options?: t.SlugTimelineBundleLoadOptions,
   ) => Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>>;
 };
+
+export type SlugTimelineBundleLoadOptions = t.SlugLoadOptions & {
+  hrefResolver?: SlugTimelineBundleHrefResolver;
+};
+
+export type SlugTimelineBundleHrefResolver = (args: {
+  readonly href: string;
+  readonly kind?: t.Timecode.Playback.MediaKind;
+  readonly logicalPath?: string;
+}) => string;

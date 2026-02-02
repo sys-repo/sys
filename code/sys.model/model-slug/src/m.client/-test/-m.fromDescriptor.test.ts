@@ -24,7 +24,7 @@ describe('SlugClient.fromDescriptor', () => {
       ],
     };
 
-    const result = await SlugClient.fromDescriptor({
+    const result = SlugClient.fromDescriptor({
       descriptor,
       baseUrl: 'http://example.com/',
     });
@@ -68,7 +68,7 @@ describe('SlugClient.fromDescriptor', () => {
       ],
     };
 
-    const result = await SlugClient.fromDescriptor({
+    const result = SlugClient.fromDescriptor({
       descriptor,
       baseUrl: 'http://example.com/',
     });

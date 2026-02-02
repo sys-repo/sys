@@ -1,9 +1,7 @@
 import type { t } from './common.ts';
 
 export type SlugClientFromDescriptorLib = {
-  readonly make: (
-    args: SlugClientFromDescriptorArgs,
-  ) => Promise<t.SlugClientResult<SlugClientDescriptor>>;
+  readonly make: (args: SlugClientFromDescriptorArgs) => t.SlugClientResult<SlugClientDescriptor>;
 };
 
 export type SlugClientFromDescriptorArgs = {

@@ -11,7 +11,7 @@ export const Bundle: t.SlugClientTimelineBundleLib = {
 async function load<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  opts?: t.SlugLoadOptions,
+  opts?: t.SlugTimelineBundleLoadOptions,
 ): Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>> {
   const distResult = await Dist.load(baseUrl, opts);
   if (!distResult.ok) return { ok: false, error: distResult.error };
@@ -54,11 +54,23 @@ async function load<P = unknown>(
     return new URL(href, hrefBase.href).toString();
   };
 
+  const resolveHref = (asset: t.SpecTimelineAsset) => {
+    const normalized = normalizeHref(asset.href);
+    if (opts?.hrefResolver) {
+      return opts.hrefResolver({
+        href: normalized,
+        kind: asset.kind,
+        logicalPath: asset.logicalPath,
+      });
+    }
+    return normalized;
+  };
+
   const assetMap = new Map<string, t.SpecTimelineAsset>();
   for (const asset of assetsManifest.assets) {
     const normalized: t.SpecTimelineAsset = {
       ...asset,
-      href: normalizeHref(asset.href),
+      href: resolveHref(asset),
     };
     assetMap.set(`${asset.kind}:${asset.logicalPath}`, normalized);
   }

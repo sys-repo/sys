@@ -10,7 +10,7 @@ export const FromDescriptor: t.SlugClientFromDescriptorLib = {
   make,
 };
 
-async function make(args: t.SlugClientFromDescriptorArgs) {
+function make(args: t.SlugClientFromDescriptorArgs) {
   const resolved = resolveDescriptor(args.descriptor, args.kind, args.docid);
   if (!resolved.ok) return resolved;
 
@@ -19,14 +19,17 @@ async function make(args: t.SlugClientFromDescriptorArgs) {
   const baseHref = args.baseHref ?? baseUrl;
   const layout = descriptorLayout(descriptor);
 
-  const withOptions = (options?: t.SlugLoadOptions): t.SlugLoadOptions => ({
-    ...options,
-    baseHref: options?.baseHref ?? baseHref,
-    layout: {
-      ...(layout ?? {}),
-      ...(options?.layout ?? {}),
-    },
-  });
+  const withOptions = <T extends t.SlugLoadOptions>(options?: T): T => {
+    const next = {
+      ...options,
+      baseHref: options?.baseHref ?? baseHref,
+      layout: {
+        ...(layout ?? {}),
+        ...(options?.layout ?? {}),
+      },
+    };
+    return next as T;
+  };
 
   const client: t.SlugClientDescriptor = {
     kind: descriptor.kind,
