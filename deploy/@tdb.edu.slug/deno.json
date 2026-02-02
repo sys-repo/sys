@@ -1,6 +1,6 @@
 {
   "name": "@tdb/edu-slug",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "license": "UNLICENSED",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/-vite.ts --cmd=dev --in=./src/-test/index.html",
