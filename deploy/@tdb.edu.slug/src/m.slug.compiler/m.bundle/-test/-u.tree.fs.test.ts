@@ -1,7 +1,7 @@
 import { type t, describe, expect, Fs, Hash, it } from '../../-test.ts';
 import { Json, SlugSchema } from '../common.ts';
 import { collectDistDirs, writeDistFiles } from '../u.dist.ts';
-import { runSlugTreeFs } from '../u.tree.ts';
+import { runSlugTreeFs } from '../u.tree.fs.ts';
 
 describe('Lint: slug-tree:fs', () => {
   it('writes sha256 per-file export with source + path + hash', async () => {
