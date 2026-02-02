@@ -260,7 +260,7 @@ async function buildSlugTreeFsDescriptors(args: {
   cwd: t.StringDir;
   bundle: t.SlugBundleFileTree;
 }): Promise<Array<{ dir: t.StringDir; bundle: t.BundleDescriptor }>> {
-  const targets = normalizeTargets(args.bundle.target?.manifest);
+  const targets = normalizeTargets(args.bundle.target?.manifests);
   if (targets.length === 0) return [];
 
   const docid = String(args.bundle.crdt.docid ?? '').trim();

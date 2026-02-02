@@ -14,22 +14,22 @@ describe('SchemaSlugTreeFs', () => {
     expect(ok).to.eql(true);
   });
 
-  it('accepts slug-tree target.manifest string', () => {
+  it('accepts slug-tree target.manifests string', () => {
     const doc = {
       crdt: { docid: 'slug:test', path: '/slug' },
       target: {
-        manifest: './out/slug-tree.json',
+        manifests: './out/slug-tree.json',
       },
     };
     const ok = Schema.Value.Check(SchemaSlugTreeFs, doc);
     expect(ok).to.eql(true);
   });
 
-  it('accepts slug-tree target.manifest array', () => {
+  it('accepts slug-tree target.manifests array', () => {
     const doc = {
       crdt: { docid: 'slug:test', path: '/slug' },
       target: {
-        manifest: ['./out/slug-tree.json', './out/slug-tree.yaml'],
+        manifests: ['./out/slug-tree.json', './out/slug-tree.yaml'],
       },
     };
     const ok = Schema.Value.Check(SchemaSlugTreeFs, doc);

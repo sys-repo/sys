@@ -25,7 +25,7 @@ export type SlugBundleFileTree = {
 
 export type SlugBundleFileTreeTarget = {
   /** Manifest targets for generated artifacts. */
-  readonly manifest?: t.StringPath | readonly t.StringPath[];
+  readonly manifests?: t.StringPath | readonly t.StringPath[];
   /** Optional directory to copy source content into. */
   readonly dir?:
     | t.StringPath

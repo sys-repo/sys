@@ -7,7 +7,7 @@ export const SchemaSlugTreeFsFields = {
   target: Schema.Type.Optional(
     Schema.Type.Object(
       {
-        manifest: Schema.Type.Optional(
+        manifests: Schema.Type.Optional(
           Schema.Type.Union([
             Schema.Type.String(),
             Schema.Type.Array(Schema.Type.String(), { minItems: 0 }),
