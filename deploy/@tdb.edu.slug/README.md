@@ -9,7 +9,7 @@ Slug concept-player training system.
 
 
 ## Bundle Hook
-In the `jsr:@sys/tools crdt` generated `hookt.ts` file - expose a "**bundler plugin**" using the slug-compiler `Bundler` export:
+In the `jsr:@sys/tools crdt` command, generate the `hookt.ts` file and expose a "**bundler plugin**". Default plugin available from the `Bundler` export within the content/compiler tools:
 
 ```ts
 import type { t } from 'jsr:@sys/tools';
@@ -30,7 +30,7 @@ export const plugins: t.CrdtTool.Hook.Plugin[] = [
 
 <p>&nbsp;</p>
 
-which will be exposed in UI via the `jsr:@sys/tools crdt` tool
+which will be exposed in UI within `jsr:@sys/tools crdt` tool, via an interactive CLI menu:
 
 <p>&nbsp;</p>
 
