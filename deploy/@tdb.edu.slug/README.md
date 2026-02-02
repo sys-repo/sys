@@ -58,9 +58,9 @@ Hostname layout:
             slc.db.team
         cdn.slc.db.team            ← staging.cdn/slc/default/*
   video.cdn.slc.db.team            ← staging.cdn/slc/video/*
+
             |
-            |
-            |
+
             socialleancanvas.com
         cdn.socialleancanvas.com
   video.cdn.socialleancanvas.com
