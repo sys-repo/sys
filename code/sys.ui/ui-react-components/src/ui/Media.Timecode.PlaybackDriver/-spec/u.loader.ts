@@ -21,8 +21,7 @@ async function load(debug: DebugSignals, docid: t.StringId) {
   const filename = SlugClient.Url.playbackFilename(docid);
   const timelineUrl = Url.parse(url).join('manifests', filename);
 
-  const res = await loadTimelineFromEndpoint(url, docid);
-  const bundle = res.bundle;
+  const bundle = await loadTimelineFromEndpoint(url, docid);
 
   /** Update state. */
   p.docid.value = docid;

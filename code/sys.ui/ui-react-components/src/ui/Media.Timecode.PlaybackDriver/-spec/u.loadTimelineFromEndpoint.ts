@@ -1,10 +1,10 @@
 import { SlugClient } from '@sys/model-slug/client';
 import { type t } from './common.ts';
 
-export async function loadTimelineFromEndpoint(
+export async function loadTimelineFromEndpoint<P>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-): Promise<t.TimecodePlaybackDriver.Wire.Bundle<unknown>> {
+): Promise<t.TimecodePlaybackDriver.Wire.Bundle<P>> {
   const init: RequestInit = { cache: 'no-cache' };
   const res = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid, { init });
   if (!res.ok) SlugClient.Error.throw(res.error);
