@@ -1,5 +1,6 @@
 import { type t, describe, expect, Fs, Hash, it } from '../../-test.ts';
 import { Json, SlugSchema } from '../common.ts';
+import { collectDistDirs, writeDistFiles } from '../u.dist.ts';
 import { runSlugTreeFs } from '../u.tree.ts';
 
 describe('Lint: slug-tree:fs', () => {
@@ -33,6 +34,7 @@ describe('Lint: slug-tree:fs', () => {
         config,
         createCrdt: async () => 'crdt:test' as t.StringRef,
       });
+      await writeDistFiles(collectDistDirs.fromSlugTreeFs({ cwd: tmpDir, config }));
 
       const sourceA = Fs.join(tmpDir, 'out/src/a.md');
       const sourceC = Fs.join(tmpDir, 'out/src/sub/c.md');
@@ -128,6 +130,41 @@ describe('Lint: slug-tree:fs', () => {
       );
       expect(assetHashes.has(String(a?.hash ?? ''))).to.eql(true);
       expect(assetHashes.has(String(c?.hash ?? ''))).to.eql(true);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('writes dist.json for manifest directories and bundle root', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const srcDir = Fs.join(tmpDir, 'src');
+      await Fs.ensureDir(Fs.join(srcDir, 'sub'));
+      await Fs.write(Fs.join(srcDir, 'a.md'), 'alpha');
+
+      const config: t.SlugBundleFileTree = {
+        source: 'src',
+        crdt: { docid: 'slug:test', path: '/slug' },
+        target: {
+          manifests: ['out/-manifests/slug-tree.kb.json', 'out/-manifests/slug-tree.kb.yaml'],
+          dir: [
+            { kind: 'source', path: 'out/source' },
+            { kind: 'sha256', path: 'out/content' },
+          ],
+        },
+      };
+
+      await runSlugTreeFs({
+        cwd: tmpDir,
+        config,
+        createCrdt: async () => 'crdt:test' as t.StringRef,
+      });
+      await writeDistFiles(collectDistDirs.fromSlugTreeFs({ cwd: tmpDir, config }));
+
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/-manifests/dist.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/source/dist.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/content/dist.json'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(tmpDir, 'out/dist.json'))).to.eql(true);
     } finally {
       await Fs.remove(tmpDir);
     }

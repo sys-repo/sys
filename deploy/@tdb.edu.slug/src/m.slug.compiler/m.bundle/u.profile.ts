@@ -2,7 +2,7 @@ import { type t, Crdt, Fs, Slug } from './common.ts';
 import { buildDocumentDag } from './u.dag.ts';
 import { writeDistClientFiles } from './u.dist.client.ts';
 import { bundleSequenceFilepaths } from './u.seq.files.bundle.ts';
-import { writeDistFiles } from './u.dist.ts';
+import { collectDistDirs, writeDistFiles } from './u.dist.ts';
 import { runSlugTreeFs } from './u.tree.ts';
 import { validate } from './u.validate.ts';
 import { BundleProfileSchema } from './schema/mod.ts';
@@ -36,6 +36,7 @@ export async function runProfile(args: {
   let mediaSeqTotals: t.BundleRunSummary['mediaSeq'] | undefined;
   let slugTreeFsTotals: t.BundleRunSummary['slugTreeFs'] | undefined;
   const descriptorEntries: Array<{ dir: t.StringDir; bundle: t.BundleDescriptor }> = [];
+  const distDirs = new Set<string>();
 
   for (const [i, bundle] of bundles.entries()) {
     if (bundle.enabled === false) continue;
@@ -108,22 +109,9 @@ export async function runProfile(args: {
       }
 
       if (targets.length > 0) {
-        const manifestsBase =
-          bundle.target?.manifests?.base ?? Fs.join(Fs.cwd('terminal'), 'publish.assets');
-        const manifestsDir = bundle.target?.manifests?.dir ?? 'manifests';
-        const videoBase = bundle.target?.media?.video?.base ?? manifestsBase;
-        const imageBase = bundle.target?.media?.image?.base ?? manifestsBase;
-        const videoDir = bundle.target?.media?.video?.dir ?? 'video';
-        const imageDir = bundle.target?.media?.image?.dir ?? 'image';
-        const distDirs: t.StringDir[] = [
-          manifestsBase,
-          resolveDir(manifestsBase, manifestsDir),
-          resolveDir(videoBase, videoDir),
-        ];
-        if (bundle.target?.media?.image !== undefined) {
-          distDirs.push(resolveDir(imageBase, imageDir));
+        for (const dir of collectDistDirs.fromMediaSeq(bundle)) {
+          distDirs.add(dir);
         }
-        await writeDistFiles(distDirs);
       }
 
       const prevDocs = mediaSeqTotals?.docs ?? [];
@@ -144,6 +132,11 @@ export async function runProfile(args: {
         config: bundle,
         createCrdt: async () => 'crdt:create' as t.StringRef,
       });
+      if (stats) {
+        for (const dir of collectDistDirs.fromSlugTreeFs({ cwd, config: bundle })) {
+          distDirs.add(dir);
+        }
+      }
       const fsDescriptors = await buildSlugTreeFsDescriptors({ cwd, bundle });
       descriptorEntries.push(...fsDescriptors);
       const merged = {
@@ -163,6 +156,9 @@ export async function runProfile(args: {
 
   if (descriptorEntries.length > 0) {
     await writeDistClientFiles(descriptorEntries);
+  }
+  if (distDirs.size > 0) {
+    await writeDistFiles(distDirs);
   }
 
   return summary;
@@ -291,9 +287,7 @@ async function buildSlugTreeFsDescriptors(args: {
       layout,
       files: {
         tree: treePath,
-        ...(assetsExists && assetsPath
-          ? { index: toRelativePath(baseDir, assetsPath) }
-          : {}),
+        ...(assetsExists && assetsPath ? { index: toRelativePath(baseDir, assetsPath) } : {}),
       },
     };
 
@@ -311,10 +305,7 @@ function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.Str
 
 function resolveSha256Dir(
   cwd: t.StringDir,
-  input?:
-    | t.StringPath
-    | t.SlugBundleFileTreeTargetDir
-    | readonly t.SlugBundleFileTreeTargetDir[],
+  input?: t.StringPath | t.SlugBundleFileTreeTargetDir | readonly t.SlugBundleFileTreeTargetDir[],
 ): t.StringDir | undefined {
   if (!input) return;
   const list = Array.isArray(input) ? input : [input];
