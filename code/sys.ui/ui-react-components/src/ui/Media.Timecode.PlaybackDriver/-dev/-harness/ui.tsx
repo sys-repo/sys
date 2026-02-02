@@ -21,17 +21,19 @@ export const Harness: React.FC<HarnessProps> = (props) => {
     empty: {
       base: css({
         height: '100%',
+        PaddingX: '10%',
         display: 'grid',
         placeItems: 'center',
         gap: 6,
+        fontSize: 22,
+        lineHeight: 1.9,
       }),
       msg: css({
-        fontSize: 18,
-        lineHeight: 1.9,
+        lineHeight: 1.2,
         userSelect: 'none',
       }),
       url: css({
-        fontSize: 16,
+        fontSize: '0.85em', // 85% of msg size
         opacity: 0.25,
         fontFamily: 'monospace',
         userSelect: 'auto',
