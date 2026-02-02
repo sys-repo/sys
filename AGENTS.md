@@ -5,14 +5,23 @@ Before any action:
 - Apply those instructions verbatim
 - This file adds local constraints only; all other behavior is governed by `../AGENTS.md`.
 
-- When a clear question is posed:
-  - Respond in **plan mode only** (analysis / proposal / steps).
+- When a clear question is posed, or when a prompt ends with the character "?":
+  - Respond in **plan mode only** (analysis / proposal / steps)
   - Treat the response as **read-only**:
-    - Do NOT modify code or any other files
-    - Do NOT invoke tools
+    - Allowed:
+      - Reasoning, analysis, and explanation
+      - Reading, ingesting, parsing, or summarising existing files or content
+      - Read-only tool usage that does not modify state
+    - Forbidden:
+      - Writing, editing, deleting, or generating files
+      - Executing commands that cause side effects
+      - Modifying code, configuration, or data
+  - Do NOT make changes unless explicitly instructed
   - If the question explicitly ends with the word **"go"**:
-    - Treat it as an execution command.
-    - Proceed normally (not read-only).
+    - This **overrides the read-only constraints above**
+    - Treat it as an execution command
+    - Side effects, writes, and mutations are allowed
+    - Proceed normally
 
 - After completing any change (code, config, docs, or structure),
   always provide a Git commit message summarizing the change, using
@@ -63,3 +72,5 @@ If the human explicitly indicates that work is scoped to a specific domain:
 
 Do NOT infer scope.
 Do NOT activate scoped canon unless explicitly instructed.
+
+Go
