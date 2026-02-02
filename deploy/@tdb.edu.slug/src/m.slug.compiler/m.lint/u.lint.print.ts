@@ -14,7 +14,7 @@ export function printSummary(args: Args) {
 
   kv('  issues:', success(String(res.issues.length)));
   kv('  facets:', c.gray(res.facets.join(' | ')));
-  kv('  docpath:', c.gray(`/${Str.trimSlashes(docpath.join('/'))}`));
+  kv('  docpath:', c.gray(`/${Str.trimSlashes((docpath ?? []).join('/'))}`));
 
   console.info();
   console.info(Str.trimEdgeNewlines(String(table)));

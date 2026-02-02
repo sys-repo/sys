@@ -43,7 +43,7 @@ export const plugins: t.CrdtTool.Doc.Graph.Plugin[] = [
     title: `sample ${c.gray('(plugin)')}`,
     async run(e) {
       // 🐷
-      const docpath = `/${Str.trimSlashes(e.docpath.join('/'))}`;
+      const docpath = `/${Str.trimSlashes((e.docpath ?? []).join('/'))}`;
       console.info('\n', c.cyan('👋 plugin:sample'), c.gray(`| docpath: ${docpath}`), '\n');
       return { kind: 'stay' };
     },
