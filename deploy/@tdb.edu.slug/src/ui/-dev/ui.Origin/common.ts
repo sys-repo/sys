@@ -16,7 +16,7 @@ export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
 
-  origin: {
+  kind: {
     default: 'localhost' satisfies t.DevOriginKind,
     local: { app: local, cdn: { default: local, video: local } } satisfies t.SlugLoaderOrigin,
     prod: {

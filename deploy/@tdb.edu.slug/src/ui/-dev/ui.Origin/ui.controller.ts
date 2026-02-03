@@ -1,12 +1,11 @@
 import { type t, Signal, D } from './common.ts';
 
-const s = Signal.create;
-
 export const controller: t.DevOriginControllerFactory = (args) => {
   let rev = 0;
 
+  const s = Signal.create;
   const p = {
-    origin: args.origin ?? s<t.DevOriginKind>(args.props?.origin || D.origin.default),
+    kind: args.kind ?? s<t.DevOriginKind>(args.props?.kind || D.kind.default),
   };
 
   const api: t.DevOriginController = {
@@ -14,18 +13,20 @@ export const controller: t.DevOriginControllerFactory = (args) => {
       return rev;
     },
     get props(): t.DevOriginController['props'] {
+      const v = Signal.toObject(p);
       return {
-        ...Signal.toObject(p),
+        kind: v.kind,
         default: args.props?.default,
         onOriginChange(e) {
-          p.origin.value = e.next;
+          p.kind.value = e.next;
         },
       };
     },
     get origin() {
-      const current = p.origin.value;
-      if (current === 'localhost') return args.props?.default?.origin?.local || D.origin.local;
-      return args.props?.default?.origin?.prod || D.origin.prod;
+      return null as any;
+      // const current = p.origin.value;
+      // if (current === 'localhost') return args.props?.default?.origin?.local ||kindgin.local;
+      // return args.props?.default?.origin?.prod ||kindgin.prod;
     },
     listen() {
       api.props;

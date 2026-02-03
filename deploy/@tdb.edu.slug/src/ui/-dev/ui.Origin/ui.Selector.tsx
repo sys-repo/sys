@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Bullet, Button, Signal, D, Rx, Obj, Str, Is } from './common.ts';
+import React from 'react';
+import { type t, Bullet, Button, Color, css, D } from './common.ts';
 
 export type OriginSelectorProps = {
-  origin?: t.DevOriginKind;
+  kind?: t.DevOriginKind;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
@@ -13,7 +13,7 @@ export type OriginSelectorProps = {
  * Component:
  */
 export const OriginSelector: React.FC<OriginSelectorProps> = (props) => {
-  const { debug = false, origin = D.origin.default } = props;
+  const { debug = false, kind = D.kind.default } = props;
 
   /**
    * Render:
@@ -29,16 +29,16 @@ export const OriginSelector: React.FC<OriginSelectorProps> = (props) => {
     button: css({
       display: 'grid',
       gridTemplateColumns: `auto 1fr`,
-      gap: 8,
       alignItems: 'center',
+      gap: 8,
     }),
   };
 
-  const btn = (kind: t.DevOriginKind) => {
-    const label = `${kind}`;
-    const isSelected = kind === origin;
+  const btn = (value: t.DevOriginKind) => {
+    const label = `${value}`;
+    const isSelected = value === kind;
     return (
-      <Button theme={theme.name} onMouseDown={() => props.onChange?.({ next: kind })}>
+      <Button theme={theme.name} onMouseDown={() => props.onChange?.({ next: value })}>
         <div className={styles.button.class}>
           <Bullet theme={theme.name} selected={isSelected} />
           <div>{label}</div>

@@ -4,11 +4,11 @@ import { Button, ObjectView } from '../common.ts';
 import { DevOrigin } from '../mod.ts';
 
 type P = t.DevOriginProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'origin'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'kind'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
-  origin: 'localhost',
+  kind: 'localhost',
 };
 
 /**
@@ -22,17 +22,16 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    origin: s(snap.origin),
+    kind: s(snap.kind),
   };
   const p = props;
-  const controller = DevOrigin.controller({ origin: p.origin });
+  const controller = DevOrigin.controller({ kind: p.kind });
   const api = {
     props,
     controller,
@@ -53,7 +52,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
-      d.origin = p.origin.value;
+      d.kind = p.kind.value;
     });
   });
 
@@ -118,7 +117,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `tmp 🐷`}
         onClick={async () => {
-          const loader = ClientLoader.make({ origin: ctrl.origin });
+          const origin = ctrl.origin.value;
+          const loader = ClientLoader.make({ origin });
           const m = await loader.Tree.load('kv');
           console.log('m', m);
         }}

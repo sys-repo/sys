@@ -5,13 +5,13 @@ import { OriginSelector } from './ui.Selector.tsx';
 type P = t.DevOriginProps;
 
 export const Origin: React.FC<P> = (props) => {
-  const { debug = false, origin = D.origin.default } = props;
+  const { debug = false, kind = D.kind.default } = props;
   const origins = {
-    local: props.default?.origin?.local ?? D.origin.local,
-    prod: props.default?.origin?.prod ?? D.origin.prod,
+    local: props.default?.origin?.local ?? D.kind.local,
+    prod: props.default?.origin?.prod ?? D.kind.prod,
   } as const;
 
-  const current = origin === 'localhost' ? origins.local : origins.prod;
+  const current = kind === 'localhost' ? origins.local : origins.prod;
 
   /**
    * Render:
@@ -35,7 +35,7 @@ export const Origin: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.selector.class}>
-        <OriginSelector theme={theme.name} origin={props.origin} onChange={props.onOriginChange} />
+        <OriginSelector theme={theme.name} kind={props.kind} onChange={props.onOriginChange} />
       </div>
       <div className={styles.divider.class} />
       <KeyValue.UI

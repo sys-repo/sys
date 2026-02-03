@@ -14,7 +14,7 @@ export type DevOriginLib = {
  * Component:
  */
 export type DevOriginProps = {
-  origin?: t.DevOriginKind;
+  kind?: t.DevOriginKind;
   default?: { origin?: { local?: t.SlugLoaderOrigin; prod?: t.SlugLoaderOrigin } };
 
   //
@@ -28,13 +28,13 @@ export type DevOriginProps = {
  * State controller
  */
 type CtrlArgs = {
-  origin?: t.Signal<t.DevOriginKind | undefined>;
-  props?: Pick<DevOriginProps, 'origin' | 'default'>;
+  kind?: t.Signal<t.DevOriginKind | undefined>;
+  props?: Pick<DevOriginProps, 'kind' | 'default'>;
 };
 export type DevOriginControllerFactory = (args: CtrlArgs) => DevOriginController;
 export type DevOriginController = {
   readonly rev: t.NumberMonotonic;
-  readonly props: Pick<DevOriginProps, 'origin' | 'default' | 'onOriginChange'>;
-  readonly origin: t.SlugLoaderOrigin;
+  readonly props: Pick<DevOriginProps, 'kind' | 'default' | 'onOriginChange'>;
+  readonly origin: t.ReadonlySignal<t.SlugLoaderOrigin>;
   readonly listen: () => void;
 };
