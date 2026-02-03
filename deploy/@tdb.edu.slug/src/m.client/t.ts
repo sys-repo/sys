@@ -17,6 +17,8 @@ export type SlugLoaderLib = {
 export type SlugLoader = {
   /** Canonicalized origin endpoints used by the loader. */
   readonly origin: t.SlugLoaderOrigin;
+  /** SlugTree loader bound to the loader origin. */
+  readonly Tree: SlugLoaderTreeLib;
 };
 
 /**
@@ -35,4 +37,11 @@ export type SlugLoader = {
 export type SlugLoaderOrigin = {
   app: t.StringUrl;
   cdn: { default: t.StringUrl; video: t.StringUrl };
+};
+
+export type SlugLoaderTreeLib = {
+  readonly load: (
+    docid: t.StringId,
+    options?: t.SlugTreeLoadOptions,
+  ) => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
 };
