@@ -31,6 +31,7 @@ export type DevOriginProps = {
  * Controlled Component
  */
 export type DevOriginControlledProps = {
+  kind?: t.Signal<t.DevOriginKind | undefined>;
   origin?: t.Signal<t.SlugLoaderOrigin | undefined>;
   defaults?: t.DevOriginProps['defaults'];
   debug?: boolean;

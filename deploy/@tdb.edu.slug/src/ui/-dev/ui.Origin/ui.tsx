@@ -1,12 +1,12 @@
 import React from 'react';
-import { type t, Color, css, D, KeyValue, Str } from './common.ts';
+import { type t, Color, css, KeyValue, Str } from './common.ts';
 import { resolveOrigin } from './u.resolve.ts';
 import { OriginSelector } from './ui.Selector.tsx';
 
 type P = t.DevOriginProps;
 
 export const Origin: React.FC<P> = (props) => {
-  const { debug = false, kind = D.kind.default } = props;
+  const { debug = false, kind } = props;
   const { origin } = resolveOrigin({ kind, defaults: props.defaults?.origin });
 
   /**
@@ -16,7 +16,7 @@ export const Origin: React.FC<P> = (props) => {
   const items: t.KeyValueItem[] = [];
   if (kind === 'localhost') {
     items.push({ kind: 'title', v: 'Endpoint (Origin)' });
-    items.push({ k: 'app,cdn', v: Str.trimHttpScheme(origin.app), mono });
+    items.push({ k: 'app,cdn,video', v: Str.trimHttpScheme(origin.app), mono });
   } else {
     items.push({ kind: 'title', v: 'Endpoints (Origin)' });
     items.push({ k: 'app', v: Str.trimHttpScheme(origin.app), mono });
