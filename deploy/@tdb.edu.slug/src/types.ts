@@ -13,3 +13,4 @@ export type * from './ui/ui.SlugPlaybackDriver/t.ts';
 export type * from './ui/ui.SlugSheet/t.ts';
 export type * from './ui/ui.SlugSheetStack/t.ts';
 export type * from './ui/ui.TreeHost/t.ts';
+export type * from './ui/-dev/-sample.loader/t.ts';
