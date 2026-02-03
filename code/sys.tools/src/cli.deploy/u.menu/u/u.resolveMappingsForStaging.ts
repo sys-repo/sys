@@ -1,4 +1,5 @@
-import { type t, Fs, Is, Path } from './common.ts';
+import { type t, Fs, Path } from './common.ts';
+import { expandShardTemplatePaths } from '../../u.shardTemplate.ts';
 
 type ResolveMappingsResult =
   | { readonly ok: true; readonly mappings: readonly t.DeployTool.Staging.Mapping[] }
@@ -32,32 +33,10 @@ function expandShardMappings(
 ): t.DeployTool.Staging.Mapping[] {
   const source = String(mapping.dir.source ?? '').trim();
   const staging = String(mapping.dir.staging ?? '').trim();
-  const base: t.DeployTool.Staging.Mapping = {
-    mode: mapping.mode,
-    dir: { source, staging },
-  };
-
-  const total = mapping.shards?.total;
-  const hasTemplate = source.includes('<shard>') || source.includes('<shards>') ||
-    staging.includes('<shard>') || staging.includes('<shards>');
-
-  if (!hasTemplate) return [base];
-  if (!Is.num(total) || !Number.isFinite(total) || total <= 0) return [base];
-
-  const count = Math.floor(total);
-  const mappings: t.DeployTool.Staging.Mapping[] = [];
-  for (let index = 0; index < count; index += 1) {
-    mappings.push({
-      mode: base.mode,
-      dir: {
-        source: resolveShardTemplate(source, index, count),
-        staging: resolveShardTemplate(staging, index, count),
-      },
-    });
-  }
-  return mappings;
-}
-
-function resolveShardTemplate(value: string, shard: number, total: number): string {
-  return value.replaceAll('<shard>', String(shard)).replaceAll('<shards>', String(total));
+  const expanded = expandShardTemplatePaths({
+    source,
+    staging,
+    total: mapping.shards?.total,
+  });
+  return expanded.map((dir) => ({ mode: mapping.mode, dir }));
 }

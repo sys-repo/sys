@@ -2,6 +2,7 @@ import { type t, Fs, Path, pkg, Schema, Yaml } from '../common.ts';
 import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
 import { resolveBases, resolvePath } from './u.resolve.ts';
+import { expandShardTemplatePaths } from '../u.shardTemplate.ts';
 
 const ENDPOINTS_DIR = `-config/${pkg.name}/deploy` satisfies t.DeployTool.Endpoint.Fs.DirName;
 const ENDPOINTS_EXT = '.yaml' satisfies t.DeployTool.Endpoint.Fs.Ext;
@@ -95,20 +96,28 @@ export const EndpointsFs = {
         continue;
       }
 
-      const sourceAbs = resolvePath(bases.sourceBaseAbs, sourceRaw);
+      const stagingRaw = String(m?.dir?.staging ?? '').trim();
+      const expanded = expandShardTemplatePaths({
+        source: sourceRaw,
+        staging: stagingRaw,
+        total: m?.shards?.total,
+      });
 
-      if (!(await Fs.exists(sourceAbs))) {
+      for (const item of expanded) {
+        const sourceAbs = resolvePath(bases.sourceBaseAbs, item.source);
+        if (await Fs.exists(sourceAbs)) continue;
+
         errors.push(
           Yaml.Error.synthetic({
-            message: `mappings[${i}].dir.source does not exist: ${sourceRaw}\nresolved: ${sourceAbs}`,
+            message: `mappings[${i}].dir.source does not exist: ${item.source}\nresolved: ${sourceAbs}`,
             code: EndpointYamlErrorCode,
             pos: [0, 0],
           }),
         );
+        break;
       }
 
       {
-        const stagingRaw = String(m?.dir?.staging ?? '').trim();
         const stagingExpanded = Fs.Tilde.expand(stagingRaw);
 
         if (Path.Is.absolute(stagingExpanded)) {

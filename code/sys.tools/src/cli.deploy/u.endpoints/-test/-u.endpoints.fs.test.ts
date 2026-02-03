@@ -138,6 +138,34 @@ describe('EndpointsFs', () => {
     });
   });
 
+  it('validateYaml: shard templates expand to existing sources → ok:true', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('shards-ok')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      await Fs.ensureDir(`${tmp}/code/video/partition-0`);
+      await Fs.ensureDir(`${tmp}/code/video/partition-1`);
+
+      const yaml = [
+        'source:',
+        '  dir: ./code',
+        'staging:',
+        '  dir: ./staging',
+        'mappings:',
+        '  - mode: copy',
+        '    shards: { total: 2 }',
+        '    dir:',
+        '      source: ./video/partition-<shard>',
+        '      staging: ./<shard>.video.cdn.example',
+        '',
+      ].join('\n');
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(true);
+    });
+  });
+
   it('validateYaml: mapping source respects source.dir base → ok:true', async () => {
     await withTmpDir(async (tmp) => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('source-base')}`;
