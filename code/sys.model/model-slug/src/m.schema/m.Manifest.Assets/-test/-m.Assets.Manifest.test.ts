@@ -12,6 +12,7 @@ const validManifest = {
       hash: 'hash-video',
       filename: 'video.mp4',
       href: '/assets/video.mp4',
+      shard: { strategy: 'prefix-range', total: 64, index: 12 },
       stats: { bytes: 1024, duration: 3000 },
     },
     {

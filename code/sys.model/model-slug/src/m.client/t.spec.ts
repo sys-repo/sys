@@ -6,6 +6,11 @@ export type SpecTimelineAsset = {
   readonly hash?: string;
   readonly filename?: string;
   readonly href: string;
+  readonly shard?: {
+    readonly strategy: 'prefix-range';
+    readonly total: number;
+    readonly index: number;
+  };
   readonly stats?: { readonly bytes?: number; readonly duration?: t.Msecs };
 };
 

@@ -14,6 +14,15 @@ export const schema: t.SlugAssetsManifestSchemaLib['schema'] = () => {
     { additionalProperties: false },
   );
 
+  const AssetShard = Type.Object(
+    {
+      strategy: Type.Literal('prefix-range'),
+      total: Type.Number(),
+      index: Type.Number(),
+    },
+    { additionalProperties: false },
+  );
+
   const Asset = Type.Object(
     {
       kind: Type.Union([Type.Literal('video'), Type.Literal('image')]),
@@ -21,6 +30,7 @@ export const schema: t.SlugAssetsManifestSchemaLib['schema'] = () => {
       hash: Type.String(),
       filename: Type.String(),
       href: Type.String(),
+      shard: Type.Optional(AssetShard),
       stats: Type.Optional(AssetStats),
     },
     { additionalProperties: false },

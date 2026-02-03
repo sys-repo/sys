@@ -25,6 +25,7 @@ export type SlugAsset = {
   readonly hash: t.StringHash;
   readonly filename: t.StringName;
   readonly href: string;
+  readonly shard?: SlugAssetShard;
 
   /** Filesystem / media statistics (when known). */
   readonly stats?: {
@@ -33,4 +34,11 @@ export type SlugAsset = {
     /** Media duration (typically video or audio only). */
     readonly duration?: t.Msecs;
   };
+};
+
+/** Sharding metadata for a bundled asset. */
+export type SlugAssetShard = {
+  readonly strategy: 'prefix-range';
+  readonly total: number;
+  readonly index: number;
 };
