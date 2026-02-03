@@ -1,17 +1,21 @@
 import type { t } from './common.ts';
 
 export type DevOriginKind = 'localhost' | 'production';
+export type DevOriginDefaults = { local?: t.SlugLoaderOrigin; prod?: t.SlugLoaderOrigin };
 
 /**
  * Loader debug/selection UI.
  */
 export type DevOriginLib = {
-  readonly UI: t.FC<DevOriginProps>;
   readonly controller: t.DevOriginControllerFactory;
+  readonly UI: {
+    readonly Uncontrolled: t.FC<t.DevOriginProps>;
+    readonly Controlled: t.FC<t.DevOriginControlledProps>;
+  };
 };
 
 /**
- * Component:
+ * Component
  */
 export type DevOriginProps = {
   kind?: t.DevOriginKind;
@@ -23,10 +27,19 @@ export type DevOriginProps = {
   onChange?: (e: { next: t.DevOriginKind }) => void;
 };
 
-export type DevOriginDefaults = { local?: t.SlugLoaderOrigin; prod?: t.SlugLoaderOrigin };
+/**
+ * Controlled Component
+ */
+export type DevOriginControlledProps = {
+  origin?: t.Signal<t.SlugLoaderOrigin | undefined>;
+  defaults?: t.DevOriginProps['defaults'];
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};
 
 /**
- * State controller
+ * Controller (State)
  */
 type CtrlArgs = {
   props?: Pick<DevOriginProps, 'kind' | 'defaults'>;
@@ -34,7 +47,7 @@ type CtrlArgs = {
   origin?: t.Signal<t.SlugLoaderOrigin | undefined>;
 };
 export type DevOriginControllerFactory = (args: CtrlArgs) => DevOriginController;
-export type DevOriginController = {
+export type DevOriginController = t.Lifecycle & {
   readonly rev: t.NumberMonotonic;
   readonly props: Pick<DevOriginProps, 'kind' | 'defaults' | 'onChange'>;
   readonly kind: t.ReadonlySignal<t.DevOriginKind | undefined>;

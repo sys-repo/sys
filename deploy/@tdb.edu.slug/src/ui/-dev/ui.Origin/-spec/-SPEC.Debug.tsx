@@ -1,14 +1,25 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal, ClientLoader } from '../common.ts';
-import { Button, ObjectView } from '../common.ts';
+import {
+  type t,
+  Button,
+  ClientLoader,
+  Color,
+  css,
+  D,
+  LocalStorage,
+  Obj,
+  ObjectView,
+  Signal,
+} from '../common.ts';
 import { DevOrigin } from '../mod.ts';
 
 type P = t.DevOriginProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'kind'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'kind'> & { controlled?: boolean };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   kind: 'localhost',
+  controlled: false,
 };
 
 /**
@@ -29,9 +40,11 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     kind: s(snap.kind),
+    origin: s<t.SlugLoaderOrigin | undefined>(),
+    controlled: s(snap.controlled),
   };
   const p = props;
-  const controller = DevOrigin.controller({ kind: p.kind });
+  const controller = DevOrigin.controller({ kind: p.kind, origin: p.origin });
   const api = {
     props,
     controller,
@@ -53,6 +66,7 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.kind = p.kind.value;
+      d.controlled = p.controlled.value;
     });
   });
 
@@ -94,6 +108,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
+        label={() => `controlled: ${p.controlled.value}`}
+        onClick={() => Signal.toggle(p.controlled)}
+      />
+      <Button
+        block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
@@ -110,7 +129,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
-      <DevOrigin.UI debug={v.debug} {...ctrl.props} />
+      <DevOrigin.UI.Controlled debug={v.debug} origin={p.origin} />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
       <Button

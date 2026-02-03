@@ -9,7 +9,19 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <DevOrigin.UI debug={v.debug} theme={v.theme} {...debug.controller.props} />;
+    return (
+      <DevOrigin.UI.Uncontrolled
+        //
+        debug={v.debug}
+        theme={v.theme}
+        {...debug.controller.props}
+      />
+    );
+  }
+
+  function RootControlled() {
+    const v = Signal.toObject(p);
+    return <DevOrigin.UI.Controlled debug={v.debug} theme={v.theme} origin={p.origin} />;
   }
 
   e.it('init', (e) => {
@@ -27,7 +39,7 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.subject
       .size([350, null])
       .display('grid')
-      .render(() => <Root />);
+      .render(() => (p.controlled.value ? <RootControlled /> : <Root />));
   });
 
   e.it('ui:debug', (e) => {

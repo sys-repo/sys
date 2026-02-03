@@ -1,7 +1,7 @@
-import { type t, Signal, D } from './common.ts';
+import { type t, Signal, D, Rx } from './common.ts';
 import { resolveOrigin } from './u.resolve.ts';
 
-export const controller: t.DevOriginControllerFactory = (args) => {
+export const createController: t.DevOriginControllerFactory = (args) => {
   let rev = 0;
 
   const s = Signal.create;
@@ -10,7 +10,7 @@ export const controller: t.DevOriginControllerFactory = (args) => {
     origin: args.origin ?? s(D.kind.local),
   };
 
-  const api: t.DevOriginController = {
+  const api = Rx.toLifecycle<t.DevOriginController>({
     ...p,
     get rev() {
       return rev;
@@ -26,18 +26,23 @@ export const controller: t.DevOriginControllerFactory = (args) => {
     listen() {
       Signal.toObject(p);
     },
-  };
+  });
 
-  Signal.effect(() => {
+  const a = Signal.effect(() => {
     api.listen();
     ++rev;
   });
 
-  Signal.effect(() => {
+  const b = Signal.effect(() => {
     const kind = p.kind.value;
     const defaults = args.props?.defaults?.origin;
     const { origin } = resolveOrigin({ kind, defaults });
     p.origin.value = origin;
+  });
+
+  api.dispose$.subscribe(() => {
+    a();
+    b();
   });
 
   return api;

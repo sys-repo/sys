@@ -3,10 +3,14 @@
  * UI for surfacing the ClientLoader HTTP fetch tools.
  */
 import type { t } from './common.ts';
-import { Origin as UI } from './ui.tsx';
-import { controller } from './ui.controller.ts';
+import { Origin } from './ui.tsx';
+import { OriginControlled } from './ui.Controlled.tsx';
+import { createController as controller } from './u.controller.ts';
 
 export const DevOrigin: t.DevOriginLib = {
-  UI,
   controller,
+  UI: {
+    Uncontrolled: Origin,
+    Controlled: OriginControlled,
+  },
 };
