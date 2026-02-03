@@ -11,7 +11,7 @@ type P = t.DevOriginProps;
 const local = 'http://localhost:4040';
 const prod = 'slc.db.team';
 
-const name = 'Dev.Origin';
+const name = 'Dev.HttpOrigin';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),

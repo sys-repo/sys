@@ -1,28 +1,14 @@
 import React from 'react';
-import { type t, Color, css, KeyValue, Str } from './common.ts';
+import { type t, Color, css } from './common.ts';
 import { resolveOrigin } from './u.resolve.ts';
+import { Info } from './ui.Info.tsx';
 import { OriginSelector } from './ui.Selector.tsx';
 
 type P = t.DevOriginProps;
 
 export const Origin: React.FC<P> = (props) => {
-  const { debug = false, kind } = props;
-  const { origin } = resolveOrigin({ kind, defaults: props.defaults?.origin });
-
-  /**
-   * KeyValue items:
-   */
-  const mono = true;
-  const items: t.KeyValueItem[] = [];
-  if (kind === 'localhost') {
-    items.push({ kind: 'title', v: 'Endpoint (Origin)' });
-    items.push({ k: 'app,cdn,video', v: Str.trimHttpScheme(origin.app), mono });
-  } else {
-    items.push({ kind: 'title', v: 'Endpoints (Origin)' });
-    items.push({ k: 'app', v: Str.trimHttpScheme(origin.app), mono });
-    items.push({ k: 'cdn', v: Str.trimHttpScheme(origin.cdn.default), mono });
-    items.push({ k: 'cdn.video', v: Str.trimHttpScheme(origin.cdn.video), mono });
-  }
+  const { debug = false } = props;
+  const { origin, kind } = resolveOrigin({ kind: props.kind, defaults: props.defaults?.origin });
 
   /**
    * Render:
@@ -47,7 +33,7 @@ export const Origin: React.FC<P> = (props) => {
         <OriginSelector theme={theme.name} kind={props.kind} onChange={props.onChange} />
       </div>
       <div className={styles.divider.class} />
-      <KeyValue.UI theme={theme.name} items={items} />
+      <Info theme={theme.name} kind={kind} origin={origin} />
     </div>
   );
 };
