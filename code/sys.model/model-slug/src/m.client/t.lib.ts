@@ -5,7 +5,6 @@ export type SlugClientLib = {
   readonly Url: t.SlugClientUrlLib;
   readonly FromEndpoint: t.SlugFromEndpointLib;
   readonly FromDescriptor: t.SlugClientFromDescriptorLib;
-  readonly fromDescriptor: t.SlugClientFromDescriptorLib['make'];
 };
 
 export type SlugClientUrlLib = {

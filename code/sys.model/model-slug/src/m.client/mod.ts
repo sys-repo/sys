@@ -17,7 +17,6 @@ export const SlugClient: t.SlugClientLib = {
   Url,
   Error,
   FromDescriptor,
-  fromDescriptor: FromDescriptor.make,
   FromEndpoint: {
     Tree,
     Assets,
