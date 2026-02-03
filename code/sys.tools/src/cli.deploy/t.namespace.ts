@@ -60,6 +60,11 @@ export namespace DeployTool {
       export type Mapping = {
         dir: { source: t.StringDir; staging: '.' | t.StringPath };
         mode: SourceMode;
+        /**
+         * Optional shard expansion for template paths.
+         * When provided and templates are present, mappings are expanded per shard.
+         */
+        shards?: { total: number };
       };
 
       /**

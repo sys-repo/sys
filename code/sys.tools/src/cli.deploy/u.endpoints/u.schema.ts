@@ -59,6 +59,12 @@ export const EndpointYamlSchema = {
                 Schema.Type.Literal('copy'),
                 Schema.Type.Literal('build+copy'),
               ]),
+              shards: Schema.Type.Optional(
+                Schema.Type.Object(
+                  { total: Schema.Type.Number() },
+                  { additionalProperties: false },
+                ),
+              ),
             },
             { additionalProperties: false },
           ),

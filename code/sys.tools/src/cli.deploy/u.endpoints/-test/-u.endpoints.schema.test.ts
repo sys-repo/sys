@@ -114,6 +114,22 @@ describe('Schema: endpoint', () => {
     expect(res.errors.length).to.be.greaterThan(0);
   });
 
+  it('validate: accepts shard config on mappings', () => {
+    const res = EndpointYamlSchema.validate({
+      staging: { dir: './staging' },
+      mappings: [
+        {
+          dir: { source: './video/partition-<shard>', staging: './<shard>.video.cdn.example' },
+          mode: 'copy',
+          shards: { total: 64 },
+        },
+      ],
+    });
+
+    expect(res.ok).to.eql(true);
+    expect(res.errors).to.eql([]);
+  });
+
   it('validate: rejects unknown keys inside dir', () => {
     const res = EndpointYamlSchema.validate({
       staging: { dir: './staging' },
