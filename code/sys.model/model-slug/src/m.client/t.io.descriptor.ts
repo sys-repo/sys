@@ -4,6 +4,13 @@ export type SlugClientFromDescriptorLib = {
   readonly make: (args: SlugClientFromDescriptorArgs) => t.SlugClientResult<SlugClientDescriptor>;
 };
 
+export type SlugClientDescriptorLoadLib = {
+  readonly load: (
+    origin: t.StringUrl,
+    manifests: t.StringPath,
+  ) => Promise<t.SlugClientResult<t.BundleDescriptorDoc>>;
+};
+
 export type SlugClientFromDescriptorArgs = {
   readonly descriptor: t.BundleDescriptor | t.BundleDescriptorDoc;
   readonly baseUrl: t.StringUrl;

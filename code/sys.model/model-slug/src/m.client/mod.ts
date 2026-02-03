@@ -6,6 +6,7 @@ import type { t } from './common.ts';
 
 import { SlugError as Error } from './m.Error.ts';
 import { FromDescriptor } from './m.FromDescriptor.ts';
+import { Descriptor } from './m.io.Descriptor.ts';
 import { Bundle } from './m.io.Bundle.ts';
 import { FileContent } from './m.io.FileContent.ts';
 import { Assets } from './m.io.timeline.Assets.ts';
@@ -18,6 +19,7 @@ export const SlugClient: t.SlugClientLib = {
   Error,
   FromDescriptor,
   FromEndpoint: {
+    Descriptor,
     Tree,
     Assets,
     Bundle,
