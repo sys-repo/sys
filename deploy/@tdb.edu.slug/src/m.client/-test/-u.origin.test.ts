@@ -6,10 +6,7 @@ describe('parseOrigin', () => {
     const res = parseOrigin('http://localhost:4040/');
     expect(res).to.eql({
       app: 'http://localhost:4040',
-      cdn: {
-        default: 'http://localhost:4040',
-        video: 'http://localhost:4040',
-      },
+      cdn: { default: 'http://localhost:4040', video: 'http://localhost:4040' },
     });
   });
 
@@ -20,10 +17,7 @@ describe('parseOrigin', () => {
     });
     expect(res).to.eql({
       app: 'http://app.local',
-      cdn: {
-        default: 'http://cdn.local',
-        video: 'http://video.cdn.local',
-      },
+      cdn: { default: 'http://cdn.local', video: 'http://video.cdn.local' },
     });
   });
 
@@ -34,10 +28,7 @@ describe('parseOrigin', () => {
     });
     expect(res).to.eql({
       app: 'http://app.local',
-      cdn: {
-        default: 'http://app.local',
-        video: 'http://app.local',
-      },
+      cdn: { default: 'http://app.local', video: 'http://app.local' },
     });
   });
 });
