@@ -1,7 +1,7 @@
 import React from 'react';
-import { type t, SlugClient, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
-import { Button, ObjectView } from '../common.ts';
 import { Dev } from '../../mod.ts';
+import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { fetchSamples } from './-u.fetch.samples.ts';
 
 import { type SampleLoaderProps as P } from '../ui.tsx';
 
@@ -111,44 +111,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      {fetchButton(debug, '🐷', async (e) => {
-        let path = e.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
-        const host = e.origin.cdn.default;
-        const res = await SlugClient.FromEndpoint.Descriptor.load(host, path);
-        e.result(res);
-      })}
+      <div className={Styles.title.class}>{'Fetch Samples:'}</div>
+      {fetchSamples(debug)}
     </div>
   );
 };
-
-/**
- * Helpers
- */
-export function fetchButton(
-  debug: DebugSignals,
-  label: string,
-  fn: (e: {
-    local: boolean;
-    origin: t.SlugLoaderOrigin;
-    result: (value: unknown) => void;
-  }) => Promise<void>,
-) {
-  const p = debug.props;
-  const v = Signal.toObject(p);
-  return (
-    <Button
-      block
-      label={label}
-      onClick={async () => {
-        const origin = v.origin;
-        const local = v.originKind === 'localhost';
-        if (!origin) return;
-        p.spinning.value = true;
-
-        await fn({ local, origin, result: (value) => (p.response.value = value) });
-
-        p.spinning.value = false;
-      }}
-    />
-  );
-}
