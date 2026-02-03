@@ -1,4 +1,5 @@
-import { type t, Cli, Process } from '../../common.ts';
+import { type t, Cli } from '../../common.ts';
+import { OrbiterCli } from './u.orbiter-cli.ts';
 
 export async function push(args: {
   cwd: t.StringDir;
@@ -14,20 +15,15 @@ export async function push(args: {
     if (!domain) return { ok: false, reason: 'failed', hint: 'Missing provider.domain' };
     if (!buildDir) return { ok: false, reason: 'failed', hint: 'Missing buildDir' };
 
-    const argv = [
-      'x',
-      ['npm:orbiter-cli', 'deploy'],
-      ['--siteId', siteId],
-      ['--buildCommand', 'echo "no-op"'],
-      ['--buildDir', '.'],
-    ];
-
-    const out = await Process.invoke({
-      cmd: 'deno',
-      args: argv.flatMap((x) => (Array.isArray(x) ? x : [x])),
-      cwd: buildDir,
-      silent: true,
-    });
+    const out = await OrbiterCli.run(buildDir, [
+      'deploy',
+      '--siteId',
+      siteId,
+      '--buildCommand',
+      'echo "no-op"',
+      '--buildDir',
+      '.',
+    ]);
 
     if (!out.success || containsError(out.text.stderr)) {
       const code = String(out.code ?? '');

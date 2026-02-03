@@ -1,4 +1,5 @@
-import { type t, Process } from '../../common.ts';
+import { type t } from '../../common.ts';
+import { OrbiterCli } from './u.orbiter-cli.ts';
 
 /**
  * Probe whether `orbiter` is runnable in the current environment.
@@ -11,17 +12,8 @@ export async function probe(cwd: t.StringDir): Promise<t.ProviderAvailability> {
   const hint = 'deno x npm:orbiter-cli';
   try {
     // Cheapest possible capability probe.
-    const out = await Process.invoke({
-      cmd: 'deno',
-      args: ['x', 'npm:orbiter-cli', '--version'],
-      cwd,
-      silent: true,
-    });
-
-    if (!out.success) {
-      return { ok: false, reason: 'failed', hint, error: out };
-    }
-
+    const out = await OrbiterCli.run(cwd, ['--version']);
+    if (!out.success) return { ok: false, reason: 'failed', hint, error: out };
     return { ok: true };
   } catch (error) {
     return { ok: false, reason: 'not-found', hint, error };
