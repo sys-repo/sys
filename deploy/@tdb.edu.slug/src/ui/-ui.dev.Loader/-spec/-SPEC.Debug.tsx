@@ -4,12 +4,11 @@ import { Button, ObjectView } from '../common.ts';
 import { DevLoader } from '../mod.ts';
 
 type P = t.DevLoaderProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'origin'> & { controlled?: boolean };
+type Storage = Pick<P, 'debug' | 'theme' | 'origin'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   origin: 'localhost',
-  controlled: false,
 };
 
 /**
@@ -31,7 +30,6 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     origin: s(snap.origin),
-    controlled: s(snap.controlled),
   };
   const p = props;
   const controller = DevLoader.controller({ origin: p.origin });
@@ -56,7 +54,6 @@ export async function createDebugSignals() {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.origin = p.origin.value;
-      d.controlled = p.controlled.value;
     });
   });
 
@@ -97,14 +94,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `controlled: ${p.controlled.value}`}
-        onClick={() => Signal.toggle(p.controlled)}
-      />
-
-      <hr />
-
-      <Button
-        block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
@@ -121,7 +110,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
-      <DevLoader.UI debug={v.debug} />
+      <DevLoader.UI debug={v.debug} {...debug.controller.props} />
     </div>
   );
 };

@@ -40,8 +40,8 @@ export const Origin: React.FC<P> = (props) => {
         items={[
           { kind: 'title', v: 'Endpoints (Origin)' },
           { k: 'app', v: Str.trimHttpScheme(current.app), mono },
-          { k: 'cdn.default', v: Str.trimHttpScheme(current.app), mono },
-          { k: 'cdn.video', v: Str.trimHttpScheme(current.app), mono },
+          { k: 'cdn.default', v: Str.trimHttpScheme(current.cdn.default), mono },
+          { k: 'cdn.video', v: Str.trimHttpScheme(current.cdn.video), mono },
         ]}
       />
     </div>

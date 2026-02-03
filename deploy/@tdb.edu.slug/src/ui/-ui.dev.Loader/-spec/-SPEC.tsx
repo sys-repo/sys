@@ -9,21 +9,6 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return (
-      <DevLoader.UI
-        debug={v.debug}
-        theme={v.theme}
-        origin={v.origin}
-        onOriginChange={(e) => {
-          console.info(`⚡️ onOriginChange`, e);
-          p.origin.value = e.next;
-        }}
-      />
-    );
-  }
-
-  function ControlledRoot() {
-    const v = Signal.toObject(p);
     return <DevLoader.UI debug={v.debug} theme={v.theme} {...debug.controller.props} />;
   }
 
@@ -42,9 +27,7 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.subject
       .size([350, null])
       .display('grid')
-      .render(() => {
-        return p.controlled.value ? <ControlledRoot /> : <Root />;
-      });
+      .render(() => <Root />);
   });
 
   e.it('ui:debug', (e) => {
