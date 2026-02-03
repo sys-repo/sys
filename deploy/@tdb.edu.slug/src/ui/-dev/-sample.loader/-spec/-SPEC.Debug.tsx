@@ -1,9 +1,10 @@
 import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
+import { DevOrigin } from '../../ui.Origin/mod.ts';
 
 type P = t.SampleLoaderProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<P, 'debug' | 'theme'> & { originKind?: t.DevOriginKind };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
@@ -20,13 +21,14 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
  */
 export async function createDebugSignals() {
   const s = Signal.create;
-
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    originKind: s(snap.originKind),
+    origin: s<t.SlugLoaderOrigin | undefined>(),
   };
   const p = props;
   const api = {
@@ -47,6 +49,7 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.originKind = p.originKind.value;
     });
   });
 
@@ -84,6 +87,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
+      <hr />
+
+      <DevOrigin.UI.Controlled origin={p.origin} kind={p.originKind} style={{ marginBottom: 30 }} />
 
       <Button
         block
