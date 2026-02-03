@@ -1,13 +1,15 @@
 import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
-import { ClientLoader } from '../mod.ts';
+import { DevLoader } from '../mod.ts';
 
-type P = t.ClientLoaderProps;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type P = t.DevLoaderProps;
+type Storage = Pick<P, 'debug' | 'theme' | 'origin'> & { controlled?: boolean };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
+  origin: 'localhost',
+  controlled: false,
 };
 
 /**
@@ -28,16 +30,21 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    origin: s(snap.origin),
+    controlled: s(snap.controlled),
   };
   const p = props;
+  const controller = DevLoader.controller({ origin: p.origin });
   const api = {
     props,
+    controller,
     listen,
     reset,
   };
 
   function listen() {
     Signal.listen(props, true);
+    controller.listen();
   }
 
   function reset() {
@@ -48,6 +55,8 @@ export async function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.origin = p.origin.value;
+      d.controlled = p.controlled.value;
     });
   });
 
@@ -88,6 +97,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
+        label={() => `controlled: ${p.controlled.value}`}
+        onClick={() => Signal.toggle(p.controlled)}
+      />
+
+      <hr />
+
+      <Button
+        block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
@@ -96,9 +113,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView
+        name={`controller:rev:${debug.controller.rev}`}
+        data={debug.controller}
+        expand={0}
+        style={{ marginTop: 6 }}
+      />
 
-      <hr style={{ margin: '15px 0 10px 0' }} />
-      <ClientLoader.UI debug={v.debug} />
+      <hr style={{ margin: '15px 0 20px 0' }} />
+      <DevLoader.UI debug={v.debug} />
     </div>
   );
 };

@@ -4,5 +4,9 @@
  */
 import type { t } from './common.ts';
 import { ClientLoader as UI } from './ui.tsx';
+import { controller } from './u.Controller.ts';
 
-export const ClientLoader: t.ClientLoaderLib = { UI };
+export const DevLoader: t.DevLoaderLib = {
+  UI,
+  controller,
+};

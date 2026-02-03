@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { ClientLoader } from '../mod.ts';
+import { DevLoader } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -9,7 +9,22 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <ClientLoader.UI debug={v.debug} theme={v.theme} />;
+    return (
+      <DevLoader.UI
+        debug={v.debug}
+        theme={v.theme}
+        origin={v.origin}
+        onOriginChange={(e) => {
+          console.info(`⚡️ onOriginChange`, e);
+          p.origin.value = e.next;
+        }}
+      />
+    );
+  }
+
+  function ControlledRoot() {
+    const v = Signal.toObject(p);
+    return <DevLoader.UI debug={v.debug} theme={v.theme} {...debug.controller.props} />;
   }
 
   e.it('init', (e) => {
@@ -25,9 +40,11 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size([320, null])
+      .size([350, null])
       .display('grid')
-      .render(() => <Root />);
+      .render(() => {
+        return p.controlled.value ? <ControlledRoot /> : <Root />;
+      });
   });
 
   e.it('ui:debug', (e) => {

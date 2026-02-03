@@ -1,8 +1,10 @@
 import React from 'react';
-import { type t, Color, css, D, KeyValue, Obj } from './common.ts';
-import { OriginSelector } from './ui.OriginSelector.tsx';
+import { type t, Color, css } from './common.ts';
+import { Origin } from './ui.Origin.tsx';
 
-export const ClientLoader: React.FC<t.DevLoaderProps> = (props) => {
+type P = t.DevLoaderProps;
+
+export const ClientLoader: React.FC<P> = (props) => {
   const { debug = false } = props;
 
   /**
@@ -13,13 +15,13 @@ export const ClientLoader: React.FC<t.DevLoaderProps> = (props) => {
     base: css({
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
-      padding: 10,
+      fontSize: 12,
     }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <OriginSelector theme={theme.name} />
+      <Origin {...props} />
     </div>
   );
 };
