@@ -1,5 +1,5 @@
 import { type t, describe, expect, Ffmpeg, it } from '../../-test.ts';
-import { Fs, Json, Shard } from '../common.ts';
+import { Crdt, Fs, Json, Shard } from '../common.ts';
 import { bundleSequenceFilepaths } from '../u.bundle.seq.files.ts';
 
 async function withMockedDuration<T>(
@@ -141,8 +141,8 @@ describe('Lint: bundle/sequence files', () => {
         baseHref: '/base',
         target: {
           media: {
-            video: { dir: 'video', shard: { total: 64 } },
-            image: { dir: 'image', shard: { total: 16 } },
+            video: { dir: 'video/partition-<shard>', shard: { total: 64 } },
+            image: { dir: 'image/partition-<shard>', shard: { total: 16 } },
           },
         },
       });
@@ -180,6 +180,77 @@ describe('Lint: bundle/sequence files', () => {
       if (!video?.shard || !image?.shard) throw new Error('Expected shard metadata');
       expect(video.shard.index).to.eql(Shard.policy(64).pick(video.hash));
       expect(image.shard.index).to.eql(Shard.policy(16).pick(image.hash));
+      expect(video.href).to.eql(`/base/video/partition-${video.shard.index}/${video.filename}`);
+      expect(image.href).to.eql(`/base/image/partition-${image.shard.index}/${image.filename}`);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('expands <shards> and <shard> templates in dir', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const sourceDir = Fs.join(tmpDir, 'source');
+      await Fs.ensureDir(sourceDir);
+
+      const videoPath = Fs.join(sourceDir, 'thing.mp4');
+      await Fs.write(videoPath, 'hello-video');
+
+      const slugYaml = `
+        title: Bundler Test (shards template)
+        traits:
+          - of: media-composition
+            as: sequence
+
+        alias:
+          :core: "${sourceDir}"
+
+        data:
+          sequence:
+            - video: /:core/thing.mp4
+
+      `;
+
+      const docid = 'crdt:2x8v9oJQH1H6o2vD1dJ8jT5H1p3a' as t.Crdt.Id;
+      const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
+      const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
+
+      const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
+        outDir: tmpDir,
+        baseHref: '/base',
+        target: {
+          media: {
+            video: { dir: 'video/ns-<shards>/partition-<shard>', shard: { total: 64 } },
+          },
+        },
+      });
+
+      const assetsIssue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
+      expect(assetsIssue).to.eql(undefined);
+
+      const clean = Crdt.Id.clean(String(docid)) ?? '';
+      const manifestPath = Fs.join(tmpDir, 'manifests', `slug.${clean}.assets.json`);
+      const manifestJson = (await Fs.readText(manifestPath)).data;
+      const manifest = Json.parse(manifestJson) as {
+        readonly assets: readonly {
+          readonly kind: t.SlugAssetKind;
+          readonly hash: string;
+          readonly filename: string;
+          readonly href: string;
+          readonly shard?: {
+            readonly strategy: 'prefix-range';
+            readonly total: number;
+            readonly index: number;
+          };
+        }[];
+      };
+
+      const asset = manifest.assets.find((a) => a.kind === 'video');
+      if (!asset?.shard) throw new Error('Expected shard metadata');
+      expect(asset.shard.total).to.eql(64);
+      expect(asset.href).to.eql(
+        `/base/video/ns-64/partition-${asset.shard.index}/${asset.filename}`,
+      );
     } finally {
       await Fs.remove(tmpDir);
     }
@@ -221,8 +292,8 @@ describe('Lint: bundle/sequence files', () => {
         baseHref: '/base',
         target: {
           media: {
-            video: { dir: 'video' },
-            image: { dir: 'image' },
+            video: { dir: 'video/partition-<shard>' },
+            image: { dir: 'image/partition-<shard>' },
           },
         },
       });
@@ -237,12 +308,16 @@ describe('Lint: bundle/sequence files', () => {
       );
       const manifestJson = (await Fs.readText(manifestPath)).data;
       const manifest = Json.parse(manifestJson) as {
-        readonly assets: readonly { readonly kind: t.SlugAssetKind; readonly shard?: unknown }[];
+        readonly assets: readonly { readonly kind: t.SlugAssetKind; readonly shard?: unknown; readonly href: string }[];
       };
 
-      for (const asset of manifest.assets) {
-        expect(asset.shard).to.eql(undefined);
-      }
+      const video = manifest.assets.find((a) => a.kind === 'video');
+      const image = manifest.assets.find((a) => a.kind === 'image');
+      expect(video?.shard).to.eql(undefined);
+      expect(image?.shard).to.eql(undefined);
+      if (!video || !image) throw new Error('Expected video and image assets');
+      expect(video.href).to.include('/base/video/partition-<shard>/');
+      expect(image.href).to.include('/base/image/partition-<shard>/');
     } finally {
       await Fs.remove(tmpDir);
     }

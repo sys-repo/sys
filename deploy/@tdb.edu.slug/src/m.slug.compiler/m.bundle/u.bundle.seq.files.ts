@@ -128,7 +128,8 @@ export async function bundleSequenceFilepaths(
           }
         : undefined;
 
-    const destDir = resolvePath(destBase, kindDir);
+    const kindDirResolved = resolveShardTemplate(kindDir, shard);
+    const destDir = resolvePath(destBase, kindDirResolved);
     const destPath = Fs.join(destDir, filename);
 
     await Fs.ensureDir(destDir);
@@ -136,7 +137,7 @@ export async function bundleSequenceFilepaths(
 
     const stat = await Fs.stat(resolvedPath);
     const bytes = Is.number(stat?.size) ? stat.size : undefined;
-    const href = `${hrefBase}/${kindDir}/${filename}`;
+    const href = `${hrefBase}/${kindDirResolved}/${filename}`;
 
     let duration: t.Msecs | undefined;
     if (kind === 'video') {
@@ -276,6 +277,15 @@ function resolveTemplate(value: string, docid: t.StringId): string {
   if (!value.includes('<docid>')) return value;
   const normalized = Crdt.Id.clean(String(docid)) ?? '';
   return value.replaceAll('<docid>', normalized);
+}
+
+function resolveShardTemplate(
+  value: string,
+  shard?: { readonly index: number; readonly total: number },
+): string {
+  if (!value.includes('<shard>') && !value.includes('<shards>')) return value;
+  if (!shard) return value;
+  return value.replaceAll('<shard>', String(shard.index)).replaceAll('<shards>', String(shard.total));
 }
 
 function resolvePath(baseDir: string, subPath: string, filename?: string): string {
