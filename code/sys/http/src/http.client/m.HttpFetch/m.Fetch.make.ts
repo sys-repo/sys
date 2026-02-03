@@ -7,8 +7,8 @@ type F = t.HttpFetchLib['make'];
  * Factory method:
  */
 export const makeFetch: F = (input: Parameters<F>[0]) => {
-  const options = wrangle.options(input);
-  const life = Rx.abortable(options.dispose$);
+  const createOptions = wrangle.options(input);
+  const life = Rx.abortable(createOptions.dispose$);
 
   const invokeFetch = async <T>(
     contentType: t.StringContentType,
@@ -31,7 +31,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
       const mergedHeaders = { ...api.headers, ...userHeaders };
       const method = (init.method ?? 'GET').toUpperCase();
       const hasBody = !!(init as RequestInit).body;
-      const policy = options.contentTypePolicy ?? 'corsSafe';
+      const policy = createOptions.contentTypePolicy ?? 'corsSafe';
       const shouldSetContentType =
         policy === 'always'
           ? true
@@ -115,7 +115,7 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
   const api: t.HttpFetch = Rx.toLifecycle<t.HttpFetch>(life, {
     header: (name) => (api.headers as any)[name],
     get headers() {
-      return wrangle.headers(options);
+      return wrangle.headers(createOptions);
     },
 
     head(input: RequestInput, init: RequestInit = {}, options = {}) {
