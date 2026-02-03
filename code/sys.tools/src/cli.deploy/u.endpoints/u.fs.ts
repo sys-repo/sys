@@ -2,7 +2,7 @@ import { type t, Fs, Path, pkg, Schema, Yaml } from '../common.ts';
 import { EndpointYamlErrorCode, validateEndpointYamlText } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
 import { resolveBases, resolvePath } from './u.resolve.ts';
-import { expandShardTemplatePaths } from '../u.shardTemplate.ts';
+import { expandShardTemplatePaths, shouldRequireAllShards } from '../u.shardTemplate.ts';
 
 const ENDPOINTS_DIR = `-config/${pkg.name}/deploy` satisfies t.DeployTool.Endpoint.Fs.DirName;
 const ENDPOINTS_EXT = '.yaml' satisfies t.DeployTool.Endpoint.Fs.Ext;
@@ -101,20 +101,44 @@ export const EndpointsFs = {
         source: sourceRaw,
         staging: stagingRaw,
         total: m?.shards?.total,
+        requireAll: m?.shards?.requireAll,
+      });
+      const requireAll = shouldRequireAllShards({
+        source: sourceRaw,
+        staging: stagingRaw,
+        total: m?.shards?.total,
+        requireAll: m?.shards?.requireAll,
       });
 
+      let found = 0;
       for (const item of expanded) {
         const sourceAbs = resolvePath(bases.sourceBaseAbs, item.source);
-        if (await Fs.exists(sourceAbs)) continue;
+        if (await Fs.exists(sourceAbs)) {
+          found += 1;
+          continue;
+        }
 
+        if (requireAll) {
+          errors.push(
+            Yaml.Error.synthetic({
+              message: `mappings[${i}].dir.source does not exist: ${item.source}\nresolved: ${sourceAbs}`,
+              code: EndpointYamlErrorCode,
+              pos: [0, 0],
+            }),
+          );
+          break;
+        }
+      }
+
+      if (!requireAll && expanded.length > 0 && found === 0) {
+        const sourceAbs = resolvePath(bases.sourceBaseAbs, expanded[0]!.source);
         errors.push(
           Yaml.Error.synthetic({
-            message: `mappings[${i}].dir.source does not exist: ${item.source}\nresolved: ${sourceAbs}`,
+            message: `mappings[${i}].dir.source does not exist: ${expanded[0]!.source}\nresolved: ${sourceAbs}`,
             code: EndpointYamlErrorCode,
             pos: [0, 0],
           }),
         );
-        break;
       }
 
       {

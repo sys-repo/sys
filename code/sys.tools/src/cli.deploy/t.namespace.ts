@@ -64,7 +64,7 @@ export namespace DeployTool {
          * Optional shard expansion for template paths.
          * When provided and templates are present, mappings are expanded per shard.
          */
-        shards?: { total: number };
+        shards?: { total: number; requireAll?: boolean };
       };
 
       /**

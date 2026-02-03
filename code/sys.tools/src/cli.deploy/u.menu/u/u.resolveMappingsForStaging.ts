@@ -1,5 +1,7 @@
-import { type t, Fs, Path } from './common.ts';
+import { type t, Fs, Is, Path } from './common.ts';
 import { expandShardTemplatePaths } from '../../u.shardTemplate.ts';
+import { resolveBases, resolvePath } from '../../u.endpoints/u.resolve.ts';
+import { shouldRequireAllShards, includesShardTemplate } from '../../u.shardTemplate.ts';
 
 type ResolveMappingsResult =
   | { readonly ok: true; readonly mappings: readonly t.DeployTool.Staging.Mapping[] }
@@ -23,20 +25,48 @@ export async function resolveMappingsForStaging(args: {
     : await Fs.readYaml<t.DeployTool.Config.EndpointYaml.Doc>(String(yamlAbs));
 
   const raw = res.ok ? res.data?.mappings ?? [] : [];
-  const resolved: t.DeployTool.Staging.Mapping[] = raw.flatMap((m) => expandShardMappings(m));
+  const bases = res.ok ? resolveBases(cwd, res.data ?? {}) : undefined;
+  const resolved: t.DeployTool.Staging.Mapping[] = [];
+  for (const m of raw) {
+    const expanded = await expandShardMappings(m, bases);
+    resolved.push(...expanded);
+  }
 
   return res.ok ? { ok: true, mappings: resolved } : { ok: false, mappings: resolved };
 }
 
-function expandShardMappings(
+async function expandShardMappings(
   mapping: t.DeployTool.Config.EndpointYaml.Mapping,
-): t.DeployTool.Staging.Mapping[] {
+  bases?: ReturnType<typeof resolveBases>,
+): Promise<t.DeployTool.Staging.Mapping[]> {
   const source = String(mapping.dir.source ?? '').trim();
   const staging = String(mapping.dir.staging ?? '').trim();
   const expanded = expandShardTemplatePaths({
     source,
     staging,
     total: mapping.shards?.total,
+    requireAll: mapping.shards?.requireAll,
   });
-  return expanded.map((dir) => ({ mode: mapping.mode, dir }));
+
+  const hasTemplate = includesShardTemplate(source) || includesShardTemplate(staging);
+  const total = mapping.shards?.total;
+  const requireAll = shouldRequireAllShards({
+    source,
+    staging,
+    total: mapping.shards?.total,
+    requireAll: mapping.shards?.requireAll,
+  });
+
+  if (!bases || !hasTemplate || requireAll || !Is.num(total) || !Number.isFinite(total) || total <= 0) {
+    return expanded.map((dir) => ({ mode: mapping.mode, dir }));
+  }
+
+  const filtered: t.DeployTool.Staging.Mapping[] = [];
+  for (const dir of expanded) {
+    const sourceAbs = resolvePath(bases.sourceBaseAbs, dir.source);
+    if (await Fs.exists(sourceAbs)) {
+      filtered.push({ mode: mapping.mode, dir });
+    }
+  }
+  return filtered;
 }

@@ -4,6 +4,7 @@ export type ShardTemplatePaths = {
   readonly source: string;
   readonly staging: string;
   readonly total?: number;
+  readonly requireAll?: boolean;
 };
 
 export type ShardExpandedPaths = {
@@ -32,6 +33,10 @@ export function expandShardTemplatePaths(args: ShardTemplatePaths): ShardExpande
     });
   }
   return expanded;
+}
+
+export function shouldRequireAllShards(args: ShardTemplatePaths): boolean {
+  return args.requireAll === true;
 }
 
 export function resolveShardTemplate(value: string, shard: number, total: number): string {

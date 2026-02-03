@@ -166,6 +166,34 @@ describe('EndpointsFs', () => {
     });
   });
 
+  it('validateYaml: shard templates allow sparse dirs by default', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('shards-sparse-ok')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      await Fs.ensureDir(`${tmp}/code/video/partition-0`);
+
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(true);
+    });
+  });
+
+  it('validateYaml: shard templates require all when configured', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('shards-require-all')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+      await Fs.ensureDir(`${tmp}/code/video/partition-0`);
+
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(false);
+    });
+  });
+
   it('validateYaml: mapping source respects source.dir base → ok:true', async () => {
     await withTmpDir(async (tmp) => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('source-base')}`;

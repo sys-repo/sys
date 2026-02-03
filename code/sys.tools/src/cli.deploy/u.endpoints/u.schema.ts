@@ -61,7 +61,10 @@ export const EndpointYamlSchema = {
               ]),
               shards: Schema.Type.Optional(
                 Schema.Type.Object(
-                  { total: Schema.Type.Number() },
+                  {
+                    total: Schema.Type.Number(),
+                    requireAll: Schema.Type.Optional(Schema.Type.Boolean()),
+                  },
                   { additionalProperties: false },
                 ),
               ),

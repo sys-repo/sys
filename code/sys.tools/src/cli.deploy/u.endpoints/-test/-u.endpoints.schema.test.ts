@@ -121,7 +121,7 @@ describe('Schema: endpoint', () => {
         {
           dir: { source: './video/partition-<shard>', staging: './<shard>.video.cdn.example' },
           mode: 'copy',
-          shards: { total: 64 },
+          shards: { total: 64, requireAll: true },
         },
       ],
     });
