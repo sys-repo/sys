@@ -11,6 +11,7 @@ export {
   ObjectView,
   Player,
   Sheet,
+  Spinners,
   SplitPane,
   TreeView,
 } from '@sys/ui-react-components';

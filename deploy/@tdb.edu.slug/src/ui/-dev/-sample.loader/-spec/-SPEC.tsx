@@ -9,7 +9,14 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <SampleLoader.UI debug={v.debug} theme={v.theme} />;
+    return (
+      <SampleLoader.UI
+        debug={v.debug}
+        theme={v.theme}
+        spinning={v.spinning}
+        response={v.response}
+      />
+    );
   }
 
   e.it('init', (e) => {
@@ -25,7 +32,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size([360, null])
+      .size([370, 500])
       .display('grid')
       .render(() => <Root />);
   });

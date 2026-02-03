@@ -1,8 +1,19 @@
 import React from 'react';
-import { type t, Color, css, D, KeyValue, Obj } from './common.ts';
+import { type t, Color, css, D, KeyValue, Obj, Spinners, ObjectView } from './common.ts';
 
-export const SampleLoader: React.FC<t.SampleLoaderProps> = (props) => {
-  const { debug = false } = props;
+/**
+ * Component:
+ */
+export type SampleLoaderProps = {
+  spinning?: boolean;
+  response?: unknown;
+  debug?: boolean;
+  theme?: t.CommonTheme;
+  style?: t.CssInput;
+};
+
+export const SampleLoader: React.FC<SampleLoaderProps> = (props) => {
+  const { debug = false, spinning = false } = props;
 
   /**
    * Render:
@@ -10,21 +21,32 @@ export const SampleLoader: React.FC<t.SampleLoaderProps> = (props) => {
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({
-      backgroundColor: Color.ruby(debug),
+      position: 'relative',
       color: theme.fg,
+      Scroll: true,
+    }),
+    body: css({
       padding: 10,
     }),
+    spinner: css({ Absolute: 0, pointerEvents: 'none', display: 'grid', placeItems: 'center' }),
   };
+
+  const elSpinner = spinning && (
+    <div className={styles.spinner.class}>
+      <Spinners.Bar theme={theme.name} />
+    </div>
+  );
+
+  const elBody = !spinning && (
+    <div className={styles.body.class}>
+      <ObjectView name={'response'} data={props.response} theme={theme.name} expand={5} />
+    </div>
+  );
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <KeyValue.UI
-        theme={theme.name}
-        items={[
-          { kind: 'title', v: D.displayName },
-          { k: 'message', v: '👋 hello, world!' },
-        ]}
-      />
+      {elSpinner}
+      {elBody}
     </div>
   );
 };

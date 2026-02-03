@@ -1,9 +1,10 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { type t, SlugClient, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
 import { DevOrigin } from '../../ui.Origin/mod.ts';
 
-type P = t.SampleLoaderProps;
+import { type SampleLoaderProps as P } from '../ui.tsx';
+
 type Storage = Pick<P, 'debug' | 'theme'> & { originKind?: t.DevOriginKind };
 const defaults: Storage = {
   debug: false,
@@ -29,6 +30,8 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     originKind: s(snap.originKind),
     origin: s<t.SlugLoaderOrigin | undefined>(),
+    response: s<unknown>(),
+    spinning: s(false),
   };
   const p = props;
   const api = {
@@ -101,6 +104,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+
+      <hr />
+
+      <Button
+        block
+        label={() => `🐷`}
+        onClick={async () => {
+          if (!v.origin) return;
+          p.spinning.value = true;
+          const isLocal = v.originKind === 'localhost';
+
+          let path = '';
+          if (isLocal) path = 'staging/cdn.slc.db.team/kb/-manifests';
+          if (!isLocal) path = 'kb/-manifests';
+
+          console.log('path', path);
+
+          const host = v.origin.cdn.default;
+          const res = await SlugClient.FromEndpoint.Descriptor.load(host, path);
+
+          p.response.value = res;
+          p.spinning.value = false;
+        }}
+      />
     </div>
   );
 };
