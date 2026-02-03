@@ -1,6 +1,6 @@
 import { buildSequenceFilepathIssue } from '../m.lint/u.lint.seq.files.ts';
 import { walkSequenceMediaPaths } from '../m.lint/u.lint.seq.files.walk.ts';
-import { type t, Str, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Slug } from './common.ts';
+import { type t, Str, Crdt, Ffmpeg, Fs, Hash, Is, Json, Obj, Shard, Slug } from './common.ts';
 
 /**
  * Bundle all media file paths for a given document:
@@ -114,6 +114,17 @@ export async function bundleSequenceFilepaths(
     const kindDir = isImage ? dir.image : dir.video;
     const destBase = isImage ? imageBase : videoBase;
     const hrefBase = isImage ? imageHrefBase : videoHrefBase;
+    const shardConfig = opts.target?.media?.shard;
+    const shardStrategy = shardConfig?.strategy ?? 'prefix-range';
+    const shardTotal = shardConfig?.total;
+    const shard =
+      shardConfig && Is.number(shardTotal)
+        ? {
+            strategy: shardStrategy,
+            total: shardTotal,
+            index: Shard.policy(shardTotal, shardStrategy).pick(hash),
+          }
+        : undefined;
 
     const destDir = resolvePath(destBase, kindDir);
     const destPath = Fs.join(destDir, filename);
@@ -137,6 +148,7 @@ export async function bundleSequenceFilepaths(
       hash,
       filename,
       href,
+      ...(shard ? { shard } : {}),
       stats: { bytes, duration },
     });
   };

@@ -16,6 +16,7 @@ describe('SchemaSlugTreeMediaSeqBundle', () => {
           tree: 'slug-tree.<docid>.json',
         },
         media: {
+          shard: { strategy: 'prefix-range', total: 64 },
           video: { base: './out', hrefBase: '/assets', dir: 'video' },
           image: { base: './out', hrefBase: '/assets', dir: 'image' },
         },

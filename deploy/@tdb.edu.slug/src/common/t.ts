@@ -14,7 +14,7 @@ export type * from '@sys/model/timecode/playback/t';
 export type { Crdt } from '@sys/driver-automerge/t';
 export type { Graph } from '@sys/immutable/t';
 export type { TSchema, ValueError } from '@sys/schema/t';
-export type { Alias, ObjLens, StrBuilder, Timecode } from '@sys/std/t';
+export type { Alias, ObjLens, ShardCount, ShardIndex, ShardStrategy, StrBuilder, Timecode } from '@sys/std/t';
 export type { MenuResult, MenuResultKind } from '@sys/cli/t';
 
 /** User interface */

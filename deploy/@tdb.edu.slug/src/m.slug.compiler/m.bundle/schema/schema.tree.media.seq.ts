@@ -22,6 +22,15 @@ export const SchemaSlugTreeMediaSeqBundleFields = {
         media: Schema.Type.Optional(
           Schema.Type.Object(
             {
+              shard: Schema.Type.Optional(
+                Schema.Type.Object(
+                  {
+                    strategy: Schema.Type.Optional(Schema.Type.Literal('prefix-range')),
+                    total: Schema.Type.Number(),
+                  },
+                  { additionalProperties: false },
+                ),
+              ),
               video: Schema.Type.Optional(
                 Schema.Type.Object(
                   {

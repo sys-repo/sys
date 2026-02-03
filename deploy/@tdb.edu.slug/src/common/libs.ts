@@ -9,6 +9,7 @@ export { Arr, Err, Is, Json, Lazy, Log, Num, Obj, Pkg, slug, Str, Time, Try, Url
 export { AliasResolver } from '@sys/std/alias';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
+export { Shard } from '@sys/std/shard';
 export { Timecode } from '@sys/std/timecode';
 export { Yaml } from '@sys/yaml';
 

@@ -1,5 +1,5 @@
 import { type t, describe, expect, Ffmpeg, it } from '../../-test.ts';
-import { Fs, Json } from '../common.ts';
+import { Fs, Json, Shard } from '../common.ts';
 import { bundleSequenceFilepaths } from '../u.seq.files.bundle.ts';
 
 async function withMockedDuration<T>(
@@ -57,7 +57,7 @@ describe('Lint: bundle/sequence files', () => {
       const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
         outDir: tmpDir,
         baseHref: '/base',
-        target: { media: { video: { dir: 'video' } } },
+        target: { media: { video: { dir: 'video' }, shard: { total: 64 } } },
       });
 
       expect(result.issues).to.eql([]);
@@ -73,8 +73,10 @@ describe('Lint: bundle/sequence files', () => {
         readonly assets: readonly {
           readonly kind: t.SlugAssetKind;
           readonly logicalPath: t.StringPath;
+          readonly hash: string;
           readonly filename: string;
           readonly href: string;
+          readonly shard?: { readonly strategy: 'prefix-range'; readonly total: number; readonly index: number };
           readonly stats: { readonly bytes?: number; readonly duration?: t.Msecs };
         }[];
       };
@@ -87,6 +89,9 @@ describe('Lint: bundle/sequence files', () => {
       expect(asset.logicalPath).to.eql('/:core/thing.mp4');
       expect(asset.href).to.eql(`/base/video/${asset.filename}`);
       expect(asset.stats.bytes).to.eql(5);
+      expect(asset.shard?.strategy).to.eql('prefix-range');
+      expect(asset.shard?.total).to.eql(64);
+      expect(asset.shard?.index).to.eql(Shard.policy(64).pick(asset.hash));
 
       const destPath = Fs.join(tmpDir, 'video', asset.filename);
       expect(await Fs.exists(destPath)).to.eql(true);

@@ -4,7 +4,7 @@ import { type t, Schema, SlugClient } from '../common.ts';
 import { SchemaBundleConfig } from '../schema/mod.ts';
 
 describe('BundleProfile domain-free config (e2e)', () => {
-  it('validates schema and loads via SlugClient.fromDescriptor', async () => {
+  it('validates schema and loads via SlugClient.FromDescriptor', async () => {
     const config = {
       bundles: [
         {
@@ -143,7 +143,7 @@ describe('BundleProfile domain-free config (e2e)', () => {
     });
 
     try {
-      const fsClient = SlugClient.fromDescriptor({
+      const fsClient = SlugClient.FromDescriptor.make({
         descriptor,
         kind: 'slug-tree:fs',
         docid: fsDocid,
@@ -168,7 +168,7 @@ describe('BundleProfile domain-free config (e2e)', () => {
       });
       if (!docResult.ok) throw new Error('expected doc result');
 
-      const mediaClient = SlugClient.fromDescriptor({
+      const mediaClient = SlugClient.FromDescriptor.make({
         descriptor,
         kind: 'slug-tree:media:seq',
         docid: mediaDocid,
