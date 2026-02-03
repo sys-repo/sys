@@ -38,5 +38,6 @@ export type DevLoaderControllerFactoryArgs = {
 export type DevLoaderController = {
   readonly rev: t.NumberMonotonic;
   readonly props: Pick<DevLoaderProps, 'origin' | 'default' | 'onOriginChange'>;
+  readonly origin: t.SlugLoaderOrigin;
   readonly listen: () => void;
 };

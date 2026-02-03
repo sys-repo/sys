@@ -105,8 +105,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView
         name={`controller:rev:${debug.controller.rev}`}
         data={debug.controller}
-        expand={0}
         style={{ marginTop: 6 }}
+        expand={1}
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />

@@ -5,7 +5,6 @@ const s = Signal.create;
 
 export const controller: t.DevLoaderControllerFactory = (args) => {
   let rev = 0;
-  // const defaults = args.props?.default;
 
   const p = {
     origin: args.origin ?? s<t.DevLoaderOriginKind>(args.props?.origin || D.origin.default),
@@ -23,6 +22,11 @@ export const controller: t.DevLoaderControllerFactory = (args) => {
           p.origin.value = e.next;
         },
       };
+    },
+    get origin() {
+      const current = p.origin.value;
+      if (current === 'localhost') return args.props?.default?.origin?.local || D.origin.local;
+      return args.props?.default?.origin?.prod || D.origin.prod;
     },
     listen() {
       api.props;
