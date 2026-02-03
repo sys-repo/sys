@@ -15,6 +15,12 @@ export type ShardStrategy = 'prefix-range';
  * returns a stable shard index via prefix-range bucketing.
  */
 export type ShardLib = {
+  /**
+   * Create a deterministic sharding policy.
+   * Defaults to the "prefix-range" strategy.
+   */
+  policy(shards: ShardCount, strategy?: ShardStrategy): ShardPolicy;
+
   /** Deterministically select a shard index using prefix-range bucketing. */
   pick(policy: ShardPolicy, sha256Hex: string): ShardIndex;
 

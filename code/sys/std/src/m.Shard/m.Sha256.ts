@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-const REGEX = /^(?:sha256-)?([0-9a-f]{64})$/i;
+const REGEX = /^(?:sha256-)?([0-9a-f]{64})$/;
 
 export const Sha256: t.ShardSha256Lib = {
   normalizeHex(input) {

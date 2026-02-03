@@ -1,5 +1,6 @@
 import { type t, describe, expect, expectError, it } from '../../-test.ts';
 import { Shard } from '../mod.ts';
+import { Num } from '../common.ts';
 
 describe('Shard.pick', () => {
   const policy = (shards: number): t.ShardPolicy => ({
@@ -33,7 +34,7 @@ describe('Shard.pick', () => {
 
   it('rejects invalid shard counts', () => {
     const sha = '01' + 'd'.repeat(62);
-    const BAD = [0, -1, 1.2, Number.NaN];
+    const BAD = [0, -1, -0, 1.2, Number.NaN, Num.INFINITY, Num.MAX_INT];
     BAD.forEach((shards) => {
       expectError(() => Shard.pick(policy(shards), sha));
     });

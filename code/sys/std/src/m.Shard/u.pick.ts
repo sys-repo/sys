@@ -6,7 +6,7 @@ import { Sha256 } from './m.Sha256.ts';
  */
 export function pick(policy: t.ShardPolicy, sha256Hex: string): t.ShardIndex {
   const shards = policy?.shards;
-  if (!Number.isInteger(shards) || shards <= 0) {
+  if (!Number.isInteger(shards) || shards <= 0 || shards > 256) {
     throw new Error(`Invalid shard count: ${String(shards)}`);
   }
 
