@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-type MakeArgs = { origin: t.StringUrl | SlugLoaderOrigin };
+type MakeArgs = { origin: t.StringUrl | t.SlugLoaderOrigin };
 
 /**
  * Tools for wrapping a pure HTTP `SlugClient` for loading

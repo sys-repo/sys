@@ -1,14 +1,17 @@
 import { type t, Signal, D } from './common.ts';
+import { resolveOrigin } from './u.resolve.ts';
 
 export const controller: t.DevOriginControllerFactory = (args) => {
   let rev = 0;
 
   const s = Signal.create;
   const p = {
-    kind: args.kind ?? s<t.DevOriginKind>(args.props?.kind || D.kind.default),
+    kind: args.kind ?? s(args.props?.kind || D.kind.default),
+    origin: args.origin ?? s(D.kind.local),
   };
 
   const api: t.DevOriginController = {
+    ...p,
     get rev() {
       return rev;
     },
@@ -16,26 +19,25 @@ export const controller: t.DevOriginControllerFactory = (args) => {
       const v = Signal.toObject(p);
       return {
         kind: v.kind,
-        default: args.props?.default,
-        onChange(e) {
-          p.kind.value = e.next;
-        },
+        defaults: args.props?.defaults,
+        onChange: (e) => (p.kind.value = e.next),
       };
     },
-    get origin() {
-      return null as any;
-      // const current = p.origin.value;
-      // if (current === 'localhost') return args.props?.default?.origin?.local ||kindgin.local;
-      // return args.props?.default?.origin?.prod ||kindgin.prod;
-    },
     listen() {
-      api.props;
+      Signal.toObject(p);
     },
   };
 
   Signal.effect(() => {
     api.listen();
     ++rev;
+  });
+
+  Signal.effect(() => {
+    const kind = p.kind.value;
+    const defaults = args.props?.defaults?.origin;
+    const { origin } = resolveOrigin({ kind, defaults });
+    p.origin.value = origin;
   });
 
   return api;

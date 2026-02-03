@@ -104,7 +104,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
         name={`controller:rev:${ctrl.rev}`}
-        data={ctrl}
+        data={Signal.toObject(ctrl, { func: false })}
         style={{ marginTop: 6 }}
         expand={1}
       />
@@ -118,9 +118,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `tmp 🐷`}
         onClick={async () => {
           const origin = ctrl.origin.value;
-          const loader = ClientLoader.make({ origin });
-          const m = await loader.Tree.load('kv');
-          console.log('m', m);
+          if (origin) {
+            const loader = ClientLoader.make({ origin });
+            const m = await loader.Tree.load('kv');
+            console.log('m', m);
+          }
         }}
       />
     </div>
