@@ -21,7 +21,7 @@ export const D = {
     local: { app: local, cdn: { default: local, video: local } } satisfies t.SlugLoaderOrigin,
     prod: {
       app: `https://${prod}`,
-      cdn: { default: `https://cdn.${prod}`, video: `https://video.cdn${prod}` },
+      cdn: { default: `https://cdn.${prod}`, video: `https://video.cdn.${prod}` },
     } satisfies t.SlugLoaderOrigin,
   },
 } as const;

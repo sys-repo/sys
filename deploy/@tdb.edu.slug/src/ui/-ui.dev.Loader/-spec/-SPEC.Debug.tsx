@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { type t, Color, css, D, LocalStorage, Obj, Signal, ClientLoader } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
 import { DevLoader } from '../mod.ts';
 
@@ -75,6 +75,7 @@ const Styles = {
  */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
+  const ctrl = debug.controller;
   const p = debug.props;
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
@@ -103,14 +104,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
-        name={`controller:rev:${debug.controller.rev}`}
-        data={debug.controller}
+        name={`controller:rev:${ctrl.rev}`}
+        data={ctrl}
         style={{ marginTop: 6 }}
         expand={1}
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
-      <DevLoader.UI debug={v.debug} {...debug.controller.props} />
+      <DevLoader.UI debug={v.debug} {...ctrl.props} />
+
+      <hr style={{ margin: '15px 0 20px 0' }} />
+      <Button
+        block
+        label={() => `tmp 🐷`}
+        onClick={async () => {
+          const loader = ClientLoader.make({ origin: ctrl.origin });
+          const m = await loader.Tree.load('kv');
+          console.log('m', m);
+        }}
+      />
     </div>
   );
 };

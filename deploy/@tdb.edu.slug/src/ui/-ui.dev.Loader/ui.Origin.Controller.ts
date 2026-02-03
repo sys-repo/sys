@@ -1,7 +1,6 @@
 import { type t, Signal, D } from './common.ts';
 
 const s = Signal.create;
-// type Controller = t.DevLoaderController
 
 export const controller: t.DevLoaderControllerFactory = (args) => {
   let rev = 0;

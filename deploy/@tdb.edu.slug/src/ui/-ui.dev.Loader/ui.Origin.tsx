@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Str, Color, css, D, KeyValue, Url } from './common.ts';
-import { OriginSelector } from './ui.OriginSelector.tsx';
+import { type t, Color, css, D, KeyValue, Str } from './common.ts';
+import { OriginSelector } from './ui.Origin.Selector.tsx';
 
 type P = t.DevLoaderProps;
 
@@ -18,12 +18,8 @@ export const Origin: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({
-      display: 'grid',
-      gridTemplateColumns: `auto auto 1fr`,
-      gap: 20,
-    }),
-    selector: css({ display: 'grid', placeItems: 'center' }),
+    base: css({ display: 'grid', gridTemplateColumns: `auto auto 1fr`, gap: 20 }),
+    selector: css({ display: 'grid', alignItems: 'start' }),
     divider: css({ borderRight: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
   };
 
@@ -40,7 +36,7 @@ export const Origin: React.FC<P> = (props) => {
         items={[
           { kind: 'title', v: 'Endpoints (Origin)' },
           { k: 'app', v: Str.trimHttpScheme(current.app), mono },
-          { k: 'cdn.default', v: Str.trimHttpScheme(current.cdn.default), mono },
+          { k: 'cdn', v: Str.trimHttpScheme(current.cdn.default), mono },
           { k: 'cdn.video', v: Str.trimHttpScheme(current.cdn.video), mono },
         ]}
       />
