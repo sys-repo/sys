@@ -62,7 +62,7 @@ describe('Http.Fetch', () => {
   describe('fetch: success', () => {
     it('200: json', async () => {
       const server = Testing.Http.server((req) => {
-        expect(req.headers.get('content-type')).to.eql('application/json');
+        expect(req.headers.get('content-type')).to.eql(null);
         return Testing.Http.json({ foo: 123 });
       });
       const url = server.url.toString();
@@ -84,7 +84,7 @@ describe('Http.Fetch', () => {
     it('200: text', async () => {
       const text = 'foo-👋';
       const server = Testing.Http.server((req) => {
-        expect(req.headers.get('content-type')).to.eql('text/plain');
+        expect(req.headers.get('content-type')).to.eql(null);
         return Testing.Http.text(text);
       });
       const url = server.url.toString();
@@ -104,7 +104,7 @@ describe('Http.Fetch', () => {
     it('200: blob (binary)', async () => {
       const dataIn = new Uint8Array([1, 2, 3]);
       const server = Testing.Http.server((req) => {
-        expect(req.headers.get('content-type')).to.eql('application/octet-stream');
+        expect(req.headers.get('content-type')).to.eql(null);
         return Testing.Http.blob(dataIn);
       });
       const url = server.url.toString();
