@@ -1,6 +1,24 @@
 import { Schema } from '../common.ts';
 import { SchemaCrdtConfig } from './schema.crdt.ts';
 
+const MediaShard = Schema.Type.Object(
+  {
+    strategy: Schema.Type.Optional(Schema.Type.Literal('prefix-range')),
+    total: Schema.Type.Number(),
+  },
+  { additionalProperties: false },
+);
+
+const MediaItem = Schema.Type.Object(
+  {
+    base: Schema.Type.Optional(Schema.Type.String()),
+    hrefBase: Schema.Type.Optional(Schema.Type.String()),
+    dir: Schema.Type.Optional(Schema.Type.String()),
+    shard: Schema.Type.Optional(MediaShard),
+  },
+  { additionalProperties: false },
+);
+
 export const SchemaSlugTreeMediaSeqBundleFields = {
   crdt: SchemaCrdtConfig,
   target: Schema.Type.Optional(
@@ -22,35 +40,8 @@ export const SchemaSlugTreeMediaSeqBundleFields = {
         media: Schema.Type.Optional(
           Schema.Type.Object(
             {
-              shard: Schema.Type.Optional(
-                Schema.Type.Object(
-                  {
-                    strategy: Schema.Type.Optional(Schema.Type.Literal('prefix-range')),
-                    total: Schema.Type.Number(),
-                  },
-                  { additionalProperties: false },
-                ),
-              ),
-              video: Schema.Type.Optional(
-                Schema.Type.Object(
-                  {
-                    base: Schema.Type.Optional(Schema.Type.String()),
-                    hrefBase: Schema.Type.Optional(Schema.Type.String()),
-                    dir: Schema.Type.Optional(Schema.Type.String()),
-                  },
-                  { additionalProperties: false },
-                ),
-              ),
-              image: Schema.Type.Optional(
-                Schema.Type.Object(
-                  {
-                    base: Schema.Type.Optional(Schema.Type.String()),
-                    hrefBase: Schema.Type.Optional(Schema.Type.String()),
-                    dir: Schema.Type.Optional(Schema.Type.String()),
-                  },
-                  { additionalProperties: false },
-                ),
-              ),
+              video: Schema.Type.Optional(MediaItem),
+              image: Schema.Type.Optional(MediaItem),
             },
             { additionalProperties: false },
           ),

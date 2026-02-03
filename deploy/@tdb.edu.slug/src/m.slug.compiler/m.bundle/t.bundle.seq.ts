@@ -32,21 +32,27 @@ export type SlugBundleMediaSeq = {
       readonly tree?: t.StringPath;
     };
     readonly media?: {
-      readonly shard?: {
-        /** Sharding strategy for asset manifests (default: "prefix-range"). */
-        readonly strategy?: t.ShardStrategy;
-        /** Total number of shards. */
-        readonly total: t.ShardCount;
-      };
       readonly video?: {
         readonly base?: t.StringDir;
         readonly hrefBase?: t.StringUrl;
         readonly dir?: t.StringDir;
+        readonly shard?: {
+          /** Sharding strategy for asset manifests (default: "prefix-range"). */
+          readonly strategy?: t.ShardStrategy;
+          /** Total number of shards. */
+          readonly total: t.ShardCount;
+        };
       };
       readonly image?: {
         readonly base?: t.StringDir;
         readonly hrefBase?: t.StringUrl;
         readonly dir?: t.StringDir;
+        readonly shard?: {
+          /** Sharding strategy for asset manifests (default: "prefix-range"). */
+          readonly strategy?: t.ShardStrategy;
+          /** Total number of shards. */
+          readonly total: t.ShardCount;
+        };
       };
     };
   };

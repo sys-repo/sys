@@ -57,10 +57,11 @@ describe('Lint: bundle/sequence files', () => {
       const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
         outDir: tmpDir,
         baseHref: '/base',
-        target: { media: { video: { dir: 'video' }, shard: { total: 64 } } },
+        target: { media: { video: { dir: 'video', shard: { total: 64 } } } },
       });
 
-      expect(result.issues).to.eql([]);
+      const assetsIssue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
+      expect(assetsIssue).to.eql(undefined);
 
       const manifestPath = Fs.join(
         tmpDir,
@@ -99,6 +100,149 @@ describe('Lint: bundle/sequence files', () => {
 
       const destPath = Fs.join(tmpDir, 'video', asset.filename);
       expect(await Fs.exists(destPath)).to.eql(true);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('applies per-kind shard config (video+image)', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const sourceDir = Fs.join(tmpDir, 'source');
+      await Fs.ensureDir(sourceDir);
+
+      const videoPath = Fs.join(sourceDir, 'thing.mp4');
+      const imagePath = Fs.join(sourceDir, 'thing.png');
+      await Fs.write(videoPath, 'hello-video');
+      await Fs.write(imagePath, 'hello-image');
+
+      const slugYaml = `
+        title: Bundler Test (per-kind shard)
+        traits:
+          - of: media-composition
+            as: sequence
+
+        alias:
+          :core: "${sourceDir}"
+
+        data:
+          sequence:
+            - video: /:core/thing.mp4
+            - image: /:core/thing.png
+
+      `;
+
+      const docid = 'crdt:2EHNBpXoYz7tM8LjW6fzG57iofS4' as t.Crdt.Id;
+      const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
+      const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
+
+      const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
+        outDir: tmpDir,
+        baseHref: '/base',
+        target: {
+          media: {
+            video: { dir: 'video', shard: { total: 64 } },
+            image: { dir: 'image', shard: { total: 16 } },
+          },
+        },
+      });
+
+      const assetsIssue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
+      expect(assetsIssue).to.eql(undefined);
+
+      const manifestPath = Fs.join(
+        tmpDir,
+        'manifests',
+        'slug.2EHNBpXoYz7tM8LjW6fzG57iofS4.assets.json',
+      );
+      const manifestJson = (await Fs.readText(manifestPath)).data;
+      const manifest = Json.parse(manifestJson) as {
+        readonly docid: t.Crdt.Id;
+        readonly assets: readonly {
+          readonly kind: t.SlugAssetKind;
+          readonly logicalPath: t.StringPath;
+          readonly hash: string;
+          readonly filename: string;
+          readonly href: string;
+          readonly shard?: {
+            readonly strategy: 'prefix-range';
+            readonly total: number;
+            readonly index: number;
+          };
+          readonly stats: { readonly bytes?: number; readonly duration?: t.Msecs };
+        }[];
+      };
+
+      const video = manifest.assets.find((a) => a.kind === 'video');
+      const image = manifest.assets.find((a) => a.kind === 'image');
+      expect(video?.shard?.total).to.eql(64);
+      expect(image?.shard?.total).to.eql(16);
+      if (!video?.shard || !image?.shard) throw new Error('Expected shard metadata');
+      expect(video.shard.index).to.eql(Shard.policy(64).pick(video.hash));
+      expect(image.shard.index).to.eql(Shard.policy(16).pick(image.hash));
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('omits shard when not configured', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const sourceDir = Fs.join(tmpDir, 'source');
+      await Fs.ensureDir(sourceDir);
+
+      const videoPath = Fs.join(sourceDir, 'thing.mp4');
+      const imagePath = Fs.join(sourceDir, 'thing.png');
+      await Fs.write(videoPath, 'hello-video');
+      await Fs.write(imagePath, 'hello-image');
+
+      const slugYaml = `
+        title: Bundler Test (no shard)
+        traits:
+          - of: media-composition
+            as: sequence
+
+        alias:
+          :core: "${sourceDir}"
+
+        data:
+          sequence:
+            - video: /:core/thing.mp4
+            - image: /:core/thing.png
+
+      `;
+
+      const docid = 'crdt:2irtwwtQNj8GVrUguPjNERrAgLMx' as t.Crdt.Id;
+      const node = { id: docid, doc: { current: slugYaml } } as unknown as t.Graph.Dag.Node;
+      const dag = { nodes: [node] } as unknown as t.Graph.Dag.Result;
+
+      const result = await bundleSequenceFilepaths(dag, [] as t.ObjectPath, docid, {
+        outDir: tmpDir,
+        baseHref: '/base',
+        target: {
+          media: {
+            video: { dir: 'video' },
+            image: { dir: 'image' },
+          },
+        },
+      });
+
+      const assetsIssue = result.issues.find((item) => item.kind === 'sequence:assets:not-exported');
+      expect(assetsIssue).to.eql(undefined);
+
+      const manifestPath = Fs.join(
+        tmpDir,
+        'manifests',
+        'slug.2irtwwtQNj8GVrUguPjNERrAgLMx.assets.json',
+      );
+      const manifestJson = (await Fs.readText(manifestPath)).data;
+      const manifest = Json.parse(manifestJson) as {
+        readonly assets: readonly { readonly kind: t.SlugAssetKind; readonly shard?: unknown }[];
+      };
+
+      for (const asset of manifest.assets) {
+        expect(asset.shard).to.eql(undefined);
+      }
     } finally {
       await Fs.remove(tmpDir);
     }

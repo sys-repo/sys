@@ -114,7 +114,9 @@ export async function bundleSequenceFilepaths(
     const kindDir = isImage ? dir.image : dir.video;
     const destBase = isImage ? imageBase : videoBase;
     const hrefBase = isImage ? imageHrefBase : videoHrefBase;
-    const shardConfig = opts.target?.media?.shard;
+    const shardConfig = isImage
+      ? opts.target?.media?.image?.shard
+      : opts.target?.media?.video?.shard;
     const shardStrategy = shardConfig?.strategy ?? 'prefix-range';
     const shardTotal = shardConfig?.total;
     const shard =
