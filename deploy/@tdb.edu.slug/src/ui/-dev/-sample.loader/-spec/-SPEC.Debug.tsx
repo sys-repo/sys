@@ -119,8 +119,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
           if (isLocal) path = 'staging/cdn.slc.db.team/kb/-manifests';
           if (!isLocal) path = 'kb/-manifests';
 
-          console.log('path', path);
-
           const host = v.origin.cdn.default;
           const res = await SlugClient.FromEndpoint.Descriptor.load(host, path);
 
