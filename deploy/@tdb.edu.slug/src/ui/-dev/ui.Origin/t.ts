@@ -1,43 +1,40 @@
 import type { t } from './common.ts';
 
-export type DevLoaderOriginKind = 'localhost' | 'production';
+export type DevOriginKind = 'localhost' | 'production';
 
 /**
  * Loader debug/selection UI.
  */
-export type DevLoaderLib = {
-  readonly UI: t.FC<DevLoaderProps>;
-  readonly controller: t.DevLoaderControllerFactory;
+export type DevOriginLib = {
+  readonly UI: t.FC<DevOriginProps>;
+  readonly controller: t.DevOriginControllerFactory;
 };
 
 /**
  * Component:
  */
-export type DevLoaderProps = {
-  origin?: t.DevLoaderOriginKind;
+export type DevOriginProps = {
+  origin?: t.DevOriginKind;
   default?: { origin?: { local?: t.SlugLoaderOrigin; prod?: t.SlugLoaderOrigin } };
 
   //
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onOriginChange?: (e: { next: t.DevLoaderOriginKind }) => void;
+  onOriginChange?: (e: { next: t.DevOriginKind }) => void;
 };
 
 /**
  * State controller
  */
-export type DevLoaderControllerFactory = (
-  args: DevLoaderControllerFactoryArgs,
-) => DevLoaderController;
-export type DevLoaderControllerFactoryArgs = {
-  origin?: t.Signal<t.DevLoaderOriginKind | undefined>;
-  props?: Pick<DevLoaderProps, 'origin' | 'default'>;
+type CtrlArgs = {
+  origin?: t.Signal<t.DevOriginKind | undefined>;
+  props?: Pick<DevOriginProps, 'origin' | 'default'>;
 };
-
-export type DevLoaderController = {
+export type DevOriginControllerFactory = (args: CtrlArgs) => DevOriginController;
+export type DevOriginController = {
   readonly rev: t.NumberMonotonic;
-  readonly props: Pick<DevLoaderProps, 'origin' | 'default' | 'onOriginChange'>;
+  readonly props: Pick<DevOriginProps, 'origin' | 'default' | 'onOriginChange'>;
   readonly origin: t.SlugLoaderOrigin;
   readonly listen: () => void;
 };

@@ -1,9 +1,9 @@
 import React from 'react';
 import { type t, Color, css, D, LocalStorage, Obj, Signal, ClientLoader } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
-import { DevLoader } from '../mod.ts';
+import { DevOrigin } from '../mod.ts';
 
-type P = t.DevLoaderProps;
+type P = t.DevOriginProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'origin'>;
 const defaults: Storage = {
   debug: false,
@@ -32,7 +32,7 @@ export async function createDebugSignals() {
     origin: s(snap.origin),
   };
   const p = props;
-  const controller = DevLoader.controller({ origin: p.origin });
+  const controller = DevOrigin.controller({ origin: p.origin });
   const api = {
     props,
     controller,
@@ -111,7 +111,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
-      <DevLoader.UI debug={v.debug} {...ctrl.props} />
+      <DevOrigin.UI debug={v.debug} {...ctrl.props} />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
       <Button

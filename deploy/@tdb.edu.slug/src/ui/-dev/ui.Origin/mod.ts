@@ -6,7 +6,7 @@ import type { t } from './common.ts';
 import { Origin as UI } from './ui.tsx';
 import { controller } from './ui.controller.ts';
 
-export const DevLoader: t.DevLoaderLib = {
+export const DevOrigin: t.DevOriginLib = {
   UI,
   controller,
 };

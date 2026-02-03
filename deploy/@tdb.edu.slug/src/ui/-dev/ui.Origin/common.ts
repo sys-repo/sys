@@ -2,7 +2,7 @@ import { type t, pkg, Pkg } from '../common.ts';
 
 export * from '../common.ts';
 
-type P = t.DevLoaderProps;
+type P = t.DevOriginProps;
 
 /**
  * Constants:
@@ -17,7 +17,7 @@ export const D = {
   displayName: Pkg.toString(pkg, name, false),
 
   origin: {
-    default: 'localhost' satisfies t.DevLoaderOriginKind,
+    default: 'localhost' satisfies t.DevOriginKind,
     local: { app: local, cdn: { default: local, video: local } } satisfies t.SlugLoaderOrigin,
     prod: {
       app: `https://${prod}`,

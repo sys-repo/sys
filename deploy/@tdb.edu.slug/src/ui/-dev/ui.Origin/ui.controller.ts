@@ -2,18 +2,18 @@ import { type t, Signal, D } from './common.ts';
 
 const s = Signal.create;
 
-export const controller: t.DevLoaderControllerFactory = (args) => {
+export const controller: t.DevOriginControllerFactory = (args) => {
   let rev = 0;
 
   const p = {
-    origin: args.origin ?? s<t.DevLoaderOriginKind>(args.props?.origin || D.origin.default),
+    origin: args.origin ?? s<t.DevOriginKind>(args.props?.origin || D.origin.default),
   };
 
-  const api: t.DevLoaderController = {
+  const api: t.DevOriginController = {
     get rev() {
       return rev;
     },
-    get props(): t.DevLoaderController['props'] {
+    get props(): t.DevOriginController['props'] {
       return {
         ...Signal.toObject(p),
         default: args.props?.default,

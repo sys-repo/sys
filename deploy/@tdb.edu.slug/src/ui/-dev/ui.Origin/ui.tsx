@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, D, KeyValue, Str } from './common.ts';
 import { OriginSelector } from './ui.Selector.tsx';
 
-type P = t.DevLoaderProps;
+type P = t.DevOriginProps;
 
 export const Origin: React.FC<P> = (props) => {
   const { debug = false, origin = D.origin.default } = props;

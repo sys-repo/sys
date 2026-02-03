@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { type t, Color, css, Bullet, Button, Signal, D, Rx, Obj, Str, Is } from './common.ts';
 
 export type OriginSelectorProps = {
-  origin?: t.DevLoaderOriginKind;
+  origin?: t.DevOriginKind;
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onChange?: t.DevLoaderProps['onOriginChange'];
+  onChange?: t.DevOriginProps['onOriginChange'];
 };
 
 /**
@@ -34,7 +34,7 @@ export const OriginSelector: React.FC<OriginSelectorProps> = (props) => {
     }),
   };
 
-  const btn = (kind: t.DevLoaderOriginKind) => {
+  const btn = (kind: t.DevOriginKind) => {
     const label = `${kind}`;
     const isSelected = kind === origin;
     return (
