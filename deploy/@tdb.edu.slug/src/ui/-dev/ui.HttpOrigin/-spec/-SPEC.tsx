@@ -1,6 +1,6 @@
 import { Dev, Signal, Spec } from '../../../-test.ui.ts';
 import { D } from '../common.ts';
-import { DevOrigin } from '../mod.ts';
+import { HttpOrigin } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -10,7 +10,7 @@ export default Spec.describe(D.displayName, async (e) => {
   function Root() {
     const v = Signal.toObject(p);
     return (
-      <DevOrigin.UI.Uncontrolled
+      <HttpOrigin.UI.Uncontrolled
         //
         debug={v.debug}
         theme={v.theme}
@@ -21,7 +21,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function RootControlled() {
     const v = Signal.toObject(p);
-    return <DevOrigin.UI.Controlled debug={v.debug} theme={v.theme} origin={p.origin} />;
+    return <HttpOrigin.UI.Controlled debug={v.debug} theme={v.theme} origin={p.origin} />;
   }
 
   e.it('init', (e) => {

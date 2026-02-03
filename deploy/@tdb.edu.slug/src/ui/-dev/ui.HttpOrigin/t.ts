@@ -6,7 +6,7 @@ export type DevOriginDefaults = { local?: t.SlugLoaderOrigin; prod?: t.SlugLoade
 /**
  * Loader debug/selection UI.
  */
-export type DevOriginLib = {
+export type HttpOriginLib = {
   readonly controller: t.DevOriginControllerFactory;
   readonly UI: {
     readonly Uncontrolled: t.FC<t.DevOriginProps>;

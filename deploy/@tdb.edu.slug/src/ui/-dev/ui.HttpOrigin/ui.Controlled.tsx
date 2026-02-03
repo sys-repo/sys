@@ -1,12 +1,12 @@
 import React from 'react';
 import { type t, Signal } from './common.ts';
 import { createController } from './u.controller.ts';
-import { Origin } from './ui.tsx';
+import { Uncontrolled } from './ui.tsx';
 
 /**
  * Component:
  */
-export const OriginControlled: React.FC<t.DevOriginControlledProps> = (props) => {
+export const Controlled: React.FC<t.DevOriginControlledProps> = (props) => {
   const { origin, defaults, kind } = props;
   const ref = React.useRef<t.DevOriginController>(null);
 
@@ -24,7 +24,7 @@ export const OriginControlled: React.FC<t.DevOriginControlledProps> = (props) =>
    * Render:
    */
   return (
-    <Origin
+    <Uncontrolled
       //
       debug={props.debug}
       style={props.style}

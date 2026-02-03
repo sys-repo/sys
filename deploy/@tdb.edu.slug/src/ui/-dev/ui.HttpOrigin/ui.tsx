@@ -6,7 +6,7 @@ import { OriginSelector } from './ui.Selector.tsx';
 
 type P = t.DevOriginProps;
 
-export const Origin: React.FC<P> = (props) => {
+export const Uncontrolled: React.FC<P> = (props) => {
   const { debug = false } = props;
   const { origin, kind } = resolveOrigin({ kind: props.kind, defaults: props.defaults?.origin });
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, SlugClient, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
 import { Button, ObjectView } from '../common.ts';
-import { DevOrigin } from '../../ui.Origin/mod.ts';
+import { Dev } from '../../mod.ts';
 
 import { type SampleLoaderProps as P } from '../ui.tsx';
 
@@ -92,7 +92,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{D.name}</div>
       <hr />
 
-      <DevOrigin.UI.Controlled origin={p.origin} kind={p.originKind} style={{ marginBottom: 30 }} />
+      <Dev.HttpOrigin.UI.Controlled
+        kind={p.originKind}
+        origin={p.origin}
+        style={{ marginBottom: 30 }}
+      />
 
       <Button
         block

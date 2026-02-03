@@ -11,7 +11,7 @@ import {
   ObjectView,
   Signal,
 } from '../common.ts';
-import { DevOrigin } from '../mod.ts';
+import { HttpOrigin } from '../mod.ts';
 
 type P = t.DevOriginProps;
 type Storage = Pick<P, 'debug' | 'theme' | 'kind'> & { controlled?: boolean };
@@ -44,7 +44,7 @@ export async function createDebugSignals() {
     controlled: s(snap.controlled),
   };
   const p = props;
-  const controller = DevOrigin.controller({ kind: p.kind, origin: p.origin });
+  const controller = HttpOrigin.controller({ kind: p.kind, origin: p.origin });
   const api = {
     props,
     controller,
@@ -129,7 +129,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
-      <DevOrigin.UI.Controlled debug={v.debug} origin={p.origin} />
+      <HttpOrigin.UI.Controlled debug={v.debug} origin={p.origin} />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
       <Button
