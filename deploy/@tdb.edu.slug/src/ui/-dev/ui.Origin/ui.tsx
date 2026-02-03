@@ -1,6 +1,6 @@
 import React from 'react';
 import { type t, Color, css, D, KeyValue, Str } from './common.ts';
-import { OriginSelector } from './ui.Origin.Selector.tsx';
+import { OriginSelector } from './ui.Selector.tsx';
 
 type P = t.DevLoaderProps;
 
@@ -18,7 +18,14 @@ export const Origin: React.FC<P> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const styles = {
-    base: css({ display: 'grid', gridTemplateColumns: `auto auto 1fr`, gap: 20 }),
+    base: css({
+      position: 'relative',
+      backgroundColor: Color.ruby(debug),
+      fontSize: 12,
+      display: 'grid',
+      gridTemplateColumns: `auto auto 1fr`,
+      gap: 20,
+    }),
     selector: css({ display: 'grid', alignItems: 'start' }),
     divider: css({ borderRight: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
   };

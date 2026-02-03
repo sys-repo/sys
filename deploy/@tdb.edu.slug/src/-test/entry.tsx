@@ -39,7 +39,7 @@ export async function main() {
       style: { Absolute: 0 },
       hr(e) {
         if (e.next?.endsWith('.SlugPlayback')) return true;
-        if (e.next?.endsWith('.dev.Loader')) return true;
+        if (e.next?.endsWith('.dev.Origin')) return true;
       },
     });
 

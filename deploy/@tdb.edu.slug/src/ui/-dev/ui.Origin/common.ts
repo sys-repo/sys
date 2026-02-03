@@ -11,7 +11,7 @@ type P = t.DevLoaderProps;
 const local = 'http://localhost:4040';
 const prod = 'slc.db.team';
 
-const name = 'Dev.SlugLoader';
+const name = 'Dev.Origin';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
