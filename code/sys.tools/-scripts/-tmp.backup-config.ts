@@ -38,7 +38,11 @@ export async function backupConfig(opts: { dryRun?: boolean } = {}) {
 
   const Log = {
     path(label: string, path: string, exists: boolean) {
-      console.info(c.gray(`  ${label} `), Fmt.prettyPath(path), c.dim(`[exists=${exists}]`));
+      console.info(
+        c.gray(`  ${label} `),
+        Fmt.prettyPath(Fs.trimCwd(path)),
+        c.dim(`[existed=${exists}]`),
+      );
     },
   };
 
