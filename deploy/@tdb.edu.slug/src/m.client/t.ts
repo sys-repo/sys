@@ -1,22 +1,22 @@
 import type { t } from './common.ts';
 
-type MakeArgs = { origin: t.StringUrl | SlugClientOrigin };
+type MakeArgs = { origin: t.StringUrl | SlugLoaderOrigin };
 
 /**
  * Tools for wrapping a pure HTTP `SlugClient` for loading
  * data within a complex UI domain.
  */
-export type SlugClientLoaderLib = {
+export type SlugLoaderLib = {
   readonly Fetch: t.SlugClientLib;
-  readonly make: (args: MakeArgs) => t.SlugClientLoader;
+  readonly make: (args: MakeArgs) => t.SlugLoader;
 };
 
 /**
  * Client loader instance.
  */
-export type SlugClientLoader = {
+export type SlugLoader = {
   /** Canonicalized origin endpoints used by the loader. */
-  readonly origin: t.SlugClientOrigin;
+  readonly origin: t.SlugLoaderOrigin;
 };
 
 /**
@@ -32,7 +32,7 @@ export type SlugClientLoader = {
  *   video.cdn.<hostname>     ← staging.cdn/slc/video/*
  *
  */
-export type SlugClientOrigin = {
+export type SlugLoaderOrigin = {
   app: t.StringUrl;
   cdn: { default: t.StringUrl; video: t.StringUrl };
 };

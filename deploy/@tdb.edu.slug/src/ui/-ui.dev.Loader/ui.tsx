@@ -1,7 +1,8 @@
 import React from 'react';
 import { type t, Color, css, D, KeyValue, Obj } from './common.ts';
+import { OriginSelector } from './ui.OriginSelector.tsx';
 
-export const ClientLoader: React.FC<t.ClientLoaderProps> = (props) => {
+export const ClientLoader: React.FC<t.DevLoaderProps> = (props) => {
   const { debug = false } = props;
 
   /**
@@ -18,13 +19,7 @@ export const ClientLoader: React.FC<t.ClientLoaderProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <KeyValue.UI
-        theme={theme.name}
-        items={[
-          { kind: 'title', v: D.displayName },
-          { k: 'message', v: '👋 hello, world!' },
-        ]}
-      />
+      <OriginSelector theme={theme.name} />
     </div>
   );
 };

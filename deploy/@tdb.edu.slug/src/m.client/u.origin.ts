@@ -1,6 +1,6 @@
 import { type t, Is, Url } from './common.ts';
 
-export function parseOrigin(input: t.StringUrl | t.SlugClientOrigin) {
+export function parseOrigin(input: t.StringUrl | t.SlugLoaderOrigin) {
   if (Is.str(input)) {
     const base = Url.normalize(input);
     return {
