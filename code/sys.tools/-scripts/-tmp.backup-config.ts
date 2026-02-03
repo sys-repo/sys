@@ -42,7 +42,7 @@ export async function backupConfig(opts: { dryRun?: boolean } = {}) {
     },
   };
 
-  console.info(c.gray(' dry-run:'), c.cyan(String(dryRun)));
+  console.info(c.gray('  dry-run:'), c.cyan(String(dryRun)));
   Log.path('from:   ', fromPath, fromExists);
   Log.path('to-root:', toRoot, toRootExists);
   Log.path('to-next:', toPath, toPathExists);
