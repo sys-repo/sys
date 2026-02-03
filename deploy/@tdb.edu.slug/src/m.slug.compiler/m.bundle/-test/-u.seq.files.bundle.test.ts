@@ -1,6 +1,6 @@
 import { type t, describe, expect, Ffmpeg, it } from '../../-test.ts';
 import { Fs, Json, Shard } from '../common.ts';
-import { bundleSequenceFilepaths } from '../u.seq.files.bundle.ts';
+import { bundleSequenceFilepaths } from '../u.bundle.seq.files.ts';
 
 async function withMockedDuration<T>(
   mock: typeof Ffmpeg.duration,
@@ -76,7 +76,11 @@ describe('Lint: bundle/sequence files', () => {
           readonly hash: string;
           readonly filename: string;
           readonly href: string;
-          readonly shard?: { readonly strategy: 'prefix-range'; readonly total: number; readonly index: number };
+          readonly shard?: {
+            readonly strategy: 'prefix-range';
+            readonly total: number;
+            readonly index: number;
+          };
           readonly stats: { readonly bytes?: number; readonly duration?: t.Msecs };
         }[];
       };

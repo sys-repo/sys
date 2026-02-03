@@ -1,6 +1,6 @@
 import { SlugTree } from '../m.slug.SlugTree/mod.ts';
 import { type t, c, DEFAULT_IGNORE, Fs, Json, Schema } from './common.ts';
-import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.tree.fs.file.ts';
+import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.bundle.tree.fs.file.ts';
 
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
