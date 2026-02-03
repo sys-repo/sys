@@ -29,7 +29,16 @@ export const makeFetch: F = (input: Parameters<F>[0]) => {
     try {
       const userHeaders = toHeaders(init.headers);
       const mergedHeaders = { ...api.headers, ...userHeaders };
-      if (contentType && !userHeaders['content-type']) mergedHeaders['content-type'] = contentType;
+      const method = (init.method ?? 'GET').toUpperCase();
+      const hasBody = !!(init as RequestInit).body;
+      const policy = options.contentTypePolicy ?? 'corsSafe';
+      const shouldSetContentType =
+        policy === 'always'
+          ? true
+          : method !== 'GET' && method !== 'HEAD' && hasBody;
+      if (contentType && shouldSetContentType && !userHeaders['content-type']) {
+        mergedHeaders['content-type'] = contentType;
+      }
 
       const fetched = await fetch(url, {
         ...init,
