@@ -4,7 +4,7 @@ export async function backupConfig(opts: { dryRun?: boolean } = {}) {
   const { dryRun = false } = opts;
 
   console.info();
-  console.info(c.cyan('Backup Config'));
+  console.info(c.bold(c.cyan('Backup Config')));
 
   const from = './.tmp/-config/';
   const to = '~/code.data/-backup.from.sys-tmp/';
@@ -38,7 +38,7 @@ export async function backupConfig(opts: { dryRun?: boolean } = {}) {
 
   const Log = {
     path(label: string, path: string, exists: boolean) {
-      console.info(c.gray(` ${label} `), Fmt.prettyPath(path), c.dim(`[exists=${exists}]`));
+      console.info(c.gray(`  ${label} `), Fmt.prettyPath(path), c.dim(`[exists=${exists}]`));
     },
   };
 
