@@ -1,48 +1,47 @@
-import { type t, Signal, D, Rx } from './common.ts';
+import { type t, D, Rx, Signal } from './common.ts';
 import { resolveOrigin } from './u.resolve.ts';
 
 export const createController: t.DevOriginControllerFactory = (args) => {
-  let rev = 0;
-
   const s = Signal.create;
-  const p = {
+  let rev = 0;
+  const state = {
     kind: args.kind ?? s(args.props?.kind || D.kind.default),
     origin: args.origin ?? s(D.kind.local),
   };
 
   const api = Rx.toLifecycle<t.DevOriginController>({
-    ...p,
+    state,
     get rev() {
       return rev;
     },
-    get props(): t.DevOriginController['props'] {
-      const v = Signal.toObject(p);
+    view(): ReturnType<t.DevOriginController['view']> {
+      const v = Signal.toObject(state);
       return {
         kind: v.kind,
         defaults: args.props?.defaults,
-        onChange: (e) => (p.kind.value = e.next),
+        onChange: (e) => (state.kind.value = e.next),
       };
     },
     listen() {
-      Signal.toObject(p);
+      Signal.toObject(state);
     },
   });
 
-  const a = Signal.effect(() => {
+  const unsubscribeA = Signal.effect(() => {
     api.listen();
     ++rev;
   });
 
-  const b = Signal.effect(() => {
-    const kind = p.kind.value;
+  const unsubscribeB = Signal.effect(() => {
+    const kind = state.kind.value;
     const defaults = args.props?.defaults?.origin;
     const { origin } = resolveOrigin({ kind, defaults });
-    p.origin.value = origin;
+    state.origin.value = origin;
   });
 
   api.dispose$.subscribe(() => {
-    a();
-    b();
+    unsubscribeA();
+    unsubscribeB();
   });
 
   return api;

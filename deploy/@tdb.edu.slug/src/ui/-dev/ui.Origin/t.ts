@@ -49,8 +49,10 @@ type CtrlArgs = {
 export type DevOriginControllerFactory = (args: CtrlArgs) => DevOriginController;
 export type DevOriginController = t.Lifecycle & {
   readonly rev: t.NumberMonotonic;
-  readonly props: Pick<DevOriginProps, 'kind' | 'defaults' | 'onChange'>;
-  readonly kind: t.ReadonlySignal<t.DevOriginKind | undefined>;
-  readonly origin: t.ReadonlySignal<t.SlugLoaderOrigin | undefined>;
+  readonly view: () => Pick<DevOriginProps, 'kind' | 'defaults' | 'onChange'>;
+  readonly state: {
+    readonly kind: t.ReadonlySignal<t.DevOriginKind | undefined>;
+    readonly origin: t.ReadonlySignal<t.SlugLoaderOrigin | undefined>;
+  };
   readonly listen: () => void;
 };

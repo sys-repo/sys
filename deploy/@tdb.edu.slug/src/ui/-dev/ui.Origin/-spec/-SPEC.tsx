@@ -14,7 +14,7 @@ export default Spec.describe(D.displayName, async (e) => {
         //
         debug={v.debug}
         theme={v.theme}
-        {...debug.controller.props}
+        {...debug.controller.view()}
       />
     );
   }

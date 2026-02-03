@@ -136,7 +136,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `tmp 🐷`}
         onClick={async () => {
-          const origin = ctrl.origin.value;
+          const origin = ctrl.state.origin.value;
           if (origin) {
             const loader = ClientLoader.make({ origin });
             const m = await loader.Tree.load('kv');

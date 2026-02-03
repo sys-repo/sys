@@ -29,7 +29,7 @@ export const OriginControlled: React.FC<t.DevOriginControlledProps> = (props) =>
       debug={props.debug}
       style={props.style}
       theme={props.theme}
-      {...ref.current?.props}
+      {...ref.current?.view()}
     />
   );
 };
