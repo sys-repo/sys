@@ -43,3 +43,4 @@ export type * from './m.Timecode/t.ts';
 export type * from './m.Try/t.ts';
 export type * from './m.Url.Jsr/t.ts';
 export type * from './m.Url/t.ts';
+export type * from './m.Shard/t.ts';
