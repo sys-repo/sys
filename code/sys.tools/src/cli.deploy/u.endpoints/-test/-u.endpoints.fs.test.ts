@@ -1,5 +1,5 @@
 import { withTmpDir } from '../../-test/-fixtures.ts';
-import { describe, expect, Fs, it, pkg } from '../../../-test.ts';
+import { describe, expect, Fs, it, pkg, Str } from '../../../-test.ts';
 import { EndpointsFs } from '../mod.ts';
 
 describe('EndpointsFs', () => {
@@ -84,20 +84,18 @@ describe('EndpointsFs', () => {
   it('validateYaml: mapping source missing → ok:false (resolved path included)', async () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('missing-src')}`;
+      const yaml = Str.dedent(`
+        staging:
+          dir: ./staging
+        mappings:
+          - mode: build+copy
+            dir:
+              source: ../../code/sys.ui/ui-components
+              staging: sys/ui.components
+        `);
+
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-      await Fs.write(
-        path,
-        [
-          'staging:',
-          '  dir: ./staging',
-          'mappings:',
-          '  - mode: build+copy',
-          '    dir:',
-          '      source: ../../code/sys.ui/ui-components',
-          '      staging: sys/ui.components',
-          '',
-        ].join('\n'),
-      );
+      await Fs.write(path, yaml);
 
       const res = await EndpointsFs.validateYaml(path);
       expect(res.ok).to.eql(false);
@@ -120,16 +118,14 @@ describe('EndpointsFs', () => {
       const srcAbs = `${tmp}/code/my-modules/ui.foo.bar`;
       await Fs.ensureDir(srcAbs);
 
-      const yaml = [
-        'staging:',
-        '  dir: ./staging',
-        'mappings:',
-        '  - mode: build+copy',
-        '    dir:',
-        '      source: ./code/my-modules/ui.foo.bar',
-        '      staging: dist/my-output',
-        '',
-      ].join('\n');
+      const yaml = Str.dedent(`
+        staging: { dir: ./staging }
+        mappings:
+          - mode: build+copy
+            dir:
+              source: ./code/my-modules/ui.foo.bar
+              staging: dist/my-output
+        `);
 
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
@@ -170,9 +166,20 @@ describe('EndpointsFs', () => {
     await withTmpDir(async (tmp) => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('shards-sparse-ok')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
       await Fs.ensureDir(`${tmp}/code/video/partition-0`);
 
+      const yaml = Str.dedent(`
+        source:
+          dir: ./code
+        staging:
+          dir: ./staging
+        mappings:
+          - mode: copy
+            shards: { total: 3 }
+            dir:
+              source: ./video/partition-<shard>
+              staging: ./<shard>.video.cdn.example
+        `);
 
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
@@ -184,9 +191,20 @@ describe('EndpointsFs', () => {
     await withTmpDir(async (tmp) => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('shards-require-all')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
       await Fs.ensureDir(`${tmp}/code/video/partition-0`);
 
+      const yaml = Str.dedent(`
+        source:
+          dir: ./code
+        staging:
+          dir: ./staging
+        mappings:
+          - mode: copy
+            shards: { total: 2, requireAll: true }
+            dir:
+              source: ./video/partition-<shard>
+              staging: ./<shard>.video.cdn.example
+      `);
 
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
