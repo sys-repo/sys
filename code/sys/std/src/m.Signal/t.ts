@@ -41,6 +41,7 @@ export type SignalLib = {
    * - Replaces each `Signal<X>` with its current `.value`.
    * - Traverses arrays and plain objects recursively.
    * - Skips accessors by default (avoids invoking getters).
+   * - Function handling defaults to stringifying; set `func` to control behavior.
    * - Guards against cycles and deep recursion.
    *
    * Intended for debug/inspection: produces a safe, non-reentrant
@@ -102,4 +103,14 @@ export type SignalToObjectOptions = {
   depth?: number;
   /** Include accessor (getter) properties. Default: false (skip). */
   includeGetters?: boolean;
+  /**
+   * Function handling mode.
+   * - "strip": omit functions
+   * - "include": keep functions as-is
+   * - "stringify": replace with "[function]"
+   * - true: alias for "include"
+   * - false: alias for "strip"
+   * Default: "stringify"
+   */
+  func?: 'strip' | 'include' | 'stringify' | boolean;
 };
