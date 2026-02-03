@@ -32,7 +32,7 @@ export default Spec.describe(D.displayName, async (e) => {
     Dev.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
-      .size([370, 500])
+      .size([420, 500])
       .display('grid')
       .render(() => <Root />);
   });
