@@ -30,23 +30,28 @@ export const Origin: React.FC<P> = (props) => {
     divider: css({ borderRight: `solid 1px ${Color.alpha(theme.fg, 0.1)}` }),
   };
 
+  /**
+   * KeyValue items:
+   */
   const mono = true;
+  const items: t.KeyValueItem[] = [];
+  if (kind === 'localhost') {
+    items.push({ kind: 'title', v: 'Endpoint (Origin)' });
+    items.push({ k: 'app,cdn', v: Str.trimHttpScheme(current.app), mono });
+  } else {
+    items.push({ kind: 'title', v: 'Endpoints (Origin)' });
+    items.push({ k: 'app', v: Str.trimHttpScheme(current.app), mono });
+    items.push({ k: 'cdn', v: Str.trimHttpScheme(current.cdn.default), mono });
+    items.push({ k: 'cdn.video', v: Str.trimHttpScheme(current.cdn.video), mono });
+  }
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.selector.class}>
-        <OriginSelector theme={theme.name} kind={props.kind} onChange={props.onOriginChange} />
+        <OriginSelector theme={theme.name} kind={props.kind} onChange={props.onChange} />
       </div>
       <div className={styles.divider.class} />
-      <KeyValue.UI
-        theme={theme.name}
-        items={[
-          { kind: 'title', v: 'Endpoints (Origin)' },
-          { k: 'app', v: Str.trimHttpScheme(current.app), mono },
-          { k: 'cdn', v: Str.trimHttpScheme(current.cdn.default), mono },
-          { k: 'cdn.video', v: Str.trimHttpScheme(current.cdn.video), mono },
-        ]}
-      />
+      <KeyValue.UI theme={theme.name} items={items} />
     </div>
   );
 };

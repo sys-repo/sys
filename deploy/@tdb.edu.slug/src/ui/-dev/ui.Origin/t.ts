@@ -16,12 +16,11 @@ export type DevOriginLib = {
 export type DevOriginProps = {
   kind?: t.DevOriginKind;
   default?: { origin?: { local?: t.SlugLoaderOrigin; prod?: t.SlugLoaderOrigin } };
-
   //
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onOriginChange?: (e: { next: t.DevOriginKind }) => void;
+  onChange?: (e: { next: t.DevOriginKind }) => void;
 };
 
 /**
@@ -34,7 +33,7 @@ type CtrlArgs = {
 export type DevOriginControllerFactory = (args: CtrlArgs) => DevOriginController;
 export type DevOriginController = {
   readonly rev: t.NumberMonotonic;
-  readonly props: Pick<DevOriginProps, 'kind' | 'default' | 'onOriginChange'>;
+  readonly props: Pick<DevOriginProps, 'kind' | 'default' | 'onChange'>;
   readonly origin: t.ReadonlySignal<t.SlugLoaderOrigin>;
   readonly listen: () => void;
 };

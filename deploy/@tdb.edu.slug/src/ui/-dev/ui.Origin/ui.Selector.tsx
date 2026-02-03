@@ -1,18 +1,12 @@
 import React from 'react';
 import { type t, Bullet, Button, Color, css, D } from './common.ts';
 
-export type OriginSelectorProps = {
-  kind?: t.DevOriginKind;
-  debug?: boolean;
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-  onChange?: t.DevOriginProps['onOriginChange'];
-};
+type P = t.DevOriginProps;
 
 /**
  * Component:
  */
-export const OriginSelector: React.FC<OriginSelectorProps> = (props) => {
+export const OriginSelector: React.FC<P> = (props) => {
   const { debug = false, kind = D.kind.default } = props;
 
   /**
@@ -22,7 +16,7 @@ export const OriginSelector: React.FC<OriginSelectorProps> = (props) => {
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
-      lineHeight: 1.8,
+      lineHeight: 1.6,
       color: theme.fg,
       display: 'grid',
     }),

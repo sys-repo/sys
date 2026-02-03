@@ -17,7 +17,7 @@ export const controller: t.DevOriginControllerFactory = (args) => {
       return {
         kind: v.kind,
         default: args.props?.default,
-        onOriginChange(e) {
+        onChange(e) {
           p.kind.value = e.next;
         },
       };
