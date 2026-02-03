@@ -39,7 +39,7 @@
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@3.2.5",
     "@types/ramda": "npm:@types/ramda@0.31.1",
     "@types/ws": "npm:@types/ws@8.18.1",
-    "ai": "npm:ai@6.0.68",
+    "ai": "npm:ai@6.0.69",
     "approx-string-match": "npm:approx-string-match@2",
     "chai": "npm:chai@6.2.2",
     "chai/": "npm:chai@6.2.2/",
@@ -75,7 +75,7 @@
     "strip-ansi": "npm:strip-ansi@7.1.2",
     "tinycolor2": "npm:tinycolor2@1.6.0",
     "ts-essentials": "npm:ts-essentials@10.1.1",
-    "ua-parser-js": "npm:ua-parser-js@2.0.8",
+    "ua-parser-js": "npm:ua-parser-js@2.0.9",
     "ws": "npm:ws@8.19.0",
     "yaml": "npm:yaml@2.8.2",
     "yaml/types": "npm:yaml@2.8.2/types"
