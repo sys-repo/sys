@@ -21,22 +21,29 @@ export default async function setup(dir: t.StringAbsoluteDir, options: { name?: 
 
   // Update pointer refs:
   if (pkgDir) {
-    await updateTypesFile(dir);
-
-    // Update dev-harness spec entry:
-    await TmplEngine.File.update(Fs.join(pkgDir, 'src/-test/-specs.ts'), (line) => {
-      const index = line.file.lines.findIndex((line) => line.includes('[`${ns}:'));
-      if (line.index === index) {
-        const moduleDir = dir.slice((pkgDir + 'src/').length + 1);
-        const name = moduleDir.replace(/^ui\//, '');
-        const text = `  [\`\${ns}: ${name}\`]: () => import('../${moduleDir}/-spec/-SPEC.tsx'),`;
-        line.insert(text);
-      }
-
-      // NB: sample stub, no longer necessary to leave around.
-      if (line.text.includes('// [`${ns}: name`]:')) {
-        line.delete();
-      }
-    });
+    await updatePointerRefs(dir, pkgDir);
   }
+}
+
+/**
+ * Pointer references intot he component.
+ */
+export async function updatePointerRefs(dir: t.StringAbsoluteDir, pkgDir: t.StringAbsoluteDir) {
+  await updateTypesFile(dir);
+
+  // Update dev-harness spec entry:
+  await TmplEngine.File.update(Fs.join(pkgDir, 'src/-test/-specs.ts'), (line) => {
+    const index = line.file.lines.findIndex((line) => line.includes('[`${ns}:'));
+    if (line.index === index) {
+      const moduleDir = dir.slice((pkgDir + 'src/').length + 1);
+      const name = moduleDir.replace(/^ui\//, '');
+      const text = `  [\`\${ns}: ${name}\`]: () => import('../${moduleDir}/-spec/-SPEC.tsx'),`;
+      line.insert(text);
+    }
+
+    // NB: sample stub, no longer necessary to leave around.
+    if (line.text.includes('// [`${ns}: name`]:')) {
+      line.delete();
+    }
+  });
 }
