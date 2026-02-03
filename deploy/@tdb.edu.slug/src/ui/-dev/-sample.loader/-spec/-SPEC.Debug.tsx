@@ -107,25 +107,44 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button
-        block
-        label={() => `🐷`}
-        onClick={async () => {
-          if (!v.origin) return;
-          p.spinning.value = true;
-          const isLocal = v.originKind === 'localhost';
-
-          let path = '';
-          if (isLocal) path = 'staging/cdn.slc.db.team/kb/-manifests';
-          if (!isLocal) path = 'kb/-manifests';
-
-          const host = v.origin.cdn.default;
-          const res = await SlugClient.FromEndpoint.Descriptor.load(host, path);
-
-          p.response.value = res;
-          p.spinning.value = false;
-        }}
-      />
+      {fetchButton(debug, '🐷', async (e) => {
+        let path = e.local ? 'staging/cdn.slc.db.team/kb/-manifests' : 'kb/-manifests';
+        const host = e.origin.cdn.default;
+        const res = await SlugClient.FromEndpoint.Descriptor.load(host, path);
+        e.result(res);
+      })}
     </div>
   );
 };
+
+/**
+ * Helpers
+ */
+export function fetchButton(
+  debug: DebugSignals,
+  label: string,
+  fn: (e: {
+    local: boolean;
+    origin: t.SlugLoaderOrigin;
+    result: (value: unknown) => void;
+  }) => Promise<void>,
+) {
+  const p = debug.props;
+  const v = Signal.toObject(p);
+  return (
+    <Button
+      block
+      label={label}
+      onClick={async () => {
+        const origin = v.origin;
+        const local = v.originKind === 'localhost';
+        if (!origin) return;
+        p.spinning.value = true;
+
+        await fn({ local, origin, result: (value) => (p.response.value = value) });
+
+        p.spinning.value = false;
+      }}
+    />
+  );
+}
