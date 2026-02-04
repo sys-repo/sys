@@ -10,6 +10,7 @@ export type * from './ui/Cropmarks/t.ts';
 export type * from './ui/Dist/t.ts';
 export type * from './ui/ErrorBoundary/t.ts';
 export type * from './ui/FadeElement/t.ts';
+export type * from './ui/Http.Origin/t.ts';
 export type * from './ui/Icon.Swatches/t.ts';
 export type * from './ui/Icon/t.ts';
 export type * from './ui/IFrame/t.ts';

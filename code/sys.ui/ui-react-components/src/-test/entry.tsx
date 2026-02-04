@@ -39,6 +39,7 @@ export async function main() {
         if (e.next?.endsWith(': Bullet')) return true;
         if (e.next?.startsWith('sys.ui.css: @container')) return true;
         if (e.next?.endsWith(': Layout.CenterColumn')) return true;
+        if (e.next?.endsWith(': Http.Origin')) return true;
         if (e.next?.endsWith(': TreeView.Index')) return true;
         if (e.next?.endsWith(': Player.Video: Element')) return true;
         if (e.next?.endsWith(': Recorder')) return true;
