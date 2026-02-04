@@ -60,7 +60,7 @@ export async function createDebugSignals() {
   }
 
   function sample() {
-    const key = p.sample.value ?? defaults.sample;
+    const key = p.sample.value;
     return key ? Sample[key] : undefined;
   }
 
@@ -158,7 +158,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
-      <HttpOrigin.UI.Controlled debug={v.debug} spec={debug.sample()} />
+      <HttpOrigin.UI.Controlled debug={v.debug} spec={debug.sample()} env={p.env} />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
       <Button

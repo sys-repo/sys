@@ -21,7 +21,7 @@ export const Info: React.FC<InfoProps> = (props) => {
   const mono = true;
   const items: t.KeyValueItem[] = [];
   if (origin) {
-    items.push({ kind: 'title', v: `Origins (${env})` });
+    items.push({ kind: 'title', v: `HTTP Origins` });
     Data.flatten(origin).forEach((row) => {
       items.push({ k: row.key, v: Str.trimHttpScheme(row.url), mono });
     });

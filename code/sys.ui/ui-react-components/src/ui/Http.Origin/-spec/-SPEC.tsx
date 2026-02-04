@@ -12,9 +12,9 @@ export default Spec.describe(D.displayName, async (e) => {
     const props = debug.controller.view();
     return (
       <HttpOrigin.UI.Uncontrolled
+        {...props}
         debug={v.debug}
         theme={v.theme}
-        {...props}
         spec={debug.sample()}
       />
     );
@@ -22,7 +22,9 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function RootControlled() {
     const v = Signal.toObject(p);
-    return <HttpOrigin.UI.Controlled debug={v.debug} theme={v.theme} spec={debug.sample()} />;
+    return (
+      <HttpOrigin.UI.Controlled debug={v.debug} theme={v.theme} env={p.env} spec={debug.sample()} />
+    );
   }
 
   e.it('init', (e) => {
