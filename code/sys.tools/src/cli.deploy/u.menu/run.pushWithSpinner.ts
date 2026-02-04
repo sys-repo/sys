@@ -15,15 +15,16 @@ export async function runPushWithSpinner(args: {
   provider: t.DeployTool.Config.Provider.All;
   stagingDir: t.StringDir;
   shard?: number;
+  domain?: string;
 }): Promise<RunPushResult> {
   const spin = Cli.spinner();
   const dist = (await Pkg.Dist.load(Path.join(args.stagingDir, '.'))).dist;
   const bytes = dist?.build.size.total ?? 0;
 
-  const shardLabel = Is.num(args.shard) ? `shard-${args.shard}` : undefined;
-  const domain =
+  const shardLabel = Is.num(args.shard) ? 'shard' : undefined;
+  const providerDomain =
     args.provider.kind === 'orbiter' ? String(args.provider.domain ?? '').trim() : '';
-  const providerLabel = domain || args.provider.kind;
+  const providerLabel = String(args.domain ?? '').trim() || providerDomain || args.provider.kind;
   let pushing = shardLabel
     ? `Pushing ${shardLabel} to ${c.white(providerLabel)}`
     : `Pushing to ${c.white(providerLabel)}`;

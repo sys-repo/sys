@@ -166,6 +166,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
           provider: target.provider,
           stagingDir: target.stagingDir,
           shard: target.shard,
+          domain: target.domain,
         });
 
         if (!res.ok) {

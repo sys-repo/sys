@@ -6,6 +6,7 @@ export type PushTarget = {
   readonly provider: t.DeployTool.Config.Provider.Orbiter;
   readonly stagingDir: t.StringDir;
   readonly shard?: number;
+  readonly domain?: string;
 };
 
 export async function resolvePushTargets(args: {
@@ -14,6 +15,7 @@ export async function resolvePushTargets(args: {
 }): Promise<readonly PushTarget[]> {
   const provider = args.yaml.provider;
   if (!provider || provider.kind !== 'orbiter') return [];
+  const baseDomain = String(provider.domain ?? '').trim();
 
   const mappings = args.yaml.mappings ?? [];
   const stagingRootRel = String(args.yaml.staging?.dir ?? '').trim() || '.';
@@ -71,7 +73,8 @@ export async function resolvePushTargets(args: {
       const stagingAbs = Path.resolve(stagingRootAbs, expandedRel);
       if (!(await Fs.exists(stagingAbs))) continue;
       const providerForShard = { ...provider, siteId };
-      targets.push({ provider: providerForShard, stagingDir: stagingAbs, shard });
+      const shardDomain = baseDomain ? `${shard}.${baseDomain}` : undefined;
+      targets.push({ provider: providerForShard, stagingDir: stagingAbs, shard, domain: shardDomain });
     }
   }
 
