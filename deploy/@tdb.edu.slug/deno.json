@@ -1,7 +1,7 @@
 {
   "name": "@tdb/edu-slug",
   "version": "0.0.20",
-  "license": "UNLICENSED",
+  "license": "CC-BY-4.0",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/-vite.ts --cmd=dev --in=./src/-test/index.html",
     "test": "deno test -P=testset",
