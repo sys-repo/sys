@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Data structure for modelling a map of origin-urls.
  */
 export type HttpOriginDataLib = {
-  // flatten(input: UrlTree, prefix?: string): readonly UrlRow[];
+  flatten(input: UrlTree, prefix?: string): readonly UrlRow[];
 };
 
 /**
@@ -19,17 +19,4 @@ export type UrlTree = t.StringUrl | { readonly [key: string]: UrlTree };
 export type UrlRow = {
   readonly key: string; // e.g. "cdn.video"
   readonly url: t.StringUrl;
-};
-
-/**
- * 🐷 LEGACY
- */
-export type HttpOriginMap__LEGACY = {
-  app: t.StringUrl;
-  cdn: { default: t.StringUrl; video: t.StringUrl };
-};
-
-export type MyMap = {
-  app: t.StringUrl;
-  cdn: { default: t.StringUrl; video: t.StringUrl };
 };
