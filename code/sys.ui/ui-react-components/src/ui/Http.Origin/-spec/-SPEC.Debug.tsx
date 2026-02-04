@@ -58,8 +58,8 @@ export async function createDebugSignals() {
   }
 
   function sample() {
-    const type = p.sample.value;
-    return type ? Sample[type] : undefined;
+    const key = p.sample.value;
+    return key ? Sample[key] : undefined;
   }
 
   Signal.effect(() => {
@@ -125,13 +125,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-
       <Button
         block
         label={() => `sample: ${p.sample.value}`}
         onClick={() => Signal.cycle<SampleName | undefined>(p.sample, ['cdn', 'media', undefined])}
       />
+
+      <hr />
+      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
 
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
@@ -140,6 +141,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         data={Signal.toObject(ctrl, { func: false })}
         style={{ marginTop: 6 }}
         expand={1}
+      />
+      <ObjectView
+        name={`debug.sample:${v.sample}`}
+        data={debug.sample()}
+        expand={0}
+        style={{ marginTop: 6 }}
       />
 
       <hr style={{ margin: '15px 0 20px 0' }} />

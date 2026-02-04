@@ -1,106 +1,48 @@
 import { type t } from '../common.ts';
 
-export const cdn = {
-  envs: ['localhost', 'production'],
-  tree: {
-    kind: 'group',
-    key: 'root',
-    children: [
-      {
-        kind: 'leaf',
-        key: 'app',
-        values: { localhost: 'http://localhost:4040', production: 'https://example.com' },
-      },
-      {
-        kind: 'group',
-        key: 'cdn',
-        children: [
-          {
-            kind: 'leaf',
-            key: 'default',
-            values: {
-              localhost: 'http://localhost:4040',
-              production: 'https://cdn.example.com',
-            },
-          },
-          {
-            kind: 'leaf',
-            key: 'video',
-            values: {
-              localhost: 'http://localhost:4040',
-              production: 'https://video.cdn.example.com',
-            },
-          },
-        ],
-      },
-    ],
-  },
-} satisfies t.HttpOriginSpec<t.HttpOriginEnv>;
+export type MyCdn = {
+  app: t.StringUrl;
+  cdn: { default: t.StringUrl; video: t.StringUrl };
+};
 
-export const media = {
-  envs: ['localhost', 'production'],
-  tree: {
-    kind: 'group',
-    key: 'root',
-    children: [
-      {
-        kind: 'leaf',
-        key: 'api',
-        values: {
-          localhost: 'http://localhost:4040',
-          production: 'https://api.example.com',
-        },
-      },
-      {
-        kind: 'group',
-        key: 'assets',
-        children: [
-          {
-            kind: 'leaf',
-            key: 'images',
-            values: {
-              localhost: 'http://localhost:4041',
-              production: 'https://img.example.com',
-            },
-          },
-          {
-            kind: 'leaf',
-            key: 'video',
-            values: {
-              localhost: 'http://localhost:4042',
-              production: 'https://video.example.com',
-            },
-          },
-        ],
-      },
-      {
-        kind: 'group',
-        key: 'stream',
-        children: [
-          {
-            kind: 'leaf',
-            key: 'hls',
-            values: {
-              localhost: ['http://localhost:4043', 'http://localhost:4044'],
-              production: ['https://hls-1.example.com', 'https://hls-2.example.com'],
-            },
-          },
-          {
-            kind: 'leaf',
-            key: 'dash',
-            values: {
-              localhost: 'http://localhost:4045',
-              production: 'https://dash.example.com',
-            },
-          },
-        ],
-      },
-    ],
-  },
-} satisfies t.HttpOriginSpec<t.HttpOriginEnv>;
+export type MyMedia = {
+  api: t.StringUrl;
+  assets: { images: t.StringUrl; video: t.StringUrl };
+  stream: { hls: t.StringUrl; dash: t.StringUrl };
+};
 
-export const Sample = {
+export type SampleName = keyof Samples;
+export type Sample<T extends t.UrlTree> = { readonly [E in t.HttpOriginEnv]: T };
+export type Samples = {
+  readonly cdn: Sample<MyCdn>;
+  readonly media: Sample<MyMedia>;
+};
+
+const cdn: Sample<MyCdn> = {
+  localhost: {
+    app: 'http://localhost:3000',
+    cdn: { default: 'http://localhost:4000', video: 'http://localhost:4001' },
+  },
+  production: {
+    app: 'https://app.example.com',
+    cdn: { default: 'https://cdn.example.com', video: 'https://video.cdn.example.com' },
+  },
+};
+
+const media: Sample<MyMedia> = {
+  localhost: {
+    api: 'http://localhost:5000',
+    assets: { images: 'http://localhost:5001', video: 'http://localhost:5002' },
+    stream: { hls: 'http://localhost:5003', dash: 'http://localhost:5004' },
+  },
+  production: {
+    api: 'https://api.example.com',
+    assets: { images: 'https://img.example.com', video: 'https://media.example.com/video' },
+    stream: { hls: 'https://hls.example.com', dash: 'https://dash.example.com' },
+  },
+};
+
+export const Sample: Samples = {
   cdn,
   media,
-} as const;
-export type SampleName = keyof typeof Sample;
+};
