@@ -1,14 +1,19 @@
 import React from 'react';
 import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
 import { HttpOrigin } from '../mod.ts';
+import { type SampleName, Sample } from './-samples.ts';
 
 type P = t.HttpOriginProps;
-type Storage = Pick<P, 'debug' | 'theme' | 'env'> & { controlled?: boolean };
+type Storage = Pick<P, 'debug' | 'theme' | 'env'> & {
+  controlled?: boolean;
+  sample?: SampleName;
+};
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   env: 'localhost',
   controlled: true,
+  sample: 'cdn',
 };
 
 /**
@@ -31,6 +36,7 @@ export async function createDebugSignals() {
     env: s(snap.env),
     origin: s<t.HttpOriginMap__LEGACY | undefined>(),
     controlled: s(snap.controlled),
+    sample: s(snap.sample),
   };
   const p = props;
   const controller = HttpOrigin.controller({ env: p.env, origin: p.origin });
@@ -39,6 +45,7 @@ export async function createDebugSignals() {
     controller,
     listen,
     reset,
+    sample,
   };
 
   function listen() {
@@ -50,12 +57,18 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
+  function sample() {
+    const type = p.sample.value;
+    return type ? Sample[type] : undefined;
+  }
+
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.env = p.env.value;
       d.controlled = p.controlled.value;
+      d.sample = p.sample.value;
     });
   });
 
@@ -113,6 +126,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+
+      <Button
+        block
+        label={() => `sample: ${p.sample.value}`}
+        onClick={() => Signal.cycle<SampleName | undefined>(p.sample, ['cdn', 'media', undefined])}
+      />
+
       <Button block label={() => `(reset)`} onClick={debug.reset} />
       <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView

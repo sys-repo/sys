@@ -1,4 +1,3 @@
-import { describe, expect, it } from '../../../-test.ts';
 import { type t } from '../common.ts';
 
 export const cdn = {
@@ -99,3 +98,9 @@ export const media = {
     ],
   },
 } satisfies t.HttpOriginSpec<t.HttpOriginEnv>;
+
+export const Sample = {
+  cdn,
+  media,
+} as const;
+export type SampleName = keyof typeof Sample;
