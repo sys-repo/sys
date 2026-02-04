@@ -5,6 +5,10 @@ import type { t } from './common.ts';
  */
 export type HttpOriginValue = t.StringUrl | readonly t.StringUrl[];
 
+export type HttpOriginMap__LEGACY = {
+  app: t.StringUrl;
+  cdn: { default: t.StringUrl; video: t.StringUrl };
+};
 
 /**
  * Data structure for modelling a map of origin-urls.

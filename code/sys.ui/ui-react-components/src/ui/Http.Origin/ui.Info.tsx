@@ -3,7 +3,7 @@ import { type t, KeyValue, Str } from './common.ts';
 
 export type InfoProps = {
   kind: t.HttpOriginEnv;
-  origin: t.HttpOriginMap;
+  origin: t.HttpOriginMap__LEGACY;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

@@ -29,7 +29,7 @@ export async function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     env: s(snap.env),
-    origin: s<t.HttpOriginMap | undefined>(),
+    origin: s<t.HttpOriginMap__LEGACY | undefined>(),
     controlled: s(snap.controlled),
   };
   const p = props;

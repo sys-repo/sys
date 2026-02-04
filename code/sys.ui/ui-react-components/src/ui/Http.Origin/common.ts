@@ -21,11 +21,11 @@ export const D = {
 
   env: {
     default: 'localhost' satisfies t.HttpOriginEnv,
-    local: { app: local, cdn: { default: local, video: local } } satisfies t.HttpOriginMap,
+    local: { app: local, cdn: { default: local, video: local } } satisfies t.HttpOriginMap__LEGACY,
     prod: {
       app: `https://${prod}`,
       cdn: { default: `https://cdn.${prod}`, video: `https://video.cdn.${prod}` },
-    } satisfies t.HttpOriginMap,
+    } satisfies t.HttpOriginMap__LEGACY,
   },
 } as const;
 export const DEFAULTS = D;

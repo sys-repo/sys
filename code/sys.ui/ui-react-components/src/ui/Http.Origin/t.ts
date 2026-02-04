@@ -6,7 +6,7 @@ export type * from './t.data.ts';
 /** HTTP origin environment (e.g. localhost, production). */
 export const HTTP_ORIGIN_ENVS = ['localhost', 'production'] as const;
 export type HttpOriginEnv = (typeof HTTP_ORIGIN_ENVS)[number];
-export type HttpOriginDefaults = Partial<Record<HttpOriginEnv, t.HttpOriginMap>>;
+export type HttpOriginDefaults = Partial<Record<HttpOriginEnv, t.HttpOriginMap__LEGACY>>;
 
 /**
  * HttpOrigin UI Display.
@@ -38,7 +38,7 @@ export type HttpOriginProps = {
  */
 export type HttpOriginControlledProps = {
   env?: t.SignalOptional<t.HttpOriginEnv>;
-  origin?: t.SignalOptional<t.HttpOriginMap>;
+  origin?: t.SignalOptional<t.HttpOriginMap__LEGACY>;
   defaults?: t.HttpOriginProps['defaults'];
   debug?: boolean;
   theme?: t.CommonTheme;
@@ -51,7 +51,7 @@ export type HttpOriginControlledProps = {
 type CtrlArgs = {
   props?: Pick<HttpOriginProps, 'env' | 'defaults'>;
   env?: t.Signal<t.HttpOriginEnv | undefined>;
-  origin?: t.Signal<t.HttpOriginMap | undefined>;
+  origin?: t.Signal<t.HttpOriginMap__LEGACY | undefined>;
 };
 export type HttpOriginControllerFactory = (args: CtrlArgs) => HttpOriginController;
 export type HttpOriginController = t.Lifecycle & {
@@ -60,6 +60,6 @@ export type HttpOriginController = t.Lifecycle & {
   readonly view: () => Pick<HttpOriginProps, 'env' | 'defaults' | 'onChange'>;
   readonly state: {
     readonly kind: t.ReadonlySignal<t.HttpOriginEnv | undefined>;
-    readonly origin: t.ReadonlySignal<t.HttpOriginMap | undefined>;
+    readonly origin: t.ReadonlySignal<t.HttpOriginMap__LEGACY | undefined>;
   };
 };
