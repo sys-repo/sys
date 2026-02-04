@@ -35,6 +35,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
   let pushedOk = false;
   let pushElapsed: string | undefined;
   let pushShards: number | undefined;
+  let pushBytes: number | undefined;
 
   while (true) {
     const yamlRel = `${EndpointsFs.dir}/${key}${EndpointsFs.ext}`;
@@ -110,18 +111,19 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     }
 
     const showPush = capability.show;
-    const picked = await promptEndpointAction({
-      checkOk: check.ok,
-      ranOk,
-      showPush,
-      pushedOk,
-      pushElapsed,
-      pushShards,
-      hashPrefix,
-      stageAge,
-      stageSize,
-      pushUrl,
-      hasStageMeta,
+      const picked = await promptEndpointAction({
+        checkOk: check.ok,
+        ranOk,
+        showPush,
+        pushedOk,
+        pushElapsed,
+        pushShards,
+        pushBytes,
+        hashPrefix,
+        stageAge,
+        stageSize,
+        pushUrl,
+        hasStageMeta,
     });
 
     if (picked === 'back') return { kind: 'back' };
@@ -157,6 +159,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       }
 
       let okCount = 0;
+      let bytesTotal = 0;
       for (const target of targets) {
         const res = await runPushWithSpinner({
           cwd,
@@ -182,11 +185,13 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
         okCount += 1;
         pushElapsed = res.elapsed;
+        if (Is.num(res.bytes)) bytesTotal += res.bytes;
       }
 
       if (okCount === targets.length && targets.length > 0) {
         pushedOk = true;
         pushShards = targets.filter((t) => Is.num(t.shard)).length || undefined;
+        pushBytes = bytesTotal || undefined;
       }
 
       continue;
@@ -255,6 +260,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       pushedOk = false;
       pushElapsed = undefined;
       pushShards = undefined;
+      pushBytes = undefined;
       continue;
     }
 

@@ -3,7 +3,7 @@ import { Fmt } from '../u.fmt.ts';
 import { pushProvider } from '../u.push/u.push.ts';
 
 type RunPushResult =
-  | { readonly ok: true; readonly elapsed?: string; readonly shards?: number }
+  | { readonly ok: true; readonly elapsed?: string; readonly shards?: number; readonly bytes?: number }
   | { readonly ok: false; readonly error?: unknown; readonly hint?: string };
 
 /**
@@ -35,11 +35,11 @@ export async function runPushWithSpinner(args: {
   try {
     const res = await pushProvider(args);
 
-    if (res.ok) {
-      const elapsed = Time.elapsed(started).toString();
-      spin.succeed(Fmt.spinnerText(c.green(`push complete (elapsed ${elapsed})`)));
-      return { ok: true, elapsed };
-    }
+  if (res.ok) {
+    const elapsed = Time.elapsed(started).toString();
+    spin.succeed(Fmt.spinnerText(c.green(`push complete (elapsed ${elapsed})`)));
+    return { ok: true, elapsed, bytes };
+  }
 
     spin.fail(Fmt.spinnerText('push failed'));
     return { ok: false, error: res.error, hint: res.hint };

@@ -1,4 +1,4 @@
-import { type t, c, Cli, Str } from './common.ts';
+import { type t, c, Cli, Is, Str } from './common.ts';
 
 type A = t.DeployTool.Endpoint.Menu.Action;
 
@@ -13,6 +13,7 @@ export async function promptEndpointAction(args: {
   pushedOk: boolean;
   pushElapsed?: string;
   pushShards?: number;
+  pushBytes?: number;
   hashPrefix: string;
   stageAge?: string;
   stageSize?: string;
@@ -30,6 +31,7 @@ export async function promptEndpointAction(args: {
     pushUrl,
     hasStageMeta,
     pushShards,
+    pushBytes,
   } = args;
   const stageAgeText = stageAge ? ` ${c.gray(c.dim(`- ${stageAge} ago`))}` : '';
   const stageSizeText = stageSize ? ` ${c.gray(c.dim(`| ${stageSize}`))}` : '';
@@ -45,7 +47,10 @@ export async function promptEndpointAction(args: {
   const shardPart = pushedOk && pushShards
     ? `, ${pushShards} ${Str.plural(pushShards, 'shard')}`
     : '';
-  const elapsedPart = pushedOk && pushElapsed ? `${pushElapsed}${shardPart}` : undefined;
+  const bytesPart = pushedOk && Is.num(pushBytes) ? `, ${Str.bytes(pushBytes)}` : '';
+  const elapsedPart = pushedOk && pushElapsed
+    ? `${pushElapsed}${shardPart}${bytesPart}`
+    : undefined;
   const pushElapsedMeta =
     pushedOk && elapsedPart ? ` ${c.gray(c.dim(`(in ${elapsedPart})`))}` : '';
   const pushMeta = `${pushUrlMeta}${pushElapsedMeta}`;
