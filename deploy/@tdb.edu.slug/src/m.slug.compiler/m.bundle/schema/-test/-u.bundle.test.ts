@@ -9,7 +9,7 @@ describe('SchemaBundleConfig', () => {
         {
           kind: 'slug-tree:fs',
           enabled: false,
-          crdt: { docid: 'slug:test', path: '/slug' },
+          docid: 'kb',
         },
         {
           kind: 'slug-tree:media:seq',

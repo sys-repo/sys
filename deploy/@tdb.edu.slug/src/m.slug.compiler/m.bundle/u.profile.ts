@@ -130,7 +130,6 @@ export async function runProfile(args: {
       const stats = await runSlugTreeFs({
         cwd,
         config: bundle,
-        createCrdt: async () => 'crdt:create' as t.StringRef,
       });
       if (stats) {
         for (const dir of collectDistDirs.fromSlugTreeFs({ cwd, config: bundle })) {
@@ -259,7 +258,7 @@ async function buildSlugTreeFsDescriptors(args: {
   const targets = normalizeTargets(args.bundle.target?.manifests);
   if (targets.length === 0) return [];
 
-  const docid = String(args.bundle.crdt.docid ?? '').trim();
+  const docid = resolveSlugTreeDocid(args.bundle, targets);
   if (!docid) return [];
 
   const sha256Dir = resolveSha256Dir(args.cwd, args.bundle.target?.dir);
@@ -295,6 +294,25 @@ async function buildSlugTreeFsDescriptors(args: {
   }
 
   return results;
+}
+
+function resolveSlugTreeDocid(
+  bundle: t.SlugBundleFileTree,
+  targets: t.StringPath[],
+): t.StringId | undefined {
+  const explicit = String(bundle.docid ?? '').trim();
+  if (explicit) return explicit as t.StringId;
+
+  const candidates = targets
+    .map((target) => Fs.basename(String(target)))
+    .map((name) => {
+      const match = /^slug-tree\.([^.]+)\.(json|ya?ml)$/i.exec(name);
+      return match?.[1];
+    })
+    .filter((v): v is string => !!v);
+
+  if (candidates.length > 0) return candidates[0] as t.StringId;
+  return undefined;
 }
 
 function normalizeTargets(input?: t.StringPath | readonly t.StringPath[]): t.StringPath[] {

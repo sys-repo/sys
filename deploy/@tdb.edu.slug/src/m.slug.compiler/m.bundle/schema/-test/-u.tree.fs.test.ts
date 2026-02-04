@@ -3,12 +3,9 @@ import { Schema } from '../../common.ts';
 import { SchemaSlugTreeFs } from '../mod.ts';
 
 describe('SchemaSlugTreeFs', () => {
-  it('accepts minimal crdt config', () => {
+  it('accepts minimal slug-tree fs config', () => {
     const doc = {
-      crdt: {
-        docid: 'slug:test',
-        path: '/slug',
-      },
+      docid: 'kb',
     };
     const ok = Schema.Value.Check(SchemaSlugTreeFs, doc);
     expect(ok).to.eql(true);
@@ -16,7 +13,7 @@ describe('SchemaSlugTreeFs', () => {
 
   it('accepts slug-tree target.manifests string', () => {
     const doc = {
-      crdt: { docid: 'slug:test', path: '/slug' },
+      docid: 'kb',
       target: {
         manifests: './out/slug-tree.json',
       },
@@ -27,7 +24,7 @@ describe('SchemaSlugTreeFs', () => {
 
   it('accepts slug-tree target.manifests array', () => {
     const doc = {
-      crdt: { docid: 'slug:test', path: '/slug' },
+      docid: 'kb',
       target: {
         manifests: ['./out/slug-tree.json', './out/slug-tree.yaml'],
       },
@@ -38,7 +35,7 @@ describe('SchemaSlugTreeFs', () => {
 
   it('accepts slug-tree target.dir array', () => {
     const doc = {
-      crdt: { docid: 'slug:test', path: '/slug' },
+      docid: 'kb',
       target: {
         dir: [
           { kind: 'source', path: './out/source' },
@@ -57,7 +54,7 @@ describe('SchemaSlugTreeFs', () => {
       ignore: ['node_modules'],
       sort: true,
       readmeAsIndex: false,
-      crdt: { docid: 'slug:test', path: '/slug' },
+      docid: 'kb',
     };
     const ok = Schema.Value.Check(SchemaSlugTreeFs, doc);
     expect(ok).to.eql(true);
@@ -65,7 +62,7 @@ describe('SchemaSlugTreeFs', () => {
 
   it('accepts slug-tree target.dir object', () => {
     const doc = {
-      crdt: { docid: 'slug:test', path: '/slug' },
+      docid: 'kb',
       target: {
         dir: { kind: 'source', path: './out/source' },
       },
@@ -76,7 +73,7 @@ describe('SchemaSlugTreeFs', () => {
 
   it('accepts slug-tree target.dir string', () => {
     const doc = {
-      crdt: { docid: 'slug:test', path: '/slug' },
+      docid: 'kb',
       target: {
         dir: './out/source',
       },
@@ -85,11 +82,11 @@ describe('SchemaSlugTreeFs', () => {
     expect(ok).to.eql(true);
   });
 
-  it('rejects slug-tree config without crdt.docid', () => {
+  it('accepts slug-tree config without docid', () => {
     const doc = {
-      crdt: { path: '/slug' },
+      source: './docs',
     };
     const ok = Schema.Value.Check(SchemaSlugTreeFs, doc);
-    expect(ok).to.eql(false);
+    expect(ok).to.eql(true);
   });
 });

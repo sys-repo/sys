@@ -17,7 +17,6 @@ describe('Lint: slug-tree:fs', () => {
       const config: t.SlugBundleFileTree = {
         source: 'src',
         docid: 'kb',
-        crdt: { docid: 'slug:test', path: '/slug' },
         target: {
           manifests: 'out/slug-tree.kb.json',
           dir: [
@@ -33,7 +32,6 @@ describe('Lint: slug-tree:fs', () => {
       await runSlugTreeFs({
         cwd: tmpDir,
         config,
-        createCrdt: async () => 'crdt:test' as t.StringRef,
       });
       await writeDistFiles(collectDistDirs.fromSlugTreeFs({ cwd: tmpDir, config }));
 
@@ -116,13 +114,13 @@ describe('Lint: slug-tree:fs', () => {
       expect(a?.hash).to.eql(Hash.sha256(String(a?.source ?? '')));
       expect(a?.name).to.eql(`${a?.hash}.json`);
       expect(a?.contentType).to.eql('text/markdown');
-      expect(a?.frontmatter.ref).to.eql('crdt:test');
+      expect(a?.frontmatter.ref).to.eql('crdt:tbd');
       expect(a?.frontmatter.title).to.eql(undefined);
       expect(String(c?.source ?? '')).to.contain('world');
       expect(c?.hash).to.eql(Hash.sha256(String(c?.source ?? '')));
       expect(c?.name).to.eql(`${c?.hash}.json`);
       expect(c?.contentType).to.eql('text/markdown');
-      expect(c?.frontmatter.ref).to.eql('crdt:test');
+      expect(c?.frontmatter.ref).to.eql('crdt:tbd');
       expect(c?.frontmatter.title).to.eql(undefined);
 
       expect((assets?.entries ?? []).length).to.eql(2);
@@ -145,7 +143,6 @@ describe('Lint: slug-tree:fs', () => {
 
       const config: t.SlugBundleFileTree = {
         source: 'src',
-        crdt: { docid: 'slug:test', path: '/slug' },
         target: {
           manifests: ['out/-manifests/slug-tree.kb.json', 'out/-manifests/slug-tree.kb.yaml'],
           dir: [
@@ -158,7 +155,6 @@ describe('Lint: slug-tree:fs', () => {
       await runSlugTreeFs({
         cwd: tmpDir,
         config,
-        createCrdt: async () => 'crdt:test' as t.StringRef,
       });
       await writeDistFiles(collectDistDirs.fromSlugTreeFs({ cwd: tmpDir, config }));
 
@@ -180,7 +176,6 @@ describe('Lint: slug-tree:fs', () => {
 
       const config: t.SlugBundleFileTree = {
         source: 'src',
-        crdt: { docid: '<tbd>' as t.StringId, path: '/slug' },
         target: {
           manifests: 'out/slug-tree.kb.json',
           dir: [{ kind: 'sha256', path: 'out/sha256' }],
@@ -189,7 +184,6 @@ describe('Lint: slug-tree:fs', () => {
       await runSlugTreeFs({
         cwd: tmpDir,
         config,
-        createCrdt: async () => 'crdt:test' as t.StringRef,
       });
 
       const assetsPath = Fs.join(tmpDir, 'out/slug-tree.kb.assets.json');

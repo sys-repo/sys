@@ -8,11 +8,6 @@ export type SlugBundleFileTree = {
   readonly source?: t.StringPath;
   /** Explicit bundle docid (used for manifest indexes). */
   readonly docid?: t.StringId;
-  /** CRDT configuration for DAG-based lookup. */
-  readonly crdt: {
-    readonly docid: t.StringId;
-    readonly path: t.StringPath;
-  };
   /** Targets for generated artifacts. */
   readonly target?: SlugBundleFileTreeTarget;
   /** File extensions to include (e.g. ".md"). */

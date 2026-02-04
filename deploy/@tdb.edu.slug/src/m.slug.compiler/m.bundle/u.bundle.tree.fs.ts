@@ -5,10 +5,9 @@ import { writeSlugFileContentIndex, writeSlugTreeSha256Dir } from './u.bundle.tr
 export async function runSlugTreeFs(args: {
   cwd: t.StringDir;
   config: t.SlugBundleFileTree;
-  createCrdt: () => Promise<t.StringRef>;
 }): Promise<t.SlugBundleFileTreeStats | undefined> {
   const startedAt = Date.now();
-  const { cwd, createCrdt, config } = args;
+  const { cwd, config } = args;
 
   const source = Fs.Tilde.expand(String(config.source ?? '.'));
   const root = Fs.Path.resolve(cwd, source || '.');
@@ -31,7 +30,7 @@ export async function runSlugTreeFs(args: {
   const ignore = config.ignore ? [...config.ignore] : undefined;
 
   const treeDoc = await SlugTree.fromDir(
-    { root, createCrdt },
+    { root, createCrdt: async () => 'crdt:tbd' as t.StringRef },
     {
       include,
       ignore,

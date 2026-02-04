@@ -10,7 +10,7 @@ describe('BundleProfile domain-free config (e2e)', () => {
         {
           kind: 'slug-tree:fs',
           include: ['.md'],
-          crdt: { docid: 'slug:kb', path: '/slug' },
+          docid: 'kb',
           source: '/repo/docs/slc-knowledge/venture-example-libraries',
           target: {
             manifests: [
@@ -51,7 +51,7 @@ describe('BundleProfile domain-free config (e2e)', () => {
 
     expect(Schema.Value.Check(SchemaBundleConfig, config)).to.eql(true);
 
-    const fsDocid = 'slug:kb' as t.StringId;
+    const fsDocid = 'kb' as t.StringId;
     const mediaDocid = 'slug:program' as t.StringId;
     const fsClean = SlugClient.Url.clean(fsDocid);
     const mediaClean = SlugClient.Url.clean(mediaDocid);
