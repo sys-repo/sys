@@ -136,7 +136,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
-        label={() => `sample: ${p.sample.value}`}
+        label={() => `sample: ${p.sample.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<SampleName | undefined>(p.sample, ['cdn', 'media', undefined])}
       />
 
