@@ -1,18 +1,9 @@
-import { type t, c, Cli, Fmt, Fs, Str, Time } from '../common.ts';
+import { type t, c, Cli, Fmt, Fs, Str } from '../common.ts';
 import { Provider } from '../u.providers/mod.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
 
 export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.EndpointRef) {
   const table = Cli.table();
-
-  const fmtTime = (ts?: t.UnixTimestamp) => {
-    if (!ts) return c.gray(c.dim('-'));
-    try {
-      return c.gray(`${String(Time.elapsed(ts))} ago`);
-    } catch {
-      return c.gray(String(ts));
-    }
-  };
 
   const childText = (label: string, isLast = false) => ` ${Fmt.Tree.branch(isLast)} ${label}`;
   const child = (label: string, isLast = false) =>
@@ -34,6 +25,8 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
 
   const mappingsCount = yaml?.mappings?.length ?? 0;
   const providerFmt = fmtProvider(yaml?.provider);
+  const providerDomain =
+    yaml?.provider?.kind === 'orbiter' ? String(yaml.provider.domain ?? '').trim() : '';
 
   let providerProbe: t.PushProbe | undefined;
   try {
@@ -49,28 +42,37 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
     childText('config'),
     childText('mappings'),
     ...(providerFmt ? [childText(providerFmt.label)] : []),
-    ...(providerFmt && providerProbe && !providerProbe.ok ? [childText('provider probe')] : []),
-    childText('created'),
-    childText('last used', true),
+    ...(providerDomain ? [childText('domain')] : []),
+    ...(providerFmt && providerProbe && !providerProbe.ok ? [childText('provider probe', true)] : []),
   ];
   const valuesIndent = baseLabels.reduce((m, s) => Math.max(m, s.length), 0) + 2;
 
-  const body: Array<[string, string]> = [
-    [c.gray('Endpoint'), c.cyan(name)],
-    [child('config'), c.gray(c.dim(file))],
-    [child('mappings'), c.gray(String(mappingsCount))],
+  const rows: Array<{ label: string; value: string }> = [
+    { label: 'config', value: c.gray(c.dim(file)) },
+    { label: 'mappings', value: c.gray(String(mappingsCount)) },
   ];
 
   if (providerFmt) {
-    body.push([child(providerFmt.label), providerFmt.value]);
+    rows.push({ label: providerFmt.label, value: providerFmt.value });
   }
+
+  if (providerDomain) {
+    rows.push({ label: 'domain', value: c.white(`https://${providerDomain}`) });
+  }
+
+  const body: Array<[string, string]> = [[c.gray('Endpoint'), c.cyan(name)]];
+
+  rows.forEach((row, index) => {
+    const isLast = index === rows.length - 1 && !(providerFmt && providerProbe && !providerProbe.ok);
+    body.push([child(row.label, isLast), row.value]);
+  });
 
   if (providerFmt && providerProbe && !providerProbe.ok) {
     const reason = String(providerProbe.reason ?? 'unavailable');
     const hint = String(providerProbe.hint ?? '').trim();
 
     // 1) main row: only the reason (yellow)
-    body.push([child('provider probe'), c.yellow(reason)]);
+    body.push([child('provider probe', true), c.yellow(reason)]);
 
     // 2) second line: install hint (dim), drawn as a nested tree line
     if (hint) {
@@ -79,8 +81,6 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
     }
   }
 
-  body.push([child('created'), fmtTime(ref.createdAt)]);
-  body.push([child('last used', true), fmtTime(ref.lastUsedAt)]);
   table.body(body);
 
   let mappingsBlock = '';

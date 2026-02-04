@@ -23,14 +23,9 @@ export function fmtProvider(
 
 function fmtProviderOrbiter(p: t.DeployTool.Config.Provider.Orbiter): t.ProviderFmt {
   const siteId = String(p.siteId ?? '');
-  const domain = String(p.domain ?? '');
 
   const shortId = siteId ? Str.ellipsize(siteId, [3, 4], '..') : '-';
-  const parts: string[] = [];
-  if (domain) parts.push(`https://${c.white(domain)}`);
-
-  const rhs = parts.length ? c.gray(`| ${parts.join(', ')}`) : '';
-  const value = `${c.cyan('orbiter')} siteId:${c.gray(shortId)} ${rhs}`.trimEnd();
+  const value = `${c.cyan('orbiter')} siteId:${c.gray(shortId)}`.trimEnd();
 
   return { label: 'provider', value };
 }

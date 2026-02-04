@@ -201,8 +201,9 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
         table.push([c.gray('  shards'), stats.shard]);
         if (stats.base) table.push([c.gray('base'), stats.base]);
         if (stats.skippedShards) table.push([c.yellow('skipped'), stats.skippedShards]);
-        console.info(c.green('Pushed'));
-        console.info(String(table));
+        console.info(c.green('\nPushed'));
+        console.info(Str.trimEdgeNewlines(String(table)));
+        console.info();
       }
 
       continue;
