@@ -8,8 +8,5 @@ import { createController as controller } from './u.controller.ts';
 
 export const MyCtrl: t.MyCtrlLib = {
   controller,
-  UI: {
-    Controlled,
-    Uncontrolled,
-  },
+  UI: { Controlled, Uncontrolled },
 };
