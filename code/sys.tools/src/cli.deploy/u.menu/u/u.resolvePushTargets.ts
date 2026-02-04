@@ -1,6 +1,6 @@
-import { type t, Fs, Is, Obj, Path } from './common.ts';
-import { resolvePushStagingDir } from './u.resolvePushStagingDir.ts';
 import { includesShardTemplate, resolveShardTemplate } from '../../u.shardTemplate.ts';
+import { type t, c, Fs, Is, Obj, Path } from './common.ts';
+import { resolvePushStagingDir } from './u.resolvePushStagingDir.ts';
 
 export type PushTarget = {
   readonly provider: t.DeployTool.Config.Provider.Orbiter;
@@ -23,13 +23,23 @@ export async function resolvePushTargets(args: {
 
   const shardMappings: t.DeployTool.Config.EndpointYaml.Mapping[] = [];
   const baseMappings: t.DeployTool.Config.EndpointYaml.Mapping[] = [];
+  const indexMappings: t.DeployTool.Config.EndpointYaml.Mapping[] = [];
 
   for (const mapping of mappings) {
+    if (mapping.mode === 'index') {
+      indexMappings.push(mapping);
+      continue;
+    }
     const source = String(mapping.dir.source ?? '').trim();
     const staging = String(mapping.dir.staging ?? '').trim();
     const hasTemplate = includesShardTemplate(source) || includesShardTemplate(staging);
     if (hasTemplate) shardMappings.push(mapping);
     else baseMappings.push(mapping);
+  }
+
+  if (indexMappings.length > 1) {
+    const msg = 'Deploy: multiple index mappings found; using the first for root push.';
+    console.info(c.yellow(msg));
   }
 
   if (shardMappings.length === 0) {
@@ -49,6 +59,18 @@ export async function resolvePushTargets(args: {
     targets.push({ provider, stagingDir: stagingAbs });
   }
 
+  const indexMapping = indexMappings[0];
+  if (indexMapping) {
+    const stagingRel = String(indexMapping.dir.staging ?? '').trim() || '.';
+    const stagingAbs = Path.resolve(stagingRootAbs, stagingRel);
+    if (await Fs.exists(stagingAbs)) {
+      if (!seen.has(stagingAbs)) {
+        seen.add(stagingAbs);
+        targets.push({ provider, stagingDir: stagingAbs });
+      }
+    }
+  }
+
   const shardConfig = provider.shards;
   const siteIds = shardConfig?.siteIds;
   const total = shardConfig?.total;
@@ -57,9 +79,7 @@ export async function resolvePushTargets(args: {
 
   const only = shardConfig?.only ?? [];
   const indices =
-    only.length > 0
-      ? only
-      : Obj.keys(siteIds).map((key) => Number.parseInt(String(key), 10));
+    only.length > 0 ? only : Obj.keys(siteIds).map((key) => Number.parseInt(String(key), 10));
 
   for (const shard of indices) {
     if (!Is.num(shard) || !Number.isInteger(shard)) continue;
@@ -74,7 +94,12 @@ export async function resolvePushTargets(args: {
       if (!(await Fs.exists(stagingAbs))) continue;
       const providerForShard = { ...provider, siteId };
       const shardDomain = baseDomain ? `${shard}.${baseDomain}` : undefined;
-      targets.push({ provider: providerForShard, stagingDir: stagingAbs, shard, domain: shardDomain });
+      targets.push({
+        provider: providerForShard,
+        stagingDir: stagingAbs,
+        domain: shardDomain,
+        shard,
+      });
     }
   }
 

@@ -63,6 +63,48 @@ describe('Deploy: resolvePushTargets', () => {
     });
   });
 
+  it('adds root target for index mapping when shard targets exist', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/staging/shard.1`);
+      await Fs.ensureDir(`${tmp}/staging/-root`);
+
+      const res = await resolvePushTargets({
+        cwd: tmp as t.StringDir,
+        yaml: {
+          provider: {
+            kind: 'orbiter',
+            siteId: 'base',
+            domain: 'example.com',
+            shards: { total: 2, siteIds: { 1: 'site-1' } },
+          },
+          staging: { dir: './staging' },
+          mappings: [
+            {
+              mode: 'copy',
+              dir: {
+                source: './video/partition-<shard>',
+                staging: './shard.<shard>',
+              },
+            },
+            {
+              mode: 'index',
+              dir: {
+                source: '.',
+                staging: './-root',
+              },
+            },
+          ],
+        },
+      });
+
+      const root = res.find((target) => target.stagingDir.endsWith('/-root'));
+      const shard = res.find((target) => target.shard === 1);
+
+      expect(root?.provider.siteId).to.eql('base');
+      expect(shard?.provider.siteId).to.eql('site-1');
+    });
+  });
+
   it('filters shard targets when only list is provided', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/staging/shard.1`);
