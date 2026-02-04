@@ -107,7 +107,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Button
         block
-        label={() => `kind: ${p.env.value}`}
+        label={() => `env: ${p.env.value}`}
         onClick={() => Signal.cycle<t.HttpOriginEnv>(p.env, ['localhost', 'production'])}
       />
 

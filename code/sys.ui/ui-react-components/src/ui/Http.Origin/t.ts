@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /** Type re-exports. */
-export type * from './t.origin.ts';
+export type * from './t.data.ts';
 
 /** HTTP origin environment (e.g. localhost, production). */
 export const HTTP_ORIGIN_ENVS = ['localhost', 'production'] as const;
@@ -12,6 +12,7 @@ export type HttpOriginDefaults = Partial<Record<HttpOriginEnv, t.HttpOriginMap>>
  * HttpOrigin UI Display.
  */
 export type HttpOriginLib = {
+  readonly Data: t.HttpOriginDataLib;
   readonly controller: t.HttpOriginControllerFactory;
   readonly UI: {
     readonly Uncontrolled: t.FC<t.HttpOriginProps>;
