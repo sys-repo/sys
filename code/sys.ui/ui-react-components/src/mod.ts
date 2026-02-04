@@ -18,6 +18,7 @@ export { Buttons } from './ui/Buttons/mod.ts';
 export { Cropmarks } from './ui/Cropmarks/mod.ts';
 export { ErrorBoundary } from './ui/ErrorBoundary/mod.ts';
 export { FadeElement } from './ui/FadeElement/mod.ts';
+export { HttpOrigin } from './ui/Http.Origin/mod.ts';
 export { IconSwatches } from './ui/Icon.Swatches/mod.ts';
 export { Icon } from './ui/Icon/mod.ts';
 export { IFrame } from './ui/IFrame/mod.ts';
