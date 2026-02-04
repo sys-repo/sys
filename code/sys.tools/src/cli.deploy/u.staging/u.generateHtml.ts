@@ -53,7 +53,7 @@ async function directories(root: t.StringDir) {
     res.push({ abs, rel, dist, hasIndex, hasDistJson });
   }
 
-  return res;
+  return res.toSorted((a, b) => compareDirName(a.rel, b.rel));
 }
 
 function renderHtml(dirs: TDir[], baseDomain?: string): string {
@@ -91,6 +91,15 @@ function parseShardIndex(input: string): number | undefined {
   if (!m) return undefined;
   const value = Number.parseInt(m[1]!, 10);
   return Number.isFinite(value) ? value : undefined;
+}
+
+function compareDirName(a: string, b: string): number {
+  const left = Str.trimLeadingDotSlash(a);
+  const right = Str.trimLeadingDotSlash(b);
+  const aShard = parseShardIndex(left);
+  const bShard = parseShardIndex(right);
+  if (aShard !== undefined && bShard !== undefined) return aShard - bShard;
+  return left.localeCompare(right);
 }
 
 const MARKER = '@sys/tools: index';

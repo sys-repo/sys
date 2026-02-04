@@ -177,6 +177,25 @@ describe('Staging: executeStaging', () => {
     });
   });
 
+  it('index: sorts shard directories naturally', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/stage/shard.1`);
+      await Fs.ensureDir(`${tmp}/stage/shard.11`);
+      await Fs.ensureDir(`${tmp}/stage/shard.2`);
+
+      const dir = { source: '.', staging: 'dist/root' };
+      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'index', dir }] });
+
+      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
+      const html = String(index.data ?? '');
+      const a = html.indexOf('href="./shard.1/"');
+      const b = html.indexOf('href="./shard.2/"');
+      const c = html.indexOf('href="./shard.11/"');
+      expect(a < b).to.eql(true);
+      expect(b < c).to.eql(true);
+    });
+  });
+
   it('index: runs after copy and sees staged outputs', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src/shard.1`);
