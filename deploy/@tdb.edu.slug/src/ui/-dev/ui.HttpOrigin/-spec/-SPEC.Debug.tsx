@@ -19,7 +19,7 @@ const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   kind: 'localhost',
-  controlled: false,
+  controlled: true,
 };
 
 /**
