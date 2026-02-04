@@ -61,6 +61,7 @@ Hostname layout:
             slc.db.team
         cdn.slc.db.team            ← staging.cdn/slc/default/*
   video.cdn.slc.db.team            ← staging.cdn/slc/video/*
+0.video.cdn.slc.db.team            ← staging.cdn/slc/video/<shard>.shard - { shards: 64 } | 0..63
 
             |
 
