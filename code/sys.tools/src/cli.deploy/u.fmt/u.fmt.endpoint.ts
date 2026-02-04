@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fmt, Fs, Str } from '../common.ts';
+import { type t, c, Cli, Fmt, Fs, Is, Str } from '../common.ts';
 import { Provider } from '../u.providers/mod.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
 
@@ -24,6 +24,12 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   }
 
   const mappingsCount = yaml?.mappings?.length ?? 0;
+  const shardTotal =
+    yaml?.provider?.kind === 'orbiter' ? yaml?.provider?.shards?.total : undefined;
+  const mappingsLabel =
+    Is.num(shardTotal) && Number.isFinite(shardTotal) && shardTotal > 0
+      ? `${mappingsCount} over ${shardTotal}-shards`
+      : String(mappingsCount);
   const providerFmt = fmtProvider(yaml?.provider);
   const providerDomain =
     yaml?.provider?.kind === 'orbiter' ? String(yaml.provider.domain ?? '').trim() : '';
@@ -49,7 +55,7 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
 
   const rows: Array<{ label: string; value: string }> = [
     { label: 'config', value: c.gray(c.dim(file)) },
-    { label: 'mappings', value: c.gray(String(mappingsCount)) },
+    { label: 'mappings', value: c.gray(mappingsLabel) },
   ];
 
   if (providerFmt) {
