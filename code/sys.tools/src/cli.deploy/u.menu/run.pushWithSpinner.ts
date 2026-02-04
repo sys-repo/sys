@@ -38,7 +38,16 @@ export async function runPushWithSpinner(args: {
 
   if (res.ok) {
     const elapsed = Time.elapsed(started).toString();
-    spin.succeed(Fmt.spinnerText(c.green(`push complete (elapsed ${elapsed})`)));
+    const summary = `elapsed ${elapsed}${bytes ? `, ${Str.bytes(bytes)}` : ''}`;
+    const url = providerLabel ? `https://${providerLabel}` : '';
+    const status = [
+      c.green('push complete'),
+      c.gray(`(${summary})`),
+      url ? c.white(url) : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+    spin.succeed(Fmt.spinnerText(status));
     return { ok: true, elapsed, bytes };
   }
 
