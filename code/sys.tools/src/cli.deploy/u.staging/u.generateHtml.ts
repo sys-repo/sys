@@ -75,8 +75,8 @@ function renderHtml(dirs: TDir[]): string {
     })
     .join('\n');
 
-  const list = items ? `${items}\n${indent}<hr />` : `${indent}<hr />`;
-  return TEMPLATE.replace('__LIST__', list);
+  const list = items ? `${items}\n${indent}<hr />\n` : '';
+  return TEMPLATE.replace('__LIST__\n', list);
 }
 
 const MARKER = '@sys/tools staging index';
