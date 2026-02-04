@@ -1,10 +1,12 @@
-import { type t, Fs, Path } from './common.ts';
+import { type t, Fs } from './common.ts';
 import { Provider } from '../../u.providers/mod.ts';
+import { resolvePushTargets } from './u.resolvePushTargets.ts';
 
 type Reason =
   | 'yaml-invalid'
   | 'no-provider'
   | 'noop-provider'
+  | 'no-push-targets'
   | 'no-staging-output'
   | 'probe-failed';
 
@@ -75,37 +77,18 @@ export async function pushCapabilityOf(args: {
    * Before: we incorrectly resolved `m.dir.staging` directly under `cwd`,
    * which breaks multi-mapping endpoints (e.g. "./staging" + "./ui.components").
    */
-  const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
-  const stagingRootAbs = Path.resolve(cwd, stagingRootRel);
-
-  const mappings = yaml?.mappings ?? [];
-  const stagingAbs = [
-    ...new Set(
-      mappings.map((m) => {
-        const rel = String(m.dir.staging ?? '').trim() || '.';
-        return Path.resolve(stagingRootAbs, rel);
-      }),
-    ),
-  ];
-
-  const exists = await Promise.all(
-    stagingAbs.map(async (p) => {
-      try {
-        return (await Fs.exists(p)) ? p : undefined;
-      } catch {
-        return undefined;
-      }
-    }),
-  );
-
-  const stagingDirs = exists.filter(Boolean) as readonly t.StringDir[];
+  const targets = await resolvePushTargets({ cwd, yaml });
+  const stagingAbs = [...new Set(targets.map((t) => t.stagingDir))];
+  const stagingDirs = stagingAbs.filter(Boolean) as readonly t.StringDir[];
 
   // Show push only when staging output exists.
   if (!stagingDirs.length) {
     return {
       show: false,
-      reason: 'no-staging-output',
-      hint: 'Run staging first (no staging output found).',
+      reason: targets.length ? 'no-staging-output' : 'no-push-targets',
+      hint: targets.length
+        ? 'Run staging first (no staging output found).'
+        : 'No deploy targets (missing provider.shards.siteIds for shard mappings).',
     };
   }
 

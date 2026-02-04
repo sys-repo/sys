@@ -18,11 +18,11 @@ describe('Deploy: resolveMappingsForStaging', () => {
           mappings: [
             {
               mode: 'copy',
+              shards: { total: 3 },
               dir: {
                 source: './video/partition-<shard>',
                 staging: './<shard>.video.cdn.example',
               },
-              shards: { total: 3 },
             },
           ],
         },
@@ -106,11 +106,11 @@ describe('Deploy: resolveMappingsForStaging', () => {
         mappings: [
           {
             mode: 'copy',
+            shards: { total: 5 },
             dir: {
               source: './video/program',
               staging: './video.cdn.example',
             },
-            shards: { total: 5 },
           },
         ],
       },

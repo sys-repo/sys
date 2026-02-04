@@ -10,6 +10,7 @@ import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
 import { resolveMappingsForStaging } from './u/u.resolveMappingsForStaging.ts';
+import { resolvePushTargets } from './u/u.resolvePushTargets.ts';
 import { resolvePushStagingDir } from './u/u.resolvePushStagingDir.ts';
 
 type Pick = { readonly kind: 'back' } | { readonly kind: 'deleted'; readonly key: string };
@@ -144,32 +145,47 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
       if (!provider) continue;
 
-      const res = await runPushWithSpinner({
-        cwd,
-        provider,
-        stagingDir: stagingRootAbs,
-      });
-
-      if (res.ok) {
-        pushedOk = true;
-        pushElapsed = res.elapsed;
-        continue;
-      }
-
-      {
-        const hint = String(res.hint ?? '').trim();
+      const targets = await resolvePushTargets({ cwd, yaml });
+      if (!targets.length) {
         const b = Str.builder()
-          .line(c.red('Push failed'))
-          .line(c.gray(c.dim(`provider: ${String(provider.kind)}`)))
-          .line(c.gray(c.dim(`staging root: ${stagingRootRel || '.'}`)))
-          .line(c.gray(c.dim(`mapping.staging: ${mappingStagingRel || '(none)'}`)))
-          .blank();
-
-        if (hint) b.line(c.gray(hint));
-
+          .line(c.yellow('Push skipped'))
+          .line(c.gray(c.dim('No deploy targets (missing provider.shards.siteIds).')));
         console.info(String(b));
         continue;
       }
+
+      let okCount = 0;
+      for (const target of targets) {
+        const res = await runPushWithSpinner({
+          cwd,
+          provider: target.provider,
+          stagingDir: target.stagingDir,
+        });
+
+        if (!res.ok) {
+          const hint = String(res.hint ?? '').trim();
+          const b = Str.builder()
+            .line(c.red('Push failed'))
+            .line(c.gray(c.dim(`provider: ${String(provider.kind)}`)))
+            .line(c.gray(c.dim(`staging root: ${stagingRootRel || '.'}`)))
+            .line(c.gray(c.dim(`mapping.staging: ${mappingStagingRel || '(none)'}`)))
+            .blank();
+
+          if (hint) b.line(c.gray(hint));
+
+          console.info(String(b));
+          break;
+        }
+
+        okCount += 1;
+        pushElapsed = res.elapsed;
+      }
+
+      if (okCount === targets.length && targets.length > 0) {
+        pushedOk = true;
+      }
+
+      continue;
     }
 
     if (picked === 'stage') {
