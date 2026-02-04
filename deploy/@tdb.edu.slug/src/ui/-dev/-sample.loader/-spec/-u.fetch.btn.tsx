@@ -1,10 +1,14 @@
-import { type t, Button, Signal, Obj } from '../common.ts';
+import { type t, Button, Signal } from './-common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 export type FetchAction = (e: FetchActionArgs) => Promise<void>;
 export type FetchActionArgs = {
   readonly local: boolean;
   readonly origin: t.SlugLoaderOrigin;
+  readonly baseUrl?: t.StringUrl;
+  readonly manifestsDir?: t.StringDir;
+  readonly docid?: t.StringId;
+  readonly hash?: string;
   result(value: unknown): void;
 };
 
