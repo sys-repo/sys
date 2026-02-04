@@ -1,4 +1,4 @@
-import { type t, c, Cli, Path, Pkg, Str, Time } from '../common.ts';
+import { type t, c, Cli, Is, Path, Pkg, Str, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { pushProvider } from '../u.push/u.push.ts';
 
@@ -14,12 +14,19 @@ export async function runPushWithSpinner(args: {
   cwd: t.StringDir;
   provider: t.DeployTool.Config.Provider.All;
   stagingDir: t.StringDir;
+  shard?: number;
 }): Promise<RunPushResult> {
   const spin = Cli.spinner();
   const dist = (await Pkg.Dist.load(Path.join(args.stagingDir, '.'))).dist;
   const bytes = dist?.build.size.total ?? 0;
 
-  let pushing = `Pushing to ${c.white(args.provider.kind)}`;
+  const shardLabel = Is.num(args.shard) ? `shard-${args.shard}` : undefined;
+  const domain =
+    args.provider.kind === 'orbiter' ? String(args.provider.domain ?? '').trim() : '';
+  const providerLabel = domain || args.provider.kind;
+  let pushing = shardLabel
+    ? `Pushing ${shardLabel} to ${c.white(providerLabel)}`
+    : `Pushing to ${c.white(providerLabel)}`;
   if (bytes) pushing += ` (${Str.bytes(bytes)})`;
 
   const started = Time.now.timestamp;
