@@ -1,6 +1,9 @@
 import { type t, Fs, Pkg, Str } from '../common.ts';
 import { TEMPLATE } from './u.generateHtml.tmpl.ts';
 
+const MARKER = '@sys/tools: index';
+const MARKER_TOKEN = `<!-- ${MARKER} -->`;
+
 type TDir = {
   readonly abs: t.StringDir;
   readonly rel: t.StringDir;
@@ -53,13 +56,13 @@ async function directories(root: t.StringDir) {
     res.push({ abs, rel, dist, hasIndex, hasDistJson });
   }
 
-  return res.toSorted((a, b) => compareDirName(a.rel, b.rel));
+  const compare = Str.Compare.natural();
+  return res.toSorted((a, b) => compareDirName(compare, a.rel, b.rel));
 }
 
 function renderHtml(dirs: TDir[], baseDomain?: string): string {
   const indent = ' '.repeat(8);
   const domain = String(baseDomain ?? '').trim();
-
   const items = dirs
     .map((dir) => {
       const trimmed = Str.trimLeadingDotSlash(dir.rel);
@@ -93,17 +96,9 @@ function parseShardIndex(input: string): number | undefined {
   return Number.isFinite(value) ? value : undefined;
 }
 
-function compareDirName(a: string, b: string): number {
-  const left = Str.trimLeadingDotSlash(a);
-  const right = Str.trimLeadingDotSlash(b);
-  const aShard = parseShardIndex(left);
-  const bShard = parseShardIndex(right);
-  if (aShard !== undefined && bShard !== undefined) return aShard - bShard;
-  return left.localeCompare(right);
+function compareDirName(compare: (a: string, b: string) => number, a: string, b: string): number {
+  return compare(Str.trimLeadingDotSlash(a), Str.trimLeadingDotSlash(b));
 }
-
-const MARKER = '@sys/tools: index';
-const MARKER_TOKEN = `<!-- ${MARKER} -->`;
 
 const shouldOverwrite = async (target: string, force: boolean): Promise<boolean> => {
   if (!force) return false;
