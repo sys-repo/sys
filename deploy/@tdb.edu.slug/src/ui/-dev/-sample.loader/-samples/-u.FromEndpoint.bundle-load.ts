@@ -7,7 +7,7 @@ export const SampleBundle: t.FetchSample = {
    * Load bundle manifest.
    */
   async run(e) {
-    const basePath = e.local ? 'staging/cdn.slc.db.team/kb' : 'kb';
+    const basePath = e.is.local ? 'staging/cdn.slc.db.team/kb' : 'kb';
     const manifestsDir = '-manifests';
     const origin = e.origin.cdn.default;
     const descriptor = await SlugClient.FromEndpoint.Descriptor.load(
@@ -17,7 +17,10 @@ export const SampleBundle: t.FetchSample = {
     if (!descriptor.ok) return e.result(descriptor);
     const docid = descriptor.value.bundles[0]?.docid;
     if (!docid) {
-      return e.result({ ok: false, error: { kind: 'schema', message: 'Missing docid in descriptor.' } });
+      return e.result({
+        ok: false,
+        error: { kind: 'schema', message: 'Missing docid in descriptor.' },
+      });
     }
     const baseUrl = Url.parse(origin).join(basePath);
     const res = await SlugClient.FromEndpoint.Bundle.load(baseUrl, docid, {

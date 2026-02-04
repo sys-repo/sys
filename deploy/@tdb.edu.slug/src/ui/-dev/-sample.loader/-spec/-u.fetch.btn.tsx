@@ -18,8 +18,8 @@ export function fetchButton(debug: t.DebugSignals, label: string, fn: t.FetchAct
         p.spinning.value = true;
 
         await fn({
-          local,
           origin,
+          is: { local },
           result: (value) => (p.response.value = value),
         });
 

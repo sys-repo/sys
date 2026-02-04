@@ -7,7 +7,7 @@ export const SampleFileContentGet: t.FetchSample = {
    * Load file-content by hash.
    */
   async run(e) {
-    const basePath = e.local ? 'staging/cdn.slc.db.team/kb' : 'kb';
+    const basePath = e.is.local ? 'staging/cdn.slc.db.team/kb' : 'kb';
     const manifestsDir = '-manifests';
     const origin = e.origin.cdn.default;
     const descriptor = await SlugClient.FromEndpoint.Descriptor.load(
@@ -17,7 +17,10 @@ export const SampleFileContentGet: t.FetchSample = {
     if (!descriptor.ok) return e.result(descriptor);
     const docid = descriptor.value.bundles[0]?.docid;
     if (!docid) {
-      return e.result({ ok: false, error: { kind: 'schema', message: 'Missing docid in descriptor.' } });
+      return e.result({
+        ok: false,
+        error: { kind: 'schema', message: 'Missing docid in descriptor.' },
+      });
     }
     const baseUrl = Url.parse(origin).join(basePath);
     const index = await SlugClient.FromEndpoint.FileContent.index(baseUrl, docid, {
@@ -26,7 +29,10 @@ export const SampleFileContentGet: t.FetchSample = {
     if (!index.ok) return e.result(index);
     const hash = index.value.entries[0]?.hash;
     if (!hash) {
-      return e.result({ ok: false, error: { kind: 'schema', message: 'Missing hash in file-content index.' } });
+      return e.result({
+        ok: false,
+        error: { kind: 'schema', message: 'Missing hash in file-content index.' },
+      });
     }
     const res = await SlugClient.FromEndpoint.FileContent.get(baseUrl, hash);
     e.result(res);
