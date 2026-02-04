@@ -34,6 +34,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
   let ranOk = false;
   let pushedOk = false;
   let pushElapsed: string | undefined;
+  let pushShards: number | undefined;
 
   while (true) {
     const yamlRel = `${EndpointsFs.dir}/${key}${EndpointsFs.ext}`;
@@ -115,6 +116,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       showPush,
       pushedOk,
       pushElapsed,
+      pushShards,
       hashPrefix,
       stageAge,
       stageSize,
@@ -184,6 +186,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
 
       if (okCount === targets.length && targets.length > 0) {
         pushedOk = true;
+        pushShards = targets.filter((t) => Is.num(t.shard)).length || undefined;
       }
 
       continue;
@@ -251,6 +254,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       ranOk = false;
       pushedOk = false;
       pushElapsed = undefined;
+      pushShards = undefined;
       continue;
     }
 
